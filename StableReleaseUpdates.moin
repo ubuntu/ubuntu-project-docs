@@ -6,12 +6,32 @@ In contrast to pre-release versions, official releases of Ubuntu are subject to 
 
 Users of the official release, in contrast, expect a high degree of stability.  They use their Ubuntu system for their day-to-day work, and problems they experience with it can be extremely disruptive.  Many of them are less experienced with Ubuntu and with Linux, and expect a reliable system which does not require their intervention.
 
-Therefore, when changes are necessary, both a strong rationale and a low risk of regressions must be provided in order to avoid exposing users to inappropriate risks.
+Stable release updates are automatically recommended to a very large number of users, and so it is critically important to treat them with great caution.  Therefore, when updates are proposed, they must be accompanied by a strong rationale and present a low risk of regressions.
 
 == When ==
 
-guidelines/criteria
+Stable release updates will, in general, only be issued in order to fix "high-impact" bugs.  Examples of such bugs include:
+
+ * Security vulnerabilities
+ * Severe regressions from the previous release of Ubuntu
+ * Bugs which may, under realistic circumstances, directly cause user data to be lost
 
 == How ==
 
-update procedure
+ 1. Proposing the update
+ 
+  All proposals for stable release updates must first be discussed with XXX and be approved by XXX.  Proposals must be accompanied by the following information for each bug to be addressed:
+
+   * A bug number referring to a complete bug report describing the problem and its effect
+   * A statement explaining the impact of the bug on users and justification for backporting the fix to the stable release
+   * An explanation of how the bug has been addressed in the development branch, including the relevant version numbers of packages modified in order to implement the fix
+
+  A copy of this proposal and a hyperlink to the resulting discussion thread should be added to the bug report as a comment, usually by CCing ''bugnumber''`@bugs.launchpad.net`.
+
+ 2. Preparing the update
+
+  Once an update has been discussed and approved in principle, a patch may be prepared for the stable release.  The following criteria apply to any packages modified as part of the update:
+
+   * The changelog entry and resulting .changes file must include a reference to the corresponding bug report(s)
+   * The version number must be carefully checked in order to avoid clashing with any other version of the package, past, present or future
+   * The upload target should be ''release''`-proposed`
