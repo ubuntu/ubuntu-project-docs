@@ -18,7 +18,7 @@ Stable release updates will, in general, only be issued in order to fix "high-im
 
 == How ==
 
- 1. Proposing the update
+ 1. Proposing
  
   All proposals for stable release updates must first be discussed with XXX and be approved by XXX.  Proposals must be accompanied by the following information for each bug to be addressed:
 
@@ -28,10 +28,25 @@ Stable release updates will, in general, only be issued in order to fix "high-im
 
   A copy of this proposal and a hyperlink to the resulting discussion thread should be added to the bug report as a comment, usually by CCing ''bugnumber''`@bugs.launchpad.net`.
 
- 2. Preparing the update
+ 2. Preparing
 
-  Once an update has been discussed and approved in principle, a patch may be prepared for the stable release.  The following criteria apply to any packages modified as part of the update:
+  Once an update has been discussed and approved in principle, a patch should be prepared for the stable release.  The following criteria apply to any packages modified as part of the update:
 
-   * The changelog entry and resulting .changes file must include a reference to the corresponding bug report(s)
-   * The version number must be carefully checked in order to avoid clashing with any other version of the package, past, present or future
+   * The changelog entry and resulting .changes file must include a reference to the corresponding bug report(s), including the approved proposal
+   * The version number(s) must be carefully checked in order to avoid clashing with any other version of the package, past, present or future
    * The upload target should be ''release''`-proposed`
+   * XXX more standard checklist items here
+
+  Uploads which do not meet these criteria will be rejected by an archive administrator and not published.
+
+ 3. Testing
+
+  Once the update has been uploaded to `-proposed` and built, it can be reviewed and tested by a wider audience.  A copy of the complete source package delta (debdiff) should be attached to the bug report for review.  XXX uploader, peer, community
+
+ 4. Releasing
+
+  XXX re-upload to -updates with no changes other than changelog, final signoff
+
+ 5. Following up
+
+  XXX monitor Malone for regressions, regression response procedure
