@@ -1,0 +1,17 @@
+Once an Ubuntu release has been completed and published, updates for it are only released under certain circumstances, and must follow a special procedure.
+
+== Why ==
+
+In contrast to pre-release versions, official releases of Ubuntu are subject to much wider use, and by a different demographic of user.  During development, changes to the distribution primarily affect developers, early adopters and other advanced users, all of whom have elected to use pre-release software at their own risk.
+
+Users of the official release, in contrast, expect a high degree of stability.  They use their Ubuntu system for their day-to-day work, and problems they experience with it can be extremely disruptive.  Many of them are less experienced with Ubuntu and with Linux, and expect a reliable system which does not require their intervention.
+
+Therefore, when changes are necessary, both a strong rationale and a low risk of regressions must be provided in order to avoid exposing users to inappropriate risks.
+
+== When ==
+
+guidelines/criteria
+
+== How ==
+
+update procedure
