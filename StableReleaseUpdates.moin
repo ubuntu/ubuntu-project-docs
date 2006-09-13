@@ -12,41 +12,57 @@ Stable release updates are automatically recommended to a very large number of u
 
 Stable release updates will, in general, only be issued in order to fix "high-impact" bugs.  Examples of such bugs include:
 
- * Security vulnerabilities
- * Severe regressions from the previous release of Ubuntu
+ * Bugs which may, under realistic circumstances, directly cause a security vulnerability
  * Bugs which may, under realistic circumstances, directly cause user data to be lost
+ * Severe regressions from the previous release of Ubuntu
 
 == How ==
 
- 1. Proposing
+ 1. Propose
  
   All proposals for stable release updates must first be discussed with XXX and be approved by XXX.  Proposals must be accompanied by the following information for each bug to be addressed:
 
    * A bug number referring to a complete bug report describing the problem and its effect
    * A statement explaining the impact of the bug on users and justification for backporting the fix to the stable release
    * An explanation of how the bug has been addressed in the development branch, including the relevant version numbers of packages modified in order to implement the fix
+   * A patch applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to discuss the first three items before preparing a patch.
 
   A copy of this proposal and a hyperlink to the resulting discussion thread should be added to the bug report as a comment, usually by CCing ''bugnumber''`@bugs.launchpad.net`.
 
- 2. Preparing
+ 1. Prepare
 
-  Once an update has been discussed and approved in principle, a patch should be prepared for the stable release.  The following criteria apply to any packages modified as part of the update:
+  Once an update has been discussed and approved in principle, an upload can be prepared.  The following criteria apply to any packages modified as part of the update:
 
-   * The changelog entry and resulting .changes file must include a reference to the corresponding bug report(s), including the approved proposal
+   * The changelog entry and resulting .changes file must include a reference to the corresponding bug report(s)
+   * The bug report must include an approved SRU proposal
    * The version number(s) must be carefully checked in order to avoid clashing with any other version of the package, past, present or future
-   * The upload target should be ''release''`-proposed`
-   * XXX more standard checklist items here
+   * The upload target must be ''release''`-proposed`
 
-  Uploads which do not meet these criteria will be rejected by an archive administrator and not published.
+  Uploads which do not meet these criteria will be '''rejected''' by an archive administrator and not published.  Once the upload is ready, attach a complete source package diff (`debdiff`) to the bug report for review.
 
- 3. Testing
+ 1. Upload
 
-  Once the update has been uploaded to `-proposed` and built, it can be reviewed and tested by a wider audience.  A copy of the complete source package delta (debdiff) should be attached to the bug report for review.  XXX uploader, peer, community
+  The upload will be reviewed by the archive administrators, and approved if it meets the above criteria.  Archive administrators should verify that the package delta matches the debdiff attached to the bug report.
 
- 4. Releasing
+ 1. Test
 
-  XXX re-upload to -updates with no changes other than changelog, final signoff
+  Once the update has been published in `-proposed`, it can be tested by a wider audience.
 
- 5. Following up
+  * Notify XXX of the availability of this package for testing
+  * Test the package yourself
+  * If the update has the potential for hardware-specific effects, request a hardware support regression test via the QA team (for example, kernel updates)
 
-  XXX monitor Malone for regressions, regression response procedure
+ 1. Release
+
+  If testing is successful, you may prepare a second upload to ''release''`-updates`:
+
+  * Include a changelog entry with:
+   * A new version number (the same cautions apply regarding the choice of version number)
+   * Confirmation of the above testing, including the name of the tester in each case
+  * Make no other changes relative to the version in `-proposed`
+
+ 1. Following up
+
+  * Add yourself as a bug contact for the package in Launchpad, if you are not one already
+  * For several days after the update is released, monitor Launchpad for bug reports relating to the update
+  * In the event of a regression, immediately notify XXX.
