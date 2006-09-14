@@ -10,7 +10,7 @@ Stable release updates are automatically recommended to a very large number of u
 
 == When ==
 
-Stable release updates will, in general, only be issued in order to fix "high-impact" bugs.  Examples of such bugs include:
+Stable release updates will, in general, only be issued in order to fix '''high-impact bugs'''.  Examples of such bugs include:
 
  * Bugs which may, under realistic circumstances, directly cause a '''security vulnerability'''
  * Bugs which represent '''severe regressions''' from the previous release of Ubuntu
@@ -18,9 +18,11 @@ Stable release updates will, in general, only be issued in order to fix "high-im
 
 == How ==
 
+This process is to be followed for all updates '''except''' those to fix security updates, which are only released by the Ubuntu security team.  Security procedures are documented at SecurityUpdateProcedures.
+
  1. Propose
  
-  All proposals for stable release updates must first be '''discussed''' with XXX and be approved by XXX.  SRU proposals must be accompanied by the following information for each bug to be addressed:
+  All proposals for stable release updates must be '''approved''' by Matt Zimmerman or Colin Watson.  SRU proposals must be accompanied by the following information for each bug to be addressed:
 
    * A '''bug number''' referring to a complete bug report describing the problem and its effect
    * A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
