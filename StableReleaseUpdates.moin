@@ -54,12 +54,14 @@ Stable release updates will, in general, only be issued in order to fix "high-im
 
  1. Release
 
-  If testing is successful, you may prepare a second upload to ''release''`-updates`:
+  After successful testing and a minimum aging period of 7 days, you may prepare a second upload to ''release''`-updates`:
 
   * Include a changelog entry with:
    * A new version number (the same cautions apply regarding the choice of version number)
    * Confirmation of the above testing, including the name of the tester in each case
   * Make no other changes relative to the version in `-proposed`
+
+  The archive administrators must verify that uploads to `-updates` meet these criteria.  In the future, the update from `-proposed` will be copied verbatim instead, once the necessary infrastructure is available.
 
  1. Following up
 
