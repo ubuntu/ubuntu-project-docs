@@ -12,20 +12,20 @@ Stable release updates are automatically recommended to a very large number of u
 
 Stable release updates will, in general, only be issued in order to fix "high-impact" bugs.  Examples of such bugs include:
 
- * Bugs which may, under realistic circumstances, directly cause a security vulnerability
- * Bugs which may, under realistic circumstances, directly cause user data to be lost
- * Severe regressions from the previous release of Ubuntu
+ * Bugs which may, under realistic circumstances, directly cause a '''security vulnerability'''
+ * Bugs which represent '''severe regressions''' from the previous release of Ubuntu
+ * Bugs which may, under realistic circumstances, directly cause a '''loss of user data'''
 
 == How ==
 
  1. Propose
  
-  All proposals for stable release updates must first be discussed with XXX and be approved by XXX.  Proposals must be accompanied by the following information for each bug to be addressed:
+  All proposals for stable release updates must first be '''discussed''' with XXX and be approved by XXX.  SRU proposals must be accompanied by the following information for each bug to be addressed:
 
-   * A bug number referring to a complete bug report describing the problem and its effect
-   * A statement explaining the impact of the bug on users and justification for backporting the fix to the stable release
-   * An explanation of how the bug has been addressed in the development branch, including the relevant version numbers of packages modified in order to implement the fix
-   * A patch applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to discuss the first three items before preparing a patch.
+   * A '''bug number''' referring to a complete bug report describing the problem and its effect
+   * A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
+   * An explanation of '''how the bug has been addressed''' in the development branch, including the relevant version numbers of packages modified in order to implement the fix
+   * A '''patch''' applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to discuss the first three items before preparing a patch.
 
   A copy of this proposal and a hyperlink to the resulting discussion thread should be added to the bug report as a comment, usually by CCing ''bugnumber''`@bugs.launchpad.net`.
 
@@ -33,9 +33,9 @@ Stable release updates will, in general, only be issued in order to fix "high-im
 
   Once an update has been discussed and approved in principle, an upload can be prepared.  The following criteria apply to any packages modified as part of the update:
 
-   * The changelog entry and resulting .changes file must include a reference to the corresponding bug report(s)
-   * The bug report must include an approved SRU proposal
-   * The version number(s) must be carefully checked in order to avoid clashing with any other version of the package, past, present or future
+   * The changelog entry and resulting .changes file must include a reference to the corresponding '''bug report(s)'''
+   * The bug report must include an '''approved SRU proposal'''
+   * The '''version number(s)''' must be carefully checked in order to avoid clashing with any other version of the package, past, present or future
    * The upload target must be ''release''`-proposed`
 
   Uploads which do not meet these criteria will be '''rejected''' by an archive administrator and not published.  Once the upload is ready, attach a complete source package diff (`debdiff`) to the bug report for review.
@@ -48,23 +48,23 @@ Stable release updates will, in general, only be issued in order to fix "high-im
 
   Once the update has been published in `-proposed`, it can be tested by a wider audience.
 
-  * Notify XXX of the availability of this package for testing
+  * Notify the QA team via Simon Law [mailto:sfllaw@ubuntu.com <sfllaw@ubuntu.com>] of the availability of this package for testing
   * Test the package yourself
   * If the update has the potential for hardware-specific effects, request a hardware support regression test via the QA team (for example, kernel updates)
 
  1. Release
 
-  After successful testing and a minimum aging period of 7 days, you may prepare a second upload to ''release''`-updates`:
+  After successful testing and a minimum aging period of '''7 days''', you may prepare a second upload to ''release''`-updates`:
 
   * Include a changelog entry with:
    * A new version number (the same cautions apply regarding the choice of version number)
-   * Confirmation of the above testing, including the name of the tester in each case
-  * Make no other changes relative to the version in `-proposed`
+   * '''Confirmation of the above testing''', including the name of the tester in each case
+  * Make '''no other changes''' relative to the version in `-proposed`
 
   The archive administrators must verify that uploads to `-updates` meet these criteria.  In the future, the update from `-proposed` will be copied verbatim instead, once the necessary infrastructure is available.
 
  1. Following up
 
-  * Add yourself as a bug contact for the package in Launchpad, if you are not one already
-  * For several days after the update is released, monitor Launchpad for bug reports relating to the update
-  * In the event of a regression, immediately notify XXX.
+  * Add yourself as a '''bug contact''' for the package in Launchpad, if you are not one already
+  * For 7 days after the update is released, '''monitor Launchpad''' for bug reports relating to the update
+  * In the event of a regression, '''immediately''' notify XXX.
