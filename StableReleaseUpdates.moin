@@ -29,7 +29,7 @@ This process is to be followed for all updates '''except''' those to fix securit
    * An explanation of '''how the bug has been addressed''' in the development branch, including the relevant version numbers of packages modified in order to implement the fix
    * A '''patch''' applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to discuss the first three items before preparing a patch.
 
-  A copy of this proposal and a hyperlink to the resulting discussion thread should be added to the bug report as a comment, usually by CCing ''bugnumber''`@bugs.launchpad.net`.
+  A copy of this proposal and a hyperlink to any prior discussion thread should be added to the bug report as a comment, usually by CCing ''bugnumber''`@bugs.launchpad.net`.
 
  1. Prepare
 
