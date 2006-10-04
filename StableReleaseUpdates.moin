@@ -70,3 +70,16 @@ This process is to be followed for all updates '''except''' those to fix securit
   * Add yourself as a '''bug contact''' for the package in Launchpad, if you are not one already
   * For 7 days after the update is released, '''monitor Launchpad''' for bug reports relating to the update
   * In the event of a regression, '''immediately''' notify the [mailto:technical-board@lists.ubuntu.com Ubuntu Technical Board] via email, and ask for help on `#ubuntu-devel` in making urgent contact with a member of the Board.
+
+== Kernel Exception ==
+
+Because of the way updates to the kernel work, it will follow a slightly different set of rules. The following reasons call for this exception:
+
+ * The kernel is uploaded frequently to -security, so uploading to -updates is not possible due to frequent version skew in the kernel and supporting packages (linux-restricted-modules, linux-meta, etc).
+ * Changes in the kernel cannot be approved wholesale. Each change needs to be approved individually, and on its own merits.
+ * Even though most of the patches are, in general, backports, the -backports channel is not acceptable.
+ * The kernel will never be moved from -proposed to -updates.
+
+Given these criteria, the kernel will be given slightly less restrictions on uploads to -proposed. Over its lifetime, each patch in the -proposed kernel will be individually approved for inclusion into a -security upload based on testing results and the same approval methods for -proposed/-updates uploads.
+
+(This section is based on discussions between AdamConrad, MattZimmerman and BenCollins)
