@@ -88,3 +88,7 @@ Therefore the following differences apply:
  * Individual kernel patches, rather than complete packages, will go through the SRU process above, after having been staged in `-proposed`
 
 (This section is based on discussions between AdamConrad, MattZimmerman and BenCollins)
+
+== Examples ==
+
+As reference you can lookup [https://launchpad.net/distros/ubuntu/+source/cpio/+bug/59228] to have an idea on how the procedure works.
