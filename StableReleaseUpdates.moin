@@ -58,7 +58,7 @@ This process is to be followed for all updates '''except''' those to fix securit
 
  1. Release
 
-  After successful testing and a minimum aging period of '''7 days''', you may prepare a second upload to ''release''`-updates`:
+  After the package in `-proposed` has been successfully tested and passed a minimum aging period of '''7 days''', you may prepare a second upload to ''release''`-updates`:
 
   * Include a changelog entry with:
    * A new version number (the same cautions apply regarding the choice of version number)
