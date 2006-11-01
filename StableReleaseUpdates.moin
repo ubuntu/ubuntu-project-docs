@@ -51,6 +51,8 @@ This process is to be followed for all updates '''except''' those to fix securit
   Once the update has been published in `-proposed`, it can be tested by a wider audience.
 
   * Notify the QA team via Simon Law [mailto:sfllaw@ubuntu.com <sfllaw@ubuntu.com>] of the availability of this package for testing
+   * Prepend "StableReleaseUpdates" to the Subject line of your e-mail.
+   * Add a `verification-needed` tag to the bug report.
   * Test the package yourself
   * If the update has the potential for hardware-specific effects, request a hardware support regression test via the QA team (for example, kernel updates)
 
@@ -65,7 +67,7 @@ This process is to be followed for all updates '''except''' those to fix securit
 
   The archive administrators must verify that uploads to `-updates` meet these criteria.  In the future, the update from `-proposed` will be copied verbatim instead, once the necessary infrastructure is available.
 
- 1. Following up
+ 1. Follow up
 
   * Add yourself as a '''bug contact''' for the package in Launchpad, if you are not one already
   * For 7 days after the update is released, '''monitor Launchpad''' for bug reports relating to the update
