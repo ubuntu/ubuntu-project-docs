@@ -44,7 +44,7 @@ This process is to be followed for all updates '''except''' those to fix securit
 
  1. Upload
 
-  The upload will be reviewed by the archive administrators, and approved if it meets the above criteria.  Archive administrators should verify that the package delta matches the debdiff attached to the bug report.
+  The upload will be reviewed by the archive administrators during regularly scheduled processing, and approved if it meets the above criteria.  Archive administrators should verify that the package delta matches the debdiff attached to the bug report.
 
  1. Test
 
