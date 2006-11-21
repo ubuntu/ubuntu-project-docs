@@ -44,6 +44,8 @@ This process is to be followed for all updates '''except''' those to fix securit
 
  1. Upload
 
+  Once you have uploaded the package, subscribe the `ubuntu-archive` team to the bug report so that it shows up on the archive administrators' to-do list.
+
   The upload will be reviewed by the archive administrators during regularly scheduled processing, and approved if it meets the above criteria.  Archive administrators should verify that the package delta matches the debdiff attached to the bug report.
 
  1. Test
