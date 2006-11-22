@@ -20,6 +20,8 @@ Stable release updates will, in general, only be issued in order to fix '''high-
 
 This process is to be followed for all updates '''except''' those to fix security updates, which are only released by the Ubuntu security team.  Security procedures are documented at SecurityUpdateProcedures.
 
+For updates to source packages in the `universe` or `multiverse` components, see ["MOTU/SRU"].
+
  1. Propose
  
   All proposals for stable release updates must be '''approved''' by Matt Zimmerman or Colin Watson.  A convenient way to do this is to attach all of the information to the bug report, then subscribe the `ubuntu-sru` team.  SRU proposals must be accompanied by the following information for each bug to be addressed:
