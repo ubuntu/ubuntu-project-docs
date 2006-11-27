@@ -24,7 +24,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
  1. Propose
  
-  All proposals for stable release updates must be '''approved''' by Matt Zimmerman or Colin Watson.  A convenient way to do this is to attach all of the information to the bug report, then subscribe the `ubuntu-sru` team.  SRU proposals must be accompanied by the following information for each bug to be addressed:
+  All proposals for stable release updates must be '''approved''' by Matt Zimmerman or Colin Watson.  A convenient way to do this is to attach all of the information to the existing bug report, then subscribe the `ubuntu-sru` team.  If more than one bug is being addressed, it is better to file a bug to track the SRU itself and refer to all of the relevant bugs.  SRU proposals must be accompanied by the following information for each bug to be addressed:
 
    * A '''bug number''' referring to a complete bug report describing the problem and its effect
    * A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
@@ -57,8 +57,14 @@ For updates to source packages in the `universe` or `multiverse` components, see
   * Notify the QA team via Simon Law [mailto:sfllaw@ubuntu.com <sfllaw@ubuntu.com>] of the availability of this package for testing
    * Prepend "StableReleaseUpdates" to the Subject line of your e-mail.
    * Add a `verification-needed` tag to the bug report.
+   * Set the bug report to '''Status: Fix Committed'''.
   * Test the package yourself
   * If the update has the potential for hardware-specific effects, request a hardware support regression test via the QA team (for example, kernel updates)
+
+  The QA team may discover that your fix is insufficient.  They will:
+
+  * Set the bug report '''Status: In Progress'''
+  * Describe why the fix was rejected in a comment to the bug report.
 
  1. Release
 
