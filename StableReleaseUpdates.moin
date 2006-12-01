@@ -20,11 +20,11 @@ Stable release updates will, in general, only be issued in order to fix '''high-
 
 This process is to be followed for all updates '''except''' those to fix security updates, which are only released by the Ubuntu security team.  Security procedures are documented at SecurityUpdateProcedures.
 
-For updates to source packages in the `universe` or `multiverse` components, see ["MOTU/SRU"].
+For updates to source packages in the `universe` or `multiverse` components, see ["MOTU/SRU"].  Any `main` source packages with binary packages that cross components will have all of their packages examined under this policy.
 
  1. Propose
  
-  All proposals for stable release updates must be '''approved''' by Matt Zimmerman or Colin Watson.  A convenient way to do this is to attach all of the information to the existing bug report, use ''Backport fix to releases'' to mark the bug for backporting, then subscribe the `ubuntu-sru` team.  If more than one bug is being addressed, it is better to file a bug to track the SRU itself and refer to all of the relevant bugs.  SRU proposals must be accompanied by the following information for each bug to be addressed:
+  All proposals for stable release updates must be '''approved''' by Matt Zimmerman or Colin Watson.  A convenient way to do this is to attach all of the information to the existing bug report, use ''Backport fix to releases'' to mark the bug for backporting, then subscribe the `ubuntu-sru` team.  If more than one bug is being addressed, it is better to file a bug to track the SRU itself and refer to all of the relevant bugs.  SRU proposals ''must'' be accompanied by the following information for each bug to be addressed:
 
    * A '''bug number''' referring to a complete bug report describing the problem and its effect
    * A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
@@ -32,6 +32,8 @@ For updates to source packages in the `universe` or `multiverse` components, see
    * A '''patch''' applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to discuss the first three items before preparing a patch.
 
   A copy of this proposal and a hyperlink to any prior discussion thread should be added to the bug report as a comment, usually by CCing ''bugnumber''`@bugs.launchpad.net`.
+
+  Each bug report must have its '''Description''' updated to include the impact, how the bug is addressed, and the patch that resolve it.
 
  1. Prepare
 
@@ -41,6 +43,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
    * The bug report must include an '''approved SRU proposal'''
    * The '''version number(s)''' must be carefully checked in order to avoid clashing with any other version of the package, past, present or future
    * The upload target must be ''release''`-proposed`
+   * The package difference must be a minimal change to fix the bug.  Spurious changes to build systems, documentation, functionality ''will be rejected''.
 
   Uploads which do not meet these criteria will be '''rejected''' by an archive administrator and not published.  Once the upload is ready, attach a complete source package diff (`debdiff`) to the bug report for review.
 
