@@ -53,14 +53,16 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
   The upload will be reviewed by the archive administrators during regularly scheduled processing, and approved if it meets the above criteria.  Archive administrators should verify that the package delta matches the debdiff attached to the bug report.
 
+  The `ubuntu-archive` team member who accepts the package into `-proposed` should:
+   * Add a `verification-needed` tag to the bug report.
+   * Set the bug report to '''Status: Fix Committed'''.
+
  1. Test
 
   Once the update has been published in `-proposed`, it can be tested by a wider audience.
 
   * Notify the QA team via Simon Law [mailto:sfllaw@ubuntu.com <sfllaw@ubuntu.com>] of the availability of this package for testing
    * Prepend "StableReleaseUpdates" to the Subject line of your e-mail.
-   * Add a `verification-needed` tag to the bug report.
-   * Set the bug report to '''Status: Fix Committed'''.
   * Test the package yourself
   * If the update has the potential for hardware-specific effects, request a hardware support regression test via the QA team (for example, kernel updates)
 
