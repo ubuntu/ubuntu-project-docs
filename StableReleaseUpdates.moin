@@ -44,6 +44,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
    * The '''version number(s)''' must be carefully checked in order to avoid clashing with any other version of the package, past, present or future
    * The upload target must be ''release''`-proposed`
    * The package difference must be a minimal change to fix the bug.  Spurious changes to build systems, documentation, functionality ''will be rejected''.
+   * Make sure to generate the `.changes` file against the base version in the relevant distribution and not against the version in `-proposed` or a previous version in `-updates`.
 
   Uploads which do not meet these criteria will be '''rejected''' by an archive administrator and not published.  Once the upload is ready, attach a complete source package diff (`debdiff`) to the bug report for review.
 
@@ -78,7 +79,8 @@ For updates to source packages in the `universe` or `multiverse` components, see
   * Include a changelog entry with:
    * A new version number (the same cautions apply regarding the choice of version number)
    * '''Confirmation of the above testing''', including the name of the tester in each case
-  * Make '''no other changes''' relative to the version in `-proposed`
+  * Make '''no other changes''' relative to the version in `-proposed`.
+  * Make sure to generate the `.changes` file against the base version in the relevant distribution and not against the version in `-proposed` or a previous version in `-updates`.
 
   The archive administrators must verify that uploads to `-updates` meet these criteria.  In the future, the update from `-proposed` will be copied verbatim instead, once the necessary infrastructure is available.
 
