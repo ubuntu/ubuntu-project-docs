@@ -74,7 +74,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
  1. Release
 
-  After the package in `-proposed` has been successfully tested and passed a minimum aging period of '''7 days''', you may prepare a second upload to ''release''`-updates`:
+  After the package in `-proposed` has been successfully tested and passed a minimum aging period of '''7 days''', and is approved for upload to ''release''`-updates` by the QA team (Simon Law), you may prepare a second upload to ''release''`-updates`:
 
   * Include a changelog entry with:
    * A new version number (the same cautions apply regarding the choice of version number)
