@@ -72,6 +72,12 @@ For updates to source packages in the `universe` or `multiverse` components, see
   * Set the bug report '''Status: In Progress'''
   * Describe why the fix was rejected in a comment to the bug report.
 
+  The QA team may also discover that your fix is good.  They will:
+
+  * Add a `verification-done` tag to the bug report.
+  * Notify the archive team via [mailto:ubuntu-archive@lists.ubuntu.com ubuntu-archive@lists.ubuntu.com] that it is approved by QA
+  * Describe the general steps taken to verify the package, any special difficulties, and the recommended upload date.
+
  1. Release
 
   After the package in `-proposed` has been successfully tested and passed a minimum aging period of '''7 days''', and is approved for upload to ''release''`-updates` by the QA team (Simon Law), you may prepare a second upload to ''release''`-updates`:
@@ -82,7 +88,10 @@ For updates to source packages in the `universe` or `multiverse` components, see
   * Make '''no other changes''' relative to the version in `-proposed`.
   * Make sure to generate the `.changes` file against the base version in the relevant distribution and not against the version in `-proposed` or a previous version in `-updates`, using the `-v` option to `dpkg-buildpackage` or `debuild`.
 
-  The archive administrators must verify that uploads to `-updates` meet these criteria.  In the future, the update from `-proposed` will be copied verbatim instead, once the necessary infrastructure is available.
+  The `ubuntu-archive` team member who accepts the package into `-updates` should:
+    * Verify that the uploads meets the abovementioned criteria.  (In the future, updates from `-proposed` will be copied verbatim instead, once the necessary infrastructure is available.)
+   * Set the bug report to '''Status: Fix Released'''.
+   * Remove the proposed package from `-proposed`.
 
  1. Follow up
 
