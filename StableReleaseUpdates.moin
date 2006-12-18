@@ -33,7 +33,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
   A copy of this proposal and a hyperlink to any prior discussion thread should be added to the bug report as a comment, usually by CCing ''bugnumber''`@bugs.launchpad.net`.
 
-  Each bug report must have its '''Description''' updated to include the impact, how the bug is addressed, and the patch that resolves it.
+  Each bug report must have its '''Description''' updated to include the impact, how the bug is addressed, and the patch that resolves it.  This makes it much easier for the SRU team to assess the bug without having to wade through a long discussion in the bug's history.
 
  1. Prepare
 
