@@ -62,21 +62,21 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
   Once the update has been published in `-proposed`, it can be tested by a wider audience.
 
-  * Notify the QA team via Simon Law [mailto:sfllaw@ubuntu.com <sfllaw@ubuntu.com>] of the availability of this package for testing
-   * Prepend "StableReleaseUpdates" to the Subject line of your e-mail.
-  * Test the package yourself
-  * If the update has the potential for hardware-specific effects, request a hardware support regression test via the QA team (for example, kernel updates)
+   * Notify the QA team via Simon Law [mailto:sfllaw@ubuntu.com <sfllaw@ubuntu.com>] of the availability of this package for testing
+    * Prepend "StableReleaseUpdates" to the Subject line of your e-mail.
+   * Test the package yourself
+   * If the update has the potential for hardware-specific effects, request a hardware support regression test via the QA team (for example, kernel updates)
 
   The QA team may discover that your fix is insufficient.  They will:
 
-  * Set the bug report '''Status: In Progress'''
-  * Describe why the fix was rejected in a comment to the bug report.
+   * Set the bug report '''Status: In Progress'''
+   * Describe why the fix was rejected in a comment to the bug report.
 
   The QA team may also discover that your fix is good.  They will:
 
-  * Add a `verification-done` tag to the bug report.
-  * Notify the archive team via [mailto:ubuntu-archive@lists.ubuntu.com ubuntu-archive@lists.ubuntu.com] that it is approved by QA
-  * Describe the general steps taken to verify the package, any special difficulties, and the recommended upload date.
+   * Add a `verification-done` tag to the bug report.
+   * Notify the archive team via [mailto:ubuntu-archive@lists.ubuntu.com ubuntu-archive@lists.ubuntu.com] that it is approved by QA
+   * Describe the general steps taken to verify the package, any special difficulties, and the recommended upload date.
 
  1. Release
 
@@ -116,6 +116,12 @@ Therefore the following differences apply:
  * Individual kernel patches, rather than complete packages, will go through the SRU process above, after having been staged in `-proposed`
 
 (This section is based on discussions between AdamConrad, MattZimmerman and BenCollins)
+
+=== app-install-data-commercial ===
+
+The app-install-data-commercial source package may be uploaded to add .desktop files for new packages in the commercial repository on archive.canonical.com. This does not require prior approval, and the aging requirement is waived; but it must still go through -proposed, a bug report must still be filed, and testing must still be recorded in the bug report.
+
+(This section is based on discussions between MichaelVogt and ColinWatson)
 
 == Examples ==
 
