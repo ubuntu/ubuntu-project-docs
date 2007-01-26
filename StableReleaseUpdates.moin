@@ -125,4 +125,4 @@ The app-install-data-commercial source package may be uploaded to add .desktop f
 
 == Examples ==
 
-As reference you can lookup [https://launchpad.net/distros/ubuntu/+source/cpio/+bug/59228] to have an idea on how the procedure works.
+As a reference, see [https://launchpad.net/ubuntu/+source/cpio/+bug/59228 bug #59228] for an idea of how the process works.
