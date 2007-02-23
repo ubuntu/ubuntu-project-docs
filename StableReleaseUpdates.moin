@@ -60,25 +60,23 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
   Once the update has been published in `-proposed`, it can be tested by a wider audience.
 
-   * Notify the QA team via Simon Law [mailto:sfllaw@ubuntu.com <sfllaw@ubuntu.com>] of the availability of this package for testing
-    * Prepend "StableReleaseUpdates" to the Subject line of your e-mail.
    * Test the package yourself
-   * If the update has the potential for hardware-specific effects, request a hardware support regression test via the QA team (for example, kernel updates)
+   * If the update has the potential for hardware-specific effects, request a hardware support regression test in the bug report (for example, kernel updates)
 
-  The QA team may discover that your fix is insufficient.  They will:
+  The [https://launchpad.net/~sru-verification SRU verification team] will regularly check open bugs with the `verification-needed` tag. If they discover that your fix is insufficient, they will:
 
    * Set the bug report '''Status: In Progress'''
    * Describe why the fix was rejected in a comment to the bug report.
+   * Remove the `verification-needed tag`.
 
-  The QA team may also discover that your fix is good.  They will:
+  The SRU verification team may also discover that your fix is good.  They will:
 
    * Add a `verification-done` tag to the bug report.
-   * Notify the archive team via [mailto:ubuntu-archive@lists.ubuntu.com ubuntu-archive@lists.ubuntu.com] that it is approved by QA
    * Describe the general steps taken to verify the package, any special difficulties, and the recommended upload date.
 
  1. Release
 
-  After the package in `-proposed` has been successfully tested and passed a minimum aging period of '''7 days''', and is approved for upload to ''release''`-updates` by the QA team (Simon Law), you may prepare a second upload to ''release''`-updates`:
+  After the package in `-proposed` has been successfully tested and passed a minimum aging period of '''7 days''', and is approved for upload to ''release''`-updates` by the SRU verification team, you may prepare a second upload to ''release''`-updates`:
 
   * Include a changelog entry with:
    * A new version number (the same cautions apply regarding the choice of version number)
