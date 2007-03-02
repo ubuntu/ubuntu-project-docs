@@ -71,7 +71,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
   The SRU verification team may also discover that your fix is good.  They will:
 
-   * Add a `verification-done` tag to the bug report.
+   * Modify the `verification-needed` tag to a `verification-done` tag on the bug report.
    * Describe the general steps taken to verify the package, any special difficulties, and the recommended upload date.
 
  1. Release
