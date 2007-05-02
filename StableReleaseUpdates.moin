@@ -28,7 +28,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
    * A '''bug number''' referring to a complete bug report describing the problem and its effect
    * A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
-   * An explanation of '''how the bug has been addressed''' in the development branch, including the relevant version numbers of packages modified in order to implement the fix
+   * An explanation of '''how the bug has been addressed''' in the development branch, including the relevant version numbers of packages modified in order to implement the fix; generally, SRUs will not be accepted if the bug has not been fixed in the development branch.
    * A '''patch''' applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to discuss the first three items before preparing a patch.
 
   A copy of this proposal and a hyperlink to any prior discussion thread should be added to the bug report as a comment, usually by CCing ''bugnumber''`@bugs.launchpad.net`.
@@ -76,16 +76,8 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
  1. Release
 
-  After the package in `-proposed` has been successfully tested and passed a minimum aging period of '''7 days''', and is approved for upload to ''release''`-updates` by the SRU verification team, you may prepare a second upload to ''release''`-updates`:
-
-  * Include a changelog entry with:
-   * A new version number (the same cautions apply regarding the choice of version number)
-   * '''Confirmation of the above testing''', including the name of the tester in each case
-  * Make '''no other changes''' relative to the version in `-proposed`.
-  * Make sure to generate the `.changes` file against the previous version in -updates (or, if that does not exist, the version in the released distribution), using the `-v` option to `dpkg-buildpackage` or `debuild`.
-
-  The `ubuntu-archive` team member who accepts the package into `-updates` should:
-    * Verify that the uploads meets the abovementioned criteria.  (In the future, updates from `-proposed` will be copied verbatim instead, once the necessary infrastructure is available.)
+  After the package in `-proposed` has been successfully tested and passed a minimum aging period of '''7 days''', and is approved for upload to ''release''`-updates` by the SRU verification team, the `ubuntu-archive` team member who accepts the package into `-updates` should:
+   * Copy the source and binary packages from `-proposed` to `-updates`.
    * Set the bug report to '''Status: Fix Released'''.
    * Remove the proposed package from `-proposed`.
 
