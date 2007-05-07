@@ -30,6 +30,8 @@ For updates to source packages in the `universe` or `multiverse` components, see
    * A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
    * An explanation of '''how the bug has been addressed''' in the development branch, including the relevant version numbers of packages modified in order to implement the fix; generally, SRUs will not be accepted if the bug has not been fixed in the development branch.
    * A '''patch''' applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to discuss the first three items before preparing a patch.
+   * Detailled '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
+   * A '''discussion''' of the regression potential of the patch and how users could get inadvertedly effected.
 
   A copy of this proposal and a hyperlink to any prior discussion thread should be added to the bug report as a comment, usually by CCing ''bugnumber''`@bugs.launchpad.net`.
 
@@ -61,7 +63,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
   Once the update has been published in `-proposed`, it can be tested by a wider audience.
 
    * Test the package yourself
-   * If the update has the potential for hardware-specific effects, request a hardware support regression test in the bug report (for example, kernel updates)
+   * If the update has the potential for hardware-specific effects, request a hardware support regression test in the bug report (for example, kernel updates); in this case, at least two users with the affected hardware must give positive test results in the bug report. The [https://launchpad.net/~sru-verification SRU verification team] will test the updated package on different hardware to check for inadvertant side effects.
 
   The [https://launchpad.net/~sru-verification SRU verification team] will regularly check open bugs with the `verification-needed` tag. If they discover that your fix is insufficient, they will:
 
