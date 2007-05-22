@@ -24,7 +24,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
  1. Propose
  
-  All proposals for stable release updates must be '''approved''' by a member of the [https://launchpad.net/~ubuntu-sru Stable Release Updates team].  A convenient way to do this is to attach all of the information to the existing bug report, use ''Backport fix to releases'' to mark the bug for backporting, then subscribe the `ubuntu-sru` team.  If more than one bug is being addressed, it is better to file a bug to track the SRU itself and refer to all of the relevant bugs.  SRU proposals ''must'' be accompanied by the following information for each bug to be addressed:
+  All proposals for stable release updates must be '''approved''' by a member of the [https://launchpad.net/~ubuntu-sru Stable Release Updates team].  A convenient way to do this is to attach all of the information to the existing bug report, use ''Nominate for release'' to mark the bug for backporting, then subscribe the `ubuntu-sru` team.  If more than one bug is being addressed, it is better to file a bug to track the SRU itself and refer to all of the relevant bugs.  SRU proposals ''must'' be accompanied by the following information for each bug to be addressed:
 
    * A '''bug number''' referring to a complete bug report describing the problem and its effect
    * A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
@@ -116,3 +116,7 @@ The app-install-data-commercial source package may be uploaded to add .desktop f
 == Examples ==
 
 As a reference, see [https://launchpad.net/ubuntu/+source/cpio/+bug/59228 bug #59228] for an idea of how the process works.
+
+
+----
+CategoryProcess
