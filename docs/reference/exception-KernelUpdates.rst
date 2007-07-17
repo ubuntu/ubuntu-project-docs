@@ -1,43 +1,74 @@
-.. _kernel_updates_for_stable_releases:
+.. _kernel_security_and_update_policy_for_post_release_trees:
 
-Kernel Updates for Stable Releases
-----------------------------------
+Kernel security and update policy for post-release trees
+========================================================
 
-Procedures for on-going updates to stable releases of the kernel.
+This document describes the process and criteria for post-release kernel
+updates. The kernel is a very complex source package, and it is
+fundamentally different than other packages in the archive. The
+described process and criteria are built on the normal
+StableReleaseUpdates document, and where these documents conflict, this
+document takes precedence.
 
-Patches to the kernel not related to security will first appear in
--proposed. To use these kernels, you must add a line to your
-*/etc/apt/sources.list* file:
+.. _what_sort_of_updates_are_allowed_for_post_release_kernels:
 
-::
+What sort of updates are allowed for post-release kernels?
+----------------------------------------------------------
 
-   deb http://archive.ubuntu.com/ubuntu <release>-proposed main restricted
+There are several categories of updates, in addition to normal security
+updates:
 
-Currently, there are no *linux-meta* packages, so updates will have to
-be manually installed initially. Use this command:
+-  Critical bug fixes. These are categorized as non-security issues
+   relating to bugs that affect a large range of users. These are bugs
+   that keep users from reliably using their systems, or prevent booting
+   at all. These patches must pass through rigorous testing by
+   Canonical/Ubuntu and the community at large.
+-  Supported vendor patches. These are patches generally related to
+   hardware support, for which we have a contractual obligation to
+   include in a stable release. If they are very specific to a piece of
+   hardware and the nature of the patch makes regression on other
+   hardware unlikely or impossible, then it can be part of an SRU.
+   Otherwise they need to be maintained in a separate
+   repository/pocket/PPA specific for that vendor, and thus need to be
+   maintained separately in the future.
 
-::
+Other changes are generally avoided on stable kernels, since the
+regression potential is so exceptionally high.
 
-   sudo apt-get install linux-image-2.6.15-50-<flavour> linux-restricted-modules-2.6.15-50-<flavour>
+All non-security changes need to follow the standard SRU procedure in
+terms of having a bug associated with them, which is fixed in the
+development release and signed off by \`ubuntu-sru\` or
+\`canonical-qa\`, and the changelog needs to include the bug number.
 
-Where *flavour* is one of 386, 686, k7 (for i386 dapper). If you have a
-different architecture, or are using some other stable release besides
-dapper, this may change a little. If you do not need
-linux-restricted-modules, you can choose not to install that. The ABI
-(50) will remain the same. Other releases will change the kernel
-version. For example, it will be 2.6.17 for edgy, instead of 2.6.15.
+.. _how_long_will_updates_be_allowed_for_a_release:
 
-Eventually, stable patches to this kernel will be migrated to the main
-stable release. Testing (by you) is required to make this happen.
+How long will updates be allowed for a release
+----------------------------------------------
 
-All changes from the stable kernel are listed in the top level changelog
-entry (there are not multiple entries in the changelog for each upload,
-just a single rolling entry). When changes are migrated to the stable
-kernel, they will be removed from the *proposed* changelog entry.
+This answer is directed at non-LTS releases. For normal 18-month
+releases, we will only accept updates to the kernel for 3-4 months after
+release. At this point we consider the in-development release to be
+stable enough for testing, and the primary target for fixing bugs. Plus,
+3-4 months after release, most major bugs are either reported and fixed
+in the stable release, or deemed unfixable.
 
-Every effort will be made to keep the *proposed* kernel synced with
-security updates, but do not count on it.
+There may be a few exceptions to this, but don't count on them.
 
---------------
+.. _how_will_updates_be_provided_in_the_archive:
 
-CategoryKernel
+How will updates be provided in the archive
+-------------------------------------------
+
+-  Urgent security updates will be uploaded directly into -security
+   without other changes. This just requires a temporary GIT fork which
+   will be immediately merged back into the main branch for that stable
+   release.
+-  Less urgent security updates and non-security patches will be
+   uploaded to -proposed and then just follow the normal SRU QA
+   procedure (testing, confirming bugs, etc). After verification, these
+   kernels are copied verbatim to -security, and the USN is issued. This
+   avoids maintaining two GIT trees for stable releases while still
+   keeping the testing period.
+-  Non-security updates which change the ABI should be either avoided at
+   all, or be combined with security updates which require ABI change
+   anyway.
