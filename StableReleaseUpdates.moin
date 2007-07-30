@@ -110,6 +110,10 @@ The app-install-data-commercial source package may be uploaded to add .desktop f
 
 (This section is based on discussions between MichaelVogt and ColinWatson)
 
+=== tzdata ===
+
+The tzdata package is updated to reflect changes in timezones or daylight saving policies. The verification is done with the "zdump" utility. The first timezone that gets changed in the updated package is dumped with "zdump -v $timezone_that_changed". This is compared to the same output after the updated package got installed. If those are different the verification is considered done.
+
 == Examples ==
 
 As a reference, see [https://launchpad.net/ubuntu/+source/cpio/+bug/59228 bug #59228] for an idea of how the process works.
