@@ -1,5 +1,7 @@
 Once an Ubuntu release has been completed and published, updates for it are only released under certain circumstances, and must follow a special procedure.
 
+This Policy applies for packages shipped in Main. For packages in universe read: ["MOTU/SRU"].
+
 == Why ==
 
 In contrast to pre-release versions, official releases of Ubuntu are subject to much wider use, and by a different demographic of user.  During development, changes to the distribution primarily affect developers, early adopters and other advanced users, all of whom have elected to use pre-release software at their own risk.
@@ -42,7 +44,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
    1. The bug report must include an '''approved SRU proposal'''
    1. The '''version number(s)''' must be carefully checked in order to avoid clashing with any other version of the package, past, present or future
    1. The upload target must be ''release''`-proposed`
-   1. The package difference must be a minimal change to fix the bug.  Spurious changes to build systems, documentation, functionality ''will be rejected''.
+   1. The package difference must be a minimal change to fix the bug.  For exceptions to this, see ["StableReleaseUpdates/MicroReleaseExceptions"].  Spurious changes to build systems, documentation, functionality ''will be rejected''.
    1. Make sure to generate the `.changes` file against the current version in `-proposed` or in `-updates`, using the `-v` option to `dpkg-buildpackage` or `debuild`.
 
   Uploads which do not meet these criteria will be '''rejected''' by an archive administrator and not published.  Once the upload is ready, attach a complete source package diff (`debdiff`) to the bug report for review.
@@ -112,7 +114,7 @@ The app-install-data-commercial source package may be uploaded to add .desktop f
 
 === tzdata ===
 
-The tzdata package is updated to reflect changes in timezones or daylight saving policies. The verification is done with the "zdump" utility. The first timezone that gets changed in the updated package is dumped with "zdump -v $timezone_that_changed". This is compared to the same output after the updated package got installed. If those are different the verification is considered done.
+The tzdata package is updated to reflect changes in timezones or daylight saving policies. The verification is done with the "zdump" utility. The first timezone that gets changed in the updated package is dumped with "zdump -v $region/$timezone_that_changed" (this needed to be greped for in /usr/share/zoneinfo/). This is compared to the same output after the updated package got installed. If those are different the verification is considered done.
 
 == Examples ==
 
