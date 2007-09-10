@@ -92,19 +92,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
 === Kernel ===
 
-Because of the way updates to the kernel work, it will follow a slightly different process.  The following reasons call for this exception:
-
- * The kernel is uploaded frequently to -security, so uploading to -updates is not possible due to frequent version skew in the kernel and supporting packages (linux-restricted-modules, linux-meta, etc).
- * Kernel packages are not copied from `-proposed` to `-updates` or `-security`
- * A facility is needed for staging updates to the kernel in bulk, and `-proposed` is the closest fit
-
-Therefore the following differences apply:
-
- * Updates for the kernel will be routinely uploaded to `-proposed` with a specially chosen ABI version (and therefore package name) to avoid clashing with any other kernel installed in the field.  Users will not be automatically upgraded to this kernel.
- * No prior discussion and approval is needed for kernel updates to `-proposed`
- * Individual kernel patches, rather than complete packages, will go through the SRU process above, after having been staged in `-proposed`
-
-(This section is based on discussions between AdamConrad, MattZimmerman and BenCollins)
+Because of the way updates to the kernel work, it will follow a slightly different process which is described on KernelUpdates.
 
 === app-install-data-commercial ===
 
