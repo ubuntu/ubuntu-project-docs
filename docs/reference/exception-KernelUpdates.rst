@@ -24,13 +24,13 @@ updates:
    at all. These patches must pass through rigorous testing by
    Canonical/Ubuntu and the community at large.
 -  Supported vendor patches. These are patches generally related to
-   hardware support, for which we have a contractual obligation to
-   include in a stable release. If they are very specific to a piece of
-   hardware and the nature of the patch makes regression on other
-   hardware unlikely or impossible, then it can be part of an SRU.
-   Otherwise they need to be maintained in a separate
-   repository/pocket/PPA specific for that vendor, and thus need to be
-   maintained separately in the future.
+   hardware support. If they are very specific to a piece of hardware,
+   the nature of the patch makes regression on other hardware unlikely
+   or impossible, and we have the hardware available for thorough
+   testing, then it can be part of an SRU. Otherwise they need to be
+   maintained in a separate repository/pocket/PPA specific for that
+   vendor or, if appropriate, in \`linux-backports-modules\`, and thus
+   need to be maintained separately in the future.
 
 Other changes are generally avoided on stable kernels, since the
 regression potential is so exceptionally high.
