@@ -1,6 +1,6 @@
 Once an Ubuntu release has been completed and published, updates for it are only released under certain circumstances, and must follow a special procedure.
 
-This Policy applies for packages shipped in Main. For packages in universe read: ["MOTU/SRU"].
+This Policy applies for packages shipped in Main. For packages in universe read [:StableReleaseUpdates#Universe].
 
 == Why ==
 
@@ -22,7 +22,7 @@ Stable release updates will, in general, only be issued in order to fix '''high-
 
 This process is to be followed for all updates '''except''' those to fix security updates, which are only released by the Ubuntu security team.  Security procedures are documented at SecurityUpdateProcedures.
 
-For updates to source packages in the `universe` or `multiverse` components, see ["MOTU/SRU"].  Any `main` source packages with binary packages that cross components will have all of their packages examined under this policy.
+For updates to source packages in the `universe` or `multiverse` components, see [:StableReleaseUpdates#Universe].  Any `main` source packages with binary packages that cross components will have all of their packages examined under this policy.
 
  1. Propose
  
@@ -133,7 +133,7 @@ The tzdata package is updated to reflect changes in timezones or daylight saving
 
 == Examples ==
 
-As a reference, see [https://launchpad.net/ubuntu/+source/cpio/+bug/59228 bug #59228] for an idea of how the process works.
+As a reference, see [https://launchpad.net/ubuntu/+source/cpio/+bug/59228 bug #59228] for an idea of how the SRU process works.
 
 
 ----
