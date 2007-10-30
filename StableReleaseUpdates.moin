@@ -1,3 +1,5 @@
+||<tablestyle="float:right; font-size: 0.9em; width:40%; background:#F1F1ED; margin: 0 0 1em 1em;" style="padding:0.5em;">'''Contents'''[[BR]][[TableOfContents]]||
+
 Once an Ubuntu release has been completed and published, updates for it are only released under certain circumstances, and must follow a special procedure.
 
 This Policy applies for packages shipped in Main. For packages in universe read [:StableReleaseUpdates#Universe].
