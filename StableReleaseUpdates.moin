@@ -100,6 +100,7 @@ For packages in the Universe and Multiverse components, whilst they are popular,
 Therefore the rules above apply with the following changes:
 
  1. Prepare
+  * Any MOTU can decide that particular issue is good candidate for SRU and can prepare the update package for `<release>-proposed`
   * The sponsor of the upload is responsible for testing the update, although responsibility for follow up thereafter may be negotiated between the sponsor and contributor.
   * The bug tasks need to accurately reflect the state in all releases and the proposed SRU targets. This makes it much easier for the sponsor to assess the bug without having to wade through a long discussion in the bug's history, as well as not accidentally closing bugs for the development release.  Nominations should be approved if a developer believes that the issue meets, or may meet, the criteria above: please ask in #ubuntu-motu to request approval for a nomination.
  1. Test
