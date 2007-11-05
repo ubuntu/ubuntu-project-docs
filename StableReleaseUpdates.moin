@@ -35,7 +35,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
    1. A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
    1. An explanation of '''how the bug has been addressed''' in the development branch, including the relevant version numbers of packages modified in order to implement the fix; generally, SRUs will not be accepted if the bug has not been fixed in the development branch.
    1. A '''patch''' applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to discuss the first three items before preparing a patch. The patch must be as small and unintrusive as possible.
-   1. Detailled '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
+   1. Detailled '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem. These need to be put into the ''description'' of the bug (not just another comment), after a line which contains "{{{TEST CASE:}}}".
    1. A '''discussion''' of the regression potential of the patch and how users could get inadvertedly effected.
 
   The bug tasks need to accurately reflect the state in all releases and the proposed SRU targets. This makes it much easier for the SRU team to assess the state of the bug without having to wade through a long discussion in the bug's history.
@@ -52,6 +52,8 @@ For updates to source packages in the `universe` or `multiverse` components, see
    1. Make sure to generate the `.changes` file against the current version in `-proposed` or in `-updates`, using the `-v` option to `dpkg-buildpackage` or `debuild`.
 
   Uploads which do not meet these criteria will be '''rejected''' by an archive administrator and not published.  Once the upload is ready, attach a complete source package diff (`debdiff`) to the bug report for review.
+
+  Usually it is fine to upload the package, so that it is readily available for review for the SRU team. However, if you have doubts if your change is appropriate, please wait for the approval in the bug trail before upload. Inappropriate uploads will be rejected and commented on in the bug. Uploads with no or an invalid bug number in the changelog will be rejected.
 
  1. Upload
 
