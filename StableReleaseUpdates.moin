@@ -144,6 +144,14 @@ The tzdata package is updated to reflect changes in timezones or daylight saving
 
 As a reference, see [https://launchpad.net/ubuntu/+source/cpio/+bug/59228 bug #59228] for an idea of how the SRU process works.
 
+== Links ==
+
+Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bugs that (a) are Fix Released in the current development release and (b) have been nominated but not approved for stable releases. See the following links:
+
+ [https://bugs.edge.launchpad.net/ubuntu/dapper/+nominations?field.subscriber=ubuntu-sru Dapper]
+ [https://bugs.edge.launchpad.net/ubuntu/edgy/+nominations?field.subscriber=ubuntu-sru Edgy]
+ [https://bugs.edge.launchpad.net/ubuntu/feisty/+nominations?field.subscriber=ubuntu-sru Feisty]
+ [https://bugs.edge.launchpad.net/ubuntu/gutsy/+nominations?field.subscriber=ubuntu-sru Gutsy]
 
 ----
 CategoryProcess
