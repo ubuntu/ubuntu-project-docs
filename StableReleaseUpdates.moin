@@ -50,6 +50,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
    1. The upload target must be ''release''`-proposed`
    1. The package difference must be a minimal change to fix the bug.  For exceptions to this, see /MicroReleaseExceptions.  Spurious changes to build systems, documentation, functionality ''will be rejected''.
    1. Make sure to generate the `.changes` file against the current version in `-proposed` or in `-updates`, using the `-v` option to `dpkg-buildpackage` or `debuild`.
+   1. As with any upload, the changelog entry must properly credit the author of the change, if it was not originally made by you.
 
   Uploads which do not meet these criteria will be '''rejected''' by an archive administrator and not published.  Once the upload is ready, attach a complete source package diff (`debdiff`) to the bug report for review.
 
