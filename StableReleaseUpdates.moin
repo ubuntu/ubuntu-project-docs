@@ -2,8 +2,6 @@
 
 Once an Ubuntu release has been completed and published, updates for it are only released under certain circumstances, and must follow a special procedure.
 
-This Policy applies for packages shipped in Main. For packages in universe read [:StableReleaseUpdates#Universe].
-
 There is an automatically generated list of [http://people.ubuntu.com/~ubuntu-archive/pending-sru.html packages which currently undergo this process].
 
 == Why ==
@@ -21,16 +19,15 @@ Stable release updates will, in general, only be issued in order to fix '''high-
  * Bugs which may, under realistic circumstances, directly cause a '''security vulnerability'''
  * Bugs which represent '''severe regressions''' from the previous release of Ubuntu
  * Bugs which may, under realistic circumstances, directly cause a '''loss of user data'''
+ * NOTE: With Universe and Multiverse SRU's '''FTBFS''', '''not installable''', and '''segfault on startup''' ( e.g. completely un-usable ) can also be considered SRU Candidates
 
 == How ==
 
 This process is to be followed for all updates '''except''' those to fix security updates, which are only released by the Ubuntu security team.  Security procedures are documented at SecurityUpdateProcedures.
 
-For updates to source packages in the `universe` or `multiverse` components, see [:StableReleaseUpdates#Universe].  Any `main` source packages with binary packages that cross components will have all of their packages examined under this policy.
-
  1. Propose
  
-  All proposals for stable release updates must be '''approved''' by a member of the [https://launchpad.net/~ubuntu-sru Stable Release Updates team].  Attach all of the information to the existing bug report, use ''Nominate for release'' to mark the bug for backporting, then subscribe the `ubuntu-sru` team.  If more than one bug is being addressed, each bug must be handled, justified, approved separately, and uploads will only be approved if all involved bugs are.  SRU proposals ''must'' be accompanied by the following information for each bug to be addressed:
+  All proposals for stable release updates must be '''approved''' by a member of the [https://launchpad.net/~ubuntu-sru Stable Release Updates team] ( or the [https://launchpad.net/~motu-sru MOTU SRU Team] for Universe and Multiverse updates ).  Attach all of the information to the existing bug report, use ''Nominate for release'' to mark the bug for backporting, then subscribe the `ubuntu-sru` team or `motu-sru` team depending on the component.  If more than one bug is being addressed, each bug must be handled, justified, approved separately, and uploads will only be approved if all involved bugs are.  SRU proposals ''must'' be accompanied by the following information for each bug to be addressed:
 
    1. A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
    1. An explanation of '''how the bug has been addressed''' in the development branch, including the relevant version numbers of packages modified in order to implement the fix; generally, SRUs will not be accepted if the bug has not been fixed in the development branch.
@@ -94,35 +91,7 @@ For updates to source packages in the `universe` or `multiverse` components, see
 
   1. Add yourself as a '''bug contact''' for the package in Launchpad, if you are not one already
   1. For 7 days after the update is released, '''monitor Launchpad''' for bug reports relating to the update
-  1. In the event of a regression, '''immediately''' notify the [mailto:technical-board@lists.ubuntu.com Ubuntu Technical Board] via email, and ask for help on `#ubuntu-devel` in making urgent contact with a member of the Board.
-
-[[Anchor(Universe)]]
-== Packages in Universe/Multiverse ==
-
-For packages in the Universe and Multiverse components, whilst they are popular, they are not installed by default and therefore have a lower risk of affecting many users if a regression occurs.
-
-Therefore the rules above apply with the following changes:
-
- 1. Prepare
-  * Any MOTU can decide that particular issue is good candidate for SRU and can prepare the update package for `<release>-proposed`
-  * The sponsor of the upload is responsible for testing the update, although responsibility for follow up thereafter may be negotiated between the sponsor and contributor.
-  * Detailled '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem. These need to be put into the '''description''' of the bug (not just another comment), after a line which contains "{{{TEST CASE:}}}".
-  * The bug tasks need to accurately reflect the state in all releases and the proposed SRU targets. This makes it much easier for the sponsor to assess the bug without having to wade through a long discussion in the bug's history, as well as not accidentally closing bugs for the development release.  Nominations should be approved if a developer believes that the issue meets, or may meet, the criteria above: please ask in #ubuntu-motu to request approval for a nomination.
- 1. Test
-  * Notify the MOTU team via the ubuntu-motu mailing list [mailto:ubuntu-motu@lists.ubuntu.com <ubuntu-motu@lists.ubuntu.com>] of the availability of this package for testing
-  * Prepend "StableReleaseUpdates" to the Subject line of your e-mail.
-  * Add a `verification-motu-needed` tag to the bug report.
-  * Test the package yourself
-  * If the testing period is over and there 2 persons have stated "works for me", set the tag `verification-motu-done`.
-  * Note, this doesn't have to be necessarily a MOTU marking it as "works for me".  Two community members will suffice.
- 1. Release
-  * After at least '''2 persons''' have tested the package and attached a "works for me" comment to the bug and after a minimum aging period of '''7 days''', the archive administrators will copy the package into ''release''`-updates` and close the bug. To make them aware of this, modify the bug status as follows:
-  * Modify the `verification-motu-needed` tag to a `verification-motu-done`, so that it appears on the [https://bugs.launchpad.net/ubuntu/+bugs?field.tag=verification-motu-done list of verified universe SRUs] ([https://bugs.launchpad.net/ubuntu/feisty/+bugs?field.tag=verification-motu-done list of verified universe SRUs for Feisty]).
-  * Subscribe ubuntu-archive to the bug so that the archive administrators are aware that it needs to be copied over to -updates.
- 1. Following Up
-  * Add yourself as a '''bug contact''' for the package in Launchpad, if you are not one already
-  * For 7 days after the update is released, '''monitor Launchpad''' for bug reports relating to the update
-  * In the event of a regression, '''immediately''' notify the [mailto:ubuntu-motu@lists.ubuntu.com Ubuntu Universe maintainers] via email, and ask for help on `#ubuntu-motu`.
+  1. In the event of a regression, '''immediately''' notify the [mailto:technical-board@lists.ubuntu.com Ubuntu Technical Board] via email, and ask for help on `#ubuntu-devel` in making urgent contact with a member of the Board. ( NOTE: for MOTU-SRU's contact the [mailto:ubuntu-motu@lists.ubuntu.com Universe SRU Team] team or ask for help on `#ubuntu-motu` )
 
 [[Anchor(Special)]]
 == Special Cases ==
@@ -153,6 +122,12 @@ Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bug
  * [https://bugs.edge.launchpad.net/ubuntu/edgy/+nominations?field.subscriber=ubuntu-sru Edgy]
  * [https://bugs.edge.launchpad.net/ubuntu/feisty/+nominations?field.subscriber=ubuntu-sru Feisty]
  * [https://bugs.edge.launchpad.net/ubuntu/gutsy/+nominations?field.subscriber=ubuntu-sru Gutsy]
+
+=== Useful links for motu-sru ===
+
+ * [https://bugs.launchpad.net/~motu-sru/ Bugs subscribed by motu-sru]
+ * List of bugs which needs verification for [http://tinyurl.com/3bgr3y Dapper], [http://tinyurl.com/3akl7x Edgy], [http://tinyurl.com/3b2u78 Feisty], [http://tinyurl.com/yr7wsu Gutsy]
+ * List of verified bugs for [http://tinyurl.com/25f6dk Dapper], [http://tinyurl.com/25f6dk Edgy], [http://tinyurl.com/yu5ldn Feisty], [http://tinyurl.com/yuk7s7 Gutsy]
 
 ----
 CategoryProcess
