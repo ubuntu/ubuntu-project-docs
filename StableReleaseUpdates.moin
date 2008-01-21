@@ -37,6 +37,8 @@ This process is to be followed for all updates '''except''' those to fix securit
 
   The bug tasks need to accurately reflect the state in all releases and the proposed SRU targets. This makes it much easier for the SRU team to assess the state of the bug without having to wade through a long discussion in the bug's history.
 
+  If applicable, consider whether the update should also be applied to any active LTS releases.
+
  1. Prepare
 
   Once an update has been discussed and approved in principle, an upload can be prepared.  The following criteria apply to any packages modified as part of the update:
