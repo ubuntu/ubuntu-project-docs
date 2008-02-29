@@ -38,7 +38,7 @@ Stable release updates will, in general, only be issued in order to fix '''high-
 
  1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailled and user-readable changelog, and no other unrelated changes.
 
- 1. Once the archive admins approve and publish your upload, test the actual binaries in the Ubuntu archive yourself and follow up in the bug report.
+ 1. Once the [https://wiki.ubuntu.com/ArchiveAdministration#head-1f27dc12ab1558ec21b31ac44e4c86a87a4cd053 archive admins approve and publish your upload], test the actual binaries in the Ubuntu archive yourself and follow up in the bug report.
 
  1. Add yourself as a '''bug contact''' for the package in Launchpad, if you are not one already, and '''monitor Launchpad''' for bug reports relating to the update for at least one week.
 
