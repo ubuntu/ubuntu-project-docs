@@ -21,6 +21,7 @@ Stable release updates will, in general, only be issued in order to fix '''high-
  * Bugs which may, under realistic circumstances, directly cause a '''loss of user data'''
  * Bugs which do not fit under above categories, but (1) have an obviously safe patch and (2) affect an application rather than critical infrastructure packages (like X.org or the kernel).
  * For Long Term Support releases we regularly want to enable new hardware. Such changes are appropriate provided that we can ensure to not affect upgrades on existing hardware. For example, modaliases of newly introduced drivers must not overlap with previously shipped drivers.
+ * New versions of commerical software in the Ubuntu partner archive.
  * NOTE: For Universe and Multiverse SRU's '''FTBFS''', '''not installable''', and '''segfault on startup''' ( e.g. completely un-usable ) can also be considered.
 
 == Procedure ==
@@ -59,7 +60,7 @@ The SRU verification team may also discover that your fix is good.  They will:
  1. Modify the `verification-needed` tag to a `verification-done` tag on the bug report.
  1. Describe the general steps taken to verify the package, any special difficulties, and the recommended upload date.
 
-If the update is hardware specific, at least two users with the affected hardware must give positive test results in the bug report.
+Verification feedback from bug reporters and subscribers is greatly appreciated, too, especially if the update is hardware specific. In this case we consider an update as verified if it has at least two positive and no negative testimonials in the bug report, and the verification team just checks whether the new version still works for the main use cases (to check for major regressions).
 
 [[Anchor(Special)]]
 == Special Cases ==
@@ -77,6 +78,14 @@ Because of the way updates to the kernel work, it will follow a slightly differe
 The app-install-data-commercial source package may be uploaded to add .desktop files for new packages in the commercial repository on archive.canonical.com. This does not require prior approval, and the aging requirement is waived; but it must still go through -proposed, a bug report must still be filed with a debdiff and other relevant information as above, and testing must still be recorded in the bug report.
 
 (This section is based on discussions between MichaelVogt and ColinWatson)
+
+=== Landscape ===
+
+Landscape should be made available to users of 6.06 LTS and other
+supported releases for their entire lifetime, which will necessitate
+new feature releases.  Being a client/server application, Landscape
+needs to maintain some level of synchronization between the client and
+server code, to minimize the number of different version interactions.
 
 === tzdata ===
 
