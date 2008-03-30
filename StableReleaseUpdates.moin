@@ -67,7 +67,7 @@ Verification feedback from bug reporters and subscribers is greatly appreciated,
 
 === New micro releases ===
 
-For some packages it is acceptable to upload new upstream micoreleases to stable Ubuntu releases. See /MicroReleaseExceptions for details.  
+For some packages it is acceptable to upload new upstream microreleases to stable Ubuntu releases. See /MicroReleaseExceptions for details.  
 
 === Kernel ===
 
