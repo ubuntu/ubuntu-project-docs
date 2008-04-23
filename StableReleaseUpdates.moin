@@ -22,7 +22,7 @@ Stable release updates will, in general, only be issued in order to fix '''high-
  * Bugs which do not fit under above categories, but (1) have an obviously safe patch and (2) affect an application rather than critical infrastructure packages (like X.org or the kernel).
  * For Long Term Support releases we regularly want to enable new hardware. Such changes are appropriate provided that we can ensure to not affect upgrades on existing hardware. For example, modaliases of newly introduced drivers must not overlap with previously shipped drivers.
  * New versions of commerical software in the Ubuntu partner archive.
- * NOTE: For Universe and Multiverse SRU's '''FTBFS''', '''not installable''', and '''segfault on startup''' ( e.g. completely un-usable ) can also be considered.
+ * NOTE: For Universe and Multiverse SRU's '''FTBFS'''(Fails To Build From Source), '''not installable''', and '''segfault on startup''' ( e.g. completely un-usable ) can also be considered.
 
 == Procedure ==
 
