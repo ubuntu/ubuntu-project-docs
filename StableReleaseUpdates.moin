@@ -33,9 +33,11 @@ Stable release updates will, in general, only be issued in order to fix '''high-
  1. Update the bug report description and make sure it contains the following information:
   1. A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
   1. An explanation of '''how the bug has been addressed''' in the development branch, including the relevant version numbers of packages modified in order to implement the fix.
-  1. A minimal '''patch''' applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to get a general approval from the SRU team first.
+  1. A minimal '''patch''' applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to get a general approval from the SRU team first. See [wiki:Self:SecurityUpdateProcedures#Prepare "Preparing an update"] how to prepare an updated package.
   1. Detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem. Please mark this with a line "{{{TEST CASE:}}}".
   1. A '''discussion''' of the regression potential of the patch and how users could get inadvertedly effected.
+
+ 1. Prepare an updated package according to [wiki:Self:SecurityUpdateProcedures#Prepare "Preparing an update"].
 
  1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailled and user-readable changelog, and no other unrelated changes.
 
