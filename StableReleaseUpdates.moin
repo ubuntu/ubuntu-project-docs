@@ -26,7 +26,7 @@ Stable release updates will, in general, only be issued in order to fix '''high-
 
 == Procedure ==
 
- 1. Check that the bug is fixed in the current development release, and its bug report task is "Fix released".
+ 1. Check that the bug is fixed in the current development release, and that its bug report task is "Fix released".  It is, in general, not appropriate to release bug fixes for stable systems without first testing them in the current development branch.
 
  1. Use ''Nominate for release'' to mark the bug as an SRU candidate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe [https://launchpad.net/~ubuntu-sru ubuntu-sru] for packages in main/restricted, or [https://launchpad.net/~motu-sru motu-sru] for packages in universe/multiverse.
 
