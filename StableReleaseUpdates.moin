@@ -43,7 +43,10 @@ Stable release updates will, in general, only be issued in order to fix '''high-
 
  1. Add yourself as a '''bug contact''' for the package in Launchpad, if you are not one already, and '''monitor Launchpad''' for bug reports relating to the update for at least one week.
 
+[[Anchor(regressions)]]
  In the event of a regression, '''immediately''' notify the [mailto:technical-board@lists.ubuntu.com Ubuntu Technical Board] via email, and ask for help on `#ubuntu-devel` in making urgent contact with a member of the Board or the SRU team: state the problem, the bug number, and ping "slangasek, Riddell, Hobbsee, pitti, mdz, Keybuk, cjwatson, keescook, jdstrand, BenC, dendrobates, davidm". For SRU in universe/multiverse, contact the [mailto:ubuntu-motu@lists.ubuntu.com Universe SRU Team] team or ask for help on `#ubuntu-motu` instead.
+
+ Any regression must '''always''' be documented in a bug report, which must be ''Importance: critical'' once the regression has been confirmed.
 
 == Verification ==
 
