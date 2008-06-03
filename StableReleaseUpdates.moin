@@ -17,11 +17,11 @@ Stable release updates are automatically recommended to a very large number of u
 Stable release updates will, in general, only be issued in order to fix '''high-impact bugs'''.  Examples of such bugs include:
 
  * Bugs which may, under realistic circumstances, directly cause a '''security vulnerability'''. These are done by the security team and are documented at SecurityUpdateProcedures.
- * Bugs which represent '''severe regressions''' from the previous release of Ubuntu. This includes packages which are totally unusuable, like being uninstallable or crashing on startup.
+ * Bugs which represent '''severe regressions''' from the previous release of Ubuntu. This includes packages which are totally unusable, like being uninstallable or crashing on startup.
  * Bugs which may, under realistic circumstances, directly cause a '''loss of user data'''
  * Bugs which do not fit under above categories, but (1) have an obviously safe patch and (2) affect an application rather than critical infrastructure packages (like X.org or the kernel).
  * For Long Term Support releases we regularly want to enable new hardware. Such changes are appropriate provided that we can ensure to not affect upgrades on existing hardware. For example, modaliases of newly introduced drivers must not overlap with previously shipped drivers.
- * New versions of commerical software in the Canonical partner archive.
+ * New versions of commercial software in the Canonical partner archive.
  * '''FTBFS'''(Fails To Build From Source) can also be considered. Please note that in '''main''' the release process ensures that there are no binaries which are not built from a current source. Usually those bugs should only be SRUed in conjunction with another bug fix.
 
 == Procedure ==
@@ -50,7 +50,7 @@ Stable release updates will, in general, only be issued in order to fix '''high-
 
 == Verification ==
 
-The [https://launchpad.net/~sru-verification SRU verification team] will regularly check open bugs with the `verification-needed` tag and test proposed updates on different hardware to check for inadvertant side effects.
+The [https://launchpad.net/~sru-verification SRU verification team] will regularly check open bugs with the `verification-needed` tag and test proposed updates on different hardware to check for inadvertent side effects.
 
 If they discover that your fix is insufficient, or the test case is not sufficient to reproduce the bug, they will:
 
@@ -93,6 +93,14 @@ server code, to minimize the number of different version interactions.
 === tzdata ===
 
 The tzdata package is updated to reflect changes in timezones or daylight saving policies. The verification is done with the "zdump" utility. The first timezone that gets changed in the updated package is dumped with "zdump -v $region/$timezone_that_changed" (this needed to be greped for in /usr/share/zoneinfo/). This is compared to the same output after the updated package got installed. If those are different the verification is considered done.
+
+=== hal-info ===
+
+The hal-info package contains descriptions, quirks, and other information about
+hardware components, in particular for suspend/resume, Laptop Fn keys, broken
+batteries, and multimedia devices. It gets frequent updates in stable LTS
+releases. After one week of maturing in -proposed and no regression bug reports
+it can be moved to hal-updates.
 
 == Examples ==
 
