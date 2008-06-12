@@ -84,11 +84,16 @@ The app-install-data-commercial source package may be uploaded to add .desktop f
 
 === Landscape ===
 
-Landscape should be made available to users of 6.06 LTS and other
+''Note:'' This section was not approved by the Technical Board yet,
+and has not been exercised yet. This should be replaced by a more
+general formulation which applies to similar cases as well.
+
+  -- ''Landscape should be made available to users of 6.06 LTS and other
 supported releases for their entire lifetime, which will necessitate
 new feature releases.  Being a client/server application, Landscape
 needs to maintain some level of synchronization between the client and
-server code, to minimize the number of different version interactions.
+server code, to minimize the number of different version
+interactions.''
 
 === tzdata ===
 
