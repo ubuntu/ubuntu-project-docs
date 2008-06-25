@@ -50,7 +50,7 @@ Stable release updates will, in general, only be issued in order to fix '''high-
 
 == Verification ==
 
-The [https://launchpad.net/~sru-verification SRU verification team] will regularly check open bugs with the `verification-needed` tag and test proposed updates on different hardware to check for inadvertent side effects. Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates for. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports. 
+The [https://launchpad.net/~sru-verification SRU verification team] will regularly check open bugs with the `verification-needed` tag and test proposed updates on different hardware to check for inadvertent side effects. Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports. 
 
 If they discover that your fix is insufficient, or the test case is not sufficient to reproduce the bug, they will:
 
