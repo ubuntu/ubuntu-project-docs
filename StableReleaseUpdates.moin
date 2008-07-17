@@ -56,7 +56,7 @@ If they discover that your fix is insufficient, or the test case is not sufficie
 
  1. Set the bug report '''Status: In Progress'''
  1. Describe why the fix was rejected in a comment to the bug report.
- 1. Remove the `verification-needed tag`.
+ 1. Modify the `verification-needed tag` to a `verification-failed` tag on the bug report.
 
 The SRU verification team may also discover that your fix is good.  They will:
 
