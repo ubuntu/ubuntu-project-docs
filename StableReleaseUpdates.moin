@@ -48,6 +48,16 @@ Stable release updates will, in general, only be issued in order to fix '''high-
 
  Any regression must '''always''' be documented in a bug report, which must be ''Importance: critical'' once the regression has been confirmed.
 
+== Fixing several bugs in one upload ==
+
+Please avoid creating meta-bugs like "Please SRU this". They just create redundancy and are opaque to original bug reporters, whose feedback is valuable for verification. Just prepare all fixed bugs as described above and attach the patch/debdiff to one of them.
+
+In order to make it easier for the SRU team to review your patch, you can additionally:
+
+ * Point to the patch/debdiff in the other bugs ("debdiff which fixes this is attached to bug #xxxxxx")
+
+ * Attach individual patches to the corresponding bug reports. If you have the fixes in bzr, it is even easier and more convenient to give a pointer to the fix ("fixed in http://bazaar.launchpad.net/.../revision/12") when fixing the bug in trunk.
+
 == Verification ==
 
 The [[https://launchpad.net/~sru-verification|SRU verification team]] will regularly check open bugs with the `verification-needed` tag and test proposed updates on different hardware to check for inadvertent side effects. Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports. 
