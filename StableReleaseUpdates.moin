@@ -88,7 +88,7 @@ Because of the way updates to the kernel work, it will follow a slightly differe
 
 === app-install-data-commercial ===
 
-The app-install-data-commercial source package may be uploaded to add .desktop files for new packages in the commercial repository on archive.canonical.com. This does not require prior approval, and the aging requirement is waived; but it must still go through -proposed, a bug report must still be filed with a debdiff and other relevant information as above, and testing must still be recorded in the bug report.
+The app-install-data-commercial source package may be uploaded to add .desktop files for new packages in the commercial repository on archive.canonical.com. This does not require prior approval, and the aging requirement is waived; but it must still go through -proposed, a bug report must still be filed with testing instructions (its enough to add the new apps so that the tester can try to install them and verify that this works), and testing must still be recorded in the bug report.
 
 (This section is based on discussions between MichaelVogt and ColinWatson)
 
