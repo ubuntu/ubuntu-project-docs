@@ -121,14 +121,13 @@ As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an ide
 Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bugs that (a) are Fix Released in the current development release and (b) have been nominated but not approved for stable releases. See the following links:
 
  * [[https://bugs.edge.launchpad.net/ubuntu/dapper/+nominations?field.subscriber=ubuntu-sru|Dapper]]
- * [[https://bugs.edge.launchpad.net/ubuntu/feisty/+nominations?field.subscriber=ubuntu-sru|Feisty]]
  * [[https://bugs.edge.launchpad.net/ubuntu/gutsy/+nominations?field.subscriber=ubuntu-sru|Gutsy]]
  * [[https://bugs.edge.launchpad.net/ubuntu/hardy/+nominations?field.subscriber=ubuntu-sru|Hardy]]
 
 === Useful links for motu-sru ===
 
  * [[https://bugs.launchpad.net/~motu-sru/|Bugs subscribed by motu-sru]]
- * List of bugs which needs verification for [[http://tinyurl.com/3bgr3y|Dapper]], [[http://tinyurl.com/3b2u78|Feisty]], [[http://tinyurl.com/yr7wsu|Gutsy]]
+ * List of bugs which needs verification for [[http://tinyurl.com/3bgr3y|Dapper]], [[http://tinyurl.com/yr7wsu|Gutsy]]
  * List of verified bugs for [[http://tinyurl.com/25f6dk|Dapper]], [[http://tinyurl.com/25f6dk|Edgy]], [[http://tinyurl.com/yu5ldn|Feisty]], [[http://tinyurl.com/yuk7s7|Gutsy]]
 
 ----
