@@ -110,7 +110,7 @@ The hal-info package contains descriptions, quirks, and other information about
 hardware components, in particular for suspend/resume, Laptop Fn keys, broken
 batteries, and multimedia devices. It gets frequent updates in stable LTS
 releases. After one week of maturing in -proposed and no regression bug reports
-it can be moved to hal-updates.
+it can be moved to -updates.
 
 == Examples ==
 
