@@ -112,6 +112,13 @@ batteries, and multimedia devices. It gets frequent updates in stable LTS
 releases. After one week of maturing in -proposed and no regression bug reports
 it can be moved to -updates.
 
+=== mobile-broadband-provider-info ===
+
+Whenever there are significant changes, a new version is uploaded into the
+current development release and all stable releases from 8.10 on.  After one
+week of maturing in -proposed and no regression bug reports it can be moved to
+-updates.
+
 == Examples ==
 
 As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an idea of how the SRU process works for a main package, or [[https://launchpad.net/bugs/208666|bug #208666]] for an SRU in universe.
