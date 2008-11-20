@@ -37,9 +37,9 @@ Stable release updates will, in general, only be issued in order to fix '''high-
 
  1. Use ''Nominate for release'' to mark the bug as an SRU candidate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]] for packages in main/restricted, or [[https://launchpad.net/~motu-sru|motu-sru]] for packages in universe/multiverse.
 
- 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that the version number does not conflict with any later and future version in other Ubuntu releases (The [[SecurityUpdateProcedures#Prepare|security policy document]] has a well-working scheme which can be used for SRUs.) Also be sure to reference the SRU bug number in the changelog using the 'LP: #NNNNNN' convention.
+ 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that the version number does not conflict with any later and future version in other Ubuntu releases (the [[SecurityUpdateProcedures#Prepare|security policy document]] has a well-working scheme which can be used for SRUs.) Also be sure to reference the SRU bug number in the changelog using the 'LP: #NNNNNN' convention.
 
- 1. Once the [[https://wiki.ubuntu.com/ArchiveAdministration#head-1f27dc12ab1558ec21b31ac44e4c86a87a4cd053|archive admins approve and publish your upload]], test the actual binaries in the Ubuntu archive yourself and follow up in the bug report.
+ 1. Once the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable release updates|archive admins approve and publish your upload]], test the actual binaries in the Ubuntu archive yourself and follow up in the bug report.
 
  1. Subscribe yourself to bugmail for the package in Launchpad, if you are not one already, and '''monitor Launchpad''' for bug reports relating to the update for at least one week.
 
