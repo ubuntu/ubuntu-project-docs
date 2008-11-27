@@ -2,7 +2,7 @@
 
 Once an Ubuntu release has been completed and published, updates for it are only released under certain circumstances, and must follow a special procedure called a "stable release update" or SRU.
 
-There is an automatically generated list of [[http://people.ubuntu.com/~ubuntu-archive/pending-sru.html|packages which currently undergo this process]].
+There is an automatically generated list of [[http://people.ubuntu.com/~ubuntu-archive/pending-sru.html|packages which are currently undergoing this process]].
 
 == Why ==
 
@@ -23,6 +23,8 @@ Stable release updates will, in general, only be issued in order to fix '''high-
  * For Long Term Support releases we regularly want to enable new hardware. Such changes are appropriate provided that we can ensure to not affect upgrades on existing hardware. For example, modaliases of newly introduced drivers must not overlap with previously shipped drivers.
  * New versions of commercial software in the Canonical partner archive.
  * '''FTBFS'''(Fails To Build From Source) can also be considered. Please note that in '''main''' the release process ensures that there are no binaries which are not built from a current source. Usually those bugs should only be SRUed in conjunction with another bug fix.
+
+For new upstream versions of packages which provide new features, but don't fix critical bugs, a [[https://help.ubuntu.com/community/UbuntuBackports|backport] should be requested instead.
 
 == Procedure ==
 
