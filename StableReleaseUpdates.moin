@@ -24,7 +24,7 @@ Stable release updates will, in general, only be issued in order to fix '''high-
  * New versions of commercial software in the Canonical partner archive.
  * '''FTBFS'''(Fails To Build From Source) can also be considered. Please note that in '''main''' the release process ensures that there are no binaries which are not built from a current source. Usually those bugs should only be SRUed in conjunction with another bug fix.
 
-For new upstream versions of packages which provide new features, but don't fix critical bugs, a [[https://help.ubuntu.com/community/UbuntuBackports|backport] should be requested instead.
+For new upstream versions of packages which provide new features, but don't fix critical bugs, a [[https://help.ubuntu.com/community/UbuntuBackports|backport]] should be requested instead.
 
 == Procedure ==
 
@@ -136,7 +136,8 @@ Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bug
 
 === Useful links for motu-sru ===
 
- * [[https://bugs.launchpad.net/~motu-sru/|Bugs subscribed by motu-sru]]
+ * [[http://qa.ubuntuwire.com/sru/todo.html|Bugs in different stages of the MOTU stable release process]]
+ * [[https://bugs.launchpad.net/~motu-sru/|Bugs subscribed by motu-sru in launchpad]]
  * List of bugs which needs verification for [[http://tinyurl.com/3bgr3y|Dapper]], [[http://tinyurl.com/yr7wsu|Gutsy]]
  * List of verified bugs for [[http://tinyurl.com/25f6dk|Dapper]], [[http://tinyurl.com/yuk7s7|Gutsy]]
 
