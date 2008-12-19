@@ -12,6 +12,16 @@ Users of the official release, in contrast, expect a high degree of stability.  
 
 Stable release updates are automatically recommended to a very large number of users, and so it is critically important to treat them with great caution.  Therefore, when updates are proposed, they must be accompanied by a strong rationale and present a low risk of regressions.
 
+=== It's just a one-line change! ===
+
+Even the simplest of changes can cause unexpected regressions due to lurking problems.
+
+In [[https://bugs.launchpad.net/bugs/81125|bug 81125]], the upgrade regression had nothing to do with the content of the change that triggered it: any user who had installed the libpthread20 package would encounter a problem the next time libc6 was upgraded.
+
+In [[https://bugs.launchpad.net/bugs/309674|bug 309674]], the failure was a misbuild due to timestamp skew in the build process. The underlying problem existed in the source package in the original release, but would only manifest in a small percentage of builds.
+
+Citizen, be paranoid, and expect the unexpected.
+
 == When ==
 
 Stable release updates will, in general, only be issued in order to fix '''high-impact bugs'''.  Examples of such bugs include:
