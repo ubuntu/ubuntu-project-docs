@@ -87,6 +87,14 @@ The SRU verification team may also discover that your fix is good.  They will:
 
 Verification feedback from bug reporters and subscribers is greatly appreciated, too, especially if the update is hardware specific. In this case we consider an update as verified if it has at least two positive and no negative testimonials in the bug report, and the verification team just checks whether the new version still works for the main use cases (to check for major regressions).
 
+If you encounter a regression in a package that has been uploaded to *-proposed, please:
+
+ 1. File a bug report against the package, describing the nature of the regression you have encountered, including any special steps needed to reproduce the regression.
+ 1. Mark this bug with the tag `regression-proposed`
+ 1. Use the `Nominate for release` link to highlight the bug for the release involved.
+ 1. Follow up to the SRU bug report referenced from the package changelog, pointing to the new bug.  If there is more than one bug in the SRU changelog, follow up to the bug that is most closely related to the regression.
+ 1. Set the `verification-failed` tag on the corresponding SRU bug report.
+
 <<Anchor(Special)>>
 == Special Cases ==
 
