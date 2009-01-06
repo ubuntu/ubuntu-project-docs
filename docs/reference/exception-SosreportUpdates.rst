@@ -61,16 +61,12 @@ pass the following additional QA procedures:
 -  upgrade test from previous version of the package. This test must be
    performed with:
 
-   -  dpkg
    -  apt-get install/upgrade
-   -  smart install/upgrade
    -  using the Landscape service itself
 
 -  installation from scratch in the current distribution:
 
-   -  using dpkg
    -  using apt-get
-   -  using smart
 
 -  optionally, because of the added complexity and because the author of
    this document is not yet sure how to do it, the installer of the
