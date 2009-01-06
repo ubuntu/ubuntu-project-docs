@@ -22,6 +22,9 @@ pass. We will split it into two sections: code QA and package QA.
 Code QA
 ~~~~~~~
 
+The objective of the code QA is to make sure that the code changes fix
+or implement what they intended and have no ill side effects.
+
 The following requirements must be met:
 
 -  each change needs to have a Launchpad ticket filed under the
@@ -31,11 +34,19 @@ The following requirements must be met:
    -  two developer reviews (already a standard Landscape coding
       practice)
    -  a specific QA review
+   -  self tests must all pass (already a standard Landscape coding
+      practice)
 
 .. _packaging_qa:
 
 Packaging QA
 ~~~~~~~~~~~~
+
+The objective of the separate packaging QA is to test:
+
+-  package upgrades
+-  package installation from scratch
+-  distribution upgrade
 
 The following requirements must be met:
 
