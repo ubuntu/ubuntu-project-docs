@@ -6,8 +6,9 @@ packages in a stable supported distro, including LTS.
 Landscape is a commercial service from Canonical which periodically
 offers new features to its customers. Being a client-server product, the
 client part needs to be periodically updated in order to take advantage
-of the new features. Therefore, new features are allowed in an update
-**as long as the conditions outlined below are met**.
+of the new features. Therefore, in addition to bug fixes, new features
+are allowed in an update **as long as the conditions outlined below are
+met**.
 
 .. _qa_process:
 
@@ -19,6 +20,9 @@ pass. The following requirements must be met:
 
 -  each change must have a Launchpad ticket filed under the
    landscape-client project
+   (https://bugs.launchpad.net/landscape-client/+filebug). Packaging
+   bugs should be filed against the landscape-client ubuntu package
+   (https://bugs.launchpad.net/ubuntu/+source/landscape-client/+filebug)
 -  each one of those tickets must have:
 
    -  two developer reviews approving the change (already a standard
