@@ -31,8 +31,8 @@ pass. The following requirements must be met:
    -  a "Committed" status
 
 -  all self tests must pass. It is already a Landscape standard coding
-   practice to write unittest for every change as well as have them all
-   pass before commit.
+   practice to write unit tests for every code change as well as have
+   them all pass before commit.
 
 The above tests exercise the code changes and must be performed by a
 member of the Landscape team. The packaging changes need an extra QA
