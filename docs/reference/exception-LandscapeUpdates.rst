@@ -32,8 +32,9 @@ pass. The following requirements must be met:
 
 -  all self tests must pass (already a standard Landscape coding
    practice)
--  after the upgrade, a simple test confirming the client can still talk
-   to the Landscape server must be performed
+-  after a test upgrade of the client, a simple manual verification
+   confirming the client can still talk to the Landscape server must be
+   performed
 
 The above tests exercise the code changes and must be performed by a
 member of the Landscape team. The packaging changes need an extra QA
