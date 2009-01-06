@@ -21,8 +21,8 @@ pass. The following requirements must be met:
    landscape-client project
 -  each one of those tickets must have:
 
-   -  two developer reviews (already a standard Landscape coding
-      practice)
+   -  two developer reviews approving the change (already a standard
+      Landscape coding practice)
    -  a specific QA review
 
 -  all self tests must pass (already a standard Landscape coding
