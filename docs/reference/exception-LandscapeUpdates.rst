@@ -35,8 +35,9 @@ pass. The following requirements must be met:
 -  after the upgrade, a simple test confirming the client can still talk
    to the Landscape server must be performed
 
-The above tests exercise the code changes. The packaging changes need an
-extra QA procedure outlined below.
+The above tests exercise the code changes and must be performed by a
+member of the Landscape team. The packaging changes need an extra QA
+procedure outlined below.
 
 .. _packaging_qa:
 
@@ -74,3 +75,14 @@ pass the following additional QA procedures:
    this document is not yet sure how to do it, the installer of the
    current distribution should also be tested using the new package to
    make sure it works in the installer environment
+
+The above tests can be performed by any QA engineer.
+
+.. _requesting_the_sru:
+
+Requesting the SRU
+------------------
+
+The SRU should be requested as usual
+(`StableReleaseUpdates <StableReleaseUpdates>`__) with the additional
+note about having the above steps being completed.
