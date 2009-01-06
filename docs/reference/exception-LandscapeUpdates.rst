@@ -68,13 +68,7 @@ the following additional QA procedures:
    -  using apt-get
    -  using smart
 
-Landscape Packages
-
-.. _mandatory_tests:
-
-Mandatory Tests
----------------
-
-Allowed Changes
-
-Procedure for a Landscape Update
+-  optionally, because of the added complexity and because the author of
+   this document is not yet sure how to do it, the installer of the
+   current distribution should also be tested using the new package to
+   make sure it works in the installer environment
