@@ -24,8 +24,8 @@ Code QA
 
 The following requirements must be met:
 
--  each fix or new feature needs to have its own Launchpad ticket filed
-   under the landscape-client project
+-  each change needs to have a Launchpad ticket filed under the
+   landscape-client project
 -  each one of those tickets needs to have:
 
    -  two developer reviews (already a standard Landscape coding
@@ -39,8 +39,8 @@ Packaging QA
 
 The following requirements must be met:
 
--  each packaging change must have its own Launchpad ticket filed under
-   the landscape-client ubuntu package
+-  each packaging change must have a Launchpad ticket filed under the
+   landscape-client ubuntu package
 -  each one of those tickets must have:
 
    -  two developer reviews (already a standard Landscape coding
