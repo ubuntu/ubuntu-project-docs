@@ -15,27 +15,23 @@ QA Process
 ----------
 
 This is the mandatory QA process that the proposed packages have to
-pass. We will split it into two sections: code QA and package QA.
+pass. The following requirements must be met:
 
-.. _code_qa:
-
-Code QA
-~~~~~~~
-
-The objective of the code QA is to make sure that the code changes fix
-or implement what they intended and have no ill side effects.
-
-The following requirements must be met:
-
--  each change needs to have a Launchpad ticket filed under the
+-  each change must have a Launchpad ticket filed under the
    landscape-client project
--  each one of those tickets needs to have:
+-  each one of those tickets must have:
 
    -  two developer reviews (already a standard Landscape coding
       practice)
    -  a specific QA review
-   -  self tests must all pass (already a standard Landscape coding
-      practice)
+
+-  all self tests must pass (already a standard Landscape coding
+   practice)
+-  after the upgrade, the client must still be able to talk to the
+   Landscape server
+
+The above tests exercise the code changes. The packaging changes need an
+extra QA procedure outlined below.
 
 .. _packaging_qa:
 
@@ -48,18 +44,8 @@ The objective of the separate packaging QA is to test:
 -  package installation from scratch
 -  distribution upgrade
 
-The following requirements must be met:
-
--  each packaging change must have a Launchpad ticket filed under the
-   landscape-client ubuntu package
--  each one of those tickets must have:
-
-   -  two developer reviews (already a standard Landscape coding
-      practice)
-   -  a specific QA review
-
-The resulting package, with all the changes in place, needs to undergo
-the following additional QA procedures:
+The resulting package, with all the changes in place, must undergo and
+pass the following additional QA procedures:
 
 -  upgrade test from previous distribution to the current one. If the
    current distribution is an LTS one, the upgrade path from the
