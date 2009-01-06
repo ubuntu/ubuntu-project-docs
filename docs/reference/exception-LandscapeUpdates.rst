@@ -26,11 +26,11 @@ The following requirements must be met:
 
 -  each fix or new feature needs to have its own Launchpad ticket filed
    under the landscape-client project
--  each one of those tickets needs to:
+-  each one of those tickets needs to have:
 
-   -  have two developer reviews (already a standard Landscape coding
+   -  two developer reviews (already a standard Landscape coding
       practice)
-   -  additionally have a specific QA review
+   -  a specific QA review
 
 .. _packaging_qa:
 
@@ -45,7 +45,7 @@ The following requirements must be met:
 
    -  two developer reviews (already a standard Landscape coding
       practice)
-   -  an extra QA review
+   -  a specific QA review
 
 The resulting package, with all the changes in place, needs to undergo
 the following additional QA procedures:
