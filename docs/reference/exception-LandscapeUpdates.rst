@@ -24,6 +24,7 @@ pass. The following requirements must be met:
    -  two developer reviews approving the change (already a standard
       Landscape coding practice)
    -  a specific QA review
+   -  a "Committed" status
 
 -  all self tests must pass (already a standard Landscape coding
    practice)
