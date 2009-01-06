@@ -30,11 +30,9 @@ pass. The following requirements must be met:
    -  a specific QA review
    -  a "Committed" status
 
--  all self tests must pass (already a standard Landscape coding
-   practice)
--  after a test upgrade of the client, a simple manual verification
-   confirming the client can still talk to the Landscape server must be
-   performed
+-  all self tests must pass. It is already a Landscape standard coding
+   practice to write unittest for every change as well as have them all
+   pass before commit.
 
 The above tests exercise the code changes and must be performed by a
 member of the Landscape team. The packaging changes need an extra QA
@@ -67,11 +65,6 @@ pass the following additional QA procedures:
 -  installation from scratch in the current distribution:
 
    -  using apt-get
-
--  optionally, because of the added complexity and because the author of
-   this document is not yet sure how to do it, the installer of the
-   current distribution should also be tested using the new package to
-   make sure it works in the installer environment
 
 The above tests can be performed by any QA engineer.
 
