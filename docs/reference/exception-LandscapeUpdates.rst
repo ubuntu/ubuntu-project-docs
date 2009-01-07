@@ -54,8 +54,7 @@ pass the following additional QA procedures:
 
 -  upgrade test from previous distribution to the current one. If the
    current distribution is an LTS one, the upgrade path from the
-   previous LTS distro must also be exercised. This upgrade test must be
-   performed using do-release-upgrade
+   previous LTS distro must also be exercised.
 -  upgrade test from previous version of the package. This test must be
    performed with:
 
