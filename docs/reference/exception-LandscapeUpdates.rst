@@ -28,15 +28,13 @@ pass. The following requirements must be met:
    (https://bugs.launchpad.net/ubuntu/+source/landscape-client/+filebug)
 -  each one of those tickets must have:
 
-   -  two developer reviews approving the change (already a standard
-      Landscape coding practice)
+   -  two Landscape developer reviews approving the change (already a
+      standard Landscape coding practice)
    -  a specific QA review
-   -  a "Committed" status
+   -  a "Committed" status, meaning the change is already in the code
+      base
 
--  the code must be developed according to the TDD (Test Driven
-   Development) model. For reference, see
-   http://en.wikipedia.org/wiki/Test-driven_development. Basically, it
-   means that every code change must be covered by a test. Yes, really.
+-  the code changes must include tests
 -  all self tests must pass. It is already a Landscape standard coding
    practice to write unit tests for every code change as well as have
    them all pass before commit. landscape-client has, as of version
