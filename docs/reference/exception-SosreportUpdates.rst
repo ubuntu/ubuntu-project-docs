@@ -34,7 +34,7 @@ pass. The following requirements must be met:
    -  a "Committed" status, meaning the change is already in the code
       base
 
--  the code changes must include tests
+-  the code changes must be covered by tests
 -  all self tests must pass. It is already a Landscape standard coding
    practice to write unit tests for every code change as well as have
    them all pass before commit. landscape-client has, as of version
