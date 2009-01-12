@@ -35,9 +35,9 @@ pass. The following requirements must be met:
       base
 
 -  the code changes must be covered by tests
--  all self tests must pass. It is already a Landscape standard coding
-   practice to write unit tests for every code change as well as have
-   them all pass before commit. landscape-client has, as of version
+-  all self tests must pass. Being a project that follows the TDD (Test
+   Driven Development) model, any code change in Landscape (client or
+   server) is covered by a test. The client part has, as of version
    1.0.23, 1469 individual test cases that cover the entire code base.
 
 The above tests exercise the code changes and must be performed by a
