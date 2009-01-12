@@ -39,7 +39,8 @@ pass. The following requirements must be met:
    means that every code change must be covered by a test. Yes, really.
 -  all self tests must pass. It is already a Landscape standard coding
    practice to write unit tests for every code change as well as have
-   them all pass before commit.
+   them all pass before commit. landscape-client has, as of version
+   1.0.23, 1469 individual test cases that cover the entire code base.
 
 The above tests exercise the code changes and must be performed by a
 member of the Landscape team. The packaging changes need an extra QA
