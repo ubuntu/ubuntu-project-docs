@@ -1,7 +1,10 @@
 **DRAFT, please send comments to andreas at ubuntu.com**
 
 This document describes the policy for updating Landscape client
-packages in a stable supported distro, including LTS.
+packages in a stable supported distro, including LTS. It is also the aim
+of this document to provide an example of the needed minimum
+requirements for any upstream project that wants to push updates to an
+Ubuntu stable release.
 
 Landscape is a commercial service from Canonical which periodically
 offers new features to its customers. Being a client-server product, the
@@ -30,6 +33,10 @@ pass. The following requirements must be met:
    -  a specific QA review
    -  a "Committed" status
 
+-  the code must be developed according to the TDD (Test Driven
+   Development) model. For reference, see
+   http://en.wikipedia.org/wiki/Test-driven_development. Basically, it
+   means that every code change must be covered by a test. Yes, really.
 -  all self tests must pass. It is already a Landscape standard coding
    practice to write unit tests for every code change as well as have
    them all pass before commit.
