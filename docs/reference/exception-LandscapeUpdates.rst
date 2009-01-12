@@ -36,10 +36,12 @@ pass. The following requirements must be met:
       base
 
 -  all the code changes must be covered by tests
--  all self tests must pass. Being a project that follows the TDD (Test
-   Driven Development) model, any code change in Landscape (client or
-   server) is covered by a test. The client part has, as of version
-   1.0.23, 1469 individual test cases that cover the entire code base.
+-  all self tests must pass. Being a project that follows the TDD model
+   (Test Driven Development, see
+   http://en.wikipedia.org/wiki/Test_driven_development for details),
+   any code change in Landscape (client or server) is covered by a test.
+   The client part has, as of version 1.0.23, 1469 individual test cases
+   that cover the entire code base.
 
 The above tests exercise the code changes and must be performed by a
 member of the Landscape team. The packaging changes need an extra QA
