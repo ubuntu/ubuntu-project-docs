@@ -28,6 +28,7 @@ pass. The following requirements must be met:
    (https://bugs.launchpad.net/ubuntu/+source/landscape-client/+filebug)
 -  each one of those tickets must have:
 
+   -  a bzr branch attached with the fix + tests
    -  two Landscape developer reviews approving the change (already a
       standard Landscape coding practice)
    -  a specific QA review
