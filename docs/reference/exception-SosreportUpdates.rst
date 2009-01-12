@@ -31,11 +31,12 @@ pass. The following requirements must be met:
    -  a bzr branch attached with the fix + tests
    -  two Landscape developer reviews approving the change (already a
       standard Landscape coding practice)
-   -  a specific QA review
+   -  a specific QA review. The QA engineer must at least do a before
+      and after kind of test, corroborating the fix.
    -  a "Committed" status, meaning the change is already in the code
       base
 
--  the code changes must be covered by tests
+-  all the code changes must be covered by tests
 -  all self tests must pass. Being a project that follows the TDD (Test
    Driven Development) model, any code change in Landscape (client or
    server) is covered by a test. The client part has, as of version
