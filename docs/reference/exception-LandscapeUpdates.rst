@@ -2,9 +2,8 @@
 
 This document describes the policy for updating Landscape client
 packages in a stable supported distro, including LTS. It is also the aim
-of this document to provide an example of the needed minimum
-requirements for any upstream project that wants to push updates to an
-Ubuntu stable release.
+of this document to provide an example for any upstream project that
+wants to push updates to an Ubuntu stable release.
 
 Landscape is a commercial service from Canonical which periodically
 offers new features to its customers. Being a client-server product, the
