@@ -64,10 +64,19 @@ Mainline Stable Updates
 
 Where mainline is providing stable updates (the stable maintainer trees
 stable-2.6.27.y etc) these will be considered for inclusion as they
-release. For non-LTS releases these will generally be incorporated in
-full for the initial 3-4 month bug fixing period. After this patches
-will only be incorporated where there is demonstrated user need,
-following the normal SRU process for each change.
+release.
+
+For non-LTS releases these will generally be incorporated in full for
+the initial 3-4 month bug fixing period. After this patches will only be
+incorporated where there is demonstrated user need, following the normal
+SRU process for each change.
+
+For LTS releases these will generally be incorporated in full for the
+life of the release. These will necessitate longer baking of the
+releases in -proposed to weed out possible regressions. It should be
+noted that as the release matures the flow of these updates are expected
+to slow significantly as the release diverges further from the
+development version.
 
 .. _how_will_updates_be_provided_in_the_archive:
 
