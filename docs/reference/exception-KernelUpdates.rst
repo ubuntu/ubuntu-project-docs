@@ -31,6 +31,9 @@ updates:
    maintained in a separate repository/pocket/PPA specific for that
    vendor or, if appropriate, in \`linux-backports-modules\`, and thus
    need to be maintained separately in the future.
+-  Mainline Stable Updates. These are upstream blessed patches which are
+   deemed important enough to backport to older releases. These patches
+   must pass testing both upstream and by Canonica/Ubuntu.
 
 Other changes are generally avoided on stable kernels, since the
 regression potential is so exceptionally high.
