@@ -54,6 +54,18 @@ in the stable release, or deemed unfixable.
 
 There may be a few exceptions to this, but don't count on them.
 
+.. _mainline_stable_updates:
+
+Mainline Stable Updates
+-----------------------
+
+Where mainline is providing stable updates (the stable maintainer trees
+stable-2.6.27.y etc) these will be considered for inclusion as they
+release. For non-LTS releases these will generally be incorporated in
+full for the initial 3-4 month bug fixing period. After this patches
+will only be incorporated where there is demonstrated user need,
+following the normal SRU process for each change.
+
 .. _how_will_updates_be_provided_in_the_archive:
 
 How will updates be provided in the archive
