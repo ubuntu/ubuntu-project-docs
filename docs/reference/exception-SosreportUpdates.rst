@@ -74,6 +74,17 @@ pass the following additional QA procedures:
 
    -  using apt-get
 
+-  test interaction with update-motd to make sure the motd doesn't get
+   trashed or otherwise impaired by landscape-common:
+
+   -  reboot and make sure motd is displayed correctly and not trashed
+   -  when update-motd is used by landscape-sysinfo (it's the default),
+      make sure its call to landscape-sysinfo works and the output is
+      included in the motd
+   -  provoke an error (backtrace) in landscape-sysinfo plugin by
+      running \`sudo chmod 0 /proc\`: the backtrace must not be included
+      in the motd
+
 The above tests can be performed by any QA engineer.
 
 .. _requesting_the_sru:
