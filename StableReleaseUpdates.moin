@@ -53,7 +53,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 
  1. Once the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable release updates|archive admins approve and publish your upload]], test the actual binaries in the Ubuntu archive yourself and follow up in the bug report.
 
- 1. Subscribe yourself to bugmail for the package in Launchpad, if you are not one already, and '''monitor Launchpad''' for bug reports relating to the update for at least one week.
+ 1. Subscribe yourself to bugmail for the package in Launchpad, if you haven't done so already, and '''monitor Launchpad''' for bug reports relating to the update for at least one week.
 
 <<Anchor(regressions)>>
  In the event of a regression, '''immediately''' notify the [[mailto:technical-board@lists.ubuntu.com|Ubuntu Technical Board]] via email, and ask for help on `#ubuntu-devel` in making urgent contact with a member of the Board or the SRU team: state the problem, the bug number, and ping "slangasek, Riddell, Hobbsee, pitti, mdz, Keybuk, cjwatson, kees, jdstrand, BenC, dendrobates, davidm". For SRU in universe/multiverse, contact the [[mailto:ubuntu-motu@lists.ubuntu.com|Universe SRU Team]] team or ask for help on `#ubuntu-motu` instead.
@@ -98,6 +98,8 @@ If you encounter a regression in a package that has been uploaded to *-proposed,
 <<Anchor(Special)>>
 == Special Cases ==
 
+The [[https://lists.ubuntu.com/archives/ubuntu-devel-announce/2009-March/000550.html|Technical Board resolution on Landscape]] provides a general rationale for the types of special cases that may be approved here in future.
+
 === New micro releases ===
 
 For some packages it is acceptable to upload new upstream microreleases to stable Ubuntu releases. See /MicroReleaseExceptions for details.  
@@ -114,11 +116,7 @@ The app-install-data-commercial source package may be uploaded to add .desktop f
 
 === Landscape ===
 
-''Note:'' This section was not approved by the Technical Board yet,
-and has not been exercised yet. This should be replaced by a more
-general formulation which applies to similar cases as well.
-
-  -- ''Landscape should be made available to users of 6.06 LTS and other supported releases for their entire lifetime, which will necessitate new feature releases.  Being a client/server application, Landscape needs to maintain some level of synchronization between the client and server code, to minimize the number of different version interactions.''
+The landscape-client source package may be uploaded according to the procedure documented in LandscapeUpdates. See the [[https://lists.ubuntu.com/archives/ubuntu-devel-announce/2009-March/000550.html|Technical Board resolution]] for details and rationale.
 
 === tzdata ===
 
