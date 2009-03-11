@@ -1,5 +1,3 @@
-**DRAFT, please send comments to andreas at ubuntu.com**
-
 This document describes the policy for updating Landscape client
 packages in a stable supported distro, including LTS. It is also the aim
 of this document to provide an example for any upstream project that
