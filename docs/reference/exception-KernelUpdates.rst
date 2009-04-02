@@ -1,3 +1,7 @@
+#. 
+
+   #. page was renamed from KernelUpdates
+
 .. _kernel_security_and_update_policy_for_post_release_trees:
 
 Kernel security and update policy for post-release trees
