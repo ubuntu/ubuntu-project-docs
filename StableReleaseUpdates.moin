@@ -26,7 +26,7 @@ Citizen, be paranoid, and expect the unexpected.
 
 Stable release updates will, in general, only be issued in order to fix '''high-impact bugs'''.  Examples of such bugs include:
 
- * Bugs which may, under realistic circumstances, directly cause a '''security vulnerability'''. These are done by the security team and are documented at SecurityUpdateProcedures.
+ * Bugs which may, under realistic circumstances, directly cause a '''security vulnerability'''. These are done by the security team and are documented at SecurityTeam/UpdateProcedures.
  * Bugs which represent '''severe regressions''' from the previous release of Ubuntu. This includes packages which are totally unusable, like being uninstallable or crashing on startup.
  * Bugs which may, under realistic circumstances, directly cause a '''loss of user data'''
  * Bugs which do not fit under above categories, but (1) have an obviously safe patch and (2) affect an application rather than critical infrastructure packages (like X.org or the kernel).
@@ -49,7 +49,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 
  1. Use ''Nominate for release'' to mark the bug as an SRU candidate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]] for packages in main/restricted, or [[https://launchpad.net/~motu-sru|motu-sru]] for packages in universe/multiverse.
 
- 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that the version number does not conflict with any later and future version in other Ubuntu releases (the [[SecurityUpdateProcedures#Prepare|security policy document]] has a well-working scheme which can be used for SRUs.) Also be sure to reference the SRU bug number in the changelog using the 'LP: #NNNNNN' convention.
+ 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that the version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update%20the%20packaging|security policy document]] has a well-working scheme which can be used for SRUs.) Also be sure to reference the SRU bug number in the changelog using the 'LP: #NNNNNN' convention.
 
  1. Once the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable release updates|archive admins approve and publish your upload]], test the actual binaries in the Ubuntu archive yourself and follow up in the bug report.
 
