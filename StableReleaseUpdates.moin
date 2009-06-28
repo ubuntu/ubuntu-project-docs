@@ -45,7 +45,7 @@ For new upstream versions of packages which provide new features, but don't fix 
   1. An explanation of '''how the bug has been addressed''' in the development branch, including the relevant version numbers of packages modified in order to implement the fix.
   1. A minimal '''patch''' applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to get a general approval from the SRU team first.
   1. Detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem. Please mark this with a line "{{{TEST CASE:}}}".
-  1. A '''discussion''' of the regression potential of the patch and how users could get inadvertently effected.
+  1. A '''discussion''' of the regression potential of the patch and how users could get inadvertently affected.
 
  1. Use ''Nominate for release'' to mark the bug as an SRU candidate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]] for packages in main/restricted, or [[https://launchpad.net/~motu-sru|motu-sru]] for packages in universe/multiverse.
 
@@ -106,7 +106,8 @@ For some packages it is acceptable to upload new upstream microreleases to stabl
 
 === Kernel ===
 
-Because of the way updates to the kernel work, it will follow a slightly different process which is described on KernelUpdates.
+Because of the way updates to the kernel work, it will follow a slightly
+different process which is described on KernelTeam/KernelUpdates.
 
 === app-install-data-commercial ===
 
