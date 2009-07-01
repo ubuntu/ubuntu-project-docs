@@ -147,9 +147,9 @@ As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an ide
 Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bugs that (a) are Fix Released in the current development release and (b) have been nominated but not approved for stable releases. See the following links:
 
  * [[https://bugs.edge.launchpad.net/ubuntu/dapper/+nominations?field.subscriber=ubuntu-sru|Dapper]]
- * [[https://bugs.edge.launchpad.net/ubuntu/gutsy/+nominations?field.subscriber=ubuntu-sru|Gutsy]]
  * [[https://bugs.edge.launchpad.net/ubuntu/hardy/+nominations?field.subscriber=ubuntu-sru|Hardy]]
  * [[https://bugs.edge.launchpad.net/ubuntu/intrepid/+nominations?field.subscriber=ubuntu-sru|Intrepid]]
+ * [[https://bugs.edge.launchpad.net/ubuntu/jaunty/+nominations?field.subscriber=ubuntu-sru|Jaunty]]
 
 === Useful links for motu-sru ===
 
