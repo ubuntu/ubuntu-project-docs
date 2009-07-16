@@ -142,6 +142,14 @@ week of maturing in -proposed and no regression bug reports it can be moved to
 
 Due to the special evolving nature of anti-virus requirements and the complexity of maintaining security fixes for multiple releases, we will work to keep clamav current on all supported releases.  See ClamavUpdates for details.
 
+=== sun-java* ===
+
+'''Proposed amendment, to be signed off by Technical Board:'''
+
+Until Ubuntu 8.10, the only officially tested and certified JDKs were `sun-java5` and `sun-java6`. These are binary-only packages shipped in multiverse. From Ubuntu 9.04 on, this is replaced by OpenJDK.
+
+To support users of 8.04 LTS, new upstream microreleases of `sun-java5` and `sun-java6` can be provided in -updates without checking individual changes for above SRU criteria.
+
 == Examples ==
 
 As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an idea of how the SRU process works for a main package, or [[https://launchpad.net/bugs/208666|bug #208666]] for an SRU in universe.
