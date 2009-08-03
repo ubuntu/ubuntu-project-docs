@@ -62,6 +62,21 @@ in the stable release, or deemed unfixable.
 
 There may be a few exceptions to this, but don't count on them.
 
+.. _how_does_the_process_work:
+
+How does the process work
+-------------------------
+
+-  First step for every SRU is to have a bug associated.
+-  If the fix for a problem applies to the requirements for a SRU and
+   has also been tested to successfully solved the bug, then the next
+   step is to send the proposed patch for SRU review to the kernel-team
+   mailing list, where it needs to receive at least two ACKs from core
+   kernel developers. The review should include a generic header which
+   describes the impact, and the fix, and how the issue can be tested.
+   The same information should go into the description of the launchpad
+   bug, so the stable release team can quickly find it.
+
 .. _how_will_updates_be_provided_in_the_archive:
 
 How will updates be provided in the archive
