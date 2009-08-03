@@ -34,10 +34,11 @@ updates:
    testing, then it can be part of an SRU. Otherwise they need to be
    maintained in a separate repository/pocket/PPA specific for that
    vendor or, if appropriate, in \`linux-backports-modules\`, and thus
-   need to be maintained separately in the future.
--  Mainline Stable Updates. These are upstream blessed patches which are
-   deemed important enough to backport to older releases. These patches
-   must pass testing both upstream and by Canonica/Ubuntu.
+   need to be maintained separately in the future. This also depends on
+   whether a change relates to a LTS or a non-LTS release. While small
+   changes to add drivers can be considered throughout the lifetime of
+   an LTS, this will be limited to the point in time the next kernel
+   hits beta status.
 
 Other changes are generally avoided on stable kernels, since the
 regression potential is so exceptionally high.
@@ -60,27 +61,6 @@ stable enough for testing, and the primary target for fixing bugs. Plus,
 in the stable release, or deemed unfixable.
 
 There may be a few exceptions to this, but don't count on them.
-
-.. _mainline_stable_updates:
-
-Mainline Stable Updates
------------------------
-
-Where mainline is providing stable updates (the stable maintainer trees
-stable-2.6.27.y etc) these will be considered for inclusion as they
-release.
-
-For non-LTS releases these will generally be incorporated in full for
-the initial 3-4 month bug fixing period. After this patches will only be
-incorporated where there is demonstrated user need, following the normal
-SRU process for each change.
-
-For LTS releases these will generally be incorporated in full for the
-life of the release. These will necessitate longer baking of the
-releases in -proposed to weed out possible regressions. It should be
-noted that as the release matures the flow of these updates are expected
-to slow significantly as the release diverges further from the
-development version.
 
 .. _how_will_updates_be_provided_in_the_archive:
 
