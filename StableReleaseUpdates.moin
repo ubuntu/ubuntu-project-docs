@@ -146,9 +146,9 @@ Due to the special evolving nature of anti-virus requirements and the complexity
 
 '''Proposed amendment, to be signed off by Technical Board:'''
 
-Until Ubuntu 8.10, the only officially tested and certified JDKs were `sun-java5` and `sun-java6`. These are binary-only packages shipped in multiverse. From Ubuntu 9.04 on, this is replaced by OpenJDK.
+Ubuntu 9.04 and later include an officially tested and certified JDK called OpenJDK. Prior to Ubuntu 9.04, the only officially tested and certified JDKs were `sun-java5` and `sun-java6`. These are binary-only packages shipped in multiverse.
 
-To support users of 8.04 LTS, new upstream microreleases of `sun-java5` and `sun-java6` can be provided in -updates without checking individual changes for above SRU criteria.
+To support users of 8.04 LTS who do not have access to the free OpenJDK, new upstream microreleases of `sun-java5` and `sun-java6` can be provided in -updates without checking individual changes for above SRU criteria for as long as Sun as provides updates. Other users are recommended to upgrade to at least 9.04 and use the supported OpenJDK.
 
 == Examples ==
 
