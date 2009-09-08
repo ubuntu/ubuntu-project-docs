@@ -150,6 +150,8 @@ To support users of 8.04 LTS who do not have access to the free OpenJDK, new ups
 
 Other users are recommended to upgrade to at least 9.04 and use the supported OpenJDK.
 
+When upstream discontinues maintenance for a version of a sun-java* package (e.g. sun-java5), no more updates will be provided for that package. An announcement should be made to the ubuntu-devel-announce mailing list regarding the discontinued support of the affected package.
+
 == Examples ==
 
 As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an idea of how the SRU process works for a main package, or [[https://launchpad.net/bugs/208666|bug #208666]] for an SRU in universe.
