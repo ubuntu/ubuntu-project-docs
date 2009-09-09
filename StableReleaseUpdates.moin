@@ -95,6 +95,14 @@ If you encounter a regression in a package that has been uploaded to *-proposed,
  1. Follow up to the SRU bug report referenced from the package changelog, pointing to the new bug.  If there is more than one bug in the SRU changelog, follow up to the bug that is most closely related to the regression.
  1. Set the `verification-failed` tag on the corresponding SRU bug report.
 
+== Removal of updates ==
+
+If an update does not get any testing/verification feedback for more than half
+a year, despite several calls for testing, the Stable Release Managers will
+remove the package from -proposed and usually close the bug task as "wontfix",
+due to lack of interest. Removal will happen immediately if a package
+update in -proposed is found to introduce a nontrivial regression.
+
 <<Anchor(Special)>>
 == Special Cases ==
 
