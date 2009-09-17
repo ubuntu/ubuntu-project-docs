@@ -47,7 +47,7 @@ For new upstream versions of packages which provide new features, but don't fix 
   1. Detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem. Please mark this with a line "{{{TEST CASE:}}}".
   1. A '''discussion''' of the regression potential of the patch and how users could get inadvertently affected.
 
- 1. Use ''Nominate for release'' to mark the bug as an SRU candidate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]] for packages in main/restricted, or [[https://launchpad.net/~motu-sru|motu-sru]] for packages in universe/multiverse.
+ 1. Use ''Nominate for release'' to mark the bug as an SRU candidate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]].
 
  1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that the version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update%20the%20packaging|security policy document]] has a well-working scheme which can be used for SRUs.) Also be sure to reference the SRU bug number in the changelog using the 'LP: #NNNNNN' convention.
 
@@ -168,17 +168,14 @@ As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an ide
 
 Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bugs that (a) are Fix Released in the current development release and (b) have been nominated but not approved for stable releases. See the following links:
 
- * [[https://bugs.edge.launchpad.net/ubuntu/dapper/+nominations?field.subscriber=ubuntu-sru|Dapper]]
- * [[https://bugs.edge.launchpad.net/ubuntu/hardy/+nominations?field.subscriber=ubuntu-sru|Hardy]]
- * [[https://bugs.edge.launchpad.net/ubuntu/intrepid/+nominations?field.subscriber=ubuntu-sru|Intrepid]]
- * [[https://bugs.edge.launchpad.net/ubuntu/jaunty/+nominations?field.subscriber=ubuntu-sru|Jaunty]]
+ * [[https://bugs.launchpad.net/ubuntu/dapper/+nominations?field.subscriber=ubuntu-sru|Dapper]]
+ * [[https://bugs.launchpad.net/ubuntu/hardy/+nominations?field.subscriber=ubuntu-sru|Hardy]]
+ * [[https://bugs.launchpad.net/ubuntu/intrepid/+nominations?field.subscriber=ubuntu-sru|Intrepid]]
+ * [[https://bugs.launchpad.net/ubuntu/jaunty/+nominations?field.subscriber=ubuntu-sru|Jaunty]]
 
-=== Useful links for motu-sru ===
 
- * [[http://qa.ubuntuwire.com/sru/todo.html|Bugs in different stages of the MOTU stable release process]]
- * [[https://bugs.launchpad.net/~motu-sru/|Bugs subscribed by motu-sru in launchpad]]
- * List of bugs which needs verification for [[http://tinyurl.com/3bgr3y|Dapper]], [[http://tinyurl.com/yr7wsu|Gutsy]]
- * List of verified bugs for [[http://tinyurl.com/25f6dk|Dapper]], [[http://tinyurl.com/yuk7s7|Gutsy]]
+ * [[http://qa.ubuntuwire.com/sru/todo.html|Bugs in different stages of the stable release process]]
+ * [[https://bugs.launchpad.net/~ubuntu-sru/|Bugs subscribed by ubuntu-sru in launchpad]]
 
 ----
 CategoryProcess
