@@ -19,34 +19,28 @@ document takes precedence.
 What sort of updates are allowed for post-release kernels?
 ----------------------------------------------------------
 
-There are several categories of updates, in addition to normal security
-updates:
+Additionally to the generic requirements acceptable bugs fall into one
+of the following criteria:
 
--  Critical bug fixes. These are categorized as non-security issues
-   relating to bugs that affect a large range of users. These are bugs
-   that keep users from reliably using their systems, or prevent booting
-   at all. These patches must pass through rigorous testing by
-   Canonical/Ubuntu and the community at large.
--  Supported vendor patches. These are patches generally related to
-   hardware support. If they are very specific to a piece of hardware,
-   the nature of the patch makes regression on other hardware unlikely
-   or impossible, and we have the hardware available for thorough
-   testing, then it can be part of an SRU. Otherwise they need to be
-   maintained in a separate repository/pocket/PPA specific for that
-   vendor or, if appropriate, in \`linux-backports-modules\`, and thus
-   need to be maintained separately in the future. This also depends on
-   whether a change relates to a LTS or a non-LTS release. While small
-   changes to add drivers can be considered throughout the lifetime of
-   an LTS, this will be limited to the point in time the next kernel
-   hits beta status.
-
-Other changes are generally avoided on stable kernels, since the
-regression potential is so exceptionally high.
-
-All non-security changes need to follow the standard SRU procedure in
-terms of having a bug associated with them, which is fixed in the
-development release and signed off by \`ubuntu-sru\` or
-\`canonical-qa\`, and the changelog needs to include the bug number.
+#. It fixes a critical issue (data-loss, OOPs, crashes) or is security
+   related (security related issues might be covered by security
+   releases which are special in handling and publication).
+#. Simple, obvious and short fixes or hardware enablement patches as
+   long as the next release has not reached beta status. If there is a
+   related upstream stable tree open (see below) this class of patches
+   is required to come through the upstream process. Patches sent
+   upstream for that reason must include their *!BugLink* reference.
+#. For 3 months after a non-LTS release or the lifetime of a LTS release
+   we will be pulling upstream stable updates from the corresponding
+   series. There will be one tracking bug report for each stable update
+   but additional references to existing bugs will be added to the
+   contained patches (on best can do base). Uploads containing a
+   upstream stable patchset increase the retention period to two weeks,
+   while it is one week otherwise.
+#. Fixes to drivers which are not upstream are accepted directly if they
+   fall into the first two categories.
+#. *$DEITY* intervention. Might happen, but very very rarely and will
+   not be explainable.
 
 .. _how_long_will_updates_be_allowed_for_a_release:
 
@@ -68,30 +62,58 @@ How does the process work
 -------------------------
 
 -  First step for every SRU is to have a bug associated.
+-  The patch or patches **must** contain the link to the Launchpad bug
+   and contain a Signed-off-by line from the submitter.
+-  The beginning of the description area of the bug needs to have a SRU
+   justification which should look like this example:
+
+``   SRU Justification:``
+
+| ``   Impact: ``\ 
+| ``   Fix: <how was this fixed, where did the fix come from>``
+| ``   Testcase: ``\ 
+
+.. raw:: html
+
+   </pre>
+
 -  If the fix for a problem applies to the requirements for a SRU and
    has also been tested to successfully solved the bug, then the next
-   step is to send the proposed patch for SRU review to the kernel-team
-   mailing list, where it needs to receive at least two ACKs from core
-   kernel developers. The review should include a generic header which
-   describes the impact, and the fix, and how the issue can be tested.
-   The same information should go into the description of the launchpad
-   bug, so the stable release team can quickly find it.
+   step depends on whether the fix is serious enough to be directly
+   applied or whether it should go in via upstream stable (as long as
+   that is appropriate).
+-  For serious problem fixes, the patch must be sent the the kernel-team
+   mailing list. There is requires ACKs from two senior kernel-team
+   members and then will be applied to the kernel tree. Even though
+   going into the tree on the faster path, the next step should be done.
+
+| ``   To: kernel-team@lists.ubuntu.com``
+| ``   Subject: [``\ \ ``] SRU: ``\ 
+
+``   ``\ 
+
+``   ``\ 
+
+.. raw:: html
+
+   </pre>
+
+-  For all other patches (as long as the upstream stable is appropriate)
+   the fix has to be sent upstream (when the problem is there as well
+   and the patch is not a backport) and to stable@kernel.org (if it has
+   not been sent there before). As soon as that is accepted there, it
+   will come back its way when we pull stable updates.
 
 .. _how_will_updates_be_provided_in_the_archive:
 
 How will updates be provided in the archive
 -------------------------------------------
 
--  Urgent security updates will be uploaded directly into -security
-   without other changes. This just requires a temporary GIT fork which
-   will be immediately merged back into the main branch for that stable
-   release.
--  Less urgent security updates and non-security patches will be
-   uploaded to -proposed and then just follow the normal SRU QA
-   procedure (testing, confirming bugs, etc). After verification, these
-   kernels are copied verbatim to -security, and the USN is issued. This
-   avoids maintaining two GIT trees for stable releases while still
-   keeping the testing period.
--  Non-security updates which change the ABI should be either avoided at
-   all, or be combined with security updates which require ABI change
-   anyway.
+-  Security updates will be uploaded directly into -security without
+   other changes. This just requires a temporary GIT fork which will be
+   immediately merged back into the main branch for that stable release.
+-  Normal updates will be provided as pre-releases through the
+   kernel-ppa users PPA. At certain points those get made into proposed
+   releases which are uploaded to the proposed pocket. Then again they
+   have to get verified to fix the problems and not to cause
+   regressions.
