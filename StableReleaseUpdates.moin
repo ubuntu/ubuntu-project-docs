@@ -177,5 +177,48 @@ Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bug
  * [[http://qa.ubuntuwire.com/sru/todo.html|Bugs in different stages of the stable release process]]
  * [[https://bugs.launchpad.net/~ubuntu-sru/|Bugs subscribed by ubuntu-sru in launchpad]]
 
+== Reviewing procedure and tools ==
+
+If you are a member of the [[https://launchpad.net/~ubuntu-sru|SRU reviewing team]], you should check out the [[https://code.launchpad.net/~ubuntu-archive/ubuntu-archive-tools/trunk/|ubuntu-archive-tools]] scripts with
+
+ {{{
+ bzr get lp:ubuntu-archive-tools
+ }}}
+
+which greatly simplify the reviewing procedure. You should symlink `queuediff` and `sru-accept.py` somewhere to your `~/bin/` directory for easy access.
+
+The following review procedure is recommended:
+
+ * Open the unapproved queue for a particular release, e. g. https://launchpad.net/ubuntu/karmic/+queue?queue_state=1 for karmic. This shows the list of SRU uploads which have to be reviewed, commented on, and approved/accepted/rejected.
+
+ * For each package, generate the debdiff to the current version in the archive and open the corresponding bugs:
+
+ {{{
+ queuediff -b -s karmic ubiquity | view -
+ queuediff -b -s karmic-updates linux-firmware | view -
+ }}}
+
+ `-s` specifies the pocket to compare against, and `-b` opens all the bugs which are mentioned in the .changes file in the browser. This will generate a debdiff between the current archive and the unapproved upload (unless the orig.tar.gz changes this will only download the two diff.gz, so it is
+ reasonably fast).
+
+ * Review the bugs for complete description, justification, check that they have a stable task, are conformant to SRU rules, etc, and comment accordingly.
+
+ * Scrutinize the debdiff for matching the changes in the bugs, not having unrelated changes, etc. If you have doubts, comment on the bug.
+
+ * ''If you are an archive administrator:'' 
+  * If the bugs and debdiff are okay, accept the package from the `+queue` page, and run 
+
+  {{{
+ sru-accept.py -s karmic 12345 23456
+  }}}
+
+  This will tag the bug with `verification-needed`, subscribe `ubuntu-sru`, and add a general "please test and give feedback"-like comment. If you used `queuediff`, that will already have generated a suitable `sru-accept.py` command, which you just need to copy and run.
+
+  * If the upload is broken or unsuitable for an SRU, reject it from the `+queue` page, and comment on the bug.
+
+ * ''If you are not an archive administrator:'' Send a followup comment to the bugs:
+  * If all is okay: send an "ubuntu-sru approved and reviewed" comment and set the task to "in progress"
+  * If something is wrong: send the feedback to the bug and set the task to "incomplete"
+
 ----
 CategoryProcess
