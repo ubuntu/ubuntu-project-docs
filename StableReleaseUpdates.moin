@@ -4,9 +4,11 @@ Once an Ubuntu release has been completed and published, updates for it are only
 
 There is an automatically generated list of [[http://people.ubuntu.com/~ubuntu-archive/pending-sru.html|packages which are currently undergoing this process]].
 
+/!\ '''Did you notice a regression in a package which went to -updates?''' Please report this using [[#regressions|these steps]].
+
 == Why ==
 
-In contrast to pre-release versions, official releases of Ubuntu are subject to much wider use, and by a different demographic of user.  During development, changes to the distribution primarily affect developers, early adopters and other advanced users, all of whom have elected to use pre-release software at their own risk.
+In contrast to pre-release versions, official releases of Ubuntu are subject to much wider use, and by a different demographic of users.  During development, changes to the distribution primarily affect developers, early adopters and other advanced users, all of whom have elected to use pre-release software at their own risk.
 
 Users of the official release, in contrast, expect a high degree of stability.  They use their Ubuntu system for their day-to-day work, and problems they experience with it can be extremely disruptive.  Many of them are less experienced with Ubuntu and with Linux, and expect a reliable system which does not require their intervention.
 
@@ -55,9 +57,6 @@ For new upstream versions of packages which provide new features, but don't fix 
 
  1. Subscribe yourself to bugmail for the package in Launchpad, if you haven't done so already, and '''monitor Launchpad''' for bug reports relating to the update for at least one week.
 
-<<Anchor(regressions)>>
- In the event of a regression, '''immediately''' notify the [[mailto:technical-board@lists.ubuntu.com|Ubuntu Technical Board]] via email, and ask for help on `#ubuntu-devel` in making urgent contact with a member of the Board or the SRU team: state the problem, the bug number, and ping "slangasek, Riddell, Hobbsee, pitti, mdz, Keybuk, cjwatson, kees, jdstrand, lool, pgraner, davidm, cody-somerville, jdong".
-
  Any regression must '''always''' be documented in a bug report, which must be ''Importance: critical'' once the regression has been confirmed.
 
 == Fixing several bugs in one upload ==
@@ -102,6 +101,13 @@ a year, despite several calls for testing, the Stable Release Managers will
 remove the package from -proposed and usually close the bug task as "wontfix",
 due to lack of interest. Removal will happen immediately if a package
 update in -proposed is found to introduce a nontrivial regression.
+
+== Regressions ==
+<<Anchor(regressions)>>
+
+If a package update introduces a regression which already made it through the verification process to `-updates`, please '''immediately''' join `#ubuntu-devel` on Freenode, send the message "!regression-alert", and then describe the problem. Please include the package name and a relevant bug number if possible. If you cannot join IRC, please follow up on one of the relevant bugs (see changelog).
+
+If the regression ''only'' applies to the package in `-proposed`, please follow up to the bug with a detailled explanation, and tag the bug with ``regression-proposed``.
 
 <<Anchor(Special)>>
 == Special Cases ==
@@ -166,6 +172,8 @@ As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an ide
 
 == Links ==
 
+~+Bugs in different stages of the stable release process: http://people.canonical.com/~ubuntu-archive/pending-sru +~
+
 Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bugs that (a) are Fix Released in the current development release and (b) have been nominated but not approved for stable releases. See the following links:
 
  * [[https://bugs.launchpad.net/ubuntu/dapper/+nominations?field.subscriber=ubuntu-sru|Dapper]]
@@ -174,7 +182,6 @@ Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bug
  * [[https://bugs.launchpad.net/ubuntu/jaunty/+nominations?field.subscriber=ubuntu-sru|Jaunty]]
  * [[https://bugs.launchpad.net/ubuntu/karmic/+nominations?field.subscriber=ubuntu-sru|Karmic]]
 
- * [[http://qa.ubuntuwire.com/sru/todo.html|Bugs in different stages of the stable release process]]
  * [[https://bugs.launchpad.net/~ubuntu-sru/|Bugs subscribed by ubuntu-sru in launchpad]]
 
 == Reviewing procedure and tools ==
