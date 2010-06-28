@@ -14,7 +14,7 @@ Users of the official release, in contrast, expect a high degree of stability.  
 
 Stable release updates are automatically recommended to a very large number of users, and so it is critically important to treat them with great caution.  Therefore, when updates are proposed, they must be accompanied by a strong rationale and present a low risk of regressions.
 
-=== It's just a one-line change! ===
+  ''"It's just a one-line change!"''
 
 Even the simplest of changes can cause unexpected regressions due to lurking problems.
 
