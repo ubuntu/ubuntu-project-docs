@@ -137,13 +137,22 @@ The landscape-client source package may be uploaded according to the procedure d
 
 The tzdata package is updated to reflect changes in timezones or daylight saving policies. The verification is done with the "zdump" utility. The first timezone that gets changed in the updated package is dumped with "zdump -v $region/$timezone_that_changed" (this needed to be greped for in /usr/share/zoneinfo/). This is compared to the same output after the updated package got installed. If those are different the verification is considered done.
 
-=== hal-info ===
+=== udev keymaps ===
 
-The hal-info package contains descriptions, quirks, and other information about
-hardware components, in particular for suspend/resume, Laptop Fn keys, broken
-batteries, and multimedia devices. It gets frequent updates in stable LTS
-releases. After one week of maturing in -proposed and no regression bug reports
-it can be moved to -updates.
+udev ships a set of rules and keyboard maps which provide correct
+hotkey assignments for individual laptop and USB hardware, and fixes
+"stuck" keys on buggy BIOSes. Those maps can be backported to the
+current LTS release(s). After one week of maturing in -proposed and no
+regression bug reports it can be moved to -updates.
+
+=== media-player-info ===
+
+The media-player-info package ships udev rules to identify USB music
+players as such, to provide tight desktop integration. It is an
+architecture: all textual data-only package which has a very low
+regression potential. Newer versions can be backported to the current
+LTS release(s). After one week of maturing in -proposed and no
+regression bug reports it can be moved to -updates.
 
 === mobile-broadband-provider-info ===
 
@@ -181,6 +190,7 @@ Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bug
  * [[https://bugs.launchpad.net/ubuntu/intrepid/+nominations?field.subscriber=ubuntu-sru|Intrepid]]
  * [[https://bugs.launchpad.net/ubuntu/jaunty/+nominations?field.subscriber=ubuntu-sru|Jaunty]]
  * [[https://bugs.launchpad.net/ubuntu/karmic/+nominations?field.subscriber=ubuntu-sru|Karmic]]
+ * [[https://bugs.launchpad.net/ubuntu/lucid/+nominations?field.subscriber=ubuntu-sru|Lucid]]
 
  * [[https://bugs.launchpad.net/~ubuntu-sru/|Bugs subscribed by ubuntu-sru in launchpad]]
 
