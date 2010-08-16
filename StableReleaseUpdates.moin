@@ -49,11 +49,9 @@ For new upstream versions of packages which provide new features, but don't fix 
   1. Detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem. Please mark this with a line "{{{TEST CASE:}}}".
   1. A '''discussion''' of the regression potential of the patch and how users could get inadvertently affected.
 
- 1. Use ''Nominate for release'' to mark the bug as an SRU candidate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release).
+ 1. Use ''Nominate for release'' to mark the bug as an SRU candidate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]].
 
- 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that the version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update%20the%20packaging|security policy document]] has a well-working scheme which can be used for SRUs.) Also be sure to reference the SRU bug number in the changelog using the 'LP: #NNNNNN' convention. If you need a [[SponsorshipProcess|sponsored upload]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.
-
- 1. [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | Per new policy July 2010]], Uploaders or sponsors should subscribe [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]].
+ 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that the version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update%20the%20packaging|security policy document]] has a well-working scheme which can be used for SRUs.) Also be sure to reference the SRU bug number in the changelog using the 'LP: #NNNNNN' convention. If you need a [[SponsorshipProcess|sponsored upload]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]] .
 
  1. Once the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable release updates|archive admins approve and publish your upload]], test the actual binaries in the Ubuntu archive yourself and follow up in the bug report.
 
