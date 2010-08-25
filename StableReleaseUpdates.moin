@@ -16,11 +16,13 @@ Stable release updates are automatically recommended to a very large number of u
 
   ''"It's just a one-line change!"''
 
-Even the simplest of changes can cause unexpected regressions due to lurking problems.
+Even the simplest of changes can cause unexpected regressions due to lurking problems:
 
-In [[https://bugs.launchpad.net/bugs/81125|bug 81125]], the upgrade regression had nothing to do with the content of the change that triggered it: any user who had installed the libpthread20 package would encounter a problem the next time libc6 was upgraded.
+ * In bug Bug:81125, the upgrade regression had nothing to do with the content of the change that triggered it: any user who had installed the libpthread20 package would encounter a problem the next time libc6 was upgraded.
 
-In [[https://bugs.launchpad.net/bugs/309674|bug 309674]], the failure was a misbuild due to timestamp skew in the build process. The underlying problem existed in the source package in the original release, but would only manifest in a small percentage of builds.
+ * In bug Bug:309674, the failure was a misbuild due to timestamp skew in the build process. The underlying problem existed in the source package in the original release, but would only manifest in a small percentage of builds.
+
+ * In bug Bug:559822, a C++ library (wxwidgets2.8) was uploaded with no code changes. Due to an underlying toolchain change/bug, this caused an ABI change, causing a lot of unrelated packages to break (see bug Bug:610975)
 
 Citizen, be paranoid, and expect the unexpected.
 
@@ -94,11 +96,13 @@ If you encounter a regression in a package that has been uploaded to *-proposed,
  1. Follow up to the SRU bug report referenced from the package changelog, pointing to the new bug.  If there is more than one bug in the SRU changelog, follow up to the bug that is most closely related to the regression.
  1. Set the `verification-failed` tag on the corresponding SRU bug report.
 
+If you want to help us to verify Stable Release Updates then read [[https://wiki.ubuntu.com/QATeam/PerformingSRUVerification|how to perform a Stable Release Update verification]]
+
 == Removal of updates ==
 
-If an update does not get any testing/verification feedback for more than half
-a year, despite several calls for testing, the Stable Release Managers will
-remove the package from -proposed and usually close the bug task as "wontfix",
+If an update '''does not get any testing/verification feedback''' for more than '''half
+a year''', despite several calls for testing, the Stable Release Managers will
+'''remove the package from -proposed''' and usually close the bug task as "wontfix",
 due to lack of interest. Removal will happen immediately if a package
 update in -proposed is found to introduce a nontrivial regression.
 
