@@ -113,6 +113,13 @@ If a package update introduces a regression which already made it through the ve
 
 If the regression ''only'' applies to the package in `-proposed`, please follow up to the bug with a detailled explanation, and tag the bug with ``regression-proposed``.
 
+=== Testing for Regressions ===
+To minimise the risk of regressions being introduced via a SRU, testing will be perform by Canonical on each proposed kernel.
+
+Depth Regression testing will be performed by the Ubuntu Platform QA team on minimal set of HW that represents the different flavours of Ubuntu Editions and Architectures. This activity will focus on verifying that hw-independent regressions have not been introduced.
+
+Breath Hardware testing will be performed by the HW Certification team on release-certified HW. The test will verify that the proposed kernel can be successfully installed on the latest (point) release, network access is functional, and no other functionality is missing that will enable Update Manager to work correctly.
+
 <<Anchor(Special)>>
 == Special Cases ==
 
@@ -192,9 +199,9 @@ Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bug
  * [[https://bugs.launchpad.net/ubuntu/dapper/+nominations?field.subscriber=ubuntu-sru|Dapper]]
  * [[https://bugs.launchpad.net/ubuntu/hardy/+nominations?field.subscriber=ubuntu-sru|Hardy]]
  * [[https://bugs.launchpad.net/ubuntu/intrepid/+nominations?field.subscriber=ubuntu-sru|Intrepid]]
- * [[https://bugs.launchpad.net/ubuntu/jaunty/+nominations?field.subscriber=ubuntu-sru|Jaunty]]
  * [[https://bugs.launchpad.net/ubuntu/karmic/+nominations?field.subscriber=ubuntu-sru|Karmic]]
  * [[https://bugs.launchpad.net/ubuntu/lucid/+nominations?field.subscriber=ubuntu-sru|Lucid]]
+ * [[https://bugs.launchpad.net/ubuntu/maverick/+nominations?field.subscriber=ubuntu-sru|Jaunty]]
 
  * [[https://bugs.launchpad.net/~ubuntu-sru/|Bugs subscribed by ubuntu-sru in launchpad]]
 
