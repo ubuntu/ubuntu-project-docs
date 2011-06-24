@@ -63,13 +63,19 @@ For new upstream versions of packages which provide new features, but don't fix 
 
 == Fixing several bugs in one upload ==
 
-Please avoid creating meta-bugs like "Please SRU this". They just create redundancy and are opaque to original bug reporters, whose feedback is valuable for verification. Just prepare all fixed bugs as described above and attach the patch/debdiff to one of them.
+Please avoid creating meta-bugs like "Please SRU this". They just create redundancy and are opaque to original bug reporters, whose feedback is valuable for verification, so these bugs will generally be invalidated by the SRU team. Just prepare all fixed bugs as described above, and either
 
-In order to make it easier for the SRU team to review your patch, you can additionally:
+ * attach the complete patch/debdiff to one bug and point to it in the other bugs ("debdiff which fixes this is attached to bug #xxxxxx")
 
- * Point to the patch/debdiff in the other bugs ("debdiff which fixes this is attached to bug #xxxxxx")
+or
 
- * Attach individual patches to the corresponding bug reports. If you have the fixes in bzr, it is even easier and more convenient to give a pointer to the fix ("fixed in http://bazaar.launchpad.net/.../revision/12") when fixing the bug in trunk.
+ * attach individual patches to the corresponding bug reports. If you have the fixes in bzr, it is even easier and more convenient to give a pointer to the fix ("fixed in http://bazaar.launchpad.net/.../revision/12") when fixing the bug in trunk.
+
+== New upstream microreleases ==
+
+In some cases, when upstream fixes bugs, they do a new microrelease instead of just sending patches. If all of the changes are appropriate for an SRU by the criteria above, then it is acceptable (and usually easier) to just upload the complete new upstream microrelease instead of backporting the individual patches. Note that some noise introduced by autoreconf is okay, but making structural changes to the build system (such as introducing new library dependencies) is generally not.
+
+If a new upstream release has more intrusive changes, you need to request an exception from the Technical Board, especially if you are going to upload the package with non-SRU changes multiple times in the future. Please see [[#Special|special cases]] below.
 
 == Verification ==
 
@@ -116,7 +122,13 @@ update in -proposed is found to introduce a nontrivial regression.
 == Regressions ==
 <<Anchor(regressions)>>
 
-If a package update introduces a regression which already made it through the verification process to `-updates`, please '''immediately''' join `#ubuntu-devel` on Freenode, send the message "!regression-alert", and then describe the problem. Please include the package name and a relevant bug number if possible. If you cannot join IRC, please follow up on one of the relevant bugs (see changelog).
+If a package update introduces a regression which already made it through the verification process to `-updates`, please '''immediately''' join `#ubuntu-devel` on Freenode, send the message "!regression-alert" on its own, and then describe the problem. Eg:{{{
+16:33 < you> !regression-alert
+16:33 < ubottu> ... <automated response> ...
+16:33 < you> bug #... <your explanation>
+}}}
+
+Please include the package name and a relevant bug number if possible. If you cannot join IRC, please follow up on one of the relevant bugs (see changelog).
 
 If the regression ''only'' applies to the package in `-proposed`, please follow up to the bug with a detailled explanation, and tag the bug with ``regression-proposed``.
 
