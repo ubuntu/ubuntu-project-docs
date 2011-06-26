@@ -215,10 +215,7 @@ As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an ide
 
 Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bugs that (a) are Fix Released in the current development release and (b) have been nominated but not approved for stable releases. See the following links:
 
- * [[https://bugs.launchpad.net/ubuntu/dapper/+nominations?field.subscriber=ubuntu-sru|Dapper]]
  * [[https://bugs.launchpad.net/ubuntu/hardy/+nominations?field.subscriber=ubuntu-sru|Hardy]]
- * [[https://bugs.launchpad.net/ubuntu/intrepid/+nominations?field.subscriber=ubuntu-sru|Intrepid]]
- * [[https://bugs.launchpad.net/ubuntu/karmic/+nominations?field.subscriber=ubuntu-sru|Karmic]]
  * [[https://bugs.launchpad.net/ubuntu/lucid/+nominations?field.subscriber=ubuntu-sru|Lucid]]
  * [[https://bugs.launchpad.net/ubuntu/maverick/+nominations?field.subscriber=ubuntu-sru|Maverick]]
  * [[https://bugs.launchpad.net/ubuntu/natty/+nominations?field.subscriber=ubuntu-sru|Natty]]
