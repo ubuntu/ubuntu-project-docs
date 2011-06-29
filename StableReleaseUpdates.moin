@@ -230,17 +230,17 @@ If you are a member of the [[https://launchpad.net/~ubuntu-sru|SRU reviewing tea
  bzr get lp:ubuntu-archive-tools
  }}}
 
-which greatly simplify the reviewing procedure. You should symlink `queuediff` and `sru-accept.py` somewhere to your `~/bin/` directory for easy access.
+which greatly simplify the reviewing procedure. You should symlink `queuediff` and `sru-accept.py` somewhere to your `~/bin/` directory for easy access, or put the checkout into your `$PATH`.
 
 The following review procedure is recommended:
 
- * Open the unapproved queue for a particular release, e. g. https://launchpad.net/ubuntu/karmic/+queue?queue_state=1 for karmic. This shows the list of SRU uploads which have to be reviewed, commented on, and approved/accepted/rejected.
+ * Open the unapproved queue for a particular release, e. g. https://launchpad.net/ubuntu/lucid/+queue?queue_state=1 for lucid. This shows the list of SRU uploads which have to be reviewed, commented on, and approved/accepted/rejected.
 
  * For each package, generate the debdiff to the current version in the archive and open the corresponding bugs:
 
  {{{
- queuediff -b -s karmic ubiquity | view -
- queuediff -b -s karmic-updates linux-firmware | view -
+ queuediff -b -s lucid ubiquity | view -
+ queuediff -b -s lucid-updates linux-firmware | view -
  }}}
 
  `-s` specifies the pocket to compare against, and `-b` opens all the bugs which are mentioned in the .changes file in the browser. This will generate a debdiff between the current archive and the unapproved upload (unless the orig.tar.gz changes this will only download the two diff.gz, so it is
@@ -254,7 +254,7 @@ The following review procedure is recommended:
   * If the bugs and debdiff are okay, accept the package from the `+queue` page, and run 
 
   {{{
- sru-accept.py -s karmic 12345 23456
+ sru-accept.py -s lucid 12345 23456
   }}}
 
   This will tag the bug with `verification-needed`, subscribe `ubuntu-sru`, and add a general "please test and give feedback"-like comment. If you used `queuediff`, that will already have generated a suitable `sru-accept.py` command, which you just need to copy and run.
