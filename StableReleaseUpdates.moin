@@ -2,7 +2,7 @@
 
 Once an Ubuntu release has been completed and published, updates for it are only released under certain circumstances, and must follow a special procedure called a "stable release update" or SRU.
 
-There is an automatically generated list of [[http://people.ubuntu.com/~ubuntu-archive/pending-sru.html|packages which are currently undergoing this process]].
+There is an automatically generated list of [[http://people.canonical.com/~ubuntu-archive/pending-sru.html|packages which are currently undergoing this process]].
 
 /!\ '''Did you notice a regression in a package which went to -updates?''' Please report this using [[#regressions|these steps]].
 
