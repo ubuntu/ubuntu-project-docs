@@ -55,7 +55,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 
  1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that the version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update%20the%20packaging|security policy document]] has a well-working scheme which can be used for SRUs.) Also be sure to reference the SRU bug number in the changelog using the 'LP: #NNNNNN' convention. If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]].
 
- 1. Once the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable release updates|archive admins approve and publish your upload]], test the actual binaries in the Ubuntu archive yourself and follow up in the bug report.
+ 1. Once the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable release updates|archive admins approve and publish your upload]], test the actual binaries in the Ubuntu archive yourself and follow up in the bug report. The SRU team will evaluate the testing feedback and update the tags to `verification-done`; they will move the package into -updates after it passed a minimum aging period of '''7 days'''.
 
  1. Subscribe yourself to bugmail for the package in Launchpad, if you haven't done so already, and '''monitor Launchpad''' for bug reports relating to the update for at least one week.
 
@@ -213,14 +213,8 @@ As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an ide
 
 ~+Bugs in different stages of the stable release process: http://people.canonical.com/~ubuntu-archive/pending-sru +~
 
-Note that `ubuntu-sru`'s subscribed bugs page may not be sufficient to catch bugs that (a) are Fix Released in the current development release and (b) have been nominated but not approved for stable releases. See the following links:
-
- * [[https://bugs.launchpad.net/ubuntu/hardy/+nominations?field.subscriber=ubuntu-sru|Hardy]]
- * [[https://bugs.launchpad.net/ubuntu/lucid/+nominations?field.subscriber=ubuntu-sru|Lucid]]
- * [[https://bugs.launchpad.net/ubuntu/maverick/+nominations?field.subscriber=ubuntu-sru|Maverick]]
- * [[https://bugs.launchpad.net/ubuntu/natty/+nominations?field.subscriber=ubuntu-sru|Natty]]
-
- * [[https://bugs.launchpad.net/~ubuntu-sru/|Bugs subscribed by ubuntu-sru in launchpad]]
+This page has an "Upload queue status" section which links to all stable review
+queues.
 
 == Reviewing procedure and tools ==
 
