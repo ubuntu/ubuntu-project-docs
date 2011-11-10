@@ -45,13 +45,13 @@ For new upstream versions of packages which provide new features, but don't fix 
  1. Check that the bug is fixed in the current development release, and that its bug report task is "Fix released".  It is, in general, not appropriate to release bug fixes for stable systems without first testing them in the current development branch.
 
  1. Update the bug report description and make sure it contains the following information:
-  1. A '''statement explaining the impact''' of the bug on users and justification for backporting the fix to the stable release
-  1. An explanation of '''how the bug has been addressed''' in the development branch, including the relevant version numbers of packages modified in order to implement the fix.
-  1. A minimal '''patch''' applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to get a general approval from the SRU team first.
-  1. Detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem. Please mark this with a line "{{{TEST CASE:}}}".
-  1. A '''discussion''' of the regression potential of the patch and how users could get inadvertently affected.
+  1. An '''[Impact]''' section explaining the severity and frequency of the bug on users and justification for backporting the fix to the stable release
+  1. A '''[Development Fix]''' section with an explanation of how the bug has been addressed in the development branch, including the relevant version numbers of packages modified in order to implement the fix.
+  1. A '''[Stable Fix]''' section pointing  out a minimal patch applicable to the stable version of the package.  If preparing a patch is likely to be time-consuming, it may be preferable to get a general approval from the SRU team first.
+  1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
+  1. A '''[Regression Potential]''' section with a discussion of likelihood and potential severity of regressions and how users could get inadvertently affected.
 
- 1. Use ''Nominate for series'' to mark the bug as an SRU candidate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]].
+ 1. [[https://answers.launchpad.net/launchpad/+question/140509|Ask a bug supervisor]] to nominate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]].
 
  1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that the version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update%20the%20packaging|security policy document]] has a well-working scheme which can be used for SRUs.) Also be sure to reference the SRU bug number in the changelog using the 'LP: #NNNNNN' convention. If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]].
 
@@ -98,7 +98,7 @@ If you encounter a regression in a package that has been uploaded to *-proposed,
 
  1. File a bug report against the package, describing the nature of the regression you have encountered, including any special steps needed to reproduce the regression.
  1. Mark this bug with the tag `regression-proposed`
- 1. Use the `Nominate for release` link to highlight the bug for the release involved.
+ 1. [[https://answers.launchpad.net/launchpad/+question/140509|Ask a bug supervisor]] to nominate for the appropriate Ubuntu releases.
  1. Follow up to the SRU bug report referenced from the package changelog, pointing to the new bug.  If there is more than one bug in the SRU changelog, follow up to the bug that is most closely related to the regression.
  1. Set the `verification-failed` tag on the corresponding SRU bug report.
 
