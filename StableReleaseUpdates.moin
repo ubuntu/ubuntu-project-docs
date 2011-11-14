@@ -53,7 +53,10 @@ For new upstream versions of packages which provide new features, but don't fix 
 
  1. [[https://answers.launchpad.net/launchpad/+question/140509|Ask a bug supervisor]] to nominate for the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]].
 
- 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that the version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update%20the%20packaging|security policy document]] has a well-working scheme which can be used for SRUs.) Also be sure to reference the SRU bug number in the changelog using the 'LP: #NNNNNN' convention. If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]].
+ 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that:
+  1. The version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update%20the%20packaging|security policy document]] has a well-working scheme which can be used for SRUs.)
+  1. There is a reference to the SRU bug number in the changelog, using the 'LP: #NNNNNN' convention.
+ If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]].
 
  1. Once the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable release updates|archive admins approve and publish your upload]], test the actual binaries in the Ubuntu archive yourself and follow up in the bug report. The SRU team will evaluate the testing feedback and update the tags to `verification-done`; they will move the package into -updates after it passed a minimum aging period of '''7 days'''.
 
@@ -137,7 +140,7 @@ To minimise the risk of regressions being introduced via a SRU, testing will be 
 
 Depth Regression testing will be performed by the Ubuntu Platform QA team on minimal set of HW that represents the different flavours of Ubuntu Editions and Architectures. This activity will focus on verifying that hw-independent regressions have not been introduced.
 
-Breath Hardware testing will be performed by the HW Certification team on release-certified HW. The test will verify that the proposed kernel can be successfully installed on the latest (point) release, network access is functional, and no other functionality is missing that will enable Update Manager to work correctly.
+Breadth hardware testing will be performed by the HW Certification team on release-certified HW. The test will verify that the proposed kernel can be successfully installed on the latest (point) release, network access is functional, and no other functionality is missing that will enable Update Manager to work correctly.
 
 <<Anchor(Special)>>
 == Special Cases ==
