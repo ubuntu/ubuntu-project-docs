@@ -62,6 +62,45 @@ For new upstream versions of packages which provide new features, but don't fix 
 
  Any regression must '''always''' be documented in a bug report, which must be ''Importance: critical'' once the regression has been confirmed.
 
+=== SRU Bug Template ===
+{{{
+[IMPACT] 
+
+ * An explanation of the of the bug on users and
+
+ * justification for backporting the fix to the stable release.
+
+ * In addition, it is helpful, but not required, to include an
+   explanation of how the upload fixes this bug.
+
+[TESTCASE]
+
+ * detailed instructions how to reproduce the bug
+
+ * these should allow someone who is not familiar with the affected
+   package to reproduce the bug and verify that the updated package fixes
+   the problem.
+
+[Regression Potential] 
+
+ * discussion of how regressions are most likely to manifest as a result of this change. 
+
+ * It is assumed that any SRU candidate patch is well-tested before
+   upload and has a low overall risk of regression, but it's important
+   to make the effort to think about what ''could'' happen in the
+   event of a regression.
+
+ * This both shows the SRU team that the risks have been considered,
+   and provides guidance to testers in regression-testing the SRU.
+
+[Other Info]
+ 
+ * Anything else you think is useful to include
+ * Anticipate questions from users, SRU, +1 and security teams
+ * and address them in advance
+}}}
+
+
 == Fixing several bugs in one upload ==
 
 Please avoid creating meta-bugs like "Please SRU this". They just create redundancy and are opaque to original bug reporters, whose feedback is valuable for verification, so these bugs will generally be invalidated by the SRU team. Just prepare all fixed bugs as described above, and either
