@@ -96,8 +96,8 @@ For new upstream versions of packages which provide new features, but don't fix 
 [Other Info]
  
  * Anything else you think is useful to include
- * Anticipate questions from users, SRU, +1 and security teams
- * and address them in advance
+ * Anticipate questions from users, SRU, +1, security teams and the Technical Board
+ * and address these questions in advance
 }}}
 
 
@@ -268,13 +268,13 @@ which greatly simplify the reviewing procedure. You should symlink `queuediff` a
 
 The following review procedure is recommended:
 
- * Open the unapproved queue for a particular release, e. g. https://launchpad.net/ubuntu/lucid/+queue?queue_state=1 for lucid. This shows the list of SRU uploads which have to be reviewed, commented on, and approved/accepted/rejected.
+ * Open the unapproved queue for a particular release, e. g. https://launchpad.net/ubuntu/precise/+queue?queue_state=1 for precise. This shows the list of SRU uploads which have to be reviewed, commented on, and approved/accepted/rejected.
 
  * For each package, generate the debdiff to the current version in the archive and open the corresponding bugs:
 
  {{{
- queuediff -b -s lucid ubiquity | view -
- queuediff -b -s lucid-updates linux-firmware | view -
+ queuediff -b -s precise ubiquity | view -
+ queuediff -b -s precise-updates linux-firmware | view -
  }}}
 
  `-s` specifies the pocket to compare against, and `-b` opens all the bugs which are mentioned in the .changes file in the browser. This will generate a debdiff between the current archive and the unapproved upload (unless the orig.tar.gz changes this will only download the two diff.gz, so it is
@@ -288,7 +288,7 @@ The following review procedure is recommended:
   * If the bugs and debdiff are okay, accept the package from the `+queue` page, and run 
 
   {{{
- sru-accept.py -s lucid 12345 23456
+ sru-accept.py -s precise 12345 23456
   }}}
 
   This will tag the bug with `verification-needed`, subscribe `ubuntu-sru`, and add a general "please test and give feedback"-like comment. If you used `queuediff`, that will already have generated a suitable `sru-accept.py` command, which you just need to copy and run.
