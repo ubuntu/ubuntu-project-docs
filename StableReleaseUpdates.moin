@@ -45,7 +45,7 @@ For new upstream versions of packages which provide new features, but don't fix 
  1. Check that the bug is fixed in the current development release, and that its bug report task is "Fix released".  It is, in general, not appropriate to release bug fixes for stable systems without first testing them in the current development branch.
 
  1. Update the bug report '''description''' and make sure it contains the following information:
-  1. An explanation of the of the bug on users and justification for backporting the fix to the stable release.  This may be preceded with an '''[Impact]''' header, but this is not required.  In addition, it is helpful, but not required, to include an explanation of how the upload fixes this bug.
+  1. An explanation of the bug on users and justification for backporting the fix to the stable release.  This may be preceded with an '''[Impact]''' header, but this is not required.  In addition, it is helpful, but not required, to include an explanation of how the upload fixes this bug.
   1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
   1. A '''[Regression Potential]''' section with a discussion of how regressions are most likely to manifest as a result of this change.  It is assumed that any SRU candidate patch is well-tested before upload and has a low overall risk of regression, but it's important to make the effort to think about what ''could'' happen in the event of a regression.  This both shows the SRU team that the risks have been considered, and provides guidance to testers in regression-testing the SRU.
 
@@ -100,6 +100,19 @@ For new upstream versions of packages which provide new features, but don't fix 
  * and address these questions in advance
 }}}
 
+
+== Publishing ==
+
+Once a fix has been validated, please work with the [[ https://launchpad.net/~ubuntu-sru |Stable Release Update (SRU) Team]] to ensure its published to -updates.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
+
+
+||'''Day''' || SRU Team Member (IRC nick) ||
+|| Monday || Adam Conrad (infinity) ||
+|| Tuesday || Chris Halse Rogers (RAOF) ||
+|| Wednesday || Clint Byrum (SpamapS) ||
+|| Thursday || Brian Murray (bdmurray) ||
+|| Friday ||  Steve Langasek (slangasek) ||
+|| Weekend || TBD? ||
 
 == Fixing several bugs in one upload ==
 
