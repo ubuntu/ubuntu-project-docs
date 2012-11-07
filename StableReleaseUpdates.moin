@@ -34,7 +34,7 @@ Stable release updates will, in general, only be issued in order to fix '''high-
  * Bugs which represent '''severe regressions''' from the previous release of Ubuntu. This includes packages which are totally unusable, like being uninstallable or crashing on startup.
  * Bugs which may, under realistic circumstances, directly cause a '''loss of user data'''
  * Bugs which do not fit under above categories, but (1) have an obviously safe patch and (2) affect an application rather than critical infrastructure packages (like X.org or the kernel).
- * For Long Term Support releases we regularly want to enable new hardware. Such changes are appropriate provided that we can ensure to not affect upgrades on existing hardware. For example, modaliases of newly introduced drivers must not overlap with previously shipped drivers.
+ * For Long Term Support releases we regularly want to enable new hardware. Such changes are appropriate provided that we can ensure not to affect upgrades on existing hardware. For example, modaliases of newly introduced drivers must not overlap with previously shipped drivers.
  * New versions of commercial software in the Canonical partner archive.
  * '''FTBFS'''(Fails To Build From Source) can also be considered. Please note that in '''main''' the release process ensures that there are no binaries which are not built from a current source. Usually those bugs should only be SRUed in conjunction with another bug fix.
 
@@ -56,7 +56,7 @@ For new upstream versions of packages which provide new features, but don't fix 
   1. There is a reference to the SRU bug number in the changelog, using the 'LP: #NNNNNN' convention.
  If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]].
 
- 1. The ~ubuntu-sru team will [[https://wiki.ubuntu.com/StableReleaseUpdates#Reviewing_procedure_and_tools|review and approve]] then the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable_release_updates|archive admins will accept your upload]].  You can then test the actual binaries in the Ubuntu archive yourself and follow up in the bug report. The SRU team will evaluate the testing feedback and update the tags to `verification-done`; they will move the package into -updates after it passed a minimum aging period of '''7 days'''.
+ 1. The ~ubuntu-sru team will [[https://wiki.ubuntu.com/StableReleaseUpdates#Reviewing_procedure_and_tools|review and approve]] then the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable_release_updates|archive admins will accept your upload]].  You can then test the actual binaries in the Ubuntu archive yourself and follow up in the bug report regarding your verification of the bug. The SRU team will evaluate the testing feedback and they will move the package into -updates after it has passed a minimum aging period of '''7 days'''.
 
  1. Subscribe yourself to bugmail for the package in Launchpad, if you haven't done so already, and '''monitor Launchpad''' for bug reports relating to the update for at least one week.
 
@@ -64,7 +64,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 
 === SRU Bug Template ===
 {{{
-[IMPACT] 
+[Impact] 
 
  * An explanation of the of the bug on users and
 
@@ -73,7 +73,7 @@ For new upstream versions of packages which provide new features, but don't fix 
  * In addition, it is helpful, but not required, to include an
    explanation of how the upload fixes this bug.
 
-[TESTCASE]
+[Test Case]
 
  * detailed instructions how to reproduce the bug
 
@@ -96,7 +96,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 [Other Info]
  
  * Anything else you think is useful to include
- * Anticipate questions from users, SRU, +1, security teams and the Technical Board
+ * Anticipate questions from users, SRU, +1 maintenance, security teams and the Technical Board
  * and address these questions in advance
 }}}
 
@@ -112,7 +112,7 @@ Once a fix has been validated, please work with the [[ https://launchpad.net/~ub
 || Wednesday || Clint Byrum (SpamapS) ||
 || Thursday || Brian Murray (bdmurray) ||
 || Friday ||  Steve Langasek (slangasek) ||
-|| Ad hoc / Weekend || Scott Kitterman (ScottK),  Kate Stewart (skaet) ||
+|| Ad hoc || Scott Kitterman (ScottK),  Kate Stewart (skaet) ||
 
 == Fixing several bugs in one upload ==
 
@@ -132,11 +132,11 @@ If a new upstream release has more intrusive changes, you need to request an exc
 
 == Verification ==
 
-The [[https://launchpad.net/~sru-verification|SRU verification team]] will regularly check open bugs with the `verification-needed` tag and test proposed updates on different hardware to check for inadvertent side effects. Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports. 
+The [[https://launchpad.net/~sru-verification|SRU verification team]] will regularly check open bugs with the `verification-needed` tag and test proposed updates on different hardware to check for inadvertent side effects. Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not with other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports. 
 
 If they discover that your fix is insufficient, or the test case is not sufficient to reproduce the bug, they will:
 
- 1. Set the bug report '''Status: In Progress'''
+ 1. Set the bug task to '''Status: In Progress'''
  1. Describe why the fix was rejected in a comment to the bug report.
  1. Modify the `verification-needed` tag to a `verification-failed` tag on the bug report.
 
@@ -144,6 +144,8 @@ The SRU verification team may also discover that your fix is good.  They will:
 
  1. Modify the `verification-needed` tag to a `verification-done` tag on the bug report.
  1. Describe the general steps taken to verify the package, any special difficulties, and the recommended upload date.
+
+While not ideal it is also possible for the uploader of the fix to perform the verification of the package in *-proposed, however it must still be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates.
 
 Verification feedback from bug reporters and subscribers is greatly appreciated, too, especially if the update is hardware specific. In this case we consider an update as verified if it has at least two positive, no negative testimonials in the bug report, and the verification team just checks whether the new version still works for the main use cases (to check for major regressions).
 
@@ -166,11 +168,7 @@ Verification Notes
 
 == Removal of updates ==
 
-If an update '''does not get any testing/verification feedback''' for more than '''half
-a year''', despite several calls for testing, the Stable Release Managers will
-'''remove the package from -proposed''' and usually close the bug task as "Won't Fix",
-due to lack of interest. Removal will happen immediately if a package
-update in -proposed is found to introduce a nontrivial regression.
+If an update '''does not get any testing/verification feedback''' for more than '''half a year''', despite several calls for testing, the Stable Release Managers will '''remove the package from -proposed''' and usually close the bug task as "Won't Fix", due to lack of interest. Removal will happen immediately if a package update in -proposed is found to introduce a nontrivial regression.
 
 == Regressions ==
 <<Anchor(regressions)>>
@@ -324,14 +322,14 @@ The following review procedure is recommended:
   * If the bugs and debdiff are okay, accept the package from the `+queue` page, and run 
 
   {{{
- sru-accept -s precise 12345 23456
+ sru-accept -s precise -p ubiquity 12345 23456
   }}}
 
   This will tag the bug with `verification-needed`, subscribe `ubuntu-sru`, and add a general "please test and give feedback"-like comment. If you used `queuediff`, that will already have generated a suitable `sru-accept` command, which you just need to copy and run.
 
   * If the upload is broken or unsuitable for an SRU, reject it from the `+queue` page, and comment on the bug.
 
- * ''If you are not an archive administrator:'' Send a followup comment to the bugs:
+ * ''If you are not an archive administrator:'' Send a follow up comment to the bugs:
   * If all is okay: send an "ubuntu-sru approved and reviewed" comment and set the task to "In Progress"
   * If something is wrong: send the feedback to the bug and set the task to "Incomplete"
 
