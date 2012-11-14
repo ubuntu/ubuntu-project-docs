@@ -168,7 +168,7 @@ Verification Notes
 
 == Removal of updates ==
 
-If an update '''does not get any testing/verification feedback''' for more than '''half a year''', despite several calls for testing, the Stable Release Managers will '''remove the package from -proposed''' and usually close the bug task as "Won't Fix", due to lack of interest. Removal will happen immediately if a package update in -proposed is found to introduce a nontrivial regression.
+If a bug fixed by an update '''does not get any testing/verification feedback''' for '''90 days''' an automated call for testing comment will be made on the bug report.  In the event that there is still no testing after an additional '''15 days''', that's a total of 105 days without any testing, the Stable Release Managers will '''remove the package from -proposed''' and usually close the bug task as "Won't Fix", due to lack of interest. Removal will happen immediately if a package update in -proposed is found to introduce a nontrivial regression.
 
 == Regressions ==
 <<Anchor(regressions)>>
