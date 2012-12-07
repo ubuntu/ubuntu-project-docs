@@ -44,6 +44,8 @@ For new upstream versions of packages which provide new features, but don't fix 
 
  1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released".  It is, in general, not appropriate to release bug fixes for stable systems without first testing them in the current development branch.
 
+ 1. Ensure that the bug report for this issue is public.  If the bug has been reported privately and cannot be published, you must first create a separate public bug report in launchpad and copy over as much information as can be published.
+
  1. Update the bug report '''description''' and make sure it contains the following information:
   1. An explanation of the bug on users and justification for backporting the fix to the stable release.  This may be preceded with an '''[Impact]''' header, but this is not required.  In addition, it is helpful, but not required, to include an explanation of how the upload fixes this bug.
   1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
@@ -53,8 +55,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 
  1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. Make sure that:
   1. The version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging|security policy document]] has a well-working scheme which can be used for SRUs.)
-  1. There is a reference to the SRU bug number in the changelog, using the 'LP: #NNNNNN' convention.
- If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]].
+  1. There is a reference to the SRU bug number in the changelog, using the 'LP: #NNNNNN' convention.  Only public bugs should be referenced in the changelog.  If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]].
 
  1. The ~ubuntu-sru team will [[https://wiki.ubuntu.com/StableReleaseUpdates#Reviewing_procedure_and_tools|review and approve]] then the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable_release_updates|archive admins will accept your upload]].  You can then test the actual binaries in the Ubuntu archive yourself and follow up in the bug report regarding your verification of the bug. The SRU team will evaluate the testing feedback and they will move the package into -updates after it has passed a minimum aging period of '''7 days'''.
 
