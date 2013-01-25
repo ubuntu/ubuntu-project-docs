@@ -53,7 +53,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 
  1. [[https://answers.launchpad.net/launchpad/+question/140509|Ask a bug supervisor]] to target the bug to the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe the team [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]] to your bug report.
 
- 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. After upload, the bug status should be changed to '''In progress''', once accepted into ''release''-proposed, the status will be automatically changed to '''Fix commited'''. Also, make sure that:
+ 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. After upload, the bug status should be changed to '''In Progress''', once accepted into ''release''-proposed, the status will be automatically changed to '''Fix Committed'''. Also, make sure that:
   1. The version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging|security policy document]] has a well-working scheme which can be used for SRUs.)
   1. There is a reference to the SRU bug number in the changelog, using the 'LP: #NNNNNN' convention.  Only public bugs should be referenced in the changelog.  If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]].
 
@@ -104,7 +104,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 
 == Publishing ==
 
-Once a fix has been validated, please work with the [[ https://launchpad.net/~ubuntu-sru |Stable Release Update (SRU) Team]] to ensure its published to -updates.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
+Please work with the [[ https://launchpad.net/~ubuntu-sru | Stable Release Updates (SRU) Team ]] to ensure that validated fixes are published to -updates.  Additionally, if the there is a priorty SRU waiting the unapproved queue for testing feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
 
 
 ||'''Day''' || SRU Team Member (IRC nick) ||
@@ -333,6 +333,12 @@ The following review procedure is recommended:
  * ''If you are not an archive administrator:'' Send a follow up comment to the bugs:
   * If all is okay: send an "ubuntu-sru approved and reviewed" comment and set the task to "In Progress"
   * If something is wrong: send the feedback to the bug and set the task to "Incomplete"
+
+The [[http://people.canonical.com/~ubuntu-archive/pending-sru|pending SRUs]] should also be reviewed see whether or not there are any to be released or removed from the archive.  The process for deailing with these follows:
+
+<<Include(ArchiveAdministration, ,from="== Moving Packages to Updates ==", to="^=")>>
+
+<<Include(ArchiveAdministration, ,from="== Failed SRUs ==", to="^=")>>
 
 ----
 CategoryProcess
