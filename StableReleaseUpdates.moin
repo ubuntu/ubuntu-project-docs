@@ -51,7 +51,7 @@ For new upstream versions of packages which provide new features, but don't fix 
   1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
   1. A '''[Regression Potential]''' section with a discussion of how regressions are most likely to manifest as a result of this change.  It is assumed that any SRU candidate patch is well-tested before upload and has a low overall risk of regression, but it's important to make the effort to think about what ''could'' happen in the event of a regression.  This both shows the SRU team that the risks have been considered, and provides guidance to testers in regression-testing the SRU.
 
- 1. [[https://answers.launchpad.net/launchpad/+question/140509|Ask a bug supervisor]] to target the bug to the appropriate Ubuntu releases (e. g. the current LTS and latest stable release), then subscribe the team [[https://launchpad.net/~ubuntu-sru|ubuntu-sru]] to your bug report.
+ 1. [[https://answers.launchpad.net/launchpad/+question/140509|Ask a bug supervisor]] to target the bug to the appropriate Ubuntu releases (e. g. the current LTS and latest stable release).
 
  1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. After upload, the bug status should be changed to '''In Progress''', once accepted into ''release''-proposed, the status will be automatically changed to '''Fix Committed'''. Also, make sure that:
   1. The version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging|security policy document]] has a well-working scheme which can be used for SRUs.)
@@ -67,7 +67,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 {{{
 [Impact] 
 
- * An explanation of the of the bug on users and
+ * An explanation of the effects of the bug on users and
 
  * justification for backporting the fix to the stable release.
 
@@ -104,7 +104,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 
 == Publishing ==
 
-Please work with the [[ https://launchpad.net/~ubuntu-sru | Stable Release Updates (SRU) Team ]] to ensure that validated fixes are published to -updates.  Additionally, if the there is a priorty SRU waiting the unapproved queue for testing feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
+Please work with the [[ https://launchpad.net/~ubuntu-sru | Stable Release Updates (SRU) Team ]] to ensure that validated fixes are published to -updates.  Additionally, if the there is a priority SRU waiting the unapproved queue for testing feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
 
 
 ||'''Day''' || SRU Team Member (IRC nick) ||
