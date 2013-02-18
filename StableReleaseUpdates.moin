@@ -26,6 +26,8 @@ Even the simplest of changes can cause unexpected regressions due to lurking pro
 
 We never assume that any change, no matter how obvious, is completely free of regression risk.
 
+In line with this, the requirements for stable updates are not necessarily the same as those in the development release.  When preparing future releases, one of our goals is to construct the most elegant and maintainable system possible, and this often involves fundamental improvements to the system's architecture, rearranging packages to avoid bundled copies of other software so that we only have to maintain it in one place, and so on.  However, once we have completed a release, the priority is normally to minimise risk caused by changes not explicitly required to fix qualifying bugs, and this tends to be well-correlated with minimising the size of those changes.  As such, the same bug may need to be fixed in different ways in stable and development releases.
+
 == When ==
 
 Stable release updates will, in general, only be issued in order to fix '''high-impact bugs'''.  Examples of such bugs include:
