@@ -53,11 +53,11 @@ For new upstream versions of packages which provide new features, but don't fix 
   1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
   1. A '''[Regression Potential]''' section with a discussion of how regressions are most likely to manifest as a result of this change.  It is assumed that any SRU candidate patch is well-tested before upload and has a low overall risk of regression, but it's important to make the effort to think about what ''could'' happen in the event of a regression.  This both shows the SRU team that the risks have been considered, and provides guidance to testers in regression-testing the SRU.
 
- 1. [[https://answers.launchpad.net/launchpad/+question/140509|Ask a bug supervisor]] to target the bug to the appropriate Ubuntu releases (e. g. the current LTS and latest stable release).
+ 1. Ask someone in the [[https://launchpad.net/~ubuntu-bugcontrol|Ubuntu bug control team]] to nominate the bug for the appropriate Ubuntu release(s)/series (e. g. the current LTS and latest stable release).
 
- 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. After upload, the bug status should be changed to '''In Progress''', once accepted into ''release''-proposed, the status will be automatically changed to '''Fix Committed'''. Also, make sure that:
+ 1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]]. After upload, the bug status should be changed to '''In Progress''', once accepted into ''release''-proposed, the status will be automatically changed to '''Fix Committed'''. Also, make sure that:
   1. The version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging|security policy document]] has a well-working scheme which can be used for SRUs.)
-  1. There is a reference to the SRU bug number in the changelog, using the 'LP: #NNNNNN' convention.  Only public bugs should be referenced in the changelog.  If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]].
+  1. There is a reference to the SRU bug number in the changelog, using the 'LP: #NNNNNN' convention.  Only public bugs should be referenced in the changelog.
 
  1. The ~ubuntu-sru team will [[https://wiki.ubuntu.com/StableReleaseUpdates#Reviewing_procedure_and_tools|review and approve]] then the [[https://wiki.ubuntu.com/ArchiveAdministration#Stable_release_updates|archive admins will accept your upload]].  You can then test the actual binaries in the Ubuntu archive yourself and follow up in the bug report regarding your verification of the bug. The SRU team will evaluate the testing feedback and they will move the package into -updates after it has passed a minimum aging period of '''7 days'''.
 
@@ -145,8 +145,8 @@ If they discover that your fix is insufficient, or the test case is not sufficie
 
 The SRU verification team may also discover that your fix is good.  They will:
 
- 1. Modify the `verification-needed` tag to a `verification-done` tag on the bug report.
- 1. Describe the general steps taken to verify the package, any special difficulties, and the recommended upload date.
+ 1. Modify the `verification-needed` tag to a `verification-done` tag on the bug report.  (In the event that an SRU bug report has tasks for mulitple releases a tag in the form of 'verification-done-$RELEASE' e.g. `verification-done-precise` shall be added to the bug report. The tag `verification-needed` should be left on the bug until all release tasks have been verified.)
+ 1. Describe the general steps taken to verify the package, and any special difficulties.
 
 While not ideal it is also possible for the uploader of the fix to perform the verification of the package in *-proposed, however it must still be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates.
 
