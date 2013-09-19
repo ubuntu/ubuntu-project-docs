@@ -19,7 +19,7 @@ document takes precedence.
 What sort of updates are allowed for post-release kernels?
 ----------------------------------------------------------
 
-Additional to the generic requirements, we will accept patches which
+In addition to the generic requirements, we will accept patches which
 fall into any of the following criteria's:
 
 #. It fixes a critical issue (data-loss, OOPs, crashes) or is security
