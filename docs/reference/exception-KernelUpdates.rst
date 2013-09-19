@@ -19,22 +19,23 @@ document takes precedence.
 What sort of updates are allowed for post-release kernels?
 ----------------------------------------------------------
 
-Additionally to the generic requirements acceptable bugs fall into one
-of the following criteria:
+Additional to the generic requirements, we will accept patches which
+fall into any of the following criteria's:
 
 #. It fixes a critical issue (data-loss, OOPs, crashes) or is security
-   related (security related issues might be covered by security
-   releases which are special in handling and publication).
+   related. Security related issues might be covered by security
+   releases which are special in handling and publication.
 #. Simple, obvious and short fixes or hardware enablement patches. If
    there is a related upstream stable tree open (see below) this class
    of patches is required to come through the upstream process. Patches
    sent upstream for that reason must include their *!BugLink*
    reference.
-#. For the Lifetime of both LTS and non-LTS releases we will be pulling
-   upstream stable updates from the corresponding series. There will be
-   one tracking bug report for each stable update but additional
-   references to existing bugs will be added to the contained patches
-   (on best can do base).
+#. The patch is included in a corresponding upstream stable or extended
+   stable release. For the lifetime of both LTS and non-LTS releases we
+   will be pulling upstream stable updates from the corresponding
+   series. There will be one tracking bug report for each stable update
+   but additional references to existing bugs will be added to the
+   contained patches (on best can do base).
 #. Fixes to drivers which are not upstream are accepted directly if they
    fall into the first two categories.
 #. *$DEITY* intervention. Might happen, but very very rarely and will
