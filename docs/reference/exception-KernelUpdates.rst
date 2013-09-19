@@ -43,8 +43,8 @@ which fall into any of the following categories:
 
 .. _how_does_the_process_work:
 
-How does the process work
--------------------------
+How does the process work?
+--------------------------
 
 -  First step for every SRU is to have a bug associated.
 -  The patch or patches **must** contain the link to the Launchpad bug
@@ -94,8 +94,8 @@ How does the process work
 
 .. _how_will_updates_be_provided_in_the_archive:
 
-How will updates be provided in the archive
--------------------------------------------
+How will updates be provided in the archive?
+--------------------------------------------
 
 -  Security updates will be uploaded directly into -security without
    other changes. This just requires a temporary GIT fork which will be
