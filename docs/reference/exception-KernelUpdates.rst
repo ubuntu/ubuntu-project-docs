@@ -19,8 +19,8 @@ document takes precedence.
 What sort of updates are allowed for post-release kernels?
 ----------------------------------------------------------
 
-In addition to the generic requirements, we will accept patches which
-fall into any of the following criteria's:
+In addition to the generic SRU requirements, we will accept patches
+which fall into any of the following categories:
 
 #. It fixes a critical issue (data-loss, OOPs, crashes) or is security
    related. Security related issues might be covered by security
