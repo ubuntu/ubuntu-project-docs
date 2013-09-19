@@ -50,7 +50,7 @@ How does the process work?
 -  The patch or patches **must** contain the link to the Launchpad bug
    and contain a Signed-off-by line from the submitter. Please refer to
    https://wiki.ubuntu.com/Kernel/Dev/StablePatchFormat for detailed
-   information regarding SRU patch formatting.
+   information regarding Ubuntu Kernel SRU patch formatting.
 -  The beginning of the description area of the bug needs to have a SRU
    justification which should look like this example:
 
