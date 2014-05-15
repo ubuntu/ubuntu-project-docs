@@ -53,7 +53,7 @@ For new upstream versions of packages which provide new features, but don't fix 
   1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
   1. A '''[Regression Potential]''' section with a discussion of how regressions are most likely to manifest as a result of this change.  It is assumed that any SRU candidate patch is well-tested before upload and has a low overall risk of regression, but it's important to make the effort to think about what ''could'' happen in the event of a regression.  This both shows the SRU team that the risks have been considered, and provides guidance to testers in regression-testing the SRU.
 
- 1. Ask the [[https://launchpad.net/~ubuntu-bugcontrol|Ubuntu bug control team]] to nominate the bug for the appropriate Ubuntu release(s)/series (e. g. the current LTS and latest stable release). You can do this by emailing them at the address found on the linked page.
+ 1. Ask the [[https://launchpad.net/~ubuntu-bugcontrol|Ubuntu bug control team]] to nominate the bug for the appropriate Ubuntu release(s)/series (e. g. the current LTS and latest stable release). You can do on IRC (Freenode) in #ubuntu-bugs, or by emailing them at the address found on the linked page.
 
  1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]]. After upload, the bug status should be changed to '''In Progress''', once accepted into ''release''-proposed, the status will be automatically changed to '''Fix Committed'''. Also, make sure that:
   1. The version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging|security policy document]] has a well-working scheme which can be used for SRUs.)
@@ -301,7 +301,7 @@ If you are a member of the [[https://launchpad.net/~ubuntu-sru|SRU reviewing tea
  bzr branch lp:ubuntu-archive-tools
  }}}
 
-which greatly simplify the reviewing procedure. You should symlink `queuediff` and `sru-accept.py` somewhere to your `~/bin/` directory for easy access, or put the checkout into your `$PATH`.
+which greatly simplify the reviewing procedure. You should symlink `sru-review` and `sru-accept` somewhere to your `~/bin/` directory for easy access, or put the checkout into your `$PATH`.
 
 The following review procedure is recommended:
 
@@ -310,33 +310,28 @@ The following review procedure is recommended:
  * For each package, generate the debdiff to the current version in the archive and open the corresponding bugs:
 
  {{{
- queuediff -b -s precise ubiquity | view -
- queuediff -b -s precise-updates linux-firmware | view -
+ sru-review -s saucy gnash
  }}}
 
- `-s` specifies the pocket to compare against, and `-b` opens all the bugs which are mentioned in the .changes file in the browser. This will generate a debdiff between the current archive and the unapproved upload (unless the orig.tar.gz changes this will only download the two diff.gz, so it is
- reasonably fast).
+ This opens all the bugs which are mentioned in the .changes file in the browser, and will generate a debdiff between the current archive and the unapproved upload (unless the orig.tar.gz changes this will only download the two diff.gz, so it is reasonably fast).
 
- * Review the bugs for complete description, justification, check that they have a stable task, are conformant to SRU rules, etc, and comment accordingly.
+ * Review the bugs for complete description, justification, check that they have a stable release task, are conformant to SRU rules, etc, and comment accordingly.
 
  * Scrutinize the debdiff for matching the changes in the bugs, not having unrelated changes, etc. If you have doubts, comment on the bug.
 
- * ''If you are an archive administrator:'' 
-  * If the bugs and debdiff are okay, accept the package from the `+queue` page, and run 
+ * ''If you are in the ubuntu-sru team:''
+  * Exit the tool you are using to review the debdiff 
+  * If the bugs and debdiff are okay, accept the package by pressing `y` at the ""Accept the package into -proposed?" prompt.
 
-  {{{
- sru-accept -s precise -p ubiquity 12345 23456
-  }}}
+  This will tag the bug(s) with `verification-needed`, subscribe `ubuntu-sru`, and add a general "please test and give feedback"-like comment.
 
-  This will tag the bug with `verification-needed`, subscribe `ubuntu-sru`, and add a general "please test and give feedback"-like comment. If you used `queuediff`, that will already have generated a suitable `sru-accept` command, which you just need to copy and run.
+  * If the upload is broken or unsuitable for an SRU, reject it by pressing `N` at the ""Accept the package into -proposed?" prompt and pressing `y` at the "REJECT the package from -proposed?" prompt.
 
-  * If the upload is broken or unsuitable for an SRU, reject it from the `+queue` page, and comment on the bug.
-
- * ''If you are not an archive administrator:'' Send a follow up comment to the bugs:
+ * ''If you are not in the ubuntu-sru team:'' Send a follow up comment to the bugs:
   * If all is okay: send an "ubuntu-sru approved and reviewed" comment and set the task to "In Progress"
   * If something is wrong: send the feedback to the bug and set the task to "Incomplete"
 
-The [[http://people.canonical.com/~ubuntu-archive/pending-sru|pending SRUs]] should also be reviewed see whether or not there are any to be released or removed from the archive.  The process for deailing with these follows:
+The [[http://people.canonical.com/~ubuntu-archive/pending-sru|pending SRUs]] should also be reviewed to see whether or not there are any to be released or removed from the archive.  The process for dealing with these follows:
 
 <<Include(ArchiveAdministration, ,from="== Moving Packages to Updates ==", to="^=")>>
 
