@@ -109,10 +109,10 @@ For new upstream versions of packages which provide new features, but don't fix 
 Please work with the [[ https://launchpad.net/~ubuntu-sru | Stable Release Updates (SRU) Team ]] to ensure that validated fixes are published to -updates.  Additionally, if the there is a priority SRU waiting the unapproved queue for testing feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
 
 
-||'''Day''' || SRU Team Member (IRC nick) ||
+||'''Day''' || '''SRU Team Member (IRC nick)''' ||
 || Monday || Adam Conrad (infinity) ||
 || Tuesday || Chris Halse Rogers (RAOF) ||
-|| Wednesday || Clint Byrum (SpamapS), Colin Watson (cjwatson) ||
+|| Wednesday || Colin Watson (cjwatson) ||
 || Thursday || Brian Murray (bdmurray) ||
 || Friday ||  Steve Langasek (slangasek) ||
 || Ad hoc || Scott Kitterman (ScottK),  Kate Stewart (skaet) ||
