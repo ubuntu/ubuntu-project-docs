@@ -53,7 +53,7 @@ For new upstream versions of packages which provide new features, but don't fix 
   1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
   1. A '''[Regression Potential]''' section with a discussion of how regressions are most likely to manifest as a result of this change.  It is assumed that any SRU candidate patch is well-tested before upload and has a low overall risk of regression, but it's important to make the effort to think about what ''could'' happen in the event of a regression.  This both shows the SRU team that the risks have been considered, and provides guidance to testers in regression-testing the SRU.
 
- 1. Ask the [[https://launchpad.net/~ubuntu-bugcontrol|Ubuntu bug control team]] to nominate the bug for the appropriate Ubuntu release(s)/series (e. g. the current LTS and latest stable release). You can do on IRC (Freenode) in #ubuntu-bugs, or by emailing them at the address found on the linked page.
+ 1. Ask the [[https://launchpad.net/~ubuntu-bugcontrol|Ubuntu bug control team]] to nominate the bug for the appropriate Ubuntu release(s)/series (e. g. the current LTS and latest stable release). You can ask on IRC (Freenode) in #ubuntu-bugs, or by emailing them at the address found on the linked page.
 
  1. Upload the fixed package to ''release''`-proposed` with the patch in the bug report, a detailed and user-readable changelog, and no other unrelated changes. If you can't upload to the archive yourself, [[SponsorshipProcess|get a sponsor]], attach a debdiff to the bug and subscribe `ubuntu-sponsors`, as usual.  There is no need to wait before [[https://lists.ubuntu.com/archives/ubuntu-devel/2010-July/030999.html | uploading]]. After upload, the bug status should be changed to '''In Progress''', once accepted into ''release''-proposed, the status will be automatically changed to '''Fix Committed'''. Also, make sure that:
   1. The version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging|security policy document]] has a well-working scheme which can be used for SRUs.)
@@ -111,7 +111,7 @@ Please work with the [[ https://launchpad.net/~ubuntu-sru | Stable Release Updat
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
 || Monday || Adam Conrad (infinity) ||
-|| Tuesday || Chris Halse Rogers (RAOF) ||
+|| Tuesday || Chris Halse Rogers (RAOF), Chris Arges (arges) ||
 || Wednesday || Colin Watson (cjwatson) ||
 || Thursday || Brian Murray (bdmurray) ||
 || Friday ||  Steve Langasek (slangasek) ||
