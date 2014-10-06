@@ -67,14 +67,16 @@ How does the process work?
 -  If the fix for a problem meets the requirements for a SRU and has
    also been tested to successfully solve the bug, then the next step
    depends on whether the fix is serious enough to be directly applied
-   an Ubuntu kernel series or whether it should go in via upstream
-   stable (as long as that is appropriate).
+   an Ubuntu kernel series and/or whether it should go in via upstream
+   stable (as long as that is appropriate for upstream stable).
 
-   -  For serious problem fixes, the patch must be sent the the
-      kernel-team mailing list. Patches require ACK's from at least two
-      senior kernel-team members before being applied to the Ubuntu
-      kernel tree. Even when going into the Ubuntu kernel tree on the
-      faster path, the next step should also be done.
+   -  For serious problem fixes, the patch should be sent the the
+      kernel-team mailing list in parallel to being submitted upstream.
+      SRU patches submitted for inclusion in an Ubuntu kernel require
+      ACK's from at least two senior Ubuntu kernel-team members before
+      being applied to the Ubuntu kernel tree. Again, even when going
+      into an Ubuntu kernel tree on an accelerated path, the patch
+      should also be submitted upstream.
 
 | ``   To: kernel-team@lists.ubuntu.com``
 | ``   Subject: [``\ \ ``] SRU: ``\ 
@@ -89,12 +91,15 @@ How does the process work?
 
 -  
 
-   -  For all other patches, it is advised to push the fix upstream when
+   -  For all other patches which do not need an accelerated path into
+      an Ubuntu kernel, it is advised to push the fix upstream when
       appropriate, ie. the problem exists upstream, and CC'ing
       stable@kernel.org during the process. As soon as the patch is
       accepted upstream/upstream-stable, it will naturally find it's way
-      back down into our Ubuntu kernel when we pull upstream stable
-      updates.
+      back down into our Ubuntu kernel when we pull
+      upstream/upstream-stable updates. This ensures patches are getting
+      vetted and applied upstream and reduces overall maintenance costs
+      for the Ubuntu Kernel Team.
 
 .. _how_will_updates_be_provided_in_the_archive:
 
