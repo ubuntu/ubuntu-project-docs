@@ -76,18 +76,17 @@ How does the process work?
       ACK's from at least two senior Ubuntu kernel-team members before
       being applied to the Ubuntu kernel tree. Again, even when going
       into an Ubuntu kernel tree on an accelerated path, the patch
-      should also be submitted upstream.
+      should also be submitted upstream. Ubuntu Kernel SRU patch
+      submission format is loosely as follows:
 
-| ``   To: kernel-team@lists.ubuntu.com``
-| ``   Subject: [``\ \ ``] SRU: ``\ 
+::
 
-``   ``\ 
+       To: kernel-team@lists.ubuntu.com
+       Subject: [<series>] SRU: <bug/patch title>
 
-``   ``\ 
+       <SRU justification copied from the bug>
 
-.. raw:: html
-
-   </pre>
+       <patch inlined or pull request>
 
 -  
 
