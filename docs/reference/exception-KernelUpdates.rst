@@ -64,17 +64,17 @@ How does the process work?
 
    </pre>
 
--  If the fix for a problem meets the requirements for a SRU and has
-   also been tested to successfully solve the bug, then the next step
-   depends on whether the fix is serious enough to be directly applied
-   an Ubuntu kernel series and/or whether it should go in via upstream
-   stable (as long as that is appropriate for upstream stable).
+-  If the fix for a problem meets the requirements for SRU and has been
+   tested to successfully solve the bug, then the next step depends on
+   whether the fix is serious enough to be directly applied to an Ubuntu
+   kernel series and/or whether it should go in via upstream stable (as
+   long as that is appropriate for upstream stable).
 
-   -  For serious problem fixes, the patch should be sent the the
+   -  For fixes for serious issues, the patch should be sent the the
       kernel-team mailing list in parallel to being submitted upstream.
-      SRU patches submitted for inclusion in an Ubuntu kernel require
+      SRU patches submitted for inclusion into an Ubuntu kernel require
       ACK's from at least two senior Ubuntu kernel-team members before
-      being applied to the Ubuntu kernel tree. Again, even when going
+      being applied to an Ubuntu kernel tree. Again, even when going
       into an Ubuntu kernel tree on an accelerated path, the patch
       should also be submitted upstream. Ubuntu Kernel SRU patch
       submission format is loosely as follows:
