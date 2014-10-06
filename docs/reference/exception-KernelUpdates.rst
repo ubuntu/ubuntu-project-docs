@@ -70,10 +70,10 @@ How does the process work?
    an Ubuntu kernel series or whether it should go in via upstream
    stable (as long as that is appropriate).
 -  For serious problem fixes, the patch must be sent the the kernel-team
-   mailing list. There is requires ACKs from two senior kernel-team
-   members and then will be applied to the Ubuntu kernel tree. Even
-   though going into the tree on the faster path, the next step should
-   also be done.
+   mailing list. Patches require ACK's from at least two senior
+   kernel-team members before being applied to the Ubuntu kernel tree.
+   Even when going into the Ubuntu kernel tree on the faster path, the
+   next step should also be done.
 
 | ``   To: kernel-team@lists.ubuntu.com``
 | ``   Subject: [``\ \ ``] SRU: ``\ 
