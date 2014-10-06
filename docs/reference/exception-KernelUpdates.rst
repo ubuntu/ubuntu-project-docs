@@ -69,11 +69,12 @@ How does the process work?
    depends on whether the fix is serious enough to be directly applied
    an Ubuntu kernel series or whether it should go in via upstream
    stable (as long as that is appropriate).
--  For serious problem fixes, the patch must be sent the the kernel-team
-   mailing list. Patches require ACK's from at least two senior
-   kernel-team members before being applied to the Ubuntu kernel tree.
-   Even when going into the Ubuntu kernel tree on the faster path, the
-   next step should also be done.
+
+   -  For serious problem fixes, the patch must be sent the the
+      kernel-team mailing list. Patches require ACK's from at least two
+      senior kernel-team members before being applied to the Ubuntu
+      kernel tree. Even when going into the Ubuntu kernel tree on the
+      faster path, the next step should also be done.
 
 | ``   To: kernel-team@lists.ubuntu.com``
 | ``   Subject: [``\ \ ``] SRU: ``\ 
@@ -86,11 +87,14 @@ How does the process work?
 
    </pre>
 
--  For all other patches (as long as the upstream stable is appropriate)
-   the fix has to be sent upstream (when the problem is there as well
-   and the patch is not a backport) and to stable@kernel.org (if it has
-   not been sent there before). As soon as that is accepted there, it
-   will come back its way when we pull stable updates.
+-  
+
+   -  For all other patches, it is advised to push the fix upstream when
+      appropriate, ie. the problem exists upstream, and CC'ing
+      stable@kernel.org during the process. As soon as the patch is
+      accepted upstream/upstream-stable, it will naturally find it's way
+      back down into our Ubuntu kernel when we pull upstream stable
+      updates.
 
 .. _how_will_updates_be_provided_in_the_archive:
 
