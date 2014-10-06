@@ -79,14 +79,16 @@ How does the process work?
       should also be submitted upstream. Ubuntu Kernel SRU patch
       submission format is loosely as follows:
 
-::
+| ``   To: kernel-team@lists.ubuntu.com``
+| ``   Subject: [``\ \ ``] SRU: ``\ 
 
-       To: kernel-team@lists.ubuntu.com
-       Subject: [<series>] SRU: <bug/patch title>
+``   ``\ 
 
-       <SRU justification copied from the bug>
+``   ``\ 
 
-       <patch inlined or pull request>
+.. raw:: html
+
+   </pre>
 
 -  
 
