@@ -286,6 +286,21 @@ When upstream discontinues maintenance for a version of a sun-java* package (e.g
 
 As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an idea of how the SRU process works for a main package, or [[https://launchpad.net/bugs/208666|bug #208666]] for an SRU in universe.
 
+== Package Removals ==
+
+While it is always preferable to fix a package, rather than drop it, there are rare cases when a universe package becomes actively detrimental in stable releases: If it is unmaintained in Ubuntu and has unfixed security issues or has been broken because of changing network protocols/APIs, it is better to stop offering it in Ubuntu altogether rather than continuing to encourage users to install it.
+
+It is not technically possible to remove a package from a stable release, but this can be approximated by SRUing an essentially empty package with an appropriate explanation in `NEWS` and a corresponding critical debconf note.
+
+When a package is removed in this way from a stable release, it may need similar removal from the devel release as well, depending on the justification for removal.
+
+Such a package removal should have an SRU tracking bug with an appropriate explanation, and needs to get confirmed by the [[https://launchpad.net/~techboard|Technical Board]]. Once removed, the SRU bug should be added to the "Previous Removals" list below.
+
+Previous Removals:
+ * [[https://lists.ubuntu.com/archives/ubuntu-devel/2007-September/024453.html|tor]] (was reintroduced later on in [[https://launchpad.net/bugs/413657|#413657]])
+ * [[https://bugs.launchpad.net/ubuntu/+source/bitcoin/+bug/1314616|bitcoin]]
+ * [[https://launchpad.net/bugs/1384355|owncloud]]
+
 == Links ==
 
 ~+Bugs in different stages of the stable release process: http://people.canonical.com/~ubuntu-archive/pending-sru +~
