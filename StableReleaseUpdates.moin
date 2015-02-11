@@ -111,10 +111,10 @@ Please work with the [[ https://launchpad.net/~ubuntu-sru | Stable Release Updat
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
 || Monday || Adam Conrad (infinity) ||
-|| Tuesday || Chris Halse Rogers (RAOF), Chris Arges (arges) ||
-|| Wednesday || ||
+|| Tuesday || Chris Halse Rogers (RAOF) ||
+|| Wednesday || Chris J Arges (arges) ||
 || Thursday || Brian Murray (bdmurray) ||
-|| Friday ||  Steve Langasek (slangasek) ||
+|| Friday || Timo Aaltonen (tjaalton), Steve Langasek (slangasek - backup) ||
 || Ad hoc || Scott Kitterman (ScottK),  Kate Stewart (skaet) ||
 
 == Fixing several bugs in one upload ==
