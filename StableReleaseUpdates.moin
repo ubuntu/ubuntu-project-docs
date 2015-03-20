@@ -106,8 +106,7 @@ For new upstream versions of packages which provide new features, but don't fix 
 
 == Publishing ==
 
-Please work with the [[ https://launchpad.net/~ubuntu-sru | Stable Release Updates (SRU) Team ]] to ensure that validated fixes are published to -updates.  Additionally, if the there is a priority SRU waiting the unapproved queue for testing feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
-
+The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done for the series) and releases those to the -updates pocket. Having said that, if the there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
 || Monday || Adam Conrad (infinity) ||
@@ -116,6 +115,14 @@ Please work with the [[ https://launchpad.net/~ubuntu-sru | Stable Release Updat
 || Thursday || Brian Murray (bdmurray) ||
 || Friday || Timo Aaltonen (tjaalton), Steve Langasek (slangasek - backup) ||
 || Ad hoc || Scott Kitterman (ScottK),  Kate Stewart (skaet) ||
+
+== Phasing ==
+
+Once an update is released to -updates, the update is then phased so that the update is gradually made available to expanding subsets of Ubuntu users. This process allows us to automatically monitor for regressions and halt the update process if any are found. Complete details about the process can be found in a [[http://www.murraytwins.com/blog/?p=127|blog post by Brian Murray]].
+
+The Phased-Update-Percentage is initially set to 10%, and a job is run (every 6 hours) that checks for regressions and if none are found the phased update percentage will be incremented by 10%. So an update will become fully phased after 54 hours or about 2 days. In the event that a regression is deteced the Phased-Update-Precentage will be set to 0% thereby causing supported package managers not to install the update.
+
+The progress of phased updates is visible in a [[http://people.canonical.com/~ubuntu-archive/phased-updates.html|report]] which is updated by the same job.
 
 == Fixing several bugs in one upload ==
 
@@ -303,10 +310,14 @@ Previous Removals:
 
 == Links ==
 
-~+Bugs in different stages of the stable release process: http://people.canonical.com/~ubuntu-archive/pending-sru +~
+Bugs in different stages of the stable release process: http://people.canonical.com/~ubuntu-archive/pending-sru
 
 This page has an "Upload queue status" section which links to all stable review
 queues.
+
+Phasing of Stable Release Updates: http://people.canonical.com/~ubuntu-archive/phased-updates.html
+
+This page displays the Phased-Update-Percentage of packages in the -proposed repository for releases and any regressions detected in that package.
 
 == Reviewing procedure and tools ==
 
