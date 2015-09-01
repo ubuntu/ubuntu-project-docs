@@ -120,9 +120,9 @@ The Stable Release Updates team regularly checks for SRUs that have succesfully 
 
 Once an update is released to -updates, the update is then phased so that the update is gradually made available to expanding subsets of Ubuntu users. This process allows us to automatically monitor for regressions and halt the update process if any are found. Complete details about the process can be found in a [[http://www.murraytwins.com/blog/?p=127|blog post by Brian Murray]].
 
-The Phased-Update-Percentage is initially set to 10%, and a job is run (every 6 hours) that checks for regressions and if none are found the phased update percentage will be incremented by 10%. So an update will become fully phased after 54 hours or about 2 days. In the event that a regression is deteced the Phased-Update-Precentage will be set to 0% thereby causing supported package managers not to install the update.
+The Phased-Update-Percentage is initially set to 10%, and a job is run (every 6 hours) that checks for regressions and if none are found the phased update percentage will be incremented by 10%. So an update will become fully phased after 54 hours or about 2 days. In the event that a regression is detected the Phased-Update-Precentage will be set to 0% thereby causing supported package managers not to install the update.
 
-The progress of phased updates is visible in a [[http://people.canonical.com/~ubuntu-archive/phased-updates.html|report]] which is updated by the same job.
+The progress of phased updates is visible in a [[http://people.canonical.com/~ubuntu-archive/phased-updates.html|report]] which is updated by the same job that does the phasing.
 
 == Fixing several bugs in one upload ==
 
@@ -228,28 +228,7 @@ The landscape-client source package may be uploaded according to the procedure d
 
 The tzdata package is updated to reflect changes in timezones or daylight saving policies. The verification is done with the "zdump" utility. The first timezone that gets changed in the updated package is dumped with "zdump -v $region/$timezone_that_changed" (this needed to be greped for in /usr/share/zoneinfo/). This is compared to the same output after the updated package got installed. If those are different the verification is considered done.
 
-Because tzdata's packaging has changed subtly from release to release, rather than just backporting the most recent release's source package, we update the upstream tarball instead, following this procedure:
-
-For the releases other than hardy, the process is simple:
-
-{{{
-cd $(old source dir)
-uupdate -v 2012e ../tzdata_2012e.orig.tar.gz
-cd ../tzdata-2012e
-}}}
-
-For hardy, you need to repack the sources for the old source format version that was in use:
-
-{{{
-mkdir tzdata-2012e~repack
-cp tzdata_2012e.orig.tar.gz tzdata-2012e~repack/tzdata2012e.tar.gz
-tar -czvf tzdata_2012e~repack.orig.tar.gz tzdata-2012e~repack/ && rm -r tzdata-2012e~repack/
-cd $(old source dir)
-uupdate -v 2012e~repack ../tzdata_2012e~repack.orig.tar.gz
-cd ../tzdata-2012e~repack
-}}}
-
-In both cases, you then need to edit debian/changelog to add bug closures, and make sure to use a version number consistent to the previous numbering scheme (2012e~repack-0ubuntu0.8.04 or 2012e-0ubuntu0.12.04 in the above examples).
+Because tzdata's packaging has changed subtly from release to release, rather than just backporting the most recent release's source package, we just update the upstream tarball instead. You then need to edit debian/changelog to add bug closures, and make sure to use a version number consistent to the previous numbering scheme (e. g. `2012e-0ubuntu0.12.04`).
 
 === udev keymaps ===
 
@@ -312,12 +291,11 @@ Previous Removals:
 
 Bugs in different stages of the stable release process: http://people.canonical.com/~ubuntu-archive/pending-sru
 
-This page has an "Upload queue status" section which links to all stable review
-queues.
+ * This page has an "Upload queue status" section which links to all stable review queues.
 
 Phasing of Stable Release Updates: http://people.canonical.com/~ubuntu-archive/phased-updates.html
 
-This page displays the Phased-Update-Percentage of packages in the -proposed repository for releases and any regressions detected in that package.
+ * This page displays the Phased-Update-Percentage of packages in the -proposed repository for releases and any regressions detected in that package.
 
 == Reviewing procedure and tools ==
 
