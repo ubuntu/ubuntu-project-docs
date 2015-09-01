@@ -258,16 +258,6 @@ week of maturing in -proposed and no regression bug reports it can be moved to
 
 Due to the special evolving nature of anti-virus requirements and the complexity of maintaining security fixes for multiple releases, we will work to keep clamav current on all supported releases.  See ClamavUpdates for details.
 
-=== sun-java* ===
-
-Ubuntu 9.04 and later include an officially tested and certified JDK called OpenJDK. Prior to Ubuntu 9.04, the only officially tested and certified JDKs were `sun-java5` and `sun-java6`. These are binary-only packages shipped in multiverse.
-
-To support users of 8.04 LTS who do not have access to the free OpenJDK, new upstream microreleases of `sun-java5` and `sun-java6` can be provided in -updates without checking individual changes for above SRU criteria for as long as Sun/Oracle provides updates. Verification just needs to prove that the packages still upgrade/install for users, and that Java applications and browser applets still run, using the packages from hardy-proposed.
-
-Other users are recommended to upgrade to at least 9.04 and use the supported OpenJDK.
-
-When upstream discontinues maintenance for a version of a sun-java* package (e.g. sun-java5), no more updates will be provided for that package. An announcement should be made to the ubuntu-devel-announce mailing list regarding the discontinued support of the affected package.
-
 == Examples ==
 
 As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an idea of how the SRU process works for a main package, or [[https://launchpad.net/bugs/208666|bug #208666]] for an SRU in universe.
