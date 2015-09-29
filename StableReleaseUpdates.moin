@@ -30,28 +30,53 @@ In line with this, the requirements for stable updates are not necessarily the s
 
 == When ==
 
+=== High-impact bugs ===
+
 Stable release updates will, in general, only be issued in order to fix '''high-impact bugs'''.  Examples of such bugs include:
 
  * Bugs which may, under realistic circumstances, directly cause a '''security vulnerability'''. These are done by the security team and are documented at SecurityTeam/UpdateProcedures.
  * Bugs which represent '''severe regressions''' from the previous release of Ubuntu. This includes packages which are totally unusable, like being uninstallable or crashing on startup.
  * Bugs which may, under realistic circumstances, directly cause a '''loss of user data'''
+ * Updates that need to be applied to Ubuntu packages to adjust to changes in the environment, server protocols, web services, and similar, i. e. where the current version just ceases to work. Examples:
+  * app-install-data-commercial is a package index which regularly needs to be adjusted to changes in the commercial package archive.
+  * clamav needs [[ClamavUpdates|regular updates]] to latest virus signatures
+  * tor needs a newer version to still work with the current Tor network.
+  * A library for a web service needs to be updated for changes to the web server API.
+
+=== Other safe cases ===
+
+In the following cases a stable release update is also applicable as they have a low potential for regressing existing installations but a high potential for improving the user experience, particularly for Long Term Support releases:
+
  * Bugs which do not fit under above categories, but (1) have an obviously safe patch and (2) affect an application rather than critical infrastructure packages (like X.org or the kernel).
- * For Long Term Support releases we regularly want to enable new hardware. Such changes are appropriate provided that we can ensure not to affect upgrades on existing hardware. For example, modaliases of newly introduced drivers must not overlap with previously shipped drivers.
+ * For Long Term Support releases we regularly want to enable new hardware. Such changes are appropriate provided that we can ensure not to affect upgrades on existing hardware. For example, modaliases of newly introduced drivers must not overlap with previously shipped drivers. This also includes updating hardware description data such as udev's keymaps, media-player-info, mobile broadband vendors, or PCI vendor/product list updates.
  * New versions of commercial software in the Canonical partner archive.
  * '''FTBFS'''(Fails To Build From Source) can also be considered. Please note that in '''main''' the release process ensures that there are no binaries which are not built from a current source. Usually those bugs should only be SRUed in conjunction with another bug fix.
 
 For new upstream versions of packages which provide new features, but don't fix critical bugs, a [[https://help.ubuntu.com/community/UbuntuBackports|backport]] should be requested instead.
 
+=== New upstream microreleases ===
+
+In some cases, when upstream fixes bugs, they do a new microrelease instead of just sending patches. If all of the changes are appropriate for an SRU by the criteria above, then it is acceptable (and usually easier) to just upload the complete new upstream microrelease instead of backporting the individual patches. Note that some noise introduced by autoreconf is okay, but making structural changes to the build system (such as introducing new library dependencies) is generally not.
+
+For upstreams who have
+
+ * a reliable and credible test suite for assuring the quality of every commit or release,
+ * the tests are covering both functionality and API/ABI stability,
+ * the tests run during package build to cover all architectures,
+ * the package has an [[http://packaging.ubuntu.com/html/auto-pkg-test.html|autopkgtest]] to run the tests in an Ubuntu environment against the actual binary packages,
+
+it is also acceptable to upload new microreleases with many bug fixes without individual Launchpad bugs for each of them (~ubuntu-sru will make the final decision). The upstream QA process must be documented/demonstrated and linked from the SRU tracking bug. In other cases where such upstream automatic testing is not available, exceptions must still be approved by at least one member of the Ubuntu Technical Board.
+
 == Procedure ==
 
- 1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released".  It is, in general, not appropriate to release bug fixes for stable systems without first testing them in the current development branch.
+ 1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released".  Equivalently for new upstream releases, this (or a a newer) release must be in the development release. It is, in general, not appropriate to release updates for stable systems without first testing them in the current development branch.
 
  1. Ensure that the bug report for this issue is public.  If the bug has been reported privately and cannot be published, you must first create a separate public bug report in launchpad and copy over as much information as can be published.
 
  1. Update the bug report '''description''' and make sure it contains the following information:
   1. An explanation of the bug on users and justification for backporting the fix to the stable release.  This may be preceded with an '''[Impact]''' header, but this is not required.  In addition, it is helpful, but not required, to include an explanation of how the upload fixes this bug.
   1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
-  1. A '''[Regression Potential]''' section with a discussion of how regressions are most likely to manifest as a result of this change.  It is assumed that any SRU candidate patch is well-tested before upload and has a low overall risk of regression, but it's important to make the effort to think about what ''could'' happen in the event of a regression.  This both shows the SRU team that the risks have been considered, and provides guidance to testers in regression-testing the SRU.
+  1. A '''[Regression Potential]''' section with a discussion of how regressions are most likely to manifest as a result of this change.  It is assumed that any SRU candidate patch is well-tested before upload and has a low overall risk of regression, but it's important to make the effort to think about what ''could'' happen in the event of a regression. In the case of new upstream releases, link to the upstream QA procedure/documentation. This both shows the SRU team that the risks have been considered, and provides guidance to testers in regression-testing the SRU.
 
  1. Ask the [[https://launchpad.net/~ubuntu-bugcontrol|Ubuntu bug control team]] to nominate the bug for the appropriate Ubuntu release(s)/series (e. g. the current LTS and latest stable release). You can ask on IRC (Freenode) in #ubuntu-bugs, or by emailing them at the address found on the linked page.
 
@@ -134,12 +159,6 @@ or
 
  * attach individual patches to the corresponding bug reports. If you have the fixes in bzr, it is even easier and more convenient to give a pointer to the fix ("fixed in http://bazaar.launchpad.net/.../revision/12") when fixing the bug in trunk.
 
-== New upstream microreleases ==
-
-In some cases, when upstream fixes bugs, they do a new microrelease instead of just sending patches. If all of the changes are appropriate for an SRU by the criteria above, then it is acceptable (and usually easier) to just upload the complete new upstream microrelease instead of backporting the individual patches. Note that some noise introduced by autoreconf is okay, but making structural changes to the build system (such as introducing new library dependencies) is generally not.
-
-If a new upstream release has more intrusive changes, you need to request an exception from the Technical Board, especially if you are going to upload the package with non-SRU changes multiple times in the future. Please see [[#Special|special cases]] below.
-
 == Verification ==
 
 The [[https://launchpad.net/~sru-verification|SRU verification team]] will regularly check open bugs with the `verification-needed` tag and test proposed updates on different hardware to check for inadvertent side effects. Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not with other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports. 
@@ -201,24 +220,14 @@ Depth Regression testing will be performed by the Ubuntu Platform QA team on min
 Breadth hardware testing will be performed by the HW Certification team on release-certified HW. The test will verify that the proposed kernel can be successfully installed on the latest (point) release, network access is functional, and no other functionality is missing that will enable Update Manager to work correctly.
 
 <<Anchor(Special)>>
-== Special Cases ==
+== Documentation for Special Cases ==
 
 The [[https://lists.ubuntu.com/archives/ubuntu-devel-announce/2009-March/000550.html|Technical Board resolution on Landscape]] provides a general rationale for the types of special cases that may be approved here in future.
-
-=== New micro releases ===
-
-For some packages it is acceptable to upload new upstream microreleases to stable Ubuntu releases. See /MicroReleaseExceptions for details.  
 
 === Kernel ===
 
 Because of the way updates to the kernel work, it will follow a slightly
 different process which is described on KernelTeam/KernelUpdates.
-
-=== app-install-data-commercial ===
-
-The app-install-data-commercial source package may be uploaded to add .desktop files for new packages in the commercial repository on archive.canonical.com. This does not require prior approval, and the aging requirement is waived; but it must still go through -proposed, a bug report must still be filed with testing instructions (its enough to add the new apps so that the tester can try to install them and verify that this works), and testing must still be recorded in the bug report.
-
-(This section is based on discussions between MichaelVogt and ColinWatson)
 
 === Landscape ===
 
@@ -229,34 +238,6 @@ The landscape-client source package may be uploaded according to the procedure d
 The tzdata package is updated to reflect changes in timezones or daylight saving policies. The verification is done with the "zdump" utility. The first timezone that gets changed in the updated package is dumped with "zdump -v $region/$timezone_that_changed" (this needed to be greped for in /usr/share/zoneinfo/). This is compared to the same output after the updated package got installed. If those are different the verification is considered done.
 
 Because tzdata's packaging has changed subtly from release to release, rather than just backporting the most recent release's source package, we just update the upstream tarball instead. You then need to edit debian/changelog to add bug closures, and make sure to use a version number consistent to the previous numbering scheme (e. g. `2012e-0ubuntu0.12.04`).
-
-=== udev keymaps ===
-
-udev ships a set of rules and keyboard maps which provide correct
-hotkey assignments for individual laptop and USB hardware, and fixes
-"stuck" keys on buggy BIOSes. Those maps can be backported to the
-current LTS release(s). After one week of maturing in -proposed and no
-regression bug reports it can be moved to -updates.
-
-=== media-player-info ===
-
-The media-player-info package ships udev rules to identify USB music
-players as such, to provide tight desktop integration. It is an
-architecture: all textual data-only package which has a very low
-regression potential. Newer versions can be backported to the current
-LTS release(s). After one week of maturing in -proposed and no
-regression bug reports it can be moved to -updates.
-
-=== mobile-broadband-provider-info ===
-
-Whenever there are significant changes, a new version is uploaded into the
-current development release and all stable releases from 8.10 on.  After one
-week of maturing in -proposed and no regression bug reports it can be moved to
--updates.
-
-=== clamav and rdepends ===
-
-Due to the special evolving nature of anti-virus requirements and the complexity of maintaining security fixes for multiple releases, we will work to keep clamav current on all supported releases.  See ClamavUpdates for details.
 
 == Examples ==
 
