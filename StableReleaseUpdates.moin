@@ -203,13 +203,7 @@ If a bug fixed by an update '''does not get any testing/verification feedback'''
 == Regressions ==
 <<Anchor(regressions)>>
 
-If a package update introduces a regression which already made it through the verification process to `-updates`, please '''immediately''' join `#ubuntu-devel` on Freenode, send the message "!regression-alert" on its own, and then describe the problem. Eg:{{{
-16:33 < you> !regression-alert
-16:33 < ubottu> ... <automated response> ...
-16:33 < you> bug #... <your explanation>
-}}}
-
-Please include the package name and a relevant bug number if possible. If you cannot join IRC, please follow up on one of the relevant bugs (see changelog).
+If a package update introduces a regression which already made it through the verification process to `-updates`, please '''immediately''' file a bug report about the isue, and add the tag `regression-update` to the bug.
 
 If the regression ''only'' applies to the package in `-proposed`, please follow up to the bug with a detailed explanation, and tag the bug with ``regression-proposed``.
 
