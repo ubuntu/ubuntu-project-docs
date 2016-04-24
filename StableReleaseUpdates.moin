@@ -228,11 +228,30 @@ different process which is described on KernelTeam/KernelUpdates.
 
 The landscape-client source package may be uploaded according to the procedure documented in LandscapeUpdates. See the [[https://lists.ubuntu.com/archives/ubuntu-devel-announce/2009-March/000550.html|Technical Board resolution]] for details and rationale.
 
-=== tzdata ===
+<<Anchor(Security)>>
+=== Data Packages Kept in Sync with Security === 
+
+Some data packages must always be kept in sync between -updates and -security to avoid behaviour or functionality regressions when using only the security pocket.  Because they are pure data, and contain no compiled code, these packages are safe to build in -proposed and then copy to both -updates and -security.
+
+==== tzdata ====
 
 The tzdata package is updated to reflect changes in timezones or daylight saving policies. The verification is done with the "zdump" utility. The first timezone that gets changed in the updated package is dumped with "zdump -v $region/$timezone_that_changed" (this needed to be greped for in /usr/share/zoneinfo/). This is compared to the same output after the updated package got installed. If those are different the verification is considered done.
 
 Because tzdata's packaging has changed subtly from release to release, rather than just backporting the most recent release's source package, we just update the upstream tarball instead. You then need to edit debian/changelog to add bug closures, and make sure to use a version number consistent to the previous numbering scheme (e. g. `2012e-0ubuntu0.12.04`).
+
+Due to the potentially disastrous consequences of having localtime differ between systems running -updates and systems running only -security, this package is always kept in sync between the two pockets.
+
+==== distro-info-data ====
+
+Many tools behave drastically differently based on the contents of ubuntu.csv in distro-info-data.  As such, information for new releases is always backported to -updates, and should always be copied to -security to avoid behaviour skew between the two pockets.
+
+==== linux-firmware ====
+
+linux-firmware in stable releases is kept in sync with new driver features and lts-hwe kernel updates.  linux-firmware follows the normal SRU process (with bugs filed and regression tests performed), however it must also be copied to the -security pocket once verified, due to the vast majority of kernel SRUs also being in the -security pocket, and the necessity of linux and linux-firmware not being mismatched.
+
+==== wireless-regdb ====
+
+Much like linux-firmware, wireless-regdb follows the usual SRU process, including a bug and regression testing, however it is another package that needs to be kept in sync between -updates and -security pockets to avoid potential local legal issues for -security users who would otherwise not get the local regdb updates.
 
 == Examples ==
 
