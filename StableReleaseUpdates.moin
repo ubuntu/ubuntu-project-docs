@@ -70,7 +70,7 @@ it is also acceptable to upload new microreleases with many bug fixes without in
 
 == Procedure ==
 
- 1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released".  Equivalently for new upstream releases, this (or a a newer) release must be in the development release. It is, in general, not appropriate to release updates for stable systems without first testing them in the current development branch.
+ 1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released".  Equivalently for new upstream releases, this (or a newer) release must be in the development release. It is, in general, not appropriate to release updates for stable systems without first testing them in the current development branch.
 
  1. Ensure that the bug report for this issue is public.  If the bug has been reported privately and cannot be published, you must first create a separate public bug report in launchpad and copy over as much information as can be published.
 
