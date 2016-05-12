@@ -24,7 +24,7 @@ pass. The following requirements must be met:
 -  
 
    -  each change must be reviewed and approved by at least two members
-      of the `ubuntu-core
+      of the `ubuntu-core github
       team <https://github.com/orgs/ubuntu-core/people>`__ before
       landing into the master branch.
    -  each change must be fully tested at the unit level.
