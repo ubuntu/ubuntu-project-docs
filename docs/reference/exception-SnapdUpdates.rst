@@ -9,9 +9,12 @@ developed features. It was designed in a way that makes it easily
 extensible, so every new release provides bug fixes and new features
 with a low risk of regressions. The team is working with a continuous
 delivery process which results in a new version ready to be released
-every week. Therefore, in addition to critical bug fixes, new features
-and small improvements are allowed in an update **as long as the
-conditions outlined below are met**.
+every week. The snapd package that was delivered at the time of the
+Ubuntu 16.04 release is also not feature-complete, and the nature of
+this project makes it important to be able to continue to deliver new
+features on top of a stable Ubuntu release. Therefore, in addition to
+critical bug fixes, new features and small improvements are allowed in
+an update **as long as the conditions outlined below are met**.
 
 .. _qa_process:
 
