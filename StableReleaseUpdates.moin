@@ -228,9 +228,12 @@ different process which is described on KernelTeam/KernelUpdates.
 
 The landscape-client source package may be uploaded according to the procedure documented in LandscapeUpdates. See the [[https://lists.ubuntu.com/archives/ubuntu-devel-announce/2009-March/000550.html|Technical Board resolution]] for details and rationale.
 
-== Juju ===
+=== Juju ===
 The juju-core source package may be uploaded according to the procedure documented in JujuUpdates. See the
-[[https://lists.ubuntu.com/archives/technical-board/2014-August/001992.html|Technical Board discussion for historical context and rationale.
+[[https://lists.ubuntu.com/archives/technical-board/2014-August/001992.html|Technical Board discussion]] for historical context and rationale.
+
+=== Snapd ===
+The snapd source package may be uploaded according to the procedure documented in SnapdUpdates.  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by SteveLangasek for the SRU team as of 2016-05-12.
 
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
