@@ -2,10 +2,10 @@ This document describes the policy for updating the snapcraft package in
 a stable supported distro, including LTS.
 
 snapcraft is the tool to create snaps. This package needs to be kept in
-sync with snapd releases so we can built the snaps that will work with
-newer versions of the ubuntu-core snap.
+sync with snapd releases so we can build snaps that will work with the
+latest features added to Ubuntu Core.
 `snapd <https://wiki.ubuntu.com/SnapdUpdates>`__ already has an
-exception to release new versions in the stable distro; therefore in
+exception to release new versions into the stable distro; therefore in
 addition to critical bug fixes, new features and small improvements are
 allowed in an snapcraft update **as long as the conditions outlined
 below are met**.
@@ -23,9 +23,9 @@ pass. The following requirements must be met:
    -  each change must be reviewed and approved by at least one
       ubuntu-core developer before landing into the master branch.
    -  each change must be fully tested at the unit level.
-   -  each change affecting the user interface or file format must have
-      an automated integration test.
-   -  each new feature must have an example that can be build, installed
+   -  each change affecting the user interface (cli or others) or file
+      format must have an automated integration test.
+   -  each new feature must have an example that can be built, installed
       and executed as a snap.
    -  all the unit, integration and examples tests must pass in all the
       supported architectures. They are executed for one arch before the
@@ -39,8 +39,8 @@ pass. The following requirements must be met:
       automated or manual test.
    -  all the bugs reported in launchpad that will be fixed in this
       release must have a link to the pull request that fixes them.
-      These bugs must be marked as "Committed" once that pull request is
-      merged into master.
+      These bugs must be marked as "Fix Committed" at the project level
+      once that pull request is merged into master.
    -  when a new version is ready to be proposed, the QA team will
       perform extensive exploratory testing on the areas that will be
       changed by the release.
