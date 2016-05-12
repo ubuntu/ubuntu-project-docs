@@ -67,7 +67,7 @@ pass the following additional QA procedures:
    -  upgrade test from previous version of the package. This test must
       be performed with:
 
-``   * using apt install/upgrade.``
+``   * apt install/upgrade.``
 
 -  
 
