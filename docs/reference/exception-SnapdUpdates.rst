@@ -24,7 +24,7 @@ pass. The following requirements must be met:
 -  
 
    -  each change must be reviewed and approved by at least two
-      ubuntu-core developers before being landed into the master branch.
+      ubuntu-core developers before landing into the master branch.
    -  each change must be fully tested at the unit level.
    -  all the unit tests must pass in all the supported architectures.
       They are executed for one arch before the change is merged into
