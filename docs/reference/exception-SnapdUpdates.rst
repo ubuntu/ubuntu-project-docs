@@ -99,4 +99,6 @@ Requesting the SRU
 
 The SRU should be requested as usual
 (`StableReleaseUpdates <StableReleaseUpdates>`__) with the additional
-note about having the above steps being completed.
+note about having the above steps being completed. The SRU should be
+done with a single process bug for this stable release exception,
+instead of individual bug reports for individual bug fixes.
