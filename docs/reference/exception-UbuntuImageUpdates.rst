@@ -6,12 +6,12 @@ also used in the generation of the OS snap package and snappy Ubuntu
 Core images. One of the goals of this project is to keep your system
 always up-to-date with the latest security fixes and with the newest
 developed features. It was designed in a way that makes it easily
-extendable, so every new release provides bug fixes and shiny new
-features with a low risk of regressions. The team is working really fast
-with a continuos delivery process which results in a new version ready
-to be released every week. Therefore, in addition to critical bug fixes,
-new features and small improvements are allowed in an update **as long
-as the conditions outlined below are met**.
+extensible, so every new release provides bug fixes and new features
+with a low risk of regressions. The team is working with a continuous
+delivery process which results in a new version ready to be released
+every week. Therefore, in addition to critical bug fixes, new features
+and small improvements are allowed in an update **as long as the
+conditions outlined below are met**.
 
 .. _qa_process:
 
