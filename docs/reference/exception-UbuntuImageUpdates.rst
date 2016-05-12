@@ -40,7 +40,7 @@ pass. The following requirements must be met:
       merged into master.
    -  all the new user-facing features will be tested in a real system.
 
-| ``   * most of these tests are automated and executed as part of the autopkgtest suite of the deb and its reverse-dependencies in a classic ubuntu system, and as part of the automated user-acceptance suite in a snappy Ubuntu system.``
+| ``   * most of these tests are automated and executed as part of the autopkgtest suite of the deb and its reverse-dependencies in a classic ubuntu system, and as part of the automated user-acceptance suite in a snappy Ubuntu Core system.``
 | ``   * the tests that can't be automated are documented and manually executed when there are changes in the code that can affect the feature.``
 
 -  
