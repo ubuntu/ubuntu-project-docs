@@ -2,7 +2,7 @@ This document describes the policy for updating the snapcraft package in
 a stable supported distro, including LTS.
 
 snapcraft is the tool to create snaps. This package needs to be kept in
-sync with snapd releases so we can build the snaps that will work with
+sync with snapd releases so we can built the snaps that will work with
 newer versions of the ubuntu-core snap.
 `snapd <https://wiki.ubuntu.com/SnapdUpdates>`__ already has an
 exception to release new versions in the stable distro; therefore in
