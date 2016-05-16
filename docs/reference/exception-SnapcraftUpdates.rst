@@ -20,8 +20,10 @@ pass. The following requirements must be met:
 
 -  
 
-   -  each change must be reviewed and approved by at least one
-      ubuntu-core developer before landing into the master branch.
+   -  each change must be reviewed and approved by at least one member
+      of the `ubuntu-core github
+      team <https://github.com/orgs/ubuntu-core/people>`__ before
+      landing into the master branch.
    -  each change must be fully tested at the unit level.
    -  each change affecting the user interface (cli or others) or file
       format must have an automated integration test.
