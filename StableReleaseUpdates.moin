@@ -235,6 +235,9 @@ The juju-core source package may be uploaded according to the procedure document
 === Snapd ===
 The snapd source package may be uploaded according to the procedure documented in SnapdUpdates.  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by SteveLangasek for the SRU team as of 2016-05-12.
 
+=== Snapcraft ===
+Related to the preceding snapd exception, the snapcraft source package may be uploaded according to the procedure documented in SnapcraftUpdates.  This stable release exception has been approved by SteveLangasek for the SRU team as of 2016-05-16.
+
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
 
