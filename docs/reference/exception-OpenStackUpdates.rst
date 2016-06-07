@@ -85,7 +85,7 @@ download the package source:
    -  Core !OpenStack packages for Liberty+ are `maintained in git on
       Launchpad <https://code.launchpad.net/~ubuntu-server-dev/+git>`__.
       The process for working with these repositories is documented
-      `here <https://wiki.ubuntu.com/ServerTeam/OpenStackPackaging>`__.
+      `here <https://wiki.ubuntu.com/OpenStack/CorePackages>`__.
 
 -  
 
