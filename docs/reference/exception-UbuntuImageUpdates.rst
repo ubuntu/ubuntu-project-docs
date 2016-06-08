@@ -101,7 +101,15 @@ Requesting the SRU
 ------------------
 
 The SRU should be requested as usual
-(`StableReleaseUpdates <StableReleaseUpdates>`__) with the additional
-note about having the above steps being completed. The SRU should be
-done with a single process bug for this stable release exception,
-instead of individual bug reports for individual bug fixes.
+(`StableReleaseUpdates <StableReleaseUpdates>`__) with the description
+of the bug containing links to automatic testing results (travis unit
+test, jenkins autopkg tests, and jenkins integrations tests) so that any
+one can verify the testing occurred and its results. Additionally, the
+SRU bug should be verbose in documenting any manual testing that occurs
+an example of a good SRU bug can be found in
+http://launchpad.net/bugs/1588052. The SRU should be done with a single
+process bug for this stable release exception, instead of individual bug
+reports for individual bug fixes. However, individual bugs may be
+referenced in the from the changelog but **each** of those bugs will
+need to independently verified and commented on for the SRU to be
+considered complete.
