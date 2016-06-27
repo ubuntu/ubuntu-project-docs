@@ -120,7 +120,7 @@ verification process is followed:
 
 -  
 
-   -  Deployment and base configuration using `!OpenStack Charm
+   -  Deployment and base configuration using `OpenStack Charm
       Testing <launchpad.net/openstack-charm-testing>`__ bundles and
       charms, using the current set of stable charms configured to
       consume packages from the proposed pocket of the archive.
@@ -140,7 +140,7 @@ deploying from archive excluding proposed, testing using Tempest,
 upgrading the deployed cloud to proposed and then re-verifying the cloud
 using Tempest.
 
-This testing process is automated by the `Ubuntu !OpenStack CI
+This testing process is automated by the `Ubuntu OpenStack CI
 system <https://launchpad.net/ubuntu-openstack-ci>`__.
 
 Additionally, any specific test cases covered in SRU bug reports should
