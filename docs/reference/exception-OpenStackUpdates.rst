@@ -120,19 +120,28 @@ verification process is followed:
 
 -  
 
-   -  Deployment and base configuration using !OpenStack Charm Testing
-      bundles and charms, using the current set of stable charms
-      configured to consume packages from the proposed pocket of the
-      archive.
+   -  Deployment and base configuration using `!OpenStack Charm
+      Testing <launchpad.net/openstack-charm-testing>`__ bundles and
+      charms, using the current set of stable charms configured to
+      consume packages from the proposed pocket of the archive.
 
 -  
 
-   -  Testing of the deployed Cloud using the Tempest smoke test target;
-      this is approximately 100 tests from the full Tempest upstream
-      function test suite that cover all core functions of the cloud.
-      The deployed cloud is expected to pass all smoke tests.
+   -  Testing of the deployed Cloud using the
+      `Tempest <https://github.com/openstack/tempest>`__ (the !OpenStack
+      functional test project) smoke test target; this is approximately
+      100 tests from the full Tempest upstream function test suite that
+      cover all core functions of the cloud. The deployed cloud is
+      expected to pass all smoke tests.
 
-This testing process is automated by the Ubuntu OpenStack CI system.
+For updates where there is risk of regression as a result of the package
+upgrade process, the same testing process is followed as above,
+deploying from archive excluding proposed, testing using Tempest,
+upgrading the deployed cloud to proposed and then re-verifying the cloud
+using Tempest.
+
+This testing process is automated by the `Ubuntu !OpenStack CI
+system <https://launchpad.net/ubuntu-openstack-ci>`__.
 
 Additionally, any specific test cases covered in SRU bug reports should
 be explicitly tested as well.
