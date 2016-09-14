@@ -50,5 +50,7 @@ machine by downloading the package and running
 
    $ suite=target-suite ./debian/tests/docker-in-lxd
 
+Success is indicated by this exiting successfully.
+
 This QA should happen both for the -proposed -> -release migration in
 the devel series and again as part of the SRU verification.
