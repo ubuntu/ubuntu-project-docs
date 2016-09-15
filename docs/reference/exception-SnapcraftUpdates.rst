@@ -99,3 +99,11 @@ Requesting the SRU
 The SRU should be requested as usual
 (`StableReleaseUpdates <StableReleaseUpdates>`__) with the additional
 note about having the above steps being completed.
+
+.. _releasing_the_sru:
+
+Releasing the SRU
+-----------------
+
+The SRU may be released without meeting the aging period of 7 days
+provided all the above steps have been completed.
