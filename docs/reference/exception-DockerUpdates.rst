@@ -37,20 +37,14 @@ caught most packaging issues so far (the only problem I am aware of it
 missing is a problem in containerd on arm64 because we do not run
 autopkgtests on arm64).
 
-The other test that should be carried out as part of SRU verification is
-the "docker in lxd" test as described in
+There is also an autopkgtest that exercises "docker in lxd" as described
+in
 https://insights.ubuntu.com/2016/04/13/stephane-graber-lxd-2-0-docker-in-lxd-712/
 .
 
-As of docker 1.12 there is an autopkgtest in the tree for this that does
-not run on production infrastructure but can be run on a developers
-machine by downloading the package and running
-
-::
-
-   $ suite=target-suite ./debian/tests/docker-in-lxd
-
-Success is indicated by this exiting successfully.
+The autopkgtests require machine level isolation and so today only run
+on amd64, i386 and ppc64el. Should we run them by hand on armhf, arm64
+and s390x?
 
 This QA should happen both for the -proposed -> -release migration in
 the devel series and again as part of the SRU verification.
