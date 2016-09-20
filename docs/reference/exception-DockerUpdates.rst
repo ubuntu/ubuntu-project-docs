@@ -6,9 +6,6 @@ Basically docker is a sufficiently fast-moving project that we provide
 more value to our users by delivering an "upstream" experience rather
 than worrying over-much about backward compatibility or regressions.
 
-The Technical Board approved such an approach in the meeting on
-2016-XX-XX.
-
 Process
 -------
 
