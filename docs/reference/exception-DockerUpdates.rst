@@ -43,8 +43,9 @@ https://insights.ubuntu.com/2016/04/13/stephane-graber-lxd-2-0-docker-in-lxd-712
 .
 
 The autopkgtests require machine level isolation and so today only run
-on amd64, i386 and ppc64el. Should we run them by hand on armhf, arm64
-and s390x?
+on amd64, i386 and ppc64el. We should run them by hand on arm64 and
+s390x until those architectures support machine-level isolation
+autopkgtests.
 
 This QA should happen both for the -proposed -> -release migration in
 the devel series and again as part of the SRU verification.
