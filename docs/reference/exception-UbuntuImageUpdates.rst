@@ -2,102 +2,67 @@
 
    #. page was copied from SnapdUpdates
 
-This document describes the policy for updating the snapd package in a
-stable supported distro, including LTS.
+This document describes the policy for updating the ubuntu-image package
+in a stable supported distro, including LTS.
 
-snapd is the tool to interact with Ubuntu Core Snappy. This package is
-also used in the generation of the OS snap package and snappy Ubuntu
-Core images. One of the goals of this project is to keep your system
-always up-to-date with the latest security fixes and with the newest
-developed features. It was designed in a way that makes it easily
-extensible, so every new release provides bug fixes and new features
-with a low risk of regressions. The team is working with a continuous
-delivery process which results in a new version ready to be released
-every week. The snapd package that was delivered at the time of the
-Ubuntu 16.04 release is also not feature-complete, and the nature of
-this project makes it important to be able to continue to deliver new
-features on top of a stable Ubuntu release. Therefore, in addition to
-critical bug fixes, new features and small improvements are allowed in
-an update **as long as the conditions outlined below are met**.
+ubuntu-image is a tool for building bootable images for a variety of
+devices and Ubuntu flavors. Initially, it is primarily used to build
+bootable snappy images, but will eventually expand its use cases to
+include Ubuntu classic. ubuntu-image is closely tied to snapd, since it
+depends on snapd for interaction with the snappy store, and for
+validating models and gadgets. Thus, the `snapd updates
+policy <SnapdUpdates>`__ has relevance. As new snapd releases are made,
+new ubuntu-image releases may also be necessary. Even without snapd
+releases, new ubuntu-image releases may be necessary in order to
+facilitate image building on the Ubuntu infrastructure, including
+potentially LTS releases (although ubuntu-image only became available in
+the archive as of 16.10). Since at the time of 16.10 release, it is
+known that ubuntu-image is not feature complete, and its focus is
+narrowly defined to be for image building, new featureful releases will
+be made on both the in-development version of Ubuntu, stable releases,
+and the snap store. It is project goal to keep all release channels in
+sync.
+
+The QA process for stable ubuntu-image releases are outlined below. We
+request an exception from the SRU process for ubuntu-image.
 
 .. _qa_process:
 
 QA Process
 ----------
 
-This is the mandatory QA process that the proposed packages have to
-pass. The following requirements must be met:
+Every change to ubuntu-image is proposed through the `GitHub merge
+proposal <https://github.com/CanonicalLtd/ubuntu-image>`__ process. It
+is generally reviewed by at least one other member of the ubuntu-image
+team, although because of the team's size this cannot always be
+guaranteed. Continuous integration is performed on **all** pull
+requests, using DEP-8 style `autopackage
+tests <http://autopkgtest.ubuntu.com/packages/ubuntu-image>`__ on all
+supported Ubuntu releases. Branches are never merged if any test fails.
+This includes 100% unit test coverage.
 
--  
+We do not currently test actual image building and booting in the CI
+infrastructure, but this is a `planned
+task <https://bugs.launchpad.net/ubuntu-image/+bug/1625732>`__.
 
-   -  each change must be reviewed and approved by at least two members
-      of the `ubuntu-core github
-      team <https://github.com/orgs/ubuntu-core/people>`__ before
-      landing into the master branch.
-   -  each change must be fully tested at the unit level.
-   -  all the unit tests must pass in all the supported architectures.
-      They are executed for one arch before the change is merged into
-      master, and for all the architectures during the build of the deb
-      package that will go into proposed.
-   -  each bug fix that affects the user interface must have one QA
-      review. The QA engineer will verify that the bug is fixed in a
-      system with the proposed package installed by executing an
-      automated or manual test.
-   -  all the bugs reported in launchpad that will be fixed in this
-      release must have a link to the pull request that fixes them.
-      These bugs must be marked as "Committed" once that pull request is
-      merged into master.
-   -  all the new user-facing features will be tested in a real system.
+All bugs fixed or features added are `tracked in
+Launchpad <https://bugs.launchpad.net/ubuntu-image>`__ and clearly
+described in the
 
-| ``   * most of these tests are automated and executed as part of the autopkgtest suite of the deb and its reverse-dependencies in a classic ubuntu system, and as part of the automated user-acceptance suite in a snappy Ubuntu Core system.``
-| ``   * the tests that can't be automated are documented and manually executed when there are changes in the code that can affect the feature.``
+::
 
--  
+   debian/changelog
 
-   -  when a new version is ready to be proposed, the QA team will
-      perform extensive exploratory testing on the areas that will be
-      changed by the release.
+.
 
 .. _packaging_qa:
 
 Packaging QA
 ~~~~~~~~~~~~
 
-The resulting package, with all the changes in place, must undergo and
-pass the following additional QA procedures:
-
--  
-
-   -  upgrade test from previous version of the package. This test must
-      be performed with:
-
-``   * apt install/upgrade.``
-
--  
-
-   -  test interaction with classic apt install and update of debs to
-      make sure that snapd doesn't interfere with the classic system:
-
-| ``   * reboot.``
-| ``   * install and update a deb with apt.``
-
--  
-
-   -  test interaction with gnome software center:
-
-| ``   * install and update a snap.``
-| ``   * install and update a deb.``
-
-The above tests can be performed by any QA engineer.
-
-This is a package new in Ubuntu 16.04 LTS. Once we have another stable
-Ubuntu version released this should be added to the above process:
-
--  
-
-   -  upgrade test from previous distribution to the current one. If the
-      current distribution is an LTS one, the upgrade path from the
-      previous LTS distro must also be exercised.
+Candidate packages are tested in all release channels through an
+install/upgrade process, by installing the existing archive version, and
+upgrading to the latest built package.
 
 .. _requesting_the_sru:
 
