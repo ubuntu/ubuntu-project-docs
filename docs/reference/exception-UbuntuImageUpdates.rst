@@ -3,7 +3,7 @@
    #. page was copied from SnapdUpdates
 
 This document describes the policy for updating the ubuntu-image package
-in a stable supported distro, including LTS.
+in a stable release.
 
 ubuntu-image is a tool for building bootable images for a variety of
 devices and Ubuntu flavors. Initially, it is primarily used to build
@@ -20,11 +20,11 @@ the archive as of 16.10). Since at the time of 16.10 release, it is
 known that ubuntu-image is not feature complete, and its focus is
 narrowly defined to be for image building, new featureful releases will
 be made on both the in-development version of Ubuntu, stable releases,
-and the snap store. It is project goal to keep all release channels in
+and the snap store. It is a project goal to keep all release channels in
 sync.
 
-The QA process for stable ubuntu-image releases are outlined below. We
-request an exception from the SRU process for ubuntu-image.
+The QA process for stable ubuntu-image releases are outlined below, in
+support of an exception to the standard SRU process.
 
 .. _qa_process:
 
