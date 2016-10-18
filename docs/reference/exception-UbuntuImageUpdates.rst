@@ -42,8 +42,15 @@ supported Ubuntu releases. Branches are never merged if any test fails.
 This includes 100% unit test coverage.
 
 We do not currently test actual image building and booting in the CI
-infrastructure, but this is a `planned
-task <https://bugs.launchpad.net/ubuntu-image/+bug/1625732>`__.
+infrastructure, but this is a `planned task in LP:
+#1625732 <https://bugs.launchpad.net/ubuntu-image/+bug/1625732>`__. In
+the meantime, we will perform manual testing of image building of the
+`official
+models <http://people.canonical.com/~vorlon/official-models/>`__. Manual
+testing will also confirm that the resulting images can be mounted, and
+for hardware where it's possible, we can manually test booting. Over
+time, and as part of the LP: #1625732 work, we will move these manual
+tests into the automated test infrastructure.
 
 All bugs fixed or features added are `tracked in
 Launchpad <https://bugs.launchpad.net/ubuntu-image>`__ and clearly
