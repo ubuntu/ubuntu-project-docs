@@ -41,16 +41,19 @@ tests <http://autopkgtest.ubuntu.com/packages/ubuntu-image>`__ on all
 supported Ubuntu releases. Branches are never merged if any test fails.
 This includes 100% unit test coverage.
 
-We do not currently test actual image building and booting in the CI
+With `LP:
+#1635337 <https://bugs.launchpad.net/ubuntu-image/+bug/1635337>`__
+(ubuntu-image 0.9), we build all of the `official
+models <http://people.canonical.com/~vorlon/official-models/>`__ on
+every merge proposal, and verify that all mountable partitions can
+actually be mounted, including the unspecified *writable* partition at
+the end of the disk image, but not including any MBR "non-partitions" at
+the front. We do not currently test actual image booting in the CI
 infrastructure, but this is a `planned task in LP:
 #1625732 <https://bugs.launchpad.net/ubuntu-image/+bug/1625732>`__. In
-the meantime, we will perform manual testing of image building of the
-`official
-models <http://people.canonical.com/~vorlon/official-models/>`__. Manual
-testing will also confirm that the resulting images can be mounted, and
-for hardware where it's possible, we can manually test booting. Over
-time, and as part of the LP: #1625732 work, we will move these manual
-tests into the automated test infrastructure.
+the meantime, we will perform manual boot testing of images where
+possible. Over time, and as part of the LP: #1625732 work, we will move
+these manual tests into the automated test infrastructure.
 
 All bugs fixed or features added are `tracked in
 Launchpad <https://bugs.launchpad.net/ubuntu-image>`__ and clearly
