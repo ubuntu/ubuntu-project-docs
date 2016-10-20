@@ -19,8 +19,8 @@ potentially LTS releases (although ubuntu-image only became available in
 the archive as of 16.10). Since at the time of 16.10 release, it is
 known that ubuntu-image is not feature complete, and its focus is
 narrowly defined to be for image building, new featureful releases will
-be made on both the in-development version of Ubuntu, stable releases,
-and the snap store. It is a project goal to keep all release channels in
+be made on the in-development version of Ubuntu, in stable releases, and
+in the snap store. It is a project goal to keep all release channels in
 sync.
 
 The QA process for stable ubuntu-image releases are outlined below, in
@@ -81,10 +81,10 @@ The SRU should be requested as usual
 of the bug containing links to automatic testing results (github
 autopkgtest results) so that any one can verify the testing occurred and
 its results. Additionally, the SRU bug should be verbose in documenting
-any manual testing that occurs an example of a good SRU bug can be found
-in http://launchpad.net/bugs/1588052. The SRU should be done with a
-single process bug for this stable release exception, instead of
-individual bug reports for individual bug fixes. However, individual
-bugs may be referenced in the from the changelog but **each** of those
-bugs will need to independently verified and commented on for the SRU to
-be considered complete.
+any manual testing that occurs. (An example of a good SRU bug can be
+found in Bug:1588052.) The SRU should be done with a single process bug
+for this stable release exception, instead of individual bug reports for
+individual bug fixes. Individual bugs may be referenced in the
+changelog, but in that case **each** of those bugs will need to be
+independently verified and commented on for the SRU to be considered
+complete.
