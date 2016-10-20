@@ -15,8 +15,8 @@ policy <SnapdUpdates>`__ has relevance. As new snapd releases are made,
 new ubuntu-image releases may also be necessary. Even without snapd
 releases, new ubuntu-image releases may be necessary in order to
 facilitate image building on the Ubuntu infrastructure, including
-potentially LTS releases (although ubuntu-image only became available in
-the archive as of 16.10). Since at the time of 16.10 release, it is
+potentially on LTS releases (although ubuntu-image only became available
+in the archive as of 16.10). Since at the time of 16.10 release, it is
 known that ubuntu-image is not feature complete, and its focus is
 narrowly defined to be for image building, new featureful releases will
 be made on the in-development version of Ubuntu, in stable releases, and
