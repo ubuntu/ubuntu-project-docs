@@ -68,7 +68,7 @@ Packaging QA
 ~~~~~~~~~~~~
 
 Candidate packages are tested in all release channels through an
-install/upgrade process, by installing the existing archive version, and
+install/upgrade process, by installing the existing archive version and
 upgrading to the latest built package.
 
 .. _requesting_the_sru:
