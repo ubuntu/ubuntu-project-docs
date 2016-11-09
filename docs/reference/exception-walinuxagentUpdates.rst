@@ -47,7 +47,9 @@ have to pass. The following requirements must be met:
    suite through a series of tests for all relevant Azure VM sizes.
    Currently those tests include:
 
-   -  Azure general tests
-   -  Ubuntu basic tests
-   -  Cloud-init tests
-   -  Walinuxagent regresion tests
+   -  **Azure general tests**: CPC default Azure tests
+   -  **Ubuntu basic tests**: CPC standard ubuntu tests
+   -  **Cloud-init tests**: Cloud-init tests
+   -  **Walinuxagent regresion tests**: such as checking `bug
+      #1479610 <https://bugs.launchpad.net/ubuntu/+source/walinuxagent/+bug/1479610>`__
+      did not regress.
