@@ -48,7 +48,8 @@ to:
    regressions across multiple Azure instance sizes. This includes tests
    for the following bugs:
 
-   -  ...
+   -  `Bug #1479610 regression on dhcp
+      configuration <https://bugs.launchpad.net/ubuntu/+source/walinuxagent/+bug/1479610>`__
 
 .. _sru_test_cases:
 
