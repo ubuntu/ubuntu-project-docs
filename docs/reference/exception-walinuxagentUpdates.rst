@@ -36,9 +36,9 @@ to:
    target suite before being uploaded to the archive at all. This will
    involve one or both of:
 
-   -  installing the PPA packages on an Azure VM, manually restoring the
+   -  Installing the PPA packages on an Azure VM, manually restoring the
       VM to a first boot state and rebooting it,
-   -  generating a fresh image with the PPA package version preinstalled
+   -  Generating a fresh image with the PPA package version preinstalled
       and testing that directly
 
 -  Once the manual packaging tests pass successfully and the package
