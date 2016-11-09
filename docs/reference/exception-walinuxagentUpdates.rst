@@ -45,7 +45,10 @@ to:
    requires no further changes, it will be uploaded to the archive.
 -  Once accepted in to -proposed, a test image is built from -proposed,
    which is subjected to the full CPC image tests; this tests for more
-   regressions across multiple Azure instance sizes.
+   regressions across multiple Azure instance sizes. This includes tests
+   for the following bugs:
+
+   -  ...
 
 .. _sru_test_cases:
 
