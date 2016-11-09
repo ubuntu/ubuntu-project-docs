@@ -50,6 +50,10 @@ to:
 
    -  `Bug #1479610 regression on dhcp
       configuration <https://bugs.launchpad.net/ubuntu/+source/walinuxagent/+bug/1479610>`__
+   -  `Bug #1079897 mangled server identity and access on
+      upgrade <https://bugs.launchpad.net/ubuntu/+source/walinuxagent/+bug/1079897>`__
+   -  `Bug #1305418 breaks sshd
+      configuration <https://bugs.launchpad.net/ubuntu/+source/walinuxagent/+bug/1305418>`__
 
 .. _sru_test_cases:
 
