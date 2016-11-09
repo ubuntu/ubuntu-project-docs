@@ -45,7 +45,7 @@ to:
    requires no further changes, it will be uploaded to the archive.
 -  Once accepted in to -proposed, a test image is built from -proposed,
    which is subjected to the full CPC image tests; this tests for more
-   general regressions across multiple Azure instance sizes.
+   regressions across multiple Azure instance sizes.
 
 .. _sru_test_cases:
 
@@ -54,10 +54,16 @@ SRU Test Cases
 
 These are the test cases that all walinuxagent SRUs are subjected to:
 
-[Test case 1]: Upgrade testing 1.) Launch instance on Azure 2.) Upgrade
-walinuxagent from -proposed 3.) Confirm that "waagent" is running, check
-/var/log/waagent.log 4.) Reboot, repeat step 3 5.) Capture instance and
-provision new instances; repeat step 3
+::
 
-[Test Case 2]: New instance 1.) Build new cloud image from -proposed 2.)
-Boot instance 3.) Confirm that instance provisioned
+   [Test case 1]: Upgrade testing
+   1.) Launch instance on Azure
+   2.) Upgrade walinuxagent from -proposed
+   3.) Confirm that "waagent" is running, check /var/log/waagent.log
+   4.) Reboot, repeat step 3
+   5.) Capture instance and provision new instances; repeat step 3
+     
+   [Test Case 2]: New instance
+   1.) Build new cloud image from -proposed
+   2.) Boot instance
+   3.) Confirm that instance provisioned
