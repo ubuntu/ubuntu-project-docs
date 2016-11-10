@@ -55,23 +55,39 @@ to:
    -  `Bug #1305418 breaks sshd
       configuration <https://bugs.launchpad.net/ubuntu/+source/walinuxagent/+bug/1305418>`__
 
-.. _sru_test_cases:
+.. _pre_sru_test_cases:
 
-SRU Test Cases
---------------
+Pre-SRU Test Cases
+------------------
 
-These are the test cases that all walinuxagent SRUs are subjected to:
+These are the test cases that all walinuxagent are subjected to before
+even getting to SRU:
 
 ::
 
    [Test case 1]: Upgrade testing
    1.) Launch instance on Azure
-   2.) Upgrade walinuxagent from -proposed
+   2.) Upgrade walinuxagent usually from PPA
    3.) Confirm that "waagent" is running, check /var/log/waagent.log
    4.) Reboot, repeat step 3
    5.) Capture instance and provision new instances; repeat step 3
      
    [Test Case 2]: New instance
-   1.) Build new cloud image from -proposed
+   1.) Build new cloud image with PPA package
    2.) Boot instance
    3.) Confirm that instance provisioned
+
+.. _sru_test_cases:
+
+SRU Test Cases
+--------------
+
+These are automated tests:
+
+::
+
+   1.) Build new cloud image with -purposed package
+   2.) Boot instance
+   3.) Confirm that instance provisioned
+   4.) Run standard tests and regression tests
+   5.) Repeat from step 2 for all other Azure VM Sizes.
