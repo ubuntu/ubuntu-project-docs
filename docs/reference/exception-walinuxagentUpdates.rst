@@ -24,10 +24,10 @@ For a more detailed list of functionallity this package provides to
 Ubuntu cloud images, refer to the upstream project page at GitHub:
 https://github.com/Azure/WALinuxAgent
 
-.. _qa_process:
+.. _sru_verification_process:
 
-QA Process
-----------
+SRU Verification Process
+------------------------
 
 This is the QA process that proposed walinuxagent packages are subjected
 to:
