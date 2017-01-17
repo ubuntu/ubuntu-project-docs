@@ -20,7 +20,7 @@ deployments:
 -  SCVMM Deployments
 -  VM Extensions Management
 
-For a more detailed list of functionallity this package provides to
+For a more detailed list of functionality this package provides to
 Ubuntu cloud images, refer to the upstream project page at GitHub:
 https://github.com/Azure/WALinuxAgent
 
@@ -67,10 +67,12 @@ even getting to SRU:
 
    [Test case 1]: Upgrade testing
    1.) Launch instance on Azure
-   2.) Upgrade walinuxagent usually from PPA
-   3.) Confirm that "waagent" is running, check /var/log/waagent.log
+   2.) Upgrade walinuxagent (usually from PPA)
+   3.) Confirm that "waagent" is running, check /var/log/waagent.log for errors
    4.) Reboot, repeat step 3
-   5.) Capture instance and provision new instances; repeat step 3
+   5.) Remove /var/lib/cloud and /var/lib/waagent (to simulate first boot conditions)
+   6.) Reboot, repeat step 3
+   7.) Repeat step 5, capture the instance as an image and provision a new instance from it; repeat step 3
      
    [Test Case 2]: New instance
    1.) Build new cloud image with PPA package
