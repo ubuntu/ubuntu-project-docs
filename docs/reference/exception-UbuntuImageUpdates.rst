@@ -55,6 +55,16 @@ the meantime, we will perform manual boot testing of images where
 possible. Over time, and as part of the LP: #1625732 work, we will move
 these manual tests into the automated test infrastructure.
 
+Boot test:
+
+::
+
+   $ ubuntu-image model/pc-amd64-model.assertion -o /tmp/yakkety.img
+   $ qemu-system-x86_64 -m 2G /tmp/yakkety.img
+
+(Season to taste for Xenial image building test. Also, you may have to
+twiddle with permissions if you testing this in a chroot.)
+
 All bugs fixed or features added are `tracked in
 Launchpad <https://bugs.launchpad.net/ubuntu-image>`__ and clearly
 described in the
