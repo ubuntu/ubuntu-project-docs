@@ -15,6 +15,36 @@ outlined below are met.
 QA Process
 ----------
 
+.. _merge_qa:
+
+Merge QA
+~~~~~~~~
+
+This is the mandatory QA process that the proposed packages have to
+pass. The following requirements must be met:
+
+-  
+
+   -  Every change needs to be covered by a Launchpad bug to track all
+      changes
+   -  Every bug must have:
+
+| ``     * A bzr branch attached with the fix + changes covered by unit tests``
+| ``     * Link to successful run of integration tests based on the bzr branch``
+| ``     * Reviewed and approved by a member of the curtin development team``
+| ``     * Branch set to the committed state``
+
+-  
+
+   -  All unit tests and style tests ran and passed successfully
+   -  Code coverage of changes or code coverage % either no change or
+      increased(?)
+
+.. _packaging_qa:
+
+Packaging QA
+~~~~~~~~~~~~
+
 TBD
 
 .. _requesting_the_sru:
