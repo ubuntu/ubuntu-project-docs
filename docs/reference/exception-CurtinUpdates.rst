@@ -22,4 +22,25 @@ TBD
 Requesting the SRU
 ------------------
 
+The SRU should be requested per the StableReleaseUpdates documented
+process.
+
+The SRU should be done with a single process bug for this stable release
+exception, instead of individual bug reports for individual bug fixes.
+Individual bugs may be referenced in the change log, but in that case
+each of those bugs will need to be independently verified and commented
+on for the SRU to be considered complete.
+
+The description of the bug should contain links to automatic testing
+results (e.g. Jenkins test runs) so that anyone can verify the testing
+that occurred and the results. Additionally, the SRU bug should be
+verbose in documenting any manual testing that occurs. See `LP#
+1588052 <https://bugs.launchpad.net/ubuntu/+source/snapd/+bug/1588052>`__
+as an example
+
+.. _sru_template:
+
+SRU Template
+~~~~~~~~~~~~
+
 TBD
