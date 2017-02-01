@@ -31,7 +31,7 @@ pass. The following requirements must be met:
 
 | ``     * A bzr branch attached with the fix + changes covered by unit tests``
 | ``     * Link to successful run of integration tests based on the bzr branch``
-| ``     * Reviewed and approved by a member of the curtin development team``
+| ``     * Reviewed and approved by a member of the development team``
 | ``     * Branch set to the committed state``
 
 -  
