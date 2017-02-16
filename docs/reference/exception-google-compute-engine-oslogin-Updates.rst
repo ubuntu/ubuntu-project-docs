@@ -22,7 +22,31 @@ releases provided the following process is followed.
 QA Process
 ----------
 
+When a new version of gce-compute-image-packages is uploaded to
+-proposed, the following will be done:
+
+-  an image based on -proposed will be built for GCE and published to
+   the ubuntu-os-cloud-devel project
+-  the CPC team will write new automated tests to cover new testable
+   functionality (if any) in the new package
+-  the automated testing that the CPC team normally runs against GCE
+   images before they are published will be run against the -proposed
+   image
+-  the GCE team will be asked to validate
+
+| ``a. that the new package addresses the issues it is expected to address, and``
+| ``b. that the image passes their internal image validation.``
+
+If all the testing indicates that the image containing the new package
+is acceptable, verification will be considered to be done.
+
 .. _requesting_the_sru:
 
 Requesting the SRU
 ------------------
+
+The SRU should be done with a single process bug for this stable release
+exception, instead of individual bug reports for individual bug fixes.
+However, individual bugs may be referenced in the from the changelog but
+each of those bugs will need to independently verified and commented on
+for the SRU to be considered complete.
