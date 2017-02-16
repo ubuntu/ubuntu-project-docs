@@ -34,8 +34,9 @@ When a new version of gce-compute-image-packages is uploaded to
    image
 -  the GCE team will be asked to validate
 
-| ``a. that the new package addresses the issues it is expected to address, and``
-| ``b. that the image passes their internal image validation.``
+   -  that the new package addresses the issues it is expected to
+      address, and
+   -  that the image passes their internal image validation.
 
 If all the testing indicates that the image containing the new package
 is acceptable, verification will be considered to be done.
