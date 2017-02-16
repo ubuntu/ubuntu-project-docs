@@ -1,6 +1,7 @@
 This document describes the policy for updating the
-gce-compute-image-packages package in a stable, supported distro
-(including LTS releases).
+gce-compute-image-packages package to new upstream versions in a stable,
+supported distro (including LTS releases). This is an exception to the
+standard SRU process.
 
 compute-image-packages is provided by Google for installation within
 guests that run on Google Compute Engine. It is a collection of tools
