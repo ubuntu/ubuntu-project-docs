@@ -12,7 +12,6 @@ long as the conditions outlined below are met:
 
    -  Bug fixes
    -  New features
-   -  Changes to existing features
 
 In the event of a change breaking backwards compatibility, then SRU team
 approval will need to be obtained.
@@ -87,6 +86,30 @@ to cover previous opened bugs. Test installs are done for all of the
 supported releases, including Ubuntu LTS releases as well as currently
 supported interim releases.
 
+.. _maas_integration_tests:
+
+MAAS Integration Tests
+~~~~~~~~~~~~~~~~~~~~~~
+
+In order to avoid regression to existing MAAS product, the MAAS team
+will run their continuous integration test against the Curtin that is in
+-proposed. A successful run will be required before the proposed Curtin
+can be let into -updates.
+
+For each specific release, MAAS c-i will have a job that tests
+installation of MAAS and Curtin from -proposed of that release. As
+example, there will be a job named 'maas-xenial-proposed' that will be
+run with MAAS and Curtin installed from Xenial with the proposed pocket
+enabled.
+
+MAAS team c-i is publicly available at http://162.213.35.104:8080/ and
+the SRU document will be kept up to date with that link should it
+change.
+
+The Curtin team will be in charge of attaching the artifacts and console
+output of the appropriate run to the bug. Curtin team members will not
+mark ‘verification-done’ until this has happened.
+
 .. _sru_template:
 
 SRU Template
@@ -116,7 +139,8 @@ SRU Template
    In order to mitigate the regression potential, the results of the
    aforementioned integration tests are attached to this bug.
 
-   <TODO: attach test artifacts from vmtest for every SRU release, not a link>
+   <TODO: attach curtin-proposed test artifacts from vmtest for every SRU release, not a link as links expire>
+   <TODO: attach maas-proposed test artifacts from vmtest for every SRU release, not a link as links expire>
 
    [Discussion]
    <TODO: other background>
