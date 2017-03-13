@@ -135,6 +135,15 @@ SRU Template
    the SRU package for each releases. These suite has documentation here:
    https://curtin.readthedocs.io/en/latest/topics/integration-testing.html
 
+   In order to avoid regression to existing MAAS product, the MAAS team will
+   run their continuous integration test against the curtin that is in
+   -proposed.  A successful run will be required before the proposed curtin
+   can be let into -updates.
+
+   The curtin team will be in charge of attaching the artifacts and console
+   output of the appropriate run to the bug.  Curtin team members will not
+   mark ‘verification-done’ until this has happened.
+
    [Regression Potential]
    In order to mitigate the regression potential, the results of the
    aforementioned integration tests are attached to this bug.
