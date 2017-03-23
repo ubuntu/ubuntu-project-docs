@@ -8,29 +8,42 @@ the walinuxagent package in SRUs.
 
 The walinuxagent package is an Ubuntu distribution of the upstream
 Microsoft Azure Linux Agent that manages Linux provisioning, and VM
-interaction with the Azure Fabric Controller.
+interaction with the Azure Fabric Controller. For a detailed list of
+functionality this package provides to Ubuntu cloud images, refer to the
+upstream project page at GitHub: https://github.com/Azure/WALinuxAgent
 
-It provides the following functionality for Ubuntu cloud image
-deployments:
+Cloud platforms evolve at a rate that can't be handled in six-month
+increments, and they will often develop features that they would like to
+be available to customers who don't want to upgrade from earlier Ubuntu
+releases. As such, updating walinuxagent to more recent upstream
+releases is required within all Ubuntu releases, so they continue to
+function properly in their environment.
 
--  Image Provisioning.
--  Networking setup.
--  Kernel setup.
--  Diagnostics setup.
--  SCVMM Deployments
--  VM Extensions Management
+New versions of walinuxagent can be SRU'd in to older releases provided
+the following process is followed.
 
-For a more detailed list of functionality this package provides to
-Ubuntu cloud images, refer to the upstream project page at GitHub:
-https://github.com/Azure/WALinuxAgent
+.. _qa_process:
 
-.. _sru_verification_process:
+QA Process
+----------
 
-SRU Verification Process
-------------------------
+When a new version of walinuxagent is uploaded to -proposed, the
+following will be done:
 
-This is the QA process that proposed walinuxagent packages are subjected
-to:
+-  the CPC team will write new automated tests to cover new testable
+   functionality (if any) in the new package
+-  the automated testing that the CPC team normally runs against Azure
+   images before they are published will be run against the -proposed
+   package
+-  the Microsoft Azure Linux Agent team will be asked to validate
+
+   -  that the new package addresses the issues it is expected to
+      address, and
+   -  that the new package passes their internal image validation, with
+      emphasis on walinuxagent extension support.
+
+In addition, prior to being uploaded to -proposed, the CPC team does the
+following testing
 
 -  The new package candidate version is built in a PPA and tested on the
    target suite before being uploaded to the archive at all. This will
@@ -88,7 +101,7 @@ These are automated tests:
 
 ::
 
-   1.) Build new cloud image with -purposed package
+   1.) Build new cloud image with -proposed package
    2.) Boot instance
    3.) Confirm that instance provisioned
    4.) Run standard tests and regression tests
