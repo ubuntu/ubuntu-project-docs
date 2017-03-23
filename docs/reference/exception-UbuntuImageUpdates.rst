@@ -48,12 +48,11 @@ models <http://people.canonical.com/~vorlon/official-models/>`__ on
 every merge proposal, and verify that all mountable partitions can
 actually be mounted, including the unspecified *writable* partition at
 the end of the disk image, but not including any MBR "non-partitions" at
-the front. We do not currently test actual image booting in the CI
-infrastructure, but this is a `planned task in LP:
-#1625732 <https://bugs.launchpad.net/ubuntu-image/+bug/1625732>`__. In
-the meantime, we will perform manual boot testing of images where
-possible. Over time, and as part of the LP: #1625732 work, we will move
-these manual tests into the automated test infrastructure.
+the front. With ubuntu-image 1.0, we also have autopkgtests that use
+ubuntu-image to build and boot an amd64 image. If the image doesn't
+boot, verified by connecting to an echo server in the running image,
+then the new version fails QA. While the boot test only tests amd64, it
+does test this in all release channels.
 
 Boot test:
 
