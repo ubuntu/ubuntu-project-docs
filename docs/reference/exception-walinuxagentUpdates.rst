@@ -71,7 +71,7 @@ following testing
 .. _pre_sru_test_cases:
 
 Pre-SRU Test Cases
-------------------
+~~~~~~~~~~~~~~~~~~
 
 These are the test cases that all walinuxagent are subjected to before
 even getting to SRU:
@@ -95,7 +95,7 @@ even getting to SRU:
 .. _sru_test_cases:
 
 SRU Test Cases
---------------
+~~~~~~~~~~~~~~
 
 These are automated tests:
 
@@ -106,3 +106,36 @@ These are automated tests:
    3.) Confirm that instance provisioned
    4.) Run standard tests and regression tests
    5.) Repeat from step 2 for all other Azure VM Sizes.
+
+.. _sru_template:
+
+SRU Template
+------------
+
+::
+
+   == Begin SRU Template ==
+   [Impact]
+   This release contains both bug-fixes and new features and we would like to
+   make sure all of our supported customers have access to these improvements.
+   The notable ones are:
+
+   *** <TODO: list any LP: # included>
+
+   See the changelog entry below for a full list of changes and bugs.
+
+   [Test Case]
+   The following development and SRU process was followed:
+   https://wiki.ubuntu.com/walinuxagentUpdates
+
+   The Microsoft Azure Linux Agent team will execute their testsuite, which
+   includes extension testing , against the walinuxagent that is in
+   -proposed.  A successful run will be required before the proposed walinuxagent
+   can be let into -updates.
+
+   The CPC team will be in charge of attaching a summary of testing to the bug.  CPC team members will not
+   mark ‘verification-done’ until this has happened.
+
+   == End SRU Template ==
+
+   <TODO: Paste in change log entry>
