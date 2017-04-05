@@ -10,7 +10,7 @@ The walinuxagent package is an Ubuntu distribution of the upstream
 Microsoft Azure Linux Agent that manages Linux provisioning, and VM
 interaction with the Azure Fabric Controller. For a detailed list of
 functionality this package provides to Ubuntu cloud images, refer to the
-upstream project page at GitHub: https://github.com/Azure/WALinuxAgent
+upstream project page at Git``Hub: https://github.com/Azure/WALinuxAgent
 
 Cloud platforms evolve at a rate that can't be handled in six-month
 increments, and they will often develop features that they would like to
