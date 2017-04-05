@@ -243,8 +243,11 @@ Also related to snapd, the ubuntu-image package may be uploaded according to the
 === Docker.io group ===
 The source packages docker.io, containerd, and runc may be uploaded according to the procedure documented in DockerUpdates.  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by BrianMurray for the SRU team as of 2016-09-20.
 
-=== Docker.io group ===
+=== gce-compute-image-packages ===
 The source package gce-compute-image-packages may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/gce-compute-image-packages-Updates|gce-compute-image-packages-Updates]].  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by BrianMurray for the SRU team as of 2017-03-10.
+
+=== curtin ===
+The source package curtin may be uploaded according to the procedure documented in CurtinUpdates.  This stable release exception has been approved by SteveLangasek for the SRU team as of 2017-04-05.
 
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
