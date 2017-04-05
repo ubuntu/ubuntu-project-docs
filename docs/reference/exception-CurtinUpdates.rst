@@ -1,5 +1,3 @@
-**DRAFT DRAFT DRAFT**
-
 This document describes the policy for updating Curtin in a stable,
 supported release. Curtin (the curt installer) is a "fast path"
 installer designed to install Ubuntu quickly. It is blunt, brief,
