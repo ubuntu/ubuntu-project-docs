@@ -19,7 +19,7 @@ releases. As such, updating walinuxagent to more recent upstream
 releases is required within all Ubuntu releases, so they continue to
 function properly in their environment.
 
-New versions of walinuxagent can be SRU'd in to older releases provided
+New versions of walinuxagent can be SRUed into older releases provided
 the following process is followed.
 
 .. _qa_process:
