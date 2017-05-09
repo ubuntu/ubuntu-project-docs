@@ -135,7 +135,7 @@ it is also acceptable to upload new microreleases with many bug fixes without in
 The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done for the series) and releases those to the -updates pocket. Having said that, if there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
-|| Monday || Adam Conrad (infinity) ||
+|| Monday || Adam Conrad (infinity), Łukasz Zemczak (sil2100) ||
 || Tuesday || Chris Halse Rogers (RAOF) ||
 || Wednesday || Chris J Arges (arges), Robie Basak (rbasak) ||
 || Thursday || Brian Murray (bdmurray) ||
@@ -327,6 +327,8 @@ The following review procedure is recommended:
  }}}
 
  This opens all the bugs which are mentioned in the .changes file in the browser, and will generate a debdiff between the current archive and the unapproved upload (unless the orig.tar.gz changes this will only download the two diff.gz, so it is reasonably fast).
+  * In case the SRU is a package sync instead of a standard upload, the `sru-review` tool will not be able to fetch the debdiff for you and will exit with an error. You will have to review the changes manually and then re-run the tool with an additional argument of `--no-diff`.
+  * For [[Bileto]] published SRU's you can easily fetch the relevant debdiffs by following the link to the sync's source PPA and opening the ticket URL that's provided in the PPA description. Each upload present there has two diffs generated for review convenience: full and packaging-only.
 
  * Review the bugs for complete description, justification, check that they have a stable release task, are conformant to SRU rules, etc, and comment accordingly.
 
