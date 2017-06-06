@@ -78,7 +78,6 @@ even getting to SRU:
 
 ::
 
-   [Test case 1]: Upgrade testing
    1.) Launch instance on Azure
    2.) Upgrade walinuxagent (usually from PPA)
    3.) Confirm that "waagent" is running, check /var/log/waagent.log for errors
@@ -86,11 +85,6 @@ even getting to SRU:
    5.) Remove /var/lib/cloud and /var/lib/waagent (to simulate first boot conditions)
    6.) Reboot, repeat step 3
    7.) Repeat step 5, capture the instance as an image and provision a new instance from it; repeat step 3
-     
-   [Test Case 2]: New instance
-   1.) Build new cloud image with PPA package
-   2.) Boot instance
-   3.) Confirm that instance provisioned
 
 .. _sru_test_cases:
 
