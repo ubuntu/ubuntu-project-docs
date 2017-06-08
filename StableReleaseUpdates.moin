@@ -71,6 +71,7 @@ it is also acceptable to upload new microreleases with many bug fixes without in
 == Procedure ==
 
  1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released".  Equivalently for new upstream releases, this (or a newer) release must be in the development release. It is, in general, not appropriate to release updates for stable systems without first testing them in the current development branch. One exception to this general rule is the case where the development release is not yet open, there can sometimes be a delay between the release of the most recent version of Ubuntu and the opening for development of the next version. Provided they are important enough, stable release updates should not and do not need to wait for the development release to open.
+  * Also keep in mind that certain packages can change source package names between series. In that case, if the given bug applies to a different source package that replaced the old one in a later series, this source package has to be added as 'Also affecting'. Make sure that the devel series package has the bug fixed before proceeding.
 
  1. Ensure that the bug report for this issue is public.  If the bug has been reported privately and cannot be published, you must first create a separate public bug report in launchpad and copy over as much information as can be published.
 
@@ -132,13 +133,13 @@ it is also acceptable to upload new microreleases with many bug fixes without in
 
 == Publishing ==
 
-The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done for the series) and releases those to the -updates pocket. Having said that, if there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
+The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done-SERIES for the given series) and releases those to the -updates pocket. Having said that, if there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
 || Monday || Adam Conrad (infinity), Łukasz Zemczak (sil2100) ||
 || Tuesday || Chris Halse Rogers (RAOF) ||
 || Wednesday || Chris J Arges (arges), Robie Basak (rbasak) ||
-|| Thursday || Brian Murray (bdmurray) ||
+|| Thursday || Brian Murray (bdmurray), Łukasz Zemczak (sil2100) ||
 || Friday || Timo Aaltonen (tjaalton), Steve Langasek (slangasek - backup) ||
 
 == Phasing ==
@@ -171,7 +172,7 @@ If they discover that your fix is insufficient, or the test case is not sufficie
 
 The SRU verification team may also discover that your fix is good.  They will:
 
- 1. Modify the `verification-needed` tag to a `verification-done` tag on the bug report.  (In the event that an SRU bug report has tasks for mulitple releases a tag in the form of 'verification-done-$RELEASE' e.g. `verification-done-precise` shall be added to the bug report. The tag `verification-needed` should be left on the bug until all release tasks have been verified.)
+ 1. Add a 'verification-done-$RELEASE' tag to the bug report where $RELEASE is the series name of the upload you have tested e.g. `verification-done-precise`. The tag `verification-needed` should be left on the bug until all release tasks have been verified.
  1. Describe the general steps taken to verify the package, and any special difficulties.
 
 While not ideal it is also possible for the uploader of the fix to perform the verification of the package in *-proposed, however it must still be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates.
