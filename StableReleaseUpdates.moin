@@ -71,7 +71,7 @@ it is also acceptable to upload new microreleases with many bug fixes without in
 == Procedure ==
 
  1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released".  Equivalently for new upstream releases, this (or a newer) release must be in the development release. It is, in general, not appropriate to release updates for stable systems without first testing them in the current development branch. One exception to this general rule is the case where the development release is not yet open, there can sometimes be a delay between the release of the most recent version of Ubuntu and the opening for development of the next version. Provided they are important enough, stable release updates should not and do not need to wait for the development release to open.
-  * Also keep in mind that certain packages can change source package names between series. In that case, if the given bug applies to a different source package that replaced the old one in a later series, this source package has to be added as 'Also affecting'. Make sure that the devel series package has the bug fixed before proceeding.
+  * Also keep in mind that certain packages can change source package names between releases. In that case, if the given bug applies to a different source package that replaced the old one in a later releases, this source package has to be added as 'Also affecting'. Make sure that the devel releases package has the bug fixed before proceeding.
 
  1. Ensure that the bug report for this issue is public.  If the bug has been reported privately and cannot be published, you must first create a separate public bug report in launchpad and copy over as much information as can be published.
 
@@ -133,7 +133,7 @@ it is also acceptable to upload new microreleases with many bug fixes without in
 
 == Publishing ==
 
-The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done-$RELEASE for the given series) and releases those to the -updates pocket. Having said that, if there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
+The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done-$RELEASE for the given release) and releases those to the -updates pocket. Having said that, if there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
 || Monday || Adam Conrad (infinity), Łukasz Zemczak (sil2100) ||
@@ -173,7 +173,7 @@ If they discover that your fix is insufficient, or the test case is not sufficie
 
 The SRU verification team may also discover that your fix is good.  They will:
 
- 1. Modify the 'verification-needed-$RELEASE' tag to a 'verification-done-$RELEASE' tag on the bug report where $RELEASE is the series name of the upload you have tested e.g. `verification-done-precise`. The tag global `verification-needed` should be left on the bug until all release tasks have been verified.
+ 1. Modify the 'verification-needed-$RELEASE' tag to a 'verification-done-$RELEASE' tag on the bug report where $RELEASE is the release name of the upload you have tested e.g. `verification-done-precise`. The tag global `verification-needed` should be left on the bug until all release tasks have been verified.
  1. Describe the general steps taken to verify the package, and any special difficulties.
 
 Verification feedback from bug reporters and subscribers is greatly appreciated, too, especially if the update is hardware specific. In this case we consider an update as verified if it has at least two positive, no negative testimonials in the bug report, and the verification team just checks whether the new version still works for the main use cases (to check for major regressions).
@@ -184,7 +184,7 @@ If you encounter a regression in a package that has been uploaded to *-proposed,
  1. Mark this bug with the tag `regression-proposed`
  1. [[https://answers.launchpad.net/launchpad/+question/140509|Ask a bug supervisor]] to target the bug to the appropriate Ubuntu releases.
  1. Follow up on the SRU bug report referenced from the package changelog, pointing to the new bug.  If there is more than one bug in the SRU changelog, follow up to the bug that is most closely related to the regression.
- 1. Set the `verification-failed-$RELEASE` tag on the corresponding SRU bug report where $RELEASE is the series name of the upload you tested.
+ 1. Set the `verification-failed-$RELEASE` tag on the corresponding SRU bug report where $RELEASE is the release name of the upload you tested.
 
 If you want to help us to verify Stable Release Updates then read [[https://wiki.ubuntu.com/QATeam/PerformingSRUVerification|how to perform a Stable Release Update verification]]
 
