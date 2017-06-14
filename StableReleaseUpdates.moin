@@ -133,7 +133,7 @@ it is also acceptable to upload new microreleases with many bug fixes without in
 
 == Publishing ==
 
-The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done-SERIES for the given series) and releases those to the -updates pocket. Having said that, if there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
+The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done-$RELEASE for the given series) and releases those to the -updates pocket. Having said that, if there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
 || Monday || Adam Conrad (infinity), Łukasz Zemczak (sil2100) ||
@@ -162,18 +162,18 @@ or
 
 == Verification ==
 
-The [[https://launchpad.net/~sru-verification|SRU verification team]] will regularly check open bugs with the `verification-needed` tag and test proposed updates on different hardware to check for inadvertent side effects. Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not with other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports.  While not ideal it is also possible for the uploader of the fix to perform the verification of the package in *-proposed, however it must still be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates.
+The [[https://launchpad.net/~sru-verification|SRU verification team]] will regularly check open bugs with the `verification-needed*` tags and test proposed updates on different hardware to check for inadvertent side effects. Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not with other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports.  While not ideal it is also possible for the uploader of the fix to perform the verification of the package in *-proposed, however it must still be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates.
 
 
 If they discover that your fix is insufficient, or the test case is not sufficient to reproduce the bug, they will:
 
  1. Set the bug task to '''Status: In Progress'''
  1. Describe why the fix was insufficient or broken in a comment to the bug report.
- 1. Modify the `verification-needed` tag to a `verification-failed-$RELEASE` tag on the bug report where $RELEASE is the release name which you tested.
+ 1. Modify the `verification-needed-$RELEASE` tag to a `verification-failed-$RELEASE` tag on the bug report where $RELEASE is the release name which you tested.
 
 The SRU verification team may also discover that your fix is good.  They will:
 
- 1. Add a 'verification-done-$RELEASE' tag to the bug report where $RELEASE is the series name of the upload you have tested e.g. `verification-done-precise`. The tag `verification-needed` should be left on the bug until all release tasks have been verified.
+ 1. Modify the 'verification-needed-$RELEASE' tag to a 'verification-done-$RELEASE' tag on the bug report where $RELEASE is the series name of the upload you have tested e.g. `verification-done-precise`. The tag global `verification-needed` should be left on the bug until all release tasks have been verified.
  1. Describe the general steps taken to verify the package, and any special difficulties.
 
 Verification feedback from bug reporters and subscribers is greatly appreciated, too, especially if the update is hardware specific. In this case we consider an update as verified if it has at least two positive, no negative testimonials in the bug report, and the verification team just checks whether the new version still works for the main use cases (to check for major regressions).
@@ -343,7 +343,7 @@ The following review procedure is recommended:
   * Exit the tool you are using to review the debdiff 
   * If the bugs and debdiff are okay, accept the package by pressing `y` at the ""Accept the package into -proposed?" prompt.
 
-  This will tag the bug(s) with `verification-needed`, subscribe `ubuntu-sru`, and add a general "please test and give feedback"-like comment.
+  This will tag the bug(s) with `verification-needed`, `verification-needed-$RELEASE`, subscribe `ubuntu-sru`, and add a general "please test and give feedback"-like comment.
 
   * If the upload is broken or unsuitable for an SRU, reject it by pressing `N` at the ""Accept the package into -proposed?" prompt and pressing `y` at the "REJECT the package from -proposed?" prompt.
 
