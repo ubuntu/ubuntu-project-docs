@@ -86,18 +86,16 @@ verification-done:
 SRU Template
 ------------
 
-This bug tracks an update for the Certbot family of packages, version
-TODO.
+::
 
-This update includes [TODO: remove one] bugfixes only/new features
-following the SRU policy exception defined at
-https://wiki.ubuntu.com/StableReleaseUpdates/Certbot.
+   This bug tracks an update for the Certbot family of packages, version TODO.
 
-[Impact]
+   This update includes [TODO: remove one] bugfixes only/new features following the SRU policy exception defined at https://wiki.ubuntu.com/StableReleaseUpdates/Certbot.
 
-[Test Plan]
+   [Impact]
 
-See
-https://wiki.ubuntu.com/StableReleaseUpdates/Certbot#SRU_Verification_Process
+   [Test Plan]
 
-[Regression Potential]
+   See https://wiki.ubuntu.com/StableReleaseUpdates/Certbot#SRU_Verification_Process
+
+   [Regression Potential]
