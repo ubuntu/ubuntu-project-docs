@@ -22,7 +22,10 @@ serving websites, and we want to promote the "HTTPS everywhere"
 initiative, it makes sense for the LTS to be updated with these types of
 enhancements.
 
-== Requesting the SRU
+.. _requesting_the_sru:
+
+Requesting the SRU
+------------------
 
 The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the
