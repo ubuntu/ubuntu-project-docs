@@ -94,6 +94,8 @@ SRU Template
 
    [Impact]
 
+   [Major Changes]
+
    [Test Plan]
 
    See https://wiki.ubuntu.com/StableReleaseUpdates/Certbot#SRU_Verification_Process
