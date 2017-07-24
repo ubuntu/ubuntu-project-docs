@@ -216,7 +216,7 @@ Breadth hardware testing will be performed by the HW Certification team on relea
 <<Anchor(Special)>>
 == Documentation for Special Cases ==
 
-The [[https://lists.ubuntu.com/archives/ubuntu-devel-announce/2009-March/000550.html|Technical Board resolution on Landscape]] provides a general rationale for the types of special cases that may be approved here in future. Exception approvals are now handled directly by the SRU team.
+The [[https://lists.ubuntu.com/archives/ubuntu-devel-announce/2009-March/000550.html|Technical Board resolution on Landscape]] provides a general rationale for the types of special cases that may be approved here in future. Most exception approvals are now handled directly by the SRU team.
 
 To obtain a new ongoing exception such as those documented below:
 
@@ -255,7 +255,7 @@ The source package gce-compute-image-packages may be uploaded according to the p
 The source package curtin may be uploaded according to the procedure documented in CurtinUpdates.  This stable release exception has been approved by SteveLangasek for the SRU team as of 2017-04-05.
 
 === walinuxagent ===
-The source package walinuxagent may be uploaded according tho the procedure documented in [[https://wiki.ubuntu.com/walinuxagentUpdates|walinuxagentUpdates]].  This stable release exception has been approved by SteveLangasek for the SRU team as of 2017-04-05.
+The source package walinuxagent may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/walinuxagentUpdates|walinuxagentUpdates]].  This stable release exception has been approved by SteveLangasek for the SRU team as of 2017-04-05.
 
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
