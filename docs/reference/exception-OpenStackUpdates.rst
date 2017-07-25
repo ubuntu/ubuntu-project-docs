@@ -15,6 +15,9 @@ points that are highlighted here are covered in further detail in the
 previous link, and are condensed and reiterated here with some additions
 that are specific to the Ubuntu Cloud Archive.
 
+**NOTE**: This process is followed for !OpenStack packages, and
+supporting dependencies including Open vSwitch and Ceph.
+
 .. _sru_expectations:
 
 SRU Expectations
