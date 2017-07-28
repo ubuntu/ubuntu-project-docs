@@ -71,9 +71,18 @@ SRU Verification Process
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following must be verified before a proposed update is marked
-verification-done:
+verification-done-:
 
--  TBC
+-  Integration tests (performed automatically or manually):
+
+   -  
+
+      -  Verify that certbot is correctly able to acquire a certificate
+         using ACME.
+      -  Verify that certbot is correctly able to configure the apache
+         and nginx servers by querying them over HTTPS and verifying the
+         certificate presented.
+
 -  Verify that dep8 has passed by checking
    http://people.canonical.com/~ubuntu-archive/pending-sru.html
 -  Comment in the bug detailing that these checks have been performed
@@ -94,10 +103,18 @@ SRU Template
 
    [Impact]
 
+   Not directly applicable; see the exception policy document.
+
    [Major Changes]
+
+   TODO
 
    [Test Plan]
 
    See https://wiki.ubuntu.com/StableReleaseUpdates/Certbot#SRU_Verification_Process
 
    [Regression Potential]
+
+   Upstream performs extensive testing before release, giving us a high degree of confidence in the general case. There problems are mos likely to manifest in Ubuntu-specific integrations, such as in relation to the versions of dependencies available and other packaging-specific matters.
+
+   TODO: consider any other regression potential specific to the version being updated.
