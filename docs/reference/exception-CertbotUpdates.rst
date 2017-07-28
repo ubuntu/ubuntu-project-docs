@@ -39,6 +39,15 @@ following:
 -  Major changes should be called out in the SRU template, especially
    where changed behavior is not backwards compatible.
 
+.. _reviewing_the_sru:
+
+Reviewing the SRU
+-----------------
+
+In addition to normal SRU review checks, the SRU team should
+additionally consider if any major changes are still appropriate to be
+automatically by Ubuntu users.
+
 .. _qa_process:
 
 QA Process
