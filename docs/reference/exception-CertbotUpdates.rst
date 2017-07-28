@@ -46,7 +46,7 @@ Reviewing the SRU
 
 In addition to normal SRU review checks, the SRU team should
 additionally consider if any major changes are still appropriate to be
-automatically by Ubuntu users.
+automatically updated by Ubuntu users.
 
 .. _qa_process:
 
