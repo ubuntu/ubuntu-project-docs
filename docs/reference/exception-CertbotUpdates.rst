@@ -91,6 +91,7 @@ verification-done-:
       -  Verify that certbot is correctly able to configure the apache
          and nginx servers by querying them over HTTPS and verifying the
          certificate presented.
+      -  /TestScript can help with these verifications.
 
 -  Verify that dep8 has passed by checking
    http://people.canonical.com/~ubuntu-archive/pending-sru.html
