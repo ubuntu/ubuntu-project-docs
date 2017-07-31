@@ -96,9 +96,7 @@ verification-done-:
 -  Verify that dep8 has passed by checking
    http://people.canonical.com/~ubuntu-archive/pending-sru.html
 -  Comment in the bug detailing that these checks have been performed
-   and list
-
-``  the package versions verified.``
+   and list the package versions verified.
 
 .. _sru_template:
 
@@ -125,6 +123,6 @@ SRU Template
 
    [Regression Potential]
 
-   Upstream performs extensive testing before release, giving us a high degree of confidence in the general case. There problems are mos likely to manifest in Ubuntu-specific integrations, such as in relation to the versions of dependencies available and other packaging-specific matters.
+   Upstream performs extensive testing before release, giving us a high degree of confidence in the general case. There problems are most likely to manifest in Ubuntu-specific integrations, such as in relation to the versions of dependencies available and other packaging-specific matters.
 
    TODO: consider any other regression potential specific to the version being updated.
