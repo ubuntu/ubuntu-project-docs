@@ -28,8 +28,9 @@ Requesting the SRU
 ------------------
 
 The SRU should be done with a single process bug, instead of individual
-bug reports for individual bug fixes. The one bug should have the
-following:
+bug reports for individual bug fixes. See `bug
+1640978 <https://launchpad.net/bugs/1640978>`__ for an example. The one
+bug should have the following:
 
 -  The SRU should be requested per the
    `StableReleaseUpdates <https://wiki.ubuntu.com/StableReleaseUpdates>`__
