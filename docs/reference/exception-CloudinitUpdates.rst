@@ -40,8 +40,16 @@ following:
       especially where changed behavior is not backwards compatible.
    -  For each release (e.g. trusty, xenial, etc.) that is proposed to
       be updated by the SRU a link to the results of integration testing
-      of specific test cases for at least the following data sources
-      must be provided: nocloud, lxd, ec2, azure, gce
+      for at least the following datasources must be provided:
+
+| ``    * nocloud (e.g. kvm)``
+| ``    * lxd``
+| ``    * ec2 (e.g. aws)``
+| ``    * azure``
+| ``    * gce``
+
+-  
+
    -  Any architecture specific fixes need to be noted and architecture
       specific test results included
    -  Any packaging changes (e.g. a dependency change) need to be stated
@@ -80,7 +88,47 @@ no unexplained errors or failures
 Integration Tests
 ~~~~~~~~~~~~~~~~~
 
-TODO
+Integration testing involves two seperate sections: automated and
+manual.
+
+.. _automated_tests:
+
+Automated Tests
+^^^^^^^^^^^^^^^
+
+Results from the automated test cases using the version from proposed,
+against all releases need to be attached. The automated test cases cover
+a variety of cloud-config based scenarios to ensure changes to
+cloud-init do not introduce regressions or unnecessary changes in
+behavior.
+
+These tests are run against the LXD and KVM backend today. Because of
+this lack of coverage against other datasources the following manual
+test are also required.
+
+.. _manual_tests:
+
+Manual Tests
+^^^^^^^^^^^^
+
+Integration testing involves taking the proposed version of cloud-init
+and running it against a specific test case. Integration testing needs
+to take place across all updated releases and a variety of supported
+platforms. Releases tested should involve all releases expected to be
+updated. Supported platforms must contain at least each of the
+following:
+
+-  
+
+   -  nocloud (e.g. kvm)
+   -  lxd
+   -  ec2 (e.g. aws)
+   -  azure
+   -  gce
+
+The test case should be developed as a part of each resolved bug or new
+feature. This way testing is straightforward and clear as to what is
+expected to work.
 
 .. _sru_template:
 
@@ -111,11 +159,16 @@ SRU Template
    In order to mitigate the regression potential, the results of the
    aforementioned integration tests are attached to this bug.
 
-   <TODO: attach cloud-init-proposed test artifacts from tests for each release on nocloud datasource>
-   <TODO: attach cloud-init-proposed test artifacts from tests for each release on lxd datasource>
-   <TODO: attach cloud-init-proposed test artifacts from tests for each release on ec2 datasource>
-   <TODO: attach cloud-init-proposed test artifacts from tests for each release on gce datasource>
-   <TODO: attach cloud-init-proposed test artifacts from tests for each release on azure datasource>
+   * Automated Test Results
+   <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with lxd artifacts>
+   <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with kvm artifacts>
+
+   * Manual Test Results
+   <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on nocloud datasource>
+   <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on lxd datasource>
+   <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on ec2 datasource>
+   <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on gce datasource>
+   <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on azure datasource>
 
    [Discussion]
    <TODO: other background>
