@@ -176,3 +176,12 @@ SRU Template
    == End SRU Template ==
 
    <TODO: Paste in change log entry>
+
+.. _past_srus:
+
+Past SRUs
+---------
+
+Links to past SRUs using this process are below:
+
+-  TBD
