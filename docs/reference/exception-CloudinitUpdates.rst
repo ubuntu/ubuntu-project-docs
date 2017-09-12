@@ -35,9 +35,12 @@ following:
       documented process
    -  The template at the end of this document should be used and all
       ‘TODO’ filled out
-   -  References to each bug fixed by the SRU should be included in the
-      changelog and major changes called out in the SRU template,
-      especially where changed behavior is not backwards compatible.
+   -  The change log will contain a reference to the single SRU process
+      bug, not all bugs fixed by the SRU. However, if there are very
+      important bugs that are deemed worthy of reference they too should
+      be included in the change log.
+   -  Major changes should be called out in the SRU template, especially
+      where changed behavior is not backward compatible.
    -  For each release (e.g. trusty, xenial, etc.) that is proposed to
       be updated by the SRU a link to the results of integration testing
       for at least the following datasources must be provided:
