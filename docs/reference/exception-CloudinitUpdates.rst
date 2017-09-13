@@ -133,6 +133,45 @@ The test case should be developed as a part of each resolved bug or new
 feature. This way testing is straightforward and clear as to what is
 expected to work.
 
+.. _solutions_testing:
+
+Solutions Testing
+~~~~~~~~~~~~~~~~~
+
+Due to the dependency on cloud-init with various other products, the
+solutions testing team will run their continuous integration test
+against the cloud-init that is in -proposed. A successful run for each
+specific release will be required before the proposed cloud-init can be
+let into -updates.
+
+The cloud-init team will be in charge of attaching the artifacts and
+console output of the appropriate run to the bug. cloud-init team
+members will not mark ‘verification-done’ until this has happened.
+
+.. _maas_integration_tests:
+
+MAAS Integration Tests
+~~~~~~~~~~~~~~~~~~~~~~
+
+In order to avoid regression to existing MAAS product, the MAAS team
+will run their continuous integration test against the cloud-init that
+is in -proposed. A successful run will be required before the proposed
+cloud-init can be let into -updates.
+
+For each specific release, cloud-init c-i will have a job that tests
+installation of MAAS and cloud-init from -proposed of that release. For
+example, there will be a job named 'maas-xenial-proposed' that will be
+run with MAAS and cloud-init installed from Xenial with the proposed
+pocket enabled.
+
+MAAS team c-i is publicly available at http://162.213.35.104:8080/ and
+the SRU document will be kept up to date with that link should it
+change.
+
+The cloud-init team will be in charge of attaching the artifacts and
+console output of the appropriate run to the bug. cloud-init team
+members will not mark ‘verification-done’ until this has happened.
+
 .. _sru_template:
 
 SRU Template
@@ -165,6 +204,8 @@ SRU Template
    * Automated Test Results
    <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with lxd artifacts>
    <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with kvm artifacts>
+   <TODO: attach Solutions Testing team test results>
+   <TODO: attach MAAS Team test results>
 
    * Manual Test Results
    <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on nocloud datasource>
