@@ -98,6 +98,15 @@ These are automated tests:
    4.) Run standard tests and regression tests
    5.) Repeat from step 2 for all other Azure VM Sizes.
 
+.. _releasing_the_sru:
+
+Releasing the SRU
+-----------------
+
+Since the only consumer of the walinuxagent is the Azure cloud, the SRU
+may be released without meeting the aging period of 7 days provided all
+the above steps have been completed.
+
 .. _sru_template:
 
 SRU Template
