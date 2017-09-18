@@ -82,7 +82,6 @@ even getting to SRU:
    2.) Upgrade walinuxagent (usually from PPA)
    3.) Confirm that "waagent" is running, check /var/log/waagent.log for errors
    4.) Reboot, repeat step 3
-   5.) Repeat step 5, capture the instance as an image and provision a new instance from it; repeat step 3
 
 .. _sru_test_cases:
 
