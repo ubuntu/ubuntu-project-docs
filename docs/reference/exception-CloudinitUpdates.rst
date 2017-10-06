@@ -1,5 +1,3 @@
-**DRAFT** **DRAFT** **DRAFT** **DRAFT** **DRAFT**
-
 This document describes the policy for updating cloud-init in a stable,
 supported release.
 
@@ -10,7 +8,8 @@ during boot.
 In order to closely align with the MAAS product and the needs of cloud
 providers (e.g. AWS, Azure, GWS) cloud-init needs to be periodically
 updated in order to enable new features. Therefore, the following types
-of changes are allowed as long as the conditions outlined below are met:
+of changes are allowed as long as the processes outlined below are
+followed:
 
 -  
 
@@ -18,7 +17,8 @@ of changes are allowed as long as the conditions outlined below are met:
    -  New features
 
 In the event of a change breaking backwards compatibility, then SRU team
-approval will need to be obtained.
+approval will need to be obtained by emailing the ubuntu-release team
+mailing list.
 
 .. _requesting_the_sru:
 
@@ -41,9 +41,10 @@ following:
       be included in the change log.
    -  Major changes should be called out in the SRU template, especially
       where changed behavior is not backward compatible.
-   -  For each release (e.g. trusty, xenial, etc.) that is proposed to
-      be updated by the SRU a link to the results of integration testing
-      for at least the following datasources must be provided:
+   -  For each release (e.g. Ubuntu 14.04, Ubuntu 16.04, etc.) that is
+      proposed to be updated by the SRU a link to the results of
+      integration testing for at least the following datasources must be
+      provided:
 
 | ``    * nocloud (e.g. kvm)``
 | ``    * lxd``
@@ -56,8 +57,9 @@ following:
    -  Any architecture specific fixes need to be noted and architecture
       specific test results included
    -  Any packaging changes (e.g. a dependency change) need to be stated
-   -  If any manual testing occurs it should also be documented. See LP#
-      1588052 as an example.
+   -  If any manual testing occurs it should also be documented. See
+      `LP: #1588052 <http://launchpad.net/bugs/1588052>`__ as an
+      example.
 
 .. _qa_process:
 
@@ -197,10 +199,6 @@ SRU Template
    console output of the appropriate run to the bug.  cloud-init team
    members will not mark ‘verification-done’ until this has happened.
 
-   [Regression Potential]
-   In order to mitigate the regression potential, the results of the
-   aforementioned integration tests are attached to this bug.
-
    * Automated Test Results
    <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with lxd artifacts>
    <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with kvm artifacts>
@@ -213,6 +211,10 @@ SRU Template
    <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on ec2 datasource>
    <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on gce datasource>
    <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on azure datasource>
+
+   [Regression Potential]
+   In order to mitigate the regression potential, the results of the
+   aforementioned integration tests are attached to this bug.
 
    [Discussion]
    <TODO: other background>
