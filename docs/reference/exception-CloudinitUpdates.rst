@@ -135,6 +135,14 @@ The test case should be developed as a part of each resolved bug or new
 feature. This way testing is straightforward and clear as to what is
 expected to work.
 
+.. _curtin_testing:
+
+Curtin Testing
+~~~~~~~~~~~~~~
+
+The curtin vmtest should also be sucessfully ran using cloud-init from
+proposed and results attached.
+
 .. _solutions_testing:
 
 Solutions Testing
@@ -202,6 +210,7 @@ SRU Template
    * Automated Test Results
    <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with lxd artifacts>
    <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with kvm artifacts>
+   <TODO: attach automated curtin vmtest with cloud-init proposed>
    <TODO: attach Solutions Testing team test results>
    <TODO: attach MAAS Team test results>
 
