@@ -80,7 +80,7 @@ it is also acceptable to upload new microreleases with many bug fixes without in
   1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
   1. A '''[Regression Potential]''' section with a discussion of how regressions are most likely to manifest, or may manifest even if it is unlikely, as a result of this change.  It is assumed that any SRU candidate patch is well-tested before upload and has a low overall risk of regression, but it's important to make the effort to think about what ''could'' happen in the event of a regression. In the case of new upstream releases, link to the upstream QA procedure/documentation. This both shows the SRU team that the risks have been considered, and provides guidance to testers of what to watch out for when testing for regressions in the SRU.  If this section is None it is grounds for rejection, consider Bug:1590321 which is an example of a simple fix with a legitimate Regression Potential.
 
- 1. Ask the [[https://launchpad.net/~ubuntu-bugcontrol|Ubuntu bug control team]] to nominate the bug for the appropriate Ubuntu release(s)/series (e. g. the current LTS and latest stable release). You can ask on IRC (Freenode) in #ubuntu-bugs, or by emailing them at the address found on the linked page.
+ 1. If you are not providing a debdiff (the next step) ask the [[https://launchpad.net/~ubuntu-bugcontrol|Ubuntu bug control team]] to nominate the bug for the appropriate Ubuntu release(s)/series (e. g. the current LTS and latest stable release). You can ask on IRC (Freenode) in #ubuntu-bugs, or by emailing them at the address found on the linked page.
 
  1. Prepare the upload, attach a debdiff to the bug, and [[SponsorshipProcess|request sponsorship]] by subscribing 'ubuntu-sponsors' to the bug. The upload must have the correct ''release'' in the changelog header, a detailed and user-readable changelog, and no other unrelated changes.  If you can upload to the archive directly, use dput as normal. There is no need to wait before uploading. After upload, the bug status should be changed to '''In Progress''', once accepted into ''release''-proposed, the status will be automatically changed to '''Fix Committed'''. Also, make sure that:
   1. The version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging|security policy document]] has a well-working scheme which can be used for SRUs.)
@@ -268,6 +268,10 @@ GNOME has a microrelease exception excepting it from the normal QA requirements 
 === Certbot ===
 
 The Certbot family of packages can be updated according to the procedures documented in [[/Certbot]]. This stable release exception was [[https://lists.ubuntu.com/archives/ubuntu-release/2017-July/004176.html|discussed]] and subsequently revision 10 of that document was approved by RobieBasak for the SRU team on 2017-08-08.
+
+=== cloud-init ===
+The source package cloud-init may be uploaded according to the procedure documented in CloudinitUpdates.  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by BrianMurray for the SRU team as of 2017-10-06.
+
 
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
