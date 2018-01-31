@@ -185,7 +185,8 @@ methodology detail above) as part of the standard SRU verification
 process for packages with MRE's.
 
 An upload for an SRU shall be acompanied by a log of running the
-[`test <https://code.launchpad.net/~ubuntu-server/ubuntu/+source/dpdk-testing/+git/dpdk-testing%7Cinternal>`__.
+`internal
+test <https://code.launchpad.net/~ubuntu-server/ubuntu/+source/dpdk-testing/+git/dpdk-testing>`__.
 All tests in this log shall be passed or explained in the Template why
 not passing is to be considered ok in this case.
 
