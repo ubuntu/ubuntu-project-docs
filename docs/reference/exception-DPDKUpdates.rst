@@ -184,6 +184,11 @@ both standalone and in-conjunction with Open vSwitch (following the
 methodology detail above) as part of the standard SRU verification
 process for packages with MRE's.
 
+An upload for an SRU shall be acompanied by a log of running the
+[`test <https://code.launchpad.net/~ubuntu-server/ubuntu/+source/dpdk-testing/+git/dpdk-testing%7Cinternal>`__.
+All tests in this log shall be passed or explained in the Template why
+not passing is to be considered ok in this case.
+
 .. _requesting_the_sru:
 
 Requesting the SRU
@@ -226,6 +231,8 @@ SRU Template
    [Test Plan]
 
    See https://wiki.ubuntu.com/StableReleaseUpdates/DPDK#SRU_TestVerify
+   TODO: attach a log of executing said tests from a ppa with the upload
+   TODO: if there are any non passing tests - explain why that is ok in this case.
 
    [Regression Potential]
 
