@@ -211,12 +211,10 @@ SRU Template
    <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with lxd artifacts>
    <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with kvm artifacts>
    <TODO: attach automated curtin vmtest with cloud-init proposed>
-   <TODO: attach Solutions Testing team test results>
-   <TODO: attach MAAS Team test results>
+   <TODO: attach Solutions Testing team test results for each LTS>
+   <TODO: attach MAAS Team test results for each LTS>
 
    * Manual Test Results
-   <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on nocloud datasource>
-   <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on lxd datasource>
    <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on ec2 datasource>
    <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on gce datasource>
    <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on azure datasource>
