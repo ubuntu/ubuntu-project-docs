@@ -33,11 +33,9 @@ following will be done:
 
 -  an image including the package from -proposed will be built for
    Rackspace to be tested in Rackspace Cloud
--  the CPC team will write new automated tests to cover new testable
-   functionality (if any) in the new package
--  the automated testing that the CPC team normally runs against
-   Rackspace Cloud images before they are published will be run against
-   the -proposed image
+-  the testing that the CPC team normally runs against Rackspace Cloud
+   images before they are published will be run against the -proposed
+   image
 -  Rackspace's team will be asked to validate
 
    -  that the new package addresses the issues it is expected to
