@@ -40,7 +40,17 @@ When a new version of gce-compute-image-packages is uploaded to
    -  that the image passes their internal image validation.
 
 If all the testing indicates that the image containing the new package
-is acceptable, verification will be considered to be done.
+is acceptable, verification will be considered to be done and the the
+package can be released from -proposed without waiting for its age reach
+the default SRU aging requirement.
+
+The rationale behind
+`lifting <https://lists.ubuntu.com/archives/ubuntu-release/2018-August/004553.html>`__
+the aging requirement is that no one is expected to test the package
+apart from the uploader, the GCE team and the CPC team, and they all
+test the package in the verification process. Verification also includes
+preparing custom-built images for testing first-booting instances which
+can't be easily done by others.
 
 .. _requesting_the_sru:
 
