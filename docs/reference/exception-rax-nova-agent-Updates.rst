@@ -1,12 +1,6 @@
-.. _this_document_is_a_proposal_and_is_not_yet_accepted_as_an_sru_exception:
-
-This document is a proposal and is not yet accepted as an SRU exception!
-------------------------------------------------------------------------
-
 This document describes the policy for updating the rax-nova-agent
 package to new upstream versions in a stable, supported distro
-(including LTS releases). This is an exception to the standard SRU
-process.
+(including LTS releases).
 
 Nova-agent is provided by Rackspace for installation on servers that run
 in Rackspace Cloud. It is a collection of tools and daemons, packaged as
