@@ -135,10 +135,10 @@ The Stable Release Updates team regularly checks for SRUs that have succesfully 
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
 || Monday || Adam Conrad (infinity), Łukasz Zemczak (sil2100) ||
-|| Tuesday || Chris Halse Rogers (RAOF) ||
+|| Tuesday || Brian Murray (bdmurray), Chris Halse Rogers (RAOF) ||
 || Wednesday || Chris J Arges (arges), Robie Basak (rbasak) ||
-|| Thursday || Brian Murray (bdmurray), Łukasz Zemczak (sil2100) ||
-|| Friday || Timo Aaltonen (tjaalton), Steve Langasek (slangasek - backup) ||
+|| Thursday || Łukasz Zemczak (sil2100) ||
+|| Friday || Timo Aaltonen (tjaalton), Steve Langasek (vorlon - backup) ||
 
 == Phasing ==
 
