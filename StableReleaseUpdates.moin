@@ -281,6 +281,8 @@ The packages ubuntu-release-upgrader and python-apt both contain files with list
 === rax-nova-agent ===
 The source package rax-nova-agent may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/rax-nova-agent-Updates|rax-nova-agent-Updates]].  This stable release exception has been approved by SteveLangasek for the SRU team as of 2018-08-15.
 
+=== livecd-rootfs ===
+The livecd-rootfs package is a frequent target of SRUs as part of development of changes to image builds for the target series, and is not intended for general installation on end-user systems.  The risk of user-affecting regression is lower as a result, because the impact of changes to this package to end users is mediated by way of image builds.  Therefore, the requirement for per-change bug reports and test cases is relaxed, as long as there is at least one linked bug with a test case.
 
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
