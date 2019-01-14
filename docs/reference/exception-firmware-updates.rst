@@ -1,6 +1,6 @@
-This document describes the policy for updating the fwupd and fwupdate
-packages to new upstream versions in a stable, supported distro
-(including LTS releases).
+This document describes the policy for updating the fwupd, fwupdate,
+fwupd-signed and fwupdate-signed packages to new upstream versions in a
+stable, supported distro (including LTS releases).
 
 fwupd is the firmware updating daemon used for performing updates on a
 variety of devices both in and out of OS. Updates outside of the OS are
@@ -8,6 +8,9 @@ performed using UEFI capsules. fwupd versions older than 1.1.x used
 fwupdate package and its EFI binary for performing UEFI capsule updates.
 fwupd versions 1.1.x and newer have subsumed fwupdate and now maintains
 and fully manage the lifecycle of the EFI binary.
+
+Signed versions of the EFI binaries are in the respsective \*-signed
+packages.
 
 The entire firmware update stack is maintained by Richard Hughes and
 Mario Limonciello.
@@ -19,24 +22,29 @@ a particular version of fwupd/fwupdate can place information into the
 metadata to prevent updates from running on versions of fwupd/fwupdate
 that have known bugs.
 
-Due to this, upstream highly recommends distros to not backport
-individual patches so that OEMs can control only running fwupd/fwupdate
-updates on safe combinations.
-
 Upstream does maintain stable release branches for distros like Ubuntu
 to pick up when applicable without going to the latest version of fwupd
 but still adopting fixes.
 
-New versions of fwupd and fwupdate can both be SRU'ed into older
-releases provided following process is followed:
+Metadata
+--------
+
+Due to this, upstream highly recommends distros to not backport
+individual patches so that OEMs can control only running fwupd/fwupdate
+updates on safe combinations.
+
+OEMs can add the following to their metadata:
+
+``   ``\ \ ``com.redhat.fwupdate``\ 
 
 .. _what_can_be_srued:
 
 What can be SRUed
 -----------------
 
-On an Ubuntu release that uses both fwupdate and fwupd (such as bionic
-and earlier):
+New versions of fwupd and fwupdate can both be SRU'ed into older
+releases provided following process is followed: On an Ubuntu release
+that uses both fwupdate and fwupd (such as bionic and earlier):
 
 **fwupdate**: tarball releases only. No backported individual patches.
 If a tarball release isn't available, make upstream release one.
@@ -57,11 +65,12 @@ When a new version of fwupd or fwupdate is uploaded to -proposed, the
 following will be done:
 
 -  Test that UEFI capsule updates still work properly on an OEM system
-   pulling from LVFS.
+   pulling from LVFS with secure boot enabled.
 -  Verify that CI tests have been running for the matching release
    upstream.
 -  Test that a system that offers a variety of in OS devices enumerate
    (example Thunderbolt, NVME)
+-  The appropriate signed packages have been uploaded as well
 
 If all the testing indicates that the image containing the new package
 is acceptable, verification will be considered to be done and the the
