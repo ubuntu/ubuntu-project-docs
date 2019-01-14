@@ -36,13 +36,17 @@ What can be SRUed
 -----------------
 
 On an Ubuntu release that uses both fwupdate and fwupd (such as bionic
-and earlier): **fwupdate** tarball releases only. No backported
-individual patches. If a tarball release isn't available, make upstream
-release one. **fwupd** fwupd releases in the 1.0.x series.
+and earlier):
 
-On an Ubuntu release that uses fwupd but not fwupdate: Stay with the
-same stable release branch that was launched with that release. For
-example 1_1_X branch or 1_2_X branch.
+**fwupdate**: tarball releases only. No backported individual patches.
+If a tarball release isn't available, make upstream release one.
+
+**fwupd**: fwupd releases in the 1.0.x series.
+
+On an Ubuntu release that uses fwupd but not fwupdate:
+
+Stay with the same stable release branch that was launched with that
+release. For example 1_1_X branch or 1_2_X branch.
 
 .. _qa_process:
 
