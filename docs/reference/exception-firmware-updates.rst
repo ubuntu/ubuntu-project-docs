@@ -74,8 +74,7 @@ following will be done:
 
 If all the testing indicates that the image containing the new package
 is acceptable, verification will be considered to be done and the the
-package can be released from -proposed without waiting for its age reach
-the default SRU aging requirement.
+package can be released from -proposed after the standard aging period.
 
 .. _requesting_the_sru:
 
