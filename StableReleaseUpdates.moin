@@ -276,13 +276,16 @@ The dpdk source package can be uploaded according to the procedures documented i
 
 === ubuntu-release-upgrader and python-apt ===
 
-The packages ubuntu-release-upgrader and python-apt both contain files with listings of Ubuntu mirrors. To facilitate upgrades to new releases ubuntu-release-upgrader should be updated (particularly for LTS release) so that the list of mirrors is accurate.  With that in mind and given that it is just a text file with urls for mirrors it is okay to SRU only mirror changes for these packages without an SRU bug.
+The packages ubuntu-release-upgrader and python-apt both contain files with listings of Ubuntu mirrors. To facilitate upgrades to new releases ubuntu-release-upgrader should be updated (particularly for LTS releases) so that the list of mirrors is accurate.  With that in mind and given that it is just a text file with urls for mirrors it is okay to SRU only mirror changes for these packages without an SRU bug.
 
 === rax-nova-agent ===
 The source package rax-nova-agent may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/rax-nova-agent-Updates|rax-nova-agent-Updates]].  This stable release exception has been approved by SteveLangasek for the SRU team as of 2018-08-15.
 
 === livecd-rootfs ===
 The livecd-rootfs package is a frequent target of SRUs as part of development of changes to image builds for the target series, and is not intended for general installation on end-user systems.  The risk of user-affecting regression is lower as a result, because the impact of changes to this package to end users is mediated by way of image builds.  Therefore, the requirement for per-change bug reports and test cases is relaxed, as long as there is at least one linked bug with a test case.
+
+=== fwupd and fwupdate ===
+The source packages fwupd and fwupdate may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/firmware-updates|firmware-updates]]. This stable release exception has been approved by BrianMurray for the SRU team as of 2019-01-15.
 
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
