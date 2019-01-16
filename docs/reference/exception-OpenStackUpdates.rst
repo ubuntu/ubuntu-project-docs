@@ -168,26 +168,59 @@ SRU Template
 
    == End SRU Template ==
 
-   === Nominating a Bug for a Series ===
+.. _nominating_a_bug_for_a_series:
 
-   A sponsor can be asked to nominate a bug for a particular series. You can find the following sponsors in #ubuntu-server on freenode:
-   * To target an Ubuntu series: coreycb, jamespage
-   * To target an Ubuntu Cloud Archive series: coreycb, jamespage, dosaboy, wolsen
+Nominating a Bug for a Series
+-----------------------------
 
-   Getting permission to target a bug for a series:
-   * To gain permission to target a bug for an Ubuntu series you must be a member of: https://launchpad.net/~ubuntu-bugcontrol
-   * To gain permission to target a bug for an Ubuntu Cloud Archive series you must be a member of: https://launchpad.net/~ubuntu-cloud-archive-bugs
+A sponsor can be asked to nominate a bug for a particular series. You
+can find the following sponsors in #ubuntu-server on freenode:
 
-   === Getting Package Source ===
+-  To target an Ubuntu series: coreycb, jamespage
+-  To target an Ubuntu Cloud Archive series: coreycb, jamespage,
+   dosaboy, wolsen
 
-   Depending on the package and the release, there are different ways to download the package source:
+Getting permission to target a bug for a series:
 
-   ** Core !OpenStack packages for Liberty+ are [[https://code.launchpad.net/~ubuntu-server-dev/+git|maintained in git on Launchpad]]. The process for working with these repositories is documented [[https://wiki.ubuntu.com/OpenStack/CorePackages|here]].
+-  To gain permission to target a bug for an Ubuntu series you must be a
+   member of: https://launchpad.net/~ubuntu-bugcontrol
+-  To gain permission to target a bug for an Ubuntu Cloud Archive series
+   you must be a member of:
+   https://launchpad.net/~ubuntu-cloud-archive-bugs
 
-   ** Core !OpenStack packages prior to Liberty can be found [[https://code.launchpad.net/~ubuntu-server-dev|maintained in Bazaar on Launchpad]].  The process for working with these branches is documented [[https://wiki.ubuntu.com/ServerTeam/OpenStack|here]].
+.. _getting_package_source:
 
-   ** UCA packages that correspond to a supported Ubuntu release can be retrieved with the pull-lp-source tool:
-       * pull-lp-source <package> [release|version] (e.g. pull-lp-source python-oslo.messaging xenial)
+Getting Package Source
+----------------------
 
-   ** UCA packages that correspond to an unsupported (EOL) Ubuntu release can be retrieved from the corresponding UCA staging PPA:
-       * For example, see the [[https://launchpad.net/~ubuntu-cloud-archive/+archive/ubuntu/mitaka-staging/+packages|Mitaka staging PPA]].
+Depending on the package and the release, there are different ways to
+download the package source:
+
+-  
+
+   -  Core !OpenStack packages for Liberty+ are `maintained in git on
+      Launchpad <https://code.launchpad.net/~ubuntu-server-dev/+git>`__.
+      The process for working with these repositories is documented
+      `here <https://wiki.ubuntu.com/OpenStack/CorePackages>`__.
+
+-  
+
+   -  Core !OpenStack packages prior to Liberty can be found `maintained
+      in Bazaar on
+      Launchpad <https://code.launchpad.net/~ubuntu-server-dev>`__. The
+      process for working with these branches is documented
+      `here <https://wiki.ubuntu.com/ServerTeam/OpenStack>`__.
+
+-  
+
+   -  UCA packages that correspond to a supported Ubuntu release can be
+      retrieved with the pull-lp-source tool:
+
+``   * pull-lp-source ``\ \ `` [release|version] (e.g. pull-lp-source python-oslo.messaging xenial)``
+
+-  
+
+   -  UCA packages that correspond to an unsupported (EOL) Ubuntu
+      release can be retrieved from the corresponding UCA staging PPA:
+
+``   * For example, see the ``\ ```Mitaka staging PPA`` <https://launchpad.net/~ubuntu-cloud-archive/+archive/ubuntu/mitaka-staging/+packages>`__\ ``.``
