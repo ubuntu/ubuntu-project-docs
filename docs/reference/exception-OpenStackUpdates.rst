@@ -18,6 +18,45 @@ that are specific to the Ubuntu Cloud Archive.
 **NOTE**: This process is followed for !OpenStack packages, and
 supporting dependencies including Open vSwitch and Ceph.
 
+.. _package_list:
+
+Package List
+------------
+
+.. _openstack_packages:
+
+OpenStack packages
+~~~~~~~~~~~~~~~~~~
+
+-  
+
+   -  aodh
+   -  barbican
+   -  ceilometer
+   -  cinder
+   -  designate
+   -  glance
+   -  gnocchi
+   -  heat
+   -  horizon
+   -  keystone
+   -  neutron
+   -  neutron-lbaas
+   -  neutron-fwaas
+   -  neutron-vpnaas
+   -  nova
+   -  swift
+
+.. _supporting_packages:
+
+Supporting packages
+~~~~~~~~~~~~~~~~~~~
+
+-  
+
+   -  ceph
+   -  openvswitch
+
 .. _sru_expectations:
 
 SRU Expectations
@@ -55,67 +94,10 @@ SRU Expectations
 | ``[1] Landing a fix upstream may not always be possible, for example once the upstream branch is in critical-fix or security-fix only mode, or once it has reached EOL.  See the ``\ ```OpenStack upstream stable branch policy`` <http://docs.openstack.org/project-team-guide/stable-branches.html>`__\ ``, which specifies the various phases of support for stable branches, which are typically supported for 12 to 18 months.  The case where a bug can't be fixed upstream first must be handled with extreme caution, since fixes would be released directly to the corresponding Ubuntu release without having landed upstream first.``
 | ``[2] Landing a fix in a corresponding Ubuntu release may not always be possible, for example once the Ubuntu release has reached EOL and the UCA is still supported.  This case must be handled with extreme caution, since fixes would be released directly to the corresponding UCA without having first landed in the corresponding Ubuntu release, and possibly also without having first landed in the upstream !OpenStack release.``
 
-.. _nominating_a_bug_for_a_series:
+.. _qa_process:
 
-Nominating a Bug for a Series
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-A sponsor can be asked to nominate a bug for a particular series. You
-can find the following sponsors in #ubuntu-server on freenode:
-
--  To target an Ubuntu series: coreycb, jamespage
--  To target an Ubuntu Cloud Archive series: coreycb, jamespage,
-   dosaboy, wolsen
-
-Getting permission to target a bug for a series:
-
--  To gain permission to target a bug for an Ubuntu series you must be a
-   member of: https://launchpad.net/~ubuntu-bugcontrol
--  To gain permission to target a bug for an Ubuntu Cloud Archive series
-   you must be a member of:
-   https://launchpad.net/~ubuntu-cloud-archive-bugs
-
-.. _getting_package_source:
-
-Getting Package Source
-~~~~~~~~~~~~~~~~~~~~~~
-
-Depending on the package and the release, there are different ways to
-download the package source:
-
--  
-
-   -  Core !OpenStack packages for Liberty+ are `maintained in git on
-      Launchpad <https://code.launchpad.net/~ubuntu-server-dev/+git>`__.
-      The process for working with these repositories is documented
-      `here <https://wiki.ubuntu.com/OpenStack/CorePackages>`__.
-
--  
-
-   -  Core !OpenStack packages prior to Liberty can be found `maintained
-      in Bazaar on
-      Launchpad <https://code.launchpad.net/~ubuntu-server-dev>`__. The
-      process for working with these branches is documented
-      `here <https://wiki.ubuntu.com/ServerTeam/OpenStack>`__.
-
--  
-
-   -  UCA packages that correspond to a supported Ubuntu release can be
-      retrieved with the pull-lp-source tool:
-
-``   * pull-lp-source ``\ \ `` [release|version] (e.g. pull-lp-source python-oslo.messaging xenial)``
-
--  
-
-   -  UCA packages that correspond to an unsupported (EOL) Ubuntu
-      release can be retrieved from the corresponding UCA staging PPA:
-
-``   * For example, see the ``\ ```Mitaka staging PPA`` <https://launchpad.net/~ubuntu-cloud-archive/+archive/ubuntu/mitaka-staging/+packages>`__\ ``.``
-
-.. _verification_of_stable_updates:
-
-Verification of Stable Updates
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+QA Process
+----------
 
 Once stable package updates have been accepted by the ubuntu-sru (or
 Cloud Archive) team into -proposed pockets, the following SRU
@@ -148,3 +130,64 @@ system <https://launchpad.net/ubuntu-openstack-ci>`__.
 
 Additionally, any specific test cases covered in SRU bug reports should
 be explicitly tested as well.
+
+.. _sru_template:
+
+SRU Template
+------------
+
+::
+
+   == Begin SRU Template ==
+   [Impact]
+   This release sports mostly bug-fixes and we would like to make sure all of our
+   supported customers have access to these improvements.
+   The update contains the following package updates:
+
+   *** <TODO: Create list with package names and versions>
+
+   [Test Case]
+   The following SRU process was followed:
+   https://wiki.ubuntu.com/OpenStackUpdates
+
+   In order to avoid regression of existing consumers, the OpenStack team will
+   run their continuous integration test against the packages that are in
+   -proposed.  A successful run of all available tests will be required before the
+   proposed packages can be let into -updates.
+
+   The OpenStack team will be in charge of attaching the output summary of the
+   executed tests. The OpenStack team members will not mark ‘verification-done’ until
+   this has happened.
+
+   [Regression Potential]
+   In order to mitigate the regression potential, the results of the
+   aforementioned tests are attached to this bug.
+
+   [Discussion]
+   <TODO: other background>
+
+   == End SRU Template ==
+
+   === Nominating a Bug for a Series ===
+
+   A sponsor can be asked to nominate a bug for a particular series. You can find the following sponsors in #ubuntu-server on freenode:
+   * To target an Ubuntu series: coreycb, jamespage
+   * To target an Ubuntu Cloud Archive series: coreycb, jamespage, dosaboy, wolsen
+
+   Getting permission to target a bug for a series:
+   * To gain permission to target a bug for an Ubuntu series you must be a member of: https://launchpad.net/~ubuntu-bugcontrol
+   * To gain permission to target a bug for an Ubuntu Cloud Archive series you must be a member of: https://launchpad.net/~ubuntu-cloud-archive-bugs
+
+   === Getting Package Source ===
+
+   Depending on the package and the release, there are different ways to download the package source:
+
+   ** Core !OpenStack packages for Liberty+ are [[https://code.launchpad.net/~ubuntu-server-dev/+git|maintained in git on Launchpad]]. The process for working with these repositories is documented [[https://wiki.ubuntu.com/OpenStack/CorePackages|here]].
+
+   ** Core !OpenStack packages prior to Liberty can be found [[https://code.launchpad.net/~ubuntu-server-dev|maintained in Bazaar on Launchpad]].  The process for working with these branches is documented [[https://wiki.ubuntu.com/ServerTeam/OpenStack|here]].
+
+   ** UCA packages that correspond to a supported Ubuntu release can be retrieved with the pull-lp-source tool:
+       * pull-lp-source <package> [release|version] (e.g. pull-lp-source python-oslo.messaging xenial)
+
+   ** UCA packages that correspond to an unsupported (EOL) Ubuntu release can be retrieved from the corresponding UCA staging PPA:
+       * For example, see the [[https://launchpad.net/~ubuntu-cloud-archive/+archive/ubuntu/mitaka-staging/+packages|Mitaka staging PPA]].
