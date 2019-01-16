@@ -60,7 +60,7 @@ Supporting packages
 .. _sru_expectations:
 
 SRU Expectations
-~~~~~~~~~~~~~~~~
+----------------
 
 -  
 
