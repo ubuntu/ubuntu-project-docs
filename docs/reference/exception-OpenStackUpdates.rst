@@ -198,29 +198,21 @@ download the package source:
 
 -  
 
-   -  Core !OpenStack packages for Liberty+ are `maintained in git on
+   -  Core !OpenStack packages are `maintained in git on
       Launchpad <https://code.launchpad.net/~ubuntu-server-dev/+git>`__.
       The process for working with these repositories is documented
       `here <https://wiki.ubuntu.com/OpenStack/CorePackages>`__.
 
 -  
 
-   -  Core !OpenStack packages prior to Liberty can be found `maintained
-      in Bazaar on
-      Launchpad <https://code.launchpad.net/~ubuntu-server-dev>`__. The
-      process for working with these branches is documented
-      `here <https://wiki.ubuntu.com/ServerTeam/OpenStack>`__.
+   -  Packages can be retrieved from Launchpad with the pull-lp-source
+      tool:
+
+``   * pull-lp-source ``\ \ `` [release|version] (e.g. pull-lp-source python-oslo.messaging bionic)``
 
 -  
 
-   -  UCA packages that correspond to a supported Ubuntu release can be
-      retrieved with the pull-lp-source tool:
+   -  Packages can be retrieved from the UCA with the pull-uca-source
+      tool:
 
-``   * pull-lp-source ``\ \ `` [release|version] (e.g. pull-lp-source python-oslo.messaging xenial)``
-
--  
-
-   -  UCA packages that correspond to an unsupported (EOL) Ubuntu
-      release can be retrieved from the corresponding UCA staging PPA:
-
-``   * For example, see the ``\ ```Mitaka staging PPA`` <https://launchpad.net/~ubuntu-cloud-archive/+archive/ubuntu/mitaka-staging/+packages>`__\ ``.``
+``   * pull-uca-source ``\ \ `` [release|version] (e.g. pull-uca-source python-oslo.messaging queens)``
