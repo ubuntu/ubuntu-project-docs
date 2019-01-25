@@ -212,8 +212,8 @@ Past SRUs
 
 Links to past SRUs using this process are below:
 
-\|\| \**SRU Version*\* \|\| \**SRU bug*\* \|\| \|\| 17.2-35-gf576b2a2
-\|\| `LP:
+\|\| **SRU Version** \|\| **SRU bug** \|\| \|\| 17.2-35-gf576b2a2 \|\|
+`LP:
 #1747059 <https://bugs.launchpad.net/ubuntu/+source/cloud-init/+bug/1747059>`__
 \|\| \|\| 18.2-4-g05926e48 \|\| `LP:
 #1759406 <https://bugs.launchpad.net/ubuntu/+source/cloud-init/+bug/1759406>`__
