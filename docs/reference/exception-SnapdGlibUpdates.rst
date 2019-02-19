@@ -25,8 +25,7 @@ SRU Process
    -  A tagged release of snapd-glib is made - this is manually
       confirmed to be working at release time.
    -  The current development Ubuntu release is updated.
-   -  GNOME Software is updated to use new features.
-   -  GNOME Software is updated in the Ubuntu development release.
+   -  snapd-glib is updated in the Ubuntu development release.
    -  A bug is opened for each release and contains instructions on what
       to smoke test (i.e. the reverse dependencies of snapd-glib).
    -  Bugs are opened for specific features/bugfixes that have been
