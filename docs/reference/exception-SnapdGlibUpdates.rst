@@ -8,8 +8,7 @@ appropriate bindings for applications that use GLib, Qt or GObject
 bindings. As the snapd project is continuously updated, snapd-glib is
 also continuously updated to enable new features. snapd-glib is designed
 to be both API and ABI compatible with older releases so these updates
-can be rolled out. The primary consumer of snapd-glib in Ubuntu is GNOME
-Software.
+can be rolled out.
 
 .. _sru_process:
 
@@ -28,6 +27,8 @@ SRU Process
    -  The current development Ubuntu release is updated.
    -  GNOME Software is updated to use new features.
    -  GNOME Software is updated in the Ubuntu development release.
+   -  A bug is opened for each release and contains instructions on what
+      to smoke test (i.e. the reverse dependencies of snapd-glib).
    -  Bugs are opened for specific features/bugfixes that have been
       backported to stable Ubuntu releases. These bugs contain testing
       instructions as per the `usual SRU <StableReleaseUpdates>`__
