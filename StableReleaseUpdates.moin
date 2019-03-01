@@ -261,7 +261,7 @@ GNOME has a microrelease exception excepting it from the normal QA requirements 
 
 === OpenStack ===
 
-!OpenStack packages can be updated according to the procedures documented in OpenStackUpdates, which includes a list of source packages covered by the MRE.  This stable release exception has been approved by LukaszZemczak for the SRU team as of 2017-08-07.
+!OpenStack packages can be updated according to the procedures documented in OpenStack/StableReleaseUpdates, which includes a list of source packages covered by the MRE.  This stable release exception has been approved by LukaszZemczak for the SRU team as of 2017-08-07.
 
 === Certbot ===
 
