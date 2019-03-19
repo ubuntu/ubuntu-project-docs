@@ -88,10 +88,10 @@ Integration Tests
 ~~~~~~~~~~~~~~~~~
 
 Netplan includes an in-tree integration suite to validating various
-network configurations. The tests themselves involve over a a large
-number of different configuration scenarios designed to touch as many
-features and functionalities as possible including tests to cover
-previous opened bugs.
+network configurations. The tests themselves involve a large number of
+different configuration scenarios designed to touch as many features and
+functionalities as possible including tests to cover previous opened
+bugs.
 
 .. _sru_template:
 
