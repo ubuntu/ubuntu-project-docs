@@ -51,8 +51,9 @@ the following:
       specific test results included
    -  Any packaging changes (e.g. a dependency changes) need to be
       stated
-   -  If any manual testing occurs it should also be documented. See LP
-      #1588052 as an example.
+   -  If any manual testing occurs it should also be documented. See `LP
+      #1588052 <https://bugs.launchpad.net/ubuntu/+source/snapd/+bug/1588052>`__
+      as an example.
 
 .. _qa_process:
 
