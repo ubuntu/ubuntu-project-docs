@@ -93,6 +93,12 @@ different configuration scenarios designed to touch as many features and
 functionalities as possible including tests to cover previous opened
 bugs.
 
+These tests are run as part of the migration from -proposed to -updates
+for an SRU and require passing (or a clear explanation of the failure
+and why it's considered ok).
+
+TODO: enable integration tests run daily from netplan trunk.
+
 .. _sru_template:
 
 SRU Template
