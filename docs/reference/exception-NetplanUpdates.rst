@@ -6,7 +6,7 @@ This document describes the policy for updating netplan.io in a stable,
 supported release.
 
 Netplan is an abstraction layer for network configuration used on all
-releases of Ubuntu since Yakkety; and generates systemd-networkd or
+releases of Ubuntu since Ubuntu 18.10; and generates systemd-networkd or
 NetworkManager configuration based on initial netplan configuration
 (written in YAML) present at boot time.
 
