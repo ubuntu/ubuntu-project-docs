@@ -63,13 +63,15 @@ QA Process
 Merges
 ~~~~~~
 
-Updates to `netplan trunk <http://github.com/CanonicalLtd/netplan>`__ go
-through the following process:
+Updates to `netplan master
+branch <http://github.com/CanonicalLtd/netplan>`__ go through the
+following process:
 
 -  
 
    -  Reviewed and approved by a member of the development team
-   -  TODO: Daily integration tests on trunk
+   -  TODO: Run automatic daily integration tests on master branch
+      (github integration)
    -  Successful run of unit tests and style tests on a per-commit basis
 
 Packaging
@@ -95,9 +97,12 @@ bugs.
 
 These tests are run as part of the migration from -proposed to -updates
 for an SRU and require passing (or a clear explanation of the failure
-and why it's considered ok).
+and why it's considered ok); using the autopkgtest.ubuntu.com
+infrastructure, which is separate from daily integration tests that may
+be run on the netplan master branch.
 
-TODO: enable integration tests run daily from netplan trunk.
+TODO: enable integration tests run daily from netplan master branch
+(github integration).
 
 .. _sru_template:
 
