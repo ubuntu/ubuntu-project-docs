@@ -112,7 +112,7 @@ SRU Template
 ::
 
    [Impact]
-   This release sports both bug-fixes and new features and we would like to
+   This release contains both bug-fixes and new features and we would like to
    make sure all of our supported customers have access to these improvements.
    The notable ones are:
 
