@@ -3,10 +3,6 @@ regard to upstream LTS stable releases. This is an exception to the
 standard SRU process under the banner of the SRU "New upstream
 microreleases" exception.
 
-I hope the information provided here gives the SRU Team sufficient
-confidence that DPDK is worthy of a minor release exception for LTS
-related SRU activity.
-
 Table of contents: <<TableOfContents()>>
 
 .. _background_on_dpdk:
