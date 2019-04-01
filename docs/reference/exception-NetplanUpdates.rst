@@ -22,7 +22,7 @@ conditions outlined below are met:
    -  New features
 
 In the event of a change breaking backwards compatibility, then SRU team
-approval will need to be obtained.
+approval will need to be obtained. See below.
 
 .. _requesting_the_sru:
 
@@ -54,6 +54,12 @@ the following:
    -  If any manual testing occurs it should also be documented. See `LP
       #1588052 <https://bugs.launchpad.net/ubuntu/+source/snapd/+bug/1588052>`__
       as an example.
+
+If backwards compatibility is to be broken, this should be clearly
+written at the top of the bug description for the SRU, as well as in the
+title with "[breaks-compat]". Furthermore, an email to ubuntu-release
+will be sent to point the release / SRU teams to the bug in order to get
+approval before uploading to the release's upload queue.
 
 .. _qa_process:
 
