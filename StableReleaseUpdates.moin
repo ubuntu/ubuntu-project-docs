@@ -126,23 +126,6 @@ it is also acceptable to upload new microreleases with many bug fixes without in
  * This both shows the SRU team that the risks have been considered,
    and provides guidance to testers in regression-testing the SRU.
 
-[Autopkgtest Regressions]
- 
- Once this package is accepted in proposed, use this space to
- explain autopkgtest regressions as seen on pending-sru page, and 
- proposed migrations output for releases in question. Proposed
- migrations output page, has also retry buttons to rerun the tests.
- 
- URLs to monitor/check are:
-
- https://people.canonical.com/~ubuntu-archive/pending-sru.html
- 
- http://people.canonical.com/~ubuntu-archive/proposed-migration/bionic/update_excuses.html
- (substitute relevant releases in the above url)
-
- * packagename/arch: flakey, unrelated failure see bug #1
- ...
-
 [Other Info]
  
  * Anything else you think is useful to include
