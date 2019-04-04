@@ -198,6 +198,18 @@ Verification Notes
  1. The SRU QA Engineer will specifically ask at the SRU & LTS meeting if there are specific bugs that need verification that aren't being done by the bug reporter. If necessary, a QA team member will do the verification. If not able (e.g. lack of specific HW), will do more calls for testing and nag the bug reporter again.
  1. If necessary, the QA team will set up separate SRU verification program, for big packages like eglibc, python, X.
 
+=== Autopkgtest Regressions ===
+
+Packages accepted into -proposed as per the SRU process automatically trigger related autopkgtests, similarly to how it happens for the development series. Once those tests are finished, the pending SRU page provides links to any failures that have been noticed for the selected upload. The responsibility of the uploader (and/or the person performing update verification) is to make sure the upload does not cause any regressions - both in manual and automated testing.
+
+In the case where an SRU upload triggers an autopkgtest regression, the target package will not be released into -updates until the failure is ''resolved''. There are a few ways that can happen:
+ * If the reported autopkgtest regression is a '''real regression''' caused by the upload, the update should be considered `verification-failed` and the package should be re-uploaded with the regression fixed. Otherwise the update will be removed from -proposed as per the usual procedures.
+ * If the reported autopkgtest regression is '''not a real regression''' or not a regression caused by the proposed update (but instead broken by some other dependency), the analysis of this has to be documented for the SRU team. The generally recommended way is commenting on one of the SRU bugs for the upload. Once the rationale is submitted and approved/validated by an SRU member, the SRU team will submit a hint to badtest the broken package and release the update as per usual procedures (once validation and aging is complete). Alternatively, the uploader/verifier can modify the hints and provide an MP in the bug along with the rationale.
+ * If the reported autopkgtest regression is the result of a '''flaky test''', the uploader can try re-running the test to see if it is indeed just a transient issue. If the issue still persists but the analysis clearly shows that it is not a real regression, a rationale for that should be provided in one of the SRU bugs.
+
+It is important to remember that firstly it is the ''uploader's responsibility'' to make sure the package is in a releasable state and that all the autopkgtests triggered by the upload are either passing or badtested. Of course, it is not the uploader's responsibility to provide the hints for badtests themselves, but it is it's responsibility to perform the analysis and verification of each listed regression.
+
+
 == Removal of updates ==
 
 If a bug fixed by an update '''does not get any testing/verification feedback''' for '''90 days''' an automated call for testing comment will be made on the bug report.  In the event that there is still no testing after an additional '''15 days''', that's a total of 105 days without any testing, the Stable Release Managers will '''remove the package from -proposed''' and usually close the bug task as "Won't Fix", due to lack of interest. Removal will happen immediately if a package update in -proposed is found to introduce a nontrivial regression.
