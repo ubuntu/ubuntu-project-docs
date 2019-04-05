@@ -109,11 +109,6 @@ it is also acceptable to upload new microreleases with many bug fixes without in
    package to reproduce the bug and verify that the updated package fixes
    the problem.
 
-[Fix]
-
- * information about the proposed fix (e.g., sha1 / link / description of
-   the commit and how it fixes the issue)
-
 [Regression Potential] 
 
  * discussion of how regressions are most likely to manifest as a result of this change. 
