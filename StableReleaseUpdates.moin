@@ -72,6 +72,7 @@ it is also acceptable to upload new microreleases with many bug fixes without in
 
  1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released".  Equivalently for new upstream releases, this (or a newer) release must be in the development release. It is, in general, not appropriate to release updates for stable systems without first testing them in the current development branch. One exception to this general rule is the case where the development release is not yet open, there can sometimes be a delay between the release of the most recent version of Ubuntu and the opening for development of the next version. Provided they are important enough, stable release updates should not and do not need to wait for the development release to open.
   * Also keep in mind that certain packages can change source package names between releases. In that case, if the given bug applies to a different source package that replaced the old one in a later releases, this source package has to be added as 'Also affecting'. Make sure that the devel releases package has the bug fixed before proceeding.
+  * Do not create a meta-bug with a title like "Please SRU this" rather than using existing bug reports. It is redundant and is opaque to original bug reporters, whose feedback is valuable for verification, so these bugs will be invalidated by the SRU team and corresponding uploads will be rejected from the queue. 
 
  1. Ensure that the bug report for this issue is public.  If the bug has been reported privately and cannot be published, you must first create a separate public bug report in launchpad and copy over as much information as can be published.
 
@@ -147,16 +148,6 @@ Once an update is released to -updates, the update is then phased so that the up
 The Phased-Update-Percentage is initially set to 10%, and a job is run (every 6 hours) that checks for regressions and if none are found the phased update percentage will be incremented by 10%. So an update will become fully phased after 54 hours or about 2 days. In the event that a regression is detected the Phased-Update-Precentage will be set to 0% thereby causing supported package managers not to install the update.
 
 The progress of phased updates is visible in a [[http://people.canonical.com/~ubuntu-archive/phased-updates.html|report]] which is updated by the same job that does the phasing.
-
-== Fixing several bugs in one upload ==
-
-Please avoid creating meta-bugs like "Please SRU this". They just create redundancy and are opaque to original bug reporters, whose feedback is valuable for verification, so these bugs will generally be invalidated by the SRU team. Just prepare all fixed bugs as described above, and either
-
- * attach the complete patch/debdiff to one bug and point to it in the other bugs ("debdiff which fixes this is attached to bug #xxxxxx")
-
-or
-
- * attach individual patches to the corresponding bug reports. If you have the fixes in bzr, it is even easier and more convenient to give a pointer to the fix ("fixed in http://bazaar.launchpad.net/.../revision/12") when fixing the bug in trunk.
 
 == Verification ==
 
