@@ -224,7 +224,7 @@ To obtain a new ongoing exception such as those documented below:
  1. Draft a wiki page, like the ones below, outlining what you believe should be the exception.
  2. Submit it to the SRU team for approval. This can be done to any individual member of the SRU team directly, or you can send it to ubuntu-release@lists.ubuntu.com for review.
 
-Note that the SRU team's delegation from the Technical Board is limited to accepting SRU uploads that meet the policy criteria above. The SRU team maintains documentation for standing exceptions here to keep individual interpretations of the policy criteria consistent. Departing from the policy criteria above still requires approval from the Technical Board.
+Note that the SRU team's delegation from the Technical Board is limited to accepting SRU uploads that meet the [[#When|policy criteria]] above. The SRU team maintains documentation for standing exceptions here to keep individual interpretations of the policy criteria consistent. Departing from the policy criteria above still requires approval from the Technical Board.
 
 === Kernel ===
 
