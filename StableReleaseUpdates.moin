@@ -339,6 +339,10 @@ Previous Removals:
  * [[https://bugs.launchpad.net/ubuntu/+source/bitcoin/+bug/1314616|bitcoin]]
  * [[https://launchpad.net/bugs/1384355|owncloud]]
 
+== Toolchain Updates ==
+
+Due to the nature of the various Ubuntu toolchain packages (gcc-*, binutils, glibc), any stable release updates of these packages should be released to both the -updates and -security pockets. For that to be possible, any updates of those should be first built in a reliable security-enabled PPA (without -updates or -proposed enabled) and only then '''binary-copied''' into -proposed for testing (that is a hard-requirement for anything copied into -security). After the usual successful SRU verification and aging, the updated packages should be released into both pockets.
+
 == Links ==
 
 Bugs in different stages of the stable release process: http://people.canonical.com/~ubuntu-archive/pending-sru
