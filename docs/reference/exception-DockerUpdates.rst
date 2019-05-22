@@ -31,18 +31,13 @@ QA
 As hinted above, we will not do amazingly extensive QA. The package has
 a basic autopkgtest which catches gross breakages and in practice has
 caught most packaging issues so far (the only problem I am aware of it
-missing is a problem in containerd on arm64 because we do not run
-autopkgtests on arm64).
+missing is a problem in containerd on arm64 because we did not run
+autopkgtests on arm64 at the time).
 
 There is also an autopkgtest that exercises "docker in lxd" as described
 in
 https://insights.ubuntu.com/2016/04/13/stephane-graber-lxd-2-0-docker-in-lxd-712/
-.
-
-The autopkgtests require machine level isolation and so today only run
-on amd64, i386 and ppc64el. We should run them by hand on arm64 and
-s390x until those architectures support machine-level isolation
-autopkgtests.
+. on autopkgtests.
 
 This QA should happen both for the -proposed -> -release migration in
 the devel series and again as part of the SRU verification.
