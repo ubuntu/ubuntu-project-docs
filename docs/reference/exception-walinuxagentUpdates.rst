@@ -27,7 +27,7 @@ the following process is followed.
 QA Process
 ----------
 
-When a new version of walinuxagent is uploaded to -proposed, the
+When a new version of walinuxagent is to be uploaded to -proposed, the
 following will be done:
 
 -  the CPC team will write new automated tests to cover new testable
@@ -42,20 +42,29 @@ following will be done:
    -  that the new package passes their internal image validation, with
       emphasis on walinuxagent extension support.
 
-In addition, prior to being uploaded to -proposed, the CPC team does the
-following testing
+In addition, the CPC team does the following testing
 
--  The new package candidate version is built in a PPA and tested on the
-   target suite before being uploaded to the archive at all. This will
-   involve one or both of:
+-  The new package candidate version is built in devel-proposed and
+   tested on the target suite. This will involve one or both of:
 
-   -  Installing the PPA packages on an Azure VM, manually restoring the
-      VM to a first boot state and rebooting it,
-   -  Generating a fresh image with the PPA package version preinstalled
-      and testing that directly
+   -  Installing the devel-proposed packages on an Azure VM, manually
+      restoring the VM to a first boot state and rebooting it,
+   -  Generating a fresh image with the devel-proposed package version
+      preinstalled and testing that directly
 
 -  Once the manual packaging tests pass successfully and the package
-   requires no further changes, it will be uploaded to the archive.
+   requires no further changes, it will be marked as such on the
+   tracking bug. On the development release, this is done by removing
+   the **block-proposed** tag.
+
+**If appropriate due to the nature of the changes (embargo on
+publication), the steps above may be done in a private PPA prior to
+landing in devel-proposed.**
+
+The following additional steps also apply for the SRUs to supported
+releases once the packages have been accepted into the development
+release (if applicable):
+
 -  Once accepted in to -proposed, a test image is built from -proposed,
    which is subjected to the full CPC image tests; this tests for more
    regressions across multiple Azure instance sizes. This includes tests
