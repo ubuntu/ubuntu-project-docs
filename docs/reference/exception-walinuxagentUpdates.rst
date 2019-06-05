@@ -27,7 +27,7 @@ the following process is followed.
 QA Process
 ----------
 
-When a new version of walinuxagent is to be uploaded to -proposed, the
+When a new version of walinuxagent is uploaded to -proposed, the
 following will be done:
 
 -  the CPC team will write new automated tests to cover new testable
