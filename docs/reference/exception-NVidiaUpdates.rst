@@ -166,7 +166,8 @@ QA tests
 -  `Certification test
    suite <https://git.launchpad.net/plainbox-provider-sru/tree/units/sru.pxu>`__
    must pass on a range of hardware.
--  Call for testing is sent to the community as soon as the drivers are
+-  Call for testing is sent to the community via the `community
+   hub <https://community.ubuntu.com>`__ as soon as the drivers are
    available in the staging PPA.
 
 .. _sru_template:
