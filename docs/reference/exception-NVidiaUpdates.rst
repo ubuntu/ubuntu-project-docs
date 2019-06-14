@@ -57,7 +57,7 @@ The release targeted by the SRU are:
       -  Long lived branch,
       -  Legacy.
 
-Short lived branch \*are not\* SRUed to non-lts releases to align the
+Short lived branch **are not** SRUed to non-lts releases to align the
 policy on the HWE stacks however this decision can be revisited
 depending on the demand.
 
@@ -66,12 +66,14 @@ versioning and naming scheme of the packages is so that users won’t be
 automatically upgraded to the latest version. They will only have
 updates for minor releases of a driver.
 
-For example version 100.1 is in the LTS. Version 100.2 is uploaded to
-the LTS, users will be upgraded. Version 110.1 is uploaded to the LTS, a
-transitional package is created to upgrade the user to the latest
-version of the branch. Although we won’t upgrade a long lived branch to
-a short lived one. On the other hand we might upgrade users from a short
-lived branch to a long lived branch.
+For example if version 100.1 is in the LTS.
+
+-  Version 100.2 is uploaded to the LTS, users will be upgraded.
+-  Version 110.1 is uploaded to the LTS, a transitional package is
+   created to upgrade the user to the latest version of the branch.
+   Although we won’t upgrade a long lived branch to a short lived one.
+   However we might upgrade users from a short lived branch to a long
+   lived branch.
 
 If several versions of the driver support the GPU, ubuntu-driver will
 expose them all.
@@ -81,12 +83,19 @@ expose them all.
 Release Schedule
 ----------------
 
-Week 0: New version of a driver released by the vendor Week 1: Packaging
-(porting patches against new kernel and tool chain) Week 2: QA (smoke
-test, installs, boot, shell comes up) Week 3: Upload to the development
-release Week 2: Packaging for stable releases Week 4: QA (Full test
-suite) Week 6: Upload to stable releases (-proposed pocket) Week 8:
-Promotion to the -updates pocket.
+-  Week 0: New version of a driver released by the vendor
+
+   -  
+
+      -  Week 1: Packaging (porting patches against new kernel and tool
+         chain)
+
+| ``    * Week 2: QA (smoke test, installs, boot, shell comes up)``
+| ``      * Week 3: Upload to the development release``
+| ``    * Week 2: Packaging for stable releases ``
+| ``        * Week 4: QA (Full test suite)``
+| ``          * Week 6: Upload to stable releases (-proposed pocket)``
+| ``            * Week 8: Promotion to the -updates pocket.``
 
 .. _requesting_the_sru:
 
