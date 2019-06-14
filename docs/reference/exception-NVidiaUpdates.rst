@@ -1,13 +1,16 @@
+\||<tablestyle="float:right; font-size: 0.9em; width:40%;
+background:#F1F1ED; margin: 0 0 1em 1em;" style="padding:0.5em;"><>|\|
+
 Introduction
 ------------
 
 This document describes the policy, process and criteria for updating
 nVidia proprietary drivers in a stable supported distro, including LTS.
 
-nVidia proprietary GPU drivers are broadly used among gamers or for GPU
-compute activities (AI/ML) Support for new GPUs as well as bug fixes are
-regularly released by the vendor (on average 2 driver updates a month).
-For an improved experience or simply to support new GPUs without
+nVidia proprietary GPU drivers are broadly used by gamers or for GPU
+compute activities (AI/ML). Support for new GPUs as well as bug fixes
+are regularly released by the vendor (on average 2 driver updates a
+month). For an improved experience or simply to support new GPUs without
 installing drivers from unofficial sources (for example PPAs), it is
 essential to release the latest version of the drivers regularly to the
 stable releases of Ubuntu.
@@ -17,15 +20,19 @@ stable releases of Ubuntu.
 What sort of updates
 --------------------
 
-There are 3 levels of supported drivers: Long lived branch: This series
-is to provide critical or low risk fixes and other minor updates for
-non-legacy hardware without exposing any new functionalities. These
-releases are intended for users of non-legacy GPUs who don't necessarily
-need the latest and greatest features. Support for new GPUs can be
-backported to this series. Short lived branch: As opposed to the long
-lived branch, this series provides introduces new features. Legacy
-drivers: Legacy GPUs are older-generation nVidia GPUs which are no
-longer supported in the regular nVidia Unified UNIX Graphics Driver.
+There are 3 levels of supported drivers:
+
+-  **Long lived branch**: This series is to provide critical or low risk
+   fixes and other minor updates for non-legacy hardware without
+   exposing any new functionalities. These releases are intended for
+   users of non-legacy GPUs who don't necessarily need the latest and
+   greatest features. Support for new GPUs can be backported to this
+   series.
+-  **Short lived branch**: As opposed to the long lived branch, this
+   series provides introduces new features.
+
+Legacy drivers: Legacy GPUs are older-generation nVidia GPUs which are
+no longer supported in the regular nVidia Unified UNIX Graphics Driver.
 Instead, these GPUs will continue to be supported through special
 "Legacy GPU" drivers that will be updated periodically to add support
 for new versions of Linux system components (e.g., new Linux kernels,
