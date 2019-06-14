@@ -163,9 +163,11 @@ pass the following additional QA procedures:
 QA tests
 ~~~~~~~~
 
-`Certification test
-suite <https://git.launchpad.net/plainbox-provider-sru/tree/units/sru.pxu>`__
-must pass on a range of hardware.
+-  `Certification test
+   suite <https://git.launchpad.net/plainbox-provider-sru/tree/units/sru.pxu>`__
+   must pass on a range of hardware.
+-  Call for testing is sent to the community as soon as the drivers are
+   available in the staging PPA.
 
 .. _sru_template:
 
@@ -209,7 +211,8 @@ SRU Template
 Additional notes
 ----------------
 
-``== References ==``
+References
+----------
 
 -  `nVidia Unix Drivers
    Archive <https://www.nvidia.com/object/unix.html>`__
