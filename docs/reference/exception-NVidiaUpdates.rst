@@ -162,52 +162,52 @@ pass the following additional QA procedures:
 QA tests
 ~~~~~~~~
 
-Certification test suite must pass on a range of hardware.
+`Certification test
+suite <https://git.launchpad.net/plainbox-provider-sru/tree/units/sru.pxu>`__
+must pass on a range of hardware.
 
 .. _sru_template:
 
 SRU Template
 ------------
 
-[Impact] This release provides both bug fixes and new features and we
-would like to make sure all of our users have access to these
-improvements. The notable ones are:
+::
 
--  
+   [Impact]
+   This release provides both bug fixes and new features and we would like to
+   make sure all of our users have access to these improvements.
+   The notable ones are:
 
-   -  <TODO: Create list with LP: # included >
+   *** <TODO: Create list with LP: # included >
 
-See the changelog entry below for a full list of changes and bugs.
+   See the changelog entry below for a full list of changes and bugs.
 
-[Test Case] The following development and SRU process was followed:
-https://wiki.ubuntu.com/NVidiaUpdates
+   [Test Case]
+   The following development and SRU process was followed:
+   https://wiki.ubuntu.com/NVidiaUpdates
 
-<TODO Document any QA done, automated and manual>
+   <TODO Document any QA done, automated and manual>
 
-The QA team that executed the tests will be in charge of attaching the
-artifacts and console output of the appropriate run to the bug. nVidia
-maintainers team members will not mark ‘verification-done’ until this
-has happened.
+   The QA team that executed the tests will be in charge of attaching the artifacts and console output of the appropriate run to the bug. nVidia maintainers team members will not mark ‘verification-done’ until this has happened.
 
-[Regression Potential] In order to mitigate the regression potential,
-the results of the aforementioned system level tests are attached to
-this bug.
+   [Regression Potential]
+   In order to mitigate the regression potential, the results of the
+   aforementioned system level tests are attached to this bug.
 
-<TODO: attach nvidia-proposed test artifacts for every SRU release, not
-a link as links expire>
+   <TODO: attach nvidia-proposed test artifacts for every SRU release, not a link as links expire>
 
-[Discussion] <TODO: other background>
 
-<TODO: Paste in change log entry from nVidia for this version of the
-driver>
+   [Discussion]
+   <TODO: other background>
 
-.. _additional_notes:
 
-Additional notes
-----------------
+   <TODO: Paste in change log entry from nVidia for this version of the driver>
 
-``== References ==``
+   == Additional notes ==
 
-nVidia Unix Drivers Archive Full history of the drivers Support
-timeframe for legacy drivers What is a legacy GPU nVidia drivers staging
-PPA
+    == References ==
+   nVidia Unix Drivers Archive
+   Full history of the drivers 
+   Support timeframe for legacy drivers
+   What is a legacy GPU
+   nVidia drivers staging PPA
