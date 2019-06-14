@@ -104,20 +104,26 @@ Requesting the SRU
 
 The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the
-following: The SRU should be requested per the StableReleaseUpdates
-documented process The template at the end of this document should be
-used and all ‘TODO’ filled out The change log will contain a reference
-to the single SRU process bug, not all bugs fixed by the SRU. However,
-if there are very important bugs that are deemed worthy of reference
-they too should be included in the change log. Major changes should be
-called out in the SRU template, especially where changed behavior is not
-backward compatible. For each release that is proposed to be updated by
-the SRU a link to the results of the automated tests so that anyone can
-verify that they have been executed successfully. Additionally, the SRU
-bug should be verbose in documenting any manual testing that occurred.
-Any architecture specific fixes need to be noted and architecture
-specific test results included. Any packaging changes (e.g. a dependency
-change) need to be stated
+following:
+
+-  The SRU should be requested per the StableReleaseUpdates documented
+   process
+-  The template at the end of this document should be used and all
+   ‘TODO’ filled out
+-  The change log will contain a reference to the single SRU process
+   bug, not all bugs fixed by the SRU. However, if there are very
+   important bugs that are deemed worthy of reference they too should be
+   included in the change log.
+-  Major changes should be called out in the SRU template, especially
+   where changed behavior is not backward compatible.
+-  For each release that is proposed to be updated by the SRU a link to
+   the results of the automated tests so that anyone can verify that
+   they have been executed successfully.
+-  Additionally, the SRU bug should be verbose in documenting any manual
+   testing that occurred.
+-  Any architecture specific fixes need to be noted and architecture
+   specific test results included.
+-  Any packaging changes (e.g. a dependency change) need to be stated
 
 .. _qa_process:
 
@@ -129,16 +135,27 @@ QA Process
 Packaging QA
 ~~~~~~~~~~~~
 
-The objective of the separate packaging QA is to test: package
-installation from scratch package upgrades distribution upgrade
+The objective of the separate packaging QA is to test:
+
+-  Package installation from scratch
+-  Package upgrades
+-  Distribution upgrade
 
 The resulting package, with all the changes in place, must undergo and
-pass the following additional QA procedures: Installation from scratch
-in the current distribution: using apt-get Upgrade test from previous
-version of the package. This test must be performed with: apt-get
-install/upgrade Upgrade test from previous distribution to the current
-one. If the current distribution is an LTS one, the upgrade path from
-the previous LTS distro must also be exercised.
+pass the following additional QA procedures:
+
+-  Installation from scratch in the current distribution using:
+
+:literal:`  \`apt-get\``
+
+-  Upgrade test from previous version of the package. This test must be
+   performed with:
+
+:literal:`  \`apt-get `\ \ :literal:`\``
+
+-  Upgrade test from previous distribution to the current one. If the
+   current distribution is an LTS one, the upgrade path from the
+   previous LTS distribution must also be exercised.
 
 .. _qa_tests:
 
