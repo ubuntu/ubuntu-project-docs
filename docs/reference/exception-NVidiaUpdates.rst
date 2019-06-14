@@ -30,20 +30,36 @@ There are 3 levels of supported drivers:
    series.
 -  **Short lived branch**: As opposed to the long lived branch, this
    series provides introduces new features.
+-  **Legacy drivers**: Legacy GPUs are older-generation nVidia GPUs
+   which are no longer supported in the regular nVidia Unified UNIX
+   Graphics Driver. Instead, these GPUs will continue to be supported
+   through special "Legacy GPU" drivers that will be updated
+   periodically to add support for new versions of Linux system
+   components (e.g., new Linux kernels, new versions of the X server,
+   etc). Support timeframe for legacy drivers is documented on `the
+   official nVidia site support
+   page <https://nvidia.custhelp.com/app/answers/detail/a_id/3142>`__
 
-Legacy drivers: Legacy GPUs are older-generation nVidia GPUs which are
-no longer supported in the regular nVidia Unified UNIX Graphics Driver.
-Instead, these GPUs will continue to be supported through special
-"Legacy GPU" drivers that will be updated periodically to add support
-for new versions of Linux system components (e.g., new Linux kernels,
-new versions of the X server, etc). Support timeframe for legacy drivers
-is document on site support page
-https://nvidia.custhelp.com/app/answers/detail/a_id/3142
+The release targeted by the SRU are:
 
-The release targeted by the SRU are: LTS: Long lived branch, Short lived
-branch, Legacy. Non-LTS: Long lived branch, Legacy. Short lived branch
-\*are not\* SRUed to non-lts releases to align the policy on the HWE
-stacks however this decision can be revisited depending on the demand.
+-  **LTS**
+
+   -  
+
+      -  Long lived branch,
+      -  Short lived branch,
+      -  Legacy.
+
+-  **Non-LTS**
+
+   -  
+
+      -  Long lived branch,
+      -  Legacy.
+
+Short lived branch \*are not\* SRUed to non-lts releases to align the
+policy on the HWE stacks however this decision can be revisited
+depending on the demand.
 
 When a new major version of a driver is available and uploaded, the
 versioning and naming scheme of the packages is so that users won’t be
