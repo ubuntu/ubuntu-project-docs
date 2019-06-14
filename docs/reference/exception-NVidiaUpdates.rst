@@ -106,8 +106,9 @@ The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the
 following:
 
--  The SRU should be requested per the StableReleaseUpdates documented
-   process
+-  The SRU should be requested per the
+   `StableReleaseUpdates <https://wiki.ubuntu.com/StableReleaseUpdates>`__
+   documented process
 -  The template at the end of this document should be used and all
    ‘TODO’ filled out
 -  The change log will contain a reference to the single SRU process
@@ -203,11 +204,21 @@ SRU Template
 
    <TODO: Paste in change log entry from nVidia for this version of the driver>
 
-   == Additional notes ==
+.. _additional_notes:
 
-    == References ==
-   nVidia Unix Drivers Archive
-   Full history of the drivers 
-   Support timeframe for legacy drivers
-   What is a legacy GPU
-   nVidia drivers staging PPA
+Additional notes
+----------------
+
+``== References ==``
+
+-  `nVidia Unix Drivers
+   Archive <https://www.nvidia.com/object/unix.html>`__
+-  `Full
+   history <https://www.nvidia.com/object/linux-amd64-display-archive.html>`__
+   of the drivers
+-  `Support timeframe for legacy
+   drivers <https://nvidia.custhelp.com/app/answers/detail/a_id/3142>`__
+-  `What is a legacy
+   GPU <https://www.nvidia.com/object/IO_32667.html>`__
+-  `nVidia drivers staging
+   PPA <https://launchpad.net/~canonical-hwe-team/+archive/ubuntu/intermediate-kernel>`__
