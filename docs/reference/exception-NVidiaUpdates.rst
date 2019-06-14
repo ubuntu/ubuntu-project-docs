@@ -83,19 +83,19 @@ expose them all.
 Release Schedule
 ----------------
 
--  Week 0: New version of a driver released by the vendor
+-  **Week 0**: New version of a driver released by the vendor
 
    -  
 
-      -  Week 1: Packaging (porting patches against new kernel and tool
-         chain)
+      -  **Week 1**: Packaging (porting patches against new kernel and
+         tool chain)
 
-| ``    * Week 2: QA (smoke test, installs, boot, shell comes up)``
-| ``      * Week 3: Upload to the development release``
-| ``    * Week 2: Packaging for stable releases ``
-| ``        * Week 4: QA (Full test suite)``
-| ``          * Week 6: Upload to stable releases (-proposed pocket)``
-| ``            * Week 8: Promotion to the -updates pocket.``
+| ``    * ``\ **``Week 2``**\ ``: QA (smoke test, installs, boot, shell comes up)``
+| ``      * ``\ **``Week 3``**\ ``: Upload to the development release``
+| ``    * ``\ **``Week 2``**\ ``: Packaging for stable releases ``
+| ``        * ``\ **``Week 4``**\ ``: QA (Full test suite)``
+| ``          * ``\ **``Week 6``**\ ``: Upload to stable releases (-proposed pocket)``
+| ``            * ``\ **``Week 8``**\ ``: Promotion to the -updates pocket.``
 
 .. _requesting_the_sru:
 
