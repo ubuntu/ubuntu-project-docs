@@ -57,7 +57,7 @@ The release targeted by the SRU are:
       -  Long lived branch,
       -  Legacy.
 
-Short lived branch **are not** SRUed to non-lts releases to align the
+Short lived branches **are not** SRUed to non-lts releases to align the
 policy on the HWE stacks however this decision can be revisited
 depending on the demand.
 
