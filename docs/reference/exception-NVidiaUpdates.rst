@@ -217,9 +217,9 @@ Additional notes
 Driver Upgrades
 ~~~~~~~~~~~~~~~
 
-If a nVidia driver is updated then all nVidia user space components will
-stop working immediately after the respective package updates as the
-loaded kernel module and the user space components have a version
+If an nVidia driver is updated then all nVidia user space components
+will stop working immediately after the respective package updates as
+the loaded kernel module and the user space components have a version
 mismatch. The consequences are not immediately visible to the user as
 nVidia components in memory are still properly matched and hence still
 work. The real issue is with new processes as for an instance no OpenGL
