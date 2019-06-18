@@ -212,6 +212,25 @@ SRU Template
 Additional notes
 ----------------
 
+.. _driver_upgrades:
+
+Driver Upgrades
+~~~~~~~~~~~~~~~
+
+If a NVIDIA driver is updated then all NVIDIA user space components will
+stop working immediately after the respective package updates as the
+loaded kernel module and the user space components have a version
+mismatch. The consequences are not immediately visible to the user as
+NVIDIA components in memory are still properly matched and hence still
+work. The real issue is with new processes as for an instance no OpenGL
+applications or CUDA workloads can be launched anymore.
+
+The way to fix this is to reboot immediately after an nVidia driver has
+been updated, including for minor version updates.
+
+This particular issue is discussed in `Debian Bug
+889669 <Debian_discussion:_https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=889669>`__
+
 References
 ----------
 
