@@ -52,6 +52,7 @@ In the following cases a stable release update is also applicable as they have a
  * For Long Term Support releases we sometimes want to introduce new features. They must not change the behaviour on existing installations (e. g. entirely new packages are usually fine). If existing software needs to be modified to make use of the new feature, it must be demonstrated that these changes are unintrusive, have a minimal regression potential, and have been tested properly. To avoid regressions on upgrade, any such feature must then also be added to any newer supported Ubuntu release. Once a new feature/package has been introduced, subsequent changes to it are subject to the usual requirements of SRUs to avoid regressions.
  * New versions of commercial software in the Canonical partner archive.
  * '''FTBFS'''(Fails To Build From Source) can also be considered. Please note that in '''main''' the release process ensures that there are no binaries which are not built from a current source. Usually those bugs should only be SRUed in conjunction with another bug fix.
+ * '''Autopkgtest failures''' should also normally be SRUed only in conjunction with other high-priority fixes affecting users at runtime.  As an exception, when an SRU of one package will introduce a regression in the autopkgtests of another package, it is appropriate to do an autopkgtest-only SRU of the other package.
 
 For new upstream versions of packages which provide new features, but don't fix critical bugs, a [[https://help.ubuntu.com/community/UbuntuBackports|backport]] should be requested instead.
 
@@ -67,6 +68,9 @@ For upstreams who have
  * the package has an [[http://packaging.ubuntu.com/html/auto-pkg-test.html|autopkgtest]] to run the tests in an Ubuntu environment against the actual binary packages,
 
 it is also acceptable to upload new microreleases with many bug fixes without individual Launchpad bugs for each of them (~ubuntu-sru will make the final decision). The upstream QA process must be documented/demonstrated and linked from the SRU tracking bug. In other cases where such upstream automatic testing is not available, exceptions must still be approved by at least one member of the Ubuntu Technical Board.
+
+=== When not to upload ===
+Do not upload SRUs for bugs which do not affect users at runtime.  If the bug only manifests on rebuild of the package, the bugfix should preferably be staged somewhere that it can be included in the next SRU of the package instead.  There is a cost to our users (and our mirror network) for downloading updates of packages, which should be balanced against the utility of the update to the user downloading it.
 
 == Procedure ==
 
