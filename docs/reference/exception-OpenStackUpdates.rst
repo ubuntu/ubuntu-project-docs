@@ -10,13 +10,12 @@ Stable Release Updates for OpenStack and the Ubuntu Cloud Archive
 
 The SRU process for !OpenStack and the Ubuntu Cloud Archive follows the
 same process as `Ubuntu Stable Release
-Updates <https://wiki.ubuntu.com/StableReleaseUpdates>`__. Most of the
-points that are highlighted here are covered in further detail in the
-previous link, and are condensed and reiterated here with some additions
-that are specific to the Ubuntu Cloud Archive.
+Updates <https://wiki.ubuntu.com/StableReleaseUpdates>`__. See that page
+for details. This page summarises the process for the cloud archive and
+adds some points that apply specifically to it.
 
-**NOTE**: This process is followed for !OpenStack packages, and
-supporting dependencies including Open vSwitch and Ceph.
+**NOTE**: This process is followed for !OpenStack packages and
+supporting dependencies such as Open vSwitch and Ceph.
 
 .. _package_list:
 
