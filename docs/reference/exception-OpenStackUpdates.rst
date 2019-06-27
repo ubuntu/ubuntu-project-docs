@@ -87,11 +87,15 @@ SRU Expectations
    -  Bugs must be fixed in the following order, when possible:
 
 | ``   1. Upstream in the latest !OpenStack release [1]``
-| ``   1. Then in the corresponding Ubuntu release [2]``
-| ``   1. Then in the corresponding UCA release``
-| ``   1. Then the bug can be fixed in the same order for the prior !OpenStack release (upstream stable first, corresponding Ubuntu release second, and corresponding UCA release third).``
-| ``[1] Landing a fix upstream may not always be possible, for example once the upstream branch is in critical-fix or security-fix only mode, or once it has reached EOL.  See the ``\ ```OpenStack upstream stable branch policy`` <http://docs.openstack.org/project-team-guide/stable-branches.html>`__\ ``, which specifies the various phases of support for stable branches, which are typically supported for 12 to 18 months.  The case where a bug can't be fixed upstream first must be handled with extreme caution, since fixes would be released directly to the corresponding Ubuntu release without having landed upstream first.``
-| ``[2] Landing a fix in a corresponding Ubuntu release may not always be possible, for example once the Ubuntu release has reached EOL and the UCA is still supported.  This case must be handled with extreme caution, since fixes would be released directly to the corresponding UCA without having first landed in the corresponding Ubuntu release, and possibly also without having first landed in the upstream !OpenStack release.``
+| ``   1. The corresponding Ubuntu release [2]``
+| ``   1. The corresponding UCA release``
+| ``   1. The bug can then be fixed in the same order for the prior !OpenStack release:``
+| ``      1. upstream stable``
+| ``      1. corresponding Ubuntu release``
+| ``      1. corresponding UCA release``
+
+| ``[1] /!\ Landing a fix upstream may not always be possible, for example once the upstream branch is in critical-fix or security-fix only mode, or once it has reached EOL.  See the ``\ ```OpenStack upstream stable branch policy`` <http://docs.openstack.org/project-team-guide/stable-branches.html>`__\ ``, which specifies the various phases of support for stable branches, which are typically supported for 12 to 18 months.  The case where a bug can't be fixed upstream first must be handled with extreme caution, since fixes would be released directly to the corresponding Ubuntu release without having landed upstream first.``
+| ``[2] /!\ Landing a fix in a corresponding Ubuntu release may not always be possible, for example once the Ubuntu release has reached EOL and the UCA is still supported.  This case must be handled with extreme caution, since fixes would be released directly to the corresponding UCA without having first landed in the corresponding Ubuntu release, and possibly also without having first landed in the upstream !OpenStack release.``
 
 .. _qa_process:
 
@@ -105,9 +109,10 @@ verification process is followed:
 -  
 
    -  Deployment and base configuration using `OpenStack Charm
-      Testing <launchpad.net/openstack-charm-testing>`__ bundles and
-      charms, using the current set of stable charms configured to
-      consume packages from the proposed pocket of the archive.
+      Testing <https://github.com/openstack-charmers/openstack-charm-testing>`__
+      bundles and charms, using the current set of stable charms
+      configured to consume packages from the proposed pocket of the
+      archive.
 
 -  
 
