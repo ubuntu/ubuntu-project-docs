@@ -200,23 +200,23 @@ Getting Package Source
 Depending on the package and the release, there are different ways to
 download the package source:
 
--  
+-  Core !OpenStack packages are `maintained in git on
+   Launchpad <https://code.launchpad.net/~ubuntu-server-dev/+git>`__.
+   See `OpenStack Core
+   Packages <https://wiki.ubuntu.com/OpenStack/CorePackages>`__ for
+   information on how to work with these repositories.
 
-   -  Core !OpenStack packages are `maintained in git on
-      Launchpad <https://code.launchpad.net/~ubuntu-server-dev/+git>`__.
-      The process for working with these repositories is documented
-      `here <https://wiki.ubuntu.com/OpenStack/CorePackages>`__.
+-  Packages can be retrieved from Launchpad with the \`pull-lp-source\`
+   tool:
 
--  
+   -  
 
-   -  Packages can be retrieved from Launchpad with the pull-lp-source
-      tool:
+      -  \`pull-lp-source [release|version]\` (e.g. \`pull-lp-source
+         python-oslo.messaging bionic\`)
 
-``   * pull-lp-source ``\ \ `` [release|version] (e.g. pull-lp-source python-oslo.messaging bionic)``
+-  Packages can be retrieved from the UCA with the pull-uca-source tool:
 
--  
+   -  
 
-   -  Packages can be retrieved from the UCA with the pull-uca-source
-      tool:
-
-``   * pull-uca-source ``\ \ `` [release|version] (e.g. pull-uca-source python-oslo.messaging queens)``
+      -  \`pull-uca-source [release|version]\` (e.g. \`pull-uca-source
+         python-oslo.messaging queens\`)
