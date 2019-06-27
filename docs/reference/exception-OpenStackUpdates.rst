@@ -79,10 +79,9 @@ SRU Expectations
 
 -  
 
-   -  SRUs must have an accompanying bug with well-documented sections
-      for [Impact], [Test Case], and [Regression Potential]. These
-      sections must contain details as described in the `Ubuntu Stable
-      Release Updates
+   -  An SRU must have an accompanying bug, and that uses a prescribed
+      format (see the `template below <#sru-template>`__). It must
+      contain details as described in the `Ubuntu Stable Release Updates
       procedure <https://wiki.ubuntu.com/StableReleaseUpdates#Procedure>`__.
    -  Bugs must be fixed in the following order, when possible:
 
@@ -134,6 +133,8 @@ system <https://launchpad.net/ubuntu-openstack-ci>`__.
 
 Additionally, any specific test cases covered in SRU bug reports should
 be explicitly tested as well.
+
+<<Anchor(sru-template)>>
 
 .. _sru_template:
 
