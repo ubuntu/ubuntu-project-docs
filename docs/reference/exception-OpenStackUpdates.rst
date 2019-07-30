@@ -153,7 +153,7 @@ SRU Template
 
    [Test Case]
    The following SRU process was followed:
-   https://wiki.ubuntu.com/OpenStackUpdates
+   https://wiki.ubuntu.com/OpenStack/StableReleaseUpdates
 
    In order to avoid regression of existing consumers, the OpenStack team will
    run their continuous integration test against the packages that are in
