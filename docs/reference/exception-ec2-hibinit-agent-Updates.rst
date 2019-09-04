@@ -32,17 +32,16 @@ following will be done:
    functionality (if any) in the new package
 -  the automated testing that the CPC team normally runs against EC2
    images before they are published will be run against the -proposed
-   image
+   image, testing of the image must include:
 
-   -  testing of the image will include VM stop/terminate testing via
-      API or EC2 console to avoid regression of `LP:
-      #1840909 <https://bugs.launchpad.net/ubuntu/+source/ec2-hibinit-agent/+bug/1840909>`__
-
--  the AWS team will be asked to validate
-
-   -  that the new package addresses the issues it is expected to
-      address, and
-   -  that the image passes their internal image validation.
+   -  VM stop/terminate testing via API or EC2 console to avoid
+      regression of `LP:
+      #1840909 <https://bugs.launchpad.net/ubuntu/+source/ec2-hibinit-agent/+bug/1840909>`__;
+      the instance must be responsive to the ACPI powerbutton event and
+      shut down as a result, and
+   -  instance types that include both the XEN and KVM hypervisors for
+      all tests to cover the different underlying platform
+      implementations.
 
 If all the testing indicates that the image containing the new package
 is acceptable, verification will be considered to be done and the the
