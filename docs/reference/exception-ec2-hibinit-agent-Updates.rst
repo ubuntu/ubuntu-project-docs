@@ -57,3 +57,35 @@ exception, instead of individual bug reports for individual bug fixes.
 However, individual bugs may be referenced in the from the changelog but
 each of those bugs will need to independently verified and commented on
 for the SRU to be considered complete.
+
+.. _sru_template:
+
+SRU Template
+------------
+
+::
+
+   == Begin SRU Template ==
+   [Impact]
+   This release contains both bug-fixes and new features and we would like to
+   make sure all of our supported customers have access to these improvements.
+   The notable ones are:
+
+   *** <TODO: list any LP: # included>
+
+   See the changelog entry below for a full list of changes and bugs.
+
+   [Test Case]
+   The following development and SRU process was followed:
+   https://wiki.ubuntu.com/ec2-hibinit-agent-Updates
+
+   The Canonical Public Cloud team will execute their testsuite, which includes ACPI shutdown
+   and hibernation testing under load, against the agent that is in -proposed.  A successful
+   run will be required before the proposed ec2-hibinit-agent can be let into -updates.
+
+   The CPC team will be in charge of attaching a summary of testing to the bug.  CPC team members will not
+   mark ‘verification-done’ until this has happened.
+
+   == End SRU Template ==
+
+   <TODO: Paste in change log entry>
