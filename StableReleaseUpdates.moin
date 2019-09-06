@@ -299,6 +299,9 @@ The source packages fwupd and fwupdate may be uploaded according to the procedur
 === netplan.io ===
 The source package netplan.io may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/NetplanUpdates|netplan updates]]. This stable release exception has been approved by BrianMurray for the SRU team as of 2019-04-01 (no really!).
 
+=== ec2-hibinit-agent ===
+The source package ec2-hibinit-agent may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/ec2-hibinit-agent-Updates|ec2-hibinit-agent updates]].  This stable release exception has been approved by SteveLangasek for the SRU team as of 2019-09-06.
+
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
 
