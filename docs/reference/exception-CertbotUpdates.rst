@@ -112,7 +112,9 @@ SRU Template
 
    [Impact]
 
-   Not directly applicable; see the exception policy document.
+   Not directly applicable; see the exception policy document at https://wiki.ubuntu.com/StableReleaseUpdates/Certbot
+
+   TODO: explain why we need this particular update
 
    [Major Changes]
 
