@@ -118,7 +118,7 @@ SRU Template
 
    [Major Changes]
 
-   TODO
+   TODO: explain what changes users receiving the SRU will experience. In the case of a backport, this should summarize all changes from the version currently available in the stable releases to the uploads being proposed.
 
    [Test Plan]
 
