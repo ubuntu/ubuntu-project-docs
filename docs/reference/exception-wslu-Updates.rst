@@ -1,7 +1,7 @@
-.. _this_document_is_only_a_wip_proposal:
+.. _this_document_is_only_a_proposal:
 
-THIS DOCUMENT IS ONLY A WIP PROPOSAL
-====================================
+THIS DOCUMENT IS ONLY A PROPOSAL
+================================
 
 This document describes the policy for updating the wslu package to new
 upstream versions in a stable, supported distro (including LTS
