@@ -48,6 +48,6 @@ Requesting the SRU
 
 The SRU should be done with a single process bug for this stable release
 exception, instead of individual bug reports for individual bug fixes.
-However, individual bugs may be referenced in the from the changelog but
-each of those bugs will need to independently verified and commented on
-for the SRU to be considered complete.
+However, individual bugs may be referenced in the changelog and each of
+those bugs will need to be independently verified and commented on for
+the SRU to be considered complete.
