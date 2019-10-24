@@ -38,8 +38,6 @@ which fall into any of the following categories:
    contained patches (on best can do base).
 #. Fixes to drivers which are not upstream are accepted directly if they
    fall into the first two categories.
-#. *$DEITY* intervention. Might happen, but very very rarely and will
-   not be explainable.
 
 .. _how_does_the_process_work:
 
