@@ -69,8 +69,11 @@ For upstreams who have
 
 it is also acceptable to upload new microreleases with many bug fixes without individual Launchpad bugs for each of them (~ubuntu-sru will make the final decision). The upstream QA process must be documented/demonstrated and linked from the SRU tracking bug. In other cases where such upstream automatic testing is not available, exceptions must still be approved by at least one member of the Ubuntu Technical Board.
 
-=== When not to upload ===
-Do not upload SRUs for bugs which do not affect users at runtime.  If the bug only manifests on rebuild of the package, the bugfix should preferably be staged somewhere that it can be included in the next SRU of the package instead.  There is a cost to our users (and our mirror network) for downloading updates of packages, which should be balanced against the utility of the update to the user downloading it.
+=== Staging low priority uploads ===
+
+SRUs for bugs which do not affect users at runtime are inappropriate to force users to apply. There is a cost to our users (and our mirror network) for downloading updates of packages, which should be balanced against the utility of the update to the user downloading it.
+
+However, if such an update otherwise complies with SRU policy, it can be staged to be bundled with a future SRU or security update.
 
 == Procedure ==
 
@@ -133,6 +136,23 @@ Do not upload SRUs for bugs which do not affect users at runtime.  If the bug o
  * and address these questions in advance
 }}}
 
+=== Staging an upload ===
+
+See [[#Staging_low_priority_uploads|staging low priority uploads]] for details of SRU policy regarding staged uploads.
+
+To stage an upload, follow the usual process but additionally add a block-proposed-<series> tag to at least one of the SRU bugs together with a comment explaining the reason for the staging.
+
+Staging can also be added retrospectively simply by adding the tag; this can be done at any time before an SRU is released. If you do so, please make sure that a bug comment that explains the reason.
+
+==== Landing an upload blocked by staging ====
+
+In principle the block-proposed-<series> tag should be removed by an SRU team member when accepting a newer upload not planned for further staging. But if they overlook this, it's appropriate for whoever notices it (SRU team, or uploader) to remove the block-proposed-<series> tag with a suitable comment when it no longer applies.
+
+==== Responsibility for SRU verification and cancellation of incomplete verification ====
+
+It is essential to carry out SRU verification on all related bugs as usual as soon as the upload enters the proposed pocket. We do not want to burden a future SRUer with verification of your low priority bug. If timely verification is not performed, then as usual the staged upload is a candidate for deletion, and a future SRUer is quite entitled to base their upload on the version prior to your staged upload instead. If this happens, the future SRU will not include your changes, effectively cancelling the staging.
+
+Since we try to avoid regressing users on upgrade to a new release, it is essential to carry out this SRU verification for every affected bug series task. If you skip verification of one series then staged uploads in all series are candidates for deletion or overriding as above at the discretion of the SRU team.
 
 == Publishing ==
 
@@ -140,8 +160,8 @@ The Stable Release Updates team regularly checks for SRUs that have succesfully 
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
 || Monday || Adam Conrad (infinity), Łukasz Zemczak (sil2100) ||
-|| Tuesday || Brian Murray (bdmurray), Chris Halse Rogers (RAOF) ||
-|| Wednesday || Chris J Arges (arges), Robie Basak (rbasak) ||
+|| Tuesday || Chris Halse Rogers (RAOF), Brian Murray (bdmurray - backup / pings only) ||
+|| Wednesday || Robie Basak (rbasak) ||
 || Thursday || Łukasz Zemczak (sil2100) ||
 || Friday || Timo Aaltonen (tjaalton), Steve Langasek (vorlon - backup) ||
 
@@ -296,11 +316,20 @@ The livecd-rootfs package is a frequent target of SRUs as part of development of
 === fwupd and fwupdate ===
 The source packages fwupd and fwupdate may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/firmware-updates|firmware-updates]]. This stable release exception has been approved by BrianMurray for the SRU team as of 2019-01-15.
 
+=== snapd-glib ===
+The source package snapd-glib may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/SnapdGlibUpdates|snapd-glib updates]]. This stable release exception has been approved by BrianMurray for the SRU team as of 2019-02-19.
+
 === netplan.io ===
 The source package netplan.io may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/NetplanUpdates|netplan updates]]. This stable release exception has been approved by BrianMurray for the SRU team as of 2019-04-01 (no really!).
 
 === ec2-hibinit-agent ===
 The source package ec2-hibinit-agent may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/ec2-hibinit-agent-Updates|ec2-hibinit-agent updates]].  This stable release exception has been approved by SteveLangasek for the SRU team as of 2019-09-06.
+
+=== NVIDIA driver ===
+NVIDIA driver (source packages nvidia-graphics-drivers-*) may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/NVidiaUpdates|NVIDIA updates]]. This stable release exception has been approved by ChrisHalseRogers for the SRU team as of 2019-09-17. 
+
+=== wslu ===
+The wslu package may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/wslu-Updates|wslu Updates]]. This stable release exception has been approved by LukaszZemczak for the SRU team as of 2019-10-24.
 
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
