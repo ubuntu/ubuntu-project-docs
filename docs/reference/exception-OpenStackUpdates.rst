@@ -8,8 +8,8 @@
 Stable Release Updates for OpenStack and the Ubuntu Cloud Archive
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The SRU process for !OpenStack and the Ubuntu Cloud Archive follows the
-same process as `Ubuntu Stable Release
+The SRU process for !OpenStack and the Ubuntu Cloud Archive (UCA)
+follows the same process as `Ubuntu Stable Release
 Updates <https://wiki.ubuntu.com/StableReleaseUpdates>`__. This page
 summarises the process for the cloud archive and adds some points that
 apply specifically to it.
