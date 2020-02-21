@@ -75,6 +75,10 @@ SRUs for bugs which do not affect users at runtime are inappropriate to force us
 
 However, if such an update otherwise complies with SRU policy, it can be staged to be bundled with a future SRU or security update.
 
+=== ESM Uploads ===
+
+There are special procedures for uploads to stable releases in their [[https://ubuntu.com/esm|Extended Security Maintenance (ESM)]] period. Please prepare the [[#srubug|SRU Bug]] then contact [[https://launchpad.net/~markmorlino|Mark Morlino]].
+
 == Procedure ==
 
  1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released".  Equivalently for new upstream releases, this (or a newer) release must be in the development release. It is, in general, not appropriate to release updates for stable systems without first testing them in the current development branch. One exception to this general rule is the case where the development release is not yet open, there can sometimes be a delay between the release of the most recent version of Ubuntu and the opening for development of the next version. Provided they are important enough, stable release updates should not and do not need to wait for the development release to open.
@@ -98,7 +102,7 @@ However, if such an update otherwise complies with SRU policy, it can be staged 
 
  Any regression must '''always''' be documented in a bug report, which must be ''Importance: critical'' once the regression has been confirmed.
 
-=== SRU Bug Template ===
+=== SRU Bug Template<<Anchor(srubug)>> ===
 {{{
 [Impact] 
 
@@ -232,7 +236,7 @@ If a package update introduces a regression which already made it through the ve
 If the regression ''only'' applies to the package in `-proposed`, please follow up to the bug with a detailed explanation, and tag the bug with ``regression-proposed``.
 
 === Testing for Regressions ===
-To minimise the risk of regressions being introduced via a SRU, testing will be perform by Canonical on each proposed kernel.
+To minimise the risk of regressions being introduced via a SRU, testing will be performed by Canonical on each proposed kernel.
 
 Depth Regression testing will be performed by the Ubuntu Platform QA team on minimal set of HW that represents the different flavours of Ubuntu Editions and Architectures. This activity will focus on verifying that hw-independent regressions have not been introduced.
 
