@@ -94,11 +94,10 @@ will run their continuous integration test against the Curtin that is in
 -proposed. A successful run will be required before the proposed Curtin
 can be let into -updates.
 
-For each specific release, MAAS c-i will have a job that tests
-installation of MAAS and Curtin from -proposed of that release. As
-example, there will be a job named 'maas-xenial-proposed' that will be
-run with MAAS and Curtin installed from Xenial with the proposed pocket
-enabled.
+For each LTS release, MAAS c-i will have a job that tests installation
+of MAAS and Curtin from -proposed of that release. As example, there
+will be a job named 'maas-xenial-proposed' that will be run with MAAS
+and Curtin installed from Xenial with the proposed pocket enabled.
 
 MAAS team c-i is publicly available at http://162.213.35.104:8080/ and
 the SRU document will be kept up to date with that link should it
