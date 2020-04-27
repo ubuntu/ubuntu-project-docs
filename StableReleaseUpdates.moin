@@ -102,7 +102,7 @@ There are special procedures for uploads to stable releases in their [[https://u
 
  Any regression must '''always''' be documented in a bug report, which must be ''Importance: critical'' once the regression has been confirmed.
 
-=== SRU Bug Template<<Anchor(srubug)>> ===
+=== SRU Bug Template ===
 {{{
 [Impact] 
 
@@ -163,8 +163,8 @@ Since we try to avoid regressing users on upgrade to a new release, it is essent
 The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done-$RELEASE for the given release) and releases those to the -updates pocket. Having said that, if there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
-|| Monday || Adam Conrad (infinity), Łukasz Zemczak (sil2100) ||
-|| Tuesday || Chris Halse Rogers (RAOF), Brian Murray (bdmurray - backup / pings only) ||
+|| Monday || Łukasz Zemczak (sil2100) ||
+|| Tuesday || Chris Halse Rogers (RAOF), Brian Murray (bdmurray) ||
 || Wednesday || Robie Basak (rbasak) ||
 || Thursday || Łukasz Zemczak (sil2100) ||
 || Friday || Timo Aaltonen (tjaalton), Steve Langasek (vorlon - backup) ||
@@ -334,6 +334,11 @@ NVIDIA driver (source packages nvidia-graphics-drivers-*) may be uploaded accord
 
 === wslu ===
 The wslu package may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/wslu-Updates|wslu Updates]]. This stable release exception has been approved by LukaszZemczak for the SRU team as of 2019-10-24.
+
+=== openjdk-N ===
+
+PROPOSED: Providing OpenJDK short term support releases in the updates pocket, instead of the release pocket to be able to remove those after the support ends. See https://wiki.ubuntu.com/OpenJDK-Updates.
+
 
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
