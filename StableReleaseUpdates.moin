@@ -337,7 +337,7 @@ The wslu package may be uploaded according to the procedure documented in [[http
 
 === openjdk-N ===
 
-PROPOSED: Providing OpenJDK short term support releases in the updates pocket, instead of the release pocket to be able to remove those after the support ends. See https://wiki.ubuntu.com/OpenJDK-Updates.
+We allow providing OpenJDK short term support releases in the updates pocket, instead of the release pocket to be able to remove those after their support ends as documented in [[https://wiki.ubuntu.com/OpenJDK-Updates|OpenJDK Updates]]. This very specific stable release exception has been approved by LukaszZemczak for the SRU team as of 2020-04-30.
 
 
 <<Anchor(Security)>>
