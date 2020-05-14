@@ -146,7 +146,7 @@ See [[#Staging_low_priority_uploads|staging low priority uploads]] for details o
 
 To stage an upload, follow the usual process but additionally add a block-proposed-<series> tag to at least one of the SRU bugs together with a comment explaining the reason for the staging.
 
-Staging can also be added retrospectively simply by adding the tag; this can be done at any time before an SRU is released. If you do so, please make sure that a bug comment that explains the reason.
+Staging can also be added retrospectively simply by adding the tag; this can be done at any time before an SRU is released. If you do so, please make sure that you add a bug comment that explains the reason.
 
 ==== Landing an upload blocked by staging ====
 
@@ -171,9 +171,9 @@ The Stable Release Updates team regularly checks for SRUs that have succesfully 
 
 == Phasing ==
 
-Once an update is released to -updates, the update is then phased so that the update is gradually made available to expanding subsets of Ubuntu users. This process allows us to automatically monitor for regressions and halt the update process if any are found. Complete details about the process can be found in a [[http://www.murraytwins.com/blog/?p=127|blog post by Brian Murray]].
+Once an package is released to -updates, the update is then phased so that the update is gradually made available to expanding subsets of Ubuntu users. This process allows us to automatically monitor for regressions and halt the update process if any are found. Complete details about the process can be found in a [[http://www.murraytwins.com/blog/?p=127|blog post by Brian Murray]].
 
-The Phased-Update-Percentage is initially set to 10%, and a job is run (every 6 hours) that checks for regressions and if none are found the phased update percentage will be incremented by 10%. So an update will become fully phased after 54 hours or about 2 days. In the event that a regression is detected the Phased-Update-Precentage will be set to 0% thereby causing supported package managers not to install the update.
+The Phased-Update-Percentage is initially set to 10%, then a job is run (every 6 hours) that checks for regressions and if none are found the phased update percentage will be incremented by 10%. So an update will become fully phased after 54 hours or about 2 days. In the event that a regression is detected the Phased-Update-Precentage will be set to 0% thereby causing supported package managers (update-manager) not to install the update.
 
 The progress of phased updates is visible in a [[http://people.canonical.com/~ubuntu-archive/phased-updates.html|report]] which is updated by the same job that does the phasing.
 
