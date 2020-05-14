@@ -177,6 +177,14 @@ The Phased-Update-Percentage is initially set to 10%, then a job is run (every 6
 
 The progress of phased updates is visible in a [[http://people.canonical.com/~ubuntu-archive/phased-updates.html|report]] which is updated by the same job that does the phasing.
 
+=== Investigation of Halted Phased Updates ===
+
+Here are some tips on how to utilize the phased updates report to investigate why the phasing has stopped.
+
+When looking at an increased rate of crashes you'll want to look at the crash(es) with the greatest number of occurrences. Then check to see if the crash is occurring more frequently (by examining the Occurrences table) with the updated version of the package. If it is then'll you want to sort out why and address the crash in a follow on SRU. If it isn't then contact the [[https://launchpad.net/~ubuntu-sru|SRU team]] in #ubuntu-release regarding overriding the crash.
+
+When looking at a new error you'll want to confirm that the error is in fact a new one by using the versions table. The phased-updater currently checks if the error has been reported about the version immediately before the current version, so if the previous version wasn't around very long its possible a specific error wasn't reported about it. Additionally, you can check to see if the error is really about the identified package or if it it occurs in an underlying library by looking at the Traceback or Stacktrace e.g. python crashes being reported about a package using python. If you do not believe the error is a new one or was not caused by your stable release update then contact the [[https://launchpad.net/~ubuntu-sru|SRU team]] in #ubuntu-release regarding overriding the crash.
+
 == Verification ==
 
 The [[https://launchpad.net/~sru-verification|SRU verification team]] will regularly check open bugs with the `verification-needed*` tags and test proposed updates on different hardware to check for inadvertent side effects. Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not with other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports.  While not ideal it is also possible for the uploader of the fix to perform the verification of the package in *-proposed, however it must still be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates.
