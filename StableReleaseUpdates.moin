@@ -357,9 +357,9 @@ Some data packages must always be kept in sync between -updates and -security to
 
 The tzdata package is updated to reflect changes in timezones or daylight saving policies. The verification is done with the "zdump" utility. The first timezone that gets changed in the updated package is dumped with "zdump -v $region/$timezone_that_changed" (this needed to be greped for in /usr/share/zoneinfo/). This is compared to the same output after the updated package got installed. If those are different the verification is considered done.
 
-Because tzdata's packaging has changed subtly from release to release, rather than just backporting the most recent release's source package, we just update the upstream tarball instead. You then need to edit debian/changelog to add bug closures, and make sure to use a version number consistent to the previous numbering scheme (e. g. `2012e-0ubuntu0.12.04`).
+Because tzdata's packaging has changed subtly from release to release, rather than just backporting the most recent release's source package, we just update the upstream tarball instead. You then need to edit debian/changelog to add bug closures, and make sure to use a version number consistent to the previous numbering scheme (e. g. `2012e-0ubuntu0.12.04`). Uploads should also be made to any releases supported via ESM.
 
-Due to the potentially disastrous consequences of having localtime differ between systems running -updates and systems running only -security, this package is always kept in sync between the two pockets.
+Due to the potentially disastrous consequences of having localtime differ between systems running -updates and systems running only -security, this package is always kept in sync between the two pockets. However, the package can be built with -updates and then copied from -proposed to -updates and -security after the security team has signed off on the SRU bug e.g. Bug:1878108.
 
 === distro-info-data ===
 
