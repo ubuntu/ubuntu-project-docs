@@ -16,15 +16,20 @@ The mentioned `integration test
 script <https://salsa.debian.org/postfix-team/postfix-dev/-/blob/debian/master/debian/tests/test-postfix.py>`__
 is already included in the Postfix source package.
 
+`Here <https://lists.ubuntu.com/archives/technical-board/2012-May/001266.html>`__
+Postfix exception was added to the old
+*StableReleaseUpdates/MicroReleaseExceptions* wiki page.
+
 Process
 -------
 
-The aim is to include upstream patch level microreleases in supported
-stable releases, specially LTS ones, as soon as they are released. Those
-microreleases include bug fixes reported by users which should improve
-the quality of the package and overall user experience.
+The aim is to be able to include upstream patch level microreleases in
+supported stable releases, specially LTS ones. Those microreleases
+include bug fixes reported by users which should improve the quality of
+the package and overall user experience.
 
-To do this we will, once the upstream patch level microrelease is out:
+To do this we will, once the need to include an upstream microrelease in
+a stable release comes up:
 
 #. File (or find) a bug to cover the upgrade. This bug might be related
    to one of the bugs fixed in the proposed microrelease, or a bug
