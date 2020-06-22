@@ -26,14 +26,29 @@ Process
 This is the mandatory process that the proposed packages have to pass.
 The following requirements must be met:
 
--  Sosreport need to be tested by various team members of Canonical
-   Support team with positive feedbacks.
+-  Sosreport need to be tested by a significant amount of Canonical
+   Support team members with positive and detailed feedbacks.
 -  Sosreport need to be tested on physical hardware, container and
    Virtual Machine
 -  Sosreport need to be tested in different context: cloud, MAAS, JuJu
-   managed,
--  "simple.sh" (A port of the travis tests to bash) need to report no
-   failures.
+   managed, ....
+
+-  For each test above
+
+   -  
+
+      -  Extract archive and look at the content, look for 0 size file
+         (and use common sense if legit or not)
+      -  Look under "sos_reports" for full report.
+      -  Look under "sos_logs" for WARN and/or ERROR
+
+         -  
+
+            -  $ grep -v "INFO:" sos_logs/sos.log
+
+-  Run "simple.sh": A upstream port of the travis tests to bash.
+   Generating various type of sosreport collections (which is part of
+   the autopkgtest (d/test/simple.sh) now.
 
    -  
 
