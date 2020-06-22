@@ -7,11 +7,11 @@ stable supported distro, including LTS. It is also the aim of this
 document to provide an example for any upstream project that wants to
 push updates to an Ubuntu stable release.
 
-Sos is an extensible, portable, support data collection tool primarily
-aimed at Linux distributions and other UNIX-like operating systems. This
-tool is mission critical for Canonical to support UA (Ubuntu Advantage)
-customer, partners and community. Sosreport is also widely used by other
-third party vendors.
+Sosreport is an extensible, portable, support data collection tool
+primarily aimed at Linux distributions and other UNIX-like operating
+systems. This tool is mission critical for Canonical to support UA
+(Ubuntu Advantage) customer, partners and community. Sosreport is also
+widely used by other third party vendors.
 
 -  Upstream reference:
 
@@ -46,7 +46,7 @@ The following requirements must be met:
       -  Validate its content and make sure it is sane
       -  Validate that sosreport obfuscates sensible information for
          plugins instructed to do so (e.g. landscape plugin: should
-         obfuscates password(s) and secret-token from config file, ...)
+         obfuscate password(s) and secret-token from config file, ...)
       -  Check for 0 size file(s) (and use common sense if legit or not)
       -  Look under "sos_reports" for full report.
       -  Look under "sos_logs" for WARN and/or ERROR
@@ -54,7 +54,7 @@ The following requirements must be met:
 | ``   * $ grep -v "INFO:" sos_logs/sos.log``
 | ``   * Look under "sos_logs" for error files (e.g. sos_logs/systemd-plugin-errors.txt).``
 
--  Run "simple.sh": An upstream port of the travis tests to bash.
+-  Run "simple.sh": An upstream port of the Travis tests to bash.
    Generating various type of sosreport collections (which is part of
    the autopkgtest (d/test/simple.sh)) now.
 
