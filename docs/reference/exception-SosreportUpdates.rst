@@ -9,10 +9,13 @@ push updates to an Ubuntu stable release.
 
 Sos is an extensible, portable, support data collection tool primarily
 aimed at Linux distributions and other UNIX-like operating systems. This
-tool is mission critical for Canonical support and other third party
-vendor who offer support.
+tool is mission critical for Canonical to support UA (Ubuntu Advantage)
+customer, partners and community. Sosreport is also widely used by other
+third party vendors.
 
-https://sos.readthedocs.io/en/latest/ http://github.com/sosreport/sos
+https://sos.readthedocs.io/en/latest/
+
+http://github.com/sosreport/sos
 
 Therefore, in addition to bug fixes, new features are allowed in an
 update **as long as the conditions outlined below are met**.
