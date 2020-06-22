@@ -29,7 +29,7 @@ The following requirements must be met:
 
 -  Sosreport needs to be tested by a reasonable amount of Canonical
    Support team members with positive and detailed feedbacks (documented
-   in the LP bug)
+   in an LP bug)
 -  Sosreport needs to be tested on physical hardware, container and
    virtual machine.
 -  Sosreport needs to be tested under various UA customer similar
