@@ -35,7 +35,9 @@ The following requirements must be met:
 -  "simple.sh" (A port of the travis tests to bash) need to report no
    failures.
 
-   -  https://github.com/sosreport/sos/blob/master/tests/simple.sh
+   -  
+
+      -  https://github.com/sosreport/sos/blob/master/tests/simple.sh
 
 .. _requesting_the_sru:
 
