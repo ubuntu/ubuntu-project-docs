@@ -35,24 +35,18 @@ The following requirements must be met:
 
 -  For each test above
 
-   -  
+   -  Extract archive and look at the content, look for 0 size file (and
+      use common sense if legit or not)
+   -  Look under "sos_reports" for full report.
+   -  Look under "sos_logs" for WARN and/or ERROR
 
-      -  Extract archive and look at the content, look for 0 size file
-         (and use common sense if legit or not)
-      -  Look under "sos_reports" for full report.
-      -  Look under "sos_logs" for WARN and/or ERROR
-
-         -  
-
-            -  $ grep -v "INFO:" sos_logs/sos.log
+      -  $ grep -v "INFO:" sos_logs/sos.log
 
 -  Run "simple.sh": A upstream port of the travis tests to bash.
    Generating various type of sosreport collections (which is part of
    the autopkgtest (d/test/simple.sh) now.
 
-   -  
-
-      -  https://github.com/sosreport/sos/blob/master/tests/simple.sh
+   -  https://github.com/sosreport/sos/blob/master/tests/simple.sh
 
 .. _requesting_the_sru:
 
