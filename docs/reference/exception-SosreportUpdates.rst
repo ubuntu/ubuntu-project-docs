@@ -26,19 +26,22 @@ Process
 This is the mandatory process that the proposed packages have to pass.
 The following requirements must be met:
 
--  Sosreport need to be tested by a significant amount of Canonical
+-  Sosreport needs to be tested by a reasonnable amount of Canonical
    Support team members with positive and detailed feedbacks.
--  Sosreport need to be tested on physical hardware, container and
-   Virtual Machine
--  Sosreport need to be tested in different context: cloud, MAAS, JuJu
+-  Sosreport needs to be tested on physical hardware, container and
+   Virtual Machine.
+-  Sosreport needs to be tested under various context: Cloud, MAAS, JuJu
    managed, ....
-
--  Test commonly used parameters : -a, --all-logs, --upload, ...
+-  Sosreport needs to be tested on as much architecture as available to
+   the testers.
+-  Sosreport needs to be test for commonly used parameters : -a,
+   --all-logs, --upload, ...
 
 -  For each test above
 
-   -  Extract archive and look at the content, look for 0 size file (and
-      use common sense if legit or not)
+   -  Make sure sosreport generated an archive under /tmp.
+   -  Extract the archive and look at its content, look for 0 size file
+      (and use common sense if legit or not)
    -  Look under "sos_reports" for full report.
    -  Look under "sos_logs" for WARN and/or ERROR
 
