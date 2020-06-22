@@ -43,7 +43,10 @@ The following requirements must be met:
    -  Make sure sosreport generated an archive under /tmp.
    -  Extract the archive
 
-      -  Check at its content and make sure it is sane.
+      -  Validate its content and make sure it is sane
+      -  Validate that sosreport obfuscates for plugins instructed doing
+         so (e.g. landscape plugin: substitution of password(s) and
+         secret-token from config file)
       -  Check for 0 size file(s) (and use common sense if legit or not)
 
    -  Look under "sos_reports" for full report.
