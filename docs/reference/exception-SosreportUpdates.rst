@@ -13,9 +13,9 @@ tool is mission critical for Canonical to support UA (Ubuntu Advantage)
 customer, partners and community. Sosreport is also widely used by other
 third party vendors.
 
-https://sos.readthedocs.io/en/latest/
-
-http://github.com/sosreport/sos
+-  Upstream reference:
+-  https://sos.readthedocs.io/en/latest/
+-  http://github.com/sosreport/sos
 
 Therefore, in addition to bug fixes, new features are allowed in an
 update **as long as the conditions outlined below are met**.
@@ -26,12 +26,12 @@ Process
 This is the mandatory process that the proposed packages have to pass.
 The following requirements must be met:
 
--  Sosreport needs to be tested by a reasonnable amount of Canonical
+-  Sosreport needs to be tested by a reasonable amount of Canonical
    Support team members with positive and detailed feedbacks.
 -  Sosreport needs to be tested on physical hardware, container and
-   Virtual Machine.
+   virtual machine.
 -  Sosreport needs to be tested under various UA customer similar
-   environment and context: Cloud, Landscape, MAAS, JuJu, ....
+   environment and context: Cloud, Landscape, MAAS, juju, ....
 -  Sosreport needs to be tested on as much architecture as available to
    the testers.
 -  Sosreport needs to be test for commonly used parameters : -a,
@@ -54,7 +54,7 @@ The following requirements must be met:
 
 -  Run "simple.sh": An upstream port of the travis tests to bash.
    Generating various type of sosreport collections (which is part of
-   the autopkgtest (d/test/simple.sh) now.
+   the autopkgtest (d/test/simple.sh)) now.
 
    -  https://github.com/sosreport/sos/blob/master/tests/simple.sh
 
