@@ -40,12 +40,17 @@ The following requirements must be met:
 -  For each test above
 
    -  Make sure sosreport generated an archive under /tmp.
-   -  Extract the archive and look at its content, look for 0 size file
-      (and use common sense if legit or not)
+   -  Extract the archive
+
+      -  Check at its content and make sure it is sane.
+      -  Check for 0 size file(s) (and use common sense if legit or not)
+
    -  Look under "sos_reports" for full report.
    -  Look under "sos_logs" for WARN and/or ERROR
 
       -  $ grep -v "INFO:" sos_logs/sos.log
+      -  Look under "sos_logs" for error files
+         (sos_logs/systemd-plugin-errors.txt).
 
 -  Run "simple.sh": A upstream port of the travis tests to bash.
    Generating various type of sosreport collections (which is part of
