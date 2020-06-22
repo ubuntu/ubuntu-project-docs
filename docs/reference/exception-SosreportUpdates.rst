@@ -30,8 +30,8 @@ The following requirements must be met:
    Support team members with positive and detailed feedbacks.
 -  Sosreport needs to be tested on physical hardware, container and
    Virtual Machine.
--  Sosreport needs to be tested under various context: Cloud, MAAS, JuJu
-   managed, ....
+-  Sosreport needs to be tested under various UA customer context:
+   Cloud, Landscape, MAAS, JuJu, ....
 -  Sosreport needs to be tested on as much architecture as available to
    the testers.
 -  Sosreport needs to be test for commonly used parameters : -a,
