@@ -14,8 +14,9 @@ customer, partners and community. Sosreport is also widely used by other
 third party vendors.
 
 -  Upstream reference:
--  https://sos.readthedocs.io/en/latest/
--  http://github.com/sosreport/sos
+
+   -  https://sos.readthedocs.io/en/latest/
+   -  http://github.com/sosreport/sos
 
 Therefore, in addition to bug fixes, new features are allowed in an
 update **as long as the conditions outlined below are met**.
