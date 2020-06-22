@@ -44,9 +44,9 @@ The following requirements must be met:
    -  Extract the archive
 
       -  Validate its content and make sure it is sane
-      -  Validate that sosreport obfuscates for plugins instructed doing
-         so (e.g. landscape plugin: substitution of password(s) and
-         secret-token from config file)
+      -  Validate that sosreport obfuscates sensible information for
+         plugins instructed to do so (e.g. landscape plugin: should
+         obfuscates password(s) and secret-token from config file, ...)
       -  Check for 0 size file(s) (and use common sense if legit or not)
 
    -  Look under "sos_reports" for full report.
