@@ -48,13 +48,11 @@ The following requirements must be met:
          plugins instructed to do so (e.g. landscape plugin: should
          obfuscates password(s) and secret-token from config file, ...)
       -  Check for 0 size file(s) (and use common sense if legit or not)
+      -  Look under "sos_reports" for full report.
+      -  Look under "sos_logs" for WARN and/or ERROR
 
-   -  Look under "sos_reports" for full report.
-   -  Look under "sos_logs" for WARN and/or ERROR
-
-      -  $ grep -v "INFO:" sos_logs/sos.log
-      -  Look under "sos_logs" for error files (e.g.
-         sos_logs/systemd-plugin-errors.txt).
+| ``   * $ grep -v "INFO:" sos_logs/sos.log``
+| ``   * Look under "sos_logs" for error files (e.g. sos_logs/systemd-plugin-errors.txt).``
 
 -  Run "simple.sh": An upstream port of the travis tests to bash.
    Generating various type of sosreport collections (which is part of
