@@ -33,6 +33,8 @@ The following requirements must be met:
 -  Sosreport need to be tested in different context: cloud, MAAS, JuJu
    managed, ....
 
+-  Test commonly used parameters : -a, --all-logs, --upload, ...
+
 -  For each test above
 
    -  Extract archive and look at the content, look for 0 size file (and
