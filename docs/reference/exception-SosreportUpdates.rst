@@ -52,7 +52,7 @@ The following requirements must be met:
       -  Look under "sos_logs" for error files
          (sos_logs/systemd-plugin-errors.txt).
 
--  Run "simple.sh": A upstream port of the travis tests to bash.
+-  Run "simple.sh": An upstream port of the travis tests to bash.
    Generating various type of sosreport collections (which is part of
    the autopkgtest (d/test/simple.sh) now.
 
