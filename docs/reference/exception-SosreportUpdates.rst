@@ -27,17 +27,16 @@ Process
 This is the mandatory process that the proposed packages have to pass.
 The following requirements must be met:
 
--  Sosreport needs to be tested by a reasonable amount of Canonical
-   Support team members with positive and detailed feedbacks (documented
-   in an LP bug)
--  Sosreport needs to be tested on physical hardware, container and
-   virtual machine.
--  Sosreport needs to be tested under various UA customer similar
-   environment and context: Cloud, Landscape, MAAS, juju, ....
--  Sosreport needs to be tested on as much architecture as available to
-   the testers.
--  Sosreport needs to be test for commonly used parameters : -a,
-   --all-logs, --upload, ...
+-  Sosreport needs to be tested
+
+   -  By a reasonable amount of Canonical Support team members with
+      positive and detailed feedbacks (documented in an LP bug)
+   -  On physical hardware, container and virtual machine.
+   -  Under various UA customer similar environment and context: Cloud,
+      Landscape, MAAS, juju, ....
+   -  On as much architecture as available to the testers.
+   -  For commonly used parameters : -a, --all-logs, --upload, --batch,
+      ...
 
 -  For each test above
 
