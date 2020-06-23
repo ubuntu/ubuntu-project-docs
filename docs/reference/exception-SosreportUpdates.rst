@@ -59,7 +59,13 @@ The following requirements must be met:
 
 -  
 
-   -  Check for 0 size file(s) (and use common sense if legit or not)
+   -  Inspect for 0 size file(s) within the archive and use common sense
+      if legit or not (e.g. command is not found)
+
+``   * find /path_to_sosreport_archive/ -type f -size 0``
+
+-  
+
    -  Look under "sos_reports" for full report.
    -  Look under "sos_logs" for WARN and/or ERROR
 
