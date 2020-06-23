@@ -69,7 +69,7 @@ The following requirements must be met:
    -  Look under "sos_reports" for full report.
    -  Look under "sos_logs" for WARN and/or ERROR
 
-| ``   * $ grep -v "INFO:" sos_logs/sos.log``
+| ``   * grep -v "INFO:" sos_logs/sos.log``
 | ``   * Look under "sos_logs" for error files (e.g. sos_logs/systemd-plugin-errors.txt).``
 
 -  Run "simple.sh": An upstream port of the Travis tests to bash.
