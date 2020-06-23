@@ -40,7 +40,10 @@ The following requirements must be met:
 
 -  For each test above
 
-   -  Make sure sosreport generated an archive under /tmp.
+   -  Make sure sosreport generates an archive under /tmp in the form of
+      "sosreport--2020-06-19-ogwtrgb.tar.xz" with its accompanied md5
+      checksum "sosreport--2020-06-19-ogwtrgb.tar.xz.md5" (The naming
+      pattern may vary depending on the options and versions used)
    -  Extract the archive
 
       -  Validate its content and make sure it is sane
