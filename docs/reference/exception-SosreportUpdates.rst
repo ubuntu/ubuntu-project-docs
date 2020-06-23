@@ -46,7 +46,7 @@ The following requirements must be met:
       pattern may vary depending on the options and versions used)
    -  Extract the archive
 
-      -  Validate its content and make sure it is sane
+      -  Validate its content and make sure it is sane and accurate.
       -  Validate that sosreport obfuscates sensible information for
          plugins instructed to do so (e.g. landscape plugin: should
          obfuscate password(s) and secret-token from config file, ...)
