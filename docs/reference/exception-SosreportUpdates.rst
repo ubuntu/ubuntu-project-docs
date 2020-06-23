@@ -43,9 +43,8 @@ The following requirements must be met:
    -  Make sure sosreport generates an archive under **/tmp** in the
       form of **sosreport--2020-06-19-ogwtrgb.tar.xz** with its
       accompanied md5 checksum
-      **sosreport--2020-06-19-ogwtrgb.tar.xz.md5**
-
-``   Note that the naming pattern may vary depending on the options and versions used.``
+      **sosreport--2020-06-19-ogwtrgb.tar.xz.md5** (Note that the naming
+      pattern may vary depending on the options and versions used.)
 
 -  
 
