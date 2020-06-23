@@ -45,7 +45,7 @@ The following requirements must be met:
       accompanied md5 checksum
       **sosreport--2020-06-19-ogwtrgb.tar.xz.md5**
 
-(The naming pattern may vary depending on the options and versions used)
+``   Note that the naming pattern may vary depending on the options and versions used.``
 
 -  
 
