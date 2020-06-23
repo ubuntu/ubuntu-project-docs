@@ -52,9 +52,9 @@ The following requirements must be met:
 
       -  Validate its content and make sure it is sane and accurate.
       -  Validate that sosreport obfuscates sensible information for
-         plugins instructed to do so
+         plugins instructed to do so such as:
 
-| ``   * landscape plugin: should obfuscate password(s) and secret-token from config file.``
+| ``   * landscape plugin, should obfuscate password(s) and secret-token from config file.``
 | ``   * or any plugins (sos/plugins/) exercising the ``\ **``do_file_sub()``**\ `` method.``
 
 -  
