@@ -9,8 +9,8 @@ push updates to an Ubuntu stable release.
 
 Sosreport is an extensible, portable, support data collection tool
 primarily aimed at Linux distributions and other UNIX-like operating
-systems. This tool is mission critical for Canonical to support UA
-(Ubuntu Advantage) customer, partners and community. Sosreport is also
+systems. This tool **is mission critical for Canonical to support UA
+(Ubuntu Advantage) customer, partners and community**. Sosreport is also
 widely used by other third party vendors.
 
 -  Upstream reference:
@@ -40,10 +40,11 @@ The following requirements must be met:
 
 -  For each test above
 
-   -  Make sure sosreport generates an archive under /tmp in the form of
-      "sosreport--2020-06-19-ogwtrgb.tar.xz" with its accompanied md5
-      checksum "sosreport--2020-06-19-ogwtrgb.tar.xz.md5" (The naming
-      pattern may vary depending on the options and versions used)
+   -  Make sure sosreport generates an archive under **/tmp** in the
+      form of **sosreport--2020-06-19-ogwtrgb.tar.xz** with its
+      accompanied md5 checksum
+      **sosreport--2020-06-19-ogwtrgb.tar.xz.md5** (The naming pattern
+      may vary depending on the options and versions used)
    -  Extract the archive
 
       -  Validate its content and make sure it is sane and accurate.
