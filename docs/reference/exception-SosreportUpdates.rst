@@ -32,8 +32,11 @@ The following requirements must be met:
    -  By a reasonable amount of Canonical Support team members with
       positive and detailed feedbacks (documented in an LP bug)
    -  On physical hardware, container and virtual machine.
-   -  Under various UA customer similar environment and context: Cloud,
-      Landscape, MAAS, juju, ....
+   -  Under various UA customer similar environment and context (for LTS
+      version only, no UA customer has such setup using non-LTS):
+
+      -  Cloud, Landscape, MAAS, juju, ....
+
    -  On as much architecture as available to the testers.
    -  For commonly used parameters : -a, --all-logs, --upload, --batch,
       ...
