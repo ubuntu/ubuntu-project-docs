@@ -87,8 +87,10 @@ The following requirements must be met:
 Example of previous SRU template
 --------------------------------
 
-- v3.5 `LP: #1734983 <https://bugs.launchpad.net/bugs/1734983>`__ - v3.6
-(LP: #1775195) - v3.9 (LP: #1862830) - v3.9.1 (LP: #1884293)
+-  v3.5 `LP: #1734983 <https://bugs.launchpad.net/bugs/1734983>`__
+-  v3.6 (LP: #1775195)
+-  v3.9 (LP: #1862830)
+-  v3.9.1 (LP: #1884293)
 
 .. _requesting_the_sru:
 
