@@ -63,7 +63,8 @@ The following requirements must be met:
 -  
 
    -  Inspect for 0 size file(s) within the archive and use common sense
-      if legit or not (e.g. command is not found)
+      if legit or not (e.g. "command is not found" can be avoided for
+      instance)
 
 ``   * find /path_to_sosreport_archive/ -type f -size 0``
 
