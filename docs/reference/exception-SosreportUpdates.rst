@@ -82,10 +82,10 @@ The following requirements must be met:
 
    -  https://github.com/sosreport/sos/blob/master/tests/simple.sh
 
-.. _example_of_previous_sru_template:
+.. _previous_sosreport_updates_bugssru_template:
 
-Example of previous SRU template
---------------------------------
+Previous sosreport updates bugs/SRU template
+--------------------------------------------
 
 -  v3.5 `(LP: #1734983) <https://bugs.launchpad.net/bugs/1734983>`__
 -  v3.6 `(LP: #1775195) <https://bugs.launchpad.net/bugs/1775195)>`__
