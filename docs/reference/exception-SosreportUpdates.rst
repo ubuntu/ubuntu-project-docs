@@ -87,10 +87,9 @@ The following requirements must be met:
 Previous sosreport updates bugs/SRU template
 --------------------------------------------
 
--  v3.5 `(LP: #1734983) <https://bugs.launchpad.net/bugs/1734983>`__
--  v3.6 `(LP: #1775195) <https://bugs.launchpad.net/bugs/1775195>`__
--  v3.9 `(LP: #1862830) <https://bugs.launchpad.net/bugs/1862830>`__
 -  v3.9.1 `(LP: #1884293) <https://bugs.launchpad.net/bugs/1884293>`__
+-  v3.9 `(LP: #1862830) <https://bugs.launchpad.net/bugs/1862830>`__
+-  v3.6 `(LP: #1775195) <https://bugs.launchpad.net/bugs/1775195>`__
 
 .. _requesting_the_sru:
 
