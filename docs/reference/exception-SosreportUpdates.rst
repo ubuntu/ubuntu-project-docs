@@ -35,7 +35,7 @@ The following requirements must be met:
    -  Under various UA customer similar environment and context (for LTS
       version only, no UA customer has such setup using non-LTS):
 
-      -  Cloud, Landscape, MAAS, juju, ....
+      -  Cloud, Ceph, Landscape, MAAS, JuJu managed environment, ....
 
    -  On as much architecture as available to the testers.
    -  For commonly used parameters : -a, --all-logs, --upload, --batch,
