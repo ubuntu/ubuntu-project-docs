@@ -169,6 +169,8 @@ The Stable Release Updates team regularly checks for SRUs that have succesfully 
 || Thursday || Łukasz Zemczak (sil2100) ||
 || Friday || Timo Aaltonen (tjaalton), Steve Langasek (vorlon - backup) ||
 
+Please note that SRUs will not be published to the -updates pocket on Friday (or Saturday or Sunday).  Any exception will need justification.
+
 == Phasing ==
 
 Once an package is released to -updates, the update is then phased so that the update is gradually made available to expanding subsets of Ubuntu users. This process allows us to automatically monitor for regressions and halt the update process if any are found. Complete details about the process can be found in a [[http://www.murraytwins.com/blog/?p=127|blog post by Brian Murray]].
