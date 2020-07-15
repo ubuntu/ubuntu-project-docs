@@ -151,8 +151,8 @@ Solutions Testing
 Due to the dependency on cloud-init with various other products, the
 solutions testing team will run their continuous integration test
 against the cloud-init that is in -proposed. A successful run for each
-specific release will be required before the proposed cloud-init can be
-let into -updates.
+field-supported LTS release will be required before the proposed
+cloud-init can be let into -updates.
 
 The cloud-init team will be in charge of attaching the artifacts and
 console output of the appropriate run to the bug. cloud-init team
