@@ -3,9 +3,9 @@ and ubuntu-advantage-pro deb packages into a stable supported release.
 
 In order to add Ubuntu Advantage support services to all supported LTS,
 ubuntu-advantage-tools will need to be updated periodically to add
-support for new support services offered on those Ubuntu releases.
-Regular (non-LTS) releases will likely not have many available support
-services so risk is limited on regular releases.
+support for new services offered on those Ubuntu releases. Regular
+(non-LTS) releases will likely not have many available support services,
+so risk is limited on regular releases.
 
 ubuntu-advantage-tools is a python client used to attach machines to
 existing Ubuntu Advantage support contracts and initialize support
@@ -22,12 +22,17 @@ Any services managed by ubuntu-advantage-tools are described in detail
 in ` <https://ubuntu.com/advantage>`__ https://ubuntu.com/advantage
 ` <https://ubuntu.com/advantage>`__ .
 
-The intent of tip of ubuntu-advantage-tools and ubuntu-advantage-pro is
-intended to support all Ubuntu LTS releases from 14.04 (Trusty) through
-20.04 (Focal) out of the box without release-specific changes. The SRU
-process for ubuntu-advantage-tools will target any supported LTS
-releases as well as the most recent supported regular release (e.g.
-19.10 Eoan).
+The `ubuntu-advantage-client
+repository <https://github.com/canonical/ubuntu-advantage-client/>`__ is
+the repository from which all ubuntu-advantage-tools and
+ubuntu-advantage-pro packages are built as well as where CI for the
+project is run.
+
+The intent of the master branch is to support all Ubuntu LTS releases
+from 14.04 (Trusty) through 20.04 (Focal) out of the box without
+release-specific changes. The SRU process for ubuntu-advantage-tools
+will target any supported LTS releases as well as the most recent
+supported regular release (e.g. 19.10 Eoan).
 
 -  
 
@@ -39,10 +44,10 @@ releases as well as the most recent supported regular release (e.g.
 
 One of the big drivers of Ubuntu Advantage support is extended support
 of (14.04) Trusty ubuntu-advantage-tools may also target trusty-updates.
-Since ubuntu-advantage-tools is a primary mechanism for obtaining Ubuntu
-Advantage support services on cloud-images (AWS, Azure), verification is
-required on applicable cloud platforms, Ubuntu Pro images, lxc
-containers and kvm images.
+Since ubuntu-advantage-tools is the primary mechanism for obtaining
+Ubuntu Advantage support services on cloud-images (AWS, Azure),
+verification is required on applicable cloud platforms, Ubuntu Pro
+images, lxc containers and kvm images.
 
 Therefore, the following types of changes are allowed as long as the
 processes outlined below are followed:
@@ -78,15 +83,17 @@ following:
    -  Major changes should be called out in the SRU template, especially
       where changed behavior is not backward compatible.
    -  For each release (e.g. Ubuntu 14.04, Ubuntu 16.04, etc.) that is
-      proposed to be updated by the SRU a link to the results of
-      integration testing for at least the following cloud platforms
-      must be provided:
+      targeted by the SRU, a link to the results of integration testing
+      for at least the following cloud platforms must be provided:
 
-| ``    * Continuous integration test run covering AWS Ubuntu Pro test validation, lxc container, lxc kvm testing``
+| ``    * CI success runs covering the *-proposed version ubuntu-advantage-tools:``
+| ``      - LXD VM and container of all LTS and regular (e.g. Eoan) releases targeted by the SRU.``
+| ``      - EC2 Ubuntu Pro images and standard Canonical cloud images on all LTS releases``
+| ``      - Azure Ubuntu Pro images and standard Canonical cloud images on all LTS releases``
+
 | ``    * Manual test verification of the following:``
-| ``      * ec2 (non-Ubuntu PRO images)``
-| ``      * azure (Ubuntu PRO images)``
-| ``      * azure (non-Ubuntu PRO images)``
+| ``      * LTS to LTS upgrade test of attached machine for all affected LTS``
+| ``      * LTS to LTS upgrade test of unattached machine for all affected LTS``
 | ``      * kvm validation of livepatch enablement on trusty HWE kernels``
 
 -  
@@ -145,13 +152,14 @@ Automated Tests
 ^^^^^^^^^^^^^^^
 
 Results from the automated test cases using the version from proposed,
-against all releases need to be attached. The automated test cases cover
-a variety of cloud-config based scenarios to ensure changes to
-cloud-init do not introduce regressions or unnecessary changes in
-behavior.
+against all LTS releases need to be attached. The automated test cases
+cover a variety of cloud-config based scenarios to ensure changes to
+ubuntu-advantage-tools/pro do not introduce regressions or unnecessary
+changes in behavior.
 
-These tests are run against the LXD and KVM backend today and AWS Ubuntu
-PRO
+These tests are run against the LXD container and KVM, AWS "Ubuntu PRO",
+AWS standard cloud images, Azure "Ubuntu PRO" and Azure standard cloud
+images.
 
 .. _manual_tests:
 
@@ -171,10 +179,8 @@ least each of the following:
       on HWE kernels kvm
    -  upgrade path testing from previous LTS version of
       ubuntu-advantage-tools to current release -proposed pkg
-   -  regular (non-lts) release manual test run or lxd.container and
+   -  regular (non-lts) release manual test run on lxd.container and
       lxd.vm (e.g. eoan)
-   -  azure Canonical cloud image
-   -  azure Ubuntu PRO cloud image
 
 The test case should be developed as a part of each resolved bug or new
 feature. This way testing is straightforward and clear as to what is
