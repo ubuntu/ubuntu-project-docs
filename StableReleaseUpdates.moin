@@ -311,7 +311,7 @@ GNOME has a microrelease exception excepting it from the normal QA requirements 
 The Certbot family of packages can be updated according to the procedures documented in [[/Certbot]]. This stable release exception was [[https://lists.ubuntu.com/archives/ubuntu-release/2017-July/004176.html|discussed]] and subsequently revision 10 of that document was approved by RobieBasak for the SRU team on 2017-08-08.
 
 === cloud-init ===
-The source package cloud-init may be uploaded according to the procedure documented in CloudinitUpdates.  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by BrianMurray for the SRU team as of 2017-10-06.
+The source package cloud-init may be uploaded according to the procedure documented in CloudinitUpdates.  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by BrianMurray for the SRU team as of 2017-10-06 with subsequent updates approved by RobieBasak on 2020-07-15.
 
 === DPDK ===
 
