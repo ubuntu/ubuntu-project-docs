@@ -7,9 +7,9 @@ support for new services offered on those Ubuntu releases. Regular
 (non-LTS) releases will likely not have many available support services,
 so risk is limited on regular releases.
 
-ubuntu-advantage-tools is a python client used to attach machines to
+The ubuntu-advantage-tools is a python client used to attach machines to
 existing Ubuntu Advantage support contracts and initialize support
-services such as livepatch, fips, esm and common criteria EAL2. It a
+services such as livepatch, fips, esm and common criteria EAL2. It is a
 command line interface providing a single point of entry for enabling,
 disabling and maintaining Ubuntu Advantage support services on a single
 machine or cloud instance. It interacts with a backend
@@ -33,14 +33,6 @@ from 14.04 (Trusty) through 20.04 (Focal) out of the box without
 release-specific changes. The SRU process for ubuntu-advantage-tools
 will target any supported LTS releases as well as the most recent
 supported regular release (e.g. 19.10 Eoan).
-
--  
-
-   -  Note::\*\* ubuntu-advantage-pro package is only intended for
-      install on custom cloud "Ubuntu Pro" images, typical Canonical
-      cloud images will \**NOT*\* have this package installed by
-      default. It provides custom 'auto-attach' features for Ubuntu PRO
-      images only and is inert non-PRO cloud images.
 
 One of the big drivers of Ubuntu Advantage support is extended support
 of (14.04) Trusty ubuntu-advantage-tools may also target trusty-updates.
