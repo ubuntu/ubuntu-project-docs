@@ -12,12 +12,31 @@ installed.
 
 They follow the naming scheme \`oem-\*-meta\`.
 
+Possible situation that need update meta package and then SRU it.
+
+-  kernel flavour change
+-  add modaliases per customer request.
+-  modification due to spec change. (the way installer need it, etc)
+
 .. _sru_bug_template:
 
 SRU Bug template
 ================
 
 XXX to be filled in
+
+Background:
+
+Which situation this update match?
+
+[ Impact ]
+
+#. Upgrade path: Due to user will go real meta via previous bootstrap
+   meta,
+
+| ``   we don't need to worry about cases that user upgrade from old version.``
+| ``2. The background and impact of the situation for this change, and it's``
+| ``   impact. ``
 
 [ Testing ]
 
@@ -26,6 +45,10 @@ XXX to be filled in
 
 | ``2. Test that fully installing the meta-package (upgrading to the OEM archive if relevant) works properly on the  hardware``
 | ``3. (when this is ready in Ubuntu) Do an offline install. Boot the system. Run update-manager. Check that an upgrade to the OEM package is offered and that it completes successfully and the hardware works properly.``
+
+[Regression Potential]
+
+TBD
 
 Procedure
 =========
