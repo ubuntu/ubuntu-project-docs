@@ -23,11 +23,9 @@ Possible situation that need update meta package and then SRU it.
 SRU Bug template
 ================
 
-XXX to be filled in
+[ Background ]
 
-Background:
-
-Which situation this update match?
+Which situation this update match? Related information or reference.
 
 [ Impact ]
 
@@ -48,7 +46,8 @@ Which situation this update match?
 
 [Regression Potential]
 
-TBD
+| ``The real potential regression will live in the package set that will be installed via dependency of this package, which live in oem archive and control by OEM team. Given that, there are almost no regress potential.``
+| ``OEM team and other corresponding team need take responsibility of those dependency installed.``
 
 Procedure
 =========
