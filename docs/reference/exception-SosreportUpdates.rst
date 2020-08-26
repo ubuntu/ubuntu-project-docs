@@ -46,6 +46,8 @@ The following requirements must be met:
 sos report
 ~~~~~~~~~~
 
+sos report is now used to generate sosreport tarballs
+
 -  
 
    -  Make sure sosreport generates an archive under **/tmp** in the
@@ -92,6 +94,10 @@ sos report
 sos clean
 ~~~~~~~~~
 
+sos clean, also available as sos mask, is a newly added sub-command in
+this release and is an implementation of the standalone soscleaner
+project.
+
 $ sos clean
 
 -  Make sure it generates a default_mapping file inside
@@ -111,6 +117,10 @@ share
 
 sos collect
 ~~~~~~~~~~~
+
+sos collect is a new sub command in this release, and is an integration
+of the standalone sos-collector project, with the aim being to collect
+sosreports from multiple systems simultaneously.
 
 .. _previous_sosreport_updates_bugs:
 
