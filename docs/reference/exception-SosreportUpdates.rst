@@ -41,7 +41,12 @@ The following requirements must be met:
    -  For commonly used parameters : -a, --all-logs, --upload, --batch,
       ...
 
--  For each test above
+.. _sos_report:
+
+sos report
+~~~~~~~~~~
+
+-  
 
    -  Make sure sosreport generates an archive under **/tmp** in the
       form of **sosreport--2020-06-19-ogwtrgb.tar.xz** with its
@@ -81,6 +86,31 @@ The following requirements must be met:
    the autopkgtest (d/test/simple.sh)) now.
 
    -  https://github.com/sosreport/sos/blob/master/tests/simple.sh
+
+.. _sos_clean:
+
+sos clean
+~~~~~~~~~
+
+$ sos clean
+
+-  Make sure it generates a default_mapping file inside
+   /etc/sos/cleaner/ (at first run)
+
+-  Make sure it produces the following files:
+
+sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz ## Tarball with
+sensitive information obfuscated (e.g. Ready to share with 3rd party
+vendor) sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz.md5 ##
+Tarball accompanied md5 checksum
+sosreport-host0-2020-08-26-eywxccq-private_map ## Private do not share
+sosreport-sosfocal-2020-08-26-eywxccq-obfuscation.log ## Private do not
+share
+
+.. _sos_collect:
+
+sos collect
+~~~~~~~~~~~
 
 .. _previous_sosreport_updates_bugs:
 
