@@ -118,7 +118,7 @@ $ sos clean
 
       -  sosreport-host0-2020-08-26-eywxccq-private_map
 
-   -  Private do not share:
+   -  sos clean execution logs (Not to share, keep it private):
 
       -  sosreport--2020-08-26-eywxccq-obfuscation.log
 
