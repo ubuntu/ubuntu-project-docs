@@ -105,13 +105,15 @@ $ sos clean
 
 -  Make sure it produces the following files:
 
-sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz ## Tarball with
-sensitive information obfuscated (e.g. Ready to share with 3rd party
-vendor) sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz.md5 ##
-Tarball accompanied md5 checksum
-sosreport-host0-2020-08-26-eywxccq-private_map ## Private do not share
-sosreport-sosfocal-2020-08-26-eywxccq-obfuscation.log ## Private do not
-share
+   -  sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz ## Tarball
+      with sensitive information obfuscated (e.g. Ready to share with
+      3rd party vendor)
+   -  sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz.md5 ##
+      Tarball accompanied md5 checksum
+   -  sosreport-host0-2020-08-26-eywxccq-private_map ## Private do not
+      share
+   -  sosreport--2020-08-26-eywxccq-obfuscation.log ## Private do not
+      share
 
 .. _sos_collect:
 
