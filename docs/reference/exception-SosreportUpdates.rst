@@ -87,6 +87,8 @@ The following requirements must be met:
 Previous sosreport updates bugs
 -------------------------------
 
+-  v4.0 `(LP:
+   #1892275) <https://bugs.launchpad.net/ubuntu/+source/sosreport/+bug/1892275>`__
 -  v3.9.1 `(LP: #1884293) <https://bugs.launchpad.net/bugs/1884293>`__
 -  v3.9 `(LP: #1862830) <https://bugs.launchpad.net/bugs/1862830>`__
 -  v3.6 `(LP: #1775195) <https://bugs.launchpad.net/bugs/1775195>`__
