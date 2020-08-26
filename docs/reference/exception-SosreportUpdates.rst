@@ -100,21 +100,11 @@ project.
 
 $ sos clean
 
----- /!\\ **Edit conflict - other version:** ----
-
 -  Make sure it generates a default_mapping file inside
    /etc/sos/cleaner/ (at first run)
 
 -  Make sure it produces the following files:
 
----- /!\\ **Edit conflict - your version:** ----
-
--  Make sure it generates a default_mapping file inside
-   /etc/sos/cleaner/ (at first run)
-
--  Make sure it produces the following files:
-
----- /!\\ **End of edit conflict** ----
 sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz ## Tarball with
 sensitive information obfuscated (e.g. Ready to share with 3rd party
 vendor) sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz.md5 ##
