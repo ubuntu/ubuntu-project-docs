@@ -25,14 +25,13 @@ SRU Bug template
 
 [ Background ]
 
-Which situation this update match? Related information or reference.
+Why are we making this update?
 
 [ Impact ]
 
-#. Upgrade path: Due to user will go real meta via previous bootstrap
-   meta,
+#. Upgrade path: Users will be upgrading from a package in the
+   associated OEM archive, not the Ubuntu archive.
 
-| ``   we don't need to worry about cases that user upgrade from old version.``
 | ``2. The background and impact of the situation for this change, and it's``
 | ``   impact. ``
 
@@ -44,10 +43,16 @@ Which situation this update match? Related information or reference.
 | ``2. Test that fully installing the meta-package (upgrading to the OEM archive if relevant) works properly on the  hardware``
 | ``3. (when this is ready in Ubuntu) Do an offline install. Boot the system. Run update-manager. Check that an upgrade to the OEM package is offered and that it completes successfully and the hardware works properly.``
 
-[Regression Potential]
+[ Regression Potential ]
 
-| ``The real potential regression will live in the package set that will be installed via dependency of this package, which live in oem archive and control by OEM team. Given that, there are almost no regress potential.``
-| ``OEM team and other corresponding team need take responsibility of those dependency installed.``
+Most potential regressions will live in the package set that will be
+installed via dependency of this package, which live in OEM archive
+(outside of Ubuntu) and control by OEM team. OEM team and other
+corresponding team need take responsibility of those dependency
+installed.
+
+[When switching kernel flavour] Check that the new kernel flavour works
+on the target platform.
 
 Procedure
 =========
