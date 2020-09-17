@@ -21,6 +21,20 @@ policy:
    plus the direct dependencies in
    `sdk <https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/master/elements/sdk>`__\ ”.
 
+Microrelease updates to gnome-shell are at risk of regressing packages
+providing gnome-shell extensions as we discovered in the case of `LP:
+#1892245 <https://bugs.launchpad.net/ubuntu/+source/gnome-shell-extension-dash-to-panel/+bug/1892245>`__.
+Going forward, the SRU team would like to see suitable mitigations for
+this type of regression before publishing gnome-shell microrelease
+updates, such as through thorough testing of reverse dependencies.
+
+Vala is not considered part of GNOME for the purposes of micro release
+updates. Regardless of this, the Vala situation is special as it’s
+generally necessary to also rebuild reverse build dependencies for a
+Vala SRU to have any effect. If Vala microrelease updates are desired,
+this will need to be justified and requested independently (whether as a
+one-off or a standing documented case).
+
 References:
 
 -  https://lists.ubuntu.com/archives/technical-board/2012-June/001327.html
