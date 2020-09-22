@@ -77,7 +77,7 @@ However, if such an update otherwise complies with SRU policy, it can be staged 
 
 === ESM Uploads ===
 
-There are special procedures for uploads to stable releases in their [[https://ubuntu.com/esm|Extended Security Maintenance (ESM)]] period. Please prepare the [[#srubug|SRU Bug]] then contact [[https://launchpad.net/~markmorlino|Mark Morlino]].
+There are special procedures for uploads to stable releases in their [[https://ubuntu.com/esm|Extended Security Maintenance (ESM)]] period. Please prepare the [[#srubug|SRU Bug]] then contact [[https://launchpad.net/~ubuntu-esm-team|the ESM team]].
 
 == Procedure ==
 
