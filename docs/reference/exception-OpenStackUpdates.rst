@@ -55,6 +55,7 @@ Supporting packages
 
    -  ceph
    -  openvswitch
+   -  ovn
 
 .. _sru_expectations:
 
