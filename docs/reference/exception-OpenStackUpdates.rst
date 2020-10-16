@@ -44,6 +44,8 @@ OpenStack packages
    -  neutron-fwaas
    -  neutron-vpnaas
    -  nova
+   -  octavia
+   -  placement
    -  swift
 
 .. _supporting_packages:
