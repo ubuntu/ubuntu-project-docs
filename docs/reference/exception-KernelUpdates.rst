@@ -69,13 +69,14 @@ How does the process work?
    long as that is appropriate for upstream stable).
 
    -  For fixes for serious issues, the patch should be sent the the
-      kernel-team mailing list in parallel to being submitted upstream.
-      SRU patches submitted for inclusion into an Ubuntu kernel require
-      ACK's from at least two senior Ubuntu kernel-team members before
-      being applied to an Ubuntu kernel tree. Again, even when going
-      into an Ubuntu kernel tree on an accelerated path, the patch
-      should also be submitted upstream. Ubuntu Kernel SRU patch
-      submission format is loosely as follows:
+      `kernel-team mailing list <mailto:kernel-team@lists.ubuntu.com>`__
+      in parallel to being submitted upstream. SRU patches submitted for
+      inclusion into an Ubuntu kernel require ACK's from at least two
+      senior Ubuntu kernel-team members before being applied to an
+      Ubuntu kernel tree. Again, even when going into an Ubuntu kernel
+      tree on an accelerated path, the patch should also be submitted
+      upstream. Ubuntu Kernel SRU patch submission format is loosely as
+      follows:
 
 | ``   To: kernel-team@lists.ubuntu.com``
 | ``   Subject: [``\ \ ``] SRU: ``\ 
