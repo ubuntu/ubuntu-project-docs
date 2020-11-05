@@ -90,7 +90,7 @@ There are special procedures for uploads to stable releases in their [[https://u
  1. Update the bug report '''description''' and make sure it contains the following information:
   1. An explanation of the bug on users and justification for backporting the fix to the stable release.  This may be preceded with an '''[Impact]''' header, but this is not required.  In addition, it is helpful, but not required, to include an explanation of how the upload fixes this bug.
   1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
-  1. A '''[Regression Potential]''' section with a discussion of how regressions are most likely to manifest, or may manifest even if it is unlikely, as a result of this change.  It is assumed that any SRU candidate patch is well-tested before upload and has a low overall risk of regression, but it's important to make the effort to think about what ''could'' happen in the event of a regression. In the case of new upstream releases, link to the upstream QA procedure/documentation. This both shows the SRU team that the risks have been considered, and provides guidance to testers of what to watch out for when testing for regressions in the SRU.  If this section is None it is grounds for rejection, consider Bug:1590321 which is an example of a simple fix with a legitimate Regression Potential.
+  1. A '''[Where problems could occur]''' section which highlights areas where regressions ''might'' happen. It is assumed that uploaders believe their changes are as risk free as possible, but this section is for demonstrating that some thought has been given to "expecting the unexpected". This section goes along with the Test Case section: while that one is for testing the specific bug being fixed in the upload, here is a place to give any additonal test cases to help to ensure that there are no regressions in the update. Think "what if this change is wrong? How would that show up?" Bug:1590321 is an example of a simple fix with a legitimate regression analysis.
 
  1. Prepare the upload, attach a debdiff to the bug, and [[SponsorshipProcess|request sponsorship]] by subscribing 'ubuntu-sponsors' to the bug. The upload must have the correct ''release'' in the changelog header, a detailed and user-readable changelog, and no other unrelated changes.  If you can upload to the archive directly, use dput as normal. There is no need to wait before uploading. After upload, the bug status should be changed to '''In Progress''', once accepted into ''release''-proposed, the status will be automatically changed to '''Fix Committed'''. Also, make sure that:
   1. The version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging|security policy document]] has a well-working scheme which can be used for SRUs.)
@@ -121,14 +121,18 @@ There are special procedures for uploads to stable releases in their [[https://u
    package to reproduce the bug and verify that the updated package fixes
    the problem.
 
-[Regression Potential] 
+[Where problems could occur]
 
- * discussion of how regressions are most likely to manifest as a result of this change. 
+ * Think about what the upload changes in the software. Imagine the change is
+   wrong or breaks something else: how would this show up?
 
  * It is assumed that any SRU candidate patch is well-tested before
    upload and has a low overall risk of regression, but it's important
    to make the effort to think about what ''could'' happen in the
    event of a regression.
+
+ * This must '''never''' be "None" or "Low", or entirely an argument as to why
+   your upload is low risk.
 
  * This both shows the SRU team that the risks have been considered,
    and provides guidance to testers in regression-testing the SRU.
@@ -364,6 +368,20 @@ Some data packages must always be kept in sync between -updates and -security to
 === tzdata ===
 
 The tzdata package is updated to reflect changes in timezones or daylight saving policies. The verification is done with the "zdump" utility. The first timezone that gets changed in the updated package is dumped with "zdump -v $region/$timezone_that_changed" (you can find the region and timezone name by grep'ing for it in /usr/share/zoneinfo/). This is compared to the same output after the updated package was installed. If those are different the verification is considered done.
+
+The version of tzdata in Ubuntu 20.04 LTS and Ubuntu 20.10 includes icu-data and the verification of it can be done after installing the python3-icu package.
+
+{{{
+python3 -c "from datetime import datetime; from icu import ICUtzinfo, TimeZone; tz = ICUtzinfo(TimeZone.createTimeZone('Pacific/Fiji')); print(str(tz.utcoffset(datetime(2020, 11, 10))))"
+}}}
+
+In the above we are checking a timezone with a change, "Pacific/Fifi", and a date that falls with in the changing period. We expect the output to be different before (13:00:00) and after (12:00:00) the SRU is installed.
+
+The version of tzdata in Ubuntu 20.10 removed supported for SystemV timezones, however SRUs of tzdata to Ubuntu 20.04 LTS and earlier releases should still include the SystemV timezones. To test that they are still available confirm the following command returns nothing.
+
+{{{
+diff <(zdump -v America/Phoenix | cut -d' ' -f2-) <(zdump -v SystemV/MST7 | cut -d' ' -f2-)
+}}}
 
 Because tzdata's packaging has changed subtly from release to release, rather than just backporting the most recent release's source package, we just update the upstream tarball instead. You then need to edit debian/changelog to add bug closures, and make sure to use a version number consistent to the previous numbering scheme (e. g. `2012e-0ubuntu0.12.04`). Uploads should also be made to any releases supported via ESM.
 
