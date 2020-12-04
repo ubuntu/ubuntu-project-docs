@@ -150,6 +150,7 @@ SRU Template
    [Impact]
    This release sports mostly bug-fixes and we would like to make sure all of our
    users have access to these improvements.
+
    The update contains the following package updates:
 
    *** <TODO: Create list with package names and versions>
