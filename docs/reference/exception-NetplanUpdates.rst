@@ -141,7 +141,7 @@ SRU Template
    output of the appropriate run to the bug.  Netplan team members will not
    mark ‘verification-done’ until this has happened.
 
-   [Regression Potential]
+   [Where problems could occur]
    In order to mitigate the regression potential, the results of the
    aforementioned integration tests are attached to this bug.
 
