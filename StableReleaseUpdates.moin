@@ -113,13 +113,16 @@ There are special procedures for uploads to stable releases in their [[https://u
  * In addition, it is helpful, but not required, to include an
    explanation of how the upload fixes this bug.
 
-[Test Case]
+[Test Plan]
 
  * detailed instructions how to reproduce the bug
 
  * these should allow someone who is not familiar with the affected
    package to reproduce the bug and verify that the updated package fixes
    the problem.
+
+ * if other testing is appropriate to perform before landing this update,
+   this should also be described here.
 
 [Where problems could occur]
 
