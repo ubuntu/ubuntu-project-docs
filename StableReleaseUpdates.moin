@@ -451,6 +451,7 @@ Previous Removals:
  * [[https://lists.ubuntu.com/archives/ubuntu-devel/2007-September/024453.html|tor]] (was reintroduced later on in [[https://launchpad.net/bugs/413657|#413657]])
  * [[https://bugs.launchpad.net/ubuntu/+source/bitcoin/+bug/1314616|bitcoin]]
  * [[https://launchpad.net/bugs/1384355|owncloud]]
+ * [[https://launchpad.net/bugs/1895643|jsunit and tinyjsd]] (more context in [[https://discourse.ubuntu.com/t/thunderbird-lts-update/20819|this post]])
 
 == Toolchain Updates ==
 
