@@ -41,7 +41,7 @@ Why are we making this update?
    relevant hardware
 
 | ``2. Test that fully installing the meta-package (upgrading to the OEM archive if relevant) works properly on the  hardware``
-| ``3. (when this is ready in Ubuntu) Do an offline install. Boot the system. Run update-manager. Check that an upgrade to the OEM package is offered and that it completes successfully and the hardware works properly.``
+| ``3. Do an offline install. Boot the system. Run update-manager. Check that an upgrade to the OEM package is offered and that it completes successfully and the hardware works properly.``
 
 [ Regression Potential ]
 
