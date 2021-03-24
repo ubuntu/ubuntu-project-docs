@@ -126,7 +126,7 @@ SRU Template
 
    See the changelog entry below for a full list of changes and bugs.
 
-   [Test Case]
+   [Test Plan]
    The following development and SRU process was followed:
    https://wiki.ubuntu.com/NetplanUpdates
 
@@ -147,7 +147,7 @@ SRU Template
 
    <TODO: attach test artifacts for every SRU release, not a link as links expire>
 
-   [Discussion]
+   [Other Info]
    <TODO: other background>
 
    [Changelog]
