@@ -101,7 +101,7 @@ following:
 QA Process
 ----------
 
-``  ubuntu-advantage-client repo has a suite of automated CI tests that cover AWS Pro, lxc container and kvm images and exercise the bulk of features functionality delivered on trusty, xenial, bionic and focal. CI runs both tip of master against daily cloudimages and against any ``\ `````\  <ua-client_active_pull_request>`__\ ```https://github.com/canonical/ubuntu-advantage-client/pulls`` <https://github.com/canonical/ubuntu-advantage-client/pulls>`__\ `\ ```` <ua-client_active_pull_request>`__\ `` before merging.  Additional manual missing manual verification will be attached to each SRU process bug.``
+``  ubuntu-advantage-client repo has a suite of automated integration tests that cover AWS Pro, lxc container and kvm images and exercise the bulk of features functionality delivered on trusty, xenial, bionic and focal. CI runs both tip of master against daily cloudimages and against any ``\ `````\  <ua-client_active_pull_request>`__\ ```https://github.com/canonical/ubuntu-advantage-client/pulls`` <https://github.com/canonical/ubuntu-advantage-client/pulls>`__\ `\ ```` <ua-client_active_pull_request>`__\ `` before merging.  Additional manual missing manual verification will be attached to each SRU process bug.``
 
 Merges
 ~~~~~~
@@ -209,16 +209,20 @@ SRU Template
    members will not mark ‘verification-done’ until this has happened.
 
    * Automated Test Results
-   <TODO: attach or link automated CI run lxd.container platform for ubuntu-advantage-tools each LTS release>
-   <TODO: attach or link automated CI run lxd.vm platform for ubuntu-advantage-tools each LTS release>
+   <TODO>
+   Attach or link the following automated integration test runs for ubuntu-advantage-tools on each affected LTS release:
 
-   <TODO: attach or link automated CI run AWS Ubuntu PRO for ubuntu-advantage-tools for each LTS release>
-   <TODO: attach or link automated CI run AWS generic (non-PRO)for ubuntu-advantage-tools for each LTS release>
-   <TODO: attach or link automated CI run Azure Ubuntu PRO for ubuntu-advantage-tools for each LTS release>
-   <TODO: attach or link automated CI run Azure generic (non-PRO)for ubuntu-advantage-tools for each LTS release>
-   <TODO: attach or link automated CI run GCP Ubuntu PRO for ubuntu-advantage-tools for each LTS release>
-   <TODO: attach or link automated CI run GCP generic (non-PRO)for ubuntu-advantage-tools for each LTS release>
+   - lxd.container platform
+   - lxd.kvm platform
+   - AWS Ubuntu PRO
+   - AWS Ubuntu cloud-images (non-Pro)
 
+   - Azure Ubuntu PRO
+   - Azure Ubuntu cloud-images (non-Pro)
+
+   - GCP Ubuntu PRO
+   - GCP Ubuntu cloud-images (non-Pro)
+   </TODO>
 
    * Manual Test Results
    If trusty targeted:
