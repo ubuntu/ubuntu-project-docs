@@ -211,16 +211,21 @@ SRU Template
    * Automated Test Results
    <TODO: attach or link automated CI run lxd.container platform for ubuntu-advantage-tools each LTS release>
    <TODO: attach or link automated CI run lxd.vm platform for ubuntu-advantage-tools each LTS release>
-   <TODO: attach or link automated CI run AWS Ubuntu PRO for ubuntu-advantage-toolsfor each LTS release>
+
+   <TODO: attach or link automated CI run AWS Ubuntu PRO for ubuntu-advantage-tools for each LTS release>
+   <TODO: attach or link automated CI run AWS generic (non-PRO)for ubuntu-advantage-tools for each LTS release>
+   <TODO: attach or link automated CI run Azure Ubuntu PRO for ubuntu-advantage-tools for each LTS release>
+   <TODO: attach or link automated CI run Azure generic (non-PRO)for ubuntu-advantage-tools for each LTS release>
+   <TODO: attach or link automated CI run GCP Ubuntu PRO for ubuntu-advantage-tools for each LTS release>
+   <TODO: attach or link automated CI run GCP generic (non-PRO)for ubuntu-advantage-tools for each LTS release>
+
 
    * Manual Test Results
    If trusty targeted:
       <TODO: attach manual livepatch enablement on HWE kernels for trusty> 
    For all SRUs:
    <TODO: attach manual upgrade path test from previous LTS to current -proposed release>
-   <TODO: attach manual AWS Canonical cloud image (non-PRO) integration test run>
-   <TODO: attach manual Azure Ubuntu Pro integration test run> 
-   <TODO: attach manual Azure Canonical cloud image (non-PRO) integration test run> 
+
 
    [Regression Potential]
    In order to mitigate the regression potential, the results of the
