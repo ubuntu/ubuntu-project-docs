@@ -237,7 +237,7 @@ Depending on the package and the release, there are different ways to
 download the package source:
 
 -  Core !OpenStack packages are `maintained in git on
-   Launchpad <https://code.launchpad.net/~ubuntu-server-dev/+git>`__.
+   Launchpad <https://code.launchpad.net/~ubuntu-openstack-dev/+git>`__.
    See `OpenStack Core
    Packages <https://wiki.ubuntu.com/OpenStack/CorePackages>`__ for
    information on how to work with these repositories.
