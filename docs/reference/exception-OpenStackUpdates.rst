@@ -186,8 +186,8 @@ Nominating a Bug for a Series
 A sponsor can be asked to nominate a bug for a particular series. You
 can find the following sponsors in #ubuntu-server on freenode:
 
--  To target an Ubuntu series: coreycb, jamespage
--  To target an Ubuntu Cloud Archive series: coreycb, jamespage,
+-  To target an Ubuntu series: coreycb, jamespage, icey
+-  To target an Ubuntu Cloud Archive series: coreycb, jamespage, icey,
    dosaboy, wolsen
 
 Getting permission to target a bug for a series:
