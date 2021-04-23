@@ -198,6 +198,36 @@ Getting permission to target a bug for a series:
    you must be a member of:
    https://launchpad.net/~ubuntu-cloud-archive-bugs
 
+.. _nominating_a_new_package_for_an_sru_exception:
+
+Nominating a new package for an SRU Exception
+---------------------------------------------
+
+To propose adding a new package to this exception, you should send an
+email to ubuntu-releae@lists.ubuntu.com that requests inclusion for the
+named package, as well as a justification of why it can be included. For
+example:
+
+<<Anchor(new-exception-template)>>
+
+::
+
+   == Begin Exception Template ==
+   Subject: Request New OpenStack SRU Exception for Heat
+
+   Hello SRU Team,
+
+   I'd like to request that Heat be included in the OpenStack SRU Exception list at https://wiki.ubuntu.com/OpenStack/StableReleaseUpdates.
+
+   Heat is the orchestration project in OpenStack.
+
+   Heat is already included in our regression testing and is validated via Tempest smoke tests.
+
+   Thanks,
+   Me
+
+   == End Exception Template ==
+
 .. _getting_package_source:
 
 Getting Package Source
