@@ -37,6 +37,7 @@ OpenStack packages
    -  glance
    -  gnocchi
    -  heat
+   -  heat-dashboard
    -  horizon
    -  keystone
    -  neutron
