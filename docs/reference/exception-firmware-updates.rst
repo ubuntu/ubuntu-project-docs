@@ -35,7 +35,7 @@ updates on safe combinations.
 
 OEMs can add the following to their metadata:
 
-``   ``\ \ ``com.redhat.fwupdate``\ 
+``   ``\ \ ``org.freedesktop.fwupd``\ 
 
 .. _what_can_be_srued:
 
