@@ -41,10 +41,10 @@ The following requirements must be met:
    -  For commonly used parameters : -a, --all-logs, --upload, --batch,
       ...
 
-.. _sos_report:
+.. _sos_report___collect_and_package_diagnostic_and_support_data:
 
-sos report
-~~~~~~~~~~
+sos report - Collect and package diagnostic and support data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 sos report is now used to generate sosreport tarballs
 
@@ -52,9 +52,10 @@ sos report is now used to generate sosreport tarballs
 
    -  Make sure sosreport generates an archive under **/tmp** in the
       form of **sosreport--2020-06-19-ogwtrgb.tar.xz** with its
-      accompanied md5 checksum
-      **sosreport--2020-06-19-ogwtrgb.tar.xz.md5** (Note that the naming
-      pattern may vary depending on the options and versions used.)
+      accompanied sha256 checksum
+      **sosreport--2020-06-19-ogwtrgb.tar.xz.sha256** (Note that the
+      naming pattern may vary depending on the options and versions
+      used.)
 
 -  
 
@@ -89,16 +90,19 @@ sos report is now used to generate sosreport tarballs
 
    -  https://github.com/sosreport/sos/blob/master/tests/simple.sh
 
-.. _sos_clean:
+.. _sos_clean___obfuscate_sensitive_data_from_one_or_more_sosreports:
 
-sos clean
-~~~~~~~~~
+sos clean - Obfuscate sensitive data from one or more sosreports
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 sos clean, also available as sos mask, is a newly added sub-command in
 this release and is an implementation of the standalone soscleaner
 project.
 
 $ sos clean
+
+It can obfuscate: keywords, username, hostname, domain, ip & mac
+addresses.
 
 -  Make sure it generates a default_mapping file inside
    /etc/sos/cleaner/ (at first run)
@@ -110,9 +114,9 @@ $ sos clean
 
       -  sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz
 
-   -  Tarball accompanied md5 checksum:
+   -  Tarball accompanied sha256 checksum:
 
-      -  sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz.md5
+      -  sosreport-host0-2020-08-26-eywxccq-obfuscated.tar.xz.sha256
 
    -  Private mapping file (Not to share, keep it private):
 
@@ -122,10 +126,10 @@ $ sos clean
 
       -  sosreport--2020-08-26-eywxccq-obfuscation.log
 
-.. _sos_collect:
+.. _sos_collect___collect_sosreports_from_multiple_cluster_nodes:
 
-sos collect
-~~~~~~~~~~~
+sos collect - Collect sosreports from multiple (cluster) nodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 sos collect is a new sub command in this release, and is an integration
 of the standalone sos-collector project, with the aim being to collect
