@@ -50,8 +50,8 @@ sos report is now used to generate sosreport tarballs
 
 -  
 
-   -  Make sure sosreport generates an archive under **/tmp** in the
-      form of **sosreport--2020-06-19-ogwtrgb.tar.xz** with its
+   -  Make sure sosreport generates an archive under **/tmp**\ [0] in
+      the form of **sosreport--2020-06-19-ogwtrgb.tar.xz** with its
       accompanied sha256 checksum
       **sosreport--2020-06-19-ogwtrgb.tar.xz.sha256** (Note that the
       naming pattern may vary depending on the options and versions
@@ -89,6 +89,23 @@ sos report is now used to generate sosreport tarballs
    the autopkgtest (d/test/simple.sh)) now.
 
    -  https://github.com/sosreport/sos/blob/master/tests/simple.sh
+
+[0] Debian/Ubuntu systemd implementation doesn't have a tmpfiles-clean
+directive to clean /var/tmp (/var/tmp being the default location for sos
+upstream.
+
+Debian systemd (tmpfiles.d/tmp.conf):
+
+#. Clear tmp directories separately, to make them easier to override
+
+D /tmp 1777 root root -
+
+#. q /var/tmp 1777 root root 30d
+
+For that reasons, Debian/Ubuntu intentionally differ to /tmp in order to
+have tmpfiles-clean directive under /tmp and prevent to full /var/tmp.
+This could be re-evaluated if Debian changes the directive in the future
+`debbugs#966621 <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=966621>`__
 
 .. _sos_clean___obfuscate_sensitive_data_from_one_or_more_sosreports:
 
