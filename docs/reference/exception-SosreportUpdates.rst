@@ -94,13 +94,15 @@ sos report is now used to generate sosreport tarballs
 directive to clean /var/tmp (/var/tmp being the default location for sos
 upstream.
 
-Debian systemd (tmpfiles.d/tmp.conf):
+Debian systemd (tmpfiles.d/tmp.conf): '''
 
 #. Clear tmp directories separately, to make them easier to override
 
 D /tmp 1777 root root -
 
 #. q /var/tmp 1777 root root 30d
+
+'''
 
 For that reasons, Debian/Ubuntu intentionally differ to /tmp in order to
 have tmpfiles-clean directive under /tmp and prevent to full /var/tmp.
