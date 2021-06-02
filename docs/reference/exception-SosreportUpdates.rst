@@ -105,7 +105,7 @@ Debian systemd (tmpfiles.d/tmp.conf):
 For that reasons, Debian/Ubuntu intentionally differ to /tmp in order to
 have tmpfiles-clean directive under /tmp and prevent to full /var/tmp.
 This could be re-evaluated if Debian changes the directive in the future
-`debbugs#966621 <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=966621>`__
+`systemd/debbugs#966621 <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=966621>`__
 
 .. _sos_clean___obfuscate_sensitive_data_from_one_or_more_sosreports:
 
