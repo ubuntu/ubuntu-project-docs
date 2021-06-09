@@ -103,7 +103,7 @@ Merges
 ~~~~~~
 
 Updates to tip of
-`ubuntu-advantage-tools:master <https://github.com/canonical/ubuntu-advantage-client/tree/master>`__
+`ubuntu-advantage-tools:main <https://github.com/canonical/ubuntu-advantage-client/tree/main>`__
 go through the following process:
 
 -  
@@ -126,54 +126,6 @@ For each package generated a successful completion of
 ubuntu-advantage-tools integration tests, as described above in
 https://wiki.ubuntu.com/UbuntuAdvantageToolsUpdates#Requesting_the_SRU,
 using the proposed package with no unexplained errors or failures
-
-.. _integration_tests:
-
-Integration Tests
-~~~~~~~~~~~~~~~~~
-
-Integration testing involves two seperate sections: automated and
-manual.
-
-.. _automated_tests:
-
-Automated Tests
-^^^^^^^^^^^^^^^
-
-Results from the automated test cases using the version from proposed,
-against all LTS releases need to be attached. The automated test cases
-cover a variety of cloud-config based scenarios to ensure changes to
-ubuntu-advantage-tools/pro do not introduce regressions or unnecessary
-changes in behavior.
-
-These tests are run against the LXD container and KVM, AWS "Ubuntu PRO",
-AWS standard cloud images, Azure "Ubuntu PRO" and Azure standard cloud
-images.
-
-.. _manual_tests:
-
-Manual Tests
-^^^^^^^^^^^^
-
-Integration testing involves taking the proposed version of
-ubuntu-advantage-tools and running it against a specific test case.
-Integration testing needs to take place across all updated releases and
-a variety of supported platforms. Releases tested should involve all
-releases expected to be updated. Supported platforms must contain at
-least each of the following:
-
--  
-
-   -  for Trusty-targeted SRUs: kvm-based livepatch enablement on Trusty
-      on HWE kernels kvm
-   -  upgrade path testing from previous LTS version of
-      ubuntu-advantage-tools to current release -proposed pkg
-   -  regular (non-lts) release manual test run on lxd.container and
-      lxd.vm (e.g. eoan)
-
-The test case should be developed as a part of each resolved bug or new
-feature. This way testing is straightforward and clear as to what is
-expected to work.
 
 The ubuntu-advantage-tools team (Canonical's Ubuntu Server team) will be
 in charge of attaching the artifacts and console output of the
