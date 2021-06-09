@@ -123,8 +123,9 @@ The following describes the requirements for each package generated for
 the SRU.
 
 For each package generated a successful completion of
-ubuntu-advantage-tools integration tests, as described below, using the
-proposed package with no unexplained errors or failures
+ubuntu-advantage-tools integration tests, as described above in
+https://wiki.ubuntu.com/UbuntuAdvantageToolsUpdates#Requesting_the_SRU,
+using the proposed package with no unexplained errors or failures
 
 .. _integration_tests:
 
