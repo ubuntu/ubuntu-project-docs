@@ -28,16 +28,14 @@ the repository from which all ubuntu-advantage-tools and
 ubuntu-advantage-pro packages are built as well as where CI for the
 project is run.
 
-The intent of the master branch is to support all Ubuntu LTS releases
-from 14.04 (Trusty) through 20.04 (Focal) out of the box without
-release-specific changes. The SRU process for ubuntu-advantage-tools
-will target any supported LTS releases as well as the most recent
-supported regular release (e.g. 19.10 Eoan).
+The intent of the master branch is to support all Ubuntu releases from
+16.04 (Xenial) through devel out of the box without release-specific
+changes, though functionality is limited on non-LTS releases. The SRU
+process for ubuntu-advantage-tools will target any supported LTS
+releases as well as the most recent supported regular release.
 
-One of the big drivers of Ubuntu Advantage support is extended support
-of (14.04) Trusty ubuntu-advantage-tools may also target trusty-updates.
 Since ubuntu-advantage-tools is the primary mechanism for obtaining
-Ubuntu Advantage support services on cloud-images (AWS, Azure),
+Ubuntu Advantage support services on cloud-images (AWS, Azure, GCP),
 verification is required on applicable cloud platforms, Ubuntu Pro
 images, lxc containers and kvm images.
 
@@ -74,19 +72,17 @@ following:
       be included in the change log.
    -  Major changes should be called out in the SRU template, especially
       where changed behavior is not backward compatible.
-   -  For each release (e.g. Ubuntu 14.04, Ubuntu 16.04, etc.) that is
-      targeted by the SRU, a link to the results of integration testing
-      for at least the following cloud platforms must be provided:
+   -  For each release (e.g. Ubuntu 16.04, 18.04 etc.) that is targeted
+      by the SRU, a link to the results of integration testing for at
+      least the following cloud platforms must be provided:
 
 | ``    * CI success runs covering the *-proposed version ubuntu-advantage-tools:``
-| ``      - LXD VM and container of all LTS and regular (e.g. Eoan) releases targeted by the SRU.``
-| ``      - EC2 Ubuntu Pro images and standard Canonical cloud images on all LTS releases``
-| ``      - Azure Ubuntu Pro images and standard Canonical cloud images on all LTS releases``
-
-| ``    * Manual test verification of the following:``
+| ``      * LXD VM and container of all LTS and regular (e.g. Eoan) releases targeted by the SRU.``
+| ``      * EC2 Ubuntu Pro images and standard Canonical cloud images on all LTS releases``
+| ``      * Azure Ubuntu Pro images and standard Canonical cloud images on all LTS releases``
+| ``      * GCP Ubuntu Pro images and standard Canonical cloud images on all LTS releases``
 | ``      * LTS to LTS upgrade test of attached machine for all affected LTS``
 | ``      * LTS to LTS upgrade test of unattached machine for all affected LTS``
-| ``      * kvm validation of livepatch enablement on trusty HWE kernels``
 
 -  
 
