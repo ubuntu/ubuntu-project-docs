@@ -173,13 +173,6 @@ SRU Template
    - GCP Ubuntu cloud-images (non-Pro)
    </TODO>
 
-   * Manual Test Results
-   If trusty targeted:
-      <TODO: attach manual livepatch enablement on HWE kernels for trusty> 
-   For all SRUs:
-   <TODO: attach manual upgrade path test from previous LTS to current -proposed release>
-
-
    [Regression Potential]
    In order to mitigate the regression potential, the results of the
    aforementioned integration tests are attached to this bug.
