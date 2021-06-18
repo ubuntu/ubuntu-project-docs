@@ -208,7 +208,7 @@ If they discover that your fix is insufficient, or the test case is not sufficie
 The SRU verification team may also discover that your fix is good.  They will:
 
  1. Modify the 'verification-needed-$RELEASE' tag to a 'verification-done-$RELEASE' tag on the bug report where $RELEASE is the release name of the upload you have tested e.g. `verification-done-precise`. The tag global `verification-needed` should be left on the bug until all release tasks have been verified.
- 1. Describe the general steps taken to verify the package, and any special difficulties.
+ 1. Describe the general steps taken to verify the package (and any special difficulties) in a comment on the bug.
 
 Verification feedback from bug reporters and subscribers is greatly appreciated, too, especially if the update is hardware specific. In this case we consider an update as verified if it has at least two positive, no negative testimonials in the bug report, and the verification team just checks whether the new version still works for the main use cases (to check for major regressions).
 
@@ -356,7 +356,7 @@ The source package netplan.io may be uploaded according to the procedure documen
 The source package ec2-hibinit-agent may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/ec2-hibinit-agent-Updates|ec2-hibinit-agent updates]].  This stable release exception has been approved by SteveLangasek for the SRU team as of 2019-09-06.
 
 === NVIDIA driver ===
-NVIDIA driver (source packages nvidia-graphics-drivers-*) may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/NVidiaUpdates|NVIDIA updates]]. This stable release exception has been approved by ChrisHalseRogers for the SRU team as of 2019-09-17. 
+NVIDIA driver (source packages nvidia-graphics-drivers-*, nvidia-settings, fabric-manager-*, libnvidia-nscq-*) may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/NVidiaUpdates|NVIDIA updates]]. This stable release exception has been approved by ChrisHalseRogers for the SRU team as of 2019-09-17. 
 
 === wslu ===
 The wslu package may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/wslu-Updates|wslu Updates]]. This stable release exception has been approved by LukaszZemczak for the SRU team as of 2019-10-24.
