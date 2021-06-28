@@ -89,8 +89,8 @@ There are special procedures for uploads to stable releases in their [[https://u
 
  1. Update the bug report '''description''' and make sure it contains the following information:
   1. An explanation of the bug on users and justification for backporting the fix to the stable release.  This may be preceded with an '''[Impact]''' header, but this is not required.  In addition, it is helpful, but not required, to include an explanation of how the upload fixes this bug.
-  1. A '''[Test Case]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
-  1. A '''[Where problems could occur]''' section which highlights areas where regressions ''might'' happen. It is assumed that uploaders believe their changes are as risk free as possible, but this section is for demonstrating that some thought has been given to "expecting the unexpected". This section goes along with the Test Case section: while that one is for testing the specific bug being fixed in the upload, here is a place to give any additonal test cases to help to ensure that there are no regressions in the update. Think "what if this change is wrong? How would that show up?" Bug:1590321 is an example of a simple fix with a legitimate regression analysis.
+  1. A '''[Test Plan]''' section with detailed '''instructions''' how to reproduce the bug. These should allow someone who is not familiar with the affected package to reproduce the bug and verify that the updated package fixes the problem.
+  1. A '''[Where problems could occur]''' section which highlights areas where regressions ''might'' happen. It is assumed that uploaders believe their changes are as risk free as possible, but this section is for demonstrating that some thought has been given to "expecting the unexpected". This section goes along with the Test Plan section: while that one is for testing the specific bug being fixed in the upload, here is a place to give any additional test cases to help to ensure that there are no regressions in the update. Think "what if this change is wrong? How would that show up?" Bug:1590321 is an example of a simple fix with a legitimate regression analysis.
 
  1. Prepare the upload, attach a debdiff to the bug, and [[SponsorshipProcess|request sponsorship]] by subscribing 'ubuntu-sponsors' to the bug. The upload must have the correct ''release'' in the changelog header, a detailed and user-readable changelog, and no other unrelated changes.  If you can upload to the archive directly, use dput as normal. There is no need to wait before uploading. After upload, the bug status should be changed to '''In Progress''', once accepted into ''release''-proposed, the status will be automatically changed to '''Fix Committed'''. Also, make sure that:
   1. The version number does not conflict with any later and future version in other Ubuntu releases (the [[https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging|security policy document]] has a well-working scheme which can be used for SRUs.)
@@ -410,7 +410,7 @@ Many tools behave drastically differently based on the contents of ubuntu.csv in
 This package should be updated as soon as possible after the new release's name is known. If only the adjective is known, it should be updated even with this partial information (use XANIMAL for the animal where X is the first letter of the adjective). The aging requirement is not applied for releasing to -updates / -security. A tracking bug is still required for SRUs. Verification is still required. The testing section should contain:
 
 {{{
-[ Test Case ]
+[ Test Plan ]
   
 Verify that the following subcommands of `distro-info` print information about the new devel and current stable releases:
   
