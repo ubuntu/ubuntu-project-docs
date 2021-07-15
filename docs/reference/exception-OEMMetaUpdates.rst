@@ -1,8 +1,3 @@
-PROPOSAL
-========
-
-NOT APPROVED YET, BEING DRAFTED.
-
 Introduction
 ============
 
