@@ -27,8 +27,7 @@ Why are we making this update?
 #. Upgrade path: Users will be upgrading from a package in the
    associated OEM archive, not the Ubuntu archive.
 
-| ``2. The background and impact of the situation for this change, and it's``
-| ``   impact. ``
+``2. The background and impact of the situation for this change, and it's impact.``
 
 [ Testing ]
 
