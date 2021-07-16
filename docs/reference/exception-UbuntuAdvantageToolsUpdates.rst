@@ -86,8 +86,8 @@ following:
 
 -  
 
-   -  Any architecture specific fixes need to be noted and architecture
-      specific test results included
+   -  Any architecture-specific fixes need to be noted and
+      architecture-specific test results included
    -  Any packaging changes (e.g. a dependency change) need to be stated
    -  If any manual testing occurs it should also be documented with a
       comment and attached manual logs
