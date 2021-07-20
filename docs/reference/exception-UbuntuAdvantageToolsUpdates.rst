@@ -152,7 +152,7 @@ SRU Template
 
    [Test Case]
    The following development and SRU process was followed:
-   https://wiki.ubuntu.com/UbuntuAdvantageToolsUpdate
+   https://wiki.ubuntu.com/UbuntuAdvantageToolsUpdates
 
    The ubuntu-advantage-tools team will be in charge of attaching the artifacts and
    console output of the appropriate run to the bug.  ubuntu-advantage-tools team
