@@ -372,6 +372,9 @@ The postfix source package may be uploaded according to the procedure documented
 === sosreport ===
 The source package sosreport may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/SosreportUpdates|sosreport updates]]. This stable release exception has been approved by LukaszZemczak for the SRU team as of 2020-06-25.
 
+=== oem-*-meta ===
+Source packages of the form oem-*-meta may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/StableReleaseUpdates/OEMMeta|OEMMeta]]. This stable release exception has been approved by AndyWhitcroft for the SRU team as of 2021-07-15.  New packages are acceptable under the same exception.
+
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
 
