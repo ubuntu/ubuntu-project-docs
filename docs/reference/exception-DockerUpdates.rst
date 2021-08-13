@@ -41,3 +41,14 @@ https://insights.ubuntu.com/2016/04/13/stephane-graber-lxd-2-0-docker-in-lxd-712
 
 This QA should happen both for the -proposed -> -release migration in
 the devel series and again as part of the SRU verification.
+
+.. _record_of_regressions:
+
+Record of regressions
+---------------------
+
+According to `LP:
+#1939106 <https://bugs.launchpad.net/ubuntu/+source/docker.io/+bug/1939106>`__,
+upstream removed support for the aufs storage driver. This broke users
+in August 2021, but this breakage was explicitly permitted by this
+policy as it was written at the time.
