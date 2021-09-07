@@ -51,4 +51,7 @@ According to `LP:
 #1939106 <https://bugs.launchpad.net/ubuntu/+source/docker.io/+bug/1939106>`__,
 upstream removed support for the aufs storage driver. This broke users
 in August 2021, but this breakage was explicitly permitted by this
-policy as it was written at the time.
+policy as it was written at the time. The deprecation notice was stated
+in Docker Engine 18.09 see
+https://docs.docker.com/engine/release-notes/18.09/#deprecation-notices
+(2019-09-03).
