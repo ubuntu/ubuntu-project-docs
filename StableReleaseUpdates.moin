@@ -472,10 +472,10 @@ Phasing of Stable Release Updates: http://people.canonical.com/~ubuntu-archive/p
 
 == Reviewing procedure and tools ==
 
-If you are a member of the [[https://launchpad.net/~ubuntu-sru|SRU reviewing team]], you should check out the [[https://code.launchpad.net/~ubuntu-archive/ubuntu-archive-tools/trunk/|ubuntu-archive-tools]] scripts with
+If you are a member of the [[https://launchpad.net/~ubuntu-sru|SRU reviewing team]], you should check out the [[https://launchpad.net/ubuntu-archive-tools|ubuntu-archive-tools]] scripts with
 
  {{{
- bzr branch lp:ubuntu-archive-tools
+ git clone https://git.launchpad.net/ubuntu-archive-tools
  }}}
 
 which greatly simplify the reviewing procedure. You should symlink `sru-review` and `sru-accept` somewhere to your `~/bin/` directory for easy access, or put the checkout into your `$PATH`.
