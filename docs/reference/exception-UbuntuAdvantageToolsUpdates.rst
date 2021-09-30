@@ -98,7 +98,7 @@ following:
 QA Process
 ----------
 
-``  ubuntu-advantage-client repo has a suite of automated integration tests that cover AWS Pro, lxc container and kvm images and exercise the bulk of features functionality delivered on trusty, xenial, bionic and focal. CI runs both tip of master against daily cloudimages and against any ``\ `````\  <ua-client_active_pull_request>`__\ ```https://github.com/canonical/ubuntu-advantage-client/pulls`` <https://github.com/canonical/ubuntu-advantage-client/pulls>`__\ `\ ```` <ua-client_active_pull_request>`__\ `` before merging.  Additional manual missing manual verification will be attached to each SRU process bug.``
+``  ubuntu-advantage-client repo has a suite of automated integration tests that cover AWS Pro, lxc container and kvm images and exercise the bulk of features functionality delivered on trusty, xenial, bionic and focal. CI runs both tip of main against daily cloudimages and against any ``\ `````\  <ua-client_active_pull_request>`__\ ```https://github.com/canonical/ubuntu-advantage-client/pulls`` <https://github.com/canonical/ubuntu-advantage-client/pulls>`__\ `\ ```` <ua-client_active_pull_request>`__\ `` before merging.  Additional manual missing manual verification will be attached to each SRU process bug.``
 
 Merges
 ~~~~~~
