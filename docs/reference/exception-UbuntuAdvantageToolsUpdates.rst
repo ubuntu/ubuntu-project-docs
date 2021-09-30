@@ -28,7 +28,7 @@ the repository from which all ubuntu-advantage-tools and
 ubuntu-advantage-pro packages are built as well as where CI for the
 project is run.
 
-The intent of the master branch is to support all Ubuntu releases from
+The intent of the main branch is to support all Ubuntu releases from
 16.04 (Xenial) through devel out of the box without release-specific
 changes, though functionality is limited on non-LTS releases. The SRU
 process for ubuntu-advantage-tools will target any supported LTS
