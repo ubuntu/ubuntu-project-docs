@@ -204,7 +204,7 @@ Nominating a new package for an SRU Exception
 ---------------------------------------------
 
 To propose adding a new package to this exception, you should send an
-email to ubuntu-releae@lists.ubuntu.com that requests inclusion for the
+email to ubuntu-release@lists.ubuntu.com that requests inclusion for the
 named package, as well as a justification of why it can be included. For
 example:
 
