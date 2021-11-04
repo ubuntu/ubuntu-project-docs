@@ -157,6 +157,7 @@ sosreports from multiple systems simultaneously.
 Previous sosreport updates bugs
 -------------------------------
 
+-  v4.2 `(LP: #1941745) <https://bugs.launchpad.net/bugs/1941745>`__
 -  v4.1 `(LP: #1917894) <https://bugs.launchpad.net/bugs/1917894>`__
 -  v4.0 `(LP: #1892275) <https://bugs.launchpad.net/bugs/1892275>`__
 -  v3.9.1 `(LP: #1884293) <https://bugs.launchpad.net/bugs/1884293>`__
