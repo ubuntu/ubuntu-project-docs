@@ -31,6 +31,12 @@ The following requirements must be met:
 
    -  By a reasonable amount of Canonical Support team members with
       positive and detailed feedbacks (documented in an LP bug)
+   -  Should be tested with Canonical internal tooling such as:
+
+``   * ``\ ```https://github.com/canonical/hotsos`` <https://github.com/canonical/hotsos>`__
+
+-  
+
    -  On physical hardware, container and virtual machine.
    -  Under various UA customer similar environment and context (for LTS
       version only, no UA customer has such setup using non-LTS):
