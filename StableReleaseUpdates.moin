@@ -79,9 +79,37 @@ However, if such an update otherwise complies with SRU policy, it can be staged 
 
 There are special procedures for uploads to stable releases in their [[https://ubuntu.com/esm|Extended Security Maintenance (ESM)]] period. Please prepare the [[#srubug|SRU Bug]] then contact [[https://launchpad.net/~ubuntu-esm-team|the ESM team]].
 
+<<Anchor(GeneralRequirements)>>
+== General Requirements ==
+
+=== Development Release Fixed First ===
+
+If a stable release is fixed but the development release is not, then after the development release becomes a stable release, users upgrading would face an unexpected regression. Therefore, it is a general requirement that the development release is fixed before fixes are backported to the stable releases. Equivalently for new upstream releases, this (or a newer) release must be in the development release.
+
+It is also, in general, not appropriate to release updates for stable systems without first testing them in the current development branch.
+
+One exception to this general rule is the case where the development release is not yet open. There can sometimes be a delay between the release of the most recent version of Ubuntu and the opening for development of the next version. Provided they are important enough, stable release updates should not and do not need to wait for the development release to open.
+
+=== Newer Releases ===
+
+If a bug is being fixed in a particular stable release, we would like for all subsequent releases that are still supported to also be fixed at the same time. This is to prevent a user from facing a regression when they upgrade to a newer release.
+
+Exceptions:
+
+ 1. When there are two subsequent interim releases
+
+    If there are two subsequent interim releases that are both current, then, as a compromise, additionally fixing only the most recent one is acceptable. Rationale: a user facing this class of regression will at least have an upgrade path available to them that fixes it.
+
+ 2. When you don't want to fix a subsequent interim release at all
+
+    We recognise that making it a hard requirement to fix all subsequent interim releases would mandate more work, and that a team may not have the resources available to fix and verify (say) an LTS as well as a subsequent interim release that has fewer users. We wouldn't want to block a fix from landing at all, so we are not making it a hard requirement that subsequent interim releases be fixed.
+
+   However, we strongly recommend that subsequent interim releases be fixed, and it is our expectation that normally uploaders will ensure this. If you are unable to do this, then please: 1) create and mark bug tasks against the subsequent affected releases "Won't Fix"; and 2) explicitly state in the bug that you are deliberately seeking to fix a release without fixing the subsquent releases. An SRU team member may then accept your upload at their discretion and on a case-by-case basis. If this is not done, then uploaders should expect an SRU review round trip while your intentions are clarified.
+
+
 == Procedure ==
 
- 1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released".  Equivalently for new upstream releases, this (or a newer) release must be in the development release. It is, in general, not appropriate to release updates for stable systems without first testing them in the current development branch. One exception to this general rule is the case where the development release is not yet open, there can sometimes be a delay between the release of the most recent version of Ubuntu and the opening for development of the next version. Provided they are important enough, stable release updates should not and do not need to wait for the development release to open.
+ 1. Check that the bug is fixed in the current development release, and that its bug task is "Fix Released". See [[#GeneralRequirements|General Requirements]] above for special cases.
   * Also keep in mind that certain packages can change source package names between releases. In that case, if the given bug applies to a different source package that replaced the old one in a later releases, this source package has to be added as 'Also affecting'. Make sure that the devel releases package has the bug fixed before proceeding.
   * Do not create a meta-bug with a title like "Please SRU this" rather than using existing bug reports. It is redundant and is opaque to original bug reporters, whose feedback is valuable for verification, so these bugs will be invalidated by the SRU team and corresponding uploads will be rejected from the queue. 
 
