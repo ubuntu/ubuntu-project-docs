@@ -1,11 +1,6 @@
 \||<tablestyle="float:right; font-size: 0.9em; width:40%;
 background:#F1F1ED; margin: 0 0 1em 1em;" style="padding:0.5em;"><>|\|
 
-.. _under_review:
-
-[Under review]
---------------
-
 Introduction
 ------------
 
@@ -150,8 +145,9 @@ The objective of the separate packaging QA is to test:
 The resulting package, with all the changes in place, must undergo and
 pass the following additional QA procedures:
 
--  Installation from scratch in the current distribution by the
-   recommended way to install Nvidia driver:
+-  Installation from scratch in the current distribution by `the
+   recommended way to install Nvidia
+   driver <https://help.ubuntu.com/community/NvidiaDriversInstallation>`__:
 
 :literal:`  \`ubuntu-drivers install\``
 
