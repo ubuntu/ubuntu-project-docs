@@ -9,19 +9,19 @@ than worrying over-much about backward compatibility or regressions.
 Process
 -------
 
-The aim is to backport the .1 release of a major version to the current
-LTS as soon as possible after it has been released.
+The aim is to backport stable and compatible releases across all the
+packages that are part of this stack (runc/containerd/docker.io) to all
+supported releases.
 
-To do this we will, once the .0 release is out:
+To do this we will:
 
 #. File (or find, our users are quite proactive about wanting this) a
    bug to cover the upgrade.
 
-| ``2. Upload the .0 release to the current development series of Ubuntu but use a block-proposed tag on the update bug to prevent it migrating to release, so we can sort out any new build or packaging or autopkgtest problems.``
-| ``3. Once .1 is released, this can be uploaded to the devel series (and the block-proposed tag be removed) where it should quickly migrate to release.  ``
-| ``4. Once it has migrated, it  can then be uploaded with minimal necessary changes to the SRU queue of the most recent LTS.``
+| ``2. Upload the latest upstream version of the packages to the current development series of Ubuntu. Make sure all the versions are compatible among them.``
+| ``3. Once they have migrated, they can then be uploaded with minimal necessary changes to the SRU queue of the supported Ubuntu releases.``
 
-We will reuse the upgrade bug for the SRU but this need not include
+We will reuse the upgrade bug for the SRU but this does not include
 detailed test case or regression potential sections (it should link to
 this page for the sake of the SRU team member doing the review!).
 
