@@ -46,6 +46,11 @@ In order to do this, we will:
 | `` 3. Upload the resulting package to a bileto PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
 | `` 4. Once everything is OK, upload the resulting package to the archive (if it's a non-security upload) and babysit it until it migrates.``
 
+The server team has been doing MREs for other packages as well
+(postgresql, for example). We can use an existing MRE bug as a template
+for the OpenLDAP MREs (for example, `bug
+#1961127 <https://bugs.launchpad.net/ubuntu/+source/postgresql-12/+bug/1961127>`__).
+
 QA
 --
 
