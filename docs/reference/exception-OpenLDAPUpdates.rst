@@ -42,11 +42,9 @@ In order to do this, we will:
       bug will contain references to previous MREs bugs, as well as a
       summary of the important bugfixes present in the new microrelease.
 
-`` 2. Merge the latest OpenLDAP LTS microrelease into our existing package, rebasing whatever delta the package may contain.``
-
-`` 3. Upload the resulting package to a bileto PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
-
-`` 4. Once everything is OK, upload the resulting package to the archive (if it's a non-security upload) and babysit it until it migrates.``
+| `` 2. Merge the latest OpenLDAP LTS microrelease into our existing package, rebasing whatever delta the package may contain.``
+| `` 3. Upload the resulting package to a bileto PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
+| `` 4. Once everything is OK, upload the resulting package to the archive (if it's a non-security upload) and babysit it until it migrates.``
 
 QA
 --
