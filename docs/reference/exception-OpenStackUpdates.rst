@@ -40,6 +40,7 @@ OpenStack packages
    -  heat-dashboard
    -  horizon
    -  keystone
+   -  manila
    -  neutron
    -  neutron-lbaas
    -  neutron-fwaas
