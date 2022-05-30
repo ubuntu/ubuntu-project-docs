@@ -25,7 +25,7 @@ You can read more about it
 
 In summary, their LTS releases will be supported for 5 years and will be
 released approximately every 3 years. These are the releases this MRE
-document applies to.
+document applies to; we don't intend to do MREs for Feature Releases.
 
 .. _ubuntu_and_openldap_releases_affected_by_this_mre:
 
@@ -38,6 +38,11 @@ package versions affected by this policy:
 -  
 
    -  **Jammy (22.04)** [**OpenLDAP 2.5.x**]
+
+The OpenLDAP 2.5.x series is upstream's first LTS release, and its
+inclusion in Jammy was no coincidence. Newer Ubuntu releases will likely
+have non-LTS OpenLDAP releases in them until our next Ubuntu LTS series
+is released, when we intend to ship the next OpenLDAP LTS release.
 
 Process
 -------
@@ -133,4 +138,6 @@ team is working towards improving them.
 
 There are also several reverse dependencies that implement autopkgtests
 which indirectly exercise OpenLDAP's features, and these will be
-executed on every microrelease update.
+executed on every microrelease update. These tests will be very
+important when determining API/ABI stability across minor LTS updates,
+as they have caught such issues in the past.
