@@ -65,9 +65,63 @@ for the OpenLDAP MREs (for example, `bug
 QA
 --
 
+.. _upstream_tests:
+
+Upstream tests
+~~~~~~~~~~~~~~
+
 The OpenLDAP software contains an extensive testsuite that is executed
-during build time on all supported architectures. The Debian/Ubuntu
-packages also carry autopkgtests on top. There are also several reverse
-dependencies that implement autopkgtests which indirectly exercise
-OpenLDAP's features, and these will be executed on every microrelease
-update.
+during build time on all supported architectures. These tests exercise
+different aspects of the software like its SASL/GSSAPI integration,
+remote authentication, slapadd usage, concurrency, amongst many other
+things.
+
+Pipelines
+~~~~~~~~~
+
+Upstream also makes use of GitLab pipelines in order to automate the
+testing of new commits. At the time of this writing, these are the
+pipelines available:
+
+-  
+
+   -  ::
+
+         build-no-threads-no-slapd
+
+   -  ::
+
+         build-openssl-heimdal-lloadd
+
+   -  ::
+
+         build-gnutls-mit-standalone-lloadd
+
+The Ubuntu OpenLDAP package is compiled with GnuTLS support, so the last
+one is the most interesting for us. The other 2 pipelines are also
+indirectly valuable because they can offer data points for comparison
+if/when a regression is detected in the third. Another very important
+fact is that these pipelines use Debian stable as their base OS, which
+makes the results much more reliable for Ubuntu.
+
+.. _calls_for_testing:
+
+Calls for testing
+~~~~~~~~~~~~~~~~~
+
+Before every release, upstream publishes calls for testing in their
+mailing list. Although not everybody will publicly release their test
+results, it is common for downstream contributors to help with this. We
+intend to step up and also publish test results in order to make the
+release more stable.
+
+Autopkgtests
+~~~~~~~~~~~~
+
+The Debian/Ubuntu packages also carry autopkgtests. These tests
+currently don't exercise many features of the package, but the Server
+team is working towards improving them.
+
+There are also several reverse dependencies that implement autopkgtests
+which indirectly exercise OpenLDAP's features, and these will be
+executed on every microrelease update.
