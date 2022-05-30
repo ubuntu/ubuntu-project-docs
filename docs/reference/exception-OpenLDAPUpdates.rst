@@ -115,6 +115,15 @@ results, it is common for downstream contributors to help with this. We
 intend to step up and also publish test results in order to make the
 release more stable.
 
+As an example, some of their calls for testing can be found below:
+
+-  
+
+   -  https://lists.openldap.org/hyperkitty/list/openldap-technical@openldap.org/thread/XDKRUNDBTTODZ65ZBEN2DE3ZNUG3DR6R/\ `Testing
+      call for OpenLDAP 2.6.2 <Testing_call_for_OpenLDAP_2.6.2>`__
+   -  https://lists.openldap.org/hyperkitty/list/openldap-technical@openldap.org/thread/5ZJEOQSVFQBG5TRLAAF6S5M3VRJH5IAV/\ `Testing
+      call for OpenLDAP 2.5.12 <Testing_call_for_OpenLDAP_2.5.12>`__
+
 Autopkgtests
 ~~~~~~~~~~~~
 
