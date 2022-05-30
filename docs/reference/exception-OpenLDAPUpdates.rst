@@ -27,10 +27,10 @@ In summary, their LTS releases will be supported for 5 years and will be
 released approximately every 3 years. These are the releases this MRE
 document applies to.
 
-.. _ubuntu_releases_affected_by_this_mre:
+.. _ubuntu_and_openldap_releases_affected_by_this_mre:
 
-Ubuntu releases affected by this MRE
-------------------------------------
+Ubuntu [and OpenLDAP] releases affected by this MRE
+---------------------------------------------------
 
 Currently, these are the Ubuntu releases and the corresponding OpenLDAP
 package versions affected by this policy:
