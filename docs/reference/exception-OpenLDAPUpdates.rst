@@ -205,7 +205,7 @@ SRU template
    TODO: link the build log containing all tests being executed
    TODO: if there are any non passing tests - explain why that is ok in this case.
    TODO: link upstream's "call for testing" email
-   TODO: link upstream's gitlab job for this release
+   TODO: link upstream's gitlab job for this release (look here: https://git.openldap.org/openldap/openldap/-/tags)
 
    [Regression Potential]
 
