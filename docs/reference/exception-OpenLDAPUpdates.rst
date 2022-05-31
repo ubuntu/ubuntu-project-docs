@@ -211,4 +211,4 @@ SRU template
 
    Upstream tests are always executed during build-time.  There are many reverse dependencies whose dep8 tests depend on OpenLDAP so the coverage is good.  Nevertheless, there is always a risk for something to break since we are dealing with a microrelease upgrade.  Whenever a test failure is detected, we will be on top of it and make sure it doesn't affect existing users.
 
-   TODO: consider any other regression potential specific to the version being updated and list if any or list N/A.
+   TODO: consider any other regression potential specific to the version being updated and list if any or list N/A.  OpenLDAP is used as a library by many other projects, so care must be taken when considering how this MRE might affect these dependencies.
