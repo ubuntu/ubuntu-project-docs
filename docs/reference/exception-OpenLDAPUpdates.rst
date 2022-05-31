@@ -164,7 +164,7 @@ We will:
       See the SRU template below for more details on how this bug will
       look like.
 
-`` 2. Once everything is OK, upload the resulting package to the archive (if it's a non-security upload) and make sure it migrates.``
+`` 2. Once everything is OK, upload the package to the proposed pocket (if it's a non-security upload), and, once approved, keep an eye on the excuses page and investigate any DEP8 failures.``
 
 The UbuntuServer team has been doing MREs for other packages as well
 (postgresql, for example). We can use an existing MRE bug as a template
