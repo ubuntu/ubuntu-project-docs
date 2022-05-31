@@ -142,6 +142,8 @@ which indirectly exercise OpenLDAP's features, like `SSSD's LDAP login
 tests <https://git.launchpad.net/ubuntu/+source/sssd/tree/debian/tests>`__,
 or Cyrus SASL's `GSSAPI and shared secret
 mechanisms|tests <https://git.launchpad.net/ubuntu/+source/cyrus-sasl2/tree/debian/tests>`__,
+python-bonsai's `SASL DIGEST-MD5
+tests <https://git.launchpad.net/ubuntu/+source/python-bonsai/tree/debian/tests>`__
 and these will be executed on every microrelease update. These tests
 will be very important when determining API/ABI stability across minor
 LTS updates, as they have caught such issues in the past.
