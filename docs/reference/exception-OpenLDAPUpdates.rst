@@ -9,8 +9,8 @@ releases affected by this policy are listed below.
 About OpenLDAP
 --------------
 
-`OpenLDAP <https://en.wikipedia.org/wiki/OpenLDAP>`__ is a Free
-implementation of the Lightweight Directory Access Protocol (LDAP).
+`OpenLDAP <https://www.openldap.org>`__ is a Free implementation of the
+Lightweight Directory Access Protocol (LDAP).
 
 .. _upstream_release_policy:
 
@@ -60,7 +60,7 @@ In order to do this, we will:
 
 | `` 2. Merge the latest OpenLDAP LTS microrelease into our existing package, rebasing whatever delta the package may contain.``
 | `` 3. Upload the resulting package to a bileto PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
-| `` 4. Once everything is OK, upload the resulting package to the archive (if it's a non-security upload) and babysit it until it migrates.``
+| `` 4. Once everything is OK, upload the resulting package to the archive (if it's a non-security upload) and make sure it migrates.``
 
 The UbuntuServer team has been doing MREs for other packages as well
 (postgresql, for example). We can use an existing MRE bug as a template
@@ -77,16 +77,17 @@ Upstream tests
 
 The OpenLDAP software contains an extensive testsuite that is executed
 during build time on all supported architectures. These tests exercise
-different aspects of the software like its SASL/GSSAPI integration,
-remote authentication, slapadd usage, concurrency, amongst many other
-things.
+different aspects of the software like remote authentication, slapadd
+usage, concurrency, amongst many other things.
 
 Pipelines
 ~~~~~~~~~
 
-Upstream also makes use of GitLab pipelines in order to automate the
-testing of new commits. At the time of this writing, these are the
-pipelines available:
+Upstream also makes use of `GitLab
+pipelines <https://git.openldap.org/openldap/openldap/-/pipelines>`__ in
+order to automate the testing of new commits. At the time of this
+writing, these are the `available
+pipelines <https://git.openldap.org/openldap/openldap/-/blob/master/.gitlab-ci.yml>`__:
 
 -  
 
@@ -115,10 +116,10 @@ Calls for testing
 ~~~~~~~~~~~~~~~~~
 
 Before every release, upstream publishes calls for testing in their
-mailing list. Although not everybody will publicly release their test
-results, it is common for downstream contributors to help with this. We
-intend to step up and also publish test results in order to make the
-release more stable.
+mailing list. Although not everybody will publicly release their raw
+test results, it is common for downstream contributors to help with
+this. We intend to step up and also publish test results in order to
+make the release more stable.
 
 As an example, some of their calls for testing can be found below:
 
@@ -136,8 +137,11 @@ The Debian/Ubuntu packages also carry autopkgtests. These tests
 currently don't exercise many features of the package, but the Server
 team is working towards improving them.
 
-There are also several reverse dependencies that implement autopkgtests
-which indirectly exercise OpenLDAP's features, and these will be
-executed on every microrelease update. These tests will be very
-important when determining API/ABI stability across minor LTS updates,
-as they have caught such issues in the past.
++There are also several reverse dependencies that implement autopkgtests
+which indirectly exercise OpenLDAP's features, like `SSSD's LDAP login
+tests <https://git.launchpad.net/ubuntu/+source/sssd/tree/debian/tests>`__,
+or Cyrus SASL's `GSSAPI and shared secret
+mechanisms|tests <https://git.launchpad.net/ubuntu/+source/cyrus-sasl2/tree/debian/tests>`__,
+and these will be executed on every microrelease update. These tests
+will be very important when determining API/ABI stability across minor
+LTS updates, as they have caught such issues in the past.
