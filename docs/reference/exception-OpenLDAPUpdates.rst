@@ -44,29 +44,6 @@ inclusion in Jammy was no coincidence. Newer Ubuntu releases will likely
 have non-LTS OpenLDAP releases in them until our next Ubuntu LTS series
 is released, when we intend to ship the next OpenLDAP LTS release.
 
-Process
--------
-
-As with regular MREs, the aim here is to offer bugfixes and security
-fixes to all supported releases.
-
-In order to do this, we will:
-
-#. 
-
-   #. File an MRE bug including the rationale for the upgrade. This MRE
-      bug will contain references to previous MREs bugs, as well as a
-      summary of the important bugfixes present in the new microrelease.
-
-| `` 2. Merge the latest OpenLDAP LTS microrelease into our existing package, rebasing whatever delta the package may contain.``
-| `` 3. Upload the resulting package to a bileto PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
-| `` 4. Once everything is OK, upload the resulting package to the archive (if it's a non-security upload) and make sure it migrates.``
-
-The UbuntuServer team has been doing MREs for other packages as well
-(postgresql, for example). We can use an existing MRE bug as a template
-for the OpenLDAP MREs (for example, `bug
-#1961127 <https://bugs.launchpad.net/ubuntu/+source/postgresql-12/+bug/1961127>`__).
-
 QA
 --
 
@@ -147,3 +124,91 @@ tests <https://git.launchpad.net/ubuntu/+source/python-bonsai/tree/debian/tests>
 and these will be executed on every microrelease update. These tests
 will be very important when determining API/ABI stability across minor
 LTS updates, as they have caught such issues in the past.
+
+Process
+-------
+
+.. _preparing_for_the_sru:
+
+Preparing for the SRU
+~~~~~~~~~~~~~~~~~~~~~
+
+Before filing an SRU/MRE bug and kickoff the process officially, we need
+to perform the following actions:
+
+#. 
+
+   #. Merge the latest OpenLDAP LTS microrelease into our existing
+      package, rebasing whatever delta the package may contain.
+
+`` 2. Upload the resulting package to a bileto PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
+
+When everything looks OK, we are ready to start the SRU process.
+
+.. _requesting_the_sru:
+
+Requesting the SRU
+~~~~~~~~~~~~~~~~~~
+
+As with regular MREs, the aim here is to offer bugfixes and security
+fixes to all supported releases. The SRU will be done using a single bug
+instead of individual bug reports for each fix.
+
+We will:
+
+#. 
+
+   #. File an MRE bug including the rationale for the upgrade. This MRE
+      bug will contain references to previous MREs bugs, as well as a
+      summary of the important bugfixes present in the new microrelease.
+      See the SRU template below for more details on how this bug will
+      look like.
+
+`` 2. Once everything is OK, upload the resulting package to the archive (if it's a non-security upload) and make sure it migrates.``
+
+The UbuntuServer team has been doing MREs for other packages as well
+(postgresql, for example). We can use an existing MRE bug as a template
+for the OpenLDAP MREs (for example, `bug
+#1961127 <https://bugs.launchpad.net/ubuntu/+source/postgresql-12/+bug/1961127>`__).
+
+.. _testing_and_verification:
+
+Testing and verification
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+As explained above, the testing will be done primarily using a bileto
+ticket, which will also run autopkgtests for all of the reverse
+dependencies as well as upstream's testsuite during the package build.
+
+We will also provide a link to upstream's "call for testing" email and
+to the !GitLab jobs that were executed when the release was cut.
+
+.. _sru_template:
+
+SRU template
+~~~~~~~~~~~~
+
+::
+
+   This bug tracks an update for the OpenLDAP package, version XYZ.
+
+   This update includes bugfixes only following the SRU policy exception defined at https://wiki.ubuntu.com/StableReleaseUpdates/OpenLDAPUpdates.
+
+   [Major Changes]
+
+   TODO: List the major changes
+   TODO: list to the announce mail containing all changes
+
+   [Test Plan]
+
+   See https://wiki.ubuntu.com/StableReleaseUpdates/OpenLDAPUpdates#SRU_TestVerify
+   TODO: link the build log containing all tests being executed
+   TODO: if there are any non passing tests - explain why that is ok in this case.
+   TODO: link upstream's "call for testing" email
+   TODO: link upstream's gitlab job for this release
+
+   [Regression Potential]
+
+   Upstream tests are great and the testsuite is always executed during build-time.  There are many reverse dependencies whose dep8 tests depend on OpenLDAP so the coverage is good.  Nevertheless, there is always a risk for something to break since we are dealing with a microrelease upgrade.  Whenever a test failure is detected, we will be on top of it and make sure it doesn't affect existing users.
+
+   TODO: consider any other regression potential specific to the version being updated and list if any or list N/A.
