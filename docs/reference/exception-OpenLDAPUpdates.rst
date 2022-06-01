@@ -1,5 +1,3 @@
-**THIS IS A DRAFT**
-
 This document describes the policy for doing microrelease updates of the
 OpenLDAP package in Ubuntu LTS releases. The specific Ubuntu LTS
 releases affected by this policy are listed below.
