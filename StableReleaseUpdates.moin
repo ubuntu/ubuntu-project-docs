@@ -410,6 +410,10 @@ Source packages of the form oem-*-meta may be uploaded according to the procedur
 === ubuntu-dev-tools ===
 The source package ubuntu-dev-tools may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/ubuntu-dev-tools-Updates|ubuntu-dev-tools updates]]. This stable release exception has been [[https://lists.ubuntu.com/archives/ubuntu-release/2021-June/005239.html|approved by Brian Murray]].
 
+=== OpenLDAP ===
+
+The OpenLDAP source package may be uploaded according to the procedure documented in [[OpenLDAPUpdates]]. This stable release exception [[https://lists.ubuntu.com/archives/ubuntu-release/2022-June/005403.html|has been approved]] by SteveLangasek for the SRU team as of 2022-06-02.
+
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
 
