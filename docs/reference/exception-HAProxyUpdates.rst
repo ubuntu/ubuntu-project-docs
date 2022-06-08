@@ -25,7 +25,9 @@ version 1.8, two major version are emitted every year. The upstream
 maintainers backport fixes to all supported releases, being careful to
 not break anything, and they do recommend to stay updated to the highest
 possible number on the last digit of the version where only bug fixes
-are present.
+are present. For example, in Jammy, HAProxy version 2.4.14 is shipped,
+we should keep it updated to the the highest last digit which is 2.4.17
+right now (at the moment this document is written).
 
 Versions where the second digit is an even number are called "LTS" and
 those are maintained for 5 years after the release (those are released
