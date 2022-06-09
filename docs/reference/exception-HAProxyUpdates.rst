@@ -76,8 +76,8 @@ The mentioned Github Actions test the following:
       -  Use multiple SSL libraries (openssl, libressl)
       -  Different compression configuration
 
-Moreover, those things are also tested on other operational systems.
-More details, about how this is implemented can be found in
+Moreover, those things are also tested on other operating systems. More
+details, about how this is implemented can be found in
 *.github/workflows* directory.
 
 There is also a Travis CI pipeline which builds HAProxy and runs the
