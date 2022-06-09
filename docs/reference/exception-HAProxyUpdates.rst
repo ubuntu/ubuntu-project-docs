@@ -11,7 +11,7 @@ the HAProxy package in Ubuntu LTS releases.
 About HAProxy
 -------------
 
-`HAProxy <www.haproxy.org>`__ is a free, very fast and reliable
+`HAProxy <https://www.haproxy.org>`__ is a free, very fast and reliable
 reverse-proxy offering high availability, load balancing, and proxying
 for TCP and HTTP-based applications.
 
