@@ -113,20 +113,14 @@ fixes to all supported releases.
 To do this we will:
 
 #. File (or find, our users are quite proactive about wanting this) a
-   bug to
+   bug to cover the upgrade.
 
-| ``   cover the upgrade.``
-| ``   - Add tasks to all Ubuntu releases which will be updated.``
-| ``   - Add a link to the upstream changelog.``
-| ``   - Add links to the upstream CI pipelines demonstrating everything is good.``
-| ``2. Make sure the development release already contains those fixes. Ideally,``
-| ``   HAProxy in the development release should have the highest possible number``
-| ``   on the last digit of the version. This might require some coordination with``
-| ``   the Debian maintainer.``
-| ``3. Upload the microrelease to the SRU queue of the supported Ubuntu releases``
-| ``   affected by this update and wait until the SRU team approve it.``
-| ``4. Watch the migration page until it lands in the -updates pocket. Fix any``
-| ``   regression that might appear during the process.``
+| ``   * Add tasks to all Ubuntu releases which will be updated.``
+| ``   * Add a link to the upstream changelog.``
+| ``   * Add links to the upstream CI pipelines demonstrating everything is good.``
+| ``2. Make sure the development release already contains those fixes. Ideally, HAProxy in the development release should have the highest possible number on the last digit of the version. This might require some coordination with the Debian maintainer.``
+| ``3. Upload the microrelease to the SRU queue of the supported Ubuntu releases affected by this update and wait until the SRU team approve it.``
+| ``4. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
 
 .. _sru_template:
 
