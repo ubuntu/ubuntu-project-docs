@@ -25,15 +25,18 @@ version 1.8, two major version are emitted every year. The upstream
 maintainers backport fixes to all supported releases, being careful to
 not break anything, and they do recommend to stay updated to the highest
 possible number on the last digit of the version where only bug fixes
-are present. For example, in Jammy, HAProxy version 2.4.14 is shipped,
-we should keep it updated to the the highest last digit which is 2.4.17
-right now (at the moment this document is written).
+are present (*Description* section of its
+`\|www.haproxy.org <home_page>`__). For example, in Jammy, HAProxy
+version 2.4.14 is shipped, we should keep it updated to the the highest
+last digit which is 2.4.17 right now (at the moment this document is
+written).
 
 Versions where the second digit is an even number are called "LTS" and
 those are maintained for 5 years after the release (those are released
 usually between May and June). The ones with odd numbers are called
-"stable" and those are maintained between 12 and 18 months. In Ubuntu,
-we took care to ship only LTS releases.
+"stable" and those are maintained between 12 and 18 months
+(*Description* section of its `\|www.haproxy.org <home_page>`__). In
+Ubuntu, we took care to ship only LTS releases.
 
 .. _ubuntu_and_haproxy_releases_affected_by_this_mre:
 
@@ -78,10 +81,13 @@ The mentioned Github Actions test the following:
 
 Moreover, those things are also tested on other operating systems. More
 details, about how this is implemented can be found in
-*.github/workflows* directory.
+`\|\  <.github/workflows>`__\ https://github.com/haproxy/haproxy/tree/master/.github/workflows
+directory.
 
-There is also a Travis CI pipeline which builds HAProxy and runs the
-regression tests in non-amd64 architecture, they are:
+There is also a
+`\|\  <Travis_CI_pipeline>`__\ https://github.com/haproxy/haproxy/blob/master/.travis.yml
+which builds HAProxy and runs the regression tests in non-amd64
+architecture, they are:
 
 -  ppc64el
 -  arm64
@@ -118,7 +124,7 @@ To do this we will:
 | ``   * Add tasks to all Ubuntu releases which will be updated.``
 | ``   * Add a link to the upstream changelog.``
 | ``   * Add links to the upstream CI pipelines demonstrating everything is good.``
-| ``2. Make sure the development release already contains those fixes. Ideally, HAProxy in the development release should have the highest possible number on the last digit of the version. This might require some coordination with the Debian maintainer.``
+| ``2. Make sure the development release already contains those fixes. Ideally, HAProxy in the Ubuntu development release should have the highest possible number on the last digit of the version.``
 | ``3. Upload the microrelease to the SRU queue of the supported Ubuntu releases affected by this update and wait until the SRU team approve it.``
 | ``4. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
 
