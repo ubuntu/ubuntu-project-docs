@@ -112,7 +112,7 @@ The Debian/Ubuntu packages also carry autopkgtests. These tests
 currently don't exercise many features of the package, but the Server
 team is working towards improving them.
 
-+There are also several reverse dependencies that implement autopkgtests
+There are also several reverse dependencies that implement autopkgtests
 which indirectly exercise OpenLDAP's features, like `SSSD's LDAP login
 tests <https://git.launchpad.net/ubuntu/+source/sssd/tree/debian/tests>`__,
 or Cyrus SASL's `GSSAPI and shared secret mechanisms
