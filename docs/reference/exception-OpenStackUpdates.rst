@@ -150,8 +150,7 @@ SRU Template
 
    == Begin SRU Template ==
    [Impact]
-   This release sports mostly bug-fixes and we would like to make sure all of our
-   users have access to these improvements.
+   This release sports mostly bug-fixes and we would like to make sure all of our users have access to these improvements.
 
    The update contains the following package updates:
 
@@ -161,18 +160,13 @@ SRU Template
    The following SRU process was followed:
    https://wiki.ubuntu.com/OpenStack/StableReleaseUpdates
 
-   In order to avoid regression of existing consumers, the OpenStack team will
-   run their continuous integration test against the packages that are in
-   -proposed.  A successful run of all available tests will be required before the
+   In order to avoid regression of existing consumers, the OpenStack team will run their continuous integration test against the packages that are in -proposed.  A successful run of all available tests will be required before the
    proposed packages can be let into -updates.
 
-   The OpenStack team will be in charge of attaching the output summary of the
-   executed tests. The OpenStack team members will not mark ‘verification-done’ until
-   this has happened.
+   The OpenStack team will be in charge of attaching the output summary of the executed tests. The OpenStack team members will not mark ‘verification-done’ until this has happened.
 
    [Regression Potential]
-   In order to mitigate the regression potential, the results of the
-   aforementioned tests are attached to this bug.
+   In order to mitigate the regression potential, the results of the aforementioned tests are attached to this bug.
 
    [Discussion]
    <TODO: other background>
