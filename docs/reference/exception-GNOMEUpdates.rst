@@ -15,7 +15,7 @@ policy:
 -  "GNOME (only the core modules and apps, not the entirety of what is
    hosted on gnome.org) (approved on 2012-06-22)"
 -  Clarifying this is ongoing
-   `here <https://discourse.ubuntu.com/t/scope-of-gnome-mru/18041/3>`__,
+   `here <https://discourse.ubuntu.com/t/scope-of-gnome-mru/18041/28>`__,
    the first cut is “the set of apps in
    `core <https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/master/elements/core>`__,
    plus the direct dependencies in
