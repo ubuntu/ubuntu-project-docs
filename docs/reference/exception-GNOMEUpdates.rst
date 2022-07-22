@@ -14,28 +14,47 @@ policy:
 
 -  "GNOME (only the core modules and apps, not the entirety of what is
    hosted on gnome.org) (approved on 2012-06-22)"
--  Clarifying this is ongoing
-   `here <https://discourse.ubuntu.com/t/scope-of-gnome-mru/18041/28>`__,
-   the first cut is “the set of apps in
-   `core <https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/master/elements/core>`__,
-   plus the direct dependencies in
-   `sdk <https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/master/elements/sdk>`__\ ”.
+-  GNOME provides a list of what they consider core as a part of the
+   release. The lists are found at
+   \`https://download.gnome.org/teams/releng/$GNOME_VERSION/versions\`
+   (eg: https://download.gnome.org/teams/releng/42.0/versions). A Debian
+   maintainer produces a helpfully-parsed version of this list with
+   upstream names matched to source package names at
+   https://people.debian.org/~fpeters/gnome/debian-gnome-42-status.html.
+   (Older GNOME versions are also available, but these do not have the
+   upstream name->source package transformation applied).
+-  In addition GNOME-provided lists, we additionally consider the
+   following packages to be under the MRE exception:
+
+   -  
+
+      -  evolution
+      -  evolution-ews
+      -  file-roller
+      -  gedit
+      -  gnome-terminal
+      -  gnome-tweaks
+      -  seahorse
+      -  everything that the gnome-games apt package directly depends on
+
+-  As an exception to the GNOME-provided list, vala is **not** covered
+   by this MRE. Relevant bug fixes to vala are rare, and require special
+   handling (as all rdepends must be rebuilt for any fixes to be picked
+   up).
 
 Microrelease updates to gnome-shell are at risk of regressing packages
 providing gnome-shell extensions as we discovered in the case of `LP:
 #1892245 <https://bugs.launchpad.net/ubuntu/+source/gnome-shell-extension-dash-to-panel/+bug/1892245>`__.
-Going forward, the SRU team would like to see suitable mitigations for
-this type of regression before publishing gnome-shell microrelease
-updates, such as through thorough testing of reverse dependencies.
+For Ubuntu 22.04, most shell extensions have been removed from the
+archive, and all remaining ones will be smoke-tested as a part of any
+gnome-shell SRUs.
 
-Vala is not considered part of GNOME for the purposes of micro release
-updates. Regardless of this, the Vala situation is special as it’s
-generally necessary to also rebuild reverse build dependencies for a
-Vala SRU to have any effect. If Vala microrelease updates are desired,
-this will need to be justified and requested independently (whether as a
-one-off or a standing documented case).
+Mutter is also a special case, as it is a shared critical component with
+Ubuntu Budgie. Mutter SRUs must be tested against the Budgie session in
+addition to the Ubuntu/Ubuntu on Xorg/GNOME/GNOME Classic sessions.
 
 References:
 
 -  https://lists.ubuntu.com/archives/technical-board/2012-June/001327.html
 -  https://lists.ubuntu.com/archives/technical-board/2012-June/001298.html
+-  https://discourse.ubuntu.com/t/scope-of-gnome-mru/18041/42
