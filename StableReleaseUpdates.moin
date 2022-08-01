@@ -195,7 +195,7 @@ Since we try to avoid regressing users on upgrade to a new release, it is essent
 
 == Publishing ==
 
-The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done-$RELEASE for the given release) and releases those to the -updates pocket. Having said that, if there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
+The Stable Release Updates team regularly checks for SRUs that have succesfully completed verification (all bugs are marked verification-done-$RELEASE for the given release) and releases those to the -updates pocket. Having said that, if there is a priority SRU waiting in the unapproved queue for release to -proposed, or needing release to -updates from -proposed, feel free to contact an SRU vanguard.  Vanguards from the SRU team can be found in #ubuntu-release on the following schedule:
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
 || Monday || Łukasz Zemczak (sil2100) ||
