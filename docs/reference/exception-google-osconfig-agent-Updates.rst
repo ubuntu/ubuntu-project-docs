@@ -1,3 +1,7 @@
+#. 
+
+   #. page was copied from google-guest-agent-Updates
+
 This document describes the policy for updating the google-guest-agent
 package to new upstream versions in a stable, supported distro
 (including LTS releases). This is an exception to the standard SRU
