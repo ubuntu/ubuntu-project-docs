@@ -194,9 +194,9 @@ SRU Template
    <TODO-SRU-VERIFICATION: attach Solutions Testing team test results for each LTS>
 
    * Manual Test Results
-   <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on ec2 datasource>
-   <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on gce datasource>
-   <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on azure datasource>
+   <TODO-SRU-VERIFICATION: attach manual cloud-init-proposed test artifacts from tests for each release on ec2 datasource>
+   <TODO-SRU-VERIFICATION: attach manual cloud-init-proposed test artifacts from tests for each release on gce datasource>
+   <TODO-SRU-VERIFICATION: attach manual cloud-init-proposed test artifacts from tests for each release on azure datasource>
 
    [Regression Potential]
    In order to mitigate the regression potential, the results of the
