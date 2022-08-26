@@ -33,8 +33,12 @@ following:
 
    -  The SRU should be requested per the StableReleaseUpdates
       documented process
-   -  The template at the end of this document should be used and all
-      ‘TODO’ filled out
+   -  The template at the end of this document should be used
+
+``    * all ‘TODO-PRIOR-TO-PROPOSED’ should be filled in prior to requesting SRU unaccepted uploads are accepted into the ``\ **``-proposed``**\ `` pockets.  All 'TODO-SRU-VERIFICATION' should be filled in when testing against binaries once available in the ``\ **``-proposed``**\ `` pocket to ensure we are validating specific debs that will be accepted into ``\ **``-updates``**\ `` pockets.``
+
+-  
+
    -  The change log will contain a reference to the single SRU process
       bug, not all bugs fixed by the SRU. However, if there are very
       important bugs that are deemed worthy of reference they too should
@@ -171,7 +175,7 @@ SRU Template
    make sure all of our supported customers have access to these
    improvements. The notable ones are:
 
-   *** <TODO: Create list with LP: # included>
+   *** <TODO-PRIOR-TO-PROPOSED>: Create list with LP: # included>
 
    See the changelog entry below for a full list of changes and bugs.
 
@@ -184,10 +188,10 @@ SRU Template
    members will not mark ‘verification-done’ until this has happened.
 
    * Automated Test Results
-   <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with lxd artifacts>
-   <TODO: attach automated cloud-init-proposed test artifacts from tests for each release with kvm artifacts>
-   <TODO: attach automated curtin vmtest with cloud-init proposed>
-   <TODO: attach Solutions Testing team test results for each LTS>
+   <TODO-SRU-VERIFICATION: attach automated cloud-init-proposed test artifacts from tests for each release with lxd artifacts>
+   <TODO-SRU-VERIFICATION: attach automated cloud-init-proposed test artifacts from tests for each release with kvm artifacts>
+   <TODO-SRU-VERIFICATION: attach automated curtin vmtest with cloud-init proposed>
+   <TODO-SRU-VERIFICATION: attach Solutions Testing team test results for each LTS>
 
    * Manual Test Results
    <TODO: attach manual cloud-init-proposed test artifacts from tests for each release on ec2 datasource>
@@ -199,11 +203,11 @@ SRU Template
    aforementioned integration tests are attached to this bug.
 
    [Discussion]
-   <TODO: other background>
+   <TODO-PRIOR-TO-PROPOSED: other background if applicable>
 
    == End SRU Template ==
 
-   <TODO: Paste in change log entry>
+   <TODO-PRIOR-TO-PROPOSED: Paste in change log entry>
 
 .. _past_srus:
 
