@@ -289,7 +289,7 @@ If a bug fixed by an update '''does not get any testing/verification feedback'''
 == Regressions ==
 <<Anchor(regressions)>>
 
-If a package update introduces a regression which already made it through the verification process to `-updates`, please '''immediately''' file a bug report about the isue, and add the tag `regression-update` to the bug.
+If a package update introduces a regression which already made it through the verification process to `-updates`, please '''immediately''' file a bug report about the issue, and add the tag `regression-update` to the bug.
 
 If the regression ''only'' applies to the package in `-proposed`, please follow up to the bug with a detailed explanation, and tag the bug with ``regression-proposed``.
 
@@ -431,7 +431,7 @@ The tzdata package is updated to reflect changes in timezones or daylight saving
 ||icu-data     || No            || No            || Yes           || Yes       || Yes       ||
 ||SystemV tzs  || Yes           || Yes           || Yes           || No        || No        ||
 
-The version of tzdata in Ubuntu 20.04 LTS and later includes icu-data and the verification of it can be done after installing the '''python3-icu''' package.
+The version of tzdata in Ubuntu 20.04 LTS and later includes icu-data and the verification of it can be done after installing the '''python3-icu''' package. There can be a slight lag between the tzdata release and the matching icu-data release, we usually wait for the latter to be released before uploading the update.
 
 {{{
 python3 -c "from datetime import datetime; from icu import ICUtzinfo, TimeZone; tz = ICUtzinfo(TimeZone.createTimeZone('Pacific/Fiji')); print(str(tz.utcoffset(datetime(2020, 11, 10))))"
