@@ -340,6 +340,18 @@ The source packages docker.io, containerd, and runc may be uploaded according to
 === gce-compute-image-packages ===
 The source package gce-compute-image-packages may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/gce-compute-image-packages-Updates|gce-compute-image-packages-Updates]].  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by BrianMurray for the SRU team as of 2017-03-10.
 
+=== google-compute-engine ===
+The source package gce-compute-image-packages may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/google-compute-engine-Updates|google-compute-engine-Updates]].  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by SteveLangasek for the [[https://lists.ubuntu.com/archives/ubuntu-release/2022-September/005479.html|SRU team as of 2022-09-01]].
+
+=== google-compute-engine-oslogin ===
+The source package google-compute-engine-oslogin may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/google-compute-engine-oslogin-Updates|google-compute-engine-oslogin-Updates]].  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by SteveLangasek for the [[https://lists.ubuntu.com/archives/ubuntu-release/2022-September/005479.html|SRU team as of 2022-09-01]].
+
+=== google-guest-agent ===
+The source package gce-compute-image-packages may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/google-guest-agent-Updates|google-guest-agent-Updates]].  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by SteveLangasek for the [[https://lists.ubuntu.com/archives/ubuntu-release/2022-September/005479.html|SRU team as of 2022-09-01]].
+
+=== google-osconfig-agent ===
+The source package google-osconfig-agent may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/google-osconfig-agent-Updates|google-osconfig-agent-Updates]].  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by SteveLangasek for the [[https://lists.ubuntu.com/archives/ubuntu-release/2022-September/005479.html|SRU team as of 2022-09-01]].
+
 === curtin ===
 The source package curtin may be uploaded according to the procedure documented in CurtinUpdates.  This stable release exception has been approved by SteveLangasek for the SRU team as of 2017-04-05.
 
