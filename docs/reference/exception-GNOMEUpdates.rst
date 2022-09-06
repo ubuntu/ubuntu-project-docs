@@ -42,6 +42,15 @@ policy:
    handling (as all rdepends must be rebuilt for any fixes to be picked
    up).
 
+SRU-team tooling to automatically check if a package falls under the
+GNOME MRE is in progress. Until that is complete, the following lists
+are authoritative for MRE purposes:
+
+-  `BionicGnomeMreList <BionicGnomeMreList>`__
+-  `FocalGnomeMreList <FocalGnomeMreList>`__
+-  `JammyGnomeMreList <JammyGnomeMreList>`__
+-  `KineticGnomeMreList <KineticGnomeMreList>`__
+
 Microrelease updates to gnome-shell are at risk of regressing packages
 providing gnome-shell extensions as we discovered in the case of `LP:
 #1892245 <https://bugs.launchpad.net/ubuntu/+source/gnome-shell-extension-dash-to-panel/+bug/1892245>`__.
