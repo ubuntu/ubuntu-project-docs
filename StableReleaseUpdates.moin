@@ -132,7 +132,7 @@ Exceptions:
 
 === SRU Bug Template ===
 {{{
-[Impact] 
+[ Impact ] 
 
  * An explanation of the effects of the bug on users and
 
@@ -141,7 +141,7 @@ Exceptions:
  * In addition, it is helpful, but not required, to include an
    explanation of how the upload fixes this bug.
 
-[Test Plan]
+[ Test Plan ]
 
  * detailed instructions how to reproduce the bug
 
@@ -152,7 +152,7 @@ Exceptions:
  * if other testing is appropriate to perform before landing this update,
    this should also be described here.
 
-[Where problems could occur]
+[ Where problems could occur ]
 
  * Think about what the upload changes in the software. Imagine the change is
    wrong or breaks something else: how would this show up?
@@ -168,7 +168,7 @@ Exceptions:
  * This both shows the SRU team that the risks have been considered,
    and provides guidance to testers in regression-testing the SRU.
 
-[Other Info]
+[ Other Info ]
  
  * Anything else you think is useful to include
  * Anticipate questions from users, SRU, +1 maintenance, security teams and the Technical Board
@@ -228,7 +228,7 @@ Overriding halted phasing is done in a similar way to overriding autopkgtest fai
 
 == Verification ==
 
-The [[https://launchpad.net/~sru-verification|SRU verification team]] will regularly check open bugs with the `verification-needed*` tags and test proposed updates on different hardware to check for inadvertent side effects. Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not with other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports.  While not ideal it is also possible for the uploader of the fix to perform the verification of the package in *-proposed, however it must still be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates.
+Verification must be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates. Generally this will be with a system that is up to date from *-release, *-security, and *-updates, but not with other packages from *-proposed (except other packages built from the affected source package - they must be updated if generally installed) or *-backports.  While not ideal it is also possible for the uploader of the fix to perform the verification of the package in *-proposed, however it must still be done in a software environment as close as is feasible to that which will exist after the package is copied to *-updates.
 
 
 If they discover that your fix is insufficient, or the test case is not sufficient to reproduce the bug, they will:
