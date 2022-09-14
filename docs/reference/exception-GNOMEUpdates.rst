@@ -46,10 +46,10 @@ SRU-team tooling to automatically check if a package falls under the
 GNOME MRE is in progress. Until that is complete, the following lists
 are authoritative for MRE purposes:
 
--  `BionicGnomeMreList <BionicGnomeMreList>`__
--  `FocalGnomeMreList <FocalGnomeMreList>`__
--  `JammyGnomeMreList <JammyGnomeMreList>`__
--  `KineticGnomeMreList <KineticGnomeMreList>`__
+-  `Xenial <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/xenial?h=trunk>`__
+-  `Bionic <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/bionic?h=trunk>`__
+-  `Focal <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/focal?h=trunk>`__
+-  `Jammy <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/jammy?h=trunk>`__
 
 Microrelease updates to gnome-shell are at risk of regressing packages
 providing gnome-shell extensions as we discovered in the case of `LP:
