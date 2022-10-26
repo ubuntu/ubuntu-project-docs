@@ -50,6 +50,7 @@ are authoritative for MRE purposes:
 -  `Bionic <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/bionic?h=trunk>`__
 -  `Focal <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/focal?h=trunk>`__
 -  `Jammy <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/jammy?h=trunk>`__
+-  `Kinetic <https://git.launchpad.net/~ubuntu-src/+git/mre-tools/tree/kinetic?h=trunk>`__
 
 Microrelease updates to gnome-shell are at risk of regressing packages
 providing gnome-shell extensions as we discovered in the case of `LP:
