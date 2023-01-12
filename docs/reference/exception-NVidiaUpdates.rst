@@ -236,7 +236,7 @@ The way to fix this is to reboot immediately after an nVidia driver has
 been updated, including for minor version updates.
 
 This particular issue is discussed in `Debian Bug
-889669 <Debian_discussion:_https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=889669>`__
+889669 <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=889669>`__
 
 References
 ----------
