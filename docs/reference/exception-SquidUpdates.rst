@@ -29,6 +29,9 @@ starting in Squid 4, Squid follows a Major.Point release policy where
 the Point releases could be considered new upstream microreleases as per
 https://wiki.ubuntu.com/StableReleaseUpdates#New_upstream_microreleases.
 
+This has been recently confirmed through the squid users mailing list in
+http://lists.squid-cache.org/pipermail/squid-users/2023-January/025586.html
+
 New releases are cut when one of the following criteria is met:
 
 -  At least one new major, critical, or blocker bug is fixed.
