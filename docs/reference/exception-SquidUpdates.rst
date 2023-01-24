@@ -68,7 +68,7 @@ Squid contains an extensive testsuite that is executed during build time
 on all supported architectures.
 
 Autopkgtest
------------
+~~~~~~~~~~~
 
 The package contains two of DEP-8 tests. The first runs the upstream
 test suite on the installed package. The second runs simple checks to
