@@ -87,7 +87,9 @@ SRU Template
 
    [Impact]
 
-   This release contains both bug-fixes and new features and we would like to make sure all of our developers have access to these improvements. The notable ones are:
+   This release contains both bug fixes and new features and we would like
+   to make sure all of our developers have access to these improvements.
+   The notable ones are:
 
    *** <TODO: Create list with LP: # included>
 
@@ -95,15 +97,16 @@ SRU Template
 
    [Test Plan]
 
-   autopkgtest contains a test suite that is ran using the SRU package for each releases. This test suite's results are available here:
-   http://autopkgtest.ubuntu.com/packages/autopkgtest
+   autopkgtest contains a test suite that is ran using the SRU
+   package for each releases. This test suite's results are
+   available here: https://autopkgtest.ubuntu.com/packages/autopkgtest.
 
-   A successful run is required before the proposed package can be let into -updates.
+   A successful run is required before the proposed package can be
+   let into -updates.
 
    [Where problems could occur] 
-   In order to mitigate the regression potential, the results of the aforementioned integration tests are attached to this bug.
 
-   <TODO: attach test artifacts for every SRU release, not a link as links expire>
+   <TODO: highlights areas where regressions might happen>
 
    [Other Info]
 
