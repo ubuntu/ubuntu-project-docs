@@ -64,8 +64,21 @@ QA
 Upstream tests
 ~~~~~~~~~~~~~~
 
-Squid contains an extensive testsuite that is executed during build time
-on all supported architectures.
+Squid contains an extensive testsuite that is executed during the Ubuntu
+package build time on all supported architectures.
+
+.. _upstream_ci:
+
+Upstream CI
+~~~~~~~~~~~
+
+BuildFarm
+^^^^^^^^^
+
+.. _github_actions:
+
+GitHub Actions
+^^^^^^^^^^^^^^
 
 Autopkgtest
 ~~~~~~~~~~~
