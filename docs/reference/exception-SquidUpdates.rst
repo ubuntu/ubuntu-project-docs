@@ -75,10 +75,21 @@ Upstream CI
 BuildFarm
 ^^^^^^^^^
 
+The upstream project performs builds for different OSes and platforms
+from different branches in a continuous manner. This process is
+described in http://wiki.squid-cache.org/BuildFarm and is performed in
+Squid's own Jnekins instance at http://build.squid-cache.org/.
+
 .. _github_actions:
 
 GitHub Actions
 ^^^^^^^^^^^^^^
+
+All changes to the upstream code base are tested through GitHub Actions
+before being incorporated. This is done as per
+https://github.com/squid-cache/squid/blob/master/.github/workflows/default.yaml.
+Test results are available at
+https://github.com/squid-cache/squid/actions.
 
 Autopkgtest
 ~~~~~~~~~~~
