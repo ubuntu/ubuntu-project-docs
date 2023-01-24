@@ -46,6 +46,12 @@ the following:
    -  References to each bug fixed by the SRU should be included in the
       changelog and major changes called out in the SRU template,
       especially where changed behavior is not backwards compatible.
+   -  For each release that is proposed to be updated by the SRU a link
+      to the results of integration testing, via autopkgtest,
+      successfully completed using the proposed package with no
+      unexplained errors or failures. This testing will be done by
+      uploading packages to a PPA and then triggering autopkgtests on
+      those.
    -  Any architecture specific changes need to be noted.
    -  Any packaging changes (e.g. a dependency changes) need to be
       stated.
@@ -91,7 +97,7 @@ SRU Template
    to make sure all of our developers have access to these improvements.
    The notable ones are:
 
-   *** <TODO: Create list with LP: # included>
+   ** <TODO: Create list with LP: # included>
 
    See the changelog entry below for a full list of changes and bugs.
 
@@ -99,10 +105,11 @@ SRU Template
 
    autopkgtest contains a test suite that is ran using the SRU
    package for each releases. This test suite's results are
-   available here: https://autopkgtest.ubuntu.com/packages/autopkgtest.
+   available here:
 
-   A successful run is required before the proposed package can be
-   let into -updates.
+   <TODO: link to autopkgtest results done on PPA package>
+
+   <TODO: if relevant: extra manual testing results>
 
    [Where problems could occur] 
 
