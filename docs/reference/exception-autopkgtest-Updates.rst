@@ -117,7 +117,7 @@ SRU Template
 
    [Other Info]
 
-   <TODO: other background>
+   <TODO: other background (optional)>
 
    [Changelog]
 
