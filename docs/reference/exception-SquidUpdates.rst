@@ -127,16 +127,21 @@ at https://wiki.ubuntu.com/SquidUpdates.
 
 [Upstream changes]
 
-TODO: Add a link to the upstream changelog TODO: List the major changes
-introduced in this release
+TODO: Add a link to the upstream changelog
+
+TODO: List the major changes introduced in this release
 
 [Test Plan]
 
-TODO: link the build log containing all tests being executed TODO-A: All
-tests are passing during build time, as shown in the build log. TODO-B:
-list each non passing test, explain why that is ok in this case TODO:
-add results of local autopkgtest run against all the new Squid versions
-being uploaded here
+TODO: link the build log containing all tests being executed
+
+TODO-A: All tests are passing during build time, as shown in the build
+log.
+
+TODO-B: list each non passing test, explain why that is ok in this case
+
+TODO: add results of local autopkgtest run against all the new Squid
+versions being uploaded here
 
 [Regression Potential]
 
@@ -153,6 +158,7 @@ being updated and list them here if any.
 [Other Info]
 
 TODO-A: No CVEs are being addressed this time. Therefore, this should go
-through the updates pockets. TODO-B: CVEs TBD are being addressed by
-these updates. Therefore, this update should go through the security
-pocket.
+through the updates pockets.
+
+TODO-B: CVEs TBD are being addressed by these updates. Therefore, this
+update should go through the security pocket.
