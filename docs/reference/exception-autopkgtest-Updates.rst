@@ -1,5 +1,5 @@
-This document describes the policy for updating ubuntu-dev-tools in a
-stable, supported release.
+This document describes the policy for updating autopkgtest in a stable,
+supported release.
 
 Rationale
 ---------
@@ -62,7 +62,13 @@ approval before uploading to the release's upload queue.
 QA Process
 ----------
 
-=== Build
+.. _build_time_tests:
+
+Build time tests
+~~~~~~~~~~~~~~~~
+
+The project has tests which run at package build time. The package build
+will fail if any if the tests fail.
 
 .. _integration_tests:
 
@@ -80,8 +86,8 @@ SRU Template
 ::
 
    [Impact]
-   This release contains both bug-fixes and new features and we would like to make sure all of our developers have access to these improvements.
-   The notable ones are:
+
+   This release contains both bug-fixes and new features and we would like to make sure all of our developers have access to these improvements. The notable ones are:
 
    *** <TODO: Create list with LP: # included>
 
@@ -89,19 +95,20 @@ SRU Template
 
    [Test Plan]
 
-   ubuntu-dev-tools contains a test suite that is ran using the SRU package for each releases. This test suite's results are available here:
-   http://autopkgtest.ubuntu.com/packages/ubuntu-dev-tools
+   autopkgtest contains a test suite that is ran using the SRU package for each releases. This test suite's results are available here:
+   http://autopkgtest.ubuntu.com/packages/autopkgtest
 
    A successful run is required before the proposed package can be let into -updates.
 
-   [Where problems could occur]
-   In order to mitigate the regression potential, the results of the
-   aforementioned integration tests are attached to this bug.
+   [Where problems could occur] 
+   In order to mitigate the regression potential, the results of the aforementioned integration tests are attached to this bug.
 
    <TODO: attach test artifacts for every SRU release, not a link as links expire>
 
    [Other Info]
+
    <TODO: other background>
 
    [Changelog]
+
    <TODO: Paste in change log entry>
