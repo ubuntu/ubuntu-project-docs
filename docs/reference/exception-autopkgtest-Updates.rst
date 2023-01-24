@@ -1,0 +1,107 @@
+This document describes the policy for updating ubuntu-dev-tools in a
+stable, supported release.
+
+Rationale
+---------
+
+The autopkgtest package is primarily of interest to Ubuntu developers,
+providing tools running autopkgtests locally. Developers should have
+consistent behavior from these tools, regardless of which Ubuntu release
+they are using. Moreover the Ubuntu QA team aims at keeping the package
+in the Ubuntu archive in sync with the autopkgtest version which is used
+on the autopkgtest infrastructure (https://autopkgtest.ubuntu.com/), so
+the testing environment will always be the same and therefore produce
+consistent results.
+
+.. _allowed_updates:
+
+Allowed updates
+---------------
+
+The following types of changes are allowed as long as the conditions
+outlined below are met:
+
+-  Bug fixes
+-  New features
+
+In the event of a change breaking backwards compatibility, then SRU team
+approval will need to be obtained.
+
+.. _requesting_the_sru:
+
+Requesting the SRU
+------------------
+
+The SRU should be done with a single process bug, instead of individual
+bug reports for individual bug fixes. Individual bug fixes may also be
+tracked/closed by the upload; however only the one process bug must have
+the following:
+
+-  
+
+   -  The SRU should be requested following the the StableReleaseUpdates
+      documented process.
+   -  The template at the end of this document should be used and all
+      ‘TODO’ filled out.
+   -  References to each bug fixed by the SRU should be included in the
+      changelog and major changes called out in the SRU template,
+      especially where changed behavior is not backwards compatible.
+   -  Any architecture specific changes need to be noted.
+   -  Any packaging changes (e.g. a dependency changes) need to be
+      stated.
+   -  If any manual testing occurs it should also be documented.
+
+If backwards compatibility is to be broken, this should be clearly
+written at the top of the bug description for the SRU, as well as in the
+title with "[breaks-compat]". Furthermore, an email to ubuntu-release
+will be sent to point the release / SRU teams to the bug in order to get
+approval before uploading to the release's upload queue.
+
+.. _qa_process:
+
+QA Process
+----------
+
+=== Build
+
+.. _integration_tests:
+
+Integration Tests
+~~~~~~~~~~~~~~~~~
+
+The package has a test suite that is run as an autopkgtest which should
+be good enough to ensure the package works as expected.
+
+.. _sru_template:
+
+SRU Template
+------------
+
+::
+
+   [Impact]
+   This release contains both bug-fixes and new features and we would like to make sure all of our developers have access to these improvements.
+   The notable ones are:
+
+   *** <TODO: Create list with LP: # included>
+
+   See the changelog entry below for a full list of changes and bugs.
+
+   [Test Plan]
+
+   ubuntu-dev-tools contains a test suite that is ran using the SRU package for each releases. This test suite's results are available here:
+   http://autopkgtest.ubuntu.com/packages/ubuntu-dev-tools
+
+   A successful run is required before the proposed package can be let into -updates.
+
+   [Where problems could occur]
+   In order to mitigate the regression potential, the results of the
+   aforementioned integration tests are attached to this bug.
+
+   <TODO: attach test artifacts for every SRU release, not a link as links expire>
+
+   [Other Info]
+   <TODO: other background>
+
+   [Changelog]
+   <TODO: Paste in change log entry>
