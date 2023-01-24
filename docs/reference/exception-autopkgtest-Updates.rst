@@ -97,7 +97,7 @@ SRU Template
    to make sure all of our developers have access to these improvements.
    The notable ones are:
 
-   ** <TODO: Create list with LP: # included>
+   ** <TODO: create list with LP: # references>
 
    See the changelog entry below for a full list of changes and bugs.
 
@@ -121,4 +121,4 @@ SRU Template
 
    [Changelog]
 
-   <TODO: Paste in change log entry>
+   <TODO: paste in changelog entry>
