@@ -12,9 +12,8 @@ About Squid
 -----------
 
 `Squid <http://www.squid-cache.org>`__ is a high-performance proxy
-caching server for web clients, supporting
-
-``FTP, gopher, ICY and HTTP data objects.``
+caching server for web clients, supporting FTP, gopher, ICY and HTTP
+data objects.
 
 .. _upstream_release_policy:
 
