@@ -103,7 +103,7 @@ SRU Template
 
    [Test Plan]
 
-   autopkgtest contains a test suite that is ran using the SRU
+   autopkgtest contains a test suite that is run using the SRU
    package for each releases. This test suite's results are
    available here:
 
