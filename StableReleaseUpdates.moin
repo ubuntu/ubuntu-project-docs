@@ -423,6 +423,10 @@ The OpenLDAP source package may be uploaded according to the procedure documente
 
 The haproxy source package may be uploaded according to the procedure documented in [[HAProxyUpdates]]. This stable release exception [[https://lists.ubuntu.com/archives/ubuntu-release/2022-June/005417.html|has been approved]] by LukaszZemczak for the SRU team as of 2022-06-27.
 
+=== autopkgtest ===
+
+The autopkgtest source package may be uploaded according to the procedure documented in [[autopkgtest-Updates]]. This stable release exception [[https://lists.ubuntu.com/archives/ubuntu-release/2023-January/005530.html|has been approved]] by SteveLangasek for the SRU team as of 2023-01-30.
+
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
 
