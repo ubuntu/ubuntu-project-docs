@@ -104,7 +104,7 @@ SRU Template
    [Test Plan]
 
    autopkgtest contains a test suite that is run using the SRU
-   package for each releases. This test suite's results are
+   package for each release. This test suite's results are
    available here:
 
    <TODO: link to autopkgtest results done on PPA package>
