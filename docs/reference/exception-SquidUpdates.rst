@@ -4,7 +4,7 @@ Squid Updates
 =============
 
 This document describes the policy for doing micro-release updates of
-the Squid package in Ubuntu LTS releases.
+the Squid package in Ubuntu stable releases.
 
 .. _about_squid:
 
@@ -48,11 +48,11 @@ Ubuntu and Squid releases affected by this MRE
 Currently, these are the Ubuntu releases and the corresponding Squid
 package versions affected by this policy:
 
+-  Kinetic (22.10): Squid 5.x
 -  Jammy (22.04): Squid 5.x
--  Focal (20.04): Squid 4.x
 
-This MRE should be also applicable to future Ubuntu LTS releases as long
-as the Squid release policy is not changed regarding the formats and
+This MRE should be also applicable to future Ubuntu releases as long as
+the Squid release policy is not changed regarding the formats and
 commitments described above.
 
 QA
@@ -65,6 +65,13 @@ Upstream tests
 
 Squid contains an extensive testsuite that is executed during the Ubuntu
 package build time on all supported architectures.
+
+While the downstream test suite (autopkgtest) does contain simple
+integration tests to ensure the server runs, listens and responds
+properly, the upstream tests are composed of unit tests checking
+isolated behaviors and performing code checks. While the test suite is
+available and the code base is (apparently) extensive, we could not find
+any benchmarks or coverage data for that.
 
 .. _upstream_ci:
 
@@ -104,8 +111,8 @@ Process
 As with regular MREs, we aim to offer bug and security fixes to all
 supported releases. This will be done by
 
-#. Filing a bug to cover the MRE (e.g. "New upstream microreleases 4.x,
-   5.x") with one task for each Ubuntu release which will receive a
+#. Filing a bug to cover the MRE (e.g. "New upstream microreleases 5.x,
+   y.z") with one task for each Ubuntu release which will receive a
    Squid update. This bug should follow the SRU template described
    below.
 
@@ -134,22 +141,20 @@ TODO: List the major changes introduced in this release
 
 TODO: link the build log containing all tests being executed
 
-TODO-A: All tests are passing during build time, as shown in the build
-log.
-
-TODO-B: list each non passing test, explain why that is ok in this case
+TODO: All tests are passing during build time, as shown in the build log
+(builds would fail otherwise, see LP: #2004050).
 
 TODO: add results of local autopkgtest run against all the new Squid
 versions being uploaded here
 
 [Regression Potential]
 
-Upstream tests are always executed during build-time.
+Upstream tests are always executed during build-time. Failures would
+prevent builds from succeeding.
 
 Squid does not have many reverse dependencies. However, any upgrade is a
-risk to introduce breakage to other packages. Whenever a test failure is
-detected, either in build time or in autopkgtests, we will be on top of
-it and make sure it doesn't affect existing users.
+risk to introduce breakage to other packages. Whenever a regression
+occurs in autopkgtests, we will investigate and provide fixes.
 
 TODO: consider any other regression potential specific to the version
 being updated and list them here if any.
