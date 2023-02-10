@@ -1,26 +1,29 @@
 This document describes the policy for updating ubuntu-advantage-tools
 and ubuntu-advantage-pro deb packages into a stable supported release.
 
-In order to add Ubuntu Advantage support services to all supported LTS,
+In order to add Ubuntu Pro support services to all supported LTS,
 ubuntu-advantage-tools will need to be updated periodically to add
 support for new services offered on those Ubuntu releases. Regular
 (non-LTS) releases will likely not have many available support services,
 so risk is limited on regular releases.
 
-The ubuntu-advantage-tools is a python client used to attach machines to
-existing Ubuntu Advantage support contracts and initialize support
-services such as livepatch, fips, esm and common criteria EAL2. It is a
-command line interface providing a single point of entry for enabling,
-disabling and maintaining Ubuntu Advantage support services on a single
-machine or cloud instance. It interacts with a backend
-` <contracts_server>`__ https://contracts.canonical.com
+The ubuntu-advantage-tools is a Python client (also called the Ubuntu
+Pro Client) used to attach machines to existing Ubuntu Pro support
+contracts and initialise support services such as Livepatch, FIPS, ESM
+and common criteria EAL2. It is a command line interface providing a
+single point of entry for enabling, disabling and maintaining Ubuntu Pro
+support services on a single machine or cloud instance. It interacts
+with a backend ` <contracts_server>`__ https://contracts.canonical.com
 ` <contracts_server>`__ with GETs and POSTs over https to extract
-configuration directives to add or remove apt repos, install deb
-packages and/or snaps (in the case of livepatch).
+configuration directives to add or remove APT repos, install deb
+packages and/or snaps (in the case of Livepatch).
 
 Any services managed by ubuntu-advantage-tools are described in detail
-in ` <https://ubuntu.com/advantage>`__ https://ubuntu.com/advantage
-` <https://ubuntu.com/advantage>`__ .
+in ` <https://ubuntu.com/pro>`__ https://ubuntu.com/pro
+` <https://ubuntu.com/pro>`__ . You can also read the `documentation for
+the Ubuntu Pro
+Client <https://canonical-ubuntu-pro-client.readthedocs-hosted.com/en/latest/>`__
+for more information on interacting with the tools.
 
 The `ubuntu-advantage-client
 repository <https://github.com/canonical/ubuntu-advantage-client/>`__ is
@@ -35,9 +38,9 @@ process for ubuntu-advantage-tools will target any supported LTS
 releases as well as the most recent supported regular release.
 
 Since ubuntu-advantage-tools is the primary mechanism for obtaining
-Ubuntu Advantage support services on cloud-images (AWS, Azure, GCP),
+Ubuntu Pro support services on cloud-images (AWS, Azure, GCP),
 verification is required on applicable cloud platforms, Ubuntu Pro
-images, lxc containers and kvm images.
+images, lxc containers and KVM images.
 
 Therefore, the following types of changes are allowed as long as the
 processes outlined below are followed:
@@ -47,7 +50,7 @@ processes outlined below are followed:
    -  Bug fixes
    -  New features
 
-In the event of a change breaking backwards compatibility, then SRU team
+In the event of a change breaking backwards compatibility, SRU team
 approval will need to be obtained by emailing the ubuntu-release team
 mailing list.
 
@@ -98,7 +101,7 @@ following:
 QA Process
 ----------
 
-``  ubuntu-advantage-client repo has a suite of automated integration tests that cover AWS Pro, lxc container and kvm images and exercise the bulk of features functionality delivered on trusty, xenial, bionic and focal. CI runs both tip of main against daily cloudimages and against any ``\ `````\  <ua-client_active_pull_request>`__\ ```https://github.com/canonical/ubuntu-advantage-client/pulls`` <https://github.com/canonical/ubuntu-advantage-client/pulls>`__\ `\ ```` <ua-client_active_pull_request>`__\ `` before merging.  Additional manual missing manual verification will be attached to each SRU process bug.``
+``  ubuntu-advantage-client repo has a suite of automated integration tests that cover AWS Pro, lxc container and KVM images and exercises the bulk of features functionality delivered on Trusty, Xenial, Bionic and Focal. CI runs both tip of main against daily cloud-images and against any ``\ `````\  <ua-client_active_pull_request>`__\ ```https://github.com/canonical/ubuntu-advantage-client/pulls`` <https://github.com/canonical/ubuntu-advantage-client/pulls>`__\ `\ ```` <ua-client_active_pull_request>`__\ `` before merging.  Additional manual missing manual verification will be attached to each SRU process bug.``
 
 Merges
 ~~~~~~
@@ -129,7 +132,7 @@ https://wiki.ubuntu.com/UbuntuAdvantageToolsUpdates#Requesting_the_SRU,
 using the proposed package with no unexplained errors or failures
 
 The ubuntu-advantage-tools team (Canonical's Ubuntu Server team) will be
-in charge of attaching the artifacts and console output of the
+in charge of attaching the artefacts and console output of the
 appropriate run to the bug. ubuntu-advantage-tools team members will not
 mark ‘verification-done’ until this has happened.
 
@@ -155,7 +158,7 @@ SRU Template
    https://wiki.ubuntu.com/UbuntuAdvantageToolsUpdates
 
    The ubuntu-advantage-tools team will be in charge of attaching the artifacts and
-   console output of the appropriate run to the bug.  ubuntu-advantage-tools team
+   console output of the appropriate run to the bug. ubuntu-advantage-tools team
    members will not mark ‘verification-done’ until this has happened.
 
    * Automated Test Results
