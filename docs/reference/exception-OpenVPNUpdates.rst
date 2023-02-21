@@ -19,7 +19,8 @@ Upstream release policy
 -----------------------
 
 The OpenVPN community maintains multiple versions in parallel. According
-to their https://community.openvpn.net/openvpn/wiki/SupportedVersions:
+to their `supported versions
+documentation <https://community.openvpn.net/openvpn/wiki/SupportedVersions>`__:
 
 -  The current stable release will always be in the Full stable support
    release type
@@ -47,7 +48,7 @@ Currently, these are the Ubuntu releases and the corresponding OpenVPN
 package versions affected by this policy:
 
 -  Jammy (22.04): OpenVPN 2.5.x
--  Focal (20.04): HAProxy 2.4.x
+-  Focal (20.04): OpenVPN 2.4.x
 
 QA
 --
@@ -59,10 +60,11 @@ Upstream tests
 
 OpenVPN contains a set of build and regression tests which are executed
 for each commit and release via GitHub Actions. Upstream tests are
-provided in the https://github.com/OpenVPN/openvpn/tree/master/tests.
+provided in the `tests/
+directory <https://github.com/OpenVPN/openvpn/tree/master/tests>`__.
 
-There is also a
-`\|\  <Travis_CI_pipeline>`__\ https://github.com/OpenVPN/openvpn/blob/master/.travis.yml
+There is also a `Travis CI
+pipeline <https://github.com/OpenVPN/openvpn/blob/master/.travis.yml>`__
 which builds OpenVPN for various architectures alongside Windows and Mac
 OS. The architectures include:
 
