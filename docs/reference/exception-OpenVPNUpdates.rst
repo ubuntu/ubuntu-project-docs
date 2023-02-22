@@ -59,19 +59,15 @@ Upstream tests
 ~~~~~~~~~~~~~~
 
 OpenVPN contains a set of build and regression tests which are executed
-for each commit and release via GitHub Actions. Upstream tests are
-provided in the `tests/
+for each commit and release via `GitHub
+Actions <https://github.com/OpenVPN/openvpn/actions>`__. Upstream tests
+are provided in the `tests/
 directory <https://github.com/OpenVPN/openvpn/tree/master/tests>`__.
 
-There is also a `Travis CI
-pipeline <https://github.com/OpenVPN/openvpn/blob/master/.travis.yml>`__
-which builds OpenVPN for various architectures alongside Windows and Mac
-OS. The architectures include:
-
--  amd64
--  ppc64el
--  arm64
--  s390x
+There is also a `Buildbot
+system <https://community.openvpn.net/openvpn/wiki/SettingUpBuildslave>`__
+which builds OpenVPN for various operating systems. The results are
+accessible only when connected to the community VPN.
 
 Autopkgtest
 -----------
@@ -100,8 +96,10 @@ To do this we will:
 | ``   * Add tasks to all Ubuntu releases which will be updated.``
 | ``   * Add a link to the upstream changelog and list major changes.``
 | ``2. Make sure the development release contains the fixes that will be added. In general this should be the case as long as it is up to date with its associated release version.``
-| ``3. Upload the microrelease to the SRU queue and wait until it is approved.``
-| ``4. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
+| ``3. Run autopkgtest on all supported architectures.``
+| ``4. Run autopkgtest on reverse-dependencies against the new release - eurephia, network-manager-openvpn, openvpn-auth-ldap, openvpn-auth-radius, openvpn-systemd-resolved for jammy and focal; and gadmin-openvpn-client and gadmin-openvpn-server for focal only``
+| ``4. Upload the microrelease to the SRU queue and wait until it is approved.``
+| ``5. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
 
 .. _sru_template:
 
@@ -124,7 +122,7 @@ SRU template
 
    [Test Plan]
 
-   TODO: Check DEP-8 tests pass
+   TODO: Check DEP-8 and reverse-depends DEP-8 tests pass
    TODO: if there are any non passing tests - explain why that is ok in this case
    TODO: add results of an autopkgtest run against all the new versions
 
