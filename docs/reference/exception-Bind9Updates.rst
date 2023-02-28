@@ -24,17 +24,17 @@ multiple versions in parallel. According to their `support
 policy <https://kb.isc.org/docs/aa-00896>`__, there are four version
 types:
 
--  Development - Odd-numbered releases (9.17, 9.19, etc.) are used for
-   development for 24 months, and updates are not necissarily backwards
-   compatible. After the development period the release is re-labeled as
-   the next even number and made into a stable release.
--  Stable - Each even-numbered major release (9.16, 9.18, etc.) starts
-   here and is supported with feature updates and bug fixes for 12-18
-   months. Afterward it becomes an ESV release.
--  Extended Support Versions (ESV) - Even-numbered releases marked as
+-  **Development**: Odd-numbered releases (9.17, 9.19, etc.) are used
+   for development for 24 months, and updates are not necissarily
+   backwards compatible. After the development period the release is
+   re-labeled as the next even number and made into a stable release.
+-  **Stable**: Each even-numbered major release (9.16, 9.18, etc.)
+   starts here and is supported with feature updates and bug fixes for
+   12-18 months. Afterward it becomes an ESV release.
+-  **Extended Support Versions (ESV)**: Even-numbered releases marked as
    ESV are given critical fixes and security updates up until four years
    after their initial release date. They are then marked EOL.
--  Supported Preview - Not relevant to Ubuntu, but worth mentioning.
+-  **Supported Preview**: Not relevant to Ubuntu, but worth mentioning.
    These releases are used to provide early access to feature updates in
    bind9.
 
