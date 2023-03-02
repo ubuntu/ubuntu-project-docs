@@ -38,9 +38,10 @@ types:
    These releases are used to provide early access to feature updates in
    bind9.
 
-As of writing this document, 9.19.x is the current development version,
-9.18.x is in normal extended support, and 9.16.x is ESV receiving
-security fixes.
+Development and stable versions typically have a new minor release every
+month, while for ESV this may happen less often. As of writing this
+document, 9.19.x is the current development version, 9.18.x is in normal
+extended support, and 9.16.x is ESV receiving security fixes.
 
 .. _ubuntu_and_bind9_releases_affected_by_this_mre:
 
@@ -53,6 +54,9 @@ package versions affected by this policy:
 -  Kinetic (22.10): bind9 9.18.x
 -  Jammy (22.04): bind9 9.18.x
 -  Focal (20.04): bind9 9.16.x
+
+This MRE should be also applicable to future Ubuntu LTS releases
+containing a stable or ESV version of Bind9.
 
 QA
 --
@@ -94,7 +98,10 @@ Process
 -------
 
 As with regular MREs, the aim here is to offer bugfixes and security
-fixes to all supported releases.
+fixes to all supported releases. This process will only allow updates
+from microreleases that update the final digit of the bind9 version
+number for each Ubuntu version (e.g. 9.18.x -> 9.18.x+1 and not 9.18.x
+-> 9.20.y).
 
 To do this we will:
 
