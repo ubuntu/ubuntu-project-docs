@@ -139,7 +139,7 @@ to perform the following actions:
    #. Merge the latest OpenLDAP LTS microrelease into our existing
       package, rebasing whatever delta the package may contain.
 
-`` 2. Upload the resulting package to a bileto PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
+`` 2. Upload the resulting package to a PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
 
 When everything looks OK, we are ready to start the SRU process.
 
