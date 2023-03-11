@@ -174,9 +174,9 @@ for the OpenLDAP MREs (for example, `bug
 Testing and verification
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-As explained above, the testing will be done primarily using a bileto
-ticket, which will also run autopkgtests for all of the reverse
-dependencies as well as upstream's testsuite during the package build.
+As explained above, the testing will be done primarily using a PPA, from
+which we will also run autopkgtests for all of the reverse dependencies
+as well as upstream's testsuite during the package build.
 
 We will also provide a link to upstream's "call for testing" email and
 to the !GitLab jobs that were executed when the release was cut.
