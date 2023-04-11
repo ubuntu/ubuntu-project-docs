@@ -63,3 +63,20 @@ exception, instead of individual bug reports for individual bug fixes.
 However, individual bugs may be referenced in the from the changelog but
 each of those bugs will need to independently verified and commented on
 for the SRU to be considered complete.
+
+.. _vendored_dependencies:
+
+Vendored dependencies
+~~~~~~~~~~~~~~~~~~~~~
+
+If any pinned and vendored dependencies in this package change as part
+of the SRU then the following must be present in the SRU bug.
+
+-  Details of vendored package version changes are present in the SRU
+   bug
+
+-  It is preferred that links to changelogs for the vendored packages
+   are also present in the SRU bug
+
+Changes in vendored dependencies may result in requests for additional
+testing.
