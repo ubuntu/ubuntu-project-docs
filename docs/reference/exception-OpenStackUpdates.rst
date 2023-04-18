@@ -41,6 +41,7 @@ OpenStack packages
    -  horizon
    -  keystone
    -  magnum
+   -  magnum-ui
    -  manila
    -  neutron
    -  neutron-lbaas
