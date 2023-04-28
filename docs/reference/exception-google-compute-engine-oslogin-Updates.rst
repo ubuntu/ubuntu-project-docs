@@ -68,13 +68,9 @@ Vendored dependencies
 ~~~~~~~~~~~~~~~~~~~~~
 
 If any pinned and vendored dependencies in this package change as part
-of the SRU then the following must be present in the SRU bug.
+of the SRU then the following must be present in the SRU bug:
 
--  Details of vendored package version changes are present in the SRU
-   bug
+-  Name and the version bumped (to and from) of the vendored package.
 
--  It is preferred that links to changelogs for the vendored packages
-   are also present in the SRU bug
-
-Changes in vendored dependencies may result in requests for additional
-testing.
+SRU members can review and ask any follow-up question(s) if they have
+any.
