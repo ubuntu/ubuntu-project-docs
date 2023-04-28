@@ -28,8 +28,6 @@ When a new version of gce-compute-image-packages is uploaded to
 
 -  an image based on -proposed will be built for GCE and published to
    the ubuntu-os-cloud-devel project
--  the CPC team will write new automated tests to cover new testable
-   functionality (if any) in the new package
 -  the automated testing that the CPC team normally runs against GCE
    images before they are published will be run against the -proposed
    image
