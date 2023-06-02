@@ -94,6 +94,27 @@ simpletest and zonetest are extensive enough to catch major errors,
 especially when it comes to packaging bind9 with Ubuntu and using dig /
 bind9 internally.
 
+.. _avoiding_breaking_changes:
+
+Avoiding Breaking Changes
+-------------------------
+
+Since upstream has shown that they are occasionally willing to make
+changes to their stable releases that break backwards compatibility,
+additional due diligence must be done to avoid causing problems for
+Ubuntu users. Prior to merging, version release notes and announcements
+from upstream must be checked for these changes. If any do show up, they
+should be noted in the bug report and reverted through patches depending
+on the SRU team's ruling.
+
+An example of this situation is a change made by upstream in 9.18.7 and
+9.16.33 that broke configuration compatibility for the sake of security.
+This change was noted in two places: `their
+docs <https://kb.isc.org/docs/dnssec-policy-requires-dynamic-dns-or-inline-signing>`__
+which note when and why this was done, and `their release
+notes <https://bind9.readthedocs.io/en/v9_18_12/notes.html#notes-for-bind-9-18-7>`__
+in the second point of the Feature Changes section.
+
 Process
 -------
 
@@ -109,11 +130,13 @@ To do this we will:
 
 | ``   * Add tasks to all Ubuntu releases which will be updated.``
 | ``   * Add a link to the upstream changelog and list major changes.``
+| ``   * Look through changelogs and announcements to check for backwards-incompatible changes, and note them down.``
 | ``2. Make sure the development release contains the fixes that will be added. In general this should be the case as long as it is up to date with its associated release version.``
-| ``3. Run autopkgtest on all supported architectures.``
-| ``4. Run autopkgtest on reverse-dependencies against the new release.``
-| ``4. Upload the microrelease to the SRU queue and wait until it is approved.``
-| ``5. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
+| ``3. Setup merge with new versions, reverting any backwards-incompatible changes that must be avoided in released versions of Ubuntu. ``
+| ``4. Run autopkgtest on all supported architectures.``
+| ``5. Run autopkgtest on reverse-dependencies against the new release.``
+| ``6. Upload the microrelease to the SRU queue and wait until it is approved.``
+| ``7. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
 
 .. _sru_template:
 
@@ -133,6 +156,8 @@ SRU template
 
    TODO: List updates, CVE fixes, and relevant bug fixes
    TODO: Add a link to the upstream changelog
+
+   TODO: Specifically note any backwards-incompatible changes noted by upstream and their announcements/release notes.
 
    [Test Plan]
 
