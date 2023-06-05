@@ -105,8 +105,9 @@ changes to their stable releases that break backwards compatibility,
 additional due diligence must be done to avoid causing problems for
 Ubuntu users. Prior to merging, version release notes and announcements
 from upstream must be checked for these changes. If any do show up, they
-should be noted in the bug report and reverted through patches depending
-on the SRU team's ruling.
+must be noted in the bug report. Also, prior to uploading, discuss with
+the SRU team as to how to handle the changes. This may result in a
+reversion of the backwards-incompatible changes through patches.
 
 An example of this situation is a change made by upstream in 9.18.7 and
 9.16.33 that broke configuration compatibility for the sake of security.
