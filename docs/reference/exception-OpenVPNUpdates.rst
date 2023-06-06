@@ -39,6 +39,11 @@ with critical security updates. As of writing this document, the current
 stable version is 2.6.0, previous stable is 2.5.9, and version 2.4.12
 will be in support until March 2023.
 
+When it comes to updates in Ubuntu, only releases in the full stable and
+old stable categories should be considered. Once a version has moved to
+git-tree only, the normal SRU process must be followed for individual
+bug fixes.
+
 .. _ubuntu_and_openvpn_releases_affected_by_this_mre:
 
 Ubuntu and OpenVPN releases affected by this MRE
@@ -48,7 +53,8 @@ Currently, these are the Ubuntu releases and the corresponding OpenVPN
 package versions affected by this policy:
 
 -  Jammy (22.04): OpenVPN 2.5.x
--  Focal (20.04): OpenVPN 2.4.x
+-  Focal (20.04): OpenVPN 2.4.x (One time update to 2.4.12 as that is
+   the final release for this version)
 
 QA
 --
@@ -83,6 +89,27 @@ These tests are extensive enough to catch major errors when it comes to
 the integration of OpenVPN with Ubuntu, along with issues in setup and
 VPN configuration.
 
+.. _avoiding_breaking_changes:
+
+Avoiding Breaking Changes
+-------------------------
+
+Since upstream has shown that they are occasionally willing to make
+changes to their stable releases that break backwards compatibility or
+add new features, additional due diligence must be done to avoid causing
+problems for Ubuntu users. Prior to merging, version release notes and
+announcements from upstream must be checked for these changes. If any do
+show up, they must be noted in the bug report. Also, prior to uploading,
+discuss with the SRU team as to how to handle the changes. This may
+result in a reversion of the backwards-incompatible changes through
+patches.
+
+This situation happens most often earlier in the full stable support
+phase of a version. For example, as a part of the 2.5.3 release, a new
+feature was added which implements auth-token-user. The change was then
+referenced in the `release
+notes <https://community.openvpn.net/openvpn/wiki/ChangesInOpenvpn25#Changesin2.5.3>`__.
+
 Process
 -------
 
@@ -96,10 +123,11 @@ To do this we will:
 | ``   * Add tasks to all Ubuntu releases which will be updated.``
 | ``   * Add a link to the upstream changelog and list major changes.``
 | ``2. Make sure the development release contains the fixes that will be added. In general this should be the case as long as it is up to date with its associated release version.``
-| ``3. Run autopkgtest on all supported architectures.``
-| ``4. Run autopkgtest on reverse-dependencies against the new release - eurephia, network-manager-openvpn, openvpn-auth-ldap, openvpn-auth-radius, openvpn-systemd-resolved for jammy and focal; and gadmin-openvpn-client and gadmin-openvpn-server for focal only``
-| ``4. Upload the microrelease to the SRU queue and wait until it is approved.``
-| ``5. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
+| ``3. Setup merge with new versions, reverting any backwards-incompatible changes that must be avoided in released versions of Ubuntu.``
+| ``4. Run autopkgtest on all supported architectures.``
+| ``5. Run autopkgtest on reverse-dependencies against the new release - eurephia, network-manager-openvpn, openvpn-auth-ldap, openvpn-auth-radius, openvpn-systemd-resolved for jammy and focal; and gadmin-openvpn-client and gadmin-openvpn-server for focal only``
+| ``6. Upload the microrelease to the SRU queue and wait until it is approved.``
+| ``7. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
 
 .. _sru_template:
 
@@ -119,6 +147,8 @@ SRU template
 
    TODO: List updates, CVE fixes, and relevant bug fixes
    TODO: Add a link to the upstream changelog
+
+   TODO: Specifically note any backwards-incompatible changes or features added by upstream and their announcements/release notes and relevant commits.
 
    [Test Plan]
 
