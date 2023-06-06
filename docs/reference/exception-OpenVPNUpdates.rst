@@ -36,7 +36,7 @@ security updates, and have regular version releases. Those with Old
 stable support maintain all benefits of Full stable on Linux, excluding
 smaller bug fixes. Versions with git-tree only support are only provided
 with critical security updates. As of writing this document, the current
-stable version is 2.6.0, previous stable is 2.5.9, and version 2.4.12 is
+stable version is 2.6.4, previous stable is 2.5.9, and version 2.4.12 is
 no longer supported as of March 2023.
 
 When it comes to updates in Ubuntu, only releases in the full stable and
