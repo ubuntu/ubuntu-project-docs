@@ -64,7 +64,38 @@ Mutter is also a special case, as it is a shared critical component with
 Ubuntu Budgie. Mutter SRUs must be tested against the Budgie session in
 addition to the Ubuntu/Ubuntu on Xorg/GNOME/GNOME Classic sessions.
 
-References:
+Testing
+=======
+
+An appropriate test plan varies according to the package.
+
+The desktop team will maintain specific test plans at
+`CategoryDesktopTestPlans <CategoryDesktopTestPlans>`__. If a test plan
+is for a particular package is provided there, then it should be
+followed during SRU verification for SRUs performed under this
+exception.
+
+Such test plans are subject to review and approval by the SRU team. Once
+a test plan is reviewed, an SRU team member will add an approval note to
+the page. It is possible to determine if an approval is still valid by
+comparing the note against the "last edited" timestamp and username at
+the bottom right of the page. If a test plan has been improved since the
+approval, then changes should be reconsidered and reapproved by the SRU
+team the next time an SRU for that particular package is reviewed.
+
+If a test plan is approved by the SRU team, then it can be expected that
+in the common case the SRU team won't require further review changes to
+it (ie. to avoid "bikeshedding"). Exceptions: if something substantial
+has changed since the approval, or if a significant gap is identified or
+otherwise noticed by an SRU team member.
+
+If there is no standard test plan, then ad-hoc test plans in individual
+bugs are acceptable, but these will require individual negotiation with
+SRU team members every time, and so may incur additional review
+iteration delays.
+
+References
+==========
 
 -  https://lists.ubuntu.com/archives/technical-board/2012-June/001327.html
 -  https://lists.ubuntu.com/archives/technical-board/2012-June/001298.html
