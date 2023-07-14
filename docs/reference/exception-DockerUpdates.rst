@@ -1,6 +1,6 @@
 This document describes the policy for updating the docker.io group of
-packages (docker.io, containerd, runc) in a stable supported distro, in
-particular LTS releases.
+packages (docker.io-app, containerd-app, runc) in a stable supported
+distro, in particular LTS releases.
 
 Basically docker is a sufficiently fast-moving project that we provide
 more value to our users by delivering an "upstream" experience rather
