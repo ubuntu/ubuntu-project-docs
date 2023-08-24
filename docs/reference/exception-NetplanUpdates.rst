@@ -70,14 +70,14 @@ Merges
 ~~~~~~
 
 Updates to `netplan master
-branch <http://github.com/CanonicalLtd/netplan>`__ go through the
-following process:
+branch <http://github.com/canonical/netplan>`__ go through the following
+process:
 
 -  
 
    -  Reviewed and approved by a member of the development team
-   -  TODO: Run automatic daily integration tests on master branch
-      (github integration)
+   -  Run automatic daily integration tests on master branch (github
+      integration)
    -  Successful run of unit tests and style tests on a per-commit basis
 
 Packaging
@@ -106,9 +106,6 @@ for an SRU and require passing (or a clear explanation of the failure
 and why it's considered ok); using the autopkgtest.ubuntu.com
 infrastructure, which is separate from daily integration tests that may
 be run on the netplan master branch.
-
-TODO: enable integration tests run daily from netplan master branch
-(github integration).
 
 .. _sru_template:
 
