@@ -26,17 +26,17 @@ maintainers backport fixes to all supported releases, being careful to
 not break anything, and they do recommend to stay updated to the highest
 possible number on the last digit of the version where only bug fixes
 are present (*Description* section of its `home
-page <www.haproxy.org>`__). For example, in Jammy, HAProxy version
-2.4.14 is shipped, we should keep it updated to the the highest last
-digit which is 2.4.17 right now (at the moment this document is
+page <http://www.haproxy.org>`__). For example, in Jammy, HAProxy
+version 2.4.14 is shipped, we should keep it updated to the the highest
+last digit which is 2.4.17 right now (at the moment this document is
 written).
 
 Versions where the second digit is an even number are called "LTS" and
 those are maintained for 5 years after the release (those are released
 usually between May and June). The ones with odd numbers are called
 "stable" and those are maintained between 12 and 18 months
-(*Description* section of its `home page <www.haproxy.org>`__). In
-Ubuntu, we took care to ship only LTS releases.
+(*Description* section of its `home page <http://www.haproxy.org>`__).
+In Ubuntu, we took care to ship only LTS releases.
 
 .. _ubuntu_and_haproxy_releases_affected_by_this_mre:
 
