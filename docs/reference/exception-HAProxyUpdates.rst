@@ -81,11 +81,11 @@ The mentioned Github Actions test the following:
 
 Moreover, those things are also tested on other operating systems. More
 details, about how this is implemented can be found in
-`\|\  <.github/workflows>`__\ https://github.com/haproxy/haproxy/tree/master/.github/workflows
+`.github/workflows <https://github.com/haproxy/haproxy/tree/master/.github/workflows>`__
 directory.
 
-There is also a
-`\|\  <Travis_CI_pipeline>`__\ https://github.com/haproxy/haproxy/blob/master/.travis.yml
+There is also a `Travis CI
+pipeline <https://github.com/haproxy/haproxy/blob/master/.travis.yml>`__
 which builds HAProxy and runs the regression tests in non-amd64
 architecture, they are:
 
