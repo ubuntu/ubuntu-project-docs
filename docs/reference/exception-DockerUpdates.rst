@@ -55,3 +55,10 @@ policy as it was written at the time. The deprecation notice was stated
 in Docker Engine 18.09 see
 https://docs.docker.com/engine/release-notes/18.09/#deprecation-notices
 (2019-09-03).
+
+In `LP:
+#1968035 <https://bugs.launchpad.net/ubuntu/+source/docker-buildx/+bug/1968035>`__,
+upstream has changed the requirements to run the new buildsystem
+\`DOCKER_BUILDKIT=1 docker build .\`. In the new version, the new
+buildsystem requires \`docker-buildx\` which was not included in the
+SRU.
