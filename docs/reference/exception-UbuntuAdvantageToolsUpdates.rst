@@ -288,7 +288,7 @@ Ubuntu uploads are done from a single merge proposal on Launchpad:
 
 #. Currently, the SRU review includes:
 
-`` a. a commit by commit review as presented by upstream, looking for the types of issues ``\ ```described above`` <#MitigatingRisk>`__\ ``. This is because that list is not exhaustive, and we have caught multiple issues this way either at this step or later on that have needed fixing.``
+`` a. a commit by commit review as presented by upstream, looking for the types of issues ``\ ```described above`` <#Mitigating_Risk>`__\ ``. This is because that list is not exhaustive, and we have caught multiple issues this way either at this step or later on that have needed fixing.``
 
 `` a. The usual SRU review checks, such as that all changes made appear to fit within the definition of the exception, that the version numbers are sensible, the Test Plan is reasonable given the specific changes being made, and so forth.``
 
