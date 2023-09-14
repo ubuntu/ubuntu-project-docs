@@ -197,8 +197,9 @@ both tip of main against daily cloud-images and against any
 https://github.com/canonical/ubuntu-advantage-client/pulls before
 merging.
 
-Updates to tip of ubuntu-advantage-tools:main go through the following
-process:
+Updates to tip of
+`ubuntu-advantage-tools:main <https://github.com/canonical/ubuntu-advantage-client/tree/main>`__
+go through the following process:
 
 -  Reviewed and approved by a member of the development team (Canonical
    Ubuntu server team only)
@@ -212,7 +213,8 @@ process:
    member with commit access.
 
 Further details to the upstream release process are documented in the
-“how to release guide”.
+`“how to release
+guide” <https://github.com/canonical/ubuntu-pro-client/blob/docs/dev-docs/howtoguides/release_a_new_version.md>`__.
 
 .. _upload_process:
 
@@ -253,10 +255,10 @@ review:
 #. Actions that take place without an explicit user opt-in (running the
    CLI to perform a specific task counts as opt-in for that task).
 
-#. Normally SRUs are expected to be well tested upstream or in the
-   development release to gain confidence in correctness. In this case
-   we don't get wide exposure since the nature of the package is that it
-   is widely used in LTSes only.
+Normally SRUs are expected to be well tested upstream or in the
+development release to gain confidence in correctness. In this case we
+don't get wide exposure since the nature of the package is that it is
+widely used in LTSes only.
 
 Review/Sponsoring
 ~~~~~~~~~~~~~~~~~
@@ -271,13 +273,13 @@ Instead, once upstream are ready, all reviewing for the subsequent
 Ubuntu uploads are done from a single merge proposal on Launchpad:
 
 #. A person who has permission to upload the package to the development
-   release performs a review but does not upload and iterates with
+   release performs a review **but does not upload** and iterates with
    upstream as required.
 
 #. The SRU team then also reviews the proposed upload as they would for
-   a normal SRU review but prior to upload and iterates on code changes
-   and SRU documentation as required. This is done from the MP rather
-   than the Unapproved queue. To minimise the effort involved in
+   a normal SRU review but **prior to upload** and iterates on code
+   changes and SRU documentation as required. This is done from the MP
+   rather than the Unapproved queue. To minimise the effort involved in
    handling the many required uploads to stable releases, the SRU team
    expects to review just this one MP for the development release, and
    expects that the subsequent uploads to the stable releases will be
@@ -286,7 +288,7 @@ Ubuntu uploads are done from a single merge proposal on Launchpad:
 
 #. Currently, the SRU review includes:
 
-`` a. a commit by commit review as presented by upstream, looking for the types of issues described above. This is because that list is not exhaustive, and we have caught multiple issues this way either at this step or later on that have needed fixing.``
+`` a. a commit by commit review as presented by upstream, looking for the types of issues ``\ ```described above`` <#MitigatingRisk>`__\ ``. This is because that list is not exhaustive, and we have caught multiple issues this way either at this step or later on that have needed fixing.``
 
 `` a. The usual SRU review checks, such as that all changes made appear to fit within the definition of the exception, that the version numbers are sensible, the Test Plan is reasonable given the specific changes being made, and so forth.``
 
