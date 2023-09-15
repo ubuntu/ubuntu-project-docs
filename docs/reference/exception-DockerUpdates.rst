@@ -1,6 +1,7 @@
 This document describes the policy for updating the docker.io group of
-packages (docker.io-app, containerd-app, runc) in a stable supported
-distro, in particular LTS releases.
+packages (docker.io-app, containerd-app, runc, docker-buildx,
+docker-compose-v2) in a stable supported distro, in particular LTS
+releases.
 
 Basically docker is a sufficiently fast-moving project that we provide
 more value to our users by delivering an "upstream" experience rather
@@ -10,8 +11,9 @@ Process
 -------
 
 The aim is to backport stable and compatible releases across all the
-packages that are part of this stack (runc/containerd-app/docker.io-app)
-to all supported releases.
+packages that are part of this stack
+(runc/containerd-app/docker.io-app/docker-buildx/docker-compose-v2) to
+all supported releases.
 
 To do this we will:
 
@@ -19,7 +21,7 @@ To do this we will:
    bug to cover the upgrade.
 
 | ``2. Upload the latest upstream version of the packages to the current development series of Ubuntu. Make sure all the versions are compatible among them.``
-| ``3. Once they have migrated, they can then be uploaded with minimal necessary changes to the SRU queue of the supported Ubuntu releases. For docker.io-app, .0 releases will not be backported; for containerd-app and runc, .0 releases are eligible for backporting.``
+| ``3. Once they have migrated, they can then be uploaded with minimal necessary changes to the SRU queue of the supported Ubuntu releases. For docker.io-app, docker-buildx and docker-compose-v2, .0 releases will not be backported; for containerd-app and runc, .0 releases are eligible for backporting.``
 
 We will reuse the upgrade bug for the SRU but this does not include
 detailed test case or regression potential sections (it should link to
