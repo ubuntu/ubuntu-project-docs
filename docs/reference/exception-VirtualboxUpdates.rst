@@ -139,37 +139,3 @@ support of virtualbox-ose has ended this year).
 
 Another MRE for Debian is ongoing right now (4.3.32 and 4.1.42) with
 fixes for CVE-2015-4896 and CVE-2015-4813
-
-<<Anchor(sru-template)>>
-
-.. _sru_template:
-
-SRU Template
-------------
-
-::
-
-   == Begin SRU Template ==
-   [Impact]
-   This release sports mostly bug-fixes and we would like to make sure all of our users have access to these improvements.
-
-   The update contains the following package updates:
-
-   *** <TODO: Create list with package names and versions>
-
-   [Test Case]
-   The following SRU process was followed:
-   https://wiki.ubuntu.com/OpenStack/StableReleaseUpdates
-
-   In order to avoid regression of existing consumers, the OpenStack team will run their continuous integration test against the packages that are in -proposed.  A successful run of all available tests will be required before the
-   proposed packages can be let into -updates.
-
-   The OpenStack team will be in charge of attaching the output summary of the executed tests. The OpenStack team members will not mark ‘verification-done’ until this has happened.
-
-   [Regression Potential]
-   In order to mitigate the regression potential, the results of the aforementioned tests are attached to this bug.
-
-   [Discussion]
-   <TODO: other background>
-
-   == End SRU Template ==
