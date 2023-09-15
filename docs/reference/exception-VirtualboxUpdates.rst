@@ -85,8 +85,7 @@ CVE-2015-2594
 
 `` [1]``
 
-http://www.oracle.com/us/support/assurance/vulnerability-remediation/dis
-closure/index.html
+http://www.oracle.com/us/support/assurance/vulnerability-remediation/disclosure/index.html
 
 - - Usually newer kernels means a bad experience for users, since the
 kernel drivers are rebuilt at each kernel update, and leads to failures
@@ -100,22 +99,13 @@ This is actually mitigated since Vivid releases, because of:
 -  
 
    -  Re-work the packaging to account for the kernel modules being
+      shipped in
 
-shipped in
-
-``   the master kernel packages, removing the need for dkms (LP: #1434579``
-
-):
-
+| ``   the master kernel packages, removing the need for dkms (LP: #1434579):``
 | ``   - Make the dkms package provide a virtual package matching what the``
-| ``     kernel packages provide to indicate that they ship the dkms module``
-
-s.
-
+| ``     kernel packages provide to indicate that they ship the dkms modules.``
 | ``   - Add an alternate dep from the utils package to the virtual driver.``
-| ``   - Make the x11 driver package associate with the VGA controller``
-
-PCI ID.
+| ``   - Make the x11 driver package associate with the VGA controllerPCI ID.``
 
 ``-- Adam Conrad <adconrad at ubuntu.com>   Wed, 22 Apr 2015 10:01:25 +0100``
 
@@ -183,53 +173,3 @@ SRU Template
    <TODO: other background>
 
    == End SRU Template ==
-
-.. _nominating_a_bug_for_a_series:
-
-Nominating a Bug for a Series
------------------------------
-
-A sponsor can be asked to nominate a bug for a particular series. You
-can find the following sponsors in #ubuntu-server on freenode:
-
--  To target an Ubuntu series: coreycb, jamespage, icey
--  To target an Ubuntu Cloud Archive series: coreycb, jamespage, icey,
-   dosaboy, wolsen
-
-Getting permission to target a bug for a series:
-
--  To gain permission to target a bug for an Ubuntu series you must be a
-   member of: https://launchpad.net/~ubuntu-bugcontrol
--  To gain permission to target a bug for an Ubuntu Cloud Archive series
-   you must be a member of:
-   https://launchpad.net/~ubuntu-cloud-archive-bugs
-
-.. _nominating_a_new_package_for_an_sru_exception:
-
-Nominating a new package for an SRU Exception
----------------------------------------------
-
-To propose adding a new package to this exception, you should send an
-email to ubuntu-release@lists.ubuntu.com that requests inclusion for the
-named package, as well as a justification of why it can be included. For
-example:
-
-<<Anchor(new-exception-template)>>
-
-::
-
-   == Begin Exception Template ==
-   Subject: Request New OpenStack SRU Exception for Heat
-
-   Hello SRU Team,
-
-   I'd like to request that Heat be included in the OpenStack SRU Exception list at https://wiki.ubuntu.com/OpenStack/StableReleaseUpdates.
-
-   Heat is the orchestration project in OpenStack.
-
-   Heat is already included in our regression testing and is validated via Tempest smoke tests.
-
-   Thanks,
-   Me
-
-   == End Exception Template ==
