@@ -46,7 +46,7 @@ Upstream:
 | `` - Upstream commits are reviewed by members of the Virtualbox Server``
 | ``   Engineering team.``
 
-| `` - All commits to stable branches are evaluated wrt. potential``
+| `` - All commits to stable branches are evaluated w.r.t. potential``
 | ``   regressions and signed off by the Virtualbox team.``
 
 | `` - Unit tests and regression tests are run on multiple platforms per``
