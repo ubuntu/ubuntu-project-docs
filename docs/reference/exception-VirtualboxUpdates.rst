@@ -61,20 +61,33 @@ Upstream:
 
 `` - Tests are run on all supported platforms (currently amd64).``
 
-Additional tests done are: Install virtualbox\* packages - put in ppa
-https://launchpad.net/~costamagnagianfranco/+archive/ubuntu/virtualbox-ppa
-and ask for testing - start a windows VM (generally w10, or w11) -
-update the guest additions from iso pack inside the VM - reboot the VM -
-check if the VM starts correctly and the acceleration works
+Additional tests done are:
 
-- start a linux VM (generally ubuntu LTS or Debian stable) - update the
-guest additions from iso pack inside the VM - reboot the VM - check if
-the VM starts correctly and the acceleration works - remove guest
-additions and install the virtualbox-guest-x11 package (linux only)
+`` - Install virtualbox* packages``
 
-- Check if vboxdrv is correctly built, check if \*.ko modules are built
-on the target linux VM - Install virtualbox inside the VM and check if
-it can start correctly.
+`` - put in ppa ``\ ```https://launchpad.net/~costamagnagianfranco/+archive/ubuntu/virtualbox-ppa`` <https://launchpad.net/~costamagnagianfranco/+archive/ubuntu/virtualbox-ppa>`__\ `` and ask for testing``
+
+`` - start a windows VM (generally w10, or w11)``
+
+`` - update the guest additions from iso pack inside the VM``
+
+`` - reboot the VM``
+
+`` - check if the VM starts correctly and the acceleration works``
+
+`` - start a linux VM (generally ubuntu LTS or Debian stable)``
+
+`` - update the guest additions from iso pack inside the VM``
+
+`` - reboot the VM``
+
+`` - check if the VM starts correctly and the acceleration works``
+
+`` - remove guest additions and install the virtualbox-guest-x11 package (linux only)``
+
+`` - Check if vboxdrv is correctly built, check if *.ko modules are built on the target linux VM``
+
+`` - Install virtualbox inside the VM and check if it can start correctly.``
 
 Moreover various other tests are performed, like changing configuration,
 and using vboxmanage from cmdline. Depending on the diff between the two
