@@ -43,8 +43,7 @@ Upstream:
 
 (normally 5 years + 6 months or more).
 
-| `` - Upstream commits are reviewed by members of the Virtualbox Server``
-| ``   Engineering team.``
+`` - Upstream commits are reviewed by members of the Virtualbox team.``
 
 | `` - All commits to stable branches are evaluated w.r.t. potential``
 | ``   regressions and signed off by the Virtualbox team.``
@@ -63,31 +62,62 @@ Upstream:
 
 Additional tests done are:
 
-`` - Install virtualbox* packages``
+-  
 
-`` - put in ppa ``\ ```https://launchpad.net/~costamagnagianfranco/+archive/ubuntu/virtualbox-ppa`` <https://launchpad.net/~costamagnagianfranco/+archive/ubuntu/virtualbox-ppa>`__\ `` and ask for testing``
+   -  Install virtualbox\* packages.
 
-`` - start a windows VM (generally w10, or w11)``
+-  
 
-`` - update the guest additions from iso pack inside the VM``
+   -  Upload in ppa
+      https://launchpad.net/~costamagnagianfranco/+archive/ubuntu/virtualbox-ppa
+      and ask for testing.
 
-`` - reboot the VM``
+-  
 
-`` - check if the VM starts correctly and the acceleration works``
+   -  Start a windows VM (generally w10, or w11).
 
-`` - start a linux VM (generally ubuntu LTS or Debian stable)``
+-  
 
-`` - update the guest additions from iso pack inside the VM``
+   -  Update the guest additions from iso pack inside the VM.
 
-`` - reboot the VM``
+-  
 
-`` - check if the VM starts correctly and the acceleration works``
+   -  Reboot the VM.
 
-`` - remove guest additions and install the virtualbox-guest-x11 package (linux only)``
+-  
 
-`` - Check if vboxdrv is correctly built, check if *.ko modules are built on the target linux VM``
+   -  Check if the VM starts correctly and the acceleration works.
 
-`` - Install virtualbox inside the VM and check if it can start correctly.``
+-  
+
+   -  Start a linux VM (generally ubuntu LTS or Debian stable).
+
+-  
+
+   -  Update the guest additions from iso pack inside the VM.
+
+-  
+
+   -  Reboot the VM.
+
+-  
+
+   -  Check if the VM starts correctly and the acceleration works.
+
+-  
+
+   -  Remove guest additions and install the virtualbox-guest-x11
+      package (linux only).
+
+-  
+
+   -  Check if vboxdrv is correctly built, check if \*.ko modules are
+      built on the target linux VM.
+
+-  
+
+   -  Install virtualbox inside the VM and check if it can start
+      correctly.
 
 Moreover various other tests are performed, like changing configuration,
 and using vboxmanage from cmdline. Depending on the diff between the two
@@ -116,9 +146,7 @@ In Debian/Ubuntu:
 leaves virtualbox in stable releases generally vulnerable, e.g. to
 CVE-2015-2594
 
-`` [1]``
-
-http://www.oracle.com/us/support/assurance/vulnerability-remediation/disclosure/index.html
+`` [1] ``\ ```http://www.oracle.com/us/support/assurance/vulnerability-remediation/disclosure/index.html`` <http://www.oracle.com/us/support/assurance/vulnerability-remediation/disclosure/index.html>`__
 
 - - Usually newer kernels means a bad experience for users, since the
 kernel drivers are rebuilt at each kernel update, and leads to failures
