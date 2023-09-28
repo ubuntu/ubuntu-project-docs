@@ -160,12 +160,12 @@ This is actually mitigated since Vivid releases, because of:
 -  
 
    -  Re-work the packaging to account for the kernel modules being
-      shipped in
+      shipped in the master kernel packages, removing the need for dkms
+      (LP: #1434579):
 
-| ``   the master kernel packages, removing the need for dkms (LP: #1434579):``
-| ``   - Make the dkms package provide a virtual package matching what the kernel packages provide to indicate that they ship the dkms modules.``
-| ``   - Add an alternate dep from the utils package to the virtual driver.``
-| ``   - Make the x11 driver package associate with the VGA controllerPCI ID.``
+| ``   * Make the dkms package provide a virtual package matching what the kernel packages provide to indicate that they ship the dkms modules.``
+| ``   * Add an alternate dep from the utils package to the virtual driver.``
+| ``   * Make the x11 driver package associate with the VGA controllerPCI ID.``
 
 ``-- Adam Conrad <adconrad at ubuntu.com>   Wed, 22 Apr 2015 10:01:25 +0100``
 
