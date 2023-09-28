@@ -163,8 +163,7 @@ This is actually mitigated since Vivid releases, because of:
       shipped in
 
 | ``   the master kernel packages, removing the need for dkms (LP: #1434579):``
-| ``   - Make the dkms package provide a virtual package matching what the``
-| ``     kernel packages provide to indicate that they ship the dkms modules.``
+| ``   - Make the dkms package provide a virtual package matching what the kernel packages provide to indicate that they ship the dkms modules.``
 | ``   - Add an alternate dep from the utils package to the virtual driver.``
 | ``   - Make the x11 driver package associate with the VGA controllerPCI ID.``
 
