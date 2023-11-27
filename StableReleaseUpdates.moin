@@ -316,10 +316,6 @@ different process which is described on KernelTeam/KernelUpdates.
 
 The landscape-client source package may be uploaded according to the procedure documented in LandscapeUpdates. See the [[https://lists.ubuntu.com/archives/ubuntu-devel-announce/2009-March/000550.html|Technical Board resolution]] for details and rationale.
 
-=== Juju ===
-The juju-core source package may be uploaded according to the procedure documented in JujuUpdates. See the
-[[https://lists.ubuntu.com/archives/technical-board/2014-August/001992.html|Technical Board discussion]] for historical context and rationale.
-
 === Snapd ===
 The snapd source package may be uploaded according to the procedure documented in SnapdUpdates.  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by SteveLangasek for the SRU team as of 2016-05-12.
 
@@ -439,6 +435,12 @@ The bind9 source package may be uploaded according to the procedure documented i
 === virtualbox ===
 
 The virtualbox source packages may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/VirtualboxUpdates|VirtualboxUpdates]]. This stable release exception [[https://lists.ubuntu.com/archives/technical-board/2015-November/002177.html|has been approved]] by Martin Pitt for the SRU team as of 2015-11-04.
+
+=== ubuntu-advantage-tools ===
+
+The ubuntu-advantage-tools source package may be uploaded according to the SRU procedures documented in [[UbuntuAdvantageToolsUpdates]]. This stable release exception [[https://lists.ubuntu.com/archives/ubuntu-release/2023-October/005810.html|has been approved]] by RobieBasak for the SRU team part as of 2023-10-04.
+
+
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
 
