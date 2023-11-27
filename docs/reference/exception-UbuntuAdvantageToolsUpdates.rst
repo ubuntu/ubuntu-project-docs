@@ -47,8 +47,9 @@ Since these feature changes may land in stable releases at any time,
 adhering to feature freeze during the development cycle would be
 counterproductive as those changes would be forced to land after release
 instead. Therefore, feature freeze will not apply when the changes are
-in scope of this document. However, beta freeze and final freeze will
-still apply in order to manage risk in the release itself.
+in scope of this document. However, from beta freeze on uploads of this
+package will be subject to the same additional scrutiny by the Release
+Team as any other package.
 
 .. _summary_of_exceptions:
 
