@@ -15,7 +15,7 @@ widely used by other third party vendors.
 
 -  Upstream reference:
 
-   -  https://sos.readthedocs.io/en/latest/
+   -  https://sos.readthedocs.io/en/main/
    -  http://github.com/sosreport/sos
 
 Therefore, in addition to bug fixes, new features are allowed in an
