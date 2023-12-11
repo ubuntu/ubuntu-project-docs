@@ -320,6 +320,10 @@ following platforms must be provided.
    releases
 -  GCP Ubuntu Pro images and standard Ubuntu cloud images on all LTS
    releases
+-  Once https://wiki.ubuntu.com/UbuntuProForWSLUpdates is approved and
+   active we'll run the applicable subset of the integration test on
+   that virtual substrate on all supported LTS releases. In addition we
+   will run the related tests of the WSL team.
 -  LTS to LTS upgrade test of attached machine for all affected LTS
 -  LTS to LTS upgrade test of unattached machine for all affected LTS
 
