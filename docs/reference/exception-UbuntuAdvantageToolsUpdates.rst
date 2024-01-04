@@ -56,21 +56,27 @@ Team as any other package.
 Summary of exceptions
 ---------------------
 
-These specific exceptions require approval by the team indicated.
+These specific exceptions have been approved by the team indicated.
 
-#. [TB] Facilities that enable access to Ubuntu Pro may be added to the
-   main Ubuntu archive and installed by default.
+#. Facilities that enable access to Ubuntu Pro may be added to the main
+   Ubuntu archive and installed by default. `Signed off by the Technical
+   Board on
+   2023-10-10 <https://irclogs.ubuntu.com/2023/10/10/%23ubuntu-meeting.html#t19:18>`__.
 
-#. [SRU] Feature updates are permitted subject to SRU team review on a
+#. Feature updates are permitted subject to SRU team review on a
    case-by-case basis, and for the ubuntu-advantage-tools package
    according to the policies, processes and limitations specified by the
-   SRU team and documented below.
+   SRU team and documented below. `Signed off by Robie Basak on behalf
+   of the SRU team on
+   2023-10-04 <https://lists.ubuntu.com/archives/ubuntu-release/2023-October/005810.html>`__.
 
-#. [TB? SRU? Unclear] Updates shall be permitted as usual for SRUs and
-   additionally after EoSS.
+#. Updates shall be permitted as usual for SRUs and additionally after
+   EoSS. `Signed off by the Technical Board on
+   2023-10-10 <https://irclogs.ubuntu.com/2023/10/10/%23ubuntu-meeting.html#t19:18>`__.
 
-#. [Release team] Feature freeze in the development release shall not
-   apply.
+#. Feature freeze in the development release shall not apply. `Signed
+   off by Lukasz Zemczak on behalf of the Release Team on
+   2023-11-27 <https://lists.ubuntu.com/archives/ubuntu-release/2023-November/005844.html>`__.
 
 .. _updating_the_ubuntu_advantage_tools_package:
 
