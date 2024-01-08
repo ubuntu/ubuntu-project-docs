@@ -117,6 +117,8 @@ a reported regression.
    https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/1892266
 -  2021: 11.2.5 to F,G:
    https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/1911831
+-  2021: 11.3.0 to F,H:
+   https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/1933143
 -  2022: 12.1.0 to J:
    https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/1975767
 -  2022: 12.1.5 to J,K,L:
