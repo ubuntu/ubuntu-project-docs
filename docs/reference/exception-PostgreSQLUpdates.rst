@@ -152,7 +152,15 @@ We will:
       See the SRU template below for more details on how this bug will
       look like.
 
-`` 2. Once everything is OK, upload the package to the proposed pocket (if it's a non-security upload), and, once approved, keep an eye on the excuses page and investigate any DEP8 failures.``
+`` 2. If there are no known CVEs being addressed by the update (if there is one, the CVE ID will be explicitly mentioned in the upstream changelog),``
+
+we will:
+
+`` 2.1. upload the package to the proposed pocket. Once approved, we will monitor the excuses page and address  any DEP8 failures.``
+
+else, if there are CVEs being addressed by the update, we will:
+
+`` 2.2. ensure there are no regressions by running autopkgtests for the updated package and its reverse dependencies. Then, contact the security team so then can take over the release to the security pocket.``
 
 .. _testing_and_verification:
 
@@ -160,7 +168,7 @@ Testing and verification
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 As explained above, the testing will be done primarily using a PPA. When
-needed (e.g., when uploading to the
+needed (i.e., when uploading to the
 
 ::
 
