@@ -20,7 +20,11 @@ No less than **<QUESTION: what is the correct time here>** after each
 Ubuntu release (to allow widespread testing) the version of
 open-vm-tools can be backported from the current Ubuntu release to the
 most recent LTS' -updates pocket and any non-LTS stable release in
-support. It is expected that no packaging changes from the current
+support.
+
+There should be a single SRU bug tracking the backport. Other bugs may
+included in the changelog; they must have test cases and be verified as
+normal. It is expected that no packaging changes from the current
 release will be required for this backport - any necessary changes
 should be highlighted in the SRU bug. Similarly, any packaging changes
 from the previous stable version should be called out in the SRU bug.
