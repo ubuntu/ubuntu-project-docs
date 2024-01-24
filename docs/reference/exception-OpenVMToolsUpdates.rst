@@ -16,11 +16,10 @@ release.
 Process
 =======
 
-No less than **<QUESTION: what is the correct time here>** after each
-Ubuntu release (to allow widespread testing) the version of
-open-vm-tools can be backported from the current Ubuntu release to the
-most recent LTS' -updates pocket and any non-LTS stable release in
-support.
+No less than 6 weeks after each Ubuntu release (to allow some widespread
+testing) the version of open-vm-tools can be backported from the current
+Ubuntu release to the most recent LTS' -updates pocket and any non-LTS
+stable release in support.
 
 There should be a single SRU bug tracking the backport. Other bugs may
 included in the changelog; they must have test cases and be verified as
