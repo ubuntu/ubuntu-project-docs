@@ -126,10 +126,26 @@ perform the following actions:
 
 #. 
 
-   #. Merge the latest PostgreSQL LTS microrelease into our existing
-      package, rebasing whatever delta the package may contain.
+   #. Confirm that the new minor release does **not** contain any
+      breaking changes that might put users' data in jeopardy (e.g.,
+      requiring a
+      ::
 
-`` 2. Upload the resulting package to a PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
+         pg_dump/pg_restore
+
+      cycle is dangerous and should never happen in a minor release).
+
+| `` 2. Merge the latest PostgreSQL LTS microrelease into our existing package, rebasing whatever delta the package may contain.``
+| `` 2.1. Update the contents of the ``
+
+::
+
+   debian/NEWS
+
+file to reflect manual operations that might need to be performed by the
+user after upgrading the package.
+
+`` 3. Upload the resulting package to a PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
 
 When everything looks OK, we are ready to start the SRU process.
 
@@ -156,11 +172,11 @@ We will:
 
 we will:
 
-`` 2.1. upload the package to the proposed pocket. Once approved, we will monitor the excuses page and address  any DEP8 failures.``
+`` 2.1. upload the package to the proposed pocket. Once approved, we will monitor the excuses page and address any DEP8 failures.``
 
 else, if there are CVEs being addressed by the update, we will:
 
-`` 2.2. ensure there are no regressions by running autopkgtests for the updated package and its reverse dependencies. Then, contact the security team so then can take over the release to the security pocket.``
+`` 2.2. ensure there are no regressions by running autopkgtests for the updated package and its reverse dependencies. Then, contact the security team so they can take over the release to the security pocket.``
 
 .. _testing_and_verification:
 
