@@ -274,3 +274,5 @@ SRU template
    As usual we test and prep from the PPA and then push through SRU/Security as applicable.
 
    Once ready, the test packages should be available at https://launchpad.net/~canonical-server/+archive/ubuntu/postgresql-sru-preparation/+packages
+
+SRU team approval by RAOF 2024/01/31
