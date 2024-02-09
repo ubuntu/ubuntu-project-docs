@@ -434,12 +434,20 @@ The bind9 source package may be uploaded according to the procedure documented i
 
 === virtualbox ===
 
+*** THIS IS OUTDATED !!! ***
 The virtualbox source packages may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/VirtualboxUpdates|VirtualboxUpdates]]. This stable release exception [[https://lists.ubuntu.com/archives/technical-board/2015-November/002177.html|has been approved]] by Martin Pitt for the SRU team as of 2015-11-04.
 
 === ubuntu-advantage-tools ===
 
 The ubuntu-advantage-tools source package may be uploaded according to the SRU procedures documented in [[UbuntuAdvantageToolsUpdates]]. This stable release exception [[https://lists.ubuntu.com/archives/ubuntu-release/2023-October/005810.html|has been approved]] by RobieBasak for the SRU team part as of 2023-10-04.
 
+=== open-vm-tools ===
+
+The open-vm-tools source package may be uploaded according to the proceedure documented in [[OpenVMToolsUpdates]]. This stable release exception [[https://lists.ubuntu.com/archives/ubuntu-release/2024-January/005900.html|has been approved]] by ChrisHalseRogers for the SRU team as of 2024-01-25.
+
+=== postgresql ===
+
+The currently supported postgresql source package (as determined by the dependency of the postgresql metapackage) for each stable release may be uploaded according to the proceedure documented in [[PostgreSQLUpdates]]. This stable release exception [[https://lists.ubuntu.com/archives/ubuntu-release/2024-January/005915.html|has been approved]] by ChrisHalseRogers for the SRU team as of 2024-01-31
 
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
@@ -591,7 +599,7 @@ If you do have upload access, you can contact the SRU team by asking generally i
 Vanguards from the SRU team can also usually be found in #ubuntu-release on the following schedule:
 
 ||'''Day''' || '''SRU Team Member (IRC nick)''' ||
-|| Monday || Łukasz Zemczak (sil2100) ||
+|| Monday || Łukasz Zemczak (sil2100), Mauricio Oliveira (mfo) ||
 || Tuesday || Chris Halse Rogers (RAOF), Brian Murray (bdmurray) ||
 || Wednesday || Robie Basak (rbasak) ||
 || Thursday || Andreas Hasenack (ahasenack), Łukasz Zemczak (sil2100 - backup) ||
