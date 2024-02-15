@@ -47,5 +47,9 @@ a while now, so we can carry on for the moment. No policy exception is
 required for apt and this document doesn't represent one - this page
 just serves to explain the status quo to make future SRU reviews easier.
 
+See the `IRC
+discussion <https://irclogs.ubuntu.com/2024/02/15/%23ubuntu-devel.html#t10:57>`__
+for details.
+
 -- `LaunchpadHome:racb <LaunchpadHome:racb>`__
-<<DateTime(2024-02-15T13:31:50Z)>>
+<<DateTime(2024-02-15T13:37:35Z)>>
