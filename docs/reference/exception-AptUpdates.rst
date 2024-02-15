@@ -19,11 +19,10 @@ versioned branch with one designated target release.
 QA process
 ----------
 
-Each upstream release undergoes a dedicated CI pipeline that runs the
-test suite as both root and a normal user whereas the autopkgtests only
-cover the root portion.
-
-Aside from this we do also follow the normal [Test Plan] SRU process.
+In addition to normal Ubuntu QA process after the upload, each upstream
+release (each push to the git branch really) undergoes a dedicated CI
+pipeline that runs the test suite as both root and a normal user whereas
+the autopkgtests only cover the root portion.
 
 .. _requesting_the_sru:
 
