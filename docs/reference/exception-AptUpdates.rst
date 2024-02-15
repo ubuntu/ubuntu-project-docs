@@ -23,6 +23,8 @@ Each upstream release undergoes a dedicated CI pipeline that runs the
 test suite as both root and a normal user whereas the autopkgtests only
 cover the root portion.
 
+Aside from this we do also follow the normal [Test Plan] SRU process.
+
 .. _requesting_the_sru:
 
 Requesting the SRU
