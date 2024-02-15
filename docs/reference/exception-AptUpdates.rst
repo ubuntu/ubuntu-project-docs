@@ -36,3 +36,16 @@ Other developers are strongly recommended to deliver patches to the
 upstream APT project and get an upstream APT release instead of
 releasing uploads themselves to ensure validation by APT developers and
 the CI. Please ping juliank if you need a patch!
+
+Approvals
+---------
+
+On behalf of the SRU team, I'm not approving this because I'm not sure
+the approach to versioning is the right way to do things in the long
+term. In the short term, this is apparently how its been done for quite
+a while now, so we can carry on for the moment. No policy exception is
+required for apt and this document doesn't represent one - this page
+just serves to explain the status quo to make future SRU reviews easier.
+
+-- `LaunchpadHome:racb <LaunchpadHome:racb>`__
+<<DateTime(2024-02-15T13:31:50Z)>>
