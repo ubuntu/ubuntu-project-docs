@@ -1,7 +1,7 @@
-.. _upstream_versioning_scheme_lts_srus:
+.. _apt_python_apt_upstream_versioning_scheme_lts_srus:
 
-Upstream versioning scheme LTS SRUs
-===================================
+apt, python-apt: Upstream versioning scheme LTS SRUs
+====================================================
 
 The APT developers (https://launchpad.net/~deity) maintain upstream
 stable branches for LTS releases of Ubuntu. These will be uploaded to
