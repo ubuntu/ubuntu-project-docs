@@ -372,6 +372,10 @@ The dpdk source package can be uploaded according to the procedures documented i
 
 The packages ubuntu-release-upgrader and python-apt both contain files with listings of Ubuntu mirrors. To facilitate upgrades to new releases ubuntu-release-upgrader should be updated (particularly for LTS releases) so that the list of mirrors is accurate.  With that in mind and given that it is just a text file with urls for mirrors it is okay to SRU only mirror changes for these packages without an SRU bug.
 
+=== apt and python-apt ===
+
+Not a policy exception, but see AptUpdates for details of unusual SRU versioning.
+
 === rax-nova-agent ===
 The source package rax-nova-agent may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/rax-nova-agent-Updates|rax-nova-agent-Updates]].  This stable release exception has been approved by SteveLangasek for the SRU team as of 2018-08-15.
 
