@@ -14,6 +14,11 @@ The APT release management ensures that there is no conflict in
 versioning between Debian and Ubuntu uploads. There is only one
 versioned branch with one designated target release.
 
+.. _qa_process:
+
+QA process
+----------
+
 Each upstream release undergoes a dedicated CI pipeline that runs the
 test suite as both root and a normal user whereas the autopkgtests only
 cover the root portion.
@@ -23,6 +28,10 @@ cover the root portion.
 Requesting the SRU
 ------------------
 
-Apart from upstream versioning by uploads from
-https://launchpad.net/~deity team, we otherwise follow normal SRU
-procedure.
+SRUs will follow the normal SRU procedure but may use upstream versions
+if uploaded by the https://launchpad.net/~deity team.
+
+Other developers are strongly recommended to deliver patches to the
+upstream APT project and get an upstream APT release instead of
+releasing uploads themselves to ensure validation by APT developers and
+the CI. Please ping juliank if you need a patch!
