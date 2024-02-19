@@ -1,6 +1,6 @@
 This document describes the policy for updating the openjdk-N packages,
 and to introduce new openjdk-N packages in Ubuntu LTS versions. OpenJDK
-upstream has long supported LTS releases (11, next one 17), which are
+upstream has long supported LTS releases (11, 17, 21), which are
 normally maintained in the distro. OpenJDK versions in between OpenJDK
 LTS version are only supported for around six months. Having such a
 version in an Ubuntu non-LTS release make sense, because the support
@@ -17,10 +17,10 @@ updates pocket.
 QA Process
 ----------
 
-A new OpenJDK short term support version has to be upload to the current
-development series first, then to the most recent Ubuntu LTS release. At
-most two OpenJDK short term support versions can be found in an Ubuntu
-LTS release.
+A new OpenJDK short term support version has to be uploaded to the
+current development series first, then to the most recent Ubuntu LTS
+release. At most two OpenJDK short term support versions can be found in
+an Ubuntu LTS release.
 
 These versions are not used by default, minimizing the risk to affect
 other packages in the archive. The test results run during the build
