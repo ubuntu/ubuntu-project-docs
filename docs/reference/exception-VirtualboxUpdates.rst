@@ -7,32 +7,98 @@
 Stable Release Updates for Virtualbox Updates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The SRU process for Virtualbox follows the same process as `Ubuntu
-Stable Release
-Updates <https://wiki.ubuntu.com/StableReleaseUpdates>`__. This page
-summarises the process.
+Virtualbox has a number of features making it a special case for SRUs -
+as a virtual-machine provider it has some of the same requirements as
+hardware-enablement features. It provides a kernel module, interacting
+with the hardware enablement work done for the kernel. Finally, upstream
+does not put out security-only patches, so fixing security bugs requires
+taking micro-release versions.
+
+Fortunately, upstream has a robust testing system.
+
+As such, upstream micro releases may be SRUed as-is to Ubuntu stable
+releases with the following process:
 
 .. _package_list:
 
 Package List
 ------------
 
-.. _virtualbox_packages:
-
-Virtualbox packages
-~~~~~~~~~~~~~~~~~~~
-
 -  
 
    -  virtualbox
    -  virtualbox-hwe
-   -  virtualbox-guest-additions-iso
    -  virtualbox-ext-pack
+   -  virtualbox-guest-additions-iso
 
 .. _sru_expectations:
 
 SRU Expectations
 ----------------
+
+There should be one SRU bug for the update, following the template
+below:
+
+::
+
+   [Impact]
+
+   * MRE for Virtualbox $VERSION
+
+   [Test Case]
+
+   The only supported architecture for Virtualbox is amd64, so all testing is done on that architecture.
+
+   Install virtualbox-qt, virtualbox-guest-additions-iso
+
+   Windows VM:
+   ** Start a windows VM (Windows install images can be found on the Microsoft site. For example: https://www.microsoft.com/en-au/software-download/windows11)
+   ** Add the guest-additions iso (found in /usr/share/virtualbox/VBoxGuestAdditions.iso) to the VM.
+   ** Update (or install) the guest additions from iso pack inside the VM.
+   ** Reboot the VM.
+   ** Check if the VM starts correctly and the acceleration works.
+
+   Linux VM:
+   ** Start a linux VM (Most recent Ubuntu LTS).
+   ** Add the guest-additions iso (found in /usr/share/virtualbox/VBoxGuestAdditions.iso) to the VM.
+   ***********************
+   ** Update (or install) <<HOW?>> the guest additions from iso pack inside the VM.
+   ***********************
+   ** Reboot the VM.
+   ** Check if the VM starts correctly and the acceleration works.
+
+   ***********************
+   ** Remove guest additions <<HOW?>> and install the virtualbox-guest-x11 package (linux only).
+   ***********************
+   ** Check if vboxdrv is correctly built, check if *.ko modules are built on the target linux VM.
+   ** Install virtualbox inside the VM and check if it can start correctly.
+
+
+   ***********************
+   Moreover various other tests are performed, like changing configuration, and using vboxmanage from cmdline
+   - What tests, how do we perform them?
+   ***********************
+
+   < OPTIONAL - EITHER >
+   The changelog has been inspected and no changes of particular concern have been identified.
+
+   <          - OR >
+   $SPECIFIC_CHANGES in this update effect $THING. Additionally to the standard testing above,
+   $SPECIFIC_TEST_CASES should be performed.
+
+   [Regression Potential]
+   Any aspect of VM functionality could be affected; this risk is mitigated by extensive upstream testing and the test cases above.
+
+   < IF SPECIFIC CHANGES ARE FLAGGED >
+   $SPECIFIC_CHANGES could affect $FUNCTIONALITY.
+
+   [Other Info]
+   < Any extra information relevant to this update >
+
+.. _other_information:
+
+Other Information
+-----------------
 
 Upstream:
 
@@ -61,83 +127,6 @@ Upstream:
 `` - Tests are run on all supported platforms (currently amd64).``
 
 Additional tests done are:
-
--  
-
-   -  Install virtualbox\* packages.
-
--  
-
-   -  Upload in ppa
-      https://launchpad.net/~costamagnagianfranco/+archive/ubuntu/virtualbox-ppa
-      and ask for testing.
-
--  
-
-   -  Start a windows VM (generally w10, or w11).
-
--  
-
-   -  Update the guest additions from iso pack inside the VM.
-
--  
-
-   -  Reboot the VM.
-
--  
-
-   -  Check if the VM starts correctly and the acceleration works.
-
--  
-
-   -  Start a linux VM (generally ubuntu LTS or Debian stable).
-
--  
-
-   -  Update the guest additions from iso pack inside the VM.
-
--  
-
-   -  Reboot the VM.
-
--  
-
-   -  Check if the VM starts correctly and the acceleration works.
-
--  
-
-   -  Remove guest additions and install the virtualbox-guest-x11
-      package (linux only).
-
--  
-
-   -  Check if vboxdrv is correctly built, check if \*.ko modules are
-      built on the target linux VM.
-
--  
-
-   -  Install virtualbox inside the VM and check if it can start
-      correctly.
-
-Moreover various other tests are performed, like changing configuration,
-and using vboxmanage from cmdline. Depending on the diff between the two
-releases, the diff is inspected and more deep and targeted tests are
-performed.
-
-Upstream update policy (from upstream developers, not from Oracle
-company)
-
-For VBox 4.x, the support period was 5 years. As VBox 4.0 was released
-in December 2010, the official support for VBox 4.x (including 4.3) will
-end in December 2015. For VBox 4.3 we will probably extend the period
-for a few month. With VBox 5.x, the support period is still 5 years but
-once VBox 5.1.x is released, users have to switch from 5.0 to 5.1 within
-a certain period. There will be a grace period of approx. 6 month but
-after that, There will be no further updates for 5.0.x. So within the 5
-years it will happen that 5.1.x replaces 5.0.x at some time and there
-will be no further updates to 5.0 when 5.1.0 is released + approx 6
-months. Btw, disclaimer: This is not an official Oracle statement (I'm
-not allowed to do that) but you can take these statements serious.
 
 In Debian/Ubuntu:
 
