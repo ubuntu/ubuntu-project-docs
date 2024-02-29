@@ -93,6 +93,11 @@ below:
 
 
    ***********************
+   ** Check if installing guest drivers and additions don't break the host system.
+     To perform this test, just install guest-dkms/guest-x11 and check if the host system misbehaves (flickering, slow responsiveness, or other glitches).
+
+
+   ***********************
    Moreover various other tests are performed, like changing configuration, and using vboxmanage from cmdline
    - What tests, how do we perform them?
    check headless start
