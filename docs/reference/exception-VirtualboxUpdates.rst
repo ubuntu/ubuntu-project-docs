@@ -62,21 +62,45 @@ below:
    ** Start a linux VM (Most recent Ubuntu LTS).
    ** Add the guest-additions iso (found in /usr/share/virtualbox/VBoxGuestAdditions.iso) to the VM.
    ***********************
-   ** Update (or install) <<HOW?>> the guest additions from iso pack inside the VM.
+   ** Update (or install) the guest additions from iso pack inside the VM.
+       This can be done inside the menu of Virtualbox -> Devices -> Insert Guest Additions CD image.
+       To install it:
+       Windows:
+       Click on the newly inserted cd in file manager, and run AutoPlay. After installation, reboot
+       Linux:
+       Can be done in a similar graphical way (such as Windows), but also via cmdline
+       $ sudo mkdir /mnt/cdrom
+       $ sudo mount /dev/cdrom /mnt/cdrom
+       $ cd /mnt/cdrom
+       $ sudo sh ./VBoxLinuxAdditions.run --nox11
+
    ***********************
    ** Reboot the VM.
    ** Check if the VM starts correctly and the acceleration works.
 
    ***********************
-   ** Remove guest additions <<HOW?>> and install the virtualbox-guest-x11 package (linux only).
+   ** Remove guest additions (Linux only) and install the virtualbox-guest-x11 package (Linux only).
+       Removing can be done via
+       $ sudo sh VBoxLinuxAdditions.run uninstall (with iso inserted)
+       or
+       $ cd /opt/VBoxGuestAdditions-$VERSION
+       $ sudo sh uninstall.sh
    ***********************
    ** Check if vboxdrv is correctly built, check if *.ko modules are built on the target linux VM.
-   ** Install virtualbox inside the VM and check if it can start correctly.
+       $ find /lib/modules -name "vboxdrv.ko"
+       /lib/modules/6.2.0-35-generic/misc/vboxdrv.ko
+   ** Install Virtualbox inside the VM and check if it can start correctly.
 
 
    ***********************
    Moreover various other tests are performed, like changing configuration, and using vboxmanage from cmdline
    - What tests, how do we perform them?
+   check headless start
+   $ vboxmanage controlvm $MACHINE-NAME poweroff ; vboxmanage startvm $MACHINE-NAME --type headless
+   check normal start
+   $ vboxmanage controlvm $MACHINE-NAME poweroff ; vboxmanage startvm $MACHINE-NAME
+
+   Try to enable/disable 3d from machine settings and restart (Display-> Enable 3D Acceleration)
    ***********************
 
    < OPTIONAL - EITHER >
