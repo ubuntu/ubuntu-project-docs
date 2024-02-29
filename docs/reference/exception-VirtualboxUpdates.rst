@@ -101,6 +101,8 @@ below:
    $ vboxmanage controlvm $MACHINE-NAME poweroff ; vboxmanage startvm $MACHINE-NAME
 
    Try to enable/disable 3d from machine settings and restart (Display-> Enable 3D Acceleration)
+   Optionally you can try to resize a vm, enable/disable network, savestate of the VM, attach/detach usb devices, showvminfo, list vms, and so on.
+   $ vboxmanage has a really long list of options (~300)
    ***********************
 
    < OPTIONAL - EITHER >
