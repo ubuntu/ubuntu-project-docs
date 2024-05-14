@@ -106,7 +106,7 @@ The following two exceptions apply to bugfixes, but do not apply to hardware ena
 
     We recognise that making it a hard requirement to fix all subsequent interim releases would mandate more work, and that a team may not have the resources available to fix and verify (say) an LTS as well as a subsequent interim release that has fewer users. We wouldn't want to block a fix from landing at all, so we are not making it a hard requirement that subsequent interim releases be fixed.
 
-   However, we strongly recommend that subsequent interim releases be fixed, and it is our expectation that normally uploaders will ensure this. If you are unable to do this, then please: 1) create and mark bug tasks against the subsequent affected releases "Won't Fix"; and 2) explicitly state in the bug that you are deliberately seeking to fix a release without fixing the subsquent releases. An SRU team member may then accept your upload at their discretion and on a case-by-case basis. If this is not done, then uploaders should expect an SRU review round trip while your intentions are clarified.
+   However, we strongly recommend that subsequent interim releases be fixed, and it is our expectation that normally uploaders will ensure this. If you are unable to do this, then please: 1) create and mark bug tasks against the subsequent affected releases "Won't Fix"; and 2) explicitly state in the bug that you are deliberately seeking to fix a release without fixing the subsequent releases. An SRU team member may then accept your upload at their discretion and on a case-by-case basis. If this is not done, then uploaders should expect an SRU review round trip while your intentions are clarified.
 
 
 == Procedure ==
