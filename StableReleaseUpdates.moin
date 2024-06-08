@@ -179,6 +179,13 @@ The following two exceptions apply to bugfixes, but do not apply to hardware ena
  * and address these questions in advance
 }}}
 
+=== Bug references in changelogs ===
+When uploading a new upstream version of a package as an SRU, there may be bugs fixed in the new version which will not go through a manual per-bug verification process.  It is acceptable to still reference these bugs in the changelog, so that users can know about the bugs that will be fixed as part of the update and so that the status of these bugs in Launchpad can be managed automatically when the update is released.
+
+If you include such bug references in your changelog, you should state in the bug description that these bugs are not being verified because of the use of the exception process.
+
+After the SRU has been accepted, you should then add the `verification-done-<series>` tag to these bugs.
+
 === Staging an upload ===
 
 See [[#Staging_low_priority_uploads|staging low priority uploads]] for details of SRU policy regarding staged uploads.
