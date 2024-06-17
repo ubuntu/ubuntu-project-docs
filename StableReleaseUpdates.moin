@@ -462,6 +462,10 @@ The open-vm-tools source package may be uploaded according to the proceedure doc
 
 The currently supported postgresql source package (as determined by the dependency of the postgresql metapackage) for each stable release may be uploaded according to the proceedure documented in [[PostgreSQLUpdates]]. This stable release exception [[https://lists.ubuntu.com/archives/ubuntu-release/2024-January/005915.html|has been approved]] by ChrisHalseRogers for the SRU team as of 2024-01-31
 
+=== GRUB ===
+
+GRUB related packages require a special SRU process due our EFI signing pipeline, documented at [[StableReleaseUpdates/Grub]].
+
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
 
