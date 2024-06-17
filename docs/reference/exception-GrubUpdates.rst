@@ -13,7 +13,10 @@ Scope: the grub2, grub2-unsigned and grub2-signed source packages (?is
 this correct?)
 
 -  An Archive Admin is required to do the initial review and accept and
-   must not do this unless they have received training.
+   must not do this unless they have received training. This involves
+   verifying that the package was built correctly in the appropriate
+   special purpose archive that has the appropriate signing keys
+   attached, been copied over to the archive unapproved queue, etc.
 
 -  Any SRU team member can release these packages but only when:
 
