@@ -277,7 +277,8 @@ then has to change again, or we have to diverge causing development and
 review pain.
 
 Instead, once upstream are ready, all reviewing for the subsequent
-Ubuntu uploads are done from a single merge proposal on Launchpad:
+Ubuntu uploads are done from either a single merge proposal on Launchpad
+or a single pull request on !GitHub (hereinafter "MP"):
 
 #. A person who has permission to upload the package to the development
    release performs a review **but does not upload** and iterates with
