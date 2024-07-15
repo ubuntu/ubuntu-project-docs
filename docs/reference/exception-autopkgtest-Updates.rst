@@ -91,6 +91,8 @@ SRU Template
 
 ::
 
+   This SRU follows the exception process as outlined at https://wiki.ubuntu.com/StableReleaseUpdates#autopkgtest rather than the standard SRU rules.
+
    [Impact]
 
    This release contains both bug fixes and new features and we would like
