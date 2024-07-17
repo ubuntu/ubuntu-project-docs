@@ -52,6 +52,8 @@ are authoritative for MRE purposes:
 -  `Jammy <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/jammy?h=trunk>`__
 -  `Kinetic <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/kinetic?h=trunk>`__
 -  `Lunar <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/lunar?h=trunk>`__
+-  `Mantic <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/mantic?h=trunk>`__
+-  `Noble <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/noble?h=trunk>`__
 
 Microrelease updates to gnome-shell are at risk of regressing packages
 providing gnome-shell extensions as we discovered in the case of `LP:
