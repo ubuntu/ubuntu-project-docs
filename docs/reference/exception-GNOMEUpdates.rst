@@ -41,6 +41,10 @@ policy:
    by this MRE. Relevant bug fixes to vala are rare, and require special
    handling (as all rdepends must be rebuilt for any fixes to be picked
    up).
+-  Additionally, GNOME Shell and mutter are **not** covered by this MRE,
+   as `GNOME Shell and mutter upstream no longer have the same
+   understanding of point releases we
+   do <https://discourse.ubuntu.com/t/mutter-gnome-shell-are-no-longer-covered-by-the-gnome-mre/45218>`__.
 
 SRU-team tooling to automatically check if a package falls under the
 GNOME MRE is in progress. Until that is complete, the following lists
