@@ -45,6 +45,22 @@ policy:
    as `GNOME Shell and mutter upstream no longer have the same
    understanding of point releases we
    do <https://discourse.ubuntu.com/t/mutter-gnome-shell-are-no-longer-covered-by-the-gnome-mre/45218>`__.
+   These packages also have special regression potential, and any SRUs
+   to these packages need to test the following:
+
+   -  
+
+      -  Updates to gnome-shell are at risk of regressing packages
+         providing gnome-shell extensions as we discovered in the case
+         of `LP:
+         #1892245 <https://bugs.launchpad.net/ubuntu/+source/gnome-shell-extension-dash-to-panel/+bug/1892245>`__.
+         For Ubuntu 22.04, most shell extensions have been removed from
+         the archive, and all remaining ones must be smoke-tested as a
+         part of any gnome-shell SRUs.
+      -  Prior to 23.10 mutter is a shared critical component with
+         Ubuntu Budgie. Mutter SRUs to 22.04 and earlier must be tested
+         against the Budgie session in addition to the Ubuntu/Ubuntu on
+         Xorg/GNOME/GNOME Classic sessions.
 
 SRU-team tooling to automatically check if a package falls under the
 GNOME MRE is in progress. Until that is complete, the following lists
@@ -58,17 +74,6 @@ are authoritative for MRE purposes:
 -  `Lunar <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/lunar?h=trunk>`__
 -  `Mantic <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/mantic?h=trunk>`__
 -  `Noble <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/noble?h=trunk>`__
-
-Microrelease updates to gnome-shell are at risk of regressing packages
-providing gnome-shell extensions as we discovered in the case of `LP:
-#1892245 <https://bugs.launchpad.net/ubuntu/+source/gnome-shell-extension-dash-to-panel/+bug/1892245>`__.
-For Ubuntu 22.04, most shell extensions have been removed from the
-archive, and all remaining ones will be smoke-tested as a part of any
-gnome-shell SRUs.
-
-Mutter is also a special case, as it is a shared critical component with
-Ubuntu Budgie. Mutter SRUs must be tested against the Budgie session in
-addition to the Ubuntu/Ubuntu on Xorg/GNOME/GNOME Classic sessions.
 
 Testing
 =======
