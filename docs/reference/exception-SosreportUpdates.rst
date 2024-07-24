@@ -7,10 +7,10 @@ stable supported distro, including LTS. It is also the aim of this
 document to provide an example for any upstream project that wants to
 push updates to an Ubuntu stable release.
 
-Sosreport is an extensible, portable, support data collection tool
+sosreport is an extensible, portable, support data collection tool
 primarily aimed at Linux distributions and other UNIX-like operating
-systems. This tool **is mission critical for Canonical to support UA
-(Ubuntu Advantage) customer, partners and community**. Sosreport is also
+systems. This tool **is mission critical for Canonical to support UPro
+(Ubuntu Pro) customer, partners and community**. sosreport is also
 widely used by other third party vendors.
 
 -  Upstream reference:
@@ -38,10 +38,11 @@ The following requirements must be met:
 -  
 
    -  On physical hardware, container and virtual machine.
-   -  Under various UA customer similar environment and context (for LTS
-      version only, no UA customer has such setup using non-LTS):
+   -  Under various UPro customer similar environment and context (for
+      LTS version only, no UPro customer has such setup using non-LTS):
 
-      -  Cloud, Ceph, Landscape, MAAS, JuJu managed environment, ....
+      -  Cloud, Ceph, Landscape, MAAS, sunbeam, juju managed
+         environment, ....
 
    -  On as much architecture as available to the testers.
    -  For commonly used parameters : -a, --all-logs, --upload, --batch,
@@ -146,6 +147,8 @@ sosreports from multiple systems simultaneously.
 Previous sosreport updates bugs
 -------------------------------
 
+-  v4.7.2 `(LP: #2054395) <https://bugs.launchpad.net/bugs/2054395>`__
+-  v4.5.6 `(LP: #2028327) <https://bugs.launchpad.net/bugs/2028327>`__
 -  v4.4 `(LP: #1986611) <https://bugs.launchpad.net/bugs/1986611>`__
 -  v4.3 `(LP: #1960996) <https://bugs.launchpad.net/bugs/1960996>`__
 -  v4.2 `(LP: #1941745) <https://bugs.launchpad.net/bugs/1941745>`__
