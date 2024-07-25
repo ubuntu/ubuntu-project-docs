@@ -51,10 +51,9 @@ Ubuntu and Bind9 releases affected by this MRE
 Currently, these are the Ubuntu releases and the corresponding bind9
 package versions affected by this policy:
 
--  Lunar (23.04): bind9 9.18.x
--  Kinetic (22.10): bind9 9.18.x
+-  Noble (24.04): bind9 9.18.x
 -  Jammy (22.04): bind9 9.18.x
--  Focal (20.04): bind9 9.16.x
+-  Focal (20.04): bind9 9.16.x (Since USN-6909-1 also on 9.18.x)
 
 This MRE should be also applicable to future Ubuntu LTS releases
 containing a stable or ESV version of Bind9.
