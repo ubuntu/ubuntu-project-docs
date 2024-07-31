@@ -172,3 +172,32 @@ SRU template
 
    TODO: consider any other regression potential specific to the version being
    updated and list if any.
+
+.. _log_of_regressions:
+
+Log of regressions
+------------------
+
+Here is a log of known regressions.
+
+.. _introduced_by_security_update_httpsubuntu.comsecuritynoticesusn_6909_1:
+
+Introduced by security update https://ubuntu.com/security/notices/USN-6909-1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+None reported in Ubuntu yet, but Debian did the same update and got
+these regressions reported:
+
+-  segfault:
+   https://lists.debian.org/debian-security-announce/2024/msg00146.html,
+   https://bugs.debian.org/1077281, https://bugs.debian.org/1074378.
+   Ubuntu not affected because we don't link with jemalloc
+-  removal of SIG(0) (this removal is the actual CVE fix):
+   https://bugs.debian.org/1077653
+-  Deprecated options now finally removed:
+   https://bugs.debian.org/1077512. Reporter seems to be using ubuntu
+   packages, though.
+
+Upstream published this guide to help with the transition from 9.16 to
+9.18:
+https://kb.isc.org/docs/changes-to-be-aware-of-when-moving-from-bind-916-to-918
