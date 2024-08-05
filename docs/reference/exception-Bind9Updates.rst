@@ -197,6 +197,10 @@ these regressions reported:
 -  Deprecated options now finally removed:
    https://bugs.debian.org/1077512. Reporter seems to be using ubuntu
    packages, though.
+-  `Missing binaries, new DNSSEC
+   checks <https://bugs.launchpad.net/ubuntu/+source/bind9/+bug/2075542>`__:
+   user reported broken sysadmin scripts due to missing binaries, and
+   broken DNSSEC config due to new checks
 
 Upstream published this guide to help with the transition from 9.16 to
 9.18:
