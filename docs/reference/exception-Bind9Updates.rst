@@ -180,13 +180,12 @@ Log of regressions
 
 Here is a log of known regressions.
 
-.. _introduced_by_security_update_httpsubuntu.comsecuritynoticesusn_6909_1:
+.. _introduced_by_security_update_not_an_mre_httpsubuntu.comsecuritynoticesusn_6909_1:
 
-Introduced by security update https://ubuntu.com/security/notices/USN-6909-1
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Introduced by security update (NOT an MRE) https://ubuntu.com/security/notices/USN-6909-1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-None reported in Ubuntu yet, but Debian did the same update and got
-these regressions reported:
+These were reported in both Debian and Ubuntu:
 
 -  segfault:
    https://lists.debian.org/debian-security-announce/2024/msg00146.html,
