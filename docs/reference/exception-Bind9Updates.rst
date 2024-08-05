@@ -197,7 +197,7 @@ these regressions reported:
 -  Deprecated options now finally removed:
    https://bugs.debian.org/1077512. Reporter seems to be using ubuntu
    packages, though.
--  `Missing binaries, new DNSSEC
+-  `LP: #2075542 Missing binaries, new DNSSEC
    checks <https://bugs.launchpad.net/ubuntu/+source/bind9/+bug/2075542>`__:
    user reported broken sysadmin scripts due to missing binaries, and
    broken DNSSEC config due to new checks
