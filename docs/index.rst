@@ -85,7 +85,7 @@ Project and community
    :hidden:
    :maxdepth: 2
 
+   explanation/index
    howto/index
    reference/index
-   explanation/index
    internal
