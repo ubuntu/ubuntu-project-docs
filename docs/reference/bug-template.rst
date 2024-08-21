@@ -3,60 +3,46 @@
 SRU Bug Template
 ----------------
 
-[ Impact ]
+::
 
-\* An explanation of the effects of the bug on users and
+    [ Impact ]
 
-\* justification for backporting the fix to the stable release.
+     * An explanation of the effects of the bug on users and justification
+       for backporting the fix to the stable release.
 
-\* In addition, it is helpful, but not required, to include an
+     * In addition, it is helpful, but not required, to include an
+       explanation of how the upload fixes this bug.
 
-explanation of how the upload fixes this bug.
+    [ Test Plan ]
 
-[ Test Plan ]
+     * detailed instructions how to reproduce the bug
 
-\* detailed instructions how to reproduce the bug
+     * these should allow someone who is not familiar with the affected
+       package to reproduce the bug and verify that the updated package
+       fixes the problem.
 
-\* these should allow someone who is not familiar with the affected
+     * if other testing is appropriate to perform before landing this
+       update, this should also be described here.
 
-package to reproduce the bug and verify that the updated package fixes
+    [ Where problems could occur ]
 
-the problem.
+     * Think about what the upload changes in the software. Imagine the
+       change is wrong or breaks something else: how would this show up?
 
-\* if other testing is appropriate to perform before landing this
-update,
+     * It is assumed that any SRU candidate patch is well-tested before
+       upload and has a low overall risk of regression, but it's important
+       to make the effort to think about what ''could'' happen in the event
+       of a regression.
 
-this should also be described here.
+     * This must never be "None" or "Low", or entirely an argument as to why
+       your upload is low risk.
 
-[ Where problems could occur ]
+     * This both shows the SRU team that the risks have been considered,
+       and provides guidance to testers in regression-testing the SRU.
 
-\* Think about what the upload changes in the software. Imagine the
-change is
+    [ Other Info ]
 
-wrong or breaks something else: how would this show up?
+     * Anything else you think is useful to include
 
-\* It is assumed that any SRU candidate patch is well-tested before
-
-upload and has a low overall risk of regression, but it's important
-
-to make the effort to think about what ''could'' happen in the
-
-event of a regression.
-
-\* This must '''never''' be "None" or "Low", or entirely an argument as
-to why
-
-your upload is low risk.
-
-\* This both shows the SRU team that the risks have been considered,
-
-and provides guidance to testers in regression-testing the SRU.
-
-[ Other Info ]
-
-\* Anything else you think is useful to include
-
-\* Anticipate questions from users, SRU, +1 maintenance, security teams
-and the Technical Board
-
-\* and address these questions in advance
+     * Anticipate questions from users, SRU, +1 maintenance, security teams
+       and the Technical Board and address these questions in advance
