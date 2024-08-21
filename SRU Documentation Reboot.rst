@@ -9,7 +9,7 @@ SRU Documentation Reboot
 
 Once an Ubuntu release has been completed and published, updates for it
 are only released under certain circumstances, and must follow a special
-procedure called a “stable release update” or SRU.
+procedure called a "stable release update" or SRU.
 
 This documentation describes the principles and processes we follow in
 order to keep stable Ubuntu releases stable.
@@ -189,7 +189,7 @@ following principles:
 3. **Maintain usefulness**
 
 A fourth principle is simply to focus on **user experience**, but this
-of course applies across Ubuntu and isn’t SRU-specific.
+of course applies across Ubuntu and isn't SRU-specific.
 
 Minimise regression
 ~~~~~~~~~~~~~~~~~~~
@@ -221,20 +221,20 @@ Confidence
 
 We must maintain confidence in the stability of our stable releases.
 This requires consistent application of policy, documented diligence,
-rationale for exceptions, etc. “Headline/outrage avoidance”
+rationale for exceptions, etc. "Headline/outrage avoidance"
 
 What do we mean by stability?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. There’s stability as in “things don’t crash”. That’s easy.
+1. There's stability as in "things don't crash". That's easy.
 
-2. There’s stability as in “things behave in the way that upstream meant
-them to behave”. This is mostly a superset of “things don’t crash”.
+2. There's stability as in "things behave in the way that upstream meant
+them to behave". This is mostly a superset of "things don't crash".
 
-3. There’s stability as in **predictability** - if the user did
+3. There's stability as in **predictability** - if the user did
 something yesterday it will do the same thing today.
 
-We want stability in all three of these senses for the “stable release”,
+We want stability in all three of these senses for the "stable release",
 but with a much higher emphasis on the third than in other contexts.
 
 Maintain usefulness
@@ -250,7 +250,7 @@ Given our principles, when updates are proposed, they must be
 accompanied by a strong rationale and present a low risk of regressions.
 These requirements therefore follow.
 
-1. **Real world impact**. We won’t make a change unless there’s real
+1. **Real world impact**. We won't make a change unless there's real
    world impact for users and the proposed change will address it.
 
 2. **Minimal changes only**. We think this correlates well with
@@ -264,7 +264,7 @@ Real world impact
 ~~~~~~~~~~~~~~~~~
 
 Every change carries regression risk, and pushing unnecessary additional
-downloads to users harms their experience. If it’s a valid bug but
+downloads to users harms their experience. If it's a valid bug but
 nobody appears affected in practice and nobody is likely to be affected
 in practice, then a change to existing users is not acceptable.
 
@@ -316,7 +316,7 @@ In line with this, the requirements for stable updates are not
 necessarily the same as those in the development release. When preparing
 future releases, one of our goals is to construct the most elegant and
 maintainable system possible, and this often involves fundamental
-improvements to the system’s architecture, rearranging packages to avoid
+improvements to the system's architecture, rearranging packages to avoid
 bundled copies of other software so that we only have to maintain it in
 one place, and so on. However, once we have completed a release, the
 priority is normally to minimise risk caused by changes not explicitly
@@ -327,16 +327,16 @@ need to be fixed in different ways in stable and development releases.
 Public documentation
 ~~~~~~~~~~~~~~~~~~~~
 
-Consider what happens when something goes wrong. Suddenly we’re on the
-front pages of the industry media. How will we be judged? We think it’ll
+Consider what happens when something goes wrong. Suddenly we're on the
+front pages of the industry media. How will we be judged? We think it'll
 be on the basis of whether the choices we made appear reasonable, or
-irresponsible, with respect to users’ production systems. Critics as
+irresponsible, with respect to users' production systems. Critics as
 well as affected and therefore angry users tend to jump to the worst
-conclusions; that’s human nature. If on the other hand we *already have*
+conclusions; that's human nature. If on the other hand we *already have*
 a clear, documented explanation of the trade-offs we made, then suddenly
 we appear far more reasonable. Otherwise, those worst conclusions appear
 justified and public confidence in our product is damaged. Timeliness is
-important here; the media moves faster than we do, so it’s essential to
+important here; the media moves faster than we do, so it's essential to
 have the documentation in place *before* a regression is published.
 
 We must therefore document clearly the choices we have made and our
@@ -360,7 +360,7 @@ Overview of the SRU pipeline
 1. An SRU driver prepares the relevant bugs with the necessary
    documentation and makes an SRU upload available.
 2. When an SRU is uploaded by a developer with upload access to the
-   Ubuntu package archive, it enters the “Unapproved” queue, which you
+   Ubuntu package archive, it enters the "Unapproved" queue, which you
    can see here: https://launchpad.net/ubuntu/jammy/+queue?queue_state=1
    (modify for different series as needed).
 3. The SRU team will then review from the Unapproved queue,
@@ -392,8 +392,8 @@ Role expectations
 -----------------
 
 The SRU team is a narrowly scoped team that has privileged access:
-primarily to “accept” packages from the stable series’ unapproved queues
-into the -proposed pocket, and “release” packages from the -proposed
+primarily to "accept" packages from the stable series' unapproved queues
+into the -proposed pocket, and "release" packages from the -proposed
 pocket into the -updates pocket. Reviews and decision making, and the
 policy, processes and documentation around these reviews and decision
 making are the responsibility of the SRU team.
@@ -403,7 +403,7 @@ and management, preparing updates, performing QA, handling any follow-on
 regression reports and so forth, can be performed by any Ubuntu
 developer or prospective Ubuntu developer.
 
-Therefore, the SRU team, when on shift and “wearing an SRU hat”, takes a
+Therefore, the SRU team, when on shift and "wearing an SRU hat", takes a
 narrow view of our role, focusing our limited resources on only
 progressing processes limited by this privilege. It is our expectation
 that Ubuntu developers at large drive the non-privileged tasks because
@@ -490,7 +490,7 @@ Standard Processes
 
 [this section needs cleaning up]
 
--  We’d like the minimum process necessary. It should be clear why any
+-  We'd like the minimum process necessary. It should be clear why any
    process we have is required because of the principles.
 
 -  The SRU team should strive for consistency. No moving goalposts. Good
@@ -504,12 +504,12 @@ Standard Processes
    next time!
 
 -  We would prefer for users affected to do the verification that the
-   bug is fixed, and for many people to verify that the change didn’t
+   bug is fixed, and for many people to verify that the change didn't
    regress their use cases. However in practice it is difficult to find
    people to do SRU verification. As long as the agreed Test Plan is
    followed we will accept verification reports from anyone, including
    the person driving the SRU. Additional feedback of any form is also
-   welcome; that doesn’t need to follow the Test Plan. But one
+   welcome; that doesn't need to follow the Test Plan. But one
    verification that followed the Test Plan is the minimum requirement
    for an SRU to be released. Note that we require that the package *as
    built in -proposed* be tested, and verifications should include
@@ -559,11 +559,11 @@ target package will not be released into -updates until the failure is
    analysis clearly shows that it is not a real regression, a rationale
    for that should be provided in one of the SRU bugs.
 
-It is important to remember that firstly it is the *uploader’s
+It is important to remember that firstly it is the *uploader's
 responsibility* to make sure the package is in a releasable state and
 that all the autopkgtests triggered by the upload are either passing or
-badtested. Of course, it is not the uploader’s responsibility to provide
-the hints for badtests themselves, but it is it’s responsibility to
+badtested. Of course, it is not the uploader's responsibility to provide
+the hints for badtests themselves, but it is it's responsibility to
 perform the analysis and verification of each listed regression.
 
 Expected resolution for reported autopkgtest failures
@@ -584,7 +584,7 @@ for this situation are as follows:
    using block-proposed-<series> (in which case they need a bug
    reference).
 -  A regression not caused by the SRU may be badtest or reset-tested
-   away (doesn’t matter which for SRUs).
+   away (doesn't matter which for SRUs).
 
 See also: `How-to → Handle an autopkgtest
 failure <#handle-an-autopkgtest-failure>`__.
@@ -634,12 +634,12 @@ section.
 Once a regression is confirmed, usually we have two choices to resolve
 it and we are under time pressure to do so:
 
-1. Release an exact revert (“revert”).
+1. Release an exact revert ("revert").
 2. Analyse the reason for the regression and try to amend the regressing
-   update to fix that (“pushing ahead”).
+   update to fix that ("pushing ahead").
 
 By definition, a regression occurs as a failure in quality of the
-original fix together with a failure of QA (“failing factors”). Pushing
+original fix together with a failure of QA ("failing factors"). Pushing
 ahead under time pressure is unlikely to resolve either of these issues,
 so we risk further regression by doing so.
 
@@ -783,7 +783,7 @@ Freezes and release opening
 -  The release team will do a copy-forward-en-masse and then hand queue
    management of the just-released updates pocket to the SRU team. From
    this point on, uploaders should upload to the new development
-   Unapproved queue when needed for SRU process, even though it hasn’t
+   Unapproved queue when needed for SRU process, even though it hasn't
    yet opened.
 
 Removal of languishing updates
@@ -794,7 +794,7 @@ feedback for 90 days an automated call for testing comment will be made
 on the bug report. In the event that there is still no testing after an
 additional 15 days (a total of 105 days without any testing), the Stable
 Release Managers will remove the package from -proposed and usually
-close the bug task as “Won’t Fix”, due to lack of interest. Removal will
+close the bug task as "Won't Fix", due to lack of interest. Removal will
 happen immediately if a package update in -proposed is found to
 introduce a nontrivial regression.
 
@@ -843,17 +843,17 @@ hardware enablement or new features.
    compromise, additionally fixing only the most recent one is
    acceptable. Rationale: a user facing this class of regression will at
    least have an upgrade path available to them that fixes it.
-2. **When you don’t want to fix a subsequent interim release at all:**
+2. **When you don't want to fix a subsequent interim release at all:**
    we recognise that making it a hard requirement to fix all subsequent
    interim releases would mandate more work, and that a team may not
    have the resources available to fix and verify (say) an LTS as well
-   as a subsequent interim release that has fewer users. We wouldn’t
+   as a subsequent interim release that has fewer users. We wouldn't
    want to block a fix from landing at all, so we are not making it a
    hard requirement that subsequent interim releases be fixed. However,
    we strongly recommend that subsequent interim releases be fixed, and
    it is our expectation that normally uploaders will ensure this. If
    you are unable to do this, then please: 1) create and mark bug tasks
-   against the subsequent affected releases “Won’t Fix”; and 2)
+   against the subsequent affected releases "Won't Fix"; and 2)
    explicitly state in the bug that you are deliberately seeking to fix
    a release without fixing the subsequent releases. An SRU team member
    may then accept your upload at their discretion and on a case-by-case
@@ -875,7 +875,7 @@ the SRU team to review your upload. This is usually done individually in
 the description area of the bug, for each bug being fixed by the SRU,
 and should follow the `SRU bug template <#sru-bug-template>`__.
 
-Explicit is better than implicit: if there’s anything a reviewer might
+Explicit is better than implicit: if there's anything a reviewer might
 find unexpected, calling it out will help us tell the difference between
 an inadvertent error or omission and a deliberate choice. The former is
 likely to result in a further review iteration. The latter gives us
@@ -919,7 +919,7 @@ instead.
 
     1. have a debdiff, then `request
        sponsorship <https://wiki.ubuntu.com/SponsorshipProcess>`__ by
-       attaching the debdiff and subscribing ‘ubuntu-sponsors’ to one
+       attaching the debdiff and subscribing 'ubuntu-sponsors' to one
        bug.
     2. have a git-ubuntu branch, then request sponsorship by filing a
        merge proposal and ensuring that the ubuntu-sponsors team has
@@ -941,7 +941,7 @@ instead.
     using bug comments to report your results. Once done, change the bug
     tags according to the instructions given.
 9.  Subscribe yourself to bugmail for the package in Launchpad, if you
-    haven’t done so already, and monitor Launchpad for bug reports
+    haven't done so already, and monitor Launchpad for bug reports
     relating to the update for at least one week following release of
     the package.
 10. If you find a regression, follow `Howto → Report a
@@ -1008,12 +1008,12 @@ Documentation
 ~~~~~~~~~~~~~
 
 -  Missing or unclear SRU information
--  Not explaining the user story from a user’s perspective. We won’t
+-  Not explaining the user story from a user's perspective. We won't
    accept an SRU unless we understand why it is needed, because our
    policy is not to accept an SRU unless it impacts actual users.
    Consider if the user would recognise the user impact stated; if not,
-   then it isn’t an explanation of user impact.
--  It turns out that the bug is valid but there don’t seem to be any
+   then it isn't an explanation of user impact.
+-  It turns out that the bug is valid but there don't seem to be any
    users who would benefit from the SRU (eg. after five years of the bug
    existing, the one reporter moved on and nobody else has commented at
    all). In that case, why are we doing the SRU?
@@ -1023,11 +1023,11 @@ Test Plan
 
 -  Test Plan only covers the fix, and not general use of the package to
    make sure that it still works after the update. A smoke test will
-   suffice. If that’s implied by verifying the bug is fixed then it’s
+   suffice. If that's implied by verifying the bug is fixed then it's
    not needed as a separate step.
 -  The Test Plan verifies a technical change but not the user story.
-   Example: “file exists at location A instead of location B” instead of
-   “run the app and check that function X behaves as expected”.
+   Example: "file exists at location A instead of location B" instead of
+   "run the app and check that function X behaves as expected".
 -  The Test Plan or verification only tested part of the user story that
    we are fixing with a series of SRUs. In this case, we expect all
    packages in proposed and verification of the entire user story at
@@ -1035,12 +1035,12 @@ Test Plan
    packages. This avoids iteration in the stable release.
 -  It is assumed that uploaders believe their changes are as risk free
    as possible, but this section is for demonstrating that some thought
-   has been given to “expecting the unexpected”. This section goes along
+   has been given to "expecting the unexpected". This section goes along
    with the Test Plan section: while that one is for testing the
    specific bug being fixed in the upload, here is a place to give any
    additional test cases to help to ensure that there are no regressions
-   in the update. Think “what if this change is wrong? How would that
-   show up?” `1590321 <https://bugs.launchpad.net/bugs/1590321>`__ is an
+   in the update. Think "what if this change is wrong? How would that
+   show up?" `1590321 <https://bugs.launchpad.net/bugs/1590321>`__ is an
    example of a simple fix with a legitimate regression analysis.
 -  
 
@@ -1048,7 +1048,7 @@ Upload
 ~~~~~~
 
 -  [too long; needs moving to Explanation with only a summary here]
-   Upload doesn’t **minimally** fix the user story. Remember that the
+   Upload doesn't **minimally** fix the user story. Remember that the
    most minimal fix is not necessarily a cherry-pick from upstream. The
    appropriate fix is often more minimal than that. Refactoring is often
    appropriate in a development branch, but not for a stable branch. You
@@ -1059,9 +1059,9 @@ Upload
    from upstream is complex compared to an ideal minimal fix, expect
    push-back on this point.
 
-   -  You may take the position that you’re more confident in upstream’s
+   -  You may take the position that you're more confident in upstream's
       fix than your own ability to create a minimal patch. However, that
-      only applies in the context of upstream’s patch base, and not
+      only applies in the context of upstream's patch base, and not
       necessarily ours. The minimal fix is the easier of the two options
       to review, and it is our default policy position that the minimal
       fix is preferable.
@@ -1072,20 +1072,20 @@ Upload
 -  Changelog is missing bug references
 -  Launchpad-Bugs-Fixed header in the changes file is missing (this
    happens if you generate it on a pure Debian system for example)
--  Launchpad-Bugs-Fixed header doesn’t track all bugs that need
-   verifying before this SRU lands. For example if you’re building on an
+-  Launchpad-Bugs-Fixed header doesn't track all bugs that need
+   verifying before this SRU lands. For example if you're building on an
    existing SRU in proposed, then -v may be required when you build the
    source package
 
 Verification
 ~~~~~~~~~~~~
 
--  Verification doesn’t state what version was tested or from where it
+-  Verification doesn't state what version was tested or from where it
    was obtained.
--  Verification doesn’t state what test steps were performed. Just
+-  Verification doesn't state what test steps were performed. Just
    stating that you followed the Test Plan is fine. But we often get
-   verification comments saying “it works for me” which quite reasonably
-   didn’t follow the Test Plan, and we need to differentiate the same
+   verification comments saying "it works for me" which quite reasonably
+   didn't follow the Test Plan, and we need to differentiate the same
    cases so please avoid ambiguity.
 -  Verification used packages from outside the archive (eg. a local
    build or PPA).
@@ -1106,7 +1106,7 @@ SRU <#special-types-of-sru-1>`__.
 Request a package-specific non-standard process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This hasn’t been transferred into the new documentation yet. See
+This hasn't been transferred into the new documentation yet. See
 https://wiki.ubuntu.com/StableReleaseUpdates#Documentation_for_Special_Cases
 for now.
 
@@ -1133,7 +1133,7 @@ uploads <#staging-low-priority-uploads>`__
 
 In principle the block-proposed-<series> tag should be removed by an SRU
 team member when accepting a newer upload not planned for further
-staging. But if they overlook this, it’s appropriate for whoever notices
+staging. But if they overlook this, it's appropriate for whoever notices
 it (SRU team, or uploader) to remove the block-proposed-<series> tag
 with a suitable comment when it no longer applies.
 
@@ -1202,7 +1202,7 @@ and add the tag regression-update to the bug.
 
 If the regression *only* applies to the package in -proposed, please
 follow up to the bug with a detailed explanation, and tag the bug with
-regression-proposed. To ensure that the package doesn’t accidentally get
+regression-proposed. To ensure that the package doesn't accidentally get
 released, add a comment to an existing bug and change the appropriate
 tag to verification-<series>-failed.
 
@@ -1294,8 +1294,8 @@ Roles
 Actions to take
 '''''''''''''''
 
--  Verify that there is no reason to think that an exact revert won’t
-   exacerbate the issue. For example, if it’s a postinst failure due to
+-  Verify that there is no reason to think that an exact revert won't
+   exacerbate the issue. For example, if it's a postinst failure due to
    an upgrade path problem, or some other latent bug triggered by the
    action of updating itself, then an exact revert is probably not
    appropriate. In this case, these instructions end and you will need
@@ -1318,22 +1318,22 @@ See also: `Explanation → Phasing <#phasing>`__
 Here are some tips on how to utilize the phased updates report to
 investigate why the phasing has stopped.
 
-When looking at an increased rate of crashes you’ll want to look at the
+When looking at an increased rate of crashes you'll want to look at the
 crash(es) with the greatest number of occurrences. Then check to see if
 the crash is occurring more frequently (by examining the Occurrences
 table) with the updated version of the package. If it is then you want
-to sort out why and address the crash in a follow on SRU. If it isn’t
+to sort out why and address the crash in a follow on SRU. If it isn't
 then `contact the SRU team <#contact-the-sru-team>`__ regarding
 overriding the crash.
 
-When looking at a new error you’ll want to confirm that the error is in
+When looking at a new error you'll want to confirm that the error is in
 fact a new one by using the versions table. The phased-updater currently
 checks if the error has been reported about the version immediately
-before the current version, so if the previous version wasn’t around
-very long its possible a specific error wasn’t reported about it.
+before the current version, so if the previous version wasn't around
+very long its possible a specific error wasn't reported about it.
 Additionally, you can check to see if the error is really about the
 identified package or if it occurs in an underlying library by looking
-at the Traceback or Stacktrace e.g. python crashes being reported about
+at the Traceback or Stacktrace e.g. python crashes being reported about
 a package using python. If you do not believe the error is a new one or
 was not caused by your stable release update then `contact the the SRU
 team <#contact-the-sru-team>`__ regarding overriding the crash.
@@ -1342,7 +1342,7 @@ Contact the SRU team
 --------------------
 
 If you do not have upload access to the archive, you should ask your
-sponsor for help in the first instance. If you don’t have a sponsor, you
+sponsor for help in the first instance. If you don't have a sponsor, you
 can `ask a patch
 pilot <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__ or
 try asking generally on `#ubuntu-devel on
@@ -1369,17 +1369,17 @@ Status Pages
    queue <http://sponsoring-reports.ubuntu.com/general.html>`__.
 -  **Pending accept:** package updates awaiting review for:
 
-   -  `Ubuntu 24.04 LTS “Noble
-      Numbat” <https://launchpad.net/ubuntu/noble/+queue?queue_state=1&queue_text=>`__
-   -  `Ubuntu 22.04 LTS “Jammy
-      Jellyfish” <https://launchpad.net/ubuntu/jammy/+queue?queue_state=1&queue_text=>`__
-   -  `Ubuntu 20.04 LTS “Focal
-      Fossa” <https://launchpad.net/ubuntu/focal/+queue?queue_state=1&queue_text=>`__
+   -  `Ubuntu 24.04 LTS "Noble
+      Numbat" <https://launchpad.net/ubuntu/noble/+queue?queue_state=1&queue_text=>`__
+   -  `Ubuntu 22.04 LTS "Jammy
+      Jellyfish" <https://launchpad.net/ubuntu/jammy/+queue?queue_state=1&queue_text=>`__
+   -  `Ubuntu 20.04 LTS "Focal
+      Fossa" <https://launchpad.net/ubuntu/focal/+queue?queue_state=1&queue_text=>`__
    -  (edit the URL for other series)
 
 -  **Pending release:** `package updates that are accepted and pending
    QA <https://ubuntu-archive-team.ubuntu.com/pending-sru.html>`__. This
-   also has an “Upload queue status” section which links to all stable
+   also has an "Upload queue status" section which links to all stable
    review queues (as directly linked above).
 -  **After release:** `phased update
    status <http://people.canonical.com/~ubuntu-archive/phased-updates.html>`__
@@ -1443,13 +1443,13 @@ wrong or breaks something else: how would this show up?
 
 \* It is assumed that any SRU candidate patch is well-tested before
 
-upload and has a low overall risk of regression, but it’s important
+upload and has a low overall risk of regression, but it's important
 
-to make the effort to think about what ‘’could’’ happen in the
+to make the effort to think about what ''could'' happen in the
 
 event of a regression.
 
-\* This must ’‘’never’’’ be “None” or “Low”, or entirely an argument as
+\* This must '''never''' be "None" or "Low", or entirely an argument as
 to why
 
 your upload is low risk.
@@ -1523,7 +1523,7 @@ Term Support releases:
    not to affect upgrades on existing hardware. For example, modaliases
    of newly introduced drivers must not overlap with previously shipped
    drivers. This also includes updating hardware description data such
-   as udev’s keymaps, media-player-info, mobile broadband vendors, or
+   as udev's keymaps, media-player-info, mobile broadband vendors, or
    PCI vendor/product list updates. To avoid regressions on upgrade, any
    such hardware enablement must first also be added to any newer
    supported Ubuntu release.
@@ -1550,7 +1550,7 @@ Term Support releases:
    to do an autopkgtest-only SRU of the other package.
 
 For new upstream versions of packages which provide new features, but
-don’t fix critical bugs, a
+don't fix critical bugs, a
 `backport <https://help.ubuntu.com/community/UbuntuBackports>`__ should
 be requested instead.
 
@@ -1597,7 +1597,7 @@ General requirements for all SRUs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  The development release must already be fixed and its bug task marked
-   “Fix Released”, unless the development release is not yet open, in
+   "Fix Released", unless the development release is not yet open, in
    which case the development release upload must be prepared, ready and
    documented [`explanation <#development-release-fixed-first>`__].
 -  Changes must be minimal [`explanation <#minimal-changes-only>`__],
@@ -1624,7 +1624,7 @@ General requirements for all SRUs
    -  You cannot supply the resources to fix an interim non-LTS release,
       you have explicitly stated your intention to use this exception in
       the SRU documentation in the relevant bugs, you have marked the
-      relevant bug tasks Won’t Fix, and an SRU team member accepts your
+      relevant bug tasks Won't Fix, and an SRU team member accepts your
       upload on a case-by-case basis.
 
 -  The SRU Driver and (if there is one) the Sponsor must be subscribed
@@ -1648,11 +1648,11 @@ not complete.
 
 Examples for standard SRU bugs:
 
--  “When I do X it crashes”
+-  "When I do X it crashes"
 
 Examples for special SRU bugs:
 
--  “Release X not available on Ubuntu stable releases”
+-  "Release X not available on Ubuntu stable releases"
 
 All bugs linked from the upload must be public. If required information
 exists in private bugs that cannot be made public, you must first create
@@ -1662,7 +1662,7 @@ required information instead.
 Keep in mind that certain packages can change source package names
 between releases. In that case, if the given bug applies to a different
 source package that replaced the old one in a later releases, this
-source package has to be added as ‘Also affecting’. Make sure that the
+source package has to be added as 'Also affecting'. Make sure that the
 devel releases package has the bug fixed before proceeding.
 
 -  If a change (eg. from upstream) is known to exceed the scope of a
@@ -1674,7 +1674,7 @@ Special cases that must be mentioned
 -  If `package-specific SRU notes <#heading=h.6ia7bft0j6g1>`__ exist
    and/or a standing approval exists to deviate from regular SRU policy,
    link to them from the bug
--  If it’s a `special SRU type <#special-types-of-sru-1>`__, mention
+-  If it's a `special SRU type <#special-types-of-sru-1>`__, mention
    which, and check the documentation for the special SRU type for any
    other documentation that must be supplied
 -  If the basis of the justification of the SRU depends on something
@@ -1713,11 +1713,11 @@ Test Plan
 Risk Analysis
 ^^^^^^^^^^^^^
 
--  “None” is not OK.
+-  "None" is not OK.
 -  What risks we assume always exist.
 -  What the real purpose of this section is.
 -  If an obvious risk is missing, then we cannot determine if it was
-   considered and discounted, or it’s an omission, and therefore this is
+   considered and discounted, or it's an omission, and therefore this is
    a blocker.
 -  Should feed back into the Test Plan.
 
@@ -1747,7 +1747,7 @@ document <https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_pack
 has a well-working scheme which can be used for SRUs.)
 
 There is at least one reference to a Launchpad bug number in the
-changelog, using the ‘LP: #NNNNNN’ convention, and the required
+changelog, using the 'LP: #NNNNNN' convention, and the required
 documentation can be found there. Private bugs must not be referenced in
 the changelog.
 
@@ -1808,7 +1808,7 @@ permitted SRU, some of which overlap:
 -  | **Staged upload**
      [`explanation <#staging-low-priority-uploads>`__].
 
--  | **Bundled upload:** an SRU performed “on top” of an existing
+-  | **Bundled upload:** an SRU performed "on top" of an existing
      package already in -proposed. [TBC]
 
 -  **New upstream release:**
@@ -1897,7 +1897,7 @@ processes <#heading=h.x4b5g1y1rofs>`__ for:
 Decision making
 ---------------
 
--  Act for the team if you’re confident that the team would concur
+-  Act for the team if you're confident that the team would concur
 -  If unsure, ask, and if you need to follow up, add to the SRU team
    meeting agenda where we can make a team decision
 
@@ -1934,9 +1934,9 @@ The following review procedure is recommended:
       and will exit with an error. You will have to review the changes
       manually and then re-run the tool with an additional argument of
       --no-diff.
-   -  For `Bileto <https://wiki.ubuntu.com/Bileto>`__ published SRU’s
+   -  For `Bileto <https://wiki.ubuntu.com/Bileto>`__ published SRU's
       you can easily fetch the relevant debdiffs by following the link
-      to the sync’s source PPA and opening the ticket URL that’s
+      to the sync's source PPA and opening the ticket URL that's
       provided in the PPA description. Each upload present there has two
       diffs generated for review convenience: full and packaging-only.
 
@@ -1950,21 +1950,21 @@ The following review procedure is recommended:
 
    -  Exit the tool you are using to review the debdiff
    -  If the bugs and debdiff are okay, accept the package by pressing y
-      at the "“Accept the package into -proposed?” prompt.
+      at the ""Accept the package into -proposed?" prompt.
       This will tag the bug(s) with verification-needed,
       verification-needed-$RELEASE, subscribe ubuntu-sru, and add a
-      general “please test and give feedback”-like comment.
+      general "please test and give feedback"-like comment.
    -  If the upload is broken or unsuitable for an SRU, reject it by
-      pressing N at the "“Accept the package into -proposed?” prompt and
-      pressing y at the “REJECT the package from -proposed?” prompt.
+      pressing N at the ""Accept the package into -proposed?" prompt and
+      pressing y at the "REJECT the package from -proposed?" prompt.
 
 -  *If you are not in the ubuntu-sru team:* Send a follow up comment to
    the bugs:
 
-   -  If all is okay: send an “ubuntu-sru approved and reviewed” comment
-      and set the task to “In Progress”
+   -  If all is okay: send an "ubuntu-sru approved and reviewed" comment
+      and set the task to "In Progress"
    -  If something is wrong: send the feedback to the bug and set the
-      task to “Incomplete”
+      task to "Incomplete"
 
 The `pending
 SRUs <http://people.canonical.com/~ubuntu-archive/pending-sru>`__ should
@@ -1991,7 +1991,7 @@ If a package should be removed from -proposed, use the remove-package
 tool (from ubuntu-archive-tools). e.g., to remove source and binaries
 for the libreoffice package currently in xenial-proposed:
 
--  $ ./remove-package -m “SRU abandoned (verification-failed)” -s
+-  $ ./remove-package -m "SRU abandoned (verification-failed)" -s
    noble-proposed libreoffice
 
 Override phasing
@@ -2015,13 +2015,13 @@ Adding members to the team
    their availability (eg. a discussion with their manager may be
    required).
 
--  One existing team member will study a candidate’s recent SRU
+-  One existing team member will study a candidate's recent SRU
    activity, assess them against our criteria and write a summary.
 
 -  The team will then decide whether the candidate is suitable.
 
 -  One existing team member will onboard a given new trainee,
-   “sponsoring” privileged SRU actions such as review accept and
+   "sponsoring" privileged SRU actions such as review accept and
    release.
 
 -  This mentor will consult with other existing team members and the
@@ -2064,13 +2064,13 @@ Nice to haves
    that might be limited in parts of SRU policy and procedure that they
    exercise)
 
--  What about SRUs they’ve sponsored: do they successfully raise the
+-  What about SRUs they've sponsored: do they successfully raise the
    quality of SRU submissions to our expected level before they sponsor
-   them? If so, then this might be a good indicator that they’ll be able
+   them? If so, then this might be a good indicator that they'll be able
    to do similar at SRU review time.
 
 -  Do they have a track record of spotting issues before they occur? How
-   broadly do they look when determining “Where problems could occur”?
+   broadly do they look when determining "Where problems could occur"?
    Do they then make sure the Test Plan covers identified risks?
 
 -  Do they seek to change general policy when appropriate, rather than
@@ -2084,7 +2084,7 @@ Why I bring this up
 -------------------
 
 If I had to rate the current state of the relationship between the SRU
-team and Ubuntu uploaders, it’d have to be “poor”. How to measure?
+team and Ubuntu uploaders, it'd have to be "poor". How to measure?
 Consider the number of further questions, review changes requested, and
 rejects. Quantitatively, the accept rate is perhaps not as important as
 the total amount of uploader and SRU reviewer time spent compared to
@@ -2105,18 +2105,18 @@ kind of compromise.
 normal and why we have a review process, but we should all seek to
 minimise them.
 
-Things I think aren’t OK:
+Things I think aren't OK:
 
-3. SRU team failed to set expectations effectively. This is what I’m
+3. SRU team failed to set expectations effectively. This is what I'm
 trying to address here.
 
 4. Failure on the part of the uploader to meet clear SRU policy, and/or
-anticipate review questions. For example: “what’s this non-minimal
-change here?” “I had to do it because X” -> so why didn’t you state X in
+anticipate review questions. For example: "what's this non-minimal
+change here?" "I had to do it because X" -> so why didn't you state X in
 the SRU documentation in the first place?
 
 Feedback from Mark: in the case of repeated occurrences of 4 above, a
-conversation with the uploader’s manager is appropriate - be kind, not
+conversation with the uploader's manager is appropriate - be kind, not
 nice.
 
 -  \* Reproducible test results
@@ -2150,15 +2150,15 @@ automation please have it output the result of apt-cache policy
 automation should be auditable (eg. provide a link to it) but no need
 for any more detail in testing results than that.
 
-\* It’s important to not regress other use cases. This is easy to
-overlook so I tend to focus on it. It’s much easier to be confident that
+\* It's important to not regress other use cases. This is easy to
+overlook so I tend to focus on it. It's much easier to be confident that
 your use case is being fixed. But what other use cases exist and how are
 they being tested? Generally the team driving the SRU cares about the
-former, and making sure the former is fixed is easy because that’s why
-they’re doing it. The latter is ready to overlook. Consider when
+former, and making sure the former is fixed is easy because that's why
+they're doing it. The latter is ready to overlook. Consider when
 regression reports arrive later.
 
-\* So, we want to ensure that 1) the package isn’t fundamentally broken
+\* So, we want to ensure that 1) the package isn't fundamentally broken
 by the SRU and 2) the specific story being addressed is fixed. The
 former is sometimes tested by verifying the latter but not always.
 
@@ -2171,8 +2171,8 @@ technical change is insufficient.
 
 Commentary
 
-Everyone wants their thing updated in the LTS. We did that: that’s what
-Lunar is. Because do that for everyone and you’ve updated everything. So
+Everyone wants their thing updated in the LTS. We did that: that's what
+Lunar is. Because do that for everyone and you've updated everything. So
 if you want an exception to a minimal cherry pick fixing a specific
 broken user case, there must be a differentiating reason your situation
 warrants it.
@@ -2193,8 +2193,8 @@ TODO
 
 On team consistency
 
-It’s better to stick to a previous SRU team member’s decision. However,
-equally we shouldn’t be forced to accept or release something we’re
+It's better to stick to a previous SRU team member's decision. However,
+equally we shouldn't be forced to accept or release something we're
 uncomfortable with, or release a mistake to users. So this has to be
 balanced carefully. The important thing to appreciate is that there are
 two sides to a decision relating to consistency across the SRU team.
@@ -2203,10 +2203,10 @@ two sides to a decision relating to consistency across the SRU team.
 
 \* rejections are not final and we can accept from the rejected queue
 
-\* You’re the domain expert, not us. Please don’t assume we know the
+\* You're the domain expert, not us. Please don't assume we know the
 subject matter in detail, or can infer things. And remember the audience
 of the SRU documentation is the general public as well. It will matter
-if there’s a regression that we appear to have acted reasonably.
+if there's a regression that we appear to have acted reasonably.
 
 Other
 
@@ -2227,14 +2227,14 @@ for inclusion is often different.
 
 \* Fixes for stable releases do not fit otherwise good development
 practice. Calculation wrt. tech debt eg. refactoring is often different.
-Don’t even need to clean up skeleton code. Minimal change is key.
+Don't even need to clean up skeleton code. Minimal change is key.
 
-\* We’re often upstreams’ biggest consumers. Just because upstream
-released it doesn’t mean it’s good. They vary enormously in quality.
-Selection bias: they shipped bugs. Fixes should be well tested. Let’s
+\* We're often upstreams' biggest consumers. Just because upstream
+released it doesn't mean it's good. They vary enormously in quality.
+Selection bias: they shipped bugs. Fixes should be well tested. Let's
 not let our users be guinea pigs.
 
-\* Landing new changes we’ve just written simultaneously in development
+\* Landing new changes we've just written simultaneously in development
 and stable releases is especially dangerous as the assumption that fixes
 have had real world testing fails.
 
@@ -2242,15 +2242,15 @@ have had real world testing fails.
 
 \* Staging
 
-\* “Upstream recommends” is not a reason for deviation from SRU policy.
+\* "Upstream recommends" is not a reason for deviation from SRU policy.
 Upstreams vary tremendously in quality - ironically, most SRUs fix bugs
 that upstream introduced!
 
 \* Upstream sometimes fixes issues after the commit we cherry pick.
 Please do not blindly cherry-pick!
 
-\* “Let’s see what the SRU team thinks about this dubious sponsorship
-request” -> no thanks. We’re overburdened and expect sponsors to be
+\* "Let's see what the SRU team thinks about this dubious sponsorship
+request" -> no thanks. We're overburdened and expect sponsors to be
 gatekeepers. Makes you look bad. Unless you really think something is
 subjectively either-way, in which case it should be flagged as such and
 the nuances presented in the SRU documentation.
@@ -2268,7 +2268,7 @@ behaviour was not intended by the developers?
       non-SRU days.
 
 -  | If submitting an SRU that appears to be fixing a security issue,
-     must receive an ack from the security team that they don’t consider
+     must receive an ack from the security team that they don't consider
      it appropriate for the security pocket process instead, or
      otherwise provide an explanation.
 
@@ -2285,4 +2285,4 @@ are surprising:
    name caused translation regressions.
 -  apt-news and debconf prompt
 
-Move documentation about phasing from Brian’s blog post into our docs.
+Move documentation about phasing from Brian's blog post into our docs.
