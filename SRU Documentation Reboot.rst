@@ -22,7 +22,7 @@ is intended for Ubuntu developers and SRU team members to achieve this
 in practice.
 
 **Did you notice a regression in a package which went to -updates?**
-Please report this using `these steps <#report-a-regression>`__.
+Please report this using :ref:`these steps <howto-report-regression>`.
 
 Explanation
 ===========
@@ -41,6 +41,8 @@ following principles:
 
 A fourth principle is simply to focus on **user experience**, but this
 of course applies across Ubuntu and isn't SRU-specific.
+
+.. _explanation-minimise-regression:
 
 Minimise regression
 ~~~~~~~~~~~~~~~~~~~
@@ -119,6 +121,8 @@ downloads to users harms their experience. If it's a valid bug but
 nobody appears affected in practice and nobody is likely to be affected
 in practice, then a change to existing users is not acceptable.
 
+.. _explanation-minimal:
+
 Minimal changes only
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -175,6 +179,8 @@ required to fix qualifying bugs, and this tends to be well-correlated
 with minimising the size of those changes. As such, the same bug may
 need to be fixed in different ways in stable and development releases.
 
+.. _explanation-public-documentation:
+
 Public documentation
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -202,8 +208,10 @@ SRU meets our policy. This should include:
    analysis of the risks, and a QA plan that mitigates that risk as far
    as is reasonable.
 
-For details, see `Explanation → Reason for requirements →
-Documentation <#documentation>`__.
+For details, see :ref:`Explanation → Reason for requirements →
+Documentation <explanation-documentation>`.
+
+.. _explanation-sru-pipeline:
 
 Overview of the SRU pipeline
 ----------------------------
@@ -234,10 +242,12 @@ Overview of the SRU pipeline
    ensure that all agreed QA steps have been performed satisfactorily
    and that there are no outstanding blockers. If satisfied, they
    *release* packages into the -updates pocket.
-6. The SRU is now complete. If a regression is found, see `How-to →
-   Handling regressions <#handle-a-regression-report>`__ for next steps.
+6. The SRU is now complete. If a regression is found, see :ref:`How-to →
+   Handling regressions <howto-handle-regression-report>` for next steps.
 
-See also: `Reference → Status Pages <#status-pages>`__
+See also: :ref:`Reference → Status Pages <reference-status-pages>`
+
+.. _explanation-role-expectations:
 
 Role expectations
 -----------------
@@ -370,6 +380,8 @@ Standard Processes
 -  No iterating in stable releases. [Robie needs to explain what he
    means here]
 
+.. _explanation-autopkgtest-failures:
+
 Autopkgtest failures
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -431,14 +443,16 @@ for this situation are as follows:
    pockets as required. Fixes for autopkgtests are generally always
    acceptable. However uploads providing only test fixes will generally
    be
-   `staged <https://wiki.ubuntu.com/StableReleaseUpdates#Staging_an_upload>`__
+   :ref:`staged <explanation-staged-uploads>`
    using block-proposed-<series> (in which case they need a bug
    reference).
 -  A regression not caused by the SRU may be badtest or reset-tested
    away (doesn't matter which for SRUs).
 
-See also: `How-to → Handle an autopkgtest
-failure <#handle-an-autopkgtest-failure>`__.
+See also: :ref:`How-to → Handle an autopkgtest
+failure <howto-handle-autopkgtest-failure>`.
+
+.. _explanation-phasing:
 
 Phasing
 ~~~~~~~
@@ -448,7 +462,7 @@ that the update is gradually made available to expanding subsets of
 Ubuntu users. This process allows us to automatically monitor for
 regressions and halt the update process if any are found. Complete
 details about the process can be found in a `blog post by Brian
-Murray <http://www.murraytwins.com/blog/?p=127>`__.
+Murray <https://web.archive.org/web/20210507035933/http://www.murraytwins.com/blog/?p=127>`__.
 
 The Phased-Update-Percentage is initially set to 10%, then a job is run
 (every 6 hours) that checks for regressions and if none are found the
@@ -464,17 +478,19 @@ which is updated by the same job that does the phasing.
 
 See also:
 
--  `How-to → Phasing → Investigate a phased
-   update <#investigate-a-halted-phased-update>`__
--  `How-to → Phasing → Override phasing <#override-phasing>`__
--  `Reference → Status Pages <#status-pages>`__
+-  :ref:`How-to → Phasing → Investigate a halted phased update
+   <investigate-halted-phased-update>`
+-  :ref:`internal-override-phasing`
+-  :ref:`Reference → Status Pages <reference-status-pages>`
+
+.. _explanation-regressions:
 
 Regressions
 ~~~~~~~~~~~
 
-See also: `How-to → Handling
-regressions <#handle-a-regression-report>`__ for the playbook to follow
-when a regression is reported
+See also: :ref:`How-to → Handling regressions
+<howto-handle-regression-report>` for the playbook to follow when a regression
+is reported
 
 The SRU team drives the process that handles regressions reported
 against the updates pocket. Regressions that have taken place elsewhere
@@ -501,6 +517,8 @@ general case our immediate and expected action shall be to revert
 instead. As a policy position, we will not waste time considering
 pushing ahead, unless one of the exceptions below applies.
 
+.. _explanation-regressions-pushing-ahead:
+
 Exceptions that justify pushing ahead
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -520,7 +538,8 @@ It is expected that the SRU Driver will be available and take all
 non-SRU-privileged actions in handling the regression, under the
 direction of a decision-making SRU team member.
 
-See also: `Explanation → Role expectations <#role-expectations>`__
+See also: :ref:`Explanation → Role expectations
+<explanation-role-expectations>`
 
 Phases
 ^^^^^^
@@ -543,17 +562,21 @@ phases:
 Non-standard Processes
 ----------------------
 
+.. _explanation-package-specific-non-standard-processes:
+
 Package-specific non-standard processes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a package or set of packages requires deviation from our standard
 process, but we expect to routinely deviate in the same way for
 subsequent updates to the same packages, we document these deviations
-under `package-specific notes <#package-specific-notes>`__. This allows
-us to be consistent in our approaches to review, QA and release. If the
-package-specific note has been approved by one member of the SRU team,
-other SRU team members will try to honour that previous approval when
-reviewing.
+under :ref:`package-specific notes <reference-package-specific-notes>`.
+This allows us to be consistent in our approaches to review, QA and
+release. If the package-specific note has been approved by one member of
+the SRU team, other SRU team members will try to honour that previous
+approval when reviewing.
+
+.. _explanation-staged-uploads:
 
 Staging low priority uploads
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -581,6 +604,8 @@ series task. If you skip verification of one series then staged uploads
 in all series are candidates for deletion or overriding as above at the
 discretion of the SRU team.
 
+.. _explanation-removals:
+
 Removals
 ~~~~~~~~
 
@@ -602,21 +627,25 @@ justification for removal.
 
 See also:
 
--  `How-to → Remove a package <#remove-a-package>`__
--  `Reference → Historical removals <#historical-removals>`__
+-  :ref:`How-to → Remove a package <howto-remove-package>`
+-  :ref:`Reference → Historical removals <reference-historical-removals>`
+
+.. _explanation-security:
 
 Security updates
 ~~~~~~~~~~~~~~~~
 
 Since some users choose to receive security updates but not SRUs, if a
 proposed SRU appears to fix security issues, it should be considered for
-the security update process first instead.
+the `security update process
+<https://wiki.ubuntu.com/SecurityTeam/UpdateProcedures>`__ first
+instead.
 
 Sometimes an issue being fixed may or may not be a security issue
 depending on opinion, or the security team may otherwise consider it not
 appropriate for the -security pocket. In this case, the SRU process may
-be used to fix the issue if the change being made otherwise meets `SRU
-criteria <#what-is-acceptable-to-sru>`__.
+be used to fix the issue if the change being made otherwise meets
+:ref:`SRU criteria <reference-what-is-acceptable-to-sru>`.
 
 Freezes and release opening
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -655,6 +684,8 @@ Reasons for requirements
 Preconditions
 ~~~~~~~~~~~~~
 
+.. _explanation-devel-first:
+
 Development release fixed first
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -675,6 +706,8 @@ development of the next version. Provided they are important enough,
 stable release updates should not and do not need to wait for the
 development release to open, as long as the development release upload
 is prepared and ready.
+
+.. _explanation-newer-releases:
 
 Newer Releases
 ^^^^^^^^^^^^^^
@@ -711,8 +744,10 @@ hardware enablement or new features.
    basis. If this is not done, then uploaders should expect an SRU
    review round trip while your intentions are clarified.
 
-See also: `Reference → Requirements → General requirements for all
-SRUs <#general-requirements-for-all-srus>`__
+See also: :ref:`Reference → Requirements → General requirements for all
+SRUs <reference-general-requirements>`
+
+.. _explanation-documentation:
 
 Documentation
 ~~~~~~~~~~~~~
@@ -720,11 +755,12 @@ Documentation
 [Insert specifics here: SRU template, what is expected in each section,
 etc]
 
-Documentation must be provided in order to meet our `public
-documentation requirement <#public-documentation>`__ as well to assist
-the SRU team to review your upload. This is usually done individually in
-the description area of the bug, for each bug being fixed by the SRU,
-and should follow the `SRU bug template <#sru-bug-template>`__.
+Documentation must be provided in order to meet our :ref:`public
+documentation requirement <explanation-public-documentation>` as well to
+assist the SRU team to review your upload. This is usually done
+individually in the description area of the bug, for each bug being
+fixed by the SRU, and should follow the :ref:`SRU bug template
+<reference-sru-bug-template>`.
 
 Explicit is better than implicit: if there's anything a reviewer might
 find unexpected, calling it out will help us tell the difference between
@@ -738,34 +774,31 @@ determining whether the matter is real or has been missed.
 How-to
 ======
 
+.. _howto-perform-standard-sru:
+
 Perform a standard SRU
 ----------------------
 
 This how-to is for standard SRUs, where straightforward bugs are fixed
-using minimal cherry-picks. For other types of SRUs, see `How-to →
-Prepare a special type of SRU <#prepare-a-special-type-of-sru>`__
-instead.
+using minimal cherry-picks. For other types of SRUs, see :ref:`How-to →
+Prepare a special type of SRU <howto-prepare-special-sru>` instead.
 
-1.  Check that the upload complies with `Reference → Requirements → What
-    is acceptable to SRU <#what-is-acceptable-to-sru>`__.
+1.  Check that the upload complies with :ref:`Reference → Requirements →
+    What is acceptable to SRU <reference-what-is-acceptable-to-sru>`.
 2.  If this is not a straightforward set of bugs being fixed by minimal
-    cherry-picks, see `How-to → Prepare a special type of
-    SRU <#prepare-a-special-type-of-sru>`__ first.
-3.  Check for compliance against `Reference →
-    Requirements <#general-requirements-for-all-srus>`__
-    `→ <#what-is-acceptable-to-sru>`__ `General requirements for all
-    SRUs <#general-requirements-for-all-srus>`__.
-4.  Document the SRU, starting with the `SRU Bug
-    Template <#sru-bug-template>`__ and following and ensuring
-    compliance against `Reference <#documentation-2>`__
-    `→ <#general-requirements-for-all-srus>`__
-    `Requirements <#documentation-2>`__
-    `→ <#general-requirements-for-all-srus>`__
-    `Documentation <#documentation-2>`__.
-5.  Prepare the upload, ensuring compliance against `Reference →
-    Requirements → Upload. <#upload-1>`__ If you do not have access to
-    upload to the Ubuntu package archive yourself, you may prepare this
-    in the form of a debdiff or a git-ubuntu branch.
+    cherry-picks, see :ref:`How-to → Prepare a special type of SRU
+    <howto-prepare-special-sru>` first.
+3.  Check for compliance against :ref:`Reference →
+    General requirements for all SRUs <reference-general-requirements>`
+4.  Document the SRU, starting with the :ref:`SRU Bug Template
+    <reference-sru-bug-template>` and following and ensuring compliance
+    against the :ref:`documentation requirements
+    <reference-documentation-requirements>`
+5.  Prepare the upload, ensuring compliance against :ref:`Reference →
+    Requirements → Upload. <reference-upload-requirements>` If you do
+    not have access to upload to the Ubuntu package archive yourself,
+    you may prepare this in the form of a debdiff or a git-ubuntu
+    branch.
 6.  If you:
 
     1. have a debdiff, then `request
@@ -784,9 +817,9 @@ instead.
        upload, and set the relevant bug task statuses to In Progress.
 
 7.  Wait for review, following any instructions you are given. If you
-    wish, you can follow progress through the `SRU
-    pipeline <#overview-of-the-sru-pipeline>`__ using the various
-    `status pages <#status-pages>`__.
+    wish, you can follow progress through the :ref:`SRU pipeline
+    <explanation-sru-pipeline>` using the various :ref:`status pages
+    <reference-status-pages>`.
 8.  After the package is accepted into -proposed, you will be asked to
     execute your Test Plan against the built packages. Please do so,
     using bug comments to report your results. Once done, change the bug
@@ -795,35 +828,36 @@ instead.
     haven't done so already, and monitor Launchpad for bug reports
     relating to the update for at least one week following release of
     the package.
-10. If you find a regression, follow `Howto → Report a
-    regression <#report-a-regression>`__. If someone else reports a
-    regression, please also follow `Howto → Report a
-    regression <#report-a-regression>`__ and ensure that all steps
-    documented there have been performed correctly.
+10. If you find a regression, follow :ref:`Howto → Report a regression
+    <howto-report-regression>`. If someone else reports a regression,
+    please also follow :ref:`Howto → Report a regression
+    <howto-report-regression>` and ensure that all steps documented
+    there have been performed correctly.
+
+.. _howto-prepare-special-sru:
 
 Prepare a special type of SRU
 -----------------------------
 
-1. If your special type of SRU already has `package-specific
-   notes <#package-specific-notes>`__ then follow `How-to → Perform a
-   standard SRU <#perform-a-standard-sru>`__ as modified by those notes
-   instead.
+1. If your special type of SRU already has :ref:`package-specific notes
+   <reference-package-specific-notes>` then follow :ref:`How-to →
+   Perform a standard SRU <howto-perform-standard-sru>` as modified by
+   those notes instead.
 2. Some special types of SRU have specific How-tos to follow instead:
 
-   1. `Stage an upload <#stage-an-upload>`__
-   2. `Remove a package <#remove-a-package>`__
+   1. :ref:`Stage an upload <howto-stage-upload>`
+   2. :ref:`Remove a package <howto-remove-package>`
 
-3. Consider `Reference → Special types of
-   SRU <#special-types-of-sru-1>`__ to try to find existing documented
+3. Consider :ref:`Reference → Special types of SRU
+   <reference-special-types-of-sru>` to try to find existing documented
    patterns for what you wish to achieve.
-4. Consider `Reference → Requirements → What is acceptable to
-   SRU <#what-is-acceptable-to-sru>`__ and ensure that your goal is
+4. Consider :ref:`Reference → Requirements → What is acceptable to SRU
+   <reference-what-is-acceptable-to-sru>` and ensure that your goal is
    compliant with our policy.
 5. If you are looking to update packages using a special type of SRU on
-   a routine basis, follow `How-to → Request a package-specific
-   non-standard
-   process <#request-a-package-specific-non-standard-process>`__
-   instead.
+   a routine basis, follow :ref:`How-to → Request a package-specific
+   non-standard process
+   <howto-request-package-specific-non-standard-process>` instead.
 
 Get an SRU released from proposed
 ---------------------------------
@@ -833,8 +867,8 @@ successfully completed verification (all bugs are marked
 verification-done-$RELEASE for the given release) and releases those to
 the -updates pocket. Having said that, if there is a priority SRU
 waiting in the unapproved queue for release to -proposed, or needing
-release to -updates from -proposed, feel free to `contact an SRU
-vanguard <#contact-the-sru-team>`__.
+release to -updates from -proposed, feel free to :ref:`contact an SRU
+vanguard <howto-contact>`.
 
 Please note that SRUs will not be published to the -updates pocket on
 Friday (or Saturday or Sunday). Any exception will need justification.
@@ -852,8 +886,6 @@ General
    try the `patch pilot
    programme <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__
    if you cannot find one).
-
-.. _documentation-1:
 
 Documentation
 ~~~~~~~~~~~~~
@@ -950,9 +982,9 @@ Special types of SRU
 --------------------
 
 This section is for the special types of SRU listed at
-`Reference <#special-types-of-sru-1>`__
-`→ <#staging-low-priority-uploads>`__ `Special types of
-SRU <#special-types-of-sru-1>`__.
+:ref:`Reference → Special types of SRU <reference-special-types-of-sru>`.
+
+.. _howto-request-package-specific-non-standard-process:
 
 Request a package-specific non-standard process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -961,11 +993,13 @@ This hasn't been transferred into the new documentation yet. See
 https://wiki.ubuntu.com/StableReleaseUpdates#Documentation_for_Special_Cases
 for now.
 
+.. _howto-stage-upload:
+
 Stage an upload
 ~~~~~~~~~~~~~~~
 
-See also: `Explanation → Special types of SRU → Staging low priority
-uploads <#staging-low-priority-uploads>`__
+See also: :ref:`Explanation → Special types of SRU → Staging low priority
+uploads <explanation-staged-uploads>`
 
 1. Follow the usual process but additionally add a
    block-proposed-<series> tag to at least one of the SRU bugs together
@@ -979,8 +1013,8 @@ uploads <#staging-low-priority-uploads>`__
 Land an upload blocked by staging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See also: `Explanation → Special types of SRU → Staging low priority
-uploads <#staging-low-priority-uploads>`__
+See also: :ref:`Explanation → Special types of SRU → Staging low priority
+uploads <explanation-staged-uploads>`
 
 In principle the block-proposed-<series> tag should be removed by an SRU
 team member when accepting a newer upload not planned for further
@@ -988,13 +1022,15 @@ staging. But if they overlook this, it's appropriate for whoever notices
 it (SRU team, or uploader) to remove the block-proposed-<series> tag
 with a suitable comment when it no longer applies.
 
+.. _howto-remove-package:
+
 Remove a package
 ~~~~~~~~~~~~~~~~
 
 See also:
 
--  `Explanation → Special types of SRU → Removals <#removals>`__
--  `Reference → Historical removals <#historical-removals>`__
+-  :ref:`Explanation → Special types of SRU → Removals <explanation-removals>`
+-  :ref:`Reference → Historical removals <reference-historical-removals>`
 
 Steps for the uploader
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -1004,8 +1040,8 @@ Steps for the uploader
    releases subsequent to the release being targetted.
 2. Construct an essentially empty package with an appropriate
    explanation in NEWS and a corresponding critical debconf note. Follow
-   the pattern used previously (see `the list of historical
-   removals <#historical-removals>`__).
+   the pattern used previously (see :ref:`the list of historical
+   removals <reference-historical-removals>`).
 3. Create an SRU tracking but with an appropriate explanation.
 4. `Write to the technical
    board <https://lists.ubuntu.com/mailman/listinfo/technical-board>`__
@@ -1017,20 +1053,23 @@ Steps for the SRU reviewer:
 
 1. Check the above list has been performed correctly, and that the
    Technical Board has approved
-2. Document in the `list of historical
-   removals <#historical-removals>`__.
+2. Document in the :ref:`list of historical removals
+   <reference-historical-removals>`.
 3. Process the SRU as normal.
+
+.. _howto-handle-autopkgtest-failure:
 
 Handle an autopkgtest failure
 -----------------------------
 
-See also: `Explanation → Autopkgtest failures <#autopkgtest-failures>`__
+See also: :ref:`Explanation → Autopkgtest failures
+<explanation-autopkgtest-failures>`
 
 1. Determine if the failure represents a regression caused by the SRU,
    or if it is a false positive that will not cause a regression if the
    SRU is released to -updates.
-2. If this is a real regression, follow `How-to → Report a
-   regression <#report-a-regression>`__ instead.
+2. If this is a real regression, follow :ref:`How-to → Report a
+   regression <howto-report-regression>` instead.
 3. Submit autopkgtest retries if you consider this appropriate, such as
    if you think the cause of the failure is a flaky test. If this
    resolves the issue, no further action is required.
@@ -1042,6 +1081,8 @@ See also: `Explanation → Autopkgtest failures <#autopkgtest-failures>`__
 
 Handle a regression
 -------------------
+
+.. _howto-report-regression:
 
 Report a regression
 ~~~~~~~~~~~~~~~~~~~
@@ -1057,11 +1098,13 @@ regression-proposed. To ensure that the package doesn't accidentally get
 released, add a comment to an existing bug and change the appropriate
 tag to verification-<series>-failed.
 
+.. _howto-handle-regression-report:
+
 Handle a regression report
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See also: `Explanation → Standard Process →
-Regressions <#regressions>`__
+See also: :ref:`Explanation → Standard Processes → Regressions
+<explanation-regressions>`
 
 This is the playbook to follow when there is a concern about a
 regression that has taken place in the updates pocket, such that a user
@@ -1106,8 +1149,6 @@ Roles
    may assume this role. Please coordinate with the nominated SRU team
    member.
 
-.. _actions-to-take-1:
-
 Actions to take
 '''''''''''''''
 
@@ -1127,8 +1168,6 @@ Examples of why we may be stuck in this phase:
 Action phase
 ^^^^^^^^^^^^
 
-.. _roles-1:
-
 Roles
 '''''
 
@@ -1140,8 +1179,6 @@ Roles
    them or their team. However, in their absence, anyone may assume this
    role. Please coordinate with the nominated SRU team member.
 
-.. _actions-to-take-2:
-
 Actions to take
 '''''''''''''''
 
@@ -1151,8 +1188,8 @@ Actions to take
    action of updating itself, then an exact revert is probably not
    appropriate. In this case, these instructions end and you will need
    to solve the problem according to your best judgement. See also:
-   `Explanation → Standard Process → Regressions → Exceptions that
-   justify pushing ahead <#exceptions-that-justify-pushing-ahead>`__.
+   :ref:`Explanation → Standard Processes → Regressions → Exceptions
+   that justify pushing ahead <explanation-regressions-pushing-ahead>`.
 -  Otherwise, upload an exact revert of the regressing update for
    immediate release to updates as soon as appropriate QA is completed,
    bypassing the usual ageing period. If possible, one SRU team member
@@ -1161,10 +1198,12 @@ Actions to take
    consequences. However, if nobody is available, the SRU team member
    may release their own work alone.
 
+.. _investigate-halted-phased-update:
+
 Investigate a halted phased update
 ----------------------------------
 
-See also: `Explanation → Phasing <#phasing>`__
+See also: :ref:`Explanation → Phasing <explanation-phasing>`
 
 Here are some tips on how to utilize the phased updates report to
 investigate why the phasing has stopped.
@@ -1174,8 +1213,8 @@ crash(es) with the greatest number of occurrences. Then check to see if
 the crash is occurring more frequently (by examining the Occurrences
 table) with the updated version of the package. If it is then you want
 to sort out why and address the crash in a follow on SRU. If it isn't
-then `contact the SRU team <#contact-the-sru-team>`__ regarding
-overriding the crash.
+then :ref:`contact the SRU team <howto-contact>` regarding overriding
+the crash.
 
 When looking at a new error you'll want to confirm that the error is in
 fact a new one by using the versions table. The phased-updater currently
@@ -1186,8 +1225,10 @@ Additionally, you can check to see if the error is really about the
 identified package or if it occurs in an underlying library by looking
 at the Traceback or Stacktrace e.g. python crashes being reported about
 a package using python. If you do not believe the error is a new one or
-was not caused by your stable release update then `contact the the SRU
-team <#contact-the-sru-team>`__ regarding overriding the crash.
+was not caused by your stable release update then :ref:`contact the SRU
+team <howto-contact>` regarding overriding the crash.
+
+.. _howto-contact:
 
 Contact the SRU team
 --------------------
@@ -1208,10 +1249,12 @@ generally in #ubuntu-release on Libera.Chat, or on the
 `ubuntu-release <https://lists.ubuntu.com/mailman/listinfo/ubuntu-release>`__
 mailing list.
 
-See also: `Reference → Team Rota <#team-rota>`__
+See also: :ref:`Reference → Team Rota <reference-rota>`
 
 Reference
 =========
+
+.. _reference-status-pages:
 
 Status Pages
 ------------
@@ -1237,6 +1280,8 @@ Status Pages
    displays the Phased-Update-Percentage of packages in the -proposed
    repository for releases and any regressions detected in that package.
 
+.. _reference-rota:
+
 Team Rota
 ---------
 
@@ -1256,6 +1301,8 @@ on the following schedule:
 +-----------+-----------------------------------------------------------------+
 | Friday    | Timo Aaltonen (tjaalton), Steve Langasek (vorlon - backup)      |
 +-----------+-----------------------------------------------------------------+
+
+.. _reference-sru-bug-template:
 
 SRU Bug Template
 ----------------
@@ -1318,10 +1365,10 @@ and the Technical Board
 
 \* and address these questions in advance
 
-.. _requirements-1:
-
 Requirements
 ------------
+
+.. _reference-what-is-acceptable-to-sru:
 
 What is acceptable to SRU
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1343,6 +1390,9 @@ Stable release updates will, in general, only be issued in order to fix
    being uninstallable or crashing on startup.
 -  Bugs which may, under realistic circumstances, directly cause a
    **loss of user data**
+
+.. _reference-criteria-environment:
+
 -  Updates that need to be applied to Ubuntu packages to adjust to
    changes in the environment, server protocols, web services, and
    similar, i. e. where the current version just ceases to work.
@@ -1369,6 +1419,9 @@ Term Support releases:
 -  Bugs which do not fit under above categories, but (1) have an
    obviously safe patch and (2) affect an application rather than
    critical infrastructure packages (like X.org or the kernel).
+
+.. _reference-criteria-hardware:
+
 -  For Long Term Support releases we regularly want to enable new
    hardware. Such changes are appropriate provided that we can ensure
    not to affect upgrades on existing hardware. For example, modaliases
@@ -1378,6 +1431,9 @@ Term Support releases:
    PCI vendor/product list updates. To avoid regressions on upgrade, any
    such hardware enablement must first also be added to any newer
    supported Ubuntu release.
+
+.. _reference-criteria-features:
+
 -  For Long Term Support releases we sometimes want to introduce new
    features. They must not change the behaviour on existing
    installations (e. g. entirely new packages are usually fine). If
@@ -1392,10 +1448,12 @@ Term Support releases:
    note that in **main** the release process ensures that there are no
    binaries which are not built from a current source. Usually those
    bugs should only be SRUed in conjunction with another bug fix.
+
+.. _reference-criteria-autopkgtest:
+
 -  **Autopkgtest failures** should also normally be SRUed only in
    conjunction with other high-priority fixes affecting users at
-   runtime, optionally by
-   `staging <https://wiki.ubuntu.com/StableReleaseUpdates#Staging_low_priority_uploads>`__
+   runtime, optionally by :ref:`staging <explanation-staged-uploads>`
    them. As an exception, when an SRU of one package will introduce a
    regression in the autopkgtests of another package, it is appropriate
    to do an autopkgtest-only SRU of the other package.
@@ -1404,6 +1462,8 @@ For new upstream versions of packages which provide new features, but
 don't fix critical bugs, a
 `backport <https://help.ubuntu.com/community/UbuntuBackports>`__ should
 be requested instead.
+
+.. _reference-criteria-microreleases:
 
 New upstream microreleases
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1440,9 +1500,12 @@ Out of scope
 
 -  Bugs which may, under realistic circumstances, directly cause a
    **security vulnerability** are out of scope of this process
-   [`explanation <#heading=h.zg78amb0dn63>`__]. See instead
-   `SecurityTeam/UpdateProcedures <https://wiki.ubuntu.com/SecurityTeam/UpdateProcedures>`__
-   for details of how these are handled.
+   [:ref:`explanation <explanation-security>`]. See instead
+   `SecurityTeam/UpdateProcedures
+   <https://wiki.ubuntu.com/SecurityTeam/UpdateProcedures>`__ for
+   details of how these are handled.
+
+.. _reference-general-requirements:
 
 General requirements for all SRUs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1450,15 +1513,15 @@ General requirements for all SRUs
 -  The development release must already be fixed and its bug task marked
    "Fix Released", unless the development release is not yet open, in
    which case the development release upload must be prepared, ready and
-   documented [`explanation <#development-release-fixed-first>`__].
--  Changes must be minimal [`explanation <#minimal-changes-only>`__],
+   documented [:ref:`explanation <explanation-devel-first>`].
+-  Changes must be minimal [:ref:`explanation <explanation-minimal>`],
    unless at least one of the following cases apply:
 
-   -  The SRU is one of the `documented special
-      types <#special-types-of-sru-1>`__ and that type, by definition,
+   -  The SRU is one of the :ref:`documented special types
+      <reference-special-types-of-sru>` and that type, by definition,
       requires a non-minimal upload.
-   -  There is a `documented standing
-      permission <#package-specific-notes>`__ that permits non-minimal
+   -  There is a :ref:`documented standing permission
+      <reference-package-specific-notes>` that permits non-minimal
       changes.
    -  You provide full justification of why the case is special and our
       general policy should not apply, and this justification is
@@ -1467,7 +1530,7 @@ General requirements for all SRUs
 -  Any fix or feature addition being made to one release must first be
    made to all future releases to prevent users regressing when they
    upgrade. This includes any interim non-LTS releases that are still
-   supported [`explanation <#newer-releases>`__]. Exceptions:
+   supported [:ref:`explanation <explanation-newer-releases>`]. Exceptions:
 
    -  If there are two subsequent interim releases that are both
       current, then, as a compromise, additionally fixing only the most
@@ -1481,7 +1544,7 @@ General requirements for all SRUs
 -  The SRU Driver and (if there is one) the Sponsor must be subscribed
    to relevant SRU bugs.
 
-.. _documentation-2:
+.. _reference-documentation-requirements:
 
 Documentation
 ~~~~~~~~~~~~~
@@ -1522,12 +1585,12 @@ devel releases package has the bug fixed before proceeding.
 Special cases that must be mentioned
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
--  If `package-specific SRU notes <#heading=h.6ia7bft0j6g1>`__ exist
-   and/or a standing approval exists to deviate from regular SRU policy,
-   link to them from the bug
--  If it's a `special SRU type <#special-types-of-sru-1>`__, mention
-   which, and check the documentation for the special SRU type for any
-   other documentation that must be supplied
+-  If :ref:`package-specific SRU notes
+   <reference-package-specific-notes>` exist and/or a standing approval
+   exists to deviate from regular SRU policy, link to them from the bug
+-  If it's a :ref:`special SRU type <reference-special-types-of-sru>`,
+   mention which, and check the documentation for the special SRU type
+   for any other documentation that must be supplied
 -  If the basis of the justification of the SRU depends on something
    other than a special SRU type or the user impact statement, then this
    justification must be made
@@ -1537,8 +1600,6 @@ User Impact
 
 -  The impact to users must be made clear, and form the basis of the
    justification of the SRU.
-
-.. _test-plan-1:
 
 Test Plan
 ^^^^^^^^^
@@ -1578,7 +1639,7 @@ Other Information
 -  It is helpful, but not required, to include an explanation of how the
    upload fixes this bug
 
-.. _upload-1:
+.. _reference-upload-requirements:
 
 Upload
 ~~~~~~
@@ -1619,7 +1680,7 @@ the use of the exception process.
 After the SRU has been accepted, you should then add the
 verification-done-<series> tag to these bugs.
 
-.. _special-types-of-sru-1:
+.. _reference-special-types-of-sru:
 
 Special types of SRU
 --------------------
@@ -1629,35 +1690,35 @@ with other considerations, give rise to the following special types of
 permitted SRU, some of which overlap:
 
 -  | **Package-specific non-standard process:** for routine non-standard
-     cases, we create `package-specific
-     notes <#package-specific-notes>`__ for consistency. These may
+     cases, we create :ref:`package-specific notes
+     <reference-package-specific-notes>` for consistency. These may
      incorporate any of the other special types below and may include
-     any exceptions to our `usual
-     criteria <#what-is-acceptable-to-sru>`__ that have been approved by
+     any exceptions to our :ref:`usual criteria
+     <reference-what-is-acceptable-to-sru>` that have been approved by
      the Technical Board.
 
 -  | **Hardware enablement:** for Long Term Support releases we
-     regularly want to enable new hardware
-     [`criteria <#bookmark=id.sbi9jlwmqv2t>`__].
+     regularly want to enable new hardware [:ref:`criteria
+     <reference-criteria-hardware>`].
 
 -  | **Environmental change:** updates that need to be applied to Ubuntu
      packages to adjust to changes in the environment, server protocols,
-     web services, and similar
-     [`criteria <#bookmark=id.f4snv2j2hbbu>`__].
+     web services, and similar [:ref:`criteria
+     <reference-criteria-environment>`].
 
 -  **Autopkgtest fix:** autopkgtest fixes may be included in SRUs. An
    update that fixes only autopkgtests is also acceptable, but should
-   normally be `staged <#staging-low-priority-uploads>`__
-   [`criteria <#bookmark=id.wgkh6ggtxywi>`__].
+   normally be :ref:`staged <explanation-staged-uploads>`
+   [:ref:`criteria <reference-criteria-autopkgtest>`].
 
 -  **Extended Security Maintenance:** there are special procedures for
    uploads to stable releases in their `Extended Security Maintenance
-   (ESM) <https://ubuntu.com/esm>`__ period. Please prepare the `SRU
-   Bug <https://wiki.ubuntu.com/StableReleaseUpdates#srubug>`__ then
-   contact `the ESM team <https://launchpad.net/~ubuntu-esm-team>`__.
+   (ESM) <https://ubuntu.com/esm>`__ period. Please prepare the SRU bug
+   and then contact `the ESM team
+   <https://launchpad.net/~ubuntu-esm-team>`__.
 
 -  | **Staged upload**
-     [`explanation <#staging-low-priority-uploads>`__].
+     [:ref:`explanation <explanation-staged-uploads>`].
 
 -  | **Bundled upload:** an SRU performed "on top" of an existing
      package already in -proposed. [TBC]
@@ -1666,18 +1727,18 @@ permitted SRU, some of which overlap:
 
    -  **New bugfix-only upstream release**
       Bugfix-only releases are acceptable if all changes are appropriate
-      for an SRU under our normal
-      `criteria <#what-is-acceptable-to-sru>`__, by one of two paths:
+      for an SRU under our normal :ref:`criteria
+      <reference-what-is-acceptable-to-sru>`, by one of two paths:
 
 1. The upload may use the new upstream orig tarball, but with individual
    Launchpad bugs to track verification of each fix individually.
-2. Instead, if upstreams meet, in the opinion of the SRU team, our `more
-   specific QA criteria for upstream
-   microreleases <#new-upstream-microreleases>`__ then it is acceptable
-   to process them with a single tracking bug instead of individual
-   Launchpad bugs for each fix. If relying on this path, the upstream QA
-   process that meets this criteria must be documented/demonstrated and
-   linked from the SRU tracking bug.
+2. Instead, if upstreams meet, in the opinion of the SRU team, our
+   :ref:`more specific QA criteria for upstream microreleases
+   <reference-criteria-microreleases>` then it is acceptable to process
+   them with a single tracking bug instead of individual Launchpad bugs
+   for each fix. If relying on this path, the upstream QA process that
+   meets this criteria must be documented/demonstrated and linked from
+   the SRU tracking bug.
 
 -  **New upstream release that adds features without breaking existing
    behaviour**
@@ -1686,43 +1747,47 @@ permitted SRU, some of which overlap:
    to introduce new features. We may choose to do so we can do this
    safely. However, to meet expectations of release stability, we will
    consider these on a case-by-case basis
-   [`criteria <#bookmark=id.bimt5deg053q>`__].
+   [:ref:`criteria <reference-criteria-features>`].
 
 -  **New upstream release that changes existing behaviour**
 
    Deliberately changing existing behaviour is to be avoided due to our
-   `minimise regression principle <#minimise-regression>`__, so such
-   SRUs are generally not permitted. Exceptions may be granted by the
-   Technical Board, but require exceptional justification. Standing
-   exceptions are documented in `Package-specific
-   notes <#heading=h.6ia7bft0j6g1>`__.
+   :ref:`minimise regression principle
+   <explanation-minimise-regression>`, so such SRUs are generally not
+   permitted. Exceptions may be granted by the Technical Board, but
+   require exceptional justification. Standing exceptions are documented
+   in :ref:`Package-specific notes <reference-package-specific-notes>`.
 
 -  | **Removals:** in rare cases, a package is or has become actively
      harmful to users, and is replaced by an empty package
-     [`explanation <#removals>`__].
+     [:ref:`explanation <explanation-removals>`].
 
 -  **Security updates:** these usually follow a different process and
    are out of scope of the SRU team and processes documented here. See
    `SecurityTeam/UpdateProcedures <https://wiki.ubuntu.com/SecurityTeam/UpdateProcedures>`__
-   for details [`explanation <#security-updates>`__].
+   for details [:ref:`explanation <explanation-security>`].
+
+.. _reference-package-specific-notes:
 
 Package-specific notes
 ----------------------
 
-See also: `Explanation → Non-standard Processes → Package-specific
-non-standard processes <#package-specific-non-standard-processes>`__
+See also: :ref:`Explanation → Non-standard Processes → Package-specific
+non-standard processes <explanation-package-specific-non-standard-processes>`
 
 These have yet to be imported into the new documentation. See the `old
 documentation <https://wiki.ubuntu.com/StableReleaseUpdates#Documentation_for_Special_Cases>`__
 for now.
+
+.. _reference-historical-removals:
 
 Historical removals
 -------------------
 
 See also:
 
--  `Explanation → Removals <#removals>`__
--  `How-to → Remove a package <#remove-a-package>`__
+-  :ref:`Explanation → Removals <explanation-removals>`
+-  :ref:`How-to → Remove a package <howto-remove-package>`
 
 The following packages have previously been (pseudo-)removed via SRU
 following our removals process.
@@ -1738,12 +1803,6 @@ following our removals process.
 
 Internal SRU team docs
 ======================
-
-See also: `Reference → Team-internal
-processes <#heading=h.x4b5g1y1rofs>`__ for:
-
--  Adding new team members to the team
--  Criteria for new SRU team members
 
 Decision making
 ---------------
@@ -1844,6 +1903,8 @@ for the libreoffice package currently in xenial-proposed:
 
 -  $ ./remove-package -m "SRU abandoned (verification-failed)" -s
    noble-proposed libreoffice
+
+.. _internal-override-phasing:
 
 Override phasing
 ----------------
