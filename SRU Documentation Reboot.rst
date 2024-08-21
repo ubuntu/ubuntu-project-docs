@@ -1664,7 +1664,7 @@ documentation can be found there. Private bugs must not be referenced in
 the changelog.
 
 Bug references in changelogs
-''''''''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When uploading a new upstream version of a package as an SRU, there may
 be bugs fixed in the new version which will not go through a manual
