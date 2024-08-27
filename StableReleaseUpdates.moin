@@ -118,7 +118,7 @@ See: https://canonical-sru-docs.readthedocs-hosted.com/en/latest/howto/autopkgte
 == Removal of updates ==
 
 {{{#!wiki warning
-This section has moved to https://canonical-sru-docs.readthedocs-hosted.com/en/latest/internal/#reviewing-procedure-and-tools
+This section has moved to https://canonical-sru-docs.readthedocs-hosted.com/en/latest/explanation/non-standard-processes/#removal-of-languishing-updates
 }}}
 
 == Regressions ==
