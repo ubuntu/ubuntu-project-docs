@@ -27,7 +27,7 @@ Documentation
    all). In that case, why are we doing the SRU?
 
 Test Plan
-~~~~~~~~~
+^^^^^^^^^
 
 -  Test Plan is ambiguous. For example, if another person were
    to follow the Test Plan, they might not end up testing adequately, or
@@ -54,7 +54,6 @@ Test Plan
    in the update. Think "what if this change is wrong? How would that
    show up?" `1590321 <https://bugs.launchpad.net/bugs/1590321>`__ is an
    example of a simple fix with a legitimate regression analysis.
--  
 
 Upload
 ~~~~~~
