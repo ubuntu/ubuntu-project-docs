@@ -137,18 +137,18 @@ tester actually did. Perhaps the regression occurred because they
 against the service, even though the person who wrote the Test Plan
 intended it:
 
- * The developer would say: "Yes obviously you needed to check the
-   service actually works; that's what I meant when I wrote the Test
-   Plan.
+* The developer would say: "Yes obviously you needed to check the
+  service actually works; that's what I meant when I wrote the Test
+  Plan.
 
- * The SRU reviewer would say: "On review, given the nature of the bug
-   being fixed and the changes being made, I thought it was important to
-   check the service responds correctly to a query, but that's what the
-   Test Plan included so I approved it.
+* The SRU reviewer would say: "On review, given the nature of the bug
+  being fixed and the changes being made, I thought it was important to
+  check the service responds correctly to a query, but that's what the
+  Test Plan included so I approved it.
 
- * The tester would say: "I carried out the testing exactly as
-   instructed" and then report in the bug for SRU verification "I have
-   carried out the Test Plan specified against version X and it passed".
+* The tester would say: "I carried out the testing exactly as
+  instructed" and then report in the bug for SRU verification "I have
+  carried out the Test Plan specified against version X and it passed".
 
 ...but this would then have regressed users solely because of the
 ambiguity.

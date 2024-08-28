@@ -48,17 +48,17 @@ permitted SRU, some of which overlap:
     for an SRU under our normal :ref:`criteria
     <reference-what-is-acceptable-to-sru>`, by one of two paths:
 
-      1. The upload may use the new upstream orig tarball, but with
-	 individual Launchpad bugs to track verification of each fix
-	 individually.
+    1. The upload may use the new upstream orig tarball, but with
+       individual Launchpad bugs to track verification of each fix
+       individually.
 
-      2. Instead, if upstreams meet, in the opinion of the SRU team, our
-	 :ref:`more specific QA criteria for upstream microreleases
-	 <reference-criteria-microreleases>` then it is acceptable to
-	 process them with a single tracking bug instead of individual
-	 Launchpad bugs for each fix. If relying on this path, the
-	 upstream QA process that meets this criteria must be
-	 documented/demonstrated and linked from the SRU tracking bug.
+    2. Instead, if upstreams meet, in the opinion of the SRU team, our
+       :ref:`more specific QA criteria for upstream microreleases
+       <reference-criteria-microreleases>` then it is acceptable to
+       process them with a single tracking bug instead of individual
+       Launchpad bugs for each fix. If relying on this path, the
+       upstream QA process that meets this criteria must be
+       documented/demonstrated and linked from the SRU tracking bug.
 
   * **New upstream release that adds features without breaking existing
     behaviour**
