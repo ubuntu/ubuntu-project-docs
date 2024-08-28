@@ -25,9 +25,9 @@ permitted SRU, some of which overlap:
   <reference-criteria-environment>`].
 
 * **Autopkgtest fix:** autopkgtest fixes may be included in SRUs. An
-   update that fixes only autopkgtests is also acceptable, but should
-   normally be :ref:`staged <explanation-staged-uploads>`
-   [:ref:`criteria <reference-criteria-autopkgtest>`].
+  update that fixes only autopkgtests is also acceptable, but should
+  normally be :ref:`staged <explanation-staged-uploads>` [:ref:`criteria
+  <reference-criteria-autopkgtest>`].
 
 * **Extended Security Maintenance:** there are special procedures for
   uploads to stable releases in their `Extended Security Maintenance
