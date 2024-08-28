@@ -29,6 +29,10 @@ Documentation
 Test Plan
 ~~~~~~~~~
 
+-  Test Plan is ambiguous. For example, if another person were
+   to follow the Test Plan, they might not end up testing adequately, or
+   using the steps that you intend. [:ref:`Explanation
+   <explanation-test-plan-detail>`].
 -  Test Plan only covers the fix, and not general use of the package to
    make sure that it still works after the update. A smoke test will
    suffice. If that's implied by verifying the bug is fixed then it's

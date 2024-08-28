@@ -90,3 +90,65 @@ confidence that you, as the subject matter expert, have considered the
 matter and we are much more likely to accept your suggestion on how to
 deal with it. In any case we will save at least one review iteration in
 determining whether the matter is real or has been missed.
+
+.. _explanation-test-plan-detail:
+
+Detail in Test Plans
+^^^^^^^^^^^^^^^^^^^^
+
+Consider if another person were to follow the Test Plan as written.
+Are they likely to perform the same actual steps in practice? If not,
+then the Test Plan is not sufficiently detailed and unambiguous.
+Otherwise we might end up performing insufficient testing because the
+Test Plan that was approved is not the Test Plan that was actually
+executed. Ambiguity would result in unnecessary regression risk,
+violating our :ref:`principles <explanation-principles>`.
+
+If a regression is found, then we will need to consider what went wrong
+to see if there are any opportunities for improvement next time. To be
+able to analyse this effectively, our QA must be reproducible.
+Otherwise, if original tester is unavailable, developers could waste
+time due to the ambiguity.
+
+It follows that the Test Plan must be unambiguously reproducible.
+
+There are multiple roles interacting here: the developer who writes the
+Test Plan, the SRU team member who approves it, the person who performs
+it, and the SRU team member who reads the tester's report before
+releasing the update. It is essential that everyone involved agrees on
+the actual steps to perform, without any misunderstanding.
+
+How do we avoid needless detail? Here's a suggestion: if another person
+were to follow the Test Plan and it's likely that they will interpret it
+to use the same steps as you intend, then further detail is not needed.
+
+Example
+"""""""
+
+"Check that the service still works" is an ambiguous instruction. Should
+the tester run ``systemctl status`` and verify that systemd reports the
+service as active and running, or actually verify that the service works
+by running a query against the service? If a query, then what query
+exactly?
+
+If, later, a regression is found, then we will want to know what the
+tester actually did. Perhaps the regression occurred because they
+*didn't* check that the service actually works by running a query
+against the service, even though the person who wrote the Test Plan
+intended it:
+
+ * The developer would say: "Yes obviously you needed to check the
+   service actually works; that's what I meant when I wrote the Test
+   Plan.
+
+ * The SRU reviewer would say: "On review, given the nature of the bug
+   being fixed and the changes being made, I thought it was important to
+   check the service responds correctly to a query, but that's what the
+   Test Plan included so I approved it.
+
+ * The tester would say: "I carried out the testing exactly as
+   instructed" and then report in the bug for SRU verification "I have
+   carried out the Test Plan specified against version X and it passed".
+
+...but this would then have regressed users solely because of the
+ambiguity.
