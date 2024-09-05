@@ -23,10 +23,10 @@ In the event of a change breaking backwards compatibility, then SRU team
 approval will need to be obtained by emailing the ubuntu-release team
 mailing list.
 
-.. _exceptions_not_yet_approved_by_sru_vanguards:
+.. _exceptions_under_review:
 
-Exceptions [not yet approved by SRU vanguards]
-----------------------------------------------
+Exceptions [under review]
+-------------------------
 
 cloud-init performs upstream releases quarterly and SRUs to all active
 stable releases which have yet to reach End of Standard Support. Because
