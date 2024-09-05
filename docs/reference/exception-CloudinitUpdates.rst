@@ -1,3 +1,6 @@
+Background
+----------
+
 This document describes the policy for updating cloud-init in a stable,
 supported release.
 
@@ -19,6 +22,22 @@ followed:
 In the event of a change breaking backwards compatibility, then SRU team
 approval will need to be obtained by emailing the ubuntu-release team
 mailing list.
+
+Exceptions
+----------
+
+cloud-init performs upstream releases quarterly and SRUs to all active
+stable releases which have yet to reach End of Standard Support. Because
+of the quarterly release schedule, two of those planned release dates
+coincide with early Feature Freeze periods.
+
+Since these feature changes may land in stable releases at any time due
+to our SRU exception policy, adhering to feature freeze during the
+development cycle would be counterproductive as those changes would be
+forced to land after release instead. Therefore, feature freeze will not
+apply when the changes are in scope of this document. However, from beta
+freeze on uploads of this package will be subject to the same additional
+scrutiny by the Release Team as any other package.
 
 .. _requesting_the_sru:
 
