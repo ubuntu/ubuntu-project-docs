@@ -23,15 +23,25 @@ In the event of a change breaking backwards compatibility, then SRU team
 approval will need to be obtained by emailing the ubuntu-release team
 mailing list.
 
+---- /!\\ **Edit conflict - other version:** ----
+
 .. _exceptions_not_yet_approved_by_sru_vangards:
 
 Exceptions [not yet approved by SRU vangards]
 ---------------------------------------------
 
-cloud-init performs upstream releases quarterly and SRUs to all active
-stable releases which have yet to reach End of Standard Support. Because
-of the quarterly release schedule, two of those planned release dates
-coincide with early Feature Freeze periods.
+---- /!\\ **Edit conflict - your version:** ----
+
+.. _exceptions_not_yet_approved_by_sru_vanguards:
+
+Exceptions [not yet approved by SRU vanguards]
+----------------------------------------------
+
+---- /!\\ **End of edit conflict** ---- cloud-init performs upstream
+releases quarterly and SRUs to all active stable releases which have yet
+to reach End of Standard Support. Because of the quarterly release
+schedule, two of those planned release dates coincide with early Feature
+Freeze periods.
 
 Since these feature changes may land in stable releases at any time due
 to our SRU exception policy, adhering to feature freeze during the
