@@ -312,3 +312,36 @@ the use of the exception process.
 
 After the SRU has been accepted, you should then add the
 verification-done-<series> tag to these bugs.
+
+Release
+~~~~~~~
+
+Before release, the following requirements must be met. Most of these are
+tracked automatically on the `pending SRU report`_.
+
+* All referenced bugs have a QA report in a bug comment explaining how the
+  Test Plan was performed, what package version was tested, and what the
+  overall result was (pass or fail).
+
+* All referenced bugs have ``verification-done-<series>`` set, and the
+  ``verification-needed-<series>`` and ``verification-failed-<series>`` tags
+  are absent.
+
+* No bugs are marked ``block-proposed-<series>``, for example because they are
+  held by :ref:`staging <explanation-staged-uploads>`.
+
+* There are no packages that failed to build such that this is a
+  regression over the previous build status.
+
+* All autopkgtest failures have been investigated and a resolution
+  provided [:ref:`how-to <howto-handle-autopkgtest-failure>`].
+
+* The minimum ageing period of seven days has passed since the package was
+  accepted into -proposed.
+
+* All relevant SRUs for subsequent series are already released
+  [:ref:`explanation <explanation-newer-releases>`].
+
+* Any other concerns raised in the referenced bugs have been addressed.
+
+.. _pending SRU report: https://ubuntu-archive-team.ubuntu.com/pending-sru.html
