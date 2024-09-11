@@ -30,6 +30,8 @@ uploads <explanation-staged-uploads>`
 2. Ensure that you perform SRU verification as normal as soon as the
    package is accepted into proposed.
 
+.. _howto-unblock-staging:
+
 Land an upload blocked by staging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

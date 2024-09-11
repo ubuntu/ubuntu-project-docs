@@ -35,7 +35,9 @@ permitted SRU, some of which overlap:
   and then contact `the ESM team
   <https://launchpad.net/~ubuntu-esm-team>`__.
 
-* **Staged upload** [:ref:`explanation <explanation-staged-uploads>`].
+* **Staged upload** [:ref:`explanation <explanation-staged-uploads>`]
+  [:ref:`how-to: stage upload <howto-stage-upload>`] [:ref:`how-to: land staged
+  upload <howto-unblock-staging>`].
 
 * **Bundled upload:** an SRU performed "on top" of an existing
   package already in -proposed. [TBC]

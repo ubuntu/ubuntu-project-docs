@@ -43,6 +43,11 @@ series task. If you skip verification of one series then staged uploads
 in all series are candidates for deletion or overriding as above at the
 discretion of the SRU team.
 
+See also:
+
+- :ref:`How-to → Stage an upload <howto-stage-upload>`
+- :ref:`How-to → Land an upload blocked by staging <howto-unblock-staging>`
+
 .. _explanation-removals:
 
 Removals
