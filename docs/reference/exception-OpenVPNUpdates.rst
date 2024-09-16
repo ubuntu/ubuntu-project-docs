@@ -52,6 +52,7 @@ Ubuntu and OpenVPN releases affected by this MRE
 Currently, these are the Ubuntu releases and the corresponding OpenVPN
 package versions affected by this policy:
 
+-  Noble (24.04): OpenVPN 2.6.x
 -  Jammy (22.04): OpenVPN 2.5.x
 -  Focal (20.04): OpenVPN 2.4.x (One time update to 2.4.12 as that is
    the final release for this version)
