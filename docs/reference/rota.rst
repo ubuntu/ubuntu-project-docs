@@ -3,6 +3,10 @@
 Team Rota
 ---------
 
+.. include:: /howto/contact.rst
+   :start-after: start-canonical-contact-admonition
+   :end-before: end-canonical-contact-admonition
+
 Vanguards from the SRU team can also usually be found in #ubuntu-release
 on the following schedule:
 
