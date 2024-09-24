@@ -39,6 +39,9 @@ permitted SRU, some of which overlap:
   [:ref:`how-to: stage upload <howto-stage-upload>`] [:ref:`how-to: land staged
   upload <howto-unblock-staging>`].
 
+* **Upload to the new queue of an active release** [:ref:`explanation <explanation-new-queue>`]
+  [:ref:`how-to: new source or binary <howto-new-queue>`].
+
 * **Bundled upload:** an SRU performed "on top" of an existing
   package already in -proposed. [TBC]
 

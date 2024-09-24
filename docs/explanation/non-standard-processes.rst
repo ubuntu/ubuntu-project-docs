@@ -48,6 +48,32 @@ See also:
 - :ref:`How-to → Stage an upload <howto-stage-upload>`
 - :ref:`How-to → Land an upload blocked by staging <howto-unblock-staging>`
 
+.. _explanation-new-queue:
+
+NEW queue in the SRU context
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The SRU policy does not forbid uploading a new source or binary to active
+releases. But if that happens it needs double approval. One of an archive-admin
+for the aspect of `NEW queue processing
+<https://wiki.ubuntu.com/ArchiveAdministration#NEW_Processing>`__ and that of a
+SRU member for the regression evaluation.
+
+While that can be done as a single step by the few people wearing both roles at
+once, that is not always possible. Hence the process is defined as cooperation
+between members of both teams.
+
+This case can come in two variants:
+
+- new binary: An upload has been evaluated by the SRU member and was accepted
+  from the Unapproved queue. But that upload now builds a new binary which will
+  hit the NEW queue of the respective release.
+- new source: An upload of a new source hits the NEW queue of an active release.
+
+See also:
+
+- :ref:`How-to → Process the NEW queue in the SRU context <howto-new-queue>`
+
 .. _explanation-removals:
 
 Removals
