@@ -32,30 +32,32 @@ uploads <explanation-staged-uploads>`
 
 .. _howto-new-queue:
 
-Stage an upload
-~~~~~~~~~~~~~~~
+SRU uploads hitting the NEW queue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 See also: :ref:`Explanation → Special types of SRU → NEW queue in the SRU context <explanation-new-queue>`
 
-Some steps of the normal `SRU pipeline <explanation-sru-pipeline>` are different
-in these cases.
+Some steps of the normal :ref:`SRU pipeline <explanation-sru-pipeline>` are
+different in these cases.
 
 New Binary
+^^^^^^^^^^
 
-#. Step 3 of the `SRU pipeline <explanation-sru-pipeline>` changes in regard
-   to the binary not immediately making it to the -proposed pocket after being
-   built.
+#. Step 3 of the :ref:`SRU pipeline <explanation-sru-pipeline>` changes in
+   regard to the binary not immediately making it to the -proposed pocket after
+   being built.
 #. Communicating on the bug is important, but the SRU member shall not yet ask
    for verification in -proposed as it is not yet available there.
 #. Once evaluated and accepted by an Archive Admin the new binary will be in
    -proposed and the usual SRU flow can continue asking for verification.
 
 New Source
+^^^^^^^^^^
 
-#. Step 2 of the `SRU pipeline <explanation-sru-pipeline>` changes as the upload
-   first shows up in the NEW queue. But once an Archive Admin would accept from
-   the NEW queue it would directly move to -proposed implying the need for
-   pre-coordination between the two roles.
+#. Step 2 of the :ref:`SRU pipeline <explanation-sru-pipeline>` changes as the
+   upload first shows up in the NEW queue. But once an Archive Admin would
+   accept from the NEW queue it would directly move to -proposed implying the
+   need for pre-coordination between the two roles.
 #. Ensure there is a tracking bug, it will help to coordinate the approvals,
    later allow to audit why things were done, and allow the late part of this
    process to follow the normal SRU steps people are used to.
@@ -67,12 +69,16 @@ New Source
 #. The source package will appear in -proposed and start to build.
 #. Built binaries then show up in the NEW queue and are accepted from there
    again landing in -proposed
-#. Built binaries then show up in the NEW queue and are accepted from there
-   again landing in -proposed
 #. Form here on we are back in the normal path at the end of step 3 of the
-   `SRU pipeline <explanation-sru-pipeline>`. The SRU member can do the
+   :ref:`SRU pipeline <explanation-sru-pipeline>`. The SRU member can do the
    normal communication and status updates on the bug as if it would have been
    accepted from -unapproved.
+
+   #. To do so the following command line can be used to add the standard
+      "package accepted" comment to the bug, and adjust the verification tags:
+      :code:`sru-accept -s <release>-proposed -p <source-pkg> -v <version> <bug-number>`.
+      The script can be found in the `ubuntu-archive-tools git repository
+      <https://code.launchpad.net/~ubuntu-archive/ubuntu-archive-tools/+git/ubuntu-archive-tools>`_.
 
 .. _howto-unblock-staging:
 
