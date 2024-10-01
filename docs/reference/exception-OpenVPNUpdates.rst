@@ -117,6 +117,11 @@ feature was added which implements auth-token-user. The change was then
 referenced in the `release
 notes <https://community.openvpn.net/openvpn/wiki/ChangesInOpenvpn25#Changesin2.5.3>`__.
 
+The upstream source directory distro/systemd/ contains systemd unit
+files that end up in packaging directly. These must be checked for
+changes. If there are any changes, they must be considered independently
+and documented in the SRU tracking bug.
+
 Process
 -------
 
