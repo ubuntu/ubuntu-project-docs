@@ -44,5 +44,10 @@ SRU Bug Template
 
      * Anything else you think is useful to include
 
+     * Make sure to explain any deviation from the norm, to save the SRU
+       reviewer from having to infer your reasoning, possibly incorrectly.
+       This should also help reduce review iterations, particularly when the
+       reason for the deviation is not obvious.
+
      * Anticipate questions from users, SRU, +1 maintenance, security teams
        and the Technical Board and address these questions in advance
