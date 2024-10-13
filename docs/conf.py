@@ -84,34 +84,32 @@ html_context = {
 
     # Change to the Mattermost channel you want to link to
     # (use an empty value if you don't want to link)
-    'mattermost': 'https://chat.canonical.com/canonical/channels/foundations',
+    'irc': 'https://web.libera.chat/gamja/?channels=%23ubuntu-devel',
 
     # Change to the Matrix channel you want to link to
     # (use an empty value if you don't want to link)
     'matrix': '',
 
-    # Change to the GitHub URL for your project
-    # This is used, for example, to link to the source files and allow creating
-    # GitHub issues directly from the documentation.
-    'github_url': 'https://launchpad.net/sru-docs',
+    # Change to the Launchpad URL for your project
+    # This is used to link to the source files.
+    'launchpad_url': 'https://git.launchpad.net/sru-docs',
 
     # Change to the branch for this version of the documentation
-    # 'github_version': 'main',
+    'launchpad_version': 'main',
 
     # Change to the folder that contains the documentation
     # (usually "/" or "/docs/")
-    'github_folder': '/docs',
+    'launchpad_folder': '/docs/',
 
-    # Change to an empty value if your GitHub repo doesn't have issues enabled.
-    # This will disable the feedback button and the issue link in the footer.
-    'github_issues': '',
+    # Change to an empty value to disable the issue link in the footer.
+    'launchpad_issues': 'https://bugs.launchpad.net/sru-docs/+filebug',
 
     # Controls the existence of Previous / Next buttons at the bottom of pages
     # Valid options: none, prev, next, both
     'sequential_nav': "both",
 
     # Controls whether to display the contributors for each file
-    "display_contributors": True,
+    "display_contributors": False,
 
     # Controls the time frame for showing the contributors
     # "display_contributors_since": ""
@@ -178,7 +176,7 @@ myst_enable_extensions = {
 # If you need more extensions, add them here (in addition to
 # canonical_sphinx).
 extensions = [
-    'canonical_sphinx'
+    'canonical_sphinx',
     ]
 
 # Add files or directories that should be excluded from processing.

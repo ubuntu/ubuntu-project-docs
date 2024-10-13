@@ -1,2 +1,4 @@
+canonical-sphinx-extensions
 canonical-sphinx
 sphinx-autobuild
+sphinx-design

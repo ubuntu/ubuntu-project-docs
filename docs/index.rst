@@ -38,22 +38,28 @@ Please report this using :ref:`these steps <howto-report-regression>`.
 In this documentation
 ---------------------
 
-..  grid:: 1 1 2 2
+.. grid:: 1 1 2 2
 
-   ..  grid-item::
+   .. grid-item-card::
 
-   ..  grid-item:: :doc:`How-to guides <howto/index>`
+   .. grid-item-card:: :doc:`How-to guides <howto/index>`
+      :link: howto/index
+      :link-type: doc
 
       **Step-by-step guides** covering key operations and common tasks
 
 .. grid:: 1 1 2 2
    :reverse:
 
-   .. grid-item:: :doc:`Reference <reference/index>`
+   .. grid-item-card:: :doc:`Reference <reference/index>`
+      :link: reference/index
+      :link-type: doc
 
       **Technical information** - specifications, APIs, architecture
 
-   .. grid-item:: :doc:`Explanation <explanation/index>`
+   .. grid-item-card:: :doc:`Explanation <explanation/index>`
+      :link: explanation/index
+      :link-type: doc
 
       **Discussion and clarification** of key topics
 
@@ -72,8 +78,8 @@ Project and community
    developers.
 
 -  `Join our online
-   chat <https://web.libera.chat/gamja/?channels=%23ubuntu>`__: Meet us
-   in ``#ubuntu`` on IRC Libera.Chat.
+   chat <https://web.libera.chat/gamja/?channels=%23ubuntu-devel>`__: Meet us
+   in ``#ubuntu-devel`` on IRC Libera.Chat.
 
 -  `Report bugs <https://bugs.launchpad.net/sru-docs/+filebug>`__: We
    want to know about the problems, so we can fix them.
