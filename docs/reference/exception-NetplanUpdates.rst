@@ -149,3 +149,11 @@ SRU Template
 
    [Changelog]
    <TODO: Paste in change log entry>
+
+.. _history_of_regressions:
+
+History of regressions
+----------------------
+
+-  netplan.io 0.107.1-3ubuntu0.22.04.1 broke Juju in `LP:
+   #2084444 <https://bugs.launchpad.net/netplan/+bug/2084444>`__
