@@ -61,12 +61,12 @@ target package will not be released into -updates until the failure is
    of the SRU bugs for the upload. Once the rationale is submitted and
    approved/validated by an SRU member, the SRU team will add a badtest
    or reset-test hint for the broken package and release the update as
-   per usual procedures (once validation and aging is complete).
+   per usual procedures (once validation and ageing is complete).
    Alternatively, the uploader/verifier can modify the hints and provide
    an MP in the bug along with the rationale. Useful input here can be
    re-running the failing test against only the release/updates pocket,
    as documented in the
-   `ProposedMigration <https://wiki.ubuntu.com/ProposedMigration#How_to_run_autopkgtests_of_a_package_against_the_version_in_the_release_pocket>`__
+   `Proposed Migration <https://wiki.ubuntu.com/ProposedMigration#How_to_run_autopkgtests_of_a_package_against_the_version_in_the_release_pocket>`__
    wiki page.
 -  If the reported autopkgtest regression is the result of a **flaky
    test**, the uploader can try re-running the test to see if it is
@@ -146,7 +146,7 @@ is reported
 
 The SRU team drives the process that handles regressions reported
 against the updates pocket. Regressions that have taken place elsewhere
-(eg. during a release upgrade, in the security pocket, in the proposed
+(e.g. during a release upgrade, in the security pocket, in the proposed
 pocket or in Pro-specific repositories) are out of scope of this
 section.
 
@@ -174,7 +174,7 @@ pushing ahead, unless one of the exceptions below applies.
 Exceptions that justify pushing ahead
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. There is a known technical reason that a revert will fail (ie. not
+1. There is a known technical reason that a revert will fail (i.e. not
    work or cause a further issue), or that an SRU team member considers
    the risk of the revert failing to be too high.
 2. The regression has been published in the updates pocket for long

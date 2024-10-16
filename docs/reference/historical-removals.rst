@@ -16,6 +16,5 @@ following our removals process.
    `#413657 <https://launchpad.net/bugs/413657>`__)
 -  `bitcoin <https://bugs.launchpad.net/ubuntu/+source/bitcoin/+bug/1314616>`__
 -  `owncloud <https://launchpad.net/bugs/1384355>`__
--  `jsunit and tinyjsd <https://launchpad.net/bugs/1895643>`__ (more
-   context in `this
-   post <https://discourse.ubuntu.com/t/thunderbird-lts-update/20819>`__)
+-  `jsunit and tinyjsd <https://launchpad.net/bugs/1895643>`__ (more context in
+   `this post <https://discourse.ubuntu.com/t/thunderbird-lts-update/20819>`__)

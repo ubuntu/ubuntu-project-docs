@@ -66,5 +66,5 @@ but with a much higher emphasis on the third than in other contexts.
 Maintain usefulness
 ~~~~~~~~~~~~~~~~~~~
 
-We make exceptions to keep the distribution useful. Eg. Firefox,
+We make exceptions to keep the distribution useful. E.g. Firefox,
 hardware enablement, Internet protocol [need to expand on this].

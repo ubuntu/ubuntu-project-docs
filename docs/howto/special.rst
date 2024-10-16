@@ -10,7 +10,7 @@ Request a package-specific non-standard process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This hasn't been transferred into the new documentation yet. See
-https://wiki.ubuntu.com/StableReleaseUpdates#Documentation_for_Special_Cases
+`SRU: Documentation for Special Cases <https://wiki.ubuntu.com/StableReleaseUpdates#Documentation_for_Special_Cases>`__
 for now.
 
 .. _howto-stage-upload:
@@ -109,7 +109,7 @@ Steps for the uploader
 
 1. If appropriate depending on the reason for the removal, ensure that
    the package is also removed in the development release and any
-   releases subsequent to the release being targetted.
+   releases subsequent to the release being targeted.
 2. Construct an essentially empty package with an appropriate
    explanation in NEWS and a corresponding critical debconf note. Follow
    the pattern used previously (see :ref:`the list of historical

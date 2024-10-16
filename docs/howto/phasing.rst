@@ -5,7 +5,7 @@ Investigate a halted phased update
 
 See also: :ref:`Explanation → Phasing <explanation-phasing>`
 
-Here are some tips on how to utilize the phased updates report to
+Here are some tips on how to utilise the phased updates report to
 investigate why the phasing has stopped.
 
 When looking at an increased rate of crashes you'll want to look at the

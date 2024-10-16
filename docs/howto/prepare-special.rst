@@ -7,7 +7,7 @@ Prepare a special type of SRU
    <reference-package-specific-notes>` then follow :ref:`How-to →
    Perform a standard SRU <howto-perform-standard-sru>` as modified by
    those notes instead.
-2. Some special types of SRU have specific How-tos to follow instead:
+2. Some special types of SRU have specific how-to guides to follow instead:
 
    1. :ref:`Stage an upload <howto-stage-upload>`
    2. :ref:`Remove a package <howto-remove-package>`

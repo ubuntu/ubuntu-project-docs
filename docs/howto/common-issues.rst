@@ -22,7 +22,7 @@ Documentation
    Consider if the user would recognise the user impact stated; if not,
    then it isn't an explanation of user impact.
 -  It turns out that the bug is valid but there don't seem to be any
-   users who would benefit from the SRU (eg. after five years of the bug
+   users who would benefit from the SRU (e.g. after five years of the bug
    existing, the one reporter moved on and nobody else has commented at
    all). In that case, why are we doing the SRU?
 
@@ -43,7 +43,7 @@ Test Plan
 -  The Test Plan or verification only tested part of the user story that
    we are fixing with a series of SRUs. In this case, we expect all
    packages in proposed and verification of the entire user story at
-   once. Eg. a hardware enablement needs to be done across three
+   once. E.g. a hardware enablement needs to be done across three
    packages. This avoids iteration in the stable release.
 -  It is assumed that uploaders believe their changes are as risk free
    as possible, but this section is for demonstrating that some thought
@@ -70,9 +70,9 @@ Upload
    from upstream is complex compared to an ideal minimal fix, expect
    push-back on this point.
 
-   -  You may take the position that you're more confident in upstream's
+   -  You may take the position that you're more confident in an upstream
       fix than your own ability to create a minimal patch. However, that
-      only applies in the context of upstream's patch base, and not
+      only applies in the context of upstream patch base, and not
       necessarily ours. The minimal fix is the easier of the two options
       to review, and it is our default policy position that the minimal
       fix is preferable.
@@ -98,7 +98,7 @@ Verification
    verification comments saying "it works for me" which quite reasonably
    didn't follow the Test Plan, and we need to differentiate the same
    cases so please avoid ambiguity.
--  Verification used packages from outside the archive (eg. a local
+-  Verification used packages from outside the archive (e.g. a local
    build or PPA).
 
 Release

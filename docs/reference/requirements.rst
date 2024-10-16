@@ -28,15 +28,14 @@ Stable release updates will, in general, only be issued in order to fix
 
 -  Updates that need to be applied to Ubuntu packages to adjust to
    changes in the environment, server protocols, web services, and
-   similar, i. e. where the current version just ceases to work.
+   similar, i.e. where the current version just ceases to work.
    Examples:
 
-   -  app-install-data-commercial is a package index which regularly
+   -  ``app-install-data-commercial`` is a package index which regularly
       needs to be adjusted to changes in the commercial package archive.
-   -  clamav needs `regular
-      updates <https://wiki.ubuntu.com/ClamavUpdates>`__ to latest virus
-      signatures
-   -  tor needs a newer version to still work with the current Tor
+   -  ``clamav`` needs `regular updates <https://wiki.ubuntu.com/ClamavUpdates>`__
+      to latest virus signatures
+   -  ``tor`` needs a newer version to still work with the current Tor
       network.
    -  A library for a web service needs to be updated for changes to the
       web server API.
@@ -60,7 +59,7 @@ Term Support releases:
    not to affect upgrades on existing hardware. For example, modaliases
    of newly introduced drivers must not overlap with previously shipped
    drivers. This also includes updating hardware description data such
-   as udev's keymaps, media-player-info, mobile broadband vendors, or
+   as udev keymaps, media-player-info, mobile broadband vendors, or
    PCI vendor/product list updates. To avoid regressions on upgrade, any
    such hardware enablement must first also be added to any newer
    supported Ubuntu release.
@@ -71,7 +70,7 @@ Term Support releases:
    features. They must not change the behaviour on existing
    installations (e. g. entirely new packages are usually fine). If
    existing software needs to be modified to make use of the new
-   feature, it must be demonstrated that these changes are unintrusive,
+   feature, it must be demonstrated that these changes are non-intrusive,
    have a minimal regression potential, and have been tested properly.
    To avoid regressions on upgrade, any such feature must then also be
    added to any newer supported Ubuntu release. Once a new
@@ -80,11 +79,11 @@ Term Support releases:
 -  **FTBFS** (Fails To Build From Source) can also be considered. Please
    note that in **main** the release process ensures that there are no
    binaries which are not built from a current source. Usually those
-   bugs should only be SRUed in conjunction with another bug fix.
+   bugs should only go through SRU in conjunction with another bug fix.
 
 .. _reference-criteria-autopkgtest:
 
--  **Autopkgtest failures** should also normally be SRUed only in
+-  **Autopkgtest failures** should also normally go through SRU only in
    conjunction with other high-priority fixes affecting users at
    runtime, optionally by :ref:`staging <explanation-staged-uploads>`
    them. As an exception, when an SRU of one package will introduce a
@@ -106,7 +105,7 @@ instead of just sending patches. If all of the changes are appropriate
 for an SRU by the criteria above, then it is acceptable (and usually
 easier) to just upload the complete new upstream microrelease instead of
 backporting the individual patches. Note that some noise introduced by
-autoreconf is okay, but making structural changes to the build system
+``autoreconf`` is okay, but making structural changes to the build system
 (such as introducing new library dependencies) is generally not.
 
 For upstreams who have
@@ -134,9 +133,8 @@ Out of scope
 -  Bugs which may, under realistic circumstances, directly cause a
    **security vulnerability** are out of scope of this process
    [:ref:`explanation <explanation-security>`]. See instead
-   `SecurityTeam/UpdateProcedures
-   <https://wiki.ubuntu.com/SecurityTeam/UpdateProcedures>`__ for
-   details of how these are handled.
+   `Security team's Update Procedures <https://wiki.ubuntu.com/SecurityTeam/UpdateProcedures>`__
+   for details of how these are handled.
 
 .. _reference-general-requirements:
 
@@ -210,9 +208,9 @@ Keep in mind that certain packages can change source package names
 between releases. In that case, if the given bug applies to a different
 source package that replaced the old one in a later releases, this
 source package has to be added as 'Also affecting'. Make sure that the
-devel releases package has the bug fixed before proceeding.
+development releases package has the bug fixed before proceeding.
 
--  If a change (eg. from upstream) is known to exceed the scope of a
+-  If a change (e.g. from upstream) is known to exceed the scope of a
    standing exception to regular requirements, this must be pointed out
 
 Special cases that must be mentioned
@@ -287,12 +285,12 @@ The upload must have the correct *release* in the changelog header, a
 detailed and user-readable changelog, and no other unrelated changes.
 
 The version number does not conflict with any later and future version
-in other Ubuntu releases (the `security policy
-document <https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging>`__
+in other Ubuntu releases (the
+`security policy document <https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Update_the_packaging>`__
 has a well-working scheme which can be used for SRUs.)
 
 There is at least one reference to a Launchpad bug number in the
-changelog, using the 'LP: #NNNNNN' convention, and the required
+changelog, using the ``LP: #NNNNNN`` convention, and the required
 documentation can be found there. Private bugs must not be referenced in
 the changelog.
 
