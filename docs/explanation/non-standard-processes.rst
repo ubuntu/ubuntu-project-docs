@@ -30,9 +30,9 @@ staged to be bundled with a future SRU or security update.
 
 It is essential to carry out SRU verification on all related bugs as
 usual as soon as the upload enters the proposed pocket. We do not want
-to burden a future SRUer with verification of your low priority bug. If
+to burden doing SRU in the future with verification of your low priority bug. If
 timely verification is not performed, then as usual the staged upload is
-a candidate for deletion, and a future SRUer is quite entitled to base
+a candidate for deletion, and anyone doing SRU in the future is quite entitled to base
 their upload on the version prior to your staged upload instead. If this
 happens, the future SRU will not include your changes, effectively
 cancelling the staging.
@@ -55,9 +55,7 @@ NEW queue in the SRU context
 
 The SRU policy does not forbid uploading a new source or binary to active
 releases. But if that happens it needs double approval. One of an archive-admin
-for the aspect of `NEW queue processing
-<https://wiki.ubuntu.com/ArchiveAdministration#NEW_Processing>`__ and that of a
-SRU member for the regression evaluation.
+for the aspect of `NEW queue processing <https://wiki.ubuntu.com/ArchiveAdministration#NEW_Processing>`__ and that of a SRU member for the regression evaluation.
 
 While that can be done as a single step by the few people wearing both roles at
 once, that is not always possible. Hence the process is defined as cooperation
@@ -87,12 +85,12 @@ protocols/APIs, it is better to stop offering it in Ubuntu altogether
 rather than continuing to encourage users to install it.
 
 It is not technically possible to remove a package from a stable
-release, but this can be approximated by SRUing an essentially empty
+release, but this can be approximated by doing an SRU on an essentially empty
 package with an appropriate explanation in NEWS and a corresponding
 critical debconf note.
 
 When a package is removed in this way from a stable release, it may need
-similar removal from the devel release as well, depending on the
+similar removal from the development release as well, depending on the
 justification for removal.
 
 See also:
@@ -107,8 +105,7 @@ Security updates
 
 Since some users choose to receive security updates but not SRUs, if a
 proposed SRU appears to fix security issues, it should be considered for
-the `security update process
-<https://wiki.ubuntu.com/SecurityTeam/UpdateProcedures>`__ first
+the `security update process <https://wiki.ubuntu.com/SecurityTeam/UpdateProcedures>`__ first
 instead.
 
 Sometimes an issue being fixed may or may not be a security issue
@@ -130,7 +127,7 @@ Freezes and release opening
    -  *How to do this*
    -  [this section needs cleaning up]
 
--  The release team will do a copy-forward-en-masse and then hand queue
+-  The release team will do a batch copy-forward and then hand queue
    management of the just-released updates pocket to the SRU team. From
    this point on, uploaders should upload to the new development
    Unapproved queue when needed for SRU process, even though it hasn't

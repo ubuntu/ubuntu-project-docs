@@ -51,20 +51,20 @@ lurking problems:
 
 -  In bug `81125 <https://bugs.launchpad.net/bugs/81125>`__, the upgrade
    regression had nothing to do with the content of the change that
-   triggered it: any user who had installed the libpthread20 package
-   would encounter a problem the next time libc6 was upgraded.
+   triggered it: any user who had installed the ``libpthread20`` package
+   would encounter a problem the next time ``libc6`` was upgraded.
 -  In bug `309674 <https://bugs.launchpad.net/bugs/309674>`__, the
    failure was a misbuild due to timestamp skew in the build process.
    The underlying problem existed in the source package in the original
    release, but would only manifest in a small percentage of builds.
 -  In bug `559822 <https://bugs.launchpad.net/bugs/559822>`__, a C++
-   library (wxwidgets2.8) was uploaded with no code changes. Due to an
+   library (``wxwidgets2.8``) was uploaded with no code changes. Due to an
    underlying toolchain change/bug, this caused an ABI change, causing a
    lot of unrelated packages to break (see bug
    `610975 <https://bugs.launchpad.net/bugs/610975>`__)
 -  In bug `2055718 <https://bugs.launchpad.net/bugs/2055718>`__,
    updating the package is the trigger for the bug, because the package
-   update reconfigures tzdata.
+   update reconfigures ``tzdata``.
 
 We never assume that any change, no matter how obvious, is completely
 free of regression risk.
@@ -110,5 +110,4 @@ SRU meets our policy. This should include:
    analysis of the risks, and a QA plan that mitigates that risk as far
    as is reasonable.
 
-For details, see :ref:`Explanation → Reason for requirements →
-Documentation <explanation-documentation>`.
+For details, see :ref:`Explanation → Reason for requirements → Documentation <explanation-documentation>`.

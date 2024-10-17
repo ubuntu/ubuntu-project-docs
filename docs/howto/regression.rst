@@ -28,7 +28,7 @@ See also: :ref:`Explanation → Standard Processes → Regressions
 This is the playbook to follow when there is a concern about a
 regression that has taken place in the updates pocket, such that a user
 receiving the recommended updates within a stable release is regressed
-somehow. Regressions that have taken place elsewhere (eg. during a
+somehow. Regressions that have taken place elsewhere (e.g. during a
 release upgrade, in the security pocket, in the proposed pocket or in
 Pro-specific repositories) are out of scope.
 

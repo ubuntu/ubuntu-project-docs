@@ -27,14 +27,13 @@ documented here, should they need to interact with SRUs.
 It is normal and expected for prospective developers to not yet be
 familiar with SRU process. If prospective developers are preparing
 uploads for SRU, then they will need a sponsor, for example through the
-`patch pilot
-programme <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__.
+`patch pilot programme <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__.
 We expect Ubuntu developers to ensure that any uploads that they sponsor
 meet our expectations. As above, since SRU team members focus on
 operations limited by privilege during their shifts, prospective
 developers who need help should seek that help from their sponsors, and
-not from the SRU team directly. To find a sponsor, try the `patch pilot
-programme <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__.
+not from the SRU team directly. To find a sponsor, try the
+`patch pilot programme <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__.
 
 If review iterations are required, then prospective developers are
 welcome to help. However, we expect this to be supervised by sponsors
