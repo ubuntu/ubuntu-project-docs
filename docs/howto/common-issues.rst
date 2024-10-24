@@ -45,6 +45,10 @@ Test Plan
    packages in proposed and verification of the entire user story at
    once. E.g. a hardware enablement needs to be done across three
    packages. This avoids iteration in the stable release.
+
+Where problems could occur
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 -  It is assumed that uploaders believe their changes are as risk free
    as possible, but this section is for demonstrating that some thought
    has been given to "expecting the unexpected". This section goes along
