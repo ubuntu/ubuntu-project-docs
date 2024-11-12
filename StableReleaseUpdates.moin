@@ -298,6 +298,10 @@ GRUB related packages require a special SRU process due our EFI signing pipeline
 
 Updates including upstream OpenVPN microreleases should follow the special case documentation at [[OpenVPNUpdates]]. This is not a standing approval or policy exception, but a general pattern to update OpenVPN upstream microreleases consistently under existing SRU policy.
 
+=== Language Packs (language-pack-*) ===
+
+There is some documentation at: https://git.launchpad.net/langpack-o-matic/tree/doc/operator-guide.txt
+
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
 
