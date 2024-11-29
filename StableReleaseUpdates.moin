@@ -367,6 +367,9 @@ Much like linux-firmware, wireless-regdb follows the usual SRU process, includin
 
 Due to the nature of the various Ubuntu toolchain packages (gcc-*, binutils, glibc), any stable release updates of these packages should be released to both the -updates and -security pockets. For that to be possible, any updates of those should be first built in a reliable security-enabled PPA (without -updates or -proposed enabled) and only then '''binary-copied''' into -proposed for testing (that is a hard-requirement for anything copied into -security). After the usual successful SRU verification and aging, the updated packages should be released into both pockets.
 
+Toolchains:
+ - Java: [[https://launchpad.net/~openjdk-r/+archive/ubuntu/ppa| Java Stable PPA]]
+
 == Examples ==
 
 As a reference, see [[https://launchpad.net/bugs/173082|bug #173082]] for an idea of how the SRU process works for a main package, or [[https://launchpad.net/bugs/208666|bug #208666]] for an SRU in universe.
