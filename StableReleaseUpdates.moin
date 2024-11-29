@@ -369,6 +369,7 @@ Due to the nature of the various Ubuntu toolchain packages (gcc-*, binutils, gli
 
 Toolchains:
  - Java: [[https://launchpad.net/~openjdk-r/+archive/ubuntu/ppa| Java Stable PPA]]
+ - Go: [[https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/golang|Go updates PPA]]
 
 == Examples ==
 
