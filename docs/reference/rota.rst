@@ -17,7 +17,7 @@ following schedule:
 +-----------+-----------------------------------------------------------------+
 | Tuesday   | Chris Halse Rogers (RAOF), Brian Murray (bdmurray)              |
 +-----------+-----------------------------------------------------------------+
-| Wednesday | Robie Basak (rbasak)                                            |
+| Wednesday | Andreas Hasenack (ahasenack)                                    |
 +-----------+-----------------------------------------------------------------+
 | Thursday  | Andreas Hasenack (ahasenack), Łukasz Zemczak (sil2100 - backup) |
 +-----------+-----------------------------------------------------------------+
