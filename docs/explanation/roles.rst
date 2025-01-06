@@ -95,3 +95,24 @@ takes on each role can change over time, even for an individual SRU.
 |                       | criteria <#what-is-a  |                       |
 |                       | cceptable-to-sru>`__. |                       |
 +-----------------------+-----------------------+-----------------------+
+
+It may be the case that even though an SRU meets all documented
+requirements, the SRU team concludes that the risk of an update breaking
+users' expectations outweigh the benefit of making the change, and in
+this case your SRU will be refused. To minimise the chance of this
+conclusion, the SRU Driver is required to:
+
+#. Be (or become) an expert in the area of the codebase being modified
+   to the extent required to complete the following steps.
+
+#. Ensure that a high quality analysis of the risks is presented in the
+   SRU documentation.
+
+#. Provide effective and convincing mitigation of the risks found in the
+   risk analysis.
+
+The depth and breadth of analysis and mitigation required depends on the
+apparent risk of the proposed change. If, ultimately, the SRU Driver is
+unable to provide a risk analysis and appropriate mitigation to the
+level required, as judged by the SRU team on a case-by-case basis, then
+the SRU will be refused.

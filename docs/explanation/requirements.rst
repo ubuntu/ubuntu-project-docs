@@ -15,6 +15,14 @@ These requirements therefore follow.
    understandable to technical users not familiar with Ubuntu
    development, how we ensured the above.
 
+It may be the case that even though an SRU meets all documented
+requirements, the SRU team concludes that the risk of an update breaking
+users' expectations outweigh the benefit of making the change, and in this
+case your SRU will be refused. In this case your only options are to fix
+the issue for interested users in the development release and for users of
+stable releases via the backports archive component, or a PPA or similar
+out-of-band method.
+
 Real world impact
 ~~~~~~~~~~~~~~~~~
 
