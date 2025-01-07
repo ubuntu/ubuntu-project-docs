@@ -46,11 +46,6 @@ The following review procedure is recommended:
       and will exit with an error. You will have to review the changes
       manually and then re-run the tool with an additional argument of
       ``--no-diff``.
-   -  For `Bileto <https://wiki.ubuntu.com/Bileto>`__ published SRUs
-      you can easily fetch the relevant debdiffs by following the link
-      to the sync's source PPA and opening the ticket URL that's
-      provided in the PPA description. Each upload present there has two
-      diffs generated for review convenience: full and packaging-only.
 
 -  Review the bugs for complete description, justification, check that
    they have a stable release task, conform to SRU rules, etc,

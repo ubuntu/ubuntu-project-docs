@@ -1,6 +1,5 @@
 ABI
 Autopkgtest
-Bileto
 Bugfix
 Changelog
 CSV
