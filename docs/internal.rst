@@ -125,22 +125,38 @@ errors.ubuntu.com problem URL to ignore or *increased-rate*.
 Adding members to the team
 --------------------------
 
+Decision
+~~~~~~~~
+
 -  Existing SRU team members identify when new team members are needed.
-   They will privately nominate suitable candidates, with regard to
-   their availability (e.g. a discussion with their manager may be
-   required).
+   Suggestions can be made, but eventually the SRU team members
+   will privately identify and acknowledge candidates.
+
+-  Such candidates will need to have support by their management with regard
+   to their availability (e.g. a discussion with their manager may be required).
 
 -  One existing team member will study a candidate's recent SRU
    activity, assess them against our criteria and write a summary.
 
 -  The team will then decide whether the candidate is suitable.
 
--  One existing team member will onboard a given new trainee,
-   "sponsoring" privileged SRU actions such as review accept and
-   release.
+Onboarding
+~~~~~~~~~~
 
--  This mentor will consult with other existing team members and the
-   trainee will be given equivalent privileges when appropriate.
+-  Once fulfilling all criteria the candidate becomes an SRU assistant
+   first. This already has the full time committment, but not yet the full
+   privileges.
+
+-  In that state one existing team member will onboard a given new trainee,
+   "sponsoring" privileged SRU actions such as review accept and release.
+
+-  After an inital training session this is usually done by fully shadowing
+   and assisting in the shift of that existing team member being their mentor.
+
+-  This mentor will decide when the assistant is ready for a full membership
+   and then consult with other existing team members. Once agreed the assitant
+   will be given equivalent privileges, stop shadowing, and get assigned their
+   own shift.
 
 Criteria for new SRU team members
 ---------------------------------
