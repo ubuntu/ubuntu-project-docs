@@ -90,6 +90,17 @@ takes on each role can change over time, even for an individual SRU.
 |                       | changes,              | leadership of the SRU |
 |                       | documentation, etc.   | team.                 |
 +-----------------------+-----------------------+-----------------------+
+| SRU Assistant         | Essentially an SRU    | Initial status of     |
+|                       | team member in        | anyone selected by    |
+|                       | training. Shadowing   | the SRU team to       |
+|                       | and helping an active | become a SRU team     |
+|                       | SRU team member to    | member.               |
+|                       | fully learn the       |                       |
+|                       | skill, the mindset,   | Beneficial, but not   |
+|                       | and the diligence     | required to have been |
+|                       | needed.               | a representative      |
+|                       |                       | before.               |
++-----------------------+-----------------------+-----------------------+
 | Overriding authority  | Agree exceptions to   | Technical Board       |
 |                       | the `SRU              | members only.         |
 |                       | criteria <#what-is-a  |                       |
