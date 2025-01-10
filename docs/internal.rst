@@ -207,3 +207,7 @@ Nice to haves
 -  Do they seek to change general policy when appropriate, rather than
    ignoring it? Can they identify the difference between individual
    exceptions and the general case?
+
+-  Being the SRU representative of a team/group helps a lot to pick up
+   most of these aspects ahead of time as well as building a better general
+   understanding and a personal relationshop with the existing SRU team.

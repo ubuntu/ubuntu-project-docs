@@ -90,6 +90,26 @@ takes on each role can change over time, even for an individual SRU.
 |                       | changes,              | leadership of the SRU |
 |                       | documentation, etc.   | team.                 |
 +-----------------------+-----------------------+-----------------------+
+| SRU Representative    | Ensure the SRU team   | Valid sponsors into   |
+|                       | capacity is spent     | the SRU process.      |
+|                       | effectively by        | Proposed to be their  |
+|                       | guiding the team they | representative by a   |
+|                       | represent to propose  | team/group and        |
+|                       | uploads that meet     | approved by the SRU   |
+|                       | the process needs and | team.                 |
+|                       | expectations right    |                       |
+|                       | away. Thereby         |                       |
+|                       | avoiding iterations   |                       |
+|                       | cosuming SRU team     |                       |
+|                       | member capacity and   |                       |
+|                       | delaying uploads.     |                       |
+|                       |                       |                       |
+|                       | Has a more direct     |                       |
+|                       | access to the SRU     |                       |
+|                       | team in a private     |                       |
+|                       | channel for when they |                       |
+|                       | are in doubt.         |                       |
++-----------------------+-----------------------+-----------------------+
 | SRU Assistant         | Essentially an SRU    | Initial status of     |
 |                       | team member in        | anyone selected by    |
 |                       | training. Shadowing   | the SRU team to       |
