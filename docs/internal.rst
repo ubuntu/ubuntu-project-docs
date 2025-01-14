@@ -125,29 +125,18 @@ errors.ubuntu.com problem URL to ignore or *increased-rate*.
 Adding members to the team
 --------------------------
 
-Decision
-~~~~~~~~
+Onboarding
+~~~~~~~~~~
 
 -  Existing SRU team members identify when new team members are needed.
    Suggestions can be made, but eventually the SRU team members
    will privately identify and acknowledge candidates.
 
--  Such candidates will need to have support by their management with regard
-   to their availability (e.g. a discussion with their manager may be required).
+-  To join the team a candidate becomes an SRU assistant (formerly sometimes
+   called trainee) first. This already comes with the full time committment,
+   but not yet the full privileges.
 
--  One existing team member will study a candidate's recent SRU
-   activity, assess them against our criteria and write a summary.
-
--  The team will then decide whether the candidate is suitable.
-
-Onboarding
-~~~~~~~~~~
-
--  Once fulfilling all criteria the candidate becomes an SRU assistant
-   first. This already has the full time committment, but not yet the full
-   privileges.
-
--  In that state one existing team member will onboard a given new trainee,
+-  In that state one existing team member will onboard a given new assistant,
    "sponsoring" privileged SRU actions such as review accept and release.
 
 -  After an inital training session this is usually done by fully shadowing
@@ -157,6 +146,11 @@ Onboarding
    and then consult with other existing team members. Once agreed the assitant
    will be given equivalent privileges, stop shadowing, and get assigned their
    own shift.
+
+   -  One existing team member will study a candidate's recent SRU
+      activity, assess them against our criteria and write a summary.
+
+   -  The team will then decide whether the candidate is suitable.
 
 Criteria for new SRU team members
 ---------------------------------
@@ -208,6 +202,7 @@ Nice to haves
    ignoring it? Can they identify the difference between individual
    exceptions and the general case?
 
--  Being the SRU representative of a team/group helps a lot to pick up
-   most of these aspects ahead of time as well as building a better general
-   understanding and a personal relationshop with the existing SRU team.
+-  Being the SRU representative of a team/group and/or an SRU assistant helps
+   a lot to pick up most of these aspects ahead of time as well as building a
+   better general understanding and a personal relationshop with the existing
+   SRU team.
