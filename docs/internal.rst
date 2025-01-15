@@ -129,12 +129,12 @@ Onboarding
 ~~~~~~~~~~
 
 -  Existing SRU team members identify when new team members are needed.
-   Suggestions can be made, but eventually the SRU team members
-   will privately identify and acknowledge candidates.
+   Suggestions can be made, but ultimately the SRU team members will privately
+   identify and acknowledge candidates.
 
--  To join the team a candidate becomes an SRU assistant (formerly sometimes
-   called trainee) first. This already comes with the full time committment,
-   but not yet the full privileges.
+-  To join the team a candidate first becomes an SRU Assistant (formerly
+   sometimes called trainee). This requires the usual full time committment,
+   but not yet any privileges.
 
 -  In that state one existing team member will onboard a given new assistant,
    "sponsoring" privileged SRU actions such as review accept and release.
@@ -142,15 +142,17 @@ Onboarding
 -  After an inital training session this is usually done by fully shadowing
    and assisting in the shift of that existing team member being their mentor.
 
--  This mentor will decide when the assistant is ready for a full membership
-   and then consult with other existing team members. Once agreed the assitant
-   will be given equivalent privileges, stop shadowing, and get assigned their
-   own shift.
+-  This mentor will confer with the other existing team members if and when
+   they consider the assistant to be ready for full membership:
 
-   -  One existing team member will study a candidate's recent SRU
-      activity, assess them against our criteria and write a summary.
+   - One existing team member will study a candidate's recent SRU activity,
+     assess them against our criteria and write a summary.
 
-   -  The team will then decide whether the candidate is suitable.
+   - The team will then decide whether the candidate is suitable.
+
+- Once agreed the assitant will be given equivalent privileges, stop shadowing,
+  and get assigned their own shift.
+
 
 Criteria for new SRU team members
 ---------------------------------
@@ -202,7 +204,6 @@ Nice to haves
    ignoring it? Can they identify the difference between individual
    exceptions and the general case?
 
--  Being the SRU representative of a team/group and/or an SRU assistant helps
-   a lot to pick up most of these aspects ahead of time as well as building a
-   better general understanding and a personal relationshop with the existing
-   SRU team.
+-  Previous activity as an SRU representative helps a lot to pick up most of
+   these aspects ahead of time as well as building a better general
+   understanding and a personal relationshop with the existing SRU team.
