@@ -206,4 +206,4 @@ Nice to haves
 
 -  Previous activity as an SRU representative helps a lot to pick up most of
    these aspects ahead of time as well as building a better general
-   understanding and a personal relationshop with the existing SRU team.
+   understanding and a personal relationship with the existing SRU team.
