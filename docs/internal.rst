@@ -112,15 +112,19 @@ Override phasing
 
 Overriding halted phasing is done in a similar way to overriding
 autopkgtest failures. The phased update machinery looks at
-`phased-update-overrides.txt <https://code.launchpad.net/~ubuntu-sru/+junk/phased-update-overrides>`__,
+`phased-update-overrides.txt <https://bazaar.launchpad.net/~ubuntu-sru/ubuntu-archive-tools/phased-update-overrides/view/head:/phased-updates-overrides.txt>`__,
 which is a simple CSV file containing lines of the form
 
 .. code::
 
-   *source package*, *version*, *:math:`THING\_TO\_IGNORE*
+   *source package*, *version*, *THING_TO_IGNORE*
 
 where ``*THING_TO_IGNORE*`` can either be an
 errors.ubuntu.com problem URL to ignore or *increased-rate*.
+
+If there are multiple errors to ignore, just repeat the line with the same source package name, version, and then the other error to ignore.
+
+To make a change, please create a bzr merge proposal against lp:~ubuntu-sru/ubuntu-archive-tools/phased-update-overrides.
 
 Adding members to the team
 --------------------------
