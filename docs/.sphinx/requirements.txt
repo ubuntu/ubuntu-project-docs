@@ -1,4 +1,4 @@
-canonical-sphinx-extensions
-canonical-sphinx
+canonical-sphinx[full]
 sphinx-autobuild
-sphinx-design
+sphinxcontrib-svg2pdfconverter[CairoSVG]
+sphinx-last-updated-by-git
