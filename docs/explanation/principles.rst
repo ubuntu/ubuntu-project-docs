@@ -23,8 +23,8 @@ Minimise regression
 Behaviour a user reasonably relies upon that works today must not break
 tomorrow as a result of an update. In a stable release, this includes
 *any* user interface change! Exception: behaviour that we deem buggy
-must necessarily change in order to fix it. [Expand on this]. See xkcd
-spacebar heater.
+must necessarily change in order to fix it. [Expand on this]. See `xkcd
+spacebar heater <https://xkcd.com/1172/>`_.
 
 In contrast to pre-release versions, official releases of Ubuntu are
 subject to much wider use, and by a different demographic of users.
