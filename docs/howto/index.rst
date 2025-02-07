@@ -1,8 +1,12 @@
 How-to
 ======
 
+As a contributor, follow these guides to upload an SRU and to ensure that it works correctly.
+
 Submit a package update
 -----------------------
+
+You can submit a standard SRU that fixes a bug or a non-standard update such as a package removal or a staged upload.
 
 .. toctree::
     :maxdepth: 1
@@ -15,16 +19,20 @@ Submit a package update
 Troubleshooting
 ---------------
 
+Follow these guides if an issue occurs during the SRU deployment or after its release.
+
 .. toctree::
     :maxdepth: 1
 
     common-issues
     autopkgtest-failure
-    regression
     phasing
+    regression
 
 Contact
 -------
+
+You can discuss SRUs on the following public channels.
 
 .. toctree::
     :maxdepth: 1
