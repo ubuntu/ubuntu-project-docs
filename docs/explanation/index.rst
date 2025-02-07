@@ -1,6 +1,8 @@
 Explanation
 ===========
 
+Learn how Canonical determines which updates qualify for SRUs, who supervises the update process, who contributes and what responsibilities they have.
+
 Which updates we release
 ------------------------
 
