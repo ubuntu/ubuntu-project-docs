@@ -1,14 +1,33 @@
 How-to
 ======
 
+Submit a package update
+-----------------------
+
 .. toctree::
+    :maxdepth: 1
 
     standard
-    prepare-special
     release
-    common-issues
+    prepare-special
     special
+
+Troubleshooting
+---------------
+
+.. toctree::
+    :maxdepth: 1
+
+    common-issues
     autopkgtest-failure
     regression
     phasing
+
+Contact
+-------
+
+.. toctree::
+    :maxdepth: 1
+
     contact
+
