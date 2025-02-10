@@ -8,28 +8,28 @@ SRU documentation
 .. A single sentence that says what the product is, succinctly and
    memorably.
 
-*Stable release updates* (SRUs) are package updates to a currently supported Ubuntu release.
+**Stable release updates** (SRUs) are package updates to a currently supported Ubuntu release.
 
 .. A paragraph of one to three short sentences, that describe what the
    product does.
 
 Once an Ubuntu release has been completed and published, updates for it
-are only released under certain circumstances, and must follow a special
-procedure called SRU.
+are only **released under certain circumstances**, and must follow **a special
+procedure** called SRU.
 
 .. A third paragraph of similar length, this time explaining what need the
    product meets.
 
-This documentation describes the SRU principles and processes we follow in
-order to keep stable Ubuntu releases stable and predictable.
+The SRU principles and processes ensure that stable Ubuntu releases **remain stable
+and predictable** to the user.
 
 .. Finally, a paragraph that describes whom the product is useful for.
 
-Our documented principles are intended to be read by all Ubuntu users if
+This documentation is intended for **all Ubuntu users** if
 they wish to understand what to expect from Ubuntu stable releases, and
-are for upstream and Ubuntu developers to read if they wish to
+also for **upstream and Ubuntu developers** if they wish to
 understand what changes would or would not be acceptable to us. The rest
-is intended for Ubuntu developers and SRU team members to achieve this
+is intended for **Ubuntu developers and SRU team members** to achieve this
 in practice.
 
 .. important::
