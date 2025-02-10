@@ -8,12 +8,14 @@ SRU documentation
 .. A single sentence that says what the product is, succinctly and
    memorably.
 
-Once an Ubuntu release has been completed and published, updates for it
-are only released under certain circumstances, and must follow a special
-procedure called a *stable release update* (SRU).
+*Stable release updates* (SRUs) are package updates to a currently supported Ubuntu release.
 
 .. A paragraph of one to three short sentences, that describe what the
    product does.
+
+Once an Ubuntu release has been completed and published, updates for it
+are only released under certain circumstances, and must follow a special
+procedure called SRU to ensure stability and predictability.
 
 .. A third paragraph of similar length, this time explaining what need the
    product meets.
@@ -92,7 +94,7 @@ Project and community
    :hidden:
    :maxdepth: 2
 
-   explanation/index
    howto/index
+   explanation/index
    reference/index
    internal
