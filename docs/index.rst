@@ -33,8 +33,8 @@ is intended for Ubuntu developers and SRU team members to achieve this
 in practice.
 
 .. important::
-    Did you **notice a regression** in a package which went to ``-updates``?
-    Please report this using :ref:`these steps <howto-report-regression>`.
+    Did you **notice a regression** in a package that went to the ``-updates`` pocket?
+    Please report this by following :ref:`howto-report-regression`.
 
 ---------
 
