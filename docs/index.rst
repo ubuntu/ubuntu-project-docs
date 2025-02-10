@@ -15,13 +15,13 @@ SRU documentation
 
 Once an Ubuntu release has been completed and published, updates for it
 are only released under certain circumstances, and must follow a special
-procedure called SRU to ensure stability and predictability.
+procedure called SRU.
 
 .. A third paragraph of similar length, this time explaining what need the
    product meets.
 
-This documentation describes the principles and processes we follow in
-order to keep stable Ubuntu releases stable.
+This documentation describes the SRU principles and processes we follow in
+order to keep stable Ubuntu releases stable and predictable.
 
 .. Finally, a paragraph that describes whom the product is useful for.
 
