@@ -87,8 +87,7 @@ Project and community
 -  `Report bugs <https://bugs.launchpad.net/sru-docs/+filebug>`__: We
    want to know about the problems, so we can fix them.
 
--  `Contribute docs <https://launchpad.net/sru-docs>`__: The docs
-   sources in Launchpad.
+-  `Contribute documentation <https://launchpad.net/sru-docs>`__: The documentation sources in Launchpad.
 
 .. toctree::
    :hidden:
