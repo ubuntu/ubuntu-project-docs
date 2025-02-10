@@ -36,6 +36,7 @@ debdiffs
 devel
 jsunit
 keymaps
+lp
 microrelease
 microreleases
 misbuild

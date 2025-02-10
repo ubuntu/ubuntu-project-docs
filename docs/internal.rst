@@ -124,7 +124,7 @@ errors.ubuntu.com problem URL to ignore or *increased-rate*.
 
 If there are multiple errors to ignore, just repeat the line with the same source package name, version, and then the other error to ignore.
 
-To make a change, please create a bzr merge proposal against lp:~ubuntu-sru/ubuntu-archive-tools/phased-update-overrides.
+To make a change, please create a ``bzr`` merge proposal against `lp:~ubuntu-sru/ubuntu-archive-tools/phased-update-overrides <https://code.launchpad.net/~ubuntu-sru/ubuntu-archive-tools/phased-update-overrides>`__.
 
 Adding members to the team
 --------------------------
