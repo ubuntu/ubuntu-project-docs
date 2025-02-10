@@ -21,7 +21,7 @@ following schedule:
 +-----------+-----------------------------------------------------------------+
 | Thursday  | Andreas Hasenack (ahasenack), Łukasz Zemczak (sil2100 - backup) |
 +-----------+-----------------------------------------------------------------+
-| Friday    | Timo Aaltonen (tjaalton), Steve Langasek (vorlon - backup)      |
+| Friday    | Timo Aaltonen (tjaalton)                                        |
 +-----------+-----------------------------------------------------------------+
 
 See also: :ref:`How-to → Contact the SRU team <howto-contact>`
