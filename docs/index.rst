@@ -10,7 +10,7 @@ SRU documentation
 
 Once an Ubuntu release has been completed and published, updates for it
 are only released under certain circumstances, and must follow a special
-procedure called a "stable release update" or SRU.
+procedure called a *stable release update* (SRU).
 
 .. A paragraph of one to three short sentences, that describe what the
    product does.
@@ -30,7 +30,7 @@ understand what changes would or would not be acceptable to us. The rest
 is intended for Ubuntu developers and SRU team members to achieve this
 in practice.
 
-**Did you notice a regression in a package which went to -updates?**
+Did you **notice a regression** in a package which went to ``-updates``?
 Please report this using :ref:`these steps <howto-report-regression>`.
 
 ---------
@@ -38,26 +38,27 @@ Please report this using :ref:`these steps <howto-report-regression>`.
 In this documentation
 ---------------------
 
-.. grid:: 1 1 2 2
-
-   .. grid-item-card::
+.. grid:: 2
 
    .. grid-item-card:: :doc:`How-to guides <howto/index>`
+      :columns: 12
       :link: howto/index
       :link-type: doc
 
       **Step-by-step guides** covering key operations and common tasks
 
-.. grid:: 1 1 2 2
+.. grid:: 2
    :reverse:
 
    .. grid-item-card:: :doc:`Reference <reference/index>`
+      :columns: 6
       :link: reference/index
       :link-type: doc
 
       **Technical information** - specifications, APIs, architecture
 
    .. grid-item-card:: :doc:`Explanation <explanation/index>`
+      :columns: 6
       :link: explanation/index
       :link-type: doc
 
