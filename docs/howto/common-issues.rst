@@ -26,8 +26,12 @@ Documentation
    existing, the one reporter moved on and nobody else has commented at
    all). In that case, why are we doing the SRU?
 
+.. vale off
+
 Test Plan
 ^^^^^^^^^
+
+.. vale on
 
 -  Test Plan is ambiguous. For example, if another person were
    to follow the Test Plan, they might not end up testing adequately, or

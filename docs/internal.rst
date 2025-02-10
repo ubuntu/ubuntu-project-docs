@@ -137,13 +137,13 @@ Onboarding
    identify and acknowledge candidates.
 
 -  To join the team a candidate first becomes an SRU Assistant (formerly
-   sometimes called trainee). This requires the usual full time committment,
+   sometimes called trainee). This requires the usual full time commitment,
    but not yet any privileges.
 
 -  In that state one existing team member will onboard a given new assistant,
    "sponsoring" privileged SRU actions such as review accept and release.
 
--  After an inital training session this is usually done by fully shadowing
+-  After an initial training session this is usually done by fully shadowing
    and assisting in the shift of that existing team member being their mentor.
 
 -  This mentor will confer with the other existing team members if and when
@@ -154,7 +154,7 @@ Onboarding
 
    - The team will then decide whether the candidate is suitable.
 
-- Once agreed the assitant will be given equivalent privileges, stop shadowing,
+- Once agreed the assistant will be given equivalent privileges, stop shadowing,
   and get assigned their own shift.
 
 

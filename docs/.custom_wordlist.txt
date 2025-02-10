@@ -6,6 +6,8 @@ CSV
 ESM
 FTBFS
 Howto
+Libera
+Onboarding
 PCI
 PPA
 Robie
@@ -17,6 +19,7 @@ Traceback
 autopkgtest
 autopkgtests
 backport
+backports
 backported
 backporting
 badtest
@@ -26,6 +29,7 @@ bugfix
 bugfixes
 changelog
 changelogs
+codebase
 debconf
 debdiff
 debdiffs

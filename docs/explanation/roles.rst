@@ -100,7 +100,7 @@ takes on each role can change over time, even for an individual SRU.
 |                       | expectations right    |                       |
 |                       | away. Thereby         |                       |
 |                       | avoiding iterations   |                       |
-|                       | cosuming SRU team     |                       |
+|                       | consuming SRU team    |                       |
 |                       | member capacity and   |                       |
 |                       | delaying uploads.     |                       |
 |                       |                       |                       |

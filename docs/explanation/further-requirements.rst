@@ -29,7 +29,7 @@ is prepared and ready.
 
 .. _explanation-newer-releases:
 
-Newer Releases
+Newer releases
 ^^^^^^^^^^^^^^
 
 If a bug is being fixed in a particular stable release, we would like
@@ -91,10 +91,14 @@ matter and we are much more likely to accept your suggestion on how to
 deal with it. In any case we will save at least one review iteration in
 determining whether the matter is real or has been missed.
 
+.. vale off
+
 .. _explanation-test-plan-detail:
 
 Detail in Test Plans
 ^^^^^^^^^^^^^^^^^^^^
+
+.. vale on
 
 Consider if another person were to follow the Test Plan as written.
 Are they likely to perform the same actual steps in practice? If not,

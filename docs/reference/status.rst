@@ -1,6 +1,6 @@
 .. _reference-status-pages:
 
-Status Pages
+Status pages
 ------------
 
 -  **Pending sponsorship**: `general sponsorship

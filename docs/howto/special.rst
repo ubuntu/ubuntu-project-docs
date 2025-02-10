@@ -40,7 +40,7 @@ See also: :ref:`Explanation → Special types of SRU → NEW queue in the SRU co
 Some steps of the normal :ref:`SRU pipeline <explanation-sru-pipeline>` are
 different in these cases.
 
-New Binary
+New binary
 ^^^^^^^^^^
 
 #. Step 3 of the :ref:`SRU pipeline <explanation-sru-pipeline>` changes in
@@ -51,7 +51,7 @@ New Binary
 #. Once evaluated and accepted by an Archive Admin the new binary will be in
    -proposed and the usual SRU flow can continue asking for verification.
 
-New Source
+New source
 ^^^^^^^^^^
 
 #. Step 2 of the :ref:`SRU pipeline <explanation-sru-pipeline>` changes as the

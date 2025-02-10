@@ -29,8 +29,7 @@ permitted SRU, some of which overlap:
 * **Extended Security Maintenance:** there are special procedures for
   uploads to stable releases in their
   `Extended Security Maintenance (ESM) <https://ubuntu.com/esm>`__ period.
-  Please prepare the SRU bug and then contact
-  `the ESM team <https://launchpad.net/~ubuntu-esm-team>`__.
+  Please prepare the SRU bug and subscribe the ESM team to it.
 
 * **Staged upload** [:ref:`explanation <explanation-staged-uploads>`],
   [:ref:`how-to: stage upload <howto-stage-upload>`],

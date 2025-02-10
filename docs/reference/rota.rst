@@ -1,6 +1,6 @@
 .. _reference-rota:
 
-Team Rota
+Team rota
 ---------
 
 .. include:: /howto/contact.rst

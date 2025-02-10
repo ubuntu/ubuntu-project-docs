@@ -1,4 +1,4 @@
-Standard Processes
+Standard processes
 ------------------
 
 [this section needs cleaning up]

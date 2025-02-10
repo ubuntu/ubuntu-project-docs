@@ -226,14 +226,18 @@ Special cases that must be mentioned
    other than a special SRU type or the user impact statement, then this
    justification must be made
 
-User Impact
+User impact
 ^^^^^^^^^^^
 
 -  The impact to users must be made clear, and form the basis of the
    justification of the SRU.
 
+.. vale off
+
 Test Plan
 ^^^^^^^^^
+
+.. vale on
 
 -  Detailed instructions on how to reproduce the bug and verify that the
    updated package fixes the problem.
@@ -253,7 +257,7 @@ Test Plan
    not documented as considered previously.
 -  Must use the package from -proposed and no third party software.
 
-Risk Analysis
+Risk analysis
 ^^^^^^^^^^^^^
 
 -  "None" is not OK.
@@ -264,7 +268,7 @@ Risk Analysis
    a blocker.
 -  Should feed back into the Test Plan.
 
-Other Information
+Other information
 ^^^^^^^^^^^^^^^^^
 
 -  It is helpful, but not required, to include an explanation of how the

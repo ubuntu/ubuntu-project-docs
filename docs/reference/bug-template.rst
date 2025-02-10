@@ -1,6 +1,6 @@
 .. _reference-sru-bug-template:
 
-SRU Bug Template
+SRU bug template
 ----------------
 
 ::

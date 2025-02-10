@@ -1,4 +1,4 @@
-Non-standard Processes
+Non-standard processes
 ----------------------
 
 .. _explanation-package-specific-non-standard-processes:
@@ -48,10 +48,14 @@ See also:
 - :ref:`How-to → Stage an upload <howto-stage-upload>`
 - :ref:`How-to → Land an upload blocked by staging <howto-unblock-staging>`
 
+.. vale off
+
 .. _explanation-new-queue:
 
 NEW queue in the SRU context
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. vale on
 
 The SRU policy does not forbid uploading a new source or binary to active
 releases. But if that happens it needs double approval. One of an archive-admin
