@@ -6,7 +6,7 @@ As a contributor, follow these guides to upload an SRU and to ensure that it wor
 Submit a package update
 -----------------------
 
-You can submit a standard SRU that fixes a bug or a non-standard update such as a package removal or a staged upload.
+You can submit a standard SRU that fixes a bug or a non-standard update such as a staged upload.
 
 .. toctree::
     :maxdepth: 1
@@ -19,7 +19,7 @@ You can submit a standard SRU that fixes a bug or a non-standard update such as 
 Troubleshooting
 ---------------
 
-Follow these guides if an issue occurs during the SRU deployment or after its release.
+Follow these guides if an issue occurs during the SRU or after its release.
 
 .. toctree::
     :maxdepth: 1

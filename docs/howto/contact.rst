@@ -18,11 +18,14 @@ Contact the SRU team
 
 If you do not have upload access to the archive, you should ask your
 sponsor for help in the first instance. If you don't have a sponsor, you
-can `ask a patch pilot <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__ or
-try asking generally on `#ubuntu-devel on Libera.Chat <https://wiki.ubuntu.com/IRC>`__, or the
-`ubuntu-devel-discuss <https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss>`__
-mailing list. See
-`Sponsorship Process <https://wiki.ubuntu.com/SponsorshipProcess>`__ for
+can ask at the following places:
+
+- `Ask a patch pilot <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__ on Discourse
+- `#ubuntu-devel <https://wiki.ubuntu.com/IRC>`__ on Libera.Chat
+- `#devel:ubuntu.com <https://matrix.to/#/#devel:ubuntu.com>`__ on Matrix
+- The `ubuntu-devel-discuss <https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss>`__ mailing list
+
+See `Sponsorship Process <https://wiki.ubuntu.com/SponsorshipProcess>`__ for
 details.
 
 If you do have upload access, you can contact the SRU team by asking
