@@ -16,21 +16,19 @@ Contact the SRU team
 
 .. end-canonical-contact-admonition
 
-If you do not have upload access to the archive, you should ask your
-sponsor for help in the first instance. If you don't have a sponsor, you
-can ask at the following places:
+- If you **don't have upload access** to the archive, ask your sponsor for help in the first instance. For details, see `Sponsorship Process <https://wiki.ubuntu.com/SponsorshipProcess>`__.
 
-- `Ask a patch pilot <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__ on Discourse
-- `#ubuntu-devel <https://wiki.ubuntu.com/IRC>`__ on Libera.Chat
-- `#devel:ubuntu.com <https://matrix.to/#/#devel:ubuntu.com>`__ on Matrix
-- The `ubuntu-devel-discuss <https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss>`__ mailing list
+- If you **don't have a sponsor**, you can use the `Ubuntu Patch Pilots <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__ Program. Ask a patch pilot in the following channels:
 
-See `Sponsorship Process <https://wiki.ubuntu.com/SponsorshipProcess>`__ for
-details.
+  - `#devel:ubuntu.com <https://matrix.to/#/#devel:ubuntu.com>`__ on Matrix
+  - `#ubuntu-devel <https://wiki.ubuntu.com/IRC>`__ on Libera.Chat
+  - The `ubuntu-devel-discuss <https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss>`__ mailing list
 
-If you do have upload access, you can contact the SRU team by asking
-generally in #ubuntu-release on Libera.Chat, or on the
-`ubuntu-release <https://lists.ubuntu.com/mailman/listinfo/ubuntu-release>`__
-mailing list.
+- If you **do have upload access**, you can contact the SRU team here:
+
+  - `#release:ubuntu.com <https://matrix.to/#/#release:ubuntu.com>`__ on Matrix
+  - #ubuntu-release on Libera.Chat
+  - The `ubuntu-release <https://lists.ubuntu.com/mailman/listinfo/ubuntu-release>`__ mailing list
 
 See also: :ref:`Reference → Team Rota <reference-rota>`
+
