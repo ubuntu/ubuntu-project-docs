@@ -32,8 +32,9 @@ understand what changes would or would not be acceptable to us. The rest
 is intended for Ubuntu developers and SRU team members to achieve this
 in practice.
 
-Did you **notice a regression** in a package which went to ``-updates``?
-Please report this using :ref:`these steps <howto-report-regression>`.
+.. important::
+    Did you **notice a regression** in a package which went to ``-updates``?
+    Please report this using :ref:`these steps <howto-report-regression>`.
 
 ---------
 
@@ -81,8 +82,8 @@ Project and community
    developers.
 
 -  `Join our online
-   chat <https://web.libera.chat/gamja/?channels=%23ubuntu-devel>`__: Meet us
-   in ``#ubuntu-devel`` on IRC Libera.Chat.
+   chat <https://matrix.to/#/#devel:ubuntu.com>`__: Meet us
+   in ``#devel:ubuntu.com`` on Matrix.
 
 -  `Report bugs <https://bugs.launchpad.net/sru-docs/+filebug>`__: We
    want to know about the problems, so we can fix them.
