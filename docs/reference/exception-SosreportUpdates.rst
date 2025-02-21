@@ -2,16 +2,16 @@
 
    #. page was copied from LandscapeUpdates
 
-This document describes the policy for updating sosreport package in a
-stable supported distro, including LTS. It is also the aim of this
+This document describes the policy for updating sosreport & sos package
+in a stable supported distro, including LTS. It is also the aim of this
 document to provide an example for any upstream project that wants to
 push updates to an Ubuntu stable release.
 
-sosreport is an extensible, portable, support data collection tool
-primarily aimed at Linux distributions and other UNIX-like operating
-systems. This tool **is mission critical for Canonical to support UPro
-(Ubuntu Pro) customer, partners and community**. sosreport is also
-widely used by other third party vendors.
+sos is an extensible, portable, support data collection tool primarily
+aimed at Linux distributions and other UNIX-like operating systems. This
+tool **is mission critical for Canonical to support UPro (Ubuntu Pro)
+customer, partners and community**. sos is also widely used by other
+third party vendors.
 
 -  Upstream reference:
 
@@ -27,10 +27,10 @@ Process
 This is the mandatory process that the proposed packages have to pass.
 The following requirements must be met:
 
--  Sosreport needs to be tested
+-  sos needs to be tested
 
    -  By a reasonable amount of Canonical Support team members with
-      positive and detailed feedbacks (documented in an LP bug)
+      positive and detailed feedback (documented in an LP bug)
    -  Should be tested with Canonical internal tooling such as:
 
 ``   * ``\ ```https://github.com/canonical/hotsos`` <https://github.com/canonical/hotsos>`__
@@ -53,11 +53,11 @@ The following requirements must be met:
 sos report - Collect and package diagnostic and support data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-sos report is now used to generate sosreport tarballs
+sos report is now used to generate sos report tarballs
 
 -  
 
-   -  Make sure sosreport generates an archive under **/tmp** in the
+   -  Make sure sos report generates an archive under **/tmp** in the
       form of **sosreport--2020-06-19-ogwtrgb.tar.xz** with its
       accompanied sha256 checksum
       **sosreport--2020-06-19-ogwtrgb.tar.xz.sha256** (Note that the
@@ -69,7 +69,7 @@ sos report is now used to generate sosreport tarballs
    -  Extract the archive
 
       -  Validate its content and make sure it is sane and accurate.
-      -  Validate that sosreport obfuscates sensible information for
+      -  Validate that sos report obfuscates sensible information for
          plugins instructed to do so such as:
 
 | ``   * landscape plugin, should obfuscate password(s) and secret-token from config file.``
@@ -90,12 +90,6 @@ sos report is now used to generate sosreport tarballs
 
 | ``   * grep -v "INFO:" sos_logs/sos.log``
 | ``   * Look under "sos_logs" for error files (e.g. sos_logs/systemd-plugin-errors.txt).``
-
--  Run "simple.sh": An upstream port of the Travis tests to bash.
-   Generating various type of sosreport collections (which is part of
-   the autopkgtest (d/test/simple.sh)) now.
-
-   -  https://github.com/sosreport/sos/blob/master/tests/simple.sh
 
 .. _sos_clean___obfuscate_sensitive_data_from_one_or_more_sosreports:
 
