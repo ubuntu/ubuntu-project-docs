@@ -1,2 +1,4 @@
-git+https://github.com/canonical/canonical-sphinx@main#egg=canonical-sphinx
+canonical-sphinx[full]
 sphinx-autobuild
+sphinxcontrib-svg2pdfconverter[CairoSVG]
+sphinx-last-updated-by-git

@@ -82,37 +82,24 @@ html_context = {
     # (use an empty value if you don't want to link)
     'discourse': 'https://discourse.ubuntu.com',
 
-    # Change to the Mattermost channel you want to link to
-    # (use an empty value if you don't want to link)
-    'mattermost': '',
-
-    # Change to the Matrix channel you want to link to
-    # (use an empty value if you don't want to link)
-    'matrix': '',
-
-    # Change to the GitHub URL for your project
-    # This is used, for example, to link to the source files and allow creating GitHub issues directly from the documentation.
-    'github_url': 'https://launchpad.net/~techboard/ubuntu-governance-docs',
-
+    # Your IRC channel
+    "irc": "https://web.libera.chat/gamja/?channels=%23ubuntu-devel",
+    # Your Matrix channel URL
+    "matrix": "https://matrix.to/#/#devel:ubuntu.com",
+    # Your Launchpad URL
+    "launchpad_url": "https://git.launchpad.net/ubuntu-governance-docs",
     # Change to the branch for this version of the documentation
-    'github_version': 'main',
-
+    "launchpad_version": "main",
     # Change to the folder that contains the documentation
     # (usually "/" or "/docs/")
-    'github_folder': '/docs/',
-
-    # Change to an empty value if your GitHub repo doesn't have issues enabled.
-    # This will disable the feedback button and the issue link in the footer.
-    'github_issues': '',
-
+    "launchpad_folder": "/docs/",
+    # Change to an empty value to disable the issue link in the footer.
+    "launchpad_issues": "https://bugs.launchpad.net/ubuntu-governance-docs/+filebug",
     # Controls the existence of Previous / Next buttons at the bottom of pages
     # Valid options: none, prev, next, both
-    # 'sequential_nav': "none",
-
-    # Uncomment to disable displaying the contributors for each file.
-    # (You can also limit the time frame for displaying contributors
-    # by setting a "display_contributors_since" variable.)
-    # "display_contributors": False,
+    "sequential_nav": "both",
+    # Controls whether to display the contributors for each file
+    "display_contributors": False,
 
 }
 
@@ -178,12 +165,13 @@ myst_enable_extensions = {
 # If you need more extensions, add them here (in addition to
 # canonical_sphinx).
 extensions = [
-    'canonical_sphinx'
+    "canonical_sphinx",
+    "sphinxcontrib.cairosvgconverter",
+    "sphinx_last_updated_by_git",
     ]
 
 # Add files or directories that should be excluded from processing.
 exclude_patterns = [
-    'doc-cheat-sheet*',
     ]
 
 # Add custom CSS files (located in .sphinx/_static/)
