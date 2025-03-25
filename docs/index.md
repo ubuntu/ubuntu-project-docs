@@ -1,4 +1,4 @@
-# Ubuntu Governance Docs
+# Ubuntu governance docs
 
 ```{toctree}
 :maxdepth: 2
@@ -22,11 +22,11 @@ As a community we adhere to the Ubuntu code of conduct.
 * **[Get support](https://askubuntu.com/)**:
 Ask Ubuntu is a question and answer site for Ubuntu users and developers.
 
-* **[Join our online chat](https://web.libera.chat/gamja/?channels=%23channel)**:
-Meet us in `#channel` on IRC Libera.Chat.
+* **Join our online chat**:
+Meet us in the [Ubuntu Development](https://matrix.to/#/#devel:ubuntu.com) channel on Matrix.
 
-* **[Report bugs](https://launchpad.net/~techboard/ubuntu-governance-docs/+filebug)**:
-We want to know about the problems so we can fix them.
+* **[Report bugs](https://launchpad.net/techboard/+filebug)**:
+We want to know about the problems, so we can fix them.
 
-* **[Contribute docs](https://launchpad.net/~techboard/ubuntu-governance-docs)**:
-The documentation sources on GitHub.
+* **[Contribute docs](https://launchpad.net/ubuntu-governance-docs)**:
+The documentation sources on Launchpad.
