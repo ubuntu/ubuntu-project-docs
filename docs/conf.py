@@ -17,13 +17,13 @@ import datetime
 ############################################################
 
 # Product name
-project = 'Ubuntu Governance'
-author = 'Ubuntu Technical Board'
+project = "Ubuntu Governance"
+author = "Ubuntu Technical Board"
 
 # The title you want to display for the documentation in the sidebar.
 # You might want to include a version number here.
 # To not display any title, set this option to an empty string.
-html_title = project + ' Documentation'
+html_title = project + " Documentation"
 
 # The default value uses CC-BY-SA as the license and the current year
 # as the copyright year.
@@ -46,17 +46,17 @@ html_title = project + ' Documentation'
 #   -H 'Accept: application/vnd.github.v3.raw' \
 #   https://api.github.com/repos/canonical/<REPO> | jq '.created_at'
 
-copyright = '%s CC-BY-SA, %s' % (datetime.date.today().year, author)
+copyright = "%s CC-BY-SA, %s" % (datetime.date.today().year, author)
 
 ## Open Graph configuration - defines what is displayed as a link preview
 ## when linking to the documentation from another website (see https://ogp.me/)
 # The URL where the documentation will be hosted (leave empty if you
 # don't know yet)
-ogp_site_url = 'https://canonical-ubuntu-governance-docs.readthedocs-hosted.com/'
+ogp_site_url = "https://canonical-ubuntu-governance-docs.readthedocs-hosted.com/"
 # The documentation website name (usually the same as the product name)
 ogp_site_name = project
 # The URL of an image or logo that is used in the preview
-ogp_image = 'https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg'
+ogp_image = "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
 
 # Update with the local path to the favicon for your product
 # (default is the circle of friends)
@@ -65,25 +65,21 @@ ogp_image = 'https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg
 # (Some settings must be part of the html_context dictionary, while others
 #  are on root level. Don't move the settings.)
 html_context = {
-
     # Change to the link to the website of your product (without "https://")
     # For example: "ubuntu.com/lxd" or "microcloud.is"
     # If there is no product website, edit the header template to remove the
     # link (see the readme for instructions).
-    'product_page': 'wiki.ubuntu.com/TechnicalBoard',
-
+    "product_page": "wiki.ubuntu.com/TechnicalBoard",
     # Add your product tag (the orange part of your logo, will be used in the
     # header) to ".sphinx/_static" and change the path here (start with "_static")
     # (default is the circle of friends)
     # 'product_tag': '_static/tag.png',
-
     # Change to the discourse instance you want to be able to link to
     # using the :discourse: metadata at the top of a file
     # (use an empty value if you don't want to link)
-    'discourse': 'https://discourse.ubuntu.com',
-
+    "discourse": "https://discourse.ubuntu.com",
     # Your IRC channel
-    "irc": "https://web.libera.chat/gamja/?channels=%23ubuntu-devel",
+    # "irc": "https://web.libera.chat/gamja/?channels=%23ubuntu-devel",
     # Your Matrix channel URL
     "matrix": "https://matrix.to/#/#devel:ubuntu.com",
     # Your Launchpad URL
@@ -94,13 +90,12 @@ html_context = {
     # (usually "/" or "/docs/")
     "launchpad_folder": "/docs/",
     # Change to an empty value to disable the issue link in the footer.
-    "launchpad_issues": "https://bugs.launchpad.net/ubuntu-governance-docs/+filebug",
+    "launchpad_issues": "https://bugs.launchpad.net/techboard/+filebug",
     # Controls the existence of Previous / Next buttons at the bottom of pages
     # Valid options: none, prev, next, both
     "sequential_nav": "both",
     # Controls whether to display the contributors for each file
     "display_contributors": False,
-
 }
 
 # If your project is on documentation.ubuntu.com, specify the project
@@ -111,8 +106,8 @@ html_context = {
 # You can comment them out if you don't need this (but you can also just
 # leave them).
 
-html_static_path = ['.sphinx/_static']
-templates_path = ['.sphinx/_templates']
+html_static_path = [".sphinx/_static"]
+templates_path = [".sphinx/_templates"]
 
 ############################################################
 ### Redirects
@@ -131,15 +126,11 @@ redirects = {}
 ############################################################
 
 # Links to ignore when checking links
-linkcheck_ignore = [
-    'http://127.0.0.1:8000'
-    ]
+linkcheck_ignore = ["http://127.0.0.1:8000", "https://matrix.to"]
 
 # Pages on which to ignore anchors
 # (This list will be appended to linkcheck_anchors_ignore_for_url)
-linkcheck_anchors_ignore_for_url = [
-    r'https://github\.com/.*'
-]
+linkcheck_anchors_ignore_for_url = [r"https://github\.com/.*"]
 
 ############################################################
 ### Additions to default configuration
@@ -152,9 +143,9 @@ linkcheck_anchors_ignore_for_url = [
 # substitution, deflist, linkify
 # If you need more extensions, add them here.
 myst_enable_extensions = {
-    'colon_fence',
-    'substitution',
-    }
+    "colon_fence",
+    "substitution",
+}
 
 # You must include the canonical_sphinx extension here.
 # This extension automatically enables the following Sphinx extensions:
@@ -168,11 +159,10 @@ extensions = [
     "canonical_sphinx",
     "sphinxcontrib.cairosvgconverter",
     "sphinx_last_updated_by_git",
-    ]
+]
 
 # Add files or directories that should be excluded from processing.
-exclude_patterns = [
-    ]
+exclude_patterns = []
 
 # Add custom CSS files (located in .sphinx/_static/)
 # html_css_files = []
@@ -203,11 +193,11 @@ exclude_patterns = [
 ## Add any configuration that is not covered by the common conf.py file.
 
 # Define a :center: role that can be used to center the content of table cells.
-rst_prolog = '''
+rst_prolog = """
 .. role:: center
    :class: align-center
-'''
+"""
 
 # Workaround for https://github.com/canonical/canonical-sphinx/issues/34
-if not 'discourse_prefix' in html_context and 'discourse' in html_context:
-    html_context['discourse_prefix'] = html_context['discourse'] + '/t/'
+if not "discourse_prefix" in html_context and "discourse" in html_context:
+    html_context["discourse_prefix"] = html_context["discourse"] + "/t/"
