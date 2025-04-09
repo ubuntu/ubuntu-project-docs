@@ -23,6 +23,35 @@ Prepare a special type of SRU <howto-prepare-special-sru>` instead.
     not have access to upload to the Ubuntu package archive yourself,
     you may prepare this in the form of a debdiff or a git-ubuntu
     branch.
+
+.. In
+   https://code.launchpad.net/~medicalwei/sru-docs/+git/sru-docs/+merge/480049
+   Yao Wei suggested incorporating instructions for the case of an Ubuntu
+   development team using a different VCS into the next step. Robie turned this
+   down because:
+
+.. This touches on a tricky area. I'd like (and have requested) that a
+   git-ubuntu branch should *always* be acceptable for sponsorship, and that
+   contributors should generally never have such a contribution refused. If an
+   Ubuntu development team prefers the VCS somewhere else, then that's a
+   complication we don't want to worry new contributors about: the sponsor
+   should rebase it over as required, which should be straightforward when the
+   submission is already in git against roughly the right base.
+
+.. In further discussions I did agree that a routine contributor should be
+   taught and encouraged to use Vcs-Git and any other relevant team processes
+   to start contributing to the "native" VCS as preferred by the team.
+
+.. But this all seems like it would be too complicated for *this* page. It's a
+   nuance that's somewhere between "first time contributor" and "you already
+   can upload yourself" that relates more to the training pipeline for Ubuntu
+   developers than SRU process. I therefore suggest that this kind of nuance
+   should go into the packaging guide instead.
+
+.. I will add this note into the comments in the page source though, in the
+   hope that we can maintain some consistency in documentation intent across
+   the various relevant pages.
+
 6.  If you:
 
     1. have a debdiff, then `request
