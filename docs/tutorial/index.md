@@ -1,5 +1,5 @@
 (tutorial)=
-# Tutorials
+# Tutorial
 
 ```{toctree}
 :maxdepth: 1
