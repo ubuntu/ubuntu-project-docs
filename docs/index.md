@@ -15,7 +15,7 @@ a long-standing software project, a community, and a mesh of distributed
 processes and governance that enable its contributors to deliver the world-class
 experience we've come to know and love.
 
-Ubuntu has alsways been a very openly governed community. This open governance
+Ubuntu has always been a very openly governed community. This open governance
 means that we have some community organized and run decision-making groups that
 help us to lead and make decisions about different elements of Ubuntu.
 
