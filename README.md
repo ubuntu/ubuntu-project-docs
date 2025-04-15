@@ -5,14 +5,14 @@ to encompass the entirety of the processes that together form the
 fundamentals of creating, releasing, and maintaining the Ubuntu Linux
 distribution. The documentation is structured into three pillars:
 
-* Governance & community
+* Governance and community
 * Development
 * Archive handling
 
 ## Publishing
 
 The documentation is published using Sphinx through the ReadTheDocs
-framework at [Ubuntu Project Docs]().
+framework.
 
 ## Contributing
 
