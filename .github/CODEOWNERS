@@ -1,0 +1,5 @@
+# Documentation about CODEOWNERS file: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Technical authors will be requested for review when someone opens a
+# pull request, unless a later match takes precedence.
+* @s-makin @rkratky
