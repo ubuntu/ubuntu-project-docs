@@ -6,7 +6,7 @@
 
 diversity-policy
 membership-perks
-code-of-conduct
+Code of Conduct <code-of-conduct>
 teams
 mission
 conflict-resolution
