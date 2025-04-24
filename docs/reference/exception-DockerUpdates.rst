@@ -13,7 +13,10 @@ Process
 The aim is to backport stable and compatible releases across all the
 packages that are part of this stack
 (runc-app/containerd-app/docker.io-app/docker-buildx/docker-compose-v2)
-to all supported releases.
+to all supported releases. **When changes are too disruptive, we may
+decide to upgrade one or more of the packages to a new minor or patch
+release up to maintainers discretion. When doing so, the upgrades should
+still follow the process described here.**
 
 To do this we will:
 
@@ -21,11 +24,16 @@ To do this we will:
    bug to cover the upgrade.
 
 | ``2. Upload the latest upstream version of the packages to the current development series of Ubuntu. Make sure all the versions are compatible among them.``
-| ``3. Once they have migrated, they can then be uploaded with minimal necessary changes to the SRU queue of the supported Ubuntu releases. For docker.io-app, docker-buildx and docker-compose-v2, .0 releases will not be backported; for containerd-app and runc-app, .0 releases are eligible for backporting.``
+| ``3a. Once they have migrated, they can then be uploaded with minimal necessary changes to the SRU queue of the supported Ubuntu releases. For docker.io-app, docker-buildx and docker-compose-v2, .0 releases will not be backported; for containerd-app and runc-app, .0 releases are eligible for backporting.``
+| ``3b. Alternatively, one or more of the packages covered by this exception can be updated to a new minor or patch release to avoid major disruptions in stable releases. This should be up to the package maintainers discretion as long as the versions follow regular Ubuntu policies ensuring we are not breaking any upgrade paths.``
 
 We will reuse the upgrade bug for the SRU but this does not include
 detailed test case or regression potential sections (it should link to
 this page for the sake of the SRU team member doing the review!).
+
+**Note that, for sections 3a and 3b above, when the new package versions
+are fixing any CVEs, we should sync with the security team and perform
+the uploads through the security pocket instead.**
 
 QA
 --
