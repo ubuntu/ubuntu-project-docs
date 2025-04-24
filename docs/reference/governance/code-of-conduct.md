@@ -40,6 +40,7 @@ Nobody is expected to be perfect in this community. Asking questions early avoid
 
 When somebody leaves or disengages from the project, we ask that they do so in a way that minimises disruption to the project. They should tell people they are leaving and take the proper steps to ensure that others can pick up where they left off.
 
+(leadership-code-of-conduct)=
 ## Leadership, authority and responsibility
 
 We all lead by example, in debate and in action. We encourage new participants to feel empowered to lead, to take action, and to experiment when they feel innovation could improve the project. Leadership can be exercised by anyone simply by taking action, there is no need to wait for recognition when the opportunity to lead presents itself.
