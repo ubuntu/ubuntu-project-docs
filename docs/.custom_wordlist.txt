@@ -12,6 +12,7 @@ cjk
 cryptographically
 dev
 dvipng
+empathic
 fonts
 freefont
 GitHub
@@ -30,6 +31,7 @@ plantuml
 Pygments
 QEMU
 Rockcraft
+rulebook
 rst
 tex
 texlive
