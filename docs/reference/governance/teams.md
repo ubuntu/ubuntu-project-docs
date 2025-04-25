@@ -1,4 +1,0 @@
-(teams)=
-
-# Teams
-

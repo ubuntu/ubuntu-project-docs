@@ -5,12 +5,12 @@
 :maxdepth: 2
 
 ethos/index
+teams/index
 ```
 
 ```{toctree}
 :maxdepth: 1
 
 membership-perks
-teams
 conflict-resolution
 ```
