@@ -81,7 +81,7 @@ html_context = {
     # Your IRC channel
     "irc": "https://web.libera.chat/gamja/?channels=%23ubuntu-devel",
     # Your Matrix channel URL
-    "matrix": "https://matrix.to/#/#devel:ubuntu.com",
+    "matrix": "https://matrix.to/#/#sru:ubuntu.com",
     # Your Launchpad URL
     "launchpad_url": "https://git.launchpad.net/sru-docs",
     # Change to the branch for this version of the documentation
