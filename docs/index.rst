@@ -82,8 +82,8 @@ Project and community
    developers.
 
 -  `Join our online
-   chat <https://matrix.to/#/#devel:ubuntu.com>`__: Meet us
-   in ``#devel:ubuntu.com`` on Matrix.
+   chat <https://matrix.to/#/#sru:ubuntu.com>`__: Meet us
+   in ``#sru:ubuntu.com`` on Matrix.
 
 -  `Report bugs <https://bugs.launchpad.net/sru-docs/+filebug>`__: We
    want to know about the problems, so we can fix them.
