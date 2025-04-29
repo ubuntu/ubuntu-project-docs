@@ -27,8 +27,6 @@ Contact the SRU team
 - If you **do have upload access**, you can contact the SRU team here:
 
   - `#sru:ubuntu.com <https://matrix.to/#/#sru:ubuntu.com>`__ channel on Matrix, dedicated to SRU topics.
-  - `#release:ubuntu.com <https://matrix.to/#/#release:ubuntu.com>`__ on Matrix. SRU team members will be notified by an "ubuntu-sru" ping.
-  - #ubuntu-release on Libera.Chat
   - The `ubuntu-release <https://lists.ubuntu.com/mailman/listinfo/ubuntu-release>`__ mailing list
 
 See also: :ref:`Reference → Team Rota <reference-rota>`
