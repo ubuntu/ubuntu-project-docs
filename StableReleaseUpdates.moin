@@ -163,7 +163,7 @@ Related to the preceding snapd exception, the snapcraft source package may be up
 Also related to snapd, the ubuntu-image package may be uploaded according to the procedure documented in UbuntuImageUpdates.  This stable release exception has been approved by SteveLangasek for the SRU team as of 2016-10-19.
 
 === Docker.io group ===
-The source packages docker.io, containerd, and runc may be uploaded according to the procedure documented in DockerUpdates.  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by BrianMurray for the SRU team as of 2016-09-20.
+The source packages docker.io, containerd, and runc may be uploaded according to the procedure documented in DockerUpdates.  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by BrianMurray for the SRU team as of 2016-09-20, with changes through to revision 19 further approved by RobieBasak for the SRU team on 2025-04-30.
 
 === gce-compute-image-packages ===
 The source package gce-compute-image-packages may be uploaded according to the procedure documented in [[https://wiki.ubuntu.com/gce-compute-image-packages-Updates|gce-compute-image-packages-Updates]].  Per Technical Board discussion regarding delegation of these decisions to the SRU team, this stable release exception has been approved by BrianMurray for the SRU team as of 2017-03-10. Further amendment to this exception for vendored dependencies approved by LukaszZemczak for the [[https://lists.ubuntu.com/archives/ubuntu-release/2023-April/005606.html|SRU team as of 2023-04-11]].
