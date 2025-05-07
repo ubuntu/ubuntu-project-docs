@@ -302,6 +302,11 @@ Updates including upstream OpenVPN microreleases should follow the special case 
 
 There is some documentation at: https://git.launchpad.net/langpack-o-matic/tree/doc/operator-guide.txt
 
+=== cd-boot-images-<arch> ===
+These packages have a strict build-dependency on specific versions of grub and others. It can happen that these build-dependencies are no longer satisfied since the package was uploaded to unapproved, because the build-dependencies were updated themselves in the meantime. While this would just create a failure to build, it would also waste a version number if accepted into proposed in this state, so it's a recommendation to check the availability of the build dependencies before accepting the package into proposed.
+
+For a concrete example, see https://bugs.launchpad.net/ubuntu/+source/cd-boot-images-riscv64/+bug/2104572/comments/9
+
 <<Anchor(Security)>>
 == Data Packages Kept in Sync with Security ==
 
