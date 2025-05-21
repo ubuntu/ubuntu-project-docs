@@ -177,6 +177,7 @@ extensions = [
     "canonical_sphinx",
     "sphinxcontrib.cairosvgconverter",
     "sphinx_last_updated_by_git",
+    "sphinx.ext.graphviz"
 ]
 
 # Excludes files or directories from processing
