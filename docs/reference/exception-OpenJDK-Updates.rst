@@ -38,3 +38,28 @@ exception, instead of individual bug reports for individual bug fixes.
 However, individual bugs may be referenced in the from the changelog but
 each of those bugs will need to independently verified and commented on
 for the SRU to be considered complete.
+
+The LTS OpenJDK release is built in ppa:openjdk-private/bootstrap[1].
+This PPA contains all OpenJDK release builds for the supported stable
+releases. LTS OpenJDK release is published during the Ubuntu Freeze (Mid
+September).
+
+Toolchain team:
+
+-  Requests FFe for OpenJDK LTS release (FFe bug) in advance and uploads
+   to the development release once release is available. Note: Make all
+   necessary fixes for stable releases in the development release.
+-  Prepares builds for the stable releases in
+   ppa:openjdk-private/bootstrap and updates FFe bug according to the
+   SRU template. The testing section must contain results of JTREG build
+   time and autopkgtests
+-  Messages @ubuntu-sru on #sru:ubuntu.com that OpenJDK updates are
+   ready
+
+SRU team:
+
+-  Binary-copies OpenJDK from ppa:openjdk-private/bootstrap to -updates
+   and -security.
+
+[1]
+https://launchpad.net/~openjdk-private/+archive/ubuntu/bootstrap/+packages
