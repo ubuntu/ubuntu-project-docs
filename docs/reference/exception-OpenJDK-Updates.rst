@@ -59,7 +59,8 @@ Toolchain team:
 SRU team:
 
 -  To deploy the update, OpenJDK packages should be binary copied from
-   ppa:openjdk-private/bootstrap to -updates and -security.
+   ppa:openjdk-private/bootstrap to -proposed and then released to
+   -updates and -security at the same time.
 
 [1]
 https://launchpad.net/~openjdk-private/+archive/ubuntu/bootstrap/+packages
