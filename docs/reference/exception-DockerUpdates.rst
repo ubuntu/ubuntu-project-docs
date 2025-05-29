@@ -74,6 +74,5 @@ buildsystem requires \`docker-buildx\` which was not included in the
 SRU.
 
 `LP:
-#2098106 <https://bugs.launchpad.net/ubuntu/+source/docker.io-app/+bug/2098106>`__
-Potential regression afecting Launchpad OCI builds. Still being
-investigated.
+#2098106 <https://bugs.launchpad.net/ubuntu/+source/docker.io-app/+bug/2098106>`__:
+regression affecting Launchpad OCI builds
