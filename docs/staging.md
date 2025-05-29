@@ -11,9 +11,10 @@ that will eventually be moved into the docs can have a `.md` file type.
 This page (and staging area) will be removed as it becomes unnecessary.
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 1
 :hidden: true
 :glob:
 
 staging/*
+staging/MIR/*
 ```
