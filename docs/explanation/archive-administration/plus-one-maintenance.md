@@ -2,3 +2,132 @@
 
 # +1 Maintenance
 
+The +1 maintenance is originally a Canonical program in which employees pick up
+shifts to work on the distribution. The focus of their work is the `devel`
+series — the "next" version of Ubuntu, `$current + 1`. Where as part of their
+normal responsibilities they would normally look after a specific set of
+packages, e.g. the server set, being on +1 means looking after the *entire*
+archive.
+
+## Participation
+
+### Who?
+
+We expect participants to be proficient in "distro work". Core Developers and
+MOTUs would of course qualify, but also people working on their application for
+such a status. For the latter category, +1 shifts are a good way to get
+exposure to some specific situations such as transitions, proposed migration,
+or merges.
+
+While some teams are committed to have people on +1 on a regular basis, others can
+pick up the occasional shift, in accordance with their managers.
+
+It is possible, and encouraged, to shadow someone on their shift before signing
+up for one.
+
+### Shift duration
+
+Most regular contributors pick up shifts for an entire work week. This allows
+them to take the time to dig deeply into thorny issues that would be difficult
+to tackle on one's free time — and makes for less administrative overhead.
+
+However, it is perfectly fine to pick up shifts for shorter durations.
+
+## Contact
+
+Most of the day-to-day communication around +1 should take place on the Ubuntu Development
+channel on Matrix.
+
+The Debcrafters team, and Simon Chopin in particular, is responsible for
+coordinating the effort.
+
+## The work
+
+### Shift report
+
+Regardless of the exact work, it is advised to keep track of what has been
+accomplished during a shift. This will serve as the basis for a +1 maintenance
+report to be posted to ubuntu-devel@lists.ubuntu.com at the end of shift.
+
+There is no formal structure for the report, but it is advised to frontload the
+report with any information or issue that a subsequent shift might want to know
+about. It could be an investigation where progress was made but needs carrying
+to conclusion, some uploads that would unblock packages but are still waiting
+for sponsorship, an upcoming transition from Debian, etc.
+
+Besides this, some will choose to describe in details some interesting
+investigation they worked on, others will list exhaustively the packages and
+bugs they worked on.
+
+### Coordinating the effort
+
+There are plenty of people working on Ubuntu, and there even can be multiple
+people on +1 at the same time. To avoid stepping on each other's toes,
+communication is crucial.
+
+When working on a package, contributors should first check Launchpad for a
+relevant open bug, and if it has been assigned to someone. If not, they should
+open the bug if needed, and assign it to themselves. It is advised to be
+liberal in documenting one's progress on the bug itself. When opening a new
+bug, by convention, it should be tagged `update-excuse`, since in most cases
+the things being worked on affect the migration of a package.
+
+The tool `pm-helper` can be used for the creation of such bugs.
+
+### Finding work
+
+As mentioned, the focus is the `devel` series. Depending on when the shift
+takes place in the cycle, the tasks can vary. The first thing to check for
+should be the previous shift report for actionable items — see below.
+
+One can also ask on Matrix if there are transitions that people might need help
+for, e.g. a new version of Python.
+
+Failing that, there are a few places that one might want to look at to find
+work. They are loosely listed in order of priority, but that importance varies
+depending on the development cycle.
+
+#### Transition tracker, NBS
+
+The [NBS tracker](https://ubuntu-archive-team.ubuntu.com/nbs.html), for "Not
+Buildable from Sources", tracks binary packages in the archive that cannot be rebuilt from source.
+While that can happen for several reasons, by far the most common is that the binary
+in question is the old version of a library that is having an ABI transition.
+
+A more specialized view for transitions is the [transition
+tracker](https://ubuntu-archive-team.ubuntu.com/transitions/) but it might not
+track all ongoing transitions since it requires manual intervention to setup a
+new tracker.
+
+#### FTBFS
+
+The priority of these rises along with the cycle. We want as few packages failing to build
+at release time as possible, as it makes security updates of these packages that much harder.
+
+Good sources for these are test rebuild results, periodically posted to [the
+ubuntu-devel list](https://lists.ubuntu.com/archives/ubuntu-devel/), as well as
+the [build status report](http://qa.ubuntuwire.com/ftbfs/).
+
+#### update-excuses
+
+A lot of the issues that can be found by the tools above is also visible in the
+[update-excuses
+page](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html),
+along with a lot of other problems, except that it's fairly unpenetrable.
+
+One possible approach is to start at the bottom and work your way up. For very
+old issues, asking for a package removal on the grounds that it
+wastes everyone's time is valid!
+
+Another approach is to use
+[visual-excuses](https://github.com/mclemenceau/visual-excuses) to try and find
+high-impact issues that would unblock large sets of packages.
+
+#### Universe merges
+
+While it is typically the responsibility of the last person that meaningfully
+touched a package to merge changes from Debian — aka TIL, at archive
+opening and before Feature Freeze, whoever is on +1 can help with them, e.g. if
+the TIL is not around.
+
+The obvious resource for this is [Merge-o-matic](https://merges.ubuntu.com/universe.html).
