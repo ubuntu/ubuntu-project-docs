@@ -3,7 +3,7 @@
 # +1 Maintenance
 
 The +1 maintenance is originally a Canonical program in which employees pick up
-shifts to work on the distribution. The focus of their work is the `devel`
+shifts to work on the general health of the Ubuntu archive. The focus of their work is the `devel`
 series — the "next" version of Ubuntu, `$current + 1`. Where as part of their
 normal responsibilities they would normally look after a specific set of
 packages, e.g. the server set, being on +1 means looking after the *entire*
@@ -22,7 +22,7 @@ or merges.
 While some teams are committed to have people on +1 on a regular basis, others can
 pick up the occasional shift, in accordance with their managers.
 
-It is possible, and encouraged, to shadow someone on their shift before signing
+It is possible, and encouraged, to shadow someone experienced on their shift before signing
 up for one.
 
 ### Shift duration
@@ -30,15 +30,17 @@ up for one.
 Most regular contributors pick up shifts for an entire work week. This allows
 them to take the time to dig deeply into thorny issues that would be difficult
 to tackle on one's free time — and makes for less administrative overhead.
+Furthermore many of the cases eventually need a build, or a combined
+proposed migration which you'd want to track and follow up on for a few days.
 
 However, it is perfectly fine to pick up shifts for shorter durations.
 
 ## Contact
 
-Most of the day-to-day communication around +1 should take place on the Ubuntu Development
+Most of the day-to-day communication around +1 should take place on the [Ubuntu Development](https://matrix.to/#/#devel:ubuntu.com)
 channel on Matrix.
 
-The Debcrafters team, and Simon Chopin in particular, is responsible for
+The [Debcrafters](https://launchpad.net/~debcrafters-packages) team, and [Simon Chopin ](https://launchpad.net/~schopin) in particular, is responsible for
 coordinating the effort.
 
 ## The work
@@ -72,7 +74,7 @@ liberal in documenting one's progress on the bug itself. When opening a new
 bug, by convention, it should be tagged `update-excuse`, since in most cases
 the things being worked on affect the migration of a package.
 
-The tool `pm-helper` can be used for the creation of such bugs.
+The tool `pm-helper` (provided by `ubuntu-dev-tools`) can be used for the creation of such bugs.
 
 ### Finding work
 
@@ -113,14 +115,14 @@ the [build status report](http://qa.ubuntuwire.com/ftbfs/).
 A lot of the issues that can be found by the tools above is also visible in the
 [update-excuses
 page](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html),
-along with a lot of other problems, except that it's fairly unpenetrable.
+along with a lot of other problems, except that it's fairly impenetrable.
 
 One possible approach is to start at the bottom and work your way up. For very
 old issues, asking for a package removal on the grounds that it
 wastes everyone's time is valid!
 
 Another approach is to use
-[visual-excuses](https://github.com/mclemenceau/visual-excuses) to try and find
+[visual-excuses](https://github.com/mclemenceau/visual-excuses) or [ubuntu-excuses](https://github.com/mclemenceau/ubuntu-excuses) to try (which are also available as snaps) and find
 high-impact issues that would unblock large sets of packages.
 
 #### Universe merges
