@@ -140,7 +140,7 @@ The MOTU team uses the following workflow:
 
 * When you start to work on a new package, assign the `needs-packaging` bug to
   yourself and set it to "In Progress" (if there is no `needs-packaging` bug,
-  [file one](http://bugs.launchpad.net/ubuntu/+filebug?no-redirect&field.tag#needs-packaging)).
+  [file one](http://bugs.launchpad.net/ubuntu/+filebug)).
 
 * Once you have an initial package, follow the
   [new packaging instructions](http://packaging.ubuntu.com/html/packaging-new-software.html#next-steps)
@@ -182,7 +182,7 @@ getting approval may take some time.
 ## Further reading
 
 * Always check if there is an {term}`Intent to Package (ITP) <ITP>`
-  [bug filed against the WNPP package](http://bugs.debian.org/wnpp) in Debian.
+  [bug filed against the WNPP package](https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=wnpp;dist=unstable) in Debian.
   That means, somebody is already working on packaging the software for Debian.
   Join forces with them rather than reinventing the wheel.
 
