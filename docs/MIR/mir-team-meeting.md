@@ -56,8 +56,8 @@ Check this launchpad bug list:
 ## Topic 5/7: Process/Documentation improvements
 ### Mission: Review pending process/documentation pull-requests or issues
 Check these GH based lists:
-* [PRs](https://github.com/canonical/ubuntu-mir/pulls)
-* [Issues](link https://github.com/canonical/ubuntu-mir/issues)
+* [PRs](https://github.com/ubuntu/ubuntu-project-docs/pulls?q=is%3Aopen+is%3Apr+label%3AMIR)
+* [Issues](https://github.com/ubuntu/ubuntu-project-docs/issues?q=is%3Aissue%20state%3Aopen%20label%3AMIR)
 
 ## Topic 6/7: MIR related Security Review Queue
 ### Mission: Check on progress, do deadlines seem doable?
