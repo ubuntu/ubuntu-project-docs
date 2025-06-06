@@ -875,7 +875,8 @@ Native Package
     * [Native Source Packages (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/package-model/#nativesourcepackages)
 
 NBS
-Not built from Source
+No longer Built by the Source
+Not Built from Source
     *Work in Progress*
 
 NPOASR
