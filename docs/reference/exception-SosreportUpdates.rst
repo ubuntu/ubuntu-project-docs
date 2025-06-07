@@ -1,9 +1,5 @@
 .. _reference-exception-SosreportUpdates:
 
-#. 
-
-   #. page was copied from LandscapeUpdates
-
 This document describes the policy for updating sosreport & sos package
 in a stable supported distro, including LTS. It is also the aim of this
 document to provide an example for any upstream project that wants to

@@ -1,12 +1,5 @@
 .. _reference-exception-OpenStackUpdates:
 
-#. 
-
-   #. page was renamed from OpenStack/SRUs
-   #. page was renamed from ServerTeam/OpenStackStableReleaseUpdates
-
-.. _stable_release_updates_for_openstack_and_the_ubuntu_cloud_archive:
-
 Stable Release Updates for OpenStack and the Ubuntu Cloud Archive
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

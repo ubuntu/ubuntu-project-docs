@@ -1,9 +1,5 @@
 .. _reference-exception-ubuntuimageupdates:
 
-#. 
-
-   #. page was copied from SnapdUpdates
-
 This document describes the policy for updating the ubuntu-image package
 in a stable release.
 

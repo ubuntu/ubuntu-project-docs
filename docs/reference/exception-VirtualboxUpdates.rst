@@ -1,11 +1,5 @@
 .. _reference-exception-VirtualboxUpdates:
 
-#. 
-
-   #. page was renamed from Virtualbox
-
-.. _stable_release_updates_for_virtualbox_updates:
-
 Stable Release Updates for Virtualbox Updates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

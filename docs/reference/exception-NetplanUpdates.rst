@@ -1,9 +1,5 @@
 .. _reference-exception-NetplanUpdates:
 
-#. 
-
-   #. page was copied from CurtinUpdates
-
 This document describes the policy for updating netplan.io in a stable,
 supported release.
 
