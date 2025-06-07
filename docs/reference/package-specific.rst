@@ -59,8 +59,6 @@ may be uploaded according to the procedure documented in
 This stable release exception has been approved by
 SteveLangasek for the SRU team as of 2016-05-16.
 
-.. _ubuntu_image:
-
 Ubuntu-image
 ~~~~~~~~~~~~
 
@@ -68,8 +66,6 @@ Also related to snapd, the ubuntu-image package may be uploaded
 according to the procedure documented in :ref:`UbuntuImageUpdates <reference-exception-ubuntuimageupdates>`.
 This stable release exception has been approved by SteveLangasek for the SRU team as
 of 2016-10-19.
-
-.. _docker.io_group:
 
 Docker.io group
 ~~~~~~~~~~~~~~~
@@ -80,8 +76,6 @@ Per Technical Board discussion regarding delegation of these decisions to the SR
 team, this stable release exception has been approved by BrianMurray for
 the SRU team as of 2016-09-20, with changes through to revision 19
 further approved by RobieBasak for the SRU team on 2025-04-30.
-
-.. _gce_compute_image_packages:
 
 gce-compute-image-packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -95,8 +89,6 @@ BrianMurray for the SRU team as of 2017-03-10. Further amendment to this
 exception for vendored dependencies approved by LukaszZemczak for the
 `SRU team as of
 2023-04-11 <https://lists.ubuntu.com/archives/ubuntu-release/2023-April/005606.html>`__.
-
-.. _google_compute_engine:
 
 google-compute-engine
 ~~~~~~~~~~~~~~~~~~~~~
@@ -112,8 +104,6 @@ Further amendment to this exception for vendored dependencies approved
 by LukaszZemczak for the `SRU team as of
 2023-04-11 <https://lists.ubuntu.com/archives/ubuntu-release/2023-April/005606.html>`__.
 
-.. _google_compute_engine_oslogin:
-
 google-compute-engine-oslogin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -128,8 +118,6 @@ Further amendment to this exception for vendored dependencies approved
 by LukaszZemczak for the `SRU team as of
 2023-04-11 <https://lists.ubuntu.com/archives/ubuntu-release/2023-April/005606.html>`__.
 
-.. _google_guest_agent:
-
 google-guest-agent
 ~~~~~~~~~~~~~~~~~~
 
@@ -143,8 +131,6 @@ SteveLangasek for the `SRU team as of
 Further amendment to this exception for vendored dependencies approved
 by LukaszZemczak for the `SRU team as of
 2023-04-11 <https://lists.ubuntu.com/archives/ubuntu-release/2023-April/005606.html>`__.
-
-.. _google_osconfig_agent:
 
 google-osconfig-agent
 ~~~~~~~~~~~~~~~~~~~~~
@@ -204,8 +190,6 @@ This stable release exception was
 and subsequently revision 10 of that document was approved by RobieBasak
 for the SRU team on 2017-08-08.
 
-.. _cloud_init:
-
 cloud-init
 ~~~~~~~~~~
 
@@ -224,8 +208,6 @@ documented in :ref:`DPDK <reference-exception-DPDKUpdates>` for supported LTS
 releases of Ubuntu. This stable release exception has been approved by
 LukaszZemczak for the SRU team as of 2017-08-07.
 
-.. _ubuntu_release_upgrader_and_python_apt:
-
 ubuntu-release-upgrader and python-apt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -236,15 +218,11 @@ releases) so that the list of mirrors is accurate. With that in mind and
 given that it is just a text file with urls for mirrors it is okay to
 SRU only mirror changes for these packages without an SRU bug.
 
-.. _apt_and_python_apt:
-
 apt and python-apt
 ~~~~~~~~~~~~~~~~~~
 
 Not a policy exception, but see :ref:`AptUpdates <reference-exception-AptUpdates>`
 for details of unusual SRU versioning.
-
-.. _rax_nova_agent:
 
 rax-nova-agent
 ~~~~~~~~~~~~~~
@@ -254,8 +232,6 @@ procedure documented in
 :ref:`rax-nova-agent-Updates <reference-exception-rax-nova-agent-Updates>`.
 This stable release exception has been approved by SteveLangasek for the
 SRU team as of 2018-08-15.
-
-.. _livecd_rootfs:
 
 livecd-rootfs
 ~~~~~~~~~~~~~
@@ -268,8 +244,6 @@ changes to this package to end users is mediated by way of image builds.
 Therefore, the requirement for per-change bug reports and test cases is
 relaxed, as long as there is at least one linked bug with a test case.
 
-.. _fwupd_and_fwupdate:
-
 fwupd and fwupdate
 ~~~~~~~~~~~~~~~~~~
 
@@ -278,8 +252,6 @@ procedure documented in
 :ref:`firmware-updates <reference-exception-firmware-updates>`. This
 stable release exception has been approved by BrianMurray for the SRU
 team as of 2019-01-15.
-
-.. _snapd_glib:
 
 snapd-glib
 ~~~~~~~~~~
@@ -297,8 +269,6 @@ documented in :ref:`netplan updates <reference-exception-NetplanUpdates>`.
 This stable release exception has been approved by BrianMurray for the
 SRU team as of 2019-04-01 (no really!).
 
-.. _ec2_hibinit_agent:
-
 ec2-hibinit-agent
 ~~~~~~~~~~~~~~~~~
 
@@ -306,8 +276,6 @@ The source package ec2-hibinit-agent may be uploaded according to the
 procedure documented in :ref:`ec2-hibinit-agent updates <reference-exception-ec2-hibinit-agent-Updates>`.
 This stable release exception has been approved by SteveLangasek for the SRU
 team as of 2019-09-06.
-
-.. _nvidia_driver:
 
 NVIDIA driver
 ~~~~~~~~~~~~~
@@ -326,8 +294,6 @@ The wslu package may be uploaded according to the procedure documented
 in :ref:`wslu Updates <reference-exception-wslu-Updates>`. This stable
 release exception has been approved by LukaszZemczak for the SRU team as
 of 2019-10-24.
-
-.. _openjdk_n:
 
 openjdk-N
 ~~~~~~~~~
@@ -360,8 +326,6 @@ of 2020-06-25. This was updated for the source package sos and `approved
 by Robie
 Basak <https://lists.ubuntu.com/archives/ubuntu-release/2025-February/006325.html>`__.
 
-.. _oem__meta:
-
 oem-\*-meta
 ~~~~~~~~~~~
 
@@ -371,8 +335,6 @@ procedure documented in
 stable release exception has been approved by AndyWhitcroft for the SRU
 team as of 2021-07-15. New packages are acceptable under the same
 exception.
-
-.. _ubuntu_dev_tools:
 
 ubuntu-dev-tools
 ~~~~~~~~~~~~~~~~
@@ -442,8 +404,6 @@ stable release exception `has been
 approved <https://lists.ubuntu.com/archives/technical-board/2015-November/002177.html>`__
 by Martin Pitt for the SRU team as of 2015-11-04.
 
-.. _ubuntu_advantage_tools:
-
 ubuntu-advantage-tools
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -453,8 +413,6 @@ the SRU procedures documented in
 stable release exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2023-October/005810.html>`__
 by RobieBasak for the SRU team part as of 2023-10-04.
-
-.. _open_vm_tools:
 
 open-vm-tools
 ~~~~~~~~~~~~~
@@ -492,15 +450,11 @@ This is not a standing approval or policy exception, but a general pattern to
 update OpenVPN upstream microreleases consistently under existing SRU
 policy.
 
-.. _language_packs_language_pack_:
-
 Language Packs (language-pack-\*)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There is some documentation at:
 https://git.launchpad.net/langpack-o-matic/tree/doc/operator-guide.txt
-
-.. _cd_boot_images_:
 
 cd-boot-images-
 ~~~~~~~~~~~~~~~
@@ -516,8 +470,6 @@ package into proposed.
 
 For a concrete example, see
 https://bugs.launchpad.net/ubuntu/+source/cd-boot-images-riscv64/+bug/2104572/comments/9
-
-.. _data_packages_kept_in_sync_with_security:
 
 Data Packages Kept in Sync with Security
 ----------------------------------------
@@ -584,8 +536,6 @@ However, the package can be built with -updates and then copied from
 -proposed to -updates and -security after the security team has signed
 off on the SRU bug e.g. `Bug 1878108 <https://bugs.launchpad.net/ubuntu/+source/tzdata/+bug/1878108>`__.
 
-.. _distro_info_data:
-
 distro-info-data
 ~~~~~~~~~~~~~~~~
 
@@ -618,8 +568,6 @@ section should contain:
    * `--fullname`
    * `--release`
 
-.. _linux_firmware:
-
 linux-firmware
 ~~~~~~~~~~~~~~
 
@@ -630,8 +578,6 @@ must also be copied to the -security pocket once verified, due to the
 vast majority of kernel SRUs also being in the -security pocket, and the
 necessity of linux and linux-firmware not being mismatched.
 
-.. _wireless_regdb:
-
 wireless-regdb
 ~~~~~~~~~~~~~~
 
@@ -640,8 +586,6 @@ including a bug and regression testing, however it is another package
 that needs to be kept in sync between -updates and -security pockets to
 avoid potential local legal issues for -security users who would
 otherwise not get the local regdb updates.
-
-.. _toolchain_updates:
 
 Toolchain Updates
 -----------------
