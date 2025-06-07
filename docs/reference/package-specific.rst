@@ -491,10 +491,13 @@ region and timezone name by grep'ing for it in /usr/share/zoneinfo/).
 This is compared to the same output after the updated package was
 installed. If those are different the verification is considered done.
 
-\|\|\ **Feature**\ \|\|\ **16.04 LTS**\ \|\|\ **18.04
-LTS**\ \|\|\ **20.04 LTS**\ \|\|\ **21.04**\ \|\|\ **21.10**\ \|\|
-\||icu-data \|\| No \|\| No \|\| Yes \|\| Yes \|\| Yes \|\| \||SystemV
-tzs \|\| Yes \|\| Yes \|\| Yes \|\| No \|\| No \|\|
++---------------+-----------+-----------+-----------+-------+-------+
+| Feature       | 16.04 LTS | 18.04 LTS | 20.04 LTS | 21.04 | 21.10 |
++===============+===========+===========+===========+=======+=======+
+| icu-data      | No        | No        | Yes       | Yes   | Yes   |
++---------------+-----------+-----------+-----------+-------+-------+
+| SystemV tzs   | Yes       | Yes       | Yes       | No    | No    |
++---------------+-----------+-----------+-----------+-------+-------+
 
 The version of tzdata in Ubuntu 20.04 LTS and later includes icu-data
 (see the update-icu rule in debian/rules) and the verification of it can
