@@ -1,3 +1,5 @@
+.. _reference-exception-snapdupdates:
+
 This document describes the policy for updating the snapd package in a
 stable supported distro, including LTS.
 

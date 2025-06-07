@@ -1,3 +1,5 @@
+.. _reference-exception-VirtualboxUpdates:
+
 #. 
 
    #. page was renamed from Virtualbox

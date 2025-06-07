@@ -1,3 +1,5 @@
+.. _reference-exception-UbuntuAdvantageToolsUpdates:
+
 Background
 ==========
 

@@ -1,3 +1,5 @@
+.. _reference-exception-OpenVPNUpdates:
+
 .. _openvpn_updates:
 
 OpenVPN Updates

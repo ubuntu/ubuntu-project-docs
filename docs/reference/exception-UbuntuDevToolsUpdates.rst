@@ -1,3 +1,5 @@
+.. _reference-exception-UbuntuDevToolsUpdates:
+
 This document describes the policy for updating the ubuntu-dev-tools
 package in a stable release.
 

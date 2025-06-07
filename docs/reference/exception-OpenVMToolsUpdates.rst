@@ -1,3 +1,5 @@
+.. _reference-exception-OpenVMToolsUpdates:
+
 Approved: RAOF (2024/01/25)
 
 Background

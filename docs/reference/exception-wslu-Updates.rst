@@ -1,3 +1,5 @@
+.. _reference-exception-wslu-Updates:
+
 This document describes the policy for updating the wslu package to new
 upstream versions in a stable, supported distro (including LTS
 releases).

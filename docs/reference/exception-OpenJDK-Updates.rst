@@ -1,3 +1,5 @@
+.. _reference-exception-OpenJDK-Updates:
+
 This document describes the policy for updating the openjdk-N packages,
 and to introduce new openjdk-N packages in Ubuntu LTS versions. OpenJDK
 upstream has long supported LTS releases (11, 17, 21), which are

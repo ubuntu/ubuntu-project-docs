@@ -1,3 +1,5 @@
+.. _reference-exception-OpenStackUpdates:
+
 #. 
 
    #. page was renamed from OpenStack/SRUs

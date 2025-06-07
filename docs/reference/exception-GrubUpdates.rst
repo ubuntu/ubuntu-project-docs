@@ -1,3 +1,5 @@
+.. _reference-exception-GrubUpdates:
+
 .. _process_for_sruing_grub:
 
 Process for SRUing GRUB

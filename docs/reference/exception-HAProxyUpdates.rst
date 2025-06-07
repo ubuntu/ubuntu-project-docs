@@ -1,3 +1,5 @@
+.. _reference-exception-HAProxyUpdates:
+
 .. _haproxy_updates:
 
 HAProxy Updates

@@ -1,3 +1,5 @@
+.. _reference-exception-SosreportUpdates:
+
 #. 
 
    #. page was copied from LandscapeUpdates

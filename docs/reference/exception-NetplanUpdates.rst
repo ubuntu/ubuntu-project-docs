@@ -1,3 +1,5 @@
+.. _reference-exception-NetplanUpdates:
+
 #. 
 
    #. page was copied from CurtinUpdates

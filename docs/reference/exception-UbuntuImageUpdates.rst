@@ -1,3 +1,5 @@
+.. _reference-exception-ubuntuimageupdates:
+
 #. 
 
    #. page was copied from SnapdUpdates

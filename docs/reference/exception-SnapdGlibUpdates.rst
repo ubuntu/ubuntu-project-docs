@@ -1,3 +1,5 @@
+.. _reference-exception-SnapdGlibUpdates:
+
 This document describes the policy for updating the `snapd-glib
 package <https://launchpad.net/ubuntu/+source/snapd-glib>`__ in stable
 Ubuntu releases.

@@ -1,3 +1,5 @@
+.. _reference-exception-snapcraftupdates:
+
 This document describes the policy for updating the snapcraft package in
 a stable supported distro, including LTS.
 

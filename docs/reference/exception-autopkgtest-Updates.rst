@@ -1,3 +1,5 @@
+.. _reference-exception-autopkgtest-Updates:
+
 This document describes the policy for updating autopkgtest in a stable,
 supported release.
 

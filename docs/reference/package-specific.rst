@@ -31,31 +31,32 @@ Kernel
 ~~~~~~
 
 Because of the way updates to the kernel work, it will follow a slightly
-different process which is described on KernelTeam/KernelUpdates.
+different process which is described on :ref:`KernelUpdates <reference-exception-kernelupdates>`.
 
 Landscape
 ~~~~~~~~~
 
 The landscape-client source package may be uploaded according to the
-procedure documented in LandscapeUpdates. See the `Technical Board
-resolution <https://lists.ubuntu.com/archives/ubuntu-devel-announce/2009-March/000550.html>`__
+procedure documented in :ref:`LandscapeUpdates <reference-exception-landscapeupdates>`.
+See the `Technical Board resolution <https://lists.ubuntu.com/archives/ubuntu-devel-announce/2009-March/000550.html>`__
 for details and rationale.
 
 Snapd
 ~~~~~
 
 The snapd source package may be uploaded according to the procedure
-documented in SnapdUpdates. Per Technical Board discussion regarding
-delegation of these decisions to the SRU team, this stable release
-exception has been approved by SteveLangasek for the SRU team as of
-2016-05-12.
+documented in :ref:`SnapdUpdates <reference-exception-snapdupdates>`.
+Per Technical Board discussion regarding delegation of these decisions
+to the SRU team, this stable release exception has been approved by
+SteveLangasek for the SRU team as of 2016-05-12.
 
 Snapcraft
 ~~~~~~~~~
 
 Related to the preceding snapd exception, the snapcraft source package
 may be uploaded according to the procedure documented in
-SnapcraftUpdates. This stable release exception has been approved by
+:ref:`SnapcraftUpdates <reference-exception-snapcraftupdates>`.
+This stable release exception has been approved by
 SteveLangasek for the SRU team as of 2016-05-16.
 
 .. _ubuntu_image:
@@ -64,8 +65,8 @@ Ubuntu-image
 ~~~~~~~~~~~~
 
 Also related to snapd, the ubuntu-image package may be uploaded
-according to the procedure documented in UbuntuImageUpdates. This stable
-release exception has been approved by SteveLangasek for the SRU team as
+according to the procedure documented in :ref:`UbuntuImageUpdates <reference-exception-ubuntuimageupdates>`.
+This stable release exception has been approved by SteveLangasek for the SRU team as
 of 2016-10-19.
 
 .. _docker.io_group:
@@ -74,8 +75,8 @@ Docker.io group
 ~~~~~~~~~~~~~~~
 
 The source packages docker.io, containerd, and runc may be uploaded
-according to the procedure documented in DockerUpdates. Per Technical
-Board discussion regarding delegation of these decisions to the SRU
+according to the procedure documented in :ref:`DockerUpdates <reference-exception-dockerpdates>`.
+Per Technical Board discussion regarding delegation of these decisions to the SRU
 team, this stable release exception has been approved by BrianMurray for
 the SRU team as of 2016-09-20, with changes through to revision 19
 further approved by RobieBasak for the SRU team on 2025-04-30.
@@ -87,7 +88,7 @@ gce-compute-image-packages
 
 The source package gce-compute-image-packages may be uploaded according
 to the procedure documented in
-`gce-compute-image-packages-Updates <https://wiki.ubuntu.com/gce-compute-image-packages-Updates>`__.
+:ref:`gce-compute-image-packages-Updates <reference-exception-gce-compute-image-packages-updates>`.
 Per Technical Board discussion regarding delegation of these decisions
 to the SRU team, this stable release exception has been approved by
 BrianMurray for the SRU team as of 2017-03-10. Further amendment to this
@@ -102,7 +103,7 @@ google-compute-engine
 
 The source package gce-compute-image-packages may be uploaded according
 to the procedure documented in
-`google-compute-engine-Updates <https://wiki.ubuntu.com/google-compute-engine-Updates>`__.
+:ref:`google-compute-engine-Updates <reference-exception-google-compute-engine-Updates>`.
 Per Technical Board discussion regarding delegation of these decisions
 to the SRU team, this stable release exception has been approved by
 SteveLangasek for the `SRU team as of
@@ -118,7 +119,7 @@ google-compute-engine-oslogin
 
 The source package google-compute-engine-oslogin may be uploaded
 according to the procedure documented in
-`google-compute-engine-oslogin-Updates <https://wiki.ubuntu.com/google-compute-engine-oslogin-Updates>`__.
+:ref:`google-compute-engine-oslogin-Updates <reference-exception-google-compute-engine-oslogin-Updates>`.
 Per Technical Board discussion regarding delegation of these decisions
 to the SRU team, this stable release exception has been approved by
 SteveLangasek for the `SRU team as of
@@ -134,7 +135,7 @@ google-guest-agent
 
 The source package gce-compute-image-packages may be uploaded according
 to the procedure documented in
-`google-guest-agent-Updates <https://wiki.ubuntu.com/google-guest-agent-Updates>`__.
+:ref:`google-guest-agent-Updates <reference-exception-google-guest-agent-Updates>`.
 Per Technical Board discussion regarding delegation of these decisions
 to the SRU team, this stable release exception has been approved by
 SteveLangasek for the `SRU team as of
@@ -150,7 +151,7 @@ google-osconfig-agent
 
 The source package google-osconfig-agent may be uploaded according to
 the procedure documented in
-`google-osconfig-agent-Updates <https://wiki.ubuntu.com/google-osconfig-agent-Updates>`__.
+:ref:`google-osconfig-agent-Updates <reference-exception-google-osconfig-agent-Updates>`.
 Per Technical Board discussion regarding delegation of these decisions
 to the SRU team, this stable release exception has been approved by
 SteveLangasek for the `SRU team as of
@@ -163,7 +164,8 @@ curtin
 ~~~~~~
 
 The source package curtin may be uploaded according to the procedure
-documented in CurtinUpdates. This stable release exception has been
+documented in :ref:`CurtinUpdates <reference-exception-CurtinUpdates>`.
+This stable release exception has been
 approved by SteveLangasek for the SRU team as of 2017-04-05.
 
 walinuxagent
@@ -171,7 +173,7 @@ walinuxagent
 
 The source package walinuxagent may be uploaded according to the
 procedure documented in
-`walinuxagentUpdates <https://wiki.ubuntu.com/walinuxagentUpdates>`__.
+:ref:`walinuxagentUpdates <reference-exception-walinuxagentUpdates>`.
 This stable release exception has been approved by SteveLangasek for the
 SRU team as of 2017-04-05.
 
@@ -179,15 +181,16 @@ GNOME
 ~~~~~
 
 GNOME has a microrelease exception excepting it from the normal QA
-requirements of the microrelease policy, `documented here </GNOME>`__.
+requirements of the microrelease policy, :ref:`documented here <reference-exception-GNOMEUpdates>`.
 This was `granted by the technical board on
 2012-06-22 <https://lists.ubuntu.com/archives/technical-board/2012-June/001327.html>`__.
 
 OpenStack
 ~~~~~~~~~
 
-!OpenStack packages can be updated according to the procedures
-documented in OpenStack/StableReleaseUpdates, which includes a list of
+OpenStack packages can be updated according to the procedures
+documented in :ref:`OpenStackUpdates <reference-exception-OpenStackUpdates>`,
+which includes a list of
 source packages covered by the MRE. This stable release exception has
 been approved by LukaszZemczak for the SRU team as of 2017-08-07.
 
@@ -195,8 +198,8 @@ Certbot
 ~~~~~~~
 
 The Certbot family of packages can be updated according to the
-procedures documented in `/Certbot </Certbot>`__. This stable release
-exception was
+procedures documented in :ref:`Certbot <reference-exception-CertbotUpdates>`.
+This stable release exception was
 `discussed <https://lists.ubuntu.com/archives/ubuntu-release/2017-July/004176.html>`__
 and subsequently revision 10 of that document was approved by RobieBasak
 for the SRU team on 2017-08-08.
@@ -207,7 +210,8 @@ cloud-init
 ~~~~~~~~~~
 
 The source package cloud-init may be uploaded according to the procedure
-documented in CloudinitUpdates. Per Technical Board discussion regarding
+documented in :ref:`CloudinitUpdates <reference-exception-CloudinitUpdates>`.
+Per Technical Board discussion regarding
 delegation of these decisions to the SRU team, this stable release
 exception has been approved by BrianMurray for the SRU team as of
 2017-10-06 with subsequent updates approved by RobieBasak on 2020-07-15.
@@ -216,7 +220,7 @@ DPDK
 ~~~~
 
 The dpdk source package can be uploaded according to the procedures
-documented in `DPDK <StableReleaseUpdates/DPDK>`__ for supported LTS
+documented in :ref:`DPDK <reference-exception-DPDKUpdates>` for supported LTS
 releases of Ubuntu. This stable release exception has been approved by
 LukaszZemczak for the SRU team as of 2017-08-07.
 
@@ -237,8 +241,8 @@ SRU only mirror changes for these packages without an SRU bug.
 apt and python-apt
 ~~~~~~~~~~~~~~~~~~
 
-Not a policy exception, but see AptUpdates for details of unusual SRU
-versioning.
+Not a policy exception, but see :ref:`AptUpdates <reference-exception-AptUpdates>`
+for details of unusual SRU versioning.
 
 .. _rax_nova_agent:
 
@@ -247,7 +251,7 @@ rax-nova-agent
 
 The source package rax-nova-agent may be uploaded according to the
 procedure documented in
-`rax-nova-agent-Updates <https://wiki.ubuntu.com/rax-nova-agent-Updates>`__.
+:ref:`rax-nova-agent-Updates <reference-exception-rax-nova-agent-Updates>`.
 This stable release exception has been approved by SteveLangasek for the
 SRU team as of 2018-08-15.
 
@@ -271,7 +275,7 @@ fwupd and fwupdate
 
 The source packages fwupd and fwupdate may be uploaded according to the
 procedure documented in
-`firmware-updates <https://wiki.ubuntu.com/firmware-updates>`__. This
+:ref:`firmware-updates <reference-exception-firmware-updates>`. This
 stable release exception has been approved by BrianMurray for the SRU
 team as of 2019-01-15.
 
@@ -281,19 +285,17 @@ snapd-glib
 ~~~~~~~~~~
 
 The source package snapd-glib may be uploaded according to the procedure
-documented in `snapd-glib
-updates <https://wiki.ubuntu.com/SnapdGlibUpdates>`__. This stable
-release exception has been approved by BrianMurray for the SRU team as
-of 2019-02-19.
+documented in :ref:`snapd-glib updates <reference-exception-SnapdGlibUpdates>`.
+This stable release exception has been approved by BrianMurray for the
+SRU team as of 2019-02-19.
 
 netplan.io
 ~~~~~~~~~~
 
 The source package netplan.io may be uploaded according to the procedure
-documented in `netplan
-updates <https://wiki.ubuntu.com/NetplanUpdates>`__. This stable release
-exception has been approved by BrianMurray for the SRU team as of
-2019-04-01 (no really!).
+documented in :ref:`netplan updates <reference-exception-NetplanUpdates>`.
+This stable release exception has been approved by BrianMurray for the
+SRU team as of 2019-04-01 (no really!).
 
 .. _ec2_hibinit_agent:
 
@@ -301,9 +303,8 @@ ec2-hibinit-agent
 ~~~~~~~~~~~~~~~~~
 
 The source package ec2-hibinit-agent may be uploaded according to the
-procedure documented in `ec2-hibinit-agent
-updates <https://wiki.ubuntu.com/ec2-hibinit-agent-Updates>`__. This
-stable release exception has been approved by SteveLangasek for the SRU
+procedure documented in :ref:`ec2-hibinit-agent updates <reference-exception-ec2-hibinit-agent-Updates>`.
+This stable release exception has been approved by SteveLangasek for the SRU
 team as of 2019-09-06.
 
 .. _nvidia_driver:
@@ -313,8 +314,8 @@ NVIDIA driver
 
 NVIDIA driver (source packages nvidia-graphics-drivers-\*,
 nvidia-settings, fabric-manager-\*, libnvidia-nscq-\*) may be uploaded
-according to the procedure documented in `NVIDIA
-updates <https://wiki.ubuntu.com/NVidiaUpdates>`__. This stable release
+according to the procedure documented in :ref:`NVIDIA
+updates <reference-exception-NVidiaUpdates>`. This stable release
 exception has been approved by ChrisHalseRogers for the SRU team as of
 2019-09-17.
 
@@ -322,7 +323,7 @@ wslu
 ~~~~
 
 The wslu package may be uploaded according to the procedure documented
-in `wslu Updates <https://wiki.ubuntu.com/wslu-Updates>`__. This stable
+in :ref:`wslu Updates <reference-exception-wslu-Updates>`. This stable
 release exception has been approved by LukaszZemczak for the SRU team as
 of 2019-10-24.
 
@@ -333,8 +334,8 @@ openjdk-N
 
 We allow providing OpenJDK short term support releases in the updates
 pocket, instead of the release pocket to be able to remove those after
-their support ends as documented in `OpenJDK
-Updates <https://wiki.ubuntu.com/OpenJDK-Updates>`__. This very specific
+their support ends as documented in :ref:`OpenJDK
+Updates <reference-exception-OpenJDK-Updates>`. This very specific
 stable release exception has been approved by LukaszZemczak for the SRU
 team as of 2020-04-30.
 
@@ -352,8 +353,8 @@ sosreport/sos
 ~~~~~~~~~~~~~
 
 The source package sosreport/sos may be uploaded according to the
-procedure documented in `sosreport
-updates <https://wiki.ubuntu.com/SosreportUpdates>`__. This stable
+procedure documented in :ref:`sosreport
+updates <reference-exception-SosreportUpdates>`. This stable
 release exception has been approved by LukaszZemczak for the SRU team as
 of 2020-06-25. This was updated for the source package sos and `approved
 by Robie
@@ -366,7 +367,7 @@ oem-\*-meta
 
 Source packages of the form oem-\*-meta may be uploaded according to the
 procedure documented in
-`OEMMeta <https://wiki.ubuntu.com/StableReleaseUpdates/OEMMeta>`__. This
+:ref:`OEMMeta <reference-exception-OEMMetaUpdates>`. This
 stable release exception has been approved by AndyWhitcroft for the SRU
 team as of 2021-07-15. New packages are acceptable under the same
 exception.
@@ -378,7 +379,7 @@ ubuntu-dev-tools
 
 The source package ubuntu-dev-tools may be uploaded according to the
 procedure documented in
-`UbuntuDevToolsUpdates <https://wiki.ubuntu.com/UbuntuDevToolsUpdates>`__.
+:ref:`UbuntuDevToolsUpdates <reference-exception-UbuntuDevToolsUpdates>`.
 This stable release exception has been `approved by Robie
 Basak <https://lists.ubuntu.com/archives/ubuntu-release/2023-May/005640.html>`__.
 
@@ -386,8 +387,8 @@ OpenLDAP
 ~~~~~~~~
 
 The OpenLDAP source package may be uploaded according to the procedure
-documented in `OpenLDAPUpdates <OpenLDAPUpdates>`__. This stable release
-exception `has been
+documented in :ref:`OpenLDAPUpdates <reference-exception-OpenLDAPUpdates>`.
+This stable release exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2022-June/005403.html>`__
 by SteveLangasek for the SRU team as of 2022-06-02.
 
@@ -395,7 +396,7 @@ HAProxy
 ~~~~~~~
 
 The haproxy source package may be uploaded according to the procedure
-documented in `HAProxyUpdates <HAProxyUpdates>`__. This stable release
+documented in :ref:`HAProxyUpdates <reference-exception-HAProxyUpdates>`. This stable release
 exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2022-June/005417.html>`__
 by LukaszZemczak for the SRU team as of 2022-06-27.
@@ -404,7 +405,7 @@ autopkgtest
 ~~~~~~~~~~~
 
 The autopkgtest source package may be uploaded according to the
-procedure documented in `autopkgtest-Updates <autopkgtest-Updates>`__.
+procedure documented in :ref:`autopkgtest-Updates <reference-exception-autopkgtest-Updates>`.
 This stable release exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2023-January/005530.html>`__
 by SteveLangasek for the SRU team as of 2023-01-30.
@@ -413,7 +414,7 @@ squid
 ~~~~~
 
 The squid source package may be uploaded according to the procedure
-documented in `SquidUpdates <SquidUpdates>`__. This stable release
+documented in :ref:`SquidUpdates <reference-exception-SquidUpdates>`. This stable release
 exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2023-April/005589.html>`__
 by SteveLangasek for the SRU team on 2023-04-03.
@@ -422,7 +423,7 @@ bind9
 ~~~~~
 
 The bind9 source package may be uploaded according to the procedure
-documented in `Bind9Updates <Bind9Updates>`__. This stable release
+documented in :ref:`Bind9Updates <reference-exception-Bind9Updates>`. This stable release
 exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2023-June/005647.html>`__
 by SteveLangasek for the SRU team as of 2023-06-06.
@@ -436,7 +437,7 @@ virtualbox
 
 The virtualbox source packages may be uploaded according to the
 procedure documented in
-`VirtualboxUpdates <https://wiki.ubuntu.com/VirtualboxUpdates>`__. This
+:ref:`VirtualboxUpdates <reference-exception-VirtualboxUpdates>`. This
 stable release exception `has been
 approved <https://lists.ubuntu.com/archives/technical-board/2015-November/002177.html>`__
 by Martin Pitt for the SRU team as of 2015-11-04.
@@ -448,7 +449,7 @@ ubuntu-advantage-tools
 
 The ubuntu-advantage-tools source package may be uploaded according to
 the SRU procedures documented in
-`UbuntuAdvantageToolsUpdates <UbuntuAdvantageToolsUpdates>`__. This
+:ref:`UbuntuAdvantageToolsUpdates <reference-exception-UbuntuAdvantageToolsUpdates>`. This
 stable release exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2023-October/005810.html>`__
 by RobieBasak for the SRU team part as of 2023-10-04.
@@ -459,7 +460,7 @@ open-vm-tools
 ~~~~~~~~~~~~~
 
 The open-vm-tools source package may be uploaded according to the
-proceedure documented in `OpenVMToolsUpdates <OpenVMToolsUpdates>`__.
+proceedure documented in :ref:`OpenVMToolsUpdates <reference-exception-OpenVMToolsUpdates>`.
 This stable release exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2024-January/005900.html>`__
 by ChrisHalseRogers for the SRU team as of 2024-01-25.
@@ -470,7 +471,7 @@ postgresql
 The currently supported postgresql source package (as determined by the
 dependency of the postgresql metapackage) for each stable release may be
 uploaded according to the proceedure documented in
-`PostgreSQLUpdates <PostgreSQLUpdates>`__. This stable release exception
+:ref:`PostgreSQLUpdates <reference-exception-PostgreSQLUpdates>`. This stable release exception
 `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2024-January/005915.html>`__
 by ChrisHalseRogers for the SRU team as of 2024-01-31
@@ -480,14 +481,14 @@ GRUB
 
 GRUB related packages require a special SRU process due our EFI signing
 pipeline, documented at
-`StableReleaseUpdates/Grub <StableReleaseUpdates/Grub>`__.
+:ref:`Grub updates <reference-exception-GrubUpdates>`.
 
 OpenVPN
 ~~~~~~~
 
 Updates including upstream OpenVPN microreleases should follow the
-special case documentation at `OpenVPNUpdates <OpenVPNUpdates>`__. This
-is not a standing approval or policy exception, but a general pattern to
+special case documentation at :ref:`OpenVPNUpdates <reference-exception-OpenVPNUpdates>`.
+This is not a standing approval or policy exception, but a general pattern to
 update OpenVPN upstream microreleases consistently under existing SRU
 policy.
 
@@ -515,8 +516,6 @@ package into proposed.
 
 For a concrete example, see
 https://bugs.launchpad.net/ubuntu/+source/cd-boot-images-riscv64/+bug/2104572/comments/9
-
-<<Anchor(Security)>>
 
 .. _data_packages_kept_in_sync_with_security:
 
@@ -583,7 +582,7 @@ differ between systems running -updates and systems running only
 -security, this package is always kept in sync between the two pockets.
 However, the package can be built with -updates and then copied from
 -proposed to -updates and -security after the security team has signed
-off on the SRU bug e.g. Bug:1878108.
+off on the SRU bug e.g. `Bug 1878108 <https://bugs.launchpad.net/ubuntu/+source/tzdata/+bug/1878108>`__.
 
 .. _distro_info_data:
 

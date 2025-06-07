@@ -1,3 +1,5 @@
+.. _reference-exception-walinuxagentUpdates:
+
 .. _walinuxagent_updates:
 
 walinuxagent Updates

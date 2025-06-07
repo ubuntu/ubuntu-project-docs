@@ -1,3 +1,5 @@
+.. _reference-exception-kernelupdates:
+
 #. 
 
    #. page was renamed from KernelUpdates

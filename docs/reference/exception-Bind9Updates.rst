@@ -1,3 +1,5 @@
+.. _reference-exception-Bind9Updates:
+
 .. _bind9_updates:
 
 Bind9 Updates

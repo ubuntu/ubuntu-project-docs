@@ -1,3 +1,5 @@
+.. _reference-exception-SquidUpdates:
+
 .. _squid_updates:
 
 Squid Updates

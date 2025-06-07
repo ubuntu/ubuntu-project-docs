@@ -1,3 +1,5 @@
+.. _reference-exception-DPDKUpdates:
+
 This page describes the policy for updating the src:dpdk package in
 regard to upstream LTS stable releases. This is an exception to the
 standard SRU process under the banner of the SRU "New upstream

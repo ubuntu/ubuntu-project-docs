@@ -1,3 +1,5 @@
+.. _reference-exception-PostgreSQLUpdates:
+
 This document describes the policy for doing microrelease updates of the
 PostgreSQL package in Ubuntu LTS releases.
 

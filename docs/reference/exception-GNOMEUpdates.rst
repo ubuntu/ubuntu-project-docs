@@ -1,3 +1,5 @@
+.. _reference-exception-GNOMEUpdates:
+
 GNOME had a micro release exception granted by the Technical Board in
 June 2012. Since the granting of micro release exceptions was made more
 generic and then decisions delegated to the SRU team directly, the

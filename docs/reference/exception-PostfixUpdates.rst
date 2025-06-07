@@ -1,3 +1,5 @@
+.. _reference-exception-PostfixUpdates:
+
 This document describes the policy for updating the Postfix package in a
 stable supported distro, in particular LTS releases.
 
