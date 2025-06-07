@@ -148,17 +148,17 @@ pass the following additional QA procedures:
    recommended way to install Nvidia
    driver <https://help.ubuntu.com/community/NvidiaDriversInstallation>`__:
 
-:literal:`  \`ubuntu-drivers install\``
+   ``ubuntu-drivers install``
 
 -  If the above recommended way failed, please comment on the SRU bug
    then install the driver by using:
 
-:literal:`  \`apt-get\``
+   ``apt-get``
 
 -  Upgrade test from previous version of the package. This test must be
    performed with:
 
-:literal:`  \`apt-get `\ \ :literal:`\``
+   ``apt-get <install or upgrade>``
 
 -  Upgrade test from previous distribution to the current one. If the
    current distribution is an LTS one, the upgrade path from the
