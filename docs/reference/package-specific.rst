@@ -14,10 +14,11 @@ directly by the SRU team.
 
 To obtain a new ongoing exception such as those documented below:
 
-#. Draft a wiki page, like the ones below, outlining what you believe
-   should be the exception.
+#. Draft an exception page, like the ones referenced below, outlining what
+   you believe should be the exception.
 
-``2. Submit it to the SRU team for approval. This can be done to any individual member of the SRU team directly, or you can send it to ubuntu-release@lists.ubuntu.com for review.``
+#. Submit it to the SRU team for approval via a PR to this repository.
+   To discuss further see :ref:`Howto → Contact <howto-contact>`
 
 Note that the SRU team's delegation from the Technical Board is limited
 to accepting SRU uploads that meet the `policy criteria <#When>`__
