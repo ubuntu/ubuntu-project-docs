@@ -1,8 +1,5 @@
 .. _reference-exception-NVidiaUpdates:
 
-\||<tablestyle="float:right; font-size: 0.9em; width:40%;
-background:#F1F1ED; margin: 0 0 1em 1em;" style="padding:0.5em;"><>|\|
-
 Introduction
 ------------
 
