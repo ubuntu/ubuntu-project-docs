@@ -456,8 +456,8 @@ Language Packs (language-pack-\*)
 There is some documentation at:
 https://git.launchpad.net/langpack-o-matic/tree/doc/operator-guide.txt
 
-cd-boot-images-
-~~~~~~~~~~~~~~~
+cd-boot-images-<arch>
+~~~~~~~~~~~~~~~~~~~~~
 
 These packages have a strict build-dependency on specific versions of
 grub and others. It can happen that these build-dependencies are no
