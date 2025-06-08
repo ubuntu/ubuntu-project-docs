@@ -1,5 +1,8 @@
 .. _reference-exception-dockerpdates:
 
+Container Stack Updates
+=======================
+
 This document describes the policy for updating the docker.io group of
 packages (docker.io-app, containerd-app, runc-app, docker-buildx,
 docker-compose-v2) in a stable supported distro, in particular LTS
@@ -22,12 +25,13 @@ still follow the process described here.**
 
 To do this we will:
 
-#. File (or find, our users are quite proactive about wanting this) a
-   bug to cover the upgrade.
+-  File (or find, our users are quite proactive about wanting this) a bug to cover the upgrade.
 
-| ``2. Upload the latest upstream version of the packages to the current development series of Ubuntu. Make sure all the versions are compatible among them.``
-| ``3a. Once they have migrated, they can then be uploaded with minimal necessary changes to the SRU queue of the supported Ubuntu releases. For docker.io-app, docker-buildx and docker-compose-v2, .0 releases will not be backported; for containerd-app and runc-app, .0 releases are eligible for backporting.``
-| ``3b. Alternatively, one or more of the packages covered by this exception can be updated to a new minor or patch release to avoid major disruptions in stable releases. This should be up to the package maintainers discretion as long as the versions follow regular Ubuntu policies ensuring we are not breaking any upgrade paths. Namely, when taking this (``\ **``3b``**\ ``) path, you ``\ **``must``**\ `` ensure either that all stable Ubuntu releases get upgraded to the same upstream package version, or that the upstream version of the package being upgraded in a stable series ``\ **``X``**\ `` is not greater than the package being introduced in any stable series greater than ``\ **``X``**\ ``. Moreover, for the latter case, you must also ensure that there are no known regressions from the version present in one stable series to the version present in the next stable series (e.g., there are no known bugs fixed in ``\ **``X-1``**\ `` and not fixed in ``\ **``X``**\ ``).``
+-  Upload the latest upstream version of the packages to the current development series of Ubuntu. Make sure all the versions are compatible among them.
+
+-  Once they have migrated, they can then be uploaded with minimal necessary changes to the SRU queue of the supported Ubuntu releases. For docker.io-app, docker-buildx and docker-compose-v2, .0 releases will not be backported; for containerd-app and runc-app, .0 releases are eligible for backporting.
+
+-  Alternatively, one or more of the packages covered by this exception can be updated to a new minor or patch release to avoid major disruptions in stable releases. This should be up to the package maintainers discretion as long as the versions follow regular Ubuntu policies ensuring we are not breaking any upgrade paths. Namely, when taking this (**3b**) path, you **must** ensure either that all stable Ubuntu releases get upgraded to the same upstream package version, or that the upstream version of the package being upgraded in a stable series **X** is not greater than the package being introduced in any stable series greater than **X**. Moreover, for the latter case, you must also ensure that there are no known regressions from the version present in one stable series to the version present in the next stable series (e.g., there are no known bugs fixed in **X-1** and not fixed in **X**).
 
 We will reuse the upgrade bug for the SRU but this does not include
 detailed test case or regression potential sections (it should link to

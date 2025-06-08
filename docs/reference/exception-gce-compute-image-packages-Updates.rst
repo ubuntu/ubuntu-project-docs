@@ -1,5 +1,8 @@
 .. _reference-exception-gce-compute-image-packages-updates:
 
+GCE compute image packages update
+=================================
+
 This document describes the policy for updating the
 gce-compute-image-packages package to new upstream versions in a stable,
 supported distro (including LTS releases). This is an exception to the

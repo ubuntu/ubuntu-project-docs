@@ -20,12 +20,10 @@ releases with the following process:
 Package List
 ------------
 
--  
-
-   -  virtualbox
-   -  virtualbox-hwe
-   -  virtualbox-ext-pack
-   -  virtualbox-guest-additions-iso
+-  virtualbox
+-  virtualbox-hwe
+-  virtualbox-ext-pack
+-  virtualbox-guest-additions-iso
 
 .. _sru_expectations:
 
@@ -129,59 +127,54 @@ Other Information
 
 Upstream:
 
-| `` - Micro releases happen from low-volume stable branches,``
-| ``   approximately once every two months.``
+-  Micro releases happen from low-volume stable branches,
+   approximately once every two months.
 
-`` - Stable branches are supported with bug fixes for some years``
+-  Stable branches are supported with bug fixes for some years (normally 5 years + 6 months or more).
 
-(normally 5 years + 6 months or more).
+-  Upstream commits are reviewed by members of the Virtualbox team.
 
-`` - Upstream commits are reviewed by members of the Virtualbox team.``
+-  All commits to stable branches are evaluated w.r.t. potential
+   regressions and signed off by the Virtualbox team.
 
-| `` - All commits to stable branches are evaluated w.r.t. potential``
-| ``   regressions and signed off by the Virtualbox team.``
+-  Unit tests and regression tests are run on multiple platforms per
+   push to the source code repository. In addition, there are more
+   extensive test suites run daily and weekly.
 
-| `` - Unit tests and regression tests are run on multiple platforms per``
-| ``   push to the source code repository. In addition, there are more``
-| ``   extensive test suites run daily and weekly.``
+-  Each micro release receives extensive testing between code freeze
+   and release. This includes the full functional test suite,
+   performance regression testing, load and stress testing and
+   compatibility and upgrade testing from previous micro and
+   minor/major releases.
 
-| `` - Each micro release receives extensive testing between code freeze``
-| ``   and release. This includes the full functional test suite,``
-| ``   performance regression testing, load and stress testing and``
-| ``   compatibility and upgrade testing from previous micro and``
-| ``   minor/major releases.``
-
-`` - Tests are run on all supported platforms (currently amd64).``
+-  Tests are run on all supported platforms (currently amd64).
 
 Additional tests done are:
 
 In Debian/Ubuntu:
 
-`` - Upstream generally refuses to give CVE targeted fixes [1], so this``
+-  Upstream generally refuses to give CVE targeted fixes [1], so this
+   leaves virtualbox in stable releases generally vulnerable, e.g. to
+   CVE-2015-2594
 
-leaves virtualbox in stable releases generally vulnerable, e.g. to
-CVE-2015-2594
+   -  [1] http://www.oracle.com/us/support/assurance/vulnerability-remediation/disclosure/index.html
 
-`` [1] ``\ ```http://www.oracle.com/us/support/assurance/vulnerability-remediation/disclosure/index.html`` <http://www.oracle.com/us/support/assurance/vulnerability-remediation/disclosure/index.html>`__
+-  Usually newer kernels means a bad experience for users, since the
+   kernel drivers are rebuilt at each kernel update, and leads to failures
+   like [2] and [3]
 
-- - Usually newer kernels means a bad experience for users, since the
-kernel drivers are rebuilt at each kernel update, and leads to failures
-like [2] and [3]
-
-[2] https://bugs.launchpad.net/ubuntu/+source/virtualbox/+bug/1457776
-[3] https://bugs.launchpad.net/ubuntu/+source/virtualbox/+bug/1457780
+   -  [2] https://bugs.launchpad.net/ubuntu/+source/virtualbox/+bug/1457776
+   -  [3] https://bugs.launchpad.net/ubuntu/+source/virtualbox/+bug/1457780
 
 This is actually mitigated since Vivid releases, because of:
 
--  
+-  Re-work the packaging to account for the kernel modules being
+   shipped in the master kernel packages, removing the need for dkms
+   (LP: #1434579):
 
-   -  Re-work the packaging to account for the kernel modules being
-      shipped in the master kernel packages, removing the need for dkms
-      (LP: #1434579):
-
-| ``   * Make the dkms package provide a virtual package matching what the kernel packages provide to indicate that they ship the dkms modules.``
-| ``   * Add an alternate dep from the utils package to the virtual driver.``
-| ``   * Make the x11 driver package associate with the VGA controllerPCI ID.``
+   -  Make the dkms package provide a virtual package matching what the kernel packages provide to indicate that they ship the dkms modules.``
+   -  Add an alternate dep from the utils package to the virtual driver.``
+   -  Make the x11 driver package associate with the VGA controllerPCI ID.``
 
 ``-- Adam Conrad <adconrad at ubuntu.com>   Wed, 22 Apr 2015 10:01:25 +0100``
 

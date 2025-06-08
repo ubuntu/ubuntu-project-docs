@@ -130,16 +130,15 @@ number for each Ubuntu version (e.g. 9.18.x -> 9.18.x+1 and not 9.18.x
 To do this we will:
 
 #. File a bug to cover the upgrade.
-
-| ``   * Add tasks to all Ubuntu releases which will be updated.``
-| ``   * Add a link to the upstream changelog and list major changes.``
-| ``   * Look through changelogs and announcements to check for backwards-incompatible changes, and note them down.``
-| ``2. Make sure the development release contains the fixes that will be added. In general this should be the case as long as it is up to date with its associated release version.``
-| ``3. Setup merge with new versions, reverting any backwards-incompatible changes that must be avoided in released versions of Ubuntu. ``
-| ``4. Run autopkgtest on all supported architectures.``
-| ``5. Run autopkgtest on reverse-dependencies against the new release.``
-| ``6. Upload the microrelease to the SRU queue and wait until it is approved.``
-| ``7. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
+   -  Add tasks to all Ubuntu releases which will be updated.
+   -  Add a link to the upstream changelog and list major changes.
+   -  Look through changelogs and announcements to check for backwards-incompatible changes, and note them down.
+#. Make sure the development release contains the fixes that will be added. In general this should be the case as long as it is up to date with its associated release version.
+#. Setup merge with new versions, reverting any backwards-incompatible changes that must be avoided in released versions of Ubuntu.
+#. Run autopkgtest on all supported architectures.
+#. Run autopkgtest on reverse-dependencies against the new release.
+#. Upload the microrelease to the SRU queue and wait until it is approved.
+#. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.
 
 .. _sru_template:
 
@@ -184,25 +183,24 @@ Here is a log of known regressions.
 
 .. _introduced_by_security_update_not_an_mre_httpsubuntu.comsecuritynoticesusn_6909_1:
 
-Introduced by security update (NOT an MRE) https://ubuntu.com/security/notices/USN-6909-1
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  Introduced by security update (NOT an MRE) https://ubuntu.com/security/notices/USN-6909-1
+   These were reported in both Debian and Ubuntu:
 
-These were reported in both Debian and Ubuntu:
+   -  segfault: https://lists.debian.org/debian-security-announce/2024/msg00146.html,
+      https://bugs.debian.org/1077281, https://bugs.debian.org/1074378.
+      Ubuntu not affected because we don't link with jemalloc
 
--  segfault:
-   https://lists.debian.org/debian-security-announce/2024/msg00146.html,
-   https://bugs.debian.org/1077281, https://bugs.debian.org/1074378.
-   Ubuntu not affected because we don't link with jemalloc
--  removal of SIG(0) (this removal is the actual CVE fix):
-   https://bugs.debian.org/1077653
--  Deprecated options now finally removed:
-   https://bugs.debian.org/1077512. Reporter seems to be using ubuntu
-   packages, though.
--  `LP: #2075542 Missing binaries, new DNSSEC
-   checks <https://bugs.launchpad.net/ubuntu/+source/bind9/+bug/2075542>`__:
-   user reported broken sysadmin scripts due to missing binaries, and
-   broken DNSSEC config due to new checks
+   -  removal of SIG(0) (this removal is the actual CVE fix):
+      https://bugs.debian.org/1077653
 
-Upstream published this guide to help with the transition from 9.16 to
-9.18:
-https://kb.isc.org/docs/changes-to-be-aware-of-when-moving-from-bind-916-to-918
+   -  Deprecated options now finally removed:
+      https://bugs.debian.org/1077512. Reporter seems to be using ubuntu
+      packages, though.
+
+   -  `LP: #2075542 Missing binaries, new DNSSEC
+      checks <https://bugs.launchpad.net/ubuntu/+source/bind9/+bug/2075542>`__:
+      user reported broken sysadmin scripts due to missing binaries, and
+      broken DNSSEC config due to new checks
+
+   - Upstream published this guide to help with the transition from 9.16 to 9.18:
+     https://kb.isc.org/docs/changes-to-be-aware-of-when-moving-from-bind-916-to-918

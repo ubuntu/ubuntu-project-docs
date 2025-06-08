@@ -1,5 +1,8 @@
 .. _reference-exception-OpenVMToolsUpdates:
 
+OpenVMTools Updates
+===================
+
 Approved: RAOF (2024/01/25)
 
 Background
@@ -113,15 +116,15 @@ Ambiguity
 
 The server team does many MREs and therefore sometimes it happened that
 these uploads were called an MRE, it is not. This is a platform
-enablement SRU upload under the condition of `"other safe cases" sub
-section
-2 <https://wiki.ubuntu.com/StableReleaseUpdates#Other_safe_cases>`__:
+enablement SRU upload under the condition of `"other safe cases" sub section 2 <https://wiki.ubuntu.com/StableReleaseUpdates#Other_safe_cases>`__:
 
-| ``"... is also applicable as they have a low potential for regressing existing``
-| ``installations but a high potential for improving the user experience,``
-| ``particularly for Long Term Support releases ... For Long Term Support releases``
-| ``we regularly want to enable new hardware. Such changes are appropriate provided``
-| ``that we can ensure not to affect upgrades on existing hardware."``
+.. code-block:: text
+
+  "... is also applicable as they have a low potential for regressing existing
+  installations but a high potential for improving the user experience,
+  particularly for Long Term Support releases ... For Long Term Support releases
+  we regularly want to enable new hardware. Such changes are appropriate provided
+  that we can ensure not to affect upgrades on existing hardware."
 
 History
 -------
@@ -151,15 +154,17 @@ After discussion of the risks and if this would even qualify as an SRU
 Steve was so kind to share his
 `expertise <https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/1741390/comments/6>`__:
 
-| ``"With my SRU team hat on, I will say that open-vm-tools clearly falls into``
-| ``the class of packages that have a "platform enablement" (new "hardware``
-| ``enablement") exception to the usual bugfix-only rule.``
+.. code-block:: text
 
-| ``Care must of course still be taken to test the updates and avoid``
-| ``regressions, but in cases where the package must be updated from upstream to``
-| ``maintain compatibility with the moving target of the OS's substrate (whether``
-| ``that's hardware, or a cloud platform, or a VM platform), the requirement to``
-| ``selectively cherry-pick bugfixes is waived."``
+  "With my SRU team hat on, I will say that open-vm-tools clearly falls into
+  the class of packages that have a "platform enablement" (new "hardware
+  enablement") exception to the usual bugfix-only rule.
+
+  Care must of course still be taken to test the updates and avoid
+  regressions, but in cases where the package must be updated from upstream to
+  maintain compatibility with the moving target of the OS's substrate (whether
+  that's hardware, or a cloud platform, or a VM platform), the requirement to
+  selectively cherry-pick bugfixes is waived."
 
 So it would be a valid SRU, but what was left to resolve, was how to
 ensure to avoid regressions. Back then we reached out to VMware and cam

@@ -1,5 +1,8 @@
 .. _reference-exception-CertbotUpdates:
 
+Certbot Updates
+===============
+
 This document describes the policy for updating the Certbot-related
 packages (currently the source packages python-acme, python-certbot,
 python-certbot-apache and python-certbot-nginx) to new upstream versions
@@ -87,14 +90,12 @@ verification-done-:
 
 -  Integration tests (performed automatically or manually):
 
-   -  
-
-      -  Verify that certbot is correctly able to acquire a certificate
-         using ACME.
-      -  Verify that certbot is correctly able to configure the apache
-         and nginx servers by querying them over HTTPS and verifying the
-         certificate presented.
-      -  /TestScript can help with these verifications.
+   -  Verify that certbot is correctly able to acquire a certificate
+      using ACME.
+   -  Verify that certbot is correctly able to configure the apache
+      and nginx servers by querying them over HTTPS and verifying the
+      certificate presented.
+   -  /TestScript can help with these verifications.
 
 -  Verify that dep8 has passed by checking
    http://people.canonical.com/~ubuntu-archive/pending-sru.html

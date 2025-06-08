@@ -1,5 +1,8 @@
 .. _reference-exception-UbuntuAdvantageToolsUpdates:
 
+Ubuntu-Advantage-Tools / Ubuntu-Pro-Client Updates
+==================================================
+
 Background
 ==========
 
@@ -298,9 +301,9 @@ or a single pull request on !GitHub (hereinafter "MP"):
 
 #. Currently, the SRU review includes:
 
-`` a. a commit by commit review as presented by upstream, looking for the types of issues ``\ ```described above`` <#Mitigating_Risk>`__\ ``. This is because that list is not exhaustive, and we have caught multiple issues this way either at this step or later on that have needed fixing.``
+   -  a. A commit by commit review as presented by upstream, looking for the types of issues :ref:`described above <mitigating_risk>`. This is because that list is not exhaustive, and we have caught multiple issues this way either at this step or later on that have needed fixing.
 
-`` a. The usual SRU review checks, such as that all changes made appear to fit within the definition of the exception, that the version numbers are sensible, the Test Plan is reasonable given the specific changes being made, and so forth.``
+   -  b. The usual SRU review checks, such as that all changes made appear to fit within the definition of the exception, that the version numbers are sensible, the Test Plan is reasonable given the specific changes being made, and so forth.
 
 #. During review, areas warranting additional testing may be identified,
    and these will be added to the Test Plan for manual testing, or

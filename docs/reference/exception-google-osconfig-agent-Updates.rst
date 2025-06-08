@@ -1,5 +1,8 @@
 .. _reference-exception-google-osconfig-agent-Updates:
 
+Google OSconfig Agent Updates
+=============================
+
 This document describes the policy for updating the
 google-osconfig-agent package to new upstream versions in a stable,
 supported distro (including LTS releases). This is an exception to the

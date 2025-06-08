@@ -1,11 +1,12 @@
 .. _reference-exception-DPDKUpdates:
 
+DPDK Updates
+============
+
 This page describes the policy for updating the src:dpdk package in
 regard to upstream LTS stable releases. This is an exception to the
 standard SRU process under the banner of the SRU "New upstream
 microreleases" exception.
-
-Table of contents: <<TableOfContents()>>
 
 .. _background_on_dpdk:
 
@@ -44,21 +45,17 @@ Upstream have a
 `policy <http://dpdk.org/doc/guides/contributing/stable.html>`__ for
 accepting changes into the LTS release branches which includes:
 
--  
-
-   -  Back-porting of any critical bug fixes (crashes, data loss, etc)
-   -  Minor usability items that are very low risk
-   -  Only changes are backported that are part of the last main release
-      (This ensures more test coverage on those changes)
+-  Back-porting of any critical bug fixes (crashes, data loss, etc)
+-  Minor usability items that are very low risk
+-  Only changes are backported that are part of the last main release
+   (This ensures more test coverage on those changes)
 
 There is a section on backporting features as well, but the constraints
 limit it to something that is IMHO sane to SRU:
 
--  
-
-   -  There is a justifiable use case (for example a new PMD).
-   -  The change is non-invasive.
-   -  There is support within the community.
+-  There is a justifiable use case (for example a new PMD).
+-  The change is non-invasive.
+-  There is support within the community.
 
 This so far happened very rarely and In addition those features (mostly
 PMDs to support more HW) are only added in stable releases being not
@@ -87,8 +84,8 @@ and it was great. Due to the fast pace of DPDK development with 3 month
 release cycles a stable release is very important to carry the stability
 needed by Distribution LTS releases. Therefore I now plan to:
 
-| `` - release Ubuntu 18.04 with the first stable release 17.11.1``
-| `` - Ask for this MRE to keep up with further stable releases``
+-  release Ubuntu 18.04 with the first stable release 17.11.1
+-  Ask for this MRE to keep up with further stable releases
 
 .. _upstream_regression_testing:
 
@@ -160,9 +157,9 @@ Proposed SRU Approach
 SRU updates for DPDK in Ubuntu will be aligned to the associated LTS
 release of DPDK and only taken care for Ubuntu LTS releases:
 
-| ``   18.04 -> DPDK 17.11.x``
-| ``   20.04 -> DPDK 19.11.x (if releases still align)``
-| ``   [...]``
+::
+
+    18.04 -> DPDK 17.11.x 20.04 -> DPDK 19.11.x (if releases still align) [...]
 
 Ubuntu will only use the released version of updates and will not pull
 directly from the upstream VCS. That is important as on the release of a
@@ -173,8 +170,6 @@ passed.
 
 Testing and verification
 ~~~~~~~~~~~~~~~~~~~~~~~~
-
-<<Anchor(SRU_TestVerify)>>
 
 In addition to all the verification done by upstream prior to be
 releases the proposed packages will be prepared, uploaded and tested

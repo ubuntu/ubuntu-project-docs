@@ -1,5 +1,8 @@
 .. _reference-exception-google-compute-engine-oslogin-Updates:
 
+Google Compute Engine OSlogin Updates
+=====================================
+
 This document describes the policy for updating the
 google-compute-engine-oslogin package to new upstream versions in a
 stable, supported distro (including LTS releases). This is an exception

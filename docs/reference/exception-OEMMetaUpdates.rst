@@ -1,5 +1,8 @@
 .. _reference-exception-OEMMetaUpdates:
 
+OEM Meta Package Updates
+========================
+
 Introduction
 ============
 
@@ -20,39 +23,43 @@ Possible situation that need update meta package and then SRU it.
 SRU Bug template
 ================
 
-[ Background ]
+::
 
-Why are we making this update?
+  [ Background ]
 
-[ Impact ]
+  Why are we making this update?
 
-#. Upgrade path: Users will be upgrading from a package in the
-   associated OEM archive, not the Ubuntu archive.
+  [ Impact ]
 
-``2. The background and impact of the situation for this change, and it's impact.``
+  1. Upgrade path: Users will be upgrading from a package in the
+     associated OEM archive, not the Ubuntu archive.
 
-[ Testing ]
+  2. The background and impact of the situation for this change, and it's impact.
 
-#. Test that \`ubuntu-drivers list-oem\` lists the meta-package on the
-   relevant hardware
+  [ Testing ]
 
-``2. Test that fully installing the meta-package (upgrading to the OEM archive if relevant) works properly on the  hardware``
+  1. Test that `ubuntu-drivers list-oem` lists the meta-package on the
+     relevant hardware
 
-[ Regression Potential ]
+  2. Test that fully installing the meta-package (upgrading to the OEM archive if relevant) works properly on the  hardware
 
-Most potential regressions will live in the package set that will be
-installed via dependency of this package, which live in OEM archive
-(outside of Ubuntu) and control by OEM team. OEM team and other
-corresponding team need take responsibility of those dependency
-installed.
+  [ Regression Potential ]
 
-[When switching kernel flavour] Check that the new kernel flavour works
-on the target platform.
+  Most potential regressions will live in the package set that will be
+  installed via dependency of this package, which live in OEM archive
+  (outside of Ubuntu) and control by OEM team. OEM team and other
+  corresponding team need take responsibility of those dependency
+  installed.
+
+  [When switching kernel flavour]
+
+  Check that the new kernel flavour works on the target platform.
+
 
 Procedure
 =========
 
-There is `an existing MIR exception <MIRTeam/Exceptions/OEM>`__,
+There is `an existing MIR exception <https://canonical-ubuntu-project.readthedocs-hosted.com/MIR/mir-exceptions-oem/#mir-exceptions-oem>`__,
 allowing these packages to be accepted directly into main. As long as
 the package complies with the template required for the MIR exception to
 apply, it can be similarly accepted into \`-proposed\` without further

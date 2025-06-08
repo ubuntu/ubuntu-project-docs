@@ -1,5 +1,8 @@
 .. _reference-exception-google-compute-engine-Updates:
 
+Google Compute Engine Updates
+=============================
+
 This document describes the policy for updating the
 google-compute-engine package to new upstream versions in a stable,
 supported distro (including LTS releases). This is an exception to the

@@ -1,13 +1,16 @@
 .. _reference-exception-wslu-Updates:
 
+wslu Updates
+============
+
 This document describes the policy for updating the wslu package to new
 upstream versions in a stable, supported distro (including LTS
 releases).
 
 The wslu package is a set of settings and utilities to integrate Ubuntu
-running in `WSL <WSL>`__ to the host Windows 10 system. The wslu package
+running in `WSL <https://wiki.ubuntu.com/WSL>`__ to the host Windows 10 system. The wslu package
 is shipped in the Ubuntu Microsoft Store apps and in the downloadable
-`WSL <WSL>`__ tarballs for supported Ubuntu releases (see
+`WSL <https://wiki.ubuntu.com/WSL>`__ tarballs for supported Ubuntu releases (see
 `installation <https://wiki.ubuntu.com/WSL#Installing_Ubuntu>`__).
 
 The wslu package is shipped with the intent of providing uniformly
@@ -30,7 +33,7 @@ be done:
    version
 -  The fixes upstream claimed to have been fixed are verified preferably
    by extending the package's autopkgtests
--  The wslu package's autopkgtest is run inside `WSL <WSL>`__ on a
+-  The wslu package's autopkgtest is run inside `WSL <https://wiki.ubuntu.com/WSL>`__ on a
    Windows 10 system manually or in an automated way that also captures
    the screen.
 -  (optional) A new Ubuntu app is built with the updated wslu package

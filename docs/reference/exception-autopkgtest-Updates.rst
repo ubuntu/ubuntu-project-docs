@@ -1,5 +1,8 @@
 .. _reference-exception-autopkgtest-Updates:
 
+autopkgtest Updates
+===================
+
 This document describes the policy for updating autopkgtest in a stable,
 supported release.
 
@@ -39,25 +42,24 @@ bug reports for individual bug fixes. Individual bug fixes may also be
 tracked/closed by the upload; however only the one process bug must have
 the following:
 
--  
-
-   -  The SRU should be requested following the the StableReleaseUpdates
-      documented process.
-   -  The template at the end of this document should be used and all
-      ‘TODO’ filled out.
-   -  References to each bug fixed by the SRU should be included in the
-      changelog and major changes called out in the SRU template,
-      especially where changed behavior is not backwards compatible.
-   -  For each release that is proposed to be updated by the SRU a link
-      to the results of integration testing, via autopkgtest,
-      successfully completed using the proposed package with no
-      unexplained errors or failures. This testing will be done by
-      uploading packages to a PPA and then triggering autopkgtests on
-      those.
-   -  Any architecture specific changes need to be noted.
-   -  Any packaging changes (e.g. a dependency changes) need to be
-      stated.
-   -  If any manual testing occurs it should also be documented.
+-  The SRU should be requested following the the
+   :ref:`StableReleaseUpdates <howto-perform-standard-sru>`
+   documented process.
+-  The template at the end of this document should be used and all
+   ‘TODO’ filled out.
+-  References to each bug fixed by the SRU should be included in the
+   changelog and major changes called out in the SRU template,
+   especially where changed behavior is not backwards compatible.
+-  For each release that is proposed to be updated by the SRU a link
+   to the results of integration testing, via autopkgtest,
+   successfully completed using the proposed package with no
+   unexplained errors or failures. This testing will be done by
+   uploading packages to a PPA and then triggering autopkgtests on
+   those.
+-  Any architecture specific changes need to be noted.
+-  Any packaging changes (e.g. a dependency changes) need to be
+   stated.
+-  If any manual testing occurs it should also be documented.
 
 If backwards compatibility is to be broken, this should be clearly
 written at the top of the bug description for the SRU, as well as in the

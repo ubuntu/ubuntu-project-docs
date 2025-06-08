@@ -134,21 +134,22 @@ To do this we will:
 
 #. File a bug to cover the upgrade.
 
-| ``   * Add tasks to all Ubuntu releases which will be updated.``
-| ``   * Add a link to the upstream changelog and list major changes.``
-| ``2. Make sure the development release contains the fixes that will be added. In general this should be the case as long as it is up to date with its associated release version.``
-| ``3. Setup merge with new versions, reverting any backwards-incompatible changes that must be avoided in released versions of Ubuntu.``
-| ``4. Run autopkgtest on all supported architectures.``
-| ``5. Run autopkgtest on reverse-dependencies against the new release - eurephia, network-manager-openvpn, openvpn-auth-ldap, openvpn-auth-radius, openvpn-systemd-resolved for jammy and focal; and gadmin-openvpn-client and gadmin-openvpn-server for focal only``
-| ``6. Upload the microrelease to the SRU queue and wait until it is approved.``
-| ``7. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
+   -  Add tasks to all Ubuntu releases which will be updated.
+   -  Add a link to the upstream changelog and list major changes.
+
+#. Make sure the development release contains the fixes that will be added. In general this should be the case as long as it is up to date with its associated release version.
+#. Setup merge with new versions, reverting any backwards-incompatible changes that must be avoided in released versions of Ubuntu.
+#. Run autopkgtest on all supported architectures.
+#. Run autopkgtest on reverse-dependencies against the new release - eurephia, network-manager-openvpn, openvpn-auth-ldap, openvpn-auth-radius, openvpn-systemd-resolved for jammy and focal; and gadmin-openvpn-client and gadmin-openvpn-server for focal only
+#. Upload the microrelease to the SRU queue and wait until it is approved.
+#. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.
 
 .. _sru_template:
 
 SRU template
 ~~~~~~~~~~~~
 
-::
+.. code-block:: text
 
    This bug tracks an update for the OpenVPN package, moving to versions:
 

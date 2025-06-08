@@ -1,5 +1,8 @@
 .. _reference-exception-NVidiaUpdates:
 
+Nvidia GPU Driver Updates
+=========================
+
 Introduction
 ------------
 
@@ -43,18 +46,14 @@ The release targeted by the SRU are:
 
 -  **LTS**
 
-   -  
-
-      -  Long lived branch,
-      -  Short lived branch,
-      -  Legacy.
+   -  Long lived branch,
+   -  Short lived branch,
+   -  Legacy.
 
 -  **Non-LTS**
 
-   -  
-
-      -  Long lived branch,
-      -  Legacy.
+   -  Long lived branch,
+   -  Legacy.
 
 Short lived branches **are not** SRUed to non-lts releases to align the
 policy on the HWE stacks however this decision can be revisited
@@ -84,17 +83,19 @@ Release Schedule
 
 -  **Week 0**: New version of a driver released by the vendor
 
-   -  
+   -  **Week 1**: Packaging (porting patches against new kernel and tool chain)
 
-      -  **Week 1**: Packaging (porting patches against new kernel and
-         tool chain)
+      -  **Week 2**: QA (smoke test, installs, boot, shell comes up)
 
-| ``    * ``\ **``Week 2``**\ ``: QA (smoke test, installs, boot, shell comes up)``
-| ``      * ``\ **``Week 3``**\ ``: Upload to the development release``
-| ``    * ``\ **``Week 2``**\ ``: Packaging for stable releases ``
-| ``        * ``\ **``Week 4``**\ ``: QA (Full test suite)``
-| ``          * ``\ **``Week 6``**\ ``: Upload to stable releases (-proposed pocket)``
-| ``            * ``\ **``Week 8``**\ ``: Promotion to the -updates pocket.``
+         -  **Week 3**: Upload to the development release
+
+      -  **Week 2**: Packaging for stable releases
+
+         -  **Week 4**: QA (Full test suite)
+
+            -  **Week 6**: Upload to stable releases (-proposed pocket)
+
+               -  **Week 8**: Promotion to the -updates pocket.
 
 .. _requesting_the_sru:
 
@@ -106,7 +107,7 @@ bug reports for individual bug fixes. The one bug should have the
 following:
 
 -  The SRU should be requested per the
-   `StableReleaseUpdates <https://wiki.ubuntu.com/StableReleaseUpdates>`__
+   :ref:`StableReleaseUpdates <howto-perform-standard-sru>`
    documented process
 -  The template at the end of this document should be used and all
    ‘TODO’ filled out

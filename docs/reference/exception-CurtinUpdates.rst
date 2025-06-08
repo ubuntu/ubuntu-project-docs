@@ -8,10 +8,8 @@ MAAS product, curtin needs to be periodically updated in order to enable
 new features. Therefore, the following types of changes are allowed as
 long as the conditions outlined below are met:
 
--  
-
-   -  Bug fixes
-   -  New features
+-  Bug fixes
+-  New features
 
 In the event of a change breaking backwards compatibility, then SRU team
 approval will need to be obtained.
@@ -25,25 +23,23 @@ The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the
 following:
 
--  
-
-   -  The SRU should be requested per the StableReleaseUpdates
-      documented process
-   -  The template at the end of this document should be used and all
-      ‘TODO’ filled out
-   -  References to each bug fixed by the SRU should be included in the
-      changelog and major changes called out in the SRU template,
-      especially where changed behavior is not backwards compatible.
-   -  For each release (e.g. trusty, xenial, etc.) that is proposed to
-      be updated by the SRU a link to the results of integration
-      testing, via Curtin’s vmtest, successfully completed using the
-      proposed package with no unexplained errors or failures
-   -  Any architecture specific fixes need to be noted and architecture
-      specific test results included
-   -  Any packaging changes (e.g. a dependency changes) need to be
-      stated
-   -  If any manual testing occurs it should also be documented. See LP#
-      1588052 as an example.
+-  The SRU should be requested per the :ref:`StableReleaseUpdates <howto-perform-standard-sru>`
+   documented process
+-  The template at the end of this document should be used and all
+   ‘TODO’ filled out
+-  References to each bug fixed by the SRU should be included in the
+   changelog and major changes called out in the SRU template,
+   especially where changed behavior is not backwards compatible.
+-  For each release (e.g. trusty, xenial, etc.) that is proposed to
+   be updated by the SRU a link to the results of integration
+   testing, via Curtin’s vmtest, successfully completed using the
+   proposed package with no unexplained errors or failures
+-  Any architecture specific fixes need to be noted and architecture
+   specific test results included
+-  Any packaging changes (e.g. a dependency changes) need to be
+   stated
+-  If any manual testing occurs it should also be documented. See LP#
+   1588052 as an example.
 
 .. _qa_process:
 
@@ -55,13 +51,11 @@ Merges
 
 Updates to curtin trunk go through the following process:
 
--  
-
-   -  Reviewed and approved by a member of the development team
-   -  Daily integration tests on trunk
-   -  Successful run of unit tests and style tests based on the bzr
-      branch
-   -  Branch set to the committed state
+-  Reviewed and approved by a member of the development team
+-  Daily integration tests on trunk
+-  Successful run of unit tests and style tests based on the bzr
+   branch
+-  Branch set to the committed state
 
 Packaging
 ~~~~~~~~~

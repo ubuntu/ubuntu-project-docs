@@ -1,5 +1,8 @@
 .. _reference-exception-PostgreSQLUpdates:
 
+PostgreSQL Updates
+==================
+
 This document describes the policy for doing microrelease updates of the
 PostgreSQL package in Ubuntu LTS releases.
 
@@ -34,19 +37,7 @@ The Server team has been doing MREs for PostgreSQL for several years
 now, but due to historical reasons there never was an official wiki page
 documenting the process. However, as can be seen from the list below,
 these releases have always been properly prepared, tested and uploaded
-to the right pockets (sometimes to
-
-::
-
-   -security
-
-, sometimes to
-
-::
-
-   -updates
-
-):
+to the right pockets (sometimes to ``-security`` , sometimes to ``-updates``):
 
 -  https://pad.lv/1637236
 -  https://pad.lv/1664478
@@ -107,12 +98,7 @@ build-time tests inside an autopkgtest environment.
 
 As part of the process of preparing the MRE, we also try to run
 autopkgtests from as many reverse dependencies as we are able to. This
-is an important step especially when the upload will go to the
-
-::
-
-   -security
-
+is an important step especially when the upload will go to the ``-security``
 pocket, since no autopkgtests are executed there.
 
 Process
@@ -126,28 +112,16 @@ Preparing for the SRU
 Before filing an MRE bug and kickoff the process officially, we need to
 perform the following actions:
 
-#. 
+#. Confirm that the new minor release does **not** contain any
+   breaking changes that might put users' data in jeopardy (e.g.,
+   requiring a ``pg_dump/pg_restore``
+   cycle is dangerous and should never happen in a minor release).
 
-   #. Confirm that the new minor release does **not** contain any
-      breaking changes that might put users' data in jeopardy (e.g.,
-      requiring a
-      ::
+#. Merge the latest PostgreSQL LTS microrelease into our existing package, rebasing whatever delta the package may contain.
 
-         pg_dump/pg_restore
+   #. Update the contents of the ``debian/NEWS`` file to reflect manual operations that might need to be performed by the user after upgrading the package.
 
-      cycle is dangerous and should never happen in a minor release).
-
-| `` 2. Merge the latest PostgreSQL LTS microrelease into our existing package, rebasing whatever delta the package may contain.``
-| `` 2.1. Update the contents of the ``
-
-::
-
-   debian/NEWS
-
-file to reflect manual operations that might need to be performed by the
-user after upgrading the package.
-
-`` 3. Upload the resulting package to a PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
+#. Upload the resulting package to a PPA, making sure that the build succeeds **and** that there are no autopkgtest regressions introduced.
 
 When everything looks OK, we are ready to start the SRU process.
 
@@ -162,23 +136,20 @@ instead of individual bug reports for each fix.
 
 We will:
 
-#. 
 
-   #. File an MRE bug including the rationale for the upgrade. This MRE
-      bug will contain references to previous MREs bugs, as well as a
-      summary of the important bugfixes present in the new microrelease.
-      See the SRU template below for more details on how this bug will
-      look like.
 
-`` 2. If there are no known CVEs being addressed by the update (if there is one, the CVE ID will be explicitly mentioned in the upstream changelog),``
+#. File an MRE bug including the rationale for the upgrade. This MRE
+   bug will contain references to previous MREs bugs, as well as a
+   summary of the important bugfixes present in the new microrelease.
+   See the SRU template below for more details on how this bug will
+   look like.
 
-we will:
+#. If there are no known CVEs being addressed by the update (if there is one, the CVE ID will be explicitly mentioned in the upstream changelog),
 
-`` 2.1. upload the package to the proposed pocket. Once approved, we will monitor the excuses page and address any DEP8 failures.``
+   #. We will upload the package to the proposed pocket. Once approved, we will monitor the excuses page and address any DEP8 failures.
 
-else, if there are CVEs being addressed by the update, we will:
 
-`` 2.2. ensure there are no regressions by running autopkgtests for the updated package and its reverse dependencies. Then, contact the security team so they can take over the release to the security pocket.``
+   #. If instead there are CVEs being addressed by the update, we will ensure there are no regressions by running autopkgtests for the updated package and its reverse dependencies. Then, contact the security team so they can take over the release to the security pocket.
 
 .. _testing_and_verification:
 
@@ -186,28 +157,16 @@ Testing and verification
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 As explained above, the testing will be done primarily using a PPA. When
-needed (i.e., when uploading to the
-
-::
-
-   -security
-
-pocket), we will also run autopkgtests for all of the reverse
+needed (i.e., when uploading to the ``-security`` pocket), we will also run autopkgtests for all of the reverse
 dependencies as well as upstream's testsuite during the package build.
-Otherwise, we will upload directly to
-
-::
-
-   -updates
-
-pocket and monitor the excuses page.
+Otherwise, we will upload directly to ``-updates`` pocket and monitor the excuses page.
 
 .. _sru_template:
 
 SRU template
 ~~~~~~~~~~~~
 
-::
+.. code-block:: text
 
    [Impact]
 

@@ -1,5 +1,8 @@
 .. _reference-exception-rax-nova-agent-Updates:
 
+rax-nova-agent Updates
+======================
+
 This document describes the policy for updating the rax-nova-agent
 package to new upstream versions in a stable, supported distro
 (including LTS releases).

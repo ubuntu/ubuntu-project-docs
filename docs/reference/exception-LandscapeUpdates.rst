@@ -1,5 +1,8 @@
 .. _reference-exception-landscapeupdates:
 
+Landscape updates
+=================
+
 This document describes the policy for updating Landscape client
 packages in a stable supported distro, including LTS. It is also the aim
 of this document to provide an example for any upstream project that
@@ -93,5 +96,5 @@ Requesting the SRU
 ------------------
 
 The SRU should be requested as usual
-(`StableReleaseUpdates <StableReleaseUpdates>`__) with the additional
+(:ref:`StableReleaseUpdates <howto-perform-standard-sru>`) with the additional
 note about having the above steps being completed.

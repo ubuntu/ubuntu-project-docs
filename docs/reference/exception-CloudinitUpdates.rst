@@ -1,5 +1,8 @@
 .. _reference-exception-CloudinitUpdates:
 
+cloud-init Updates
+==================
+
 Background
 ----------
 
@@ -16,10 +19,8 @@ updated in order to enable new features. Therefore, the following types
 of changes are allowed as long as the processes outlined below are
 followed:
 
--  
-
-   -  Bug fixes
-   -  New features
+-  Bug fixes
+-  New features
 
 In the event of a change breaking backwards compatibility, then SRU team
 approval will need to be obtained by emailing the ubuntu-release team
@@ -52,41 +53,39 @@ The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the
 following:
 
--  
+-  The SRU should be requested per the StableReleaseUpdates
+   documented process
+-  The template at the end of this document should be used
 
-   -  The SRU should be requested per the StableReleaseUpdates
-      documented process
-   -  The template at the end of this document should be used
+   - all ``TODO-PRIOR-TO-PROPOSED`` should be filled in prior to requesting
+     SRU unaccepted uploads are accepted into the **-proposed** pockets.
+     All ``TODO-SRU-VERIFICATION`` should be filled in when testing against
+     binaries once available in the **-proposed** pocket to ensure we are
+     validating specific debs that will be accepted into **-updates** pockets.
 
-``    * all ‘TODO-PRIOR-TO-PROPOSED’ should be filled in prior to requesting SRU unaccepted uploads are accepted into the ``\ **``-proposed``**\ `` pockets.  All 'TODO-SRU-VERIFICATION' should be filled in when testing against binaries once available in the ``\ **``-proposed``**\ `` pocket to ensure we are validating specific debs that will be accepted into ``\ **``-updates``**\ `` pockets.``
+-  The change log will contain a reference to the single SRU process
+   bug, not all bugs fixed by the SRU. However, if there are very
+   important bugs that are deemed worthy of reference they too should
+   be included in the change log.
+-  Major changes should be called out in the SRU template, especially
+   where changed behavior is not backward compatible.
+-  For each release (e.g. Ubuntu 14.04, Ubuntu 16.04, etc.) that is
+   proposed to be updated by the SRU a link to the results of
+   integration testing for at least the following datasources must be
+   provided:
 
--  
+   -  nocloud (e.g. kvm)
+   -  lxd
+   -  ec2 (e.g. aws)
+   -  azure
+   -  gce
 
-   -  The change log will contain a reference to the single SRU process
-      bug, not all bugs fixed by the SRU. However, if there are very
-      important bugs that are deemed worthy of reference they too should
-      be included in the change log.
-   -  Major changes should be called out in the SRU template, especially
-      where changed behavior is not backward compatible.
-   -  For each release (e.g. Ubuntu 14.04, Ubuntu 16.04, etc.) that is
-      proposed to be updated by the SRU a link to the results of
-      integration testing for at least the following datasources must be
-      provided:
-
-| ``    * nocloud (e.g. kvm)``
-| ``    * lxd``
-| ``    * ec2 (e.g. aws)``
-| ``    * azure``
-| ``    * gce``
-
--  
-
-   -  Any architecture specific fixes need to be noted and architecture
-      specific test results included
-   -  Any packaging changes (e.g. a dependency change) need to be stated
-   -  If any manual testing occurs it should also be documented. See
-      `LP: #1588052 <http://launchpad.net/bugs/1588052>`__ as an
-      example.
+-  Any architecture specific fixes need to be noted and architecture
+   specific test results included
+-  Any packaging changes (e.g. a dependency change) need to be stated
+-  If any manual testing occurs it should also be documented. See
+   `LP: #1588052 <http://launchpad.net/bugs/1588052>`__ as an
+   example.
 
 .. _qa_process:
 
@@ -98,12 +97,10 @@ Merges
 
 Updates to cloud-init trunk go through the following process:
 
--  
-
-   -  Reviewed and approved by a member of the development team
-   -  Daily integration tests on trunk
-   -  Successful run of unit tests and style tests based on the branch
-   -  Branch set to the committed state
+-  Reviewed and approved by a member of the development team
+-  Daily integration tests on trunk
+-  Successful run of unit tests and style tests based on the branch
+-  Branch set to the committed state
 
 Packaging
 ~~~~~~~~~
@@ -150,13 +147,11 @@ platforms. Releases tested should involve all releases expected to be
 updated. Supported platforms must contain at least each of the
 following:
 
--  
-
-   -  nocloud (e.g. kvm)
-   -  lxd
-   -  ec2 (e.g. aws)
-   -  azure
-   -  gce
+-  nocloud (e.g. kvm)
+-  lxd
+-  ec2 (e.g. aws)
+-  azure
+-  gce
 
 The test case should be developed as a part of each resolved bug or new
 feature. This way testing is straightforward and clear as to what is
@@ -239,11 +234,13 @@ Past SRUs
 
 Links to past SRUs using this process are below:
 
-\|\| **SRU Version** \|\| **SRU bug** \|\| \|\| 17.2-35-gf576b2a2 \|\|
-`LP:
-#1747059 <https://bugs.launchpad.net/ubuntu/+source/cloud-init/+bug/1747059>`__
-\|\| \|\| 18.2-4-g05926e48 \|\| `LP:
-#1759406 <https://bugs.launchpad.net/ubuntu/+source/cloud-init/+bug/1759406>`__
-\|\| \|\| 18.5-15-g7a469659 \|\| `LP:
-#1813346 <https://bugs.launchpad.net/ubuntu/+source/cloud-init/+bug/1813346>`__
-\|\|
++--------------------+-------------------------------------------------------------------+
+| **SRU Version**    + **SRU bug**                                                       |
++====================+===================================================================+
+| 17.2-35-gf576b2a2  + https://bugs.launchpad.net/ubuntu/+source/cloud-init/+bug/1747059 |
++--------------------+-------------------------------------------------------------------+
+| 18.2-4-g05926e48   + https://bugs.launchpad.net/ubuntu/+source/cloud-init/+bug/1759406 |
++--------------------+-------------------------------------------------------------------+
+| 18.5-15-g7a469659  + https://bugs.launchpad.net/ubuntu/+source/cloud-init/+bug/1813346 |
++--------------------+-------------------------------------------------------------------+
+

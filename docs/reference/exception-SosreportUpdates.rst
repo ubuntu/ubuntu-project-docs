@@ -1,5 +1,8 @@
 .. _reference-exception-SosreportUpdates:
 
+Sos / SosReport Updates
+=======================
+
 This document describes the policy for updating sosreport & sos package
 in a stable supported distro, including LTS. It is also the aim of this
 document to provide an example for any upstream project that wants to
@@ -31,9 +34,7 @@ The following requirements must be met:
       positive and detailed feedback (documented in an LP bug)
    -  Should be tested with Canonical internal tooling such as:
 
-``   * ``\ ```https://github.com/canonical/hotsos`` <https://github.com/canonical/hotsos>`__
-
--  
+      - `hostos <https://github.com/canonical/hotsos>`__
 
    -  On physical hardware, container and virtual machine.
    -  Under various UPro customer similar environment and context (for
@@ -43,8 +44,7 @@ The following requirements must be met:
          environment, ....
 
    -  On as much architecture as available to the testers.
-   -  For commonly used parameters : -a, --all-logs, --upload, --batch,
-      ...
+   -  For commonly used parameters : -a, --all-logs, --upload, --batch, ...
 
 .. _sos_report___collect_and_package_diagnostic_and_support_data:
 
@@ -53,41 +53,37 @@ sos report - Collect and package diagnostic and support data
 
 sos report is now used to generate sos report tarballs
 
--  
+-  Make sure sos report generates an archive under **/tmp** in the
+   form of **sosreport--2020-06-19-ogwtrgb.tar.xz** with its
+   accompanied sha256 checksum
+   **sosreport--2020-06-19-ogwtrgb.tar.xz.sha256** (Note that the
+   naming pattern may vary depending on the options and versions
+   used.)
 
-   -  Make sure sos report generates an archive under **/tmp** in the
-      form of **sosreport--2020-06-19-ogwtrgb.tar.xz** with its
-      accompanied sha256 checksum
-      **sosreport--2020-06-19-ogwtrgb.tar.xz.sha256** (Note that the
-      naming pattern may vary depending on the options and versions
-      used.)
+-  Extract the archive
 
--  
+   -  Validate its content and make sure it is sane and accurate.
 
-   -  Extract the archive
+   -  Validate that sos report obfuscates sensible information for
+      plugins instructed to do so such as:
 
-      -  Validate its content and make sure it is sane and accurate.
-      -  Validate that sos report obfuscates sensible information for
-         plugins instructed to do so such as:
+      -  landscape plugin, should obfuscate password(s) and secret-token from config file.
 
-| ``   * landscape plugin, should obfuscate password(s) and secret-token from config file.``
-| ``   * or any plugins (sos/plugins/) exercising the ``\ **``do_file_sub()``**\ `` method.``
-
--  
+      -  or any plugins (sos/plugins/) exercising the **do_file_sub()** method.
 
    -  Inspect for 0 size file(s) within the archive and use common sense
       if legit or not (e.g. "command is not found" can be avoided for
       instance)
 
-``   * find /path_to_sosreport_archive/ -type f -size 0``
-
--  
+      -  find /path_to_sosreport_archive/ -type f -size 0
 
    -  Look under "sos_reports" for full report.
+
    -  Look under "sos_logs" for WARN and/or ERROR
 
-| ``   * grep -v "INFO:" sos_logs/sos.log``
-| ``   * Look under "sos_logs" for error files (e.g. sos_logs/systemd-plugin-errors.txt).``
+      - grep -v "INFO:" sos_logs/sos.log
+
+      - Look under "sos_logs" for error files (e.g. sos_logs/systemd-plugin-errors.txt).
 
 .. _sos_clean___obfuscate_sensitive_data_from_one_or_more_sosreports:
 
@@ -98,7 +94,7 @@ sos clean, also available as sos mask, is a newly added sub-command in
 this release and is an implementation of the standalone soscleaner
 project.
 
-$ sos clean
+`$ sos clean <path_to_sosreport>`
 
 It can obfuscate: keywords, username, hostname, domain, ip & mac
 addresses.
@@ -157,5 +153,5 @@ Requesting the SRU
 ------------------
 
 The SRU should be requested as usual
-(`StableReleaseUpdates <StableReleaseUpdates>`__) with the additional
+(:ref:`StableReleaseUpdates <howto-perform-standard-sru>`) with the additional
 note about having the above steps being completed.

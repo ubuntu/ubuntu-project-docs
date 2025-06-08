@@ -309,7 +309,7 @@ Postfix
 ~~~~~~~
 
 The postfix source package may be uploaded according to the procedure
-documented in PostfixUpdates. See the `Technical Board meeting
+documented in :ref:`PostfixUpdates <reference-exception-PostfixUpdates>`. See the `Technical Board meeting
 minutes <https://lists.ubuntu.com/archives/ubuntu-devel-announce/2011-October/000902.html>`__
 and its
 `approval <https://lists.ubuntu.com/archives/technical-board/2012-May/001266.html>`__
@@ -608,8 +608,8 @@ Toolchains:
 * Java: `Java updates PPA <https://launchpad.net/~openjdk-r/+archive/ubuntu/ppa>`__
 * Go: `Go updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/golang>`__
 
-Examples
---------
+Examples SRU cases
+------------------
 
 As a reference, see `bug #173082 <https://launchpad.net/bugs/173082>`__
 for an idea of how the SRU process works for a main package, or `bug

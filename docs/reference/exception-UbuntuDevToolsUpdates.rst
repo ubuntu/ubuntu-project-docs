@@ -1,9 +1,12 @@
 .. _reference-exception-UbuntuDevToolsUpdates:
 
+UbuntuDevTools Updates
+======================
+
 This document describes the policy for updating the ubuntu-dev-tools
 package in a stable release.
 
-\`ubuntu-dev-tools\` is a package providing a collection of tools
+``ubuntu-dev-tools`` is a package providing a collection of tools
 defining the standard experience for developers *of* Ubuntu. While
 Ubuntu developers are encouraged to run ("dogfood") the unreleased devel
 series on their systems, not all Ubuntu developers do so, and in any
@@ -12,16 +15,16 @@ therefore important that we provide the same developer experience across
 all Ubuntu releases. Having out-of-date tooling in stable Ubuntu
 releases means inconsistency with Ubuntu developer documentation; or, if
 the documentation is held back, it prevents updating documentation to
-take advantage of \`ubuntu-dev-tools\` improvements. The
+take advantage of ``ubuntu-dev-tools`` improvements. The
 ubuntu-dev-tools package has stagnated for many years prior to this as a
 result, as Ubuntu developers find (poor) alternative methods for
 distributing new tools.
 
-Because the purpose of the \`ubuntu-dev-tools\` package is to support
+Because the purpose of the ``ubuntu-dev-tools`` package is to support
 developers of Ubuntu, the risk of an SRU regression that impacts
 production use by users is small and therefore the threshold for SRUs
 should also be lower. The greatest risk of user-affecting regression is
-to the tools \`mk-sbuild\` and \`pull-\*\` which are useful outside of
+to the tools ``mk-sbuild`` and ``pull-*`` which are useful outside of
 an Ubuntu development context.
 
 .. _qa_process:
@@ -29,8 +32,8 @@ an Ubuntu development context.
 QA Process
 ----------
 
-The \`ubuntu-dev-tools\` package has an autopkgtest covering the
-\`ubuntutools\` python library included and used by those tools in the
+The ``ubuntu-dev-tools`` package has an autopkgtest covering the
+``ubuntutools`` python library included and used by those tools in the
 package which are implemented in python. This provides some, but by no
 means complete, CI coverage.
 
@@ -43,12 +46,12 @@ https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools/+bugs?orderby=-id&sta
 
 The primary risk of regression in SRU will come from changes to
 interfaces to other packages, whose versions will differ across Ubuntu
-series. Changes to how \`ubuntu-dev-tools\` interfaces with other
+series. Changes to how ``ubuntu-dev-tools`` interfaces with other
 packages (commandline arguments, etc) must be called out in the SRU bug
 and test cases provided; see the template below.
 
 While the SRU process normally tries to preserve compatibility, SRUs of
-\`ubuntu-dev-tools\` \```may``\` break interfaces, up to and including
+``ubuntu-dev-tools`` *may* break interfaces, up to and including
 the removal of commands no longer considered appropriate for Ubuntu
 development. Care should be taken when deprecating interfaces, but this
 should be considered out of scope of the SRU process for this package.
@@ -62,15 +65,13 @@ The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the
 following:
 
--  
-
-   -  The SRU should be requested per the StableReleaseUpdates
-      documented process
-   -  The template at the end of this document should be used and all
-      ‘TODO’ filled out
-   -  Any packaging changes (e.g. a dependency changes) need to be
-      stated
-   -  If any manual testing occurs it should also be documented.
+-  The SRU should be requested per the StableReleaseUpdates
+   documented process
+-  The template at the end of this document should be used and all
+   ``TODO`` filled out
+-  Any packaging changes (e.g. a dependency changes) need to be
+   stated
+-  If any manual testing occurs it should also be documented.
 
 .. _sru_template:
 

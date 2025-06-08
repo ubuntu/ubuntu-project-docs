@@ -1,5 +1,8 @@
 .. _reference-exception-OpenLDAPUpdates:
 
+OpenLDAP Updates
+================
+
 This document describes the policy for doing microrelease updates of the
 OpenLDAP package in Ubuntu LTS releases. The specific Ubuntu LTS
 releases affected by this policy are listed below.
@@ -35,9 +38,7 @@ Ubuntu [and OpenLDAP] releases affected by this MRE
 Currently, these are the Ubuntu releases and the corresponding OpenLDAP
 package versions affected by this policy:
 
--  
-
-   -  **Jammy (22.04)** [**OpenLDAP 2.5.x**]
+-  **Jammy (22.04)** [**OpenLDAP 2.5.x**]
 
 The OpenLDAP 2.5.x series is upstream's first LTS release, and its
 inclusion in Jammy was no coincidence. Newer Ubuntu releases will likely
@@ -66,19 +67,9 @@ order to automate the testing of new commits. At the time of this
 writing, these are the `available
 pipelines <https://git.openldap.org/openldap/openldap/-/blob/master/.gitlab-ci.yml>`__:
 
--  
-
-   -  ::
-
-         build-no-threads-no-slapd
-
-   -  ::
-
-         build-openssl-heimdal-lloadd
-
-   -  ::
-
-         build-gnutls-mit-standalone-lloadd
+-  ``build-no-threads-no-slapd``
+-  ``build-openssl-heimdal-lloadd``
+-  ``build-gnutls-mit-standalone-lloadd``
 
 The Ubuntu OpenLDAP package is compiled with GnuTLS support, so the last
 one is the most interesting for us. The other 2 pipelines are also
@@ -100,12 +91,10 @@ make the release more stable.
 
 As an example, some of their calls for testing can be found below:
 
--  
-
-   -  `Testing call for OpenLDAP
-      2.6.2 <https://lists.openldap.org/hyperkitty/list/openldap-technical@openldap.org/thread/XDKRUNDBTTODZ65ZBEN2DE3ZNUG3DR6R/>`__
-   -  `Testing call for OpenLDAP
-      2.5.12 <https://lists.openldap.org/hyperkitty/list/openldap-technical@openldap.org/thread/5ZJEOQSVFQBG5TRLAAF6S5M3VRJH5IAV/>`__
+-  `Testing call for OpenLDAP
+   2.6.2 <https://lists.openldap.org/hyperkitty/list/openldap-technical@openldap.org/thread/XDKRUNDBTTODZ65ZBEN2DE3ZNUG3DR6R/>`__
+-  `Testing call for OpenLDAP
+   2.5.12 <https://lists.openldap.org/hyperkitty/list/openldap-technical@openldap.org/thread/5ZJEOQSVFQBG5TRLAAF6S5M3VRJH5IAV/>`__
 
 Autopkgtests
 ~~~~~~~~~~~~
@@ -136,12 +125,10 @@ Preparing for the SRU
 Before filing an SRU/MRE bug and kickoff the process officially, we need
 to perform the following actions:
 
-#. 
+#. Merge the latest OpenLDAP LTS microrelease into our existing
+   package, rebasing whatever delta the package may contain.
 
-   #. Merge the latest OpenLDAP LTS microrelease into our existing
-      package, rebasing whatever delta the package may contain.
-
-`` 2. Upload the resulting package to a PPA, making sure that the build succeeds ``\ **``and``**\ `` that there are no autopkgtest regressions introduced.``
+#. Upload the resulting package to a PPA, making sure that the build succeeds **and** that there are no autopkgtest regressions introduced.
 
 When everything looks OK, we are ready to start the SRU process.
 
@@ -156,15 +143,15 @@ instead of individual bug reports for each fix.
 
 We will:
 
-#. 
+#. File an MRE bug including the rationale for the upgrade. This MRE
+   bug will contain references to previous MREs bugs, as well as a
+   summary of the important bugfixes present in the new microrelease.
+   See the SRU template below for more details on how this bug will
+   look like.
 
-   #. File an MRE bug including the rationale for the upgrade. This MRE
-      bug will contain references to previous MREs bugs, as well as a
-      summary of the important bugfixes present in the new microrelease.
-      See the SRU template below for more details on how this bug will
-      look like.
-
-`` 2. Once everything is OK, upload the package to the proposed pocket (if it's a non-security upload), and, once approved, keep an eye on the excuses page and investigate any DEP8 failures.``
+#. Once everything is OK, upload the package to the proposed pocket
+   (if it's a non-security upload), and, once approved, keep an eye
+   on the excuses page and investigate any DEP8 failures.``
 
 The UbuntuServer team has been doing MREs for other packages as well
 (postgresql, for example). We can use an existing MRE bug as a template

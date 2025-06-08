@@ -48,15 +48,13 @@ How does the process work?
 -  The beginning of the description area of the bug needs to have a SRU
    justification which should look like this example:
 
-``   SRU Justification:``
+::
 
-| ``   Impact: ``\ 
-| ``   Fix: <how was this fixed, where did the fix come from>``
-| ``   Testcase: ``\ 
+    SRU Justification:
 
-.. raw:: html
-
-   </pre>
+    Impact: <a short description about the symptoms and the impact of the bug>
+    Fix: <how was this fixed, where did the fix come from>
+    Testcase: <how can the fix be tested>
 
 -  If the fix for a problem meets the requirements for SRU and has been
    tested to successfully solve the bug, then the next step depends on
@@ -74,16 +72,14 @@ How does the process work?
       upstream. Ubuntu Kernel SRU patch submission format is loosely as
       follows:
 
-| ``   To: kernel-team@lists.ubuntu.com``
-| ``   Subject: [``\ \ ``] SRU: ``\ 
+::
 
-``   ``\ 
+    To: kernel-team@lists.ubuntu.com
+    Subject: [<series>] SRU: <bug/patch title>
 
-``   ``\ 
+    <SRU justification copied from the bug>
 
-.. raw:: html
-
-   </pre>
+    <patch inlined or pull request>
 
 -  
 

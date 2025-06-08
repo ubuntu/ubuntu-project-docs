@@ -22,81 +22,75 @@ Package List
 OpenStack packages
 ~~~~~~~~~~~~~~~~~~
 
--  
-
-   -  aodh
-   -  barbican
-   -  ceilometer
-   -  cinder
-   -  designate
-   -  glance
-   -  gnocchi
-   -  heat
-   -  heat-dashboard
-   -  horizon
-   -  keystone
-   -  magnum
-   -  magnum-ui
-   -  manila
-   -  neutron
-   -  neutron-lbaas
-   -  neutron-fwaas
-   -  neutron-vpnaas
-   -  nova
-   -  octavia
-   -  placement
-   -  swift
+-  aodh
+-  barbican
+-  ceilometer
+-  cinder
+-  designate
+-  glance
+-  gnocchi
+-  heat
+-  heat-dashboard
+-  horizon
+-  keystone
+-  magnum
+-  magnum-ui
+-  manila
+-  neutron
+-  neutron-lbaas
+-  neutron-fwaas
+-  neutron-vpnaas
+-  nova
+-  octavia
+-  placement
+-  swift
 
 .. _supporting_packages:
 
 Supporting packages
 ~~~~~~~~~~~~~~~~~~~
 
--  
-
-   -  ceph
-   -  openvswitch
-   -  ovn
+-  ceph
+-  openvswitch
+-  ovn
 
 .. _sru_expectations:
 
 SRU Expectations
 ----------------
 
--  
+-  Users of official releases expect a high degree of stability.
+-  It is critically important to treat SRUs with great caution.
+-  SRUs must be accompanied by a strong rationale and must present a
+   low risk of regression.
+-  Minimizing risk tends to be well-correlated with minimizing the
+   size of the change. As such, the same bug may need to be fixed in
+   different ways in stable and development releases.
+-  Stable release updates will, in general, only be issued in order
+   to fix:
 
-   -  Users of official releases expect a high degree of stability.
-   -  It is critically important to treat SRUs with great caution.
-   -  SRUs must be accompanied by a strong rationale and must present a
-      low risk of regression.
-   -  Minimizing risk tends to be well-correlated with minimizing the
-      size of the change. As such, the same bug may need to be fixed in
-      different ways in stable and development releases.
-   -  Stable release updates will, in general, only be issued in order
-      to fix:
+   -  New upstream stable point releases for OpenStack core packages which group several bug fixes together.
+   -  High-impact bugs (e.g. security vulnerabilities, severe regressions, loss of user data).
+   -  Bugs that are not high-impact, but have an obviously safe patch.
 
-| ``   * New upstream stable point releases for !OpenStack core packages which group several bug fixes together.``
-| ``   * High-impact bugs (e.g. security vulnerabilities, severe regressions, loss of user data).``
-| ``   * Bugs that are not high-impact, but have an obviously safe patch.``
+-  An SRU must have an accompanying bug, and that uses a prescribed
+   format (see the :ref:`template below <sru_template>`). It must
+   contain details as described in the :ref:`Stable Release Updates <howto-perform-standard-sru>`.
+-  Bugs must be fixed in the following order, when possible:
 
--  
+   #.  Upstream in the latest !OpenStack release [1]
+   #.  The corresponding Ubuntu release [2]
+   #.  The corresponding UCA release
+   #.  The bug can then be fixed in the same order for the prior !OpenStack release:
+       #.  upstream stable
+       #.  corresponding Ubuntu release
+       #.  corresponding UCA release
 
-   -  An SRU must have an accompanying bug, and that uses a prescribed
-      format (see the `template below <#sru-template>`__). It must
-      contain details as described in the `Ubuntu Stable Release Updates
-      procedure <https://wiki.ubuntu.com/StableReleaseUpdates#Procedure>`__.
-   -  Bugs must be fixed in the following order, when possible:
+.. warning::
+    [1] Landing a fix upstream may not always be possible, for example once the upstream branch is in critical-fix or security-fix only mode, or once it has reached EOL.  See the `OpenStack upstream stable branch policy <http://docs.openstack.org/project-team-guide/stable-branches.html>`__, which specifies the various phases of support for stable branches, which are typically supported for 12 to 18 months.  The case where a bug can't be fixed upstream first must be handled with extreme caution, since fixes would be released directly to the corresponding Ubuntu release without having landed upstream first.
 
-| ``   1. Upstream in the latest !OpenStack release [1]``
-| ``   1. The corresponding Ubuntu release [2]``
-| ``   1. The corresponding UCA release``
-| ``   1. The bug can then be fixed in the same order for the prior !OpenStack release:``
-| ``      1. upstream stable``
-| ``      1. corresponding Ubuntu release``
-| ``      1. corresponding UCA release``
-
-| ``[1] /!\ Landing a fix upstream may not always be possible, for example once the upstream branch is in critical-fix or security-fix only mode, or once it has reached EOL.  See the ``\ ```OpenStack upstream stable branch policy`` <http://docs.openstack.org/project-team-guide/stable-branches.html>`__\ ``, which specifies the various phases of support for stable branches, which are typically supported for 12 to 18 months.  The case where a bug can't be fixed upstream first must be handled with extreme caution, since fixes would be released directly to the corresponding Ubuntu release without having landed upstream first.``
-| ``[2] /!\ Landing a fix in a corresponding Ubuntu release may not always be possible, for example once the Ubuntu release has reached EOL and the UCA is still supported.  This case must be handled with extreme caution, since fixes would be released directly to the corresponding UCA without having first landed in the corresponding Ubuntu release, and possibly also without having first landed in the upstream !OpenStack release.``
+.. warning::
+    [2] Landing a fix in a corresponding Ubuntu release may not always be possible, for example once the Ubuntu release has reached EOL and the UCA is still supported.  This case must be handled with extreme caution, since fixes would be released directly to the corresponding UCA without having first landed in the corresponding Ubuntu release, and possibly also without having first landed in the upstream OpenStack release.
 
 .. _qa_process:
 
@@ -107,22 +101,19 @@ Once stable package updates have been accepted by the ubuntu-sru (or
 Cloud Archive) team into -proposed pockets, the following SRU
 verification process is followed:
 
--  
 
-   -  Deployment and base configuration using `OpenStack Charm
-      Testing <https://github.com/openstack-charmers/openstack-charm-testing>`__
-      bundles and charms, using the current set of stable charms
-      configured to consume packages from the proposed pocket of the
-      archive.
+-  Deployment and base configuration using `OpenStack Charm
+   Testing <https://github.com/openstack-charmers/openstack-charm-testing>`__
+   bundles and charms, using the current set of stable charms
+   configured to consume packages from the proposed pocket of the
+   archive.
 
--  
-
-   -  Testing of the deployed Cloud using the
-      `Tempest <https://github.com/openstack/tempest>`__ (the !OpenStack
-      functional test project) smoke test target; this is approximately
-      100 tests from the full Tempest upstream function test suite that
-      cover all core functions of the cloud. The deployed cloud is
-      expected to pass all smoke tests.
+-  Testing of the deployed Cloud using the
+   `Tempest <https://github.com/openstack/tempest>`__ (the OpenStack
+   functional test project) smoke test target; this is approximately
+   100 tests from the full Tempest upstream function test suite that
+   cover all core functions of the cloud. The deployed cloud is
+   expected to pass all smoke tests.
 
 For updates where there is risk of regression as a result of the package
 upgrade process, the same testing process is followed as above,
@@ -135,8 +126,6 @@ system <https://launchpad.net/ubuntu-openstack-ci>`__.
 
 Additionally, any specific test cases covered in SRU bug reports should
 be explicitly tested as well.
-
-<<Anchor(sru-template)>>
 
 .. _sru_template:
 
@@ -200,8 +189,6 @@ email to ubuntu-release@lists.ubuntu.com that requests inclusion for the
 named package, as well as a justification of why it can be included. For
 example:
 
-<<Anchor(new-exception-template)>>
-
 ::
 
    == Begin Exception Template ==
@@ -228,7 +215,7 @@ Getting Package Source
 Depending on the package and the release, there are different ways to
 download the package source:
 
--  Core !OpenStack packages are `maintained in git on
+-  Core OpenStack packages are `maintained in git on
    Launchpad <https://code.launchpad.net/~ubuntu-openstack-dev/+git>`__.
    See `OpenStack Core
    Packages <https://wiki.ubuntu.com/OpenStack/CorePackages>`__ for
@@ -237,14 +224,8 @@ download the package source:
 -  Packages can be retrieved from Launchpad with the \`pull-lp-source\`
    tool:
 
-   -  
-
-      -  \`pull-lp-source [release|version]\` (e.g. \`pull-lp-source
-         python-oslo.messaging bionic\`)
+   -  ``pull-lp-source [release|version]`` (e.g. ``pull-lp-source python-oslo.messaging bionic``)
 
 -  Packages can be retrieved from the UCA with the pull-uca-source tool:
 
-   -  
-
-      -  \`pull-uca-source [release|version]\` (e.g. \`pull-uca-source
-         python-oslo.messaging queens\`)
+   -  ``pull-uca-source [release|version]`` (e.g. ``pull-uca-source python-oslo.messaging queens``)

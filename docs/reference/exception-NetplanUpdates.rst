@@ -1,11 +1,15 @@
 .. _reference-exception-NetplanUpdates:
 
+Netplan Updates
+===============
+
 This document describes the policy for updating netplan.io in a stable,
 supported release.
 
 Netplan is an abstraction layer for network configuration used on all
 releases of Ubuntu since Ubuntu 18.10; and generates systemd-networkd or
-NetworkManager configuration based on initial netplan configuration
+`NetworkManager <https://wiki.ubuntu.com/NetworkManager>`__
+configuration based on initial netplan configuration
 (written in YAML) present at boot time.
 
 In order to closely align with new networking requirements being
@@ -14,10 +18,8 @@ needs to be periodically updated in order to enable new features.
 Therefore, the following types of changes are allowed as long as the
 conditions outlined below are met:
 
--  
-
-   -  Bug fixes
-   -  New features
+-  Bug fixes
+-  New features
 
 In the event of a change breaking backwards compatibility, then SRU team
 approval will need to be obtained. See below.
@@ -32,26 +34,24 @@ bug reports for individual bug fixes. Individual bug fixes may also be
 tracked/closed by the upload; however only the one process bug must have
 the following:
 
--  
-
-   -  The SRU should be requested per the StableReleaseUpdates
-      documented process
-   -  The template at the end of this document should be used and all
-      ‘TODO’ filled out
-   -  References to each bug fixed by the SRU should be included in the
-      changelog and major changes called out in the SRU template,
-      especially where changed behavior is not backwards compatible.
-   -  For each release (e.g. trusty, xenial, etc.) that is proposed to
-      be updated by the SRU a link to the results of integration
-      testing, via autopkgtest, successfully completed using the
-      proposed package with no unexplained errors or failures
-   -  Any architecture specific fixes need to be noted and architecture
-      specific test results included
-   -  Any packaging changes (e.g. a dependency changes) need to be
-      stated
-   -  If any manual testing occurs it should also be documented. See `LP
-      #1588052 <https://bugs.launchpad.net/ubuntu/+source/snapd/+bug/1588052>`__
-      as an example.
+-  The SRU should be requested per the StableReleaseUpdates
+   documented process
+-  The template at the end of this document should be used and all
+   ‘TODO’ filled out
+-  References to each bug fixed by the SRU should be included in the
+   changelog and major changes called out in the SRU template,
+   especially where changed behavior is not backwards compatible.
+-  For each release (e.g. trusty, xenial, etc.) that is proposed to
+   be updated by the SRU a link to the results of integration
+   testing, via autopkgtest, successfully completed using the
+   proposed package with no unexplained errors or failures
+-  Any architecture specific fixes need to be noted and architecture
+   specific test results included
+-  Any packaging changes (e.g. a dependency changes) need to be
+   stated
+-  If any manual testing occurs it should also be documented. See `LP
+   #1588052 <https://bugs.launchpad.net/ubuntu/+source/snapd/+bug/1588052>`__
+   as an example.
 
 If backwards compatibility is to be broken, this should be clearly
 written at the top of the bug description for the SRU, as well as in the
@@ -71,12 +71,10 @@ Updates to `netplan master
 branch <http://github.com/canonical/netplan>`__ go through the following
 process:
 
--  
-
-   -  Reviewed and approved by a member of the development team
-   -  Run automatic daily integration tests on master branch (github
-      integration)
-   -  Successful run of unit tests and style tests on a per-commit basis
+-  Reviewed and approved by a member of the development team
+-  Run automatic daily integration tests on master branch (github
+   integration)
+-  Successful run of unit tests and style tests on a per-commit basis
 
 Packaging
 ~~~~~~~~~

@@ -1,5 +1,8 @@
 .. _reference-exception-ubuntuimageupdates:
 
+ubuntu-image Updates
+====================
+
 This document describes the policy for updating the ubuntu-image package
 in a stable release.
 
@@ -8,8 +11,8 @@ devices and Ubuntu flavors. Initially, it is primarily used to build
 bootable snappy images, but will eventually expand its use cases to
 include Ubuntu classic. ubuntu-image is closely tied to snapd, since it
 depends on snapd for interaction with the snappy store, and for
-validating models and gadgets. Thus, the `snapd updates
-policy <SnapdUpdates>`__ has relevance. As new snapd releases are made,
+validating models and gadgets. Thus, the :ref:`snapd updates
+policy <reference-exception-snapdupdates>` has relevance. As new snapd releases are made,
 new ubuntu-image releases may also be necessary. Even without snapd
 releases, new ubuntu-image releases may be necessary in order to
 facilitate image building on the Ubuntu infrastructure, including
@@ -64,13 +67,8 @@ twiddle with permissions if you testing this in a chroot.)
 
 All bugs fixed or features added are `tracked in
 Launchpad <https://bugs.launchpad.net/ubuntu-image>`__ and clearly
-described in the
+described in the ``debian/changelog``.
 
-::
-
-   debian/changelog
-
-.
 
 .. _packaging_qa:
 
@@ -87,7 +85,7 @@ Requesting the SRU
 ------------------
 
 The SRU should be requested as usual
-(`StableReleaseUpdates <StableReleaseUpdates>`__) with the description
+(:ref:`StableReleaseUpdates <howto-perform-standard-sru>`) with the description
 of the bug containing links to automatic testing results (github
 autopkgtest results) so that any one can verify the testing occurred and
 its results. Additionally, the SRU bug should be verbose in documenting

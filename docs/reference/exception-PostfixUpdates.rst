@@ -1,5 +1,8 @@
 .. _reference-exception-PostfixUpdates:
 
+Postfix Updates
+===============
+
 This document describes the policy for updating the Postfix package in a
 stable supported distro, in particular LTS releases.
 
@@ -36,9 +39,8 @@ a stable release comes up:
 #. File (or find) a bug to cover the upgrade. This bug might be related
    to one of the bugs fixed in the proposed microrelease, or a bug
    dedicated to the microrelease update.
-
-| ``2. Fix all the bugs tackled in the microrelease in the current development series of Ubuntu.``
-| ``3. Once the package containing the bug fixes migrates to the release pocket of the current development series, the microrelease can be uploaded to the SRU queue.``
+#. Fix all the bugs tackled in the microrelease in the current development series of Ubuntu.
+#. Once the package containing the bug fixes migrates to the release pocket of the current development series, the microrelease can be uploaded to the SRU queue.
 
 We will use the bug mentioned in *1* for the SRU but this need not
 include detailed test case or regression potential sections (it should

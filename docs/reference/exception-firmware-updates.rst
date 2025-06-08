@@ -1,5 +1,8 @@
 .. _reference-exception-firmware-updates:
 
+Firmware Updates
+================
+
 This document describes the policy for updating the fwupd, fwupdate,
 fwupd-signed and fwupdate-signed packages to new upstream versions in a
 stable, supported distro (including LTS releases).
@@ -37,7 +40,12 @@ updates on safe combinations.
 
 OEMs can add the following to their metadata:
 
-``   ``\ \ ``org.freedesktop.fwupd``\ 
+::
+
+    <requires>
+        <id compare="ge" version="12">org.freedesktop.fwupd</id>
+    </requires>
+
 
 .. _what_can_be_srued:
 

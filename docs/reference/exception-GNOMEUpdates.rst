@@ -1,5 +1,8 @@
 .. _reference-exception-GNOMEUpdates:
 
+GNOME Updates
+=============
+
 GNOME had a micro release exception granted by the Technical Board in
 June 2012. Since the granting of micro release exceptions was made more
 generic and then decisions delegated to the SRU team directly, the
@@ -28,16 +31,14 @@ policy:
 -  In addition GNOME-provided lists, we additionally consider the
    following packages to be under the MRE exception:
 
-   -  
-
-      -  evolution
-      -  evolution-ews
-      -  file-roller
-      -  gedit
-      -  gnome-terminal
-      -  gnome-tweaks
-      -  seahorse
-      -  everything that the gnome-games apt package directly depends on
+   -  evolution
+   -  evolution-ews
+   -  file-roller
+   -  gedit
+   -  gnome-terminal
+   -  gnome-tweaks
+   -  seahorse
+   -  everything that the gnome-games apt package directly depends on
 
 -  As an exception to the GNOME-provided list, vala is **not** covered
    by this MRE. Relevant bug fixes to vala are rare, and require special
@@ -50,19 +51,17 @@ policy:
    These packages also have special regression potential, and any SRUs
    to these packages need to test the following:
 
-   -  
-
-      -  Updates to gnome-shell are at risk of regressing packages
-         providing gnome-shell extensions as we discovered in the case
-         of `LP:
-         #1892245 <https://bugs.launchpad.net/ubuntu/+source/gnome-shell-extension-dash-to-panel/+bug/1892245>`__.
-         For Ubuntu 22.04, most shell extensions have been removed from
-         the archive, and all remaining ones must be smoke-tested as a
-         part of any gnome-shell SRUs.
-      -  Prior to 23.10 mutter is a shared critical component with
-         Ubuntu Budgie. Mutter SRUs to 22.04 and earlier must be tested
-         against the Budgie session in addition to the Ubuntu/Ubuntu on
-         Xorg/GNOME/GNOME Classic sessions.
+   -  Updates to gnome-shell are at risk of regressing packages
+      providing gnome-shell extensions as we discovered in the case
+      of `LP:
+      #1892245 <https://bugs.launchpad.net/ubuntu/+source/gnome-shell-extension-dash-to-panel/+bug/1892245>`__.
+      For Ubuntu 22.04, most shell extensions have been removed from
+      the archive, and all remaining ones must be smoke-tested as a
+      part of any gnome-shell SRUs.
+   -  Prior to 23.10 mutter is a shared critical component with
+      Ubuntu Budgie. Mutter SRUs to 22.04 and earlier must be tested
+      against the Budgie session in addition to the Ubuntu/Ubuntu on
+      Xorg/GNOME/GNOME Classic sessions.
 
 SRU-team tooling to automatically check if a package falls under the
 GNOME MRE is in progress. Until that is complete, the following lists
@@ -83,7 +82,7 @@ Testing
 An appropriate test plan varies according to the package.
 
 The desktop team will maintain specific test plans at
-`CategoryDesktopTestPlans <CategoryDesktopTestPlans>`__. If a test plan
+`CategoryDesktopTestPlans <https://wiki.ubuntu.com/CategoryDesktopTestPlans>`__. If a test plan
 is for a particular package is provided there, then it should be
 followed during SRU verification for SRUs performed under this
 exception.

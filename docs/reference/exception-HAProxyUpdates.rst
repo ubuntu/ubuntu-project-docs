@@ -75,11 +75,9 @@ The mentioned Github Actions test the following:
 -  Build/Compilation
 -  Regression tests using VTest
 
-   -  
-
-      -  Use gcc and clang (ASAN)
-      -  Use multiple SSL libraries (openssl, libressl)
-      -  Different compression configuration
+   -  Use gcc and clang (ASAN)
+   -  Use multiple SSL libraries (openssl, libressl)
+   -  Different compression configuration
 
 Moreover, those things are also tested on other operating systems. More
 details, about how this is implemented can be found in
@@ -123,12 +121,13 @@ To do this we will:
 #. File (or find, our users are quite proactive about wanting this) a
    bug to cover the upgrade.
 
-| ``   * Add tasks to all Ubuntu releases which will be updated.``
-| ``   * Add a link to the upstream changelog.``
-| ``   * Add links to the upstream CI pipelines demonstrating everything is good.``
-| ``2. Make sure the development release already contains those fixes. Ideally, HAProxy in the Ubuntu development release should have the highest possible number on the last digit of the version.``
-| ``3. Upload the microrelease to the SRU queue of the supported Ubuntu releases affected by this update and wait until the SRU team approve it.``
-| ``4. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.``
+   - Add tasks to all Ubuntu releases which will be updated.
+   - Add a link to the upstream changelog.
+   - Add links to the upstream CI pipelines demonstrating everything is good.
+
+#. Make sure the development release already contains those fixes. Ideally, HAProxy in the Ubuntu development release should have the highest possible number on the last digit of the version.
+#. Upload the microrelease to the SRU queue of the supported Ubuntu releases affected by this update and wait until the SRU team approve it.
+#. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.
 
 .. _sru_template:
 

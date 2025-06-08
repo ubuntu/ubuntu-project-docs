@@ -118,55 +118,57 @@ supported releases. This will be done by
    Squid update. This bug should follow the SRU template described
    below.
 
-``2. Uploading the package to the proposed pocket (if it's a non-security upload), and, once approved, perform all needed verification steps and keep an eye on the excuses page to investigate any DEP8 failures that may occur. ``
+#. Uploading the package to the proposed pocket (if it's a non-security upload), and, once approved, perform all needed verification steps and keep an eye on the excuses page to investigate any DEP8 failures that may occur.
 
 .. _sru_template:
 
 SRU template
 ~~~~~~~~~~~~
 
-This bug tracks the following MRE updates for the Squid package:
+::
 
--  [Release codename] ([Release version]): Squid [Squid version]
--  [...]
+  This bug tracks the following MRE updates for the Squid package:
 
-This update includes bugfixes following the SRU policy exception defined
-at https://wiki.ubuntu.com/SquidUpdates.
+  -  [Release codename] ([Release version]): Squid [Squid version]
+  -  [...]
 
-[Upstream changes]
+  This update includes bugfixes following the SRU policy exception defined
+  at https://wiki.ubuntu.com/SquidUpdates.
 
-TODO: Add a link to the upstream changelog
+  [Upstream changes]
 
-TODO: List the major changes introduced in this release
+  TODO: Add a link to the upstream changelog
 
-[Test Plan]
+  TODO: List the major changes introduced in this release
 
-TODO: link the build log containing all tests being executed
+  [Test Plan]
 
-TODO: All tests are passing during build time, as shown in the build log
-(builds would fail otherwise, see LP: #2004050).
+  TODO: link the build log containing all tests being executed
 
-TODO: add results of local autopkgtest run against all the new Squid
-versions being uploaded here
+  TODO: All tests are passing during build time, as shown in the build log
+  (builds would fail otherwise, see LP: #2004050).
 
-[Regression Potential]
+  TODO: add results of local autopkgtest run against all the new Squid
+  versions being uploaded here
 
-Upstream tests are always executed during build-time. Failures would
-prevent builds from succeeding.
+  [Regression Potential]
 
-Squid does not have many reverse dependencies. However, any upgrade is a
-risk to introduce breakage to other packages. Whenever a regression
-occurs in autopkgtests, we will investigate and provide fixes.
+  Upstream tests are always executed during build-time. Failures would
+  prevent builds from succeeding.
 
-TODO: consider any other regression potential specific to the version
-being updated and list them here if any.
+  Squid does not have many reverse dependencies. However, any upgrade is a
+  risk to introduce breakage to other packages. Whenever a regression
+  occurs in autopkgtests, we will investigate and provide fixes.
 
-[Other Info]
+  TODO: consider any other regression potential specific to the version
+  being updated and list them here if any.
 
-TODO-A: No CVEs are being addressed this time. Therefore, this should go
-through the updates pockets.
+  [Other Info]
 
-TODO-B: CVEs TBD are being addressed by these updates. Therefore, this
-update should go through the security pocket.
+  TODO-A: No CVEs are being addressed this time. Therefore, this should go
+  through the updates pockets.
 
-TODO: list previous MREs for this package, if any.
+  TODO-B: CVEs TBD are being addressed by these updates. Therefore, this
+  update should go through the security pocket.
+
+  TODO: list previous MREs for this package, if any.
