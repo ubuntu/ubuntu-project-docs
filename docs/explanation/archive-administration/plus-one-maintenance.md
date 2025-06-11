@@ -35,8 +35,8 @@ up for one.
 Most regular contributors pick up shifts for an entire work week. This allows
 them to take the time to dig deeply into thorny issues that would be difficult
 to tackle on one's free time — and makes for less administrative overhead.
-Furthermore many of the cases eventually need a build, or a combined
-proposed migration which you'd want to track and follow up on for a few days.
+Furthermore many of the cases eventually need a build, or a combined proposed
+migration which you'd want to track and follow up on for a few days.
 
 However, it is perfectly fine to pick up shifts for shorter durations.
 
@@ -54,17 +54,21 @@ coordinating the effort.
 
 Regardless of the exact work, it is advised to keep track of what has been
 accomplished during a shift. This will serve as the basis for a +1 maintenance
-report to be posted to ubuntu-devel@lists.ubuntu.com at the end of shift.
+report to be posted to the [dedicated Discourse
+category](https://discourse.ubuntu.com/c/pre-release-discussion/plusone-maintenance/415)
+at the end of shift.
 
-There is no formal structure for the report, but it is advised to frontload the
-report with any information or issue that a subsequent shift might want to know
-about. It could be an investigation where progress was made but needs carrying
-to conclusion, some uploads that would unblock packages but are still waiting
-for sponsorship, an upcoming transition from Debian, etc.
+The report has two main purposes. The first is to act as a handoff document to
+the next shift, outlining work items that need following up on. Those could be
+fixes needing sponsorship, unfinished investigations, upcoming transitions from
+Debian, etc.
 
-Besides this, some will choose to describe in details some interesting
-investigation they worked on, others will list exhaustively the packages and
-bugs they worked on.
+The second purpose of the document is to document your contributions for others
+to see what it is we actually do. This typically comes in the form of a list of
+bugs, along with a description of the actions taken there.
+
+To aid with the composition of the report, you can use our {ref}`template
+<plus-one-report-template>`.
 
 ### Coordinating the effort
 
@@ -75,11 +79,13 @@ communication is crucial.
 When working on a package, contributors should first check Launchpad for a
 relevant open bug, and if it has been assigned to someone. If not, they should
 open the bug if needed, and assign it to themselves. It is advised to be
-liberal in documenting one's progress on the bug itself. When opening a new
-bug, by convention, it should be tagged `update-excuse`, since in most cases
-the things being worked on affect the migration of a package.
+liberal in documenting one's progress on the bug itself.
 
-The tool `pm-helper` (provided by `ubuntu-dev-tools`) can be used for the creation of such bugs.
+In order for the bug to have some visibility, and since it is expected that
+most of the issues being worked on affect a package in -proposed, it is
+strongly advised to apply the `update-excuse` tag for the bug to show up on the
+excuses page. The tool `pm-helper` (provided by `ubuntu-dev-tools`) can be used
+for the creation of such bugs.
 
 ### Finding work
 
