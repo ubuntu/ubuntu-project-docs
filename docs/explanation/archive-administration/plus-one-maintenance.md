@@ -19,8 +19,8 @@ e.g. if it involved in a massive transition.
 ### Who?
 
 We expect participants to be proficient in "distro work". Core Developers and
-MOTUs would of course qualify, but also people working on their application for
-such a status. For the latter category, +1 shifts are a good way to get
+MOTUs would of course qualify, but people working on their application for such
+a status are welcome. For the latter category, +1 shifts are a good way to get
 exposure to some specific situations such as transitions, proposed migration,
 or merges.
 
