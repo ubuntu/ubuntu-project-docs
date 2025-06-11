@@ -2,12 +2,17 @@
 
 # +1 Maintenance
 
-The +1 maintenance is originally a Canonical program in which employees pick up
-shifts to work on the general health of the Ubuntu archive. The focus of their work is the `devel`
-series — the "next" version of Ubuntu, `$current + 1`. Where as part of their
-normal responsibilities they would normally look after a specific set of
-packages, e.g. the server set, being on +1 means looking after the *entire*
-archive.
+The +1 maintenance is originally a Canonical program to improve the general
+health of the Ubuntu archive, and more specifically its devel series — the next
+version, `$current+1`. This document is written with that framework in mind,
+and some parts of it might not apply to community members wanting to take part
+in the effort.
+
+The program consists of Canonical engineers from various teams taking up shifts
+to work on the archive. While their regular duties might entail looking after a
+specific set of packages, during their shift they should instead be looking
+after the archive as a whole. This *can* include their regular package set,
+e.g. if it involved in a massive transition.
 
 ## Participation
 
