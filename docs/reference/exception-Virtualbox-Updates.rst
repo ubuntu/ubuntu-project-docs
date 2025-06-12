@@ -126,25 +126,17 @@ Other Information
 
 Upstream:
 
--  Micro releases happen from low-volume stable branches,
-   approximately once every two months.
+-  Micro releases happen from low-volume stable branches, approximately once every two months.
 
 -  Stable branches are supported with bug fixes for some years (normally 5 years + 6 months or more).
 
 -  Upstream commits are reviewed by members of the Virtualbox team.
 
--  All commits to stable branches are evaluated w.r.t. potential
-   regressions and signed off by the Virtualbox team.
+-  All commits to stable branches are evaluated w.r.t. potential regressions and signed off by the Virtualbox team.
 
--  Unit tests and regression tests are run on multiple platforms per
-   push to the source code repository. In addition, there are more
-   extensive test suites run daily and weekly.
+-  Unit tests and regression tests are run on multiple platforms per push to the source code repository. In addition, there are more extensive test suites run daily and weekly.
 
--  Each micro release receives extensive testing between code freeze
-   and release. This includes the full functional test suite,
-   performance regression testing, load and stress testing and
-   compatibility and upgrade testing from previous micro and
-   minor/major releases.
+-  Each micro release receives extensive testing between code freeze and release. This includes the full functional test suite, performance regression testing, load and stress testing and compatibility and upgrade testing from previous micro and minor/major releases.
 
 -  Tests are run on all supported platforms (currently amd64).
 
