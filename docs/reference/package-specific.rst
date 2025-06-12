@@ -591,7 +591,7 @@ avoid potential local legal issues for -security users who would
 otherwise not get the local regdb updates.
 
 Toolchain Updates
------------------
+~~~~~~~~~~~~~~~~~
 
 Due to the nature of the various Ubuntu toolchain packages (gcc-\*,
 binutils, glibc), any stable release updates of these packages should be
