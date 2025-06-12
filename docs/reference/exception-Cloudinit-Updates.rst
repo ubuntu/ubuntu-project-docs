@@ -45,8 +45,8 @@ freeze on uploads of this package will be subject to the same additional
 scrutiny by the Release Team as any other package.
 
 
-Cloudinit Requesting the SRU
-----------------------------
+cloud-init Requesting the SRU
+-----------------------------
 
 The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the
@@ -87,8 +87,8 @@ following:
    example.
 
 
-Cloudinit QA Process
---------------------
+cloud-init QA Process
+---------------------
 
 Merges
 ------
@@ -110,10 +110,9 @@ For each package generated a successful completion of cloud-init
 integration tests, as described below, using the proposed package with
 no unexplained errors or failures
 
-.. _integration_tests:
 
-Integration Tests
------------------
+cloud-init Integration Tests
+----------------------------
 
 Integration testing involves two seperate sections: automated and
 manual.
@@ -179,8 +178,8 @@ console output of the appropriate run to the bug. cloud-init team
 members will not mark ‘verification-done’ until this has happened.
 
 
-Cloudinit SRU Template
-----------------------
+cloud-init SRU Template
+-----------------------
 
 ::
 
