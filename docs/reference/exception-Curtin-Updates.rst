@@ -68,10 +68,9 @@ For each package generated a successful completion of Curtin’s
 integration tests, as described below, using the proposed package with
 no unexplained errors or failures
 
-.. _integration_tests:
 
-Integration Tests
------------------
+Curtin Integration Tests
+------------------------
 
 Curtin includes an in-tree integration suite to validating various forms
 of custom storage and network configurations. The tests themselves
