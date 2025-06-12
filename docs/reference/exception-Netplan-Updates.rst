@@ -84,7 +84,6 @@ For each package generated a successful completion of netplan’s
 integration tests, as described below, using the proposed package with
 no unexplained errors or failures
 
-.. _integration_tests:
 
 Integration Tests
 -----------------
