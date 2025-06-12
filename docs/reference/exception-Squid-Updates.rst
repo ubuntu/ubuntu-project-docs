@@ -17,10 +17,9 @@ About Squid
 caching server for web clients, supporting FTP, gopher, ICY and HTTP
 data objects.
 
-.. _upstream_release_policy:
 
-Upstream release policy
------------------------
+Squid Upstream release policy
+-----------------------------
 
 As described in
 http://wiki.squid-cache.org/DeveloperResources/ReleaseProcess and
@@ -57,13 +56,9 @@ This MRE should be also applicable to future Ubuntu releases as long as
 the Squid release policy is not changed regarding the formats and
 commitments described above.
 
-QA
---
 
-.. _upstream_tests:
-
-Upstream tests
---------------
+Squid Upstream tests
+--------------------
 
 Squid contains an extensive testsuite that is executed during the Ubuntu
 package build time on all supported architectures.
@@ -77,8 +72,8 @@ any benchmarks or coverage data for that.
 
 .. _upstream_ci:
 
-Upstream CI
------------
+Squid Upstream CI
+-----------------
 
 BuildFarm
 ^^^^^^^^^
@@ -99,16 +94,16 @@ https://github.com/squid-cache/squid/blob/master/.github/workflows/default.yaml.
 Test results are available at
 https://github.com/squid-cache/squid/actions.
 
-Autopkgtest
------------
+Squid Autopkgtest
+-----------------
 
 The package contains two of DEP-8 tests. The first runs the upstream
 test suite on the installed package. The second runs simple checks to
 ensure the proxy server is up, running and responding to simple
 requests.
 
-Process
--------
+Squid Update Process
+--------------------
 
 As with regular MREs, we aim to offer bug and security fixes to all
 supported releases. This will be done by
@@ -121,8 +116,8 @@ supported releases. This will be done by
 #. Uploading the package to the proposed pocket (if it's a non-security upload), and, once approved, perform all needed verification steps and keep an eye on the excuses page to investigate any DEP8 failures that may occur.
 
 
-SRU template
-------------
+Squid SRU template
+------------------
 
 ::
 
