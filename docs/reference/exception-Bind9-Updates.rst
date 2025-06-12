@@ -16,7 +16,6 @@ About Bind9
 `Bind9 <https://www.isc.org/bind/>`__ is a versatile, classic, and
 complete name server software.
 
-.. _upstream_release_policy:
 
 Upstream release policy
 -----------------------
@@ -63,10 +62,8 @@ containing a stable or ESV version of Bind9.
 QA
 --
 
-.. _upstream_tests:
-
 Upstream tests
---------------
+^^^^^^^^^^^^^^
 
 Bind9 contains a set of build and code tests which are executed for each
 commit and release via `GitHub
@@ -80,7 +77,7 @@ The tests are provided in the `tests/
 directory <https://gitlab.isc.org/isc-projects/bind9/-/tree/main/tests>`__.
 
 Autopkgtest
------------
+^^^^^^^^^^^
 
 The package contains three DEP-8 tests:
 
@@ -118,8 +115,8 @@ which note when and why this was done, and `their release
 notes <https://bind9.readthedocs.io/en/v9_18_12/notes.html#notes-for-bind-9-18-7>`__
 in the second point of the Feature Changes section.
 
-Process
--------
+Bind9 Update Process
+--------------------
 
 As with regular MREs, the aim here is to offer bugfixes and security
 fixes to all supported releases. This process will only allow updates
@@ -141,8 +138,8 @@ To do this we will:
 #. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.
 
 
-SRU template
-------------
+Bind9 SRU template
+------------------
 
 ::
 
