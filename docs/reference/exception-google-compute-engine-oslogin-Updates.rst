@@ -26,8 +26,8 @@ releases provided the following process is followed.
 
 .. _qa_process:
 
-QA Process
-----------
+google-compute-engine-oslogin QA Process
+----------------------------------------
 
 When a new version of google-compute-engine-oslogin is uploaded to
 -proposed, the following will be done:

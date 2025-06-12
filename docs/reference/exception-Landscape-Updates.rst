@@ -17,8 +17,8 @@ met**.
 
 .. _qa_process:
 
-QA Process
-----------
+Landscape QA Process
+--------------------
 
 This is the mandatory QA process that the proposed packages have to
 pass. The following requirements must be met:

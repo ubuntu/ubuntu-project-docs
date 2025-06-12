@@ -94,8 +94,8 @@ SRU Expectations
 
 .. _qa_process:
 
-QA Process
-----------
+OpenStack QA Process
+--------------------
 
 Once stable package updates have been accepted by the ubuntu-sru (or
 Cloud Archive) team into -proposed pockets, the following SRU

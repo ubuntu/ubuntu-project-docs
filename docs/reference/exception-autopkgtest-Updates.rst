@@ -69,8 +69,8 @@ approval before uploading to the release's upload queue.
 
 .. _qa_process:
 
-QA Process
-----------
+autopkgtest QA Process
+----------------------
 
 .. _build_time_tests:
 

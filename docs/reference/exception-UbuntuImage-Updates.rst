@@ -29,8 +29,8 @@ support of an exception to the standard SRU process.
 
 .. _qa_process:
 
-QA Process
-----------
+UbuntuImage QA Process
+----------------------
 
 Every change to ubuntu-image is proposed through the `GitHub merge
 proposal <https://github.com/CanonicalLtd/ubuntu-image>`__ process. It

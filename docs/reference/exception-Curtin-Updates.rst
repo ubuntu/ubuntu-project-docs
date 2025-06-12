@@ -46,8 +46,8 @@ following:
 
 .. _qa_process:
 
-QA Process
-----------
+Curtin QA Process
+-----------------
 
 Merges
 ~~~~~~

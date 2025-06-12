@@ -56,8 +56,8 @@ automatically updated by Ubuntu users.
 
 .. _qa_process:
 
-QA Process
-----------
+Certbot QA Process
+------------------
 
 Upstream carries out extensive testing:
 

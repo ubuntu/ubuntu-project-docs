@@ -128,8 +128,8 @@ following:
 
 .. _qa_process:
 
-QA Process
-----------
+NVidia QA Process
+-----------------
 
 .. _packaging_qa:
 

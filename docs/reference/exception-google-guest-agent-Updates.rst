@@ -25,8 +25,8 @@ provided the following process is followed.
 
 .. _qa_process:
 
-QA Process
-----------
+google-guest-agent QA Process
+-----------------------------
 
 When a new version of google-guest-agent is uploaded to -proposed, the
 following will be done:

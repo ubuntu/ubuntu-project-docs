@@ -19,8 +19,8 @@ updates pocket.
 
 .. _qa_process:
 
-QA Process
-----------
+OpenJDK QA Process
+------------------
 
 A new OpenJDK short term support version has to be uploaded to the
 current development series first, then to the most recent Ubuntu LTS

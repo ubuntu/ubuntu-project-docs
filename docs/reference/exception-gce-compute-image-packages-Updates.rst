@@ -25,8 +25,8 @@ releases provided the following process is followed.
 
 .. _qa_process:
 
-QA Process
-----------
+gce-compute-image-packages QA Process
+-------------------------------------
 
 When a new version of gce-compute-image-packages is uploaded to
 -proposed, the following will be done:

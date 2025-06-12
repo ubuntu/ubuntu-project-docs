@@ -23,8 +23,8 @@ an update **as long as the conditions outlined below are met**.
 
 .. _qa_process:
 
-QA Process
-----------
+Snapd QA Process
+----------------
 
 This is the mandatory QA process that the proposed packages have to
 pass. The following requirements must be met:

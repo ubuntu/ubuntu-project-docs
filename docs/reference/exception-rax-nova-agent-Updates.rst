@@ -24,8 +24,8 @@ provided the following process is followed.
 
 .. _qa_process:
 
-QA Process
-----------
+rax-nova-agent QA Process
+-------------------------
 
 When a new version of rax-nova-agent is uploaded to -proposed, the
 following will be done:
