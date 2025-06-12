@@ -17,7 +17,6 @@ About HAProxy
 reverse-proxy offering high availability, load balancing, and proxying
 for TCP and HTTP-based applications.
 
-.. _upstream_release_policy:
 
 Upstream release policy
 -----------------------
@@ -58,10 +57,8 @@ containing a HAProxy LTS version.
 QA
 --
 
-.. _upstream_tests:
-
 Upstream tests
---------------
+^^^^^^^^^^^^^^
 
 HAProxy contains a set a functional and regression tests which are
 executed by upstream via Github Actions. For the regression tests,
@@ -102,7 +99,7 @@ would require some coordination with upstream since it has no releases
 and according to its README file there is no plan for that.
 
 Autopkgtest
------------
+^^^^^^^^^^^
 
 The package contains a couple of DEP-8 tests, checking the CLI usage and
 also if the proxy feature is working. It is not too extensive and
@@ -110,8 +107,8 @@ complete as the upstream testing but it would catch some obvious
 regressions. In order to improve this and also run upstream tests we
 would need to package VTest which was commented above.
 
-Process
--------
+HAProxy Update Process
+----------------------
 
 As with regular MREs, the aim here is to offer bugfixes and security
 fixes to all supported releases.
@@ -130,8 +127,8 @@ To do this we will:
 #. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.
 
 
-SRU template
-------------
+HAProxy SRU template
+--------------------
 
 ::
 
