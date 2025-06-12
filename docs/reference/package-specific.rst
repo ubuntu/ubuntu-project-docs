@@ -472,7 +472,7 @@ For a concrete example, see
 https://bugs.launchpad.net/ubuntu/+source/cd-boot-images-riscv64/+bug/2104572/comments/9
 
 Data Packages Kept in Sync with Security
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some data packages must always be kept in sync between -updates and
 -security to avoid behaviour or functionality regressions when using
