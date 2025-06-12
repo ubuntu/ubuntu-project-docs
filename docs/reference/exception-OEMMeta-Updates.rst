@@ -3,8 +3,8 @@
 OEM Meta Package Updates
 ========================
 
-Introduction
-============
+OEM Introduction
+----------------
 
 These packages exist to hint parts of the installer / upgrade tooling
 that the running hardware is certified, and should have certain packages
@@ -18,10 +18,8 @@ Possible situation that need update meta package and then SRU it.
 -  add modaliases per customer request.
 -  modification due to spec change. (the way installer need it, etc)
 
-.. _sru_bug_template:
-
-SRU Bug template
-================
+OEM SRU Bug template
+--------------------
 
 ::
 
@@ -56,8 +54,8 @@ SRU Bug template
   Check that the new kernel flavour works on the target platform.
 
 
-Procedure
-=========
+OEM Procedure
+-------------
 
 There is `an existing MIR exception <https://canonical-ubuntu-project.readthedocs-hosted.com/MIR/mir-exceptions-oem/#mir-exceptions-oem>`__,
 allowing these packages to be accepted directly into main. As long as

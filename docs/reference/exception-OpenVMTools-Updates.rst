@@ -5,8 +5,8 @@ OpenVMTools Updates
 
 Approved: RAOF (2024/01/25)
 
-Background
-==========
+OpenVMTools Background
+----------------------
 
 Open-vmware-tools is a guest package for virtual machines hosted on
 VMware. It is a suite of virtualization utilities and drivers to improve
@@ -20,8 +20,8 @@ As such it is often required to have get an updated version of it to
 provide platform enablement while being in the lifecycle of a Ubuntu LTS
 release.
 
-Process
-=======
+OpenVMTools Process
+-------------------
 
 No less than 6 weeks after each Ubuntu release (to allow some widespread
 testing) the version of open-vm-tools can be backported from the current
@@ -55,7 +55,6 @@ Sometimes we had discussions, other issues found or not all releases
 tested, but the server team communicates with VMware until all we need
 is in place.
 
-.. _sru_bug_template:
 
 SRU Bug Template
 ----------------
@@ -108,8 +107,8 @@ SRU Bug Template
 
 .. _past_context:
 
-Past Context
-============
+OpenVMTools Past Context
+------------------------
 
 Ambiguity
 ---------

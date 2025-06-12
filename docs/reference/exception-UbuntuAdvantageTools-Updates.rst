@@ -3,8 +3,8 @@
 Ubuntu-Advantage-Tools / Ubuntu-Pro-Client Updates
 ==================================================
 
-Background
-==========
+U-A-T Background
+----------------
 
 Ubuntu Pro is a suite of additional services provided by Canonical on
 top of Ubuntu. It is an essential part of the Ubuntu ecosystem: as well
@@ -22,8 +22,8 @@ were shipped in the additional Ubuntu Pro apt archives, then users would
 face complexity in the form of multiple steps to fully configure their
 systems for Ubuntu Pro services.
 
-Exceptions
-==========
+U-A-T Exceptions
+----------------
 
 Since we want to make access to Ubuntu Pro easy for Ubuntu users, we
 resolve the circular UX problem by making the exception that we will
@@ -86,7 +86,7 @@ These specific exceptions have been approved by the team indicated.
 .. _updating_the_ubuntu_advantage_tools_package:
 
 Updating the ubuntu-advantage-tools package
-===========================================
+-------------------------------------------
 
 .. _integrations_and_interactions:
 
@@ -345,8 +345,8 @@ linked from the changelog.
 
 .. _sru_bug_template:
 
-SRU Bug Template
-================
+U-A-T SRU Bug Template
+----------------------
 
 ::
 

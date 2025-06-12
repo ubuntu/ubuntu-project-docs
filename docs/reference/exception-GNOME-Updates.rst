@@ -76,8 +76,8 @@ are authoritative for MRE purposes:
 -  `Mantic <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/mantic?h=trunk>`__
 -  `Noble <https://git.launchpad.net/~ubuntu-sru/+git/mre-tools/tree/noble?h=trunk>`__
 
-Testing
-=======
+Gnome Testing
+-------------
 
 An appropriate test plan varies according to the package.
 
@@ -106,8 +106,8 @@ bugs are acceptable, but these will require individual negotiation with
 SRU team members every time, and so may incur additional review
 iteration delays.
 
-References
-==========
+Gnome References
+----------------
 
 -  https://lists.ubuntu.com/archives/technical-board/2012-June/001327.html
 -  https://lists.ubuntu.com/archives/technical-board/2012-June/001298.html
