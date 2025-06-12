@@ -58,8 +58,8 @@ should be considered out of scope of the SRU process for this package.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+UbuntuDevTools Requesting the SRU
+---------------------------------
 
 The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the

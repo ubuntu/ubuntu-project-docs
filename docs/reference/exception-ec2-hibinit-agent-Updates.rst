@@ -54,8 +54,8 @@ package can be released from -proposed.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+ec2-hibinit-agent Requesting the SRU
+------------------------------------
 
 The SRU should be done with a single process bug for this stable release
 exception, instead of individual bug reports for individual bug fixes.

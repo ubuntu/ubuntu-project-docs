@@ -92,8 +92,8 @@ The above tests can be performed by any QA engineer.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+Landscape Requesting the SRU
+----------------------------
 
 The SRU should be requested as usual
 (:ref:`StableReleaseUpdates <howto-perform-standard-sru>`) with the additional

@@ -58,8 +58,8 @@ can't be easily done by others.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+google-compute-engine-oslogin Requesting the SRU
+------------------------------------------------
 
 The SRU should be done with a single process bug for this stable release
 exception, instead of individual bug reports for individual bug fixes.

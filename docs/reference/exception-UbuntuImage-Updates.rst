@@ -81,8 +81,8 @@ upgrading to the latest built package.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+UbuntuImage Requesting the SRU
+------------------------------
 
 The SRU should be requested as usual
 (:ref:`StableReleaseUpdates <howto-perform-standard-sru>`) with the description

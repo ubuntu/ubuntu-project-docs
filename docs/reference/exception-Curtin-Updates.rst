@@ -19,8 +19,8 @@ approval will need to be obtained.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+Curtin Requesting the SRU
+-------------------------
 
 The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the

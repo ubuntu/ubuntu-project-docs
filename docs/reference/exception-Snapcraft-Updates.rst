@@ -86,8 +86,8 @@ Ubuntu version released this should be added to the above process:
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+Snapcraft Requesting the SRU
+----------------------------
 
 The SRU should be requested as usual
 (:ref:`StableReleaseUpdates <howto-perform-standard-sru>`) with the additional

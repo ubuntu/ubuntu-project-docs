@@ -31,8 +31,8 @@ the autopkgtests only cover the root portion.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+Apt Requesting the SRU
+----------------------
 
 SRUs will follow the normal SRU procedure but may use upstream versions
 if uploaded by the https://launchpad.net/~deity team.

@@ -56,8 +56,8 @@ can't be easily done by others.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+rax-nova-agent Requesting the SRU
+---------------------------------
 
 The SRU should be done with a single process bug for this stable release
 exception, instead of individual bug reports for individual bug fixes.

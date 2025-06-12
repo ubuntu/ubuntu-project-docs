@@ -26,8 +26,8 @@ approval will need to be obtained. See below.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+Netplan Requesting the SRU
+--------------------------
 
 The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. Individual bug fixes may also be
