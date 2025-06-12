@@ -32,37 +32,37 @@ the Technical Board.
     :maxdepth: 1
     :hidden:
 
-    exception-KernelUpdates
-    exception-AptUpdates
-    exception-Bind9Updates
-    exception-CertbotUpdates
-    exception-CloudinitUpdates
-    exception-CurtinUpdates
-    exception-DPDKUpdates
-    exception-DockerUpdates
-    exception-GNOMEUpdates
-    exception-GrubUpdates
-    exception-HAProxyUpdates
-    exception-LandscapeUpdates
-    exception-NVidiaUpdates
-    exception-NetplanUpdates
-    exception-OEMMetaUpdates
+    exception-Kernel-Updates
+    exception-Apt-Updates
+    exception-Bind9-Updates
+    exception-Certbot-Updates
+    exception-Cloudinit-Updates
+    exception-Curtin-Updates
+    exception-DPDK-Updates
+    exception-Docker-Updates
+    exception-GNOME-Updates
+    exception-Grub-Updates
+    exception-HAProxy-Updates
+    exception-Landscape-Updates
+    exception-NVidia-Updates
+    exception-Netplan-Updates
+    exception-OEMMeta-Updates
     exception-OpenJDK-Updates
-    exception-OpenLDAPUpdates
-    exception-OpenStackUpdates
-    exception-OpenVMToolsUpdates
-    exception-OpenVPNUpdates
-    exception-PostfixUpdates
-    exception-PostgreSQLUpdates
-    exception-SnapcraftUpdates
-    exception-SnapdGlibUpdates
-    exception-SnapdUpdates
-    exception-SosreportUpdates
-    exception-SquidUpdates
-    exception-UbuntuAdvantageToolsUpdates
-    exception-UbuntuDevToolsUpdates
-    exception-UbuntuImageUpdates
-    exception-VirtualboxUpdates
+    exception-OpenLDAP-Updates
+    exception-OpenStack-Updates
+    exception-OpenVMTools-Updates
+    exception-OpenVPN-Updates
+    exception-Postfix-Updates
+    exception-PostgreSQL-Updates
+    exception-Snapcraft-Updates
+    exception-SnapdGlib-Updates
+    exception-Snapd-Updates
+    exception-Sosreport-Updates
+    exception-Squid-Updates
+    exception-UbuntuAdvantageTools-Updates
+    exception-UbuntuDevTools-Updates
+    exception-UbuntuImage-Updates
+    exception-Virtualbox-Updates
     exception-autopkgtest-Updates
     exception-ec2-hibinit-agent-Updates
     exception-firmware-updates
@@ -72,7 +72,7 @@ the Technical Board.
     exception-google-guest-agent-Updates
     exception-google-osconfig-agent-Updates
     exception-rax-nova-agent-Updates
-    exception-walinuxagentUpdates
+    exception-walinuxagent-Updates
     exception-wslu-Updates
 
 Kernel
