@@ -129,7 +129,6 @@ following:
 NVidia QA Process
 -----------------
 
-.. _packaging_qa:
 
 NVidia Packaging QA
 -------------------
