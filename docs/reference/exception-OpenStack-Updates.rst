@@ -74,7 +74,7 @@ SRU Expectations
    -  Bugs that are not high-impact, but have an obviously safe patch.
 
 -  An SRU must have an accompanying bug, and that uses a prescribed
-   format (see the :ref:`template below <sru_template>`). It must
+   format (see the :ref:`template below <openstack_sru_template>`). It must
    contain details as described in the :ref:`Stable Release Updates <howto-perform-standard-sru>`.
 -  Bugs must be fixed in the following order, when possible:
 
@@ -92,7 +92,6 @@ SRU Expectations
 .. warning::
     [2] Landing a fix in a corresponding Ubuntu release may not always be possible, for example once the Ubuntu release has reached EOL and the UCA is still supported.  This case must be handled with extreme caution, since fixes would be released directly to the corresponding UCA without having first landed in the corresponding Ubuntu release, and possibly also without having first landed in the upstream OpenStack release.
 
-.. _qa_process:
 
 OpenStack QA Process
 --------------------
@@ -127,7 +126,7 @@ system <https://launchpad.net/ubuntu-openstack-ci>`__.
 Additionally, any specific test cases covered in SRU bug reports should
 be explicitly tested as well.
 
-.. _sru_template:
+.. _openstack_sru_template:
 
 OpenStack SRU Template
 ----------------------
