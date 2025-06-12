@@ -72,16 +72,15 @@ autopkgtest QA Process
 
 .. _build_time_tests:
 
-Build time tests
-----------------
+autopkgtest Build time tests
+----------------------------
 
 The project has tests which run at package build time. The package build
 will fail if any if the tests fail.
 
-.. _integration_tests:
 
-Integration Tests
------------------
+autopkgtest Integration Tests
+-----------------------------
 
 The package has a test suite that is run as an autopkgtest which should
 be good enough to ensure the package works as expected.
