@@ -21,10 +21,9 @@ About OpenVPN
 
 `OpenVPN <https://openvpn.net/>`__ is an open source VPN daemon.
 
-.. _upstream_release_policy:
 
-Upstream release policy
------------------------
+OpenVPN Upstream release policy
+-------------------------------
 
 The OpenVPN community maintains multiple versions in parallel. According
 to their `supported versions
@@ -68,10 +67,8 @@ package versions affected by this policy:
 QA
 --
 
-.. _upstream_tests:
-
 Upstream tests
---------------
+^^^^^^^^^^^^^^
 
 OpenVPN contains a set of build and regression tests which are executed
 for each commit and release via `GitHub
@@ -85,7 +82,7 @@ which builds OpenVPN for various operating systems. The results are
 accessible only when connected to the community VPN.
 
 Autopkgtest
------------
+^^^^^^^^^^^
 
 The package contains two DEP-8 tests:
 
@@ -124,8 +121,8 @@ files that end up in packaging directly. These must be checked for
 changes. If there are any changes, they must be considered independently
 and documented in the SRU tracking bug.
 
-Process
--------
+OpenVPN Update Process
+----------------------
 
 As with regular MREs, the aim here is to offer bugfixes and security
 fixes to all supported releases.
@@ -145,8 +142,8 @@ To do this we will:
 #. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.
 
 
-SRU template
-------------
+OpenVPN SRU template
+--------------------
 
 .. code-block:: text
 
