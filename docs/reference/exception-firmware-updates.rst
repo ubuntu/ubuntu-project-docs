@@ -66,7 +66,6 @@ On an Ubuntu release that uses fwupd but not fwupdate:
 Stay with the same stable release branch that was launched with that
 release. For example 1_1_X branch or 1_2_X branch.
 
-.. _qa_process:
 
 QA Process
 ----------
@@ -86,7 +85,6 @@ If all the testing indicates that the image containing the new package
 is acceptable, verification will be considered to be done and the the
 package can be released from -proposed after the standard aging period.
 
-.. _requesting_the_sru:
 
 Requesting the SRU
 ------------------

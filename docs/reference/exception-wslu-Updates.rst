@@ -21,7 +21,6 @@ minimal changes.
 New versions of wslu can be SRU'd in to older releases provided the
 following process is followed.
 
-.. _qa_process:
 
 wslu QA Process
 ---------------
@@ -41,7 +40,6 @@ be done:
 -  (optional) The autopkgtest is run in the installed new Ubuntu app
    with the preinstalled wslu package.
 
-.. _requesting_the_sru:
 
 wslu Requesting the SRU
 -----------------------

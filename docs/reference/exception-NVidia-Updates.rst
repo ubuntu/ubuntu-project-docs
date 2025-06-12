@@ -97,7 +97,6 @@ Release Schedule
 
                -  **Week 8**: Promotion to the -updates pocket.
 
-.. _requesting_the_sru:
 
 NVidia Requesting the SRU
 -------------------------
@@ -126,7 +125,6 @@ following:
    specific test results included.
 -  Any packaging changes (e.g. a dependency change) need to be stated
 
-.. _qa_process:
 
 NVidia QA Process
 -----------------
@@ -177,7 +175,6 @@ QA tests
    hub <https://community.ubuntu.com>`__ as soon as the drivers are
    available in the staging PPA.
 
-.. _sru_template:
 
 NVidia SRU Template
 -------------------

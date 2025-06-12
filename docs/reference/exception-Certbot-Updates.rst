@@ -27,7 +27,6 @@ serving websites, and we want to promote the "HTTPS everywhere"
 initiative, it makes sense for the LTS to be updated with these types of
 enhancements.
 
-.. _requesting_the_sru:
 
 Certbot Requesting the SRU
 --------------------------
@@ -54,7 +53,6 @@ In addition to normal SRU review checks, the SRU team should
 additionally consider if any major changes are still appropriate to be
 automatically updated by Ubuntu users.
 
-.. _qa_process:
 
 Certbot QA Process
 ------------------
@@ -102,7 +100,6 @@ verification-done-:
 -  Comment in the bug detailing that these checks have been performed
    and list the package versions verified.
 
-.. _sru_template:
 
 Certbot SRU Template
 --------------------

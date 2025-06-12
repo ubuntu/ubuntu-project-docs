@@ -129,7 +129,6 @@ To do this we will:
 #. Upload the microrelease to the SRU queue of the supported Ubuntu releases affected by this update and wait until the SRU team approve it.
 #. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.
 
-.. _sru_template:
 
 SRU template
 ------------

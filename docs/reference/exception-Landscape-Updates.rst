@@ -15,7 +15,6 @@ of the new features. Therefore, in addition to bug fixes, new features
 are allowed in an update **as long as the conditions outlined below are
 met**.
 
-.. _qa_process:
 
 Landscape QA Process
 --------------------
@@ -90,7 +89,6 @@ pass the following additional QA procedures:
 
 The above tests can be performed by any QA engineer.
 
-.. _requesting_the_sru:
 
 Landscape Requesting the SRU
 ----------------------------

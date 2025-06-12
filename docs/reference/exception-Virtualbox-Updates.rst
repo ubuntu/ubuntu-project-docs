@@ -15,7 +15,6 @@ Fortunately, upstream has a robust testing system.
 As such, upstream micro releases may be SRUed as-is to Ubuntu stable
 releases with the following process:
 
-.. _package_list:
 
 Package List
 ------------

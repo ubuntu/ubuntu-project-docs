@@ -132,7 +132,6 @@ to perform the following actions:
 
 When everything looks OK, we are ready to start the SRU process.
 
-.. _requesting_the_sru:
 
 OpenLDAP Requesting the SRU
 ---------------------------
@@ -170,7 +169,6 @@ as well as upstream's testsuite during the package build.
 We will also provide a link to upstream's "call for testing" email and
 to the !GitLab jobs that were executed when the release was cut.
 
-.. _sru_template:
 
 SRU template
 ------------

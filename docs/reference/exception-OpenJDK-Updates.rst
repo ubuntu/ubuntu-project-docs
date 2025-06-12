@@ -17,7 +17,6 @@ become unsupported. Therefore we are not shipping any short term OpenJDK
 version in an Ubuntu LTS release, and only providing the package in the
 updates pocket.
 
-.. _qa_process:
 
 OpenJDK QA Process
 ------------------
@@ -33,7 +32,6 @@ should look reasonably well. The autopkg tests are also run for these
 uploads, however they not meaningful at all, because they are run
 against the default Java version of the Ubuntu LTS release.
 
-.. _requesting_the_sru:
 
 OpenJDK Requesting the SRU
 --------------------------

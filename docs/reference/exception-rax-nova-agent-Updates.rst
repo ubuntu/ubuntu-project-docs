@@ -22,7 +22,6 @@ function properly in their environment.
 New versions of rax-nova-agent can be SRU'd in to older releases
 provided the following process is followed.
 
-.. _qa_process:
 
 rax-nova-agent QA Process
 -------------------------
@@ -54,7 +53,6 @@ test the package in the verification process. Verification also includes
 preparing custom-built images for testing first-booting instances which
 can't be easily done by others.
 
-.. _requesting_the_sru:
 
 rax-nova-agent Requesting the SRU
 ---------------------------------

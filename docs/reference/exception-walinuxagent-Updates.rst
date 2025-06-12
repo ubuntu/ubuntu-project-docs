@@ -24,7 +24,6 @@ function properly in their environment.
 New versions of walinuxagent can be SRUed into older releases provided
 the following process is followed.
 
-.. _qa_process:
 
 walinuxagent QA Process
 -----------------------
@@ -118,7 +117,6 @@ Since the only consumer of the walinuxagent is the Azure cloud, the SRU
 may be released without meeting the aging period of 7 days provided all
 the above steps have been completed.
 
-.. _sru_template:
 
 walinuxagent SRU Template
 -------------------------

@@ -125,7 +125,6 @@ perform the following actions:
 
 When everything looks OK, we are ready to start the SRU process.
 
-.. _requesting_the_sru:
 
 PostgreSQL Requesting the SRU
 -----------------------------
@@ -161,7 +160,6 @@ needed (i.e., when uploading to the ``-security`` pocket), we will also run auto
 dependencies as well as upstream's testsuite during the package build.
 Otherwise, we will upload directly to ``-updates`` pocket and monitor the excuses page.
 
-.. _sru_template:
 
 SRU template
 ------------

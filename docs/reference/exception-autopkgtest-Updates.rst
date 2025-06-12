@@ -32,7 +32,6 @@ outlined below are met:
 In the event of a change breaking backwards compatibility, then SRU team
 approval will need to be obtained.
 
-.. _requesting_the_sru:
 
 autopkgtest Requesting the SRU
 ------------------------------
@@ -67,7 +66,6 @@ title with "[breaks-compat]". Furthermore, an email to ubuntu-release
 will be sent to point the release / SRU teams to the bug in order to get
 approval before uploading to the release's upload queue.
 
-.. _qa_process:
 
 autopkgtest QA Process
 ----------------------
@@ -88,7 +86,6 @@ Integration Tests
 The package has a test suite that is run as an autopkgtest which should
 be good enough to ensure the package works as expected.
 
-.. _sru_template:
 
 autopkgtest SRU Template
 ------------------------

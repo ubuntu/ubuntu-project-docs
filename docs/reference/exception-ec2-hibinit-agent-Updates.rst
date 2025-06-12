@@ -23,7 +23,6 @@ their environment.
 New versions of ec2-hibinit-agent can be SRU'd in to older releases
 provided the following process is followed.
 
-.. _qa_process:
 
 ec2-hibinit-agent QA Process
 ----------------------------
@@ -52,7 +51,6 @@ If all the testing indicates that the image containing the new package
 is acceptable, verification will be considered to be done and the the
 package can be released from -proposed.
 
-.. _requesting_the_sru:
 
 ec2-hibinit-agent Requesting the SRU
 ------------------------------------
@@ -63,7 +61,6 @@ However, individual bugs may be referenced in the from the changelog but
 each of those bugs will need to independently verified and commented on
 for the SRU to be considered complete.
 
-.. _sru_template:
 
 ec2-hibinit-agent SRU Template
 ------------------------------

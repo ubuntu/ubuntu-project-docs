@@ -21,7 +21,6 @@ features on top of a stable Ubuntu release. Therefore, in addition to
 critical bug fixes, new features and small improvements are allowed in
 an update **as long as the conditions outlined below are met**.
 
-.. _qa_process:
 
 Snapd QA Process
 ----------------
@@ -96,7 +95,6 @@ Ubuntu version released this should be added to the above process:
    current distribution is an LTS one, the upgrade path from the
    previous LTS distro must also be exercised.
 
-.. _requesting_the_sru:
 
 Snapd Requesting the SRU
 ------------------------

@@ -15,7 +15,6 @@ addition to critical bug fixes, new features and small improvements are
 allowed in an snapcraft update **as long as the conditions outlined
 below are met**.
 
-.. _qa_process:
 
 Snapcraft QA Process
 --------------------
@@ -84,7 +83,6 @@ Ubuntu version released this should be added to the above process:
    current distribution is an LTS one, the upgrade path from the
    previous LTS distro must also be exercised.
 
-.. _requesting_the_sru:
 
 Snapcraft Requesting the SRU
 ----------------------------

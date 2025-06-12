@@ -24,7 +24,6 @@ conditions outlined below are met:
 In the event of a change breaking backwards compatibility, then SRU team
 approval will need to be obtained. See below.
 
-.. _requesting_the_sru:
 
 Netplan Requesting the SRU
 --------------------------
@@ -59,7 +58,6 @@ title with "[breaks-compat]". Furthermore, an email to ubuntu-release
 will be sent to point the release / SRU teams to the bug in order to get
 approval before uploading to the release's upload queue.
 
-.. _qa_process:
 
 Netplan QA Process
 ------------------
@@ -103,7 +101,6 @@ and why it's considered ok); using the autopkgtest.ubuntu.com
 infrastructure, which is separate from daily integration tests that may
 be run on the netplan master branch.
 
-.. _sru_template:
 
 Netplan SRU Template
 --------------------

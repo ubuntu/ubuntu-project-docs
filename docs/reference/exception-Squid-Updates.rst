@@ -120,7 +120,6 @@ supported releases. This will be done by
 
 #. Uploading the package to the proposed pocket (if it's a non-security upload), and, once approved, perform all needed verification steps and keep an eye on the excuses page to investigate any DEP8 failures that may occur.
 
-.. _sru_template:
 
 SRU template
 ------------

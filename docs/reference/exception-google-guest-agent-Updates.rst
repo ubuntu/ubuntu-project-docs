@@ -23,7 +23,6 @@ function properly in their environment.
 New versions of google-guest-agent can be SRU'd in to older releases
 provided the following process is followed.
 
-.. _qa_process:
 
 google-guest-agent QA Process
 -----------------------------
@@ -55,7 +54,6 @@ test the package in the verification process. Verification also includes
 preparing custom-built images for testing first-booting instances which
 can't be easily done by others.
 
-.. _requesting_the_sru:
 
 google-guest-agent Requesting the SRU
 -------------------------------------
@@ -66,7 +64,6 @@ However, individual bugs may be referenced in the from the changelog but
 each of those bugs will need to independently verified and commented on
 for the SRU to be considered complete.
 
-.. _vendored_dependencies:
 
 Vendored dependencies
 ---------------------

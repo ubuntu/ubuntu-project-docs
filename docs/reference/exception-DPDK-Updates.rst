@@ -183,7 +183,6 @@ test <https://code.launchpad.net/~ubuntu-server/ubuntu/+source/dpdk-testing/+git
 All tests in this log shall be passed or explained in the Template why
 not passing is to be considered ok in this case.
 
-.. _requesting_the_sru:
 
 DPDK Requesting the SRU
 -----------------------
@@ -201,7 +200,6 @@ following:
 -  Changelog should contain a link to the stable releases announcement
    (`example <http://dpdk.org/ml/archives/announce/2017-December/000163.html>`__)
 
-.. _sru_template:
 
 DPDK SRU Template
 -----------------

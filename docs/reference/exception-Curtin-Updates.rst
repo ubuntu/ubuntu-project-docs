@@ -17,7 +17,6 @@ long as the conditions outlined below are met:
 In the event of a change breaking backwards compatibility, then SRU team
 approval will need to be obtained.
 
-.. _requesting_the_sru:
 
 Curtin Requesting the SRU
 -------------------------
@@ -44,7 +43,6 @@ following:
 -  If any manual testing occurs it should also be documented. See LP#
    1588052 as an example.
 
-.. _qa_process:
 
 Curtin QA Process
 -----------------
@@ -107,7 +105,6 @@ The Curtin team will be in charge of attaching the artifacts and console
 output of the appropriate run to the bug. Curtin team members will not
 mark ‘verification-done’ until this has happened.
 
-.. _sru_template:
 
 Curtin SRU Template
 -------------------

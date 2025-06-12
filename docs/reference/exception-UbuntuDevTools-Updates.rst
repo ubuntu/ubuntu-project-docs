@@ -27,7 +27,6 @@ should also be lower. The greatest risk of user-affecting regression is
 to the tools ``mk-sbuild`` and ``pull-*`` which are useful outside of
 an Ubuntu development context.
 
-.. _qa_process:
 
 UbuntuDevTools QA Process
 -------------------------
@@ -56,7 +55,6 @@ the removal of commands no longer considered appropriate for Ubuntu
 development. Care should be taken when deprecating interfaces, but this
 should be considered out of scope of the SRU process for this package.
 
-.. _requesting_the_sru:
 
 UbuntuDevTools Requesting the SRU
 ---------------------------------
@@ -73,7 +71,6 @@ following:
    stated
 -  If any manual testing occurs it should also be documented.
 
-.. _sru_template:
 
 UbuntuDevTools SRU Template
 ---------------------------

@@ -19,7 +19,6 @@ The APT release management ensures that there is no conflict in
 versioning between Debian and Ubuntu uploads. There is only one
 versioned branch with one designated target release.
 
-.. _qa_process:
 
 QA process
 ----------
@@ -29,7 +28,6 @@ release (each push to the git branch really) undergoes a dedicated CI
 pipeline that runs the test suite as both root and a normal user whereas
 the autopkgtests only cover the root portion.
 
-.. _requesting_the_sru:
 
 Apt Requesting the SRU
 ----------------------

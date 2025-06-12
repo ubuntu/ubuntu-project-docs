@@ -147,7 +147,6 @@ Previous sosreport updates bugs
 -  v3.9 `(LP: #1862830) <https://bugs.launchpad.net/bugs/1862830>`__
 -  v3.6 `(LP: #1775195) <https://bugs.launchpad.net/bugs/1775195>`__
 
-.. _requesting_the_sru:
 
 Sosreport Requesting the SRU
 ----------------------------

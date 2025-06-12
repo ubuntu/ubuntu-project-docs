@@ -140,7 +140,6 @@ To do this we will:
 #. Upload the microrelease to the SRU queue and wait until it is approved.
 #. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.
 
-.. _sru_template:
 
 SRU template
 ------------

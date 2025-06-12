@@ -12,7 +12,6 @@ apply specifically to it.
 **NOTE**: This process is followed for !OpenStack packages and
 supporting dependencies such as Open vSwitch and Ceph.
 
-.. _package_list:
 
 Package List
 ------------

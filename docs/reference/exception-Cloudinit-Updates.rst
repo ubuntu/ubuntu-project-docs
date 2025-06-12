@@ -44,7 +44,6 @@ apply when the changes are in scope of this document. However, from beta
 freeze on uploads of this package will be subject to the same additional
 scrutiny by the Release Team as any other package.
 
-.. _requesting_the_sru:
 
 Cloudinit Requesting the SRU
 ----------------------------
@@ -87,7 +86,6 @@ following:
    `LP: #1588052 <http://launchpad.net/bugs/1588052>`__ as an
    example.
 
-.. _qa_process:
 
 Cloudinit QA Process
 --------------------
@@ -180,7 +178,6 @@ The cloud-init team will be in charge of attaching the artifacts and
 console output of the appropriate run to the bug. cloud-init team
 members will not mark ‘verification-done’ until this has happened.
 
-.. _sru_template:
 
 Cloudinit SRU Template
 ----------------------

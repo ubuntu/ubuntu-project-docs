@@ -27,7 +27,6 @@ sync.
 The QA process for stable ubuntu-image releases are outlined below, in
 support of an exception to the standard SRU process.
 
-.. _qa_process:
 
 UbuntuImage QA Process
 ----------------------
@@ -79,7 +78,6 @@ Candidate packages are tested in all release channels through an
 install/upgrade process, by installing the existing archive version and
 upgrading to the latest built package.
 
-.. _requesting_the_sru:
 
 UbuntuImage Requesting the SRU
 ------------------------------
