@@ -69,7 +69,6 @@ Launchpad <https://bugs.launchpad.net/ubuntu-image>`__ and clearly
 described in the ``debian/changelog``.
 
 
-.. _packaging_qa:
 
 UbuntuImage Packaging QA
 ------------------------
