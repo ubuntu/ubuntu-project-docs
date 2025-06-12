@@ -20,8 +20,8 @@ versioning between Debian and Ubuntu uploads. There is only one
 versioned branch with one designated target release.
 
 
-QA process
-----------
+Apt QA process
+--------------
 
 In addition to normal Ubuntu QA process after the upload, each upstream
 release (each push to the git branch really) undergoes a dedicated CI

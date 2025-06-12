@@ -67,8 +67,8 @@ Stay with the same stable release branch that was launched with that
 release. For example 1_1_X branch or 1_2_X branch.
 
 
-QA Process
-----------
+Firmware QA Process
+-------------------
 
 When a new version of fwupd or fwupdate is uploaded to -proposed, the
 following will be done:
@@ -86,8 +86,8 @@ is acceptable, verification will be considered to be done and the the
 package can be released from -proposed after the standard aging period.
 
 
-Requesting the SRU
-------------------
+Firmware Requesting the SRU
+---------------------------
 
 The SRU should be done with a single process bug for this stable release
 exception, instead of individual bug reports for individual bug fixes.
