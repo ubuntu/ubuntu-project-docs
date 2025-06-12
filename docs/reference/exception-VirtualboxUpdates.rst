@@ -1,7 +1,7 @@
 .. _reference-exception-VirtualboxUpdates:
 
 Stable Release Updates for Virtualbox Updates
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=============================================
 
 Virtualbox has a number of features making it a special case for SRUs -
 as a virtual-machine provider it has some of the same requirements as
