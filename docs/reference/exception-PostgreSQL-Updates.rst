@@ -16,10 +16,9 @@ object-relational database system with over 35 years of active
 development that has earned it a strong reputation for reliability,
 feature robustness, and performance.
 
-.. _upstream_release_policy:
 
-Upstream release policy
------------------------
+PostgreSQL Upstream release policy
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Upstream is very active and conscious about their releases. They have a
 well established `release
@@ -30,8 +29,8 @@ standard support term for LTS releases.
 
 .. _history_track_record:
 
-History & Track record
-----------------------
+PostgreSQL History & Track record
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Server team has been doing MREs for PostgreSQL for several years
 now, but due to historical reasons there never was an official wiki page
@@ -67,13 +66,9 @@ to the right pockets (sometimes to ``-security`` , sometimes to ``-updates``):
 -  https://pad.lv/2028426
 -  https://pad.lv/2040469
 
-QA
---
 
-.. _upstream_tests:
-
-Upstream tests
---------------
+PostgreSQL Upstream tests
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The PostgreSQL software contains an extensive testsuite that is executed
 during build time on all supported architectures.
@@ -101,13 +96,13 @@ autopkgtests from as many reverse dependencies as we are able to. This
 is an important step especially when the upload will go to the ``-security``
 pocket, since no autopkgtests are executed there.
 
-Process
--------
+PostgreSQL Update Process
+-------------------------
 
 .. _preparing_for_the_sru:
 
-Preparing for the SRU
----------------------
+Preparing for the PostgreSQL SRU
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Before filing an MRE bug and kickoff the process officially, we need to
 perform the following actions:
@@ -127,7 +122,7 @@ When everything looks OK, we are ready to start the SRU process.
 
 
 PostgreSQL Requesting the SRU
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 As with regular MREs, the aim here is to offer bugfixes and security
 fixes to all supported releases. The SRU will be done using a single bug
@@ -153,7 +148,7 @@ We will:
 .. _testing_and_verification:
 
 Testing and verification
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 As explained above, the testing will be done primarily using a PPA. When
 needed (i.e., when uploading to the ``-security`` pocket), we will also run autopkgtests for all of the reverse
@@ -161,8 +156,8 @@ dependencies as well as upstream's testsuite during the package build.
 Otherwise, we will upload directly to ``-updates`` pocket and monitor the excuses page.
 
 
-SRU template
-------------
+PostgreSQL SRU template
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
