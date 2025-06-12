@@ -60,7 +60,6 @@ pass. The following requirements must be met:
    perform extensive exploratory testing on the areas that will be
    changed by the release.
 
-.. _packaging_qa:
 
 Snapd Packaging QA
 ------------------
