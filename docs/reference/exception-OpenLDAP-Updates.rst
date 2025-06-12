@@ -134,8 +134,8 @@ When everything looks OK, we are ready to start the SRU process.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+OpenLDAP Requesting the SRU
+---------------------------
 
 As with regular MREs, the aim here is to offer bugfixes and security
 fixes to all supported releases. The SRU will be done using a single bug

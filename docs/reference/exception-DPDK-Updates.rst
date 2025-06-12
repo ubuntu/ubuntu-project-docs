@@ -185,8 +185,8 @@ not passing is to be considered ok in this case.
 
 .. _requesting_the_sru:
 
-Requesting the SRU
-------------------
+DPDK Requesting the SRU
+-----------------------
 
 The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the
@@ -203,8 +203,8 @@ following:
 
 .. _sru_template:
 
-SRU Template
-------------
+DPDK SRU Template
+-----------------
 
 ::
 
