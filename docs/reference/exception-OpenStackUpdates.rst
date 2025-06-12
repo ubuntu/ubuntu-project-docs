@@ -1,7 +1,7 @@
 .. _reference-exception-OpenStackUpdates:
 
 Stable Release Updates for OpenStack and the Ubuntu Cloud Archive
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=================================================================
 
 The SRU process for !OpenStack and the Ubuntu Cloud Archive (UCA)
 follows the same process as `Ubuntu Stable Release
