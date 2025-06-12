@@ -608,11 +608,3 @@ Toolchains:
 * Java: `Java updates PPA <https://launchpad.net/~openjdk-r/+archive/ubuntu/ppa>`__
 * Go: `Go updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/golang>`__
 
-Examples SRU cases
-------------------
-
-As a reference, see `bug #173082 <https://launchpad.net/bugs/173082>`__
-for an idea of how the SRU process works for a main package, or `bug
-#208666 <https://launchpad.net/bugs/208666>`__ for an SRU in universe.
-
-
