@@ -36,9 +36,9 @@ pass. The following requirements must be met:
 *  each change must be fully tested at the unit level.
 
    * all the unit tests must pass in all the supported architectures.
-   They are executed for one arch before the change is merged into
-   master, and for all the architectures during the build of the deb
-   package that will go into proposed.
+     They are executed for one arch before the change is merged into
+     master, and for all the architectures during the build of the deb
+     package that will go into proposed.
 
 *  each bug fix that affects the user interface must have one QA
    review. The QA engineer will verify that the bug is fixed in a
