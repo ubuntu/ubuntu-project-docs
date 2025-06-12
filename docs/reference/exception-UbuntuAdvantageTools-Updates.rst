@@ -153,7 +153,7 @@ For example, in previous updates we have done the following:
 .. _maintaining_upgrade_paths:
 
 Maintaining upgrade paths
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 As the Pro service evolves, new versions of the Pro client implement
 upgrade paths to seamlessly move Pro users to updated and supported Pro
@@ -234,7 +234,7 @@ Upload Process
 --------------
 
 Documentation
-~~~~~~~~~~~~~
+-------------
 
 The change log will contain a reference to the SRU process bug, as well
 as all pre-existing Launchpad and GitHub bugs that are fixed; however,
@@ -273,7 +273,7 @@ don't get wide exposure since the nature of the package is that it is
 widely used in LTSes only.
 
 Review/Sponsoring
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Using the normal process would mean that if something is asked to be
 changed in SRU review, the change has already been uploaded to the
@@ -318,7 +318,7 @@ or a single pull request on !GitHub (hereinafter "MP"):
    uploads from Unapproved.
 
 Verification
-~~~~~~~~~~~~
+------------
 
 For each Ubuntu release that is targeted by the SRU, successful results
 of integration testing of the -proposed package for at least the

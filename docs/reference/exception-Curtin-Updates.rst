@@ -50,7 +50,7 @@ Curtin QA Process
 -----------------
 
 Merges
-~~~~~~
+------
 
 Updates to curtin trunk go through the following process:
 
@@ -61,7 +61,7 @@ Updates to curtin trunk go through the following process:
 -  Branch set to the committed state
 
 Packaging
-~~~~~~~~~
+---------
 
 The following describes the requirements for each package generated for
 the SRU.
@@ -73,7 +73,7 @@ no unexplained errors or failures
 .. _integration_tests:
 
 Integration Tests
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Curtin includes an in-tree integration suite to validating various forms
 of custom storage and network configurations. The tests themselves
@@ -86,7 +86,7 @@ supported interim releases.
 .. _maas_integration_tests:
 
 MAAS Integration Tests
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 In order to avoid regression to existing MAAS product, the MAAS team
 will run their continuous integration test against the Curtin that is in

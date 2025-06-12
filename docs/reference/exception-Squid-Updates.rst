@@ -63,7 +63,7 @@ QA
 .. _upstream_tests:
 
 Upstream tests
-~~~~~~~~~~~~~~
+--------------
 
 Squid contains an extensive testsuite that is executed during the Ubuntu
 package build time on all supported architectures.
@@ -78,7 +78,7 @@ any benchmarks or coverage data for that.
 .. _upstream_ci:
 
 Upstream CI
-~~~~~~~~~~~
+-----------
 
 BuildFarm
 ^^^^^^^^^
@@ -100,7 +100,7 @@ Test results are available at
 https://github.com/squid-cache/squid/actions.
 
 Autopkgtest
-~~~~~~~~~~~
+-----------
 
 The package contains two of DEP-8 tests. The first runs the upstream
 test suite on the installed package. The second runs simple checks to
@@ -123,7 +123,7 @@ supported releases. This will be done by
 .. _sru_template:
 
 SRU template
-~~~~~~~~~~~~
+------------
 
 ::
 

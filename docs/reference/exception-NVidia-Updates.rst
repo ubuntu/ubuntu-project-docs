@@ -168,7 +168,7 @@ pass the following additional QA procedures:
 .. _qa_tests:
 
 QA tests
-~~~~~~~~
+--------
 
 -  `Certification test
    suite <https://git.launchpad.net/plainbox-provider-sru/tree/units/sru.pxu>`__
@@ -222,7 +222,7 @@ Additional notes
 .. _driver_upgrades:
 
 Driver Upgrades
-~~~~~~~~~~~~~~~
+---------------
 
 If an nVidia driver is updated then all nVidia user space components
 will stop working immediately after the respective package updates as

@@ -93,7 +93,7 @@ Cloudinit QA Process
 --------------------
 
 Merges
-~~~~~~
+------
 
 Updates to cloud-init trunk go through the following process:
 
@@ -103,7 +103,7 @@ Updates to cloud-init trunk go through the following process:
 -  Branch set to the committed state
 
 Packaging
-~~~~~~~~~
+---------
 
 The following describes the requirements for each package generated for
 the SRU.
@@ -115,7 +115,7 @@ no unexplained errors or failures
 .. _integration_tests:
 
 Integration Tests
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Integration testing involves two seperate sections: automated and
 manual.
@@ -160,7 +160,7 @@ expected to work.
 .. _curtin_testing:
 
 Curtin Testing
-~~~~~~~~~~~~~~
+--------------
 
 The curtin vmtest should also be sucessfully ran using cloud-init from
 proposed and results attached.
@@ -168,7 +168,7 @@ proposed and results attached.
 .. _solutions_testing:
 
 Solutions Testing
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Due to the dependency on cloud-init with various other products, the
 solutions testing team will run their continuous integration test

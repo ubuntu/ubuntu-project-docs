@@ -26,7 +26,7 @@ pass. The following requirements must be met:
 .. _before_a_pull_request_lands_into_master:
 
 Before a pull request lands into master
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------
 
 -  each change must be reviewed and approved by at least one member
    of the `snapcore github
@@ -47,7 +47,7 @@ Before a pull request lands into master
 .. _before_the_package_is_in_proposed:
 
 Before the package is in proposed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
 
 -  all the unit, integration and examples tests must pass in all the
    supported architectures. They are executed for all the
@@ -59,7 +59,7 @@ Before the package is in proposed
 .. _when_the_package_is_in_proposed:
 
 When the package is in proposed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 
 -  upgrade test from previous version of the package. This test must
    be performed with:

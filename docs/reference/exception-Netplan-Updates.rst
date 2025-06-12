@@ -65,7 +65,7 @@ Netplan QA Process
 ------------------
 
 Merges
-~~~~~~
+------
 
 Updates to `netplan master
 branch <http://github.com/canonical/netplan>`__ go through the following
@@ -77,7 +77,7 @@ process:
 -  Successful run of unit tests and style tests on a per-commit basis
 
 Packaging
-~~~~~~~~~
+---------
 
 The following describes the requirements for each package generated for
 the SRU.
@@ -89,7 +89,7 @@ no unexplained errors or failures
 .. _integration_tests:
 
 Integration Tests
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Netplan includes an in-tree integration suite to validating various
 network configurations. The tests themselves involve a large number of

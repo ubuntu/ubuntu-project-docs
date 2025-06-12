@@ -70,7 +70,7 @@ for the SRU to be considered complete.
 .. _vendored_dependencies:
 
 Vendored dependencies
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 If any pinned and vendored dependencies in this package change as part
 of the SRU then the following must be present in the SRU bug:

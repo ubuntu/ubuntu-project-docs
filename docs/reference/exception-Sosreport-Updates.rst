@@ -49,7 +49,7 @@ The following requirements must be met:
 .. _sos_report___collect_and_package_diagnostic_and_support_data:
 
 sos report - Collect and package diagnostic and support data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------------------------
 
 sos report is now used to generate sos report tarballs
 
@@ -88,7 +88,7 @@ sos report is now used to generate sos report tarballs
 .. _sos_clean___obfuscate_sensitive_data_from_one_or_more_sosreports:
 
 sos clean - Obfuscate sensitive data from one or more sosreports
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------------------------
 
 sos clean, also available as sos mask, is a newly added sub-command in
 this release and is an implementation of the standalone soscleaner
@@ -124,7 +124,7 @@ addresses.
 .. _sos_collect___collect_sosreports_from_multiple_cluster_nodes:
 
 sos collect - Collect sosreports from multiple (cluster) nodes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------------------------
 
 sos collect is a new sub command in this release, and is an integration
 of the standalone sos-collector project, with the aim being to collect

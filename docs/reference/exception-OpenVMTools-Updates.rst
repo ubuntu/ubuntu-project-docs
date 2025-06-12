@@ -36,7 +36,7 @@ should be highlighted in the SRU bug. Similarly, any packaging changes
 from the previous stable version should be called out in the SRU bug.
 
 Verification
-~~~~~~~~~~~~
+------------
 
 On one hand we want to keep these upload longer in -proposed to give the
 few that run canary with -proposed a better chance to speak up. And we
@@ -58,7 +58,7 @@ is in place.
 .. _sru_bug_template:
 
 SRU Bug Template
-~~~~~~~~~~~~~~~~
+----------------
 
 ::
 

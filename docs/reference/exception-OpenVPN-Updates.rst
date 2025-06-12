@@ -71,7 +71,7 @@ QA
 .. _upstream_tests:
 
 Upstream tests
-~~~~~~~~~~~~~~
+--------------
 
 OpenVPN contains a set of build and regression tests which are executed
 for each commit and release via `GitHub
@@ -147,7 +147,7 @@ To do this we will:
 .. _sru_template:
 
 SRU template
-~~~~~~~~~~~~
+------------
 
 .. code-block:: text
 

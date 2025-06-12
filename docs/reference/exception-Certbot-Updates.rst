@@ -83,7 +83,7 @@ Packaging includes a dep8 smoke test.
 .. _sru_verification_process:
 
 SRU Verification Process
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 The following must be verified before a proposed update is marked
 verification-done-:

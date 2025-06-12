@@ -20,7 +20,7 @@ exception.
 .. _the_dpdk_project:
 
 The DPDK Project
-~~~~~~~~~~~~~~~~
+----------------
 
 DPDK was included in Ubuntu main during the 16.04 release cycle; since
 then upstream DPDK have started maintaining LTS releases of DPDK; At
@@ -39,7 +39,7 @@ critical updates to this software.
 .. _upstream_change_and_release_policy:
 
 Upstream Change and Release Policy
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------
 
 Upstream have a
 `policy <http://dpdk.org/doc/guides/contributing/stable.html>`__ for
@@ -90,7 +90,7 @@ needed by Distribution LTS releases. Therefore I now plan to:
 .. _upstream_regression_testing:
 
 Upstream Regression Testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 The upstream DPDK regression suite is a mix of comprehensive functional
 tests (API coverage, etc.) and stress workloads via packet generators.
@@ -117,7 +117,7 @@ coverage.
 .. _ubuntu_dpdk_testing:
 
 Ubuntu DPDK Testing
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 DPDK has very high constraints on the environment (a lot of memory, huge
 pages, certain CPU features) as well as the Hardware (limited to a set
@@ -169,7 +169,7 @@ passed.
 .. _testing_and_verification:
 
 Testing and verification
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 In addition to all the verification done by upstream prior to be
 releases the proposed packages will be prepared, uploaded and tested
@@ -186,7 +186,7 @@ not passing is to be considered ok in this case.
 .. _requesting_the_sru:
 
 Requesting the SRU
-~~~~~~~~~~~~~~~~~~
+------------------
 
 The SRU should be done with a single process bug, instead of individual
 bug reports for individual bug fixes. The one bug should have the
@@ -204,7 +204,7 @@ following:
 .. _sru_template:
 
 SRU Template
-~~~~~~~~~~~~
+------------
 
 ::
 

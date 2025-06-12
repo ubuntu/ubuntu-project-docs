@@ -51,7 +51,7 @@ QA
 .. _upstream_tests:
 
 Upstream tests
-~~~~~~~~~~~~~~
+--------------
 
 The OpenLDAP software contains an extensive testsuite that is executed
 during build time on all supported architectures. These tests exercise
@@ -59,7 +59,7 @@ different aspects of the software like remote authentication, slapadd
 usage, concurrency, amongst many other things.
 
 Pipelines
-~~~~~~~~~
+---------
 
 Upstream also makes use of `GitLab
 pipelines <https://git.openldap.org/openldap/openldap/-/pipelines>`__ in
@@ -81,7 +81,7 @@ makes the results much more reliable for Ubuntu.
 .. _calls_for_testing:
 
 Calls for testing
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Before every release, upstream publishes calls for testing in their
 mailing list. Although not everybody will publicly release their raw
@@ -97,7 +97,7 @@ As an example, some of their calls for testing can be found below:
    2.5.12 <https://lists.openldap.org/hyperkitty/list/openldap-technical@openldap.org/thread/5ZJEOQSVFQBG5TRLAAF6S5M3VRJH5IAV/>`__
 
 Autopkgtests
-~~~~~~~~~~~~
+------------
 
 The Debian/Ubuntu packages also carry autopkgtests. These tests
 currently don't exercise many features of the package, but the Server
@@ -120,7 +120,7 @@ Process
 .. _preparing_for_the_sru:
 
 Preparing for the SRU
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 Before filing an SRU/MRE bug and kickoff the process officially, we need
 to perform the following actions:
@@ -135,7 +135,7 @@ When everything looks OK, we are ready to start the SRU process.
 .. _requesting_the_sru:
 
 Requesting the SRU
-~~~~~~~~~~~~~~~~~~
+------------------
 
 As with regular MREs, the aim here is to offer bugfixes and security
 fixes to all supported releases. The SRU will be done using a single bug
@@ -161,7 +161,7 @@ for the OpenLDAP MREs (for example, `bug
 .. _testing_and_verification:
 
 Testing and verification
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 As explained above, the testing will be done primarily using a PPA, from
 which we will also run autopkgtests for all of the reverse dependencies
@@ -173,7 +173,7 @@ to the !GitLab jobs that were executed when the release was cut.
 .. _sru_template:
 
 SRU template
-~~~~~~~~~~~~
+------------
 
 ::
 

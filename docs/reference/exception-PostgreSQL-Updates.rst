@@ -73,7 +73,7 @@ QA
 .. _upstream_tests:
 
 Upstream tests
-~~~~~~~~~~~~~~
+--------------
 
 The PostgreSQL software contains an extensive testsuite that is executed
 during build time on all supported architectures.
@@ -81,7 +81,7 @@ during build time on all supported architectures.
 .. _debian_support:
 
 Debian support
-~~~~~~~~~~~~~~
+--------------
 
 Myon, the Debian Developer who maintains the PostgreSQL package on
 Debian, is also very active in building and testing the upstream
@@ -91,7 +91,7 @@ that perform builds and tests, and that have been useful when comparing
 results against the Ubuntu MRE builds.
 
 Autopkgtests
-~~~~~~~~~~~~
+------------
 
 The Debian/Ubuntu packages also carry autopkgtests. They run the
 build-time tests inside an autopkgtest environment.
@@ -107,7 +107,7 @@ Process
 .. _preparing_for_the_sru:
 
 Preparing for the SRU
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 Before filing an MRE bug and kickoff the process officially, we need to
 perform the following actions:
@@ -128,7 +128,7 @@ When everything looks OK, we are ready to start the SRU process.
 .. _requesting_the_sru:
 
 Requesting the SRU
-~~~~~~~~~~~~~~~~~~
+------------------
 
 As with regular MREs, the aim here is to offer bugfixes and security
 fixes to all supported releases. The SRU will be done using a single bug
@@ -154,7 +154,7 @@ We will:
 .. _testing_and_verification:
 
 Testing and verification
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 As explained above, the testing will be done primarily using a PPA. When
 needed (i.e., when uploading to the ``-security`` pocket), we will also run autopkgtests for all of the reverse
@@ -164,7 +164,7 @@ Otherwise, we will upload directly to ``-updates`` pocket and monitor the excuse
 .. _sru_template:
 
 SRU template
-~~~~~~~~~~~~
+------------
 
 .. code-block:: text
 

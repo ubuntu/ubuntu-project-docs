@@ -20,7 +20,7 @@ Package List
 .. _openstack_packages:
 
 OpenStack packages
-~~~~~~~~~~~~~~~~~~
+------------------
 
 -  aodh
 -  barbican
@@ -48,7 +48,7 @@ OpenStack packages
 .. _supporting_packages:
 
 Supporting packages
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 -  ceph
 -  openvswitch

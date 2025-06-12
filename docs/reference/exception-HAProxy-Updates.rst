@@ -61,7 +61,7 @@ QA
 .. _upstream_tests:
 
 Upstream tests
-~~~~~~~~~~~~~~
+--------------
 
 HAProxy contains a set a functional and regression tests which are
 executed by upstream via Github Actions. For the regression tests,
@@ -132,7 +132,7 @@ To do this we will:
 .. _sru_template:
 
 SRU template
-~~~~~~~~~~~~
+------------
 
 ::
 

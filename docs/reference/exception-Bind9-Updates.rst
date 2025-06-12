@@ -66,7 +66,7 @@ QA
 .. _upstream_tests:
 
 Upstream tests
-~~~~~~~~~~~~~~
+--------------
 
 Bind9 contains a set of build and code tests which are executed for each
 commit and release via `GitHub
@@ -143,7 +143,7 @@ To do this we will:
 .. _sru_template:
 
 SRU template
-~~~~~~~~~~~~
+------------
 
 ::
 

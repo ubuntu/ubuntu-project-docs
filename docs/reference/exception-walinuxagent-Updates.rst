@@ -82,7 +82,7 @@ release (if applicable):
 .. _pre_sru_test_cases:
 
 Pre-SRU Test Cases
-~~~~~~~~~~~~~~~~~~
+------------------
 
 These are the test cases that all walinuxagent are subjected to before
 even getting to SRU:
@@ -97,7 +97,7 @@ even getting to SRU:
 .. _sru_test_cases:
 
 SRU Test Cases
-~~~~~~~~~~~~~~
+--------------
 
 These are automated tests:
 
