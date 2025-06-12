@@ -133,8 +133,8 @@ NVidia QA Process
 
 .. _packaging_qa:
 
-Packaging QA
-------------
+NVidia Packaging QA
+-------------------
 
 The objective of the separate packaging QA is to test:
 

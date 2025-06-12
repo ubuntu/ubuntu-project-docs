@@ -52,8 +52,8 @@ procedure outlined below.
 
 .. _packaging_qa:
 
-Packaging QA
-------------
+Landscape Packaging QA
+----------------------
 
 The objective of the separate packaging QA is to test:
 
