@@ -120,8 +120,8 @@ the above steps have been completed.
 
 .. _sru_template:
 
-SRU Template
-------------
+walinuxagent SRU Template
+-------------------------
 
 ::
 

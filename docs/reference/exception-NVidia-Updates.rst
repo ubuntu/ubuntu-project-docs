@@ -179,8 +179,8 @@ QA tests
 
 .. _sru_template:
 
-SRU Template
-------------
+NVidia SRU Template
+-------------------
 
 ::
 

@@ -90,8 +90,8 @@ be good enough to ensure the package works as expected.
 
 .. _sru_template:
 
-SRU Template
-------------
+autopkgtest SRU Template
+------------------------
 
 ::
 

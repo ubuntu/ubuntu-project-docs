@@ -65,8 +65,8 @@ for the SRU to be considered complete.
 
 .. _sru_template:
 
-SRU Template
-------------
+ec2-hibinit-agent SRU Template
+------------------------------
 
 ::
 

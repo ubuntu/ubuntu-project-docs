@@ -104,8 +104,8 @@ verification-done-:
 
 .. _sru_template:
 
-SRU Template
-------------
+Certbot SRU Template
+--------------------
 
 ::
 

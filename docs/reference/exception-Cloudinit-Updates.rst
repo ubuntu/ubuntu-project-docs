@@ -182,8 +182,8 @@ members will not mark ‘verification-done’ until this has happened.
 
 .. _sru_template:
 
-SRU Template
-------------
+Cloudinit SRU Template
+----------------------
 
 ::
 

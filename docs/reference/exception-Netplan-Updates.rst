@@ -105,8 +105,8 @@ be run on the netplan master branch.
 
 .. _sru_template:
 
-SRU Template
-------------
+Netplan SRU Template
+--------------------
 
 ::
 

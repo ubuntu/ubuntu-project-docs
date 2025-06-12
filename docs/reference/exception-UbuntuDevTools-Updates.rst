@@ -75,8 +75,8 @@ following:
 
 .. _sru_template:
 
-SRU Template
-------------
+UbuntuDevTools SRU Template
+---------------------------
 
 ::
 

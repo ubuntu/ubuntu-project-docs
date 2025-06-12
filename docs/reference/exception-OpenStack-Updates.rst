@@ -129,8 +129,8 @@ be explicitly tested as well.
 
 .. _sru_template:
 
-SRU Template
-------------
+OpenStack SRU Template
+----------------------
 
 ::
 

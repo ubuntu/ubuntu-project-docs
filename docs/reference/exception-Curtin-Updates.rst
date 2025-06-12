@@ -109,8 +109,8 @@ mark ‘verification-done’ until this has happened.
 
 .. _sru_template:
 
-SRU Template
-------------
+Curtin SRU Template
+-------------------
 
 ::
 
