@@ -64,7 +64,7 @@ pass. The following requirements must be met:
 .. _packaging_qa:
 
 Packaging QA
-~~~~~~~~~~~~
+------------
 
 The resulting package, with all the changes in place, must undergo and
 pass the following additional QA procedures:
