@@ -27,6 +27,54 @@ to keep individual interpretations of the policy criteria consistent.
 Departing from the policy criteria above still requires approval from
 the Technical Board.
 
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+
+    exception-KernelUpdates
+    exception-AptUpdates
+    exception-Bind9Updates
+    exception-CertbotUpdates
+    exception-CloudinitUpdates
+    exception-CurtinUpdates
+    exception-DPDKUpdates
+    exception-DockerUpdates
+    exception-GNOMEUpdates
+    exception-GrubUpdates
+    exception-HAProxyUpdates
+    exception-LandscapeUpdates
+    exception-NVidiaUpdates
+    exception-NetplanUpdates
+    exception-OEMMetaUpdates
+    exception-OpenJDK-Updates
+    exception-OpenLDAPUpdates
+    exception-OpenStackUpdates
+    exception-OpenVMToolsUpdates
+    exception-OpenVPNUpdates
+    exception-PostfixUpdates
+    exception-PostgreSQLUpdates
+    exception-SnapcraftUpdates
+    exception-SnapdGlibUpdates
+    exception-SnapdUpdates
+    exception-SosreportUpdates
+    exception-SquidUpdates
+    exception-UbuntuAdvantageToolsUpdates
+    exception-UbuntuDevToolsUpdates
+    exception-UbuntuImageUpdates
+    exception-VirtualboxUpdates
+    exception-autopkgtest-Updates
+    exception-ec2-hibinit-agent-Updates
+    exception-firmware-updates
+    exception-gce-compute-image-packages-Updates
+    exception-google-compute-engine-Updates
+    exception-google-compute-engine-oslogin-Updates
+    exception-google-guest-agent-Updates
+    exception-google-osconfig-agent-Updates
+    exception-rax-nova-agent-Updates
+    exception-walinuxagentUpdates
+    exception-wslu-Updates
+
 Kernel
 ~~~~~~
 
