@@ -49,7 +49,6 @@ The above tests exercise the code changes and must be performed by a
 member of the Landscape team. The packaging changes need an extra QA
 procedure outlined below.
 
-.. _packaging_qa:
 
 Landscape Packaging QA
 ----------------------
