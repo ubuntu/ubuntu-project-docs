@@ -73,7 +73,7 @@ described in the ``debian/changelog``.
 .. _packaging_qa:
 
 Packaging QA
-~~~~~~~~~~~~
+------------
 
 Candidate packages are tested in all release channels through an
 install/upgrade process, by installing the existing archive version and
