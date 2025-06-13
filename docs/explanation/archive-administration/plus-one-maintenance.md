@@ -21,8 +21,9 @@ e.g. if it involved in a massive transition.
 We expect participants to be proficient in "distro work". Core Developers and
 MOTUs would of course qualify, but people working on their application for such
 a status are welcome. For the latter category, +1 shifts are a good way to get
-exposure to some specific situations such as transitions, proposed migration,
-or merges.
+more exposure to some specific situations such as transitions, proposed
+migration, or merges, although participants are expected to already understand
+those notions and have at least *some* experience with them.
 
 While some teams are committed to have people on +1 on a regular basis, others can
 pick up the occasional shift, in accordance with their managers.
