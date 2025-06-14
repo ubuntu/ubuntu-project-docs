@@ -17,6 +17,7 @@ backend
 backends
 backgrounding
 backport
+backporting
 backports
 BOF
 BOFs
@@ -102,6 +103,7 @@ Matic
 meetingology
 mentorship
 metapackage
+microreleases
 mir
 MIR
 MIRs

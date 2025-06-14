@@ -75,7 +75,7 @@ The MIR team **reviewer** reviews the bug report.
 They might delegate portions of the review to other teams, (e.g. the security
 team) by assigning it to them.
 
-The outcome of the review is either an acknowledgement, or a set of tasks that
+The outcome of the review is either an acknowledgment, or a set of tasks that
 still need to be completed.
 
 

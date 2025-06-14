@@ -364,7 +364,7 @@ RULE:   developers paying attention to their bugs, whether that be in Ubuntu
 RULE:   or elsewhere (often Debian). Packages that deliver major new headline
 RULE:   features in Ubuntu need to have commitment from Ubuntu developers
 RULE:   willing to spend substantial time on them.
-TODO-A: - The owning team will be TBD and I have their acknowledgement for
+TODO-A: - The owning team will be TBD and I have their acknowledgment for
 TODO-A:   that commitment
 TODO-B: - I Suggest the owning team to be TBD
 TODO-A: - The future owning team is already subscribed to the package
