@@ -22,7 +22,7 @@ To make use of Ubuntu merge proposals, follow these steps:
 
 * [set up the tools](http://packaging.ubuntu.com/html/getting-set-up.html)
 * [get the source](http://packaging.ubuntu.com/html/udd-intro.html)
-* [work on the package](http://packaging.ubuntu.com/html/fixing-a-bug.html#work-on-a-fix)
+* {external:doc}`work on the package <tutorial/fix-bug>`
 * [seek sponsorship](https://wiki.ubuntu.com/DistributedDevelopment/Documentation/SeekingSponsorship)
 
 ```{admonition} Incorrect redirects
@@ -42,7 +42,7 @@ The traditional process involves:
 * Attach your work:
 
   * In the case of a patch (using the same upstream version), attach your
-    suggested patch (["Submitting the fix"](https://packaging.ubuntu.com/html/fixing-a-bug.html#submitting-the-fix-and-getting-it-included)).
+    suggested patch ({external:doc}`submitting the fix <tutorial/fix-bug>`).
     For security updates, please see the [security update packaging guidelines](https://wiki.ubuntu.com/SecurityTeam/UpdatePreparation#Packaging).
 
   * If the package uses a patch system (run `what-patch` in the source tree to
@@ -98,8 +98,8 @@ If you are unsure how to get a package sponsored, would like to add a new
 package or submit a patch, or have questions getting your package upstream
 into Debian, the Ubuntu Patch Pilots can help.
 
-To find out how to get in touch, please check the
-[program documentation](https://ubuntu.com/community/contribute/ubuntu-development/ubuntu-patch-pilots|program documentation).
+To find out how to get in touch, go to
+[Ubuntu Patch Pilots](https://ubuntu.com/community/contribute/ubuntu-development/ubuntu-patch-pilots).
 
 Generally asking for help in `#ubuntu-motu` or `#ubuntu-devel` is definitely on
 topic too. :-)
