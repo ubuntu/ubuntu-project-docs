@@ -286,17 +286,21 @@ rst_epilog = """
 
 import distro_info
 
-sys.path.append('/usr/lib/python3/dist-packages')
+sys.path.append("/usr/lib/python3/dist-packages")
 
-manpages_url = ("https://manpages.ubuntu.com/manpages/"
-                f"{distro_info.UbuntuDistroInfo().stable()}/en/"
-                "man{section}/{page}.{section}.html")
+manpages_url = (
+    "https://manpages.ubuntu.com/manpages/"
+    f"{distro_info.UbuntuDistroInfo().stable()}/en/"
+    "man{section}/{page}.{section}.html"
+)
 
 # Configure hoverxref options
 hoverxref_role_types = {
-    'term': 'tooltip',
+    "term": "tooltip",
 }
-hoverxref_roles = ['term',]
+hoverxref_roles = [
+    "term",
+]
 
 # Specifies a reST snippet to be prepended to each .rst file
 # This defines a :center: role that centers table cell content.
@@ -326,4 +330,15 @@ if os.path.exists("./reuse/substitutions.yaml"):
 
 # Add configuration for intersphinx mapping
 
-intersphinx_mapping = {}
+intersphinx_mapping = {
+    "ubuntu-server": ("https://documentation.ubuntu.com/server/", None),
+    "pkg-guide": (
+        "https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/"
+        "en/2.0-preview/",
+        None,
+    ),
+    "starter-pack": (
+        "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
+        None,
+    ),
+}

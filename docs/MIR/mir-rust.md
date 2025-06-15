@@ -19,7 +19,7 @@ C code for some system libraries that could be statically linked.
 ### Automation via `debian/rules`
 
 A good example for automating Rust vendoring is provided by
-[s390-tools](https://git.launchpad.net/ubuntu/+source/s390-tools/tree/debian/rules)
+[s390-tools](https://sources.debian.org/src/s390-tools/2.35.0-1/debian/rules/)
 and can be executed via `debian/rules`.
 
 First, the package is updated as usual, including the new `debian/changelog`
