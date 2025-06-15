@@ -113,7 +113,7 @@ JR9bXlpTBqjGCTaLVRFF4faLrLef5Qk=
 ### HTTP triggers
 
 While SSH triggers (above) are the preferred trigger method, it is also possible
-for the master Ubuntu archive to send HTTP triggers.
+for the main Ubuntu archive to send HTTP triggers.
 HTTP triggers can be nearly any format, for example:
 
 ```
@@ -135,7 +135,7 @@ random) UUID in the path itself. Treat these URLs as sensitive, to avoid outside
 users triggering unnecessary syncs.
 
 It is up to the mirror administrator to build logic into the HTTP endpoint which
-authenticates the master Ubuntu archive and begins a sync. This logic varies
-wildly based on your specific platform. Output format is undefined; the master
+authenticates the main Ubuntu archive and begins a sync. This logic varies
+wildly based on your specific platform. Output format is undefined; the main
 simply loads the URL and moves on without examining the output.
 

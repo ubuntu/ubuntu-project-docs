@@ -15,7 +15,7 @@ The minimum set of seeds this author has used is:
 * minimal
 * standard
 * custom
-* blacklist
+* blocklist
 * supported
 
 It might be possible to exclude some of these (the full set of seeds for Ubuntu
@@ -37,7 +37,7 @@ required:
 minimal: required
 standard: required minimal
 custom:
-blacklist:
+blocklist:
 supported:
 ```
 
@@ -51,7 +51,7 @@ seed has a corresponding output list of packages which includes the packages
 and depends in the seed itself, plus any packages and dependencies for the
 seeds listed as dependencies for the seed (recursively).
 
-*blacklist* is also special in that it doesn't define a list of packages to
+*blocklist* is also special in that it doesn't define a list of packages to
 include. Instead it lists packages which will never be included in the output
 of `germinate`.
 
