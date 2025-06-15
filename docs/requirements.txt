@@ -4,3 +4,4 @@ sphinx-last-updated-by-git
 sphinxcontrib-mermaid
 distro_info
 sphinx-hoverxref
+sphinx-prompt
