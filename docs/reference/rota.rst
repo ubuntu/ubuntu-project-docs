@@ -13,13 +13,13 @@ following schedule:
 +-----------+-----------------------------------------------------------------+
 | Day       | SRU Team Member (IRC nick)                                      |
 +===========+=================================================================+
-| Monday    | Chris Halse Rogers (RAOF), Łukasz Zemczak (sil2100)             |
+| Monday    | Chris Halse Rogers (RAOF)                                       |
 +-----------+-----------------------------------------------------------------+
-| Tuesday   | Chris Halse Rogers (RAOF), Brian Murray (bdmurray)              |
+| Tuesday   | Chris Halse Rogers (RAOF)                                       |
 +-----------+-----------------------------------------------------------------+
 | Wednesday | Nick Rosbrook (enr0n)                                           |
 +-----------+-----------------------------------------------------------------+
-| Thursday  | Andreas Hasenack (ahasenack), Łukasz Zemczak (sil2100 - backup) |
+| Thursday  | Andreas Hasenack (ahasenack)                                    |
 +-----------+-----------------------------------------------------------------+
 | Friday    | Timo Aaltonen (tjaalton)                                        |
 +-----------+-----------------------------------------------------------------+
