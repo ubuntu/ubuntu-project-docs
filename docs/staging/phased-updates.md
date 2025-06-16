@@ -168,7 +168,7 @@ Checklist:
 
 1. Is any migration of data or settings required?
 
-1. How will the feature be tested? W4ork with the
+1. How will the feature be tested? Work with the
   [Quality team](https://discourse.ubuntu.com/t/ubuntu-quality/39).
 
 ## Unresolved issues
