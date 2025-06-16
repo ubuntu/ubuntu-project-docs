@@ -13,7 +13,7 @@ To report a mistake on any page, or highlight some missing documentation,
 [file an issue](https://github.com/ubuntu/ubuntu-project-docs/issues) in our
 issues list on GitHub.
 
-You can do this using the "Give feedback" button on any page, which will open a
+You can do this using the {guilabel}`Give feedback` button on any page, which will open a
 new issue.
 
 Make sure to provide enough information in the issue for us to understand what
@@ -33,7 +33,7 @@ our documentation and make your proposal based on that revision.
 
 ## Contribute on GitHub
 
-If you are familiar with a Git development workflow, `checkout` the
+If you are familiar with a Git development workflow, `fork` the
 [Ubuntu Project docs repository](https://github.com/ubuntu/ubuntu-project-docs)
 and contribute your change as a
 [pull request](https://github.com/ubuntu/ubuntu-project-docs/pulls).
@@ -108,7 +108,42 @@ Follow these steps to build the documentation on your local machine.
 
 ## Documentation format
 
-The Ubuntu Project documentation is built with Sphinx using the MyST flavor of the Markdown mark-up language. If you're new to Markdown or MyST, read our [MyST style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/style-guide-myst/).
+The Ubuntu Project documentation is built with Sphinx using a combination of the MyST flavor of the Markdown and reStructuredText mark-up languages. MyST is preferred for new content. If you're new to this, see our guides:
+
+* [MyST style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/style-guide-myst/)
+* [reStructuredText style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/style-guide/)
+
+
+### Semantic mark-up
+
+We encourage (though not mandate) the use of semantic mark-up where possible. See [Roles](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html) in Sphinx documentation for an overview of inline semantic roles available by default. The syntax is:
+
+| MyST | reStructuredText |
+| --- | --- |
+| `` {role}`term` `` | `` :role:`term` `` |
+
+The following roles are especially useful:
+
+`code`
+: Source-code snippets.
+
+`command`
+: Command-line interface (CLI) commands.
+
+`file`
+: Names of files and directories (including path).
+
+`guilabel`
+: Graphical user interface (GUI) elements: button, widgets, labels, ...
+
+`kbd`
+: Keyboard keys and shortcuts. Example:`` {kbd}`Shift+F1` `` (rendered as {kbd}`Shift+F1`).
+
+`manpage`
+: Link to an Ubuntu manual page. Example:`` {manpage}`man(1)` `` (rendered as a live link: {manpage}`man(1)`).
+
+`pkg`
+: Linux package name (this role is custom to this documentation project).
 
 
 ## Testing the documentation
