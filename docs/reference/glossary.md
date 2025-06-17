@@ -1312,7 +1312,7 @@ Ubuntu ESM Team
     *Work in Progress*
 
     See also:
-    * [Ubuntu ESM Team](https://launchpad.net/~ubuntu-esm-team)
+    * [Ubuntu ESM Team](https://ubuntu.com/security/esm)
 
 Ubuntu flavors
     **Ubuntu flavors** are {term}`Distributions <Distribution>` of the default Ubuntu

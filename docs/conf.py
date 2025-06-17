@@ -197,7 +197,8 @@ linkcheck_ignore = [
 linkcheck_anchors_ignore_for_url = [
     r"https://github\.com/.*",
     r"https://matrix\.to/.*",
-    r"https://www.gnu\.org/.*",
+    r"https://www\.gnu\.org/.*",
+    r"https://git\.launchpad\.net/ubuntu/\+source/.*",
 ]
 
 # give linkcheck multiple tries on failure
@@ -331,7 +332,18 @@ if os.path.exists("./reuse/substitutions.yaml"):
 
 # Add configuration for intersphinx mapping
 
-intersphinx_mapping = {}
+intersphinx_mapping = {
+    "ubuntu-server": ("https://documentation.ubuntu.com/server/", None),
+    "pkg-guide": (
+        "https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/"
+        "en/2.0-preview/",
+        None,
+    ),
+    "starter-pack": (
+        "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
+        None,
+    ),
+}
 
 
 # Redefine the Sphinx 'command' role to behave/render like 'literal'

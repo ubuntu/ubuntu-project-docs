@@ -146,6 +146,77 @@ The following roles are especially useful:
 : Linux package name (this role is custom to this documentation project).
 
 
+### Command line and terminal output
+
+Ubuntu Project documentation defaults to presenting command examples and terminal output in the following manner.
+
+
+#### Command examples
+
+To show an example of a command entered on the command line, use:
+
+* A regular literal block with language type `none` to prevent syntax highlighting.
+* Angled brackets (`<>`) to indicate a part to be substituted by the user.
+* Square brackets (`[]`) to indicate optional arguments.
+* Command split over multiple lines to avoid wrapping or the need to scroll.
+* Dollar (`$`) or hash (`#`) character to indicate normal user or superuser prompt respectively.
+
+Example source for MyST:
+
+````none
+```none
+$ command --option=<mandatory_value> [optional_parameter] && \
+  another-command --option --option2
+```
+````
+
+
+#### Terminal output
+
+When showing terminal output, use:
+
+* Separate blocks for the invocation and output.
+* Suitably shortened output to show only relevant parts.
+
+Example source for MyST:
+
+````none
+To enable the example service, run:
+
+```none
+$ examplectl start service
+```
+
+The output indicates that the example service is now active:
+
+```none
+Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+nisi ut aliquip ex ea commodo consequat.
+
+[...]
+```
+````
+
+In case it is useful to show a command using a specific command-line prompt together with the output, use the `terminal` directive.
+
+Example source for MyST:
+
+````none
+Run the {command}`command` as the root user to achieve the folowing result:
+
+```{terminal}
+:user: root
+:host: ubuntu
+:dir: /tmp
+:input: command --option
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit
+```
+````
+
+
 ## Testing the documentation
 
 Test your changes before submitting a pull request. Run the following commands from within the `docs/` directory to test the documentation locally:
