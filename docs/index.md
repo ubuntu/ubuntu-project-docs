@@ -4,38 +4,12 @@
 :maxdepth: 2
 :hidden: true
 
-tutorial/index
-how-to/index
-reference/index
-explanation/index
+contribute/getting-started
 
-Contribute documentation <how-to/contribute-docs.md>
-```
-
-```{toctree}
-:maxdepth: 2
-:hidden: true
-
-Staging/preview area <staging.md>
-```
-
-```{admonition} **Work in progress**
-:class: important
-
-Welcome to the Ubuntu Project documentation!
-[Read more about this project](https://discourse.ubuntu.com/t/revitalising-ubuntu-project-documentation/58694).
-
-This documentation is currently **under construction**. We have added
-placeholders to help guide the structure. This means many pages will be
-initially empty. Pages may also move around or become split (or combined) as we
-work with the source material.
-
-You can keep track of the progress via our fortnightly Discourse updates
-[in this thread](https://discourse.ubuntu.com/t/bringing-together-20-years-of-documentation/61780).
-
-Contributions are very welcome! See our
-[issues list](https://github.com/ubuntu/ubuntu-project-docs/issues) for ideas,
-and our {ref}`contributing guide <contribute>` for details on how to contribute.
+How Ubuntu is made <how-ubuntu-is-made/index>
+Contribute <contribute/index>
+Maintain <maintain/index>
+Ubuntu roles <roles/index>
 ```
 
 Ubuntu is the world's most widely deployed Linux operating system, but it's also
@@ -57,64 +31,66 @@ that govern them.
 
 ## In this documentation
 
-````{grid} 1 1 2 2
+::::{grid} 1 1 2 2
 
-```{grid-item-card} [Tutorial](tutorial/index)
-:link: tutorial/index
+:::{grid-item-card} [How Ubuntu is made](how-ubuntu-is-made/index)
+:link: how-ubuntu-is-made/index
 :link-type: doc
 
-**Get started** contributing to Ubuntu
+Everything you need to understand what Ubuntu is and how it's made:
 
-* Build and upload:
-  * a deb package
-  * a Snap
-  * a container image
-* Work on documentation
-```
+* Project Governance
+* Mission, CoC, diversity policy
+* Peers (Debian and Canonical)
+* Concepts
+* Process overviews
+:::
 
-```{grid-item-card} [How-to guides](how-to/index)
-:link: how-to/index
+:::{grid-item-card} [Contribute](contribute/index)
+:link: contribute/index
 :link-type: doc
 
-**Step-by-step guides** for key tasks, use-cases and problems
+Guides to help you build Ubuntu
 
-These guides assume basic familiarity with Ubuntu and its processes
-```
+* Fix bugs
+* Find a sponsor for your upload
+* Update a package version
+* Templates and checklists
+* Contribute documentation
+:::
+::::
 
-````
 
-````{grid} 1 1 2 2
+::::{grid} 1 1 2 2
 :reverse:
 
-```{grid-item-card} [Reference](reference/index)
-:link: reference/index
+:::{grid-item-card} [Maintain](maintain/index)
+:link: maintain/index
 :link-type: doc
 
-**Technical information** about:
-* APIs
-* Commands
-* Internals and architecture
-* Specifications
-```
+How-tos for tasks that require elevated permissions
 
-```{grid-item-card} [Explanation](explanation/index)
-:link: explanation/index
+* Review an MIR or SRU
+* Sponsor an upload
+* Archive management
+* Manage a release
+* Process checklists
+:::
+
+:::{grid-item-card} [Ubuntu roles](roles/index)
+:link: roles/index
 :link-type: doc
 
-**Explanation** of key topics and concepts
+Information about the people of Ubuntu and their roles.
+* Councils and Boards
+* Delegation
+* Roles (uploader, core-dev etc)
+* Joining a role (pathway, responsibilities)
+* Community
+:::
+::::
 
-These discussions provide clarification, background information and context
-```
-
-````
-
-- Governance: Community Council | Technical Board | Delegation and Teams |
-  Canonical | Debian
-- Community: Communication | Membership | Code of Conduct | Diversity | Mission
-- Process: Main Inclusion Review | Stable Release Updates | Sponsorship |
-  Releases
-- Development: Packaging Guide | Developer Guide | Archive Administration |
-  git-ubuntu
+---------
 
 ## Project and community
 
@@ -126,7 +102,7 @@ suggestions, fixes, and constructive feedback.
 * [Discuss on the Ubuntu Discourse forum](https://discourse.ubuntu.com/)
 * Get support in our Matrix channel
 
-## Related documentation
+## Using Ubuntu
 
 - Ubuntu Server documentation
 - Ubuntu Desktop documentation
