@@ -196,7 +196,8 @@ linkcheck_ignore = [
 linkcheck_anchors_ignore_for_url = [
     r"https://github\.com/.*",
     r"https://matrix\.to/.*",
-    r"https://www.gnu\.org/.*",
+    r"https://www\.gnu\.org/.*",
+    r"https://git\.launchpad\.net/ubuntu/\+source/.*",
 ]
 
 # give linkcheck multiple tries on failure
