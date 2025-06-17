@@ -1,8 +1,9 @@
 import datetime
-import ast
 import os
-import sys
 import yaml
+from docutils.parsers.rst import roles
+from sphinx.util.docutils import SphinxRole
+from docutils import nodes
 
 # Configuration for the Sphinx documentation builder.
 # All configuration specific to your project should be done in this file.
@@ -243,6 +244,8 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinxcontrib.mermaid",
     "hoverxref.extension",
+    "sphinx-prompt",
+    "sphinx.ext.extlinks",
 ]
 
 # Excludes files or directories from processing
@@ -285,14 +288,12 @@ rst_epilog = """
 # manpages_url = 'https://manpages.ubuntu.com/manpages/{codename}/en/' + \
 #     'man{section}/{page}.{section}.html'
 
-import distro_info
-
-sys.path.append("/usr/lib/python3/dist-packages")
+stable_distro = "plucky"
 
 manpages_url = (
     "https://manpages.ubuntu.com/manpages/"
-    f"{distro_info.UbuntuDistroInfo().stable()}/en/"
-    "man{section}/{page}.{section}.html"
+    + stable_distro
+    + "/en/man{section}/{page}.{section}.html"
 )
 
 # Configure hoverxref options
@@ -343,3 +344,26 @@ intersphinx_mapping = {
         None,
     ),
 }
+
+
+# Redefine the Sphinx 'command' role to behave/render like 'literal'
+
+
+class CommandRole(SphinxRole):
+    def run(self):
+        text = self.text
+        node = nodes.literal(text, text)
+        return [node], []
+
+
+def setup(app):
+    roles.register_local_role("command", CommandRole())
+
+
+# Define a custom role for package-name formatting
+def pkg_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+    node = nodes.literal(rawtext, text)
+    return [node], []
+
+
+roles.register_local_role("pkg", pkg_role)

@@ -6,7 +6,7 @@ This content comes [from the wiki](https://wiki.ubuntu.com/UbuntuDevelopment/Pac
 It has not yet been reviewed for currency or accuracy.
 ```
 
-All current official Ubuntu packages are stored in the master archive, which is
+All current official Ubuntu packages are stored in the primary archive, which is
 widely {ref}`mirrored <mirrors>`.
 A search interface is available at [http://packages.ubuntu.com](http://packages.ubuntu.com).
 Old versions can be retrieved from [Launchpad](http://launchpad.net/ubuntu).
