@@ -25,12 +25,12 @@ The tool tells you what it's going to do, and asks for confirmation before
 doing it, so it's reasonably safe to get the wrong options and say `N`.
 
 
-## Blacklisting
+## Blocklisting
 
 If you remove source packages which are in Debian, and they are not meant to
-ever come back, add it to the blacklist in
-`lp:~ubuntu-archive/+junk/sync-blacklist`, document the reason, and
-`bzr commit` it with an appropriate changelog. This will avoid getting the
+ever come back, add it to the blocklist in
+`lp:~ubuntu-archive/+git/sync-blocklist`, document the reason, and
+`git commit` it with an appropriate changelog. This will avoid getting the
 package back to source NEW in the next round of auto-syncs from Debian.
 
 
