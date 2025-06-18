@@ -1,5 +1,8 @@
 (how-to-contribute)=
-# How to contribute
+# Guides for contributors
+
+These guides will help you with the specific tasks and processes that build
+Ubuntu.
 
 ## Getting set up
 

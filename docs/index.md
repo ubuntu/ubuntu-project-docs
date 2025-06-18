@@ -4,12 +4,12 @@
 :maxdepth: 2
 :hidden: true
 
-contribute/getting-started
+contributors/getting-started
 
 How Ubuntu is made <how-ubuntu-is-made/index>
-Contribute <contribute/index>
-Maintain <maintain/index>
-Ubuntu roles <roles/index>
+Contributors <contributors/index>
+Maintainers <maintainers/index>
+Who makes Ubuntu <who-makes-ubuntu/index>
 ```
 
 Ubuntu is the world's most widely deployed Linux operating system, but it's also
@@ -37,20 +37,20 @@ that govern them.
 :link: how-ubuntu-is-made/index
 :link-type: doc
 
-Everything you need to understand what Ubuntu is and how it's made:
+Everything you need to understand what Ubuntu is and how it's made
 
 * Project Governance
 * Mission, CoC, diversity policy
 * Peers (Debian and Canonical)
-* Concepts
+* Key concepts
 * Process overviews
 :::
 
-:::{grid-item-card} [Contribute](contribute/index)
-:link: contribute/index
+:::{grid-item-card} [Contributors](contributors/index)
+:link: contributors/index
 :link-type: doc
 
-Guides to help you build Ubuntu
+Guides to help you build and contribute to Ubuntu
 
 * Fix bugs
 * Find a sponsor for your upload
@@ -64,11 +64,11 @@ Guides to help you build Ubuntu
 ::::{grid} 1 1 2 2
 :reverse:
 
-:::{grid-item-card} [Maintain](maintain/index)
-:link: maintain/index
+:::{grid-item-card} [Maintainers](maintainers/index)
+:link: maintainers/index
 :link-type: doc
 
-How-tos for tasks that require elevated permissions
+Guides for tasks that require elevated permissions
 
 * Review an MIR or SRU
 * Sponsor an upload
@@ -77,15 +77,16 @@ How-tos for tasks that require elevated permissions
 * Process checklists
 :::
 
-:::{grid-item-card} [Ubuntu roles](roles/index)
-:link: roles/index
+:::{grid-item-card} [Who makes Ubuntu](who-makes-ubuntu/index)
+:link: who-makes-ubuntu/index
 :link-type: doc
 
-Information about the people of Ubuntu and their roles.
+About the people of Ubuntu, their roles, and their responsibilities
+
 * Councils and Boards
 * Delegation
 * Roles (uploader, core-dev etc)
-* Joining a role (pathway, responsibilities)
+* Joining a role (contributor pathways)
 * Community
 :::
 ::::

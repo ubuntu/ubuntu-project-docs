@@ -1,15 +1,12 @@
 (how-to-maintain)=
-# How to maintain Ubuntu
+# Guides for maintainers
 
 In general, this should probably be split *by task* and then ordered by either
 increasing permissions required (i.e. from lowest to highest), or by
 frequency (i.e. most common tasks first)
 
-Every section here will cover multiple processes or tasks. Each should have a
-corresponding explainer in the "how Ubuntu is made" section, and if there are
-things that the person needs to know to carry these things out (process
-exceptions, etc) they should be in the "ubuntu roles/responsibilities" section
-(e.g. MIR exceptions and special cases).
+These guides are for those with elevated permissions on particular tasks who
+are responsible for maintaining the Package Archive or managing processes.
 
 ## Uploader tasks
 
