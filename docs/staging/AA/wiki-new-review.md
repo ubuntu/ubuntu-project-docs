@@ -66,9 +66,9 @@ the package name, the version and how long it's been in the queue.
 New sources need to be checked to make sure they're well packaged, the licence
 details are correct and permissible for us to redistribute, etc. See:
 
-* [Packaging new software](http://packaging.ubuntu.com/html/packaging-new-software.html)
+* {external:doc}`Packaging new software <tutorial/create-new-package>`
 
-* [debian/copyright file](http://packaging.ubuntu.com/html/debian-dir-overview.html#the-copyright-file)
+* {ref}`debian/copyright file <the-copyright-file>`
 
 * and [Debian's Reject FAQ](https://ftp-master.debian.org/REJECT-FAQ.html).
 

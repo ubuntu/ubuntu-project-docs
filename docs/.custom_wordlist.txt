@@ -28,6 +28,7 @@ backport
 backporting
 backports
 Bileto
+blocklist
 BOF
 BOFs
 bootable
@@ -127,6 +128,7 @@ logfile
 Lubuntu
 macOS
 manpage
+Masters
 Matic
 meetingology
 mentorship

@@ -148,14 +148,14 @@ it back to zero (to no longer provide this update), you'd run:
 From the wiki page, import the i386 whitelist updates content
 ```
 
-(aa-i386-whitelist-updates)=
-## i386 whitelist updates
+(aa-i386-allowlist-updates)=
+## i386 allowlist updates
 
 The i386 [is a partial archive now](https://wiki.ubuntu.com/i386).
 
-To add packages to the whitelist:
+To add packages to the allowlist:
 
-* Update the `update-i386-whitelist` script from `u-a-t` (typically adding a
+* Update the `update-i386-whitelist` script from `ubuntu-archive-tools` (typically adding a
   `newSet.update(['$package'])` entry
 
 * Run the script

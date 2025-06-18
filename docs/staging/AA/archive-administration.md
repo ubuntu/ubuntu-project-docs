@@ -57,7 +57,7 @@ more depth in the {ref}`aa-secondary-tasks` page.
 * Priority mismatches
 * Signing bootloaders
 * Phasing on delivering SRU updates
-* i386 whitelist updates
+* i386 allowlist updates
 
 The following list of Archive-related services needs to be updated with details
 of the charmed hosted services as they are migrated.
