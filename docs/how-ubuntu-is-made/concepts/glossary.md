@@ -803,7 +803,14 @@ Maintainer
 
 MOTU
 Masters of the Universe
-    *Work in Progress*
+    Masters of the Universe are the brave souls who keep the Universe and Multiverse components of Ubuntu in shape.
+    They are community members who spend their time adding, maintaining, and supporting as much as possible the
+    software found in Universe.
+
+    A list of MOTUs can be found on our [Launchpad team page](https://launchpad.net/~motu).
+
+    Besides the MOTU there is also a large number of volunteers called contributors who are on their way to 
+    becoming MOTUs and have their work on Universe sponsored by MOTUs.
 
 Merge
     *Work in Progress*
