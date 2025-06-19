@@ -40,8 +40,6 @@ index-bug-fix
 index-patching
 ```
 
-This should also probably be the path into SRU docs
-
 ## New packages
 
 ```{toctree}
@@ -52,22 +50,13 @@ index-new-package
 
 Should also discuss backports?
 
-## Main Inclusion Review
+## Advanced tasks
 
-The {ref}`Main Inclusion Review (MIR) <main-inclusion-review>` process ensures
-that both **reporters** and **reviewers** can successfully handle `main`
-inclusion requests. This improves the long-term maintainability of the packages 
-in `main`.
+Although you do not need any elevated permissions to work on the tasks in this
+section, they are not suitable for beginners and require you to already have
+some working familiarity with Ubuntu development. 
 
 ```{toctree}
 :maxdepth: 1
-:hidden:
 
-MIR bug request template <../MIR/mir-reporters-template>
-How to use MIR templates <../MIR/mir-how-to-use-templates>
-```
-
-
-
-
-
+index-advanced

@@ -1,4 +1,0 @@
-(syncing)=
-
-# Syncing
-

@@ -1,5 +1,5 @@
-(key-concepts)=
-# Key concepts
+(index-concepts)=
+# Key concepts and definitions
 
 ```{toctree}
 :maxdepth: 1

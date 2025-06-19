@@ -1,4 +1,4 @@
-(project-governance)=
+(index-governance)=
 # Governance
 
 Information *for* contributors about the structure of Ubuntu's governing bodies
@@ -9,6 +9,4 @@ Information *for* contributors about the structure of Ubuntu's governing bodies
 
 governance/ethos
 governance/peers
-governance/3rd-party-software-policy
-governance/coc-violation
 ```

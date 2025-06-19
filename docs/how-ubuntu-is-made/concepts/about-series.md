@@ -1,2 +1,3 @@
 (about-series)=
-# About Ubuntu series
+# About series
+

@@ -4,12 +4,37 @@
 :maxdepth: 2
 :hidden: true
 
-contributors/getting-started
-
 How Ubuntu is made <how-ubuntu-is-made/index>
 Contributors <contributors/index>
 Maintainers <maintainers/index>
 Who makes Ubuntu <who-makes-ubuntu/index>
+```
+
+```{toctree}
+:maxdepth: 2
+:hidden: true
+
+Staging/preview area <staging.md>
+```
+
+
+```{admonition} **Work in progress**
+:class: important
+
+Welcome to the Ubuntu Project documentation!
+[Read more about this project](https://discourse.ubuntu.com/t/revitalising-ubuntu-project-documentation/58694).
+
+This documentation is currently **under construction**. We have added
+placeholders to help guide the structure. This means many pages will be
+initially empty. Pages may also move around or become split (or combined) as we
+work with the source material.
+
+You can keep track of the progress via our fortnightly Discourse updates
+[in this thread](https://discourse.ubuntu.com/t/bringing-together-20-years-of-documentation/61780).
+
+Contributions are very welcome! See our
+[issues list](https://github.com/ubuntu/ubuntu-project-docs/issues) for ideas,
+and our {ref}`contributing guide <contribute>` for details on how to contribute.
 ```
 
 Ubuntu is the world's most widely deployed Linux operating system, but it's also

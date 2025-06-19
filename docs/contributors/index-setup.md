@@ -1,4 +1,5 @@
-# Getting set up
+(getting-started)=
+# Getting started
 
 ```{toctree}
 :maxdepth: 1
