@@ -43,8 +43,8 @@ However, it is perfectly fine to pick up shifts for shorter durations.
 
 ## Contact
 
-Most of the day-to-day communication around +1 should take place on the [Ubuntu Development](https://matrix.to/#/#devel:ubuntu.com)
-channel on Matrix.
+Most of the day-to-day communication around +1 should take place on the public
+[Ubuntu Development](https://matrix.to/#/#devel:ubuntu.com) channel on Matrix.
 
 The [Debcrafters](https://launchpad.net/~debcrafters-packages) team, and [Simon Chopin ](https://launchpad.net/~schopin) in particular, is responsible for
 coordinating the effort.
