@@ -101,6 +101,10 @@ Failing that, there are a few places that one might want to look at to find
 work. They are loosely listed in order of priority, but that importance varies
 depending on the development cycle.
 
+It is of course reasonable for individual contributors to skew their workload
+towards their own affinities, e.g. a RISC-V specialist might want to look a bit
+more closely to issues only showing up on riscv64.
+
 #### Transition tracker, NBS
 
 The [NBS tracker](https://ubuntu-archive-team.ubuntu.com/nbs.html), for "Not
