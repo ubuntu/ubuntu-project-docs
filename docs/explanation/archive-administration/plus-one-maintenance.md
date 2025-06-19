@@ -119,8 +119,11 @@ new tracker.
 
 #### FTBFS
 
-The priority of these rises along with the cycle. We want as few packages failing to build
-at release time as possible, as it makes security updates of these packages that much harder.
+The priority of these rises along with the cycle. We want as few packages
+failing to build at release time as possible, as it makes security updates of
+these packages that much harder. An interesting aspect of these is that they
+are usually isolated and can be worked on without interfering much with other
+contributers.
 
 Good sources for these are test rebuild results, periodically posted to [the
 ubuntu-devel list](https://lists.ubuntu.com/archives/ubuntu-devel/), as well as
