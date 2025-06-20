@@ -6,6 +6,10 @@ This page is a seed which will document which services are where, and how they
 work. The previous list is being replaced as services are migrated to become
 charmed hosted services.
 ```
+
+```{admonition} This page will be moved to:
+maintainers -> AA
+```
 ## List of services on `ubuntu-archive-toolbox`
 
 ### SRU

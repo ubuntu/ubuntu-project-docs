@@ -1,6 +1,10 @@
 (aa-museum)=
 # Archive Admin museum
 
+```{important}
+This page should not be moved out of the staging area in its current state.
+```
+
 All this content is saved from
 [the Wiki Archive Admin page](https://wiki.ubuntu.com/ArchiveAdministration)
 
@@ -620,10 +624,8 @@ Additionally, performing the following should be considered:
 
 ### Outdated
 
-```{admonition} Question
-:class: important
-This section is actually marked on the AA page as being outdated. Should we
-keep it for historical interest?
+```{note}
+This section is actually marked on the AA page as being outdated.
 ```
 
 #### Logging in
