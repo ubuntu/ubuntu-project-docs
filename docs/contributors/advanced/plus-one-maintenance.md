@@ -1,3 +1,3 @@
-(contributor-plus-one-maintenance)=
+(plus-one-maintenance)=
 # +1 Maintenance
 

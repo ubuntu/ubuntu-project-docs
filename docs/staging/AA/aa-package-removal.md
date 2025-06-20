@@ -1,12 +1,31 @@
 (aa-package-removal)=
-# Package removal
-
+# How to remove a package
 
 The `ubuntu-archive` team handles removals of both source and binary packages.
 See the [work list of source package removals requested by developers](https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-archive&field.status=NEW&field.status=Confirmed&field.status=Triaged&field.status=INPROGRESS&field.status=FIXCOMMITTED&field.status=INCOMPLETE_WITH_RESPONSE&orderby=-id&start=0).
+
+To remove a package entirely from the Archive, use the `remove-package`
+client-side tool. By default this removes the named source and binaries.
+
+```text
+$ ./remove-package -m "reason for removal" konserve
+```
+
+To remove only a source, use `-S`. To remove only a binary, use `-b`:
+
+```text
+$ ./remove-package -m "NBS" -b konserve
+```
+
+"NBS" is a common short-hand meaning that the binary is "No longer Built by the
+Source".
+
+The tool tells you what it's going to do, and asks for confirmation before
+doing it, so it's reasonably safe to get the wrong options and say `N`.
+
 Binary package removals generally do not require a bug report; for source
-packages I require either a Launchpad or Debian bug # to reference in the
-removal, because from time to time users will find the publishing
+packages you should require either a Launchpad or Debian bug # to reference in
+the removal, because from time to time users will find the publishing
 history and complain to the Archive Admin who did the removal, so it's useful
 to be able to redirect them.
 
@@ -29,6 +48,20 @@ see below.
 
 Recommends should not block removals of packages. Seed references should be
 referred to the maintainers of the relevant flavor before removal.
+
+> ## Removals in Debian
+
+> From time to time we should remove packages that were removed in Debian, to
+> avoid accumulating unmaintained packages. This client-side tool (from
+> `ubuntu-archive-tools`) will interactively go through the removals and ask for
+> confirmation:
+
+> ```bash
+> $ ./process-removals
+> ```
+
+> Please note that we do need to keep some packages that were removed in Debian
+> (e.g. `firefox`, since we did not do the `firefox` -> `iceweasel` renaming).
 
 
 ## Other source removals of packages from Debian
@@ -142,6 +175,15 @@ Example:
 sru-remove --reason=failed -s oracular -p samba 2092308
 ```
 
+> ## Failed SRUs
+> If a package should be removed from `-proposed`, use the `remove-package` tool
+> from `ubuntu-archive-tools`) to remove source and binaries, e.g. for the
+> `libreoffice` package in `xenial-proposed`:
+
+> ```bash
+> $ ./remove-package -m "SRU abandoned (verification-failed)" -s xenial-proposed libreoffice
+> ```
+
 
 ### **No test plan verification done in more then 105 days**
 
@@ -190,6 +232,33 @@ several places.
   and [out-of-date package report](https://ubuntu-archive-team.ubuntu.com/proposed-migration/noble_outdate.txt)
   for the corresponding series. 
 
+```
+From the wiki
+(aa-nbs)=
+## NBS
+
+Sometimes binary packages are Not Built by any Source (NBS) any more. This
+usually happens with library SONAME changes, package renames, etc. Those need
+to be removed from the archive from time to time, and right before a release,
+to ensure that the entire archive can be rebuilt by current sources.
+
+Such packages are detected by `archive-cruft-check`. This tool does not check
+for reverse dependencies, though, so you should use `checkrdepends -b` for
+checking if it is safe to actually remove NBS packages from the archive.
+
+Look at the
+[half-hourly generated NBS report](https://ubuntu-archive-team.ubuntu.com/nbs.html)
+which shows all NBS packages, their reverse dependencies, and a
+copy-and-paste-able command to clean up the "safe" ones.
+
+The rest needs to be taken care of by developers, by doing transition uploads
+for library SONAME changes, updating build dependencies, etc. The remaining
+files will list all the packages which still need the package in question.
+
+Please refrain from removing NBS kernel packages for old {term}`ABIs <ABI>`
+until `debian-installer` and the seeds have been updated, otherwise daily
+builds of alternate and server CDs will be made uninstallable.
+```
 
 (revert-a-package-to-a-previous-version)=
 ## Revert a package to a previous version

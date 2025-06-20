@@ -1,6 +1,12 @@
 (not-AA)=
 # Content that doesn't belong to AA
 
+```{important}
+This page should not be moved out of the staging area in its current state.
+If you move content to another section, please delete it from this page.
+```
+
+
 All this content is saved from
 [the Wiki Archive Admin page](https://wiki.ubuntu.com/ArchiveAdministration)
 
