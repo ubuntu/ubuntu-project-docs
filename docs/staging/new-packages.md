@@ -60,7 +60,7 @@ In order to have faster reviews, several teams have been set up to manage a
 given subset of packages. Some of them are:
 
 * [Debian GNOME Team](http://wiki.debian.org/Teams/DebianGnome)
-* [Debian KDE Team](http://pkg-kde.alioth.debian.org/)
+* [Debian KDE Team](https://salsa.debian.org/qt-kde-team/)
 * [Debian XFCE Group](http://wiki.debian.org/Teams/DebianXfceGroup)
 * [Debian Games Team](http://wiki.debian.org/Games/Team)
 * [Debian Multimedia](http://wiki.debian.org/DebianMultimedia)
@@ -68,8 +68,8 @@ given subset of packages. Some of them are:
 * [Debian Python Modules Team](http://wiki.debian.org/Teams/PythonModulesTeam)
 * [Debian Python Applications Packaging Team](http://wiki.debian.org/Teams/PythonAppsPackagingTeam)
 * [Debian CLI Applications Team](http://wiki.debian.org/Teams/DebianCliAppsTeam)
-* [Debian Mozilla Extension Team](http://wiki.debian.org/Teams/DebianMozExtTeam)
-* [Debian X Team](http://pkg-xorg.alioth.debian.org/)
+* [Debian Mozilla Extension Team](https://wiki.debian.org/Teams/DebianWebextensionTeam)
+* [Debian X Team](https://salsa.debian.org/xorg-team)
 
 More teams [can be found here](http://wiki.debian.org/Teams). If there is no
 team available that takes care of the group of packages you are interested in,
@@ -91,7 +91,7 @@ Ubuntu via Debian than directly.
 If you choose to do this, file an [Intent to Package (ITP)](http://www.debian.org/devel/wnpp/being_packaged)
 bug on the WNPP package in Debian to let others know that you're working on it
 (`reportbug -B debian wnpp` should do the right thing), then go through the
-[Debian Mentors](http://mentors.debian.net/cgi-bin/welcome) to get the package
+[Debian Mentors](http://mentors.debian.net/) to get the package
 uploaded. A number of Ubuntu Developers are also Debian Maintainers or Debian
 Developers, so they may be able to help you navigate Ubuntu/Debian interactions.
 
@@ -117,7 +117,7 @@ Developers are encouraged to examine their own packages using these guidelines
 prior to submitting them for review.
 
 To receive higher quality bug reports write an
-[apport hook](https://wiki.ubuntu.com/Apport#Per-package%20Apport%20Hooks) for your package.
+[apport hook](https://wiki.ubuntu.com/Apport#Per-package_Apport_Hooks) for your package.
 
 The [MOTU](https://wiki.ubuntu.com/MOTU) team approval policy for new packages:
 
@@ -140,10 +140,10 @@ The MOTU team uses the following workflow:
 
 * When you start to work on a new package, assign the `needs-packaging` bug to
   yourself and set it to "In Progress" (if there is no `needs-packaging` bug,
-  [file one](http://bugs.launchpad.net/ubuntu/+filebug?no-redirect&field.tag#needs-packaging)).
+  [file one](http://bugs.launchpad.net/ubuntu/+filebug)).
 
 * Once you have an initial package, follow the
-  [new packaging instructions](http://packaging.ubuntu.com/html/packaging-new-software.html#next-steps)
+  {external:doc}`new packaging instructions <tutorial/create-new-package>`
   to upload it to your PPA or a Launchpad branch, then add a link to the package
   in the description of the bug. Requests for changes or other communication
   about your package will be made as comments on your bug. Subscribing
@@ -182,7 +182,7 @@ getting approval may take some time.
 ## Further reading
 
 * Always check if there is an {term}`Intent to Package (ITP) <ITP>`
-  [bug filed against the WNPP package](http://bugs.debian.org/wnpp) in Debian.
+  [bug filed against the WNPP package](https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=wnpp;dist=unstable) in Debian.
   That means, somebody is already working on packaging the software for Debian.
   Join forces with them rather than reinventing the wheel.
 

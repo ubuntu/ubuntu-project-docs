@@ -1,8 +1,9 @@
 import datetime
-import ast
 import os
-import sys
 import yaml
+from docutils.parsers.rst import roles
+from sphinx.util.docutils import SphinxRole
+from docutils import nodes
 
 # Configuration for the Sphinx documentation builder.
 # All configuration specific to your project should be done in this file.
@@ -84,14 +85,14 @@ ogp_site_name = project
 
 # Preview image URL
 #
-# TODO: To customise the preview image, update as needed.
+# TODO: To customize the preview image, update as needed.
 
 ogp_image = "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
 
 
 # Product favicon; shown in bookmarks, browser tabs, etc.
 
-# TODO: To customise the favicon, uncomment and update as needed.
+# TODO: To customize the favicon, uncomment and update as needed.
 
 # html_favicon = '.sphinx/_static/favicon.png'
 
@@ -196,7 +197,8 @@ linkcheck_ignore = [
 linkcheck_anchors_ignore_for_url = [
     r"https://github\.com/.*",
     r"https://matrix\.to/.*",
-    r"https://www.gnu\.org/.*",
+    r"https://www\.gnu\.org/.*",
+    r"https://git\.launchpad\.net/ubuntu/\+source/.*",
 ]
 
 # give linkcheck multiple tries on failure
@@ -242,6 +244,8 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinxcontrib.mermaid",
     "hoverxref.extension",
+    "sphinx-prompt",
+    "sphinx.ext.extlinks",
 ]
 
 # Excludes files or directories from processing
@@ -262,7 +266,6 @@ exclude_patterns = []
 
 rst_epilog = """
 .. include:: /reuse/links.txt
-.. include:: /reuse/substitutions.txt
 """
 
 # Feedback button at the top; enabled by default
@@ -284,19 +287,21 @@ rst_epilog = """
 # manpages_url = 'https://manpages.ubuntu.com/manpages/{codename}/en/' + \
 #     'man{section}/{page}.{section}.html'
 
-import distro_info
+stable_distro = "plucky"
 
-sys.path.append('/usr/lib/python3/dist-packages')
-
-manpages_url = ("https://manpages.ubuntu.com/manpages/"
-                f"{distro_info.UbuntuDistroInfo().stable()}/en/"
-                "man{section}/{page}.{section}.html")
+manpages_url = (
+    "https://manpages.ubuntu.com/manpages/"
+    + stable_distro
+    + "/en/man{section}/{page}.{section}.html"
+)
 
 # Configure hoverxref options
 hoverxref_role_types = {
-    'term': 'tooltip',
+    "term": "tooltip",
 }
-hoverxref_roles = ['term',]
+hoverxref_roles = [
+    "term",
+]
 
 # Specifies a reST snippet to be prepended to each .rst file
 # This defines a :center: role that centers table cell content.
@@ -326,4 +331,39 @@ if os.path.exists("./reuse/substitutions.yaml"):
 
 # Add configuration for intersphinx mapping
 
-intersphinx_mapping = {}
+intersphinx_mapping = {
+    "ubuntu-server": ("https://documentation.ubuntu.com/server/", None),
+    "pkg-guide": (
+        "https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/"
+        "en/2.0-preview/",
+        None,
+    ),
+    "starter-pack": (
+        "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
+        None,
+    ),
+    "sru": ("https://canonical-sru-docs.readthedocs-hosted.com/en/latest", None),
+}
+
+
+# Redefine the Sphinx 'command' role to behave/render like 'literal'
+
+
+class CommandRole(SphinxRole):
+    def run(self):
+        text = self.text
+        node = nodes.literal(text, text)
+        return [node], []
+
+
+def setup(app):
+    roles.register_local_role("command", CommandRole())
+
+
+# Define a custom role for package-name formatting
+def pkg_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+    node = nodes.literal(rawtext, text)
+    return [node], []
+
+
+roles.register_local_role("pkg", pkg_role)
