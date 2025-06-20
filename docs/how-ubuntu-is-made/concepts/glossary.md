@@ -277,13 +277,13 @@ Circle of Friends
     [core values of Ubuntu](https://design.ubuntu.com/brand):
     *Freedom*, *Reliable*, *Precise* and *Collaborative*.
 
-    ```{image} ../images/glossary-CoF-Square.png
+    ```{image} ../../images/glossary-CoF-Square.png
     :width: 200
     :height: 200
     :alt: Circle of Friends (Ubuntu Logo)
     ```
 
-    ```{image} ../images/glossary-Old-Ubuntu-Login-Background.jpg
+    ```{image} ../../images/glossary-Old-Ubuntu-Login-Background.jpg
     :height: 200
     :alt: Old Ubuntu-Login background showing three people in a circle holding hands.
     ```
