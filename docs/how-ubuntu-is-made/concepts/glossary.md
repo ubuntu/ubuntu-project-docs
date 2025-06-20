@@ -7,7 +7,7 @@ like to help, please visit our {ref}`contributions page <contribute>` for
 details on how to get involved.
 
 
-```{glossary}
+:::{glossary}
 
 80x86
     See {term}`i386`
@@ -55,7 +55,7 @@ Application Programming Interface
     and exchange information, perform specific tasks, or access the
     functionality of another software component, such as an
     {term}`Operating System`, library, or online service.
-    
+
     **APIs** enable developers to build upon existing software and create
     new applications by providing a standardized way to interact with external
     systems, services, or libraries without needing to understand their internal
@@ -68,7 +68,7 @@ Application Programming Interface
 APT
 Advanced Packaging Tool
     This is a common package manager used in Ubuntu.
-    
+
     See also:
     * [Package management (Ubuntu Server documentation)](https://documentation.ubuntu.com/server/how-to/software/package-management/)
 
@@ -196,10 +196,10 @@ Bug
     In software development a **bug** refers to unintended or unexpected
     behavior of a computer program or system that produce incorrect results, or
     crashes.
-    
+
     Bugs can occur due to programming mistakes, design issues, or unexpected
     interactions between different parts of the software.
-    
+
     Identifying and fixing bugs is a fundamental part of the software
     development process to ensure that the software functions as intended and
     is free of errors.
@@ -258,7 +258,7 @@ CUE
 Certified Ubuntu Engineer
     Develop and certify your skills on the world's most popular {term}`Linux`
     {term}`OS`.
-    
+
     See also: 
     * [Ubuntu credentials](https://ubuntu.com/credentials)
 
@@ -277,13 +277,13 @@ Circle of Friends
     [core values of Ubuntu](https://design.ubuntu.com/brand):
     *Freedom*, *Reliable*, *Precise* and *Collaborative*.
 
-    ```{image} ../../images/glossary-CoF-Square.png
+    ```{image} ../images/glossary-CoF-Square.png
     :width: 200
     :height: 200
     :alt: Circle of Friends (Ubuntu Logo)
     ```
 
-    ```{image} ../../images/glossary-Old-Ubuntu-Login-Background.jpg
+    ```{image} ../images/glossary-Old-Ubuntu-Login-Background.jpg
     :height: 200
     :alt: Old Ubuntu-Login background showing three people in a circle holding hands.
     ```
@@ -373,7 +373,7 @@ Control File
 
 Coordinated Release Date
     The date at which the details of a {term}`CVE` are to be publicly disclosed.
-    
+
     Disambiguation: The acronym CRD could also refer to {term}`Current Release in Development`
 
 Copyleft
@@ -414,7 +414,7 @@ Debian
     {term}`Free and Open Source <Free and Open Source Software>`
     {term}`Operating System` known for its stability and extensive software
     {term}`Repository`.
-    
+
     It follows a strict commitment to Free and Open Source Software principles
     and serves as the basis for various {term}`Linux`
     {term}`Distributions <distribution>`
@@ -424,6 +424,10 @@ Debian
 
     See also:
     * [Official Debian website](https://www.debian.org/)
+
+debs
+    `.deb` is the file extension of a {term}`Debian` {term}`Binary Package`.
+    Such files are commonly referred to as "debs".
 
 DEP
 Debian Enhancement Proposal
@@ -436,13 +440,9 @@ Debian Enhancement Proposal
     See also:
     * [Official DEP team page](https://dep-team.pages.debian.net/)
 
-DSA
-Debian System Administration
-    *Work in Progress*
-
-debs
-    `.deb` is the file extension of a {term}`Debian` {term}`Binary Package`.
-    Such files are commonly referred to as "debs".
+DEP 3
+    DEP 3 is a specification from the {term}`Debian project <Debian>`
+    that defines patches and patch file headers.
 
 DEP-8
     {term}`DEP-8` is a specification from the {term}`Debian project <Debian>`
@@ -514,9 +514,13 @@ Downstream
     See also:
     * [Downstream (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/upstream-and-downstream/#downstream)
 
+DSA
+Debian System Administration
+    *Work in Progress*
+
 dsc
     `.dsc` is the file extension of a {term}`Debian` source control file.
-    
+
     See also:
     * [Chapter 5. Control files and their fields (Debian Policy Manual v4.6.2.0)](https://www.debian.org/doc/debian-policy/ch-controlfields.html)
 
@@ -564,7 +568,7 @@ Endianness
 ESM
 Expanded Security Maintenance
     *Work in Progress*
-    
+
     See also:
     * [Expanded Security Maintenance (homepage)](https://ubuntu.com/security/esm)
 
@@ -579,7 +583,7 @@ Failed to install
 FFE
 Feature Freeze Exception
     *Work in Progress*
-    
+
     See also:
     * [Freeze Exception Process](https://wiki.ubuntu.com/FreezeExceptionProcess)
 
@@ -593,7 +597,7 @@ Federal Information Processing Standards
     developed by {term}`National Institute of Standards and Technology` ({term}`NIST`)
     to ensure the security and interoperability of computer systems and software
     used by non-military federal agencies and its contractors.
-        
+
     See also:
     * [Federal Information Processing Standards (Wikipedia)](https://en.wikipedia.org/wiki/Federal_Information_Processing_Standards)
 
@@ -704,7 +708,7 @@ Individual Contributor
 IEEE
 Institute of Electrical and Electronics Engineers
     *Work in Progress*
-    
+
     See also:
     * [IEEE website](https://www.ieee.org/)
 
@@ -775,7 +779,7 @@ Long Term Support
 
 LXD
     LXD is system container manager.
-    
+
     See also:
     * [Official LXD documentation](https://documentation.ubuntu.com/lxd/latest/)
 
@@ -786,6 +790,24 @@ Main
 
     See also:
     * [Components](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivecomponents)
+
+Micro-Release Exception
+    In some cases, when {term}`upstream` fixes {term}`bugs <Bug>`, they do a new
+    "microrelease" instead of sending {term}`patches <Patch>`. If all
+    of the changes are appropriate for an {term}`SRU`, then it is acceptable
+    (and usually easier) to upload the complete new upstream microrelease
+    instead of backporting the individual patches.
+
+    See: TODO: New upstream microreleases (SRU Documentation)
+
+Makefile
+    A Makefile declares a set of tasks to be automatically executed. Makefiles are
+    most commonly used to describe how a program is compiled, installed, cleaned,
+    and uninstalled. The actions the Makefile performs in order to achieve these
+    tasks consist of {term}`Shell` commands.
+
+    See also:
+    * [GNU Make Documentation](https://www.gnu.org/software/make/manual/make.html#Introduction)
 
 MIR
 Main Inclusion Review
@@ -882,7 +904,8 @@ Native Package
     * [Native Source Packages (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/package-model/#nativesourcepackages)
 
 NBS
-Not built from Source
+No longer Built by the Source
+Not Built from Source
     *Work in Progress*
 
 NPOASR
@@ -949,7 +972,7 @@ Patch
 PCRE
 Perl Compatible Regular Expressions
     *Work in Progress*
-    
+
     See also: [PCRE (Reference Implementation)](https://www.pcre.org/)
 
 PPA
@@ -1250,7 +1273,7 @@ Ubuntu Base Packages
 UCA
 Ubuntu Cloud Archive
     *Work in Progress* 
-    
+
     See also:
     * [Cloud Archive (Ubuntu Wiki)](https://wiki.ubuntu.com/OpenStack/CloudArchive)
 
@@ -1263,7 +1286,7 @@ Ubuntu Code of Conduct
 UCT
 Ubuntu CVE Tracker
     *Work in Progress*
-    
+
     See also:
     * [Launchpad CVE tracker](https://launchpad.net/ubuntu-cve-tracker)
     * [Ubuntu CVEs](https://ubuntu.com/security/cves)
@@ -1290,7 +1313,7 @@ Ubuntu Developer Summit
 
     Since November 2022, these events were continued as the "Ubuntu Summit" (US)
     to include the broader Ubuntu community and not only developers.
-    
+
     See also:
     * [Ubuntu Developer Summit is now Ubuntu Summit (Ubuntu Blog)](https://ubuntu.com/blog/uds-is-now-ubuntu-summit),
     * [Developer Summit (Ubuntu Wiki)](https://wiki.ubuntu.com/DeveloperSummit)
@@ -1309,7 +1332,7 @@ Ubuntu ESM Team
     *Work in Progress*
 
     See also:
-    * [Ubuntu ESM Team](https://launchpad.net/~ubuntu-esm-team)
+    * [Ubuntu ESM Team](https://ubuntu.com/security/esm)
 
 Ubuntu flavors
     **Ubuntu flavors** are {term}`Distributions <Distribution>` of the default Ubuntu
@@ -1381,7 +1404,7 @@ Ubuntu Summit
     the talks and workshops of the **Ubuntu Summit** will cover development as well
     as design, writing, and community leadership with a wide range of technical
     skill levels.
-    
+
     The name also results in a nifty new acronym, **US**, or more appropriately,
     simply "Us". This fits very nicely with the meaning of {term}`Ubuntu`,
     *"I am what I am because of who we all are"*.
@@ -1491,4 +1514,4 @@ x86-64
 x86_64
     See {term}`amd64`
 
-```
+:::
