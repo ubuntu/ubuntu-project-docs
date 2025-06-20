@@ -14,7 +14,9 @@ Usage follows {ref}`mir-how-to-use-templates`.
 * Issues to be addressed should go to the **Problem:** sections (and briefly
   the **[Summary]** at the top of the template).
 
-```
+```{code-block} text
+:linenos:
+
 RULE: Since we sometimes have many such posts on one bug, in case multiple
 RULE: packages are associated, clearly state which one this is for.
 TODO: Review for Source Package: TBDSRC
