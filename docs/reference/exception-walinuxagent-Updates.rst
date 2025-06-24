@@ -135,7 +135,7 @@ walinuxagent SRU Template
 
    [Test Case]
    The following development and SRU process was followed:
-   https://wiki.ubuntu.com/walinuxagentUpdates
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-walinuxagent-Updates
 
    The Microsoft Azure Linux Agent team will execute their testsuite, which
    includes extension testing , against the walinuxagent that is in

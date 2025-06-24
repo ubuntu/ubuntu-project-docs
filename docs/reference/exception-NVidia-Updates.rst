@@ -191,7 +191,7 @@ NVidia SRU Template
 
    [Test Case]
    The following development and SRU process was followed:
-   https://wiki.ubuntu.com/NVidiaUpdates
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-NVidia-Updates/
 
    <TODO Document any QA done, automated and manual>
 

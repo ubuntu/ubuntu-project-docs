@@ -79,7 +79,7 @@ ec2-hibinit-agent SRU Template
 
    [Test Case]
    The following development and SRU process was followed:
-   https://wiki.ubuntu.com/ec2-hibinit-agent-Updates
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-ec2-hibinit-agent-Updates
 
    The Canonical Public Cloud team will execute their testsuite, which includes ACPI shutdown
    and hibernation testing under load, against the agent that is in -proposed.  A successful

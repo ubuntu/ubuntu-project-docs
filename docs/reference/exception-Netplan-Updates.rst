@@ -117,7 +117,7 @@ Netplan SRU Template
 
    [Test Plan]
    The following development and SRU process was followed:
-   https://wiki.ubuntu.com/NetplanUpdates
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-Netplan-Updates
 
    Netplan contains an extensive integration test suite that is ran using
    the SRU package for each releases. This test suite's results are available here:

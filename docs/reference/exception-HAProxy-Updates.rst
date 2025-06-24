@@ -140,7 +140,7 @@ HAProxy SRU template
    * [Release codename]  ([Release version]): HAProxy [HAProxy version - highest possible number on the last digit]
 
    These updates include bugfixes only following the SRU policy exception defined
-   at https://wiki.ubuntu.com/HAProxyUpdates.
+   at https://documentation.ubuntu.com/sru/en/latest/reference/exception-HAProxy-Updates
 
    [Upstream changes]
 

@@ -9,7 +9,7 @@ a stable supported distro, including LTS.
 snapcraft is the tool to create snaps. This package needs to be kept in
 sync with snapd releases so we can build snaps that will work with the
 latest features added to Ubuntu Core.
-`snapd <https://wiki.ubuntu.com/SnapdUpdates>`__ already has an
+`snapd <https://documentation.ubuntu.com/sru/en/latest/reference/exception-ec2-hibinit-agent-Updates>`__ already has an
 exception to release new versions into the stable distro; therefore in
 addition to critical bug fixes, new features and small improvements are
 allowed in an snapcraft update **as long as the conditions outlined

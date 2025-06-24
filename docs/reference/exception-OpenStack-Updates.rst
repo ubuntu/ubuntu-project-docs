@@ -5,7 +5,7 @@ Stable Release Updates for OpenStack and the Ubuntu Cloud Archive
 
 The SRU process for !OpenStack and the Ubuntu Cloud Archive (UCA)
 follows the same process as `Ubuntu Stable Release
-Updates <https://wiki.ubuntu.com/StableReleaseUpdates>`__. This page
+Updates </howto/standard>`__. This page
 summarises the process for the cloud archive and adds some points that
 apply specifically to it.
 
@@ -142,7 +142,7 @@ OpenStack SRU Template
 
    [Test Case]
    The following SRU process was followed:
-   https://wiki.ubuntu.com/OpenStack/StableReleaseUpdates
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenStack-Updates
 
    In order to avoid regression of existing consumers, the OpenStack team will run their continuous integration test against the packages that are in -proposed.  A successful run of all available tests will be required before the
    proposed packages can be let into -updates.
@@ -194,7 +194,7 @@ example:
 
    Hello SRU Team,
 
-   I'd like to request that Heat be included in the OpenStack SRU Exception list at https://wiki.ubuntu.com/OpenStack/StableReleaseUpdates.
+   I'd like to request that Heat be included in the OpenStack SRU Exception list at https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenStack-Updates
 
    Heat is the orchestration project in OpenStack.
 

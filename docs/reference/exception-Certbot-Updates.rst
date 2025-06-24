@@ -37,7 +37,7 @@ bug reports for individual bug fixes. See `bug
 bug should have the following:
 
 -  The SRU should be requested per the
-   `StableReleaseUpdates <https://wiki.ubuntu.com/StableReleaseUpdates>`__
+   `StableReleaseUpdates </howto/standard>`__
    documented process.
 -  The template at the end of this document should be used and all
    ‘TODO’ filled out.
@@ -108,11 +108,14 @@ Certbot SRU Template
 
    This bug tracks an update for the Certbot family of packages, version TODO.
 
-   This update includes [TODO: remove one] bugfixes only/new features following the SRU policy exception defined at https://wiki.ubuntu.com/StableReleaseUpdates/Certbot.
+   This update includes [TODO: remove one] bugfixes only/new features following
+   the SRU policy exception defined at
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-Certbot-Updates
 
    [Impact]
 
-   Not directly applicable; see the exception policy document at https://wiki.ubuntu.com/StableReleaseUpdates/Certbot
+   Not directly applicable; see the exception policy document at
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-Certbot-Updates
 
    TODO: explain why we need this particular update
 
@@ -122,7 +125,7 @@ Certbot SRU Template
 
    [Test Plan]
 
-   See https://wiki.ubuntu.com/StableReleaseUpdates/Certbot#SRU_Verification_Process
+   See https://documentation.ubuntu.com/sru/en/latest/reference/exception-Certbot-Updates/#sru-verification-process
 
    [Regression Potential]
 

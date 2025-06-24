@@ -71,7 +71,7 @@ SRU Bug Template
    * This is not backporting a single fix, nor an MRE, but backporting the
       version of a latter Ubuntu release for platform enablement.
 
-   * See https://wiki.ubuntu.com/OpenVMToolsUpdates for more details
+   * See https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenVMTools-Updates for more details
 
    [ Test Plan ]
 
@@ -115,7 +115,7 @@ Ambiguity
 
 The server team does many MREs and therefore sometimes it happened that
 these uploads were called an MRE, it is not. This is a platform
-enablement SRU upload under the condition of `"other safe cases" sub section 2 <https://wiki.ubuntu.com/StableReleaseUpdates#Other_safe_cases>`__:
+enablement SRU upload under the condition of `"other safe cases" sub section 2 <https://documentation.ubuntu.com/sru/en/latest/reference/requirements/#other-safe-cases>`__:
 
 .. code-block:: text
 

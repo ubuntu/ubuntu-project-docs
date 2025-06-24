@@ -122,7 +122,7 @@ Curtin SRU Template
 
    [Test Case]
    The following development and SRU process was followed:
-   https://wiki.ubuntu.com/CurtinUpdates
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-Curtin-Updates
 
    Curtin now contains an extensive integration test suite that is ran using
    the SRU package for each releases. These suite has documentation here:

@@ -195,7 +195,7 @@ cloud-init SRU Template
 
    [Test Case]
    The following development and SRU process was followed:
-   https://wiki.ubuntu.com/CloudinitUpdates
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-Cloudinit-Updates
 
    The cloud-init team will be in charge of attaching the artifacts and
    console output of the appropriate run to the bug.  cloud-init team

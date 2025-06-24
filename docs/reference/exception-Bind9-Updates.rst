@@ -148,7 +148,7 @@ Bind9 SRU template
    * [Release codename]  ([Release version]): bind9 [Bind9 version - highest possible number on the last digit]
    * [...]
 
-   These updates include bug fixes following the SRU policy exception defined at https://wiki.ubuntu.com/Bind9Updates.
+   These updates include bug fixes following the SRU policy exception defined at https://documentation.ubuntu.com/sru/en/latest/reference/exception-Bind9-Updates
 
    [Upstream changes]
 

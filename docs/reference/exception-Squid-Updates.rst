@@ -27,7 +27,7 @@ discussed in the upstream mailing list at
 http://lists.squid-cache.org/pipermail/squid-dev/2015-March/001853.html,
 starting in Squid 4, Squid follows a Major.Point release policy where
 the Point releases could be considered new upstream microreleases as per
-https://wiki.ubuntu.com/StableReleaseUpdates#New_upstream_microreleases.
+https://documentation.ubuntu.com/sru/en/latest/reference/requirements/#new-upstream-microreleases
 
 This has been recently confirmed through the squid users mailing list in
 http://lists.squid-cache.org/pipermail/squid-users/2023-January/025586.html
@@ -127,7 +127,7 @@ Squid SRU template
   -  [...]
 
   This update includes bugfixes following the SRU policy exception defined
-  at https://wiki.ubuntu.com/SquidUpdates.
+  at https://documentation.ubuntu.com/sru/en/latest/reference/exception-Squid-Updates
 
   [Upstream changes]
 

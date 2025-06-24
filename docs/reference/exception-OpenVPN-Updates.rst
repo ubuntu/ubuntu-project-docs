@@ -152,7 +152,7 @@ OpenVPN SRU template
    * [Release codename]  ([Release version]): OpenVPN [OpenVPN version - highest possible number on the last digit]
    * [...]
 
-   These updates include bug fixes following the SRU special case documentation at https://wiki.ubuntu.com/OpenVPNUpdates.
+   These updates include bug fixes following the SRU special case documentation at https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenVPN-Updates
 
    Note that openvpn does not have an accepted micro-release exception. However, the SRU team has agreed to consider further releases given a full knowledge and possible mitigation of backwards-incompatible changes. See https://lists.ubuntu.com/archives/ubuntu-release/2023-July/005688.html
 

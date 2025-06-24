@@ -208,8 +208,9 @@ DPDK SRU Template
 
    This bug tracks an update for the DPDK packages, version TODO.
 
-   This update includes bugfixes only following the SRU policy exception defined at https://wiki.ubuntu.com/StableReleaseUpdates/DPDK.
-   [TODO: check to be true (ensure features stay disabled by default) or discuss new features on the SRU in detail if they are applying to "other safe" category (https://wiki.ubuntu.com/StableReleaseUpdates#Other_safe_cases)]
+   This update includes bugfixes only following the SRU policy exception defined at
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-DPDK-Updates
+   [TODO: check to be true (ensure features stay disabled by default) or discuss new features on the SRU in detail if they are applying to "other safe" category (https://documentation.ubuntu.com/sru/en/latest/reference/requirements/#other-safe-cases)]
 
    [Impact]
 
@@ -222,7 +223,7 @@ DPDK SRU Template
 
    [Test Plan]
 
-   See https://wiki.ubuntu.com/StableReleaseUpdates/DPDK#SRU_TestVerify
+   See https://documentation.ubuntu.com/sru/en/latest/reference/exception-DPDK-Updates/#testing-and-verification
    TODO: attach a log of executing said tests from a ppa with the upload
    TODO: if there are any non passing tests - explain why that is ok in this case.
 

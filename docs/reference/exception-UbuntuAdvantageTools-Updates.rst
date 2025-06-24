@@ -362,7 +362,7 @@ U-A-T SRU Bug Template
    [ Test Plan ]
 
    The following development and SRU process was followed:
-   https://wiki.ubuntu.com/UbuntuAdvantageToolsUpdates
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-UbuntuAdvantageTools-Updates
 
    The Pro Client developers will be in charge of attaching the artifacts of the appropriate test runs to the bug, and will not mark ‘verification-done’ until this has happened.
 

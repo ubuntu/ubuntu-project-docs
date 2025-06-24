@@ -174,7 +174,8 @@ OpenLDAP SRU template
 
    This bug tracks an update for the OpenLDAP package, version XYZ.
 
-   This update includes bugfixes only following the SRU policy exception defined at https://wiki.ubuntu.com/StableReleaseUpdates/OpenLDAPUpdates.
+   This update includes bugfixes only following the SRU policy exception defined at
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenLDAP-Updates/
 
    [Major Changes]
 
@@ -183,7 +184,7 @@ OpenLDAP SRU template
 
    [Test Plan]
 
-   See https://wiki.ubuntu.com/StableReleaseUpdates/OpenLDAPUpdates#SRU_TestVerify
+   See https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenLDAP-Updates/#testing-and-verification
    TODO: link the build log containing all tests being executed
    TODO: if there are any non passing tests - explain why that is ok in this case.
    TODO: link upstream's "call for testing" email

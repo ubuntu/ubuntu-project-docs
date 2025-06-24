@@ -91,7 +91,7 @@ autopkgtest SRU Template
 
 ::
 
-   This SRU follows the exception process as outlined at https://wiki.ubuntu.com/StableReleaseUpdates#autopkgtest rather than the standard SRU rules.
+   This SRU follows the exception process as outlined at https://documentation.ubuntu.com/sru/en/latest/reference/exception-autopkgtest-Updates rather than the standard SRU rules.
 
    [Impact]
 

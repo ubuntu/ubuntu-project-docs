@@ -84,7 +84,7 @@ UbuntuDevTools SRU Template
 
    [Test Case]
    The following development and SRU process was followed:
-   https://wiki.ubuntu.com/UbuntuDevToolsUpdates
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-UbuntuDevTools-Updates/
 
    autopkgtests will be run for ubuntu-dev-tools as part of the SRU.
 
