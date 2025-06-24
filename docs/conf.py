@@ -244,7 +244,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinxcontrib.mermaid",
     "hoverxref.extension",
-    "sphinx-prompt",
+    "sphinx_prompt",
     "sphinx.ext.extlinks",
 ]
 
