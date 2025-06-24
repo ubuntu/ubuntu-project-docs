@@ -25,12 +25,6 @@ about-roles/index-uploaders
 about-roles/index-MIR
 ```
 
-```{toctree}
-:maxdepth: 1
-
-about-processes/index-MIR
-```
-
 ## SRU membership
 
 ```{toctree}

@@ -175,7 +175,7 @@ to drive the build via the following snippet:
 
 Sadly, `dh` cannot have multiple `buildsystem`s at the same time, so for hybrid
 codebases you'll need to trigger the build phases manually. Moreover, `dh-cargo`
-does *not* support building workspaces at the moment, at it was designed to work
+does *not* support building workspaces at the moment, as it was designed to work
 on source packages pulled directly from `crates.io` (which only ships individual
 crates), so there's a likely chance it would choke on it.
 

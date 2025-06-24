@@ -30,7 +30,6 @@ in `main`.
 
 ```{toctree}
 :maxdepth: 1
-:hidden:
 
 MIR bug request template <../MIR/mir-reporters-template>
 How to use MIR templates <../MIR/mir-how-to-use-templates>

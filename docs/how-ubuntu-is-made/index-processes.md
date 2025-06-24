@@ -8,7 +8,13 @@ how they work, and who's involved.
 :maxdepth: 1
 :glob:
 
-../MIR/main-inclusion-review
-../MIR/mir-roles-and-steps
 processes/*
+```
+
+## The Main Inclusion Review process
+
+```{toctree}
+:maxdepth: 1
+
+/MIR/main-inclusion-review
 ```

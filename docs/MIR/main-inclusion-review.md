@@ -7,8 +7,7 @@ maintained, supported and recommended by the Ubuntu project.
 certain Service Level Agreement (SLA) guarantees for these packages.
 
 Therefore, special consideration is necessary before adding new packages
-to `main` or `restricted`. The
-[Ubuntu MIR team](https://launchpad.net/~ubuntu-mir)
+to `main` or `restricted`. The {ref}`Ubuntu MIR team <about-mir-role>`
 reviews packages for promotion:
 
 * from {term}`universe` to {term}`main`.
@@ -22,6 +21,13 @@ packages in the Package Archive.
 
 ## MIR process overview
 
+```{toctree}
+:maxdepth: 1
+:hidden:
+
+mir-roles-and-steps
+```
+
 If we reduce the process to its simplest components, it can be described in
 only three steps.
 
@@ -29,6 +35,9 @@ First, the process makes the **reporter** think about the package or packages
 they want to own. Then, the **reviewer** checks what is submitted and either
 approves or raises issues. Finally, any such issues are resolved by the
 **reporter**, and then the process is complete and the package can be promoted. 
+
+This process, and the different participants involved, are outlined in more
+detail in {ref}`mir-roles-and-steps`.
 
 ::::{card-carousel} 3
 
@@ -56,13 +65,13 @@ states of bugs in Launchpad) to track the progress of any main inclusion request
 as shown in our more detailed {ref}`mir-process-states` breakdown.
 
 
-## Communication
+## About the MIR team
 
-The MIR team holds a {ref}`mir-team-meeting` where you can raise issues or
-discuss your case with the team.
+To find out more about the team who oversees the MIR process, see our page
+{ref}`about the MIR team <about-mir-role>`.
 
-The {ref}`Service Level Objectives <mir-slo>` page details what you can and
-should expect from the reviewers.
+There you will also find information on how to contact them if you have an MIR
+in progress, or want to submit one, and what to expect from the team.
 
 
 ## File an MIR bug
@@ -90,16 +99,24 @@ provides details on these and exceptions.
 
 ### Exceptions
 
-* {ref}`mir-exceptions-fonts`
-* {ref}`mir-exceptions-oem`
+```{toctree}
+:maxdepth: 1
+
+mir-exceptions-fonts
+mir-exceptions-oem
+```
 
 ### Deviations from the norm
 
 Sometimes cases are special and do not follow the normal procedures, those are
 outlined here.
 
-* {ref}`mir-rereview`
-* {ref}`mir-rust`
+```{toctree}
+:maxdepth: 1
+
+mir-rereview
+mir-rust
+```
 
 
 
