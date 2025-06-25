@@ -75,7 +75,7 @@ the Technical Board.
     exception-walinuxagent-Updates
     exception-wslu-Updates
 
-.. _reference-sru-group-of-interest:
+.. _reference-sru-interest-team:
 
 Groups of SRU interest
 ----------------------
@@ -84,7 +84,7 @@ Many packages are commonly used in various important production environments
 but as the exceptions show, some updates can be quite complex. In addition to
 the tests outlined in the individual exception document we'd ask the
 :ref:`SRU driver <explanation-role-expectations>`
-to please inform the group of SRU interest about upcoming updates.
+to please inform the SRU Interest Team about upcoming updates.
 
 If defined, the package specific notes will refer to this paragraph and
 to the group that shall be subscribed.

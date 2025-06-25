@@ -391,10 +391,10 @@ U-A-T SRU Bug Template
 
    <insert changelog entry>
 
-Related group of SRU interest
------------------------------
+Related SRU Interest Team
+-------------------------
 
-Ubuntu Pro Client has a :ref:`group of SRU interest <reference-sru-group-of-interest>`,
+Ubuntu Pro Client has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
 please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-ubuntu-pro-client>`__
 to the SRU bug early on.

@@ -231,10 +231,10 @@ PostgreSQL SRU template
 
 SRU team approval by RAOF 2024/01/31
 
-Related group of SRU interest
------------------------------
+Related SRU Interest Team
+-------------------------
 
-PostgreSQL has a :ref:`group of SRU interest <reference-sru-group-of-interest>`,
+PostgreSQL has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
 please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-postgresql>`__
 to the SRU bug early on.

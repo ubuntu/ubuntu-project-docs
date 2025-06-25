@@ -126,10 +126,10 @@ takes on each role can change over time, even for an individual SRU.
 |                                    | criteria <#what-is-a  |                       |
 |                                    | cceptable-to-sru>`__. |                       |
 +------------------------------------+-----------------------+-----------------------+
-| :ref:`Group of SRU interest        | If a group is defined | Anyone, by joining    |
-| <reference-sru-group-of-interest>` | for an SRU with an    | the respective        |
-|                                    | exception they will   | interest group.       |
-|                                    | get bug updates about |                       |
+| :ref:`SRU Interest Team            | If a team is defined  | Anyone, by joining    |
+| <reference-sru-interest-team>`     | for an SRU with an    | the respective        |
+|                                    | exception they will   | SRU Interest team on  |
+|                                    | get bug updates about | Launchpad             |
 |                                    | upcoming changes      |                       |
 |                                    | to ease testing.      |                       |
 +------------------------------------+-----------------------+-----------------------+

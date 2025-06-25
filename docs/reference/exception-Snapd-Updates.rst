@@ -112,10 +112,10 @@ referenced in the from the changelog but **each** of those bugs will
 need to independently verified and commented on for the SRU to be
 considered complete.
 
-Related group of SRU interest
------------------------------
+Related SRU Interest Team
+-------------------------
 
-Snapd has a :ref:`group of SRU interest <reference-sru-group-of-interest>`,
+Snapd has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
 please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`__
 to the SRU bug early on.
