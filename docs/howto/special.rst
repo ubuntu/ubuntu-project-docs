@@ -9,9 +9,12 @@ This section is for the special types of SRU listed at
 Request a package-specific non-standard process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This hasn't been transferred into the new documentation yet. See
-`SRU: Documentation for Special Cases <https://wiki.ubuntu.com/StableReleaseUpdates#Documentation_for_Special_Cases>`__
-for now.
+See `package specific notes <https://documentation.ubuntu.com/sru/en/latest/reference/package-specific>`_
+for existing package specific exceptions. To add a new one please provide a
+pull request against the repository of this documentation, adding a new
+exception following the same pattern established by the others.
+See the footer on each page to find the source of it in the version
+control system.
 
 .. _howto-stage-upload:
 
