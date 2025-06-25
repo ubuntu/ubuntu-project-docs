@@ -33,7 +33,7 @@ Stable release updates will, in general, only be issued in order to fix
 
    -  ``app-install-data-commercial`` is a package index which regularly
       needs to be adjusted to changes in the commercial package archive.
-   -  ``clamav`` needs `regular updates <https://https://documentation.ubuntu.com/sru/en/latest/reference/exception-ec2-hibinit-agent-Updates
+   -  ``clamav`` needs `regular updates <https://documentation.ubuntu.com/sru/en/latest/reference/exception-ec2-hibinit-agent-Updates>`__
       to latest virus signatures
    -  ``tor`` needs a newer version to still work with the current Tor
       network.
