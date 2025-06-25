@@ -12,3 +12,7 @@ MIR/ @slyon @setharnold @joalif @didrocks @cpaelzer
 
 # TAs' & special teams' ack required for changes to the CODEOWNERS file
 /.github/CODEOWNERS @s-makin @rkratky @slyon @setharnold @joalif @didrocks @cpaelzer
+
+# +1 maintenance PR approvals
+/plus-one-maintenance.md @schopin-pro
+/plus-one-report-template.md @schopin-pro
