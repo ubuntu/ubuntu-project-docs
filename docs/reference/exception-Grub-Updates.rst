@@ -32,3 +32,11 @@ this correct?)
 
 -  They release them together as required (which sru-release also
    enforces; don't override it!)
+
+Related group of SRU interest
+-----------------------------
+
+Grub has a :ref:`group of SRU interest <reference-sru-group-of-interest>`,
+please subscribe the
+`Interest group <https://launchpad.net/~sru-verification-interest-group-grub>`__
+to the SRU bug early on.

@@ -230,3 +230,11 @@ PostgreSQL SRU template
    Once ready, the test packages should be available at https://launchpad.net/~canonical-server/+archive/ubuntu/postgresql-sru-preparation/+packages
 
 SRU team approval by RAOF 2024/01/31
+
+Related group of SRU interest
+-----------------------------
+
+PostgreSQL has a :ref:`group of SRU interest <reference-sru-group-of-interest>`,
+please subscribe the
+`Interest group <https://launchpad.net/~sru-verification-interest-group-postgresql>`__
+to the SRU bug early on.

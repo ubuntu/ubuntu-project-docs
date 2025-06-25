@@ -111,3 +111,11 @@ reports for individual bug fixes. However, individual bugs may be
 referenced in the from the changelog but **each** of those bugs will
 need to independently verified and commented on for the SRU to be
 considered complete.
+
+Related group of SRU interest
+-----------------------------
+
+Snapd has a :ref:`group of SRU interest <reference-sru-group-of-interest>`,
+please subscribe the
+`Interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`__
+to the SRU bug early on.

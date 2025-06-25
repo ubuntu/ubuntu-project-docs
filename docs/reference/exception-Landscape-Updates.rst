@@ -95,3 +95,11 @@ Landscape Requesting the SRU
 The SRU should be requested as usual
 (:ref:`StableReleaseUpdates <howto-perform-standard-sru>`) with the additional
 note about having the above steps being completed.
+
+Related group of SRU interest
+-----------------------------
+
+Landscape has a :ref:`group of SRU interest <reference-sru-group-of-interest>`,
+please subscribe the
+`Interest group <https://launchpad.net/~sru-verification-interest-group-landscape>`__
+to the SRU bug early on.

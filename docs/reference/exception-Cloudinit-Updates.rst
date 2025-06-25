@@ -240,3 +240,11 @@ Links to past SRUs using this process are below:
 | 18.5-15-g7a469659  + https://bugs.launchpad.net/ubuntu/+source/cloud-init/+bug/1813346 |
 +--------------------+-------------------------------------------------------------------+
 
+
+Related group of SRU interest
+-----------------------------
+
+Cloud-init has a :ref:`group of SRU interest <reference-sru-group-of-interest>`,
+please subscribe the
+`Interest group <https://launchpad.net/~sru-verification-interest-group-cloud-init>`__
+to the SRU bug early on.

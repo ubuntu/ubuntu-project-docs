@@ -227,3 +227,11 @@ download the package source:
 -  Packages can be retrieved from the UCA with the pull-uca-source tool:
 
    -  ``pull-uca-source [release|version]`` (e.g. ``pull-uca-source python-oslo.messaging queens``)
+
+Related group of SRU interest
+-----------------------------
+
+OpenStack has a :ref:`group of SRU interest <reference-sru-group-of-interest>`,
+please subscribe the
+`Interest group <https://launchpad.net/~sru-verification-interest-group-openstack>`__
+to the SRU bug early on.
