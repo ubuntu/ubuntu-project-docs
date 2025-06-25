@@ -53,7 +53,7 @@ Supporting packages
 -  openvswitch
 -  ovn
 
-.. _sru_expectations:
+.. _openstack_sru_expectations:
 
 SRU Expectations
 ----------------

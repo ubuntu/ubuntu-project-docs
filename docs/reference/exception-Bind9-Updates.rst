@@ -93,7 +93,7 @@ simpletest and zonetest are extensive enough to catch major errors,
 especially when it comes to packaging bind9 with Ubuntu and using dig /
 bind9 internally.
 
-.. _avoiding_breaking_changes:
+.. _bind9_avoiding_breaking_changes:
 
 Avoiding Breaking Changes
 -------------------------

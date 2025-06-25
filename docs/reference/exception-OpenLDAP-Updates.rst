@@ -114,7 +114,7 @@ LTS updates, as they have caught such issues in the past.
 OpenLDAP Update Process
 -----------------------
 
-.. _preparing_for_the_sru:
+.. _openldap_preparing_for_the_sru:
 
 Preparing for the SRU
 ^^^^^^^^^^^^^^^^^^^^^
@@ -154,7 +154,7 @@ The UbuntuServer team has been doing MREs for other packages as well
 for the OpenLDAP MREs (for example, `bug
 #1961127 <https://bugs.launchpad.net/ubuntu/+source/postgresql-12/+bug/1961127>`__).
 
-.. _testing_and_verification:
+.. _openldap_testing_and_verification:
 
 Testing and verification
 ^^^^^^^^^^^^^^^^^^^^^^^^

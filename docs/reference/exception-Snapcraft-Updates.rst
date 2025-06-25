@@ -91,7 +91,7 @@ The SRU should be requested as usual
 (:ref:`StableReleaseUpdates <howto-perform-standard-sru>`) with the additional
 note about having the above steps being completed.
 
-.. _releasing_the_sru:
+.. _snapcraft_releasing_the_sru:
 
 Releasing the SRU
 -----------------

@@ -95,7 +95,7 @@ These tests are extensive enough to catch major errors when it comes to
 the integration of OpenVPN with Ubuntu, along with issues in setup and
 VPN configuration.
 
-.. _avoiding_breaking_changes:
+.. _openvpn_avoiding_breaking_changes:
 
 Avoiding Breaking Changes
 -------------------------

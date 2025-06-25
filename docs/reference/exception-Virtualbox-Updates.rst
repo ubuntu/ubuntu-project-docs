@@ -24,7 +24,7 @@ Package List
 -  virtualbox-ext-pack
 -  virtualbox-guest-additions-iso
 
-.. _sru_expectations:
+.. _virtualbox_sru_expectations:
 
 SRU Expectations
 ----------------

@@ -108,7 +108,7 @@ These are automated tests:
    4.) Run standard tests and regression tests
    5.) Repeat from step 2 for all other Azure VM Sizes.
 
-.. _releasing_the_sru:
+.. _walinuxagent_releasing_the_sru:
 
 Releasing the SRU
 -----------------

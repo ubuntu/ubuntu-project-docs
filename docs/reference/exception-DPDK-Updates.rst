@@ -166,7 +166,7 @@ directly from the upstream VCS. That is important as on the release of a
 DPDK LTS there is another test/verification loop that we want to see
 passed.
 
-.. _testing_and_verification:
+.. _dpdk_testing_and_verification:
 
 Testing and verification
 ------------------------

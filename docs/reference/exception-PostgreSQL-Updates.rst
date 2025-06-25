@@ -99,7 +99,7 @@ pocket, since no autopkgtests are executed there.
 PostgreSQL Update Process
 -------------------------
 
-.. _preparing_for_the_sru:
+.. _postgresql_preparing_for_the_sru:
 
 Preparing for the PostgreSQL SRU
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -145,7 +145,7 @@ We will:
 
    #. If instead there are CVEs being addressed by the update, we will ensure there are no regressions by running autopkgtests for the updated package and its reverse dependencies. Then, contact the security team so they can take over the release to the security pocket.
 
-.. _testing_and_verification:
+.. _postgresql_testing_and_verification:
 
 Testing and verification
 ^^^^^^^^^^^^^^^^^^^^^^^^
