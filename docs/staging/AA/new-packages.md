@@ -34,9 +34,9 @@ Make sure you check which [packages have already been requested](https://launchp
 Because we want Free Software to reach as many people as possible and do not
 want to have too much duplication of packaging effort, it is useful for packages
 that meet the requirements of the
-[Debian Free Software Guidelines](http://www.debian.org/social_contract#guidelines)
+[Debian Free Software Guidelines](https://www.debian.org/social_contract)
 to be requested within Debian's
-[Work-Needing and Prospective Packages](http://www.debian.org/devel/wnpp/)
+[Work-Needing and Prospective Packages](https://www.debian.org/devel/wnpp/)
 (WNPP) process by filing a Request for Package (RFP) bug on the WNPP package in
 Debian's bug tracker.
 
@@ -45,9 +45,9 @@ well.
 
 ## Packaging it yourself
 
-You can follow the [Packaging Guide directives](http://packaging.ubuntu.com/html/).
+You can follow the [Packaging Guide directives](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/).
 
-To get a screenshot included for software-center, please use http://screenshots.debian.net/upload
+To get a screenshot included for software-center, please use https://screenshots.debian.net/packages
 
 ### NEW packages through Debian
 
@@ -59,19 +59,19 @@ it is in Debian and all of its derivatives.
 In order to have faster reviews, several teams have been set up to manage a
 given subset of packages. Some of them are:
 
-* [Debian GNOME Team](http://wiki.debian.org/Teams/DebianGnome)
+* [Debian GNOME Team](https://wiki.debian.org/Teams/DebianGnome)
 * [Debian KDE Team](https://salsa.debian.org/qt-kde-team/)
-* [Debian XFCE Group](http://wiki.debian.org/Teams/DebianXfceGroup)
-* [Debian Games Team](http://wiki.debian.org/Games/Team)
-* [Debian Multimedia](http://wiki.debian.org/DebianMultimedia)
-* [Debian Perl Group](http://wiki.debian.org/Teams/DebianPerlGroup)
-* [Debian Python Modules Team](http://wiki.debian.org/Teams/PythonModulesTeam)
-* [Debian Python Applications Packaging Team](http://wiki.debian.org/Teams/PythonAppsPackagingTeam)
-* [Debian CLI Applications Team](http://wiki.debian.org/Teams/DebianCliAppsTeam)
+* [Debian XFCE Group](https://wiki.debian.org/Teams/DebianXfceGroup)
+* [Debian Games Team](https://wiki.debian.org/Games/Team)
+* [Debian Multimedia](https://wiki.debian.org/DebianMultimedia)
+* [Debian Perl Group](https://wiki.debian.org/Teams/DebianPerlGroup)
+* [Debian Python Modules Team](https://wiki.debian.org/Teams/PythonModulesTeam)
+* [Debian Python Applications Packaging Team](https://wiki.debian.org/Teams/PythonAppsPackagingTeam)
+* [Debian CLI Applications Team](https://wiki.debian.org/Teams/DebianCliAppsTeam)
 * [Debian Mozilla Extension Team](https://wiki.debian.org/Teams/DebianWebextensionTeam)
 * [Debian X Team](https://salsa.debian.org/xorg-team)
 
-More teams [can be found here](http://wiki.debian.org/Teams). If there is no
+More teams [can be found here](https://wiki.debian.org/Teams). If there is no
 team available that takes care of the group of packages you are interested in,
 contact the Debian mentors (see "Further Reading" below).
 
@@ -88,17 +88,17 @@ due to the sheer volume of requests compared to the available resources for
 reviews. In many cases, people have an easier time getting their package into
 Ubuntu via Debian than directly.
 
-If you choose to do this, file an [Intent to Package (ITP)](http://www.debian.org/devel/wnpp/being_packaged)
+If you choose to do this, file an [Intent to Package (ITP)](https://www.debian.org/devel/wnpp/being_packaged)
 bug on the WNPP package in Debian to let others know that you're working on it
 (`reportbug -B debian wnpp` should do the right thing), then go through the
-[Debian Mentors](http://mentors.debian.net/) to get the package
+[Debian Mentors](https://mentors.debian.net/) to get the package
 uploaded. A number of Ubuntu Developers are also Debian Maintainers or Debian
 Developers, so they may be able to help you navigate Ubuntu/Debian interactions.
 
 ```{admonition} Some good tips
 :class: tip
-* [Follow the procedures](http://www.debian.org/doc/manuals/developers-reference/pkgs.html#newpackage)
-  to get a [new package into Debian](http://ftp-master.debian.org/new.html).
+* [Follow the procedures](https://www.debian.org/doc/manuals/developers-reference/pkgs.html#newpackage)
+  to get a [new package into Debian](https://ftp-master.debian.org/new.html).
 * Subscribe to bugs of the package once it is accepted.
 ```
 
@@ -110,7 +110,7 @@ can submit it directly to MOTU. There are a limited number of available
 reviewers, so you may encounter delays here.
 
 New packages require extra scrutiny and go through a special review process,
-before they get uploaded and get a final review by the [Archive Admins](http://launchpad.net/~ubuntu-archive).
+before they get uploaded and get a final review by the [Archive Admins](https://launchpad.net/~ubuntu-archive).
 More information on the review process, including the criteria that will be
 applied, can be found on the [Code Reviewers page](https://wiki.ubuntu.com/UbuntuDevelopment/CodeReviews#NewPackage).
 Developers are encouraged to examine their own packages using these guidelines
@@ -140,7 +140,7 @@ The MOTU team uses the following workflow:
 
 * When you start to work on a new package, assign the `needs-packaging` bug to
   yourself and set it to "In Progress" (if there is no `needs-packaging` bug,
-  [file one](http://bugs.launchpad.net/ubuntu/+filebug)).
+  [file one](https://bugs.launchpad.net/ubuntu/+filebug/+login)).
 
 * Once you have an initial package, follow the
   {external:doc}`new packaging instructions <tutorial/create-new-package>`
@@ -168,7 +168,7 @@ The MOTU team uses the following workflow:
   (→ [Using Development Releases](https://wiki.ubuntu.com/UsingDevelopmentReleases))
 
 * `#debian-ubuntu` on OFTC and the
-  [debian-derivatives mailing list](http://lists.debian.org/debian-derivatives/)
+  [debian-derivatives mailing list](https://lists.debian.org/debian-derivatives/)
   are good places for Ubuntu developers to ask their questions.
 
 
@@ -186,17 +186,17 @@ getting approval may take some time.
   That means, somebody is already working on packaging the software for Debian.
   Join forces with them rather than reinventing the wheel.
 
-* [mentors.debian.net](http://mentors.debian.net/), a website where people
+* [mentors.debian.net](https://mentors.debian.net/), a website where people
   interested in getting their packages into Debian can upload their packages.
-  You need to [browse the directories](http://mentors.debian.net/debian/pool/)
-  to find packages. [Contributing To Debian](https://wiki.ubuntu.com/ContributingToDebian)
+  You need to [browse the directories](https://mentors.debian.net/debian/pool/)
+  to find packages. [Contributing To Debian](https://wiki.ubuntu.com/Debian/ForUbuntuDevelopers)
   has additional information on getting your work into Debian.
-  (→ [Debian Mentors FAQ](http://wiki.debian.org/DebianMentorsFaq))
+  (→ [Debian Mentors FAQ](https://wiki.debian.org/DebianMentorsFaq))
 
-* [Debian's SCM](https://salsa.debian.org/) -- it's possible that a package has
+* [Debian's SCM](https://salsa.debian.org/public) -- it's possible that a package has
   been worked on for Debian but has a status of UNRELEASED. Check the
   appropriate directories that begin with "pkg" that your package may fall
   under. For example, game packages would be under "pkg-games".
-  [The Debian Package Tracking System](http://packages.qa.debian.org/common/index.html)
+  [The Debian Package Tracking System](https://packages.qa.debian.org/common/index.html)
   will help you find the specific branch where the package is being maintained.
 

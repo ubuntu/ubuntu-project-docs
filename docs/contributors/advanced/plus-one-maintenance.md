@@ -44,7 +44,7 @@ to tackle on one's free time — and makes for less administrative overhead.
 Furthermore many of the cases eventually need a build, or a combined proposed
 migration which you'd want to track and follow up on for a few days.
 
-However, it is perfectly fine to pick up shifts for shorter durations.
+However, it is perfectly fine to pick up shifts for a shorter duration.
 
 ## The work
 
@@ -56,7 +56,7 @@ report to be posted to the [dedicated Discourse
 category](https://discourse.ubuntu.com/c/pre-release-discussion/plusone-maintenance/415)
 at the end of shift.
 
-The report has two main purposes. The first is to act as a handoff document to
+The report has two main purposes. The first is to act as a hand-off document to
 the next shift, outlining work items that need following up on. Those could be
 fixes needing sponsorship, unfinished investigations, upcoming transitions from
 Debian, etc.
@@ -120,7 +120,7 @@ The priority of these rises along with the cycle. We want as few packages
 failing to build at release time as possible, as it makes security updates of
 these packages that much harder. An interesting aspect of these is that they
 are usually isolated and can be worked on without interfering much with other
-contributers.
+contributors.
 
 Good sources for these are test rebuild results, periodically posted to [the
 ubuntu-devel list](https://lists.ubuntu.com/archives/ubuntu-devel/), as well as

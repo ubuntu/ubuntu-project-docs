@@ -7,7 +7,7 @@ It has not yet been reviewed for currency or accuracy.
 Last update: 2022
 ```
 
-As explained on [Debian's documentation](http://www.debian.org/mirror/push_mirroring)
+As explained on [Debian's documentation](https://www.debian.org/mirror/push_mirroring)
 on this subject:
 
 > Push mirroring is a form of mirroring that minimizes the time it takes 

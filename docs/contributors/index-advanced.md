@@ -6,23 +6,37 @@ tasks such as bug fixing and patching. In this section, you will find guides
 for the more advanced tasks that will support your application for MOTU, Core
 Dev, etc.
 
-```{toctree}
-:maxdepth: 1
-:glob:
-
-advanced/*
-```
 ## Seed management
 
+```{toctree}
+:maxdepth: 1
+
+advanced/manage-seeds
+```
 
 ## +1 Maintenance
 
 The {ref}`+1 Maintenance program <plus-one-maintenance>` coordinates work
-towards ensuring the health of the overall archive for the next release of
+towards ensuring the health of the overall Archive for the next release of
 Ubuntu.
+
+```{toctree}
+:maxdepth: 1
+:hidden:
+
+advanced/plus-one-maintenance
+advanced/plus-one-report-template
+```
+
+* {ref}`plus-one-report-template`
 
 ## Request package removal
 
+```{toctree}
+:maxdepth: 1
+
+advanced/request-package-removal
+```
 
 ## Main Inclusion requests
 

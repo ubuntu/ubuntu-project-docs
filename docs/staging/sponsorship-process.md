@@ -80,7 +80,7 @@ $
 ```
 
 In these cases please consider registering a
-[merge proposal](https://help.launchpad.net/BranchMergeProposals). It will make
+[merge proposal](https://help.launchpad.net/Code/Review). It will make
 the life of the maintainers a lot easier.
 
 ### Forwarding patches upstream

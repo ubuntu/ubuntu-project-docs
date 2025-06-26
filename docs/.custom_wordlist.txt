@@ -32,6 +32,7 @@ Bileto
 blocklist
 BOF
 BOFs
+boolean
 bootable
 bootloader
 bootloaders
@@ -62,6 +63,8 @@ cryptographically
 CVE
 CVEs
 datacenter
+Debcrafter
+Debcrafters
 debdiff
 debhelper
 debian
@@ -117,6 +120,7 @@ https
 ia
 IA
 IEEE
+incrementing
 Intersphinx
 ISO
 ISOs
@@ -143,6 +147,8 @@ Lubuntu
 macOS
 Maintainer's
 manpage
+Masters
+matic
 Matic
 meetingology
 mentorship
@@ -184,11 +190,16 @@ Rockcraft
 rst
 rulebook
 RULEs
+runtime
 SCM
 schroots
+SLA
+SLAs
 SLO
 SLOs
 SONAME
+SOP
+SOPs
 SRU
 SRUs
 subdirectory
@@ -234,6 +245,7 @@ VMs
 vorlon
 WCAG
 webops
+whitelist
 WNPP
 wordlist
 workspaces

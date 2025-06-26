@@ -5,9 +5,56 @@ There are two main kinds of overrides that we need to keep tabs on, in order to
 zero out the discrepancies before the end of the release cycle:
 **component mismatches**, and **priority mismatches**.
 
-Handling of component mismatches is already described in detail in
-{ref}`component-mismatches-and-changing-overrides`.
+Sadly, packages just don't stay where they're put. {ref}`seed-management`
+details how packages get chosen for the `main` component, the various meta
+packages and presence on the CD. What it doesn't point out is that packages
+that fall out of the seeding process are destined for the `universe` component.
+ 
+Every 30 minutes or so, the difference between what the seeds expect to be true
+and what the archive actually believes is evaluated by the
+`component-mismatches` tool, and the output placed at:
 
+* [`component-mismatches.txt`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.txt)
+
+* [`component-mismatches.svg`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg)
+  ([dot source](https://ubuntu-archive-team.ubuntu.com/component-mismatches.dot))
+
+**Source and binary promotions to `main`**
+
+These are source packages currently in `universe` that appear to need promoting
+to `main`. The usual reasons are that they are seeded, or that a package they
+build has become a dependency or build-dependency of a package in `main`.
+
+New sources need to be processed through the
+[Ubuntu Main Inclusion Queue](https://wiki.ubuntu.com/UbuntuMainInclusionQueue),
+and have been approved before they should be promoted. Ensure that all of
+their dependencies (which will be in this list) are approved as well.
+
+**Binary only promotions to `main`**
+
+These are binary packages currently in `universe` that appear to need promoting
+to `main`, as above; except that their source package is already in `main`. An
+inclusion report isn't generally needed, though the package should be checked
+for correctness.
+
+Especially check that all of the package's dependencies are already in `main`
+or have been approved.
+
+**Source and binary demotions to `universe`**
+
+Sources and their binaries that are currently in `main` but are no longer
+seeded or depended on by another package. These either need to be seeded
+explicitly, or demoted.
+
+**Binary only demotions to `universe`**
+
+Binary packages in `main` that are no longer seeded or depended on, but the
+source is still to remain in `main` -- usually because another binary saves it.
+Often these tend to be `-dev` or `-dbg` packages and need to be seeded, rather
+than demoted; but not always.
+
+Once you've determined what overrides need to be changed, use the
+`change-override` client-side tool to do it.
 
 ## Target pocket for the override 
 
@@ -19,7 +66,7 @@ can use that to your advantage so it takes this attribute with it just when it
 migrates by only setting the component in `-proposed`.
 
 
-## Special case -- demoting to universe 
+## Demoting to `universe` 
 
 Start at
 [`component-mismatches`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.html)
@@ -54,6 +101,55 @@ Or for more churn at: [`component-mismatches-proposed`](https://ubuntu-archive-t
   * **Future**: We'd like to have a linked bug as with MIRs and in MoM would be
     a desire for the evolution of this page.
 
+:::{code-block}
+# Note, this content is from the wiki page
+
+**Binary only demotions to `universe`**
+
+Binary packages in `main` that are no longer seeded or depended on, but the
+source is still to remain in `main` -- usually because another binary saves it.
+Often these tend to be `-dev` or `-dbg` packages and need to be seeded, rather
+than demoted; but not always.
+
+Once you've determined what overrides need to be changed, use the
+`change-override` client-side tool to do it.
+
+To promote a binary package to `main`:
+
+```none
+$ ./change-override -c main git-email
+```
+
+To demote a source package and all of its binaries to `universe`:
+```
+$ ./change-override -c universe -S tspc
+```
+
+To demote a binary package to `universe` to solve a component-mismatch issue
+(note the `-proposed` target rather than the release pocket), typically unseeded
+because the new version introduced an unwanted dependency:
+
+```none
+$ ./change-override -c universe -s plucky-proposed erlang-doc
+```
+
+Less frequently used are the options to just move a source, and leave its
+binaries where it is (usually just to repair a mistaken forgotten `-S`):
+
+```none
+$ ./change-override -c universe tspc
+...oops, forgot the source...
+$ ./change-override -c universe -t tspc
+```
+
+and the option to move a binary and its source, but leave any other binaries
+where they are:
+
+```none
+$ ./change-override -c universe -B flite
+```
+:::
+
 
 ## Special case -- promoting in stable releases
 
@@ -61,14 +157,14 @@ A special case are promotions in stable Ubuntu releases. Most of the time
 promotions there work just as normal for packages in `-updates` and `-security`,
 like:
 
-```bash
+```none
 ./change-override --component main --suite focal-updates [...] pkg-with-update
 ```
 
 But if there was no update and it is only in the `-release` pocket like `focal`
 it is immutable. Then we would get:
 
-```bash
+```none
 ./change-override --component main --suite focal [...] pkg-without-update
 triggering:
 lazr.restfulclient.errors.BadRequest: HTTP Error 400: Bad Request
@@ -95,7 +191,7 @@ using the following arguments to `copy-package`:
 Afterwards it can then be promoted in `-updates`. So in the linked example it
 was:
 
-```bash
+```none
 ./copy-package --version 6.9.4-1 --from-suite focal --to-suite focal-updates --include-binaries --auto-approve libonig
 # wait until it is there
 ./change-override --component main --suite focal-updates --source-and-binary libonig

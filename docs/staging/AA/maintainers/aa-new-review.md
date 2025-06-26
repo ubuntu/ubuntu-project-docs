@@ -1,23 +1,126 @@
 (aa-new-review)=
 # NEW review
 
-Three main functions of a manual NEW process:
+There are three main functions of a manual NEW process:
 
-* managing the package namespace
+* Managing the package namespace
 
-* ensuring compliance with, and correct documentation of, the software license
+* Ensuring compliance with, and correct documentation of, the software license
 
-* ensuring the package is shipped in the correct component based on its license
+* Ensuring the package is shipped in the correct component based on its license
 
-In addition, I always run `lintian -I` on the source package (or the binaries)
-to check that they aren't obviously very buggy in ways that the linter can
-detect. I will flag `lintian` warnings and errors to the uploader, but there are
-very few that will cause me to reject the package.
+New sources need to be checked to make sure they're well packaged, the licence
+details are correct and permissible for us to redistribute, etc. See:
 
-(Reports of a malformed `debian/copyright` are one of them.)
+* [Packaging new software](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/how-to/packaging-new-software.html)
+
+* {ref}`debian/copyright file <the-copyright-file>`
+
+* and [Debian's Reject FAQ](https://ftp-master.debian.org/REJECT-FAQ.html)
+
+## The NEW queue
+
+To work with the upload queue, you may either use the
+[web interface](https://launchpad.net/ubuntu/questing/+queue) or the `queue` API
+client in `ubuntu-archive-tools`. The API client should generally be faster and
+more flexible; in particular, it is not currently possible to override
+individual binaries using the web interface. See
+[bug #828649](https://bugs.launchpad.net/launchpad/+bug/828649).
+
+Both source packages and new binaries which have not yet been approved are not
+automatically accepted into the archive, but are instead held for checking and
+manual acceptance. Once accepted they'll be automatically approved from then on.
+
+The current queue can be obtained with:
+
+```none
+$ ./queue info
+```
+
+This is the `NEW` queue for the development series of Ubuntu by default; you
+can change the queue with `-Q`, the distro with `-D` and the release using `-s`.
+To list the `UNAPPROVED` queue for `ubuntu/xenial`, for example:
+
+```none
+$ ./queue -s xenial -Q unapproved info
+```
+
+Packages are placed in the `UNAPPROVED` queue if they're uploaded to a closed
+distribution, and are usually security updates or similar; this should be
+checked with the uploader.
+
+You can give a string argument after `info`, which is interpreted as a sub-string
+match filter.
+
+To obtain a report of the size of all the different queues for a particular
+release:
+
+```none
+$ ./queue report
+```
+
+Back to the `NEW` queue for now, however. You'll see output that looks somewhat
+like this:
+
+```text
+$ ./queue info
+ Listing ubuntu/dapper (New) 4
+---------|----|----------------------|----------------------|---------------
+   25324 | S- | diveintopython-zh    | 5.4-0ubuntu1         | 3 minutes
+         | * diveintopython-zh/5.4-0ubuntu1 Component: main Section: doc
+   25276 | -B | language-pack-kde-co | 1:6.06+20060427      | 2 hours 20 minutes
+         | * language-pack-kde-co-base/1:6.06+20060427/i386 Component: main Section: translations Priority: OPTIONAL
+   23635 | -B | upbackup (i386)      | 0.0.1                | 2 days
+         | * upbackup/0.0.1/i386 Component: main Section: admin Priority: OPTIONAL
+         | * upbackup_0.0.1_i386_translations.tar.gz Format: raw-translations
+   23712 | S- | gausssum             | 1.0.3-2ubuntu1       | 45 hours
+         | * gausssum/1.0.3-2ubuntu1 Component: main Section: science
+---------|----|----------------------|----------------------|---------------
+                                                               4
+```
+
+The number at the start can be used with other commands instead of referring to
+a package by name. The next field shows you what is actually in the queue,
+"`S-`" means it's a new source and "`-B`" means it's a new binary. You then have
+the package name, the version, and how long it's been in the queue.
 
 
-## Managing the package namespace
+## Fetch a package for processing
+
+You can fetch a package from the queue for manual checking:
+
+```none
+$ ./queue fetch 25324
+```
+
+Or, if you just want to print the URLs, so that you can fetch them on a system
+with a faster network connection:
+
+```none
+$ ./queue show-urls 25324
+```
+
+The source is now in the current directory and ready for checking. Any problems
+should result in the rejection of the package (also send a mail to the uploader
+explaining the reason and cc ubuntu-archive@lists.ubuntu.com):
+
+```none
+$ ./queue reject 25324
+```
+
+
+## Process the package
+
+In addition to the following checks, run `lintian -I` on the source package
+(or the binaries) to check that they aren't obviously very buggy in ways that
+the linter can detect.
+
+You can flag `lintian` warnings and errors to the uploader, but there are very
+few that will give you cause to reject the package. Reports of a malformed
+`debian/copyright` are an example that will.
+
+
+### Managing the package namespace
 
 This is a judgement call, but very short names (3--5 characters) are bad even
 if they're not taken already and even if that's the name Upstream calls it by.
@@ -34,7 +137,7 @@ should take care to avoid accepting Ubuntu-specific packages under names that
 we think might be used otherwise by Debian in the future.
 
 
-## Ensuring compliance with the software license
+### Ensuring compliance with the software license
 
 Ensuring compliance with the software license means:
 
@@ -100,7 +203,7 @@ they depend on. We have no tooling for this and this check is not enforced at
 NEW acceptance currently.
 
 (ensuring-correct-component-based-on-license)=
-## Ensuring correct component based on license
+### Ensuring correct component based on license
 
 In general, Ubuntu follows the Debian Free Software Guidelines and Debian's
 interpretation of them with regards to package inclusion in `main` and
@@ -195,9 +298,11 @@ were manually synced (most often because there is a conflict with existing
 Ubuntu binary packages that prevent an auto-sync, or when a sync needs to be
 done on a package in `experimental` rather than `unstable`; sometimes, simply
 because an Ubuntu developer has gotten impatient waiting for an auto-sync).
-
-It is sufficient to verify that the package in question is a sync from Debian
-based on the Launchpad queue page; no further NEW review is required.
+Before Feature Freeze, it is sufficient to verify that the package in question
+is a sync from Debian based on the Launchpad queue page; no further NEW review
+is required. During Feature Freeze, it's a good idea to check whether the new
+package would trigger a transition, in which case this should have been
+discussed with the release team.
 
 
 ## New packages targeted at stable releases
@@ -320,4 +425,83 @@ Sometimes we might need to discuss with the uploader instead of just rejecting.
 In that case have a look at the `.dsc` file with `gpg –verify` to get the
 sponsor and the changelog to get the packager. Use that info to connect to them.
 
+## Accepting a package
+
+
+If the package is fine, you should next check that it's going to end up in the
+right part of the archive. On the next line of the `info` output, you have
+details about the different parts of the package, including which component,
+section, etc. it is expected to head into. One of the important jobs is making
+sure that this information is actually correct through the application of
+overrides.
+
+To alter the overrides for a package, use:
+
+```none
+$ ./queue override -c universe ubuntustudio-menu
+```
+
+Where the override can be `-c <component>`, `-x <section>`, and/or (for binary
+packages) `-p <priority>`. If you want to limit the override application to
+only source or only binary packages, use the `--source` or `--binary` options
+respectively.
+
+Often, a binary will be in the `NEW` queue because it is a shared library that
+has changed `SONAME`. In this case, check the existing overrides to make sure
+anything new matches. These can be found in `/ubuntu/indices` on Ubuntu mirrors.
+
+Currently, a special case of this are the kernel packages, which change package
+names with each ABI update and build many distinct binary packages in different
+sections. A helper tool has been written to apply overrides to the queue based
+on the packages that are currently published:
+
+```none
+$ ./kernel-overrides [-s <sourcepackage>] <newabi>
+```
+
+Binary packages are not often rejected (they go into a black hole with no
+automatic notifications), so, check the `.deb` contains files, run `lintian` on
+it and file bugs when things are broken. The binaries also need to be put into
+`universe` etc as appropriate even if the source is already there.
+
+If you're happy with a package, and the overrides are correct, accept it with:
+
+```none
+$ ./queue accept 23712
+```
+
+You can also use `./queue accept binary-name`, which will accept it for all
+architectures.
+
+
+## Partner archive
+
+The Canonical partner archive, though not part of Ubuntu proper, is managed
+using the same tools and queues. As such, use the same procedures when
+processing partner packages. E.g.:
+
+```text
+$ ./queue -s hardy info
+Listing ubuntu/hardy (New) 2
+---------|----|----------------------|----------------------|---------------
+ 1370980 | S- | arkeia               | 8.0.9-3              | 19 hours
+	 | * arkeia/8.0.9-3 Component: partner Section: utils
+ 1370964 | S- | arkeia-amd64         | 8.0.9-3              | 19 hours
+	 | * arkeia-amd64/8.0.9-3 Component: partner Section: utils
+---------|----|----------------------|----------------------|---------------
+                                                               2
+```
+
+Notice `'Component: partner'`. Use `-A ubuntu/partner` to remove a package:
+
+```none
+$ ./remove-package -m "request from First Last name" \
+  -A ubuntu/partner -s precise adobe-flashplugin
+```
+
+The rules governing package inclusion in partner are not the same as those for
+the main Ubuntu archive. See
+[Extension Repository Policy](https://wiki.ubuntu.com/ExtensionRepositoryPolicy)
+for the Technical Board's requirements regarding the contents of add-on
+repositories made available through the `Software Sources` interface.
 

@@ -1,49 +1,24 @@
 (archive-administration)=
 # Archive Administration
 
-- What *is* archive admin?
+```{note}
+This page will be moved to:
+* Who makes Ubuntu -> The Ubuntu Archive team
+```
 
------
+Every contributor to Ubuntu is concerned with the good health and long-term
+maintainability of the Package Archive. Although many operations can be handled
+by uploaders, there are certain specific activities in the Archive that
+require an additional level of administrative privileges above Core Dev. These
+specific activities are handled by the **Archive Administration (AA)** team.
 
-> From wiki
-> This page details the processes for the
-> [Ubuntu Package Archive Administrators](https://launchpad.net/~ubuntu-archive)
-> team, and hopefully provides a decent guide for new members of the team.
+## About the team
 
-> Bugs should be filed against the appropriate packages, and the team
-> **subscribed** (*not assigned*) to the bug.
+The team is defined on Launchpad as the
+["Ubuntu Package Archive Administrators" team](https://launchpad.net/~ubuntu-archive).
+They are often referred to as "Archive Admins" or just "the AA team".
 
-> The requests can be found at
-> [subscribed bugs](https://launchpad.net/~ubuntu-archive/+subscribedbugs). This
-> sometimes fails to load, if in doubt
-> [this page](https://bugs.launchpad.net/~ubuntu-archive/+bugs?orderby=-date_last_updated&start=0)
-> also includes assigned bugs but works more reliably.
-
-> Team members may assign bugs to themselves and mark them *In Progress* if
-> they're working on them, or discussing them; to act as a lock on that request.
-
-> ## Client-side tools
-
-> We are transitioning towards client-side administration as the necessary
-> facilities become available via the Launchpad API. To get hold of
-> [these tools](https://code.launchpad.net/+branch/ubuntu-archive-tools):
-
-> ```bash
-> $ git clone lp:ubuntu-archive-tools
-> ```
------
-
-
-## Archive Administrators
-
-- define the team involved
-- Processes the team is responsible for:
-
-  For each process:
-  - Explain what the process is, what it's for, and how to do it
-- how does one become an archive admin?
-
-## AA team responsibilities
+## Tasks and responsibilities
 
 The main tasks the Archive Admin team is responsible for are:
 
@@ -51,13 +26,12 @@ The main tasks the Archive Admin team is responsible for are:
 * {ref}`aa-package-removal`
 * {ref}`aa-package-overrides`
 
-Less commonly, they are asked to do the following tasks. These are explained in
-more depth in the {ref}`aa-secondary-tasks` page.
+Less commonly, they are asked to do the following tasks:
 
-* Priority mismatches
-* Signing bootloaders
-* Phasing on delivering SRU updates
-* i386 whitelist updates
+* {ref}`aa-priority-mismatches`
+* {ref}`aa-signing-bootloaders`
+* {ref}`aa-phasing-sru-updates`
+* {ref}`aa-i386-whitelist-updates`
 
 The following list of Archive-related services needs to be updated with details
 of the charmed hosted services as they are migrated.
@@ -65,35 +39,67 @@ of the charmed hosted services as they are migrated.
 - {ref}`aa-archive-related-services` 
 
 
-## Communication
+## How to contact the team
 
-How to get in touch with the AA team?
+To get in contact with the Archive Admin team, you generally just need to
+follow the outlined processes (using bugs).
 
-## Museum
+For special cases, you can contact an Archive Admin of your choice using the
+[`ubuntu-development`](https://matrix.to/#/#devel:ubuntu.com) or
+[`ubuntu-release`](https://matrix.to/#/#release:ubuntu.com) channels on Matrix.
 
-* {ref}`aa-museum`
+-----
 
-## Not AA content anymore
+```{note}
+The content that follows will be deleted from this page on moving out of staging
+```
 
-* {ref}`not-AA`
+Doesn't belong here (should go to maintainers -> index):
 
+> ## Client-side tools
+> Archive Administration is done client side using the LP API through various
+> tools. To [get hold of these tools](https://code.launchpad.net/~ubuntu-archive/ubuntu-archive-tools/trunk):
+> ```none
+> $ git clone lp:ubuntu-archive-tools
+> ```
+
+
+Contributors -> index-advanced
+```{toctree}
+:titlesonly:
+
+contributors/request-package-removal
+```
+
+
+Maintainers -> index-AA
 
 ```{toctree}
 :titlesonly:
 
-aa-new-review
-wiki-new-review
-aa-package-removal
-wiki-package-removal
-aa-package-overrides
-wiki-package-overrides
-aa-secondary-tasks
-aa-archive-related-services
-not-AA
-aa-museum
+maintainers/aa-new-review
+maintainers/aa-package-removal
+maintainers/aa-package-overrides
+maintainers/aa-priority-mismatches
+maintainers/aa-signing-bootloaders
+maintainers/aa-phasing-sru-updates
+maintainers/aa-i386-whitelist-updates
+maintainers/aa-archive-related-services
 ```
 
+To stay in staging ->
 
+```{toctree}
+:titlesonly:
 
+aa-museum
+not-AA
+```
 
+Page still needs to be split ->
 
+```{toctree}
+:titlesonly:
+
+new-packages
+```

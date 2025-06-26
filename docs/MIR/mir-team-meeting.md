@@ -30,7 +30,7 @@ If you're chairing the meeting, you can use the following template:
 ```
 # Start of the Main inclusion request team meeting
 Welcome to the MIR Team's weekly meeting
-General rules and the process description can be found at https://github.com/canonical/ubuntu-mir
+General rules and the process description can be found at https://canonical-ubuntu-project.readthedocs-hosted.com/MIR/main-inclusion-review
 Ping for MIR meeting members - @didrocks:matrix.org @joalif:matrix.org @seth-arnold:ubuntu.com @paelzer:ubuntu.com @mylesjp:matrix.org @pushkarnk:matrix.org ( @dviererbe:ubuntu.com @slyon:ubuntu.com )
 
 ## Topic 1/7: Awareness of external agenda items

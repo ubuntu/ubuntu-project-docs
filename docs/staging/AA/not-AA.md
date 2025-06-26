@@ -1,6 +1,12 @@
 (not-AA)=
 # Content that doesn't belong to AA
 
+```{important}
+This page should not be moved out of the staging area in its current state.
+If you move content to another section, please delete it from this page.
+```
+
+
 All this content is saved from
 [the Wiki Archive Admin page](https://wiki.ubuntu.com/ArchiveAdministration)
 
@@ -12,7 +18,7 @@ This content is used by DMB-members
 ### Adjusting Launchpad ACLs
 
 ```{note}
-Due to [bug #562451](https://bugs.launchpad.net/soyuz/+bug/562451), Archive
+Due to [bug #562451](https://bugs.launchpad.net/launchpad/+bug/562451), Archive
 Administrators cannot currently adjust Launchpad ACLs.
 ```
 
@@ -32,7 +38,7 @@ from `ubuntu-archive-tools`.
 
 To list the packages currently in the package set `mozilla`:
 
-```bash
+```none
 $ ./edit-acl query -P mozilla -S zesty
 
 adblock-plus
@@ -48,13 +54,13 @@ This section refers to zesty, but also says "currently"
 
 To add a package to the `mozilla` package set:
 
-```bash
+```none
 $ ./edit-acl -P mozilla -S zesty -s foo -s bar -s baz add
 ```
 
 To remove a package from the `mozilla` package set:
 
-```bash
+```none
 $ ./edit-acl -P mozilla -S zesty -s foo delete
 ```
 
@@ -76,7 +82,7 @@ This can be done with the `queuediff` tool in `ubuntu-archive-tools`, which
 generates a debdiff between the current version in the archive, and the
 package sitting in the unapproved queue:
 
-```bash
+```none
 $ ./queuediff -s hardy-updates hal
 $ ./queuediff -b human-icon-theme | view -
 ```
@@ -102,7 +108,7 @@ center.
 
 SRU packages in `-proposed` must be approved by `~ubuntu-sru` before accepting.
 
-Please see: [SRU / Reviewing procedure and tools](https://canonical-sru-docs.readthedocs-hosted.com/en/latest/internal/#reviewing-procedure-and-tools)
+Please see: [SRU / Reviewing procedure and tools](https://documentation.ubuntu.com/sru/en/latest/internal/#reviewing-procedure-and-tools)
 
 
 #### Langpack SRUs

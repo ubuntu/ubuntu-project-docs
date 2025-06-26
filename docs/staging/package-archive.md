@@ -8,10 +8,10 @@ It has not yet been reviewed for currency or accuracy.
 
 All current official Ubuntu packages are stored in the primary archive, which is
 widely {ref}`mirrored <mirrors>`.
-A search interface is available at [http://packages.ubuntu.com](http://packages.ubuntu.com).
+A search interface is available at [packages.ubuntu.com](https://packages.ubuntu.com).
 Old versions can be retrieved from [Launchpad](https://launchpad.net/ubuntu).
 
-It is administered by the [archive administration team](http://launchpad.net/~ubuntu-archive).
+It is administered by the [archive administration team](https://launchpad.net/~ubuntu-archive).
 
 (Uploading)=
 ## Uploading
@@ -30,8 +30,8 @@ When your upload is processed (typically within a matter of minutes), you will
 receive an email with the result of your upload, whether it succeeds or fails,
 **unless** you use an unregistered email address. The system will only send mail
 to an address which belongs to a launchpad account which is a member of the
-relevant team for uploading. E.g. [`motu`](http://launchpad.net/~motu) for
-universe and [`ubuntu-core-dev`](http://launchpad.net/~ubuntu-core-dev) for main.
+relevant team for uploading. E.g. [`motu`](https://launchpad.net/~motu) for
+universe and [`ubuntu-core-dev`](https://launchpad.net/~ubuntu-core-dev) for main.
 
 Your upload must be signed by a GPG key registered in Launchpad. If the
 signature cannot be traced to a member of the appropriate team, then the upload
@@ -64,12 +64,12 @@ archive.
 
 Notifications of uploads are sent to a mailing list.  A different list is used for each Ubuntu release:
 
-* [8.04 (hardy)](http://lists.ubuntu.com/mailman/listinfo/hardy-changes/)
-* [10.04 (lucid)](http://lists.ubuntu.com/mailman/listinfo/lucid-changes)
-* [11.04 (natty)](http://lists.ubuntu.com/mailman/listinfo/natty-changes)
-* [11.10 (oneiric)](http://lists.ubuntu.com/mailman/listinfo/oneiric-changes)
-* [12.04 (precise)](http://lists.ubuntu.com/mailman/listinfo/precise-changes)
-* [12.10 (quantal)](http://lists.ubuntu.com/mailman/listinfo/quantal-changes)
+* [8.04 (hardy)](https://lists.ubuntu.com/mailman/listinfo/hardy-changes/)
+* [10.04 (lucid)](https://lists.ubuntu.com/mailman/listinfo/lucid-changes)
+* [11.04 (natty)](https://lists.ubuntu.com/mailman/listinfo/natty-changes)
+* [11.10 (oneiric)](https://lists.ubuntu.com/mailman/listinfo/oneiric-changes)
+* [12.04 (precise)](https://lists.ubuntu.com/mailman/listinfo/precise-changes)
+* [12.10 (quantal)](https://lists.ubuntu.com/mailman/listinfo/quantal-changes)
 
 ```{admonition} Question
 :class: important
@@ -99,7 +99,7 @@ follow the [Sync Request Process](https://wiki.ubuntu.com/SyncRequestProcess).
 A **merge** is a three-way merge of a package which originated in an external
 repository. This is used when there is a newer version available from the
 external repository, but the package has also been modified (branched) in
-Ubuntu. [Merge-o-Matic](http://merges.ubuntu.com) assists with this work, and
+Ubuntu. [Merge-o-Matic](https://merges.ubuntu.com) assists with this work, and
 [the Merging page](https://wiki.ubuntu.com/UbuntuDevelopment/Merging) explains
 how and when to merge. Packages which are
 [maintained in Bazaar](https://wiki.ubuntu.com/UbuntuDevelopment/#Bazaar) can
@@ -145,7 +145,7 @@ information. This page will provide a bit more explanation about the types of
 freezes and how to handle them.
 
 Freezes are generally also announced on
-[`ubuntu-devel-announce`](http://lists.ubuntu.com/ubuntu-devel-announce), so
+[`ubuntu-devel-announce`](https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-announce), so
 subscribing to that can keep you up-to-date. However, there aren't reminders
 about upcoming freezes posted to that list, so keep on top of which freezes are
 upcoming will help you to meet the deadlines in your work.
@@ -195,7 +195,7 @@ generally permission enough).
 ## Managing components
 
 Ubuntu packages are classified into components according to
-[maintenance and licensing criteria](http://www.ubuntu.com/ubuntu/components),
+[maintenance and licensing criteria](https://ubuntu.com/community),
 a process which is described in {ref}`seed-management`.
 
 Packages sometimes move from one component to another, according to policy or

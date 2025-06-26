@@ -30,13 +30,13 @@ If you want to apply for being a country mirror, please read {ref}`these require
 ## Registration
 
 If your mirror is meant to be used by others, please go and register it at
-[Launchpad](https://launchpad.net/ubuntu/+newmirror). You may need to create a
+[Launchpad](https://launchpad.net/ubuntu/+newmirror/+login). You may need to create a
 Launchpad account first. When your registration is successful and approved, it
 will show up on the mirror lists on Launchpad. It will also be checked by
 Launchpad.
 
 If you registered a CD mirror, and registration is successful and approved, it
-will also show up on the [Ubuntu download pages](http://www.ubuntu.com/download).
+will also show up on the [Ubuntu download pages](https://www.ubuntu.com/download).
 
 ## Mirror guidelines
 
