@@ -14,5 +14,4 @@ MIR/ @slyon @setharnold @joalif @didrocks @cpaelzer
 /.github/CODEOWNERS @s-makin @rkratky @slyon @setharnold @joalif @didrocks @cpaelzer
 
 # +1 maintenance PR approvals
-/plus-one-maintenance.md @schopin-pro
-/plus-one-report-template.md @schopin-pro
+plus-one-*.md @schopin-pro @s-makin @rkratky
