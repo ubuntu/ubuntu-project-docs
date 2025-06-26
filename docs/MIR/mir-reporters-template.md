@@ -315,6 +315,7 @@ TODO-A:   see TBD
 TODO-B: - End-user applications without desktop file, not needed because TBD
 
 [Dependencies]
+RULE: - Use check-mir from ubuntu-dev-tools to validate dependency components.
 RULE: - In case of alternative the preferred alternative must be in main.
 RULE: - Build(-only) dependencies can be in universe
 RULE: - If there are further dependencies they need a separate MIR discussion
