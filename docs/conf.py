@@ -189,6 +189,7 @@ linkcheck_ignore = [
     "http://127.0.0.1:8000",
     "https://www.gnu.org/*",
     "https://discourse.canonical.com/",
+    "https://git.launchpad.net/ubuntu/+source/*",
 ]
 
 
