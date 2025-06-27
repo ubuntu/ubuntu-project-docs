@@ -1,70 +1,86 @@
 (aa-package-removal)=
 # How to remove a package
 
+```{note}
+This page will be moved to:
+* Maintainers -> Archive Admin tasks
+```
+
 The `ubuntu-archive` team handles removals of both source and binary packages.
-See the [work list of source package removals requested by developers](https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-archive&field.status=NEW&field.status=Confirmed&field.status=Triaged&field.status=INPROGRESS&field.status=FIXCOMMITTED&field.status=INCOMPLETE_WITH_RESPONSE&orderby=-id&start=0).
+
+As per the corresponding contributor guide {ref}`request-package-removal`, 
+requests to remove a package are submitted in the form of bugs on Launchpad.
+
+* [List of source package removal requests](https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-archive&field.status=NEW&field.status=Confirmed&field.status=Triaged&field.status=INPROGRESS&field.status=FIXCOMMITTED&field.status=INCOMPLETE_WITH_RESPONSE&orderby=-id&start=0)
+
+You may need to remove a package completely, or remove only
+{ref}`a source <aa-remove-only-source>` or
+{ref}`a binary <aa-remove-only-binary>`.
+
+## Remove a package completely
 
 To remove a package entirely from the Archive, use the `remove-package`
-client-side tool. By default this removes the named source and binaries.
+client-side tool. By default, this removes **both** the named source and any
+binaries.
 
 ```text
 $ ./remove-package -m "reason for removal" konserve
 ```
 
-To remove only a source, use `-S`. To remove only a binary, use `-b`:
-
-```text
-$ ./remove-package -m "NBS" -b konserve
-```
-
-"NBS" is a common short-hand meaning that the binary is "No longer Built by the
-Source".
-
 The tool tells you what it's going to do, and asks for confirmation before
 doing it, so it's reasonably safe to get the wrong options and say `N`.
 
-Binary package removals generally do not require a bug report; for source
-packages you should require either a Launchpad or Debian bug number to reference
-in the removal, because from time to time users will find the publishing
-history and complain to the Archive Admin who did the removal, so it's useful
-to be able to redirect them.
+(aa-remove-only-source)=
+## Remove only a source
+
+To remove only a source, use the `-S` flag with the `remove-package` tool:
+
+```text
+$ ./remove-package -m "reason for removal" -S konserve
+```
+
+For source package removals you should require either a Launchpad or Debian bug
+number to reference in the removal. From time to time users will find the
+publishing history and complain to the Archive Admin who did the removal, so
+it's useful to be able to redirect them.
 
 
-## Source package removals via Debian
-
-If a source package has been removed from Debian, then there is no need for
-someone to file a separate removal bug because these can be handled through
-`process-removals`. Whenever I get a ping about removing a package from the
-devel series and they say as justification that it's been removed from
-`unstable`, I handle the request by firing up `process-removals` and deal that
-way with the entire pending queue.
-
-When processing removals of packages that have been removed from Debian, it is
-important not to break consistency of the Archive when they still have
-`reverse-depends`, but it is also important to not let these packages linger
-forever. When there are reverse-dependencies, particularly Ubuntu-specific ones,
-I make a point to file bug reports to give Ubuntu developers time to respond;
-see below.
-
-Recommends should not block removals of packages. Seed references should be
-referred to the maintainers of the relevant flavor before removal.
-
-> ## Removals in Debian
-
-> From time to time we should remove packages that were removed in Debian, to
-> avoid accumulating unmaintained packages. This client-side tool (from
-> `ubuntu-archive-tools`) will interactively go through the removals and ask for
-> confirmation:
-
-> ```none
-> $ ./process-removals
-> ```
-
-> Please note that we do need to keep some packages that were removed in Debian
-> (e.g. `firefox`, since we did not do the `firefox` -> `iceweasel` renaming).
 
 
-## Other source removals of packages from Debian
+
+
+
+
+### Source package removals via Debian
+
+Source packages that have been removed from Debian do not need a removal request
+bug. They can be periodically removed using the `process-removals` tool from
+`ubuntu-archive-tools`:
+
+```none
+$ ./process-removals
+```
+
+This tool interactively processes the entire pending queue, and asks for
+confirmation for each removal. You can run this tool whenever you receive a
+request to remove a package from the devel series due to it being removed from
+`unstable`.
+
+
+It is important, when removing packages, not to break consistency of the Archive
+when they still have `reverse-depends`. However, it is also important to not let
+these packages linger forever. Therefore, when there are reverse-dependencies
+(particularly Ubuntu-specific ones), **file a bug report** to give Ubuntu
+developers time to respond.
+
+*Recommends* should not block removals of packages.
+Seed references should be referred to the maintainers of the relevant flavor before removal.
+
+Some packages removed from Debian do need to be kept, e.g. `firefox`, since we
+did not do the `firefox` -> `iceweasel` renaming.
+
+
+### Other source removals of packages from Debian
 
 If we are removing a package from Ubuntu that is still in Debian `unstable`,
 some sort of justification for the removal is needed. A non-comprehensive list
@@ -112,7 +128,7 @@ the `extra-removals.txt` file within the
 > package back to source NEW in the next round of auto-syncs from Debian.
 
 
-## Source removals of Ubuntu-specific packages
+### Source removals of Ubuntu-specific packages
 
 During the heyday of {term}`MOTU`, Ubuntu acquired many Ubuntu-specific
 packages that were uploaded by an Ubuntu developer who is no longer active. Over
@@ -134,14 +150,14 @@ Such bugs should be given a deadline of the end of the current release cycle,
 to ensure {term}`NBS` gets cleaned up before a stable release.
 
 
-## Source removals of SRU upload from `-proposed`
+### Source removals of SRU upload from `-proposed`
 
 The [SRU Pending Report](https://ubuntu-archive-team.ubuntu.com/pending-sru.html)
 has a section at the bottom suggesting removals from `-proposed` for several
 different reasons.
 
 
-### **`-updates` is equal or higher than `-proposed`**
+#### **`-updates` is equal or higher than `-proposed`**
 
 This is the normal sequence of events. An SRU is verified, released, and the
 package has to also be removed from `-proposed`. The suggested command-line in
@@ -158,13 +174,13 @@ remove-package -y -m "moved to -updates" -s noble-proposed -e \
 ```
 
 
-### **`-release` is equal or higher than `-proposed`**
+#### **`-release` is equal or higher than `-proposed`**
 
 Haven't seen this case before. I suspect it can happen at release opening. To
 be determined.
 
 
-### **Failed verification for more than 10 days**
+#### **Failed verification for more than 10 days**
 
 If an SRU has the `verification-failed` tag, it is expected to be corrected
 within 10 days, either by a new upload, or something else that fixes the
@@ -191,7 +207,7 @@ sru-remove --reason=failed -s oracular -p samba 2092308
 > ```
 
 
-### **No test plan verification done in more then 105 days**
+#### **No test plan verification done in more then 105 days**
 
 If an upload has been sitting in `-proposed` and not verified for 105 days or
 more, it's also eligible for removal. That is the '`--reason=ancient`' parameter
@@ -205,7 +221,22 @@ sru-remove -s focal -p libxmlb 1988440
 ```
 
 
-## Removals of binary packages
+(aa-remove-only-binary)=
+## Remove only a binary
+
+To remove only a binary, use the `-b` flag with the `remove-package` tool:
+
+For example:
+
+```text
+$ ./remove-package -m "reason for removal" -b konserve
+```
+
+Binary package removals generally do not require a bug report.
+
+
+
+### Removals of binary packages
 
 When a binary package ceases to be built by its source package, it must be
 manually removed by an Archive Admin. These to-be-removed packages show up in
@@ -265,6 +296,11 @@ Don't remove NBS kernel packages for old {term}`ABIs <ABI>`
 until `debian-installer` and the seeds have been updated, otherwise daily
 builds of alternate and server CDs will be made uninstallable.
 ```
+
+
+
+
+
 
 (revert-a-package-to-a-previous-version)=
 ## Revert a package to a previous version

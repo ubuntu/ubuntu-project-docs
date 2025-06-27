@@ -1,6 +1,11 @@
 (aa-new-review)=
 # NEW review
 
+```{note}
+This page will be moved to:
+* Maintainers -> Archive Admin tasks
+```
+
 There are three main functions of a manual NEW process:
 
 * Managing the package namespace

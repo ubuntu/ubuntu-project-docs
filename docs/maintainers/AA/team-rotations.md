@@ -1,4 +1,0 @@
-(team-rotations)=
-
-# Team rotations
-

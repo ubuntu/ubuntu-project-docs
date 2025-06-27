@@ -1,4 +1,0 @@
-(nbs-packages)=
-
-# NBS packages
-

@@ -1,62 +1,72 @@
 (aa-package-overrides)=
 # Package overrides
 
+```{note}
+This page will be moved to:
+* Maintainers -> Archive Admin tasks
+```
+
 There are two main kinds of overrides that we need to keep tabs on, in order to
 zero out the discrepancies before the end of the release cycle:
 **component mismatches**, and **priority mismatches**.
 
-Sadly, packages just don't stay where they're put. {ref}`seed-management`
-details how packages get chosen for the `main` component, the various meta
-packages and presence on the CD. What it doesn't point out is that packages
+Packages just don't stay where they're put. {ref}`seed-management` details how
+packages get chosen for the `main` component, the various meta packages and
+presence on the CD. What it doesn't point out is that packages
 that fall out of the seeding process are destined for the `universe` component.
+
+## Component mismatches
  
 Every 30 minutes or so, the difference between what the seeds expect to be true
-and what the archive actually believes is evaluated by the
-`component-mismatches` tool, and the output placed at:
+and what the Archive actually states is evaluated by the `component-mismatches`
+tool, and the output placed at:
 
 * [`component-mismatches.txt`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.txt)
 
 * [`component-mismatches.svg`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg)
   ([dot source](https://ubuntu-archive-team.ubuntu.com/component-mismatches.dot))
 
-**Source and binary promotions to `main`**
 
-These are source packages currently in `universe` that appear to need promoting
-to `main`. The usual reasons are that they are seeded, or that a package they
-build has become a dependency or build-dependency of a package in `main`.
+### Promotions to `main`
 
-New sources need to be processed through the
-[Ubuntu Main Inclusion Queue](https://wiki.ubuntu.com/UbuntuMainInclusionQueue),
-and have been approved before they should be promoted. Ensure that all of
-their dependencies (which will be in this list) are approved as well.
+Source and binary
+: These are source packages currently in `universe` that appear to need promoting
+  to `main`. The usual reasons are that they are seeded, or that a package they
+  build has become a dependency or build-dependency of a package in `main`.
 
-**Binary only promotions to `main`**
+  New sources need to be processed through the
+  [Ubuntu Main Inclusion Queue](https://wiki.ubuntu.com/UbuntuMainInclusionQueue),
+  and have been approved before they should be promoted. Ensure that all of
+  their dependencies (which will be in this list) are approved as well.
 
-These are binary packages currently in `universe` that appear to need promoting
-to `main`, as above; except that their source package is already in `main`. An
-inclusion report isn't generally needed, though the package should be checked
-for correctness.
+Binary-only
+: These are binary packages currently in `universe` that appear to need promoting
+  to `main`, as above; except that their source package is already in `main`. An
+  inclusion report isn't generally needed, though the package should be checked
+  for correctness.
 
-Especially check that all of the package's dependencies are already in `main`
-or have been approved.
+  Especially check that all of the package's dependencies are already in `main`
+  or have been approved.
 
-**Source and binary demotions to `universe`**
+### Demotions to `universe`
 
-Sources and their binaries that are currently in `main` but are no longer
-seeded or depended on by another package. These either need to be seeded
-explicitly, or demoted.
+Source and binary
+: Sources and their binaries that are currently in `main` but are no longer
+  seeded or depended on by another package. These either need to be seeded
+  explicitly, or demoted.
 
-**Binary only demotions to `universe`**
+Binary-only
+: Binary packages in `main` that are no longer seeded or depended on, but the
+  source is still to remain in `main` -- usually because another binary saves it.
+  Often these tend to be `-dev` or `-dbg` packages and need to be seeded, rather
+  than demoted; but not always.
 
-Binary packages in `main` that are no longer seeded or depended on, but the
-source is still to remain in `main` -- usually because another binary saves it.
-Often these tend to be `-dev` or `-dbg` packages and need to be seeded, rather
-than demoted; but not always.
 
-Once you've determined what overrides need to be changed, use the
-`change-override` client-side tool to do it.
 
 ## Target pocket for the override 
+
+Once you've determined what overrides need to be changed (as outlined in the
+following sections), use the `change-override` client-side tool to do it.
 
 When overriding the component of a package, that component will "stick" to the
 package when migrating from one pocket to the other. That means that if you
@@ -66,7 +76,7 @@ can use that to your advantage so it takes this attribute with it just when it
 migrates by only setting the component in `-proposed`.
 
 
-## Demoting to `universe` 
+## Demote to `universe` 
 
 Start at
 [`component-mismatches`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.html)
