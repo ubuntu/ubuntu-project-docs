@@ -269,6 +269,15 @@ Changelog
     * [Basic overview of the `debian/` directory](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/debian-dir-overview/)
     * [Section 4.4 Debian changelog (Debian Policy Manual v4.6.2.0)](https://www.debian.org/doc/debian-policy/ch-source.html#debian-changelog-debian-changelog)
 
+chroot
+Change root
+    changes the root directory of the calling process to the path provided as the first argument
+    ```usage
+    chroot ~/newroot /bin/bash
+    
+    opens a bash shell with the 'newroot' folder as the root
+    ```
+
 CoF
 Circle of Friends
     The {term}`Ubuntu` logo is called **Circle of Friends**, because it is
