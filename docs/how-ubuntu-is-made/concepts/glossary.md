@@ -292,7 +292,8 @@ Closed Source Software
     *Work in Progress*
 
 Code name
-    *Work in Progress*
+    Short identifier used to refer to a specific Ubuntu release (e.g. , Jammy Jellyfish for Ubuntu 22.04).
+    [List of Releases with Code Names](https://wiki.ubuntu.com/Releases)
 
 CoC
 Code of Conduct
