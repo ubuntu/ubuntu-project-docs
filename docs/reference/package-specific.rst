@@ -34,6 +34,7 @@ the Technical Board.
 
     exception-Kernel-Updates
     exception-Apt-Updates
+    exception-Azure-Proxy-Agent-Updates
     exception-Bind9-Updates
     exception-Certbot-Updates
     exception-Cloudinit-Updates
@@ -210,6 +211,13 @@ procedure documented in
 :ref:`walinuxagentUpdates <reference-exception-walinuxagentUpdates>`.
 This stable release exception has been approved by SteveLangasek for the
 SRU team as of 2017-04-05.
+
+azure-proxy-agent
+~~~~~~~~~~~~~~~~~
+
+The source package azure-proxy-agent may be uploaded according to the
+procedure documented in
+:ref:`azure-proxy-agent-Updates <reference-exception-azure-proxy-agent-Updates>`.
 
 GNOME
 ~~~~~
