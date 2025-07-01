@@ -82,3 +82,11 @@ SRU.
 `LP:
 #2098106 <https://bugs.launchpad.net/ubuntu/+source/docker.io-app/+bug/2098106>`__:
 regression affecting Launchpad OCI builds
+
+Related SRU Interest Team
+-------------------------
+
+Container stacks have a :ref:`SRU Interest Team <reference-sru-interest-team>`,
+please subscribe the
+`Interest group <https://launchpad.net/~sru-verification-interest-group-containerstacks>`__
+to the SRU bug early on.

@@ -42,90 +42,97 @@ and for them to intervene if required.
 We therefore arrive at a set of distinct roles. Note that the person who
 takes on each role can change over time, even for an individual SRU.
 
-+-----------------------+-----------------------+-----------------------+
-| Role                  | Responsibility        | Who can do it         |
-+=======================+=======================+=======================+
-| SRU Driver            | Manage and triage     | Anyone who            |
-|                       | bugs, follow the SRU  | understands the       |
-|                       | process and perform   | packaging changes     |
-|                       | the necessary         | necessary to land a   |
-|                       | development and QA    | particular fix into a |
-|                       | tasks to see fixes    | stable release of     |
-|                       | land.                 | Ubuntu and is willing |
-|                       |                       | to do that work. If   |
-|                       |                       | this person does not  |
-|                       |                       | have upload access to |
-|                       |                       | Ubuntu, then they can |
-|                       |                       | still take this role, |
-|                       |                       | under the supervision |
-|                       |                       | of a sponsor          |
-|                       |                       | (sponsors can be      |
-|                       |                       | found via the `patch  |
-|                       |                       | pilot                 |
-|                       |                       | programme             |
-|                       |                       | <https://discourse.ub |
-|                       |                       | untu.com/t/ubuntu-pat |
-|                       |                       | ch-pilots/37705>`__). |
-+-----------------------+-----------------------+-----------------------+
-| Sponsor               | Help the SRU Driver   | Someone familiar with |
-|                       | with the required     | SRU process who has   |
-|                       | process.              | upload access to the  |
-|                       |                       | Ubuntu package        |
-|                       |                       | archive.              |
-+-----------------------+-----------------------+-----------------------+
-| SRU Reviewer          | Review and negotiate  | SRU team members      |
-|                       | proposed uploads for  | only.                 |
-|                       | compliance with `SRU  |                       |
-|                       | criteria <#what-is-a  |                       |
-|                       | cceptable-to-sru>`__, |                       |
-|                       | agree the QA plan,    |                       |
-|                       | accept uploads into   |                       |
-|                       | -proposed, confirm    |                       |
-|                       | the agreed plan was   |                       |
-|                       | followed, and release |                       |
-|                       | -proposed packages    |                       |
-|                       | into -updates.        |                       |
-+-----------------------+-----------------------+-----------------------+
-| SRU Process Developer | Drive process         | Anyone, under the     |
-|                       | changes,              | leadership of the SRU |
-|                       | documentation, etc.   | team.                 |
-+-----------------------+-----------------------+-----------------------+
-| SRU Representative    | Ensure the SRU team   | Valid sponsors into   |
-|                       | capacity is spent     | the SRU process.      |
-|                       | effectively by        | Proposed to be their  |
-|                       | guiding the team they | representative by a   |
-|                       | represent to propose  | team/group and        |
-|                       | uploads that meet     | approved by the SRU   |
-|                       | the process needs and | team.                 |
-|                       | expectations right    |                       |
-|                       | away. Thereby         |                       |
-|                       | avoiding iterations   |                       |
-|                       | consuming SRU team    |                       |
-|                       | member capacity and   |                       |
-|                       | delaying uploads.     |                       |
-|                       |                       |                       |
-|                       | Has a more direct     |                       |
-|                       | access to the SRU     |                       |
-|                       | team in a private     |                       |
-|                       | channel for when they |                       |
-|                       | are in doubt.         |                       |
-+-----------------------+-----------------------+-----------------------+
-| SRU Assistant         | Essentially an SRU    | Initial status of     |
-|                       | team member in        | anyone selected by    |
-|                       | training. Shadowing   | the SRU team to       |
-|                       | and helping an active | become a SRU team     |
-|                       | SRU team member to    | member.               |
-|                       | fully learn the       |                       |
-|                       | skill, the mindset,   | Beneficial, but not   |
-|                       | and the diligence     | required to have been |
-|                       | needed.               | a representative      |
-|                       |                       | before.               |
-+-----------------------+-----------------------+-----------------------+
-| Overriding authority  | Agree exceptions to   | Technical Board       |
-|                       | the `SRU              | members only.         |
-|                       | criteria <#what-is-a  |                       |
-|                       | cceptable-to-sru>`__. |                       |
-+-----------------------+-----------------------+-----------------------+
++------------------------------------+-----------------------+-----------------------+
+| Role                               | Responsibility        | Who can do it         |
++====================================+=======================+=======================+
+| SRU Driver                         | Manage and triage     | Anyone who            |
+|                                    | bugs, follow the SRU  | understands the       |
+|                                    | process and perform   | packaging changes     |
+|                                    | the necessary         | necessary to land a   |
+|                                    | development and QA    | particular fix into a |
+|                                    | tasks to see fixes    | stable release of     |
+|                                    | land.                 | Ubuntu and is willing |
+|                                    |                       | to do that work. If   |
+|                                    |                       | this person does not  |
+|                                    |                       | have upload access to |
+|                                    |                       | Ubuntu, then they can |
+|                                    |                       | still take this role, |
+|                                    |                       | under the supervision |
+|                                    |                       | of a sponsor          |
+|                                    |                       | (sponsors can be      |
+|                                    |                       | found via the `patch  |
+|                                    |                       | pilot                 |
+|                                    |                       | programme             |
+|                                    |                       | <https://discourse.ub |
+|                                    |                       | untu.com/t/ubuntu-pat |
+|                                    |                       | ch-pilots/37705>`__). |
++------------------------------------+-----------------------+-----------------------+
+| Sponsor                            | Help the SRU Driver   | Someone familiar with |
+|                                    | with the required     | SRU process who has   |
+|                                    | process.              | upload access to the  |
+|                                    |                       | Ubuntu package        |
+|                                    |                       | archive.              |
++------------------------------------+-----------------------+-----------------------+
+| SRU Reviewer                       | Review and negotiate  | SRU team members      |
+|                                    | proposed uploads for  | only.                 |
+|                                    | compliance with `SRU  |                       |
+|                                    | criteria <#what-is-a  |                       |
+|                                    | cceptable-to-sru>`__, |                       |
+|                                    | agree the QA plan,    |                       |
+|                                    | accept uploads into   |                       |
+|                                    | -proposed, confirm    |                       |
+|                                    | the agreed plan was   |                       |
+|                                    | followed, and release |                       |
+|                                    | -proposed packages    |                       |
+|                                    | into -updates.        |                       |
++------------------------------------+-----------------------+-----------------------+
+| SRU Process Developer              | Drive process         | Anyone, under the     |
+|                                    | changes,              | leadership of the SRU |
+|                                    | documentation, etc.   | team.                 |
++------------------------------------+-----------------------+-----------------------+
+| SRU Representative                 | Ensure the SRU team   | Valid sponsors into   |
+|                                    | capacity is spent     | the SRU process.      |
+|                                    | effectively by        | Proposed to be their  |
+|                                    | guiding the team they | representative by a   |
+|                                    | represent to propose  | team/group and        |
+|                                    | uploads that meet     | approved by the SRU   |
+|                                    | the process needs and | team.                 |
+|                                    | expectations right    |                       |
+|                                    | away. Thereby         |                       |
+|                                    | avoiding iterations   |                       |
+|                                    | consuming SRU team    |                       |
+|                                    | member capacity and   |                       |
+|                                    | delaying uploads.     |                       |
+|                                    |                       |                       |
+|                                    | Has a more direct     |                       |
+|                                    | access to the SRU     |                       |
+|                                    | team in a private     |                       |
+|                                    | channel for when they |                       |
+|                                    | are in doubt.         |                       |
++------------------------------------+-----------------------+-----------------------+
+| SRU Assistant                      | Essentially an SRU    | Initial status of     |
+|                                    | team member in        | anyone selected by    |
+|                                    | training. Shadowing   | the SRU team to       |
+|                                    | and helping an active | become a SRU team     |
+|                                    | SRU team member to    | member.               |
+|                                    | fully learn the       |                       |
+|                                    | skill, the mindset,   | Beneficial, but not   |
+|                                    | and the diligence     | required to have been |
+|                                    | needed.               | a representative      |
+|                                    |                       | before.               |
++------------------------------------+-----------------------+-----------------------+
+| Overriding authority               | Agree exceptions to   | Technical Board       |
+|                                    | the `SRU              | members only.         |
+|                                    | criteria <#what-is-a  |                       |
+|                                    | cceptable-to-sru>`__. |                       |
++------------------------------------+-----------------------+-----------------------+
+| :ref:`SRU Interest Team            | If a team is defined  | Anyone, by joining    |
+| <reference-sru-interest-team>`     | for an SRU with an    | the respective        |
+|                                    | exception they will   | SRU Interest team on  |
+|                                    | get bug updates about | Launchpad             |
+|                                    | upcoming changes      |                       |
+|                                    | to ease testing.      |                       |
++------------------------------------+-----------------------+-----------------------+
 
 It may be the case that even though an SRU meets all documented
 requirements, the SRU team concludes that the risk of an update breaking

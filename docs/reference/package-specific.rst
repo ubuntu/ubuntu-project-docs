@@ -75,6 +75,43 @@ the Technical Board.
     exception-walinuxagent-Updates
     exception-wslu-Updates
 
+.. _reference-sru-interest-team:
+
+Groups of SRU interest
+----------------------
+
+Many packages are commonly used in various important production environments
+but as the exceptions show, some updates can be quite complex. In addition to
+the tests outlined in the individual exception document we'd ask the
+:ref:`SRU driver <explanation-role-expectations>`
+to please inform the SRU Interest Team about upcoming updates.
+
+If defined, the package specific notes will refer to this paragraph and
+to the group that shall be subscribed.
+
+* **When**: Please do so as early as you know can predict what will be changed,
+  document that in the bug and then act. No need to wait until it hits -proposed.
+
+* **How**: Please add the referred Interest group as subscriber to the
+  the related SRU bug that you are preparing.
+
+These people/teams might do additional testing, but are not hard committed
+for anything. Therefore we will not gate on their positive reply to set a
+case to "verified". But if they come back:
+
+* with a good regression report => we expect it to be considered
+* with a pass from their tests => more confidence in the proposed change
+
+*Known constraints/imperfections:*
+As of today there is no tooling yet ensuring an interested group has been added.
+It - for now - only a social/policy request to the driver of the SRU.
+Therefore, until this is fully automated, there might be mistakes which we can
+not be too upset about - if you are, help to develop the tooling please :-)
+
+
+Defined Exceptions
+------------------
+
 Kernel
 ~~~~~~
 
