@@ -139,3 +139,13 @@ autopkgtest SRU Template
    [Changelog]
 
    <TODO: paste in changelog entry>
+
+
+.. _record_of_regressions:
+
+Record of regressions
+---------------------
+
+`LP:
+#2115731 <https://bugs.launchpad.net/ubuntu/+source/autopkgtest/+bug/2115731>`__:
+regression affecting upgrade testing.
