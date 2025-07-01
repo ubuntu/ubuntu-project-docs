@@ -9,7 +9,7 @@ This section is for the special types of SRU listed at
 Request a package-specific non-standard process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See `package specific notes <https://documentation.ubuntu.com/sru/en/latest/reference/package-specific>`_
+See :ref:`package-specific notes <reference-package-specific-notes>`
 for existing package specific exceptions. To add a new one please provide a
 pull request against the repository of this documentation, adding a new
 exception following the same pattern established by the others.
