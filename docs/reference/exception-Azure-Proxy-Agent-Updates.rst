@@ -64,7 +64,7 @@ applicable):
    subjected to the full CPC image tests; this tests for more regressions across
    multiple Azure instance sizes.
 
-.. _pre_sru_test_cases:
+.. _azure-proxy-agent_pre_sru_test_cases:
 
 Pre-SRU Test Cases
 ------------------
@@ -82,7 +82,7 @@ getting to SRU:
     5.) Call the IMDS/Wireserver endpoint with an unauthorized user and verify
         that the request is blocked by the agent
 
-.. _sru_test_cases:
+.. _azure-proxy-agent_sru_test_cases:
 
 SRU Test Cases
 --------------
