@@ -141,8 +141,6 @@ autopkgtest SRU Template
    <TODO: paste in changelog entry>
 
 
-.. _record_of_regressions:
-
 Record of regressions
 ---------------------
 
