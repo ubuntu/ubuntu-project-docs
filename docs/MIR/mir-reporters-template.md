@@ -315,11 +315,13 @@ TODO-A:   see TBD
 TODO-B: - End-user applications without desktop file, not needed because TBD
 
 [Dependencies]
-RULE: - In case of alternative the preferred alternative must be in main.
+RULE: - In case of alternatives, the first alternative must be in main.
+RULE:   Depends: concrete-package-in-main | metapackage
 RULE: - Build(-only) dependencies can be in universe
 RULE: - If there are further dependencies they need a separate MIR discussion
 RULE:   (this can be a separate bug or another task on the main MIR bug)
-TODO-A: - No further depends or recommends dependencies that are not yet in main
+TODO-A: - Used check-mir from ubuntu-dev-tools to validate
+TODO-A:   all dependencies or recommends are in main.
 TODO-B: - There are further dependencies that are not yet in main, MIR for them
 TODO-B:   is at TBD
 TODO-C: - There are further dependencies that are not yet in main, the MIR
