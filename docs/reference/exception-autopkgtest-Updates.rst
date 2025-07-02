@@ -111,6 +111,21 @@ autopkgtest SRU Template
 
    <TODO: link to autopkgtest results done on PPA package>
 
+   <TODO: Run a manual upgrade test (this will cover LP: #2115731)>
+
+   Checkout these repositories:
+
+   upgrade testing code: git clone https://github.com/canonical/auto-upgrade-testing
+   upgrade testing profiles: git clone https://git.launchpad.net/auto-upgrade-testing-specifications
+
+   And run the test from within the auto-upgrade-testing checkout:
+       python3 -m upgrade_testing.command_line -c ../auto-upgrade-testing-specifications/profiles/ubuntu-noble-oracular-basic-amd64_qemu.yaml --provision --adt-args='--timeout-factor=10 -d' --results-dir /tmp/upgrade_tests
+
+   The upgrade should perform and finish successfully:
+     * exit status is 0
+     * you should see near the end of the output: Upgrade result: PASS
+
+
    <TODO: if relevant: extra manual testing results>
 
    [Where problems could occur] 
@@ -124,3 +139,13 @@ autopkgtest SRU Template
    [Changelog]
 
    <TODO: paste in changelog entry>
+
+
+.. _record_of_regressions:
+
+Record of regressions
+---------------------
+
+`LP:
+#2115731 <https://bugs.launchpad.net/ubuntu/+source/autopkgtest/+bug/2115731>`__:
+regression affecting upgrade testing.
