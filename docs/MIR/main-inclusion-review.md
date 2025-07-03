@@ -26,6 +26,7 @@ packages in the Package Archive.
 :hidden:
 
 mir-roles-and-steps
+mir-process-states
 ```
 
 If we reduce the process to its simplest components, it can be described in
