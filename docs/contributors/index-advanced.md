@@ -6,6 +6,15 @@ tasks such as bug fixing and patching. In this section, you will find guides
 for the more advanced tasks that will support your application for MOTU, Core
 Dev, etc.
 
+## Checks and investigations
+
+```{toctree}
+:maxdepth: 1
+
+advanced/check-publication-history
+advanced/check-reverse-dependencies
+```
+
 ## Seed management
 
 ```{toctree}
@@ -35,7 +44,7 @@ advanced/plus-one-report-template
 ```{toctree}
 :maxdepth: 1
 
-advanced/request-package-removal
+advanced/aa-request-package-removal
 ```
 
 ## Main Inclusion requests

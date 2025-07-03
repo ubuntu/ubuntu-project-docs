@@ -7,12 +7,10 @@ work. The previous list is being replaced as services are migrated to become
 charmed hosted services.
 ```
 
-```{admonition} This page will be moved to:
-maintainers -> AA
-```
-## List of services on `ubuntu-archive-toolbox`
+This page documents the services used by the
+{ref}`Archive Administrators <archive-administration>` and how they work.
 
-### SRU
+## List of services on `ubuntu-archive-toolbox`
 
 
 ### Seeds/germinate
@@ -48,16 +46,10 @@ maintainers -> AA
 ### Auto-accept
 
 
-### Bileto "CI train" (Jenkins) - DEPRECATED
-
-
 ### Transition tracker (`ben`)
 
 
 ## Debugging broken jobs on `ubuntu-archive-toolbox`
-
-
-## Proposed migration report 
 
 
 

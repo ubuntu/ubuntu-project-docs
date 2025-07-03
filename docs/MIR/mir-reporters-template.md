@@ -45,6 +45,12 @@ RULE: address the problem you might spend some time explaining what exists and
 RULE: why it isn't a sufficient alternative.
 TODO: - There is no other/better way to solve this that is already in main or
 TODO:   should go universe->main instead of this.
+RULE: If the package previously was in main (use rmadison to check),
+RULE: and the previous MIR content is still applicable and not ancient,
+RULE: just add a new release-task instead of creating a new MIR.
+RULE: Otherwise, continue with this MIR and link to the previous MIR.
+TODO-A: - This is the first time package will be in main
+TODO-B: - Package was in main before (Ubuntu aa.bb->xx.yy) (MIR-Bug LP: #...)
 RULE: You truly need to understand the difference between main and universe
 RULE: in general and in the context of changed rules (build-depends) and
 RULE: constraints (Ubuntu Pro made it less of a difference in many cases).
@@ -338,7 +344,9 @@ TODO-B: - This package violates FHS or Debian Policy, reasons for that are TBD
 RULE: The package must have an acceptable level of maintenance corresponding
 RULE: to its complexity:
 RULE: - All packages must have a designated "owning" team, regardless of
-RULE:   complexity.
+RULE:   complexity. Only a selected set of Launchpad teams can own a package
+RULE:   in main, you can find this list here:
+RULE:   https://git.launchpad.net/ubuntu-archive-tools/tree/lputils.py#n46
 RULE:   This requirement of an owning-team comes in two aspects:
 RULE:   - A case needs to have a team essentially saying "yes we will own that"
 RULE:     to enter the MIR process. Usually that is implied by team members

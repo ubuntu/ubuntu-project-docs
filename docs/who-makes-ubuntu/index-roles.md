@@ -38,5 +38,5 @@ about-roles/index-SRU
 ```{toctree}
 :maxdepth: 1
 
-about-roles/index-archive-admin
+about-roles/archive-administration
 ```

@@ -178,6 +178,12 @@ html_theme_options = {
 
 redirects = {}
 
+# Rediraffe (internal) redirects 
+# ------------------------------
+
+rediraffe_branch = "main"
+rediraffe_redirects = "redirects.txt"
+
 
 ###########################
 # Link checker exceptions #
@@ -247,6 +253,7 @@ extensions = [
     "hoverxref.extension",
     "sphinx_prompt",
     "sphinx.ext.extlinks",
+    "sphinxext.rediraffe",
 ]
 
 # Excludes files or directories from processing

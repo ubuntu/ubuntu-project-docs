@@ -1,0 +1,19 @@
+# The redirects.txt file stores all the *internal* redirects for the published
+# docs. External redirects should be in conf.py
+#
+# If you change a filename, move or delete a file, you need a redirect here.
+# - Comment lines start with a hash (#) and are ignored
+# - Each redirect should appear on its own line
+
+# We are using the dirhtml builder, so files are treated as directories:
+# - A file is built like `filename/index.html`, not `filename.html`
+# - *Do* include a trailing slash at the end of the path
+# - *Do not* include a file extension or you'll get errors
+# - Paths don't need a slash in front of them
+
+# Example:
+# redirect/from/file/ redirect/to/file/
+
+# Archive Admin move out of staging
+staging/AA/contributors/aa-request-package-removal/ contributors/advanced/aa-request-package-removal/
+
