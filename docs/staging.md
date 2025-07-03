@@ -18,5 +18,6 @@ This page (and staging area) will be removed as it becomes unnecessary.
 staging/*
 staging/AA/archive-administration
 staging/PG/index
+staging/freezes/*
 ```
 
