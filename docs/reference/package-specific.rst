@@ -35,6 +35,7 @@ the Technical Board.
     exception-Kernel-Updates
     exception-Apt-Updates
     exception-Azure-Proxy-Agent-Updates
+    exception-Azure-VM-Utils-Updates
     exception-Bind9-Updates
     exception-Certbot-Updates
     exception-Cloudinit-Updates
