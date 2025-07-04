@@ -305,7 +305,7 @@ Code name
 
 CoC
 Code of Conduct
-    *Work in Progress*
+    A set of principles that defines expected behaviors and ethical standards for individuals in the community.
 
     See also: {term}`Ubuntu Code of Conduct`
 
@@ -1287,7 +1287,9 @@ Ubuntu Cloud Archive
     * [Cloud Archive (Ubuntu Wiki)](https://wiki.ubuntu.com/OpenStack/CloudArchive)
 
 Ubuntu Code of Conduct
-    *Work in Progress*
+    A set of guidelines that defines expected behaviors for the Ubuntu community. It aims to foster a productive, 
+    happy and agile environments where new ideas are welcomed and different groups can collaborate effectively. 
+    Emphasizing being considerate, respectful, and collaborative with others.
 
     See also: 
     * [Ubuntu Code of Conduct](https://ubuntu.com/community/ethos/code-of-conduct)
