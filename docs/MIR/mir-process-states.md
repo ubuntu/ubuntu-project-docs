@@ -1,8 +1,11 @@
 (mir-process-states)=
 # Process states
 
-This overview aims to clarify the meaning of MIR bug states, address previous 
-confusion, and indicate the next course of action on a MIR bug.
+The {ref}`overview <main-inclusion-review>` aims to clarify and provide a
+simplified entry to the topic. This page instead outlines the detailed
+meaning of all MIR related bug states. This allows one to understand the
+implications of such states and indicates the next course of action based on
+an MIR bug's current state.
 
 ```{mermaid}
 %% mermaid flowcharts documentation: https://mermaid.js.org/syntax/flowchart.html
