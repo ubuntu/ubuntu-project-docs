@@ -10,28 +10,8 @@ specific activities are handled by the **Archive Administration (AA)** team.
 The [Ubuntu Package Archive Administrators team](https://launchpad.net/~ubuntu-archive)
 is often referred to as "the Archive Admins" or just "the AA team".
 
-(aa-tasks)=
-## Tasks and responsibilities
-
-The main tasks the Archive Admin team is responsible for are:
-
-* {ref}`aa-new-review`
-* {ref}`aa-package-removal`
-* {ref}`aa-package-overrides`
-
-Less commonly, they are asked to do the following tasks:
-
-* {ref}`aa-priority-mismatches`
-* {ref}`aa-signing-bootloaders`
-* {ref}`aa-phasing-sru-updates`
-* {ref}`aa-i386-allowlist-updates`
-* {ref}`aa-triage-contributions`
-
-The following list of Archive-related services needs to be updated with details
-of the charmed hosted services as they are migrated.
-
-- {ref}`aa-archive-related-services` 
-
+The full list of tasks the Archive Admin team is responsible for can be found
+in {ref}`aa-tasks`.
 
 ## How to contact the team
 
