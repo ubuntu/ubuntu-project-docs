@@ -11,6 +11,10 @@ promotion:
 To find out more about the Main Inclusion Review process, see the
 {ref}`MIR overview <main-inclusion-review>`.
 
+In the full {ref}`MIR process <main-inclusion-review>` there are more roles
+involved than just the [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir),
+see {ref}`mir-roles` about that.
+
 ## Communication
 
 Preferably join and participate in the weekly {ref}`mir-team-meeting`
