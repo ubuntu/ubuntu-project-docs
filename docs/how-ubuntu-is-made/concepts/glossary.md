@@ -297,7 +297,7 @@ Circle of Friends
     ```
 
 Closed Source Software
-    *Work in Progress*
+    Software that does not allow public access to its source code.
 
 Code name
     Short identifier used to refer to a specific Ubuntu release (e.g. , Jammy Jellyfish for Ubuntu 22.04).
