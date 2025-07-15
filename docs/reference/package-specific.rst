@@ -45,6 +45,7 @@ the Technical Board.
     exception-Grub-Updates
     exception-HAProxy-Updates
     exception-Landscape-Updates
+    exception-MariaDB-Galera-Updates
     exception-NVidia-Updates
     exception-Netplan-Updates
     exception-OEMMeta-Updates
@@ -526,6 +527,13 @@ uploaded according to the proceedure documented in
 `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2024-January/005915.html>`__
 by ChrisHalseRogers for the SRU team as of 2024-01-31
+
+MariaDB and Galera
+~~~~~~~~~~~~~~~~~~
+
+The 'mariadb' and 'galera' source packages, including source package variants
+with version suffixes, may be uploaded according to the proceedure documented in
+:ref:`MariaDB-Galera-Updates <reference-exception-MariaDB-Galera-Updates>`.
 
 GRUB
 ~~~~
