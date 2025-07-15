@@ -37,4 +37,3 @@ On each working day, at least one SRU team member is available on public channel
     :maxdepth: 1
 
     rota
-

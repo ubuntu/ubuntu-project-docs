@@ -128,7 +128,7 @@ autopkgtest SRU Template
 
    <TODO: if relevant: extra manual testing results>
 
-   [Where problems could occur] 
+   [Where problems could occur]
 
    <TODO: highlights areas where regressions might happen>
 

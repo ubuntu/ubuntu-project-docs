@@ -487,7 +487,7 @@ by SteveLangasek for the SRU team as of 2023-06-06.
 virtualbox
 ~~~~~~~~~~
 
--  
+-
 
    -  THIS IS OUTDATED !!! \**\*
 
@@ -659,9 +659,9 @@ section should contain:
 ::
 
    [ Test Plan ]
-     
+
    Verify that the following subcommands of `distro-info` print information about the new devel and current stable releases:
-     
+
    * `--devel`
    * `--supported`
    * `--stable`
