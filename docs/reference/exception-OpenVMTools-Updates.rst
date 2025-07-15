@@ -119,11 +119,11 @@ enablement SRU upload under the condition of `"other safe cases" sub section 2 <
 
 .. code-block:: text
 
-  "... is also applicable as they have a low potential for regressing existing
-  installations but a high potential for improving the user experience,
-  particularly for Long Term Support releases ... For Long Term Support releases
-  we regularly want to enable new hardware. Such changes are appropriate provided
-  that we can ensure not to affect upgrades on existing hardware."
+  "... is also applicable as they have a low potential for regressing existing
+  installations but a high potential for improving the user experience,
+  particularly for Long Term Support releases ... For Long Term Support releases
+  we regularly want to enable new hardware. Such changes are appropriate provided
+  that we can ensure not to affect upgrades on existing hardware."
 
 History
 -------
@@ -137,7 +137,7 @@ The reason for that was that while we understood the need we didn't have
 the insight or capacity to verify this across a variety of VMware
 versions nor to use any of the advanced features.
 
-But then in 2018 we went the extra mile sorting out how we could adress
+But then in 2018 we went the extra mile sorting out how we could address
 the problem outlined for the better of our users.
 
 The bug that changed this from "we can't" to, "let us help our users"
@@ -155,15 +155,15 @@ Steve was so kind to share his
 
 .. code-block:: text
 
-  "With my SRU team hat on, I will say that open-vm-tools clearly falls into
-  the class of packages that have a "platform enablement" (new "hardware
-  enablement") exception to the usual bugfix-only rule.
+  "With my SRU team hat on, I will say that open-vm-tools clearly falls into
+  the class of packages that have a "platform enablement" (new "hardware
+  enablement") exception to the usual bugfix-only rule.
 
-  Care must of course still be taken to test the updates and avoid
-  regressions, but in cases where the package must be updated from upstream to
-  maintain compatibility with the moving target of the OS's substrate (whether
-  that's hardware, or a cloud platform, or a VM platform), the requirement to
-  selectively cherry-pick bugfixes is waived."
+  Care must of course still be taken to test the updates and avoid
+  regressions, but in cases where the package must be updated from upstream to
+  maintain compatibility with the moving target of the OS's substrate (whether
+  that's hardware, or a cloud platform, or a VM platform), the requirement to
+  selectively cherry-pick bugfixes is waived."
 
 So it would be a valid SRU, but what was left to resolve, was how to
 ensure to avoid regressions. Back then we reached out to VMware and cam

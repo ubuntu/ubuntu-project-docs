@@ -17,7 +17,7 @@ To obtain a new ongoing exception such as those documented below:
 #. Draft an exception page, like the ones referenced below, outlining what
    you believe should be the exception.
 
-#. Submit it to the SRU team for approval via a PR to this repository.
+#. Submit it to the SRU team for approval via a PR to this repository.
    To discuss further see :ref:`Howto → Contact <howto-contact>`
 
 Note that the SRU team's delegation from the Technical Board is limited
@@ -512,7 +512,7 @@ open-vm-tools
 ~~~~~~~~~~~~~
 
 The open-vm-tools source package may be uploaded according to the
-proceedure documented in :ref:`OpenVMToolsUpdates <reference-exception-OpenVMToolsUpdates>`.
+procedure documented in :ref:`OpenVMToolsUpdates <reference-exception-OpenVMToolsUpdates>`.
 This stable release exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2024-January/005900.html>`__
 by ChrisHalseRogers for the SRU team as of 2024-01-25.
@@ -522,7 +522,7 @@ postgresql
 
 The currently supported postgresql source package (as determined by the
 dependency of the postgresql metapackage) for each stable release may be
-uploaded according to the proceedure documented in
+uploaded according to the procedure documented in
 :ref:`PostgreSQLUpdates <reference-exception-PostgreSQLUpdates>`. This stable release exception
 `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2024-January/005915.html>`__
@@ -630,7 +630,7 @@ rather than just backporting the most recent release's source package,
 we just update the upstream tarball instead. You then need to edit
 debian/changelog to add bug closures, and make sure to use a version
 number consistent to the previous numbering scheme (e. g.
-\`2012e-0ubuntu0.12.04\`). Uploads should also be made to any releases
+`2012e-0ubuntu0.12.04`). Uploads should also be made to any releases
 supported via ESM.
 
 Due to the potentially disastrous consequences of having localtime
@@ -708,4 +708,3 @@ Toolchains:
 
 * Java: `Java updates PPA <https://launchpad.net/~openjdk-r/+archive/ubuntu/ppa>`__
 * Go: `Go updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/golang>`__
-

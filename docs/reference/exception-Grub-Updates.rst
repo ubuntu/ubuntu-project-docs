@@ -24,9 +24,8 @@ this correct?)
 
    -  They verify that it was an Archive Admin that originally
       accepted it.
-
-   -  The Launchpad ``Done`` queue should list who accepted the upload; for example: `<https://launchpad.net/ubuntu/jammy/+queue?queue_state=3&queue_text=grub2>`__
-   -  `List <https://launchpad.net/~ubuntu-archive/+members#active>`__ of active members of the Ubuntu Packge Archive Administrators team.
+   -  The Launchpad ``Done`` queue should list who accepted the upload; for example: `<https://launchpad.net/ubuntu/jammy/+queue?queue_state=3&queue_text=grub2>`__
+   -  `List <https://launchpad.net/~ubuntu-archive/+members#active>`__ of active members of the Ubuntu Package Archive Administrators team.
 
 -  They have check for correct verification as for a normal SRU.
 

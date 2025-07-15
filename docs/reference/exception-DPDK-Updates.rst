@@ -84,8 +84,8 @@ and it was great. Due to the fast pace of DPDK development with 3 month
 release cycles a stable release is very important to carry the stability
 needed by Distribution LTS releases. Therefore I now plan to:
 
--  release Ubuntu 18.04 with the first stable release 17.11.1
--  Ask for this MRE to keep up with further stable releases
+-  release Ubuntu 18.04 with the first stable release 17.11.1
+-  Ask for this MRE to keep up with further stable releases
 
 .. _upstream_regression_testing:
 
@@ -140,7 +140,7 @@ In addition, we set up
 `autopkgtests <http://autopkgtest.ubuntu.com/packages/dpdk>`__ as well
 for those components that can be tested. Those are mostly the extra
 packaging bits that would not be covered by the upstream testing: -
-testing the init scrips - testing dkms modules work withing Ubuntu -
+testing the init scripts - testing dkms modules work within Ubuntu -
 testing the correct linking of builds against dpdk
 
 Note: We also test the dpdk autotests in autopkgtests but for the
@@ -159,7 +159,7 @@ release of DPDK and only taken care for Ubuntu LTS releases:
 
 ::
 
-    18.04 -> DPDK 17.11.x 20.04 -> DPDK 19.11.x (if releases still align) [...]
+    18.04 -> DPDK 17.11.x 20.04 -> DPDK 19.11.x (if releases still align) [...]
 
 Ubuntu will only use the released version of updates and will not pull
 directly from the upstream VCS. That is important as on the release of a

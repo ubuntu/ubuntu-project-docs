@@ -36,8 +36,8 @@ stable releases which have yet to reach End of Standard Support. Because
 of the quarterly release schedule, two of those planned release dates
 coincide with early Feature Freeze periods.
 
-Since these feature changes may land in stable releases at any time due
-to our SRU exception policy, adhering to feature freeze during the
+Since these feature changes may land in stable releases at any time
+due to our SRU exception policy, adhering to feature freeze during the
 development cycle would be counterproductive as those changes would be
 forced to land after release instead. Therefore, feature freeze will not
 apply when the changes are in scope of this document. However, from beta
@@ -56,11 +56,11 @@ following:
    documented process
 -  The template at the end of this document should be used
 
-   - all ``TODO-PRIOR-TO-PROPOSED`` should be filled in prior to requesting
-     SRU unaccepted uploads are accepted into the **-proposed** pockets.
-     All ``TODO-SRU-VERIFICATION`` should be filled in when testing against
-     binaries once available in the **-proposed** pocket to ensure we are
-     validating specific debs that will be accepted into **-updates** pockets.
+   - all ``TODO-PRIOR-TO-PROPOSED`` should be filled in prior to requesting
+     SRU unaccepted uploads are accepted into the **-proposed** pockets.
+     All ``TODO-SRU-VERIFICATION`` should be filled in when testing against
+     binaries once available in the **-proposed** pocket to ensure we are
+     validating specific debs that will be accepted into **-updates** pockets.
 
 -  The change log will contain a reference to the single SRU process
    bug, not all bugs fixed by the SRU. However, if there are very
@@ -114,7 +114,7 @@ no unexplained errors or failures
 cloud-init Integration Tests
 ----------------------------
 
-Integration testing involves two seperate sections: automated and
+Integration testing involves two separate sections: automated and
 manual.
 
 .. _automated_tests:
@@ -159,7 +159,7 @@ expected to work.
 Curtin Testing
 --------------
 
-The curtin vmtest should also be sucessfully ran using cloud-init from
+The curtin vmtest should also be successfully ran using cloud-init from
 proposed and results attached.
 
 .. _solutions_testing:
