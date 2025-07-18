@@ -26,6 +26,7 @@ packages in the Package Archive.
 :hidden:
 
 mir-roles-and-steps
+mir-process-states
 ```
 
 If we reduce the process to its simplest components, it can be described in
@@ -73,7 +74,7 @@ To find out more about the team who oversees the MIR process, see our page
 There you will also find information on how to contact them if you have an MIR
 in progress, or want to submit one, and what to expect from the team.
 
-
+(mir-submit-bug)=
 ## File an MIR bug
 
 The MIR process uses templates for both those submitting a request (reporters)
