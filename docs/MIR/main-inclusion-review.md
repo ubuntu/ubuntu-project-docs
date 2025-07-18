@@ -16,7 +16,22 @@ reviews packages for promotion:
 Reviewing packages before they can be promoted is the **Main Inclusion Review
 (MIR)** process. The purpose of the MIR process is to avoid mistakes that have
 caused issues in the past and ensure the long-term maintainability of the
-packages in the Package Archive. 
+packages in the Package Archive.
+
+Any package that shall be part of a default Ubuntu installation has to be in
+{term}`main` (or {term}`restricted`) to guarantee a higher level of quality
+control and maintenance for the default user experience.
+
+Further packages, not installed by default, can also be added via the
+[supported seeds](https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/platform/tree/),
+usually because they represent an important workload to the Ubuntu userbase.
+
+In general *pulling into main* is done directly via {ref}`seed-management` or
+indirectly via a dependency from something that already is in `main`.
+
+For something to be allowed into `main`, all its runtime dependencies must also
+be in `main`. In the past, build-dependencies also had to be in
+`main`, but since 14.04 Trusty that is no longer a hard requirement.
 
 
 ## MIR process overview
