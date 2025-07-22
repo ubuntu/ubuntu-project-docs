@@ -63,7 +63,7 @@ Check these GH based lists:
 ### Mission: Check on progress, do deadlines seem doable?
 * ensure your teams items are prioritized among each other as you'd expect
 * ensure community requests do not get stomped by teams calling for favors too much
-* [Security assigned MIR in launchpad](https://bugs.launchpad.net/~ubuntu-security/+bugs?field.searchtext=%5BMIR%5D&assignee_option=choose&field.assignee=ubuntu-security&field.bug_reporter=&field.bug_commenter=&field.subscriber=ubuntu-mir)
+* [Security assigned MIR in launchpad](https://bugs.launchpad.net/~ubuntu-security/+bugs?field.searchtext=%5BMIR%5D&assignee_option=choose&field.assignee=ubuntu-security&field.bug_reporter=&field.bug_commenter=&field.subscriber=ubuntu-mir&orderby=-date_last_updated&start=0)
 * [(internal) kanban board](https://warthogs.atlassian.net/jira/software/c/projects/SEC/boards/594)
 
 ## Topic 7/7: Any other business?
