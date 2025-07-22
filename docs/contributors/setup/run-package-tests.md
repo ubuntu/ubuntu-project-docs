@@ -1,4 +1,4 @@
 (run-package-tests)=
 
-# How to run package tests
+# Run package tests
 

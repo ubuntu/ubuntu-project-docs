@@ -1,5 +1,5 @@
 (contributor-advanced)=
-# Advanced Contributor tasks
+# Advanced contributor tasks
 
 These tasks assume that you are already familiar with the more fundamental
 tasks such as bug fixing and patching. In this section, you will find guides

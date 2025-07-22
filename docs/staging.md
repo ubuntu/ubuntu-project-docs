@@ -16,6 +16,6 @@ This page (and staging area) will be removed as it becomes unnecessary.
 :glob:
 
 staging/*
-staging/PG/index
+staging/freezes/*
 ```
 

@@ -14,6 +14,23 @@
 # Example:
 # redirect/from/file/ redirect/to/file/
 
-# Archive Admin move out of staging
+# Pages moved out of staging
 staging/AA/contributors/aa-request-package-removal/ contributors/advanced/aa-request-package-removal/
+staging/AA/contributors/request-package-removal/ contributors/advanced/aa-request-package-removal/
+staging/AA/maintainers/aa-package-removal/ maintainers/AA/aa-package-removal/
+staging/AA/wiki-package-overrides/ maintainers/AA/aa-package-overrides/
+staging/AA/maintainers/aa-package-overrides/ maintainers/AA/aa-package-overrides/
+staging/AA/maintainers/aa-priority-mismatches/ maintainers/AA/aa-priority-mismatches/
+staging/AA/maintainers/aa-new-review/ maintainers/AA/aa-new-review/
+staging/AA/maintainers/aa-signing-bootloaders/ maintainers/AA/aa-signing-bootloaders/
+
+
+# Pages moved around
+reference/glossary/ how-ubuntu-is-made/concepts/glossary/
+how-to/contribute-docs/ contributors/contribute-docs/
+contributors/advanced/request-package-removal/ contributors/advanced/aa-request-package-removal/
+reference/governance/ethos/mission/ how-ubuntu-is-made/governance/mission/
+reference/governance/conflict-resolution/ who-makes-ubuntu/councils/conflict-resolution/
+explanation/governance/ how-ubuntu-is-made/index-governance/
+reference/governance/ethos/ how-ubuntu-is-made/governance/ethos/
 

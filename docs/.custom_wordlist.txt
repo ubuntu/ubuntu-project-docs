@@ -36,6 +36,7 @@ boolean
 bootable
 bootloader
 bootloaders
+bugfix
 bugpatterns
 Bugpatterns
 buildable
@@ -91,6 +92,7 @@ empathic
 EoSS
 equalizing
 executables
+FFE
 FHS
 filesystem
 filesystems
@@ -179,6 +181,7 @@ packageset
 PDFs
 PID
 plantuml
+Postconf
 powerpc
 PPA
 PPAs
@@ -221,6 +224,8 @@ toctree
 TODOs
 toolchain
 toolchains
+triaged
+TRIAGED
 txt
 ubumirror
 ubuntu
@@ -242,6 +247,7 @@ unshareable
 uploader
 uploaders
 utils
+UVF
 vendored
 vendoring
 Vendoring
