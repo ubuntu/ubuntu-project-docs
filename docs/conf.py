@@ -311,6 +311,12 @@ hoverxref_roles = [
     "term",
 ]
 
+# Configure copybutton extension
+# This option excludes line numbers and prompts from being selected when
+# users copy commands using the copybutton
+# https://sphinx-copybutton.readthedocs.io/en/latest/use.html#automatic-exclusion-of-prompts-from-the-copies
+copybutton_exclude = '.linenos, .gp'
+
 # Specifies a reST snippet to be prepended to each .rst file
 # This defines a :center: role that centers table cell content.
 # This defines a :h2: role that styles content for use with PDF generation.
