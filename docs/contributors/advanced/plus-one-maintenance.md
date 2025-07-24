@@ -126,12 +126,13 @@ Good sources for these are test rebuild results, periodically posted to [the
 ubuntu-devel list](https://lists.ubuntu.com/archives/ubuntu-devel/), as well as
 the [build status report](http://qa.ubuntuwire.com/ftbfs/).
 
-#### update-excuses
+#### Migration issues (aka "update-excuses")
 
-A lot of the issues that can be found by the tools above is also visible in the
-[update-excuses
+The [update-excuses
 page](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html),
-along with a lot of other problems, except that it's fairly impenetrable.
+provides a visual checklist of issues including the aforementioned
+transitions and build failures (FTBFS), along with test failures,
+dependency mismatches, and assorted other problems.
 
 One possible approach is to start at the bottom and work your way up. For very
 old issues, asking for a package removal on the grounds that it
@@ -140,6 +141,19 @@ wastes everyone's time is valid!
 Another approach is to use
 [visual-excuses](https://github.com/mclemenceau/visual-excuses) or [ubuntu-excuses](https://github.com/mclemenceau/ubuntu-excuses) to try (which are also available as snaps) and find
 high-impact issues that would unblock large sets of packages.
+
+In general, every package update uploaded to the distro archive must go
+through a battery of checks while it sits in a staging area called the
+"proposed pocket".  Once all the checks have been passed, the package is
+permitted to move, or "migrate", from this pocket into the official
+release pocket.  Otherwise, {ref}`migration issues <migration-issue>`
+hindering the package may need to be manually reviewed and resolved.
+
+Unfortunately, this update-excuses report is rather impenetrable due
+both to its size and terse jargon.  See {ref}`migration-ssue` for a more
+detailed explanation of the migration process, issues that can arise,
+and how to interpret the ubuntu-excuses report's jargon.
+
 
 #### Universe merges
 
