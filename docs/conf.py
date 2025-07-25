@@ -222,7 +222,7 @@ linkcheck_retries = 3
 # NOTE: By default, the following MyST extensions are enabled:
 #       substitution, deflist, linkify
 
-myst_enable_extensions = {"colon_fence", "dollarmath"}
+myst_enable_extensions = {"colon_fence", "dollarmath", "tasklist"}
 
 
 # Custom Sphinx extensions; see
