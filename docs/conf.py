@@ -157,6 +157,20 @@ html_theme_options = {
 # slug = ''
 
 
+#######################
+# Sitemap configuration: https://sphinx-sitemap.readthedocs.io/
+#######################
+
+# Base URL of RTD hosted project
+html_baseurl = "https://canonical-ubuntu-project.readthedocs-hosted.com/"
+
+# URL scheme.
+sitemap_url_scheme = "{link}"
+
+# Include `lastmod` dates in the sitemap:
+sitemap_show_lastmod = True
+
+
 # Template and asset locations
 
 # html_static_path = ["_static"]
@@ -178,7 +192,7 @@ html_theme_options = {
 
 redirects = {}
 
-# Rediraffe (internal) redirects 
+# Rediraffe (internal) redirects
 # ------------------------------
 
 rediraffe_branch = "main"
@@ -196,6 +210,7 @@ linkcheck_ignore = [
     "https://www.gnu.org/*",
     "https://discourse.canonical.com/",
     "https://git.launchpad.net/ubuntu/+source/*",
+    "https://wiki.ubuntu.com/*",
 ]
 
 
@@ -204,7 +219,6 @@ linkcheck_ignore = [
 linkcheck_anchors_ignore_for_url = [
     r"https://github\.com/.*",
     r"https://matrix\.to/.*",
-    r"https://www\.gnu\.org/.*",
     r"https://git\.launchpad\.net/ubuntu/\+source/.*",
 ]
 
@@ -254,6 +268,7 @@ extensions = [
     "sphinx_prompt",
     "sphinx.ext.extlinks",
     "sphinxext.rediraffe",
+    "sphinx_sitemap",
 ]
 
 # Excludes files or directories from processing
@@ -315,7 +330,7 @@ hoverxref_roles = [
 # This option excludes line numbers and prompts from being selected when
 # users copy commands using the copybutton
 # https://sphinx-copybutton.readthedocs.io/en/latest/use.html#automatic-exclusion-of-prompts-from-the-copies
-copybutton_exclude = '.linenos, .gp'
+copybutton_exclude = ".linenos, .gp"
 
 # Specifies a reST snippet to be prepended to each .rst file
 # This defines a :center: role that centers table cell content.

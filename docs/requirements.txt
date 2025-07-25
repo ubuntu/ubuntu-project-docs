@@ -6,3 +6,4 @@ distro_info
 sphinx-hoverxref
 sphinx-prompt
 sphinxext-rediraffe
+sphinx-sitemap
