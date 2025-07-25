@@ -184,7 +184,7 @@ Blank space
     characters include spaces, tabs and newline characters.
 
 Branch
-    *Work in Progress*
+    An independent version of a {term}`repository` that allows developers to work on features in isolation without impacting the original {term}`repository`.
 
 Breezy
     A {term}`Fork` of the {term}`Bazaar` {term}`Version Control System`.
