@@ -6,6 +6,7 @@ tasks such as bug fixing and patching. In this section, you will find guides
 for the more advanced tasks that will support your application for MOTU, Core
 Dev, etc.
 
+
 ## Checks and investigations
 
 ```{toctree}
@@ -15,13 +16,30 @@ advanced/check-publication-history
 advanced/check-reverse-dependencies
 ```
 
+
+## Merges
+
+```{toctree}
+:titlesonly:
+
+advanced/merge-proposal-review
+advanced/package-merging
+```
+
+
 ## Seed management
+
+*Content in staging*
+
+
+## Sponsorship
 
 ```{toctree}
 :maxdepth: 1
 
-advanced/manage-seeds
+advanced/sponsor-an-upload
 ```
+
 
 ## +1 Maintenance
 
@@ -39,13 +57,15 @@ advanced/plus-one-report-template
 
 * {ref}`plus-one-report-template`
 
+
 ## Request package removal
 
 ```{toctree}
 :maxdepth: 1
 
-advanced/aa-request-package-removal
+Request a package removal <advanced/aa-request-package-removal>
 ```
+
 
 ## Main Inclusion requests
 
@@ -60,8 +80,4 @@ in `main`.
 MIR bug request template <../MIR/mir-reporters-template>
 How to use MIR templates <../MIR/mir-how-to-use-templates>
 ```
-
-
-
-
 

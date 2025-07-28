@@ -4,6 +4,7 @@
 These guides will help you with the specific tasks and processes that build
 Ubuntu.
 
+
 ## Getting set up
 
 This section includes all the relevant tooling you'll need to work on Ubuntu.
@@ -13,6 +14,16 @@ This section includes all the relevant tooling you'll need to work on Ubuntu.
 
 index-setup
 ```
+
+
+## Debugging
+
+```{toctree}
+:maxdepth: 1
+
+index-debugging
+```
+
 
 ## Bug fixing
 
@@ -31,6 +42,16 @@ index-bug-fix
 index-patching
 ```
 
+
+## Testing
+
+```{toctree}
+:maxdepth: 1
+
+index-testing
+```
+
+
 ## New packages
 
 ```{toctree}
@@ -39,7 +60,15 @@ index-patching
 index-new-package
 ```
 
-Should also discuss backports?
+
+## Sponsorship
+
+```{toctree}
+:maxdepth: 1
+
+find-a-sponsor
+```
+
 
 ## Advanced tasks
 
@@ -53,6 +82,7 @@ some working familiarity with Ubuntu development.
 index-advanced
 ```
 
+
 ## Contribute documentation
 
 *Ubuntu Project documentation* is a collaborative effort. We welcome community contributions. For guidance on how to contribute to this documentation set, see:
@@ -62,3 +92,5 @@ index-advanced
 
 Contribute docs <contribute-docs>
 ```
+
+
