@@ -1,11 +1,14 @@
-# Distro Skill Tree
+(path-to-upload-rights)=
+# Path to upload rights
 
-This page contains an interactive chart for navigating paths to obtaining
-permissions to upload changes to Ubuntu archive. This can be used as a model
-to help build an application for things such as certain packagesets, 
-[MOTU](https://wiki.ubuntu.com/MOTU), 
-[CoreDev](https://wiki.ubuntu.com/UbuntuDevelopers#Ubuntu_Core_Developers) 
-as examples.
+This interactive chart shows the skills needed to obtain permissions for
+uploading changes to the Ubuntu Package Archive. It can be used as a guide
+to help build your application for upload rights on:
+
+* Package Sets
+* [MOTU](https://wiki.ubuntu.com/MOTU), 
+* [Core Dev](https://wiki.ubuntu.com/UbuntuDevelopers#Ubuntu_Core_Developers) 
+
 
 ```{mermaid}
 %% mermaid flowcharts documentation: https://mermaid.js.org/syntax/flowchart.html

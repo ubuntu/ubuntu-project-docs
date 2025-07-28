@@ -3,7 +3,7 @@
 
 [Core developers](https://wiki.ubuntu.com/UbuntuDevelopers#CoreDev) are members
 of the `ubuntu-core-dev` team in Launchpad. Core Devs maintain all packages in
-Ubuntu, which notably includes uploading to the 'main' component. Core Dev
+Ubuntu, which notably includes uploading to the `main` component. Core Dev
 members also have elevated privileges for re-triggering autopkgtests and
 performing other administrative actions in Ubuntu.
 
@@ -22,6 +22,7 @@ performing other administrative actions in Ubuntu.
 
 1. Collect **endorsements**.
 
+
 (core-dev-training-and-preparation)=
 ## Training and preparation
 
@@ -32,8 +33,8 @@ levels it is nevertheless worth reviewing their training and application
 processes to make sure you'll be fulfilling their requirements.
 
 In addition to understanding common tasks documented in this guide, including
-{ref}`Debian patching <debian-patch>`,
-{ref}`Stable Release Updates (SRUs) <package-fixing>`,
+{ref}`Debian patching <work-with-debian-patches>`,
+{ref}`Stable Release Updates (SRUs) <fix-a-bug>`,
 and so on, Core Dev applicants must also have a good understanding of these
 advanced packaging skills, and ideally direct experience with a few of them:
 
@@ -49,10 +50,11 @@ crucial for Core Dev. Being able to work with others, and especially
 *mentoring* others is extremely important. Look for opportunities to exercise
 and demonstrate these attributes, and discuss them in your application.
 
+
 ## Further information
 
 While Core Dev is the highest level for packaging development, there are
-several specialised administrative teams that help keep the archive healthy:
+several specialized administrative teams that help keep the archive healthy:
 
 * [Developer Membership Board](https://wiki.ubuntu.com/DeveloperMembershipBoard)
 * [Technical Board](https://wiki.ubuntu.com/TechnicalBoard)
