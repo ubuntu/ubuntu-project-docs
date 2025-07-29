@@ -1,7 +1,7 @@
-.. _overview-of-debian-directory:
+.. _debian-directory:
 
-Overview of :file:`debian/` directory
-=====================================
+:file:`debian/` directory
+=========================
 
 This article explains the different files important to the packaging of Ubuntu packages that are contained in the :file:`debian/` directory. The most important of them are:
 

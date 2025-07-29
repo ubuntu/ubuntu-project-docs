@@ -1,13 +1,13 @@
-.. _ubuntu-package-archive:
+.. _package-archive:
 
-Ubuntu package archive
-======================
+Package archive
+===============
 
 :term:`Linux` :term:`distributions <Distribution>` like :term:`Ubuntu` use :ref:`repositories <Repositories>` to hold :term:`packages <Package>` for installing on target machines. Ubuntu has several repositories that anyone can access. The **Ubuntu package archive** hosts :term:`Debian` :term:`binary packages <Binary Package>` (``.deb`` files) and :term:`source packages <Source Package>` (``.dsc`` files).
 
 On Ubuntu installations, the Ubuntu package archive is configured as the default source for the :term:`APT` package manager to download and install packages from. This Archive splits into many layers, each with its own terminology.
 
-The general flow is that the Archive splits into :ref:`Ubuntu series <ArchiveSeries>`. Each series is split up into :ref:`pockets <ArchivePockets>`, and then each pocket contains four :ref:`components <archive-components>`. This diagram shows a look through a single path:
+The general flow is that the archive splits into :ref:`Ubuntu series <archive-series>`. Each series is split up into :ref:`pockets <archive-pockets>`, and then each pocket contains four :ref:`components <archive-components>`. This diagram shows a look through a single path:
 
 .. mermaid::
 
@@ -15,8 +15,8 @@ The general flow is that the Archive splits into :ref:`Ubuntu series <ArchiveSer
       A[Ubuntu package archive] --> B([Splits into Ubuntu **series**]);
 
       B --> C[e.g., mantic];
-      B --> D[noble]; 
-      B --> E[oracular, etc]; 
+      B --> D[noble];
+      B --> E[oracular, etc.];
 
       D --> H([Series split into **pockets**]);
 

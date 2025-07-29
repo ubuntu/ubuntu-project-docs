@@ -1,3 +1,0 @@
-(about-seeds)=
-# About seeds
-

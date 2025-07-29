@@ -1,9 +1,11 @@
-(package-archive)=
+(the-package-archive)=
 # The Package Archive
 
 ```{note}
 This content comes [from the wiki](https://wiki.ubuntu.com/UbuntuDevelopment/PackageArchive)
 It has not yet been reviewed for currency or accuracy.
+
+DUPLICATE: Mostly covered in {ref}`package-archive`
 ```
 
 All current official Ubuntu packages are stored in the primary archive, which is

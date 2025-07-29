@@ -4,6 +4,8 @@
 ```{note}
 This page will be moved to:
 * how-ubuntu-is-made > concepts
+
+NOTE: this (mostly, except for 'freeze exceptions') covered in {ref}`release-cycle`
 ```
 
 During Feature Freeze we stop introducing new features, packages, and APIs, and

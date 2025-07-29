@@ -10,8 +10,12 @@ MIR/
 # - MIR team owns all MIR docs anywhere in the repo
 MIR/ @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
 
+# AA team PR approvals
+# These files are prefixed with "aa-", but not kept in a specific directory
+**/aa-*.md @panlinux @cpaelzer @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof
+
 # TAs' & special teams' ack required for changes to the CODEOWNERS file
-/.github/CODEOWNERS @s-makin @rkratky @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
+/.github/CODEOWNERS @s-makin @rkratky @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof
 
 # +1 maintenance PR approvals
 plus-one-*.md @schopin-pro @s-makin @rkratky

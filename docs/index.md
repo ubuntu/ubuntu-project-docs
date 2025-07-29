@@ -8,6 +8,7 @@ How Ubuntu is made <how-ubuntu-is-made/index>
 Contributors <contributors/index>
 Maintainers <maintainers/index>
 Who makes Ubuntu <who-makes-ubuntu/index>
+how-ubuntu-is-made/concepts/glossary
 ```
 
 ```{toctree}

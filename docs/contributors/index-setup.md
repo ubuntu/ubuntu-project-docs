@@ -5,5 +5,6 @@
 :maxdepth: 1
 :glob:
 
-setup/*
+setup/setup
+setup/get-package-source
 ```

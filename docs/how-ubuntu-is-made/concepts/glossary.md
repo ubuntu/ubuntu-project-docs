@@ -1390,6 +1390,9 @@ Ubuntu Pro
     See also:
     * [Ubuntu Pro (homepage)](https://ubuntu.com/pro)
 
+Ubuntu release
+    *Work in Progress*
+
 Ubuntu Server
     *Work in Progress*
 

@@ -5,7 +5,7 @@ Extract packages
 
 This article demonstrates how to extract the contents of Debian packages.
 
-See also the article :ref:`package-model` for a deeper understanding of package formats.
+See also the article :ref:`package-format` for a deeper understanding of package formats.
 
 
 .. _extract-a-source-package:

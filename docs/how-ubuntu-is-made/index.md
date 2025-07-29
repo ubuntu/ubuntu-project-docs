@@ -1,4 +1,4 @@
-(how-Ubuntu-is-made)=
+(how-ubuntu-is-made)=
 # How Ubuntu is made
 
 

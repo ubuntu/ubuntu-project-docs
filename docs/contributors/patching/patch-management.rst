@@ -9,7 +9,7 @@ See the :ref:`patches` for more background information about patches in the cont
 
 .. note::
 
-    If the format is ``3.0 (native)``, this article is not of interest for you and simply write your changes to the files. There is no need to explicitly create and track a patch for :term:`native packages <native package>`. See the :ref:`package-model` article for more information about package formats.
+    If the format is ``3.0 (native)``, this article is not of interest for you and simply write your changes to the files. There is no need to explicitly create and track a patch for :term:`native packages <native package>`. See the :ref:`package-format` article for more information about package formats.
 
 As the source package format implies, we use the :manpage:`quilt(1)` tool to manage the patches of a source package. Quilt manages patches like a :term:`stack`. It maintains a list of patches (also called "series") that get applied one after another from top to bottom in the order they are listed in :file:`debian/patches/series`, excluding lines starting with ``#``.
 

@@ -1,2 +1,0 @@
-(about-freezes)=
-# About freezes
