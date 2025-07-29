@@ -1,28 +1,44 @@
-(package-merging)=
-# How to do a merge
+(merge-a-package)=
+# How to merge a package
 
 Merging is the process of taking all Ubuntu changes made on top of one Debian
 version of a package, and re-doing them on top of a new Debian version of the
-package.
+package. See {ref}`merges-syncs` for a more context information.
 
 See [the Ubuntu wiki](https://wiki.ubuntu.com/UbuntuDevelopment/Merging/GitWorkflow)
 for a more detailed workflow. This guide is intended to cover the majority of
 use cases.
 
-There is a list of packages that have been changed in Debian, but `[not merged
-into Ubuntu](http://reqorts.qa.ubuntu.com/reports/ubuntu-server/merges.html)`.
-**TODO broken link**
+For a list of packages that have been changed in Debian, but not merged into Ubuntu, see the Merge-o-Matic tool:
+
+* [main](https://merges.ubuntu.com/main.html)
+* [universe](https://merges.ubuntu.com/universe.html)
+* [restricted](https://merges.ubuntu.com/restricted.html)
+* [multiverse](https://merges.ubuntu.com/multiverse.html)
+
 
 ## Overview
 
-We do merges using `git-ubuntu`. As such, the process in many ways follows that
-of a git rebase, where commits from one point are replayed on top of another
-point:
+Merging is done using the {command}`git-ubuntu` tool. As such, the process in many ways follows that of a {command}`git rebase` where commits from one point are replayed on top of another point:
 
-```none
---- something 1.2 ----------------------------- something 1.3
-     \                                           \
-      -- Ubuntu changes a, b, c -- 1.2ubuntu1     -- Ubuntu changes a, b, c -- 1.3ubuntu1
+```{mermaid}
+   :caption: `git-ubuntu` process overview
+   :alt: git-ubuntu process overview
+   :class: mermaid-wide
+   :zoom:
+
+gitGraph
+   commit id: "something 1.2"
+   branch 1.2ubuntu
+   checkout 1.2ubuntu
+   commit id: "Ubuntu changes a, b, c on 1.2"
+   commit id: "1.2ubuntu1"
+   checkout main
+   commit id: "something 1.3"
+   branch 1.3ubuntu
+   checkout 1.3ubuntu
+   commit id: "Ubuntu changes a, b, c on 1.3"
+   commit id: "1.3ubuntu1"
 ```
 
 At a more detailed level, there are other sub-tasks to be done, such as:
@@ -39,71 +55,71 @@ become redundant.
 ## Process steps
 
 - {ref}`merge-preliminary-steps`
-- {ref}`merge-decide-on-a-merge-candidate`
-- {ref}`merge-check-existing-bug-entries`
-- {ref}`merge-make-a-bug-report-for-the-merge`
-- {ref}`merge-clone-the-package-repository`
+    - {ref}`merge-decide-on-a-merge-candidate`
+    - {ref}`merge-check-existing-bug-entries`
+    - {ref}`merge-make-a-bug-report-for-the-merge`
+    - {ref}`merge-clone-the-package-repository`
 - {ref}`merge-the-merge-process`
-- {ref}`merge-start-a-git-ubuntu-merge`
-- {ref}`merge-make-a-merge-branch`
-- {ref}`merge-split-commits`
-- {ref}`merge-check-if-there-are-commits-to-split`
-  - {ref}`merge-identify-logical-changes`
-  - {ref}`merge-split-out-logical-commits`
-  - {ref}`merge-tag-split`
-  - {ref}`merge-purpose-of-logical-tag`
-- {ref}`merge-prepare-the-logical-view`
-  - {ref}`merge-check-the-result`
-  - {ref}`merge-create-logical-tag`
-- {ref}`merge-rebase-onto-new-debian`
-  - {ref}`merge-conflicts`
-  - {ref}`merge-corollaries`
-  - {ref}`merge-empty-commits`
-  - {ref}`merge-sync-request`
-  - {ref}`merge-check-patches-still-apply-cleanly`
-  - {ref}`merge-unapply-patches-before-continuing`
-- {ref}`merge-adding-new-changes`
-- {ref}`merge-finish-the-merge`
-- {ref}`merge-fix-the-changelog`
-  - {ref}`merge-add-dropped-changes`
-  - {ref}`merge-format-any-new-added-changes`
-  - {ref}`merge-commit-the-changelog-fix`
-  - {ref}`merge-no-changes-to-debian-changelog`
+    - {ref}`merge-start-a-git-ubuntu-merge`
+    - {ref}`merge-make-a-merge-branch`
+    - {ref}`merge-split-commits`
+    - {ref}`merge-check-if-there-are-commits-to-split`
+        - {ref}`merge-identify-logical-changes`
+        - {ref}`merge-split-out-logical-commits`
+        - {ref}`merge-tag-split`
+        - {ref}`merge-purpose-of-logical-tag`
+    - {ref}`merge-prepare-the-logical-view`
+        - {ref}`merge-check-the-result`
+        - {ref}`merge-create-logical-tag`
+    - {ref}`merge-rebase-onto-new-debian`
+        - {ref}`merge-conflicts`
+        - {ref}`merge-corollaries`
+        - {ref}`merge-empty-commits`
+        - {ref}`merge-sync-request`
+        - {ref}`merge-check-patches-still-apply-cleanly`
+        - {ref}`merge-unapply-patches-before-continuing`
+    - {ref}`merge-adding-new-changes`
+    - {ref}`merge-finish-the-merge`
+    - {ref}`merge-fix-the-changelog`
+        - {ref}`merge-add-dropped-changes`
+        - {ref}`merge-format-any-new-added-changes`
+        - {ref}`merge-commit-the-changelog-fix`
+        - {ref}`merge-no-changes-to-debian-changelog`
 - {ref}`merge-cheat-sheet`
 - {ref}`merge-upload-a-ppa`
-- {ref}`merge-get-orig-tarball`
-- {ref}`merge-build-source-package`
-- {ref}`merge-push-to-your-launchpad-repository`
-  - {ref}`merge-push-your-lp-tags`
-- {ref}`merge-create-a-ppa`
-  - {ref}`merge-create-a-ppa-repository`
-  - {ref}`merge-upload-files`
-  - {ref}`merge-wait-for-packages-to-be-ready`
+    - {ref}`merge-get-orig-tarball`
+    - {ref}`merge-build-source-package`
+    - {ref}`merge-push-to-your-launchpad-repository`
+        - {ref}`merge-push-your-lp-tags`
+    - {ref}`merge-create-a-ppa`
+        - {ref}`merge-create-a-ppa-repository`
+        - {ref}`merge-upload-files`
+        - {ref}`merge-wait-for-packages-to-be-ready`
 - {ref}`merge-test-the-new-build`
-- {ref}`merge-test-upgrading-from-the-previous-version`
-- {ref}`merge-test-installing-the-latest-from-scratch`
-- {ref}`merge-other-smoke-tests`
+    - {ref}`merge-test-upgrading-from-the-previous-version`
+    - {ref}`merge-test-installing-the-latest-from-scratch`
+    - {ref}`merge-other-smoke-tests`
 - {ref}`merge-submit-merge-proposal`
-- {ref}`merge-update-the-merge-proposal`
-- {ref}`merge-open-the-review`
+    - {ref}`merge-update-the-merge-proposal`
+    - {ref}`merge-open-the-review`
 - {ref}`merge-follow-the-migration`
-- {ref}`merge-package-tests`
-- {ref}`merge-proposed-migration`
+    - {ref}`merge-package-tests`
+    - {ref}`merge-proposed-migration`
 
 Manual steps:
 - {ref}`merge-start-a-merge-manually`
-  - {ref}`merge-generate-the-merge-branch`
-  - {ref}`merge-create-tags`
-  - {ref}`merge-start-a-rebase`
-  - {ref}`merge-clear-any-history`
-  - {ref}`merge-create-reconstruct-tag`
+    - {ref}`merge-generate-the-merge-branch`
+    - {ref}`merge-create-tags`
+    - {ref}`merge-start-a-rebase`
+    - {ref}`merge-clear-any-history`
+    - {ref}`merge-create-reconstruct-tag`
 - {ref}`merge-create-logical-tag-manually`
 - {ref}`merge-finish-the-merge-manually`
 - {ref}`merge-get-the-orig-tarball-manually`
-  - {ref}`merge-if-git-checkout-also-fails`
+    - {ref}`merge-if-git-checkout-also-fails`
 - {ref}`merge-submit-merge-proposal-manually`
 - {ref}`merge-known-issues`
-- {ref}`merge-empty-directories`
+    - {ref}`merge-empty-directories`
 
 
 (merge-preliminary-steps)=
@@ -844,10 +860,9 @@ The range `old/ubuntu..logical/<version>` should contain no changes to
 So, any commits that contain only changes to `debian/changelog` should be
 dropped.
 
+```{note}
 
-#### Tip
-
-If you "diff" your final logical tag against the Ubuntu package it analyses,
+If you {command}`diff` your final logical tag against the Ubuntu package it analyses,
 then the diff should be empty, except:
 
 1. All changes to `debian/changelog`:
@@ -858,12 +873,12 @@ then the diff should be empty, except:
 1. The change that `update-maintainer` introduced, and (rarely) similar
    changes like a change to `Vcs-Git` headers to point to an Ubuntu VCS
    instead.
-   
+
    For the purposes of this workflow, these are not considered part of our
    “logical delta”, and instead are re-added at the end.
+```
 
-#### Tip
-
+:::{tip}
 You can use `execsnoop-bpfcc` from the package `bpfcc` to find what `debhelper`
 scripts were called for a certain package. This is helpful for debugging what
 scripts were called, and what parameters were passed to them.
@@ -875,13 +890,13 @@ $ sudo apt install bpfcc-tools
 $ sudo execsnoop-bpfcc -n multipath
 ```
 
-Now in another shell run
+Now in another shell run:
 
 ```none
 $ sudo apt install --reinstall multipath-tools
 ```
 
-In the original shell you should see something like
+In the original shell, you should see something like:
 
 ```none
 PCOMM            PID     PPID    RET ARGS
@@ -890,6 +905,7 @@ multipath-tools  13951   13931     0 /var/lib/dpkg/info/multipath-tools.postrm u
 multipath-tools  13959   13956     0 /var/lib/dpkg/info/multipath-tools.postinst configure 0.9.4-5ubuntu3
 multipathd       14009   1         0 /sbin/multipathd -d -s
 ```
+:::
 
 
 (merge-cheat-sheet)=

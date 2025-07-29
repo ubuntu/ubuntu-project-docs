@@ -23,7 +23,7 @@ advanced/check-reverse-dependencies
 :titlesonly:
 
 advanced/merge-proposal-review
-advanced/package-merging
+advanced/merge-a-package
 ```
 
 
