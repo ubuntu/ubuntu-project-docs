@@ -24,14 +24,23 @@ control and maintenance for the default user experience.
 
 Further packages, not installed by default, can also be added via the
 [supported seeds](https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/platform/tree/),
-usually because they represent an important workload to the Ubuntu userbase.
+usually because they represent an important yet optional workload to
+the Ubuntu userbase.
 
 In general *pulling into main* is done directly via {ref}`seed-management` or
 indirectly via a dependency from something that already is in `main`.
 
-For something to be allowed into `main`, all its runtime dependencies must also
-be in `main`. In the past, build-dependencies also had to be in
-`main`, but since 14.04 Trusty that is no longer a hard requirement.
+For something to be allowed into `main`, all its code and runtime dependencies
+must be in `main`.
+In the past, build-dependencies also had to be in generally `main`, but since
+14.04 Trusty that is no longer a hard requirement. This is meant to easen
+the burden on tools only e.g. rendering documentation, yet it does not mean "no
+build-dependencies are needed" either. Code that is built into the resulting
+artifacts even without a dependency to another package in the final packages
+metadata shall be in main as well.
+This is the default for some ecosystems like rust and go, but also valid for
+e.g. C headers if they contain not just definitions but large amounts of
+active code that is built into the binaries.
 
 
 ## MIR process overview
