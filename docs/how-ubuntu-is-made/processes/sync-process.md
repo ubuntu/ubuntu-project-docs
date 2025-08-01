@@ -24,7 +24,7 @@ mechanism that synchronizes the Debian version to our Ubuntu series.
 
 A **delta** represents the difference between the Ubuntu and Debian versions of
 a package. Typically, when we make changes to a package, we
-{ref}`merge <package-merging>` our delta onto the upstream version. Debian
+{ref}`merge <merge-a-package>` our delta onto the upstream version. Debian
 packages can only be synchronized if there is no delta.
 
 However, there can be occasions where Debian or upstream incorporate our
@@ -42,9 +42,7 @@ package back to Ubuntu than to manually perform an empty merge.
 ## Asking for a sync
 
 The automatic syncing of packages from Debian is active for only some of the
-Ubuntu release cycle - see
-[the Debian Import Freeze](https://wiki.ubuntu.com/DebianImportFreeze)
-page for more information.
+Ubuntu release cycle - see {ref}`debian-import-freeze` for more information.
 
 Let us consider a test case where we have an empty Ubuntu delta before
 Debian Import Freeze. You can check the

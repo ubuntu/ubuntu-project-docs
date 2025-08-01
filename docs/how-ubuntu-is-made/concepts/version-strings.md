@@ -182,7 +182,7 @@ number in this case is identical to any other change
 If Ubuntu has delta to the package from Debian, it can not be
 {ref}`automatically synced <sync-process>` otherwise that delta would be lost.
 In that case an Ubuntu developer regularly (usually at least once per Ubuntu
-release) {ref}`merges the delta <package-merging>` in Ubuntu with the content
+release) {ref}`merges the delta <merge-a-package>` in Ubuntu with the content
 from Debian and indirectly also with the changes by upstream.
 
 The counter for Ubuntu increments resets to 1, therefore the version for the new

@@ -1,6 +1,8 @@
 (committing-changes)=
 # Committing your changes
 
+TODO: This duplicates {ref}`committing-the-changes` (but that section is a part of a longer article that might need to be split up).
+
 Add all of your changed files to `git`. For example:
 
 ```none

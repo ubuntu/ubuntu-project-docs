@@ -44,7 +44,7 @@ The Ubuntu Merge-o-Matic (MoM) service automatically performs merges and publish
 
 .. TODO merging link
 
-To complete a merge, interaction and supervision by Ubuntu maintainers are required. See :re:`merge-a-package` for details on performing a merge.
+To complete a merge, interaction and supervision by Ubuntu maintainers are required. See :ref:`merge-a-package` for details on performing a merge.
 
 See the section :ref:`archive-components` in the article that explains the Ubuntu package archive for an explanation of ``main``, ``universe``, ``restricted``, and ``multiverse``.
 

@@ -222,6 +222,8 @@ The patch is currently applied in the working directory.
 * To apply again: :command:`quilt push -a`
 
 
+.. _committing-the-changes:
+
 Committing the changes
 ----------------------
 
