@@ -197,6 +197,124 @@ The following roles are especially useful:
 : Linux package name (this role is custom to this documentation project).
 
 
+### Special roles for links
+
+The documentation project defines the following custom roles to simplify adding links to various resources.
+
+`manpage`
+: Use to create links to manual pages hosted at [manpages.ubuntu.com](https://manpages.ubuntu.com/). The links always point to manual pages for the latest Ubuntu release.
+
+    ::::{tab-set}
+
+    :::{tab-item} MyST
+    Syntax:
+
+    ```md
+    {manpage}`<manual-page-name>(<manual-section-number>)`
+    ```
+
+    Example:
+
+    ```md
+    {manpage}`bash(1)`
+    ```
+    :::
+
+    :::{tab-item} reStructuredText
+    Syntax:
+
+    ```md
+    :manpage:`<manual-page-name>(<manual-section-number>)`
+    ```
+
+    Example:
+
+    ```md
+    :manpage:`bash(1)`
+    ```
+    :::
+
+    ::::
+
+    Renders as: {manpage}`bash(1)`
+
+`lpbug`
+: Use to create links to Launchpad bugs at [bugs.launchpad.net](https://bugs.launchpad.net/).
+
+
+    ::::{tab-set}
+
+    :::{tab-item} MyST
+    Syntax:
+
+    ```md
+    {lpbug}`<LP-bug-number>`
+    ```
+
+    Example:
+
+    ```md
+    {lpbug}`1`
+    ```
+    :::
+
+    :::{tab-item} reStructuredText
+    Syntax:
+
+    ```md
+    :lpbug:`<LP-bug-number>`
+    ```
+
+    Example:
+
+    ```md
+    :lpbug:`1`
+    ```
+    :::
+
+    ::::
+
+    Renders as: {lpbug}`1`
+
+`lpsrc`
+: Use to create links to Ubuntu packages on Launchpad at [launchpad.net/ubuntu](https://launchpad.net/ubuntu).
+
+
+    ::::{tab-set}
+
+    :::{tab-item} MyST
+    Syntax:
+
+    ```md
+    {lpsrc}`<Ubuntu-package-on-LP>`
+    ```
+
+    Example:
+
+    ```md
+    {lpsrc}`bash`
+    ```
+    :::
+
+    :::{tab-item} reStructuredText
+    Syntax:
+
+    ```md
+    :lpsrc:`<Ubuntu-package-on-LP>`
+    ```
+
+    Example:
+
+    ```md
+    :lpsrc:`bash`
+    ```
+    :::
+
+    ::::
+
+    Renders as: {lpsrc}`bash`
+
+
 ### Command line and terminal output
 
 Ubuntu Project documentation defaults to presenting command examples and terminal output in the following manner.

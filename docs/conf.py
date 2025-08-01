@@ -344,6 +344,14 @@ rst_prolog = """
     :class: vale-ignore
 """
 
+
+# Allow for use of link substitutions
+extlinks = {
+    "lpsrc": ("https://launchpad.net/ubuntu/+source/%s", "%s"),
+    "lpbug": ("https://bugs.launchpad.net/bugs/%s", "LP: #%s"),
+}
+
+
 # Workaround for https://github.com/canonical/canonical-sphinx/issues/34
 
 if "discourse_prefix" not in html_context and "discourse" in html_context:
