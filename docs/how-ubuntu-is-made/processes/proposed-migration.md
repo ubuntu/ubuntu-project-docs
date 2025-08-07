@@ -675,8 +675,8 @@ expect this test to pass.
 This can now be done via a migration-reference run. To do that, open the same
 URL you'd normally use to re-run the test, but instead of `package` + `version`
 as the trigger, you would add `migration-reference/0`. This is a special key,
-which will re-run the test without any special packages, just as it is in the
-target release.
+which will re-run the tests with the version of the requested package in the
+target release, without any proposed packages.
 
 For example:
 
