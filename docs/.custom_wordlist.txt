@@ -8,12 +8,15 @@ backporting
 boolean
 bootable
 bootloaders
+bugtracker
 chroot
 crossbuild
+codecs
 debdiff
 distro
 downstreamed
 downstreams
+Edubuntu
 enablement
 Fosstodon
 IPs
@@ -21,15 +24,19 @@ Jira
 Kubuntu
 Libera
 lintian
+Lubuntu
 Masters
-microreleases
 metapackage
+microreleases
 MIRs
+misconfigured
 MOTUs
+papercuts
 PDFs
 powerpc
 PPAs
 quantal
+radeon
 schroot
 SRUs
 subiquity
@@ -44,5 +51,7 @@ uploader
 upstreamed
 upstreaming
 upstreams
+wishlist
 Xenial
+Xubuntu
 

@@ -1,14 +1,6 @@
 # Fix a bug
 
 
-## Bug hunting
-
-```{toctree}
-:maxdepth: 1
-
-bug-fix/report-a-bug
-```
-
 
 ## Bug fixing
 
@@ -22,6 +14,7 @@ bug-fix/fix-a-bug
 bug-fix/build-packages
 bug-fix/package-building
 bug-fix/propose-changes
+bug-fix/package-tests
 ```
 
 ## Checklists

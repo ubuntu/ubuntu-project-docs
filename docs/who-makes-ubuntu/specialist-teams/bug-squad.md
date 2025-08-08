@@ -9,7 +9,7 @@ Bug Squad is the first point of contact for bugs filed about Ubuntu.
 
 Anyone interested in triaging bugs can join the Bug Squad. The
 [members](https://launchpad.net/~bugsquad/+members) are primarily volunteers
-from around the world and they come together with a common cause of making
+from around the world, who come together with the common cause of making
 Ubuntu better for everyone.
 
 **No special knowledge or training is required**, just a desire to help!
@@ -17,14 +17,14 @@ Ubuntu better for everyone.
 
 ## What the team does
 
-What the Bug Squad does is also known as "triaging", which is similar to the
-process of prioritizing patients in a hospital based on the severity of their
-condition.
+What the Bug Squad does is also known as "{ref}`triaging <bug-triage>`", a
+process that ensures bug reports are complete, that the bug can be reproduced,
+and that its priority is assessed and set.
 
-This allows developers to spend their time more effectively, and is a great way
-to learn about how Ubuntu works as an operating system and as a community. It’s
+This allows developers to spend their time more effectively. It's also a great
+way to learn how Ubuntu works as an operating system and as a community. It’s
 also not uncommon for triagers to discover new and interesting features they
-didn't know about!
+didn't know about.
 
 Triaging bugs consists of:
 
@@ -32,8 +32,8 @@ Triaging bugs consists of:
 * Ensuring that new bugs have all the necessary information
 * Assigning bugs to the proper package
 * Confirming bug reports by trying to reproduce them
-* Setting the importance of bugs reports ({ref}`bug-control-team`team only)
-* Searching for and marking duplicates in the bug tracking system
+* Setting the importance of bugs reports ({ref}`bug-control-team` team only)
+* Searching for and marking duplicates in the bug-tracking system
 * Sending bugs to their upstream authors, when applicable
 * Cross-referencing bugs from other distributions
 * Expiring old bugs
@@ -49,34 +49,30 @@ The Bug Squad is always in NEED of more help from the community!
 
 ## Contact the squad
 
-* IRC: `#ubuntu-bugs` channel to contact Ubuntu Bug Squad members for help or
+* Matrix: `#ubuntu-devel` channel to contact Ubuntu Bug Squad members for help or
   collaboration.
 
-* Mailing List: sign up to the
-  [`ubuntu-bugsquad`](https://lists.ubuntu.com/mailman/listinfo/ubuntu-bugsquad)
+* Mailing List: subscribe to [`ubuntu-bugsquad`](https://lists.ubuntu.com/mailman/listinfo/ubuntu-bugsquad)
   to contact us if you have any doubt while triaging a bug. 
 
 
 ## Want to join?
 
-If you want to join the Bug Squad team you need to:
+To join the Bug Squad team:
 
 * Sign the {ref}`Ubuntu Code of Conduct <code-of-conduct>`
 
-* Read [the Triage Guide](https://wiki.ubuntu.com/Bugs/Triage)
+* Read {ref}`the bug triage guide <bug-triage>`
 
-* Subscribe to the [Bug Squad Mailing List](https://lists.ubuntu.com/mailman/listinfo/ubuntu-bugsquad) 
+* Subscribe to the [Bug Squad mailing list](https://lists.ubuntu.com/mailman/listinfo/ubuntu-bugsquad) 
 
-If you completed the previous steps,
+Once you have completed these steps,
 [apply for membership](https://launchpad.net/~bugsquad/+join) on the Bug Squad
 team at Launchpad.
 
-When joining the Bug Squad, please keep up-to-date with bug management policies.
-Changes are always announced on the mailing list. For further information feel
-free to subscribe to the wiki changes or check with other members on
-`#ubuntu-bugs` channel on libera.
-
-Now, please read this page for more detailed instructions. 
+When joining the Bug Squad, you will need to keep up-to-date with bug management
+policies. Changes are always announced on the mailing list. For further details
+check with other members on the `#ubuntu-devel` Matrix channel.
 
 
 ```{note}
