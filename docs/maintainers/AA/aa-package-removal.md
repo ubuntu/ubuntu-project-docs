@@ -164,18 +164,18 @@ to ensure {term}`NBS` gets cleaned up before a stable release.
 
 ### Summarized flow of a removal consideration
 
-Due to all these rules, when handling removal requests archive administrators roughly follow this flow:
+Due to all these rules, when handling removal requests, Archive Administrators usually follow this flow:
 
 1. If already removed from Debian entirely -> we should probably remove it too (if the same reasons apply)
 1. If removed from Debian testing, but no other issue is known -> remove only if it blocks a transition or such in Ubuntu
-1. If it wasn't in Debian
-    1. If it works fine and all it is violating is "being old" -> keep it
-    1. If it works fine and the request is from the owner -> consider to remove it
-    1. If it works fine and the request is from the upstream -> consider to remove it
-    1. If it works fine, but is an FTBFS and gets no attention and thereby is hard to maintain once released -> file bug, add deadline, if not acted remove it
-    1. If it is generally broken and unusable -> file bug, add deadline, if not acted remove it
+1. If it wasn't in Debian:
+    1. If it works fine, and all it is violating is "being old" -> keep it.
+    1. If it works fine, and the request is from the owner -> consider removing it.
+    1. If it works fine, and the request is from upstream -> consider removing it.
+    1. If it works fine, but it's an {term}`FTBFS` and gets no attention and thereby is hard to maintain once released -> file a bug, add a deadline, and if it's not acted upon, remove it.
+    1. If it is generally broken and unusable -> file a bug, add a deadline, and if not acted upon, remove it.
 
-If unsure in either of these, bring it to the regular archive admin meeting or a channel for discussion and decision
+If unsure about any of these, bring it to the regular Archive Admin meeting or channel for discussion and decision.
 
 
 (aa-remove-a-package)=
