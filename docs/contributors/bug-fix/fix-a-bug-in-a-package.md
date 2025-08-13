@@ -1,4 +1,4 @@
-(fix-a-bug)=
+(fix-a-bug-in-a-package)=
 # Fix a bug in package
 
 ```{note}

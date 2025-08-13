@@ -20,6 +20,7 @@ downstreams
 Edubuntu
 enablement
 Fosstodon
+gvfs
 IPs
 Jira
 Kubuntu

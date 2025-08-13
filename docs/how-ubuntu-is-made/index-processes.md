@@ -21,7 +21,7 @@ processes/freezes
 For the most part, development work on the distribution revolves around getting packages to build and adding them to the Archive.
 
 
-### Basic archive management and maintenance
+### Archive management and maintenance
 
 Getting new versions of packages from Debian, dealing with build dependencies, and resolving build and test failures.
 
@@ -31,9 +31,27 @@ Getting new versions of packages from Debian, dealing with build dependencies, a
 processes/merges-and-syncs
 processes/sync-process
 processes/transitions
-processes/proposed-migration
 processes/backports
+processes/automatic-package-testing-autopkgtest
 ```
+
+
+#### Proposed migration
+
+The process of moving (uploaded or merged) packages from the `-proposed` {term}`pocket` to the `-release` pocket to make them available to users:
+
+```{toctree}
+:maxdepth: 1
+
+processes/proposed-migration
+```
+
+Automatic migration may be blocked for many different reasons. The following article series explains the various migration failures:
+
+* {ref}`issues-preventing-migration`
+* {ref}`autopkgtest-regressions`
+* {ref}`failure-to-build-from-source-ftbfs`
+* {ref}`special-migration-cases`
 
 
 ### Contributor support

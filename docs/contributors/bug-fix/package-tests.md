@@ -35,7 +35,7 @@ $ ppa tests \
 This prints to the console a bunch of lines like:
 
 ```none
- Using Release Packages ♻️ 
+ Using Release Packages ♻️
  http://autopkgtest.ubuntu.com/request.cgi?release=bionic&arch=amd64&package=postfix&ppa=kstenerud/postfix-postconf-segfault-1753470&trigger=postfix/3.3.0-1ubuntu0.1~ppa1
  http://autopkgtest.ubuntu.com/request.cgi?release=bionic&arch=s390x&package=postfix&ppa=kstenerud/postfix-postconf-segfault-1753470&trigger=postfix/3.3.0-1ubuntu0.1~ppa1
   ...
@@ -52,7 +52,7 @@ URLs in your web browser yourself, which will cause the appropriate
 autopkgtests to run. If you omit the `--show-url` parameter, `ppa tests` will
 instead display clickable links, making it even more convenient. Alternatively,
 it is possible to
-{ref}`trigger the tests through the command line <pm-triggering-tests-from-the-cli>`,
+{ref}`trigger the tests through the command line <trigger-tests-from-the-command-line>`,
 which is useful when you need to trigger several tests.
 
 After a while, run `ppa tests` again to see how the tests are coming along:

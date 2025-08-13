@@ -34,7 +34,7 @@ processes to make sure you'll be fulfilling their requirements.
 
 In addition to understanding common tasks documented in this guide, including
 {ref}`Debian patching <work-with-debian-patches>`,
-{ref}`Stable Release Updates (SRUs) <fix-a-bug>`,
+{ref}`Stable Release Updates (SRUs) <fix-a-bug-in-a-package>`,
 and so on, Core Dev applicants must also have a good understanding of these
 advanced packaging skills, and ideally direct experience with a few of them:
 

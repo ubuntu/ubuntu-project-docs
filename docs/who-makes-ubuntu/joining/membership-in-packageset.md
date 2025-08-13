@@ -77,7 +77,7 @@ Ideally, you should have a solid mastery of the
 basic packaging skills for Debian/Ubuntu
 distributions, including the following:
 
-* {ref}`Fixing bugs in packages <fix-a-bug>`
+* {ref}`Fixing bugs in packages <fix-a-bug-in-a-package>`
 * Building binary packages from source, using `sbuild` or `debuild` in a
   `chroot` or `lxc` environment
 * Creating the initial packaging for new software
