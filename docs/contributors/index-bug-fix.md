@@ -10,7 +10,7 @@
 bug-fix/download-new-upstream-version
 bug-fix/extract-packages
 bug-fix/install-built-packages
-bug-fix/fix-a-bug
+bug-fix/fix-a-bug-in-a-package
 bug-fix/build-packages
 bug-fix/package-building
 bug-fix/propose-changes

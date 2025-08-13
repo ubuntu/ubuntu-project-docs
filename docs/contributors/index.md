@@ -74,7 +74,7 @@ index-new-package
 ```{toctree}
 :maxdepth: 1
 
-find-a-sponsor
+Find a sponsor <find-a-sponsor>
 ```
 
 
@@ -87,7 +87,7 @@ some working familiarity with Ubuntu development.
 ```{toctree}
 :maxdepth: 1
 
-index-advanced
+Advanced tasks <index-advanced>
 ```
 
 

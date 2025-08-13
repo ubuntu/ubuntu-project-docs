@@ -30,6 +30,8 @@ On request (via a :term:`Launchpad` ticket), :term:`archive admins <Archive admi
     After the Final Release, you must follow the :ref:`stable-release-updates` process. For additional details about the freezes, see the :ref:`release-cycle` article.
 
 
+.. _merges:
+
 Merges
 ~~~~~~
 
@@ -41,8 +43,6 @@ The Ubuntu Merge-o-Matic (MoM) service automatically performs merges and publish
 * `universe <https://merges.ubuntu.com/universe.html>`_
 * `restricted <https://merges.ubuntu.com/restricted.html>`_
 * `multiverse <https://merges.ubuntu.com/multiverse.html>`_
-
-.. TODO merging link
 
 To complete a merge, interaction and supervision by Ubuntu maintainers are required. See :ref:`merge-a-package` for details on performing a merge.
 

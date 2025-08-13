@@ -100,7 +100,7 @@ The main complication you may run into during this phase are build failures. For
 example, upstream may have introduced some new dependencies not yet in the
 Ubuntu Archive. Resolving these issues can involve
 {ref}`MIRs <main-inclusion-review>`, pulling patches from upstream, and other
-{ref}`fix-a-bug` activities.
+{ref}`fix-a-bug-in-a-package` activities.
 
 
 (transitions-update-default-version)=

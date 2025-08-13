@@ -1,5 +1,5 @@
 (sponsor-an-upload)=
-# How to sponsor
+# How to sponsor an upload
 
 Members of the {term}`Ubuntu Sponsors` and {term}`Ubuntu Security Sponsors`
 teams have the right to sponsor patches or new packages. If you are interested

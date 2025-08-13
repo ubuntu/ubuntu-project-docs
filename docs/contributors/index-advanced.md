@@ -22,9 +22,22 @@ advanced/check-reverse-dependencies
 ```{toctree}
 :titlesonly:
 
-advanced/merge-proposal-review
-advanced/merge-a-package
+Review a merge proposal <advanced/review-a-merge-proposal>
+Merge a package <advanced/merge-a-package>
 ```
+
+
+## Proposed migration
+
+Guidance on investigating and resolving issues that block automatic migration from the `-proposed` to the `-release `{term}`pocket`:
+
+```{toctree}
+:titlesonly:
+
+Resolve a migration issue <advanced/resolve-a-migration-issue>
+```
+
+See the {ref}`proposed-migration` series of articles for an explanation of the process, as well as a description of common blocking issues.
 
 
 ## Seed management
@@ -37,7 +50,7 @@ advanced/merge-a-package
 ```{toctree}
 :maxdepth: 1
 
-advanced/sponsor-an-upload
+Sponsor an upload <advanced/sponsor-an-upload>
 ```
 
 

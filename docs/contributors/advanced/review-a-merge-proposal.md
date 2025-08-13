@@ -1,5 +1,5 @@
-(merge-proposal-review)=
-# Merge Proposal review
+(review-a-merge-proposal)=
+# How to review a merge proposal
 
 Establishing a review process before sponsoring or uploading content has helped
 to maintain consistently high quality. To do so, changes are proposed as
@@ -216,7 +216,7 @@ appropriate for the situation.
   proposed migrations.
 
 * New runtime dependencies might be added and could cause
-  {ref}`component mismatches <pm-main-universe-binary-mismatch>`. This would
+  {ref}`component mismatches <main-universe-binary-mismatch>`. This would
   block proposed migration and may necessitate either filing a
   {ref}`MIR <main-inclusion-review>` for them or adapting the upload to avoid
   that dependency.
