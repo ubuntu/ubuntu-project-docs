@@ -18,14 +18,14 @@ The {ref}`proposed-migration` article series explains the various migration fail
 Process overview:
 : {ref}`proposed-migration`
 
-Issue types:
-:   * {ref}`issues-preventing-migration` (this article)
-    * {ref}`autopkgtest-regressions`
-    * {ref}`failure-to-build-from-source-ftbfs`
-    * {ref}`special-migration-cases`
-
 Practical guidance:
 : {ref}`resolve-a-migration-issue`
+
+Issue types:
+:   * {ref}`failure-to-build-from-source-ftbfs`
+    * {ref}`autopkgtest-regressions`
+    * {ref}`issues-preventing-migration` (this article)
+    * {ref}`special-migration-cases`
 :::
 
 
@@ -128,7 +128,7 @@ breaks `pkg-b=1.0-1`, so `pkg-b=2.0-1` must migrate first (or they must migrate
 together). A way to handle this is to re-run `pkg-b`'s autopkgtest (for 2.0-1)
 and include a trigger for `pkg-a=2.0`. For example, run:
 
-```bash
+```none
 $ excuses-kicker -t pkg-a pkg-b
 ```
 

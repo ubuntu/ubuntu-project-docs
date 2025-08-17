@@ -13,14 +13,14 @@ The {ref}`proposed-migration` article series explains the various migration fail
 Process overview:
 : {ref}`proposed-migration`
 
-Issue types:
-:   * {ref}`issues-preventing-migration`
-    * {ref}`autopkgtest-regressions`
-    * {ref}`failure-to-build-from-source-ftbfs` (this article)
-    * {ref}`special-migration-cases`
-
 Practical guidance:
 : {ref}`resolve-a-migration-issue`
+
+Issue types:
+:   * {ref}`failure-to-build-from-source-ftbfs` (this article)
+    * {ref}`autopkgtest-regressions`
+    * {ref}`issues-preventing-migration`
+    * {ref}`special-migration-cases`
 :::
 
 General classes of problems during the build step:

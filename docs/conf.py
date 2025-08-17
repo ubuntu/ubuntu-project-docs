@@ -268,6 +268,8 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinxext.rediraffe",
     "sphinx_sitemap",
+    "sphinx_reredirects",
+    "sphinx_togglebutton",
 ]
 
 # Excludes files or directories from processing

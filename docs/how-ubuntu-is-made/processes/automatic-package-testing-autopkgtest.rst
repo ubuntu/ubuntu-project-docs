@@ -3,13 +3,13 @@
 Automatic package testing: autopkgtest
 ======================================
 
-The `DEP 8 specification`_ defines how automatic testing can very easily be 
-integrated into packages. To integrate a test into a package, all you need to 
-do is:
+The :term:`DEP-8` specification defines how to integrate automatic testing into packages. To integrate a test into a package, add the following files:
 
-* add a file called ``debian/tests/control`` which specifies the requirements 
-  for the testbed,
-* add the tests in ``debian/tests/``.
+:file:`debian/tests/control`
+: Specifies the requirements for the testbed.
+
+:file:`debian/tests/`
+: The tests.
 
 
 Testbed requirements
@@ -162,30 +162,30 @@ well.
 Getting the test into Ubuntu
 ----------------------------
 
-The process of submitting an autopkgtest for a package is largely similar to 
-:ref:`fixing a bug in Ubuntu <fix-a-bug-in-a-package>`. Essentially you simply:
+The process of submitting an autopkgtest for a package is similar to :ref:`fixing a bug in Ubuntu <fix-a-bug-in-a-package>`:
 
-* run ``bzr branch ubuntu:<packagename>``,
-* edit ``debian/control`` to enable the tests,
-* add the ``debian/tests`` directory,
-* write the ``debian/tests/control`` based on the `DEP 8 Specification <dep8_>`_,
-* add your test case(s) to ``debian/tests``,
-* commit your changes, push them to Launchpad, propose a merge and get it 
-  reviewed just like any other improvement in a source package.
+#. Run ``bzr branch ubuntu:<packagename>``,
+#. Edit ``debian/control`` to enable the tests,
+#. Add the ``debian/tests`` directory,
+#. Write the ``debian/tests/control`` based on the :term:`DEP-8` specification,
+#. Add your test case(s) to ``debian/tests``,
+#. Commit your changes, push them to Launchpad, propose a merge, and get it reviewed like any other improvement in a source package.
 
 
 What you can do
 ---------------
 
-The Ubuntu Engineering team put together a `list of required test-cases <requiredtests_>`_,
-where packages which need tests are put into different categories. Here you
-can find examples of these tests and easily assign them to yourself.
+The Ubuntu Engineering team maintains a `list of required test-cases <requiredtests_>`_ with packages that need tests in different categories. Use it to find examples of tests and assign them to yourself.
 
-If you should run into any problems, you can join the `<#devel:ubuntu.com_>`_ Matrix
-channel to get in touch with developers who can help you.
+For help with resolving problems, join the `<#devel:ubuntu.com_>`_ Matrix channel to get in touch with developers.
+
+
+Further reading
+---------------
+
+* `Autopkgtest - Defining tests for Debian packages <https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.package-tests.rst>`_
 
 .. wokeignore:rule=master
-.. _DEP8: https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.package-tests.rst
 .. _libxml2: https://git.launchpad.net/ubuntu/+source/libxml2/tree/debian/tests
 .. _gvfs: https://git.launchpad.net/ubuntu/+source/gvfs/tree/debian/tests
 .. _gtk3: https://git.launchpad.net/ubuntu/+source/gtk+3.0/tree/debian/tests

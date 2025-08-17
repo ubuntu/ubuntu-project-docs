@@ -43,7 +43,7 @@ The process of moving (uploaded or merged) packages from the `-proposed` {term}`
 ```{toctree}
 :maxdepth: 1
 
-processes/proposed-migration
+processes/proposed-migration/index
 ```
 
 Automatic migration may be blocked for many different reasons. The following article series explains the various migration failures:

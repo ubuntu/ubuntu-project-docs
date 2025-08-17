@@ -1,6 +1,16 @@
 (proposed-migration)=
 # Proposed migration
 
+```{toctree}
+:maxdepth: 1
+:hidden:
+
+failure-to-build-from-source-ftbfs
+autopkgtest-regressions
+issues-preventing-migration
+special-migration-cases
+```
+
 Uploads of {ref}`fixed <fix-a-bug-in-a-package>` or {ref}`merged <merges>` packages are not automatically released to Ubuntu users. Instead, they go into a special {term}`pocket` called `-proposed` for testing and integration. Once a package is deemed OK, it **migrates** into the `-release` pocket for users to consume. This is called the "proposed migration" process.
 
 This article series outlines the upload and migration process.
@@ -11,17 +21,15 @@ The article series explains the various migration failures and ways of investiga
 Process overview:
 : {ref}`proposed-migration` (this article)
 
+Practical guidance:
+: {ref}`resolve-a-migration-issue`
+
 Issue types:
 :   * {ref}`issues-preventing-migration`
     * {ref}`autopkgtest-regressions`
     * {ref}`failure-to-build-from-source-ftbfs`
     * {ref}`special-migration-cases`
-
-Practical guidance:
-: {ref}`resolve-a-migration-issue`
 :::
-
-See {ref}`resolve-a-migration-issue` for guidance on how to deal with situations when the migration from `-proposed` to -`-release` does not proceed automatically.
 
 
 (lifecycle-of-an-upload)=
@@ -66,14 +74,7 @@ See {ref}`resolve-a-migration-issue` for guidance on how to deal with situations
 
 The migration often proceeds automatically, but when issues arise, someone needs to resolve the problem. It is generally the responsibility of the uploader to analyze and {ref}`resolve the issue <resolve-a-migration-issue>`.
 
-Other situations can also lead to migration trouble, for which there is no specific responsible party. These types of problems are focused on as part of the {ref}`plus-one-maintenance` effort, where individuals across the distribution team are tasked with examining and resolving issues. Some of these problems arise from items auto-synced from Debian, or via a side-effect of some other change in the distribution.
-
-See the articles in the series for details:
-
-* {ref}`issues-preventing-migration`
-* {ref}`autopkgtest-regressions`
-* {ref}`failure-to-build-from-source-ftbfs`
-* {ref}`special-migration-cases`
+Other situations, for which there is no specific responsible party, can also lead to migration trouble. These types of problems are focused on as part of the {ref}`plus-one-maintenance` effort, where individuals across the distribution team are tasked with examining and resolving issues. Some of these problems arise from items auto-synced from Debian, or via a side-effect of some other change in the distribution.
 
 
 (update-excuses-page)=
@@ -91,13 +92,20 @@ In general, there are two things to watch for:
 "Regressions"
 : Indicates a ({term}`autopkgtest`) test failure.
 
-Both of these situations are described in more depth below.
+Both of these situations are described in more depth in this article series.
 
 Many of the items on the page are not actually broken -- they're just blocked by something else that needs resolving. This often happens for new libraries or language runtimes, or any package that a lot of other things depend on to build, install, or run tests against.
 
+See the articles in the series for details on how to interpret the status reported on the {term}`update excuses` page:
 
-(where-to-start)=
-### Where to start
+* {ref}`failure-to-build-from-source-ftbfs`
+* {ref}`autopkgtest-regressions`
+* {ref}`issues-preventing-migration`
+* {ref}`special-migration-cases`
+
+
+(finding-issues-to-resolve)=
+### Finding issues to resolve
 
 Look for build failures towards the upper-middle of the page, particularly those affecting only one architecture. Single-arch build failures tend to be more localized and more deterministic in their cause. Items towards the top of the page (but after all the **"Test in progress"** items) are newer, and so have a higher chance of being something simple that fewer people have looked at yet, without being so new that it's still being actively worked on by someone.
 
@@ -118,8 +126,6 @@ To check whether someone is already working on an item, ask in the [Ubuntu Devel
 #### Bug reports for migration problems
 
 When you file a bug report about a build or test failure shown on the {ref}`update-excuses-page`, tag the bug report `update-excuse`. {term}`Britney` then includes a link to the bug report the next time it refreshes the {ref}`update-excuses-page` page. This helps other developers see the investigative work you've already done and can be used to identify the next action. Mark yourself as the *Assignee* if you're actively working on the issue, and leave the bug unsubscribed if you aren't, so that others can carry things forward.
-
-
 
 
 ## Further reading

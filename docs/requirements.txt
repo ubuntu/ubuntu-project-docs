@@ -7,3 +7,4 @@ sphinx-hoverxref
 sphinx-prompt
 sphinxext-rediraffe
 sphinx-sitemap
+sphinx-togglebutton

@@ -415,6 +415,9 @@ Copyright File
     * [Basic overview of the `debian/` directory](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/debian-dir-overview/)
     * [Section 4.5. Copyright (Debian Policy Manual v4.6.2.0)](https://www.debian.org/doc/debian-policy/ch-source.html#copyright-debian-copyright)
 
+Core Dev
+    *Work in Progress*
+
 Cryptographic Signature
     *Work in Progress*
 
@@ -471,7 +474,7 @@ DEP-8
     {term}`source <Source Package>` and {term}`binary packages <Binary Package>`.
 
     See also:
-    * [Current DEP-8 Specification](https://dep-team.pages.debian.net/deps/dep8/)
+    * [DEP-8 Specification](https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.package-tests.rst)
 
 Detached Signature
     A detached signature is a {term}`Digital Signature <Signature>` that is separated
