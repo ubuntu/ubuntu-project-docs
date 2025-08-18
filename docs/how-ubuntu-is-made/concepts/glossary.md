@@ -344,25 +344,24 @@ Complex Instruction Set Computer
     * [Complex instruction set computer (Wikipedia)](https://en.wikipedia.org/wiki/Complex_instruction_set_computer)
 
 Component
-    **Components** are logical subdivisions or namespaces of the {term}`Packages <Package>`
-    in a [Suite](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivesuite).
-    The {term}`APT` {term}`Package Manager` can individually subscribe to the
-    components of a [suite](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivesuite).
+   **Components** are logical subdivisions or namespaces of the {term}`Packages <Package>` in a {term}`suite`. The {term}`APT` {term}`package manager` can individually subscribe to the components of a suite.
 
-    The packages of an {term}`Ubuntu` [Ubuntu series](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/glossary/#term-Ubuntu) are categorized
-    if they are {term}`Open Source Software` and part of the Base Packages
-    for a given Ubuntu series and sorted into the **components**;
-    [Main](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivecomponents-main),
-    [Restricted](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivecomponents-restricted),
-    [Universe](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivecomponents-universe), or
-    [Multiverse](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivecomponents-multiverse), as shown in the following table:
+   The packages of an {term}`Ubuntu` {term}`series` are categorized if they are {term}`Open Source Software` and part of the Base Packages for a given Ubuntu series and sorted into the **components**:
 
-    |                          | Open Source Software | Closed Source Software |
-    | --- | --- | --- |
-    | **Ubuntu Base Packages** | Main                 | Restricted             |
-    | **Community Packages**   | Universe             | Multiverse             |
+   * main
+   * restricted
+   * universe
+   * multiverse
 
-    See also: [Components (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivecomponents)
+   as shown in this table:
+
+   |                          | Open Source Software | Closed Source Software |
+   | --- | --- | --- |
+   | **Ubuntu Base Packages** | Main                 | Restricted             |
+   | **Community Packages**   | Universe             | Multiverse             |
+
+   See also:
+   * {ref}`archive-components`
 
 CD
 Continuous Delivery
@@ -675,6 +674,12 @@ General Public License
 
     Prominent projects which use a version of the GPL include {term}`git` and
     {term}`Linux`.
+
+germinate
+   [Germinate](https://launchpad.net/germinate) is a tool available in Debian and Ubuntu, which starts with lists of packages (called seeds) and grows them into a full list of packages including dependencies and (in additional lists) suggests, recommends, and sources for each of these lists.
+
+   See also:
+   * {manpage}`germinate(1)`
 
 git
     *Work in Progress*
@@ -1138,8 +1143,8 @@ Rules File
     The `debian/rules` file in a {term}`Source Package`.
 
     See also:
-    * [Basic overview of the `debian/` directory](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/debian-dir-overview/)
-    * [Section 4.9. Main building script (Debian Policy Manual v4.6.2.0)](https://www.debian.org/doc/debian-policy/ch-source.html#main-building-script-debian-rules)
+    * {ref}`debian-directory`
+    * [Main building script (Debian Policy Manual)](https://www.debian.org/doc/debian-policy/ch-source.html#main-building-script-debian-rules)
 
 s390x
     *Work in Progress*
@@ -1150,12 +1155,12 @@ Seeds
     go into the distribution {term}`images <Image>`.
 
 Series
-    A **series** refers to the {term}`Packages <Package>` in the {term}`Ubuntu Archive`
+    A **series** refers to the {term}`packages <Package>` in the {term}`Ubuntu Archive`
     that target a specific Ubuntu version. A series is usually referred
-    to by its {term}`Code name`.
+    to by its {term}`code name`.
 
     See also:
-    * [Series (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archiveseries)
+    * {ref}`archive-series`
 
 SLA
 Service-level Agreement
@@ -1236,6 +1241,12 @@ Staging Environment
 
 Standard Output
     *Work in Progress*
+
+Suite
+    A combination of a {term}`series` and a {term}`pocket`. For example, `plucky-main` or `questing-universe`.
+
+    See also:
+    * {ref}`archive-suite`
 
 tarball
     A file in the {manpage}`tar(5)` archive format, which collects any number of
@@ -1495,7 +1506,7 @@ Unix
     * [Unix (Wikipedia)](https://en.wikipedia.org/wiki/Unix)
 
 Update excuses
-    A page showing all unresolved migration issues for the current development release.
+    A page showing all unresolved migration issues for the current development release. An excuse is a detailed explanation of why a package can or cannot be updated in the `-release` pocket from a newer package in the `-proposed` {term}`pocket` (i.e. "migrated" from `-proposed` to `-release`).
 
     See also:
     * [Update excuses page](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html)
