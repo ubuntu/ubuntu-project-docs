@@ -1,7 +1,3 @@
----
-orphan: true
----
-
 (autopkgtest-regressions)=
 # Autopkgtest regressions
 

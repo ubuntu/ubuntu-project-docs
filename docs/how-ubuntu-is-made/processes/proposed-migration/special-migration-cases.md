@@ -1,7 +1,3 @@
----
-orphan: true
----
-
 (special-migration-cases)=
 # Special migration cases
 

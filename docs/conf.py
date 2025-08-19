@@ -235,7 +235,14 @@ linkcheck_retries = 3
 # NOTE: By default, the following MyST extensions are enabled:
 #       substitution, deflist, linkify
 
-myst_enable_extensions = {"colon_fence", "dollarmath", "tasklist", "fieldlist"}
+myst_enable_extensions = {
+    "colon_fence",
+    "dollarmath",
+    "tasklist",
+    "fieldlist",
+    "substitution",
+    "html_admonition",
+}
 
 
 # Custom Sphinx extensions; see
@@ -317,6 +324,8 @@ manpages_url = (
     + "/en/man{section}/{page}.{section}.html"
 )
 
+myst_substitutions = {"stable_distro": stable_distro}
+
 # Configure hoverxref options
 hoverxref_role_types = {
     "term": "tooltip",
@@ -361,6 +370,7 @@ rst_prolog = """
 extlinks = {
     "lpsrc": ("https://launchpad.net/ubuntu/+source/%s", "%s"),
     "lpbug": ("https://bugs.launchpad.net/bugs/%s", "LP: #%s"),
+    "matrix": ("https://matrix.to/#/#%s:ubuntu.com", "#%s:ubuntu.com"),
 }
 
 

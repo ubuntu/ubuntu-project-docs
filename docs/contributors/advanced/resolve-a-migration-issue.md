@@ -20,6 +20,7 @@ Practical guidance:
 :::
 
 
+(understand-autopkgtest-logs)=
 ## Understand autopkgtest logs
 
 When examining a log of a failed autopkgtest run, start from the end of the file. This usually shows a summary of the test runs or an error message in case of an error. For example:
