@@ -1,0 +1,73 @@
+name: Automatic documentation checks
+
+on:
+  schedule:
+    - cron: "0 1 * * 4" # Runs at 01:00 AM on every Wednesday
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory'
+        required: false
+        type: string
+        default: 'docs'
+      python-version:
+        description: 'Version of the Python interpreter to use (defaults to 3.10)'
+        required: false
+        type: string
+        default: '3.10'
+      makefile:
+        description: 'Name of the Makefile to use (default: "Makefile.sp" if it exists, "Makefile" otherwise)'
+        required: false
+        type: string
+        default: 'use-default'
+      install-target:
+        description: 'Target to run to install the tools (default: "install")'
+        required: false
+        type: string
+        default: 'install'
+      linkcheck-target:
+        description: 'Target to run for the link check (default: "linkcheck")'
+        required: false
+        type: string
+        default: 'linkcheck'
+      fetch-depth:
+        description: 'Fetch depth to support timestamps'
+        required: false
+        type: string
+        default: '0'
+      runs-on:
+        description: 'GitHub runners'
+        required: false
+        type: string
+        default: '["ubuntu-22.04"]'
+    outputs:
+      linkcheck-result:
+        description: "Result of the link check"
+        value: ${{ jobs.docchecks.outputs.result_links }}
+
+jobs:
+  docchecks:
+    name: Run documentation checks
+    runs-on: ${{ fromJson(inputs.runs-on) }}
+    outputs:
+      result_links: ${{ steps.linkcheck-step.outcome }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Link Check
+        id: linkcheck-step
+        if: success() || failure()
+        uses: canonical/documentation-workflows/linkcheck@main
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          install-target: ${{ inputs.install-target }}
+          linkcheck-target: ${{ inputs.linkcheck-target }}
+          makefile: ${{ inputs.makefile }}

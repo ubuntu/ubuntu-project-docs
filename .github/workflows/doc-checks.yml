@@ -1,0 +1,99 @@
+name: Automatic documentation checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    paths:
+      - 'docs/**'   # Only run on changes to the docs directory
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory'
+        required: false
+        type: string
+        default: 'docs'
+      python-version:
+        description: 'Version of the Python interpreter to use (defaults to 3.10)'
+        required: false
+        type: string
+        default: '3.10'
+      makefile:
+        description: 'Name of the Makefile to use (default: "Makefile.sp" if it exists, "Makefile" otherwise)'
+        required: false
+        type: string
+        default: 'use-default'
+      install-target:
+        description: 'Target to run to install the tools (default: "install")'
+        required: false
+        type: string
+        default: 'install'
+      spelling-target:
+        description: 'Target to run for the spelling check (default: "spelling")'
+        required: false
+        type: string
+        default: 'spelling'
+      woke-target:
+        description: 'Target to run for the inclusive language check (default: "woke")'
+        required: false
+        type: string
+        default: 'woke'
+      fetch-depth:
+        description: 'Fetch depth to support timestamps'
+        required: false
+        type: string
+        default: '0'
+      runs-on:
+        description: 'GitHub runners'
+        required: false
+        type: string
+        default: '["ubuntu-22.04"]'
+    outputs:
+      spellcheck-result:
+        description: "Result of the spelling check"
+        value: ${{ jobs.docchecks.outputs.result_spelling }}
+      woke-result:
+        description: "Result of the inclusive language check"
+        value: ${{ jobs.docchecks.outputs.result_woke }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docchecks:
+    name: Run documentation checks
+    runs-on: ${{ fromJson(inputs.runs-on) }}
+    outputs:
+      result_spelling: ${{ steps.spellcheck-step.outcome }}
+      result_woke: ${{ steps.woke-step.outcome }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Spell Check
+        id: spellcheck-step
+        if: success() || failure()
+        uses: canonical/documentation-workflows/spellcheck@main
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          install-target: ${{ inputs.install-target }}
+          spelling-target: ${{ inputs.spelling-target }}
+          makefile: ${{ inputs.makefile }}
+
+      - name: Inclusive Language Check
+        id: woke-step
+        if: success() || failure()
+        uses: canonical/documentation-workflows/inclusive-language@main
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          install-target: ${{ inputs.install-target }}
+          woke-target: ${{ inputs.woke-target }}
+          makefile: ${{ inputs.makefile }}
