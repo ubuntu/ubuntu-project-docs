@@ -366,10 +366,11 @@ Component
 
 CD
 Continuous Delivery
-    *Work in Progress*
+    A software practice where code changes are automatically built, tested, 
+    and made ready for release, allowing teams to deploy updates to production frequently and incrementally.
 
-    See also:
-    * [Continuous delivery (Wikipedia)](https://en.wikipedia.org/wiki/Continuous_delivery)
+    See also: [Continuous delivery (Wikipedia)](https://en.wikipedia.org/wiki/Continuous_delivery)
+    
 
 CI
 Continuous Integration
