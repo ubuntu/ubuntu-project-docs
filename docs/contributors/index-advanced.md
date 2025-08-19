@@ -91,6 +91,6 @@ in `main`.
 :maxdepth: 1
 
 MIR bug request template <../MIR/mir-reporters-template>
-How to use MIR templates <../MIR/mir-how-to-use-templates>
+Use MIR templates <../MIR/mir-how-to-use-templates>
 ```
 
