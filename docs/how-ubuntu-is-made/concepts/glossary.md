@@ -193,7 +193,10 @@ Breezy
     * [Breezy (Launchpad)](https://launchpad.net/brz)
 
 Britney
-    A software service that is responsible for continuously regenerating the {term}`update excuses` page, which lists all unresolved {term}`proposed migration` items.
+   A software service (Python scripts) that is responsible for:
+
+   * Updating the given distribution with valid candidate packages. In the case of Ubuntu, this means "migrating" packages from the `-proposed` {term}`pocket` to `-release`.
+   * Based on the status of the migration, generating the {term}`update excuses` page, which lists all unresolved {term}`proposed migration` items.
 
     See also:
     * {ref}`proposed-migration`

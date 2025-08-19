@@ -1,7 +1,3 @@
----
-orphan: true
----
-
 (issues-preventing-migration)=
 # Issues preventing migration
 
@@ -97,12 +93,17 @@ Package `<AAA>` is blocked because it depends on `<BBB>`, however, `<BBB>` is ei
 
 If the dependency itself is not valid, this line is followed by an **Invalidated by dependency** line. In this case, look at the situation with package `<BBB>`, and resolve that first in order to move package `<AAA>` forward.
 
+<!--
+TODO: Confirm whether this is a thing or not.
+Simon C.: "To be honest, I'm not sure I've ever encountered this situation;
+           I don't know what a permanent rejection is."
+
 If there is no **Invalidated by dependency** line, then the dependency may be rejected. There are three reasons why a rejection can occur:
 
 1. It needs approval
-1.  determine if permanent, or
+1. determine if permanent, or
 3. permanent rejection.
-
+-->
 
 (implicit-dependency-aaa-bbb)=
 ## Implicit dependency: `<AAA> [<BBB>]`

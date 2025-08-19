@@ -1,11 +1,7 @@
----
-orphan: true
----
-
 (failure-to-build-from-source-ftbfs)=
 # Failure to Build From Source (FTBFS)
 
-A package has to be buildable top be able to migrate from the `-proposed` to `-release` {term}`pocket`. This article describes a number of common reasons why a package build may fail.
+A package has to be buildable to be able to migrate from the `-proposed` to `-release` {term}`pocket`. This article describes a number of common reasons why a package build may fail.
 
 :::{admonition} **Proposed migration** series
 The {ref}`proposed-migration` article series explains the various migration failures and ways of investigating them.
@@ -47,106 +43,86 @@ General classes of problems during the build step:
 (normal-build-issues)=
 ## Normal build issues
 
-The first case covers all the usual normal build issues like syntax errors and
-so on. In practice these tend to be quite rare, since developers tend to be
-very diligent in making sure their packages build before uploading them. Fixes
-for these is standard development work.
+All the normal build issues, such as syntax errors. In practice, these are rare because developers are usually diligent in making sure their packages build before uploading them. Fixes for these is standard development work.
 
 
 (platform-specific-issues)=
 ## Platform-specific issues
 
-The second case is similar to the first but pertains to issues that arise only
-on specific platforms. Common situations are tests or code that relies on
-[endianness](https://en.wikipedia.org/wiki/Endianness) of data types, and so
-breaks on big-endian systems (e.g. s390x), code expecting 64-bit data types that
-breaks on 32-bit (e.g. armhf), and so on.
+Normal build issues that arise only on specific platforms. Common situations:
 
-{term}`Canonistack` provides hardware for Canonical employees to use to try and reproduce these problems.
+* Tests or code that rely on [endianness](https://en.wikipedia.org/wiki/Endianness) of data types, and so break on big-endian systems (e.g. s390x).
+* Code expecting 64-bit data types that breaks on 32-bit (e.g. armhf).
+
+{term}`Canonistack` provides hardware for Canonical employees to reproduce these problems.
 
 ```{note}
-i386 in particular fails less due to data type issues, but more because it is
-a partial port and has numerous limitations that require special handling, as
-described on the {ref}`i386 troubleshooting page <aa-i386>`.
+i386 in particular fails less due to data type issues, but more because it is a partial port and has numerous limitations that require special handling, as described on the {ref}`i386 troubleshooting page <aa-i386>`.
 ```
 
 
 (intermittent-problems)=
 ## Intermittent problems
 
-In the third case, local building was fine but the uploaded build may have
-failed on Launchpad due to a transitory issue such as a network outage, or a
-race condition, or other stressed resource. Alternatively, it might have failed
-due to a strange dependence on some variable like the day of the week.
+Local building is fine, but the uploaded build may have failed on Launchpad due to a transitory issue. For example:
 
-In these cases, clicking on the "Retry Build" button in Launchpad once or twice
-can sometimes cause the build to randomly succeed, thus allowing the transition
-to proceed (if you're not yet a Core Dev, ask for a Core Dev on the
-`#ubuntu-devel` IRC channel to click the link for you).
+* Network outage, a race condition, or other stressed resource.
+* A strange dependence on some variable, such as the day of the week.
 
-Needless to say, we want the build process to be robust and predictable. If the
-problem is a recurring one, and you are able to narrow down the cause, it can
-be worthwhile to find the root cause and figure out how to fix it properly.
+In these cases, clicking on {guilabel}`Retry Build` button in Launchpad once or twice can sometimes cause the build to randomly succeed, thus allowing the transition to proceed (if you're not yet a Core Dev, ask for a Core Dev in the
+{matrix}`devel` Matrix channel to click the link for you).
+
+To make the build process robust and predictable, try to identify the cause (especially if it's a recurring problem) find a way to fix it properly.
 
 
 (dependency-problems)=
 ## Dependency problems
 
-For the fourth case, where a dependency is not the right version or is not
-present in the right pocket, the question becomes one of identifying what's
-wrong with the dependency and fixing it.
+When a dependency is not the right version or is not present in the right {term}`pocket`, investigate what is wrong with the dependency, and fix it.
 
-Be aware there may be some situations where the problem really is with the
-dependency itself. The solution then might be to change the version of the
-dependency, or adjust the dependency version requirement, or remove invalid
-binary packages, or so forth. The latter solutions often require asking an
-Archive Admin for help on the `#ubuntu-release` IRC channel.
+Keep in mind that in some situations, the problem is the definition of dependency itself. The solution then might be:
+
+* Change the version of the dependency.
+* Adjust the dependency version requirement.
+* Remove invalid binary packages.
+* Or similar.
+
+Removing packages often requires asking an Archive Admin for help in the {matrix}`release` Matrix channel.
 
 
 (abi-changes)=
 ## ABI changes
 
-The fifth case, of ABI changes, tends to come up when Ubuntu is introducing new
-versions of toolchains, language runtime environments or core libraries (i.e.
-new `glibc`, `gcc`, `glib2.0`, `ruby`, `python3`, `phpunit`, etc).
+ABI changes tend to arise when Ubuntu is introducing new versions of toolchains, language runtime environments, or core libraries (i.e. new `glibc`, `gcc`, `glib2.0`, `ruby`, `python3`, `phpunit`, etc.).
 
-This happens when the release of the underlying libraries/toolchains is newer
-than the project that uses it. Your package may fail to build because, for
-example, one of its dependencies was built against a different version of
-`glibc`, or with less strict `gcc` options (the
-[Ubuntu Defaults](https://wiki.ubuntu.com/ToolChain/CompilerFlags#Notes) can be
-checked here) etc, and it needs a (no-change) rebuild (and/or patched) to build
-with the new version or stricter options.
+This happens when the release of the underlying libraries or toolchains is newer than the project that uses it. A package may fail to build because, for example, one of its dependencies is built:
 
-Assuming the upstream project has already adapted to the changed behavior or
-function-prototypes **and** produced a release, then:
+* Against a different version of `glibc`.
+* With less strict `gcc` options (check [Ubuntu Defaults](https://wiki.ubuntu.com/ToolChain/CompilerFlags#Notes)).
 
-* If we already have the release in Ubuntu a simple no-change rebuild may
-  suffice.
+Such cases need a (no-change) rebuild (and/or patching) to build with the new version or stricter options.
 
-* If we don't have the release, then it will need a sync or merge, or patching
-  in the changes to what we're carrying.
+If upstream has already adapted to the changed behavior **and** produced a release:
+: * If we already have the release in Ubuntu, try a no-change rebuild.
 
-If upstream has not *released* the changes, then you could also consider
-packaging a snapshot of their git repository.
+  * If we don't have the release, sync or merge it, or add the new changes in a patch on top of the release that's in Ubuntu.
 
-If upstream has *not yet made* the changes, and there no existing bug reports or
-pull requests yet, it may be necessary to make the changes on our end.
-Communication with Debian and upstream can be effective here, and where it
-isn't, filing bug reports can be worth the effort.
+If upstream has not *released* the changes:
+: Consider packaging a snapshot of their Git repository.
 
-It's worth noting that with ABI changes, these updates often cause the same kind
-of errors in many places. It's worth asking in the `#ubuntu-devel` IRC channel
-in case standard solutions are already known that you can re-use, such as
-ignoring a new warning via a `-W...` option or switching to the old behavior
-via a `-f...` option. It's also worth reporting your findings in ways others can
-easily re-use when they run into more cases.
+If upstream has *not yet made* the changes, and there no existing bug reports or pull requests yet:
+: We may need to make the changes in Ubuntu. Communicate with Debian and upstream, and if leads nowhere, file bug reports.
+
+:::{note}
+With ABI changes, these updates often cause the same kind of errors in many places. Ask in the {matrix}`devel` Matrix channel to check whether standard solutions are already known that you can reuse. Such solutions can include:
+
+* Ignoring a new warning using the `-W...` option.
+* Switching to the old behavior using the `-f...` option.
+
+Report your findings, so others can reuse them when they run into more cases.
 
 
 (package-specific-issues)=
 ## Package-specific issues
 
-Finally, there are a myriad of other problems that can result in build
-failures. Many of these will be package-specific or situation-specific. As you
-run into situations that crop up more frequently than a couple of times please
-update these docs.
+There are a myriad of other problems that can result in build failures. Many of these are package-specific or situation-specific. Remember to update this documentation when you encounter new situations that occur frequently.
