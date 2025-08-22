@@ -140,7 +140,7 @@ Refer to {ref}`ui-freeze-exceptions` for more details.
 Exception requests for Milestone Freeze exceptions must include the following
 additional details:
 
-* It must fix a bug earmarked for that particular milestone
+* It must fix a bug earmarked by the release team for that particular milestone
 
 * A complete `debdiff` of the proposed upload must be provided (preferably as
   a bug attachment)
