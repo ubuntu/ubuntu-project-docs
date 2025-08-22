@@ -142,7 +142,7 @@ additional details:
 
 * It must fix a bug earmarked for that particular milestone
 
-* A complete `debdiff` of the proposed upload must be provided (preferably as
+* A complete `debdiff` or a merge proposal of the proposed upload must be provided (preferably as
   a bug attachment)
 
 Refer to {ref}`milestone-freeze-exceptions` for more details.
@@ -153,10 +153,10 @@ Refer to {ref}`milestone-freeze-exceptions` for more details.
 For Freeze exception requests for `universe` or `multiverse`, the process is to
 either:
 
-* File a bug with the debdiff, assign it to `ubuntu-release`, and get approval
+* File a bug with the debdiff or a merge proposal, assign it to `ubuntu-release`, and get approval
   for it
 
 * Or ask a member of the [`ubuntu-release`](http://launchpad.net/~ubuntu-release)
-  team for approval of the debdiff.
+  team for approval of the debdiff or the merge proposal.
 
 Refer to {ref}`universe-multiverse-freeze-exceptions` for more details.
