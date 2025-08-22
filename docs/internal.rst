@@ -126,6 +126,33 @@ If there are multiple errors to ignore, just repeat the line with the same sourc
 
 To make a change, please create a ``bzr`` merge proposal against `lp:~ubuntu-sru/ubuntu-archive-tools/phased-update-overrides <https://code.launchpad.net/~ubuntu-sru/ubuntu-archive-tools/phased-update-overrides>`__.
 
+Etiquette for Reviewing Your Own SRU
+------------------------------------
+
+The important principle is that each stage of the SRU process should be reviewed by two
+qualified people. When **accepting** a package into -proposed, this means (1) a person
+who sponsored or uploaded their own work to the unapproved queue, and (2) an SRU team
+member who reviews the upload in unapproved before accepting it into -proposed. When **releasing**
+a package to -updates, this means (1) one person who performed the SRU verification, and
+(2) an SRU team member who has reviewed the verification, and confirmed it follows the agreed
+test plan etc.
+
+Examples of permissible scenarios include:
+
+- An SRU team member may release an SRU that they sponsored or uploaded, provided (a) the SRU was
+  reviewed in unapproved by a different SRU team member, and (b) the SRU verification was performed
+  by a different person.
+
+- Two SRU team members (or one SRU team member and another uploader) may upload, accept, verify, and
+  release an SRU, provided they **both** approve each step.
+
+Examples of unacceptable scenarios include:
+
+- An SRU team member must not accept their own upload from unapproved
+
+- An SRU team member must not release an SRU for which they performed SRU verification
+
+
 Adding members to the team
 --------------------------
 
