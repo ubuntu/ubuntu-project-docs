@@ -65,11 +65,11 @@ SRU Bug Template
 
    [ Impact ]
 
-   * Without SRUing the never version users get issues running on more
+   * Without SRUing the newer version users get issues running on more
       recent hypervisors.
 
    * This is not backporting a single fix, nor an MRE, but backporting the
-      version of a latter Ubuntu release for platform enablement.
+      version from the current Ubuntu release for platform enablement.
 
    * See https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenVMTools-Updates for more details
 
