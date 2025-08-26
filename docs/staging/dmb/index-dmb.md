@@ -30,7 +30,8 @@ ubuntu-developers
 ubuntu-development
 dmb-application
 dmb-agenda
-dmb-expectations
+dmb-aspects-of-a-good-application
+dmb-application-knowledge-requirements
 dmb-knowledge-base
 ubuntu-membership
 ```
