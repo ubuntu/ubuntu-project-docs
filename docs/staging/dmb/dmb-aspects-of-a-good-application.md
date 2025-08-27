@@ -54,7 +54,7 @@ Topics must include endorsements from current Ubuntu members, developers, and up
 When applying for a specific level, having endorsements from current members with the same rights is required.
 
 For Canonical employees, it is recommended to have endorsements of members outside of Canonical.
-Depending on the upload rights being pursued, and breadth of delegated power, an applicant should have endorsements from outside their current Canonical organization.
+Depending on the upload rights being pursued, and breadth of delegated power, an applicant should have endorsements from outside their current Company organization.
 
 Including endorsements from sponsors is the best way to show evidence.
 If an application lacks endorsements from major package sponsors, it will negatively impact an application if it causes the suspicion that those that have seen a lot of your work would not support your application.
