@@ -51,7 +51,7 @@ Examples:
 Applicants must follow the {ref}`DMB application process <dmb-application>` to collect their materials on an application page.
 The application must contain evidence of appropriate work for the level of upload rights, if you can also provide evidence of the learning topic along the way even better.
 Topics must include endorsements from current Ubuntu members, developers, and uploaders.
-When applying for a specific level, having endorsements from current members with the same rights is required.
+When applying for a specific level, having endorsements from current members with the same or wider rights is required.
 
 For Canonical employees, it is recommended to have endorsements of members outside of Canonical.
 Depending on the upload rights being pursued, and breadth of delegated power, an applicant should have endorsements from outside their current Company organization.
