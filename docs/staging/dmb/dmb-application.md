@@ -89,9 +89,12 @@ as visible under `https://launchpad.net/~<LPUSERNAME>/+codesofconduct`.
 The {ref}`Developer Membership Board <dmb>` will have prepared for the meeting
 (reviewed the application details, checked a few examples of your work, talked
 to sponsors, etc.) and ask questions to make sure the applicant qualifies for
-the team. During the meeting the DMB members will cast their votes and if quorum
-is reached (4 of 7 currently), will add the applicant to the team or ask them to
-re-apply in due time.
+the team.
+During the meeting the DMB members will cast their votes.
+If quorum is reached (4 of 7 currently), will add the applicant to the
+requested team.
+If no approving quorum was reached the DMB members might, if possible, suggest
+what to study or work on, and ask the applicant to then re-apply in due time.
 
 For part of the world (e.g APAC) where the DMB meeting times can be challenging
 to attend due to the timezone gap, note that the DMB usually tries to be
