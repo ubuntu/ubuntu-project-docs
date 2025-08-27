@@ -16,6 +16,8 @@ This often requires a thorough understanding of the policies, technologies, and 
 Therefore, while contributing to the Ubuntu project, your focus should be on cultivating understanding rather than being able to provide answers to a predetermined set of questions.
 Consider the following not as "questions you must be able to answer," but rather as "topics to comprehend, accompanied by a few illustrative questions that have arisen in the past."
 
+\*1: "expected level" is a non linear, non unit description of how deep a particular topic should be covered. Abbreviated as B \= Basic, I \= Intermediate, A \= Advanced. If an E is present in the column, this will be mostly demonstrated by Evidence over being to answer questions.
+
 | Topic | Description => Expected level\*¹ | |  |  |  |  |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
 |  |  | PPU | pkg-set | SRU-dev | MOTU | core-dev |
@@ -50,5 +52,3 @@ Consider the following not as "questions you must be able to answer," but rather
 | **Main Inclusion Review (MIR) process** | Understand the [MIR process](https://canonical-ubuntu-project.readthedocs-hosted.com/MIR/main-inclusion-review/#main-inclusion-review), its purpose. When invoking that process is needed and how to do so. | B | I |  | B | A |
 | Understand main vs universe | Why does the [split exist](https://documentation.ubuntu.com/server/tutorial/managing-software/#where-do-packages-come-from%20), what does it mean to the Developer and what to the user | B | I | B | B | A |
 | MIR submission | Having submitted, and finalized MIR cases |  | BE |  |  | IE |
-
-\*1: expected level is a non linear, non unit description of how deep a particular topic should be covered. Abbreviated as B \= Basic, I \= Intermediate, A \= Advanced. If an E is present in the column, this will be mostly demonstrated by Evidence over being to answer questions.
