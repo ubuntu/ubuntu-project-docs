@@ -1,5 +1,5 @@
 (dmb-aspects-of-a-good-application)=
-# DMB Aspects of a good application
+# Aspects of a good DMB application
 
 ```{note}
 [Source page](https://wiki.ubuntu.com/RobieBasak/DMB/Expectations)
