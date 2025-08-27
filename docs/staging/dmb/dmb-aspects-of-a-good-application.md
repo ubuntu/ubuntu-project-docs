@@ -57,13 +57,16 @@ For Canonical employees, it is recommended to have endorsements of members outsi
 Depending on the upload rights being pursued, and breadth of delegated power, an applicant should have endorsements from outside their current Canonical organization.
 
 Including endorsements from sponsors is the best way to show evidence.
-If an application lacks endorsements from your package sponsors, it will negatively impact the application.
+If an application lacks endorsements from major package sponsors, it will negatively impact an application if it causes the suspicion that those that have seen a lot of your work would not support your application.
+That does not mean, if you have many sponsors, that all of them have to endorse you, but help us to understand why some has been left out.
 
 Example:
 
 * Evelyn is a member of the Canonical Foundations Toolchain Squad. They have worked extensively on Zig, not just on the toolchain but on many leaf packages. Over time, Evelyn has built up a portfolio of helping across Ubuntu, not just with Zig but in other areas. First, they applied for a speciality packageset `zig-packages`, and got endorsements from current packageset uploaders and a Core Dev, all within Canonical Foundations (but including a Core Dev outside their immediate team). When applying for Core Dev, they went through their uploads and asked sponsors from Debcrafters and Server to provide endorsements as well. This shows a work across immediate Canonical Teams.
 
 * Frederick is a member of Canonical Support Engineering. Their work has been focused on SRUs of fixes to stable releases. They attained SRU-dev and are working toward Core Dev. In their first application, they only included endorsements from current Support Engineering members. This application will raise concerns from the DMB over Frederick’s communication and culture fit.
+
+* Günther is working in the project for quite some time. They have 2 contributions to 3 packages each - and the people sponsoring those have endorsed Günther. But those have been long ago and there are two other sponsors that have done the majority of the work of Günther in recent years. Without an explanation that will make people question if that recent work was not good quality.
 
 ## Knowledge of Ubuntu Development
 
