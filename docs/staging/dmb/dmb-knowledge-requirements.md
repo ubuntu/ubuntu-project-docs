@@ -1,19 +1,19 @@
 (dmb-application-knowledge-requirements)=
-# DMB Application Knowledge Requirements
+# DMB application knowledge requirements
 
 ```{note}
 Extension of [Source page](https://wiki.ubuntu.com/RobieBasak/DMB/Expectations)
 based on DMB discussions, and the ubuntu uploaders program feedback
 ```
 
-There are several {ref}`DMB aspects of a good application <dmb-aspects-of-a-good-application>`, but questions often center around what knowledge and evidence an applicant should provide.
+There are several {ref}`dmb-aspects-of-a-good-application`, but questions are often asked around what knowledge and evidence an applicant should provide.
 
 Below are example topics along related questions that have been posed previously, along with a list of topics and the requisite knowledge
-Specific information depending on application tier is displayed in the appropriate columns in the table
-We do not expect rote memorization of answers
-The objective is to ascertain your comprehension of the underlying reasons for those answers
-This often necessitates a thorough understanding of the policies, technologies, and processes pertinent to a given topic
-Therefore, while contributing to the Ubuntu project, the focus should be on cultivating understanding rather than merely being able to provide answers to a predetermined set of questions
+We do not expect rote memorization of answers. 
+The objective is to determine your understanding of the underlying reasons for those answers.
+This often requires a thorough understanding of the policies, technologies, and processes pertinent to a given topic.
+
+Therefore, while contributing to the Ubuntu project, your focus should be on cultivating understanding rather than being able to provide answers to a predetermined set of questions.
 Consider the following not as "questions you must be able to answer," but rather as "topics to comprehend, accompanied by a few illustrative questions that have arisen in the past."
 
 | Topic | Description => Expected level\*¹ | |  |  |  |  |
