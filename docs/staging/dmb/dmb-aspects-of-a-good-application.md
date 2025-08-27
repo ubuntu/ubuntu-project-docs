@@ -68,6 +68,8 @@ Example:
 
 * Günther is working in the project for quite some time. They have 2 contributions to 3 packages each - and the people sponsoring those have endorsed Günther. But those have been long ago and there are two other sponsors that have done the majority of the work of Günther in recent years. Without an explanation that will make people question if that recent work was not good quality.
 
+* John wants to apply for the rather new debcrafter package set, but it only has one member so far. This is not a dead-lock due to requiring endorsements from the same level - endorsements by people sponsoring for him into other similar package sets or core developers would also back his case
+
 ## Knowledge of Ubuntu Development
 
 There are many things to know about, from a thorough understanding of (and experience in) Debian packaging, to Ubuntu-specific aspects such as Ubuntu package merges, SRUs, the release cycle, milestones and exceptions, autopkgtest and proposed migration, handling transitions, the operation of the seeds and MIRs.
