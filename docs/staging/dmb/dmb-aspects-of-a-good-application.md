@@ -38,7 +38,9 @@ It is expected you should be in regular contact with developers, both in relatio
 For a Core Dev, this means across the entire Ubuntu ecosystem. For MOTU, it is more focused on `universe` or Flavors, and the scope narrows down through the levels.
 You should communicate in the appropriate public channels, such as Matrix, Discourse, or mailing lists.
 
-If you have not been active in public communication, it will affect your application negatively.
+You do not have to fill the channels with non useful messages.
+But if you have not/rarely been active in public communication, depending on your other provided evidence that might cause doubts
+if you are able to coordinate well and know when you should reach out - if that is the case it will affect your application negatively.
 
 Examples:
 
