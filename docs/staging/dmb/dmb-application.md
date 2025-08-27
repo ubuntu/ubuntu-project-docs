@@ -91,6 +91,11 @@ The {ref}`Developer Membership Board <dmb>` will have prepared for the meeting
 to sponsors, etc.) and ask questions to make sure the applicant qualifies for
 the team.
 During the meeting the DMB members will cast their votes.
+There is no mandatory abstience of voters due to knowing the applicant - after
+all we are looking for just that: evidence and endorsements from people knowing
+the applicants work and behavior. If a DMB member feels biased by having a
+personal relationship they can themselfe decide to abstain to avoid a conflict
+of interest.
 If quorum is reached (4 of 7 currently), will add the applicant to the
 requested team.
 If no approving quorum was reached the DMB members might, if possible, suggest
