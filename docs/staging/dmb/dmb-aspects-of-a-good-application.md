@@ -58,7 +58,7 @@ Depending on the upload rights being pursued, and breadth of delegated power, an
 
 Including endorsements from sponsors is the best way to show evidence.
 If an application lacks endorsements from major package sponsors, it will negatively impact an application if it causes the suspicion that those that have seen a lot of your work would not support your application.
-That does not mean, if you have many sponsors, that all of them have to endorse you, but help us to understand why some has been left out.
+That does not mean, if you have many sponsors, that all of them have to endorse you, but help us to understand why some have been left out.
 
 Example:
 
@@ -69,6 +69,21 @@ Example:
 * Günther is working in the project for quite some time. They have 2 contributions to 3 packages each - and the people sponsoring those have endorsed Günther. But those have been long ago and there are two other sponsors that have done the majority of the work of Günther in recent years. Without an explanation that will make people question if that recent work was not good quality.
 
 * John wants to apply for the rather new debcrafter package set, but it only has one member so far. This is not a dead-lock due to requiring endorsements from the same level - endorsements by people sponsoring for him into other similar package sets or core developers would also back his case
+
+### Partial endoresement
+
+In the same context it is important to understand that people can partially endorse you.
+To be clear, please do not provide us with a puzzle of 27 fragmented partial endoresements - but a few can be helpful to fill some gaps.
+If you have contacts that worked with you in depth, but only on particular aspects you should still consider asking them for endorsement.
+
+Yet again it is important to avoid misunderstandings.
+They should clearly state if a) they have doubts in the non-mentioned areas or b) just do not know all aspects, but are happy to endorse you for those they worked with you.
+
+Example:
+
+* Paulina applies, has two full endoresments but also has worked with many more project members. 3 of them provide partial endorsements, one speaking about the kind interaction on bugs and the great chat behavior - another about great things they have sponsored - and another about a very complex transition you helped them. All of them mention that they do not cover the other aspects of a full endorsement because they just didn't have this kind of exposure to you yet.
+
+* Ewan applies, has no full endorsement at all but three partial ones. The partial ones mention a somewhat positive aspect in regard to their work with you, but leave an ominous void about all else and thereby too much room for (negative) speculation.
 
 ## Knowledge of Ubuntu Development
 
