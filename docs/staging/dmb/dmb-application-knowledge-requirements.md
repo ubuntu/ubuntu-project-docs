@@ -26,7 +26,6 @@ Consider the following not as "questions you must be able to answer," but rather
 | To fork or not to fork | When adding a delta is appropriate, the maintenance burden of doing so, and how we track and manage that burden | I | A | B | A | A |
 | The possibility tree of versions and modifications | Understanding various exceptions to the basic derivative model, such as Ubuntu packaging a new upstream, syncing from experimental, SRUs and security updates as branches of the derivative graph | I | A | B | A | A |
 | Ubuntu and Launchpad packaging data model | Understanding the data model of packages, particularly within Launchpad: source and binary package versions being distinct, burning versions, the various pockets and pocket copies, source uploads only, one set of successful builds against each source upload only | I | I | B | A | A |
-|  |  |  |  |  |  |  |
 | Differences between Debian and Ubuntu | Deviations from Debian such as no binNMUs (or any binary uploads), no individual package "ownership", team uploads only, management of transitions | B | B | B | I | A |
 | Ubuntu Code of Conduct and decision making | How decisions are made in Ubuntu: CC, TB, Ubuntu Developers at large, and the key privileged teams (SRU, Release, AA). Operating by consensus and how to handle disagreements. | B | B | B | I | A |
 | Canonical's interest in Ubuntu | Separation of Canonical and Ubuntu and how to deal with decision making when they are conflicted | B | B | A | I | A |
