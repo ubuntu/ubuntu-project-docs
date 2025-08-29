@@ -98,6 +98,7 @@ be upload when it meets the requirements of the "Definition of Ready to Request 
 
 
 .. _definition_of_ready_to_request_the_upload_requirements:
+
 Definition of Ready to Request the Upload (Requirements)
 ........................................................
 
@@ -122,6 +123,7 @@ two interims releases are alive, targeting only the newest one- and the developm
 
 
 .. _qa_process:
+
 QA Process
 ..........
 
