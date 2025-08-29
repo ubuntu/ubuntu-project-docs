@@ -53,9 +53,9 @@ The application must contain evidence of appropriate work for the level of uploa
 Topics must include endorsements from current Ubuntu members, developers, and uploaders.
 When applying for a specific level, having endorsements from current members with the same or wider rights is required.
 
-It is recommended to have endorsements of members from outside your team/Organization, they provide implicit evidence of you being well connected in the community vs working in silo.
-Depending on the upload rights being pursued, and breadth of delegated power, this is more strict and those really should have endorsements from outside their current team and if possible company.
-To allow that to accrue while working towards upload rights, please consider to sometimes ask non-team or non-company members to review and sponsor your work.
+It is recommended to have endorsements of members from outside your team/Organization. They provide implicit evidence of you being well connected in the community, rather than working in a silo.
+Depending on the upload rights being pursued, and breadth of delegated power, this is more strict and those really should have endorsements from outside their current team and, if possible, their company.
+To allow that to accrue while working towards upload rights, consider sometimes asking non-team or non-company members to review and sponsor your work.
 Also partial endorsements (see below) can help to more quickly get at least some external endorsement.
 
 Including endorsements from sponsors is the best way to show evidence.
@@ -70,12 +70,12 @@ Example:
 
 * Günther is working in the project for quite some time. They have 2 contributions to 3 packages each - and the people sponsoring those have endorsed Günther. But those have been long ago and there are two other sponsors that have done the majority of the work of Günther in recent years. Without an explanation that will make people question if that recent work was not good quality.
 
-* John wants to apply for the rather new debcrafter package set, but it only has one member so far. This is not a dead-lock due to requiring endorsements from the same level - endorsements by people sponsoring for him into other similar package sets or core developers would also back his case
+* John wants to apply for the rather new debcrafter package set, but it only has one member so far. The requirement to have endorsements from the same level is not a blocker here -- endorsements by people sponsoring for him in other/similar package sets, or core developers, could also back his case.
 
-### Partial endoresement
+### Partial endorsement
 
 In the same context it is important to understand that people can partially endorse you.
-To be clear, please do not provide us with a puzzle of 27 fragmented partial endoresements - but a few can be helpful to fill some gaps.
+To be clear, please do not provide us with a puzzle of 27 fragmented partial endorsements -- but a few can be helpful to fill some gaps.
 If you have contacts that worked with you in depth, but only on particular aspects you should still consider asking them for endorsement.
 
 Yet again it is important to avoid misunderstandings.
@@ -83,15 +83,15 @@ They should clearly state if a) they have doubts in the non-mentioned areas or b
 
 Example:
 
-* Paulina applies, has two full endoresments but also has worked with many more project members. 3 of them provide partial endorsements, one speaking about the kind interaction on bugs and the great chat behavior - another about great things they have sponsored - and another about a very complex transition you helped them. All of them mention that they do not cover the other aspects of a full endorsement because they just didn't have this kind of exposure to you yet.
+* Paulina applies, has two full endorsements but also has worked with many more project members. Three of them provide partial endorsements: one speaking about the kind interaction on bugs and the great chat behavior; another about great things they have sponsored; and another about a very complex transition they helped with. All of them mention that they do not cover the other aspects of a full endorsement because they just didn't have this kind of exposure to Paulina yet.
 
-* Ewan applies, has no full endorsement at all but three partial ones. The partial ones mention a somewhat positive aspect in regard to their work with you, but leave an ominous void about all else and thereby too much room for (negative) speculation.
+* Ewan applies, has no full endorsement at all but three partial ones. The partial ones mention a somewhat positive aspect in regard to their work with him, but leave an ominous void about all else -- and thereby too much room for (negative) speculation.
 
 ## Knowledge of Ubuntu Development
 
 There are many things to know about, from a thorough understanding of (and experience in) Debian packaging, to Ubuntu-specific aspects such as Ubuntu package merges, SRUs, the release cycle, milestones and exceptions, autopkgtest and proposed migration, handling transitions, the operation of the seeds and MIRs.
 
-We expect demonstrated understanding and evidence of such. An extended list is outlined at {ref}`DMB Application Knowledge Requirements <dmb-application-knowledge-requirements>`
+We expect demonstrated understanding and evidence of such. An extended list is outlined at {ref}`DMB Application Knowledge Requirements <dmb-application-knowledge-requirements>`.
 
 ## Use the different stages to your advantage
 
@@ -103,7 +103,7 @@ Socially, we prefer to approve people -- and you prefer to be approved -- so we 
 Please consider applying in steps. Start with something easier, matching your experience and contributions.
 Use these permissions to further collaborate and extend your track record, then apply for the next stages sometime later.
 
-# Canonical employees
+## Canonical employees
 
 Working at Canonical does not create a special circumstance where an applicant is excused from Ubuntu-specific knowledge or evidence.
 
