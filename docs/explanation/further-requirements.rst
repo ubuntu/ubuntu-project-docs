@@ -63,6 +63,16 @@ hardware enablement or new features.
    may then accept your upload at their discretion and on a case-by-case
    basis. If this is not done, then uploaders should expect an SRU
    review round trip while your intentions are clarified.
+3. **When the package no longer exists in subsequent releases:** sometimes
+   a package only exists in one particular Ubuntu release, and was removed
+   from later releases. This decision usually happens during the
+   development release: for some reason, it was decided that Ubuntu shouldn't
+   carry that package anymore. As time goes by, we will get into the
+   situation where the package exists in a stable release, but not in any
+   other stable release. For example, it could exist in 22.04, but not in
+   24.04 or any other release after that, including interim ones. In such
+   a case, it's OK to SRU fixes to the package only in the releases where
+   it exists.
 
 See also: :ref:`Reference → Requirements → General requirements for all
 SRUs <reference-general-requirements>`
