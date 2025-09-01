@@ -37,7 +37,7 @@ Ubuntu releases, so they continue to function properly in their environment.
 azure-vm-utils was synced in Ubuntu universe during the 25.04 release cycle.
 
 
-.. _integrations_and_interactions:
+.. _azure-vm-utils_integrations_and_interactions:
 
 Integrations and Interactions
 .............................
@@ -50,7 +50,7 @@ Currently, the udev rules provided with azure-vm-utils identify:
   on Azure virtual machines (SR-IOV interfaces), which represent different technologies making this
   more circumscribed to the Azure Cloud itself.
 
-.. _mitigating_risk:
+.. _azure-vm-utils_mitigating_risk:
 
 Risks
 ......
@@ -202,7 +202,7 @@ applicable):
 The CPC team will be responsible for attaching a summary of testing to the bug.
 CPC team members will not mark ‘verification-done’ until this has happened.
 
-.. _upload_process:
+.. _azure-vm-utils_upload_process:
 
 Upload Process
 --------------
