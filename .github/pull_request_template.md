@@ -31,7 +31,6 @@ If you have not already signed the CLA, [please do so here](https://ubuntu.com/l
 ### Checklist
 
 - [ ] I have read and followed the [Ubuntu Project contributing guide](https://canonical-ubuntu-project.readthedocs-hosted.com/contributors/contribute-docs/)
-- [ ] I have signed the [Contributor License Agreement (CLA)](https://ubuntu.com/legal/contributors)
 - [ ] My pull request is linked to an existing issue (if applicable)
 - [ ] I have tested my changes, and they work as expected
 
