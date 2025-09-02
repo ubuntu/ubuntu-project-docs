@@ -25,7 +25,13 @@ every supported Ubuntu release.
 Landscape Client is released upstream according to the Landscape Client
 Release Process. For the Ubuntu Archive, this means there will be an
 upstream release prior to the feature freeze date of each Ubuntu
-release. Landscape Client versions follow "Calendar Versioning".
+release.
+
+Landscape Client versions follow "Calendar Versioning". Each version
+number starts with the release year, a full-stop character, then the
+release month. For example, version ``25.08.2`` was released in August
+of 2025. Any numbers after the second full-stop character represent
+backwards-compatible bug-fixes or security fixes.
 
 Requirements
 ------------
@@ -34,8 +40,12 @@ Requirements
    subsequent releases (whether interim or LTS) and the development
    release.
 
--  All releases shall share the same resource tree. This is to make the
+-  All releases shall share the same source tree. This is to make the
    process simpler, and so the process documented here assumes this.
+
+-  Any changes to the source tree that are Ubuntu-specific must be
+   accounted for as debian patches in ``debian/patches``. These may
+   differ for different Ubuntu releases as necessary.
 
 Upstream QA
 -----------
@@ -43,7 +53,9 @@ Upstream QA
 Landscape Client contains a set of tests that are executed for each
 commit via `Github Actions
 <https://github.com/canonical/landscape-client/blob/main/.github/workflows/ci.yml>`__.
-These tests are also run at debian build time and by autopkgtest.
+These tests are also run at package build time and by autopkgtest, and
+the package build will fail if they do not pass. The results of recent
+upstream test runs can be viewed in the `Github Actions history <https://github.com/canonical/landscape-client/actions/workflows/ci.yml>`__.
 
 Updates to the tip of `landscape-client:main
 <https://github.com/canonical/landscape-client/tree/main>`__ go through
@@ -86,30 +98,18 @@ review:
 Review/Sponsoring
 -----------------
 
-To minimize the effort required to handel the multiple uploads to each
-stable Ubuntu release, we expect only review on the merge proposal for
-the development release. The other uploads will be identical to this
-upload, except for the straight backport version number, changelog
-changes, and possible minor changes required to support different Python
-versions.
+To minimize the effort required to handle the multiple uploads to each
+stable Ubuntu release, All concurrent uploads will be identical to the
+upload for the Ubuntu development release, except for the straight
+backport version number, changelog changes, and possible minor changes
+required to support different Python versions or Ubuntu release
+differences. These minor changes will be accounted for in debian patches.
 
 During review, additional tests may be added to the Test Plan for manual
 testing.
 
 Verification
 ------------
-
-Successful results of integration testing of the -proposed package must
-be provided for at least the following platforms:
-
--  LXD VM and container of all LTS and interim releases targeted by the
-   SRU
-
--  LTS to LTS upgrade tests of Landscape-registered affected LTS
-   releases targeted by the SRU
-
--  LTS to LTS upgrade tests of Landscape-unregistered affected LTS
-   releases targeted by the SRU
 
 Integration testing includes:
 
@@ -121,7 +121,7 @@ Integration testing includes:
    -  Ensure that an error in landscape-sysinfo does not break motd
 
 -  Testing integration with currently-supported versions of Landscape
-   Server
+   Server Self-Hosted and Landscape SaaS (landscape.canonical.com).
 
    -  Ensure that Landscape Client can register with Landscape Server
 
@@ -138,6 +138,24 @@ Integration testing includes:
 
    -  Ensure that, post-registration with Landscape Server, Ubuntu Pro
       entitlement status is reported and appears correct
+
+Successful results of integration testing of the -proposed package must
+be provided for at least the following platforms:
+
+-  LXD VM and container of all LTS and interim releases targeted by the
+   SRU
+
+-  LTS to LTS upgrade tests of Landscape-registered affected LTS
+   releases targeted by the SRU
+
+-  LTS to LTS upgrade tests of Landscape-unregistered affected LTS
+   releases targeted by the SRU
+
+-  LTS to interim release upgrade tests of Landscape-registered affected
+   releases targeted by the SRU
+
+-  LTS to interim release upgrade tests of Landscape-unregistered
+   affected releases targeted by the SRU
 
 If the Test Plan calls for any additional manual testing, such testing
 and its results must be documented, usually in the associated bugs
