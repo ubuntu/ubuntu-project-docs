@@ -18,13 +18,6 @@ Example:
 
 - Fixes: #1234
 
----
-
-### Contributor License Agreement (CLA)
-
-By contributing to this project, you agree to the terms of
-the [Canonical Contributor License Agreement (CLA)](https://ubuntu.com/legal/contributors).  
-If you have not already signed the CLA, [please do so here](https://ubuntu.com/legal/contributors).
 
 ---
 
