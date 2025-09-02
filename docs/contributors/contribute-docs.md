@@ -47,6 +47,11 @@ what you want to work on, create a new issue first **before** working on your
 pull request.
 
 
+### Contributor License Agreement (CLA)
+
+By contributing to this project, you agree to the terms of the _Canonical Contributor License Agreement (CLA)_. To sign the CLA, visit [Canonical contributor licence agreement](https://ubuntu.com/legal/contributors).
+
+
 ### Directory structure
 
 All the documentation files are located in the `docs/` directory. The `docs/`
