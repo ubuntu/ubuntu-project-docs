@@ -12,25 +12,26 @@ below the table for more information on the specific teams.
 <table border="1" style="border-collapse: collapse; text-align: center; width: 100%;">
   <tr>
     <td><strong>Contributors</strong></td>
-    <td style="text-align: left;" colspan="3"><strong>&nbsp;Anyone</strong><br>&nbsp;Report bugs, test fixes, suggest changes</td>
+    <td style="text-align: left;" colspan="4"><strong>&nbsp;Anyone</strong><br>&nbsp;Report bugs, test fixes, suggest changes</td>
   </tr>
   <tr>
     <!-- Row 2: start of merged col 1 -->
     <td rowspan="3" style="vertical-align: middle;"><strong>Uploaders</strong></td>
-    <td style="text-align: left;" colspan="3"><strong>&nbsp;Core Dev</strong><br>&nbsp;Can upload to all packages, can make seed changes</td>
+    <td style="text-align: left;" colspan="4"><strong>&nbsp;Per-package / Package Set</strong><br>&nbsp;Can upload to single package(s) or sets of packages</td>
   </tr>
   <tr>
-    <td style="text-align: left;" colspan="3"><strong>&nbsp;MOTU</strong><br>&nbsp;Can upload to packages in universe and multiverse</td>
+    <td style="text-align: left;" colspan="4"><strong>&nbsp;MOTU</strong><br>&nbsp;Can upload to packages in universe and multiverse</td>
   </tr>
   <tr>
-    <td style="text-align: left;" colspan="3"><strong>&nbsp;Per-package / Package Set</strong><br>&nbsp;Can upload to single package(s) or sets of packages</td>
+    <td style="text-align: left;" colspan="4"><strong>&nbsp;Core Dev</strong><br>&nbsp;Can upload to all packages, can make seed changes</td>
   </tr>
   <tr>
     <!-- Row 1 -->
-    <td><strong>Archive<br>handling</strong></td>
-    <td><strong>Archive Admin</strong><br>Removals, license checks,<br>fix component mismatches, ...</td>
+    <td><strong>Specialist teams</strong></td>
+    <td><strong>Archive Admin</strong><br>NEW queue, removals,<br>license checks, fix<br>component mismatches, ...</td>
     <td><strong>MIR member</strong><br>Gates entry to<br>packages in main<br></td>
     <td><strong>SRU member</strong><br>Gates updates to stable<br>releases</td>
+    <td><strong>Release team</strong><br>Gate to the release, FFe, ... 
   </tr>
 </table>
 ```
