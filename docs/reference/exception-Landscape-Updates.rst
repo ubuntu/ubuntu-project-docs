@@ -22,10 +22,8 @@ Canonical's `Landscape Team <https://launchpad.net/~landscape>`__
 maintains a single release version of Landscape Client, which supports
 every supported Ubuntu release.
 
-Landscape Client is released upstream according to the Landscape Client
-Release Process. For the Ubuntu Archive, this means there will be an
-upstream release prior to the feature freeze date of each Ubuntu
-release.
+Landscape Client is released upstream, then released to the Ubuntu
+Archive prior to the feature freeze date of each Ubuntu release.
 
 Landscape Client versions follow "Calendar Versioning". Each version
 number starts with the release year, a full-stop character, then the
@@ -59,15 +57,14 @@ upstream test runs can be viewed in the `Github Actions history <https://github.
 
 Updates to the tip of `landscape-client:main
 <https://github.com/canonical/landscape-client/tree/main>`__ go through
-the following process:
+the following checks prior to being merged by a member of the Canonical
+Landscape Team:
 
--  Reviewed and approved by a member of the development team (Canonical
-   Landscape Team only)
+-  Review and approval by a member of the Canonical Landscape Team who
+   is not the author of the change
 
--  Succesful run of unit tests, style and linting tests
-
--  Branch manually set to the merged state by the approving Canonical
-   Landscape team member with commit access
+-  A successful run of unit tests, style and linting tests, and unit
+   test code coverage check
 
 Upload Process
 --------------
@@ -75,10 +72,12 @@ Upload Process
 Documentation
 -------------
 
-debian/changelog will contain a reference to the SRU process bug, as
-well as all pre-existing Launchpad and Github bugs that are fixed;
-however, not all changes will be represented by an individual bug. Major
-changes and new features must be called out.
+debian/changelog must contain a reference to a Launchpad bug specific to
+the SRU. It may contain references to other Launchpad bugs on a
+case-by-case basis in order to ensure that those bugs manual test plans
+are also considered during testing. Not every change is required to
+reference a Launchpad bug. In addition, major changes and new features
+must be called out.
 
 Any packaging changes need to be stated, with appropriate test cases
 provided.
@@ -111,7 +110,7 @@ testing.
 Verification
 ------------
 
-Integration testing includes:
+The following integration tests will be performed:
 
 -  Testing integration with update-motd to ensure that the message of
    the day does not get adversely affected by landscape-common
@@ -139,23 +138,28 @@ Integration testing includes:
    -  Ensure that, post-registration with Landscape Server, Ubuntu Pro
       entitlement status is reported and appears correct
 
+-  Testing integration with Windows Subsystem for Linux (WSL)
+
+   -  Ensure that enabling Ubuntu Pro for WSL and configuring Landscape
+      succeeds in installing and configuring Landscape Client on new WSL
+      instances
+
 Successful results of integration testing of the -proposed package must
 be provided for at least the following platforms:
 
--  LXD VM and container of all LTS and interim releases targeted by the
+-  LXD containers of all LTS and interim releases targeted by the
    SRU
 
--  LTS to LTS upgrade tests of Landscape-registered affected LTS
-   releases targeted by the SRU
+-  The following upgrade tests for both Landscape-registered and
+   Landscape-unregistered affected releases targeted by the SRU:
 
--  LTS to LTS upgrade tests of Landscape-unregistered affected LTS
-   releases targeted by the SRU
+   -  LTS to LTS
 
--  LTS to interim release upgrade tests of Landscape-registered affected
-   releases targeted by the SRU
+   -  LTS to interim release
 
--  LTS to interim release upgrade tests of Landscape-unregistered
-   affected releases targeted by the SRU
+   -  interim release to interim release
+
+   -  interim release to LTS
 
 If the Test Plan calls for any additional manual testing, such testing
 and its results must be documented, usually in the associated bugs
