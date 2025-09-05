@@ -1,6 +1,6 @@
 ### Local Build and Bugfixing
 
-You're now ready to try to build your updated `rustc` using {manpage}`sbuild(1)`.
+You're now ready to try to build `rustc` using {manpage}`sbuild(1)`.
 
 First, make sure that all previous build artifacts have been cleaned from your upper-level directory:
 
