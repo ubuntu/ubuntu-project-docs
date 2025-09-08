@@ -1,9 +1,9 @@
-(sru-how-to)=
-# SRU tasks
+# Debugging
 
 ```{toctree}
 :maxdepth: 1
 :glob:
 
-SRU/*
+debug-apport-crash
 ```
+

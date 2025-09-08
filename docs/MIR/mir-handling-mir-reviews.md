@@ -12,5 +12,5 @@ any related discussions.
 ```{toctree}
 :maxdepth: 1
 
-MIR reviewer's template <../../MIR/mir-reviewers-template>
+MIR reviewer's template <mir-reviewers-template>
 ```

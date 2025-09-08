@@ -14,9 +14,9 @@ Release principles and infrastructure, publication cadence, and support consider
 :maxdepth: 1
 
 /release-team/ubuntu-releases
-concepts/upstream-and-downstream
-concepts/supported-architectures
-concepts/launchpad
+upstream-and-downstream
+supported-architectures
+launchpad
 ```
 
 ## Software and packaging
@@ -26,15 +26,15 @@ Detailed description of the workings of the Ubuntu package archive, as well as p
 ```{toctree}
 :maxdepth: 1
 
-concepts/package-archive
-concepts/package-format
-concepts/package-lifecycle
-concepts/version-strings
-concepts/patches
-concepts/phased-updates
-concepts/deb-3-patch-file-headers
-concepts/debian-policy
-concepts/debian-directory
+package-archive
+package-format
+package-lifecycle
+version-strings
+patches
+phased-updates
+deb-3-patch-file-headers
+debian-policy
+debian-directory
 ```
 
 ## System design
@@ -44,5 +44,5 @@ Reference about the directory structure of the distribution.
 ```{toctree}
 :maxdepth: 1
 
-concepts/filesystem-hierarchy-standard
+filesystem-hierarchy-standard
 ```

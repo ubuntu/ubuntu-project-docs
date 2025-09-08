@@ -5,11 +5,11 @@
 :maxdepth: 1
 :hidden:
 
-bug-triage/bug-types
-bug-triage/bug-status
-bug-triage/bug-importance
-bug-triage/bug-responses
-bug-triage/assign-bug-to-package
+bug-types
+bug-status
+bug-importance
+bug-responses
+assign-bug-to-package
 ```
 
 Ubuntu receives a huge number of bug reports every day. Triaging new bugs is a

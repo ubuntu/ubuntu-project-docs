@@ -10,7 +10,7 @@ how one becomes a member.
 ```{toctree}
 :maxdepth: 1
 
-index-councils
+councils/index
 ```
 
 
@@ -24,7 +24,7 @@ and any service level agreements/objectives (SLAs/SLOs).
 ```{toctree}
 :maxdepth: 1
 
-index-roles
+roles/index
 ```
 
 
@@ -35,7 +35,7 @@ Explanation of the various pathways, expectations, and how to apply for a role.
 ```{toctree}
 :maxdepth: 1
 
-index-joining
+joining/index
 ```
 
 ## Specialist teams
@@ -45,6 +45,5 @@ For specific, specialist teams on Launchpad.
 ```{toctree}
 :maxdepth: 1
 
-index-specialist-teams
+specialist-teams/index
 ```
-

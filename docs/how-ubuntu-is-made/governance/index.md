@@ -7,6 +7,6 @@ Information *for* contributors about the structure of Ubuntu's governing bodies
 :maxdepth: 1
 :glob:
 
-governance/ethos
-governance/peers
+ethos
+peers
 ```
