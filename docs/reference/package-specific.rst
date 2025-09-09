@@ -692,6 +692,10 @@ released, it should first be released to the updates pocket. Then, after
 phasing has completed, it must be copied to the -security pocket by either
 an archive admin, or a security team member.
 
+Note that this release process described above only applies to SRUs. Actual
+security updates to this package are not handled through the SRU process
+and remain unchanged.
+
 wireless-regdb
 ~~~~~~~~~~~~~~
 
