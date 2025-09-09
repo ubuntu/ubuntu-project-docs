@@ -39,7 +39,7 @@ they upgrade to a newer release.
 
 Exceptions:
 
-The following two exceptions apply to bugfixes, but do not apply to
+The following exceptions apply to bugfixes, but do not apply to
 hardware enablement or new features.
 
 1. **When there are two subsequent interim releases:** if there are two
