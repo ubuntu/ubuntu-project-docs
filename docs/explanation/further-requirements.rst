@@ -74,6 +74,10 @@ hardware enablement or new features.
    a case, it's OK to SRU fixes to the package only in the releases where
    it exists.
 
+   **NOTE**: for the purposes of this case, versioned source packages which
+   only differ in the version number part of the name are to be considered the
+   **SAME** package, and need to receive the same fix.
+
 See also: :ref:`Reference → Requirements → General requirements for all
 SRUs <reference-general-requirements>`
 
