@@ -81,6 +81,7 @@ upstreaming
 upstreams
 userbase
 Utopic
+vendored
 wishlist
 Xenial
 Xorg
