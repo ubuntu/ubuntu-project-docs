@@ -240,6 +240,14 @@ Bug Tracking System
     See also:
     * [Bug tracking system (Wikipedia)](https://en.wikipedia.org/wiki/Bug_tracking_system)
 
+Bundled Dependency
+Vendored Dependency
+    Bundled/vendored dependencies are dependencies which are included as
+    {term}`source code` rather than being linked in as compiled code later.
+    Within the context of {term}`open source software`, this usually means
+    that the {term}`source code` of the dependencies is included alongside
+    the program's source code itself.
+
 Canonical
     **Canonical Ltd.** is a UK-based private company that is devoted to the
     {term}`Free and Open Source Software` philosophy and has created several
