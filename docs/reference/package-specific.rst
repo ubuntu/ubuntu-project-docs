@@ -676,12 +676,21 @@ section should contain:
 linux-firmware
 ~~~~~~~~~~~~~~
 
-linux-firmware in stable releases is kept in sync with new driver
-features and lts-hwe kernel updates. linux-firmware follows the normal
-SRU process (with bugs filed and regression tests performed), however it
-must also be copied to the -security pocket once verified, due to the
-vast majority of kernel SRUs also being in the -security pocket, and the
-necessity of linux and linux-firmware not being mismatched.
+linux-firmware in stable releases is kept in sync with new driver features and
+lts-hwe kernel updates. linux-firmware follows the normal SRU process (with
+bugs filed and regression tests performed), and when ready to release, it
+should be copied to the -security pocket. This is needed because the vast
+majority of kernel SRUs are also copied to the -security pocket, and care must
+be taken to not leave the kernel with a mismatched firmware package.
+
+However, it is a very large package (over 500MiB in size), and making it
+instantly available in the -security pocket to all Ubuntu users in the world
+causes a lot of strain on the archive network and servers.
+
+Therefore, once the verification is done and linux-firmware is ready to be
+released, it should first be released to the updates pocket. Then, after
+phasing has completed, it must be copied to the -security pocket by either
+an archive admin, or a security team member.
 
 wireless-regdb
 ~~~~~~~~~~~~~~
