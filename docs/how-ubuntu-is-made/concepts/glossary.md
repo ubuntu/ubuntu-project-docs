@@ -242,7 +242,7 @@ Bug Tracking System
 
 Bundled Dependency
 Vendored Dependency
-    Bundled/vendored dependencies are dependencies which are included as
+    Bundled/vendored dependencies are dependencies that are included as
     {term}`source code` rather than being linked in as compiled code later.
     Within the context of {term}`open source software`, this usually means
     that the {term}`source code` of the dependencies is included alongside
