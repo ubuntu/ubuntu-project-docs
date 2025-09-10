@@ -10,7 +10,7 @@ and maintainers alike.
 ```{toctree}
 :maxdepth: 1
 
-index-governance
+governance/index
 ```
 
 ## Concepts
@@ -23,7 +23,7 @@ the processes.
 ```{toctree}
 :maxdepth: 1
 
-index-concepts
+concepts/index
 ```
 
 ## Process overviews
@@ -35,7 +35,7 @@ either for contributors or maintainers, depending on the process.
 ```{toctree}
 :maxdepth: 1
 
-index-processes
+processes/index
 ```
 
 

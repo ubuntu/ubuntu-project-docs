@@ -28,11 +28,11 @@ Getting new versions of packages from Debian, dealing with build dependencies, a
 ```{toctree}
 :maxdepth: 1
 
-processes/merges-and-syncs
-processes/sync-process
-processes/transitions
-processes/backports
-processes/automatic-package-testing-autopkgtest
+merges-and-syncs
+sync-process
+transitions
+backports
+automatic-package-testing-autopkgtest
 ```
 
 
@@ -43,7 +43,7 @@ The process of moving (uploaded or merged) packages from the `-proposed` {term}`
 ```{toctree}
 :maxdepth: 1
 
-processes/proposed-migration/index
+proposed-migration/index
 ```
 
 Automatic migration may be blocked for many different reasons. The following article series explains the various migration failures:
@@ -61,7 +61,7 @@ Allowing developers without Archive upload rights to submit their patches or new
 ```{toctree}
 :maxdepth: 1
 
-processes/sponsorship
+sponsorship
 ```
 
 
@@ -72,6 +72,6 @@ Special review processes and quality safeguards for adding updates to published 
 ```{toctree}
 :maxdepth: 1
 
-processes/stable-release-updates
+stable-release-updates
 /MIR/main-inclusion-review
 ```

@@ -14,11 +14,11 @@ versions of Ubuntu!
 ```{toctree}
 :maxdepth: 1
 
-qa-and-testing/report-a-bug
-qa-and-testing/application-testing
-qa-and-testing/iso-testing
-qa-and-testing/hardware-testing
-qa-and-testing/upgrade-testing
-qa-and-testing/pre-release-testing
+report-a-bug
+application-testing
+iso-testing
+hardware-testing
+upgrade-testing
+pre-release-testing
 ```
 

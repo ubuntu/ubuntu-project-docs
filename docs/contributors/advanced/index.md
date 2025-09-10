@@ -12,8 +12,8 @@ Dev, etc.
 ```{toctree}
 :maxdepth: 1
 
-advanced/check-publication-history
-advanced/check-reverse-dependencies
+check-publication-history
+check-reverse-dependencies
 ```
 
 
@@ -22,8 +22,8 @@ advanced/check-reverse-dependencies
 ```{toctree}
 :titlesonly:
 
-Review a merge proposal <advanced/review-a-merge-proposal>
-Merge a package <advanced/merge-a-package>
+Review a merge proposal <review-a-merge-proposal>
+Merge a package <merge-a-package>
 ```
 
 
@@ -34,7 +34,7 @@ Guidance on investigating and resolving issues that block automatic migration fr
 ```{toctree}
 :titlesonly:
 
-Resolve a migration issue <advanced/resolve-a-migration-issue>
+Resolve a migration issue <resolve-a-migration-issue>
 ```
 
 See the {ref}`proposed-migration` series of articles for an explanation of the process, as well as a description of common blocking issues.
@@ -50,7 +50,7 @@ See the {ref}`proposed-migration` series of articles for an explanation of the p
 ```{toctree}
 :maxdepth: 1
 
-Sponsor an upload <advanced/sponsor-an-upload>
+Sponsor an upload <sponsor-an-upload>
 ```
 
 
@@ -64,8 +64,8 @@ Ubuntu.
 :maxdepth: 1
 :hidden:
 
-advanced/plus-one-maintenance
-advanced/plus-one-report-template
+plus-one-maintenance
+plus-one-report-template
 ```
 
 * {ref}`plus-one-report-template`
@@ -76,7 +76,7 @@ advanced/plus-one-report-template
 ```{toctree}
 :maxdepth: 1
 
-Request a package removal <advanced/aa-request-package-removal>
+Request a package removal <aa-request-package-removal>
 ```
 
 
@@ -90,7 +90,7 @@ in `main`.
 ```{toctree}
 :maxdepth: 1
 
-MIR bug request template <../MIR/mir-reporters-template>
-Use MIR templates <../MIR/mir-how-to-use-templates>
+MIR bug request template </MIR/mir-reporters-template>
+Use MIR templates </MIR/mir-how-to-use-templates>
 ```
 

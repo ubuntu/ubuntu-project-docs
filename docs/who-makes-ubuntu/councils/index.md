@@ -7,5 +7,5 @@ Information *about* and *for* the Ubuntu Councils and Boards
 :maxdepth: 1
 :glob:
 
-councils/*
+*
 ```

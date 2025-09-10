@@ -9,8 +9,8 @@ developing Ubuntu, how to contact them, and how to join.
 ```{toctree}
 :maxdepth: 1
 
-specialist-teams/bug-squad
-specialist-teams/bug-control-team
+bug-squad
+bug-control-team
 ```
 
 

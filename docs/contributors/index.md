@@ -10,7 +10,7 @@ Ubuntu.
 ```{toctree}
 :maxdepth: 1
 
-index-qa-and-testing
+qa-and-testing/index
 ```
 
 ## Bug triage
@@ -18,7 +18,7 @@ index-qa-and-testing
 ```{toctree}
 :maxdepth: 1
 
-index-bug-triage
+bug-triage/index
 ```
 
 
@@ -29,7 +29,7 @@ This section includes all the relevant tooling you'll need to work on Ubuntu.
 ```{toctree}
 :maxdepth: 1
 
-index-setup
+setup/index
 ```
 
 
@@ -38,7 +38,7 @@ index-setup
 ```{toctree}
 :maxdepth: 1
 
-index-debugging
+debugging/index
 ```
 
 
@@ -47,7 +47,7 @@ index-debugging
 ```{toctree}
 :maxdepth: 1
 
-index-bug-fix
+bug-fix/index
 ```
 
 
@@ -56,7 +56,7 @@ index-bug-fix
 ```{toctree}
 :maxdepth: 1
 
-index-patching
+patching/index
 ```
 
 
@@ -74,7 +74,7 @@ Check accessibility <check-accessibility>
 ```{toctree}
 :maxdepth: 1
 
-index-new-package
+new-package/index
 ```
 
 
@@ -96,7 +96,7 @@ some working familiarity with Ubuntu development.
 ```{toctree}
 :maxdepth: 1
 
-Advanced tasks <index-advanced>
+Advanced tasks <advanced/index>
 ```
 
 
@@ -109,5 +109,3 @@ Advanced tasks <index-advanced>
 
 Contribute docs <contribute-docs>
 ```
-
-

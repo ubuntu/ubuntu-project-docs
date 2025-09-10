@@ -13,7 +13,7 @@ are responsible for maintaining the Package Archive or managing processes.
 ```{toctree}
 :maxdepth: 1
 
-index-uploader
+uploader/index
 ```
 
 ## Archive handling
@@ -23,7 +23,7 @@ index-uploader
 ```{toctree}
 :maxdepth: 1
 
-index-MIR
+/MIR/mir-handling-mir-reviews
 ```
 
 ### Stable releases
@@ -31,7 +31,7 @@ index-MIR
 ```{toctree}
 :maxdepth: 1
 
-index-SRU
+SRU/index
 ```
 
 ### Archive Administration
@@ -39,6 +39,6 @@ index-SRU
 ```{toctree}
 :maxdepth: 1
 
-index-AA
+AA/index
 ```
 

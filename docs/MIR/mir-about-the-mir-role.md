@@ -34,7 +34,7 @@ should expect from the reviewers.
 :maxdepth: 1
 :hidden:
 
-../../MIR/mir-team-meeting
-/MIR/mir-service-level-objectives
+mir-team-meeting
+mir-service-level-objectives
 ```
 

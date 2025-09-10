@@ -36,13 +36,13 @@ of the charmed hosted services as they are migrated.
 :titlesonly:
 :hidden:
 
-AA/aa-new-review
-AA/aa-package-removal
-AA/aa-package-overrides
-AA/aa-priority-mismatches
-AA/aa-signing-bootloaders
-AA/aa-phasing-sru-updates
-AA/aa-i386
-AA/aa-archive-related-services
-AA/triage-aa-contributions.md
+aa-new-review
+aa-package-removal
+aa-package-overrides
+aa-priority-mismatches
+aa-signing-bootloaders
+aa-phasing-sru-updates
+aa-i386
+aa-archive-related-services
+triage-aa-contributions.md
 ```

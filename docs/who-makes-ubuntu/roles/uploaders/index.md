@@ -7,5 +7,5 @@ Should split between the role/responsibilities, and the team processes
 :maxdepth: 1
 :glob:
 
-uploaders/*
+*
 ```

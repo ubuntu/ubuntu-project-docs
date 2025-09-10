@@ -48,3 +48,30 @@ staging/seed-management/ staging/release-team/seed-management/
 how-ubuntu-is-made/concepts/ubuntu-releases/ release-team/ubuntu-releases/
 how-ubuntu-is-made/processes/release-cycle/ release-team/release-cycle/
 how-ubuntu-is-made/processes/freezes/ release-team/freezes/
+
+# Change from index-<section> landing pages to <section>/index
+contributors/index-advanced/ contributors/advanced/
+contributors/index-bug-fix/ contributors/bug-fix/
+contributors/index-bug-triage/ contributors/bug-triage/
+contributors/index-debugging/ contributors/debugging/
+contributors/index-new-package/ contributors/new-package/
+contributors/index-patching/ contributors/patching/
+contributors/index-qa-and-testing/ contributors/qa-and-testing/
+contributors/index-setup/ contributors/setup/
+how-ubuntu-is-made/index-concepts/ how-ubuntu-is-made/concepts/
+how-ubuntu-is-made/index-governance/ how-ubuntu-is-made/governance/
+how-ubuntu-is-made/index-processes/ how-ubuntu-is-made/processes/
+maintainers/index-AA/ maintainers/AA/
+maintainers/index-MIR/ MIR/mir-handling-mir-reviews/
+maintainers/index-SRU/ maintainers/SRU/
+maintainers/index-uploader/ maintainers/uploader/
+who-makes-ubuntu/index-roles/ who-makes-ubuntu/roles/
+who-makes-ubuntu/about-roles/index-MIR/ MIR/mir-about-the-mir-role/
+who-makes-ubuntu/about-roles/index-SRU/ who-makes-ubuntu/roles/SRU/
+who-makes-ubuntu/about-roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/sru-sla/
+who-makes-ubuntu/about-roles/index-uploaders/ who-makes-ubuntu/roles/uploaders/
+who-makes-ubuntu/about-roles/uploaders/uploaders-sla/ who-makes-ubuntu/roles/uploaders/uploaders-sla/
+who-makes-ubuntu/about-roles/archive-administration/ who-makes-ubuntu/roles/archive-administration/
+who-makes-ubuntu/index-councils/ who-makes-ubuntu/councils/
+who-makes-ubuntu/index-joining/ who-makes-ubuntu/joining/
+who-makes-ubuntu/index-specialist-teams/ who-makes-ubuntu/specialist-teams/

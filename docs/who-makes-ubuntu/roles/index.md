@@ -14,7 +14,7 @@ secondary layer of drop-down menus
 ```{toctree}
 :maxdepth: 1
 
-about-roles/index-uploaders
+uploaders/index
 ```
 
 ## MIR membership
@@ -22,7 +22,7 @@ about-roles/index-uploaders
 ```{toctree}
 :maxdepth: 1
 
-about-roles/index-MIR
+/MIR/mir-about-the-mir-role
 ```
 
 ## SRU membership
@@ -30,7 +30,7 @@ about-roles/index-MIR
 ```{toctree}
 :maxdepth: 1
 
-about-roles/index-SRU
+SRU/index
 ```
 
 ## Archive Admins
@@ -38,5 +38,5 @@ about-roles/index-SRU
 ```{toctree}
 :maxdepth: 1
 
-about-roles/archive-administration
+archive-administration
 ```
