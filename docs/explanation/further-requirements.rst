@@ -39,7 +39,7 @@ they upgrade to a newer release.
 
 Exceptions:
 
-The following two exceptions apply to bugfixes, but do not apply to
+The following exceptions apply to bugfixes, but do not apply to
 hardware enablement or new features.
 
 1. **When there are two subsequent interim releases:** if there are two
@@ -63,6 +63,23 @@ hardware enablement or new features.
    may then accept your upload at their discretion and on a case-by-case
    basis. If this is not done, then uploaders should expect an SRU
    review round trip while your intentions are clarified.
+3. **When the package no longer exists in subsequent releases:** sometimes
+   a package only exists in one particular Ubuntu release, and was removed
+   from later releases. This decision usually happens during the
+   development release: for some reason, it was decided that Ubuntu shouldn't
+   carry that package anymore. As time goes by, we will get into the
+   situation where the package exists in a stable release, but not in any
+   other stable release. For example, it could exist in 22.04, but not in
+   24.04 or any other release after that, including interim ones. In such
+   a case, it's OK to SRU fixes to the package only in the releases where
+   it exists.
+
+   **NOTE**: the intention of this point is to cover software that was really
+   removed in subsequent releases. This does NOT cover source package
+   renames (like *src:sosreport* being renamed to *src:sos*), or versioned
+   source packages which just got a version bump (like *src:php7.2* which
+   became *src:php8.4* in the new version), or any other similar case where
+   the same software remains in the archive, just under a different name.
 
 See also: :ref:`Reference → Requirements → General requirements for all
 SRUs <reference-general-requirements>`
