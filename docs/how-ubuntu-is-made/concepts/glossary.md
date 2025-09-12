@@ -1208,6 +1208,11 @@ Signing Key
     the corresponding public key to confirm a message or file's origin and
     integrity.
 
+    To create and set up such a key for yourself some
+    {ref}`setup steps for gnupg <gnupg>` are needed. The resulting private key
+    represents your identity and authority and therefore has to be
+    {ref}`kept safe <pgp-key-storage>` and out of reach of other entities.
+
 Source
     *Work in Progress*
 
