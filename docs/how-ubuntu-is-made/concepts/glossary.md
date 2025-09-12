@@ -436,7 +436,7 @@ Core Dev
     *Work in Progress*
 
 Cryptographic Signature
-    *Work in Progress*
+    Please see {term}`Signature`
 
 Debian
     **Debian** is a widely-used community-driven
@@ -485,7 +485,7 @@ Detached Signature
     A detached signature is a {term}`Digital Signature <Signature>` that is separated
     from the data it signs. In contrast to an embedded signature, which is included
     within the data it signs, a detached signature is kept as a separate file
-    or entity. 
+    or entity.
 
 Devel
 Current Release in Development
@@ -1197,12 +1197,16 @@ Signature
     packages verify that the {term}`Source Code` is from the developers of the
     upstream project.
 
-    The tool {manpage}`gpg(1)` is commonly used to create and modify digital
-    signatures. Further information can be found in the
+    The tool {manpage}`gpg(1)` is commonly used to create, modify sign something
+    with a {term}`Signing Key`. And to verify those digital signatures using the
+    corresponding public key. Further information can be found in the
     [GNU Privacy Handbook](https://www.gnupg.org/gph/en/manual.html#AEN136).
 
 Signing Key
-    *Work in Progress*
+    In the PGP ecosystem a signing key is a private cryptographic key used to
+    create {term}`digital signatures <Signature>`, which others can verify with
+    the corresponding public key to confirm a message or file's origin and
+    integrity.
 
 Source
     *Work in Progress*
