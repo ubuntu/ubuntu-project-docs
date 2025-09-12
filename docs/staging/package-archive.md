@@ -36,8 +36,8 @@ relevant team for uploading. E.g. [`motu`](https://launchpad.net/~motu) for
 universe and [`ubuntu-core-dev`](https://launchpad.net/~ubuntu-core-dev) for main.
 
 Your upload must be signed by a GPG key registered in Launchpad. If the
-signature cannot be traced to a member of the appropriate team, then the upload
-will be **silently rejected**.
+{term}`Signature` cannot be traced to a member of the appropriate team, then
+the upload will be **silently rejected**.
 
 To add a new package to Ubuntu, simply upload it as usual. Any new packages
 uploaded are [put in a queue](https://launchpad.net/ubuntu/devel/+queue) to

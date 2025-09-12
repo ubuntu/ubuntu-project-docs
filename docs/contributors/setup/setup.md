@@ -43,7 +43,9 @@ $ sudo apt update && \
 ### GnuPG
 
 [GnuPG](https://gnupg.org/) is an encryption tool that helps manage your
-encryption keys. 
+{term}`encryption keys <Signing Key>`. You'll need it later to be able to add
+a {term}`signature` to each {ref}`upload <Uploading>`.
+
 
 * Install and set up GPG normally.
 * List the keys and make sure you associate the email you want to use for
