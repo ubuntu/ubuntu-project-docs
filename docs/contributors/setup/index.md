@@ -6,5 +6,6 @@
 :glob:
 
 setup
+pgp-key-storage
 get-package-source
 ```
