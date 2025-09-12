@@ -1,4 +1,4 @@
-(index-patching)=
+(patching)=
 # Patching
 
 ```{toctree}

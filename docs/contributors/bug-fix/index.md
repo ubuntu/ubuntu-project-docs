@@ -1,4 +1,5 @@
-# Fix a bug
+(fixing-bugs)=
+# Fixing bugs
 
 
 ## Bug fixing

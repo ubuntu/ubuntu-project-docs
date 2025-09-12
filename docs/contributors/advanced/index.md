@@ -1,4 +1,4 @@
-(contributor-advanced)=
+(advanced)=
 # Advanced contributor tasks
 
 These tasks assume that you are already familiar with the more fundamental
@@ -19,11 +19,12 @@ check-reverse-dependencies
 
 ## Merges
 
+See the {ref}`merging` article series for instructions on how to perform package merges.
+
 ```{toctree}
 :titlesonly:
 
 Review a merge proposal <review-a-merge-proposal>
-Merge a package <merge-a-package>
 ```
 
 

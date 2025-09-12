@@ -95,7 +95,7 @@ More advanced packaging topics you should be comfortable with as a MOTU applican
 
 * [Multi-arch issues](https://wiki.ubuntu.com/MultiarchCross)
 
-* {ref}`Autopkgtest <package-tests>` writing and fixing, and understanding
+* {ref}`Autopkgtest <run-package-tests>` writing, fixing, and understanding
   [of the spec](https://salsa.debian.org/ci-team/autopkgtest/-/blob/master/doc/README.package-tests.rst)
 
 * {ref}`Proposed migration <proposed-migration>` basics, and the

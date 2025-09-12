@@ -173,7 +173,7 @@ create and modify Debian-format packages.
   and [further help with building packages](http://wiki.debian.org/AdvancedBuildingTips).
 
 * Many packages use tools to help manage multiple patches.
-  {ref}`Patching Ubuntu packages <index-patching>` explains how to work with them.
+  {ref}`Patching Ubuntu packages <patching>` explains how to work with them.
 
   * The `CDBS Manual: https://perso.duckcorp.org/duck/cdbs-doc/cdbs-doc.xhtml`
     explains how to work with packages using the CDBS packaging scripts, one

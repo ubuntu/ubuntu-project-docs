@@ -17,7 +17,7 @@ Ubuntu better for everyone.
 
 ## What the team does
 
-What the Bug Squad does is also known as "{ref}`triaging <bug-triage>`", a
+What the Bug Squad does is also known as {ref}`triaging-bugs`, a
 process that ensures bug reports are complete, that the bug can be reproduced,
 and that its priority is assessed and set.
 
@@ -62,7 +62,7 @@ To join the Bug Squad team:
 
 * Sign the {ref}`Ubuntu Code of Conduct <code-of-conduct>`
 
-* Read {ref}`the bug triage guide <bug-triage>`
+* Read {ref}`the bug-triage guide <triaging-bugs>`
 
 * Subscribe to the [Bug Squad mailing list](https://lists.ubuntu.com/mailman/listinfo/ubuntu-bugsquad) 
 

@@ -1,3 +1,4 @@
+(debugging)=
 # Debugging
 
 ```{toctree}

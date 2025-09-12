@@ -1,3 +1,4 @@
+(new-packages)=
 # New packages
 
 ```{toctree}

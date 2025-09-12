@@ -99,7 +99,7 @@ have any questions, contact the {ref}`bug-squad` via their mailing list.
   with the latest upstream mainline kernel they can technically test to.
 
 : For process reports (e.g. {ref}`FFes <freeze-exceptions>` and
-  {ref}`syncs <sync-process>`), *Triaged* means the action has been approved by
+  {ref}`syncs`), *Triaged* means the action has been approved by
   the relevant developers. 
 
 

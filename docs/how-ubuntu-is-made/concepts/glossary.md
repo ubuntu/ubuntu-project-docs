@@ -1015,6 +1015,7 @@ Patch
     integrity and security.
 
     See also:
+    * {ref}`patching`
     * [Patch (Wikipedia)](https://en.wikipedia.org/wiki/Patch_(computing))
 
 PCRE
@@ -1358,11 +1359,12 @@ Ubuntu CVE Tracker
     * [Ubuntu CVEs](https://ubuntu.com/security/cves)
 
 Ubuntu Delta
-    A modification to an {term}`Ubuntu` {term}`Package` that is derived from a {term}`Debian`
-    Package.
+Delta
+    In the context of Ubuntu packages, a delta is the difference ({term}`patch`) between a Debian package and an Ubuntu package, i.e. the change that is applied to a Debian package by Ubuntu package maintainers (in the form of {term}`patches <patch>`. Ubuntu packages with a delta are said to "carry a delta".
 
     See also:
-    * [Upstream & Downstream (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/upstream-and-downstream/)
+    * {ref}`merging`
+    * {ref}`upstream-and-downstream`
 
 Ubuntu Desktop
     *Work in Progress*

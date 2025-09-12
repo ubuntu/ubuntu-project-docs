@@ -181,7 +181,7 @@ appropriate for the situation.
 
   * Or, if they are Ubuntu-only choices, are they marked like that so the next
     packager is not wondering if we want to keep or submit it?
-    
+
     (See {ref}`UD-forwarded for commits <the-commit-message>` and
     {ref}`Forwarded for patches <the-patchfile-header>`).
 

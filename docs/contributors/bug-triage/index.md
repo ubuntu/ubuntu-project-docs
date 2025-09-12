@@ -1,5 +1,5 @@
-(bug-triage)=
-# Bug triage
+(triaging-bugs)=
+# Triaging bugs
 
 ```{toctree}
 :maxdepth: 1

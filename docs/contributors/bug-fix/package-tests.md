@@ -1,8 +1,7 @@
-(package-tests)=
+(run-package-tests)=
 # How to run package tests
 
-Packages will have their own tests under `debian/tests`. We need to run those
-to ensure there are no regressions.
+Packages have their own tests under `debian/tests`. Run those to ensure there are no regressions.
 
 We can have Launchpad do it against a PPA, or use an LXC container, or a VM to
 run the `autopkgtests` locally. Each approach has its benefits, so they're all

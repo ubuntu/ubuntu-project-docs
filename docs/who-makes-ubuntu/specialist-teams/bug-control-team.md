@@ -40,7 +40,7 @@ To join Ubuntu Bug Control as an individual, you must:
 
 * Understand:
 
-  * {ref}`bug-triage`.
+  * {ref}`triaging-bugs`.
 
   * Choosing a {ref}`bug task status <bug-status>` and setting a
     {ref}`bug task's importance <bug-importance>`. There is a procedure for
@@ -107,11 +107,11 @@ email, copy and answer the following questions:
   1. Do you promise to be polite to bug reporters even if they are rude to you
      or Ubuntu? Have you signed the Ubuntu Code of Conduct?
 
-  1. Have you read {ref}`bug-triage`, {ref}`bug-status` and {ref}`bug-importance`
+  1. Have you read {ref}`triaging-bugs`, {ref}`bug-status` and {ref}`bug-importance`
      Do you have any questions about that documentation?
 
   1. What sensitive data should you look for in a private Apport crash report bug
-     before making it public? (See {ref}`bug-triage` for more information)
+     before making it public? (See {ref}`triaging-bugs` for more information)
 
   1. Is there a particular package or group of packages that you are interested
      in helping with?
@@ -209,7 +209,7 @@ You are expected to renew when needed, following the email's directions.
 
 * {ref}`bug-squad`
 
-* {ref}`bug-triage`
+* {ref}`triaging-bugs`
 
 * {ref}`bug-importance`
 

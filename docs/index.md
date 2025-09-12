@@ -1,6 +1,6 @@
 # Ubuntu project documentation
 
-```{toctree}
+:::{toctree}
 :maxdepth: 2
 :hidden: true
 
@@ -9,17 +9,17 @@ Contributors <contributors/index>
 Maintainers <maintainers/index>
 Who makes Ubuntu <who-makes-ubuntu/index>
 how-ubuntu-is-made/concepts/glossary
-```
+:::
 
-```{toctree}
+:::{toctree}
 :maxdepth: 2
 :hidden: true
 
 Staging/preview area <staging.md>
-```
+:::
 
 
-```{admonition} **Work in progress**
+:::{admonition} **Work in progress**
 :class: important
 
 Welcome to the Ubuntu Project documentation!
@@ -36,7 +36,7 @@ You can keep track of the progress via our fortnightly Discourse updates
 Contributions are very welcome! See our
 [issues list](https://github.com/ubuntu/ubuntu-project-docs/issues) for ideas,
 and our {ref}`contributing guide <contribute>` for details on how to contribute.
-```
+:::
 
 Ubuntu is the world's most widely deployed Linux operating system, but it's also
 a long-standing software project, a community, and a mesh of distributed

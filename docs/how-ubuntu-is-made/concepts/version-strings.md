@@ -92,7 +92,7 @@ development releases.
 
 Sometimes the desired change has already been packaged by Debian in a newer
 version of the package. During the Ubuntu development cycle, the Archive tooling
-automatically copies or {ref}`"syncs" <sync-process>` new package versions from
+automatically copies or {ref}`syncs` new package versions from
 Debian.
 
 Only packages with no Ubuntu modifications or those with no-change updates
@@ -108,7 +108,7 @@ First, once the development release reaches
 automation is disabled.
 
 Therefore, if an update from Debian *is* required, it must be
-{ref}`manually synced <sync-process>`. Version numbering in this case is
+{ref}`manually synced <request-a-sync>`. Version numbering in this case is
 trivial: It's the exact same version as in Debian.
 
 A second case is when the package does have Ubuntu changes, but our
@@ -118,7 +118,7 @@ package.
 For example, perhaps the Ubuntu changes were cherry-picked patches from upstream
 that are now available in a newer release now available from Debian,
 or perhaps Debian has adopted all of the Ubuntu changes into their own packaging.
-These situations will also require a {ref}`manual re-sync with Debian <sync-process>`.
+These situations will also require a {ref}`manual re-sync with Debian <request-a-sync>`.
 The version number also remains identical to Debian (see the 'Re-Sync w/ Debian'
 example in the previous section).
 
@@ -180,9 +180,9 @@ number in this case is identical to any other change
 ## Version: Merging from Debian
 
 If Ubuntu has delta to the package from Debian, it can not be
-{ref}`automatically synced <sync-process>` otherwise that delta would be lost.
+{ref}`automatically synced <syncs>` otherwise that delta would be lost.
 In that case an Ubuntu developer regularly (usually at least once per Ubuntu
-release) {ref}`merges the delta <merge-a-package>` in Ubuntu with the content
+release) {ref}`merges the delta <merging>` in Ubuntu with the content
 from Debian and indirectly also with the changes by upstream.
 
 The counter for Ubuntu increments resets to 1, therefore the version for the new

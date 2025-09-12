@@ -29,7 +29,6 @@ Getting new versions of packages from Debian, dealing with build dependencies, a
 :maxdepth: 1
 
 merges-and-syncs
-sync-process
 transitions
 backports
 automatic-package-testing-autopkgtest

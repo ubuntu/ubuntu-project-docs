@@ -103,7 +103,7 @@ You should also work towards understanding some more advanced packaging topics:
 * [Ubuntu's release process](https://wiki.ubuntu.com/UbuntuDevelopment/ReleaseProcess),
   including the {ref}`freeze exception process <request-a-freeze-exception>`
 
-* Running {ref}`autopkgtest <package-tests>`
+* Running {ref}`autopkgtest <run-package-tests>`
 
 * Troubleshooting the
   [migration of packages](https://wiki.ubuntu.com/ProposedMigration) from

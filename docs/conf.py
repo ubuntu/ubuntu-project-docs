@@ -398,7 +398,9 @@ intersphinx_mapping = {
         "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
         None,
     ),
-    "sru": ("https://canonical-sru-docs.readthedocs-hosted.com/en/latest", None),
+    "sru": ("https://canonical-sru-docs.readthedocs-hosted.com/en/latest/", None),
+    "git-ubuntu": (
+        "https://canonical-git-ubuntu.readthedocs-hosted.com/en/latest/", None),
 }
 
 

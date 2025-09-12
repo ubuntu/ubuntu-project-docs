@@ -1,41 +1,7 @@
-(sync-process)=
-# Sync process
+(request-a-sync)=
+# Request a sync
 
-TODO: See: {ref}`merges-syncs`
-
-
----------------------------------------------------------
-
-```{important}
-The content below this line is ported directly from the
-[UMH sync page](https://github.com/canonical/ubuntu-maintainers-handbook/blob/main/Syncs.md)
-and should be blended with the content linked above to avoid duplication.
-
-If any reference anchors from the UMH content are changed please update any pages
-using them accordingly, to point to the new anchors.
-
-The content about requesting and performing syncs will likely move, please do
-not bookmark it until all of the content has been moved to the final place
-and this note is deleted.
-```
-
-If an Ubuntu package is the same as the Debian version, we have an automated
-mechanism that synchronizes the Debian version to our Ubuntu series. 
-
-A **delta** represents the difference between the Ubuntu and Debian versions of
-a package. Typically, when we make changes to a package, we
-{ref}`merge <merge-a-package>` our delta onto the upstream version. Debian
-packages can only be synchronized if there is no delta.
-
-However, there can be occasions where Debian or upstream incorporate our
-logical changes before we merge them, meaning that there is essentially no
-difference between the Ubuntu and Debian versions. If we were to proceed with
-our merge, we would be merging an
-{ref}`empty commit <merge-empty-commits>` (i.e., adding a commit where
-nothing has changed).
-
-In this situation, it is better to sync the new version of the Debian
-package back to Ubuntu than to manually perform an empty merge.
+When an Ubuntu package carries a delta, but it is no longer needed (because it has been merged in Debian or upstream), request a manual sync. See {ref}`merges-syncs` for context.
 
 
 (asking-for-a-sync)=
@@ -140,3 +106,8 @@ Checking the build log:
   `https://launchpad.net/ubuntu/+source/<name_of_the_package>/+publishinghistory`):
   a link at the top right of the "Overview page" -- e.g.
   [for `freeipmi`](https://launchpad.net/ubuntu/+source/freeipmi/+publishinghistory).
+
+
+## Further reading
+
+* {ref}`merges-syncs`

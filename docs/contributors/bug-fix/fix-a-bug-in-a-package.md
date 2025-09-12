@@ -574,9 +574,7 @@ The bug is fixed! Sweet!
 ## Run the package tests
 
 The DEP-8 autopkgtests don't exercise our bug, but are worth running as
-just-in-case checks (and to catch regressions).
-
-See {ref}`Running Package Tests <package-tests>`.
+just-in-case checks (and to catch regressions). See {ref}`run-package-tests`.
 
 Any change in behavior should be considered as priorities to resolve before
 proceeding.

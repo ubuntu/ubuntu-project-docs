@@ -1,4 +1,4 @@
-(index-governance)=
+(governance)=
 # Governance
 
 Information *for* contributors about the structure of Ubuntu's governing bodies

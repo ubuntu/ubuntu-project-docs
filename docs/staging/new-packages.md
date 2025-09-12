@@ -1,4 +1,4 @@
-(new-packages)=
+(staging-new-packages)=
 # New packages
 
 ```{note}

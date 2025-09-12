@@ -1,19 +1,20 @@
 (how-to-contribute)=
 # Guides for contributors
 
-These guides will help you with the specific tasks and processes that build
-Ubuntu.
+These guides help you with the specific tasks and processes that build Ubuntu.
 
 
-## QA and testing
+## Setting up for distro work
+
+This section includes all the relevant tooling you'll need to work on Ubuntu.
 
 ```{toctree}
 :maxdepth: 1
 
-qa-and-testing/index
+setup/index
 ```
 
-## Bug triage
+## Bug triaging
 
 ```{toctree}
 :maxdepth: 1
@@ -22,14 +23,12 @@ bug-triage/index
 ```
 
 
-## Getting set up
-
-This section includes all the relevant tooling you'll need to work on Ubuntu.
+## QA and testing
 
 ```{toctree}
 :maxdepth: 1
 
-setup/index
+qa-and-testing/index
 ```
 
 
@@ -60,12 +59,14 @@ patching/index
 ```
 
 
-## Accessibility
+## Merging
+
+The {ref}`merging` article series provides instructions on how to perform package merges (i.e. how to import a new version of a Debian package into Ubuntu if the Ubuntu package carries a {term}`delta`).
 
 ```{toctree}
 :maxdepth: 1
 
-Check accessibility <check-accessibility>
+merging/index
 ```
 
 
@@ -78,12 +79,40 @@ new-package/index
 ```
 
 
+## Accessibility
+
+```{toctree}
+:maxdepth: 1
+
+Check accessibility <check-accessibility>
+```
+
+
+## Syncing
+
+```{toctree}
+:maxdepth: 1
+
+request-a-sync
+```
+
 ## Sponsorship
 
 ```{toctree}
 :maxdepth: 1
 
 Find a sponsor <find-a-sponsor>
+```
+
+
+## Contribute documentation
+
+*Ubuntu Project documentation* is a collaborative effort. We welcome community contributions. For guidance on how to contribute to this documentation set, see:
+
+```{toctree}
+:maxdepth: 1
+
+Contribute docs <contribute-docs>
 ```
 
 
@@ -97,15 +126,4 @@ some working familiarity with Ubuntu development.
 :maxdepth: 1
 
 Advanced tasks <advanced/index>
-```
-
-
-## Contribute documentation
-
-*Ubuntu Project documentation* is a collaborative effort. We welcome community contributions. For guidance on how to contribute to this documentation set, see:
-
-```{toctree}
-:maxdepth: 1
-
-Contribute docs <contribute-docs>
 ```
