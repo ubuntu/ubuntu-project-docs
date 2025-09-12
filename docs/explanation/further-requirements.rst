@@ -74,9 +74,12 @@ hardware enablement or new features.
    a case, it's OK to SRU fixes to the package only in the releases where
    it exists.
 
-   **NOTE**: for the purposes of this case, versioned source packages which
-   only differ in the version number part of the name are to be considered the
-   **SAME** package, and need to receive the same fix.
+   **NOTE**: the intention of this point is to cover software that was really
+   removed in subsequent releases. This does NOT cover source package
+   renames (like *src:sosreport* being renamed to *src:sos*), or versioned
+   source packages which just got a version bump (like *src:php7.2* which
+   became *src:php8.4* in the new version), or any other similar case where
+   the same software remains in the archive, just under a different name.
 
 See also: :ref:`Reference → Requirements → General requirements for all
 SRUs <reference-general-requirements>`
