@@ -22,5 +22,6 @@ staging/package-archive
 staging/partner-archive
 staging/aa-museum
 staging/not-AA
+staging/maintscripts
 ```
 
