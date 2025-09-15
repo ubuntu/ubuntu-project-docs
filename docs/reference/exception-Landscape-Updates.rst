@@ -93,6 +93,7 @@ review:
 #. How Landscape Client interacts with snapd
 #. How Landscape Client interacts with motd
 #. How Landscape Client interacts with Ubuntu Advantage Tools/Ubuntu Pro
+#. How Landscape Client interacts with Ubuntu Pro for WSL or WSL itself
 
 Review/Sponsoring
 -----------------
