@@ -1197,8 +1197,9 @@ Signature
     packages verify that the {term}`Source Code` is from the developers of the
     upstream project.
 
-    The tool {manpage}`gpg(1)` is commonly used to create, modify sign something
-    with a {term}`Signing Key`. And to verify those digital signatures using the
+    The tool {manpage}`gpg(1)` is commonly used to create or modify
+    {term}`Signing Keys`. To add digital signatures using the
+    {term}`Signing Key`. And to verify those digital signatures using the
     corresponding public key. Further information can be found in the
     [GNU Privacy Handbook](https://www.gnupg.org/gph/en/manual.html#AEN136).
 
