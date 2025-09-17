@@ -66,6 +66,10 @@ gain the ability to create an
 [attestation certificate](https://developers.yubico.com/PGP/Attestation.html)
 can then be published by you and verified by third-parties.
 
+It furthermore is recommended to configure the key for user-presence, in
+combination with attestation `Fixed` is the suggested
+[touch policy](https://docs.yubico.com/software/yubikey/tools/ykman/OpenPGP_Commands.html#touch-policies).
+
 (pgp-encrypted-offline-storage)=
 ## Encrypted Offline Storage
 
