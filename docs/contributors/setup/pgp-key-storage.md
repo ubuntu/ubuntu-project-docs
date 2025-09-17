@@ -61,6 +61,11 @@ The primary benefits of using hardware security keys include:
   operations. This adds a crucial layer of control over who can manage and use
   the key.
 
+By generating subkeys (see below) directly on the hardware key you furthermore
+gain the ability to create an
+[attestation certificate](https://developers.yubico.com/PGP/Attestation.html)
+can then be published by you and verified by third-parties.
+
 (pgp-encrypted-offline-storage)=
 ## Encrypted Offline Storage
 
