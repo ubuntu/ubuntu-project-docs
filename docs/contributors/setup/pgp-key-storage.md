@@ -129,6 +129,12 @@ using its corresponding public key. The recommendation for those is to generate
 them in software, possibly write them to hardware keys (same copy) and make a
 backup in a safe place.
 
+Other than time and expiration a key can also be withdrawn by using a
+revocation certificate. To be able to do so in case it is needed it can be
+good preparation to generate such a certificate right away. This shall be
+stored as safe as the main key, because it is rarely needed and there is the
+risk that anyone with access could publish it.
+
 (pgp-these-policies-are-not-static)=
 # These policies are not static
 
