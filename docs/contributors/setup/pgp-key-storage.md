@@ -106,6 +106,14 @@ point to have users revisit the setup and current policies.
 They further act as a "dead man's switch" to prevent permanent use of
 compromised or forgotten subkeys.
 
+It is important to understand that this expiration is good for signing keys,
+for keys utilized for encryption, for example in confidential mail exchanges,
+then you would usually want to be able to hold on to the key for however long
+you want/need to be able to decrypt whatever was encrypted by others for you
+using its corresponding public key. The recommendation for those is to generate
+them in software, possibly write them to hardware keys (same copy) and make a
+backup in a safe place.
+
 (pgp-these-policies-are-not-static)=
 # These policies are not static
 
