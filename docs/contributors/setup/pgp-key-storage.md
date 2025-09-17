@@ -73,12 +73,13 @@ combination with attestation `Fixed` is the suggested
 (pgp-encrypted-offline-storage)=
 ## Encrypted Offline Storage
 
-A setup would usually consist of a locked-away, offline, main PGP key
-("Certify key") and subkeys deployed on the hardware security keys that are used
-for regular operations. That encrypted offline main PGP key is then the final
-safeguard to recover, but also has no need to be comfortable or quick to reach
-and hence can make use of various extra levels of extra protection against
-physical and digital attacks.
+A typical setup would usually consist of a locked-away, offline, main PGP key
+("Certify key") generated in software, and derived from that subkeys deployed
+on the hardware security keys that are used for regular operations.
+That encrypted offline main PGP key is then the final safeguard to recover,
+but also has no need to be comfortable or quick to reach and hence can make
+use of various extra levels of extra protection against physical and digital
+attacks.
 
 To make an example what such extra protection could be like: When the key is
 generated or in the rare cases it is later needed, for example
