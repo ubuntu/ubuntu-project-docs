@@ -31,7 +31,7 @@ foundational layer of security, their effectiveness as a sole defense mechanism
 becomes questionable with the increasing availability of computational power
 capable of brute-forcing even complex passphrases.
 
-Practical recommendations all derive from the entopy given by the passphrase:
+Practical recommendations all derive from the entropy given by the passphrase:
 * These passwords do not need to be super comfortable as they are for the main
   key, following the guidance of using {ref}`pgp-hardware-security-keys` and
   sub-keys you will not need it for daily use.
@@ -95,7 +95,7 @@ practice is to set a regular, short expiration date, such as 1 to 2 years, with
 the two enrolled hardware tokens having expirations offset by at least 3 months
 (to avoid getting locked out from both keys expiring at once). You can do this
 by setting up subkeys for signature/encryption/authentication, which can have
-individual expiry dates
+individual expiry dates.
 
 It is not important to set an expiration on the offline main PGP key, as it
 could easily be used to extend its own expiration date. But on sub-keys this
