@@ -3,8 +3,7 @@
 
 ```{toctree}
 :maxdepth: 1
-:glob:
 
-debug-apport-crash
+Debug an Apport crash <debug-an-apport-crash>
 ```
 

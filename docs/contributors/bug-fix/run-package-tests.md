@@ -1,4 +1,4 @@
-(run-package-tests)=
+(how-to-run-package-tests)=
 # How to run package tests
 
 Packages have their own tests under `debian/tests`. Run those to ensure there are no regressions.
@@ -21,8 +21,7 @@ usage: ppa [-h] [-C CONFIG_FILENAME] [-D] [-V] [--dry-run] [-v] [-q]
 ```
 
 Next, you'll need to
-{ref}`set up a PPA and build your package in it <package-building>` as described
-in the "Build binary packages via PPA" section. Once it has built binaries for
+{ref}`set up a PPA and build your package in it <how-to-build-packages-in-a-ppa>`. Once it has built binaries for
 the architecture(s) you intend to test:
 
 ```none

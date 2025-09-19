@@ -1,5 +1,5 @@
-(setup)=
-# Setting up for Ubuntu development
+(how-to-set-up-for-ubuntu-development)=
+# How to set up for Ubuntu development
 
 The following is a short guide to getting set up for Ubuntu development.
 

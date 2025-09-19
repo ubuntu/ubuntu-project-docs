@@ -5,7 +5,7 @@ Backports
 
 Backporting allows for making new functionality (that is not connected to a critical bug fix) available in a stable release. For these scenarios, there are two options:
 
-* :ref:`Uploading to a PPA <upload-packages-to-a-ppa>`.
+* :ref:`Uploading to a PPA <how-to-upload-packages-to-a-ppa>`.
 * Preparing a backport.
 
 

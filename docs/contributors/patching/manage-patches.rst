@@ -1,7 +1,7 @@
-.. _patch-management:
+.. _how-to-manage-patches:
 
-Patch management
-================
+How to manage patches
+=====================
 
 This article demonstrates how to manage the :term:`patches <Patch>` of a :term:`source package <Source package>` in the ``3.0 (quilt)`` format.
 
