@@ -1,11 +1,9 @@
-.. _extract-packages:
+.. _how-to-extract-packages:
 
-Extract packages
-================
+How to extract packages
+=======================
 
-This article demonstrates how to extract the contents of Debian packages.
-
-See also the article :ref:`package-format` for a deeper understanding of package formats.
+This article demonstrates how to extract the contents of Debian packages. See also the article :ref:`package-format` for a deeper understanding of package formats.
 
 
 .. _extract-a-source-package:

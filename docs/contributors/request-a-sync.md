@@ -55,7 +55,7 @@ it to a sync, or a new sync bug.
   text in that new changelog entry should say "build debian version to verify
   before a sync".
   
-* {ref}`Build the source package <using-dpkg-buildpackage>` and upload to the
+* {ref}`Build the source package <build-with-dpkg-buildpackage>` and upload to the
   PPA you're using in this MP.
 
 An example of this case is

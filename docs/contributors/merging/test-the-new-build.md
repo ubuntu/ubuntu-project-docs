@@ -30,7 +30,7 @@ Extra:
 (merge-run-package-tests)=
 ## Run package tests
 
-See {ref}`run-package-tests`.
+See {ref}`how-to-run-package-tests`.
 
 
 (merge-test-upgrading-from-the-previous-version)=

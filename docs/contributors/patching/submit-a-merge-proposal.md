@@ -1,13 +1,17 @@
-(merge-proposals)=
-# Merge proposals
+(how-to-submit-a-merge-proposal)=
+# How to submit a merge proposal
 
-When you want to push changes to a package, the first step is to open a merge
-proposal (MP). The merge proposal is where you discuss the reasoning for the
-proposed change, and it provides reviewers the opportunity to comment on it.
+When you want to push changes to a package, the first step is to open a merge proposal (MP). The merge proposal is where you discuss the reasoning for the proposed change, and it gives reviewers the opportunity to comment on it.
 
-After the MP is approved, if you have upload rights you can upload the package
-directly via `dput`. If you do not have upload rights, you'll work with a
-sponsor who will do the upload for you.
+After the MP is approved:
+
+You have upload rights
+: * Upload the package directly using `dput`.
+  * See {ref}`path-to-upload-rights` for guidance on how to obtain upload rights.
+
+You do not have upload rights
+: * Work with a sponsor who does the upload for you.
+  * See {ref}`find-a-sponsor` for guidance on how to get your upload sponsored.
 
 
 ## Prepare a description

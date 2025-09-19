@@ -1,5 +1,5 @@
-(assign-bug-to-package)=
-# Assign a bug to a package
+(how-to-assign-a-bug-to-a-package)=
+# How to assign a bug to a package
 
 To ensure the right people see a bug report, every report should identify the
 software package related to the bug. When running `ubuntu-bug` (see

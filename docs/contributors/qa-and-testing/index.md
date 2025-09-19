@@ -15,7 +15,7 @@ versions of Ubuntu!
 ```{toctree}
 :maxdepth: 1
 
-report-a-bug
+Report a bug <report-a-bug>
 application-testing
 iso-testing
 hardware-testing

@@ -1,10 +1,10 @@
-(work-with-debian-patches)=
-# Work with Debian patches
+(how-to-work-with-debian-patches)=
+# How to work with Debian patches
 
 
 ```{seealso}
-The content from this page came from the [UMH](https://github.com/canonical/ubuntu-maintainers-handbook/blob/main/DebianPatch.md).
-However, the {ref}`patch-management` page from the Packaging Guide should also
+TODO: The content from this page came from the [UMH](https://github.com/canonical/ubuntu-maintainers-handbook/blob/main/DebianPatch.md).
+However, the {ref}`how-to-manage-patches` page from the Packaging Guide should also
 be consulted to make sure they connect as appropriate, and that there is no
 duplicate content.
 ```

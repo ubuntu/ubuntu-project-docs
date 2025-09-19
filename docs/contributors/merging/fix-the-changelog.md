@@ -1,7 +1,7 @@
 (merge-fix-the-changelog)=
 # Fix the changelog
 
-`git-ubuntu` attempts to put together a changelog entry, but it will likely have problems. Fix it to make sure it follows the standards. See {ref}`committing your changes <committing-changes>` for information about what it
+`git-ubuntu` attempts to put together a changelog entry, but it will likely have problems. Fix it to make sure it follows the standards. See {ref}`committing your changes <how-to-commit-changes>` for information about what it
 should look like.
 
 ::::{admonition} **Merging** series

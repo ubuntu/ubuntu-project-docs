@@ -32,7 +32,7 @@ There are three ways to find a sponsor: two formal, and one informal.
 
 ### Via a merge proposal
 
-The first formal way is by filing a {ref}`Merge Proposal (MP) <merge-proposals>`
+The first formal way is by filing a {ref}`Merge Proposal (MP) <how-to-submit-a-merge-proposal>`
 with `canonical-<your-team>` (e.g. `canonical-server-reporter` for Ubuntu Server
 team members) set as a reviewer. Make sure to mention in your MP comments that 
 you're also in need of sponsorship. If the reviewer has upload rights they can

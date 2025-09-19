@@ -3,7 +3,7 @@
 
 Establishing a review process before sponsoring or uploading content has helped
 to maintain consistently high quality. To do so, changes are proposed as
-{ref}`merge proposals (MPs) <merge-proposals>` against git-ubuntu branches.
+{ref}`merge proposals (MPs) <how-to-submit-a-merge-proposal>` against `git-ubuntu` branches.
 
 
 In an MP review, we:
@@ -160,7 +160,7 @@ appropriate for the situation.
   * You can use `dep3changelog`, both to verify the headers and to generate a
     changelog entry.
 
-* Does the patch content and name {ref}`follow our additional style choices <work-with-debian-patches>`?
+* Does the patch content and name {ref}`follow our additional style choices <how-to-work-with-debian-patches>`?
 
   * This is not a strict check, but consistency helps to maintain packages together.
 
@@ -182,7 +182,7 @@ appropriate for the situation.
   * Or, if they are Ubuntu-only choices, are they marked like that so the next
     packager is not wondering if we want to keep or submit it?
 
-    (See {ref}`UD-forwarded for commits <the-commit-message>` and
+    (See {ref}`UD-forwarded for commits <write-the-commit-message>` and
     {ref}`Forwarded for patches <the-patchfile-header>`).
 
   * If old delta added in the past does not have such info and you spent the
