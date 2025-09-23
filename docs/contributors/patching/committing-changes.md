@@ -80,7 +80,8 @@ Here is a more complex example:
 ```
 
 
-## Writing an effective changelog
+(write-an-effective-changelog)=
+## Write an effective changelog
 
 For the changelog entry, you can often reuse (or even directly cut and paste)
 text from the git commit or commits you've already made. However, there are
