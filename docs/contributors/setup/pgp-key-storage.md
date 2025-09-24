@@ -35,7 +35,8 @@ Practical recommendations all derive from the entropy given by the passphrase:
 * These passwords do not need to be super comfortable as they are for the main
   key, following the guidance of using {ref}`pgp-hardware-security-keys` and
   sub-keys you will not need it for daily use.
-* If you prefer memorability: use 6+ Diceware words (or a memorable sentence of 20–30 characters).
+* If you prefer memorability: use 6+ [Diceware words](https://en.wikipedia.org/wiki/Diceware)
+  (or a memorable sentence of 20–30 characters).
 * If you use a password manager/geneator: create a random 16+ character password (include upper/lower/digits/symbols).
 * Never reuse the passphrase for other accounts.
 * If you store the private key and its passphrase, please do so separately in secure locations.
