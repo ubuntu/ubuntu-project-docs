@@ -1,7 +1,7 @@
-.. _download-a-new-upstream-version:
+.. _how-to-get-a-new-upstream-version:
 
-Download a new upstream version
-===============================
+How to get a new upstream version
+=================================
 
 Download a new :term:`upstream <Upstream>` release or checking if a newer upstream release exists is usually needed when:
 

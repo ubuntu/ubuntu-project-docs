@@ -45,7 +45,7 @@ Don't rewrite a patch header to follow DEP 3 if:
 Further reading
 ---------------
 
-- :ref:`patch-management`
+- :ref:`how-to-manage-patches`
 - :ref:`dep-3-patch-file-headers`
 - Debian Policy: `Changes to the upstream sources <https://www.debian.org/doc/debian-policy/ch-source.html#changes-to-the-upstream-sources>`_
 - Debian Policy: `Embedded code copies <https://www.debian.org/doc/debian-policy/ch-source.html#embedded-code-copies>`_

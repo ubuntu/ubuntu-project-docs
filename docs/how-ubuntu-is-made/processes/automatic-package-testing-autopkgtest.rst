@@ -162,7 +162,7 @@ well.
 Getting the test into Ubuntu
 ----------------------------
 
-The process of submitting an autopkgtest for a package is similar to :ref:`fixing a bug in Ubuntu <fix-a-bug-in-a-package>`:
+The process of submitting an autopkgtest for a package is similar to :ref:`fixing a bug in Ubuntu <how-to-fix-a-bug-in-a-package>`:
 
 #. Run ``bzr branch ubuntu:<packagename>``,
 #. Edit ``debian/control`` to enable the tests,

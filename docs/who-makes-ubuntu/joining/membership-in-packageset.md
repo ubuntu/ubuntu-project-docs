@@ -77,7 +77,7 @@ Ideally, you should have a solid mastery of the
 basic packaging skills for Debian/Ubuntu
 distributions, including the following:
 
-* {ref}`Fixing bugs in packages <fix-a-bug-in-a-package>`
+* {ref}`how-to-fix-a-bug-in-a-package`
 * Building binary packages from source, using `sbuild` or `debuild` in a
   `chroot` or `lxc` environment
 * Creating the initial packaging for new software
@@ -103,7 +103,7 @@ You should also work towards understanding some more advanced packaging topics:
 * [Ubuntu's release process](https://wiki.ubuntu.com/UbuntuDevelopment/ReleaseProcess),
   including the {ref}`freeze exception process <request-a-freeze-exception>`
 
-* Running {ref}`autopkgtest <run-package-tests>`
+* Running {ref}`autopkgtest <how-to-run-package-tests>`
 
 * Troubleshooting the
   [migration of packages](https://wiki.ubuntu.com/ProposedMigration) from

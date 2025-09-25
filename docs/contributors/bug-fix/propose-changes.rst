@@ -1,7 +1,7 @@
-.. _propose-changes:
+.. _how-to-propose-changes:
 
-Propose changes
-===============
+How to propose changes
+======================
 
 This guide walks through the process for proposing changes to Ubuntu. When you find a problem, obtain the code, work on a solution, test the fix, push your changes to :term:`Launchpad`, and request a review and merge.
 

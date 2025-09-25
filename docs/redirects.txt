@@ -84,3 +84,19 @@ who-makes-ubuntu/index-specialist-teams/ who-makes-ubuntu/specialist-teams/
 
 contributors/advanced/merge-a-package/ contributors/merging/
 contributors/sync-process/ contributors/request-a-sync/
+contributors/bug-fix/build-packages/ contributors/bug-fix/build-packages-in-a-ppa/
+contributors/bug-fix/download-new-upstream-version/ contributors/bug-fix/get-a-new-upstream-version/
+contributors/bug-fix/package-building/ contributors/bug-fix/build-packages-in-a-ppa/
+contributors/bug-fix/package-tests/ contributors/bug-fix/run-package-tests/
+contributors/bug-triage/assign-bug-to-package/ contributors/bug-triage/assign-a-bug-to-a-package/
+contributors/debugging/debug-apport-crash/ contributors/debugging/debug-an-apport-crash/
+contributors/new-package/create-new-package/ contributors/new-package/create-a-new-package/
+contributors/new-package/request-sru/ contributors/new-package/request-an-sru/
+contributors/new-package/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa//
+contributors/patching/committing-changes/ contributors/patching/commit-changes/
+contributors/patching/make-changes-to-package/ contributors/patching/make-changes-to-a-package/
+contributors/patching/merge-proposal/ contributors/patching/submit-a-merge-proposal/
+contributors/patching/patch-management/ contributors/patching/manage-patches/
+contributors/patching/salsa-dual-maintenance/ contributors/patching/dual-maintenance-with-salsa-and-git-ubuntu/
+contributors/setup/get-package-source/ contributors/setup/get-the-source-of-a-package/
+contributors/setup/setup/ contributors/setup/set-up-for-ubuntu-development/

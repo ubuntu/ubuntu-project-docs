@@ -1,5 +1,5 @@
-(debug-apport-crash)=
-# Debug an Apport crash
+(how-to-debug-an-apport-crash)=
+# How to debug an Apport crash
 
 The Apport service running on a user's computer can automatically file bug
 reports triggered on a system malfunction, with logs and core dump information
