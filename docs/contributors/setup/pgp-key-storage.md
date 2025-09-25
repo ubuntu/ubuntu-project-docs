@@ -171,3 +171,35 @@ Until then, starting with these articles on
 [Using your YubiKey with OpenPGP](https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP)
 and the [YubiKey Guide](https://drduh.github.io/YubiKey-Guide) are a great way
 to begin.
+
+# Alternatives
+
+Hardware-backed PGP keys are the recommended solution because they provide
+protections against key extraction and local compromise, while staying
+rather comfortable and convenient to use — they can enforce confirmation for
+phishing resistance, keep private keys off disk for safer backups, and support
+modern curves/attestation for stronger cryptographic provenance.
+
+But no option is without risk: Advances in cryptanalysis, discovery of
+implementation flaws, vendor lock-in, or just increases in raw computational
+power can weaken any current scheme. We also have to recognize that hardware
+keys may not be accessible to everyone. To offset that, we maintain cautious
+skepticism against any implementation.
+
+If you now happen to distrust the recommended solution the most or it is
+unavailable to you, what then? In that case it is worth to think about
+alternatives. This multi-faceted approach aims to balance security and
+practicality while acknowledging the dynamic nature of cryptographic
+resilience.
+
+Alternative safeguards and key storage models may be acceptable as well,
+provided they are documented here in full on pages of their own, subject to a
+review before adoption and referenced from the list below to keep things
+together. Such a review must include security experts (including the Ubuntu
+security team), tech-board (does it fit the project), authors (to ensure
+clarity), and the wider project community through an open, non-rushed review
+process that permits broad participation and iterative feedback.
+
+Approved alternative recommendations:
+
+* (TBD - None approved yet)
