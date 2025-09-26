@@ -19,6 +19,7 @@ malicious attacks.
 | {ref}`pgp-encrypted-offline-storage` | Maintain encrypted offline storage of the main PGP key in a safe place. |
 | {ref}`pgp-redundant-hardware-keys` | Configure two identical hardware keys to prevent single points of failure. |
 | {ref}`pgp-expiration-dates-and-regular-key-audits` | Use an expiration date, and on renewal, review your key security practices. |
+| {ref}`pgp-control-and-ownership` | Control and ownership of cryptographic keys. |
 
 Please be aware that {ref}`pgp-these-policies-are-not-static` and require to follow a set of complex {ref}`pgp-setup-guidelines`.
 
@@ -137,6 +138,26 @@ revocation certificate. To be able to do so in case it is needed it can be
 good preparation to generate such a certificate right away. This shall be
 stored as safe as the main key, because it is rarely needed and there is the
 risk that anyone with access could publish it.
+
+(pgp-control-and-ownership)=
+# Control and ownership of cryptographic keys
+
+The Ubuntu developer as an individual is the only person authorised by
+Ubuntu Project and is therefore expected to have exclusive control of the
+{term}`Signing Key`. It is identifying the developer as an individual - Not a
+role, not a Ubuntu team membership nor a company team membership.
+
+Therefore the goal for the developer is to be in sole control and ownership of
+the hardware key, knowledge of the passphrase and control of the systems it is
+plugged into. Hardware keys are beneficial in this case as they can help to
+avoid exfiltration if compromised and furthermore allow to separate ownership
+of the computer from that of the hardware key.
+
+Still users need to remain vigilant against sophisticated attacks despite the
+use of hardware keys. An attack vector can be to subtly alter or present
+misleading information during signing operations. Always try to independently
+verify the content being signed, even when using a hardware key, to ensure it
+precisely matches the intended data and is free from malicious alterations.
 
 (pgp-these-policies-are-not-static)=
 # These policies are not static
