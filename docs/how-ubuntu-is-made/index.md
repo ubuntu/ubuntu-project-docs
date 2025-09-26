@@ -2,7 +2,7 @@
 # How Ubuntu is made
 
 
-## Project Governance
+## Community
 
 How the project is governed. This sets out the expectations for contributors
 and maintainers alike.
@@ -10,7 +10,7 @@ and maintainers alike.
 ```{toctree}
 :maxdepth: 1
 
-governance/index
+/community/index
 ```
 
 ## Concepts

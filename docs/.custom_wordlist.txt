@@ -88,6 +88,7 @@ Xenial
 Xorg
 Xubuntu
 Yakkety
+Yaru
 Zapus
 Zentyal
 Zope

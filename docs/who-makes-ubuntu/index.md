@@ -10,7 +10,7 @@ how one becomes a member.
 ```{toctree}
 :maxdepth: 1
 
-councils/index
+/community/councils/index
 ```
 
 
@@ -38,6 +38,16 @@ Explanation of the various pathways, expectations, and how to apply for a role.
 joining/index
 ```
 
+## Ubuntu Membership
+
+About Ubuntu Membership, the benefits and responsibilities, and how to become
+an Ubuntu Member.
+
+```{toctree}
+:maxdepth: 1
+
+/community/membership/index
+```
 ## Specialist teams
 
 For specific, specialist teams on Launchpad.

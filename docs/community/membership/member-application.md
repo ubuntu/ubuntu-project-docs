@@ -5,7 +5,7 @@ If you think you meet the requirements for Ubuntu Membership, there are a few
 routes you can take to formally apply.
 
 The most common way to apply is through the
-[Membership Boards](https://wiki.ubuntu.com/Membership/Boards), as outlined in
+{ref}`Membership Boards <ubuntu-membership-board>`), as outlined in
 the {ref}`member-standard-application` section.
 
 Some Ubuntu teams can grant membership directly through their governance Council.
@@ -129,7 +129,8 @@ contributions.
 ### Ubuntu Developers
 
 Members of the community who are involved with developing, packaging and
-distributing Ubuntu software can apply for {ref}`Ubuntu Developer Membership <ubuntu-developers>`.
+distributing Ubuntu software can apply for
+{ref}`Ubuntu Developer Membership <dmb-application>`.
 
 
 ### Edubuntu Membership

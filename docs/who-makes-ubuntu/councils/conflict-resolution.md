@@ -1,4 +1,0 @@
-(conflict-resolution)=
-
-# Conflict resolution
-

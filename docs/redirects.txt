@@ -40,15 +40,37 @@ staging/push-mirroring/ release-team/push-mirroring/
 staging/release-team/release-team/ release-team/release-team/
 staging/release-team/releases/ release-team/list-of-releases/
 
+# Governance/community pages
+explanation/governance/ community/governance/
+how-ubuntu-is-made/index-governance/ community/governance/
+how-ubuntu-is-made/governance/ community/governance/
+
+reference/governance/ethos/ community/ethos/
+how-ubuntu-is-made/governance/ethos/ community/ethos/
+
+reference/governance/ethos/mission/ community/ethos/mission/
+how-ubuntu-is-made/governance/ethos/mission community/ethos/mission/
+
+how-ubuntu-is-made/governance/ethos/code-of-conduct community/ethos/code-of-conduct
+how-ubuntu-is-made/governance/ethos/diversity community/ethos/diversity
+
+reference/governance/conflict-resolution/ who-makes-ubuntu/councils/conflict-resolution/
+who-makes-ubuntu/councils/conflict-resolution/ community/councils/conflict-resolution/
+
+how-ubuntu-is-made/governance/peers/ community/governance/
+
+staging/dmb/ubuntu-membership/ community/membership/
+staging/dmb/member-perks/ community/membership/member-perks/
+staging/dmb/member-requirements/ community/membership/member-requirements/
+staging/dmb/member-application/ community/membership/member-application/
+
+who-makes-ubuntu/index-councils/ who-makes-ubuntu/councils/
+who-makes-ubuntu/councils/ community/councils/
 
 # Pages moved around
 reference/glossary/ how-ubuntu-is-made/concepts/glossary/
 how-to/contribute-docs/ contributors/contribute-docs/
 contributors/advanced/request-package-removal/ contributors/advanced/aa-request-package-removal/
-reference/governance/ethos/mission/ how-ubuntu-is-made/governance/mission/
-reference/governance/conflict-resolution/ who-makes-ubuntu/councils/conflict-resolution/
-explanation/governance/ how-ubuntu-is-made/index-governance/
-reference/governance/ethos/ how-ubuntu-is-made/governance/ethos/
 contributors/bug-fix/bug-control/ who-makes-ubuntu/specialist-teams/bug-control-team/
 
 how-ubuntu-is-made/concepts/ubuntu-releases/ release-team/ubuntu-releases/
@@ -65,7 +87,6 @@ contributors/index-patching/ contributors/patching/
 contributors/index-qa-and-testing/ contributors/qa-and-testing/
 contributors/index-setup/ contributors/setup/
 how-ubuntu-is-made/index-concepts/ how-ubuntu-is-made/concepts/
-how-ubuntu-is-made/index-governance/ how-ubuntu-is-made/governance/
 how-ubuntu-is-made/index-processes/ how-ubuntu-is-made/processes/
 maintainers/index-AA/ maintainers/AA/
 maintainers/index-MIR/ MIR/mir-handling-mir-reviews/
@@ -78,7 +99,6 @@ who-makes-ubuntu/about-roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/sru-sla/
 who-makes-ubuntu/about-roles/index-uploaders/ who-makes-ubuntu/roles/uploaders/
 who-makes-ubuntu/about-roles/uploaders/uploaders-sla/ who-makes-ubuntu/roles/uploaders/uploaders-sla/
 who-makes-ubuntu/about-roles/archive-administration/ who-makes-ubuntu/roles/archive-administration/
-who-makes-ubuntu/index-councils/ who-makes-ubuntu/councils/
 who-makes-ubuntu/index-joining/ who-makes-ubuntu/joining/
 who-makes-ubuntu/index-specialist-teams/ who-makes-ubuntu/specialist-teams/
 

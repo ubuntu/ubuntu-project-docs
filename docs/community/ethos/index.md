@@ -6,7 +6,7 @@
 :hidden:
 
 Ubuntu Code of Conduct <code-of-conduct>
-diversity-policy
+diversity
 mission
 ```
 
@@ -22,7 +22,7 @@ Members of the Ubuntu Community follow a simple code of conduct that helps ensur
 
 Our community gains strength from its diversity and actively encourages everyone to participate in the project. We are committed to fostering a community that everyone feels proud to be a part of and one that is built around a mutual respect for one another.
 
-{ref}`Discover how we support and honor our diversity <diversity-policy>`
+{ref}`Discover how we support and honor our diversity <diversity>`
 
 ## Our Mission
 

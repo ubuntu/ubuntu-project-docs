@@ -1,4 +1,4 @@
-(diversity-policy)=
+(diversity)=
 
 # Diversity policy
 
