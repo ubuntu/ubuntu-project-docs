@@ -209,3 +209,15 @@ thoughts, pros and cons are in this
 Approved alternative recommendations:
 
 * (TBD - None approved yet)
+
+# Yet incomplete aspects
+
+These recommendations can already be tremendously helpful, but there are
+related aspects that are known to still be missing. Tracking them here
+within the document itself for easier reader awareness to avoid searching
+for them in vain.
+
+* The {ref}`pgp-setup-guidelines` are not yet defined in detail.
+* It would be great to add what actions to take if a key or signing compromise
+  is suspected.
+* Set of requirements an alternative recommendation would need to fulfil
