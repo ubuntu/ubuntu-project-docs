@@ -79,7 +79,7 @@ who-makes-ubuntu/about-roles/index-uploaders/ who-makes-ubuntu/roles/uploaders/
 who-makes-ubuntu/about-roles/uploaders/uploaders-sla/ who-makes-ubuntu/roles/uploaders/uploaders-sla/
 who-makes-ubuntu/about-roles/archive-administration/ who-makes-ubuntu/roles/archive-administration/
 who-makes-ubuntu/index-councils/ who-makes-ubuntu/councils/
-who-makes-ubuntu/index-joining/ who-makes-ubuntu/joining/
+who-makes-ubuntu/index-joining/ who-makes-ubuntu/joining/dmb-index
 who-makes-ubuntu/index-specialist-teams/ who-makes-ubuntu/specialist-teams/
 
 contributors/advanced/merge-a-package/ contributors/merging/

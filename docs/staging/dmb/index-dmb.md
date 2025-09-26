@@ -25,12 +25,7 @@ Ubuntu Membership Board [group in Launchpad](https://launchpad.net/~ubuntu-membe
 :maxdepth: 1
 :hidden:
 
-dmb
-ubuntu-developers
 ubuntu-development
-dmb-application
-dmb-aspects-of-a-good-application
-dmb-application-knowledge-requirements
 dmb-knowledge-base
 ubuntu-membership
 ```

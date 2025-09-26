@@ -1,11 +1,6 @@
 (dmb-application-knowledge-requirements)=
 # DMB application knowledge requirements
 
-```{note}
-Extension of [Source page](https://wiki.ubuntu.com/RobieBasak/DMB/Expectations)
-based on DMB discussions, and the ubuntu uploaders program feedback
-```
-
 There are several {ref}`dmb-aspects-of-a-good-application`, but questions are often asked around what knowledge and evidence an applicant should provide.
 
 In the table below we show the topics, descriptions of what the topic includes, and the depth to which the topic should be understood for each role.

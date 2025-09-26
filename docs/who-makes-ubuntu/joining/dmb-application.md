@@ -1,9 +1,134 @@
 (dmb-application)=
-# DMB application process
+# Developer Membership application process
 
 ```{note}
 [Page source](https://wiki.ubuntu.com/DeveloperMembershipBoard/ApplicationProcess)
 ```
+
+```{toctree}
+:titlesonly:
+:hidden:
+
+dmb-application-knowledge-requirements
+dmb-aspects-of-a-good-application
+```
+
+To become an {ref}`Ubuntu Contributing Developer <ubuntu-developers-contributing>`,
+{ref}`MOTU <ubuntu-developers-motu>`,
+{ref}`Per-Package Uploader <ubuntu-developers-per-package>`,
+{ref}`Ubuntu Core Developer (core-dev) <ubuntu-developers-core-dev>`,
+{ref}`SRU developer <ubuntu-developers-sru>` or
+developer of a delegated team for which the DMB handles applications, you must
+apply to the {ref}`Developer Membership Board <dmb>` via the processes outlined
+on this page.
+
+
+## Application process
+
+Reserve your spot
+: Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634)
+  to see when the DMB next meeting is, and to check the queue of applications.
+  Only 2 applications are considered each meeting so if there's a queue, make
+  sure to reserve a spot for when you think you'll be ready for consideration.
+
+Create your space
+: If it's your first time applying for upload rights,
+  {ref}`packageset-create-discourse-post`. If you already have a page, you can
+  reuse it.
+
+Training and preparation
+: The depth of your learning here depends on the upload rights you are applying
+  for:
+: 1. {ref}`PPU or Package Set <packageset-training-and-preparation>`  
+: 1. {ref}`MOTU <motu-training-and-preparation>`
+: 1. {ref}`Core Developer <core-dev-training-and-preparation>`
+
+Prepare application form
+: {ref}`packageset-prepare-application-form` on your Discourse post.
+
+Collect endorsements
+: {ref}`packageset-collect-endorsements` from those who have worked with you.
+
+Once you have enough endorsements
+: If you haven't already, add yourself to the
+  [DMB agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634).
+: Then you can announce your application and meeting date by writing an email
+  to the `devel-permissions@` mailing list. Your email should include:
+
+  * The link to your Discourse application page
+
+  * The date you reserved for your meeting
+
+  * A link to the meeting agenda
+
+Attend your meeting
+: Then you can {ref}`attend your meeting <dmb-application-meeting>`, answer
+  questions, and receive your votes.
+
+
+(packageset-create-discourse-post)=
+### Create a Discourse post for yourself
+
+Create a dedicated Discourse page for your application, using the
+[Developer Application Template](https://discourse.ubuntu.com/t/developer-application-template/66670).
+
+On this page you should (at least):
+
+* Introduce yourself and your past Ubuntu-related work
+
+* Include a "Contact Information" section with
+
+  * Your Matrix nickname
+
+  * Your Launchpad ID
+
+You can look at other people's pages for ideas of other things you can include.
+You'll be reusing this text in your membership applications later.
+
+
+(packageset-prepare-application-form)=
+### Prepare your application form
+
+In your {ref}`personal Discourse page <packageset-create-discourse-post>`,
+copy and paste the
+[Developer Application Template](https://discourse.ubuntu.com/t/developer-application-template/66670)
+and add your details in each section.
+
+```{note}
+You can look at
+[past Wiki applications](https://wiki.ubuntu.com/Home?action=fullsearch&context=180&value=DeveloperApplication&titlesearch=Titles)
+such as
+[`Paride`'s](https://wiki.ubuntu.com/ParideLegovini/UbuntuServerDeveloperApplication)
+or check out the [Discourse membership section](https://discourse.ubuntu.com/c/community/membership/93)
+if you need some examples.
+```
+
+Specify in your post title what upload rights you're applying for.
+
+
+(packageset-collect-endorsements)=
+### Collect endorsements
+
+To gain upload rights, you'll need to collect endorsements from people who have
+sponsored your packages. Ask other developers to endorse your application by
+replying to your Discourse page.
+
+A typical application has three to five endorsements. Developers who
+[sponsored several uploads for you](https://udd.debian.org/cgi-bin/ubuntu-sponsorships.cgi)
+are good candidates. It's good form to only ask people who have sponsored
+multiple packages for you, or that have worked with you on particularly tricky
+packaging efforts. You want to strike a good balance between quality and
+quantity here.
+ 
+If you work for Canonical, ask in your team's regular discussion channels, and
+individually contact each sponsor who is not in your team.
+
+For applications for MOTU, you should seek endorsements from people who have
+reviewed or sponsored your packages, or worked with you on noteworthy packaging
+efforts. If you work for Canonical, seek out diversity in your endorsers by
+looking outside your immediate team. Since MOTU is more focused on community
+maintainers, their testimonials are of particular value. Even words from
+noteworthy Debian maintainers can carry weight for MOTU applications.
 
 
 ## When to apply for team membership
@@ -44,38 +169,8 @@ membership. Here are some guidelines:
   requested packages without sponsorship supervision.
 
 
-## Applying for team membership
-
-
-To become an {ref}`Ubuntu Contributing Developer <ubuntu-developers-contributing>`,
-{ref}`MOTU <ubuntu-developers-motu>`,
-{ref}`Per-Package Uploader <ubuntu-developers-per-package>`,
-{ref}`Ubuntu Core Developer (core-dev) <ubuntu-developers-core-dev>`,
-{ref}`SRU developer <ubuntu-developers-sru>` or
-developer of a delegated team for which the DMB handles applications, you must
-apply to the {ref}`Developer Membership Board <dmb>` via the following process:
-
-* Create a dedicated Discourse page for your application, using the
-  [Developer Application Template](https://discourse.ubuntu.com/t/developer-application-template/66670).  
-
-* Ask other developers to endorse your application by replying to your
-  Discourse page. A typical application has three to five endorsements.
-  Developers who [sponsored several uploads for you](https://udd.debian.org/cgi-bin/ubuntu-sponsorships.cgi)
-  are good candidates.  
-
-* Add yourself to the [dmb agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634)
-  on a suitable application meeting date.
-
-* Announce your application and meeting date from the previous step (agenda) by
-  writing an email to the `devel-permissions@` list, which includes:  
-
-  * The link to your Discourse application page.  
-
-  * The date of your meeting date and a link to the agenda.  
-
-* Attend the meeting in `#ubuntu-meeting` on `irc.libera.chat` (to get an idea
-  of the format of the meeting, you can read some of the
-  [old meeting logs](https://wiki.ubuntu.com/DeveloperMembershipBoard/Logs)).
+(dmb-application-meeting)=
+## What to expect at the DMB meeting
 
 All members of the development community are welcome to attend and ask
 questions, add your feedback (even if unsolicited) as comments to the
