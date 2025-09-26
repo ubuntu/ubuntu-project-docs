@@ -200,6 +200,12 @@ security team), tech-board (does it fit the project), authors (to ensure
 clarity), and the wider project community through an open, non-rushed review
 process that permits broad participation and iterative feedback.
 
+There isn't yet a defined set of requirements such an alternative recommendation
+would need to fulfil to be considered as trusted. The first to be processed
+will need to identify that through discussion and colaboration. Initial
+thoughts, pros and cons are in this
+[mailing list discussion](https://lists.ubuntu.com/archives/ubuntu-devel/2025-September/043448.html).
+
 Approved alternative recommendations:
 
 * (TBD - None approved yet)
