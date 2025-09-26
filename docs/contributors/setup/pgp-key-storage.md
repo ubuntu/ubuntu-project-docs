@@ -86,7 +86,7 @@ attacks.
 To make an example what such extra protection could be like: When the key is
 generated or in the rare cases it is later needed, for example
 to generate new subkeys, it is suggested to do so on an offline (no network)
-live (boot from trusted unmodified medium) system and never use the associate
+live (boot from trusted unmodified medium) system and never use the associated
 passphrase on any other system.
 
 (pgp-redundant-hardware-keys)=
