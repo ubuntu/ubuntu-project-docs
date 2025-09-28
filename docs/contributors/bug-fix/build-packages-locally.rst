@@ -23,7 +23,7 @@ Prerequisites
 
 .. code-block:: none
 
-    $ sudo apt install sbuild debhelper ubuntu-dev-tools piuparts
+    $ sudo apt install dpkg-dev sbuild debhelper ubuntu-dev-tools piuparts
 
 All of the following sections assume you have already fetched the packaging (see :ref:`how-to-get-the-source-of-a-package`) and are in the same directory as the :file:`debian/` sub-directory.
 
@@ -208,3 +208,13 @@ To do a binary-only build of a package, run:
 .. code-block:: none
 
     $ debuild -b
+
+
+Clean up after build
+--------------------
+
+To remove build artifacts for a clean package directory, use one of the following methods to call the ``clean`` target from :file:`debian/control`. This is not required before running a new build because all build methods perform the cleaning automatically before starting a build (unless instructed otherwise).
+
+* ``dpkg-buildpackage -T clean``
+* ``sbuild --clean-source``
+* ``debuild -T clean``

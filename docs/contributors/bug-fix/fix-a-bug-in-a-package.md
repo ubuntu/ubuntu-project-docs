@@ -5,7 +5,7 @@
 TODO: The following content should be blended together with:
 
 - {ref}`how-to-propose-changes`
-- {ref}`h
+- {ref}`how-to-make-changes-to-a-package`
 ```
 
 In this tutorial we walk through the process of:
