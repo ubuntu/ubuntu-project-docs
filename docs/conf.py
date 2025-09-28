@@ -324,7 +324,10 @@ manpages_url = (
     + "/en/man{section}/{page}.{section}.html"
 )
 
-myst_substitutions = {"stable_distro": stable_distro}
+myst_substitutions = {
+    "stable_distro": stable_distro,
+    "release_schedule": "https://discourse.ubuntu.com/t/questing-quokka-release-schedule/36462",
+}
 
 # Configure hoverxref options
 hoverxref_role_types = {
@@ -400,7 +403,9 @@ intersphinx_mapping = {
     ),
     "sru": ("https://canonical-sru-docs.readthedocs-hosted.com/en/latest/", None),
     "git-ubuntu": (
-        "https://canonical-git-ubuntu.readthedocs-hosted.com/en/latest/", None),
+        "https://canonical-git-ubuntu.readthedocs-hosted.com/en/latest/",
+        None,
+    ),
 }
 
 

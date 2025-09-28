@@ -17,14 +17,16 @@ check-reverse-dependencies
 ```
 
 
-## Merges
+## Sponsorship
 
-See the {ref}`merging` article series for instructions on how to perform package merges.
+See the {ref}`sponsorship` article series for instructions on how seek sponsorship as well as review and sponsor uploads and syncs.
 
 ```{toctree}
-:titlesonly:
+:maxdepth: 1
 
 Review a merge proposal <review-a-merge-proposal>
+Sponsor an upload <sponsor-an-upload>
+Sponsor a sync <sponsor-a-sync>
 ```
 
 
@@ -45,14 +47,6 @@ See the {ref}`proposed-migration` series of articles for an explanation of the p
 
 *Content in staging*
 
-
-## Sponsorship
-
-```{toctree}
-:maxdepth: 1
-
-Sponsor an upload <sponsor-an-upload>
-```
 
 
 ## +1 Maintenance

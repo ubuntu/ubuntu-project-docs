@@ -1,7 +1,7 @@
 (freeze-exceptions)=
 # Freeze exceptions
 
-This page outlines some of the common scenarios where {ref}`freeze` exceptions
+This page outlines some of the common scenarios where freeze exceptions
 might be wanted. You should read this page before you
 {ref}`request-a-freeze-exception`.
 

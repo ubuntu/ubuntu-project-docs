@@ -36,6 +36,17 @@ automatic-package-testing-autopkgtest
 ```
 
 
+### Contributor support
+
+Allowing developers without Archive upload rights to submit their patches or new packages for review.
+
+```{toctree}
+:maxdepth: 1
+
+sponsorship
+```
+
+
 #### Proposed migration
 
 The process of moving (uploaded or merged) packages from the `-proposed` {term}`pocket` to the `-release` pocket to make them available to users:
@@ -52,17 +63,6 @@ Automatic migration may be blocked for many different reasons. The following art
 * {ref}`autopkgtest-regressions`
 * {ref}`failure-to-build-from-source-ftbfs`
 * {ref}`special-migration-cases`
-
-
-### Contributor support
-
-Allowing developers without Archive upload rights to submit their patches or new packages for review.
-
-```{toctree}
-:maxdepth: 1
-
-sponsorship
-```
 
 
 ### Inclusion gatekeeping

@@ -3,6 +3,23 @@
 
 Establishing a review process before sponsoring or uploading content has helped to maintain consistently high quality. To do so, changes are proposed as {ref}`merge proposals (MPs) <merge-proposals>` against {command}`git-ubuntu` branches.
 
+:::{admonition} **Sponsorship** series
+The article series provides guidance on requesting sponsorship and sponsoring.
+
+Overview:
+:   * {ref}`sponsorship`
+
+For contributors:
+:   * {ref}`how-to-find-a-sponsor`
+    * {ref}`how-to-request-an-upload`
+    * {ref}`how-to-request-a-sync`
+
+For sponsors:
+:   * {ref}`how-to-review-a-merge-proposal` (this article)
+    * {ref}`how-to-sponsor-an-upload`
+    * {ref}`how-to-sponsor-a-sync`
+:::
+
 MP reviews are conducted using a {ref}`checklist <review-checklist-template>`. The reviewer is asked to:
 
 * Review formal content for issues.
@@ -95,9 +112,7 @@ The following is an overview of common things to check.
 
 * Some changes imply that the packaging needs to be adapted. Check the content and release notes for any changes like that.
 
-* When merging from Debian or upstream:
-  * Check if there are newer versions to incorporate.
-  * Check if a release has been withdrawn or needs an immediate fix due to unintentional breakage.
+* When merging from Debian or upstream, check if there are newer versions to incorporate. Also ensure the newer release hasn't been withdrawn or doesn't need an immediate fix due to breakage.
 
 * Ensure that any changes in Debian do not imply the need to update the {term}`Ubuntu delta` (even if the delta applies cleanly).
 
@@ -113,9 +128,9 @@ The following is an overview of common things to check.
 
 ### New delta
 
-* Do the patches follow the {ref}`dep-3-patch-file-headers` format? (Use {command}`dep3changelog` to verify the headers and generate a changelog entry.
+* Do the patches follow the {ref}`dep-3-patch-file-headers` format? (Use {command}`dep3changelog` to verify the headers and generate a changelog entry.)
 
-* Does the patch content and name {ref}`follow our additional style choices <work-with-debian-patches>`? (This is not a strict check, but consistency helps to maintain packages together.)
+* Does the patch content and name {ref}`follow our additional style choices <work-with-debian-patches>`? This is not a strict check, but consistency helps to maintain packages together.
 
 * Do the patches match what is (proposed) upstream?
 
@@ -129,7 +144,7 @@ The following is an overview of common things to check.
 
   * Forwarded to Debian or upstream, so that everyone benefits, and a merge can one day become a sync again?
 
-  * Or, if they are Ubuntu-only choices, are they marked like that, so the next packager is not wondering if Ubuntu wants to keep or submit it? ((See {ref}`UD-forwarded for commits <the-commit-message>` and {ref}`Forwarded for patches <the-patchfile-header>`).
+  * Or, if they are Ubuntu-only choices, are they marked like that, so the next packager is not wondering if Ubuntu wants to keep or submit it? (See {ref}`UD-forwarded for commits <the-commit-message>` and {ref}`Forwarded for patches <the-patchfile-header>`.The art of computer programming)
 
     :::{note}
     If the old delta added in the past does not have such info, and you made an effort to check the history and reasoning to make good decisions, add the same info to that old delta.
@@ -203,7 +218,7 @@ S = Skipped
 * New patches:
   - [ ] No new patches added
   - [ ] Patches match those proposed/committed upstream
-  - [ ] Patches correctly included in Debian/patches/series
+  - [ ] Patches correctly included in debian/patches/series
   - [ ] Patches have correct DEP-3 metadata
   - [ ] Patches follow our style choices
   - [ ] New code not from upstream was forwarded or marked as Ubuntu-only

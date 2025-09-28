@@ -55,7 +55,7 @@ Sync (synchronization with Debian) is the automatic copying of new packages from
 
 The sync process runs from the opening of the Ubuntu Archive for a new :term:`release <Ubuntu release>` until the :ref:`debian-import-freeze`.
 
-On request (via a :term:`Launchpad` ticket), :term:`archive admins <Archive admin>` can sync a package from Debian even if the Ubuntu package carries an Ubuntu delta. In this case, the Ubuntu delta is dropped. A good example is when Ubuntu-specific changes have been merged into the Debian package or the :term:`upstream` project and are no longer needed. See :ref:`request-a-sync`.
+On request (via a :term:`Launchpad` ticket), :term:`archive admins <Archive admin>` can sync a package from Debian even if the Ubuntu package carries an Ubuntu delta. In this case, the Ubuntu delta is dropped. A good example is when Ubuntu-specific changes have been merged into the Debian package or the :term:`upstream` project and are no longer needed. See :ref:`how-to-request-a-sync`.
 
 .. admonition:: Getting packages from Debian to Ubuntu outside of the sync process
 
@@ -80,7 +80,7 @@ The Ubuntu Merge-o-Matic (MoM) service automatically performs merges and publish
 
 To complete a merge, interaction and supervision by Ubuntu maintainers are required. See :ref:`merging` for details on performing a merge.
 
-When Debian or upstream incorporate our logical changes before we merge them, meaning that there is essentially no difference between the Ubuntu and Debian versions, proceeding with merge would be merging an :ref:`empty commit <merge-empty-commits>` (i.e., adding a commit where nothing has changed). In this situation, it is better to sync the new version of the Debian package back to Ubuntu than to manually perform an empty merge. See :ref:`request-a-sync`.
+When Debian or upstream incorporate our logical changes before we merge them, meaning that there is essentially no difference between the Ubuntu and Debian versions, proceeding with merge would be merging an :ref:`empty commit <merge-empty-commits>` (i.e., adding a commit where nothing has changed). In this situation, it is better to sync the new version of the Debian package back to Ubuntu than to manually perform an empty merge. See :ref:`how-to-request-a-sync`.
 
 See the section :ref:`archive-components` in the article that explains the Ubuntu package archive for an explanation of ``main``, ``universe``, ``restricted``, and ``multiverse``.
 

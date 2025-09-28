@@ -117,7 +117,7 @@ First, once the development release reaches
 automation is disabled.
 
 Therefore, if an update from Debian *is* required, it must be
-{ref}`manually synced <request-a-sync>`. Version numbering in this case is
+{ref}`manually synced <how-to-request-a-sync>`. Version numbering in this case is
 trivial: It's the exact same version as in Debian.
 
 A second case is when the package does have Ubuntu changes, but our
@@ -127,7 +127,7 @@ package.
 For example, perhaps the Ubuntu changes were cherry-picked patches from upstream
 that are now available in a newer release now available from Debian,
 or perhaps Debian has adopted all of the Ubuntu changes into their own packaging.
-These situations will also require a {ref}`manual re-sync with Debian <request-a-sync>`.
+These situations will also require a {ref}`manual re-sync with Debian <how-to-request-a-sync>`.
 The version number also remains identical to Debian (see the 'Re-Sync w/ Debian'
 example in the previous section).
 
