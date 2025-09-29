@@ -1,7 +1,12 @@
 (merge-fix-the-changelog)=
 # Fix the changelog
 
-`git-ubuntu` attempts to put together a changelog entry, but it will likely have problems. Fix it to make sure it follows the standards. See {ref}`committing your changes <committing-changes>` for information about what it
+<!-- TODO:
+     We may need to adjust the title of this page. "Fix the changelog" is quite a generic statement that I think could apply to many processes.
+-->
+
+
+`git-ubuntu` attempts to put together a changelog entry, but it will likely have problems. Fix it to make sure it follows the standards. See {ref}`committing your changes <how-to-commit-changes>` for information about what it
 should look like.
 
 ::::{admonition} **Merging** series
@@ -20,7 +25,7 @@ Process overview:
     1. {ref}`merge-fix-the-changelog` (this article)
     1. {ref}`merge-upload-a-ppa`
     1. {ref}`merge-test-the-new-build`
-    1. {ref}`merge-submit-merge-proposal`
+    1. {ref}`merge-git-ubuntu-merge-proposal`
 
 Extra:
 :   * {ref}`merge-manually`

@@ -99,7 +99,7 @@ Sync-request merge proposal
         Build Debian version to verify before a sync
         ```
 
-    * {ref}`Build the source package <using-dpkg-buildpackage>` and upload to the PPA you're using in this MP.
+    * {ref}`Build the source package <how-to-build-packages-locally>` and upload to the PPA you're using in this MP.
 
 Useful examples:
 

@@ -1,7 +1,7 @@
-.. _get-the-source-of-a-package:
+.. _how-to-get-the-source-of-a-package:
 
-Get the source of a package
-===========================
+How to get the source of a package
+==================================
 
 Before you can work on a :term:`source package`, you need to get the :term:`source code` of that package. This article presents four ways to achieve this:
 

@@ -10,7 +10,7 @@ merge-process
 fix-the-changelog
 upload-a-ppa
 test-the-new-build
-submit-merge-proposal
+git-ubuntu-merge-proposal
 Merge manually <merge-manually>
 merge-cheat-sheet
 ```
@@ -23,13 +23,17 @@ The article series provides guidance on performing package merges.
 Process overview:
 :   * {ref}`merges-syncs`
 
+```{raw} html
+<span style="font-size:0.1px"></span>
+```
+
 {ref}`How to do a merge <merging>` (this article):
 :   1. {ref}`merge-preliminary-steps`
     1. {ref}`merge-process`
     1. {ref}`merge-fix-the-changelog`
     1. {ref}`merge-upload-a-ppa`
     1. {ref}`merge-test-the-new-build`
-    1. {ref}`merge-submit-merge-proposal`
+    1. {ref}`merge-git-ubuntu-merge-proposal`
 
 Extra:
 :   * {ref}`merge-manually`

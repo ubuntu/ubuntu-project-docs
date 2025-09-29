@@ -19,7 +19,7 @@ Process overview:
     1. {ref}`merge-fix-the-changelog`
     1. {ref}`merge-upload-a-ppa` (this article)
     1. {ref}`merge-test-the-new-build`
-    1. {ref}`merge-submit-merge-proposal`
+    1. {ref}`merge-git-ubuntu-merge-proposal`
 
 Extra:
 :   * {ref}`merge-manually`

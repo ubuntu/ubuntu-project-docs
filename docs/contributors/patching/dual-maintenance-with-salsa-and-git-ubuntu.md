@@ -1,4 +1,4 @@
-(salsa-dual-maintenance)=
+(dual-maintenance-with-salsa-and-git-ubuntu)=
 # Dual maintenance with Salsa and git-ubuntu
 
 Some packages for Ubuntu are maintained simultaneously using git-ubuntu and

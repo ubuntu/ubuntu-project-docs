@@ -73,7 +73,7 @@ copyright = "%s CC-BY-SA, %s" % (datetime.date.today().year, author)
 # NOTE: The Open Graph Protocol (OGP) enhances page display in a social graph
 #       and is used by social media platforms; see https://ogp.me/
 
-ogp_site_url = "https://canonical-starter-pack.readthedocs-hosted.com/"
+ogp_site_url = "https://documentation.ubuntu.com/project/"
 
 
 # Preview name of the documentation website
@@ -162,7 +162,7 @@ html_theme_options = {
 #######################
 
 # Base URL of RTD hosted project
-html_baseurl = "https://canonical-ubuntu-project.readthedocs-hosted.com/"
+html_baseurl = "https://documentation.ubuntu.com/project/"
 
 # URL scheme.
 sitemap_url_scheme = "{link}"

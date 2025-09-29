@@ -1,12 +1,11 @@
-(fix-a-bug-in-a-package)=
-# Fix a bug in package
+(how-to-fix-a-bug-in-a-package)=
+# How to fix a bug in a package
 
 ```{note}
+TODO: The following content should be blended together with:
 
-The following content should be blended together with:
-- {ref}`propose-changes`
-- {ref}`making-changes-to-a-package`
-
+- {ref}`how-to-propose-changes`
+- {ref}`how-to-make-changes-to-a-package`
 ```
 
 In this tutorial we walk through the process of:
@@ -81,7 +80,7 @@ Sometimes these types of bug reports will also include an attached
 user's system at the time of segfault, and typically includes the core dump,
 logs, and other relevant information. If the user has provided a `.crash`
 file, you can examine the
-{ref}`Apport Crash manually <debug-apport-crash>`
+{ref}`Apport Crash manually <how-to-debug-an-apport-crash>`
 to get a useful stacktrace.
 
 
@@ -497,17 +496,17 @@ On the other hand, if you've made changes to the upstream code (anything
 outside of the `debian/` directory), you'll need to generate a patch in
 `debian/patches`.
 
-For instructions, see {ref}`Making a Patchfile <work-with-debian-patches>`.
+For instructions, see {ref}`how-to-work-with-debian-patches`.
 
 
 ### Step 5: Commit the patch
 
-See {ref}`committing your changes <committing-changes>`.
+See {ref}`how-to-commit-changes`.
 
 
 ## Build a fixed package
 
-See {ref}`Package Building <package-building>`.
+See {ref}`how-to-build-packages-in-a-ppa`.
 
 
 ## Test the Package
@@ -574,7 +573,7 @@ The bug is fixed! Sweet!
 ## Run the package tests
 
 The DEP-8 autopkgtests don't exercise our bug, but are worth running as
-just-in-case checks (and to catch regressions). See {ref}`run-package-tests`.
+just-in-case checks (and to catch regressions). See {ref}`how-to-run-package-tests`.
 
 Any change in behavior should be considered as priorities to resolve before
 proceeding.
@@ -582,7 +581,7 @@ proceeding.
 
 ## Start a merge proposal
 
-See {ref}`merge-proposals`.
+See {ref}`how-to-submit-a-merge-proposal`.
 
 
 ## Update the bug report

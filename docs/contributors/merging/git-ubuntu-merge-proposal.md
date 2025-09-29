@@ -1,5 +1,5 @@
-(merge-submit-merge-proposal)=
-# Submit Merge Proposal
+(merge-git-ubuntu-merge-proposal)=
+# `git-ubuntu` merge proposal
 
 Following a merge and testing, submit a merge proposal to include the updated package in the Archive.
 
@@ -19,7 +19,7 @@ Process overview:
     1. {ref}`merge-fix-the-changelog`
     1. {ref}`merge-upload-a-ppa`
     1. {ref}`merge-test-the-new-build`
-    1. {ref}`merge-submit-merge-proposal` (this article)
+    1. {ref}`merge-git-ubuntu-merge-proposal` (this article)
 
 Extra:
 :   * {ref}`merge-manually`

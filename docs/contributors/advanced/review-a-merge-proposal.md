@@ -1,7 +1,7 @@
 (how-to-review-a-merge-proposal)=
 # How to review a merge proposal
 
-Establishing a review process before sponsoring or uploading content has helped to maintain consistently high quality. To do so, changes are proposed as {ref}`merge proposals (MPs) <merge-proposals>` against {command}`git-ubuntu` branches.
+Establishing a review process before sponsoring or uploading content has helped to maintain consistently high quality. To do so, changes are proposed as {ref}`merge-proposals <how-to-submit-a-merge-proposal>` against {command}`git-ubuntu` branches.
 
 :::{admonition} **Sponsorship** series
 The article series provides guidance on requesting sponsorship and sponsoring.
@@ -130,7 +130,7 @@ The following is an overview of common things to check.
 
 * Do the patches follow the {ref}`dep-3-patch-file-headers` format? (Use {command}`dep3changelog` to verify the headers and generate a changelog entry.)
 
-* Does the patch content and name {ref}`follow our additional style choices <work-with-debian-patches>`? This is not a strict check, but consistency helps to maintain packages together.
+* Does the patch content and name {ref}`follow our additional style choices <how-to-work-with-debian-patches>`? This is not a strict check, but consistency helps to maintain packages together.
 
 * Do the patches match what is (proposed) upstream?
 
@@ -144,7 +144,7 @@ The following is an overview of common things to check.
 
   * Forwarded to Debian or upstream, so that everyone benefits, and a merge can one day become a sync again?
 
-  * Or, if they are Ubuntu-only choices, are they marked like that, so the next packager is not wondering if Ubuntu wants to keep or submit it? (See {ref}`UD-forwarded for commits <the-commit-message>` and {ref}`Forwarded for patches <the-patchfile-header>`.The art of computer programming)
+  * Or, if they are Ubuntu-only choices, are they marked like that, so the next packager is not wondering if Ubuntu wants to keep or submit it? (See {ref}`UD-forwarded for commits <write-the-commit-message>` and {ref}`Forwarded for patches <the-patchfile-header>`.)
 
     :::{note}
     If the old delta added in the past does not have such info, and you made an effort to check the history and reasoning to make good decisions, add the same info to that old delta.

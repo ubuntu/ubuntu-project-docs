@@ -3,8 +3,7 @@
 
 ```{toctree}
 :maxdepth: 1
-:glob:
 
-setup
-get-package-source
+Set up for Ubuntu development <set-up-for-ubuntu-development>
+Get the source of a package <get-the-source-of-a-package>
 ```

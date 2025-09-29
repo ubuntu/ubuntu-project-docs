@@ -9,7 +9,7 @@ bug-types
 bug-status
 bug-importance
 bug-responses
-assign-bug-to-package
+Assign a bug to a package <assign-a-bug-to-a-package>
 ```
 
 Ubuntu receives a huge number of bug reports every day. Triaging new bugs is a
@@ -129,7 +129,7 @@ what information is needed for common reports and can ask the reporters to
 attach logs or confirm bug reports. This is a first step towards more advanced
 triaging.
 
-See the {ref}`assign-bug-to-package` page for instructions on how to identify
+See the {ref}`how-to-assign-a-bug-to-a-package` for instructions on how to identify
 the correct package and assign a bug to it.
 
 

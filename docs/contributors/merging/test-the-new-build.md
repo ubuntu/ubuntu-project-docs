@@ -19,7 +19,7 @@ Process overview:
     1. {ref}`merge-fix-the-changelog`
     1. {ref}`merge-upload-a-ppa`
     1. {ref}`merge-test-the-new-build` (this article)
-    1. {ref}`merge-submit-merge-proposal`
+    1. {ref}`merge-git-ubuntu-merge-proposal`
 
 Extra:
 :   * {ref}`merge-manually`
@@ -30,7 +30,7 @@ Extra:
 (merge-run-package-tests)=
 ## Run package tests
 
-See {ref}`run-package-tests`.
+See {ref}`how-to-run-package-tests`.
 
 
 (merge-test-upgrading-from-the-previous-version)=
@@ -120,4 +120,4 @@ See {ref}`run-package-tests`.
 
 ## Next
 
-* {ref}`merge-submit-merge-proposal`
+* {ref}`merge-git-ubuntu-merge-proposal`

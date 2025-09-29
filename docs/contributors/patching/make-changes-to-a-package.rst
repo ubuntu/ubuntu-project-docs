@@ -1,9 +1,10 @@
-.. _making-changes-to-a-package:
+.. _how-to-make-changes-to-a-package:
 
-Making changes to a package
-===========================
+How to make changes to a package
+================================
 
 This tutorial goes through the process of adding a patch to a package in Ubuntu. Specifically, we add a command-line option to the :command:`hello` command, which greets a user using their username. This covers topics like :command:`git-ubuntu`, :command:`quilt`, and changelogs.
+
 
 Getting the tools
 -----------------
@@ -27,6 +28,7 @@ We are using some tools from the :pkg:`ubuntu-dev-tools` package. Install it wit
 
     $ sudo apt install -y ubuntu-dev-tools
 
+
 Understanding the package
 -------------------------
 
@@ -42,11 +44,11 @@ This means that, like most packages, this package uses the :command:`quilt` tool
 
 In particular, instead of ending up with a Git commit that modifies the upstream source code directly, our commit adds a new file, :file:`debian/patches/add-username-command-line-option.patch`, which contains the patch to apply to the upstream source code.
 
+
 .. _creating-a-patch-with-quilt:
 
 Creating a patch with :command:`quilt`
 --------------------------------------
-
 
 First, create the new patch file using :command:`quilt`:
 
@@ -227,7 +229,7 @@ The patch is currently applied in the working directory.
 Committing the changes
 ----------------------
 
-Now that we have created our patch file, track the changes in Git. Add the new patch file (and in this case, the newly created :file:`debian/patches/series` file) to the Git index and commit the change:
+Now that we have created our patch file, track the changes in Git (see also :ref:`how-to-commit-changes` for detailed guidance on commit message and changelog formatting). Add the new patch file (and in this case, the newly created :file:`debian/patches/series` file) to the Git index and commit the change:
 
 .. prompt:: none $ auto
 
@@ -363,6 +365,7 @@ And that's it! We have successfully:
 * Documented our change.
 * Prepared the package for its next upload to the Ubuntu archive.
 
+
 Next steps
 ----------
 
@@ -372,3 +375,9 @@ From here, there are many options for testing our patch before proposing the cha
 * Upload to a PPA and test from there.
 
 Once you feel confident that the patch is working correctly, open a merge proposal and request :ref:`sponsorship` for your change.
+
+
+Further reading
+---------------
+
+* :ref:`how-to-commit-changes`

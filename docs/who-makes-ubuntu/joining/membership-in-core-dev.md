@@ -33,8 +33,8 @@ levels it is nevertheless worth reviewing their training and application
 processes to make sure you'll be fulfilling their requirements.
 
 In addition to understanding common tasks documented in this guide, including
-{ref}`Debian patching <work-with-debian-patches>`,
-{ref}`Stable Release Updates (SRUs) <fix-a-bug-in-a-package>`,
+{ref}`Debian patching <how-to-work-with-debian-patches>`,
+{ref}`Stable Release Updates (SRUs) <how-to-fix-a-bug-in-a-package>`,
 and so on, Core Dev applicants must also have a good understanding of these
 advanced packaging skills, and ideally direct experience with a few of them:
 

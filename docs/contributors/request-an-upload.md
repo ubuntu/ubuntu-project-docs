@@ -27,8 +27,8 @@ For any non-trivial change, it's good practice to discuss your plans with a pote
 
 ## Seek upload sponsorship
 
-Submit a {ref}`Merge Proposal (MP) <merge-proposals>` with your changes. Ensure to:
+Submit a {ref}`Merge Proposal (MP) <how-to-submit-a-merge-proposal>` with your changes. Ensure to:
 
-* Include the Launchpad bug that is to be fixed by this upload in the {file}`changelog` file in the form `LP: #123456` (see {ref}`write-an-effective-changelog`).
+* Include the Launchpad bug that is to be fixed by this upload in the {file}`changelog` file in the form `LP: #123456` (see {ref}`write-the-changelog-entry`).
 * Select the `ubuntu-sponsors` team as the reviewer for the MP.
 * Link the Launchpad bug to the MP (using the {guilabel}`Link a bug report` link).
