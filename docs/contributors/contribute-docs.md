@@ -246,7 +246,6 @@ The documentation project defines the following custom roles to simplify adding 
 `lpbug`
 : Use to create links to Launchpad bugs at [bugs.launchpad.net](https://bugs.launchpad.net/).
 
-
     ::::{tab-set}
 
     :::{tab-item} MyST
@@ -284,7 +283,6 @@ The documentation project defines the following custom roles to simplify adding 
 `lpsrc`
 : Use to create links to Ubuntu packages on Launchpad at [launchpad.net/ubuntu](https://launchpad.net/ubuntu).
 
-
     ::::{tab-set}
 
     :::{tab-item} MyST
@@ -318,6 +316,43 @@ The documentation project defines the following custom roles to simplify adding 
     ::::
 
     Renders as: {lpsrc}`bash`
+
+`matrix`
+: Use to create links to ubuntu.com-hosted Matrix channels.
+
+    ::::{tab-set}
+
+    :::{tab-item} MyST
+    Syntax:
+
+    ```md
+    {matrix}`<Ubuntu-channel>`
+    ```
+
+    Example:
+
+    ```md
+    {matrix}`devel`
+    ```
+    :::
+
+    :::{tab-item} reStructuredText
+    Syntax:
+
+    ```md
+    :matrix:`<Ubuntu-channel>`
+    ```
+
+    Example:
+
+    ```md
+    :matrix:`devel`
+    ```
+    :::
+
+    ::::
+
+    Renders as: {matrix}`devel`
 
 
 ### Command line and terminal output
