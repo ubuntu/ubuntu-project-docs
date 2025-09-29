@@ -34,15 +34,14 @@ document applies to; we don't intend to do MREs for Feature Releases.
 Ubuntu [and OpenLDAP] releases affected by this MRE
 ---------------------------------------------------
 
-Currently, these are the Ubuntu releases and the corresponding OpenLDAP
-package versions affected by this policy:
+Currently, all supported **Ubuntu LTS releases** are affected by this policy.
 
--  **Jammy (22.04)** [**OpenLDAP 2.5.x**]
+Each supported Ubuntu release with OpenLDAP version `a.b.x` gets stable upstream updates on `x`.
 
-The OpenLDAP 2.5.x series is upstream's first LTS release, and its
-inclusion in Jammy was no coincidence. Newer Ubuntu releases will likely
-have non-LTS OpenLDAP releases in them until our next Ubuntu LTS series
-is released, when we intend to ship the next OpenLDAP LTS release.
+Note this will include non-LTS releases of Ubuntu as needed to satisfy the :ref:`"newer releases" criteria <explanation-newer-releases>`.
+
+Since OpenLDAP releases LTS versions as well, we intend to ship the most recent OpenLDAP LTS release in the next Ubuntu LTS release.
+
 
 QA
 --
