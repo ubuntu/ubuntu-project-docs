@@ -57,7 +57,8 @@ Toolchain team:
    SRU template. The testing section must contain results of JTREG build
    time and autopkgtests.
    Note: Ensure that build dependencies specify the latest openjdk
-   release first:
+   release first if the intermediate release, such as openjdk-24 is
+   present in the archive:
    `openjdk-25-jdk-headless:native | openjdk-24-jdk-headless:native,`
 -  Performs a no-change rebuild to validate bootstraping works in a
    public ppa in `openjdk-r` team, e.g. `ppa:openjdk-r/openjdk-25`.
