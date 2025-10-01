@@ -22,53 +22,29 @@ This rule [was proposed](https://lists.ubuntu.com/archives/devel-permissions/202
 (dmb-voting-and-quorum)=
 ## Voting and quorum
 
-Applications must reach +1 in order to pass.
-If the meeting is quorate and all members present vote in the same way (+1 or -1), then the application will have passed or failed -- the remaining members cannot overturn the vote.
-If the vote is in doubt then it is *hung* and the remaining members will be asked to vote by email or at the next meeting.
-In this case those members are entitled to ask the applicant further questions if they still have any upon reviewing the meeting log.
+* The total number of active board members should be 7, with a quorum of 4.
 
-> Quorum votes are required to make any decision., however if quorum is not reached at first meeting, at the next meeting majority present votes are required.
+* We don't require quorum to hold meetings, we only require 'quorum' during voting
 
-The details for this rule, and **quorum** voting in particular, are not always clear, so the TL:DR for this rule is, any proposal or application that is voted on at a regular meeting must use the process shown in the Python function below;
-if the function does not result in pass or fail, then at the next scheduled meeting, the vote will pass with only a majority of present members (meaning the sum of votes from present members must be greater than 0).
+* Members vote on applications or proposals by giving -1 (reject), 0 (abstain), or +1 (approve)
+
+* The sum of all votes given must reach >0 (a majority) to pass a vote.
+
+* The vote must be quorate for it to be valid.
+
+  * However if quorum is not reached at first meeting, then at the next meeting a "majority of present votes" is sufficient to pass.
+
+* If the meeting is quorate and all members present vote in the same way (+1 or -1), then the application will have passed or failed -- the remaining members cannot overturn the vote. However if the verdict was not unanimous, then the remaining members will be asked to vote by email or at the next meeting.
+
+* If the vote is in doubt (for example, if 4 members are present and the vote is tied) then it is *hung* and the remaining members will be asked to vote by email or at the next meeting.
+
+* In the case of a deferred email or next-meeting vote, those members are entitled to ask the applicant further questions if they still have any upon reviewing the meeting log (or recording).
+
 
 ```{note}
-This rule was proposed and approved in a [mailing list thread](https://lists.ubuntu.com/archives/devel-permissions/2021-August/001728.html), that was discussed and then [extended to a poll](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001756.html) for which [the results](https://lists.ubuntu.com/archives/devel-permissions/2021-November/001782.html) are explained below.
+These rules are complex, a different approach to make it less misunderstandable
+is by expressing it as a {ref}`dmb-vote-function`.
 ```
-
-As *quorum* can be difficult to parse under all circumstances, an explanation from a [mailing list post](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001763.html) (and [follow up post](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001764.html) for a tie vote) is summarized in this Python function, where `total_members` is the total number of **active** board members (which is typically 7):
-
-```none
-def do_vote(*votes, total_members=7):
-
-  absent = total_members - len(votes)
-
-  net_vote = sum(votes)
-
-  min = net_vote - absent
-
-  max = net_vote + absent
-
-  if min > 0:
-
-    print(f'Vote minimum {min} > 0, vote passes')
-
-  elif max < 0:
-
-    print(f'Vote maximum {max} < 0, vote fails')
-
-  elif min == max == net_vote == 0:
-
-    print(f'Vote is tied, vote fails')
-
-  else:
-
-    print(f'Vote is between {min} and {max}, outcome unknown as quorum was not reached')
-```
-
-This function represents the meaning of **quorum** votes.
-Note that if **`total_members`** is 7, if the number of voters is less than 4, it is impossible to pass or fail.
-
 
 (dmb-application-communication)=
 ## Application-related communication
