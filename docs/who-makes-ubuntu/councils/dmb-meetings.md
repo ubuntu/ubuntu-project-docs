@@ -22,12 +22,12 @@ The meeting starts on Matrix in the {matrix}`meeting` channel, and we then offer
 ## Chair
 
 We share the responsibility of chairing the meetings.
-At the end of every meeting, we pre-select the next meeting's chair.
 
 The chair drives the meeting according the agenda, ensures we are following
 the rules of the {ref}`dmb-voting-and-quorum` section, assigns follow up tasks
 like {ref}`dmb-application-communication`.
 
+At the end of every meeting, we try to pre-select the next meeting's chair.
 
 ## General progress during meetings
 
