@@ -40,7 +40,7 @@ Practical recommendations all derive from the entropy given by the passphrase:
   (or a memorable sentence of 20–30 characters).
 * If you use a password manager/geneator: create a random 16+ character password (include upper/lower/digits/symbols).
 * Never reuse the passphrase for other accounts.
-* If you store the private key and its passphrase, please do so separately in secure locations.
+* If you store the private key and its passphrase, please do so separately in secure locations (sorry - outlining that would be an even more complex document, probably only able to list good and bad examples).
 
 (pgp-hardware-security-keys)=
 ## Hardware Security Keys
@@ -241,3 +241,5 @@ for them in vain.
 * It would be great to add what actions to take if a key or signing compromise
   is suspected.
 * Set of requirements an alternative recommendation would need to fulfil
+* Outline what "in a secure location" could be in a sub-article. That will
+  probably never be complete, but could list acknowledged known good/bad cases.
