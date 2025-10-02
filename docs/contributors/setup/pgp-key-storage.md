@@ -38,7 +38,7 @@ Practical recommendations all derive from the entropy given by the passphrase:
   sub-keys you will not need it for daily use.
 * If you prefer memorability: use 6+ [Diceware words](https://en.wikipedia.org/wiki/Diceware)
   (or a memorable sentence of 20–30 characters).
-* If you use a password manager/geneator: create a random 16+ character password (include upper/lower/digits/symbols).
+* If you use a password manager/generator: create a random 16+ character password (include upper/lower/digits/symbols).
 * Never reuse the passphrase for other accounts.
 * If you store the private key and its passphrase, please do so separately in secure locations (sorry - outlining that would be an even more complex document, probably only able to list good and bad examples).
 
