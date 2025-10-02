@@ -81,8 +81,7 @@ A typical setup would usually consist of a locked-away, offline, main PGP key
 on the hardware security keys that are used for regular operations.
 That encrypted offline main PGP key is then the final safeguard to recover,
 but also has no need to be comfortable or quick to reach and hence can make
-use of various extra levels of extra protection against physical and digital
-attacks.
+use of various extra levels of protection against physical and digital attacks.
 
 To make an example what such extra protection could be like: When the key is
 generated or in the rare cases it is later needed, for example
@@ -95,9 +94,9 @@ passphrase on any other system.
 
 To further enhance the resilience of PGP key management and mitigate the risk of
 single points of failure, it is recommended to set up and utilize two hardware
-security keys configured identically with subkeys of the same key set up on both
-devices. This redundancy ensures continued access to credentials even if one
-hardware security key fails, which could be particularly critical if a developer
+security keys configured with subkeys of the same key set up on both devices.
+This redundancy ensures continued access to credentials even if one hardware
+security key fails, which could be particularly critical if a developer
 is traveling.
 
 In general, such redundancy is especially important for the non-PGP use cases of
