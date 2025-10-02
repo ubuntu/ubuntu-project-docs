@@ -49,7 +49,10 @@ To mitigate the elevated risks associated with a compromised PGP key, the Ubuntu
 Project strongly encourages, though does not strictly mandate, the adoption of
 hardware security keys that support PGP operations. Devices such as some
 YubiKey models, designed with secure elements, offer a significant enhancement
-to purely file-based PGP key protection.
+to purely file-based PGP key protection. We are not selecting a particular
+manufacturer like YUbikey or model, alternatives like
+[TKey](https://www.tillitis.se/products/tkey/) are just as valid. Check their
+capabilities against the recommended setup outlined here when selecting one.
 
 The primary benefits of using hardware security keys include:
 
