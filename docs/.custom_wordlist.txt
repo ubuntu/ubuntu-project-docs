@@ -18,6 +18,7 @@ codecs
 Debcrafters
 debdiff
 dev
+Diceware
 distro
 dialog
 dialogs
