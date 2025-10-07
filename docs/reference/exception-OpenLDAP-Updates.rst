@@ -165,32 +165,58 @@ as well as upstream's testsuite during the package build.
 We will also provide a link to upstream's "call for testing" email and
 to the !GitLab jobs that were executed when the release was cut.
 
+.. _openldap_sru_template:
 
 OpenLDAP SRU template
 ^^^^^^^^^^^^^^^^^^^^^
 
 ::
 
-   This bug tracks an update for the OpenLDAP package, version XYZ.
+   [ Impact ]
 
-   This update includes bugfixes only following the SRU policy exception defined at
-   https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenLDAP-Updates/
+   This bug tracks the following MRE updates for the OpenLDAP package:
 
-   [Major Changes]
+   * MRE for latest stable OpenLDAP a.b release, a.b.x.
 
-   TODO: List the major changes
-   TODO: list to the announce mail containing all changes
+   These updates only include bug fixes, following the SRU policy exception defined at https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenLDAP-Updates/
 
-   [Test Plan]
+   [ Major Changes ]
 
-   See https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenLDAP-Updates/#testing-and-verification
-   TODO: link the build log containing all tests being executed
-   TODO: if there are any non passing tests - explain why that is ok in this case.
-   TODO: link upstream's "call for testing" email
-   TODO: link upstream's gitlab job for this release (look here: https://git.openldap.org/openldap/openldap/-/tags)
+   TODO: List the major changes if any
+   TODO: Link to the announce mail containing all changes on https://lists.openldap.org/hyperkitty/list/openldap-announce@openldap.org/
 
-   [Regression Potential]
+   [ Test Plan ]
 
-   Upstream tests are always executed during build-time.  There are many reverse dependencies whose dep8 tests depend on OpenLDAP so the coverage is good.  Nevertheless, there is always a risk for something to break since we are dealing with a microrelease upgrade.  Whenever a test failure is detected, we will be on top of it and make sure it doesn't affect existing users.
+   See https://documentation.ubuntu.com/sru/en/latest/reference/exception-OpenLDAP-Updates/#qa
+
+   1. Upstream gitlab pipeline results: TODO link for release on https://git.openldap.org/openldap/openldap/-/tags
+
+   2. Upstream "call for testing": TODO link to email on https://lists.openldap.org/hyperkitty/list/openldap-technical@openldap.org/
+
+   3. As specified in the MRE page for OpenLDAP, the test plan is to build the package in "-proposed" and make sure that
+      (a) all build-time tests pass and
+      (b) all autopkgtest runs (from reverse dependencies) also pass.
+
+   * Build log confirming that the build-time testsuite has been performed and completed successfully:
+     - TODO link to build log(s)
+
+   * Test results:
+     - TODO autopkgtest results and discussion
+
+   [ Where problems could occur ]
+
+   Upstream tests are always executed during build-time.
+   There are many reverse dependencies whose dep8 tests depend on OpenLDAP so the coverage is good.
+   Nevertheless, there is always a risk for something to break since we are dealing with a microrelease upgrade.
+   Whenever a test failure is detected, we will be on top of it and make sure it doesn't affect existing users.
 
    TODO: consider any other regression potential specific to the version being updated and list if any or list N/A.  OpenLDAP is used as a library by many other projects, so care must be taken when considering how this MRE might affect these dependencies.
+
+   * Current versions in supported releases that got updates:
+     - openldap | ``TODO current-version`` | ``$release-pocket`` -updates
+
+   [ Other Info ]
+
+   This is a recurring effort. For reference, here are previous OpenLDAP SRU backports:
+
+   * TODO: bug links to more recent cases of SRU backports for this package
