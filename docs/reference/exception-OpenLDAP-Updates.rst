@@ -124,7 +124,7 @@ to perform the following actions:
 #. Merge the latest OpenLDAP LTS microrelease into our existing
    package, rebasing whatever delta the package may contain.
 
-#. Upload the resulting package to a PPA, making sure that the build succeeds **and** that there are no autopkgtest regressions introduced.
+#. Upload the resulting package to a PPA, making sure that the build succeeds **and** that there are no autopkgtest regressions introduced.
 
 When everything looks OK, we are ready to start the SRU process.
 
@@ -144,9 +144,9 @@ We will:
    See the SRU template below for more details on how this bug will
    look like.
 
-#. Once everything is OK, upload the package to the proposed pocket
-   (if it's a non-security upload), and, once approved, keep an eye
-   on the excuses page and investigate any DEP8 failures.``
+#. Once everything is OK, upload the package to the proposed pocket
+   (if it's a non-security upload), and, once approved, keep an eye
+   on the excuses page and investigate any DEP8 failures.
 
 The UbuntuServer team has been doing MREs for other packages as well
 (postgresql, for example). We can use an existing MRE bug as a template
