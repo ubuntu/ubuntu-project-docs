@@ -20,7 +20,7 @@ With the incredible success of Ubuntu around the world, the Ubuntu Local Communi
 ## What are the perks of being in an Ubuntu Local Community?
 
 * Network with other Ubuntu enthusiasts in your region.
-* Access to exclusive Ubuntu Merch Packs and swag.
+* Access to exclusive Ubuntu {spellexception}`Merch` Packs and swag.
 * Future event sponsorship opportunities.
 * Participation may lead to future {ref}`ubuntu-membership`.
 * Help spread the mission of free and open source software around the world!
