@@ -93,14 +93,24 @@ RULE: resolver)". Similarly some of the tools shown below are capable of
 RULE: checking both, build and runtime dependencies. Only runtime dependencies
 RULE: matter.
 RULE: This got further complex with languages like rust that embed their code
-RULE: into static builds by default - there as you can read in the respective
-RULE: section build dependencies matter just like runtime dependencies.
+RULE: into static builds by default - there, as you can read in the respective
+RULE: section, build dependencies matter just like runtime dependencies.
+RULE: To make it even more "be careful, because it depends", some solutions are
+RULE: e.g. C based headers that put not just definitions but large amounts
+RULE: of active code that is built into the binaries - that in turn shall be
+RULE: considered like a runtime dependency that should be in main.
+RULE: Common tools to check dependencies are:
+RULE:   - `check-mir` of package ubuntu-dev-tools
+RULE:   - `seeded-in-ubuntu` of package ubuntu-dev-tools
+RULE:   - Do not check d/control (dependencies might be generated) but the
+RULE:     buildlog if none of the Depends and Recommends present after build
+RULE:     are not in main
+RULE:   - Please read https://documentation.ubuntu.com/project/contributors/advanced/check-reverse-dependencies/
+RULE:     for more about checking reverse dependencies in general
 OK:
-TODO: - no other Dependencies to MIR due to this
-TODO:   - SRCPKG checked with `check-mir`
-TODO:   - all dependencies can be found in `seeded-in-ubuntu` (already in main)
-TODO:   - none of the (potentially auto-generated) dependencies (Depends
-TODO:     and Recommends) that are present after build are not in main
+TODO: - no other runtime Dependencies to MIR due to this
+TODO: - no other build-time Dependencies with active code in the final binaries
+TODO:   to MIR due to this
 TODO: - no -dev/-debug/-doc packages that need exclusion
 TODO: - No dependencies in main that are only superficially tested requiring
 TODO:   more tests now.
