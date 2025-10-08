@@ -21,7 +21,7 @@ All that is summarized in this Python-like function:
 ```python
 def do_vote(votes, total_members=7):
     """
-    This function prints exactly one of: "passed", "failed", "hung", "require follow up".
+    This function returns the outcome of a DMB vote as a string.
 
     :param votes: list of integers (-1, 0, +1) representing votes cast by members present
     :param total_members: int, number of active board members (default 7)
@@ -33,15 +33,15 @@ def do_vote(votes, total_members=7):
     if dmb_members_present >= quorum:
         # unanimous among dmb_members_present non-abstain voters
         if non_abstain_votes and all(v == 1 for v in non_abstain):
-            print("passed and final")
+            return "passed and final"
         if non_abstain_votes and all(v == -1 for v in non_abstain):
-            print("failed and final")
+            return "failed and final"
         if sum_of_votes > 0:
-            print("passed, but can be overturn by absent members voting by mail until or at next meeting")
+            return "passed, but can be overturn by absent members voting by mail until or at next meeting"
         if sum_of_votes < 0:
-            print("failed, but can be overturn by absent members voting by mail until or at next meeting")
+            return "failed, but can be overturn by absent members voting by mail until or at next meeting"
         # tie or zero sum
-        print("hung, absent members are asked to vote by mail until or at next meeting")
+        return "hung, absent members are asked to vote by mail until or at next meeting"
     else:
-        print("Not quorate - require follow up, next time majority of present members votes will suffice")
+        return "Not quorate - require follow up, next time majority of present members votes will suffice"
 ```
