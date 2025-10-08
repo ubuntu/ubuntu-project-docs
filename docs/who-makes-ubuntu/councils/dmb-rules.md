@@ -24,9 +24,9 @@ This rule [was proposed](https://lists.ubuntu.com/archives/devel-permissions/202
 
 * The total number of active board members should be 7, with a quorum of 4.
 
-* We don't require quorum to hold meetings, we only require 'quorum' during voting
+* We don't require quorum to hold meetings, we only require 'quorum' during voting.
 
-* Members vote on applications or proposals by giving -1 (reject), 0 (abstain), or +1 (approve)
+* Members vote on applications or proposals by giving -1 (reject), 0 (abstain), or +1 (approve).
 
 * The sum of all votes given must reach >0 (a majority) to pass a vote.
 
