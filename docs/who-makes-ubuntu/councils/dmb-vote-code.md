@@ -29,6 +29,8 @@ def do_vote(votes):
     total_members=7
 
     dmb_members_voting = len(votes)
+    missing_votes = total_members - dmb_members_voting
+
     sum_of_votes = sum(votes)
     non_abstain_votes = [v for v in votes if v != 0]
 
@@ -39,10 +41,18 @@ def do_vote(votes):
         return "qouorum and unanimous - passed and final"
     if non_abstain_votes and all(v == -1 for v in non_abstain_votes):
         return "qouorum and unanimous - failed and final"
+
     if sum_of_votes > 0:
-        return "qouorum and passed, could be overturned by absent members voting by mail until or at next meeting"
+        if sum_of_votes > missing_votes:
+            return "qouorum, missing votes could not overturn it - passed and final"
+        else
+            return "qouorum and passed, but missing votes could be overturn it - absent members are asked to vote by mail until or at next meeting"
+
     if sum_of_votes < 0:
-        return "qouorum and failed, could be overturned by absent members voting by mail until or at next meeting"
+        if abs(sum_of_votes) > missing_votes:
+            return "qouorum, missing votes could not overturn it - failed and final"
+        else:
+            return "qouorum and failed, but missing votes could be overturn it - absent members are asked to vote by mail until or at next meeting"
 
     return "hung, absent members are asked to vote by mail until or at next meeting"
 ```
