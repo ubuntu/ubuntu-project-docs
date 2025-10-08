@@ -27,19 +27,19 @@ def do_vote(votes, total_members=7):
     :param total_members: int, number of active board members (default 7)
     """
     quorum = 4
-    dmb_members_present = len(votes)
+    dmb_members_voting = len(votes)
     sum_of_votes = sum(votes)
     non_abstain_votes = [v for v in votes if v != 0]
-    if dmb_members_present >= quorum:
-        # unanimous among dmb_members_present non-abstain voters
-        if non_abstain_votes and all(v == 1 for v in non_abstain):
-            return "passed and final"
-        if non_abstain_votes and all(v == -1 for v in non_abstain):
-            return "failed and final"
+
+    if dmb_members_voting >= quorum:
+        if non_abstain_votes and all(v == 1 for v in non_abstain_votes):
+            return "qouorum and unanimous - passed and final"
+        if non_abstain_votes and all(v == -1 for v in non_abstain_votes):
+            return "qouorum and unanimous - failed and final"
         if sum_of_votes > 0:
-            return "passed, but can be overturn by absent members voting by mail until or at next meeting"
+            return "qouorum and passed, could be overturned by absent members voting by mail until or at next meeting"
         if sum_of_votes < 0:
-            return "failed, but can be overturn by absent members voting by mail until or at next meeting"
+            return "qouorum and failed, could be overturned by absent members voting by mail until or at next meeting"
         # tie or zero sum
         return "hung, absent members are asked to vote by mail until or at next meeting"
     else:
