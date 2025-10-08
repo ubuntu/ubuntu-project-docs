@@ -32,17 +32,17 @@ def do_vote(votes):
     sum_of_votes = sum(votes)
     non_abstain_votes = [v for v in votes if v != 0]
 
-    if dmb_members_voting >= quorum:
-        if non_abstain_votes and all(v == 1 for v in non_abstain_votes):
-            return "qouorum and unanimous - passed and final"
-        if non_abstain_votes and all(v == -1 for v in non_abstain_votes):
-            return "qouorum and unanimous - failed and final"
-        if sum_of_votes > 0:
-            return "qouorum and passed, could be overturned by absent members voting by mail until or at next meeting"
-        if sum_of_votes < 0:
-            return "qouorum and failed, could be overturned by absent members voting by mail until or at next meeting"
-        # tie or zero sum
-        return "hung, absent members are asked to vote by mail until or at next meeting"
-    else:
+    if dmb_members_voting < quorum:
         return "Not quorate - require follow up, next time majority of present members votes will suffice"
+
+    if non_abstain_votes and all(v == 1 for v in non_abstain_votes):
+        return "qouorum and unanimous - passed and final"
+    if non_abstain_votes and all(v == -1 for v in non_abstain_votes):
+        return "qouorum and unanimous - failed and final"
+    if sum_of_votes > 0:
+        return "qouorum and passed, could be overturned by absent members voting by mail until or at next meeting"
+    if sum_of_votes < 0:
+        return "qouorum and failed, could be overturned by absent members voting by mail until or at next meeting"
+
+    return "hung, absent members are asked to vote by mail until or at next meeting"
 ```
