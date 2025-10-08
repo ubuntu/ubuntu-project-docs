@@ -10,7 +10,7 @@ fi
 
 for LP_TEAM in "${TEAMS[@]}"; do
     EXISTING_TEAM=$(cat "$LP_TEAM.team")
-    READ_TEAM=$(curl --silent https://api.launchpad.net/1.0/~"${LP_TEAM}"/members |
+    READ_TEAM=$(curl --silent https://api.launchpad.net/devel/~"${LP_TEAM}"/members |
         jq -r '.entries[] | .name' | sort)
 
     if [ "$READ_TEAM" != "$EXISTING_TEAM" ]; then
@@ -29,7 +29,15 @@ for LP_TEAM in "${TEAMS[@]}"; do
 
         gh pr create -B main -H "$BRANCH_NAME" \
             --title "Update $LP_TEAM team" \
-            --body "Automatically generated PR to update '$LP_TEAM' team in '$LP_TEAM.team'."
+            --body "### Description
+
+Automatically generated PR to update '$LP_TEAM' team in '$LP_TEAM.team'.
+
+### For the rewiever
+
+The merging of this PR needs to be followed up by an update of the CODEOWNERS file. There the list of users owning the '$LP_TEAM' docs must be brought up to date to mirror the users in '$LP_TEAM.team'.
+
+See the [README](/ubuntu/ubuntu-project-docs/blob/main/.github/lpteams/README.md) for details."
     else
         echo "No changes detected for $LP_TEAM team."
     fi
