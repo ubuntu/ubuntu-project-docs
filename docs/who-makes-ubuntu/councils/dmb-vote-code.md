@@ -19,14 +19,15 @@ These rules were proposed in
 All that is summarized in this Python-like function:
 
 ```python
-def do_vote(votes, total_members=7):
+def do_vote(votes):
     """
     This function returns the outcome of a DMB vote as a string.
 
     :param votes: list of integers (-1, 0, +1) representing votes cast by members present
-    :param total_members: int, number of active board members (default 7)
     """
     quorum = 4
+    total_members=7
+
     dmb_members_voting = len(votes)
     sum_of_votes = sum(votes)
     non_abstain_votes = [v for v in votes if v != 0]
