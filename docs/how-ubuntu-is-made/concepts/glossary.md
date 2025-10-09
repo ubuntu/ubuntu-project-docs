@@ -1198,8 +1198,8 @@ Signature
     upstream project.
 
     The tool {manpage}`gpg(1)` is commonly used to create or modify
-    {term}`Signing Keys <Signing Key>`. To add digital signatures using the
-    {term}`Signing Key`. And to verify those digital signatures using the
+    {term}`Signing Keys <Signing Key>`, to add digital signatures using the
+    {term}`Signing Key`, and to verify those digital signatures using the
     corresponding public key. Further information can be found in the
     [GNU Privacy Handbook](https://www.gnupg.org/gph/en/manual.html#AEN136).
 

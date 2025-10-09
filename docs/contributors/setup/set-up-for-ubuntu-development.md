@@ -46,7 +46,7 @@ $ sudo apt update && \
 {term}`encryption keys <Signing Key>`. You'll need it later to be able to add
 a {term}`signature` to each {ref}`upload <Uploading>`.
 
-This setup example is quite consise and only contains the basics, but
+This setup example is quite concise and only contains the basics, but
 eventually the {term}`private key <Signing Key>` will represent your identity
 and therefore has to be {ref}`kept safe <pgp-key-storage>` and out of reach of
 other entities.
