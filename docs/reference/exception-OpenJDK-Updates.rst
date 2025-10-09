@@ -64,7 +64,9 @@ Toolchain team:
    public ppa in `openjdk-r` team, e.g. `ppa:openjdk-r/openjdk-25`.
 -  Binary-copies the update packages to unapproved queue for the target
    releases:
+
    .. code-block::
+
         suite=noble \
         copy-package -b -s ${suite} --to-suite ${suite}-proposed \
           --from ppa:openjdk-r/ubuntu/openjdk-25 --to ubuntu openjdk-25
