@@ -53,17 +53,24 @@ Toolchain team:
    to the development release once release is available. Note: Make all
    necessary fixes for stable releases in the development release.
 -  Prepares builds for the stable releases in
-   ppa:openjdk-private/bootstrap and updates FFe bug according to the
+   `ppa:openjdk-private/bootstrap` and updates FFe bug according to the
    SRU template. The testing section must contain results of JTREG build
-   time and autopkgtests
+   time and autopkgtests.
+   Note: Ensure that build dependencies specify the latest openjdk
+   release first if the intermediate release, such as openjdk-24 is
+   present in the archive:
+   `openjdk-25-jdk-headless:native | openjdk-24-jdk-headless:native,`
+-  Performs a no-change rebuild to validate bootstraping works in a
+   public ppa in `openjdk-r` team, e.g. `ppa:openjdk-r/openjdk-25`.
+-  Binary-copies the update packages to unapproved queue for the target
+   releases:
+   .. code-block::
+        suite=noble \
+        copy-package -b -s ${suite} --to-suite ${suite}-proposed \
+          --from ppa:openjdk-r/ubuntu/openjdk-25 --to ubuntu openjdk-25
 -  Messages @ubuntu-sru on #sru:ubuntu.com that OpenJDK updates are
    ready
 
-SRU team:
-
--  To deploy the update, OpenJDK packages should be binary copied from
-   ppa:openjdk-private/bootstrap to -proposed and then released to
-   -updates and -security at the same time.
 
 [1]
 https://launchpad.net/~openjdk-private/+archive/ubuntu/bootstrap/+packages
