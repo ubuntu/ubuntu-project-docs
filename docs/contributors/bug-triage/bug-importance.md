@@ -89,8 +89,8 @@ in the yellow line and under the {guilabel}`Affects` column header, which will
 reveal a sub menu. You can then choose a new importance in the drop down box.
 
 If you are not in the Bug Control team, you need to ask a Bug Control team
-member to set the importance for you. Paste the bug number in the `#ubuntu-bugs`
-IRC channel and say you think the bug should be set to importance 'Wishlist /
+member to set the importance for you. Paste the bug number in the {matrix}`devel`
+Matrix channel and say you think the bug should be set to importance 'Wishlist /
 Low / Medium / High / Critical'.
 Someone will notice your comment and set the importance for you, although not
 necessarily immediately.
