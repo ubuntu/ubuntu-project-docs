@@ -7,6 +7,7 @@
 
 bug-types
 bug-status
+bug-tags
 bug-importance
 bug-responses
 Assign a bug to a package <assign-a-bug-to-a-package>
