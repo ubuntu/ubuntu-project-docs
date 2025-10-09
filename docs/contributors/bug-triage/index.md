@@ -186,7 +186,7 @@ bug report to 'Triaged'. To do this:
 
 To set bug statuses to *Triaged* you need to be a member of the
 {ref}`bug-control-team` team. If you are not a Bug Control member, and you find
-a bug you think is ready to be marked as *Triaged*, then join the `#devel:ubuntu.com`
+a bug you think is ready to be marked as *Triaged*, then join the {matrix}`devel`
 channel on Matrix and provide a link to the report. A Bug Control member can then
 examine the report and, if it is indeed ready, mark it as *Triaged* for you.
 
