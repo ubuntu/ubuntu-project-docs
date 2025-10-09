@@ -57,6 +57,7 @@ feature-based one), approximately every 6 months.
 
 | Version | Code name | Schedule | Docs | Release | End of Standard Support |
 | :---- | :---- | :---- | :---- | :---- | :---- |
+| Ubuntu 26.04 LTS | Resolute Raccoon | [Release Schedule](https://discourse.ubuntu.com/t/resolute-raccoon-release-schedule/47198) | [Release Notes](https://discourse.ubuntu.com/t/resolute-raccoon-release-notes/59221) | April 23, 2026 | July 2031 |
 
 
 ## Expanded Security Maintenance
