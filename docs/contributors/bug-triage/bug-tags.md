@@ -107,7 +107,7 @@ Specific bugs concerning parts of the [Ayatana project](https://launchpad.net/ay
 | [`hda-jack-sense`](https://launchpad.net/ubuntu/+bugs?field.tag=hda-jack-sense) | This bug deals with headphone sense for HDA-based codecs (0403) |
 | [`macbook`](https://launchpad.net/ubuntu/+bugs?field.tag=macbook) | These bugs deal with Mac Book systems |
 | [`macbookpro`](https://launchpad.net/ubuntu/+bugs?field.tag=macbookpro) | These bugs deal with Mac Book Pro systems |
-| [`ps3`](https://launchpad.net/ubuntu/+bugs?field.tag=ps3) | These bug reports are about people running Ubuntu on a Playstation 3 |
+| [`ps3`](https://launchpad.net/ubuntu/+bugs?field.tag=ps3) | These bug reports are about people running Ubuntu on a PlayStation 3 |
 | [`ume`](https://launchpad.net/ubuntu/+bugs?field.tag=ume) | These bugs deal with Ubuntu Mobile and Embedded systems |
 | [`armel`](https://launchpad.net/ubuntu/+bugs?field.tag=armel) | These bugs deal with Ubuntu ARM systems |
 
@@ -172,7 +172,7 @@ For more tags see [Kernel/Tagging](https://wiki.ubuntu.com/Kernel/Tagging).
 | [`nscd`](https://launchpad.net/ubuntu/+bugs?field.tag=nscd) | This bug deals with `nscd` which is part of the `glibc` package |
 | [`usability`](https://launchpad.net/ubuntu/+bugs?field.tag=usability) | This bug is a usability problem |
 | [`rtl`](https://launchpad.net/ubuntu/+bugs?field.tag=rtl) | This bug is a right-to-left problem |
-| [`uec-images`](https://launchpad.net/ubuntu/+bugs?field.tag=uec-images) | This bug is related to the Ubuntu Enterprise Cloude (UEC) [images](http://uec-images.ubuntu.com/releases) |
+| [`uec-images`](https://launchpad.net/ubuntu/+bugs?field.tag=uec-images) | This bug is related to the Ubuntu Enterprise Cloud (UEC) [images](http://uec-images.ubuntu.com/releases) |
 | [`xinerama`](https://launchpad.net/ubuntu/+bugs?field.tag=xinerama) | This bug is a `xinerama` problem (multiple-monitor configuration) |
 
 
