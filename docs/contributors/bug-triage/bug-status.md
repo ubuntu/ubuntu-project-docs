@@ -161,7 +161,7 @@ or package maintainers:
 * Targeting to a specific Ubuntu release
 
 If you need someone to change the status of a report that has enough information
-to *Triaged*, paste the report number into the `#ubuntu-bugs` channel on IRC
+to *Triaged*, paste the report number into the `#devel:ubuntu.com` channel on Matrix
 and state that you think the report should be set to "Triaged" with the
 appropriate {ref}`bug-importance` (wishlist, low, medium, high, or critical).
 

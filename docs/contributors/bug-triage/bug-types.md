@@ -120,9 +120,7 @@ triage!
 : Used by the retracer when it finds a bug that has a similar trace to a
   previously-closed bug.
 
-Once tagged, the bugs will appear on the
-[regression tracking page](http://qa.ubuntu.com/reports/regression/regression_tracker.html)
-and will from there be escalated to the development teams. See
+See
 [QATeam/RegressionTracking](https://wiki.ubuntu.com/QATeam/RegressionTracking)
 for more information.
 
@@ -164,7 +162,8 @@ Bugs in this category can have subjects like:
 * Please remove \<package\> from the Ubuntu archives  
 * Please promote \<package\> to \<component\>  
 * Please demote \<package\> to \<component\>  
-* Main inclusion report (MIR)  
+* Main inclusion report (MIR)
+* [FFE] bug summary  
 
 Bugs in this category will have **any** of the following teams subscribed:  
 
@@ -235,7 +234,7 @@ are completed.
 ```
 
 If you are unsure whether the bug you are looking at fits into one of these
-categories, you can ask in `#ubuntu-bugs` or `#ubuntu-motu` on IRC.
+categories, you can ask in `#devel:ubuntu.com` on Matrix.
 
 
 ### Security bugs
