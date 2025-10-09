@@ -26,7 +26,7 @@ In this guide, we will discuss some best practices and recommendations for keepi
 Please be aware that {ref}`pgp-these-policies-are-not-static` and require following a set of complex {ref}`pgp-setup-guidelines`.
 
 (pgp-strong-passphrases)=
-## Strong passphrases
+### Strong passphrases
 
 For many years, project members have been encouraged to protect their PGP keys
 with strong passphrases. While passphrases are recommended to provide a
@@ -45,7 +45,7 @@ Practical recommendations all derive from the entropy given by the passphrase:
 * If you store the private key and its passphrase, please do so separately in secure locations (sorry - outlining that would be an even more complex document, probably only able to list good and bad examples).
 
 (pgp-hardware-security-keys)=
-## Hardware Security Keys
+### Hardware security keys
 
 To mitigate the elevated risks associated with a compromised PGP key, the Ubuntu
 Project strongly encourages, though does not strictly mandate, the adoption of
@@ -79,7 +79,7 @@ Combination with attestation `Fixed` is the suggested
 [touch policy](https://docs.yubico.com/software/yubikey/tools/ykman/OpenPGP_Commands.html#touch-policies).
 
 (pgp-encrypted-offline-storage)=
-## Encrypted Offline Storage
+### Encrypted offline storage
 
 A typical setup would usually consist of a locked-away, offline, main PGP key
 ("Certify key") generated in software, and derived from that subkeys deployed
@@ -95,7 +95,7 @@ live (boot from trusted unmodified medium) system and never use the associated
 passphrase on any other system.
 
 (pgp-redundant-hardware-keys)=
-## Redundant Hardware Keys
+### Redundant hardware keys
 
 To further enhance the resilience of PGP key management and mitigate the risk of
 single points of failure, we recommend setting up and using two hardware
@@ -111,7 +111,7 @@ you should keep one key in a safe location, e.g. do not keep the pair
 on the same keychain as they would be affected by the same disaster.
 
 (pgp-expiration-dates-and-regular-key-audits)=
-## Expiration dates and Regular Key Audits
+### Expiration dates and regular key audits
 
 There are no mandated PGP key expiration dates yet, but a common good security
 practice is to set a regular, short expiration date, such as 1 to 2 years, with
@@ -144,7 +144,7 @@ stored as safe as the main key, because it is rarely needed and there is the
 risk that anyone with access could publish it.
 
 (pgp-control-and-ownership)=
-# Control and ownership of cryptographic keys
+### Control and ownership of cryptographic keys
 
 The Ubuntu developer as an individual is the only person authorised by
 Ubuntu Project and is therefore expected to have exclusive control of the
@@ -164,7 +164,7 @@ verify the content being signed, even when using a hardware key, to ensure it
 precisely matches the intended data and is free from malicious alterations.
 
 (pgp-these-policies-are-not-static)=
-# These policies are not static
+## These policies are not static
 
 While not strictly mandatory yet, project members of any level are advised to
 explore all key security practices outlined above and incorporate them into their workflow for PGP
@@ -185,7 +185,7 @@ interactions, would be protected. This is being pushed for and guidance about
 their usage will be included here once possible.
 
 (pgp-setup-guidelines)=
-# Setup Guidelines
+## Setup guidelines
 
 The guide on an {ref}`Ubuntu developer’s initial setup <gnupg>` so far only
 outlines the basic usage of PGP keys. Guides on setting up and using PGP-capable
@@ -197,7 +197,7 @@ Until then, starting with these articles on
 and the [YubiKey Guide](https://drduh.github.io/YubiKey-Guide) are a great way
 to begin.
 
-# Alternatives
+## Alternatives
 
 Hardware-backed PGP keys are the recommended solution because they provide
 protections against key extraction and local compromise, while staying
@@ -235,7 +235,7 @@ Approved alternative recommendations:
 
 * (TBD - None approved yet)
 
-# Yet incomplete aspects
+## As-yet incomplete aspects
 
 These recommendations can already be tremendously helpful, but there are
 related aspects that are known to still be missing. Tracking them here
