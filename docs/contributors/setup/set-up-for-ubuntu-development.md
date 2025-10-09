@@ -199,6 +199,23 @@ specify a destination, it'll default to doing nothing.
 
 [sbuild](https://wiki.debian.org/sbuild) is a wrapper script around `schroot`.
 
+```{note}
+A newer backend, `unshare`, can be used for `sbuild` in place of `schroot`. Compared to `schroot`, it does not need chroot configuration and does not need to run the build as root.
+
+To use `unshare`:
+
+* Install the {pkg}`mmdebstrap` and {pkg}`uidmap` packages.
+
+* Add the following to your `sbuild` configuration in {file}`~/.sbuildrc`:
+
+    ```none
+    $chroot_mode = "unshare";
+    $unshare_mmdebstrap_keep_tarball = 1;
+    ```
+
+Note that while Debian has transitioned to `unshare`, it is not used by Launchpad builders, so it may fail to build some packages.
+```
+
 In these examples, replace `my_user` with your own username.
 
 Make mount points:
