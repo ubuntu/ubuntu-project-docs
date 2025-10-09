@@ -234,7 +234,7 @@ are completed.
 ```
 
 If you are unsure whether the bug you are looking at fits into one of these
-categories, you can ask in `#devel:ubuntu.com` on Matrix.
+categories, you can ask in {matrix}`devel` on Matrix.
 
 
 ### Security bugs
