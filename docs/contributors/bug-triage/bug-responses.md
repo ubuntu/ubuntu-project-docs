@@ -22,7 +22,9 @@ Only members of `bug-control` can commit to this branch, but even if you are not
 
 ### Not described well
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. Unfortunately, we cannot work on this bug because your description didn't include enough information. You may find it helpful to read "How to report bugs effectively" http://www.chiark.greenend.org.uk/~sgtatham/bugs.html. We'd be grateful if you would then provide a more complete description of the problem.
 
 We have instructions on debugging some types of problems at http://wiki.ubuntu.com/DebuggingProcedures.
@@ -41,7 +43,9 @@ Thank you!
 
 ### Missing steps to recreate bug
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. Please answer these questions:
 
 * Is this reproducible?
@@ -53,7 +57,9 @@ This will help us to find and resolve the problem.
 
 ### Missing Apport information
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. Please execute the following command only once, as it will automatically gather debugging information, in a terminal:
 
   apport-collect BUGNUMBER
@@ -74,7 +80,9 @@ Pleas also see the Ubuntu Kernel Team's [specific responses](https://wiki.ubuntu
 
 ### Debugging sound problems
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. We need some more information from you before we can start working on this bug.
 
 Please include the information requested from the "Reporting Sound Bugs" section of https://wiki.ubuntu.com/DebuggingSoundProblems as separate attachments.
@@ -89,7 +97,9 @@ where BUGNUMBER is the number of the bug you've reported.
 
 ### Debugging ACPI
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. We need some more information from you before we can start working on this bug.
 
 Please include the information requested at https://wiki.ubuntu.com/DebuggingACPI as separate attachments.
@@ -98,7 +108,9 @@ Please include the information requested at https://wiki.ubuntu.com/DebuggingACP
 
 ### Debugging Removable Devices
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. We need some more information from you before we can start working on this bug.
 
 Please include the information requested at https://wiki.ubuntu.com/DebuggingRemovableDevices as separate attachments.
@@ -107,7 +119,9 @@ Please include the information requested at https://wiki.ubuntu.com/DebuggingRem
 
 ### Debugging Printing problems
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. We need some more information from you before we can start working on this bug.
 
 Please include the information requested at https://wiki.ubuntu.com/DebuggingPrintingProblems as separate attachments.
@@ -116,7 +130,9 @@ Please include the information requested at https://wiki.ubuntu.com/DebuggingPri
 
 ### Debugging Hardware Detection
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. We need some more information from you before we can start working on this bug.
 
 Please include the information requested at https://wiki.ubuntu.com/DebuggingHardwareDetection as separate attachments.
@@ -125,7 +141,9 @@ Please include the information requested at https://wiki.ubuntu.com/DebuggingHar
 
 ### Debugging USB Storage
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. We need some more information from you before we can start working on this bug.
 
 Please include the information requested at https://help.ubuntu.com/community/DebuggingUSBStorage as separate attachments.
@@ -134,7 +152,9 @@ Please include the information requested at https://help.ubuntu.com/community/De
 
 ### Debugging Xorg in general
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. In order to attach necessary information for debugging this as an Xorg problem please run the following command only once:
 
   apport-collect BUGNUMBER
@@ -145,7 +165,9 @@ Please ensure you have xdiagnose installed, and that you click the Yes button fo
 
 ### Freeze during boot or shutdown screen
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thanks for your bug report and for your contribution to Ubuntu. In order to determine if this issue is plymouth related, please boot your computer with plymouth disabled and then shutdown to see if you can reproduce the issue. To disable plymouth for a single boot, follow these steps:
 
 1. Hold Right-Shift during Grub boot delay to access the boot menu.
@@ -157,7 +179,9 @@ Thanks for your bug report and for your contribution to Ubuntu. In order to dete
 
 ### Debugging Plymouth
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. Please run the following command only once via a terminal:
 
   apport-collect BUGNUMBER
@@ -168,7 +192,9 @@ which will attach necessary information for debugging this as a plymouth problem
 
 ### Debugging Live Installation
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. Unfortunately we can't start working on it yet, because your description didn't include enough information.
 
 Please execute the following command 'ubuntu-bug ubiquity' as it will gather detailed information regarding your installation. Thanks in advance.
@@ -179,14 +205,18 @@ Please execute the following command 'ubuntu-bug ubiquity' as it will gather det
 
 [Debugging Update Manager](https://wiki.ubuntu.com/DebuggingUpdateManager)
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thanks for taking the time to report this bug and helping to make Ubuntu better. Could you please add the log files from '/var/log/dist-upgrade/' to this bug report as separate attachments? Thanks in advance.
 ```
 
 
 ### Debugging GNOME Power Manager
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thanks for taking the time to report this bug and helping to make Ubuntu better. Could you please run the following command only once in a terminal:
 
   apport-collect BUGNUMBER
@@ -203,7 +233,9 @@ Apport will add the output of the upstream script `gnome-power-bugreport.sh` and
 If a Network Manager bug report is about not being able to connect, the title or summary should be in the format: `[CHIPSET] cannot connect to (ENCRYPT_METHOD)`
 where `CHIPSET` is the wireless driver used and `ENCRYPT_METHOD` is the encryption method used by your wireless network.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. Unfortunately we can't start working on it yet, because your bug report didn't include enough information.
 
 Please include the information requested at https://wiki.ubuntu.com/DebuggingNetworkManager If you have trouble, do not hesitate to ask for more assistance. Thanks in advance.
@@ -212,7 +244,9 @@ Please include the information requested at https://wiki.ubuntu.com/DebuggingNet
 
 ### Debugging Firefox
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. Could you please try to obtain a backtrace by following the instructions on https://wiki.ubuntu.com/MozillaTeam/Bugs? Also, please answer these questions:
 
 Is this crash reproducible? If so, which are the steps that lead to it?
@@ -228,7 +262,9 @@ This will greatly aid us in tracking down your problem.
 
 Firefox bug triaging policy is to close (set to *Invalid*) crash reports from Apport that fail retracing.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. However, your crash report didn't yield the required information. Please go ahead and submit a new crash report if it crashes again with the latest available version of the package. Thanks in advance for your cooperation and understanding.
 ```
 
@@ -247,7 +283,9 @@ Please see the [debugging OpenLDAP](https://wiki.ubuntu.com/DebuggingOpenldap) a
 
 Mostly `libavcodec` and `libavformat` bugs.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. You have reported a crash that actually happened in the libavcodec or libavformat library. In order to be able to actually fix this bug, we must be able to:
 
 1. Reproduce it;
@@ -262,7 +300,9 @@ Please also make sure that your file crashes with the commandline application "f
 
 ### Debugging SCIM-related issues
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. In order to determine the cause of this issue, we would need some additional information.
 
 Please post or attach the following:
@@ -296,11 +336,12 @@ This is not the best place for the bug though and we should encourage bug report
 Keep in mind `PKGNAME` is a placeholder.
 
 ```{warning}
-
 If you use this response, you must assign a package. If you do not know what package to assign, please leave the bug alone, and ask for help.
 ```
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. This bug did not have a package associated with it, which is important for ensuring that it gets looked at by the proper developers. You can learn more about finding the right package at https://wiki.ubuntu.com/Bugs/FindRightPackage. I have classified this bug as a bug in PKGNAME.
 
 When reporting bugs in the future please use apport by using 'ubuntu-bug' and the name of the package affected. You can learn more about this functionality at https://help.ubuntu.com/community/ReportingBugs.
@@ -313,7 +354,9 @@ Occasionally, bug reporters will indicate that a bug has been fixed after some s
 These bug reports should be set to *Invalid* since we don't know the root cause.
 When closing the bug report it is a good idea to take an opportunity to let the reporter know how to manage bug statuses.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 This bug report is being closed due to your last comment regarding this being fixed with an update. For future reference you can manage the status of your own bugs by clicking on the current status in the yellow line and then choosing a new status in the revealed drop down box. You can learn more about bug statuses at https://wiki.ubuntu.com/Bugs/Status. Thank you again for taking the time to report this bug and helping to make Ubuntu better. Please submit any future bugs you may find.
 ```
 
@@ -327,14 +370,18 @@ Before using this, *please* check `rmadison <package>` to see if the package ver
 If it has not changed, there is no need to ask.
 If it has changed, check the changelog (via `aptitude changelog $PKGNAME`) to see if this issue has been specifically addressed.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. The issue that you reported is one that should be reproducible with the live environment of the Desktop ISO of the development release. It would help us greatly if you could test with it so we can work on getting it fixed in the next release of Ubuntu. You can find out more about the development release at http://www.ubuntu.com/testing/. Thanks again and we appreciate your help.
 ```
 
 
 ## Missing a crash report or having a .crash attachment
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. It sounds like some part of the system has crashed. To help us find the cause of the crash please follow these steps:
 
 1. Run these commands:
@@ -357,21 +404,27 @@ Please take care to avoid attaching .crash files to bugs as we are unable to pro
 When making a bug report a duplicate of another it is important to communicate to the reporter that any discussion regarding the bug should take place in the primary bug.
 Keep in mind that NUMBER is a placeholder and should be the number of the primary bug report.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. This particular bug has already been reported and is a duplicate of bug NUMBER, so it is being marked as such. Please look at the other bug report to see if there is any missing information that you can provide, or to see if there is a workaround for the bug. Additionally, any further discussion regarding the bug should occur in the other report. Feel free to continue to report any other bugs you may find.
 ```
 
 
 ## About an obsolete version of the software for reporter's release
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. However, according to this report, you are not using the most recent version of this package for your Ubuntu release. Please upgrade to the most recent version and let us know if you are still having this issue. Thanks in advance.
 ```
 
 
 ## Missing a backtrace
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. Please try to obtain a backtrace following the instructions at http://wiki.ubuntu.com/DebuggingProgramCrash and upload the backtrace (as an attachment) to the bug report. This will greatly help us in tracking down your problem.
 ```
 
@@ -382,7 +435,9 @@ This is an alternative to the previous response, if there is a good chance that
 another retrace will work better (e.g. outdated package versions). Please close
 the bug as *Invalid* with this comment:
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better.
 
 However, processing it in order to get sufficient information for the developers failed (it does not generate an useful symbolic stack trace). This might be caused by some outdated packages which were installed on your system at the time of the report. Please upgrade your system to the latest package versions. If you still encounter the crash, please file a new report.
@@ -393,7 +448,9 @@ Thank you for your understanding, and sorry for the inconvenience!
 
 ## Need valgrind log
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. Please try to obtain a valgrind log following the instructions at https://wiki.ubuntu.com/Valgrind and attach the file to the bug report. This will greatly help us in tracking down your problem.
 ```
 
@@ -403,20 +460,26 @@ Thank you for taking the time to report this bug and helping to make Ubuntu bett
 If you are sure the reported bug is not caused by the packaging for Ubuntu, it should usually be sent upstream by someone affected by the bug.
 If appropriate, replace GNOME with the organization behind the software (see [the upstream wiki page](https://wiki.ubuntu.com/Bugs/Upstream/) for available organizations):
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. The issue you are reporting is an upstream one and it would be nice if somebody having it could send the bug to the developers of the software by following the instructions at https://wiki.ubuntu.com/Bugs/Upstream/GNOME. If you have done so, please tell us the number of the upstream bug (or the link), so we can add a bugwatch that will inform us about its status. Thanks in advance.
 ```
 
 If you have already pointed out that the reported bug is an upstream one, but there hasn't been any feedback about the requested upstream bug for 2 weeks, the reporter (or someone else affected by the bug) might have forgotten it.
 If that's the case, you should ask if someone has already forwarded the bug upstream and can tell you the number of the upstream bug:
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Is there any news about this bug? Has someone affected by this bug sent the report upstream? Could you tell us the bug number, so we can add a bugwatch that will inform us about its status? Thanks in advance.
 ```
 
 However, if you have already sent the bug upstream, you should leave a comment stating where the upstream bug can be found:
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for your bug report. This bug has been reported to the developers of the software. You can track it and make comments at:
 ```
 
@@ -425,7 +488,9 @@ Thank you for your bug report. This bug has been reported to the developers of t
 
 Old new bugs that haven't been touched in a quite a while and you are unable to recreate the bug.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. We are sorry that we do not always have the capacity to look at all reported bugs in a timely manner. There have been many changes in Ubuntu since that time you reported the bug and your problem may have been fixed with some of the updates. It would help us a lot if you could test it on a currently supported Ubuntu version. When you test it and it is still an issue, kindly upload the updated logs by running only once:
 
   apport-collect <bug #>
@@ -439,7 +504,9 @@ and any other logs that are relevant for this particular issue.
 Occasionally, bug reporters will report a bug about a version of a package not provided by Ubuntu or (less often) about software not provided by Ubuntu.
 In this case we can not help them and the bug should be set to *Invalid*.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and trying to help make Ubuntu better. However, it seems that you are not using a software package provided by the official Ubuntu repositories. Because of this the Ubuntu project can not support or fix your particular bug. Please report this bug to the provider of the software package. Thanks!
 
 If you are interested in learning more about software repositories and Ubuntu, check https://help.ubuntu.com/community/Repositories.
@@ -450,7 +517,9 @@ If you are interested in learning more about software repositories and Ubuntu, c
 
 The bug's state should become *Fix Released* and if the package qualifies for a [Stable Release Update (SRU)](https://documentation.ubuntu.com/sru/en/latest/):
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. However, I am closing it because the bug has been fixed in the latest development version of Ubuntu.
 
 This is a significant bug in Ubuntu. If you need a fix for the bug in previous versions of Ubuntu, please perform as much as possible of the SRU Procedure [1] to bring the need to a developer's attention.
@@ -460,7 +529,9 @@ This is a significant bug in Ubuntu. If you need a fix for the bug in previous v
 
 The bug's state should become *Fix Released* and if the package does not qualify for an SRU because it is considered a minor bug and the package can be backported:
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. However, I am closing it because the bug has been fixed in the latest development version of Ubuntu.
 
 If you need a fix for the bug in previous versions of Ubuntu, please follow the instructions for "Requesting a Backport" at https://wiki.ubuntu.com/UbuntuBackports#Requesting_a_Backport.
@@ -468,14 +539,18 @@ If you need a fix for the bug in previous versions of Ubuntu, please follow the 
 
 The bug's state should become *Fix Released* and if the package can not be backported:
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. However, I am closing it because the bug has been fixed in the latest development version of Ubuntu. It won't be fixed in previous versions of Ubuntu because the package doesn't fit the requirements for backporting. See https://wiki.ubuntu.com/UbuntuBackports for more information.
 ```
 
 
 ## Reported by someone not respecting the Code of Conduct
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for your bug report. To maintain a respectful atmosphere, please follow the code of conduct - http://www.ubuntu.com/project/about-ubuntu/conduct. Bug reports are handled by humans, the majority of whom are volunteers, so please bear this in mind.
 ```
 
@@ -484,13 +559,17 @@ Thank you for your bug report. To maintain a respectful atmosphere, please follo
 
 Determining whether a bug report is actually a support request can be quite challenging, but if you decide the bug *is* a support request you can convert it to such by clicking {guilabel}`Convert to a question` at the top of the bug's web page. This will mark the bug as *Invalid*, create a new question in the answer tracker and link it to the bug. In the comment dialog that you receive, post a comment to inform the reporter about your action, and advise them to use the support tracker for any future problems.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this issue and helping to make Ubuntu better. Examining the information you have given us, this does not appear to be a bug report so we are closing it and converting it to a question in the support tracker. We understand the difficulties you are facing, but it is better to raise problems you are having in the support tracker at https://answers.launchpad.net/ubuntu if you are uncertain if they are bugs. If you would prefer live chat support, you can find an IRC support channel for your flavor of Ubuntu here: https://wiki.ubuntu.com/IRC/ChannelList. You can also find help with your problem in the support forum of your local Ubuntu community http://loco.ubuntu.com/ or asking at https://askubuntu.com or https://discourse.ubuntu.com/t/welcome-to-support-and-help/49951. For help on reporting bugs, see https://help.ubuntu.com/community/ReportingBugs.
 ```
 
 Chris Guiver provides an alternate wording (thanks, Chris!):
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better.
 
 Bug reporting is about finding & fixing problems thus preventing future users from hitting the same bug.
@@ -505,7 +584,9 @@ It is also a good idea to change the source package beforehand if it's set incor
 
 This response is appropriate when a bug is not reported in English or some error messages are not in English.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this issue and helping to make Ubuntu better. We noticed that some of the sentences in this bug report are not in English. If they were translated to English they would be more understandable to triagers. Could you please translate them?
 ```
 
@@ -514,7 +595,9 @@ Thank you for taking the time to report this issue and helping to make Ubuntu be
 
 This response may be necessary when someone is having strange issues with the Desktop ISO.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. While we appreciate the difficulties you are facing, it would appear that the image (ISO file) you downloaded could be corrupt. There is an easy way to verify the integrity of the Ubuntu ISO files you download. Could you please visit https://help.ubuntu.com/community/HowToMD5SUM follow the instructions and report back as to whether or not the MD5SUM verified? Thanks in advance.
 ```
 
@@ -523,35 +606,45 @@ Thank you for taking the time to report this bug and helping to make Ubuntu bett
 
 This should only be used for bug reports where the scope of the change is quite large or would affect a lot of users.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for your suggestion. However, the changes you are requesting aren't really a bug and require more discussion, which should be done on an appropriate mailing list or forum. http://www.ubuntu.com/support/community/mailinglists might be a good start for determining which mailing list to use.
 ```
 
 
 ## About an incorrect translation
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. Translations in Ubuntu are handled by the Ubuntu Translations project at https://launchpad.net/ubuntu-translations, so we are going to move this bug report over to that project.
 ```
 
 
 ## Incomplete package request
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to request this package and helping to make Ubuntu better. Unfortunately you have not provided enough information for a developer to start packaging this application. Please make sure this bug meets the guidelines at https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages. An example of a complete package request is available at https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages/ExamplePackageRequest).
 ```
 
 
 ## Triage successful
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thanks for reporting this bug and any supporting documentation. Since this bug has enough information provided for a developer to begin work, I'm going to mark it as confirmed and let them handle it from here. Thanks for taking the time to make Ubuntu better!
 ```
 
 
 ## Triage unsuccessful: Back to New/Incomplete Status
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thanks for taking the time to report this bug and comment on it. However, I've noticed that this bug has been Confirmed although there is not clear indication as to how to recreate this bug [or version of software affected]. Subsequently, I'm setting its status to Incomplete until that information is provided. You can learn more about bug statuses at http://wiki.ubuntu.com/Bugs/Status. Thanks for taking the time to make Ubuntu better!
 ```
 
@@ -560,7 +653,9 @@ Thanks for taking the time to report this bug and comment on it. However, I've n
 
 If the specific release has reached End of Life (as per {ref}`list-of-releases` and there is not enough information to work on the bug, then you can set to *Incomplete* and use the following response (delete the lines that are not relevant):
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for reporting this bug to Ubuntu.
 
 Ubuntu 24.10 (oracular) reached end-of-life on July 10, 2025
@@ -610,7 +705,9 @@ We appreciate that this bug may be old and you might not be interested in discus
 
 When reviewing bug attachments you might find an attachment [that is a patch](https://wiki.ubuntu.com/Bugs/Patches), but is not flagged. Let people know what a patch is!
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Looking at the attachments in this bug report, I noticed that an attachment was not flagged as a patch. A patch contains changes to an Ubuntu package that will resolve a bug and this attachment is one! Subsequently, I've checked the patch flag for it. In the future when submitting patches please use the patch checkbox as there are some Launchpad searches that use this feature. You can learn more about the patch workflow at https://wiki.ubuntu.com/Bugs/Patches.
 ```
 
@@ -619,7 +716,9 @@ Looking at the attachments in this bug report, I noticed that an attachment was 
 
 When reviewing bug attachments you might that someone flagged an attachment [that is a patch](https://wiki.ubuntu.com/Bugs/Patches), but it really isn't one. Let people know what a patch is!
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Looking at the attachments in this bug report, I noticed that one was flagged as a patch incorrectly. A patch contains changes to an Ubuntu package that will resolve a bug, since this was not one I've unchecked the patch flag for it. In the future keep in mind the definition of a patch. You can learn more about what qualifies as a patch at https://wiki.ubuntu.com/Bugs/Patches. Thanks!
 ```
 
@@ -628,7 +727,9 @@ Looking at the attachments in this bug report, I noticed that one was flagged as
 
 If the problem looks like local file system corruption (e.g. {lpbug}`322714`), which indicates broken/truncated `dpkg .list` files), it is most likely not something we can fix in Ubuntu in general. Since we have a large number of such bugs, it is probably best to close it as *Invalid* (or *Incomplete* if you want to follow-up and subscribe) with this comment:
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for your report. This package failure looks like being caused by a corrupted file system. Please start the "Memory check" from the boot menu. If that runs successfully, please start the desktop ISO. Hold right-shift key after the BIOS checks to get to the grub menu and run "Check disc for errors" option. If the file system corruption is serious, the safest option would be to reinstall your system.
 ```
 
@@ -640,21 +741,27 @@ Please see the Ubuntu Security Team's [bug triage](https://wiki.ubuntu.com/Secur
 
 ## Added bug watch
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thanks for taking the time to report this bug in the upstream bug tracking system this is a tremendous help. Launchpad has the ability to watch lots of upstream bug trackers and this can be done by following the procedure documented at https://wiki.ubuntu.com/Bugs/Watches. I've added the bug watch for this bug report.
 ```
 
 
 ## Hanging application or daemon
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thanks for your interest in helping to resolve this issue. In order to get to the bottom of this we need to figure out where the program is hanging. If you can follow the steps on https://wiki.ubuntu.com/Backtrace#Already_running_programs and attach the generated text file to this bug it would be of great help.
 ```
 
 
 ## User incorrectly subscribing a team to a bug
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thanks for your interest in helping to resolve this issue. There is no need to subscribe anyone to this bug, as it generates unnecessary emails and will not resolve the issue any faster. Your bug will be looked at by a developer as time permits.
 ```
 
@@ -663,7 +770,9 @@ Thanks for your interest in helping to resolve this issue. There is no need to s
 
 Beginning in Ubuntu 22.04, Firefox is provided as a snap created and published directly by Mozilla. Users, however, can still report against the Firefox package directly in Launchpad. Apport still warns against this, but Launchpad does not. Add this comment (a slight modification of the response from Apport) if the bug mentions occurring in 22.04 (or later) and mark the bug as *Incomplete*. If the user mentions the package as not being a snap, then it's *Invalid* as it came from a source other than Ubuntu or the snap.
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and help make Ubuntu better. Firefox is provided by a snap published by Mozilla, and they may not be aware of this issue. Please contact them via https://support.mozilla.org/kb/file-bug-report-or-feature-request-mozilla and link the bug report here so it can be further tracked. Thank you!
 ```
 
@@ -672,7 +781,9 @@ Thank you for taking the time to report this bug and help make Ubuntu better. Fi
 
 Sometimes we receive bug reports from unofficial derivatives (such as Linux Mint), which we cannot guarantee bugs can be fixed for or can support, so they need to be closed as *Invalid* with this message:
 
-```none
+```{code} none
+:class: codeblock-wrap
+
 Thank you for taking the time to report this bug and helping to make Ubuntu better. However, per your report, it seems as though you are not actually running Ubuntu but a derivative distribution. Derivatives are not official flavours and may have additional repositories that provide packages that conflict with our official packages, so we cannot provide support or debug when things go wrong in these distributions.
 
 Official flavours of Ubuntu are listed here: https://ubuntu.com/desktop/flavours
