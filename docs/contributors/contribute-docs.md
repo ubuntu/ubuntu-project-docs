@@ -426,20 +426,48 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ````
 
 
+### Code blocks
+
+To show a snippet of source code, use a literal block with the required language for syntax highlighting. For example:
+
+````md
+```python
+# "Hello, world!" script
+
+print('Hello, world!')
+```
+````
+
+Use `none` as the language to prevent any syntax highlighting.
+
+
+### Unformatted text with soft wrap
+
+To show a text block with soft line-wrapping that interprets no mark-up formatting and uses a monospace font (e.g. for sample email or comment messages), use the `code` directive with the custom `codeblock-wrap` CSS class. For example:
+
+````{code} md
+:class: codeblock-wrap
+
+```{code}
+:class: codeblock-wrap
+
+_Lorem_ ipsum **dolor** sit amet, [consectetur](adipiscing.elit). Sed lobortis nec mauris ac placerat. Cras pulvinar dolor at orci semper hendrerit. Nam elementum leo vitae quam commodo, blandit ultricies diam malesuada. Suspendisse lacinia euismod quam interdum mollis. Pellentesque a eleifend ante.
+
+Aliquam tempus ultricies velit, eget consequat magna volutpat vitae. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Mauris pulvinar vestibulum congue. Aliquam et magna ultrices justo condimentum varius.
+```
+````
+
+
 ## Testing the documentation
 
 Test your changes before submitting a pull request. Run the following commands from within the `docs/` directory to test the documentation locally:
 
 | command  | use |
 |---------|-----|
-| `make spelling` | Check for spelling errors; this command checks the HTML files in the `_build` directory. Fix any errors in the corresponding Markdown file |
-| `make linkcheck` | Check for broken links |
+| `make spelling` | Check for spelling errors |
+| `make linkcheck` | Check for broken links |
 | `make woke` | Check for non-inclusive language |
 | `make pa11y` | Check for accessibility issues |
-
-:::{note}
-For the `make spelling` command to work, you must have the `aspell` spellchecker installed. You can install it with `sudo apt install aspell`.
-:::
 
 
 ## Open Documentation Academy
