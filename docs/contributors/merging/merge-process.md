@@ -1,7 +1,7 @@
 (merge-process)=
 # Merge process
 
-Perform the merge using the {manpage}`git-ubuntu(1)` tool. See also the dedicated {external+git-ubuntu:doc}`git-ubuntu documentation <index>`.
+Perform the merge using the {manpage}`git-ubuntu(1)` tool.
 
 ::::{admonition} **Merging** series
 The article series provides guidance on performing package merges.
@@ -75,7 +75,7 @@ These will silently disappear on commit, causing extraneous
 unintended changes. See: LP: #1687057.
 ```
 
-These empty directories can cause the rich history to become lost when uploading them to the Archive. When that happens, use {external:doc}`howto/restore-empty-directories`.
+These empty directories can cause the rich history to become lost when uploading them to the Archive. When that happens, use {ref}`restore-empty-directories`.
 
 :::
 

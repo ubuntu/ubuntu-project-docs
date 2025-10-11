@@ -17,13 +17,15 @@ check-reverse-dependencies
 ```
 
 
-## Sponsorship
+## Sponsorship and uploading
 
 See the {ref}`sponsorship` article series for instructions on how seek sponsorship as well as review and sponsor uploads and syncs.
 
 ```{toctree}
 :maxdepth: 1
 
+Handle git-ubuntu contributions <handle-git-ubuntu-uploads>
+Upload with rich history <upload-with-rich-history>
 Review a merge proposal <review-a-merge-proposal>
 Sponsor an upload <sponsor-an-upload>
 Sponsor a sync <sponsor-a-sync>

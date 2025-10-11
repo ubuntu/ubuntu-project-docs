@@ -47,7 +47,23 @@ sponsorship
 ```
 
 
-#### Proposed migration
+### Git-ubuntu
+
+Explanation of the git-ubuntu importer service. See also {ref}`how-to-handle-git-ubuntu-uploads`.
+
+```{toctree}
+:maxdepth: 1
+
+git-ubuntu/index
+```
+
+* {ref}`git-ubuntu-design-goals-and-principles`
+* {ref}`changes-file-headers`
+* {ref}`empty-directories`
+
+
+
+### Proposed migration
 
 The process of moving (uploaded or merged) packages from the `-proposed` {term}`pocket` to the `-release` pocket to make them available to users:
 

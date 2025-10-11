@@ -99,6 +99,20 @@ so, create a new 4096-bit one and deprecate the old one in Launchpad, GitHub,
 etc.
 
 
+(keyring-with-plaintext-storage)=
+### Keyring with plaintext storage
+
+See {ref}`keyring-integration` for details on how `git-ubuntu` uses keyring. If
+you want to reconfigure keyring to use plaintext storage to avoid getting
+keyring password prompts, create the file
+`~/.local/share/python_keyring/keyringrc.cfg` with the following contents:
+
+```none
+[backend]
+default-keyring=keyrings.alt.file.PlaintextKeyring
+```
+
+
 (git)=
 ### Git
 
