@@ -1,38 +1,37 @@
-(npm-backporting-rust)=
-
-# rustc: Backporting Rust
+(how-to-backport-rust)=
+# How to backport Rust
 
 This guide details the process of {term}`backporting <backport>` an existing version of the Rust toolchain to older {term}`releases <ubuntu release>` of Ubuntu.
 
-- To see the process of creating a _new_ versioned `rustc` package, consult the [Updating Rust](npm-updating-rust.md) guide instead.
-- To see the process of fixing an existing Rust package, consult the [Patching Rust](npm-patching-rust.md) guide instead.
+- To see the process of creating a _new_ versioned `rustc` package, consult the {ref}`how-to-update-rust` guide instead.
+- To see the process of fixing an existing Rust package, consult the {ref}`how-to-patch-rust` guide instead.
 
 ## Background
 
-Every once in a while, old {term}`Ubuntu releases <ubuntu release>` will need newer versions of `rustc`. [LP: #2100492](https://pad.lv/2100492) is a typical example — Firefox and Chromium started requiring Rust 1.82 to build, so every release going back to Focal needed the versioned `rustc-1.82` package in the archive.
+Every once in a while, old {term}`Ubuntu releases <ubuntu release>` will need newer versions of `rustc`. {lpbug}`2100492` is a typical example — Firefox and Chromium started requiring Rust 1.82 to build, so every release going back to Focal needed the versioned `rustc-1.82` package in the archive.
 
 The process of adding a new package to an old Ubuntu release is called a {term}`backport`. Backports don't come with the same security guarantees as regular packages and must be manually enabled for a given machine.
 
 Backporting Rust is tricky because every `rustc` package we create is designed to work with a specific version of the {term}`archive`. It expects a particular version of LLVM, a particular version of CMake, a particular version of `debhelper`, etc... The challenge of backporting stems from trying to get the Rust package to work with an entirely different archive from the one it was built around.
 
----
 
-## The Proper Order of a Backport
+## Proper order of a backport
 
 To backport `rustc`, we take a currently-working version and make it build on previous releases of Ubuntu. _However_, in order for a given `rustc` package to build, we _also_ need the previous _Rust_ version for that particular Ubuntu release.
 
-(backporting-rust-example-backport)=
 
-### Example: Backporting rustc-1.86 to Jammy
+(rust-example-backport)=
+### Example backport
 
 This concept is better illustrated by an example. Let's say you need to backport `rustc-1.86` to Jammy Jellyfish. In this example, here's the newest `rustc` version supported by every supported Ubuntu release:
 
-| Ubuntu Release   | Supported `rustc` Version |
+| Ubuntu release   | Supported `rustc` version |
 | ---------------- | ------------------------- |
 | Jammy            | `rustc-1.83`              |
 | Noble            | `rustc-1.83`              |
 | Plucky           | `rustc-1.85`              |
 | Questing (devel) | `rustc-1.86`              |
+
 
 #### Going back in time, one step at a time
 
@@ -40,13 +39,15 @@ It's _strongly discouraged_ to backport the Questing version of `rustc-1.86` dir
 
 Because of this, we're going to go "back in time" one step at a time: Questing -> Plucky, Plucky -> Noble, Noble -> Jammy. Doing it this way gives more immediate feedback and provides "checkpoints" along the way; if you have issues at, say, the "Noble -> Jammy" step, you _know_ that Noble works fine, so the issue stems from something Jammy-specific.
 
+
 #### Bootstrapping toolchain needed
 
 Remember, in order to build the Rust compiler, you need the _previous Rust version's compiler_ to bootstrap it. Jammy only has `rustc-1.83` in this example. This means that we _also_ can't jump directly to `rustc-1.86` on Jammy; we have to backport `rustc-1.84` and `rustc-1.85` to Jammy as well.
 
+
 #### Putting it all together
 
-Now we know _what_ we have to do, AND the _order_ to do it in. To backport `rustc-1.86` to Jammy, we must perform the following backports in the given order:
+Now we know _what_ we have to do, and the _order_ to do it in. To backport `rustc-1.86` to Jammy, we must perform the following backports in the given order:
 
 1. `rustc-1.84`
    1. Backport `rustc-1.84` from Plucky to Noble
@@ -61,7 +62,6 @@ Now we know _what_ we have to do, AND the _order_ to do it in. To backport `rust
 
 By doing things this way, you'll discover that the most common problems pop up again and again, and you'll eventually already know how to fix most of them in advance.
 
----
 
 ## Reference
 
@@ -85,21 +85,21 @@ For example, if you were backporting `rustc-1.82` to Jammy...
 
 `<lpuser>` refers to your Launchpad username.
 
-`<N>` is the suffix for `~bpo` in the [changelog version number](npm-rust-version-strings.md) and signals which crucial Rust dependencies (if any) were re-included in the source tarball.
+`<N>` is the suffix for `~bpo` in the {ref}`changelog version number <rust-version-strings>` and signals which crucial Rust dependencies (if any) were re-included in the source tarball.
 
 `<lp_bug_number>` refers to the bug number on Launchpad.
-
----
 
 ```{include} common/local-repo-setup.md
 
 ```
 
-## The Backport Process
 
-The baseline backport process is essentially trivial on its own and has few distinguishing features from a regular Rust toolchain update. The majority of these docs is taken up by the [Common Backporting Changes](backporting-rust-common-backporting-changes) section, which details things you'll often have to do in order to get the backport to build properly.
+## Backport process
 
-### The Bug Report
+The baseline backport process is essentially trivial on its own and has few distinguishing features from a regular Rust toolchain update. The majority of these docs is taken up by the {ref}`rust-common-backporting-changes` section, which details things you'll often have to do in order to get the backport to build properly.
+
+
+### Bug report
 
 To keep track of backport progress and status, a Launchpad bug report is absolutely necessary.
 
@@ -107,11 +107,12 @@ It's quite likely that there's a specific _reason_ why the backport was needed (
 
 If no bug exists, you'll need to create your own. You can find a good example [here](https://pad.lv/2100492). If you need to go back multple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored. Additionally, if you need to go back multiple Rust versions, a separate bug report must be filed for each Rust version.
 
-- Going back to our [Jammy 1.86 example](backporting-rust-example-backport), we'd have to create three bug reports:
+- Going back to our {ref}`Jammy 1.86 example <rust-example-backport>`, we'd have to create three bug reports:
   1. `rustc-1.84` bug targeting Noble and Jammy
   2. `rustc-1.85` bug targeting Noble and Jammy
   3. `rustc-1.86` bug targeting Plucky, Noble, and Jammy
 
+  
 ### Setup
 
 Make sure you're on the `<X.Y>` branch of `<source_release>`, i.e. the version of Rust you want to backport on the Ubuntu release _newer_ than your target:
@@ -133,9 +134,11 @@ $ git checkout noble-1.85
 $ git checkout -b jammy-1.85
 ```
 
-### Changelog Version
 
-The first thing we should do on our new branch is create a new changelog entry right off the bat. Before we change anything, however, it's important to understand the meaning of every component of the version number. Ensure you read and understand the ["Rust Version Strings"](npm-rust-version-strings.md) article before proceeding.
+### Changelog version
+
+The first thing we should do on our new branch is create a new changelog entry right off the bat. Before we change anything, however, it's important to understand the meaning of every component of the version number. Ensure you read and understand the {ref}`rust-version-strings` article before proceeding.
+
 
 #### Creating the new changelog entry
 
@@ -149,12 +152,12 @@ $ dch -bv \
     --distribution "<release>"
 ```
 
-Examples:
+**Examples:**
 
-| Existing release | Backport      | `existing_version_number`               | New version number                      |
-| ---------------- | ------------- | --------------------------------------- | --------------------------------------- |
-| 1.82 Devel       | 1.82 Oracular | 1.82.0+dfsg0ubuntu1-0ubuntu2            | 1.82.0+dfsg0ubuntu1-0ubuntu0.24.09      |
-| 1.81 Jammy       | 1.81 Focal    | 1.81.0+dfsg0ubuntu1~bpo0-0ubuntu0.22.03 | 1.81.0+dfsg0ubuntu1~bpo0-0ubuntu0.20.03 |
+| Existing release | Backport | `<existing_version_number>` | New version number |
+| --- | --- | --- | --- |
+| 1.82 Devel | 1.82 Oracular | `1.82.0+dfsg0ubuntu1-0ubuntu2` | `1.82.0+dfsg0ubuntu1-0ubuntu0.24.09` |
+| 1.81 Jammy | 1.81 Focal | `1.81.0+dfsg0ubuntu1~bpo0-0ubuntu0.22.03` | `1.81.0+dfsg0ubuntu1~bpo0-0ubuntu0.20.03` |
 
 As you can see, we leave everything untouched except for the addition of the decremented release number at the very end.
 
@@ -164,27 +167,26 @@ Make the changelog entry description something like this:
   * Backport to <release> (LP: <lp_bug_number>)
 ```
 
-(backporting-rust-generating-the-orig-tarball)=
-
-### Generating the Orig Tarball
+(rust-generating-the-orig-tarball)=
+### Generating the orig tarball
 
 ```{include} common/uscan.md
 
 ```
 
-If you've had to vendor LLVM or `libgit2`, add the [relevant `~bpo`](npm-rust-version-strings.md) to the end of the orig tarball's version number too.
+If you've had to vendor LLVM or `libgit2`, add the {ref}`relevant ~bpo <rust-version-strings>` to the end of the orig tarball's version number too.
 
 ```{include} common/local-build.md
 
 ```
 
-(backporting-rust-ppa-build)=
-
+(rust-ppa-build)=
 ```{include} common/ppa-build.md
 
 ```
 
-### Uploading the Backport
+
+### Uploading the backport
 
 Once your backport builds successfully in a PPA for all targets, bump the `<release_number>` to its proper number and re-upload to your PPA once more.
 
@@ -195,21 +197,20 @@ After it builds, reach out to the Security team and politely request they upload
 
 You can monitor upload progress in the [Security Proposed PPA](https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+packages?field.name_filter=rustc&field.status_filter=&field.series_filter=).
 
----
 
-(backporting-rust-common-backporting-changes)=
-
-## Common Backporting Changes
+(rust-common-backporting-changes)=
+## Common backporting changes
 
 While every backport is different, there are several procedures that must occur somewhat regularly. This section is an independent collection of such procedures that should be added to as necessary.
 
-(backporting-rust-vendoring-llvm)=
 
+(rust-vendoring-llvm)=
 ### Vendoring LLVM
 
 By default, `rustc` uses the distro's packaged LLVM instead of the vendored LLVM bundled in with the upstream Rust source.
 
 However, if you see a message regarding `libclang-rt-*-dev`, `libclang-common-*-dev`, etc. not being installable, then the LLVM version in this Ubuntu release's archive is likely too old.
+
 
 #### Verifying an outdated LLVM
 
@@ -220,6 +221,7 @@ If you're unsure whether or not the "broken package" described in the failing bu
 ```none
 $ dpkg -s <offending_package> | grep Source
 ```
+
 
 #### Re-including the upstream LLVM source
 
@@ -236,9 +238,9 @@ Since the Ubuntu Rust package doesn't typically need the vendored LLVM, we yank 
  # Fonts already in Debian, covered by d-0003-mdbook-strip-embedded-libs.patch
 ```
 
-#### Modifying debian/control and debian/control.in
+#### Modifying `debian/control` and `debian/control.in`
 
-First, you'll need to remove the relevant packages from `Build-Depends` in both `debian/control` AND `debian/control.in`:
+First, you'll need to remove the relevant packages from `Build-Depends` in both `debian/control` and `debian/control.in`:
 
 ```diff
 @@ -17,11 +17,7 @@ Build-Depends:
@@ -321,7 +323,7 @@ Remove the option declaring LLVM as a dynamically-linked library (as opposed to 
  optimize = MAKE_OPTIMISATIONS
 ```
 
-The lines pointing `rustc` to the proper system LLVM tools can be removed in favour of using the default vendored LLVM:
+The lines pointing `rustc` to the proper system LLVM tools can be removed in favor of using the default vendored LLVM:
 
 ```diff
 --- a/debian/config.toml.in
@@ -354,7 +356,7 @@ The lines pointing `rustc` to the proper system LLVM tools can be removed in fav
  profiler = false
 ```
 
-#### Modifying debian/rules
+#### Modifying `debian/rules`
 
 The build process must be modified somewhat in order to account for the newly-vendored LLVM.
 
@@ -514,9 +516,9 @@ We also need to re-include the LLVM copyright stanza in `debian/copyright`:
 
 #### Re-including the LLVM source
 
-Update the [changelog version number](npm-rust-version-strings.md) accordingly. Your version number should now contain either `~bpo0` or `~bpo2` depending on the status of `libgit2`.
+Update the {ref}`changelog version number <rust-version-strings>` accordingly. Your version number should now contain either `~bpo0` or `~bpo2` depending on the status of `libgit2`.
 
-You can now [regenerate the orig tarball](npm-rust-version-strings.md), which should now include the upstream LLVM source in `src/llvm-project`.
+You can now {ref}`regenerate the orig tarball <rust-version-strings>`, which should now include the upstream LLVM source in `src/llvm-project`.
 
 After regenerating the orig tarball, get all the new LLVM files and overlay them on your working directory:
 
@@ -537,22 +539,23 @@ $ git add src/llvm-project
 
 ```
 
-### Outdated libgit2-dev
+### Outdated `libgit2-dev`
 
 A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the version `rustc` requires. If your Ubuntu release's [available `libgit2` version](https://pad.lv/u/libgit2) doesn't meet your Rust toolchain's requirements, then you have two options:
 
-1. [Downgrade](backporting-rust-downgrading-libgit2-dev). This is the easier option, but it only works if the `libgit2-dev` version in the archive isn't _too_ old.
-1. [Vendor](backporting-rust-vendoring-libgit2). This is a much bigger change, but it's often necessary if the `libgit2-dev` version in the archive is so old that it breaks things.
+1. {ref}`Downgrade <rust-downgrading-libgit2-dev>`. This is the easier option, but it only works if the `libgit2-dev` version in the archive isn't _too_ old.
+1. {ref}`Vendor <rust-vendoring-libgit2>`. This is a much bigger change, but it's often necessary if the `libgit2-dev` version in the archive is so old that it breaks things.
 
-(backporting-rust-downgrading-libgit2-dev)=
 
-### Downgrading libgit2-dev
+(rust-downgrading-libgit2-dev)=
+### Downgrading `libgit2-dev`
 
 It may be possible to simply downgrade the required `libgit2-dev` version to the most recent version in your target release's archive.
 
 For example, assume that the required `libgit2-dev` version is `1.9.0`, and the most recent version in the archive is `1.7.2`.
 
-#### Modifying debian/control and debian/control.in
+
+#### Modifying `debian/control` and `debian/control.in`
 
 Simply reduce the minimum requirement to the version in the archive, and restrict the maximum to anything newer:
 
@@ -590,9 +593,9 @@ Don't forget to change `debian/control.in` too!
  # test dependencies:
 ```
 
-#### Patching libgit2-sys
+#### Patching `libgit2-sys`
 
-The vendored `libgit2-sys` crate tries to search for the system libgit2 C library. It's your job to point it to the right version.
+The vendored `libgit2-sys` crate tries to search for the system `libgit2` C library. It's your job to point it to the right version.
 
 Create a new patch and add the `build.rs` script of your `libgit2-sys` crate:
 
@@ -618,17 +621,19 @@ Adjust the versions it searches for in `try_system_libgit2()` accordingly:
                  println!("cargo:root={}", include.display());
 ```
 
+
 #### Testing
 
-Try to build the package and see if it works. If not, then you must vendor the `libgit2` C library included with the upstream Rust source. Undo your changes and consult ["Vendoring libgit2](backporting-rust-vendoring-libgit2) below.
+Try to build the package and see if it works. If not, then you must vendor the `libgit2` C library included with the upstream Rust source. Undo your changes and consult {ref}`rust-vendoring-libgit2` below.
 
-(backporting-rust-vendoring-libgit2)=
 
-### Vendoring libgit2
+(rust-vendoring-libgit2)=
+### Vendoring `libgit2`
 
 If the version of `libgit2-dev` in your target Ubuntu release's archive is too old to function properly, you must vendor the `libgit2` C library instead, which is normally included in the vendored `libgit2-sys` crate.
 
-#### Re-including libgit2 in Files-Excluded
+
+#### Re-including `libgit2` in `Files-Excluded`
 
 Comment out `libgit2` from `Files-Excluded` in `debian/copyright`, so next time you regenerate the tarball, it's included within the files:
 
@@ -646,7 +651,8 @@ Comment out `libgit2` from `Files-Excluded` in `debian/copyright`, so next time 
   vendor/libsqlite3-sys-*/sqlcipher
 ```
 
-#### Removing libgit2-dev and libhttp-parser-dev from Build-Depends
+
+#### Removing `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends`
 
 You must also comment out `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends` in `debian/control` and `debian/control.in`. `libhttp-parser-dev` is removed because it's also included within the vendored `libgit2` source code.
 
@@ -690,7 +696,7 @@ Don't forget `debian/control.in`, too!
 
 #### Editing the patch
 
-After that, we must edit the patch removing vendored C crates so the vendored version is used properly:
+After that, we must edit the patch removing vendored C crates, so the vendored version is used properly:
 
 ```none
 $ quilt push prune/d-0010-cargo-remove-vendored-c-crates.patch
@@ -725,11 +731,12 @@ When you refresh the patch and pop everything off again, the patch diff should l
  -all-static = ['vendored-openssl', 'curl/static-curl', 'curl/force-system-lib-on-osx', 'vendored-libgit2']
 ```
 
-#### Re-including the libgit2 source
 
-Update the [changelog version number](npm-rust-version-strings.md) accordingly. Your version number should now contain either `~bpo0` or `~bpo10`, depending on the status of LLVM.
+#### Re-including the `libgit2` source
 
-You can now [regenerate the orig tarball](backporting-rust-generating-the-orig-tarball), which should now include the upstream `libgit2` source in `vendor/libgit2-sys-<version>/libgit2`.
+Update the {ref}`changelog version number <rust-version-strings>` accordingly. Your version number should now contain either `~bpo0` or `~bpo10`, depending on the status of LLVM.
+
+You can now {ref}`regenerate the orig tarball <rust-generating-the-orig-tarball>`, which should now include the upstream `libgit2` source in `vendor/libgit2-sys-<version>/libgit2`.
 
 After regenerating the orig tarball, get all the new `libgit2` files and overlay them on your working directory:
 
@@ -750,11 +757,12 @@ git add vendor/libgit2-sys-<version>/libgit2
 
 ```
 
-### Disabling dh-cargo
+### Disabling `dh-cargo`
 
 Earlier Ubuntu releases may not have access to [`dh-cargo`](https://launchpad.net/ubuntu/+source/dh-cargo) for the purposes of validating the custom `XS-Vendored-Sources-Rust` field in `debian/control`. If this is the case, then it must be removed from the build dependencies and build scripts.
 
-#### Removing dh-cargo from Build-Depends
+
+#### Removing `dh-cargo` from `Build-Depends`
 
 ```diff
 --- a/debian/control
@@ -786,7 +794,8 @@ Don't forget `debian/control.in` too!
   cargo-@RUST_PREV_VERSION@ | cargo-@RUST_VERSION@ <!pkg.rustc.dlstage0>,
 ```
 
-#### Removing the Vendored-Sources-Rust check
+
+#### Removing the `Vendored-Sources-Rust` check
 
 `debian/rules` must be modified so it doesn't try to use `dh-cargo` to validate `Vendored-Sources-Rust`:
 
@@ -804,11 +813,13 @@ Don't forget `debian/control.in` too!
         # fail the build if our version contains ~exp and we are not releasing to experimental
 ```
 
-### Reverting from pkgconf to pkg-config
+
+### Reverting from `pkgconf` to `pkg-config`
 
 [`pkgconf`](http://pkgconf.org/) is a drop-in modern replacement for the older [`pkg-config`](https://www.freedesktop.org/wiki/Software/pkg-config/), but if you get an error stating that `the pkg-config command could not be found`, then your target Ubuntu release is likely too old to have `pkgconf`. In this case, we must fall back on using `pkg-config` instead.
 
-#### Editing Build-Depends
+
+#### Editing `Build-Depends`
 
 ```diff
 --- a/debian/control
@@ -840,7 +851,8 @@ Don't forget to edit `debian/control.in` as well!
   zlib1g-dev,
 ```
 
-#### Editing debian/rules
+
+#### Editing `debian/rules`
 
 `debian/rules` must be modified so Cargo uses `pkg-config` instead of `pkgconf`:
 
@@ -857,7 +869,8 @@ Don't forget to edit `debian/control.in` as well!
  LLVM_LIBRARY_PATH := $(LLVM_DESTDIR)/usr/lib/$(DEB_HOST_MULTIARCH):$(LLVM_DESTDIR)/usr/lib
 ```
 
-### Outdated cmake
+
+### Outdated `cmake`
 
 If the version of [`cmake`](https://pad.lv/u/cmake) in the archive is too old, we can't just update the `cmake` version in the archive. This would change how countless other packages were built. Instead, we use [`cmake-mozilla`](https://pad.lv/u/cmake-mozilla), which is updated specifically for backports to use.
 
@@ -893,7 +906,8 @@ Don't forget `debian/control.in`!
  # this is sometimes needed by rustc_llvm
 ```
 
-### Outdated debhelper-compat
+
+### Outdated `debhelper-compat`
 
 [`debhelper-compat`](https://www.man7.org/linux/man-pages/man7/debhelper.7.html#COMPATIBILITY_LEVELS) serves as a way of denoting a versioned build dependency on a specific version of {manpage}`debhelper(7)`.
 
@@ -915,17 +929,19 @@ You can cherry-pick the following commit and deal with the merge conflicts if yo
 $ git cherry-pick 20ce525927c2e9176dd3c7209968038b09a49a25
 ```
 
-### Failing rustdoc-ui Tests
+
+### Failing `rustdoc-ui` tests
 
 For older Ubuntu releases (likely those with `make < 4.4`), it's possible for emitted `job-server` warnings to cause `rustdoc-ui` tests which use byte-for-byte standard error comparisons to fail.
 
 This is a [known issue](https://github.com/rust-lang/cargo/issues/14407) with `jobserver-rs` — it's even noted in the [`rustc` book](https://doc.rust-lang.org/stable/rustc/jobserver.html#gnu-make).
 
-If this happens, try [building in a PPA](backporting-rust-ppa-build). There's a good chance our actual build infrastructure doesn't trigger those warnings and passes the tests.
+If this happens, try {ref}`building in a PPA <rust-ppa-build>`. There's a good chance our actual build infrastructure doesn't trigger those warnings and passes the tests.
 
 :::{note}
 More investigation is needed to figure out why the tests fail in local build environments and succeed in PPAs.
 :::
+
 
 ### Missing OpenSSL
 
@@ -965,13 +981,14 @@ Then the error message is accurate. Add `libssl-dev` to `Build-Depends` within `
   m4,
 ```
 
+
 ### RISC-V "Z" Extension Issues
 
-Certain tests may fail on {term}`RISC-V` because older versions of [`binutils`](https://launchpad.net/ubuntu/+source/binutils) don't know how to handle newer RISC-V extensions included with the [newly-vendored LLVM](backporting-rust-vendoring-llvm). Therefore, these extensions must be removed from the vendored LLVM.
+Certain tests may fail on {term}`RISC-V` because older versions of [`binutils`](https://launchpad.net/ubuntu/+source/binutils) don't know how to handle newer RISC-V extensions included with the {ref}`newly-vendored LLVM <rust-vendoring-llvm>`. Therefore, these extensions must be removed from the vendored LLVM.
 
-(backporting-rust-disabling-zicsr)=
 
-#### Disabling zicsr (LLVM 18+)
+(rust-disabling-zicsr)=
+#### Disabling `zicsr` (LLVM 18+)
 
 There exists a patch which disables the [`zicsr`](https://www.five-embeddev.com/riscv-user-isa-manual/latest-adoc/zicsr.html) RISC-V extension:
 
@@ -985,19 +1002,21 @@ This works for LLVM 18. To disable `zicsr` on LLVM 19+, you must also include an
 $ git cherry-pick eea627ceb5ec7ab312a10aafaa191c602efd561a
 ```
 
-#### Disabling zmmul (LLVM 19+)
+
+#### Disabling `zmmul` (LLVM 19+)
 
 LLVM 19 also added the [`zmmul`](https://www.five-embeddev.com/riscv-user-isa-manual/latest-adoc/m-st-ext.html#_zmmul_extension_version_1_0) RISC-V extension, which _also_ isn't supported on older versions of `binutils`.
 
-There is a patch that disables `zmmul`. It's intended to be overlaid on top of the [`zicsr` removal patch](backporting-rust-disabling-zicsr), but it will be able to apply cleanly with minimal changes:
+There is a patch that disables `zmmul`. It's intended to be overlaid on top of the {ref}`zicsr removal patch <rust-disabling-zicsr>`, but it will be able to apply cleanly with minimal changes:
 
 ```none
 $ git cherry-pick 9b5dda44b0de0a3e1e9dfd552e6097c08aed298f
 ```
 
-### No Space Left on Device
 
-Sometimes, especially when vendoring [LLVM](backporting-rust-vendoring-llvm) and/or [`libgit2`](backporting-rust-vendoring-libgit2), the build will succeed locally but fail in a PPA due to the PPA builder running out of space.
+### No space left on device
+
+Sometimes, especially when vendoring {ref}`LLVM <rust-vendoring-llvm>` or {ref}`libgit2 <rust-vendoring-libgit2>`, the build will succeed locally but fail in a PPA due to the PPA builder running out of space.
 
 Consult the failing PPA buildlog for a "No space left on device" message to confirm that this is the cause. Take note of the point in `debian/rules` in which the PPA builder runs out of space.
 
