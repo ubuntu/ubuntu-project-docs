@@ -1,14 +1,13 @@
-(npm-updating-rust)=
-
-# rustc: Updating Rust
+(how-to-update-rust)=
+# How to update Rust
 
 This guide details the process of creating a new versioned `rustc` Ubuntu package for a new upstream Rust release.
 
-- To see the process of {term}`backporting <backport>` Rust, consult the [Backporting Rust](npm-backporting-rust.md) guide instead.
-- To see the process of fixing an existing Rust package, consult the [Patching Rust](npm-patching-rust.md) guide instead.
+- To see the process of {term}`backporting <backport>` Rust, consult the {ref}`how-to-backport-rust` guide instead.
+- To see the process of fixing an existing Rust package, consult the {ref}`how-to-patch-rust` guide instead.
 
 :::{attention}
-This is _not_ a guide for updating your system's Rust toolchain. This guide is intended only for Ubuntu toolchain package maintainers seeking to add new Rust versions to the Ubuntu archive.
+This is _not_ a guide for updating your system's Rust toolchain. This guide is intended only for Ubuntu toolchain package maintainers seeking to add new Rust versions to the Ubuntu Archive.
 :::
 
 ## Background
@@ -110,7 +109,7 @@ $ dch -v <X.Y.Z>+dfsg0ubuntu0-0ubuntu0
 ```
 
 :::{important}
-The changelog version string is complicated. It's _strongly recommended_ to consult the ["Rust Version Strings"](npm-rust-version-strings.md) article before making this change to ensure you understand the version string.
+The changelog version string is complicated. It's _strongly recommended_ to consult the {ref}`rust-version-strings` article before making this change to ensure you understand the version string.
 
 Even though the `ubuntu` suffix in version strings starts at 1, the fact that both suffixes are `ubuntu0` here is not a typo. This version string will _not_ be added to the archive — it is simply an interim number to be used temporarily until we're finished repacking the tarball.
 :::

@@ -280,7 +280,7 @@ extensions = [
 ]
 
 # Excludes files or directories from processing
-exclude_patterns = ["maintainers/NPM/common"]
+exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common"]
 
 
 # Adds custom CSS files, located under 'html_static_path'
