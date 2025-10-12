@@ -42,10 +42,10 @@ SRU/index
 AA/index
 ```
 
-### Niche Package Maintenance
+### Niche package maintenance
 
 ```{toctree}
 :maxdepth: 1
 
-index-NPM
+niche-package-maintenance/index
 ```

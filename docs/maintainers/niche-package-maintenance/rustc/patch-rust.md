@@ -1,21 +1,18 @@
-(npm-patching-rust)=
-
-# rustc: Patching Rust
+(how-to-patch-rust)=
+# How to patch Rust
 
 This guide details the process of fixing an existing versioned `rustc` Ubuntu package.
 
-- To see the process of creating a _new_ versioned `rustc` package, consult the [Updating Rust](npm-updating-rust.md) guide instead.
-- To see the process of {term}`backporting <backport>` Rust, consult the [Backporting Rust](npm-backporting-rust.md) guide instead.
+- To see the process of creating a _new_ versioned `rustc` package, consult the {ref}`how-to-update-rust` guide instead.
+- To see the process of {term}`backporting <backport>` Rust, consult the {ref}`how-to-backport-rust` guide instead.
 
 ## Background
 
 Unfortunately, since `rustc` is a versioned {term}`source package`, we are unable to use the more modern {term}`git-ubuntu` ({manpage}`git-ubuntu(1)`) workflow. Whenever you must fix a bug in an already-released Rust source package, you must follow the legacy {manpage}`debdiff(1)` workflow instead.
 
 :::{attention}
-This guide assumes that you already have a basic understanding of maintaining Ubuntu packages in general. It _only_ covers the things which make Rust package patching unique.
+This guide assumes that you already have a basic understanding of maintaining Ubuntu packages in general. It _only_ covers the things that make Rust package patching unique.
 :::
-
----
 
 ```{include} common/substitution-terms.md
 
@@ -54,7 +51,7 @@ You must also verify that none of your changes have interfered with {term}`autop
 Once you've verified that your updated package builds properly in a PPA, passes all autopkgtests, and meets Lintian standards, then you're ready to create a reviewable diff using {manpage}`debdiff(1)`.
 
 :::{seealso}
-To get more info on the legacy `debdiff` process in general, consult the "Submitting the Fix" section of [this page](../../contributors/bug-fix/propose-changes.rst).
+To get more info on the legacy `debdiff` process in general, consult the {ref}`submitting-the-fix` section.
 :::
 
 Essentially, since the Git history of `rustc-<X.Y>` was wiped when it was uploaded as a new package, we need to manually generate a diff between the uploaded version of `rustc-<X.Y>` and your updated version of `rustc` that doesn't rely on Git. To do this, we'll need `.dsc`s for both package versions.
@@ -74,7 +71,7 @@ $ debdiff <old_dsc> <new_dsc> > 1-<new_full_version_number>.debdiff
 ### debdiff patch naming convention
 
 :::{important}
-An understanding of Rust-specific version string conventions is necessary for this portion. Read the ["Rust Version Strings"](npm-rust-version-strings.md) article before continuing.
+An understanding of Rust-specific version string conventions is necessary for this portion. Read the {ref}`rust-version-strings` article before continuing.
 :::
 
 Let's break down an example debdiff patch name: `1-1.86.0+dfsg0ubuntu2-0ubuntu1.debdiff`

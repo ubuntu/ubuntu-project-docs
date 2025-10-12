@@ -229,6 +229,8 @@ You can also use PPA-based method whenever possible. It produces results closest
 To learn how to set up and run these test methods, see `Running package tests <https://github.com/canonical/ubuntu-maintainers-handbook/blob/main/PackageTests.md>`_.
 
 
+.. _submitting-the-fix:
+
 Submitting the fix
 ------------------
 
