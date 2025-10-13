@@ -28,7 +28,6 @@ git ubuntu clone <package> [dir-name]
 
 For example, for a contribution to dovecot, you might run:
 
-```none
 ```console
 git ubuntu clone dovecot
 ```
@@ -85,22 +84,30 @@ terms of policy may be fine to handle directly, without use of
 git-ubuntu.  However, if you prefer to handle it through git-ubuntu, you
 may find the following workflow useful.
 
-```console
-git ubuntu clone $package && cd $package
-git switch -c lp$bugnumber-$description-$release pkg/ubuntu/$release-devel
+1. Clone the package and apply the debdiff:
 
-debdiff-apply < ../$debdiff_file
+   ```console
+   git ubuntu clone $package && cd $package
+   git switch -c lp$bugnumber-$description-$release pkg/ubuntu/$release-devel
 
-# create cleaned up commits (except changelog and maintainer)
-git add -p  ...
-git commit
+   debdiff-apply < ../$debdiff_file
+   ```
 
-git commit debian/changelog -m changelog
+1. Create cleaned up commits (except changelog and maintainer):
 
-# if there was no debian delta before:
-update-maintainer
-git commit debian/control* -m "update-maintainer"
-```
+   ```console
+   git add -p ...
+   git commit
+
+   git commit debian/changelog -m changelog
+   ```
+
+1. If there was no Debian delta before:
+
+   ```console
+   update-maintainer
+   git commit debian/control* -m "update-maintainer"
+   ```
 
 That should result in a reasonable facsimile of a git ubuntu style
 branch.  Depending on the contribution you might want to improve the

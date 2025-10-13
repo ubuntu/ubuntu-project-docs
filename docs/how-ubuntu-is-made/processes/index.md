@@ -57,7 +57,6 @@ Explanation of the git-ubuntu importer service. See also {ref}`how-to-handle-git
 git-ubuntu/index
 ```
 
-* {ref}`git-ubuntu-design-goals-and-principles`
 * {ref}`changes-file-headers`
 * {ref}`empty-directories`
 
