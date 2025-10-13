@@ -422,3 +422,16 @@ If you're operating from a GUI, this can be useful:
 $ eval `dbus-launch --sh-syntax`
 ```
 
+
+(keyring-with-plaintext-storage)=
+### Keyring with plaintext storage
+
+See `git-ubuntu` {ref}`keyring-integration` for details on how `git-ubuntu` uses keyring. If
+you want to reconfigure keyring to use plaintext storage to avoid getting
+keyring password prompts, create the file
+`~/.local/share/python_keyring/keyringrc.cfg` with the following contents:
+
+```none
+[backend]
+default-keyring=keyrings.alt.file.PlaintextKeyring
+```

@@ -70,6 +70,17 @@ merging/index
 ```
 
 
+## Uploading and sponsorship
+
+All aspects of seeking sponsorship for uploads to the Archive are covered in the {ref}`sponsorship` article series.
+
+```{toctree}
+:maxdepth: 1
+
+Uploading <uploading/index>
+```
+
+
 ## New packages
 
 ```{toctree}
@@ -85,19 +96,6 @@ new-package/index
 :maxdepth: 1
 
 Check accessibility <check-accessibility>
-```
-
-
-## Sponsorship
-
-All aspects of seeking sponsorship as well as being a sponsor are covered in the {ref}`sponsorship` article series.
-
-```{toctree}
-:maxdepth: 1
-
-Find a sponsor <find-a-sponsor>
-Request an upload <request-an-upload>
-Request a sync <request-a-sync>
 ```
 
 
