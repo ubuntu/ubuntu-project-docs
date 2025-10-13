@@ -1,6 +1,6 @@
 .. _git-ubuntu-design-goals-and-principles:
 
-Git-ubuntu design goals and principles
+git-ubuntu design goals and principles
 ======================================
 
 

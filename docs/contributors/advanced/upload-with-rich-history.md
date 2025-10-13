@@ -86,10 +86,10 @@ These instructions make the following assumptions:
 
 Push your branch, adjust your changes file, re-sign it and upload as follows::
 
-```none
-$ git ubuntu prepare-upload mangle ../<package>_<version>_source.changes
-$ debsign ../<package>_<version>_source.changes
-$ dput ubuntu ../<package>_<version>_source.changes
+```console
+git ubuntu prepare-upload mangle ../<package>_<version>_source.changes
+debsign ../<package>_<version>_source.changes
+dput ubuntu ../<package>_<version>_source.changes
 ```
 
 `git ubuntu prepare-upload mangle` will push your branch to your

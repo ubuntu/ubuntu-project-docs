@@ -47,7 +47,7 @@ sponsorship
 ```
 
 
-### Git-ubuntu
+### git-ubuntu
 
 Explanation of the git-ubuntu importer service. See also {ref}`how-to-handle-git-ubuntu-uploads`.
 

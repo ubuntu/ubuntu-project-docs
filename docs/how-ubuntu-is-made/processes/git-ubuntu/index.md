@@ -1,5 +1,5 @@
 (git-ubuntu)=
-# Git-ubuntu
+# git-ubuntu
 
 ```{toctree}
 :maxdepth: 1
@@ -46,7 +46,7 @@ git-ubuntu catches up on source package updates as soon as Launchpad publishes
 them.
 
 
-### Git-ubuntu and Launchpad
+### git-ubuntu and Launchpad
 
 Launchpad is the platform where Ubuntu development happens. But it is separate
 from git-ubuntu:
