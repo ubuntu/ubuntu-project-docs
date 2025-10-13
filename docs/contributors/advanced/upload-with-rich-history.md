@@ -26,9 +26,9 @@ These instructions make the following assumptions:
 Push your branch, create the source package and changes file and upload them as
 follows:
 
-```none
-$ dpkg-buildpackage $(git ubuntu prepare-upload args) -S <your usual options>
-$ dput ubuntu ../<package>_<version>_source.changes
+```console
+dpkg-buildpackage -S $your_options $(git ubuntu prepare-upload args)
+dput ubuntu ../<package>_<version>_source.changes
 ```
 
 `git ubuntu prepare-upload args` will push your branch to your namespace
@@ -58,18 +58,18 @@ Identify three items:
 
 Call `dpkg-buildpackage` as follows:
 
-```none
-$ dpkg-buildpackage -S \
-    --changes-option=-DVcs-Git=<url> \
-    --changes-option=-DVcs-Git-Ref=<ref> \
-    --changes-option=-DVcs-Git-Commit=<commit> \
-    <your usual options>
+```console
+dpkg-buildpackage -S \
+    $your_options \
+    --changes-option=-DVcs-Git=$repourl \
+    --changes-option=-DVcs-Git-Ref=$gitref \
+    --changes-option=-DVcs-Git-Commit=$commithash
 ```
 
 Upload as usual:
 
-```none
-$ dput ubuntu ../<package>_<version>_source.changes
+```console
+dput ubuntu ../<package>_<version>_source.changes
 ```
 
 

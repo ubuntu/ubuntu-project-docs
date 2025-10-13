@@ -22,25 +22,26 @@ These steps are described in the sections below.
 
 ## Checkout the source package's official git-ubuntu repo
 
-```none
-$ git ubuntu clone <package> [dir-name]
+```console
+git ubuntu clone <package> [dir-name]
 ```
 
 For example, for a contribution to dovecot, you might run:
 
 ```none
-$ git ubuntu clone dovecot dovecot-gu
+```console
+git ubuntu clone dovecot
 ```
 
 
-## Add remote tracking branches to a git-ubuntu checkout
+## Add remote tracking branches to a git-ubuntu source repo
 
 In order to review the sponsoree's changes, you'll want to add their
 Launchpad username to your local checkout:
 
-```none
-$ git ubuntu remote add <sponsoree>
-$ git checkout "<sponsoree>/<branch_name>" -b "<branch_name>"
+```console
+git ubuntu remote add $sponsoree $url
+git switch -c lp$id-$desc-$release $sponsoree/$branch_name
 ```
 
 
@@ -52,8 +53,8 @@ release.  If you wish to examine the version of the source package for a
 different Ubuntu version, git-ubuntu provides branches tracking all
 releases and pockets.  For example:
 
-```none
-$ git branch -av | grep pkg/ubuntu/jammy
+```console
+git branch -av | grep pkg/ubuntu/jammy
 remotes/pkg/ubuntu/jammy            17f59d728 1:2.3.16+dfsg1-3ubuntu2 (patches unapplied)
 remotes/pkg/ubuntu/jammy-devel      f5217e4fc changelog
 remotes/pkg/ubuntu/jammy-proposed   f5217e4fc changelog
@@ -65,8 +66,8 @@ Most commonly, it will be the -devel branch you're interested in for
 patch piloting work, so in general for the current jammy version of the
 package, you would typically want to run:
 
-```none
-$ git checkout pkg/ubuntu/jammy-devel -b jammy-devel
+```console
+git switch -c jammy-devel pkg/ubuntu/jammy-devel
 ```
 
 Be aware that the -devel branch will include any changes currently
@@ -84,21 +85,21 @@ terms of policy may be fine to handle directly, without use of
 git-ubuntu.  However, if you prefer to handle it through git-ubuntu, you
 may find the following workflow useful.
 
-```none
-$ mkdir review-lp<num>
-$ cd review-lp<num>
-$ wget <url-debdiff>
-$ git ubuntu clone <package> <package>-gu
-$ cd <package>-gu
-$ git checkout pkg/ubuntu/<release>-devel -b review-lp<num>-<release>
-$ debdiff-apply < ../<debdiff>
-$ git commit debian/changelog -m changelog
-$ changes=$(dpkg-parsechangelog -S Changes | grep "^ ")
-$ update-maintainer -r
-Restoring original maintainer: ...
-$ git commit -a -m "${changes}"
-$ update-maintainer
-$ git commit debian/control* -m "update-maintainer"
+```console
+git ubuntu clone $package && cd $package
+git switch -c lp$bugnumber-$description-$release pkg/ubuntu/$release-devel
+
+debdiff-apply < ../$debdiff_file
+
+# create cleaned up commits (except changelog and maintainer)
+git add -p  ...
+git commit
+
+git commit debian/changelog -m changelog
+
+# if there was no debian delta before:
+update-maintainer
+git commit debian/control* -m "update-maintainer"
 ```
 
 That should result in a reasonable facsimile of a git ubuntu style
@@ -106,8 +107,7 @@ branch.  Depending on the contribution you might want to improve the
 commit message or split the changes up into several commits instead of
 one.
 
-Once you're happy, you can proceed with reviewing and building using the
-techniques described elsewhere.
+Once you're happy, the branch is proposed for merging on launchpad, so it can be reviewed and uploaded.
 
 For more info about traditional debdiff-based contributing, see the
 [Reviewer Team's Knowledge Base](https://wiki.ubuntu.com/ReviewersTeam/KnowledgeBase).
@@ -138,42 +138,31 @@ empty directories won't get copied forward.
 
 Example of use:
 
-```none
-$ git ubuntu clone apache2
-$ cd apache2
-$ git tag -f base
+```console
+git ubuntu clone apache2 && cd apache2
+git tag -f base
   <add commits>
-$ git-ubuntu.experimental-emptydirfixup fix-many base
-$ dpkg-buildpackage $(git ubuntu prepare-upload args) -S
+git-ubuntu.experimental-emptydirfixup fix-many base
+debuild -S $(git ubuntu prepare-upload args)
 ```
 
 
 ## Build a git-ubuntu source package branch for uploading
 
-Assuming you have the branch checked out that you want to build, and are
-running inside an Ubuntu release matching the MP's release (e.g. in an
-LXC container), here is one way to build the source package from the
-branch:
+Check out the branch to build, maybe adjust `debian/changelog` to contain `~ppa1` as suffix, then build the source package:
 
-```none
-$ install-build-deps
-$ git ubuntu export-orig [--for-merge]
-$ upload_args=$(git ubuntu prepare-upload args)
-$ debuild --no-lintian -S -uc -us ${upload_args}
+```console
+git ubuntu export-orig [--for-merge]
+debuild -S -d $(git ubuntu prepare-upload args)
 ```
 
 Following this workflow, with use of prepare-upload, the rich history
 in the git commit log will be preserved and shared with other packagers,
 and the merge proposal will get marked merged automatically.
 
-The `install-build-deps` script can be found in the ubuntu-helpers repository, or
-you can download it directly from [install-build-deps](https://git.launchpad.net/~ubuntu-server/+git/ubuntu-helpers/plain/bryce/install-build-deps).
-
-This calculates the build requirements using the debian/control file in
-the current directory tree.  This is more reliable than using
-`apt-get build-dep <package>` when the changes you're reviewing have
-some package dependency changes, such as when merging a new upstream
-package.
+To install build dependencies, you either:
+* use `apt-get build-dep $package`
+* or, for considering current changes to `debian/control`, use `install-build-deps` script from [ubuntu-helpers repository](https://git.launchpad.net/~ubuntu-server/+git/ubuntu-helpers), or download it [directly](https://git.launchpad.net/~ubuntu-server/+git/ubuntu-helpers/plain/bryce/install-build-deps).
 
 
 ## Run autopkgtests against a git-ubuntu branch
@@ -181,12 +170,12 @@ package.
 Here's a workflow snippet to toss the changes into a PPA and run tests
 on that:
 
-```none
-$ ppa="ppa:<username>/<package>-review-lp<num>"
-$ ppa create ${ppa}
-$ dput ${ppa} <source-changes-file>
-$ ppa wait ${ppa}
-$ ppa tests ${ppa}
+```console
+ppaid="ppa:<username>/<package>-review-lp<num>"
+ppa create $ppaid
+dput $ppaid $package.changes
+ppa wait $ppaid
+ppa tests $ppaid
 ```
 
 The last command will print clickable links to trigger the corresponding
