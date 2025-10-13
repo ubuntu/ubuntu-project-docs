@@ -10,6 +10,7 @@ feature-based one), approximately every 6 months.
 
 | Version | Code name | Docs | Release | End of Standard Support | End of Life |
 | :---- | :---- | :---- | :---- | :---- | :---- |
+| Ubuntu **25.10** | Questing Quokka | [Release Notes](https://discourse.ubuntu.com/t/questing-quokka-release-notes/59220) | [October 9, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-October/000317.html) | July 2026 | July 2026 |
 | Ubuntu **25.04** | [Plucky Puffin](https://wiki.ubuntu.com/PluckyPuffin) | [Release Notes](https://discourse.ubuntu.com/t/plucky-puffin-release-notes/48687) | [April 17, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-April/000311.html) | January 2026 | January 2026 |
 | Ubuntu **24.04.3 LTS** | [Noble Numbat](https://wiki.ubuntu.com/NobleNumbat) | [Release Notes](https://discourse.ubuntu.com/t/noble-numbat-point-release-changes/47565/4) | [August 7, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-August/000315.html) | June 2029 | April 2036 |
 | Ubuntu 24.04.2 LTS | [Noble Numbat](https://wiki.ubuntu.com/NobleNumbat) | [Release Notes](https://discourse.ubuntu.com/t/noble-numbat-point-release-changes/47565/3) | [February 20, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-February/000308.html) | June 2029 | April 2036 |
@@ -56,7 +57,7 @@ feature-based one), approximately every 6 months.
 
 | Version | Code name | Schedule | Docs | Release | End of Standard Support |
 | :---- | :---- | :---- | :---- | :---- | :---- |
-| Ubuntu 25.10 | [Questing Quokka](https://wiki.ubuntu.com/QuestingQuokka) | [Release Schedule](https://discourse.ubuntu.com/t/questing-quokka-release-schedule/36462) | [Release Notes](https://discourse.ubuntu.com/t/questing-quokka-release-notes/59220) | October 9, 2025 | July 2026 |
+| Ubuntu 26.04 LTS | Resolute Raccoon | [Release Schedule](https://discourse.ubuntu.com/t/resolute-raccoon-release-schedule/47198) | [Release Notes](https://discourse.ubuntu.com/t/resolute-raccoon-release-notes/59221) | April 23, 2026 | July 2031 |
 
 
 ## Expanded Security Maintenance

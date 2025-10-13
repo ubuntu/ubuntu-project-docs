@@ -1,0 +1,1 @@
+After uploading a new Rust version, you must also update the [Rust Toolchain Availability Page](https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/rust/) with the version you have added.
