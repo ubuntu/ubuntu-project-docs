@@ -7,6 +7,7 @@
 
 bug-types
 bug-status
+bug-tags
 bug-importance
 bug-responses
 Assign a bug to a package <assign-a-bug-to-a-package>
@@ -168,10 +169,6 @@ as well as being *Confirmed*, it must also adhere to the following criteria:
 * Does the bug report describe a valid bug?  
 
 * Does the bug report contain {ref}`enough details <improve-bug-report>`?  
-
-* If the bug is trivial to fix, is it
-  [marked as affecting](https://wiki.ubuntu.com/One%20Hundred%20Papercuts/Triage/Classify%20as%20a%20papercut)
-  the "Hundred Papercuts" project?
   
 * If bugs for the package are managed elsewhere, is the bug report
   {ref}`forwarded upstream <forward-bug-upstream>`?  
@@ -189,8 +186,8 @@ bug report to 'Triaged'. To do this:
 
 To set bug statuses to *Triaged* you need to be a member of the
 {ref}`bug-control-team` team. If you are not a Bug Control member, and you find
-a bug you think is ready to be marked as *Triaged*, then join the `#ubuntu-bugs`
-channel on IRC and provide a link to the report. A Bug Control member can then
+a bug you think is ready to be marked as *Triaged*, then join the {matrix}`devel`
+channel on Matrix and provide a link to the report. A Bug Control member can then
 examine the report and, if it is indeed ready, mark it as *Triaged* for you.
 
 
