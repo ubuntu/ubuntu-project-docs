@@ -10,6 +10,12 @@ MIR/
 # - MIR team owns all MIR docs anywhere in the repo
 MIR/ @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
 
+# SRU team PR approvals
+# - TAs not required for SRU content approvals
+SRU/
+# - SRU team owns all SRU docs anywhere in the repo
+SRU/ @basak
+
 # Release team PR approvals
 # These files have no prefix, so are collected into the release-team dir(s)
 release-team/ @utkarsh2102 @ginggs @paride
