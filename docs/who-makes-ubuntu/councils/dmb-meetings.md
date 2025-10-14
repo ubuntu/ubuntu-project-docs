@@ -22,14 +22,35 @@ The meeting starts on Matrix in the {matrix}`meeting` channel, and we then offer
 ## Chair
 
 We share the responsibility of chairing the meetings.
-At the end of every meeting, we pre-select the next meeting's chair.
 
+The chair drives the meeting according the agenda, ensures we are following
+the rules of the {ref}`dmb-voting-and-quorum` section, assigns follow up tasks
+like {ref}`dmb-application-communication`.
 
-## Quorum
+At the end of every meeting, we try to pre-select the next meeting's chair.
 
-[Quorum was originally publicly discussed](https://discourse.ubuntu.com/t/open-discussion-meetings-quorum/5966) on the community forum.
-The specific meaning of **quorum** for voting [was later clarified](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001763.html) and is explained in the {ref}`dmb-voting-and-quorum` section.
+The chair is furthermore repsonsible to ensure that {ref}`meeting-logs` are made
+publicly available.
 
+(meeting-logs)=
+## Meeting Logs
+
+Over the years there have been many forms of meeiting logs, sites logging IRC,
+[meetingology](https://wiki.ubuntu.com/meetingology) based logs,
+missed logs :-/, mail summaries and more. When experimenting to offer video
+calls for more efficient evaluation of the candidate more types like textfiles,
+auto generated logs, google docs or video recording got used.
+
+The goals of these logs is to:
+- allow to retrace how people have been evaluated
+- allow to refer to when a decision was done
+- allow someone to prepare for an application based on former ones
+
+To be able to do that a public accessible folder for the
+[DMB Meeting logs](https://drive.google.com/drive/u/1/folders/18n6c0AjNnMwYg17DYQZcP3ge_1Kx5W0d).
+was established. Old logs, from the different sources of the past, got added
+and now allow searching across all of them as well as an easy way to download
+all for any other kind of processing.
 
 ## General progress during meetings
 
