@@ -1,6 +1,10 @@
-# DMB Selection Process
+# DMB selection process
 
-The Developer Membership Board is responsible for reviewing and
+:::{note}
+This document and the rules it sets forth are owned by the Ubuntu {ref}`technical-board`.
+:::
+
+The {ref}`dmb-application` is responsible for reviewing and
 approving new Ubuntu developers.
 
 The Developer Membership Board comprises seven seats. Seats are
@@ -9,7 +13,7 @@ appointed by the Technical Board asynchronously as required.
 When the DMB needs members, the TB will ask for suitably qualified
 volunteers to apply privately.
 
-Volunteers must be Ubuntu Core Developers or MOTU[^1], and should be well
+Volunteers must be Ubuntu {ref}`dmb-joining-core-dev` or {ref}`dmb-joining-motu`[^1], and should be well
 qualified to evaluate prospective Ubuntu developers and decide when to
 entrust them with developer privileges or to grant them Ubuntu
 membership status.

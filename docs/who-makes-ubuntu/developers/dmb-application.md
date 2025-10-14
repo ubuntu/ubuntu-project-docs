@@ -7,6 +7,7 @@
 
 dmb-application-knowledge-requirements
 dmb-aspects-of-a-good-application
+/tech-board/tb-dmb-selection-process
 ```
 
 To become an {ref}`Ubuntu Developer Member <ubuntu-developers>`, or a developer of a delegated team for which the {ref}`dmb` handles applications, you must apply via the process outlined on this page.

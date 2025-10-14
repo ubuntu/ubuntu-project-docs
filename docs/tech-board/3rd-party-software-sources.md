@@ -1,6 +1,11 @@
 (policy-on-3rd-party-software-sources-included-by-ubuntu)=
 # Policy on 3rd-party software sources included by Ubuntu
 
+:::{note}
+This document and the rules it sets forth are owned by the Ubuntu {ref}`technical-board`.
+:::
+
+
 ## Purpose
 
 Ubuntu maintains its own standards for certain aspects of quality and behavior in relation to software that it ships, with the goal that users can expect and rely upon this. For example, the "Ubuntu LTS" label comes with an expectation that we do not generally disrupt users with free-for-all improvements during the lifetime of such an LTS release.
