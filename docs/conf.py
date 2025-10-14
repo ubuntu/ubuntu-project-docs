@@ -403,10 +403,7 @@ intersphinx_mapping = {
         None,
     ),
     "sru": ("https://canonical-sru-docs.readthedocs-hosted.com/en/latest/", None),
-    "git-ubuntu": (
-        "https://canonical-git-ubuntu.readthedocs-hosted.com/en/latest/",
-        None,
-    ),
+    "launchpad": ("https://documentation.ubuntu.com/launchpad/", None),
 }
 
 
