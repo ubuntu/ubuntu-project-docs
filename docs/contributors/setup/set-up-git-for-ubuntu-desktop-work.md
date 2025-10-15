@@ -48,7 +48,26 @@ We'll use the Settings application as an example. Internally, the application is
         insteadof = salsa-gnome:
     ```
 
-5. Automatically sign tags with your GPG key.
+5. Some projects might require that you sign tags with your GPG key. Enable automatic signing.
+
+    Display your public GPG key:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir:
+    :user:
+    :input: gpg --list-secret-keys --fingerprint
+
+    /home/user/.gnupg/pubring.kbx
+    -----------------------------------------------------
+    sec   rsa2048 YYYY-MM-DD [SC]
+        XXXX XXXX XXXX XXXX XXXX  XXXX XXXX XXXX D1B7 6B89
+    uid           [ unknown] Key Name <my@email.com>
+    ssb   rsa2048 YYYY-MM-DDD [E]
+    ```
+
+    Your short GPG key ID is the last eight digits of your public GPG key, or `D1B76B89` in this example.
 
     Add the following configuration to your `~/.gbp.conf` file:
 
@@ -60,7 +79,7 @@ We'll use the Settings application as an example. Internally, the application is
     keyid = 0xGPGKEYID
     ```
 
-    Replace `GPGKEYID` with your GPG key ID, which is the last eight digits of your public GPG key.
+    Replace `GPGKEYID` with your short GPG key ID.
 
 
 ## Optional configuration
