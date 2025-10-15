@@ -111,7 +111,7 @@ The `gbp pull` command, contrary to `git pull`, is a way to avoid checking out e
 
 ## Push your Git changes to Salsa
 
-Contrary for pulling, we are using `git push` for this action. We push all branches tracking the `origin` repository that way. We don't need to be on the correct checkout, contrary to `gbp pull`. If you follow our recommended Git configuration, the command also pushes relevant tags. 
+To contribute changes back to Salsa, push your changes using Git. For example:
 
 ```{terminal}
 :copy:
@@ -120,11 +120,6 @@ Contrary for pulling, we are using `git push` for this action. We push all branc
 :user:
 :input: git push
 ```
-
-:::{admonition} TODO
-:class: attention
-Is this it? Or do you need to specify the branch?
-:::
 
 
 (desktop-git-merge-a-new-upstream-version-to-latest)=
