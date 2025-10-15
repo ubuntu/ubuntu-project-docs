@@ -437,7 +437,7 @@ Switched to a new branch 'upstreamvcs-main'
 
 ### Summary
 
-To sum up all this, our minimal setup consists of the following local branches. Their remote tracking branches are in square brackets (`[]`):
+Our minimal setup consists of the following local branches. Their remote tracking branches are in square brackets (`[]`):
 
 ```{terminal}
 :copy:
