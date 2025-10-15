@@ -394,11 +394,10 @@ In addition, we have at least one other branch tracking the Salsa Debian remote 
 
 ### Upstream GNOME remote branches
 
-By default, we don't have upstream GNOME branches checked out locally. We added the `upstreamvcs` repository and have access to its content, which will be fetched when importing a new upstream tarball thanks to the version tag, and inject the history in `upstream/latest` (or `upstream/version`, as explained before).
+By default, we don't have upstream GNOME branches checked out locally. We added the `upstreamvcs` repository and have access to its content.
 
-:::{admonition} TODO
-:class: attention
-That's a long sentence. Who fetches the content? Who injects the history? What does it mean to inject history in Git?
+:::{note}
+Later, we'll import a new upstream tarball, representing a new release of the `gnome-control-center` project. The `gbp` tool will fetch the content of `upstreamvcs` thanks to the version tag.
 :::
 
 Let's browse the content of the `upstreamvcs` repository:
@@ -419,14 +418,11 @@ Let's browse the content of the `upstreamvcs` repository:
 […]
 ```
 
-You can check out any of those branch locally. We have the local `upstream/latest` branch tracking the `main` branch of the `upstreamvcs` repository. We can track any additional branches as needed for cherry-picking fixes.
+The branches within `origin/upstream` on Salsa, such as the `origin/upstream/latest` branch, tag unmodified releases from the GNOME `upstreamvcs` remote, without the Debian packaging and changes. As a result, the local `upstream/latest` branch tracks the `main` branch of the `upstreamvcs` repository.
 
-:::{admonition} TODO
-:class: attention
-That's not true though. `upstream/latest` is tracking `origin/upstream/latest` in my testing.
-:::
+You can check out any of those branch locally. We can track any additional branches as needed for cherry-picking fixes.
 
-Let's check out the `upstreamvcs/main` branch locally and call it `upstreamvcs-main`:
+Our convention is to check out the `upstreamvcs/main` branch locally and call it `upstreamvcs-main`:
 
 ```{terminal}
 :copy:
