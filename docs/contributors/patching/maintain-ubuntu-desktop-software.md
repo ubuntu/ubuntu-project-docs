@@ -1,3 +1,7 @@
+---
+relatedlinks: "[PackagingWithGit &#32; - &#32; Debian Wiki](https://wiki.debian.org/PackagingWithGit)"
+---
+
 (maintain-ubuntu-desktop-software)=
 # Maintain Ubuntu Desktop software
 

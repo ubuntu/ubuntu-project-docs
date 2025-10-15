@@ -1,3 +1,7 @@
+---
+relatedlinks: "[PackagingWithGit &#32; - &#32; Debian Wiki](https://wiki.debian.org/PackagingWithGit)"
+---
+
 (set-up-git-for-ubuntu-desktop-work)=
 # Set up Git for Ubuntu Desktop work
 
@@ -286,7 +290,7 @@ Let's look at the various branches in the Salsa remote repository:
   […]
 ```
 
-`ubuntu/latest`
+`ubuntu/latest`, sometimes `ubuntu/main` or `ubuntu/master`
 : This branch is the content of the latest Ubuntu development release. Work ready to be uploaded or uploaded in a development release mostly happens here. It's the default branch.
 
 `pristine-tar`
