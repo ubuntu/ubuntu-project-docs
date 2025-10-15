@@ -44,6 +44,29 @@ What you can do when you have such changes:
 
     For this, use the `--git-ignore-new --git-export-dir=""` Git options.
 
+* Remove the local changes:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: dh_clean
+    ```
+    
+    If that command doesn't work for you package, you can reset the changes in the following way:
+    
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git checkout .
+
+    :input: git clean -fd .
+    :input: quilt -f pop -a
+    ```
+
 
 ## Refresh branches
 
