@@ -596,7 +596,7 @@ You can turn patch files into commits on a branch. This enables you to add new p
 
 1. Update the changelog. For details, see {ref}`desktop-git-update-the-changelog`.
 
-1. The new patches end up as unstages changes on your branch. Commit your changes.
+1. The new patches end up as unstaged changes on your branch. Commit your changes.
 
 :::{note}
 The `gbp pq` command unfuzzes a lot of patches every time you use it, creating some noise. Add those changes separated from your new or modified patch hack.
