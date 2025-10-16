@@ -7,5 +7,5 @@
 
 ethos/index
 governance/index
-matrix/matrix
+how-ubuntu-is-made/matrix/index
 ```
