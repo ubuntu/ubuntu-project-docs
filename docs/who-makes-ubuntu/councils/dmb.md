@@ -8,6 +8,7 @@
 dmb-meetings
 dmb-restaffing
 dmb-rules
+/tech-board/tb-dmb-selection-process
 ```
 
 The Ubuntu Developer Membership Board grants Membership to {ref}`Ubuntu Developers <ubuntu-developers>`.
@@ -42,7 +43,7 @@ The Ubuntu Developer Membership Board currently approves:
 
 * {ref}`Core Developers <dmb-joining-core-dev>`
 
-To apply, {ref}`follow this process <dmb-application>`.
+To apply, {ref}`follow this process <dmb-application>`. See also the {ref}`dmb-selection-process`.
 
 
 ### Applying for delegated teams

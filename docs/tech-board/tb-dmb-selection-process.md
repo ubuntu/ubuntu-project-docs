@@ -1,10 +1,11 @@
+(dmb-selection-process)=
 # DMB selection process
 
 :::{note}
 This document and the rules it sets forth are owned by the Ubuntu {ref}`technical-board`.
 :::
 
-The {ref}`dmb-application` is responsible for reviewing and
+The {ref}`dmb` is responsible for reviewing and
 approving new Ubuntu developers.
 
 The Developer Membership Board comprises seven seats. Seats are
