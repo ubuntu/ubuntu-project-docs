@@ -42,7 +42,7 @@ What you can do when you have such changes:
 
 * Force using the current directory with your local modifications instead of the `build-area` directory, and include any local modifications to the package despite the `ignore-new` option.
 
-    For this, use the `--git-ignore-new --git-export-dir=""` Git options.
+    For this, add the `--git-ignore-new --git-export=INDEX` options to `gbp`.
 
 * Remove the local changes:
 
@@ -111,14 +111,14 @@ The `gbp pull` command, contrary to `git pull`, is a way to avoid checking out e
 
 ## Push your Git changes to Salsa
 
-To contribute changes back to Salsa, push your changes using Git. For example:
+To contribute changes back to Salsa, push your changes using `gbp`:
 
 ```{terminal}
 :copy:
 :host:
 :dir: gnome-control-center
 :user:
-:input: git push
+:input: gbp push
 ```
 
 
@@ -177,9 +177,33 @@ When upstream releases a new version of a given project, you can merge the versi
 
     Since we don't want to have duplicated `upstream/x.y.z` tags, in this case you should push the `pristine-tar` and `upstream/<current>` branches to `origin`.
 
-1. Download the tarball with the new upstream release.
+1. Scan for new releases:
 
-1. Import the tarball:
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: uscan
+
+     => Newer package available from:
+        => https://download.gnome.org/sources/gnome-control-center/49/gnome-control-center-49.1.tar.xz
+    Successfully symlinked ../gnome-control-center-49.1.tar.xz to ../gnome-control-center_49.1.orig.tar.xz.
+    ```
+
+1. Is `uscan` showing the upstream release that you want to import?
+
+    If so, you can let `gbp` download and import the latest release automatically:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: gbp import-origin --uscan
+    ```
+
+    Otherwise, download the tarball with the new upstream release. Then, import the tarball manually:
 
     ```{terminal}
     :copy:
@@ -195,8 +219,6 @@ When upstream releases a new version of a given project, you can merge the versi
     gbp:info: Replacing upstream source on 'ubuntu/noble'
     gbp:info: Successfully imported version 46.2 of ../gnome-control-center-46.2.tar.xz
     ```
-
-    You can also use `--uscan` to let it download and import.
 
 1. Push all needed branches (for example, `ubuntu/latest` and `pristine-tarball` + `upstream/46.x` or `upstream/latest` if this upload is a new upstream release):
 
