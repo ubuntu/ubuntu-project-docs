@@ -584,7 +584,7 @@ You can turn patch files into commits on a branch. This enables you to add new p
         :host:
         :dir: gnome-control-center
         :user:
-        :input: gbp buildpackage --git-ignore-new --git-export-dir=""
+        :input: gbp buildpackage -b --git-ignore-new --git-export=INDEX
         ```
 
     * Reorder your patches. If you don't want this patch to be the last one, you can use an interactive Git rebase:
