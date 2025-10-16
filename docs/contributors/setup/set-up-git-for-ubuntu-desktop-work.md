@@ -211,6 +211,18 @@ Let's clone the GNOME Control Center repository.
     :input: git remote add -f upstreamvcs git@ssh.gitlab.gnome.org:GNOME/gnome-control-center.git
     ```
 
+    :::{note}
+    If you don't have an account on the GNOME GitLab or if your account is missing an SSH key, you can also refer to the repository using the HTTPS protocol:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git remote add -f upstreamvcs https://gitlab.gnome.org/GNOME/gnome-control-center.git
+    ```
+    :::
+
 1. Check that you now have the following three branches:
 
     ```{terminal}
@@ -294,7 +306,7 @@ Let's look at the various branches in the Salsa remote repository:
 : This branch is the content of the latest Ubuntu development release. Work ready to be uploaded or uploaded in a development release mostly happens here. It's the default branch.
 
 `pristine-tar`
-: This branch is an internal `gbp-buildpackage` branch, used to reconstruct release tarballs using `upstream/latest`. You don't interact with it directly.
+: This branch is an internal `gbp-buildpackage` branch, used to reconstruct release tarballs using `upstream/latest`. Usually, you don't interact with it directly. When you do need to interact with it, such as to manage the tarballs, use the `pristine-tar` tool.
 
 `upstream/latest`
 : This is another internal `gbp-buildpackage` branch. It's a merge between the upstream Git branch corresponding to the latest release from the upstream repository and extra content coming from the tarball. You don't interact with it directly.
@@ -347,7 +359,7 @@ Many release maintenance branches are available on the Salsa remote repository:
 : This branch contains the version of the project for the given Ubuntu release. In this example, the branch contains GNOME Control Center 46 for Ubuntu Noble. When a new release comes out of development, its `ubuntu/latest` branch becomes a maintenance branch.
 
 `upstream/46.x`
-: This is a maintenance branch tracking a particular upstream GNOME series, similar to the `ubuntu/noble` branch. It's derived from the `upstream/latest` branch when a new upstream release comes out.
+: This is a maintenance branch tracking a particular upstream GNOME series, similar to the `ubuntu/noble` branch. It's derived from the `upstream/latest` branch when a new upstream release series, such as GNOME 46, comes out.
 
     This branch is only necessary if you imported a new tarball (like the 46 series) in `upstream/latest` and you want to release a yet unimported 46.3 upstream release in Noble, for instance.
 
