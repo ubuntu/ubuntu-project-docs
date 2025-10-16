@@ -819,6 +819,18 @@ By default, this command adds the first line of every commit to the changelog. Y
 `Gbp-Dch: Ignore`
 : Skip this commit in the changelog.
 
+Alternatively, you can include all the commit descriptions:
+
+```{terminal}
+:copy:
+:host:
+:dir: gnome-control-center
+:user:
+:input: gbp dch --full
+```
+
+Then, filter them out by hand at the commit phase.
+
 
 ## Import an Ubuntu upload tracked outside of VCS
 
