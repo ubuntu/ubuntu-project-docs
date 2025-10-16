@@ -50,3 +50,10 @@ SRU/index
 AA/index
 ```
 
+### Niche package maintenance
+
+```{toctree}
+:maxdepth: 1
+
+niche-package-maintenance/index
+```

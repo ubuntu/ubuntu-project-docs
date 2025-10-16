@@ -22,14 +22,12 @@ The meeting starts on Matrix in the {matrix}`meeting` channel, and we then offer
 ## Chair
 
 We share the responsibility of chairing the meetings.
-At the end of every meeting, we pre-select the next meeting's chair.
 
+The chair drives the meeting according the agenda, ensures we are following
+the rules of the {ref}`dmb-voting-and-quorum` section, assigns follow up tasks
+like {ref}`dmb-application-communication`.
 
-## Quorum
-
-[Quorum was originally publicly discussed](https://discourse.ubuntu.com/t/open-discussion-meetings-quorum/5966) on the community forum.
-The specific meaning of **quorum** for voting [was later clarified](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001763.html) and is explained in the {ref}`dmb-voting-and-quorum` section.
-
+At the end of every meeting, we try to pre-select the next meeting's chair.
 
 ## General progress during meetings
 

@@ -43,7 +43,14 @@ $ sudo apt update && \
 ### GnuPG
 
 [GnuPG](https://gnupg.org/) is an encryption tool that helps manage your
-encryption keys. 
+{term}`encryption keys <Signing Key>`. You'll need it later to be able to add
+a {term}`signature` to each {ref}`upload <Uploading>`.
+
+This setup example is quite concise and only contains the basics, but
+eventually the {term}`private key <Signing Key>` will represent your identity
+and therefore has to be {ref}`kept safe <pgp-key-storage>` and out of reach of
+other entities.
+
 
 * Install and set up GPG normally.
 * List the keys and make sure you associate the email you want to use for
@@ -415,3 +422,16 @@ If you're operating from a GUI, this can be useful:
 $ eval `dbus-launch --sh-syntax`
 ```
 
+
+(keyring-with-plaintext-storage)=
+### Keyring with plaintext storage
+
+See `git-ubuntu` {ref}`keyring-integration` for details on how `git-ubuntu` uses keyring. If
+you want to reconfigure keyring to use plaintext storage to avoid getting
+keyring password prompts, create the file
+`~/.local/share/python_keyring/keyringrc.cfg` with the following contents:
+
+```none
+[backend]
+default-keyring=keyrings.alt.file.PlaintextKeyring
+```

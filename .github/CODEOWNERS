@@ -10,6 +10,18 @@ MIR/
 # - MIR team owns all MIR docs anywhere in the repo
 MIR/ @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
 
+# SRU team PR approvals
+# - TAs not required for SRU content approvals
+SRU/
+# - SRU team owns all SRU docs anywhere in the repo
+SRU/ @basak
+
+# Technical Board PR approvals
+# - TAs not required for Tech Board content approvals
+tech-board/
+# - Tech Board owns all TB docs anywhere in the repo
+tech-board/ @basak @mwhudson @seb128 @teward
+
 # Release team PR approvals
 # These files have no prefix, so are collected into the release-team dir(s)
 release-team/ @utkarsh2102 @ginggs @paride
@@ -27,7 +39,7 @@ community/ @aaronprisk @ilvipero
 **/dmb-*.md @cpaelzer @lvoytek @rbasak @utkarsh2102 @athos-ribeiro @bdrung @julian-klode
 
 # TAs' & special teams' ack required for changes to the CODEOWNERS file
-/.github/CODEOWNERS @s-makin @rkratky @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof @aaronprisk @ilvipero
+/.github/CODEOWNERS @s-makin @rkratky @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof @aaronprisk @ilvipero @basak @teward
 
 # +1 maintenance PR approvals
 plus-one-*.md @schopin-pro @s-makin @rkratky

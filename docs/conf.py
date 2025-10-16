@@ -172,7 +172,7 @@ sitemap_show_lastmod = True
 
 
 # Template and asset locations
-# html_static_path = [".sphinx/_static"]
+html_static_path = [".sphinx/_static"]
 # templates_path = [".sphinx/_static/_templates"]
 
 
@@ -280,7 +280,8 @@ extensions = [
 ]
 
 # Excludes files or directories from processing
-# exclude_patterns = []
+exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common",
+                    "SRU"]
 
 
 # Adds custom CSS files, located under 'html_static_path'
@@ -402,10 +403,7 @@ intersphinx_mapping = {
         None,
     ),
     "sru": ("https://canonical-sru-docs.readthedocs-hosted.com/en/latest/", None),
-    "git-ubuntu": (
-        "https://canonical-git-ubuntu.readthedocs-hosted.com/en/latest/",
-        None,
-    ),
+    "launchpad": ("https://documentation.ubuntu.com/launchpad/", None),
 }
 
 
