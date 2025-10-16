@@ -1,7 +1,7 @@
 (matrix-completing-setup)=
 # Completing your Matrix setup
 
-If you are reading this guide, you most likely completed the "{ref}`Getting started with Matrix <matrix-onboarding>`" tutorial.
+If you are reading this guide, you most likely completed the {ref}`Getting started with Matrix <matrix-onboarding>` guide.
 This document explains the next steps to complete your Matrix setup.
 While these steps are not required, they are greatly recommended because they will make your long-term experience a lot better.
 
@@ -9,24 +9,24 @@ While these steps are not required, they are greatly recommended because they wi
 ## Backup your encryption keys
 
 Make sure your encryption keys are backed up.
-Without encryption keys backups, you might not be able to restore your end-to-end encrypted chats if you log off all your devices.
+Without encryption key backups, you might not be able to restore your end-to-end encrypted chats if you log off all your devices.
 
 
 ### Recovery key
 
-* Open your Element client, click the "gear" icon at the bottom left, and select {guilabel}`All settings`
-* Select the "Encryption" icon on the left
-* Navigate to the "Recovery" section and select {guilabel}`Set up recovery`
+* Open your Element client, click the "gear" icon, and select {guilabel}`All settings`
+* Select the {guilabel}`Encryption` icon
+* Navigate to the {guilabel}`Recovery` section and select {guilabel}`Set up recovery`
 * Follow the on-screen instructions to generate your unique security key
 * Store your unique security key in a safe place
-* Ensure the button in the "Recovery" section now reads: "Change recovery key"
+* Ensure the button in the {guilabel}`Recovery` section now reads: "Change recovery key"
 
 
 ### Export keys
 
 Optionally, you can also manually export your encryption keys:
 
-* Navigate to the "Advanced" section of the "Encryption" settings
+* Navigate to the {guilabel}`Advanced` section of the {guilabel}`Encryption` settings
 * Select {guilabel}`Export keys`
 * Read the instructions carefully, and enter a passphrase to protect your manual encryption keys
 * Download the export file and store it in a safe place

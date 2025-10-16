@@ -34,7 +34,7 @@ A Matrix space can simply be considered a tag, a label, or a symbolic link, not 
 * A space or a room can be listed on multiple spaces
 * A user can join a space or a room without joining any of the spaces it is listed in
 
-{ref}`Learn more about room properties <matrix-room-properties>`.
+{ref}`Learn more about room properties > <matrix-room-properties>`.
 
 
 ### Spaces on the Element client

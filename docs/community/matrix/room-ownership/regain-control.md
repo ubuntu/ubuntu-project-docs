@@ -2,7 +2,7 @@
 # How to regain control of a room
 
 There are several possible scenarios where a room loses its administrator.
-To ensre a good experience, we provided a fallback mechanism to all {ref}`public official rooms <matrix-rooms-spaces>` on the Ubuntu homeserver.
+To ensure a good experience, we provided a fallback mechanism to all {ref}`public official rooms <matrix-rooms-spaces>` on the Ubuntu homeserver.
 
 
 ## Prerequisites
@@ -13,7 +13,7 @@ This guide applies to official rooms on the Ubuntu homeserver that have the Mode
 
 Access to the Ubuntu Matrix homeserver happens via Single Sign On and is tied to Launchpad groups.
 If you cannot login, make sure you recover access to your Launchpad account.
-This can be done by accessing the [Launchpad help webpage](https://help.launchpad.net/YourAccount)
+This can be done by accessing the [Launchpad help webpage](https://help.launchpad.net/YourAccount).
 
 
 ## The administrators of your room are no longer active

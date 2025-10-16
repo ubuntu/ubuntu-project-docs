@@ -1,6 +1,8 @@
 (matrix-room-creation)=
 # Matrix room creation
 
+In this section you will learn how to create and publish rooms and spaces. 
+
 ```{toctree}
 :maxdepth: 1
 

@@ -23,12 +23,12 @@ When a Matrix user witnesses behavior that is not obvious spam, inappropriate, o
 Moderators observe situations, de-escalate when possible, and intervene when necessary.
 If you need the help of a Moderator:
 
-* Click on the name of the room from the top bar at the center of your Element client.
-* From the dropdown, select "People" and click on it.
+* Click on the name of the room from the top bar of your Element client.
+* From the dropdown, select {guilabel}`People` and click on it.
 * A panel will open on the right side of your Element client, with a list of users.
 * Look for users that have "Mod" next to their name. If you see none, you can reach out to users that have "Admin" next to their name.
 * Select the moderator or administrator you want to contact, and click on the user name.
-* The panel changes to the particular user. From the "Options", select "Message"
+* The panel changes to the particular user; from {guilabel}`Options`, select "Message".
 
 
 ## Contact the Matrix Council

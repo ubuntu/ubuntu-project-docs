@@ -46,7 +46,7 @@ Here you'll get an overview of the most relevant chat rooms in our community.
 When participating in the Ubuntu Community, including our Matrix channels, you agree to abide by the {ref}`Code of Conduct <code-of-conduct>`.
 
 If you have an unpleasant experience where someone else is violating the Code of Conduct, report the message using your client.
-In Element Web and Desktop, click on the three dots next to a message and select "Report".
+In Element Web and Desktop, click on the three dots next to a message and select {guilabel}`Report`.
 Community Moderators will receive your report and take appropriate action.
 
 

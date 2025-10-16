@@ -62,7 +62,7 @@ In the {guilabel}`Visibility` settings, you can:
 (public-space-publishing)=
 ## Room publishing and listing under spaces
 
-Please check {ref}`matrix-rooms-spaces) if you'd like to:
+Please check {ref}`matrix-rooms-spaces` if you'd like to:
 
 * Protect your space and rooms from abuse.
 * Publish your space in the server directory.

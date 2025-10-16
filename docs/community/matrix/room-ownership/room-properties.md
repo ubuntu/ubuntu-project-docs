@@ -15,8 +15,8 @@
 : * Each room has a "main address" where it is considered home. Additionally, rooms can have an alias on any number of other servers. Adding an alias needs to be done by an admin to your room with an account on the respective other server.
 : * As a matter of convention, please use all lowercase for the room aliases. If you are organizing your rooms as part of a space, stay consistent. For example, in the Charmhub Space, the Identity team might have its own space, and there are a set of rooms including a general room. You'd have #charmhub-identity-general:ubuntu.com as your alias.
 : * Even if your room is part of a space, please remember that a room can be joined by people that have not joined the space it is listed in. Therefore, please make sure that room alias gives enough context to people that look it up or join:
-:   * Bad example: #general-chatter:ubuntu.com
-:   * Good example: #kubuntu-general-chatter:ubuntu.com
+:   * Bad example: `#general-chatter:ubuntu.com`
+:   * Good example: `#kubuntu-general-chatter:ubuntu.com`
 : * If you are moving a room, you don't need to re-create it. You can simply remove and add the aliases accordingly, and the room will continue to exist in its new location with everyone in it.
 
 

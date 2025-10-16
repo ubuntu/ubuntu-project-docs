@@ -23,7 +23,7 @@ They operate across **all** public Ubuntu Matrix rooms.
 
 Speed and coverage are important to this role as it deals with the vast majority of issues which are blatant abuses of the service by newly interacting accounts.
 
-{ref}`Read more about Matrix Defenders <matrix-defenders>`
+{ref}`Read more about Matrix Defenders > <matrix-defenders>`
 
 
 ## Room administrators
@@ -42,7 +42,7 @@ Some rooms may have mechanical expectations such as strict Q&A where others may 
 
 Thoughtfulness, flexibility and humility are important to this role.
 
-{ref}`Read more about Matrix Moderators <matrix-moderators>`
+{ref}`Read more about Matrix Moderators > <matrix-moderators>`
 
 
 ### Are room owners also moderators?
