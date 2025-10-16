@@ -1035,27 +1035,35 @@ If this is a sponsored upload, the sponsor performs these steps.
 
 1. You might need to manually edit the `debian/changelog` file to improve its syntax and clarity.
 
-1. Finalize the changelog. On the corresponding branch:
+1. Finalize the changelog and specify the Ubuntu release:
 
     ```{terminal}
     :copy:
     :host:
     :dir: gnome-control-center
     :user:
-    :input: dch -r ""
+    :input: dch -r "" --distribution noble
 
-    :input: git commit debian/changelog -m "Finalize changelog"
+    :input: git commit -m "Upload to Noble" debian/changelog
     ```
 
-1. Build the binary and source package:
+1. Tag the package:
 
     ```{terminal}
     :copy:
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage --git-tag-only
-    
+    :input: gbp buildpackage --git-tag-only --git-ignore-new
+    ```
+
+1. Build the source package:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
     :input: gbp buildpackage -S
     ```
 
