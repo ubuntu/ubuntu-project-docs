@@ -1074,7 +1074,7 @@ If this is a sponsored upload, the sponsor performs these steps.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: dput ../build-area/….changes
+    :input: dput ../build-area/…_source.changes
     ```
 
     :::{admonition} TODO
