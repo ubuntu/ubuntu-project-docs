@@ -21,7 +21,7 @@ VALE_CONFIG     = $(SPHINXDIR)/vale.ini
 SPHINX_HOST     ?= 127.0.0.1
 SPHINX_PORT     ?= 8000
 # Wildcard-specified, comma-separated list of files and/or directories for vale checks to ignore:
-VALE_IGNORE     = SRU/**/*,**/*.txt
+VALE_IGNORE     = SRU/**/*,tech-board/**/*,**/*.txt,**/*.html
 
 # Put it first so that "make" without argument is like "make help".
 help:
