@@ -1067,6 +1067,8 @@ If this is a sponsored upload, the sponsor performs these steps.
     :input: gbp buildpackage -S
     ```
 
+1. Check the `../build-area/….changes` file to make sure that it's correct.
+
 1. Upload the files to the Debian package upload queue:
 
     ```{terminal}
