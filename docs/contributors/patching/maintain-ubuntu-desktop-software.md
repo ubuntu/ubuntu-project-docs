@@ -885,11 +885,6 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
     Vcs-Browser: https://salsa.debian.org/gnome-team/gnome-control-center/tree/ubuntu/noble
     ```
 
-    :::{admonition} TODO
-    :class: attention
-    Should this really be `debian/control`, which says that it's auto-generated and you shouldn't edit it? Should you edit `debian/control.in` instead?
-    :::
-
 5. At the end of the `Vcs-Git` value, use the `-b ubuntu/noble` option. For example:
 
     ```{code-block} ini
