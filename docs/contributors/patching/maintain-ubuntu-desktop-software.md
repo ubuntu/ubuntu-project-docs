@@ -1033,7 +1033,7 @@ If this is a sponsored upload, the sponsor performs these steps.
 
 1. Generate the changelog for native packages. For details, see {ref}`desktop-git-update-the-changelog`.
 
-1. You might need to manually edit the `debian/changelog` file to properly group changes per people.
+1. You might need to manually edit the `debian/changelog` file to improve its syntax and clarity.
 
 1. Finalize the changelog. On the corresponding branch:
 
