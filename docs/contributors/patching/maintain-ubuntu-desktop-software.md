@@ -898,12 +898,12 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
     Vcs-Git: https://salsa.debian.org/gnome-team/gnome-control-center.git -b ubuntu/noble
     ```
 
-6. Preserve the Debian `Vcs-*` values as `XS-Debian-Vcs-*`.
+6. Make sure that the `XS-Debian-Vcs-Git` and `XS-Debian-Vcs-Browser` fields are set to the `Vcs-*` values but without their Ubuntu versions:
 
-    :::{admonition} TODO
-    :class: attention
-    So what should you do here? Both `Vcs-*` and `XS-Debian-Vcs-*` options already exist in the file. Should you edit anything?
-    :::
+    ```{code-block} ini
+    XS-Debian-Vcs-Git: https://salsa.debian.org/gnome-team/gnome-control-center.git
+    XS-Debian-Vcs-Browser: https://salsa.debian.org/gnome-team/gnome-control-center
+    ```
 
 7. Commit the changes:
 
@@ -915,7 +915,7 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
     :input: git commit -a
     ```
 
-4. Push your changes to Salsa and track that branch:
+8. Push your changes to Salsa and track that branch:
 
     ```{terminal}
     :copy:
