@@ -885,6 +885,10 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
     Vcs-Browser: https://salsa.debian.org/gnome-team/gnome-control-center/tree/ubuntu/noble
     ```
 
+    :::{note}
+    Certain outdated projects might still use the `debian/control.in` file. To generate `debian/control` from it, use the `dh_gnome` tool during the `clean` target in the `debian/rules` file.
+    :::
+
 5. At the end of the `Vcs-Git` value, use the `-b ubuntu/noble` option. For example:
 
     ```{code-block} ini
