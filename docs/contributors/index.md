@@ -120,7 +120,7 @@ This section will help you get set up with a Matrix client and show you how to u
 ```{toctree}
 :maxdepth: 1
 
-/community/matrix/contributors/using-matrix
+/community/contributors/matrix/index
 ```
 
 

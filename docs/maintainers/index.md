@@ -13,7 +13,7 @@ are responsible for maintaining the Package Archive or managing processes.
 ```{toctree}
 :maxdepth: 1
 
-/community/matrix/management/index
+/community/matrix/index
 ```
 
 ## Uploader tasks
