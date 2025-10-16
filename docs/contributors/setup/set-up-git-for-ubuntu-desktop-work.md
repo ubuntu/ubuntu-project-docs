@@ -22,7 +22,7 @@ We'll use the Settings application as an example. Internally, the application is
     :input: sudo apt install git git-buildpackage
     ```
 
-2. Install Ubuntu packaging tools:
+1. Install Ubuntu packaging tools:
 
     ```{terminal}
     :copy:
@@ -34,11 +34,13 @@ We'll use the Settings application as an example. Internally, the application is
 
     For details about the packaging environment, see [Getting Set Up](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/tutorial/getting-set-up.html) in the Ubuntu Packaging Guide.
 
-3. In the Software & Updates application, enable {guilabel}`Source code` on the {guilabel}`Ubuntu Software` tab.
+1. Install and configure the `sbuild` tool. Follow [Installing sbuild](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/how-to/setting-up-sbuild.html#installing-sbuild) in the Ubuntu Packaging Guide. Set the Ubuntu releases for which you're preparing packages.
+
+1. In the Software & Updates application, enable {guilabel}`Source code` on the {guilabel}`Ubuntu Software` tab.
 
     This provides information about the source repository of every package so that you can easily clone it.
 
-4. Enable the `salsa:name-or-team/repo` and `salsa-gnome:repo` short format for Salsa Git repositories.
+1. Enable the `salsa:name-or-team/repo` and `salsa-gnome:repo` short format for Salsa Git repositories.
 
     Add the following configuration to your `~/.config/git/config` file:
 
@@ -52,7 +54,7 @@ We'll use the Settings application as an example. Internally, the application is
         insteadof = salsa-gnome:
     ```
 
-5. Some projects might require that you sign tags with your GPG key. Enable automatic signing.
+1. Some projects might require that you sign tags with your GPG key. Enable automatic signing.
 
     Display your public GPG key:
 

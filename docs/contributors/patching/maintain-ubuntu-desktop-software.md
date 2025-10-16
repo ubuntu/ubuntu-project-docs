@@ -10,7 +10,7 @@ These are some common, day-to-day operations to build, maintain and package GNOM
 We'll use the `gnome-control-center` repository as an example.
 
 :::{note}
-Some applications on Ubuntu Desktop are developed outside of Salsa and GNOME. They have their own, separate workflows, which aren't described in this guide. The Desktop Team can help you find the right instructions on Matrix: [#desktop-dev:ubuntu.com](https://app.element.io/#/room/#desktop-dev:ubuntu.com).
+Some applications on Ubuntu Desktop are developed outside of Salsa and GNOME. They have their own, separate workflows, which aren't described in this guide. The Desktop Team can help you find the right instructions on Matrix: {matrix}`desktop-dev`.
 :::
 
 
@@ -27,7 +27,7 @@ If you're a community contributor and not a member of the Ubuntu Desktop Team, y
 1. Follow this guide and make the changes in your fork.
 1. Open a Salsa merge request from your fork to the original repository.
 
-In some projects, no Ubuntu branch has been created in a long time. You might have to ask the Debcrafters team to create the new branch for you. You can contact them [on Matrix](https://app.element.io/#/room/#devel:ubuntu.com) or [on the Canonical Mattermost](https://chat.canonical.com/canonical/channels/debcrafters).
+In some projects, no Ubuntu branch has been created in a long time. You might have to ask the Desktop Team to create the new branch for you. You can contact them on Matrix at {matrix}`desktop-dev` or [on the Canonical Mattermost](https://chat.canonical.com/canonical/channels/desktop).
 
 
 ## Local changes
@@ -932,14 +932,14 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
 
 ## Build a package locally
 
-* Build a binary package: 
+* Build a binary package for your Ubuntu release and CPU architecture. For example, Ubuntu Noble on the AMD64 architecture:
 
     ```{terminal}
     :copy:
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage
+    :input: gbp buildpackage -b --git-builder=sbuild noble-amd64
     ```
 
 * Build a source package: 
@@ -949,7 +949,7 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage -S
+    :input: gbp buildpackage -b --git-builder=sbuild noble-amd64 -S
     ```
 
 With the proposed configuration, the artifacts all end up in the `../build-area` directory, including the tarball, which is reconstructed from the `pristine-tar` + `upstream/latest` branch. The build directory is then cleaned up.
