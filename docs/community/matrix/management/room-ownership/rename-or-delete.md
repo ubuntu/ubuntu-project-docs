@@ -9,7 +9,7 @@ If you are thinking about deleting and re-creating a room, in most cases you can
 Renaming a room will not actually require users to do anything.
 The room addresses are simply labels that are applied to the physical room.
 
-1. Go to {guilabel}`Settings` -- if the room is published, unpublish it from the room directory.
+1. Go to {guilabel}`Settings` -- if the room is published, un-publish it from the room directory.
 
 1. In the {guilabel}`Local Addresses` section, add the new local alias and mark it as "primary".
    Then you can remove all aliases that you'd like to get rid of.
@@ -29,7 +29,7 @@ The room addresses are simply labels that are applied to the physical room.
 
 1. Go to {guilabel}`Settings`
 
-1. Unpublish the room from the room directory.
+1. Un-publish the room from the room directory.
    An admin with an account on the homeserver of the main room address needs to do this.
 
 1. Remove all local aliases for the room, across all homeservers

@@ -31,6 +31,8 @@ Ewan
 Fosstodon
 Gobuntu
 gvfs
+homeserver
+homeservers
 Indri
 IPs
 ISOs
@@ -46,6 +48,7 @@ metapackage
 microreleases
 MIRs
 misconfigured
+Mjolnir
 MOTUs
 multiarch
 Mythbuntu
