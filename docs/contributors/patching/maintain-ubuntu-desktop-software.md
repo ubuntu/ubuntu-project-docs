@@ -931,18 +931,6 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
     ```
 
 
-## Merge with Debian
-
-Do not forget to include up to the Debian version as a -v argument to dpkg-genchanges, so that it appears in the changes file too and is display.
-
-TO BE CONTINUED
-
-:::{admonition} TODO
-:class: attention
-We'll work on this with Nathan. It belongs under `dput` commands.
-:::
-
-
 ## Build a package locally
 
 * Build a binary package: 
@@ -989,6 +977,19 @@ Useful tips in some potential cases:
     :input: gbp buildpackage --git-ignore-new --git-export-dir="" 
     ```
 
+* Use `-v` so that `dpkg-genchanges` includes all versions greater than X in the changes file:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: gbp buildpackage -S -vX
+    ```
+
+  A typical use case for this is when merging with Debain, to include both the Ubuntu as also
+  the Debian part of the changelog in the changes file. See
+  [an example](https://launchpadlibrarian.net/820313141/gnome-control-center_49.0-1ubuntu2_source.changes).
 
 ## Release a new version
 
