@@ -7,5 +7,5 @@
 
 ethos/index
 governance/index
-matrix/index
+matrix/matrix
 ```

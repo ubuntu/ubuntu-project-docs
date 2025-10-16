@@ -42,7 +42,6 @@ To learn more about moderation and Matrix in general:
 
 * {ref}`How to manage your ignore list <matrix-ignore-list>`
 * {ref}`matrix-moderation-and-defense`
-* {ref}`matrix-governance`
 * {ref}`matrix-defenders`
-* {ref}`matrix-usage`
+* {ref}`using-matrix`
 

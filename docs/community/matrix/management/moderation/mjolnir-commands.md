@@ -31,25 +31,25 @@ In certain cases of spam waves, it might be beneficial to kick and ban as well a
 
 Redact last 100 messages in a specific room
 : Command syntax:
-: ```none
-: !mjolnir redact <user ID> [room alias/ID] [limit] 
-: ```
+  ```none
+  !mjolnir redact <user ID> [room alias/ID] [limit] 
+  ```
 
 : Example:
-: ```
-: !mjolnir redact @user:ubuntu.com #room:ubuntu.com 100
-: ```
+  ```
+  !mjolnir redact @user:ubuntu.com #room:ubuntu.com 100
+  ```
 
 Redact last 100 messages globally
 : Command syntax:
-: ```none
-: !mjolnir redact <user ID> [limit] 
-: ```
+  ```none
+  !mjolnir redact <user ID> [limit] 
+  ```
 
 : Example:
-: ```none
-: !mjolnir redact @user:ubuntu.com 100
-: ```
+  ```none
+  !mjolnir redact @user:ubuntu.com 100
+  ```
 
 
 ### Mute a user
@@ -73,26 +73,26 @@ Kick using moderation reports
 
 Manually kick user from specific room
 : Command syntax:
-: ```none
-: !mjolnir kick <glob> [room alias/ID] [reason]
-: ```
+  ```none
+  !mjolnir kick <glob> [room alias/ID] [reason]
+  ```
 
 : Example:
-: ```none
-: !mjolnir kick @user:ubuntu.com #room:ubuntu.com [spam]
-: ```
+  ```none
+  !mjolnir kick @user:ubuntu.com #room:ubuntu.com [spam]
+  ```
 
 
 Manually kick a user from all protected rooms
 : Command syntax:
-: ```none
-: !mjolnir kick <glob> [reason]
-: ```
+  ```none
+  !mjolnir kick <glob> [reason]
+  ```
 
 : Example:
-: ```none
-: !mjolnir kick @user:ubuntu.com spam
-: ```
+  ```none
+  !mjolnir kick @user:ubuntu.com spam
+  ```
 
 
 ### Ban users
@@ -108,26 +108,26 @@ Ban using moderation reports
 
 Manually ban user for Code of Conduct violations
 : Command syntax:
-: ```none
-: !mjolnir ban <list shortcode> <user|room|server> <glob> [reason]
-: ```
+  ```none
+  !mjolnir ban <list shortcode> <user|room|server> <glob> [reason]
+  ```
 
 : Example:
-: ```none
-: !mjolnir ban coc user @user:ubuntu.com inappropriate and aggressive behavior
-: ```
+  ```none
+  !mjolnir ban coc user @user:ubuntu.com inappropriate and aggressive behavior
+  ```
 
 
 Manually ban user for spam
 : Command syntax:
-: ```none
-: !mjolnir ban <list shortcode> <user|room|server> <glob> [reason]
-: ```
+  ```none
+  !mjolnir ban <list shortcode> <user|room|server> <glob> [reason]
+  ```
 
 : Example:
-: ```none
-: !mjolnir ban spam user @user:ubuntu.com spamming inappropriate messages
-: ```
+  ```none
+  !mjolnir ban spam user @user:ubuntu.com spamming inappropriate messages
+  ```
 
 
 ### Ban servers
@@ -194,7 +194,7 @@ As you probably guessed, you are not going to ban a user this time, but a server
 ```
 
 
-# Further reading
+## Further reading
 
 * [Matrix documentation: moderating communities](https://matrix.org/docs/communities/moderation/)
 * [Moderator's guide to Mjolnir (Bot edition)](https://github.com/matrix-org/mjolnir/blob/main/docs/moderators.md)

@@ -42,7 +42,7 @@ Some rooms may have mechanical expectations such as strict Q&A where others may 
 
 Thoughtfulness, flexibility and humility are important to this role.
 
-{ref}`Read more about Matrix Moderators <matrix moderators>`
+{ref}`Read more about Matrix Moderators <matrix-moderators>`
 
 
 ### Are room owners also moderators?

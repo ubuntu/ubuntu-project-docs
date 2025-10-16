@@ -39,6 +39,4 @@ The moderator bot we currently used has several features:
 
 ## Who will ask me for this permission?
 
-All official communication about these permissions will come from either the Matrix Council or one of the Operators.
-To find out who these people are, see the {ref}`Matrix Governance documentation <matrix-governance>`.
-
+All official communication about these permissions will come from either the {ref}`Matrix Council <matrix-council>` or one of the {ref}`Operators <matrix-operators>`.

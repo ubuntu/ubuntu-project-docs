@@ -52,8 +52,8 @@ They may appoint new admins and mods, or close the room.
 
 ## Governance
 
-All rooms on our homeserver fall under the {ref}`Ubuntu Matrix Governance <matrix-governance>` policy.
-The Matrix Council has the final say in the policies of our homeserver.
+All rooms on our homeserver fall under the {ref}`Ubuntu Matrix Governance <matrix-moderation-and-defense>` policy.
+The {ref}`matrix-council` has the final say in the policies of our homeserver.
 
 
 ## Further reading

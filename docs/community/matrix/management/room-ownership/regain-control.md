@@ -45,7 +45,6 @@ If you have a specific case, and you need help:
 
 * {ref}`matrix-room-moderation`
 * {ref}`matrix-moderation-and-defense`
-* {ref}`matrix-governance`
 * {ref}`matrix-moderator-bot`
 * {ref}`matrix-management`
 

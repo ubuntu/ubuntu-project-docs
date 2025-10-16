@@ -47,5 +47,5 @@ Make sure to always write the full matrix ID, including the homeserver, in the f
 
 * Do you have multiple Matrix accounts and want to use them at the same time? {ref}`matrix-multiple-accounts`
 * Do you want to create rooms for your own community? {ref}`matrix-management`
-* Do you want to know who is in charge of moderation and policy-making on our homeserver? {ref}`matrix-governance`
+* Do you want to know who is in charge of moderation and policy-making on our homeserver? {ref}`matrix-council`
 
