@@ -670,7 +670,7 @@ $ python3 -m venv rustc-lintian-to-copyright
 After that, enter the virtual environment and install `pytoml`:
 
 ```none
-$ source ~/.venvs/rustc-lintian-to-copyright
+$ source ~/.venvs/rustc-lintian-to-copyright/bin/activate
 $ which python3
 $ python3 -m pip install pytoml
 ```
