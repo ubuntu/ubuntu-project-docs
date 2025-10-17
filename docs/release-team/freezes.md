@@ -63,8 +63,7 @@ It is possible to apply for {ref}`exceptions <freeze-exceptions>` under some
 circumstances -- such exceptions must be approved by the
 {ref}`Ubuntu Release Team <release-team>`.
 
-If in doubt, contact the
-[Release Team via Matrix](https://matrix.to/#/#release:ubuntu.com) or subscribe
+If in doubt, contact the {matrix}`Release Team via Matrix <release>` or subscribe
 `ubuntu-release` to the bug to confirm whether you need an exception or not.
 
 

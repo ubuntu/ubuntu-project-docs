@@ -144,7 +144,7 @@ by the full {term}`Ubuntu Archive` for packages and updates.
 
 Officially recognized flavors are:
 
-- [Edubuntu](https://edubuntu.org/)
+- [Edubuntu](https://www.edubuntu.org/)
 - [Kubuntu](https://kubuntu.org/)
 - [Lubuntu](https://lubuntu.me/)
 - [Ubuntu Budgie](https://ubuntubudgie.org/)
