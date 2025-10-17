@@ -36,7 +36,7 @@ Exceptions should be granted if the upload:
 
 ABI/API compatibility is a special case of a feature. If a library breaks
 backward compatibility (i.e. changes existing API/ABI and introduces a new
-[SONAME](http://www.netfort.gr.jp/~dancer/column/libpkg-guide/libpkg-guide.html#sonameapiabi),
+[SONAME](https://www.netfort.gr.jp/~dancer/column/libpkg-guide/libpkg-guide.html#sonameapiabi),
 then this **always** needs approval from the Release Team, since all reverse
 dependencies need to be adjusted and rebuilt.
 

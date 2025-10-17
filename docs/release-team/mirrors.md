@@ -49,7 +49,7 @@ lists on Launchpad. It will also be checked by Launchpad.
 
 If you registered a CD mirror, and registration is successful and approved, your
 mirror will be selected for nearby users when they click on the the download
-button on the [Ubuntu download pages](https://www.ubuntu.com/download).
+button on the [Ubuntu download pages](https://ubuntu.com/download).
 
 
 ## Mirror guidelines
