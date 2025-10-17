@@ -14,7 +14,7 @@ Our aim is to create and maintain documentation products and practice that repre
 We want documentation to be the best it possibly can be.
 
 * Read more about Canonical's [documentation practice](https://canonical.com/documentation)
-* Improve your documentation via our [Open Documentation Academy](https://documentationacademy.org/)
+* Improve your documentation via our [Open Documentation Academy](https://documentation.academy/)
 
 
 ## Discourse documentation

@@ -18,7 +18,7 @@ Our work will be used by other people, and we in turn will depend on the work of
 
 ### Be respectful
 
-Disagreement is no excuse for poor manners. We work together to resolve conflict, assume good intentions and do our best to act in an empathic fashion. We don’t allow frustration to turn into a personal attack. A community where people feel uncomfortable or threatened is not a productive one.
+Disagreement is no excuse for poor manners. We work together to resolve conflict, assume good intentions and do our best to act in an empathic fashion. We don't allow frustration to turn into a personal attack. A community where people feel uncomfortable or threatened is not a productive one.
 
 ### Take responsibility for our words and our actions
 
@@ -47,7 +47,7 @@ We all lead by example, in debate and in action. We encourage new participants t
 
 ### Delegation from the top
 
-Responsibility for the project starts with the “benevolent dictator”, who delegates specific responsibilities and the corresponding authority to a series of teams, councils and individuals, starting with the Community Council (“CC”). That Council or its delegated representative will arbitrate in any dispute.
+Responsibility for the project starts with the "benevolent dictator", who delegates specific responsibilities and the corresponding authority to a series of teams, councils and individuals, starting with the Community Council ("CC"). That Council or its delegated representative will arbitrate in any dispute.
 
 We are a meritocracy; we delegate decision making, governance and leadership from senior bodies to the most able and engaged candidates.
 
@@ -71,9 +71,9 @@ We invite anybody, from any company, to participate in any aspect of the project
 
 ### Teamwork
 
-A leader’s foremost goal is the success of the team.
+A leader's foremost goal is the success of the team.
 
-“A virtuoso is judged by their actions; a leader is judged by the actions of their team.” A leader knows when to act and when to step back. They know when to delegate work, and when to take it upon themselves.
+"A virtuoso is judged by their actions; a leader is judged by the actions of their team." A leader knows when to act and when to step back. They know when to delegate work, and when to take it upon themselves.
 
 ### Credit
 
@@ -93,7 +93,7 @@ This Code is not exhaustive or complete. It is not a rulebook; it serves to dist
 
 ## Taking Conflict to the Community Council
 
-If a member of the community feels there has been a violation of the Ubuntu Code of Conduct, they are encouraged to bring it forward to the Community Council for review. For additional information on this process, please visit [Conflict Resolution](https://ubuntu.com/community/governance/conflict-resolution).
+If a member of the community feels there has been a violation of the Ubuntu Code of Conduct, they are encouraged to bring it forward to the Community Council for review. For additional information on this process, please visit {ref}`conflict-resolution`.
 
 ```{note}
 The Ubuntu Code of Conduct is licensed under the [Creative Commons Attribution-Share Alike 3.0 license](https://creativecommons.org/licenses/by-sa/3.0/). You may re-use it for your own project, and modify it as you wish, just please allow others to use your modifications and give credit to the Ubuntu Project!

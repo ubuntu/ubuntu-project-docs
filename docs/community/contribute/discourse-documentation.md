@@ -61,8 +61,8 @@ Ubuntu has many projects under its umbrella, and this table shows which document
 
 | Published documentation website  | Contributing guide | Discourse backend |
 |---|---|---|
-| [MAAS docs](https://maas.io/docs) | [How to contribute](https://maas.io/docs/contributing-to-maas-documentation) | [Source](https://discourse.maas.io/c/docs/5) |
-| [Mir docs](https://mir-server.io/docs) | [How to contribute](https://mir-server.io/docs/how-to-maintain-mir-documentation) | [Source](https://discourse.ubuntu.com/c/mir/docs/28) |
+| [MAAS docs](https://canonical.com/maas/docs) | [How to contribute](https://canonical.com/maas/docs/how-to-contribute-to-maas-documentation) | [Source](https://discourse.maas.io/c/docs/5) |
+| [Mir docs](https://canonical.com/mir/docs) | [How to contribute](https://canonical.com/mir/docs/how-to-maintain-mir-documentation) | [Source](https://discourse.ubuntu.com/c/documentation/mir-docs/28) |
 | [Snap docs](https://snapcraft.io/docs) | [How to contribute](https://snapcraft.io/docs/contribute-to-docs) | [Source](https://forum.snapcraft.io/c/doc/15) |
 
 
@@ -125,7 +125,7 @@ The code that creates the navigation and publishes our documentation from Discou
 
 ## Discourse Markdown
 
-Documentation is written in the [Markdown](https://daringfireball.net/projects/markdown/syntax) format [supported by Discourse](https://meta.discourse.org/t/post-format-reference-documentation/19197/2).
+Documentation is written in the [Markdown](https://daringfireball.net/projects/markdown/syntax) format [supported by Discourse](https://meta.discourse.org/t/formatting-posts-using-markdown-bbcode-and-html/239348).
 
 Mostly, you don't need to worry about the syntax. If you are unfamiliar with Markdown you can use the style toolbar in the Discourse editing window to mark the elements you need.
 
@@ -245,7 +245,7 @@ Discourse Markdown does not support anchor links to a position *within* the same
 
 However, you can use standard HTML within Markdown, which means we can manually add HTML anchor elements that can be linked to.
 
-The [recommended way](https://meta.discourse.org/t/deep-linking-to-headings-anchors/47552) to create anchors is using heading elements with an ID. The ID needs to have `heading--` as a prefix:
+The [recommended way](https://meta.discourse.org/t/linking-to-a-heading-within-a-post-or-topic/47552) to create anchors is using heading elements with an ID. The ID needs to have `heading--` as a prefix:
 
 ```html
 <h3 id='heading--myanchor'>Link to me</h3>

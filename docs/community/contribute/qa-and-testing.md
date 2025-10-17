@@ -32,4 +32,4 @@ Helping test Ubuntu and its numerous Flavors is a fun and easy way to give back 
 
 * Join in the testing conversations on the [Ubuntu Testers Telegram channel](https://t.me/UbuntuTesters)
 
-* Test the latest Ubuntu builds on the [Testing Tracker](http://iso.qa.ubuntu.com/)
+* Test the latest Ubuntu builds on the [Testing Tracker](https://iso.qa.ubuntu.com/)

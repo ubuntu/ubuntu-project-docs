@@ -4,14 +4,11 @@
 Beyond making the Ubuntu community better, there are numerous benefits to
 becoming an official member. These perks include:
 
-* An Ubuntu resumé in the form of your Discourse post that can be used with
-  potential employers.
+* An Ubuntu resumé in the form of your Discourse post that can be used with potential employers.
 
-* Voting privileges to confirm Ubuntu
-  [Community Council nominations](https://wiki.ubuntu.com/CommunityCouncil).
+* Voting privileges to confirm Ubuntu {ref}`community-council` nominations.
 
-* An [`@ubuntu.com` email alias](https://wiki.ubuntu.com/UbuntuEmail) that
-  forwards to your real email address.
+* An {ref}`@ubuntu.com email alias <ubuntu-email>` that forwards to your real email address.
 
 * An [`@ubuntu.com` Matrix account](https://ubuntu.com/community/communications/matrix/register-ubuntu-com)
   that you can use on the Ubuntu Matrix instance and other federated instances.
@@ -36,11 +33,11 @@ becoming an official member. These perks include:
 
 * A [subscription to Linux Weekly News](https://wiki.ubuntu.com/Membership/LWN).
 
-* [Ubuntu Member Flair](http://www.reddit.com/r/Ubuntu/comments/l5b3x/members_and_canonical_employees_claim_your_flair/)
+* [Ubuntu Member Flair](https://www.reddit.com/r/Ubuntu/comments/l5b3x/members_and_canonical_employees_claim_your_flair/)
   on Reddit.
 
 * [Discounted domain registration](https://wiki.ubuntu.com/Membership/Gandi)
-  pricing and partner rates for hosting at [`gandi.net`](http://Gandi.net).
+  pricing and partner rates for hosting at [`gandi.net`](https://gandi.net/en).
 
 Membership perks may change from time to time, so it’s a good idea to check
 this list often.
