@@ -90,7 +90,7 @@ There is also some special handling for cross compilation in a way that uses sys
 : These patches are official upstream code that hasn't been pushed into a stable release yet.  This is mostly focused on getting edge-case tests to pass, but it also fixes some linker path issues.
 
 **`vendor`**
-: Fixes for vendored dependencies, mostly so they can locate and use system libraries.
+: Fixes for vendored dependencies; mostly so they can locate and use system libraries.
 
 
 ## How are Rust binaries packaged?
