@@ -51,7 +51,7 @@ Because Ubuntu produces Rust compiler packages that don't exist on Debian, they 
 ## What do Debian and Ubuntu maintainers change in `rustc` to enable packaging?
 
 Ubuntu's `rustc` packages have Debian's package as an ancestor, but due to the requirements of shipping multiple versions in a single stable release, they have diverged over time.
-This means that doing a simple diff of the files in the `debian` directory will show a significant number of small tweaks and documentation updates that both teams have made seperately.
+This means that doing a simple diff of the files in the `debian` directory shows a significant number of small tweaks and documentation updates that both teams have made separately.
 Due to the differences in packaging goals, it's increasingly unlikely that the packages will be unified again soon.
 This FAQ is focused on the Ubuntu package and not everything is likely apply to Debian.
 
