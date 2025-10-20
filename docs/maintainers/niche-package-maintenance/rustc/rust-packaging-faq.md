@@ -31,7 +31,7 @@ Additionally, it's worth noting that the preferred workflow for Rust developers 
 Like with Debian, the system packages are primarily intended to ensure the availability of Rust within Ubuntu itself, which is less directly relevant to application developers.
 
 Due to the merge and sync process, the overwhelming number of Rust packages are imported directly from Debian.
-The relatively small number of packages that carry an Ubuntu diff can be spotted by checking [Merge-o-Matic](https://merges.ubuntu.com/).
+The relatively small number of packages that carry an Ubuntu delta can be spotted by checking [Merge-o-Matic](https://merges.ubuntu.com/).
 This can also be determined for an individual package by checking for the presence of `ubuntu` in the version string.
 Ubuntu diffs exist for a number of reasons, such as dependency issues to support [Ubuntu's oxidation efforts](https://discourse.ubuntu.com/t/carefully-but-purposefully-oxidising-ubuntu/56995), hardware support, or other Ubuntu-specific integration issues.
 
