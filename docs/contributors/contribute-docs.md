@@ -4,7 +4,7 @@
 This guide provides information necessary to contribute to this documentation.
 If you're contributing for the first time, you might find the Canonical Open
 Documentation Academy has helpful resources to
-[get you started](https://documentationacademy.org/docs/howto/get-started/).
+[get you started](https://documentation.academy/docs/howto/get-started/).
 
 
 ## Report an issue
@@ -29,7 +29,7 @@ button, you will be prompted to create a **fork** of the documentation before
 you can start editing.
 
 Remember to first check the
-[latest version](https://canonical-ubuntu-project.readthedocs-hosted.com/) of
+[latest version](https://documentation.ubuntu.com/project/) of
 our documentation and make your proposal based on that revision.
 
 
@@ -49,7 +49,7 @@ pull request.
 
 ### Contributor License Agreement (CLA)
 
-By contributing to this project, you agree to the terms of the _Canonical Contributor License Agreement (CLA)_. To sign the CLA, visit [Canonical contributor licence agreement](https://ubuntu.com/legal/contributors).
+By contributing to this project, you agree to the terms of the _Canonical Contributor License Agreement (CLA)_. To sign the CLA, visit [Canonical contributor licence agreement](https://canonical.com/legal/contributors).
 
 
 ### Directory structure
@@ -94,7 +94,7 @@ Follow these steps to build the documentation on your local machine.
 
     :::{note}
     The `make` command is compatible with Unix systems. On Windows,
-    [install Ubuntu with WSL](https://documentationacademy.org/docs/howto/get-started/using_wsl/).
+    [install Ubuntu with WSL](https://documentation.academy/docs/howto/get-started/using_wsl/).
     :::
 
 
@@ -113,19 +113,19 @@ Follow these steps to build the documentation on your local machine.
     ```
 
 4. Change to the `docs/` directory and make your contribution:
-    ```
+    ```none
     cd docs
     ```
 
 5. Build a live preview of the documentation from within the `docs/` directory:
-    ```
+    ```none
     make run
     ```
     You can find all the HTML files in the `.build/` directory.
 
     `make run` uses the Sphinx `autobuild` module, so that any edits you make (and save) as you work are applied, and the built HTML files refresh immediately.
 
-6. Review your contribution in a web browser by navigating to [127.0.0.1:8000](http://127.0.0.1:8000/).
+6. Review your contribution in a web browser by navigating to [`127.0.0.1:8000`](http://127.0.0.1:8000/).
 
 7. Push your contribution to GitHub and create a pull request against the original repository.
 
@@ -134,8 +134,8 @@ Follow these steps to build the documentation on your local machine.
 
 The Ubuntu Project documentation is built with Sphinx using a combination of the MyST flavor of the Markdown and reStructuredText mark-up languages. MyST is preferred for new content. If you're new to this, see our guides:
 
-* [MyST style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/style-guide-myst/)
-* [reStructuredText style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/style-guide/)
+* [MyST style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/myst-syntax-reference/)
+* [reStructuredText style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/rst-syntax-reference/)
 
 
 ### Organization principles
@@ -207,7 +207,7 @@ The following roles are especially useful:
 The documentation project defines the following custom roles to simplify adding links to various resources.
 
 `manpage`
-: Use to create links to manual pages hosted at [manpages.ubuntu.com](https://manpages.ubuntu.com/). The links always point to manual pages for the latest Ubuntu release.
+: Use to create links to manual pages hosted at [`manpages.ubuntu.com`](https://manpages.ubuntu.com/). The links always point to manual pages for the latest Ubuntu release.
 
     ::::{tab-set}
 
@@ -244,7 +244,7 @@ The documentation project defines the following custom roles to simplify adding 
     Renders as: {manpage}`bash(1)`
 
 `lpbug`
-: Use to create links to Launchpad bugs at [bugs.launchpad.net](https://bugs.launchpad.net/).
+: Use to create links to Launchpad bugs at [`bugs.launchpad.net`](https://bugs.launchpad.net/).
 
     ::::{tab-set}
 
@@ -281,7 +281,7 @@ The documentation project defines the following custom roles to simplify adding 
     Renders as: {lpbug}`1`
 
 `lpsrc`
-: Use to create links to Ubuntu packages on Launchpad at [launchpad.net/ubuntu](https://launchpad.net/ubuntu).
+: Use to create links to Ubuntu packages on Launchpad at [`launchpad.net/ubuntu`](https://launchpad.net/ubuntu).
 
     ::::{tab-set}
 
@@ -318,7 +318,7 @@ The documentation project defines the following custom roles to simplify adding 
     Renders as: {lpsrc}`bash`
 
 `matrix`
-: Use to create links to ubuntu.com-hosted Matrix channels.
+: Use to create links to `ubuntu.com`-hosted Matrix channels.
 
     ::::{tab-set}
 
@@ -472,7 +472,7 @@ Test your changes before submitting a pull request. Run the following commands f
 
 ## Open Documentation Academy
 
-If you've never contributed to an open source project before, the [Open Documentation Academy](https://documentationacademy.org/) (ODA) is a great way to begin.
+If you've never contributed to an open source project before, the [Open Documentation Academy](https://documentation.academy) (ODA) is a great way to begin.
 
 The Open Documentation Academy (ODA) is an initiative led by the documentation team at Canonical to encourage open source contributions from the community, and to provide help, advice and mentorship within a friendly and welcoming environment.
 
@@ -483,7 +483,7 @@ The best way to get started is to take a look at our [project-related documentat
 Stay in touch either through the task list, or through one of the following locations:
 
 * [Discussion forum](https://discourse.ubuntu.com/c/community/open-documentation-academy/166) on the Ubuntu Community Hub.
-* [Matrix](https://matrix.to/#/#documentation:ubuntu.com) for interactive chat.
+* {matrix}`documentation` on Matrix for interactive chat.
 * [Fosstodon](https://fosstodon.org/@CanonicalDocumentation) for the latest updates and events.
 
-In addition to the above, we have a weekly [Open Documentation Hour](https://discourse.ubuntu.com/t/open-documentation-hour-schedule/45291) at 16:00 UTC each Friday. Everyone is welcome.
+In addition to the above, we have a weekly [Open Documentation Hour](https://discourse.ubuntu.com/t/community-hour-schedule/45291) at 16:00 UTC each Friday. Everyone is welcome.

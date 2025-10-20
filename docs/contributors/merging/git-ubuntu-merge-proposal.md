@@ -79,7 +79,7 @@ If this fails, {ref}`do it manually <merge-submit-merge-proposal-manually>`.
 
   Example:
 
-  ```
+  ```none
   PPA: https://launchpad.net/~kstenerud/+archive/ubuntu/disco-at-merge-1802914
 
   Basic test:
@@ -104,7 +104,7 @@ Once the merge proposal goes through, you must follow the package to make sure i
 (merge-package-tests)=
 ### Package tests
 
-The results from the latest package tests are published for each Ubuntu release. For example: [autopkgtest.ubuntu.com/packages/o/openssh/questing/amd64](http://autopkgtest.ubuntu.com/packages/o/openssh/questing/amd64). See {ref}`automatic-package-testing-autopkgtest`.
+The results from the latest package tests are published for each Ubuntu release. For example: [`autopkgtest.ubuntu.com/packages/o/openssh/questing/amd64`](https://autopkgtest.ubuntu.com/packages/o/openssh/questing/amd64). See {ref}`automatic-package-testing-autopkgtest`.
 
 
 (merge-proposed-migration)=

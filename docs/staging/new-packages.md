@@ -18,7 +18,7 @@ In order for a piece of software to be included in Ubuntu, it must meet the
 
 Packages that have recently been added to Debian unstable will be automatically
 synced into Ubuntu prior to the
-[Debian Import Freeze (DIF)](https://wiki.ubuntu.com/DebianImportFreeze).
+{ref}`debian-import-freeze` (DIF).
 After the Debian Import Freeze, you will have to
 [file a bug](https://launchpad.net/ubuntu/+filebug/?no-redirect) with the
 summary field "Please sync `<packagename>` from debian `<distro>`" where

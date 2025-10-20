@@ -102,7 +102,7 @@ Launchpad has a web :term:`API` to interact with its services. This allows devel
 
 The reference `documentation for the web API <https://launchpad.net/+apidoc/>`_ on Launchpad.
 
-The Launchpad team created an :term:`open source <Open Source Software>` Python library, `launchpadlib <https://help.launchpad.net/API/launchpadlib>`_.
+The Launchpad team created an :term:`open source <Open Source Software>` Python library, `launchpadlib <https://documentation.ubuntu.com/launchpad/user/explanation/launchpad-api/launchpadlib/>`_.
 
 
 Further reading
@@ -113,5 +113,4 @@ Further reading
     - `Launchpad bug tracker <https://bugs.launchpad.net/launchpad>`_
     - `Launchpad questions and answers <https://answers.launchpad.net/launchpad>`_
 - `Launchpad documentation <https://documentation.ubuntu.com/launchpad/>`_
-- `Launchpad development wiki <https://dev.launchpad.net/>`_
 - `Launchpad blog <https://blog.launchpad.net/>`_
