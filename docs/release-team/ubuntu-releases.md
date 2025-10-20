@@ -166,6 +166,6 @@ there can be exceptions).
 ## Further reading
 
 - [The Ubuntu life cycle and release cadence](https://ubuntu.com/about/release-cycle)
-- [Ubuntu flavors](https://ubuntu.com/desktop/flavours)
+- [Ubuntu flavors](https://ubuntu.com/desktop/flavors)
 - [Ubuntu releases](https://releases.ubuntu.com/)
 - [Ask a bug supervisor](https://answers.launchpad.net/launchpad/+question/140509)
