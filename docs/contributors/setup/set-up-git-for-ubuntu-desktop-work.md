@@ -275,7 +275,7 @@ The command lists the following remote repositories:
 `upstreamvcs`
 : Points to the upstream GNOME repository, to easily cherry-pick upstream fixes.
 
-    This remote is called `upstreamvcs` to not be confused with local branch names, which might be called `debian/branchname` or `upstream/branchname`. Instead of having a local `debian/latest` branch tracking the `debian/debian/latest` remote, we have the `debian/latest` local branch tracking the `origin/debian/latest` remote, which is easier to understand.
+    This remote is called `upstreamvcs` to not be confused with local branch names, which might be called `debian/<branch-name>` or `upstream/<branch-name>`. Instead of having a local `debian/latest` branch tracking the `debian/debian/latest` remote, we have the `debian/latest` local branch tracking the `origin/debian/latest` remote, which is easier to understand.
 
 :::{note}
 The `debian/latest` and `ubuntu/latest` branches were previously called `debian/master` and `ubuntu/master`, respectively. We renamed them on 4 September 2023 to use more inclusive naming and more closely follow [DEP-14](https://dep-team.pages.debian.net/deps/dep14/).
@@ -312,25 +312,6 @@ Let's look at the various branches in the Salsa remote repository:
 
 `upstream/latest`
 : This is another internal `gbp-buildpackage` branch. It's a merge between the upstream Git branch corresponding to the latest release from the upstream repository and extra content coming from the tarball. You don't interact with it directly.
-
-We find back those 3 branches locally:
-
-```{terminal}
-:copy:
-:host:
-:dir: gnome-control-center
-:user:
-:input: git branch
-```
-
-`ubuntu/latest`
-: Pull and push from the `origin` (Salsa) remote repository, tracking the `ubuntu/latest` remote branch (`origin/ubuntu/latest`).
-
-`pristine-tar`
-: Pull and push from the `origin` (Salsa) remote repository, tracking the `pristine-tar` remote branch (`origin/pristine-tar`).
-
-`upstream/latest`
-: Pull from the `upstream` remote repository, tracking the `latest` remote branch (`upstream/latest`), and push to the `origin` (Salsa) remote repository, tracking the `upstream/latest` remote branch (`origin/upstream/latest`).
 
 In this configuration, you only interact with the `ubuntu/latest` branch and let `gbp` handle the other two branches. When you pull and push using `gbp`, it keeps all three branches up to date if no conflict occurs. This is easier than checking out every branch before pushing them.
 
