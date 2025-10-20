@@ -87,7 +87,7 @@ There is also some special handling for cross compilation in a way that uses sys
 : Ubuntu-specific patches that are mostly focused on making sure that system tooling is found correctly, but also disable some platform-specific tests and ensure that other tests use the system `gcc` compiler.
 
 **`upstream`**
-: These patches are official upstream code that hasn't been pushed into a stable release yet.  Mostly this is focused on getting edge-case tests to pass, but also fixes some linker path issues.
+: These patches are official upstream code that hasn't been pushed into a stable release yet.  This is mostly focused on getting edge-case tests to pass, but it also fixes some linker path issues.
 
 **`vendor`**
 : Fixes for vendored dependencies, mostly so they can locate and use system libraries.
