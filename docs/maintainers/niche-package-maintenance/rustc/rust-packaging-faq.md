@@ -96,7 +96,7 @@ There is also some special handling for cross compilation in a way that uses sys
 ## How are Rust binaries packaged?
 
 :::{note}
-"Binary" is an overloaded term in Rust packaging.  This FAQ topic refers to the binary targets of a Cargo-based Rust project, as opposed to library targets.  However, we also need to distinguish Debian source packages from Debian binary packages, which is entirely orthogonal.
+"Binary" is an overloaded term in Rust packaging.  This FAQ topic refers to the binary targets of a Cargo-based Rust project, as opposed to library targets.  However, we also need to distinguish Debian source packages from Debian binary packages, which is an entirely unrelated concept.
 :::
 
 According to the [Debian Rust Packaging Policy](https://wiki.debian.org/Teams/RustPackaging/Policy), Rust crates that include one or more binary executable targets have all their executables bundled into a single Debian binary package.
