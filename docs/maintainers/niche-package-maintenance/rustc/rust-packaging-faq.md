@@ -246,7 +246,7 @@ However, for PPAs in a typical Ubuntu workflow, the tests are not triggered auto
 `dput`
 : Upload your package to the package archive or a PPA.
 
-## What is the relationship between `llvm` packages and `rustc` packages?
+## What is the relationship between `llvm` and `rustc` packages?
 
 The relationship can be one of two things, depending on the particular `rustc` package version.
 
