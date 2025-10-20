@@ -2,7 +2,7 @@
 # Rust Packaging FAQ
 
 You may want to start by reading the [Debian Rust Packaging Policy document](https://wiki.debian.org/Teams/RustPackaging/Policy).
-This goal of this FAQ is to collect information into a single place without too many overwhelming details, but the policy document should be the source of truth as things change over time or if anything here is unclear.
+The goal of this FAQ is to collect information in a single place without too many overwhelming details, but the policy document should be the source of truth as things change over time or if anything here is unclear.
 
 ## How do Debian maintainers package Rust tooling and applications in general?
 
