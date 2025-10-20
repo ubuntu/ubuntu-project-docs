@@ -38,7 +38,7 @@ Ubuntu deltas exist for a number of reasons, such as dependency issues to suppor
 There is also a small number of packages that are excluded from the sync for various technical reasons, usually dependencies that are unsatisfiable.  That configuration is handled via the [sync-blocklist](https://git.launchpad.net/~ubuntu-archive/+git/sync-blocklist) Launchpad repo.
 
 While the number of packages that differ from Debian is small, some of them are critically important.
-Notably, the `rustc` source package is one which carries a nontrivial diff compared to Debian, and that source package is responsible for generating a number of important binary packages, including: `rustc`, `cargo`, `libstd-rust-X.Y`, and more.
+Notably, the `rustc` source package is one that carries a nontrivial delta compared to Debian, and that source package is responsible for generating a number of important binary packages, including: `rustc`, `cargo`, `libstd-rust-X.Y`, and more.
 It's not reasonable to enumerate every difference here, but fundamentally they stem from the desire to ship more versions of the compiler in Ubuntu than Debian currently packages.
 
 Debian's version of `rustc` is frozen for the lifetime of each stable Debian release.
