@@ -61,7 +61,7 @@ Ubuntu and Debian both prefer to use system libraries whenever possible, and so 
 A complicating factor is that not all versions of the Ubuntu package use an identical set of vendored dependencies.
 For instance, the default `rustc` version on Ubuntu generally makes use of the system `llvm` (although it's statically linked, and so not a runtime dependency).
 However, versions are backported to LTS releases out of step with how LLVM is packaged.
-This means that some newer versions of `rustc` will used a vendored LLVM.
+This means that some newer versions of `rustc` use a vendored LLVM.
 
 The actual patches that are applied to the upstream source are split into categories, although nearly all of them are fundamentally focused on finding the right system files and platform-specific issues:
 
