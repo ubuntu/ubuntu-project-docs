@@ -192,7 +192,7 @@ That means you'll get things like the orig tarball, but not the `git` history.
 **Rust-specific tools:**
 
 `debcargo`
-: A tool written in Rust that will attempt to automatically convert a Rust crate into a Debian source package, by mapping dependencies to Debian packages and generating important files like `debian/control`, `debian/rules`, and `debian/changelog`.
+: A tool written in Rust that attempts to automatically convert a Rust crate into a Debian source package by mapping dependencies to Debian packages and generating important files like `debian/control`, `debian/rules`, and `debian/changelog`.
 
 `cargo-debstatus`
 : Pull the dependencies from a Cargo project, and determine if appropriate versions of them are already available in the package archive.
