@@ -137,7 +137,7 @@ If all the archive crate package versions are frozen alongside the version of `r
 
 Rust crates can include a `rust-toolchain.toml` file, which can specify a particular compiler version.
 This is unrelated to the official stable Rust editions.
-The most common use-case for this is to specify that unstable "nightly" features are being used by a crate, and so an unstable "nightly" version of `rustc` is required.
+The most common use case for this is to specify that unstable "nightly" features are being used by a crate, and so an unstable "nightly" version of `rustc` is required.
 The approach for these packages is, more or less, to just exclude them unless there's a really compelling reason not to.
 By definition, they are unstable packages, and so do not belong in a distribution's archive of stable, supported packaged crates.
 
