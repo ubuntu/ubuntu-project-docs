@@ -3,8 +3,8 @@
 
 The MIR Team holds weekly meetings for 30 minutes every Tuesday at
 <time datetime="T16:30+01:00">16:30 CET</time> on the
-[Ubuntu Matrix Server](https://ubuntu.com/community/communications/matrix)
-in the [Ubuntu Main inclusion requests](https://matrix.to/#/#ubuntu-mir:ubuntu.com) channel.
+{ref}`Ubuntu Matrix Server <matrix-index>`
+in the {matrix}`Ubuntu Main inclusion requests <ubuntu-mir>` channel.
 
 The purpose of the meeting is:
 
@@ -30,7 +30,7 @@ If you're chairing the meeting, you can use the following template:
 ```
 # Start of the Main inclusion request team meeting
 Welcome to the MIR Team's weekly meeting
-General rules and the process description can be found at https://canonical-ubuntu-project.readthedocs-hosted.com/MIR/main-inclusion-review
+General rules and the process description can be found at https://documentation.ubuntu.com/project/MIR/main-inclusion-review
 Ping for MIR meeting members - @didrocks:matrix.org @joalif:matrix.org @seth-arnold:ubuntu.com @paelzer:ubuntu.com @mylesjp:matrix.org @pushkarnk:matrix.org ( @dviererbe:ubuntu.com @slyon:ubuntu.com )
 
 ## Topic 1/7: Awareness of external agenda items
@@ -40,8 +40,8 @@ Please speak up if you have a topic to add
 ## Topic 2/7: Current component mismatches
 ### Mission: Identify required actions and spread the load among the teams
 Check these generated reports:
-* [component-mismatches-proposed](https://people.canonical.com/~ubuntu-archive/component-mismatches-proposed.svg)
-* [component-mismatches](https://people.canonical.com/~ubuntu-archive/component-mismatches.svg)
+* [component-mismatches-proposed](https://ubuntu-archive-team.ubuntu.com/component-mismatches-proposed.svg)
+* [component-mismatches](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg)
 
 ## Topic 3/7: New MIRs
 ### Mission: ensure to assign all incoming reviews for fast processing
