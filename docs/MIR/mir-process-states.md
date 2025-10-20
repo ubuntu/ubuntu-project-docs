@@ -89,7 +89,7 @@ package(s) current state in the archive:
   the package(s) is/are already tried to be pulled into `main`/`restricted` 
   then the next state is `5. (Fix Committed)`, otherwise the next state is 
   `4. In Progress`. Seen in:
-  * [component mismatches for `main`/`restricted`](https://people.canonical.com/~ubuntu-archive/component-mismatches.svg) 
-  * [component mismatches for `proposed`](https://people.canonical.com/~ubuntu-archive/component-mismatches-proposed.svg)
+  * [component mismatches for `main`/`restricted`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg) 
+  * [component mismatches for `proposed`](https://ubuntu-archive-team.ubuntu.com/component-mismatches-proposed.svg)
 ```
 
