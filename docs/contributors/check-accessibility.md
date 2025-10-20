@@ -122,7 +122,7 @@ All graphical interfaces in Ubuntu Desktop should be readable with the built-in 
 
 The Orca screen reader can be enabled in {menuselection}`Settings --> Accessibility --> Seeing`. You can also enable {guilabel}`Screen Reader` in the Accessibility menu.
 
-Note that some Orca features don't work with certain combinations of Ubuntu releases and application toolkits. Read [Improve screen reader usability](https://documentation.ubuntu.com/desktop/en/latest/how-to/accessibility/improve-screen-reader-usability/).
+Note that some Orca features don't work with certain combinations of Ubuntu releases and application toolkits. Read [Improve screen reader usability](https://documentation.ubuntu.com/desktop/en/latest/how-to/troubleshoot/improve-screen-reader-usability/).
 
 You need to become familiar with keyboard shortcuts to use the screen reader. Modifier keys are used in the shortcuts:
 
