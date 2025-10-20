@@ -250,7 +250,7 @@ However, for PPAs in a typical Ubuntu workflow, the tests are not triggered auto
 
 The relationship can be one of two things, depending on the particular `rustc` package version.
 
-1. For the default `rustc` package, with no version number in the name, `llvm` will be a build-time dependency.
+1. For the default `rustc` package, with no version number in the name, `llvm` is a build-time dependency.
 Due to static linking, that means that all the relevant `llvm` code is effectively copied into the `rustc` binary, and the `llvm` package is no longer strictly needed at runtime.
 It is generally listed as a suggested dependency of `rustc` in order to support debugging and code generation tasks.
 
