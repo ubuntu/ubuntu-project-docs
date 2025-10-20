@@ -119,7 +119,7 @@ Because we don't have that option, Rust libraries are packaged as _source code_.
 That is, a Rust library in the Debian binary format is effectively the same as the relevant source package.
 When a Rust application (i.e., a binary Cargo target) is built, it grabs that source code from the library packages and links it statically.
 
-There is special functionality in dh-cargo for this.
+There is special functionality in `dh-cargo` for this.
 
 ## What about crates with optional features?
 
