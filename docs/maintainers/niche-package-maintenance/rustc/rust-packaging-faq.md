@@ -35,7 +35,7 @@ The relatively small number of packages that carry an Ubuntu delta can be spotte
 This can also be determined for an individual package by checking for the presence of `ubuntu` in the version string.
 Ubuntu deltas exist for a number of reasons, such as dependency issues to support [Ubuntu's oxidation efforts](https://discourse.ubuntu.com/t/carefully-but-purposefully-oxidising-ubuntu/56995), hardware support, or other Ubuntu-specific integration issues.
 
-There are also a small number of packages that are excluded from the sync for various technical reasons, usually dependencies that are unsatisfiable.  That configuration is handled via [this Launchpad repo](https://git.launchpad.net/~ubuntu-archive/+git/sync-blocklist).
+There is also a small number of packages that are excluded from the sync for various technical reasons, usually dependencies that are unsatisfiable.  That configuration is handled via the [sync-blocklist](https://git.launchpad.net/~ubuntu-archive/+git/sync-blocklist) Launchpad repo.
 
 While the number of packages that differ from Debian is small, some of them are critically important.
 Notably, the `rustc` source package is one which carries a nontrivial diff compared to Debian, and that source package is responsible for generating a number of important binary packages, including: `rustc`, `cargo`, `libstd-rust-X.Y`, and more.
