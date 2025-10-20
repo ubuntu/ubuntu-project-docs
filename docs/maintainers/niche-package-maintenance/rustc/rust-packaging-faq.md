@@ -121,7 +121,7 @@ When a Rust application (i.e., a binary Cargo target) is built, it grabs that so
 
 There is special functionality in `dh-cargo` for this.
 
-## What about crates with optional features?
+## How are crates with optional features packaged?
 
 Rust packages with optional features are divided into multiple, separate packages.
 That means for a package named `librust-<cratename>-dev`, an optional feature will _additionally_ need to be packaged as `librust-<cratename>+<featurename>-dev`.
