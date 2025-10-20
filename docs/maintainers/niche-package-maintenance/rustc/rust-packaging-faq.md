@@ -13,7 +13,13 @@ The code that builds the Rust crate packages lives in a monorepo: [debcargo-conf
 Besides the package definitions, it also contains helper scripts for basic development and policy tasks, such as creating tickets, filtering the packages, finding outdated packages, and tracking crates that are intentionally excluded from the archive.
 
 That repo makes heavy use of a tool called [`debcargo`](https://salsa.debian.org/rust-team/debcargo/), written in Rust, which extends the typical Debian tooling ecosystem with some Rust-specific workflows.
-It has a number of features, but fundamentally it downloads crates, tries to parse metadata from them, determines the transitive dependencies, maps those to candidate Debian packages, and then lays out a starter package structure.
+It has a number of features, but fundamentally it:
+
+1. downloads crates
+1. tries to parse metadata from the crates
+1. determines the transitive dependencies
+1. maps the dependencies to candidate Debian packages
+1. lays out a starter package structure
 
 From there, packaging processes vary depending on the software being packaged, discussed below.
 For more information about tooling, see [this separate question](#debian-rust-tools).
