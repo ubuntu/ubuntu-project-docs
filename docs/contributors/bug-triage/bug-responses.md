@@ -4,7 +4,7 @@
 It is common when triaging bugs that you need to respond to the original reporter -- perhaps to request more information, or to redirect their request, etc.
 Over time, a set of curated standard responses has been created, and you can use these when you correspond with the reporter.
 
-These standard responses (and other amazing scripts) are available as a FireFox extension [in a PPA](https://launchpad.net/~gm-dev-launchpad/+archive/ppa).
+These standard responses (and other amazing scripts) are available as a FireFox extension [in a PPA](https://launchpad.net/~gm-dev-launchpad/+archive/ubuntu/ppa).
 
 When you update one of these responses, you should also update the response used by the Firefox extension.
 These responses can be found in the bazaar branch [lp:ubuntu-bugcontrol-tools](https://code.launchpad.net/ubuntu-bugcontrol-tools) in the `gm-xml-files/bugsquad-replies.xml` file.
@@ -796,7 +796,7 @@ Please seek support and bug reporting solutions from your distribution. Thank yo
 
 Other projects have standard responses as well:
 
-* [GNOME](http://live.gnome.org/Bugsquad/TriageGuide/StockResponses)  
+* [GNOME](https://wiki.gnome.org/Bugsquad/TriageGuide/StockResponses)  
 * [Mozilla Team](https://wiki.ubuntu.com/MozillaTeam/Bugs/Triage/Responses)
 
 

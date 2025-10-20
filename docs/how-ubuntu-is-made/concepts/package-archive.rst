@@ -332,7 +332,7 @@ Further reading
 
 - `Ubuntu release cycle <https://ubuntu.com/about/release-cycle>`_
 - `Ubuntu blog -- Ubuntu updates, releases and repositories explained <https://ubuntu.com/blog/ubuntu-updates-releases-and-repositories-explained>`_
-- `Ubuntu Server docs -- package management <https://ubuntu.com/server/docs/package-management>`_
+- `Ubuntu Server docs -- package management <https://documentation.ubuntu.com/server/package-management/>`_
 
 
 Landscape repositories

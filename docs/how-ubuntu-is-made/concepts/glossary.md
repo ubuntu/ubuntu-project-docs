@@ -287,7 +287,7 @@ Certified Ubuntu Engineer
     {term}`OS`.
 
     See also: 
-    * [Ubuntu credentials](https://ubuntu.com/credentials)
+    * [Ubuntu credentials](https://canonical.com/academy)
 
 Changelog
     The `debian/changelog` file in a {term}`Source Package`.
@@ -616,7 +616,7 @@ Failed to build from source
     *Work in Progress*
 
 FTI
-Failed to install
+Failed to installFgovern
     *Work in Progress*
 
 FFE
@@ -735,7 +735,7 @@ IBM
     Abbreviation for *International Business Machines*
 
     See also:
-    * [IBM website](https://www.ibm.com/).
+    * [IBM website](https://www.ibm.com/uk-en)
 
 Image
     Within the context of {term}`Ubuntu` development, an **Image** refers to an
@@ -1318,8 +1318,8 @@ Ubuntu
 
     See also:
     * [The story of Ubuntu](https://ubuntu.com/about)
-    * [Ubuntu ethos](https://ubuntu.com/community/ethos)
-    * [Ubuntu Project Governance](https://ubuntu.com/community/governance)
+    * {ref}`Ubuntu ethos <ethos>`
+    * {ref}`Ubuntu Project Governance <governance>`
 
 Ubuntu Archive
 Archive
@@ -1358,7 +1358,7 @@ Ubuntu Code of Conduct
     Everyone participating in the Ubuntu community must read and agree to abide by it.
 
     See also: 
-    * [Ubuntu Code of Conduct](https://ubuntu.com/community/ethos/code-of-conduct)
+    * {ref}`Ubuntu Code of Conduct <code-of-conduct>`
 
 UCT
 Ubuntu CVE Tracker
