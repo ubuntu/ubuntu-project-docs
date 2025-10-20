@@ -125,7 +125,7 @@ To contribute changes back to Salsa, push your changes using `gbp`:
 (desktop-git-merge-a-new-upstream-version-to-latest)=
 ## Merge a new upstream version to latest
 
-When upstream releases a new version of a given project, you can merge the version on the `ubuntu/latest` branch.
+When upstream releases a new version of a given project, you can merge the version on the Debian and Ubuntu branches.
 
 1. Switch to the branch where you want to import the new version, such as `ubuntu/latest`:
 
@@ -161,7 +161,21 @@ When upstream releases a new version of a given project, you can merge the versi
         :input: gbp pq import
         ```
 
-1. If Debian has already this upstream version, you don't have to import the actual tarball. You just merge with the latest upstream code:
+1. Check whether this upstream version already exists in Debian:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git remote show origin
+
+        […]
+        upstream/46.x            pushes to upstream/46.x            (up to date)
+        […]
+    ```
+
+1. If Debian already has the upstream version, you don't have to import the tarball. Merge with the latest upstream code:
 
     ```{terminal}
     :copy:
@@ -171,11 +185,19 @@ When upstream releases a new version of a given project, you can merge the versi
     :input: git merge upstream/46.2 -m "Update upstream source from tag 'upstream/46.2'"
     ```
 
-    The new upstream version is now merged.
+    The new upstream version is now merged. Push the changes:
 
-1. Only if Debian doesn't have the new version, proceed with the next steps.
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git push --follow-tags
+    ```
 
-    Since we don't want to have duplicated `upstream/x.y.z` tags, in this case you should push the `pristine-tar` and `upstream/<current>` branches to `origin`.
+### Merge a new upstream version to Debian
+
+If Debian doesn't have the new upstream version, add the release to Debian and Ubuntu.
 
 1. Scan for new releases:
 
@@ -227,10 +249,12 @@ When upstream releases a new version of a given project, you can merge the versi
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git push
+    :input: git push --follow-tags
     ```
 
-1. Sync the affected upstream branch to Salsa, or propose it if you aren't an Ubuntu developer. Make sure to push the new tag, too.
+    Since we don't want to have duplicated `upstream/x.y.z` tags, in this case you should push the `pristine-tar` and `upstream/<current>` branches to `origin`. Make sure to push the new tag, too.
+
+    Sync the affected upstream branch to Salsa, or propose it as a merge request if you aren't an Ubuntu developer.
 
 ### Troubleshooting
 
@@ -320,7 +344,7 @@ If `main` has a newer version than the maintenance branch and you are the first 
 
     - `ubuntu/latest` is on 46.2
     - `ubuntu/noble` is on 46.1 and we want to update to 46.2
-    - We have `pristine-tar` having 46.1 and 46.2 imported
+    - The `pristine-tar` log lists that 46.1 and 46.2 have been imported
     - Consequently, the `upstream/latest` branch has upstream commits and tags for 46.1, 46.2 and corresponding `gbp` tags `upstream/46.1` and `upstream/46.2`.
 
 1. If the option is present and `ubuntu/latest` is newer, proceed with the next steps.
@@ -371,72 +395,94 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :input: git commit -a
     ```
 
-1. Does Debian already have the new version in Salsa?
+1. Check whether Debian already has the new version in Salsa:
 
-    * If it does, use Debian's upstream branch tags:
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git remote show origin
 
-        ```{terminal}
-        :copy:
-        :host:
-        :dir: gnome-control-center
-        :user:
-        :input: git merge upstream/46.2 -m "Update upstream source from tag 'upstream/46.2'"
-        ```
+        […]
+        upstream/46.2            pushes to upstream/46.2            (up to date)
+        […]
+    ```
 
-    * If it doesn't, use an upstream tarball:
+1. If the version already exists in Debian, use Debian's upstream branch tags:
 
-        1. Fetch from upstream:
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git merge upstream/46.2 -m "Update upstream source from tag 'upstream/46.2'"
+    ```
 
-            ```{terminal}
-            :copy:
-            :host:
-            :dir: gnome-control-center
-            :user:
-            :input: git fetch upstreamvcs
-            ```
+    Push the `upstream` and `pristine-tar` branches to Salsa:
 
-        1. Download the upstream tarball.
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git push --follow-tags
+    ```
 
-        1. Import the tarball:
+### Add the maintenance version in Debian
 
-            ```{terminal}
-            :copy:
-            :host:
-            :dir: gnome-control-center
-            :user:
-            :input: gbp import-orig ../gnome-control-center-46.2.tar.xz
-            ```
+If the version doesn't exist in Debian yet, add it to Debian and Ubuntu using an upstream tarball.
 
-        1. Push your changes, including the new branch that you want to track:
+1. Fetch from upstream:
 
-            ```{terminal}
-            :copy:
-            :host:
-            :dir: gnome-control-center
-            :user:
-            :input: git push
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git fetch upstreamvcs
+    ```
 
-            :input: git push -u upstream/46.x
-            ```
+1. Download the upstream tarball.
+
+1. Import the tarball:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: gbp import-orig ../gnome-control-center-46.2.tar.xz
+    ```
+
+1. Push your changes, including the new branch that you want to track:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git push
+
+    :input: git push -u upstream/46.x
+    ```
 
 1. Push the `upstream` and `pristine-tar` branches to Salsa.
 
-    You can push directly to the `gnome` branch if you have the permissions. Otherwise, push to your personal fork and prepare a merge request.
+    You can push directly to the GNOME branch if you have the permissions. Otherwise, push to your personal fork and prepare a merge request.
 
-    :::{admonition} TODO
-    :class: attention
-    What does this mean specifically? What are the commands?
-    :::
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git push --follow-tags
+    ```
 
 
 ## Refresh patches
 
-When merging with an upstream release, you might need to refresh the patches.
-
-:::{admonition} TODO
-:class: attention
-How can you tell that you need to refresh?
-:::
+Before merging with an upstream release, refresh the patches.
 
 If your `patch/queue` branch is in sync with the previous release, you can just rebase:
 
@@ -498,7 +544,7 @@ The following steps work in both cases:
     1. Resolve the conflict using `git add` and `git rm`.
     1. Proceed with `git rebase --continue`.
 
-1. Regenerate the `debian/patches` data, ready to be committed, and switch back to your `ubuntu/` branch:
+1. Regenerate the `debian/patches` data, ready to be committed:
 
     ```{terminal}
     :copy:
@@ -508,17 +554,9 @@ The following steps work in both cases:
     :input: gbp pq export --no-patch-numbers
     ```
 
-    :::{admonition} TODO
-    :class: attention
-    Does this command both regenerate the data and switch to the branch, or are other commands needed?
-    :::
+1. Switch back to your `ubuntu/latest` or `ubuntu/<series>` branch.
 
-1. Once back on the `ubuntu/latest` or `ubuntu/<series>` branch, you need to commit the changes, too.
-
-    :::{admonition} TODO
-    :class: attention
-    Commands? Just a regular `git add && git commit`?
-    :::
+1. Commit the changes.
 
 
 (desktop-git-add-or-modify-patches)=

@@ -379,13 +379,12 @@ To create another local branch that tracks a remote branch, use the following co
 ```
 :::
 
-
 ### Debian remote branches
 
 In addition, we have at least one other branch tracking the Salsa Debian remote repository. Their main (default) branch is called `debian/latest`:
 
 `debian/latest`
-: Pull from the `origin` remote repository, tracking the `debian/latest` remote branch. You can only push if you're are a Debian developer.
+: Pull from the `origin` remote repository, tracking the `debian/latest` remote branch. To push to this branch, you' must be a [Debian Developer](https://wiki.debian.org/DebianDeveloper).
 
 ### Upstream GNOME remote branches
 
