@@ -620,17 +620,6 @@ You can turn patch files into commits on a branch. This enables you to add new p
 
 1. The new patches end up as unstaged changes on your branch. Commit your changes.
 
-:::{note}
-The `gbp pq` command unfuzzes a lot of patches every time you use it, creating some noise. Add those changes separated from your new or modified patch hack.
-
-And either push the change to your branch or to the main branches with a simple git push!
-:::
-
-:::{admonition} TODO
-:class: attention
-I don't know what this note is trying to say.
-:::
-
 ### Additional resources
 
 For a different patching workflow using the `quilt` tool, see {ref}`how-to-work-with-debian-patches`.
@@ -966,6 +955,8 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
 
 ## Build a package locally
 
+To build a local package, we use the `sbuild` framework and specify the target Ubuntu release. We don't recommend building the package directly on your system without using `sbuild` because the test and build phase might be affected by the state of your machine.
+
 * Build a binary package for your Ubuntu release and CPU architecture. For example, Ubuntu Noble on the AMD64 architecture:
 
     ```{terminal}
@@ -1067,7 +1058,9 @@ If this is a sponsored upload, the sponsor performs these steps.
     :input: gbp buildpackage -S
     ```
 
-1. Check the `../build-area/….changes` file to make sure that it's correct.
+1. Check the `../build-area/<your-package>.changes` file to make sure that it's correct. This file instructs `dput` which files to upload, and provides a high-level view of the changes such as the latest changelog entries.
+
+    For example, changes to the GNU Hello program as packaged for Ubuntu would be described in the `hello_2.10-0ubuntu1.changes` file.
 
 1. Upload the files to the Debian package upload queue:
 
@@ -1076,13 +1069,8 @@ If this is a sponsored upload, the sponsor performs these steps.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: dput ../build-area/…_source.changes
+    :input: dput ../build-area/<your-package>.changes
     ```
-
-    :::{admonition} TODO
-    :class: attention
-    What's `../build-area/….changes`? Looks like a rendering artifact.
-    :::
 
 1. Push the changes to Salsa:
 

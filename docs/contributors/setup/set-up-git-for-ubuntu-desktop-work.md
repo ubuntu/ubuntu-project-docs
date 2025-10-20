@@ -34,7 +34,7 @@ We'll use the Settings application as an example. Internally, the application is
 
     For details about the packaging environment, see [Getting Set Up](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/tutorial/getting-set-up.html) in the Ubuntu Packaging Guide.
 
-1. Install and configure the `sbuild` tool. Follow [Installing sbuild](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/how-to/setting-up-sbuild.html#installing-sbuild) in the Ubuntu Packaging Guide. Set the Ubuntu releases for which you're preparing packages.
+1. Install and configure the `sbuild` tool. Follow [Installing `sbuild`](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/how-to/setting-up-sbuild.html#installing-sbuild) in the Ubuntu Packaging Guide. Set the Ubuntu releases for which you're preparing packages.
 
 1. In the Software & Updates application, enable {guilabel}`Source code` on the {guilabel}`Ubuntu Software` tab.
 
