@@ -261,7 +261,7 @@ Either way, as in the above case, the `llvm` package is not needed at runtime bu
 
 Many LLVM packages are actually universe packages, which are community-maintained.
 Packages in the main component of the archive are not allowed to depend on universe component packages.
-Accordingly, `rustc` will sometimes use a vendored version of LLVM, even if that version is technically already available.
+Accordingly, `rustc` sometimes uses a vendored version of LLVM, even if that version is technically already available.
 
 ## What is the status of Rust support for WASM/WASI on Ubuntu?
 
