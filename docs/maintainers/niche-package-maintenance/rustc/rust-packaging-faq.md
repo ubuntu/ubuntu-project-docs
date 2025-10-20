@@ -53,7 +53,7 @@ Because Ubuntu produces Rust compiler packages that don't exist on Debian, they 
 Ubuntu's `rustc` packages have Debian's package as an ancestor, but due to the requirements of shipping multiple versions in a single stable release, they have diverged over time.
 This means that doing a simple diff of the files in the `debian` directory shows a significant number of small tweaks and documentation updates that both teams have made separately.
 Due to the differences in packaging goals, it's increasingly unlikely that the packages would be unified again soon.
-This FAQ is focused on the Ubuntu package and not everything is likely apply to Debian.
+This FAQ is focused on the Ubuntu package and not everything is likely to apply to Debian.
 
 Arguably the primary packaging tasks for `rustc` involve finding common ground between system packages and the Rust upstream vendoring model, which generally would result in building separate versions of `libc`, `openssl`, `llvm`, and more.
 Ubuntu and Debian both prefer to use system libraries whenever possible, and so modify the package to locate those and link agaist them.
