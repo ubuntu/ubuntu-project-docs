@@ -1319,7 +1319,7 @@ Ubuntu
     See also:
     * [The story of Ubuntu](https://ubuntu.com/about)
     * {ref}`Ubuntu ethos <ethos>`
-    * {ref}`Ubuntu Project Governance <governance>`
+    * {ref}`Ubuntu Project Governance <project-governance>`
 
 Ubuntu Archive
 Archive

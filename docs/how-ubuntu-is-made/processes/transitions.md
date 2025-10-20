@@ -59,7 +59,7 @@ Sometimes, a transition will start prematurely via the auto-sync process. For
 example, Debian may have completed a transition to a new major version that you
 planned to wait on until the next release. To correct this issue, ask the
 Archive Admins to remove the new language dependency, and then add it to the
-blocklist. See {lpbg}`1907177` as an example.
+blocklist. See {lpbug}`1907177` as an example.
 
 To register a transition in the transition tracker, add a config file
 [such as revision 871](https://launchpad.net/~ubuntu-transition-trackers/ubuntu-transition-tracker/configs).
