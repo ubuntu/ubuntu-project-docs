@@ -228,7 +228,7 @@ While it's listed under source tooling, it can also check binary packages.
 **Rust-specific**
 
 `dh-cargo`
-: A `debhelper` add-on which lets you use `--with-cargo` when calling `dh`.
+: A `debhelper` add-on that lets you use `--with-cargo` when calling `dh`.
 In essence, it enables the direct use of Cargo as a build tool for compiling and linking the code in your package.
 Note that `dh-cargo` should _not_ be used applications built only partially with Rust.
 
