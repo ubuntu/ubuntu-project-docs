@@ -43,7 +43,7 @@ It's not reasonable to enumerate every difference here, but fundamentally they s
 
 Debian's version of `rustc` is frozen for the lifetime of each stable Debian release.
 Ubuntu, on the other hand, uses versioned packages, which are frequently backported to LTS releases in order to support more software.
-Whereas Debian features a single `rustc` binary package, Ubuntu releases typically have multiple with the version information contained directly in the name of the package, e.g. `rustc-X.Y`.
+Whereas Debian features a single `rustc` binary package, Ubuntu releases typically have multiple with the version information contained directly in the name of the package: `rustc-X.Y`.
 Ubuntu then also produces a simply named `rustc` package which corresponds to the default version of Rust for that release.
 
 Because Ubuntu produces Rust compiler packages that don't exist on Debian, they necessarily contain a different set of patches and build scripts.
