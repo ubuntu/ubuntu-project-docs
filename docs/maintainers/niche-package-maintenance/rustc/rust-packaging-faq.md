@@ -68,7 +68,7 @@ The actual patches that are applied to the upstream source are split into catego
 **`behavior`**
 : Despite the name, these patches do not change the behavior of the compiler per se.
 Instead, it refers to the fact that they apply to `rustc` at runtime.
-They mostly set paths so that system resources can be located, they add some additional symlinks to simplify dynamic linking against Rust libraries, and remove some irrelevant platform-specific workarounds.
+They mostly set paths, so that system resources can be located. They add some additional symlinks to simplify dynamic linking against Rust libraries and remove some irrelevant platform-specific workarounds.
 
 **`build`**
 : These patches adjust paths and options in the build process so that system libraries and tools can be found correctly.
