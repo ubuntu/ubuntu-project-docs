@@ -81,7 +81,7 @@ It also ensures that Cargo is forced to follow the `dev` channel, ensuring it do
 **`prune`**
 : These are the patches that remove unused code from the tarball.
 This includes some vendored libraries and irrelevant platform-specific code, in order to reduce the final size of the package.
-There is also some special handling for cross compilation in a way that uses sytem tooling.
+There is also some special handling for cross compilation in a way that uses system tooling.
 
 **`ubuntu`**
 : Ubuntu-specific patches that are mostly focused on making sure that system tooling is found correctly, but also disable some platform-specific tests and ensure that other tests use the system `gcc` compiler.
