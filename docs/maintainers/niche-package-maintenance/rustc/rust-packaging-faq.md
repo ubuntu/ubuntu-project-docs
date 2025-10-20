@@ -71,7 +71,7 @@ Instead, it refers to the fact that they apply to `rustc` at runtime.
 They mostly set paths, so that system resources can be located. They add some additional symlinks to simplify dynamic linking against Rust libraries and remove some irrelevant platform-specific workarounds.
 
 **`build`**
-: These patches adjust paths and options in the build process so that system libraries and tools can be found correctly.
+: These patches adjust paths and options in the build process, so that system libraries and tools can be found correctly.
 They also makes some checks more strict since the assumptions about which tools will be built are changed.
 
 **`cargo`**
