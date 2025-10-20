@@ -124,7 +124,7 @@ There is special functionality in `dh-cargo` for this.
 ## How are crates with optional features packaged?
 
 Rust packages with optional features are divided into multiple, separate packages.
-That means for a package named `librust-<cratename>-dev`, an optional feature will _additionally_ need to be packaged as `librust-<cratename>+<featurename>-dev`.
+That means for a package named `librust-<cratename>-dev`, an optional feature must _additionally_ be packaged as `librust-<cratename>+<featurename>-dev`.
 Note the use of the plus symbol, which is chosen deliberately to avoid conflicts with Cargo crate names.
 
 Sometimes, if a crate has a large number of features, they can be collapsed using the `Provides` mechanism.
