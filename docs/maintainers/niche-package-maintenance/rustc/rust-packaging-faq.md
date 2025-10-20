@@ -129,7 +129,7 @@ Note the use of the plus symbol, which is chosen deliberately to avoid conflicts
 
 Sometimes, if a crate has a large number of features, they can be collapsed using the `Provides` mechanism.
 
-## What about Rust crates that specify a Rust edition or require a specific toolchain?
+## How are Rust crates that specify a Rust edition or require a specific toolchain packaged?
 
 Rust editions are effectively handled by the Rust tooling itself.
 Every version of `rustc` is guaranteed to be backwards compatible with all previous editions of Rust.
