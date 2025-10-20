@@ -429,42 +429,6 @@ Branch 'upstreamvcs-main' set up to track remote branch 'main' from 'upstreamvcs
 Switched to a new branch 'upstreamvcs-main'
 ```
 
-### Summary
-
-Our minimal setup consists of the following local branches. Their remote tracking branches are in square brackets (`[]`):
-
-```{terminal}
-:copy:
-:host:
-:dir: gnome-control-center
-:user:
-:input: git branch -vv
-
-  debian/latest            1f06aced56 [origin/debian/latest] debian/salsa-ci: Enable for debian
-  upstreamvcs-main         b3b4035c07 [upstreamvcs/main] Update Brazilian Portuguese translation
-  pristine-tar             a96c0e2e98 [origin/pristine-tar] pristine-tar data for gnome-control-center_49.0.orig.tar.xz
-* ubuntu/latest            a8640ab8a4 [origin/ubuntu/latest] debian/salsa-ci: Enable for ubuntu
-  upstream/latest          4db8b3a502 [origin/upstream/latest] New upstream version 49.0
-```
-
-In addition, we can have several other branches:
-
-* An Ubuntu maintenance branch, such as for Ubuntu Noble
-* A `gbp buildpackage` tarball branch linked to the maintenance release, such as for GNOME 46
-* An upstream `main` branch checked out as a local branch
-
-```{terminal}
-:copy:
-:host:
-:dir: gnome-control-center
-:user:
-:input: git branch -vv
-  ubuntu/noble             10ee426e74 [origin/ubuntu/noble] Upload to noble
-  upstream/46.x            f5817b6dce [origin/upstream/46.x] New upstream version 46.7
-  upstreamvcs-main         b3b4035c07 [upstreamvcs/main] Update Brazilian Portuguese translation
-```
-
-
 ## Next steps
 
 Now that your Git setup is complete, you can contribute to Ubuntu Desktop software. You can build, modify, maintain and package applications. See {ref}`maintain-ubuntu-desktop-software`.
