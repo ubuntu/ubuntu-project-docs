@@ -72,7 +72,7 @@ They mostly set paths, so that system resources can be located. They add some ad
 
 **`build`**
 : These patches adjust paths and options in the build process, so that system libraries and tools can be found correctly.
-They also makes some checks more strict since the assumptions about which tools will be built are changed.
+They also make some checks more strict because the assumptions about which tools are built are changed.
 
 **`cargo`**
 : These mostly disable tests that aren't relevant, such as some that require network connectivity or only apply to particular filesystems.
