@@ -22,7 +22,7 @@ It has a number of features, but fundamentally it:
 1. lays out a starter package structure
 
 From there, packaging processes vary depending on the software being packaged, discussed below.
-For more information about tooling, see [this separate question](#debian-rust-tools).
+For more information about tooling, see {ref}`debian-rust-tools`.
 
 ## How does Ubuntu differ from Debian with respect to Rust packages?
 
