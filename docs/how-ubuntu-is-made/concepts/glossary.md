@@ -78,7 +78,7 @@ Architecture
     application is designed for.
 
     See also:
-    * {ref}`supported-architectures>`
+    * {ref}`supported-architectures`
     * [Computer Architecture (Wikipedia)](https://en.wikipedia.org/wiki/Computer_architecture)
 
 AA
@@ -790,7 +790,7 @@ Launchpad
     Ubuntu related software projects live.
 
     See also:
-    * {ref}`Launchpad (explanation article) <launchpad>`
+    * {ref}`Launchpad (explanation article) <about-launchpad>`
 
 Lintian
     {manpage}`lintian(1)` is a Debian package checker. Use it to check binary and source packages for compliance with the Debian policy and for common packaging errors.
