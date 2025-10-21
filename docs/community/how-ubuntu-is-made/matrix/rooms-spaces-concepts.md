@@ -10,7 +10,7 @@ A room is created on a specific Matrix instance, but can be very easily replicat
 ## Matrix room properties
 
 **Internal ID**
-: A Matrix room has a few basic properties that cannot be changed, such as its Internal ID (e.g., `!FHUUPIuRjbTaUxVYGa:ubuntu.com`). This internal identifier has a suffix, but that doesn't mean that the room is only on `:ubuntu.com`. Instead, the room is replicated on every server that has someone participating in it. For example, if someone with a matrix.org account joins, the same room exists on both servers at the same time and is kept in sync.
+: A Matrix room has a few basic properties that cannot be changed, such as its Internal ID (e.g., `!FHUUPIuRjbTaUxVYGa:ubuntu.com`). This internal identifier has a suffix, but that doesn't mean that the room is only on `:ubuntu.com`. Instead, the room is replicated on every server that has someone participating in it. For example, if someone with a `matrix.org` account joins, the same room exists on both servers at the same time and is kept in sync.
 
 
 **Aliases**

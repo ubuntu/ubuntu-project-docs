@@ -132,7 +132,7 @@ Manually ban user for spam
 
 ### Ban servers
 
-A server ban prevents users from an entire server to join the ubuntu.com homeserver.
+A server ban prevents users from an entire server to join the `ubuntu.com` homeserver.
 This is particularly useful to block spam waves, when hundreds of users are created on the same homeserver. 
 
 Command syntax:

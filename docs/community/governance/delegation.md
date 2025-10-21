@@ -5,7 +5,7 @@ The {ref}`community-council` has resolved to establish dedicated Team Councils f
 
 * [Forums Council](https://wiki.ubuntu.com/ForumCouncil)
 * [IRC Council](https://wiki.ubuntu.com/IrcTeam/IrcCouncil)
-* [Matrix Council ](https://ubuntu.com/community/communications/matrix/governance)
+* {ref}`matrix-council`
 * [Kubuntu Council](https://wiki.ubuntu.com/Kubuntu/Meetings)
 * [LoCo Council](https://wiki.ubuntu.com/LoCoCouncil)
 * [Lubuntu Council](https://git.lubuntu.me/lubuntu-wiki/wiki/wiki/Constitution)

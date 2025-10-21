@@ -34,8 +34,8 @@ Local communities may also want a means of instant communication.
 The Ubuntu community, along with a number of other open source communities, have opted for the open source Matrix protocol for their synchronous communication needs.
 To get started using Matrix check out the following guides:
 
-1. [Getting Started with Matrix](https://ubuntu.com/community/docs/communications/matrix/onboarding) -- Will show you how to install and use the Element App, getting your personal Matrix account setup, and how to connect to the Ubuntu Matrix server.
-2. [Creating a public room](https://ubuntu.com/community/docs/communications/matrix/room-creation-public) -- Will walk you through creating a public room for your local community to use and converse on.
+1. {ref}`Getting Started with Matrix <matrix-onboarding>` -- Will show you how to install and use the Element App, getting your personal Matrix account setup, and how to connect to the Ubuntu Matrix server.
+2. {ref}`Creating a public room <matrix-room-creation-public>` -- Will walk you through creating a public room for your local community to use and converse on.
 
 
 ## Create and hosting events

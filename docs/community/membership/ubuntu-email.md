@@ -3,7 +3,7 @@
 
 Ubuntu Members are granted special `@Ubuntu.com` aliases they can use to send and receive emails. Official members looking to enable this perk will need to set up a ForwardMail account by following these steps:
 
-1. Log into [ForwardMail](https://forwardemail.net/en/ubuntu) using your UbuntuOne SSO account. Under {guilabel}`Quick Links` beside the [`ubuntu.com`](http://ubuntu.com/) domain, select **Aliases**.
+1. Log into [ForwardMail](https://forwardemail.net/en/ubuntu) using your UbuntuOne SSO account. Under {guilabel}`Quick Links` beside the [`ubuntu.com`](https://ubuntu.com/) domain, select **Aliases**.
 
 ![1](one.png)
 
