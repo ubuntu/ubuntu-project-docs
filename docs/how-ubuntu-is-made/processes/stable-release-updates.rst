@@ -23,7 +23,7 @@ You can propose an SRU in the following cases:
 - To adjust to changes in the environment, server protocols, or web services. This ensures that Ubuntu remains compatible with evolving technologies.
 - For safe cases with low regression potential but high user experience improvement.
 - To introduce new features in :term:`LTS releases <LTS>`, usually under strict conditions.
-- To update commercial software in the :term:`Canonical partner archive`.
+- To update commercial software in the :ref:`partner-archive`.
 - To fix :term:`Failed to build from Source` issues.
 - To fix :term:`autopkgtest` failures, usually in conjunction with other high-priority fixes.
 

@@ -47,8 +47,6 @@ well.
 
 ## Packaging it yourself
 
-You can follow the [Packaging Guide directives](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/).
-
 To get a screenshot included for software-center, please use https://screenshots.debian.net/packages
 
 ### NEW packages through Debian

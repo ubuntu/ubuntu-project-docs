@@ -180,7 +180,7 @@ Once you're assigned to the bug, get the source code for the affected package. Y
 - ``apt-get source``
 - ``dget``
 
-For detailed instructions on using these methods to get the source code, see :ref:`get-package-source`.
+For detailed instructions on using these methods to get the source code, see :ref:`how-to-get-the-source-of-a-package`.
 
 Create a patch to fix the issue
 -------------------------------
