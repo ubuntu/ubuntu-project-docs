@@ -112,9 +112,8 @@ If these updates pass Ubuntu's automated testing, they do not require manual
 intervention. However, there are scenarios where the automation cannot handle
 the process.
 
-First, once the development release reaches
-[Debian import freeze](https://wiki.ubuntu.com/DebianImportFreeze), the sync
-automation is disabled.
+First, once the development release reaches {ref}`debian-import-freeze`, the
+sync automation is disabled.
 
 Therefore, if an update from Debian *is* required, it must be
 {ref}`manually synced <how-to-request-a-sync>`. Version numbering in this case is

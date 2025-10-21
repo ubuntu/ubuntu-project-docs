@@ -67,7 +67,7 @@ which is moderated (excepting registered Ubuntu developers). The
 [`ubuntu-devel-discuss` mailing list](https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss)
 is available for open discussion about Ubuntu development (not for
 [reporting bugs](https://help.ubuntu.com/community/ReportingBugs#Reporting_non-crash_hardware_and_desktop_application_bugs)
-or [user support](https://www.ubuntu.com/support)). All
+or [user support](https://ubuntu.com/support)). All
 {ref}`ubuntu-developers` should subscribe to the
 [`ubuntu-devel-announce` mailing list](https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-announce),
 where important development events are announced.
@@ -157,11 +157,11 @@ create and modify Debian-format packages.
   **TODO: link is broken**
   
 * All Ubuntu developers should be familiar with the
-  [Debian New Maintainer Guide](https://www.debian.org/doc/maint-guide/); though
+  [Debian New Maintainer Guide](https://www.debian.org/doc/manuals/maint-guide/); though
   be aware that there are many differences (technical, social and procedural)
   between Ubuntu and Debian of which they must also be aware.
 
-* [A packaging tutorial](https://wiki.debian.org/PackagingTutorial) is available
+* [A packaging tutorial](https://wiki.debian.org/Packaging/Intro) is available
   from the Debian Wiki, as is
   [an explanation of maintainer scripts](https://wiki.debian.org/MaintainerScripts)
   and [further help with building packages](https://wiki.debian.org/AdvancedBuildingTips).
