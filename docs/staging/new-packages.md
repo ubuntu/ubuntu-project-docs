@@ -22,9 +22,7 @@ synced into Ubuntu prior to the
 After the Debian Import Freeze, you will have to
 [file a bug](https://launchpad.net/ubuntu/+filebug/?no-redirect) with the
 summary field "Please sync `<packagename>` from debian `<distro>`" where
-`<packagename>` is the package you would like to see. Find the date for Debian
-Import Freeze on
-[the release schedule page](https://wiki.ubuntu.com/ReleaseSchedule).
+`<packagename>` is the package you would like to see.
 
 To get a package into Ubuntu, please
 [file a bug in Launchpad](https://bugs.launchpad.net/ubuntu/+filebug?no-redirect&field.tag=needs-packaging)
@@ -62,11 +60,11 @@ given subset of packages. Some of them are:
 * [Debian GNOME Team](https://wiki.debian.org/Teams/DebianGnome)
 * [Debian KDE Team](https://salsa.debian.org/qt-kde-team/)
 * [Debian XFCE Group](https://wiki.debian.org/Teams/DebianXfceGroup)
-* [Debian Games Team](https://wiki.debian.org/Games/Team)
+* [Debian Games Team](https://wiki.debian.org/Teams/Games)
 * [Debian Multimedia](https://wiki.debian.org/DebianMultimedia)
 * [Debian Perl Group](https://wiki.debian.org/Teams/DebianPerlGroup)
-* [Debian Python Modules Team](https://wiki.debian.org/Teams/PythonModulesTeam)
-* [Debian Python Applications Packaging Team](https://wiki.debian.org/Teams/PythonAppsPackagingTeam)
+* [Debian Python Modules Team](https://wiki.debian.org/Teams/PythonTeam)
+* [Debian Python Applications Packaging Team](https://wiki.debian.org/Teams/PythonTeam)
 * [Debian CLI Applications Team](https://wiki.debian.org/Teams/DebianCliAppsTeam)
 * [Debian Mozilla Extension Team](https://wiki.debian.org/Teams/DebianWebextensionTeam)
 * [Debian X Team](https://salsa.debian.org/xorg-team)
@@ -174,7 +172,7 @@ The MOTU team uses the following workflow:
 
 ### Deadline
 
-[Feature Freeze](https://wiki.ubuntu.com/FeatureFreeze) is the latest approval
+{ref}`feature-freeze` is the latest approval
 date, it is recommended to get things done in a couple of weeks earlier, as
 getting approval may take some time.
 

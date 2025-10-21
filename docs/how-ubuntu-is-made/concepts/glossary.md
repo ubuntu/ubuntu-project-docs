@@ -330,7 +330,7 @@ Closed Source Software
 
 Code name
     Short identifier used to refer to a specific Ubuntu release (e.g. , Jammy Jellyfish for Ubuntu 22.04).
-    [List of Releases with Code Names](https://wiki.ubuntu.com/Releases)
+    {ref}`List of Releases with Code Names <list-of-releases>`
 
 CoC
 Code of Conduct
@@ -505,7 +505,7 @@ Developer Membership Board
     *Work in Progress*
 
     See also:
-    * [Developer Membership Board (Ubuntu Wiki)](https://wiki.ubuntu.com/DeveloperMembershipBoard)
+    * {ref}`Developer Membership Board <dmb>`
 
 diff
     A text format that shows the difference between files that are compared.
@@ -624,7 +624,7 @@ Feature Freeze Exception
     *Work in Progress*
 
     See also:
-    * [Freeze Exception Process](https://wiki.ubuntu.com/FreezeExceptionProcess)
+    * {ref}`Freeze Exception process <freeze-exceptions>`
 
 FR
 Feature Request
