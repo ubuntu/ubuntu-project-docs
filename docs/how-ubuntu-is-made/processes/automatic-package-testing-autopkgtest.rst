@@ -155,7 +155,7 @@ regularly updated.
 
 Debian also uses ``autopkgtest`` to run package tests, although currently only
 in schroots, so results may vary a bit. Results and logs can be seen on
-http://ci.debian.net. So please submit any test fixes or new tests to Debian as
+https://ci.debian.net/. So please submit any test fixes or new tests to Debian as
 well.
 
 
@@ -177,7 +177,7 @@ What you can do
 
 The Ubuntu Engineering team maintains a `list of required test-cases <requiredtests_>`_ with packages that need tests in different categories. Use it to find examples of tests and assign them to yourself.
 
-For help with resolving problems, join the `<#devel:ubuntu.com_>`_ Matrix channel to get in touch with developers.
+For help with resolving problems, join the :matrix:`devel` Matrix channel to get in touch with developers.
 
 
 Further reading
@@ -190,7 +190,7 @@ Further reading
 .. _gvfs: https://git.launchpad.net/ubuntu/+source/gvfs/tree/debian/tests
 .. _gtk3: https://git.launchpad.net/ubuntu/+source/gtk+3.0/tree/debian/tests
 .. _ubiquity: https://git.launchpad.net/ubiquity/tree/debian/tests
-.. _jenkins: http://autopkgtest.ubuntu.com/
+.. _jenkins: https://autopkgtest.ubuntu.com/
 .. wokeignore:rule=master
 .. _running_tests: https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.running-tests.rst
 .. _requiredtests: https://wiki.ubuntu.com/QATeam/RequiredTests

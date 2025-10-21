@@ -125,7 +125,7 @@ The Ubuntu Linux distribution is part of the Ubuntu family of projects. It's an
 open source project that warmly welcomes community projects, contributions,
 suggestions, fixes, and constructive feedback.
 
-* [Read our code of conduct](https://ubuntu.com/community/ethos/code-of-conduct)
+* {ref}`Read our code of conduct <code-of-conduct>`
 * [Discuss on the Ubuntu Discourse forum](https://discourse.ubuntu.com/)
 * Get support in our Matrix channel
 

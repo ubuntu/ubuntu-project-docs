@@ -88,7 +88,7 @@ To download the source for the current version of the source package from the up
 
 .. note::
 
-    The ``--download-version`` and ``--download-current-version`` flags are both a :term:`best-effort` features of :manpage:`uscan(1)`.
+    The ``--download-version`` and ``--download-current-version`` flags are both best-effort features of :manpage:`uscan(1)`.
 
     There are special cases where they do not work for technical reasons.
 

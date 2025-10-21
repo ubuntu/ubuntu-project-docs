@@ -31,7 +31,7 @@ If you already have one, then you can continue to {ref}`matrix-join-the-ubuntu-s
 * Regular community members who need a new Matrix account can [register at `matrix.org`](https://matrix.org/docs/chat_basics/matrix-for-im/#creating-a-matrix-account) for free.
   Alternatively, there are many [other providers](https://servers.joinmatrix.org/) you can choose that work in open federation.
 
-* If you're an [Ubuntu Member](https://ubuntu.com/community/membership) or work at Canonical, you can register an account {ref}`on the :ubuntu.com homeserver <matrix-register-ubuntu-com>`.
+* If you're an {ref}`Ubuntu Member <ubuntu-membership>` or work at Canonical, you can register an account {ref}`on the :ubuntu.com homeserver <matrix-register-ubuntu-com>`.
 
 
 (matrix-join-the-ubuntu-space)=

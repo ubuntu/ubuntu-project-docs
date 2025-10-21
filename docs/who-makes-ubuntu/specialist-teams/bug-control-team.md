@@ -215,6 +215,6 @@ You are expected to renew when needed, following the email's directions.
 
 * {ref}`bug-status`
 
-* [Ubuntu Bug Control in Launchpad](http://launchpad.net/people/ubuntu-bugcontrol)
+* [Ubuntu Bug Control in Launchpad](https://launchpad.net/~ubuntu-bugcontrol)
 
 

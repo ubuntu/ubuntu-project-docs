@@ -105,7 +105,7 @@ To keep track of backport progress and status, a Launchpad bug report is absolut
 
 It's quite likely that there's a specific _reason_ why the backport was needed (e.g., a Rust-based application in an old Ubuntu release has an SRU that needs a newer toolchain to build). In this case, simply reference that bug report throughout the process, assigning the bug to yourself.
 
-If no bug exists, you'll need to create your own. You can find a good example [here](https://pad.lv/2100492). If you need to go back multple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored. Additionally, if you need to go back multiple Rust versions, a separate bug report must be filed for each Rust version.
+If no bug exists, you'll need to create your own. You can find a {lpbug}`good example here <2100492>`. If you need to go back multple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored. Additionally, if you need to go back multiple Rust versions, a separate bug report must be filed for each Rust version.
 
 - Going back to our {ref}`Jammy 1.86 example <rust-example-backport>`, we'd have to create three bug reports:
   1. `rustc-1.84` bug targeting Noble and Jammy
@@ -214,7 +214,7 @@ However, if you see a message regarding `libclang-rt-*-dev`, `libclang-common-*-
 
 #### Verifying an outdated LLVM
 
-Consult the Launchpad page for the relevant LLVM release to see if the right version is available. Example: [`llvm-toolchain-19`](https://pad.lv/u/llvm-toolchain-19) isn't available for Jammy. If the Rust version you're backporting uses LLVM 19 or newer, then in order to backport it to Jammy, you'll need to vendor.
+Consult the Launchpad page for the relevant LLVM release to see if the right version is available. Example: {lpsrc}`llvm-toolchain-19` isn't available for Jammy. If the Rust version you're backporting uses LLVM 19 or newer, then in order to backport it to Jammy, you'll need to vendor.
 
 If you're unsure whether or not the "broken package" described in the failing buildlog is part of LLVM, check to see which source package it belongs to:
 
@@ -541,7 +541,7 @@ $ git add src/llvm-project
 
 ### Outdated `libgit2-dev`
 
-A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the version `rustc` requires. If your Ubuntu release's [available `libgit2` version](https://pad.lv/u/libgit2) doesn't meet your Rust toolchain's requirements, then you have two options:
+A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the version `rustc` requires. If your Ubuntu release's {lpsrc}`available libgit2 version <libgit2>` doesn't meet your Rust toolchain's requirements, then you have two options:
 
 1. {ref}`Downgrade <rust-downgrading-libgit2-dev>`. This is the easier option, but it only works if the `libgit2-dev` version in the archive isn't _too_ old.
 1. {ref}`Vendor <rust-vendoring-libgit2>`. This is a much bigger change, but it's often necessary if the `libgit2-dev` version in the archive is so old that it breaks things.
@@ -759,7 +759,7 @@ git add vendor/libgit2-sys-<version>/libgit2
 
 ### Disabling `dh-cargo`
 
-Earlier Ubuntu releases may not have access to [`dh-cargo`](https://launchpad.net/ubuntu/+source/dh-cargo) for the purposes of validating the custom `XS-Vendored-Sources-Rust` field in `debian/control`. If this is the case, then it must be removed from the build dependencies and build scripts.
+Earlier Ubuntu releases may not have access to {lpsrc}`dh-cargo` for the purposes of validating the custom `XS-Vendored-Sources-Rust` field in `debian/control`. If this is the case, then it must be removed from the build dependencies and build scripts.
 
 
 #### Removing `dh-cargo` from `Build-Depends`
@@ -872,7 +872,7 @@ Don't forget to edit `debian/control.in` as well!
 
 ### Outdated `cmake`
 
-If the version of [`cmake`](https://pad.lv/u/cmake) in the archive is too old, we can't just update the `cmake` version in the archive. This would change how countless other packages were built. Instead, we use [`cmake-mozilla`](https://pad.lv/u/cmake-mozilla), which is updated specifically for backports to use.
+If the version of {lpsrc}`cmake` in the archive is too old, we can't just update the `cmake` version in the archive. This would change how countless other packages were built. Instead, we use {lpsrc}`cmake-mozilla`, which is updated specifically for backports to use.
 
 Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `debian/control` and `debian/control.in`:
 
@@ -984,7 +984,7 @@ Then the error message is accurate. Add `libssl-dev` to `Build-Depends` within `
 
 ### RISC-V "Z" Extension Issues
 
-Certain tests may fail on {term}`RISC-V` because older versions of [`binutils`](https://launchpad.net/ubuntu/+source/binutils) don't know how to handle newer RISC-V extensions included with the {ref}`newly-vendored LLVM <rust-vendoring-llvm>`. Therefore, these extensions must be removed from the vendored LLVM.
+Certain tests may fail on {term}`RISC-V` because older versions of {lpsrc}`binutils` don't know how to handle newer RISC-V extensions included with the {ref}`newly-vendored LLVM <rust-vendoring-llvm>`. Therefore, these extensions must be removed from the vendored LLVM.
 
 
 (rust-disabling-zicsr)=

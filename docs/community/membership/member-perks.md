@@ -10,7 +10,7 @@ becoming an official member. These perks include:
 
 * An {ref}`@ubuntu.com email alias <ubuntu-email>` that forwards to your real email address.
 
-* An [`@ubuntu.com` Matrix account](https://ubuntu.com/community/communications/matrix/register-ubuntu-com)
+* An `@ubuntu.com` {ref}`Matrix account <matrix-register-ubuntu-com>`
   that you can use on the Ubuntu Matrix instance and other federated instances.
 
 * An [`ubuntu/member/your_nick` cloak](https://wiki.ubuntu.com/IRC/Cloaks) on
@@ -25,8 +25,7 @@ becoming an official member. These perks include:
 * SFTP access to a Web-accessible directory on
   [people.ubuntu.com](https://wiki.ubuntu.com/PeopleUbuntuCom)
 
-* [Ubuntu Pro](https://ubuntu.com/pro) for [up to 50 systems for access to ESM and Kernel Live Patching](https://ubuntu.com/blog/ua-services-deployed-from-the-command-line-with-ua-client)
-  **Note: this link needs updating to a more recent resource**
+* [Ubuntu Pro](https://ubuntu.com/pro) for [up to 50 systems for access to ESM and Kernel Live Patching](https://documentation.ubuntu.com/pro-client/en/latest/tutorials/security-with-pro/)
 
 * A [certificate](https://forms.canonical.com/certificate/) signed by Canonical
   CEO and SABDFL, {spellexception}`Mark Shuttleworth`.
@@ -37,7 +36,7 @@ becoming an official member. These perks include:
   on Reddit.
 
 * [Discounted domain registration](https://wiki.ubuntu.com/Membership/Gandi)
-  pricing and partner rates for hosting at [`gandi.net`](https://gandi.net/en).
+  pricing and partner rates for hosting at [`gandi.net`](https://www.gandi.net/en).
 
 Membership perks may change from time to time, so it’s a good idea to check
 this list often.
