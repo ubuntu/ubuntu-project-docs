@@ -3,7 +3,7 @@
 Package archive
 ===============
 
-:term:`Linux` :term:`distributions <Distribution>` like :term:`Ubuntu` use :ref:`repositories <Repositories>` to hold :term:`packages <Package>` for installing on target machines. Ubuntu has several repositories that anyone can access. The **Ubuntu package archive** hosts :term:`Debian` :term:`binary packages <Binary Package>` (``.deb`` files) and :term:`source packages <Source Package>` (``.dsc`` files).
+:term:`Linux` :term:`distributions <Distribution>` like :term:`Ubuntu` use :ref:`repositories <archive-repositories>` to hold :term:`packages <Package>` for installing on target machines. Ubuntu has several repositories that anyone can access. The **Ubuntu package archive** hosts :term:`Debian` :term:`binary packages <Binary Package>` (``.deb`` files) and :term:`source packages <Source Package>` (``.dsc`` files).
 
 On Ubuntu installations, the Ubuntu package archive is configured as the default source for the :term:`APT` package manager to download and install packages from. This Archive splits into many layers, each with its own terminology.
 

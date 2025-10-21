@@ -3,7 +3,7 @@
 DEP 3 - patch file headers
 ==========================
 
-This article lists and briefly explains standard fields of the `Debian Enhancement Proposal 3 Specification (DEP-3) -- Patch Tagging Guidelines <DEP3Spec_>`_ for ``.patch`` file headers and also shows :ref:`SampleDEP3CompliantHeaders`.
+This article lists and briefly explains standard fields of the `Debian Enhancement Proposal 3 Specification (DEP-3) -- Patch Tagging Guidelines <DEP3Spec_>`_ for ``.patch`` file headers and also shows :ref:`sample-dep-3-compliant-headers`.
 
 Standard fields
 ---------------
