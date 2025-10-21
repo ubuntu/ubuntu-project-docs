@@ -16,7 +16,7 @@ Contact the SRU team
 
 .. end-canonical-contact-admonition
 
-- If you **don't have upload access** to the archive, ask your sponsor for help in the first instance. For details, see `Sponsorship Process <https://wiki.ubuntu.com/SponsorshipProcess>`__.
+- If you **don't have upload access** to the archive, ask your sponsor for help in the first instance. For details, see :ref:`sponsorship`.
 
 - If you **don't have a sponsor**, you can use the `Ubuntu Patch Pilots <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__ Program. Ask a patch pilot in the following channels:
 
