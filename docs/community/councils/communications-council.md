@@ -39,6 +39,7 @@ You can find the current council members in the [communications-council](https:/
 Each platform has a team of operators that take care of the day-to-day activities of their respective platforms. They work with the Ubuntu Communications Council to implement changes and ensure their platforms are well maintained, governed, and that standard operating procedures are applied.
 
 * {ref}`Matrix Operators <matrix-operators>`
+* Discourse Moderators
 * [IRC Operators](https://wiki.ubuntu.com/IRC/IrcTeam)
 
 
