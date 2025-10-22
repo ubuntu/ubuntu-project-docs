@@ -33,9 +33,9 @@ The Council of not so Ancient Elders (CAE):
 | Name                | Contact         |                                                  |                                                               |
 | ---                 | ---             | ---                                              | ---                                                           |
 |                     | *Discourse*     | *GitHub*                                         | *Matrix*                                                      |
-| Jason C. Nucciarone | `@nuccitheboss` | [@nuccitheboss](https://github.com/nuccitheboss) | [@nuccitheboss](https://matrix.to/#/@nuccitheboss:matrix.org) |
-| Jaime F. de Souza   |                 |                                                  | [@jaimesouza](https://matrix.to/#/@jaimesouza:matrix.org)     |
-| James Beedy         | `@jamesbeedy`   |                                                  | [@jamesbeedy](https://matrix.to/#/@jamesbeedy:matrix.org)     |
+| Jason C. {spellexception}`Nucciarone` | `@nuccitheboss` | [@nuccitheboss](https://github.com/nuccitheboss) | [@nuccitheboss](https://matrix.to/#/@nuccitheboss:matrix.org) |
+| Jaime F. de {spellexception}`Souza`   |                 |                                                  | [@jaimesouza](https://matrix.to/#/@jaimesouza:matrix.org)     |
+| James {spellexception}`Beedy`         | `@jamesbeedy`   |                                                  | [@jamesbeedy](https://matrix.to/#/@jamesbeedy:matrix.org)     |
 | Billy Olsen         | `@billy-olsen`  | [@wolsen](https://github.com/wolsen)             | [@billy-olsen](https://matrix.to/#/@billy-olsen:ubuntu.com)   |
 
 The gang of 4 who help steer the Ubuntu HPC community in initiatives, projects, conferences, meetups, and more as the community grows. After the Ubuntu HPC community grows to 50 regular, active members and has 2 consecutive appearances at the Ubuntu Summit, the CAE will shift to implementing a democratic process where all active members can vote on the direction of the community. Until that point, the CAE convenes during weekly virtual meetings to discuss the current and future trajectory of Ubuntu HPC with the community.
@@ -73,7 +73,7 @@ We wrote up the following FAQ (frequently asked questions) to answer some common
 
 
 *Is there a time commitment?*
-: No, there is no specific time commitment! You can just hang out and talk about Ubuntu and HPC if that is what you are interested in. What we do ask though is that you refrain from taking on commitments if you know you do not have enough time or bandwidth to deliver your contributions.
+: No, there is no specific time commitment! You can just {spellexception}`hang` out and talk about Ubuntu and HPC if that is what you are interested in. What we do ask though is that you refrain from taking on commitments if you know you do not have enough time or bandwidth to deliver your contributions.
 
 
 *Can I contact this team for HPC support?*

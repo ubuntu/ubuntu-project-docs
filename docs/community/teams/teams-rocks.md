@@ -18,7 +18,7 @@ The Rocks Community is your hub for exploring Ubuntu Rocks and everything "conta
 
 ## Meetings
 
-The Rocks Community has a [public calendar](https://calendar.google.com/calendar/embed?src=cf1e94218f2a806bac23a480c60d2247c4baf73afe0aa57bba85df3b6bce2f56%40group.calendar.google.com&ctz=Europe%2FZurich) ([ics](https://calendar.google.com/calendar/ical/cf1e94218f2a806bac23a480c60d2247c4baf73afe0aa57bba85df3b6bce2f56%40group.calendar.google.com/public/basic.ics)) you can subscribe to, to be up to date with all community meetings and events!
+The Rocks Community has a [public calendar](https://calendar.google.com/calendar/embed?src=cf1e94218f2a806bac23a480c60d2247c4baf73afe0aa57bba85df3b6bce2f56%40group.calendar.google.com&ctz=Europe%2FZurich) ([{spellexception}`ics`](https://calendar.google.com/calendar/ical/cf1e94218f2a806bac23a480c60d2247c4baf73afe0aa57bba85df3b6bce2f56%40group.calendar.google.com/public/basic.ics)) you can subscribe to, to be up to date with all community meetings and events!
 
 
 ### Fortnightly office hours
@@ -39,8 +39,8 @@ The primary governing body responsible for the community's processes and structu
 | Name               | Contact       |                                                |                                                                      |
 | ---                | ---           | ---                                            | ---                                                                  |
 |                    | *Discourse*   | *GitHub*                                       | *Matrix*                                                             |
-| Cristovao Cordeiro | `@cjdc`       | [@cjdcordeiro](https://github.com/cjdcordeiro) | [@cjdc:ubuntu.com](https://matrix.to/#/@cjdc:ubuntu.com)             | 
-| Sergio Schvezov    | `@sergiusens` | [@sergiusens](https://github.com/sergiusens)   | [@sergiusens:ubuntu.com](https://matrix.to/#/@sergiusens:ubuntu.com) | 
+| {spellexception}`Cristovao Cordeiro` | `@cjdc`       | [@cjdcordeiro](https://github.com/cjdcordeiro) | [@cjdc:ubuntu.com](https://matrix.to/#/@cjdc:ubuntu.com)             | 
+| Sergio {spellexception}`Schvezov`    | `@sergiusens` | [@sergiusens](https://github.com/sergiusens)   | [@sergiusens:ubuntu.com](https://matrix.to/#/@sergiusens:ubuntu.com) | 
 
 
 ### Rocks Technical Board
@@ -50,7 +50,7 @@ Tech-savvy community members who are responsible for making difficult technical 
 | Name          | Contact       |                                        |                                                                |
 | ---           | ---           | ---                                    | ---                                                            |
 |               | *Discourse*   | *GitHub*                               | *Matrix*                                                       |
-| Tiago Nobrega | `@tigarmo`    | [@tigarmo](https://github.com/tigarmo) | [@tigarmo:ubuntu.com](https://matrix.to/#/@tigarmo:ubuntu.com) | 
+| {spellexception}`Tiago Nobrega` | `@tigarmo`    | [@tigarmo](https://github.com/tigarmo) | [@tigarmo:ubuntu.com](https://matrix.to/#/@tigarmo:ubuntu.com) | 
 
 
 ## Contributing
