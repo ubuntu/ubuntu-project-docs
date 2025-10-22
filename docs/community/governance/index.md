@@ -7,7 +7,6 @@
 
 canonical
 debian
-ubuntu-teams
 delegation
 ```
 
