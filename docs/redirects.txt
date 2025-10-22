@@ -136,5 +136,4 @@ contributors/setup/setup/ contributors/setup/set-up-for-ubuntu-development/
 contributors/merging/submit-merge-proposal/ contributors/merging/git-ubuntu-merge-proposal/
 
 community/contribute/contribute/ community/contribute/
-community/governance/ community/
 community/governance/ubuntu-teams/ community/teams/ubuntu-teams/
