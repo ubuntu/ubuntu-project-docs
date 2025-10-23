@@ -1,7 +1,19 @@
-How-to
-======
+.. _stable-release-updates:
+
+Stable Release Updates
+======================
 
 As a contributor, follow these guides to upload an SRU and to ensure that it works correctly.
+
+
+Introduction to SRU for contributors
+------------------------------------
+
+.. toctree::
+    :maxdepth: 1
+
+    introduction-to-sru
+
 
 Submit a package update
 -----------------------
@@ -16,6 +28,7 @@ You can submit a standard SRU that fixes a bug or a non-standard update such as 
     prepare-special
     special
 
+
 Troubleshooting
 ---------------
 
@@ -29,6 +42,7 @@ Follow these guides if an issue occurs during the SRU or after its release.
     phasing
     regression
 
+
 Contact
 -------
 
@@ -38,4 +52,3 @@ You can discuss SRUs on the following public channels.
     :maxdepth: 1
 
     contact
-
