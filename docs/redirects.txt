@@ -136,4 +136,5 @@ contributors/setup/setup/ contributors/setup/set-up-for-ubuntu-development/
 contributors/merging/submit-merge-proposal/ contributors/merging/git-ubuntu-merge-proposal/
 
 SRU/index SRU/stable-release-updates/
+SRU/explanation/ SRU/
 how-ubuntu-is-made/processes/stable-release-updates/ SRU/stable-release-updates/
