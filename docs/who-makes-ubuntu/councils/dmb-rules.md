@@ -49,7 +49,7 @@ is by expressing it as a {ref}`dmb-vote-function`.
 (dmb-application-communication)=
 ## Application-related communication
 
-The following details [are agreed on](http://irclogs.ubuntu.com/2009/10/13/%23ubuntu-meeting.html):
+The following details [are agreed on](https://irclogs.ubuntu.com/2009/10/13/#ubuntu-meeting.html):
 
 * [`devel-permissions@lists.ubuntu.com`](https://lists.ubuntu.com/mailman/listinfo/devel-permissions) list will be used.
 
