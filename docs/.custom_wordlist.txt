@@ -67,10 +67,12 @@ Quokka
 radeon
 rasdaemon
 retracer
+Rockcraft
 Schooltool
 schroot
 sosreport
 SRUs
+Starcraft
 subiquity
 Tegra
 Toolchain

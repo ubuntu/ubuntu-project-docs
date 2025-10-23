@@ -47,6 +47,15 @@ About Ubuntu Membership, the benefits and responsibilities, and how to become an
 ```
 
 
+## Ubuntu teams
+
+```{toctree}
+:maxdepth: 1
+
+/community/teams/ubuntu-teams
+```
+
+
 ## Specialist teams
 
 For specific, specialist teams on Launchpad.
