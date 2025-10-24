@@ -86,37 +86,6 @@ Some projects might require that you sign tags with your GPG key. Enable automat
     Replace `GPGKEYID` with your short GPG key ID.
 
 
-## Optional configuration
-
-The following configuration can simplify certain tasks on Ubuntu Desktop projects.
-
-Enable Git command aliases:
-
-```{code-block} ini
-:caption: `~/.config/git/config`
-
-[alias]
-    matching-tags = "!f() { git for-each-ref --sort=creatordate --format '%(refname)' refs/tags| grep \"$1\"| sed s,^refs/tags/,,; }; f"
-    last-tags = matching-tags '.*'
-    last-match-tag = "!f() { git matching-tags $1 | tail -n1; }; f"
-    last-tag = last-match-tag '.*'
-    last-debian-tag = last-match-tag debian/
-    last-ubuntu-tag = last-match-tag ubuntu/
-    ubuntu-delta = "!f() { git diff $(git last-debian-tag) -- ${1:-debian} ':(exclude)debian/changelog'; }; f"
-```
-
-Export the `../build-area/` directory before building with the `git-buildpackage` tool:
-
-```{code-block} ini
-:caption: `~/.gbp.conf`
-
-[buildpackage]
-export-dir = ../build-area/
-```
-
-For details, see the `gbp.conf(5)` and `gbp-buildpackage` man pages.
-
-
 ## Required accounts
 
 1. If you don't have accounts on the following GitLab instances, create them:
@@ -422,6 +391,66 @@ Our convention is to check out the `upstreamvcs/main` branch locally and call it
 Branch 'upstreamvcs-main' set up to track remote branch 'main' from 'upstreamvcs'.
 Switched to a new branch 'upstreamvcs-main'
 ```
+
+
+## Optional configuration
+
+The following configuration can simplify certain tasks on Ubuntu Desktop projects.
+
+### Git command aliases
+
+Enable Git command aliases:
+
+```{code-block} ini
+:caption: `~/.config/git/config`
+
+[alias]
+    matching-tags = "!f() { git for-each-ref --sort=creatordate --format '%(refname)' refs/tags| grep \"$1\"| sed s,^refs/tags/,,; }; f"
+    last-tags = matching-tags '.*'
+    last-match-tag = "!f() { git matching-tags $1 | tail -n1; }; f"
+    last-tag = last-match-tag '.*'
+    last-debian-tag = last-match-tag debian/
+    last-ubuntu-tag = last-match-tag ubuntu/
+    ubuntu-delta = "!f() { git diff $(git last-debian-tag) -- ${1:-debian} ':(exclude)debian/changelog'; }; f"
+```
+
+### Exporting the build area
+
+Export the `../build-area/` directory before building with the `git-buildpackage` tool:
+
+```{code-block} ini
+:caption: `~/.gbp.conf`
+
+[buildpackage]
+export-dir = ../build-area/
+```
+
+For details, see the `gbp.conf(5)` and `gbp-buildpackage` man pages.
+
+### Merging the changelog automatically
+
+To merge the changelog automatically, enable the `dpkg-mergechangelogs` tool in the `~/.config/git/config` file:
+
+```{code-block} ini
+:caption: `~/.config/git/config`
+
+[merge "dpkg-mergechangelogs"]  
+    name = debian/changelog merge driver
+    driver = dpkg-mergechangelogs -m %O %A %B %A
+```
+
+Create the `~/.config/git/attributes` file and set `dpkg-mergechangelogs` as the default strategy in it:
+
+```{code-block} ini
+:caption: `~/.config/git/attributes`
+
+debian/changelog merge=dpkg-mergechangelogs
+```
+
+:::{warning}
+This automation might not work when Ubuntu packages use a higher epoch than the Debian ones. In that case, fix the changelog manually.
+:::
+
 
 ## Next steps
 
