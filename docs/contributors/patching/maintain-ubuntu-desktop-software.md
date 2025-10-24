@@ -1098,16 +1098,6 @@ If this is a sponsored upload, the sponsor performs these steps.
     :input: gbp push origin
     ```
 
-1. Push the tags that we care about to Salsa:
-
-    ```{terminal}
-    :copy:
-    :host:
-    :dir: gnome-control-center
-    :user:
-    :input: git tag | grep -E '^ubuntu/|^debian/|^upstream/' | xargs -r git push
-    ```
-
     This pushes all tracked branches to Salsa if you made any changes. The branches include:
 
     * `ubuntu/latest`
