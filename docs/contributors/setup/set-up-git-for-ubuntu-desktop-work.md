@@ -12,24 +12,14 @@ We'll use the Settings application as an example. Internally, the application is
 
 ## Initial setup
 
-1. Install the basic packages for working in Git:
+1. Install the basic packages for working in Git and Ubuntu packaging:
 
     ```{terminal}
     :copy:
     :host:
     :dir:
     :user:
-    :input: sudo apt install git git-buildpackage
-    ```
-
-1. Install Ubuntu packaging tools:
-
-    ```{terminal}
-    :copy:
-    :host:
-    :dir:
-    :user:
-    :input: sudo apt install gnupg pbuilder ubuntu-dev-tools apt-file
+    :input: sudo apt install git git-buildpackage ubuntu-dev-tools gnupg
     ```
 
     For details about the packaging environment, see [Getting Set Up](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/tutorial/getting-set-up.html) in the Ubuntu Packaging Guide.
