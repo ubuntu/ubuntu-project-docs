@@ -237,6 +237,22 @@ If Debian doesn't have the new upstream version, add the release to Debian and U
 
     Sync the affected upstream branch to Salsa, or push it to your fork and propose it as a merge request if you aren't an Ubuntu developer.
 
+### Check for dependency changes
+
+New upstream releases often change the dependencies of the application. Check for changes.
+
+For example, if the application uses the Meson build system and you've updated from version `49.alpha` to `49.0`:
+
+```{terminal}
+:copy:
+:host:
+:dir: gnome-control-center
+:user:
+:input: git diff 49.alpha..49.0 -- meson.build
+```
+
+Reflect the application changes in the package dependencies.
+
 ### Troubleshooting
 
 You might get the following errors when importing the tarball.
