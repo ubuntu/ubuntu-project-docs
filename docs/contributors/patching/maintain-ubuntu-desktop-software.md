@@ -44,29 +44,6 @@ What you can do when you have such changes:
 
     For this, add the `--git-ignore-new --git-export=INDEX` options to `gbp`.
 
-* Remove the local changes:
-
-    ```{terminal}
-    :copy:
-    :host:
-    :dir: gnome-control-center
-    :user:
-    :input: dh_clean
-    ```
-    
-    If that command doesn't work for you package, you can reset the changes in the following way:
-    
-    ```{terminal}
-    :copy:
-    :host:
-    :dir: gnome-control-center
-    :user:
-    :input: git checkout .
-
-    :input: git clean -fd .
-    :input: quilt -f pop -a
-    ```
-
 
 ## Refresh branches
 
@@ -168,11 +145,14 @@ When upstream releases a new version of a given project, you can merge the versi
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git remote show origin
+    :input: git tag -l | grep upstream
 
-        […]
-        upstream/46.x            pushes to upstream/46.x            (up to date)
-        […]
+    […]
+    upstream/46.0
+    upstream/46.0.1
+    upstream/46.1
+    upstream/46.3
+    […]
     ```
 
 1. If Debian already has the upstream version, you don't have to import the tarball. Merge with the latest upstream code:
@@ -182,7 +162,7 @@ When upstream releases a new version of a given project, you can merge the versi
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git merge upstream/46.2 -m "Update upstream source from tag 'upstream/46.2'"
+    :input: git merge upstream/46.3 -m "Update upstream source from tag 'upstream/46.3'"
     ```
 
     The new upstream version is now merged. Push the changes:
@@ -242,7 +222,7 @@ If Debian doesn't have the new upstream version, add the release to Debian and U
     gbp:info: Successfully imported version 46.2 of ../gnome-control-center-46.2.tar.xz
     ```
 
-1. Push all needed branches (for example, `ubuntu/latest` and `pristine-tarball` + `upstream/46.x` or `upstream/latest` if this upload is a new upstream release):
+1. Push all related branches:
 
     ```{terminal}
     :copy:
@@ -252,9 +232,9 @@ If Debian doesn't have the new upstream version, add the release to Debian and U
     :input: git push --follow-tags
     ```
 
-    Since we don't want to have duplicated `upstream/x.y.z` tags, in this case you should push the `pristine-tar` and `upstream/<current>` branches to `origin`. Make sure to push the new tag, too.
+    The `gbp` tool handles all branches automatically. In the example of this upstream release, `gbp` pushes the `ubuntu/latest`, `pristine-tarball` + `upstream/46.x` or `upstream/latest` branches.
 
-    Sync the affected upstream branch to Salsa, or propose it as a merge request if you aren't an Ubuntu developer.
+    Sync the affected upstream branch to Salsa, or push it to your fork and propose it as a merge request if you aren't an Ubuntu developer.
 
 ### Troubleshooting
 
