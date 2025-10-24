@@ -52,7 +52,7 @@ Guides to help you build and contribute to Ubuntu
 
 * {ref}`fixing-bugs`
 * {ref}`patching`
-* {ref}`How to do a merge <merging>`
+* {ref}`Merging <merging>`
 * {ref}`Find a sponsor for your upload <how-to-find-a-sponsor>`
 * {ref}`Contribute to this documentation <how-to-contribute-docs>`
 :::
@@ -67,7 +67,7 @@ Guides to help you build and contribute to Ubuntu
 Guides for tasks that require elevated permissions
 
 * {ref}`matrix-management`
-* Sponsor an upload
+* {ref}`Sponsor an upload <how-to-sponsor-an-upload>`
 * {ref}`Review an MIR <mir-team-tasks>`
 * {ref}`Archive management <aa-how-to>`
 * {ref}`Maintain niche packages <niche-package-maintenance>`
