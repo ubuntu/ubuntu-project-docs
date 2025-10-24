@@ -542,6 +542,10 @@ The following steps work in both cases:
 
 You can turn patch files into commits on a branch. This enables you to add new patches or modify existing ones.
 
+:::{note}
+We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop software, as described here. For the legacy patching workflow using the `quilt` tool, see {ref}`how-to-work-with-debian-patches`.
+:::
+
 1. Switch to the correct `ubuntu/` branch or your local `experimental-feature` branch. For example:
 
     ```{terminal}
@@ -635,10 +639,6 @@ You can turn patch files into commits on a branch. This enables you to add new p
 1. Update the changelog. For details, see {ref}`desktop-git-update-the-changelog`.
 
 1. The new patches end up as unstaged changes on your branch. Commit your changes.
-
-### Additional resources
-
-For a different patching workflow using the `quilt` tool, see {ref}`how-to-work-with-debian-patches`.
 
 
 ## Cherry-pick upstream commits
