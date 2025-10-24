@@ -148,7 +148,7 @@ Ubuntu packages Firefox as a Snap, which avoids the need for special hacks like 
 (debian-rust-tools)=
 ## What Rust-specific tooling do maintainers use, and how does it fit into the wider ecosystem of packaging tools?
 
-There are a handful of tools useful for Rust package maintainers, but you should first have a good understanding of the {ref}`general Debian tooling <understanding-tooling>`.
+There are a handful of tools useful for Rust package maintainers, but you should first have a good understanding of the {ref}`general Debian tooling <understand-the-tools>`.
 Specifically for Rust packages, you should also be familiar with the following.
 
 `debcargo`
