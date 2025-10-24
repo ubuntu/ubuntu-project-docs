@@ -556,6 +556,16 @@ The following steps work in both cases:
 
 1. Commit the changes.
 
+If the `--time-machine` step or `gbp pq rebase` fail, you can import the patches into the `pq` branch manually from a file:
+
+```{terminal}
+:copy:
+:host:
+:dir: gnome-control-center
+:user:
+:input: git am -3 < debian/patches/<patch-file>
+```
+
 
 (desktop-git-add-or-modify-patches)=
 ## Add or modify patches
