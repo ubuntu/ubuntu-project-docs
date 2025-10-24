@@ -482,23 +482,21 @@ If the version doesn't exist in Debian yet, add it to Debian and Ubuntu using an
 
 Before merging with an upstream release, refresh the patches.
 
-If your `patch/queue` branch is in sync with the previous release, you can just rebase:
+1. Rebase the `pq` branch:
 
-```{terminal}
-:copy:
-:host:
-:dir: gnome-control-center
-:user:
-:input: gbp pq rebase
-```
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: gbp pq rebase
+    ```
 
-Then you can use the Git rebase tools to refresh the patches.
+1. Use the Git rebase tools to refresh the patches.
 
-For the case of using `gbp import-orig`, this is better described in the [`gbp` documentation](https://honk.sigxcpu.org/projects/git-buildpackage/manual-html/gbp.patches.newupstream.html).
+### Troubleshooting
 
-This might not work if you're instead merging with an `upstream/x.z.y` tag or if you didn't create the `patch/queue` branch first.
-
-The following steps work in both cases:
+The rebase might not work in certain cases, such as if you're merging with an `upstream/x.z.y` tag or if you didn't create the `patch/queue` branch first. In those cases, follow these steps:
 
 1. Switch to the corresponding branch.
 
@@ -512,7 +510,7 @@ The following steps work in both cases:
     :input: gbp pq drop
     ```
 
-1. Try to find the first point where the patches merge. Increase the value until you don't find the previous release commit:
+1. Try to find the earliest point where the patches still apply. Increase the value until you don't find the previous release commit:
 
     ```{terminal}
     :copy:
@@ -522,10 +520,7 @@ The following steps work in both cases:
     :input: gbp pq import --force --time-machine=30
     ```
 
-    :::{admonition} TODO
-    :class: attention
-    How much should you increase the value and how can you tell that you should stop?
-    :::
+    Replace `30` with a number that determines how far in history you want to look for the patches. The exact number depends on the size of your repository. Larger numbers provide better results but the search gets increasingly slow so start small.
 
 1. Re-apply the `debian/patches/series` file on top of the new upstream code, stopping for manual action if is needed:
 
@@ -552,7 +547,7 @@ The following steps work in both cases:
     :input: git am -3 < debian/patches/<patch-file>
     ```
 
-1. Regenerate the `debian/patches` data, ready to be committed:
+1. Regenerate the `debian/patches` data:
 
     ```{terminal}
     :copy:
@@ -565,6 +560,10 @@ The following steps work in both cases:
 1. Switch back to your `ubuntu/latest` or `ubuntu/<series>` branch.
 
 1. Commit the changes.
+
+### See also
+
+[Importing a new upstream version](https://honk.sigxcpu.org/projects/git-buildpackage/manual-html/gbp.patches.newupstream.html) in the `gbp` documentation.
 
 
 (desktop-git-add-or-modify-patches)=
@@ -817,11 +816,6 @@ Then, filter them out by hand at the commit phase.
 ## Import an Ubuntu upload tracked outside of VCS
 
 You can import a Debian Source Control (DSC) source package as a tarball, even if it doesn't exist in the Git version tracking system (VCS).
-
-:::{admonition} TODO
-:class: attention
-This procedure really needs a review. I rearranged the steps but I'm not sure if they still work.
-:::
 
 1. Downloading the source tarball.
 
