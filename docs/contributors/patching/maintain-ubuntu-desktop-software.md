@@ -675,40 +675,6 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
 
 You can cherry-pick an upstream commit into a patch file.
 
-1. Refresh the upstream repository.
-
-    We don't have a local checkout, only a remote that we need to refresh:
-
-    ```{terminal}
-    :copy:
-    :host:
-    :dir: gnome-control-center
-    :user:
-    :input: git fetch upstreamvcs
-    ```
-
-1. Find the commits that you want to cherry-pick. Browse the Git history. 
-
-    For example, look at the Git log of the `main` branch:
-
-    ```{terminal}
-    :copy:
-    :host:
-    :dir: gnome-control-center
-    :user:
-    :input: git log -p upstreamvcs/main
-    ```
-
-    Many GNOME projects now use `main` instead of `master`. If your project is still using `master`, adjust the branch:
-
-    ```{terminal}
-    :copy:
-    :host:
-    :dir: gnome-control-center
-    :user:
-    :input: git log -p upstreamvcs/master
-    ```
-
 1. Switch to the branch where you want to add the cherry-picked commit. For example, on the `ubuntu/latest` branch:
 
     ```{terminal}
@@ -736,22 +702,8 @@ You can cherry-pick an upstream commit into a patch file.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pq rebase
+    :input: gbp pq rebase || gbp pq import
     ```
-
-    :::{note}
-    Instead, you can also use the following commands. This deletes your patch queue and re-creates it from `debian/patches`, which can be useful if the `patch-queue` branch gets out of sync with `latest`:
-
-    ```{terminal}
-    :copy:
-    :host:
-    :dir: gnome-control-center
-    :user:
-    :input: gbp pq drop
-
-    :input: gbp pq import
-    ```
-    :::
 
 1. Display the upstream Git log in the patch format. Note the hash of the commit that you want to cherry-pick:
 
@@ -770,7 +722,7 @@ You can cherry-pick an upstream commit into a patch file.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git cherry-pick -e -x <hash>
+    :input: git cherry-pick -x <hash>
     ```
 
 1. Are there any conflicts?
