@@ -30,7 +30,7 @@ We'll use the Settings application as an example. Internally, the application is
 
     This provides information about the source repository of every package so that you can easily clone it.
 
-1. Enable the `salsa:name-or-team/repo` and `salsa-gnome:repo` short format for Salsa Git repositories.
+1. Enable short formats for Git repositories: `salsa:name-or-team/repo` and `salsa-gnome:repo` for Salsa, `fdo:repo` for freedesktop\.org:
 
     Add the following configuration to your `~/.config/git/config` file:
 
@@ -42,6 +42,9 @@ We'll use the Settings application as an example. Internally, the application is
 
     [url "git@salsa.debian.org:gnome-team/"]
         insteadof = salsa-gnome:
+    
+    [url "https://gitlab.freedesktop.org/"]
+        insteadof = fdo:
     ```
 
 
@@ -119,6 +122,7 @@ For details, see the `gbp.conf(5)` and `gbp-buildpackage` man pages.
 1. If you don't have accounts on the following GitLab instances, create them:
 
     * [GNOME GitLab](https://gitlab.gnome.org/) is the upstream GNOME repository.
+    * [freedesktop\.org GitLab](https://gitlab.freedesktop.org/) hosts other desktop projects such as PipeWire.
     * [Salsa](https://salsa.debian.org/) hosts the Debian and Ubuntu packaging and modifications.
 
     It might take a while for your account to be approved.
@@ -137,31 +141,14 @@ Let's clone the GNOME Control Center repository.
     :host:
     :dir:
     :user:
-    :input: apt-cache showsrc gnome-control-center | grep Vcs
+    :input: apt-cache showsrc gnome-control-center | grep-dctrl -n -s Vcs-Git -
 
-    Vcs-Browser: https://salsa.debian.org/gnome-team/gnome-control-center/tree/ubuntu/master
-    Vcs-Git: https://salsa.debian.org/gnome-team/gnome-control-center.git -b ubuntu/master
-    Debian-Vcs-Browser: https://salsa.debian.org/gnome-team/gnome-control-center
-    Debian-Vcs-Git: https://salsa.debian.org/gnome-team/gnome-control-center.git
+    https://salsa.debian.org/gnome-team/gnome-control-center.git -b ubuntu/master
     ```
 
-    A link to a Git repository is attached to this package. We can clone it using the `debcheckout` tool.
+    A link to a Git repository is attached to this package.
 
 2. Clone the repository from the Salsa remote:
-
-    ```{terminal}
-    :copy:
-    :host:
-    :dir:
-    :user:
-    :input: debcheckout --git-track=* gnome-control-center
-
-    declared git repository at https://salsa.debian.org/gnome-team/gnome-control-center/
-    git clone https://salsa.debian.org/gnome-team/gnome-control-center -b ubuntu/latest gnome-control-center ...
-    […]
-    ```
-
-    If the `Vcs-Git` field was missing or incorrect, you could clone the repository manually using `gbp`:
 
     ```{terminal}
     :copy:
@@ -171,6 +158,18 @@ Let's clone the GNOME Control Center repository.
     :input: gbp clone salsa-gnome:gnome-control-center
 
     gbp:info: Cloning from 'salsa-gnome:gnome-control-center'
+    ```
+
+    You can also use the repository link found earlier:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir:
+    :user:
+    :input: gbp clone https://salsa.debian.org/gnome-team/gnome-control-center.git
+
+    gbp:info: Cloning from 'https://salsa.debian.org/gnome-team/gnome-control-center.git'
     ```
 
 
