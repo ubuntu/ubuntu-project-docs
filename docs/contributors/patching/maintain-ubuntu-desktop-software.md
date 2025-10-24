@@ -673,6 +673,8 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
 
 ## Cherry-pick upstream commits
 
+You can cherry-pick an upstream commit into a patch file.
+
 1. Refresh the upstream repository.
 
     We don't have a local checkout, only a remote that we need to refresh:
@@ -706,8 +708,6 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
     :user:
     :input: git log -p upstreamvcs/master
     ```
-
-1. Cherry-pick a commit as a patch. For example, on the `ubuntu/latest` branch:
 
 1. Switch to the branch where you want to add the cherry-picked commit. For example, on the `ubuntu/latest` branch:
 
@@ -753,7 +753,7 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
     ```
     :::
 
-1. Display the upstream Git log in the patch format:
+1. Display the upstream Git log in the patch format. Note the hash of the commit that you want to cherry-pick:
 
     ```{terminal}
     :copy:
@@ -762,11 +762,6 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
     :user:
     :input: git log -p upstream/latest
     ```
-
-    :::{admonition} TODO
-    :class: attention
-    What is this for? It seems to just display the log without affecting your repository in any way.
-    :::
 
 1. Cherry-pick your selected commit using its hash and edit the commit message:
 
