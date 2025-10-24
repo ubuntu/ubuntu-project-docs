@@ -848,6 +848,29 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
 
 1. Downloading the source tarball.
 
+    You can download the tarball that belongs to an Ubuntu release, like Noble:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: pull-lp-debs --download-only gnome-control-center noble
+
+    Found gnome-control-center 1:46.7-0ubuntu0.24.04.3 in noble
+    Downloading gnome-control-center_46.7-0ubuntu0.24.04.3.dsc from archive.ubuntu.com (0.004 MiB)
+    ```
+
+    Or you can download the tarball based on a package version:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: pull-lp-debs --download-only gnome-control-center 46.7-0ubuntu0
+    ```
+
 1. Switch to the branch where you want to place this Ubuntu upload.
 
 1. Import the tarball:
