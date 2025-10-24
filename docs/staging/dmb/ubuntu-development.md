@@ -301,7 +301,7 @@ included in Ubuntu is described at {ref}`new-packages`.
 
 All current official Ubuntu packages are stored in the primary Package Archive,
 which is widely {ref}`mirrored <mirrors>`. It is administered by the
-{ref}`archive-administration` team. The {ref}`Packaging Archive section <the-package-archive>`
+{ref}`archive-administration` team. The {ref}`Packaging Archive section <package-archive>`
 covers details such as interactions with the build daemons and the Archive. It
 also explains how different architectures and package components are handled and
 how the autobuilders work.

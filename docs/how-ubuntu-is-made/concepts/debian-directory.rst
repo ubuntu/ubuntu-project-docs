@@ -16,7 +16,8 @@ These are required for all packages. A number of additional files in the :file:`
 The :file:`changelog` file
 --------------------------
 
-This file is a listing of the changes made in each version. It has a specific format that gives the package name, version, distribution changes, and who made the changes at a given time. The following is a template :file:`debian/changelog`:
+This file is a listing of the changes made in each version. Changelogs for every Ubuntu version can be found at `the changelog index <https://changelogs.ubuntu.com/changelogs/>`_.
+The changelog has a specific format that gives the package name, version, distribution changes, and who made the changes at a given time. The following is a template :file:`debian/changelog`:
 
 .. code-block:: none
 
