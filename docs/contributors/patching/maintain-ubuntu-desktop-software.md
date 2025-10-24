@@ -172,7 +172,7 @@ When upstream releases a new version of a given project, you can merge the versi
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git push --follow-tags
+    :input: gbp push origin
     ```
 
 ### Merge a new upstream version to Debian
@@ -229,7 +229,7 @@ If Debian doesn't have the new upstream version, add the release to Debian and U
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git push --follow-tags
+    :input: gbp push origin
     ```
 
     The `gbp` tool handles all branches automatically. In the example of this upstream release, `gbp` pushes the `ubuntu/latest`, `pristine-tarball` + `upstream/46.x` or `upstream/latest` branches.
@@ -406,7 +406,7 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git push --follow-tags
+    :input: gbp push origin
     ```
 
 ### Add the maintenance version in Debian
@@ -442,9 +442,7 @@ If the version doesn't exist in Debian yet, add it to Debian and Ubuntu using an
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git push
-
-    :input: git push -u upstream/46.x
+    :input: gbp push origin
     ```
 
 1. Push the `upstream` and `pristine-tar` branches to Salsa.
@@ -456,7 +454,7 @@ If the version doesn't exist in Debian yet, add it to Debian and Ubuntu using an
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git push --follow-tags
+    :input: gbp push origin
     ```
 
 
@@ -698,7 +696,7 @@ For a different patching workflow using the `quilt` tool, see {ref}`how-to-work-
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git pull
+    :input: gbp pull origin
     ```
 
 1. Turn patches into commits:
@@ -885,7 +883,7 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git push
+    :input: gbp push origin
     ```
 
     This pushes all needed branches, such as `ubuntu/latest`, and `pristine-tarball` + `upstream/latest` if this upload is a new upstream release.
@@ -955,14 +953,14 @@ This procedure really needs a review. I rearranged the steps but I'm not sure if
     :input: git commit -a
     ```
 
-8. Push your changes to Salsa and track that branch:
+8. Push your changes to Salsa:
 
     ```{terminal}
     :copy:
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git push -u origin ubuntu/noble
+    :input: gbp push origin
 
     Total 0 (delta 0), reused 0 (delta 0)
     To git+ssh://git@salsa.debian.org:gnome-team/gnome-control-center
