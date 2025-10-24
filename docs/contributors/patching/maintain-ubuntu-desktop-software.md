@@ -1095,7 +1095,7 @@ If this is a sponsored upload, the sponsor performs these steps.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git push
+    :input: gbp push origin
     ```
 
 1. Push the tags that we care about to Salsa:
