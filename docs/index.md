@@ -20,7 +20,7 @@ Staging/preview area <staging.md>
 
 
 Ubuntu is the world's most widely deployed Linux operating system.
-It's also a long-standing software project, a community, and a mesh of distributed processes and governance that enable its contributors to deliver the world-class experience we all know and love.
+It's also a long-standing software project, with a mesh of distributed processes and governance that enable our global community of contributors to deliver the distribution we all know and love.
 
 Ubuntu has always been an openly governed community.
 This open governance means that we have community-organized and run decision-making groups that lead and make decisions about different elements of Ubuntu.
