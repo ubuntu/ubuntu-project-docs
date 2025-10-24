@@ -44,9 +44,14 @@ We'll use the Settings application as an example. Internally, the application is
         insteadof = salsa-gnome:
     ```
 
-1. Some projects might require that you sign tags with your GPG key. Enable automatic signing.
 
-    Display your public GPG key:
+## Sign your commits
+
+Some projects might require that you sign tags with your GPG key. Enable automatic signing.
+
+1. Create your GPG key as described in {ref}`gnupg`.
+
+1. Display your public GPG key:
 
     ```{terminal}
     :copy:
@@ -65,7 +70,7 @@ We'll use the Settings application as an example. Internally, the application is
 
     Your short GPG key ID is the last eight digits of your public GPG key, or `D1B76B89` in this example.
 
-    Add the following configuration to your `~/.gbp.conf` file:
+1. Add the following configuration to your `~/.gbp.conf` file:
 
     ```{code-block} ini
     :caption: `~/.gbp.conf`
