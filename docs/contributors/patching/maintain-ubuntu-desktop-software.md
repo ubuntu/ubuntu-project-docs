@@ -186,11 +186,12 @@ If Debian doesn't have the new upstream version, add the release to Debian and U
     :host:
     :dir: gnome-control-center
     :user:
-    :input: uscan
+    :input: uscan --verbose --no-download
 
+    […]
+    Newest version of gnome-control-center on remote site is 49.1, local version is 46.7
      => Newer package available from:
-        => https://download.gnome.org/sources/gnome-control-center/49/gnome-control-center-49.1.tar.xz
-    Successfully symlinked ../gnome-control-center-49.1.tar.xz to ../gnome-control-center_49.1.orig.tar.xz.
+            => https://download.gnome.org/sources/gnome-control-center/49/gnome-control-center-49.1.tar.xz
     ```
 
 1. Is `uscan` showing the upstream release that you want to import?
@@ -382,11 +383,14 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git remote show origin
+    :input: git tag -l | grep upstream
 
-        […]
-        upstream/46.2            pushes to upstream/46.2            (up to date)
-        […]
+    […]
+    upstream/46.0
+    upstream/46.0.1
+    upstream/46.1
+    upstream/46.3
+    […]
     ```
 
 1. If the version already exists in Debian, use Debian's upstream branch tags:
@@ -396,7 +400,7 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git merge upstream/46.2 -m "Update upstream source from tag 'upstream/46.2'"
+    :input: git merge upstream/46.3 -m "Update upstream source from tag 'upstream/46.3'"
     ```
 
     Push the `upstream` and `pristine-tar` branches to Salsa:
