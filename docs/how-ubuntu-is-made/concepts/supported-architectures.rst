@@ -3,6 +3,13 @@
 Supported architectures
 =======================
 
+Packages are typically built for each of several architectures.
+These are officially supported and maintained by the Ubuntu project.
+:term:`Canonical` provides server resources to build, store and distribute packages and installation media for them, and the core development team is responsible for their upkeep.
+
+Build failures on these architectures are considered serious bugs.
+Each official Ubuntu release and update includes appropriate support for these architectures.
+
 .. list-table::
     :header-rows: 1
 

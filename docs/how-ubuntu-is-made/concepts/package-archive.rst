@@ -227,7 +227,7 @@ Mirrors
 
 Every day, hundreds of thousands of people want to download and install packages from the Ubuntu package archive. To provide a good :term:`user experience`, the content of ``http://archive.ubuntu.com/ubuntu`` is mirrored (replicated and kept in sync) by other servers to distribute network traffic, reduce latency, and provide redundancy, which ensures high availability and fault tolerance.
 
-A complete list of officially recognized `Ubuntu package archive mirrors <https://launchpad.net/ubuntu/+archivemirrors>`_.
+A complete list of officially recognized `Ubuntu package archive mirrors <https://launchpad.net/ubuntu/+archivemirrors>`_. A search interface is available at `packages.ubuntu.com <https://packages.ubuntu.com>`_.
 
 .. note::
 
@@ -327,6 +327,12 @@ Because the :manpage:`sources.list(5)` file is read from top to bottom, the APT 
 ``security.ubuntu.com`` points to the same servers as ``archive.ubuntu.com``. It is used in the :manpage:`sources.list(5)` file for the security pocket to prevent a user or script from accidentally changing it to a mirror.
 
 
+Landscape repositories
+~~~~~~~~~~~~~~~~~~~~~~
+
+`Landscape <https://ubuntu.com/landscape>`_ is a management and administration tool for Ubuntu. Landscape allows to mirror :term:`APT` repositories like the Ubuntu package archive. Although it is not directly related to the Ubuntu package archive, it can be educational to understand how APT repositories work in general.
+
+
 Further reading
 ---------------
 
@@ -335,10 +341,6 @@ Further reading
 - `Ubuntu Server docs -- package management <https://documentation.ubuntu.com/server/package-management/>`_
 
 
-Landscape repositories
-~~~~~~~~~~~~~~~~~~~~~~
-
-`Landscape <https://ubuntu.com/landscape>`_ is a management and administration tool for Ubuntu. Landscape allows to mirror :term:`APT` repositories like the Ubuntu package archive. Although it is not directly related to the Ubuntu package archive, it can be educational to understand how APT repositories work in general.
 
 .. |main| replace:: :ref:`archive-components-main`
 .. |restricted| replace:: :ref:`archive-components-restricted`
