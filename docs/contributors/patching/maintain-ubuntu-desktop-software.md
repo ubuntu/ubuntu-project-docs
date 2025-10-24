@@ -542,6 +542,16 @@ The following steps work in both cases:
     1. Resolve the conflict using `git add` and `git rm`.
     1. Proceed with `git rebase --continue`.
 
+1. If the `--time-machine` step or `gbp pq rebase` fail, you can import the patches into the `pq` branch manually from a file:
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+    :input: git am -3 < debian/patches/<patch-file>
+    ```
+
 1. Regenerate the `debian/patches` data, ready to be committed:
 
     ```{terminal}
@@ -555,16 +565,6 @@ The following steps work in both cases:
 1. Switch back to your `ubuntu/latest` or `ubuntu/<series>` branch.
 
 1. Commit the changes.
-
-If the `--time-machine` step or `gbp pq rebase` fail, you can import the patches into the `pq` branch manually from a file:
-
-```{terminal}
-:copy:
-:host:
-:dir: gnome-control-center
-:user:
-:input: git am -3 < debian/patches/<patch-file>
-```
 
 
 (desktop-git-add-or-modify-patches)=
