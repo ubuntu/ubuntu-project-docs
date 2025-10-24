@@ -52,8 +52,8 @@ Guides to help you build and contribute to Ubuntu
 
 * {ref}`fixing-bugs`
 * {ref}`patching`
-* {ref}`Find a sponsor for your upload <how-to-find-a-sponsor>`
 * {ref}`How to do a merge <merging>`
+* {ref}`Find a sponsor for your upload <how-to-find-a-sponsor>`
 * {ref}`Contribute to this documentation <how-to-contribute-docs>`
 :::
 ::::
