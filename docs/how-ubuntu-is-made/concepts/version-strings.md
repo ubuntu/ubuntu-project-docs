@@ -283,7 +283,7 @@ List of these and further related examples:
 | `2.0-2ubuntu2.1`               | `2.0-2ubuntu2.2`                                  |
 | `2.0-2build1`                  | `2.0-2ubuntu0.1`                                  |
 | `2.0`                          | `2.0ubuntu0.1`                                    |
-| `2.0ubuntu`                    | `2.0ubuntu~22.04.1`                               |
+| `2.0ubuntu`                 | see {ref}`native packages <version-native-packages>` |
 | `2.0-2ubuntu0.24.04.1`         | `2.0-2ubuntu0.24.04.2`                            |
 | `2.0-2` in two releases        | `2.0-2ubuntu0.25.04.1` and `2.0-2ubuntu0.24.04.1` |
 | `2.0-2ubuntu1` in two releases | `2.0-2ubuntu1.25.04.1` and `2.0-2ubuntu1.24.04.1` |
