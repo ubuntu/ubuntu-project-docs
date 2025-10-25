@@ -74,7 +74,7 @@ other entities.
     gpg> adduid
     Real name: Karl Stenerud
     Email address: karl.stenerud@canonical.com
-    Comment: 
+    Comment:
     You selected this USER-ID:
         "Karl Stenerud <karl.stenerud@canonical.com>"
 
