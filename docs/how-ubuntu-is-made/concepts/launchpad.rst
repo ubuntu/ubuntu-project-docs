@@ -1,3 +1,5 @@
+.. _about-launchpad:
+
 Launchpad
 =========
 
@@ -31,7 +33,7 @@ Personal Package Archive (PPA)
 
 Launchpad PPA repositories allow you to build installable Ubuntu packages for multiple :term:`architectures <Architecture>` and to host them in your own software :term:`repository <Repository>`.
 
-Using a PPA is straightforward; you don't need the approval of anyone, therefore users have to enable it manually. See how to :ref:`InstallPackagesFromPPA`.
+Using a PPA is straightforward; you don't need the approval of anyone, therefore users have to enable it manually. See how to `Install packages from a PPA <https://documentation.ubuntu.com/launchpad/user/how-to/packaging/ppa-install/>`_.
 
 This is useful when you want to test a change, or to show others that a change builds successfully or is installable. Some people have special permission to trigger the :term:`autopkgtests <autopkgtest>` for packages in a PPA.
 
@@ -102,7 +104,7 @@ Launchpad has a web :term:`API` to interact with its services. This allows devel
 
 The reference `documentation for the web API <https://launchpad.net/+apidoc/>`_ on Launchpad.
 
-The Launchpad team created an :term:`open source <Open Source Software>` Python library, `launchpadlib <https://help.launchpad.net/API/launchpadlib>`_.
+The Launchpad team created an :term:`open source <Open Source Software>` Python library, `launchpadlib <https://documentation.ubuntu.com/launchpad/user/explanation/launchpad-api/launchpadlib/>`_.
 
 
 Further reading
@@ -113,5 +115,4 @@ Further reading
     - `Launchpad bug tracker <https://bugs.launchpad.net/launchpad>`_
     - `Launchpad questions and answers <https://answers.launchpad.net/launchpad>`_
 - `Launchpad documentation <https://documentation.ubuntu.com/launchpad/>`_
-- `Launchpad development wiki <https://dev.launchpad.net/>`_
 - `Launchpad blog <https://blog.launchpad.net/>`_

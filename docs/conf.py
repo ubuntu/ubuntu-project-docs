@@ -277,6 +277,7 @@ extensions = [
     "sphinx_sitemap",
     "sphinx_reredirects",
     "sphinx_togglebutton",
+    "sphinx.ext.graphviz",
 ]
 
 # Excludes files or directories from processing
@@ -401,7 +402,6 @@ intersphinx_mapping = {
         "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
         None,
     ),
-    "sru": ("https://canonical-sru-docs.readthedocs-hosted.com/en/latest/", None),
     "launchpad": ("https://documentation.ubuntu.com/launchpad/", None),
 }
 

@@ -37,7 +37,7 @@ Here we outline some standard tags with information about when to use them while
 | [`likely-dup`](https://launchpad.net/ubuntu/+bugs?field.tag=likely-dup) | The bug is likely a duplicate of another bug (maybe an upstream bug) but you can't find it |
 | [`manpage`](https://launchpad.net/ubuntu/+bugs?field.tag=manpage) | This bug is about a package's manual page being incorrect |
 | [`metabug`](https://launchpad.net/ubuntu/+bugs?field.tag=metabug) | This bug has a high probability of duplicate reports being filed |
-| [`multiarch`](https://launchpad.net/ubuntu/+bugs?field.tag=multiarch) | This bug is due to an issue with [multiarch triplet paths](http://wiki.debian.org/Multiarch); this could be build time, install time, or run time issues |
+| [`multiarch`](https://launchpad.net/ubuntu/+bugs?field.tag=multiarch) | This bug is due to an issue with [multiarch triplet paths](https://wiki.debian.org/Multiarch); this could be build time, install time, or run time issues |
 | [`nautilus-desktop-icons`](https://launchpad.net/ubuntu/+bugs?field.tag=nautilus-desktop-icons) | Bugs related to the Nautilus desktop; especially the alignment, display, and grid of icons |
 | [`needs-devrelease-testing`](https://launchpad.net/ubuntu/+bugs?orderby=-importance&field.status%3Alist=New&field.status%3Alist=Incomplete&field.status%3Alist=Invalid&field.status%3Alist=Won%27t+Fix&field.status%3Alist=Confirmed&field.status%3Alist=Triaged&field.status%3Alist=In+Progress&field.status%3Alist=Fix+Committed&field.status%3Alist=Fix+Released&field.tag=needs-devrelease-testing&search=Search) | A bug that existed in a previous release of Ubuntu and needs to be tested in the latest development release |
 | [`needs-reassignment`](https://launchpad.net/ubuntu/+bugs?field.tag=needs-reassignment) | A bug reported about the wrong package but the package maintainer isn't sure which package it belongs to |
@@ -93,10 +93,10 @@ Specific bugs concerning parts of the [Ayatana project](https://launchpad.net/ay
 
 | Tag | Use case |
 | :---- | :---- |
-| [`app-menu`](https://bugs.edge.launchpad.net/ubuntu/+bugs?field.tag=app-menu) | Bugs related to the [App Menu](https://wiki.ubuntu.com/DesktopExperienceTeam/ApplicationMenu) |
-| [`indicator-applet`](https://bugs.edge.launchpad.net/ubuntu/+bugs?field.tag=indicator-applet) | Bugs related to the use of the Indicator Applet that are not in the `indicator-applet` package (no Application Indicators) |
-| [`indicator-application`](https://bugs.edge.launchpad.net/ubuntu/+bugs?field.tag=indicator-application) | Bugs related to the use of Indicator Application that are not in the `indicator-application` package |
-| [`trayaway`](https://bugs.edge.launchpad.net/ubuntu/+bugs?field.tag=trayaway) | Bugs related to the [Notification Area transition](https://wiki.ubuntu.com/NotificationAreaTransition) |
+| [`app-menu`](https://bugs.launchpad.net/ubuntu/+bugs?field.tag=app-menu) | Bugs related to the [App Menu](https://wiki.ubuntu.com/DesktopExperienceTeam/ApplicationMenu) |
+| [`indicator-applet`](https://bugs.launchpad.net/ubuntu/+bugs?field.tag=indicator-applet) | Bugs related to the use of the Indicator Applet that are not in the `indicator-applet` package (no Application Indicators) |
+| [`indicator-application`](https://bugs.launchpad.net/ubuntu/+bugs?field.tag=indicator-application) | Bugs related to the use of Indicator Application that are not in the `indicator-application` package |
+| [`trayaway`](https://bugs.launchpad.net/ubuntu/+bugs?field.tag=trayaway) | Bugs related to the [Notification Area transition](https://wiki.ubuntu.com/NotificationAreaTransition) |
 
 
 ### Hardware-specific
@@ -211,7 +211,8 @@ See the [regression tracker](http://qa.ubuntu.com/reports/regression/regression_
 
 | Tag | Use case |
 | :---- | :---- |
-| [`update-excuse`](https://launchpad.net/ubuntu/+bugs?field.tag=update-excuse) | A bug tracking a cause of a package not being migrated to the `-release` pocket (this tag causes the bug to appear on the [update excuses report](https://people.canonical.com/~ubuntu-archive/proposed-migration/update_excuses.html)) |
+| [`update-excuse`](https://launchpad.net/ubuntu/+bugs?field.tag=update-excuse) | A bug tracking a cause of a package not being migrated to the `-release` pocket (this tag causes the bug to appear on the [update excuses report](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html
+)) |
 | [`block-proposed`](https://launchpad.net/ubuntu/+bugs?field.tag=block-proposed) | A bug that should be held back from migrating into the `-release` pocket |
 
 

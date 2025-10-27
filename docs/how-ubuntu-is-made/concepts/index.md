@@ -16,6 +16,7 @@ Release principles and infrastructure, publication cadence, and support consider
 /release-team/ubuntu-releases
 upstream-and-downstream
 supported-architectures
+Policy on 3rd-party software sources </tech-board/3rd-party-software-sources>
 launchpad
 ```
 

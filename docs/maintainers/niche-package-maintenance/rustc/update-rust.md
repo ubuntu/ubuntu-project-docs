@@ -12,11 +12,11 @@ This is _not_ a guide for updating your system's Rust toolchain. This guide is i
 
 ## Background
 
-The `rustc` {term}`source package`, which provides {term}`binary packages <binary package>` for the Rust toolchain, is a _versioned_ package. This means that a new source package is created for every Rust release (e.g., [`rustc-1.83`](https://launchpad.net/ubuntu/+source/rustc-1.83) and [`rustc-1.84`](https://launchpad.net/ubuntu/+source/rustc-1.84)).
+The `rustc` {term}`source package`, which provides {term}`binary packages <binary package>` for the Rust toolchain, is a _versioned_ package. This means that a new source package is created for every Rust release (e.g., {lpsrc}`rustc-1.83` and {lpsrc}`rustc-1.84`).
 
 These packages are maintained largely in order to support building other Rust packages in the {term}`Ubuntu archive`. Rust developers seeking to work on their own Rust programs typically use the [`rustup` snap](https://snapcraft.io/rustup) instead.
 
-The default Rust toolchain version used to build Rust packages in the archive is denoted using the [`rust-defaults` package](https://launchpad.net/ubuntu/+source/rust-defaults).
+The default Rust toolchain version used to build Rust packages in the archive is denoted using the {lpsrc}`rust-defaults` package.
 
 ---
 
@@ -51,11 +51,11 @@ In order to publicly track the progress and status of the update, you must creat
 
 #### Bug report for the default release
 
-If this Rust version is the target `rust-defaults` version for devel, then you should create a bug under [`rust-defaults`](https://launchpad.net/ubuntu/+source/rust-defaults). This is because you will eventually need to update `rust-defaults` to point to this new Rust version. As an example, consult this real-life `rust-defaults` bug report [here](https://pad.lv/2109761).
+If this Rust version is the target `rust-defaults` version for devel, then you should create a bug under [`rust-defaults`](https://launchpad.net/ubuntu/+source/rust-defaults). This is because you will eventually need to update `rust-defaults` to point to this new Rust version. As an example, consult this real-life `rust-defaults` {lpbug}`bug report <2109761>`.
 
 #### Bug report for non-default releases
 
-If this Rust version is _not_ the target default for devel, then the process is closer to adding a [new package](https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages) to the archive in general. You can create a general Ubuntu bug tagged with `needs-packaging` and Wishlist importance. A real-life bug report for `rustc-1.86` can be found [here](https://pad.lv/2117513). Notice that it is targeted to the appropriate {term}`series` and tagged accordingly.
+If this Rust version is _not_ the target default for devel, then the process is closer to adding a [new package](https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages) to the archive in general. You can create a general Ubuntu bug tagged with `needs-packaging` and Wishlist importance. A real-life bug report for `rustc-1.86` can {lpbug}`be found here <2117513>`. Notice that it is targeted to the appropriate {term}`series` and tagged accordingly.
 
 ### Setting Up
 
@@ -448,7 +448,7 @@ You can now check this list and figure out which of these are bundled C librarie
 
 #### Removing C dependencies from the next orig tarball
 
-Naturally, the process of pruning a vendored C library varies from library to library. As an example, we will use a removal of the bundled `oniguruma` library from `rustc-1.86`, which caused some [build failures](https://pad.lv/2119556) when it wasn't removed.
+Naturally, the process of pruning a vendored C library varies from library to library. As an example, we will use a removal of the bundled `oniguruma` library from `rustc-1.86`, which caused some {lpbug}`build failures <2119556>` when it wasn't removed.
 
 Next time we run `uscan`, we want to make sure that the bundled C libraries we want to remove aren't included. To do that, simply add the C library directory to `Files-Excluded` in `debian/copyright`:
 
@@ -467,7 +467,7 @@ Next time we run `uscan`, we want to make sure that the bundled C libraries we w
 
 #### Adding the system library as a build dependency
 
-We can't remove a C library needed by a vendored dependency without providing a proper equivalent of said library in its place. Instead, we can use the oniguruma Ubuntu package, [`libonig-dev`](https://pad.lv/u/libonig). We do this by adding the package to `Build-Depends` in `d/control` AND `d/control.in`:
+We can't remove a C library needed by a vendored dependency without providing a proper equivalent of said library in its place. Instead, we can use the oniguruma Ubuntu package, {lpsrc}`libonig-dev`. We do this by adding the package to `Build-Depends` in `d/control` AND `d/control.in`:
 
 ```diff
 --- a/debian/control
@@ -634,7 +634,7 @@ Naturally, many lines will be removed from `debian/patches/prune/d-0021-vendor-r
 
 Inside of `debian/control` and `debian/control.in`, there's a special field called `XS-Vendored-Sources-Rust` which must be updated. It simply lists all the vendored crate dependencies, along with their version numbers, on a single line.
 
-Luckily, the [`dh-cargo`](https://pad.lv/u/dh-cargo) package contains a script for automatically generating this line. Push all your patches, then run the script:
+Luckily, the {lpsrc}`dh-cargo` package contains a script for automatically generating this line. Push all your patches, then run the script:
 
 ```none
 $ quilt push -a
@@ -670,7 +670,7 @@ $ python3 -m venv rustc-lintian-to-copyright
 After that, enter the virtual environment and install `pytoml`:
 
 ```none
-$ source ~/.venvs/rustc-lintian-to-copyright
+$ source ~/.venvs/rustc-lintian-to-copyright/bin/activate
 $ which python3
 $ python3 -m pip install pytoml
 ```

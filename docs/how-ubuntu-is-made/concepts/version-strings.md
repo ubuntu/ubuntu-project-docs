@@ -112,9 +112,8 @@ If these updates pass Ubuntu's automated testing, they do not require manual
 intervention. However, there are scenarios where the automation cannot handle
 the process.
 
-First, once the development release reaches
-[Debian import freeze](https://wiki.ubuntu.com/DebianImportFreeze), the sync
-automation is disabled.
+First, once the development release reaches {ref}`debian-import-freeze`, the
+sync automation is disabled.
 
 Therefore, if an update from Debian *is* required, it must be
 {ref}`manually synced <how-to-request-a-sync>`. Version numbering in this case is
@@ -284,7 +283,7 @@ List of these and further related examples:
 | `2.0-2ubuntu2.1`               | `2.0-2ubuntu2.2`                                  |
 | `2.0-2build1`                  | `2.0-2ubuntu0.1`                                  |
 | `2.0`                          | `2.0ubuntu0.1`                                    |
-| `2.0ubuntu`                    | `2.0ubuntu~22.04.1`                               |
+| `2.0ubuntu`                 | see {ref}`native packages <version-native-packages>` |
 | `2.0-2ubuntu0.24.04.1`         | `2.0-2ubuntu0.24.04.2`                            |
 | `2.0-2` in two releases        | `2.0-2ubuntu0.25.04.1` and `2.0-2ubuntu0.24.04.1` |
 | `2.0-2ubuntu1` in two releases | `2.0-2ubuntu1.25.04.1` and `2.0-2ubuntu1.24.04.1` |

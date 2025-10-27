@@ -1,4 +1,4 @@
-We can use {manpage}`uscan(1)` (from the [`devscripts`](https://launchpad.net/ubuntu/+source/devscripts) package) to get the new source code and generate the new {term}`orig tarball`.
+We can use {manpage}`uscan(1)` (from the {lpsrc}`devscripts` package) to get the new source code and generate the new {term}`orig tarball`.
 
 The log of this should be saved somewhere because `uscan` will warn you if any files you've excluded from `debian/copyright` aren't actually in the original source. You must consult the upstream Rust changes and see what happened to that file, updating `debian/copyright` accordingly depending on if it was removed, renamed, or refactored.
 

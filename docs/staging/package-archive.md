@@ -170,7 +170,7 @@ who needs to be aware of changes that you make for them to be included.
 Soft freezes have no mechanism in the archive software to enforce them, they
 just rely on each developer to ensure that they only upload appropriate changes.
 
-For instance, [Feature Freeze](https://canonical-ubuntu-project.readthedocs-hosted.com/staging/freezes/feature-freeze) is a soft
+For instance, {ref}`feature-freeze` is a soft
 freeze, as you can still upload as before, you are just required to seek
 exceptions for new features.
 
@@ -210,7 +210,7 @@ Packages sometimes move from one component to another, according to policy or
 licensing changes, as managed by the archive administrators. Special
 consideration is necessary when packages move into `main` or `restricted`, as
 this implies a commitment of ongoing maintenance. Such changes must follow the
-[Main Inclusion Process](https://canonical-ubuntu-project.readthedocs-hosted.com/MIR/main-inclusion-review).
+{ref}`Main Inclusion Process <main-inclusion-review>`.
 
 (package-archive-autobuilders)=
 ## Autobuilders

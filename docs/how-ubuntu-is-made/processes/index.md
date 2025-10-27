@@ -87,6 +87,6 @@ Special review processes and quality safeguards for adding updates to published 
 ```{toctree}
 :maxdepth: 1
 
-stable-release-updates
+/SRU/stable-release-updates
 /MIR/main-inclusion-review
 ```

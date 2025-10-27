@@ -7,4 +7,6 @@
 
 ethos/index
 governance/index
+how-ubuntu-is-made/matrix/index
+contribute/contribute
 ```

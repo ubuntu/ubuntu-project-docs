@@ -129,9 +129,9 @@ May be a duplicate of what's in the packaging guide
 ### Archive Administration and Freezes
 
 Archive Admins should be familiar with the
-[Freeze Exception Process](https://wiki.ubuntu.com/FreezeExceptionProcess),
-however it is the bug submitter's and sponsor's responsibility to make sure
-that the process is being followed. Some things to keep in mind for common tasks:
+{ref}`Freeze Exception process <freeze-exceptions>`, however it is the bug
+submitter's and sponsor's responsibility to make sure that the process is being
+followed. Some things to keep in mind for common tasks:
 
 * When the Archive is frozen (i.e. the week before a Milestone, or from one
   week before RC until the final release), you need an ACK from `ubuntu-release`
@@ -144,15 +144,13 @@ that the process is being followed. Some things to keep in mind for common tasks
   if filed by a `core-dev`, `ubuntu-dev` or `motu` (`universe`/`multiverse`
   only) or have an ACK by a sponsor or someone from `ubuntu-sponsors`.
 
-* After [Feature Freeze](https://wiki.ubuntu.com/FeatureFreeze), all (new or
+* After {ref}`feature-freeze`, all (new or
   otherwise) packages in the Archive (i.e. `main`, `restricted`, `universe` and
   `multiverse`) require an ACK from `ubuntu-release` for any
-  Freeze Exception (e.g. [Feature Freeze](https://wiki.ubuntu.com/FeatureFreeze),
-  [User Interface Freeze](https://wiki.ubuntu.com/UserInterfaceFreeze), and
-  [Milestone](https://wiki.ubuntu.com/MilestoneProcess)). Packages that do not
+  Freeze Exception (e.g. {ref}`user-interface-freeze`). Packages that do not
   require a Freeze Exception can be processed normally.
 
-See [Freeze Exception Process](https://wiki.ubuntu.com/FreezeExceptionProcess) for complete details.
+See {ref}`freeze-exceptions` for complete details.
 
 
 ## MIR team
@@ -163,7 +161,7 @@ Owner: MIR + AA teams
 ### OEM metapackages
 
 The Archive team runs a script, maintained by the
-[Developer Membership Board](https://wiki.ubuntu.com/DeveloperMembershipBoard),
+{ref}`Developer Membership Board <dmb>`,
 to automatically grant upload rights to `oem-*-meta` packages -- including
 packages that aren't yet in Ubuntu (uploaders can upload to NEW for these
 packages) -- to some members of Canonical's OEM delivery team via a packageset called "canonical-oem-metapackages".

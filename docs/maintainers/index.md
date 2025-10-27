@@ -8,6 +8,14 @@ frequency (i.e. most common tasks first)
 These guides are for those with elevated permissions on particular tasks who
 are responsible for maintaining the Package Archive or managing processes.
 
+## Matrix management
+
+```{toctree}
+:maxdepth: 1
+
+/community/matrix/index
+```
+
 ## Uploader tasks
 
 ```{toctree}
