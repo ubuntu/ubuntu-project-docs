@@ -541,9 +541,11 @@ The rebase might not work in certain cases, such as if you're merging with an `u
     :dir: gnome-control-center
     :user:
     :input: gbp pq drop
+
+    gbp:info: Dropped branch 'patch-queue/ubuntu/noble'.
     ```
 
-1. Try to find the earliest point where the patches still apply. Increase the value until you don't find the previous release commit:
+1. Try to find the earliest point where the patches still apply. Increase the value until you find the previous release commit:
 
     ```{terminal}
     :copy:
@@ -551,6 +553,10 @@ The rebase might not work in certain cases, such as if you're merging with an `u
     :dir: gnome-control-center
     :user:
     :input: gbp pq import --force --time-machine=30
+
+    gbp:info: 30 tries left
+    gbp:info: Trying to apply patches at '10ee426e74c4643a8b723e874c71b74cfc55746d'
+    gbp:info: 38 patches listed in 'debian/patches/series' imported on 'patch-queue/ubuntu/noble'
     ```
 
     Replace `30` with a number that determines how far in history you want to look for the patches. The exact number depends on the size of your repository. Larger numbers provide better results, but the search gets increasingly slow, so start small.
