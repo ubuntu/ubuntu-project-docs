@@ -24,7 +24,7 @@ We use the Settings application as an example. Internally, the application is kn
 
     For details about the packaging environment, see {ref}`how-to-set-up-for-ubuntu-development`.
 
-1. Install and configure the `sbuild` tool. Follow [Installing `sbuild`](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/how-to/setting-up-sbuild.html#installing-sbuild) in the Ubuntu Packaging Guide. Set the Ubuntu releases for which you're preparing packages.
+1. Install and configure the `sbuild` tool. Follow {ref}`sbuild`. Set the Ubuntu releases for which you're preparing packages.
 
 1. In the Software & Updates application, enable {guilabel}`Source code` on the {guilabel}`Ubuntu Software` tab.
 
@@ -243,8 +243,6 @@ The command lists the following remote repositories:
 :::{note}
 The `debian/latest` and `ubuntu/latest` branches were previously called `debian/master` and `ubuntu/master`, respectively. We renamed them on 4 September 2023 to use more inclusive naming and more closely follow [DEP-14](https://dep-team.pages.debian.net/deps/dep14/).
 :::
-
-These names of remote repositories are local to your system. You can rename them without affecting the content of the remote repositories.
 
 
 ### Salsa remote branches
