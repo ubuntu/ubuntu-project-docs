@@ -227,7 +227,7 @@ Run these commands in the `gnome-control-center` repository that we cloned earli
 :host:
 :dir: gnome-control-center
 :user:
-:input: git remote show -v
+:input: git remote -v
 ```
 
 The command lists the following remote repositories:
