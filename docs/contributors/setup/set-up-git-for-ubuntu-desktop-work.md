@@ -245,6 +245,7 @@ The `debian/latest` and `ubuntu/latest` branches were previously called `debian/
 :::
 
 
+
 ### Salsa remote branches
 
 Let's look at the various branches in the Salsa remote repository:
@@ -276,6 +277,7 @@ Let's look at the various branches in the Salsa remote repository:
 : This is another internal `gbp-buildpackage` branch. It's a merge between the upstream Git branch corresponding to the latest release from the upstream repository and extra content coming from the tarball. You don't interact with it directly.
 
 In this configuration, you only interact with the `ubuntu/latest` branch and let `gbp` handle the other two branches. When you pull and push using `gbp`, it keeps all three branches up to date if no conflict occurs. This is easier than checking out every branch before pushing them.
+
 
 
 ### Maintenance branches
@@ -343,12 +345,14 @@ To create another local branch that tracks a remote branch, use the following co
 :::
 
 
+
 ### Debian remote branches
 
 In addition, we have at least one other branch tracking the Salsa Debian remote repository. Their main (default) branch is called `debian/latest`:
 
 `debian/latest`
 : Pull from the `origin` remote repository, tracking the `debian/latest` remote branch. To push to this branch, you must be a [Debian Developer](https://wiki.debian.org/DebianDeveloper).
+
 
 
 ### Upstream GNOME remote branches
@@ -400,6 +404,7 @@ Switched to a new branch 'upstreamvcs-main'
 The following configuration can simplify certain tasks on Ubuntu Desktop projects.
 
 
+
 ### Git command aliases
 
 Enable Git command aliases:
@@ -418,6 +423,7 @@ Enable Git command aliases:
 ```
 
 
+
 ### Exporting the build area
 
 Export the `../build-area/` directory before building with the `git-buildpackage` tool:
@@ -430,6 +436,7 @@ export-dir = ../build-area/
 ```
 
 For details, see the {manpage}`gbp.conf(5)` and {manpage}`gbp-buildpackage(1)` manual pages.
+
 
 
 ### Merging the changelog automatically
