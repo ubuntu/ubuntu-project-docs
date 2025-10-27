@@ -7,7 +7,7 @@ relatedlinks: "[PackagingWithGit &#32; - &#32; Debian Wiki](https://wiki.debian.
 
 These are some common, day-to-day operations to build, maintain and package GNOME software for Ubuntu Desktop using the Git Build Package (`gbp`) workflow.
 
-We'll use the `gnome-control-center` repository as an example.
+We use the `gnome-control-center` repository as an example.
 
 :::{note}
 Some applications on Ubuntu Desktop are developed outside of Salsa and GNOME. They have their own, separate workflows, which aren't described in this guide. The Desktop Team can help you find the right instructions on Matrix: {matrix}`desktop-dev`.
@@ -19,7 +19,7 @@ Some applications on Ubuntu Desktop are developed outside of Salsa and GNOME. Th
 Before you start, follow the instructions in {ref}`set-up-git-for-ubuntu-desktop-work`.
 
 
-## Team members, contributors and permissions
+## Workflow overview for external contributors
 
 If you're a community contributor and not a member of the Ubuntu Desktop Team, you have to send your contributions through a merge request:
 
@@ -27,18 +27,18 @@ If you're a community contributor and not a member of the Ubuntu Desktop Team, y
 1. Follow this guide and make the changes in your fork.
 1. Open a Salsa merge request from your fork to the original repository.
 
-In some projects, no Ubuntu branch has been created in a long time. You might have to ask the Desktop Team to create the new branch for you. You can contact them on Matrix at {matrix}`desktop-dev` or [on the Canonical Mattermost](https://chat.canonical.com/canonical/channels/desktop).
+In some projects, no Ubuntu branch has been created in a long time. You might have to ask the Desktop Team to create the new branch for you. Contact them on Matrix at {matrix}`desktop-dev`.
 
 
 ## Local changes
 
-With the suggested Git configuration, any non-committed changes (file modifications, additions or removal) halt the build because they won't be included. This is a safety reminder.
+With the suggested Git configuration, any non-committed changes (file modifications, additions, or removal) halt the build because they won't be included. This is a safety reminder.
 
 What you can do when you have such changes:
 
 * Ignore them. The resulting package and build won't include those uncommitted changes. The `../build-area/<your-package>` directory will match the last commit.
 
-    To do this, add the `--git-ignore-new` Git option
+    To do this, add the `--git-ignore-new` Git option.
 
 * Force using the current directory with your local modifications instead of the `build-area` directory, and include any local modifications to the package despite the `ignore-new` option.
 
@@ -66,7 +66,7 @@ Use the following command to refresh the current `ubuntu/<release>` branch and t
 
     The `pristine-tar` branch has been updated as referenced in `debian/gbp.conf`.
 
-* If you have a separate `ubuntu/noble` branch, with its own `upstream/46.x` branch:
+* If you have a separate `ubuntu/noble` branch with its own `upstream/46.x` branch:
 
     ```{terminal}
     :copy:
@@ -83,7 +83,7 @@ Use the following command to refresh the current `ubuntu/<release>` branch and t
     gbp:info: Branch 'pristine-tar' is already up to date.
     ```
 
-The `gbp pull` command, contrary to `git pull`, is a way to avoid checking out each branch and pulling them one by one. With `git pull`, you need to have the branch as the current checkout for potential conflicts when pulling.
+The `gbp pull` command, contrary to `git pull`, is a way to avoid checking out each branch and pulling them one by one.
 
 
 ## Push your Git changes to Salsa
@@ -118,7 +118,7 @@ When upstream releases a new version of a given project, you can merge the versi
 
 1. Create a `patch/queue/ubuntu/latest` branch that is useful in case you need to refresh patches later.
 
-    * If you already have the `patch/queue` branch, just rebase it:
+    * If you already have the `patch/queue` branch, rebase it:
 
         ```{terminal}
         :copy:
@@ -253,9 +253,11 @@ For example, if the application uses the Meson build system and you've updated f
 
 Reflect the application changes in the package dependencies.
 
+
 ### Troubleshooting
 
 You might get the following errors when importing the tarball.
+
 
 #### Revision not found
 
@@ -322,7 +324,7 @@ What is the upstream version? [46.2]
 gbp:error: Upstream tag 'upstream/46.2' already exists
 ```
 
-This error means that Debian already has this tarball. Merge from Debian as described earlier.
+This error means that Debian already has this tarball. Merge from Debian as described in {ref}`desktop-git-merge-a-new-upstream-version-to-latest`.
 
 
 ## Merge a new upstream version to maintenance
@@ -331,22 +333,20 @@ When upstream releases a new version of a given project, you can merge the versi
 
 If `main` has a newer version than the maintenance branch and you are the first one to deal with that case for that maintenance release, additional steps are required.
 
-1. Open the `debian/gbp.conf` file.
-
-    Check if it sets the `upstream-branch=upstream/latest` option.
+1. Check if the `debian/gbp.conf` file sets the `upstream-branch=upstream/latest` option.
 
 1. Check if the `ubuntu/latest` branch has a newer upstream version than the one that you are importing, which was never imported.
 
     For example:
 
-    - `ubuntu/latest` is on 46.2
-    - `ubuntu/noble` is on 46.1 and we want to update to 46.2
-    - The `pristine-tar` log lists that 46.1 and 46.2 have been imported
+    - `ubuntu/latest` is on 46.2.
+    - `ubuntu/noble` is on 46.1, and we want to update to 46.2.
+    - The `pristine-tar` log lists that 46.1 and 46.2 have been imported.
     - Consequently, the `upstream/latest` branch has upstream commits and tags for 46.1, 46.2 and corresponding `gbp` tags `upstream/46.1` and `upstream/46.2`.
 
 1. If the option is present and `ubuntu/latest` is newer, proceed with the next steps.
 
-    Otherwise, just follow these existing sections:
+    Otherwise, follow these sections:
     
     1. {ref}`desktop-git-create-a-new-maintenance-branch`.
     1. Switch to the maintenance branch.
@@ -362,9 +362,9 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :input: git checkout ubuntu/noble
     ```
 
-1. Create a new `upstream/<series>` branch.
+1. Create a new `upstream/<series>` branch:
 
-    You need to checkout the latest version of `upstream/latest` in your maintenance branch. In this example, it's `upstream/46.1`:
+    Checkout the latest version of `upstream/latest` in your maintenance branch. In this example, it's `upstream/46.1`:
 
     ```{terminal}
     :copy:
@@ -494,6 +494,7 @@ Before merging with an upstream release, refresh the patches.
 
 1. Use the Git rebase tools to refresh the patches.
 
+
 ### Troubleshooting
 
 The rebase might not work in certain cases, such as if you're merging with an `upstream/x.z.y` tag or if you didn't create the `patch/queue` branch first. In those cases, follow these steps:
@@ -520,9 +521,9 @@ The rebase might not work in certain cases, such as if you're merging with an `u
     :input: gbp pq import --force --time-machine=30
     ```
 
-    Replace `30` with a number that determines how far in history you want to look for the patches. The exact number depends on the size of your repository. Larger numbers provide better results but the search gets increasingly slow so start small.
+    Replace `30` with a number that determines how far in history you want to look for the patches. The exact number depends on the size of your repository. Larger numbers provide better results, but the search gets increasingly slow, so start small.
 
-1. Re-apply the `debian/patches/series` file on top of the new upstream code, stopping for manual action if is needed:
+1. Re-apply the `debian/patches/series` file on top of the new upstream code, stopping for manual action if needed:
 
     ```{terminal}
     :copy:
@@ -534,10 +535,10 @@ The rebase might not work in certain cases, such as if you're merging with an `u
 
 1. If a patch doesn't apply cleanly, fix it:
 
-    1. Resolve the conflict using `git add` and `git rm`.
+    1. Resolve the conflict, and record the fix using `git add` or `git rm`.
     1. Proceed with `git rebase --continue`.
 
-1. If the `--time-machine` step or `gbp pq rebase` fail, you can import the patches into the `pq` branch manually from a file:
+1. If the `--time-machine` step or `gbp pq rebase` fail, import the patches into the `pq` branch manually from a file:
 
     ```{terminal}
     :copy:
@@ -560,6 +561,7 @@ The rebase might not work in certain cases, such as if you're merging with an `u
 1. Switch back to your `ubuntu/latest` or `ubuntu/<series>` branch.
 
 1. Commit the changes.
+
 
 ### See also
 
@@ -624,7 +626,7 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
 
     * Modify the software. Fix a bug or add a new feature. This will be the content of your new patch.
 
-        When you commit your changes, every new commit turns into a separate patch applied at the end of the `debian/patches/series` file. The commit description will be then converted to the patch description.
+        When you commit your changes, every new commit turns into a separate patch applied at the end of the `debian/patches/series` file. The commit description is then converted to the patch description.
 
         If you want to build a package with the current content without having to switch your branch, use the following command:
 
@@ -636,7 +638,7 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
         :input: gbp buildpackage -b --git-ignore-new --git-export=INDEX
         ```
 
-    * Reorder your patches. If you don't want this patch to be the last one, you can use an interactive Git rebase:
+    * Reorder your patches. If you don't want this patch to be the last one, use an interactive Git rebase:
 
         ```{terminal}
         :copy:
@@ -646,11 +648,11 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
         :input: git rebase -i ubuntu/latest
         ```
 
-        There, you can reorder the patches as commits, amend or stash them. Removing a commit also removes the patch from the `debian/patches/series` file.
+        There, reorder the patches as commits, amend or stash them. Removing a commit also removes the patch from the `debian/patches/series` file.
     
-    * Remove or edit patches. Any change to the commits will result in the same change to the patch files.
+    * Remove or edit patches. Any change to the commits results in the same change to the patch files.
 
-        For example, you can use Git amend to modify the commit history. For details, see [Git Tools - Rewriting History](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History).
+        For example, you can use Git commit with the `--amend` option to modify the commit history. For details, see [Git Tools - Rewriting History](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History).
 
 1. Reapply all your changes to the original branch:
 
@@ -726,7 +728,7 @@ You can cherry-pick an upstream commit into a patch file.
 
 1. Are there any conflicts?
 
-    If there are no conflicts, edit the commit message to comply with {ref}`dep-3-patch-file-headers`. This will end up as the patch header.
+    If there are no conflicts, edit the commit message to comply with {ref}`dep-3-patch-file-headers`. This ends up as the patch header.
 
     If there are conflicts:
     
@@ -782,7 +784,7 @@ For details about `gbp pq`, see {ref}`desktop-git-add-or-modify-patches`.
 (desktop-git-update-the-changelog)=
 ## Update the changelog
 
-You can edit the `debian/changelog` file manually but it's recommended to use the following command instead:
+You can edit the `debian/changelog` file manually, but it's recommended to use the following command instead:
 
 ```{terminal}
 :copy:
@@ -813,9 +815,9 @@ Alternatively, you can include all the commit descriptions:
 Then, filter them out by hand at the commit phase.
 
 
-## Import an Ubuntu upload tracked outside of VCS
+## Import an Ubuntu upload tracked outside of Git
 
-You can import a Debian Source Control (DSC) source package as a tarball, even if it doesn't exist in the Git version tracking system (VCS).
+You can import a Debian Source Control (DSC) source package as a tarball, even if it doesn't exist in Git.
 
 1. Downloading the source tarball.
 
@@ -854,11 +856,13 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
     :input: gbp import-dsc ../gnome-control-center_46.1-0ubuntu5.dsc
     ```
 
-1. If there had been changes in your tree, importing the latest tarball reverted all previous changes in the VCS.
+1. If there had been changes in your tree, importing the latest tarball reverted all previous changes in Git.
 
-    To restore your changes, you could rewrite the history using a Git rebase. However, everyone who pulls from the repository would have conflicts upon refreshing. This is discouraged.
+    :::{important}
+    Do not use Git rebase to restore your changes (which would rewrite history) because everyone who pulls from the repository would have conflicts upon refreshing.
+    :::
 
-    Instead, reintroduce your changes by cherry-picking the commits. Because your commits are already in tree but reverted, you must cherry-pick using the following commands:
+    Reintroduce your changes by cherry-picking the commits. Because your commits are already in tree but reverted, you must cherry-pick using the following commands:
 
     ```{terminal}
     :copy:
@@ -888,9 +892,9 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
 
 1. Find the latest version in common between the development release and that maintenance branch.
 
-    Here, we'll use the `ubuntu/1%46.1-0ubuntu4` version tag as an example.
+    Here, we use the `ubuntu/1%46.1-0ubuntu4` version tag as an example.
 
-2. Create a branch from the start starting point.
+2. Create a branch from the starting point.
 
     ```{terminal}
     :copy:
@@ -965,7 +969,7 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
 
 ## Build a package locally
 
-To build a local package, we use the [`sbuild` framework](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/how-to/setting-up-sbuild.html) and specify the target Ubuntu release. We don't recommend building the package directly on your system without using `sbuild` because the test and build phase might be affected by the state of your machine.
+To build a local package, we use the {ref}`sbuild framework <sbuild>` and specify the target Ubuntu release. We don't recommend building the package directly on your system without using `sbuild` because the test and build phase might be affected by the state of your machine.
 
 * Build a binary package for your Ubuntu release and CPU architecture. For example, Ubuntu Noble on the AMD64 architecture:
 
@@ -1078,7 +1082,7 @@ If this is a sponsored upload, the sponsor performs these steps.
     :input: gbp buildpackage -S -vX
     ```
 
-1. Check the `../build-area/<your-package>.changes` file to make sure that it's correct. This file instructs `dput` which files to upload, and provides a high-level view of the changes such as the latest changelog entries.
+1. Check the `../build-area/<your-package>.changes` file to make sure that it's correct. This file instructs `dput` which files to upload and provides a high-level view of the changes, such as the latest changelog entries.
 
     For example, changes to the GNU Hello program as packaged for Ubuntu would be described in the `hello_2.10-0ubuntu1.changes` file.
 

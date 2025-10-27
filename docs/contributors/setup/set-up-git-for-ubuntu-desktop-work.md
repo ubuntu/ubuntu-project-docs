@@ -5,9 +5,9 @@ relatedlinks: "[PackagingWithGit &#32; - &#32; Debian Wiki](https://wiki.debian.
 (set-up-git-for-ubuntu-desktop-work)=
 # Set up Git for Ubuntu Desktop work
 
-The [Desktop Team](https://library.canonical.com/our-organisation/ubuntu-engineering/desktop) uses Git and Git Build Package (`gbp`) to maintain GNOME packages for Ubuntu. Let's set up your system so that you can contribute to GNOME on Ubuntu Desktop.
+The [Desktop Team](https://discourse.ubuntu.com/c/project/desktop/8) uses Git and Git Build Package (`gbp`) to maintain GNOME packages for Ubuntu. Let's set up your system so that you can contribute to GNOME on Ubuntu Desktop.
 
-We'll use the Settings application as an example. Internally, the application is known as the GNOME Control Center.
+We use the Settings application as an example. Internally, the application is known as the GNOME Control Center.
 
 
 ## Initial setup
@@ -19,10 +19,10 @@ We'll use the Settings application as an example. Internally, the application is
     :host:
     :dir:
     :user:
-    :input: sudo apt install git git-buildpackage ubuntu-dev-tools gnupg
+    :input: sudo apt install git git-extras git-buildpackage ubuntu-dev-tools gnupg
     ```
 
-    For details about the packaging environment, see [Getting Set Up](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/tutorial/getting-set-up.html) in the Ubuntu Packaging Guide.
+    For details about the packaging environment, see {ref}`how-to-set-up-for-ubuntu-development`.
 
 1. Install and configure the `sbuild` tool. Follow [Installing `sbuild`](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/1.0/how-to/setting-up-sbuild.html#installing-sbuild) in the Ubuntu Packaging Guide. Set the Ubuntu releases for which you're preparing packages.
 
@@ -197,9 +197,9 @@ Let's clone the GNOME Control Center repository.
     :user:
     :input: git branch -vv
 
-      pristine-tar             a96c0e2e98 [origin/pristine-tar] pristine-tar data for gnome-control-center_49.0.orig.tar.xz
-    * ubuntu/latest            a8640ab8a4 [origin/ubuntu/latest] debian/salsa-ci: Enable for ubuntu
-      upstream/latest          4db8b3a502 [origin/upstream/latest] New upstream version 49.0
+      pristine-tar      a96c0e2e98 [origin/pristine-tar] pristine-tar data for gnome-control-center_49.0.orig.tar.xz
+    * ubuntu/latest     a8640ab8a4 [origin/ubuntu/latest] debian/salsa-ci: Enable for ubuntu
+      upstream/latest   4db8b3a502 [origin/upstream/latest] New upstream version 49.0
     ```
 
 1. Check that you have the following two remotes:
@@ -246,6 +246,7 @@ The `debian/latest` and `ubuntu/latest` branches were previously called `debian/
 
 These names of remote repositories are local to your system. You can rename them without affecting the content of the remote repositories.
 
+
 ### Salsa remote branches
 
 Let's look at the various branches in the Salsa remote repository:
@@ -277,6 +278,7 @@ Let's look at the various branches in the Salsa remote repository:
 : This is another internal `gbp-buildpackage` branch. It's a merge between the upstream Git branch corresponding to the latest release from the upstream repository and extra content coming from the tarball. You don't interact with it directly.
 
 In this configuration, you only interact with the `ubuntu/latest` branch and let `gbp` handle the other two branches. When you pull and push using `gbp`, it keeps all three branches up to date if no conflict occurs. This is easier than checking out every branch before pushing them.
+
 
 ### Maintenance branches
 
@@ -342,12 +344,14 @@ To create another local branch that tracks a remote branch, use the following co
 ```
 :::
 
+
 ### Debian remote branches
 
 In addition, we have at least one other branch tracking the Salsa Debian remote repository. Their main (default) branch is called `debian/latest`:
 
 `debian/latest`
 : Pull from the `origin` remote repository, tracking the `debian/latest` remote branch. To push to this branch, you must be a [Debian Developer](https://wiki.debian.org/DebianDeveloper).
+
 
 ### Upstream GNOME remote branches
 
@@ -397,6 +401,7 @@ Switched to a new branch 'upstreamvcs-main'
 
 The following configuration can simplify certain tasks on Ubuntu Desktop projects.
 
+
 ### Git command aliases
 
 Enable Git command aliases:
@@ -414,6 +419,7 @@ Enable Git command aliases:
     ubuntu-delta = "!f() { git diff $(git last-debian-tag) -- ${1:-debian} ':(exclude)debian/changelog'; }; f"
 ```
 
+
 ### Exporting the build area
 
 Export the `../build-area/` directory before building with the `git-buildpackage` tool:
@@ -425,7 +431,8 @@ Export the `../build-area/` directory before building with the `git-buildpackage
 export-dir = ../build-area/
 ```
 
-For details, see the `gbp.conf(5)` and `gbp-buildpackage` man pages.
+For details, see the {manpage}`gbp.conf(5)` and {manpage}`gbp-buildpackage(1)` manual pages.
+
 
 ### Merging the changelog automatically
 
@@ -448,7 +455,7 @@ debian/changelog merge=dpkg-mergechangelogs
 ```
 
 :::{warning}
-This automation might not work when Ubuntu packages use a higher epoch than the Debian ones. In that case, fix the changelog manually.
+This automation might not work when Ubuntu packages use a higher [epoch](https://www.debian.org/doc/debian-policy/ch-controlfields.html#version) than the Debian ones. In that case, fix the changelog manually.
 :::
 
 
