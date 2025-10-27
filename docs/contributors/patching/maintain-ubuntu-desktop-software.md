@@ -1086,7 +1086,7 @@ If this is a sponsored upload, the sponsor performs these steps.
 
     For example, changes to the GNU Hello program as packaged for Ubuntu would be described in the `hello_2.10-0ubuntu1.changes` file.
 
-1. Upload the files to the Debian package upload queue:
+1. Upload the files to the Ubuntu package upload queue:
 
     ```{terminal}
     :copy:
