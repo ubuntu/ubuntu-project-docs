@@ -685,7 +685,7 @@ be taken to not leave the kernel with a mismatched firmware package.
 
 However, it is a very large package (over 500MiB in size), and making it
 instantly available in the -security pocket to all Ubuntu users in the world
-via unattended-upgrades. That causes a lot of strain on the archive network
+via unattended-upgrades causes a lot of strain on the archive network
 and servers. The kernel team is working on that, but until then we need to
 mitigate the impact to all users.
 
