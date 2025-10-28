@@ -703,7 +703,7 @@ to be (SRU) released we have to stagger the release to spread the load.
 
 Note that this release process described above only applies to SRUs. Actual
 security updates to this package are not handled through the SRU process
-and remain unchanged.
+but will also need to follow the staged release until properly mitigated.
 
 wireless-regdb
 ~~~~~~~~~~~~~~
