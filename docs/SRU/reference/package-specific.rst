@@ -685,16 +685,25 @@ be taken to not leave the kernel with a mismatched firmware package.
 
 However, it is a very large package (over 500MiB in size), and making it
 instantly available in the -security pocket to all Ubuntu users in the world
-causes a lot of strain on the archive network and servers.
+via unattended-upgrades causes a lot of strain on the archive network
+and servers. The kernel team is working on that, but until then we need to
+mitigate the impact to all users.
 
-Therefore, once the verification is done and linux-firmware is ready to be
-released, it should first be released to the updates pocket. Then, after
-phasing has completed, it must be copied to the -security pocket by either
-an archive admin, or a security team member.
+Therefore, for now, once the verification is done and linux-firmware is ready
+to be (SRU) released we have to stagger the release to spread the load.
+
+* First it should be released to the updates pocket - allowing mirrors to sync
+  it and anyone running explicit updates to pick it up.
+
+* Then after phasing has completed, it must be copied to the -security pocket
+  by either an archive admin, or a security team member. That copy should also
+  be spread out over releases. The suggested delay in-between is 4 days,
+  which combined with the "avoid Friday" rule suggests Mon,Thu,Mon,... until
+  all are fully released.
 
 Note that this release process described above only applies to SRUs. Actual
 security updates to this package are not handled through the SRU process
-and remain unchanged.
+but will also need to follow the staged release until properly mitigated.
 
 wireless-regdb
 ~~~~~~~~~~~~~~
