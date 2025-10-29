@@ -72,7 +72,7 @@ To keep your mirror up to date and working, follow these guidelines:
 **Make sure you have enough disk space**
 : The Ubuntu archive, as of September 2025, uses about:
 
-  * **2.6TB** of disk space for the Ubuntu Package Archive
+  * **3.6TB** of disk space for the Ubuntu Package Archive
 
   * **50GB** for Ubuntu release CD images
 
