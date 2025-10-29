@@ -29,6 +29,7 @@ Getting new versions of packages from Debian, dealing with build dependencies, a
 ```{toctree}
 :maxdepth: 1
 
+new-packages
 merges-and-syncs
 transitions
 backports
