@@ -1,5 +1,5 @@
 ---
-relatedlinks: "[PackagingWithGit &#32; - &#32; Debian Wiki](https://wiki.debian.org/PackagingWithGit)"
+relatedlinks: "[PackagingWithGit &#32; - &#32; Debian Wiki](https://wiki.debian.org/PackagingWithGit), [Building &#32; Debian &#32; Packages &#32; with &#32; git-buildpackage](https://honk.sigxcpu.org/projects/git-buildpackage/manual-html/)"
 ---
 
 (maintain-ubuntu-desktop-software)=
