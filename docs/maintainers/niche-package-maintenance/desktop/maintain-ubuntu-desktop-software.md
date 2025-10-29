@@ -102,7 +102,9 @@ To contribute changes back to Salsa, push your changes using `gbp`:
 (desktop-git-merge-a-new-upstream-version-to-latest)=
 ## Merge a new upstream version to latest
 
-When upstream releases a new version of a given project, you can merge the version on the Debian and Ubuntu branches.
+When upstream releases a new version of a given project, you can merge the version on the Debian and Ubuntu `latest` branches.
+
+This applies when upstream releases the latest version of the latest series: for example when version 50.0 or 50.2 comes out, and version 51 hasn't been released yet. Always merge new major releases on the `latest` branch. If you're merging a new maintenance release of an earlier series, follow {ref}`merge-a-new-upstream-version-to-maintenance` instead.
 
 1. Switch to the branch where you want to import the new version, such as `ubuntu/latest`:
 
@@ -327,9 +329,12 @@ gbp:error: Upstream tag 'upstream/46.2' already exists
 This error means that Debian already has this tarball. Merge from Debian as described in {ref}`desktop-git-merge-a-new-upstream-version-to-latest`.
 
 
+(merge-a-new-upstream-version-to-maintenance)=
 ## Merge a new upstream version to maintenance
 
-When upstream releases a new version of a given project, you can merge the version on an Ubuntu maintenance branch.
+When upstream releases a new version of a given project, you can merge the version on an Ubuntu maintenance branch. A maintenance branch is a branch for stable releases and backports.
+
+This applies when upstream releases a new version of an earlier series, older than the current major version: for example when version 49.3 comes out, and the `latest` branch already contains version 50.0. If you're merging a new release of the latest series, follow {ref}`desktop-git-merge-a-new-upstream-version-to-latest` instead.
 
 If `main` has a newer version than the maintenance branch and you are the first one to deal with that case for that maintenance release, additional steps are required.
 
