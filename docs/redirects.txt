@@ -60,6 +60,7 @@ who-makes-ubuntu/councils/conflict-resolution/ community/councils/conflict-resol
 
 how-ubuntu-is-made/governance/peers/ community/governance/
 
+staging/new-packages/ how-ubuntu-is-made/processes/new-packages/
 staging/dmb/ubuntu-membership/ community/membership/
 staging/dmb/member-perks/ community/membership/member-perks/
 staging/dmb/member-requirements/ community/membership/member-requirements/
