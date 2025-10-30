@@ -39,6 +39,7 @@ staging/release-team/push-mirroring/ release-team/push-mirroring/
 staging/push-mirroring/ release-team/push-mirroring/
 staging/release-team/release-team/ release-team/release-team/
 staging/release-team/releases/ release-team/list-of-releases/
+staging/package-archive/ how-ubuntu-is-made/concepts/package-archive/
 
 # Governance/community pages
 explanation/governance/ community/governance/

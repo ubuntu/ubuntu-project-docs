@@ -19,7 +19,7 @@ staging/dmb/index-umb
 staging/release-team/seeds
 staging/release-team/seed-management
 staging/release-team/germinate
-staging/package-archive
+staging/new-packages
 staging/partner-archive
 staging/aa-museum
 staging/not-AA
