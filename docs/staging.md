@@ -23,6 +23,7 @@ staging/new-packages
 staging/partner-archive
 staging/aa-museum
 staging/not-AA
+staging/maintscripts
 ```
 
 
