@@ -1,6 +1,13 @@
 (ubuntu-teams)=
 # Ubuntu teams
 
+```{toctree}
+:maxdepth: 1
+:hidden:
+
+rocks-team
+```
+
 Any reasonably large project eventually needs someone at the helm to help steer the project's general direction, make official decisions, and decide the right path to take in difficult situations. Ubuntu is no different, except that it is so big that there are many, many different sub projects within it, each one governed by its own set of leaders.
 
 Below is a list of key teams that operate within the Ubuntu project and their responsibilities: 
@@ -15,7 +22,7 @@ Below is a list of key teams that operate within the Ubuntu project and their re
 | [Foundations team](https://wiki.ubuntu.com/FoundationsTeam) | Deliver the core Ubuntu system, common to the whole Ubuntu family of products and services, i.e. plumbing |
 | [QA team](https://wiki.ubuntu.com/QATeam) | Develop tools, policies, and practices for ensuring Ubuntu's quality as a distribution as well as providing general advice, oversight, and leadership of QA activities within the Ubuntu project |
 | {ref}`release-team` | The Release Team helps bring together all the essential building blocks for every Ubuntu release |
-| [Rocks community](https://ubuntu.com/community/docs/governance/teams/rocks) | The Rocks Community is your hub for exploring Ubuntu Rocks and everything "containers" |
+| {ref}`Rocks community <rocks-team>` | The Rocks Community is your hub for exploring Ubuntu Rocks and everything "containers" |
 | [Security team](https://wiki.ubuntu.com/SecurityTeam) | Keep Ubuntu and its users secure through fixing vulnerabilities and contributing to its security development |
 | [Server team](https://wiki.ubuntu.com/ServerTeam) | Deliver the best operating system for the cloud and scale-out computing |
 | [Ubuntu Flutter community](https://github.com/ubuntu-flutter-community) | Design and implementation of the Flutter visuals, a whole additional set of widgets specifically designed for the Ubuntu desktop, Flutter "Yaru" theme for the Ubuntu visuals in Flutter apps, a dedicated Flutter icon theme and the new snap-store front-end, plus many more apps in development |
