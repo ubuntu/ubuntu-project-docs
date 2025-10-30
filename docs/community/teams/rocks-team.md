@@ -39,8 +39,8 @@ The primary governing body responsible for the community's processes and structu
 | Name               | Contact       |                                                |                                                                      |
 | ---                | ---           | ---                                            | ---                                                                  |
 |                    | *Discourse*   | *GitHub*                                       | *Matrix*                                                             |
-| {spellexception}`Cristovao Cordeiro` | `@cjdc`       | [@cjdcordeiro](https://github.com/cjdcordeiro) | [@cjdc:ubuntu.com](https://matrix.to/#/@cjdc:ubuntu.com)             | 
-| Sergio {spellexception}`Schvezov`    | `@sergiusens` | [@sergiusens](https://github.com/sergiusens)   | [@sergiusens:ubuntu.com](https://matrix.to/#/@sergiusens:ubuntu.com) | 
+| {spellexception}`Cristovao Cordeiro` | `@cjdc`       | [@cjdcordeiro](https://github.com/cjdcordeiro) | [@cjdc:ubuntu.com](https://matrix.to/#/@cjdc:ubuntu.com)             |
+
 
 
 ### Rocks Technical Board
