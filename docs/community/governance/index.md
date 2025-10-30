@@ -1,13 +1,14 @@
 (project-governance)=
 # Project governance
 
+
 ```{toctree}
 :maxdepth: 1
 :hidden:
 
+../ethos/index
 canonical
 debian
-ubuntu-teams
 delegation
 ```
 
@@ -85,4 +86,3 @@ A major part of the fabric of the community is the Local Community (LoCo) team s
 Local Community teams are a great way to gather free software lovers together for beer, open discussion, talks, marketing events and to recognise the achievements of local free software contributors. LoCo teams are provided with spaces for discussion, collaboration and event planning on the [Ubuntu Discourse](https://discourse.ubuntu.com/c/locos/129).
 
 To join a Local Community team or learn how to start one in your area, check out {ref}`Ubuntu Local Communities <local-communities>`.
-
