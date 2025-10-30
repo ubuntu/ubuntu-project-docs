@@ -44,7 +44,7 @@ $ sudo apt update && \
 
 [GnuPG](https://gnupg.org/) is an encryption tool that helps manage your
 {term}`encryption keys <Signing Key>`. You'll need it later to be able to add
-a {term}`signature` to each {ref}`upload <Uploading>`.
+a {term}`signature` to each {ref}`upload <uploading-to-the-archive>`.
 
 This setup example is quite concise and only contains the basics, but
 eventually the {term}`private key <Signing Key>` will represent your identity
@@ -74,7 +74,7 @@ other entities.
     gpg> adduid
     Real name: Karl Stenerud
     Email address: karl.stenerud@canonical.com
-    Comment: 
+    Comment:
     You selected this USER-ID:
         "Karl Stenerud <karl.stenerud@canonical.com>"
 

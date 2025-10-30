@@ -1,7 +1,7 @@
-.. _stable-release-updates:
+.. _introduction-to-sru:
 
-Stable Release Updates
-======================
+Introduction to SRU
+===================
 
 To fix newly discovered bugs and make updates after the publication of an :term:`Ubuntu Stable Release`, use the **Stable Release Update (SRU)** process.
 
@@ -67,4 +67,3 @@ Updates removal
 If a bug fixed by an update doesn't get any testing or verification feedback for 90 days, an automated "call for testing" comment is made on the bug report. If no testing occurs within an additional 15 days, totaling 105 days without any testing, the :term:`Stable Release Managers` removes the package from proposed and close the bug task as **Won't Fix**.
 
 Also, updates are removed from proposed if they introduce a non-trivial regression.
-

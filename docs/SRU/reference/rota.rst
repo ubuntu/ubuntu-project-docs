@@ -3,7 +3,7 @@
 Team rota
 ---------
 
-.. include:: /howto/contact.rst
+.. include:: /SRU/howto/contact.rst
    :start-after: start-canonical-contact-admonition
    :end-before: end-canonical-contact-admonition
 

@@ -90,6 +90,17 @@ new-package/index
 ```
 
 
+## Stable Release Updates
+
+Guidance for contributors on how to submit requests for SRU. See
+
+```{toctree}
+:maxdepth: 1
+
+/SRU/howto/index
+```
+
+
 ## Accessibility
 
 ```{toctree}
