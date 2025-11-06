@@ -25,8 +25,7 @@ have any questions, contact the {ref}`bug-squad` via their mailing list.
 
 : When you ask the reporter to provide any necessary information in a comment,
   subscribe yourself to the report so you will get any updates to it via e-mail.
-  If anyone (including yourself) comments on it, the 60-day expiration clock is
-  reset.
+  A bug without assignee or milestone will [expire after 60-days](https://documentation.ubuntu.com/launchpad/user/reference/bugs/bug-expiry/), unless anyone comments on it.
 
 : For more on this, see {ref}`bug-responses`.
 
