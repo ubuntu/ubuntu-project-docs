@@ -25,7 +25,7 @@ have any questions, contact the {ref}`bug-squad` via their mailing list.
 
 : When you ask the reporter to provide any necessary information in a comment,
   subscribe yourself to the report so you will get any updates to it via e-mail.
-  A bug without assignee or milestone will [expire after 60-days](https://documentation.ubuntu.com/launchpad/user/reference/bugs/bug-expiry/), unless anyone comments on it.
+  A bug without an assignee or milestone {external+launchpad:ref}`expires after 60-days <bug-expiry>`, unless someone comments on it.
 
 : For more on this, see {ref}`bug-responses`.
 
