@@ -345,8 +345,8 @@ Native in Ubuntu:
 | `2.0ubuntu0` (old format)      | `2.1ubuntu` or `3.0ubuntu`     | `2.0ubuntu0.1`                          |
 | `2ubuntu`                      | `3ubuntu`                      | `2ubuntu0.1`                            |
 | `2ubuntu0` (old format)        | `3ubuntu` (new format)         | `2ubuntu0.1`                            |
-| `3.1.2ubuntu.build10`          | `3.1.3ubuntu`                  | `3.1.3ubuntu0.1`                        |
-| `2ubuntu` in multiple releases | `3ubuntu` or `3ubuntu~26.04.1` | `3ubuntu~25.10.1` and `3ubuntu~25.04.1` |
+| `3.1.2ubuntu.build10`          | `3.1.3ubuntu`                  | `3.1.2ubuntu0.1`                        |
+| `2ubuntu` in multiple releases | `3ubuntu` or `3ubuntu~26.04.1` | `2ubuntu~25.10.1` and `2ubuntu~25.04.1` |
 
 ```{note}
 
