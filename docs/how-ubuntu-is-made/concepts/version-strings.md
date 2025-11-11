@@ -108,6 +108,14 @@ Only packages with no Ubuntu modifications or those with no-change updates
 (i.e., versions with `build` rather than `ubuntu` in the revision), are
 automatically synced.
 
+When your is already in Debian (and preliminary in Ubuntu), you can indicate a version with `willsync` to be overwritten by any future Debian version.
+The suffix `willsync` > `ubuntu` (and `ubuntu` prevents syncing, see above), so the next Debian update will overwrite the Ubuntu delta automatically.
+
+| When                                                 | Current Debian | Current Ubuntu | Next Debian        | Ubuntu sync indication |
+|------------------------------------------------------|----------------|----------------|--------------------|------------------------|
+| Ubuntu has delta, Debian caught up                   | `2.0-1`        | `2.0-1ubuntu1` | `2.0-2` or `2.1-1` | `2.0-1willsync1`       |
+| No Ubuntu delta, but new change already is in Debian | `2.0-1`        | `2.0-1`        | `2.0-2` or `2.1-1` | `2.0-1willsync1`       |
+
 If these updates pass Ubuntu's automated testing, they do not require manual
 intervention. However, there are scenarios where the automation cannot handle
 the process.
@@ -351,7 +359,7 @@ Native in Ubuntu:
 |                                |                                | full: `3ubuntu~25.10.1` and `3ubuntu~25.04.1`    |
 
 ```{note}
-Depending on just a "patch" backport or rather the "full release", the SRU version number should be the current version, or the new release version number respectively.
+Depending on just a "patch" backport or rather the "full release", the SRU version number should be the current version incremented, or the new release version number with `~` to order before, respectively.
 
 The rule of multiple releases with the same version needing to also add a
 per-release `YY.MM` to differentiate and ensure upgradability can be applied here as
