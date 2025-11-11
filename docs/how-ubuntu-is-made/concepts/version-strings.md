@@ -339,16 +339,19 @@ Native in Debian:
 
 Native in Ubuntu:
 
-| Previous version               | Devel upload                   | SRU upload                              |
-|--------------------------------|--------------------------------|-----------------------------------------|
-| `2.0ubuntu`                    | `2.1ubuntu` or `3.0ubuntu`     | `2.0ubuntu0.1`                          |
-| `2.0ubuntu0` (old format)      | `2.1ubuntu` or `3.0ubuntu`     | `2.0ubuntu0.1`                          |
-| `2ubuntu`                      | `3ubuntu`                      | `2ubuntu0.1`                            |
-| `2ubuntu0` (old format)        | `3ubuntu` (new format)         | `2ubuntu0.1`                            |
-| `3.1.2ubuntu.build10`          | `3.1.3ubuntu`                  | `3.1.2ubuntu0.1`                        |
-| `2ubuntu` in multiple releases | `3ubuntu` or `3ubuntu~26.04.1` | `2ubuntu~25.10.1` and `2ubuntu~25.04.1` |
+| Previous version               | Devel upload                   | SRU upload                                       |
+|--------------------------------|--------------------------------|--------------------------------------------------|
+| `2.0ubuntu`                    | `2.1ubuntu` or `3.0ubuntu`     | patch: `2.0ubuntu0.1`                            |
+| `2.0ubuntu0` (old format)      | `2.1ubuntu` or `3.0ubuntu`     | patch: `2.0ubuntu0.1`                            |
+| `2ubuntu`                      | `3ubuntu`                      | patch: `2ubuntu0.1`                              |
+| `2ubuntu0` (old format)        | `3ubuntu` (new format)         | patch: `2ubuntu0.1`                              |
+| `3.1.2ubuntu.build10`          | `3.1.3ubuntu`                  | patch: `3.1.2ubuntu0.1`                          |
+|                                |                                | full: `3.1.3ubuntu~25.04.1`                      |
+| `2ubuntu` in multiple releases | `3ubuntu` or `3ubuntu~26.04.1` | patch: `2ubuntu0.25.10.1` and `2ubuntu0.25.04.1` |
+|                                |                                | full: `3ubuntu~25.10.1` and `3ubuntu~25.04.1`    |
 
 ```{note}
+Depending on just a "patch" backport or rather the "full release", the SRU version number should be the current version, or the new release version number respectively.
 
 The rule of multiple releases with the same version needing to also add a
 per-release `YY.MM` to differentiate and ensure upgradability can be applied here as
@@ -451,12 +454,13 @@ List of this and further related examples:
 The new version is again independent of the former version that was present in
 the target release. Here are examples targeting 22.04:
 
-| Previous         | New development | Upload for LTS         |
-| ---------------- | --------------- | ---------------------- |
-| `2.0-2`          | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1` |
-| `2.0-2ubuntu2`   | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1` |
-| `2.0-2ubuntu2.1` | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1` |
-| `2.0-2build1`    | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1` |
+| Previous         | New development | Upload for LTS                                       |
+|------------------|-----------------|------------------------------------------------------|
+| `2.0-2`          | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1`                               |
+| `2.0-2ubuntu2`   | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1`                               |
+| `2.0-2ubuntu2.1` | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1`                               |
+| `2.0-2build1`    | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1`                               |
+| `2.0ubuntu`      | `3.1ubuntu`     | see {ref}`native packages <version-native-packages>` |
 
 ```{note}
 If in this case the package in the Ubuntu development release is a native
