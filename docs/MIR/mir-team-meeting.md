@@ -1,8 +1,8 @@
 (mir-team-meeting)=
 # MIR team weekly status meeting
 
-The MIR Team holds weekly meetings for 30 minutes every Tuesday at
-<time datetime="T16:30+01:00">16:30 CET</time> on the
+The {ref}`MIR Team <about-mir-role>` holds weekly meetings for 30 minutes
+every Tuesday at <time datetime="T16:30+01:00">16:30 CET</time> on the
 {ref}`Ubuntu Matrix Server <matrix-index>`
 in the {matrix}`Ubuntu Main inclusion requests <ubuntu-mir>` channel.
 
@@ -12,15 +12,16 @@ The purpose of the meeting is:
 * to provide a timely response to reporters of MIR requests
 * to detect and discuss any current or complex cases
 
-You should attend these meetings if you submit an MIR request, until it is
-approved or rejected.
+You should attend these meetings if you submit an {ref}`MIR request <mir-submit-bug>`,
+until it is approved or rejected.
 
 Due to the nature of the
 [Ubuntu Development Process](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/2.0-preview/explanation/development-process/),
 there are times (e.g. close to Feature Freeze) when this meeting is busy and
 others (e.g. right after a new release) when it is quieter. Consequently,
-response times to MIR requests are (on average) usually faster in those quieter
-periods after the release of a new Ubuntu version.
+response times along the {ref}`MIR process <mir-process-overview>` are
+(on average) usually faster in those quieter periods after the release of a
+new Ubuntu version.
 
 
 ## Meeting template
