@@ -232,3 +232,12 @@ DPDK SRU Template
    Upstream performs extensive testing before release, giving us a high degree of confidence in the general case. There problems are most likely to manifest in Ubuntu-specific integrations, such as in relation to the versions of dependencies available and other packaging-specific matters.
 
    TODO: consider any other regression potential specific to the version being updated and list if any or list N/A.
+
+
+Related SRU Interest Team
+-------------------------
+
+Container stacks have a :ref:`SRU Interest Team <reference-sru-interest-team>`,
+please subscribe the
+`Interest group <https://launchpad.net/~sru-verification-interest-group-dpdk>`__
+to the SRU bug early on.
