@@ -32,7 +32,7 @@ Packages eligible for the sync are any package that doesn't have
 Ubuntu-specific changes. The heuristic is based on version number: if it
 contains `ubuntu`, it is considered to have a delta.
 
-In addition to delta-containing packages, some packages are entirely exluded from
+In addition to delta-containing packages, some packages are entirely excluded from
 the sync through the [sync-blocklist](https://code.launchpad.net/~ubuntu-archive/+git/sync-blocklist).
 
 #### Disabling auto-import

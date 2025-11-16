@@ -337,7 +337,7 @@ not**.
 An exception to the above is that some packagesets *require* membership. You can
 identify these because the uploading teams are a member of `~ubuntu-dev` instead
 of `~ubuntu-uploaders`. In these cases applicants must satisfy the membership
-critera: granting upload rights without membership is not possible.
+criteria: granting upload rights without membership is not possible.
 
 This is, of course, only the case when adding **uploaders**. Memberships such
 as for {ref}`dmb-joining-contributing`, which do not grant any upload
