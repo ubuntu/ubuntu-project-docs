@@ -231,7 +231,7 @@ download the package source:
 Related SRU Interest Team
 -------------------------
 
-OpenStack has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
-please subscribe the
+OpenStack has a :ref:`SRU Interest Team <reference-sru-interest-team>`.
+Please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-openstack>`__
 to the SRU bug early on.

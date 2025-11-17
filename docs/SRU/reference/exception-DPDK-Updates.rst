@@ -237,7 +237,7 @@ DPDK SRU Template
 Related SRU Interest Team
 -------------------------
 
-DPDK has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
-please subscribe the
+DPDK has a :ref:`SRU Interest Team <reference-sru-interest-team>`.
+Please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-dpdk>`__
 to the SRU bug early on.
