@@ -506,7 +506,7 @@ RULE: please coordinate with them upfront so they have time, understanding and
 RULE: sympathy available.
 RULE: Examples of the past which we admit could have been better (grows by
 RULE: painful lessons learned):
-RULE: - changing to rust coreutils forced us to update any appamore profiles
+RULE: - changing to rust coreutils forced us to update any apparmor profiles
 RULE    that referred to these paths
 TODO-A: This change will not impact other teams
 TODO-B: This change will impact other teams TBD[, TBD] and they are
