@@ -21,9 +21,9 @@ The Ubuntu High-Performance Computing (HPC) team aims to provide the highest qua
 
 ## Meetings
 
-Every Wednesday at 16:30 UTC [via Jitsi](https://meet.jit.si/Ubuntu-HPC).
+Every Wednesday at 16:30 UTC [on Jitsi](https://meet.jit.si/Ubuntu-HPC).
 
-Not sure when the next Ubuntu HPC weekly community call is going to be? Check out the Events calendar on the Ubuntu Discourse for when the next call will be. You can also add the weekly community call to your calendar!
+Not sure when the next Ubuntu HPC weekly community call is going to be? Check out the [Events calendar on the Ubuntu Discourse](https://discourse.ubuntu.com/c/events/11) for when the next call will be. You can also add the weekly community call to your calendar!
 
 
 ## Authority
@@ -38,7 +38,7 @@ The Council of not so Ancient Elders (CAE):
 | James {spellexception}`Beedy`         | `@jamesbeedy`   |                                                  | [@jamesbeedy](https://matrix.to/#/@jamesbeedy:matrix.org)     |
 | Billy Olsen         | `@billy-olsen`  | [@wolsen](https://github.com/wolsen)             | [@billy-olsen](https://matrix.to/#/@billy-olsen:ubuntu.com)   |
 
-The gang of 4 who help steer the Ubuntu HPC community in initiatives, projects, conferences, meetups, and more as the community grows. After the Ubuntu HPC community grows to 50 regular, active members and has 2 consecutive appearances at the Ubuntu Summit, the CAE will shift to implementing a democratic process where all active members can vote on the direction of the community. Until that point, the CAE convenes during weekly virtual meetings to discuss the current and future trajectory of Ubuntu HPC with the community.
+The Ubuntu HPC community is led by a "Council of Not So Ancient Elders". The CAE is responsible for steering and being the "final-say" on different initiatives such as technical projects, conference attendance, and community meetings.
 
 Please join the Ubuntu {matrix}`HPC Matrix space <hpc>` to contact the CAE for any questions regarding team governance.
 
@@ -48,13 +48,14 @@ Please join the Ubuntu {matrix}`HPC Matrix space <hpc>` to contact the CAE for a
 Interested in joining? Send a message to the General room in the {matrix}`HPC <hpc>` Matrix with a short introduction and what team you would like to be a part of and we will get you set up!
 
 **Community**
-: The Community team works on scheduling HPC-oriented community workshops, organizing community meet-ups both in-person and virtually, sending out announcements, etc.
+: The Community team works on community-focused matters such as scheduling HPC-oriented  workshops, organizing meetings, and responding to user bug reports.
 
-**Development**
-: The Development team works to enable HPC workloads on Ubuntu. They maintain packages, develop cloud flavors, create containers, write documentation, and more.
+**Maintainers**
+: The Maintainers team works on the projects owned by the Ubuntu HPC community. Their work includes maintaining HPC-specific packages, developing Charmed HPC, writing documentation, and more.
 
 **The Legion**
-: The Legion tests the latest and greatest releases of the development team's work and report/triage bugs and issues.
+**The Legion**
+: The Legion tests the latest and greatest releases of the Maintainers team's work and report/triage bugs and issues.
 
 
 ## Frequently asked questions
