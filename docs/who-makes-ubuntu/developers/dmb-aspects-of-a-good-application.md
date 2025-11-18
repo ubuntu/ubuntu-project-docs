@@ -72,7 +72,7 @@ Examples:
 Applicants must follow the {ref}`DMB application process <dmb-application>` to collect their materials on an application page.
 The application must contain evidence of appropriate work for the level of upload rights applying for.
 Some aspects are best presented with evidence of the actual action like several sponsored uploads, others are more about learning and understanding which are harder to prove.
-But if you can also provide evidence of what you've learned about these topics, from your contributon to improve documentation/process to exerpts of insights you have had along the way.
+But if you can also provide evidence of what you've learned about these topics, from your contribution to improve documentation/process to excerpts of insights you have had along the way.
 An application pages shall include endorsements from current Ubuntu members, developers, and uploaders.
 When applying for a specific level, having endorsements from current members with the same or wider rights is required.
 
