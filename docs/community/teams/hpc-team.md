@@ -28,7 +28,6 @@ Not sure when the next Ubuntu HPC weekly community call is going to be? Check ou
 
 ## Authority
 
-The Council of not so Ancient Elders (CAE):
 
 | Name                | Contact         |                                                  |                                                               |
 | ---                 | ---             | ---                                              | ---                                                           |
