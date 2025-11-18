@@ -29,13 +29,6 @@ Not sure when the next Ubuntu HPC weekly community call is going to be? Check ou
 ## Authority
 
 
-| Name                | Contact         |                                                  |                                                               |
-| ---                 | ---             | ---                                              | ---                                                           |
-|                     | *Discourse*     | *GitHub*                                         | *Matrix*                                                      |
-| Jason C. {spellexception}`Nucciarone` | `@nuccitheboss` | [@nuccitheboss](https://github.com/nuccitheboss) | [@nuccitheboss](https://matrix.to/#/@nuccitheboss:matrix.org) |
-| Jaime F. de {spellexception}`Souza`   |                 |                                                  | [@jaimesouza](https://matrix.to/#/@jaimesouza:matrix.org)     |
-| James {spellexception}`Beedy`         | `@jamesbeedy`   |                                                  | [@jamesbeedy](https://matrix.to/#/@jamesbeedy:matrix.org)     |
-| Billy Olsen         | `@billy-olsen`  | [@wolsen](https://github.com/wolsen)             | [@billy-olsen](https://matrix.to/#/@billy-olsen:ubuntu.com)   |
 
 The Ubuntu HPC community is led by a "Council of Not So Ancient Elders". The CAE is responsible for steering and being the "final-say" on different initiatives such as technical projects, conference attendance, and community meetings.
 
