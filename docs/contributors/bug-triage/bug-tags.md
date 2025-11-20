@@ -246,9 +246,13 @@ understanding of the tags they use for their own workflows. These are meant
 to be added/removed during those teams' regular triage processes, but are documented
 here so everyone can find and understand their meaning.
 
+Tags are not the only way to get awareness - Teams are structurally subscribed
+when they own (see {ref}`main-inclusion-review`) a package.
+In addition they might also subscribe their team to a specific bug so it can
+be included in future reviews of the acknowledged acklog.
+
 | Tag | Use case |
 | :---- | :---- |
-| -                 | Teams are structurally subscribed when they own (see {ref}`main-inclusion-review`) a package. They might also subscribe to a specific bug so it can be included in future reviews of the backlog. |
 | `$team-todo`      | Among the vast backlog, bugs with this tag are considered both important and actionable. They require a person to be assigned, and must be regularly tracked so they do not fall through the cracks. If, while working on a case, the bug becomes un-actionable this tag should be dropped to keep the overview clear. |
 | `$team-freezer`   | This is like `$team-todo`, but for bugs that should be remembered even if they cannot be immediately acted upon. This tag puts the bug into the "freezer", effectively establishing a second tier of cases that are actionable but waiting to be handled. If there is a condition or date by which the case should be re-considered, teams are encouraged to state that when adding this tag. |
 | `rls-$$-incoming` | This tag is used as a trigger for getting the attention of the team that is structurally subscribed to the package. `$$` is a abbreviation for the corresponding Ubuntu release name - for example `rr` for `26.04 resolute raccoon` - and allows to target a particular release this shall be considered for. If you have any additional context, please add a comment alongside the tag. |
