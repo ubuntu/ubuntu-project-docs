@@ -249,7 +249,7 @@ here so everyone can find and understand their meaning.
 Tags are not the only way to get awareness - Teams are structurally subscribed
 when they own (see {ref}`main-inclusion-review`) a package.
 In addition they might also subscribe their team to a specific bug so it can
-be included in future reviews of the acknowledged acklog.
+be included in future reviews of the acknowledged backlog.
 
 | Tag | Use case |
 | :---- | :---- |
