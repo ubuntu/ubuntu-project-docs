@@ -12,46 +12,45 @@ an MIR bug's current state.
 %%{ init: { "flowchart": { "curve": "monotoneY", "htmlLabels": true } } }%%
 flowchart TD
     %% Styles
-    classDef Invisible stroke-width:0,fill:#00000000 
+    classDef Invisible stroke-width:0,fill:#00000000
 
     %% States
-    Unassigned["<b><i>1.</i> New / Confirmed¹<br>(unassigned)</b>"]
+    ToReview["<b><i>1.</i> New / Confirmed¹<br>(unassigned)</b>"]
     AssignedToMirTeamMember["<b><i>2.</i> New / Confirmed¹<br>(assigned to<br>MIR team member)</b>"]
     AssignedToSecurityTeamMember["<b><i>3.</i> New / Confirmed¹<br>(assigned to<br>Security team)</b>"]
-    WontFix[["<b><i>7.</i> Won't Fix</b>"]]
-    InProgress["<b><i>4.</i> In Progress</b>"]
-    FixCommitted["<b><i>5.</i> Fix Committed</b>"]
-    FixReleased[["<b><i>6.</i> Fix Released</b>"]]
-    Incomplete["<b><i>8.</i> Incomplete</b>"]
-    Invalid[["<b><i>9.</i> Invalid</b>"]]
+    WontFix[["<b><i>7.</i> Won't Fix<br>(unassigned)</b>"]]
+    InProgress["<b><i>4.</i> In Progress<br>(unassigned)</b>"]
+    FixCommitted["<b><i>5.</i> Fix Committed<br>(unassigned<br>ubuntu-archive subscribed)</b>"]
+    FixReleased[["<b><i>6.</i> Fix Released<br>(unassigned)</b>"]]
+    Incomplete["<b><i>8.</i> Incomplete<br>(assigned to<br>the reporter)</b>"]
+    Invalid[["<b><i>9.</i> Invalid<br>(unassigned)</b>"]]
 
     %% Meta States
     Start((" ")):::Invisible
     BugCreated>"Bug created"]
-    IsSecurityReviewNeeded{{"is Security Review needed"}}
-    Reviewed{{"Reviewed<br><i>(report added as<br>bug comment)</i>"}}
-    QuestionsArise>"Questions or Requests<br>arise"]
-    
+
     %% Transitions
-    Start-->|"create MIR bug<br>following the template"| BugCreated
-    BugCreated-->|"subscribe Launchpad team<br><code>~ubuntu-mir</code> to the bug"|Unassigned
+    Start-->|"<div style='background:#8BC34A'>a) create MIR bug</div>"| BugCreated
+    BugCreated-->|"<div style='background:#8BC34A'>b) subscribe <code>~ubuntu-mir</code></div>"|ToReview
 
-    Unassigned -->|"triaged at MIR team meeting"| AssignedToMirTeamMember
-    AssignedToMirTeamMember --> IsSecurityReviewNeeded -->|"yes"| AssignedToSecurityTeamMember
+    ToReview -->|"<div style='background:#4ECDC4'>c) triaged by MIR team</div>"| AssignedToMirTeamMember
 
-    IsSecurityReviewNeeded -->|"no"| Reviewed
-    AssignedToSecurityTeamMember --> Reviewed
-    Reviewed -->|"MIR team NACK"| WontFix
-    Reviewed -->|"MIR team ACK"| InProgress
+    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'>d) MIR team ACK</div>"| InProgress
+    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'>e) MIR team ACK,<br>Security needed</div>"| AssignedToSecurityTeamMember
+    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'>f) MIR team NACK</div>"| WontFix
+    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'>g) needs questions/actions</div>"| Incomplete
 
-    InProgress -->|"Dependency/Seed change that<br>pulls package(s) into <code>main</code>/<code>restricted</code>"| FixCommitted
-    FixCommitted -->|"Archive Admin (AA)</br>promotes package(s)"| FixReleased
+    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'>h) Security ACK</div>"| InProgress
+    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'>i) Security NACK</div>"| WontFix
+    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'>j) needs questions/actions</div>"| Incomplete
 
-    AssignedToSecurityTeamMember --> QuestionsArise
-    AssignedToMirTeamMember --> QuestionsArise
-    QuestionsArise --> Incomplete
-    Incomplete -->|"Questions or<br>Requests resolved"| Unassigned
-    Incomplete -->|"no response by the bug<br>reporter/driver within 60 days"| Invalid
+    Incomplete -->|"<div style='background:#8BC34A'>k) questions/actions resolved</div>"| ToReview
+    WontFix -->|"<div style='background:#8BC34A'>l) situation changes</div>"| ToReview
+    InProgress -->|"<div style='background:#8BC34A'>m) package(s) pulled into main</div>"| FixCommitted
+
+    FixCommitted -->|"n) Archive Admin</br>promotes package(s)"| FixReleased
+
+    Incomplete -->|"<div style='background:#4ECDC4'>o) no response</div>"| Invalid
 ```
 
 | State                                                       | Explanation |
@@ -67,29 +66,31 @@ flowchart TD
 | *9.* Invalid[^1]                                            | No response within 60 days when in `Incomplete` state |
 | *10.* Invalid[^1]                                           | Not promoted to main by owning-team 2 years after MIR approval |
 
-[^1]: Since many people set Launchpad bugs to `Confirmed` once they verified 
-     the validity of a problem, MIR bugs often get set to `Confirmed`. Since 
+[^1]: Since many people set Launchpad bugs to `Confirmed` once they verified
+     the validity of a problem, MIR bugs often get set to `Confirmed`. Since
      `Confirmed` does not have any meaning for our process, we will handle
      `New` and `Confirmed` as if they are the same.
+
+| Transition                                                                        | Responsible to set state and assignee|
+|-----------------------------------------------------------------------------------|--------------------------------------|
+| *a.* action: create MIR bug following the template                                | Reporter/Driver                      |
+| *b.* action: subscribe Launchpad team ~ubuntu-mir                                 | Reporter/Driver                      |
+| *c.* action: triaged at MIR team meeting                                          | MIR team                             |
+| *d.* decision: MIR team ACK (report added as comment)                             | MIR team                             |
+| *e.* decision: MIR team ACK (report added as comment), but security review needed | MIR team                             |
+| *f.* decision: MIR team NACK                                                      | MIR team                             |
+| *g.* decision: needs questions answered or required actions done                  | MIR team                             |
+| *h.* decision: Security ACK (report added as comment)                             | Secruity team                        |
+| *i.* decision: Security NACK (report added as comment)                            | Secruity team                        |
+| *j.* decision: needs questions answered or required actions done                  | Secruity team                        |
+| *k.* action: questions or requests resolved                                       | Reporter/Driver                      |
+| *l.* action: situation changes, new input given                                   | Reporter/Driver                      |
+| *m.* action: dependency/seed change that pulls package(s) into main               | Reporter/Driver                      |
+| *n.* action: Archive Admin promotes package                                       | Archive Admin                        |
+| *o.* decision: no response by the bug reporter/driver within >=60 days            | MIR team                                     |
 
 
 ```{note}
 All other states are undefined and should be resolved to one of the defined
 states -– otherwise they might be completely missed on the weekly checks.
 ```
-
-```{hint}
-Transitioning from *2.*/*3.* to *4.*/*5.*/*8.*: The successor of assigned `New`
-states depends *(as seen by multiple arrows in the state diagram)* on the
-package(s) current state in the archive: 
-* A NACK from the MIR or Security team will result in the `7. Won't Fix` state.
-  A former reviewer will get unassigned. (If there is context to believe that 
-  there might be a follow up by the reporter the reviewer might remain assigned.)
-* In case of an ACK from the MIR team (and, if required the Security team), if 
-  the package(s) is/are already tried to be pulled into `main`/`restricted` 
-  then the next state is `5. (Fix Committed)`, otherwise the next state is 
-  `4. In Progress`. Seen in:
-  * [component mismatches for `main`/`restricted`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg) 
-  * [component mismatches for `proposed`](https://ubuntu-archive-team.ubuntu.com/component-mismatches-proposed.svg)
-```
-
