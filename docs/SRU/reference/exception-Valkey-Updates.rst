@@ -36,6 +36,12 @@ are included in a new micro release, the update should also be added to the
 security pocket through a no-change rebuild after releasing to the updates
 pocket.
 
+Note that Valkey has strict rules for maintaining compatibility between micro
+releases. However, minor and major releases often contain
+backwards-incompatible changes. Therefore, only micro releases should be
+considered for SRU, and a minor release update should go through the normal
+SRU process.
+
 .. _ubuntu_and_valkey_releases_affected_by_this_mre:
 
 Ubuntu and Valkey releases affected by this MRE
