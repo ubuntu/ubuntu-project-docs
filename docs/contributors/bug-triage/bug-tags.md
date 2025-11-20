@@ -239,17 +239,17 @@ For X tags please check [X Tagging](https://wiki.ubuntu.com/X/Tagging) with all 
 | :---- | :---- |
 | [`asked-to-upstream`](https://launchpad.net/ubuntu/+bugs?field.tag=asked-to-upstream) | Users were asked to report the bug upstream themselves |
 
-## Canonical Team Tags
+## Canonical team tags
 
-Some of the Canonical teams across Ubuntu development have evolved into a shared
+Some of the Canonical teams across Ubuntu development have evolved a shared
 understanding of the tags they use for their own workflows. These are meant
-to be added/removed by those teams regular triage process, but documented
+to be added/removed during those teams' regular triage processes, but are documented
 here so everyone can find and understand their meaning.
 
 | Tag | Use case |
 | :---- | :---- |
-| -                 | Teams are structurally subscribed when they own (see {ref}`main-inclusion-review` a package, but in addition might subscribe to a particular bug to consider it a more likely backlog task to look back to in the future. |
-| `$team-todo`      | Among the vast backlog that organically grows, the bugs with this tag are considered generally important and actionable and therefore demand a person to be assigned and regularly tracked so they do not fall through the cracks. If along working on a case it becomes un-actionable the tag should be dropped to keep the overview clear. |
-| `$team-freezer`   | This is like `$team-todo` but for any reason the case can't be worked on, but should be remembered. To do so this tag puts it into the freezer, effectively establishing a second tier of cases that are actionable and wait to be handled. If there is a condition or date to be met to re-consider the case, teams are encouraged to state that when adding this tag. |
-| `rls-$$-incoming` | This tag is added as trigger for getting attention of the team that is structurally subscribed to the package. If you have any additional context, please add a comment along the tag. |
+| -                 | Teams are structurally subscribed when they own (see {ref}`main-inclusion-review`) a package. They might also subscribe to a specific bug so it can be included in future reviews of the backlog. |
+| `$team-todo`      | Among the vast backlog, bugs with this tag are considered both important and actionable. They require a person to be assigned, and must be regularly tracked so they do not fall through the cracks. If, while working on a case, the bug becomes un-actionable this tag should be dropped to keep the overview clear. |
+| `$team-freezer`   | This is like `$team-todo`, but for bugs that should be remembered even if they cannot be immediately acted upon. This tag puts the bug into the "freezer", effectively establishing a second tier of cases that are actionable but waiting to be handled. If there is a condition or date by which the case should be re-considered, teams are encouraged to state that when adding this tag. |
+| `rls-$$-incoming` | This tag is used as a trigger for getting the attention of the team that is structurally subscribed to the package. If you have any additional context, please add a comment alongside the tag. |
 
