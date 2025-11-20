@@ -82,6 +82,20 @@ the integration of Valkey with Ubuntu, specifically when starting valkey-server
 and running standard cli commands, along with issues in setup and compatibility
 with Redis if relevant.
 
+.. _valkey_avoiding_breaking_changes:
+
+Avoiding Breaking Changes
+-------------------------
+
+In order to confirm that upstream continues to match our expectation of
+backwards compatibility in micro releases, additional due diligence must be
+done by whoever prepares the SRU. Prior to merging, version release notes and
+announcements from upstream must be checked for backwards-incompatible changes.
+Any change that may fit this description must be noted in the bug report. Also,
+prior to uploading, discuss with the SRU team as to how to handle the changes.
+This may result in a reversion of the backwards-incompatible changes through
+patches.
+
 Valkey Update Process
 ----------------------
 
@@ -94,6 +108,7 @@ To do this we will:
 
    -  Add tasks to all Ubuntu releases which will be updated.
    -  Add a link to the upstream changelog and list major changes.
+   -  Look through changelogs and announcements to check for backwards-incompatible changes, and note them down.
 
 #. Make sure the development release contains the fixes that will be added. In general this should be the case as long as it is up to date with its associated micro release version.
 #. Setup merges with each new version.
@@ -118,6 +133,8 @@ Valkey SRU template
 
    TODO: List updates, CVE fixes, and relevant bug fixes
    TODO: Add a link to the upstream changelog
+
+   TODO: Specifically note any backwards-incompatible changes or features added by upstream and their announcements/release notes and relevant commits.
 
    [Test Plan]
 
