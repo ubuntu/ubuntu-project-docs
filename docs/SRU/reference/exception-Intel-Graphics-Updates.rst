@@ -272,6 +272,9 @@ generations.
 Test results will be compared between the current and proposed updates and will
 be available for review. Any regressions will be highlighted in the SRU.
 
+Since libva is also part of the AMD stack, the ffmpeg test plan will be run 
+on an AMD device, and any regressions will be reported in the SRU.
+
 **Caveats**
 
 * In the event of difficulties with a device, the SRU team has full discretion
