@@ -55,7 +55,7 @@ flowchart TD
 
 | Index | State               | Assignee / Subscriber                   | State-Explanation |
 |-------|---------------------|-----------------------------------------|-------------|
-| *1.*  | New / Confirmed[^1] | (unassigned)                            | Bug is queued for assignment to an MIR team member |
+| *1.*  | New / Confirmed[^1] | (unassigned, ubuntu-mir subscribed)     | Bug is queued for assignment to an MIR team member |
 | *2.*  | New / Confirmed[^1] | (assigned to MIR team member)           | On the TODO list of the assigned MIR team member |
 | *3.*  | New / Confirmed[^1] | (assigned to Security team member)      | On the TODO list of the Security team member |
 | *4.*  | In Progress         | (unassigned)                            | MIR team ACK (and if needed, Security team ACK) done, but now needs the Dependency / Seed change to happen to pull package(s) into `main`/`restricted` |
