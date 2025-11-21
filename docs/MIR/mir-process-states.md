@@ -53,25 +53,24 @@ flowchart TD
     Incomplete -->|"<div style='background:#4ECDC4'><i>o)</i> no response</div>"| Invalid
 ```
 
-| Index | State                                                  | Explanation |
-|-------|--------------------------------------------------------|-------------|
-| *1.*  | New / Confirmed[^1] (unassigned)                       | Bug is queued for assignment to an MIR team member |
-| *2.*  | New / Confirmed[^1] (assigned to MIR team member)      | On the TODO list of the assigned MIR team member |
-| *3.*  | New / Confirmed[^1] (assigned to Security team member) | On the TODO list of the Security team member |
-| *4.*  | In Progress                                            | MIR team ACK (and if needed, Security team ACK) done, but now needs the Dependency / Seed change to happen to pull package(s) into `main`/`restricted` |
-| *5.*  | Fix Committed                                          | All of the above done; waiting for an Archive Admin to promote the package(s) to `main`/`restricted` |
-| *6.*  | Fix Released                                           | Case resolved by an Archive Admin |
-| *7.*  | Won\'t Fix                                             | Final NACK from MIR team or bug reporter gave up |
-| *8.*  | Incomplete                                             | Questions / Requests were raised for the bug reporter to resolve / clarify |
-| *9.*  | Invalid[^1]                                            | No response within 60 days when in `Incomplete` state |
-| *10.* | Invalid[^1]                                            | Not promoted to main by owning-team 2 years after MIR approval |
+| Index | State               | Assignee / Subscriber                   | State-Explanation |
+|-------|---------------------|-----------------------------------------|-------------|
+| *1.*  | New / Confirmed[^1] | (unassigned)                            | Bug is queued for assignment to an MIR team member |
+| *2.*  | New / Confirmed[^1] | (assigned to MIR team member)           | On the TODO list of the assigned MIR team member |
+| *3.*  | New / Confirmed[^1] | (assigned to Security team member)      | On the TODO list of the Security team member |
+| *4.*  | In Progress         | (unassigned)                            | MIR team ACK (and if needed, Security team ACK) done, but now needs the Dependency / Seed change to happen to pull package(s) into `main`/`restricted` |
+| *5.*  | Fix Committed       | (unassigned, ubuntu-archive subscribed) | All of the above done; waiting for an Archive Admin to promote the package(s) to `main`/`restricted` |
+| *6.*  | Fix Released        | (unassigned)                            | Case resolved by an Archive Admin |
+| *7.*  | Won\'t Fix          | (unassigned)                            | Final NACK from MIR team or bug reporter gave up |
+| *8.*  | Incomplete          | (assigned to the reporter)              | Questions / Requests were raised for the bug reporter to resolve / clarify |
+| *9.*  | Invalid[^1]         | (unassigned)                            | No response within 60 days when in `Incomplete` state |
 
 [^1]: Since many people set Launchpad bugs to `Confirmed` once they verified
      the validity of a problem, MIR bugs often get set to `Confirmed`. Since
      `Confirmed` does not have any meaning for our process, we will handle
      `New` and `Confirmed` as if they are the same.
 
-| Index | Transition                                                         | Responsible to set state and assignee|
+| Index | Transition-Explanation                                             | Responsible to set state and assignee|
 |-------|--------------------------------------------------------------------|--------------------------------------|
 | *a.*  | Create MIR bug following the template                              | Reporter/Driver                      |
 | *b.*  | Subscribe Launchpad team ~ubuntu-mir                               | Reporter/Driver                      |
