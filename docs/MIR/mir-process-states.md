@@ -30,27 +30,27 @@ flowchart TD
     BugCreated>"Bug created"]
 
     %% Transitions
-    Start-->|"<div style='background:#8BC34A'>a) create MIR bug</div>"| BugCreated
-    BugCreated-->|"<div style='background:#8BC34A'>b) subscribe <code>~ubuntu-mir</code></div>"|ToReview
+    Start-->|"<div style='background:#8BC34A'><i>a)</i> create MIR bug</div>"| BugCreated
+    BugCreated-->|"<div style='background:#8BC34A'><i>b)</i> subscribe <code>~ubuntu-mir</code></div>"|ToReview
 
-    ToReview -->|"<div style='background:#4ECDC4'>c) triaged by MIR team</div>"| AssignedToMirTeamMember
+    ToReview -->|"<div style='background:#4ECDC4'><i>c)</i> triaged by MIR team</div>"| AssignedToMirTeamMember
 
-    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'>d) MIR team ACK</div>"| InProgress
-    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'>e) MIR team ACK,<br>Security needed</div>"| AssignedToSecurityTeamMember
-    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'>f) MIR team NACK</div>"| WontFix
-    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'>g) needs questions/actions</div>"| Incomplete
+    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'><i>d</i>) MIR team ACK</div>"| InProgress
+    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'><i>e</i>) MIR team ACK,<br>Security needed</div>"| AssignedToSecurityTeamMember
+    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'><i>f</i>) MIR team NACK</div>"| WontFix
+    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'><i>g</i>) needs questions/actions</div>"| Incomplete
 
-    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'>h) Security ACK</div>"| InProgress
-    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'>i) Security NACK</div>"| WontFix
-    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'>j) needs questions/actions</div>"| Incomplete
+    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'><i>h</i>) Security ACK</div>"| InProgress
+    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'><i>i</i>) Security NACK</div>"| WontFix
+    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'><i>j</i>) needs questions/actions</div>"| Incomplete
 
-    Incomplete -->|"<div style='background:#8BC34A'>k) questions/actions resolved</div>"| ToReview
-    WontFix -->|"<div style='background:#8BC34A'>l) situation changes</div>"| ToReview
-    InProgress -->|"<div style='background:#8BC34A'>m) package(s) pulled into main</div>"| FixCommitted
+    Incomplete -->|"<div style='background:#8BC34A'><i>k</i>) questions/actions resolved</div>"| ToReview
+    WontFix -->|"<div style='background:#8BC34A'><i>l</i>) situation changes</div>"| ToReview
+    InProgress -->|"<div style='background:#8BC34A'><i>m)</i> package(s) pulled into main</div>"| FixCommitted
 
-    FixCommitted -->|"n) Archive Admin</br>promotes package(s)"| FixReleased
+    FixCommitted -->|"<i>n)</i> Archive Admin</br>promotes package(s)"| FixReleased
 
-    Incomplete -->|"<div style='background:#4ECDC4'>o) no response</div>"| Invalid
+    Incomplete -->|"<div style='background:#4ECDC4'><i>o)</i> no response</div>"| Invalid
 ```
 
 | State                                                       | Explanation |
