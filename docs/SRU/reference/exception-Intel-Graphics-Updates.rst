@@ -448,17 +448,6 @@ SRU template
     unintentional hardware regressions:
     https://documentation.ubuntu.com/sru/en/latest/reference/exception-Intel-Graphics-Updates/#hardware-support
 
-    In order to track intentional hardware retiring, we should compare
-    these lists in the current stable and proposed versions
-    * https://github.com/intel/media-driver?tab=readme-ov-file#supported-platforms
-    * https://github.com/intel/compute-runtime?tab=readme-ov-file#supported-platforms
-    * https://github.com/intel/intel-graphics-compiler?tab=readme-ov-file#supported-platforms
-    * https://github.com/intel/level-zero-raytracing-support?tab=readme-ov-file#supported-platforms
-    * https://github.com/intel/gmmlib?tab=readme-ov-file#supported-platforms
-    * https://github.com/intel/vc-intrinsics?tab=readme-ov-file#supported-platforms
-    * https://github.com/uxlfoundation/oneTBB/blob/master/SYSTEM_REQUIREMENTS.md#supported-hardware
-    * https://github.com/intel/libvpl?tab=readme-ov-file#dispatcher-behavior-when-targeting-intel-gpus
-
     [ Where problems could occur ]
 
     An HWE update contains a lot of new changes. On an LTS, it is
