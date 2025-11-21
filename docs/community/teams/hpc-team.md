@@ -1,5 +1,5 @@
 (hpc-team)=
-# High-performance computing team
+# High-Performance Computing team
 
 The Ubuntu High-Performance Computing (HPC) team aims to provide the highest quality HPC infrastructure, applications, and user experience for the Ubuntu ecosystem. HPC is the bedrock that underpins several major industries and critical research areas such as AI/ML, energy, bioinformatics, pharmacology, engineering, and meteorology. The HPC team works to provide the best free and open-source HPC stack from packaging all the way to cloud applications for Ubuntu.
 
@@ -45,7 +45,6 @@ Interested in joining? Send a message to the General room in the {matrix}`HPC <h
 **Maintainers**
 : The Maintainers team works on the projects owned by the Ubuntu HPC community. Their work includes maintaining HPC-specific packages, developing Charmed HPC, writing documentation, and more.
 
-**The Legion**
 **The Legion**
 : The Legion tests the latest and greatest releases of the Maintainers team's work and report/triage bugs and issues.
 
