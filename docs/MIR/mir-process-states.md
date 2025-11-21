@@ -71,23 +71,23 @@ flowchart TD
      `Confirmed` does not have any meaning for our process, we will handle
      `New` and `Confirmed` as if they are the same.
 
-| Index |  Type    | Transition                                                         | Responsible to set state and assignee|
-|-------|----------|--------------------------------------------------------------------|--------------------------------------|
-| *a.*  | action   | create MIR bug following the template                              | Reporter/Driver                      |
-| *b.*  | action   | subscribe Launchpad team ~ubuntu-mir                               | Reporter/Driver                      |
-| *c.*  | action   | triaged at MIR team meeting                                        | MIR team                             |
-| *d.*  | decision | MIR team ACK (report added as comment)                             | MIR team                             |
-| *e.*  | decision | MIR team ACK (report added as comment), but security review needed | MIR team                             |
-| *f.*  | decision | MIR team NACK                                                      | MIR team                             |
-| *g.*  | decision | needs questions answered or required actions done                  | MIR team                             |
-| *h.*  | decision | Security ACK (report added as comment)                             | Security team                        |
-| *i.*  | decision | Security NACK (report added as comment)                            | Security team                        |
-| *j.*  | decision | needs questions answered or required actions done                  | Security team                        |
-| *k.*  | action   | questions or requests resolved                                     | Reporter/Driver                      |
-| *l.*  | action   | situation changes, new input given                                 | Reporter/Driver                      |
-| *m.*  | action   | dependency/seed change that pulls package(s) into main             | Reporter/Driver                      |
-| *n.*  | action   | Archive Admin promotes package                                     | Archive Admin                        |
-| *o.*  | decision | no response by the bug reporter/driver within >=60 days            | MIR team                                     |
+| Index | Transition                                                         | Responsible to set state and assignee|
+|-------|--------------------------------------------------------------------|--------------------------------------|
+| *a.*  | Create MIR bug following the template                              | Reporter/Driver                      |
+| *b.*  | Subscribe Launchpad team ~ubuntu-mir                               | Reporter/Driver                      |
+| *c.*  | Triaged at MIR team meeting                                        | MIR team                             |
+| *d.*  | MIR team ACK (report added as comment)                             | MIR team                             |
+| *e.*  | MIR team ACK (report added as comment), but security review needed | MIR team                             |
+| *f.*  | MIR team NACK                                                      | MIR team                             |
+| *g.*  | Needs questions answered or required actions done                  | MIR team                             |
+| *h.*  | Security ACK (report added as comment)                             | Security team                        |
+| *i.*  | Security NACK (report added as comment)                            | Security team                        |
+| *j.*  | Needs questions answered or required actions done                  | Security team                        |
+| *k.*  | Questions or requests resolved                                     | Reporter/Driver                      |
+| *l.*  | Situation changes, new input given                                 | Reporter/Driver                      |
+| *m.*  | Dependency/seed change that pulls package(s) into main             | Reporter/Driver                      |
+| *n.*  | Archive Admin promotes package                                     | Archive Admin                        |
+| *o.*  | No response by the bug reporter/driver within >=60 days            | MIR team                                     |
 
 
 ```{note}
