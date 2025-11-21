@@ -80,9 +80,9 @@ flowchart TD
 | *e.* decision: MIR team ACK (report added as comment), but security review needed | MIR team                             |
 | *f.* decision: MIR team NACK                                                      | MIR team                             |
 | *g.* decision: needs questions answered or required actions done                  | MIR team                             |
-| *h.* decision: Security ACK (report added as comment)                             | Secruity team                        |
-| *i.* decision: Security NACK (report added as comment)                            | Secruity team                        |
-| *j.* decision: needs questions answered or required actions done                  | Secruity team                        |
+| *h.* decision: Security ACK (report added as comment)                             | Security team                        |
+| *i.* decision: Security NACK (report added as comment)                            | Security team                        |
+| *j.* decision: needs questions answered or required actions done                  | Security team                        |
 | *k.* action: questions or requests resolved                                       | Reporter/Driver                      |
 | *l.* action: situation changes, new input given                                   | Reporter/Driver                      |
 | *m.* action: dependency/seed change that pulls package(s) into main               | Reporter/Driver                      |
