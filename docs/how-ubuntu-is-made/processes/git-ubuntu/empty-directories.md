@@ -7,7 +7,7 @@ create a placeholder file like `.empty` and check that in.
 
 Neither of these approaches work for git-ubuntu's importer in the general case.
 A source package can ship an empty directory by nature of the source package
-format. But the build system (ie. `debian/rules`) in the source package
+format. But the build system (i.e. `debian/rules`) in the source package
 expects the source exactly as packed. Just as some builds break if empty
 directories are missing, other builds might break if empty directories are not
 actually empty.

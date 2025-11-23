@@ -104,7 +104,7 @@ To do a binary-only build of a package using ``sbuild``, run:
 Distribution:
   It is possible to use ``--dist`` (``-d``) to specify the distribution for the build instead of ``--chroot``, which explicitly selects the chroot to use, but that causes the produced files to contain the entire chroot name (``<RELEASE>-<ARCH>[-shm]``) instead of just ``<RELEASE>``. An example chroot name is ``noble-amd64-shm``.
 
-Parallel builing:
+Parallel building:
   To speed up the build, set the ``parallel`` option through the ``DEB_BUILD_OPTIONS`` environment variable. For example:
 
   .. code-block:: none

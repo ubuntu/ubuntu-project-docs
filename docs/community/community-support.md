@@ -35,7 +35,7 @@ If you’ve never used IRC before, check out the [IRC Introduction](https://help
 
 ### AskUbuntu
 
-AskUbuntu is a collaboratively-edited question-and-answer site for Ubuntu users and developers. Users seeking assistance can ask and update questions along with rating the quality of the answers they receieve. Please note this site is English only.
+AskUbuntu is a collaboratively-edited question-and-answer site for Ubuntu users and developers. Users seeking assistance can ask and update questions along with rating the quality of the answers they receive. Please note this site is English only.
 
 [Start asking questions at AskUbuntu >](https://askubuntu.com/)
 

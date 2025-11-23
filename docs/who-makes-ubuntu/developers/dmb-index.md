@@ -94,7 +94,7 @@ to help build your applications for upload rights on:
 (uploaders-journey)=
 ### The uploader's journey
 
-Since Ubuntu is based on Debian, they share a similar technical skillset. This
+Since Ubuntu is based on Debian, they share a similar technical skill set. This
 means that as a contributor, you may want to contribute to Debian as well as
 Ubuntu, or just focus on one (as you prefer).
 
