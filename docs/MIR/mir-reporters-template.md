@@ -268,14 +268,19 @@ TODO: - This package is minimal and will be tested in a more wide reaching
 TODO:   solution context TBD, details about this testing are here TBD
 
 [Quality assurance - packaging]
-RULE: - The package uses a debian/watch file whenever possible. In cases where
-RULE:   this is not possible (e.g. native packages), the package should either
-RULE:   provide a debian/README.source file or a debian/watch file (with
-RULE:   comments only) providing clear instructions on how to generate the
-RULE:   source tar file.
-TODO-A: - debian/watch is present and works
-TODO-B: - debian/watch is not present, instead it has TBD
-TODO-C: - debian/watch is not present because it is a native package
+RULE: - The package uses a debian/watch or debian/upstream/metadata files
+RULE:   whenever possible. The second options is the current modern alternative
+RULE:   for packages maintained with git-buildpackage. Consider whether that's
+RULE:   still true at the time of reporting your MIR. In cases where this is
+RULE:   not possible (e.g. native packages), the package should either provide
+RULE:   a debian/README.source file or a debian/watch file (with comments only)
+RULE:   providing clear instructions on how to generate the source tar file.
+RULE:   For clarity the TODOs below refer as "upstream watch file" to any
+RULE:   solution similar to the alternatives above which must be present in the
+RULE:   package so tools can detect and fetch new upstream releases.
+TODO-A: - upstream watch file is present and works
+TODO-B: - upstream watch file is not present, instead it has TBD
+TODO-C: - upstream watch file is not present because it is a native package
 
 RULE: - The package should define the correct "Maintainer:" field in
 RULE:   debian/control. This needs to be updated, using `update-maintainer`
