@@ -60,7 +60,7 @@ File a bug report about the package, titled "`[MIR] sourcepackagename`".
 Subscribe [`ubuntu-mir`](https://launchpad.net/~ubuntu-mir) to the bug report.
 Keep it in state "NEW" and do not assign it to anyone: this ensures that it
 appears in the
-[MIR bug list](https://bugs.launchpad.net/ubuntu/?field.searchtext=&orderby=-date_last_updated&field.status%3Alist=NEW&assignee_option=none&field.assignee=&field.subscriber=ubuntu-mir).
+<a href="https://bugs.launchpad.net/ubuntu/?field.searchtext=&orderby=-date_last_updated&field.status%3Alist=NEW&assignee_option=none&field.assignee=&field.subscriber=ubuntu-mir">MIR bug list</a>.
 
 
 (mir-step-2)=
@@ -105,12 +105,12 @@ For other statuses, see the {ref}`mir-process-states` page.
 
 
 ### Refer back to reporter
-   
+
 If, during the review process, tasks are identified that need to be completed,
 the bug is set to `Incomplete`. This reflects that the onus is back on the
 **reporter** to drive the completion of those tasks forward before more
 progress can be made.
-      
+
 Common examples are "please add an automated test" or "this needs the new
 version".
 
@@ -147,7 +147,7 @@ At this point, **Archive Admins** will promote approved packages to `main`.
 * If a new source package contains *only* code which is already in main (e.g.
   a source package split or rename, or source packages with a version in the
   name), it may not need a full review.
-  
+
   In such cases, submitting an MIR bug with an explanation (without the full
   template) **or** updating/extending an existing MIR bug for the package and
   re-opening it by setting it to "NEW" is sufficient.
