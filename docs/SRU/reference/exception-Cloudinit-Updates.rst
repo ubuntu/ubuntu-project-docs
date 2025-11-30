@@ -244,7 +244,7 @@ Links to past SRUs using this process are below:
 Related SRU Interest Team
 -------------------------
 
-Cloud-init has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
-please subscribe the
+Cloud-init has a :ref:`SRU Interest Team <reference-sru-interest-team>`.
+Please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-cloud-init>`__
 to the SRU bug early on.

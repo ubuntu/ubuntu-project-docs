@@ -246,7 +246,7 @@ Via deb package as synced from Debian:
 
 * `ember`
 
-Via [seeds](https://bazaar.launchpad.net/\~ubuntu-archive/ubuntu-archive-scripts/trunk/view/head:/update-seeds)
+Via [seeds](https://git.launchpad.net/ubuntu-archive-scripts/tree/update-seeds)
 
 * `snapd` itself (Samuele says: *`snapd` itself is also a snap that we ship in images, it uses latest/stable like `firefox` and the deb has a SRU-exception(?). The `snapd` deb also installs it if not already present when installing snaps*)
 
