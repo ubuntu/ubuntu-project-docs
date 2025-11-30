@@ -254,7 +254,8 @@ To see which mirror is the country mirror, do a :term:`DNS` lookup. For example:
     .. tab:: Finland (``FI``)
 
         .. terminal::
-           :input: dig fi.archive.ubuntu.com +noall +answer
+
+            dig fi.archive.ubuntu.com +noall +answer
 
             fi.archive.ubuntu.com.	332	IN	CNAME	mirrors.nic.funet.fi.
             mirrors.nic.funet.fi.	332	IN	A	193.166.3.5
@@ -268,7 +269,8 @@ To see which mirror is the country mirror, do a :term:`DNS` lookup. For example:
         (``archive.ubuntu.com``).
 
         .. terminal::
-           :input: dig tn.archive.ubuntu.com +noall +answer
+
+            dig tn.archive.ubuntu.com +noall +answer
 
             tn.archive.ubuntu.com.	60	IN	A	185.125.190.36
             tn.archive.ubuntu.com.	60	IN	A	91.189.91.83
@@ -279,7 +281,8 @@ To see which mirror is the country mirror, do a :term:`DNS` lookup. For example:
         which are just the ``archive.ubuntu.com`` IP addresses:
 
         .. terminal::
-           :input: dig archive.ubuntu.com +noall +answer
+
+            dig archive.ubuntu.com +noall +answer
 
             archive.ubuntu.com.	1	IN	A	185.125.190.39
             archive.ubuntu.com.	1	IN	A	185.125.190.36

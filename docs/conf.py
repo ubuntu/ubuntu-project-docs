@@ -87,7 +87,7 @@ ogp_site_name = project
 #
 # TODO: To customize the preview image, update as needed.
 
-ogp_image = "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
+ogp_image = "https://assets.ubuntu.com/v1/cc828679-docs_illustration.svg"
 
 
 # Product favicon; shown in bookmarks, browser tabs, etc.
@@ -117,7 +117,7 @@ html_context = {
     "mattermost": "",
     # Your Matrix channel URL
     #
-    "matrix": "https://matrix.to/#/#documentation:ubuntu.com",
+    "matrix": "https://matrix.to/#/#devel:ubuntu.com",
     # Your documentation GitHub repository URL
     #
     # NOTE: If set, links for viewing the documentation source files
@@ -134,9 +134,12 @@ html_context = {
     # "sequential_nav": "both",
     # To enable listing contributors on individual pages, set to True
     "display_contributors": False,
+    #
     # Required for feedback button
     "github_issues": "enabled",
 }
+
+html_extra_path = []
 
 # To enable the edit button on pages, uncomment and change the link to a
 # public repository on GitHub or Launchpad. Any of the following link domains
@@ -161,8 +164,8 @@ slug = "project"
 # Sitemap configuration: https://sphinx-sitemap.readthedocs.io/
 #######################
 
-# Base URL of RTD hosted project
-html_baseurl = "https://documentation.ubuntu.com/project/"
+# Use RTD canonical URL to ensure duplicate pages have a specific canonical URL
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 # URL scheme.
 sitemap_url_scheme = "{link}"
@@ -170,6 +173,13 @@ sitemap_url_scheme = "{link}"
 # Include `lastmod` dates in the sitemap:
 sitemap_show_lastmod = True
 
+# Exclude generated pages from the sitemap:
+
+sitemap_excludes = [
+    '404/',
+    'genindex/',
+    'search/',
+]
 
 # Template and asset locations
 html_static_path = [".sphinx/_static"]
@@ -265,17 +275,31 @@ myst_enable_extensions = {
 
 extensions = [
     "canonical_sphinx",
+    "notfound.extension",
+    "sphinx_design",
+    "sphinx_reredirects",
+    "sphinx_tabs.tabs",
+    "sphinxcontrib.jquery",
+    "sphinxext.opengraph",
+    "sphinx_config_options",
+    "sphinx_contributor_listing",
+    "sphinx_filtered_toctree",
+    "sphinx_related_links",
+    "sphinx_roles",
+    "sphinx_terminal",
+    "sphinx_ubuntu_images",
+    "sphinx_youtube_links",
     "sphinxcontrib.cairosvgconverter",
     "sphinx_last_updated_by_git",
     "sphinx.ext.intersphinx",
+    "sphinx_sitemap",
+    # Custom extensions for this docs set:
     "sphinx.ext.mathjax",
     "sphinxcontrib.mermaid",
     "hoverxref.extension",
     "sphinx_prompt",
     "sphinx.ext.extlinks",
     "sphinxext.rediraffe",
-    "sphinx_sitemap",
-    "sphinx_reredirects",
     "sphinx_togglebutton",
     "sphinx.ext.graphviz",
 ]
