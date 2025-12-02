@@ -7,7 +7,7 @@ source and binary packages.
 As per the corresponding contributor guide {ref}`request-package-removal`, 
 requests to remove a package are submitted in the form of bugs on Launchpad.
 
-* [List of source package removal requests](https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-archive&field.status=NEW&field.status=Confirmed&field.status=Triaged&field.status=INPROGRESS&field.status=FIXCOMMITTED&field.status=INCOMPLETE_WITH_RESPONSE&orderby=-id&start=0)
+* <a href="https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-archive&field.status=NEW&field.status=Confirmed&field.status=Triaged&field.status=INPROGRESS&field.status=FIXCOMMITTED&field.status=INCOMPLETE_WITH_RESPONSE&orderby=-id&start=0">List of source package removal requests</a>
 
 You may need to remove a package completely, or only remove either a source or
 a binary.

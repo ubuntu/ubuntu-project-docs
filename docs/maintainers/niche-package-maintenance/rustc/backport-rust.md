@@ -195,7 +195,7 @@ After it builds, reach out to the Security team and politely request they upload
 - A link to the bug report
 - A link to the PPA
 
-You can monitor upload progress in the [Security Proposed PPA](https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+packages?field.name_filter=rustc&field.status_filter=&field.series_filter=).
+You can monitor upload progress in the <a href="https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+packages?field.name_filter=rustc&field.status_filter=&field.series_filter=">Security Proposed PPA</a>.
 
 
 (rust-common-backporting-changes)=

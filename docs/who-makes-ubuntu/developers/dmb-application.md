@@ -81,7 +81,7 @@ In your {ref}`personal Discourse page <dmb-create-a-discourse-post>`, copy and p
 Specify in your post title what upload rights you're applying for.
 
 ```{note}
-You can look at [past Wiki applications](https://wiki.ubuntu.com/Home?action=fullsearch&context=180&value=DeveloperApplication&titlesearch=Titles) such as [{spellexception}`Paride`'s](https://wiki.ubuntu.com/ParideLegovini/UbuntuServerDeveloperApplication) or check out the Discourse [Ubuntu Membership section](https://discourse.ubuntu.com/c/community/membership/93) if you need some examples.
+You can look at <a href="https://wiki.ubuntu.com/Home?action=fullsearch&context=180&value=DeveloperApplication&titlesearch=Titles">past Wiki applications</a> such as [{spellexception}`Paride`'s](https://wiki.ubuntu.com/ParideLegovini/UbuntuServerDeveloperApplication) or check out the Discourse [Ubuntu Membership section](https://discourse.ubuntu.com/c/community/membership/93) if you need some examples.
 ```
 
 
