@@ -19,7 +19,7 @@ You should reach out to a Patch Pilot if:
 
 Patch Pilots are available in the {matrix}`devel` channel on [Matrix](https://ubuntu.com/community/communications/matrix) and will be monitoring bugs with patches on Launchpad.
 The current Pilot is noted in the channel topic.
-If you'd like to plan ahead, see the [<a href="https://calendar.google.com/calendar/embed?showPrint=0&showCalendars=0&mode=WEEK&src=Y184ZWRhZjk2OTllYWFmMWFmMmNjYTY2ZTYyOGZkNDEwODQ2ZTkwMjcwNmQ2YTMzMTU1OTNmODhiOTk0ZTZlOWE2QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23F4511E">Ubuntu Patch Pilots</a> calendar.
+If you'd like to plan ahead, see the <a href="https://calendar.google.com/calendar/embed?showPrint=0&showCalendars=0&mode=WEEK&src=Y184ZWRhZjk2OTllYWFmMWFmMmNjYTY2ZTYyOGZkNDEwODQ2ZTkwMjcwNmQ2YTMzMTU1OTNmODhiOTk0ZTZlOWE2QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23F4511E">Ubuntu Patch Pilots</a> calendar.
 
 
 ## Being a Patch Pilot
