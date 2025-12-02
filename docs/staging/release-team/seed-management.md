@@ -63,7 +63,7 @@ git config --global user.email 'colin.watson@canonical.com'
 ````
 
 ```{admonition} Is this still true?
-Some seeds have not yet been migrated to git. See [revision 73](https://wiki.ubuntu.com/SeedManagement?action=recall&rev=73) of this page for the old, bzr-based instructions.
+Some seeds have not yet been migrated to git. See <a href="https://wiki.ubuntu.com/SeedManagement?action=recall&rev=73">revision 73</a> of this page for the old, bzr-based instructions.
 ```
 
 Change to the new directory and locate the seed file you want to change:

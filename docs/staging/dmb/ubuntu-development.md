@@ -113,11 +113,11 @@ for general discussion regarding bugs and bug triaging.
 intended use of the various facilities of the bug tracking system to track
 release-critical bugs.
 
-[Showstopper bugs](https://bugs.launchpad.net/ubuntu/+bugs?field.searchtext=&orderby=-importance&search=Search&field.status%3Alist=Unconfirmed&field.status%3Alist=Needs+Info&field.status%3Alist=Confirmed&field.status%3Alist=In+Progress&field.status%3Alist=Fix+Committed&field.importance%3Alist=Critical&assignee_option=any&field.assignee=&field.bug_reporter=&field.bug_contact=&field.milestone%3Alist=50164&field.component=1&field.component=2&field.component-empty-marker=1&field.status_upstream=&field.status_upstream-empty-marker=1&field.omit_dupes.used=&field.omit_dupes=on&field.has_patch.used=&field.tag=&field.has_cve.used=&field.has_no_package.used=)
+<a href="https://bugs.launchpad.net/ubuntu/+bugs?field.searchtext=&orderby=-importance&search=Search&field.status%3Alist=Unconfirmed&field.status%3Alist=Needs+Info&field.status%3Alist=Confirmed&field.status%3Alist=In+Progress&field.status%3Alist=Fix+Committed&field.importance%3Alist=Critical&assignee_option=any&field.assignee=&field.bug_reporter=&field.bug_contact=&field.milestone%3Alist=50164&field.component=1&field.component=2&field.component-empty-marker=1&field.status_upstream=&field.status_upstream-empty-marker=1&field.omit_dupes.used=&field.omit_dupes=on&field.has_patch.used=&field.tag=&field.has_cve.used=&field.has_no_package.used=">Showstopper bugs</a>
 : Critical and milestoned to the relevant release. These bugs will hold up the
   release if not fixed.  
 
-[Release-critical bugs](https://bugs.launchpad.net/ubuntu/+bugs?field.searchtext=&orderby=-importance&field.importance%3Alist=CRITICAL&field.importance%3Alist=HIGH&field.milestone%3Alist=50160&field.milestone%3Alist=50161&field.milestone%3Alist=50162&field.milestone%3Alist=50163&field.milestone%3Alist=50164) 
+<a href="https://bugs.launchpad.net/ubuntu/+bugs?field.searchtext=&orderby=-importance&field.importance%3Alist=CRITICAL&field.importance%3Alist=HIGH&field.milestone%3Alist=50160&field.milestone%3Alist=50161&field.milestone%3Alist=50162&field.milestone%3Alist=50163&field.milestone%3Alist=50164">Release-critical bugs</a>
 : Critical and high importance bugs milestoned to the relevant release. Those
   bugs need to be fixed or worked around/documented before the release.
 
