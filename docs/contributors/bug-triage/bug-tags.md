@@ -29,7 +29,7 @@ Here we outline some standard tags with information about when to use them while
 | [`package-conflict`](https://launchpad.net/ubuntu/+bugs?field.tag=package-conflict) | A bug reported by Apport when a package operation failed due to a conflict with a file provided by another package |
 | [`derivatives`](https://bugs.launchpad.net/ubuntu/+source/linux/+bugs?field.tag=derivatives) | Bugs related to Derivatives |
 | [`desktop-file`](https://launchpad.net/ubuntu/+bugs?field.tag=desktop-file) | The bug requests the addition/fix of a `.desktop` file |
-| <a href="https://launchpad.net/ubuntu/+bugs?field.status:list=FIXRELEASED&field.tag=fix-to-verify">`fix-to-verify`</a> | A bug that is *{ref}`Fix Released <bug-status>`* and should be verified when performing ISO testing of daily builds or milestones |
+| [`fix-to-verify`](https://launchpad.net/ubuntu/+bugs?field.status:list=FIXRELEASED&field.tag=fix-to-verify) | A bug that is *{ref}`Fix Released <bug-status>`* and should be verified when performing ISO testing of daily builds or milestones |
 | [`ftbfs`](https://launchpad.net/ubuntu/+bugs?field.tag=ftbfs) | Bugs describing build failures of packages |
 | [`gobuntu`](https://bugs.launchpad.net/ubuntu/+source/linux/+bugs?field.tag=gobuntu) | Bugs related to Gobuntu |
 | [`hw-specific`](https://launchpad.net/ubuntu/+bugs?field.tag=hw-specific) | A bug requiring a specific piece of hardware to replicate |
@@ -39,7 +39,7 @@ Here we outline some standard tags with information about when to use them while
 | [`metabug`](https://launchpad.net/ubuntu/+bugs?field.tag=metabug) | This bug has a high probability of duplicate reports being filed |
 | [`multiarch`](https://launchpad.net/ubuntu/+bugs?field.tag=multiarch) | This bug is due to an issue with [multiarch triplet paths](https://wiki.debian.org/Multiarch); this could be build time, install time, or run time issues |
 | [`nautilus-desktop-icons`](https://launchpad.net/ubuntu/+bugs?field.tag=nautilus-desktop-icons) | Bugs related to the Nautilus desktop; especially the alignment, display, and grid of icons |
-| <a href="https://launchpad.net/ubuntu/+bugs?orderby=-importance&field.status%3Alist=New&field.status%3Alist=Incomplete&field.status%3Alist=Invalid&field.status%3Alist=Won%27t+Fix&field.status%3Alist=Confirmed&field.status%3Alist=Triaged&field.status%3Alist=In+Progress&field.status%3Alist=Fix+Committed&field.status%3Alist=Fix+Released&field.tag=needs-devrelease-testing&search=Search">needs-devrelease-testing</a> | A bug that existed in a previous release of Ubuntu and needs to be tested in the latest development release |
+| [`needs-devrelease-testing`](https://launchpad.net/ubuntu/+bugs?orderby=-importance&field.status%3Alist=New&field.status%3Alist=Incomplete&field.status%3Alist=Invalid&field.status%3Alist=Won%27t+Fix&field.status%3Alist=Confirmed&field.status%3Alist=Triaged&field.status%3Alist=In+Progress&field.status%3Alist=Fix+Committed&field.status%3Alist=Fix+Released&field.tag=needs-devrelease-testing&search=Search) | A bug that existed in a previous release of Ubuntu and needs to be tested in the latest development release |
 | [`needs-reassignment`](https://launchpad.net/ubuntu/+bugs?field.tag=needs-reassignment) | A bug reported about the wrong package but the package maintainer isn't sure which package it belongs to |
 | [`packaging`](https://launchpad.net/ubuntu/+bugs?field.tag=packaging) | This bug is likely to be a packaging mistake |
 | [`screencast`](https://launchpad.net/ubuntu/+bugs?field.tag=screencast) | This bug report includes a screencast of the bug in action! |
@@ -128,15 +128,15 @@ These tags were relevant previously for Ubuntu bugs and may still appear in some
 | Tag | Use case |
 | :---- | :---- |
 | [`apport-kerneloops`](https://launchpad.net/ubuntu/+bugs?field.tag=apport-kerneloops) | This Kernel Oops was reported using Apport |
-| <a href="https://launchpad.net/ubuntu/+bugs?field.searchtext=linux&field.tag=bitesize">`bitesize`</a> | For the kernel, this includes things like enabling modules and changing kernel config options |
+| [`bitesize`](https://launchpad.net/ubuntu/+bugs?field.searchtext=linux&field.tag=bitesize) | For the kernel, this includes things like enabling modules and changing kernel config options |
 | [`cherry-pick`](https://launchpad.net/ubuntu/+bugs?field.tag=cherry-pick) | A kernel bug that has a git commit SHA from the upstream kernel |
-| <a href="https://launchpad.net/ubuntu/+bugs?field.tags_combinator=ALL&field.tag=hibernate+resume">`hibernate-resume`</a> | This bug was triggered by a hibernate/resume failure |
+| [`hibernate-resume`](https://launchpad.net/ubuntu/+bugs?field.tags_combinator=ALL&field.tag=hibernate+resume) | This bug was triggered by a hibernate/resume failure |
 | [`kernel-bug`](https://launchpad.net/ubuntu/+bugs?field.tag=kernel-bug) | A "BUG:" message output was noted in the logs but it did not contain an Oops |
 | [`kernel-oops`](https://launchpad.net/ubuntu/+bugs?field.tag=kernel-oops) | This bug causes a kernel Oops message |
 | [`needs-upstream-testing`](https://launchpad.net/ubuntu/+bugs?field.tag=needs-upstream-testing) | This bug needs to be tested with the [upstream kernel](https://wiki.ubuntu.com/KernelMainlineBuilds). |
 | [`kernel-fixed-upstream`](https://launchpad.net/ubuntu/+bugs?field.tag=kernel-fixed-upstream) | This bug is not reproducible with the latest [upstream kernel](https://wiki.ubuntu.com/KernelMainlineBuilds) version available that allows the reporter to test it, and the version is higher than the Ubuntu kernel after [mapping](http://kernel.ubuntu.com/~kernel-ppa/info/kernel-version-map.html) |
 | [`kernel-bug-exists-upstream`](https://launchpad.net/ubuntu/+bugs?field.tag=kernel-bug-exists-upstream) | This bug is reproducible with the latest [upstream kernel](https://wiki.ubuntu.com/KernelMainlineBuilds) version available that allows the reporter to test it, and the version is higher than the Ubuntu kernel after [mapping](http://kernel.ubuntu.com/~kernel-ppa/info/kernel-version-map.html). |
-| <a href="https://launchpad.net/ubuntu/+bugs?field.tags_combinator=ALL&field.tag=suspend+resume">`suspend-resume`</a> | This bug was triggered by a suspend/resume failure |
+| [`suspend-resume`](https://launchpad.net/ubuntu/+bugs?field.tags_combinator=ALL&field.tag=suspend+resume) | This bug was triggered by a suspend/resume failure |
 | [`xorg-needs-kernel-fix`](https://launchpad.net/ubuntu/+bugs?field.tag=xorg-needs-kernel-fix) | This is an xorg bug which is dependent on a kernel patch |
 
 For more tags see [Kernel/Tagging](https://wiki.ubuntu.com/Kernel/Tagging).

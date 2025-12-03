@@ -52,7 +52,7 @@ the advanced search on that package's bugs page to look for:
 * **Importance:** Undecided
 * **Assigned to:** Nobody
 
-Or you can <a href="https://launchpad.net/ubuntu/+bugs?field.searchtext=&orderby=-datecreated&field.status%3Alist=Unconfirmed&field.importance%3Alist=Undecided&assignee_option=none&field.assignee=&field.owner=&field.component=1&field.component=2&field.component-empty-marker=1&field.omit_dupes.used=&field.omit_dupes=on&field.has_patch.used=&field.has_no_package.used=&search=Search">view all untriaged bugs</a>.
+Or you can [view all untriaged bugs](https://launchpad.net/ubuntu/+bugs?field.searchtext=&orderby=-datecreated&field.status%3Alist=Unconfirmed&field.importance%3Alist=Undecided&assignee_option=none&field.assignee=&field.owner=&field.component=1&field.component=2&field.component-empty-marker=1&field.omit_dupes.used=&field.omit_dupes=on&field.has_patch.used=&field.has_no_package.used=&search=Search).
 Once a bug's status has changed from *New* it will no longer show up in this
 search.
 

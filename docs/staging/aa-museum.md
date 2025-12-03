@@ -612,7 +612,7 @@ Additionally, performing the following should be considered:
 
 * Process [pending archive bugs](https://launchpad.net/~ubuntu-archive/+subscribedbugs).
   This query often generates a Launchpad OOPS rather than succeeding;
-  <a href="https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-archive&field.status=NEW&field.status=Confirmed&field.status=Triaged&field.status=INPROGRESS&field.status=FIXCOMMITTED&field.status=INCOMPLETE_WITH_RESPONSE&orderby=-id&start=0">This query</a>
+  [This query](https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-archive&field.status=NEW&field.status=Confirmed&field.status=Triaged&field.status=INPROGRESS&field.status=FIXCOMMITTED&field.status=INCOMPLETE_WITH_RESPONSE&orderby=-id&start=0)
   is more likely to succeed, but might miss some bugs. Most of those are syncs,
   removals, component fixes, but there might be other (less common) requests.
 
