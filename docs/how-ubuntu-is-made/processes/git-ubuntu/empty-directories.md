@@ -1,7 +1,7 @@
 (empty-directories)=
 # Empty directories
 
-git's frontend doesn't let you add an empty directory. Usually the workaround
+The frontend for git doesn't let you add an empty directory. Usually the workaround
 is to create any necessary empty directory at build time, or failing that to
 create a placeholder file like `.empty` and check that in.
 
@@ -36,7 +36,7 @@ unintended changes. See: LP: #1687057.
 Use "git commit --no-verify ..." to ignore this problem.
 ```
 
-Source packages can ship with empty directories, but git's frontend
+Source packages can ship with empty directories, but the git frontend
 doesn't allow adding empty directories.  This can cause some confusion
 for git ubuntu.  For patch piloting this is worth being aware of, since
 the workaround needs to be done at point of upload.
