@@ -4,8 +4,10 @@ allowlist
 apport
 auditable
 autobuilders
+autofill
 autopkgtests
 autosync
+backgrounding
 backport
 backported
 Backporters
@@ -29,6 +31,7 @@ chroots
 Cleansweep
 CMake
 codec
+conformant
 crossbuild
 codecs
 codenames
@@ -41,6 +44,7 @@ crontab
 Debcrafters
 debdiff
 deprioritized
+DEPs
 dereferenced
 Deslauriers
 dev
@@ -63,6 +67,7 @@ exfiltration
 fakesync
 Fosstodon
 Gobuntu
+GPLs
 Greasemonkey
 Guiver
 gvfs
@@ -91,10 +96,14 @@ losslessly
 Lubuntu
 Maintainer's
 Makefile
+Makefiles
 manpage
 Masters
+Meetingology
 metapackage
 metapackages
+Mib
+microrelease
 microreleases
 MIRs
 milestoned
@@ -112,6 +121,7 @@ Mythbuntu
 NGOs
 neurotype
 onboarding
+oniguruma
 packageset
 packagesets
 papercuts

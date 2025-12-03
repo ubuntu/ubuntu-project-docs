@@ -29,17 +29,17 @@ like {ref}`dmb-application-communication`.
 
 At the end of every meeting, we try to pre-select the next meeting's chair.
 
-The chair is furthermore repsonsible to ensure that {ref}`meeting-logs` are made
+The chair is furthermore responsible to ensure that {ref}`meeting-logs` are made
 publicly available.
 
 (meeting-logs)=
 ## Meeting Logs
 
 Over the years there have been many forms of meeting logs: sites logging IRC,
-[meetingology](https://wiki.ubuntu.com/meetingology) based logs,
+[Meetingology](https://wiki.ubuntu.com/meetingology) based logs,
 missed logs :-/, mail summaries and more. When experimenting to offer more
 modern meetings for more efficient evaluation of the candidates more types
-like textfiles, auto generated logs, google docs or video recording got used.
+like text files, auto generated logs, google docs or video recording got used.
 
 The goals of these logs is to:
 - allow to retrace how people have been evaluated in the past
