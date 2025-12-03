@@ -79,7 +79,7 @@ Any other
   * KDE: K -> Applications -> System -> Terminal
 
 : In the terminal, type `xprop WM_CLASS` -- your mouse pointer should now turn
-  to crosshair
+  to crosshairs
 
 : Click anywhere in the application's window
 
