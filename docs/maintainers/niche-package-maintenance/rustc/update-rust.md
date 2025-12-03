@@ -1,4 +1,5 @@
 (how-to-update-rust)=
+
 # How to update Rust
 
 This guide details the process of creating a new versioned `rustc` Ubuntu package for a new upstream Rust release.
@@ -234,16 +235,19 @@ You must prune the unwanted dependencies of both the Rust source code itself _an
 
 #### Get a list of things to prune
 
-To assist in this task, you can use two different scripts. They search `Cargo.toml` files for potentially unwanted terms, then output all the lines which contain said terms.
-
-1. [Script for pruning the Rust code itself](https://github.com/canonical/foundations-sandbox/blob/main/maxgmr/win-rustc-prune-list). This script needs `debian/patches/prune/d-0020-remove-windows-dependencies.patch` to be the topmost patch.
-1. [Script for pruning the vendored dependencies](https://github.com/canonical/foundations-sandbox/blob/main/maxgmr/win-rustc-vendored-prune-list). This script needs `debian/patches/prune/d-0021-vendor-remove-windows-dependencies.patch` to be the topmost patch.
-
-Push the proper patch and redirect the output to a file. Example for vendored dependencies:
+To get a list of possibly-unwanted crate dependencies, search for Windows-related words in the `Cargo.toml` files:
 
 ```none
 $ quilt push debian/patches/prune/d-0021-vendor-remove-windows-dependencies.patch
-$ win-rustc-vendored-prune-list > <path_to_prune_list>
+$ find vendor -iname Cargo.toml -exec grep -H -n \
+    -e 'schannel' \
+    -e 'windows-sys' \
+    -e 'winapi' \
+    -e 'ntapi' \
+    -e 'wincon' \
+    -e 'winreg' \
+    -e 'windows' \
+    {} \;
 ```
 
 :::{note}
@@ -703,12 +707,6 @@ $ deactivate
 You may need to fill in some fields manually. [This](https://stackoverflow.com/questions/23611669/how-to-find-the-created-date-of-a-repository-project-on-github) is an easy way to find the start date of a GitHub repo.
 
 Keep things clean by adding the new `d/copyright` stanzas alphabetically. It makes things a lot easier in the long run.
-
-There are also two helper scripts which make it easier to keep `d/copyright` clean. [`redundant-copyright-stanzas`](https://github.com/canonical/foundations-sandbox/blob/master/maxgmr/redundant-copyright-stanzas) produces a list of stanzas which are already covered by existing stanzas, and [`unneeded-copyright-stanzas`](https://github.com/canonical/foundations-sandbox/blob/master/maxgmr/unneeded-copyright-stanzas) produces a list of stanzas which don't apply to any files in the source tree.
-
-:::{caution}
-`redundant-copyright-stanzas` and `unneeded-copyright-stanzas` are overzealous by design. Don't delete any stanzas without manually verifying things first!
-:::
 
 ```{include} common/local-build.md
 
