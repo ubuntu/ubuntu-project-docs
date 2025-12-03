@@ -13,17 +13,17 @@ of our landing pages.
 The development of Ubuntu is transparent to the public, and open to any
 contributor with the necessary skills and commitment to the project.
 
-Ubuntu is based on [Debian](http://www.debian.org/), sharing many packages,
+Ubuntu is based on [Debian](https://www.debian.org/), sharing many packages,
 tools and techniques with that project. Like most operating systems, Ubuntu is
 complex, and it can help to get a broad overview
 [of its architecture first](https://wiki.ubuntu.com/UbuntuArchitecture).
 
-Ubuntu is [periodically released](https://wiki.ubuntu.com/UbuntuDevelopment/ReleaseProcess)
-according to a set schedule.
+Ubuntu is {ref}`periodically released <ubuntu-releases>` according to a set
+schedule.
 
 If you have been directed to this page for advice on contributing to Ubuntu as
 a developer, you may also be interested in
-[Contribute To Ubuntu](https://wiki.ubuntu.com/ContributeToUbuntu).
+{ref}`contribute-to-ubuntu`.
 
 
 ## Working with other developers
@@ -44,7 +44,7 @@ tool set, or need step by step reminder on how to, check out the
 
 If you're looking for tasks which need doing, many of those are tracked in the
 bug tracking system. The {ref}`bug-squad` maintains several lists of them at
-[Bugs/Tags](https://wiki.ubuntu.com/Bugs/Tags).
+{ref}`bug-tags`.
 
 If you already have experience working with Debian packages, most of your
 knowledge applies equally well to Ubuntu packaging. If you are a Debian developer,
@@ -62,14 +62,14 @@ To find the developer responsible for the component you're working on, see
 ### Communication
 
 Email discussion among Ubuntu developers takes place on the
-[`ubuntu-devel` mailing list](http://lists.ubuntu.com/mailman/listinfo/ubuntu-devel),
+[`ubuntu-devel` mailing list](https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel),
 which is moderated (excepting registered Ubuntu developers). The
-[`ubuntu-devel-discuss` mailing list](http://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss)
+[`ubuntu-devel-discuss` mailing list](https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss)
 is available for open discussion about Ubuntu development (not for
 [reporting bugs](https://help.ubuntu.com/community/ReportingBugs#Reporting_non-crash_hardware_and_desktop_application_bugs)
-or [user support](http://www.ubuntu.com/support)). All
+or [user support](https://ubuntu.com/support)). All
 {ref}`ubuntu-developers` should subscribe to the
-[`ubuntu-devel-announce` mailing list](http://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-announce),
+[`ubuntu-devel-announce` mailing list](https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-announce),
 where important development events are announced.
 [Various other mailing lists](https://lists.ubuntu.com/mailman/listinfo/) are
 available, some of which focus on specific areas of development.
@@ -84,7 +84,7 @@ A comprehensive matrix of communication channels can be found on
 
 ### Bugs and the Bug Squad
 
-[Ubuntu bug reports](http://bugs.launchpad.net/ubuntu) are tracked in Launchpad.
+[Ubuntu bug reports](https://bugs.launchpad.net/ubuntu) are tracked in Launchpad.
 [Helping with bugs](https://wiki.ubuntu.com/HelpingWithBugs) contains information
 about how they are handled. The {ref}`bug-squad` documentation describes how to
 cooperate with other developers and volunteers working on bug triage; it is
@@ -107,23 +107,17 @@ There is also the [`ubuntu-bugsquad` mailing list](https://lists.ubuntu.com/mail
 for general discussion regarding bugs and bug triaging.
 
 
-### Papercuts
-
-[Papercuts](https://wiki.ubuntu.com/One%20Hundred%20Papercuts) are trivial-to-fix
-but annoying bugs. Ideal for getting started helping with bugs.
-
-
 ### Release-critical bugs
 
 [RC Bug Targeting](https://wiki.ubuntu.com/RCBugTargetting) documents the
 intended use of the various facilities of the bug tracking system to track
 release-critical bugs.
 
-[Showstopper bugs](https://bugs.launchpad.net/ubuntu/+bugs?field.searchtext=&orderby=-importance&search=Search&field.status%3Alist=Unconfirmed&field.status%3Alist=Needs+Info&field.status%3Alist=Confirmed&field.status%3Alist=In+Progress&field.status%3Alist=Fix+Committed&field.importance%3Alist=Critical&assignee_option=any&field.assignee=&field.bug_reporter=&field.bug_contact=&field.milestone%3Alist=50164&field.component=1&field.component=2&field.component-empty-marker=1&field.status_upstream=&field.status_upstream-empty-marker=1&field.omit_dupes.used=&field.omit_dupes=on&field.has_patch.used=&field.tag=&field.has_cve.used=&field.has_no_package.used=)
+<a href="https://bugs.launchpad.net/ubuntu/+bugs?field.searchtext=&orderby=-importance&search=Search&field.status%3Alist=Unconfirmed&field.status%3Alist=Needs+Info&field.status%3Alist=Confirmed&field.status%3Alist=In+Progress&field.status%3Alist=Fix+Committed&field.importance%3Alist=Critical&assignee_option=any&field.assignee=&field.bug_reporter=&field.bug_contact=&field.milestone%3Alist=50164&field.component=1&field.component=2&field.component-empty-marker=1&field.status_upstream=&field.status_upstream-empty-marker=1&field.omit_dupes.used=&field.omit_dupes=on&field.has_patch.used=&field.tag=&field.has_cve.used=&field.has_no_package.used=">Showstopper bugs</a>
 : Critical and milestoned to the relevant release. These bugs will hold up the
   release if not fixed.  
 
-[Release-critical bugs](https://bugs.launchpad.net/ubuntu/+bugs?field.searchtext=&orderby=-importance&field.importance%3Alist=CRITICAL&field.importance%3Alist=HIGH&field.milestone%3Alist=50160&field.milestone%3Alist=50161&field.milestone%3Alist=50162&field.milestone%3Alist=50163&field.milestone%3Alist=50164) 
+<a href="https://bugs.launchpad.net/ubuntu/+bugs?field.searchtext=&orderby=-importance&field.importance%3Alist=CRITICAL&field.importance%3Alist=HIGH&field.milestone%3Alist=50160&field.milestone%3Alist=50161&field.milestone%3Alist=50162&field.milestone%3Alist=50163&field.milestone%3Alist=50164">Release-critical bugs</a>
 : Critical and high importance bugs milestoned to the relevant release. Those
   bugs need to be fixed or worked around/documented before the release.
 
@@ -134,7 +128,7 @@ about it so that this can be tracked by the release team.
 
 ## The release process
 
-Ubuntu does time-based releases. The [Release Process](https://wiki.ubuntu.com/UbuntuDevelopment/ReleaseProcess)
+Ubuntu does time-based releases. The {ref}`release process <ubuntu-releases>`
 section covers all the release management steps such as beginning a new release,
 planning it, merging with upstream, feature development, stabilization and
 freezes, milestone, finalization and stable releases.
@@ -158,19 +152,19 @@ create and modify Debian-format packages.
 
 * All Ubuntu developers should be familiar with the
   `Ubuntu Policy Manual: http://people.ubuntu.com/~cjwatson/ubuntu-policy/policy.html/`
-  (derived from the [Debian Policy Manual](http://www.debian.org/doc/debian-policy/)).
+  (derived from the [Debian Policy Manual](https://www.debian.org/doc/debian-policy/)).
 
   **TODO: link is broken**
   
 * All Ubuntu developers should be familiar with the
-  [Debian New Maintainer Guide](http://www.debian.org/doc/maint-guide/); though
+  [Debian New Maintainer Guide](https://www.debian.org/doc/manuals/maint-guide/); though
   be aware that there are many differences (technical, social and procedural)
   between Ubuntu and Debian of which they must also be aware.
 
-* [A packaging tutorial](http://wiki.debian.org/PackagingTutorial) is available
+* [A packaging tutorial](https://wiki.debian.org/Packaging/Intro) is available
   from the Debian Wiki, as is
-  [an explanation of maintainer scripts](http://wiki.debian.org/MaintainerScripts)
-  and [further help with building packages](http://wiki.debian.org/AdvancedBuildingTips).
+  [an explanation of maintainer scripts](https://wiki.debian.org/MaintainerScripts)
+  and [further help with building packages](https://wiki.debian.org/AdvancedBuildingTips).
 
 * Many packages use tools to help manage multiple patches.
   {ref}`Patching Ubuntu packages <patching>` explains how to work with them.
@@ -182,11 +176,11 @@ create and modify Debian-format packages.
     **TODO: link is broken**
 
 * Packaging shared libraries is a delicate task, and getting it wrong can cause
-  upgrade headaches for users. The [Debian Library Packaging Guide](http://www.netfort.gr.jp/~dancer/column/libpkg-guide/libpkg-guide.html)
+  upgrade headaches for users. The [Debian Library Packaging Guide](https://www.netfort.gr.jp/~dancer/column/libpkg-guide/libpkg-guide.html)
   can be useful in avoiding some of the common traps.
 
 * For a deeper understanding of the packaging process, you might want to have a
-  look at [Debian wiki: building without helper](http://wiki.debian.org/Courses2005/BuildingWithoutHelper)
+  look at [Debian wiki: building without helper](https://wiki.debian.org/Courses2005/BuildingWithoutHelper)
 
 * [How to write watch files](https://lists.ubuntu.com/archives/ubuntu-motu/2006-February/000443.html)
   for `sourceforge.net`-hosted projects.
@@ -231,7 +225,7 @@ create and modify Debian-format packages.
   discuss the changes on a mailing list first.
 
 * For merging a Ubuntu package with a newer Debian version, see
-  [Merging](https://wiki.ubuntu.com/UbuntuDevelopment/Merging).
+  {ref}`merging`.
 
 
 ### Revision control (Bazaar)
@@ -265,11 +259,11 @@ distributions that are based on the Ubuntu Archive, but separately developed.
 software from. The developers of this software write it and then it flows
 downstream in to Ubuntu and then in to its derivatives.
 
-See [Why upstream?](http://distributions.freedesktop.org/wiki/Packaging/WhyUpstream)
+See [Why upstream?](https://distributions.freedesktop.org/wiki/Packaging/WhyUpstream)
 for why upstream is so important, and some tips on working with upstream to
 improve the software, and hence Ubuntu.
 
-There is one upstream that is critical to Ubuntu: [Debian](https://wiki.ubuntu.com/Debian).
+There is one upstream that is critical to Ubuntu: {ref}`Debian <debian>`.
 This is where most of the packages in Ubuntu come from, and so working with
 them is important.
 
@@ -307,7 +301,7 @@ included in Ubuntu is described at {ref}`new-packages`.
 
 All current official Ubuntu packages are stored in the primary Package Archive,
 which is widely {ref}`mirrored <mirrors>`. It is administered by the
-{ref}`archive-administration` team. The {ref}`Packaging Archive section <the-package-archive>`
+{ref}`archive-administration` team. The {ref}`Packaging Archive section <package-archive>`
 covers details such as interactions with the build daemons and the Archive. It
 also explains how different architectures and package components are handled and
 how the autobuilders work.
@@ -342,6 +336,6 @@ These resources should be incorporated into new or existing sections elsewhere
 in this document, but are temporarily recorded here so that we remember to come
 back to them later:
 
-* Debian Python Policy: [http://www.debian.org/doc/packaging-manuals/python-policy/](http://www.debian.org/doc/packaging-manuals/python-policy/)
+* Debian Python Policy: [https://www.debian.org/doc/packaging-manuals/python-policy/](https://www.debian.org/doc/packaging-manuals/python-policy/)
 
 

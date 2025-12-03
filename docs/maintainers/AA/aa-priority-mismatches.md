@@ -26,7 +26,7 @@ but **too-low** priorities don't really impact users.
 ## Priority mismatch report
 
 The `priority-mismatches` file (
-[txt](https://ubuntu-archive-team.ubuntu.com/priority-mismatches.html) or
+[txt](https://ubuntu-archive-team.ubuntu.com/priority-mismatches.txt) or
 [html](https://ubuntu-archive-team.ubuntu.com/priority-mismatches.html))
 tracks and reports priority mismatches in the Archive.
 

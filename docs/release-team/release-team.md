@@ -1,7 +1,7 @@
 (release-team)=
 # The Release Team
 
-The [Ubuntu Release Team](http://launchpad.net/~ubuntu-release) is responsible
+The [Ubuntu Release Team](https://launchpad.net/~ubuntu-release) is responsible
 for the overall {ref}`release-cycle`, which includes monitoring the healthy
 development and stability of the Ubuntu distribution.
 
@@ -23,7 +23,7 @@ bring to their attention, please contact them via their mailing list or Matrix
 channel:
 
 * Mailing List: [`ubuntu-release`](mailto:ubuntu-release@lists.launchpad.net)
-* Matrix: [#release:ubuntu.com](https://matrix.to/#/#release:ubuntu.com)
+* Matrix: {matrix}`release`
 
 Alternatively, if there is a bug they should review, subscribe the team and they
 will review on a regular basis.

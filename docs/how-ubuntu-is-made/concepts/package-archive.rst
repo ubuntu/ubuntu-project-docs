@@ -3,7 +3,7 @@
 Package archive
 ===============
 
-:term:`Linux` :term:`distributions <Distribution>` like :term:`Ubuntu` use :ref:`repositories <Repositories>` to hold :term:`packages <Package>` for installing on target machines. Ubuntu has several repositories that anyone can access. The **Ubuntu package archive** hosts :term:`Debian` :term:`binary packages <Binary Package>` (``.deb`` files) and :term:`source packages <Source Package>` (``.dsc`` files).
+:term:`Linux` :term:`distributions <Distribution>` like :term:`Ubuntu` use :ref:`repositories <archive-repositories>` to hold :term:`packages <Package>` for installing on target machines. Ubuntu has several repositories that anyone can access. The **Ubuntu package archive** hosts :term:`Debian` :term:`binary packages <Binary Package>` (``.deb`` files) and :term:`source packages <Source Package>` (``.dsc`` files).
 
 On Ubuntu installations, the Ubuntu package archive is configured as the default source for the :term:`APT` package manager to download and install packages from. This Archive splits into many layers, each with its own terminology.
 
@@ -227,7 +227,7 @@ Mirrors
 
 Every day, hundreds of thousands of people want to download and install packages from the Ubuntu package archive. To provide a good :term:`user experience`, the content of ``http://archive.ubuntu.com/ubuntu`` is mirrored (replicated and kept in sync) by other servers to distribute network traffic, reduce latency, and provide redundancy, which ensures high availability and fault tolerance.
 
-A complete list of officially recognized `Ubuntu package archive mirrors <https://launchpad.net/ubuntu/+archivemirrors>`_.
+A complete list of officially recognized `Ubuntu package archive mirrors <https://launchpad.net/ubuntu/+archivemirrors>`_. A search interface is available at `packages.ubuntu.com <https://packages.ubuntu.com>`_.
 
 .. note::
 
@@ -254,7 +254,8 @@ To see which mirror is the country mirror, do a :term:`DNS` lookup. For example:
     .. tab:: Finland (``FI``)
 
         .. terminal::
-           :input: dig fi.archive.ubuntu.com +noall +answer
+
+            dig fi.archive.ubuntu.com +noall +answer
 
             fi.archive.ubuntu.com.	332	IN	CNAME	mirrors.nic.funet.fi.
             mirrors.nic.funet.fi.	332	IN	A	193.166.3.5
@@ -268,7 +269,8 @@ To see which mirror is the country mirror, do a :term:`DNS` lookup. For example:
         (``archive.ubuntu.com``).
 
         .. terminal::
-           :input: dig tn.archive.ubuntu.com +noall +answer
+
+            dig tn.archive.ubuntu.com +noall +answer
 
             tn.archive.ubuntu.com.	60	IN	A	185.125.190.36
             tn.archive.ubuntu.com.	60	IN	A	91.189.91.83
@@ -279,7 +281,8 @@ To see which mirror is the country mirror, do a :term:`DNS` lookup. For example:
         which are just the ``archive.ubuntu.com`` IP addresses:
 
         .. terminal::
-           :input: dig archive.ubuntu.com +noall +answer
+
+            dig archive.ubuntu.com +noall +answer
 
             archive.ubuntu.com.	1	IN	A	185.125.190.39
             archive.ubuntu.com.	1	IN	A	185.125.190.36
@@ -327,18 +330,20 @@ Because the :manpage:`sources.list(5)` file is read from top to bottom, the APT 
 ``security.ubuntu.com`` points to the same servers as ``archive.ubuntu.com``. It is used in the :manpage:`sources.list(5)` file for the security pocket to prevent a user or script from accidentally changing it to a mirror.
 
 
+Landscape repositories
+~~~~~~~~~~~~~~~~~~~~~~
+
+`Landscape <https://ubuntu.com/landscape>`_ is a management and administration tool for Ubuntu. Landscape allows to mirror :term:`APT` repositories like the Ubuntu package archive. Although it is not directly related to the Ubuntu package archive, it can be educational to understand how APT repositories work in general.
+
+
 Further reading
 ---------------
 
 - `Ubuntu release cycle <https://ubuntu.com/about/release-cycle>`_
 - `Ubuntu blog -- Ubuntu updates, releases and repositories explained <https://ubuntu.com/blog/ubuntu-updates-releases-and-repositories-explained>`_
-- `Ubuntu Server docs -- package management <https://ubuntu.com/server/docs/package-management>`_
+- `Ubuntu Server docs -- package management <https://documentation.ubuntu.com/server/package-management/>`_
 
 
-Landscape repositories
-~~~~~~~~~~~~~~~~~~~~~~
-
-`Landscape <https://ubuntu.com/landscape>`_ is a management and administration tool for Ubuntu. Landscape allows to mirror :term:`APT` repositories like the Ubuntu package archive. Although it is not directly related to the Ubuntu package archive, it can be educational to understand how APT repositories work in general.
 
 .. |main| replace:: :ref:`archive-components-main`
 .. |restricted| replace:: :ref:`archive-components-restricted`

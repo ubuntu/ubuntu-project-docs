@@ -136,7 +136,7 @@ to the version you need before getting the tarball.
 
 - [ ] {ref}`mir-reporters-template`
 
-- [ ] [FFe](https://wiki.ubuntu.com/FreezeExceptionProcess#FeatureFreeze_Exceptions):
+- [ ] {ref}`FFe <feature-freeze-exceptions>`:
 
   ```
   [[ Feature Freeze Exception ]]

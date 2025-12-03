@@ -8,5 +8,6 @@ Details on maintaining some of these packages are given here.
 ```{toctree}
 :titlesonly:
 
+desktop/index
 rustc/index
 ```

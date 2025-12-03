@@ -28,7 +28,7 @@ With the incredible success of Ubuntu around the world, the Ubuntu Local Communi
 
 ## How to join an Ubuntu Local Community
 
-Becoming part of an Ubuntu Local Community is a great way to meet other passionate Ubuntu enthusiasts in your community. Find a team in your area to join by checking out the [Ubuntu Local Community Teams](https://ubuntu.com/community/locos/join) Directory.
+Becoming part of an Ubuntu Local Community is a great way to meet other passionate Ubuntu enthusiasts in your community. Find a team in your area to join by checking out the [Ubuntu Local Community Teams](https://ubuntu.com/community/local-communities#join-community) Directory.
 
 
 ## How to create an Ubuntu Local Community

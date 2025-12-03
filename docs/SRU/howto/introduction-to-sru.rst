@@ -1,7 +1,7 @@
-.. _stable-release-updates:
+.. _introduction-to-sru:
 
-Stable Release Updates
-======================
+Introduction to SRU
+===================
 
 To fix newly discovered bugs and make updates after the publication of an :term:`Ubuntu Stable Release`, use the **Stable Release Update (SRU)** process.
 
@@ -23,7 +23,7 @@ You can propose an SRU in the following cases:
 - To adjust to changes in the environment, server protocols, or web services. This ensures that Ubuntu remains compatible with evolving technologies.
 - For safe cases with low regression potential but high user experience improvement.
 - To introduce new features in :term:`LTS releases <LTS>`, usually under strict conditions.
-- To update commercial software in the :term:`Canonical partner archive`.
+- To update commercial software in the :ref:`partner-archive`.
 - To fix :term:`Failed to build from Source` issues.
 - To fix :term:`autopkgtest` failures, usually in conjunction with other high-priority fixes.
 
@@ -67,4 +67,3 @@ Updates removal
 If a bug fixed by an update doesn't get any testing or verification feedback for 90 days, an automated "call for testing" comment is made on the bug report. If no testing occurs within an additional 15 days, totaling 105 days without any testing, the :term:`Stable Release Managers` removes the package from proposed and close the bug task as **Won't Fix**.
 
 Also, updates are removed from proposed if they introduce a non-trivial regression.
-

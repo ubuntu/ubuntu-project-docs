@@ -29,6 +29,7 @@ Getting new versions of packages from Debian, dealing with build dependencies, a
 ```{toctree}
 :maxdepth: 1
 
+new-packages
 merges-and-syncs
 transitions
 backports
@@ -87,6 +88,6 @@ Special review processes and quality safeguards for adding updates to published 
 ```{toctree}
 :maxdepth: 1
 
-stable-release-updates
+/SRU/stable-release-updates
 /MIR/main-inclusion-review
 ```

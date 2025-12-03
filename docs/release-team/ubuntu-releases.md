@@ -144,7 +144,7 @@ by the full {term}`Ubuntu Archive` for packages and updates.
 
 Officially recognized flavors are:
 
-- [Edubuntu](https://edubuntu.org/)
+- [Edubuntu](https://www.edubuntu.org/)
 - [Kubuntu](https://kubuntu.org/)
 - [Lubuntu](https://lubuntu.me/)
 - [Ubuntu Budgie](https://ubuntubudgie.org/)
@@ -166,6 +166,6 @@ there can be exceptions).
 ## Further reading
 
 - [The Ubuntu life cycle and release cadence](https://ubuntu.com/about/release-cycle)
-- [Ubuntu flavors](https://ubuntu.com/desktop/flavours)
+- [Ubuntu flavors](https://ubuntu.com/desktop/flavors)
 - [Ubuntu releases](https://releases.ubuntu.com/)
 - [Ask a bug supervisor](https://answers.launchpad.net/launchpad/+question/140509)

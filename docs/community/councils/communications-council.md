@@ -1,6 +1,16 @@
 (communications-council)=
 # Communications Council
 
+```{toctree}
+:maxdepth: 1
+:hidden:
+
+matrix/matrix-council
+matrix/matrix-operators
+matrix/matrix-defenders
+matrix/matrix-moderators
+```
+
 The Ubuntu Communications Council (Comms Council) is responsible for looking after all aspects of communication for the Ubuntu Community. This includes both **synchronous communication platforms**, such as IRC, Matrix and Discord, and **asynchronous communication platforms**, such as Discourse, Ask Ubuntu, and the wiki.
 
 The Comms Council defines policies, moderation guidelines, and manages the platform-specific operator and moderator teams. They also work on a cohesive overarching strategy for Ubuntu's communications platforms, aiming to improve how our community collaborates, supports, and interacts.
@@ -28,14 +38,14 @@ You can find the current council members in the [communications-council](https:/
 
 Each platform has a team of operators that take care of the day-to-day activities of their respective platforms. They work with the Ubuntu Communications Council to implement changes and ensure their platforms are well maintained, governed, and that standard operating procedures are applied.
 
-* [Matrix Operators](https://ubuntu.com/community/communications/matrix/governance#operators)
+* {ref}`Matrix Operators <matrix-operators>`
 * Discourse Moderators
 * [IRC Operators](https://wiki.ubuntu.com/IRC/IrcTeam)
 
 
 ## History
 
-This council is a merger of old platform-specific councils like the IRC Council, Matrix Council, and Forums Council. This merger has multiple goals.
+This council is a merger of old platform-specific councils like the IRC Council, {ref}`Matrix Council <matrix-council>`, and Forums Council. This merger has multiple goals.
 
 **More cohesion and shared knowledge**
 : With the Matrix Council, we've seen how useful it is to have people from both the IRC and Matrix sides work together. It has really helped reduce the "rivalry" between platforms and the Matrix side learned a lot from the IRC side. It improved the speed of our decisions and we were better able to take the concerns from the IRC side into account. It also helped introduce senior people from the IRC side to the Matrix side.
@@ -51,6 +61,7 @@ This council is a merger of old platform-specific councils like the IRC Council,
 
 **Enabling an overarching strategy**
 : With a Communications Council, the members can think about how all the platforms fit together into an overarching communication strategy. This will allow us to create a much better experience than what we have today with the informal coordination attempts between councils.
+
 
 ## Election
 

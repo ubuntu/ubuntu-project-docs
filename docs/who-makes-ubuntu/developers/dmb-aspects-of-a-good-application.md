@@ -72,7 +72,7 @@ Examples:
 Applicants must follow the {ref}`DMB application process <dmb-application>` to collect their materials on an application page.
 The application must contain evidence of appropriate work for the level of upload rights applying for.
 Some aspects are best presented with evidence of the actual action like several sponsored uploads, others are more about learning and understanding which are harder to prove.
-But if you can also provide evidence of what you've learned about these topics, from your contributon to improve documentation/process to exerpts of insights you have had along the way.
+But if you can also provide evidence of what you've learned about these topics, from your contribution to improve documentation/process to excerpts of insights you have had along the way.
 An application pages shall include endorsements from current Ubuntu members, developers, and uploaders.
 When applying for a specific level, having endorsements from current members with the same or wider rights is required.
 
@@ -80,6 +80,17 @@ It is recommended to have endorsements of members from outside your team/Organiz
 Depending on the upload rights being pursued, and breadth of delegated power, this is more strict and those really should have endorsements from outside their current team and, if possible, their company.
 To allow that to accrue while working towards upload rights, consider sometimes asking non-team or non-company members to review and sponsor your work.
 Also partial endorsements (see below) can help to more quickly get at least some external endorsement.
+
+Sometimes you may have worked on projects about which you can't share all
+details due to being private. However it may be helpful for the DMB to know
+about it, especially in regard to the volume of your work so far.
+We do not want references to evidence that only some of the DMB can access, but
+you could ask an endorser that is aware of that work to refer to it without
+specific details. They could mention how many uploads, what kind of problems,
+and what complexities you have been dealing with - and by signing that
+statement provide authenticity to it. To be clear, this can only act as
+additional evidence. The publicly available evidence must be sufficient to give
+you a pass.
 
 Including endorsements from sponsors is the best way to show evidence.
 If an application lacks endorsements from major package sponsors, it will negatively impact an application if it causes the suspicion that those that have seen a lot of your work would not support your application.
@@ -107,6 +118,9 @@ Example:
 
 * John wants to apply for the rather new Debcrafters package set, but it only has one member so far.
   The requirement to have endorsements from the same level is not a blocker here -- endorsements by people sponsoring for him in other/similar package sets, or Ubuntu core developers, could also back his case.
+
+* Hugo applies for per package upload rights. He has done many uploads, but would want to refer to further, yet internal-only work for more confidence in his abilities.
+  In addition to all normal evidence, an endorser outlines the scope of the work they have done that is invisible to the DMB.
 
 
 ### Partial endorsement

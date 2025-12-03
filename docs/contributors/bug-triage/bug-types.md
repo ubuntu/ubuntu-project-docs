@@ -74,7 +74,7 @@ If the bug report is actually a feature request, there are two possibilities.
    *Triaged*. Only the members of the
    [Ubuntu Bug Control](https://launchpad.net/~ubuntu-bugcontrol) team can do
    so. If you're not a member you need to ask someone who is to do it for you.
-   Paste the bug number in the `#ubuntu-devel` Matrix channel and say you think
+   Paste the bug number in the {matrix}`ubuntu-devel` Matrix channel and say you think
    the bug should be set to *Wishlist*. Someone will notice and set it for you,
    although not necessarily immediately.
 
@@ -101,7 +101,7 @@ for taking the time to share your opinion!
 
 A regression is a bug introduced after an update. These bugs are especially
 important because if something breaks that used to work it causes frustration
-for software users. Rergressions can be more obvious and painful for users than
+for software users. Regressions can be more obvious and painful for users than
 bugs. To track regressions we use tags. Make sure to use the tags when doing
 triage!
 
@@ -187,13 +187,13 @@ used to track software requested for inclusion in Ubuntu. For these bugs:
 
 * Read and follow the instructions on [Sponsor Queue](https://wiki.ubuntu.com/MOTU/Sponsorship/SponsorsQueue).
 
-* Check if it is already in Ubuntu via [`packages.ubuntu.com`](http://packages.ubuntu.com),
+* Check if it is already in Ubuntu via [`packages.ubuntu.com`](https://packages.ubuntu.com/),
   or by running `rmadison <package>`.
 
   * If it **is** in the Archive, mark it as *Invalid*, and add a comment
     explaining your action.
 
-  * If it **is not** in Ubuntu, then check Debian via [`packages.debian.org`](http://packages.debian.org),
+  * If it **is not** in Ubuntu, then check Debian via [`packages.debian.org`](https://www.debian.org/distrib/packages),
     or by running `rmadison -u debian <package>`.
     
     * If it is in Debian, mark it as *Invalid*, and add a comment stating:
@@ -204,8 +204,8 @@ used to track software requested for inclusion in Ubuntu. For these bugs:
       likely appear in the next Ubuntu release.
       ```
 
-* Next, check [the Debian bug tracker](http://bugs.debian.org) or
-  [Work-Needing and Prospective Packages](http://www.debian.org/devel/wnpp/)
+* Next, check [the Debian bug tracker](https://www.debian.org/Bugs/) or
+  [Work-Needing and Prospective Packages](https://www.debian.org/devel/wnpp/)
   for an Intent To Package (ITP) or Request For Package (RFP) for this package.
   If you find such a request, add an upstream bug watch for it, and continue on.
 

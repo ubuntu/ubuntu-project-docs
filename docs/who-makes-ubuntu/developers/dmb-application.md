@@ -81,7 +81,7 @@ In your {ref}`personal Discourse page <dmb-create-a-discourse-post>`, copy and p
 Specify in your post title what upload rights you're applying for.
 
 ```{note}
-You can look at [past Wiki applications](https://wiki.ubuntu.com/Home?action=fullsearch&context=180&value=DeveloperApplication&titlesearch=Titles) such as [{spellexception}`Paride`'s](https://wiki.ubuntu.com/ParideLegovini/UbuntuServerDeveloperApplication) or check out the Discourse [Ubuntu Membership section](https://discourse.ubuntu.com/c/community/membership/93) if you need some examples.
+You can look at <a href="https://wiki.ubuntu.com/Home?action=fullsearch&context=180&value=DeveloperApplication&titlesearch=Titles">past Wiki applications</a> such as [{spellexception}`Paride`'s](https://wiki.ubuntu.com/ParideLegovini/UbuntuServerDeveloperApplication) or check out the Discourse [Ubuntu Membership section](https://discourse.ubuntu.com/c/community/membership/93) if you need some examples.
 ```
 
 
@@ -120,7 +120,7 @@ If a DMB member feels biased by having a personal relationship they can choose t
 If quorum is reached (4 of 7 currently), the applicant will be added to the requested team.
 If no approving quorum was reached the DMB members might, if possible, suggest what to study or work on, and ask the applicant to then re-apply in due time.
 
-For part of the world (e.g APAC) where the DMB meeting times can be challenging to attend due to the timezone gap, note that the DMB usually tries to be accomodating.
+For part of the world (e.g APAC) where the DMB meeting times can be challenging to attend due to the timezone gap, note that the DMB usually tries to be accommodating.
 While the preference always remains the Matrix interview meeting, the DMB team can exceptionally do the interview by email if the applicant cannot make the regular meeting times.
 Please reach out to the DMB team to let them know if you fall into this category.
 

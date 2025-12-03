@@ -29,7 +29,7 @@ Here we outline some standard tags with information about when to use them while
 | [`package-conflict`](https://launchpad.net/ubuntu/+bugs?field.tag=package-conflict) | A bug reported by Apport when a package operation failed due to a conflict with a file provided by another package |
 | [`derivatives`](https://bugs.launchpad.net/ubuntu/+source/linux/+bugs?field.tag=derivatives) | Bugs related to Derivatives |
 | [`desktop-file`](https://launchpad.net/ubuntu/+bugs?field.tag=desktop-file) | The bug requests the addition/fix of a `.desktop` file |
-| [`fix-to-verify`](https://launchpad.net/ubuntu/+bugs?field.status:list=FIXRELEASED&field.tag=fix-to-verify) | A bug that is *{ref}`Fix Released <bug-status>`* and should be verified when performing ISO testing of daily builds or milestones |
+| <a href="https://launchpad.net/ubuntu/+bugs?field.status:list=FIXRELEASED&field.tag=fix-to-verify">`fix-to-verify`</a> | A bug that is *{ref}`Fix Released <bug-status>`* and should be verified when performing ISO testing of daily builds or milestones |
 | [`ftbfs`](https://launchpad.net/ubuntu/+bugs?field.tag=ftbfs) | Bugs describing build failures of packages |
 | [`gobuntu`](https://bugs.launchpad.net/ubuntu/+source/linux/+bugs?field.tag=gobuntu) | Bugs related to Gobuntu |
 | [`hw-specific`](https://launchpad.net/ubuntu/+bugs?field.tag=hw-specific) | A bug requiring a specific piece of hardware to replicate |
@@ -37,9 +37,9 @@ Here we outline some standard tags with information about when to use them while
 | [`likely-dup`](https://launchpad.net/ubuntu/+bugs?field.tag=likely-dup) | The bug is likely a duplicate of another bug (maybe an upstream bug) but you can't find it |
 | [`manpage`](https://launchpad.net/ubuntu/+bugs?field.tag=manpage) | This bug is about a package's manual page being incorrect |
 | [`metabug`](https://launchpad.net/ubuntu/+bugs?field.tag=metabug) | This bug has a high probability of duplicate reports being filed |
-| [`multiarch`](https://launchpad.net/ubuntu/+bugs?field.tag=multiarch) | This bug is due to an issue with [multiarch triplet paths](http://wiki.debian.org/Multiarch); this could be build time, install time, or run time issues |
+| [`multiarch`](https://launchpad.net/ubuntu/+bugs?field.tag=multiarch) | This bug is due to an issue with [multiarch triplet paths](https://wiki.debian.org/Multiarch); this could be build time, install time, or run time issues |
 | [`nautilus-desktop-icons`](https://launchpad.net/ubuntu/+bugs?field.tag=nautilus-desktop-icons) | Bugs related to the Nautilus desktop; especially the alignment, display, and grid of icons |
-| [`needs-devrelease-testing`](https://launchpad.net/ubuntu/+bugs?orderby=-importance&field.status%3Alist=New&field.status%3Alist=Incomplete&field.status%3Alist=Invalid&field.status%3Alist=Won%27t+Fix&field.status%3Alist=Confirmed&field.status%3Alist=Triaged&field.status%3Alist=In+Progress&field.status%3Alist=Fix+Committed&field.status%3Alist=Fix+Released&field.tag=needs-devrelease-testing&search=Search) | A bug that existed in a previous release of Ubuntu and needs to be tested in the latest development release |
+| <a href="https://launchpad.net/ubuntu/+bugs?orderby=-importance&field.status%3Alist=New&field.status%3Alist=Incomplete&field.status%3Alist=Invalid&field.status%3Alist=Won%27t+Fix&field.status%3Alist=Confirmed&field.status%3Alist=Triaged&field.status%3Alist=In+Progress&field.status%3Alist=Fix+Committed&field.status%3Alist=Fix+Released&field.tag=needs-devrelease-testing&search=Search">needs-devrelease-testing</a> | A bug that existed in a previous release of Ubuntu and needs to be tested in the latest development release |
 | [`needs-reassignment`](https://launchpad.net/ubuntu/+bugs?field.tag=needs-reassignment) | A bug reported about the wrong package but the package maintainer isn't sure which package it belongs to |
 | [`packaging`](https://launchpad.net/ubuntu/+bugs?field.tag=packaging) | This bug is likely to be a packaging mistake |
 | [`screencast`](https://launchpad.net/ubuntu/+bugs?field.tag=screencast) | This bug report includes a screencast of the bug in action! |
@@ -93,10 +93,10 @@ Specific bugs concerning parts of the [Ayatana project](https://launchpad.net/ay
 
 | Tag | Use case |
 | :---- | :---- |
-| [`app-menu`](https://bugs.edge.launchpad.net/ubuntu/+bugs?field.tag=app-menu) | Bugs related to the [App Menu](https://wiki.ubuntu.com/DesktopExperienceTeam/ApplicationMenu) |
-| [`indicator-applet`](https://bugs.edge.launchpad.net/ubuntu/+bugs?field.tag=indicator-applet) | Bugs related to the use of the Indicator Applet that are not in the `indicator-applet` package (no Application Indicators) |
-| [`indicator-application`](https://bugs.edge.launchpad.net/ubuntu/+bugs?field.tag=indicator-application) | Bugs related to the use of Indicator Application that are not in the `indicator-application` package |
-| [`trayaway`](https://bugs.edge.launchpad.net/ubuntu/+bugs?field.tag=trayaway) | Bugs related to the [Notification Area transition](https://wiki.ubuntu.com/NotificationAreaTransition) |
+| [`app-menu`](https://bugs.launchpad.net/ubuntu/+bugs?field.tag=app-menu) | Bugs related to the [App Menu](https://wiki.ubuntu.com/DesktopExperienceTeam/ApplicationMenu) |
+| [`indicator-applet`](https://bugs.launchpad.net/ubuntu/+bugs?field.tag=indicator-applet) | Bugs related to the use of the Indicator Applet that are not in the `indicator-applet` package (no Application Indicators) |
+| [`indicator-application`](https://bugs.launchpad.net/ubuntu/+bugs?field.tag=indicator-application) | Bugs related to the use of Indicator Application that are not in the `indicator-application` package |
+| [`trayaway`](https://bugs.launchpad.net/ubuntu/+bugs?field.tag=trayaway) | Bugs related to the [Notification Area transition](https://wiki.ubuntu.com/NotificationAreaTransition) |
 
 
 ### Hardware-specific
@@ -112,31 +112,28 @@ Specific bugs concerning parts of the [Ayatana project](https://launchpad.net/ay
 | [`armel`](https://launchpad.net/ubuntu/+bugs?field.tag=armel) | These bugs deal with Ubuntu ARM systems |
 
 
-### Historical tags
+### Launchpad retracers tags
 
 These tags were relevant previously for Ubuntu bugs and may still appear in some bugs.
 
 | Tag | Use case |
 | :---- | :---- |
-| [`need-amd64-retrace`](https://launchpad.net/ubuntu/+bugs?field.tag=need-amd64-retrace) | The bug contains a crash report that needs retracing with `apport-retrace` on amd64 |
-| [`need-i386-retrace`](https://launchpad.net/ubuntu/+bugs?field.tag=need-i386-retrace) | The bug contains a crash report that needs retracing with `apport-retrace` on i386 |
-| [`need-powerpc-retrace`](https://launchpad.net/ubuntu/+bugs?field.tag=need-powerpc-retrace) | The bug contains a crash report that needs retracing with `apport-retrace` on powerpc |
-
+| [`need-$arch-retrace`](https://launchpad.net/ubuntu/+bugs?field.tag=need-amd64-retrace) | The bug contains a crash report that needs retracing with `apport-retrace` on the `$arch` architecture |
 
 ### Kernel-specific
 
 | Tag | Use case |
 | :---- | :---- |
 | [`apport-kerneloops`](https://launchpad.net/ubuntu/+bugs?field.tag=apport-kerneloops) | This Kernel Oops was reported using Apport |
-| [`bitesize`](https://launchpad.net/ubuntu/+bugs?field.searchtext=linux&field.tag=bitesize) | For the kernel, this includes things like enabling modules and changing kernel config options |
+| <a href="https://launchpad.net/ubuntu/+bugs?field.searchtext=linux&field.tag=bitesize">`bitesize`</a> | For the kernel, this includes things like enabling modules and changing kernel config options |
 | [`cherry-pick`](https://launchpad.net/ubuntu/+bugs?field.tag=cherry-pick) | A kernel bug that has a git commit SHA from the upstream kernel |
-| [`hibernate-resume`](https://launchpad.net/ubuntu/+bugs?field.tags_combinator=ALL&field.tag=hibernate+resume) | This bug was triggered by a hibernate/resume failure |
+| <a href="https://launchpad.net/ubuntu/+bugs?field.tags_combinator=ALL&field.tag=hibernate+resume">`hibernate-resume`</a> | This bug was triggered by a hibernate/resume failure |
 | [`kernel-bug`](https://launchpad.net/ubuntu/+bugs?field.tag=kernel-bug) | A "BUG:" message output was noted in the logs but it did not contain an Oops |
 | [`kernel-oops`](https://launchpad.net/ubuntu/+bugs?field.tag=kernel-oops) | This bug causes a kernel Oops message |
 | [`needs-upstream-testing`](https://launchpad.net/ubuntu/+bugs?field.tag=needs-upstream-testing) | This bug needs to be tested with the [upstream kernel](https://wiki.ubuntu.com/KernelMainlineBuilds). |
 | [`kernel-fixed-upstream`](https://launchpad.net/ubuntu/+bugs?field.tag=kernel-fixed-upstream) | This bug is not reproducible with the latest [upstream kernel](https://wiki.ubuntu.com/KernelMainlineBuilds) version available that allows the reporter to test it, and the version is higher than the Ubuntu kernel after [mapping](http://kernel.ubuntu.com/~kernel-ppa/info/kernel-version-map.html) |
 | [`kernel-bug-exists-upstream`](https://launchpad.net/ubuntu/+bugs?field.tag=kernel-bug-exists-upstream) | This bug is reproducible with the latest [upstream kernel](https://wiki.ubuntu.com/KernelMainlineBuilds) version available that allows the reporter to test it, and the version is higher than the Ubuntu kernel after [mapping](http://kernel.ubuntu.com/~kernel-ppa/info/kernel-version-map.html). |
-| [`suspend-resume`](https://launchpad.net/ubuntu/+bugs?field.tags_combinator=ALL&field.tag=suspend+resume) | This bug was triggered by a suspend/resume failure |
+| <a href="https://launchpad.net/ubuntu/+bugs?field.tags_combinator=ALL&field.tag=suspend+resume">`suspend-resume`</a> | This bug was triggered by a suspend/resume failure |
 | [`xorg-needs-kernel-fix`](https://launchpad.net/ubuntu/+bugs?field.tag=xorg-needs-kernel-fix) | This is an xorg bug which is dependent on a kernel patch |
 
 For more tags see [Kernel/Tagging](https://wiki.ubuntu.com/Kernel/Tagging).
@@ -211,7 +208,8 @@ See the [regression tracker](http://qa.ubuntu.com/reports/regression/regression_
 
 | Tag | Use case |
 | :---- | :---- |
-| [`update-excuse`](https://launchpad.net/ubuntu/+bugs?field.tag=update-excuse) | A bug tracking a cause of a package not being migrated to the `-release` pocket (this tag causes the bug to appear on the [update excuses report](https://people.canonical.com/~ubuntu-archive/proposed-migration/update_excuses.html)) |
+| [`update-excuse`](https://launchpad.net/ubuntu/+bugs?field.tag=update-excuse) | A bug tracking a cause of a package not being migrated to the `-release` pocket (this tag causes the bug to appear on the [update excuses report](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html
+)) |
 | [`block-proposed`](https://launchpad.net/ubuntu/+bugs?field.tag=block-proposed) | A bug that should be held back from migrating into the `-release` pocket |
 
 
@@ -237,4 +235,22 @@ For X tags please check [X Tagging](https://wiki.ubuntu.com/X/Tagging) with all 
 | Tag | Use case |
 | :---- | :---- |
 | [`asked-to-upstream`](https://launchpad.net/ubuntu/+bugs?field.tag=asked-to-upstream) | Users were asked to report the bug upstream themselves |
+
+## Canonical team tags
+
+Some of the Canonical teams across Ubuntu development have evolved a shared
+understanding of the tags they use for their own workflows. These are meant
+to be added/removed during those teams' regular triage processes, but are documented
+here so everyone can find and understand their meaning.
+
+Tags are not the only way to get awareness - Teams are structurally subscribed
+when they own (see {ref}`main-inclusion-review`) a package.
+In addition they might also subscribe their team to a specific bug so it can
+be included in future reviews of the acknowledged backlog.
+
+| Tag | Use case |
+| :---- | :---- |
+| `$team-todo`      | Among the vast backlog, bugs with this tag are considered both important and actionable. They require a person to be assigned, and must be regularly tracked so they do not fall through the cracks. If, while working on a case, the bug becomes un-actionable this tag should be dropped to keep the overview clear. |
+| `$team-freezer`   | This is like `$team-todo`, but for bugs that should be remembered even if they cannot be immediately acted upon. This tag puts the bug into the "freezer", effectively establishing a second tier of cases that are actionable but waiting to be handled. If there is a condition or date by which the case should be re-considered, teams are encouraged to state that when adding this tag. |
+| `rls-$$-incoming` | This tag is used as a trigger for getting the attention of the team that is structurally subscribed to the package. `$$` is a abbreviation for the corresponding Ubuntu release name - for example `rr` for `26.04 resolute raccoon` - and allows to target a particular release this shall be considered for. If you have any additional context, please add a comment alongside the tag. |
 

@@ -1,3 +1,4 @@
+(partner-archive)=
 # Partner archive
 
 The Canonical partner archive, though not part of Ubuntu proper, is managed

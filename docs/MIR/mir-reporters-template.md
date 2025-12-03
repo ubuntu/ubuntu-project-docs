@@ -499,6 +499,19 @@ RULE:   everyone can follow up easily e.g. checking the various architectures.
 RULE:   Example https://launchpad.net/ubuntu/+source/qemu/1:8.2.2+ds-0ubuntu1
 TODO: - Build link on launchpad: TBD
 
+RULE: A few times we had packages that seemed fine for the package itself, but
+RULE: caused quite some fallout and effort in related teams. We'd ask you to
+RULE: think who else might be affected by promoting this package(s) and to
+RULE: please coordinate with them upfront so they have time, understanding and
+RULE: sympathy available.
+RULE: Examples of the past which we admit could have been better (grows by
+RULE: painful lessons learned):
+RULE: - changing to rust coreutils forced us to update any apparmor profiles
+RULE    that referred to these paths
+TODO-A: This change will not impact other teams
+TODO-B: This change will impact other teams TBD[, TBD] and they are
+TODO-B: aware due to TBD
+
 [Background information]
 RULE: - The package descriptions should explain the general purpose and context
 RULE:   of the package. Additional explanations/justifications should be done in
