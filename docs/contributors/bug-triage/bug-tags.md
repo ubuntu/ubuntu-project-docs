@@ -112,16 +112,13 @@ Specific bugs concerning parts of the [Ayatana project](https://launchpad.net/ay
 | [`armel`](https://launchpad.net/ubuntu/+bugs?field.tag=armel) | These bugs deal with Ubuntu ARM systems |
 
 
-### Historical tags
+### Launchpad retracers tags
 
 These tags were relevant previously for Ubuntu bugs and may still appear in some bugs.
 
 | Tag | Use case |
 | :---- | :---- |
-| [`need-amd64-retrace`](https://launchpad.net/ubuntu/+bugs?field.tag=need-amd64-retrace) | The bug contains a crash report that needs retracing with `apport-retrace` on amd64 |
-| [`need-i386-retrace`](https://launchpad.net/ubuntu/+bugs?field.tag=need-i386-retrace) | The bug contains a crash report that needs retracing with `apport-retrace` on i386 |
-| [`need-powerpc-retrace`](https://launchpad.net/ubuntu/+bugs?field.tag=need-powerpc-retrace) | The bug contains a crash report that needs retracing with `apport-retrace` on powerpc |
-
+| [`need-$arch-retrace`](https://launchpad.net/ubuntu/+bugs?field.tag=need-amd64-retrace) | The bug contains a crash report that needs retracing with `apport-retrace` on the `$arch` architecture |
 
 ### Kernel-specific
 
