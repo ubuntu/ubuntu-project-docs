@@ -9,7 +9,7 @@ conflict-resolution
 coc-enforcement
 ```
 
-The Ubuntu Community Council is the primary community (i.e., non-technical) governance body for the Ubuntu project. Members are appointed by Mark Shuttleworth and approved by a vote by the entire Ubuntu membership.
+The Ubuntu Community Council is the primary community (i.e., non-technical) governance body for the Ubuntu project. Members are appointed by {spellexception}`Mark Shuttleworth` and approved by a vote by the entire Ubuntu membership.
 
 More information on the Council and on Ubuntu governance in general is on the {ref}`Ubuntu Governance page <project-governance>`.
 

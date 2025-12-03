@@ -120,7 +120,7 @@ If a DMB member feels biased by having a personal relationship they can choose t
 If quorum is reached (4 of 7 currently), the applicant will be added to the requested team.
 If no approving quorum was reached the DMB members might, if possible, suggest what to study or work on, and ask the applicant to then re-apply in due time.
 
-For part of the world (e.g APAC) where the DMB meeting times can be challenging to attend due to the timezone gap, note that the DMB usually tries to be accomodating.
+For part of the world (e.g APAC) where the DMB meeting times can be challenging to attend due to the timezone gap, note that the DMB usually tries to be accommodating.
 While the preference always remains the Matrix interview meeting, the DMB team can exceptionally do the interview by email if the applicant cannot make the regular meeting times.
 Please reach out to the DMB team to let them know if you fall into this category.
 

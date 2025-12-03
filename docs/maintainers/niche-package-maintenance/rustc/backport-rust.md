@@ -105,7 +105,7 @@ To keep track of backport progress and status, a Launchpad bug report is absolut
 
 It's quite likely that there's a specific _reason_ why the backport was needed (e.g., a Rust-based application in an old Ubuntu release has an SRU that needs a newer toolchain to build). In this case, simply reference that bug report throughout the process, assigning the bug to yourself.
 
-If no bug exists, you'll need to create your own. You can find a {lpbug}`good example here <2100492>`. If you need to go back multple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored. Additionally, if you need to go back multiple Rust versions, a separate bug report must be filed for each Rust version.
+If no bug exists, you'll need to create your own. You can find a {lpbug}`good example here <2100492>`. If you need to go back multiple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored. Additionally, if you need to go back multiple Rust versions, a separate bug report must be filed for each Rust version.
 
 - Going back to our {ref}`Jammy 1.86 example <rust-example-backport>`, we'd have to create three bug reports:
   1. `rustc-1.84` bug targeting Noble and Jammy
