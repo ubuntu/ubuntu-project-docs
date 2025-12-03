@@ -60,7 +60,7 @@ File a bug report about the package, titled "`[MIR] sourcepackagename`".
 Subscribe [`ubuntu-mir`](https://launchpad.net/~ubuntu-mir) to the bug report.
 Keep it in state "NEW" and do not assign it to anyone: this ensures that it
 appears in the
-<a href="https://bugs.launchpad.net/ubuntu/?field.searchtext=&orderby=-date_last_updated&field.status%3Alist=NEW&assignee_option=none&field.assignee=&field.subscriber=ubuntu-mir">MIR bug list</a>.
+[MIR bug list](https://bugs.launchpad.net/ubuntu/?field.searchtext=&orderby=-date_last_updated&field.status%3Alist=NEW&assignee_option=none&field.assignee=&field.subscriber=ubuntu-mir).
 
 
 (mir-step-2)=
