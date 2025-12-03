@@ -1,6 +1,7 @@
 import datetime
 import os
 import yaml
+import re
 from docutils.parsers.rst import roles
 from sphinx.util.docutils import SphinxRole
 from docutils import nodes
@@ -440,8 +441,48 @@ class CommandRole(SphinxRole):
         return [node], []
 
 
+def unescape_amp_in_links(app, exception):
+    """
+    Post-process HTML files to mitigate
+      https://github.com/executablebooks/MyST-Parser/issues/1028
+    by unescaping &amp;amp; to &amp;
+    To be minimally invasive this is:
+      - only changing text in href attributes
+      - only affecting &amp;amp; (over just &amp;) which is a
+        more clear indication of that bug
+      - only affecting parametrized URLs that follow to an ?
+      - only running for html builders
+      - only writing on changed content
+    """
+    if exception:
+        return
+
+    # Only run for html builders
+    if app.builder.format != 'html':
+        return
+
+    def unescape_match(match):
+        return match.group(0).replace('&amp;amp;', '&amp;')
+
+    for root, dirs, files in os.walk(app.outdir):
+        for file in files:
+            if file.endswith(".html"):
+                path = os.path.join(root, file)
+                try:
+                    with open(path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    new_content = re.sub(r'href=".*\?([^"]*)"',
+                                         unescape_match, content)
+                    if new_content != content:
+                        with open(path, 'w', encoding='utf-8') as f:
+                            f.write(new_content)
+                except Exception as e:
+                    print(f"Failed to process {path}: {e}")
+
+
 def setup(app):
     roles.register_local_role("command", CommandRole())
+    app.connect('build-finished', unescape_amp_in_links)
 
 
 # Define a custom role for package-name formatting
