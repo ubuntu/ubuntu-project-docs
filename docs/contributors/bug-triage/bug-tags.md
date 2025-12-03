@@ -118,7 +118,7 @@ These tags were relevant previously for Ubuntu bugs and may still appear in some
 
 | Tag | Use case |
 | :---- | :---- |
-| [`need-$arch-retrace`](https://launchpad.net/ubuntu/+bugs?field.tag=need-amd64-retrace) | The bug contains a crash report that needs retracing with `apport-retrace` on the `$arch` actitecture |
+| [`need-$arch-retrace`](https://launchpad.net/ubuntu/+bugs?field.tag=need-amd64-retrace) | The bug contains a crash report that needs retracing with `apport-retrace` on the `$arch` architecture |
 
 ### Kernel-specific
 
