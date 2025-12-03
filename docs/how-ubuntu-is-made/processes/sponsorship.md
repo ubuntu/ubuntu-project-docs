@@ -56,4 +56,4 @@ Keep notes of:
 * Which package(s) they sponsored.
 * What team or part of the distribution they work on.
 
-These notes are helpful both for finding sponsors in the future and for endorsersments on your future {ref}`applications for upload rights <path-to-upload-rights>`.
+These notes are helpful both for finding sponsors in the future and for endorsements on your future {ref}`applications for upload rights <path-to-upload-rights>`.

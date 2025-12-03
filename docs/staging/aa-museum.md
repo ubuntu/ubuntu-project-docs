@@ -286,7 +286,7 @@ make sure overrides are properly handled for binaries not in `main`. Is
 #### Copying security uploads to -updates
 
 Security uploads are distributed from a single system, `security.ubuntu.com`
-(consisting of one or a small number of machines in the Canonical datacenter).
+(consisting of one or a small number of machines in the Canonical data center).
 While this ensures much quicker distribution of security updates than is
 possible from a mirror network, it places a very high load on the machines
 serving `security.ubuntu.com`, as well as inflating Canonical's bandwidth
@@ -612,7 +612,7 @@ Additionally, performing the following should be considered:
 
 * Process [pending archive bugs](https://launchpad.net/~ubuntu-archive/+subscribedbugs).
   This query often generates a Launchpad OOPS rather than succeeding;
-  [This query](https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-archive&field.status=NEW&field.status=Confirmed&field.status=Triaged&field.status=INPROGRESS&field.status=FIXCOMMITTED&field.status=INCOMPLETE_WITH_RESPONSE&orderby=-id&start=0)
+  <a href="https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-archive&field.status=NEW&field.status=Confirmed&field.status=Triaged&field.status=INPROGRESS&field.status=FIXCOMMITTED&field.status=INCOMPLETE_WITH_RESPONSE&orderby=-id&start=0">This query</a>
   is more likely to succeed, but might miss some bugs. Most of those are syncs,
   removals, component fixes, but there might be other (less common) requests.
 

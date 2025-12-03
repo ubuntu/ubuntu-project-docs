@@ -162,7 +162,7 @@ Test fails
 
 Test succeeds
 
-: The assumption that the regression is already present in the package version in `-proposed` is likely incorrect. The test faile has likely been caused by the new change (upload).
+: The assumption that the regression is already present in the package version in `-proposed` is likely incorrect. The test failure has likely been caused by the new change (upload).
 
 
 #### Against a PPA

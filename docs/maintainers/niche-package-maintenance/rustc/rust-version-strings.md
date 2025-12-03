@@ -153,7 +153,7 @@ Every time you change the rest of the version string in some way, you can reset 
 If this part is _not_ present, that means it's on the main archive, so it's a version that's actually out.
 
 :::{note}
-{term}`Changelog` (`debian/changelog`) entries with `~ppa<PPA>` should should never make itonto a {term}`version control system`; they are only for the benefit of the PPA itself.
+{term}`Changelog` (`debian/changelog`) entries with `~ppa<PPA>` should never make it onto a {term}`version control system`; they are only for the benefit of the PPA itself.
 When working on a Rust toolchain locally, the PPA-specific changelog entry (and version string) should be removed after successful PPA upload.
 :::
 
