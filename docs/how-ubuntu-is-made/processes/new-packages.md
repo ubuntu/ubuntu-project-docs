@@ -10,7 +10,7 @@ Packages that have recently been added to Debian unstable will be automatically 
 After the Debian Import Freeze, you must [file a bug](https://launchpad.net/ubuntu/+filebug/?no-redirect) with the summary field "Please sync `<packagename>` from debian `<distro>`" where
 `<packagename>` is the package you would like to see.
 
-To get a package into Ubuntu, <a href="https://bugs.launchpad.net/ubuntu/+filebug?no-redirect&field.tag=needs-packaging">file a bug in Launchpad</a> and make sure it has the tag [`needs-packaging`](https://lists.ubuntu.com/archives/ubuntu-motu/2007-March/001471.html).
+To get a package into Ubuntu, [file a bug in Launchpad](https://bugs.launchpad.net/ubuntu/+filebug?no-redirect&field.tag=needs-packaging) and make sure it has the tag [`needs-packaging`](https://lists.ubuntu.com/archives/ubuntu-motu/2007-March/001471.html).
 
 In the bug, mention where to get the source for it and which license it is under.
 An example request [is shown here](https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages/ExamplePackageRequest).

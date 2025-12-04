@@ -19,7 +19,7 @@ You should reach out to a Patch Pilot if:
 
 Patch Pilots are available in the {matrix}`devel` channel on [Matrix](https://ubuntu.com/community/communications/matrix) and will be monitoring bugs with patches on Launchpad.
 The current Pilot is noted in the channel topic.
-If you'd like to plan ahead, see the <a href="https://calendar.google.com/calendar/embed?showPrint=0&showCalendars=0&mode=WEEK&src=Y184ZWRhZjk2OTllYWFmMWFmMmNjYTY2ZTYyOGZkNDEwODQ2ZTkwMjcwNmQ2YTMzMTU1OTNmODhiOTk0ZTZlOWE2QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23F4511E">Ubuntu Patch Pilots</a> calendar.
+If you'd like to plan ahead, see the [Ubuntu Patch Pilots](https://calendar.google.com/calendar/embed?showPrint=0&showCalendars=0&mode=WEEK&src=Y184ZWRhZjk2OTllYWFmMWFmMmNjYTY2ZTYyOGZkNDEwODQ2ZTkwMjcwNmQ2YTMzMTU1OTNmODhiOTk0ZTZlOWE2QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23F4511E) calendar.
 
 
 ## Being a Patch Pilot
@@ -73,7 +73,7 @@ Availability on Matrix
 
 
 Operation Cleansweep
-: There is a growing number of <a href="https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-reviewers&field.tag=-patch-needswork%20-patch-forwarded-upstream%20-patch-forwarded-debian%20-patch-accepted-upstream%20-patch-accepted-debian%20-patch-rejected-upstream%20-patch-rejected-debian%20-patch-rejected&field.tags_combinator=ALL">open bugs with patches on them</a>. Following the [Review Guide](https://wiki.ubuntu.com/ReviewersTeam/ReviewGuide#Workflow), you can help make sure community members have the support they need to get their patches into Ubuntu. Contributors might occasionally need clarification on the guidelines, and we're here to provide support and guidance.
+: There is a growing number of [open bugs with patches on them](https://bugs.launchpad.net/ubuntu/+bugs?field.subscriber=ubuntu-reviewers&field.tag=-patch-needswork%20-patch-forwarded-upstream%20-patch-forwarded-debian%20-patch-accepted-upstream%20-patch-accepted-debian%20-patch-rejected-upstream%20-patch-rejected-debian%20-patch-rejected&field.tags_combinator=ALL). Following the [Review Guide](https://wiki.ubuntu.com/ReviewersTeam/ReviewGuide#Workflow), you can help make sure community members have the support they need to get their patches into Ubuntu. Contributors might occasionally need clarification on the guidelines, and we're here to provide support and guidance.
 
 
 Developer documentation

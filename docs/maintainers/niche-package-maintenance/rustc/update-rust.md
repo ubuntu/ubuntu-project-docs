@@ -322,7 +322,7 @@ default-features = false
 
 `win-rustc-vendored-prune-list` just sees `windows` and flags it, so it's your job to recognize that it's also required for `unix`.
 
-Finally, if you're not sure about how/if you should prune something, you can take a look at versions of the patch from earlier Rust updates to see if a different version of the vendored crate has been pruned before. <a href="https://git.launchpad.net/~canonical-foundations/ubuntu/+source/rustc/tree/debian/patches/prune/d-0021-vendor-remove-windows-dependencies.patch?h=merge-1.85&id=80e81b6f85ef6086177991e34100e520bd142327">Here's</a> an example of a patch with a large list of vendored crates.
+Finally, if you're not sure about how/if you should prune something, you can take a look at versions of the patch from earlier Rust updates to see if a different version of the vendored crate has been pruned before. [Here's](https://git.launchpad.net/~canonical-foundations/ubuntu/+source/rustc/tree/debian/patches/prune/d-0021-vendor-remove-windows-dependencies.patch?h=merge-1.85&id=80e81b6f85ef6086177991e34100e520bd142327) an example of a patch with a large list of vendored crates.
 
 :::{note}
 You may notice that `windows-bindgen` and `windows-metadata` aren't included in the exclusion list — they don't pull in `windows-sys` and friends, and (at least in earlier versions) they're necessary for the build process, so it's not the end of the world if they don't get pruned.

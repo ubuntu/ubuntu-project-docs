@@ -25,7 +25,7 @@ Content on the Discourse is broken down into categories, including one for Ubunt
 
 1. [Sign up for a Discourse account](https://discourse.ubuntu.com/auth/saml?signup=true) (and Ubuntu One account if you haven't already).
 2. Once you're logged in, head over to The [Ubuntu Local Communities section](https://discourse.ubuntu.com/c/locos/129) and see if a category already exists for your region.
-   If not, you can request one by <a href="https://docs.google.com/forms/d/e/1FAIpQLSf7auchvVzpkH_cQdUFiiRcyGHtrSrGG0GmeQXaKkDhXVpsmw/viewform?usp=sharing&ouid=101065845149003260161">filling out this form</a>.
+   If not, you can request one by [filling out this form](https://docs.google.com/forms/d/e/1FAIpQLSf7auchvVzpkH_cQdUFiiRcyGHtrSrGG0GmeQXaKkDhXVpsmw/viewform?usp=sharing&ouid=101065845149003260161).
 
 
 ### Ubuntu Matrix server
