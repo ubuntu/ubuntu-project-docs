@@ -56,7 +56,7 @@ Due to the differences in packaging goals, it's increasingly unlikely that the p
 This FAQ is focused on the Ubuntu package and not everything is likely to apply to Debian.
 
 Arguably the primary packaging tasks for `rustc` involve finding common ground between system packages and the Rust upstream vendoring model, which generally would result in building separate versions of `libc`, `openssl`, `llvm`, and more.
-Ubuntu and Debian both prefer to use system libraries whenever possible, and so modify the package to locate those and link agaist them.
+Ubuntu and Debian both prefer to use system libraries whenever possible, and so modify the package to locate those and link against them.
 
 A complicating factor is that not all versions of the Ubuntu package use an identical set of vendored dependencies.
 For instance, the default `rustc` version on Ubuntu generally makes use of the system `llvm` (although it's statically linked, and so not a runtime dependency).
@@ -66,7 +66,7 @@ This means that some newer versions of `rustc` use a vendored LLVM.
 The actual patches that are applied to the upstream source are split into categories, although nearly all of them are fundamentally focused on finding the right system files and platform-specific issues:
 
 **`behavior`**
-: Despite the name, these patches do not change the behavior of the compiler per se.
+: Despite the name, these patches do not change the behavior of the compiler itself.
 Instead, it refers to the fact that they apply to `rustc` at runtime.
 They mostly set paths, so that system resources can be located. They add some additional symlinks to simplify dynamic linking against Rust libraries and remove some irrelevant platform-specific workarounds.
 

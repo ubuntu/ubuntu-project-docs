@@ -35,7 +35,7 @@ this correct?)
 Related SRU Interest Team
 -------------------------
 
-Grub has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
-please subscribe the
+Grub has a :ref:`SRU Interest Team <reference-sru-interest-team>`.
+Please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-grub>`__
 to the SRU bug early on.

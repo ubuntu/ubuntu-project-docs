@@ -115,7 +115,7 @@ considered complete.
 Related SRU Interest Team
 -------------------------
 
-Snapd has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
-please subscribe the
+Snapd has a :ref:`SRU Interest Team <reference-sru-interest-team>`.
+Please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`__
 to the SRU bug early on.
