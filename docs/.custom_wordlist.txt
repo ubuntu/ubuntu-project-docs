@@ -123,6 +123,7 @@ NGOs
 neurotype
 onboarding
 oniguruma
+OSI's
 packageset
 packagesets
 papercuts
