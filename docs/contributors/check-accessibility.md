@@ -109,6 +109,8 @@ For a more thorough test, you need these shortcuts:
 - Focus moves from one element to the next in a logical order
     * In most of our apps, that usually means sidebar (if open), then body; and top to bottom, left to right (or right to left for RTL languages such as Arabic or Hebrew).
 - Focus moves to dialogs when opened, and returns to the trigger when closed
+- When a dialog opens, focus moves to the dialog
+- When a dialog closes, focus moves back to the element that triggered the dialog
 - Dialogs close by hitting the {kbd}`Escape` key
 - If an element doesn't have a visible label but does have a tooltip on hover, the tooltip should also be visible on focus
 
@@ -151,17 +153,16 @@ You can find further guidance in the [screen reader documentation](https://docum
 
 - All interactive elements (buttons, fields, links…) have a label and a role that is read out loud by the screen reader
     * Roles explain the function of the component ("button", "search box", "link"). Check [GTK roles](https://docs.gtk.org/gtk4/enum.AccessibleRole.html).
+- All labels are descriptive, meaningful and concise
 - All labels are unique, unless they trigger the exact same action.
-    * For example, if there's a single share button, it can be labeled "Share". But if there's more than one "Show" button, you should specify what it refers to: for example, "Show description", "Show gallery".
-- All labels are short, descriptive and meaningful
-    * Take context into account: if you are on an app page, the share button should be labeled "Share", not "Share this app" or "Share [app name]": it's generally redundant with the page title/headings.
+    * For example, if there's more than one share button, each label should mention what it refers to ("Share [item name 1]", "Share [item name 2]")
 - All pages have a meaningful title or main heading
 - All section headings are unique and meaningful
-- When changing to a new page, either page title or the main heading is announced (whichever is more meaningful)
-- Errors are either announced or readable with the screen reader
+- When changing to a new page, either the page title or the main heading is announced (whichever is more meaningful)
+- Errors are announced and readable with the screen reader
 - For images that are not strictly decorative, provide alternative text that can be read out loud by the screen reader
     * Get guidance on how to write good alternative text in the [Vanilla content guidelines](https://vanillaframework.io/docs/content-guidelines#alt-text-for-images)
-- For audio or video content, provide text alternatives (for instance, transcriptions or captions)
+- All visual content in videos is [described](https://www.w3.org/WAI/media/av/description/) by a narrator, in the transcript, or in adjacent text.
 
 
 ## Check additional accessibility
@@ -176,8 +177,9 @@ Besides the more common checks above, you should also keep in mind these:
 - All interactive elements have a width and height of at least 24px, or have [sufficient space around them](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html).
 - Large interactive elements have at least 24px of either vertical or horizontal spacing
     * If interactive elements are too close, users might activate them by accident, for example when [scrolling on touch screens](https://axesslab.com/hand-tremors/).
-- Audio that lasts more than 3 seconds does not play automatically
-- Audio that lasts more than 3 seconds can be paused or muted
+- Audio or video that lasts more than 3 seconds does not play automatically
+- Audio or video that lasts more than 3 seconds can be paused or muted
+- Provide text alternatives (for instance, transcriptions or captions) for audio and video content
 
 
 ## Look for user feedback
