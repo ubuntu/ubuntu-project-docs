@@ -129,9 +129,9 @@ May be a duplicate of what's in the packaging guide
 ### Archive Administration and Freezes
 
 Archive Admins should be familiar with the
-{ref}`Freeze Exception process <freeze-exceptions>`, however it is the bug
-submitter's and sponsor's responsibility to make sure that the process is being
-followed. Some things to keep in mind for common tasks:
+{ref}`Freeze Exception process <freeze-exceptions>`, however it is the
+responsibility of the bug submitter and the sponsor to make sure that the
+process is being followed. Some things to keep in mind for common tasks:
 
 * When the Archive is frozen (i.e. the week before a Milestone, or from one
   week before RC until the final release), you need an ACK from `ubuntu-release`

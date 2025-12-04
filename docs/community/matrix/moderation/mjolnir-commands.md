@@ -97,7 +97,7 @@ Manually kick a user from all protected rooms
 
 ### Ban users
 
-A ban removes a user from a homeserver inefinitely.
+A ban removes a user from a homeserver indefinitely.
 This is not a permanent ban from the room.
 This action is useful in case of repeat offenders or obvious bot spam action.
 

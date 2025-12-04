@@ -66,7 +66,7 @@ This means that some newer versions of `rustc` use a vendored LLVM.
 The actual patches that are applied to the upstream source are split into categories, although nearly all of them are fundamentally focused on finding the right system files and platform-specific issues:
 
 **`behavior`**
-: Despite the name, these patches do not change the behavior of the compiler per se.
+: Despite the name, these patches do not change the behavior of the compiler itself.
 Instead, it refers to the fact that they apply to `rustc` at runtime.
 They mostly set paths, so that system resources can be located. They add some additional symlinks to simplify dynamic linking against Rust libraries and remove some irrelevant platform-specific workarounds.
 
