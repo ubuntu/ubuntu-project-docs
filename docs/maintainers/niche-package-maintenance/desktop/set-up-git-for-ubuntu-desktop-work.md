@@ -19,7 +19,8 @@ We use the Settings application as an example. Internally, the application is kn
     :host:
     :dir:
     :user:
-    :input: sudo apt install git git-extras git-buildpackage ubuntu-dev-tools gnupg
+
+    sudo apt install git git-extras git-buildpackage ubuntu-dev-tools gnupg
     ```
 
     For details about the packaging environment, see {ref}`how-to-set-up-for-ubuntu-development`.
@@ -61,7 +62,8 @@ Some projects might require that you sign tags with your GPG key. Enable automat
     :host:
     :dir:
     :user:
-    :input: gpg --list-secret-keys --fingerprint
+
+    gpg --list-secret-keys --fingerprint
 
     /home/user/.gnupg/pubring.kbx
     -----------------------------------------------------
@@ -110,7 +112,8 @@ Let's clone the GNOME Control Center repository.
     :host:
     :dir:
     :user:
-    :input: apt-cache showsrc gnome-control-center | grep-dctrl -n -s Vcs-Git -
+
+    apt-cache showsrc gnome-control-center | grep-dctrl -n -s Vcs-Git -
 
     https://salsa.debian.org/gnome-team/gnome-control-center.git -b ubuntu/master
     ```
@@ -124,7 +127,8 @@ Let's clone the GNOME Control Center repository.
     :host:
     :dir:
     :user:
-    :input: gbp clone salsa-gnome:gnome-control-center
+
+    gbp clone salsa-gnome:gnome-control-center
 
     gbp:info: Cloning from 'salsa-gnome:gnome-control-center'
     ```
@@ -136,7 +140,8 @@ Let's clone the GNOME Control Center repository.
     :host:
     :dir:
     :user:
-    :input: gbp clone https://salsa.debian.org/gnome-team/gnome-control-center.git
+
+    gbp clone https://salsa.debian.org/gnome-team/gnome-control-center.git
 
     gbp:info: Cloning from 'https://salsa.debian.org/gnome-team/gnome-control-center.git'
     ```
@@ -151,7 +156,8 @@ Let's clone the GNOME Control Center repository.
     :host:
     :dir:
     :user:
-    :input: cd gnome-control-center
+
+    cd gnome-control-center
     ```
 
 1. Enable Git to push tags automatically because `gbp` relies on them.
@@ -163,7 +169,8 @@ Let's clone the GNOME Control Center repository.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git config push.followTags true
+
+    git config push.followTags true
     ```
 
 1. Add the upstream GNOME remote repository and call it `upstreamvcs`:
@@ -173,7 +180,8 @@ Let's clone the GNOME Control Center repository.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git remote add -f upstreamvcs git@ssh.gitlab.gnome.org:GNOME/gnome-control-center.git
+
+    git remote add -f upstreamvcs git@ssh.gitlab.gnome.org:GNOME/gnome-control-center.git
     ```
 
     :::{note}
@@ -184,7 +192,8 @@ Let's clone the GNOME Control Center repository.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git remote add -f upstreamvcs https://gitlab.gnome.org/GNOME/gnome-control-center.git
+
+    git remote add -f upstreamvcs https://gitlab.gnome.org/GNOME/gnome-control-center.git
     ```
     :::
 
@@ -195,7 +204,8 @@ Let's clone the GNOME Control Center repository.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git branch -vv
+
+    git branch -vv
 
       pristine-tar      a96c0e2e98 [origin/pristine-tar] pristine-tar data for gnome-control-center_49.0.orig.tar.xz
     * ubuntu/latest     a8640ab8a4 [origin/ubuntu/latest] debian/salsa-ci: Enable for ubuntu
@@ -209,7 +219,8 @@ Let's clone the GNOME Control Center repository.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git remote
+
+    git remote
 
     origin
     upstreamvcs
@@ -227,7 +238,8 @@ Run these commands in the `gnome-control-center` repository that we cloned earli
 :host:
 :dir: gnome-control-center
 :user:
-:input: git remote -v
+
+git remote -v
 ```
 
 The command lists the following remote repositories:
@@ -255,7 +267,8 @@ Let's look at the various branches in the Salsa remote repository:
 :host:
 :dir: gnome-control-center
 :user:
-:input: git remote show origin
+
+git remote show origin
 
 * remote origin
   […]
@@ -289,7 +302,8 @@ Many release maintenance branches are available on the Salsa remote repository:
 :host:
 :dir: gnome-control-center
 :user:
-:input: git remote show origin
+
+git remote show origin
 
 * remote origin
   […]
@@ -322,7 +336,8 @@ Let's track the `ubuntu/noble` maintenance branch:
 :host:
 :dir: gnome-control-center
 :user:
-:input: git checkout ubuntu/noble
+
+git checkout ubuntu/noble
 
 Switched to branch 'ubuntu/noble'
 Your branch is up to date with 'origin/ubuntu/noble'.
@@ -338,9 +353,17 @@ To create another local branch that tracks a remote branch, use the following co
 :host:
 :dir: gnome-control-center
 :user:
-:input: git branch -u <local-branch-name> <remote>/<branch-name>
 
-:input: git checkout <local-branch-name>
+git branch -u <local-branch-name> <remote>/<branch-name>
+```
+
+```{terminal}
+:copy:
+:host:
+:dir: gnome-control-center
+:user:
+
+git checkout <local-branch-name>
 ```
 :::
 
@@ -370,7 +393,8 @@ Let's browse the content of the `upstreamvcs` repository:
 :host:
 :dir: gnome-control-center
 :user:
-:input: git remote show upstreamvcs
+
+git remote show upstreamvcs
 
 * remote upstreamvcs
 […]
@@ -392,7 +416,8 @@ Our convention is to check out the `upstreamvcs/main` branch locally and call it
 :host:
 :dir: gnome-control-center
 :user:
-:input: git checkout -b upstreamvcs-main upstreamvcs/main
+
+git checkout -b upstreamvcs-main upstreamvcs/main
 
 Branch 'upstreamvcs-main' set up to track remote branch 'main' from 'upstreamvcs'.
 Switched to a new branch 'upstreamvcs-main'

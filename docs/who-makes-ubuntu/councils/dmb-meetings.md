@@ -29,6 +29,28 @@ like {ref}`dmb-application-communication`.
 
 At the end of every meeting, we try to pre-select the next meeting's chair.
 
+The chair is furthermore responsible to ensure that {ref}`meeting-logs` are made
+publicly available.
+
+(meeting-logs)=
+## Meeting Logs
+
+Over the years there have been many forms of meeting logs: sites logging IRC,
+[Meetingology](https://wiki.ubuntu.com/meetingology) based logs,
+missed logs :-/, mail summaries and more. When experimenting to offer more
+modern meetings for more efficient evaluation of the candidates more types
+like text files, auto generated logs, google docs or video recording got used.
+
+The goals of these logs is to:
+- allow to retrace how people have been evaluated in the past
+- allow to refer to when a decision was done
+- allow someone to prepare for an application based on former ones
+
+To be able to achieve that in an easy way they are made publicly available
+in a single repository at [DMB Meeting logs](https://git.launchpad.net/~developer-membership-board/+git/dmb-meeting-history/tree/?h=main).
+Old logs, from all the different sources of the past were added and now allow
+an easy way to download for any other kind of processing.
+
 ## General progress during meetings
 
 In January 2023 the DMB agreed to the following.

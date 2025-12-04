@@ -616,7 +616,7 @@ Failed to build from source
     *Work in Progress*
 
 FTI
-Failed to installFgovern
+Failed to install
     *Work in Progress*
 
 FFE
