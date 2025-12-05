@@ -3,17 +3,14 @@
 Firmware Updates
 ================
 
-This document describes the policy for updating the fwupd, fwupdate,
-fwupd-signed and fwupdate-signed packages to new upstream versions in a
-stable, supported distro (including LTS releases).
+This document describes the policy for updating the fwupd and fwupd-efi
+packages to new upstream versions in a stable, supported distro
+(including LTS releases).  The policy applies to Ubuntu 20.04 and newer.
 
 fwupd is the firmware updating daemon used for performing updates on a
 variety of devices both in and out of OS. Updates outside of the OS are
-performed using UEFI capsules. fwupd versions older than 1.1.x used
-fwupdate package and its EFI binary for performing UEFI capsule updates.
-fwupd versions 1.1.x and newer have subsumed fwupdate and now maintains
-and fully manage the lifecycle of the EFI binary.
-
+performed using UEFI capsules. The EFI binary used for performing UEFI
+capsule updatees is distributed in the fwupd-efi package.
 Signed versions of the EFI binaries are in the respsective \*-signed
 packages.
 
@@ -23,9 +20,8 @@ Mario Limonciello.
 Due to the nature of the coverage of various UEFI implementations across
 OEMs it's often difficult or impossible to foreshadow the impacts of a
 given fix on other OEMs implementations. OEMs that run into a problem on
-a particular version of fwupd/fwupdate can place information into the
-metadata to prevent updates from running on versions of fwupd/fwupdate
-that have known bugs.
+a particular version of fwupd can place information into the metadata to
+prevent updates from running on versions of fwupd that have known bugs.
 
 Upstream does maintain stable release branches for distros like Ubuntu
 to pick up when applicable without going to the latest version of fwupd
@@ -34,9 +30,8 @@ but still adopting fixes.
 Metadata
 --------
 
-Due to this, upstream highly recommends distros to not backport
-individual patches so that OEMs can control only running fwupd/fwupdate
-updates on safe combinations.
+Upstream highly recommends distros to not backport individual patches so
+that OEMs can control only running fwupd updates on safe combinations.
 
 OEMs can add the following to their metadata:
 
@@ -52,25 +47,19 @@ OEMs can add the following to their metadata:
 What can be SRUed
 -----------------
 
-New versions of fwupd and fwupdate can both be SRU'ed into older
-releases provided following process is followed: On an Ubuntu release
-that uses both fwupdate and fwupd (such as bionic and earlier):
+New versions of fwupd and fwupd-efi can both be SRU'ed into older
+releases provided following process is followed:
 
-**fwupdate**: tarball releases only. No backported individual patches.
-If a tarball release isn't available, make upstream release one.
+**fwupd-efi**: tarball releases only. No backported individual patches.
+If a tarball release isn't available, ping upstream to test and release one.
 
-**fwupd**: fwupd releases in the 1.0.x series.
-
-On an Ubuntu release that uses fwupd but not fwupdate:
-
-Stay with the same stable release branch that was launched with that
-release. For example 1_1_X branch or 1_2_X branch.
-
+**fwupd**: fwupd releases in the matching major series (for example 1.9.x
+or 2.0.x) that was already introduced into Ubuntu. This policy addresses microreleases only.
 
 Firmware QA Process
 -------------------
 
-When a new version of fwupd or fwupdate is uploaded to -proposed, the
+When a new version of fwupd or fwupd-efi is uploaded to -proposed, the
 following will be done:
 
 -  Test that UEFI capsule updates still work properly on an OEM system
