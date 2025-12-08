@@ -47,8 +47,21 @@ TODO: - There is no other/better way to solve this that is already in main or
 TODO:   should go universe->main instead of this.
 RULE: If the package previously was in main (use rmadison to check),
 RULE: and the previous MIR content is still applicable and not ancient,
-RULE: just add a new release-task instead of creating a new MIR.
-RULE: Otherwise, continue with this MIR and link to the previous MIR.
+RULE: please help us to keep the discussion, argument and audit trail together.
+RULE: To do so just add a new per-release tasks instead of creating a new MIR.
+RULE: Otherwise - if the existing former case was way too diffeerent, continue
+RULE: preparing this new MIR and please reference to the previous MIR.
+RULE: This suggestion of per release tasks if valid in both directions.
+RULE: For example forward when something was MIRed in 24.10 and 25.04 but got
+RULE: demoted in 25.10 - and shall come back to 26.04 you'd more likely add to
+RULE: the existing MIR instead of creating a new one. Of course the reasons for
+RULE: demotion in 25.10 will be important for this case.
+RULE: And for example backwards, when something was MIRed for 24.04 onward,
+RULE: but later is also needed in older releases like 22.04 and 20.04. In that
+RULE: case you likely want to ensure via SRUs that things are up to date anyway
+RULE: and yet again, if the content, reasoning and outside factors are not
+RULE: vastly different you'd be expected to add per-release-tasks to the
+RULE: existing MIR case which makes it easier for reporter and reviewer alike.
 TODO-A: - This is the first time package will be in main
 TODO-B: - Package was in main before (Ubuntu aa.bb->xx.yy) (MIR-Bug LP: #...)
 RULE: You truly need to understand the difference between main and universe
