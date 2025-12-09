@@ -45,9 +45,10 @@ RULE: address the problem you might spend some time explaining what exists and
 RULE: why it isn't a sufficient alternative.
 TODO: - There is no other/better way to solve this that is already in main or
 TODO:   should go universe->main instead of this.
-RULE: If the package previously was in main (use rmadison to check),
-RULE: and the previous MIR content is still applicable and not ancient,
-RULE: please help us to keep the discussion, argument and audit trail together.
+RULE: If the package is in main in other releases (use rmadison to check),
+RULE: and the existing MIR and package content is still applicable and not
+RULE: outdated relative to what you want to add not, then please help us to
+RULE: keep the discussion, argument and audit trail together.
 RULE: To do so just add a new per-release tasks instead of creating a new MIR.
 RULE: Otherwise - if the existing former case was way too diffeerent, continue
 RULE: preparing this new MIR and please reference to the previous MIR.
