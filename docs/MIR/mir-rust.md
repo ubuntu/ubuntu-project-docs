@@ -8,6 +8,10 @@ rather than rely on the individual package versions.
 See [`cpaelzer/ubuntu-mir#3`](https://github.com/cpaelzer/ubuntu-mir/pull/3) for
 some background on the issue.
 
+Additionally, Rust code that needs Transport Layer Security (TLS) [must use OpenSSL](#rust-tls-requirements)
+to ensure that system cryptography policies are followed.  This requirement will
+change as the Rust TLS ecosystem matures.
+
 ## Vendoring Rust dependencies
 
 It's a simple matter of running `cargo vendor debian/rust-vendor/` where you're
@@ -273,3 +277,22 @@ git add debian/control
 git commit -m "Update XS-Vendored-Sources-Rust field"
 git reset --hard # restore Cargo.toml
 ```
+
+## Rust TLS Requirements
+
+[`rustls`](https://github.com/rustls/rustls) is a popular Rust TLS implementation,
+but currently it [does not support system-wide policies](https://github.com/rustls/rustls/issues/2402).
+Ubuntu [announced a partnership with rustls](https://discourse.ubuntu.com/t/addressing-linuxs-missing-pki-infrastructure/73314) to build a centralized PKI system written in Rust.
+
+Until the needed cryptographic infrastructure and system-wide policies are operational,
+**Rust code in `main` that uses TLS must use OpenSSL with the system-wide OpenSSL configuration.**
+
+This may require significant changes to some Rust code, but it is required for now to
+ensure that system-wide cryptographic policies are followed as described by the MIR
+reporter's rule ["Check for security relevant binaries, services and behavior"](https://documentation.ubuntu.com/project/MIR/mir-reporters-template/).
+
+### OpenSSL crate configuration
+The [`openssl` crate](https://docs.rs/openssl/latest/openssl/) provides a safe Rust
+interface for the system OpenSSL package.  **The `vendored` Cargo feature MUST NOT
+be used** to ensure that the system OpenSSL package and corresponding policy are used.
+
