@@ -285,7 +285,7 @@ but currently it [does not support system-wide policies](https://github.com/rust
 Ubuntu [announced a partnership with rustls](https://discourse.ubuntu.com/t/addressing-linuxs-missing-pki-infrastructure/73314) to build a centralized PKI system written in Rust.
 
 Until the needed cryptographic infrastructure and system-wide policies are operational,
-**Rust code in `main` that uses TLS must use OpenSSL with the system-wide OpenSSL configuration.**
+Rust code in `main` that uses TLS must use OpenSSL with the system-wide OpenSSL configuration.
 
 This may require significant changes to some Rust code, but it is required for now to
 ensure that system-wide cryptographic policies are followed as described by the MIR
@@ -293,6 +293,6 @@ reporter's rule ["Check for security relevant binaries, services and behavior"](
 
 ### OpenSSL crate configuration
 The [`openssl` crate](https://docs.rs/openssl/latest/openssl/) provides a safe Rust
-interface for the system OpenSSL package.  **The `vendored` Cargo feature MUST NOT
-be used** to ensure that the system OpenSSL package and corresponding policy are used.
+interface for the system OpenSSL package.  The `vendored` Cargo feature MUST NOT
+be used to ensure that the system OpenSSL package and corresponding policy are used.
 
