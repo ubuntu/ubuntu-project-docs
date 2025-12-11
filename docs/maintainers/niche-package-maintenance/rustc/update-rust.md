@@ -183,10 +183,17 @@ $ gbp import-orig \
     --no-pristine-tar \
     --upstream-branch=experimental \
     --debian-branch=merge-<X.Y> \
-    ../rustc-<X.Y>_<X.Y.Z>+dfsg0ubuntu0.orig.tar.xz
+    ../rustc-<X.Y>_<X.Y.Z>+dfsg~old.orig.tar.xz
 ```
 
 Afterwards, you should now see two commits in your Git log stating that your upstream source has been updated.
+
+It can be useful to be able to return to this point just in case you make a mistake repacking the tarballs. It's recommended to create a branch here for safekeeping:
+
+```none
+git branch import-old-<X.Y>
+git push <lpuser> import-old-<X.Y>
+```
 
 (updating-rust-initial-patch-refresh)=
 
