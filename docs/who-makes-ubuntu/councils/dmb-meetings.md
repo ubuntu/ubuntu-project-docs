@@ -47,7 +47,8 @@ The goals of these logs is to:
 - allow someone to prepare for an application based on former ones
 
 To be able to achieve that in an easy way they are made publicly available
-in a single repository at [DMB Meeting logs](https://git.launchpad.net/~developer-membership-board/+git/dmb-meeting-history/tree/?h=main).
+in a single repository at [DMB Meeting logs](https://launchpad.net/~developer-membership-board/+git/dmb-meeting-history)
+([browse the logs](https://git.launchpad.net/~developer-membership-board/+git/dmb-meeting-history/tree/?h=main)).
 Old logs, from all the different sources of the past were added and now allow
 an easy way to download for any other kind of processing.
 
@@ -92,5 +93,3 @@ See [the original thread](https://lists.ubuntu.com/archives/devel-permissions/20
 
 * Make sure that the applicant has signed the [Ubuntu Code of Conduct](https://launchpad.net/codeofconduct/2.0).
   It must be signed by every Ubuntu Developer.
-
-
