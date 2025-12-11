@@ -480,19 +480,30 @@ pick f31152ca1b9 Refresh d-0010-cargo-remove-vendored-c-crates.patch
 
 Consulting your `git log`, you should see the two new `gbp` commits immediately after the creation of the `<X.Y>` changelog entry.
 
-Before you force-push to your personal Launchpad remote, you must be absolutely sure you didn't miss anything. Compare your branch with your `backup` branch:
+#### Verifying your changes
+
+To ensure that things were correctly pruned, take a look at the list of vendored Windows crates:
 
 ```none
-$ git diff backup --name-status
+$ ls -1 vendor | grep 'windows'
 ```
 
-You should **only** see a huge list of deleted `vendor` files.
+You should see a list of windows-related crates. This may seem counter-intuitive — shouldn't these crates have been pruned from the `vendor/` directory?
 
-:::{warning}
-If there are _any other changes_ apart from deleted `vendor` files, then you made a mistake during the rebase — reset to your backup branch and try again.
-:::
+In actuality, these crates _have_ been pruned. `cargo-vendor-filterer` replaces pruned crates with _stubs_ – empty crates with the minimum `Cargo.toml` files required to satisfy `cargo` whilst building the compiler.
 
-Once you're absolutely sure everything is good, you may safely delete your `import-new-<X.Y>` and `backup` branches. This is also a good time to force-push to your `<lpuser>` remote.
+To verify that unwanted crates have been pruned properly, spot-check a few of the Windows crates inside `vendor/`. They should have an empty `lib.rs` and have a structure like this:
+
+```none
+$ tree vendor/windows_x86_64_msvc-0.53.0
+vendor/windows_x86_64_msvc-0.53.0
+├── Cargo.toml
+└── src
+    └── lib.rs
+
+2 directories, 2 files
+```
+
 
 ### After-Repack Patch Refreshes
 
