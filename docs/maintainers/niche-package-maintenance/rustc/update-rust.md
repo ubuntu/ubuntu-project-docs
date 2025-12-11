@@ -82,24 +82,28 @@ In this step, you get the source code of the new Rust version. The {term}`watch 
 
 #### Updating the changelog and package name
 
-You can also update the {term}`changelog` at `debian/changelog`, manually setting the version number:
-
-```none
-$ dch -v <X.Y.Z>+dfsg0ubuntu0-0ubuntu0
-```
-
 :::{important}
 The changelog version string is complicated. It's _strongly recommended_ to consult the {ref}`rust-version-strings` article before making this change to ensure you understand the version string.
-
-Even though the `ubuntu` suffix in version strings starts at 1, the fact that both suffixes are `ubuntu0` here is not a typo. This version string will _not_ be added to the archive — it is simply an interim number to be used temporarily until we're finished repacking the tarball.
 :::
 
-Don't forget to manually change the versioned package name in the changelog too! (i.e., `rustc-<X.Y_old>` -> `rustc-<X.Y>`)
-
-You can also create your first changelog bullet point — the "New upstream version" point. It should look something like the following; consult previous changelog entries for examples:
+First, update the {term}`changelog` at `debian/changelog`, manually setting the version number:
 
 ```none
-* New upstream version <X.Y.Z> (LP: #<lp_bug_number>)
+$ dch -v <X.Y.Z>+dfsg-0ubuntu1
+```
+
+You must also update the versioned package name in the changelog, i.e., `rustc-<X.Y_old>` -> `rustc-<X.Y>`
+
+Finally, within the changelog entry, you must declare the new Rust version you're packaging, including the Launchpad bug number.
+
+Your new changelog entry should look similar to this:
+
+```none
+rustc-<X.Y> (<X.Y.Z>+dfsg-0ubuntu1) <release>; urgency=medium
+
+  * New upstream version <X.Y.Z> (LP: #<lp_bug_number>)
+
+ -- Jane Doe <example@example.com>  Thu, 01 Jan 1970 00:00:00 -0000
 ```
 
 :::{important}
