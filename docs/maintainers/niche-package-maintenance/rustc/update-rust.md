@@ -162,9 +162,9 @@ $ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{1,~old}.orig.tar.xz
 
 #### Updating the source code in your repository
 
-`uscan` just downloads the new Rust source, yanks out the ignored files, and packs the orig tarball. Your actual Git repository hasn't changed at all yet. To do that, we can use `gbp` to import the new Rust version onto your existing repository.
+`uscan` just downloads the new Rust source, yanks out the ignored files, and packs the orig tarball. Your actual Git repository hasn't changed at all yet. To do that, we can use `gbp` to import the new Rust source code onto your existing repository.
 
-:::{important}
+:::{note}
 This is point at which your _actual source code_ moves from `<X.Y.Z_old>` to `<X.Y.Z>`.
 :::
 
