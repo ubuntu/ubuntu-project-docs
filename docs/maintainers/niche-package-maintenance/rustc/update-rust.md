@@ -548,10 +548,6 @@ This is another opportunity to verify that you pruned unwanted crates properly. 
 If you're running a pre-versioned Rust Ubuntu release, then there's a decent chance the `cargo` installation required by `dh-cargo` will be too old. In this case, don't use `dh-cargo`—instead, manually download [`dh-cargo-vendored-sources`](https://git.launchpad.net/ubuntu/+source/dh-cargo/tree/dh-cargo-vendored-sources) (it's just a Perl script) and use it _without_ deb-based installations of Rust, which ensures that the `rustup` snap's version will be used instead.
 :::
 
-### Updating debian/copyright
-
-All the new `vendor` files must be added to `debian/copyright`. Luckily, we can use a script which uses {term}`Lintian` ({manpage}`lintian(1)`) to generate all the missing copyright stanzas.
-
 ### Updating Vendored Copyright Overrides
 
 `debian/copyright` contains copyright stanzas for all the vendored dependencies of `rustc`. However, the crate stubs are "red herrings" for the purposes of `debian/copyright`. They're just empty crates; they don't contain any copyrighted code.
@@ -561,6 +557,10 @@ To prevent packaging tools from complaining that the stubbed crates are missing 
 ```none
 $ debian/add-vendored-copyright-overrides
 ```
+
+### Updating debian/copyright
+
+All the new `vendor` files must be added to `debian/copyright`. Luckily, we can use a script which uses {term}`Lintian` ({manpage}`lintian(1)`) to generate all the missing copyright stanzas.
 
 #### Generate the Lintian report
 
