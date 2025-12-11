@@ -504,6 +504,20 @@ vendor/windows_x86_64_msvc-0.53.0
 2 directories, 2 files
 ```
 
+### Updating Versioned Package References in Control Files
+
+Certain {term}`control files <control file>`, such as `debian/control` and `debian/source/lintian-overrides`, list versioned package names. These files must be updated to match the new version numbers.
+
+`update-version`, in `debian/rules`, updates all relevant control files automatically. In order to run it, it must be given an up-to-date Rust toolchain via `RUST_BOOTSTRAP_DIR`:
+
+```none
+$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu/bin/rustc \
+    debian/rules update-version
+```
+
+After running the script, consult `git diff` and verify that, in `debian/control`, the two `Build-Depends` options for a bootstrapping compiler are `rustc-<X.Y_old>` and `rustc-<X.Y>`.
+
+After checking that the changes are correct, you may commit these changes and continue.
 
 ### After-Repack Patch Refreshes
 
