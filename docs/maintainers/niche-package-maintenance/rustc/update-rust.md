@@ -523,9 +523,7 @@ After checking that the changes are correct, you may commit these changes and co
 
 Some of the patches will no longer apply now that more files have been removed. You must refresh all the patches so they once again apply cleanly onto the newly-pruned source.
 
-In general, you will follow the same protocol as the [initial patch refresh](updating-rust-initial-patch-refresh).
-
-Naturally, many lines will be removed from `debian/patches/prune/d-0021-vendor-remove-windows-dependencies` because many of the vendored crates you pruned were _themselves_ unnecessary.
+In general, you will follow the same protocol as the [initial patch refresh](updating-rust-initial-patch-refresh). The most common change is dropping patches of pruned vendored files.
 
 ### Updating XS-Vendored-Sources-Rust
 
