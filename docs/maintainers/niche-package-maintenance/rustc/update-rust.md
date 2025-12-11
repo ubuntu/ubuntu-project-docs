@@ -562,16 +562,19 @@ To prevent packaging tools from complaining that the stubbed crates are missing 
 $ debian/add-vendored-copyright-overrides
 ```
 
+#### Generate the Lintian report
 
+[Clean up previous build artifacts](updating-rust-clean-build), build the source package using {manpage}`dpkg-buildpackage(1)`, then run Lintian, redirecting the output to somewhere convenient:
 
-
-```
-
-[Clean up previous build artifacts](updating-rust-clean-build), build the source package using {manpage}`dpkg-buildpackage(1)`, then run Lintian and pipe the output to the script:
+(updating-rust-lintian-command)=
 
 ```none
 $ dpkg-buildpackage -S -I -i -nc -d -sa
-$ lintian -i -I -E --pedantic | debian/lintian-to-copyright.sh
+$ lintian -i -I -E --pedantic | tee <lintian_results_path>
+```
+
+
+```none
 ```
 
 
