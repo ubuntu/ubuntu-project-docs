@@ -552,36 +552,15 @@ If you're running a pre-versioned Rust Ubuntu release, then there's a decent cha
 
 All the new `vendor` files must be added to `debian/copyright`. Luckily, we can use a script which uses {term}`Lintian` ({manpage}`lintian(1)`) to generate all the missing copyright stanzas.
 
-This script requires `pytoml`, so we must create and enter a virtual environment.
+
+
 
 ```none
-# apt install python3-venv
 ```
 
-Create the virtual environment somewhere convenient, such as `~/.venvs/`:
 
-```none
-$ python3 -m venv rustc-lintian-to-copyright
-```
 
-After that, enter the virtual environment and install `pytoml`:
 
-```none
-$ source ~/.venvs/rustc-lintian-to-copyright/bin/activate
-$ which python3
-$ python3 -m pip install pytoml
-```
-
-Temporarily edit `debian/lintian-to-copyright.sh` to recognize the virtual environment:
-
-```diff
-@@ -1,5 +1,5 @@
- #!/bin/sh
- # Pipe the output of lintian into this.
- sed -ne 's/.* file-without-copyright-information //p' | cut -d/ -f1-2 | sort -u | while read x; do
--       /usr/share/cargo/scripts/guess-crate-copyright "$x"
-+   python3 /home/maxgmr/rustc/rustc/debian/scripts/guess-crate-copyright "$x"
- done
 ```
 
 [Clean up previous build artifacts](updating-rust-clean-build), build the source package using {manpage}`dpkg-buildpackage(1)`, then run Lintian and pipe the output to the script:
@@ -591,10 +570,8 @@ $ dpkg-buildpackage -S -I -i -nc -d -sa
 $ lintian -i -I -E --pedantic | debian/lintian-to-copyright.sh
 ```
 
-Leave the virtual environment afterwards:
 
 ```none
-$ deactivate
 ```
 
 You may need to fill in some fields manually. [This](https://stackoverflow.com/questions/23611669/how-to-find-the-created-date-of-a-repository-project-on-github) is an easy way to find the start date of a GitHub repo.
