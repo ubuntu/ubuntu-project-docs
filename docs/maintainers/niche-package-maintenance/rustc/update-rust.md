@@ -527,7 +527,7 @@ In general, you will follow the same protocol as the [initial patch refresh](upd
 
 ### Updating XS-Vendored-Sources-Rust
 
-Inside of `debian/control` and `debian/control.in`, there's a special field called `XS-Vendored-Sources-Rust` which must be updated. It simply lists all the vendored crate dependencies, along with their version numbers, on a single line.
+Inside of `debian/control`, there's a special field called `XS-Vendored-Sources-Rust` which must be updated. It simply lists all the vendored crate dependencies, along with their version numbers, on a single line.
 
 Luckily, the {lpsrc}`dh-cargo` package contains a script for automatically generating this line. Push all your patches, then run the script:
 
@@ -536,7 +536,7 @@ $ quilt push -a
 $ CARGO_VENDOR_DIR=vendor/ /usr/share/cargo/bin/dh-cargo-vendored-sources
 ```
 
-Copy-paste the expected value it provides to both `debian/control` AND `debian/control.in`.
+Replace the existing `XS-Vendored-Sources-Rust` field in `debian/control` with this new expected value.
 
 :::{attention}
 Make sure there's still an empty line after the end of the field! Mistakenly dropping the empty line will result in a build failure right at the end of the test build.
