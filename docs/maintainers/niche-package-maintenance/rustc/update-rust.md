@@ -552,10 +552,14 @@ If you're running a pre-versioned Rust Ubuntu release, then there's a decent cha
 
 All the new `vendor` files must be added to `debian/copyright`. Luckily, we can use a script which uses {term}`Lintian` ({manpage}`lintian(1)`) to generate all the missing copyright stanzas.
 
+### Updating Vendored Copyright Overrides
 
+`debian/copyright` contains copyright stanzas for all the vendored dependencies of `rustc`. However, the crate stubs are "red herrings" for the purposes of `debian/copyright`. They're just empty crates; they don't contain any copyrighted code.
 
+To prevent packaging tools from complaining that the stubbed crates are missing copyright stanzas, run `debian/add-vendored-copyright-overrides` to automatically update `debian/source/lintian-overrides`:
 
 ```none
+$ debian/add-vendored-copyright-overrides
 ```
 
 
