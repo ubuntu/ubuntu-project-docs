@@ -10,4 +10,4 @@ $ uscan --download-version <X.Y.Z> -v 2>&1 | tee <path_to_log_output>
 
 This process can take a while. Once it is complete, you will find a file with an `.orig.tar.xz` suffix in your parent `rustc` directory. That is your orig tarball. It contains the new upstream source code for the new Rust version.
 
-You must then rename the orig tarball to match the first part of your package version number, i.e., `rustc-<X.Y>_<X.Y.Z>+dfsg0ubuntu0`.
+You must then rename the orig tarball to match the first part of your package version number.
