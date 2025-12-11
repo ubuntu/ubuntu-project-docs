@@ -542,6 +542,7 @@ Replace the existing `XS-Vendored-Sources-Rust` field in `debian/control` with t
 Make sure there's still an empty line after the end of the field! Mistakenly dropping the empty line will result in a build failure right at the end of the test build.
 :::
 
+This is another opportunity to verify that you pruned unwanted crates properly. You shouldn't see any of the pruned Windows crates in the new `XS-Vendored-Sources-Rust` field.
 
 :::{note}
 If you're running a pre-versioned Rust Ubuntu release, then there's a decent chance the `cargo` installation required by `dh-cargo` will be too old. In this case, don't use `dh-cargo`—instead, manually download [`dh-cargo-vendored-sources`](https://git.launchpad.net/ubuntu/+source/dh-cargo/tree/dh-cargo-vendored-sources) (it's just a Perl script) and use it _without_ deb-based installations of Rust, which ensures that the `rustup` snap's version will be used instead.
