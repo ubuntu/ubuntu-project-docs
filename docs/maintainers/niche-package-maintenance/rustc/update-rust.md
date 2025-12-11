@@ -603,6 +603,36 @@ Keep things clean by adding the new `d/copyright` stanzas alphabetically. It mak
 
 ```
 
+## Common Update Build Issues
+
+### Unresolved import
+
+When building the compiler, you may see an error like the following:
+
+```none
+error[E0432]: unresolved import `foo::Bar`
+  --> /<<PKGBUILDDIR>>/vendor/baz-1.0.4/src/quux.rs:16:5
+   |
+16 | use foo::Bar;
+   |     ^^^^^^^^ no `Bar` in the root
+```
+
+This most commonly happens when there are two different versions of the same vendored crate, and the newer version gets stubbed; e.g.:
+
+- `vendor/foo-1.0.20` (STUB)
+- `vendor/foo-1.0.19` (NOT A STUB)
+
+In this case, create (or modify) `debian/patches/ubuntu/ubuntu-pin-dep-ver.patch`, add the `Cargo.toml` of the offending file's crate (in this case `vendor/baz-1.0.4/Cargo.toml`) to the patch, and pin the version to the older one:
+
+```diff
+--- a/vendor/baz-1.0.4/Cargo.toml
++++ b/vendor/baz-1.0.4/Cargo.toml
+@@ -136,3 +136,3 @@
+ [dependencies.foo]
+-version = "1.0.17"
++version = "= 1.0.19"
+```
+
 (updating-rust-lintian-checks)=
 
 ```{include} common/lintian-checks.md
