@@ -245,196 +245,38 @@ In this case, you must consult the upstream changes to figure out what replaced 
 
 Remember, your goal here is to preserve the _intent_ of the patch. If, for example, a patch disables certain tests which require an internet connection, and those tests get refactored completely, it's your responsibility to track down the tests which require an internet connection and disable them accordingly.
 
-#### Pruned vendored dependency patch exception
-
-Finally, `debian/patches/prune/d-0021-vendor-remove-windows-dependencies.patch` is a special case. Many of its changes will fail to apply because their targeted vendored crates have changed versions.
-
-You will later have to manually update this patch, so you may simply refresh this patch after force-applying it, dropping all the missing vendored crates.
+(updating-rust-pruning-unwanted-dependencies)=
 
 ### Pruning Unwanted Dependencies
 
 As mentioned above, we don't want to include unnecessary dependencies, especially Windows-related crates like `windows-sys`. This pruning ensures adherence to free software principles, reduces the attack surface of the binary packages, and reduces the binary package size on the end user's hard drive.
 
-Since we [removed the auto-generated `debian/copyright` chunk earlier](updating-rust-removing-the-old-vendor-prune-list) before [getting the upstream source with `uscan`](updating-rust-getting-the-new-source-and-orig-tarball-with-uscan), our `vendor` directory will contain _everything_. We must now remove the dependencies on things we don't need.
+Since we [included all vendored dependencies](updating-rust-including-all-vendored-dependencies) before [getting the upstream source](updating-rust-getting-the-new-source-and-orig-tarball-with-uscan), our `vendor` directory will contain _everything_. We must now remove the dependencies on things we don't need.
 
-You must prune the unwanted dependencies of both the Rust source code itself _and_ its vendored dependencies.
+#### Generating the pruned vendor tarball component
 
-#### Get a list of things to prune
+In addition to the standard orig tarball containing all the upstream code, the Rust toolchain Ubuntu package also comes with an additional {term}`orig tarball` component called `vendor`. This tarball component contains _just_ the pruned vendored dependencies of the Rust toolchain.
 
-To get a list of possibly-unwanted crate dependencies, search for Windows-related words in the `Cargo.toml` files:
-
-```none
-$ quilt push debian/patches/prune/d-0021-vendor-remove-windows-dependencies.patch
-$ find vendor -iname Cargo.toml -exec grep -H -n \
-    -e 'schannel' \
-    -e 'windows-sys' \
-    -e 'winapi' \
-    -e 'ntapi' \
-    -e 'wincon' \
-    -e 'winreg' \
-    -e 'windows' \
-    {} \;
-```
-
-:::{note}
-The majority of this list will be taken up by lines from the `Cargo.toml`s of various versions of the Windows crates like `windows`, `windows-sys`, etc. You don't need to prune these! Basically, if you _know_ that a given crate will be removed, you _don't_ need to prune its `Cargo.toml`.
-:::
-
-#### Prune the Cargo.toml files
-
-Your top priority will be removing any dependencies which pull in `windows-sys`, `winapi`, `ntapi`, `windows`, etc. Go through the prune list you just generated and inspect the flagged lines to see whether or not it's something that should be pruned.
-
-Here's an example of something which should definitely be pruned:
-
-```diff
---- a/vendor/dbus-0.9.7/Cargo.toml
-+++ b/vendor/dbus-0.9.7/Cargo.toml
-@@ -63,9 +63,5 @@
- stdfd = []
- vendored = ["libdbus-sys/vendored"]
-
--[target."cfg(windows)".dependencies.winapi]
--version = "0.3.0"
--features = ["winsock2"]
--
- [badges.maintenance]
- status = "actively-developed"
-```
-
-In this example, the vendored `dbus-0.9.7` crate pulls in `winapi` as a dependency on Windows targets. We obviously aren't targeting Windows, so we can delete this whole chunk.
-
-Here's another example of something which should be deleted:
-
-```diff
---- a/vendor/opener-0.7.2/Cargo.toml
-+++ b/vendor/opener-0.7.2/Cargo.toml
-@@ -48,7 +48,6 @@
- reveal = [
-     "dep:url",
-     "dep:dbus",
--    "windows-sys/Win32_System_Com",
- ]
-
- [target.'cfg(target_os = "linux")'.dependencies.bstr]
-@@ -62,16 +61,5 @@
- version = "2"
- optional = true
-
--[target."cfg(windows)".dependencies.normpath]
--version = "1"
--
--[target."cfg(windows)".dependencies.windows-sys]
--version = "0.59"
--features = [
--    "Win32_Foundation",
--    "Win32_UI_Shell",
--    "Win32_UI_WindowsAndMessaging",
--]
--
- [badges.maintenance]
- status = "passively-maintained"
-```
-
-In this case, the `reveal` crate feature relies on something from `windows-sys`, so we _also_ remove that line. We know that the `reveal` feature doesn't _actually_ need `windows-sys/Win32_System_Com` on non-Windows targets, because `windows-sys` is a conditional dependency, so it's safe to remove that line.
-
-Here's an example of something that `win-rustc-vendored-prune-list` picks up that you _don't_ want to remove:
-
-```toml
-[target.'cfg(any(unix, windows, target_os = "wasi"))'.dependencies.getrandom]
-version = "0.3.0"
-optional = true
-default-features = false
-```
-
-`win-rustc-vendored-prune-list` just sees `windows` and flags it, so it's your job to recognize that it's also required for `unix`.
-
-Finally, if you're not sure about how/if you should prune something, you can take a look at versions of the patch from earlier Rust updates to see if a different version of the vendored crate has been pruned before. [Here's](https://git.launchpad.net/~canonical-foundations/ubuntu/+source/rustc/tree/debian/patches/prune/d-0021-vendor-remove-windows-dependencies.patch?h=merge-1.85&id=80e81b6f85ef6086177991e34100e520bd142327) an example of a patch with a large list of vendored crates.
-
-:::{note}
-You may notice that `windows-bindgen` and `windows-metadata` aren't included in the exclusion list — they don't pull in `windows-sys` and friends, and (at least in earlier versions) they're necessary for the build process, so it's not the end of the world if they don't get pruned.
-
-That said, it's been possible to prune `windows-metadata` from more recent `rustc` packages, so we may potentially be able to consistently prune both in the future. More research is needed on this topic.
-:::
-
-#### Final manual crate checks
-
-While the above content focuses on removing Windows dependencies, there are a few specific libraries we target for pruning. Review the following patches, and make sure that nothing else is trying to use the libraries they target:
-
-- `prune/d-0005-no-jemalloc.patch`: `tikv-jemalloc-sys` and `jemalloc-ctl`
-- `prune/d-0011-cargo-remove-nghttp2.patch`: `libnghttp2-sys`
-
-### Removing Unused Dependencies
-
-Once you've removed all `Cargo.toml` lines which pull in unnecessary vendored dependencies, you're ready to remove said dependencies from the orig tarball and `vendor` directory entirely.
-
-#### prune-unused-deps
-
-Previous Rust maintainers have been kind enough to create a script for this purpose: `debian/prune-unused-deps`. This script locates the unneeded vendored crates and adds the list to the `Files-Excluded` field of `d/copyright`.
-
-:::{note}
-The auto-generated chunk generated by `prune-unused-deps` is an updated version of the one you deleted at the start of the update process!
-:::
-
-In order to use the script, you need the previous Rust toolchain to bootstrap. It's easiest to get the toolchain using the `rustup` snap:
+[`cargo-vendor-filterer`](https://crates.io/crates/cargo-vendor-filterer/) is used to generate a pruned vendor directory. It's recommended to download the `rustup` snap, use `rustup` to download the toolchain matching your target version, then install `cargo-vendor-filterer` for that Rust installation:
 
 ```none
-$ rustup install <X.Y.Z_old>
+# snap install rustup
+$ rustup install <X.Y.Z>
+$ cargo +<X.Y.Z> install cargo-vendor-filterer
 ```
 
-You're now ready to run the script, pointing it to your Rust toolchain:
+Make sure that `~/.cargo/bin` is in your `$PATH`, otherwise you won't be able to run `cargo-vendor-filterer`.
+
+(updating-rust-vendor-tarball-rule)=
+
+After that, call the `vendor-tarball` rule in `debian/rules`. This will use `cargo-vendor-filterer` to generate a vendor directory which _only_ contains the dependencies required by supported Ubuntu targets. It then repacks this directory into the `vendor` tarball component. Make sure you point it to your installed Rust toolchain via `RUST_BOOTSTRAP_DIR`:
 
 ```none
-$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z_old>-<arch>-unknown-linux-gnu/bin/rustc \
-    debian/prune-unused-deps
+$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu/bin/rustc \
+    debian/rules vendor-tarball
 ```
 
-If you have issues running `prune-unused-deps` due to features requiring "nightly version\[s\] of Cargo", set `RUSTC_BOOTSTRAP=1` at the `cargo update` command within `debian/prune-unused-deps`:
-
-```diff
---- a/debian/prune-unused-deps
-+++ b/debian/prune-unused-deps
-@@ -24,7 +24,7 @@ done
- find vendor -name .cargo-checksum.json -execdir "$scriptdir/debian/prune-checksums" "{}" +
-
- for ws in $workspaces; do
--       (cd "$ws" && cargo update --offline)
-+       (cd "$ws" && RUSTC_BOOTSTRAP=1 cargo update --offline)
- done
-
- needed_crates() {
-```
-
-:::{note}
-It's possible the above change can be made permanent, but such a change should be discussed as a team before making that decision.
-:::
-
-#### Committing the right changes
-
-After running `prune-unused-deps`, there will be many changes, almost none of which you actually need.
-
-First, if you needed to edit `prune-unused-deps` earlier, restore it:
-
-```none
-$ git restore debian/prune-unused-deps
-```
-
-Next, commit the changes to {term}`debian/control <control file>` and`debian/source/lintian-overrides`. Their version numbers have been updated.
-
-#### Double-checking your pruning
-
-After that, consult the new auto-generated block underneath the `Files-Excluded` field of `debian/copyright`. This lists all the crates within `vendor` that aren't needed for the source package build.
-
-Make sure that the Windows crates you pruned earlier are included within that list. If they _aren't_ in that list, you need to go back, check for anything that pulls in those dependencies, and prune them.
-
-I recommend comparing your new list with the previous version's list as well:
-
-```none
-$ git diff merge-<X.Y_old> -- debian/copyright
-```
-
-You shouldn't see many dramatic changes. Remember, anything removed from the diff means that the crate _used_ to be excluded, but isn't anymore. This often just means that the version number changed. In this case, you can usually see a crate with the same name and a different version number that's _new_ to the `Files-Excluded` list.
-
-Once you've checked over your new list of excluded vendored crates, you can commit your `debian/copyright` changes, restore your Git repository from all the other changes, and continue.
+You should now see a new tarball in the parent directory: `../rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz`. In later steps, we will use this to replace the existing `vendor/` directory.
 
 ### Removing Vendored C Libraries
 
