@@ -1,5 +1,4 @@
 (how-to-update-rust)=
-
 # How to update Rust
 
 This guide details the process of creating a new versioned `rustc` Ubuntu package for a new upstream Rust release.
@@ -307,35 +306,44 @@ Build-Depends:
 
 These two changes form the basis of removing vendored C dependencies.
 
-#### Find vendored C dependencies
+#### Finding vendored C dependencies
 
-Search for C source files within the `vendor/` directory:
+Search for C source files within your newly-pruned `vendor` tarball:
 
 ```none
-$ cd vendor
-$ fdfind -e c
+tar -tJf ../rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz | grep '\.c$'
 ```
 
-You can now check this list and figure out which of these are bundled C libraries. However, remember that you just pruned some of these! You can cross-reference this list with your auto-generated `Files-Excluded` field from `d/copyright`. You only have to worry about the vendored C libraries which _aren't_ contained within that list.
+:::{note}
+You don't want to search your unpacked source directory right now because it contains a bunch of things we just pruned in the [previous step](updating-rust-pruning-unwanted-dependencies).
+:::
 
-#### Removing C dependencies from the next orig tarball
+Individual C files are likely fine. You're just looking for entire C libraries which have been bundled in with vendored crates.
+
+#### Removing C dependencies from the vendored orig tarball
 
 Naturally, the process of pruning a vendored C library varies from library to library. As an example, we will use a removal of the bundled `oniguruma` library from `rustc-1.86`, which caused some {lpbug}`build failures <2119556>` when it wasn't removed.
 
-Next time we run `uscan`, we want to make sure that the bundled C libraries we want to remove aren't included. To do that, simply add the C library directory to `Files-Excluded` in `debian/copyright`:
+To do this, simply add the C library directory to `Files-Excluded-vendor` in `debian/copyright`:
 
 ```diff
 --- a/debian/copyright
 +++ b/debian/copyright
-@@ -50,6 +50,7 @@ Files-Excluded:
+@@ -52,6 +52,7 @@ Files-Excluded-vendor:
   vendor/libsqlite3-sys-*/sqlcipher
   vendor/libz-sys-*/src/zlib*
   vendor/lzma-sys*/xz-*
 + vendor/onig_sys*/oniguruma
  # Embedded binary blobs
-  vendor/jsonpath_lib-*/docs
-  vendor/mdbook-*/src/theme/playground_editor
+ # vendor/jsonpath_lib-*/docs
+  vendor/mdbook-*/src/front-end/playground_editor
 ```
+
+:::{caution}
+Remember, this new exclusion should be under `Files-Excluded-vendor`, _not_ `Files-Excluded`! The primary tarball doesn't contain anything in the `vendor/` directory.
+:::
+
+After that, return to the previous step and [regenerate the vendored tarball component](updating-rust-vendor-tarball-rule). The `vendor-tarball` rule will read your new `debian/copyright` and generate a new vendor tarball without the C library source code you just excluded.
 
 #### Adding the system library as a build dependency
 
