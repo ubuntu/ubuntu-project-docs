@@ -110,6 +110,34 @@ rustc-<X.Y> (<X.Y.Z>+dfsg-0ubuntu1) <release>; urgency=medium
 Make sure `<lp_bug_number>` matches the bug number you created earlier!
 :::
 
+(updating-rust-including-all-vendored-dependencies)=
+
+#### Temporarily including all vendored dependencies
+
+Later on in the upgrade process, unwanted {term}`vendored dependencies <vendored dependency>` will be pruned from the upstream source. Right now, however, we don't know _which_ dependencies must be pruned, so we must temporarily include _all_ vendored dependencies.
+
+_Temporarily_ modify `debian/copyright`, commenting out the line in `Files-Excluded` which excludes the `vendor/` directory from the {term}`orig tarball`:
+
+```diff
+--- a/debian/copyright
++++ b/debian/copyright
+@@ -10,7 +10,7 @@ Files-Excluded:
+ # Pre-generated docs
+  src/tools/rustfmt/docs
+ # Exclusions on the vendor/ dir should be in Files-Excluded-vendor
+- vendor
++# vendor
+ # DOCX versions of TRPL book prepared for No Starch Press
+  src/doc/book/nostarch/docx
+ # Exclude submodules https://github.com/rust-lang/rust/tree/master/src/tools
+```
+
+:::{important}
+Remember, this change shouldn't be committed to version control. It's just a temporary measure for the next step.
+:::
+
+This means that in the next step, _all_ vendored dependencies will be included in the tarball.
+
 (updating-rust-getting-the-new-source-and-orig-tarball-with-uscan)=
 
 #### Getting the new source and orig tarball with uscan
@@ -118,9 +146,17 @@ Make sure `<lp_bug_number>` matches the bug number you created earlier!
 
 ```
 
-:::{note}
-This `0ubuntu0` is semantically _and_ functionally important. It not only says "I am not finished repacking the orig tarball yet", but if you were to start with `0ubuntu1` instead, you'd run into problems in later steps when trying to overlay an updated tarball using the same version number as before.
-:::
+You are now free to restore `debian/copyright` to its original state, un-commenting the `vendor` line in `Files-Excluded`:
+
+```none
+$ git restore debian/copyright
+```
+
+Since this particular tarball contains all vendored dependencies and will therefore be different from the final tarball, it should be renamed with an `~old` suffix, like so:
+
+```none
+$ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{1,~old}.orig.tar.xz
+```
 
 (updating-rust-updating-the-source-code-in-your-repository)=
 
