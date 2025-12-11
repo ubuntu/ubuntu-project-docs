@@ -585,7 +585,14 @@ $ grep 'mismatched-override file-without-copyright-information' <lintian_results
 
 All of these overrides can be removed from `debian/source/lintian-overrides`. After removing the overrides, clean up old build artifacts, rebuild the source package, and re-run Lintian, just like you did in the [last step](updating-rust-lintian-command).
 
+#### Get missing copyright stanzas
+
+Getting the missing copyright stanzas is a tedious process. Luckily, `debian/lintian-to-copyright.sh` automates this.
+
+Pipe the output from your call to Lintian to the script:
+
 ```none
+$ cat <lintian_results_path> | debian/lintian-to-copyright.sh
 ```
 
 You may need to fill in some fields manually. [This](https://stackoverflow.com/questions/23611669/how-to-find-the-created-date-of-a-repository-project-on-github) is an easy way to find the start date of a GitHub repo.
