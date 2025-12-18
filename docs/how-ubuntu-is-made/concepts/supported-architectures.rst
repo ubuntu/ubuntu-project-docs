@@ -37,10 +37,6 @@ Each official Ubuntu release and update includes appropriate support for these a
       - PowerPC64 Little-Endian 
       - :term:`Little-Endian`
       - :term:`RISC`
-    * - ``powerpc``
-      - PowerPC (32-bit)
-      - :term:`Big-Endian`
-      - :term:`RISC`
     * - ``s390x``
       - IBM System z, S/390, S390X       
       - :term:`Big-Endian`

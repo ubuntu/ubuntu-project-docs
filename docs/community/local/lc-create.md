@@ -56,7 +56,7 @@ Some excellent options include:
 * Co-working spaces
 * A quiet corner of a pub or restaurant
 
-Be sure to check with the owners of each space to ensure they can accommodate your crowd size, technology offerings (wifi, projector), accessibility needs, catering desires, and any other important personnel considerations.
+Be sure to check with the owners of each space to ensure they can accommodate your crowd size, technology offerings (Wi-Fi, projector), accessibility needs, catering desires, and any other important personnel considerations.
 
 Also, if you aren't quite ready for an in-person gathering, consider setting up an online meetup!
 We are a technology focused community after all.

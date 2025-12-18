@@ -419,7 +419,8 @@ Run the {command}`command` as the root user to achieve the folowing result:
 :user: root
 :host: ubuntu
 :dir: /tmp
-:input: command --option
+
+command --option
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ```

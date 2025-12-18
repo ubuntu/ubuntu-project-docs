@@ -241,7 +241,7 @@ This process is documented in {ref}`New packages <new-packages>`.
 
 ## Screenshots
 
-Once you have uploaded a package to debian, you should add screenshots to allow propective users to see what the program is like.
+Once you have uploaded a package to debian, you should add screenshots to allow prospective users to see what the program is like.
 
 To get a screenshot for software-center, use [screenshots.debian.net](https://screenshots.debian.net/packages).
 

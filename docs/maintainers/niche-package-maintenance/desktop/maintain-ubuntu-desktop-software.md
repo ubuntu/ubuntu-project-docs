@@ -56,7 +56,8 @@ Use the following command to refresh the current `ubuntu/<release>` branch and t
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pull
+
+    gbp pull
 
     gbp:info: Fetching from default remote for each branch
     gbp:info: Branch 'upstream/latest' is already up to date.
@@ -73,9 +74,17 @@ Use the following command to refresh the current `ubuntu/<release>` branch and t
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git checkout ubuntu/noble
 
-    :input: gbp pull
+    git checkout ubuntu/noble
+    ```
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+
+    gbp pull
 
     gbp:info: Fetching from default remote for each branch
     gbp:info: Branch 'ubuntu/noble' is already up to date.
@@ -95,7 +104,8 @@ To contribute changes back to Salsa, push your changes using `gbp`:
 :host:
 :dir: gnome-control-center
 :user:
-:input: gbp push
+
+gbp push
 ```
 
 
@@ -113,9 +123,17 @@ This applies when upstream releases the latest version of the latest series: for
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git fetch upstreamvcs
 
-    :input: git checkout ubuntu/latest
+    git fetch upstreamvcs
+    ```
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+
+    git checkout ubuntu/latest
     ```
 
 1. Create a `patch/queue/ubuntu/latest` branch that is useful in case you need to refresh patches later.
@@ -127,7 +145,8 @@ This applies when upstream releases the latest version of the latest series: for
         :host:
         :dir: gnome-control-center
         :user:
-        :input: gbp pq rebase
+
+        gbp pq rebase
         ```
 
     * Otherwise, create the `patch/queue` branch:
@@ -137,7 +156,8 @@ This applies when upstream releases the latest version of the latest series: for
         :host:
         :dir: gnome-control-center
         :user:
-        :input: gbp pq import
+
+        gbp pq import
         ```
 
 1. Check whether this upstream version already exists in Debian:
@@ -147,7 +167,8 @@ This applies when upstream releases the latest version of the latest series: for
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git tag -l | grep upstream
+
+    git tag -l | grep upstream
 
     […]
     upstream/46.0
@@ -164,7 +185,8 @@ This applies when upstream releases the latest version of the latest series: for
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git merge upstream/46.3 -m "Update upstream source from tag 'upstream/46.3'"
+
+    git merge upstream/46.3 -m "Update upstream source from tag 'upstream/46.3'"
     ```
 
     The new upstream version is now merged. Push the changes:
@@ -174,7 +196,8 @@ This applies when upstream releases the latest version of the latest series: for
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp push origin
+
+    gbp push origin
     ```
 
 ### Merge a new upstream version to Debian
@@ -188,7 +211,8 @@ If Debian doesn't have the new upstream version, add the release to Debian and U
     :host:
     :dir: gnome-control-center
     :user:
-    :input: uscan --verbose --no-download
+
+    uscan --verbose --no-download
 
     […]
     Newest version of gnome-control-center on remote site is 49.1, local version is 46.7
@@ -205,7 +229,8 @@ If Debian doesn't have the new upstream version, add the release to Debian and U
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp import-orig --uscan
+
+    gbp import-orig --uscan
     ```
 
     Otherwise, download the tarball with the new upstream release manually. Then, import the tarball:
@@ -215,7 +240,8 @@ If Debian doesn't have the new upstream version, add the release to Debian and U
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp import-orig ../gnome-control-center-46.2.tar.xz
+
+    gbp import-orig ../gnome-control-center-46.2.tar.xz
 
     What is the upstream version? [46.2] 
     gbp:info: Importing '../gnome-control-center-46.2.tar.xz' to branch 'upstream/latest'...
@@ -232,7 +258,8 @@ If Debian doesn't have the new upstream version, add the release to Debian and U
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp push origin
+
+    gbp push origin
     ```
 
     The `gbp` tool handles all branches automatically. In the example of this upstream release, `gbp` pushes the `ubuntu/latest`, `pristine-tarball` + `upstream/46.x` or `upstream/latest` branches.
@@ -250,7 +277,8 @@ For example, if the application uses the Meson build system and you've updated f
 :host:
 :dir: gnome-control-center
 :user:
-:input: git diff 49.alpha..49.0 -- meson.build
+
+git diff 49.alpha..49.0 -- meson.build
 ```
 
 Reflect the updated package dependencies in the `debian/control` file. For details, see {ref}`debian-directory`.
@@ -268,7 +296,8 @@ You might get the following errors when importing the tarball.
 :host:
 :dir: gnome-control-center
 :user:
-:input: gbp import-orig ../gnome-control-center-46.2.tar.xz
+
+gbp import-orig ../gnome-control-center-46.2.tar.xz
 
 What is the upstream version? [46.2] 
 gbp:info: Importing '../gnome-control-center-46.2.tar.xz' to branch 'upstream/latest'...
@@ -286,7 +315,8 @@ The reason might be one of the following:
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git fetch upstreamvcs
+
+    git fetch upstreamvcs
     ```
 
 * Upstream has changed the tagging pattern. Update the `upstream-tag` value in the `debian/gbp.conf` file to match it. For details, see [No upstream tarballs](https://honk.sigxcpu.org/projects/git-buildpackage/manual-html/gbp.import.upstream-git.html#gbp.import.upstream.git.notarball) in the `gbp` documentation.
@@ -300,7 +330,8 @@ The reason might be one of the following:
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git describe --tags --abbrev=0 upstreamvcs/main
+
+    git describe --tags --abbrev=0 upstreamvcs/main
     ```
 
     Specify the version manually:
@@ -310,7 +341,8 @@ The reason might be one of the following:
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp import-orig <tarball> --upstream-vcs-tag=<exact_version_tag>
+
+    gbp import-orig <tarball> --upstream-vcs-tag=<exact_version_tag>
     ```
 
 #### Upstream tag already exists
@@ -320,7 +352,8 @@ The reason might be one of the following:
 :host:
 :dir: gnome-control-center
 :user:
-:input: gbp import-orig ../gnome-control-center-46.2.tar.xz
+
+gbp import-orig ../gnome-control-center-46.2.tar.xz
 
 What is the upstream version? [46.2] 
 gbp:error: Upstream tag 'upstream/46.2' already exists
@@ -364,7 +397,8 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git checkout ubuntu/noble
+
+    git checkout ubuntu/noble
     ```
 
 1. Create a new `upstream/<series>` branch:
@@ -376,7 +410,8 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git branch upstream/46.x upstream/46.1
+
+    git branch upstream/46.x upstream/46.1
     ```
 
 1. Update the `debian/gbp.conf` file to reference the correct upstream `gbp` branch:
@@ -394,7 +429,8 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git commit -a
+
+    git commit -a
     ```
 
 1. Check whether Debian already has the new version in Salsa:
@@ -404,7 +440,8 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git tag -l | grep upstream
+
+    git tag -l | grep upstream
 
     […]
     upstream/46.0
@@ -421,7 +458,8 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git merge upstream/46.3 -m "Update upstream source from tag 'upstream/46.3'"
+
+    git merge upstream/46.3 -m "Update upstream source from tag 'upstream/46.3'"
     ```
 
     Push the `upstream` and `pristine-tar` branches to Salsa:
@@ -431,7 +469,8 @@ If `main` has a newer version than the maintenance branch and you are the first 
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp push origin
+
+    gbp push origin
     ```
 
 ### Add the maintenance version in Debian
@@ -445,7 +484,8 @@ If the version doesn't exist in Debian yet, add it to Debian and Ubuntu using an
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git fetch upstreamvcs
+
+    git fetch upstreamvcs
     ```
 
 1. Scan for new releases:
@@ -455,7 +495,8 @@ If the version doesn't exist in Debian yet, add it to Debian and Ubuntu using an
     :host:
     :dir: gnome-control-center
     :user:
-    :input: uscan --verbose --no-download
+
+    uscan --verbose --no-download
 
     […]
     Newest version of gnome-control-center on remote site is 49.1, local version is 46.7
@@ -472,7 +513,8 @@ If the version doesn't exist in Debian yet, add it to Debian and Ubuntu using an
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp import-orig --uscan
+
+    gbp import-orig --uscan
     ```
 
     Otherwise, download the tarball with the new upstream release manually. Then, import the tarball:
@@ -482,7 +524,8 @@ If the version doesn't exist in Debian yet, add it to Debian and Ubuntu using an
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp import-orig ../gnome-control-center-46.2.tar.xz
+
+    gbp import-orig ../gnome-control-center-46.2.tar.xz
 
     What is the upstream version? [46.2] 
     gbp:info: Importing '../gnome-control-center-46.2.tar.xz' to branch 'upstream/latest'...
@@ -499,7 +542,8 @@ If the version doesn't exist in Debian yet, add it to Debian and Ubuntu using an
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp push origin
+
+    gbp push origin
     ```
 
 1. Push the `upstream` and `pristine-tar` branches to Salsa.
@@ -511,7 +555,8 @@ If the version doesn't exist in Debian yet, add it to Debian and Ubuntu using an
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp push origin
+
+    gbp push origin
     ```
 
 
@@ -526,7 +571,8 @@ Before merging with an upstream release, refresh the patches.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pq rebase
+
+    gbp pq rebase
     ```
 
 1. Use the Git rebase tools to refresh the patches.
@@ -545,7 +591,8 @@ The rebase might not work in certain cases, such as if you're merging with an `u
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pq drop
+
+    gbp pq drop
 
     gbp:info: Dropped branch 'patch-queue/ubuntu/noble'.
     ```
@@ -557,7 +604,8 @@ The rebase might not work in certain cases, such as if you're merging with an `u
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pq import --force --time-machine=30
+
+    gbp pq import --force --time-machine=30
 
     gbp:info: 30 tries left
     gbp:info: Trying to apply patches at '10ee426e74c4643a8b723e874c71b74cfc55746d'
@@ -573,7 +621,8 @@ The rebase might not work in certain cases, such as if you're merging with an `u
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pq rebase
+
+    gbp pq rebase
     ```
 
 1. If a patch doesn't apply cleanly, fix it:
@@ -588,7 +637,8 @@ The rebase might not work in certain cases, such as if you're merging with an `u
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git am -3 < debian/patches/<patch-file>
+
+    git am -3 < debian/patches/<patch-file>
     ```
 
 1. Regenerate the `debian/patches` data:
@@ -598,7 +648,8 @@ The rebase might not work in certain cases, such as if you're merging with an `u
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pq export --no-patch-numbers
+
+    gbp pq export --no-patch-numbers
     ```
 
 1. Switch back to your `ubuntu/latest` or `ubuntu/<series>` branch.
@@ -627,7 +678,8 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git checkout ubuntu/latest
+
+    git checkout ubuntu/latest
     ```
 
 1. Turn all patches from the `debian/patches/` directory into Git commits:
@@ -637,7 +689,8 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pq rebase
+
+    gbp pq rebase
 
     gbp:info: Switching to 'patch-queue/ubuntu/latest'
     Current branch patch-queue/ubuntu/latest is up to date.
@@ -652,7 +705,8 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git missing ubuntu/latest..
+
+    git missing ubuntu/latest..
 
     * 11a3a8cc6 - (HEAD -> patch-queue/ubuntu/latest) [PATCH] night-ligth-dialog: Avoid dereferencing invalid p
     ointer (5 minutes ago)
@@ -678,7 +732,8 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
         :host:
         :dir: gnome-control-center
         :user:
-        :input: gbp buildpackage -b --git-ignore-new --git-export=INDEX
+
+        gbp buildpackage -b --git-ignore-new --git-export=INDEX
         ```
 
     * Reorder your patches. If you don't want this patch to be the last one, use an interactive Git rebase:
@@ -688,7 +743,8 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
         :host:
         :dir: gnome-control-center
         :user:
-        :input: git rebase -i ubuntu/latest
+
+        git rebase -i ubuntu/latest
         ```
 
         There, reorder the patches as commits, amend or stash them. Removing a commit also removes the patch from the `debian/patches/series` file.
@@ -704,7 +760,8 @@ We recommend that you manage patches using the `gbp` tool on Ubuntu Desktop soft
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pq export --no-patch-numbers
+
+    gbp pq export --no-patch-numbers
 
     gbp:info: On 'patch-queue/ubuntu/latest', switching to 'ubuntu/latest'
     gbp:info: Generating patches from git (ubuntu/latest..patch-queue/ubuntu/latest)
@@ -726,7 +783,8 @@ You can cherry-pick an upstream commit into a patch file.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git checkout ubuntu/latest
+
+    git checkout ubuntu/latest
     ```
 
 1. Update the branch:
@@ -736,7 +794,8 @@ You can cherry-pick an upstream commit into a patch file.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pull origin
+
+    gbp pull origin
     ```
 
 1. Turn patches into commits:
@@ -746,7 +805,8 @@ You can cherry-pick an upstream commit into a patch file.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pq rebase || gbp pq import
+
+    gbp pq rebase || gbp pq import
     ```
 
 1. Display the upstream Git log in the patch format. Note the hash of the commit that you want to cherry-pick:
@@ -756,7 +816,8 @@ You can cherry-pick an upstream commit into a patch file.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git log -p upstream/latest
+
+    git log -p upstream/latest
     ```
 
 1. Cherry-pick your selected commit using its hash and edit the commit message:
@@ -766,7 +827,8 @@ You can cherry-pick an upstream commit into a patch file.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git cherry-pick -x <hash>
+
+    git cherry-pick -x <hash>
     ```
 
 1. Are there any conflicts?
@@ -774,7 +836,7 @@ You can cherry-pick an upstream commit into a patch file.
     If there are no conflicts, edit the commit message to comply with {ref}`dep-3-patch-file-headers`. This ends up as the patch header.
 
     If there are conflicts:
-    
+
     1. Fix them. For example:
 
         ```{terminal}
@@ -782,9 +844,10 @@ You can cherry-pick an upstream commit into a patch file.
         :host:
         :dir: gnome-control-center
         :user:
-        :input: git mergetool
+
+        git mergetool
         ```
-        
+
     1. Continue with cherry-picking:
 
         ```{terminal}
@@ -792,7 +855,8 @@ You can cherry-pick an upstream commit into a patch file.
         :host:
         :dir: gnome-control-center
         :user:
-        :input: git cherry-pick --continue
+
+        git cherry-pick --continue
         ```
 
     1. Edit the commit message to comply with {ref}`dep-3-patch-file-headers`.
@@ -804,7 +868,8 @@ You can cherry-pick an upstream commit into a patch file.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp pq export --no-patch-numbers
+
+    gbp pq export --no-patch-numbers
     ```
 
 1. Update the changelog. For details, see {ref}`desktop-git-update-the-changelog`.
@@ -816,9 +881,17 @@ You can cherry-pick an upstream commit into a patch file.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git add debian/patches/* debian/changelog
 
-    :input: git commit
+    git add debian/patches/* debian/changelog
+    ```
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+
+    git commit
     ```
 
 For details about `gbp pq`, see {ref}`desktop-git-add-or-modify-patches`. 
@@ -834,7 +907,8 @@ You can edit the `debian/changelog` file manually, but it's recommended to use t
 :host:
 :dir: gnome-control-center
 :user:
-:input: gbp dch
+
+gbp dch
 ```
 
 By default, this command adds the first line of every commit to the changelog. You can adjust this behavior by including a string at the end of your commit message:
@@ -852,7 +926,8 @@ Alternatively, you can include all the commit descriptions:
 :host:
 :dir: gnome-control-center
 :user:
-:input: gbp dch --full
+
+gbp dch --full
 ```
 
 Then, filter them out by hand at the commit phase.
@@ -871,7 +946,8 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
     :host:
     :dir: gnome-control-center
     :user:
-    :input: pull-lp-debs --download-only gnome-control-center noble
+
+    pull-lp-debs --download-only gnome-control-center noble
 
     Found gnome-control-center 1:46.7-0ubuntu0.24.04.3 in noble
     Downloading gnome-control-center_46.7-0ubuntu0.24.04.3.dsc from archive.ubuntu.com (0.004 MiB)
@@ -884,7 +960,8 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
     :host:
     :dir: gnome-control-center
     :user:
-    :input: pull-lp-debs --download-only gnome-control-center 46.7-0ubuntu0
+
+    pull-lp-debs --download-only gnome-control-center 46.7-0ubuntu0
     ```
 
 1. Switch to the branch where you want to place this Ubuntu upload.
@@ -896,7 +973,8 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp import-dsc ../gnome-control-center_46.1-0ubuntu5.dsc
+
+    gbp import-dsc ../gnome-control-center_46.1-0ubuntu5.dsc
     ```
 
 1. If there had been changes in your tree, importing the latest tarball reverted all previous changes in Git.
@@ -912,9 +990,17 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git show <hash> | git apply
 
-    :input: git commit -C <hash>
+    git show <hash> | git apply
+    ```
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+
+    git commit -C <hash>
     ```
 
 1. Push the changes:
@@ -924,7 +1010,8 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp push origin
+
+    gbp push origin
     ```
 
     This pushes all needed branches, such as `ubuntu/latest`, and `pristine-tarball` + `upstream/latest` if this upload is a new upstream release.
@@ -944,9 +1031,17 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git branch ubuntu/noble ubuntu/1%46.1-0ubuntu4
 
-    :input: git checkout ubuntu/noble
+    git branch ubuntu/noble ubuntu/1%46.1-0ubuntu4
+    ```
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+
+    git checkout ubuntu/noble
     ```
 
 3. In the `debian/gbp.conf` file, change `debian-branch` to `ubuntu/noble`:
@@ -991,7 +1086,8 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
     :host:
     :dir: gnome-control-center
     :user:
-    :input: git commit -a
+
+    git commit -a
     ```
 
 8. Push your changes to Salsa:
@@ -1001,7 +1097,8 @@ You can import a Debian Source Control (DSC) source package as a tarball, even i
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp push origin
+
+    gbp push origin
 
     Total 0 (delta 0), reused 0 (delta 0)
     To git+ssh://git@salsa.debian.org:gnome-team/gnome-control-center
@@ -1021,7 +1118,8 @@ To build a local package, we use the {ref}`sbuild framework <sbuild>` and specif
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage -b --git-builder=sbuild noble-amd64
+
+    gbp buildpackage -b --git-builder=sbuild noble-amd64
     ```
 
 * Build a source package: 
@@ -1031,7 +1129,8 @@ To build a local package, we use the {ref}`sbuild framework <sbuild>` and specif
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage -b --git-builder=sbuild noble-amd64 -S
+
+    gbp buildpackage -b --git-builder=sbuild noble-amd64 -S
     ```
 
 With the proposed configuration, the artifacts all end up in the `../build-area` directory, including the tarball, which is reconstructed from the `pristine-tar` + `upstream/latest` branch. The build directory is then cleaned up.
@@ -1045,7 +1144,8 @@ Useful tips in some potential cases:
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage --git-no-purge
+
+    gbp buildpackage --git-no-purge
     ```
 
 * Build current branch with local uncommitted modifications:
@@ -1055,7 +1155,8 @@ Useful tips in some potential cases:
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage --git-ignore-new --git-export=INDEX
+
+    gbp buildpackage --git-ignore-new --git-export=INDEX
     ```
 
 * When merging with Debian, releasing an SRU or uploading a version on top of one that is still in the proposed pocket, include both the Ubuntu and Debian part of the changelog in the `.changes` file, which is generated by `dpkg-genchanges`. Including all changelog entries ensures that bugs are automatically closed.
@@ -1067,7 +1168,8 @@ Useful tips in some potential cases:
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage -S -vX
+
+    gbp buildpackage -S -vX
     ```
 
     For example, see the [`gnome-control-center_49.0-1ubuntu2_source.changes`](https://launchpadlibrarian.net/820313141/gnome-control-center_49.0-1ubuntu2_source.changes) generated file.
@@ -1090,9 +1192,17 @@ If this is a sponsored upload, the sponsor performs these steps.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: dch -r "" --distribution noble
 
-    :input: git commit -m "Upload to Noble" debian/changelog
+    dch -r "" --distribution noble
+    ```
+
+    ```{terminal}
+    :copy:
+    :host:
+    :dir: gnome-control-center
+    :user:
+
+    git commit -m "Upload to Noble" debian/changelog
     ```
 
 1. Tag the package:
@@ -1102,7 +1212,8 @@ If this is a sponsored upload, the sponsor performs these steps.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage --git-tag-only --git-ignore-new
+
+    gbp buildpackage --git-tag-only --git-ignore-new
     ```
 
 1. Build the source package:
@@ -1112,7 +1223,8 @@ If this is a sponsored upload, the sponsor performs these steps.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage -S
+
+    gbp buildpackage -S
     ```
 
     If this version hasn't arrived in the `main` repository yet, include both the Ubuntu and Debian part of the changelog in the `.changes` file, which is generated by `dpkg-genchanges`. Add the `-vX` option to include all Debian and Ubuntu versions greater than `X`, where `X` is the current version in `main`, `security` or `updates` repositories:
@@ -1122,7 +1234,8 @@ If this is a sponsored upload, the sponsor performs these steps.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp buildpackage -S -vX
+
+    gbp buildpackage -S -vX
     ```
 
     For example, consider the following scenario:
@@ -1144,7 +1257,8 @@ If this is a sponsored upload, the sponsor performs these steps.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: dput ../build-area/<your-package>.changes
+
+    dput ../build-area/<your-package>.changes
     ```
 
 1. Push the changes to Salsa:
@@ -1154,7 +1268,8 @@ If this is a sponsored upload, the sponsor performs these steps.
     :host:
     :dir: gnome-control-center
     :user:
-    :input: gbp push origin
+
+    gbp push origin
     ```
 
     This pushes all tracked branches to Salsa if you made any changes. The branches include:

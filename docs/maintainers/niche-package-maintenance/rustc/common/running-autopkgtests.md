@@ -13,4 +13,4 @@ Click all of the links except i386 to trigger the autopkgtests for each target a
 
 Re-run the same `ppa tests ...` command to check the status of the autopkgtests themselves.
 
-The infrastructure can be a little flaky at times. If you get a "BAD" reponse (instead of a "PASS" or "FAIL"), then you just need to retry it.
+The infrastructure can be a little flaky at times. If you get a "BAD" response (instead of a "PASS" or "FAIL"), then you just need to retry it.

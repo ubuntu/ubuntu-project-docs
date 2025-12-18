@@ -42,7 +42,7 @@ This is the default for some ecosystems like rust and go, but also valid for
 e.g. C headers if they contain not just definitions but large amounts of
 active code that is built into the binaries.
 
-
+(mir-process-overview)=
 ## MIR process overview
 
 ```{toctree}

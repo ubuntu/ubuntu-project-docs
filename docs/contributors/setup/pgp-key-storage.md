@@ -115,7 +115,7 @@ on the same keychain as they would be affected by the same disaster.
 
 There are no mandated PGP key expiration dates yet, but a common good security
 practice is to set a regular, short expiration date, such as 1 to 2 years, with
-the two enrolled hardware tokens having expirations offset by at least 3 months
+the two enrolled hardware tokens having expiration offset by at least 3 months
 (to avoid getting locked out from both keys expiring at once). You can do this
 by setting up subkeys for signature/encryption/authentication, which can have
 individual expiry dates.

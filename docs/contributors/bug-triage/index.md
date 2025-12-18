@@ -451,7 +451,7 @@ for the bug to be worked on, you do not need to invalidate the bugs -- bugs in
 (bug-status-and-importance)=
 ## Status and importance
 
-The default meanings of importances and statuses are explained at
+The default meanings of importance and statuses are explained at
 {ref}`bug-importance` and {ref}`bug-status`. Make sure you've read these
 pages thoroughly.
 

@@ -53,28 +53,24 @@ $ dch -bv <X.Y.Z>+dfsg0ubuntu1-0ubuntu1\~ppa<N> \
 $ dpkg-buildpackage -S -I -i -nc -d -sa
 ```
 
-Finally, upload the newly-created source package:
-
-:::{note}
-You can get the `source-changes-file` script [here](https://github.com/canonical/foundations-sandbox/blob/master/maxgmr/source-changes-file).
-:::
+Finally, upload the newly-created source package.
 
 New versioned Rust package:
 
 ```none
-$ dput ppa:<lpname>/rustc-<X.Y>-merge $(source-changes-file)
+$ dput ppa:<lpname>/rustc-<X.Y>-merge <path_to_source_changes>
 ```
 
 Rust backport:
 
 ```none
-$ dput ppa:<lpname>/rustc-<X.Y>-<release> $(source-changes-file)
+$ dput ppa:<lpname>/rustc-<X.Y>-<release> <path_to_source_changes>
 ```
 
 Rust patch:
 
 ```none
-$ dput ppa:<lpname>/rustc-<X.Y>-lp<lp_bug_number> $(source-changes-file)
+$ dput ppa:<lpname>/rustc-<X.Y>-lp<lp_bug_number> <path_to_source_changes>
 ```
 
 The PPA will then build the Rust package for all architectures supported by Ubuntu. These builds will highlight any architecture-specific build failures.

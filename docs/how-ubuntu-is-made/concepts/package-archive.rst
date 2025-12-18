@@ -193,7 +193,7 @@ For example, if you look into any of the :ref:`archive-pockets` of the ``devel``
 main
 ~~~~
 
-This component contains open source software packages for a given series that are supported and maintained by Canonical.
+This component contains :term:`open source <Open Source Software>` packages for a given series that are supported and maintained by Canonical.
 
 
 .. _archive-components-restricted:
@@ -209,7 +209,7 @@ This component contains closed source software packages for a given series that 
 universe
 ~~~~~~~~
 
-This component contains open source software packages for a given series that are supported and maintained by the Ubuntu community.
+This component contains :term:`open source <Open Source Software>` packages for a given series that are supported and maintained by the Ubuntu community.
 
 
 .. _archive-components-multiverse:
@@ -217,8 +217,24 @@ This component contains open source software packages for a given series that ar
 multiverse
 ~~~~~~~~~~
 
-This component contains packages (for a given series) of closed source software, or open source software restricted by copyright or legal issues. These packages are maintained and supported by the Ubuntu community, but because of the restrictions, patching bugs or updates may not be possible.
+This component contains packages (for a given series) that do not meet all the requirements to be :term:`open source <Open Source Software>`. This does not just mean software that is closed source, it can also be software where the source is available but one or more of the rights that make up the definition of open source software is not available.
 
+In particular, from the `OSI's definition of open source <https://opensource.org/osd>`__, any or all of the following may be the case for software in multiverse:
+
+ * Access to source code may not be available
+ * You may not have the right to make modifications and derived works
+ * You may not have the right to distribute modified versions of the source
+ * The license of the software may discriminate against persons or groups
+ * The license of the software may discriminate against fields of endeavor
+ * The license may be specific to using the software as part of Ubuntu
+ * The license may not be technology-neutral
+
+Certain rights *are* required for software to be part of multiverse:
+
+ * The software must be redistributable as an aggregate software distribution without payment of royalties or other fees
+ * The license must not place restrictions on other software that is distributed along with it
+
+These packages are maintained and supported by the Ubuntu community, but because of the restrictions, patching bugs or updates may not be possible.
 
 .. _archive-mirrors:
 
@@ -254,7 +270,8 @@ To see which mirror is the country mirror, do a :term:`DNS` lookup. For example:
     .. tab:: Finland (``FI``)
 
         .. terminal::
-           :input: dig fi.archive.ubuntu.com +noall +answer
+
+            dig fi.archive.ubuntu.com +noall +answer
 
             fi.archive.ubuntu.com.	332	IN	CNAME	mirrors.nic.funet.fi.
             mirrors.nic.funet.fi.	332	IN	A	193.166.3.5
@@ -268,7 +285,8 @@ To see which mirror is the country mirror, do a :term:`DNS` lookup. For example:
         (``archive.ubuntu.com``).
 
         .. terminal::
-           :input: dig tn.archive.ubuntu.com +noall +answer
+
+            dig tn.archive.ubuntu.com +noall +answer
 
             tn.archive.ubuntu.com.	60	IN	A	185.125.190.36
             tn.archive.ubuntu.com.	60	IN	A	91.189.91.83
@@ -279,7 +297,8 @@ To see which mirror is the country mirror, do a :term:`DNS` lookup. For example:
         which are just the ``archive.ubuntu.com`` IP addresses:
 
         .. terminal::
-           :input: dig archive.ubuntu.com +noall +answer
+
+            dig archive.ubuntu.com +noall +answer
 
             archive.ubuntu.com.	1	IN	A	185.125.190.39
             archive.ubuntu.com.	1	IN	A	185.125.190.36

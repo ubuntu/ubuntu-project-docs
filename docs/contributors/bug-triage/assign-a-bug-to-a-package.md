@@ -224,7 +224,7 @@ If your problem is with the Notification System, the package is:
 * `notify-osd` in Ubuntu, Xubuntu and Edubuntu.
 
 If your problem is with the lock screen itself, the package is `gnome-screensaver`
-until 13.10 or `unity` from 14.04 onwards. For more info, check
+until 13.10 or `unity` from 14.04 onward. For more info, check
 [How screen locking works](https://wiki.ubuntu.com/DebuggingScreenLocking/HowScreenLockingWorks).
 
 
