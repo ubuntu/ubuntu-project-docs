@@ -487,6 +487,10 @@ TODO-C:   compressed), refreshing that code is outlined in debian/README.source
 TODO-D: - This package uses vendored code, refreshing that code is outlined
 TODO-D:   in debian/README.source
 
+TODO-A: - This does not use vendored code
+TODO-B: - This package uses vendored code, the debian/copyright has been
+TODO-B:   updated to cover the vendored content
+
 TODO-A: - This package is not rust based
 TODO-B: - This package is rust based and vendors all non language-runtime
 TODO-B:   dependencies
