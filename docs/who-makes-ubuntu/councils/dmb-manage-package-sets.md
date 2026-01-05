@@ -37,29 +37,38 @@ Consider creating a packageset once we have:
 The application process is more-or-less the same as for developer upload rights.
 The differences are:
 
-* Each packageset needs a *description*. This is so that developers can mail
+## Two types of package sets
+
+Historically there are two kinds of package sets, those that mostly reflect
+seeds and those that are just logically defined.
+
+* A logical packageset needs a *description*. This is so that developers can mail
   `devel-permissions` after the set is created in order to have packages added.
   One DMB member then needs to judge the description against the requested change
   and may make it if they decide it is warranted.
 
-* We create packagesets with just one uploader, which is a team that we then add
-  developers to. The team should be configured like so:
+* A {ref}`seeds` based packageset is instead mostly defined by what is seeded
+  for a particular Ubuntu variant. That is not strictly only the content of an
+  iso or image, but also the supported seeds that represent common use cases
+  that are not default installed.
 
-  * Owned by the DMB (but without having the DMB as a member).
+### Seed based packageset - why not just generated?
 
-  * Self renewal.
+The text above says "Mostly" as there are often are a few packages that
+make sense to be added or removed when compared to the pure list that would
+come out of the seeds to make it more practical.
 
-  * 720 day expiry period.
+Such could cases could be:
 
-    ```{note}
-    For 'Ubuntu Flavor' packageset teams, [the TB requested](http://ubottu.com/meetingology/logs/ubuntu-meeting-2/2019/ubuntu-meeting-2.2019-06-04-19.04.moin.txt) a 180 day expiry period.
-    ```
+* Consider to remove a package from a set if is is in the related seed, but so
+  central and impactful, that adding it would effectively make the packageset to
+  require core-developer permission level making it too hard to join as an
+  uploader to that set.
 
-  * `~ubuntu-core-dev` as a member.
+* Consider to add a package to a set if it is not in the seeds, but such a
+  common use case for the package set that the same set of people that care
+  about the rest is likely to also maintain these packages.
 
-  * Member of `~ubuntu-uploaders` (in rare cases the DMB may require membership
-    of packageset uploaders: in this case make the team a member of `~ubuntu-dev`
-    instead.)
 
 If necessary, we can modify the description later on following a full vote,
 either by email or in a meeting.
