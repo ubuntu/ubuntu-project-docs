@@ -70,29 +70,33 @@ Such could cases could be:
   about the rest is likely to also maintain these packages.
 
 
-If necessary, we can modify the description later on following a full vote,
-either by email or in a meeting.
+## How to create a new Package set
 
-Quick set of steps for creating packageset team:
+We create initially packagesets with just one uploader, which is a launchpad
+team that we then later add developers to.
 
 1. Start at [new team registration page](https://launchpad.net/people/+newteam).
 
-2. Make sure {guilabel}`Membership Policy` is *Restricted Team*.
+2. Make the description to match what was proposed and approved by the DMB
+   If necessary, we can modify the description later on following a full DMB
+   vote.
 
-3. Set both the {guilabel}`Subscription Period` and {guilabel}`Self Renewal Period`
+3. Make sure {guilabel}`Membership Policy` is *Restricted Team*.
+
+4. Set both the {guilabel}`Subscription Period` and {guilabel}`Self Renewal Period`
    to 720 (or 180 for 'flavor' teams).
 
-4. Change renewal option to *invite them to renew their own membership*.
+5. Change renewal option to *invite them to renew their own membership*.
 
-5. Create the team.
+6. Create the team.
 
-6. On the new team page:
+7. On the new team page:
 
    1. Click {guilabel}`Change Details` and then {guilabel}`Change Owner`.
 
    2. Change the team owner to `developer-membership-board`.
 
-7. On the new team member page:
+8. On the new team member page:
 
    1. Add `ubuntu-core-dev`.
 
@@ -100,12 +104,11 @@ Quick set of steps for creating packageset team:
 
    3. Remove (deactivate) yourself.
 
-   4. Remove (deactivate) `developer-membership-board`.
+   4. Remove (deactivate) `developer-membership-board` (membership, keep ownership).
 
-8. Go to [`~ubuntu-uploaders` member page](https://launchpad.net/~ubuntu-uploaders/+members)
-   (or, if appropriate, [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members))
+9. Go to [`~ubuntu-uploaders` member page](https://launchpad.net/~ubuntu-uploaders/+members)
    and add the new team as a member.
-
+   (In rare cases the DMB may require membership of packageset uploaders, in that add it to [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members) instead)
 
 
 ## TODO
