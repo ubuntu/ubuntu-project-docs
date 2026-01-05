@@ -65,10 +65,14 @@ Such could cases could be:
   require core-developer permission level making it too hard to join as an
   uploader to that set.
 
+* Consider to remove a package from a set if it is also claimed by other seeds.
+  In that case it often, but not always, is only updated by Ubuntu core-developers.
+
 * Consider to add a package to a set if it is not in the seeds, but such a
   common use case for the package set that the same set of people that care
   about the rest is likely to also maintain these packages.
 
+TODO - mention how to compare pkgset vs seeds vs team ownerships that often represent use-case scenarios
 
 ## How to create a new Package set
 
@@ -78,8 +82,6 @@ team that we then later add developers to.
 1. Start at [new team registration page](https://launchpad.net/people/+newteam).
 
 2. Make the description to match what was proposed and approved by the DMB
-   If necessary, we can modify the description later on following a full DMB
-   vote.
 
 3. Make sure {guilabel}`Membership Policy` is *Restricted Team*.
 
@@ -111,21 +113,15 @@ team that we then later add developers to.
    (In rare cases the DMB may require membership of packageset uploaders, in that add it to [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members) instead)
 
 
-## TODO
+## How to modify a new Package set definition
 
-TODO
-  # document seed based = seed based minus very core-dev'y
-  # also seeded by a related supported-*
-  # If claimed by multiple seeds, then it is more likely core-dev
-  # mention how to generate pkgset vs seeds
+* If necessary, we can modify the description later on following a full DMB vote.
 
-TODO old content from KB
+* Modification of the membership list for an existing packageset team can
+  be done directly by the DMB. A DMB member should go to the packageset's
+  uploader team page, and add (or if needed remove) the applicant to the team.
 
-TODO MODIFY MEMBERS
-
-   * Modification of the membership list for an existing packageset team can
-     be done directly by the DMB. A DMB member should go to the packageset's
-     uploader team page, and add the applicant to the team.
+     * 
 
 3. If not already a member, add the applicant to either
    [`~ubuntu-dev`](https://launchpad.net/~ubuntu-dev/+members) or
@@ -139,7 +135,7 @@ TODO MODIFY MEMBERS
      team and nothing more.
 
 
-TODO MODIFY PACKAGE LIST in a set
+## How to modify a new Package set list of covered packages
 
    * Modification of the package list for an existing packageset can also be done
      directly by the DMB. This requires using the [`edit-acl` tool](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl)
