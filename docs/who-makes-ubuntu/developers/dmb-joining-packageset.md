@@ -9,6 +9,10 @@ If you already have strong packaging experience via another distro, you can cert
 
 That said, even if you intend to *eventually* apply for Core Dev membership, gaining Package Set first can be an effective way to build towards those roles, allowing you to upload your own work (within limits), and participate in reviews and {ref}`sponsorship <sponsorship>`.
 
+```{note}
+This page is about the developers that are uploaders of a package set, the information how to create and modify a package set can be found
+at {ref}`dmb-manage-packagesets`.
+```
 
 ## Sponsorship
 
