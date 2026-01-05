@@ -76,6 +76,8 @@ TODO - mention how to compare pkgset vs seeds vs team ownerships that often repr
 
 ## How to create a new Package set
 
+### Create the associated launchpad team
+
 We create initially packagesets with just one uploader, which is a launchpad
 team that we then later add developers to.
 
@@ -113,44 +115,43 @@ team that we then later add developers to.
    (In rare cases the DMB may require membership of packageset uploaders, in that add it to [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members) instead)
 
 
-## How to modify a new Package set definition
+## How to modify a Package set
+
+One can modify the definition, the members or the associated package list.
+
+### How to modify a Package set definition
 
 * If necessary, we can modify the description later on following a full DMB vote.
+
+### How to modify members of a Package set
 
 * Modification of the membership list for an existing packageset team can
   be done directly by the DMB. A DMB member should go to the packageset's
   uploader team page, and add (or if needed remove) the applicant to the team.
 
-     * 
-
-3. If not already a member, add the applicant to either
+  * If not already a member, add the applicant to either
    [`~ubuntu-dev`](https://launchpad.net/~ubuntu-dev/+members) or
    [`~ubuntu-uploaders`](https://launchpad.net/~ubuntu-uploaders/+members).
-
    See {ref}`dmb-teams-to-add-uploaders-to`.
 
-   * If applying for {ref}`dmb-joining-contributing` membership, the
-     applicant should only be added to the
-     [`~ubuntu-developer-members`](https://launchpad.net/~ubuntu-developer-members)
-     team and nothing more.
+### How to modify a new Package set list of covered packages
 
+* Modification of the package list for an existing packageset can also be done
+  directly by the DMB. This requires using the tool
+  [`edit-acl`](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl).
 
-## How to modify a new Package set list of covered packages
+  * Example: (replace `add` with `delete` to remove a package instead of adding):
 
-   * Modification of the package list for an existing packageset can also be done
-     directly by the DMB. This requires using the [`edit-acl` tool](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl)
+    ```none
+    edit-acl -S $RELEASE -P $PACKAGESET -s $PACKAGE add
+    ```
 
-     * Example: (replace `add` with `delete` to remove a package instead of adding):
+  * Sometimes a package or use case is new, but sometimes it is valid for all
+    releases, in that csae the command should be repeated for all supported releases:
 
-       ```none
-       edit-acl -S $RELEASE -P $PACKAGESET -s $PACKAGE add
-       ```
-
-     * Usually the command should be repeated for all supported releases:
-
-       ```none
-       for RELEASE in $(distro-info --supported); do edit-acl ...; done
-       ```
+    ```none
+    for RELEASE in $(distro-info --supported); do edit-acl ...; done
+    ```
 
 TODO CREATE NEW PACKAGE SET
 
