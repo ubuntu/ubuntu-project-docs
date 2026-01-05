@@ -1,18 +1,36 @@
 (dmb-manage-packagesets)=
 # DMB Manage Package Sets
 
-(dmb-packagesets)=
-## Packagesets
+``{note}
+This page is about how to create and modify a package set, how to become a
+developers that is an uploaders of a package set can be found at
+{ref}`dmb-joining-packageset`.
+```
 
-Packagesets exist per-release and are defined in the Launchpad database
-accessible by API (using the `edit-acl` command). For easy viewing, see
+(dmb-packagesets)=
+## What is a Package set
+
+Packagesets are a method to provide fine grained upload permissions without
+always managing everything individually per user. They allow to define a
+lists of packages per set and per Ubuntu release, to then allow developers
+upload permissions to such a set.
+
+Being per release allows them to evolve over time as Ubuntu changes, without
+such changes affecting the maintenance of existing releases.
+
+In regard to their definition they exist are defined in the
+Launchpad database accessible by API (using the `edit-acl` command).
+
+For easy viewing, see there are simple text files pre rendering the current
+state of the package sets, the list of packages included as well as the
+developers allowed to upload to it at
 [~ubuntu-archive/packagesets](https://ubuntu-archive-team.ubuntu.com/packagesets/).
 
 Consider creating a packageset once we have:
 
-* Two or more PPU uploaders.
+* Two or more PPU uploaders with the same set.
 
-* Two or more related packages.
+* Two or more related packages that always belong together.
 
 * The grouping of those packages needs to make logical sense.
 
@@ -80,12 +98,6 @@ Quick set of steps for creating packageset team:
    and add the new team as a member.
 
 
-
-```{note}
-This page is about how to create and modify a package set, how to become a
-developers that is an uploaders of a package set can be found at
-{ref}`dmb-joining-packageset`.
-```
 
 ## TODO
 
