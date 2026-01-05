@@ -76,6 +76,9 @@ TODO - mention how to compare pkgset vs seeds vs team ownerships that often repr
 
 ## How to create a new Package set
 
+This step is comprised of creatung the packageset team managed by the DMB
+as well as creation of the package set associated with it.
+
 ### Create the associated launchpad team
 
 We create initially packagesets with just one uploader, which is a launchpad
@@ -114,6 +117,43 @@ team that we then later add developers to.
    and add the new team as a member.
    (In rare cases the DMB may require membership of packageset uploaders, in that add it to [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members) instead)
 
+### Create the actual package set
+
+   * If the action requires creation of a new packageset or PPU, or (rarely)
+     changes to the uploader for a packageset or PPU, it must be done by the TB,
+     so the DMB member must:
+
+     1. For a new packageset, create a new uploader team (see {ref}`dmb-packagesets` section)
+
+        * For a new PPU, the uploader is the applicant
+
+     2. Open a bug against the [ubuntu-community project](https://launchpad.net/ubuntu-community), and the bug description should include the exact [`edit-acl`](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl) command to run.
+
+        * For PPU creation, [file a bug with this subject](https://bugs.launchpad.net/ubuntu-community/+filebug?field.title=[TB/DMB]%20PPU%20for%20)
+          and include the PPU member name
+
+        * For packageset creation (or uploader team change),
+          [file a bug with this subject](https://bugs.launchpad.net/ubuntu-community/+filebug?field.title=[TB/DMB]%20Packageset%20%20for%20)
+          and include the packageset name
+
+        * In the bug, if creating a new packageset, request the TB create the
+          packageset, setting the DMB as owner:
+
+          ```none
+          edit-acl -S $RELEASE -p developer-membership-board -P $PACKAGESET -t admin create
+          ```
+
+        * Also request the TB set or change the uploader:
+
+          ```none
+          edit-acl -S $RELEASE -p $UPLOADER -P $PACKAGESET -t upload modify
+          ```
+
+        * Usually the commands should be repeated for all supported releases:
+
+          ```none
+          for RELEASE in $(distro-info --supported); do edit-acl ...; done
+          ```
 
 ## How to modify a Package set
 
@@ -152,41 +192,3 @@ One can modify the definition, the members or the associated package list.
     ```none
     for RELEASE in $(distro-info --supported); do edit-acl ...; done
     ```
-
-TODO CREATE NEW PACKAGE SET
-
-   * If the action requires creation of a new packageset or PPU, or (rarely)
-     changes to the uploader for a packageset or PPU, it must be done by the TB,
-     so the DMB member must:
-
-     1. For a new packageset, create a new uploader team (see {ref}`dmb-packagesets` section)
-
-        * For a new PPU, the uploader is the applicant
-
-     2. Open a bug against the [ubuntu-community project](https://launchpad.net/ubuntu-community), and the bug description should include the exact [`edit-acl`](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl) command to run.
-
-        * For PPU creation, [file a bug with this subject](https://bugs.launchpad.net/ubuntu-community/+filebug?field.title=[TB/DMB]%20PPU%20for%20)
-          and include the PPU member name
-
-        * For packageset creation (or uploader team change),
-          [file a bug with this subject](https://bugs.launchpad.net/ubuntu-community/+filebug?field.title=[TB/DMB]%20Packageset%20%20for%20)
-          and include the packageset name
-
-        * In the bug, if creating a new packageset, request the TB create the
-          packageset, setting the DMB as owner:
-
-          ```none
-          edit-acl -S $RELEASE -p developer-membership-board -P $PACKAGESET -t admin create
-          ```
-
-        * Also request the TB set or change the uploader:
-
-          ```none
-          edit-acl -S $RELEASE -p $UPLOADER -P $PACKAGESET -t upload modify
-          ```
-
-        * Usually the commands should be repeated for all supported releases:
-
-          ```none
-          for RELEASE in $(distro-info --supported); do edit-acl ...; done
-          ```
