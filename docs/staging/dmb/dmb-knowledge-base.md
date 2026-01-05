@@ -31,62 +31,11 @@ This page is authoritative. If you think you've found a mistake, please
    the successful applicant. This is to make sure that the announcement does not
    get forgotten.
 
-2. Adjust ACLs:
+2. Adjust ACLs
 
-   * Modification of the membership list for an existing packageset team can
-     be done directly by the DMB. A DMB member should go to the packageset's
-     uploader team page, and add the applicant to the team.
+     1. (The part of this section moved to {ref}`dmb-manage-packagesets`)
 
-   * Modification of the package list for an existing packageset can also be done
-     directly by the DMB. This requires using the [`edit-acl` tool](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl)
-
-     * Example: (replace `add` with `delete` to remove a package instead of adding):
-
-       ```none
-       edit-acl -S $RELEASE -P $PACKAGESET -s $PACKAGE add
-       ```
-
-     * Usually the command should be repeated for all supported releases:
-
-       ```none
-       for RELEASE in $(distro-info --supported); do edit-acl ...; done
-       ```
-
-   * If the action requires creation of a new packageset or PPU, or (rarely)
-     changes to the uploader for a packageset or PPU, it must be done by the TB,
-     so the DMB member must:
-
-     1. For a new packageset, create a new uploader team (see {ref}`dmb-packagesets` section)
-
-        * For a new PPU, the uploader is the applicant
-
-     2. Open a bug against the [ubuntu-community project](https://launchpad.net/ubuntu-community), and the bug description should include the exact [`edit-acl`](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl) command to run.
-
-        * For PPU creation, [file a bug with this subject](https://bugs.launchpad.net/ubuntu-community/+filebug?field.title=[TB/DMB]%20PPU%20for%20)
-          and include the PPU member name
-
-        * For packageset creation (or uploader team change),
-          [file a bug with this subject](https://bugs.launchpad.net/ubuntu-community/+filebug?field.title=[TB/DMB]%20Packageset%20%20for%20)
-          and include the packageset name
-
-        * In the bug, if creating a new packageset, request the TB create the
-          packageset, setting the DMB as owner:
-
-          ```none
-          edit-acl -S $RELEASE -p developer-membership-board -P $PACKAGESET -t admin create
-          ```
-
-        * Also request the TB set or change the uploader:
-
-          ```none
-          edit-acl -S $RELEASE -p $UPLOADER -P $PACKAGESET -t upload modify
-          ```
-
-        * Usually the commands should be repeated for all supported releases:
-
-          ```none
-          for RELEASE in $(distro-info --supported); do edit-acl ...; done
-          ```
+     2. (The part of this section moved to {ref}`dmb-manage-packagesets`)
 
      3. Email `technical-board@lists.ubuntu.com` to inform them of the opened
         bug (include a link to the bug).
@@ -97,16 +46,7 @@ This page is authoritative. If you think you've found a mistake, please
      5. After the new packageset is created by the TB, a DMB member will need to
         add the appropriate packages.
 
-3. If not already a member, add the applicant to either
-   [`~ubuntu-dev`](https://launchpad.net/~ubuntu-dev/+members) or
-   [`~ubuntu-uploaders`](https://launchpad.net/~ubuntu-uploaders/+members).
-
-   See {ref}`dmb-teams-to-add-uploaders-to`.
-
-   * If applying for {ref}`dmb-joining-contributing` membership, the
-     applicant should only be added to the
-     [`~ubuntu-developer-members`](https://launchpad.net/~ubuntu-developer-members)
-     team and nothing more.
+3. (This part of this section moved to {ref}`dmb-manage-packagesets`)
 
 4. Announce successful applicants (this can be done in a single email or multiple
    emails as appropriate), as the Community Council
@@ -135,90 +75,9 @@ Assign a meeting action to close the application. Closing an application involve
 
 * Remove the applicant's agenda item if it is still present.
 
+## Special packagesets
 
-(dmb-packagesets)=
-## Packagesets
-
-Packagesets exist per-release and are defined in the Launchpad database
-accessible by API (using the `edit-acl` command). For easy viewing, see
-[~ubuntu-archive/packagesets](https://ubuntu-archive-team.ubuntu.com/packagesets/).
-
-Consider creating a packageset once we have:
-
-* Two or more PPU uploaders.
-
-* Two or more related packages.
-
-* The grouping of those packages needs to make logical sense.
-
-The application process is more-or-less the same as for developer upload rights.
-The differences are:
-
-* Each packageset needs a *description*. This is so that developers can mail
-  `devel-permissions` after the set is created in order to have packages added.
-  One DMB member then needs to judge the description against the requested change
-  and may make it if they decide it is warranted.
-
-* We create packagesets with just one uploader, which is a team that we then add
-  developers to. The team should be configured like so:
-
-  * Owned by the DMB (but without having the DMB as a member).
-
-  * Self renewal.
-
-  * 720 day expiry period.
-
-    ```{note}
-    For 'Ubuntu Flavor' packageset teams, [the TB requested](http://ubottu.com/meetingology/logs/ubuntu-meeting-2/2019/ubuntu-meeting-2.2019-06-04-19.04.moin.txt) a 180 day expiry period.
-    ```
-
-  * `~ubuntu-core-dev` as a member.
-
-  * Member of `~ubuntu-uploaders` (in rare cases the DMB may require membership
-    of packageset uploaders: in this case make the team a member of `~ubuntu-dev`
-    instead.)
-
-If necessary, we can modify the description later on following a full vote,
-either by email or in a meeting.
-
-Quick set of steps for creating packageset team:
-
-1. Start at [new team registration page](https://launchpad.net/people/+newteam).
-
-2. Make sure {guilabel}`Membership Policy` is *Restricted Team*.
-
-3. Set both the {guilabel}`Subscription Period` and {guilabel}`Self Renewal Period`
-   to 720 (or 180 for 'flavor' teams).
-
-4. Change renewal option to *invite them to renew their own membership*.
-
-5. Create the team.
-
-6. On the new team page:
-
-   1. Click {guilabel}`Change Details` and then {guilabel}`Change Owner`.
-
-   2. Change the team owner to `developer-membership-board`.
-
-7. On the new team member page:
-
-   1. Add `ubuntu-core-dev`.
-
-   2. Edit `ubuntu-core-dev` membership expiration to *Subscription Expires: Never*.
-
-   3. Remove (deactivate) yourself.
-
-   4. Remove (deactivate) `developer-membership-board`.
-
-8. Go to [`~ubuntu-uploaders` member page](https://launchpad.net/~ubuntu-uploaders/+members)
-   (or, if appropriate, [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members))
-   and add the new team as a member.
-
-
-### Special packagesets
-
-
-#### Automatically managed packagesets
+### Automatically managed packagesets
 
 Flavour packagesets are automatically managed from seeds. There is a script to
 control this, which contains a list of overrides too. See
@@ -234,7 +93,7 @@ package that is shared with others then they win and it goes into their set.
 mapping at the top of the `packageset-push` script in the above branch.
 
 
-#### Personal packagesets and glob expansions
+### Personal packagesets and glob expansions
 
 Where an individual has a special reason for upload rights to a large number of
 packages that the DMB expects to need to manage frequently, we can create a
@@ -254,7 +113,7 @@ See the thread starting at [May 2016](https://lists.ubuntu.com/archives/devel-pe
 but extending over June, July, August and September for details.
 
 
-#### Canonical OEM metapackage packageset
+### Canonical OEM metapackage packageset
 
 The `canonical-oem-metapackages` packageset is glob based. The exact glob is
 defined in the packageset description and is expanded according to the list of
@@ -276,6 +135,12 @@ relies on the MIR team's requirements for these packages, defined at
 * Decided at the [DMB meeting of 2020-08-11](https://irclogs.ubuntu.com/2020/08/10/%23ubuntu-meeting.html#t19:01)
 * Documented at [OEM Archive](https://wiki.ubuntu.com/OEMArchive)
 
+## out of context now
+
+   * If applying for {ref}`dmb-joining-contributing` membership, the
+     applicant should only be added to the
+     [`~ubuntu-developer-members`](https://launchpad.net/~ubuntu-developer-members)
+     team and nothing more.
 
 ### Delegating packageset uploader permissions
 

@@ -6,6 +6,7 @@
 :hidden:
 
 dmb-meetings
+dmb-manage-packagesets
 dmb-restaffing
 dmb-rules
 /tech-board/tb-dmb-selection-process
