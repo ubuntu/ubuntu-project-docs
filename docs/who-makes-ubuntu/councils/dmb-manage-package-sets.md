@@ -72,7 +72,22 @@ Such could cases could be:
   common use case for the package set that the same set of people that care
   about the rest is likely to also maintain these packages.
 
-TODO - mention how to compare pkgset vs seeds vs team ownerships that often represent use-case scenarios
+If in doubt it is worthwhile to compare a few sets of data to make decisions
+what might need to be added or dropped from a package set. Here an example
+for the ubuntu-server team:
+
+* Current package set `./edit-acl query --series resolute --packageset ubuntu-server`
+* Seeded by checking anything server'ish in [ubuntu seeds](https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/ubuntu/tree/)
+  and [platform seeds](https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/platform/tree/) and what it depends on.
+  Or in the [germinated output](https://ubuntu-archive-team.ubuntu.com/germinate-output/ubuntu.resolute/) for an artifcat you want to check.
+  Yet one has to admit that seeds are hard to read as they are expanded by
+  dependencies and evaluated for various slightly different artifats.
+  Gladly what you need to compare is often nicely approximated by checking what
+  a team with the same purpose is subscribed to. And if they are not subscribed
+  despite being in the germinated seed it would often be a case of overlapping
+  responsibilities that suggest core-developer rights anyway.
+  Therefore consider `curl --silent http://reqorts.qa.ubuntu.com/m-r-package-team-mapping.json | jq -r '."ubuntu-server"[]'`
+* Out of that in an example of 2025 we generated and discussed [this list](https://lists.ubuntu.com/archives/devel-permissions/2025-September/002906.html)
 
 ## How to create a new Package set
 
