@@ -41,17 +41,18 @@ The differences are:
 ## Two types of package sets
 
 Historically there are two kinds of package sets, those that mostly reflect
-seeds and those that are just logically defined.
+seeds and those that are logically defined by their description.
 
-* A logical packageset needs a *description*. This is so that developers can mail
-  `devel-permissions` after the set is created in order to have packages added.
-  One DMB member then needs to judge the description against the requested change
-  and may make it if they decide it is warranted.
+* A logical packageset needs a *detailed description*. This is so that
+  developers can mail `devel-permissions` after the set is created in order to
+  have packages added.
+  A DMB member then needs to judge the description against the requested change
+  and may apply the change if they decide it is warranted.
 
-* A {ref}`seeds` based packageset is instead mostly defined by what is seeded
-  for a particular Ubuntu variant. That is not strictly only the content of an
-  iso or image, but also the supported seeds that represent common use cases
-  that are not default installed.
+* A {ref}`seeds` based packageset is instead *mostly* defined by what is seeded
+  for a particular Ubuntu variant. That is not strictly only and exactly the
+  content of an iso or image, but might also include related supported seeds
+  that represent common use cases that are not default installed.
 
 ### Seed based packageset - why not just generated?
 
