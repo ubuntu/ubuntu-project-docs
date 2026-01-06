@@ -1,16 +1,16 @@
-(dmb-manage-packagesets)=
+(dmb-manage-package-sets)=
 # DMB Manage Package Sets
 
 ```{note}
 This page is about how to create and modify a package set.
 The related info about how to become a developers that is an uploaders
-of a package set can be found at {ref}`dmb-joining-packageset`.
+of a package set can be found at {ref}`dmb-joining-package-set`.
 ```
 
-(dmb-packagesets)=
+(dmb-package-sets)=
 ## What is a Package set
 
-Packagesets are a method to provide fine grained upload permissions without
+Package sets are a method to provide fine grained upload permissions without
 always managing everything individually per user. They allow to define a
 list of packages per set and per Ubuntu release, to then allow developers
 upload permissions to such a set.
@@ -27,7 +27,7 @@ description, the list of packages included as well as the developers allowed
 to upload to it. These files can be found at
 [~ubuntu-archive/packagesets](https://ubuntu-archive-team.ubuntu.com/packagesets/).
 
-Consider creating a packageset once we have:
+Consider creating a package set once we have:
 
 * Two or more PPU uploaders with the same set.
 
@@ -43,18 +43,18 @@ The differences are:
 Historically there are two kinds of package sets, those that mostly reflect
 seeds and those that are logically defined by their description.
 
-* A logical packageset needs a *detailed description*. This is so that
+* A logical package set needs a *detailed description*. This is so that
   developers can mail `devel-permissions` after the set is created in order to
   have packages added.
   A DMB member then needs to judge the description against the requested change
   and may apply the change if they decide it is warranted.
 
-* A {ref}`seeds` based packageset is instead *mostly* defined by what is seeded
+* A {ref}`seeds` based package set is instead *mostly* defined by what is seeded
   for a particular Ubuntu variant. That is not strictly only and exactly the
   content of an ISO or image, but might also include related supported seeds
   that represent common use cases that are not default installed.
 
-### Seed based packageset - why not just generated?
+### Why are seed based package sets not generated?
 
 The text above says "Mostly" as there are often are a few packages that
 make sense to be added or removed when compared to the pure list that would
@@ -63,7 +63,7 @@ come out of the seeds to make it more practical.
 Such could cases could be:
 
 * Consider to remove a package from a set if is is in the related seed, but so
-  central and impactful, that adding it would effectively make the packageset to
+  central and impactful, that adding it would effectively make the package set to
   require core-developer permission level. This not only reduces impact, it also
   avoids that all package sets are very hard to join as they need core-dev
   like requirements to join as an uploader.
@@ -96,12 +96,12 @@ for the ubuntu-server team:
     to be the most simple solution.
 * Out of such a three way comparison in an example of 2025 we generated and discussed [this list](https://lists.ubuntu.com/archives/devel-permissions/2025-September/002906.html)
 
-(dmb-modify-packagesets)=
+(dmb-modify-package-sets)=
 ## How to modify a Package set
 
 One can modify the definition, the members or the associated package list.
 
-This is the more common task compared to {ref}`creating a set <dmb-create-packagesets>`.
+This is the more common task compared to {ref}`creating a set <dmb-create-package-sets>`.
 
 ### How to modify a Package set definition
 
@@ -109,8 +109,8 @@ This is the more common task compared to {ref}`creating a set <dmb-create-packag
 
 ### How to modify members of a Package set
 
-* Modification of the membership list for an existing packageset team can
-  be done directly by the DMB. A DMB member should go to the packageset's
+* Modification of the membership list for an existing package set team can
+  be done directly by the DMB. A DMB member should go to the package set's
   uploader team page, and add (or if needed remove) the applicant to the team.
 
   * If not already a member, add the applicant to either
@@ -120,7 +120,7 @@ This is the more common task compared to {ref}`creating a set <dmb-create-packag
 
 ### How to modify a new Package set list of covered packages
 
-* Modification of the package list for an existing packageset can also be done
+* Modification of the package list for an existing package set can also be done
   directly by the DMB. This requires using the tool
   [`edit-acl`](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl).
 
@@ -137,18 +137,18 @@ This is the more common task compared to {ref}`creating a set <dmb-create-packag
     for RELEASE in $(distro-info --supported); do edit-acl ...; done
     ```
 
-(dmb-create-packagesets)=
+(dmb-create-package-sets)=
 ## How to create a new Package set
 
-This step is comprised of creating the packageset team managed by the DMB
+This step is comprised of creating the package set team managed by the DMB
 as well as creation of the package set associated with it.
 
 More often than creating one would {ref}`modify an existing package
-set<dmb-modify-packagesets>`.
+set<dmb-modify-package-sets>`.
 
 ### Create the associated launchpad team
 
-We create initially packagesets with just one uploader, which is a launchpad
+We create initially package sets with just one uploader, which is a launchpad
 team that we then later add developers to.
 
 1. Start at [new team registration page](https://launchpad.net/people/+newteam).
@@ -182,16 +182,16 @@ team that we then later add developers to.
 
 9. Go to [`~ubuntu-uploaders` member page](https://launchpad.net/~ubuntu-uploaders/+members)
    and add the new team as a member.
-   (In rare cases the DMB may require membership of packageset uploaders, in that
+   (In rare cases the DMB may require membership of package set uploaders, in that
     case add it to [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members) instead)
 
 ### Create the actual package set
 
-   * If the action requires creation of a new packageset or PPU, or (rarely)
-     changes to the uploader for a packageset or PPU, it must be done by the TB,
+   * If the action requires creation of a new package set or PPU, or (rarely)
+     changes to the uploader for a package set or PPU, it must be done by the TB,
      so the DMB member must:
 
-     1. For a new packageset, create a new uploader team (see {ref}`dmb-packagesets` section)
+     1. For a new package set, create a new uploader team (see {ref}`dmb-package-sets` section)
 
         * For a new PPU, the uploader is the applicant
 
@@ -200,12 +200,12 @@ team that we then later add developers to.
         * For PPU creation, [file a bug with this subject](https://bugs.launchpad.net/ubuntu-community/+filebug?field.title=[TB/DMB]%20PPU%20for%20)
           and include the PPU member name
 
-        * For packageset creation (or uploader team change),
+        * For package set creation (or uploader team change),
           [file a bug with this subject](https://bugs.launchpad.net/ubuntu-community/+filebug?field.title=[TB/DMB]%20Packageset%20%20for%20)
-          and include the packageset name
+          and include the package set name
 
-        * In the bug, if creating a new packageset, request the TB create the
-          packageset, setting the DMB as owner:
+        * In the bug, if creating a new package set, request the TB create the
+          package set, setting the DMB as owner:
 
           ```none
           edit-acl -S $RELEASE -p developer-membership-board -P $PACKAGESET -t admin create

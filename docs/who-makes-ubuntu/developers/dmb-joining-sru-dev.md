@@ -12,7 +12,7 @@ SRU Developers have uploads subject to the standard SRU process, including revie
 They have a good track record of sponsored SRUs, thus demonstrating an understanding of SRU policies, requirements and process.
 
 They also drive SRUs through to the end, not letting things languish in `-proposed`.
-Developers who focus on package-specific areas in Ubuntu, such as {ref}`MOTU <dmb-joining-motu>` and {ref}`dmb-joining-packageset` also upload SRUs without necessarily being a member of the SRU developers team.
+Developers who focus on package-specific areas in Ubuntu, such as {ref}`MOTU <dmb-joining-motu>` and {ref}`dmb-joining-package-set` also upload SRUs without necessarily being a member of the SRU developers team.
 By contrast, SRU developers work on SRUs across different sections of the Ubuntu Package Archive.
 
 
@@ -34,6 +34,6 @@ You can then apply to the {ref}`Developer Membership Board <dmb>` using the {ref
 Depending on your interest, after becoming an SRU developer you may wish to go for:
 
 * {ref}`dmb-joining-ppu`
-* {ref}`dmb-joining-packageset`
+* {ref}`dmb-joining-package-set`
 * {ref}`dmb-joining-motu`
 * {ref}`dmb-joining-core-dev`
