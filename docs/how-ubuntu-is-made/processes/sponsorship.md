@@ -27,7 +27,7 @@ For sponsors:
 
 Sponsors are contributors with proven packaging skills who have gained upload rights for a particular package set or area of the Archive. There are three categories of upload rights:
 
-* {ref}`certain sets of packages <dmb-joining-packageset>`
+* {ref}`certain sets of packages <dmb-joining-package-set>`
 * {ref}`all universe packages <dmb-joining-MOTU>`
 * {ref}`the full Archive <dmb-joining-core-dev>`
 
