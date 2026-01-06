@@ -46,8 +46,8 @@ Keep track of both experiences that went well, and disasters that you used as va
 
 ### Skill
 
-At a minimum, you must have mastery of the same skills as a {ref}`Package Set Uploader <dmb-joining-packageset>` would have.
-Work through all the items on that page's {ref}`training and preparation <packageset-training-and-preparation>` section, focusing on anything you're uncomfortable with.
+At a minimum, you must have mastery of the same skills as a {ref}`Package Set Uploader <dmb-joining-package-set>` would have.
+Work through all the items on that page's {ref}`training and preparation <package-set-training-and-preparation>` section, focusing on anything you're uncomfortable with.
 
 The main difference with MOTU is *breadth*.
 Make sure you have direct experience in these skills across a broader range of packages throughout the Archive, including types of software you've never worked on before.

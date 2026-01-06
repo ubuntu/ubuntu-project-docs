@@ -8,7 +8,7 @@
 dmb-joining-prospective
 dmb-joining-contributing
 dmb-joining-ppu
-dmb-joining-packageset
+dmb-joining-package-set
 dmb-joining-delegated
 dmb-joining-MOTU
 dmb-joining-sru-dev
@@ -37,7 +37,7 @@ in Ubuntu, it would look like this:
 * {ref}`Per-Package Uploaders (PPU) <dmb-joining-ppu>`,
   who can upload specific packages.
 
-* {ref}`Package Set uploaders <dmb-joining-packageset>`
+* {ref}`Package Set uploaders <dmb-joining-package-set>`
 
 * {ref}`Ubuntu Developers (from delegated teams) <dmb-joining-delegated>`,
   who can upload to a specific [Package Set](https://wiki.ubuntu.com/ArchiveReorganisation/Permissions).
@@ -86,8 +86,8 @@ These interactive charts show the skills needed to obtain permissions for
 uploading changes to the Ubuntu Package Archive. They can be used as a guide
 to help build your applications for upload rights on:
 
-* {ref}`PPU <dmb-joining-ppu>` and {ref}`Package Sets <dmb-joining-packageset>`
-* {ref}`MOTU <dmb-joining-motu>`, 
+* {ref}`PPU <dmb-joining-ppu>` and {ref}`Package Sets <dmb-joining-package-set>`
+* {ref}`MOTU <dmb-joining-motu>`
 * {ref}`Core Developer <dmb-joining-core-dev>`
 
 

@@ -3,7 +3,7 @@
 
 Delegated Developers are members of a [delegated development group](https://wiki.ubuntu.com/UbuntuDevelopers/TeamDelegation) in Launchpad.
 They are collectively responsible for the maintenance of a subset of packages in Ubuntu.
-This role is similar to the {ref}`dmb-joining-ppu` and {ref}`dmb-joining-packageset` roles, except that the package set is governed by a delegated team.
+This role is similar to the {ref}`dmb-joining-ppu` and {ref}`dmb-joining-package-set` roles, except that the package set is governed by a delegated team.
 
 The Delegated Developer answers questions of other developers to expand their understanding of packaging work and provides guidance for prospective Ubuntu developers regarding technical issues.
 
@@ -79,7 +79,7 @@ A DMB member will review the request and either make the change or ask for furth
 
 ## Voting
 
-As with {ref}`dmb-joining-ppu` and {ref}`dmb-joining-packageset`, members through Delegated teams are granted a vote when the {ref}`dmb` or Technical Board are polling Ubuntu Developers.
+As with {ref}`dmb-joining-ppu` and {ref}`dmb-joining-package-set`, members through Delegated teams are granted a vote when the {ref}`dmb` or Technical Board are polling Ubuntu Developers.
 
 
 ## Join a delegated team

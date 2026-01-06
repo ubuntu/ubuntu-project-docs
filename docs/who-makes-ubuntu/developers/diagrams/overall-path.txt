@@ -43,7 +43,7 @@ block-beta
   block:col4
   columns 2
     space
-    PackageSet["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-packageset/'>PPU*<br>PackageSet</a>"]
+    PackageSet["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-package-set/'>PPU*<br>PackageSet</a>"]
     space:2
     Advanced("<a href='#upload-path-advanced'>Advanced</a>")
     id3((" "))

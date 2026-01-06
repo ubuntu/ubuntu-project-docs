@@ -1,4 +1,4 @@
-(dmb-joining-packageset)=
+(dmb-joining-package-set)=
 # Package Set uploaders
 
 Upload rights can be given for certain **[Package Sets](https://ubuntu-archive-team.ubuntu.com/packagesets/)**, such as '[ubuntu-server](https://ubuntu-archive-team.ubuntu.com/packagesets/questing/ubuntu-server)' or '[ubuntu-desktop](https://ubuntu-archive-team.ubuntu.com/packagesets/questing/ubuntu-desktop)'.
@@ -11,7 +11,7 @@ That said, even if you intend to *eventually* apply for Core Dev membership, gai
 
 ```{note}
 This page is about the developers that are uploaders of a package set, the information how to create and modify a package set can be found
-at {ref}`dmb-manage-packagesets`.
+at {ref}`dmb-manage-package-sets`.
 ```
 
 ## Sponsorship
@@ -19,7 +19,7 @@ at {ref}`dmb-manage-packagesets`.
 Membership in Package Set means that you can review and {ref}`sponsor uploads <sponsorship>` to your Package Set.
 
 
-(packageset-training-and-preparation)=
+(package-set-training-and-preparation)=
 ## Training and preparation
 
 We're going to describe an idealized training program here; however, no two applications are exactly the same, and there is a lot of flexibility in expectations.
