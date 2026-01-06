@@ -19,6 +19,7 @@ bioinformatics
 blocklisted
 boolean
 bootable
+bootloader
 bootloaders
 bugfix
 bugtracker
@@ -75,10 +76,12 @@ gvfs
 homeserver
 homeservers
 html
+impactful
 Indri
 installability
 interoperate
 IPs
+ISO
 ISOs
 ITPs
 Jackalope
