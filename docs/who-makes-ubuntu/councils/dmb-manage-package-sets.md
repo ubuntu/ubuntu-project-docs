@@ -1,7 +1,7 @@
 (dmb-manage-packagesets)=
 # DMB Manage Package Sets
 
-``{note}
+```{note}
 This page is about how to create and modify a package set.
 The related info about how to become a developers that is an uploaders
 of a package set can be found at {ref}`dmb-joining-packageset`.
