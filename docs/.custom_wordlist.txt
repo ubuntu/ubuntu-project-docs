@@ -77,10 +77,12 @@ gvfs
 homeserver
 homeservers
 html
+impactful
 Indri
 installability
 interoperate
 IPs
+ISO
 ISOs
 ITPs
 Jackalope
