@@ -12,7 +12,7 @@ of a package set can be found at {ref}`dmb-joining-packageset`.
 
 Packagesets are a method to provide fine grained upload permissions without
 always managing everything individually per user. They allow to define a
-lists of packages per set and per Ubuntu release, to then allow developers
+list of packages per set and per Ubuntu release, to then allow developers
 upload permissions to such a set.
 
 Being per release allows them to evolve over time as Ubuntu changes, without
@@ -86,7 +86,7 @@ for the ubuntu-server team:
   a team with the same purpose is subscribed to. And if they are not subscribed
   despite being in the germinated seed it would often be a case of overlapping
   responsibilities that suggest core-developer rights anyway.
-  Therefore consider `curl --silent http://reqorts.qa.ubuntu.com/m-r-package-team-mapping.json | jq -r '."ubuntu-server"[]'`
+  Therefore consider `curl --silent http://reports.qa.ubuntu.com/m-r-package-team-mapping.json | jq -r '."ubuntu-server"[]'`
 * Out of that in an example of 2025 we generated and discussed [this list](https://lists.ubuntu.com/archives/devel-permissions/2025-September/002906.html)
 
 ## How to create a new Package set
