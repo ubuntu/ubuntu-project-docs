@@ -90,10 +90,55 @@ for the ubuntu-server team:
   Therefore consider `curl --silent http://reports.qa.ubuntu.com/m-r-package-team-mapping.json | jq -r '."ubuntu-server"[]'`
 * Out of that in an example of 2025 we generated and discussed [this list](https://lists.ubuntu.com/archives/devel-permissions/2025-September/002906.html)
 
+(dmb-modify-packagesets)=
+## How to modify a Package set
+
+One can modify the definition, the members or the associated package list.
+
+This is the more common task compared to {ref}`creating a set <dmb-create-packagesets>`.
+
+### How to modify a Package set definition
+
+* If necessary, we can modify the description later on following a full DMB vote.
+
+### How to modify members of a Package set
+
+* Modification of the membership list for an existing packageset team can
+  be done directly by the DMB. A DMB member should go to the packageset's
+  uploader team page, and add (or if needed remove) the applicant to the team.
+
+  * If not already a member, add the applicant to either
+   [`~ubuntu-dev`](https://launchpad.net/~ubuntu-dev/+members) or
+   [`~ubuntu-uploaders`](https://launchpad.net/~ubuntu-uploaders/+members).
+   See {ref}`dmb-teams-to-add-uploaders-to`.
+
+### How to modify a new Package set list of covered packages
+
+* Modification of the package list for an existing packageset can also be done
+  directly by the DMB. This requires using the tool
+  [`edit-acl`](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl).
+
+  * Example: (replace `add` with `delete` to remove a package instead of adding):
+
+    ```none
+    edit-acl -S $RELEASE -P $PACKAGESET -s $PACKAGE add
+    ```
+
+  * Sometimes a package or use case is new, but sometimes it is valid for all
+    releases, in that csae the command should be repeated for all supported releases:
+
+    ```none
+    for RELEASE in $(distro-info --supported); do edit-acl ...; done
+    ```
+
+(dmb-create-packagesets)=
 ## How to create a new Package set
 
-This step is comprised of creatung the packageset team managed by the DMB
+This step is comprised of creating the packageset team managed by the DMB
 as well as creation of the package set associated with it.
+
+More often than creating one would {ref}`modify an existing package
+set<dmb-modify-packagesets>`.
 
 ### Create the associated launchpad team
 
@@ -171,41 +216,3 @@ team that we then later add developers to.
           ```none
           for RELEASE in $(distro-info --supported); do edit-acl ...; done
           ```
-
-## How to modify a Package set
-
-One can modify the definition, the members or the associated package list.
-
-### How to modify a Package set definition
-
-* If necessary, we can modify the description later on following a full DMB vote.
-
-### How to modify members of a Package set
-
-* Modification of the membership list for an existing packageset team can
-  be done directly by the DMB. A DMB member should go to the packageset's
-  uploader team page, and add (or if needed remove) the applicant to the team.
-
-  * If not already a member, add the applicant to either
-   [`~ubuntu-dev`](https://launchpad.net/~ubuntu-dev/+members) or
-   [`~ubuntu-uploaders`](https://launchpad.net/~ubuntu-uploaders/+members).
-   See {ref}`dmb-teams-to-add-uploaders-to`.
-
-### How to modify a new Package set list of covered packages
-
-* Modification of the package list for an existing packageset can also be done
-  directly by the DMB. This requires using the tool
-  [`edit-acl`](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl).
-
-  * Example: (replace `add` with `delete` to remove a package instead of adding):
-
-    ```none
-    edit-acl -S $RELEASE -P $PACKAGESET -s $PACKAGE add
-    ```
-
-  * Sometimes a package or use case is new, but sometimes it is valid for all
-    releases, in that csae the command should be repeated for all supported releases:
-
-    ```none
-    for RELEASE in $(distro-info --supported); do edit-acl ...; done
-    ```
