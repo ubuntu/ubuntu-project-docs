@@ -21,9 +21,10 @@ such changes affecting the maintenance of existing releases.
 In regard to their definition they exist are defined in the
 Launchpad database accessible by API (using the `edit-acl` command).
 
-For easy viewing, see there are simple text files pre rendering the current
-state of the package sets, the list of packages included as well as the
-developers allowed to upload to it at
+For easy viewing, there are simple text files representing the current
+state of the package sets. That includes the name of the sets, their
+description, the list of packages included as well as the developers allowed
+to upload to it. These files can be found at
 [~ubuntu-archive/packagesets](https://ubuntu-archive-team.ubuntu.com/packagesets/).
 
 Consider creating a packageset once we have:
@@ -130,7 +131,8 @@ team that we then later add developers to.
 
 9. Go to [`~ubuntu-uploaders` member page](https://launchpad.net/~ubuntu-uploaders/+members)
    and add the new team as a member.
-   (In rare cases the DMB may require membership of packageset uploaders, in that add it to [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members) instead)
+   (In rare cases the DMB may require membership of packageset uploaders, in that
+    case add it to [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members) instead)
 
 ### Create the actual package set
 
