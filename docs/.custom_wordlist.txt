@@ -19,6 +19,7 @@ bioinformatics
 blocklisted
 boolean
 bootable
+bootloader
 bootloaders
 bugfix
 bugtracker
