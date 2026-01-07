@@ -89,6 +89,7 @@ Finally, you'll know you're past ready for applying if anyone ever asks, "How do
 Package Set members are granted a vote when the {ref}`dmb` or Technical Board are polling Ubuntu Developers.
 
 
+(dmb-become-package-set-uploader)=
 ## Become a Package Set uploader
 
 First check the general requirements for {ref}`ubuntu-membership`.

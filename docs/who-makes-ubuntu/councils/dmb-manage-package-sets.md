@@ -35,8 +35,9 @@ Consider creating a package set once we have:
 
 * The grouping of those packages needs to make logical sense.
 
-The application process is more-or-less the same as for developer upload rights.
-The differences are:
+The application process to {ref}`dmb-become-package-set-uploader` is similar
+to all other developer upload right applications. In this case applying to a
+particular package set instead of for example {ref}`dmb-joining-motu`.
 
 ## Two types of package sets
 
