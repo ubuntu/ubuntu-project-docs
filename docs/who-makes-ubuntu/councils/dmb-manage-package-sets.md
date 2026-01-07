@@ -20,6 +20,22 @@ such changes affecting the maintenance of existing releases.
 
 In regard to their definition they exist are defined in the
 Launchpad database accessible by API (using the `edit-acl` command).
+Think of it as a relation between launchpad personas and a list of packages.
+
+```{mermaid}
+%% mermaid flowcharts documentation: https://mermaid.js.org/syntax/flowchart.html
+flowchart TD
+    %% Entities
+    Developers["Developer"]
+    LPPersona["Launchpad team controlled by the DMB"]
+    PackageSet["Package Set in Launchpad database"]
+    Packages["Source packages per release"]
+
+    %% Transitions
+    Developers -->|"<i>member of</i>"| LPPersona
+    LPPersona -->|"<i>associated to</i>"| PackageSet
+    Packages -->|"<i>in package list</i>"| PackageSet
+```
 
 For easy viewing, there are simple text files representing the current
 state of the package sets. That includes the name of the sets, their
