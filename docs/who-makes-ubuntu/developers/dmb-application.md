@@ -42,7 +42,7 @@ Collect endorsements
 
 Once you have enough endorsements
 : If you haven't already, add yourself to the [DMB agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634).
-: Then you can announce your application and meeting date by writing an email to the `devel-permissions@` mailing list. Your email should include:
+: Announce your application and meeting date by writing an email to the `devel-permissions@` mailing list. Your email should include:
 
   * The link to your Discourse application page
 
