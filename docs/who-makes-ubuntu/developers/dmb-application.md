@@ -45,7 +45,7 @@ Once you have enough endorsements - Reserve your agenda spot
 : Note: Applications to {ref}`Ubuntu Contributing Developers <dmb-joining-contributing>` are handled only via the mailing list, therefore no agenda entry is needed for those (the DMB will vote as replies to your post to the `devel-permissions@` mailing list).
 
 Once you have an agenda spot - announce your application
-: Announce your application and selected meeting date by writing an email to the `devel-permissions@` mailing list. Your email should include:
+: Announce your application and selected meeting date by writing an email to the `devel-permissions@lists.ubuntu.com` mailing list. Your email should include:
   * The link to your Discourse application page
 
   * The date you reserved for your meeting
