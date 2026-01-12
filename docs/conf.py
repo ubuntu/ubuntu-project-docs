@@ -342,7 +342,7 @@ rst_epilog = """
 # manpages_url = 'https://manpages.ubuntu.com/manpages/{codename}/en/' + \
 #     'man{section}/{page}.{section}.html'
 
-stable_distro = "plucky"
+stable_distro = "questing"
 
 manpages_url = (
     "https://manpages.ubuntu.com/manpages/"
