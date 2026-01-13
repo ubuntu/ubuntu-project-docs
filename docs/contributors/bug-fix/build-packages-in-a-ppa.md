@@ -62,7 +62,7 @@ The command below can be used to modify the version for PPA usage:
 
 ```none
 $ codename="bionic"
-$ dch -l "~${codename}1" --distribution "${codename}" "Build for PPA"
+$ dch -l "~${codename}" --distribution "${codename}" "Build for PPA"
 ```
 
 If a PPA is used to build the package and the version string was changed as
