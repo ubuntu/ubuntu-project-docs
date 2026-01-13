@@ -197,7 +197,7 @@ Force push a replacement
 Supersede the merge proposal
 : You can do this by using the "Resubmit proposal" link near the top right of
   the web UI. This allows you to create a replacement merge proposal that
-  links to the one being superseded. The supserseded merge proposal will be
+  links to the one being superseded. The superseded merge proposal will be
   marked as such. This allows you to supply a new branch name and start with
   a fresh set of comments, but without losing the previous history.
 

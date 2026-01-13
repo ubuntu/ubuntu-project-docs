@@ -1,6 +1,7 @@
 import datetime
 import os
 import yaml
+import re
 from docutils.parsers.rst import roles
 from sphinx.util.docutils import SphinxRole
 from docutils import nodes
@@ -87,7 +88,7 @@ ogp_site_name = project
 #
 # TODO: To customize the preview image, update as needed.
 
-ogp_image = "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
+ogp_image = "https://assets.ubuntu.com/v1/cc828679-docs_illustration.svg"
 
 
 # Product favicon; shown in bookmarks, browser tabs, etc.
@@ -117,7 +118,7 @@ html_context = {
     "mattermost": "",
     # Your Matrix channel URL
     #
-    "matrix": "https://matrix.to/#/#documentation:ubuntu.com",
+    "matrix": "https://matrix.to/#/#devel:ubuntu.com",
     # Your documentation GitHub repository URL
     #
     # NOTE: If set, links for viewing the documentation source files
@@ -134,9 +135,12 @@ html_context = {
     # "sequential_nav": "both",
     # To enable listing contributors on individual pages, set to True
     "display_contributors": False,
+    #
     # Required for feedback button
     "github_issues": "enabled",
 }
+
+html_extra_path = []
 
 # To enable the edit button on pages, uncomment and change the link to a
 # public repository on GitHub or Launchpad. Any of the following link domains
@@ -151,18 +155,18 @@ html_theme_options = {
 
 # Project slug; see https://meta.discourse.org/t/what-is-category-slug/87897
 #
-# TODO: If your documentation is hosted on https://docs.ubuntu.com/,
+# If your documentation is hosted on https://docs.ubuntu.com/,
 #       uncomment and update as needed.
 
-# slug = ''
+slug = "project"
 
 
 #######################
 # Sitemap configuration: https://sphinx-sitemap.readthedocs.io/
 #######################
 
-# Base URL of RTD hosted project
-html_baseurl = "https://documentation.ubuntu.com/project/"
+# Use RTD canonical URL to ensure duplicate pages have a specific canonical URL
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 # URL scheme.
 sitemap_url_scheme = "{link}"
@@ -170,6 +174,13 @@ sitemap_url_scheme = "{link}"
 # Include `lastmod` dates in the sitemap:
 sitemap_show_lastmod = True
 
+# Exclude generated pages from the sitemap:
+
+sitemap_excludes = [
+    '404/',
+    'genindex/',
+    'search/',
+]
 
 # Template and asset locations
 html_static_path = [".sphinx/_static"]
@@ -265,17 +276,31 @@ myst_enable_extensions = {
 
 extensions = [
     "canonical_sphinx",
+    "notfound.extension",
+    "sphinx_design",
+    "sphinx_reredirects",
+    "sphinx_tabs.tabs",
+    "sphinxcontrib.jquery",
+    "sphinxext.opengraph",
+    "sphinx_config_options",
+    "sphinx_contributor_listing",
+    "sphinx_filtered_toctree",
+    "sphinx_related_links",
+    "sphinx_roles",
+    "sphinx_terminal",
+    "sphinx_ubuntu_images",
+    "sphinx_youtube_links",
     "sphinxcontrib.cairosvgconverter",
     "sphinx_last_updated_by_git",
     "sphinx.ext.intersphinx",
+    "sphinx_sitemap",
+    # Custom extensions for this docs set:
     "sphinx.ext.mathjax",
     "sphinxcontrib.mermaid",
     "hoverxref.extension",
     "sphinx_prompt",
     "sphinx.ext.extlinks",
     "sphinxext.rediraffe",
-    "sphinx_sitemap",
-    "sphinx_reredirects",
     "sphinx_togglebutton",
     "sphinx.ext.graphviz",
 ]
@@ -317,7 +342,7 @@ rst_epilog = """
 # manpages_url = 'https://manpages.ubuntu.com/manpages/{codename}/en/' + \
 #     'man{section}/{page}.{section}.html'
 
-stable_distro = "plucky"
+stable_distro = "questing"
 
 manpages_url = (
     "https://manpages.ubuntu.com/manpages/"
@@ -416,8 +441,48 @@ class CommandRole(SphinxRole):
         return [node], []
 
 
+def unescape_amp_in_links(app, exception):
+    """
+    Post-process HTML files to mitigate
+      https://github.com/executablebooks/MyST-Parser/issues/1028
+    by unescaping &amp;amp; to &amp;
+    To be minimally invasive this is:
+      - only changing text in href attributes
+      - only affecting &amp;amp; (over just &amp;) which is a
+        more clear indication of that bug
+      - only affecting parametrized URLs that follow to an ?
+      - only running for html builders
+      - only writing on changed content
+    """
+    if exception:
+        return
+
+    # Only run for html builders
+    if app.builder.format != 'html':
+        return
+
+    def unescape_match(match):
+        return match.group(0).replace('&amp;amp;', '&amp;')
+
+    for root, dirs, files in os.walk(app.outdir):
+        for file in files:
+            if file.endswith(".html"):
+                path = os.path.join(root, file)
+                try:
+                    with open(path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    new_content = re.sub(r'href=".*\?([^"]*)"',
+                                         unescape_match, content)
+                    if new_content != content:
+                        with open(path, 'w', encoding='utf-8') as f:
+                            f.write(new_content)
+                except Exception as e:
+                    print(f"Failed to process {path}: {e}")
+
+
 def setup(app):
     roles.register_local_role("command", CommandRole())
+    app.connect('build-finished', unescape_amp_in_links)
 
 
 # Define a custom role for package-name formatting

@@ -25,7 +25,7 @@ Practical guidance:
 
 ## Changing seeds
 
-The general workflow to edit seeds is straightfoward:
+The general workflow to edit seeds is straightforward:
 
 * Get the source
 * Edit the source

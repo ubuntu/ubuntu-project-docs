@@ -1,9 +1,9 @@
 (about-mir-role)=
 # About the MIR role
 
-The [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir) oversees the Main
-Inclusion Review (MIR) process. They are responsible for reviewing packages for
-promotion:
+The [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir) oversees the
+{ref}`Main Inclusion Review (MIR) process <main-inclusion-review>`.
+They are responsible for reviewing packages for promotion:
 
 * from {term}`universe` to {term}`main`
 * from {term}`multiverse` to {term}`restricted`
