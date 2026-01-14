@@ -24,7 +24,7 @@ Contact the SRU team
   - `#ubuntu-devel <https://wiki.ubuntu.com/IRC>`__ on Libera.Chat
   - The `ubuntu-devel-discuss <https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss>`__ mailing list
 
-- If you **do have upload access**, you can contact the SRU team here:
+- If your **patch has been uploaded**, you can contact the SRU team here:
 
   - `#sru:ubuntu.com <https://matrix.to/#/#sru:ubuntu.com>`__ channel on Matrix, dedicated to SRU topics.
   - The `ubuntu-release <https://lists.ubuntu.com/mailman/listinfo/ubuntu-release>`__ mailing list
