@@ -6,7 +6,7 @@ The {ref}`dmb` conducts meetings every two weeks.
 
 ## Scheduling
 
-DMB meetings are held on Mondays alternating between 13:00 UTC and 15:30 UTC. 
+DMB meetings are held on Mondays alternating between 13:00 UTC and 15:30 UTC.
 In case of common vacations (such as over New Year), a meeting may be skipped.
 [Refer to the Agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to check on the times, dates and topics of upcoming meetings.
 
@@ -16,7 +16,7 @@ Please also consider the needs of pending and future applicants if changing the 
 
 ## Meeting location
 
-The meeting starts on Matrix in the {matrix}`meeting` channel, and we then offer to move to a Google Meet. If participants are unable (or do not want) to use Google Meet, we conduct the meeting on Matrix. 
+The meeting starts on Matrix in the {matrix}`ubuntu-dmb-public` channel, and we then offer to move to a Google Meet. If participants are unable (or do not want) to use Google Meet, we conduct the meeting on Matrix.
 
 
 ## Chair
@@ -47,7 +47,8 @@ The goals of these logs is to:
 - allow someone to prepare for an application based on former ones
 
 To be able to achieve that in an easy way they are made publicly available
-in a single repository at [DMB Meeting logs](https://git.launchpad.net/~developer-membership-board/+git/dmb-meeting-history/tree/?h=main).
+in a single repository at [DMB Meeting logs](https://launchpad.net/~developer-membership-board/+git/dmb-meeting-history)
+([browse the logs](https://git.launchpad.net/~developer-membership-board/+git/dmb-meeting-history/tree/?h=main)).
 Old logs, from all the different sources of the past were added and now allow
 an easy way to download for any other kind of processing.
 
@@ -92,5 +93,3 @@ See [the original thread](https://lists.ubuntu.com/archives/devel-permissions/20
 
 * Make sure that the applicant has signed the [Ubuntu Code of Conduct](https://launchpad.net/codeofconduct/2.0).
   It must be signed by every Ubuntu Developer.
-
-

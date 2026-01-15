@@ -19,6 +19,7 @@ bioinformatics
 blocklisted
 boolean
 bootable
+bootloader
 bootloaders
 bugfix
 bugtracker
@@ -123,6 +124,7 @@ NGOs
 neurotype
 onboarding
 oniguruma
+OSI's
 packageset
 packagesets
 papercuts

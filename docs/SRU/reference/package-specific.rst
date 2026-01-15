@@ -45,6 +45,7 @@ the Technical Board.
     exception-GNOME-Updates
     exception-Grub-Updates
     exception-HAProxy-Updates
+    exception-Intel-Graphics-Updates
     exception-Landscape-Updates
     exception-MariaDB-Galera-Updates
     exception-NVidia-Updates
@@ -458,6 +459,13 @@ documented in :ref:`HAProxyUpdates <reference-exception-HAProxyUpdates>`. This s
 exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2022-June/005417.html>`__
 by LukaszZemczak for the SRU team as of 2022-06-27.
+
+Intel Graphics
+~~~~~~~~~~~~~~
+
+The source packages for the Intel graphics stack may be uploaded according to
+the procedure documented in :ref:`IntelGraphicsUpdates
+<reference-exception-Intel-Graphics-Updates>`.
 
 autopkgtest
 ~~~~~~~~~~~
