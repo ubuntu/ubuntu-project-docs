@@ -52,7 +52,6 @@ package versions affected by this policy:
 
 -  Resolute (26.04): Valkey 9.0.x (projected)
 -  Questing (25.10): Valkey 8.1.x
--  Plucky (25.04): Valkey 8.0.x
 -  Noble (24.04): Valkey 7.2.x
 
 QA
