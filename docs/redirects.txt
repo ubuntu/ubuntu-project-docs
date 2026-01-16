@@ -75,7 +75,7 @@ staging/dmb/dmb-aspects-of-a-good-application/ who-makes-ubuntu/developers/dmb-a
 who-makes-ubuntu/joining/index/ who-makes-ubuntu/developers/dmb-index/
 who-makes-ubuntu/joining/membership-in-core-dev/ who-makes-ubuntu/developers/dmb-joining-core-dev/
 who-makes-ubuntu/joining/membership-in-MOTU/ who-makes-ubuntu/developers/dmb-joining-MOTU/
-who-makes-ubuntu/joining/membership-in-packageset/ who-makes-ubuntu/developers/dmb-joining-packageset/
+who-makes-ubuntu/joining/membership-in-package-set/ who-makes-ubuntu/developers/dmb-joining-package-set/
 who-makes-ubuntu/joining/path-to-upload-rights/ who-makes-ubuntu/developers/dmb-index/
 
 # Pages moved around
