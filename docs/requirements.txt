@@ -34,6 +34,7 @@ vale
 # Custom dependencies (needed by Ubuntu Project docs)
 distro_info
 sphinx-hoverxref
+sphinx-llm
 sphinx-prompt
 sphinx-togglebutton
 sphinxcontrib-mermaid
