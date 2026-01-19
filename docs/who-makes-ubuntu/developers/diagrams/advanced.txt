@@ -25,7 +25,7 @@ block-beta
     space
     PPU["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-ppu/'>PPU*</a>"]
     space
-    PackageSet["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-package-set/'>Package Set</a>"]
+    PackageSet["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-packageset/'>Packageset</a>"]
     space:8
   end
 
