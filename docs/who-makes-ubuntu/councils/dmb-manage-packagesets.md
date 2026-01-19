@@ -161,6 +161,13 @@ This is the more common task compared to {ref}`creating a set <dmb-create-packag
 ### How to modify a Packageset definition
 
 * If necessary, we can modify the description later on following a full DMB vote.
+  Such requests would usually be driven by members of a Packageset that want to
+  expand the set or better define it - often to match how Ubuntu has evolved
+  since the set was created.
+  In such a case the DMB should consider if, due to the update of the
+  definition, it would need to reconsider:
+  * the set of packages in the packageset, and if they should be adjusted
+  * the set of uploaders to the packageset, and if they should be adjusted.
 
 ### How to modify members of a Packageset
 
