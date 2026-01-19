@@ -22,7 +22,7 @@ Upon loss of Ubuntu Core Developer status, GitHub organization membership is rev
 
 In terms of the {ref}`uploaders-journey`, MOTU are {ref}`experts <upload-path-expert>` in Ubuntu Development, with a strong working knowledge of packaging concepts and techniques, refined through direct experience. They can apply this knowledge to a variety of packages and sub-systems, and have a history of substantial direct contributions to the Ubuntu distribution.
 
-Most people applying for Core Dev membership will have a history of involvement in Ubuntu, working their way up from {ref}`Package Set <dmb-joining-package-set>` and/or {ref}`MOTU <dmb-joining-MOTU>` membership.
+Most people applying for Core Dev membership will have a history of involvement in Ubuntu, working their way up from {ref}`Packageset <dmb-joining-packageset>` and/or {ref}`MOTU <dmb-joining-MOTU>` membership.
 If you're skipping over those levels it is nevertheless worth reviewing their training and application processes to make sure you'll be fulfilling their requirements.
 
 In addition to understanding common tasks documented in this guide, including {ref}`Debian patching <how-to-work-with-debian-patches>`, {ref}`Stable Release Updates (SRUs) <how-to-fix-a-bug-in-a-package>`, and so on, Core Dev applicants must also have a good understanding of these advanced packaging skills, and ideally direct experience with a few of them:

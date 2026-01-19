@@ -6,7 +6,7 @@
 :hidden:
 
 dmb-meetings
-dmb-manage-package-sets
+dmb-manage-packagesets
 dmb-restaffing
 dmb-rules
 /tech-board/tb-dmb-selection-process
@@ -38,7 +38,7 @@ The Ubuntu Developer Membership Board currently approves:
 
 * {ref}`Per-Package Uploaders <dmb-joining-ppu>`
 
-* {ref}`Package Set <dmb-joining-package-set>`
+* {ref}`Packageset <dmb-joining-packageset>`
 
 * {ref}`MOTU <dmb-joining-motu>`
 

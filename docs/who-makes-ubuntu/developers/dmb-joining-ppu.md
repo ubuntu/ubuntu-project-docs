@@ -47,7 +47,7 @@ You can then apply to the {ref}`dmb` using the {ref}`dmb-application`.
 
 If you have an interest in a wide variety of packages, you are encouraged to strive for membership in one or more existing development teams. You may, depending on your interest, choose to go for:
 
-* {ref}`dmb-joining-package-set`
+* {ref}`dmb-joining-packageset`
 * {ref}`dmb-joining-motu`
 * {ref}`dmb-joining-core-dev`
 

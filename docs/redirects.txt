@@ -205,7 +205,7 @@ who-makes-ubuntu/joining/membership-in-core-dev/ who-makes-ubuntu/developers/dmb
 
 who-makes-ubuntu/joining/membership-in-MOTU/ who-makes-ubuntu/developers/dmb-joining-MOTU/
 
-who-makes-ubuntu/joining/membership-in-package-set/ who-makes-ubuntu/developers/dmb-joining-package-set/
+who-makes-ubuntu/joining/membership-in-packageset/ who-makes-ubuntu/developers/dmb-joining-packageset/
 
 who-makes-ubuntu/index-roles/ who-makes-ubuntu/roles/
 

@@ -33,9 +33,9 @@ This page is authoritative. If you think you've found a mistake, please
 
 2. Adjust ACLs
 
-     1. (The part of this section moved to {ref}`dmb-manage-package-sets`)
+     1. (The part of this section moved to {ref}`dmb-manage-packagesets`)
 
-     2. (The part of this section moved to {ref}`dmb-manage-package-sets`)
+     2. (The part of this section moved to {ref}`dmb-manage-packagesets`)
 
      3. Email `technical-board@lists.ubuntu.com` to inform them of the opened
         bug (include a link to the bug).
@@ -46,7 +46,7 @@ This page is authoritative. If you think you've found a mistake, please
      5. After the new packageset is created by the TB, a DMB member will need to
         add the appropriate packages.
 
-3. (This part of this section moved to {ref}`dmb-manage-package-sets`)
+3. (This part of this section moved to {ref}`dmb-manage-packagesets`)
 
 4. Announce successful applicants (this can be done in a single email or multiple
    emails as appropriate), as the Community Council

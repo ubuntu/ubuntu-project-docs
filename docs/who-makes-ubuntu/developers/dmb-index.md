@@ -8,7 +8,7 @@
 dmb-joining-prospective
 dmb-joining-contributing
 dmb-joining-ppu
-dmb-joining-package-set
+dmb-joining-packageset
 dmb-joining-delegated
 dmb-joining-MOTU
 dmb-joining-sru-dev
@@ -37,10 +37,10 @@ in Ubuntu, it would look like this:
 * {ref}`Per-Package Uploaders (PPU) <dmb-joining-ppu>`,
   who can upload specific packages.
 
-* {ref}`Package Set uploaders <dmb-joining-package-set>`
+* {ref}`Packageset uploaders <dmb-joining-packageset>`
 
 * {ref}`Ubuntu Developers (from delegated teams) <dmb-joining-delegated>`,
-  who can upload to a specific [Package Set](https://wiki.ubuntu.com/ArchiveReorganisation/Permissions).
+  who can upload to a specific [Packageset](https://wiki.ubuntu.com/ArchiveReorganisation/Permissions).
 
 * {ref}`MOTU <dmb-joining-motu>`, who can upload to
   {ref}`universe and multiverse <archive-components>`.
@@ -86,7 +86,7 @@ These interactive charts show the skills needed to obtain permissions for
 uploading changes to the Ubuntu Package Archive. They can be used as a guide
 to help build your applications for upload rights on:
 
-* {ref}`PPU <dmb-joining-ppu>` and {ref}`Package Sets <dmb-joining-package-set>`
+* {ref}`PPU <dmb-joining-ppu>` and {ref}`Packagesets <dmb-joining-packageset>`
 * {ref}`MOTU <dmb-joining-motu>`
 * {ref}`Core Developer <dmb-joining-core-dev>`
 
@@ -147,11 +147,11 @@ experience, you can move onto the Expert topics.
 
 At this point, you are likely to be ready to apply for Per-Package Upload (PPU)
 rights, or if there is a set of packages you are interested in working on, you
-can apply for Package Set instead.
+can apply for Packageset instead.
 
 
 (upload-path-expert)=
-### Expert 
+### Expert
 
 The Expert-level studies will prepare you for becoming a member of MOTU, where
 you will help to maintain packages in `universe`.
