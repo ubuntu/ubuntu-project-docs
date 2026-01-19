@@ -17,7 +17,10 @@ list of packages per set and per Ubuntu release, to then allow developers
 upload permissions to such a set.
 
 Being per release allows them to evolve over time as Ubuntu changes, without
-such changes affecting the maintenance of existing releases.
+such changes affecting the maintenance of existing releases. For example a
+package name might stay but contain something different in a late release.
+Or a definition by either of the {ref}`dmb-types-of-packagesets` will imply
+that it covers a different set of packages in different releases.
 
 In regard to their definition they exist are defined in the
 Launchpad database accessible by API (using the `edit-acl` command).
@@ -56,6 +59,7 @@ The application process to {ref}`dmb-become-packageset-uploader` is similar
 to all other developer upload right applications. In this case applying to a
 particular Packageset instead of for example {ref}`dmb-joining-motu`.
 
+(dmb-types-of-packagesets)=
 ## Two types of Packagesets
 
 Historically there are two kinds of Packagesets, those that mostly reflect
