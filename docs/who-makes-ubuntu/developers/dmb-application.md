@@ -19,10 +19,6 @@ To understand how the Ubuntu development skills map to the various uploader leve
 
 ## Application process overview
 
-Reserve your spot
-: Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see when the DMB next meeting is, and to check the queue of applications.
-: Only 2 applications are considered each meeting so if there's a queue, make sure to reserve a spot for when you think you'll be ready for consideration.
-
 Create your space
 : If it's your first time applying for upload rights, {ref}`dmb-create-a-discourse-post`. If you already have a page, you can
   reuse it.
@@ -41,8 +37,8 @@ Collect endorsements
 : {ref}`dmb-collect-endorsements` from those who have worked with you.
 
 Once you have enough endorsements
-: If you haven't already, add yourself to the [DMB agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634).
-: Then you can announce your application and meeting date by writing an email to the `devel-permissions@` mailing list. Your email should include:
+: Add yourself to the [DMB agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634).
+: Announce your application and meeting date by writing an email to the `devel-permissions@` mailing list at `lists.ubuntu.com`. Your email should include:
 
   * The link to your Discourse application page
 
