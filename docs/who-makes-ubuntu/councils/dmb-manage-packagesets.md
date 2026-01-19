@@ -56,33 +56,66 @@ Consider creating a Packageset once we have:
 * The grouping of those packages needs to make logical sense.
 
 The application process to {ref}`dmb-become-packageset-uploader` is similar
-to all other developer upload right applications. In this case applying to a
-particular Packageset instead of for example {ref}`dmb-joining-motu`.
+to all other developer upload permission applications. In this case applying to
+a particular Packageset instead of for example {ref}`dmb-joining-motu`.
 
 (dmb-types-of-packagesets)=
-## Two types of Packagesets
+## Types of Packagesets
 
-Historically there are two kinds of Packagesets, those that mostly reflect
-seeds and those that are logically defined by their description.
+Historically there a few different kinds of Packagesets.
+There are two common variants, one mostly reflect seeds and the other
+is logically defined by the description.
+Further variants that have been established to cover special cases
+like Personal packagesets and OEM metapackage packagesets.
 
-* A logical Packageset needs a *detailed description*. This is so that
+* **Logical Packagesets** needs a *detailed description*. This is so that
   developers can mail `devel-permissions` after the set is created in order to
   have packages added.
   A DMB member then needs to judge the description against the requested change
   and may apply the change if they decide it is warranted.
 
-* A {ref}`seeds` based Packageset is instead *mostly* defined by what is seeded
-  for a particular Ubuntu variant. That is not strictly only and exactly the
-  content of an ISO or image, but might also include related supported seeds
+* **{ref}`seeds` based Packagesets** are instead *mostly* defined by what is
+  seeded for a particular Ubuntu variant. That is not strictly only and exactly
+  the content of an ISO or image, but might also include related supported seeds
   that represent common use cases that are not default installed.
+
+* **Personal Packagesets** are used where an individual has a special reason for
+  upload rights to a large number of packages that the DMB expects to need to
+  manage frequently. For such a case a "personal packageset" for this person,
+  named "`personal-<lpid>`" can be created.
+  * When the associated developers are granted Core Dev those packagesets can
+    be removed.
+  * See the thread starting at [May 2016](https://lists.ubuntu.com/archives/devel-permissions/2016-May/000924.html),
+    and subsequent months for an example.
+
+* The **canonical-oem-metapackages Packageset** is glob based. The exact glob is
+  defined in the packageset description and is expanded according to the list of
+  source packages in the Ubuntu Archive for a given series. Any DMB member may
+  update the packageset according to the glob expansion at any time without
+  needing further consultation. However, this is now done automatically with
+  [this script](https://git.launchpad.net/~developer-membership-board/+git/oem-meta-packageset-sync/tree/oem-meta-packageset-sync).
+  The script is "owned" by the DMB, who is the gatekeeper for changes to the
+  script, but run and managed on behalf of the DMB by the
+  [Archive Admin team](https://launchpad.net/~ubuntu-archive/+members). To make
+  this work, this packageset is owned by the Archive Admin team.
+  * The expected nature of the packageset, to which the DMB grants upload access,
+    relies on the MIR team's requirements for these packages, defined at
+    {ref}`mir-exceptions-oem`.
+  * [Background thread](https://lists.ubuntu.com/archives/devel-permissions/2020-July/001542.html)
+  * Decided at the [DMB meeting of 2020-08-11](https://irclogs.ubuntu.com/2020/08/10/%23ubuntu-meeting.html#t19:01)
+  * Documented at [OEM Archive](https://wiki.ubuntu.com/OEMArchive)
 
 ### Why are seed based Packagesets not generated?
 
-The text above says "Mostly" as there are often are a few packages that
-make sense to be added or removed when compared to the pure list that would
-come out of the seeds to make it more practical.
+These used to be fully generated based on
+[this code](https://code.launchpad.net/~developer-membership-board/+git/packageset)
+and the logic how sources are shared between flavours. But that has proven to
+cause too many rough edge cases. Therefore text above says "Mostly" as there
+are often are a few packages that make sense to be added or removed when
+compared to the pure list that would come out of the seeds to make it more
+practical.
 
-Such could cases could be:
+Such cases could be:
 
 * Consider to remove a package from a set if is is in the related seed, but so
   central and impactful, that adding it would effectively make the Packageset to

@@ -75,65 +75,6 @@ Assign a meeting action to close the application. Closing an application involve
 
 * Remove the applicant's agenda item if it is still present.
 
-## Special packagesets
-
-### Automatically managed packagesets
-
-Flavour packagesets are automatically managed from seeds. There is a script to
-control this, which contains a list of overrides too. See
-[the Launchpad script](https://code.launchpad.net/~developer-membership-board/+git/packageset).
-We should look at automating runs of this script, but currently we need to
-remember to manually run it from time to time.
-
-The script encodes the logic about which packagesets packages should go to,
-based on how sources are shared between flavours. Broadly, `kubuntu`, `ubuntu`
-and`ubuntu-server` are considered top-tier flavours and if they contain a
-package that is shared with others then they win and it goes into their set.
-`core` and `desktop-core` win out over all flavour sets too. See the `seed-sets`
-mapping at the top of the `packageset-push` script in the above branch.
-
-
-### Personal packagesets and glob expansions
-
-Where an individual has a special reason for upload rights to a large number of
-packages that the DMB expects to need to manage frequently, we can create a
-"personal packageset" for this person, named "`personal-<lpid>`". There was once
-one: `personal-gunnarhj`, that existed until Gunnar was granted Core Dev and was
-therefore no longer needed. This was defined as the set that the DMB has agreed
-that Gunnar may upload, which included individual packages to which he has PPU,
-as well as glob expansions. The globs were defined in the packageset description.
-This way, any DMB member could update the glob expansions for Gunnar (by relying
-on their existing definition) without needing to refer to the full DMB for
-agreement or the TB to make the change.
-
-This was managed manually, but it may be advisable to script updates if needed
-in the future.
-
-See the thread starting at [May 2016](https://lists.ubuntu.com/archives/devel-permissions/2016-May/000924.html),
-but extending over June, July, August and September for details.
-
-
-### Canonical OEM metapackage packageset
-
-The `canonical-oem-metapackages` packageset is glob based. The exact glob is
-defined in the packageset description and is expanded according to the list of
-source packages in the Ubuntu Archive for a given series. Any DMB member may
-update the packageset according to the glob expansion at any time without
-needing further consultation. However, this is now done automatically with
-[this script](https://git.launchpad.net/~developer-membership-board/+git/oem-meta-packageset-sync/tree/oem-meta-packageset-sync).
-
-The script is "owned" by the DMB, who is the gatekeeper for changes to the
-script, but run and managed on behalf of the DMB by the
-[Archive Admin team](https://launchpad.net/~ubuntu-archive/+members). To make
-this work, the packageset is owned by the Archive Admin team.
-
-The expected nature of the packageset, to which the DMB grants upload access,
-relies on the MIR team's requirements for these packages, defined at
-{ref}`mir-exceptions-oem`.
-
-* [Background thread](https://lists.ubuntu.com/archives/devel-permissions/2020-July/001542.html)
-* Decided at the [DMB meeting of 2020-08-11](https://irclogs.ubuntu.com/2020/08/10/%23ubuntu-meeting.html#t19:01)
-* Documented at [OEM Archive](https://wiki.ubuntu.com/OEMArchive)
 
 ## out of context now
 
