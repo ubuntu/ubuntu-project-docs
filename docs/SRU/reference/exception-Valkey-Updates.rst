@@ -13,7 +13,7 @@ the Valkey package in Ubuntu stable releases.
 About Valkey
 ------------
 
-`Valkey <https://valkey.io/>`__ is an open source VPN high-performance
+`Valkey <https://valkey.io/>`__ is an open source high-performance
 key/value datastore that supports a variety of workloads such as caching,
 message queues, and can act as a primary database.
 
@@ -39,8 +39,8 @@ pocket.
 Note that Valkey has strict rules for maintaining compatibility between micro
 releases. However, minor and major releases often contain
 backwards-incompatible changes. Therefore, only micro releases should be
-considered for SRU, and a minor release update should go through the normal
-SRU process.
+considered for SRU, and a minor release update would need special approval
+using the normal SRU process.
 
 .. _ubuntu_and_valkey_releases_affected_by_this_mre:
 
