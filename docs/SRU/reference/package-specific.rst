@@ -551,8 +551,8 @@ Valkey
 The valkey source package may be uploaded according to the procedure
 documented in :ref:`Valkey-Updates <reference-exception-ValkeyUpdates>`.
 This stable release exception `has been
-approved <TBD>`__ by [TBD] for the
-SRU team as of [TBD].
+approved <https://github.com/ubuntu/ubuntu-project-docs/pull/314>`__ by
+RobieBasak for the SRU team as of 2026-01-22.
 
 GRUB
 ~~~~
