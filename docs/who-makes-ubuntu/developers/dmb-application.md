@@ -21,7 +21,7 @@ To understand how the Ubuntu development skills map to the various uploader leve
 
 Reserve your spot
 : Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see when the DMB next meeting is, and to check the queue of applications.
-: Only 2 applications are considered each meeting so if there's a queue, make sure to reserve a spot for when you think you'll be ready for consideration.
+: Only few applications are considered each meeting so if there's a queue, make sure to reserve a spot for when you think you'll be ready for consideration.
 
 Create your space
 : If it's your first time applying for upload rights, {ref}`dmb-create-a-discourse-post`. If you already have a page, you can
