@@ -347,7 +347,9 @@ Command Line Interface
 
 CVE
 Common Vulnerabilities and Exposures
-    *Work in Progress*
+    A vulnerability consists of one or more weaknesses in a product that can be exploited, causing a negative impact to confidentiality, integrity, or availability. CVE generally refers to the [CVE list](https://www.cve.org/Downloads), a publicly disclosed catalog of information security vulnerabilities. This list provides a standardized framework for cataloging and tracking cybersecurity vulnerabilities that organizations can use to improve vulnerability management processes.
+
+    See also: [Ubuntu CVEs](https://ubuntu.com/security/cves)
 
 CISC
 Complex Instruction Set Computer
