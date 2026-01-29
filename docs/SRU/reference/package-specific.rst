@@ -76,6 +76,7 @@ the Technical Board.
     exception-google-guest-agent-Updates
     exception-google-osconfig-agent-Updates
     exception-rax-nova-agent-Updates
+    exception-Valkey-Updates
     exception-walinuxagent-Updates
     exception-wslu-Updates
 
@@ -543,6 +544,15 @@ MariaDB and Galera
 The 'mariadb' and 'galera' source packages, including source package variants
 with version suffixes, may be uploaded according to the proceedure documented in
 :ref:`MariaDB-Galera-Updates <reference-exception-MariaDB-Galera-Updates>`.
+
+Valkey
+~~~~~~
+
+The valkey source package may be uploaded according to the procedure
+documented in :ref:`Valkey-Updates <reference-exception-ValkeyUpdates>`.
+This stable release exception `has been
+approved <https://github.com/ubuntu/ubuntu-project-docs/pull/314>`__ by
+RobieBasak for the SRU team as of 2026-01-22.
 
 GRUB
 ~~~~
