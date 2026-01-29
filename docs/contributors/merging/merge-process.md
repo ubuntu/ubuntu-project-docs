@@ -38,11 +38,12 @@ $ git ubuntu merge start pkg/ubuntu/devel
 
 This generates the following tags for you:
 
-| Tag          | Source                                                                   |
-| ------------ | ------------------------------------------------------------------------ |
-| `old/ubuntu` | `ubuntu/devel`                                                           |
-| `old/debian` | last import tag prior to `old/ubuntu` without `ubuntu` suffix in version |
-| `new/debian` | `debian/sid`                                                             |
+| Tag                     | Source                                                                   |
+| ----------------------- | ------------------------------------------------------------------------ |
+| `old/ubuntu`            | `ubuntu/devel`                                                           |
+| `old/debian`            | last import tag prior to `old/ubuntu` without `ubuntu` suffix in version |
+| `new/debian`            | `debian/sid`                                                             |
+| `reconstruct/<uver>`    | matches `old/ubuntu` with cherry-picked commits between `old/debian`..`old/ubuntu`<br> `<uver>` = `old/ubuntu` version, e.g. `2.1.11-1ubuntu3` |
 
 If `git ubuntu merge start` fails, {ref}`merge-manually`.
 
