@@ -43,6 +43,7 @@ cron
 cronjob
 crontab
 crosshairs
+cybersecurity
 Debcrafters
 debdiff
 deprioritized
