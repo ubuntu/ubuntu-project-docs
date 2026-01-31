@@ -9,5 +9,6 @@ Details on maintaining some of these packages are given here.
 :titlesonly:
 
 desktop/index
+llvm/index
 rustc/index
 ```
