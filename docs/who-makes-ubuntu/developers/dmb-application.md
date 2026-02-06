@@ -11,7 +11,7 @@ dmb-aspects-of-a-good-application
 
 To become an {ref}`Ubuntu Developer Member <ubuntu-developers>`, or a developer of a delegated team for which the {ref}`dmb` handles applications, you must apply via the process outlined on this page.
 The DMB covers applications for {ref}`dmb-joining-contributing`, {ref}`Per-Package Uploaders (PPU) <dmb-joining-ppu>`, {ref}`Package Set uploaders <dmb-joining-packageset>`, {ref}`Ubuntu Developers (from delegated teams) <dmb-joining-delegated>`, {ref}`MOTU <dmb-joining-motu>`, {ref}`SRU developers <dmb-joining-sru-dev>`, and {ref}`Ubuntu Core Developers (core-dev) <dmb-joining-core-dev>`.
-  
+
 It can be difficult to know when you are ready to apply for uploader team membership.
 For some advice and guidance, check out the {ref}`dmb-aspects-of-a-good-application` page.
 To understand how the Ubuntu development skills map to the various uploader levels, you may also find it helpful to refer to {ref}`dmb-application-knowledge-requirements`.
@@ -21,7 +21,7 @@ To understand how the Ubuntu development skills map to the various uploader leve
 
 Reserve your spot
 : Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see when the DMB next meeting is, and to check the queue of applications.
-: Only 2 applications are considered each meeting so if there's a queue, make sure to reserve a spot for when you think you'll be ready for consideration.
+: Only a few applications are considered each meeting so if there's a queue, make sure to reserve a spot for when you think you'll be ready for consideration.
 
 Create your space
 : If it's your first time applying for upload rights, {ref}`dmb-create-a-discourse-post`. If you already have a page, you can
@@ -30,7 +30,7 @@ Create your space
 Training and preparation
 : The depth of your learning here depends on the upload rights you are applying
   for:
-: 1. {ref}`PPU or Package Set <packageset-training-and-preparation>`  
+: 1. {ref}`PPU or Package Set <packageset-training-and-preparation>`
 : 1. {ref}`MOTU <motu-training-and-preparation>`
 : 1. {ref}`Core Developer <core-dev-training-and-preparation>`
 
@@ -95,7 +95,7 @@ A typical application has three to five endorsements.
 Developers who [sponsored several uploads for you](https://udd.debian.org/cgi-bin/ubuntu-sponsorships.cgi) are good candidates.
 It's good form to only ask people who have sponsored multiple packages for you, or that have worked with you on particularly tricky packaging efforts.
 You want to strike a good balance between quality and quantity here.
- 
+
 If you work for Canonical, ask in your team's regular discussion channels, and individually contact each sponsor who is not in your team.
 
 For applications for MOTU, you should seek endorsements from people who have reviewed or sponsored your packages, or worked with you on noteworthy packaging efforts.
@@ -120,7 +120,7 @@ If a DMB member feels biased by having a personal relationship they can choose t
 If quorum is reached (4 of 7 currently), the applicant will be added to the requested team.
 If no approving quorum was reached the DMB members might, if possible, suggest what to study or work on, and ask the applicant to then re-apply in due time.
 
-For part of the world (e.g APAC) where the DMB meeting times can be challenging to attend due to the timezone gap, note that the DMB usually tries to be accomodating.
+For part of the world (e.g APAC) where the DMB meeting times can be challenging to attend due to the timezone gap, note that the DMB usually tries to be accommodating.
 While the preference always remains the Matrix interview meeting, the DMB team can exceptionally do the interview by email if the applicant cannot make the regular meeting times.
 Please reach out to the DMB team to let them know if you fall into this category.
 

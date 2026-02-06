@@ -45,6 +45,7 @@ the Technical Board.
     exception-GNOME-Updates
     exception-Grub-Updates
     exception-HAProxy-Updates
+    exception-Intel-Graphics-Updates
     exception-Landscape-Updates
     exception-MariaDB-Galera-Updates
     exception-NVidia-Updates
@@ -75,6 +76,7 @@ the Technical Board.
     exception-google-guest-agent-Updates
     exception-google-osconfig-agent-Updates
     exception-rax-nova-agent-Updates
+    exception-Valkey-Updates
     exception-walinuxagent-Updates
     exception-wslu-Updates
 
@@ -458,6 +460,13 @@ exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2022-June/005417.html>`__
 by LukaszZemczak for the SRU team as of 2022-06-27.
 
+Intel Graphics
+~~~~~~~~~~~~~~
+
+The source packages for the Intel graphics stack may be uploaded according to
+the procedure documented in :ref:`IntelGraphicsUpdates
+<reference-exception-Intel-Graphics-Updates>`.
+
 autopkgtest
 ~~~~~~~~~~~
 
@@ -535,6 +544,15 @@ MariaDB and Galera
 The 'mariadb' and 'galera' source packages, including source package variants
 with version suffixes, may be uploaded according to the proceedure documented in
 :ref:`MariaDB-Galera-Updates <reference-exception-MariaDB-Galera-Updates>`.
+
+Valkey
+~~~~~~
+
+The valkey source package may be uploaded according to the procedure
+documented in :ref:`Valkey-Updates <reference-exception-ValkeyUpdates>`.
+This stable release exception `has been
+approved <https://github.com/ubuntu/ubuntu-project-docs/pull/314>`__ by
+RobieBasak for the SRU team as of 2026-01-22.
 
 GRUB
 ~~~~
@@ -685,16 +703,25 @@ be taken to not leave the kernel with a mismatched firmware package.
 
 However, it is a very large package (over 500MiB in size), and making it
 instantly available in the -security pocket to all Ubuntu users in the world
-causes a lot of strain on the archive network and servers.
+via unattended-upgrades causes a lot of strain on the archive network
+and servers. The kernel team is working on that, but until then we need to
+mitigate the impact to all users.
 
-Therefore, once the verification is done and linux-firmware is ready to be
-released, it should first be released to the updates pocket. Then, after
-phasing has completed, it must be copied to the -security pocket by either
-an archive admin, or a security team member.
+Therefore, for now, once the verification is done and linux-firmware is ready
+to be (SRU) released we have to stagger the release to spread the load.
+
+* First it should be released to the updates pocket - allowing mirrors to sync
+  it and anyone running explicit updates to pick it up.
+
+* Then after phasing has completed, it must be copied to the -security pocket
+  by either an archive admin, or a security team member. That copy should also
+  be spread out over releases. The suggested delay in-between is 4 days,
+  which combined with the "avoid Friday" rule suggests Mon,Thu,Mon,... until
+  all are fully released.
 
 Note that this release process described above only applies to SRUs. Actual
 security updates to this package are not handled through the SRU process
-and remain unchanged.
+but will also need to follow the staged release until properly mitigated.
 
 wireless-regdb
 ~~~~~~~~~~~~~~

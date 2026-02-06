@@ -3,7 +3,7 @@
 Team rota
 ---------
 
-.. include:: /howto/contact.rst
+.. include:: /SRU/howto/contact.rst
    :start-after: start-canonical-contact-admonition
    :end-before: end-canonical-contact-admonition
 
@@ -19,9 +19,9 @@ following schedule:
 +-----------+-----------------------------------------------------------------+
 | Wednesday | Nick Rosbrook (enr0n)                                           |
 +-----------+-----------------------------------------------------------------+
-| Thursday  | Andreas Hasenack (ahasenack)                                    |
+| Thursday  | Timo Aaltonen (tjaalton)                                        |
 +-----------+-----------------------------------------------------------------+
-| Friday    | Timo Aaltonen (tjaalton)                                        |
+| Friday    | Andreas Hasenack (ahasenack)                                    |
 +-----------+-----------------------------------------------------------------+
 
 See also: :ref:`How-to → Contact the SRU team <howto-contact>`

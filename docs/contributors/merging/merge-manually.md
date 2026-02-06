@@ -207,7 +207,7 @@ Next step: Check the source for errors.
 $ git push kstenerud merge-lp1802914-disco
 ```
 
-Then create a MP manually in Launchpad, and save the URL.
+Then create a MP manually in Launchpad against the `debian/sid` branch (**not** `ubuntu/devel`), and save the URL.
 
 Next step: {ref}`merge-update-the-merge-proposal`.
 

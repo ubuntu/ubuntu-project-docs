@@ -101,7 +101,7 @@ for taking the time to share your opinion!
 
 A regression is a bug introduced after an update. These bugs are especially
 important because if something breaks that used to work it causes frustration
-for software users. Rergressions can be more obvious and painful for users than
+for software users. Regressions can be more obvious and painful for users than
 bugs. To track regressions we use tags. Make sure to use the tags when doing
 triage!
 
