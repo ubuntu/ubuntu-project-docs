@@ -1,4 +1,0 @@
-(technical-board)=
-
-# Technical Board
-

@@ -86,12 +86,31 @@ RULE: If any of the above checks in this section the MIR team can decide to
 RULE: skip the rest of the check until these basic questions are resolved.
 
 [Dependencies]
+RULE: Long ago also build dependencies needed to be in main, but since 14.04
+RULE: that no more is the case. Therefore if checking in the build logs do not
+RULE: rely on sections like "Install main build dependencies (apt-based
+RULE: resolver)". Similarly some of the tools shown below are capable of
+RULE: checking both, build and runtime dependencies. Only runtime dependencies
+RULE: matter.
+RULE: This got further complex with languages like rust that embed their code
+RULE: into static builds by default - there, as you can read in the respective
+RULE: section, build dependencies matter just like runtime dependencies.
+RULE: To make it even more "be careful, because it depends", some solutions are
+RULE: e.g. C based headers that put not just definitions but large amounts
+RULE: of active code that is built into the binaries - that in turn shall be
+RULE: considered like a runtime dependency that should be in main.
+RULE: Common tools to check dependencies are:
+RULE:   - `check-mir` of package ubuntu-dev-tools
+RULE:   - `seeded-in-ubuntu` of package ubuntu-dev-tools
+RULE:   - Do not check d/control (dependencies might be generated) but the
+RULE:     buildlog if none of the Depends and Recommends present after build
+RULE:     are not in main
+RULE:   - Please read https://documentation.ubuntu.com/project/contributors/advanced/check-reverse-dependencies/
+RULE:     for more about checking reverse dependencies in general
 OK:
-TODO: - no other Dependencies to MIR due to this
-TODO:   - SRCPKG checked with `check-mir`
-TODO:   - all dependencies can be found in `seeded-in-ubuntu` (already in main)
-TODO:   - none of the (potentially auto-generated) dependencies (Depends
-TODO:     and Recommends) that are present after build are not in main
+TODO: - no other runtime Dependencies to MIR due to this
+TODO: - no other build-time Dependencies with active code in the final binaries
+TODO:   to MIR due to this
 TODO: - no -dev/-debug/-doc packages that need exclusion
 TODO: - No dependencies in main that are only superficially tested requiring
 TODO:   more tests now.
@@ -305,6 +324,12 @@ RULE:   argument to dh_makeshlibs -V? (pass such a patch on to Debian, but
 RULE:   don't block on it).
 RULE:   Note that for C++, see https://wiki.ubuntu.com/DailyRelease/FAQ
 RULE:   for a method to demangle C++ symbols files.
+RULE: - There are shared object only meant for internal use, examples
+RULE:   that come to mind are .so for perl or python implementation.
+RULE:   in such cases symbols tracking is not needed as it isn't meant
+RULE:   to expose an external API/ABI. But then in return we should ensure
+RULE:   the package does not ship external headers to build against e.g.
+RULE:   in a -dev package or similar.
 RULE: - Does it have a watch file? (If relevant, e.g. non-native)
 RULE: - Is its update history slow or sporadic?
 RULE: - Is the current release packaged?
@@ -330,6 +355,9 @@ TODO-B:   If symbols tracking isn't used then it's recommended to investigate
 TODO-B:   using an alternative like abigail or abi-compliance-check in CI
 TODO-B:   or bumping SOVER with every package update.
 TODO-C: - symbols tracking not applicable for this kind of code.
+TODO-D: - symbols tracking not applicable for this kind of code because it
+TODO-D:   the shared objects are only used internally and no headers made
+TODO-D:   available.
 TODO-A: - debian/watch is present and looks ok (if needed, e.g. non-native)
 TODO-B: - debian/watch is not present but also not needed (e.g. native)
 TODO: - Upstream update history is (good/slow/sporadic)

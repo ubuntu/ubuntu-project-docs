@@ -1,34 +1,52 @@
 (how-to-contribute)=
 # Guides for contributors
 
-These guides will help you with the specific tasks and processes that build
-Ubuntu.
+These guides help you with the specific tasks and processes that build Ubuntu.
 
-## Getting set up
+
+## Setting up for distro work
 
 This section includes all the relevant tooling you'll need to work on Ubuntu.
 
 ```{toctree}
 :maxdepth: 1
 
-index-setup
+setup/index
 ```
 
-## Documentation
+## Bug triaging
 
-This section should also link to Community + CODA content
 ```{toctree}
 :maxdepth: 1
 
-Contribute to documentation <contribute-docs>
+bug-triage/index
 ```
+
+
+## QA and testing
+
+```{toctree}
+:maxdepth: 1
+
+qa-and-testing/index
+```
+
+
+## Debugging
+
+```{toctree}
+:maxdepth: 1
+
+debugging/index
+```
+
 
 ## Bug fixing
 
 ```{toctree}
 :maxdepth: 1
 
-index-bug-fix
+bug-fix/index
 ```
 
 
@@ -37,18 +55,83 @@ index-bug-fix
 ```{toctree}
 :maxdepth: 1
 
-index-patching
+patching/index
 ```
+
+
+## Merging
+
+The {ref}`merging` article series provides instructions on how to perform package merges (i.e. how to import a new version of a Debian package into Ubuntu if the Ubuntu package carries a {term}`delta`).
+
+```{toctree}
+:maxdepth: 1
+
+merging/index
+```
+
+
+## Uploading and sponsorship
+
+All aspects of seeking sponsorship for uploads to the Archive are covered in the {ref}`sponsorship` article series.
+
+```{toctree}
+:maxdepth: 1
+
+Uploading <uploading/index>
+```
+
 
 ## New packages
 
 ```{toctree}
 :maxdepth: 1
 
-index-new-package
+new-package/index
 ```
 
-Should also discuss backports?
+
+## Stable Release Updates
+
+Guidance for contributors on how to submit requests for SRU. See
+
+```{toctree}
+:maxdepth: 1
+
+/SRU/howto/index
+```
+
+
+## Accessibility
+
+```{toctree}
+:maxdepth: 1
+
+Check accessibility <check-accessibility>
+```
+
+
+## Contribute documentation
+
+*Ubuntu Project documentation* is a collaborative effort. We welcome community contributions. For guidance on how to contribute to this documentation set, see:
+
+```{toctree}
+:maxdepth: 1
+
+Contribute docs <contribute-docs>
+```
+
+
+## Setting up and using Matrix
+
+Matrix is the instant messaging platform the Ubuntu Community uses.
+This section will help you get set up with a Matrix client and show you how to use it to stay in contact with the community.
+
+```{toctree}
+:maxdepth: 1
+
+/community/contributors/matrix/index
+```
+
 
 ## Advanced tasks
 
@@ -59,4 +142,14 @@ some working familiarity with Ubuntu development.
 ```{toctree}
 :maxdepth: 1
 
-index-advanced
+Advanced tasks <advanced/index>
+```
+
+
+## Mirrors
+
+```{toctree}
+:maxdepth: 1
+
+Set up a mirror </release-team/mirrors>
+```

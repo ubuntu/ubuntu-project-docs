@@ -1,11 +1,11 @@
-(contribute)=
-
-# How to contribute
+(how-to-contribute-docs)=
+# How to contribute docs
 
 This guide provides information necessary to contribute to this documentation.
 If you're contributing for the first time, you might find the Canonical Open
 Documentation Academy has helpful resources to
-[get you started](https://documentationacademy.org/docs/howto/get-started/).
+[get you started](https://documentation.academy/docs/howto/get-started/).
+
 
 ## Report an issue
 
@@ -19,6 +19,7 @@ new issue.
 Make sure to provide enough information in the issue for us to understand what
 is needed.
 
+
 ## Edit documentation online
 
 Each documentation page has a **Contribute to this page** link in the top-right
@@ -28,8 +29,9 @@ button, you will be prompted to create a **fork** of the documentation before
 you can start editing.
 
 Remember to first check the
-[latest version](https://canonical-ubuntu-project.readthedocs-hosted.com/) of
+[latest version](https://documentation.ubuntu.com/project/) of
 our documentation and make your proposal based on that revision.
+
 
 ## Contribute on GitHub
 
@@ -43,6 +45,7 @@ many different areas. To ensure that your efforts don't get wasted due to
 overlaps, please either **claim an open issue** or, if there is no issue for
 what you want to work on, create a new issue first **before** working on your
 pull request.
+
 
 ### Directory structure
 
@@ -73,6 +76,7 @@ For maintainers, we have:
   involved in making Ubuntu, as well as their collective responsibilities, and
   how to join each of the roles.
 
+
 ## Build the documentation locally
 
 Follow these steps to build the documentation on your local machine.
@@ -85,7 +89,7 @@ Follow these steps to build the documentation on your local machine.
 
     :::{note}
     The `make` command is compatible with Unix systems. On Windows,
-    [install Ubuntu with WSL](https://documentationacademy.org/docs/howto/get-started/using_wsl/).
+    [install Ubuntu with WSL](https://documentation.academy/docs/howto/get-started/using_wsl/).
     :::
 
 
@@ -104,19 +108,19 @@ Follow these steps to build the documentation on your local machine.
     ```
 
 4. Change to the `docs/` directory and make your contribution:
-    ```
+    ```none
     cd docs
     ```
 
 5. Build a live preview of the documentation from within the `docs/` directory:
-    ```
+    ```none
     make run
     ```
     You can find all the HTML files in the `.build/` directory.
 
     `make run` uses the Sphinx `autobuild` module, so that any edits you make (and save) as you work are applied, and the built HTML files refresh immediately.
 
-6. Review your contribution in a web browser by navigating to [127.0.0.1:8000](http://127.0.0.1:8000/).
+6. Review your contribution in a web browser by navigating to [`127.0.0.1:8000`](http://127.0.0.1:8000/).
 
 7. Push your contribution to GitHub and create a pull request against the original repository.
 
@@ -125,8 +129,40 @@ Follow these steps to build the documentation on your local machine.
 
 The Ubuntu Project documentation is built with Sphinx using a combination of the MyST flavor of the Markdown and reStructuredText mark-up languages. MyST is preferred for new content. If you're new to this, see our guides:
 
-* [MyST style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/style-guide-myst/)
-* [reStructuredText style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/style-guide/)
+* [MyST style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/myst-syntax-reference/)
+* [reStructuredText style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/rst-syntax-reference/)
+
+
+### Organization principles
+
+To make the documentation sources easy to navigate and read, keep the formatting organization of the content consistent.
+
+
+#### File names
+
+Unless required (for example, to avoid duplication), use the following file-naming scheme:
+
+- Lowercase with hyphens between words
+- File names same as article titles (omit `how-to` from file names)
+
+For example, an article called *How to contribute docs* would have a file name `contribute-docs.md`.
+
+
+#### Headings
+
+To simplify cross-referencing articles and sections, make anchors predictable. Use anchors with this format:
+
+- Lowercase with hyphens between words
+- Anchors same as headings
+
+For example:
+
+```md
+(organization-principles)=
+### Organization principles
+```
+
+Include two empty lines before headings to break the flow of the text and make orientation in files easier.
 
 
 ### Semantic mark-up
@@ -159,6 +195,159 @@ The following roles are especially useful:
 
 `pkg`
 : Linux package name (this role is custom to this documentation project).
+
+
+### Special roles for links
+
+The documentation project defines the following custom roles to simplify adding links to various resources.
+
+`manpage`
+: Use to create links to manual pages hosted at [`manpages.ubuntu.com`](https://manpages.ubuntu.com/). The links always point to manual pages for the latest Ubuntu release.
+
+    ::::{tab-set}
+
+    :::{tab-item} MyST
+    Syntax:
+
+    ```md
+    {manpage}`<manual-page-name>(<manual-section-number>)`
+    ```
+
+    Example:
+
+    ```md
+    {manpage}`bash(1)`
+    ```
+    :::
+
+    :::{tab-item} reStructuredText
+    Syntax:
+
+    ```md
+    :manpage:`<manual-page-name>(<manual-section-number>)`
+    ```
+
+    Example:
+
+    ```md
+    :manpage:`bash(1)`
+    ```
+    :::
+
+    ::::
+
+    Renders as: {manpage}`bash(1)`
+
+`lpbug`
+: Use to create links to Launchpad bugs at [`bugs.launchpad.net`](https://bugs.launchpad.net/).
+
+    ::::{tab-set}
+
+    :::{tab-item} MyST
+    Syntax:
+
+    ```md
+    {lpbug}`<LP-bug-number>`
+    ```
+
+    Example:
+
+    ```md
+    {lpbug}`1`
+    ```
+    :::
+
+    :::{tab-item} reStructuredText
+    Syntax:
+
+    ```md
+    :lpbug:`<LP-bug-number>`
+    ```
+
+    Example:
+
+    ```md
+    :lpbug:`1`
+    ```
+    :::
+
+    ::::
+
+    Renders as: {lpbug}`1`
+
+`lpsrc`
+: Use to create links to Ubuntu packages on Launchpad at [`launchpad.net/ubuntu`](https://launchpad.net/ubuntu).
+
+    ::::{tab-set}
+
+    :::{tab-item} MyST
+    Syntax:
+
+    ```md
+    {lpsrc}`<Ubuntu-package-on-LP>`
+    ```
+
+    Example:
+
+    ```md
+    {lpsrc}`bash`
+    ```
+    :::
+
+    :::{tab-item} reStructuredText
+    Syntax:
+
+    ```md
+    :lpsrc:`<Ubuntu-package-on-LP>`
+    ```
+
+    Example:
+
+    ```md
+    :lpsrc:`bash`
+    ```
+    :::
+
+    ::::
+
+    Renders as: {lpsrc}`bash`
+
+`matrix`
+: Use to create links to `ubuntu.com`-hosted Matrix channels.
+
+    ::::{tab-set}
+
+    :::{tab-item} MyST
+    Syntax:
+
+    ```md
+    {matrix}`<Ubuntu-channel>`
+    ```
+
+    Example:
+
+    ```md
+    {matrix}`devel`
+    ```
+    :::
+
+    :::{tab-item} reStructuredText
+    Syntax:
+
+    ```md
+    :matrix:`<Ubuntu-channel>`
+    ```
+
+    Example:
+
+    ```md
+    :matrix:`devel`
+    ```
+    :::
+
+    ::::
+
+    Renders as: {matrix}`devel`
 
 
 ### Command line and terminal output
@@ -225,9 +414,42 @@ Run the {command}`command` as the root user to achieve the folowing result:
 :user: root
 :host: ubuntu
 :dir: /tmp
-:input: command --option
+
+command --option
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit
+```
+````
+
+
+### Code blocks
+
+To show a snippet of source code, use a literal block with the required language for syntax highlighting. For example:
+
+````md
+```python
+# "Hello, world!" script
+
+print('Hello, world!')
+```
+````
+
+Use `none` as the language to prevent any syntax highlighting.
+
+
+### Unformatted text with soft wrap
+
+To show a text block with soft line-wrapping that interprets no mark-up formatting and uses a monospace font (e.g. for sample email or comment messages), use the `code` directive with the custom `codeblock-wrap` CSS class. For example:
+
+````{code} md
+:class: codeblock-wrap
+
+```{code}
+:class: codeblock-wrap
+
+_Lorem_ ipsum **dolor** sit amet, [consectetur](adipiscing.elit). Sed lobortis nec mauris ac placerat. Cras pulvinar dolor at orci semper hendrerit. Nam elementum leo vitae quam commodo, blandit ultricies diam malesuada. Suspendisse lacinia euismod quam interdum mollis. Pellentesque a eleifend ante.
+
+Aliquam tempus ultricies velit, eget consequat magna volutpat vitae. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Mauris pulvinar vestibulum congue. Aliquam et magna ultrices justo condimentum varius.
 ```
 ````
 
@@ -238,19 +460,15 @@ Test your changes before submitting a pull request. Run the following commands f
 
 | command  | use |
 |---------|-----|
-| `make spelling` | Check for spelling errors; this command checks the HTML files in the `_build` directory. Fix any errors in the corresponding Markdown file |
-| `make linkcheck` | Check for broken links |
+| `make spelling` | Check for spelling errors |
+| `make linkcheck` | Check for broken links |
 | `make woke` | Check for non-inclusive language |
 | `make pa11y` | Check for accessibility issues |
-
-:::{note}
-For the `make spelling` command to work, you must have the `aspell` spellchecker installed. You can install it with `sudo apt install aspell`.
-:::
 
 
 ## Open Documentation Academy
 
-If you've never contributed to an open source project before, the [Open Documentation Academy](https://documentationacademy.org/) (ODA) is a great way to begin.
+If you've never contributed to an open source project before, the [Open Documentation Academy](https://documentation.academy) (ODA) is a great way to begin.
 
 The Open Documentation Academy (ODA) is an initiative led by the documentation team at Canonical to encourage open source contributions from the community, and to provide help, advice and mentorship within a friendly and welcoming environment.
 
@@ -261,7 +479,7 @@ The best way to get started is to take a look at our [project-related documentat
 Stay in touch either through the task list, or through one of the following locations:
 
 * [Discussion forum](https://discourse.ubuntu.com/c/community/open-documentation-academy/166) on the Ubuntu Community Hub.
-* [Matrix](https://matrix.to/#/#documentation:ubuntu.com) for interactive chat.
+* {matrix}`documentation` on Matrix for interactive chat.
 * [Fosstodon](https://fosstodon.org/@CanonicalDocumentation) for the latest updates and events.
 
-In addition to the above, we have a weekly [Open Documentation Hour](https://discourse.ubuntu.com/t/open-documentation-hour-schedule/45291) at 16:00 UTC each Friday. Everyone is welcome.
+In addition to the above, we have a weekly [Open Documentation Hour](https://discourse.ubuntu.com/t/community-hour-schedule/45291) at 16:00 UTC each Friday. Everyone is welcome.

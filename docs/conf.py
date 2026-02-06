@@ -1,6 +1,7 @@
 import datetime
 import os
 import yaml
+import re
 from docutils.parsers.rst import roles
 from sphinx.util.docutils import SphinxRole
 from docutils import nodes
@@ -73,7 +74,7 @@ copyright = "%s CC-BY-SA, %s" % (datetime.date.today().year, author)
 # NOTE: The Open Graph Protocol (OGP) enhances page display in a social graph
 #       and is used by social media platforms; see https://ogp.me/
 
-ogp_site_url = "https://canonical-starter-pack.readthedocs-hosted.com/"
+ogp_site_url = "https://documentation.ubuntu.com/project/"
 
 
 # Preview name of the documentation website
@@ -87,7 +88,7 @@ ogp_site_name = project
 #
 # TODO: To customize the preview image, update as needed.
 
-ogp_image = "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
+ogp_image = "https://assets.ubuntu.com/v1/cc828679-docs_illustration.svg"
 
 
 # Product favicon; shown in bookmarks, browser tabs, etc.
@@ -117,7 +118,7 @@ html_context = {
     "mattermost": "",
     # Your Matrix channel URL
     #
-    "matrix": "https://matrix.to/#/#documentation:ubuntu.com",
+    "matrix": "https://matrix.to/#/#devel:ubuntu.com",
     # Your documentation GitHub repository URL
     #
     # NOTE: If set, links for viewing the documentation source files
@@ -134,9 +135,12 @@ html_context = {
     # "sequential_nav": "both",
     # To enable listing contributors on individual pages, set to True
     "display_contributors": False,
+    #
     # Required for feedback button
     "github_issues": "enabled",
 }
+
+html_extra_path = []
 
 # To enable the edit button on pages, uncomment and change the link to a
 # public repository on GitHub or Launchpad. Any of the following link domains
@@ -151,16 +155,36 @@ html_theme_options = {
 
 # Project slug; see https://meta.discourse.org/t/what-is-category-slug/87897
 #
-# TODO: If your documentation is hosted on https://docs.ubuntu.com/,
+# If your documentation is hosted on https://docs.ubuntu.com/,
 #       uncomment and update as needed.
 
-# slug = ''
+slug = "project"
 
+
+#######################
+# Sitemap configuration: https://sphinx-sitemap.readthedocs.io/
+#######################
+
+# Use RTD canonical URL to ensure duplicate pages have a specific canonical URL
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
+
+# URL scheme.
+sitemap_url_scheme = "{link}"
+
+# Include `lastmod` dates in the sitemap:
+sitemap_show_lastmod = True
+
+# Exclude generated pages from the sitemap:
+
+sitemap_excludes = [
+    '404/',
+    'genindex/',
+    'search/',
+]
 
 # Template and asset locations
-
-# html_static_path = ["_static"]
-# templates_path = ["_templates"]
+html_static_path = [".sphinx/_static"]
+# templates_path = [".sphinx/_static/_templates"]
 
 
 #############
@@ -178,7 +202,7 @@ html_theme_options = {
 
 redirects = {}
 
-# Rediraffe (internal) redirects 
+# Rediraffe (internal) redirects
 # ------------------------------
 
 rediraffe_branch = "main"
@@ -196,6 +220,7 @@ linkcheck_ignore = [
     "https://www.gnu.org/*",
     "https://discourse.canonical.com/",
     "https://git.launchpad.net/ubuntu/+source/*",
+    "https://wiki.ubuntu.com/*",
 ]
 
 
@@ -204,7 +229,6 @@ linkcheck_ignore = [
 linkcheck_anchors_ignore_for_url = [
     r"https://github\.com/.*",
     r"https://matrix\.to/.*",
-    r"https://www\.gnu\.org/.*",
     r"https://git\.launchpad\.net/ubuntu/\+source/.*",
 ]
 
@@ -222,51 +246,61 @@ linkcheck_retries = 3
 # NOTE: By default, the following MyST extensions are enabled:
 #       substitution, deflist, linkify
 
-myst_enable_extensions = {"colon_fence", "dollarmath"}
+myst_enable_extensions = {
+    "colon_fence",
+    "dollarmath",
+    "tasklist",
+    "fieldlist",
+    "substitution",
+    "html_admonition",
+}
 
 
 # Custom Sphinx extensions; see
 # https://www.sphinx-doc.org/en/master/usage/extensions/index.html
 
 # NOTE: The canonical_sphinx extension is required for the starter pack.
-#       It automatically enables the following extensions:
-#       - custom-rst-roles
-#       - myst_parser
-#       - notfound.extension
-#       - related-links
-#       - sphinx_copybutton
-#       - sphinx_design
-#       - sphinx_reredirects
-#       - sphinx_tabs.tabs
-#       - sphinxcontrib.jquery
-#       - sphinxext.opengraph
-#       - terminal-output
-#       - youtube-links
 
 extensions = [
     "canonical_sphinx",
+    "notfound.extension",
+    "sphinx_design",
+    "sphinx_reredirects",
+    "sphinx_tabs.tabs",
+    "sphinxcontrib.jquery",
+    "sphinxext.opengraph",
+    "sphinx_config_options",
+    "sphinx_contributor_listing",
+    "sphinx_filtered_toctree",
+    "sphinx_related_links",
+    "sphinx_roles",
+    "sphinx_terminal",
+    "sphinx_ubuntu_images",
+    "sphinx_youtube_links",
     "sphinxcontrib.cairosvgconverter",
     "sphinx_last_updated_by_git",
     "sphinx.ext.intersphinx",
+    "sphinx_sitemap",
+    # Custom extensions for this docs set:
     "sphinx.ext.mathjax",
     "sphinxcontrib.mermaid",
     "hoverxref.extension",
     "sphinx_prompt",
     "sphinx.ext.extlinks",
     "sphinxext.rediraffe",
+    "sphinx_togglebutton",
+    "sphinx.ext.graphviz",
 ]
 
 # Excludes files or directories from processing
+exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common"]
 
-exclude_patterns = []
 
 # Adds custom CSS files, located under 'html_static_path'
-
-# html_css_files = []
+html_css_files = ["custom_styles.css"]
 
 
 # Adds custom JavaScript files, located under 'html_static_path'
-
 # html_js_files = []
 
 
@@ -295,13 +329,18 @@ rst_epilog = """
 # manpages_url = 'https://manpages.ubuntu.com/manpages/{codename}/en/' + \
 #     'man{section}/{page}.{section}.html'
 
-stable_distro = "plucky"
+stable_distro = "questing"
 
 manpages_url = (
     "https://manpages.ubuntu.com/manpages/"
     + stable_distro
     + "/en/man{section}/{page}.{section}.html"
 )
+
+myst_substitutions = {
+    "stable_distro": stable_distro,
+    "release_schedule": "https://discourse.ubuntu.com/t/questing-quokka-release-schedule/36462",
+}
 
 # Configure hoverxref options
 hoverxref_role_types = {
@@ -310,6 +349,22 @@ hoverxref_role_types = {
 hoverxref_roles = [
     "term",
 ]
+
+# Configure copybutton extension
+# This option excludes line numbers and prompts from being selected when
+# users copy commands using the copybutton
+# https://sphinx-copybutton.readthedocs.io/en/latest/use.html#automatic-exclusion-of-prompts-from-the-copies
+
+# Following option only works when the 'console' syntax highlighting
+# is used; better to use a regex.
+# copybutton_exclude = ".linenos, .gp"
+
+# Following regex stupidly using '|' because of a bug in copybutton ext.:
+#         https://github.com/executablebooks/sphinx-copybutton/issues/96
+# Replace with   r"(\S+@\S+)?[\$\#] "  when the bug is fixed.
+copybutton_prompt_text = r"\S+@\S+[\$\#] |[\$\#] "
+copybutton_prompt_is_regexp = True
+copybutton_line_continuation_character = "\\"
 
 # Specifies a reST snippet to be prepended to each .rst file
 # This defines a :center: role that centers table cell content.
@@ -325,6 +380,15 @@ rst_prolog = """
 .. role:: vale-ignore
     :class: vale-ignore
 """
+
+
+# Allow for use of link substitutions
+extlinks = {
+    "lpsrc": ("https://launchpad.net/ubuntu/+source/%s", "%s"),
+    "lpbug": ("https://bugs.launchpad.net/bugs/%s", "LP: #%s"),
+    "matrix": ("https://matrix.to/#/#%s:ubuntu.com", "#%s:ubuntu.com"),
+}
+
 
 # Workaround for https://github.com/canonical/canonical-sphinx/issues/34
 
@@ -350,7 +414,7 @@ intersphinx_mapping = {
         "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
         None,
     ),
-    "sru": ("https://canonical-sru-docs.readthedocs-hosted.com/en/latest", None),
+    "launchpad": ("https://documentation.ubuntu.com/launchpad/", None),
 }
 
 
@@ -364,8 +428,48 @@ class CommandRole(SphinxRole):
         return [node], []
 
 
+def unescape_amp_in_links(app, exception):
+    """
+    Post-process HTML files to mitigate
+      https://github.com/executablebooks/MyST-Parser/issues/1028
+    by unescaping &amp;amp; to &amp;
+    To be minimally invasive this is:
+      - only changing text in href attributes
+      - only affecting &amp;amp; (over just &amp;) which is a
+        more clear indication of that bug
+      - only affecting parametrized URLs that follow to an ?
+      - only running for html builders
+      - only writing on changed content
+    """
+    if exception:
+        return
+
+    # Only run for html builders
+    if app.builder.format != 'html':
+        return
+
+    def unescape_match(match):
+        return match.group(0).replace('&amp;amp;', '&amp;')
+
+    for root, dirs, files in os.walk(app.outdir):
+        for file in files:
+            if file.endswith(".html"):
+                path = os.path.join(root, file)
+                try:
+                    with open(path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    new_content = re.sub(r'href=".*\?([^"]*)"',
+                                         unescape_match, content)
+                    if new_content != content:
+                        with open(path, 'w', encoding='utf-8') as f:
+                            f.write(new_content)
+                except Exception as e:
+                    print(f"Failed to process {path}: {e}")
+
+
 def setup(app):
     roles.register_local_role("command", CommandRole())
+    app.connect('build-finished', unescape_amp_in_links)
 
 
 # Define a custom role for package-name formatting

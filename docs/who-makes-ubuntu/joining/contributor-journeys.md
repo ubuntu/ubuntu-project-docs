@@ -1,4 +1,0 @@
-(contributor-journeys)=
-
-# Contributor Journeys
-

@@ -1,2 +1,0 @@
-(about-components)=
-# About components

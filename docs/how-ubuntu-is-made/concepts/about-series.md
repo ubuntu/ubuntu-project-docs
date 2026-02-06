@@ -1,3 +1,0 @@
-(about-series)=
-# About series
-

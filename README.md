@@ -1,6 +1,6 @@
 # Ubuntu project docs
 
-This repository contains the sources for the [Ubuntu Project Documentation](https://canonical-ubuntu-project.readthedocs-hosted.com/).
+This repository contains the sources for the [Ubuntu Project Documentation](https://documentation.ubuntu.com/project/).
 
 It is documentation about the workings of the Ubuntu project. These docs aim
 to encompass the entirety of the processes that together form the
@@ -17,4 +17,4 @@ The documentation is published using Sphinx and hosted on Read the Docs: [![Do
 
 ## Contributing
 
-See [How to contribute documentation](https://canonical-ubuntu-project.readthedocs-hosted.com/en/latest/how-to/contribute-docs/).
+See [How to contribute documentation](https://documentation.ubuntu.com/project/contributors/contribute-docs/).

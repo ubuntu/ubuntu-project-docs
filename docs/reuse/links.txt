@@ -16,3 +16,5 @@
 .. _Xubuntu: https://xubuntu.org/
 
 .. _DEP3Spec: https://dep-team.pages.debian.net/deps/dep3/
+
+.. _#devel:ubuntu.com: https://matrix.to/#/#devel:ubuntu.com

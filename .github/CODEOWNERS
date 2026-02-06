@@ -8,10 +8,42 @@
 # - TAs not required for MIR content approvals
 MIR/
 # - MIR team owns all MIR docs anywhere in the repo
-MIR/ @slyon @setharnold @joalif @didrocks @cpaelzer
+MIR/ @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
+
+# SRU team PR approvals
+# - TAs not required for SRU content approvals
+SRU/
+# - SRU team owns all SRU docs anywhere in the repo
+SRU/ @basak @enr0n @tjaalton @panlinux @julian-klode @raof @awhitcroft
+
+# Technical Board PR approvals
+# - TAs not required for Tech Board content approvals
+tech-board/
+# - Tech Board owns all TB docs anywhere in the repo
+tech-board/ @basak @mwhudson @seb128 @teward
+
+# Release team PR approvals
+# These files have no prefix, so are collected into the release-team dir(s)
+release-team/ @utkarsh2102 @ginggs @paride
+
+# Community team PR approvals
+# These files have no prefix, and are all collected into the `docs/community` dir
+community/ @aaronprisk @ilvipero
+
+# AA team PR approvals
+# These files are prefixed with "aa-", but not kept in a specific directory
+**/aa-*.md @panlinux @cpaelzer @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof
+
+# DMB team PR approvals
+# Like the AA team, these files are prefixed with "dmb-" but not kept in a specific directory
+**/dmb-*.md @cpaelzer @lvoytek @rbasak @utkarsh2102 @athos-ribeiro @bdrung @julian-klode
 
 # TAs' & special teams' ack required for changes to the CODEOWNERS file
-/.github/CODEOWNERS @s-makin @rkratky @slyon @setharnold @joalif @didrocks @cpaelzer
+/.github/CODEOWNERS @s-makin @rkratky @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof @aaronprisk @ilvipero @basak @teward @enr0n @julian-klode @awhitcroft
 
 # +1 maintenance PR approvals
 plus-one-*.md @schopin-pro @s-makin @rkratky
+
+# Rocks team page PR approvals
+rocks-team.md @asanvaq @cjdcordeiro
+

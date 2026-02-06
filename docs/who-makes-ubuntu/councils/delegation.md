@@ -1,4 +1,0 @@
-(delegation)=
-
-# Delegation
-

@@ -5,7 +5,10 @@ Getting a package promoted to `main` or `restricted` through the MIR process
 generally follows this set of steps, where the progress of the bug is
 {ref}`tracked in Launchpad <mir-process-states>` using bug states.
 
+Participants represent particular {ref}`roles <mir-roles>` along the
+{ref}`steps <mir-step-1>` of the process.
 
+(mir-roles)=
 ## Role overview
 
 There are four roles typically involved in the MIR process, and their
@@ -14,7 +17,7 @@ participation follows the same order as the steps of the MIR process itself.
 1. **Reporter** (`mir-reporter`) is the person who wants a package promoted,
    who will submit the MIR request through a Launchpad bug.
 
-1. **Reviewer** (`mir-reviewer`) is the MIR team member who reviews the request.
+1. **Reviewer** (`mir-reviewer`) is the {ref}`MIR team <about-mir-role>` member who reviews the request.
 
 1. **Security reviewer** (`mir-security-reviewer`) for packages where an
    additional security review is needed.
