@@ -1,240 +1,186 @@
-(review-a-merge-proposal)=
+(how-to-review-a-merge-proposal)=
 # How to review a merge proposal
 
-Establishing a review process before sponsoring or uploading content has helped
-to maintain consistently high quality. To do so, changes are proposed as
-{ref}`merge proposals (MPs) <merge-proposals>` against git-ubuntu branches.
+Establishing a review process before sponsoring or uploading content has helped to maintain consistently high quality. To do so, changes are proposed as {ref}`merge-proposals <how-to-submit-a-merge-proposal>` against {command}`git-ubuntu` branches.
+
+:::{admonition} **Sponsorship** series
+The article series provides guidance on requesting sponsorship and sponsoring.
+
+Overview:
+:   * {ref}`sponsorship`
+
+For contributors:
+:   * {ref}`how-to-find-a-sponsor`
+    * {ref}`how-to-request-an-upload`
+    * {ref}`how-to-request-a-sync`
+
+For sponsors:
+:   * {ref}`how-to-review-a-merge-proposal` (this article)
+    * {ref}`how-to-sponsor-an-upload`
+    * {ref}`how-to-sponsor-a-sync`
+:::
+
+MP reviews are conducted using a {ref}`checklist <review-checklist-template>`. The reviewer is asked to:
+
+* Review formal content for issues.
+* Ensure adherence to style guidelines.
+* Identify common issues.
+* Conduct further testing (when warranted).
 
 
-In an MP review, we:
+## Appropriate level of scrutiny
 
-* Review formal content for issues
+There are two kinds of changes that require reviews:
 
-* Ensure adherence to style guidelines
+Changes are complex or there is any kind of remaining uncertainty:
+: Needs a full review as outlined below (the default).
 
-* Identify common issues
-
-* Conduct further testing (when warranted)
-
-
-## Choose the appropriate level of scrutiny
-
-Sometimes, a merge proposal can be rather trivial. While we love the rigor we
-have established, we also hate inefficiency.
-
-Therefore, we acknowledge there are two kinds of changes we might propose:
-
-1. Changes are complex or there is any kind of remaining uncertainty:
-
-   * Needs a full review as outlined below (the default).
-
-1. Changes are trivial:
-
-   * The requester is not looking for a deep check, and only wants a second pair
-     of eyes to catch obvious and unintended lapses.
-
-   * In this case the requester states **Trivial change** in the MP description.
+Changes are trivial:
+: The requester is not looking for a deep check and only wants to catch obvious and unintended lapses. The requester states **Trivial change** in the MP description.
 
    * The review can be free form and rather short.
-
-   * If the reviewer disagrees with that classification, they are entitled to do
-     a full review.
-
-Depending on the case, trivial changes can free us from some otherwise-expected
-requirements, like pre-building in PPA and pre-testing autopkgtest against it.
+   * Trivial do not require pre-building in PPA and pre-testing with {command}`autopkgtest`.
+   * If the reviewer disagrees with that classification, they are entitled to do a full review.
 
 
-## States for each template entry
+## States for each checklist entry
 
 The following states indicate reviewer feedback on each aspect we check.
 
-* {guilabel}`OK` -- This was checked and there no concerns to be raised.
+{guilabel}`OK` (`+`)
+: No concerns to be raised.
 
-* {guilabel}`Not OK` -- Something is not as it should be and needs to be changed
-  in the proposed content.
+{guilabel}`Not OK` (`!`)
+: Changes required in the proposed content.
 
-* {guilabel}`Question` -- Not necessarily bad, but a detail worth clarifying.
-  This may only need an answer, but as a result of the discussion could also
-  end up in changes to what was proposed.
+{guilabel}`Question` (`?`)
+: Something needs clarifying.
 
-* {guilabel}`Not applicable` -- The check is not applicable to this case.
+{guilabel}`Not applicable` (`N`)
+: The check is not applicable to this case.
 
-* {guilabel}`Skipped` -- Skipped by the reviewer as it seemed not mandatory for
-  this case.
+{guilabel}`Skipped` (`S`)
+: The check is not mandatory for this case.
 
 
 ## Skipping whole sections
 
-Not every change needs all the checks in the template. If you would end
-up marking all elements of a section as `skipped`, feel free to drop the whole
-section to make the post have a lower percentage of noisy non-content text.
+Not every change needs all the checks in the checklist. When all elements of a section would be marked `S` ({guilabel}`Skipped`), drop the whole section.
 
-A common case for this are the checks in regard to "package merges", "new delta
-in `debian/`", or "new patches".
+A common case for this are checks relating to "package merges", "new delta in `debian/`", or "new patches".
 
 
-## How to provide feedback
+## Provide feedback
 
-On any of these states, further context might be given in the line below. This
-is optional on "OK" or "Not applicable" and, to some extent, also for "Skipped"
-states.
+For all {guilabel}`Not OK` and {guilabel}`Question` states, the reviewer must provide details to allow the requester to understand and take action.
 
-For any "Not OK" and "Question" state the reviewer must provide some details
-to allow the requester to understand and take action.
+Feedback is optional for states {guilabel}`OK`, {guilabel}`Not applicable`, and, usually, {guilabel}`Skipped` states.
 
-Furthermore when providing feedback we strive to follow the style of
-[conventional comments](https://conventionalcomments.org/) which allows us to
-bring up a lot -- thereby helping each other -- without locking us too much in
-review iterations. Such a simple prefix helps in many common cases, making it
-clear if things are blocking or optional.
+When providing feedback, follow the style of [conventional comments](https://conventionalcomments.org/). A prefix helps in many common cases, making it clear if things are blocking or optional.
 
-Reviews do not even need to be only critique, if you see something nice
-remember the `praise:` label exists.
+Reviews do not need to be only critique. Remember the `praise:` label exists.
 
 
 ## What to review
 
-The following is an overview of common things to look out for. Obviously, each
-case is different and a reviewer can also check for anything else they consider
-appropriate for the situation.
+The following is an overview of common things to check.
 
 
-### Check the new changelog stanza
+### New changelog stanza
 
-* Contains a bug pointer like `(LP: #12345678)` to all associated cases.
+* Contains a bug pointer in the format `LP: #12345678` for all associated cases.
 
-* Correctly formatted entries according to the
-  [changelog policy](https://www.debian.org/doc/debian-policy/ch-source.html#debian-changelog-debian-changelog)
-  and {ref}`hints for merges <merge-fix-the-changelog>`.
+* Correctly formatted entries according to the [changelog policy](https://www.debian.org/doc/debian-policy/ch-source.html#debian-changelog-debian-changelog) and {ref}`hints for merges <merge-fix-the-changelog>`.
 
-* Lists all changes made -- the changelog shall be a complete representation.
+* Lists all changes made -- the changelog is a complete representation.
 
 * Proper version -- check against {ref}`version-strings`.
 
-* Proper release -- `dch` or habits could have selected the wrong one.
+* Proper release -- often incorrect due to the {command}`dch` tool or a human error.
 
-* Proper author and email.
-
-
-### Ensure Documentation/Release Notes are updated
-
-* We always queue up things that eventually need to be mentioned in the
-  Release Notes. This check in the MP review is a reminder about that.
-
-* If the update/merge has implications that need to be documented, documentation
-  should always be updated alongside the change. Sometimes things get in via a
-  sync or upstream changes -- as you spot these, make sure to spawn a
-  proper backlog tracker for them.
+* Author name and email address.
 
 
-### Check for indirect changes
+### Documentation and release notes updates
 
-* Some changes can imply that the packaging needs to be adapted. Check content
-  and release notes if there are any changes like that.
+* All significant developments that need mentioning in Ubuntu release notes should be queued in the document.
 
-* When merging from Debian or Upstream it is worth checking if there are even
-  newer versions that would be worth incorporating.
-
-  * Bad things happen -- check upstream to see if a release has been withdrawn
-    or needs an immediate fix-up due to unintentional breakage.
-
-* Ensure that any changes in Debian do not imply that we need to update the
-  delta we carry (do not be fooled if it applies cleanly).
-
-* Ensure update maintainer has been run.
+* If the update/merge has implications that need to be documented, ensure documentation is updated alongside the change. When things that require documentation arrive via a sync or upstream changes, create a backlog tracker for them.
 
 
-### Check the old delta
+### Indirect changes
 
-* Ensure that everything we dropped really can be dropped.
+* Some changes imply that the packaging needs to be adapted. Check the content and release notes for any changes like that.
 
-  * Vice versa, there may be even more that could be dropped (often needs a
-    little test to verify, which is suggested to the owner of the MP and only
-    rarely done by the reviewer).
+* When merging from Debian or upstream, check if there are newer versions to incorporate. Also ensure the newer release hasn't been withdrawn or doesn't need an immediate fix due to breakage.
+
+* Ensure that any changes in Debian do not imply the need to update the {term}`Ubuntu delta` (even if the delta applies cleanly).
+
+* Ensure the {command}`update-maintainer` tool has been run.
 
 
-### Check the new delta
+### Old delta
 
-* Do the patches [follow DEP-3](http://dep.debian.net/deps/dep3/)?
+* Ensure that everything dropped from the {term}`Ubuntu delta` really can be dropped.
 
-  * You can use `dep3changelog`, both to verify the headers and to generate a
-    changelog entry.
+* Ensure that everything that _can_ be dropped really is dropped (this often needs a test to verify, which is suggested to the owner of the MP and only rarely done by the reviewer).
 
-* Does the patch content and name {ref}`follow our additional style choices <work-with-debian-patches>`?
 
-  * This is not a strict check, but consistency helps to maintain packages together.
+### New delta
+
+* Do the patches follow the {ref}`dep-3-patch-file-headers` format? (Use {command}`dep3changelog` to verify the headers and generate a changelog entry.)
+
+* Does the patch content and name {ref}`follow our additional style choices <how-to-work-with-debian-patches>`? This is not a strict check, but consistency helps to maintain packages together.
 
 * Do the patches match what is (proposed) upstream?
 
-  * To be clear, if a certain case asks for violating this rule it is OK, but it
-    should be a conscious decision and not an accident.
+  * If a certain case asks for violating this rule, it's OK, but it should be a conscious decision and not an accident.
 
-  * The intention is to avoid deviating the code we maintain too much from how
-    the project continues to evolve (hard to maintain well over long periods).
+  * The intention is to avoid deviating the code we maintain too much from how the project continues to evolve (hard to maintain well over long periods).
 
-* Are the patches applied the right way according to `debian/source/format`?
+* Are the patches applied the right way according to `debian/source/format`? (See also {ref}`patches`.)
 
-* Are all changes either:
+* Are all changes:
 
-  * Forwarded to Debian or Upstream so that everyone benefits and we can some
-    day make this a sync again?
+  * Forwarded to Debian or upstream, so that everyone benefits, and a merge can one day become a sync again?
 
-  * Or, if they are Ubuntu-only choices, are they marked like that so the next
-    packager is not wondering if we want to keep or submit it?
-    
-    (See {ref}`UD-forwarded for commits <the-commit-message>` and
-    {ref}`Forwarded for patches <the-patchfile-header>`).
+  * Or, if they are Ubuntu-only choices, are they marked like that, so the next packager is not wondering if Ubuntu wants to keep or submit it? (See {ref}`UD-forwarded for commits <write-the-commit-message>` and {ref}`Forwarded for patches <the-patchfile-header>`.)
 
-  * If old delta added in the past does not have such info and you spent the
-    effort to check the history and reasoning to make good decisions, please
-    add the same info to that old-delta.
+    :::{note}
+    If the old delta added in the past does not have such info, and you made an effort to check the history and reasoning to make good decisions, add the same info to that old delta.
+    :::
 
 
-### Check for Git/maintenance
+### Git and maintenance
 
-* Changes are logically split into separate commits (to ease future merges and
-  cherry picking to other releases)
+* Check that changes are logically split into separate commits (to ease future merges and cherry picking to other releases).
 
 
-### Check for Build and Test
+### Build and test
 
-* If a PPA build is provided, check if the PPA source package is the same as the
-  one being proposed in the merge. Otherwise, this could lead to false negatives
-  (e.g., the proposed merge {term}`FTBFS` but the PPA build succeeds).
+* If a PPA build is provided, check if the PPA source package is the same as the one being proposed in the merge. Otherwise, this could lead to false negatives (e.g., the proposed merge {term}`FTBFS`, but the PPA build succeeds).
 
 * Verify that the PPA build is successful on all intended architectures.
 
-* If this is an SRU, consider checking that the SRU template in the bug is OK.
-  Test instructions are often only understandable for the reporter, and we want
-  them to be good before SRU review.
+* If this is an SRU, check that the SRU template in the bug is OK. Test instructions are often only understandable for the reporter, and we want them to be good before the SRU review.
 
-* Where applicable, consider whether tests should be added, adapted, or extended
-  to reflect the changes.
+* Where applicable, consider whether tests should be added, adapted, or extended to reflect the changes.
 
-* Use autopkgtest on the PPA builds to ensure confidence before Archive entry
-  and avoid late discovery of issues that might lead to entanglement in other
-  proposed migrations.
+* Use {command}`autopkgtest` on the PPA builds to ensure confidence before Archive entry and avoid late discovery of issues that might lead to entanglement in other {term}`proposed migrations <proposed migration>`.
 
-* New runtime dependencies might be added and could cause
-  {ref}`component mismatches <main-universe-binary-mismatch>`. This would
-  block proposed migration and may necessitate either filing a
-  {ref}`MIR <main-inclusion-review>` for them or adapting the upload to avoid
-  that dependency.
+* New runtime dependencies might be added and could cause {ref}`component mismatches <main-universe-binary-mismatch>`. This would block proposed migration and may necessitate either filing a {ref}`MIR <main-inclusion-review>` for them or adapting the upload to avoid that dependency.
 
-* Manual installation of packages from the PPA may be performed to verify the
-  builds, but this is optional.
+* Optional: Manually install packages from the PPA to verify the builds.
 
-  * Automated testing (autopkgtest) is preferred. Suggest adding DEP-8 test
-    cases where it would make sense.
+  * Automated testing ({command}`autopkgtest`) is preferred. Suggest adding {term}`DEP-8` test cases where it would make sense.
 
-  * In some situations, manual verification of certain behaviors may also be
-    necessary for additional assurance.
+  * In some situations, manual verification of certain behaviors is necessary for additional assurance.
 
 
-## Review template
+(review-checklist-template)=
+## Review checklist template
 
-Use this template for reviews; it includes all standard criteria as check boxes,
-making it easy to avoid omissions.
+Use this template for reviews; it includes all standard criteria as check boxes to avoid omissions.
 
 ```
 Review Symbols:
@@ -251,8 +197,8 @@ S = Skipped
   - [ ] Old content and logical tag match as expected (Package Merge)
 
 * Release notes and Documentation
-  - [ ] Added, updated or enqueued relevant documentation.
-  - [ ] Added, updated or enqueued relevant release notes.
+  - [ ] Added, updated, or enqueued relevant documentation.
+  - [ ] Added, updated, or enqueued relevant release notes.
 
 * Package Merge - indirect changes:
   - [ ] No upstream changes that need adapting due to Ubuntu's design
@@ -261,18 +207,18 @@ S = Skipped
   - [ ] update-maintainer has been run
 
 * Package Merge - old delta:
-  - [ ] Dropped changes are ok to be dropped
+  - [ ] Dropped changes are OK to be dropped
   - [ ] Nothing else to drop
   - [ ] Old delta was forwarded to upstream/Debian or marked as Ubuntu-only
 
 * New delta in debian/*:
-  - [ ] new changes in debian/* are OK
+  - [ ] New changes in debian/* are OK
   - [ ] New delta was forwarded to Debian or marked as Ubuntu-only
 
 * New patches:
   - [ ] No new patches added
   - [ ] Patches match those proposed/committed upstream
-  - [ ] Patches correctly included in Debian/patches/series
+  - [ ] Patches correctly included in debian/patches/series
   - [ ] Patches have correct DEP-3 metadata
   - [ ] Patches follow our style choices
   - [ ] New code not from upstream was forwarded or marked as Ubuntu-only

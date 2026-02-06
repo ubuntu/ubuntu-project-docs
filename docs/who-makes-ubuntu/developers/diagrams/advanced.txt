@@ -1,0 +1,42 @@
+:::{mermaid}
+block-beta
+  columns 3
+
+  block:left
+    AdvancedStudies("Advanced studies")
+    columns 1
+    space:3
+    StudyFFE{{"<a href=https://documentation.ubuntu.com/project/release-team/freeze-exceptions/>Study FFE</a>"}}
+    PlusOne{{"<a href=https://documentation.ubuntu.com/project/contributors/advanced/plus-one-maintenance/>Study +1</a>"}}
+  end
+
+  block:middle
+    AdvancedTasks("Advanced tasks")
+    columns 1
+    UpstreamSubmissionFixes["Upstream submission fixes/features"]
+    UpstreamSubmissionDelta["Upstream submission of delta"]
+    MilestonesAndExceptions["Milestones and exceptions"]
+    DoAnFFE["Do An FFE"]
+    PlusOneShadowing["+1 Shadowing"]
+  end
+
+  block:right
+    columns 2
+    space
+    PPU["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-ppu/'>PPU*</a>"]
+    space
+    PackageSet["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-packageset/'>Package Set</a>"]
+    space:8
+  end
+
+  AdvancedTasks --> PPU
+  AdvancedTasks --> PackageSet
+  StudyFFE --> DoAnFFE
+  PlusOne --> PlusOneShadowing
+
+  classDef Studies fill: #FFDAB9, stroke:#F4A460;
+    class AdvancedStudies,AdvancedTasks Studies
+  classDef invisible fill:transparent,stroke:transparent;
+    class left,middle,right invisible
+:::
+

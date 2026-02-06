@@ -1,0 +1,74 @@
+:::{mermaid}
+block-beta
+  columns 3
+
+  block:topleft 
+    columns 1
+    ExpertStudies("Expert studies")
+    StudyLibaryTransitions{{"<a href=https://wiki.debian.org/Teams/ReleaseTeam/Transitions>Study libary transitions</a>"}}
+    StudyPackageTransitions{{"<a href=https://wiki.debian.org/PackageTransition>Study package transitions</a>"}}
+    id1((" "))
+  end
+
+  block:topright
+    columns 1
+    ExpertTasks("Expert tasks")
+    DoLibaryTransitions["Do libary transitions"]
+    DoPackageTransitions["Do package transitions"]
+    space:1
+  end
+
+  block:motu
+    columns 2
+    id2((" "))
+    MOTU["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-motu/'>MOTU</a>"]
+    space:4
+    id3((" "))
+    space
+  end
+
+  ExpertTasks --> MOTU
+
+  block:lowerleft
+    columns 1
+    ExpertinMainStudies("Expert in <code>main</code> studies")
+    space
+    StudyMIR{{"<a href=https://documentation.ubuntu.com/project/MIR/main-inclusion-review/>Study MIR</a>"}}
+    space:1
+  end
+
+  block:lowerright
+    columns 1
+    ExpertinMainTasks("Expert in <code>main</code> tasks")
+    DoMIR["Do an MIR"]
+    space
+    SeedChange["Seed change"]
+  end
+
+  block:coredev
+    columns 2
+    space
+    CoreDev["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-core-dev/'>Core Dev</a>"]
+    space:6
+  end
+ 
+  ExpertinMainTasks --> CoreDev
+
+  id1 --> ExpertinMainStudies
+  id2 --- id3
+  id3 --- id1
+
+  StudyLibaryTransitions-->DoLibaryTransitions
+  StudyPackageTransitions-->DoPackageTransitions
+  StudyMIR-->DoMIR
+  StudyMIR-->SeedChange
+
+  classDef Studies fill: #FFDAB9, stroke:#F4A460;
+    class ExpertStudies,ExpertTasks,ExpertinMainStudies,ExpertinMainTasks Studies
+
+  classDef invisible fill: transparent, stroke: transparent
+    class topleft,topright,lowerleft,lowerright,motu,coredev invisible
+
+  classDef solid fill: #000, stroke: transparent
+    class id1,id2,id3 solid
+:::

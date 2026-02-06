@@ -83,6 +83,7 @@ Or for more churn at: [`component-mismatches-proposed`](https://ubuntu-archive-t
 * We'd want to keep state/info of the case:
 
   * **Any promotion needs an approve {ref}`Main Inclusion Request <main-inclusion-review>`**
+  * If any of the archive `ref`<freezes> are going on, please do not promote a package that would then unblock something in -proposed that is seeded on ISOs or Images.
   * Any demotion should leave a trail on the related MIR
     * Helper to find them:
       [`get-mir-bug`](https://git.launchpad.net/~ubuntu-server/+git/ubuntu-helpers/tree/cpaelzer/get-mir-bug)

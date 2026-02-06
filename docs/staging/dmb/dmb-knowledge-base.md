@@ -21,132 +21,11 @@ This page is authoritative. If you think you've found a mistake, please
 [email the DMB](mailto:developer-membership-board@lists.ubuntu.com).
 
 
-## Communication
-
-Most non-real-time conversation happens on the
-[`devel-permissions` public list](https://lists.ubuntu.com/mailman/listinfo/devel-permissions).
-Real-time meetings happen on IRC on Libera in `#ubuntu-meeting` according to our
-regular meeting schedule.
-
-Since part of the nature of our work is to deal with assessing personal conduct
-and abilities, depending on the topic it sometimes isn't appropriate for us to
-deliberate in public, or for others to contact us in public. For these matters,
-we use the [private `developer-membership-board` list](https://lists.ubuntu.com/mailman/listinfo/developer-membership-board)
-and the private Matrix room (by invite only) as appropriate.
 
 
-## Conducting meetings
 
 
-### Scheduling
-
-Meetings currently run every other week, alternating between 16:00 UTC and
-19:00 UTC. In the case of vacation such as over New Year, cancel or move
-individual meetings as appropriate, but please try not to push all future
-meetings around, as this can cause some confusion.
-
-The meeting schedule can be changed by the DMB by majority vote, and it is
-expected for the schedule to be confirmed or changed as necessary at the first
-meeting after new DMB members are elected. Please also consider the needs of
-pending and future applicants if changing the schedule, as doing so may affect
-their plans.
-
-
-### Agenda
-
-We maintain {ref}`an agenda page <dmb-agenda>` with the dates of upcoming
-meetings, the agendas for them and outstanding meeting actions.
-
-
-### Chair
-
-We share the responsibility of chairing the meetings. There should be a list on
-the {ref}`agenda page <dmb-agenda>`. If you have just chaired, rotate the list
-and update the entry at the top of the page so we know who is chairing next.
-
-
-### Quorum
-
-[Quorum was originally publicly discussed](https://discourse.ubuntu.com/t/open-discussion-meetings-quorum/5966)
-on the community forum. The specific meaning of **quorum** for voting
-[was later clarified](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001763.html)
-and is explained in the {ref}`dmb-voting-and-quorum` section.
-
-
-### General progress during meetings
-
-In January 2023 the DMB agreed to the following. See [the original thread](https://lists.ubuntu.com/archives/devel-permissions/2022-November/002099.html) (November 2022 and January 2023) for more details.
-
-* We accept that it's OK for DMB members to be absent or distracted for whatever
-  reason, but not to hold up meetings because of this. Corollary: if as a DMB
-  member you are so distracted that you're holding up the meeting, then maybe
-  you should consider yourself to be actually absent, and conscious to not hold
-  the others up waiting on you.
-
-* We think that three minutes is about the **maximum** that should normally be
-  acceptable for a response from a DMB member, with the majority of responses
-  expected to be much quicker than that.
-
-* If a DMB member holds up meeting progress for more than three minutes because
-  we're waiting for a response from them, then the chair should consider that
-  person to be absent and move on. This includes voting: if that means the vote
-  wasn't quorate, then we will end the vote and continue as if that person was
-  absent anyway.
-
-* DMB members should prepare questions and comments in advance as much as
-  possible to avoid holding up meetings while they research, think and type.
-
-* However, we don't want to prevent people from taking their time to research,
-  think or or type long answers when this is actually required -- for example in
-  response to something that happened during the meeting itself. So a DMB member
-  can indicate that they are genuinely active in the meeting but not ready to
-  speak yet by sending "...", or a longer explanation if they wish, at least
-  once every three minutes. This can include thinking time, doing research on an
-  application, working on a long answer, etc. We will take "..." to mean "I'm
-  still here, working on my next message to the channel, extending my timeout by
-  another three minutes". The meeting will normally then wait for their message
-  before moving on, subject to the chair's discretion.
-
-* For the avoidance of doubt, the above applies to DMB members only, not to
-  anyone else, and certainly not to applicants. We've not seen an issue with
-  applicants being unreasonably slow to respond, and want them to give us
-  thoughtful responses and not feel under any additional pressure. They should
-  respond as feel appropriate and as they always have done.
-
-
-### Handling applications
-
-* Try to handle applicants in the order they applied; earliest first.
-
-* Applicants will usually attend an IRC meeting to be questioned by the DMB on
-  matters that members wish to clarify before they can vote. If the applicants
-  or the DMB are having trouble meeting each other then the application may be
-  handled over email, but **it is important this happens in a timely fashion**.
-
-* Many of our applicants do not have English as their first language.
-
-  * Be understanding if the answers you get are not 100% clear
-
-  * Ask questions one at a time. Let the meeting know when you are done
-    questioning so that others can take over.
-
-* Make sure that the applicant has signed the
-  [Ubuntu Code of Conduct](https://launchpad.net/codeofconduct/2.0). It is
-  required to be signed by every Ubuntu developer.
-
-
-### Voting
-
-Applications have to reach +1 in order to pass. If the meeting is quorate and
-all members present vote in the same way (+1 or -1), then the application will
-have passed or failed -- the remaining members cannot overturn the vote. If the
-vote is in doubt then it is *hung* and the remaining members will be asked to
-vote by email or at the next meeting. In this case those members are entitled to
-ask the applicant further questions if they still have any on reviewing the
-meeting log.
-
-
-### Actions after a successful application
+## Actions after a successful application
 
 1. Assign two meeting actions: one to make ACL changes, and one to announce
    the successful applicant. This is to make sure that the announcement does not
@@ -159,10 +38,7 @@ meeting log.
      uploader team page, and add the applicant to the team.
 
    * Modification of the package list for an existing packageset can also be done
-     directly by the DMB. This requires using
-     `the `edit-acl` tool: https://bazaar.launchpad.net/~ubuntu-archive/ubuntu-archive-tools/trunk/view/head:/edit-acl`
-
-     **Note from Sally: this Launchpad link is broken**
+     directly by the DMB. This requires using the [`edit-acl` tool](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl)
 
      * Example: (replace `add` with `delete` to remove a package instead of adding):
 
@@ -184,12 +60,7 @@ meeting log.
 
         * For a new PPU, the uploader is the applicant
 
-     2. Open a bug against the [ubuntu-community project](https://launchpad.net/ubuntu-community),
-        and the bug description should include the exact
-        `edit-acl: https://bazaar.launchpad.net/~ubuntu-archive/ubuntu-archive-tools/trunk/view/head:/edit-acl`
-        command to run.
-
-        **Note from Sally: this LP link is broken**
+     2. Open a bug against the [ubuntu-community project](https://launchpad.net/ubuntu-community), and the bug description should include the exact [`edit-acl`](https://git.launchpad.net/ubuntu-archive-tools/tree/edit-acl) command to run.
 
         * For PPU creation, [file a bug with this subject](https://bugs.launchpad.net/ubuntu-community/+filebug?field.title=[TB/DMB]%20PPU%20for%20)
           and include the PPU member name
@@ -220,7 +91,8 @@ meeting log.
      3. Email `technical-board@lists.ubuntu.com` to inform them of the opened
         bug (include a link to the bug).
 
-     4. Add the new TB bug to the {ref}`dmb-agenda` in the "Open TB bugs" section.
+     4. Add the new TB bug to the [DMB agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634)
+        in the "Open TB bugs" section.
 
      5. After the new packageset is created by the TB, a DMB member will need to
         add the appropriate packages.
@@ -231,7 +103,7 @@ meeting log.
 
    See {ref}`dmb-teams-to-add-uploaders-to`.
 
-   * If applying for {ref}`ubuntu-developers-contributing` membership, the
+   * If applying for {ref}`dmb-joining-contributing` membership, the
      applicant should only be added to the
      [`~ubuntu-developer-members`](https://launchpad.net/~ubuntu-developer-members)
      team and nothing more.
@@ -425,7 +297,7 @@ Based on [this thread](https://lists.ubuntu.com/archives/ubuntu-devel/2017-Febru
 [the DMB agreed](https://irclogs.ubuntu.com/2017/02/27/%23ubuntu-meeting.html#t19:32)
 to create [a new team for SRU developers](https://launchpad.net/~ubuntu-sru-developers).
 This was [announced to ubuntu-devel on 28 February 2017](https://lists.ubuntu.com/archives/ubuntu-devel/2017-February/039702.html).
-See {ref}`ubuntu-developers-sru` for details.
+See {ref}`dmb-joining-sru-dev` for details.
 
 This team is for contributors who work mostly on SRUs but don't necessarily yet
 have experience in wider Ubuntu development. Team membership allows the sponsors
@@ -465,49 +337,14 @@ not**.
 An exception to the above is that some packagesets *require* membership. You can
 identify these because the uploading teams are a member of `~ubuntu-dev` instead
 of `~ubuntu-uploaders`. In these cases applicants must satisfy the membership
-critera: granting upload rights without membership is not possible.
+criteria: granting upload rights without membership is not possible.
 
 This is, of course, only the case when adding **uploaders**. Memberships such
-as for {ref}`ubuntu-developers-contributing`, which do not grant any upload
+as for {ref}`dmb-joining-contributing`, which do not grant any upload
 rights to the Ubuntu Archive, do not require adding the new members to any of
 the above teams. Those should only be added to
 [`~ubuntu-developer-members`](https://launchpad.net/~ubuntu-developer-members).
 
-
-## Applications from DDs
-
-DDs who are PPU through the normal process can apply by email to have their
-access extended to further packages they (or a team they are a member of)
-maintain. This only requires one DMB member to agree in order to pass.
-
-
-## DMB restaffing
-
-### How DMB members are appointed
-
-See [Governance docs: DMB selection process](https://canonical-ubuntu-governance-docs.readthedocs-hosted.com/en/latest/policy/dmb-selection-process/).
-
-
-### Checklist after new DMB appointments
-
-* Update:
-
-  * (TB) `~developer-membership-board` Launchpad team
-
-  * (TB) [`developer-membership-board@lists.ubuntu.com`](https://lists.ubuntu.com/mailman/listinfo/developer-membership-board)
-    membership and then send welcome email
-
-  * (self-subscribe) [`devel-permissions@lists.ubuntu.com membership`](https://lists.ubuntu.com/mailman/listinfo/devel-permissions)
-
-  * Private Matrix room access
-
-  * List of DMB member IRC nicknames in `ubottu`'s `!dmb-ping`
-
-    * Can be requested by typing: `!no dmb-ping is <comma separated list of IRC usernames>: DMB ping.`
-
-  * Calendar meeting event invitation list
-
-* Send welcome email to new DMB members (see the previous one)
 
 
 ## Accidental expiry
@@ -546,88 +383,6 @@ For the "relatively soon" case, the DMB member should use the following process:
    record in the Archive.
 
 
-## Rules and regulations
 
-This section contains rules for the DMB to use when conducting its business.
-Changes to these rules should be proposed by a board member and voted on by the
-board.
-
-
-### Board Member attendance
-
-This rule [was proposed](https://lists.ubuntu.com/archives/devel-permissions/2021-August/001726.html)
-on the mailing list, and [approved on 2021-11-05](https://lists.ubuntu.com/archives/devel-permissions/2021-November/001780.html).
-The final formal wording is from [this post](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001750.html)
-and is reproduced here:
-
-Any DMB member who fails to attend 6 consecutive scheduled DMB meetings (during
-a period no shorter than 12 weeks) shall be considered inactive and removed from
-membership in the DMB. Since the number of members required for quorum is 1/2
-the number of active DMB members, rounded up, the change in the number of active
-members will affect quorum. At such time as any DMB member is found to be
-inactive due to this rule, the current DMB chair will add an action item to
-schedule a public vote for a new DMB member. Previous DMB members, including
-those changed to inactive due to this rule, are eligible to run in the new
-election and any later elections. This proposal is not retroactive, and the
-attendance requirement shall start the first meeting after this proposal is
-adopted.
-
-
-(dmb-voting-and-quorum)=
-### Voting and quorum
-
-The details for this rule, and **quorum** voting in particular, are not always
-clear, so the TL:DR for this rule is, any proposal or application that is voted
-on at a regular meeting must use the process shown in the Python function below;
-if the function does not result in pass or fail, then at the next scheduled
-meeting, the vote will pass with only a majority of present members (meaning the
-sum of votes from present members must be greater than 0).
-
-This rule was proposed and approved in a
-[mailing list thread](https://lists.ubuntu.com/archives/devel-permissions/2021-August/001728.html),
-that was discussed and then [extended to a poll](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001756.html)
-for which [the results](https://lists.ubuntu.com/archives/devel-permissions/2021-November/001782.html)
-are explained below.
-
-"Quorum votes are required, however if quorum is not reached at first meeting,
-at the next meeting majority present votes are required"
-
-As *quorum* can be difficult to parse under all circumstances, an explanation
-from a [mailing list post](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001763.html)
-(and [follow up post](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001764.html)
-for a tie vote) is summarized in this Python function, where `total_members` is
-the total number of **active** board members (which is typically 7):
-
-```none
-def do_vote(*votes, total_members=7):
-
-  absent = total_members - len(votes)
-
-  net_vote = sum(votes)
-
-  min = net_vote - absent
-
-  max = net_vote + absent
-
-  if min > 0:
-
-    print(f'Vote minimum {min} > 0, vote passes')
-
-  elif max < 0:
-
-    print(f'Vote maximum {max} < 0, vote fails')
-
-  elif min == max == net_vote == 0:
-
-    print(f'Vote is tied, vote fails')
-
-  else:
-
-    print(f'Vote is between {min} and {max}, outcome unknown as quorum was not reached')
-```
-
-This function represents the meaning of **quorum** votes. Note that if
-**`total_members`** is 7, if the number of voters is less than 4, it is
-impossible to pass or fail.
 
 

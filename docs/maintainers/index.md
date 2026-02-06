@@ -8,12 +8,20 @@ frequency (i.e. most common tasks first)
 These guides are for those with elevated permissions on particular tasks who
 are responsible for maintaining the Package Archive or managing processes.
 
+## Matrix management
+
+```{toctree}
+:maxdepth: 1
+
+/community/matrix/index
+```
+
 ## Uploader tasks
 
 ```{toctree}
 :maxdepth: 1
 
-index-uploader
+uploader/index
 ```
 
 ## Archive handling
@@ -23,7 +31,7 @@ index-uploader
 ```{toctree}
 :maxdepth: 1
 
-index-MIR
+/MIR/mir-handling-mir-reviews
 ```
 
 ### Stable releases
@@ -31,7 +39,7 @@ index-MIR
 ```{toctree}
 :maxdepth: 1
 
-index-SRU
+SRU/index
 ```
 
 ### Archive Administration
@@ -39,6 +47,13 @@ index-SRU
 ```{toctree}
 :maxdepth: 1
 
-index-AA
+AA/index
 ```
 
+### Niche package maintenance
+
+```{toctree}
+:maxdepth: 1
+
+niche-package-maintenance/index
+```

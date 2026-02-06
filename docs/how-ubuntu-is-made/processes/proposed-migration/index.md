@@ -11,7 +11,7 @@ issues-preventing-migration
 special-migration-cases
 ```
 
-Uploads of {ref}`fixed <fix-a-bug-in-a-package>` or {ref}`merged <merges>` packages are not automatically released to Ubuntu users. Instead, they go into a special {term}`pocket` called `-proposed` for testing and integration. Once a package is deemed OK, it **migrates** into the `-release` pocket for users to consume. This is called the "proposed migration" process.
+Uploads of {ref}`fixed <how-to-fix-a-bug-in-a-package>` or {ref}`merged <merges>` packages are not automatically released to Ubuntu users. Instead, they go into a special {term}`pocket` called `-proposed` for testing and integration. Once a package is deemed OK, it **migrates** into the `-release` pocket for users to consume. This is called the "proposed migration" process.
 
 This article series outlines the upload and migration process.
 
@@ -39,7 +39,7 @@ Issue types:
 
 1. The `*source.changes` file uploaded.
 
-1. If the fix is an {term}`SRU`, or if the release cycle is in a {ref}`feature-freeze-ff`:
+1. If the fix is an {term}`SRU`, or if the release cycle is in a {ref}`feature-freeze`:
 
    * Upload goes into the `unapproved` queue.
    * The SRU team reviews and approves the upload (go to 4).

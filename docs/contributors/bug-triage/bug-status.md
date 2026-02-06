@@ -25,8 +25,7 @@ have any questions, contact the {ref}`bug-squad` via their mailing list.
 
 : When you ask the reporter to provide any necessary information in a comment,
   subscribe yourself to the report so you will get any updates to it via e-mail.
-  If anyone (including yourself) comments on it, the 60-day expiration clock is
-  reset.
+  A bug without an assignee or milestone {external+launchpad:ref}`expires after 60-days <bug-expiry>`, unless someone comments on it.
 
 : For more on this, see {ref}`bug-responses`.
 
@@ -99,7 +98,7 @@ have any questions, contact the {ref}`bug-squad` via their mailing list.
   with the latest upstream mainline kernel they can technically test to.
 
 : For process reports (e.g. {ref}`FFes <freeze-exceptions>` and
-  {ref}`syncs <sync-process>`), *Triaged* means the action has been approved by
+  {ref}`syncs`), *Triaged* means the action has been approved by
   the relevant developers. 
 
 
@@ -161,7 +160,7 @@ or package maintainers:
 * Targeting to a specific Ubuntu release
 
 If you need someone to change the status of a report that has enough information
-to *Triaged*, paste the report number into the `#ubuntu-bugs` channel on IRC
+to *Triaged*, paste the report number into the {matrix}`devel` channel on Matrix
 and state that you think the report should be set to "Triaged" with the
 appropriate {ref}`bug-importance` (wishlist, low, medium, high, or critical).
 

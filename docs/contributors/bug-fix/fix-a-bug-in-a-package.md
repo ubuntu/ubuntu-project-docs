@@ -1,12 +1,11 @@
-(fix-a-bug-in-a-package)=
-# Fix a bug in package
+(how-to-fix-a-bug-in-a-package)=
+# How to fix a bug in a package
 
 ```{note}
+TODO: The following content should be blended together with:
 
-The following content should be blended together with:
-- {ref}`propose-changes`
-- {ref}`making-changes-to-a-package`
-
+- {ref}`how-to-propose-changes`
+- {ref}`how-to-make-changes-to-a-package`
 ```
 
 In this tutorial we walk through the process of:
@@ -27,11 +26,12 @@ It is strongly recommended that you read the following resources before you
 continue, to make sure you are familiar with the concepts:
 
 * [git-ubuntu-clone](https://ubuntu.com/blog/git-ubuntu-clone)
-* [DEP-3](http://dep.debian.net/deps/dep3)
+* [DEP-3](https://dep-team.pages.debian.net/deps/dep3/)
 * {ref}`version-strings`
 * [Stable Release Updates (SRUs)](https://documentation.ubuntu.com/sru/en/latest/)
 
 
+(evaluate-the-bug)=
 ## Evaluate the Bug
 
 Let's look at an example:
@@ -81,7 +81,7 @@ Sometimes these types of bug reports will also include an attached
 user's system at the time of segfault, and typically includes the core dump,
 logs, and other relevant information. If the user has provided a `.crash`
 file, you can examine the
-{ref}`Apport Crash manually <debug-apport-crash>`
+{ref}`Apport Crash manually <how-to-debug-an-apport-crash>`
 to get a useful stacktrace.
 
 
@@ -242,7 +242,7 @@ versions for each distribution version will be under `pkg/ubuntu/version`.
 
 Notes:
 
-* Due to [this bug](https://launchpad.net/bugs/1761821), you may get:
+* Due to {lpbug}`this bug <1761821>`, you may get:
   `fatal: could not read Username for 'https://git.launchpad.net': terminal prompts disabled.` 
   It's safe to ignore this.
  * The first time you run this command, a git-ubuntu entry will be added to
@@ -381,8 +381,8 @@ CommitDate: Mon Jun 26 10:18:26 2017 +0100
 Our issue would be the same as Debian bug #865770.
 
 It's also possible to search for commits via Debian's web front-end for git,
-[Salsa](https://salsa.debian.org). Doing so in this case would bring you to
-[this commit](https://salsa.debian.org/ssh-team/openssh/commit/d4181e15b03171d1363cd9d7a50b209697a80b01)
+[Salsa](https://salsa.debian.org/public). Doing so in this case would bring you to
+[this commit](https://salsa.debian.org/ssh-team/openssh/-/commit/d4181e15b03171d1363cd9d7a50b209697a80b01)
 
 Either way, you should also mention the Salsa link in the fixed-up bug report,
 and you should also include it in your fix commit message.
@@ -497,17 +497,17 @@ On the other hand, if you've made changes to the upstream code (anything
 outside of the `debian/` directory), you'll need to generate a patch in
 `debian/patches`.
 
-For instructions, see {ref}`Making a Patchfile <work-with-debian-patches>`.
+For instructions, see {ref}`how-to-work-with-debian-patches`.
 
 
 ### Step 5: Commit the patch
 
-See {ref}`committing your changes <committing-changes>`.
+See {ref}`how-to-commit-changes`.
 
 
 ## Build a fixed package
 
-See {ref}`Package Building <package-building>`.
+See {ref}`how-to-build-packages-in-a-ppa`.
 
 
 ## Test the Package
@@ -574,9 +574,7 @@ The bug is fixed! Sweet!
 ## Run the package tests
 
 The DEP-8 autopkgtests don't exercise our bug, but are worth running as
-just-in-case checks (and to catch regressions).
-
-See {ref}`Running Package Tests <package-tests>`.
+just-in-case checks (and to catch regressions). See {ref}`how-to-run-package-tests`.
 
 Any change in behavior should be considered as priorities to resolve before
 proceeding.
@@ -584,7 +582,7 @@ proceeding.
 
 ## Start a merge proposal
 
-See {ref}`merge-proposals`.
+See {ref}`how-to-submit-a-merge-proposal`.
 
 
 ## Update the bug report

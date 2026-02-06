@@ -1,0 +1,108 @@
+:::{mermaid}
+block-beta
+  columns 6
+
+%% Column 1
+  block:col1
+  columns 2
+    space:5
+    Ubuntu{{"<b>Ubuntu<br>path</br>"}}
+    Start(("Start"))
+    space:2
+    Debian{{"<b>Debian<br>path</b>"}}
+  end
+
+  Start --> Ubuntu
+  Start --> Debian
+
+%% Column 2
+  block:col2
+  columns 2
+    space:4
+    Basics("<a href='#upload-path-basics'>Basics</a>")
+    id1((" "))
+    space:2
+    Contributor("<a href="https://www.debian.org/doc/manuals/maint-guide/">Contributor</a>")
+    space
+  end
+
+%% Column 3
+  block:col3
+  columns 2
+    UploadRights{{"<b>Upload<br>rights</b>"}}
+    PPU["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-ppu/'>PPU*</a>"]
+    space:2
+    Intermediate("<a href='#upload-path-intermediate'>Intermediate</a>")
+    id2((" "))
+    space:2
+    Maintainer("<a href='https://wiki.debian.org/DebianMaintainer'>Maintainer</a>")
+    space
+  end
+
+%% Column 4
+  block:col4
+  columns 2
+    space
+    PackageSet["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-packageset/'>PPU*<br>PackageSet</a>"]
+    space:2
+    Advanced("<a href='#upload-path-advanced'>Advanced</a>")
+    id3((" "))
+    space:2
+    Developer("<a href='https://wiki.debian.org/DebianDeveloper'>Developer</a>")
+    space
+  end
+
+%% Column 5
+  block:col5
+  columns 2
+    space
+    MOTU["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-motu/'>MOTU</a>"]
+    space:2
+    Expert("<a href='#upload-path-expert'>Expert</a>")
+    id4((" "))
+    space:4
+  end
+
+%% Column 6
+  block:col6
+    columns 2
+    space
+    CoreDev["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-core-dev/'>Core Dev</a>"]
+    space:2
+    Main("<a href='#upload-path-expert'>Expert<br>in main</a>")
+    id5((" "))
+    space:4
+  end
+
+
+%% Connections
+Basics --> Intermediate
+Intermediate --> Advanced
+Advanced --> Expert
+Expert --> Main
+
+id2 --> PPU
+id3 --> PackageSet
+id4 --> MOTU
+Main --- id5
+id5 --> CoreDev
+
+Contributor --> Maintainer
+Maintainer --> Developer
+
+%% Styling
+classDef debianStyle fill: #F8A3C0, stroke: #DD1155
+  class Debian,Contributor,Maintainer,Developer debianStyle
+
+classDef ubuntuStyle fill: #FFDAB9, stroke: #E95420,stroke-width:1px;
+  class Ubuntu,Basics,Intermediate,Advanced,Expert,Main ubuntuStyle
+
+classDef uploaderStyle fill: #FFDF7E, stroke: #FBAB13
+  class UploadRights,PPU,PackageSet,MOTU,CoreDev uploaderStyle
+
+classDef invisible fill: transparent, stroke: transparent
+  class id1,col1,col2,col3,col4,col5,col6,col7 invisible
+
+classDef solid fill: #000, stroke: transparent
+  class id2,id3,id4,id5 solid
+:::

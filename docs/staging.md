@@ -15,13 +15,14 @@ This page (and staging area) will be removed as it becomes unnecessary.
 :hidden: true
 :glob:
 
-staging/dmb/index-dmb
-staging/release-team/release-team
-staging/new-packages
-staging/package-archive
+staging/dmb/index-umb
+staging/release-team/seeds
+staging/release-team/seed-management
+staging/release-team/germinate
 staging/partner-archive
 staging/aa-museum
 staging/not-AA
 staging/maintscripts
 ```
+
 

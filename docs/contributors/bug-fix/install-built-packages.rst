@@ -1,7 +1,7 @@
-.. _install-built-packages:
+.. _how-to-install-built-packages:
 
-Install built packages
-======================
+How to install built packages
+=============================
 
 You have a built :term:`binary package` of a :term:`source package` and want to install it (e.g. to test the packages). This article demonstrates multiple ways to achieve that.
 

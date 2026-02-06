@@ -1,7 +1,7 @@
-.. _propose-changes:
+.. _how-to-propose-changes:
 
-Propose changes
-===============
+How to propose changes
+======================
 
 This guide walks through the process for proposing changes to Ubuntu. When you find a problem, obtain the code, work on a solution, test the fix, push your changes to :term:`Launchpad`, and request a review and merge.
 
@@ -28,20 +28,16 @@ Once you find a bug report on Launchpad that you want to work on, evaluate the b
 
 Read the bug description carefully and look for:
 
-.. TODO link UMH
-
 - steps to reproduce the problem
 - crash logs or terminal output
 - details about the affected version and package
-- attached ``.crash`` files or `Apport crash files <https://github.com/canonical/ubuntu-maintainers-handbook/blob/main/PackageFixing.md#evaluate-the-bug>`_
+- attached ``.crash`` files or :ref:`Apport crash files <evaluate-the-bug>`
 
 For example, the `Postconf segfaults every 5 minutes <https://bugs.launchpad.net/ubuntu/+source/postfix/+bug/1753470>`_ bug report shows a segmentation fault in ``postconf`` on Ubuntu 18.04. It includes logs from ``/var/log/kern.log``, shell commands that reproduce the issue, and metadata about the system environment. This information helps confirm whether the bug still affects current versions and if the report is complete.
 
 If the bug includes a ``.crash`` file, extract and inspect the stack trace. Use the information to better understand where the failure occurred in the code.
 
-.. TODO link UMH
-
-For more details, see `Evaluate the bug <https://github.com/canonical/ubuntu-maintainers-handbook/blob/main/PackageFixing.md#evaluate-the-bug>`_.
+For more details, see :ref:`Evaluate the bug <evaluate-the-bug>`.
 
 Identify the source package
 ---------------------------
@@ -184,7 +180,7 @@ Once you're assigned to the bug, get the source code for the affected package. Y
 - ``apt-get source``
 - ``dget``
 
-For detailed instructions on using these methods to get the source code, see :ref:`get-package-source`.
+For detailed instructions on using these methods to get the source code, see :ref:`how-to-get-the-source-of-a-package`.
 
 Create a patch to fix the issue
 -------------------------------
@@ -226,8 +222,10 @@ You can also use PPA-based method whenever possible. It produces results closest
 
 .. TODO UMH link
 
-To learn how to set up and run these test methods, see `Running package tests <https://github.com/canonical/ubuntu-maintainers-handbook/blob/main/PackageTests.md>`_.
+To learn how to set up and run these test methods, see :ref:`Running package tests <how-to-run-package-tests>`.
 
+
+.. _submitting-the-fix:
 
 Submitting the fix
 ------------------
@@ -238,9 +236,7 @@ Once you've documented and saved your changes in a new changelog entry, run ``de
 
     debuild -S -d
 
-.. TODO UMH link
-
-The command signs the changes in the file. After that, submit your fix by opening a merge proposal. For details on how to do this, see the section on `Merge proposal <https://github.com/canonical/ubuntu-maintainers-handbook/blob/main/MergeProposal.md>`_ in the Ubuntu Maintainer's Handbook.
+The command signs the changes in the file. After that, submit your fix by opening a merge proposal. For details on how to do this, see the section on :ref:`Merge proposal <how-to-submit-a-merge-proposal>`.
 
 In many cases, Debian would benefit from the fix as well. Submitting to Debian is considered best practice because it ensures that a wider audience receives the fix. You can submit the fix to Debian by running:
 

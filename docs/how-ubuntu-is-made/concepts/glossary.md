@@ -78,7 +78,7 @@ Architecture
     application is designed for.
 
     See also:
-    * [Supported architectures](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/architectures/)
+    * {ref}`supported-architectures`
     * [Computer Architecture (Wikipedia)](https://en.wikipedia.org/wiki/Computer_architecture)
 
 AA
@@ -94,7 +94,7 @@ Archive Admin
 Archive Mirror
     A {term}`Mirror` of the {term}`Ubuntu Archive`.
 
-    See the section [Mirrors](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivemirrors) for more details.
+    See the section {ref}`mirrors` for more details.
 
 ARM
     *ARM* (formerly an acronym for *Advanced RISC Machines* and originally
@@ -141,6 +141,12 @@ autopkgtest Cloud
     It is an implementation of the {term}`DEP-8` specification, enabling large-scale
     testing across a variety of architectures and environments.
 
+Backport
+    A newer version of a {term}`package` ported to an older {term}`Ubuntu release`. They do not come with the same security guarantees as regular packages, exist in a separate {term}`pocket`, and must be manually installed.
+
+    See also:
+    - {ref}`backports`
+
 BZR
 Bazaar
     A distributed {term}`Version Control System` to collaborate on software
@@ -175,7 +181,7 @@ Binary Package
     managing software on a target machine.
 
     See also: 
-    * [Binary Packages (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/package-model/#binarypackages)
+    * {ref}`Binary Packages (explanation) <binary-packages>`
 
 Blank space
     **Blank space** characters refer to characters in a text (especially
@@ -184,7 +190,7 @@ Blank space
     characters include spaces, tabs and newline characters.
 
 Branch
-    *Work in Progress*
+    An independent version of a {term}`repository` that allows developers to work on features in isolation without impacting the original {term}`repository`.
 
 Breezy
     A {term}`Fork` of the {term}`Bazaar` {term}`Version Control System`.
@@ -234,6 +240,14 @@ Bug Tracking System
     See also:
     * [Bug tracking system (Wikipedia)](https://en.wikipedia.org/wiki/Bug_tracking_system)
 
+Bundled Dependency
+Vendored Dependency
+    Bundled/vendored dependencies are dependencies that are included as
+    {term}`source code` rather than being linked in as compiled code later.
+    Within the context of {term}`open source software`, this usually means
+    that the {term}`source code` of the dependencies is included alongside
+    the program's source code itself.
+
 Canonical
     **Canonical Ltd.** is a UK-based private company that is devoted to the
     {term}`Free and Open Source Software` philosophy and has created several
@@ -273,13 +287,13 @@ Certified Ubuntu Engineer
     {term}`OS`.
 
     See also: 
-    * [Ubuntu credentials](https://ubuntu.com/credentials)
+    * [Ubuntu credentials](https://canonical.com/academy)
 
 Changelog
     The `debian/changelog` file in a {term}`Source Package`.
 
     See also:
-    * [Basic overview of the `debian/` directory](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/debian-dir-overview/)
+    * {ref}`Basic overview of the debian/ directory <debian-directory>`
     * [Section 4.4 Debian changelog (Debian Policy Manual v4.6.2.0)](https://www.debian.org/doc/debian-policy/ch-source.html#debian-changelog-debian-changelog)
 
 chroot
@@ -316,7 +330,7 @@ Closed Source Software
 
 Code name
     Short identifier used to refer to a specific Ubuntu release (e.g. , Jammy Jellyfish for Ubuntu 22.04).
-    [List of Releases with Code Names](https://wiki.ubuntu.com/Releases)
+    {ref}`List of Releases with Code Names <list-of-releases>`
 
 CoC
 Code of Conduct
@@ -333,7 +347,9 @@ Command Line Interface
 
 CVE
 Common Vulnerabilities and Exposures
-    *Work in Progress*
+    A vulnerability consists of one or more weaknesses in a product that can be exploited, causing a negative impact to confidentiality, integrity, or availability. CVE generally refers to the [CVE list](https://www.cve.org/Downloads), a publicly disclosed catalog of information security vulnerabilities. This list provides a standardized framework for cataloging and tracking cybersecurity vulnerabilities that organizations can use to improve vulnerability management processes.
+
+    See also: [Ubuntu CVEs](https://ubuntu.com/security/cves)
 
 CISC
 Complex Instruction Set Computer
@@ -392,7 +408,7 @@ Control File
     or the control file in a {term}`Binary Package` (`.deb` file).
 
     See also:
-    * [Basic overview of the `debian/` directory](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/debian-dir-overview/)
+    * {ref}`Basic overview of the debian/ directory <debian-directory>`
     * [Chapter 5. Control files and their fields (Debian Policy Manual v4.6.2.0)](https://www.debian.org/doc/debian-policy/ch-controlfields.html)
 
 Coordinated Release Date
@@ -415,26 +431,14 @@ Copyright File
     The `debian/copyright` file in a {term}`Source Package`.
 
     See also:
-    * [Basic overview of the `debian/` directory](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/debian-dir-overview/)
+    * {ref}`Basic overview of the debian/ directory <debian-directory>`
     * [Section 4.5. Copyright (Debian Policy Manual v4.6.2.0)](https://www.debian.org/doc/debian-policy/ch-source.html#copyright-debian-copyright)
 
 Core Dev
     *Work in Progress*
 
 Cryptographic Signature
-    *Work in Progress*
-
-Current Release in Development
-    {term}`Ubuntu` follows a strict time-based release cycle. Every six months a
-    new Ubuntu version is released.
-
-    The "Current Release in Development" is the Ubuntu version in development
-    for the next release at any given time. It is also often referred
-    to as "devel".
-
-    Disambiguation: The acronym CRD could also refer to {term}`Coordinated Release Date`
-    See also:
-    * [Ubuntu Releases (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/releases/)
+    Please see {term}`Signature`
 
 Debian
     **Debian** is a widely-used community-driven
@@ -483,17 +487,27 @@ Detached Signature
     A detached signature is a {term}`Digital Signature <Signature>` that is separated
     from the data it signs. In contrast to an embedded signature, which is included
     within the data it signs, a detached signature is kept as a separate file
-    or entity. 
+    or entity.
 
 Devel
-    Shorthand term for the {term}`Current Release in Development`.
+Current Release in Development
+    {term}`Ubuntu` follows a strict time-based release cycle. Every six months a
+    new Ubuntu version is released.
+
+    The "Current Release in Development" is the Ubuntu version in development
+    for the next release at any given time. It is also often referred
+    to as "devel".
+
+    Disambiguation: The acronym CRD could also refer to {term}`Coordinated Release Date`
+    See also:
+    * {ref}`Ubuntu Releases (explanation) <ubuntu-releases>`
 
 DMB
 Developer Membership Board
     *Work in Progress*
 
     See also:
-    * [Developer Membership Board (Ubuntu Wiki)](https://wiki.ubuntu.com/DeveloperMembershipBoard)
+    * {ref}`Developer Membership Board <dmb>`
 
 diff
     A text format that shows the difference between files that are compared.
@@ -539,7 +553,7 @@ Downstream
     another software project directly or indirectly.
 
     See also:
-    * [Downstream (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/upstream-and-downstream/#downstream)
+    * {ref}`Downstream (explanation) <upstream-and-downstream>`
 
 DSA
 Debian System Administration
@@ -612,7 +626,7 @@ Feature Freeze Exception
     *Work in Progress*
 
     See also:
-    * [Freeze Exception Process](https://wiki.ubuntu.com/FreezeExceptionProcess)
+    * {ref}`Freeze Exception process <freeze-exceptions>`
 
 FR
 Feature Request
@@ -723,7 +737,7 @@ IBM
     Abbreviation for *International Business Machines*
 
     See also:
-    * [IBM website](https://www.ibm.com/).
+    * [IBM website](https://www.ibm.com/uk-en)
 
 Image
     Within the context of {term}`Ubuntu` development, an **Image** refers to an
@@ -778,7 +792,7 @@ Launchpad
     Ubuntu related software projects live.
 
     See also:
-    * [Launchpad (explanation article)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/launchpad/)
+    * {ref}`Launchpad (explanation article) <about-launchpad>`
 
 Lintian
     {manpage}`lintian(1)` is a Debian package checker. Use it to check binary and source packages for compliance with the Debian policy and for common packaging errors.
@@ -820,12 +834,12 @@ LXD
     * [Official LXD documentation](https://documentation.ubuntu.com/lxd/latest/)
 
 Main
-    A {term}`Component` of every {term}`Ubuntu` [Series](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archiveseries) in the
+    A {term}`Component` of every {term}`Ubuntu` {ref}`Series <archive-series>` in the
     {term}`Ubuntu Archive` that contains {term}`Open Source <Open Source Software>`
     {term}`Packages <Package>` which are supported and maintained by {term}`Canonical`.
 
     See also:
-    * [Components](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivecomponents)
+    * {ref}`Components <archive-components>`
 
 Micro-Release Exception
     In some cases, when {term}`upstream` fixes {term}`bugs <Bug>`, they do a new
@@ -903,14 +917,14 @@ Mirror
 
 Multiverse
     A {term}`Component` of every {term}`Ubuntu`
-    [Series](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archiveseries) in the
+    {ref}`Series <archive-series>` in the
     {term}`Ubuntu Archive` that contains {term}`Packages <Package>` of
     {term}`Closed Source Software` or {term}`Open Source Software` restricted by
     copyright or legal issues. These packages are maintained and supported by
     the Ubuntu community.
 
     See also:
-    * [Components](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivecomponents)
+    * {ref}`Components <archive-components>`
 
 Namespace
     A concept in computer science and software development that defines a scope
@@ -1003,6 +1017,7 @@ Patch
     integrity and security.
 
     See also:
+    * {ref}`patching`
     * [Patch (Wikipedia)](https://en.wikipedia.org/wiki/Patch_(computing))
 
 PCRE
@@ -1018,14 +1033,14 @@ Personal Package Archive
 Pocket
     A **pocket** is a {term}`Package` sub-{term}`repository <Repository>` within
     the Ubuntu Archive. Every Ubuntu {term}`Series` has the following pockets:
-    * [Release](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivepockets-release)
-    * [Security](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivepockets-security)
-    * [Updates](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivepockets-updates)
-    * [Proposed](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivepockets-proposed)
-    * [Backports](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivepockets-backports)
+    * `-release`
+    * `-security`
+    * `-updates`
+    * `-proposed`
+    * `-backports`
 
     See also:
-    * [Pockets (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivepockets)
+    * {ref}Pockets (explanation) <archive-pockets>`
 
 POSIX
     Abbreviation for **Portable Operating System Interface**: A family of
@@ -1127,12 +1142,12 @@ Request of Stable Release Manager
     *Work in Progress*
 
 Restricted
-    A {term}`Component` of every {term}`Ubuntu` [Series](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archiveseries) in the
+    A {term}`Component` of every {term}`Ubuntu` {ref}`Series <archive-series>` in the
     {term}`Ubuntu Archive` that contains {term}`Closed Source <Closed Source Software>`
     {term}`Packages <Package>` which are supported and maintained by {term}`Canonical`.
 
     See also:
-    * [Components](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivecomponents)
+    * {ref}`Components <archive-components>`
 
 RISC-V
     *Work in Progress*
@@ -1184,12 +1199,22 @@ Signature
     packages verify that the {term}`Source Code` is from the developers of the
     upstream project.
 
-    The tool {manpage}`gpg(1)` is commonly used to create and modify digital
-    signatures. Further information can be found in the
+    The tool {manpage}`gpg(1)` is commonly used to create or modify
+    {term}`Signing Keys <Signing Key>`, to add digital signatures using the
+    {term}`Signing Key`, and to verify those digital signatures using the
+    corresponding public key. Further information can be found in the
     [GNU Privacy Handbook](https://www.gnupg.org/gph/en/manual.html#AEN136).
 
 Signing Key
-    *Work in Progress*
+    In the PGP ecosystem a signing key is a private cryptographic key used to
+    create {term}`digital signatures <Signature>`, which others can verify with
+    the corresponding public key to confirm a message or file's origin and
+    integrity.
+
+    To create and set up such a key for yourself some
+    {ref}`setup steps for gnupg <gnupg>` are needed. The resulting private key
+    represents your identity and authority and therefore has to be
+    {ref}`kept safe <pgp-key-storage>` and out of reach of other entities.
 
 Source
     *Work in Progress*
@@ -1205,7 +1230,7 @@ Source Package
     to build one or more {term}`Binary Packages <Binary Package>`.
 
     See also:
-    * [Source Packages (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/package-model/#sourcepackages)
+    * {ref}`Source Packages (explanation) <source-packages>`
 
 Source Tree
     *Work in Progress*
@@ -1295,8 +1320,8 @@ Ubuntu
 
     See also:
     * [The story of Ubuntu](https://ubuntu.com/about)
-    * [Ubuntu ethos](https://ubuntu.com/community/ethos)
-    * [Ubuntu Project Governance](https://ubuntu.com/community/governance)
+    * {ref}`Ubuntu ethos <ethos>`
+    * {ref}`Ubuntu Project Governance <project-governance>`
 
 Ubuntu Archive
 Archive
@@ -1306,7 +1331,7 @@ Archive
     {term}`Source Packages <Source Package>` (`.dsc` files).
 
     See also:
-    * [Ubuntu Package Archive (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/)
+    * {ref}`Ubuntu Package Archive (explanation) <package-archive>`
 
 Ubuntu autopkgtest Cloud
     *Work in Progress*
@@ -1335,7 +1360,7 @@ Ubuntu Code of Conduct
     Everyone participating in the Ubuntu community must read and agree to abide by it.
 
     See also: 
-    * [Ubuntu Code of Conduct](https://ubuntu.com/community/ethos/code-of-conduct)
+    * {ref}`Ubuntu Code of Conduct <code-of-conduct>`
 
 UCT
 Ubuntu CVE Tracker
@@ -1346,11 +1371,12 @@ Ubuntu CVE Tracker
     * [Ubuntu CVEs](https://ubuntu.com/security/cves)
 
 Ubuntu Delta
-    A modification to an {term}`Ubuntu` {term}`Package` that is derived from a {term}`Debian`
-    Package.
+Delta
+    In the context of Ubuntu packages, a delta is the difference ({term}`patch`) between a Debian package and an Ubuntu package, i.e. the change that is applied to a Debian package by Ubuntu package maintainers (in the form of patches). Ubuntu packages with a delta are said to "carry a delta".
 
     See also:
-    * [Upstream & Downstream (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/upstream-and-downstream/)
+    * {ref}`merging`
+    * {ref}`upstream-and-downstream`
 
 Ubuntu Desktop
     *Work in Progress*
@@ -1417,6 +1443,10 @@ Ubuntu IRC Council
 
 Ubuntu Keyserver
     *Work in Progress*
+
+Ubuntu on WSL
+    An edition of Ubuntu built and packaged for the Windows Subsystem for Linux ({term}`WSL`).
+    Ubuntu on WSL provides a fully-functional terminal environment, can launch Linux-native graphical applications, and is tightly integrated with the Windows OS and Windows applications.
 
 Ubuntu Pro
     *Work in Progress*
@@ -1489,14 +1519,13 @@ Uniform Resource Locator
     * [URL (Wikipedia)](https://en.wikipedia.org/wiki/URL)
 
 Universe
-    A {term}`Component` of every Ubuntu
-    [Series](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archiveseries)
+    A {term}`Component` of every Ubuntu {ref}`Series <archive-series>`
     in the {term}`Ubuntu Archive` that contains {term}`Open Source <Open Source Software>`
     {term}`Packages <Package>` which are supported and maintained by the Ubuntu
     community.
 
     See also: 
-    * [Components](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive/#archivecomponents)
+    * {ref}`Components <archive-components>`
 
 Unix
     **Unix** is an {term}`Operating System` whose development started in the
@@ -1520,7 +1549,7 @@ Upstream
     A software project (and associated entities), another software project
     depends on directly or indirectly.
 
-    See [Upstream (explanation)](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/upstream-and-downstream/#upstream)
+    See {ref}`Upstream (explanation) <upstream-and-downstream>`
 
 UX
 User Experience
@@ -1541,7 +1570,7 @@ User Interface Freeze Exception
     *Work in Progress*
 
     See also:
-    * [Ubuntu development process](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/development-process/)
+    * {ref}`ui-freeze-exceptions`
 
 VCS
 Version Control System
@@ -1563,9 +1592,13 @@ Watch File
     The `debian/watch` file in a {term}`Source Package`.
 
     See also:
-    * [Basic overview of the `debian/` directory](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/reference/debian-dir-overview/)
+    * {ref}`Basic overview of the debian/ directory <debian-directory>`
     * {manpage}`uscan(1)`
     * [Section 4.11. Upstream source location (Debian Policy Manual v4.6.2.0)](https://www.debian.org/doc/debian-policy/ch-source.html#upstream-source-location-debian-watch)
+
+WSL
+    WSL is a virtualisation feature of Windows for running GNU/Linux environments.
+    {term}`Ubuntu on WSL` is the default Linux distribution on WSL.
 
 x64
     See {term}`amd64`

@@ -1,0 +1,26 @@
+:::{mermaid}
+block-beta
+columns 2
+  block:left
+    InitialStudies("Initial studies")
+    columns 1
+    Concepts{{"<a href=https://github.com/canonical/ubuntu-maintainers-handbook>Concepts</a>"}}
+    GitUbuntu{{"git-ubuntu"}}
+    DebianPolicy{{"<a href=https://www.debian.org/doc/debian-policy/>Debian Policy</a>"}}
+  end
+
+  block:right
+    InitialTasks("Initial tasks")
+    columns 1
+    BugTriage["<a href='https://documentation.ubuntu.com/project/contributors/bug-triage/'>Bug triage</a>"]
+    BiteSizedBugs["Bite-sized bugs"]
+    TrivialPackgeMerges["Trivial package merges"]
+  end
+
+  InitialStudies --> InitialTasks
+
+  classDef Studies fill: #FFDAB9, stroke:#F4A460;
+    class InitialStudies,InitialTasks Studies
+  classDef invisible fill:transparent,stroke:transparent;
+    class left,right invisible
+:::
