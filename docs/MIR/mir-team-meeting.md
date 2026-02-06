@@ -1,10 +1,10 @@
 (mir-team-meeting)=
 # MIR team weekly status meeting
 
-The MIR Team holds weekly meetings for 30 minutes every Tuesday at
-<time datetime="T16:30+01:00">16:30 CET</time> on the
-[Ubuntu Matrix Server](https://ubuntu.com/community/communications/matrix)
-in the [Ubuntu Main inclusion requests](https://matrix.to/#/#ubuntu-mir:ubuntu.com) channel.
+The {ref}`MIR Team <about-mir-role>` holds weekly meetings for 30 minutes
+every Tuesday at <time datetime="T16:30+01:00">16:30 CET</time> on the
+{ref}`Ubuntu Matrix Server <matrix-index>`
+in the {matrix}`Ubuntu Main inclusion requests <ubuntu-mir>` channel.
 
 The purpose of the meeting is:
 
@@ -12,15 +12,16 @@ The purpose of the meeting is:
 * to provide a timely response to reporters of MIR requests
 * to detect and discuss any current or complex cases
 
-You should attend these meetings if you submit an MIR request, until it is
-approved or rejected.
+You should attend these meetings if you submit an {ref}`MIR request <mir-submit-bug>`,
+until it is approved or rejected.
 
 Due to the nature of the
 [Ubuntu Development Process](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/2.0-preview/explanation/development-process/),
 there are times (e.g. close to Feature Freeze) when this meeting is busy and
 others (e.g. right after a new release) when it is quieter. Consequently,
-response times to MIR requests are (on average) usually faster in those quieter
-periods after the release of a new Ubuntu version.
+response times along the {ref}`MIR process <mir-process-overview>` are
+(on average) usually faster in those quieter periods after the release of a
+new Ubuntu version.
 
 
 ## Meeting template
@@ -30,8 +31,8 @@ If you're chairing the meeting, you can use the following template:
 ```
 # Start of the Main inclusion request team meeting
 Welcome to the MIR Team's weekly meeting
-General rules and the process description can be found at https://canonical-ubuntu-project.readthedocs-hosted.com/MIR/main-inclusion-review
-Ping for MIR meeting members - @didrocks:matrix.org @joalif:matrix.org @seth-arnold:ubuntu.com @paelzer:ubuntu.com @mylesjp:matrix.org @pushkarnk:matrix.org ( @dviererbe:ubuntu.com @slyon:ubuntu.com )
+General rules and the process description can be found at https://documentation.ubuntu.com/project/MIR/main-inclusion-review
+Ping for MIR meeting members - @didrocks:matrix.org @joalif:matrix.org @seth-arnold:ubuntu.com @paelzer:ubuntu.com @mylesjp:matrix.org @pushkarnk:matrix.org ( @dviererbe:ubuntu.com )
 
 ## Topic 1/7: Awareness of external agenda items
 ### Mission: To be aware and potentially allocate the required time, poll if anyone attending has discussions that should be added to the agenda today.
@@ -40,8 +41,8 @@ Please speak up if you have a topic to add
 ## Topic 2/7: Current component mismatches
 ### Mission: Identify required actions and spread the load among the teams
 Check these generated reports:
-* [component-mismatches-proposed](https://people.canonical.com/~ubuntu-archive/component-mismatches-proposed.svg)
-* [component-mismatches](https://people.canonical.com/~ubuntu-archive/component-mismatches.svg)
+* [component-mismatches-proposed](https://ubuntu-archive-team.ubuntu.com/component-mismatches-proposed.svg)
+* [component-mismatches](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg)
 
 ## Topic 3/7: New MIRs
 ### Mission: ensure to assign all incoming reviews for fast processing

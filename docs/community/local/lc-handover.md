@@ -14,7 +14,7 @@ However, if the request comes from a prospective leader, the following needs to 
 
 ## Submitting a Handover request
 
-If current leaders or prospective leaders want to request LoCo handover, they need to submit a request by creating a topic on Discourse [LoCo Support](https://discourse.ubuntu.com/c/locos/loco-support/156) category [with this template](https://discourse.ubuntu.com/t/draft-loco-handover-request-template/47150).
+If current leaders or prospective leaders want to request LoCo handover, they need to submit a request by creating a topic on Discourse [LoCo Support](https://discourse.ubuntu.com/c/locos/loco-support/156) category [with this template](https://discourse.ubuntu.com/t/loco-handover-request-template/47150).
 
 
 ## LoCo leadership check
@@ -86,7 +86,7 @@ Such as LoCo contact, who will be the person the LoCo Council can contact if nee
 If any of the following resources for the LoCo exists, and in case the current leaders can't handle the resource handover, the LoCo Council will also assist in the handover to prospective leaders.
 In case such resources do not exist yet, prospective leaders can ask the LoCo Council to facilitate the set up of the resources required.
 
-- Admin access of real-time chat channels: IRC (Libera.chat) and Matrix (ubuntu.com)
+- Admin access of real-time chat channels: IRC (`libera.chat`) and Matrix (`ubuntu.com`)
 - LoCo mailing list
 - Discourse LoCo category
 - Domain (DNS) access (ubuntu-**.org)

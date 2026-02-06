@@ -79,7 +79,7 @@ dates when these restrictions get enabled are called "Freezes".
 During freezes, developers must request {ref}`freeze-exceptions` to approve
 changes. The Release Team posts the current Release Schedule as a Discourse
 article under the
-["Release" topic](https://discourse.ubuntu.com/c/project/release). It shows the
+["Release" topic](https://discourse.ubuntu.com/c/project/release/38). It shows the
 typical order and length of the various Freezes.
 
 See {ref}`freezes` for an overview of the individual stabilization Freezes.

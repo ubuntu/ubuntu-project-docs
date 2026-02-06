@@ -90,6 +90,17 @@ new-package/index
 ```
 
 
+## Stable Release Updates
+
+Guidance for contributors on how to submit requests for SRU. See
+
+```{toctree}
+:maxdepth: 1
+
+/SRU/howto/index
+```
+
+
 ## Accessibility
 
 ```{toctree}
@@ -110,6 +121,18 @@ Contribute docs <contribute-docs>
 ```
 
 
+## Setting up and using Matrix
+
+Matrix is the instant messaging platform the Ubuntu Community uses.
+This section will help you get set up with a Matrix client and show you how to use it to stay in contact with the community.
+
+```{toctree}
+:maxdepth: 1
+
+/community/contributors/matrix/index
+```
+
+
 ## Advanced tasks
 
 Although you do not need any elevated permissions to work on the tasks in this
@@ -121,6 +144,7 @@ some working familiarity with Ubuntu development.
 
 Advanced tasks <advanced/index>
 ```
+
 
 ## Mirrors
 

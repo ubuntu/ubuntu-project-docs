@@ -29,4 +29,4 @@ Prior to every new release, the community team hosts a wallpaper contest where a
 Ubuntu Flavours often have their own distinctive style and rely on volunteers to help design their art assets.
 Getting involved with Flavour art design is a great way to connect with the wider Ubuntu ecosystem and share your artistic skills with the entire community.
 
-[Explore the Official Ubuntu Flavours ›](https://ubuntu.com/desktop/flavours)
+[Explore the Official Ubuntu Flavours ›](https://ubuntu.com/desktop/flavors)

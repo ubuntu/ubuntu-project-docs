@@ -49,7 +49,7 @@ lists on Launchpad. It will also be checked by Launchpad.
 
 If you registered a CD mirror, and registration is successful and approved, your
 mirror will be selected for nearby users when they click on the the download
-button on the [Ubuntu download pages](https://www.ubuntu.com/download).
+button on the [Ubuntu download pages](https://ubuntu.com/download).
 
 
 ## Mirror guidelines
@@ -72,7 +72,7 @@ To keep your mirror up to date and working, follow these guidelines:
 **Make sure you have enough disk space**
 : The Ubuntu archive, as of September 2025, uses about:
 
-  * **2.6TB** of disk space for the Ubuntu Package Archive
+  * **3.6TB** of disk space for the Ubuntu Package Archive
 
   * **50GB** for Ubuntu release CD images
 

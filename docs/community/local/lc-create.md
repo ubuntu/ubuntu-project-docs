@@ -24,7 +24,7 @@ The majority of the content from the portal is dynamically sourced from our Disc
 Content on the Discourse is broken down into categories, including one for Ubuntu Local Communities.
 
 1. [Sign up for a Discourse account](https://discourse.ubuntu.com/auth/saml?signup=true) (and Ubuntu One account if you haven't already).
-2. Once you're logged in, head over to The [Ubuntu Local Communities section](https://discourse.ubuntu.com/c/locos/) and see if a category already exists for your region.
+2. Once you're logged in, head over to The [Ubuntu Local Communities section](https://discourse.ubuntu.com/c/locos/129) and see if a category already exists for your region.
    If not, you can request one by [filling out this form](https://docs.google.com/forms/d/e/1FAIpQLSf7auchvVzpkH_cQdUFiiRcyGHtrSrGG0GmeQXaKkDhXVpsmw/viewform?usp=sharing&ouid=101065845149003260161).
 
 
@@ -34,8 +34,8 @@ Local communities may also want a means of instant communication.
 The Ubuntu community, along with a number of other open source communities, have opted for the open source Matrix protocol for their synchronous communication needs.
 To get started using Matrix check out the following guides:
 
-1. [Getting Started with Matrix](https://ubuntu.com/community/docs/communications/matrix/onboarding) -- Will show you how to install and use the Element App, getting your personal Matrix account setup, and how to connect to the Ubuntu Matrix server.
-2. [Creating a public room](https://ubuntu.com/community/docs/communications/matrix/room-creation-public) -- Will walk you through creating a public room for your local community to use and converse on.
+1. {ref}`Getting Started with Matrix <matrix-onboarding>` -- Will show you how to install and use the Element App, getting your personal Matrix account setup, and how to connect to the Ubuntu Matrix server.
+2. {ref}`Creating a public room <matrix-room-creation-public>` -- Will walk you through creating a public room for your local community to use and converse on.
 
 
 ## Create and hosting events
@@ -56,7 +56,7 @@ Some excellent options include:
 * Co-working spaces
 * A quiet corner of a pub or restaurant
 
-Be sure to check with the owners of each space to ensure they can accommodate your crowd size, technology offerings (wifi, projector), accessibility needs, catering desires, and any other important personnel considerations.
+Be sure to check with the owners of each space to ensure they can accommodate your crowd size, technology offerings (Wi-Fi, projector), accessibility needs, catering desires, and any other important personnel considerations.
 
 Also, if you aren't quite ready for an in-person gathering, consider setting up an online meetup!
 We are a technology focused community after all.
@@ -72,7 +72,7 @@ Once your event is created and listed on the Community Portal, don't forget to s
 ### Share your successes
 
 After you've hosted or taken part in an event, be sure to let the community hear all about it.
-Consider posting a topic on the Ubuntu Discourse, either in the [Events section](https://discourse.ubuntu.com/c/events/) or under your Local Community, with a recap of everything you did, learned and experienced.
+Consider posting a topic on the Ubuntu Discourse, either in the [Events section](https://discourse.ubuntu.com/c/events/11) or under your Local Community, with a recap of everything you did, learned and experienced.
 Don't forget to use the **`#event-report`** tag and add any pictures or videos you may have snapped while you were there!
 
 

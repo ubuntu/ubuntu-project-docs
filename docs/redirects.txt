@@ -39,11 +39,12 @@ staging/release-team/push-mirroring/ release-team/push-mirroring/
 staging/push-mirroring/ release-team/push-mirroring/
 staging/release-team/release-team/ release-team/release-team/
 staging/release-team/releases/ release-team/list-of-releases/
+staging/package-archive/ how-ubuntu-is-made/concepts/package-archive/
 
 # Governance/community pages
-explanation/governance/ community/governance/
-how-ubuntu-is-made/index-governance/ community/governance/
-how-ubuntu-is-made/governance/ community/governance/
+explanation/governance/ community/
+how-ubuntu-is-made/index-governance/ community/
+how-ubuntu-is-made/governance/ community/
 
 reference/governance/ethos/ community/ethos/
 how-ubuntu-is-made/governance/ethos/ community/ethos/
@@ -59,6 +60,7 @@ who-makes-ubuntu/councils/conflict-resolution/ community/councils/conflict-resol
 
 how-ubuntu-is-made/governance/peers/ community/governance/
 
+staging/new-packages/ how-ubuntu-is-made/processes/new-packages/
 staging/dmb/ubuntu-membership/ community/membership/
 staging/dmb/member-perks/ community/membership/member-perks/
 staging/dmb/member-requirements/ community/membership/member-requirements/
@@ -125,7 +127,7 @@ contributors/bug-triage/assign-bug-to-package/ contributors/bug-triage/assign-a-
 contributors/debugging/debug-apport-crash/ contributors/debugging/debug-an-apport-crash/
 contributors/new-package/create-new-package/ contributors/new-package/create-a-new-package/
 contributors/new-package/request-sru/ contributors/new-package/request-an-sru/
-contributors/new-package/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa//
+contributors/new-package/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa/
 contributors/patching/committing-changes/ contributors/patching/commit-changes/
 contributors/patching/make-changes-to-package/ contributors/patching/make-changes-to-a-package/
 contributors/patching/merge-proposal/ contributors/patching/submit-a-merge-proposal/
@@ -134,3 +136,11 @@ contributors/patching/salsa-dual-maintenance/ contributors/patching/dual-mainten
 contributors/setup/get-package-source/ contributors/setup/get-the-source-of-a-package/
 contributors/setup/setup/ contributors/setup/set-up-for-ubuntu-development/
 contributors/merging/submit-merge-proposal/ contributors/merging/git-ubuntu-merge-proposal/
+
+community/contribute/contribute/ community/contribute/
+community/governance/ubuntu-teams/ community/teams/ubuntu-teams/
+
+SRU/index SRU/stable-release-updates/
+SRU/explanation/ SRU/
+how-ubuntu-is-made/processes/stable-release-updates/ SRU/stable-release-updates/
+

@@ -29,6 +29,6 @@ Juju charms are deployment and service orchestration scripts that enable people 
 Since Juju charms can be written in any language, it's a good way for DevOps experts to share deployment and management scripts with the community.
 Developers can share their charms on [Charmhub](https://charmhub.io/), a repository of ready-to-use charms.
 
-* Get started by [writing your first Juju charm](https://juju.is/docs/sdk/build-and-deploy-minimal-machine-charm)
+* Get started by [writing your first Juju charm](https://documentation.ubuntu.com/ops/latest/tutorial/write-your-first-machine-charm/)
 
 

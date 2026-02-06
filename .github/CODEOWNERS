@@ -14,7 +14,7 @@ MIR/ @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
 # - TAs not required for SRU content approvals
 SRU/
 # - SRU team owns all SRU docs anywhere in the repo
-SRU/ @basak
+SRU/ @basak @enr0n @tjaalton @panlinux @julian-klode @raof @awhitcroft
 
 # Technical Board PR approvals
 # - TAs not required for Tech Board content approvals
@@ -39,7 +39,11 @@ community/ @aaronprisk @ilvipero
 **/dmb-*.md @cpaelzer @lvoytek @rbasak @utkarsh2102 @athos-ribeiro @bdrung @julian-klode
 
 # TAs' & special teams' ack required for changes to the CODEOWNERS file
-/.github/CODEOWNERS @s-makin @rkratky @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof @aaronprisk @ilvipero @basak @teward
+/.github/CODEOWNERS @s-makin @rkratky @slyon @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof @aaronprisk @ilvipero @basak @teward @enr0n @julian-klode @awhitcroft
 
 # +1 maintenance PR approvals
 plus-one-*.md @schopin-pro @s-makin @rkratky
+
+# Rocks team page PR approvals
+rocks-team.md @asanvaq @cjdcordeiro
+

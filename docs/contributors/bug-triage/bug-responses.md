@@ -4,7 +4,7 @@
 It is common when triaging bugs that you need to respond to the original reporter -- perhaps to request more information, or to redirect their request, etc.
 Over time, a set of curated standard responses has been created, and you can use these when you correspond with the reporter.
 
-These standard responses (and other amazing scripts) are available as a FireFox extension [in a PPA](https://launchpad.net/~gm-dev-launchpad/+archive/ppa).
+These standard responses (and other amazing scripts) are available as a FireFox extension [in a PPA](https://launchpad.net/~gm-dev-launchpad/+archive/ubuntu/ppa).
 
 When you update one of these responses, you should also update the response used by the Firefox extension.
 These responses can be found in the bazaar branch [lp:ubuntu-bugcontrol-tools](https://code.launchpad.net/ubuntu-bugcontrol-tools) in the `gm-xml-files/bugsquad-replies.xml` file.
@@ -64,7 +64,7 @@ Thank you for taking the time to report this bug and helping to make Ubuntu bett
 
   apport-collect BUGNUMBER
 
-When reporting bugs in the future please use apport by using 'ubuntu-bug' and the name of the package affected. You can learn more about this functionality at https://wiki.ubuntu.com/ReportingBugs.
+When reporting bugs in the future please use apport by using 'ubuntu-bug' and the name of the package affected. You can learn more about this functionality at https://help.ubuntu.com/community/ReportingBugs.
 ```
 
 
@@ -357,7 +357,7 @@ When closing the bug report it is a good idea to take an opportunity to let the 
 ```{code} none
 :class: codeblock-wrap
 
-This bug report is being closed due to your last comment regarding this being fixed with an update. For future reference you can manage the status of your own bugs by clicking on the current status in the yellow line and then choosing a new status in the revealed drop down box. You can learn more about bug statuses at https://wiki.ubuntu.com/Bugs/Status. Thank you again for taking the time to report this bug and helping to make Ubuntu better. Please submit any future bugs you may find.
+This bug report is being closed due to your last comment regarding this being fixed with an update. For future reference you can manage the status of your own bugs by clicking on the current status in the yellow line and then choosing a new status in the revealed drop down box. You can learn more about bug statuses at https://documentation.ubuntu.com/project/contributors/bug-triage/bug-status/. Thank you again for taking the time to report this bug and helping to make Ubuntu better. Please submit any future bugs you may find.
 ```
 
 
@@ -524,7 +524,7 @@ Thank you for taking the time to report this bug and helping to make Ubuntu bett
 
 This is a significant bug in Ubuntu. If you need a fix for the bug in previous versions of Ubuntu, please perform as much as possible of the SRU Procedure [1] to bring the need to a developer's attention.
 
-[1]: https://wiki.ubuntu.com/StableReleaseUpdates#Procedure
+[1]: https://documentation.ubuntu.com/project/SRU/howto/standard/
 ```
 
 The bug's state should become *Fix Released* and if the package does not qualify for an SRU because it is considered a minor bug and the package can be backported:
@@ -627,7 +627,7 @@ Thank you for taking the time to report this bug and helping to make Ubuntu bett
 ```{code} none
 :class: codeblock-wrap
 
-Thank you for taking the time to request this package and helping to make Ubuntu better. Unfortunately you have not provided enough information for a developer to start packaging this application. Please make sure this bug meets the guidelines at https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages. An example of a complete package request is available at https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages/ExamplePackageRequest).
+Thank you for taking the time to request this package and helping to make Ubuntu better. Unfortunately you have not provided enough information for a developer to start packaging this application. Please make sure this bug meets the guidelines at https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/new-packages/index.html. An example of a complete package request is available at https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages/ExamplePackageRequest).
 ```
 
 
@@ -645,7 +645,7 @@ Thanks for reporting this bug and any supporting documentation. Since this bug h
 ```{code} none
 :class: codeblock-wrap
 
-Thanks for taking the time to report this bug and comment on it. However, I've noticed that this bug has been Confirmed although there is not clear indication as to how to recreate this bug [or version of software affected]. Subsequently, I'm setting its status to Incomplete until that information is provided. You can learn more about bug statuses at http://wiki.ubuntu.com/Bugs/Status. Thanks for taking the time to make Ubuntu better!
+Thanks for taking the time to report this bug and comment on it. However, I've noticed that this bug has been Confirmed although there is not clear indication as to how to recreate this bug [or version of software affected]. Subsequently, I'm setting its status to Incomplete until that information is provided. You can learn more about bug statuses at https://documentation.ubuntu.com/project/contributors/bug-triage/bug-status/. Thanks for taking the time to make Ubuntu better!
 ```
 
 
@@ -658,6 +658,7 @@ If the specific release has reached End of Life (as per {ref}`list-of-releases` 
 
 Thank you for reporting this bug to Ubuntu.
 
+Ubuntu 25.04 (plucky) reached end-of-life on January 15, 2026
 Ubuntu 24.10 (oracular) reached end-of-life on July 10, 2025
 Ubuntu 23.04 (lunar) reached end-of-life on January 25, 2024
 Ubuntu 23.10 (mantic) reached end-of-life on July 11, 2024
@@ -796,7 +797,7 @@ Please seek support and bug reporting solutions from your distribution. Thank yo
 
 Other projects have standard responses as well:
 
-* [GNOME](http://live.gnome.org/Bugsquad/TriageGuide/StockResponses)  
+* [GNOME](https://wiki.gnome.org/Bugsquad/TriageGuide/StockResponses)  
 * [Mozilla Team](https://wiki.ubuntu.com/MozillaTeam/Bugs/Triage/Responses)
 
 

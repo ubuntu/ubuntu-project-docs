@@ -8,7 +8,7 @@ They are granted direct upload to the Ubuntu Archive for all packages -- but onl
 (sru-dev-training-and-preparation)=
 ## Training and preparation
 
-SRU Devs have uploads subject to the standard SRU process, including review from SRU team members and all other SRU policies.
+SRU Developers have uploads subject to the standard SRU process, including review from SRU team members and all other SRU policies.
 They have a good track record of sponsored SRUs, thus demonstrating an understanding of SRU policies, requirements and process.
 
 They also drive SRUs through to the end, not letting things languish in `-proposed`.

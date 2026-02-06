@@ -119,8 +119,8 @@ and tested! You will need this anyway to provide proper build logs.
 Once the Feature Freeze exception has been approved by a member of the
 [Release Team](https://launchpad.net/~ubuntu-release), the status will be
 changed to *TRIAGED*. You can then either upload the package (if you're in
-[`motu`](http://launchpad.net/~motu) or
-[`ubuntu-core-dev`](http://launchpad.net/~ubuntu-core-dev)), or follow the
+[`motu`](https://launchpad.net/~motu) or
+[`ubuntu-core-dev`](https://launchpad.net/~ubuntu-core-dev)), or follow the
 {ref}`sponsorship process <sponsorship>`. Please close the bug from the upload,
 where possible.
 
