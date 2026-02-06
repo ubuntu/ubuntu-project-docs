@@ -1,0 +1,157 @@
+digraph dpkg {
+    graph [rankdir=TB];
+    node [fontname="Ubuntu Sans" fontsize=10];
+    edge [fontname="Ubuntu Sans" fontsize=10];
+
+    /* User actions */
+    node [shape=rect style=filled fillcolor="#925375" fontcolor=white];
+    dpkg_unpack [label=install];
+    dpkg_upgrade [label=upgrade];
+    dpkg_purge [label=purge];
+    dpkg_remove [label=remove];
+    dpkg_reinstall [label=reinstall];
+
+    /* Scripts */
+    node [shape=rect style=filled fillcolor="#BEB8B2" fontcolor=black];
+    prior_postinst_abort [label=<<B>prior-ver:</B><BR/>postinst abort-remove>];
+    prior_postinst_abort_ver1 [label=<<B>prior-ver:</B><BR/>postinst abort-upgrade <I>&lt;this-ver&gt;</I>>];
+    prior_postinst_abort_ver2 [label=<<B>prior-ver:</B><BR/>postinst abort-upgrade <I>&lt;this-ver&gt;</I>>];
+    prior_postrm_purge [label=<<B>prior-ver:</B><BR/>postrm purge>];
+    prior_postrm_remove [label=<<B>prior-ver:</B><BR/>postrm remove>];
+    prior_postrm_upgrade [label=<<B>prior-ver:</B><BR/>postrm upgrade <I>&lt;this-ver&gt;</I>>];
+    prior_preinst_abort [label=<<B>prior-ver:</B><BR/>preinst abort-upgrade <I>&lt;this-ver&gt;</I>>];
+    prior_prerm_remove [label=<<B>prior-ver:</B><BR/>prerm remove>];
+    prior_prerm_upgrade [label=<<B>prior-ver:</B><BR/>prerm upgrade <I>&lt;this-ver&gt;</I>>];
+    this_postinst_config [label=<<B>this-ver:</B><BR/>postinst configure>];
+    this_postinst_config_ver [label=<<B>this-ver:</B><BR/>postinst configure <I>&lt;prior-ver&gt;</I>>];
+    this_postrm_abort_install [label=<<B>this-ver:</B><BR/>postrm abort-install>];
+    this_postrm_abort_install_ver [label=<<B>this-ver:</B><BR/>postrm abort-install <I>&lt;prior-ver&gt;</I>>];
+    this_postrm_abort_upgrade_ver [label=<<B>this-ver:</B><BR/>postrm abort-upgrade <I>&lt;prior-ver&gt;</I>>];
+    this_postrm_failed [label=<<B>this-ver:</B><BR/>postrm failed-upgrade <I>&lt;this-ver&gt;</I>>];
+    this_preinst_install [label=<<B>this-ver:</B><BR/>preinst install>];
+    this_preinst_install_ver [label=<<B>this-ver:</B><BR/>preinst install <I>&lt;prior-ver&gt;</I>>];
+    this_preinst_upgrade [label=<<B>this-ver:</B><BR/>preinst upgrade <I>&lt;prior-ver&gt;</I>>];
+    this_prerm_failed [label=<<B>this-ver:</B><BR/>prerm failed-upgrade <I>&lt;prior-ver&gt;</I>>];
+
+    /* External actions */
+    node [shape=rect style=filled fillcolor=white];
+    delete [label="Files are\ndeleted"];
+    delete_old [label="Old files\nare deleted"];
+    forget [label="Filelist is\nremoved"];
+    purge [label="Conffiles are\ndeleted"];
+    restart [label="Services are\nstarted or\nrestarted"];
+    start [label="Services are\nstarted"];
+    stop [label="Services are\nstopped"];
+    unpack [label="Files are\nunpacked"];
+
+    /* States */
+    node [shape=rect style="filled,rounded" fillcolor="#ED764D" fontcolor=white];
+    config_files [label=<Config-Files>];
+    half_config [label=<Half Configured>];
+    half_config_reinst [label=<Half Configured<BR/><B>Reinst Required</B>>]
+    half_installed [label=<Half Installed>];
+    half_installed_reinst [label=<Half Installed<BR/><B>Reinst Required</B>>];
+    installed [label=<Installed>];
+    not_installed [label=<Not Installed>];
+    unpacked [label=<Unpacked>];
+
+    /* remove */
+    edge [color=red style=solid];
+    half_config->dpkg_remove;
+    half_installed->dpkg_remove;
+    unpacked->dpkg_remove;
+    installed->dpkg_remove;
+    dpkg_remove->prior_prerm_remove;
+    prior_prerm_remove->stop;
+    stop->delete;
+    delete->prior_postrm_remove;
+    prior_postrm_remove->config_files;
+    prior_postinst_abort->start;
+    start->installed;
+    edge [style=dotted];
+    prior_prerm_remove->prior_postinst_abort;
+    prior_postrm_remove->half_installed;
+    prior_postinst_abort->half_config;
+
+    /* purge */
+    edge [color=firebrick style=solid];
+    config_files->dpkg_purge;
+    dpkg_purge->purge;
+    purge->prior_postrm_purge;
+    prior_postrm_purge->forget;
+    forget->not_installed;
+    edge [style=dotted];
+    prior_postrm_purge->config_files;
+
+    /* unpack */
+    edge [color=limegreen style=solid];
+    not_installed->dpkg_unpack;
+    dpkg_unpack->this_preinst_install;
+    this_preinst_install->unpack;
+    unpack->unpacked;
+    this_postrm_abort_install->not_installed;
+    edge [style=dotted];
+    this_preinst_install->this_postrm_abort_install;
+    this_postrm_abort_install->half_installed_reinst;
+
+    /* configure */
+    edge [color=limegreen style=solid];
+    unpacked->this_postinst_config;
+    this_postinst_config->start;
+    start->installed;
+    edge [style=dotted];
+    this_postinst_config->half_config;
+
+    /* reinstall */
+    edge [color=darkgreen style=solid];
+    installed->dpkg_reinstall;
+    half_config->dpkg_reinstall;
+    half_config_reinst->dpkg_reinstall;
+    half_installed->dpkg_reinstall;
+    half_installed_reinst->dpkg_reinstall;
+    config_files->dpkg_reinstall;
+    dpkg_reinstall->this_preinst_install_ver;
+    this_preinst_install_ver->unpack;
+    unpack->this_postinst_config_ver;
+    this_postinst_config_ver->restart;
+    restart->installed;
+    this_postrm_abort_install_ver->config_files;
+    edge [style=dotted];
+    this_preinst_install_ver->this_postrm_abort_install_ver;
+    this_postinst_config_ver->half_config;
+    this_postrm_abort_install_ver->half_installed_reinst;
+
+    /* upgrade */
+    edge [color=blue style=solid fontname="Ubuntu Mono"];
+    installed->dpkg_upgrade;
+    dpkg_upgrade->prior_prerm_upgrade;
+    prior_prerm_upgrade->this_preinst_upgrade;
+    this_prerm_failed->this_preinst_upgrade;
+    this_preinst_upgrade->stop [label="--no-restart-after-upgrade"];
+    this_preinst_upgrade->unpack [label="--restart-after-upgrade\n--no-stop-on-upgrade"];
+    stop->unpack;
+    unpack->prior_postrm_upgrade;
+    this_postrm_abort_upgrade_ver->prior_postinst_abort_ver2;
+    prior_postinst_abort_ver2->installed;
+    prior_postinst_abort_ver1->restart [label="--restart-after-upgrade"];
+    prior_postinst_abort_ver1->start [label="--no-restart-after-upgrade\n--no-stop-on-upgrade"];
+    restart->installed;
+    start->installed;
+    prior_postrm_upgrade->delete_old;
+    delete_old->this_postinst_config_ver;
+    prior_preinst_abort->this_postrm_abort_upgrade_ver;
+    this_postrm_failed->this_postinst_config_ver;
+    this_postinst_config_ver->restart [label="--restart-after-upgrade"];
+    this_postinst_config_ver->start [label="--no-restart-after-upgrade\n--no-stop-on-upgrade"];
+    edge [style=dotted];
+    prior_prerm_upgrade->this_prerm_failed;
+    this_prerm_failed->prior_postinst_abort_ver1;
+    prior_postinst_abort_ver1->half_config_reinst;
+    this_preinst_upgrade->this_postrm_abort_upgrade_ver;
+    this_postrm_abort_upgrade_ver->half_installed_reinst;
+    prior_postinst_abort_ver2->unpacked;
+    prior_postrm_upgrade->this_postrm_failed;
+    this_postrm_failed->prior_preinst_abort;
+    prior_preinst_abort->half_installed_reinst;
+    this_postinst_config->half_config;
+}
