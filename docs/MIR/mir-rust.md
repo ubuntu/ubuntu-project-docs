@@ -8,7 +8,7 @@ rather than rely on the individual package versions.
 See [`cpaelzer/ubuntu-mir#3`](https://github.com/cpaelzer/ubuntu-mir/pull/3) for
 some background on the issue.
 
-Additionally, Rust code that needs Transport Layer Security (TLS) [must use OpenSSL](#rust-tls-requirements)
+Additionally, Rust code that needs Transport Layer Security (TLS) {ref}`must use OpenSSL <rust-tls-requirements>`
 to ensure that system cryptography policies are followed.  This requirement will
 change as the Rust TLS ecosystem matures.
 
