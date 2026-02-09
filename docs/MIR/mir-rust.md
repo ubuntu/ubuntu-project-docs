@@ -295,5 +295,5 @@ reporter's rule {ref}`"Check for security relevant binaries, services and behavi
 ### OpenSSL crate configuration
 The [`openssl` crate](https://docs.rs/openssl/latest/openssl/) provides a safe Rust
 interface for the system OpenSSL package.  The `vendored` Cargo feature MUST NOT
-be used to ensure that the system OpenSSL package and corresponding policy are used.
+be used to ensure that the system OpenSSL package and corresponding crypto policy are used.
 
