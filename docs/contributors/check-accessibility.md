@@ -98,7 +98,7 @@ For a more thorough test, you need these shortcuts:
 | Move to previous interactive item | {kbd}`Shift+Tab` |
 | Interact with an item or group | {kbd}`Enter` |
 | Exit a group | {kbd}`Esc` |
-| Move between windows/main area, top bar and dashboard | {kbd}`Ctrl+Tab` |
+| Move between windows/main area, top bar and dashboard | {kbd}`Ctrl+Alt+Tab` |
 
 
 ### Keyboard navigation checklist
