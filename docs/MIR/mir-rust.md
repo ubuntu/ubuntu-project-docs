@@ -278,6 +278,7 @@ git commit -m "Update XS-Vendored-Sources-Rust field"
 git reset --hard # restore Cargo.toml
 ```
 
+(rust-tls-requirements)=
 ## Rust TLS Requirements
 
 [`rustls`](https://github.com/rustls/rustls) is a popular Rust TLS implementation,
