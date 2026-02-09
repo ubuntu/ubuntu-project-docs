@@ -68,5 +68,5 @@ The Technical Board consists of 5 elected members and Mark Shuttleworth. You can
 
 ## Election
 
-[Ubuntu Developers](https://wiki.ubuntu.com/UbuntuDevelopers) can nominate themselves to run for the Ubuntu Technical Board. This board is elected for a period of two years. The [Ubuntu Developers](https://launchpad.net/~ubuntu-developer-members) can vote in the technical board elections.
+{ref}`Ubuntu Developers <ubuntu-developers>` can nominate themselves to run for the Ubuntu Technical Board. This board is elected for a period of two years. The [Ubuntu Developers](https://launchpad.net/~ubuntu-developer-members) can vote in the technical board elections.
 

@@ -149,6 +149,7 @@ Rockcraft
 Rosbrook
 rulebook
 runtimes
+rustls
 Rustup
 sandboxed
 sbuild
