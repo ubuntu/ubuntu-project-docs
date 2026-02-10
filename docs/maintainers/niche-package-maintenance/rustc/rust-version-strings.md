@@ -33,7 +33,7 @@ If the Rust Foundation releases a new patch release, then the rest of the versio
 
 This component signifies that the original upstream source has been modified from its original state, i.e., the {term}`orig tarball` has been repacked.
 
-The `+dfsg` component is _always_ there because during the `rustc` update process, several unneeded dependencies are [pruned from the upstream source](pruning-unwanted-dependencies).
+The `+dfsg` component is _always_ there because during the `rustc` update process, several unneeded dependencies are {ref}`pruned from the upstream source <pruning-unwanted-dependencies>`.
 
 Normally, the `[repack_number]` can be elided entirely. However, if after the first release the {term}`orig tarball` must be repacked for whatever reason, a `[repack_number]` must be added afterwards, starting at `1`.
 
