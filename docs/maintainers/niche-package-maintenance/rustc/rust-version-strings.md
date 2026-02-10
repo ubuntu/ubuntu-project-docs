@@ -10,7 +10,7 @@ An understanding of how [Ubuntu version strings normally work](version-strings) 
 :::
 
 
-## A Typical Rust Version String
+## Typical Rust version string
 
 Components in `[square brackets]` are placeholders to be filled in, while components in `<angle brackets>` are optional.
 
@@ -20,6 +20,7 @@ The version string format for a versioned `rustc-X.Y` {term}`source package` is 
 [upstream_version]+dfsg<[repack_number]>-0ubuntu[ubuntu_revision]
 ```
 
+
 ### `[upstream_version]`
 
 This component shows what upstream version of the Rust toolchain this package is. Since Ubuntu Rust toolchain packages are versioned, this number only changes if the upstream Rust Foundation releases a patch for the current release, e.g., `1.85.0` -> `1.85.1`.
@@ -27,6 +28,7 @@ This component shows what upstream version of the Rust toolchain this package is
 If the Rust Foundation releases a new patch release, then the rest of the version number gets reset back to `+dfsg-0ubuntu1`.
 
 > Example: `1.85.0+dfsg3-0ubuntu5` -> `1.85.1+dfsg-0ubuntu1`
+
 
 (rust-repack-number)=
 ### `+dfsg<[repack_number]>`
@@ -49,6 +51,7 @@ Here are some examples of this component:
 | `+dfsg1`  | This tarball has been modified after the original package upload.    |
 | `+dfsg2`  | This tarball has been modified twice.                                |
 
+
 (rust-ubuntu-revision)=
 ### `-0ubuntu[ubuntu_revision]`
 
@@ -65,7 +68,8 @@ Here are some examples of this component:
 | `-0ubuntu1` | Initial upload for the given upstream source.            |
 | `-0ubuntu3` | The third Ubuntu revision for the given upstream source. |
 
-### Example: Uploading and Updating a New Rust Toolchain
+
+### Example: Uploading and updating a new Rust toolchain
 
 Let's say you're uploading Rust 1.95 as the new `rustc-1.95` package for the first time. On your initial upload, you'll make the version string the following:
 
@@ -98,13 +102,14 @@ Here's what that same version number would look like after uploading another Ubu
 ```
 
 
-## A Rust Backport Version String
+## Rust backport version string
 
 A {term}`backported <backport>` Rust toolchain follows the same rules as a normal upload, with a few modifications:
 
 ```none
 [upstream_version]+dfsg<[repack_number]><~[repack_series]<.[backport_repack]>>-0ubuntu0.[series_number].[ubuntu_revision]
 ```
+
 
 ### `<~[repack_series]<.[backport_repack]>>`
 
@@ -123,6 +128,7 @@ Here are some examples of this component:
 | `+dfsg1~24.04`  | The orig tarball, revised in the original upload, was also modified for a 24.04 backport. |
 | `+dfsg~25.10.1` | The orig tarball had to be modified for a 25.10 backport, then revised later.             |
 
+
 ### `-0ubuntu0.[series_number].[ubuntu_revision]`
 
 We don't want the backport version number to sort newer than any non-backported version in the archive. Therefore, the original Ubuntu revision is replaced by `0.[series_number].[ubuntu_revision]`.
@@ -139,7 +145,7 @@ Here are some examples of this component:
 | `-0ubuntu0.20.10.2` | This 20.10 backport has been revised once after the initial upload. |
 
 
-### Example: Backporting a Rust Toolchain
+### Example: Backporting a Rust toolchain
 
 Let's say you need to backport the following Rust toolchain to 24.04:
 
@@ -183,7 +189,7 @@ Finally, imagine that there was an issue with the 18.04 repack, requiring anothe
 1.90.0+dfsg2~18.04.1-0ubuntu0.18.04.1
 ```
 
-## Legacy Version String Format
+## Legacy version string format
 
 :::{important}
 This format is _no longer used_!

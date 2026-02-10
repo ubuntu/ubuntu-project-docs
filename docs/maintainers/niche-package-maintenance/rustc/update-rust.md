@@ -226,7 +226,7 @@ Finally, `debian/patches/prune/d-0021-vendor-remove-windows-dependencies.patch` 
 You will later have to manually update this patch, so you may simply refresh this patch after force-applying it, dropping all the missing vendored crates.
 
 (pruning-unwanted-dependencies)=
-### Pruning Unwanted Dependencies
+### Pruning unwanted dependencies
 
 As mentioned above, we don't want to include unnecessary dependencies, especially Windows-related crates like `windows-sys`. This pruning ensures adherence to free software principles, reduces the attack surface of the binary packages, and reduces the binary package size on the end user's hard drive.
 
