@@ -57,11 +57,11 @@ Here are some examples of this component:
 
 Finally, this component shows how many modifications the Ubuntu maintainers have made to this Rust toolchain. For the first upload, `[ubuntu_revision]` starts at `1`.
 
-The '`0`' in the `0ubuntu[ubuntu_revision]` component signifies that this package is separate from Debian and will _never_ be synced.
+The '`0`' in the `0ubuntu[ubuntu_revision]` component signifies that this package is separate from Debian and is _never_ synced.
 
 If the `[<repack_number>]` described [above](rust-repack-number) is ever added or incremented, `[ubuntu_revision]` is reset back to `1`.
 
-Here are some examples of this component:
+Examples of this component:
 
 | Component   | Meaning                                                  |
 |-------------|----------------------------------------------------------|
@@ -119,7 +119,7 @@ If this is necessary, the existing `[repack_number]` is untouched. Instead, `~[r
 
 If, after the initial backport upload, the orig tarball must be modified _again_, `.[backport_repack]` is added and incremented as necessary.
 
-Here are some examples of this component:
+Examples of this component:
 
 | Component       | Meaning                                                                                   |
 |-----------------|-------------------------------------------------------------------------------------------|
@@ -135,7 +135,7 @@ We don't want the backport version number to sort newer than any non-backported 
 
 The `[series_number]` signifies the particular series this backport targets.
 
-The `[ubuntu_revision]` component acts just like the [standard `[ubuntu_revision]` component](rust-ubuntu-revision) — it starts at `1` and is incremented as necessary.
+The `[ubuntu_revision]` component acts just like the {ref}`standard [ubuntu_revision] component <rust-ubuntu-revision>` — it starts at `1` and is incremented as necessary.
 
 Here are some examples of this component:
 
@@ -194,7 +194,7 @@ Finally, imagine that there was an issue with the 18.04 repack, requiring anothe
 :::{important}
 This format is _no longer used_!
 
-It's possible you may need to work with older versions of the Rust toolchain with potentially-confusing version strings. While these formats are no longer used, they should help one understand the version strings of these older toolchains.
+It's possible you may need to work with older versions of the Rust toolchain with potentially confusing version strings. While these formats are no longer used, they should help one understand the version strings of these older toolchains.
 :::
 
 Here, `<angle_brackets>` indicate placeholders to be edited, while `[square_brackets]` indicate optional parts.
