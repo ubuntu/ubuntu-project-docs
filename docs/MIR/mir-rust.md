@@ -278,7 +278,6 @@ git commit -m "Update XS-Vendored-Sources-Rust field"
 git reset --hard # restore Cargo.toml
 ```
 
-(rust-tls-requirements)=
 ## Rust TLS Requirements
 
 [`rustls`](https://github.com/rustls/rustls) is a popular Rust TLS implementation,
@@ -290,7 +289,7 @@ Rust code in `main` that uses TLS must use OpenSSL with the system-wide OpenSSL 
 
 This may require significant changes to some Rust code, but it is required for now to
 ensure that system-wide cryptographic policies are followed as described by the MIR
-reporter's rule {ref}`"Check for security relevant binaries, services and behavior" <mir-reporter-s-template>`.
+reporter's rule ["Check for security relevant binaries, services and behavior"](https://github.com/ubuntu/ubuntu-project-docs/blob/main/docs/MIR/mir-reporters-template.md).
 
 ### OpenSSL crate configuration
 The [`openssl` crate](https://docs.rs/openssl/latest/openssl/) provides a safe Rust
