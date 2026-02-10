@@ -71,35 +71,28 @@ Examples of this component:
 
 ### Example: Uploading and updating a new Rust toolchain
 
-Let's say you're uploading Rust 1.95 as the new `rustc-1.95` package for the first time. On your initial upload, you'll make the version string the following:
+:::{list-table} Toolchain versions for various upload situations
+:header-rows: 1
 
-```none
-1.95.0+dfsg-0ubuntu1
-```
-
-Now, assume you need to fix a bug. You must then increment `[ubuntu_revision]`, making the version string for your next upload the following:
-
-```none
-1.95.0+dfsg-0ubuntu2
-```
-
-Next, imagine that you accidentally included an unwanted dependency in the orig tarball and you must prune it out. When you upload this fixed version, you add a `1` after `+dfsg`, resetting `[ubuntu_revision]` back to `1`:
-
-```none
-1.95.0+dfsg1-0ubuntu1
-```
-
-Next, imagine the upstream Rust Foundation creates a patch release for Rust 1.95. After you've synced the package with the new upstream source, you must update the `[upstream_version]`, resetting the rest of the version number:
-
-```none
-1.95.1+dfsg-0ubuntu1
-```
-
-Here's what that same version number would look like after uploading another Ubuntu-specific fix:
-
-```none
-1.85.1+dfsg-0ubuntu2
-```
+*   - Situation
+    - Action
+    - Version string
+*   - Initial upload
+    - Use the default
+    - `1.95.0+dfsg-0ubuntu1`
+*   - Fixing a bug
+    - Increment `[ubuntu_revision]`
+    - `1.95.0+dfsg-0ubuntu2`
+*   - Pruning an unwanted dependency accidentally included in the orig tarball
+    - Add a `1` after `+dfsg`, resetting `[ubuntu_revision]` back to `1`
+    - `1.95.0+dfsg1-0ubuntu1`
+*   - Upstream (Rust Foundation) creates a patch release for Rust 1.95
+    - Update the `[upstream_version]`, resetting the rest of the version number
+    - `1.95.1+dfsg-0ubuntu1`
+*   - Uploading another Ubuntu-specific fix
+    - Use new `[upstream_version]` and increment `[ubuntu_revision]`
+    - `1.95.1+dfsg-0ubuntu2`
+:::
 
 
 ## Rust backport version string
@@ -147,47 +140,34 @@ Here are some examples of this component:
 
 ### Example: Backporting a Rust toolchain
 
-Let's say you need to backport the following Rust toolchain to 24.04:
+Let's say you need to backport the `1.90.0+dfsg2-0ubuntu3` Rust toolchain to Ubuntu 24.04:
 
-```none
-1.90.0+dfsg2-0ubuntu3
-```
+:::{list-table} Toolchain upload and update versions
+:header-rows: 1
 
-Assume that you don't need to modify the orig tarball. Your backport's version string will look like this:
+*   - Situation
+    - Action
+    - Version string
+*   - No need to modify the orig tarball
+    - Add `[series_number]` with `[ubuntu_revision]` at `1`
+    - `1.90.0+dfsg2-0ubuntu0.24.04.1`
+*   - Fixing a bug
+    - Increment `[ubuntu_revision]`
+    - `1.90.0+dfsg2-0ubuntu0.24.04.2`
+*   - Backporting to 22.04 with vendored LLVM (modifying the orig tarball)
+    - Add `~[repack_series]` and change `[series_number]`
+    - `1.90.0+dfsg2~22.04-0ubuntu0.22.04.1`
+*   - Backporting to 20.04 (no modifications to 22.04 tarball)
+    - Keep `~[repack_series]` and change `[series_number]`
+    - `1.90.0+dfsg2~22.04-0ubuntu0.20.04.1`
+*   - Backporting to 18.04 with added vendored `libgit2` (new tarball repacked for 18.04)
+    - Change `~[repack_series]` and `[series_number]`
+    - `1.90.0+dfsg2~18.04-0ubuntu0.18.04.1`
+*   - Fixing an issue with the 18.04 repack
+    - Add `[ubuntu_revision]` to `~[repack_series]`
+    - `1.90.0+dfsg2~18.04.1-0ubuntu0.18.04.1`
+:::
 
-```none
-1.90.0+dfsg2-0ubuntu0.24.04.1
-```
-
-Now, imagine you need to fix a bug and upload a new version of this backport:
-
-```none
-1.90.0+dfsg2-0ubuntu0.24.04.2
-```
-
-Next, imagine you need to backport this toolchain to 22.04. For _this_ backport, LLVM has to be vendored, meaning you needed to modify the orig tarball. The new version string is the following:
-
-```none
-1.90.0+dfsg2~22.04-0ubuntu0.22.04.1
-```
-
-Now, imagine you need to backport this toolchain to 20.04. Here, no further modifications to the orig tarball were necessary, so `[repack_series]` can remain the same, as we're still using the orig tarball from the 22.04 backport:
-
-```none
-1.90.0+dfsg2~22.04-0ubuntu0.20.04.1
-```
-
-Imagine one more backport to 18.04. In this case, `libgit2` _also_ had to be vendored, meaning that a new tarball had to be repacked for the 18.04 backport:
-
-```none
-1.90.0+dfsg2~18.04-0ubuntu0.18.04.1
-```
-
-Finally, imagine that there was an issue with the 18.04 repack, requiring another orig tarball to be uploaded:
-
-```none
-1.90.0+dfsg2~18.04.1-0ubuntu0.18.04.1
-```
 
 ## Legacy version string format
 
