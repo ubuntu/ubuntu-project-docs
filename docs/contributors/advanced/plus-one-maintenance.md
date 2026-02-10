@@ -18,7 +18,7 @@ e.g. if it involved in a massive transition.
 Most of the day-to-day communication around +1 should take place on the public
 [Ubuntu Development](https://matrix.to/#/#devel:ubuntu.com) channel on Matrix.
 
-The [Debcrafters](https://launchpad.net/~debcrafters-packages) team, and [Simon Chopin ](https://launchpad.net/~schopin) in particular, is responsible for
+The [Debcrafters](https://launchpad.net/~debcrafters-packages) team is responsible for
 coordinating the effort.
 
 ## Who can participate?

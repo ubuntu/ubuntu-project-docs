@@ -23,7 +23,7 @@ Prerequisites
 
 .. code-block:: none
 
-    $ sudo apt install dpkg-dev sbuild debhelper ubuntu-dev-tools piuparts
+    $ sudo apt install dpkg-dev sbuild debhelper ubuntu-dev-tools
 
 All of the following sections assume you have already fetched the packaging (see :ref:`how-to-get-the-source-of-a-package`) and are in the same directory as the :file:`debian/` sub-directory.
 
