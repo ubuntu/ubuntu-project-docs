@@ -37,7 +37,7 @@ The `+dfsg` component is _always_ there because during the `rustc` update proces
 
 Normally, the `[repack_number]` can be elided entirely. However, if after the first release the {term}`orig tarball` must be repacked for whatever reason, a `[repack_number]` must be added afterwards, starting at `1`.
 
-If this number must be incremented, then the `[ubuntu_revision]` (described [below](rust-ubuntu-revision)) must be reset back to `1`.
+If this number must be incremented, then the `[ubuntu_revision]` (described in {ref}`rust-ubuntu-revision`) must be reset back to `1`.
 
 > Example: `1.85.1+dfsg-0ubuntu3` -> `1.85.1+dfsg1-0ubuntu1`
 
