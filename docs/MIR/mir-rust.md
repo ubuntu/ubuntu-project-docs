@@ -290,7 +290,7 @@ Rust code in `main` that uses TLS must use OpenSSL with the system-wide OpenSSL 
 
 This may require significant changes to some Rust code, but it is required for now to
 ensure that system-wide cryptographic policies are followed as described by the MIR
-reporter's rule {ref}`"Check for security relevant binaries, services and behavior" <mir-reporter-s-template>`.
+reporter's rule {ref}`"Check for security relevant binaries, services and behavior" <mir-reporters-template>`.
 
 ### OpenSSL crate configuration
 The [`openssl` crate](https://docs.rs/openssl/latest/openssl/) provides a safe Rust
