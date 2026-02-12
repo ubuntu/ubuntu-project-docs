@@ -187,22 +187,67 @@ https://autopkgtest.ubuntu.com/results/autopkgtest-<RELEASE>-<LPUSER>-<PPA>/
 (generate-test-re-trigger-urls)=
 ### Generate test re-trigger URLs
 
-Use the [`excuses-kicker`](https://code.launchpad.net/~bryce/+git/excuses-kicker) tool to generate `autopkgtest` re-trigger URLs.
+While tests are discoverable in multiple ways, a user can navigate the web
+overview of [`autopkgtest.`](https://autopkgtest.ubuntu.com) to find
+regular patterns or they can use the {ref}`Update Excuses page <update-excuses-page>`
+to analyze an issue in depth.
+Each of these views allow to (re-)trigger failed tests, via interaction in the web UI.
 
-See [`INSTALL.md`](https://git.launchpad.net/~bryce/+git/excuses-kicker/tree/INSTALL.md) for installation instructions.
+But sometimes that would be a lot of clicks at different places, this is when
+helpful tools come into play like `retry-autopkgtest-regressions`.
 
-Run as:
+One way to look at it is "please give me all tests that block a particular package.
+This essentially delivers all the URLs you would see for the same package at
+the {ref}`Update Excuses page <update-excuses-page>` with a failure and retry icon.
 
-```none
-$ excuses-kicker <package>
+```bash
+./retry-autopkgtest-regressions --blocks apache2 --series resolute
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=s390x&package=mediawiki-extension-youtube&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=amd64&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=arm64&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=i386&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=s390x&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=ppc64el&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
 ```
 
-:::{note}
-The tool automatically adds packages to the test run that the requested package has been tested against in the past. These may not be direct dependencies for the requested package -- they serve as an informed guess.
-:::
+But if an issue have been found, analyzed and resolved - there often is the need
+to run the test on a bigger scale. In the example above `sitesummary` was generally
+broken and also blocked the migration of other packages.
 
-TODO: Add info about [retry-autopkgtest-regressions](https://git.launchpad.net/ubuntu-archive-tools/tree/retry-autopkgtest-regressions). See also [Re-running tests](https://autopkgtest-cloud.readthedocs.io/en/latest/administration.html#re-running-tests).
+While these tests could be executed one by one, that would consume more test resources.
+Instead using `--blocked-by-tests` one can get URLs that will run the respective
+test, against all packages that currently are blocked due to it at once.
 
+```bash
+./retry-autopkgtest-regressions --blocked-by-tests sitesummary
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=amd64&package=sitesummary&trigger=debconf%2F1.5.91build1&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=arm64&package=sitesummary&trigger=debconf%2F1.5.91build1&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=ppc64el&package=sitesummary&trigger=debconf%2F1.5.91build1&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=i386&package=sitesummary&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
+```
+
+There are more options, quite common for example is the use of `--all-proposed`, here an excerpt of the --help output:
+
+```text
+  --all-proposed        run tests against all of proposed, i. e. with disabling apt pinning
+  --add-trigger ADD_TRIGGER
+                        add trigger(s) with a $PKG/$VERSION combo
+  --state STATE [STATE ...]
+                        Generate commands for given test state (default: []). --state=RUNNING also enables triggering already queued and running tests
+  --max-age DAYS        only consider candidates which are at most this number of days old (float allowed)
+  --min-age DAYS        only consider candidates which are at least this number of days old (float allowed)
+  --blocks BLOCKS       rerun only those tests that were triggered by the named package
+  --blocked-by BLOCKED_BY
+                        rerun only those tests that are blocked by (rdeps of) the named package
+  --blocked-by-tests BLOCKED_BY_TESTS
+                        rerun only those tests that are blocked by test failures of the named package
+  --no-proposed         run tests against release+updates instead of against proposed, to re-establish a baseline for the test. This currently only works for packages that do not themselves
+                        have a newer version in proposed.
+  --only-unknown        only include tests with version of "unknown". This version can be returned in the case of breakage in the base system, or some types of infrastructure issues, and it
+                        can be helpful to mass retry these only.
+  --log-regex LOG_REGEX
+                        only consider tests with logs matching the (Python) regular expression
+```
 
 (trigger-tests-from-the-command-line)=
 ### Trigger tests from the command line
