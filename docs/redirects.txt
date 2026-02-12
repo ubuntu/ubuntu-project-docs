@@ -213,7 +213,7 @@ who-makes-ubuntu/about-roles/archive-administration/ who-makes-ubuntu/roles/arch
 
 who-makes-ubuntu/about-roles/index-SRU/ who-makes-ubuntu/roles/SRU/
 
-who-makes-ubuntu/about-roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/sru-sla/
+who-makes-ubuntu/about-roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/
 
 who-makes-ubuntu/about-roles/index-uploaders/ who-makes-ubuntu/roles/uploaders/
 
@@ -228,8 +228,10 @@ contributors/bug-fix/bug-control/ who-makes-ubuntu/specialist-teams/bug-control-
 # =============================================================================
 
 SRU/explanation/ SRU/stable-release-updates/
+SRU/explanation/roles/ who-makes-ubuntu/roles/SRU/
 SRU/index SRU/stable-release-updates/
 how-ubuntu-is-made/processes/stable-release-updates/ SRU/stable-release-updates/
+who-makes-ubuntu/roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/
 
 # =============================================================================
 # MIR
