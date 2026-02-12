@@ -5,6 +5,17 @@ Core Developers (Core Devs) are members of the [`ubuntu-core-dev`](https://launc
 Core Devs collectively maintain all packages in Ubuntu, which notably includes uploading to the `main` component.
 Core Devs also have elevated privileges for re-triggering autopkgtests and performing other administrative actions in Ubuntu.
 
+## Coverage Ubuntu on Github
+
+To maintain all there is that makes Ubuntu a core developer also gets access to {ref}`Ubuntu on Github <github-ubuntu>`.
+
+Upon achieving ubuntu core developer permission - and under the condition that a github user is registered with the launchpad id (configured under 'Social accounts' on your Launchpad profile page) - the DMB will also add the applicant as [member to the organization](https://github.com/orgs/ubuntu/people).
+
+Ubuntu core developers that did not identify their associated github user before can reach out to the {ref}`DMB <dmb>` to be added.
+
+Upon loss of Ubuntu core developer status, GitHub organization membership will be revoked as well.
+
+<!-- TODO - once PR #364 is merged adn the content is in the new form at the right place we also need to update the doc in regard to the steps after approving an applicant` -->
 
 (core-dev-training-and-preparation)=
 ## Training and preparation
