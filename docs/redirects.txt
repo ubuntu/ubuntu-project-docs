@@ -9,39 +9,278 @@
 # - A file is built like `filename/index.html`, not `filename.html`
 # - *Do* include a trailing slash at the end of the path
 # - *Do not* include a file extension or you'll get errors
-# - Paths don't need a slash in front of them
+# - Paths don't need a slash in front of them, only at the end
 
 # Example:
 # redirect/from/file/ redirect/to/file/
 
-# Pages moved out of staging
+# Sections are split according to where the target page lives.
+# All redirects pointing to the same target should be grouped together so they
+# can be more easily updated if they change.
+
+# =============================================================================
+# How Ubuntu is made
+# =============================================================================
+
+explanation/_index/ how-ubuntu-is-made/
+reference/_index/ how-ubuntu-is-made/
+
+how-ubuntu-is-made/index-concepts/ how-ubuntu-is-made/concepts/
+
+reference/patchfile-headers/ how-ubuntu-is-made/concepts/deb-3-patch-file-headers/
+
+reference/debian-dir-overview/ how-ubuntu-is-made/concepts/debian-directory/
+
+reference/debian-policy/ how-ubuntu-is-made/concepts/debian-policy/
+
+reference/filesystem-hierarchy-standard/ how-ubuntu-is-made/concepts/filesystem-hierarchy-standard/
+
+explanation/launchpad/ how-ubuntu-is-made/concepts/launchpad/
+reference/launchpad-text-markup/ how-ubuntu-is-made/concepts/launchpad/
+
+staging/package-archive/ how-ubuntu-is-made/concepts/package-archive/
+explanation/archive/ how-ubuntu-is-made/concepts/package-archive/
+
+explanation/package-model/ how-ubuntu-is-made/concepts/package-format/
+
+explanation/patches/ how-ubuntu-is-made/concepts/patches/
+
+staging/phased-updates/ how-ubuntu-is-made/concepts/phased-updates/
+
+reference/architectures/ how-ubuntu-is-made/concepts/supported-architectures/
+
+explanation/upstream-and-downstream/ how-ubuntu-is-made/concepts/upstream-and-downstream/
+
+reference/package-version-format/ how-ubuntu-is-made/concepts/version-strings/
+
+how-ubuntu-is-made/index-processes/ how-ubuntu-is-made/processes/
+
+explanation/backports/ how-ubuntu-is-made/processes/backports/
+
+reference/glossary/ how-ubuntu-is-made/concepts/glossary/
+
+explanation/debian-merges-and-syncs/ how-ubuntu-is-made/processes/merges-and-syncs/
+
+staging/new-packages/ how-ubuntu-is-made/processes/new-packages/
+
+explanation/proposed-migrations/ how-ubuntu-is-made/processes/proposed-migration/
+
+explanation/sponsorship/ how-ubuntu-is-made/processes/sponsorship/
+
+explanation/transitions/ how-ubuntu-is-made/processes/transitions/
+
+# =============================================================================
+# Contributors
+# =============================================================================
+
+tutorial/_index/ contributors/
+how-to/_index/ contributors/
+
+contributors/index-advanced/ contributors/advanced/
+
 staging/AA/contributors/aa-request-package-removal/ contributors/advanced/aa-request-package-removal/
 staging/AA/contributors/request-package-removal/ contributors/advanced/aa-request-package-removal/
+contributors/advanced/request-package-removal/ contributors/advanced/aa-request-package-removal/
+
+tutorial/fix-bug/ contributors/bug-fix/
+contributors/index-bug-fix/ contributors/bug-fix/
+
+contributors/bug-fix/build-packages/ contributors/bug-fix/build-packages-in-a-ppa/
+contributors/bug-fix/package-building/ contributors/bug-fix/build-packages-in-a-ppa/
+
+how-to/build-packages/ contributors/bug-fix/build-packages-locally/
+
+how-to/extract-packages/ contributors/bug-fix/extract-packages/
+
+contributors/bug-fix/download-new-upstream-version/ contributors/bug-fix/get-a-new-upstream-version/
+how-to/download-new-upstream-version/ contributors/bug-fix/get-a-new-upstream-version/
+
+how-to/install-built-packages/ contributors/bug-fix/install-built-packages/
+how-to/propose-changes/ contributors/bug-fix/propose-changes/
+
+how-to/run-tests/ contributors/bug-fix/run-package-tests/
+contributors/bug-fix/package-tests/ contributors/bug-fix/run-package-tests/
+
+contributors/index-bug-triage/ contributors/bug-triage/
+
+contributors/bug-triage/assign-bug-to-package/ contributors/bug-triage/assign-a-bug-to-a-package/
+
+how-to/contribute-docs/ contributors/contribute-docs/
+
+contributors/index-debugging/ contributors/debugging/
+
+contributors/debugging/debug-apport-crash/ contributors/debugging/debug-an-apport-crash/
+
+tutorial/merge-a-package/ contributors/merging/
+how-to/merge-a-package/ contributors/merging/
+
+contributors/advanced/merge-a-package/ contributors/merging/
+
+contributors/merging/submit-merge-proposal/ contributors/merging/git-ubuntu-merge-proposal/
+
+contributors/index-new-package/ contributors/new-package/
+
+contributors/new-package/create-new-package/ contributors/new-package/create-a-new-package/
+tutorial/create-new-package/ contributors/new-package/create-a-new-package/
+
+contributors/new-package/request-sru/ contributors/new-package/request-an-sru/
+
+contributors/new-package/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa/
+how-to/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa/
+
+contributors/index-patching/ contributors/patching/
+
+contributors/patching/committing-changes/ contributors/patching/commit-changes/
+
+contributors/patching/salsa-dual-maintenance/ contributors/patching/dual-maintenance-with-salsa-and-git-ubuntu/
+
+contributors/patching/make-changes-to-package/ contributors/patching/make-changes-to-a-package/
+tutorial/make-changes-to-package/ contributors/patching/make-changes-to-a-package/
+
+contributors/patching/patch-management/ contributors/patching/manage-patches/
+how-to/patch-management/ contributors/patching/manage-patches/
+
+contributors/patching/merge-proposal/ contributors/patching/submit-a-merge-proposal/
+
+contributors/index-qa-and-testing/ contributors/qa-and-testing/
+
+contributors/index-setup/ contributors/setup/
+tutorial/getting-set-up/ contributors/setup/
+
+contributors/setup/get-package-source/ contributors/setup/get-the-source-of-a-package/
+how-to/get-package-source/ contributors/setup/get-the-source-of-a-package/
+
+contributors/setup/setup/ contributors/setup/set-up-for-ubuntu-development/
+how-to/use-schroots/ contributors/setup/set-up-for-ubuntu-development/
+
+contributors/sync-process/ contributors/uploading/request-a-sync/
+contributors/request-a-sync/ contributors/uploading/request-a-sync/
+
+contributors/find-a-sponsor/ contributors/uploading/find-a-sponsor/
+
+# =============================================================================
+# Maintainers
+# =============================================================================
+
+maintainers/index-AA/ maintainers/AA/
+
+staging/AA/maintainers/aa-new-review/ maintainers/AA/aa-new-review/
+
 staging/AA/maintainers/aa-package-removal/ maintainers/AA/aa-package-removal/
+
 staging/AA/wiki-package-overrides/ maintainers/AA/aa-package-overrides/
 staging/AA/maintainers/aa-package-overrides/ maintainers/AA/aa-package-overrides/
+
 staging/AA/maintainers/aa-priority-mismatches/ maintainers/AA/aa-priority-mismatches/
-staging/AA/maintainers/aa-new-review/ maintainers/AA/aa-new-review/
+
 staging/AA/maintainers/aa-signing-bootloaders/ maintainers/AA/aa-signing-bootloaders/
-staging/phased-updates/ how-ubuntu-is-made/concepts/phased-updates/
+
+maintainers/index-SRU/ maintainers/SRU/
+
+maintainers/index-uploader/ maintainers/uploader/
+
+# =============================================================================
+# Who makes Ubuntu
+# =============================================================================
+
+who-makes-ubuntu/index-councils/ who-makes-ubuntu/councils/
+
+staging/dmb/dmb/ who-makes-ubuntu/councils/dmb/
+
+staging/dmb/index-dmb/ staging/dmb/index-umb/
+
+who-makes-ubuntu/joining/index/ who-makes-ubuntu/developers/dmb-index/
+staging/dmb/ubuntu-developers/ who-makes-ubuntu/developers/dmb-index/
+who-makes-ubuntu/joining/path-to-upload-rights/ who-makes-ubuntu/developers/dmb-index/
+who-makes-ubuntu/index-joining/ who-makes-ubuntu/developers/dmb-index/
+who-makes-ubuntu/joining/dmb-index who-makes-ubuntu/developers/dmb-index/
+
+staging/dmb/dmb-application/ who-makes-ubuntu/developers/dmb-application/
+
+staging/dmb/dmb-application-knowledge-requirements/ who-makes-ubuntu/developers/dmb-application-knowledge-requirements/
+
+staging/dmb/dmb-aspects-of-a-good-application/ who-makes-ubuntu/developers/dmb-aspects-of-a-good-application/
+
+who-makes-ubuntu/joining/membership-in-core-dev/ who-makes-ubuntu/developers/dmb-joining-core-dev/
+
+who-makes-ubuntu/joining/membership-in-MOTU/ who-makes-ubuntu/developers/dmb-joining-MOTU/
+
+who-makes-ubuntu/joining/membership-in-packageset/ who-makes-ubuntu/developers/dmb-joining-packageset/
+
+who-makes-ubuntu/index-roles/ who-makes-ubuntu/roles/
+
+who-makes-ubuntu/about-roles/archive-administration/ who-makes-ubuntu/roles/archive-administration/
+
+who-makes-ubuntu/about-roles/index-SRU/ who-makes-ubuntu/roles/SRU/
+
+who-makes-ubuntu/about-roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/sru-sla/
+
+who-makes-ubuntu/about-roles/index-uploaders/ who-makes-ubuntu/roles/uploaders/
+
+who-makes-ubuntu/about-roles/uploaders/uploaders-sla/ who-makes-ubuntu/roles/uploaders/uploaders-sla/
+
+who-makes-ubuntu/index-specialist-teams/ who-makes-ubuntu/specialist-teams/
+
+contributors/bug-fix/bug-control/ who-makes-ubuntu/specialist-teams/bug-control-team/
+
+# =============================================================================
+# SRU
+# =============================================================================
+
+SRU/explanation/ SRU/stable-release-updates/
+SRU/index SRU/stable-release-updates/
+how-ubuntu-is-made/processes/stable-release-updates/ SRU/stable-release-updates/
+
+# =============================================================================
+# MIR
+# =============================================================================
+
+maintainers/index-MIR/ MIR/mir-handling-mir-reviews/
+
+who-makes-ubuntu/about-roles/index-MIR/ MIR/mir-about-the-mir-role/
+
+explanation/main-inclusion-review/ MIR/main-inclusion-review/
+
+# =============================================================================
+# Release team
+# =============================================================================
+
 staging/feature-freeze/ release-team/freezes/
+how-ubuntu-is-made/processes/freezes/ release-team/freezes/
+
 staging/seed-management/ staging/release-team/seed-management/
+
 staging/germinate/ staging/release-team/germinate/
+
 staging/release-team/freeze-exceptions/ release-team/freeze-exceptions/
 staging/freeze-exceptions/ release-team/freeze-exceptions/
+
 staging/release-team/request-a-freeze-exception/ release-team/request-a-freeze-exception/
 staging/request-a-freeze-exception/ release-team/request-a-freeze-exception/
+how-to/request-freeze-exception/ release-team/request-a-freeze-exception/
+
 staging/release-team/mirrors/ release-team/mirrors/
 staging/mirrors/ release-team/mirrors/
+
 staging/release-team/mirror-scripts/ release-team/mirror-scripts/
 staging/mirror-scripts/ release-team/mirror-scripts/
+
 staging/release-team/push-mirroring/ release-team/push-mirroring/
 staging/push-mirroring/ release-team/push-mirroring/
-staging/release-team/release-team/ release-team/release-team/
-staging/release-team/releases/ release-team/list-of-releases/
-staging/package-archive/ how-ubuntu-is-made/concepts/package-archive/
 
-# Governance/community pages
+staging/release-team/release-team/ release-team/release-team/
+
+staging/release-team/releases/ release-team/list-of-releases/
+
+how-ubuntu-is-made/concepts/ubuntu-releases/ release-team/ubuntu-releases/
+explanation/releases/ release-team/ubuntu-releases/
+
+how-ubuntu-is-made/processes/release-cycle/ release-team/release-cycle/
+
+# =============================================================================
+# Community team
+# =============================================================================
+
 explanation/governance/ community/
 how-ubuntu-is-made/index-governance/ community/
 how-ubuntu-is-made/governance/ community/
@@ -53,94 +292,28 @@ reference/governance/ethos/mission/ community/ethos/mission/
 how-ubuntu-is-made/governance/ethos/mission community/ethos/mission/
 
 how-ubuntu-is-made/governance/ethos/code-of-conduct community/ethos/code-of-conduct
+
 how-ubuntu-is-made/governance/ethos/diversity community/ethos/diversity
 
-reference/governance/conflict-resolution/ who-makes-ubuntu/councils/conflict-resolution/
+reference/governance/conflict-resolution/ community/councils/conflict-resolution/
 who-makes-ubuntu/councils/conflict-resolution/ community/councils/conflict-resolution/
 
 how-ubuntu-is-made/governance/peers/ community/governance/
 
-staging/new-packages/ how-ubuntu-is-made/processes/new-packages/
 staging/dmb/ubuntu-membership/ community/membership/
+
 staging/dmb/member-perks/ community/membership/member-perks/
+
 staging/dmb/member-requirements/ community/membership/member-requirements/
+
 staging/dmb/member-application/ community/membership/member-application/
 
-staging/dmb/dmb-application/ who-makes-ubuntu/developers/dmb-application/
-staging/dmb/dmb/ who-makes-ubuntu/councils/dmb/
-staging/dmb/index-dmb/ staging/dmb/index-umb/
-staging/dmb/ubuntu-developers/ who-makes-ubuntu/developers/dmb-index/
-staging/dmb/dmb-application-knowledge-requirements/ who-makes-ubuntu/developers/dmb-application-knowledge-requirements/
-staging/dmb/dmb-aspects-of-a-good-application/ who-makes-ubuntu/developers/dmb-aspects-of-a-good-application/
-who-makes-ubuntu/joining/index/ who-makes-ubuntu/developers/dmb-index/
-who-makes-ubuntu/joining/membership-in-core-dev/ who-makes-ubuntu/developers/dmb-joining-core-dev/
-who-makes-ubuntu/joining/membership-in-MOTU/ who-makes-ubuntu/developers/dmb-joining-MOTU/
-who-makes-ubuntu/joining/membership-in-packageset/ who-makes-ubuntu/developers/dmb-joining-packageset/
-who-makes-ubuntu/joining/path-to-upload-rights/ who-makes-ubuntu/developers/dmb-index/
-
-# Pages moved around
-reference/glossary/ how-ubuntu-is-made/concepts/glossary/
-how-to/contribute-docs/ contributors/contribute-docs/
-contributors/advanced/request-package-removal/ contributors/advanced/aa-request-package-removal/
-contributors/bug-fix/bug-control/ who-makes-ubuntu/specialist-teams/bug-control-team/
-
-how-ubuntu-is-made/concepts/ubuntu-releases/ release-team/ubuntu-releases/
-how-ubuntu-is-made/processes/release-cycle/ release-team/release-cycle/
-how-ubuntu-is-made/processes/freezes/ release-team/freezes/
-
-# Change from index-<section> landing pages to <section>/index
-contributors/index-advanced/ contributors/advanced/
-contributors/index-bug-fix/ contributors/bug-fix/
-contributors/index-bug-triage/ contributors/bug-triage/
-contributors/index-debugging/ contributors/debugging/
-contributors/index-new-package/ contributors/new-package/
-contributors/index-patching/ contributors/patching/
-contributors/index-qa-and-testing/ contributors/qa-and-testing/
-contributors/index-setup/ contributors/setup/
-how-ubuntu-is-made/index-concepts/ how-ubuntu-is-made/concepts/
-how-ubuntu-is-made/index-processes/ how-ubuntu-is-made/processes/
-maintainers/index-AA/ maintainers/AA/
-maintainers/index-MIR/ MIR/mir-handling-mir-reviews/
-maintainers/index-SRU/ maintainers/SRU/
-maintainers/index-uploader/ maintainers/uploader/
-who-makes-ubuntu/index-roles/ who-makes-ubuntu/roles/
-who-makes-ubuntu/about-roles/index-MIR/ MIR/mir-about-the-mir-role/
-who-makes-ubuntu/about-roles/index-SRU/ who-makes-ubuntu/roles/SRU/
-who-makes-ubuntu/about-roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/sru-sla/
-who-makes-ubuntu/about-roles/index-uploaders/ who-makes-ubuntu/roles/uploaders/
-who-makes-ubuntu/about-roles/uploaders/uploaders-sla/ who-makes-ubuntu/roles/uploaders/uploaders-sla/
-who-makes-ubuntu/about-roles/archive-administration/ who-makes-ubuntu/roles/archive-administration/
-who-makes-ubuntu/index-councils/ who-makes-ubuntu/councils/
-who-makes-ubuntu/index-joining/ who-makes-ubuntu/developers/dmb-index/
-who-makes-ubuntu/joining/dmb-index who-makes-ubuntu/developers/dmb-index/
-who-makes-ubuntu/index-specialist-teams/ who-makes-ubuntu/specialist-teams/
-
-contributors/advanced/merge-a-package/ contributors/merging/
-contributors/sync-process/ contributors/uploading/request-a-sync/
-contributors/request-a-sync/ contributors/uploading/request-a-sync/
-contributors/find-a-sponsor/ contributors/uploading/find-a-sponsor/
-contributors/bug-fix/build-packages/ contributors/bug-fix/build-packages-in-a-ppa/
-contributors/bug-fix/download-new-upstream-version/ contributors/bug-fix/get-a-new-upstream-version/
-contributors/bug-fix/package-building/ contributors/bug-fix/build-packages-in-a-ppa/
-contributors/bug-fix/package-tests/ contributors/bug-fix/run-package-tests/
-contributors/bug-triage/assign-bug-to-package/ contributors/bug-triage/assign-a-bug-to-a-package/
-contributors/debugging/debug-apport-crash/ contributors/debugging/debug-an-apport-crash/
-contributors/new-package/create-new-package/ contributors/new-package/create-a-new-package/
-contributors/new-package/request-sru/ contributors/new-package/request-an-sru/
-contributors/new-package/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa/
-contributors/patching/committing-changes/ contributors/patching/commit-changes/
-contributors/patching/make-changes-to-package/ contributors/patching/make-changes-to-a-package/
-contributors/patching/merge-proposal/ contributors/patching/submit-a-merge-proposal/
-contributors/patching/patch-management/ contributors/patching/manage-patches/
-contributors/patching/salsa-dual-maintenance/ contributors/patching/dual-maintenance-with-salsa-and-git-ubuntu/
-contributors/setup/get-package-source/ contributors/setup/get-the-source-of-a-package/
-contributors/setup/setup/ contributors/setup/set-up-for-ubuntu-development/
-contributors/merging/submit-merge-proposal/ contributors/merging/git-ubuntu-merge-proposal/
-
 community/contribute/contribute/ community/contribute/
+
 community/governance/ubuntu-teams/ community/teams/ubuntu-teams/
 
-SRU/index SRU/stable-release-updates/
-SRU/explanation/ SRU/
-how-ubuntu-is-made/processes/stable-release-updates/ SRU/stable-release-updates/
+# =============================================================================
+# Other
+# =============================================================================
 
+explanation/development-process/ staging/dmb/ubuntu-development/
