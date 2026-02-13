@@ -26,7 +26,7 @@ The process of filtering the vendored crates relies on a custom cargo subcommand
 cargo install cargo-vendor-filterer
 ```
 
-Then run the `debian/rules` script using the `vendor-tarball` target:
+This installs the binary `cargo-vendor-filterer` into the location `~/.cargo/bin` inside your home directory. You will need to add `~/.cargo/bin` to your `PATH` if it is not already there. Then run the `debian/rules` script using the `vendor-tarball` target:
 
 ```bash
 ~/rustc/rustc$ debian/rules vendor-tarball
