@@ -187,18 +187,25 @@ https://autopkgtest.ubuntu.com/results/autopkgtest-<RELEASE>-<LPUSER>-<PPA>/
 (generate-test-re-trigger-urls)=
 ### Generate test re-trigger URLs
 
-While tests are discoverable in multiple ways, a user can navigate the web
-overview of [`autopkgtest.`](https://autopkgtest.ubuntu.com) to find
-regular patterns or they can use the {ref}`Update Excuses page <update-excuses-page>`
-to analyze an issue in depth.
+Tests are discoverable in multiple ways, usually new users interact through web UI.
+Either with the scope being to check particular packages or tests via the overview
+at [`autopkgtest.`](https://autopkgtest.ubuntu.com).
+
+Or they care about the status of a package in proposed migration and interact
+via the {ref}`Update Excuses page <update-excuses-page>` to analyze an what
+holds the transition back.
+
 Each of these views allow to (re-)trigger failed tests, via interaction in the web UI.
 
-But sometimes that would be a lot of clicks at different places, this is when
-helpful tools come into play like `retry-autopkgtest-regressions`.
+When working more intensely with proposed migration one might require the
+discovery and (re-)triggering of various tests at once.
+The [retry-autopkgtest-regressions](https://git.launchpad.net/ubuntu-archive-tools/tree/retry-autopkgtest-regressions)
+tool from the [ubuntu-archive-tools](https://launchpad.net/ubuntu-archive-tools)
+collection can be used to obtain re-trigger links based on specified criteria..
 
-One way to look at it is "please give me all tests that block a particular package.
-This essentially delivers all the URLs you would see for the same package at
-the {ref}`Update Excuses page <update-excuses-page>` with a failure and retry icon.
+A common use case is "give me all tests that block a particular package". This
+delivers all the URLs listed for the same package at the
+{ref}`update-excuses-page` with a failure and retry icon. For example:
 
 ```bash
 ./retry-autopkgtest-regressions --blocks apache2 --series resolute
