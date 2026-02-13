@@ -227,8 +227,7 @@ contributors/bug-fix/bug-control/ who-makes-ubuntu/specialist-teams/bug-control-
 # SRU
 # =============================================================================
 
-SRU/explanation/ SRU/
-
+SRU/explanation/ SRU/stable-release-updates/
 SRU/index SRU/stable-release-updates/
 how-ubuntu-is-made/processes/stable-release-updates/ SRU/stable-release-updates/
 
