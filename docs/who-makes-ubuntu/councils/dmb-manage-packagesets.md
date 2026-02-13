@@ -74,10 +74,38 @@ like Personal packagesets and OEM metapackage packagesets.
   A DMB member then needs to judge the description against the requested change
   and may apply the change if they decide it is warranted.
 
-* **{ref}`seeds` based Packagesets** are instead *mostly* defined by what is
-  seeded for a particular Ubuntu variant. That is not strictly only and exactly
-  the content of an ISO or image, but might also include related supported seeds
-  that represent common use cases that are not default installed.
+* **{ref}`seeds` based Packagesets** are instead defined by what is
+  generally seeded and supported for a particular Ubuntu variant or has a
+  direct relation to a seed named in the description.
+  One has to be careful as there are exceptions that force a seed based
+  packageset seeds to not be just equal to the seed.
+  defies the purpose (See below about details on these cases).
+  * These packagesets used to be fully generated based on
+    [this code](https://code.launchpad.net/~developer-membership-board/+git/packageset)
+    and the logic tries to detect how sources are shared between flavours to
+    remove those. But that has proven to cause to cause too many exceptions.
+    Therefore they have - for now - become defined by the seeds, but modified
+    manually on request.
+  * While currently not automated, the DMB still aims for *eventual
+    consistency*. A seed based packageset should converge to be based on the
+    seed, plus exceptions (previously maintained in the script in git).
+    Just like packagesets based on a logical definition converge on the text
+    of their definition.
+  * Common reasons for exceptions to a pure seed = packageset approach are:
+    * Consider to remove a package from a set if is is in the related seed, but
+      so central and impactful, that adding it would effectively make the
+      Packageset to require core-developer permission level. That would defy
+      the purpose of being a stepping stone for upload permissions as on one
+      could join until the could get core-developer rights anyway.
+      Examples of that would be: `grub2`, `systemd`, or `cloud-init`.
+    * Consider to remove a package from a set if it is also claimed by other
+      seeds or common use case. In that case it often, but not always, is only
+      updated by Ubuntu core-developers.
+      Examples of that would be: `vim`, `dhcpcd` or `tzdata`
+    * Consider to add a package to a set if it is not in the seeds, but such a
+      common use case for the Packageset that the same set of people that care
+      about the rest is likely to also maintain these packages.
+      Examples of that would be: `docker.io` or `valkey`
 
 * **Personal Packagesets** are used where an individual has a special reason for
   upload rights to a large number of packages that the DMB expects to need to
@@ -106,50 +134,6 @@ like Personal packagesets and OEM metapackage packagesets.
   * Documented at [OEM Archive](https://wiki.ubuntu.com/OEMArchive)
 
 ### Why are seed based Packagesets not generated?
-
-These used to be fully generated based on
-[this code](https://code.launchpad.net/~developer-membership-board/+git/packageset)
-and the logic how sources are shared between flavours. But that has proven to
-cause too many rough edge cases. Therefore text above says "Mostly" as there
-are often are a few packages that make sense to be added or removed when
-compared to the pure list that would come out of the seeds to make it more
-practical.
-
-Such cases could be:
-
-* Consider to remove a package from a set if is is in the related seed, but so
-  central and impactful, that adding it would effectively make the Packageset to
-  require core-developer permission level. This not only reduces impact, it also
-  avoids that all Packagesets are very hard to join as they need core-dev
-  like requirements to join as an uploader.
-
-* Consider to remove a package from a set if it is also claimed by other seeds.
-  In that case it often, but not always, is only updated by Ubuntu core-developers.
-
-* Consider to add a package to a set if it is not in the seeds, but such a
-  common use case for the Packageset that the same set of people that care
-  about the rest is likely to also maintain these packages.
-
-If in doubt it is worthwhile to compare a few sets of data to make decisions
-what might need to be added or dropped from a Packageset. Here an example
-for the ubuntu-server team:
-
-* Fetch the current Packageset like `./edit-acl query --series resolute --packageset ubuntu-server`
-* Look at the seeds
-  * To do so fetch [ubuntu seeds](https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/ubuntu/tree/)
-    and [platform seeds](https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/platform/tree/),
-    to then check for anything related to server.
-  * Or check the [germinated output](https://ubuntu-archive-team.ubuntu.com/germinate-output/ubuntu.resolute/)
-    for an artifact you are interested in.
-  * Yet one has to admit that seeds are hard to read, because they are expanded by
-    dependencies and evaluated for various slightly different artifacts.
-    Gladly what you need to compare, is often nicely approximated by checking what
-    a team with the a related responsibility is subscribed to. And if they are
-    not subscribed despite being in the germinated seed it would often be a case
-    of overlapping responsibilities that suggest core-developer rights anyway.
-    Therefore consider `curl --silent http://reports.qa.ubuntu.com/m-r-package-team-mapping.json | jq -r '."ubuntu-server"[]'`
-    to be the most simple solution.
-* Out of such a three way comparison in an example of 2025 we generated and discussed [this list](https://lists.ubuntu.com/archives/devel-permissions/2025-September/002906.html)
 
 (dmb-modify-packagesets)=
 ## How to modify a Packageset
