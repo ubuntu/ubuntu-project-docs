@@ -104,9 +104,11 @@ maintainers/index-MIR/ MIR/mir-handling-mir-reviews/
 maintainers/index-SRU/ maintainers/SRU/
 maintainers/index-uploader/ maintainers/uploader/
 who-makes-ubuntu/index-roles/ who-makes-ubuntu/roles/
+SRU/explanation/roles/ who-makes-ubuntu/roles/SRU/
 who-makes-ubuntu/about-roles/index-MIR/ MIR/mir-about-the-mir-role/
 who-makes-ubuntu/about-roles/index-SRU/ who-makes-ubuntu/roles/SRU/
-who-makes-ubuntu/about-roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/sru-sla/
+who-makes-ubuntu/about-roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/
+who-makes-ubuntu/roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/
 who-makes-ubuntu/about-roles/index-uploaders/ who-makes-ubuntu/roles/uploaders/
 who-makes-ubuntu/about-roles/uploaders/uploaders-sla/ who-makes-ubuntu/roles/uploaders/uploaders-sla/
 who-makes-ubuntu/about-roles/archive-administration/ who-makes-ubuntu/roles/archive-administration/
@@ -143,4 +145,3 @@ community/governance/ubuntu-teams/ community/teams/ubuntu-teams/
 SRU/index SRU/stable-release-updates/
 SRU/explanation/ SRU/
 how-ubuntu-is-made/processes/stable-release-updates/ SRU/stable-release-updates/
-
