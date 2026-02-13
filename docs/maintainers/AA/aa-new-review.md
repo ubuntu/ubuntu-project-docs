@@ -169,22 +169,14 @@ is in this format, I consider failures to follow the standard to be
 reject-level bugs.
 
 The actual process of assessing whether a given package's `debian/copyright` is
-correct is a disaster. There should be standard tools, shared between package
-maintainers, Debian FTP team, and Ubuntu Archive Admins, that traverse the
-source package tree, work out the license and copyright of all files, and
-compare that with the contents of a machine-readable `debian/copyright` to see
-if they match; with support for a `debian/copyright.overrides` that allows the
-maintainer to add declarations when auto-detection of the license/copyright in
-the source tree is incorrect.
+correct is complex - there are standard (not mandatory) and tools (with many
+rough edges) to help. The usual approach is to use is {manpage}`lrc(1)`, which
+can traverse the source package tree, work out the license and copyright of all
+files, and compare that with the contents of a machine-readable
+`debian/copyright` to see if they match.
 
-We don't have that.
-
-Instead, we have `licensecheck -r`, which you can run over the tree of a source
-package to get a guess as to the copyright and license, one line per file; and
-then you can do *ad hoc* scripting to work out from that output whether
-`debian/copyright` matches.
-
-You'd be surprised how often something uploaded to the NEW queue doesn't.
+Still there are many false positives, overrides and special cases left, you'd be
+surprised how often something uploaded to the NEW queue doesn't match.
 
 Also, it's good to bear in mind the Canonical licensing policy for open source
 projects is GPLv3 by default.
