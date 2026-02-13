@@ -87,7 +87,7 @@ For example, if you were backporting `rustc-1.82` to Jammy...
 
 `<N>` is the suffix for `~bpo` in the {ref}`changelog version number <rust-version-strings>` and signals which crucial Rust dependencies (if any) were re-included in the source tarball.
 
-`<lp_bug_number>` refers to the bug number on Launchpad.
+`<lp_bug_number>` refers to the bug number on Launchpad requesting this backport (if applicable).
 
 ```{include} common/local-repo-setup.md
 
@@ -96,22 +96,13 @@ For example, if you were backporting `rustc-1.82` to Jammy...
 
 ## Backport process
 
-The baseline backport process is essentially trivial on its own and has few distinguishing features from a regular Rust toolchain update. The majority of these docs is taken up by the {ref}`rust-common-backporting-changes` section, which details things you'll often have to do in order to get the backport to build properly.
+The baseline backport process is simple, but there are many different things that can cause a backport to fail to build. The majority of these docs is taken up by the {ref}`rust-common-backporting-changes` section, which details things you'll often have to do in order to get the backport to build properly.
 
+### Launchpad bug report
 
-### Bug report
+In some cases a backport is requested for a specific reason, e.g., a Rust-based application in an old Ubuntu release has an SRU that needs a newer toolchain to build. In this case a Launchpad bug should be created, if one does not already exist. You can find a {lpbug}`good example here <2100492>`. The Launchpad bug helps to keep track of backport progress and status, which is essential if it is planned for the backport to be uploaded to the Ubuntu Archive. If you need to go back multiple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored.
 
-To keep track of backport progress and status, a Launchpad bug report is absolutely necessary.
-
-It's quite likely that there's a specific _reason_ why the backport was needed (e.g., a Rust-based application in an old Ubuntu release has an SRU that needs a newer toolchain to build). In this case, simply reference that bug report throughout the process, assigning the bug to yourself.
-
-If no bug exists, you'll need to create your own. You can find a {lpbug}`good example here <2100492>`. If you need to go back multiple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored. Additionally, if you need to go back multiple Rust versions, a separate bug report must be filed for each Rust version.
-
-- Going back to our {ref}`Jammy 1.86 example <rust-example-backport>`, we'd have to create three bug reports:
-  1. `rustc-1.84` bug targeting Noble and Jammy
-  2. `rustc-1.85` bug targeting Noble and Jammy
-  3. `rustc-1.86` bug targeting Plucky, Noble, and Jammy
-
+In other cases, backports are prepared proactively in case they may be needed in the future. In this case, a Launchpad bug does not need to be created for the backport. Even if a given backport is not needed in the Ubuntu Archive, it will likely still be needed to bootstrap later Rust versions. We upload all backports to the ["Rust Toolchain" Staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/). A backport which successfully builds in this PPA and passes its {term}`autopkgtest` suite may later be copied into the Ubuntu Archive as needed.
   
 ### Setup
 
@@ -137,35 +128,38 @@ $ git checkout -b jammy-1.85
 
 ### Changelog version
 
-The first thing we should do on our new branch is create a new changelog entry right off the bat. Before we change anything, however, it's important to understand the meaning of every component of the version number. Ensure you read and understand the {ref}`rust-version-strings` article before proceeding.
+The first thing we should do on our new branch is create a new changelog entry. Before we change anything, however, it's important to understand the meaning of every component of the version number. Ensure you read and understand the {ref}`rust-version-strings` article before proceeding.
 
 
 #### Creating the new changelog entry
 
-To begin, you only have to add/change `<release_number>` in the changelog version number. Don't forget to decrement it! You can leave any `~bpo<N>`s (or lack thereof) as-is for now, as you haven't made any changes to which dependencies have been {term}`vendored <vendored dependency>` yet.
+To begin, run the command `dch`:
 
-`<existing_version_number>` is the full version number of the latest changelog entry.
-
-```none
-$ dch -bv \
-    <existing_version_number>.<decremented_release_number> \
-    --distribution "<release>"
+```bash
+$ dch
 ```
+
+ This adds a new entry to the changelog and opens an editor allowing you to modify it:
+
+- Change "UNRELEASED" to the Ubuntu series that you are backporting to, using its short name, e.g. `jammy`. 
+- Update the version string to reference the series you are backporting to, using its numeric value, e.g. `22.04`, and reset any revision number at the end of the version string.
+
+You can leave the part of the version string before the first hyphen unchanged for now, as this refers to the version of the orig tarballs, which you haven't yet changed.
 
 **Examples:**
 
 | Existing release | Backport | `<existing_version_number>` | New version number |
 | --- | --- | --- | --- |
-| 1.82 Devel | 1.82 Oracular | `1.82.0+dfsg0ubuntu1-0ubuntu2` | `1.82.0+dfsg0ubuntu1-0ubuntu0.24.09` |
-| 1.81 Jammy | 1.81 Focal | `1.81.0+dfsg0ubuntu1~bpo0-0ubuntu0.22.03` | `1.81.0+dfsg0ubuntu1~bpo0-0ubuntu0.20.03` |
+| 1.93 Devel | 1.93 Noble | `1.93.0+dfsg-0ubuntu1` | `1.93.0+dfsg-0ubuntu1.24.04` |
+| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg~24.04.1-0ubuntu0.24.04.2 ` | `1.89.0+dfsg~24.04.1-0ubuntu0.22.04` |
 
-As you can see, we leave everything untouched except for the addition of the decremented release number at the very end.
-
-Make the changelog entry description something like this:
+Make the initial changelog entry description something like this:
 
 ```none
   * Backport to <release> (LP: <lp_bug_number>)
 ```
+
+The part with the Launchpad bug number is optional but should be included if an applicable bug exists.
 
 (rust-generating-the-orig-tarball)=
 ### Generating the orig tarball
@@ -174,7 +168,11 @@ Make the changelog entry description something like this:
 
 ```
 
-If you've had to vendor LLVM or `libgit2`, add the {ref}`relevant ~bpo <rust-version-strings>` to the end of the orig tarball's version number too.
+### Generating the orig-vendor tarball
+
+```{include} common/orig-vendor.md
+
+```
 
 ```{include} common/local-build.md
 
