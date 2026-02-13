@@ -233,28 +233,7 @@ https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=ppc64el&package
 https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=i386&package=sitesummary&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
 ```
 
-There are more options. For example, `--all-proposed` is commonly used. See the output of `--help` for for an overview.
-
-```text
-  --all-proposed        run tests against all of proposed, i. e. with disabling apt pinning
-  --add-trigger ADD_TRIGGER
-                        add trigger(s) with a $PKG/$VERSION combo
-  --state STATE [STATE ...]
-                        Generate commands for given test state (default: []). --state=RUNNING also enables triggering already queued and running tests
-  --max-age DAYS        only consider candidates which are at most this number of days old (float allowed)
-  --min-age DAYS        only consider candidates which are at least this number of days old (float allowed)
-  --blocks BLOCKS       rerun only those tests that were triggered by the named package
-  --blocked-by BLOCKED_BY
-                        rerun only those tests that are blocked by (rdeps of) the named package
-  --blocked-by-tests BLOCKED_BY_TESTS
-                        rerun only those tests that are blocked by test failures of the named package
-  --no-proposed         run tests against release+updates instead of against proposed, to re-establish a baseline for the test. This currently only works for packages that do not themselves
-                        have a newer version in proposed.
-  --only-unknown        only include tests with version of "unknown". This version can be returned in the case of breakage in the base system, or some types of infrastructure issues, and it
-                        can be helpful to mass retry these only.
-  --log-regex LOG_REGEX
-                        only consider tests with logs matching the (Python) regular expression
-```
+The examples above cover common workflows, but the `retry-autopkgtest-regressions` tool offers many more filtering and selection options. For instance, you can use `--all-proposed` to run tests against all packages from `-proposed`, `--max-age` and `--min-age` to focus on tests within specific timeframes, or `--log-regex` to select tests based on log content patterns. Run the tool with `--help` to see the complete list of available options and discover workflows that match your specific needs.
 
 (trigger-tests-from-the-command-line)=
 ### Trigger tests from the command line
