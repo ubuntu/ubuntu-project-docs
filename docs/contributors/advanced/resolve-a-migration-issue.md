@@ -210,15 +210,15 @@ https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=s390x&package=s
 https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=ppc64el&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
 ```
 
-But if an issue have been found, analyzed and resolved - there often is the need
-to run the test on a bigger scale. In the example above `sitesummary` was generally
+If an issue has been found, analyzed, and resolved, there often is the need
+to run the test on a bigger scale. In the example above, {pkg}`sitesummary` was generally
 broken and also blocked the migration of other packages.
 
 While these tests could be executed one by one, that would consume more test resources.
-Instead using `--blocked-by-tests` one can get URLs that will run the respective
-test, against all packages that currently are blocked due to it at once.
+Instead, using the `--blocked-by-tests` option lists URLs that will run the respective
+test against all packages that are currently blocked due to it at once:
 
-```bash
+```none
 ./retry-autopkgtest-regressions --blocked-by-tests sitesummary
 https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=amd64&package=sitesummary&trigger=debconf%2F1.5.91build1&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
 https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=arm64&package=sitesummary&trigger=debconf%2F1.5.91build1&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
@@ -226,7 +226,7 @@ https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=ppc64el&package
 https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=i386&package=sitesummary&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
 ```
 
-There are more options, quite common for example is the use of `--all-proposed`, here an excerpt of the --help output:
+There are more options. For example, `--all-proposed` is commonly used. See the output of `--help` for for an overview.
 
 ```text
   --all-proposed        run tests against all of proposed, i. e. with disabling apt pinning
