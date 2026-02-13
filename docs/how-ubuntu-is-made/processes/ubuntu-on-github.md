@@ -1,4 +1,4 @@
-(github-ubuntu)=
+(ubuntu-on-github)=
 # Ubuntu on Github
 
 In addition to code/projects on Launchpad and the Ubuntu archive, Ubuntu also maintains projects under [github.com/ubuntu](https://github.com/ubuntu).
