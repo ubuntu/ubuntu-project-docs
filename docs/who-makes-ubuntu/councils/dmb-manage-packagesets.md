@@ -133,8 +133,6 @@ like Personal packagesets and OEM metapackage packagesets.
   * Decided at the [DMB meeting of 2020-08-11](https://irclogs.ubuntu.com/2020/08/10/%23ubuntu-meeting.html#t19:01)
   * Documented at [OEM Archive](https://wiki.ubuntu.com/OEMArchive)
 
-### Why are seed based Packagesets not generated?
-
 (dmb-modify-packagesets)=
 ## How to modify a Packageset
 
