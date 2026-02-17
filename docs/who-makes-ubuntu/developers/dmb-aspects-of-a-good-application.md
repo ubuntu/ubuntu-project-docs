@@ -116,8 +116,8 @@ Example:
   But those have been long ago and there are two other sponsors that have done the majority of the work of Günther in recent years.
   Without an explanation that will make people question if that recent work was not good quality.
 
-* John wants to apply for the rather new Debcrafters package set, but it only has one member so far.
-  The requirement to have endorsements from the same level is not a blocker here -- endorsements by people sponsoring for him in other/similar package sets, or Ubuntu core developers, could also back his case.
+* John wants to apply for the rather new Debcrafters packageset, but it only has one member so far.
+  The requirement to have endorsements from the same level is not a blocker here -- endorsements by people sponsoring for him in other/similar packagesets, or Ubuntu core developers, could also back his case.
 
 * Hugo applies for per package upload rights. He has done many uploads, but would want to refer to further, yet internal-only work for more confidence in his abilities.
   In addition to all normal evidence, an endorser outlines the scope of the work they have done that is invisible to the DMB.
@@ -152,7 +152,7 @@ An extended list is outlined at {ref}`DMB Application Knowledge Requirements <dm
 
 ## Use the different stages to your advantage
 
-We would expect a Ubuntu Core Developer applicant to be an already experienced Ubuntu uploader through one of the other uploading teams such as a Package Set or MOTU.
+We would expect a Ubuntu Core Developer applicant to be an already experienced Ubuntu uploader through one of the other uploading teams such as a packageset or MOTU.
 To directly go to Ubuntu Core Developer we would expect an **exceptionally** strong application.
 It is hard to go from zero to hero, but it does not have to be!
 

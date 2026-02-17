@@ -1,25 +1,29 @@
 (dmb-joining-packageset)=
-# Package Set uploaders
+# Packageset uploaders
 
-Upload rights can be given for certain **[Package Sets](https://ubuntu-archive-team.ubuntu.com/packagesets/)**, such as '[ubuntu-server](https://ubuntu-archive-team.ubuntu.com/packagesets/questing/ubuntu-server)' or '[ubuntu-desktop](https://ubuntu-archive-team.ubuntu.com/packagesets/questing/ubuntu-desktop)'.
-The original design intent was for the Package Set level to be applied to individuals who will only be working on a very small set of packages.
+Upload rights can be given for certain **[packagesets](https://ubuntu-archive-team.ubuntu.com/packagesets/)**, such as '[ubuntu-server](https://ubuntu-archive-team.ubuntu.com/packagesets/questing/ubuntu-server)' or '[ubuntu-desktop](https://ubuntu-archive-team.ubuntu.com/packagesets/questing/ubuntu-desktop)'.
+The original design intent was for the packageset level to be applied to individuals who will only be working on a very small set of packages.
 
 For this reason, some people skip this level and head straight for {ref}`MOTU <dmb-joining-MOTU>` or {ref}`Core Dev <dmb-joining-core-dev>`.
 If you already have strong packaging experience via another distro, you can certainly consider doing this.
 
-That said, even if you intend to *eventually* apply for Core Dev membership, gaining Package Set first can be an effective way to build towards those roles, allowing you to upload your own work (within limits), and participate in reviews and {ref}`sponsorship <sponsorship>`.
+That said, even if you intend to *eventually* apply for Core Dev membership, gaining packageset first can be an effective way to build towards those roles, allowing you to upload your own work (within limits), and participate in reviews and {ref}`sponsorship <sponsorship>`.
 
+```{note}
+This page is about the developers that are uploaders of a packageset, the information how to create and modify a packageset can be found
+at {ref}`dmb-manage-packagesets`.
+```
 
 ## Sponsorship
 
-Membership in Package Set means that you can review and {ref}`sponsor uploads <sponsorship>` to your Package Set.
+Membership in packageset means that you can review and {ref}`sponsor uploads <sponsorship>` to your packageset.
 
 
 (packageset-training-and-preparation)=
 ## Training and preparation
 
 We're going to describe an idealized training program here; however, no two applications are exactly the same, and there is a lot of flexibility in expectations.
-This is particularly true for Package Set given that it is, by definition, of limited scope.
+This is particularly true for packageset given that it is, by definition, of limited scope.
 Just be prepared to give extra justification if you diverge substantially from the expectations listed below.
 
 In terms of the {ref}`uploaders-journey`, you should work your way through the study topics and tasks in the {ref}`upload-path-basics`, {ref}`upload-path-intermediate` and {ref}`upload-path-advanced`, as more specifically outlined below.
@@ -69,7 +73,7 @@ Keep in mind the DMB's perspective follows the "Need to unblock" principle:
 They want to approve applications that will either reduce contributor friction or save work for sponsors.
 Establishing yourself as an area expert and a resource for contributors helps prove the former, and your volume and frequency of uploads justifies the latter.
 
-Collaboration with the upstream(s) related to the software in your Package Set is important as well.
+Collaboration with the upstream(s) related to the software in your packageset is important as well.
 Gain experience with your upstreams' bug reporting processes, patch review processes, and testing/CI systems if you haven't yet.
 In general, the more you narrow your focus on specific packages, the more you'll need to develop your collaboration with their upstream(s).
 
@@ -82,10 +86,11 @@ Finally, you'll know you're past ready for applying if anyone ever asks, "How do
 
 ## Voting
 
-Package Set members are granted a vote when the {ref}`dmb` or Technical Board are polling Ubuntu Developers.
+packageset members are granted a vote when the {ref}`dmb` or Technical Board are polling Ubuntu Developers.
 
 
-## Become a Package Set uploader
+(dmb-become-packageset-uploader)=
+## Become a packageset uploader
 
 First check the general requirements for {ref}`ubuntu-membership`.
 You can then apply to the {ref}`dmb` using the {ref}`dmb-application`.
@@ -93,7 +98,7 @@ You can then apply to the {ref}`dmb` using the {ref}`dmb-application`.
 
 ## Next steps
 
-Once you have been granted Package Set upload permissions, there are at least three distinct directions you could embark on, depending on your goals:
+Once you have been granted packageset upload permissions, there are at least three distinct directions you could embark on, depending on your goals:
 
 * {ref}`dmb-joining-motu`, if you want to go deeper into the Ubuntu packaging world.
 * Membership in packaging teams at other distributions, if you want to broaden the reach of your software.
