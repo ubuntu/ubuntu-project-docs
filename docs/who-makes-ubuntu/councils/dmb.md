@@ -7,6 +7,7 @@
 
 dmb-meetings
 dmb-manage-packagesets
+dmb-seed-packageset-exceptions
 dmb-restaffing
 dmb-rules
 /tech-board/tb-dmb-selection-process

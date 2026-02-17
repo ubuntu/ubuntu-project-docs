@@ -88,7 +88,8 @@ like Personal packagesets and OEM metapackage packagesets.
     manually on request.
   * While currently not automated, the DMB still aims for *eventual
     consistency*. A seed based packageset should converge to be based on the
-    seed, plus exceptions (previously maintained in the script in git).
+    seed, plus exceptions (agreed exceptions are currently tracked in
+    {ref}`DMB seed packagesets exceptions <dmb-seed-packagesets-exceptions>`).
     Just like packagesets based on a logical definition converge on the text
     of their definition.
   * Common reasons for exceptions to a pure seed = packageset approach are:
