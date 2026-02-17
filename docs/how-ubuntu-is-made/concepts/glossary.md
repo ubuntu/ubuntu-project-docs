@@ -1244,7 +1244,7 @@ Sponsor
 
 SRU Verification Team
     It is a common misunderstanding that there is a dedicated team for this,
-    verifications are usually done by the original bug reporter and/or
+    but verifications are usually done by the original bug reporter and/or
     the associated SRU Driver.
 
     See also:
@@ -1474,7 +1474,7 @@ Ubuntu Server
     *Work in Progress*
 
 Ubuntu SRU Team
-    A team gating updates to active release to avoid regressions for the user.
+    The team responsible for reviewing package updates to stable Ubuntu releases.
 
     See also:
     * {ref}`Ubuntu SRU Team <sru-role>`
