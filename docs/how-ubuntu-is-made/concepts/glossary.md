@@ -846,9 +846,13 @@ Micro-Release Exception
     "microrelease" instead of sending {term}`patches <Patch>`. If all
     of the changes are appropriate for an {term}`SRU`, then it is acceptable
     (and usually easier) to upload the complete new upstream microrelease
-    instead of backporting the individual patches.
+    instead of backporting the individual patches. A microrelease exception
+    documents why this is safe for a particular case and the extra process
+    steps required to ensure the quality is ok.
 
-    See: TODO: New upstream microreleases (SRU Documentation)
+    See:
+    * "New upstream release" in {ref}`Special types of SRU <reference-special-types-of-sru>`
+    * {ref}`Package-specific notes <reference-package-specific-notes>` for existing exceptions
 
 Makefile
     A Makefile declares a set of tasks to be automatically executed. Makefiles are
@@ -1239,14 +1243,23 @@ Sponsor
     *Work in Progress*
 
 SRU Verification Team
-    *Work in Progress*
+    It is a common misunderstanding that there is a dedicated team for this,
+    but verifications are usually done by the original bug reporter and/or
+    the associated SRU Driver.
+
+    See also:
+    * SRU Driver in {ref}`Ubuntu SRU roles <sru-role>`
 
 Stable Release Managers
     *Work in Progress*
 
 SRU
-Stable Release Update
-    *Work in Progress*
+Stable Release Updates
+    Stable release updates (SRUs) are package updates to a currently
+    supported Ubuntu release.
+
+    See also:
+    * {ref}`Stable Release Updates <stable-release-updates-sru>`
 
 Stack
     In computer science, a **Stack** is a data-structure that can store a
@@ -1461,10 +1474,10 @@ Ubuntu Server
     *Work in Progress*
 
 Ubuntu SRU Team
-    *Work in Progress*
+    The team responsible for reviewing package updates to stable Ubuntu releases.
 
     See also:
-    * [Ubuntu SRU Team](https://wiki.ubuntu.com/StableReleaseUpdates#Contacting_the_SRU_team)
+    * {ref}`Ubuntu SRU Team <sru-role>`
 
 Ubuntu Sponsors
     *Work in Progress*
