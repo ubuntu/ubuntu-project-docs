@@ -3,7 +3,7 @@
 
 Delegated Developers are members of a [delegated development group](https://wiki.ubuntu.com/UbuntuDevelopers/TeamDelegation) in Launchpad.
 They are collectively responsible for the maintenance of a subset of packages in Ubuntu.
-This role is similar to the {ref}`dmb-joining-ppu` and {ref}`dmb-joining-packageset` roles, except that the Packageset is governed by a delegated team.
+This role is similar to the {ref}`dmb-joining-ppu` and {ref}`dmb-joining-packageset` roles, except that the packageset is governed by a delegated team.
 
 The Delegated Developer answers questions of other developers to expand their understanding of packaging work and provides guidance for prospective Ubuntu developers regarding technical issues.
 
@@ -11,7 +11,7 @@ The Delegated Developer answers questions of other developers to expand their un
 ## Sponsorship
 
 Delegated Developers understand packaging concepts, having substantial experience of uploading packages through a sponsor.
-Within their own Packageset, they can apply their knowledge by uploading new packages, and updating existing packages, in their area of expertise.
+Within their own packageset, they can apply their knowledge by uploading new packages, and updating existing packages, in their area of expertise.
 
 They are considered as {ref}`dmb-joining-contributing` when working outside their delegated subset of packages, but they can contribute to other areas of Ubuntu in cooperation with another developer.
 
@@ -24,7 +24,7 @@ Delegated teams admitting their own members:
 : * [Kubuntu Developers](https://wiki.ubuntu.com/Kubuntu/KubuntuDevelopers) (Launchpad: [`~kubuntu-dev`](https://launchpad.net/~kubuntu-dev))
 : * [Edubuntu Developers](https://wiki.ubuntu.com/Edubuntu/Documentation/Developers) (Launchpad: [`~edubuntu-dev`](https://launchpad.net/~edubuntu-dev))
 : * [Ubuntu Kernel Uploaders](https://wiki.ubuntu.com/Kernel/Dev/UploadRights) (Launchpad: [`~ubuntu-kernel-uploaders`](https://launchpad.net/~ubuntu-kernel-uploaders))
-: This delegation includes individual per-package upload privileges for packages in the corresponding team Packageset.
+: This delegation includes individual per-package upload privileges for packages in the corresponding team packageset.
 
 
 Delegated teams whose prospective members apply to the {ref}`Developer Membership Board <dmb>`:
@@ -58,21 +58,21 @@ Packagesets with no owning team:
 Email `devel-permissions@lists.ubuntu.com` with:
 
 * A description of your set of packages. The {ref}`dmb` will use this description to verify which packages should belong to the set.
-  This description should contain a name for the Packageset, and set out criteria against which packages can be tested for membership.
+  This description should contain a name for the packageset, and set out criteria against which packages can be tested for membership.
 
 * An initial list of packages.
 
 * An initial list of members (with their Launchpad IDs).
 
-The DMB, at its next meeting (providing this is more than 7 days after the application), will discuss the Packageset with the applicants and then vote on its creation.
+The DMB, at its next meeting (providing this is more than 7 days after the application), will discuss the packageset with the applicants and then vote on its creation.
 When applying for a set, please be prepared to attend a DMB meeting.
 
-The Developer Membership Board will take care of creating the Packageset and ensuring that the requested permissions are granted.
+The Developer Membership Board will take care of creating the packageset and ensuring that the requested permissions are granted.
 
 
 ## Requesting changes to delegated teams
 
-Email `devel-permissions@lists.ubuntu.com` with the proposed change(s) and the Packageset to which the change applies.
+Email `devel-permissions@lists.ubuntu.com` with the proposed change(s) and the packageset to which the change applies.
   
 A DMB member will review the request and either make the change or ask for further clarification if it us unclear that the package falls under the delegation granted when the team was created.
 

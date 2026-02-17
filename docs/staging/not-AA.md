@@ -26,17 +26,17 @@ The new [Archive Reorganization](https://wiki.ubuntu.com/ArchiveReorganisation)
 brings finer grained access controls than what components can provide.
 Launchpad ACLs allow individuals and teams to have upload or admin rights on
 certain packages, referred to as **sets**. In general, an Archive Administrator
-can process requests to create and delete Packagesets, as well as add or remove
-packages from Packagesets. Archive administrators should not add individuals
-or teams to Packagesets without explicit
+can process requests to create and delete packagesets, as well as add or remove
+packages from packagesets. Archive administrators should not add individuals
+or teams to packagesets without explicit
 [Technical Board](https://wiki.ubuntu.com/TechnicalBoard) approval.
 
 #### Packagesets
 
-Packages can be added to or removed from Packagesets using the `edit-acl` tool
+Packages can be added to or removed from packagesets using the `edit-acl` tool
 from `ubuntu-archive-tools`.
 
-To list the packages currently in the Packageset `mozilla`:
+To list the packages currently in the packageset `mozilla`:
 
 ```none
 $ ./edit-acl query -P mozilla -S zesty
@@ -52,13 +52,13 @@ bindwood
 This section refers to zesty, but also says "currently"
 ```
 
-To add a package to the `mozilla` Packageset:
+To add a package to the `mozilla` packageset:
 
 ```none
 $ ./edit-acl -P mozilla -S zesty -s foo -s bar -s baz add
 ```
 
-To remove a package from the `mozilla` Packageset:
+To remove a package from the `mozilla` packageset:
 
 ```none
 $ ./edit-acl -P mozilla -S zesty -s foo delete
