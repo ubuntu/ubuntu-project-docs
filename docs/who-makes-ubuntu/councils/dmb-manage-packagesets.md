@@ -12,19 +12,19 @@ be found at {ref}`dmb-joining-packageset`.
 ## What is a Packageset
 
 Packagesets are a method to provide fine grained upload permissions without
-always managing everything individually per user. They allow to define a
-list of packages per set and per Ubuntu release, to then allow developers
-upload permissions to such a set.
+always managing everything individually per user. They define a set of
+package lists specified by Ubuntu release, which developers can gain
+upload permissions for.
 
 Being per release allows them to evolve over time as Ubuntu changes, without
 such changes affecting the maintenance of existing releases. For example a
-package name might stay but contain something different in a late release.
+package name might stay but contain something different in a later release.
 Or a definition by either of the {ref}`dmb-types-of-packagesets` will imply
 that it covers a different set of packages in different releases.
 
 In regard to their definition they exist are defined in the
 Launchpad database accessible by API (using the `edit-acl` command).
-Think of it as a relation between launchpad personas and a list of packages.
+Think of it as a relation between Launchpad personas and a list of packages.
 
 ```{mermaid}
 %% mermaid flowcharts documentation: https://mermaid.js.org/syntax/flowchart.html
@@ -41,7 +41,7 @@ flowchart TD
     Packages -->|"<i>in package list</i>"| PackageSet
 ```
 
-For easy viewing, there are simple text files representing the current
+For easy viewing, there are text files representing the current
 state of the Packagesets. That includes the name of the sets, their
 description, the list of packages included as well as the developers allowed
 to upload to it. These files can be found at
@@ -83,7 +83,7 @@ like Personal packagesets and OEM metapackage packagesets.
   * These packagesets used to be fully generated based on
     [this code](https://code.launchpad.net/~developer-membership-board/+git/packageset)
     and the logic tries to detect how sources are shared between flavours to
-    remove those. But that has proven to cause to cause too many exceptions.
+    remove those. But that has proven to cause too many exceptions.
     Therefore they have - for now - become defined by the seeds, but modified
     manually on request.
   * While currently not automated, the DMB still aims for *eventual
@@ -190,9 +190,9 @@ as well as creation of the Packageset associated with it.
 More often than creating one would {ref}`modify an existing package
 set<dmb-modify-packagesets>`.
 
-### Create the associated launchpad team
+### Create the associated Launchpad team
 
-We create initially Packagesets with just one uploader, which is a launchpad
+We create initially Packagesets with just one uploader, which is a Launchpad
 team that we then later add developers to.
 
 1. Start at [new team registration page](https://launchpad.net/people/+newteam).
