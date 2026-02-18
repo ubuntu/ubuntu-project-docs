@@ -4,7 +4,7 @@ The vendor tarball needs to be rebuilt any time we make a change that affects wh
 
 To rebuild the vendor tarball, first replace the `vendor` directory with the unfiltered upstream version. If `uscan` has been run previously for this Rust version, the parent directory should contain a file `rustc-<X.Y.Z>-src.tar.xz`. Extract this into a temporary location, then copy over the `vendor` directory:
 
-```bash
+```none
 ~/rustc/rustc$ cd ..
 ~/rustc$ tar xf rustc-<X.Y.Z>-src.tar.xz
 ~/rustc$ rm -rf rustc/vendor/
