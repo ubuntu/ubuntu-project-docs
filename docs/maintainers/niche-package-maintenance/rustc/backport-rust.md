@@ -96,13 +96,15 @@ For example, if you were backporting `rustc-1.82` to Jammy...
 
 ## Backport process
 
-The baseline backport process is simple, but there are many different things that can cause a backport to fail to build. The majority of these docs is taken up by the {ref}`rust-common-backporting-changes` section, which details things you'll often have to do in order to get the backport to build properly.
+The baseline backport process is simple, but there are many different things that can cause a backport to fail to build. The majority of these docs is taken up by the {ref}`rust-common-backporting-changes` section, which details things you often have to do in order to get the backport to build properly.
 
 ### Launchpad bug report
 
-In some cases a backport is requested for a specific reason, e.g., a Rust-based application in an old Ubuntu release has an SRU that needs a newer toolchain to build. In this case a Launchpad bug should be created, if one does not already exist. You can find a {lpbug}`good example here <2100492>`. The Launchpad bug helps to keep track of backport progress and status, which is essential if it is planned for the backport to be uploaded to the Ubuntu Archive. If you need to go back multiple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored.
+In some cases, a backport is requested for a specific reason, e.g., a Rust-based application in an old Ubuntu release has an SRU that needs a newer toolchain to build. In this case, create a Launchpad bug if one does not already exist (see a good example bug: {lpbug}`rustc 1.82 required by firefox 137 and chromium 138 <2100492>`).
 
-In other cases, backports are prepared proactively in case they may be needed in the future. In this case, a Launchpad bug does not need to be created for the backport. Even if a given backport is not needed in the Ubuntu Archive, it will likely still be needed to bootstrap later Rust versions. We upload all backports to the ["Rust Toolchain" Staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/). A backport which successfully builds in this PPA and passes its {term}`autopkgtest` suite may later be copied into the Ubuntu Archive as needed.
+The Launchpad bug helps to keep track of backport progress and status, which is essential if it the backport is to be uploaded to the Ubuntu Archive. If you need to go back multiple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored.
+
+In other cases, backports are prepared proactively in case they may be needed in the future. In this case, a Launchpad bug does not need to be created for the backport. Even if a given backport is not needed in the Ubuntu Archive, it will likely still be needed to bootstrap later Rust versions. We upload all backports to the ["Rust Toolchain" Staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/). A backport that successfully builds in this PPA and passes its {term}`autopkgtest` suite may later be copied into the Ubuntu Archive as needed.
   
 ### Setup
 
@@ -135,13 +137,13 @@ The first thing we should do on our new branch is create a new changelog entry. 
 
 To begin, run the command `dch`:
 
-```bash
+```none
 $ dch
 ```
 
  This adds a new entry to the changelog and opens an editor allowing you to modify it:
 
-- Change "UNRELEASED" to the Ubuntu series that you are backporting to, using its short name, e.g. `jammy`. 
+- Change `UNRELEASED` to the Ubuntu series you are backporting to, using its short name, e.g. `jammy`. 
 - Update the version string to reference the series you are backporting to, using its numeric value, e.g. `22.04`, and reset any revision number at the end of the version string.
 
 You can leave the part of the version string before the first hyphen unchanged for now, as this refers to the version of the orig tarballs, which you haven't yet changed.
@@ -161,12 +163,14 @@ Make the initial changelog entry description something like this:
 
 The part with the Launchpad bug number is optional but should be included if an applicable bug exists.
 
+
 (rust-generating-the-orig-tarball)=
 ### Generating the orig tarball
 
 ```{include} common/uscan.md
 
 ```
+
 
 ### Generating the orig-vendor tarball
 
