@@ -185,24 +185,56 @@ https://autopkgtest.ubuntu.com/results/autopkgtest-<RELEASE>-<LPUSER>-<PPA>/
 
 
 (generate-test-re-trigger-urls)=
-### Generate test re-trigger URLs
+### Discover test re-trigger URLs
 
-Use the [`excuses-kicker`](https://code.launchpad.net/~bryce/+git/excuses-kicker) tool to generate `autopkgtest` re-trigger URLs.
+Tests are discoverable in multiple ways. Choose the approach that best fits your use case.
 
-See [`INSTALL.md`](https://git.launchpad.net/~bryce/+git/excuses-kicker/tree/INSTALL.md) for installation instructions.
+To check particular packages or tests and find regular patterns:
+: Navigate the web overview of autopkgtest at [autopkgtest,ubuntu.com](https://autopkgtest.ubuntu.com).
 
-Run as:
+To check the status of a package in proposed migration and analyze what holds the transition back:
+: Use the {ref}`update-excuses-page`.
+
+Both of these views allow to (re-)trigger failed tests through the web UI.
+
+To obtain re-trigger links based on specified criteria (for more intense work with proposed migration):
+: Use the [retry-autopkgtest-regressions](https://git.launchpad.net/ubuntu-archive-tools/tree/retry-autopkgtest-regressions) tool from the [ubuntu-archive-tools](https://launchpad.net/ubuntu-archive-tools) collection.
+
+   A common use case is "give me all tests that block a particular package". This delivers all the URLs listed for the same package at the {ref}`update-excuses-page` with a failure and retry icon. For example:
+
+    ```none
+    ./retry-autopkgtest-regressions --blocks apache2 --series resolute
+    https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=s390x&package=mediawiki-extension-youtube&trigger=apache2%2F2.4.66-2ubuntu1
+    https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=amd64&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
+    https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=arm64&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
+    https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=i386&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
+    https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=s390x&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
+    https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=ppc64el&package=sitesummary&trigger=apache2%2F2.4.66-2ubuntu1
+    ```
+
+If an issue has been found, analyzed, and resolved, there often is the need
+to run the test on a bigger scale. In the example above, {pkg}`sitesummary` was generally
+broken and also blocked the migration of other packages.
+
+While these tests could be executed one by one, that would consume more test resources.
+Instead, using the `--blocked-by-tests` option lists URLs that will run the respective
+test against all packages that are currently blocked due to it at once:
 
 ```none
-$ excuses-kicker <package>
+./retry-autopkgtest-regressions --blocked-by-tests sitesummary
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=amd64&package=sitesummary&trigger=debconf%2F1.5.91build1&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=arm64&package=sitesummary&trigger=debconf%2F1.5.91build1&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=ppc64el&package=sitesummary&trigger=debconf%2F1.5.91build1&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
+https://autopkgtest.ubuntu.com/request.cgi?release=resolute&arch=i386&package=sitesummary&trigger=gnupg2%2F2.4.8-4ubuntu3&trigger=apache2%2F2.4.66-2ubuntu1
 ```
 
-:::{note}
-The tool automatically adds packages to the test run that the requested package has been tested against in the past. These may not be direct dependencies for the requested package -- they serve as an informed guess.
-:::
+The examples above cover common workflows, but the `retry-autopkgtest-regressions` tool offers many more filtering and selection options. For example:
 
-TODO: Add info about [retry-autopkgtest-regressions](https://git.launchpad.net/ubuntu-archive-tools/tree/retry-autopkgtest-regressions). See also [Re-running tests](https://autopkgtest-cloud.readthedocs.io/en/latest/administration.html#re-running-tests).
+* `--all-proposed` to run tests against all packages from `-proposed`
+* `--max-age` and `--min-age` to focus on tests within specific time frames
+* `--log-regex` to select tests based on log content patterns
 
+Run the tool with `--help` to see the complete list of available options and discover workflows that match your specific needs.
 
 (trigger-tests-from-the-command-line)=
 ### Trigger tests from the command line
