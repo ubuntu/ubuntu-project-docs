@@ -182,7 +182,7 @@ more was left open once there is a reasonable need for that.
 
 Bonus: Furthermore, not required for this process, but related: the
 engineers related to the open-vm-tools package at VMware help us by
-monitoring (or reporting) bug on launchpad - they have kept this active
+monitoring (or reporting) bug on Launchpad - they have kept this active
 even with responsible people changing from Oliver Kurth to John Wolfe.
 
 .. _track_record:
