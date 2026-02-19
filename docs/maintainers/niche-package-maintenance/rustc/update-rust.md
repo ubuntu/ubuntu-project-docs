@@ -529,13 +529,13 @@ $ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu/bin/r
 
 After running the script, consult `git diff` and verify that, in `debian/control`, the two `Build-Depends` options for a bootstrapping compiler are `rustc-<X.Y_old>` and `rustc-<X.Y>`.
 
-After checking that the changes are correct, you may commit these changes and continue.
+After checking that the changes are correct, commit these changes and continue.
 
 ### After-Repack Patch Refreshes
 
 Some of the patches will no longer apply now that more files have been removed. You must refresh all the patches so they once again apply cleanly onto the newly-pruned source.
 
-In general, you will follow the same protocol as the [initial patch refresh](updating-rust-initial-patch-refresh). The most common change is dropping patches of pruned vendored files.
+In general, follow the same protocol as the {ref}`initial patch refresh <updating-rust-initial-patch-refresh>`. The most common change is dropping patches of pruned vendored files.
 
 ### Updating XS-Vendored-Sources-Rust
 
@@ -574,9 +574,10 @@ $ debian/add-vendored-copyright-overrides
 
 All the new `vendor` files must be added to `debian/copyright`. Luckily, we can use a script which uses {term}`Lintian` ({manpage}`lintian(1)`) to generate all the missing copyright stanzas.
 
+
 #### Generate the Lintian report
 
-[Clean up previous build artifacts](updating-rust-clean-build), build the source package using {manpage}`dpkg-buildpackage(1)`, then run Lintian, redirecting the output to somewhere convenient:
+{ref}`Clean up previous build artifacts <updating-rust-clean-build>`, build the source package using {manpage}`dpkg-buildpackage(1)`, then run Lintian, redirecting the output to somewhere convenient:
 
 (updating-rust-lintian-command)=
 
