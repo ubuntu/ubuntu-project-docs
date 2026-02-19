@@ -421,11 +421,13 @@ Now update the orig tarball and unpacked source tree to match your pruned files.
 
    ```none
    $ uscan --download-version <X.Y.Z> -v 2>&1 | tee <path_to_log_output>
+   ```
 
 3. This is the version you will be using for the final package upload. Therefore, rename it to the standard orig tarball format:
 
    ```none
    $ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{1,}.orig.tar.xz
+   ```
 
 
 #### Source tree update
@@ -436,44 +438,46 @@ To keep the Git tree clean, rebase all your changes on top of the newly-pruned o
 
    ```none
    $ git branch backup
+   ```
+
 2. Return to the previous Rust version and create a new branch to import the updated tarballs:
 
    ```none
    $ git checkout merge-<X.Y_old>
    $ git checkout -b import-new-<X.Y>
+   ```
 
 3. The version string in `debian/changelog` must match the names of the generated tarballs. Consult `git log merge-<X.Y>` and cherry-pick the commit where you added the changelog entry for `<X.Y>`:
 
    ```none
    $ git cherry-pick <commit_where_new_changelog_entry_was_added>
-$ git cherry-pick <commit_where_new_changelog_entry_was_added>
-```
-
-Recreate the `experimental` branch:
+   ```
 
 4. Recreate the `experimental` branch:
 
    ```none
    $ git branch -D experimental
    $ git branch experimental
+   ```
 
-Then, we can merge our newly-pruned tarballs onto the previous Rust version's source cleanly. Note the added `component` argument pointing `gbp` to the vendor tarball component.
+5. Merge our newly-pruned tarballs onto the previous Rust version's source cleanly. Note the added `component` argument pointing `gbp` to the vendor tarball component:
 
-```none
-$ gbp import-orig \
-    --no-symlink-orig \
-    --no-pristine-tar \
-    --upstream-branch=experimental \
-    --debian-branch=import-new-<X.Y> \
-    --component=vendor \
-    ../rustc-<X.Y>_<X.Y.Z>+dfsg.orig.tar.xz
-```
+    ```none
+    $ gbp import-orig \
+        --no-symlink-orig \
+        --no-pristine-tar \
+        --upstream-branch=experimental \
+        --debian-branch=import-new-<X.Y> \
+        --component=vendor \
+        ../rustc-<X.Y>_<X.Y.Z>+dfsg.orig.tar.xz
+    ```
 
 6. Finally, switch back to your actual branch and rebase:
 
    ```none
    $ git checkout merge-<X.Y>
    $ git rebase -i import-new-<X.Y>
+   ```
 
    When consulting the list of Git rebase commands, don't forget to drop the commit in which you imported the old version of the tarball. Example for `rustc-1.91`:
 
@@ -482,6 +486,7 @@ $ gbp import-orig \
    pick 85d8e6af63d Refresh d-0000-ignore-removed-submodules.patch
    pick f31152ca1b9 Refresh d-0010-cargo-remove-vendored-c-crates.patch
    [...]
+   ```
 
 Consulting your `git log`, you should see the two new `gbp` commits immediately after the creation of the `<X.Y>` changelog entry.
 
