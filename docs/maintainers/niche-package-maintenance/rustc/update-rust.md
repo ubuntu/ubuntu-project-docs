@@ -432,11 +432,10 @@ Now update the orig tarball and unpacked source tree to match your pruned files.
 
 To keep the Git tree clean, rebase all your changes on top of the newly-pruned orig tarballs.
 
-First, make a backup just to be safe:
+1. Make a backup just to be safe:
 
-```none
-$ git branch backup
-```
+   ```none
+   $ git branch backup
 2. Return to the previous Rust version and create a new branch to import the updated tarballs:
 
    ```none
