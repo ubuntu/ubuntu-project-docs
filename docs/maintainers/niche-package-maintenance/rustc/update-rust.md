@@ -610,7 +610,11 @@ Pipe the output from your call to Lintian to the script:
 $ cat <lintian_results_path> | debian/lintian-to-copyright.sh
 ```
 
-You may need to fill in some fields manually. [This](https://stackoverflow.com/questions/23611669/how-to-find-the-created-date-of-a-repository-project-on-github) is an easy way to find the start date of a GitHub repo.
+You may need to fill in some fields manually. To find the start date of a GitHub repo, use the GitHub API. For example:
+
+```none
+$ curl -s https://api.github.com/repos/<owner>/<repo> | jq '.created_at'
+```
 
 Keep things clean by adding the new `d/copyright` stanzas alphabetically. It makes things a lot easier in the long run.
 
