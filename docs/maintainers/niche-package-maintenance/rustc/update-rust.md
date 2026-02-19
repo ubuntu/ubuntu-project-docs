@@ -320,7 +320,7 @@ tar -tJf ../rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz | grep '\.c$'
 ```
 
 :::{note}
-You don't want to search your unpacked source directory right now because it contains a bunch of things we just pruned in the [previous step](updating-rust-pruning-unwanted-dependencies).
+Don't to search your unpacked source directory right now because it contains some things we just pruned in {ref}`updating-rust-pruning-unwanted-dependencies`.
 :::
 
 Individual C files are likely fine. You're just looking for entire C libraries that have been bundled in with vendored crates.
@@ -349,7 +349,7 @@ To do this, add the C library directory to `Files-Excluded-vendor` in `debian/co
 Remember, this new exclusion should be under `Files-Excluded-vendor`, _not_ `Files-Excluded`! The primary tarball doesn't contain anything in the `vendor/` directory.
 :::
 
-After that, return to the previous step and [regenerate the vendored tarball component](updating-rust-vendor-tarball-rule). The `vendor-tarball` rule will read your new `debian/copyright` and generate a new vendor tarball without the C library source code you just excluded.
+After that, return to the previous step and {ref}`regenerate the vendored tarball component <updating-rust-vendor-tarball-rule>`. The `vendor-tarball` rule reads your new `debian/copyright` and generates a new vendor tarball without the C library source code you just excluded.
 
 #### Adding the system library as a build dependency
 
