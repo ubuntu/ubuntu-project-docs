@@ -114,9 +114,9 @@ Make sure `<lp_bug_number>` matches the bug number you created earlier!
 
 #### Temporarily including all vendored dependencies
 
-Later on in the upgrade process, unwanted {term}`vendored dependencies <vendored dependency>` will be pruned from the upstream source. Right now, however, we don't know _which_ dependencies must be pruned, so we must temporarily include _all_ vendored dependencies.
+Later on in the upgrade process, unwanted {term}`vendored dependencies <vendored dependency>` are pruned from the upstream source. Right now, however, we don't know _which_ dependencies must be pruned, so we must temporarily include _all_ vendored dependencies.
 
-_Temporarily_ modify `debian/copyright`, commenting out the line in `Files-Excluded` which excludes the `vendor/` directory from the {term}`orig tarball`:
+_Temporarily_ modify `debian/copyright`, commenting out the line in `Files-Excluded`, which excludes the `vendor/` directory from the {term}`orig tarball`:
 
 ```diff
 --- a/debian/copyright
@@ -162,10 +162,10 @@ $ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{1,~old}.orig.tar.xz
 (updating-rust-updating-the-source-code-in-your-repository)=
 #### Updating the source code in your repository
 
-`uscan` just downloads the new Rust source, yanks out the ignored files, and packs the orig tarball. Your actual Git repository hasn't changed at all yet. To do that, we can use `gbp` to import the new Rust source code onto your existing repository.
+`uscan` just downloads the new Rust source, yanks out the ignored files, and packs the orig tarball. Your actual Git repository hasn't changed at all yet. To do that, use `gbp` to import the new Rust source code into your existing repository.
 
 :::{note}
-This is point at which your _actual source code_ moves from `<X.Y.Z_old>` to `<X.Y.Z>`.
+At this point your _actual source code_ moves from `<X.Y.Z_old>` to `<X.Y.Z>`.
 :::
 
 We use the `experimental` branch to store the upstream releases. Normally, this would be where the Debian `experimental` branch is, but we can't use that because our Rust package is not downstream from Debian. Make sure you reset this branch beforehand, branching it off from your current Git branch:
@@ -188,7 +188,7 @@ $ gbp import-orig \
 
 Afterwards, you should now see two commits in your Git log stating that your upstream source has been updated.
 
-It can be useful to be able to return to this point just in case you make a mistake repacking the tarballs. It's recommended to create a branch here for safekeeping:
+To be able to return to this point just in case you make a mistake repacking the tarballs, create a branch here for safekeeping:
 
 ```none
 git branch import-old-<X.Y>
@@ -272,14 +272,14 @@ Make sure that `~/.cargo/bin` is in your `$PATH`, otherwise you won't be able to
 (updating-rust-vendor-tarball-rule)=
 Vendor tarball rule
 
-After that, call the `vendor-tarball` rule in `debian/rules`. This will use `cargo-vendor-filterer` to generate a vendor directory which _only_ contains the dependencies required by supported Ubuntu targets. It then repacks this directory into the `vendor` tarball component. Make sure you point it to your installed Rust toolchain via `RUST_BOOTSTRAP_DIR`:
+After that, call the `vendor-tarball` rule in `debian/rules`. This uses `cargo-vendor-filterer` to generate a vendor directory that _only_ contains the dependencies required by supported Ubuntu targets. It then repacks this directory into the `vendor` tarball component. Make sure you point it to your installed Rust toolchain via `RUST_BOOTSTRAP_DIR`:
 
 ```none
 $ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu/bin/rustc \
     debian/rules vendor-tarball
 ```
 
-You should now see a new tarball in the parent directory: `../rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz`. In later steps, we will use this to replace the existing `vendor/` directory.
+You should now see a new tarball in the parent directory: `../rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz`. In later steps, we use this to replace the existing `vendor/` directory.
 
 ### Removing Vendored C Libraries
 
@@ -323,14 +323,14 @@ tar -tJf ../rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz | grep '\.c$'
 You don't want to search your unpacked source directory right now because it contains a bunch of things we just pruned in the [previous step](updating-rust-pruning-unwanted-dependencies).
 :::
 
-Individual C files are likely fine. You're just looking for entire C libraries which have been bundled in with vendored crates.
+Individual C files are likely fine. You're just looking for entire C libraries that have been bundled in with vendored crates.
 
 
 #### Removing C dependencies from the vendored orig tarball
 
 Naturally, the process of pruning a vendored C library varies from library to library. As an example, we will use a removal of the bundled `oniguruma` library from `rustc-1.86`, which caused some {lpbug}`build failures <2119556>` when it wasn't removed.
 
-To do this, simply add the C library directory to `Files-Excluded-vendor` in `debian/copyright`:
+To do this, add the C library directory to `Files-Excluded-vendor` in `debian/copyright`:
 
 ```diff
 --- a/debian/copyright
@@ -403,14 +403,14 @@ In the case of `onig_sys`, we can simply patch it to use the system library by d
 
 ### Updating the Source Tree Again
 
-Now that you have a vendored tarball with all unwanted vendored crates and vendored C libraries removed, you are now ready to update your source tree once more.
+Now that you have a vendored tarball with all unwanted vendored crates and vendored C libraries removed, you are ready to update your source tree once more.
 
 To recap, your parent directory should contain the following:
 
 - `rustc-<X.Y>_<X.Y.Z>+dfsg~old.orig.tar.xz`: The original upstream source code tarball with an unpruned vendor directory.
 - `rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz`: The pruned vendor directory.
 
-You must now update the orig tarball and unpacked source tree to match your pruned files.
+Now update the orig tarball and unpacked source tree to match your pruned files.
 
 
 #### Updating the orig tarball
@@ -428,7 +428,7 @@ This is the version we will be using for the final package upload. Therefore, we
 
 #### Source tree update
 
-To keep the Git tree clean, we must rebase all our changes on top of the newly-pruned orig tarballs.
+To keep the Git tree clean, rebase all your changes on top of the newly-pruned orig tarballs.
 
 First, make a backup just to be safe:
 
