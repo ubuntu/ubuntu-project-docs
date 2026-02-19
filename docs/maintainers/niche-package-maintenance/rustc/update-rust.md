@@ -417,7 +417,7 @@ Now update the orig tarball and unpacked source tree to match your pruned files.
 
 1. Double-check your `debian/copyright` to ensure that `vendor` is listed under `Files-Excluded` (but _NOT_ `Files-Excluded-vendor`).
 
-2. Generate a new orig tarball without the `vendor` directory (becausee the vendor tarball component provides that directory):
+2. Generate a new orig tarball without the `vendor` directory (because the vendor tarball component provides that directory):
 
    ```none
    $ uscan --download-version <X.Y.Z> -v 2>&1 | tee <path_to_log_output>
