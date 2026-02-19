@@ -172,6 +172,7 @@ subiquity
 subkey
 subkeys
 supercomputing
+sysroot
 systemd
 tarball
 Tegra
