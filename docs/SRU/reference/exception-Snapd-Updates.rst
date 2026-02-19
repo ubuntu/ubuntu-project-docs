@@ -45,7 +45,7 @@ pass. The following requirements must be met:
    system with the proposed package installed by executing an
    automated or manual test.
 
-*  all the bugs reported in launchpad that will be fixed in this
+*  all the bugs reported in Launchpad that will be fixed in this
    release must have a link to the pull request that fixes them.
    These bugs must be marked as "Committed" once that pull request is
    merged into master.
