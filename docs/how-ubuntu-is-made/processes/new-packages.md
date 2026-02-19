@@ -6,7 +6,7 @@ For a piece of software to be included in Ubuntu, it must meet the [Ubuntu Licen
 
 ## Requesting a new package for Ubuntu
 
-Packages that have recently been added to Debian unstable will be automatically synced into Ubuntu prior to the {ref}`debian-import-freeze` (DIF). Once synced, they will follow the [proposed-migration flow]({ref}`proposed-migration`).
+Packages that have recently been added to Debian unstable will be automatically synced into Ubuntu prior to the {ref}`debian-import-freeze` (DIF). Once synced, they will follow the {ref}`proposed-migration flow <proposed-migration>`.
 If instead the release process already reached the Debian Import Freeze, you must [file a bug](https://launchpad.net/ubuntu/+filebug/?no-redirect) with the summary field "Please sync `<packagename>` from debian `<distro>`" where
 `<packagename>` is the package you would like to see.
 
