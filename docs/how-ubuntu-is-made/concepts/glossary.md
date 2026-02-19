@@ -1044,7 +1044,7 @@ Pocket
     * `-backports`
 
     See also:
-    * {ref}Pockets (explanation) <archive-pockets>`
+    * {ref}`Pockets (explanation) <archive-pockets>`
 
 POSIX
     Abbreviation for **Portable Operating System Interface**: A family of
