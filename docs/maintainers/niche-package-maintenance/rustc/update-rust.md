@@ -539,9 +539,9 @@ In general, follow the same protocol as the {ref}`initial patch refresh <updatin
 
 ### Updating XS-Vendored-Sources-Rust
 
-Inside of `debian/control`, there's a special field called `XS-Vendored-Sources-Rust` which must be updated. It simply lists all the vendored crate dependencies, along with their version numbers, on a single line.
+Inside of `debian/control`, there's a special field called `XS-Vendored-Sources-Rust` which must be updated. It lists all the vendored crate dependencies, along with their version numbers, on a single line.
 
-Luckily, the {lpsrc}`dh-cargo` package contains a script for automatically generating this line. Push all your patches, then run the script:
+The {lpsrc}`dh-cargo` package contains a script for automatically generating this line. Push all your patches, then run the script:
 
 ```none
 $ quilt push -a
@@ -551,16 +551,17 @@ $ CARGO_VENDOR_DIR=vendor/ /usr/share/cargo/bin/dh-cargo-vendored-sources
 Replace the existing `XS-Vendored-Sources-Rust` field in `debian/control` with this new expected value.
 
 :::{attention}
-Make sure there's still an empty line after the end of the field! Mistakenly dropping the empty line will result in a build failure right at the end of the test build.
+Make sure there's still an empty line after the end of the field! Mistakenly dropping the empty line results in a build failure right at the end of the test build.
 :::
 
 This is another opportunity to verify that you pruned unwanted crates properly. You shouldn't see any of the pruned Windows crates in the new `XS-Vendored-Sources-Rust` field.
 
 :::{note}
-If you're running a pre-versioned Rust Ubuntu release, then there's a decent chance the `cargo` installation required by `dh-cargo` will be too old. In this case, don't use `dh-cargo`—instead, manually download [`dh-cargo-vendored-sources`](https://git.launchpad.net/ubuntu/+source/dh-cargo/tree/dh-cargo-vendored-sources) (it's just a Perl script) and use it _without_ deb-based installations of Rust, which ensures that the `rustup` snap's version will be used instead.
+If you're running a pre-versioned Rust Ubuntu release, there's a chance the `cargo` installation required by `dh-cargo` is too old. In this case, don't use `dh-cargo`—instead, manually download [`dh-cargo-vendored-sources`](https://git.launchpad.net/ubuntu/+source/dh-cargo/tree/dh-cargo-vendored-sources) (it's a Perl script) and use it _without_ deb-based installations of Rust, which ensures that the Snap version of `rustup` is used instead.
 :::
 
-### Updating Vendored Copyright Overrides
+
+### Updating vendored copyright overrides
 
 `debian/copyright` contains copyright stanzas for all the vendored dependencies of `rustc`. However, the crate stubs are "red herrings" for the purposes of `debian/copyright`. They're just empty crates; they don't contain any copyrighted code.
 
@@ -570,9 +571,10 @@ To prevent packaging tools from complaining that the stubbed crates are missing 
 $ debian/add-vendored-copyright-overrides
 ```
 
+
 ### Updating debian/copyright
 
-All the new `vendor` files must be added to `debian/copyright`. Luckily, we can use a script which uses {term}`Lintian` ({manpage}`lintian(1)`) to generate all the missing copyright stanzas.
+All the new `vendor` files must be added to `debian/copyright`. In the following steps, all the missing copyright stanzas will be generated.
 
 
 #### Generate the Lintian report
