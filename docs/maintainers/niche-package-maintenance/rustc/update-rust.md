@@ -415,12 +415,14 @@ Now update the orig tarball and unpacked source tree to match your pruned files.
 
 #### Updating the orig tarball
 
-First, double-check your `debian/copyright` to ensure that `vendor` is listed under `Files-Excluded` (but _NOT_ `Files-Excluded-vendor`). You can now generate a new orig tarball without a `vendor` directory, since the vendor tarball component provides that directory:
+1. Double-check your `debian/copyright` to ensure that `vendor` is listed under `Files-Excluded` (but _NOT_ `Files-Excluded-vendor`).
+
+2. Generate a new orig tarball without the `vendor` directory (becausee the vendor tarball component provides that directory):
 
    ```none
    $ uscan --download-version <X.Y.Z> -v 2>&1 | tee <path_to_log_output>
 
-This is the version we will be using for the final package upload. Therefore, we shall rename it to the standard orig tarball format:
+3. This is the version you will be using for the final package upload. Therefore, rename it to the standard orig tarball format:
 
    ```none
    $ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{1,}.orig.tar.xz
@@ -435,26 +437,26 @@ First, make a backup just to be safe:
 ```none
 $ git branch backup
 ```
+2. Return to the previous Rust version and create a new branch to import the updated tarballs:
 
-Next, return to the previous Rust version and create a new branch to import the updated tarballs:
+   ```none
+   $ git checkout merge-<X.Y_old>
+   $ git checkout -b import-new-<X.Y>
 
-```none
-$ git checkout merge-<X.Y_old>
-$ git checkout -b import-new-<X.Y>
-```
+3. The version string in `debian/changelog` must match the names of the generated tarballs. Consult `git log merge-<X.Y>` and cherry-pick the commit where you added the changelog entry for `<X.Y>`:
 
-The version string in `debian/changelog` must match the names of the tarballs we generated. Consult `git log merge-<X.Y>` and cherry-pick the commit where you added the changelog entry for `<X.Y>`:
-
-```none
+   ```none
+   $ git cherry-pick <commit_where_new_changelog_entry_was_added>
 $ git cherry-pick <commit_where_new_changelog_entry_was_added>
 ```
 
 Recreate the `experimental` branch:
 
-```none
-$ git branch -D experimental
-$ git branch experimental
-```
+4. Recreate the `experimental` branch:
+
+   ```none
+   $ git branch -D experimental
+   $ git branch experimental
 
 Then, we can merge our newly-pruned tarballs onto the previous Rust version's source cleanly. Note the added `component` argument pointing `gbp` to the vendor tarball component.
 
@@ -468,7 +470,7 @@ $ gbp import-orig \
     ../rustc-<X.Y>_<X.Y.Z>+dfsg.orig.tar.xz
 ```
 
-Finally, we can switch back to our actual branch and rebase:
+6. Finally, switch back to your actual branch and rebase:
 
    ```none
    $ git checkout merge-<X.Y>
