@@ -16,10 +16,11 @@ rustc
 │   ├── Cargo.toml
 │   ├── debian
 │   └── [...]
-└── rustc-<...>.orig.tar.xz
+├── rustc-<...>.orig.tar.xz
+└── rustc-<...>.orig-vendor.tar.xz
 ```
 
-Naturally, your higher-level `rustc` directory won't have any {term}`.orig.tar.xz <orig tarball>` files yet, but they will be stored there once you start working on the package.
+Naturally, your higher-level `rustc` directory won't have the {term}`.orig.tar.xz <orig tarball>` files yet, but they will be stored there once you start working on the package.
 
 ### Cloning the Git repository
 
