@@ -79,6 +79,7 @@ $ git push <lpuser> merge-<X.Y>
 
 In this step, you get the source code of the new Rust version. The {term}`watch file`, `debian/watch`, automates this process.
 
+
 #### Updating the changelog and package name
 
 :::{important}
@@ -137,8 +138,8 @@ Remember, this change shouldn't be committed to version control. It's just a tem
 
 This means that in the next step, _all_ vendored dependencies will be included in the tarball.
 
-(updating-rust-getting-the-new-source-and-orig-tarball-with-uscan)=
 
+(updating-rust-getting-the-new-source-and-orig-tarball-with-uscan)=
 #### Getting the new source and orig tarball with uscan
 
 ```{include} common/uscan.md
@@ -157,8 +158,8 @@ Since this particular tarball contains all vendored dependencies and will theref
 $ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{1,~old}.orig.tar.xz
 ```
 
-(updating-rust-updating-the-source-code-in-your-repository)=
 
+(updating-rust-updating-the-source-code-in-your-repository)=
 #### Updating the source code in your repository
 
 `uscan` just downloads the new Rust source, yanks out the ignored files, and packs the orig tarball. Your actual Git repository hasn't changed at all yet. To do that, we can use `gbp` to import the new Rust source code onto your existing repository.
@@ -244,13 +245,14 @@ In this case, you must consult the upstream changes to figure out what replaced 
 
 Remember, your goal here is to preserve the _intent_ of the patch. If, for example, a patch disables certain tests which require an internet connection, and those tests get refactored completely, it's your responsibility to track down the tests which require an internet connection and disable them accordingly.
 
-(updating-rust-pruning-unwanted-dependencies)=
 
+(updating-rust-pruning-unwanted-dependencies)=
 ### Pruning Unwanted Dependencies
 
 As mentioned above, we don't want to include unnecessary dependencies, especially Windows-related crates like `windows-sys`. This pruning ensures adherence to free software principles, reduces the attack surface of the binary packages, and reduces the binary package size on the end user's hard drive.
 
 Since we [included all vendored dependencies](updating-rust-including-all-vendored-dependencies) before [getting the upstream source](updating-rust-getting-the-new-source-and-orig-tarball-with-uscan), our `vendor` directory will contain _everything_. We must now remove the dependencies on things we don't need.
+
 
 #### Generating the pruned vendor tarball component
 
@@ -266,7 +268,9 @@ $ cargo +<X.Y.Z> install cargo-vendor-filterer
 
 Make sure that `~/.cargo/bin` is in your `$PATH`, otherwise you won't be able to run `cargo-vendor-filterer`.
 
+
 (updating-rust-vendor-tarball-rule)=
+Vendor tarball rule
 
 After that, call the `vendor-tarball` rule in `debian/rules`. This will use `cargo-vendor-filterer` to generate a vendor directory which _only_ contains the dependencies required by supported Ubuntu targets. It then repacks this directory into the `vendor` tarball component. Make sure you point it to your installed Rust toolchain via `RUST_BOOTSTRAP_DIR`:
 
@@ -306,6 +310,7 @@ Build-Depends:
 
 These two changes form the basis of removing vendored C dependencies.
 
+
 #### Finding vendored C dependencies
 
 Search for C source files within your newly-pruned `vendor` tarball:
@@ -319,6 +324,7 @@ You don't want to search your unpacked source directory right now because it con
 :::
 
 Individual C files are likely fine. You're just looking for entire C libraries which have been bundled in with vendored crates.
+
 
 #### Removing C dependencies from the vendored orig tarball
 
@@ -406,21 +412,21 @@ To recap, your parent directory should contain the following:
 
 You must now update the orig tarball and unpacked source tree to match your pruned files.
 
+
 #### Updating the orig tarball
 
 First, double-check your `debian/copyright` to ensure that `vendor` is listed under `Files-Excluded` (but _NOT_ `Files-Excluded-vendor`). You can now generate a new orig tarball without a `vendor` directory, since the vendor tarball component provides that directory:
 
-```none
-$ uscan --download-version <X.Y.Z> -v 2>&1 | tee <path_to_log_output>
-```
+   ```none
+   $ uscan --download-version <X.Y.Z> -v 2>&1 | tee <path_to_log_output>
 
 This is the version we will be using for the final package upload. Therefore, we shall rename it to the standard orig tarball format:
 
-```none
-$ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{1,}.orig.tar.xz
-```
+   ```none
+   $ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{1,}.orig.tar.xz
 
-#### The source tree update
+
+#### Source tree update
 
 To keep the Git tree clean, we must rebase all our changes on top of the newly-pruned orig tarballs.
 
@@ -464,21 +470,20 @@ $ gbp import-orig \
 
 Finally, we can switch back to our actual branch and rebase:
 
-```none
-$ git checkout merge-<X.Y>
-$ git rebase -i import-new-<X.Y>
-```
+   ```none
+   $ git checkout merge-<X.Y>
+   $ git rebase -i import-new-<X.Y>
 
-When consulting the list of Git rebase commands, don't forget to drop the commit in which you imported the old version of the tarball. Example for `rustc-1.91`:
+   When consulting the list of Git rebase commands, don't forget to drop the commit in which you imported the old version of the tarball. Example for `rustc-1.91`:
 
-```none
-drop 0759faf6707 New upstream version 1.91.1+dfsg~old
-pick 85d8e6af63d Refresh d-0000-ignore-removed-submodules.patch
-pick f31152ca1b9 Refresh d-0010-cargo-remove-vendored-c-crates.patch
-[...]
-```
+   ```none
+   drop 0759faf6707 New upstream version 1.91.1+dfsg~old
+   pick 85d8e6af63d Refresh d-0000-ignore-removed-submodules.patch
+   pick f31152ca1b9 Refresh d-0010-cargo-remove-vendored-c-crates.patch
+   [...]
 
 Consulting your `git log`, you should see the two new `gbp` commits immediately after the creation of the `<X.Y>` changelog entry.
+
 
 #### Verifying your changes
 
