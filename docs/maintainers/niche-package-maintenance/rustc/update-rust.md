@@ -191,8 +191,8 @@ Afterwards, you should now see two commits in your Git log stating that your ups
 To be able to return to this point just in case you make a mistake repacking the tarballs, create a branch here for safekeeping:
 
 ```none
-git branch import-old-<X.Y>
-git push <lpuser> import-old-<X.Y>
+$ git branch import-old-<X.Y>
+$ git push <lpuser> import-old-<X.Y>
 ```
 
 (updating-rust-initial-patch-refresh)=
@@ -316,7 +316,7 @@ These two changes form the basis of removing vendored C dependencies.
 Search for C source files within your newly-pruned `vendor` tarball:
 
 ```none
-tar -tJf ../rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz | grep '\.c$'
+$ tar -tJf ../rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz | grep '\.c$'
 ```
 
 :::{note}

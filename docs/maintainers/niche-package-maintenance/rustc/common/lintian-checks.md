@@ -15,7 +15,7 @@ $ dpkg-buildpackage -S -I -i -nc -d -sa
 First, check the Lintian output with just the warnings and errors:
 
 ```none
-lintian -i --tag-display-limit 0 2>&1 | tee <path_to_log_file>
+$ lintian -i --tag-display-limit 0 2>&1 | tee <path_to_log_file>
 ```
 
 #### Addressing warnings and errors
@@ -38,7 +38,7 @@ As for any other warnings or errors, you must figure out whether the lint should
 Now you can run Lintian with all the pedantic, experimental, and informational lints enabled. It isn't typically necessary to fix most of the extra lints, but it's a good idea to check everything and see if there are some ways to improve the package based on these lints.
 
 ```none
-lintian -i -I -E --pedantic
+$ lintian -i -I -E --pedantic
 ```
 
 :::{important}
