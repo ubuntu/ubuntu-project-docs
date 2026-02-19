@@ -46,7 +46,7 @@ Keep track of both experiences that went well, and disasters that you used as va
 
 ### Skill
 
-At a minimum, you must have mastery of the same skills as a {ref}`Package Set Uploader <dmb-joining-packageset>` would have.
+At a minimum, you must have mastery of the same skills as a {ref}`packageset Uploader <dmb-joining-packageset>` would have.
 Work through all the items on that page's {ref}`training and preparation <packageset-training-and-preparation>` section, focusing on anything you're uncomfortable with.
 
 The main difference with MOTU is *breadth*.

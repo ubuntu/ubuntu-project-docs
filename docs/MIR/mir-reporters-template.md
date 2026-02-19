@@ -45,10 +45,24 @@ RULE: address the problem you might spend some time explaining what exists and
 RULE: why it isn't a sufficient alternative.
 TODO: - There is no other/better way to solve this that is already in main or
 TODO:   should go universe->main instead of this.
-RULE: If the package previously was in main (use rmadison to check),
-RULE: and the previous MIR content is still applicable and not ancient,
-RULE: just add a new release-task instead of creating a new MIR.
-RULE: Otherwise, continue with this MIR and link to the previous MIR.
+RULE: If the package is in main in other releases (use rmadison to check),
+RULE: and the existing MIR and package content is still applicable and not
+RULE: outdated relative to what you want to add, then please help us to
+RULE: keep the discussion, argument and audit trail together.
+RULE: To do so just add a new per-release tasks instead of creating a new MIR.
+RULE: Otherwise - if the existing former case was way too different, continue
+RULE: preparing this new MIR and please reference to the previous MIR.
+RULE: This suggestion of per release tasks is valid in both directions.
+RULE: For example forward when something was MIRed in 24.10 and 25.04 but got
+RULE: demoted in 25.10 - and shall come back to 26.04 please add a task to
+RULE: the existing MIR instead of creating a new one. Of course the reasons for
+RULE: demotion in 25.10 will be important for this case.
+RULE: And for example backwards, when something was MIRed for 24.04 onward,
+RULE: but later is also needed in older releases like 22.04. In that
+RULE: case you likely want to ensure via SRUs that things are up to date anyway
+RULE: and yet again -  if the content, reasoning and outside factors are not
+RULE: vastly different - you'd be expected to add per-release-tasks to the
+RULE: existing MIR case which makes it easier for reporter and reviewer alike.
 TODO-A: - This is the first time package will be in main
 TODO-B: - Package was in main before (Ubuntu aa.bb->xx.yy) (MIR-Bug LP: #...)
 RULE: You truly need to understand the difference between main and universe
@@ -268,14 +282,21 @@ TODO: - This package is minimal and will be tested in a more wide reaching
 TODO:   solution context TBD, details about this testing are here TBD
 
 [Quality assurance - packaging]
-RULE: - The package uses a debian/watch file whenever possible. In cases where
-RULE:   this is not possible (e.g. native packages), the package should either
-RULE:   provide a debian/README.source file or a debian/watch file (with
-RULE:   comments only) providing clear instructions on how to generate the
-RULE:   source tar file.
-TODO-A: - debian/watch is present and works
-TODO-B: - debian/watch is not present, instead it has TBD
-TODO-C: - debian/watch is not present because it is a native package
+RULE: - The package uses a debian/watch or debian/upstream/metadata file
+RULE:   whenever possible. The second option is the alternative for packages
+RULE:   maintained with git-buildpackage. Consider whether that's
+RULE:   still true at the time of reporting your MIR. In cases where this is
+RULE:   not possible (e.g. native packages), the package should either provide
+RULE:   a debian/README.source file or a debian/watch file (with comments only)
+RULE:   providing clear instructions on how to generate the source tar file.
+RULE:   For clarity the TODOs below refer as "upstream watch file" to any
+RULE:   solution similar to the alternatives above which must be present in the
+RULE:   package so tools can detect and fetch new upstream releases.
+TODO-A: - A mechanism to detect and fetch new upstream versions is present and works
+TODO-B: - A mechanism to detect and fetch new upstream versions is not present,
+TODO-B:   instead it has TBD
+TODO-C: - A mechanism to detect and fetch new upstream versions is not present
+TODO-C:   because it is a native package
 
 RULE: - The package should define the correct "Maintainer:" field in
 RULE:   debian/control. This needs to be updated, using `update-maintainer`
@@ -472,6 +493,10 @@ TODO-C:   in the package (at /usr/share/doc/<pkgname>/Cargo.lock - might be
 TODO-C:   compressed), refreshing that code is outlined in debian/README.source
 TODO-D: - This package uses vendored code, refreshing that code is outlined
 TODO-D:   in debian/README.source
+
+TODO-A: - This does not use vendored code
+TODO-B: - This package uses vendored code, the debian/copyright has been
+TODO-B:   updated to cover the vendored content
 
 TODO-A: - This package is not rust based
 TODO-B: - This package is rust based and vendors all non language-runtime

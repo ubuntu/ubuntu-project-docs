@@ -10,7 +10,7 @@ in the effort.
 The program consists of Canonical engineers from various teams taking up shifts
 to work on the archive. While their regular duties might entail looking after a
 specific set of packages, during their shift they should instead be looking
-after the archive as a whole. This *can* include their regular package set,
+after the archive as a whole. This *can* include their regular packageset,
 e.g. if it involved in a massive transition.
 
 ## Contact
@@ -18,7 +18,7 @@ e.g. if it involved in a massive transition.
 Most of the day-to-day communication around +1 should take place on the public
 [Ubuntu Development](https://matrix.to/#/#devel:ubuntu.com) channel on Matrix.
 
-The [Debcrafters](https://launchpad.net/~debcrafters-packages) team, and [Simon Chopin ](https://launchpad.net/~schopin) in particular, is responsible for
+The [Debcrafters](https://launchpad.net/~debcrafters-packages) team is responsible for
 coordinating the effort.
 
 ## Who can participate?

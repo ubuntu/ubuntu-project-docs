@@ -247,7 +247,7 @@ Remember, your goal here is to preserve the _intent_ of the patch. If, for examp
 
 
 (updating-rust-pruning-unwanted-dependencies)=
-### Pruning Unwanted Dependencies
+### Pruning unwanted dependencies
 
 As mentioned above, we don't want to include unnecessary dependencies, especially Windows-related crates like `windows-sys`. This pruning ensures adherence to free software principles, reduces the attack surface of the binary packages, and reduces the binary package size on the end user's hard drive.
 

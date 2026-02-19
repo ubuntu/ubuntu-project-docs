@@ -6,6 +6,8 @@
 :hidden:
 
 dmb-meetings
+dmb-manage-packagesets
+dmb-seed-packageset-exceptions
 dmb-restaffing
 dmb-rules
 /tech-board/tb-dmb-selection-process
@@ -22,9 +24,11 @@ The DMB currently holds {ref}`meetings <dmb-meetings>` every two weeks.
 
 Most asynchronous conversation happens on the [`devel-permissions` mailing list](https://lists.ubuntu.com/mailman/listinfo/devel-permissions).
 This mailing list is public ([`devel-permissions@archives`](https://lists.ubuntu.com/archives/devel-permissions/)), as are our general process and policy discussions.
-If private communication is required, such as discussing the performance of an individual, then use the [private `developer-membership-board` list](https://lists.ubuntu.com/mailman/listinfo/developer-membership-board).
 
 You can discuss developer application matters on the {matrix}`ubuntu-dmb-public` Matrix channel.
+
+If private communication among DMB members is required, such as discussing the performance of an individual,
+then use the {matrix}`ubuntu-dmb-private` Matrix channel.
 
 
 ## Applying for Developer Membership
@@ -35,7 +39,7 @@ The Ubuntu Developer Membership Board currently approves:
 
 * {ref}`Per-Package Uploaders <dmb-joining-ppu>`
 
-* {ref}`Package Set <dmb-joining-packageset>`
+* {ref}`Packageset <dmb-joining-packageset>`
 
 * {ref}`MOTU <dmb-joining-motu>`
 

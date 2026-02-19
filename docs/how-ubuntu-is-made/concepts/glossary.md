@@ -190,7 +190,7 @@ Blank space
     characters include spaces, tabs and newline characters.
 
 Branch
-    *Work in Progress*
+    An independent version of a {term}`repository` that allows developers to work on features in isolation without impacting the original {term}`repository`.
 
 Breezy
     A {term}`Fork` of the {term}`Bazaar` {term}`Version Control System`.
@@ -347,7 +347,9 @@ Command Line Interface
 
 CVE
 Common Vulnerabilities and Exposures
-    *Work in Progress*
+    A vulnerability consists of one or more weaknesses in a product that can be exploited, causing a negative impact to confidentiality, integrity, or availability. CVE generally refers to the [CVE list](https://www.cve.org/Downloads), a publicly disclosed catalog of information security vulnerabilities. This list provides a standardized framework for cataloging and tracking cybersecurity vulnerabilities that organizations can use to improve vulnerability management processes.
+
+    See also: [Ubuntu CVEs](https://ubuntu.com/security/cves)
 
 CISC
 Complex Instruction Set Computer
@@ -844,9 +846,13 @@ Micro-Release Exception
     "microrelease" instead of sending {term}`patches <Patch>`. If all
     of the changes are appropriate for an {term}`SRU`, then it is acceptable
     (and usually easier) to upload the complete new upstream microrelease
-    instead of backporting the individual patches.
+    instead of backporting the individual patches. A microrelease exception
+    documents why this is safe for a particular case and the extra process
+    steps required to ensure the quality is ok.
 
-    See: TODO: New upstream microreleases (SRU Documentation)
+    See:
+    * "New upstream release" in {ref}`Special types of SRU <reference-special-types-of-sru>`
+    * {ref}`Package-specific notes <reference-package-specific-notes>` for existing exceptions
 
 Makefile
     A Makefile declares a set of tasks to be automatically executed. Makefiles are
@@ -1038,7 +1044,7 @@ Pocket
     * `-backports`
 
     See also:
-    * {ref}Pockets (explanation) <archive-pockets>`
+    * {ref}`Pockets (explanation) <archive-pockets>`
 
 POSIX
     Abbreviation for **Portable Operating System Interface**: A family of
@@ -1063,6 +1069,7 @@ Public Key Cryptography Standards
 
 Proposed migration
     The process of moving uploaded or merged packages from the `-proposed` {term}`pocket` into the `-release` pocket for users to consume.
+    {ref}`Proposed migration <proposed-migration>` is the entry point to a whole series about the topic.
 
     See also:
     * {term}`update excuses`
@@ -1237,14 +1244,23 @@ Sponsor
     *Work in Progress*
 
 SRU Verification Team
-    *Work in Progress*
+    It is a common misunderstanding that there is a dedicated team for this,
+    but verifications are usually done by the original bug reporter and/or
+    the associated SRU Driver.
+
+    See also:
+    * SRU Driver in {ref}`Ubuntu SRU roles <sru-role>`
 
 Stable Release Managers
     *Work in Progress*
 
 SRU
-Stable Release Update
-    *Work in Progress*
+Stable Release Updates
+    Stable release updates (SRUs) are package updates to a currently
+    supported Ubuntu release.
+
+    See also:
+    * {ref}`Stable Release Updates <stable-release-updates-sru>`
 
 Stack
     In computer science, a **Stack** is a data-structure that can store a
@@ -1459,10 +1475,10 @@ Ubuntu Server
     *Work in Progress*
 
 Ubuntu SRU Team
-    *Work in Progress*
+    The team responsible for reviewing package updates to stable Ubuntu releases.
 
     See also:
-    * [Ubuntu SRU Team](https://wiki.ubuntu.com/StableReleaseUpdates#Contacting_the_SRU_team)
+    * {ref}`Ubuntu SRU Team <sru-role>`
 
 Ubuntu Sponsors
     *Work in Progress*

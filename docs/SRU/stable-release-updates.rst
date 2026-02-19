@@ -54,13 +54,12 @@ We follow strict rules to ensure that SRUs fix real-world problems and introduce
 Who releases updates
 ----------------------
 
-The SRU team and other stakeholders review and release updates. Community members outside of Canonical can contribute in the process.
+The :ref:`SRU team and other stakeholders <explanation-role-expectations>` review and release updates. Community members outside of Canonical can contribute in the process.
 
 .. toctree::
     :maxdepth: 1
 
     explanation/pipeline
-    explanation/roles
 
 
 Processes

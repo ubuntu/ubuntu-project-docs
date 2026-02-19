@@ -19,9 +19,9 @@ following schedule:
 +-----------+-----------------------------------------------------------------+
 | Wednesday | Nick Rosbrook (enr0n)                                           |
 +-----------+-----------------------------------------------------------------+
-| Thursday  | Andreas Hasenack (ahasenack)                                    |
+| Thursday  | Timo Aaltonen (tjaalton)                                        |
 +-----------+-----------------------------------------------------------------+
-| Friday    | Timo Aaltonen (tjaalton)                                        |
+| Friday    | Andreas Hasenack (ahasenack)                                    |
 +-----------+-----------------------------------------------------------------+
 
 See also: :ref:`How-to → Contact the SRU team <howto-contact>`

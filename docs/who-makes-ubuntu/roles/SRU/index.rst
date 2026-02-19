@@ -1,7 +1,8 @@
 .. _explanation-role-expectations:
+.. _sru-role:
 
-Role expectations
------------------
+About the SRU role
+------------------
 
 The SRU team is a narrowly scoped team that has privileged access:
 primarily to "accept" packages from the stable series' unapproved queues
@@ -154,3 +155,9 @@ apparent risk of the proposed change. If, ultimately, the SRU Driver is
 unable to provide a risk analysis and appropriate mitigation to the
 level required, as judged by the SRU team on a case-by-case basis, then
 the SRU will be refused.
+
+Service Level Agreement
+"""""""""""""""""""""""
+
+The SRU team operates on a :ref:`Team Rotation <reference-rota>` following the
+responsibilities outlined for the "SRU Reviewer" above.

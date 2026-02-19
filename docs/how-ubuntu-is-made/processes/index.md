@@ -90,4 +90,5 @@ Special review processes and quality safeguards for adding updates to published 
 
 /SRU/stable-release-updates
 /MIR/main-inclusion-review
+ubuntu-on-github
 ```

@@ -20,6 +20,7 @@ bioinformatics
 blocklisted
 boolean
 bootable
+bootloader
 bootloaders
 bugfix
 bugtracker
@@ -43,6 +44,7 @@ cron
 cronjob
 crontab
 crosshairs
+cybersecurity
 Debcrafters
 debdiff
 deprioritized
@@ -68,6 +70,7 @@ Ewan
 exfiltration
 fakesync
 Fosstodon
+github
 Gobuntu
 GPLs
 Greasemonkey
@@ -76,10 +79,12 @@ gvfs
 homeserver
 homeservers
 html
+impactful
 Indri
 installability
 interoperate
 IPs
+ISO
 ISOs
 ITPs
 Jackalope
@@ -148,6 +153,7 @@ Rockcraft
 Rosbrook
 rulebook
 runtimes
+rustls
 Rustup
 sandboxed
 sbuild
@@ -167,9 +173,11 @@ subiquity
 subkey
 subkeys
 supercomputing
+sysroot
 systemd
 tarball
 Tegra
+timeframes
 TKey
 todo
 Toolchain

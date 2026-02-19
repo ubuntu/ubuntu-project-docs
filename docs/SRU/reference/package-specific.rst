@@ -45,6 +45,7 @@ the Technical Board.
     exception-GNOME-Updates
     exception-Grub-Updates
     exception-HAProxy-Updates
+    exception-Intel-Graphics-Updates
     exception-Landscape-Updates
     exception-MariaDB-Galera-Updates
     exception-NVidia-Updates
@@ -75,6 +76,7 @@ the Technical Board.
     exception-google-guest-agent-Updates
     exception-google-osconfig-agent-Updates
     exception-rax-nova-agent-Updates
+    exception-Valkey-Updates
     exception-walinuxagent-Updates
     exception-wslu-Updates
 
@@ -458,6 +460,13 @@ exception `has been
 approved <https://lists.ubuntu.com/archives/ubuntu-release/2022-June/005417.html>`__
 by LukaszZemczak for the SRU team as of 2022-06-27.
 
+Intel Graphics
+~~~~~~~~~~~~~~
+
+The source packages for the Intel graphics stack may be uploaded according to
+the procedure documented in :ref:`IntelGraphicsUpdates
+<reference-exception-Intel-Graphics-Updates>`.
+
 autopkgtest
 ~~~~~~~~~~~
 
@@ -535,6 +544,15 @@ MariaDB and Galera
 The 'mariadb' and 'galera' source packages, including source package variants
 with version suffixes, may be uploaded according to the proceedure documented in
 :ref:`MariaDB-Galera-Updates <reference-exception-MariaDB-Galera-Updates>`.
+
+Valkey
+~~~~~~
+
+The valkey source package may be uploaded according to the procedure
+documented in :ref:`Valkey-Updates <reference-exception-ValkeyUpdates>`.
+This stable release exception `has been
+approved <https://github.com/ubuntu/ubuntu-project-docs/pull/314>`__ by
+RobieBasak for the SRU team as of 2026-01-22.
 
 GRUB
 ~~~~
