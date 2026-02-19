@@ -515,6 +515,7 @@ vendor/windows_x86_64_msvc-0.53.0
 2 directories, 2 files
 ```
 
+
 ### Updating Versioned Package References in Control Files
 
 Certain {term}`control files <control file>`, such as `debian/control` and `debian/source/lintian-overrides`, list versioned package names. These files must be updated to match the new version numbers.
@@ -616,7 +617,8 @@ Keep things clean by adding the new `d/copyright` stanzas alphabetically. It mak
 
 ```
 
-## Common Update Build Issues
+
+## Common update build issues
 
 ### Unresolved import
 
@@ -645,6 +647,7 @@ In this case, create (or modify) `debian/patches/ubuntu/ubuntu-pin-dep-ver.patch
 -version = "1.0.17"
 +version = "= 1.0.19"
 ```
+
 
 (updating-rust-lintian-checks)=
 
