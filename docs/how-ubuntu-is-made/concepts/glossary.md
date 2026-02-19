@@ -1069,6 +1069,7 @@ Public Key Cryptography Standards
 
 Proposed migration
     The process of moving uploaded or merged packages from the `-proposed` {term}`pocket` into the `-release` pocket for users to consume.
+    {ref}`Proposed migration <proposed-migration>` is the entry point to a whole series about the topic.
 
     See also:
     * {term}`update excuses`
