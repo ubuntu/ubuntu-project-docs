@@ -12,7 +12,7 @@ we find them.
 Sometimes one might want to double check if something was removed and
 asynchronous tools like `rmadison` will not immediately update as they need a
 publishing run and then some processing. Instead one could check such via
-launchpad API or the web.
+Launchpad API or the web.
 
 Commonly known is the source publishing history, which is also linked from the
 package. For example in
