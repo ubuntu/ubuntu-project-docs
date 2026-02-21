@@ -58,7 +58,7 @@ If you would like to add an item to the Technical Board Agenda for discussion, p
 
 ## Members
 
-The Technical Board consists of 5 elected members and Mark Shuttleworth. You can find the current members on launchpad: [Ubuntu Technical Board Members](https://launchpad.net/~techboard/+members).
+The Technical Board consists of 5 elected members and Mark Shuttleworth. You can find the current members on Launchpad: [Ubuntu Technical Board Members](https://launchpad.net/~techboard/+members).
 
 
 ## Miscellaneous duties
