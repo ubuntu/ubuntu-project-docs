@@ -70,7 +70,6 @@ Ewan
 exfiltration
 fakesync
 Fosstodon
-Git's
 github
 Gobuntu
 GPLs

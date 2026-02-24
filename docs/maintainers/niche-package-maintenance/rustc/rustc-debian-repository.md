@@ -1,8 +1,8 @@
 (rustc-debian-repository)=
 # `rustc-debian` repository
 
-Because `rustc` is a versioned package, we have a bunch of different `rustc` repositories floating around.
-These repositories tend to have changes in common from Debian's `rustc`, including changes in the `debian/` directory.
+Because {pkg}`rustc` is a versioned package, we have a bunch of different `rustc` repositories floating around.
+These repositories tend to have changes in common from Debian's `rustc`, including changes in the {file}`debian/` directory.
 [`rustc-debian`](https://code.launchpad.net/~rust-toolchain/ubuntu/+source/rustc-debian) is a centralized repository where the Rust toolchain team stores those common changes in the form of patches.
 
 ## Why `rustc-debian`?
@@ -20,7 +20,7 @@ Previously, when we needed to re-use an existing commit on a fresh `rustc` port,
 As you may imagine, this was error-prone, led to lots of code duplication, and wasted lots of time trawling through Git repositories looking for the correct patch.
 
 `rustc-debian` is a centralized place to put those patches.
-Instead of having our patches float around in random Git trees, we use Git's [patch-based workflow](https://git-scm.com/docs/gitworkflows#_patch_workflow) to store commits as files, which we then track using Git as if they were any other file.
+Instead of having our patches float around in random Git trees, we use Git [patch-based workflow](https://git-scm.com/docs/gitworkflows#_patch_workflow) to store commits as files, which we then track using Git as if they were any other file.
 The patch-based workflow is based around two commands:
 
 - {manpage}`git-format-patch(1)`, which lets you *export* commits as `.patch` files unbound to any repository.
@@ -30,7 +30,7 @@ We place patches that may be helpful across many versions of `rustc` in the `men
 Then, when we need to port a new version of rustc, we pick the patches we want, as if we were ordering from a *menu*, and use `git am` to apply them.
 
 ```{note}
-Git's patch-based workflow was originally designed to work over email; after creating a patch, it's generally assumed that you send it to a project's maintainers by email.
+Git patch-based workflow was originally designed to work over email; after creating a patch, it's generally assumed that you send it to a project's maintainers by email.
 Git has some additional ergonomic features to automatically send and recieve patches by email, and you may see references to email in man pages and web searches about the patch-based workflow.
 So, it's worth stating clearly that we don't use email in our workflow.
 The way we share patches is by putting them in the rust-debian repository.
@@ -92,10 +92,13 @@ Putting the patch in a central location made it easy to apply over any bugged ve
 `rustc-debian` also was useful when testing `cargo-auditable` support, as we ended up testing it on many different versions of `rustc`.
 ```
 
-Applying patches is simple:
+Applying patches is simple.
+First, make sure that your local clone of `rustc-debian` is up-to-date!
+Then run:
 
-- Make sure that your local clone of `rustc-debian` is up-to-date
-- `git am path/to/rustc-debian/menu/prevent-duplicate-dh-auto-build.patch`
+```none
+$ git am path/to/rustc-debian/menu/prevent-duplicate-dh-auto-build.patch
+```
 
 `git am` takes a .patch file and turns it back into a commit.
 
@@ -113,8 +116,19 @@ have to fix a merge conflict so that I can provide more accurate information --p
 When you create a commit that may be useful in other versions of `rustc`, you can export it with `git format-patch`.
 
 First, create your commit like any other commit.
-Then, run `git format-patch -1`.
-It will print the name of a patch file like `0001-first-line-of-your-commit-message.patch`, and create it in your working directory.
+Then run:
+
+```{terminal}
+:user: petrakat
+:host: ubuntu
+:dir: ~
+
+git format-patch -1
+
+0001-first-line-of-your-commit-message.patch
+```
+
+The `HEAD` commit will be exported as a patch file, and its filename is printed to stdout.
 
 ```{note}
 `-1` tells git to only create a single patch.
@@ -131,7 +145,7 @@ Therefore, it's worth putting lots of detail about the history of the patch and 
 
 Secondly, given that `rustc-debian` is a unique workflow and its repository is not easily discoverable, you should put this footer into your commit message:
 
-```none
+```text
 This patch is from rustc-debian.
 https://git.launchpad.net/~rust-toolchain/ubuntu/+source/rustc-debian/?h=main
 ```
