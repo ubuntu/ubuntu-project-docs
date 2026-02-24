@@ -15,8 +15,8 @@ resulting package is reproducible.
 * **Source-only** packages
 * **Source** and **binary** packages
 
-PPAs and the Archive permit exclusively **Source-only** package uploads,
-however it is best practice to first perform a local **Binary** build and fix
+PPAs and the Archive permit exclusively **source-only** package uploads,
+however it is best practice to first perform a local **binary** build and fix
 any potential issues before uploading.
 
 To let the Launchpad infrastructure build packages for you, see
@@ -260,7 +260,7 @@ Then, create the schroot with the ``mk-sbuild`` command:
 
 .. code-block:: none
 
-    $ mk-sbuild <RELEASE> -a <ARCH>
+    $ mk-sbuild -a <ARCH> <RELEASE>
 
 where ``<ARCH>`` is the *target* architecture (e.g. ``arm64``).
 
