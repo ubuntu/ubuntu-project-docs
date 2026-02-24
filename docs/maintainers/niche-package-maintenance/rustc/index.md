@@ -11,5 +11,6 @@ Patch Rust <patch-rust>
 Backport Rust <backport-rust>
 rust-version-strings
 Packaging FAQ <rust-packaging-faq>
+rustc-debian-repository
 
 ```
