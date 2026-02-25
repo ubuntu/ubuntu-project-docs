@@ -85,8 +85,6 @@ For example, if you were backporting `rustc-1.82` to Jammy...
 
 `<lpuser>` refers to your Launchpad username.
 
-`<N>` is the suffix for `~bpo` in the {ref}`changelog version number <rust-version-strings>` and signals which crucial Rust dependencies (if any) were re-included in the source tarball.
-
 `<lp_bug_number>` refers to the bug number on Launchpad requesting this backport (if applicable).
 
 ```{include} common/local-repo-setup.md
@@ -144,16 +142,14 @@ $ dch
  This adds a new entry to the changelog and opens an editor allowing you to modify it:
 
 - Change `UNRELEASED` to the Ubuntu series you are backporting to, using its short name, e.g. `jammy`. 
-- Update the version string to reference the series you are backporting to, using its numeric value, e.g. `22.04`, and reset any revision number at the end of the version string.
-
-You can leave the part of the version string before the first hyphen unchanged for now, as this refers to the version of the orig tarballs, which you haven't yet changed.
+- Update the version string to reference the series you are backporting to, using its numeric value, e.g. `22.04`, and reset any revision number after the existing series numbers. Note that the series number occurs twice in backport version strings: once in the orig tarball part and once in the Ubuntu component, both of which need to be updated.
 
 **Examples:**
 
 | Existing release | Backport | `<existing_version_number>` | New version number |
 | --- | --- | --- | --- |
-| 1.93 Devel | 1.93 Noble | `1.93.0+dfsg-0ubuntu1` | `1.93.0+dfsg-0ubuntu1.24.04` |
-| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg~24.04.1-0ubuntu0.24.04.2 ` | `1.89.0+dfsg~24.04.1-0ubuntu0.22.04` |
+| 1.93 Devel | 1.93 Noble | `1.93.0+dfsg-0ubuntu1` | `1.93.0+dfsg~24.04-0ubuntu1~24.04.1` |
+| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg~24.04.1-0ubuntu3~24.04.2 ` | `1.89.0+dfsg~22.04-0ubuntu3~22.04.1` |
 
 Make the initial changelog entry description something like this:
 
@@ -182,23 +178,81 @@ The part with the Launchpad bug number is optional but should be included if an 
 
 ```
 
+### Disable autopkgtest self-build test
+
+The rustc autopkgtest suite includes a test that runs the package build process using the just-packaged Rust compiler. The purpose of this test is to ensure that the new Rust toolchain can successfully build itself, so that it will be usable to bootstrap future Rust versions. However, this test is resource-intensive and may strain the `autopkgtest` infrastructure, resulting in a high likelihood of timeouts, particularly in the case of backports that vendor LLVM. Therefore, it is recommended to disable it by removing the relevant lines from `debian/tests/control`:
+```diff
+--- a/debian/tests/control
++++ b/debian/tests/control
+@@ -1,7 +1,3 @@
+-Test-Command: ./debian/rules build RUST_TEST_SELFBUILD=1
+-Depends: @, @builddeps@
+-Restrictions: rw-build-tree, allow-stderr
+```
+
+Even in the absence of this test, the build process already includes a self-build step as part of the [Rust compiler bootstrapping process](https://rustc-dev-guide.rust-lang.org/building/bootstrapping/what-bootstrapping-does.html): the previous Rust compiler is used to build a "stage1" new Rust compiler, which is then used to build the "stage2" compiler which is packaged. For backports this is generally sufficient. The ability of the new packaged toolchain to build the next Rust version can be verified directly when the next Rust version is backported. If this verification is needed immediately and the next Rust version is not yet available, this can be done with a [Launchpad self-build](#launchpad-self-build-optional).
+
 (rust-ppa-build)=
 ```{include} common/ppa-build.md
 
 ```
 
 
-### Uploading the backport
+### Uploading the backport to the staging PPA
 
-Once your backport builds successfully in a PPA for all targets, bump the `<release_number>` to its proper number and re-upload to your PPA once more.
+Once your backport builds successfully in an individual PPA, bump the `<release_number>` to its proper number (dropping any `~ppa<N>` suffix) and upload to the staging PPA:
+
+```none
+$ dput ppa:rust-toolchain/staging <path_to_source_changes>
+```
+
+It is also possible to upload directly the staging PPA without first uploading to an individual PPA, in which case the proper version number can also be used from the beginning (skipping the step of uploading with a `~ppa<N>` suffix). This can save time by avoiding the need to rebuild the package a second time. The main drawback is that if the build fails, that version number is now "used up" in the staging PPA, so it would be required to bump the version number before uploading again. This can lead to gaps in the version numbers that are uploaded to the archive. For backports this is considered acceptable and can be a worthwhile trade-off to avoid wasting time and resources on duplicate builds (particularly while `riscv64` is running using emulation, which makes builds take a very long time). It is only required that the version numbers increase monotonically, not that they be sequential.
+
+
+### Autopkgtests
+
+After the package builds successfully in the staging PPA, the next step is to ensure that it passes all of its `autopkgtest` tests (with the exception of the self-build test which is disabled). This is an essential step before requesting upload to the archive, as it gives confidence that the backport is functioning properly. If the backport fails any `autopkgtest` tests, then these must be fixed before proceeding with the upload request.
+
+To trigger `autopkgtest` tests, run the following command:
+
+```none
+ppa tests ppa:rust-toolchain/staging -p rustc-<X.Y> --release <release> --show-url
+```
+
+For example, for `rustc-1.89` on Noble, the command would be:
+
+```none
+ppa tests ppa:rust-toolchain/staging -p rustc-1.89 --release noble --show-url
+```
+
+This command will output a series of URLs which can be used to trigger an `autopkgtest` run for each architecture. The tests will run remotely on the `autopkgtest` infrastructure. Monitor the progress and results of these tests by running the same command again after a few minutes. If any tests fail, the output will include a link to the logs, for troubleshooting the failures. See the [How to run package tests](https://documentation.ubuntu.com/project/contributors/bug-fix/run-package-tests/#run-the-tests-manually-against-a-local-directory) for more details and options for how to run `autopkgtest` tests.
+
+### Launchpad self-build (optional)
+
+If it is desired to perform a self-build on Launchpad, this can be done by setting up a new PPA and uploading the package there after modifying the `debian/control` file to depend exclusively on the same version of the Rust toolchain (rather than the previous version). For example, if testing whether the newly packaged `rustc-1.91` can build itself, the `Build-Depends` can be modified as follows:
+
+```diff
+@@ -15,8 +15,8 @@ Build-Depends:
+  dh-cargo (>= 28ubuntu1~),
+  dpkg-dev (>= 1.17.14),
+  python3:native,
+- cargo-1.90 | cargo-1.91 <!pkg.rustc.dlstage0>,
+- rustc-1.90 | rustc-1.91 <!pkg.rustc.dlstage0>,
++ cargo-1.91 <!pkg.rustc.dlstage0>,
++ rustc-1.91 <!pkg.rustc.dlstage0>,
+```
+
+This assumes that `rustc-1.91` has already built successfully in the Staging PPA, and that the new PPA has been set up to include dependencies on the Staging PPA. Compared to running the self-build test on the `autopkgtest` infrastructure, the Launchpad builders have more resources available, making them less likely to time out or run out of memory.
+
+### Uploading the backport to the archive
 
 After it builds, reach out to the Security team and politely request they upload your backport. Make sure you include the following:
 
 - A link to the bug report
-- A link to the PPA
+- A link to the staging PPA
+- The package name and version number
 
-You can monitor upload progress in the [Security Proposed PPA](https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+packages?field.name_filter=rustc&field.status_filter=&field.series_filter=).
-
+You can monitor upload progress in the [Security Proposed PPA](https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+packages?field.name_filter=rustc&field.status_filter=&field.series_filter=), if the Security team decides to upload the package ther (e.g. in case any changes are needed as part of the sponsorship process). Alternatively, the Security team might copy the package directly to the Ubuntu archive, in which case it will become visible on the Launchpad page for the package.
 
 (rust-common-backporting-changes)=
 ## Common backporting changes

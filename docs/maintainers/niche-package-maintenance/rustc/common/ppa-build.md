@@ -1,10 +1,10 @@
 ### PPA Build
 
-Once everything builds on your local machine and Lintian is satisfied, it's time to test the package on all architectures by uploading it to a {term}`PPA`.
+Once everything builds on your local machine and Lintian is satisfied, it's time to test the package on all architectures by uploading it to a {term}`PPA`. This step is optional if doing a backport, but it is still recommended when doing a backport for the first time, or if there is reason to expect that the backport may need extensive troubleshooting.
 
 #### Creating a new PPA
 
-If this is your first PPA upload for this Rust version, you must create a new PPA using the [`ppa-dev-tools` snap](https://snapcraft.io/ppa-dev-tools). The PPA name depends on whether you are updating Rust, backporting Rust, or patching Rust.
+If this is your first PPA upload for this Rust version, you can create a new PPA using the [`ppa-dev-tools` snap](https://snapcraft.io/ppa-dev-tools) (it is also possible to use the Launchpad web UI). It is recommended to use the following naming convention for the PPA depending on whether you are updating Rust, backporting Rust, or patching Rust.
 
 New versioned Rust package:
 
@@ -27,7 +27,7 @@ $ ppa create rustc-<X.Y>-lp<lp_bug_number>
 The command should return a URL leading to the PPA. You must go to that Launchpad URL and do two things:
 
 1. "Change Details" -> Enable all "Processors" (Make sure RISC-V is enabled!)
-1. "Edit PPA Dependencies" -> Set Ubuntu dependencies to "Proposed"
+1. "Edit PPA Dependencies" -> Set Ubuntu dependencies to "Security" if doing a backport, or "Proposed" otherwise.
 
 If you are using another PPA to bootstrap, then you must explicitly add this PPA as a dependency in the "Edit PPA Dependencies" menu.
 
