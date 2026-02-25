@@ -3,7 +3,7 @@
 Supported architectures
 =======================
 
-Packages are typically built for each of several architectures.
+Packages are typically built for each of several :term:`architectures <Architecture>`.
 These are officially supported and maintained by the Ubuntu project.
 :term:`Canonical` provides server resources to build, store and distribute packages and installation media for them, and the core development team is responsible for their upkeep.
 
@@ -45,15 +45,6 @@ only be installed on an ``amd64`` host as a multi-arch supplementary
 architecture. The main reason these are provided is to run old legacy
 binaries that cannot be rebuilt as ``amd64`` native applications
 (mostly games).
-
-
-Other architectures
--------------------
-
-:term:`Ubuntu` doesn't currently support any other :term:`architectures <Architecture>`. This doesn't mean that Ubuntu won't run on other architectures -- in fact it is entirely possible for it to install without a problem, because Ubuntu is based on the :term:`Debian` distribution, which has support for eight additional architectures (see `Debian Supported Architectures <https://wiki.debian.org/SupportedArchitectures>`_).
-
-However, if you run into problems, the Ubuntu community may not be able to help you.
-
 
 Further reading
 ---------------
