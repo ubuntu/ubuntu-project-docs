@@ -149,7 +149,7 @@ $ dch
 | Existing release | Backport | `<existing_version_number>` | New version number |
 | --- | --- | --- | --- |
 | 1.93 Devel | 1.93 Noble | `1.93.0+dfsg-0ubuntu1` | `1.93.0+dfsg~24.04-0ubuntu1~24.04.1` |
-| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg~24.04.1-0ubuntu3~24.04.2 ` | `1.89.0+dfsg~22.04-0ubuntu3~22.04.1` |
+| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg2~24.04.1-0ubuntu3~24.04.2 ` | `1.89.0+dfsg2~22.04-0ubuntu3~22.04.1` |
 
 Make the initial changelog entry description something like this:
 
