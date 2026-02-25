@@ -46,6 +46,35 @@ architecture. The main reason these are provided is to run old legacy
 binaries that cannot be rebuilt as ``amd64`` native applications
 (mostly games).
 
+Architecture baselines
+----------------------
+
+For each architecture above, there is a *baseline* which is the oldest or least capable CPU that can be used to run Ubuntu of that architecture:
+
+.. list-table::
+    :header-rows: 1
+
+    * - Architecture
+      - Baseline
+    * - ``amd64``
+      - No extensions beyond the original 64-bit AMD / Intel CPUs
+    * - ``arm64``
+      - ARMv8-A with no optional extensions. VFPv4 and NEON are assumed but ARMv8.1-A are not.
+    * - ``armhf``
+      - ARMv7 with VFPv3-D16 floating point. NEON is not guaranteed.
+    * - ``ppc64el``
+      - Ubuntu 16.04 through 21.10 assumed a POWER8 or newer CPU.
+        Ubuntu 22.04 and newer assume POWER9 or newer.
+    * - ``s390x``
+      - Ubuntu 16.04 through 19.10 assumed zEC12 or newer.
+      - Ubuntu 20.04 thought 25.10 assumed z13 or newer.
+        Ubuntu 26.04 and newer assume z15.
+    * - ``riscv64``
+      - RISC-V (64-bit)
+      - Ubuntu 20.04 through 25.04 assumed the RVA20 profile.
+        Ubuntu 25.10 and newer assume the RVA23 profile.
+
+
 Further reading
 ---------------
 
