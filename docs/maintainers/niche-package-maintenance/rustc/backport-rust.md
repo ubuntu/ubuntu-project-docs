@@ -180,7 +180,7 @@ The part with the Launchpad bug number is optional but should be included if an 
 
 ### Disable autopkgtest self-build test
 
-The rustc autopkgtest suite includes a test that runs the package build process using the just-packaged Rust compiler. The purpose of this test is to ensure that the new Rust toolchain can successfully build itself, so that it will be usable to bootstrap future Rust versions. However, this test is resource-intensive and may strain the `autopkgtest` infrastructure, resulting in a high likelihood of timeouts, particularly in the case of backports that vendor LLVM. Therefore, it is recommended to disable it by removing the relevant lines from `debian/tests/control`:
+The `rustc` autopkgtest suite includes a test that runs the package build process using the just-packaged Rust compiler. The purpose of this test is to ensure that the new Rust toolchain can successfully build itself, so that it will be usable to bootstrap future Rust versions. However, this test is resource-intensive and may strain the `autopkgtest` infrastructure, resulting in a high likelihood of timeouts, particularly in the case of backports that vendor LLVM. Therefore, it is recommended to disable it by removing the relevant lines from `debian/tests/control`:
 ```diff
 --- a/debian/tests/control
 +++ b/debian/tests/control
