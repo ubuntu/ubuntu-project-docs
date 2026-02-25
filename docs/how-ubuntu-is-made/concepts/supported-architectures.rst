@@ -16,37 +16,35 @@ Each official Ubuntu release and update includes appropriate support for these a
     * - Identifier
       - Alternative Architecture Names
       - Endianness
-      - Architecture Type
     * - ``amd64``
       - x86-64, x86_64, x64, AMD64, Intel 64
       - :term:`Little-Endian`
-      - :term:`CISC`
-    * - ``i386`` [1]_
-      - Intel x86, 80x86
-      - :term:`Little-Endian`
-      - :term:`CISC`
     * - ``arm64``
       - ARM64, ARMv8, AArch64
       - :term:`Little-Endian`
-      - :term:`RISC`
     * - ``armhf``
       - ARM32, ARMv7, AArch32, ARM Hard Float
       - :term:`Little-Endian`
-      - :term:`RISC`
     * - ``ppc64el``
-      - PowerPC64 Little-Endian 
+      - PowerPC64 Little-Endian
       - :term:`Little-Endian`
-      - :term:`RISC`
     * - ``s390x``
-      - IBM System z, S/390, S390X       
+      - IBM System z, S/390, S390X
       - :term:`Big-Endian`
-      - :term:`CISC`
     * - ``riscv64``
       - RISC-V (64-bit)
       - :term:`Little-Endian`
-      - :term:`RISC`
 
-.. [1] ``i386`` is a partial-port of Ubuntu, which is supported as a multi-arch supplementary architecture. There is no kernel, no installers, and no bootloaders for ``i386``, therefore it cannot be booted as a pure ``i386`` installation. You have to crossbuild ``i386`` or build in a ``i386`` chroot on a ``amd64`` host.
+The ``i386`` partial port
+-------------------------
+
+A small number of packages are built for the ``i386`` architecture
+(i.e. using 32-bit Intel / AMD or ``IA32`` instructions).  There is no
+kernel, installer or bootloader for ``i386`` so these packages can
+only be installed on an ``amd64`` host as a multi-arch supplementary
+architecture. The main reason these are provided is to run old legacy
+binaries that cannot be rebuilt as ``amd64`` native applications
+(mostly games).
 
 
 Other architectures
