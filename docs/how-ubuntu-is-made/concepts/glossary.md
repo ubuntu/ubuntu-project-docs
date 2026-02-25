@@ -39,6 +39,13 @@ Application Binary Interface
     are crucial for software components compiled on different systems
     to work together seamlessly.
 
+    While in the widest sense, an ABI covers things like the format of exectuable files
+    and how dynamic linking works, which for Ubuntu and most extant Unix systems follows the
+    ``System V Application Binary Interface`` definition, when people are talking about an ABI
+    they are usually referring to the pieces that vary between different systems. These are defined
+    in the "platform-specific supplements" that are available for each platform. For example, the psABI
+    for x86-64 / amd64 is maintained on gitlab at https://gitlab.com/x86-psABIs/x86-64-ABI.
+
     See also:
     * [Kernel ABI (Ubuntu Wiki)](https://wiki.ubuntu.com/KernelTeam/BuildSystem/ABI)
     * [Application binary interface (Wikipedia)](https://en.wikipedia.org/wiki/Application_binary_interface)
@@ -73,13 +80,35 @@ Advanced Packaging Tool
     * [Package management (Ubuntu Server documentation)](https://documentation.ubuntu.com/server/how-to/software/package-management/)
 
 Architecture
-    Within the context of {term}`Ubuntu`, this refers to the system architecture
-    (more specifically, the CPU architecture and its instruction set) an
-    application is designed for.
+    Within the context of {term}`Ubuntu`, this generally and usually refers to a system architecture
+    (more specifically, a CPU architecture and its instruction set) an
+    application is built for. To be precise though, in {term}`Debian` and {term}`Ubuntu` an architecture actually
+    names an {term}`ABI`, in that two packages built for the same architecture are expected to be able to interoperate.
+    While in most cases two distinct architectures can only run on distinct CPUs, there exist CPUs that can run
+    both the ``armhf`` and (now obsolete in Ubuntu) ``armel`` architectures.
 
     See also:
     * {ref}`supported-architectures`
     * [Computer Architecture (Wikipedia)](https://en.wikipedia.org/wiki/Computer_architecture)
+
+Architecture baseline
+    While in the strictest sense an {term}`Architecture` in {term}`Ubuntu` is defined by an {term}`ABI`,
+    for each architecture there is a minimum set of features that must be implemented by a platform for
+    Ubuntu to be usable on it, sometimes beyond those implied by the ABI itself.
+
+    For example, Ubuntu 26.04 on the ``s390x`` architecture assumes that instructions only present in
+    ``z15`` and newer chips. On ``amd64`` by contrast, no instructions introduced since the very first
+    amd64 / x86-64 CPU are assumed to be present.
+
+Architecture Variant
+    A variant of an {term}`Architecture` is a set of packages that follow the same {term}`ABI` as the underlying
+    architecture, but uses a different {term}`baseline <Architecture baseline>`.
+
+    For example, the ``amd64v3`` variant assumes the presence of instructions in the ``x86-64-v3``
+    microarchitecture level such as AVX2.
+
+    Because packages built for different variants of an architecture follow the same ABI, an executable built
+    for ``amd64`` can dynamically link to a library built for ``amd64v3`` or vice versa.
 
 AA
 Archive Admin
