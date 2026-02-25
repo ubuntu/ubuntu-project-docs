@@ -225,7 +225,7 @@ For example, for `rustc-1.89` on Noble, the command would be:
 ppa tests ppa:rust-toolchain/staging -p rustc-1.89 --release noble --show-url
 ```
 
-This command will output a series of URLs which can be used to trigger an `autopkgtest` run for each architecture. The tests will run remotely on the `autopkgtest` infrastructure. Monitor the progress and results of these tests by running the same command again after a few minutes. If any tests fail, the output will include a link to the logs, for troubleshooting the failures. See the [How to run package tests](https://documentation.ubuntu.com/project/contributors/bug-fix/run-package-tests/#run-the-tests-manually-against-a-local-directory) for more details and options for how to run `autopkgtest` tests.
+This command will output a series of URLs which can be used to trigger an `autopkgtest` run for each architecture. The tests will run remotely on the `autopkgtest` infrastructure. Monitor the progress and results of these tests by running the same command again after a few minutes. If any tests fail, the output will include a link to the logs, for troubleshooting the failures. See the [How to run package tests](https://documentation.ubuntu.com/project/contributors/bug-fix/run-package-tests/#run-the-tests-manually-against-a-local-directory) page for more details and options for how to run `autopkgtest` tests.
 
 ### Launchpad self-build (optional)
 
@@ -252,7 +252,7 @@ After it builds, reach out to the Security team and politely request they upload
 - A link to the staging PPA
 - The package name and version number
 
-You can monitor upload progress in the [Security Proposed PPA](https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+packages?field.name_filter=rustc&field.status_filter=&field.series_filter=), if the Security team decides to upload the package ther (e.g. in case any changes are needed as part of the sponsorship process). Alternatively, the Security team might copy the package directly to the Ubuntu archive, in which case it will become visible on the Launchpad page for the package.
+You can monitor upload progress in the [Security Proposed PPA](https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+packages?field.name_filter=rustc&field.status_filter=&field.series_filter=), if the Security team decides to upload the package there (e.g. in case any changes are needed as part of the sponsorship process). Alternatively, the Security team might copy the package directly to the Ubuntu archive, in which case it will become visible on the Launchpad page for the package.
 
 (rust-common-backporting-changes)=
 ## Common backporting changes
