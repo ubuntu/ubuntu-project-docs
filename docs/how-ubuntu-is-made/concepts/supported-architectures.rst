@@ -74,6 +74,13 @@ For each architecture above, there is a *baseline* which is the oldest or least 
       - Ubuntu 20.04 through 25.04 assumed the RVA20 profile.
         Ubuntu 25.10 and newer assume the RVA23 profile.
 
+Architecture variants
+---------------------
+
+To be able to assume features of more modern CPUs without dropping support for older machines, Ubuntu 25.10 introduced the concept of :term:`Architecture Variant`. This allows packages to be built for given :term:`architecture <Architecture>` (remember, architecture really means :term:`ABI`) multiple times, each build assuming different CPU features.
+
+The only variant supported in Ubuntu so far is ``amd64v3`` which assumes the ``x86-64-v3`` microarchiture level. This assumes a number of instructions that have been added in the years since the first amd64 CPUs, including AVX2, FMA, BMI2 and others. Most amd64-compatible processors produced since about 2013 support this.
+
 
 Further reading
 ---------------
