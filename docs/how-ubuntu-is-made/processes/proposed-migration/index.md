@@ -12,9 +12,9 @@ special-migration-cases
 ```
 
 In Ubuntu there is a special {term}`pocket` called `-proposed` for testing and integration. 
-In fact some packages are not automatically released to Ubuntu users, such packages are put into the `-proposed` `pocket` and correspond to the following cases:
+In the following cases, packages are not automatically released to Ubuntu users, and instead go into the `-proposed` pocket:
 * New packages not already present in any Ubuntu release that have been automatically imported from Debian
-* Uploads of {ref}`fixed <how-to-fix-a-bug-in-a-package>`
+* Uploads of {ref}`fixed <how-to-fix-a-bug-in-a-package>` packages.
 * Uploads of {ref}`merged <merges>` packages. 
 
 Once a package is deemed OK, it **migrates** into the `-release` pocket for users to consume. This is called the "proposed migration" process.
@@ -41,7 +41,7 @@ Issue types:
 (lifecycle-of-an-upload)=
 ## Lifecycle of an upload
 
-In the following lifecycle a new package follows the same flow as a new fix of an issue of an existing package.
+The following lifecycle flow applies equally to new packages and to new fixes for bugs in existing packages.
 
 1. Issue identified, fixed, and packaged.
 
