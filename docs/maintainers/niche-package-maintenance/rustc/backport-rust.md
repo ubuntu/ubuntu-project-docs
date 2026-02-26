@@ -232,6 +232,7 @@ ppa tests ppa:rust-toolchain/staging -p rustc-1.89 --release noble --show-url
 
 This command outputs a series of URLs that can be used to trigger an `autopkgtest` run for each architecture. The tests run remotely on the `autopkgtest` infrastructure. Monitor the progress and results of these tests by running the same command again after a few minutes. If any tests fail, the output includes a link to the logs for troubleshooting the failures. See {ref}`how-to-run-package-tests` for more details and options on how to run `autopkgtest` tests.
 
+(launchpad-self-build-optional)=
 ### Launchpad self-build (optional)
 
 If you need to perform a self-build on Launchpad, set up a new PPA and upload the package there after modifying the {file}`debian/control` file to depend exclusively on the same version of the Rust toolchain (rather than the previous version). For example, if testing whether the newly packaged {pkg}`rustc-1.91` can build itself, `Build-Depends` can be modified as follows:
