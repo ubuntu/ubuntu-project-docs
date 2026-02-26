@@ -201,7 +201,7 @@ Even in the absence of this test, the build process already includes a self-buil
 
 ### Uploading the backport to the staging PPA
 
-Once your backport builds successfully in an individual PPA, bump the `<release_number>` to its proper number (dropping any `~ppa<N>` suffix) and upload to the staging PPA:
+Once your backport builds successfully in an individual PPA, bump the `<release_number>` to its proper number (dropping any `~ppa<N>` suffix) and upload to the [staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/):
 
 ```none
 $ dput ppa:rust-toolchain/staging <path_to_source_changes>
