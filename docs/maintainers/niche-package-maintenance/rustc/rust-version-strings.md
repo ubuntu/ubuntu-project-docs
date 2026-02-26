@@ -1,7 +1,7 @@
 (rust-version-strings)=
 # Rust version strings
 
-The Rust toolchain version string format used in the {term}`Ubuntu archive` is complicated and contains certain unique features.
+The Rust toolchain version string format used in the {term}`Ubuntu Archive` is complicated and contains certain unique features.
 It's a combination of {term}`Debian` policy, Ubuntu conventions, and legacy code.
 Although you will usually change only a few parts of the version string, it's a good idea to know what all of it means.
 
@@ -59,7 +59,7 @@ Finally, this component shows how many modifications the Ubuntu maintainers have
 
 The '`0`' at the start of the `0ubuntu<ubuntu_revision>` component signifies that this package is separate from Debian and is _never_ synced.
 
-If the `[<repack_number>]` described [above](rust-repack-number) is ever added or incremented, `<ubuntu_revision>` is reset back to `1`.
+If the `[<repack_number>]` described in {ref}`rust-repack-number` is ever added or incremented, `<ubuntu_revision>` is reset back to `1`.
 Examples of this component:
 
 | Component   | Meaning                                                  |
@@ -105,7 +105,7 @@ A {term}`backported <backport>` Rust toolchain follows the same rules as a norma
 
 ### `~<series>[.<backport_repack>]`
 
-During backporting, there are certain cases in which the Rust toolchain's dependencies can't be met because the archive is too old. When this happens, the dependencies must be {term}`vendored <vendored dependency>`, i.e., included in the orig tarball. (This commonly happens with [LLVM](rust-vendoring-llvm) and [`libgit2`](rust-vendoring-libgit2).)
+During backporting, there are certain cases in which the dependencies of the Rust toolchain can't be met because the Archive is too old. When this happens, the dependencies must be {term}`vendored <vendored dependency>`, i.e., included in the orig tarball. (This commonly happens with {ref}`LLVM <rust-vendoring-llvm>` and {ref}`libgit2 <rust-vendoring-libgit2>`.)
 
 When assigning a version number to a backport, the existing `[<repack_number>]` is untouched. Instead, `~<series>` is added, which shows that the repacked tarball is applied to this specific {term}`Ubuntu series <series>`. Note that the `~<series>` should always be added regardless of whether the orig tarball was modified for the backport. Likewise, when backporting to a different series, the `~<series>` should be updated regardless of whether the orig tarball was modified from the previous backport.
 
@@ -122,7 +122,7 @@ Examples of this component:
 
 ### `-0ubuntu<ubuntu_revision>~<series>.<backport_revision>`
 
-The `<series>` number is added after the `<ubuntu_revision>` and will always be the same as the one in the orig tarball part of the version string. Although it duplicates the information already present in the first part of the version string, it gives context to the following `<backport_revision>` number and follows the convention commonly used for backports of other packages.
+The `<series>` number is added after the `<ubuntu_revision>` and is always the same as the one in the orig-tarball part of the version string. Although it duplicates the information already present in the first part of the version string, it gives context to the following `<backport_revision>` number and follows the convention commonly used for backports of other packages.
 
 The `<backport_revision>` is added to the end of the version string, starting at `1`. This is incremented every time a change is made to the backport that doesn't affect the orig tarball. 
 
@@ -307,7 +307,7 @@ This is our convention for doing that.
 
 Every time you change the rest of the version string in some way, you can reset this to 1.
 
-If this part is _not_ present, that means the version is intended as a candidate to be uploaded to the main archive.
+If this part is _not_ present, that means the version is intended as a candidate to be uploaded to the main Archive.
 
 :::{note}
 {term}`Changelog` (`debian/changelog`) entries with `~ppa<PPA>` should never make it onto a {term}`version control system`; they are only for the benefit of the PPA itself.
