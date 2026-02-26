@@ -40,7 +40,7 @@ The way we share patches is by putting them in the rust-debian repository.
 
 As a motivating example, Debian's `rustc` has a bug where it builds a few components twice.
 We created a patch to fix the bug.
-It is exported as `prevent-duplicate-dh-auto-build.patch`.
+It is exported as `prevent-duplicate-dh-auto-build.patch`:
 
 <!-- TODO: pygment does not support .patch files. I am using .diff instead, which has slightly different
 highlighting ...-->
@@ -98,7 +98,7 @@ To apply a patch, make sure that your local clone of `rustc-debian` is up-to-dat
 $ git am path/to/rustc-debian/menu/prevent-duplicate-dh-auto-build.patch
 ```
 
-`git am` takes a `.patch` file and turns it back into a commit.
+`git am` takes a `.patch` file and applies it as a commit.
 
 ### Merge Conflicts
 
