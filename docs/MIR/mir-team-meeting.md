@@ -46,12 +46,12 @@ Check these generated reports:
 
 ## Topic 3/7: New MIRs
 ### Mission: ensure to assign all incoming reviews for fast processing
-Check this launchpad bug list:
+Check this Launchpad bug list:
 * [New MIRs](https://bugs.launchpad.net/ubuntu/?field.searchtext=&orderby=-date_last_updated&field.status%3Alist=NEW&field.status%3Alist=CONFIRMED&assignee_option=none&field.assignee=&field.subscriber=ubuntu-mir)
 
 ## Topic 4/7: Incomplete bugs / questions
 ### Mission: Identify required actions and spread the load among the teams
-Check this launchpad bug list:
+Check this Launchpad bug list:
 * [Incomplete bugs](https://bugs.launchpad.net/ubuntu/?field.searchtext=&orderby=-date_last_updated&field.status%3Alist=INCOMPLETE_WITH_RESPONSE&field.status%3Alist=INCOMPLETE_WITHOUT_RESPONSE&field.subscriber=ubuntu-mir)
 
 ## Topic 5/7: Process/Documentation improvements
@@ -64,7 +64,7 @@ Check these GH based lists:
 ### Mission: Check on progress, do deadlines seem doable?
 * ensure your teams items are prioritized among each other as you'd expect
 * ensure community requests do not get stomped by teams calling for favors too much
-* [Security assigned MIR in launchpad](https://bugs.launchpad.net/~ubuntu-security/+bugs?field.searchtext=%5BMIR%5D&assignee_option=choose&field.assignee=ubuntu-security&field.bug_reporter=&field.bug_commenter=&field.subscriber=ubuntu-mir&orderby=-date_last_updated&start=0)
+* [Security assigned MIR in Launchpad](https://bugs.launchpad.net/~ubuntu-security/+bugs?field.searchtext=%5BMIR%5D&assignee_option=choose&field.assignee=ubuntu-security&field.bug_reporter=&field.bug_commenter=&field.subscriber=ubuntu-mir&orderby=-date_last_updated&start=0)
 * [(internal) kanban board](https://warthogs.atlassian.net/jira/software/c/projects/SEC/boards/594)
 
 ## Topic 7/7: Any other business?

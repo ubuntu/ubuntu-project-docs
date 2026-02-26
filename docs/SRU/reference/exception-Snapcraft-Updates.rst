@@ -38,7 +38,7 @@ Before a pull request lands into master
    and executed as a snap.
 -  all the unit, integration and examples tests must pass in one
    architecture.
--  all the bugs reported in launchpad that will be fixed in this
+-  all the bugs reported in Launchpad that will be fixed in this
    release must have a link to the pull request that fixes them.
    These bugs must be marked as "Fix Committed" at the project level
    once that pull request is merged into master.

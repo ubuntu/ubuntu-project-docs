@@ -114,7 +114,7 @@ branch.  Depending on the contribution you might want to improve the
 commit message or split the changes up into several commits instead of
 one.
 
-Once you're happy, the branch is proposed for merging on launchpad, so it can be reviewed and uploaded.
+Once you're happy, the branch is proposed for merging on Launchpad, so it can be reviewed and uploaded.
 
 For more info about traditional debdiff-based contributing, see the
 [Reviewer Team's Knowledge Base](https://wiki.ubuntu.com/ReviewersTeam/KnowledgeBase).
