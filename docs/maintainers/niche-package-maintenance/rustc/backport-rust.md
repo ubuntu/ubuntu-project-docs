@@ -250,9 +250,11 @@ If you need to perform a self-build on Launchpad, set up a new PPA and upload th
 
 This assumes that {pkg}`rustc-1.91` has already built successfully in the Staging PPA, and that the new PPA has been set up to include dependencies on the Staging PPA. Compared to running the self-build test on the `autopkgtest` infrastructure, the Launchpad builders have more resources available, making them less likely to time out or run out of memory.
 
-### Uploading the backport to the Archive
+### Uploading the backport to the Archive (optional)
 
-After it builds, reach out to the Security team and politely request they upload your backport. Make sure you include the following:
+After the backport successfully builds in the staging PPA and has passed `autopkgtests`, then you may reach out to the Security team to request upload. This step is only needed if there is a specific reason that the backport is needed in the Archive; otherwise, it is sufficient to have the backport available in the staging PPA for bootstrapping future Rust versions.
+
+When reaching out to the Security team, make sure to include the following in your request:
 
 - A link to the bug report
 - A link to the staging PPA
