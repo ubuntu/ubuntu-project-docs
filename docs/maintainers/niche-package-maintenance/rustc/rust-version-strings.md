@@ -147,7 +147,7 @@ Let's say you need to backport the `1.90.0+dfsg2-0ubuntu3` Rust toolchain to Ubu
     - Action
     - Version string
 *   - Backporting to 24.04 (with or without orig tarball changes)
-    - Add `<series_number>` and set `<backport_revision>` to `1`
+    - Add `<series>` and set `<backport_revision>` to `1`
     - `1.90.0+dfsg2~24.04-0ubuntu3~24.04.1`
 *   - Fixing a bug
     - Increment `<backport_revision>`
