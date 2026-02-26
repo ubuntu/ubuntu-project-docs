@@ -20,7 +20,7 @@ Previously, when we needed to re-use an existing commit on a fresh `rustc` port,
 As you may imagine, this was error-prone, led to lots of code duplication, and wasted lots of time trawling through Git repositories looking for the correct patch.
 
 `rustc-debian` is a centralized place to put those patches.
-Instead of having our patches float around in random Git trees, we use Git [patch-based workflow](https://git-scm.com/docs/gitworkflows#_patch_workflow) to store commits as files, which we then track using Git as if they were any other file.
+We use Git [patch-based workflow](https://git-scm.com/docs/gitworkflows#_patch_workflow) to store commits as files, which we then track using Git as if they were any other file.
 The patch-based workflow is based around two commands:
 
 - {manpage}`git-format-patch(1)`, which lets you *export* commits as `.patch` files unbound to any repository.
@@ -39,7 +39,7 @@ The way we share patches is by putting them in the rust-debian repository.
 ## Using `rustc-debian`
 
 As a motivating example, Debian's `rustc` has a bug where it builds a few components twice.
-Given that `rustc` has long enough build times already, we created a patch to fix the bug (which fortunately was rather simple).
+We created a patch to fix the bug.
 It is exported as `prevent-duplicate-dh-auto-build.patch`.
 
 <!-- TODO: pygment does not support .patch files. I am using .diff instead, which has slightly different
@@ -92,20 +92,18 @@ Putting the patch in a central location made it easy to apply over any bugged ve
 `rustc-debian` also was useful when testing `cargo-auditable` support, as we ended up testing it on many different versions of `rustc`.
 ```
 
-Applying patches is simple.
-First, make sure that your local clone of `rustc-debian` is up-to-date!
-Then run:
+To apply a patch, make sure that your local clone of `rustc-debian` is up-to-date, and then run:
 
 ```none
 $ git am path/to/rustc-debian/menu/prevent-duplicate-dh-auto-build.patch
 ```
 
-`git am` takes a .patch file and turns it back into a commit.
+`git am` takes a `.patch` file and turns it back into a commit.
 
 ### Merge Conflicts
 
 Git has slightly worse ergonomics for merge conflicts when done with patch-based workflow.
-If you try to `git am` a patch with conflicts, it will simply refuse to try.
+If you try to `git am` a patch with conflicts, it refuses to try.
 You must use `git am -3` to make it try and fix conflicts.
 
 <!--TODO: in general am-ing conflicts is hacky, and I'll need to rewrite this section when I next
@@ -113,13 +111,13 @@ have to fix a merge conflict so that I can provide more accurate information --p
 
 ## Contributing to `rustc-debian`
 
-When you create a commit that may be useful in other versions of `rustc`, you can export it with `git format-patch`.
+When you create a commit that may be useful in other versions of `rustc`, export it with `git format-patch`.
 
 First, create your commit like any other commit.
 Then run:
 
 ```{terminal}
-:user: petrakat
+:user: dev
 :host: ubuntu
 :dir: ~
 
@@ -128,17 +126,17 @@ git format-patch -1
 0001-first-line-of-your-commit-message.patch
 ```
 
-The `HEAD` commit will be exported as a patch file, and its filename is printed to stdout.
+The `HEAD` commit is exported as a patch file, and its filename is printed to STDOUT.
 
 ```{note}
-`-1` tells git to only create a single patch.
+`-1` tells Git to only create a single patch.
 Usually, the command expects a range of commits.
 ```
 
-`mv` that file over to wherever you have cloned `rustc-debian`.
-Then, create a commit in `rustc-debian` with a brief(er) description of the patch, and push it.
+Move that file over to where you have cloned `rustc-debian`.
+Then, create a commit in `rustc-debian` with a brief description of the patch and push it.
 
-### How to Format a Nice Patch
+### Formatting a patch
 
 Remember that people will see your commit as a file floating around by itself, with no helpful Git history for context.
 Therefore, it's worth putting lots of detail about the history of the patch and why it is necessary in a long commit message.
@@ -156,7 +154,7 @@ So, we would end up with a bunch of `.patch` files all starting with `0001-`, wh
 
 (We may revisit this policy later, if we end up having patch files that depend on each other.)
 
-## Future Work
+## Future work
 
 Currently, `rustc-debian` only has a `menu/` directory.
 In the future, we hope to store other useful patches and scripts in this repository in other directories.
