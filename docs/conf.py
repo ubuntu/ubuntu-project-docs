@@ -290,6 +290,7 @@ extensions = [
     "sphinxext.rediraffe",
     "sphinx_togglebutton",
     "sphinx.ext.graphviz",
+    "sphinx_llm.txt",
 ]
 
 # Excludes files or directories from processing
