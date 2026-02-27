@@ -1,7 +1,7 @@
 (rust-version-strings)=
 # Rust version strings
 
-The Rust version string format used in the {term}`Ubuntu archive` is complicated and contains certain unique features.
+The Rust toolchain version string format used in the {term}`Ubuntu Archive` is complicated and contains certain unique features.
 It's a combination of {term}`Debian` policy, Ubuntu conventions, and legacy code.
 Although you will usually change only a few parts of the version string, it's a good idea to know what all of it means.
 
@@ -12,16 +12,16 @@ An understanding of how [Ubuntu version strings normally work](version-strings) 
 
 ## Typical Rust version string
 
-Components in `[square brackets]` are placeholders to be filled in, while components in `<angle brackets>` are optional.
+Components in `<angle brackets>` are required placeholders to be filled in, while components in `[square brackets]` are optional.
 
 The version string format for a versioned `rustc-X.Y` {term}`source package` is as follows:
 
 ```none
-[upstream_version]+dfsg<[repack_number]>-0ubuntu[ubuntu_revision]
+<upstream_version>+dfsg[<repack_number>]-0ubuntu<ubuntu_revision>
 ```
 
 
-### `[upstream_version]`
+### `<upstream_version>`
 
 This component shows what upstream version of the Rust toolchain this package is. Since Ubuntu Rust toolchain packages are versioned, this number only changes if the upstream Rust Foundation releases a patch for the current release, e.g., `1.85.0` -> `1.85.1`.
 
@@ -31,15 +31,15 @@ If the Rust Foundation releases a new patch release, then the rest of the versio
 
 
 (rust-repack-number)=
-### `+dfsg<[repack_number]>`
+### `+dfsg[<repack_number>]`
 
 This component signifies that the original upstream source has been modified from its original state, i.e., the {term}`orig tarball` has been repacked.
 
 The `+dfsg` component is _always_ there because during the `rustc` update process, several unneeded dependencies are {ref}`pruned from the upstream source <pruning-unwanted-dependencies>`.
 
-Normally, the `[repack_number]` can be elided entirely. However, if after the first release the {term}`orig tarball` must be repacked for whatever reason, a `[repack_number]` must be added afterwards, starting at `1`.
+Normally, the `[<repack_number>]` can be elided entirely. However, if after the first release the {term}`orig tarball` must be repacked for whatever reason, a `[<repack_number>]` must be added afterwards, starting at `1`.
 
-If this number must be incremented, then the `[ubuntu_revision]` (described in {ref}`rust-ubuntu-revision`) must be reset back to `1`.
+If this number must be incremented, then the `<ubuntu_revision>` (described in {ref}`rust-ubuntu-revision`) must be reset back to `1`.
 
 > Example: `1.85.1+dfsg-0ubuntu3` -> `1.85.1+dfsg1-0ubuntu1`
 
@@ -53,14 +53,13 @@ Here are some examples of this component:
 
 
 (rust-ubuntu-revision)=
-### `-0ubuntu[ubuntu_revision]`
+### `-0ubuntu<ubuntu_revision>`
 
-Finally, this component shows how many modifications the Ubuntu maintainers have made to this Rust toolchain. For the first upload, `[ubuntu_revision]` starts at `1`.
+Finally, this component shows how many modifications the Ubuntu maintainers have made to this Rust toolchain. For the first upload, `<ubuntu_revision>` starts at `1`.
 
-The '`0`' in the `0ubuntu[ubuntu_revision]` component signifies that this package is separate from Debian and is _never_ synced.
+The '`0`' at the start of the `0ubuntu<ubuntu_revision>` component signifies that this package is separate from Debian and is _never_ synced.
 
-If the `[<repack_number>]` described [above](rust-repack-number) is ever added or incremented, `[ubuntu_revision]` is reset back to `1`.
-
+If the `[<repack_number>]` described in {ref}`rust-repack-number` is ever added or incremented, `<ubuntu_revision>` is reset back to `1`.
 Examples of this component:
 
 | Component   | Meaning                                                  |
@@ -81,16 +80,16 @@ Examples of this component:
     - Use the default
     - `1.95.0+dfsg-0ubuntu1`
 *   - Fixing a bug
-    - Increment `[ubuntu_revision]`
+    - Increment `<ubuntu_revision>`
     - `1.95.0+dfsg-0ubuntu2`
 *   - Pruning an unwanted dependency accidentally included in the orig tarball
-    - Add a `1` after `+dfsg`, resetting `[ubuntu_revision]` back to `1`
+    - Add a `1` after `+dfsg`, resetting `<ubuntu_revision>` back to `1`
     - `1.95.0+dfsg1-0ubuntu1`
 *   - Upstream (Rust Foundation) creates a patch release for Rust 1.95
-    - Update the `[upstream_version]`, resetting the rest of the version number
+    - Update the `<upstream_version>`, resetting the rest of the version number
     - `1.95.1+dfsg-0ubuntu1`
 *   - Uploading another Ubuntu-specific fix
-    - Use new `[upstream_version]` and increment `[ubuntu_revision]`
+    - Use new `<upstream_version>` and increment `<ubuntu_revision>`
     - `1.95.1+dfsg-0ubuntu2`
 :::
 
@@ -100,42 +99,41 @@ Examples of this component:
 A {term}`backported <backport>` Rust toolchain follows the same rules as a normal upload, with a few modifications:
 
 ```none
-[upstream_version]+dfsg<[repack_number]><~[repack_series]<.[backport_repack]>>-0ubuntu0.[series_number].[ubuntu_revision]
+<upstream_version>+dfsg[<repack_number>]~<series>[.<backport_repack>]-0ubuntu<ubuntu_revision>~<series>.<backport_revision>
 ```
 
 
-### `<~[repack_series]<.[backport_repack]>>`
+### `~<series>[.<backport_repack>]`
 
-During backporting, there are certain cases in which the Rust toolchain's dependencies can't be met because the archive is too old. When this happens, the dependencies must be {term}`vendored <vendored dependency>`, i.e., included in the orig tarball. (This commonly happens with [LLVM](rust-vendoring-llvm) and [`libgit2`](rust-vendoring-libgit2).)
+During backporting, there are certain cases in which the dependencies of the Rust toolchain can't be met because the Archive is too old. When this happens, the dependencies must be {term}`vendored <vendored dependency>`, i.e., included in the orig tarball. (This commonly happens with {ref}`LLVM <rust-vendoring-llvm>` and {ref}`libgit2 <rust-vendoring-libgit2>`.)
 
-If this is necessary, the existing `[repack_number]` is untouched. Instead, `~[repack_series]` is added, which shows that the tarball has been repacked for this specific {term}`Ubuntu series <series>`.
+When assigning a version number to a backport, the existing `[<repack_number>]` is untouched. Instead, `~<series>` is added, which shows that the repacked tarball is applied to this specific {term}`Ubuntu series <series>`. Note that the `~<series>` should always be added regardless of whether the orig tarball was modified for the backport. Likewise, when backporting to a different series, the `~<series>` should be updated regardless of whether the orig tarball was modified from the previous backport.
 
-If, after the initial backport upload, the orig tarball must be modified _again_, `.[backport_repack]` is added and incremented as necessary.
-
+If, after the initial backport upload, the orig tarball must be modified _again_ for the same series, `[.<backport_repack>]` is added and incremented as necessary.
 Examples of this component:
 
-| Component       | Meaning                                                                                   |
-|-----------------|-------------------------------------------------------------------------------------------|
-| `+dfsg`         | The orig tarball is the same as the original upload.                                      |
-| `+dfsg~22.04`   | The orig tarball was modified for a 22.04 backport.                                       |
-| `+dfsg1~24.04`  | The orig tarball, revised in the original upload, was also modified for a 24.04 backport. |
-| `+dfsg~25.10.1` | The orig tarball had to be modified for a 25.10 backport, then revised later.             |
+| Component       | Meaning                                                                                    |
+|-----------------|--------------------------------------------------------------------------------------------|
+| `+dfsg`         | The orig tarball in the original upload                                                    |
+| `+dfsg~24.04`   | The orig tarball applied to a 24.04 backport (with or without modification)                |
+| `+dfsg1`        | The orig tarball, revised in the original upload                                           |
+| `+dfsg1~24.04`  | The revised orig tarball applied to a 24.04 backport                                       |
+| `+dfsg1~24.04.1`| The revised orig tarball applied to a 24.04 backport, then revised later                   |
 
+### `-0ubuntu<ubuntu_revision>~<series>.<backport_revision>`
 
-### `-0ubuntu0.[series_number].[ubuntu_revision]`
+The `<series>` number is added after the `<ubuntu_revision>` and is always the same as the one in the orig-tarball part of the version string. Although it duplicates the information already present in the first part of the version string, it gives context to the following `<backport_revision>` number and follows the convention commonly used for backports of other packages.
 
-We don't want the backport version number to sort newer than any non-backported version in the archive. Therefore, the original Ubuntu revision is replaced by `0.[series_number].[ubuntu_revision]`.
+The `<backport_revision>` is added to the end of the version string, starting at `1`. This is incremented every time a change is made to the backport that doesn't affect the orig tarball. 
 
-The `[series_number]` signifies the particular series this backport targets.
-
-The `[ubuntu_revision]` component acts just like the {ref}`standard [ubuntu_revision] component <rust-ubuntu-revision>` — it starts at `1` and is incremented as necessary.
+The `<backport_revision>` is reset back to `1` whenever any previous part of the version string is changed, e.g., if the orig tarball must be modified again, or if the backport is applied to a different series.
 
 Here are some examples of this component:
 
 | Component           | Meaning                                                             |
 |---------------------|---------------------------------------------------------------------|
-| `-0ubuntu0.22.04.1` | This is the initial upload of the 22.04 backport.                   |
-| `-0ubuntu0.20.10.2` | This 20.10 backport has been revised once after the initial upload. |
+| `-0ubuntu3~22.04.1` | This is the initial upload of the 22.04 backport.                   |
+| `-0ubuntu3~20.10.2` | This 20.10 backport has been revised once after the initial upload. |
 
 
 ### Example: Backporting a Rust toolchain
@@ -148,24 +146,18 @@ Let's say you need to backport the `1.90.0+dfsg2-0ubuntu3` Rust toolchain to Ubu
 *   - Situation
     - Action
     - Version string
-*   - No need to modify the orig tarball
-    - Add `[series_number]` with `[ubuntu_revision]` at `1`
-    - `1.90.0+dfsg2-0ubuntu0.24.04.1`
+*   - Backporting to 24.04 (with or without orig tarball changes)
+    - Add `<series>` and set `<backport_revision>` to `1`
+    - `1.90.0+dfsg2~24.04-0ubuntu3~24.04.1`
 *   - Fixing a bug
-    - Increment `[ubuntu_revision]`
-    - `1.90.0+dfsg2-0ubuntu0.24.04.2`
-*   - Backporting to 22.04 with vendored LLVM (modifying the orig tarball)
-    - Add `~[repack_series]` and change `[series_number]`
-    - `1.90.0+dfsg2~22.04-0ubuntu0.22.04.1`
-*   - Backporting to 20.04 (no modifications to 22.04 tarball)
-    - Keep `~[repack_series]` and change `[series_number]`
-    - `1.90.0+dfsg2~22.04-0ubuntu0.20.04.1`
-*   - Backporting to 18.04 with added vendored `libgit2` (new tarball repacked for 18.04)
-    - Change `~[repack_series]` and `[series_number]`
-    - `1.90.0+dfsg2~18.04-0ubuntu0.18.04.1`
-*   - Fixing an issue with the 18.04 repack
-    - Add `[ubuntu_revision]` to `~[repack_series]`
-    - `1.90.0+dfsg2~18.04.1-0ubuntu0.18.04.1`
+    - Increment `<backport_revision>`
+    - `1.90.0+dfsg2~24.04-0ubuntu3~24.04.2`
+*   - Fixing an issue with the 24.04 repack
+    - Add `[.<backport_repack>]` and set `<backport_revision>` to `1`
+    - `1.90.0+dfsg2~24.04.1-0ubuntu3~24.04.1`
+*   - Backporting to 22.04
+    - Update `[<repack_series>]` and set `<backport_revision>` to `1`
+    - `1.90.0+dfsg2~22.04-0ubuntu3~22.04.1`
 :::
 
 
@@ -180,11 +172,11 @@ It's possible you may need to work with older versions of the Rust toolchain wit
 Here, `<angle_brackets>` indicate placeholders to be edited, while `[square_brackets]` indicate optional parts.
 
 ```none
-<rust_version>+dfsg0ubuntu<repack>[~bpo<vendored_dependencies>]-0ubuntu<revision>.[<ubuntu_release>][~ppa<PPA>]
+<rust_version>+dfsg0ubuntu<repack>[~bpo<vendored_dependencies>]-0ubuntu<revision>[.<ubuntu_release>][~ppa<PPA>]
 ```
 
 
-## `<rust_version>`
+### `<rust_version>`
 
 > _The upstream Rust toolchain version._
 
@@ -199,7 +191,7 @@ This is simple; it's just the {term}`upstream` version of the given Rust toolcha
 
 
 (dfsg0ubuntu-repack)=
-## `+dfsg0ubuntu<repack>`
+### `+dfsg0ubuntu<repack>`
 
 > _The number of times you have edited Files-Excluded._
 
@@ -230,7 +222,7 @@ This is because it's simply an interim number that will be replaced with `+dfsg0
 - `1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09~ppa4`: 1st repack
 
 
-## `[~bpo<vendored_dependencies>]`
+### `[~bpo<vendored_dependencies>]`
 
 > _Code number for what dependencies are {term}`vendored <vendored dependency>`._
 
@@ -255,7 +247,7 @@ Otherwise, then this portion must be omitted entirely.
 - `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu0.24.09~ppa1`: Both `libgit2` and LLVM are vendored
 
 
-## `0ubuntu<revision>`
+### `0ubuntu<revision>`
 
 > _The "real" version._
 
@@ -282,7 +274,7 @@ For example, repacking `1.82.0+dfsg0ubuntu1-0ubuntu3` means the new version numb
 - `1.85.1+dfsg0ubuntu2-0ubuntu2~ppa3`: Second Revision (#2)
 
 
-## `[<ubuntu_release>]`
+### `<[ubuntu_release]>`
 
 > _The Ubuntu release in case of backport, plus some hacks._
 
@@ -304,7 +296,7 @@ This portion is omitted entirely if this is not a backport.
 - `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.04`: Complete, for Ubuntu 24.04 (again, Noble Numbat)
 
 
-## `[~ppa<PPA>]`
+### `[~ppa<PPA>]`
 
 > _The number of times you have pushed it to your PPA for testing._
 
@@ -315,7 +307,7 @@ This is our convention for doing that.
 
 Every time you change the rest of the version string in some way, you can reset this to 1.
 
-If this part is _not_ present, that means it's on the main archive, so it's a version that's actually out.
+If this part is _not_ present, that means the version is intended as a candidate to be uploaded to the main Archive.
 
 :::{note}
 {term}`Changelog` (`debian/changelog`) entries with `~ppa<PPA>` should never make it onto a {term}`version control system`; they are only for the benefit of the PPA itself.
@@ -329,7 +321,7 @@ When working on a Rust toolchain locally, the PPA-specific changelog entry (and 
 - `1.85.1+dfsg0ubuntu2-0ubuntu2~ppa3`: 3rd push to your PPA
 
 
-## Putting it all together
+### Putting it all together
 
 To recap, let's do a complete breakdown of some example version strings:
 
