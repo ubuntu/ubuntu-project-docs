@@ -68,7 +68,11 @@ Manual.
 The :file:`control` file
 ------------------------
 
-The :file:`debian/control` file contains the information that the :term:`package manager` (such as :term:`APT`) uses, build-time dependencies, maintainer information, and much more. The file consists of one or more stanzas of fields, with each stanza separated by empty lines. The fields consist of key-value pairs separated by a colon ``:``; conventionally, a single space follows the colon.
+The :file:`debian/control` file contains the information that the :term:`package manager` (such as :term:`APT`) uses, build-time dependencies, maintainer information, and much more. The file contains one or more stanzas (also referred to as paragraphs), which are separated by one or more empty lines. Each stanza contains one or more fields each of which must start on its own line. Within a field, key-value pairs are separated by a colon ``:``; conventially, a single space follows the colon.
+
+Certain fields may span many lines. For example, the ``Description`` of a package is typically several lines long. In this case lines following the first, containing the field name, are continuation lines which must begin with one or more whitespace (tab or space) characters. Continuation lines may not be blank (or they would terminate the stanza). If a blank line is required, a line containing a single dot ``.`` (after the leading whitespace) is used.
+
+This format is known as the :manpage:`deb822(5)` format; see the man-page for further information.
 
 For the Ubuntu :pkg:`hello` package, the :file:`debian/control` file looks something like this:
 
@@ -87,12 +91,13 @@ For the Ubuntu :pkg:`hello` package, the :file:`debian/control` file looks somet
     Architecture: any
     Depends: ${misc:Depends}, ${shlibs:Depends}
     Description: The classic greeting, and a good example
-     The GNU hello program produces a familiar, friendly greeting. It
+     The GNU hello program produces a familiar, friendly greeting.  It
      allows non-programmers to use a classic computer science tool which
-     would otherwise be unavailable to them. Seriously, though: this is
-     an example of how to do a Debian package. It is the Debian version of
-     the GNU Project's `hello world' program (which is itself an example
-     for the GNU Project).
+     would otherwise be unavailable to them.
+     .
+     Seriously, though: this is an example of how to do a Debian package.
+     It is the Debian version of the GNU Project's `hello world' program
+     (which is itself an example for the GNU Project).
 
 The first stanza describes the source package. It contains the following fields:
 
