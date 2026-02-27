@@ -140,6 +140,7 @@ outlined here.
 :maxdepth: 1
 
 mir-rereview
+mir-other-release
 mir-rust
 ```
 
