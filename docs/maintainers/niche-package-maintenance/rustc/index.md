@@ -11,6 +11,6 @@ Patch Rust <patch-rust>
 Backport Rust <backport-rust>
 rust-version-strings
 Packaging FAQ <rust-packaging-faq>
-Common Lintian Issues <rust-common-lintian-issues>
+Common Lintian issues <rust-common-lintian-issues>
 
 ```

@@ -1,5 +1,5 @@
 (rust-common-lintian-issues)=
-# Common `rustc` Lintian Issues
+# Common `rustc` Lintian issues
 
 The {term}`Lintian` ({manpage}`lintian(1)`) program checks your
 {term}`source package` for bugs and
