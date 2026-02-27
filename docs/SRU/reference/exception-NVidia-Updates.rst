@@ -246,5 +246,3 @@ References
    drivers <https://nvidia.custhelp.com/app/answers/detail/a_id/3142>`__
 -  `What is a legacy
    GPU <https://www.nvidia.com/object/IO_32667.html>`__
--  `nVidia drivers staging
-   PPA <https://launchpad.net/~canonical-hwe-team/+archive/ubuntu/intermediate-kernel>`__
