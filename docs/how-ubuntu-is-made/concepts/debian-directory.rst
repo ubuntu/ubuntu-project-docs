@@ -102,14 +102,7 @@ For the Ubuntu :pkg:`hello` package, the :file:`debian/control` file looks somet
 The first stanza describes the source package. It contains the following fields:
 
 - ``Source`` (required): The name of the source package.
-- ``Maintainer`` (required): The name and email of the package maintainer.
-
-.. note::
-
-    In Ubuntu, we set the ``Maintainer`` field to a general address because anyone can change any package (this differs from Debian where changing packages is usually restricted to an individual or a team). Packages in Ubuntu should generally have the ``Maintainer`` field set to ``Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>``.
-
-    If the ``Maintainer`` field is modified, the old value should be saved in the ``XSBC-Original-Maintainer`` field. This can be done automatically with the ``update-maintainer`` script available in the ``ubuntu-dev-tools`` package.
-
+- ``Maintainer`` (required): The name and email of the package maintainer (see :ref:`debian-maintainer`)
 - ``Uploaders``: The list of names and email addresses of co-maintainers.
 - ``Section`` (recommended): The application area into which the package has been classified.
 - ``Priority`` (recommended): How important the package is.

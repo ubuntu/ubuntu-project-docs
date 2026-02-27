@@ -974,6 +974,18 @@ Namespace
     numerous components and libraries need to coexist without clashing with
     each other's names.
 
+NCR
+No Change Re-build
+    A new upload of a source package with no other changes beyond the new
+    version number. These are typically intended to rebuild the package against
+    updated dependencies, or toolchains.
+
+    By convention, if the package has no Ubuntu-specific changes, "buildN"
+    where "N" is an incrementing integer (e.g. "build1", "build2", and so on)
+    is appended to the version number. If a package has Ubuntu-specific
+    changes, and thus already has an "ubuntuN" segment in its version, the
+    trailing number "N" is simply incremented.
+
 NIST
 National Institute of Standards and Technology
     *Work in Progress*

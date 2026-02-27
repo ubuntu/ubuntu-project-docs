@@ -238,22 +238,9 @@ Now that we have created our patch file, track the changes in Git (see also :ref
 
 Next, some housekeeping changes:
 
-#. Make sure that the ``Maintainer:`` field in :file:`debian/control` is set correctly.
-
 #. Add a new entry to :file:`debian/changelog` explaining our changes and incrementing the package version number.
 
-To update the maintainer field, use the :command:`update-maintainer` tool from the :pkg:`ubuntu-dev-tools` package. In this case, the field is already set correctly, so we should see:
-
-.. prompt:: none $ auto
-
-    $ update-maintainer
-    The Maintainer email is set to an ubuntu.com address. Doing nothing.
-
-If a change was made, commit that change with:
-
-.. prompt:: none $ auto
-
-    $ git commit -m "update maintainer" -- debian/control
+#. Make sure that the ``Maintainer:`` field in :file:`debian/control` is set correctly.
 
 
 .. _updating-the-changelog:
@@ -261,7 +248,7 @@ If a change was made, commit that change with:
 Updating the changelog
 ----------------------
 
-Once you have either updated the maintainer, or confirmed that it is already correct, update the changelog. The :command:`dch` tool helps with this. If you run :command:`dch -i`, you see something like this in your text editor: ::
+The :command:`dch` tool helps with this. If you run ``dch -i``, you see something like this in your text editor: ::
 
     hello (2.10-3ubuntu1) UNRELEASED; urgency=medium
 
@@ -358,6 +345,29 @@ At this point, we should have two (or three if :command:`update-maintainer` was 
 
     Notes (changelog):
           * No-change rebuild to bump version in oracular.
+
+
+.. _updating-the-maintainer:
+
+Updating the maintainer
+-----------------------
+
+Once you have either updated the maintainer, or confirmed that it is already correct, update the changelog.
+
+To update the maintainer field, use the :command:`update-maintainer` tool from the :pkg:`ubuntu-dev-tools` package. In this case, the field is already set correctly, so we should see:
+
+.. prompt:: none $ auto
+
+    $ update-maintainer
+    The Maintainer email is set to an ubuntu.com address. Doing nothing.
+
+If a change was made, commit that change with:
+
+.. prompt:: none $ auto
+
+    $ git commit -m "update maintainer" -- debian/control
+
+See :ref:`debian-maintainer` for more information.
 
 And that's it! We have successfully:
 
