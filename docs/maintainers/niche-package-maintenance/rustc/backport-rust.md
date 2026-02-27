@@ -230,7 +230,7 @@ For example, for `rustc-1.89` on Noble, the command would be:
 ppa tests ppa:rust-toolchain/staging -p rustc-1.89 --release noble --show-url
 ```
 
-This command outputs a series of URLs that can be used to trigger an `autopkgtest` run for each architecture. The tests run remotely on the `autopkgtest` infrastructure. Monitor the progress and results of these tests by running the same command again after a few minutes. If any tests fail, the output includes a link to the logs for troubleshooting the failures. See {ref}`how-to-run-package-tests` for more details and options on how to run `autopkgtest` tests.
+This command outputs a series of URLs that can be used to trigger an `autopkgtest` run for each architecture. The tests run remotely on the `autopkgtest` infrastructure. Monitor the progress and results of these tests by running the same command again after a few minutes. If any tests fail, the output includes a link to the logs for troubleshooting the failures. See {ref}`how-to-run-package-tests` for more details and options on how to run `autopkgtest` tests; for example, it is possible to run tests locally, which can be helpful when developing a new test or investigating a failure.
 
 (launchpad-self-build-optional)=
 ### Launchpad self-build (optional)
