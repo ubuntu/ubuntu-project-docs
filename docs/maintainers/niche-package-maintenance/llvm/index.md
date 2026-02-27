@@ -20,4 +20,5 @@ Besides the guides for LLVM packaging linked below, LLVM package maintenance als
 
 LLVM Packaging guide <packaging>
 Common issues <issues>
+FAQ <llvm-clang-faq>
 ```
