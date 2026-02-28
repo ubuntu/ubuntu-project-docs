@@ -68,7 +68,11 @@ Manual.
 The :file:`control` file
 ------------------------
 
-The :file:`debian/control` file contains the information that the :term:`package manager` (such as :term:`APT`) uses, build-time dependencies, maintainer information, and much more. The file consists of one or more stanzas of fields, with each stanza separated by empty lines. The fields consist of key-value pairs separated by a colon ``:``; conventionally, a single space follows the colon.
+The :file:`debian/control` file contains the information that the :term:`package manager` (such as :term:`APT`) uses, build-time dependencies, maintainer information, and much more. The file contains one or more stanzas (also referred to as paragraphs), which are separated by one or more empty lines. Each stanza contains one or more fields each of which must start on its own line. Within a field, key-value pairs are separated by a colon ``:``; conventially, a single space follows the colon.
+
+Certain fields may span many lines. For example, the ``Description`` of a package is typically several lines long. In this case lines following the first, containing the field name, are continuation lines which must begin with one or more whitespace (tab or space) characters. Continuation lines may not be blank (or they would terminate the stanza). If a blank line is required, a line containing a single dot ``.`` (after the leading whitespace) is used.
+
+This format is known as the :manpage:`deb822(5)` format; see the man-page for further information.
 
 For the Ubuntu :pkg:`hello` package, the :file:`debian/control` file looks something like this:
 
@@ -87,24 +91,18 @@ For the Ubuntu :pkg:`hello` package, the :file:`debian/control` file looks somet
     Architecture: any
     Depends: ${misc:Depends}, ${shlibs:Depends}
     Description: The classic greeting, and a good example
-     The GNU hello program produces a familiar, friendly greeting. It
+     The GNU hello program produces a familiar, friendly greeting.  It
      allows non-programmers to use a classic computer science tool which
-     would otherwise be unavailable to them. Seriously, though: this is
-     an example of how to do a Debian package. It is the Debian version of
-     the GNU Project's `hello world' program (which is itself an example
-     for the GNU Project).
+     would otherwise be unavailable to them.
+     .
+     Seriously, though: this is an example of how to do a Debian package.
+     It is the Debian version of the GNU Project's `hello world' program
+     (which is itself an example for the GNU Project).
 
 The first stanza describes the source package. It contains the following fields:
 
 - ``Source`` (required): The name of the source package.
-- ``Maintainer`` (required): The name and email of the package maintainer.
-
-.. note::
-
-    In Ubuntu, we set the ``Maintainer`` field to a general address because anyone can change any package (this differs from Debian where changing packages is usually restricted to an individual or a team). Packages in Ubuntu should generally have the ``Maintainer`` field set to ``Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>``.
-
-    If the ``Maintainer`` field is modified, the old value should be saved in the ``XSBC-Original-Maintainer`` field. This can be done automatically with the ``update-maintainer`` script available in the ``ubuntu-dev-tools`` package.
-
+- ``Maintainer`` (required): The name and email of the package maintainer (see :ref:`debian-maintainer`)
 - ``Uploaders``: The list of names and email addresses of co-maintainers.
 - ``Section`` (recommended): The application area into which the package has been classified.
 - ``Priority`` (recommended): How important the package is.
@@ -168,26 +166,26 @@ An example template:
     License: GPL-2+
 
     License: GPL-2+
-    This program is free software; you can redistribute it
-    and/or modify it under the terms of the GNU General Public
-    License as published by the Free Software Foundation; either
-    version 2 of the License, or (at your option) any later
-    version.
-    .
-    This program is distributed in the hope that it will be
-    useful, but WITHOUT ANY WARRANTY; without even the implied
-    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-    PURPOSE.  See the GNU General Public License for more
-    details.
-    .
-    You should have received a copy of the GNU General Public
-    License along with this package; if not, write to the Free
-    Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-    Boston, MA  02110-1301 USA
-    .
-    On Debian systems, the full text of the GNU General Public
-    License version 2 can be found in the file
-    `/usr/share/common-licenses/GPL-2'.
+     This program is free software; you can redistribute it
+     and/or modify it under the terms of the GNU General Public
+     License as published by the Free Software Foundation; either
+     version 2 of the License, or (at your option) any later
+     version.
+     .
+     This program is distributed in the hope that it will be
+     useful, but WITHOUT ANY WARRANTY; without even the implied
+     warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the GNU General Public License for more
+     details.
+     .
+     You should have received a copy of the GNU General Public
+     License along with this package; if not, write to the Free
+     Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+     Boston, MA  02110-1301 USA
+     .
+     On Debian systems, the full text of the GNU General Public
+     License version 2 can be found in the file
+     `/usr/share/common-licenses/GPL-2'.
 
 This example follows the `Machine-readable debian/copyright <DEP5_>`_ format. You are encouraged to use this format.
 
