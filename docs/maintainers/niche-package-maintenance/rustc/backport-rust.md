@@ -580,15 +580,13 @@ We also need to re-include the LLVM copyright stanza in `debian/copyright`:
 
 #### Re-including the LLVM source
 
-Update the {ref}`changelog version number <rust-version-strings>` accordingly. Your version number should now contain either `~bpo0` or `~bpo2` depending on the status of `libgit2`.
-
 You can now {ref}`regenerate the orig tarball <rust-version-strings>`, which should now include the upstream LLVM source in `src/llvm-project`.
 
 After regenerating the orig tarball, get all the new LLVM files and overlay them on your working directory:
 
 ```none
 $ cd ..
-$ tar -xf rustc-<X.Y>_<X.Y.Z>+dfsg0ubuntu1\~bpo<N>.orig.tar.xz
+$ tar -xf rustc-<X.Y>_<X.Y.Z>+dfsg~<series>.orig.tar.xz
 $ cp -ra rustc-<X.Y.Z>-src/src/llvm-project rustc/src
 $ cd -
 ```
@@ -798,15 +796,13 @@ When you refresh the patch and pop everything off again, the patch diff should l
 
 #### Re-including the `libgit2` source
 
-Update the {ref}`changelog version number <rust-version-strings>` accordingly. Your version number should now contain either `~bpo0` or `~bpo10`, depending on the status of LLVM.
-
 You can now {ref}`regenerate the orig tarball <rust-generating-the-orig-tarball>`, which should now include the upstream `libgit2` source in `vendor/libgit2-sys-<version>/libgit2`.
 
 After regenerating the orig tarball, get all the new `libgit2` files and overlay them on your working directory:
 
 ```none
 $ cd ..
-$ tar -xf rustc-<X.Y>_<X.Y.Z>+dfsg0ubuntu1\~bpo<N>.orig.tar.xz
+$ tar -xf rustc-<X.Y>_<X.Y.Z>+dfsg~<series>.orig.tar.xz
 $ cp -ra rustc-<X.Y.Z>-src/vendor/libgit2-sys-<version>/libgit2 rustc/vendor/libgit2-sys-<version>/
 $ cd -
 ```
