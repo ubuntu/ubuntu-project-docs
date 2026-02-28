@@ -1,4 +1,4 @@
-(llvm-clang-faq)=
+(llvm-and-clang-packaging-faq)=
 # LLVM and Clang Packaging FAQ
 
 You may want to start by reading the {ref}`LLVM packaging guide <packaging-llvm>`.
