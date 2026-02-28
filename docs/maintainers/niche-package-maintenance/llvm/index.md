@@ -15,7 +15,7 @@ Besides the guides for LLVM packaging linked below, LLVM package maintenance als
 
 - Register on [Debian Salsa](https://salsa.debian.org/), so that you can collaborate with Debian developers.
 - Join appropriate Debian mailing lists, including the one dedicated to the LLVM packaging team: [pkg-llvm-team](https://alioth-lists.debian.net/cgi-bin/mailman/listinfo/pkg-llvm-team).
-- Join the [Debian IRC](https://wiki.debian.org/IRC) room for LLVM: [#debian-llvm](irc://irc.debian.org/debian-llvm).
+- Join the [Debian IRC](https://wiki.debian.org/IRC) room for LLVM: `#debian-llvm`.
 
   :::{note}
   As Ubuntu developers use Matrix, you can also join via a Matrix bridge. Follow the [instructions](https://wiki.debian.org/IRC/ElementMatrix) provided by Debian. Instead of the suggestion to use `!join`, join the corresponding Matrix room manually. For `#debian-llvm`, it is `#_oftc_#debian-llvm:matrix.org`.
