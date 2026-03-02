@@ -48,6 +48,7 @@ the Technical Board.
     exception-Intel-Graphics-Updates
     exception-Landscape-Updates
     exception-MariaDB-Galera-Updates
+    exception-multipath-tools-Updates
     exception-NVidia-Updates
     exception-Netplan-Updates
     exception-OEMMeta-Updates
@@ -544,6 +545,11 @@ MariaDB and Galera
 The 'mariadb' and 'galera' source packages, including source package variants
 with version suffixes, may be uploaded according to the proceedure documented in
 :ref:`MariaDB-Galera-Updates <reference-exception-MariaDB-Galera-Updates>`.
+
+multipath-tools
+~~~~~~~~~~~~~~~
+
+The ``multipath-tools`` source package may be uploaded for their stable releases, as documented in :ref:`multipath-tools-Updates <reference-exception-multipath-tools-updates>`.
 
 Valkey
 ~~~~~~
