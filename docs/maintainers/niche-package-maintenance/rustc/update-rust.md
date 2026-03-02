@@ -572,6 +572,7 @@ $ debian/add-vendored-copyright-overrides
 ```
 
 
+(updating-rust-updating-debian-copyright)=
 ### Updating debian/copyright
 
 All the new `vendor` files must be added to `debian/copyright`. In the following steps, all the missing copyright stanzas will be generated.
