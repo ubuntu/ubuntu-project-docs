@@ -26,6 +26,7 @@ Most asynchronous conversation happens on the [`devel-permissions` mailing list]
 This mailing list is public ([`devel-permissions@archives`](https://lists.ubuntu.com/archives/devel-permissions/)), as are our general process and policy discussions.
 
 You can discuss developer application matters on the {matrix}`ubuntu-dmb-public` Matrix channel.
+Applicants should join that channel even if they don't have questions to get passed the Meets link.
 
 If private communication among DMB members is required, such as discussing the performance of an individual,
 then use the {matrix}`ubuntu-dmb-private` Matrix channel.
