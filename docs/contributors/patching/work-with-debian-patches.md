@@ -150,7 +150,7 @@ Gbp-Pq: Topic lp<bugnumber>
 ```
 
 The one case where this naming scheme can be harmful is that you'd usually
-not want to upstream this file name to Debian as the launchpad bug does
+not want to upstream this file name to Debian as the Launchpad bug does
 not mean much there.
 
 There is yet another way that developers often need to travel, which is
