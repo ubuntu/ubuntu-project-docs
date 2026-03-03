@@ -8,7 +8,7 @@ First of all, LLVM has some actual circular dependencies by design, and so you m
 
 ### Actually circular dependencies
 
-You might actual being encountering a circular dependency issue, especially if you are backporting a new version of LLVM. LLVM builds support for SPIR-V, which is a kind of intermediate representation for GPUs. In order to build some of the libraries needed to target SPIR-V, it actually needs some tooling to convert LLVM IR to SPIR-V. While LLVM is starting to get internal support for that, currently the de facto standard tool is an external one packaged as `llvm-spirv-X`. So in order to build LLVM fully, we need that package installed. However, that package makes use of LLVM libraries, and so it depends on `libllvm`. Usually, when we are doing a patch update for LLVM, like X.Y.Z to X.Y.Z+1 then we can just use the existing packages in the archive to bootstrap the new ones. If you are doing something like backporting a brand new version of LLVM to an older LTS release, you may need to do this bootstrapping yourself depending on what packages are available.
+You might actual being encountering a circular dependency issue, especially if you are backporting a new version of LLVM. LLVM builds support for SPIR-V, which is a kind of intermediate representation for GPUs. In order to build some of the libraries needed to target SPIR-V, it actually needs some tooling to convert LLVM IR to SPIR-V. While LLVM is starting to get internal support for that, currently the standard tool is an external one packaged as `llvm-spirv-X`. So in order to build LLVM fully, we need that package installed. However, that package makes use of LLVM libraries, and so it depends on `libllvm`. Usually, when we are doing a patch update for LLVM, like X.Y.Z to X.Y.Z+1 then we can just use the existing packages in the archive to bootstrap the new ones. If you are doing something like backporting a brand new version of LLVM to an older LTS release, you may need to do this bootstrapping yourself depending on what packages are available.
 
 For doing that, see the instructions in {ref}`bootstrapping-a-new-llvm-version`.
 
@@ -26,7 +26,7 @@ Note that if you see an unversioned `libllvm` dependency resolution failure, tha
 (why-is-it-saying-i-need-wasi-libc-installed)=
 ## Why is it saying I need `wasi-libc` installed?
 
-It's not clear exactly why it was designed this way, but the `debian/rules` file has a specific check for this. There's some conditional code that disables the WASM support for older distros (Jammy, for instance), but when WASI is supported (Noble onward), it expects that to be installed on the host-system and errors out if it isn't found. However, it's already configured as a build dependency, so this configure-time check is superfluous. You can either install `wasi-libc` on your host system, or you can delete the following lines from `debian/rules`:
+It's not clear exactly why it was designed this way, but the `debian/rules` file has a specific check for this. There's some conditional code that disables the WASM support for older distributions (Jammy, for instance), but when WASI is supported (Noble onward), it expects that to be installed on the host-system and errors out if it isn't found. However, it's already configured as a build dependency, so this configure-time check is superfluous. You can either install `wasi-libc` on your host system, or you can delete the following lines from `debian/rules`:
 
 ```bash
 else \
@@ -42,4 +42,4 @@ fi
 
 ## The integration test suite isn't unpacked correctly
 
-At the time of writing, the component tarball that `pristine-tar` creates for the integration test suite has a mismatching directory name. While the packaging files expect it to unpack to `integration-test-suite`, it's currently unpacking to `llvm-toolchain-integration-test-suite-main`. An easy workaround is to change a line in `debian/tests/integration-test-suite-test.in` that copies the test suite directory to an autopkgtest direcotry. Just change the source directory name.
+At the time of writing, the component tarball that `pristine-tar` creates for the integration test suite has a mismatching directory name. While the packaging files expect it to unpack to `integration-test-suite`, it's currently unpacking to `llvm-toolchain-integration-test-suite-main`. An easy workaround is to change a line in `debian/tests/integration-test-suite-test.in` that copies the test suite directory to an autopkgtest directory. Just change the source directory name.
