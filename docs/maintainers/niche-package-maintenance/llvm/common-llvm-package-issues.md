@@ -1,9 +1,6 @@
 (common-llvm-package-issues)=
 # Common LLVM package issues
 
-Unfortunately, the upstream Debian Salsa repository
-
-
 ## Circular dependencies or incorrect versions being referenced
 
 First of all, LLVM has some actual circular dependencies by design, and so you may be encountering that. It also has some specific build dependency chains, as well as configuration options that might be set incorrectly which can all manifest this issue.
