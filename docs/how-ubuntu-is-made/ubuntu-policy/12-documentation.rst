@@ -7,7 +7,7 @@ Chapter 12 - Documentation
 ~~~~~~~~~~~~~~~~~
 
 (*Shared with Debian, see:* `Debian Policy Manual, Section 12.1
-<https://www.debian.org/doc/debian-policy/ch-documentation.html#manual-pages>`_)
+<https://www.debian.org/doc/debian-policy/ch-docs.html#manual-pages>`_)
 
 ----
 
@@ -15,7 +15,7 @@ Chapter 12 - Documentation
 ~~~~~~~~~~~~~~~~~~~
 
 (*Shared with Debian, see:* `Debian Policy Manual, Section 12.2
-<https://www.debian.org/doc/debian-policy/ch-documentation.html#info-documents>`_)
+<https://www.debian.org/doc/debian-policy/ch-docs.html#info-documents>`_)
 
 ----
 
@@ -23,7 +23,7 @@ Chapter 12 - Documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 (*Shared with Debian, see:* `Debian Policy Manual, Section 12.3
-<https://www.debian.org/doc/debian-policy/ch-documentation.html#additional-documentation>`_)
+<https://www.debian.org/doc/debian-policy/ch-docs.html#additional-documentation>`_)
 
 ----
 
@@ -31,7 +31,7 @@ Chapter 12 - Documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 (*Shared with Debian, see:* `Debian Policy Manual, Section 12.4
-<https://www.debian.org/doc/debian-policy/ch-documentation.html#preferred-documentation-formats>`_)
+<https://www.debian.org/doc/debian-policy/ch-docs.html#preferred-documentation-formats>`_)
 
 ----
 
@@ -41,7 +41,7 @@ Chapter 12 - Documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 (*Modifies*: `Debian Policy Manual, Section 12.5
-<https://www.debian.org/doc/debian-policy/ch-documentation.html#copyright-information>`_)
+<https://www.debian.org/doc/debian-policy/ch-docs.html#copyright-information>`_)
 
 Every package must be accompanied by a verbatim copy of its copyright and
 distribution license in the file :file:`/usr/share/doc/package/copyright`. This file
@@ -76,7 +76,7 @@ or README.Debian or some other appropriate place.
 ~~~~~~~~~~~~~
 
 (*Shared with Debian, see:* `Debian Policy Manual, Section 12.6
-<https://www.debian.org/doc/debian-policy/ch-documentation.html#examples>`_)
+<https://www.debian.org/doc/debian-policy/ch-docs.html#examples>`_)
 
 ----
 
@@ -86,7 +86,7 @@ or README.Debian or some other appropriate place.
 ~~~~~~~~~~~~~~~~~~~~
 
 (*Shared with Debian, see:* `Debian Policy Manual, Section 12.7
-<https://www.debian.org/doc/debian-policy/ch-documentation.html#changelog-files>`_)
+<https://www.debian.org/doc/debian-policy/ch-docs.html#changelog-files>`_)
 
 ----
 
