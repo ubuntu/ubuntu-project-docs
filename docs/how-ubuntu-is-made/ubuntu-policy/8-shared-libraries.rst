@@ -378,7 +378,7 @@ help ensure that others do not have the same problem building your package.)
 
 ----
 
-:ref:`← (Chapter 7 - Declaring relationships) Back <chapter-7-declaring-relationships>` | :ref:`Next (Chapter 9 - The Operating System) → <chapter-9-the-operating-system>`
+:ref:`← (Chapter 7 - Declaring relationships) <chapter-7-declaring-relationships>` | :ref:`(Chapter 9 - The Operating System) → <chapter-9-the-operating-system>`
 
 ----
 

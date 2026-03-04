@@ -97,4 +97,4 @@ Contents
       G. Diversions - overriding a package's version of a file <appendix-g>
 
 
-:ref:`← (Appendix G) Back <appendix-g>` | :ref:`Next (Chapter 1 - About this manual) → <chapter-1-about-this-manual>`
+:ref:`← (Appendix G) <appendix-g>` | :ref:`(Chapter 1 - About this manual) → <chapter-1-about-this-manual>`

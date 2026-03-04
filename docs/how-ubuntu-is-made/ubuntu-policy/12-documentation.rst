@@ -90,7 +90,7 @@ or README.Debian or some other appropriate place.
 
 ----
 
-:ref:`← (Chapter 11 - Customized programs) Back <chapter-11-customized-programs>` | :ref:`Next (Appendix A) → <appendix-a>`
+:ref:`← (Chapter 11 - Customized programs) <chapter-11-customized-programs>` | :ref:`(Appendix A) → <appendix-a>`
 
 ----
 

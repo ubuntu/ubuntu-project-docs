@@ -98,7 +98,7 @@ established.
 
 ----
 
-:ref:`← (Ubuntu Policy Manual) Back <ubuntu-policy>` | :ref:`Next (Chapter 2 - The Ubuntu Archive) → <chapter-2-ubuntu-archive>`
+:ref:`← (Ubuntu Policy Manual) <ubuntu-policy>` | :ref:`(Chapter 2 - The Ubuntu Archive) → <chapter-2-ubuntu-archive>`
 
 ----
 

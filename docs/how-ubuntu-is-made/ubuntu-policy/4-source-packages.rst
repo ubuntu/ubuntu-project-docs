@@ -425,7 +425,7 @@ distribution as a whole.
 
 ----
 
-:ref:`← (Chapter 3 - Binary packages) Back  <chapter-3-binary-packages>` | :ref:`Next (Chapter 5 - Control files and their fields) → <chapter-5-control-files>`
+:ref:`← (Chapter 3 - Binary packages) <chapter-3-binary-packages>` | :ref:`(Chapter 5 - Control files and their fields) → <chapter-5-control-files>`
 
 ----
 

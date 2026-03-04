@@ -11,4 +11,4 @@ Chapter 9 - The Operating System
 (*Shared with Debian, see:* `Debian Policy Manual Chapter 9
 <https://www.debian.org/doc/debian-policy/ch-opersys.html#the-operating-system>`_)
 
-:ref:`← (Chapter 8 - Shared libraries) Back <chapter-8-shared-libraries>` | :ref:`Next (Chapter 10 - Files) → <chapter-10-files>`
+:ref:`← (Chapter 8 - Shared libraries) <chapter-8-shared-libraries>` | :ref:`(Chapter 10 - Files) → <chapter-10-files>`

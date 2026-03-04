@@ -102,4 +102,4 @@ should use ``Replaces`` (not ``Conflicts``) to ensure this goes smoothly.
 
 ----
 
-:ref:`← (Chapter 6 - Package maintainer scripts) Back <chapter-6-package-maintainer-scripts>` | :ref:`Next (Chapter 8 - Shared libraries) → <chapter-8-shared-libraries>`
+:ref:`← (Chapter 6 - Package maintainer scripts) <chapter-6-package-maintainer-scripts>` | :ref:`(Chapter 8 - Shared libraries) → <chapter-8-shared-libraries>`

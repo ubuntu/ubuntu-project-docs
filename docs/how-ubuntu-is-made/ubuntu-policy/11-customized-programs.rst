@@ -215,7 +215,7 @@ skipped. No additional dependency is necessary.
 
 ----
 
-:ref:`← (Chapter 10 - Files) Back <chapter-10-files>` | :ref:`Next (Chapter 12 - Documentation) → <chapter-12-documentation>`
+:ref:`← (Chapter 10 - Files) <chapter-10-files>` | :ref:`(Chapter 12 - Documentation) → <chapter-12-documentation>`
 
 ----
 

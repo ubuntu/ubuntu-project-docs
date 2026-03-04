@@ -600,7 +600,7 @@ by the :file:`.changes` file closes.
 
 ----
 
-:doc:`← (Chapter 4 - Source packages) Back <4-source-packages>` | :ref:`Next (Chapter 6 - Package maintainer scripts) → <chapter-6-package-maintainer-scripts>`
+:doc:`← (Chapter 4 - Source packages) <4-source-packages>` | :ref:`(Chapter 6 - Package maintainer scripts) → <chapter-6-package-maintainer-scripts>`
 
 ----
 

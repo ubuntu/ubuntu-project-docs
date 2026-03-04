@@ -7,4 +7,4 @@ Appendix D - Control files and their fields (from old Packaging Manual)
 (*Shared with Debian, see:* `Debian Policy Manual, Appendix 4
 <https://www.debian.org/doc/debian-policy/ap-pkg-controlfields.html#>`_)
 
-:ref:`← (Appendix C) Back <appendix-c>` | :ref:`Next (Appendix E) → <appendix-e>`
+:ref:`← (Appendix C) <appendix-c>` | :ref:`(Appendix E) → <appendix-e>`

@@ -153,7 +153,7 @@ common, it is not necessary or appropriate to document this change in
 
 ----
 
-:ref:`← (Chapter 2 - The Ubuntu Archive) Back  <chapter-2-ubuntu-archive>` | :ref:`Next (Chapter 4 - Source packages) → <chapter-4-source-packages>`
+:ref:`← (Chapter 2 - The Ubuntu Archive) <chapter-2-ubuntu-archive>` | :ref:`(Chapter 4 - Source packages) → <chapter-4-source-packages>`
 
 ----
 

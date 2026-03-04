@@ -157,7 +157,7 @@ configuration files. (The :pkg:`sgml-base` package is a good example.)
 
 ----
 
-:ref:`← (Chapter 9 - The Operating System) Back <chapter-9-the-operating-system>` | :ref:`Next (Chapter 11 - Customized programs) → <chapter-11-customized-programs>`
+:ref:`← (Chapter 9 - The Operating System) <chapter-9-the-operating-system>` | :ref:`(Chapter 11 - Customized programs) → <chapter-11-customized-programs>`
 
 ----
 

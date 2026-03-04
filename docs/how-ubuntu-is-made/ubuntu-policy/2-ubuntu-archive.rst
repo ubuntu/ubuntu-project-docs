@@ -359,7 +359,7 @@ tools.
 
 ----
 
-:ref:`← (Chapter 1 - About this manual) Back  <chapter-1-about-this-manual>` | :ref:`Next (Chapter 3 - Binary packages) → <chapter-3-binary-packages>`
+:ref:`← (Chapter 1 - About this manual) <chapter-1-about-this-manual>` | :ref:`(Chapter 3 - Binary packages) → <chapter-3-binary-packages>`
 
 ----
 

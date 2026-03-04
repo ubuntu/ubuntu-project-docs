@@ -6,4 +6,4 @@ Appendix B - Binary packages (from old Packaging Manual)
 (*Shared with Debian, see:* `Debian Policy Manual, Appendix 2
 <https://www.debian.org/doc/debian-policy/ap-pkg-binarypkg.html#>`_)
 
-:ref:`← (Appendix A) Back <appendix-a>` | :ref:`Next (Appendix C) → <appendix-c>`
+:ref:`← (Appendix A) <appendix-a>` | :ref:`(Appendix C) → <appendix-c>`
