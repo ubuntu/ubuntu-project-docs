@@ -88,19 +88,19 @@ That format is a series of entries like this:
      	    [optional blank line(s), stripped]
       -- maintainer name <email address>[two spaces]  date
 
-*package* and *version* are the source package name and version number.
+``package`` and ``version`` are the source package name and version number.
 
-*distribution(s)* lists the distributions where this version should be
+``distribution(s)`` lists the distributions where this version should be
 installed when it is uploaded - it is copied to the ``Distribution`` field in
 the :file:`.changes` file. See :ref:`Distribution, Section 5.6.14
 <ubuntu-policy-distribution-field>`.
 
-*urgency* is the value for the ``Urgency`` field in the :file:`.changes` file
+``urgency`` is the value for the ``Urgency`` field in the :file:`.changes` file
 for the upload (see :ref:`Urgency, Section 5.6.17
 <ubuntu-policy-urgency-field>`). It is not possible to specify an urgency
 containing commas; commas are used to separate ``keyword=value`` settings in
 the :pkg:`dpkg` changelog format (though there is currently only one useful
-*keyword*, `urgency`).
+*keyword*, ``urgency``).
 
 The change details may in fact be any series of lines starting with at least
 two spaces, but conventionally each change starts with an asterisk and a
@@ -129,7 +129,7 @@ of the usual package maintainer. The information here will be copied to the
 Section 5.6.4 <ubuntu-policy-changed-by-field>`), and then later used to send
 an acknowledgement when the upload has been installed.
 
-The *date* must be in RFC822 format [#f21]_; it must include the time zone
+The ``date`` must be in RFC822 format [#f21]_; it must include the time zone
 specified numerically, with the time zone name or abbreviation optionally
 present as a comment in parentheses.
 
@@ -214,7 +214,6 @@ that any target that these targets depend on must also be non-interactive.
 The targets are as follows (required unless stated otherwise):
 
 ``build``
-
     The ``build`` target should perform all the configuration and compilation of
     the package. If a package has an interactive pre-build configuration
     routine, the Debianized source package must either be built after this has
@@ -244,7 +243,6 @@ The targets are as follows (required unless stated otherwise):
     run again it will not rebuild the whole program. [#f25]_
 
 ``build-arch`` (optional), ``build-indep`` (optional)
-
     A package may also provide both of the targets ``build-arch`` and
     ``build-indep``. The ``build-arch`` target, if provided, should perform all
     the configuration and compilation required for producing all
@@ -266,7 +264,6 @@ The targets are as follows (required unless stated otherwise):
     might require root privilege.
 
 ``binary``, ``binary-arch``, ``binary-indep``
-
     The ``binary`` target must be all that is necessary for the user to build
     the binary package(s) produced from this source package. It is split into
     two parts: ``binary-arch`` builds the binary packages which are specific to
@@ -290,7 +287,6 @@ The targets are as follows (required unless stated otherwise):
     The *binary* targets must be invoked as root. [#f26]_
 
 ``clean``
-
     This must undo any effects that the ``build`` and ``binary`` targets may
     have had, except that it should leave alone any output files created in the
     parent directory by a run of a ``binary`` target.
@@ -305,7 +301,6 @@ The targets are as follows (required unless stated otherwise):
     (since ``build`` may create directories, for example).
 
 ``get-orig-source`` (optional)
-
     This target fetches the most recent version of the original source package
     from a canonical archive site (via FTP or WWW, for example), does any
     necessary rearrangement to turn it into the original source tar file format
@@ -317,7 +312,6 @@ The targets are as follows (required unless stated otherwise):
     This target is optional, but providing it if possible is a good idea.
 
 ``patch`` (optional)
-
     This target performs whatever additional actions are required to make the
     source ready for editing (unpacking additional upstream archives, applying
     patches, etc.). It is recommended to be implemented for any package where
@@ -338,13 +332,13 @@ machine (the machine type we are building on) as well as for the host machine
 (the machine type we are building for). Here is a list of supported :pkg:`make`
 variables:
 
-    - DEB_*_ARCH (the Debian architecture)
+- ``DEB_*_ARCH`` (the Debian architecture)
 
-    - DEB_*_GNU_TYPE (the GNU style architecture specification string)
+- ``DEB_*_GNU_TYPE`` (the GNU style architecture specification string)
 
-    - DEB_*_GNU_CPU (the CPU part of DEB_*_GNU_TYPE)
+- ``DEB_*_GNU_CPU`` (the CPU part of DEB_*_GNU_TYPE)
 
-    - DEB_*_GNU_SYSTEM (the System part of DEB_*_GNU_TYPE)
+- ``DEB_*_GNU_SYSTEM`` (the System part of DEB_*_GNU_TYPE)
 
 where * is either ``BUILD`` for specification of the build machine or ``HOST``
 for specification of the host machine.

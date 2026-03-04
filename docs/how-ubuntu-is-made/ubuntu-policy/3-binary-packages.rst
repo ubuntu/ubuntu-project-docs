@@ -80,17 +80,17 @@ packages that are modified relative to Debian (that is, its version number
 contains the string "ubuntu"), should have their ``Maintainer`` field adjusted as
 follows:
 
-    - If the ``Maintainer`` field contains an ``ubuntu.com`` email address, or
-      one associated with an Ubuntu developer, then no modifications should be
-      made.
+- If the ``Maintainer`` field contains an ``ubuntu.com`` email address, or
+  one associated with an Ubuntu developer, then no modifications should be
+  made.
 
-    - If the package is in ``main`` or ``restricted``, the ``Maintainer`` field
-      should be set to Ubuntu Core Developers
-      mailto:ubuntu-devel-discuss@lists.ubuntu.com.
+- If the package is in ``main`` or ``restricted``, the ``Maintainer`` field
+  should be set to Ubuntu Core Developers
+  mailto:ubuntu-devel-discuss@lists.ubuntu.com.
 
-    - If the package is in ``universe`` or ``multiverse``, the ``Maintainer``
-      field should be set to Ubuntu MOTU Developers
-      mailto:ubuntu-motu@lists.ubuntu.com.
+- If the package is in ``universe`` or ``multiverse``, the ``Maintainer``
+  field should be set to Ubuntu MOTU Developers
+  mailto:ubuntu-motu@lists.ubuntu.com.
 
 If the ``Maintainer`` field is modified, then the old value must be saved in a
 field named ``XSBC-Original-Maintainer``. Because it is mandated and very

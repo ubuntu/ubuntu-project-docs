@@ -127,15 +127,15 @@ charge, and that Ubuntu remains re-distributable by you.
 
 Every package in *main* must comply with the Ubuntu Licensing Policy.
 
-In addition, the packages in *main*
+In addition, the packages in *main*:
 
-    - must not require a package outside of *main* for compilation or execution
-      (thus, the package must not declare a "Depends", "Recommends", or
-      "Build-Depends" relationship on a non-*main* package),
+- must not require a package outside of *main* for compilation or execution
+  (thus, the package must not declare a "Depends", "Recommends", or
+  "Build-Depends" relationship on a non-*main* package),
 
-    - must not be so buggy that we refuse to support them, and
+- must not be so buggy that we refuse to support them, and
 
-    - must meet all policy requirements presented in this manual.
+- must meet all policy requirements presented in this manual.
 
 2.2.2 The restricted archive area
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -144,11 +144,11 @@ Every package in *restricted* must comply with the Ubuntu Licensing Policy,
 with the exceptions that source code may not be available and that modification
 may not be permitted.
 
-In addition, the packages in *restricted*
+In addition, the packages in *restricted*:
 
-    - must not be so buggy that we refuse to support them, and
-    - must meet all policy requirements presented in this manual that it is
-      possible for them to meet. [#f4]_
+- must not be so buggy that we refuse to support them, and
+- must meet all policy requirements presented in this manual that it is
+  possible for them to meet. [#f4]_
 
 The Ubuntu team recognises that many users have vital hardware in their
 computer that requires drivers that are currently only available in binary
@@ -179,14 +179,14 @@ Packages in the *universe* archive area are not supported by the core Ubuntu
 developers and Canonical Ltd. Packages may be moved between *main* and
 *universe* as their support status changes.
 
-In addition, the packages in universe
+In addition, the packages in *universe*:
 
-    - must not require a package outside of *main* and *universe* for
-      compilation or execution (thus, the package must not declare a "Depends",
-      "Recommends", or "Build-Depends" relationship on a non-*main* and
-      non-*universe* package), and
+- must not require a package outside of *main* and *universe* for
+  compilation or execution (thus, the package must not declare a "Depends",
+  "Recommends", or "Build-Depends" relationship on a non-*main* and
+  non-*universe* package), and
 
-    - must meet all policy requirements presented in this manual.
+- must meet all policy requirements presented in this manual.
 
 
 2.2.4 The multiverse archive area
@@ -210,10 +210,10 @@ developers and Canonical Ltd.
 
 In addition, the packages in *multiverse*:
 
-    - must not be so buggy that we refuse to support them, and
+- must not be so buggy that we refuse to support them, and
 
-    - must meet all policy requirements presented in this manual that it is
-      possible for them to meet. [#f5]_
+- must meet all policy requirements presented in this manual that it is
+  possible for them to meet. [#f5]_
 
 ----
 
@@ -230,13 +230,13 @@ distribution license in the file :file:`/usr/share/doc/package/copyright` (see
 We reserve the right to restrict files from being included anywhere in our
 archives if
 
-    - their use or distribution would break a law,
+- their use or distribution would break a law,
 
-    - there is an ethical conflict in their distribution or use,
+- there is an ethical conflict in their distribution or use,
 
-    - we would have to sign a license for them, or
+- we would have to sign a license for them, or
 
-    - their distribution would conflict with other project policies.
+- their distribution would conflict with other project policies.
 
 Programs whose authors encourage the user to make donations are fine for the
 main distribution, provided that the authors do not claim that not donating is
@@ -315,7 +315,6 @@ The following *priority* levels are recognized by the Ubuntu package management
 tools.
 
 ``required``
-
     Packages which are necessary for the proper functioning of the system
     (usually, this means that dpkg functionality depends on these packages).
     Removing a ``required`` package may cause your system to become totally
@@ -325,7 +324,6 @@ tools.
     functionality to allow the sysadmin to boot and install more software.
 
 ``important``
-
     Important programs, including those which one would expect to find on any
     Unix-like system. If the expectation is that an experienced Unix person who
     found it missing would say "What on earth is going on, where is foo?", it
@@ -336,14 +334,12 @@ tools.
     commonly-expected and necessary tools.
 
 ``standard``
-
     These packages provide a reasonably small but not too limited
     character-mode system. This is what will be installed by default if the
     user doesn't select anything else. It doesn't include many large
     applications.
 
 ``optional``
-
     (In a sense everything that isn't required is optional, but that's not what
     is meant here.) This is all the software that you might reasonably want to
     install if you didn't know what it was and don't have specialized
@@ -352,7 +348,6 @@ tools.
     packages should not conflict with each other.
 
 ``extra``
-
     This contains all packages that conflict with others with required,
     important, standard or optional priorities, or are only likely to be useful
     if you already know what they are or have specialized requirements (such as

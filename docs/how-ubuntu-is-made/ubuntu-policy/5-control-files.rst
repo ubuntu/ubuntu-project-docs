@@ -401,7 +401,6 @@ The version number of a package. The format is:
 The three components here are:
 
 *epoch*
-
     This is a single (generally small) unsigned integer. It may be omitted, in
     which case zero is assumed. If it is omitted then the *upstream_version* may
     not contain any colons.
@@ -411,7 +410,6 @@ The three components here are:
     be left behind.
 
 *upstream_version*
-
     This is the main part of the version number. It is usually the version
     number of the original ("upstream") package from which the :file:`.deb`
     file has been made, if this is applicable. Usually this will be in the same
@@ -429,7 +427,6 @@ The three components here are:
     allowed; if there is no *epoch* then colons are not allowed.
 
 *debian_revision*
-
     This part of the version number specifies the version of the Ubuntu package
     based on the upstream version. It may contain only alphanumerics and the
     characters + . ~ (plus, full stop, tilde) and is compared in the same way

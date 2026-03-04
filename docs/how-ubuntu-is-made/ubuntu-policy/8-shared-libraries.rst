@@ -166,29 +166,30 @@ There are several places where shlibs files are found. The following list gives
 them in the order in which they are read by dpkg-shlibdeps. (The first one
 which gives the required information is used.)
 
-    - :file:`debian/shlibs.local`
-      This lists overrides for this package. Its use is described below (see
-      :ref:`Writing the debian/shlibs.local file, Section 8.6.5
-      <ubuntu-policy-writing-the-debian-shlibs-local-file>`).
+:file:`debian/shlibs.local`
+  This lists overrides for this package. Its use is described below (see
+  :ref:`Writing the debian/shlibs.local file, Section 8.6.5
+  <ubuntu-policy-writing-the-debian-shlibs-local-file>`).
 
-    - :file:`/etc/dpkg/shlibs.override`
-      This lists global overrides. This list is normally empty. It is maintained
-      by the local system administrator.
+:file:`/etc/dpkg/shlibs.override`
+  This lists global overrides. This list is normally empty. It is maintained
+  by the local system administrator.
 
-    - :file:`DEBIAN/shlibs` files in the "build directory"
-      When packages are being built, any :file:`debian/shlibs` files are copied
-      into the control file area of the temporary build directory and given the
-      name shlibs. These files give details of any shared libraries included in
-      the package. [#f58]_
+:file:`DEBIAN/shlibs` files in the "build directory"
+  When packages are being built, any :file:`debian/shlibs` files are copied
+  into the control file area of the temporary build directory and given the
+  name shlibs. These files give details of any shared libraries included in
+  the package. [#f58]_
 
-    - :file:`/var/lib/dpkg/info/*.shlibs`
-      These are the shlibs files corresponding to all of the packages installed
-      on the system, and are maintained by the relevant package maintainers.
+:file:`/var/lib/dpkg/info/*.shlibs`
+  These are the shlibs files corresponding to all of the packages installed
+  on the system, and are maintained by the relevant package maintainers.
 
-    - :file:`/etc/dpkg/shlibs.default` This file lists any shared libraries
-      whose packages have failed to provide correct ``shlibs`` files. It was
-      used when the ``shlibs`` setup was first introduced, but it is now
-      normally empty. It is maintained by the :pkg:`dpkg` maintainer.
+:file:`/etc/dpkg/shlibs.default` 
+  This file lists any shared libraries whose packages have failed to provide
+  correct ``shlibs`` files. It was used when the ``shlibs`` setup was first
+  introduced, but it is now normally empty. It is maintained by the :pkg:`dpkg`
+  maintainer.
 
 8.6.2 How to use ``dpkg-shlibdeps`` and the ``shlibs`` files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
