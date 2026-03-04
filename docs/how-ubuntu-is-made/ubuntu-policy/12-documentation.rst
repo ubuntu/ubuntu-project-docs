@@ -1,3 +1,5 @@
+.. _chapter-12-documentation:
+
 Chapter 12 - Documentation
 --------------------------
 
@@ -88,7 +90,7 @@ or README.Debian or some other appropriate place.
 
 ----
 
-:doc:`← Back <11-customized-programs>` | :doc:`Next → <appendix-a>`
+:ref:`← (Chapter 11 - Customized programs) Back <chapter-11-customized-programs>` | :ref:`Next (Appendix A) → <appendix-a>`
 
 ----
 

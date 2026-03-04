@@ -1,3 +1,5 @@
+.. _chapter-10-files:
+
 Chapter 10 - Files
 ------------------
 
@@ -21,7 +23,7 @@ Chapter 10 - Files
 ~~~~~~~~~~~~~~~~~~~~~
 
 This section has moved to `Shared libraries, Chapter 8
-<ubuntu-policy-shared-libraries>`_.
+<chapter-8-shared-libraries>`_.
 
 ----
 
@@ -155,7 +157,7 @@ configuration files. (The :pkg:`sgml-base` package is a good example.)
 
 ----
 
-:doc:`← Back <9-the-operating-system>` | :doc:`Next → <11-customized-programs>`
+:ref:`← (Chapter 9 - The Operating System) Back <chapter-9-the-operating-system>` | :ref:`Next (Chapter 11 - Customized programs) → <chapter-11-customized-programs>`
 
 ----
 

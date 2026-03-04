@@ -1,3 +1,5 @@
+.. _chapter-11-customized-programs:
+
 Chapter 11 - Customized Programs
 --------------------------------
 
@@ -213,7 +215,7 @@ skipped. No additional dependency is necessary.
 
 ----
 
-:doc:`← Back <10-files>` | :doc:`Next → <12-documentation>`
+:ref:`← (Chapter 10 - Files) Back <chapter-10-files>` | :ref:`Next (Chapter 12 - Documentation) → <chapter-12-documentation>`
 
 ----
 

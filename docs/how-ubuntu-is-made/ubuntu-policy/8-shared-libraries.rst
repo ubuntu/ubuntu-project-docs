@@ -1,4 +1,4 @@
-.. _ubuntu-policy-shared-libraries:
+.. _chapter-8-shared-libraries:
 
 Chapter 8 - Shared libraries
 ----------------------------
@@ -377,7 +377,7 @@ help ensure that others do not have the same problem building your package.)
 
 ----
 
-:doc:`← Back <7-declaring-relationships>` | :doc:`Next → <9-the-operating-system>`
+:ref:`← (Chapter 7 - Declaring relationships) Back <chapter-7-declaring-relationships>` | :ref:`Next (Chapter 9 - The Operating System) → <chapter-9-the-operating-system>`
 
 ----
 

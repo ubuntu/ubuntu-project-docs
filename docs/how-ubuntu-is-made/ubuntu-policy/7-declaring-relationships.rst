@@ -1,3 +1,5 @@
+.. _chapter-7-declaring-relationships:
+
 Chapter 7 - Declaring relationships between packages
 ----------------------------------------------------
 
@@ -100,4 +102,4 @@ should use ``Replaces`` (not ``Conflicts``) to ensure this goes smoothly.
 
 ----
 
-:doc:`← Back <6-package-maintainer-scripts>` | :doc:`Next → <8-shared-libraries>`
+:ref:`← (Chapter 6 - Package maintainer scripts) Back <chapter-6-package-maintainer-scripts>` | :ref:`Next (Chapter 8 - Shared libraries) → <chapter-8-shared-libraries>`

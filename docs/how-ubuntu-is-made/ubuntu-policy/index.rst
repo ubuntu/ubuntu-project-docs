@@ -43,7 +43,7 @@ This file has been modified by Simon Johnsson on Feb 26, 2026.
       "(*Modifies*: Debian Policy Manual, ``chapter/section``)".
     - Add "**Editor's note:**" to areas that are outdated, need
       clarification, and/or re-review.
-    - Update number of packages in :ref:`ubuntu-archive`.
+    - Update number of packages in :ref:`chapter-2-ubuntu-archive`.
     - Update format version in :ref:`Section 5.6.16 Format
       <ubuntu-policy-format-field>`.
 
@@ -97,4 +97,4 @@ Contents
       G. Diversions - overriding a package's version of a file <appendix-g>
 
 
-:doc:`← Back <appendix-g>` | :doc:`Next → <1-about-this-manual>`
+:ref:`← (Appendix G) Back <appendix-g>` | :ref:`Next (Chapter 1 - About this manual) → <chapter-1-about-this-manual>`

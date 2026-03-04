@@ -1,3 +1,5 @@
+.. _chapter-1-about-this-manual:
+
 Chapter 1 - About this manual
 -----------------------------
 
@@ -96,7 +98,7 @@ established.
 
 ----
 
-:doc:`← Back <index>` | :doc:`Next → <2-ubuntu-archive>`
+:ref:`← (Ubuntu Policy Manual) Back <ubuntu-policy>` | :ref:`Next (Chapter 2 - The Ubuntu Archive) → <chapter-2-ubuntu-archive>`
 
 ----
 

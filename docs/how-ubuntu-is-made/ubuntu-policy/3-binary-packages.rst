@@ -1,3 +1,5 @@
+.. _chapter-3-binary-packages:
+
 Chapter 3 - Binary packages
 ---------------------------
 
@@ -151,7 +153,7 @@ common, it is not necessary or appropriate to document this change in
 
 ----
 
-:doc:`← Back <2-ubuntu-archive>` | :doc:`Next → <4-source-packages>`
+:ref:`← (Chapter 2 - The Ubuntu Archive) Back  <chapter-2-ubuntu-archive>` | :ref:`Next (Chapter 4 - Source packages) → <chapter-4-source-packages>`
 
 ----
 

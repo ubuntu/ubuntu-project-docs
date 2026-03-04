@@ -1,3 +1,5 @@
+.. _chapter-4-source-packages:
+
 Chapter 4 - Source packages
 ---------------------------
 
@@ -429,7 +431,7 @@ distribution as a whole.
 
 ----
 
-:doc:`← Back <3-binary-packages>` | :doc:`Next → <5-control-files>`
+:ref:`← (Chapter 3 - Binary packages) Back  <chapter-3-binary-packages>` | :ref:`Next (Chapter 5 - Control files and their fields) → <chapter-5-control-files>`
 
 ----
 

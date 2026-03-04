@@ -1,3 +1,5 @@
+.. _chapter-5-control-files:
+
 Chapter 5 - Control files and their fields
 -------------------------------------------
 
@@ -601,7 +603,7 @@ by the :file:`.changes` file closes.
 
 ----
 
-:doc:`← Back <4-source-packages>` | :doc:`Next → <6-package-maintainer-scripts>`
+:doc:`← (Chapter 4 - Source packages) Back <4-source-packages>` | :ref:`Next (Chapter 6 - Package maintainer scripts) → <chapter-6-package-maintainer-scripts>`
 
 ----
 
