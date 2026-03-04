@@ -11,6 +11,8 @@ Chapter 10 - Files
 
 ----
 
+.. _ubuntu-policy-libraries:
+
 10.2 Libraries
 ~~~~~~~~~~~~~~
 

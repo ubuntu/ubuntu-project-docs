@@ -18,7 +18,7 @@ the C library (currently ``libc6``).
 Packages involving shared libraries should be split up into several binary
 packages. This section mostly deals with how this separation is to be
 accomplished; rules for files within the shared library packages are in
-`Libraries, Section 10.2 <ubuntu-policy-libraries>` instead.
+:ref:`Libraries, Section 10.2 <ubuntu-policy-libraries>` instead.
 
 ----
 

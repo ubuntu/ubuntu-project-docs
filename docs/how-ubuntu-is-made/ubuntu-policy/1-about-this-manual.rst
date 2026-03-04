@@ -21,7 +21,7 @@ The footnotes present in this manual are merely informative, and are not part
 of Ubuntu policy itself.
 
 The appendices to this manual are not necessarily normative, either. Please see
-`Appendix A <ubuntu-policy-appendix-a-introduction>` for more information.
+:ref:`Appendix A <appendix-a>` for more information.
 
 In the normative part of this manual, the words *must*, *should* and *may*, and
 the adjectives *required*, *recommended* and *optional*, are used to

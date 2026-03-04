@@ -1,4 +1,3 @@
-.. _ubuntu-policy-appendix-a-introduction:
 .. _appendix-a:
 
 Appendix A - Introduction and scope of these appendices
