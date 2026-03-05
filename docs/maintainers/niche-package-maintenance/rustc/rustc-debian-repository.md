@@ -20,7 +20,7 @@ The patch-based workflow is based around two commands:
 - {manpage}`git-am(1)`, which lets you *apply* `.patch` files as new commits over your working tree.
 
 We place patches that may be helpful across many versions of `rustc` in the `menu/` directory of `rustc-debian`, using `git format-patch`.
-Then, when we need to port a new version of rustc, we pick the patches we want, as if we were ordering from a *menu*, and use `git am` to apply them.
+Then, when we need to port a new version of `rustc`, we pick the patches we want, as if we were ordering from a *menu*, and use `git am` to apply them.
 
 ```{note}
 Git patch-based workflow was originally designed to work over email; after creating a patch, it's generally assumed that you send it to a project's maintainers by email.
