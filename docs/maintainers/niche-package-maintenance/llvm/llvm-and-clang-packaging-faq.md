@@ -31,7 +31,7 @@ The LLVM project exposes several different shared libraries, which serve distinc
 
 `libllvm19` is the core LLVM library, containing the optimizer, code generators, and analysis infrastructure. Most tools that work with LLVM IR directly link against this.
 
-`libclang1-19` exposes a stable C API for working with Clang's AST and analysis. It is intentionally limited but has strong backwards compatibility guarantees, making it the preferred interface for editors, IDEs, and other tooling that needs to parse C/C++ without committing to LLVM's internal C++ APIs.
+`libclang1-19` exposes a stable C API for working with Clang's AST and analysis. It is intentionally limited but has strong backwards compatibility guarantees, making it the preferred interface for editors, IDEs, and other tooling that needs to parse C/C++ without committing to LLVM internal C++ APIs.
 
 `libclang-cpp19` exposes the full Clang C++ API, which is much more powerful but carries no stability guarantees between releases. It is used by tools that are developed in lockstep with LLVM, such as `clangd` and `clang-tidy`, which depend on `libclang-cpp19` at the same version they were built against.
 
@@ -68,9 +68,9 @@ The `llvm-toolchain-X` source package is a monolithic build of the entire LLVM p
 - `libllvm-X-dev` / `libllvm-X` — LLVM libraries for development and runtime use
 - `libclang-X-dev` / `libclang1-X` — Clang libraries (e.g. for `libclang` bindings)
 - `libomp-X-dev` / `libomp5` — OpenMP runtime (`libomp5` is a common package built by the default version)
-- `libc++-X-dev` / `libc++1` — LLVM's C++ standard library (also a common package)
+- `libc++-X-dev` / `libc++1` — LLVM C++ standard library (also a common package)
 - `libc++abi-X-dev` / `libc++abi1-X` — C++ ABI library used by `libc++`
-- `libunwind-X-dev` / `libunwind-X` — LLVM's unwinder library
+- `libunwind-X-dev` / `libunwind-X` — LLVM unwinder library
 - `python3-lldb-X` — Python bindings for `lldb`
 
 Because the source package builds so many binary packages, build times are substantial. The `PROJECTS` and `RUNTIMES` variables in `debian/rules` control which subprojects are compiled, and trimming them down is a good way to speed up local test builds.

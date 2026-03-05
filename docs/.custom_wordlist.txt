@@ -102,7 +102,6 @@ launchpadlib
 Libera
 Libtool
 lintian
-LLVM's
 losslessly
 Lubuntu
 Maintainer's
