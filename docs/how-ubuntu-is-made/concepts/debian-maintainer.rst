@@ -24,7 +24,7 @@ This is acceptable when Ubuntu has made no changes to the package. However, in t
 
 
 The :command:`update-maintainer` command
-------------------------------------------
+----------------------------------------
 
 When a package has Ubuntu-specific changes, or has been re-built against Ubuntu-specific sources (a :term:`no-change rebuild <NCR>`) the following changes must be made:
 
