@@ -1,7 +1,7 @@
 .. _debian-maintainer:
 
-The Maintainer field
-=======================
+The ``Maintainer`` field
+========================
 
 In the :file:`debian/control` file, the ``Maintainer`` field indicates the person or team responsible for the maintenance of the package. Since Ubuntu derives from Debian, and many Ubuntu packages are unchanged from the upstream Debian package, it is common to find a Debian maintainer listed in this field within the source package.
 
