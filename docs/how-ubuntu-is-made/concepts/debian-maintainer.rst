@@ -32,7 +32,7 @@ When a package has Ubuntu-specific changes, or has been re-built against Ubuntu-
 
 * A new ``Maintainer`` field with an ``ubuntu.com`` address is added.
 
-The :command:`update-maintainer` script, found in the :pkg:`ubuntu-dev-tools` package can be used to accomplish this easily, but be aware that it will refuse to do so unless :file:`debian/changelog` indicates that the package targets Ubuntu (the top entry has a series other than "unstable", "testing", etc).
+Use the :command:`update-maintainer` script, found in the :pkg:`ubuntu-dev-tools` package, to accomplish this. But be aware that it refuses to do so unless :file:`debian/changelog` indicates that the package targets Ubuntu (the top entry has a series other than "unstable", "testing", etc).
 
 For example, after defining a new version targeting "lunar" in :file:`debian/changelog`, running :command:`update-maintainer` leaves the following at the top of :file:`debian/control`:
 
