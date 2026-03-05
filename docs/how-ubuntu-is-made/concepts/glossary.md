@@ -984,7 +984,7 @@ No Change Re-build
     where "N" is an incrementing integer (e.g. "build1", "build2", and so on)
     is appended to the version number. If a package has Ubuntu-specific
     changes, and thus already has an "ubuntuN" segment in its version, the
-    trailing number "N" is simply incremented.
+    trailing number "N" is incremented.
 
 NIST
 National Institute of Standards and Technology
