@@ -5,7 +5,7 @@ The ``Maintainer`` field
 
 In the :file:`debian/control` file, the ``Maintainer`` field indicates the person or team responsible for the maintenance of the package. Since Ubuntu derives from Debian, and many Ubuntu packages are unchanged from the upstream Debian package, it is common to find a Debian maintainer listed in this field within the source package.
 
-For example, here is the top of :file:`debian/control` from the ``groff`` package, version 1.22.4-10 shipped with Ubuntu 23.04:
+For example, here is the top of :file:`debian/control` from the :pkg:`groff` package, version 1.22.4-10 shipped with Ubuntu 23.04:
 
 .. code-block:: control
     :emphasize-lines: 4
