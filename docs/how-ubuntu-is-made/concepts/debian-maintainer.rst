@@ -58,4 +58,4 @@ The Ubuntu version of the package building tools ensures that, if the version nu
 Binary packages
 ---------------
 
-Even when the *source* package is unchanged from Debian, and contains a Debian maintainer, *binary* packages built by Launchpad will still have the ``ubuntu-devel-discuss@lists.ubuntu.com`` address in their ``Maintainer`` field. This is because Launchpad automatically updates this field in a post-build step.
+Even when the *source* package is unchanged from Debian, and contains a Debian maintainer, *binary* packages built by Launchpad still have the ``ubuntu-devel-discuss@lists.ubuntu.com`` address in their ``Maintainer`` field. This is because Launchpad automatically updates this field in a post-build step.
