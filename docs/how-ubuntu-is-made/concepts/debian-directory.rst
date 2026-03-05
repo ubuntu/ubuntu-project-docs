@@ -68,7 +68,7 @@ Manual.
 The :file:`control` file
 ------------------------
 
-The :file:`debian/control` file contains the information that the :term:`package manager` (such as :term:`APT`) uses, build-time dependencies, maintainer information, and much more. The file contains one or more stanzas (also referred to as paragraphs), which are separated by one or more empty lines. Each stanza contains one or more fields each of which must start on its own line. Within a field, key-value pairs are separated by a colon ``:``; conventially, a single space follows the colon.
+The :file:`debian/control` file contains the information that the :term:`package manager` (such as :term:`APT`) uses, build-time dependencies, maintainer information, and much more. The file contains one or more stanzas (also referred to as paragraphs), which are separated by one or more empty lines. Each stanza contains one or more fields, each of which must start on its own line. Within a field, key-value pairs are separated by a colon ``:``; conventionally, a single space follows the colon.
 
 Certain fields may span many lines. For example, the ``Description`` of a package is typically several lines long. In this case lines following the first, containing the field name, are continuation lines which must begin with one or more whitespace (tab or space) characters. Continuation lines may not be blank (or they would terminate the stanza). If a blank line is required, a line containing a single dot ``.`` (after the leading whitespace) is used.
 
