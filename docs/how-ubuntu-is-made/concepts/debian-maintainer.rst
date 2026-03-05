@@ -28,9 +28,9 @@ The :command:`update-maintainer` command
 
 When a package has Ubuntu-specific changes, or has been re-built against Ubuntu-specific sources (a :term:`no-change rebuild <NCR>`) the following changes must be made:
 
-* The original ``Maintainer`` field is renamed to ``XBSC-Original-Maintainer``
+* The original ``Maintainer`` field is renamed to ``XBSC-Original-Maintainer``.
 
-* A new ``Maintainer`` field with an ``ubuntu.com`` address is added
+* A new ``Maintainer`` field with an ``ubuntu.com`` address is added.
 
 The :command:`update-maintainer` script, found in the :pkg:`ubuntu-dev-tools` package can be used to accomplish this easily, but be aware that it will refuse to do so unless :file:`debian/changelog` indicates that the package targets Ubuntu (the top entry has a series other than "unstable", "testing", etc).
 
