@@ -36,6 +36,7 @@ phased-updates
 deb-3-patch-file-headers
 debian-policy
 debian-directory
+debian-maintainer
 ```
 
 ## System design
