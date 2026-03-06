@@ -1,0 +1,18 @@
+:::{mermaid}
+flowchart LR
+    Rights{"<a href=https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/#path-to-upload-rights>Upload rights</a><br/>for this package?"}
+    Rights --> |"no: <a href=https://documentation.ubuntu.com/project/contributors/uploading/find-a-sponsor/>Find sponsor</a>"| Sponsor
+    Sponsor["sponsor <a href=https://documentation.ubuntu.com/project/contributors/advanced/review-a-merge-proposal/>re-reviews</a>"]
+    Sponsor --> |"sponsor approves"| Upload
+    Rights --> |"yes"| Upload
+    Upload(["(<a href=https://documentation.ubuntu.com/project/contributors/uploading/>Upload to Ubuntu Archive</a>)"])
+
+    classDef ubuntuStyle fill:#FFDAB9,stroke:#E95420,stroke-width:2px
+    class Sponsor ubuntuStyle
+
+    classDef gateStyle fill:#D0E8FF,stroke:#3366CC,stroke-width:2px
+    class Rights gateStyle
+
+    classDef terminalStyle fill:#E0E0E0,stroke:#666666,stroke-width:2px
+    class Upload terminalStyle
+:::
