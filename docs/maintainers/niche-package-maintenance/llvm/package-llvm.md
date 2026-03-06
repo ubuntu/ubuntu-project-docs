@@ -824,7 +824,7 @@ The tag should be one of the ones generated automatically by `gbp import-orig`, 
 This automatically creates a branch named, e.g. `patch-queue/ubuntu/<MAJOR_LLVM_VERSION>/<UBUNTU_RELEASE>`. Switch to it, and you can interactively rebase to modify commits, or create new commits that correspond to new patches. Once you are satisfied, turn the commits back into patch files.
 
 ```none
-# gbp pq --commit export
+# gbp pq export --pq-from=TAG --commit
 ```
 
 Now clean up to ensure that you aren't pushing this work to the repo.
