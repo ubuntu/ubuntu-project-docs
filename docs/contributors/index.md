@@ -50,6 +50,15 @@ bug-fix/index
 ```
 
 
+## Updating
+
+```{toctree}
+:maxdepth: 1
+
+/updating/index
+```
+
+
 ## Building
 
 ```{toctree}

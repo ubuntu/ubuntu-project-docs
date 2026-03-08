@@ -92,8 +92,8 @@ how-to/build-packages/ building/build-packages-locally/
 
 how-to/extract-packages/ contributors/bug-fix/extract-packages/
 
-contributors/bug-fix/download-new-upstream-version/ contributors/bug-fix/get-a-new-upstream-version/
-how-to/download-new-upstream-version/ contributors/bug-fix/get-a-new-upstream-version/
+contributors/bug-fix/download-new-upstream-version/ updating/get-a-new-upstream-version/
+how-to/download-new-upstream-version/ updating/get-a-new-upstream-version/
 
 how-to/install-built-packages/ building/install-built-packages/
 contributors/bug-fix/install-built-packages/ building/install-built-packages/
@@ -132,7 +132,7 @@ how-to/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa
 
 contributors/index-patching/ contributors/patching/
 
-contributors/patching/committing-changes/ contributors/patching/commit-changes/
+contributors/patching/committing-changes/ updating/commit-changes/
 
 contributors/patching/salsa-dual-maintenance/ contributors/patching/dual-maintenance-with-salsa-and-git-ubuntu/
 
@@ -142,7 +142,7 @@ tutorial/make-changes-to-package/ contributors/patching/make-changes-to-a-packag
 contributors/patching/patch-management/ contributors/patching/manage-patches/
 how-to/patch-management/ contributors/patching/manage-patches/
 
-contributors/patching/merge-proposal/ contributors/patching/submit-a-merge-proposal/
+contributors/patching/merge-proposal/ updating/submit-a-merge-proposal/
 
 contributors/index-qa-and-testing/ contributors/qa-and-testing/
 
