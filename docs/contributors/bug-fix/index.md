@@ -7,8 +7,8 @@
 ```{toctree}
 :maxdepth: 1
 
-Get a new upstream version </updating/get-a-new-upstream-version>
-Extract packages </updating/extract-packages>
+Get a new upstream version </contributors/updating/get-a-new-upstream-version>
+Extract packages </contributors/updating/extract-packages>
 Install built packages </building/install-built-packages>
 Fix a bug in a package <fix-a-bug-in-a-package>
 Build packages in a PPA </building/build-packages-in-a-ppa>

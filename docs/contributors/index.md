@@ -55,7 +55,7 @@ bug-fix/index
 ```{toctree}
 :maxdepth: 1
 
-/updating/index
+updating/index
 ```
 
 
