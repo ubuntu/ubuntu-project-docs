@@ -130,17 +130,18 @@ contributors/new-package/request-sru/ contributors/new-package/request-an-sru/
 contributors/new-package/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa/
 how-to/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa/
 
-contributors/index-patching/ contributors/patching/
+contributors/index-patching/ updating/
+contributors/patching/ updating/
 
 contributors/patching/committing-changes/ updating/commit-changes/
 
-contributors/patching/salsa-dual-maintenance/ contributors/patching/dual-maintenance-with-salsa-and-git-ubuntu/
+contributors/patching/salsa-dual-maintenance/ updating/dual-maintenance-with-salsa-and-git-ubuntu/
 
-contributors/patching/make-changes-to-package/ contributors/patching/make-changes-to-a-package/
-tutorial/make-changes-to-package/ contributors/patching/make-changes-to-a-package/
+contributors/patching/make-changes-to-package/ updating/make-changes-to-a-package/
+tutorial/make-changes-to-package/ updating/make-changes-to-a-package/
 
-contributors/patching/patch-management/ contributors/patching/manage-patches/
-how-to/patch-management/ contributors/patching/manage-patches/
+contributors/patching/patch-management/ updating/manage-patches/
+how-to/patch-management/ updating/manage-patches/
 
 contributors/patching/merge-proposal/ updating/submit-a-merge-proposal/
 

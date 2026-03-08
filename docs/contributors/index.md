@@ -68,13 +68,6 @@ bug-fix/index
 ```
 
 
-## Patching
-
-```{toctree}
-:maxdepth: 1
-
-patching/index
-```
 
 
 ## Merging
