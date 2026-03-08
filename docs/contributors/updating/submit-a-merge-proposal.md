@@ -14,6 +14,7 @@ You do not have upload rights
   * See {ref}`how-to-find-a-sponsor` for guidance on how to get your upload sponsored.
 
 
+(submit-mp-prepare-description)=
 ## Prepare a description
 
 The description is free-form, but should contain everything you did. Let the
@@ -62,7 +63,59 @@ autopkgtest [11:15:09]: @@@@@@@@@@@@@@@@@@@@ summary
 postfix PASS
 ```
 
+(submit-mp-open)=
 ## Open the merge proposal
+
+### Using `git-ubuntu`
+
+Use the {command}`submit` command of {manpage}`git-ubuntu(1)`:
+
+```none
+$ git ubuntu submit --reviewer $REVIEWER --target-branch ubuntu/devel
+Your merge proposal is now available at: https://code.launchpad.net/~kstenerud/ubuntu/+source/at/+git/at/+merge/358655
+If it looks OK, please move it to the 'Needs Review' state.
+```
+
+:::{note}
+Git branches with `%` in their name don't work. Use something like `_`.
+:::
+
+Set `--reviewer` to the team (or user) on Launchpad that should look at your
+change — by default it is `--reviewer ubuntu-sponsors`.
+
+* If you do not have upload rights for this package, use `ubuntu-sponsors`.
+  That adds your Merge Proposal to the
+  [Ubuntu sponsoring queue](http://sponsoring-reports.ubuntu.com/general.html),
+  so people with upload rights for that package may eventually review it for
+  you.
+
+* To notify a specific team, use, e.g. `canonical-foundations`,
+  `canonical-public-cloud`, or `ubuntu-server`.
+
+To avoid having to specify the `--reviewer` flag, configure the reviewers for
+{command}`git-ubuntu`. Include a section like the following either globally in
+`~/.gitconfig`, or in individual repositories in `.git/config`:
+
+```ini
+[gitubuntu.submit]
+    defaultReviewer = <your-ubuntu-teamname>, \
+                      <canonical-more-reviewers>, \
+                      <canonical-otherteam>
+```
+
+The equivalent `git config` command is:
+
+```none
+$ git config [--global] gitubuntu.submit.defaultReviewer <launchpad-reviewer>
+```
+
+:::{note}
+Using a target branch of `debian/sid` may seem wrong, but is a workaround for
+{lpbug}`1976112`.
+:::
+
+
+### Using the Launchpad web UI
 
 You'll need to have a branch set up for your package. The following steps will
 create the merge proposal:
@@ -90,6 +143,7 @@ create the merge proposal:
 
 You'll get a merge proposal
 [page like this](https://code.launchpad.net/~kstenerud/ubuntu/+source/postfix/+git/postfix/+merge/353267).
+
 
 
 ## The second reviewer
@@ -149,6 +203,7 @@ It only lists core, so the second reviewer is
 * Type in `canonical-server-core-reviewers`.
 
 
+(submit-mp-get-sponsorship)=
 ## Get sponsorship
 
 Before {ref}`asking your sponsor to upload <sponsorship>`, it is wise to verify
@@ -178,6 +233,7 @@ Please sponsor this MP. Git commit: 566d8c9eff6a13c25c2ef5f5d9e176f49c52a3b4
 The sponsor will tag the upload and `dput` it to where it belongs.
 
 
+(submit-mp-retire)=
 ## Retire a merge proposal
 
 If a merge proposal should no longer land as-is, you have four options:
@@ -210,3 +266,25 @@ Delete the merge proposal
   Note that this might be necessary for appropriateness or legal reasons, but
   normally we prefer to use one of the other options since retaining the
   history of what happened may be useful in the future.
+
+
+(submit-mp-follow-migration)=
+## Follow the migration
+
+Once the merge proposal goes through, you must follow the package to make sure
+it gets to its destination.
+The status of all packages is available from the
+[Ubuntu archive](https://ubuntu-archive-team.ubuntu.com/proposed-migration/)
+or one of its subdirectories. The top level directory is for the current dev
+release. Previous releases are in subdirectories.
+See {ref}`proposed-migration`.
+
+
+### Package tests
+
+The results from the latest package tests are published for each Ubuntu
+release. For example:
+[`autopkgtest.ubuntu.com/packages/o/openssh/questing/amd64`](https://autopkgtest.ubuntu.com/packages/o/openssh/questing/amd64).
+See {ref}`automatic-package-testing-autopkgtest`.
+
+
