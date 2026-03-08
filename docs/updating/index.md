@@ -6,6 +6,7 @@
 :maxdepth: 1
 
 Get a new upstream version <get-a-new-upstream-version>
+Extract packages <extract-packages>
 Make changes to a package <make-changes-to-a-package>
 Manage patches <manage-patches>
 Work with Debian patches <work-with-debian-patches>
