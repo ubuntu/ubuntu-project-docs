@@ -90,7 +90,7 @@ contributors/bug-fix/package-building/ building/build-packages-in-a-ppa/
 
 how-to/build-packages/ building/build-packages-locally/
 
-how-to/extract-packages/ contributors/bug-fix/extract-packages/
+how-to/extract-packages/ updating/extract-packages/
 
 contributors/bug-fix/download-new-upstream-version/ updating/get-a-new-upstream-version/
 how-to/download-new-upstream-version/ updating/get-a-new-upstream-version/

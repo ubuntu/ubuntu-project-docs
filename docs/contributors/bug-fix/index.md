@@ -8,7 +8,7 @@
 :maxdepth: 1
 
 Get a new upstream version </updating/get-a-new-upstream-version>
-Extract packages <extract-packages>
+Extract packages </updating/extract-packages>
 Install built packages </building/install-built-packages>
 Fix a bug in a package <fix-a-bug-in-a-package>
 Build packages in a PPA </building/build-packages-in-a-ppa>
