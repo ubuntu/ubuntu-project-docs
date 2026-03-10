@@ -5,7 +5,7 @@ flowchart LR
     Sponsor["sponsor <a href=https://documentation.ubuntu.com/project/contributors/advanced/review-a-merge-proposal/>re-reviews</a>"]
     Sponsor --> |"sponsor approves"| Upload
     Rights --> |"yes"| Upload
-    Upload(["(<a href=https://documentation.ubuntu.com/project/contributors/uploading/>Upload to Ubuntu Archive</a>)"])
+    Upload(["<a href=https://documentation.ubuntu.com/project/contributors/uploading/>Upload to Ubuntu Archive</a>"])
 
     classDef ubuntuStyle fill:#FFDAB9,stroke:#E95420,stroke-width:2px
     class Sponsor ubuntuStyle

@@ -1,8 +1,14 @@
 (lifecycle-of-a-change)=
 # Lifecycle of a change
 
-To get a fix, change or new version into Ubuntu involves various steps
-to enable worldwide collaboration and to ensure the quality of an upload.
+Software in Ubuntu is delivered via packages and there might be various
+reasons to change them. A change might appear as a fix to a bug, as an update
+to a new version of a package or customizing the build and runtime configuration
+to the needs of all Ubuntu users.
+
+Getting such a change into Ubuntu involves various steps to enable worldwide
+collaboration and to ensure the quality of an upload containing that change to
+the Ubuntu Archive.
 
 The diagrams here show the path a change takes, each stage then
 refined in later sections, some with optional paths where applicable.
@@ -65,10 +71,10 @@ is also an option for iterative debug cycles.
 
 Once the fix builds and tests pass, it is
 {ref}`submitted as a merge proposal (MP) <how-to-submit-a-merge-proposal>`
-against the relevant `git-ubuntu` branch on Launchpad. The merge requests
+against the relevant `git-ubuntu` branch on Launchpad. The merge proposal
 links the fix to the bug, describes what was done
-and why, refers to a PPA and test results as far as they already exist.
-Reviewers leave comments, the contributor iterates until the merge request
+and why, and refers to a PPA and test results as far as they already exist.
+Reviewers leave comments, the contributor iterates until the merge proposal
 is approved.
 
 A reviewer (typically a developer with upload rights)
@@ -89,7 +95,7 @@ Once approved, the change must be
 {ref}`uploaded to the Ubuntu Archive <uploading-to-the-archive>`.
 
 Direct upload access is granted only after a developer has demonstrated consistent
-packaging quality (see the {ref}`Upoader journey <uploaders-journey>`).
+packaging quality (see the {ref}`Uploader journey <uploaders-journey>`).
 
 Until then, a contributor {ref}`finds a sponsor <how-to-find-a-sponsor>` — a
 developer who reviews the change, signs the `.changes` file with their own
@@ -99,8 +105,7 @@ Ideally the uploader is the person who did the review of the {ref}`merge proposa
 there is no need to be reviewed twice. Otherwise they might apply their own
 {ref}`review <how-to-review-a-merge-proposal>` before signing and uploading.
 
-Keeping track of who has sponsored your work is useful
-when later applying for upload rights, as sponsors become endorsers.
+If you want to apply for upload rights later, you should keep track of your work and who has were your sponsors, as sponsors become endorsers for your application.
 
 
 ```{include} /how-ubuntu-is-made/processes/lifecycle-4-upload-sponsor.txt
@@ -117,22 +122,21 @@ then be passed before the package is allowed to *migrate* to the `-release`
 or `-updates` pocket and thereby reach users.
 Any regression must be investigated as it otherwise stays stuck in `-proposed`.
 
-**{ref}`Build Successfully<failure-to-build-from-source-ftbfs>`**
-: If the source package fails to build on any architecture (FTBFS), the
-  upload is blocked. The uploader must investigate the build log and upload
-  a corrected source package.
+To migrate from the staging error, the update must:
 
-**{ref}`Pass Autopkgtest <autopkgtest-regressions>` (DEP-8)**
-: {ref}`Automated functional tests <automatic-package-testing-autopkgtest>`
-  for the package and its reverse-dependencies are run on Ubuntu
-  infrastructure.
-
-**{ref}`Archive consistency check <issues-preventing-migration>`**
-: The tooling then verifies that the new binaries are installable together
+- **{ref}`Build Successfully<failure-to-build-from-source-ftbfs>`**
+  The source package must not fails to build from source (FTBFS) on any
+  architecture. In case of failure, the uploader must investigate the build log
+  and upload a corrected source package.
+- **{ref}`Pass Autopkgtest <autopkgtest-regressions>` (DEP-8)**
+  {ref}`Automated functional tests <automatic-package-testing-autopkgtest>`
+  in `debian/tests/` inside the changed package and all its reverse-dependencies must pass.
+- **{ref}`Archive consistency check <issues-preventing-migration>`**
+  The tooling then verifies that the new binaries are installable together
   with everything else in the archive, that all required dependencies are
   present at the right version, and that nothing else becomes
-  uninstallable as a side-effect. Any finding is reports as
-  {ref}`issues-preventing-migration`
+  uninstallable as a side-effect. Any findings are reported as
+  {ref}`issues-preventing-migration`.
 
 Progress for the current development release is visible on the
 [update excuses page](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html).
@@ -146,14 +150,18 @@ See {ref}`resolve-a-migration-issue` for practical guidance on tackling such blo
 (lc-sru)=
 ## Stable release updates (SRU)
 
-After an Ubuntu release is published, the archive for that release is
-frozen. Bug fixes, security patches, and important improvements can still
-reach users through the
-{ref}`Stable Release Update <stable-release-updates-sru>` (SRU) process —
-but only under {ref}`strict requirements <explanation-sru-requirements>`
-designed to avoid regressing a user by an update.
+Updates for the current Ubuntu development version can directly be released.
+But after publication of an Ubuntu release (such as `26.04`), its package archive is
+frozen for updates.
+Bug fixes, security patches, and important improvements can still be provided
+for users through the {ref}`Stable Release Update <stable-release-updates-sru>`
+(SRU) process — but only under {ref}`strict requirements <explanation-sru-requirements>`
+designed to avoid regressions by an update.
 
-To ensure that it follows the SRU process follows a {ref}` set of principles <explanation-principles>`.
-But a lot is shared, and after being accepted it reaches usual mechanisms for {ref}`Proposed migration <lc-proposed-migration>` to finally be released to `-updates` by the {ref}`SRU team <sru-role>`.
+A lot of the machinery is shared, an SRU upload passes through the same
+{ref}`Proposed migration <lc-proposed-migration>` as any other. At the beginning
+the {ref}`SRU team <sru-role>` reviews and accepts from the -unapproved queue,
+and at the end the {ref}`SRU team <sru-role>` verifies the case to be ready
+to then releases it to -updates.
 
 See {ref}`SRU pipeline <explanation-sru-pipeline>` for the flow of these extra steps.
