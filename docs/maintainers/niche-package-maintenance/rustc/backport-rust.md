@@ -605,7 +605,7 @@ $ git add src/llvm-project
 (rust-vendoring-libgit2)=
 ### Vendoring `libgit2`
 
-A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the backported version of `rustc` requires. In this case, the {lpsrc}`libgit2 C library <libgit2>`, which is normally included in the vendored `libgit2-sys` crate, must be vendored.
+A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the backported version of `rustc` requires. In that case, the {lpsrc}`libgit2 C library <libgit2>` must be vendored. The `libgit2` library is already bundled in the vendored `libgit2-sys` crate but is typically stripped from the tarball during packaging; the following steps restore its source and remove the dependency on `libgit2-dev`.
 
 
 #### Re-including `libgit2` in `Files-Excluded`
