@@ -13,6 +13,7 @@ This article explains the different files important to the packaging of Ubuntu p
 These are required for all packages. A number of additional files in the :file:`debian/` directory may be used to customize and configure the behavior of the package. Some of these files are discussed in this article, but this is not meant to be a complete list.
 
 
+.. _debian-directory-changelog:
 The :file:`changelog` file
 --------------------------
 
