@@ -122,16 +122,16 @@ then be passed before the package is allowed to *migrate* to the `-release`
 or `-updates` pocket and thereby reach users.
 Any regression must be investigated as it otherwise stays stuck in `-proposed`.
 
-To migrate from the staging error, the update must:
+To migrate from the staging area, the update must:
 
 - **{ref}`Build Successfully<failure-to-build-from-source-ftbfs>`**
-  The source package must not fails to build from source (FTBFS) on any
+  The source package must not fail to build from source (FTBFS) on any
   architecture. In case of failure, the uploader must investigate the build log
   and upload a corrected source package.
 - **{ref}`Pass Autopkgtest <autopkgtest-regressions>` (DEP-8)**
   {ref}`Automated functional tests <automatic-package-testing-autopkgtest>`
   in `debian/tests/` inside the changed package and all its reverse-dependencies must pass.
-- **{ref}`Archive consistency check <issues-preventing-migration>`**
+- **{ref}`Pass Archive consistency check <issues-preventing-migration>`**
   The tooling then verifies that the new binaries are installable together
   with everything else in the archive, that all required dependencies are
   present at the right version, and that nothing else becomes
