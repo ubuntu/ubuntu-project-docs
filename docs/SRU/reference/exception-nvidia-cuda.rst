@@ -32,7 +32,8 @@ installing files under /usr/local.
 *******************
 
 CUDA's minor versions are meant to be available and installable in parallel, and
-therefore 13.2 does not replace 13.1 in Ubuntu, but 13.2.1 will replace 13.2.0.
+therefore e.g. 13.2 does not replace 13.1 in Ubuntu. Patch versions do replace the
+corresponding existing version so e.g. 13.2.1 will replace 13.2.0.
 CUDA's minor version package sets are meant to be broadly backported to
 compatible releases that are supported, starting with 26.04. For example, when
 the currently hypothetical 14.1.0 version is released for 28.04, it will be
