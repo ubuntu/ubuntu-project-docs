@@ -601,6 +601,9 @@ $ git add src/llvm-project
 
 ```
 
+#### Lintian
+
+When you vendor LLVM, you are likely to encounter Lintian warnings related to binaries in the LLVM source directory. These files are part of the upstream LLVM test suite, and the warnings can be safely ignored.
 
 (rust-vendoring-libgit2)=
 ### Vendoring `libgit2`
