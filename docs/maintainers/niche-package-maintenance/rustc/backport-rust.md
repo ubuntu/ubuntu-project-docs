@@ -601,98 +601,11 @@ $ git add src/llvm-project
 
 ```
 
-### Outdated `libgit2-dev`
-
-A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the version `rustc` requires. If your Ubuntu release's {lpsrc}`available libgit2 version <libgit2>` doesn't meet your Rust toolchain's requirements, then you have two options:
-
-1. {ref}`Downgrade <rust-downgrading-libgit2-dev>`. This is the easier option, but it only works if the `libgit2-dev` version in the archive isn't _too_ old.
-1. {ref}`Vendor <rust-vendoring-libgit2>`. This is a much bigger change, but it's often necessary if the `libgit2-dev` version in the archive is so old that it breaks things.
-
-
-(rust-downgrading-libgit2-dev)=
-### Downgrading `libgit2-dev`
-
-It may be possible to simply downgrade the required `libgit2-dev` version to the most recent version in your target release's archive.
-
-For example, assume that the required `libgit2-dev` version is `1.9.0`, and the most recent version in the archive is `1.7.2`.
-
-
-#### Modifying `debian/control` and `debian/control.in`
-
-Simply reduce the minimum requirement to the version in the archive, and restrict the maximum to anything newer:
-
-```diff
---- a/debian/control
-+++ b/debian/control
-@@ -33,8 +33,8 @@ Build-Depends:
-  bash-completion,
-  libcurl4-gnutls-dev | libcurl4-openssl-dev,
-  libssh2-1-dev,
-- libgit2-dev (>= 1.9.0~~),
-- libgit2-dev (<< 1.10~~),
-+ libgit2-dev (>= 1.7.2~~),
-+ libgit2-dev (<< 1.8~~),
-  libhttp-parser-dev,
-  libsqlite3-dev,
- # test dependencies:
-```
-
-Don't forget to change `debian/control.in` too!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -33,8 +33,8 @@ Build-Depends:
-  bash-completion,
-  libcurl4-gnutls-dev | libcurl4-openssl-dev,
-  libssh2-1-dev,
-- libgit2-dev (>= 1.9.0~~),
-- libgit2-dev (<< 1.10~~),
-+ libgit2-dev (>= 1.7.2~~),
-+ libgit2-dev (<< 1.8~~),
-  libhttp-parser-dev,
-  libsqlite3-dev,
- # test dependencies:
-```
-
-#### Patching `libgit2-sys`
-
-The vendored `libgit2-sys` crate tries to search for the system `libgit2` C library. It's your job to point it to the right version.
-
-Create a new patch and add the `build.rs` script of your `libgit2-sys` crate:
-
-```none
-$ quilt push -a
-$ quilt new ubuntu/ubuntu-libgit2-downgrade.patch
-$ quilt add vendor/libgit2-sys-<version>/build.rs
-```
-
-Adjust the versions it searches for in `try_system_libgit2()` accordingly:
-
-```diff
---- a/vendor/libgit2-sys-<version>/build.rs
-+++ b/vendor/libgit2-sys-<version>/build.rs
-@@ -7,7 +7,7 @@
- /// Tries to use system libgit2 and emits necessary build script instructions.
- fn try_system_libgit2() -> Result<pkg_config::Library, pkg_config::Error> {
-     let mut cfg = pkg_config::Config::new();
--    match cfg.range_version("1.9.0".."1.10.0").probe("libgit2") {
-+    match cfg.range_version("1.7.2".."1.8.0").probe("libgit2") {
-         Ok(lib) => {
-             for include in &lib.include_paths {
-                 println!("cargo:root={}", include.display());
-```
-
-
-#### Testing
-
-Try to build the package and see if it works. If not, then you must vendor the `libgit2` C library included with the upstream Rust source. Undo your changes and consult {ref}`rust-vendoring-libgit2` below.
-
 
 (rust-vendoring-libgit2)=
 ### Vendoring `libgit2`
 
-If the version of `libgit2-dev` in your target Ubuntu release's archive is too old to function properly, you must vendor the `libgit2` C library instead, which is normally included in the vendored `libgit2-sys` crate.
+A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the backported version of `rustc` requires. In that case, the {lpsrc}`libgit2 C library <libgit2>` must be vendored. The `libgit2` library is already bundled in the vendored `libgit2-sys` crate but is typically stripped from the tarball during packaging; the following steps restore its source and remove the dependency on `libgit2-dev`.
 
 
 #### Re-including `libgit2` in `Files-Excluded`
