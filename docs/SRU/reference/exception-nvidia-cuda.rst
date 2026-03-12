@@ -19,8 +19,12 @@ the same schedule than NVIDIA.
 
 CUDA represents ~37 new source packages for every minor version. Minor versions
 are released on average every 3 months. Each minor version usually get one or
-two patch versions, which will be candidate for an SRU. Given the nature of
+two patch versions, which will be candidates for SRUs. Given the nature of
 CUDA, these SRUs are not compliant with the usual SRU policy.
+
+As of the time of writing, CUDA packages are under an allowed exception to install
+files under /usr/local. The exception is temporary. Any SRU request that is patching 
+a CUDA version relying on the exception is expected to keep installing files under /usr/local.
 
 .. _requesting_sru:
 
@@ -85,13 +89,12 @@ attempted manually, from a fresh installation.
 ::
 
     [Impact]
-    This release provides both bug fixes and new features and we would like to
+    This patch provides both bug fixes and we would like to
     make sure all of our users have access to these improvements.
-    The notable ones are:
 
-    *** <TODO: Create list with LP: # included >
+    The patched packages are:
 
-    See the changelog entry below for a full list of changes and bugs.
+    *** <TODO: Provide a list of updated packages, by comparing https://developer.download.nvidia.com/compute/cuda/redist/redistrib_${MAJOR}.${MINOR}.${PATCH}.json for the current and target versions  >
 
     [Test Plan]
     The following development and SRU process was followed:
