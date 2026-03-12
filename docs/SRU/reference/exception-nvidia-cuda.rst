@@ -45,7 +45,8 @@ backported to 27.10 and 26.04.
  NVIDIA CUDA Requesting the SRU
 ********************************
 
-The SRU should be done with a single process bug, instead of individual bug
+The SRU should be done with a single process bug appropriately named
+`cuda-X-Y`, instead of individual bug
 reports for individual bug fixes. The one bug should have the following:
 
 - The SRU should be requested per the :ref:`StableReleaseUpdates
