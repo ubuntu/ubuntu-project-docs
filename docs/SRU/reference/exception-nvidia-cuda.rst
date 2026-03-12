@@ -103,7 +103,7 @@ attempted manually, from a fresh installation.
 ::
 
     [Impact]
-    This patch provides both bug fixes and we would like to
+    This patch provides both bug fixes and improvements and we would like to
     make sure all of our users have access to these improvements.
 
     The patched packages are:
