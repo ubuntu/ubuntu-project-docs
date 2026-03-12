@@ -19,12 +19,24 @@ the same schedule than NVIDIA.
 
 CUDA represents ~37 new source packages for every minor version. Minor versions
 are released on average every 3 months. Each minor version usually get one or
-two patch versions, which will be candidates for SRUs. Given the nature of
-CUDA, these SRUs are not compliant with the usual SRU policy.
+two patch versions, which will be candidates for SRUs. Given the nature of CUDA,
+these SRUs are not compliant with the usual SRU policy.
 
-As of the time of writing, CUDA packages are under an allowed exception to install
-files under /usr/local. The exception is temporary. Any SRU request that is patching 
-a CUDA version relying on the exception is expected to keep installing files under /usr/local.
+As of the time of writing, CUDA packages are under an allowed exception to
+install files under /usr/local. The exception is temporary. Any SRU request that
+is patching a CUDA version relying on the exception is expected to keep
+installing files under /usr/local.
+
+*******************
+ Released versions
+*******************
+
+CUDA's minor versions are meant to be available and installable in parallel, and
+therefore 13.2 does not replace 13.1 in Ubuntu, but 13.2.1 will replace 13.2.0.
+CUDA's minor version package sets are meant to be broadly backported to
+compatible releases that are supported, starting with 26.04. For example, when
+the currently hypothetical 14.1.0 version is released for 28.04, it will be
+backported to 27.10 and 26.04.
 
 .. _requesting_sru:
 
@@ -94,7 +106,7 @@ attempted manually, from a fresh installation.
 
     The patched packages are:
 
-    *** <TODO: Provide a list of updated packages, by comparing https://developer.download.nvidia.com/compute/cuda/redist/redistrib_${MAJOR}.${MINOR}.${PATCH}.json for the current and target versions  >
+    *** <TODO: Provide a list of updated packages, by comparing https://developer.download.nvidia.com/compute/cuda/redist/redistrib_${MAJOR}.${MINOR}.${PATCH}.json for the current and target versions >
 
     [Test Plan]
     The following development and SRU process was followed:
