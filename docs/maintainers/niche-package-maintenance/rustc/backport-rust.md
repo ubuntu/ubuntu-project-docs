@@ -302,9 +302,9 @@ Since the Ubuntu Rust package doesn't typically need the vendored LLVM, we yank 
  # Fonts already in Debian, covered by d-0003-mdbook-strip-embedded-libs.patch
 ```
 
-#### Modifying `debian/control` and `debian/control.in`
+#### Modifying `debian/control`
 
-First, you'll need to remove the relevant packages from `Build-Depends` in both `debian/control` and `debian/control.in`:
+First, you'll need to remove the relevant packages from `Build-Depends` in `debian/control`:
 
 ```diff
 @@ -17,11 +17,7 @@ Build-Depends:
@@ -601,7 +601,6 @@ $ git add src/llvm-project
 
 ```
 
-
 (rust-vendoring-libgit2)=
 ### Vendoring `libgit2`
 
@@ -629,31 +628,11 @@ Comment out `libgit2` from `Files-Excluded` in `debian/copyright`, so next time 
 
 #### Removing `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends`
 
-You must also comment out `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends` in `debian/control` and `debian/control.in`. `libhttp-parser-dev` is removed because it's also included within the vendored `libgit2` source code.
+You must also comment out `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends` in `debian/control`. `libhttp-parser-dev` is removed because it's also included within the vendored `libgit2` source code.
 
 ```diff
 --- a/debian/control
 +++ b/debian/control
-@@ -33,9 +33,9 @@ Build-Depends:
-  bash-completion,
-  libcurl4-gnutls-dev | libcurl4-openssl-dev,
-  libssh2-1-dev,
-- libgit2-dev (>= 1.9.0~~),
-- libgit2-dev (<< 1.10~~),
-- libhttp-parser-dev,
-+# libgit2-dev (>= 1.9.0~~),
-+# libgit2-dev (<< 1.10~~),
-+# libhttp-parser-dev,
-  libsqlite3-dev,
- # test dependencies:
-  binutils (>= 2.26) <!nocheck> | binutils-2.26 <!nocheck>,
-```
-
-Don't forget `debian/control.in`, too!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
 @@ -33,9 +33,9 @@ Build-Depends:
   bash-completion,
   libcurl4-gnutls-dev | libcurl4-openssl-dev,
@@ -751,23 +730,6 @@ Earlier Ubuntu releases may not have access to {lpsrc}`dh-cargo` for the purpose
   cargo-1.85 | cargo-1.86 <!pkg.rustc.dlstage0>,
 ```
 
-Don't forget `debian/control.in` too!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -12,7 +12,7 @@ Rules-Requires-Root: no
- Build-Depends:
-  debhelper (>= 9),
-  debhelper-compat (= 13),
-- dh-cargo (>= 28ubuntu1~),
-+# dh-cargo (>= 28ubuntu1~),
-  dpkg-dev (>= 1.17.14),
-  python3:native,
-  cargo-@RUST_PREV_VERSION@ | cargo-@RUST_VERSION@ <!pkg.rustc.dlstage0>,
-```
-
-
 #### Removing the `Vendored-Sources-Rust` check
 
 `debian/rules` must be modified so it doesn't try to use `dh-cargo` to validate `Vendored-Sources-Rust`:
@@ -808,23 +770,6 @@ Don't forget `debian/control.in` too!
   zlib1g-dev,
 ```
 
-Don't forget to edit `debian/control.in` as well!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -23,7 +23,7 @@ Build-Depends:
-  libclang-common-19-dev (>= 1:19.1.2),
-  cmake (>= 3.0) | cmake3,
- # needed by some vendor crates
-- pkgconf,
-+ pkg-config,
- # this is sometimes needed by rustc_llvm
-  zlib1g-dev:native,
-  zlib1g-dev,
-```
-
-
 #### Editing `debian/rules`
 
 `debian/rules` must be modified so Cargo uses `pkg-config` instead of `pkgconf`:
@@ -847,7 +792,7 @@ Don't forget to edit `debian/control.in` as well!
 
 If the version of {lpsrc}`cmake` in the archive is too old, we can't just update the `cmake` version in the archive. This would change how countless other packages were built. Instead, we use {lpsrc}`cmake-mozilla`, which is updated specifically for backports to use.
 
-Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `debian/control` and `debian/control.in`:
+Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `debian/control`:
 
 ```diff
 --- a/debian/control
@@ -863,28 +808,11 @@ Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `d
  # this is sometimes needed by rustc_llvm
 ```
 
-Don't forget `debian/control.in`!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -21,7 +21,7 @@ Build-Depends:
-  llvm-19-tools:native,
-  libclang-rt-19-dev (>= 1:19.1.2),
-  libclang-common-19-dev (>= 1:19.1.2),
-- cmake (>= 3.0) | cmake3,
-+ cmake (>= 3.0) | cmake3 | cmake-mozilla (>= 3.0),
- # needed by some vendor crates
-  pkgconf,
- # this is sometimes needed by rustc_llvm
-```
-
-
 ### Outdated `debhelper-compat`
 
 [`debhelper-compat`](https://www.man7.org/linux/man-pages/man7/debhelper.7.html#COMPATIBILITY_LEVELS) serves as a way of denoting a versioned build dependency on a specific version of {manpage}`debhelper(7)`.
 
-If your target Ubuntu release doesn't have `debhelper-compat`, you can downgrade the required version in `debian/control` and `debian/control.in`, but you must adjust your packaging accordingly. These changes can often be quite significant.
+If your target Ubuntu release doesn't have `debhelper-compat`, you can downgrade the required version in `debian/control`, but you must adjust your packaging accordingly. These changes can often be quite significant.
 
 For instance, reverting to version 12 from version 13 requires using an older format of substitution variables in debian install files:
 
@@ -941,7 +869,7 @@ If you get a message similar to the following:
   For example, `libssl-dev` on Ubuntu or `openssl-devel` on Fedora.
 ```
 
-Then the error message is accurate. Add `libssl-dev` to `Build-Depends` within `debian/control` and `debian/control.in`:
+Then the error message is accurate. Add `libssl-dev` to `Build-Depends` within `debian/control`:
 
 ```diff
 @@ -29,6 +29,7 @@ Build-Depends:
