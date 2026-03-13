@@ -168,7 +168,9 @@ Shuttleworth
 sid
 SLOs
 sosreport
+spammy
 sponsoree
+SSDs
 SRUs
 Starcraft
 stacktrace
@@ -192,6 +194,7 @@ toolchains
 toolkits
 tooltip
 tooltips
+touchpad
 trackpad
 triaged
 triager
@@ -205,6 +208,7 @@ unpatched
 unpruned
 unshareable
 unstaged
+untarred
 untracked
 untriaged
 unversioned
