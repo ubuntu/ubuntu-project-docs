@@ -601,7 +601,12 @@ $ git add src/llvm-project
 
 ```
 
-(rust-vendoring-libgit2)=
+
+#### Lintian
+
+When you vendor LLVM, you are likely to encounter Lintian warnings related to binaries in the LLVM source directory. These files are part of the upstream LLVM test suite, and the warnings can be safely ignored.
+
+
 ### Vendoring `libgit2`
 
 A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the backported version of `rustc` requires. In that case, the {lpsrc}`libgit2 C library <libgit2>` must be vendored. The `libgit2` library is already bundled in the vendored `libgit2-sys` crate but is typically stripped from the tarball during packaging; the following steps restore its source and remove the dependency on `libgit2-dev`.
