@@ -1,5 +1,5 @@
 (rust-common-lintian-issues)=
-# Common `rustc` Lintian Issues
+# Common `rustc` Lintian issues
 
 The {term}`Lintian` ({manpage}`lintian(1)`) program checks your
 {term}`source package` for bugs and
@@ -17,23 +17,23 @@ This article lists common Lintian issues faced when packaging `rustc`
 and describes what to do when encountering them. There are three
 possible routes to take:
 
-1. **Fix**: Lintian issues marked as "fix" should be addressed. In these
+* **Fix**: Lintian issues marked as "fix" should be addressed. In these
    cases, Lintian has flagged a genuine issue with the package. Most
    issues not included in this article should be fixed.
 
-1. **Override**: Lintian issues marked as "override" should be
+* **Override**: Lintian issues marked as "override" should be
    overridden in `debian/source/lintian-overrides` if it's an issue
    with the {term}`source package`, or
    `debian/<PACKAGE>.lintian-overrides.in` if it's an issue with a
    {term}`binary package`. In these cases, Lintian is incorrectly
    flagging a policy violation that does not apply to the package.
 
-1. **No Action**: Lintian issues marked as "no action" should be left
+* **No Action**: Lintian issues marked as "no action" should be left
    alone and included in the Lintian report. They should _not_ be
    overridden — the crucial difference between "override" and "no 
    action" is the _legitimacy_ of the issue. Overridden Lintian issues
    are simply false positives, while "no action" Lintian issues are
-   _genuine policy violations_ which are necessary for the `rustc`
+   _genuine policy violations_ that are necessary for the `rustc`
    package to work properly.
 
 
@@ -54,9 +54,9 @@ In the `override_dh_auto_install-indep` rule of `debian/rules`, all
 references to external logos are replaced with links to the local
 copy of the logo distributed with the upstream {term}`orig tarball`.
 
-If you are seeing this error, then within that step is no longer working
-properly. Consult `debian/rules` to try and identify the reason why the
-logo replacement is no longer working properly.
+If you are seeing this error, then the logic within that step is no
+longer working properly. Consult `debian/rules` to try and identify the
+reason why the logo replacement is no longer working properly.
 
 
 ### `E: rust-<X.Y>-src: package-installs-python-pycache-dir`: **Fix**
@@ -87,7 +87,7 @@ No action can be taken here; the lint is accurate.
 `XS-Vendored-Sources-Rust` is a special field specific to Rust packages
 with {term}`vendored dependencies <vendored dependency>`. It lists the
 vendored dependencies of the given Rust package. Since `rustc` has many
-dependencies, this field will always be very large.
+dependencies, this field is always very large.
 
 
 ### `W: rustc-<X.Y> source: file-without-copyright-information`: **Fix**
@@ -96,8 +96,8 @@ Considering the complexity of the Rust toolchain package, it's normal
 for new files without copyright information to be added to the source.
 Consult the
 "{ref}`updating debian/copyright <updating-rust-updating-debian-copyright>`"
-section of the "Updating Rust" article to handle new vendored dependency
-copyright stanzas.
+section of the {ref}`how-to-update-rust` article to handle new vendored
+dependency copyright stanzas.
 
 If the file without copyright information *isn't* in the `vendor/`
 directory, then it can be added to the first copyright stanza in
@@ -112,7 +112,7 @@ when there is a very long line length within the source file.
 
 If any `.min.js` files are triggering this error, then Lintian is
 erroneously tagging them as missing because minimized JS files consist
-of just a single line. This means that they will almost invariably be
+of just a single line. This means that they are almost invariably
 extremely long single lines.
 
 It is necessary to override this Lintian warning for such files, as we
@@ -129,8 +129,8 @@ rustc-1.93 source: source-is-missing [*.min.js]
 
 Lintian is correctly identifying `Vendored-Sources-Rust` as an
 unrecognized field. This is to be expected, as `Vendored-Sources-Rust`
-an unofficial "hack" for expressing the list of vendored dependencies,
-and it is not an actual Debian control file field.
+is an unofficial "hack" for expressing the list of vendored
+dependencies, and it is not an actual Debian control file field.
 
 
 ### `E: rustc-<X.Y> source: version-substvar-for-external-package Depends ${binary:Version} cargo-<X.Y> -> rustc`: **Fix**
