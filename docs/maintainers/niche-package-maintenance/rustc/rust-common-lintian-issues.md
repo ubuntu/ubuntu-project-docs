@@ -105,26 +105,6 @@ directory, then it can be added to the first copyright stanza in
 toolchain itself.
 
 
-### `E: rustc-<X.Y> source: source-is-missing [*.min.js]`: **Override**
-
-This error triggers not only when the source is indeed missing, but also
-when there is a very long line length within the source file.
-
-If any `.min.js` files are triggering this error, then Lintian is
-erroneously tagging them as missing because minimized JS files consist
-of just a single line. This means that they are almost invariably
-extremely long single lines.
-
-It is necessary to override this Lintian warning for such files, as we
-know that the files are indeed present. Include the following lines in
-`debian/source/lintian-overrides`:
-
-```none
-# The naturally long lines of minimized JS files trigger
-# very-long-line-length-in-source-file, which triggers source-is-missing
-rustc-1.93 source: source-is-missing [*.min.js]
-```
-
 ### `W: rustc-<X.Y> source: unknown-field Vendored-Sources-Rust`: **No Action**
 
 Lintian is correctly identifying `Vendored-Sources-Rust` as an
