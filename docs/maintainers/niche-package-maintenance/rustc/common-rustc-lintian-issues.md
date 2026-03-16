@@ -1,4 +1,4 @@
-(rust-common-lintian-issues)=
+(common-rustc-lintian-issues)=
 # Common `rustc` Lintian issues
 
 The {term}`Lintian` ({manpage}`lintian(1)`) program checks your
