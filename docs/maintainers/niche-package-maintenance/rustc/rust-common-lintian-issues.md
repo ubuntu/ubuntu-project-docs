@@ -44,6 +44,25 @@ arise and a course of action is decided, then those issues should be
 added to this list.
 
 
+### `E: rustc-<X.Y> source: field-too-long Vendored-Sources-Rust`:  **No Action**
+
+No action can be taken here; the lint is accurate.
+`XS-Vendored-Sources-Rust` is a special field specific to Rust packages
+with {term}`vendored dependencies <vendored dependency>`. It lists the
+vendored dependencies of the given Rust package. Since `rustc` has many
+dependencies, this field is always very large.
+
+
+### `E: rust-<X.Y>-src: package-installs-python-pycache-dir`: **Fix**
+
+This error is triggered by compiled Python source files accidentally
+being shipped in the `rustc` source code package. This should be
+remedied.
+
+In `debian/rules`, there is a variable called `SRC_CLEAN` that should
+look similar to the following:
+
+
 ### `E: rust-<X.Y>-doc: privacy-breach-logo`: **Fix**
 
 The upstream Rust documentation tries to fetch the Rust logo from an
@@ -58,16 +77,6 @@ If you are seeing this error, then the logic within that step is no
 longer working properly. Consult `debian/rules` to try and identify the
 reason why the logo replacement is no longer working properly.
 
-
-### `E: rust-<X.Y>-src: package-installs-python-pycache-dir`: **Fix**
-
-This error is triggered by compiled Python source files accidentally
-being shipped in the `rustc` source code package. This should be
-remedied.
-
-In `debian/rules`, there is a variable called `SRC_CLEAN` that should
-look similar to the following:
-
 ```make
 # Build products or non-source files in src/, that shouldn't go in rust-src
 SRC_CLEAN = src/bootstrap/bootstrap.pyc \
@@ -81,13 +90,17 @@ Check that section to ensure that the removals point to the correct file
 paths.
 
 
-### `E: rustc-<X.Y> source: field-too-long Vendored-Sources-Rust`:  **No Action**
+### `E: rustc-<X.Y> source: version-substvar-for-external-package Depends ${binary:Version} cargo-<X.Y> -> rustc`: **Fix**
 
-No action can be taken here; the lint is accurate.
-`XS-Vendored-Sources-Rust` is a special field specific to Rust packages
-with {term}`vendored dependencies <vendored dependency>`. It lists the
-vendored dependencies of the given Rust package. Since `rustc` has many
-dependencies, this field is always very large.
+Since the `rustc` binary package is now built by `rust-defaults`, it's
+an external package and triggers the error.
+
+This dependency is an artifact of the transition from a non-versioned
+source package (`rustc`) to (`rustc-X.Y`). The intent of this
+dependency was to provide a non-versioned alternative if the
+versioned dependency wasn't available. Since non-versioned `rustc` has
+been deprecated for some time now, this dependency can safely be
+removed.
 
 
 ### `W: rustc-<X.Y> source: file-without-copyright-information`: **Fix**
@@ -111,16 +124,3 @@ Lintian is correctly identifying `Vendored-Sources-Rust` as an
 unrecognized field. This is to be expected, as `Vendored-Sources-Rust`
 is an unofficial "hack" for expressing the list of vendored
 dependencies, and it is not an actual Debian control file field.
-
-
-### `E: rustc-<X.Y> source: version-substvar-for-external-package Depends ${binary:Version} cargo-<X.Y> -> rustc`: **Fix**
-
-Since the `rustc` binary package is now built by `rust-defaults`, it's
-an external package and triggers the error.
-
-This dependency is an artifact of the transition from a non-versioned
-source package (`rustc`) to (`rustc-X.Y`). The intent of this
-dependency was to provide a non-versioned alternative if the
-versioned dependency wasn't available. Since non-versioned `rustc` has
-been deprecated for some time now, this dependency can safely be
-removed.
