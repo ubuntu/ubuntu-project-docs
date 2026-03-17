@@ -1,4 +1,5 @@
 # Leave a blank line at the end of this file to support concatenation
+ABIs
 Ayatana
 allowlist
 apport
@@ -69,11 +70,14 @@ Eoan
 Ewan
 exfiltration
 fakesync
+Fortran
 Fosstodon
 github
 Gobuntu
 GPLs
+GPUs
 Greasemonkey
+groff
 Guiver
 gvfs
 homeserver
@@ -164,7 +168,9 @@ Shuttleworth
 sid
 SLOs
 sosreport
+spammy
 sponsoree
+SSDs
 SRUs
 Starcraft
 stacktrace
@@ -172,6 +178,7 @@ subcommands
 subiquity
 subkey
 subkeys
+subprojects
 supercomputing
 sysroot
 systemd
@@ -187,6 +194,7 @@ toolchains
 toolkits
 tooltip
 tooltips
+touchpad
 trackpad
 triaged
 triager
@@ -200,8 +208,11 @@ unpatched
 unpruned
 unshareable
 unstaged
+untarred
 untracked
 untriaged
+unversioned
+unwinder
 update_excuses
 upgradability
 uploader
@@ -215,6 +226,7 @@ Utopic
 vCPUs
 vendored
 vendoring
+Vulkan
 walkthroughs
 webops
 wishlist
