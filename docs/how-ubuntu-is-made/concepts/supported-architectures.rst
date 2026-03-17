@@ -67,12 +67,16 @@ For each architecture above, there is a *baseline* which is the oldest or least 
         Ubuntu 22.04 and newer assume POWER9 or newer.
     * - ``s390x``
       - Ubuntu 16.04 through 19.10 assumed zEC12 or newer.
+    * -
       - Ubuntu 20.04 thought 25.10 assumed z13 or newer.
-        Ubuntu 26.04 and newer assume z15.
+    * -
+      - Ubuntu 26.04 and newer assume z15.
     * - ``riscv64``
       - RISC-V (64-bit)
+    * -
       - Ubuntu 20.04 through 25.04 assumed the RVA20 profile.
-        Ubuntu 25.10 and newer assume the RVA23 profile.
+    * -
+      - Ubuntu 25.10 and newer assume the RVA23 profile.
 
 Architecture variants
 ---------------------
