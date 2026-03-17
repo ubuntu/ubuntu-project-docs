@@ -6,7 +6,7 @@ block-beta
     AdvancedStudies("Advanced studies")
     columns 1
     space:3
-    StudyFFE{{"<a href=https://documentation.ubuntu.com/project/release-team/freeze-exceptions/>Study FFE</a>"}}
+    StudyFFe{{"<a href=https://documentation.ubuntu.com/project/release-team/freeze-exceptions/>Study FFe</a>"}}
     PlusOne{{"<a href=https://documentation.ubuntu.com/project/contributors/advanced/plus-one-maintenance/>Study +1</a>"}}
   end
 
@@ -16,7 +16,7 @@ block-beta
     UpstreamSubmissionFixes["Upstream submission fixes/features"]
     UpstreamSubmissionDelta["Upstream submission of delta"]
     MilestonesAndExceptions["Milestones and exceptions"]
-    DoAnFFE["Do An FFE"]
+    DoAnFFe["Do An FFe"]
     PlusOneShadowing["+1 Shadowing"]
   end
 
@@ -25,13 +25,13 @@ block-beta
     space
     PPU["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-ppu/'>PPU*</a>"]
     space
-    PackageSet["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-packageset/'>Package Set</a>"]
+    PackageSet["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-packageset/'>Packageset</a>"]
     space:8
   end
 
   AdvancedTasks --> PPU
   AdvancedTasks --> PackageSet
-  StudyFFE --> DoAnFFE
+  StudyFFe --> DoAnFFe
   PlusOne --> PlusOneShadowing
 
   classDef Studies fill: #FFDAB9, stroke:#F4A460;

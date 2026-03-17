@@ -49,11 +49,8 @@ The Bug Squad is always in NEED of more help from the community!
 
 ## Contact the squad
 
-* Matrix: `#ubuntu-devel` channel to contact Ubuntu Bug Squad members for help or
+* {matrix}`ubuntu-devel` Matrix channel to contact Ubuntu Bug Squad members for help or
   collaboration.
-
-* Mailing List: subscribe to [`ubuntu-bugsquad`](https://lists.ubuntu.com/mailman/listinfo/ubuntu-bugsquad)
-  to contact us if you have any doubt while triaging a bug. 
 
 
 ## Want to join?

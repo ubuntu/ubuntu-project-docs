@@ -20,7 +20,7 @@ $ sbuild -Ad <release>
 
 #### Using another PPA to bootstrap
 
-Not all `rustc` releases are necessarily in the archive. Perhaps you're waiting on a previous version to be upload, or you're creating a backport which isn't needed by the subsequent Ubuntu release.
+Not all `rustc` releases are necessarily in the archive. Perhaps you're waiting on a previous version to be uploaded, or you're creating a backport which isn't needed by the subsequent Ubuntu release.
 
 If this applies to you, you must add your PPA as an extra repository to your `sbuild` command:
 

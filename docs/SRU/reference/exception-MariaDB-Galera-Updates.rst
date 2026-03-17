@@ -27,7 +27,7 @@ infrastructure stack, providing database functionality for numerous applications
 and services. For the past decade, Debian releases have shipped MariaDB instead
 of MySQL.
 
-.. _upstream_release_policy:
+.. _mariadb_upstream_release_policy:
 
 Upstream release policy
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -43,7 +43,7 @@ to the MariaDB releases they support:
 * 25.3, 26.4: Long-term supported new major releases
 * 25.3.34, 25.3.27, 26.4.20: Minor maintenance releases with only critical bug fixes and security fixes
 
-.. _ubuntu_releases_affected:
+.. _mariadb_ubuntu_releases_affected:
 
 Ubuntu releases affected by this exception
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -80,7 +80,7 @@ related to specific edge cases and were quickly addressed in subsequent updates.
 * https://launchpad.net/ubuntu/+source/galera-4/+publishinghistory
 * https://launchpad.net/ubuntu/+source/galera-3/+publishinghistory
 
-.. _quality_assurance:
+.. _mariadb_quality_assurance:
 
 Quality assurance
 -----------------
@@ -142,7 +142,7 @@ However, it was not recorded later when
 https://wiki.ubuntu.com/StableReleaseUpdates#Documentation_for_Special_Cases was
 created.
 
-.. _security_uploads:
+.. _mariadb_security_uploads:
 
 Security uploads
 ^^^^^^^^^^^^^^^^
@@ -166,7 +166,7 @@ stable releases made that do not fix any CVEs and so do not need to go to
 ``-security``. This documentation is to clarify the process for those releases;
 stable releases which fix CVEs will go to ``-security`` as normal.
 
-.. _process:
+.. _mariadb_process:
 
 Process
 -------
@@ -189,7 +189,7 @@ To do this we will:
 
 5. Watch the migration page until it lands in the -updates pocket. Fix any regression that might appear during the process.
 
-.. _sru_template:
+.. _mariadb_sru_template:
 
 SRU template
 ^^^^^^^^^^^^

@@ -75,9 +75,9 @@ there is already a bug related to the exception, you can reuse the bug), e.g.
 
 Your bug contents need to include the following:
 
-* Add `[FFE]` to the bug summary (large title).
+* Add `FFe:` to the bug summary (large title).
 
-* Add an FFE stanza to the description starting with `## FFE ##`.
+* Add an FFe stanza to the description starting with `## FFe ##`.
 
 * **State the reason why you feel it is necessary** (e.g. other bugs it fixes).
 
