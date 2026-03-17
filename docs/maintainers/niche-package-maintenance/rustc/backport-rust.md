@@ -85,8 +85,6 @@ For example, if you were backporting `rustc-1.82` to Jammy...
 
 `<lpuser>` refers to your Launchpad username.
 
-`<N>` is the suffix for `~bpo` in the {ref}`changelog version number <rust-version-strings>` and signals which crucial Rust dependencies (if any) were re-included in the source tarball.
-
 `<lp_bug_number>` refers to the bug number on Launchpad requesting this backport (if applicable).
 
 ```{include} common/local-repo-setup.md
@@ -144,16 +142,14 @@ $ dch
  This adds a new entry to the changelog and opens an editor allowing you to modify it:
 
 - Change `UNRELEASED` to the Ubuntu series you are backporting to, using its short name, e.g. `jammy`. 
-- Update the version string to reference the series you are backporting to, using its numeric value, e.g. `22.04`, and reset any revision number at the end of the version string.
-
-You can leave the part of the version string before the first hyphen unchanged for now, as this refers to the version of the orig tarballs, which you haven't yet changed.
+- Update the version string to reference the series you are backporting to, using its numeric value, e.g. `22.04`, and reset any revision number after the existing series numbers. Note that the series number occurs twice in backport version strings: once in the orig tarball part and once in the Ubuntu component, both of which need to be updated.
 
 **Examples:**
 
 | Existing release | Backport | `<existing_version_number>` | New version number |
 | --- | --- | --- | --- |
-| 1.93 Devel | 1.93 Noble | `1.93.0+dfsg-0ubuntu1` | `1.93.0+dfsg-0ubuntu1.24.04` |
-| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg~24.04.1-0ubuntu0.24.04.2 ` | `1.89.0+dfsg~24.04.1-0ubuntu0.22.04` |
+| 1.93 Devel | 1.93 Noble | `1.93.0+dfsg-0ubuntu1` | `1.93.0+dfsg~24.04-0ubuntu1~24.04.1` |
+| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg2~24.04.1-0ubuntu3~24.04.2 ` | `1.89.0+dfsg2~22.04-0ubuntu3~22.04.1` |
 
 Make the initial changelog entry description something like this:
 
@@ -182,23 +178,89 @@ The part with the Launchpad bug number is optional but should be included if an 
 
 ```
 
+### Disabling autopkgtest self-build test
+
+The `rustc` autopkgtest suite includes a test that runs the package build process using the just-packaged Rust compiler. The purpose of this test is to ensure that the new Rust toolchain can successfully build itself, so that it will be usable to bootstrap future Rust versions. However, this test is resource-intensive and may strain the `autopkgtest` infrastructure, resulting in a high likelihood of timeouts, particularly in the case of backports that vendor LLVM. Therefore, it is recommended to disable it by removing the relevant lines from `debian/tests/control`:
+
+```diff
+--- a/debian/tests/control
++++ b/debian/tests/control
+@@ -1,7 +1,3 @@
+-Test-Command: ./debian/rules build RUST_TEST_SELFBUILD=1
+-Depends: @, @builddeps@
+-Restrictions: rw-build-tree, allow-stderr
+```
+
+Even in the absence of this test, the build process already includes a self-build step as part of the [Rust compiler bootstrapping process](https://rustc-dev-guide.rust-lang.org/building/bootstrapping/what-bootstrapping-does.html): the previous Rust compiler is used to build a "stage1" new Rust compiler, which is then used to build the "stage2" compiler that is being packaged. For backports this is generally sufficient. The ability of the new packaged toolchain to build the next Rust version can be verified directly when the next Rust version is backported. If this verification is needed immediately, and the next Rust version is not yet available, it can be done with a {ref}`Launchpad self-build <launchpad-self-build-optional>`.
+
 (rust-ppa-build)=
 ```{include} common/ppa-build.md
 
 ```
 
 
-### Uploading the backport
+### Uploading the backport to the staging PPA
 
-Once your backport builds successfully in a PPA for all targets, bump the `<release_number>` to its proper number and re-upload to your PPA once more.
+Once your backport builds successfully in an individual PPA, bump the `<release_number>` to its proper number (dropping any `~ppa<N>` suffix) and upload to the [staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/):
 
-After it builds, reach out to the Security team and politely request they upload your backport. Make sure you include the following:
+```none
+$ dput ppa:rust-toolchain/staging <path_to_source_changes>
+```
+
+:::{admonition} Skipping personal PPA upload
+It is also possible to upload directly the staging PPA without first uploading to a personal PPA, in which case the proper version number can also be used from the beginning (skipping the step of uploading with a `~ppa<N>` suffix). This can save time by avoiding the need to rebuild the package a second time. The main drawback is that if the build fails, that version number is now "used up" in the staging PPA, so it would be required to bump the version number before uploading again.
+
+This can lead to gaps in the version numbers that are uploaded to the Archive. For backports, this is considered acceptable and can be a worthwhile trade-off to avoid wasting time and resources on duplicate builds (particularly while `riscv64` is running using emulation, which makes builds take a very long time). It is only required that the version numbers increase monotonically, not that they be sequential.
+:::
+
+
+### Autopkgtests
+
+After the package builds successfully in the staging PPA, the next step is to ensure that it passes all of its `autopkgtest` tests (with the exception of the self-build test, which is disabled). This is an essential step before requesting upload to the Archive, as it gives confidence that the backport is functioning properly. If the backport fails any `autopkgtest` tests, then these must be fixed before proceeding with the upload request.
+
+To trigger `autopkgtest` tests, run the following command:
+
+```none
+ppa tests ppa:rust-toolchain/staging -p rustc-<X.Y> --release <release> --show-url
+```
+
+For example, for `rustc-1.89` on Noble, the command would be:
+
+```none
+ppa tests ppa:rust-toolchain/staging -p rustc-1.89 --release noble --show-url
+```
+
+This command outputs a series of URLs that can be used to trigger an `autopkgtest` run for each architecture. The tests run remotely on the `autopkgtest` infrastructure. Monitor the progress and results of these tests by running the same command again after a few minutes. If any tests fail, the output includes a link to the logs for troubleshooting the failures. See {ref}`how-to-run-package-tests` for more details and options on how to run `autopkgtest` tests; for example, it is possible to run tests locally, which can be helpful when developing a new test or investigating a failure.
+
+(launchpad-self-build-optional)=
+### Launchpad self-build (optional)
+
+If you need to perform a self-build on Launchpad, set up a new PPA and upload the package there after modifying the {file}`debian/control` file to depend exclusively on the same version of the Rust toolchain (rather than the previous version). For example, if testing whether the newly packaged {pkg}`rustc-1.91` can build itself, `Build-Depends` can be modified as follows:
+
+```diff
+@@ -15,8 +15,8 @@ Build-Depends:
+  dh-cargo (>= 28ubuntu1~),
+  dpkg-dev (>= 1.17.14),
+  python3:native,
+- cargo-1.90 | cargo-1.91 <!pkg.rustc.dlstage0>,
+- rustc-1.90 | rustc-1.91 <!pkg.rustc.dlstage0>,
++ cargo-1.91 <!pkg.rustc.dlstage0>,
++ rustc-1.91 <!pkg.rustc.dlstage0>,
+```
+
+This assumes that {pkg}`rustc-1.91` has already built successfully in the Staging PPA, and that the new PPA has been set up to include dependencies on the Staging PPA. Compared to running the self-build test on the `autopkgtest` infrastructure, the Launchpad builders have more resources available, making them less likely to time out or run out of memory.
+
+### Uploading the backport to the Archive (optional)
+
+After the backport successfully builds in the staging PPA and has passed `autopkgtests`, then you may reach out to the Security team to request upload. This step is only needed if there is a specific reason that the backport is needed in the Archive; otherwise, it is sufficient to have the backport available in the staging PPA for bootstrapping future Rust versions.
+
+When reaching out to the Security team, make sure to include the following in your request:
 
 - A link to the bug report
-- A link to the PPA
+- A link to the staging PPA
+- The package name and version number
 
-You can monitor upload progress in the [Security Proposed PPA](https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+packages?field.name_filter=rustc&field.status_filter=&field.series_filter=).
-
+You can monitor upload progress in the [Security Proposed PPA](https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+packages?field.name_filter=rustc&field.status_filter=&field.series_filter=), if the Security team decides to upload the package there (e.g. in case any changes are needed as part of the sponsorship process). Alternatively, the Security team might copy the package directly to the Ubuntu Archive, in which case it becomes visible on the Launchpad page for the package.
 
 (rust-common-backporting-changes)=
 ## Common backporting changes
@@ -240,9 +302,9 @@ Since the Ubuntu Rust package doesn't typically need the vendored LLVM, we yank 
  # Fonts already in Debian, covered by d-0003-mdbook-strip-embedded-libs.patch
 ```
 
-#### Modifying `debian/control` and `debian/control.in`
+#### Modifying `debian/control`
 
-First, you'll need to remove the relevant packages from `Build-Depends` in both `debian/control` and `debian/control.in`:
+First, you'll need to remove the relevant packages from `Build-Depends` in `debian/control`:
 
 ```diff
 @@ -17,11 +17,7 @@ Build-Depends:
@@ -518,15 +580,13 @@ We also need to re-include the LLVM copyright stanza in `debian/copyright`:
 
 #### Re-including the LLVM source
 
-Update the {ref}`changelog version number <rust-version-strings>` accordingly. Your version number should now contain either `~bpo0` or `~bpo2` depending on the status of `libgit2`.
-
 You can now {ref}`regenerate the orig tarball <rust-version-strings>`, which should now include the upstream LLVM source in `src/llvm-project`.
 
 After regenerating the orig tarball, get all the new LLVM files and overlay them on your working directory:
 
 ```none
 $ cd ..
-$ tar -xf rustc-<X.Y>_<X.Y.Z>+dfsg0ubuntu1\~bpo<N>.orig.tar.xz
+$ tar -xf rustc-<X.Y>_<X.Y.Z>+dfsg~<series>.orig.tar.xz
 $ cp -ra rustc-<X.Y.Z>-src/src/llvm-project rustc/src
 $ cd -
 ```
@@ -541,98 +601,15 @@ $ git add src/llvm-project
 
 ```
 
-### Outdated `libgit2-dev`
 
-A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the version `rustc` requires. If your Ubuntu release's {lpsrc}`available libgit2 version <libgit2>` doesn't meet your Rust toolchain's requirements, then you have two options:
+#### Lintian
 
-1. {ref}`Downgrade <rust-downgrading-libgit2-dev>`. This is the easier option, but it only works if the `libgit2-dev` version in the archive isn't _too_ old.
-1. {ref}`Vendor <rust-vendoring-libgit2>`. This is a much bigger change, but it's often necessary if the `libgit2-dev` version in the archive is so old that it breaks things.
-
-
-(rust-downgrading-libgit2-dev)=
-### Downgrading `libgit2-dev`
-
-It may be possible to simply downgrade the required `libgit2-dev` version to the most recent version in your target release's archive.
-
-For example, assume that the required `libgit2-dev` version is `1.9.0`, and the most recent version in the archive is `1.7.2`.
-
-
-#### Modifying `debian/control` and `debian/control.in`
-
-Simply reduce the minimum requirement to the version in the archive, and restrict the maximum to anything newer:
-
-```diff
---- a/debian/control
-+++ b/debian/control
-@@ -33,8 +33,8 @@ Build-Depends:
-  bash-completion,
-  libcurl4-gnutls-dev | libcurl4-openssl-dev,
-  libssh2-1-dev,
-- libgit2-dev (>= 1.9.0~~),
-- libgit2-dev (<< 1.10~~),
-+ libgit2-dev (>= 1.7.2~~),
-+ libgit2-dev (<< 1.8~~),
-  libhttp-parser-dev,
-  libsqlite3-dev,
- # test dependencies:
-```
-
-Don't forget to change `debian/control.in` too!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -33,8 +33,8 @@ Build-Depends:
-  bash-completion,
-  libcurl4-gnutls-dev | libcurl4-openssl-dev,
-  libssh2-1-dev,
-- libgit2-dev (>= 1.9.0~~),
-- libgit2-dev (<< 1.10~~),
-+ libgit2-dev (>= 1.7.2~~),
-+ libgit2-dev (<< 1.8~~),
-  libhttp-parser-dev,
-  libsqlite3-dev,
- # test dependencies:
-```
-
-#### Patching `libgit2-sys`
-
-The vendored `libgit2-sys` crate tries to search for the system `libgit2` C library. It's your job to point it to the right version.
-
-Create a new patch and add the `build.rs` script of your `libgit2-sys` crate:
-
-```none
-$ quilt push -a
-$ quilt new ubuntu/ubuntu-libgit2-downgrade.patch
-$ quilt add vendor/libgit2-sys-<version>/build.rs
-```
-
-Adjust the versions it searches for in `try_system_libgit2()` accordingly:
-
-```diff
---- a/vendor/libgit2-sys-<version>/build.rs
-+++ b/vendor/libgit2-sys-<version>/build.rs
-@@ -7,7 +7,7 @@
- /// Tries to use system libgit2 and emits necessary build script instructions.
- fn try_system_libgit2() -> Result<pkg_config::Library, pkg_config::Error> {
-     let mut cfg = pkg_config::Config::new();
--    match cfg.range_version("1.9.0".."1.10.0").probe("libgit2") {
-+    match cfg.range_version("1.7.2".."1.8.0").probe("libgit2") {
-         Ok(lib) => {
-             for include in &lib.include_paths {
-                 println!("cargo:root={}", include.display());
-```
-
-
-#### Testing
-
-Try to build the package and see if it works. If not, then you must vendor the `libgit2` C library included with the upstream Rust source. Undo your changes and consult {ref}`rust-vendoring-libgit2` below.
-
+When you vendor LLVM, you are likely to encounter Lintian warnings related to binaries in the LLVM source directory. These files are part of the upstream LLVM test suite, and the warnings can be safely ignored.
 
 (rust-vendoring-libgit2)=
 ### Vendoring `libgit2`
 
-If the version of `libgit2-dev` in your target Ubuntu release's archive is too old to function properly, you must vendor the `libgit2` C library instead, which is normally included in the vendored `libgit2-sys` crate.
+A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the backported version of `rustc` requires. In that case, the {lpsrc}`libgit2 C library <libgit2>` must be vendored. The `libgit2` library is already bundled in the vendored `libgit2-sys` crate but is typically stripped from the tarball during packaging; the following steps restore its source and remove the dependency on `libgit2-dev`.
 
 
 #### Re-including `libgit2` in `Files-Excluded`
@@ -656,31 +633,11 @@ Comment out `libgit2` from `Files-Excluded` in `debian/copyright`, so next time 
 
 #### Removing `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends`
 
-You must also comment out `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends` in `debian/control` and `debian/control.in`. `libhttp-parser-dev` is removed because it's also included within the vendored `libgit2` source code.
+You must also comment out `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends` in `debian/control`. `libhttp-parser-dev` is removed because it's also included within the vendored `libgit2` source code.
 
 ```diff
 --- a/debian/control
 +++ b/debian/control
-@@ -33,9 +33,9 @@ Build-Depends:
-  bash-completion,
-  libcurl4-gnutls-dev | libcurl4-openssl-dev,
-  libssh2-1-dev,
-- libgit2-dev (>= 1.9.0~~),
-- libgit2-dev (<< 1.10~~),
-- libhttp-parser-dev,
-+# libgit2-dev (>= 1.9.0~~),
-+# libgit2-dev (<< 1.10~~),
-+# libhttp-parser-dev,
-  libsqlite3-dev,
- # test dependencies:
-  binutils (>= 2.26) <!nocheck> | binutils-2.26 <!nocheck>,
-```
-
-Don't forget `debian/control.in`, too!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
 @@ -33,9 +33,9 @@ Build-Depends:
   bash-completion,
   libcurl4-gnutls-dev | libcurl4-openssl-dev,
@@ -736,15 +693,13 @@ When you refresh the patch and pop everything off again, the patch diff should l
 
 #### Re-including the `libgit2` source
 
-Update the {ref}`changelog version number <rust-version-strings>` accordingly. Your version number should now contain either `~bpo0` or `~bpo10`, depending on the status of LLVM.
-
 You can now {ref}`regenerate the orig tarball <rust-generating-the-orig-tarball>`, which should now include the upstream `libgit2` source in `vendor/libgit2-sys-<version>/libgit2`.
 
 After regenerating the orig tarball, get all the new `libgit2` files and overlay them on your working directory:
 
 ```none
 $ cd ..
-$ tar -xf rustc-<X.Y>_<X.Y.Z>+dfsg0ubuntu1\~bpo<N>.orig.tar.xz
+$ tar -xf rustc-<X.Y>_<X.Y.Z>+dfsg~<series>.orig.tar.xz
 $ cp -ra rustc-<X.Y.Z>-src/vendor/libgit2-sys-<version>/libgit2 rustc/vendor/libgit2-sys-<version>/
 $ cd -
 ```
@@ -779,23 +734,6 @@ Earlier Ubuntu releases may not have access to {lpsrc}`dh-cargo` for the purpose
   python3:native,
   cargo-1.85 | cargo-1.86 <!pkg.rustc.dlstage0>,
 ```
-
-Don't forget `debian/control.in` too!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -12,7 +12,7 @@ Rules-Requires-Root: no
- Build-Depends:
-  debhelper (>= 9),
-  debhelper-compat (= 13),
-- dh-cargo (>= 28ubuntu1~),
-+# dh-cargo (>= 28ubuntu1~),
-  dpkg-dev (>= 1.17.14),
-  python3:native,
-  cargo-@RUST_PREV_VERSION@ | cargo-@RUST_VERSION@ <!pkg.rustc.dlstage0>,
-```
-
 
 #### Removing the `Vendored-Sources-Rust` check
 
@@ -837,23 +775,6 @@ Don't forget `debian/control.in` too!
   zlib1g-dev,
 ```
 
-Don't forget to edit `debian/control.in` as well!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -23,7 +23,7 @@ Build-Depends:
-  libclang-common-19-dev (>= 1:19.1.2),
-  cmake (>= 3.0) | cmake3,
- # needed by some vendor crates
-- pkgconf,
-+ pkg-config,
- # this is sometimes needed by rustc_llvm
-  zlib1g-dev:native,
-  zlib1g-dev,
-```
-
-
 #### Editing `debian/rules`
 
 `debian/rules` must be modified so Cargo uses `pkg-config` instead of `pkgconf`:
@@ -876,7 +797,7 @@ Don't forget to edit `debian/control.in` as well!
 
 If the version of {lpsrc}`cmake` in the archive is too old, we can't just update the `cmake` version in the archive. This would change how countless other packages were built. Instead, we use {lpsrc}`cmake-mozilla`, which is updated specifically for backports to use.
 
-Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `debian/control` and `debian/control.in`:
+Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `debian/control`:
 
 ```diff
 --- a/debian/control
@@ -892,28 +813,11 @@ Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `d
  # this is sometimes needed by rustc_llvm
 ```
 
-Don't forget `debian/control.in`!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -21,7 +21,7 @@ Build-Depends:
-  llvm-19-tools:native,
-  libclang-rt-19-dev (>= 1:19.1.2),
-  libclang-common-19-dev (>= 1:19.1.2),
-- cmake (>= 3.0) | cmake3,
-+ cmake (>= 3.0) | cmake3 | cmake-mozilla (>= 3.0),
- # needed by some vendor crates
-  pkgconf,
- # this is sometimes needed by rustc_llvm
-```
-
-
 ### Outdated `debhelper-compat`
 
 [`debhelper-compat`](https://www.man7.org/linux/man-pages/man7/debhelper.7.html#COMPATIBILITY_LEVELS) serves as a way of denoting a versioned build dependency on a specific version of {manpage}`debhelper(7)`.
 
-If your target Ubuntu release doesn't have `debhelper-compat`, you can downgrade the required version in `debian/control` and `debian/control.in`, but you must adjust your packaging accordingly. These changes can often be quite significant.
+If your target Ubuntu release doesn't have `debhelper-compat`, you can downgrade the required version in `debian/control`, but you must adjust your packaging accordingly. These changes can often be quite significant.
 
 For instance, reverting to version 12 from version 13 requires using an older format of substitution variables in debian install files:
 
@@ -970,7 +874,7 @@ If you get a message similar to the following:
   For example, `libssl-dev` on Ubuntu or `openssl-devel` on Fedora.
 ```
 
-Then the error message is accurate. Add `libssl-dev` to `Build-Depends` within `debian/control` and `debian/control.in`:
+Then the error message is accurate. Add `libssl-dev` to `Build-Depends` within `debian/control`:
 
 ```diff
 @@ -29,6 +29,7 @@ Build-Depends:

@@ -405,11 +405,6 @@ if os.path.exists("./reuse/substitutions.yaml"):
 
 intersphinx_mapping = {
     "ubuntu-server": ("https://documentation.ubuntu.com/server/", None),
-    "pkg-guide": (
-        "https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/"
-        "en/2.0-preview/",
-        None,
-    ),
     "starter-pack": (
         "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
         None,

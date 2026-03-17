@@ -1,0 +1,20 @@
+:::{mermaid}
+flowchart LR
+    BugReport["<a href='#lc-bug-report-and-triage'>Bug Report<br/>&amp; Triage</a>"]
+    PrepareTest["<a href='#lc-prepare-fix'>Prepare<br/>&amp; Test</a>"]
+    Review["<a href='#lc-review'>Propose<br/>&amp; Review</a>"]
+    Upload["<a href='#lc-upload'>Sponsorship<br/>or Upload</a>"]
+    Migration["<a href='#lc-proposed-migration'>Proposed<br/>Migration</a>"]
+    SRU["<a href='#lc-sru'>Stable Release<br/>Update (SRU)</a>"]
+
+    BugReport --> PrepareTest
+    PrepareTest --> Review
+    Review --> Upload
+    Upload --> Migration
+    Upload -.-> |"active release"| SRU
+    SRU --> Migration
+
+    classDef ubuntuStyle fill:#FFDAB9,stroke:#E95420,stroke-width:2px
+    class BugReport,PrepareTest,Review,Migration,Upload,SRU ubuntuStyle
+:::
+

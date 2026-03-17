@@ -43,6 +43,20 @@ this page for the sake of the SRU team member doing the review!).
 are fixing any CVEs, we should sync with the security team and perform
 the uploads through the security pocket instead.**
 
+Starting with Ubuntu 25.10 (Questing Quokka), two new packages are included in
+this stack and are covered by this exception: `containerd-stable` and
+`runc-stable`. These two packages were created to provide stability for
+user deployments when that is preferred over receiving the latest upstream
+features for the software shipped in those packages.
+
+Although `containerd-stable` and `runc-stable` are part of this exception,
+their upgrade policy differs from the process described above. Once a new
+Ubuntu series is released, these packages in that series must only receive
+**patch-level** upgrades under this policy. For instance, if
+`containerd-stable` `2.2.1` was released in Ubuntu 26.04, this exception only
+covers upgrading it to versions greater than `2.2.1` and lower than `2.3.0~`.
+The remainder of this exception applies normaly to these packages.
+
 QA
 --
 
