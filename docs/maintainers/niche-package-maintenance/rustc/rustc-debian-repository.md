@@ -12,6 +12,16 @@ For most Ubuntu packages, which are non-versioned, these changes stay in the Git
 However, when porting another `rustc` version to another Ubuntu version, our workflow starts with cloning fresh from Debian.
 This means we need to re-apply the patches.
 
+:::{admonition} Historical context
+Previously, when we needed to re-use an existing commit on a fresh `rustc` port, we would:
+
+- Find another team member with a repository with that commit.
+- Add their repository as a remote.
+- Cherry-pick that commit.
+
+As you may imagine, this was error-prone, led to lots of code duplication, and wasted lots of time trawling through Git repositories looking for the correct patch.
+:::
+
 `rustc-debian` is a centralized place to put those patches.
 We use Git [patch-based workflow](https://git-scm.com/docs/gitworkflows#_patch_workflow) to store commits as files, which we then track using Git as if they were any other file.
 The patch-based workflow is based around two commands:
