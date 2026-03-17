@@ -650,8 +650,8 @@ FTI
 Failed to install
     *Work in Progress*
 
-FFE
-Feature Freeze Exception
+FFe
+Feature Freeze exception
     *Work in Progress*
 
     See also:
