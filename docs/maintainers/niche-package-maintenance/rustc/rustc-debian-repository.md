@@ -12,6 +12,16 @@ For most Ubuntu packages, which are non-versioned, these changes stay in the Git
 However, when porting another `rustc` version to another Ubuntu version, our workflow starts with cloning fresh from Debian.
 This means we need to re-apply the patches.
 
+:::{admonition} Historical context
+Previously, when we needed to re-use an existing commit on a fresh `rustc` port, we would:
+
+- Find another team member with a repository with that commit.
+- Add their repository as a remote.
+- Cherry-pick that commit.
+
+As you may imagine, this was error-prone, led to lots of code duplication, and wasted lots of time trawling through Git repositories looking for the correct patch.
+:::
+
 `rustc-debian` is a centralized place to put those patches.
 We use Git [patch-based workflow](https://git-scm.com/docs/gitworkflows#_patch_workflow) to store commits as files, which we then track using Git as if they were any other file.
 The patch-based workflow is based around two commands:
@@ -20,7 +30,7 @@ The patch-based workflow is based around two commands:
 - {manpage}`git-am(1)`, which lets you *apply* `.patch` files as new commits over your working tree.
 
 We place patches that may be helpful across many versions of `rustc` in the `menu/` directory of `rustc-debian`, using `git format-patch`.
-Then, when we need to port a new version of rustc, we pick the patches we want, as if we were ordering from a *menu*, and use `git am` to apply them.
+Then, when we need to port a new version of `rustc`, we pick the patches we want, as if we were ordering from a *menu*, and use `git am` to apply them.
 
 ```{note}
 Git patch-based workflow was originally designed to work over email; after creating a patch, it's generally assumed that you send it to a project's maintainers by email.

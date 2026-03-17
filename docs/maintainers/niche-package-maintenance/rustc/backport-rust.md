@@ -302,9 +302,9 @@ Since the Ubuntu Rust package doesn't typically need the vendored LLVM, we yank 
  # Fonts already in Debian, covered by d-0003-mdbook-strip-embedded-libs.patch
 ```
 
-#### Modifying `debian/control` and `debian/control.in`
+#### Modifying `debian/control`
 
-First, you'll need to remove the relevant packages from `Build-Depends` in both `debian/control` and `debian/control.in`:
+First, you'll need to remove the relevant packages from `Build-Depends` in `debian/control`:
 
 ```diff
 @@ -17,11 +17,7 @@ Build-Depends:
@@ -601,98 +601,15 @@ $ git add src/llvm-project
 
 ```
 
-### Outdated `libgit2-dev`
 
-A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the version `rustc` requires. If your Ubuntu release's {lpsrc}`available libgit2 version <libgit2>` doesn't meet your Rust toolchain's requirements, then you have two options:
+#### Lintian
 
-1. {ref}`Downgrade <rust-downgrading-libgit2-dev>`. This is the easier option, but it only works if the `libgit2-dev` version in the archive isn't _too_ old.
-1. {ref}`Vendor <rust-vendoring-libgit2>`. This is a much bigger change, but it's often necessary if the `libgit2-dev` version in the archive is so old that it breaks things.
-
-
-(rust-downgrading-libgit2-dev)=
-### Downgrading `libgit2-dev`
-
-It may be possible to simply downgrade the required `libgit2-dev` version to the most recent version in your target release's archive.
-
-For example, assume that the required `libgit2-dev` version is `1.9.0`, and the most recent version in the archive is `1.7.2`.
-
-
-#### Modifying `debian/control` and `debian/control.in`
-
-Simply reduce the minimum requirement to the version in the archive, and restrict the maximum to anything newer:
-
-```diff
---- a/debian/control
-+++ b/debian/control
-@@ -33,8 +33,8 @@ Build-Depends:
-  bash-completion,
-  libcurl4-gnutls-dev | libcurl4-openssl-dev,
-  libssh2-1-dev,
-- libgit2-dev (>= 1.9.0~~),
-- libgit2-dev (<< 1.10~~),
-+ libgit2-dev (>= 1.7.2~~),
-+ libgit2-dev (<< 1.8~~),
-  libhttp-parser-dev,
-  libsqlite3-dev,
- # test dependencies:
-```
-
-Don't forget to change `debian/control.in` too!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -33,8 +33,8 @@ Build-Depends:
-  bash-completion,
-  libcurl4-gnutls-dev | libcurl4-openssl-dev,
-  libssh2-1-dev,
-- libgit2-dev (>= 1.9.0~~),
-- libgit2-dev (<< 1.10~~),
-+ libgit2-dev (>= 1.7.2~~),
-+ libgit2-dev (<< 1.8~~),
-  libhttp-parser-dev,
-  libsqlite3-dev,
- # test dependencies:
-```
-
-#### Patching `libgit2-sys`
-
-The vendored `libgit2-sys` crate tries to search for the system `libgit2` C library. It's your job to point it to the right version.
-
-Create a new patch and add the `build.rs` script of your `libgit2-sys` crate:
-
-```none
-$ quilt push -a
-$ quilt new ubuntu/ubuntu-libgit2-downgrade.patch
-$ quilt add vendor/libgit2-sys-<version>/build.rs
-```
-
-Adjust the versions it searches for in `try_system_libgit2()` accordingly:
-
-```diff
---- a/vendor/libgit2-sys-<version>/build.rs
-+++ b/vendor/libgit2-sys-<version>/build.rs
-@@ -7,7 +7,7 @@
- /// Tries to use system libgit2 and emits necessary build script instructions.
- fn try_system_libgit2() -> Result<pkg_config::Library, pkg_config::Error> {
-     let mut cfg = pkg_config::Config::new();
--    match cfg.range_version("1.9.0".."1.10.0").probe("libgit2") {
-+    match cfg.range_version("1.7.2".."1.8.0").probe("libgit2") {
-         Ok(lib) => {
-             for include in &lib.include_paths {
-                 println!("cargo:root={}", include.display());
-```
-
-
-#### Testing
-
-Try to build the package and see if it works. If not, then you must vendor the `libgit2` C library included with the upstream Rust source. Undo your changes and consult {ref}`rust-vendoring-libgit2` below.
-
+When you vendor LLVM, you are likely to encounter Lintian warnings related to binaries in the LLVM source directory. These files are part of the upstream LLVM test suite, and the warnings can be safely ignored.
 
 (rust-vendoring-libgit2)=
 ### Vendoring `libgit2`
 
-If the version of `libgit2-dev` in your target Ubuntu release's archive is too old to function properly, you must vendor the `libgit2` C library instead, which is normally included in the vendored `libgit2-sys` crate.
+A common problem when backporting is that the version of the `libgit2-dev` C library in the target Ubuntu release is too old for what the backported version of `rustc` requires. In that case, the {lpsrc}`libgit2 C library <libgit2>` must be vendored. The `libgit2` library is already bundled in the vendored `libgit2-sys` crate but is typically stripped from the tarball during packaging; the following steps restore its source and remove the dependency on `libgit2-dev`.
 
 
 #### Re-including `libgit2` in `Files-Excluded`
@@ -716,31 +633,11 @@ Comment out `libgit2` from `Files-Excluded` in `debian/copyright`, so next time 
 
 #### Removing `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends`
 
-You must also comment out `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends` in `debian/control` and `debian/control.in`. `libhttp-parser-dev` is removed because it's also included within the vendored `libgit2` source code.
+You must also comment out `libgit2-dev` and `libhttp-parser-dev` from `Build-Depends` in `debian/control`. `libhttp-parser-dev` is removed because it's also included within the vendored `libgit2` source code.
 
 ```diff
 --- a/debian/control
 +++ b/debian/control
-@@ -33,9 +33,9 @@ Build-Depends:
-  bash-completion,
-  libcurl4-gnutls-dev | libcurl4-openssl-dev,
-  libssh2-1-dev,
-- libgit2-dev (>= 1.9.0~~),
-- libgit2-dev (<< 1.10~~),
-- libhttp-parser-dev,
-+# libgit2-dev (>= 1.9.0~~),
-+# libgit2-dev (<< 1.10~~),
-+# libhttp-parser-dev,
-  libsqlite3-dev,
- # test dependencies:
-  binutils (>= 2.26) <!nocheck> | binutils-2.26 <!nocheck>,
-```
-
-Don't forget `debian/control.in`, too!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
 @@ -33,9 +33,9 @@ Build-Depends:
   bash-completion,
   libcurl4-gnutls-dev | libcurl4-openssl-dev,
@@ -838,23 +735,6 @@ Earlier Ubuntu releases may not have access to {lpsrc}`dh-cargo` for the purpose
   cargo-1.85 | cargo-1.86 <!pkg.rustc.dlstage0>,
 ```
 
-Don't forget `debian/control.in` too!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -12,7 +12,7 @@ Rules-Requires-Root: no
- Build-Depends:
-  debhelper (>= 9),
-  debhelper-compat (= 13),
-- dh-cargo (>= 28ubuntu1~),
-+# dh-cargo (>= 28ubuntu1~),
-  dpkg-dev (>= 1.17.14),
-  python3:native,
-  cargo-@RUST_PREV_VERSION@ | cargo-@RUST_VERSION@ <!pkg.rustc.dlstage0>,
-```
-
-
 #### Removing the `Vendored-Sources-Rust` check
 
 `debian/rules` must be modified so it doesn't try to use `dh-cargo` to validate `Vendored-Sources-Rust`:
@@ -895,23 +775,6 @@ Don't forget `debian/control.in` too!
   zlib1g-dev,
 ```
 
-Don't forget to edit `debian/control.in` as well!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -23,7 +23,7 @@ Build-Depends:
-  libclang-common-19-dev (>= 1:19.1.2),
-  cmake (>= 3.0) | cmake3,
- # needed by some vendor crates
-- pkgconf,
-+ pkg-config,
- # this is sometimes needed by rustc_llvm
-  zlib1g-dev:native,
-  zlib1g-dev,
-```
-
-
 #### Editing `debian/rules`
 
 `debian/rules` must be modified so Cargo uses `pkg-config` instead of `pkgconf`:
@@ -934,7 +797,7 @@ Don't forget to edit `debian/control.in` as well!
 
 If the version of {lpsrc}`cmake` in the archive is too old, we can't just update the `cmake` version in the archive. This would change how countless other packages were built. Instead, we use {lpsrc}`cmake-mozilla`, which is updated specifically for backports to use.
 
-Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `debian/control` and `debian/control.in`:
+Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `debian/control`:
 
 ```diff
 --- a/debian/control
@@ -950,28 +813,11 @@ Add `cmake-mozilla` to the possible `cmake` options in the `Build-Depends` of `d
  # this is sometimes needed by rustc_llvm
 ```
 
-Don't forget `debian/control.in`!
-
-```diff
---- a/debian/control.in
-+++ b/debian/control.in
-@@ -21,7 +21,7 @@ Build-Depends:
-  llvm-19-tools:native,
-  libclang-rt-19-dev (>= 1:19.1.2),
-  libclang-common-19-dev (>= 1:19.1.2),
-- cmake (>= 3.0) | cmake3,
-+ cmake (>= 3.0) | cmake3 | cmake-mozilla (>= 3.0),
- # needed by some vendor crates
-  pkgconf,
- # this is sometimes needed by rustc_llvm
-```
-
-
 ### Outdated `debhelper-compat`
 
 [`debhelper-compat`](https://www.man7.org/linux/man-pages/man7/debhelper.7.html#COMPATIBILITY_LEVELS) serves as a way of denoting a versioned build dependency on a specific version of {manpage}`debhelper(7)`.
 
-If your target Ubuntu release doesn't have `debhelper-compat`, you can downgrade the required version in `debian/control` and `debian/control.in`, but you must adjust your packaging accordingly. These changes can often be quite significant.
+If your target Ubuntu release doesn't have `debhelper-compat`, you can downgrade the required version in `debian/control`, but you must adjust your packaging accordingly. These changes can often be quite significant.
 
 For instance, reverting to version 12 from version 13 requires using an older format of substitution variables in debian install files:
 
@@ -1028,7 +874,7 @@ If you get a message similar to the following:
   For example, `libssl-dev` on Ubuntu or `openssl-devel` on Fedora.
 ```
 
-Then the error message is accurate. Add `libssl-dev` to `Build-Depends` within `debian/control` and `debian/control.in`:
+Then the error message is accurate. Add `libssl-dev` to `Build-Depends` within `debian/control`:
 
 ```diff
 @@ -29,6 +29,7 @@ Build-Depends:

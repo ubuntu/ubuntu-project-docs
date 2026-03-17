@@ -650,8 +650,8 @@ FTI
 Failed to install
     *Work in Progress*
 
-FFE
-Feature Freeze Exception
+FFe
+Feature Freeze exception
     *Work in Progress*
 
     See also:
@@ -973,6 +973,18 @@ Namespace
     Namespaces are particularly important in larger software projects where
     numerous components and libraries need to coexist without clashing with
     each other's names.
+
+NCR
+No Change Re-build
+    A new upload of a source package with no other changes beyond the new
+    version number. These are typically intended to rebuild the package against
+    updated dependencies, or toolchains.
+
+    By convention, if the package has no Ubuntu-specific changes, "buildN"
+    where "N" is an incrementing integer (e.g. "build1", "build2", and so on)
+    is appended to the version number. If a package has Ubuntu-specific
+    changes, and thus already has an "ubuntuN" segment in its version, the
+    trailing number "N" is incremented.
 
 NIST
 National Institute of Standards and Technology
