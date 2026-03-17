@@ -102,9 +102,7 @@ policy you have on how you want your bugs to be handled (e.g. assignment, tags,
 etc.). When adding significant chunks of new information to Debugging Procedures,
 please send a note to `ubuntu-bugsquad@lists.ubuntu.com` about it.
 
-Members of the Bug Squad can be found on the `#ubuntu-devel` channel on Matrix.
-There is also the [`ubuntu-bugsquad` mailing list](https://lists.ubuntu.com/mailman/listinfo/ubuntu-bugsquad)
-for general discussion regarding bugs and bug triaging.
+Members of the Bug Squad can be found on the {matrix}`ubuntu-devel` channel on Matrix.
 
 
 ### Release-critical bugs
