@@ -62,7 +62,7 @@ The command below can be used to modify the version for PPA usage:
 
 ```none
 $ codename="bionic"
-$ dch -l "~${codename}1" --distribution "${codename}" "Build for PPA"
+$ dch -l "~${codename}" --distribution "${codename}" "Build for PPA"
 ```
 
 If a PPA is used to build the package and the version string was changed as
@@ -112,7 +112,7 @@ So for example, you might have PPAs named `apache2-sru-lp12345678`, `clamav-fix-
 
 Alternatively, you can create PPAs directly via Launchpad's web interface.
 
-Go to your launchpad page (`https://launchpad.net/~your-username`) and click
+Go to your Launchpad page (`https://launchpad.net/~your-username`) and click
 "Create a new PPA". Give it a name such that you'll remember what it's about
 in a few months' time. A useful form is `package-type-lpbug-description`:
 
@@ -152,7 +152,7 @@ source and binary packages to be publicly downloadable.
 
 #### Check progress with `ppa`
 
-You can use the `ppa` tool to poll launchpad for progress status:
+You can use the `ppa` tool to poll Launchpad for progress status:
 
 ```none
 $ ppa wait ppa:kstenerud/postfix-sru-lp1753470-segfault

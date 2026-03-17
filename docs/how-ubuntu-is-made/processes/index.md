@@ -3,6 +3,11 @@
 
 High-level overviews of the various processes used in the building of Ubuntu, how they work, and who's involved.
 
+```{toctree}
+:maxdepth: 1
+
+lifecycle-of-a-change
+```
 
 ## Ubuntu release cycle
 
@@ -90,4 +95,5 @@ Special review processes and quality safeguards for adding updates to published 
 
 /SRU/stable-release-updates
 /MIR/main-inclusion-review
+ubuntu-on-github
 ```

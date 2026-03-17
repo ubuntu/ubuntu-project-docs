@@ -39,6 +39,13 @@ Application Binary Interface
     are crucial for software components compiled on different systems
     to work together seamlessly.
 
+    While in the widest sense, an ABI covers things like the format of executable files
+    and how dynamic linking works, which for Ubuntu and most extant Unix systems follows the
+    _System V Application Binary Interface_ definition, when people are talking about an ABI,
+    they are usually referring to the pieces that vary between different systems. These are defined
+    in the "platform-specific supplements" that are available for each platform. For example, the psABI
+    for x86-64 / amd64 is maintained on GitLab at [x86-psABIs/x86-64-ABI](https://gitlab.com/x86-psABIs/x86-64-ABI).
+
     See also:
     * [Kernel ABI (Ubuntu Wiki)](https://wiki.ubuntu.com/KernelTeam/BuildSystem/ABI)
     * [Application binary interface (Wikipedia)](https://en.wikipedia.org/wiki/Application_binary_interface)
@@ -73,13 +80,35 @@ Advanced Packaging Tool
     * [Package management (Ubuntu Server documentation)](https://documentation.ubuntu.com/server/how-to/software/package-management/)
 
 Architecture
-    Within the context of {term}`Ubuntu`, this refers to the system architecture
-    (more specifically, the CPU architecture and its instruction set) an
-    application is designed for.
+    Within the context of {term}`Ubuntu`, this generally and usually refers to a system architecture
+    (more specifically, a CPU architecture and its instruction set) an
+    application is built for. To be precise though, in {term}`Debian` and {term}`Ubuntu` an architecture actually
+    names an {term}`ABI`, in that two packages built for the same architecture are expected to be able to interoperate.
+    While in most cases, two distinct architectures can only run on distinct CPUs, there exist CPUs that can run
+    both the `armhf` and (now obsolete in Ubuntu) `armel` architectures.
 
     See also:
     * {ref}`supported-architectures`
     * [Computer Architecture (Wikipedia)](https://en.wikipedia.org/wiki/Computer_architecture)
+
+Architecture baseline
+    While in the strictest sense an {term}`Architecture` in {term}`Ubuntu` is defined by an {term}`ABI`,
+    for each architecture there is a minimum set of features that must be implemented by a platform for
+    Ubuntu to be usable on it, sometimes beyond those implied by the ABI itself.
+
+    For example, Ubuntu 26.04 on the `s390x` architecture assumes that instructions only present in
+    `z15` and newer chips. On `amd64` by contrast, no instructions introduced since the very first
+    amd64 / x86-64 CPU are assumed to be present.
+
+Architecture variant
+    A variant of an {term}`Architecture` is a set of packages that follow the same {term}`ABI` as the underlying
+    architecture, but uses a different {term}`baseline <Architecture baseline>`.
+
+    For example, the `amd64v3` variant assumes the presence of instructions in the `x86-64-v3`
+    microarchitecture level such as AVX2.
+
+    Because packages built for different variants of an architecture follow the same ABI, an executable built
+    for `amd64` can dynamically link to a library built for `amd64v3` or vice versa.
 
 AA
 Archive Admin
@@ -190,7 +219,7 @@ Blank space
     characters include spaces, tabs and newline characters.
 
 Branch
-    *Work in Progress*
+    An independent version of a {term}`repository` that allows developers to work on features in isolation without impacting the original {term}`repository`.
 
 Breezy
     A {term}`Fork` of the {term}`Bazaar` {term}`Version Control System`.
@@ -347,7 +376,9 @@ Command Line Interface
 
 CVE
 Common Vulnerabilities and Exposures
-    *Work in Progress*
+    A vulnerability consists of one or more weaknesses in a product that can be exploited, causing a negative impact to confidentiality, integrity, or availability. CVE generally refers to the [CVE list](https://www.cve.org/Downloads), a publicly disclosed catalog of information security vulnerabilities. This list provides a standardized framework for cataloging and tracking cybersecurity vulnerabilities that organizations can use to improve vulnerability management processes.
+
+    See also: [Ubuntu CVEs](https://ubuntu.com/security/cves)
 
 CISC
 Complex Instruction Set Computer
@@ -619,8 +650,8 @@ FTI
 Failed to install
     *Work in Progress*
 
-FFE
-Feature Freeze Exception
+FFe
+Feature Freeze exception
     *Work in Progress*
 
     See also:
@@ -844,9 +875,13 @@ Micro-Release Exception
     "microrelease" instead of sending {term}`patches <Patch>`. If all
     of the changes are appropriate for an {term}`SRU`, then it is acceptable
     (and usually easier) to upload the complete new upstream microrelease
-    instead of backporting the individual patches.
+    instead of backporting the individual patches. A microrelease exception
+    documents why this is safe for a particular case and the extra process
+    steps required to ensure the quality is ok.
 
-    See: TODO: New upstream microreleases (SRU Documentation)
+    See:
+    * "New upstream release" in {ref}`Special types of SRU <reference-special-types-of-sru>`
+    * {ref}`Package-specific notes <reference-package-specific-notes>` for existing exceptions
 
 Makefile
     A Makefile declares a set of tasks to be automatically executed. Makefiles are
@@ -938,6 +973,18 @@ Namespace
     Namespaces are particularly important in larger software projects where
     numerous components and libraries need to coexist without clashing with
     each other's names.
+
+NCR
+No Change Re-build
+    A new upload of a source package with no other changes beyond the new
+    version number. These are typically intended to rebuild the package against
+    updated dependencies, or toolchains.
+
+    By convention, if the package has no Ubuntu-specific changes, "buildN"
+    where "N" is an incrementing integer (e.g. "build1", "build2", and so on)
+    is appended to the version number. If a package has Ubuntu-specific
+    changes, and thus already has an "ubuntuN" segment in its version, the
+    trailing number "N" is incremented.
 
 NIST
 National Institute of Standards and Technology
@@ -1038,7 +1085,7 @@ Pocket
     * `-backports`
 
     See also:
-    * {ref}Pockets (explanation) <archive-pockets>`
+    * {ref}`Pockets (explanation) <archive-pockets>`
 
 POSIX
     Abbreviation for **Portable Operating System Interface**: A family of
@@ -1063,6 +1110,7 @@ Public Key Cryptography Standards
 
 Proposed migration
     The process of moving uploaded or merged packages from the `-proposed` {term}`pocket` into the `-release` pocket for users to consume.
+    {ref}`Proposed migration <proposed-migration>` is the entry point to a whole series about the topic.
 
     See also:
     * {term}`update excuses`
@@ -1237,14 +1285,23 @@ Sponsor
     *Work in Progress*
 
 SRU Verification Team
-    *Work in Progress*
+    It is a common misunderstanding that there is a dedicated team for this,
+    but verifications are usually done by the original bug reporter and/or
+    the associated SRU Driver.
+
+    See also:
+    * SRU Driver in {ref}`Ubuntu SRU roles <sru-role>`
 
 Stable Release Managers
     *Work in Progress*
 
 SRU
-Stable Release Update
-    *Work in Progress*
+Stable Release Updates
+    Stable release updates (SRUs) are package updates to a currently
+    supported Ubuntu release.
+
+    See also:
+    * {ref}`Stable Release Updates <stable-release-updates-sru>`
 
 Stack
     In computer science, a **Stack** is a data-structure that can store a
@@ -1459,10 +1516,10 @@ Ubuntu Server
     *Work in Progress*
 
 Ubuntu SRU Team
-    *Work in Progress*
+    The team responsible for reviewing package updates to stable Ubuntu releases.
 
     See also:
-    * [Ubuntu SRU Team](https://wiki.ubuntu.com/StableReleaseUpdates#Contacting_the_SRU_team)
+    * {ref}`Ubuntu SRU Team <sru-role>`
 
 Ubuntu Sponsors
     *Work in Progress*
