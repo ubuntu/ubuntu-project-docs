@@ -10,7 +10,7 @@ dmb-aspects-of-a-good-application
 ```
 
 To become an {ref}`Ubuntu Developer Member <ubuntu-developers>`, or a developer of a delegated team for which the {ref}`dmb` handles applications, you must apply via the process outlined on this page.
-The DMB covers applications for {ref}`dmb-joining-contributing`, {ref}`Per-Package Uploaders (PPU) <dmb-joining-ppu>`, {ref}`Package Set uploaders <dmb-joining-packageset>`, {ref}`Ubuntu Developers (from delegated teams) <dmb-joining-delegated>`, {ref}`MOTU <dmb-joining-motu>`, {ref}`SRU developers <dmb-joining-sru-dev>`, and {ref}`Ubuntu Core Developers (core-dev) <dmb-joining-core-dev>`.
+The DMB covers applications for {ref}`dmb-joining-contributing`, {ref}`Per-Package Uploaders (PPU) <dmb-joining-ppu>`, {ref}`packageset uploaders <dmb-joining-packageset>`, {ref}`Ubuntu Developers (from delegated teams) <dmb-joining-delegated>`, {ref}`MOTU <dmb-joining-motu>`, {ref}`SRU developers <dmb-joining-sru-dev>`, and {ref}`Ubuntu Core Developers (core-dev) <dmb-joining-core-dev>`.
 
 It can be difficult to know when you are ready to apply for uploader team membership.
 For some advice and guidance, check out the {ref}`dmb-aspects-of-a-good-application` page.
@@ -22,6 +22,7 @@ To understand how the Ubuntu development skills map to the various uploader leve
 Reserve your spot
 : Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see when the DMB next meeting is, and to check the queue of applications.
 : Only a few applications are considered each meeting so if there's a queue, make sure to reserve a spot for when you think you'll be ready for consideration.
+: Applications to {ref}`Ubuntu Contributing Developers <dmb-joining-contributing>` are handled only via the mailing list, therefore no agenda entry is needed for those (the DMB will vote as replies to your post to the `devel-permissions@` mailing list).
 
 Create your space
 : If it's your first time applying for upload rights, {ref}`dmb-create-a-discourse-post`. If you already have a page, you can
@@ -30,7 +31,7 @@ Create your space
 Training and preparation
 : The depth of your learning here depends on the upload rights you are applying
   for:
-: 1. {ref}`PPU or Package Set <packageset-training-and-preparation>`
+: 1. {ref}`PPU or packageset <packageset-training-and-preparation>`
 : 1. {ref}`MOTU <motu-training-and-preparation>`
 : 1. {ref}`Core Developer <core-dev-training-and-preparation>`
 

@@ -139,7 +139,7 @@ to the version you need before getting the tarball.
 - [ ] {ref}`FFe <feature-freeze-exceptions>`:
 
   ```
-  [[ Feature Freeze Exception ]]
+  [[ Feature Freeze exception ]]
   [Description]
      * A description of the proposed changes, with sufficient detail to estimate their potential impact on the distribution
   [Rationale]
