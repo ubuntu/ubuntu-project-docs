@@ -14,6 +14,7 @@ These are required for all packages. A number of additional files in the :file:`
 
 
 .. _debian-directory-changelog:
+
 The :file:`changelog` file
 --------------------------
 

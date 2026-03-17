@@ -163,7 +163,7 @@ Bugs in this category can have subjects like:
 * Please promote \<package\> to \<component\>  
 * Please demote \<package\> to \<component\>  
 * Main inclusion report (MIR)
-* [FFE] bug summary  
+* FFe bug summary
 
 Bugs in this category will have **any** of the following teams subscribed:  
 
