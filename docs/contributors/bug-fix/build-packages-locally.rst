@@ -3,17 +3,23 @@
 How to build packages locally
 =============================
 
-In Ubuntu, packages can be built in several ways, depending on the intended artifacts. The standard and recommended way to build packages for Ubuntu is with ``sbuild``, which builds packages in a clean environment. This ensures that the build dependencies are properly declared and that the resulting package is reproducible.
+In Ubuntu, packages can be built in several ways, depending on the intended
+artifacts. The standard and recommended way to build packages for Ubuntu is
+with ``dpkg-buildpackage`` and ``sbuild``. This ensures that the build
+dependencies are properly declared and that the resulting package is
+reproducible.
 
-``sbuild`` can be used to build:
+``dpkg-buildpackage`` is used to build **source-only** packages.
 
-* **Binary-only** packages
-* **Source-only** packages
-* **Source** and **binary** packages
+``sbuild`` is used to build **binary-only** and **source** + **binary**
+packages.
 
-PPAs and the Archive permit exclusively **source-only** package uploads, however it is best practice to first perform a local **binary** build and fix any potential issues before uploading.
+PPAs and the Archive permit exclusively **source-only** package uploads,
+however it is best practice to first perform a local **binary** build and fix
+any potential issues before uploading.
 
-To let the Launchpad infrastructure build packages for you, see :ref:`how-to-build-packages-in-a-ppa`.
+To let the Launchpad infrastructure build packages for you, see
+:ref:`how-to-build-packages-in-a-ppa`.
 
 
 Prerequisites
@@ -27,7 +33,7 @@ Installing the necessary tools
 
 .. code-block:: none
 
-    $ sudo apt install devscripts sbuild mmdebstrap uidmap piuparts
+    $ sudo apt install devscripts dpkg-dev sbuild mmdebstrap uidmap piuparts
 
 
 Setting up ``sbuild``
@@ -38,6 +44,15 @@ Add your user to the ``sbuild`` group:
 .. code-block:: none
 
     $ sudo adduser $USER sbuild
+
+After this step, ``sbuild`` is set up differently depending on the version of
+Ubuntu used. Ubuntu 24.04 LTS and earlier versions use a chroot backend, while
+Ubuntu 24.04 LTS + ``noble-backports`` and later versions use an unshare
+backend. The following sections will guide you through the setup process for
+both backends.
+
+Ubuntu 24.04 LTS and earlier
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make the required mount points for builds, logs, and scratch:
 
@@ -59,9 +74,7 @@ Add a :file:`~/schroot/scratch` entry to :file:`/etc/schroot/sbuild/fstab`:
     # (optional; only uncomment if needed).
     # $maintainer_name = 'Your Full Name <your@email.com>';
 
-    # Backend to use for chroot management. 'unshare' is the recommended
-    # backend.
-    $chroot_mode = 'unshare';
+    $chroot_mode = 'schroot';
     $unshare_mmdebstrap_keep_tarball = 1;
 
     # Default distribution to build.
@@ -72,6 +85,7 @@ Add a :file:`~/schroot/scratch` entry to :file:`/etc/schroot/sbuild/fstab`:
     # Do not check for the presence of the build dependencies on the host
     # system, as these exist only in the unshare chroot.
     $clean_source = 0;
+    $run_lintian = 0;
 
     # When to purge the build directory afterwards; possible values are 'never',
     # 'successful', and 'always'.  'always' is the default. It can be helpful
@@ -95,6 +109,28 @@ Add a :file:`~/schroot/scratch` entry to :file:`/etc/schroot/sbuild/fstab`:
     # don't remove this, Perl needs it:
     1;
 
+Ubuntu 24.04 LTS + ``noble-backports`` and later
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Newer versions of Ubuntu support the use of the ``unshare`` backend over
+``schroot``, as ``unshare`` provides better isolation and does not require
+``sudo``. 
+
+``sbuild`` reads the user specific configuration file
+:file:`~/.config/sbuild/config.pl` (create the file if it does not exist). Save
+the file with the following content:
+
+.. code-block:: perl
+
+   $chroot_mode = 'unshare';
+   $unshare_mmdebstrap_keep_tarball = 1;
+
+   # /tmp is tmpfs and large builds will fail after filling all memory.
+   $unshare_tmpdir_template = '/var/tmp/tmp.sbuild.XXXXXXXXXX';
+
+   $clean_source = 0;
+   $run_lintian = 0;
+
 
 Fetching the package source
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,10 +140,11 @@ See :ref:`how-to-get-the-source-of-a-package` for instructions on how to fetch t
 
 .. _building-with-sbuild:
 
-Building with ``sbuild``
+Building packages
 ------------------------
 
-Issue ``sbuild`` build commands from the :file:`debian/` sub-directory of the source package:
+Issue ``sbuild`` build commands from the source package directory that contains
+:file:`debian/`:
 
 .. code-block:: none
 
@@ -143,11 +180,18 @@ This produces architecture-specific binary packages without generating a source 
 Building source-only packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To build a **source-only** package for a specific release use the ``--source-only-changes`` option:
+To build a **source-only** package for a specific release, the current
+recommended practice is to utilize ``dpkg-buildpackage`` instead of ``sbuild``:
 
 .. code-block:: none
 
-    $ sbuild --source-only-changes --dist=<RELEASE>
+    $ dpkg-buildpackage --build=source --no-check-builddeps --no-pre-clean
+
+The flags used have the following meaning:
+
+* ``--build=source`` (``-S``): source-only build
+* ``--no-check-builddeps`` (``-d``): do not check build dependencies
+* ``--no-pre-clean`` (``-nc``): do not pre clean the source tree
 
 
 Building both source and binary packages
@@ -161,10 +205,10 @@ To build both **source** and **binary** packages for a specific release, use the
 
 .. note::
 
-    Launchpad rejects uploads that contains both binaries and sources. However, this is required for uploads to the Debian NEW queue. That said, uploads to Debian with binaries `do not migrate to Testing <https://lists.debian.org/debian-devel-announce/2019/07/msg00002.html>`_.
+    Launchpad rejects uploads that contain both binaries and sources.
 
 
-Useful options
+Useful ``sbuild`` options
 ~~~~~~~~~~~~~~
 
 Parallel building:
@@ -174,17 +218,18 @@ Parallel building:
 
       $ DEB_BUILD_OPTIONS="parallel=3" sbuild --chroot <RELEASE>-<ARCH>[-shm]
 
-Shell in the chroot:
-  To get a shell inside of the chroot (e.g. to investigate build failures), use the ``--build-failed-commands`` option:
-
-  .. code-block:: none
-
-     --build-failed-commands=%SBUILD_SHELL
-
 Run :term:`lintian` after the build:
   .. code-block:: none
 
-     --run-lintian [--lintian-opts="-EvIiL +pedantic"]
+     --run-lintian [--lintian-opts="-vIiL +pedantic"]
+
+Large package linting:
+  Some large packages take a long time to lint. To avoid :term:`lintian` after
+  the build:
+
+  .. code-block:: none
+
+     --no-run-lintian
 
 
 Signing the ``changes`` file
@@ -217,6 +262,10 @@ Building for a different architecture (cross-building)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Building for a different architecture requires using an emulated schroot. To setup an emulated schroot, use the ``mk-sbuild`` command from the ``ubuntu-dev-tools`` package.
+
+.. note::
+   Setting up an emulated schroot is not required when using the ``unshare``
+   backend.
 
 Install ``ubuntu-dev-tools``:
 
@@ -254,7 +303,8 @@ where ``<ARCH_VARIANT>`` is the architecture variant (e.g. ``amd64v3``).
 Using locally built dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To use a locally built a dependency in your build, specify the path to the dependency with the ``--extra-package`` option:
+To use a locally built a dependency in your build, specify the path to the
+dependency or a directory of dependencies with the ``--extra-package`` option:
 
 .. code-block:: none
 
