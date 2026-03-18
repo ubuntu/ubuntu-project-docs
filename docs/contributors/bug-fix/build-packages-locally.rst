@@ -25,7 +25,7 @@ To let the Launchpad infrastructure build packages for you, see
 Prerequisites
 -------------
 
-Building packages locally requires a few tools to be installed and configured. The following sections will guide you through the process of setting up your environment for building packages locally with ``sbuild``.
+Building packages locally requires a few tools to be installed and configured. The following sections guide you through the process of setting up your environment for building packages locally with ``sbuild``.
 
 
 Installing the necessary tools
@@ -46,9 +46,9 @@ Add your user to the ``sbuild`` group:
     $ sudo adduser $USER sbuild
 
 After this step, ``sbuild`` is set up differently depending on the version of
-Ubuntu used. Ubuntu 24.04 LTS and earlier versions use a chroot backend, while
-Ubuntu 24.04 LTS + ``noble-backports`` and later versions use an unshare
-backend. The following sections will guide you through the setup process for
+Ubuntu used. Ubuntu 24.04 LTS and earlier versions use a ``chroot`` backend, while
+Ubuntu 24.04 LTS + ``noble-backports`` and later versions use an ``unshare``
+backend. The following sections guide you through the setup process for
 both backends.
 
 Ubuntu 24.04 LTS and earlier
@@ -138,10 +138,10 @@ Fetching the package source
 See :ref:`how-to-get-the-source-of-a-package` for instructions on how to fetch the source of a package. You need the source to build it locally.
 
 
-.. _building-with-sbuild:
+.. _building-packages:
 
 Building packages
-------------------------
+-----------------
 
 Issue ``sbuild`` build commands from the source package directory that contains
 :file:`debian/`:
@@ -181,7 +181,7 @@ Building source-only packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To build a **source-only** package for a specific release, the current
-recommended practice is to utilize ``dpkg-buildpackage`` instead of ``sbuild``:
+recommended practice is to use ``dpkg-buildpackage`` instead of ``sbuild``:
 
 .. code-block:: none
 
@@ -209,7 +209,7 @@ To build both **source** and **binary** packages for a specific release, use the
 
 
 Useful ``sbuild`` options
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Parallel building:
   To speed up the build, set the ``parallel`` option through the ``DEB_BUILD_OPTIONS`` environment variable. For example:
@@ -326,6 +326,5 @@ Other build tools
 
 While ``sbuild`` is the recommended tool for building packages locally, there are other tools that can be used for building packages. These include:
 
-* :manpage:`debuild(1)` - a wrapper around :manpage:`dpkg-buildpackage(1)` that provides additional features and is commonly used for building packages locally.
 * :manpage:`pbuilder(8)` - a tool that builds packages in a clean chroot environment, similar to ``sbuild``. It is less commonly used than ``sbuild`` but can be useful in certain situations.
 * :manpage:`cowbuilder(8)` - a wrapper for ``pbuilder`` that builds packages in a clean chroot environment using copy-on-write filesystems. It is similar to ``pbuilder`` but can be faster for subsequent builds.
