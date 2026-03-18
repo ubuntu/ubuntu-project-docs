@@ -45,20 +45,6 @@ Add your user to the ``sbuild`` group:
 
     $ sudo adduser $USER sbuild
 
-After this step, ``sbuild`` is set up differently depending on the version of
-Ubuntu used. Ubuntu 24.04 LTS and earlier versions use a ``chroot`` backend, while
-Ubuntu 24.04 LTS + ``noble-backports`` and later versions use an ``unshare``
-backend. The following sections guide you through the setup process for
-both backends.
-
-
-Ubuntu 24.04 LTS + ``noble-backports`` and later
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Newer versions of Ubuntu support the use of the ``unshare`` backend over
-``schroot``, as ``unshare`` provides better isolation and does not require
-``sudo``. 
-
 ``sbuild`` reads the user specific configuration file
 :file:`~/.config/sbuild/config.pl` (create the file if it does not exist). Save
 the file with the following content:
@@ -75,10 +61,7 @@ the file with the following content:
    $run_lintian = 0;
 
 
-Ubuntu 24.04 LTS and earlier
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. dropdown::
+.. dropdown:: ``sbuild`` on Ubuntu 24.04 LTS and earlier
 
    Make the required mount points for builds, logs, and scratch:
 
