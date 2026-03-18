@@ -51,63 +51,6 @@ Ubuntu 24.04 LTS + ``noble-backports`` and later versions use an ``unshare``
 backend. The following sections guide you through the setup process for
 both backends.
 
-Ubuntu 24.04 LTS and earlier
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Make the required mount points for builds, logs, and scratch:
-
-.. code-block:: none
-
-    $ mkdir -p ~/shcroot/{build,logs,scratch}
-
-Add a :file:`~/schroot/scratch` entry to :file:`/etc/schroot/sbuild/fstab`:
-
-.. code-block:: none
-
-    $HOME/schroot/scratch  /scratch          none  rw,bind  0  0
-
-``sbuild`` reads the user specific configuration file :file:`~/.config/sbuild/config.pl` (create the file if it does not exist). Save the file with the following content, replacing ``my_user`` with your username:
-
-.. code-block:: perl
-
-    # Name to use as override in .changes files for the Maintainer: field
-    # (optional; only uncomment if needed).
-    # $maintainer_name = 'Your Full Name <your@email.com>';
-
-    $chroot_mode = 'schroot';
-    $unshare_mmdebstrap_keep_tarball = 1;
-
-    # Default distribution to build.
-    $distribution = "resolute";
-    # Build arch-all by default.
-    $build_arch_all = 1;
-
-    # Do not check for the presence of the build dependencies on the host
-    # system, as these exist only in the unshare chroot.
-    $clean_source = 0;
-    $run_lintian = 0;
-
-    # When to purge the build directory afterwards; possible values are 'never',
-    # 'successful', and 'always'.  'always' is the default. It can be helpful
-    # to preserve failing builds for debugging purposes.  Switch these comments
-    # if you want to preserve even successful builds, and then use
-    # 'schroot -e --all-sessions' to clean them up manually.
-    $purge_build_directory = 'successful';
-    $purge_session = 'successful';
-    $purge_build_deps = 'successful';
-
-    # Directory for chroot symlinks and sbuild logs.  Defaults to the
-    # current directory if unspecified.
-    $build_dir = '/home/my_user/schroot/build';
-
-    # Directory for writing build logs to
-    $log_dir = '/home/my_user/schroot/logs';
-
-    # Key used to sign the source package. Defaults to not using any key.
-    # $key_id = '';
-
-    # don't remove this, Perl needs it:
-    1;
 
 Ubuntu 24.04 LTS + ``noble-backports`` and later
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -130,6 +73,67 @@ the file with the following content:
 
    $clean_source = 0;
    $run_lintian = 0;
+
+
+Ubuntu 24.04 LTS and earlier
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. dropdown::
+
+   Make the required mount points for builds, logs, and scratch:
+
+   .. code-block:: none
+
+       $ mkdir -p ~/shcroot/{build,logs,scratch}
+
+   Add a :file:`~/schroot/scratch` entry to :file:`/etc/schroot/sbuild/fstab`:
+
+   .. code-block:: none
+
+       $HOME/schroot/scratch  /scratch          none  rw,bind  0  0
+
+   ``sbuild`` reads the user specific configuration file :file:`~/.config/sbuild/config.pl` (create the file if it does not exist). Save the file with the following content, replacing ``my_user`` with your username:
+
+   .. code-block:: perl
+
+       # Name to use as override in .changes files for the Maintainer: field
+       # (optional; only uncomment if needed).
+       # $maintainer_name = 'Your Full Name <your@email.com>';
+
+       $chroot_mode = 'schroot';
+       $unshare_mmdebstrap_keep_tarball = 1;
+
+       # Default distribution to build.
+       $distribution = "resolute";
+       # Build arch-all by default.
+       $build_arch_all = 1;
+
+       # Do not check for the presence of the build dependencies on the host
+       # system, as these exist only in the unshare chroot.
+       $clean_source = 0;
+       $run_lintian = 0;
+
+       # When to purge the build directory afterwards; possible values are 'never',
+       # 'successful', and 'always'.  'always' is the default. It can be helpful
+       # to preserve failing builds for debugging purposes.  Switch these comments
+       # if you want to preserve even successful builds, and then use
+       # 'schroot -e --all-sessions' to clean them up manually.
+       $purge_build_directory = 'successful';
+       $purge_session = 'successful';
+       $purge_build_deps = 'successful';
+
+       # Directory for chroot symlinks and sbuild logs.  Defaults to the
+       # current directory if unspecified.
+       $build_dir = '/home/my_user/schroot/build';
+
+       # Directory for writing build logs to
+       $log_dir = '/home/my_user/schroot/logs';
+
+       # Key used to sign the source package. Defaults to not using any key.
+       # $key_id = '';
+
+       # don't remove this, Perl needs it:
+       1;
 
 
 Fetching the package source
@@ -261,27 +265,25 @@ In some cases, builds may be more complex and require additional configuration. 
 Building for a different architecture (cross-building)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Building for a different architecture requires using an emulated schroot. To setup an emulated schroot, use the ``mk-sbuild`` command from the ``ubuntu-dev-tools`` package.
+.. dropdown:: Without ``unshare`` (additional setup required)
 
-.. note::
-   Setting up an emulated schroot is not required when using the ``unshare``
-   backend.
+   Building for a different architecture without ``unshare`` requires using an emulated schroot. To setup an emulated schroot, use the ``mk-sbuild`` command from the ``ubuntu-dev-tools`` package.
 
-Install ``ubuntu-dev-tools``:
+   Install ``ubuntu-dev-tools``:
 
-.. code-block:: none
+   .. code-block:: none
 
-    $ sudo apt install ubuntu-dev-tools
+       $ sudo apt install ubuntu-dev-tools
 
-Then, create the schroot with the ``mk-sbuild`` command:
+   Then, create the schroot with the ``mk-sbuild`` command:
 
-.. code-block:: none
+   .. code-block:: none
 
-    $ mk-sbuild --arch=<ARCH> <RELEASE>
+       $ mk-sbuild --arch=<ARCH> <RELEASE>
 
-where ``<ARCH>`` is the *target* architecture (e.g. ``arm64``).
+   where ``<ARCH>`` is the *target* architecture (e.g. ``arm64``).
 
-Finally, when building with ``sbuild``, specify the target architecture with the ``--arch=`` option:
+When building with ``sbuild``, specify the target architecture with the ``--arch=`` option:
 
 .. code-block:: none
 
