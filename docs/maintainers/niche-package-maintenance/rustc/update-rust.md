@@ -201,7 +201,12 @@ $ git push <lpuser> import-old-<X.Y>
 
 Now that the actual upstream source code has changed, many of the different patches in `debian/patches` won't apply cleanly. In this step, you must fix these patches.
 
-#### Getting the next patch to refresh
+The stack of patches is managed by a tool called {manpage}`quilt(1)`.
+`quilt` is often very picky about how you use it, much more so than `git`, so be careful as you use it.
+
+Your workflow will look like this:
+
+#### Find the next broken patch
 
 To identify the next patch that fails to apply, try to push all the patches:
 
@@ -217,7 +222,45 @@ $ quilt push -f --merge
 
 The response you get from this command will list all of the patch components which failed to apply.
 
-There are several common reasons why a patch fails to apply. These reasons are listed below.
+#### Fix the patch
+
+There are several common reasons why a patch fails to apply. These reasons are listed in the next section.
+
+If the patch fails to apply in the *same file*, then after doing your changes, run:
+
+```none
+$ quilt refresh
+```
+
+However, sometimes the patch fails to apply because the file it patches is no longer there.
+The usual reason for this is if it is a patch to a vendored crate, and the crate version has changed.
+(For example, if the patch works on `vendor/libfoobar-1.0.0/whatever.etc`, and Rustc updates to use `vendor/libfoobar-1.0.1`, then the patch will fail to apply).
+
+In this case, you must run:
+
+```none
+$ quilt add vendor/libfoobar-1.0.1/whatever.etc
+# Edit the file so it has the updates the patch is trying to apply
+$ quilt refresh
+```
+
+In general, you must run `quilt add` to associate a file with a patch *before* changing that file.
+If you forget to run `quilt add` first, then you can get back to a clean state by running:
+
+```none
+$ quilt pop
+$ quilt push -f --merge
+```
+
+#### Back to the top
+
+Once the patch file is cleaned up, run `quilt push -a` again to find the next broken patch.
+
+Eventually, you will fix all the patches!
+Run `quilt pop -a` to get back to a clean state, without any of the patches applied.
+Afterwards, I like to run `quilt push -a --merge; quilt pop -a` to make sure that every patch applies cleanly, and to clean up any fuzz.
+
+### How to Fix a Patch
 
 #### Surrounding code changed
 
