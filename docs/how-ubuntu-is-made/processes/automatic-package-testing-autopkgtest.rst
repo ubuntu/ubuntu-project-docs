@@ -164,7 +164,7 @@ Getting the test into Ubuntu
 
 The process of submitting an autopkgtest for a package is similar to :ref:`fixing a bug in Ubuntu <how-to-fix-a-bug-in-a-package>`:
 
-#. Run ``bzr branch ubuntu:<packagename>``,
+#. Run ``git ubuntu clone <packagename>``,
 #. Edit ``debian/control`` to enable the tests,
 #. Add the ``debian/tests`` directory,
 #. Write the ``debian/tests/control`` based on the :term:`DEP-8` specification,

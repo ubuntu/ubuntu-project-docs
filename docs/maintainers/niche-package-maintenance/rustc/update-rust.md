@@ -615,6 +615,7 @@ $ debian/add-vendored-copyright-overrides
 ```
 
 
+(updating-rust-updating-debian-copyright)=
 ### Updating debian/copyright
 
 All the new `vendor` files must be added to `debian/copyright`. In the following steps, all the missing copyright stanzas will be generated.
@@ -625,6 +626,7 @@ All the new `vendor` files must be added to `debian/copyright`. In the following
 {ref}`Clean up previous build artifacts <updating-rust-clean-build>`, build the source package using {manpage}`dpkg-buildpackage(1)`, then run Lintian, redirecting the output to somewhere convenient:
 
 (updating-rust-lintian-command)=
+##### Run the Lintian command
 
 ```none
 $ dpkg-buildpackage -S -I -i -nc -d -sa

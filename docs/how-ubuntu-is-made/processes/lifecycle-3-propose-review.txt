@@ -1,0 +1,19 @@
+:::{mermaid}
+flowchart LR
+    MP["<a href=https://documentation.ubuntu.com/project/contributors/patching/submit-a-merge-proposal/>Submit Merge Proposal</a><br/>on Launchpad"] --> Review
+    Review{"<a href=https://documentation.ubuntu.com/project/contributors/advanced/review-a-merge-proposal/>Code review</a>"}
+    Review -.-> |"changes requested"| Revise["Revise change</a>"]
+    Revise --> Review
+    Upload(["<a href=https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/lifecycle-of-a-change/#sponsorship-and-upload>Upload</a>"])
+    Review --> |"approved"| Upload
+
+    classDef ubuntuStyle fill:#FFDAB9,stroke:#E95420,stroke-width:2px
+    class MP,Revise ubuntuStyle
+
+    classDef gateStyle fill:#D0E8FF,stroke:#3366CC,stroke-width:2px
+    class Review gateStyle
+    
+    classDef terminalStyle fill:#E0E0E0,stroke:#666666,stroke-width:2px
+    class Upload terminalStyle
+:::
+
