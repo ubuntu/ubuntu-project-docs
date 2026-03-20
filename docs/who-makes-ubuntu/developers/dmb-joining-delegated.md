@@ -28,7 +28,7 @@ Delegated teams admitting their own members:
 
 
 Delegated teams whose prospective members apply to the {ref}`Developer Membership Board <dmb>`:
-: * [Ubuntu Kylin](https://wiki.ubuntu.com/UbuntuKylin) Developers (Launchpad: [`~ubuntukylin-dev`](https://launchpad.net/~ubuntukylin-dev))
+: * [Ubuntu Kylin](https://wiki.ubuntu.com/Ubuntu%20Kylin) Developers (Launchpad: [`~ubuntukylin-dev`](https://launchpad.net/~ubuntukylin-dev))
 : * Ubuntu GNOME Developers (Launchpad: [`~ubuntu-gnome-dev`](https://launchpad.net/~ubuntu-gnome-dev))
 : * Ubuntu Bazaar Uploaders (Launchpad: [`~ubuntu-bzr-dev`](https://launchpad.net/~ubuntu-bzr-dev))
 : * Ubuntu CLI/Mono Uploaders (Launchpad: [`~ubuntu-cli-mono-dev`](https://launchpad.net/~ubuntu-cli-mono-dev))
