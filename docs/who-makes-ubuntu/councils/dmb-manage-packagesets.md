@@ -161,7 +161,7 @@ This is the more common task compared to {ref}`creating a set <dmb-create-packag
   * If not already a member, add the applicant to either
    [`~ubuntu-dev`](https://launchpad.net/~ubuntu-dev/+members) or
    [`~ubuntu-uploaders`](https://launchpad.net/~ubuntu-uploaders/+members).
-   See {ref}`dmb-teams-to-add-uploaders-to`.
+   See {ref}`dmb-teams-to-also-add-uploaders-to`.
 
 ### How to modify a new packageset list of covered packages
 

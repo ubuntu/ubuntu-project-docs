@@ -103,6 +103,7 @@ launchpadlib
 Libera
 Libtool
 lintian
+lockfile
 losslessly
 Lubuntu
 Maintainer's
@@ -138,6 +139,7 @@ packageset
 packagesets
 papercuts
 patchfile
+pkgbinarymangler
 Paulina
 PDFs
 plaintext
