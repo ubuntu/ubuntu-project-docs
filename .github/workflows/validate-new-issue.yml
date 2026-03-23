@@ -136,7 +136,7 @@ jobs:
             if (urls.length === 0 && !hasLocalBuildPath && !isMissingDocReport) {
               // Invalid; No URL provided and no exceptions apply
               invalidReason = 'no_url';
-              labelToApply = 'State: invalid';
+              labelToApply = 'invalid';
               shouldClose = true;
               message = 'Thank you for taking the time to report an issue with the Ubuntu Project documentation!\n\n' +
                         'However, we need more information to understand the problem.\n\n' +
@@ -155,7 +155,7 @@ jobs:
             } else if (invalidUrls.length > 0 && validUrls.length === 0) {
               // Invalid; Has URLs but none are valid
               invalidReason = 'invalid_url';
-              labelToApply = 'State: invalid';
+              labelToApply = 'invalid';
               shouldClose = true;
               message = 'Thank you for taking the time to report an issue!\n\n' +
                         'However, it looks like you have reported this issue against the wrong project.\n\n' +
@@ -165,7 +165,7 @@ jobs:
             } else if ((validUrls.length > 0 || hasLocalBuildPath || isMissingDocReport) && (wordCount < 5 || hasRandomCharacters)) {
               // Incomplete: Has valid URL or exception but lacks detail
               incompleteReason = 'insufficient_detail';
-              labelToApply = 'State: Incomplete';
+              labelToApply = 'question';
               shouldClose = false;
               message = 'Thank you for taking the time to report an issue with the Ubuntu Project documentation!\n\n' +
                         'However, we need more information to understand the problem.\n\n' +
