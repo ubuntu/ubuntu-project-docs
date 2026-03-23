@@ -35,7 +35,7 @@ The relatively small number of packages that carry an Ubuntu delta can be spotte
 This can also be determined for an individual package by checking for the presence of `ubuntu` in the version string.
 Ubuntu deltas exist for a number of reasons, such as dependency issues to support [Ubuntu's oxidation efforts](https://discourse.ubuntu.com/t/carefully-but-purposefully-oxidising-ubuntu/56995), hardware support, or other Ubuntu-specific integration issues.
 
-There is also a small number of packages that are excluded from the sync for various technical reasons, usually dependencies that are unsatisfiable.  That configuration is handled via the [sync-blocklist](https://git.launchpad.net/~ubuntu-archive/+git/sync-blocklist) Launchpad repo.
+There is also a small number of packages that are excluded from the sync for various technical reasons, usually dependencies that are unsatisfiable. That configuration is handled via the [sync-blocklist](https://git.launchpad.net/~ubuntu-archive/+git/sync-blocklist) Launchpad repo.
 
 While the number of packages that differ from Debian is small, some of them are critically important.
 Notably, the `rustc` source package is one that carries a nontrivial delta compared to Debian, and that source package is responsible for generating a number of important binary packages, including: `rustc`, `cargo`, `libstd-rust-X.Y`, and more.
@@ -87,7 +87,7 @@ There is also some special handling for cross compilation in a way that uses sys
 : Ubuntu-specific patches that are mostly focused on making sure that system tooling is found correctly, but also disable some platform-specific tests and ensure that other tests use the system `gcc` compiler.
 
 **`upstream`**
-: These patches are official upstream code that hasn't been pushed into a stable release yet.  This is mostly focused on getting edge-case tests to pass, but it also fixes some linker path issues.
+: These patches are official upstream code that hasn't been pushed into a stable release yet. This is mostly focused on getting edge-case tests to pass, but it also fixes some linker path issues.
 
 **`vendor`**
 : Fixes for vendored dependencies; mostly so they can locate and use system libraries.
@@ -96,7 +96,7 @@ There is also some special handling for cross compilation in a way that uses sys
 ## How are Rust binaries packaged?
 
 :::{note}
-"Binary" is an overloaded term in Rust packaging.  This FAQ topic refers to the binary targets of a Cargo-based Rust project, as opposed to library targets.  However, we also need to distinguish Debian source packages from Debian binary packages, which is an entirely unrelated concept.
+"Binary" is an overloaded term in Rust packaging. This FAQ topic refers to the binary targets of a Cargo-based Rust project, as opposed to library targets. However, we also need to distinguish Debian source packages from Debian binary packages, which is an entirely unrelated concept.
 :::
 
 According to the [Debian Rust Packaging Policy](https://wiki.debian.org/Teams/RustPackaging/Policy), Rust crates that include one or more binary executable targets have all their executables bundled into a single Debian binary package.
@@ -107,7 +107,7 @@ Instead, it must find all dependencies within the package archive.
 This is achieved by packaging the library crates in the archive, and then automatically setting up a Cargo registry that makes them available.
 This is handled automatically by `dh-cargo`.
 
-Since Rust does not have a stable ABI, and therefore is nearly always statically linked, you may be wondering how the dependencies in the package archive work.  That brings us to our next question!
+Since Rust does not have a stable ABI, and therefore is nearly always statically linked, you may be wondering how the dependencies in the package archive work. That brings us to our next question!
 
 
 ## How are Rust libraries packaged?
@@ -167,19 +167,116 @@ Note that `dh-cargo` should _not_ be used for applications built only partially 
 The relationship can be one of two things, depending on the particular `rustc` package version.
 
 1. For the default `rustc` package, with no version number in the name, `llvm` is a build-time dependency.
-Due to static linking, that means that all the relevant `llvm` code is effectively copied into the `rustc` binary, and the `llvm` package is no longer strictly needed at runtime.
-It is generally listed as a suggested dependency of `rustc` in order to support debugging and code generation tasks.
+   Due to static linking, that means that all the relevant `llvm` code is effectively copied into the `rustc` binary, and the `llvm` package is no longer strictly needed at runtime.
+   It is generally listed as a suggested dependency of `rustc` in order to support debugging and code generation tasks.
 
 2. For other `rustc-X.Y` packages, `llvm` might be a build-time dependency or we might use a vendored version of `llvm` to avoid the need to backport both packages in lockstep.
-Either way, as in the above case, the `llvm` package is not needed at runtime but may still be useful for developers.
+   Either way, as in the above case, the `llvm` package is not needed at runtime but may still be useful for developers.
 
 ## I see `llvm-X-dev` in the archive, but my version of `rustc` doesn't use it
 
-Many LLVM packages are actually universe packages, which are community-maintained.
-Packages in the main component of the archive are not allowed to depend on universe component packages.
+Many LLVM packages are actually {ref}`universe <archive-components-universe>` packages, which are community-maintained.
+Packages in the {ref}`main <archive-components-main>` component of the archive are not allowed to depend on `universe` component packages.
 Accordingly, `rustc` sometimes uses a vendored version of LLVM, even if that version is technically already available.
 
 ## What is the status of Rust support for WASM/WASI on Ubuntu?
 
 Ubuntu does not currently build a package for the cross-compilation tooling for WASM.
 However, that workflow should be fully supported via `rustup`, which is available as a Snap or in `universe`.
+
+## What are `rust-defaults`, `rustc` and `cargo` and how do they relate to `rustc-X.Y` and `cargo-X.Y`?
+
+:::{note}
+`rust-defaults` was introduced in Ubuntu 24.10 (Oracular).
+:::
+
+{lpsrc}`rust-defaults` is a source package that produces the unversioned `rustc` and `cargo` metapackages.
+[Metapackages](https://wiki.debian.org/metapackage) carry no files themselves; they simply declare dependencies on other packages: in this case, the currently-default versioned `rustc-X.Y` and `cargo-X.Y` binary packages produced by the corresponding versioned `rustc-X.Y` source package.
+As noted in the {ref}`update guide <how-to-update-rust>`, these unversioned metapackages denote the default Rust toolchain version used to build Rust packages in the archive.
+
+The unversioned `rustc` and `cargo` packages serve as the stable names that users and build systems interact with: installing `rustc` or `cargo` gives you whichever versioned toolchain `rust-defaults` currently designates as the default, without needing to know or track the exact version number.
+
+Multiple `rustc-X.Y` and `cargo-X.Y` packages can coexist in the archive simultaneously, differentiated by name.
+`rust-defaults` designates which set is the default for the current release.
+Updating `rust-defaults` to point to a new `rustc-X.Y` version is therefore the final step when introducing a new default compiler version to Ubuntu.
+See {ref}`how-to-update-rust` for the full update process.
+
+## Why does packaging a new `rustc` version require the previous `rustc` version?
+
+This comes from upstream: the Rust compiler is [self-hosted](https://rustc-dev-guide.rust-lang.org/building/bootstrapping/what-bootstrapping-does.html), meaning that it is implemented in Rust itself.
+Building a new version of `rustc` therefore requires an existing, working version of `rustc`.
+
+More specifically, the Rust build system uses a multi-stage bootstrapping process:
+
+1. The previous version of `rustc` ("stage0 compiler") compiles the new Rust source code to produce a "stage1" compiler.
+2. The stage1 compiler recompiles the same source code to produce the "stage2" compiler.
+3. The stage2 compiler is what gets packaged and installed.
+
+This means each `rustc-X.Y` build depends on the previous stable `rustc-X.(Y-1)` compiler.
+
+This bootstrapping requirement is also why {term}`backporting <backport>` requires going {ref}`one step at a time <rust-example-backport>`: for example, you cannot jump directly from `rustc-1.83` to `rustc-1.86` on Jammy because `rustc-1.84` and `rustc-1.85` are needed as intermediate bootstrap compilers along the way.
+
+:::{note}
+Because `rustc` uses unstable internal features that can change between versions, only a small number of version pairs are guaranteed to work together.
+Specifically: a stable release is only guaranteed to build itself and the next stable version; nightly builds are only guaranteed to build themselves. This is enforced by Rust's CI.
+
+Note also that patch releases (e.g. `rustc-1.93.1`) do not advance the stage0 compiler for the next minor version.
+For example, `rustc-1.94.0` still uses `rustc-1.93.0` as its stage0 — not `rustc-1.93.1` — because patch releases only cherry-pick fixes on top of the previous stable, rather than tracking the main development branch.
+:::
+
+For more background, see the [Rust compiler development guide on bootstrapping](https://rustc-dev-guide.rust-lang.org/building/bootstrapping/what-bootstrapping-does.html).
+
+## Why do some Rust packages bundle in their cargo dependencies' source code?
+
+If the package targets `main`, the {ref}`MIR policy for Rust <mir-rust>` requires that all Rust dependencies be {term}`vendored <vendored dependency>` rather than pulled from individually packaged crates.
+See the {ref}`MIR Rust page <mir-rust>` for how to set up vendoring.
+
+## Why doesn't the `rustc` packaging use the `git-ubuntu` workflow?
+
+{ref}`git-ubuntu <git-ubuntu>` works by tracking the history of a single named source package across all its uploads.
+It is well-suited to the standard Ubuntu workflow where a package maintains a stable name (such as `bash` or `openssl`) and each upload extends that continuous history.
+
+`rustc` packages are _versioned_: `rustc-1.83`, `rustc-1.84`, and `rustc-1.85` are each a separate source package in the archive.
+When a new Rust version is packaged, a brand-new source package is created under a new name rather than updating an existing one, so `git-ubuntu` cannot connect the history across them — it would see each as an independent package with no relation to the others.
+
+Instead, the git history for all versioned `rustc` packages is maintained in a single [Foundations Launchpad repository](https://git.launchpad.net/~canonical-foundations/ubuntu/+source/rustc), where a branch `<release>-<X.Y>` exists for every upstream release and backport across all Ubuntu series. For example: the branch `jammy-1.92` corresponds to the backport of `rustc` 1.92 to Jammy.
+This keeps the full history connected and accessible, regardless of which versioned source package a given branch corresponds to.
+
+## How are `rustc` packages tested?
+
+`rustc` packages go through two levels of testing.
+
+**Build-time tests**
+: The Rust build system runs the extensive upstream test suite during the build itself.
+Some tests are disabled in the package because they require network access or are not applicable to a packaged environment.
+
+**autopkgtests**
+: After a successful PPA build, {term}`autopkgtests<autopkgtest>` can be triggered against the built packages.
+The `rustc` autopkgtest suite includes standard regression tests, as well as a self-build test, which uses the newly packaged `rustc` to recompile itself.
+This verifies that the toolchain can bootstrap the next Rust version.
+For backports, the self-build test is {ref}`typically disabled <rust-disabling-self-build-test>` because it is resource-intensive and prone to timeouts; the bootstrapping is still implicitly verified when the next Rust version is built.
+
+## What Ubuntu Archive processes and infrastructure does `rustc` maintenance involve?
+
+**Archive pockets**
+: New `rustc` versions for the current development series are uploaded to the {ref}`proposed pocket <archive-pockets-proposed>`, where they are tested before migrating to the {ref}`release pocket <archive-pockets-release>`.
+Backported `rustc` versions for stable releases are uploaded directly to the {ref}`security pocket <archive-pockets-security>`, which gives them faster availability and ensures they are present on systems configured to receive security updates.
+
+**SRUs**
+: If a bug is found in an already-released `rustc-X.Y` on a stable Ubuntu release, the fix goes through the {ref}`Stable Release Update (SRU) <stable-release-updates-sru>` process: it is uploaded to `proposed`, validated, and then migrated to {ref}`updates <archive-pockets-updates>`.
+
+**`main` and `universe`**
+: Only {lpsrc}`rust-defaults` and the current default `rustc-X.Y` live in {ref}`main <archive-components-main>`; all other `rustc-X.Y` packages live in {ref}`universe <archive-components-universe>`.
+When `rust-defaults` is updated to point to a new compiler version, an archive admin must promote the new `rustc-X.Y` to `main` and later demote the old one back to `universe`.
+Because the versioned `rustc-X.Y` packages are treated as versioned variants of the same underlying package rather than entirely new packages, this promotion does **not** require going through the {ref}`MIR process <main-inclusion-review>`.
+
+: Most Rust crate packages also live in `universe`, where they are community-maintained. The {ref}`MIR process <main-inclusion-review>` does apply when a crate needs to move from `universe` to `main`.
+
+**Staging PPA**
+: The [Rust Toolchain Staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/) is where the Rust toolchain team stores completed backports before they are needed in the Archive.
+Backports are prepared proactively and stored here, so they can be copied to the Archive on demand without delay.
+The Staging PPA is configured to depend on the `security` pocket, mirroring the Archive configuration for backports.
+
+**Development PPAs**
+: Individual maintainers create personal PPAs to test new and backported `rustc` packages across all architectures before an Archive upload.
+The naming convention is `rustc-<X.Y>-merge` for {ref}`new versions <how-to-update-rust>`, `rustc-<X.Y>-<release>` for {ref}`backports <how-to-backport-rust>`, and `rustc-<X.Y>-lp<bug_number>` for {ref}`patches <how-to-patch-rust>`.
