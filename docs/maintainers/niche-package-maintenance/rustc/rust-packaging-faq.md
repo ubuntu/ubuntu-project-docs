@@ -176,7 +176,7 @@ The relationship can be one of two things, depending on the particular `rustc` p
 ## I see `llvm-X-dev` in the archive, but my version of `rustc` doesn't use it
 
 Many LLVM packages are actually {ref}`universe <archive-components-universe>` packages, which are community-maintained.
-Packages in the {ref}`main <archive-components-main>` component of the archive are not allowed to depend on `universe` component packages.
+Packages in the {ref}`main <archive-components-main>` component of the archive are not allowed to depend on universe component packages.
 Accordingly, `rustc` sometimes uses a vendored version of LLVM, even if that version is technically already available.
 
 ## What is the status of Rust support for WASM/WASI on Ubuntu?
