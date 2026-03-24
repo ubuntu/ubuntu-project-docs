@@ -166,3 +166,21 @@ Squid SRU template
   update should go through the security pocket.
 
   TODO: list previous MREs for this package, if any.
+
+.. _squid_updates_track_record:
+
+Track Record
+------------
+
+This is a list of the Squid updates performed in the past, following this policy:
+
+-  2023, 5.7 to J, K:
+   https://bugs.launchpad.net/ubuntu/+source/squid/+bug/2013423
+-  2024, 5.9 to J:
+   https://bugs.launchpad.net/ubuntu/+source/squid/+bug/2040470
+-  2025, 6.10 to N:
+   https://bugs.launchpad.net/ubuntu/+source/squid/+bug/2073322
+-  2025, 6.13 to N:
+   https://bugs.launchpad.net/ubuntu/+source/squid/+bug/2085197
+-  2026, 6.14 to N, Q:
+   https://bugs.launchpad.net/ubuntu/+source/squid/+bug/2127669
