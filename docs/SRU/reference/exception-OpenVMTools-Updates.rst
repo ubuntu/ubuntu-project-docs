@@ -223,3 +223,9 @@ a reported regression.
 -  2023 was stalled on misunderstanding which led to this very document
    to clarify
    (https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/2028420)
+-  2024: 12.4.5 to N:
+   https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/2073317
+-  2025: 12.5.0 to N:
+   https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/2122116
+-  2026: 13.0.0 to N:
+   https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/2127666
