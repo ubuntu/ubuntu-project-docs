@@ -1,8 +1,8 @@
 (validate-the-fix)=
-## Validate the fix
+# Validate the fix
 
 
-### Start a Bionic container and enter it:
+## Start a Bionic container and enter it:
 
 We can name our LXC containers with any scheme we wish, such as 'tester'
 earlier for a temporary one to test with. However, for bug fixes we'll often
@@ -22,7 +22,7 @@ root@postfix-sru-lp1753470-segfault-bionic:~#
 ```
 
 
-### Reproduce the bug
+## Reproduce the bug
 
 Record your steps as you go (you'll need them later):
 
@@ -38,7 +38,7 @@ Segmentation fault (core dumped)
 ```
 
 
-### Install the fixed package
+## Install the fixed package
 
 In this case, I'm using a PPA. Alternatively, if you've built locally, you can
 copy in the `.deb` file and install it manually.
@@ -50,7 +50,7 @@ $ sudo apt upgrade -y
 ```
 
 
-### Test the bug again
+## Test the bug again
 
 ```none
 $ /usr/sbin/postconf virtual_alias_map
