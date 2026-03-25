@@ -1,0 +1,408 @@
+name: Validate new issue
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  validate-content:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Validate new issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const issueBody = issue.body || '';
+            const issueTitle = issue.title || '';
+            
+            console.log('Checking issue #' + issue.number);
+            console.log('Title: ' + issueTitle);
+            console.log('Body length: ' + issueBody.length);
+            
+            // Extract URLs from the issue body
+            const urlRegex = /(https?:\/\/[^\s\)]+)/gi;
+            const urlsWithProtocol = issueBody.match(urlRegex) || [];
+            
+            // Also extract URLs without protocol (common domains)
+            const domainRegex = /(?:^|\s)((?:documentation\.)?ubuntu\.com\/server[^\s]*)/gi;
+            const urlsWithoutProtocol = issueBody.match(domainRegex) || [];
+            
+            // Also extract from the "Page URL" template field
+            const pageUrlMatch = issueBody.match(/### Page URL\s*\n\s*([^\n]+)/);
+            let pageUrlFromTemplate = '';
+            if (pageUrlMatch && pageUrlMatch[1]) {
+              pageUrlFromTemplate = pageUrlMatch[1].trim();
+              console.log('Page URL from template: ' + pageUrlFromTemplate);
+            }
+            
+            // Combine all URLs and normalize them
+            const allUrls = [...urlsWithProtocol];
+            
+            // Add URLs without protocol
+            for (const url of urlsWithoutProtocol) {
+              const cleanUrl = url.trim();
+              const normalizedUrl = cleanUrl.startsWith('http') ? cleanUrl : 'https://' + cleanUrl;
+              if (!allUrls.includes(normalizedUrl)) {
+                allUrls.push(normalizedUrl);
+              }
+            }
+            
+            // Add page URL from template
+            if (pageUrlFromTemplate && !allUrls.some(u => u.includes(pageUrlFromTemplate))) {
+              const normalizedUrl = pageUrlFromTemplate.startsWith('http') ? pageUrlFromTemplate : 'https://' + pageUrlFromTemplate;
+              allUrls.push(normalizedUrl);
+            }
+            
+            const urls = allUrls;
+            console.log('URLs found: ' + urls.length);
+            if (urls.length > 0) {
+              console.log('URLs: ' + urls.join(', '));
+            }
+            
+            // Valid domain patterns for the docs
+            const validDomains = [
+              'ubuntu.com',  // Catches all ubuntu.com subdomains (documentation.ubuntu.com, archive.ubuntu.com, etc.)
+              'launchpad.net'
+            ];
+            
+            // Check if URLs are valid
+            const validUrls = urls.filter(url => 
+              validDomains.some(domain => url.includes(domain))
+            );
+            const invalidUrls = urls.filter(url => 
+              !validDomains.some(domain => url.includes(domain))
+            );
+            
+            console.log('Valid URLs: ' + validUrls.length);
+            console.log('Invalid URLs: ' + invalidUrls.length);
+            
+            // Check for "local build" exception: if no URL but contains ubuntu-server-documentation path from local error
+            const hasLocalBuildPath = issueBody.includes('ubuntu-server-documentation');
+            console.log('Contains ubuntu-server-documentation path: ' + hasLocalBuildPath);
+            
+            // Check for "missing documentation" exception where the reporter is requesting docs on a topic (no docs yet = no valid URL
+            const missingDocPatterns = [
+              /add (page|guide|section|content)/i,
+              /add missing/i,
+              /missing documentation/i,
+              /new documentation/i,
+              /no documentation/i,
+              /lacks? documentation/i,
+              /needs? documentation/i,
+              /should (have|include|document)/i,
+              /would be/i,
+              /please add documentation/i,
+              /missing (page|guide|section)/i,
+              /no (page|guide|section) (for|on|about)/i,
+              /doesn't have (documentation|a page|a guide)/i,
+              /does not have (documentation|a page|a guide)/i,
+              /not documented/i,
+              /undocumented/i
+            ];
+            
+            const isMissingDocReport = missingDocPatterns.some(pattern => pattern.test(issueBody) || pattern.test(issueTitle));
+            console.log('Reports missing documentation: ' + isMissingDocReport);
+            
+            // Check issue quality
+            let bodyWithoutUrls = issueBody.replace(urlRegex, '').trim();
+            
+            // Check if the issue uses the feedback template
+            const hasTemplateMarkers = issueBody.includes('### Issue Description') || 
+                                       issueBody.includes('### Page URL') ||
+                                       issueBody.includes('### Select an option');
+            
+            console.log('Uses template: ' + hasTemplateMarkers);
+            
+            // If template is used, extract only the user's content after "### Issue Description"
+            if (hasTemplateMarkers) {
+              const issueDescMatch = issueBody.match(/### Issue Description\s*\n\s*([\s\S]*?)(?:\n###|\n\n###|$)/);
+              if (issueDescMatch && issueDescMatch[1]) {
+                const userContent = issueDescMatch[1].trim();
+                // Remove URLs from user content for word count
+                bodyWithoutUrls = userContent.replace(urlRegex, '').trim();
+                console.log('Extracted user content from template: "' + userContent.substring(0, 100) + '..."');
+              }
+            }
+            
+            const wordCount = bodyWithoutUrls.split(/\s+/).filter(word => word.length > 0).length;
+            const hasRandomCharacters = /^[^a-zA-Z0-9\s]*$/.test(bodyWithoutUrls) || 
+                                       bodyWithoutUrls.length < 10;
+            
+            console.log('Word count (excluding URLs): ' + wordCount);
+            console.log('Has random/insufficient content: ' + hasRandomCharacters);
+            
+            let invalidReason = null;
+            let incompleteReason = null;
+            let message = '';
+            let labelToApply = '';
+            let shouldClose = false;
+            
+            // Determine issue validity
+            if (urls.length === 0 && !hasLocalBuildPath && !isMissingDocReport) {
+              // Invalid; No URL provided and no exceptions apply
+              invalidReason = 'no_url';
+              labelToApply = 'invalid';
+              shouldClose = true;
+              message = 'Thank you for taking the time to report an issue with the Ubuntu Project documentation!\n\n' +
+                        'However, we need more information to understand the problem.\n\n' +
+                        'Please edit your issue and make sure you have told us:\n' +
+                        '- What page you found the problem on\n' +
+                        '- What specific problem you found?\n' +
+                        '- What information was unclear, incorrect, or missing?\n' +
+                        '- Anything else that would help us improve the documentation\n\n' +
+                        'To submit a properly formatted issue, please use the [feedback template](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/issues/new?template=feedback.yml).';
+              console.log('Invalid; No URL provided and no exceptions apply');
+              
+            } else if (urls.length === 0 && (hasLocalBuildPath || isMissingDocReport)) {
+              // No URL but has an exception - treat as valid if there's enough detail
+              console.log('Valid: No URL but exception applies (local build or missing doc report)');
+              
+            } else if (invalidUrls.length > 0 && validUrls.length === 0) {
+              // Invalid; Has URLs but none are valid
+              invalidReason = 'invalid_url';
+              labelToApply = 'invalid';
+              shouldClose = true;
+              message = 'Thank you for taking the time to report an issue!\n\n' +
+                        'However, it looks like you have reported this issue against the wrong project.\n\n' +
+                        'If you have a problem with the Ubuntu Project documentation, please submit a properly formatted issue using the [feedback template](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/issues/new?template=feedback.yml), including the URL of the page you are having problems with.';
+              console.log('Invalid: URLs present but none are valid');
+              
+            } else if ((validUrls.length > 0 || hasLocalBuildPath || isMissingDocReport) && (wordCount < 5 || hasRandomCharacters)) {
+              // Incomplete: Has valid URL or exception but lacks detail
+              incompleteReason = 'insufficient_detail';
+              labelToApply = 'question';
+              shouldClose = false;
+              message = 'Thank you for taking the time to report an issue with the Ubuntu Project documentation!\n\n' +
+                        'However, we need more information to understand the problem.\n\n' +
+                        'Please **edit your issue** and make sure you have told us:\n' +
+                        '- What specific problem you found?\n' +
+                        '- What information was unclear, incorrect, or missing?\n' +
+                        '- Anything else that would help us improve the documentation\n\n' +
+                        'To submit a properly formatted issue, please use the [feedback template](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/issues/new?template=feedback.yml).';
+                        '**Note:** This issue will be automatically closed in 7 days if there is no change to the issue.\n\n';
+              console.log('Incomplete: Has valid URL or exception but lacks detail (word count: ' + wordCount + ')');
+            }
+            
+            if (invalidReason || incompleteReason) {
+              // Add comment explaining the specific issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: message
+              });
+              
+              // Apply the appropriate label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: [labelToApply]
+              });
+              
+              if (invalidReason) {
+                console.log('Labeled as invalid. Reason: ' + invalidReason);
+              } else {
+                console.log('Labeled as incomplete. Reason: ' + incompleteReason);
+              }
+              
+              // Close the issue only if it's invalid (not incomplete)
+              if (shouldClose) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed',
+                  state_reason: 'not_planned'
+                });
+                
+                console.log('Issue #' + issue.number + ' has been closed.');
+              }
+            } else {
+              console.log('Issue is valid. No action needed.');
+            }
+  
+  apply-team-labels:
+    runs-on: ubuntu-latest
+    needs: validate-content
+    
+    steps:
+      - name: Apply team labels based on URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const issueBody = issue.body || '';
+            
+            console.log('Processing issue #' + issue.number + ' for team labelling');
+            
+            // Skip if the issue is labeled as invalid
+            const labels = issue.labels.map(label => label.name);
+            if (labels.includes('invalid')) {
+              console.log('Issue is invalid. Skipping auto-labelling.');
+              return;
+            }
+            
+            // Extract URLs from the issue body (reusing same logic as validation)
+            const urlRegex = /(https?:\/\/[^\s\)]+)/gi;
+            const urlsWithProtocol = issueBody.match(urlRegex) || [];
+            
+            // Also extract URLs without protocol (common domains)
+            const domainRegex = /(?:^|\s)((?:documentation\.)?ubuntu\.com\/project[^\s]*)/gi;
+            const urlsWithoutProtocol = issueBody.match(domainRegex) || [];
+            
+            // Also extract from the "Page URL" template field
+            const pageUrlMatch = issueBody.match(/### Page URL\s*\n\s*([^\n]+)/);
+            let pageUrlFromTemplate = '';
+            if (pageUrlMatch && pageUrlMatch[1]) {
+              pageUrlFromTemplate = pageUrlMatch[1].trim();
+              console.log('Page URL from template: ' + pageUrlFromTemplate);
+            }
+            
+            // Combine all URLs and normalize them
+            const allUrls = [...urlsWithProtocol];
+            
+            // Add URLs without protocol
+            for (const url of urlsWithoutProtocol) {
+              const cleanUrl = url.trim();
+              const normalizedUrl = cleanUrl.startsWith('http') ? cleanUrl : 'https://' + cleanUrl;
+              if (!allUrls.includes(normalizedUrl)) {
+                allUrls.push(normalizedUrl);
+              }
+            }
+            
+            // Add page URL from template
+            if (pageUrlFromTemplate && !allUrls.some(u => u.includes(pageUrlFromTemplate))) {
+              const normalizedUrl = pageUrlFromTemplate.startsWith('http') ? pageUrlFromTemplate : 'https://' + pageUrlFromTemplate;
+              allUrls.push(normalizedUrl);
+            }
+            
+            const urls = allUrls;
+            console.log('URLs found: ' + urls.length);
+            if (urls.length > 0) {
+              console.log('URLs: ' + urls.join(', '));
+            }
+            
+            // Combine title and body for keyword matching
+            const issueTitle = issue.title || '';
+            const issueText = (issueTitle + ' ' + issueBody).toLowerCase();
+            
+            // Define team label mappings for URL-based matching
+            // Format: { pattern: 'path pattern', label: 'Label Name', type: 'path' or 'file' }
+            const teamMappings = [
+              { pattern: '/MIR/', label: 'MIR', type: 'path' },
+              { pattern: '/SRU/', label: 'SRU', type: 'path' },
+              { pattern: '/tech-board/', label: 'TB', type: 'path' },
+              { pattern: '/release-team/', label: 'Release team', type: 'path' },
+              { pattern: '/community/', label: 'community', type: 'path' },
+              { pattern: '/aa-', label: 'AA', type: 'file' },
+              { pattern: '/dmb-', label: 'DMB', type: 'file' }
+            ];
+            
+            // Define keyword mappings for text-based matching
+            // Format: { keywords: ['keyword1', 'keyword2'], label: 'Label Name' }
+            const keywordMappings = [
+              { keywords: ['main inclusion', '\\bmir\\b'], label: 'MIR' },
+              { keywords: ['stable release', 'backports', '\\bsru\\b'], label: 'SRU' },
+              { keywords: ['tech board', 'technical board', '\\btb\\b', 'governance'], label: 'TB' },
+              { keywords: ['release team'], label: 'Release team' },
+              { keywords: ['\\bcommunity\\b'], label: 'community' },
+              { keywords: ['\\baa\\b', 'archive admin'], label: 'AA' },
+              { keywords: ['\\bdmb\\b', 'developer membership board'], label: 'DMB' }
+            ];
+            
+            // Check each URL against team patterns
+            const labelsToApply = new Set();
+            
+            if (urls.length > 0) {
+              for (const url of urls) {
+                console.log('Checking URL: ' + url);
+                
+                for (const mapping of teamMappings) {
+                  if (mapping.type === 'path') {
+                    // Direct path matching
+                    if (url.includes(mapping.pattern)) {
+                      console.log('  Matched pattern "' + mapping.pattern + '" → Label: ' + mapping.label);
+                      labelsToApply.add(mapping.label);
+                    }
+                  } else if (mapping.type === 'file') {
+                    // File name pattern matching (e.g., /aa-*.md or /dmb-*.md)
+                    // Extract the path portion after the domain
+                    const pathMatch = url.match(/\/project\/(.+)/);
+                    if (pathMatch) {
+                      const path = pathMatch[1];
+                      // Check if the path contains the file pattern
+                      if (path.includes(mapping.pattern)) {
+                        console.log('  Matched file pattern "' + mapping.pattern + '*.md" → Label: ' + mapping.label);
+                        labelsToApply.add(mapping.label);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            
+            // Also check for keywords in title and body (as fallback or supplement)
+            console.log('Checking for team keywords in title and body...');
+            for (const mapping of keywordMappings) {
+              for (const keyword of mapping.keywords) {
+                const regex = new RegExp(keyword, 'i');
+                if (regex.test(issueText)) {
+                  console.log('  Matched keyword "' + keyword + '" → Label: ' + mapping.label);
+                  labelsToApply.add(mapping.label);
+                  break; // Only need one keyword match per team
+                }
+              }
+            }
+            
+            // Get all team labels we manage (for both adding and removing)
+            const allManagedTeamLabels = new Set();
+            teamMappings.forEach(m => allManagedTeamLabels.add(m.label));
+            keywordMappings.forEach(m => allManagedTeamLabels.add(m.label));
+            
+            // Get current labels on the issue
+            const currentLabels = labels;
+            const currentTeamLabels = currentLabels.filter(label => allManagedTeamLabels.has(label));
+            
+            // Determine which labels to add and remove
+            const labelsToAdd = Array.from(labelsToApply).filter(label => !currentLabels.includes(label));
+            const labelsToRemove = currentTeamLabels.filter(label => !labelsToApply.has(label));
+            
+            console.log('Current team labels: ' + (currentTeamLabels.length > 0 ? currentTeamLabels.join(', ') : 'none'));
+            console.log('Should have team labels: ' + (labelsToApply.size > 0 ? Array.from(labelsToApply).join(', ') : 'none'));
+            console.log('Labels to add: ' + (labelsToAdd.length > 0 ? labelsToAdd.join(', ') : 'none'));
+            console.log('Labels to remove: ' + (labelsToRemove.length > 0 ? labelsToRemove.join(', ') : 'none'));
+            
+            // Add new team labels
+            if (labelsToAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labelsToAdd
+              });
+              console.log('Added ' + labelsToAdd.length + ' team label(s).');
+            }
+            
+            // Remove outdated team labels
+            if (labelsToRemove.length > 0) {
+              for (const label of labelsToRemove) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: label
+                });
+              }
+              console.log('Removed ' + labelsToRemove.length + ' team label(s).');
+            }
+            
+            if (labelsToAdd.length === 0 && labelsToRemove.length === 0) {
+              console.log('Team labels are already up to date.');
+            }
+

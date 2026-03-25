@@ -221,6 +221,8 @@ linkcheck_ignore = [
     "https://discourse.canonical.com/",
     "https://git.launchpad.net/ubuntu/+source/*",
     "https://wiki.ubuntu.com/*",
+    "https://en.wikipedia.org/*",
+    "https://github.com/*",
 ]
 
 
@@ -232,9 +234,9 @@ linkcheck_anchors_ignore_for_url = [
     r"https://git\.launchpad\.net/ubuntu/\+source/.*",
 ]
 
-# give linkcheck multiple tries on failure
-# linkcheck_timeout = 30
-linkcheck_retries = 3
+# Give linkcheck multiple tries on failure
+linkcheck_timeout = 15
+linkcheck_retries = 2
 
 ########################
 # Configuration extras #
