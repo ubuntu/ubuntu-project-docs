@@ -221,6 +221,8 @@ linkcheck_ignore = [
     "https://discourse.canonical.com/",
     "https://git.launchpad.net/ubuntu/+source/*",
     "https://wiki.ubuntu.com/*",
+    "https://en.wikipedia.org/*",
+    "https://github.com/*",
 ]
 
 
