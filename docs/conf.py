@@ -290,6 +290,7 @@ extensions = [
     "sphinxext.rediraffe",
     "sphinx_togglebutton",
     "sphinx.ext.graphviz",
+    "sphinx_llm.txt",
 ]
 
 # Excludes files or directories from processing
@@ -404,12 +405,7 @@ if os.path.exists("./reuse/substitutions.yaml"):
 # Add configuration for intersphinx mapping
 
 intersphinx_mapping = {
-    "ubuntu-server": ("https://documentation.ubuntu.com/server/", None),
-    "pkg-guide": (
-        "https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/"
-        "en/2.0-preview/",
-        None,
-    ),
+    "ubuntu-server": ("https://ubuntu.com/server/docs/", None),
     "starter-pack": (
         "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
         None,

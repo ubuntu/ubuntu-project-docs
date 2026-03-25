@@ -1,0 +1,18 @@
+:::{mermaid}
+flowchart LR
+    Fix["Prepare change:<br/><a href=https://documentation.ubuntu.com/project/contributors/bug-fix/fix-a-bug-in-a-package/>patch</a> · <a href=https://documentation.ubuntu.com/project/contributors/merging/>merge</a> · <a href=https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/merges-and-syncs/>sync</a>"]
+    Fix --> Build
+    Build["<a href=https://documentation.ubuntu.com/project/contributors/bug-fix/build-packages-in-a-ppa/>PPA build</a> on Launchpad<br/>(all architectures)"]
+    Build -.-> |"build fails"| Fix
+    Build --> |"build OK"| Test
+    Test["Run <a href=https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/automatic-package-testing-autopkgtest/>autopkgtests</a><br/>against <a href=https://documentation.ubuntu.com/project/contributors/bug-fix/build-packages-in-a-ppa/>PPA</a> packages"]
+    Test -.-> |"test regressions"| Fix
+    ProposeChange(["<a href=https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/lifecycle-of-a-change/#proposing-and-reviewing>Propose change</a>"])
+    Test --> |"ready"| ProposeChange
+
+    classDef ubuntuStyle fill:#FFDAB9,stroke:#E95420,stroke-width:2px
+    class Fix,Build,Test ubuntuStyle
+    
+    classDef terminalStyle fill:#E0E0E0,stroke:#666666,stroke-width:2px
+    class ProposeChange terminalStyle
+:::

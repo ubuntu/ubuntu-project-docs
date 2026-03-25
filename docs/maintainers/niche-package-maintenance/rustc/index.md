@@ -12,5 +12,6 @@ Backport Rust <backport-rust>
 rust-version-strings
 Packaging FAQ <rust-packaging-faq>
 rustc-debian-repository
+Common Lintian issues <common-rustc-lintian-issues>
 
 ```

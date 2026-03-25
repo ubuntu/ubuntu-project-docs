@@ -103,6 +103,7 @@ launchpadlib
 Libera
 Libtool
 lintian
+lockfile
 losslessly
 Lubuntu
 Maintainer's
@@ -138,6 +139,7 @@ packageset
 packagesets
 papercuts
 patchfile
+pkgbinarymangler
 Paulina
 PDFs
 plaintext
@@ -168,7 +170,9 @@ Shuttleworth
 sid
 SLOs
 sosreport
+spammy
 sponsoree
+SSDs
 SRUs
 Starcraft
 stacktrace
@@ -192,6 +196,7 @@ toolchains
 toolkits
 tooltip
 tooltips
+touchpad
 trackpad
 triaged
 triager
@@ -205,6 +210,7 @@ unpatched
 unpruned
 unshareable
 unstaged
+untarred
 untracked
 untriaged
 unversioned

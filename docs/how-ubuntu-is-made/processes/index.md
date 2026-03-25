@@ -3,6 +3,11 @@
 
 High-level overviews of the various processes used in the building of Ubuntu, how they work, and who's involved.
 
+```{toctree}
+:maxdepth: 1
+
+lifecycle-of-a-change
+```
 
 ## Ubuntu release cycle
 

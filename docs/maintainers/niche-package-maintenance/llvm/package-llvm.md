@@ -615,7 +615,7 @@ LLVM contains many templated files that need to be regenerated, not least of whi
 debian/rules stamps/preconfigure
 ```
 
-If you get an error when you run that preconfigure target about not having `wasi-libc` installed, see the solution in {ref}`llvm-wasi-libc-issue`.
+If you get an error when you run that preconfigure target about not having `wasi-libc` installed, see the solution in {ref}`why-is-it-saying-i-need-wasi-libc-installed`.
 
 
 ## Building the package

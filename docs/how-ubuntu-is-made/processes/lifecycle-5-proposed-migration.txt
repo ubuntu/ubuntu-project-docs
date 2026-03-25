@@ -1,0 +1,30 @@
+:::{mermaid}
+flowchart TD
+    Build{Builds}
+    Fix["Please fix & re-upload"]
+    Autopkg{"<a href=https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/automatic-package-testing-autopkgtest/>Autopkgtests</a>"}
+    InvestigateAPKGT["<a href=https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/proposed-migration/autopkgtest-regressions/>Investigate regressions</a>"]
+    ArchiveChecks{"<a href=https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/proposed-migration/issues-preventing-migration/>Archive consistency</a><br/>(<a href=https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html>Britney</a>)"}
+    Done(["Migrates"])
+    
+    Build -.-> |"<a href=https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/proposed-migration/failure-to-build-from-source-ftbfs/>FTBFS"</a>| Fix
+    Build --> |"all builds OK"| Autopkg
+    
+    Autopkg -.-> |"regressions"| InvestigateAPKGT
+    Autopkg --> |"all pass"| ArchiveChecks
+    
+    InvestigateAPKGT -.-> |"Real problem"| Fix
+    InvestigateAPKGT --> |"Transient issues, now resolved"| ArchiveChecks
+
+    ArchiveChecks -.-> |"blocked by dependencies"| Fix
+    ArchiveChecks --> |"all checks OK"| Done
+
+    classDef ubuntuStyle fill:#FFDAB9,stroke:#E95420,stroke-width:2px
+    class Fix,InvestigateAPKGT ubuntuStyle
+
+    classDef gateStyle fill:#D0E8FF,stroke:#3366CC,stroke-width:2px
+    class Build,Autopkg,ArchiveChecks gateStyle
+
+    classDef terminalStyle fill:#E0E0E0,stroke:#666666,stroke-width:2px
+    class Done terminalStyle
+:::

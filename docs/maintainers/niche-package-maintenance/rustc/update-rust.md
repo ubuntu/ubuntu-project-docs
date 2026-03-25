@@ -275,7 +275,7 @@ Vendor tarball rule
 After that, call the `vendor-tarball` rule in `debian/rules`. This uses `cargo-vendor-filterer` to generate a vendor directory that _only_ contains the dependencies required by supported Ubuntu targets. It then repacks this directory into the `vendor` tarball component. Make sure you point it to your installed Rust toolchain via `RUST_BOOTSTRAP_DIR`:
 
 ```none
-$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu/bin/rustc \
+$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu \
     debian/rules vendor-tarball
 ```
 
@@ -523,7 +523,7 @@ Certain {term}`control files <control file>`, such as `debian/control` and `debi
 `update-version`, in `debian/rules`, updates all relevant control files automatically. In order to run it, it must be given an up-to-date Rust toolchain via `RUST_BOOTSTRAP_DIR`:
 
 ```none
-$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu/bin/rustc \
+$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu \
     debian/rules update-version
 ```
 
@@ -572,6 +572,7 @@ $ debian/add-vendored-copyright-overrides
 ```
 
 
+(updating-rust-updating-debian-copyright)=
 ### Updating debian/copyright
 
 All the new `vendor` files must be added to `debian/copyright`. In the following steps, all the missing copyright stanzas will be generated.
@@ -582,6 +583,7 @@ All the new `vendor` files must be added to `debian/copyright`. In the following
 {ref}`Clean up previous build artifacts <updating-rust-clean-build>`, build the source package using {manpage}`dpkg-buildpackage(1)`, then run Lintian, redirecting the output to somewhere convenient:
 
 (updating-rust-lintian-command)=
+##### Run the Lintian command
 
 ```none
 $ dpkg-buildpackage -S -I -i -nc -d -sa
