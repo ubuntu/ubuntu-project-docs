@@ -1,8 +1,11 @@
 (validate-the-fix)=
 # Validate the fix
 
+We need to validate the test in an isolated environment and LXC containers are a good tool for it.
 
-## Start a Bionic container and enter it:
+## Start a container
+
+For example when investigating a segfault for bionic, start a `bionic` container.
 
 We can name our LXC containers with any scheme we wish, such as 'tester'
 earlier for a temporary one to test with. However, for bug fixes we'll often
