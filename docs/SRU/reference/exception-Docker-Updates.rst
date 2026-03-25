@@ -68,7 +68,7 @@ autopkgtests on arm64 at the time).
 
 There is also an autopkgtest that exercises "docker in lxd" as described
 in
-https://insights.ubuntu.com/2016/04/13/stephane-graber-lxd-2-0-docker-in-lxd-712/
+https://ubuntu.com/blog/stephane-graber-lxd-2-0-docker-in-lxd-712
 . on autopkgtests.
 
 This QA should happen both for the -proposed -> -release migration in

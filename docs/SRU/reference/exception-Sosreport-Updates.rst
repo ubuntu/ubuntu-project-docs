@@ -17,7 +17,7 @@ third party vendors.
 -  Upstream reference:
 
    -  https://sos.readthedocs.io/en/main/
-   -  http://github.com/sosreport/sos
+   -  https://github.com/sosreport/sos
 
 Therefore, in addition to bug fixes, new features are allowed in an
 update **as long as the conditions outlined below are met**.

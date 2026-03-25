@@ -150,7 +150,7 @@ Security uploads
 In past years, all microreleases have been uploaded on the basis of open CVEs,
 sponsored by the security team. MariaDB is a large piece of software and
 typically has at least 2-5 CVEs per year. See
-https://mariadb.com/kb/en/security/ for details. Note that about 10% of the CVEs
+https://mariadb.com/docs/server/security for details. Note that about 10% of the CVEs
 in Oracle MySQL apply for MariaDB too due to the shared historical code base.
 
 In both MariaDB and MySQL the CVEs are always resolved by publishing the entire

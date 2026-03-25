@@ -90,7 +90,7 @@ for this situation are as follows:
 
 -  An SRU must not be released if outstanding autopkgtest regressions
    are reported on the `Pending SRU
-   Report <https://people.canonical.com/~ubuntu-archive/pending-sru.html>`__.
+   Report <https://ubuntu-archive-team.ubuntu.com/pending-sru.html>`__.
 -  Ideally regressions can be fixed with new uploads to the proposed
    pockets as required. Fixes for autopkgtests are generally always
    acceptable. However uploads providing only test fixes will generally
@@ -125,7 +125,7 @@ thereby causing supported package managers (update-manager) not to
 install the update.
 
 The progress of phased updates is visible in a
-`report <http://people.canonical.com/~ubuntu-archive/phased-updates.html>`__
+`report <https://ubuntu-archive-team.ubuntu.com/phased-updates.html>`__
 which is updated by the same job that does the phasing.
 
 See also:

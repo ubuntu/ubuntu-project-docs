@@ -42,7 +42,7 @@ Upstream Change and Release Policy
 ----------------------------------
 
 Upstream have a
-`policy <http://dpdk.org/doc/guides/contributing/stable.html>`__ for
+`policy <http://doc.dpdk.org/guides/contributing/stable.html>`__ for
 accepting changes into the LTS release branches which includes:
 
 -  Back-porting of any critical bug fixes (crashes, data loss, etc)
@@ -64,13 +64,13 @@ enable it so nothing changes.
 
 Commits are peer reviewed as part of the normal development process and
 are signed to signify both the developer and review (see
-`contrib <http://dpdk.org/doc/guides/contributing/patches.html>`__ for
+`contrib <http://doc.dpdk.org/guides/contributing/patches.html>`__ for
 the doc on this).
 
 LTS release updates are made after some time has passed (to allow
 testing) and usually follow the new master release which happens more or
 less every 3 months (see the the current
-`road-map <http://dpdk.org/dev/roadmap>`__).
+`road-map <http://core.dpdk.org/roadmap/>`__).
 
 Updates to LTS releases are numbered with a minor point release
 
@@ -104,13 +104,13 @@ time.
 
 Results are published via email to the dpdk-test-report mailing list
 (see an
-`examples <http://dpdk.org/ml/archives/test-report/2017-May/020337.html>`__).
+`examples <http://mails.dpdk.org/archives/test-report/2017-May/020337.html>`__).
 
 In addition there is a smaller set of integration tests that runs
 pre-checks. This is integrated into patchwork to directly augment the
 patch review. Those checks were run by Intel so far but are currently
 extended to be a Hardware vendor opt-in to gain even more coverage - see
-`CI <http://dpdk.org/browse/tools/dpdk-ci/tree/README>`__ efforts for
+`CI <https://git.dpdk.org/tools/dpdk-ci/tree/README>`__ efforts for
 details on this growing part of the project that will provide even more
 coverage.
 
@@ -137,7 +137,7 @@ endurance tests via re-attaching devices or re-starting guests (all
 those based on lessons learned by past issues we identified).
 
 In addition, we set up
-`autopkgtests <http://autopkgtest.ubuntu.com/packages/dpdk>`__ as well
+`autopkgtests <https://autopkgtest.ubuntu.com/packages/dpdk>`__ as well
 for those components that can be tested. Those are mostly the extra
 packaging bits that would not be covered by the upstream testing: -
 testing the init scripts - testing dkms modules work within Ubuntu -
@@ -198,7 +198,7 @@ following:
 -  Major changes should be called out in the SRU template, especially
    where changed behavior is not backwards compatible.
 -  Changelog should contain a link to the stable releases announcement
-   (`example <http://dpdk.org/ml/archives/announce/2017-December/000163.html>`__)
+   (`example <http://mails.dpdk.org/archives/announce/2017-December/000163.html>`__)
 
 
 DPDK SRU Template

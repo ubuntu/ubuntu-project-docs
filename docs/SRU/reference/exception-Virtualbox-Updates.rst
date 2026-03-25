@@ -148,7 +148,7 @@ In Debian/Ubuntu:
    leaves virtualbox in stable releases generally vulnerable, e.g. to
    CVE-2015-2594
 
-   -  [1] http://www.oracle.com/us/support/assurance/vulnerability-remediation/disclosure/index.html
+   -  [1] https://www.oracle.com/corporate/security-practices/assurance/vulnerability/disclosure/
 
 -  Usually newer kernels means a bad experience for users, since the
    kernel drivers are rebuilt at each kernel update, and leads to failures

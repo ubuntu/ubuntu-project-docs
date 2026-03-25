@@ -115,7 +115,7 @@ Ambiguity
 
 The server team does many MREs and therefore sometimes it happened that
 these uploads were called an MRE, it is not. This is a platform
-enablement SRU upload under the condition of `"other safe cases" sub section 2 <https://documentation.ubuntu.com/sru/en/latest/reference/requirements/#other-safe-cases>`__:
+enablement SRU upload under the condition of :ref:`"other safe cases" sub section 2 <sru-other-safe-cases>`:
 
 .. code-block:: text
 
