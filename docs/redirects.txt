@@ -97,7 +97,6 @@ how-to/download-new-upstream-version/ contributors/updating/get-a-new-upstream-v
 
 how-to/install-built-packages/ contributors/building/install-built-packages/
 contributors/bug-fix/install-built-packages/ contributors/building/install-built-packages/
-how-to/propose-changes/ contributors/bug-fix/propose-changes/
 
 how-to/run-tests/ contributors/building/run-package-tests/
 contributors/bug-fix/package-tests/ contributors/building/run-package-tests/
