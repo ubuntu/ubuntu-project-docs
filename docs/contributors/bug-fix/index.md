@@ -9,12 +9,12 @@
 
 Get a new upstream version </contributors/updating/get-a-new-upstream-version>
 Extract packages </contributors/updating/extract-packages>
-Install built packages </building/install-built-packages>
+Install built packages </contributors/building/install-built-packages>
 Fix a bug in a package <fix-a-bug-in-a-package>
-Build packages in a PPA </building/build-packages-in-a-ppa>
-Build packages locally </building/build-packages-locally>
+Build packages in a PPA </contributors/building/build-packages-in-a-ppa>
+Build packages locally </contributors/building/build-packages-locally>
 Propose changes <propose-changes>
-Run package tests </building/run-package-tests>
+Run package tests </contributors/building/run-package-tests>
 ```
 
 ## Checklists

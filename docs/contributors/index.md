@@ -64,7 +64,7 @@ updating/index
 ```{toctree}
 :maxdepth: 1
 
-/building/index
+/contributors/building/index
 ```
 
 
