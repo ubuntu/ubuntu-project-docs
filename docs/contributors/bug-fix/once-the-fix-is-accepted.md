@@ -1,8 +1,8 @@
 (once-the-bugfix-is-accepted)=
-## Once the bugfix is accepted
+# Once the bugfix is accepted
 
 
-### The acceptance email
+## The acceptance email
 
 You'll receive an email notification that the bugfix was accepted:
 
@@ -40,7 +40,7 @@ and make sure it's publishing to the correct place (Bionic), and that the
 builds completed (green check marks).
 
 
-### The excuses page
+## The excuses page
 
 Check the "excuses" or "migration" page,
 [for Bionic](https://ubuntu-archive-team.ubuntu.com/proposed-migration/bionic/update_excuses.html)
@@ -57,7 +57,7 @@ This page is generated every few minutes, and doesn't update in real-time.
 ```
 
 
-### SRU verification
+## SRU verification
 
 It's best to have the package independently verified (preferably by the person
 who reported the bug), but if it sits idle too long (2 days or so), you can

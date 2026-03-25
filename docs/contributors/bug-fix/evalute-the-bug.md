@@ -1,11 +1,11 @@
 (evaluate-the-bug)=
-## Evaluate the Bug
+# Evaluate the Bug
 
 Let's look at an example:
 [bug #1753470 report](https://bugs.launchpad.net/ubuntu/+source/postfix/+bug/1753470).
 
 
-### Bug report description:
+## Bug report description:
 
 The original bug report was filed with just this description:
 
@@ -52,7 +52,7 @@ file, you can examine the
 to get a useful stacktrace.
 
 
-### Try to reproduce the issue
+## Try to reproduce the issue
 
 Not all bugs can be easily reproduced, and it's not always obvious how to
 reproduce even reproducible bugs. In these cases, some bug work will be needed
@@ -80,7 +80,7 @@ many options for where and how to do your testing, and different developers
 have their own preferences. Here's a couple of options:
 
 
-#### Make a test environment
+### Make a test environment
 
 To make a container for testing:
 
@@ -112,7 +112,7 @@ The "ubuntu" user's password is locked, but `sudo` can be run without password.
 ```
 
 
-#### Get up to date and install `postfix`
+### Get up to date and install `postfix`
 
 ```none
 ubuntu@tester:~$ sudo apt dist-upgrade
@@ -128,7 +128,7 @@ ubuntu@tester:~$ echo "virtual_alias_maps = pgsql:/etc/postfix/valiases.cf" \
 ```
 
 
-#### To reproduce, the file must be unreadable by the current user
+### To reproduce, the file must be unreadable by the current user
 
 ```none
 ubuntu@tester:~$ sudo touch /etc/postfix/valiases.cf
@@ -136,7 +136,7 @@ ubuntu@tester:~$ sudo chmod 0600 /etc/postfix/valiases.cf
 ```
 
 
-#### Reproduce the issue
+### Reproduce the issue
 
 ```none
 ubuntu@tester:~$ /usr/sbin/postconf virtual_alias_map

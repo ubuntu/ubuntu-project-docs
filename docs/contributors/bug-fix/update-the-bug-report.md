@@ -1,5 +1,5 @@
 (update-the-bug-report)=
-## Update the bug report
+# Update the bug report
 
 For regular bug fixes and merges, adding a comment about your progress is
 typically all you'll need. You might provide some links to your PPA if you'd
@@ -7,7 +7,7 @@ like to get people to test your fix, or if you want to provide the fix to the
 user-base swiftly.
 
 
-### SRU paperwork
+## SRU paperwork
 
 For stable release updates (SRUs), on the other hand, you need to add a bit
 more detail.
@@ -38,7 +38,7 @@ the (`LP: #NNNNNN`) in the changelog entry.
 ```
 
 
-### SRU exceptions
+## SRU exceptions
 
 There is a particular kind of
 [special case SRU](https://documentation.ubuntu.com/sru/en/latest/reference/package-specific/)

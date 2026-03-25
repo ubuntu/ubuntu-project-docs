@@ -7,7 +7,7 @@ newer versions of Ubuntu, Debian, or upstream, and sometimes in external
 forums or bug trackers.
 
 
-### Was it fixed in a newer Ubuntu?
+## Was it fixed in a newer Ubuntu?
 
 The easiest way to check is to review the package's status in Ubuntu:
 
@@ -36,7 +36,7 @@ We see from the first output that `3.3.0-1ubuntu1` exists under Cosmic, so
 `postfix` has been modified there. Let's see what was changed.
 
 
-#### Clone the Package
+### Clone the Package
 
 Find the repository name:
 
@@ -66,7 +66,7 @@ Notes:
    to "`postfix-debian`" and "`postfix`" respectively.
 
 
-#### View the Commit Log
+### View the Commit Log
 
 ```none
 $ git log -b pkg/ubuntu/cosmic
@@ -137,7 +137,7 @@ Here we see both the patch and the change to `debian/patches/series` to
 include the patch. This is the fix we need!
 
 
-### Was it fixed in Debian?
+## Was it fixed in Debian?
 
 Sometimes the fix may have been updated in Debian instead of Ubuntu. There are
 many ways to locate fixes from Debian. Debian maintains its own git
@@ -206,7 +206,7 @@ you'll need to backport the fix by copying what Debian did into a new commit
 on Xenial.
 
 
-### Was it fixed upstream?
+## Was it fixed upstream?
 
 For bugs that aren't already fixed in Ubuntu or Debian, sometimes the original
 developers of the software have already found and fixed the issue, or at least
@@ -231,7 +231,7 @@ Searching the upstream bug tracker, or generally Googling error messages or
 symptoms can sometimes turn up a patch or bug report of relevance.
 
 
-### Forwarding issues upstream
+## Forwarding issues upstream
 
 If there are no existing fixes for an issue, you can either develop one
 yourself, or communicate the problem to Debian or the upstream developers.

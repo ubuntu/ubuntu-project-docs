@@ -1,4 +1,4 @@
-## Apply the fix
+# Apply the fix
 
 Whether the bug fix originates from an upstream project or your own work,
 changes must be managed via patches:
@@ -8,7 +8,7 @@ changes must be managed via patches:
 
 In our workflow, we use `git-ubuntu` to manage and apply these changes to packages.
 
-### Step 1: Assign the task to yourself
+## Step 1: Assign the task to yourself
 
 First, going back to our [example case](https://bugs.launchpad.net/ubuntu/+source/postfix/+bug/1753470)
 
@@ -17,7 +17,7 @@ Go to the task (row) that starts with "bionic" and assign the task to yourself.
 Switch the status to "in progress" using the yellow pencil icons.
 
 
-### Step 2: Clone the package (if you haven't already)
+## Step 2: Clone the package (if you haven't already)
 
 Find the repository name:
 
@@ -33,7 +33,7 @@ $ cd postfix-gu
 ```
 
 
-### Step 3: Make a branch based on the appropriate Ubuntu branch
+## Step 3: Make a branch based on the appropriate Ubuntu branch
 
 The affected version of `postfix` is in Bionic, so we branch from
 `bionic-devel`. It helps to use a descriptive branch name.
@@ -43,7 +43,7 @@ $ git checkout pkg/ubuntu/bionic-devel -b postfix-sru-lp1753470-segfault-bionic
 ```
 
 
-### Step 4: Make a patch to fix the issue (maybe)
+## Step 4: Make a patch to fix the issue (maybe)
 
 If the only changes you made are within the `debian/` sub-directory, you don't
 need a patchfile, and can skip this step.
@@ -55,6 +55,6 @@ outside of the `debian/` directory), you'll need to generate a patch in
 For instructions, see {ref}`how-to-work-with-debian-patches`.
 
 
-### Step 5: Commit the patch
+## Step 5: Commit the patch
 
 See {ref}`how-to-commit-changes`.
