@@ -1,6 +1,9 @@
 (building)=
 # Building
 
+The package can be built either locally or in a Launchpad PPA. It is always recommended to test that the package installs and passes its tests
+before submitting a merge proposal.
+
 ```{toctree}
 :maxdepth: 1
 
