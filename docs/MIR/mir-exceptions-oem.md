@@ -34,7 +34,7 @@ handling. Which means it can either only be processed by members being in the
 intersection of [SRU members](https://launchpad.net/~ubuntu-sru/+members) and
 [Archive Admin members](https://launchpad.net/~ubuntu-archive/+members).
 Or, following the joint processing as mentioned in
-[SRU uploads hitting the new queue](https://documentation.ubuntu.com/sru/en/latest/howto/special/#sru-uploads-hitting-the-new-queue).
+{ref}`SRU uploads hitting the new queue <howto-new-queue>`.
 
 When uploaded to `-unapproved` the SRU team will see it, but only those that
 also are Archive Admins can process it. For awareness, the uploader is
