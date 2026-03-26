@@ -29,7 +29,6 @@ Detailed description of the workings of the Ubuntu package archive, as well as p
 
 package-archive
 package-format
-package-lifecycle
 version-strings
 patches
 phased-updates
