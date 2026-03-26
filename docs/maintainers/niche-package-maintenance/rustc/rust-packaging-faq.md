@@ -254,7 +254,7 @@ Some tests are disabled in the package because they require network access or ar
 : After a successful PPA build, {term}`autopkgtests<autopkgtest>` can be triggered against the built packages.
 The `rustc` autopkgtest suite includes standard regression tests, as well as a self-build test, which uses the newly packaged `rustc` to recompile itself.
 This verifies that the toolchain can bootstrap the next Rust version.
-For backports, the self-build test is {ref}`typically disabled <rust-disabling-self-build-test>` because it is resource-intensive and prone to timeouts; the bootstrapping is still implicitly verified when the next Rust version is built.
+For backports, the self-build test is {ref}`typically disabled <rust-disabling-autopkgtest-self-build-test>` because it is resource-intensive and prone to timeouts; the bootstrapping is still implicitly verified when the next Rust version is built.
 
 ## What Ubuntu Archive processes and infrastructure does `rustc` maintenance involve?
 
