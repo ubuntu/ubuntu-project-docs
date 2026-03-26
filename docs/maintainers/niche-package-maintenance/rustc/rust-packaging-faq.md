@@ -184,7 +184,7 @@ Accordingly, `rustc` sometimes uses a vendored version of LLVM, even if that ver
 Ubuntu does not currently build a package for the cross-compilation tooling for WASM.
 However, that workflow should be fully supported via `rustup`, which is available as a Snap or in `universe`.
 
-## What are `rust-defaults`, `rustc` and `cargo` and how do they relate to `rustc-X.Y` and `cargo-X.Y`?
+## What are `rust-defaults`, `rustc`, and `cargo` and how do they relate to `rustc-X.Y` and `cargo-X.Y`?
 
 :::{note}
 `rust-defaults` was introduced in Ubuntu 24.10 (Oracular).
