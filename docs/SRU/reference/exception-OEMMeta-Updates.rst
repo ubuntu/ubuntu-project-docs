@@ -57,7 +57,7 @@ OEM SRU Bug template
 OEM Procedure
 -------------
 
-There is `an existing MIR exception <https://canonical-ubuntu-project.readthedocs-hosted.com/MIR/mir-exceptions-oem/#mir-exceptions-oem>`__,
+There is :ref:`an existing MIR exception <mir-exceptions-oem>`,
 allowing these packages to be accepted directly into main. As long as
 the package complies with the template required for the MIR exception to
 apply, it can be similarly accepted into \`-proposed\` without further

@@ -171,7 +171,7 @@ QA tests
    suite <https://git.launchpad.net/plainbox-provider-sru/tree/units/sru.pxu>`__
    must pass on a range of hardware.
 -  Call for testing is sent to the community via the `community
-   hub <https://community.ubuntu.com>`__ as soon as the drivers are
+   hub <https://discourse.ubuntu.com/>`__ as soon as the drivers are
    available in the staging PPA.
 
 
@@ -238,13 +238,13 @@ References
 ----------
 
 -  `nVidia Unix Drivers
-   Archive <https://www.nvidia.com/object/unix.html>`__
+   Archive <https://www.nvidia.com/en-us/drivers/unix/>`__
 -  `Full
-   history <https://www.nvidia.com/object/linux-amd64-display-archive.html>`__
+   history <https://download.nvidia.com/XFree86/Linux-x86_64/>`__
    of the drivers
 -  `Support timeframe for legacy
    drivers <https://nvidia.custhelp.com/app/answers/detail/a_id/3142>`__
 -  `What is a legacy
-   GPU <https://www.nvidia.com/object/IO_32667.html>`__
+   GPU <https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/>`__
 -  `nVidia drivers staging
    PPA <https://launchpad.net/~canonical-hwe-team/+archive/ubuntu/intermediate-kernel>`__

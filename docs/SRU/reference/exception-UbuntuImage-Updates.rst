@@ -37,7 +37,7 @@ is generally reviewed by at least one other member of the ubuntu-image
 team, although because of the team's size this cannot always be
 guaranteed. Continuous integration is performed on **all** pull
 requests, using DEP-8 style `autopackage
-tests <http://autopkgtest.ubuntu.com/packages/ubuntu-image>`__ on all
+tests <https://autopkgtest.ubuntu.com/packages/ubuntu-image>`__ on all
 supported Ubuntu releases. Branches are never merged if any test fails.
 This includes 100% unit test coverage.
 
