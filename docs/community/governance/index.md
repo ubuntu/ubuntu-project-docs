@@ -81,8 +81,8 @@ If you have a particular interest in a specific aspect of the project, please jo
 
 ## Local Community Teams
 
-A major part of the fabric of the community is the Local Community (LoCo) team structure. LoCo teams work with local Linux User Groups (LUGs), schools, municipalities and even national governments to open people's eyes to the world of free software.
+A major part of the fabric of the community is the Local Community team structure. Local Community teams work with local Linux User Groups (LUGs), schools, municipalities and even national governments to open people's eyes to the world of free software.
 
-Local Community teams are a great way to gather free software lovers together for beer, open discussion, talks, marketing events and to recognise the achievements of local free software contributors. LoCo teams are provided with spaces for discussion, collaboration and event planning on the [Ubuntu Discourse](https://discourse.ubuntu.com/c/locos/129).
+Local Community teams are a great way to gather free software lovers together for beer, open discussion, talks, marketing events and to recognise the achievements of local free software contributors. Local Community teams are provided with spaces for discussion, collaboration and event planning on the [Ubuntu Discourse](https://discourse.ubuntu.com/c/community/circles/129).
 
 To join a Local Community team or learn how to start one in your area, check out {ref}`Ubuntu Local Communities <local-communities>`.
