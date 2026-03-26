@@ -177,9 +177,9 @@ sitemap_show_lastmod = True
 # Exclude generated pages from the sitemap:
 
 sitemap_excludes = [
-    '404/',
-    'genindex/',
-    'search/',
+    "404/",
+    "genindex/",
+    "search/",
 ]
 
 # Template and asset locations
@@ -391,6 +391,23 @@ extlinks = {
 }
 
 
+# sphinx-llm config
+llms_txt_full_build = False
+llms_txt_suffix_mode = "url-suffix"
+llms_txt_description = (
+    "This documentation provides guidance for contributors to and "
+    "maintainers of the Ubuntu Linux distribution. It covers processes "
+    "and concepts, as well as project governance and team workflows. "
+    "There are instructions for packaging, merging, proposed migrations, "
+    "autopkgtests, and many other procedures for maintaining the Ubuntu "
+    "Archive and releasing the distribution."
+)
+
+# sphinx-markdown-builder config
+# set markdown_http_base without `/` at the end
+markdown_http_base = "https://documentation.ubuntu.com/project"
+
+
 # Workaround for https://github.com/canonical/canonical-sphinx/issues/34
 
 if "discourse_prefix" not in html_context and "discourse" in html_context:
@@ -441,23 +458,22 @@ def unescape_amp_in_links(app, exception):
         return
 
     # Only run for html builders
-    if app.builder.format != 'html':
+    if app.builder.format != "html":
         return
 
     def unescape_match(match):
-        return match.group(0).replace('&amp;amp;', '&amp;')
+        return match.group(0).replace("&amp;amp;", "&amp;")
 
     for root, dirs, files in os.walk(app.outdir):
         for file in files:
             if file.endswith(".html"):
                 path = os.path.join(root, file)
                 try:
-                    with open(path, 'r', encoding='utf-8') as f:
+                    with open(path, "r", encoding="utf-8") as f:
                         content = f.read()
-                    new_content = re.sub(r'href=".*\?([^"]*)"',
-                                         unescape_match, content)
+                    new_content = re.sub(r'href=".*\?([^"]*)"', unescape_match, content)
                     if new_content != content:
-                        with open(path, 'w', encoding='utf-8') as f:
+                        with open(path, "w", encoding="utf-8") as f:
                             f.write(new_content)
                 except Exception as e:
                     print(f"Failed to process {path}: {e}")
@@ -465,7 +481,7 @@ def unescape_amp_in_links(app, exception):
 
 def setup(app):
     roles.register_local_role("command", CommandRole())
-    app.connect('build-finished', unescape_amp_in_links)
+    app.connect("build-finished", unescape_amp_in_links)
 
 
 # Define a custom role for package-name formatting
