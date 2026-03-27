@@ -191,7 +191,7 @@ For more tags see [Kernel/Tagging](https://wiki.ubuntu.com/Kernel/Tagging).
 
 ### Regression specific
 
-See the [regression tracker](http://qa.ubuntu.com/reports/regression/regression_tracker.html) for a list of these bugs and [QA Team/Regression Tracking](https://wiki.ubuntu.com/QATeam/RegressionTracking) for more information.
+See the [regression tracker](https://discourse.ubuntu.com/t/ubuntu-quality/39) for a list of these bugs and [QA Team/Regression Tracking](https://wiki.ubuntu.com/QATeam/RegressionTracking) for more information.
 
 | Tag | Use case |
 | :---- | :---- |
@@ -222,7 +222,7 @@ See [Stable Release Updates](https://documentation.ubuntu.com/sru/en/latest/) do
 | [`verification-done`](https://launchpad.net/ubuntu/+bugs?field.tag=verification-done) | A Stable Release Update bug with a package in `-proposed` that has been confirmed to fix the bug |
 | [`verification-failed`](https://launchpad.net/ubuntu/+bugs?field.tag=verification-failed) | A Stable Release Update bug with a package in `-proposed` that has been verified to not fix the bug |
 | [`verification-needed`](https://launchpad.net/ubuntu/+bugs?field.tag=verification-needed) | A Stable Release Update bug with a package in `-proposed` needing testing |
-| `block-proposed-<series>` | A bug that should be held back from being released into the `-updates` pocket for the corresponding stable series (see [Staging an upload](https://documentation.ubuntu.com/sru/en/latest/howto/special/#stage-an-upload)) |
+| `block-proposed-<series>` | A bug that should be held back from being released into the `-updates` pocket for the corresponding stable series (see {ref}`Staging an upload <special-types-of-sru>`) |
 
 
 ### X-specific

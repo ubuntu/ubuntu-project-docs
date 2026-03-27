@@ -138,5 +138,5 @@ It is then {ref}`checked by the Archive Admin team <aa-new-review>`.
 * [Debian's SCM](https://salsa.debian.org/public) -- it's possible that a package has been worked on for Debian but has a status of *UNRELEASED*.
   Check the appropriate directories beginning with "pkg" that your package may fall under.
   For example, game packages would be under "pkg-games".
-  [The Debian Package Tracking System](https://packages.qa.debian.org/common/index.html) will help you find the specific branch where the package is being maintained.
+  [The Debian Package Tracking System](https://tracker.debian.org/) will help you find the specific branch where the package is being maintained.
 
