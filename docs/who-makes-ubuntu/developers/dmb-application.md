@@ -136,6 +136,11 @@ To exercise this process, the Debian Developer should first be an existing Ubunt
 Subsequent changes are requested by mailing `devel-permissions@lists.ubuntu.com` listing the packages to add. This only requires one DMB member to agree in order to pass.
 If the "impact" of the packages changes -- for example, one of the packages is part of release media for the first time -- the DMB may wish to ask some further clarifying questions to satisfy itself that the Debian Developer is sufficiently familiar with the differences between Ubuntu and Debian to upload the package(s) in question without supervision.
 
+```{note}
+In Debian, there are some teams who maintain hundreds or even thousands of packages (e.g., the Python team owns over 3000 packges).
+If you as a Debian Developer decide you want upload rights for such a large a set of packages, for which a package set does not exist in Ubuntu, please consider applying for MOTU or Core Developer instead of using the policy described here.
+You may also want to go through another application if the usage of this policy would drastically increase the number of packages you have upload rights to. For instance, if you have Per-Package Upload rights to a single Go package, it may not be reasonable to use this policy to request access to all Debian Golang team packages given you are part of the Debian Golang team. When in doubt, please reach out to the DMB.
+```
 
 
 ## Applying for upload permissions which grant no further access
