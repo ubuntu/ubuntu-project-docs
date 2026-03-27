@@ -46,7 +46,7 @@ will show the contact information for the snap creator, which is where to report
 (create-a-launchpad-account)=
 ## Create a Launchpad account
 
-If you don’t already have one - you need to [create a Launchpad account](https://help.launchpad.net/YourAccount/NewAccount). This will allow you to file new bugs and comment on existing ones.
+If you don’t already have one - you need to [create a Launchpad account](https://documentation.ubuntu.com/launchpad/user/YourAccount/NewAccount/). This will allow you to file new bugs and comment on existing ones.
 
 
 (determine-if-the-bug-is-really-a-bug)=
@@ -56,9 +56,9 @@ You should not file a bug if you are:
 
 * **Requesting new software:** You should follow the guidelines at [https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages](https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages).
 
-* **Requesting support:** There are a multitude of ways you can get help using Ubuntu, such as the [Launchpad answer tracker](https://answers.launchpad.net/ubuntu), the [Ask Ubuntu](http://askubuntu.com/) site, the [Ubuntu forums](http://www.ubuntuforums.org/), the {matrix}`Matrix <discuss>` channel on {ref}`Matrix <using-matrix>`, and the [ubuntu-users](http://lists.ubuntu.com/mailman/listinfo/ubuntu-users) mailing list.
+* **Requesting support:** There are a multitude of ways you can get help using Ubuntu, such as the [Launchpad answer tracker](https://answers.launchpad.net/ubuntu), the [Ask Ubuntu](https://askubuntu.com/) site, the [Ubuntu forums](http://www.ubuntuforums.org/), the {matrix}`Matrix <discuss>` channel on {ref}`Matrix <using-matrix>`, and the [ubuntu-users](https://lists.ubuntu.com/mailman/listinfo/ubuntu-users) mailing list.
 
-* **Discussing features, existing policy, proposing features, or ideas:** This belongs to the [ubuntu-devel-discuss](http://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss) mailing list.
+* **Discussing features, existing policy, proposing features, or ideas:** This belongs to the [ubuntu-devel-discuss](https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss) mailing list.
 
 * **Filing a bug against a package not provided by the default, supported Ubuntu repositories:** This is due to how it wasn't confirmed by Ubuntu Developers for your release. Problems that unsupported software have caused are upgrade issues, and the program or operating system not functioning correctly. Typically, what isn't supported is software from a PPA (Personal Package Archive), 3rd party packages, self-compiled software, etc. For more on supported Ubuntu repositories, please see [here](https://help.ubuntu.com/community/Repositories). If you are using unsupported software, it is best to contact the maintainers directly. Instructions are generally available on the program maintainer's web site.
 
@@ -83,7 +83,7 @@ If an application crashes, what typically happens is [Apport](https://wiki.ubunt
 Once done, it will ask you if you would like to report it.
 
 ```{note}
-Before continuing, make sure the package [whoopsie](https://launchpad.net/ubuntu/+source/whoopsie) is installed. Otherwise, Apport will appear to upload a crash report, but only actually does so if whoopsie is installed. Whoopsie is installed by default for users of [ubuntu-desktop](https://launchpad.net/ubuntu/+source/ubuntu-meta), but for users of alternative desktops, or for server users, whoopsie has to be installed manually with apt-get install whoopsie. See [bug #1001630](https://bugs.launchpad.net/bugs/1001630) for details.
+Before continuing, make sure the package [whoopsie](https://launchpad.net/ubuntu/+source/whoopsie) is installed. Otherwise, Apport will appear to upload a crash report, but only actually does so if whoopsie is installed. Whoopsie is installed by default for users of [ubuntu-desktop](https://launchpad.net/ubuntu/+source/ubuntu-meta), but for users of alternative desktops, or for server users, whoopsie has to be installed manually with apt-get install whoopsie. See bug {lpbug}`1001630` for details.
 ```
 
 If the crash is in [Xorg](https://launchpad.net/ubuntu/+source/xorg) edit /etc/gdm3/custom.conf from:
@@ -114,7 +114,7 @@ What happens next is a web browser opens requesting you to login, and subsequent
 (reporting-a-crash-in-the-stable-release)=
 ### Reporting a crash in the stable release
 
-By default, Apport will not upload crash reports to Launchpad for a stable release (see [bug #994921](https://bugs.launchpad.net/bugs/994921)). Instead, crash reports are uploaded to [Ubuntu's Error Tracker](https://wiki.ubuntu.com/ErrorTracker).
+By default, Apport will not upload crash reports to Launchpad for a stable release (see bug {lpbug}`994921`). Instead, crash reports are uploaded to [Ubuntu's Error Tracker](https://wiki.ubuntu.com/ErrorTracker).
 
 If you have a need to file a report on Launchpad anyways (e.g. you don't have access to the errors infrastructure, you want to subscribe others to a report to review it, etc.) one may do so by editing:
 
@@ -190,7 +190,7 @@ enabled=1
 
 If Apport is enabled, then you may have one of the following issues:
 
-* LibreOffice is crashing, and neither Apport or the built-in crash reporter captures the crash. For more on this, please see [bug #1537566](https://bugs.launchpad.net/bugs/1537566).
+* LibreOffice is crashing, and neither Apport or the built-in crash reporter captures the crash. For more on this, please see {lpbug}`1537566`.
 
 * For system crashes (e.g. system locks up, freezes, logs you out, etc.) one my gather debugging information about [system crashes](https://help.ubuntu.com/community/DebuggingSystemCrash).
 
@@ -284,7 +284,7 @@ At then bottom of the page, there are some extra options you can use to make you
 
 * **This bug is a security vulnerability:** Please check this **_only_** if your bug report describes a behaviour that could be exploited to compromise your security or safety, as well as cause issues such as identity theft or "hi-jacking".
 
-* **Tags:** You can add here [tags](http://wiki.ubuntu.com/Bugs/Tags) that pertain to your bug report. The predefined values should be left alone.
+* **Tags:** You can {ref}`add here tags <bug-tags>` that pertain to your bug report. The predefined values should be left alone.
 
 * **Include an attachment:** Using this option, you can add supporting attachments to explain or help others reproduce the bug. This might include a screenshot, a video capture of the problem or a sample document that triggers the fault. If necessary, additional attachments can be added after the bug is reported via **Add a comment/attachment** at the bottom of the page. Please check [https://wiki.ubuntu.com/DebuggingProcedures](https://wiki.ubuntu.com/DebuggingProcedures) for any further information to provide. It is vital for developers to get this information, as it contains the minimum requirement information necessary for a developer to begin working on your bug.
 
@@ -337,7 +337,7 @@ Please do not attach the `.apport` or `.crash` file to the report, as this is no
 
 Before you proceed, you should think about the nature of the problem you're facing. If Ubuntu or its software seems to simply be generally "misbehaving", it might not be a software bug, but it is still a problem we want to help fix. We have an entire community of people who can help you in real time on our live IRC chat channels. You can find a list of these channels at [https://wiki.ubuntu.com/IRC/ChannelList](https://wiki.ubuntu.com/IRC/ChannelList). On the other hand, if you are absolutely sure that you've encountered a legitimate error in the software's behavior (especially one that can be reproduced regularly), and you're sure you don't need any help, then continue with the bug reporting process.
 
-If for some reason you cannot file a bug using the *Apport* tool you can file one via [Launchpad's own bug report form](https://bugs.launchpad.net/ubuntu/+filebug/?no-redirect). When doing so it is best if you have determined which package it should be filed against. Read '[finding the right package](http://wiki.ubuntu.com/Bugs/FindRightPackage)' for guidance or use [Launchpad's package search feature](http://launchpad.net/ubuntu/). We don't recommend this method for most bug reports because they will likely be missing crucial information, use ubuntu-bug if you can!
+If for some reason you cannot file a bug using the *Apport* tool you can file one via [Launchpad's own bug report form](https://bugs.launchpad.net/ubuntu/+filebug/+login?no-redirect). When doing so it is best if you have determined which package it should be filed against. Read '[finding the right package](https://wiki.ubuntu.com/Bugs/FindRightPackage)' for guidance or use [Launchpad's package search feature](https://launchpad.net/ubuntu/). We don't recommend this method for most bug reports because they will likely be missing crucial information, use ubuntu-bug if you can!
 
 To file a bug against a specific package you can also use a URL like the following:
 
@@ -397,16 +397,16 @@ You should file a translation bug if you are experiencing one of the following i
 
 * Errors in spellcheckers or language support
 
-* A string from an application not available for translation in [Launchpad Translations](http://translations.launchpad.net/ubuntu)
+* A string from an application not available for translation in [Launchpad Translations](https://translations.launchpad.net/ubuntu)
 
-* An application from the Ubuntu main repository not available for translation in [Launchpad Translations](http://translations.launchpad.net/ubuntu)
+* An application from the Ubuntu main repository not available for translation in [Launchpad Translations](https://translations.launchpad.net/ubuntu)
 
-* A translation made in [Launchpad Translations](http://translations.launchpad.net/ubuntu) and not updated in the Ubuntu language packs
+* A translation made in [Launchpad Translations](https://translations.launchpad.net/ubuntu) and not updated in the Ubuntu language packs
 
-* A duplicate translation template (the same application can be translated in two different places) in [Launchpad Translations](http://translations.launchpad.net/ubuntu)
+* A duplicate translation template (the same application can be translated in two different places) in [Launchpad Translations](https://translations.launchpad.net/ubuntu)
 
-* A template/translation no longer used in Ubuntu and that should be disabled from [Launchpad Translations](http://translations.launchpad.net/ubuntu)
-In case of doubt, you can always [contact the Translations team](http://wiki.ubuntu.com/Translations/Contact).
+* A template/translation no longer used in Ubuntu and that should be disabled from [Launchpad Translations](https://translations.launchpad.net/ubuntu)
+In case of doubt, you can always [contact the Translations team](https://wiki.ubuntu.com/Translations/Contact).
 
 All translation issues should be filed against the [Ubuntu Translations project](https://bugs.launchpad.net/ubuntu-translations). From there the bugs will be triaged and assigned to the right person and package.
 

@@ -77,7 +77,7 @@ Advanced Packaging Tool
     This is a common package manager used in Ubuntu.
 
     See also:
-    * [Package management (Ubuntu Server documentation)](https://documentation.ubuntu.com/server/how-to/software/package-management/)
+    * [Package management (Ubuntu Server documentation)](https://ubuntu.com/server/docs/how-to/software/package-management/)
 
 Architecture
     Within the context of {term}`Ubuntu`, this generally and usually refers to a system architecture

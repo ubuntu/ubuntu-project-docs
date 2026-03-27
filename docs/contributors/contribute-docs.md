@@ -129,8 +129,8 @@ Follow these steps to build the documentation on your local machine.
 
 The Ubuntu Project documentation is built with Sphinx using a combination of the MyST flavor of the Markdown and reStructuredText mark-up languages. MyST is preferred for new content. If you're new to this, see our guides:
 
-* [MyST style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/myst-syntax-reference/)
-* [reStructuredText style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/rst-syntax-reference/)
+* [MyST style guide](https://canonical-starter-pack.readthedocs-hosted.com/stable/reference/myst-syntax-reference/)
+* [reStructuredText style guide](https://canonical-starter-pack.readthedocs-hosted.com/stable/reference/rst-syntax-reference/)
 
 
 ### Organization principles
@@ -482,4 +482,4 @@ Stay in touch either through the task list, or through one of the following loca
 * {matrix}`documentation` on Matrix for interactive chat.
 * [Fosstodon](https://fosstodon.org/@CanonicalDocumentation) for the latest updates and events.
 
-In addition to the above, we have a weekly [Open Documentation Hour](https://discourse.ubuntu.com/t/community-hour-schedule/45291) at 16:00 UTC each Friday. Everyone is welcome.
+In addition to the above, we have a weekly [Open Documentation Hour](https://discourse.ubuntu.com/t/community-hour-ideas-pool/45291) at 16:00 UTC each Friday. Everyone is welcome.

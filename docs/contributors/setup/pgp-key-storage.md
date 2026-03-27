@@ -193,7 +193,7 @@ hardware security keys shall be provided via the project's documentation once
 we standardize more on it.
 
 Until then, starting with these articles on
-[Using your YubiKey with OpenPGP](https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP)
+[Using your YubiKey with OpenPGP](https://support.yubico.com/s/article/Using-Your-YubiKey-with-OpenPGP)
 and the [YubiKey Guide](https://drduh.github.io/YubiKey-Guide) are a great way
 to begin.
 

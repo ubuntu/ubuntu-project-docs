@@ -928,8 +928,8 @@ Once this stripped-down version of LLVM has built in your PPA, build the `llvm-s
 
 In some circumstances, those packages may already exist in another version of Ubuntu, and backports tend to go smoothly.  If not, grab the latest packaging files from Debian Salsa:
 
-- https://salsa.debian.org/xorg-team/vulkan/spirv-tools.git
-- https://salsa.debian.org/xorg-team/vulkan/spirv-headers.git
+- https://salsa.debian.org/xorg-team/vulkan/spirv-tools
+- https://salsa.debian.org/xorg-team/vulkan/spirv-headers
 - https://salsa.debian.org/opencl-team/spirv-llvm-translator
 
 The final `spirv-llvm-translator` package can be tricky to build, as the upstream Debian package definition doesn't always build cleanly on Ubuntu. For example, you might need to adjust the version of GCC it requires, which in turn breaks the symbols file included with the package. You have to fix these things as you would in any other package. For that specific problem, reference the [Debian documentation on symbols files](https://wiki.debian.org/UsingSymbolsFiles)

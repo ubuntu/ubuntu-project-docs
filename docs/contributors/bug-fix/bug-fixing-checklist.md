@@ -132,7 +132,7 @@ to the version you need before getting the tarball.
 
 ## 5. (optional) SRU/MIR/FFe template
 
-- [ ] [SRU](https://documentation.ubuntu.com/sru/en/latest/reference/bug-template/)
+- [ ] {ref}`SRU <reference-sru-bug-template>`
 
 - [ ] {ref}`mir-reporters-template`
 

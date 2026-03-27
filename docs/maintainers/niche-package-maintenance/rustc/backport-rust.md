@@ -897,7 +897,7 @@ Certain tests may fail on {term}`RISC-V` because older versions of {lpsrc}`binut
 (rust-disabling-zicsr)=
 #### Disabling `zicsr` (LLVM 18+)
 
-There exists a patch which disables the [`zicsr`](https://www.five-embeddev.com/riscv-user-isa-manual/latest-adoc/zicsr.html) RISC-V extension:
+There exists a patch which disables the [`zicsr`](https://www.five-embeddev.com/riscv-user-isa-manual/latest-adoc/zicsr) RISC-V extension:
 
 ```none
 $ git cherry-pick e7285a65b8ae134c7bd506e23beef4a3f088eab5
