@@ -1,0 +1,40 @@
+name: Weekly Issue & PR Queue Report
+
+# Runs every Monday at 12:00 UTC and can also be triggered manually.
+on:
+  schedule:
+    - cron: '0 12 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  queue-report:
+    name: Generate and send queue report
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run queue report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Mattermost — set both as repo secrets.
+          # MATTERMOST_URL can be overridden as a repo variable if needed.
+          MATTERMOST_TOKEN: ${{ secrets.MATTERMOST_TOKEN }}
+          MATTERMOST_CHANNEL_ID: ${{ secrets.MATTERMOST_CHANNEL_ID }}
+          MATTERMOST_URL: ${{ vars.MATTERMOST_URL }}
+          # Matrix — set both as repo secrets.
+          # MATRIX_HOMESERVER can be overridden as a repo variable if needed.
+          MATRIX_TOKEN: ${{ secrets.MATRIX_TOKEN }}
+          MATRIX_ROOM_ID: ${{ secrets.MATRIX_ROOM_ID }}
+          MATRIX_HOMESERVER: ${{ vars.MATRIX_HOMESERVER }}
+        run: python .github/scripts/queue-report.py
