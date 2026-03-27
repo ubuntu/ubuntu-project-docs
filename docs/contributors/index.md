@@ -50,13 +50,24 @@ bug-fix/index
 ```
 
 
-## Patching
+## Updating
 
 ```{toctree}
 :maxdepth: 1
 
-patching/index
+updating/index
 ```
+
+
+## Building
+
+```{toctree}
+:maxdepth: 1
+
+/contributors/building/index
+```
+
+
 
 
 ## Merging

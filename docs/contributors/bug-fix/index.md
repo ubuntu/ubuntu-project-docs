@@ -1,20 +1,36 @@
 (fixing-bugs)=
 # Fixing bugs
 
+The process of bug fixing in Ubuntu consists of:
 
-## Fixing bugs in packages
+- Evaluating a bug
+
+- Finding a fix for it
+
+- Packaging the fix for Ubuntu
+
+Every bug is unique, of course; this is intended to illustrate the mindset and
+steps one should follow generally. 
+
+## Bugfixing workflow
 
 ```{toctree}
 :maxdepth: 1
+Bugfixing workflow <bugfixing-workflow>
+```
+## Bugfixing steps
 
-Get a new upstream version <get-a-new-upstream-version>
-Extract packages <extract-packages>
-Install built packages <install-built-packages>
-Fix a bug in a package <fix-a-bug-in-a-package>
-Build packages in a PPA <build-packages-in-a-ppa>
-Build packages locally <build-packages-locally>
-Propose changes <propose-changes>
-Run package tests <run-package-tests>
+```{toctree}
+:maxdepth: 1
+Evaluate the bug <evalute-the-bug>
+Check if it's already been fixed <check-if-is-it-already-fixed>
+Apply the fix <apply-the-fix>
+Build a fixed package </contributors/building/index>
+Validate the fix <validate-the-fix>
+Run the package tests </contributors/building/run-package-tests>
+Submit a merge proposal </contributors/updating/submit-a-merge-proposal>
+Update the bug report <update-the-bug-report>
+Once the fix is accepted <once-the-fix-is-accepted>
 ```
 
 ## Checklists

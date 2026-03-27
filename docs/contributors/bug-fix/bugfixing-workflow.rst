@@ -1,9 +1,9 @@
-.. _how-to-propose-changes:
+.. _bugfixing-workflow:
 
-How to propose changes
-======================
+Bugfixing workflow
+==================
 
-This guide walks through the process for proposing changes to Ubuntu. When you find a problem, obtain the code, work on a solution, test the fix, push your changes to :term:`Launchpad`, and request a review and merge.
+This guide walks through the process for fixing bugs in Ubuntu. When you find a problem, obtain the code, work on a solution, test the fix, push your changes to :term:`Launchpad`, and request a review and merge.
 
 .. attention::
 
