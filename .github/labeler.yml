@@ -1,0 +1,27 @@
+MIR:
+  - changed-files:
+    - any-glob-to-any-file: '**/MIR/**'
+
+SRU:
+  - changed-files:
+    - any-glob-to-any-file: '**/SRU/**'
+
+TB:
+  - changed-files:
+    - any-glob-to-any-file: '**/tech-board/**'
+
+Release team:
+  - changed-files:
+    - any-glob-to-any-file: '**/release-team/**'
+
+community:
+  - changed-files:
+    - any-glob-to-any-file: '**/community/**'
+
+AA:
+  - changed-files:
+    - any-glob-to-any-file: '**/aa-*'
+
+DMB:
+  - changed-files:
+    - any-glob-to-any-file: '**/dmb-*'
