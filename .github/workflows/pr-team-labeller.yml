@@ -2,125 +2,15 @@ name: Add team label to PR
 
 on:
   pull_request_target:
-    types: [opened, synchronize]
-
-permissions:
-  pull-requests: write
-  issues: write
-  contents: read
 
 jobs:
-  apply-team-labels:
+  labeler:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - name: Apply team labels based on changed files
-        uses: actions/github-script@v7
+      - name: Apply labels based on changed files
+        uses: actions/labeler@v6
         with:
-          script: |
-            const prNumber = context.payload.pull_request.number;
-            
-            console.log('Processing PR #' + prNumber + ' for team labelling');
-            
-            // Get the list of files changed in this PR
-            const { data: files } = await github.rest.pulls.listFiles({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
-            
-            const changedFiles = files.map(file => file.filename);
-            console.log('Changed files: ' + changedFiles.length);
-            if (changedFiles.length > 0) {
-              console.log('Files: ' + changedFiles.join(', '));
-            }
-            
-            // Define team label mappings for path-based matching
-            // Format: { pattern: 'path pattern', label: 'Label Name', type: 'path' or 'file' }
-            const teamMappings = [
-              { pattern: '/MIR/', label: 'MIR', type: 'path' },
-              { pattern: '/SRU/', label: 'SRU', type: 'path' },
-              { pattern: '/tech-board/', label: 'TB', type: 'path' },
-              { pattern: '/release-team/', label: 'Release team', type: 'path' },
-              { pattern: '/community/', label: 'community', type: 'path' },
-              { pattern: '/aa-', label: 'AA', type: 'file' },
-              { pattern: '/dmb-', label: 'DMB', type: 'file' }
-            ];
-            
-            // Check each changed file against team patterns
-            const labelsToApply = new Set();
-            
-            for (const filePath of changedFiles) {
-              console.log('Checking file: ' + filePath);
-              
-              for (const mapping of teamMappings) {
-                if (mapping.type === 'path') {
-                  // Direct path matching (e.g., docs/MIR/mir-page.md)
-                  if (filePath.includes(mapping.pattern)) {
-                    console.log('  Matched pattern "' + mapping.pattern + '" → Label: ' + mapping.label);
-                    labelsToApply.add(mapping.label);
-                  }
-                } else if (mapping.type === 'file') {
-                  // File name pattern matching (e.g., /aa-*.md or /dmb-*.md)
-                  if (filePath.includes(mapping.pattern)) {
-                    console.log('  Matched file pattern "' + mapping.pattern + '*.md" → Label: ' + mapping.label);
-                    labelsToApply.add(mapping.label);
-                  }
-                }
-              }
-            }
-            
-            // Get all team labels we manage (for both adding and removing)
-            const allManagedTeamLabels = new Set();
-            teamMappings.forEach(m => allManagedTeamLabels.add(m.label));
-            
-            // Get current labels on the PR
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
-            
-            const currentLabels = pr.labels.map(label => label.name);
-            const currentTeamLabels = currentLabels.filter(label => allManagedTeamLabels.has(label));
-            
-            // Determine which labels to add and remove
-            const labelsToAdd = Array.from(labelsToApply).filter(label => !currentLabels.includes(label));
-            const labelsToRemove = currentTeamLabels.filter(label => !labelsToApply.has(label));
-            
-            console.log('Current team labels: ' + (currentTeamLabels.length > 0 ? currentTeamLabels.join(', ') : 'none'));
-            console.log('Should have team labels: ' + (labelsToApply.size > 0 ? Array.from(labelsToApply).join(', ') : 'none'));
-            console.log('Labels to add: ' + (labelsToAdd.length > 0 ? labelsToAdd.join(', ') : 'none'));
-            console.log('Labels to remove: ' + (labelsToRemove.length > 0 ? labelsToRemove.join(', ') : 'none'));
-            
-            // Add new team labels
-            if (labelsToAdd.length > 0) {
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                labels: labelsToAdd
-              });
-              console.log('Added ' + labelsToAdd.length + ' team label(s).');
-            }
-            
-            // Remove outdated team labels
-            if (labelsToRemove.length > 0) {
-              for (const label of labelsToRemove) {
-                await github.rest.issues.removeLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: prNumber,
-                  name: label
-                });
-              }
-              console.log('Removed ' + labelsToRemove.length + ' team label(s).');
-            }
-            
-            if (labelsToAdd.length === 0 && labelsToRemove.length === 0) {
-              console.log('Team labels are already up to date.');
-            }
-            
-            if (labelsToApply.size === 0) {
-              console.log('No team labels matched for this PR.');
-            }
+          sync-labels: true
