@@ -9,17 +9,17 @@ Ubuntu Members are granted special `@Ubuntu.com` aliases they can use to send an
 
 ![2](two.png)
 
-1. Select {guilabel}`Edit` under {guilabel}`Quick links` and enter your personal email under **Forwarding Recipients**.
+2. Select {guilabel}`Edit` under {guilabel}`Quick links` and enter your personal email under **Forwarding Recipients**.
 
 ![3](three.png)
 
 ![4](four.png)
 
-4. If you plan on sending emails via your [`ubuntu.com`](https://ubuntu.com/) address, then under {guilabel}`Quick Links` select {guilabel}`Generate Password` to create a unique password. You will use this when configuring your SMTP services on your mail application of choice.
+3. If you plan on sending emails via your [`ubuntu.com`](https://ubuntu.com/) address, then under {guilabel}`Quick Links` select {guilabel}`Generate Password` to create a unique password. You will use this when configuring your SMTP services on your mail application of choice.
 
 ![5|781x314](five.png)
 
-5. Once you have your SMTP password, you can click on the {guilabel}`Setup Instructions` link to learn how to configure mail sending on various desktop and mobile mail applications.
+4. Once you have your SMTP password, you can click on the {guilabel}`Setup Instructions` link to learn how to configure mail sending on various desktop and mobile mail applications.
 
 ![6|275x170](six.png)
 
