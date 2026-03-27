@@ -16,7 +16,7 @@ You should attend these meetings if you submit an {ref}`MIR request <mir-submit-
 until it is approved or rejected.
 
 Due to the nature of the
-[Ubuntu Development Process](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/2.0-preview/explanation/development-process/),
+{ref}`Ubuntu Development Process <release-cycle>`,
 there are times (e.g. close to Feature Freeze) when this meeting is busy and
 others (e.g. right after a new release) when it is quieter. Consequently,
 response times along the {ref}`MIR process <mir-process-overview>` are
