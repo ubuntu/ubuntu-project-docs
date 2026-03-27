@@ -20,7 +20,7 @@ They are considered as {ref}`dmb-joining-contributing` when working outside thei
 
 Delegated teams admitting their own members:
 : * [Ubuntu Desktop Developers](https://wiki.ubuntu.com/DesktopTeam/Developers) (Launchpad: [`~ubuntu-desktop`](https://launchpad.net/~ubuntu-desktop))
-: * [Mythbuntu Developers](http://www.mythbuntu.org/development/policy) (Launchpad: [`~mythbuntu-dev`](https://launchpad.net/~mythbuntu-dev))
+: * Mythbuntu Developers (Launchpad: [`~mythbuntu-dev`](https://launchpad.net/~mythbuntu-dev))
 : * [Kubuntu Developers](https://wiki.ubuntu.com/Kubuntu/KubuntuDevelopers) (Launchpad: [`~kubuntu-dev`](https://launchpad.net/~kubuntu-dev))
 : * [Edubuntu Developers](https://wiki.ubuntu.com/Edubuntu/Documentation/Developers) (Launchpad: [`~edubuntu-dev`](https://launchpad.net/~edubuntu-dev))
 : * [Ubuntu Kernel Uploaders](https://wiki.ubuntu.com/Kernel/Dev/UploadRights) (Launchpad: [`~ubuntu-kernel-uploaders`](https://launchpad.net/~ubuntu-kernel-uploaders))
