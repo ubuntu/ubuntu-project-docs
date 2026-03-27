@@ -67,34 +67,44 @@ The SnapD value proposition is to allow installing robust software that can move
 at a different pace than distributions, in a rolling release model. In order to
 fulfill this, it needs to provide a security-maintained, consistent and
 up-to-date runtime environment for them across distributions and distribution
-versions. The SnapD See :ref:`design <ref_design>`, :ref:`development
+versions. See :ref:`design <ref_design>`, :ref:`development
 <ref_development>` and :ref:`release <ref_release>` processes have been designed
 to minimize the risks associated with maintaining this level of
 "up-to-dateness".
 
 Classic systems
 ^^^^^^^^^^^^^^^
-
-- Released as deb and snap packages.
-- Deb package is used to seed classic Ubuntu images.
-- Ubuntu (and some additional distros) supports and enables re-execution to
-  SnapD provided by the snap in preference to SnapD provided by a deb if the
-  SnapD snap version is bigger or equal to the SnapD deb version. This means
-  reverts (and other release management relating to SnapD) makes use of store
-  based snap revert as explained :ref:`here <ref_revert>`, as opposed to falling
-  under normal SRU processes for deb packages.
+- Snapd used during both installation and normal system operation.
+- LiveCD images are seeded with both SnapD deb and snap packages and installs
+  are seeded with the SnapD deb package.
+- Ubuntu supports and enables :ref:`re-execution <ref_reexecution>` during both
+  installation and normal system operation. This means reverts 
+  (and other release management relating to SnapD) makes use of store based snap
+  revert as explained :ref:`here <ref_revert>`, as opposed to falling under
+  normal SRU processes for deb packages.
+- Updates released as deb and snap packages - order may vary.
 - SRU release targets all `Ubuntu Releases
   <https://ubuntu.com/about/release-cycle>`_ in Standard Support (not ESM or
   Legacy Support).
-- From Ubuntu Desktop 26.04 onwards, SnapD will be deeply integrated with secure
-  boot on classic hybrid systems using TPM FDE.
+
+Hybrid Classic systems
+^^^^^^^^^^^^^^^^^^^^^^
+- From Ubuntu Desktop 26.04 onwards, SnapD is deeply integrated with secure
+  boot on classic hybrid systems using TPM Full Disk Encryption (FDE).
+- SnapD used during both installation and normal system operation.
+- LiveCD images and installs are seeded with the deb and snap packages.
+- Ubuntu Hybrid systems supports and enables re-execution during both
+  installation and normal system operation. This means reverts  
+  (and other release management relating to SnapD) makes use of store based snap
+  revert, as opposed to falling under normal SRU processes for deb packages.
+- Updates released as deb and snap packages - order may vary.
+- SRU releases apply equally to Classic and Hybrid Classic systems.
 
 Ubuntu Core systems
 ^^^^^^^^^^^^^^^^^^^
-
-- Released as a snap package, therefore the SRU process is not relevant to this
-  product.
-- SnapD snap is used to seed Ubuntu Core images.
+- Updates released as a snap package, therefore the SRU process is not relevant
+  to this product.
+- Ubuntu Core images are seeded with the snap package.
 
 Exceptions
 ----------
