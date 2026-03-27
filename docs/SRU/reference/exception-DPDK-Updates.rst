@@ -95,7 +95,7 @@ Upstream Regression Testing
 The upstream DPDK regression suite is a mix of comprehensive functional
 tests (API coverage, etc.) and stress workloads via packet generators.
 The full set is defined at the `DTS
-suite <http://dpdk.org/doc/dts/gsg/intro.html>`__.
+suite <https://doc.dpdk.org/dts/gsg/quick_start.html>`__.
 
 The QA suite is run against the branches regularly to hunt for
 low-frequency problems. Everything should be tested regularly, and all

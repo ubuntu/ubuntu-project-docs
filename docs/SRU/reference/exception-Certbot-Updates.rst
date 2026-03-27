@@ -36,7 +36,7 @@ bug reports for individual bug fixes. See :lpbug:`1640978` for an example. The o
 bug should have the following:
 
 -  The SRU should be requested per the
-   `StableReleaseUpdates </howto/standard>`__
+   :ref:`Stable Release Updates <howto-perform-standard-sru>`
    documented process.
 -  The template at the end of this document should be used and all
    ‘TODO’ filled out.
