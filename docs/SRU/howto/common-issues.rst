@@ -1,3 +1,5 @@
+.. _sru-common-issues:
+
 Check for common issues with your SRU
 -------------------------------------
 
