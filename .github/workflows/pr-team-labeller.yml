@@ -1,11 +1,12 @@
 name: Add team label to PR
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize]
 
 permissions:
-  pull-requests: write
+  pull-requests: read
+  issues: write
   contents: read
 
 jobs:
