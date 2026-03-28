@@ -26,7 +26,7 @@ repositories of Ubuntu packages in Launchpad.
 
 ## CLI
 
-The {command}`git-ubuntu` CLI is installed with `sudo snap install --classic git-ubuntu`. It adds `ubuntu` subcommands to the `git` command. For example: `git ubuntu clone hello`.
+The {command}`git-ubuntu` CLI is installed with `sudo snap install --classic git-ubuntu`. It adds `ubuntu` subcommands to the `git` command. For example: `git ubuntu clone hello`. Installing git-ubuntu does not interfere with your existing git installation; it only extends git by adding the git ubuntu subcommand.
 
 Just like the `git` command itself, most git-ubuntu subcommands expect to be
 running in the context of a git repository.
