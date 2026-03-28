@@ -34,9 +34,7 @@ vale
 # Custom dependencies (needed by Ubuntu Project docs)
 distro_info
 sphinx-hoverxref
-# Temporary: as soon as upstream merges fix, switch back to 'sphinx-llm' only
-# reference: https://github.com/NVIDIA/sphinx-llm/pull/95
-sphinx-llm @ git+https://github.com/rkratky/sphinx-llm@httpbase
+sphinx-llm @ git+https://github.com/NVIDIA/sphinx-llm
 sphinx-prompt
 sphinx-togglebutton
 sphinxcontrib-mermaid
