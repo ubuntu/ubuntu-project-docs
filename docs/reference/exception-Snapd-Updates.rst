@@ -74,36 +74,36 @@ to minimize the risks associated with maintaining this level of
 
 Classic systems
 ^^^^^^^^^^^^^^^
-- Snapd used during both installation and normal system operation.
+- Snapd is used during both installation and normal system operation.
 - LiveCD images are seeded with both SnapD deb and snap packages and installs
   are seeded with the SnapD deb package.
 - Ubuntu supports and enables :ref:`re-execution <ref_reexecution>` during both
-  installation and normal system operation. This means reverts 
-  (and other release management relating to SnapD) makes use of store based snap
-  revert as explained :ref:`here <ref_revert>`, as opposed to falling under
-  normal SRU processes for deb packages.
-- Updates released as deb and snap packages - order may vary.
+  installation and normal system operation.
+- Due to re-execution, reverting the deb package alone does not necessarily
+  revert the running snapd version if a newer or equal snap revision is still
+  installed. For this reason, snapd reverts may be performed using the
+  store-based snap revert mechanism described :ref:`here <ref_revert>`, rather
+  than through the standard SRU process for deb packages.
+- Updates are released as deb and snap packages; the order of release may vary.
+- On Classic systems, the snapd deb package installs the systemd units and
+  service integration that bootstrap snapd. The snapd snap also contains
+  equivalent service integration, but this is only used on Ubuntu Core systems.
 - SRU release targets all `Ubuntu Releases
   <https://ubuntu.com/about/release-cycle>`_ in Standard Support (not ESM or
   Legacy Support).
 
 Hybrid Classic systems
 ^^^^^^^^^^^^^^^^^^^^^^
-- From Ubuntu Desktop 26.04 onwards, SnapD is deeply integrated with secure
-  boot on classic hybrid systems using TPM Full Disk Encryption (FDE).
-- SnapD used during both installation and normal system operation.
-- LiveCD images and installs are seeded with the deb and snap packages.
-- Ubuntu Hybrid systems supports and enables re-execution during both
-  installation and normal system operation. This means reverts  
-  (and other release management relating to SnapD) makes use of store based snap
-  revert, as opposed to falling under normal SRU processes for deb packages.
-- Updates released as deb and snap packages - order may vary.
-- SRU releases apply equally to Classic and Hybrid Classic systems.
+Hybrid Classic systems behave the same as Classic systems except for the following:
+
+- From Ubuntu Desktop 26.04 onwards, SnapD is deeply integrated with Secure
+  Boot on Hybrid Classic systems using TPM-backed Full Disk Encryption (FDE).
+- LiveCD images and installs are seeded with both SnapD deb and snap packages.
 
 Ubuntu Core systems
 ^^^^^^^^^^^^^^^^^^^
-- Updates released as a snap package, therefore the SRU process is not relevant
-  to this product.
+- Updates are released as a snap package, therefore the SRU process is not
+  relevant to this product.
 - Ubuntu Core images are seeded with the snap package.
 
 Exceptions
@@ -171,11 +171,27 @@ Process
   date minus 14 days.
 - The SRU will be done with a single process bug, instead of individual bug
   reports for individual bug fixes.
-- Sponsor reviews the SnapD source package and resulting deb packages in the
+- The SRU team delegates responsibility to the snapd team to ensure that snapd
+  updates delivered via the snap, as well as the re-execution, automatic
+  installation, and updates, continue to meet Ubuntu release stability
+  expectations for the lifetime of each supported Ubuntu release. As part of
+  this responsibility, the snapd team may determine the order in which snapd deb
+  packages and snap updates are released, as this can affect which snapd version
+  is executed on a system.
+- Sponsors must review the SnapD source package and resulting deb packages in the
   SnapD Team owned *ppa:snappy-dev/image* and sponsors upload to *-unapproved*
   queue from where the SRU team takes over, including further reviews.
-- Sponsor, Ubuntu Release and SRU team not required to review every single pull
-  request (there are often 100+ for major releases).
+- Sponsors, the Ubuntu Release Team, and the SRU Team are only required to review
+  changes related to packaging and systemd/service integration. These changes must
+  be clearly identified on the SRU bug.
+- In the event of a regression affecting Classic systems, the SRU team may require
+  that the snapd team provide high priority fix. The snapd team may choose the most
+  appropriate mitigation, including a SnapD deb-only update, a store-based snap
+  revert, or a snap update.
+- The snapd team is responsible for identifying invasive changes that impact
+  Classic systems, including changes to documented re-execution or update
+  behaviour, and must bring such changes to the Technical Board for review
+  before they are introduced.
 
 Package behavior
 ~~~~~~~~~~~~~~~~
@@ -329,12 +345,10 @@ Quality Assurance
 
 - **Revert:**
 
-If a serious regression is discovered after release to *-update* or *-release* of
-the counterpart SnapD snap, and is confirmed by a member of the SnapD team, the
-SnapD team must request a SnapD snap revert as a matter of urgency. Due to
-:ref:`re-execution <ref_reexecution>`, a deb package revert alone is not
-sufficient to solve this situation. Refer to the `SnapD release process
-<https://snapcraft.io/docs/snapd-release-process>`_ for details.
+If a serious regression impacting Classic Ubuntu is reported or discovered, and
+confirmed by a member of the snapd team, the team is responsible for determining
+the most appropriate mitigation, which may include a snapd deb-only update, a
+store-based snap revert, or a snap update.
 
 Release Targets
 ---------------
@@ -424,9 +438,7 @@ Workflow and responsibilities
 Review
 ------
 
-It is generally not required to review all the individual pull requests, with
-the exception of packaging and service changes. A review should cover at least
-the following:
+A review should cover at least the following:
 
 - Review that required documentation has been provided as per the SRU template.
 - Compare uploaded code to that of the respective release tag to confirm the
@@ -439,8 +451,7 @@ the following:
   the :ref:`SRU Bug template <reference-sru-bug-template>` , most importantly
   the *Impact* and *Test Plan* and the rest as applicable. Each LP bug must be
   independently verified in *-proposed*.
-- Review packaging and service changes.
-- Review areas of potential regressions.
+- Review packaging and systemd/service integration changes.
 - Review results of all :ref:`required release testing <ref-release-testing>`.
 - For all source packages for the different target releases:
 
@@ -476,9 +487,9 @@ Sponsoring Request
  Release notes: < Changelogs commit URL > Launchpad bugs addressed:
  <URL(filter)>
 
- Packaging and Service changes:
+ Packaging and systemd/service integration changes:
   - [Packaging changes]
-  - [Service changes]
+  - [Systemd/service integration changes]
 
  Content overview:
   - [Features]
@@ -525,4 +536,4 @@ Snapd has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
 please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`_
 to the SRU bug early on.
-
+snapd team is responsible for determining the most appropriate mitigation, which may include a snapd deb-only update, a store-based snap revert, or a snap update
