@@ -73,7 +73,7 @@ The Developer Membership Board will take care of creating the packageset and ens
 ## Requesting changes to delegated teams
 
 Email `devel-permissions@lists.ubuntu.com` with the proposed change(s) and the packageset to which the change applies.
-  
+
 A DMB member will review the request and either make the change or ask for further clarification if it us unclear that the package falls under the delegation granted when the team was created.
 
 
