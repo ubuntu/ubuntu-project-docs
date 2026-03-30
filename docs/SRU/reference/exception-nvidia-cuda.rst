@@ -14,8 +14,7 @@ CUDA libraries in a stable supported distro, including LTS.
 NVIDIA CUDA is broadly used by developers for GPU compute activities, for
 example for AI/ML. Canonical has a redistribution agreement with NVIDIA to
 redistribute the CUDA libraries in the Ubuntu archive. Per the agreement, Canonical
-must deliver the prebuilt binaries from NVIDIA without modifications, and follow
-the same schedule than NVIDIA.
+must deliver the prebuilt binaries from NVIDIA without modifications.
 
 CUDA consists of ~37 new source packages for every minor version. Minor versions
 are released on average every 3 months. Each minor version usually receives one or
@@ -34,6 +33,7 @@ relying on the exception is expected to keep installing files under /usr/local.
  Released versions
 *******************
 
+CUDA packages are released in the multiverse pocket.
 CUDA's minor versions are meant to be available and installable in parallel, and
 therefore e.g. 13.2 does not replace 13.1 in Ubuntu. Patch versions do replace the
 corresponding existing version so e.g. 13.2.1 will replace 13.2.0.
@@ -56,6 +56,7 @@ reports for individual bug fixes. The one bug should have the following:
   <howto-perform-standard-sru>` documented process
 - The template at the end of this document should be used and all ‘TODO’ filled
   out
+- This SRU exception applies to only the multiverse archive component.
 - The changelog will contain a reference to the single SRU process bug, not all
   bugs fixed by the SRU. However, if there are very important bugs that are
   deemed worthy of reference they too should be included in the changelog.
