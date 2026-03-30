@@ -12,20 +12,23 @@ This document describes the policy, process and criteria for updating NVIDIA
 CUDA libraries in a stable supported distro, including LTS.
 
 NVIDIA CUDA is broadly used by developers for GPU compute activities, for
-example for AI/ML. Ubuntu has a redistribution agreement with NVIDIA to
-redistribute the CUDA libraries in the Ubuntu archive. Per the agreement, Ubuntu
+example for AI/ML. Canonical has a redistribution agreement with NVIDIA to
+redistribute the CUDA libraries in the Ubuntu archive. Per the agreement, Canonical
 must deliver the prebuilt binaries from NVIDIA without modifications, and follow
 the same schedule than NVIDIA.
 
-CUDA represents ~37 new source packages for every minor version. Minor versions
-are released on average every 3 months. Each minor version usually get one or
-two patch versions, which will be candidates for SRUs. Given the nature of CUDA,
-these SRUs are not compliant with the usual SRU policy.
+CUDA consists of ~37 new source packages for every minor version. Minor versions
+are released on average every 3 months. Each minor version usually receives one or
+two patch versions, which will be candidates for SRUs. Since our redistribution 
+agreement requires us to match NVIDIA's changes exactly within a given CUDA release,
+and since CUDA consists primarily of precompiled binaries, our CUDA packages must all
+roll forward in tandem on each upstream update. As a result, CUDA SRUs are not 
+compliant with the standard SRU policy.
 
-As of the time of writing, CUDA packages are under an allowed exception to
-install files under /usr/local. The exception is temporary. Any SRU request that
-is patching a CUDA version relying on the exception is expected to keep
-installing files under /usr/local.
+As of the time of writing, CUDA 13.x packages are under an allowed exception to
+install files under /usr/local. The exception is temporary, and we are working on a
+plan to remove it with CUDA 14.x. Any SRU request that is patching a CUDA version
+relying on the exception is expected to keep installing files under /usr/local.
 
 *******************
  Released versions
@@ -78,6 +81,10 @@ The objective of the QA is to test:
 - Package installation from scratch
 - Package upgrades
 - Compliancy with NVIDIA's own releases
+  - Making sure that we deliver the right binary in the right packages with the right license and dependencies
+  - Making sure the CUDA installation is working as expected (integration tests with cuda samples).
+- Compatibility with NVIDIA's own releases and repos
+  - Making  sure that NVIDIA's packages superseed us, and that users adding the NVIDIA repo don't end up with a mix of our packages and NVIDIA's packages
 
 This QA is implemented as an autopkgtest within each source package. The result
 of the tests will be attached to the SRU bug. The package upgrade must be
