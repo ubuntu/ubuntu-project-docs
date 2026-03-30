@@ -59,7 +59,7 @@ The upstream publishers of `cargo-auditable` also publish the tool [`cargo-audit
 It reads the dependency graph, and then checks it against a known database of vulnerabilities.
 
 If you would like to just see the raw data, you can use the tool [`rust-audit-info`](https://github.com/rust-secure-code/cargo-auditable/blob/master/rust-audit-info/README.md).
-It simply finds the metadata section in the binary, decompresses it, and dumps it to stdout.
+It simply finds the metadata section in the binary, decompresses it, and dumps it to `stdout`.
 
 You can install both tools with `cargo install`.
 
