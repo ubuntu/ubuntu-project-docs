@@ -69,6 +69,27 @@ When applying for a set, please be prepared to attend a DMB meeting.
 
 The Developer Membership Board will take care of creating the packageset and ensuring that the requested permissions are granted.
 
+## Teams approving their own members
+
+We may grant your team's administrators the ability to grant upload access to
+parts of Ubuntu. In this case, we'll want to make sure that you're acting in
+general accordance with how other teams work. The following are the basic
+requirements:
+
+* Applications should be announced to an appropriate publicly-readable
+  mailing list, to provide an opportunity for feedback. Successful applications,
+  or administrator additions, must be announced to devel-permissions@lists.ubuntu.com
+  and to an appropriate publicly-readable mailing list for the team.
+
+* developer-membership-board must be a co-administrator or the owner of your team.
+
+* ubuntu-core-dev must be a member of your team
+
+* Applicants must meet the general requirements for {ref}`Ubuntu contributing developers <dmb-joining-contributing>`.
+
+* Your team must maintain a page describing your policy for granting upload
+  access, and any special requirements for team membership. Preferably as part
+  of this project documentation set.
 
 ## Requesting changes to delegated teams
 
