@@ -1,6 +1,6 @@
 .. _reference-exception-snapdupdates:
 
-Snapd Updates
+SnapD Updates
 =============
 
 Introduction
@@ -34,6 +34,26 @@ Key deviations from the standard SRU model include:
 
   Updates may land outside normal freeze windows to maintain security and feature
   currency.
+
+- **Delegated responsibility for ongoing stability:**
+
+  With re-execution and snap refresh behavior, the SRU team delegates
+  responsibility to the snapd team for ensuring that snapd updates delivered as
+  debs or snaps continue to meet Ubuntu release stability expectations
+  throughout the lifetime of each supported Ubuntu release.
+
+- **Regression mitigation:**
+
+  The SRU team retains authority to require that regressions affecting supported
+  Ubuntu releases be addressed. Responsibility for determining the appropriate
+  mitigation is delegated to the SnapD team. The SnapD team is responsible for
+  the timely implementation of the selected mitigation and communication.
+
+- **Technical Board oversight for invasive changes:**
+
+  Changes that significantly alter snapd behavior on Classic systems or impact
+  backward compatibility must be reviewed by the Technical Board before they are
+  introduced.
 
 These deviations are necessary to keep Ubuntu systems secure, up-to-date, and
 consistent across distributions, while enabling developers to use new system
@@ -74,7 +94,7 @@ to minimize the risks associated with maintaining this level of
 
 Classic systems
 ^^^^^^^^^^^^^^^
-- Snapd is used during both installation and normal system operation.
+- SnapD is used during both installation and normal system operation.
 - LiveCD images are seeded with both SnapD deb and snap packages and installs
   are seeded with the SnapD deb package.
 - Ubuntu supports and enables :ref:`re-execution <ref_reexecution>` during both
@@ -171,27 +191,28 @@ Process
   date minus 14 days.
 - The SRU will be done with a single process bug, instead of individual bug
   reports for individual bug fixes.
-- The SRU team delegates responsibility to the snapd team to ensure that snapd
-  updates delivered via the snap, as well as the re-execution, automatic
-  installation, and updates, continue to meet Ubuntu release stability
-  expectations for the lifetime of each supported Ubuntu release. As part of
-  this responsibility, the snapd team may determine the order in which snapd deb
-  packages and snap updates are released, as this can affect which snapd version
-  is executed on a system.
 - Sponsors must review the SnapD source package and resulting deb packages in the
   SnapD Team owned *ppa:snappy-dev/image* and sponsors upload to *-unapproved*
   queue from where the SRU team takes over, including further reviews.
-- Sponsors, the Ubuntu Release Team, and the SRU Team are only required to review
-  changes related to packaging and systemd/service integration. These changes must
-  be clearly identified on the SRU bug.
-- In the event of a regression affecting Classic systems, the SRU team may require
-  that the snapd team provide high priority fix. The snapd team may choose the most
-  appropriate mitigation, including a SnapD deb-only update, a store-based snap
-  revert, or a snap update.
-- The snapd team is responsible for identifying invasive changes that impact
+- Sponsors, the Ubuntu Release Team, and the SRU Team are not required to review
+  all source changes, only those related to packaging and systemd/service
+  integration. These changes must be clearly identified in the SRU bug.
+- The SRU team delegates to the SnapD team responsibility for ensuring that SnapD
+  updates delivered as debs or snaps, together with re-execution, automatic
+  installation, and refresh behavior, continue to meet Ubuntu release stability
+  expectations throughout the lifetime of each supported Ubuntu release. As part
+  of this responsibility, the SnapD team may determine the optimal release order
+  of SnapD deb and snap updates for each release, since this can affect which
+  SnapD version is executed on a system.
+- If a regression affecting Classic systems occurs, the SRU team may require a
+  high-priority fix from the SnapD team. The SnapD team will select the most
+  appropriate mitigation, such as a snapd deb-only update, a store-based snap
+  revert, or a snap update, and is responsible for timely implementation and
+  internal and public communication.
+- The SnapD team is responsible for identifying invasive changes affecting
   Classic systems, including changes to documented re-execution or update
-  behaviour, and must bring such changes to the Technical Board for review
-  before they are introduced.
+  behaviour, or changes that impact backward compatibility, and must bring such
+  changes to the Technical Board for review before they are introduced.
 
 Package behavior
 ~~~~~~~~~~~~~~~~
@@ -346,8 +367,8 @@ Quality Assurance
 - **Revert:**
 
 If a serious regression impacting Classic Ubuntu is reported or discovered, and
-confirmed by a member of the snapd team, the team is responsible for determining
-the most appropriate mitigation, which may include a snapd deb-only update, a
+confirmed by a member of the SnapD team, the team is responsible for determining
+the most appropriate mitigation, which may include a SnapD deb-only update, a
 store-based snap revert, or a snap update.
 
 Release Targets
@@ -532,7 +553,7 @@ releasing to *-updates*:
 Related SRU Interest Team
 -------------------------
 
-Snapd has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
+SnapD has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
 please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`_
 to the SRU bug early on.
