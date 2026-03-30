@@ -52,7 +52,7 @@ You should also work towards understanding some more advanced packaging topics:
 
 * The purpose of the {ref}`different files in debian/ <debian-directory>`
 
-* [Debian policy](http://www.debian.org/doc/debian-policy/)
+* [Debian policy](https://www.debian.org/doc/debian-policy/)
 
 * {ref}`Ubuntu's release process <release-cycle>`, including the {ref}`freeze exception process <freeze-exceptions>`
 
