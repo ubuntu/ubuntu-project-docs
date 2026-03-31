@@ -18,9 +18,8 @@ Ubuntu Members are granted special `@Ubuntu.com` aliases they can use to send an
 3. If you plan on sending emails via your [`ubuntu.com`](https://ubuntu.com/) address, then under {guilabel}`Quick Links` select {guilabel}`Generate Password` to create a unique password. You will use this when configuring your SMTP services on your mail application of choice.
 
    ![Screenshot of password creation field with generate password option](five.png)
-   
 
-5. Once you have your SMTP password, you can click on the {guilabel}`Setup Instructions` link to learn how to configure mail sending on various desktop and mobile mail applications.
+4. Once you have your SMTP password, you can click on the {guilabel}`Setup Instructions` link to learn how to configure mail sending on various desktop and mobile mail applications.
 
    ![Screenshot of quick links, with the set up instructions button selected](six.png)
 
