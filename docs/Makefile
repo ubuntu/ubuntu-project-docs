@@ -23,13 +23,16 @@ SPHINX_HOST     ?= 127.0.0.1
 SPHINX_PORT     ?= 8000
 # Wildcard-specified, comma-separated list of files and/or directories for vale checks to ignore:
 VALE_IGNORE     = SRU/**/*,tech-board/**/*,**/*.txt,**/*.html
+# Sphinx options with sphinx-llm artifact generation disabled (for builds where llms.txt is not needed):
+SPHINXOPTS_NOLLM = $(SPHINXOPTS) -D llms_txt_enabled=0
 
 # Put it first so that "make" without argument is like "make help".
 help:
 	@echo
 	@echo "-------------------------------------------------------------"
 	@echo "* watch, build and serve the documentation:  make run"
-	@echo "* only build:                                make html"
+	@echo "* only build (full, with LLM artifacts):     make html"
+	@echo "* only build (without LLM artifacts):        make html-lite"
 	@echo "* only serve:                                make serve"
 	@echo "* clean built doc files:                     make clean-doc"
 	@echo "* clean full environment:                    make clean"
@@ -46,7 +49,7 @@ help:
 	@echo "-------------------------------------------------------------"
 	@echo
 
-.PHONY: help full‑help html epub pdf linkcheck spelling spellcheck woke \
+.PHONY: help full‑help html html-lite epub pdf linkcheck spelling spellcheck woke \
         vale pa11y run serve install pa11y‑install   \
         vale‑install pdf‑prep pdf‑prep‑force clean clean‑doc allmetrics \
         update lint-md
@@ -81,16 +84,19 @@ pymarkdownlnt-install:
 install: $(VENVDIR)
 
 run: install
-	. $(VENV); $(VENVDIR)/bin/sphinx-autobuild -b dirhtml --host $(SPHINX_HOST) --port $(SPHINX_PORT) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
+	. $(VENV); $(VENVDIR)/bin/sphinx-autobuild -b dirhtml --host $(SPHINX_HOST) --port $(SPHINX_PORT) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS_NOLLM)
 
 # Does not depend on $(BUILDDIR) to rebuild properly at every run.
 html: install
 	. $(VENV); $(SPHINXBUILD) --fail-on-warning --keep-going -b dirhtml "$(SOURCEDIR)" "$(BUILDDIR)" -w $(SPHINXDIR)/warnings.txt $(SPHINXOPTS)
 
-epub: install
-	. $(VENV); $(SPHINXBUILD) -b epub "$(SOURCEDIR)" "$(BUILDDIR)" -w $(SPHINXDIR)/warnings.txt $(SPHINXOPTS)
+html-lite: install
+	. $(VENV); $(SPHINXBUILD) --fail-on-warning --keep-going -b dirhtml "$(SOURCEDIR)" "$(BUILDDIR)" -w $(SPHINXDIR)/warnings.txt $(SPHINXOPTS_NOLLM)
 
-serve: html
+epub: install
+	. $(VENV); $(SPHINXBUILD) -b epub "$(SOURCEDIR)" "$(BUILDDIR)" -w $(SPHINXDIR)/warnings.txt $(SPHINXOPTS_NOLLM)
+
+serve: html-lite
 	cd "$(BUILDDIR)"; python3 -m http.server --bind $(SPHINX_HOST) $(SPHINX_PORT)
 
 clean: clean-doc
@@ -105,10 +111,10 @@ clean-doc:
 	rm -rf $(SPHINXDIR)/.doctrees
 
 linkcheck: install
-	. $(VENV) ; $(SPHINXBUILD) -b linkcheck "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) || { grep --color -F "[broken]" "$(BUILDDIR)/output.txt"; exit 1; }
+	. $(VENV) ; $(SPHINXBUILD) -b linkcheck "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS_NOLLM) || { grep --color -F "[broken]" "$(BUILDDIR)/output.txt"; exit 1; }
 	exit 0
 
-pa11y: pa11y-install html
+pa11y: pa11y-install html-lite
 	find $(BUILDDIR) -name *.html -print0 | xargs -n 1 -0 $(PA11Y)
 
 lint-md: pymarkdownlnt-install
@@ -158,7 +164,7 @@ pdf-prep-force:
 	apt-get install --no-install-recommends -y $(REQPDFPACKS) \
 
 pdf: pdf-prep
-	@. $(VENV); sphinx-build -M latexpdf "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
+	@. $(VENV); sphinx-build -M latexpdf "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS_NOLLM)
 	@rm ./$(BUILDDIR)/latex/front-page-light.pdf || true
 	@rm ./$(BUILDDIR)/latex/normal-page-footer.pdf || true
 	@find ./$(BUILDDIR)/latex -name "*.pdf" -exec mv -t ./$(BUILDDIR) {} +
@@ -167,7 +173,7 @@ pdf: pdf-prep
 	@echo "Output can be found in ./$(BUILDDIR)"
 	@echo
 
-allmetrics: html
+allmetrics: html-lite
 	@echo "Recording documentation metrics..."
 	@echo "Checking for existence of vale..."
 	. $(VENV)
@@ -184,4 +190,4 @@ update: install
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %:
 	$(MAKE) --no-print-directory install
-	. $(VENV); $(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	. $(VENV); $(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS_NOLLM) $(O)
