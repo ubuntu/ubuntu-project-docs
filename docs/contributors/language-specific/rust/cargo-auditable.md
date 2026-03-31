@@ -1,18 +1,19 @@
+(cargo-auditable)=
 # Cargo-Auditable
 
 [`cargo-auditable`](https://github.com/rust-secure-code/cargo-auditable) is a tool by the Rustsec Working Group that augments the Rust binary build process by embedding metadata showing the dependency tree into a the binary.
 Specifically, it puts a JSON-encoded, Zlib-compressed payload into the `.dep-v0` header.
 
-If you develop a Rust binary package for Ubuntu versions 26.04 and later and {manpage}`rustc(1)` versions 1.93 and later, you can easily opt-in to adding cargo-auditable metadata to your binaries.
+If you develop a Rust binary package for Ubuntu versions 26.04 and later and {manpage}`rustc(1)` versions 1.93 and later, you can opt-in to adding `cargo-auditable` metadata to your binaries.
 
 ```{admonition} Some caveats
 `cargo-auditable` support is still **experimental**, which is why it is opt-in for now.
 We hope to make it on-by-default in a later version of Ubuntu, but we would like to have the community test it first.
 If you do not follow the steps below, at time of writing, nothing about your package will change.
 
-Also, please note that this *only* works on Ubuntu 26.04 and later (that's Resolute Raccoon), and on `rustc-1.93` and later.
+Also, note that this *only* works on Ubuntu 26.04 (Resolute Raccoon) and later, and on `rustc-1.93` and later.
 
-If you would like to know more technical details about `cargo-auditable`, see its Github repo above.
+To learn more technical details, see the Github repo: [`cargo-auditable`](https://github.com/rust-secure-code/cargo-auditable).
 ```
 
 ## Creating auditable binaries
@@ -23,7 +24,7 @@ To enable building with `cargo-auditable`, it takes two steps:
 2. Put a `Build-Depends` on `cargo-auditable` in your `debian/control` file.
 
 Below is an example patch demonstrating these changes on {manpage}`rust-alacritty <alacritty(1)>`.
-[The patch was made live in this commit.](https://git.launchpad.net/~petrakat/ubuntu/+source/rust-alacritty/commit/?h=petrakat/cargo-auditable&id=62b87bff4a7fb5e41bb2a6f770175c274b2f7918)
+The patch was made live in [this commit](https://git.launchpad.net/~petrakat/ubuntu/+source/rust-alacritty/commit/?h=petrakat/cargo-auditable&id=62b87bff4a7fb5e41bb2a6f770175c274b2f7918).
 
 ```diff
 diff --git a/debian/control b/debian/control
@@ -58,8 +59,8 @@ There are a number of tools that can read the metadata out of a binary.
 The upstream publishers of `cargo-auditable` also publish the tool [`cargo-audit`](https://github.com/rustsec/rustsec/tree/main/cargo-audit#cargo-audit-bin-subcommand), the recommended way to read the metadata out of a binary.
 It reads the dependency graph, and then checks it against a known database of vulnerabilities.
 
-If you would like to just see the raw data, you can use the tool [`rust-audit-info`](https://github.com/rust-secure-code/cargo-auditable/blob/master/rust-audit-info/README.md).
-It simply finds the metadata section in the binary, decompresses it, and dumps it to `stdout`.
+If you would like to just see the raw data, use the tool [`rust-audit-info`](https://github.com/rust-secure-code/cargo-auditable/blob/master/rust-audit-info/README.md).
+It finds the metadata section in the binary, decompresses it, and dumps it to `STDOUT`.
 
 You can install both tools with `cargo install`.
 

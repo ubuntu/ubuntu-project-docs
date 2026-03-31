@@ -100,7 +100,7 @@ Guidance for contributors on how to submit requests for SRU. See
 /SRU/howto/index
 ```
 
-## Language-specific Features
+## Language-specific features
 
 When we develop our build pipelines, we will sometimes add new features. See
 

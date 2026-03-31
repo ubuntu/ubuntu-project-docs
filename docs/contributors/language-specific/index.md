@@ -1,4 +1,4 @@
-(language-specific)=
+(language-specific-features)=
 # Language-specific features
 
 Building on Launchpad is generally handled by the {manpage}`dh(1)` suite of programs.
