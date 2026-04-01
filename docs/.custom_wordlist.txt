@@ -161,6 +161,7 @@ Rosbrook
 rulebook
 runtimes
 rustls
+Rustsec
 Rustup
 sandboxed
 sbuild
