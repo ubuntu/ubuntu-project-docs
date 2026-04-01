@@ -1,6 +1,13 @@
 (dmb-joining-delegated)=
 # Delegated Developers
 
+```{toctree}
+:titlesonly:
+:hidden:
+
+dkms-uploaders
+```
+
 Delegated Developers are members of a [delegated development group](https://wiki.ubuntu.com/UbuntuDevelopers/TeamDelegation) in Launchpad.
 They are collectively responsible for the maintenance of a subset of packages in Ubuntu.
 This role is similar to the {ref}`dmb-joining-ppu` and {ref}`dmb-joining-packageset` roles, except that the packageset is governed by a delegated team.
@@ -24,6 +31,7 @@ Delegated teams admitting their own members:
 : * [Kubuntu Developers](https://wiki.ubuntu.com/Kubuntu/KubuntuDevelopers) (Launchpad: [`~kubuntu-dev`](https://launchpad.net/~kubuntu-dev))
 : * [Edubuntu Developers](https://wiki.ubuntu.com/Edubuntu/Documentation/Developers) (Launchpad: [`~edubuntu-dev`](https://launchpad.net/~edubuntu-dev))
 : * [Ubuntu Kernel Uploaders](https://wiki.ubuntu.com/Kernel/Dev/UploadRights) (Launchpad: [`~ubuntu-kernel-uploaders`](https://launchpad.net/~ubuntu-kernel-uploaders))
+: * {ref}`Ubuntu Kernel DKMS Uploaders <dkms-uploaders>` (Launchpad: [`~ubuntu-kernel-dkms-uploaders`](https://launchpad.net/~ubuntu-kernel-dkms-uploaders))
 : This delegation includes individual per-package upload privileges for packages in the corresponding team packageset.
 
 
