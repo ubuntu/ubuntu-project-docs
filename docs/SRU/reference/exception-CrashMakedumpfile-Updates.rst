@@ -107,8 +107,8 @@ SRU Process
 For new releases of the crash utility, the following criteria need to be
 validated and documented in a public Launchpad bug:
 
-1. Crash must be able to correctly open a makedumpfile compressed image of the system
-2. Crash must be able to correctly execute against the generic and HWE kernels
+-  Crash must be able to correctly open a makedumpfile compressed image of the system
+-  Crash must be able to correctly execute against the generic and HWE kernel
 
 Kernel crash dumps should be captured with default parameters for a
 given Ubuntu release, as this will cover the more general scenario for
@@ -119,6 +119,15 @@ The SRU should ensure all the supported architectures are working
 correctly with a new crash version. Likewise, we're only concerned that
 crash is able to open and parse kernel dumps correctly, extensions or
 specific crash commands **are not going to be covered** with this test.
+
+The following steps can be followed to test a new version of crash and/or
+makedumpfile package:
+
+1. Install the kernel's debug symbols packages
+2. Install the updated crash/makedumpfile packages as well as `kdump-tools` and `kexec-tools` packages
+3. Ensure the system is ready to capture the dump using `sudo kdump-config show`. Reboot if necessary.
+4. Trigger kernel crash (i.e `echo c | sudo tee /proc/sysrq-trigger`)
+5. Once the machine reboots, see if crash is able to load the dumpfile against kernel's debug symbols file (i.e `crash <DEBUG_SYM_FILE> <DUMP_FILE>`.
 
 .. _regression_testing:
 
