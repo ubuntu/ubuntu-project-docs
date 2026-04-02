@@ -92,39 +92,58 @@ versions. See :ref:`design <ref_design>`, :ref:`development
 to minimize the risks associated with maintaining this level of
 "up-to-dateness".
 
+Overview of SnapD usage across Ubuntu variants
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There are different Ubuntu OS variants that depend on SnapD to different degrees.
+
+These variants include:
+
+- **Classic:** Desktop, Server, Cloud & Ubuntu WSL.
+- **Hybrid Classic:** Similar to Classic systems, but use Kernel snap and therefore
+  requires SnapD. Available from 26.04.
+- **Ubuntu Core:** A strictly confined, immutable Ubuntu variant optimized for
+  edge and IoT devices. It uses only snaps and therefore requires SnapD.
+
+Variants and composition of installers and installed images may change in the future.
+
 Classic systems
-^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~
+
 - SnapD is used during both installation and normal system operation.
-- LiveCD images are seeded with both SnapD deb and snap packages and installs
-  are seeded with the SnapD deb package.
+- Installer LiveCD images are seeded with both SnapD deb and snap packages and
+  installs are seeded with the SnapD deb package.
 - Ubuntu supports and enables :ref:`re-execution <ref_reexecution>` during both
   installation and normal system operation.
 - Due to re-execution, reverting the deb package alone does not necessarily
-  revert the running snapd version if a newer or equal snap revision is still
-  installed. For this reason, snapd reverts may be performed using the
+  revert the running SnapD version if a newer or equal snap revision is still
+  installed. For this reason, SnapD reverts may be performed using the
   store-based snap revert mechanism described :ref:`here <ref_revert>`, rather
   than through the standard SRU process for deb packages.
 - Updates are released as deb and snap packages; the order of release may vary.
-- On Classic systems, the snapd deb package installs the systemd units and
-  service integration that bootstrap snapd. The snapd snap also contains
+- The SnapD deb package installs the systemd units and
+  service integration that bootstrap SnapD. The SnapD snap also contains
   equivalent service integration, but this is only used on Ubuntu Core systems.
 - SRU release targets all `Ubuntu Releases
   <https://ubuntu.com/about/release-cycle>`_ in Standard Support (not ESM or
   Legacy Support).
 
 Hybrid Classic systems
-^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~
+
 Hybrid Classic systems behave the same as Classic systems except for the following:
 
-- From Ubuntu Desktop 26.04 onwards, SnapD is deeply integrated with Secure
-  Boot on Hybrid Classic systems using TPM-backed Full Disk Encryption (FDE).
-- LiveCD images and installs are seeded with both SnapD deb and snap packages.
+- SnapD is more deeply integrated into Hybrid Classic systems that use
+  TPM-backed Full Disk Encryption (FDE).
+- Currently LiveCD images and installs are seeded with both SnapD deb and snap
+  packages.
 
 Ubuntu Core systems
-^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~
+
+- Ubuntu Core images are seeded with the snap package.
 - Updates are released as a snap package, therefore the SRU process is not
   relevant to this product.
-- Ubuntu Core images are seeded with the snap package.
 
 Exceptions
 ----------
@@ -208,7 +227,8 @@ Process
   high-priority fix from the SnapD team. The SnapD team will select the most
   appropriate mitigation, such as a snapd deb-only update, a store-based snap
   revert, or a snap update, and is responsible for timely implementation and
-  internal and public communication.
+  internal and public communication. Launchpad must be used as the primary
+  means of communication and coordination.
 - The SnapD team is responsible for identifying invasive changes affecting
   Classic systems, including changes to documented re-execution or update
   behaviour, or changes that impact backward compatibility, and must bring such
