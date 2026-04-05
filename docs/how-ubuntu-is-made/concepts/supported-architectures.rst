@@ -63,18 +63,18 @@ For each architecture above, there is a *baseline* which is the oldest or least 
     * - ``armhf``
       - ARMv7 with VFPv3-D16 floating point. NEON is not guaranteed.
     * - ``ppc64el``
-      - Ubuntu 16.04 through 21.10 assumed a POWER8 or newer CPU.
-        Ubuntu 22.04 and newer assume POWER9 or newer.
+      - Ubuntu 16.04 LTS through 21.10 assumed a POWER8 or newer CPU.
+        Ubuntu 22.04 LTS and newer assume POWER9 or newer.
     * - ``s390x``
-      - Ubuntu 16.04 through 19.10 assumed zEC12 or newer.
+      - Ubuntu 16.04 LTS through 19.10 assumed zEC12 or newer.
     * -
-      - Ubuntu 20.04 thought 25.10 assumed z13 or newer.
+      - Ubuntu 20.04 LTS thought 25.10 assumed z13 or newer.
     * -
-      - Ubuntu 26.04 and newer assume z15.
+      - Ubuntu 26.04 LTS and newer assume z15.
     * - ``riscv64``
       - RISC-V (64-bit)
     * -
-      - Ubuntu 20.04 through 25.04 assumed the RVA20 profile.
+      - Ubuntu 20.04 LTS through 25.04 assumed the RVA20 profile.
     * -
       - Ubuntu 25.10 and newer assume the RVA23 profile.
 

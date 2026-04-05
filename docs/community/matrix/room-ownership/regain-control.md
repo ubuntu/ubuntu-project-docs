@@ -37,6 +37,7 @@ If you are a room user or moderator, and your room administrator has been inacti
 ## Other cases
 
 If you have a specific case, and you need help:
+
 * For general advice, reach out to the {matrix}`Ubuntu Matrix Ops room <matrix-ops>`.
 * If you need to escalate an issue, contact the {ref}`Ubuntu Matrix Council <contact-matrix-council>`.
 

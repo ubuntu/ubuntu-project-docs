@@ -7,6 +7,7 @@ After the MP is approved:
 
 You have upload rights
 : * Upload the package directly using `dput`.
+
   * See {ref}`path-to-upload-rights` for guidance on how to obtain upload rights.
 
 You do not have upload rights

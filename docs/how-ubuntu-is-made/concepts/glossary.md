@@ -358,7 +358,7 @@ Closed Source Software
     See also: {term}`Open Source Software`
 
 Code name
-    Short identifier used to refer to a specific Ubuntu release (e.g. , Jammy Jellyfish for Ubuntu 22.04).
+    Short identifier used to refer to a specific Ubuntu release (e.g. , Jammy Jellyfish for Ubuntu 22.04 LTS).
     {ref}`List of Releases with Code Names <list-of-releases>`
 
 CoC
@@ -1470,7 +1470,6 @@ Ubuntu ESM Team
     * [Ubuntu ESM Team](https://ubuntu.com/security/esm)
 
 Ubuntu flavors
-Ubuntu flavours
     **Ubuntu flavors** are {term}`distributions <Distribution>` of the default Ubuntu
     releases, which choose their own default applications and settings. Ubuntu flavors are
     owned and developed by members of the Ubuntu community and backed by the full

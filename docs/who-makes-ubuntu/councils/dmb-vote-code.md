@@ -9,6 +9,7 @@ The text on {ref}`dmb-rules` should be easier to consume, but if in doubt
 here a different way to express it.
 
 These rules were proposed in
+
 * this [mailing list thread](https://lists.ubuntu.com/archives/devel-permissions/2021-August/001728.html)
 * then [extended to a poll](https://lists.ubuntu.com/archives/devel-permissions/2021-October/001756.html)
 * with the [results](https://lists.ubuntu.com/archives/devel-permissions/2021-November/001782.html)
