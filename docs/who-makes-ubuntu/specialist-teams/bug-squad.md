@@ -1,7 +1,7 @@
 (bug-squad)=
 # The Bug Squad
 
-The Bug Squad is an essential asset in progressing Ubuntu and its flavours; the
+The Bug Squad is an essential asset in progressing Ubuntu and its flavors; the
 Bug Squad is the first point of contact for bugs filed about Ubuntu.
 
 

@@ -365,6 +365,7 @@ git branch -u <local-branch-name> <remote>/<branch-name>
 
 git checkout <local-branch-name>
 ```
+
 :::
 
 

@@ -6,6 +6,7 @@ later unless teams asked for it based on huge changes. Doing regular
 re-evaluations on all packages would be nice, but also rather a huge effort.
 
 We want to be pragmatic, therefore:
+
 - All we identify shall be recommended tasks (not required to continue) unless
   we find something really intolerable.
 - We'd appreciate it if the owning team could file a MIR-reporter bug for it,

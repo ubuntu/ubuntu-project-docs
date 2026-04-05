@@ -769,7 +769,7 @@ Thanks for your interest in helping to resolve this issue. There is no need to s
 
 ## Bug reported against Firefox snap
 
-Beginning in Ubuntu 22.04, Firefox is provided as a snap created and published directly by Mozilla. Users, however, can still report against the Firefox package directly in Launchpad. Apport still warns against this, but Launchpad does not. Add this comment (a slight modification of the response from Apport) if the bug mentions occurring in 22.04 (or later) and mark the bug as *Incomplete*. If the user mentions the package as not being a snap, then it's *Invalid* as it came from a source other than Ubuntu or the snap.
+Beginning in Ubuntu 22.04 LTS, Firefox is provided as a snap created and published directly by Mozilla. Users, however, can still report against the Firefox package directly in Launchpad. Apport still warns against this, but Launchpad does not. Add this comment (a slight modification of the response from Apport) if the bug mentions occurring in 22.04 (or later) and mark the bug as *Incomplete*. If the user mentions the package as not being a snap, then it's *Invalid* as it came from a source other than Ubuntu or the snap.
 
 ```{code} none
 :class: codeblock-wrap
@@ -785,9 +785,9 @@ Sometimes we receive bug reports from unofficial derivatives (such as Linux Mint
 ```{code} none
 :class: codeblock-wrap
 
-Thank you for taking the time to report this bug and helping to make Ubuntu better. However, per your report, it seems as though you are not actually running Ubuntu but a derivative distribution. Derivatives are not official flavours and may have additional repositories that provide packages that conflict with our official packages, so we cannot provide support or debug when things go wrong in these distributions.
+Thank you for taking the time to report this bug and helping to make Ubuntu better. However, per your report, it seems as though you are not actually running Ubuntu but a derivative distribution. Derivatives are not official flavors and may have additional repositories that provide packages that conflict with our official packages, so we cannot provide support or debug when things go wrong in these distributions.
 
-Official flavours of Ubuntu are listed here: https://ubuntu.com/desktop/flavours
+Official flavors of Ubuntu are listed here: https://ubuntu.com/desktop/flavours
 
 Please seek support and bug reporting solutions from your distribution. Thank you!
 ```

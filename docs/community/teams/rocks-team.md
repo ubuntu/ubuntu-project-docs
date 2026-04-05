@@ -24,6 +24,7 @@ The Rocks Community has a [public calendar](https://calendar.google.com/calendar
 ### Fortnightly office hours
 
 Called the "Starcraft Clinics", this meeting happens every week, at alternating times:
+
  - [Starcraft Clinics (1st Option)](https://discourse.ubuntu.com/t/starcraft-clinics-1st-option/43649), and
  - [Starcraft Clinics (2nd Option) ](https://discourse.ubuntu.com/t/starcraft-clinics-2nd-option/48031)
 

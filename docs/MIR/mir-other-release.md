@@ -3,6 +3,7 @@
 
 A common case is the need to promote something while it is already in main in
 another release. Examples:
+
 - forward: used to be in min in releases N and N+1 - then dropped to universe in N+2, but now is needed again in N+3
 - backward: is in main in release N and N+1, but now is also needed in release N-1
 

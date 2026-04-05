@@ -35,6 +35,7 @@ becomes questionable with the increasing availability of computational power
 capable of brute-forcing even complex passphrases.
 
 Practical recommendations all derive from the entropy given by the passphrase:
+
 * These passwords do not need to be super comfortable as they are for the main
   key, following the guidance of using {ref}`pgp-hardware-security-keys` and
   sub-keys you will not need it for daily use.

@@ -16,7 +16,7 @@ You are encouraged to participate in peer review and to help with the training o
 
 Example:
 
-* Alice is working diligently on Openstack packages, getting many sponsored uploads every cycle. After a second cycle, in which only minimal / minor review triggered changes needed to happen, Alice feels confident in applying for cloud packageset upload rights.
+* Alice is working diligently on OpenStack packages, getting many sponsored uploads every cycle. After a second cycle, in which only minimal / minor review triggered changes needed to happen, Alice feels confident in applying for cloud packageset upload rights.
 
 
 ## Culture
@@ -38,8 +38,8 @@ Examples:
   This shows collaboration from Bob and Carol; Carol as package maintainer showing knowledge of the Ubuntu ecosystem and what is acceptable, and Bob's respectful interactions and willingness to amend the patch.
   Big kudos to everyone involved.
 
-* Daryl is a Ubuntu core developer, and decides it's time to move ahead of Debian for a major library.
-  Without discussion with any team or other Ubuntu core developers, Daryl uploads a new version of the major library during the development period.
+* Daryl is a Ubuntu Core Developer, and decides it's time to move ahead of Debian for a major library.
+  Without discussion with any team or other Ubuntu Core Developers, Daryl uploads a new version of the major library during the development period.
   Ubuntu development grinds to a halt as many projects are suddenly affected by problems like nebulous build errors and confusing autopkgtest failures.
   Daryl only sends an email to the mailing list *after upload*, with no discussion of what breaking changes the upload may cause.
   This action shows poor judgement, a lack of understanding of the ecosystem, and was generally inconsiderate.
@@ -50,7 +50,7 @@ Examples:
 
 Becoming an Ubuntu member means joining a global team of diverse developers working together on a common project.
 It is expected you should be in regular contact with developers, both in relation to your own work and in helping others, so you can build connections and trust with your peers.
-For a Ubuntu core developer, this means across the entire Ubuntu ecosystem.
+For a Ubuntu Core Developer, this means across the entire Ubuntu ecosystem.
 For MOTU, it is more focused on `universe` or Flavors, and the scope narrows down through the levels.
 You should communicate in the appropriate public channels, such as Matrix, Discourse, or mailing lists.
 
@@ -101,8 +101,8 @@ Example:
 * Evelyn is a member of the Canonical Foundations Toolchain Squad.
   They have worked extensively on Zig, not just on the toolchain but on many leaf packages.
   Over time, Evelyn has built up a portfolio of helping across Ubuntu, not just with Zig but in other areas.
-  First, they applied for a speciality packageset `zig-packages`, and got endorsements from current packageset uploaders and a Ubuntu core developer, all within Canonical Foundations (but including a Ubuntu core developer outside their immediate team).
-  When applying for Ubuntu core developer, they went through their uploads and asked sponsors from Debcrafters and Server to provide endorsements as well.
+  First, they applied for a speciality packageset `zig-packages`, and got endorsements from current packageset uploaders and a Ubuntu Core Developer, all within Canonical Foundations (but including a Ubuntu Core Developer outside their immediate team).
+  When applying for Ubuntu Core Developer, they went through their uploads and asked sponsors from Debcrafters and Server to provide endorsements as well.
   This demonstrates work and interaction within, but also outside their immediate team.
 
 * Frederick is a member of Canonical Support Engineering.
@@ -117,7 +117,7 @@ Example:
   Without an explanation that will make people question if that recent work was not good quality.
 
 * John wants to apply for the rather new Debcrafters packageset, but it only has one member so far.
-  The requirement to have endorsements from the same level is not a blocker here -- endorsements by people sponsoring for him in other/similar packagesets, or Ubuntu core developers, could also back his case.
+  The requirement to have endorsements from the same level is not a blocker here -- endorsements by people sponsoring for him in other/similar packagesets, or Ubuntu Core Developers, could also back his case.
 
 * Hugo applies for per package upload rights. He has done many uploads, but would want to refer to further, yet internal-only work for more confidence in his abilities.
   In addition to all normal evidence, an endorser outlines the scope of the work they have done that is invisible to the DMB.

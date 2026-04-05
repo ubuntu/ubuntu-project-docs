@@ -44,6 +44,7 @@ update before a large number of users encounter it.
 ## User stories
 
 **As an** Ubuntu User:
+
 * **I want to** encounter regressions in stable release updates less frequently
 * **so that** I can get my work done
 
