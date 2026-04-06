@@ -22,6 +22,9 @@ MoinMoin-specific constructs handled:
 - Word``Word CamelCase-suppression backtick pairs are collapsed (e.g. Ge``Force
   becomes GeForce).
 - <<TableOfContents>> and <<FullSearch>> standalone macro lines are removed.
+- <placeholder> variable names (e.g. <ifname>, <filename>) in prose are
+  wrapped in backtick code spans to prevent Markdown renderers treating
+  them as raw HTML tags.  Standard HTML element names are left unchanged.
 - ''italic'' is converted to _italic_ (underscore form preferred in MyST).
 """
 
@@ -260,6 +263,61 @@ def loosen_long_lists(text: str) -> str:
     return '\n'.join(result)
 
 
+def wrap_angle_placeholders(text: str) -> str:
+    """Wrap <placeholder> variable names in backtick code spans.
+
+    MoinMoin wiki text uses angle brackets around variable placeholders in
+    command examples (e.g. ``<ifname>``, ``<filename>``, ``<country>``).
+    In Markdown/MyST these would be treated as raw HTML tags and may be
+    silently stripped by the renderer.  Wrapping them in backticks preserves
+    them as literal inline code.
+
+    Standard HTML element names (a, div, span, br, …) are left unchanged
+    since they are intentional HTML inline markup.  Only lowercase
+    word-only tag-like patterns that are not known HTML elements are wrapped.
+
+    Content inside fenced code blocks and existing inline code spans is left
+    untouched.
+    """
+    _HTML_TAGS = {
+        'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b', 'blockquote',
+        'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col',
+        'colgroup', 'data', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog',
+        'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure',
+        'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header',
+        'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'label',
+        'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'meta', 'meter',
+        'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p',
+        'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp',
+        'script', 'section', 'select', 'small', 'source', 'span', 'strong',
+        'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'template',
+        'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track',
+        'u', 'ul', 'var', 'video', 'wbr',
+    }
+    placeholder_re = re.compile(r'<([a-z][a-z0-9_-]*)>')
+
+    def _wrap(m):
+        return m.group(0) if m.group(1) in _HTML_TAGS else f'`{m.group(0)}`'
+
+    lines = text.split('\n')
+    result = []
+    in_fence = False
+    for line in lines:
+        if line.startswith('```'):
+            in_fence = not in_fence
+        if in_fence:
+            result.append(line)
+            continue
+        # Skip existing inline code spans
+        parts = re.split(r'(`[^`\n]+`)', line)
+        result.append(''.join(
+            part if (part.startswith('`') and part.endswith('`'))
+            else placeholder_re.sub(_wrap, part)
+            for part in parts
+        ))
+    return '\n'.join(result)
+
+
 def convert(text: str) -> str:
     # ── Step 1: Remove known MoinMoin metadata directives
     text = re.sub(
@@ -316,6 +374,10 @@ def convert(text: str) -> str:
     # The lookbehind/lookahead ensure only pairs between word characters are
     # removed; triple-backtick code fences and inline code spans are unaffected.
     text = re.sub(r'(?<=[A-Za-z0-9])``(?=[A-Za-z0-9])', '', text)
+
+    # Wrap <placeholder> variable names in backtick code spans so they are
+    # not treated as raw HTML tags by Markdown renderers.
+    text = wrap_angle_placeholders(text)
 
     # ── Step 7: Remove MoinMoin table wrapper  ||<style="...">CONTENT||
     text = re.sub(r'\|\|(?:<[^>]*>)?(.*?)\|\|', lambda m: m.group(1).strip(), text)
