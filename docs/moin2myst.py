@@ -14,10 +14,82 @@ Assumptions:
 - Images ({{attachment:...}}) are replaced with HTML comments.
 - <<BR>> inside list items is converted to a continuation line indented by 2 spaces
   (assumes top-level list items; adjust indent for deeper nesting if needed).
+
+MoinMoin-specific constructs handled:
+- ## comment lines (invisible in rendered wiki) are stripped.
+- /* ... */ block comments (invisible in rendered wiki) are stripped.
+- !WikiWord NoLink markers (e.g. !OpenStack) are stripped to plain text.
+- Word``Word CamelCase-suppression backtick pairs are collapsed (e.g. Ge``Force
+  becomes GeForce).
+- <<TableOfContents>> and <<FullSearch>> standalone macro lines are removed.
+- ''italic'' is converted to _italic_ (underscore form preferred in MyST).
 """
 
 import re
 import sys
+
+
+def strip_block_comments(text: str) -> str:
+    """Remove MoinMoin /* ... */ block comment sections.
+
+    Block comments are invisible in rendered wiki output.  They may span
+    multiple lines: the section starts with a line whose first non-whitespace
+    characters are /* and ends with a line whose last non-whitespace
+    characters are */.  Single-line /* comment */ forms are also removed.
+    Content inside fenced code blocks (``` ... ```) is left untouched.
+    """
+    lines = text.split('\n')
+    result = []
+    in_comment = False
+    in_fence = False
+    for line in lines:
+        if line.startswith('```'):
+            in_fence = not in_fence
+        if in_fence:
+            result.append(line)
+            continue
+        stripped = line.strip()
+        if not in_comment:
+            if stripped.startswith('/*'):
+                if stripped.endswith('*/') and len(stripped) > 2:
+                    continue  # single-line /* comment */ — drop it
+                else:
+                    in_comment = True
+                    continue  # drop the /* opener line
+            else:
+                result.append(line)
+        else:
+            if stripped.endswith('*/'):
+                in_comment = False  # drop the */ closer line
+            # else: drop comment body line
+    return '\n'.join(result)
+
+
+def strip_moinmoin_comments(text: str) -> str:
+    """Remove MoinMoin ## comment lines.
+
+    In MoinMoin any line that begins with ## (with or without a following
+    space) is a processing comment and is never rendered in the output.
+    This includes both ordinary comments (## some note) and macro-style
+    markers such as ##StartSectionBugs or ##FIXME.
+
+    Content inside fenced code blocks (``` ... ```) is left untouched so
+    that shell-style ## comments inside code examples are preserved.
+
+    Call this *after* the {{{ }}} → ``` conversion so that fence detection
+    works correctly, and *before* the = heading = → ## heading conversion
+    so that comment lines are not mistaken for Markdown headings.
+    """
+    lines = text.split('\n')
+    result = []
+    in_fence = False
+    for line in lines:
+        if line.startswith('```'):
+            in_fence = not in_fence
+        if not in_fence and re.match(r'^##', line):
+            continue
+        result.append(line)
+    return '\n'.join(result)
 
 
 def wrap_naked_urls(text: str) -> str:
@@ -196,6 +268,9 @@ def convert(text: str) -> str:
         text,
     )
 
+    # ── Step 1b: Remove standalone macro lines with no Markdown equivalent
+    text = re.sub(r'(?m)^<<(?:TableOfContents|FullSearch)(?:\([^)]*\))?>>[^\n]*\n?', '', text)
+
     # ── Step 2: <<BR>> linebreak macro → newline + 2-space indent for list continuation
     # The 2-space indent keeps continuation text inside the list item in MyST/CommonMark.
     text = text.replace('<<BR>>', '\n  ')
@@ -217,10 +292,35 @@ def convert(text: str) -> str:
 
     text = re.sub(r'\{\{\{(.*?)\}\}\}', replace_code_block, flags=re.DOTALL, string=text)
 
-    # ── Step 6: Remove MoinMoin table wrapper  ||<style="...">CONTENT||
+    # ── Step 6: Remove MoinMoin block comments, comment lines, and NoLink markers.
+    # These steps run after code conversion (Steps 4–5) so that fence detection
+    # (```) works correctly, and before heading conversion (Step 8) so that ##
+    # comment lines are not mistaken for Markdown headings.
+
+    # Remove /* ... */ block comments (invisible in rendered wiki)
+    text = strip_block_comments(text)
+
+    # Remove ## comment lines (invisible in rendered wiki)
+    text = strip_moinmoin_comments(text)
+
+    # Remove !WikiWord NoLink markers: !OpenStack → OpenStack.
+    # The leading ! suppresses MoinMoin CamelCase auto-linking; in Markdown
+    # there is no auto-linking so the marker is simply noise.
+    # Pattern is safe: Markdown image syntax uses ![ (bracket, not uppercase),
+    # and != operators use = not an uppercase letter.
+    text = re.sub(r'!([A-Z][A-Za-z]+)', r'\1', text)
+
+    # Remove CamelCase-suppression backtick pairs: Ge``Force → GeForce.
+    # MoinMoin inserts an invisible `` pair inside a CamelCase word to prevent
+    # auto-linking; the pair is invisible in rendered wiki output.
+    # The lookbehind/lookahead ensure only pairs between word characters are
+    # removed; triple-backtick code fences and inline code spans are unaffected.
+    text = re.sub(r'(?<=[A-Za-z0-9])``(?=[A-Za-z0-9])', '', text)
+
+    # ── Step 7: Remove MoinMoin table wrapper  ||<style="...">CONTENT||
     text = re.sub(r'\|\|(?:<[^>]*>)?(.*?)\|\|', lambda m: m.group(1).strip(), text)
 
-    # ── Step 7: Images {{attachment:file.png|desc}} → HTML comment
+    # ── Step 8: Images {{attachment:file.png|desc}} → HTML comment
     def replace_image(m):
         filename = m.group(1).strip()
         desc = m.group(2).strip() if m.group(2) else ''
@@ -231,7 +331,7 @@ def convert(text: str) -> str:
 
     text = re.sub(r'\{\{attachment:([^|}]+?)(?:\|([^}]*))?}}', replace_image, text)
 
-    # ── Step 8: Section headings  = H2 =  == H3 ==  === H4 ===
+    # ── Step 9: Section headings  = H2 =  == H3 ==  === H4 ===
     def convert_heading(m):
         level = len(m.group(1))
         title = m.group(2).strip()
@@ -244,12 +344,12 @@ def convert(text: str) -> str:
 
     text = re.sub(r'(?m)^(=+)\s+(.+?)\s+\1\s*$', convert_heading, text)
 
-    # ── Step 9: Horizontal rules  -----  →  ---
+    # ── Step 10: Horizontal rules  -----  →  ---
     # Use [^\S\n]* (not \s*) so trailing whitespace on the rule line is stripped
     # without consuming the newlines that follow it.
     text = re.sub(r'(?m)^-{4,}[^\S\n]*$', '---', text)
 
-    # ── Step 10: Links — mailto first
+    # ── Step 11: Links — mailto first
     def replace_mailto(m):
         addr = m.group(1).strip()
         label = m.group(2).strip() if m.group(2) else addr
@@ -273,14 +373,16 @@ def convert(text: str) -> str:
 
     text = re.sub(r'\[\[([^\]]+)\]\]', replace_bare_link, text)
 
-    # ── Step 11: Emphasis — bold+italic, bold, italic
+    # ── Step 12: Emphasis — bold+italic, bold, italic
     # MoinMoin bold+italic ('''''text''''') → **_text_** (nested bold+italic).
     # *** is not valid MyST inline markup; use ** wrapping _.._ instead.
+    # ''italic'' → _italic_ (underscore form is conventional in MyST and
+    # avoids ambiguity with bullet-list * markers).
     text = re.sub(r"'{5}(.+?)'{5}", r'**_\1_**', text)
     text = re.sub(r"'{3}(.+?)'{3}", r'**\1**', text)
-    text = re.sub(r"'{2}(.+?)'{2}", r'*\1*', text)
+    text = re.sub(r"'{2}(.+?)'{2}", r'_\1_', text)
 
-    # ── Step 12: Strip internal leading/trailing horizontal whitespace from ** ... **
+    # ── Step 13: Strip internal leading/trailing horizontal whitespace from ** ... **
     # spans.  Using full paired-span matching avoids the ambiguity between opening
     # and closing markers that one-sided patterns suffer from (e.g. "content:** next"
     # would be incorrectly treated as an opening marker by a naive left-side-only
@@ -290,14 +392,14 @@ def convert(text: str) -> str:
 
     text = re.sub(r'(?<!\*)\*{2}(?!\*)([^\n]*?)(?<!\*)\*{2}(?!\*)', _strip_bold, text)
 
-    # ── Step 13: /!\ warning icon (line-level)  →  {note} admonition
+    # ── Step 14: /!\ warning icon (line-level)  →  {note} admonition
     def replace_warning(m):
         content = m.group(1).strip()
         return f'```{{note}}\n{content}\n```'
 
     text = re.sub(r'(?m)^/!\\\s+(.+)$', replace_warning, text)
 
-    # ── Step 14: Bullet lists — normalize MoinMoin indented " * " to Markdown
+    # ── Step 15: Bullet lists — normalize MoinMoin indented " * " to Markdown
     def fix_bullet(m):
         spaces = len(m.group(1))
         indent_level = max(0, (spaces - 1) // 2)
@@ -305,7 +407,7 @@ def convert(text: str) -> str:
 
     text = re.sub(r'(?m)^( +)\* (.+)', fix_bullet, text)
 
-    # ── Step 15: Numbered lists — normalize MoinMoin indented " 1. "
+    # ── Step 16: Numbered lists — normalize MoinMoin indented " 1. "
     def fix_numbered(m):
         spaces = len(m.group(1))
         indent_level = max(0, (spaces - 1) // 2)
@@ -313,30 +415,30 @@ def convert(text: str) -> str:
 
     text = re.sub(r'(?m)^( +)1\. (.+)', fix_numbered, text)
 
-    # ── Step 16: Clean up malformed link brackets with spaces: [ text ]( url )
+    # ── Step 17: Clean up malformed link brackets with spaces: [ text ]( url )
     text = re.sub(r'\[\s+([^\]]+?)\s*\]\(\s*([^)]+?)\s*\)', r'[\1](\2)', text)
     text = re.sub(r'\[\s+([^\]]+?)\s*\](?!\()', r'[\1]', text)
 
-    # ── Step 17: Wrap naked URLs (not already inside link markup or code spans)
+    # ── Step 18: Wrap naked URLs (not already inside link markup or code spans)
     text = wrap_naked_urls(text)
 
-    # ── Step 18: Strip end-of-line trailing whitespace
+    # ── Step 19: Strip end-of-line trailing whitespace
     text = re.sub(r'(?m) +$', '', text)
 
-    # ── Step 18: Blank line before opening code/admonition fence
+    # ── Step 20: Blank line before opening code/admonition fence
     # Matches any non-blank line immediately followed by a fence opener (```lang or ```{role}).
     text = re.sub(r'([^\n])\n(```[a-z{])', r'\1\n\n\2', text)
 
-    # ── Step 19: Blank line after closing code fence (line containing only ```)
+    # ── Step 21: Blank line after closing code fence (line containing only ```)
     # Mark closing fences, add blank line, then remove marker.
     text = re.sub(r'(?m)^```$', '```\x00', text)
     text = re.sub(r'```\x00\n([^\n\x00])', '```\x00\n\n\\1', text)
     text = text.replace('\x00', '')
 
-    # ── Step 20: Collapse 3+ blank lines to 2
+    # ── Step 22: Collapse 3+ blank lines to 2
     text = re.sub(r'\n{3,}', '\n\n', text)
 
-    # ── Step 21: Merge consecutive anchor labels (no blank line between them)
+    # ── Step 23: Merge consecutive anchor labels (no blank line between them)
     # e.g. (translation)=\n\n(filing-a-translation-bug)= → consecutive labels on a heading
     text = re.sub(
         r'(\([a-z][a-z0-9-]*\)=)\n\n(\([a-z][a-z0-9-]*\)=)',
@@ -344,7 +446,7 @@ def convert(text: str) -> str:
         text,
     )
 
-    # ── Step 22: Ensure exactly 2 blank lines before heading anchor blocks
+    # ── Step 24: Ensure exactly 2 blank lines before heading anchor blocks
     # A heading anchor block is one or more (label)= lines followed by a # heading.
     # Match any number of preceding newlines (1+) so that under-spaced cases
     # (e.g. a single \n after ---) are also caught.
@@ -355,22 +457,22 @@ def convert(text: str) -> str:
         text,
     )
 
-    # ── Step 23: Strip leading whitespace from regular text lines.
+    # ── Step 25: Strip leading whitespace from regular text lines.
     # List continuation lines (indented, immediately following a list item) are preserved.
     # Content inside fenced blocks is preserved.
     text = normalize_text_indent(text)
 
-    # ── Step 24: Add blank line before every list (regardless of item length)
+    # ── Step 26: Add blank line before every list (regardless of item length)
     text = ensure_blank_before_lists(text)
 
-    # ── Step 25: Add blank lines between long list items
+    # ── Step 27: Add blank lines between long list items
     text = loosen_long_lists(text)
 
-    # ── Step 26: Collapse 4+ blank lines to 3 (preserves the 2-blank-line heading spacing
+    # ── Step 28: Collapse 4+ blank lines to 3 (preserves the 2-blank-line heading spacing
     # that may have been exceeded by list loosening immediately before a heading)
     text = re.sub(r'\n{4,}', '\n\n\n', text)
 
-    # ── Step 27: Ensure blank line after heading line
+    # ── Step 29: Ensure blank line after heading line
     text = re.sub(r'(?m)^(#{1,6} .+)\n([^\n])', r'\1\n\n\2', text)
 
     return text
