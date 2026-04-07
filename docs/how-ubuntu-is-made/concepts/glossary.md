@@ -358,7 +358,7 @@ Closed Source Software
     See also: {term}`Open Source Software`
 
 Code name
-    Short identifier used to refer to a specific Ubuntu release (e.g. , Jammy Jellyfish for Ubuntu 22.04 LTS).
+    Short identifier used to refer to a specific Ubuntu release (e.g., Jammy Jellyfish for Ubuntu 22.04 LTS).
     {ref}`List of Releases with Code Names <list-of-releases>`
 
 CoC
