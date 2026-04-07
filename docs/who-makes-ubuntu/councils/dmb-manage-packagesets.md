@@ -83,7 +83,7 @@ like Personal packagesets and OEM metapackage packagesets.
   defies the purpose (See below about details on these cases).
   * These packagesets used to be fully generated based on
     [this code](https://code.launchpad.net/~developer-membership-board/+git/packageset)
-    and the logic tries to detect how sources are shared between flavours to
+    and the logic tries to detect how sources are shared between flavors to
     remove those. But that has proven to cause too many exceptions.
     Therefore they have - for now - become defined by the seeds, but modified
     manually on request.
@@ -102,7 +102,7 @@ like Personal packagesets and OEM metapackage packagesets.
       Examples of that would be: `grub2`, `systemd`, or `cloud-init`.
     * Consider to remove a package from a set if it is also claimed by other
       seeds or common use case. In that case it often, but not always, is only
-      updated by Ubuntu core-developers.
+      updated by Ubuntu Core Developers.
       Examples of that would be: `vim`, `dhcpcd` or `tzdata`
     * Consider to add a package to a set if it is not in the seeds, but such a
       common use case for the packageset that the same set of people that care

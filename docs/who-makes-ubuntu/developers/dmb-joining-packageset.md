@@ -69,7 +69,7 @@ you should know enough about the concepts to be able to talk about them.
 In addition to Ubuntu packaging, you need to have some technical expertise with the subset of software you'll be working on, and the processes and procedures standardized for them.
 For example, for the Ubuntu Server team you would need to have experience with technologies such as systemd and networking, and processes such as using git-ubuntu for package maintenance.
 
-Keep in mind the DMB's perspective follows the "Need to unblock" principle:
+Keep in mind the DMB perspective follows the "Need to unblock" principle:
 They want to approve applications that will either reduce contributor friction or save work for sponsors.
 Establishing yourself as an area expert and a resource for contributors helps prove the former, and your volume and frequency of uploads justifies the latter.
 

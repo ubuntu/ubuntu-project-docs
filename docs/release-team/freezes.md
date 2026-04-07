@@ -251,7 +251,7 @@ must confirm.
 ### Unseeded packages
 
 Packages in {ref}`archive-components-universe` that aren't seeded in any of the
-Ubuntu flavours remain in {ref}`feature-freeze` because they do not affect
+Ubuntu flavors remain in {ref}`feature-freeze` because they do not affect
 the release; however, when the Ubuntu Package Archive is frozen, fixes must be
 manually reviewed and accepted by the Release Team members.
 

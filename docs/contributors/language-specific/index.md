@@ -5,6 +5,7 @@ Building on Launchpad is generally handled by the {manpage}`dh(1)` suite of prog
 Sometimes, we patch or extend the build systems to add new features.
 
 ## Rust
+
 ```{toctree}
 :maxdepth: 1
 

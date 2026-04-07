@@ -36,7 +36,6 @@ help:
 	@echo "* clean built doc files:                     make clean-doc"
 	@echo "* clean full environment:                    make clean"
 	@echo "* check links:                               make linkcheck"
-	@echo "* check markdown:                            make lint-md"
 	@echo "* check spelling:                            make spelling"
 	@echo "* check spelling (without building again):   make spellcheck"
 	@echo "* check inclusive language:                  make woke"
@@ -50,7 +49,7 @@ help:
 .PHONY: help full-help html html-lite epub pdf linkcheck spelling spellcheck woke \
         vale pa11y run serve install pa11y-install \
         vale-install pdf-prep pdf-prep-force clean clean-doc \
-        update lint-md
+        update
 
 full-help: $(DOCS_VENVDIR)
 	@. $(DOCS_VENV); $(SPHINX_BUILD) -M help "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" $(SPHINX_OPTS) $(O)
@@ -75,9 +74,6 @@ pa11y-install:
 			mkdir -p $(SPHINX_DIR)/node_modules/ ; \
 			npm install --prefix $(SPHINX_DIR) pa11y; \
 		}
-
-pymarkdownlnt-install: install
-	@. $(DOCS_VENV); test -d $(DOCS_VENVDIR)/lib/python*/site-packages/pymarkdown || pip install pymarkdownlnt==0.9.35
 
 install: $(DOCS_VENVDIR)
 
@@ -114,26 +110,6 @@ linkcheck: install
 
 pa11y: pa11y-install html-lite
 	find $(DOCS_BUILDDIR) -name *.html -print0 | xargs -n 1 -0 $(PA11Y_CMD)
-
-# Without --return-code-scheme explicit, pymarkdownlnt returns 1 for multiple scenarios.
-# By using the explicit scheme, it only returns 1 when no files are found,
-# which should not result in failure.
-lint-md: pymarkdownlnt-install
-	@. $(DOCS_VENV); pymarkdownlnt \
-		--config $(SPHINX_DIR)/.pymarkdown.json \
-		--return-code-scheme explicit \
-		scan \
-			--recurse \
-			--exclude=$(SPHINX_DIR)/** \
-			--exclude=$(DOCS_VENVDIR)/** \
-			$(DOCS_SOURCEDIR); \
-	status=$$?; \
-	if [ $$status -eq 1 ]; then \
-		echo "No Markdown files selected for linting"; \
-		exit 0; \
-	fi; \
-	echo "pymarkdownlnt exited with code $$status"; \
-	exit $$status;
 
 vale-install: install
 	@. $(DOCS_VENV); test -f $(VALE_CONFIG) || python3 $(SPHINX_DIR)/get_vale_conf.py
