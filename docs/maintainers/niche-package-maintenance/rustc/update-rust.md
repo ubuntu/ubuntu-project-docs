@@ -724,7 +724,7 @@ $ mv autopkgtest-<release>-<arch>.img autopkgtest-<release>-<arch>-big.img
 
 #### Verifying the necessity of big_packages
 
-First, run the autopkgtests locally using the default test bed to check if the default OpenStack flavour resources are sufficient for this build:
+First, run the autopkgtests locally using the default test bed to check if the default OpenStack flavor resources are sufficient for this build:
 
 :::{note}
 The `--log-file` option is picky. It doesn't do bash path expansions and the log file needs to exist already.

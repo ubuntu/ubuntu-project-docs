@@ -241,10 +241,10 @@ this. Where no revision control system is used, the history of uploads recorded
 in [Launchpad](https://launchpad.net/ubuntu/+search) may be useful.
 
 
-### Ubuntu Flavors and derivative distributions
+### Ubuntu flavors and derivative distributions
 
 The Ubuntu project produces several distributions each release cycle. These are
-sometimes called "Flavors". Kubuntu, Edubuntu, and Xubuntu are all maintained
+sometimes called "flavors". Kubuntu, Edubuntu, and Xubuntu are all maintained
 directly in the Ubuntu Archive. There are also a large number of derivative
 distributions that are based on the Ubuntu Archive, but separately developed.
 

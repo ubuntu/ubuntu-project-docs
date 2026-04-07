@@ -20,7 +20,7 @@ The majority of source packages in Ubuntu are copied unmodified from Debian; the
 Snaps are easy-to-install application packages for desktop, cloud and IoT that are secure, cross‐platform and dependency‐free.
 Snaps are discoverable and installable from the [Snap Store](https://snapcraft.io/), the app store for Linux with an audience of millions.
 
-* Learn Snapcraft by [making your first Snap](https://snapcraft.io/blog/how-to-make-your-first-snap)
+* Learn Snapcraft by [making your first snap](https://snapcraft.io/blog/how-to-make-your-first-snap)
 
 
 ## Juju charms
