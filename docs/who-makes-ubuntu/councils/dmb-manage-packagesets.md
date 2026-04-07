@@ -43,9 +43,10 @@ flowchart TD
 
 For easy viewing, there are text files representing the current
 state of the packagesets. That includes the name of the sets, their
-description, the list of packages included as well as the developers allowed
-to upload to it. These files can be found at
-[~ubuntu-archive/packagesets](https://ubuntu-archive-team.ubuntu.com/packagesets/).
+description, the list of [packages included in a set](https://static-reports.ubuntu.com/packagesets/)
+as well as the [individual developers](https://static-reports.ubuntu.com/archive-permissions/individuals)
+and [teams](https://static-reports.ubuntu.com/archive-permissions/teams)
+allowed to upload to it.
 
 Consider creating a packageset once we have:
 
