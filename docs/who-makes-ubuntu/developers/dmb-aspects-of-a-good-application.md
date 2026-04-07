@@ -51,7 +51,7 @@ Examples:
 Becoming an Ubuntu member means joining a global team of diverse developers working together on a common project.
 It is expected you should be in regular contact with developers, both in relation to your own work and in helping others, so you can build connections and trust with your peers.
 For a Ubuntu Core Developer, this means across the entire Ubuntu ecosystem.
-For MOTU, it is more focused on `universe` or Flavors, and the scope narrows down through the levels.
+For MOTU, it is more focused on `universe` or flavors, and the scope narrows down through the levels.
 You should communicate in the appropriate public channels, such as Matrix, Discourse, or mailing lists.
 
 You do not have to fill the channels with non-useful messages.
