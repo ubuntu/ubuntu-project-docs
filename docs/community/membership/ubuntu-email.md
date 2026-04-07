@@ -5,23 +5,23 @@ Ubuntu Members are granted special `@Ubuntu.com` aliases they can use to send an
 
 1. Log into [Forward Email](https://forwardemail.net/en/ubuntu) using your UbuntuOne SSO account. Under {guilabel}`Quick Links` beside the [`ubuntu.com`](https://ubuntu.com/) domain, select **Aliases**.
 
-   ![1](one.png)
+   ![Screenshot of forward email aliases landing page with a button to log in with Ubuntu One](one.png)
 
-   ![2](two.png)
+   ![Screenshot of domain names list, showing the ubuntu.com domain with quick links options and aliases option selected](two.png)
 
 2. Select {guilabel}`Edit` under {guilabel}`Quick links` and enter your personal email under **Forwarding Recipients**.
 
-   ![3](three.png)
+   ![Screenshot of aliases page, with a edit option under quick links](three.png)
 
-   ![4](four.png)
+   ![Screenshot of forwarding recipients field filled with a personal email address](four.png)
 
 3. If you plan on sending emails via your [`ubuntu.com`](https://ubuntu.com/) address, then under {guilabel}`Quick Links` select {guilabel}`Generate Password` to create a unique password. You will use this when configuring your SMTP services on your mail application of choice.
 
-   ![5|781x314](five.png)
+   ![Screenshot of password creation field with generate password option](five.png)
 
 4. Once you have your SMTP password, you can click on the {guilabel}`Setup Instructions` link to learn how to configure mail sending on various desktop and mobile mail applications.
 
-   ![6|275x170](six.png)
+   ![Screenshot of quick links, with the set up instructions button selected](six.png)
 
 ## Feedback and support
 
