@@ -955,12 +955,12 @@ Hopefully, the PPA builder will run out of space _past_ the point at which `stag
 If no packaged version of the Rust toolchain is available to use for bootstrapping, it is possible to use the stage0 compiler provided by the upstream Rust project. These are pre-built binaries of the previous Rust release, which can be used to build the new Rust version from source. To identify a package built in this way, include `~stage0` in the version string just before the hyphen, for example `1.92.0+dfsg~24.04~stage0-0ubuntu1~24.04.3`. After creating an entry in `debian/changelog` with the appropriate version string, run the following command to generate the stage0 tarball:
 
 ```none
-$ debian/rules source_orig-stage0
+$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<...> debian/rules source_orig-stage0
 ```
 
 This downloads binaries of the stage0 compiler for all Ubuntu-supported architectures and bundles them into a component tarball `rustc-<...>.orig-stage0.tar.xz`. A few more steps may be needed:
 
-1. Rename the stage0 tarball to follow the same file naming convention as the other orig tarballs. Otherwise the packaging tools will not find it.
+1. Rename the stage0 tarball to follow the same file naming convention as the other orig tarballs. Otherwise, the packaging tools will not find it.
 1. Clean up any modified files, with the exception of the newly created `stage0` directory, which should be kept.
 1. Comment out this line in `debian/rules` which would otherwise cause the build to fail due to not finding the bootstrapping compiler in its ordinary location:
     ```
