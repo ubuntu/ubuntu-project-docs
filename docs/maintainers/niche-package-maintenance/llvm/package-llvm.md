@@ -764,10 +764,35 @@ New major versions are generally synced from Debian, and so importing a new majo
     $ git checkout --orphan upstream/22
     $ git rm -rf --cached .
     $ git clean -fd
-    $ git commit --alow-empty -m "init upstream/22"
+    $ git commit --allow-empty -m "init upstream/22"
     ```
 
 1. Import the tarball as described in {ref}`importing-a-new-llvm-minor-release`. Grab it from Launchpad rather than from Github to ensure we have a matching version to the original release, unlike what we do for minor releases.
+
+1. For a new version, you'll also need the component orig tarball for the [integration test suite](https://github.com/opencollab/llvm-toolchain-integration-test-suite). To get a tarball with the ideal directory structure, you can do the following:
+
+    ```none
+    VERSION=17.0.6
+    MAJOR=${VERSION%%.*}
+
+    curl -L https://github.com/opencollab/llvm-toolchain-integration-test-suite/archive/refs/heads/main.tar.gz \
+      | xz -c > ../llvm-toolchain-${VERSION}.orig-integration-test-suite.tar.xz
+    ```
+
+    Unfortunately, `gbp` doesn't seem to handle component tarball imports well, so we have to create the branch, untar, and commit the changes manually.
+
+    ```none
+    BRANCH="upstream-integration-test-suite/${MAJOR}"
+
+    git checkout --orphan "$BRANCH"
+    git rm -rf . --quiet
+    git commit --allow-empty -m "init ${BRANCH}"
+    tar -xJf ../llvm-toolchain-${VERSION}.orig-integration-test-suite.tar.xz --strip-components=1
+    git add -A
+    git commit -m "New upstream version ${VERSION}"
+    git tag "upstream-integration-test-suite/${VERSION}"
+    pristine-tar commit ../llvm-toolchain-${VERSION}.orig-integration-test-suite.tar.xz "$BRANCH"
+    ```
 
 1. Create the Debian tracking branch:
 
