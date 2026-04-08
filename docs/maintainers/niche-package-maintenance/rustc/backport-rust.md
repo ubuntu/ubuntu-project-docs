@@ -958,7 +958,7 @@ If no packaged version of the Rust toolchain is available to use for bootstrappi
 $ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<...> debian/rules source_orig-stage0
 ```
 
-This downloads binaries of the stage0 compiler for all Ubuntu-supported architectures and bundles them into a component tarball `rustc-<...>.orig-stage0.tar.xz`. A few more steps may be needed:
+This downloads binaries of the stage0 compiler for all Ubuntu-supported architectures and bundles them into a component tarball `rustc_<...>.orig-stage0.tar.xz`. A few more steps may be needed:
 
 1. Rename the stage0 tarball to follow the same file naming convention as the other orig tarballs. Otherwise, the packaging tools will not find it.
 1. Clean up any modified files, with the exception of the newly created `stage0` directory, which should be kept.
