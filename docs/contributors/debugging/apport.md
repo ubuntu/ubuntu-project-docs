@@ -65,6 +65,7 @@ This is mitigated by the fact that it presents you what will be sent to the bug 
 <!-- TODO: Error Tracker wiki page may need to be migrated -->
 Apport itself is running at all times because it collects crash data for `whoopsie` (see page on the [Error Tracker](https://wiki.ubuntu.com/ErrorTracker)). However, the crash interception component is still disabled. To enable it permanently, do:
 
+```bash
 sudo nano /etc/apport/crashdb.conf
 ```
 
@@ -148,8 +149,8 @@ There are several tools available for working with a crash report:
 Apport uses `/proc/sys/kernel/core_pattern` to directly pipe the core dump into
 Apport:
 
-```none
-$ cat /proc/sys/kernel/core_pattern
+```bash
+cat /proc/sys/kernel/core_pattern
 |/usr/share/apport/apport %p %s %c
 ```
 
