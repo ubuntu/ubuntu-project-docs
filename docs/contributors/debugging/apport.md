@@ -236,5 +236,5 @@ You can also [browse it online](http://bazaar.launchpad.net/~apport-hackers/appo
 * [Whoopsie](https://wiki.ubuntu.com/ErrorTracker) is a newer Ubuntu crash submission system that doesn't require any input from the user and integrates with Apport
 * Please do not hesitate to report bugs and feature requests to the [bug tracker](https://launchpad.net/apport/+bugs).
 * See [Bugs/ApportRetraces](https://help.ubuntu.com/community/Bugs/ApportRetraces) for additional documentation for those triaging Apport-generated bug reports in LaunchPad, based on a [MOTU/School](https://help.ubuntu.com/community/MOTU/School) session by EmmetHikory .
-* [Brian Murray](BrianMurray) gave a [class](https://wiki.ubuntu.com/MeetingLogs/devweek0909/ApportPkgHooks) at Ubuntu Developer week regarding writing package hooks.
+* [Brian Murray](https://wiki.ubuntu.com/BrianMurray) gave a [class](https://wiki.ubuntu.com/MeetingLogs/devweek0909/ApportPkgHooks) at Ubuntu Developer week regarding writing package hooks.
 * Integration using LaunchpadIntegration: [https://wiki.ubuntu.com/UbuntuDevelopment/Internationalisation/Coding#LPI](https://wiki.ubuntu.com/UbuntuDevelopment/Internationalisation/Coding#LPI)
