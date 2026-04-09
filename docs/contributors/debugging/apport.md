@@ -67,10 +67,10 @@ This is mitigated by the fact that it presents you what will be sent to the bug 
 
 * The most important crashes have already been discovered in the development release.
 
-* The less important ones are not suitable for getting fixed in stable releases (see [|SRU policy](https://wiki.ubuntu.com/StableReleaseUpdates)
 
 * Asking users to send crash reports to us is insincere, since we can't possibly answer and deal with all of them.
 
+    * The less important ones are not suitable for getting fixed in stable releases (see [SRU documentation](https://documentation.ubuntu.com/project/SRU/stable-release-updates/).
 
 1. Data collection from Apport takes a nontrivial amount of CPU and I/O resources, which slow down the computer and don't allow you to restart the crashed program for several seconds.
 
