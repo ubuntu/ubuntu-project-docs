@@ -1,7 +1,3 @@
-Available languages:[Italiano](https://wiki.ubuntu.com/Apport_it),
-
-<<TableOfContents>>
-
 
 (what-is-this-all-about)=
 ## What is this all about?
