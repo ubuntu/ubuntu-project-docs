@@ -170,7 +170,7 @@ Apport is even able to capture core files if PID 1 (Upstart) dies:
 1. The Upstart crash handler is called on `SIGABRT`.
 1. Upstart crash handler forks a child process.
 1. The Upstart child process re-raises the signal which results in the child exiting abnormally.
-1. The kernel detects the child process has exited abnormally and calls `apport`, piping the core file to Apports standard input (due to `/proc/sys/kernel/core_pattern`).
+1. The kernel detects the child process has exited abnormally and calls `apport`, piping the core file to Apport's standard input (due to `/proc/sys/kernel/core_pattern`).
 1. `apport` writes the core file to disk in `/var/crash/`.
 1. PID 1 waits for its child to terminate (which only happens once `apport` has finished writing the core file).
 1. PID 1 exits.
