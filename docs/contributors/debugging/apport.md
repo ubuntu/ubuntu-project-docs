@@ -57,7 +57,9 @@ This is mitigated by the fact that it presents you what will be sent to the bug 
 
 1. Data collection from Apport takes a nontrivial amount of CPU and I/O resources, which slow down the computer and don't allow you to restart the crashed program for several seconds.
 
-**Note** Apport does not trap SIGABRT signals. If you are getting such a signal, then please see the page on [debugging program crash](https://wiki.ubuntu.com/DebuggingProgramCrash).
+```{note}
+Apport does not trap SIGABRT signals. If you are getting such a signal, then please see the page on [debugging program crash](https://wiki.ubuntu.com/DebuggingProgramCrash).
+```
 
 (how-to-enable-apport)=
 ## How to enable Apport
