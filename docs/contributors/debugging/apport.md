@@ -71,10 +71,11 @@ Apport itself is running at all times because it collects crash data for `whoops
 sudo nano /etc/apport/crashdb.conf
 ```
 
-... and **add a hash symbol # in the beginning** of the following line:
+and **add a hash symbol #** at the beginning of the following line:
 
-```none
-'problem_types': ['Bug', 'Package'],
+```diff
+-'problem_types': ['Bug', 'Package'],
++#'problem_types': ['Bug', 'Package'],
 ```
 
 To disable crash reporting just remove the hash symbol.
