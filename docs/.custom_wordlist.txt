@@ -85,6 +85,7 @@ homeservers
 html
 impactful
 Indri
+inotify
 installability
 interoperate
 IPs
@@ -277,6 +278,7 @@ SRU
 subcommand
 Subteam
 ubuntu
+unannoying
 UIFe
 VMs
 Xerus
@@ -287,4 +289,5 @@ motu
 MOTUs
 openstack
 openssh
+whoopsie
 wnpp
