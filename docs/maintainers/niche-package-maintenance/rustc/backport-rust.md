@@ -960,25 +960,25 @@ $ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<...> debian/rules source_orig-stage0
 
 This downloads binaries of the stage0 compiler for all Ubuntu-supported architectures and bundles them into a component tarball `rustc_<...>.orig-stage0.tar.xz`. A few more steps may be needed:
 
-1. Rename the stage0 tarball to follow the same file naming convention as the other orig tarballs. Otherwise, the packaging tools will not find it.
+1. Rename the stage0 tarball to follow the same filename format as the other orig tarballs, e.g. `rustc-1.92_1.92.0+dfsg~24.04~stage0.orig-stage0.tar.xz`. Otherwise, the packaging tools will not find it.
 1. Clean up any modified files, with the exception of the newly created `stage0` directory, which should be kept.
+1. In `debian/control`, remove the Build-Depends entries for `dh-cargo`, `cargo-<...>`, and `rustc-<...>`.
 1. Comment out this line in `debian/rules` which would otherwise cause the build to fail due to not finding the bootstrapping compiler in its ordinary location:
     ```
     $(error No suitable Rust toolchain found to bootstrap Rust $(RUST_VERSION))
     ```
-1. In `debian/control`, remove the Build-Depends entries for `dh-cargo`, `cargo-<...>`, and `rustc-<...>`.
 1. Comment out this line in `debian/rules` which would otherwise cause the build to fail due to not finding `cargo`:
     ```
     CARGO_BIN="$(RUST_BOOTSTRAP_DIR)/bin/cargo" CARGO_VENDOR_DIR=$(CURDIR)/vendor debian/dh-cargo-vendored-sources
     ```
 
-The stage0 tarball is rather large, which means that uploading to PPA may take a while. After a successful PPA build, do the following:
+The stage0 tarball is rather large, which means that uploading to a PPA may take a while. After a successful PPA build, do the following:
 
 1. Delete the stage0 tarball (or move it elsewhere).
 1. Remove `~stage0` from the version string.
 1. Revert the changes to `debian/rules` and `debian/control`.
 1. Remove the `stage0` directory from the source tree.
-1. Upload to a second PPA to build the package again using the previous build as a bootstrapping toolchain. Configure the second PPA to use the first PPA for dependencies.
+1. Configure a second PPA to use the first PPA for dependencies. Upload to a second PPA to build the package again using the previous build as a bootstrapping toolchain.
 
 In this way, the final version of the package does not need to include stage0 binaries inside the source package, which would not be permitted in an upload to the Ubuntu archive.
 
