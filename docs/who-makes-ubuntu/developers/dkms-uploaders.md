@@ -149,7 +149,7 @@ and seek endorsements from their sponsors. At least two different endorsements m
 obtained from existing members of the team, who can confirm they have worked with the
 applicant sufficiently to judge their skills and that the application meets the criteria outlined
 above. Once endorsements are secured, the application should be submitted via email to the
-Ubuntu kernel-team mailing list (kernel-team@canonical.com) for review.
+Ubuntu kernel-team mailing list (kernel-team@lists.ubuntu.com) for review.
 
 The applicant will be notified of a scheduled Matrix meeting ({matrix}`kernel`) where they
 will be interviewed, covering:
