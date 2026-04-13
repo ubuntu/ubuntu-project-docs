@@ -170,6 +170,7 @@ Upon successful completion of the application process, an announcement will be m
 both the Ubuntu kernel-team mailing list and the devel-permissions@lists.ubuntu.com mailing
 list, and the applicant will be added to the DKMS team by a team administrator.
 
-Meeting logs for each voting session will be saved in a publicly visible repository on
-Launchpad.
+Meeting logs for each voting session will be saved in a
+[publicly visible repository](https://git.launchpad.net/~ubuntu-kernel-dkms-uploaders/+git/dkms-voting-sessions)
+on Launchpad.
 
