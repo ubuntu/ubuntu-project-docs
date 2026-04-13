@@ -174,3 +174,13 @@ Meeting logs for each voting session will be saved in a
 [publicly visible repository](https://git.launchpad.net/~ubuntu-kernel-dkms-uploaders/+git/dkms-voting-sessions)
 on Launchpad.
 
+(dkms-membership-expiry)=
+## Membership expiry
+
+Membership in the Ubuntu Kernel DKMS Uploaders team expires every two years.
+Members may auto-renew their membership before it expires, without any additional
+review process. This ensures that active and interested members can remain on the
+team without interruption.
+
+If a membership expires before it is renewed, the member must request reinstatement
+by sending an email to the Ubuntu kernel-team mailing list (kernel-team@lists.ubuntu.com).
