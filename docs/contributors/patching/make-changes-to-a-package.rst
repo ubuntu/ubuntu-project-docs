@@ -382,7 +382,7 @@ Next steps
 From here, there are many options for testing our patch before proposing the change in a merge proposal:
 
 * Build and test the package locally using :command:`sbuild` and :command:`autopkgtest`.
-* Upload to a PPA and test from there.
+* :ref:`Upload to a PPA <merge-create-a-ppa>` and test from there.
 
 Once you feel confident that the patch is working correctly, open a merge proposal and request :ref:`sponsorship` for your change.
 
