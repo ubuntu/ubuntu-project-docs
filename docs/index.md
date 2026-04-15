@@ -25,9 +25,11 @@ It's also a long-standing software project, with a mesh of distributed processes
 Ubuntu has always been an openly governed community.
 This open governance means that we have community-organized and run decision-making groups that lead and make decisions about different elements of Ubuntu.
 
-There are many ways to contribute to Ubuntu -- from packaging core pieces of the operating system, writing applications for the Desktop, providing translations, working on documentation, designing wallpapers, QA, and more.
+There are many ways to contribute to Ubuntu -- from packaging core pieces of the operating system, writing applications for the Desktop, providing translations, working on documentation, designing wallpapers, QA and testing of packages and ISOs, and more.
 
 This documentation contains all the information you need about how Ubuntu is made, the people who make Ubuntu, and how to contribute to the project.
+
+If you're new to Ubuntu contribution, start with [Contribute to Ubuntu](community/contribute/index) to learn more about contribution types.
 
 ---------
 
