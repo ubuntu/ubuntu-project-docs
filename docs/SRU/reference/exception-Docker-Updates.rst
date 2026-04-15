@@ -99,6 +99,15 @@ SRU.
 #2098106 <https://bugs.launchpad.net/ubuntu/+source/docker.io-app/+bug/2098106>`__:
 regression affecting Launchpad OCI builds
 
+In `LP:
+#2148302
+<https://bugs.launchpad.net/ubuntu/+source/resource-agents/+bug/2148302>`__,
+upstream changes  to the \`docker image ls\` command output layout, introduced
+in Docker 29, caused a regression in the Docker Resource Agent parser in the
+\`resource-agents\` package. As a workaround, users facing similar issues can
+use the \`--format`\ option to keep parsing the affected command output as
+should in the fix proposed for the linked bug.
+
 Related SRU Interest Team
 -------------------------
 
