@@ -1,15 +1,15 @@
 (how-to-contribute)=
 # Contributing to Ubuntu Development
 
-Contributing to Ubuntu can mean many things, from [developing new applications](contribute-to-app-development) to [reporting](qa-and-testing/report-a-bug), [triaging](bug-triage/index), and [fixing bugs](bug-fix/index), and many more development tasks. 
+Contributing to Ubuntu can mean many things, from {ref}`developing new applications <contribute-to-app-development>` to {ref}`reporting <how-to-report-a-bug>`, {ref}`triaging <triaging-bugs>`, and {ref}`fixing bugs <fixing-bugs>`, and many more development tasks. 
 
 ## Getting Started with Ubuntu Development
 
-A great place to start working on Ubuntu is through [reporting a bug](qa-and-testing/report-a-bug). Being active on the bug discussion after posting is important as developers and other community members may ask follow up questions or ask for additional log information.
+A great place to start working on Ubuntu is through {ref}`reporting a bug <how-to-report-a-bug>`. Being active on the bug discussion after posting is important as developers and other community members may ask follow up questions or ask for additional log information.
 
-[Triaging](bug-triage/index) and bug verification are good next steps. Bug verification is when another user reads the bug, follows steps outlined, and can "verify" the bug affects their system or a representative system, such as a virtual machine of the same Ubuntu version in the bug. Helping to triage bugs, ensuring all information required is present, and the correct package identified helps developers address the issue more quickly. Being able to help report these confirmed bugs upstream to Debian and original source (such as GitHub) are valuable contributions to Ubuntu.
+{ref}`Triaging <triaging-bugs>` and bug verification are good next steps. Bug verification is when another user reads the bug, follows steps outlined, and can "verify" the bug affects their system or a representative system, such as a virtual machine of the same Ubuntu version in the bug. Helping to triage bugs, ensuring all information required is present, and the correct package identified helps developers address the issue more quickly. Being able to help report these confirmed bugs upstream to Debian and original source (such as GitHub) are valuable contributions to Ubuntu.
 
-[Fixing bugs](bug-fix/index) is a more advanced task that requires greater knowledge of `git` and [patching workflows](patching/index). If you're feeling more comfortable in your skills as a software developer then finding upstream fixes, applying them to existing packages, and contributing to upstream projects to fix issues is of great help to Ubuntu.
+{ref}`Fixing bugs <fixing-bugs>` is a more advanced task that requires greater knowledge of `git` and {ref}`patching workflows <patching>`. If you're feeling more comfortable in your skills as a software developer then finding upstream fixes, applying them to existing packages, and contributing to upstream projects to fix issues is of great help to Ubuntu.
 
 # Guides for contributors
 

@@ -29,7 +29,7 @@ There are many ways to contribute to Ubuntu -- from packaging core pieces of the
 
 This documentation contains all the information you need about how Ubuntu is made, the people who make Ubuntu, and how to contribute to the project.
 
-If you're new to Ubuntu contribution, start with [Contribute to Ubuntu](community/contribute/index) to learn more about contribution types.
+If you're new to Ubuntu contribution, start with {ref}`Contribute to Ubuntu <contribute-to-ubuntu>` to learn more about contribution types.
 
 ---------
 
