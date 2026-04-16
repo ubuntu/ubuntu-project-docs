@@ -2,7 +2,7 @@
 
 # Check contributions to AA process and documentation
 
-Everyone is encouraged in {ref}`contribute` to help with the documentation
+Everyone is encouraged in {ref}`how-to-contribute-docs` to help with the documentation
 and modernizing the processes in this repository.
 
 To keep that maintainable for sub-teams the Ubuntu project documentation uses

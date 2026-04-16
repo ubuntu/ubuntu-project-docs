@@ -425,7 +425,7 @@ if os.path.exists("./reuse/substitutions.yaml"):
 # Add configuration for intersphinx mapping
 
 intersphinx_mapping = {
-    "ubuntu-server": ("https://ubuntu.com/server/docs/", None),
+#    "ubuntu-server": ("https://ubuntu.com/server/docs/", None),
     "starter-pack": (
         "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
         None,
