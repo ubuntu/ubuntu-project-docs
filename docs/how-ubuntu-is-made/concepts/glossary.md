@@ -3,7 +3,7 @@
 # Glossary
 
 We are currently compiling and defining terms for this glossary. If you would
-like to help, please visit our {ref}`contributions page <contribute>` for
+like to help, please visit our {ref}`contributions page <how-to-contribute-docs>` for
 details on how to get involved.
 
 
