@@ -67,7 +67,7 @@ the file with the following content:
 
    .. code-block:: none
 
-       $ mkdir -p ~/shcroot/{build,logs,scratch}
+       $ mkdir -p ~/schroot/{build,logs,scratch}
 
    Add a :file:`~/schroot/scratch` entry to :file:`/etc/schroot/sbuild/fstab`:
 
