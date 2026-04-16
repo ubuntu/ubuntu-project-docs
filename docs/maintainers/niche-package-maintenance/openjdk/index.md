@@ -12,6 +12,6 @@ Backport OpenJDK <backport-openjdk>
 openjdk-version-strings <openjdk-version-strings>
 Packaging FAQ <openjdk-packaging-faq>
 openjdk-debian-repository <openjdk-debian-repository>
-Common Lintian issues <common-openjdk-lintian-issues>
+Test OpenJDK <test-openjdk>
 
 ```
