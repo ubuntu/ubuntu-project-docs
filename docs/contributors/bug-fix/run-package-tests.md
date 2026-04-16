@@ -119,6 +119,10 @@ First, we will build the image we prepared in the previous section.
 
   You should see an `autopkgtest` image now when you run `lxc image list`.
 
+  ```{warning}
+  The `autopkgtest-build-lxd` command only works with Ubuntu 18.04 (Bionic Beaver) images and later; when applied to older releases, it fails with a timeout or network errors. In this case you can use the `autopkgtest-buildvm-ubuntu-cloud` command to build a VM image instead.
+  ```
+
 
 #### Constructing the command
 
