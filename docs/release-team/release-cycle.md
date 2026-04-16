@@ -7,8 +7,8 @@ follow this process closely to ensure their work is aligned with that of others.
 
 Because of the time-based release cycle, Ubuntu contributors must coordinate
 well to produce an on-time release. For every release, key dates are set out in
-the release schedule (
-[the 24.04 LTS (Noble Numbat) release schedule](https://discourse.ubuntu.com/t/noble-numbat-release-schedule/35649)
+the release schedule
+([the 24.04 LTS (Noble Numbat) release schedule](https://documentation.ubuntu.com/release-notes/24.04/schedule/)
 provides an example).
 
 
@@ -111,4 +111,3 @@ list.
 See, for example, the Ubuntu 24.04 LTS (Noble Numbat)
 [release announcement](https://lists.ubuntu.com/archives/ubuntu-announce/2024-April/000301.html).
 ```
-
