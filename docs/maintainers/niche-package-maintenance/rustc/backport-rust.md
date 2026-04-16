@@ -960,7 +960,7 @@ $ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<...> debian/rules source_orig-stage0
 
 This downloads binaries of the stage0 compiler for all Ubuntu-supported architectures and bundles them into a component tarball `rustc_<...>.orig-stage0.tar.xz`. A few more steps may be needed:
 
-1. Rename the stage0 tarball to follow the same filename format as the other orig tarballs, e.g. `rustc-1.92_1.92.0+dfsg~24.04~stage0.orig-stage0.tar.xz`. Otherwise, the packaging tools will not find it.
+1. Rename the stage0 tarball to follow the same filename format as the other orig tarballs, e.g. `rustc-1.92_1.92.0+dfsg~24.04~stage0.orig-stage0.tar.xz`. Otherwise, the packaging tools do not find it.
 1. Clean up any modified files, with the exception of the newly created `stage0` directory, which should be kept.
 1. In `debian/control`, remove the Build-Depends entries for `dh-cargo`, `cargo-<...>`, and `rustc-<...>`.
 1. Comment out this line in `debian/rules` which would otherwise cause the build to fail due to not finding the bootstrapping compiler in its ordinary location:
