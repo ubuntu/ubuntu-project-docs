@@ -32,8 +32,7 @@ $ sudo apt update && \
     ubuntu-dev-tools && \
   sudo snap install lxd && \
   sudo snap install --classic snapcraft && \
-  sudo snap install --classic git-ubuntu && \
-  sudo snap install --classic --beta multipass
+  sudo snap install --classic git-ubuntu
 ```
 
 ## Configure software
