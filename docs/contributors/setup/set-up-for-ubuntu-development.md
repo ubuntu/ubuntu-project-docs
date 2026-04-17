@@ -18,8 +18,6 @@ $ sudo apt update && \
   sudo apt dist-upgrade -y && \
   sudo apt install -y \
     autopkgtest \
-    debconf-utils \
-    debmake \
     dh-make \
     git-buildpackage \
     libvirt-daemon-system \
