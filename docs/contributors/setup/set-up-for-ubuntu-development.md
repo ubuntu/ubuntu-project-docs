@@ -17,24 +17,15 @@ You must have a Launchpad ID. To get an ID:
 $ sudo apt update && \
   sudo apt dist-upgrade -y && \
   sudo apt install -y \
-    apt-cacher-ng \
     autopkgtest \
-    build-essential \
-    debconf-utils \
-    debmake \
     dh-make \
     git-buildpackage \
-    libvirt-daemon-system \
     pastebinit \
-    pkg-config \
-    quilt \
     sbuild-launchpad-chroot \
     ubuntu-dev-tools && \
   sudo snap install lxd && \
   sudo snap install --classic snapcraft && \
-  sudo snap install --classic ustriage && \
-  sudo snap install --classic --edge git-ubuntu && \
-  sudo snap install --classic --beta multipass
+  sudo snap install --classic git-ubuntu
 ```
 
 ## Configure software
@@ -294,8 +285,8 @@ preserve-environment=true"
 # updates after each release of Ubuntu
 SKIP_UPDATES="1"
 SKIP_PROPOSED="1"
-# if you have e.g. apt-cacher-ng around
-DEBOOTSTRAP_PROXY=http://127.0.0.1:3142/
+# if you have a local prox like apt-cacher-ng around enable the following
+# DEBOOTSTRAP_PROXY=http://127.0.0.1:3142/
 ```
 
 ```{note}
