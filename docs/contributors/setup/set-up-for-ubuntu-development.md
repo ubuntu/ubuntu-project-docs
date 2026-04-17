@@ -285,7 +285,7 @@ preserve-environment=true"
 # updates after each release of Ubuntu
 SKIP_UPDATES="1"
 SKIP_PROPOSED="1"
-# if you have a local prox like apt-cacher-ng around enable the following
+# if you have a local proxy like apt-cacher-ng around enable the following
 # DEBOOTSTRAP_PROXY=http://127.0.0.1:3142/
 ```
 
