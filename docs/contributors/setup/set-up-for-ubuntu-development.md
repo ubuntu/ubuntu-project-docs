@@ -22,7 +22,6 @@ $ sudo apt update && \
     git-buildpackage \
     libvirt-daemon-system \
     pastebinit \
-    pkg-config \
     sbuild-launchpad-chroot \
     ubuntu-dev-tools && \
   sudo snap install lxd && \
