@@ -22,13 +22,13 @@ Once we have :command:`git-ubuntu` installed, use it to fetch the source code fo
     $ git-ubuntu clone hello
     $ cd hello/
 
-To eventually build or upload our changed package, we will also need the tarball containing the original upstream source code:
+To eventually build or upload our changed package, we also need the tarball containing the original upstream source code:
 
 .. prompt:: none $ auto
 
     $ git-ubuntu export-orig
 
-This will put the tarball in the parent directory, at `../hello_2.10.orig.tar.gz`. Most ecosystem tools will expect orig tarballs placed one directory up like this, so don't move it.
+This puts the tarball in the parent directory, at `../hello_2.10.orig.tar.gz`. Most ecosystem tools expect orig tarballs placed one directory up like this, so don't move it.
 
 We are using some tools from the :pkg:`ubuntu-dev-tools` package. Install it with:
 
