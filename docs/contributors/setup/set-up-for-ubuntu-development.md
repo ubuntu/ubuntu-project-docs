@@ -19,7 +19,6 @@ $ sudo apt update && \
   sudo apt install -y \
     apt-cacher-ng \
     autopkgtest \
-    build-essential \
     debconf-utils \
     debmake \
     dh-make \
@@ -27,7 +26,6 @@ $ sudo apt update && \
     libvirt-daemon-system \
     pastebinit \
     pkg-config \
-    quilt \
     sbuild-launchpad-chroot \
     ubuntu-dev-tools && \
   sudo snap install lxd && \
