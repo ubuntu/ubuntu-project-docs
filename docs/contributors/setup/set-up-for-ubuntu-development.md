@@ -17,7 +17,6 @@ You must have a Launchpad ID. To get an ID:
 $ sudo apt update && \
   sudo apt dist-upgrade -y && \
   sudo apt install -y \
-    apt-cacher-ng \
     autopkgtest \
     debconf-utils \
     debmake \
@@ -290,8 +289,8 @@ preserve-environment=true"
 # updates after each release of Ubuntu
 SKIP_UPDATES="1"
 SKIP_PROPOSED="1"
-# if you have e.g. apt-cacher-ng around
-DEBOOTSTRAP_PROXY=http://127.0.0.1:3142/
+# if you have a local prox like apt-cacher-ng around enable the following
+# DEBOOTSTRAP_PROXY=http://127.0.0.1:3142/
 ```
 
 ```{note}
