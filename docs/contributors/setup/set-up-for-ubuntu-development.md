@@ -20,7 +20,6 @@ $ sudo apt update && \
     autopkgtest \
     dh-make \
     git-buildpackage \
-    libvirt-daemon-system \
     pastebinit \
     sbuild-launchpad-chroot \
     ubuntu-dev-tools && \
