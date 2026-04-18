@@ -365,7 +365,7 @@ ubuntu/devel:               1.4-1ubuntu1 -- 1.4-1ubuntu2 -- 1.5-0ubuntu1
 If Salsa's `ubuntu/devel` branch contains extra commits not found in git-ubuntu,
 these commits should be submitted to it via a rebase. However, if there are also
 commits to transfer from git-ubuntu to Salsa, this should be done first. Run
-through the [Salsa is behind git ubuntu](#salsa-is-behind-git-ubuntu) process,
+through the [Salsa is behind git ubuntu](#salsa-is-behind-git-ubuntu) steps,
 but instead of checking out a local copy of Salsa's `ubuntu/devel`, create a new
 branch at the commit where git-ubuntu and Salsa diverge. For example:
 

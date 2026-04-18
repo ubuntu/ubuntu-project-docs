@@ -207,6 +207,7 @@ redirects = {}
 
 rediraffe_branch = "main"
 rediraffe_redirects = "redirects.txt"
+rediraffe_dir_only = True
 
 
 ###########################
@@ -267,6 +268,7 @@ extensions = [
     "canonical_sphinx",
     "notfound.extension",
     "sphinx_design",
+    "sphinx_rerediraffe",
     "sphinx_reredirects",
     "sphinx_tabs.tabs",
     "sphinxcontrib.jquery",
@@ -289,14 +291,13 @@ extensions = [
     "hoverxref.extension",
     "sphinx_prompt",
     "sphinx.ext.extlinks",
-    "sphinxext.rediraffe",
     "sphinx_togglebutton",
     "sphinx.ext.graphviz",
     "sphinx_llm.txt",
 ]
 
 # Excludes files or directories from processing
-exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common"]
+exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common", ".venv"]
 
 
 # Adds custom CSS files, located under 'html_static_path'
@@ -337,7 +338,7 @@ stable_distro = "questing"
 manpages_url = (
     "https://manpages.ubuntu.com/manpages/"
     + stable_distro
-    + "/en/man{section}/{page}.{section}.html"
+    + "/man{section}/{page}.{section}.html"
 )
 
 myst_substitutions = {
@@ -424,7 +425,7 @@ if os.path.exists("./reuse/substitutions.yaml"):
 # Add configuration for intersphinx mapping
 
 intersphinx_mapping = {
-    "ubuntu-server": ("https://ubuntu.com/server/docs/", None),
+#    "ubuntu-server": ("https://ubuntu.com/server/docs/", None),
     "starter-pack": (
         "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
         None,

@@ -116,7 +116,7 @@ to the version you need before getting the tarball.
 
   - [ ] Locally
 
-  - [ ] Using the PPA's package (Recommended): `ppa tests ${ppa_address} --release ${codename}`
+  - [ ] Using the PPA package (Recommended): `ppa tests ${ppa_address} --release ${codename}`
 
 
 ## 4. (optional) PPA :

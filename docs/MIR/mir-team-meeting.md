@@ -16,7 +16,7 @@ You should attend these meetings if you submit an {ref}`MIR request <mir-submit-
 until it is approved or rejected.
 
 Due to the nature of the
-[Ubuntu Development Process](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/2.0-preview/explanation/development-process/),
+{ref}`Ubuntu Development Process <release-cycle>`,
 there are times (e.g. close to Feature Freeze) when this meeting is busy and
 others (e.g. right after a new release) when it is quieter. Consequently,
 response times along the {ref}`MIR process <mir-process-overview>` are
@@ -31,7 +31,7 @@ If you're chairing the meeting, you can use the following template:
 ```
 # Start of the Main inclusion request team meeting
 Welcome to the MIR Team's weekly meeting
-General rules and the process description can be found at https://documentation.ubuntu.com/project/MIR/main-inclusion-review
+General rules and the process description can be found at https://documentation.ubuntu.com/project/MIR/main-inclusion-review and this meeting template can be found at https://documentation.ubuntu.com/project/MIR/mir-team-meeting/#mir-team-meeting
 Ping for MIR meeting members - @didrocks:matrix.org @joalif:matrix.org @seth-arnold:ubuntu.com @paelzer:ubuntu.com @mylesjp:matrix.org @pushkarnk:matrix.org ( @dviererbe:ubuntu.com )
 
 ## Topic 1/7: Awareness of external agenda items

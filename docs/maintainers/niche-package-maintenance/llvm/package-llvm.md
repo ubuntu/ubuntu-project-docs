@@ -475,6 +475,7 @@ index 40e8f9f2f..1f95dfcac 100644
 --
 2.43.0
 :::
+
 ::::
 
 ::::{admonition} Ensuring `debian/rules` looks for the right packages
@@ -575,6 +576,7 @@ index 65588dca2..7e1295d9b 100755
 --
 2.43.0
 :::
+
 ::::
 
 ::::{admonition} Example rename
@@ -601,6 +603,7 @@ Changes to be committed:
         renamed:    debian/libunwind1.lintian-overrides.in -> debian/llvm-libunwind1-X.Y.lintian-overrides.in
         renamed:    debian/llvm-libunwind1.symbols -> debian/llvm-libunwind1-X.Y.symbols
 :::
+
 ::::
 
 :::::

@@ -75,6 +75,7 @@ Any other
 : Launch the application
 
 : Open a Terminal:
+
   * GNOME: Applications -> Accessories -> Terminal
   * KDE: K -> Applications -> System -> Terminal
 
@@ -165,7 +166,7 @@ If you encounter a bug at the login screen, the package is the display manager:
 * In Kubuntu 15.04 or above, it is `sddm` -- in previous versions of Kubuntu it
   was `kdm`.
 
-* In Lubuntu 18.10 or above, it is `sddm` -- in Lubuntu 12.04 through 18.04 it
+* In Lubuntu 18.10 or above, it is `sddm` -- in Lubuntu 12.04 LTS through 18.04 LTS it
   was `LightDM`, and prior versions of Lubuntu it was `lxdm`.
 
 * In Ubuntu GNOME it is `gdm3`.
