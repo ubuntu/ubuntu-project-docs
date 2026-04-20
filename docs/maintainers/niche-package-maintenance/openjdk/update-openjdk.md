@@ -25,7 +25,7 @@ The vendored libraries should be removed from the source tree:
 - Update `Files-Excluded:` in `debian/copyright`.
 - Update `get-orig` target in `debian/rules`.
 - Add package dependency in `bd_syslibs` variable in `debian/rules`
-- Patch the build if necessary scripts, see `debian/patches/system-pcsclite.diff`
+- Patch the build if necessary, see `debian/patches/system-pcsclite.diff`
 - Regenerate control files `make -f debian/rules update-control-files`
 
 ### Validate the build

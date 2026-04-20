@@ -12,7 +12,7 @@ The jtreg package is maintained on salsa[1]. It uses an exception from Java poli
 OpenJDK `debian/rules` provides `update-control-files` target that regenerates files using the current Debian or Ubuntu release. Ensure that `lsb_release` is installed so that the target can determine the current release.
 
 ```bash
-$ make -f debian/rules update-control-files
+$ lsb_release --codename && make -f debian/rules update-control-files
 ```
 
 ## Build the source package and upload
