@@ -7,17 +7,16 @@ All patches applied to OpenJDK should follow the naming convention:
 
 All new patches should have DEP-3 headers.
 
-Ensure that every patch that updates upstream source tree is submitted upstream.
+Ensure that every patch that updates the upstream source tree is submitted upstream.
 
 ## OpenJDK developer guide
 
-Please use OpenJDK developer guide[1] when working with upstream source tree.
+Please use OpenJDK developer guide[1] when working with the upstream source tree.
 
 ## OpenJDK tests
 
-OpenJDK uses jtreg[2] testing framework.
+OpenJDK uses jtreg[2] testing framework. See {ref}`test-openjdk` for details on
+running the test suite against both a locally built source tree and an installed package.
 
 [1] https://openjdk.org/guide/
 [2] https://openjdk.org/jtreg/
-
-
