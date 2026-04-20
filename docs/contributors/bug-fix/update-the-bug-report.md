@@ -16,7 +16,7 @@ Go back to the
 [example bug report](https://bugs.launchpad.net/ubuntu/+source/postfix/+bug/1753470).
 
 Modify the bug description (yellow pencil icon) and update it to conform with
-[the SRU bug template](https://documentation.ubuntu.com/sru/en/latest/reference/bug-template/).
+{ref}`the SRU bug template <reference-sru-bug-template>`.
 These are normally the "Impact", "Test Case" and "Where problems could occur"
 sections.
 
@@ -41,7 +41,7 @@ the (`LP: #NNNNNN`) in the changelog entry.
 ## SRU exceptions
 
 There is a particular kind of
-[special case SRU](https://documentation.ubuntu.com/sru/en/latest/reference/package-specific/)
+{ref}`special case SRU <reference-package-specific-notes>`
 which is called either a Minor Release Exception (MRE) or an SRU exception. In
 the former we assume upstream is so stable and similar to our needs, process
 and philosophy that fewer checks need to be done, in the latter we admit that
@@ -54,7 +54,7 @@ stability, smooth upgradability, and other things important for an SRU.
 
 Each case is slightly different, which is why each of them gets their own
 discussion and their own accepted process listed in
-[SRU special cases](https://documentation.ubuntu.com/sru/en/latest/reference/package-specific/)
+{ref}`SRU special cases <reference-package-specific-notes>`
 of how that particular minor release will be served.
 
 When we (in the server team) prepare special SRU updates they follow all the
