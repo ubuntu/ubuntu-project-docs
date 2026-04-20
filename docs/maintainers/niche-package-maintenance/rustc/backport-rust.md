@@ -178,6 +178,7 @@ The part with the Launchpad bug number is optional but should be included if an 
 
 ```
 
+(rust-disabling-autopkgtest-self-build-test)=
 ### Disabling autopkgtest self-build test
 
 The `rustc` autopkgtest suite includes a test that runs the package build process using the just-packaged Rust compiler. The purpose of this test is to ensure that the new Rust toolchain can successfully build itself, so that it will be usable to bootstrap future Rust versions. However, this test is resource-intensive and may strain the `autopkgtest` infrastructure, resulting in a high likelihood of timeouts, particularly in the case of backports that vendor LLVM. Therefore, it is recommended to disable it by removing the relevant lines from `debian/tests/control`:
@@ -194,6 +195,7 @@ The `rustc` autopkgtest suite includes a test that runs the package build proces
 Even in the absence of this test, the build process already includes a self-build step as part of the [Rust compiler bootstrapping process](https://rustc-dev-guide.rust-lang.org/building/bootstrapping/what-bootstrapping-does.html): the previous Rust compiler is used to build a "stage1" new Rust compiler, which is then used to build the "stage2" compiler that is being packaged. For backports this is generally sufficient. The ability of the new packaged toolchain to build the next Rust version can be verified directly when the next Rust version is backported. If this verification is needed immediately, and the next Rust version is not yet available, it can be done with a {ref}`Launchpad self-build <launchpad-self-build-optional>`.
 
 (rust-ppa-build)=
+
 ```{include} common/ppa-build.md
 
 ```
@@ -896,7 +898,7 @@ Certain tests may fail on {term}`RISC-V` because older versions of {lpsrc}`binut
 (rust-disabling-zicsr)=
 #### Disabling `zicsr` (LLVM 18+)
 
-There exists a patch which disables the [`zicsr`](https://www.five-embeddev.com/riscv-user-isa-manual/latest-adoc/zicsr.html) RISC-V extension:
+There exists a patch which disables the [`zicsr`](https://www.five-embeddev.com/riscv-user-isa-manual/latest-adoc/zicsr) RISC-V extension:
 
 ```none
 $ git cherry-pick e7285a65b8ae134c7bd506e23beef4a3f088eab5

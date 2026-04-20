@@ -1,3 +1,5 @@
+.. _sru-common-issues:
+
 Check for common issues with your SRU
 -------------------------------------
 
@@ -60,7 +62,7 @@ Where problems could occur
    specific bug being fixed in the upload, here is a place to give any
    additional test cases to help to ensure that there are no regressions
    in the update. Think "what if this change is wrong? How would that
-   show up?" `1590321 <https://bugs.launchpad.net/bugs/1590321>`__ is an
+   show up?" :lpbug:`1590321` is an
    example of a simple fix with a legitimate regression analysis.
 
 Upload

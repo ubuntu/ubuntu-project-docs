@@ -443,22 +443,21 @@ You can also use `./queue accept binary-name`, which will accept it for all
 architectures.
 
 
-### Contact the uploader
-
-Sometimes we might need to discuss with the uploader instead of just rejecting.
-In that case have a look at the `.dsc` file with `gpg –verify` to get the
-sponsor and the changelog to get the packager. Use that info to connect to them.
-
-
 ### Rejecting a package
 
 Any problems in any of the above checks should result in the rejection of
-the package. If there is an associated bug, communicate the reasons there. If
-not, send a mail to the uploader explaining the reason and cc
-ubuntu-archive@lists.ubuntu.com:
+the package and get communicated to the uploader.
+
+To do so, ideally there is an associated bug to anything arriving in the new
+queue as suggested in {ref}`requesting new packages <new-packages>`. Using
+the bug allows for a two way discussion and to keep state, when further
+related uploads (after fixing the issues) might happen.
+
+If there is no bug, the rejection message should explain the reasons, but it
+is limited in regard to the available space.
 
 ```none
-$ ./queue reject 25324
+$ ./queue reject 25324 --reject-comment "rejected for ..."
 ```
 
 

@@ -177,9 +177,9 @@ sitemap_show_lastmod = True
 # Exclude generated pages from the sitemap:
 
 sitemap_excludes = [
-    '404/',
-    'genindex/',
-    'search/',
+    "404/",
+    "genindex/",
+    "search/",
 ]
 
 # Template and asset locations
@@ -207,6 +207,7 @@ redirects = {}
 
 rediraffe_branch = "main"
 rediraffe_redirects = "redirects.txt"
+rediraffe_dir_only = True
 
 
 ###########################
@@ -221,6 +222,8 @@ linkcheck_ignore = [
     "https://discourse.canonical.com/",
     "https://git.launchpad.net/ubuntu/+source/*",
     "https://wiki.ubuntu.com/*",
+    "https://en.wikipedia.org/*",
+    "https://github.com/*",
 ]
 
 
@@ -232,9 +235,9 @@ linkcheck_anchors_ignore_for_url = [
     r"https://git\.launchpad\.net/ubuntu/\+source/.*",
 ]
 
-# give linkcheck multiple tries on failure
-# linkcheck_timeout = 30
-linkcheck_retries = 3
+# Give linkcheck multiple tries on failure
+linkcheck_timeout = 15
+linkcheck_retries = 2
 
 ########################
 # Configuration extras #
@@ -265,6 +268,7 @@ extensions = [
     "canonical_sphinx",
     "notfound.extension",
     "sphinx_design",
+    "sphinx_rerediraffe",
     "sphinx_reredirects",
     "sphinx_tabs.tabs",
     "sphinxcontrib.jquery",
@@ -287,14 +291,13 @@ extensions = [
     "hoverxref.extension",
     "sphinx_prompt",
     "sphinx.ext.extlinks",
-    "sphinxext.rediraffe",
     "sphinx_togglebutton",
     "sphinx.ext.graphviz",
     "sphinx_llm.txt",
 ]
 
 # Excludes files or directories from processing
-exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common"]
+exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common", ".venv"]
 
 
 # Adds custom CSS files, located under 'html_static_path'
@@ -335,7 +338,7 @@ stable_distro = "questing"
 manpages_url = (
     "https://manpages.ubuntu.com/manpages/"
     + stable_distro
-    + "/en/man{section}/{page}.{section}.html"
+    + "/man{section}/{page}.{section}.html"
 )
 
 myst_substitutions = {
@@ -391,6 +394,23 @@ extlinks = {
 }
 
 
+# sphinx-llm config
+llms_txt_full_build = False
+llms_txt_suffix_mode = "url-suffix"
+llms_txt_description = (
+    "This documentation provides guidance for contributors to and "
+    "maintainers of the Ubuntu Linux distribution. It covers processes "
+    "and concepts, as well as project governance and team workflows. "
+    "There are instructions for packaging, merging, proposed migrations, "
+    "autopkgtests, and many other procedures for maintaining the Ubuntu "
+    "Archive and releasing the distribution."
+)
+
+# sphinx-markdown-builder config
+# set markdown_http_base without `/` at the end
+markdown_http_base = "https://documentation.ubuntu.com/project"
+
+
 # Workaround for https://github.com/canonical/canonical-sphinx/issues/34
 
 if "discourse_prefix" not in html_context and "discourse" in html_context:
@@ -405,7 +425,7 @@ if os.path.exists("./reuse/substitutions.yaml"):
 # Add configuration for intersphinx mapping
 
 intersphinx_mapping = {
-    "ubuntu-server": ("https://ubuntu.com/server/docs/", None),
+#    "ubuntu-server": ("https://ubuntu.com/server/docs/", None),
     "starter-pack": (
         "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
         None,
@@ -441,23 +461,22 @@ def unescape_amp_in_links(app, exception):
         return
 
     # Only run for html builders
-    if app.builder.format != 'html':
+    if app.builder.format != "html":
         return
 
     def unescape_match(match):
-        return match.group(0).replace('&amp;amp;', '&amp;')
+        return match.group(0).replace("&amp;amp;", "&amp;")
 
     for root, dirs, files in os.walk(app.outdir):
         for file in files:
             if file.endswith(".html"):
                 path = os.path.join(root, file)
                 try:
-                    with open(path, 'r', encoding='utf-8') as f:
+                    with open(path, "r", encoding="utf-8") as f:
                         content = f.read()
-                    new_content = re.sub(r'href=".*\?([^"]*)"',
-                                         unescape_match, content)
+                    new_content = re.sub(r'href=".*\?([^"]*)"', unescape_match, content)
                     if new_content != content:
-                        with open(path, 'w', encoding='utf-8') as f:
+                        with open(path, "w", encoding="utf-8") as f:
                             f.write(new_content)
                 except Exception as e:
                     print(f"Failed to process {path}: {e}")
@@ -465,7 +484,7 @@ def unescape_amp_in_links(app, exception):
 
 def setup(app):
     roles.register_local_role("command", CommandRole())
-    app.connect('build-finished', unescape_amp_in_links)
+    app.connect("build-finished", unescape_amp_in_links)
 
 
 # Define a custom role for package-name formatting

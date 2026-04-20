@@ -36,7 +36,7 @@ Upstream (noun):
         - Upstream is not interested in the patch.
 
     *Usage note*:
-        - There can be many layers. For example, **Kubuntu** is a :term:`flavor <Ubuntu flavours>` of Ubuntu, therefore Ubuntu and Debian are both upstreams of Kubuntu.
+        - There can be many layers. For example, **Kubuntu** is a :term:`flavor <Ubuntu flavors>` of Ubuntu, therefore Ubuntu and Debian are both upstreams of Kubuntu.
         - The adjective/adverb form is much more commonly used.
 
 .. _upstream-adjective-adverb:

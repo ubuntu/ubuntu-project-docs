@@ -699,7 +699,7 @@ We must experimentally verify that the default resources allocated to the autopk
 
 If this is your first time running Rust autopkgtests locally, you must create two local test beds.
 
-There are multiple [Openstack flavours](https://wiki.ubuntu.com/ProposedMigration#autopkgtests) used to run autopkgtests. Compare the default `m1.small` unit resources with the `m1.large` unit resources:
+There are multiple [OpenStack flavors](https://wiki.ubuntu.com/ProposedMigration#autopkgtests) used to run autopkgtests. Compare the default `m1.small` unit resources with the `m1.large` unit resources:
 
 | Unit       | RAM Size (MB) | CPU Cores | Disk Size (GB) |
 | ---------- | ------------- | --------- | -------------- |
@@ -724,7 +724,7 @@ $ mv autopkgtest-<release>-<arch>.img autopkgtest-<release>-<arch>-big.img
 
 #### Verifying the necessity of big_packages
 
-First, run the autopkgtests locally using the default test bed to check if the default Openstack flavour resources are sufficient for this build:
+First, run the autopkgtests locally using the default test bed to check if the default OpenStack flavor resources are sufficient for this build:
 
 :::{note}
 The `--log-file` option is picky. It doesn't do bash path expansions and the log file needs to exist already.

@@ -138,7 +138,7 @@ Here are some examples of this component:
 
 ### Example: Backporting a Rust toolchain
 
-Let's say you need to backport the `1.90.0+dfsg2-0ubuntu3` Rust toolchain to Ubuntu 24.04:
+Let's say you need to backport the `1.90.0+dfsg2-0ubuntu3` Rust toolchain to Ubuntu 24.04 LTS:
 
 :::{list-table} Toolchain upload and update versions
 :header-rows: 1
@@ -291,9 +291,9 @@ This portion is omitted entirely if this is not a backport.
 
 - `1.88.0+dfsg0ubuntu1-0ubuntu1~ppa1`: Not a backport
 - `1.87.0+dfsg0ubuntu1-0ubuntu1`: Not a backport
-- `1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09`: WIP, for Ubuntu 24.10 (that's Oracular Oriole)
-- `1.83.0+dfsg0ubuntu1-0ubuntu1.24.03~ppa3`: WIP, for Ubuntu 24.04 (that's Noble Numbat)
-- `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.04`: Complete, for Ubuntu 24.04 (again, Noble Numbat)
+- `1.80.0+dfsg0ubuntu1~bpo2-0ubuntu0.24.09`: WIP, for Ubuntu 24.10 (Oracular Oriole)
+- `1.83.0+dfsg0ubuntu1-0ubuntu1.24.03~ppa3`: WIP, for Ubuntu 24.04 LTS (Noble Numbat)
+- `1.83.0+dfsg0ubuntu1~bpo0-0ubuntu1.24.04`: Complete, for Ubuntu 24.04 LTS (Noble Numbat)
 
 
 ### `[~ppa<PPA>]`

@@ -13,6 +13,7 @@ special-migration-cases
 
 In Ubuntu there is a special {term}`pocket` called `-proposed` for testing and integration. 
 In the following cases, packages are not automatically released to Ubuntu users, and instead go into the `-proposed` pocket:
+
 * New packages not already present in any Ubuntu release that have been automatically imported from Debian
 * Uploads of {ref}`fixed <fixing-bugs>` packages.
 * Uploads of {ref}`merged <merges>` packages. 
@@ -125,6 +126,7 @@ Install {command}`visual-excuses` with:
 ```none
 $ sudo snap install visual-excuses
 ```
+
 :::
 
 To check whether someone is already working on an item, ask in the [Ubuntu Devel Matrix channel](https://matrix.to/#/#devel:ubuntu.com). For any case that requires more effort or a deeper analysis, submit an {ref}`update-excuses bug <bug-reports-for-migration-problems>` to help with coordination.

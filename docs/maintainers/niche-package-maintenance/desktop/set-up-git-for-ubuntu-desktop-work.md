@@ -44,7 +44,7 @@ We use the Settings application as an example. Internally, the application is kn
     [url "git@salsa.debian.org:gnome-team/"]
         insteadof = salsa-gnome:
     
-    [url "https://gitlab.freedesktop.org/"]
+    [url "https://gitlab.freedesktop.org/explore/groups"]
         insteadof = fdo:
     ```
 
@@ -93,8 +93,8 @@ Some projects might require that you sign tags with your GPG key. Enable automat
 1. If you don't have accounts on the following GitLab instances, create them:
 
     * [GNOME GitLab](https://gitlab.gnome.org/) is the upstream GNOME repository.
-    * [freedesktop\.org GitLab](https://gitlab.freedesktop.org/) hosts other desktop projects such as PipeWire.
-    * [Salsa](https://salsa.debian.org/) hosts the Debian and Ubuntu packaging and modifications.
+    * [freedesktop\.org GitLab](https://gitlab.freedesktop.org/explore/groups) hosts other desktop projects such as PipeWire.
+    * [Salsa](https://salsa.debian.org/public) hosts the Debian and Ubuntu packaging and modifications.
 
     It might take a while for your account to be approved.
 
@@ -115,7 +115,7 @@ Let's clone the GNOME Control Center repository.
 
     apt-cache showsrc gnome-control-center | grep-dctrl -n -s Vcs-Git -
 
-    https://salsa.debian.org/gnome-team/gnome-control-center.git -b ubuntu/master
+    https://salsa.debian.org/publicgnome-team/gnome-control-center.git -b ubuntu/master
     ```
 
     A link to a Git repository is attached to this package.
@@ -141,9 +141,9 @@ Let's clone the GNOME Control Center repository.
     :dir:
     :user:
 
-    gbp clone https://salsa.debian.org/gnome-team/gnome-control-center.git
+    gbp clone https://salsa.debian.org/publicgnome-team/gnome-control-center.git
 
-    gbp:info: Cloning from 'https://salsa.debian.org/gnome-team/gnome-control-center.git'
+    gbp:info: Cloning from 'https://salsa.debian.org/publicgnome-team/gnome-control-center.git'
     ```
 
 
@@ -365,6 +365,7 @@ git branch -u <local-branch-name> <remote>/<branch-name>
 
 git checkout <local-branch-name>
 ```
+
 :::
 
 

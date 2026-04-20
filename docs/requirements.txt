@@ -1,5 +1,5 @@
 # Canonical theme (still needed for Furo theme and custom templates)
-canonical-sphinx>=0.5.1
+canonical-sphinx~=0.6
 
 # Extensions previously auto-loaded by canonical-sphinx
 myst-parser~=4.0
@@ -7,6 +7,7 @@ sphinx-autobuild
 sphinx-design
 sphinx-notfound-page
 sphinx-reredirects
+sphinx-rerediraffe
 sphinx-tabs
 sphinxcontrib-jquery
 sphinxext-opengraph
@@ -15,7 +16,7 @@ sphinxext-opengraph
 sphinx-config-options>=0.1.0
 sphinx-contributor-listing>=0.1.0
 sphinx-filtered-toctree>=0.1.0
-sphinx-related-links>=0.1.1
+sphinx-related-links>=0.1.2
 sphinx-roles>=0.1.0
 sphinx-terminal>=1.0.2
 sphinx-ubuntu-images>=0.1.0
@@ -34,8 +35,9 @@ vale
 # Custom dependencies (needed by Ubuntu Project docs)
 distro_info
 sphinx-hoverxref
-sphinx-llm
+sphinx-llm @ git+https://github.com/NVIDIA/sphinx-llm
 sphinx-prompt
 sphinx-togglebutton
 sphinxcontrib-mermaid
-sphinxext-rediraffe
+# Note: sphinx-markdown-builder is a transitive dependency of sphinx-llm (used internally
+# for llms.txt generation); it does not need to be listed here explicitly.

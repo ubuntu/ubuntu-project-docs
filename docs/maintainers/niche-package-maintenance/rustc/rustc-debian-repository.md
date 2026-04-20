@@ -47,6 +47,7 @@ It is exported as `prevent-duplicate-dh-auto-build.patch`:
 
 <!-- TODO: pygment does not support .patch files. I am using .diff instead, which has slightly different
 highlighting ...-->
+
 ```diff
 From 4d6301da24f8e360414172bc169f6fe31705e35c Mon Sep 17 00:00:00 2001
 From: Max Gilmour <max.gilmour@canonical.com>

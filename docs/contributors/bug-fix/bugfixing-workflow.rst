@@ -33,7 +33,7 @@ Read the bug description carefully and look for:
 - details about the affected version and package
 - attached ``.crash`` files or :ref:`Apport crash files <evaluate-the-bug>`
 
-For example, the `Postconf segfaults every 5 minutes <https://bugs.launchpad.net/ubuntu/+source/postfix/+bug/1753470>`_ bug report shows a segmentation fault in ``postconf`` on Ubuntu 18.04. It includes logs from ``/var/log/kern.log``, shell commands that reproduce the issue, and metadata about the system environment. This information helps confirm whether the bug still affects current versions and if the report is complete.
+For example, the `Postconf segfaults every 5 minutes <https://bugs.launchpad.net/ubuntu/+source/postfix/+bug/1753470>`_ bug report shows a segmentation fault in ``postconf`` on Ubuntu 18.04 LTS. It includes logs from ``/var/log/kern.log``, shell commands that reproduce the issue, and metadata about the system environment. This information helps confirm whether the bug still affects current versions and if the report is complete.
 
 If the bug includes a ``.crash`` file, extract and inspect the stack trace. Use the information to better understand where the failure occurred in the code.
 

@@ -39,7 +39,7 @@ See {ref}`how-to-run-package-tests`.
 1. Create and start a new LXD container to test in:
 
     ```none
-    $ lxc launch ubuntu-daily:ubuntu/<ubuntu-codename> tester && lxc exec tester bash
+    $ lxc launch ubuntu-daily:<ubuntu-codename> tester && lxc exec tester bash
     ```
 
 1. Install the currently available version of the package you've been working on:
@@ -86,7 +86,7 @@ See {ref}`how-to-run-package-tests`.
 1. Create and start a new LXD container to test in:
 
     ```none
-    $ lxc launch ubuntu-daily:ubuntu/<ubuntu-codename> tester && lxc exec tester bash
+    $ lxc launch ubuntu-daily:<ubuntu-codename> tester && lxc exec tester bash
     ```
 
 1. Add your PPA to the virtual system to upgrade the package to the version you want to test:

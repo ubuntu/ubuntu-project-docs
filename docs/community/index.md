@@ -34,12 +34,12 @@ To better understand how our large umbrella of communities operates, take a look
 * Members of the Ubuntu Community follow a simple set of core principles that help ensure our community stays healthy, stable and remains a place for collaboration and prosperity. {ref}`Read the Ubuntu Code of Conduct <code-of-conduct>`.
 * The mission for Ubuntu is both social and economic. We believe that bringing free software to the widest audience will empower individuals and communities to innovate, experiment and grow. {ref}`Learn the guiding tenets of the Ubuntu Mission <mission>`.
 * Ubuntu, like other large communities, requires leadership and direction to help ensure its sustainability and longevity. Learning how all the interconnected bodies work together is important to understanding the Ubuntu way. {ref}`Learn how they all work together to sustain our community <community-council>`.
-* Keep up to date with all the latest news and happenings from around the community with [The Ubuntu Weekly Newsletter](https://discourse.ubuntu.com/c/uwn/124) and the [Ubuntu Blog](https://ubuntu.com/blog).
+* Keep up to date with all the latest news and happenings from around the community with [The Ubuntu Weekly Newsletter](https://discourse.ubuntu.com/c/community/uwn/124) and the [Ubuntu Blog](https://ubuntu.com/blog).
 
 
 ## Get help
 
-Are you instead stuck and need help? [Take a look at how our community can support you.](https://ubuntu.com/community/support)
+Are you instead stuck and need help? [Take a look at how our community can support you.](https://ubuntu.com/community/docs/support)
 
 
 ## Discover
