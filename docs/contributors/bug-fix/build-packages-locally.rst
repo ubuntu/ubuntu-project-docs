@@ -3,6 +3,12 @@
 How to build packages locally
 =============================
 
+.. note::
+
+        This is about building an existing package locally. If you want to
+        build a new package, please refer to
+        :ref:`how-to-create-a-new-package`.
+
 In Ubuntu, packages can be built in several ways, depending on the intended
 artifacts. The standard and recommended way to build packages for Ubuntu is
 with ``dpkg-buildpackage`` and ``sbuild``. This ensures that the build
@@ -67,7 +73,7 @@ the file with the following content:
 
    .. code-block:: none
 
-       $ mkdir -p ~/shcroot/{build,logs,scratch}
+       $ mkdir -p ~/schroot/{build,logs,scratch}
 
    Add a :file:`~/schroot/scratch` entry to :file:`/etc/schroot/sbuild/fstab`:
 
