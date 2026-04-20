@@ -11,12 +11,9 @@ Ensure that every patch that updates the upstream source tree is submitted upstr
 
 ## OpenJDK developer guide
 
-Please use OpenJDK developer guide[1] when working with the upstream source tree.
+Please use the [OpenJDK developer guide](https://openjdk.org/guide/) when working with the upstream source tree.
 
 ## OpenJDK tests
 
-OpenJDK uses jtreg[2] testing framework. See {ref}`test-openjdk` for details on
+OpenJDK uses the [jtreg](https://openjdk.org/jtreg/) testing framework. See {ref}`test-openjdk` for details on
 running the test suite against both a locally built source tree and an installed package.
-
-[1] https://openjdk.org/guide/
-[2] https://openjdk.org/jtreg/

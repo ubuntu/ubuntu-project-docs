@@ -1,7 +1,7 @@
 (test-openjdk)=
 # Test OpenJDK
 
-OpenJDK uses the `jtreg`[1] testing framework for its comprehensive test suite.
+OpenJDK uses the [jtreg](https://openjdk.org/jtreg/) testing framework for its comprehensive test suite.
 The tests are integrated into the Debian/Ubuntu package autopkgtest via wrapper
 scripts in `debian/tests/`.
 
