@@ -3,6 +3,7 @@ ABIs
 Ayatana
 allowlist
 apport
+archs
 auditable
 autobuilders
 autofill
@@ -15,12 +16,14 @@ backported
 Backporters
 backporting
 backtrace
+basename
 BBtext
 binNMUs
 bioinformatics
 blocklisted
 boolean
 bootable
+bootcycle
 bootloader
 bootloaders
 bugfix
@@ -94,6 +97,7 @@ ISO
 ISOs
 ITPs
 Jackalope
+Javadoc
 Jira
 Jitsi
 Jono
