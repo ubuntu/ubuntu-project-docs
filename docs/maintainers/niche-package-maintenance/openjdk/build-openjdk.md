@@ -30,7 +30,7 @@ conditional in the file.
 ### Version variables
 
 The package version is parsed from `debian/changelog` and split into
-components so that the JDK's `--with-version-*` configure options can be set
+components so that the openjdk `--with-version-*` configure options can be set
 precisely.
 
 | Variable | Meaning |

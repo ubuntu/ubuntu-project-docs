@@ -20,7 +20,7 @@ The test scripts require the following environment variables to be set:
 
 | Variable | Description |
 | :--- | :--- |
-| `AUTOPKGTEST_TMP` | Writable directory used as a working area (e.g. for problem lists and JTwork output). |
+| `AUTOPKGTEST_TMP` | Writable directory used as a working area (e.g. for problem lists and `JTwork` output). |
 | `AUTOPKGTEST_ARTIFACTS` | Directory where test reports and artifacts are saved. |
 | `JDK_TO_TEST` | Path to the JDK image under test. Defaults to the installed JDK (e.g. `/usr/lib/jvm/java-21-openjdk-amd64`). |
 | `BOOTJDK_HOME` | Path to the boot JDK. Defaults to `JDK_TO_TEST` if not set. |
@@ -61,7 +61,7 @@ Each script:
   Debian-specific `debian/tests/problems.csv` via `write-problems.sh`.
 - Invokes `debian/tests/jtreg-autopkgtest.sh` with `-dir:test/<subsystem>` and
   the pre-built native test binaries from `build/images/test/<subsystem>/jtreg/native`.
-- Retries failed or errored tests up to three times to distinguish genuine failures
+- Retries failing tests up to three times to distinguish genuine failures
   from flaky tests.
 - Saves `.jtr` result files and any `hs_err_pid` crash logs to `AUTOPKGTEST_ARTIFACTS`.
 
