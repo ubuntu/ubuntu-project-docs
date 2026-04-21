@@ -17,7 +17,7 @@ For faster iteration during development, you can disable optional steps such as 
    $ DEB_BUILD_OPTIONS="nocheck nodoc nobootcycle parallel=$(nproc)" dpkg-buildpackage -b
    ```
 
-Using `sbuild` is recommended for clean, reproducible builds. For more details on building packages in Ubuntu, see [how to build packages locally]({ref}how-to-build-packages-locally).
+Using `sbuild` is recommended for clean, reproducible builds. For more details on building packages in Ubuntu, see {ref}`how-to-build-packages-locally`.
 
 ## Key variables
 

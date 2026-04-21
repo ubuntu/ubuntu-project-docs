@@ -21,5 +21,5 @@ $ lsb_release --codename && make -f debian/rules update-control-files
 
 ## Build the source package and upload
 
-Follow the standard procedure to [build the package locally]({ref}how-to-build-packages-locally) and [upload the source package]({ref}uploading-to-the-archive) to the staging PPA.
+Follow the standard procedure to build the package locally ({ref}`how-to-build-packages-locally`) and upload the source package ({ref}`uploading-to-the-archive`) to the staging PPA.
 
