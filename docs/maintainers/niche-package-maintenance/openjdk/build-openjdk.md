@@ -1,6 +1,24 @@
 (build-openjdk)=
 # Build OpenJDK
 
+## Quick start
+
+
+### Fast build for development
+
+For faster iteration during development, you can disable optional steps such as full test runs, Javadoc generation, and the "bootcycle" (double) build verification:
+
+1. Install build dependencies (example for OpenJDK 21):
+   ```bash
+   $ sudo apt build-dep openjdk-21
+   ```
+2. Build with shortcuts:
+   ```bash
+   $ DEB_BUILD_OPTIONS="nocheck nodoc nobootcycle parallel=$(nproc)" dpkg-buildpackage -b
+   ```
+
+Using `sbuild` is recommended for clean, reproducible builds. For more details on building packages in Ubuntu, see [how to build packages locally]({ref}how-to-build-packages-locally).
+
 ## Key variables
 
 ### Release and distribution detection
