@@ -185,7 +185,7 @@ In order to keep the delay and CPU/IO impact as low as possible, `/usr/share/app
 (frontend-invocation)=
 ### Frontend invocation
 
-In Gnome, `update-notifier` keeps an inotify watch on `/var/crash`. Whenever there is something new, it calls `/usr/share/apport/apport-checkreports`. If there are new reports, it calls `/usr/share/apport/apport-gtk`, which is the frontend shown in the screenshots above.
+In Gnome, `update-notifier` keeps an inotify watch on `/var/crash`. Whenever there is something new, it calls `/usr/share/apport/apport-checkreports`. If there are new reports, it calls `/usr/share/apport/apport-gtk`, which is the frontend used to present the crash reporting dialog.
 
 The frontend then collects additional information like package versions, package file checksums, or OS version, and calls all matching package hooks.
 
