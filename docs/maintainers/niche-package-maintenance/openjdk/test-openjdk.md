@@ -3,7 +3,8 @@
 
 OpenJDK uses the [jtreg](https://openjdk.org/jtreg/) testing framework for its comprehensive test suite.
 The tests are integrated into the Debian/Ubuntu package autopkgtest via wrapper
-scripts in `debian/tests/`.
+scripts in `debian/tests/`. For more information on `jtreg` and how to run tests
+manually, refer to the [upstream documentation](https://openjdk.org/jtreg/runtests.html).
 
 ## Prerequisites
 
