@@ -1,15 +1,10 @@
 (how-to-report-a-bug)=
 # How to report a bug
 
-<!-- TODO: This article was barely edited; it needs a lot of love to:
-           - bring it up-to-date,
-           - remove unnecessary cruft,
-           - improve fomating,
-           - fix & improve markup,
-           - change links to point non-wiki places,
-           - and pbbly more... 
-
-   orig: https://help.ubuntu.com/community/ReportingBugs -->
+```{note}
+Once a bug is filed, be prepared to answer questions, provide additional details and logs, and do testing for the fix. Bugs have a greater chance to get resolved when reporters are engaged.
+See this article for in-depth coverage on the topic: [The Keys to Successful Bug Reporting | Ubuntu](https://ubuntu.com/blog/the-keys-to-successful-bug-reporting).
+```
 
 (getting-support)=
 ## Getting Support
@@ -22,25 +17,22 @@ If you're sure you've found a bug, and are interested in learning proper bug rep
 (how-to-report-bugs)=
 ## How to report bugs
 
-Ubuntu uses [Launchpad](https://help.ubuntu.com/community/Launchpad) to keep track of bugs and their fixes. This page will guide you through the steps required to file a good and detailed report.
+Ubuntu uses {ref}`Launchpad <about-launchpad>` to keep track of bugs and their fixes. This page will guide you through the steps required to file a good and detailed report.
 
-When possible, this will involve running a command 'ubuntu-bug' alias 'apport-bug' alias 'apport-collect' Note that this only applies to traditional .deb packages.
+When possible, this will involve running a command `ubuntu-bug` alias `apport-bug` alias `apport-collect` Note that this only applies to traditional .deb packages.
 
 ```none
 ubuntu-bug buggy-package-name
 ```
 
-that will collect information from the local system on the problematic program, and then open a form in a web browser for your comments.
+That will collect information from the local system on the problematic program, and then open a form in a web browser for your comments.
 
-If `ubuntu-bug` does not work, or reports that the package isn't installed, it's likely because the package is a snap package.
-
-For snap packages, go to [https://snapcraft.io/](https://snapcraft.io/) 'buggy-package-name' to find out where to report the bugs, or
-
+If `ubuntu-bug` does not work, or reports that the package isn't installed, it's likely because the package is a snap package. For snap packages, run
 ```none
-snap info buggy-package-name
+snap report-issue buggy-snap-name
 ```
 
-will show the contact information for the snap creator, which is where to report the bug there.
+The bug tracker and contacts for snaps are also listed on the individual snap package page on [https://snapcraft.io/](https://snapcraft.io/). Search for the buggy snap package name and look for the `report a bug` link or contact.
 
 
 (create-a-launchpad-account)=
@@ -52,21 +44,20 @@ If you don’t already have one - you need to [create a Launchpad account](https
 (determine-if-the-bug-is-really-a-bug)=
 ## Determine if the bug is really a bug
 
-You should not file a bug if you are:
+You should **not** file a bug if you are:
 
-* **Requesting new software:** You should follow the guidelines at [https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages](https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages).
+* **Requesting new software:** You should follow the guidelines at {ref}`New Packages<new-packages>`.
 
-* **Requesting support:** There are a multitude of ways you can get help using Ubuntu, such as the [Launchpad answer tracker](https://answers.launchpad.net/ubuntu), the [Ask Ubuntu](https://askubuntu.com/) site, the [Ubuntu forums](http://www.ubuntuforums.org/), the {matrix}`Matrix <discuss>` channel on {ref}`Matrix <using-matrix>`, and the [ubuntu-users](https://lists.ubuntu.com/mailman/listinfo/ubuntu-users) mailing list.
+* **Requesting support:** See the list of {ref}`community-support` resources.
 
 * **Discussing features, existing policy, proposing features, or ideas:** This belongs to the [ubuntu-devel-discuss](https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss) mailing list.
 
-* **Filing a bug against a package not provided by the default, supported Ubuntu repositories:** This is due to how it wasn't confirmed by Ubuntu Developers for your release. Problems that unsupported software have caused are upgrade issues, and the program or operating system not functioning correctly. Typically, what isn't supported is software from a PPA (Personal Package Archive), 3rd party packages, self-compiled software, etc. For more on supported Ubuntu repositories, please see [here](https://help.ubuntu.com/community/Repositories). If you are using unsupported software, it is best to contact the maintainers directly. Instructions are generally available on the program maintainer's web site.
-
+* **Using a package not provided by the default, supported Ubuntu repositories:** Unsupported software can cause a variety of issues, even to the operating system. For this reason, you should try reproducing the issue on systems which only have supported software installed to increase the chances your bug will be addressed. Typically, what isn't supported is software from a PPA (Personal Package Archive), 3rd party packages, self-compiled software, etc. For more on supported Ubuntu repositories, please see {ref}`package-archive <package-archive>`. If you are using unsupported software, it is best to contact the maintainers directly. Instructions are generally available on the program maintainer's website.
 
 (perform-a-survey-of-your-problem)=
 ## Perform a survey of your problem
 
-First, check the release notes of your supported version of Ubuntu for any known issues from [here](https://wiki.ubuntu.com/Releases).
+First, check the [release notes](https://documentation.ubuntu.com/release-notes/) of your supported version of Ubuntu for any known issues.
 Second, check [Launchpad](https://bugs.launchpad.net/) for any duplicates, and make note of this.
 
 ```{note}
@@ -77,29 +68,13 @@ If you want to file a translation or misspelling bug, follow the instructions [h
 (reporting-a-crash)=
 ## Reporting a crash
 
-If an application crashes, what typically happens is [Apport](https://wiki.ubuntu.com/Apport) will display a window noting it is collecting information about the crash:
-<!-- Image: apport-1.png -->
+If an application crashes, what typically happens is [Apport](../debugging/apport) will display a window noting it is collecting information about the crash:
+![Screenshot of apport](apport-1.png)
 
 Once done, it will ask you if you would like to report it.
 
 ```{note}
-Before continuing, make sure the package [whoopsie](https://launchpad.net/ubuntu/+source/whoopsie) is installed. Otherwise, Apport will appear to upload a crash report, but only actually does so if whoopsie is installed. Whoopsie is installed by default for users of [ubuntu-desktop](https://launchpad.net/ubuntu/+source/ubuntu-meta), but for users of alternative desktops, or for server users, whoopsie has to be installed manually with apt-get install whoopsie. See bug {lpbug}`1001630` for details.
-```
-
-If the crash is in [Xorg](https://launchpad.net/ubuntu/+source/xorg) edit /etc/gdm3/custom.conf from:
-
-```none
-# Additionally lets the X server dump core if it crashes
-
-#Enable=true
-```
-
-to:
-
-```none
-# Additionally lets the X server dump core if it crashes
-
-Enable=true
+Before continuing, make sure the package [whoopsie](https://launchpad.net/ubuntu/+source/whoopsie) is installed. Otherwise, Apport will appear to upload a crash report, but only actually does so if whoopsie is installed. Whoopsie is installed by default for users of ubuntu-desktop and many flavors, but for server users, whoopsie has to be installed manually with `apt-get install whoopsie`.
 ```
 
 Once you report the crash, what happens next is dependent on what release you are using.
@@ -108,15 +83,15 @@ Once you report the crash, what happens next is dependent on what release you ar
 (reporting-crash-in-the-development-release)=
 ### Reporting crash in the development release
 
-What happens next is a web browser opens requesting you to login, and subsequently create a bug report on Launchpad. This report is automatically processed by [Apport Retracing Service](https://help.ubuntu.com/community/Apport_Retracing_Service), in order to provide developers with debugging information that makes it easier to fix the problem.
+What happens next is a web browser opens requesting you to login, and subsequently create a bug report on Launchpad. This report is automatically processed by [Apport Retracing Service](https://help.ubuntu.com/community/ApportRetracingService), in order to provide developers with debugging information that makes it easier to fix the problem.
 
 
 (reporting-a-crash-in-the-stable-release)=
 ### Reporting a crash in the stable release
 
-By default, Apport will not upload crash reports to Launchpad for a stable release (see bug {lpbug}`994921`). Instead, crash reports are uploaded to [Ubuntu's Error Tracker](https://wiki.ubuntu.com/ErrorTracker).
+By default, Apport will not upload crash reports to Launchpad for a stable release (see bug {lpbug}`994921`). Instead, crash reports are uploaded to [Ubuntu's Error Tracker](https://errors.ubuntu.com/).
 
-If you have a need to file a report on Launchpad anyways (e.g. you don't have access to the errors infrastructure, you want to subscribe others to a report to review it, etc.) one may do so by editing:
+If you have a need to file a report on Launchpad anyway (e.g. you don't have access to the errors infrastructure, you want to subscribe others to a report to review it, etc.) one may do so by editing:
 
 ```none
 /etc/apport/crashdb.conf
@@ -124,14 +99,16 @@ If you have a need to file a report on Launchpad anyways (e.g. you don't have ac
 
 and change:
 
-```none
-'problem_types': ['Bug', 'Package'],
+```python
+if _is_ubuntu_stable_release():
+    databases["ubuntu"]["problem_types"] = ["Bug", "Package"]
 ```
 
 to:
 
-```none
-# 'problem_types': ['Bug', 'Package'],
+```python
+#if _is_ubuntu_stable_release():
+#    databases["ubuntu"]["problem_types"] = ["Bug", "Package"]
 ```
 
 Save, close, and file the crash report via:
@@ -200,7 +177,7 @@ If Apport is enabled, then you may have one of the following issues:
 (reporting-non-crash-hardware-and-desktop-application-bugs)=
 ## Reporting non-crash hardware and desktop application bugs
 
-The method for reporting bugs in Ubuntu is by using the tool “ubuntu-bug”, otherwise known as **Apport**. When reporting a bug, you must tell Apport which program or [package](https://help.ubuntu.com/community/InstallingSoftware#What%20is%20a%20package?) is at fault.
+The method for reporting bugs in Ubuntu is by using the tool `ubuntu-bug`, otherwise known as **Apport**. When reporting a bug, you must tell Apport which program or {term}`package` is at fault.
 
 
 (collecting-information-from-a-specific-package)=
@@ -208,47 +185,30 @@ The method for reporting bugs in Ubuntu is by using the tool “ubuntu-bug”, o
 
 Press Alt+F2 to open the “Run Command” screen:
 
-<!-- Image: unity-ubuntu-bug-pkgname.png | Filing a bug with the “Run Command” screen -->
+![Filing a bug with the “Run Command” screen](gnome-ubuntu-bug-pkgname.png)
 
 Then, type `ubuntu-bug <package name>` and press Enter. If you’re not sure which package has the problem, refer to the instructions for [finding the right package](https://wiki.ubuntu.com/Bugs/FindRightPackage).
-
-
-(collecting-information-about-a-program-with-a-window-open)=
-### Collecting information about a program with a window open
-
-If you want to file a bug about an application but you don't know what that application's package name is, if it has an open window you are in luck.
-
-In a terminal execute the command 'ubuntu-bug -w'.
-
-<!-- Image: ubuntu-bug-w.png | terminal with ubuntu-bug -w -->
-
-After you close the dialog the next window that you click on will have a problem report created for the package that created the window.
-
 
 (collecting-information-from-a-currently-running-program)=
 ### Collecting information from a currently running program
 
 To file a bug against a program that is currently running, open the System Monitor application and find the ID of the process.
 
-<!-- Image: system-monitor-id-new.png | System Monitor Processes tab -->
+![System Monitor Processes tab](system-monitor-id-new.png)
 
-Then type "ubuntu-bug " followed by the process ID into the “Run Command” screen.
+Then type `ubuntu-bug ` followed by the process ID into the “Run Command” screen.
 
-<!-- Image: unity-ubuntu-bug-pid.png | Filing a bug with the “Run Command” screen and a process ID -->
+![Filing a bug with the “Run Command” screen and a process ID](gnome-ubuntu-bug-pid.png)
 
 
 (filing-a-general-bug-against-no-particular-package)=
 ## Filing a general bug against no particular package
 
-First, please review potential package candidates [here](https://wiki.ubuntu.com/Bugs/FindRightPackage). Only after reviewing this, if are still not sure which package is affected by the bug, type `ubuntu-bug` in the “Run Command” screen and press Enter. This will guide you through a series of questions to gather more information about the bug and help you assign it to the appropriate package.
+First, please review potential package candidates [here](../bug-triage/assign-a-bug-to-a-package). Only after reviewing this, if are still not sure which package is affected by the bug, type `ubuntu-bug` in the “Run Command” screen and press Enter. This will guide you through a series of questions to gather more information about the bug and help you assign it to the appropriate package.
 
 
 (complete-the-bug-report-filing-process)=
 ## Complete the bug report filing process
-
-After running one of the above commands, Apport (the Ubuntu bug reporter) will gather information about the bug.
-
-<!-- Image: apport-1.png | Apport collecting information about the bug -->
 
 A window will then pop up, asking you if you want to report the bug. Click "Send Report" if you wish to proceed, or click "Content of the report" if you want to review the information Apport collected.
 
@@ -260,13 +220,13 @@ Apport will then upload the problem information to Launchpad, and a new browser 
 
 <!-- Image: process-data2.png | Launchpad processing the bug report data -->
 
-After the bug report data has been processed, a new page will open that will ask you for the bug report's title. The bug title will appear in all bug listings so make sure it represents the bug well.  When you're done, click "Next".
+After the bug report data has been processed, a new page will open that will ask you for the bug report's title. The bug title will appear in all bug listings so make sure it represents the bug well. Be succinct but descriptive in your title. For example: "On noble, foo fail to launch when started from the application icon" makes that bug easy to identify. When you're done, click "Next".
 
-<!-- Image: bug-title2.png | Launchpad asking for a bug title -->
+![Launchpad asking for a bug title](bug-title2.png)
 
 A search will then occur based on the title you gave to the bug report, and will show potentially similar ones. If one of these seems to be the exact bug you're reporting, click its title, then "Yes, this is the bug I'm trying to report". If not, click "No, I need to report a new bug".
 
-<!-- Image: bug-search.png | Launchpad search results about the bug title -->
+![Launchpad search results about the bug title](bug-search.png)
 
 Launchpad will then ask you for further information. It's important that you specify three things:
 
@@ -278,15 +238,13 @@ Launchpad will then ask you for further information. It's important that you spe
 
 Fill in the description field with as much information as you can, it is better to have too much information in the description than not enough.
 
-<!-- Image: more-informations2.png | Launchpad asking for further information -->
-
 At then bottom of the page, there are some extra options you can use to make your bug report more complete:
 
-* **This bug is a security vulnerability:** Please check this **_only_** if your bug report describes a behaviour that could be exploited to compromise your security or safety, as well as cause issues such as identity theft or "hi-jacking".
+* **This bug is a security vulnerability:** Please check this **_only_** if your bug report describes a behavior that could be exploited to compromise your security or safety, as well as cause issues such as identity theft or "hijacking".
 
 * **Tags:** You can {ref}`add here tags <bug-tags>` that pertain to your bug report. The predefined values should be left alone.
 
-* **Include an attachment:** Using this option, you can add supporting attachments to explain or help others reproduce the bug. This might include a screenshot, a video capture of the problem or a sample document that triggers the fault. If necessary, additional attachments can be added after the bug is reported via **Add a comment/attachment** at the bottom of the page. Please check [https://wiki.ubuntu.com/DebuggingProcedures](https://wiki.ubuntu.com/DebuggingProcedures) for any further information to provide. It is vital for developers to get this information, as it contains the minimum requirement information necessary for a developer to begin working on your bug.
+* **Include an attachment:** Using this option, you can add supporting attachments to explain or help others reproduce the bug. This might include a screenshot, a video capture of the problem or a sample document that triggers the fault. If necessary, additional attachments can be added after the bug is reported via **Add a comment/attachment** at the bottom of the page. Please check [Debug an apport crash](../debugging/debug-an-apport-crash) for any further information to provide. It is vital for developers to get this information, as it contains the minimum requirement information necessary for a developer to begin working on your bug.
 
 * Please note that if one files a bug against the [linux](https://launchpad.net/ubuntu/+source/linux) kernel package, you do not need to add as an attachment the terminal command:
 
@@ -297,7 +255,7 @@ lspci -vnvn
 
 This is due to how [Launchpad](https://help.ubuntu.com/community/Launchpad) automatically generates this as an additional attachment.
 
-<!-- Image: extra-options2.png | Launchpad presenting extra options -->
+![Launchpad presenting extra options](extra-options2.png)
 
 When you're done, click "Submit bug report".
 
@@ -320,7 +278,7 @@ ubuntu-bug FILENAME.crash
 * For a bug report about any other issue, from the computer with the problem execute the following at a terminal:
 
 ```none
-apport-cli -f -p PACKAGENAME --save FILENAME.apport
+ubuntu-bug PACKAGENAME --save FILENAME.apport
 ```
 
 Copy this over to the new computer. If filing a new report, execute via a terminal:
@@ -329,23 +287,23 @@ Copy this over to the new computer. If filing a new report, execute via a termin
 ubuntu-bug FILENAME.apport
 ```
 
-Please do not attach the `.apport` or `.crash` file to the report, as this is not the same as performing the above mentioned steps.
+Please do not attach the `.apport` or `.crash` file to the report, as this is not the same as performing the above-mentioned steps.
 
 
 (filing-bugs-manually-at-launchpad-net)=
 ### Filing bugs manually at Launchpad.net
 
-Before you proceed, you should think about the nature of the problem you're facing. If Ubuntu or its software seems to simply be generally "misbehaving", it might not be a software bug, but it is still a problem we want to help fix. We have an entire community of people who can help you in real time on our live IRC chat channels. You can find a list of these channels at [https://wiki.ubuntu.com/IRC/ChannelList](https://wiki.ubuntu.com/IRC/ChannelList). On the other hand, if you are absolutely sure that you've encountered a legitimate error in the software's behavior (especially one that can be reproduced regularly), and you're sure you don't need any help, then continue with the bug reporting process.
+Before you proceed, you should think about the nature of the problem you're facing. If Ubuntu or its software seems to simply be generally "misbehaving", it might not be a software bug, but it is still a problem we want to help fix. We have an entire community of people who can help you in real time on our  {ref}`Matrix channels and Discourse forums <community-support>`. On the other hand, if you are absolutely sure that you've encountered a legitimate error in the software's behavior (especially one that can be reproduced regularly), and you're sure you don't need any help, then continue with the bug reporting process.
 
-If for some reason you cannot file a bug using the *Apport* tool you can file one via [Launchpad's own bug report form](https://bugs.launchpad.net/ubuntu/+filebug/+login?no-redirect). When doing so it is best if you have determined which package it should be filed against. Read '[finding the right package](https://wiki.ubuntu.com/Bugs/FindRightPackage)' for guidance or use [Launchpad's package search feature](https://launchpad.net/ubuntu/). We don't recommend this method for most bug reports because they will likely be missing crucial information, use ubuntu-bug if you can!
+If for some reason you cannot file a bug using the *Apport* tool you can file one via [Launchpad's own bug report form](https://bugs.launchpad.net/ubuntu/+filebug/+login?no-redirect). When doing so it is best if you have determined which package it should be filed against. Read '[finding the right package](../bug-triage/assign-a-bug-to-a-package)' for guidance or use [Launchpad's package search feature](https://launchpad.net/ubuntu/). We don't recommend this method for most bug reports because they will likely be missing crucial information, use `ubuntu-bug` if you can!
 
 To file a bug against a specific package you can also use a URL like the following:
 
 `http://bugs.launchpad.net/ubuntu/+source/PACKAGENAME/+filebug?no-redirect`
 
-where PACKAGENAME is the name of the source package about which you want to file the bug report.
+where `PACKAGENAME` is the name of the source package about which you want to file the bug report.
 
-In the event that you want to request a piece of software be packaged for Ubuntu please follow the instructions in the [wiki](https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages#Requesting%20a%20new%20package%20for%20Ubuntu).
+In the event that you want to request a piece of software be packaged for Ubuntu please follow the instructions in {ref}`New Packages<new-packages>`.
 
 
 (error-the-launchpadlib-python-module-is-not-installed)=
@@ -421,12 +379,12 @@ Following bug reporting etiquette best presents your Launchpad report so that it
 ### All bug reports
 
 * **Please do not file bug reports about End-of-Life operating systems.**
-   This includes release of Ubuntu, and alternative operating systems. Expecting Ubuntu to provide interoperability with an insecure, end-of-life operating system is simply irresponsible, and inconsiderate of the finite resources of the Ubuntu Community. Information regarding supported Ubuntu releases are available [here](https://wiki.ubuntu.com/Releases). Please see the website of the vendor of the operating system for EOL and support information.
+   This includes release of Ubuntu, and alternative operating systems. Expecting Ubuntu to provide interoperability with an insecure, end-of-life operating system is simply irresponsible, and inconsiderate of the finite resources of the Ubuntu Community. See information regarding [supported Ubuntu releases](https://documentation.ubuntu.com/project/release-team/list-of-releases/). Please see the website of the vendor of the operating system for EOL and support information.
 
 * **Please do not speculate on what you think is or isn't a duplicate report**
    The exception to this is you are a developer, know specifically where in the code the problem is, and would be submitting a patch to fix the issue. However, noting things like, "I checked Google and found bug report number...", "Why should I file a new report when this is a duplicate?" is largely unhelpful as it tends not to be a duplicate, and already has been or easily done by triagers and developers. Instead, if you are the original reporter, ensuring the report has all the requested testing information performed would be the fastest way to ensure your bug is resolved as soon as possible. If you are not the original reporter, it's best to file a new report, so that necessary debugging attachments are reviewed. It is a common misconception that filing what one initially believes to be a potential duplicate report is not helpful. Filing a new report is quite helpful, and is preferred to ease triaging and development.
 
-* **Please do not quote Wikipedia and other non-primary resource information as fact on [Launchpad](https://help.ubuntu.com/community/Launchpad).**
+* **Please do not quote Wikipedia and other non-primary resource information as fact on Launchpad.**.
 
 * **Please do not complain because someone sent what one perceives to be a automated or "canned" response**.
    If the response is asking you to do something that you haven't done (ex. test the latest development release, file a new report, etc.) do it, as it would get you closer to having your bug fixed faster. Complaining about this is inconsiderate of the Ubuntu triagers and developers who are saving time in comparison to hand typing every single character in an e-mail that goes out their inbox.
@@ -440,7 +398,7 @@ Following bug reporting etiquette best presents your Launchpad report so that it
    For example, links to pastebin.com, paste.ubuntu.com, dropbox.com, etc. If a triager or developer asks you for some information on reproducing or testing, please do not make them dumpster dive by just posting a URL, or saying you already did something in some other report. Instead, put the full reproduction or testing results into the report itself, uncompressed and untarred.
 
 * **Please do not stack multiple issues into one report**.
-   For example, jamming suspend and hibernate into one report, reporting multiple [hotkey](https://wiki.ubuntu.com/Hotkeys/Troubleshooting) problems into one report (ex. Fn+F3 doesn't turn off my laptop WiFi, Fn+Right doesn't turn the brightness on my [backlight](https://wiki.ubuntu.com/Kernel/Debugging/Backlight) down, my brightness settings are not remembered after reboot, etc.). Please make one report for each individual problem.
+   For example, jamming suspend and hibernate into one report, reporting multiple hotkey problems into one report (ex. Fn+F3 doesn't turn off my laptop WiFi, Fn+Right doesn't turn the brightness on my backlight down, my brightness settings are not remembered after reboot, etc.). Please make one report for each individual problem.
 
 * **Please do not complain about how long it takes to fix a bug.**
    This goes along with saying things like severity of your bug is high so it should be fixed immediately, “I cannot believe it’s not fixed…”, XYZ person(s) do not care about fixing bugs, etc. Especially, if you have not followed the directions mentioned in this article, let alone contributed code upstream. This type of behavior is nonconstructive, irritating to others who read your e-mail, and spammy. We all want to see every bug fixed as soon as possible! Naturally, bugs being fixed is limited to reproducibility and clarity of the bug report, the actual impact the bug has on the community, and available developer resources.
@@ -448,8 +406,8 @@ Following bug reporting etiquette best presents your Launchpad report so that it
 * **Please keep the bug report as objective as possible.**
    It is desired for you to provide a fact based, technical impact statement on you, your environment, and the potential or actual impact on the community at large.
 
-* **Please provide all relevant information from [https://wiki.ubuntu.com/DebuggingProcedures](https://wiki.ubuntu.com/DebuggingProcedures) when you first report your bug**.
-   This is one of the top reasons why bugs do not get marked [Triaged](https://wiki.ubuntu.com/Bugs/Status), as the minimum requirements for triaging, and dealing with the problem by a developer are not provided.
+* **Please provide all relevant information from [Debug an apport crash](../debugging/debug-an-apport-crash) when you first report your bug**.
+   This is one of the top reasons why bugs do not get marked {ref}`Triaged <bug-status>`, as the minimum requirements for triaging, and dealing with the problem by a developer are not provided.
 
 * **Please avoid arguing with triagers and developers.**
    If a triager or developer asks you to provide information, just provide the information as requested. An example of this is claiming exemption because you or someone else filed a bug report upstream or downstream (which is publicly viewable, and has no restrictions on who can file). You are being asked for this information so that it would provide more information on how to fix the problem. Also, not everyone has access to the hardware you are reporting against, or reproduce the problem as advised in the report. Having you provide the information helps eliminate the difficulty in fixing your bug. If you have a strong disagreement with what a triager or developer is asking of you, please resolve it with them directly via personal message, not on the bug report. This avoids turning a bug development report into a “let’s talk about talking about the problem” tangent, distracting from having your bug solved. The Ubuntu community takes a favor to objective, technical discourse.
