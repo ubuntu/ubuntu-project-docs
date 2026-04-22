@@ -1,0 +1,17 @@
+:::{mermaid}
+flowchart LR
+    File["<a href=https://documentation.ubuntu.com/project/contributors/qa-and-testing/report-a-bug/>File bug on Launchpad</a><br/>with reproduction steps<br/>and system details"] --> Triage
+    Triage{"<a href=https://documentation.ubuntu.com/project/contributors/bug-triage/>Triage</a>:<br/>enough information?<br/>right package?<br/>assignee?"}
+    PrepareFix(["<a href=https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/lifecycle-of-a-change/#preparing-and-testing-the-fix>Prepare change</a>"])
+    Triage -.-> |"needs more info"| File
+    Triage --> |"actionable"| PrepareFix
+
+    classDef ubuntuStyle fill:#FFDAB9,stroke:#E95420,stroke-width:2px
+    class File ubuntuStyle
+
+    classDef gateStyle fill:#D0E8FF,stroke:#3366CC,stroke-width:2px
+    class Triage gateStyle
+
+    classDef terminalStyle fill:#E0E0E0,stroke:#666666,stroke-width:2px
+    class PrepareFix terminalStyle
+:::

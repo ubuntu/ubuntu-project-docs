@@ -116,7 +116,7 @@ to the version you need before getting the tarball.
 
   - [ ] Locally
 
-  - [ ] Using the PPA's package (Recommended): `ppa tests ${ppa_address} --release ${codename}`
+  - [ ] Using the PPA package (Recommended): `ppa tests ${ppa_address} --release ${codename}`
 
 
 ## 4. (optional) PPA :
@@ -132,14 +132,14 @@ to the version you need before getting the tarball.
 
 ## 5. (optional) SRU/MIR/FFe template
 
-- [ ] [SRU](https://documentation.ubuntu.com/sru/en/latest/reference/bug-template/)
+- [ ] {ref}`SRU <reference-sru-bug-template>`
 
 - [ ] {ref}`mir-reporters-template`
 
 - [ ] {ref}`FFe <feature-freeze-exceptions>`:
 
   ```
-  [[ Feature Freeze Exception ]]
+  [[ Feature Freeze exception ]]
   [Description]
      * A description of the proposed changes, with sufficient detail to estimate their potential impact on the distribution
   [Rationale]

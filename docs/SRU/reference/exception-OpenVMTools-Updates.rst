@@ -115,7 +115,7 @@ Ambiguity
 
 The server team does many MREs and therefore sometimes it happened that
 these uploads were called an MRE, it is not. This is a platform
-enablement SRU upload under the condition of `"other safe cases" sub section 2 <https://documentation.ubuntu.com/sru/en/latest/reference/requirements/#other-safe-cases>`__:
+enablement SRU upload under the condition of :ref:`"other safe cases" sub section 2 <sru-other-safe-cases>`:
 
 .. code-block:: text
 
@@ -182,7 +182,7 @@ more was left open once there is a reasonable need for that.
 
 Bonus: Furthermore, not required for this process, but related: the
 engineers related to the open-vm-tools package at VMware help us by
-monitoring (or reporting) bug on launchpad - they have kept this active
+monitoring (or reporting) bug on Launchpad - they have kept this active
 even with responsible people changing from Oliver Kurth to John Wolfe.
 
 .. _track_record:
@@ -223,3 +223,9 @@ a reported regression.
 -  2023 was stalled on misunderstanding which led to this very document
    to clarify
    (https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/2028420)
+-  2024: 12.4.5 to N:
+   https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/2073317
+-  2025: 12.5.0 to N:
+   https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/2122116
+-  2026: 13.0.0 to N:
+   https://bugs.launchpad.net/ubuntu/+source/open-vm-tools/+bug/2127666

@@ -24,13 +24,13 @@ Squid Upstream release policy
 As described in
 http://wiki.squid-cache.org/DeveloperResources/ReleaseProcess and
 discussed in the upstream mailing list at
-http://lists.squid-cache.org/pipermail/squid-dev/2015-March/001853.html,
+https://ml-archives.squid-cache.org/squid-dev/2015-March/001853.html,
 starting in Squid 4, Squid follows a Major.Point release policy where
 the Point releases could be considered new upstream microreleases as per
-https://documentation.ubuntu.com/sru/en/latest/reference/requirements/#new-upstream-microreleases
+:ref:`reference-criteria-microreleases`.
 
 This has been recently confirmed through the squid users mailing list in
-http://lists.squid-cache.org/pipermail/squid-users/2023-January/025586.html
+https://ml-archives.squid-cache.org/squid-users/2023-January/025586.html
 
 New releases are cut when one of the following criteria is met:
 
@@ -166,3 +166,21 @@ Squid SRU template
   update should go through the security pocket.
 
   TODO: list previous MREs for this package, if any.
+
+.. _squid_updates_track_record:
+
+Track Record
+------------
+
+This is a list of the Squid updates performed in the past, following this policy:
+
+-  2023, 5.7 to J, K:
+   https://bugs.launchpad.net/ubuntu/+source/squid/+bug/2013423
+-  2024, 5.9 to J:
+   https://bugs.launchpad.net/ubuntu/+source/squid/+bug/2040470
+-  2025, 6.10 to N:
+   https://bugs.launchpad.net/ubuntu/+source/squid/+bug/2073322
+-  2025, 6.13 to N:
+   https://bugs.launchpad.net/ubuntu/+source/squid/+bug/2085197
+-  2026, 6.14 to N, Q:
+   https://bugs.launchpad.net/ubuntu/+source/squid/+bug/2127669

@@ -26,7 +26,7 @@ Prior to every new release, the community team hosts a wallpaper contest where a
 
 ## Flavour art contributions
 
-Ubuntu Flavours often have their own distinctive style and rely on volunteers to help design their art assets.
-Getting involved with Flavour art design is a great way to connect with the wider Ubuntu ecosystem and share your artistic skills with the entire community.
+Ubuntu flavors often have their own distinctive style and rely on volunteers to help design their art assets.
+Getting involved with flavour art design is a great way to connect with the wider Ubuntu ecosystem and share your artistic skills with the entire community.
 
-[Explore the Official Ubuntu Flavours ›](https://ubuntu.com/desktop/flavors)
+[Explore the Official Ubuntu flavors ›](https://ubuntu.com/desktop/flavors)

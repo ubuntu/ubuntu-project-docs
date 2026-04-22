@@ -139,7 +139,7 @@ two weeks prior to the image creation date.
 
 Ubuntu flavors are {term}`distributions <Distribution>` of the default Ubuntu
 releases that choose their own default applications and settings. Ubuntu
-flavours are owned and developed by members of the Ubuntu community and backed
+flavors are owned and developed by members of the Ubuntu community and backed
 by the full {term}`Ubuntu Archive` for packages and updates.
 
 Officially recognized flavors are:

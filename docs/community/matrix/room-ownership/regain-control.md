@@ -13,7 +13,7 @@ This guide applies to official rooms on the Ubuntu homeserver that have the Mode
 
 Access to the Ubuntu Matrix homeserver happens via Single Sign On and is tied to Launchpad groups.
 If you cannot login, make sure you recover access to your Launchpad account.
-This can be done by accessing the [Launchpad help webpage](https://help.launchpad.net/YourAccount).
+This can be done by accessing the [Launchpad help webpage](https://documentation.ubuntu.com/launchpad/user/YourAccount/).
 
 
 ## The administrators of your room are no longer active
@@ -37,6 +37,7 @@ If you are a room user or moderator, and your room administrator has been inacti
 ## Other cases
 
 If you have a specific case, and you need help:
+
 * For general advice, reach out to the {matrix}`Ubuntu Matrix Ops room <matrix-ops>`.
 * If you need to escalate an issue, contact the {ref}`Ubuntu Matrix Council <contact-matrix-council>`.
 

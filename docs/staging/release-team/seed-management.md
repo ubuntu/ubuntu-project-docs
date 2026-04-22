@@ -217,9 +217,9 @@ relevant
 
 Launchpad does not manage seeds within its database. Instead we have an arch
 branch on the super-mirror and tell the Launchpad about the branch. We then have
-a tool which takes germinate output, interacts with launchpad (E.g. over XMLRPC)
+a tool which takes germinate output, interacts with Launchpad (E.g. over XMLRPC)
 and does the component changes. We can also integrate that into the appservers
-so you can click a button, launchpad will check out the branch from the
+so you can click a button, Launchpad will check out the branch from the
 super-mirror, germinate and let you manipulate things that way.
 
 The pluses of this method are:
@@ -244,7 +244,7 @@ The Launchpad stuff:
 
 * Launchpad gains a concept called a 'Flavour' which for now has an arch branch
   in a text field. Later we can always key seed tables off this table.
-* Flavours do not inherit within the Launchpad because that'd be too confusing
+* Flavors do not inherit within the Launchpad because that'd be too confusing
   for the seed management people. They get inheritance by virtue of bazaar's
   branching and merging, ancestry etc and this seems a desirable level for them.
 ```

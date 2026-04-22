@@ -1,5 +1,5 @@
-(new-packages)=
-# New packages
+(contribute-new-packages)=
+# Contribute new packages
 
 ```{toctree}
 :maxdepth: 1

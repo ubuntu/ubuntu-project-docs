@@ -65,10 +65,10 @@ Getting help
 For help with Launchpad, choose any of the following methods:
 
 
-IRC chat rooms
+Matrix channel
 ~~~~~~~~~~~~~~
 
-On the ``irc.libera.chat`` :term:`IRC` server, find the ``#launchpad`` channel, where you can ask the Launchpad team and the Ubuntu community for help.
+On ``Matrix``, find the ``#launchpad:ubuntu.com`` channel, where you can ask the Launchpad team and the Ubuntu community for help.
 
 
 Mailing lists

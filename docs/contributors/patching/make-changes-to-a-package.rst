@@ -22,6 +22,14 @@ Once we have :command:`git-ubuntu` installed, use it to fetch the source code fo
     $ git-ubuntu clone hello
     $ cd hello/
 
+To eventually build or upload our changed package, we also need the tarball containing the original upstream source code:
+
+.. prompt:: none $ auto
+
+    $ git-ubuntu export-orig
+
+This puts the tarball in the parent directory, at `../hello_2.10.orig.tar.gz`. Most ecosystem tools expect orig tarballs placed one directory up like this, so don't move it.
+
 We are using some tools from the :pkg:`ubuntu-dev-tools` package. Install it with:
 
 .. prompt:: none $ auto
@@ -238,22 +246,9 @@ Now that we have created our patch file, track the changes in Git (see also :ref
 
 Next, some housekeeping changes:
 
-#. Make sure that the ``Maintainer:`` field in :file:`debian/control` is set correctly.
-
 #. Add a new entry to :file:`debian/changelog` explaining our changes and incrementing the package version number.
 
-To update the maintainer field, use the :command:`update-maintainer` tool from the :pkg:`ubuntu-dev-tools` package. In this case, the field is already set correctly, so we should see:
-
-.. prompt:: none $ auto
-
-    $ update-maintainer
-    The Maintainer email is set to an ubuntu.com address. Doing nothing.
-
-If a change was made, commit that change with:
-
-.. prompt:: none $ auto
-
-    $ git commit -m "update maintainer" -- debian/control
+#. Make sure that the ``Maintainer:`` field in :file:`debian/control` is set correctly.
 
 
 .. _updating-the-changelog:
@@ -261,7 +256,7 @@ If a change was made, commit that change with:
 Updating the changelog
 ----------------------
 
-Once you have either updated the maintainer, or confirmed that it is already correct, update the changelog. The :command:`dch` tool helps with this. If you run :command:`dch -i`, you see something like this in your text editor: ::
+The :command:`dch` tool helps with this. If you run ``dch -i``, you see something like this in your text editor: ::
 
     hello (2.10-3ubuntu1) UNRELEASED; urgency=medium
 
@@ -359,6 +354,29 @@ At this point, we should have two (or three if :command:`update-maintainer` was 
     Notes (changelog):
           * No-change rebuild to bump version in oracular.
 
+
+.. _updating-the-maintainer:
+
+Updating the maintainer
+-----------------------
+
+Once you have either updated the maintainer, or confirmed that it is already correct, update the changelog.
+
+To update the maintainer field, use the :command:`update-maintainer` tool from the :pkg:`ubuntu-dev-tools` package. In this case, the field is already set correctly, so we should see:
+
+.. prompt:: none $ auto
+
+    $ update-maintainer
+    The Maintainer email is set to an ubuntu.com address. Doing nothing.
+
+If a change was made, commit that change with:
+
+.. prompt:: none $ auto
+
+    $ git commit -m "update maintainer" -- debian/control
+
+See :ref:`debian-maintainer` for more information.
+
 And that's it! We have successfully:
 
 * Added a new patch to this package.
@@ -372,7 +390,7 @@ Next steps
 From here, there are many options for testing our patch before proposing the change in a merge proposal:
 
 * Build and test the package locally using :command:`sbuild` and :command:`autopkgtest`.
-* Upload to a PPA and test from there.
+* :ref:`Upload to a PPA <merge-create-a-ppa>` and test from there.
 
 Once you feel confident that the patch is working correctly, open a merge proposal and request :ref:`sponsorship` for your change.
 

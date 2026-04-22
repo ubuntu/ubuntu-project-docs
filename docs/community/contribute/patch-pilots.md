@@ -17,7 +17,7 @@ You should reach out to a Patch Pilot if:
 * Your package can't go into Debian and you'd like to contribute a {ref}`new Ubuntu-specific package <new-packages>`.
 * You'd like a new package or patch to appear in Ubuntu, but need some guidance on how to make it part of Debian.
 
-Patch Pilots are available in the {matrix}`devel` channel on [Matrix](https://ubuntu.com/community/communications/matrix) and will be monitoring bugs with patches on Launchpad.
+Patch Pilots are available in the {matrix}`devel` channel on [Matrix](https://ubuntu.com/community/docs/communications/matrix) and will be monitoring bugs with patches on Launchpad.
 The current Pilot is noted in the channel topic.
 If you'd like to plan ahead, see the [Ubuntu Patch Pilots](https://calendar.google.com/calendar/embed?showPrint=0&showCalendars=0&mode=WEEK&src=Y184ZWRhZjk2OTllYWFmMWFmMmNjYTY2ZTYyOGZkNDEwODQ2ZTkwMjcwNmQ2YTMzMTU1OTNmODhiOTk0ZTZlOWE2QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23F4511E) calendar.
 

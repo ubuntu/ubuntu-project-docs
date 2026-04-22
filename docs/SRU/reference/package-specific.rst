@@ -48,6 +48,7 @@ the Technical Board.
     exception-Intel-Graphics-Updates
     exception-Landscape-Updates
     exception-MariaDB-Galera-Updates
+    exception-multipath-tools-Updates
     exception-NVidia-Updates
     exception-Netplan-Updates
     exception-OEMMeta-Updates
@@ -545,6 +546,11 @@ The 'mariadb' and 'galera' source packages, including source package variants
 with version suffixes, may be uploaded according to the proceedure documented in
 :ref:`MariaDB-Galera-Updates <reference-exception-MariaDB-Galera-Updates>`.
 
+multipath-tools
+~~~~~~~~~~~~~~~
+
+The ``multipath-tools`` source package may be uploaded for their stable releases, as documented in :ref:`multipath-tools-Updates <reference-exception-multipath-tools-updates>`.
+
 Valkey
 ~~~~~~
 
@@ -703,9 +709,10 @@ be taken to not leave the kernel with a mismatched firmware package.
 
 However, it is a very large package (over 500MiB in size), and making it
 instantly available in the -security pocket to all Ubuntu users in the world
-via unattended-upgrades causes a lot of strain on the archive network
-and servers. The kernel team is working on that, but until then we need to
-mitigate the impact to all users.
+via unattended-upgrades causes a lot of strain on the archive network and
+servers. Ubuntu 26.04 LTS has split the linux-firmware package into multiple
+smaller packages, but for older releases we need to mitigate the impact to all
+users.
 
 Therefore, for now, once the verification is done and linux-firmware is ready
 to be (SRU) released we have to stagger the release to spread the load.
@@ -713,11 +720,15 @@ to be (SRU) released we have to stagger the release to spread the load.
 * First it should be released to the updates pocket - allowing mirrors to sync
   it and anyone running explicit updates to pick it up.
 
-* Then after phasing has completed, it must be copied to the -security pocket
-  by either an archive admin, or a security team member. That copy should also
-  be spread out over releases. The suggested delay in-between is 4 days,
-  which combined with the "avoid Friday" rule suggests Mon,Thu,Mon,... until
-  all are fully released.
+* After the phasing has completed and we are ready to copy it to the security
+  pocket, first we need to notify Canonical IS, so that they can put mitigation
+  measures in place and prepare for the increased load on the archive.
+
+* After Canonical IS has given the go-ahead, the linux-firmware packages must
+  be copied to the security pocket by either an archive admin, or a security
+  team member. That copy should also be spread out over Ubuntu releases, one at
+  a time. The suggested delay in-between is 4 days, which combined with the
+  "avoid Friday" rule suggests Mon,Thu,Mon,... until all are fully released.
 
 Note that this release process described above only applies to SRUs. Actual
 security updates to this package are not handled through the SRU process

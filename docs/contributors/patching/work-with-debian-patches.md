@@ -59,7 +59,7 @@ $ git checkout path/to/file1 path/to/file2
 (the-patchfile-header)=
 ## The patchfile header
 
-The patchfile must have [a DEP3 header](http://dep.debian.net/deps/dep3). The
+The patchfile must have [a DEP3 header](https://dep-team.pages.debian.net/deps/dep3/). The
 basic structure is:
 
 ```text
@@ -74,7 +74,7 @@ Applied-Upstream: <version|URL|commit, identifies patches merged upstream, optio
 Reviewed-by: <name and email of a reviewer, optional>
 Last-Update: 2018-05-10 <YYYY-MM-DD, last update of the meta-information, optional>
 ---
-This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+This patch header follows DEP-3: https://dep-team.pages.debian.net/deps/dep3//
 ```
 
 Description
@@ -150,7 +150,7 @@ Gbp-Pq: Topic lp<bugnumber>
 ```
 
 The one case where this naming scheme can be harmful is that you'd usually
-not want to upstream this file name to Debian as the launchpad bug does
+not want to upstream this file name to Debian as the Launchpad bug does
 not mean much there.
 
 There is yet another way that developers often need to travel, which is
@@ -219,30 +219,10 @@ At this stage only the patch itself (here `debian/patches/my-changes.patch`)
 is committed.
 ```
 
-The updated changelog (and maybe an updated control file, in case
-`update-maintainer` needs to be run) will be committed later (all separately).
-This simplifies a later rebase.
-
-
-### About update-maintainer
-
-`update-maintainer` is a script that checks the `Maintainer` field of a
-`debian/control` file and (if needed):
-
-* Sets the `Maintainer` field to:
-  `Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>`
-
-* Adds a property `XSBC-Original-Maintainer` with the original value of the
-  `Maintainer` field.
-
-If a Debian package introduces a change that does not work on Ubuntu, we need
-to change the package to fix the bug. Then, when someone has a problem with the
-Ubuntu package they might contact the Debian maintainer and report the bug to
-them, although they have nothing to do with our modification. Therefore we
-change the value of the `Maintainer` field.
-
+The updated {ref}`changelog <debian-directory-changelog>` (and maybe an updated
+control file, in case {ref}`update-maintainer <debian-maintainer>` needs to be
+run) will be committed later (all separately). This simplifies a later rebase.
 
 ## Further reading
 
 * [Debian wiki - Using Quilt](https://wiki.debian.org/UsingQuilt)
-* [Ubuntu wiki - Debian Maintainer Field](https://wiki.ubuntu.com/DebianMaintainerField)

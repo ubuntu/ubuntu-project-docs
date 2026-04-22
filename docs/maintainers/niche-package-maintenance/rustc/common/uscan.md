@@ -4,7 +4,7 @@ We can use {manpage}`uscan(1)` (from the {lpsrc}`devscripts` package) to generat
 - They are only relevant for executing on platforms unsupported by Ubuntu (e.g. Windows).
 - They apply to unstable Rust features that we do not yet support, e.g. `src/tools/enzyme`.
 
-The orig tarball needs to be rebuilt every time we make a change to the `Files-Excluded` or when working on a new upstream Rust version. If no such changes are made, the orig tarball can instead be downloaded from Launchpad; it is listed as a file ending in `.orig.tar.xz` under the {gui}`Package files` for the package, either in the Ubuntu Archive or in the PPA to which it was uploaded (e.g. the ["Rust Toolchain" Staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/+packages)).
+The orig tarball needs to be rebuilt every time we make a change to the `Files-Excluded` or when working on a new upstream Rust version. If no such changes are made, the orig tarball can instead be downloaded from Launchpad; it is listed as a file ending in `.orig.tar.xz` under the {guilabel}`Package files` for the package, either in the Ubuntu Archive or in the PPA to which it was uploaded (e.g. the ["Rust Toolchain" Staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/+packages)).
 
 To rebuild the orig tarball, run `uscan` while saving its log somewhere:
 

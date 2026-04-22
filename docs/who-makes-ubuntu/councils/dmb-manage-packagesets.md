@@ -43,9 +43,10 @@ flowchart TD
 
 For easy viewing, there are text files representing the current
 state of the packagesets. That includes the name of the sets, their
-description, the list of packages included as well as the developers allowed
-to upload to it. These files can be found at
-[~ubuntu-archive/packagesets](https://ubuntu-archive-team.ubuntu.com/packagesets/).
+description, the list of [packages included in a set](https://static-reports.ubuntu.com/packagesets/)
+as well as the [individual developers](https://static-reports.ubuntu.com/archive-permissions/individuals)
+and [teams](https://static-reports.ubuntu.com/archive-permissions/teams)
+allowed to upload to it.
 
 Consider creating a packageset once we have:
 
@@ -82,7 +83,7 @@ like Personal packagesets and OEM metapackage packagesets.
   defies the purpose (See below about details on these cases).
   * These packagesets used to be fully generated based on
     [this code](https://code.launchpad.net/~developer-membership-board/+git/packageset)
-    and the logic tries to detect how sources are shared between flavours to
+    and the logic tries to detect how sources are shared between flavors to
     remove those. But that has proven to cause too many exceptions.
     Therefore they have - for now - become defined by the seeds, but modified
     manually on request.
@@ -101,7 +102,7 @@ like Personal packagesets and OEM metapackage packagesets.
       Examples of that would be: `grub2`, `systemd`, or `cloud-init`.
     * Consider to remove a package from a set if it is also claimed by other
       seeds or common use case. In that case it often, but not always, is only
-      updated by Ubuntu core-developers.
+      updated by Ubuntu Core Developers.
       Examples of that would be: `vim`, `dhcpcd` or `tzdata`
     * Consider to add a package to a set if it is not in the seeds, but such a
       common use case for the packageset that the same set of people that care
@@ -161,7 +162,7 @@ This is the more common task compared to {ref}`creating a set <dmb-create-packag
   * If not already a member, add the applicant to either
    [`~ubuntu-dev`](https://launchpad.net/~ubuntu-dev/+members) or
    [`~ubuntu-uploaders`](https://launchpad.net/~ubuntu-uploaders/+members).
-   See {ref}`dmb-teams-to-add-uploaders-to`.
+   See {ref}`dmb-teams-to-also-add-uploaders-to`.
 
 ### How to modify a new packageset list of covered packages
 

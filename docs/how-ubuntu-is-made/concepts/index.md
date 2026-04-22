@@ -29,13 +29,13 @@ Detailed description of the workings of the Ubuntu package archive, as well as p
 
 package-archive
 package-format
-package-lifecycle
 version-strings
 patches
 phased-updates
 deb-3-patch-file-headers
 debian-policy
 debian-directory
+debian-maintainer
 ```
 
 ## System design

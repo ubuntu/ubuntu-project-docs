@@ -1,2 +1,0 @@
-(package-lifecycle)=
-# Package lifecycle

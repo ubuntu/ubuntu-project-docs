@@ -31,22 +31,26 @@ In certain cases of spam waves, it might be beneficial to kick and ban as well a
 
 Redact last 100 messages in a specific room
 : Command syntax:
+
   ```none
   !mjolnir redact <user ID> [room alias/ID] [limit] 
   ```
 
 : Example:
+
   ```
   !mjolnir redact @user:ubuntu.com #room:ubuntu.com 100
   ```
 
 Redact last 100 messages globally
 : Command syntax:
+
   ```none
   !mjolnir redact <user ID> [limit] 
   ```
 
 : Example:
+
   ```none
   !mjolnir redact @user:ubuntu.com 100
   ```
@@ -73,11 +77,13 @@ Kick using moderation reports
 
 Manually kick user from specific room
 : Command syntax:
+
   ```none
   !mjolnir kick <glob> [room alias/ID] [reason]
   ```
 
 : Example:
+
   ```none
   !mjolnir kick @user:ubuntu.com #room:ubuntu.com [spam]
   ```
@@ -85,11 +91,13 @@ Manually kick user from specific room
 
 Manually kick a user from all protected rooms
 : Command syntax:
+
   ```none
   !mjolnir kick <glob> [reason]
   ```
 
 : Example:
+
   ```none
   !mjolnir kick @user:ubuntu.com spam
   ```
@@ -108,11 +116,13 @@ Ban using moderation reports
 
 Manually ban user for Code of Conduct violations
 : Command syntax:
+
   ```none
   !mjolnir ban <list shortcode> <user|room|server> <glob> [reason]
   ```
 
 : Example:
+
   ```none
   !mjolnir ban coc user @user:ubuntu.com inappropriate and aggressive behavior
   ```
@@ -120,11 +130,13 @@ Manually ban user for Code of Conduct violations
 
 Manually ban user for spam
 : Command syntax:
+
   ```none
   !mjolnir ban <list shortcode> <user|room|server> <glob> [reason]
   ```
 
 : Example:
+
   ```none
   !mjolnir ban spam user @user:ubuntu.com spamming inappropriate messages
   ```

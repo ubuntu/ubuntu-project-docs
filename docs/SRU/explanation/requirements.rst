@@ -1,3 +1,5 @@
+.. _explanation-sru-requirements:
+
 Requirements
 ------------
 
@@ -57,20 +59,19 @@ far as to overrule our own release policies.
 Even the simplest of changes can cause unexpected regressions due to
 lurking problems:
 
--  In bug `81125 <https://bugs.launchpad.net/bugs/81125>`__, the upgrade
+-  In :lpbug:`81125`, the upgrade
    regression had nothing to do with the content of the change that
    triggered it: any user who had installed the ``libpthread20`` package
    would encounter a problem the next time ``libc6`` was upgraded.
--  In bug `309674 <https://bugs.launchpad.net/bugs/309674>`__, the
+-  In :lpbug:`309674`, the
    failure was a misbuild due to timestamp skew in the build process.
    The underlying problem existed in the source package in the original
    release, but would only manifest in a small percentage of builds.
--  In bug `559822 <https://bugs.launchpad.net/bugs/559822>`__, a C++
+-  In :lpbug:`559822`, a C++
    library (``wxwidgets2.8``) was uploaded with no code changes. Due to an
    underlying toolchain change/bug, this caused an ABI change, causing a
-   lot of unrelated packages to break (see bug
-   `610975 <https://bugs.launchpad.net/bugs/610975>`__)
--  In bug `2055718 <https://bugs.launchpad.net/bugs/2055718>`__,
+   lot of unrelated packages to break (see :lpbug:`610975`)
+-  In :lpbug:`2055718`,
    updating the package is the trigger for the bug, because the package
    update reconfigures ``tzdata``.
 
