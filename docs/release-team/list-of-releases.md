@@ -11,6 +11,7 @@ feature-based one), approximately every 6 months.
 
 | Version | Code name | Docs | Release | End of Standard Support | End of Life |
 | :---- | :---- | :---- | :---- | :---- | :---- |
+| Ubuntu 26.04 | Resolute Raccoon | [Release Notes](https://documentation.ubuntu.com/release-notes/26.04/) | April 23, 2026 | July 2031 | |
 | Ubuntu 25.10 | Questing Quokka | [Release Notes](https://discourse.ubuntu.com/t/questing-quokka-release-notes/59220) | [October 9, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-October/000317.html) | July 2026 | July 2026 |
 | Ubuntu 24.04.4 LTS | Noble Numbat | [Release Notes](https://discourse.ubuntu.com/t/noble-numbat-point-release-changes/47565/5) | [February 12, 2026](https://lists.ubuntu.com/archives/ubuntu-announce/2026-February/000321.html) | June 2029 | April 2039 |
 | Ubuntu 24.04.3 LTS | Noble Numbat | [Release Notes](https://discourse.ubuntu.com/t/noble-numbat-point-release-changes/47565/4) | [August 7, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-August/000315.html) | June 2029 | April 2039 |
@@ -58,7 +59,6 @@ feature-based one), approximately every 6 months.
 
 | Version | Code name | Schedule | Docs | Release | End of Standard Support |
 | :---- | :---- | :---- | :---- | :---- | :---- |
-| Ubuntu 26.04 LTS | Resolute Raccoon | [Release Schedule](https://documentation.ubuntu.com/release-notes/26.04/schedule/) | [Release Notes](https://documentation.ubuntu.com/release-notes/26.04/) | April 23, 2026 | July 2031 |
 
 
 ## Expanded Security Maintenance
