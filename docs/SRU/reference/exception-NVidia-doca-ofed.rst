@@ -1,24 +1,25 @@
-.. _reference-exception-NVidiaDocaOfed:
+.. _reference-exception-NVIDIADocaOfed:
 
-Nvidia DOCA-OFED Driver Updates
+NVIDIA DOCA-OFED Driver Updates
 ===============================
 
 Introduction
 ------------
 
 This document describes the policy, process and criteria for updating
-nVidia proprietary DPU drivers (DOCA-OFED) in a stable supported distro,
+NVIDIA proprietary DPU drivers (DOCA-OFED) in a stable supported distro,
 including LTS.
 
-nVidia DOCA-OFED drivers are used in conjunction with nVidia Bluefield cards,
+NVIDIA DOCA-OFED drivers are used in conjunction with NVIDIA Bluefield cards,
 DGX and IGX platforms and Connect-X cards. These platforms are used in a variety
 of scenarios, included data-centers, AI/ML ...
 
-Support for new platforms, bug fixes and general improvements are released
-regularly by the vendor; there are 4 expected releases during the year
-(YY.01, YY.04, YY.07, YY.10) plus possible bug-fixes.
+Support for new netorking hardware, platforms, bug fixes and general
+improvements are released regularly by the vendor; there are 4 major
+releases during the year (YY.01, YY.04, YY.07, YY.10) plus possible
+bug-fixes.
 
-The other 3 releases are ad-interim releases and are considered short-lived.
+Each major release can have minor releases.
 
 For an improved experience and support new features/hardware without installing
 drivers from an unofficial or an external source (PPAs/FTP...), it is
@@ -36,11 +37,11 @@ of release (i.e. YY = 26):
 
 - **Long term support releases**: The YY.10 version is the sole LTS release of
   the year, providing three years of full NVIDIA support.
-  This release is designed exclusively for the current Ubuntu version and will
-  not be backported or forward-ported to other Ubuntu releases.
+  This release is designed exclusively for current upstream kernels and will
+  receive kernel compatibility updates for a year only.
 
 - **Short lived releases**: YY.01, YY.04, YY.07 are released in their respective
-  months by nVidia, and are considered ad-interim releases, to be substituted
+  months by NVIDIA, and are considered ad-interim releases, to be substituted
   with the newer one and finish their path into the LTS release.
 
 Each YY.mm release will have a separate .deb package to make easier to track
@@ -61,7 +62,7 @@ If a user has a LTS release installed, the versioning will make the user update
 DOCA-OFED Release Schedule
 --------------------------
 
-- New version of the driver released by nVidia
+- New version of the driver released by NVIDIA
 - Packaging in Canonical git repository
 - Internal release in personal PPA
 - QA (smoke test, installs, operational tests, upgrade path test)
@@ -77,7 +78,7 @@ Re-Packaging artifacts
 
 The Canonical repackage of the DOCA-OFED DKMS set, generates a single .deb
 package, called `doca-ofed-<version>-dkms.deb` containing source code for the
-following set of nVidia DKMS kernel packages:
+following set of NVIDIA DKMS kernel packages:
 
 - iser
 - isert
@@ -87,7 +88,7 @@ following set of nVidia DKMS kernel packages:
 - mlnx-ofed-kernel
 - srp
 
-The nVidia build system is dynamic and, depending on the kernel version and
+The NVIDIA build system is dynamic and, depending on the kernel version and
 configuration, can decide to build or not build a specific .ko file.
 This can happen because a .ko module might already be in-tree and doesnt't need
 to be substituted. As an example, fwctl.ko is generated when building the
@@ -125,19 +126,19 @@ QA tests
 
 The QA test consists of running the mentioned
 `linux-modules-doca-ofed-<version>-<kernel_flavour>.deb` package in an IGX and
-a DGX machine, containing an nVidia ConnectX card.
+a DGX machine, containing an NVIDIA ConnectX card.
 
 The test confirms that:
 
 - The kernel modules can be correctly loaded
 - Using ibstatus all the Infiniband interfaces are available
 - Using ib_write tests a loopback Infiniband fully works
-- Start the nVidia fabric manager and confirm it correctly boots
+- Start the NVIDIA fabric manager and confirm it correctly boots
 
 
 .. _nvidia_sru_template:
 
-NVidia SRU Template
+NVIDIA SRU Template
 -------------------
 
 ::
@@ -153,29 +154,29 @@ NVidia SRU Template
 
    [Test Case]
    The following development and SRU process was followed:
-   https://documentation.ubuntu.com/sru/en/latest/reference/exception-NVidia-doca-ofed/
+   https://documentation.ubuntu.com/sru/en/latest/reference/exception-NVIDIA-doca-ofed/
 
    <TODO Document any QA done, automated and manual>
 
-   The QA team that executed the tests will be in charge of attaching the artifacts and console output of the appropriate run to the bug. nVidia maintainers team members will not mark ‘verification-done’ until this has happened.
+   The QA team that executed the tests will be in charge of attaching the artifacts and console output of the appropriate run to the bug. NVIDIA maintainers team members will not mark ‘verification-done’ until this has happened.
 
    [Regression Potential]
    In order to mitigate the regression potential, the results of the
    aforementioned system level tests are attached to this bug.
 
-   <TODO: attach nvidia-proposed test artifacts for every SRU release, not a link as links expire>
+   <TODO: attach NVIDIA-proposed test artifacts for every SRU release, not a link as links expire>
 
 
    [Discussion]
    <TODO: other background>
 
 
-   <TODO: Paste in change log entry from nVidia for this version of the driver>
+   <TODO: Paste in change log entry from NVIDIA for this version of the driver>
 
 References
 ----------
 
--  `nVidia DOCA-OFED official download page <https://developer.nvidia.com/doca-downloads>`__
--  `nVidia DOCA-OFED official documentation <https://docs.nvidia.com/doca/sdk/index.html>`__
--  `nVidia DOCA-OFED release notes <https://docs.nvidia.com/doca/sdk/doca-release-notes/index.html>`__
+-  `NVIDIA DOCA-OFED official download page <https://developer.nvidia.com/doca-downloads>`__
+-  `NVIDIA DOCA-OFED official documentation <https://docs.nvidia.com/doca/sdk/index.html>`__
+-  `NVIDIA DOCA-OFED release notes <https://docs.nvidia.com/doca/sdk/doca-release-notes/index.html>`__
 -  `Repackaged test PPA <https://launchpad.net/~alessiofaina/+archive/ubuntu/mofed-autoupload-test>`__
