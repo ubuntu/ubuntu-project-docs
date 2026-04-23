@@ -1,3 +1,4 @@
+(debugging-apport)=
 # Apport
 
 (what-is-this-all-about)=
