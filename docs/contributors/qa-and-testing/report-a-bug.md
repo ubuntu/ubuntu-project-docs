@@ -17,9 +17,9 @@ If you're sure you've found a bug, and are interested in learning proper bug rep
 (how-to-report-bugs)=
 ## How to report bugs
 
-Ubuntu uses {ref}`Launchpad <about-launchpad>` to keep track of bugs and their fixes. This page will guide you through the steps required to file a good and detailed report.
+Ubuntu uses {ref}`Launchpad <about-launchpad>` to keep track of bugs and their fixes.
 
-When possible, this will involve running a command `ubuntu-bug` alias `apport-bug` alias `apport-collect` Note that this only applies to traditional .deb packages.
+This involves running a command `ubuntu-bug` (aliases `apport-bug` and `apport-collect`). Note, this only applies to traditional .deb packages.
 
 ```none
 ubuntu-bug buggy-package-name
@@ -58,7 +58,7 @@ You should **not** file a bug if you are:
 ## Perform a survey of your problem
 
 First, check the [release notes](https://documentation.ubuntu.com/release-notes/) of your supported version of Ubuntu for any known issues.
-Second, check [Launchpad](https://bugs.launchpad.net/) for any duplicates, and make note of this.
+Second, check [Launchpad](https://bugs.launchpad.net/) for any duplicate bugs or issues, and make note of this.
 
 ```{note}
 If you want to file a translation or misspelling bug, follow the instructions [here](#translation).
@@ -68,7 +68,7 @@ If you want to file a translation or misspelling bug, follow the instructions [h
 (reporting-a-crash)=
 ## Reporting a crash
 
-If an application crashes, what typically happens is [Apport](../debugging/apport) will display a window noting it is collecting information about the crash:
+If an application crashes, what typically happens is {ref}`debugging-apport` will display a window noting it is collecting information about the crash:
 ![Screenshot of apport](apport-1.png)
 
 Once done, it will ask you if you would like to report it.
@@ -204,7 +204,7 @@ Then type `ubuntu-bug ` followed by the process ID into the “Run Command” sc
 (filing-a-general-bug-against-no-particular-package)=
 ## Filing a general bug against no particular package
 
-First, please review potential package candidates [here](../bug-triage/assign-a-bug-to-a-package). Only after reviewing this, if are still not sure which package is affected by the bug, type `ubuntu-bug` in the “Run Command” screen and press Enter. This will guide you through a series of questions to gather more information about the bug and help you assign it to the appropriate package.
+First, please {ref}`review potential package candidates <how-to-assign-a-bug-to-a-package>`. Only after reviewing this, if you are still not sure which package is affected by the bug, type `ubuntu-bug` in the “Run Command” screen and press Enter. This will guide you through a series of questions to gather more information about the bug and help you assign it to the appropriate package.
 
 
 (complete-the-bug-report-filing-process)=
@@ -244,7 +244,7 @@ At then bottom of the page, there are some extra options you can use to make you
 
 * **Tags:** You can {ref}`add here tags <bug-tags>` that pertain to your bug report. The predefined values should be left alone.
 
-* **Include an attachment:** Using this option, you can add supporting attachments to explain or help others reproduce the bug. This might include a screenshot, a video capture of the problem or a sample document that triggers the fault. If necessary, additional attachments can be added after the bug is reported via **Add a comment/attachment** at the bottom of the page. Please check [Debug an apport crash](../debugging/debug-an-apport-crash) for any further information to provide. It is vital for developers to get this information, as it contains the minimum requirement information necessary for a developer to begin working on your bug.
+* **Include an attachment:** Using this option, you can add supporting attachments to explain or help others reproduce the bug. This might include a screenshot, a video capture of the problem or a sample document that triggers the fault. If necessary, additional attachments can be added after the bug is reported via **Add a comment/attachment** at the bottom of the page. Please check {ref}`how-to-debug-an-apport-crash` for any further information to provide. It is vital for developers to get this information, as it contains the minimum information necessary for a developer to begin working on your bug.
 
 * Please note that if one files a bug against the [linux](https://launchpad.net/ubuntu/+source/linux) kernel package, you do not need to add as an attachment the terminal command:
 
@@ -295,7 +295,7 @@ Please do not attach the `.apport` or `.crash` file to the report, as this is no
 
 Before you proceed, you should think about the nature of the problem you're facing. If Ubuntu or its software seems to simply be generally "misbehaving", it might not be a software bug, but it is still a problem we want to help fix. We have an entire community of people who can help you in real time on our  {ref}`Matrix channels and Discourse forums <community-support>`. On the other hand, if you are absolutely sure that you've encountered a legitimate error in the software's behavior (especially one that can be reproduced regularly), and you're sure you don't need any help, then continue with the bug reporting process.
 
-If for some reason you cannot file a bug using the *Apport* tool you can file one via [Launchpad's own bug report form](https://bugs.launchpad.net/ubuntu/+filebug/+login?no-redirect). When doing so it is best if you have determined which package it should be filed against. Read '[finding the right package](../bug-triage/assign-a-bug-to-a-package)' for guidance or use [Launchpad's package search feature](https://launchpad.net/ubuntu/). We don't recommend this method for most bug reports because they will likely be missing crucial information, use `ubuntu-bug` if you can!
+If for some reason you cannot file a bug using the *Apport* tool you can file one via [Launchpad's own bug report form](https://bugs.launchpad.net/ubuntu/+filebug/+login?no-redirect). When doing so it is best if you have determined which package it should be filed against. Read {ref}`how-to-assign-a-bug-to-a-package` for guidance or use [Launchpad's package search feature](https://launchpad.net/ubuntu/). We don't recommend this method for most bug reports because they will likely be missing crucial information, use `ubuntu-bug` if you can!
 
 To file a bug against a specific package you can also use a URL like the following:
 
@@ -379,12 +379,12 @@ Following bug reporting etiquette best presents your Launchpad report so that it
 ### All bug reports
 
 * **Please do not file bug reports about End-of-Life operating systems.**
-   This includes release of Ubuntu, and alternative operating systems. Expecting Ubuntu to provide interoperability with an insecure, end-of-life operating system is simply irresponsible, and inconsiderate of the finite resources of the Ubuntu Community. See information regarding [supported Ubuntu releases](https://documentation.ubuntu.com/project/release-team/list-of-releases/). Please see the website of the vendor of the operating system for EOL and support information.
+   This includes release of Ubuntu, and alternative operating systems. Expecting Ubuntu to provide interoperability with an insecure, end-of-life operating system is simply irresponsible, and inconsiderate of the finite resources of the Ubuntu Community. See information regarding {ref}`list-of-releases`. Please see the website of the vendor of the operating system for EOL and support information.
 
 * **Please do not speculate on what you think is or isn't a duplicate report**
    The exception to this is you are a developer, know specifically where in the code the problem is, and would be submitting a patch to fix the issue. However, noting things like, "I checked Google and found bug report number...", "Why should I file a new report when this is a duplicate?" is largely unhelpful as it tends not to be a duplicate, and already has been or easily done by triagers and developers. Instead, if you are the original reporter, ensuring the report has all the requested testing information performed would be the fastest way to ensure your bug is resolved as soon as possible. If you are not the original reporter, it's best to file a new report, so that necessary debugging attachments are reviewed. It is a common misconception that filing what one initially believes to be a potential duplicate report is not helpful. Filing a new report is quite helpful, and is preferred to ease triaging and development.
 
-* **Please do not quote Wikipedia and other non-primary resource information as fact on Launchpad.**.
+* **Please do not quote Wikipedia and other non-primary resource information as fact on Launchpad.**
 
 * **Please do not complain because someone sent what one perceives to be a automated or "canned" response**.
    If the response is asking you to do something that you haven't done (ex. test the latest development release, file a new report, etc.) do it, as it would get you closer to having your bug fixed faster. Complaining about this is inconsiderate of the Ubuntu triagers and developers who are saving time in comparison to hand typing every single character in an e-mail that goes out their inbox.
@@ -406,7 +406,7 @@ Following bug reporting etiquette best presents your Launchpad report so that it
 * **Please keep the bug report as objective as possible.**
    It is desired for you to provide a fact based, technical impact statement on you, your environment, and the potential or actual impact on the community at large.
 
-* **Please provide all relevant information from [Debug an apport crash](../debugging/debug-an-apport-crash) when you first report your bug**.
+* **Please provide all relevant information from {ref}`how-to-debug-an-apport-crash` when you first report your bug**.
    This is one of the top reasons why bugs do not get marked {ref}`Triaged <bug-status>`, as the minimum requirements for triaging, and dealing with the problem by a developer are not provided.
 
 * **Please avoid arguing with triagers and developers.**
