@@ -43,7 +43,7 @@ To maintain the package in Debian yourself:
 1. **File an ITP** (Intent To Package)
 2. Find a sponsor to review and upload your package
 3. Learn to use [pbuilder](https://wiki.debian.org/PbuilderHowto) to build against Debian unstable
-4. Use the [#debian-mentors](irc://irc.oftc.net/debian-mentors) IRC channel for help
+4. Use the [#debian-mentors](<irc://irc.oftc.net/debian-mentors>) IRC channel for help
 
 See the [Debian WNPP page](https://www.debian.org/devel/wnpp/) for the process.
 
