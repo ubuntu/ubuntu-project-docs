@@ -70,15 +70,26 @@ bug-fix/index
 ```
 
 
-## Patching
+## Updating
 
 Specific pages on working with Debian patches.
 
 ```{toctree}
 :maxdepth: 1
 
-patching/index
+updating/index
 ```
+
+
+## Building
+
+```{toctree}
+:maxdepth: 1
+
+/contributors/building/index
+```
+
+
 
 
 ## Merging

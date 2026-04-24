@@ -15,7 +15,7 @@ In Ubuntu there is a special {term}`pocket` called `-proposed` for testing and i
 In the following cases, packages are not automatically released to Ubuntu users, and instead go into the `-proposed` pocket:
 
 * New packages not already present in any Ubuntu release that have been automatically imported from Debian
-* Uploads of {ref}`fixed <how-to-fix-a-bug-in-a-package>` packages.
+* Uploads of {ref}`fixed <fixing-bugs>` packages.
 * Uploads of {ref}`merged <merges>` packages. 
 
 Once a package is deemed OK, it **migrates** into the `-release` pocket for users to consume. This is called the "proposed migration" process.

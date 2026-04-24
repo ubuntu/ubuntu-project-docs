@@ -25,7 +25,7 @@ In terms of the {ref}`uploaders-journey`, MOTU are {ref}`experts <upload-path-ex
 Most people applying for Core Dev membership will have a history of involvement in Ubuntu, working their way up from {ref}`packageset <dmb-joining-packageset>` and/or {ref}`MOTU <dmb-joining-MOTU>` membership.
 If you're skipping over those levels it is nevertheless worth reviewing their training and application processes to make sure you'll be fulfilling their requirements.
 
-In addition to understanding common tasks documented in this guide, including {ref}`Debian patching <how-to-work-with-debian-patches>`, {ref}`Stable Release Updates (SRUs) <how-to-fix-a-bug-in-a-package>`, and so on, Core Dev applicants must also have a good understanding of these advanced packaging skills, and ideally direct experience with a few of them:
+In addition to understanding common tasks documented in this guide, including {ref}`Debian patching <how-to-work-with-debian-patches>`, {ref}`Stable Release Updates (SRUs) <stable-release-updates>`, and so on, Core Dev applicants must also have a good understanding of these advanced packaging skills, and ideally direct experience with a few of them:
 
 * {ref}`Package sponsorship <sponsorship>`
 * {ref}`Seed handling <seed-management>`

@@ -33,7 +33,7 @@ In terms of the {ref}`uploaders-journey`, you should work your way through the s
 
 Ideally, you should have a solid mastery of the basic packaging skills for Debian/Ubuntu distributions, including the following:
 
-* {ref}`Fixing bugs in packages <how-to-fix-a-bug-in-a-package>`
+* {ref}`Fixing bugs in packages <fixing-bugs>`
 * Building binary packages from source, using `sbuild` or `debuild` in a
   `chroot` or `lxc` environment
 * Creating the initial packaging for new software
