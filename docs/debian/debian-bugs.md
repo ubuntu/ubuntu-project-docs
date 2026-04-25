@@ -1,59 +1,62 @@
 (debian-bugs)=
 # Reporting bugs in Debian
 
-Learn how to report bugs in the Debian Bugtracking System (BTS) from an Ubuntu system.
+Debian maintainers use **debbugs**, an email-driven system that requires no authentication. This allows anyone to report bugs—from minor glitches to critical issues—from any system.
 
-## Using reportbug
+The canonical documentation is available at the [Debian Bug Reporting page](https://www.debian.org/Bugs/Reporting).
 
-The **`reportbug`** command line utility is installed on Ubuntu. To report a bug to Debian:
+## Searching for Debian bugs
+Use `querybts` (included in the `reportbug` package) to search for existing reports from the command line:
 
 ```bash
-reportbug -B debian <package-name>
+querybts vim
 ```
+This command allows you to view full reports or filter results using patterns to find specific issues.
 
-Before using reportbug for the first time, configure it:
+---
 
+## Using `reportbug`
+Debian recommends the `reportbug` utility to handle the proper email formatting for `submit@bugs.debian.org`. 
+
+### Configuration on Ubuntu
+On Ubuntu systems, `reportbug` is configured by default to report to Ubuntu mailing lists. You can override this:
+* **One-time:** Use the `-B debian` flag: `reportbug -B debian <package_name>`
+* **Permanently:** Edit the `bts` line in `/etc/reportbug.conf`.
+* **SMTP:** If `smtphost` is set to an internal Ubuntu relay, you may need to change it to a public relay host.
+
+Run `reportbug --configure` to set up your `~/.reportbugrc` before first use.
+
+---
+
+## Forwarding patches with `submittodebian`
+Part of the `ubuntu-dev-tools` package, `submittodebian` is the preferred way to forward patches upstream. It handles **Debian Usertagging** and opens an editor for final patch cleanup.
+
+**Example Workflow:**
 ```bash
-reportbug --configure
-```
-
-This creates a `~/.reportbugrc` file with your settings.
-
-## Using submittodebian
-
-The **`submittodebian`** tool (from `ubuntu-dev-tools` package) is a convenient way to forward patches to Debian. It:
-
-- Adds appropriate usertags for tracking
-- Opens your editor to refine the patch
-- Calls reportbug internally
-
-Example workflow:
-
-```bash
-apt-get source <package>
-cd <package>-<version>
-# make your changes
-dch -i 'description of change'
+apt-get source xicc
+cd xicc-0.2/
+# Perform your changes
+dch -i 'debian/control: replaced "colour" with "color".'
 debuild -S
 submittodebian
 ```
+*Note: You must build the source package (`debuild -S`) before running `submittodebian`.*
 
-## When to report bugs in Debian
+---
 
-Consider reporting bugs to Debian when:
+## When to report to Debian
+Since most packages in the Ubuntu `universe` are synced from Debian, fixing bugs there prevents unnecessary divergence and helps the **MOTU** (Masters of the Universe) team.
 
-- The bug exists in both Ubuntu and Debian
-- You have an improvement suggestion (file as wishlist)
-- You have a patch that Debian should also have
+* **Verify:** Ensure the bug applies to Debian and isn't caused by {term}`Ubuntu delta`.
+* **Wishlist:** File suggestions as `wishlist` bugs.
+* **Patches:** Use `submittodebian` or attach a `debdiff` to a `reportbug` report tagged with **patch**. 
+
+### Mass Bug Filing
+For issues affecting 10 or more packages, follow the [Debian Developers Reference](https://www.debian.org/doc/developers-reference/beyond-pkging.html#submit-many-bugs).
+
+---
 
 ## After reporting
-
-Once the bug is filed in Debian:
-
-- Link the Debian bug to the Ubuntu/Launchpad bug using "Also affects distribution"
-- Set up a bug watch to track the Debian bug status
-
-## See also
-
-- [Debian BTS documentation](https://www.debian.org/Bugs/Reporting)
-- [Debian BTS usertagging](https://wiki.ubuntu.com/Debian/Usertagging)
+Link the Debian report to the corresponding Launchpad/Ubuntu bug:
+1. Select **"Also affects distribution"** in the Ubuntu bug report.
+2. Enter the Debian bug number in the Launchpad bug report to link the Debian fix automatically.
