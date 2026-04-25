@@ -1,64 +1,65 @@
 (for-ubuntu-developers)=
 # For Ubuntu developers
 
-[Ubuntu](https://www.ubuntu.com) is based on [Debian](https://www.debian.org/). This page covers how Ubuntu developers can contribute to Debian.
+> "Ubuntu benefits from a strong Debian, and Debian benefits from a strong Ubuntu." — *Mark Shuttleworth*
+>
+> "Every Debian developer is also an Ubuntu developer, because one way to contribute to Ubuntu is to contribute to Debian." — *Mark Shuttleworth*
+>
+> "We incorporate Debian changes regularly, because that introduces the latest work, the latest upstream code, and the newest packaging efforts from a huge and competent open source community. Without Debian, Ubuntu would not be possible." — *Mark Shuttleworth*
 
-## Why contribute to Debian?
+This page is for Ubuntu developers who are thinking about contributing to Debian. It gives the current "best practice" with regard to collaboration with another distribution. This is not a requirement, but it can make everybody's life much easier to keep other distributions and upstream on the same page.
 
-- Ubuntu regularly incorporates changes from Debian — packages newer in Debian are merged or synced in Ubuntu
-- Contributing to Debian reduces Ubuntu-specific changes, meaning less work to maintain
-- Debian has more volunteers and specialized mentorship available
-- Your package reaches more users through Debian
+## Why should I care about Debian?
+* Ubuntu is [Debian-based](https://ubuntu.com/community/docs/governance/debian).
+* Debian supports more [hardware architectures](https://www.debian.org/ports/), so if you want to run something like Ubuntu in your (not so) new mips machine it will be really useful.
+* Debian project has more volunteers than Ubuntu. Ubuntu community as a whole can benefit from it.
+* Debian project is heavily committed to free software; its [free software guidelines](https://en.wikipedia.org/wiki/Debian_Free_Software_Guidelines) and [legal mailing list](https://lists.debian.org/debian-legal/) are well recognized by the community.
 
-## Debian releases
+## What's stable, testing, unstable?
+The **“stable”** distribution contains the latest officially released distribution of Debian. The **“testing”** distribution contains packages that haven't been accepted into a “stable” release yet. The **“unstable”** (codenamed **sid**) distribution is where active development occurs.
 
-Debian has three main releases:
+Information about Debian releases, like [how "testing" becomes "stable"](https://www.debian.org/doc/manuals/debian-faq/ftparchives.en.html#frozen) and [release codenames](https://www.debian.org/doc/manuals/debian-faq/ftparchives.en.html#codenames), can be found at: [**Debian Releases**](https://www.debian.org/releases/).
 
-- **stable** — The latest officially released distribution
-- **testing** — Packages that haven't been accepted into stable yet
-- **unstable** (sid) — Where active development occurs
+## I'm a Ubuntu user and I want to install Debian
+The Debian project develops **d-i**, the Debian installer. It is used by both Debian and Ubuntu. If you feel comfortable installing Ubuntu, you will have a similar experience with Debian.
 
-See [Debian Releases](https://www.debian.org/releases/) for more information.
+Note that Ubuntu (by default) installs GNOME. Debian will ask you which sets of packages you want to install. You can read the [Debian Stable Release Installation Guide](https://www.debian.org/releases/stable/installmanual) for more details.
+
+## Why contribute to another distribution?
+Ubuntu regularly takes updates from Debian. Packages that are newer in Debian are merged or synced in Ubuntu. It would be impossible to manage universe without Debian, as Ubuntu has far less manpower.
+
+Contributing to Debian makes everyone's life simpler because Ubuntu syncs its packages from there. Fewer Ubuntu-specific changes mean less work in the long run.
 
 ## Forwarding bug reports
+When you find or fix a bug in Ubuntu, check if it applies to Debian. If so, report it in the [Debian Bug Tracking System](https://bugs.debian.org/).
+* Always mention you are running Ubuntu.
+* Only forward bugs you have verified apply to Debian.
+* Be careful with severity levels.
 
-When you find or fix a bug in Ubuntu, check if it applies to Debian too. If so, report it in the [Debian Bugtracking System](https://bugs.debian.org/).
+## Getting new software in Debian
+### Why would I get my work in Debian?
+* **Reviewer time:** Getting packages through Debian provides more specialized mentorship.
+* **Visibility:** Your package reaches a massive user base and gets better bug reports.
+* **Avoid duplication:** Prevents a Debian developer from packaging the same software differently.
 
-Tips:
+### How do I do it?
+Refer to [Getting help with Debian and Ubuntu collaboration](https://wiki.debian.org/DerivativesFrontDesk).
 
-- Always mention you are running Ubuntu, not Debian
-- If unsure whether Debian is affected, don't file the bug — ask a Debian user to reproduce it first
-- Read [How to Report Bugs Effectively](https://www.chiark.greenend.org.uk/~sgtatham/bugs.html)
+#### Required packaging changes
+* **debian/changelog:** The version should end in `-1` (the Debian revision). Target `unstable` instead of an Ubuntu release.
+* **debian/control:** Update the `Maintainer` field with your info. Remove `XSBC-Original-Maintainer`.
+* **Section:** Remove Ubuntu-specific prefixes (e.g., change `universe/sound` to `sound`).
 
-## Getting new software into Debian
+#### Notifying Debian
+If you just want to notify Debian, **file an RFP** (Request For Package). Mention your Ubuntu package and provide a link to the source.
 
-### Option 1: File an RFP
+#### Maintain the package yourself
+If you want to maintain it in Debian:
+1. **File an ITP** (Intent To Package).
+2. **Find a sponsor** (Reviewer) via `#debian-mentors` on OFTC or the [Mentoring FAQ](https://wiki.debian.org/DebianMentorsFaq).
+3. **Use pbuilder** to build against Debian unstable.
 
-File an **RFP** (Request For Package) to notify Debian your package exists. A Debian developer may adopt it and upload it to Debian. It will then return to Ubuntu through normal merges.
-
-### Option 2: Maintain it yourself
-
-To maintain the package in Debian yourself:
-
-1. **File an ITP** (Intent To Package)
-2. Find a sponsor to review and upload your package
-3. Learn to use [pbuilder](https://wiki.debian.org/PbuilderHowto) to build against Debian unstable
-4. Use the [#debian-mentors](<irc://irc.oftc.net/debian-mentors>) IRC channel for help
-
-See the [Debian WNPP page](https://www.debian.org/devel/wnpp/) for the process.
-
-### Required packaging changes
-
-When preparing a package for Debian:
-
-- **debian/changelog**: Remove `-0ubuntu1` from version; use `-1` instead
-- **debian/control**: 
-  - Set yourself as Maintainer (unless a team maintains it)
-  - Remove `XSBC-Original-Maintainer` field
-  - Remove Ubuntu component from Section (e.g., `sound` not `universe/sound`)
-
-## See also
-
-- [About Debian](https://www.debian.org/intro/about)
-- [Debian Social Contract](https://www.debian.org/social_contract)
-- [To Fork or Not To Fork: Lessons From Ubuntu and Debian](https://mako.cc/writing/to_fork_or_not_to_fork.html)
+## See Also
+* [About Debian](https://www.debian.org/intro/about)
+* [Debian Social Contract](https://www.debian.org/social_contract)
+* [A Brief History of Debian](https://www.debian.org/doc/manuals/project-history)
