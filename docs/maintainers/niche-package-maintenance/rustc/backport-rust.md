@@ -62,6 +62,9 @@ Now we know _what_ we have to do, and the _order_ to do it in. To backport `rust
 
 By doing things this way, you'll discover that the most common problems pop up again and again, and you'll eventually already know how to fix most of them in advance.
 
+:::{admonition} What if no bootstrapping compiler is available?
+So far we have assumed that there is _some_ previous version of the Rust compiler available in the target Ubuntu release. However, the chain of bootstrapping compilers has to have some starting point. This also comes up if a new architecture is introduced to Ubuntu, where no previously packaged Rust toolchain would be able to run on the new architecture. A way to handle this is discussed below in {ref}`Using an upstream stage0 bootstrap toolchain <rust-stage0-bootstrap>`.
+:::
 
 ## Reference
 
@@ -946,3 +949,47 @@ Hopefully, the PPA builder will run out of space _past_ the point at which `stag
 	$(RM) -rf $(CURDIR)/build/$(DEB_BUILD_RUST_TYPE)/stage0-rustc
 	$(RM) -rf $(CURDIR)/build/$(DEB_BUILD_RUST_TYPE)/stage1-rustc
 ```
+
+(rust-stage0-bootstrap)=
+### Using an upstream stage0 bootstrap toolchain
+
+If no packaged version of the Rust toolchain is available to use for bootstrapping, it is possible to use the stage0 compiler provided by the upstream Rust project. These are pre-built binaries of the previous Rust release, which can be used to build the new Rust version from source. To identify a package built in this way, include `~stage0` in the version string just before the hyphen, for example `1.92.0+dfsg~24.04~stage0-0ubuntu1~24.04.3`. After creating an entry in `debian/changelog` with the appropriate version string, run the following command to generate the stage0 tarball:
+
+```none
+$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<...> debian/rules source_orig-stage0
+```
+
+This downloads binaries of the stage0 compiler for all Ubuntu-supported architectures and bundles them into a component tarball `rustc_<...>.orig-stage0.tar.xz`. A few more steps may be needed:
+
+1. Rename the stage0 tarball to follow the same filename format as the other orig tarballs, e.g. `rustc-1.92_1.92.0+dfsg~24.04~stage0.orig-stage0.tar.xz`. Otherwise, the packaging tools do not find it.
+1. Clean up any modified files, with the exception of the newly created `stage0` directory, which should be kept.
+1. In `debian/control`, remove the Build-Depends entries for `dh-cargo`, `cargo-<...>`, and `rustc-<...>`.
+1. Comment out this line in `debian/rules` which would otherwise cause the build to fail due to not finding the bootstrapping compiler in its ordinary location:
+    ```
+    $(error No suitable Rust toolchain found to bootstrap Rust $(RUST_VERSION))
+    ```
+1. Comment out this line in `debian/rules` which would otherwise cause the build to fail due to not finding `cargo`:
+    ```
+    CARGO_BIN="$(RUST_BOOTSTRAP_DIR)/bin/cargo" CARGO_VENDOR_DIR=$(CURDIR)/vendor debian/dh-cargo-vendored-sources
+    ```
+
+The stage0 tarball is rather large, which means that uploading to a PPA may take a while. After a successful PPA build, do the following:
+
+1. Delete the stage0 tarball (or move it elsewhere).
+1. Remove `~stage0` from the version string.
+1. Revert the changes to `debian/rules` and `debian/control`.
+1. Remove the `stage0` directory from the source tree.
+1. Configure a second PPA to use the first PPA for dependencies. Upload to a second PPA to build the package again using the previous build as a bootstrapping toolchain.
+
+In this way, the final version of the package does not need to include stage0 binaries inside the source package, which would not be permitted in an upload to the Ubuntu archive.
+
+:::{note}
+If stage0 bootstrapping is only needed for specific architectures, the stage0 tarball should be trimmed down to only include the binaries for those architectures. In this case, in the `debian/control` file, instead of removing the Build-Depends entries for `cargo-<...>` and `rustc-<...>`, add architecture restrictions to them so that the dependencies are only removed for the relevant architectures. For example, if stage0 bootstrapping is needed for rustc-1.92 only for `armhf` and `i386`, the Build-Depends entries would be modified as follows:
+
+```diff
+- cargo-1.91 | cargo-1.92 <!pkg.rustc.dlstage0>,
++ cargo-1.91 | cargo-1.92 [!armhf !i386] <!pkg.rustc.dlstage0>,
+- rustc-1.91 | rustc-1.92 <!pkg.rustc.dlstage0>,
++ rustc-1.91 | rustc-1.92 [!armhf !i386] <!pkg.rustc.dlstage0>,
+```
+:::
