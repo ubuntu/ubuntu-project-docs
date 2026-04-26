@@ -769,7 +769,7 @@ New major versions are generally synced from Debian, and so importing a new majo
 
 1. Import the tarball as described in {ref}`importing-a-new-llvm-minor-release`. Grab it from Launchpad rather than from Github to ensure we have a matching version to the original release, unlike what we do for minor releases.
 
-1. For a new version, you'll also need the component orig tarball for the [integration test suite](https://github.com/opencollab/llvm-toolchain-integration-test-suite). To get a tarball with the ideal directory structure, you can do the following:
+1. For a new version, you also need the component orig tarball for the [integration test suite](https://github.com/opencollab/llvm-toolchain-integration-test-suite). To get a tarball with the ideal directory structure, download it from GitHub:
 
     ```none
     VERSION=17.0.6
