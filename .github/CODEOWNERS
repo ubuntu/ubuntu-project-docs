@@ -14,7 +14,7 @@ MIR/ @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
 # - TAs not required for SRU content approvals
 SRU/
 # - SRU team owns all SRU docs anywhere in the repo
-SRU/ @basak @enr0n @tjaalton @panlinux @julian-klode @raof @awhitcroft
+SRU/ @basak @enr0n @tjaalton @panlinux @julian-klode @raof @awhitcroft @matthewruffell
 
 # Technical Board PR approvals
 # - TAs not required for Tech Board content approvals
