@@ -22,7 +22,7 @@ Here are just a few ways to you can contribute to our community.
 : As the developers' choice of operating systems, Ubuntu provides numerous avenues for creating new software. Developers can build universal and sandboxed Snap applications, pursue traditional Debian package development, or even create Juju Charms for container orchestration.
 : Do you want to create software that will be used around the world?
 
-{ref}`Ubuntu Development <how-to-contribute>`
+{ref}`Ubuntu Development <guides-for-contributors>`
 : Ubuntu, like other Linux distributions, relies on a vast collection of software packages created and supported by a global community of passionate developers. There are a number of ways that you can help support its ongoing development regardless of your current skill or knowledge level.
 : Are you ready to get help forge the future of Ubuntu?
 
