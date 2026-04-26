@@ -37,9 +37,7 @@ Building packages locally requires a few tools to be installed and configured. T
 Installing the necessary tools
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: none
-
-    $ sudo apt install devscripts dpkg-dev sbuild mmdebstrap uidmap piuparts
+Refer to :ref:`how-to-set-up-for-ubuntu-development`.
 
 
 Setting up ``sbuild``
