@@ -205,11 +205,8 @@ If a crash or bug report is submitted through Apport, the relevant hooks will be
 (use-the-source-luke)=
 ## Use the source, Luke!
 
-<!-- TODO: bazaar links may need to be migrated -->
-* You can download the upstream tarball from the [Launchpad project page](https://launchpad.net/apport/+download), or the Ubuntu source tarball from the [Ubuntu archive](http://archive.ubuntu.com/ubuntu/pool/main/a/apport/).
-* apport is developed with the [bazaar](http://bazaar-vcs.org) RCS on [Launchpad](https://code.launchpad.net/apport). If you want to contribute to it or develop your own system based on it, you can get your own branch with `bzr branch lp:apport` for trunk, or `debcheckout -a apport` for the Ubuntu packaging branch.
+Apport is developed on Launchpad ([Apport](https://code.launchpad.net/apport)). To contribute to it or develop your own system based on it, see [code.launchpad.net/apport](https://code.launchpad.net/apport) for cloning instructions. To contribute to the Ubuntu package, use {lpsrc}`apport`.
 
-You can also [browse it online](http://bazaar.launchpad.net/~apport-hackers/apport/trunk).
 
 (future-plans)=
 ## Future plans
