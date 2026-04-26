@@ -284,9 +284,7 @@ so please be considerate.
 
 [Ubuntu Developers' Tools Installation Quick Start](https://wiki.ubuntu.com/BeginnersTeam/FocusGroups/Development/Devbeginnings)
 
-You will find some tools explained in the {ref}`how-to-contribute`, also from
-Gutsy on, you will find `ubuntu-dev-tools` in the Archive, which contains
-[tools for developing Ubuntu](https://wiki.ubuntu.com/UbuntuDevTools).
+Tools for contributors are explained in the {ref}`guides-for-contributors`. There's also the {pkg}`ubuntu-dev-tools` package in the Archive, which contains useful scripts for Ubuntu developers. See [Ubuntu Developer Tools](https://launchpad.net/ubuntu-dev-tools) on Launchpad.
 
 
 ### New packages
