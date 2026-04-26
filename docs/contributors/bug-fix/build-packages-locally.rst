@@ -37,7 +37,7 @@ Building packages locally requires a few tools to be installed and configured. T
 Installing the necessary tools
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Please refer to :ref:`how-to-set-up-for-ubuntu-development`.
+Refer to :ref:`how-to-set-up-for-ubuntu-development`.
 
 
 Setting up ``sbuild``
