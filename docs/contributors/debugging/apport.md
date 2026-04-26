@@ -69,7 +69,7 @@ On Ubuntu Desktop, you can manage error reporting from the Control Center. Open 
 
 The default setting is {guilabel}`Manual`, which means Ubuntu asks before sending an error report. You can also choose to send reports automatically or disable error reporting from the same settings page.
 
-If you are working on a server or another system without a graphical settings interface, you can still inspect crash reports from the command line. Apport stores crash reports in {file}`/var/crash/`, and tools such as {command}`apport-cli` can process pending reports from a terminal.
+To inspect crash reports from the command line, use the {command}`apport-cli` tool. Apport stores crash reports in the {file}`/var/crash/` directory.
 
 (im-a-developer-how-do-i-use-these-crash-reports)=
 ## I'm a developer. How do I use these crash reports?
