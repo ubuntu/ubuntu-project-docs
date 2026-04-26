@@ -65,21 +65,11 @@ Apport does not trap SIGABRT signals. If you are getting such a signal, then ple
 (how-to-enable-apport)=
 ## How to enable Apport
 
-<!-- TODO: Error Tracker wiki page may need to be migrated -->
-Apport itself is running at all times because it collects crash data for `whoopsie` (see page on the [Error Tracker](https://wiki.ubuntu.com/ErrorTracker)). However, the crash interception component is still disabled. To enable it permanently, do:
+On Ubuntu Desktop, you can manage error reporting from the Control Center. Open {guilabel}`Settings`, go to {guilabel}`Privacy & Security` > {guilabel}`Diagnostics`, and use {guilabel}`Send error reports to Canonical` to choose how error reports are handled.
 
-```bash
-sudo nano /etc/apport/crashdb.conf
-```
+The default setting is {guilabel}`Manual`, which means Ubuntu asks before sending an error report. You can also choose to send reports automatically or disable error reporting from the same settings page.
 
-and **add a hash symbol #** at the beginning of the following line:
-
-```diff
--'problem_types': ['Bug', 'Package'],
-+#'problem_types': ['Bug', 'Package'],
-```
-
-To disable crash reporting just remove the hash symbol.
+To inspect crash reports from the command line, use the {command}`apport-cli` tool. Apport stores crash reports in the {file}`/var/crash/` directory.
 
 (im-a-developer-how-do-i-use-these-crash-reports)=
 ## I'm a developer. How do I use these crash reports?
