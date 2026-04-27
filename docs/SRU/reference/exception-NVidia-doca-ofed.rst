@@ -187,9 +187,10 @@ the document states the following key objectives for new releases:
 - Operational continuity: Guarantees that customer applications continue to operate successfully after updating to a newer software platform release.
 
 
-NVIDIA guarantess in the provided documentation that hardware will be retired
-only in new GA versions, as stated in their `Customer affecting changes <https://docs.nvidia.com/doca/sdk/customer-affecting-changes/index.html>__` policy
-and `DOCA compatibility policy <https://docs.nvidia.com/doca/sdk/doca-compatibility-policy/index.html>__`
+NVIDIA guarantees in the provided documentation that hardware will be retired
+only in new GA versions, as stated in their `Customer affecting changes <https://docs.nvidia.com/doca/sdk/customer-affecting-changes/index.html>`__
+policy and
+`DOCA compatibility policy <https://docs.nvidia.com/doca/sdk/doca-compatibility-policy/index.html>`__
 documents; this means by staying on a LTS release, customers will not lose
 compatibility with old hardware.
 
