@@ -176,7 +176,18 @@ NVIDIA DOCA-OFED SRU Template
 Additional notes
 ----------------
 
-NVIDIA certifies in the provided documentation that hardware will be retired
+NVIDIA guarantees perpetual and backward binary compatibility,
+as stated in their
+public document `DOCA dependency compatibility policy <https://docs.nvidia.com/doca/sdk/doca-dependency-compatibility-policy/index.html>`__:
+the document states the following key objectives for new releases:
+
+- Decoupled updates: Supports environments where distinct teams manage separate parts of the software stack (e.g., firmware vs. user-space applications).
+- Targeted upgrades: Enables upgrades targeted at specific subsets of devices within a server.
+- Reduced maintenance overhead: Minimizes downtime and complexity by limiting updates to necessary components only.
+- Operational continuity: Guarantees that customer applications continue to operate successfully after updating to a newer software platform release.
+
+
+NVIDIA guarantess in the provided documentation that hardware will be retired
 only in new GA versions, as stated in their `Customer affecting changes <https://docs.nvidia.com/doca/sdk/customer-affecting-changes/index.html>__` policy
 and `DOCA compatibility policy <https://docs.nvidia.com/doca/sdk/doca-compatibility-policy/index.html>__`
 documents; this means by staying on a LTS release, customers will not lose
