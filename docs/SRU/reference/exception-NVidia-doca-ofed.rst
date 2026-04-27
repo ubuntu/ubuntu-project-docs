@@ -36,9 +36,8 @@ There are 4 expected releases during the year, where YY stands for the year
 of release (i.e. YY = 26):
 
 - **Long term support releases**: The YY.10 version is the sole LTS release of
-  the year, providing three years of full NVIDIA support.
-  This release is designed exclusively for current upstream kernels and will
-  receive kernel compatibility updates for a year only.
+  the year; this release is designed exclusively for current upstream
+  kernels and will receive kernel compatibility updates for a year only.
 
 - **Short lived releases**: YY.01, YY.04, YY.07 are released in their respective
   months by NVIDIA, and are considered ad-interim releases, to be substituted
