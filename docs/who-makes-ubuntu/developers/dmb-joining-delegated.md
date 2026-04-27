@@ -84,12 +84,17 @@ requirements:
 * developer-membership-board must be a co-administrator or the owner of your team.
 
 * ubuntu-core-dev must be a member of your team
+  That will to allow contributions to projects and code maintained by such a team.
 
 * Applicants must meet the general requirements for {ref}`Ubuntu contributing developers <dmb-joining-contributing>`.
 
 * Your team must maintain a page describing your policy for granting upload
   access, and any special requirements for team membership. Preferably as part
   of this project documentation set.
+
+  * Time has shown that some teams are special,
+    even without delegation - there is nothing preventing a documentation of
+    such requirements for non-delegated teams.
 
 ## Requesting changes to delegated teams
 
