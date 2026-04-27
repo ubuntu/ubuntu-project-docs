@@ -1,1 +1,6 @@
 .codeblock-wrap pre { white-space:pre-wrap; }
+
+pre.mermaid svg {
+    width: 70% !important;
+    height: auto !important;
+}
