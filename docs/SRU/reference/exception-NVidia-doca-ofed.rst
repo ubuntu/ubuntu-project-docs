@@ -136,10 +136,10 @@ The test confirms that:
 - Start the NVIDIA fabric manager and confirm it correctly boots
 
 
-.. _nvidia_sru_template:
+.. _nvidia_doca_ofed_sru_template:
 
-NVIDIA SRU Template
--------------------
+NVIDIA DOCA-OFED SRU Template
+-----------------------------
 
 ::
 
@@ -173,6 +173,15 @@ NVIDIA SRU Template
 
    <TODO: Paste in change log entry from NVIDIA for this version of the driver>
 
+Additional notes
+----------------
+
+NVIDIA certifies in the provided documentation that hardware will be retired
+only in new GA versions, as stated in their `Customer affecting changes <https://docs.nvidia.com/doca/sdk/customer-affecting-changes/index.html>__` policy
+and `DOCA compatibility policy <https://docs.nvidia.com/doca/sdk/doca-compatibility-policy/index.html>__`
+documents; this means by staying on a LTS release, customers will not lose
+compatibility with old hardware.
+
 References
 ----------
 
@@ -180,3 +189,6 @@ References
 -  `NVIDIA DOCA-OFED official documentation <https://docs.nvidia.com/doca/sdk/index.html>`__
 -  `NVIDIA DOCA-OFED release notes <https://docs.nvidia.com/doca/sdk/doca-release-notes/index.html>`__
 -  `Repackaged test PPA <https://launchpad.net/~alessiofaina/+archive/ubuntu/mofed-autoupload-test>`__
+-  `NVIDIA Dependency compatibility policy <https://docs.nvidia.com/doca/sdk/doca-dependency-compatibility-policy/index.html>`__
+-  `NVIDIA DOCA compatibility policy <https://docs.nvidia.com/doca/sdk/doca-compatibility-policy/index.html>`__
+-  `NVIDIA Customer affecting changes <https://docs.nvidia.com/doca/sdk/customer-affecting-changes/index.html>`__
