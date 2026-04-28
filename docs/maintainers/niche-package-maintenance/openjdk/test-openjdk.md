@@ -8,7 +8,7 @@ manually, refer to the [upstream documentation](https://openjdk.org/jtreg/runtes
 
 ## Prerequisites
 
-Install `jtregN` before running any tests, e.g. for OpenJDK 25 and later:
+Install `jtreg<N>` before running any tests, e.g. for OpenJDK 25 and later:
 
 ```bash
 $ sudo apt install jtreg8
