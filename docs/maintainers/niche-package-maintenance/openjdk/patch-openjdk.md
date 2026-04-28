@@ -84,6 +84,12 @@ Then verify that the patch applies cleanly:
 $ quilt push -a
 ```
 
+Restore the source tree:
+
+```bash
+$ quilt pop -a
+```
+
 ## OpenJDK tests
 
 OpenJDK uses the [jtreg](https://openjdk.org/jtreg/) testing framework. See {ref}`test-openjdk` for details on
