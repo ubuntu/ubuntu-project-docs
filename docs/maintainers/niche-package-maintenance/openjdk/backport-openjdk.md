@@ -7,7 +7,9 @@ Ubuntu follows an **N-2 policy** for OpenJDK backports. Under this policy, a new
 
 ## JTREG<N> packages
 
-OpenJDK is tightly coupled with `jtreg<N>` versioned package. Ensure that `jtreg<N>` is available in the target release before backporting OpenJDK.
+Each OpenJDK release depends on a specific version of `jtreg<N>` versioned package. `TEST.ROOT` files in the upstream source tree define the
+minimal required version. Run `make -f debian/rules update-control-files` to regenerate `debian/control` and set the version requirement
+of `jtreg<N>` dependency. Ensure that a minimal required version of `jtreg<N>` is available in the target release before backporting OpenJDK.
 
 The jtreg package is maintained on [salsa](https://salsa.debian.org/java-team/jtreg8). It uses an exception from Java policy that allows vendoring of jtreg dependencies.
 
@@ -22,4 +24,3 @@ $ lsb_release --codename && make -f debian/rules update-control-files
 ## Build the source package and upload
 
 Follow the standard procedure to build the package locally ({ref}`how-to-build-packages-locally`) and upload the source package ({ref}`uploading-to-the-archive`) to the staging PPA.
-
