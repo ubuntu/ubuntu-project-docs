@@ -35,7 +35,7 @@ vale
 # Custom dependencies (needed by Ubuntu Project docs)
 distro_info
 sphinx-hoverxref
-sphinx-llm @ git+https://github.com/NVIDIA/sphinx-llm
+sphinx-llm
 sphinx-prompt
 sphinx-togglebutton
 sphinxcontrib-mermaid
