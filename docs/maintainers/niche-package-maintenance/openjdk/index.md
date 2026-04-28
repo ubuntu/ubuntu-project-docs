@@ -7,8 +7,8 @@ How to update, package, and maintain versions of {pkg}`openjdk` in Ubuntu.
 
 The [upstream OpenJDK project](https://openjdk.org/) follows a strict [release cadence](https://openjdk.org/projects/jdk-release-cadence/): a new feature release is published every six months, with quarterly Critical Patch Updates (CPU) for security and stability.
 
-In Ubuntu, we currently maintain the following versions:
-* **Long Term Support (LTS):** 11, 17, 21, and 25.
+In Ubuntu, we maintain the following versions:
+* **Long Term Support (LTS):** 8, 11, 17, 21, and 25.
 * **Interim:** The current latest feature release.
 
 ### Maintenance
