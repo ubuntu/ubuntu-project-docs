@@ -22,7 +22,7 @@ read by tools such as crash.
 
 Upstream resources:
 
-- `Porject page <https://github.com/makedumpfile/makedumpfile>`_
+- `Makedumpfile project page <https://github.com/makedumpfile/makedumpfile>`_
 - `Mailing List Archive <https://lists.infradead.org/pipermail/kexec/>`_
 
 .. _about_crash:
@@ -36,7 +36,7 @@ systems through e.g. /proc/kcore.
 
 Upstream resources:
 
-- `Project page <https://crash-utility.github.io/>`_
+- `Crash project page <https://crash-utility.github.io/>`_
 - `Upstream changelog <https://crash-utility.github.io/crash.changelog.html>`_
 - `Extensions modules <https://crash-utility.github.io/extensions.html>`_
 - `Contribution Guidelines <https://github.com/crash-utility/crash/wiki>`_
@@ -46,25 +46,26 @@ Upstream resources:
 Rationale for the exception
 ---------------------------
 
-Crash is extremely helpful for analysis and RCA of kernel issues.
-Particularly for HWE kernels, new features could be introduced that
+Crash is extremely helpful for analysis and root cause analysis of kernel 
+issues. Particularly for HWE kernels, new features could be introduced that
 change the memory structures being parsed by crash. Keeping crash
 updated to latest stable versions keeps compatibility for older kernels,
 while allowing LTS releases to work with kernel dumps from newer Ubuntu
 versions.
 
-Makedumpfile is responsible for generating the compressed memory dump
-from /proc/vmcore which can be consumed by tools such as crash[1]. The
-kdump-tools package uses makedumpfile by default[2]. Since the structure
+Makedumpfile is responsible for `generating the compressed memory dump <https://manpages.debian.org/unstable/makedumpfile/makedumpfile.8.en.html>`_
+from /proc/vmcore which can be consumed by tools such as crash. The
+kdump-tools package uses `makedumpfile by default <https://manpages.debian.org/unstable/kdump-tools/kdump-tools.5.en.html>`_. Since the structure
 and layout of /proc/vmcore is dependent on the kernel, updates to
 makedumpfile are necessary to ensure proper functionality.
 
 Furthermore, the release of both of these projects are disconnected from
-upstream and the Ubuntu release cycles. It is possible the the upstream
-projects have the right support for a new kernel release, but there may
-not be a release for some time. In such situations, SRU of specific
-patches from the upstream crash and makedumpfile projects may be
-required.
+upstream and the Ubuntu release cycles. It is possible the upstream projects of 
+crash and makedumpfile have the right support for a new kernel release. When the
+kernel is backported as an HWE kernel to an Ubuntu LTS release, it may break 
+the working of `crash and/or makedumpfile <https://bugs.launchpad.net/ubuntu/+source/makedumpfile/+bug/2125145>`_.
+In such situations, SRU of a newer upstream release or specific patches from the
+upstream crash and makedumpfile projects may be required for the LTS release.
 
 .. _upstream_policy_enforces_backwards_compatibility:
 
@@ -138,7 +139,7 @@ The targets above should cover most of the crash users, but it does
 leave out specific flavors and other derivative kernels like
 *linux-aws*, *linux-azure*, etc. Kernel team has integrated kdump
 testing within their SRU Regression Testing suite and hence would be
-running this test against all of the prepared kernel once per kernel SRU
+running this test against all of the prepared kernels once per kernel SRU
 cycle. This testing is comprehensive and includes all the supported
 architectures.
 
@@ -171,8 +172,14 @@ commits like compatibility to new kernel versions or new architectures
 
 The test plan from
 `CrashMakedumpfileUpdates <https://github.com/ubuntu/ubuntu-project-docs/blob/main/docs/SRU/reference/exception-CrashMakedumpfile-Updates.rst>`_
-was followed. Attached are console logs for each covered kernel version
+is followed. Attached are console logs for each covered kernel version
 and architecture.
+
+Checklist:
+
+-  Crash can open dumps for the GA kernel on supported architectures
+-  Crash can open dumps for the HWE kernel on supported architectures
+-  Update the list of previous crash updates under this SRU Exception below
 
 [Where problems could occur]
 
@@ -184,13 +191,6 @@ SRU process
 TODO: fill out any relevant information to the test plan or the new
 release
 
-Checklist
-~~~~~~~~~
--  Ensure crash can open dumps for the GA kernel on supported architectures
--  Ensure crash can open dumps for the HWE kernel on supported architectures
--  Attach or link to logs confirming above tests
--  Update the list of previous crash updates under this SRU Exception below
-
 .. _previous_crash_updates_bugs:
 
 Previous crash updates bugs
@@ -198,11 +198,3 @@ Previous crash updates bugs
 
 - 
 
-References
-----------
-
-[1]
-https://manpages.debian.org/unstable/makedumpfile/makedumpfile.8.en.html
-
-[2]
-https://manpages.debian.org/unstable/kdump-tools/kdump-tools.5.en.html
