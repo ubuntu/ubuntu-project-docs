@@ -21,6 +21,5 @@ Deviations from the normal process:
 - {ref}`mir-rereview` - when to re-review an package
 
 Team information:
-- {ref}`about-mir-role` - this shall be wrapped into "mir-roles-and-steps"
 - {ref}`mir-team-meeting` - how to track and engage with the MIR team
 ```
