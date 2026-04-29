@@ -1,6 +1,13 @@
 (about-mir-role)=
 # About the MIR role
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 The [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir) oversees the
 {ref}`Main Inclusion Review (MIR) process <main-inclusion-review>`.
 They are responsible for reviewing packages for promotion:

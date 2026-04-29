@@ -1,6 +1,13 @@
 (mir-roles-and-steps)=
 # MIR roles and steps
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 Getting a package promoted to `main` or `restricted` through the MIR process
 generally follows this set of steps, where the progress of the bug is
 {ref}`tracked in Launchpad <mir-process-states>` using bug states.
