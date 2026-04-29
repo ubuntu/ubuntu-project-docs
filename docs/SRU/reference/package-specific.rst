@@ -760,3 +760,4 @@ Toolchains:
 
 * Java: `Java updates PPA <https://launchpad.net/~openjdk-r/+archive/ubuntu/ppa>`__
 * Go: `Go updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/golang>`__
+* Python: `Python updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/python>`__
