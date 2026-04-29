@@ -58,6 +58,7 @@ active code that is built into the binaries.
 
 mir-roles-and-steps
 mir-process-states
+mir-team-communication
 ```
 
 If we reduce the process to its simplest components, it can be described in
@@ -97,6 +98,7 @@ states of bugs in Launchpad) to track the progress of any main inclusion request
 as shown in our more detailed {ref}`mir-process-states` breakdown.
 
 
+(about-mir-role)=
 ## About the MIR team
 
 The [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir) oversees the
