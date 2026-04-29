@@ -1,4 +1,6 @@
 ```{admonition} **MIR** series
+:class: admonition-highlight-this-page
+
 The article series provides guidance on all aspects of the Main Inclusion Reviews (MIR).
 
 Process:

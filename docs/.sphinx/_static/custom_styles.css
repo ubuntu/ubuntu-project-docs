@@ -4,3 +4,12 @@ pre.mermaid svg {
     width: 70% !important;
     height: auto !important;
 }
+
+/* Append "(in this article)" dynamically for links within any series admonition that point to the current page */
+.admonition-highlight-this-page a.reference.internal[href^="#"]:after {
+    content: " (in this article)";
+    font-style: italic;
+    font-weight: normal;
+    color: #777; /* Greyed out, independent of link visited state */
+    margin-left: 4px;
+}
