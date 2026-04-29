@@ -182,7 +182,7 @@ The flags used have the following meaning:
 
 * ``--build=source`` (``-S``): source-only build
 * ``--no-check-builddeps`` (``-d``): do not check build dependencies
-* ``--no-pre-clean`` (``-nc``): do not pre clean the source tree
+* ``--no-pre-clean`` (``-nc``): do not clean the source tree before build
 
 
 Building both source and binary packages
