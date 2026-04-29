@@ -1,5 +1,5 @@
-(mir-team-meeting)=
-# MIR team weekly status meeting
+(mir-team-communication)=
+# MIR team communication
 
 ```{include} _mir-series.md
 ```
@@ -7,20 +7,35 @@
 
 
 
+(mir-reaching-the-team)=
+## MIR reaching the team
 
-The {ref}`MIR Team <about-mir-role>` holds weekly meetings for 30 minutes
+Preferably join and participate in the weekly {ref}`mir-team-meeting`
+where you can raise issues or discuss your case with the whole team.
+
+At other times, but with no guarantee that a majority of the team will
+be available, you might join and ask in the
+[Ubuntu Main inclusion requests](https://matrix.to/#/#ubuntu-mir:ubuntu.com)
+channel.
+
+(mir-team-meeting)=
+## MIR team meeting
+
+The {ref}`MIR Team <main-inclusion-review>` holds weekly meetings for 30 minutes
 every Tuesday at <time datetime="T16:30+01:00">16:30 CET</time> on the
 {ref}`Ubuntu Matrix Server <matrix-index>`
 in the {matrix}`Ubuntu Main inclusion requests <ubuntu-mir>` channel.
+
+If you have a request or issue to discuss, it is highly recommended to
+join and participate in this weekly meeting. You should also attend these
+meetings if you submit an {ref}`MIR request <mir-submit-bug>`,
+until it is approved or rejected.
 
 The purpose of the meeting is:
 
 * to allocate a fair share of work between each member of the MIR team
 * to provide a timely response to reporters of MIR requests
 * to detect and discuss any current or complex cases
-
-You should attend these meetings if you submit an {ref}`MIR request <mir-submit-bug>`,
-until it is approved or rejected.
 
 Due to the nature of the
 {ref}`Ubuntu Development Process <release-cycle>`,
