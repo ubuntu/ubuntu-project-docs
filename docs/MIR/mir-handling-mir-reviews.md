@@ -1,6 +1,13 @@
 (mir-team-tasks)=
 # Handling MIR reviews
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 As part of the {ref}`main-inclusion-review` the {ref}`MIR Team <about-mir-role>`
 reviews cases that have been {ref}`submitted <mir-submit-bug>`. To do so they
 use the {ref}`mir-reviewers-template` alongside the general

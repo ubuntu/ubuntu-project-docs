@@ -1,6 +1,13 @@
 (mir-exceptions-oem)=
 # MIR exception - OEM packages
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 Starting in 20.04, Ubuntu Desktop ISOs will support installing hardware-specific
 meta-packages if the machine being installed on has a corresponding enablement
 package available.

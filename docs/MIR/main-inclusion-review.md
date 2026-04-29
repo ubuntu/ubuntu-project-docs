@@ -1,6 +1,13 @@
 (main-inclusion-review)=
 # Main Inclusion Review (MIR)
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 Packages in Ubuntu `main` (and `restricted`) are officially
 maintained, supported and recommended by the Ubuntu project.
 {term}`Canonical` provides security updates, standard support services, and

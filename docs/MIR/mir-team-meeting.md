@@ -1,6 +1,13 @@
 (mir-team-meeting)=
 # MIR team weekly status meeting
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 The {ref}`MIR Team <about-mir-role>` holds weekly meetings for 30 minutes
 every Tuesday at <time datetime="T16:30+01:00">16:30 CET</time> on the
 {ref}`Ubuntu Matrix Server <matrix-index>`

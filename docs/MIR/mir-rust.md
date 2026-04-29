@@ -1,6 +1,13 @@
 (mir-rust)=
 # MIR - Rust code in main
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 Due to the current state of the Rust ecosystem, the MIR rules state that
 packages in main that contain Rust code should vendor their Rust dependencies
 rather than rely on the individual package versions.

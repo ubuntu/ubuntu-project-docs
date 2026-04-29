@@ -1,6 +1,13 @@
 (mir-slo)=
 # MIR Service Level Objectives
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 Reviews take time, scaling up with the complexity of the case. Sadly it is
 usually the very complex, very special cases that tend to come in very late --
 then the submitters are unhappy with the velocity of the review.
