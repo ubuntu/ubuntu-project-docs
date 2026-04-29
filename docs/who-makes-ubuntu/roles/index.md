@@ -17,14 +17,6 @@ secondary layer of drop-down menus
 uploaders/index
 ```
 
-## MIR membership
-
-```{toctree}
-:maxdepth: 1
-
-/MIR/mir-about-the-mir-role
-```
-
 ## SRU membership
 
 ```{toctree}
