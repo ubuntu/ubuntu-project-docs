@@ -22,16 +22,10 @@ In the full {ref}`MIR process <main-inclusion-review>` there are more roles
 involved than just the [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir),
 see {ref}`mir-roles` about that.
 
-## Service Level Objectives
-
-The {ref}`Service Level Objectives <mir-slo>` page details what you can and
-should expect from the reviewers.
-
 ```{toctree}
 :maxdepth: 1
 :hidden:
 
-mir-team-meeting
-mir-service-level-objectives
+mir-team-communication
 ```
 
