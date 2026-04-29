@@ -137,6 +137,7 @@ veteran, we have also prepared additional guidance on
 filling out the template as straightforward as possible.
 
 
+(mir-special-cases)=
 ## MIR special cases
 
 Some packages have reasons not to follow the standard MIR process. This section
