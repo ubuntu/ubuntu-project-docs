@@ -153,10 +153,10 @@ they get uploaded or any of their dependencies change. The output of
 `automatically run autopkgtest tests <autopkgtest_ubuntu>`_ can be viewed on the web and is
 regularly updated.
 
-Debian also uses ``autopkgtest`` to run package tests, although currently only
-in schroots, so results may vary a bit. Results and logs can be seen on
-https://ci.debian.net/. So please submit any test fixes or new tests to Debian as
-well.
+Debian also uses ``autopkgtest`` to run package tests, although results may
+vary a bit due to differences in dependencies between Ubuntu and Debian.
+Results and logs can be seen on https://ci.debian.net/. So please submit any
+test fixes or new tests to Debian as well.
 
 
 Getting the test into Ubuntu
