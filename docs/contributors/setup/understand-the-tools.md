@@ -83,3 +83,13 @@ However, for PPAs in a typical Ubuntu workflow, the tests are not triggered auto
 
 `ppa-dev-tools`
 : This collection of tools makes it easy to trigger autopkgtests on Launchpad for a PPA, and to otherwise administer your PPAs.
+
+
+## Launchpad shortcuts
+
+[pad.lv](https://pad.lv) is a redirection service for Launchpad that provides convenient shorthand URLs for common queries:
+
+- `pad.lv/123456` → Launchpad bug 123456
+- See [pad.lv](https://pad.lv) for the full list of supported redirects.
+
+Some terminal emulators (e.g., Terminator) also automatically create clickable hyperlinks for Launchpad bug numbers that appear in command output, which can be useful depending on your workflow.
