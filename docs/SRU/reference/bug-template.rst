@@ -25,7 +25,10 @@ and mitigates risk.
 
     [ Test Plan ]
 
-     * detailed instructions how to reproduce the bug
+     * detailed instructions how to reproduce the bug. Instructions should be
+       broken into steps which are clear and actionable.
+
+     * any step that has an expected return, provide the expected returns.
 
      * these should allow someone who is not familiar with the affected
        package to reproduce the bug and verify that the updated package
