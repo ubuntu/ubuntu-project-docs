@@ -1,6 +1,11 @@
 (dmb-seed-packagesets-exceptions)=
 # DMB seed packagesets exceptions
 
+```{include} ../_dmb-series.md
+```
+
+
+
 As outlined for {ref}`seeds based packagesets <dmb-types-of-packagesets>`
 there can be cases that cause such a package set to not be absolutely
 equivalent to the seed.

@@ -5,6 +5,11 @@ orphan: true
 (dmb-vote-function)=
 # DMB vote funtion
 
+```{include} ../_dmb-series.md
+```
+
+
+
 The text on {ref}`dmb-rules` should be easier to consume, but if in doubt
 here a different way to express it.
 

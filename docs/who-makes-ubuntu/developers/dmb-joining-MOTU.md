@@ -1,6 +1,11 @@
 (dmb-joining-motu)=
 # MOTU
 
+```{include} ../_dmb-series.md
+```
+
+
+
 MOTU, or "Masters of the Universe", maintain the collection of packages in the `universe` and `multiverse` components (i.e. packages not in `main`).
 They are [members of the MOTU team](https://launchpad.net/~motu) in Launchpad.
 
