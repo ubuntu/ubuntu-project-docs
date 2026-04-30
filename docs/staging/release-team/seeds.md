@@ -22,10 +22,14 @@ Practical guidance:
 : {ref}`seed-management`
 ```
 
-Seeds are text files listing the packages we want to include in the Ubuntu
-distribution. A {ref}`germinate` script parses these seed files and ensures the
-packages are installed on the user's system.
+A seed is a plain-text file that defines a curated set of packages using a small, specialized syntax.
+Seeds are used to describe which packages should be included in the support
+package set represented by the [main component](https://documentation.ubuntu.com/project/how-ubuntu-is-made/concepts/package-archive/#main)
+, as well as which packages make up different Ubuntu system images.
 
+Rather than listing every dependency explicitly, seeds express the intended package selection at a high level; tools
+like {ref}`germinate` then expand these definitions into complete, dependency-resolved package lists used for
+building and maintaining the distribution.
 
 ## Available seeds
 
@@ -42,7 +46,7 @@ Archive's `main` component:
 
 These are described in more detail below.
 
-These are not the only seeds that exist - you can
+These are not the only seeds that exist. You can
 [view the current seeds](https://static-reports.ubuntu.com/seeds/)
 and the corresponding
 [germinate output](https://ubuntu-archive-team.ubuntu.com/germinate-output/)
@@ -204,80 +208,30 @@ desktop list.
 (seeds-supported)=
 ### Supported
 
-The supported system provides functionality not included by the standard or
-desktop systems but which meets the following criteria:
+The supported seeds allow to include packages into main while not including
+it in any media (ISOs), images or installation (via meta packages). This list
+is all the extra packages we think need to be supported in our distro.
 
-1. It is very widely used, people are committed to it.
+Additional packages can be added to this list, but they need to complete a
+{ref}`Main Inclusion Review <main-inclusion-review>` process and have an
+owning team.
 
-1. It is not architecturally insecure, it is thus easy for us to provide
-  security fixes and updates.
-
-This list would include popular servers other than the ones we include in a
-standard or desktop install, additional desktop software, and a build
-environment. It is never expected that someone would install the entire
-supported list of packages; they would choose specific packages that provide
-specific needed functionality.
-
-This list is all the extra packages we think need to be supported in our distro.
-We will accept contributions of additional packages into this list, if they:
-
-1. Have an external maintainer who agrees to maintain them to our standard,
-   in [Bzr](https://wiki.ubuntu.com/Bzr), using `Soyuz`.
-1. Pass a one-time security review from `MartinPitt` and agree to be responsive to him on `SecurityPage` issues.
-
-```{note}
-These steps are VERY out of date. `MartinPitt` and `SecurityPage` no longer
-exist on the wiki, but also don't redirect anywhere. Please update the process,
-and then delete this note.
-```
-
-Some packages in this list will also ship on the CD, subject to the amount of
-space we have on the CD. They would typically be cached on the installed hard
-drive for rapid installation without the CD. All of these packages will be
-available in the online archive of packages.
-
-
-
-supported-desktop
-: Should not contain anything; it aggregates the more specific Desktop-related
-  seeds.
-
-supported-desktop-extra
-: Packages that get additional support for 5 years on an LTS.
+The supported set is categorized into different sets, usually prefixed with
+"supported":
 
 supported-server
-: Should not contain anything; it aggregates the more specific Server-related
-  seeds.
+: Additional packages that are considered part of the supported server package set,
+  but are not necessarily part of the default installed image.
 
-supported-hardware-desktop
-: Hardware-related packages used on Desktop only.
+supported-desktop
+: Additional packages that are considered part of the supported desktop package set,
+  but are not necessarily part of the default installed image.
 
-supported-hardware-common
-: Hardware-related packages that are used on both Desktop and Server.
+supported-common
+: Server and Desktop packages defined in supported-server and supported-desktop
 
-supported-installer-desktop
-: Installer-related packages used for Desktop installations only.
-
-supported-installer-common
-: Installer-related packages that are used on both Desktop and Server.
-
-supported-network-common
-: Network-related packages that are used on both Desktop and Server.
-
-supported-sysadmin-desktop
-: System administration packages that are used on both Desktop and Server.
-
-supported-sysadmin-common
-: System administration packages that are used on both Desktop and Server.
-
-supported-development
-: Development packages that are used on both Desktop and Server.
-
-supported-misc-servers
-: Miscellaneous Server-only packages.
-
-supported-kernel
-: Kernel packages that are used on both Desktop and Server.
+For the full list of supported categories, see the
+[Platform seed repository](https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/platform).
 
 ```{admonition} Historical note
 :class: note
@@ -299,54 +253,9 @@ supported themselves, are automatically added to a special "extra" list.
 
 ## Maintenance period
 
-**Maintained** means that the team *commits to providing security updates for
-the packages that are defined in the seed and whatever dependencies are
-necessary to make them work*.
-
-```{admonition} Lynx link's invalid - what's the current replacement?
-The exact manifests are release-specific and can be found at the Release
-Manifest page of the release in question (e.g. for 10.04 LTS at
-[Lucid Lynx/Release Manifest](https://wiki.ubuntu.com/LucidLynx/ReleaseManifest).
-```
-
-Canonical provides free maintenance for Ubuntu products as follows:
-
-````{admonition} Needs to be updated
-
-Ubuntu Desktop, Kubuntu, Ubuntu Server
-: Security updates and select bug fixes:
-  * 9 months since Raring [13.04]
-  * 18 months for prior non-LTS releases
-: This is currently defined as the entire content of `main`
-
-Ubuntu Desktop LTS, Kubuntu LTS
-: Security updates and select bug fixes:
-  * 5 years since Precise [12.04]
-  * 3 years for prior LTS releases
-: This is defined as the union of the ship, supported-desktop and
-  supported-desktop-extra seeds
-
-Ubuntu Server LTS
-: Hardware compatibility updates (until next LTS)
-: Security updates and select bug fixes (5 years)
-: This is defined as the union of the server-ship and supported-server seeds
-
-The `Packages` file contains the `Supported` field, as generated by Soyuz via
-the `maintenance-check.py` file from
-[`ubuntu-archive-publishing`](http://code.launchpad.net/~ubuntu-archive/ubuntu-archive-publishing/trunk/).
-
-```{note}
-Since it is no longer possible to view bazaar-hosted files in the web browser,
-it is necessary to check this file out locally, following the instructions in
-the repository.
-```
-````
-
-The content of `main` is defined as the union of the seeds: `ubuntu.all`,
-`kubuntu.all`, `edubuntu.all`, `netbook.all`. If that changes then the code in
-`maintenance-check.py` needs updating.
-
-```{admonition} Question
-Should we also reference Ubuntu Pro and the maintenance schedule for that here?
-```
-
+A binary package being in `main` implies that the
+[owning team](http://reports.qa.ubuntu.com/m-r-package-team-mapping.html)
+commits to maintain the source package. Furthermore, the Ubuntu security team
+provides security coverage.
+This coverage is further extended by [Ubuntu Pro](https://documentation.ubuntu.com/project/how-ubuntu-is-made/concepts/glossary/#term-Ubuntu-Pro),
+which provides expanded security maintenance coverage.
