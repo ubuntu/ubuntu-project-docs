@@ -32,3 +32,13 @@ Submit a {ref}`Merge Proposal (MP) <how-to-submit-a-merge-proposal>` with your c
 * Include the Launchpad bug that is to be fixed by this upload in the {file}`changelog` file in the form `LP: #123456` (see {ref}`write-the-changelog-entry`).
 * Select the `ubuntu-sponsors` team as the reviewer for the MP.
 * Link the Launchpad bug to the MP (using the {guilabel}`Link a bug report` link).
+
+
+## Signed-package companions
+
+Some packages need to be cryptographically signed by Launchpad and thus have both a main source package and a companion `-signed` source package (for example, `s390-tools` and `s390-tools-signed`).
+
+Before uploading, ensure that:
+
+- Both the main and `-signed` source packages have the **exact same version**.
+- Any versioned build-dependency in the `-signed` source package is correctly generated.

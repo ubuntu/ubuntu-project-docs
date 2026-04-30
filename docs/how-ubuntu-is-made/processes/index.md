@@ -39,6 +39,7 @@ merges-and-syncs
 transitions
 backports
 automatic-package-testing-autopkgtest
+image-builds
 ```
 
 
