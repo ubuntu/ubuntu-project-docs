@@ -1,13 +1,20 @@
 (main-inclusion-review)=
 # Main Inclusion Review (MIR)
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 Packages in Ubuntu `main` (and `restricted`) are officially
 maintained, supported and recommended by the Ubuntu project.
 {term}`Canonical` provides security updates, standard support services, and
 certain Service Level Agreement (SLA) guarantees for these packages.
 
 Therefore, special consideration is necessary before adding new packages
-to `main` or `restricted`. The {ref}`Ubuntu MIR team <about-mir-role>`
+to `main` or `restricted`. The [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir)
 reviews packages for promotion:
 
 * from {term}`universe` to {term}`main`.
@@ -51,6 +58,7 @@ active code that is built into the binaries.
 
 mir-roles-and-steps
 mir-process-states
+mir-team-communication
 ```
 
 If we reduce the process to its simplest components, it can be described in
@@ -90,13 +98,25 @@ states of bugs in Launchpad) to track the progress of any main inclusion request
 as shown in our more detailed {ref}`mir-process-states` breakdown.
 
 
+(about-mir-role)=
 ## About the MIR team
 
-To find out more about the team who oversees the MIR process, see our page
-{ref}`about the MIR team <about-mir-role>`.
+The [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir) oversees the
+{ref}`Main Inclusion Review (MIR) process <main-inclusion-review>`.
+They are responsible for reviewing packages for promotion:
 
-There you will also find information on how to contact them if you have an MIR
-in progress, or want to submit one, and what to expect from the team.
+* from {term}`universe` to {term}`main`
+* from {term}`multiverse` to {term}`restricted`
+
+In the full {ref}`MIR process <main-inclusion-review>` there are more roles
+involved than just the [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir),
+see {ref}`mir-roles` about that.
+
+If you have an MIR in progress, want to submit one, or are uncertain about
+the process {ref}`contact the team <mir-team-communication>` in matrix of in
+their regular meeting.
+Information on what you can expect from the reviewers is detailed
+in the {ref}`Service Level Objectives <mir-slo>`.
 
 (mir-submit-bug)=
 ## File an MIR bug
@@ -117,6 +137,7 @@ veteran, we have also prepared additional guidance on
 filling out the template as straightforward as possible.
 
 
+(mir-special-cases)=
 ## MIR special cases
 
 Some packages have reasons not to follow the standard MIR process. This section
