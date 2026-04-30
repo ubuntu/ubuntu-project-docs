@@ -98,13 +98,12 @@ First, we will build the image we prepared in the previous section.
 * To build a VM image:
 
   ```none
-  $ autopkgtest-buildvm-ubuntu-cloud -r focal -v \
-   --cloud-image-url http://cloud-images.ubuntu.com/daily/server
+  $ autopkgtest-buildvm-ubuntu-cloud -r noble -v
   ```
 
-  (Replace `focal` with your release of choice)
+  (Replace `noble` with your release of choice)
  
-  Copy the resulting image (`autopkgtest-focal-amd64.img`) to the
+  Copy the resulting image (`autopkgtest-noble-amd64.img`) to the
   `/var/lib/adt-images` directory.
 
   ```{note}
@@ -114,7 +113,7 @@ First, we will build the image we prepared in the previous section.
 * To build a container image:
 
   ```none
-  $ autopkgtest-build-lxd ubuntu-daily:oracular
+  $ autopkgtest-build-lxd ubuntu-daily:resolute
   ```
 
   You should see an `autopkgtest` image now when you run `lxc image list`.
@@ -165,7 +164,7 @@ $ autopkgtest \
   --shell-fail \
   --output-dir dep8-mypackage \
     mypackage/ \
-  -- qemu /var/lib/adt-images/autopkgtest-focal-amd64.img
+  -- qemu /var/lib/adt-images/autopkgtest-noble-amd64.img
 ```
 
 Where:
@@ -184,8 +183,6 @@ Everything after the `--` tells it how to run the tests. `qemu` is shorthand for
 #### In a VM, Using the PPA
 
 
-##### for Ubuntu 20.10 (Groovy Gorilla) and later
-
 ```none
 $ autopkgtest \
   --apt-upgrade \
@@ -194,10 +191,10 @@ $ autopkgtest \
   --setup-commands="sudo add-apt-repository \
     --yes \
     --enable-source \
-    --ppa mylaunchpaduser/mantic-mypackage-fixed-something-1234567" \
+    --ppa mylaunchpaduser/noble-mypackage-fixed-something-1234567" \
   --no-built-binaries \
   mypackage \
-  -- qemu /var/lib/adt-images/autopkgtest-mantic-amd64.img
+  -- qemu /var/lib/adt-images/autopkgtest-noble-amd64.img
 ```
 
 Where (in setup-commands):
@@ -213,39 +210,11 @@ Where (in setup-commands):
 Note: In this case, the package name **doesn't** have a trailing slash because we want to install the package.
 
 
-##### for Ubuntu 20.04 LTS (Focal Fossa) and earlier
-
-```none
-$ autopkgtest \
-  --apt-upgrade \
-  --shell-fail \
-  --output-dir dep8-mypackage-ppa \
-  --setup-commands="sudo add-apt-repository \
-    --yes \
-    --update \
-    --enable-source \
-    ppa:mylaunchpaduser/focal-mypackage-fixed-something-1234567" \
-  --no-built-binaries mypackage \
-  -- qemu /var/lib/adt-images/autopkgtest-focal-amd64.img
-```
-
-Where (in setup-commands):
-
- * `--yes`: Assume "yes" for all questions
- * `--update`: Run `apt-update`
- * `--enable-source`: Add `deb-src` line for the repository
- * `--no-built-binaries`: Don't build
-
-Note: In this case, the package name **doesn't** have a trailing slash because we want to install the package.
-
-
 #### In a Container, Using the PPA
 
 The command only differs after the `--` part. For example:
 
 
-##### for Ubuntu 20.10 (Groovy Gorilla) and later
-
 ```none
 $ autopkgtest \
   --apt-upgrade \
@@ -254,27 +223,10 @@ $ autopkgtest \
   --setup-commands="sudo add-apt-repository \
     --yes \
     --enable-source \
-    --ppa mylaunchpaduser/mantic-mypackage-fixed-something-1234567" \
+    --ppa mylaunchpaduser/noble-mypackage-fixed-something-1234567" \
   --no-built-binaries \
   mypackage \
-  -- lxd autopkgtest/ubuntu/mantic/amd64
-```
-
-
-##### for Ubuntu 20.04 LTS (Focal Fossa) and earlier
-
-```none
-$ autopkgtest \
-  --apt-upgrade \
-  --shell-fail \
-  --output-dir dep8-mypackage-ppa \
-  --setup-commands="sudo add-apt-repository \
-    --yes \
-    --update \
-    --enable-source \
-    ppa:mylaunchpaduser/focal-mypackage-fixed-something-1234567" \
-  --no-built-binaries mypackage \
-  -- lxd autopkgtest/ubuntu/focal/amd64
+  -- lxd autopkgtest/ubuntu/noble/amd64
 ```
 
 
@@ -501,16 +453,16 @@ Here are some examples testing various combinations against `octave-parallel`:
 ```none
 # normal
 $ autopkgtest --apt-pocket=proposed \
- --shell-fail octave-parallel_4.0.0-2ubuntu1~ppa1.dsc \
- -- qemu ~/work/autopkgtest-hirsute-amd64.img
+ --shell-fail octave-parallel_4.0.1-2ubuntu1~ppa1.dsc \
+ -- qemu ~/work/autopkgtest-noble-amd64.img
 # all proposed
 $ autopkgtest --apt-pocket=proposed \
- --shell-fail octave-parallel_4.0.0-2ubuntu1~ppa1.dsc \
- -- qemu ~/work/autopkgtest-hirsute-amd64.img
+ --shell-fail octave-parallel_4.0.2-1ubuntu1~ppa1.dsc \
+ -- qemu ~/work/autopkgtest-noble-amd64.img
 # specific subset
 $ autopkgtest --apt-pocket=proposed=src:octave,octave-parallel,octave-struct \
- --shell-fail octave-parallel_4.0.0-2ubuntu1~ppa1.dsc \
- -- qemu ~/work/autopkgtest-hirsute-amd64.img
+ --shell-fail octave-parallel_4.0.2-1ubuntu1~ppa1.dsc \
+ -- qemu ~/work/autopkgtest-noble-amd64.img
 ```
 
 
@@ -524,11 +476,11 @@ test in different sizes:
 
 ```none
 $ autopkgtest --no-built-binaries --apt-upgrade \
- --shell-fail octave-parallel_4.0.0-2ubuntu1~ppa1.dsc \
- -- qemu --ram-size=1536 --cpus 1 ~/work/autopkgtest-hirsute-amd64.img
+ --shell-fail octave-parallel_4.0.2-1ubuntu1~ppa1.dsc \
+ -- qemu --ram-size=1536 --cpus 1 ~/work/autopkgtest-noble-amd64.img
 $ autopkgtest --no-built-binaries --apt-upgrade \
- --shell-fail octave-parallel_4.0.0-2ubuntu1~ppa1.dsc \
- -- qemu --ram-size=4096 --cpus 4 ~/work/autopkgtest-hirsute-amd64.img
+ --shell-fail octave-parallel_4.0.2-1ubuntu1~ppa1.dsc \
+ -- qemu --ram-size=4096 --cpus 4 ~/work/autopkgtest-noble-amd64.img
 ```
 
 For `nova`, you use
