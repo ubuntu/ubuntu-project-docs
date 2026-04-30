@@ -107,21 +107,21 @@ Now build a testbed with::
 
 (Please see its manpage and ``--help`` output for selecting different releases,
 architectures, output directory, or using proxies). This will build e. g.
-``adt-trusty-amd64-cloud.img``.
+``autopkgtest-noble-amd64.img``.
 
 Then run the tests of a source package like ``libpng`` in that QEMU image::
 
-        autopkgtest libpng -- qemu adt-trusty-amd64-cloud.img
+        autopkgtest libpng -- qemu autopkgtest-noble-amd64.img
 
 The Ubuntu CI system runs packages with only selected packages from
 ``-proposed`` available (the package which caused the test to be run); to
 enable that, run::
 
-        autopkgtest libpng -U --apt-pocket=proposed=src:foo -- qemu adt-release-amd64-cloud.img
+        autopkgtest libpng -U --apt-pocket=proposed=src:foo -- qemu autopkgtest-release-amd64.img
 
 or to run with all packages from ``-proposed``::
 
-        autopkgtest libpng -U --apt-pocket=proposed -- qemu adt-release-amd64-cloud.img
+        autopkgtest libpng -U --apt-pocket=proposed -- qemu autopkgtest-release-amd64.img
 
 The ``autopkgtest`` manpage has a lot more valuable information on other
 testing options.
