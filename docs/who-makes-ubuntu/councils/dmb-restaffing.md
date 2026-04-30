@@ -1,6 +1,11 @@
 (dmb-restaffing)=
 # DMB restaffing
 
+```{include} ../_dmb-series.md
+```
+
+
+
 See {ref}`Governance docs: DMB selection process <dmb-selection-process>` for details on how new {ref}`dmb` members are appointed.
 
 
