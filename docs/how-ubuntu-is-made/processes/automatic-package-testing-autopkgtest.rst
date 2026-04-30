@@ -150,7 +150,7 @@ Ubuntu infrastructure
 
 Packages which have ``autopkgtest`` enabled will have their tests run whenever
 they get uploaded or any of their dependencies change. The output of
-`automatically run autopkgtest tests <jenkins_>`_ can be viewed on the web and is 
+`automatically run autopkgtest tests <autopkgtest_ubuntu>`_ can be viewed on the web and is
 regularly updated.
 
 Debian also uses ``autopkgtest`` to run package tests, although currently only
@@ -189,7 +189,7 @@ Further reading
 .. _gvfs: https://git.launchpad.net/ubuntu/+source/gvfs/tree/debian/tests
 .. _gtk3: https://git.launchpad.net/ubuntu/+source/gtk+3.0/tree/debian/tests
 .. _ubiquity: https://git.launchpad.net/ubiquity/tree/debian/tests
-.. _jenkins: https://autopkgtest.ubuntu.com/
+.. _autopkgtest_ubuntu: https://autopkgtest.ubuntu.com/
 .. _running_tests: https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.running-tests.rst
 .. _requiredtests: https://wiki.ubuntu.com/QATeam/RequiredTests
 .. _autopkgtest: https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.package-tests.rst
