@@ -1,6 +1,11 @@
 (dmb-application)=
 # Developer Membership application process
 
+```{include} ../_dmb-series.md
+```
+
+
+
 ```{toctree}
 :titlesonly:
 :hidden:
