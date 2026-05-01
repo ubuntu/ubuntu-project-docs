@@ -94,6 +94,7 @@ jobs:
               /no documentation/i,
               /lacks? documentation/i,
               /needs? documentation/i,
+              /needs/i,
               /should (have|include|document)/i,
               /would be/i,
               /please add documentation/i,
@@ -102,7 +103,8 @@ jobs:
               /doesn't have (documentation|a page|a guide)/i,
               /does not have (documentation|a page|a guide)/i,
               /not documented/i,
-              /undocumented/i
+              /undocumented/i,
+              /docs/i,
             ];
             
             const isMissingDocReport = missingDocPatterns.some(pattern => pattern.test(issueBody) || pattern.test(issueTitle));

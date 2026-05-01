@@ -1,6 +1,11 @@
 (dmb-application-knowledge-requirements)=
 # DMB application knowledge requirements
 
+```{include} ../_dmb-series.md
+```
+
+
+
 There are several {ref}`dmb-aspects-of-a-good-application`, but questions are often asked around what knowledge and evidence an applicant should provide.
 
 In the table below we show the topics, descriptions of what the topic includes, and the depth to which the topic should be understood for each role.

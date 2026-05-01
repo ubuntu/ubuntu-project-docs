@@ -37,9 +37,7 @@ Building packages locally requires a few tools to be installed and configured. T
 Installing the necessary tools
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: none
-
-    $ sudo apt install devscripts dpkg-dev sbuild mmdebstrap uidmap piuparts
+Refer to :ref:`how-to-set-up-for-ubuntu-development`.
 
 
 Setting up ``sbuild``
@@ -184,7 +182,7 @@ The flags used have the following meaning:
 
 * ``--build=source`` (``-S``): source-only build
 * ``--no-check-builddeps`` (``-d``): do not check build dependencies
-* ``--no-pre-clean`` (``-nc``): do not pre clean the source tree
+* ``--no-pre-clean`` (``-nc``): do not clean the source tree before build
 
 
 Building both source and binary packages

@@ -161,6 +161,10 @@ Let's say you need to backport the `1.90.0+dfsg2-0ubuntu3` Rust toolchain to Ubu
 :::
 
 
+## Stage0 bootstrap version
+
+If you use a {ref}`stage0 tarball <rust-stage0-bootstrap>` to bootstrap a toolchain, include `~stage0` in the version string just before the hyphen, for example `1.92.0+dfsg~24.04~stage0-0ubuntu1~24.04.3`. Such a package should never be uploaded to the Archive, but may be uploaded to a PPA as a way to start the bootstrapping process.
+
 ## Legacy version string format
 
 :::{important}
