@@ -221,7 +221,14 @@ the manual test must be documented fully. These test plans must be written in su
 Included Packages
 -----------------
 
-* btrfs-progs
+.. toctree::
+    :maxdepth: 1
+
+    exception-btrfs-progs
+
+
+|br|
+|br|
 
 .. rubric:: Footnotes
 
@@ -234,3 +241,7 @@ Included Packages
 .. [#f7] :ref:`SRU/reference/package-specific <reference-package-specific-notes>`
 
 .. _Ubuntu HWE Kernel: https://canonical-kernel-docs.readthedocs-hosted.com/latest/reference/hwe-kernels/
+
+.. |br| raw:: html
+
+   <br />
