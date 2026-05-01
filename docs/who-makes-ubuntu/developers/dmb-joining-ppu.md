@@ -1,6 +1,11 @@
 (dmb-joining-ppu)=
 # Per-Package Uploaders
 
+```{include} ../_dmb-series.md
+```
+
+
+
 Per-Package Uploaders are developers with a specialization in a specific package (or packages) in Ubuntu.
 They are granted direct upload to the Ubuntu Archive for those packages.
 

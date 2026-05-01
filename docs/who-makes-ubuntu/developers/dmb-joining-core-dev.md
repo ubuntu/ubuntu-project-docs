@@ -1,6 +1,11 @@
 (dmb-joining-core-dev)=
 # Core Developers
 
+```{include} ../_dmb-series.md
+```
+
+
+
 Core Developers (Core Devs) are members of the [`ubuntu-core-dev`](https://launchpad.net/~ubuntu-core-dev) team in Launchpad.
 Core Devs collectively maintain all packages in Ubuntu, which notably includes uploading to the `main` component.
 Core Devs also have elevated privileges for re-triggering autopkgtests and performing other administrative actions in Ubuntu.

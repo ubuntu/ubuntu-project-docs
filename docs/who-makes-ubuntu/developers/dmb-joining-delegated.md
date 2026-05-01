@@ -1,6 +1,11 @@
 (dmb-joining-delegated)=
 # Delegated Developers
 
+```{include} ../_dmb-series.md
+```
+
+
+
 Delegated Developers are members of a [delegated development group](https://wiki.ubuntu.com/UbuntuDevelopers/TeamDelegation) in Launchpad.
 They are collectively responsible for the maintenance of a subset of packages in Ubuntu.
 This role is similar to the {ref}`dmb-joining-ppu` and {ref}`dmb-joining-packageset` roles, except that the packageset is governed by a delegated team.

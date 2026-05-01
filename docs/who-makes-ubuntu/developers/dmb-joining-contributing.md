@@ -1,6 +1,10 @@
 (dmb-joining-contributing)=
 # Ubuntu Contributing Developers
 
+```{include} ../_dmb-series.md
+```
+
+
 
 Ubuntu Contributing Developers are implicitly considered Ubuntu Members.
 They are members of the [`ubuntu-developer-members`](https://launchpad.net/~ubuntu-developer-members) team in Launchpad.

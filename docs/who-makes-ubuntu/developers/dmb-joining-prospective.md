@@ -1,6 +1,11 @@
 (dmb-joining-prospective)=
 # Ubuntu Prospective Developers
 
+```{include} ../_dmb-series.md
+```
+
+
+
 This is where you should start if you are interested in joining the development team.
 Prospective Developers:
 
