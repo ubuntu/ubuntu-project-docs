@@ -1,7 +1,7 @@
 Standard processes
 ------------------
 
-[this section needs cleaning up]
+.. this section needs cleaning up
 
 -  We'd like the minimum process necessary. It should be clear why any
    process we have is required because of the principles.
@@ -29,8 +29,8 @@ Standard processes
    evidence that this has happened (typically by including the version
    number of the package tested).
 
--  No iterating in stable releases. [Robie needs to explain what he
-   means here]
+-  No iterating in stable releases. 
+.. [Robie or anyone else needs to explain what they mean here]
 
 .. _explanation-autopkgtest-failures:
 
