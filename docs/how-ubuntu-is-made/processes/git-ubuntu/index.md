@@ -135,8 +135,7 @@ it.
 See {ref}`keyring-with-plaintext-storage` for instructions on configuring keyring to use
 plaintext password storage instead, to avoid getting keyring password prompts.
 
-git-ubuntu uses {external:std:ref}`launchpadlib <launchpadlib-tutorial>` for Launchpad API access. This
-library in turn uses the [Python keyring package](https://pypi.org/project/keyring/) for credential storage. If you see a password prompt, it is because the keyring package's defaults in your particular environment require encrypted password-based credential storage. Configure this to your needs by following the [keyring documentation](https://pypi.org/project/keyring/).
+git-ubuntu uses [`launchpadlib`](https://documentation.ubuntu.com/launchpad/user/tutorial/launchpadlib/) for Launchpad API access. This library in turn uses the [Python keyring package](https://pypi.org/project/keyring/) for credential storage. If you see a password prompt, it is because the keyring package's defaults in your particular environment require encrypted password-based credential storage. Configure this to your needs by following the [keyring documentation](https://pypi.org/project/keyring/).
 
 
 ## Further reading
