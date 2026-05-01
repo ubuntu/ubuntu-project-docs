@@ -38,7 +38,7 @@ the `Packages.gz` files, it's safe to delete old packages.
 
 
 ```none
-#/bin/dash
+#!/bin/dash
 
 fatal() {
   echo "$1"
@@ -72,7 +72,7 @@ rsync --recursive --times --links --safe-links --hard-links \
   --stats --delete --delete-after \
   ${RSYNCSOURCE} ${BASEDIR} || fatal "Second stage of sync failed."
 
-date -u > ${BASEDIR}/project/trace/$(hostname -f)
+date -u > ${BASEDIR}/project/trace/"$(hostname -f)"
 ```
 
 
@@ -83,7 +83,7 @@ dependencies between files, so you can just `rsync`.
 
 
 ```none
-#/bin/dash
+#!/bin/dash
 
 fatal() {
   echo "$1"
@@ -111,6 +111,6 @@ rsync --verbose --recursive --times --links --safe-links --hard-links \
   --stats --delete-after \
   ${RSYNCSOURCE} ${BASEDIR} || fatal "Failed to rsync from ${RSYNCSOURCE}."
 
-date -u > ${BASEDIR}/.trace/$(hostname -f)
+date -u > ${BASEDIR}/.trace/"$(hostname -f)"
 ```
 
