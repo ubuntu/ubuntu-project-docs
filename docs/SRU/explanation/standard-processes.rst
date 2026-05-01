@@ -29,7 +29,8 @@ Standard processes
    evidence that this has happened (typically by including the version
    number of the package tested).
 
--  No iterating in stable releases. 
+-  No iterating in stable releases.
+
 .. [Robie or anyone else needs to explain what they mean here]
 
 .. _explanation-autopkgtest-failures:
