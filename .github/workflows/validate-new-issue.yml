@@ -29,7 +29,7 @@ jobs:
             const urlsWithProtocol = issueBody.match(urlRegex) || [];
             
             // Also extract URLs without protocol (common domains)
-            const domainRegex = /(?:^|\s)((?:documentation\.)?ubuntu\.com\/server[^\s]*)/gi;
+            const domainRegex = /(?:^|\s)((?:documentation\.)?ubuntu\.com\/project[^\s]*)/gi;
             const urlsWithoutProtocol = issueBody.match(domainRegex) || [];
             
             // Also extract from the "Page URL" template field
@@ -67,7 +67,7 @@ jobs:
             // Valid domain patterns for the docs
             const validDomains = [
               'ubuntu.com',  // Catches all ubuntu.com subdomains (documentation.ubuntu.com, archive.ubuntu.com, etc.)
-              'launchpad.net'
+              'launchpad.net',
             ];
             
             // Check if URLs are valid
@@ -81,9 +81,9 @@ jobs:
             console.log('Valid URLs: ' + validUrls.length);
             console.log('Invalid URLs: ' + invalidUrls.length);
             
-            // Check for "local build" exception: if no URL but contains ubuntu-server-documentation path from local error
-            const hasLocalBuildPath = issueBody.includes('ubuntu-server-documentation');
-            console.log('Contains ubuntu-server-documentation path: ' + hasLocalBuildPath);
+            // Check for "local build" exception: if no URL but contains ubuntu-project-docs path from local error
+            const hasLocalBuildPath = issueBody.includes('ubuntu-project-docs');
+            console.log('Contains ubuntu-project-docs path: ' + hasLocalBuildPath);
             
             // Check for "missing documentation" exception where the reporter is requesting docs on a topic (no docs yet = no valid URL
             const missingDocPatterns = [
