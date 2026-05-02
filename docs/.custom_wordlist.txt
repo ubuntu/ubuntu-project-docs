@@ -3,6 +3,7 @@ ABIs
 Ayatana
 allowlist
 apport
+archs
 auditable
 autobuilders
 autofill
@@ -15,12 +16,14 @@ backported
 Backporters
 backporting
 backtrace
+basename
 BBtext
 binNMUs
 bioinformatics
 blocklisted
 boolean
 bootable
+bootcycle
 bootloader
 bootloaders
 bugfix
@@ -82,6 +85,7 @@ Guiver
 gvfs
 homeserver
 homeservers
+Hotspot
 html
 impactful
 Indri
@@ -93,9 +97,11 @@ ISO
 ISOs
 ITPs
 Jackalope
+Javadoc
 Jira
 Jitsi
 Jono
+jtreg
 Konsole
 Kontrast
 Kubuntu
@@ -136,6 +142,7 @@ neurotype
 onboarding
 oniguruma
 OSI's
+openjdk
 packageset
 packagesets
 papercuts
@@ -189,6 +196,7 @@ sysroot
 systemd
 tarball
 Tegra
+testsuite
 timeframes
 TKey
 todo
