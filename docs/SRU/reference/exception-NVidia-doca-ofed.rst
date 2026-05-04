@@ -53,7 +53,21 @@ make the user update to the newer release. This happens until the new release
 is an LTS one.
 
 If a user has a LTS release installed, the versioning will make the user update
-*ONLY* to the newer LTS release, if available for the installed Ubuntu release.
+*ONLY* to the newer LTS release, if available for the installed Kernel.
+
+What this document is asking, is for an SRU exception for the following rules:
+
+- Interim (Short-Lived) Releases: these versions require an exception for HWE
+  (Hardware Enablement) and micro-releases.
+  Rather than receiving incremental patches, these three releases are updated
+  via comprehensive package upgrades, which must be reflected as new package
+  submissions to the Universe repository.
+- LTS Releases: A micro-release exception is necessary for LTS versions to
+  facilitate the delivery of bug fixes and new features from the last
+  ad-interim release of the year.
+  Since these updates are not handled upstream via standard patching and the
+  release maintains a full year support lifecycle, this exception ensures
+  the software remains robust without requiring new hardware support.
 
 
 .. _doca-ofed_release_schedule:
@@ -133,6 +147,10 @@ The test confirms that:
 - Using ibstatus all the Infiniband interfaces are available
 - Using ib_write tests a loopback Infiniband fully works
 - Start the NVIDIA fabric manager and confirm it correctly boots
+
+The sequence of tests are manually run by an operator, and are
+described in more details
+`here <https://canonical-kteam-docs.readthedocs-hosted.com/latest/reference/nvidia/mofed/#testing-doca-ofed>`__
 
 
 .. _nvidia_doca_ofed_sru_template:
