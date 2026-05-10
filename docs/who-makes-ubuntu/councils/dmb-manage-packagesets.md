@@ -1,6 +1,11 @@
 (dmb-manage-packagesets)=
 # DMB Manage packagesets
 
+```{include} ../_dmb-series.md
+```
+
+
+
 ```{note}
 This page is about how to create and modify a packageset.
 

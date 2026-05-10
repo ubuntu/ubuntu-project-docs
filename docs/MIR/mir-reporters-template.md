@@ -1,6 +1,13 @@
 (mir-reporters-template)=
 # MIR reporter's template
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 This section is a guideline for the **reporter** as they are
 {ref}`filing an MIR bug <mir-step-1>`. The intent is to:
 

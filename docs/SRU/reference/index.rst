@@ -28,6 +28,15 @@ Learn more about the criteria to accept a package update, about your responsibil
     package-specific
     historical-removals
 
+Testing and SRU verification
+----------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   enable-proposed
+   sru-verification
+
 Contact
 -------
 

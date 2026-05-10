@@ -243,6 +243,12 @@ who-makes-ubuntu/about-roles/index-MIR/ MIR/mir-about-the-mir-role/
 
 explanation/main-inclusion-review/ MIR/main-inclusion-review/
 
+# Those three had components of the same topic which was hard to get a
+# full overview and therefore got combined which removed the old pages.
+MIR/mir-about-the-mir-role/ MIR/main-inclusion-review/
+MIR/mir-team-meeting/ MIR/mir-team-communication/
+MIR/mir-service-level-objectives/ MIR/mir-roles-and-steps/
+
 # =============================================================================
 # Release team
 # =============================================================================

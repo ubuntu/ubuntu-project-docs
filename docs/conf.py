@@ -292,7 +292,6 @@ extensions = [
     "sphinx_prompt",
     "sphinx.ext.extlinks",
     "sphinx_togglebutton",
-    "sphinx.ext.graphviz",
     "sphinx_llm.txt",
 ]
 

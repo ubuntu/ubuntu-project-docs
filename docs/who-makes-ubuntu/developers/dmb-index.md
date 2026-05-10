@@ -1,6 +1,11 @@
 (ubuntu-developers)=
 # Ubuntu Developers
 
+```{include} ../_dmb-series.md
+```
+
+
+
 ```{toctree}
 :titlesonly:
 :hidden:

@@ -1,6 +1,13 @@
 (mir-exceptions-fonts)=
 # MIR exception - font packages
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 Given that fonts are just data, there's no way for them to trip any of the
 problems that would cause us to not want to support them. Therefore not all of
 the process have to be followed for these.

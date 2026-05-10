@@ -1,6 +1,11 @@
 (dmb-meetings)=
 # DMB meetings
 
+```{include} ../_dmb-series.md
+```
+
+
+
 The {ref}`dmb` conducts meetings every two weeks.
 
 

@@ -1,6 +1,11 @@
 (dmb-joining-sru-dev)=
 # SRU Developers
 
+```{include} ../_dmb-series.md
+```
+
+
+
 SRU Developers are developers with a specialisation in working on [Stable Release Updates](https://documentation.ubuntu.com/sru/en/latest/) in Ubuntu.
 They are granted direct upload to the Ubuntu Archive for all packages -- but only to the stable releases.
 
