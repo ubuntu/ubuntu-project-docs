@@ -69,12 +69,6 @@ The primary benefits of using hardware security keys include:
   operations. This adds a crucial layer of control over who can manage and use
   the key.
 
-By generating subkeys (see below) directly on the hardware key you also
-gain the ability to create an
-[attestation certificate](https://developers.yubico.com/PGP/Attestation.html).
-Such a certificate can be published by you to allow verification of your key by
-third parties.
-
 We recommend configuring the key for user-presence.
 Combination with attestation `Fixed` is the suggested
 [touch policy](https://docs.yubico.com/software/yubikey/tools/ykman/OpenPGP_Commands.html#touch-policies).
