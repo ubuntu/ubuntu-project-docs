@@ -342,7 +342,7 @@ manpages_url = (
 
 myst_substitutions = {
     "stable_distro": stable_distro,
-    "release_schedule": "https://discourse.ubuntu.com/t/questing-quokka-release-schedule/36462",
+    "release_schedule": "https://documentation.ubuntu.com/release-notes/26.04/schedule/",
 }
 
 # Configure hoverxref options
