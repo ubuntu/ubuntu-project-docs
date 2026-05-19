@@ -62,33 +62,13 @@ Attend your meeting
 (dmb-create-a-discourse-post)=
 ## Create a Discourse post
 
-Create a dedicated Discourse page for your application in the [Developer Membership section](https://discourse.ubuntu.com/c/community/developer-membership/423), using the [Developer Application Template](https://discourse.ubuntu.com/t/developer-application-template/66670).
+Create (or update) a dedicated Discourse page for your application in the [Developer Membership section](https://discourse.ubuntu.com/c/community/developer-membership/423).
 
-On this page you should (at least):
-
-* Introduce yourself and your past Ubuntu-related work
-
-* Include a "Contact Information" section with
-
-  * Your Matrix nickname
-
-  * Your Launchpad ID
-
-You can look at other people's pages for ideas of other things you can include.
-You'll be reusing this text in your membership applications later.
-
-
-(dmb-prepare-application-form)=
-## Prepare your application form
-
-In your {ref}`personal Discourse page <dmb-create-a-discourse-post>`, copy and paste the [Developer Application Template](https://discourse.ubuntu.com/t/developer-application-template/66670) and add your details in each section.
-
-Specify in your post title what upload rights you're applying for.
+The content of this page you should follow the [Developer Application Template](https://discourse.ubuntu.com/t/developer-application-template/66670)
 
 ```{note}
-You can look at [past Wiki applications](https://wiki.ubuntu.com/Home?action=fullsearch&context=180&value=DeveloperApplication&titlesearch=Titles) such as [{spellexception}`Paride`'s](https://wiki.ubuntu.com/ParideLegovini/UbuntuServerDeveloperApplication) or check out the Discourse [Ubuntu Membership section](https://discourse.ubuntu.com/c/community/membership/93) if you need some examples.
+You can look at [past applications](https://discourse.ubuntu.com/c/community/developer-membership/423) if you need some examples.
 ```
-
 
 (dmb-collect-endorsements)=
 ## Collect endorsements
