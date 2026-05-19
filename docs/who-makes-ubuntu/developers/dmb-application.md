@@ -24,31 +24,28 @@ To understand how the Ubuntu development skills map to the various uploader leve
 
 ## Application process overview
 
-Reserve your spot
-: Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see when the DMB next meeting is, and to check the queue of applications.
-: Only a few applications are considered each meeting so if there's a queue, make sure to reserve a spot for when you think you'll be ready for consideration.
-: Applications to {ref}`Ubuntu Contributing Developers <dmb-joining-contributing>` are handled only via the mailing list, therefore no agenda entry is needed for those (the DMB will vote as replies to your post to the `devel-permissions@` mailing list).
-
-Create your space
-: If it's your first time applying for upload rights, {ref}`dmb-create-a-discourse-post`. If you already have a post, you can reuse it.
-
 Training and preparation
-: The depth of your learning here depends on the upload rights you are applying
-  for:
-: 1. {ref}`PPU or packageset <packageset-training-and-preparation>`
-: 1. {ref}`MOTU <motu-training-and-preparation>`
-: 1. {ref}`Core Developer <core-dev-training-and-preparation>`
+: The depth of your required learning depends on the upload rights you are applying for:
+  * {ref}`PPU or packageset <packageset-training-and-preparation>`
 
-Prepare application form
-: {ref}`dmb-prepare-application-form` on your Discourse post.
+  * {ref}`MOTU <motu-training-and-preparation>`
+
+  * {ref}`Core Developer <core-dev-training-and-preparation>`
+
+Create your Application on Discourse
+: {ref}`dmb-create-a-discourse-post` to hold the details about you in the context of the Ubuntu project.
+: Note: If you already have a post from a former application, you can reuse it.
 
 Collect endorsements
 : {ref}`dmb-collect-endorsements` from those who have worked with you.
 
-Once you have enough endorsements
-: If you haven't already, add yourself to the [DMB agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634).
-: Then you can announce your application and meeting date by writing an email to the `devel-permissions@` mailing list. Your email should include:
+Once you have enough endorsements - Reserve your agenda spot
+: Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see upcoming DMB meetings.
+: Only one application can be considered each meeting.
+: Note: Applications to {ref}`Ubuntu Contributing Developers <dmb-joining-contributing>` are handled only via the mailing list, therefore no agenda entry is needed for those (the DMB will vote as replies to your post to the `devel-permissions@` mailing list).
 
+Once you have an agenda spot - announce your application
+: Announce your application and selected meeting date by writing an email to the `devel-permissions@` mailing list. Your email should include:
   * The link to your Discourse application page
 
   * The date you reserved for your meeting
