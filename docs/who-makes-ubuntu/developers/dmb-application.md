@@ -30,8 +30,7 @@ Reserve your spot
 : Applications to {ref}`Ubuntu Contributing Developers <dmb-joining-contributing>` are handled only via the mailing list, therefore no agenda entry is needed for those (the DMB will vote as replies to your post to the `devel-permissions@` mailing list).
 
 Create your space
-: If it's your first time applying for upload rights, {ref}`dmb-create-a-discourse-post`. If you already have a page, you can
-  reuse it.
+: If it's your first time applying for upload rights, {ref}`dmb-create-a-discourse-post`. If you already have a post, you can reuse it.
 
 Training and preparation
 : The depth of your learning here depends on the upload rights you are applying
