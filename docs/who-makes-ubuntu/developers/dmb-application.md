@@ -56,7 +56,7 @@ Once you have enough endorsements
   * A link to the meeting agenda
 
 Attend your meeting
-: Then you can {ref}`attend your meeting <dmb-application-meeting>`, answer questions, and receive your votes.
+: Then {ref}`attend your meeting <dmb-application-meeting>`, answer questions, and receive your votes.
 
 
 (dmb-create-a-discourse-post)=
