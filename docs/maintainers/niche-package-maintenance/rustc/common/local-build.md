@@ -29,6 +29,12 @@ $ sbuild -Ad <release> \
     --extra-repository="deb [trusted=yes] http://ppa.launchpadcontent.net/<lpuser>/<ppa_name>/ubuntu/ <release> main"
 ```
 
+A common case is including the Staging PPA for bootstrapping:
+```none
+$ sbuild -Ad <release> \
+    --extra-repository="deb [trusted=yes] http://ppa.launchpad.net/rust-toolchain/staging/ubuntu/ <release> main"
+```
+
 #### Fixing bugs
 
 If the build fails, it's up to you to figure out why. This will require problem-solving skills and attention to detail.
@@ -61,7 +67,7 @@ $ debian/rules override_dh_auto_test-arch RUSTBUILD_TEST_FLAGS="src/bootstrap/ -
 
 #### Proper patch header format
 
-In order to fix certain bugs, it's likely you'll need to create your own patch at some point. It's important that this patch contains enough information for other people to understand _what_ it's doing and _why_ it's doing it.
+In order to fix certain bugs, you'll likely need to create your own patch at some point. It's important that this patch contains enough information for other people to understand _what_ it's doing and _why_ it's doing it.
 
 First, ensure that [Debian](https://salsa.debian.org/rust-team/rust/-/tree/debian/experimental?ref_type=heads) has not already created an equivalent patch. If so, you can simply use their patch directly. If you need to modify the patch in any way, make sure to add `Origin: backport, <Debian VCS patch URL>` to the patch header.
 
