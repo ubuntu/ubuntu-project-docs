@@ -44,6 +44,15 @@ compatible releases that are supported, starting with 26.04. For example, when
 the currently hypothetical 14.1.0 version is released for 28.04, it will be
 SRU'd to 27.10 and 26.04.
 
+A few binary package have the same name between two minor versions:
+-  cuda
+-  cuda-toolkit and cuda-toolkit-<MAJOR>
+
+Users expect these binary packages to be rolling. They can use
+cuda-<MAJOR>-<MINOR> and cuda-toolkit-<MAJOR>-<MINOR> to be sure to stay on
+the same minor version. NVIDIA recommends the installation of minor-tight
+CUDA versions in their own documentation.
+
 **Patch versions**:
 
 Patch versions do replace the corresponding existing version so e.g. 13.2.1 will
