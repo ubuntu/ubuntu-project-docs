@@ -37,58 +37,11 @@ $ sudo apt update && \
 {term}`encryption keys <Signing Key>`. You'll need it later to be able to add
 a {term}`signature` to each {ref}`upload <uploading-to-the-archive>`.
 
-This setup example is quite concise and only contains the basics, but
-eventually the {term}`private key <Signing Key>` will represent your identity
-and therefore has to be {ref}`kept safe <pgp-key-storage>` and out of reach of
-other entities.
-
-
-* Install and set up GPG normally.
-* List the keys and make sure you associate the email you want to use for
-  publishing.
-
-  ```none
-  $ gpg --list-secret-key
-  /home/karl/.gnupg/pubring.kbx
-  -----------------------------
-  sec   rsa4096 2018-08-15 [SC]
-        7C177302572849D84A5048349E9C224744EF2A5A
-  uid           [ultimate] Karl Stenerud <kstenerud@gmail.com>
-  ssb   rsa4096 2018-08-15 [E]
-  ```
-
-  * In this case, my Canonical address isn't in there, so I need to add it:
-
-    ```none
-    $ gpg --edit-key 7C177302572849D84A5048349E9C224744EF2A5A
-    ...
-    gpg> adduid
-    Real name: Karl Stenerud
-    Email address: karl.stenerud@canonical.com
-    Comment:
-    You selected this USER-ID:
-        "Karl Stenerud <karl.stenerud@canonical.com>"
-
-    Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
-    ```
-
-* Then save and quit:
-
-  ```none
-  gpg> save
-  ```
-
-* And push to the keyserver:
-
-  ```none
-  $ gpg --keyserver keyserver.ubuntu.com --send-keys 7C177302572849D84A5048349E9C224744EF2A5A
-  ```
-
-Make sure you note the key strength of your GPG key. In this case its rsa4096,
-but if you have an older key it may be a weaker 2048-bit or 1024-bit key. If
-so, create a new 4096-bit one and deprecate the old one in Launchpad, GitHub,
-etc.
-
+Eventually the {term}`key <Signing Key>` will represent your identity.
+Therefore it needs {ref}`fulfil several recommendations <pgp-key-storage>`
+and be kept safe as well as out of reach of other entities.
+The setup to do so can be quite complex and is outlined step by step
+in {ref}`set-up-and-manage-pgp-keys`.
 
 (git)=
 ### Git

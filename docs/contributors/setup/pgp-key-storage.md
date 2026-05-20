@@ -53,7 +53,7 @@ Project strongly encourages, though does not strictly mandate, the adoption of
 hardware security keys that support PGP operations. Devices such as some
 YubiKey models, designed with secure elements, offer a significant enhancement
 over purely file-based PGP key protection. We are not selecting a particular
-manufacturer like Yubikey or model, alternatives like
+manufacturer like YubiKey or model, alternatives like
 [TKey](https://www.tillitis.se/products/tkey/) are just as valid. Check their
 capabilities against the recommended setup outlined here when selecting one.
 
@@ -182,15 +182,8 @@ their usage will be included here once possible.
 (pgp-setup-guidelines)=
 ## Setup guidelines
 
-The guide on an {ref}`Ubuntu developer’s initial setup <gnupg>` so far only
-outlines the basic usage of PGP keys. Guides on setting up and using PGP-capable
-hardware security keys shall be provided via the project's documentation once
-we standardize more on it.
-
-Until then, starting with these articles on
-[Using your YubiKey with OpenPGP](https://support.yubico.com/s/article/Using-Your-YubiKey-with-OpenPGP)
-and the [YubiKey Guide](https://drduh.github.io/YubiKey-Guide) are a great way
-to begin.
+The guide about {ref}`set-up-and-manage-pgp-keys` outlines all the steps
+needed to achieve the goals outlined in this policy about the usage of PGP keys.
 
 ## Alternatives
 
@@ -237,9 +230,4 @@ related aspects that are known to still be missing. Tracking them here
 within the document itself for easier reader awareness to avoid searching
 for them in vain.
 
-* The {ref}`pgp-setup-guidelines` are not yet defined in detail.
-* It would be great to add what actions to take if a key or signing compromise
-  is suspected.
 * Set of requirements an alternative recommendation would need to fulfil
-* Outline what "in a secure location" could be in a sub-article. That will
-  probably never be complete, but could list acknowledged known good/bad cases.

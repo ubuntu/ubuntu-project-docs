@@ -241,6 +241,7 @@ Xubuntu
 Yakkety
 Yaru
 Yubikey
+Yubikeys
 Zapus
 Zentyal
 Zope
@@ -272,6 +273,7 @@ pbuilder
 reportbug
 rmadison
 rustc
+smartcard
 Snapcraft
 snapcraft
 SRU
