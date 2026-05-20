@@ -1,12 +1,10 @@
-.. _reference-exception-nvidia-cuda:
+.. _reference-exception-Nvidia-Cuda-Updates:
 
-#####################
- Nvidia CUDA updates
-#####################
+Nvidia CUDA updates
+===================
 
-**************
- Introduction
-**************
+Introduction
+-------------
 
 This document describes the policy, process and criteria for updating NVIDIA
 CUDA libraries in a stable supported distro, including LTS.
@@ -29,11 +27,12 @@ install files under /usr/local. The exception is temporary, and we are working o
 plan to remove it with CUDA 14.x. Any SRU request that is patching a CUDA version
 relying on the exception is expected to keep installing files under /usr/local.
 
-*******************
- Released versions
-*******************
+.. _release_versions:
 
-Minor versions:
+Released versions
+------------------
+
+**Minor versions**:
 
 CUDA packages are released in the multiverse pocket.
 CUDA's minor versions are meant to be available and installable in parallel, and
@@ -45,7 +44,7 @@ compatible releases that are supported, starting with 26.04. For example, when
 the currently hypothetical 14.1.0 version is released for 28.04, it will be
 SRU'd to 27.10 and 26.04.
 
-Patch versions:
+**Patch versions**:
 
 Patch versions do replace the corresponding existing version so e.g. 13.2.1 will
 replace 13.2.0.
@@ -56,9 +55,8 @@ compatible releases that are supported. For example, 26.04 was released with
 
 .. _requesting_sru:
 
-********************************
- NVIDIA CUDA Requesting the SRU
-********************************
+NVIDIA CUDA Requesting the SRU
+-------------------------------
 
 The SRU should be done with a single process bug appropriately named
 `cuda-X-Y`, instead of individual bug
@@ -85,22 +83,24 @@ reports for individual bug fixes. The one bug should have the following:
 
 .. _packaging_qa:
 
-**************************
- NVIDIA CUDA Packaging QA
-**************************
+
+NVIDIA CUDA Packaging QA
+-------------------------
 
 The objective of the QA is to test:
 
-- Package installation from scratch
-- Package upgrades
-- Compliance with NVIDIA's own releases
-  - Making sure that we deliver the right binary in the right packages with
-    the right license and dependencies
-  - Making sure the CUDA installation is working as expected (integration
-    tests with cuda samples).
-- Compatibility with NVIDIA's own releases and repos
-  - Making sure that NVIDIA's packages supersede ours, and that users adding
-    the NVIDIA repo don't end up with a mix of our packages and NVIDIA's packages
+-  Package installation from scratch
+-  Package upgrades
+-  Compliance with NVIDIA's own releases
+
+   -  Making sure that we deliver the right binary in the right packages with
+      the right license and dependencies
+   -  Making sure the CUDA installation is working as expected (integration
+      tests with cuda samples).
+-  Compatibility with NVIDIA's own releases and repos
+
+   -  Making sure that NVIDIA's packages supersede ours, and that users adding
+      the NVIDIA repo don't end up with a mix of our packages and NVIDIA's packages
 
 This QA is implemented as an autopkgtest within each source package. The result
 of the tests will be attached to the SRU bug. The package upgrade must be
@@ -108,9 +108,9 @@ attempted manually, from a fresh installation.
 
 .. _integration_tests:
 
-*******************
- Integration tests
-*******************
+
+Integration tests
+------------------
 
 - `Certification test suite
   <https://github.com/canonical/checkbox/blob/main/providers/gpgpu/units/cuda.pxu>`__
@@ -119,9 +119,9 @@ attempted manually, from a fresh installation.
 
 .. _sru_template:
 
-**************************
- NVIDIA CUDA SRU Template
-**************************
+
+NVIDIA CUDA SRU Template
+-------------------------
 
 ::
 
@@ -135,7 +135,7 @@ attempted manually, from a fresh installation.
 
     [Test Plan]
     The following development and SRU process was followed:
-    https://documentation.ubuntu.com/sru/en/latest/reference/exception-nvidia-cuda/
+    https://documentation.ubuntu.com/sru/en/latest/reference/exception-Nvidia-Cuda-Updates/
 
     <TODO Document any QA done, automated and manual>
 
