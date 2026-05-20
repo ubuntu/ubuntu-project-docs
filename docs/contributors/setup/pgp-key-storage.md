@@ -69,9 +69,9 @@ The primary benefits of using hardware security keys include:
   operations. This adds a crucial layer of control over who can manage and use
   the key.
 
-We recommend configuring the key for user-presence.
-Combination with attestation `Fixed` is the suggested
-[touch policy](https://docs.yubico.com/software/yubikey/tools/ykman/OpenPGP_Commands.html#touch-policies).
+We recommend configuring the key for [user-presence](https://docs.yubico.com/software/yubikey/tools/ykman/OpenPGP_Commands.html#touch-policies)
+and [pin input](https://docs.yubico.com/software/yubikey/tools/ykman/OpenPGP_Commands.html#ykman-openpgp-access-set-signature-policy-options-policy)
+to reduce the chance that a program can sign on your behalf without your awareness.
 
 (pgp-encrypted-offline-storage)=
 ### Encrypted offline storage
