@@ -16,7 +16,7 @@ example for AI/ML. Canonical has a redistribution agreement with NVIDIA to
 redistribute the CUDA libraries in the Ubuntu archive. Per the agreement, Canonical
 must deliver the prebuilt binaries from NVIDIA without modifications.
 
-CUDA consists of ~37 new source packages for every minor version. Minor versions
+CUDA consists of about 37 new source packages for every minor version. Minor versions
 are released on average every 3 months. Each minor version usually receives one or
 two patch versions, which will be candidates for SRUs. Since our redistribution 
 agreement requires us to match NVIDIA's changes exactly within a given CUDA release,
@@ -33,14 +33,26 @@ relying on the exception is expected to keep installing files under /usr/local.
  Released versions
 *******************
 
+Minor versions:
+
 CUDA packages are released in the multiverse pocket.
 CUDA's minor versions are meant to be available and installable in parallel, and
-therefore e.g. 13.2 does not replace 13.1 in Ubuntu. Patch versions do replace the
-corresponding existing version so e.g. 13.2.1 will replace 13.2.0.
-CUDA's minor version package sets are meant to be broadly backported to
+therefore e.g. 13.2 does not replace 13.1 in Ubuntu. Minor versions are always a
+new set of source packages, suffixed with MAJOR.MINOR, e.g. cuda-13-2.
+
+CUDA's minor version package sets are meant to be broadly SRU'd to
 compatible releases that are supported, starting with 26.04. For example, when
 the currently hypothetical 14.1.0 version is released for 28.04, it will be
-backported to 27.10 and 26.04.
+SRU'd to 27.10 and 26.04.
+
+Patch versions:
+
+Patch versions do replace the corresponding existing version so e.g. 13.2.1 will
+replace 13.2.0.
+
+CUDA's patch version package sets are also meant to be broadly SRU'd to
+compatible releases that are supported. For example, 26.04 was released with
+13.1.1 and when 13.1.2 is available in devel it will be SRU'd up until 26.04.
 
 .. _requesting_sru:
 
@@ -54,8 +66,8 @@ reports for individual bug fixes. The one bug should have the following:
 
 - The SRU should be requested per the :ref:`StableReleaseUpdates
   <howto-perform-standard-sru>` documented process
-- The template at the end of this document should be used and all ‘TODO’ filled
-  out
+- The template at the end of this document should be used and all ‘TODO’ items
+  filled out
 - This SRU exception applies to only the multiverse archive component.
 - The changelog will contain a reference to the single SRU process bug, not all
   bugs fixed by the SRU. However, if there are very important bugs that are
@@ -81,11 +93,14 @@ The objective of the QA is to test:
 
 - Package installation from scratch
 - Package upgrades
-- Compliancy with NVIDIA's own releases
-  - Making sure that we deliver the right binary in the right packages with the right license and dependencies
-  - Making sure the CUDA installation is working as expected (integration tests with cuda samples).
+- Compliance with NVIDIA's own releases
+  - Making sure that we deliver the right binary in the right packages with
+    the right license and dependencies
+  - Making sure the CUDA installation is working as expected (integration
+    tests with cuda samples).
 - Compatibility with NVIDIA's own releases and repos
-  - Making  sure that NVIDIA's packages superseed us, and that users adding the NVIDIA repo don't end up with a mix of our packages and NVIDIA's packages
+  - Making sure that NVIDIA's packages supersede ours, and that users adding
+    the NVIDIA repo don't end up with a mix of our packages and NVIDIA's packages
 
 This QA is implemented as an autopkgtest within each source package. The result
 of the tests will be attached to the SRU bug. The package upgrade must be
@@ -129,8 +144,8 @@ attempted manually, from a fresh installation.
     will not mark ‘verification-done’ until this has happened.
 
     [Where problems could occur]
-    NVIDIA could be delivering a not-so-minor change that could cause regressions. The pre-built nature of CUDA
-    prevent us to detect that. It could not install anymore due to a missing newly added package, for example.
-    The installation test, the autopkgtests and the integration tests should be able to detect that.
+    NVIDIA could deliver a not-so-minor change that could cause regressions. The pre-built nature of CUDA
+    prevents us from detecting that. It might fail to install due to a newly added missing package, for example.
+    The installation test, the autopkgtests and the integration tests will to detect that.
 
     <TODO: attach test artifacts for every SRU release, not a link as links expire>
