@@ -62,9 +62,7 @@ Term Support releases:
    of newly introduced drivers must not overlap with previously shipped
    drivers. This also includes updating hardware description data such
    as udev keymaps, media-player-info, mobile broadband vendors, or
-   PCI vendor/product list updates. To avoid regressions on upgrade, any
-   such hardware enablement must first also be added to any newer
-   supported Ubuntu release.
+   PCI vendor/product list updates.
 
 .. _reference-criteria-features:
 
@@ -74,9 +72,7 @@ Term Support releases:
    existing software needs to be modified to make use of the new
    feature, it must be demonstrated that these changes are non-intrusive,
    have a minimal regression potential, and have been tested properly.
-   To avoid regressions on upgrade, any such feature must then also be
-   added to any newer supported Ubuntu release. Once a new
-   feature/package has been introduced, subsequent changes to it are
+   Once a new feature/package has been introduced, subsequent changes to it are
    subject to the usual requirements of SRUs to avoid regressions.
 -  **FTBFS** (Fails To Build From Source) can also be considered. Please
    note that in **main** the release process ensures that there are no
@@ -143,10 +139,14 @@ Out of scope
 General requirements for all SRUs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  The development release must already be fixed and its bug task marked
-   "Fix Released", unless the development release is not yet open, in
-   which case the development release upload must be prepared, ready and
-   documented [:ref:`explanation <explanation-devel-first>`].
+-  To avoid regressions on upgrade, the development release and any newer
+   supported Ubuntu release than the one targted must already be fixed and its
+   bug task marked "Fix Released".
+   Exceptions may apply, but still need to prevent regressions
+   on upgrade.
+   Please read the :ref:`details about reasoning, special cases
+   and potential exceptions <explanation-devel-first>` to this requirement.
+
 -  Changes must be minimal [:ref:`explanation <explanation-minimal>`],
    unless at least one of the following cases apply:
 
