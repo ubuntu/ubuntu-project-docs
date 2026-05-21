@@ -177,6 +177,33 @@ The part with the Launchpad bug number is optional but should be included if an 
 
 ```
 
+
+(rust-rolling-back-the-rva23-target)=
+### Rolling back the RVA23 target
+
+As of 25.10, Ubuntu has made the RISC-V RVA23 profile mandatory. Therefore, starting with [`rustc-1.92`](https://launchpad.net/ubuntu/+source/rustc-1.92), the Rust platform for `riscv64` targets on Ubuntu is [`riscv64a23-unknown-linux-gnu`](https://doc.rust-lang.org/beta/rustc/platform-support/riscv64a23-unknown-linux-gnu.html) instead of [`riscv64gc-unknown-linux-gnu`](https://doc.rust-lang.org/beta/rustc/platform-support/riscv64gc-unknown-linux-gnu.html).
+
+Any Ubuntu releases before 25.10 don't require RVA23, meaning that any Rust code built with the RVA23 target on those releases wouldn't run on pre-RVA23 machines.
+
+Because of this, every time you backport a new toolchain to *any release older than 25.10*, you must verify that `debian/architecture.mk` uses `riscv64gc`, not `riscv64a23`.
+
+Luckily, the change itself is simple — change the Rust platform architecture in `debian/architecture.mk` from `riscv64a23` to `riscv64gc`:
+
+```diff
+--- a/debian/architecture.mk
++++ b/debian/architecture.mk
+@@ -3,7 +3,7 @@
+ include /usr/share/dpkg/architecture.mk
+
+ rust_cpu = $(subst i586,i686,\
+-$(if $(findstring -riscv64-,-$(2)-),$(subst riscv64,riscv64a23,$(1)),\
++$(if $(findstring -riscv64-,-$(2)-),$(subst riscv64,riscv64gc,$(1)),\
+ $(if $(findstring -armhf-,-$(2)-),$(subst arm,armv7,$(1)),\
+ $(if $(findstring -armel-,-$(2)-),$(subst arm,armv5te,$(1)),\
+ $(1)))))
+```
+
+
 ```{include} common/local-build.md
 
 ```
@@ -953,7 +980,11 @@ Hopefully, the PPA builder will run out of space _past_ the point at which `stag
 (rust-stage0-bootstrap)=
 ### Using an upstream stage0 bootstrap toolchain
 
-If no packaged version of the Rust toolchain is available to use for bootstrapping, it is possible to use the stage0 compiler provided by the upstream Rust project. These are pre-built binaries of the previous Rust release, which can be used to build the new Rust version from source. To identify a package built in this way, include `~stage0` in the version string just before the hyphen, for example `1.92.0+dfsg~24.04~stage0-0ubuntu1~24.04.3`. After creating an entry in `debian/changelog` with the appropriate version string, run the following command to generate the stage0 tarball:
+If no packaged version of the Rust toolchain is available to use for bootstrapping, it is possible to use the stage0 compiler provided by the upstream Rust project. These are pre-built binaries of the previous Rust release, which can be used to build the new Rust version from source. To identify a package built in this way, include `~stage0` in the version string just before the hyphen, for example `1.92.0+dfsg~24.04~stage0-0ubuntu1~24.04.3`.
+
+Additionally, ensure that the correct RISC-V target is set before generating the stage0 compiler. This process is detailed in the {ref}`Rolling back the RVA23 target <rust-rolling-back-the-rva23-target>` section above.
+
+After creating an entry in `debian/changelog` with the appropriate version string, run the following command to generate the stage0 tarball:
 
 ```none
 $ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<...> debian/rules source_orig-stage0
