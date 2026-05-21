@@ -62,6 +62,12 @@ CUDA's patch version package sets are also meant to be broadly SRU'd to
 compatible releases that are supported. For example, 26.04 was released with
 13.1.1 and when 13.1.2 is available in devel it will be SRU'd up until 26.04.
 
+In the past, a patch version of nsight-compute could change the name of a
+binary package. For example, 13.2.0 had `nsight-compute-2026.1.0` while
+13.2.1 had `nsight-compute-2026.1.1`. In such cases, the new package, this
+SRU exception allows the patch version to be SRU'd only if there is a
+transitional package from the old name to the new name.
+
 .. _requesting_sru:
 
 NVIDIA CUDA Requesting the SRU
