@@ -33,7 +33,7 @@ Overview
 
 A typical SRU is performed like this:
 
-1. Ensure the bug is fixed in the :term:`current development release <Current Release in Development>` and all subsequent supported releases to ensure consistency across different Ubuntu versions, especially :ref:`preventing regressions when users upgrade to newer releases<explanation-devel-first>`.
+1. Ensure the bug is fixed in the :term:`current development release <Current Release in Development>` and all subsequent supported releases to ensure consistency across different Ubuntu versions, especially :ref:`preventing regressions when users upgrade to newer releases<explanation-devel-first>`. Please read the :ref:`details about reasoning, special cases and potential exceptions <explanation-devel-first>` to this requirement.
 #. Update the **existing** bug report detailing the Impact of the Bug, the Test Plan to verify that the bug was fixed and highlight where problems could occur.
 #. Get the package with the SRU patch into the upload queue.
 #. The SRU team then reviews from the unapproved queue. When the upload is ready, the SRU team accepts the upload into the proposed pocket.
