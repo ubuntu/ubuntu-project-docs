@@ -618,3 +618,33 @@ postfix              PASS
 ```
 
 Save the last part for the description for your merge proposal.
+
+
+## Additional tips
+
+
+### Testing a package from the archive directly
+
+For a quick test of an archive package, you can use the short form without
+building from source:
+
+```none
+$ autopkgtest gzip -U -- qemu /var/lib/adt-images/autopkgtest-noble-amd64.img
+```
+
+The `-U` flag runs `apt-get upgrade` before testing. Omit the trailing slash
+to install the package from the archive rather than a local directory.
+
+
+### Comparing package versions
+
+When deciding whether an SRU version is correct or verifying version ordering,
+use `dpkg --compare-versions`:
+
+```none
+$ dpkg --compare-versions 3.98ubuntu5.3~18.04.1 lt 3.98ubuntu5.3 ; echo $?
+0
+```
+
+An exit code of `0` means the comparison is true. Useful operators include
+`lt`, `le`, `eq`, `ge`, `gt`.

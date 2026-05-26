@@ -364,12 +364,46 @@ For more info, see the
 (caching-packages)=
 ## Caching packages
 
-Downloading packages can be a bottleneck, so it helps to set up a local cache:
+When building packages with tools like `sbuild` or `autopkgtest`, the build
+environment downloads packages from the Ubuntu mirrors on each run. This can
+amount to hundreds of megabytes per build and significantly slow down the
+iteration cycle.
+
+Setting up a local package cache is strongly recommended.
+
+### apt-cacher-ng
+
+The simplest approach is to install `apt-cacher-ng` on your development machine
+with its default configuration:
 
 ```none
-$ echo 'Acquire::http::Proxy "http://127.0.0.1:3142";' \
-| sudo tee /etc/apt/apt.conf.d/01acng
+$ sudo apt install apt-cacher-ng
 ```
+
+Then configure `apt` to use it by creating {file}`/etc/apt/apt.conf.d/01acng` with:
+
+```none
+Acquire::http { Proxy "http://127.0.0.1:3142"; }
+```
+
+See also the `DEBOOTSTRAP_PROXY` setting in {file}`.mk-sbuild.rc` as an example.
+
+
+### auto-apt-proxy
+
+`auto-apt-proxy` detects a cache on your local network automatically. This is
+useful if:
+
+- You have a shared cache on your LAN rather than your local machine.
+- You need the setup to work without reconfiguring when changing networks
+  (e.g., at sprints or conferences).
+
+```none
+$ sudo apt install auto-apt-proxy
+```
+
+Even with a local `apt-cacher-ng`, `auto-apt-proxy` can help resolve the
+correct address to use from inside VMs or containers.
 
 
 ## Configure your groups
