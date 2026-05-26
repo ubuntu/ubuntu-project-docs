@@ -190,7 +190,7 @@ Using the {pkg}`exim4` package as an example.
     ```none
     trying: exim4
     skipped: exim4 (4, 0, 137)
-        got: 11+0: a-0:a-0:a-0:i-2:p-1:r-7:s-1
+        got: 11+0: a-0:a-0:a-0:a-0:i-2:p-1:r-7:s-1
         * riscv64: sa-exim
     ```
 
@@ -211,10 +211,11 @@ Using the {pkg}`exim4` package as an example.
 
         * 137 packages remain to be examined after this package before this check of all packages is completed.
 
-    `got: 11+0: a-0:a-0:a-0:i-2:p-1:r-7:s-1`
+    `got: 11+0: a-0:a-0:a-0:a-0:i-2:p-1:r-7:s-1`
     : The `got` line shows the number of problems in the release pocket on the different architectures (until the first architecture where a problem is found). In this case, it's 11 uninstallable packages on all architectures together. The letters stand for (in this order):
 
         * `a`: amd64
+        * `a`: amd64v3
         * `a`: arm64
         * `a`: armhf
         * `i`: i386
