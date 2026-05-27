@@ -16,14 +16,14 @@ The high level goal is to keep private key material **off disk** and use hardwar
 5. Works with Launchpad/Ubuntu uploads, signed git commits and encryption
 
 
-# Prerequisites
+## Prerequisites
 
-## Hardware
+### Hardware
 
 You need one YubiKey per subkey. The YubiKey(s) must support OpenPGP.
 
 (gpg-prerequisites-packages)=
-## Packages
+### Packages
 
 Install the following packages:
 
@@ -33,7 +33,7 @@ sudo apt install -y gnupg scdaemon pcscd
 sudo systemctl enable --now pcscd.socket
 ```
 
-## GnuPG
+### GnuPG
 
 [GnuPG](https://gnupg.org/) is an encryption tool that helps manage your {term}`encryption keys <Signing-Key>`. You’ll need it later to be able to add a {term}`signature <Signature>` to each {ref}`upload <uploading-to-the-archive>`.
 
@@ -44,13 +44,13 @@ It is **best practice** to generate the primary key on an *offline* machine (or 
 If that’s too heavy, you can still do this on your main machine, but make sure to clear all keys from your hard drive before you get back online and **treat the backup step as non-negotiable**.
 
 
-# Step by Step instructions
+## Step by Step instructions
 
 The following sections will guide you through creating a primary key and
 putting the associated subkeys onto hardware keys. After these steps follows
 a section about day 2 {ref}`pgp-key-day-2-operations`.
 
-## Step 1 — Create the primary key
+### Step 1 — Create the primary key
 
 If you already have a primary key you can skip this step.
 
@@ -97,7 +97,7 @@ If \- for now \- you only wanted to create the software key and do not intend to
 
 
 (pgp-step-2-add-subkeys)=
-## Step 2 — Add subkeys
+### Step 2 — Add subkeys
 
 This section shows how to create Signing and Encryption subkeys using the `gpg` tool:
 
@@ -160,7 +160,7 @@ Which includes:
 - And two additional subkeys for signing \[S\]
 
 (make-your-keys-known)=
-## Step 3 - Make your new key(s) known
+### Step 3 - Make your new key(s) known
 
 If your key is entirely new, or you hereby added additional keys after already uploading the key to the Ubuntu keyserver in the past – you will need to re-upload, otherwise Launchpad will silently reject uploads signed with the (sub)keys.
 
@@ -171,7 +171,7 @@ gpg --keyserver hkps://keyserver.ubuntu.com --send-keys <$KEYFPR>
 ```
 
 
-## Step 4 — Backup
+### Step 4 — Backup
 
 ```{important}
 Do this before touching the YubiKey!
@@ -208,7 +208,7 @@ Finally, store these backups **offline** and **encrypted** and remove them from 
 
 
 (pgp-step-prepare-the-yubikey)=
-## Step 5 — Prepare the YubiKey
+### Step 5 — Prepare the YubiKey
 
 Insert the YubiKey and verify it is visible. Make sure you have only one YubiKey inserted at a time.
 
@@ -281,7 +281,7 @@ To prepare a second YubiKey, repeat {ref}`pgp-step-prepare-the-yubikey` with ano
 ```
 
 
-## Step 6 – Move subkeys to YubiKey
+### Step 6 – Move subkeys to YubiKey
 
 First, you need to move the signing subkey to the signature slot.
 Open the key editor, which will start listing the keys:
@@ -374,7 +374,7 @@ At the step of transferring the signing key (Where you selected the first subkey
 ```
 
 (step-7-remove-your-keys-from-the-system)=
-## Step 7 — Remove your keys from the system
+### Step 7 — Remove your keys from the system
 
 ```{important}
 Before you go on, ensure that you stored the backups created in step 3 in a safe location.
@@ -412,7 +412,7 @@ ssb>  ed25519 2026-05-14 [S] [expires: 2027-08-07]
       Card serial no. = 0006 12345678
 ```
 
-## Step 8 — Git commit signing
+### Step 8 — Git commit signing
 
 First, you need to configure Git. To enable signing git commits, set the `commit.gpgsign` option.
 Either per repository:
@@ -461,7 +461,7 @@ gpg --armor --export "$KEYFPR"
 Copy/paste into GitHub → Settings → SSH and GPG keys.
 
 
-## Step 9 — Launchpad and Ubuntu upload signing
+### Step 9 — Launchpad and Ubuntu upload signing
 
 Ensure Launchpad knows about your public key to associate your username, and thereby its permissions, with your signed uploads: [https://launchpad.net/\~](https://launchpad.net/~)\<your-launchpad-username\>/+editpgpkeys.
 
@@ -478,12 +478,12 @@ You can try uploading a package to a PPA {ref}`as described in the project docum
 
 
 (pgp-key-day-2-operations)=
-# Day 2 operations
+## Day 2 operations
 
 This section covers some critical operations that you might need to look into
 some time later, some of which require the use of your backup of these keys.
 
-## Let another system use the same keys
+### Let another system use the same keys
 
 You received your new computer and want to import your key.
 
@@ -548,7 +548,7 @@ echo "Ubuntu is awesome" | gpg --clearsign
 ```
 
 
-## Updating expiration dates
+### Updating expiration dates
 
 This section shows how to extend the expiration date of the different keys.
 To update the expiration date, you must have access to the private keys, so first import the secret keys from the backup file.
@@ -615,7 +615,7 @@ gpg --import /path/to/your/backup/public-key.asc
 
 Then, upload the updated key to the keyserver as shown in {ref}`make-your-keys-known`.
 
-## If a subkey is compromised
+### If a subkey is compromised
 
 If you followed this guide, then your keys should be safely locked away and backed up, and if only a subkey is compromised, we can use the primary key to generate new subkeys.
 
@@ -650,7 +650,7 @@ Save your changes and *immediately* upload to any keyserver(s) to which you prev
 
 After doing that repeat steps {ref}`pgp-step-2-add-subkeys` to {ref}`step-7-remove-your-keys-from-the-system`, to create new subkeys to replace the revoked ones on your hardware keys.
 
-## If the primary key is compromised
+### If the primary key is compromised
 
 In this case, you should revoke the entire key using the revocation certificate generated in the backup step.
 To do this, acquire your previously generated and backed up revocation certificate and upload it to the keyserver(s):
