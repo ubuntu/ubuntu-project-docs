@@ -188,50 +188,81 @@ specify a destination, it'll default to doing nothing.
 (sbuild)=
 ### sbuild
 
-[sbuild](https://wiki.debian.org/sbuild) is a wrapper script around `schroot`.
+[sbuild](https://wiki.debian.org/sbuild) is the recommended tool for building
+packages on Ubuntu.
 
-```{note}
-A newer backend, `unshare`, can be used for `sbuild` in place of `schroot`. Compared to `schroot`, it does not need chroot configuration and does not need to run the build as root.
+Add your user to the `sbuild` group:
 
-To use `unshare`:
-
-* Install the {pkg}`mmdebstrap` and {pkg}`uidmap` packages.
-
-* Add the following to your `sbuild` configuration in {file}`~/.sbuildrc`:
-
-    ```none
-    $chroot_mode = "unshare";
-    $unshare_mmdebstrap_keep_tarball = 1;
-    ```
-
-Note that while Debian has transitioned to `unshare`, it is not used by Launchpad builders, so it may fail to build some packages.
+```bash
+$ sudo adduser $USER sbuild
+$ newgrp sbuild
 ```
 
-In these examples, replace `my_user` with your own username.
+::::{tab-set}
 
-Make mount points:
+:::{tab-item} Ubuntu 25.10 and later
 
-```none
-$ mkdir -p ~/schroot/build
-$ mkdir -p ~/schroot/logs
+Install the `mmdebstrap` and `uidmap` packages:
+
+```shell
+$ sudo apt install -y mmdebstrap uidmap
 ```
 
-Set up a scratch directory:
+`sbuild` reads the user specific configuration file
+`~/.config/sbuild/config.pl`.
 
-```none
-$ mkdir -p ~/schroot/scratch
-$ echo "/home/my_user/schroot/scratch  /scratch          none  rw,bind  0  0" \
+Create the file if it does not exist:
+```shell
+$ touch ~/.config/sbuild/config.pl
+```
+
+
+Save the file with the following content:
+
+```perl
+$chroot_mode = 'unshare';
+$unshare_mmdebstrap_keep_tarball = 1;
+
+$unshare_tmpdir_template = '/var/tmp/tmp.sbuild.XXXXXXXXXX';
+
+$clean_source = 0;
+$run_lintian = 0;
+```
+
+:::
+
+:::{tab-item} Ubuntu 24.04 LTS and earlier
+
+Make the required mount points for builds, logs, and scratch:
+
+```shell
+$ mkdir -p ~/schroot/{build,logs,scratch}
+```
+
+Add a the scratch directory to `/etc/schroot/sbuild/fstab`:
+
+```shell
+$ echo "$HOME/schroot/scratch  /scratch          none  rw,bind  0  0" \
  >> /etc/schroot/sbuild/fstab
+
 ```
 
 Optionally, you can mount your home directory inside the container:
 
 ```none
-$ echo "/home/my_user  /home/my_user          none  rw,bind  0  0" \
+$ echo "$HOME  $HOME          none  rw,bind  0  0" \
  >> /etc/schroot/sbuild/fstab
 ```
 
-In the following template (`.sbuildrc`), replace the following:
+`sbuild` reads the user specific configuration file
+`~/.config/sbuild/config.pl`.
+
+Create the file if it does not exist:
+```shell
+$ touch ~/.config/sbuild/config.pl
+```
+
+Save the file with the following content, replacing the placeholders:
 
 * `$maintainer_name = 'Your Full Name <your@email.com>';`
 
@@ -239,17 +270,23 @@ In the following template (`.sbuildrc`), replace the following:
 
 * `$log_dir = "/home/my_user/schroot/logs";`
 
-Template:
-
-```none
+```perl
 # Name to use as override in .changes files for the Maintainer: field
 # (optional; only uncomment if needed).
 # $maintainer_name = 'Your Full Name <your@email.com>';
 
+$chroot_mode = 'schroot';
+$unshare_mmdebstrap_keep_tarball = 1;
+
 # Default distribution to build.
-$distribution = "focal";
+$distribution = "resolute";
 # Build arch-all by default.
 $build_arch_all = 1;
+
+# Do not check for the presence of the build dependencies on the host
+# system, as these exist only in the unshare chroot.
+$clean_source = 0;
+$run_lintian = 0;
 
 # When to purge the build directory afterwards; possible values are 'never',
 # 'successful', and 'always'.  'always' is the default. It can be helpful
@@ -259,9 +296,6 @@ $build_arch_all = 1;
 $purge_build_directory = 'successful';
 $purge_session = 'successful';
 $purge_build_deps = 'successful';
-# $purge_build_directory = 'never';
-# $purge_session = 'never';
-# $purge_build_deps = 'never';
 
 # Directory for chroot symlinks and sbuild logs.  Defaults to the
 # current directory if unspecified.
@@ -270,11 +304,20 @@ $build_dir = '/home/my_user/schroot/build';
 # Directory for writing build logs to
 $log_dir = '/home/my_user/schroot/logs';
 
+# Key used to sign the source package. Defaults to not using any key.
+# $key_id = '';
+
 # don't remove this, Perl needs it:
 1;
 ```
 
-A working `.mk-sbuild.rc`:
+Create `~/.mk-sbuild.rc`:
+
+```shell
+$ touch ~/.mk-sbuild.rc
+```
+
+Save the file with the following content:
 
 ```none
 SCHROOT_CONF_SUFFIX="source-root-users=root,sbuild,admin
@@ -287,11 +330,6 @@ SKIP_UPDATES="1"
 SKIP_PROPOSED="1"
 # if you have a local proxy like apt-cacher-ng around enable the following
 # DEBOOTSTRAP_PROXY=http://127.0.0.1:3142/
-```
-
-```{note}
-
-For more info, see the [Ubuntu wiki page on sbuild](https://wiki.ubuntu.com/SimpleSbuild)
 ```
 
 (getting-schroots)=
@@ -329,6 +367,15 @@ Here is an example:
 
 ```none
 $ sudo sbuild-createchroot --include=eatmydata,ccache,gnupg unstable /srv/chroot/unstable-amd64-sbuild http://deb.debian.org/debian
+```
+
+:::
+
+::::
+
+```{note}
+
+For more info, see the [Ubuntu wiki page on sbuild](https://wiki.ubuntu.com/SimpleSbuild)
 ```
 
 
