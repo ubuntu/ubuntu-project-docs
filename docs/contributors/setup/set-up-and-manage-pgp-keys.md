@@ -35,9 +35,9 @@ sudo systemctl enable --now pcscd.socket
 
 ### GnuPG
 
-[GnuPG](https://gnupg.org/) is an encryption tool that helps manage your {term}`encryption keys <Signing-Key>`. You’ll need it later to be able to add a {term}`signature <Signature>` to each {ref}`upload <uploading-to-the-archive>`.
+[GnuPG](https://gnupg.org/) is an encryption tool that helps manage your {term}`encryption keys <Signing Key>`. You’ll need it later to be able to add a {term}`signature <Signature>` to each {ref}`upload <uploading-to-the-archive>`.
 
-Eventually the {term}`private key <Signing-Key>` will represent your identity and therefore must be {ref}`kept safe <pgp-key-storage>` and out of reach of other entities.
+Eventually the {term}`private key <Signing Key>` will represent your identity and therefore must be {ref}`kept safe <pgp-key-storage>` and out of reach of other entities.
 
 It is **best practice** to generate the primary key on an *offline* machine (or at least an offline session) and only use it to create/rotate subkeys. Using a Ubuntu Live image is also a great option as the system is ephemeral and no key will remain on disk once this process is completed.
 
@@ -117,7 +117,7 @@ gpg> addkey
 - Select curve type: `Curve 25519` (default as of now)
 - Set expiration (refer to {ref}`pgp-expiration-dates-and-regular-key-audits`)
 
-If you want to set up multiple redundant YubiKeys (allow {ref}`different expiration <expiration-dates-and-regular-key-audits>`, allow individual revocation), add another signing key in the same way.
+If you want to set up multiple redundant YubiKeys (allow {ref}`different expiration <pgp-expiration-dates-and-regular-key-audits>`, allow individual revocation), add another signing key in the same way.
 
 **2.2 Add an encryption subkey**
 
@@ -474,7 +474,7 @@ debsign <filename>_source.changes
 It will determine the signature needed from the email in the changelog stanza.
 If this does not work out of the box, you might need to explicitly configure your signing key by exporting the `DEBSIGN_KEYID=$KEYFPR.`
 
-You can try uploading a package to a PPA {ref}`as described in the project documentation <upload-the-source-package>` using the key associated with your Launchpad account.
+You can try uploading a package to a PPA {ref}`as described in the project documentation <how-to-upload-packages-to-a-ppa>` using the key associated with your Launchpad account.
 
 
 (pgp-key-day-2-operations)=
