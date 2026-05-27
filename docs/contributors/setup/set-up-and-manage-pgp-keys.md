@@ -12,8 +12,7 @@ The high level goal is to keep private key material **off disk** and use hardwar
 2. Multiple **signing subkeys** (S) used for signing (one per YubiKey)
 3. One **encryption subkey** (E) used for encryption on all YubiKeys
 3. Subkeys only stored on a YubiKey (smartcard) – not on disk
-4. A fallback plan in case one YubiKey is lost or expired
-4. A recovery plan in case of compromised keys
+4. A fallback plan in case one YubiKey is lost, expired or compromised
 5. Works with Launchpad/Ubuntu uploads, signed git commits and encryption
 
 
@@ -100,16 +99,15 @@ If \- for now \- you only wanted to create the software key and do not intend to
 (pgp-step-2-add-subkeys)=
 ## Step 2 — Add subkeys
 
-This section shows how to create Signing and Encryption subkeys:
+This section shows how to create Signing and Encryption subkeys using the `gpg` tool:
 
+**2.1 Add a signing subkey**
 
 ```shell
 gpg --expert --edit-key "$KEYFPR"
 ```
 
 Inside the `gpg>` prompt, add your subkey using:
-
-**2.1 Add a signing subkey**
 
 ```none
 gpg> addkey
@@ -209,7 +207,7 @@ gpg --output /path/to/your/backup/revocation.asc --gen-revoke "$KEYFPR"
 Finally, store these backups **offline** and **encrypted** and remove them from your system.
 
 
-(step-4-prepare-the-yubikey)=
+(pgp-step-prepare-the-yubikey)=
 ## Step 5 — Prepare the YubiKey
 
 Insert the YubiKey and verify it is visible. Make sure you have only one YubiKey inserted at a time.
@@ -279,7 +277,7 @@ always required if you prefer that (less comfort, more security).
 
 
 ```{important}
-To prepare a second YubiKey, repeat {ref}`step-4-prepare-the-yubikey` with another YubiKey plugged into the system.
+To prepare a second YubiKey, repeat {ref}`pgp-step-prepare-the-yubikey` with another YubiKey plugged into the system.
 ```
 
 
@@ -478,7 +476,6 @@ If this does not work out of the box, you might need to explicitly configure you
 
 You can try uploading a package to a PPA {ref}`as described in the project documentation <upload-the-source-package>` using the key associated with your Launchpad account.
 
----
 
 (pgp-key-day-2-operations)=
 # Day 2 operations
@@ -640,13 +637,13 @@ gpg --edit-key $KEYFPR
 
 Then select the subkey (by index) and revoke it:
 
+```{important}
+Warning - this is an irreversible action\!
+```
+
 ```none
 gpg> key $SUBKEY_INDEX
 gpg> revkey
-```
-
-```{important}
-Warning - this is an irreversible action\!
 ```
 
 Save your changes and *immediately* upload to any keyserver(s) to which you previously used your key following the steps of {ref}`make-your-keys-known`.
