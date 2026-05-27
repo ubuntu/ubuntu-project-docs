@@ -119,8 +119,9 @@ Policy
 Any request to use this exception must meet all of the following conditions:
 
 #. While it may skip active interim releases, the enablement must target at
-   least the latest active LTS release. It is not appropriate to enable hardware
-   only in an older supported LTS while omitting the current LTS.
+   least the latest active LTS release that can support it. It is not
+   appropriate to enable hardware only in an older supported LTS while
+   omitting the current LTS.
 #. Users must be protected from upgrading into a release where the
    selectively enabled functionality is unavailable or unsupported. In
    practice, the supported upgrade path via ``do-release-upgrade``
@@ -150,6 +151,12 @@ Here is the process to follow when requesting an SRU using this exception:
    under :ref:`Package-specific notes <reference-package-specific-notes>`. This
    is normally required once per class of enablement and rationale, rather than
    once per upload.
+   #. If you can't target the latest active LTS release, because using the
+      feature there is generally not possible, please ensure that it is
+      explained in this exception why that is the case. It might be acceptable
+      if the whole infrastructure for that feature was dropped (we want to
+      tolerate that), but not if it is only a lack of enablement (which we want
+      to foster) in that release.
 #. Request reviews from the SRU team (will be added automatically by creating a
    PR that changes SRU pages). At the same time notify the Ubuntu Technical Board
    via their mailing list at https://lists.ubuntu.com/archives/technical-board/.
