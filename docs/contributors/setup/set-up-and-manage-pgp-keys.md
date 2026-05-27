@@ -48,7 +48,7 @@ If that’s too heavy, you can still do this on your main machine, but make sure
 
 The following sections will guide you through creating a primary key and
 putting the associated subkeys onto hardware keys. After these steps follows
-a section about day 2 {ref}`pgp-key-day-2-operations`.
+a section about {ref}`pgp-key-day-2-operations`.
 
 ### Step 1 — Create the primary key
 
