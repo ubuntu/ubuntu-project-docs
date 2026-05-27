@@ -129,8 +129,8 @@ Integration tests
 
 - `Certification test suite
   <https://github.com/canonical/checkbox/blob/main/providers/gpgpu/units/cuda.pxu>`__
-  must pass on a range of hardware, with the same result as with NVIDIA's
-  provided packages.
+  must pass on a range of hardware, including at least one workstation and one
+  server GPU, with the same result as with NVIDIA's provided packages.
 
 .. _sru_template:
 
