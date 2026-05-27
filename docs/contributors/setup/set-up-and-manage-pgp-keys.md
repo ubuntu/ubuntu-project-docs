@@ -6,17 +6,16 @@ and goals outlined in {ref}`pgp-key-storage` for usage in the Ubuntu project.
 
 ## Outcome
 
-The high level goal is to keep private key material off disk and use Hardware Keys for day-to-day operations.
+The high level goal is to keep private key material **off disk** and use hardware keys for day-to-day operations.
 
-1. One long-term primary (C) key (used only to certify subkeys, locked away in a safe place)
-2. Multiple signing (S) Subkeys (one per YubiKey)
-3. One Subkey used for encryption (E) on all YubiKeys
+1. One long-term **primary key** (C), used only to certify subkeys and locked away in a safe place
+2. Multiple **signing subkeys** (S) used for signing (one per YubiKey)
+3. One **encryption subkey** (E) used for encryption on all YubiKeys
 3. Subkeys only stored on a YubiKey (smartcard) – not on disk
 4. A fallback plan in case one YubiKey is lost or expired
 4. A recovery plan in case of compromised keys
 5. Works with Launchpad/Ubuntu uploads, signed git commits and encryption
 
----
 
 # Prerequisites
 
@@ -37,15 +36,14 @@ sudo systemctl enable --now pcscd.socket
 
 ## GnuPG
 
-[GnuPG](https://gnupg.org/) is an encryption tool that helps manage your [encryption keys](https://documentation.ubuntu.com/project/how-ubuntu-is-made/concepts/glossary/#term-Signing-Key). You’ll need it later to be able to add a [signature](https://documentation.ubuntu.com/project/how-ubuntu-is-made/concepts/glossary/#term-Signature) to each [upload](https://documentation.ubuntu.com/project/contributors/uploading/#uploading-to-the-archive).
+[GnuPG](https://gnupg.org/) is an encryption tool that helps manage your {term}`encryption keys <Signing-Key>`. You’ll need it later to be able to add a {term}`signature <Signature>` to each {ref}`upload <uploading-to-the-archive>`.
 
-Eventually the [private key](https://documentation.ubuntu.com/project/how-ubuntu-is-made/concepts/glossary/#term-Signing-Key) will represent your identity and therefore has to be [kept safe](https://documentation.ubuntu.com/project/contributors/setup/pgp-key-storage/#pgp-key-storage) and out of reach of other entities.
+Eventually the {term}`private key <Signing-Key>` will represent your identity and therefore must be {ref}`kept safe <pgp-key-storage>` and out of reach of other entities.
 
 It is **best practice** to generate the primary key on an *offline* machine (or at least an offline session) and only use it to create/rotate subkeys. Using a Ubuntu Live image is also a great option as the system is ephemeral and no key will remain on disk once this process is completed.
 
 If that’s too heavy, you can still do this on your main machine, but make sure to clear all keys from your hard drive before you get back online and **treat the backup step as non-negotiable**.
 
----
 
 # Step by Step instructions
 
@@ -95,10 +93,9 @@ export KEYFPR="YOUR_PRIMARY_KEY_FINGERPRINT"
 The primary key fingerprint in the previous example is: `C272017B1AC7539AFC0E6DBCAA7EED1BC821DF7D`
 
 ```{important}
-If \- for now \- you only wanted to create the software key and do not intend to go for individual subkeys and the usage of hardware keys you may jump to section {ref}`make-your-keys-known` and then be done for now.
+If \- for now \- you only wanted to create the software key and do not intend to use individual subkeys and hardware keys you may jump to section {ref}`make-your-keys-known` and then be done for now.
 ```
 
----
 
 (pgp-step-2-add-subkeys)=
 ## Step 2 — Add subkeys
@@ -120,9 +117,9 @@ gpg> addkey
 
 - Pick `ECC (sign only)`
 - Select curve type: `Curve 25519` (default as of now)
-- Set expiration (refer to [https://documentation.ubuntu.com/project/contributors/setup/pgp-key-storage/\#pgp-expiration-dates-and-regular-key-audits](https://documentation.ubuntu.com/project/contributors/setup/pgp-key-storage/#pgp-expiration-dates-and-regular-key-audits))
+- Set expiration (refer to {ref}`pgp-expiration-dates-and-regular-key-audits`)
 
-If you want to set up multiple redundant YubiKeys (allow [different expiration](https://documentation.ubuntu.com/project/contributors/setup/pgp-key-storage/#expiration-dates-and-regular-key-audits), allow individual revocation), add another signing key in the same way.
+If you want to set up multiple redundant YubiKeys (allow {ref}`different expiration <expiration-dates-and-regular-key-audits>`, allow individual revocation), add another signing key in the same way.
 
 **2.2 Add an encryption subkey**
 
@@ -130,7 +127,7 @@ You can use the same `addkey` command to create an encryption subkey.
 
 - Pick `ECC (encrypt only)`
 - Select curve type: `Curve 25519` (current default)
-- Set expiration (refer to [https://documentation.ubuntu.com/project/contributors/setup/pgp-key-storage/\#pgp-expiration-dates-and-regular-key-audits](https://documentation.ubuntu.com/project/contributors/setup/pgp-key-storage/#pgp-expiration-dates-and-regular-key-audits))
+- Set expiration (refer to {ref}`pgp-expiration-dates-and-regular-key-audits`)
 
 **2.3 Save and verify subkeys**
 
@@ -162,7 +159,7 @@ Which includes:
 
 - A primary key that can be used for signing or certifying the identity of the key chain (SC)
 - One subkey for encryption \[E\]
-- And two additionally subkeys for signing \[S\]
+- And two additional subkeys for signing \[S\]
 
 (make-your-keys-known)=
 ## Step 3 - Make your new key(s) known
@@ -175,7 +172,6 @@ Use the following command to ensure your public key is uploaded to the Ubuntu ke
 gpg --keyserver hkps://keyserver.ubuntu.com --send-keys <$KEYFPR>
 ```
 
----
 
 ## Step 4 — Backup
 
@@ -212,7 +208,6 @@ gpg --output /path/to/your/backup/revocation.asc --gen-revoke "$KEYFPR"
 
 Finally, store these backups **offline** and **encrypted** and remove them from your system.
 
----
 
 (step-4-prepare-the-yubikey)=
 ## Step 5 — Prepare the YubiKey
@@ -287,7 +282,6 @@ always required if you prefer that (less comfort, more security).
 To prepare a second YubiKey, repeat {ref}`step-4-prepare-the-yubikey` with another YubiKey plugged into the system.
 ```
 
----
 
 ## Step 6 – Move subkeys to YubiKey
 
@@ -356,7 +350,7 @@ Start over with `gpg --edit-key` again, select the encryption subkey (e.g., key 
 then chose the Encryption slot.
 
 ```{important}
-After moving, you will bgain e prompted to save changes.
+After moving, you will be prompted again to save changes.
 **DO NOT SAVE**, since this will delete the encryption key stored in your computer.
 We want to keep the encryption key around to use the same one on every hardware key.
 ```
@@ -378,7 +372,7 @@ gpg> quit
 ```{important}
 To handle a second hardware key, run through the steps in this section again with the other hardware key plugged into your system.
 
-At the step of transferring the signing key (Where you selected the first subkey when doing the first iteration of the steps), please select the second signing subkey this time. Combined with the different expiration dates that ensures that they will not both expire at the very same time.
+At the step of transferring the signing key (Where you selected the first subkey when doing the first iteration of the steps), please select the second signing subkey this time. Combined with the different expiration dates, this ensures they will not both expire at the same time.
 ```
 
 (step-7-remove-your-keys-from-the-system)=
@@ -423,13 +417,13 @@ ssb>  ed25519 2026-05-14 [S] [expires: 2027-08-07]
 ## Step 8 — Git commit signing
 
 First, you need to configure Git. To enable signing git commits, set the `commit.gpgsign` option.
-Either  per repository
+Either per repository:
 
 ```shell
 git config commit.gpgsign true
 ```
 
-Or globally
+Or globally:
 
 ```shell
 git config --global commit.gpgsign true
@@ -468,7 +462,6 @@ gpg --armor --export "$KEYFPR"
 
 Copy/paste into GitHub → Settings → SSH and GPG keys.
 
----
 
 ## Step 9 — Launchpad and Ubuntu upload signing
 
@@ -483,7 +476,7 @@ debsign <filename>_source.changes
 It will determine the signature needed from the email in the changelog stanza.
 If this does not work out of the box, you might need to explicitly configure your signing key by exporting the `DEBSIGN_KEYID=$KEYFPR.`
 
-You can try uploading a package to a PPA [as described in the project documentation](https://documentation.ubuntu.com/project/contributors/bug-fix/build-packages-in-a-ppa/#upload-the-source-package) using the key associated with your Launchpad account.
+You can try uploading a package to a PPA {ref}`as described in the project documentation <upload-the-source-package>` using the key associated with your Launchpad account.
 
 ---
 
@@ -501,13 +494,13 @@ There is no need to copy private keys, they move with the hardware keys now plug
 
 First install the {ref}`packages mentioned in the prerequisites <gpg-prerequisites-packages>`.
 
-Then Plug in YubiKey and check if it is detected
+Then plug in the YubiKey and check if it is detected:
 
 ```shell
 gpg --card-status
 ```
 
-This should be the same as you have seen it when setting up the hardware key.
+This should be the same as what you saw when setting up the hardware key.
 
 You can import your key automatically using the URL you set on your YubiKey at setup time.
 Or get it from the keyserver directly by specifying which key you need.
@@ -527,19 +520,19 @@ It should show:
 # gpg:               imported: 1
 ```
 
-Otherwise import the .asc public key you backed up, and run
+Otherwise import the `.asc` public key you backed up, and run:
 
 ```shell
 gpg --import /path/to/your/backup/public-key.asc
 ```
 
-Verify that your keys have been imported
+Verify that your keys have been imported:
 
 ```shell
 gpg --list-keys
 ```
 
-Trust yourself (well, your key)
+Trust yourself (well, your key):
 
 ```none
 gpg --edit-key $KEYFPR
@@ -558,7 +551,7 @@ echo "Ubuntu is awesome" | gpg --clearsign
 ```
 
 
-## Updating Expiration Dates
+## Updating expiration dates
 
 This section shows how to extend the expiration date of the different keys.
 To update the expiration date, you must have access to the private keys, so first import the secret keys from the backup file.
@@ -615,7 +608,7 @@ the updated public key as your new backup.
 gpg --armor --export "$KEYFPR" > /path/to/your/backup/public-key.asc
 ```
 
-Now we can safely delete the temporary GNUPGHOME and import the updated public key to the real local keychain.
+Now we can safely delete the temporary `GNUPGHOME` and import the updated public key to the real local keychain.
 
 ```shell
 rm -rf "$GNUPGHOME"
@@ -625,7 +618,7 @@ gpg --import /path/to/your/backup/public-key.asc
 
 Then, upload the updated key to the keyserver as shown in {ref}`make-your-keys-known`.
 
-## Subkeys Compromised
+## If a subkey is compromised
 
 If you followed this guide, then your keys should be safely locked away and backed up, and if only a subkey is compromised, we can use the primary key to generate new subkeys.
 
@@ -639,13 +632,13 @@ gpg --list-secret-keys
 export KEYFPR="YOUR_PRIMARY_KEY_FINGERPRINT"
 ```
 
-Now: Edit, select and revoke the compromised/lost subkeys
+Now edit, select and revoke the compromised/lost subkeys:
 
 ```shell
 gpg --edit-key $KEYFPR
 ```
 
-Then select the subkey (by index) and revoke it
+Then select the subkey (by index) and revoke it:
 
 ```none
 gpg> key $SUBKEY_INDEX
@@ -658,9 +651,9 @@ Warning - this is an irreversible action\!
 
 Save your changes and *immediately* upload to any keyserver(s) to which you previously used your key following the steps of {ref}`make-your-keys-known`.
 
-After doing that repeat {ref}`pgp-step-2-add-subkeys` to {ref}`step-7-remove-your-keys-from-the-system` to create new subkeys to replace the revoked ones on your hardware keys.
+After doing that repeat steps {ref}`pgp-step-2-add-subkeys` to {ref}`step-7-remove-your-keys-from-the-system`, to create new subkeys to replace the revoked ones on your hardware keys.
 
-## Primary Key Compromised
+## If the primary key is compromised
 
 In this case, you should revoke the entire key using the revocation certificate generated in the backup step.
 To do this, acquire your previously generated and backed up revocation certificate and upload it to the keyserver(s):

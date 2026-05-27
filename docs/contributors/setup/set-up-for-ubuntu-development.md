@@ -38,9 +38,9 @@ $ sudo apt update && \
 a {term}`signature` to each {ref}`upload <uploading-to-the-archive>`.
 
 Eventually the {term}`key <Signing Key>` will represent your identity.
-Therefore it needs {ref}`fulfil several recommendations <pgp-key-storage>`
+Therefore it needs to {ref}`fulfil several recommendations <pgp-key-storage>`
 and be kept safe as well as out of reach of other entities.
-The setup to do so can be quite complex and is outlined step by step
+The setup can be quite complex and is outlined step by step
 in {ref}`set-up-and-manage-pgp-keys`.
 
 (git)=
