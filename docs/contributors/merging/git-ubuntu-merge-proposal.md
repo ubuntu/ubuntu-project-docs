@@ -38,6 +38,10 @@ If it looks OK, please move it to the 'Needs Review' state.
 ```
 
 :::{note}
+It is important to target `debian/sid`, **not `ubuntu/devel`** when submitting a merge proposal. Using a target branch of `debian/sid` may seem wrong, but is a workaround for {lpbug}`1976112`.
+:::
+
+:::{note}
 Git branches with `%` in their name don't work. Use something like `_`.
 :::
 
@@ -62,10 +66,6 @@ The equivalent `git config` command is:
 ```none
 $ git config [--global] gitubuntu.submit.defaultReviewer <launchpad-reviewer>
 ```
-
-:::{note}
-Using a target branch of `debian/sid` may seem wrong, but is a workaround for {lpbug}`1976112`.
-:::
 
 If this fails, {ref}`do it manually <merge-submit-merge-proposal-manually>`.
 
