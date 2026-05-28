@@ -240,7 +240,7 @@ Make the required mount points for builds, logs, and scratch:
 $ mkdir -p ~/schroot/{build,logs,scratch}
 ```
 
-Add a the scratch directory to `/etc/schroot/sbuild/fstab`:
+Add a scratch directory to `/etc/schroot/sbuild/fstab`:
 
 ```shell
 $ echo "$HOME/schroot/scratch  /scratch          none  rw,bind  0  0" \
