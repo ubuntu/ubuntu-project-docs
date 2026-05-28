@@ -31,13 +31,10 @@ To let the Launchpad infrastructure build packages for you, see
 Prerequisites
 -------------
 
-Building packages locally requires a few tools to be installed and configured. The following sections guide you through the process of setting up your environment for building packages locally with ``sbuild``.
-
-
-Installing the necessary tools
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Refer to :ref:`how-to-set-up-for-ubuntu-development`.
+To build packages locally, you need to have the necessary tools installed and
+configured. This includes setting up a build environment with the required
+dependencies and tools. For instructions on how to set up your development
+environment, see :ref:`how-to-set-up-for-ubuntu-development`.
 
 
 Fetching the package source
