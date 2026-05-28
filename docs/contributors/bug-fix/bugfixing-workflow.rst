@@ -44,22 +44,21 @@ Identify the source package
 
 After selecting a bug to fix, identify the source package that contains the code related to the issue.
 
-Start by identifying the name of the binary package. If you know the path or part of the filename of the affected program, run:
+Start by identifying the name of the binary package. If the program or file is installed on your system, you can identify the package that owns it using:
 
 .. code-block:: none
 
-    apt-file find <filename-or-path>
+    dpkg -S <path-to-file>
 
 .. note::
 
-    Replace ``<filename-or-path>`` with either the full path or part of the filename.
+    Replace ``<path-to-file>`` with the full path to the file.
 
-    For example, both of the following work:
+    For example, run:
 
     .. code-block:: none
 
-        apt-file find /usr/games/bumprace
-        apt-file find bumprace
+        dpkg -S /usr/games/bumprace
 
 Running the command returns an output similar to:
 
@@ -68,6 +67,23 @@ Running the command returns an output similar to:
     bumprace: /usr/games/bumprace
 
 In the preceding output, the part before the colon is the name of the binary package.
+
+.. note::
+
+    If the package is not installed on your system, you can use ``apt-file`` to search across all packages. However, ``apt-file`` is not installed by default and must be set up before use:
+
+    .. code-block:: none
+
+        sudo apt install apt-file
+        sudo apt-file update
+
+    Once set up, run the search command:
+
+    .. code-block:: none
+
+        apt-file find <filename-or-path>
+
+    For example, ``apt-file find bumprace``.
 
 After identifying the name of the binary package, the next step is to find the source package. Use the following command:
 
