@@ -57,7 +57,7 @@ versions for each distribution version will be under `pkg/ubuntu/version`.
 Notes:
 
 * Due to {lpbug}`this bug <1761821>`, you may get:
-  `fatal: could not read Username for 'https://git.launchpad.net': terminal prompts disabled.` 
+  `fatal: could not read Username for 'https://git.launchpad.net': terminal prompts disabled.`
   It's safe to ignore this.
  * The first time you run this command, a git-ubuntu entry will be added to
    `.gitignore`.
@@ -144,6 +144,29 @@ many ways to locate fixes from Debian. Debian maintains its own git
 repository for many (but not all) of its packages, so having a clone of this
 can be handy.
 
+First, check Debian's bug tracker at `https://bugs.debian.org/src:<package-name>`
+for relevant bug reports or patches.
+
+To find the source repository URL, use either of these approaches:
+
+- Use `debcheckout` to check out the package directly:
+
+  ```none
+  $ debcheckout <package-name>
+  $ cd <package-name>
+  $ git log
+  ```
+
+- Use `apt showsrc` to read the `Vcs-Git` and `Vcs-Browser` fields, which
+  point to the package's source repository and its web interface:
+
+  ```none
+  $ apt showsrc --only-source <package-name>
+  ```
+
+  Look for commit messages that describe fixes relevant to your issue. If a
+  bug number is referenced, open the link and review the context.
+
 For example, let's assume for argument's sake that we had a problem with
 `sshd` in Xenial, where it would fail to check config files before reloading
 ([as in this bug](https://bugs.launchpad.net/ubuntu/+source/openssh/+bug/1771340)).
@@ -227,9 +250,20 @@ This only works if the package has a `debian/watches` file. If it doesn't,
 look in the package's README or other documentation, and do the research
 online manually.
 
-Searching the upstream bug tracker, or generally Googling error messages or
-symptoms can sometimes turn up a patch or bug report of relevance.
+To find the upstream project:
 
+- Search the package homepage listed by running `apt show <package-name>`.
+- Look up the project through a web search.
+- Check the metadata in the package description or Debian tracker.
+
+Once you find the upstream repository:
+
+1. Look through open and closed issues.
+2. Search the commit history for relevant fixes.
+3. Clone the upstream Git repository if available and inspect the logs.
+
+If upstream has resolved the problem, you may propose packaging the new version or
+backporting the patch.
 
 ## Forwarding issues upstream
 
