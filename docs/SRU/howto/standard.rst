@@ -81,7 +81,7 @@ Prepare a special type of SRU <howto-prepare-special-sru>` instead.
     execute your Test Plan against the built packages. Please do so,
     using bug comments to report your results. Once done, change the bug
     tags according to the instructions given.
-10.  Subscribe yourself to bug mail for the package in Launchpad, if you
+10. Subscribe yourself to bug mail for the package in Launchpad, if you
     haven't done so already, and monitor Launchpad for bug reports
     relating to the update for at least one week following release of
     the package.
