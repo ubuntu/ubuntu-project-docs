@@ -40,7 +40,9 @@ and make sure it's publishing to the correct place (Bionic), and that the
 builds completed (green check marks).
 
 
-## The excuses page
+## Proposed Migration
+
+The fixed package first lands in the "proposed" pocket for the given release. For more details on the proposed migration process, see {ref}`proposed-migration`.
 
 Check the "excuses" or "migration" page,
 [for Bionic](https://ubuntu-archive-team.ubuntu.com/proposed-migration/bionic/update_excuses.html)
@@ -56,10 +58,9 @@ anything that depends on it. Any tests that fail will show in red.
 This page is generated every few minutes, and doesn't update in real-time.
 ```
 
+## Bugs fixed in stable releases
 
-## SRU verification
-
-It's best to have the package independently verified (preferably by the person
+The {ref}`stable-release-updates-sru` bugfix requires a bug independently verified (preferably by the person
 who reported the bug), but if it sits idle too long (2 days or so), you can
 verify it yourself. Follow the
 [instructions provided](https://documentation.ubuntu.com/sru/en/latest/howto/common-issues/)
