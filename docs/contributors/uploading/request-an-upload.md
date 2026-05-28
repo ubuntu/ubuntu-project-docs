@@ -20,7 +20,7 @@ For sponsors:
     * {ref}`how-to-sponsor-a-sync`
 :::
 
-Follow the general {ref}`guidance for contributors <how-to-contribute>` to have your changes properly prepared for sponsorship. Remember that someone else needs to understand what you've done.
+Follow the general {ref}`guidance for contributors <guides-for-contributors>` to have your changes properly prepared for sponsorship. Remember that someone else needs to understand what you've done.
 
 For any non-trivial change, it's good practice to discuss your plans with a potential sponsor (ask in {matrix}`devel`) *after* you think you know what needs to be done, but *before* you've actually done it. Often, an experienced developer can offer alternative approaches that may save you time or provide better results.
 

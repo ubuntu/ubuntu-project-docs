@@ -183,14 +183,13 @@ For help with resolving problems, join the :matrix:`devel` Matrix channel to get
 Further reading
 ---------------
 
-* `Autopkgtest - Defining tests for Debian packages <https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.package-tests.rst>`_
+* `Autopkgtest - Defining tests for Debian packages <autopkgtest_>`_
 
-.. wokeignore:rule=master
 .. _libxml2: https://git.launchpad.net/ubuntu/+source/libxml2/tree/debian/tests
 .. _gvfs: https://git.launchpad.net/ubuntu/+source/gvfs/tree/debian/tests
 .. _gtk3: https://git.launchpad.net/ubuntu/+source/gtk+3.0/tree/debian/tests
 .. _ubiquity: https://git.launchpad.net/ubiquity/tree/debian/tests
 .. _jenkins: https://autopkgtest.ubuntu.com/
-.. wokeignore:rule=master
 .. _running_tests: https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.running-tests.rst
 .. _requiredtests: https://wiki.ubuntu.com/QATeam/RequiredTests
+.. _autopkgtest: https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.package-tests.rst

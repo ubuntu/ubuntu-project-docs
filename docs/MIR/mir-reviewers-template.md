@@ -1,6 +1,13 @@
 (mir-reviewers-template)=
 # MIR reviewer's template
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 This section is a guideline for the **reviewer** as they
 {ref}`review an MIR bug <mir-step-2>`. The intent is to answer the primary
 question:
@@ -319,9 +326,10 @@ TODO-B: Problems: None
 
 [Packaging red flags]
 RULE: - Does Ubuntu carry a non necessary delta?
-RULE: - If it's a library, does it either have a symbols file or use an empty
-RULE:   argument to dh_makeshlibs -V? (pass such a patch on to Debian, but
-RULE:   don't block on it).
+RULE: - If it's a library, does it have a symbols file? In the absence
+RULE:   of a symbols file, dh_makeshlibs imposes a tighter constraint
+RULE:   by default, using 'Upstream-Version'; dh_makeshlibs -V with an
+RULE:   empty argument has the same effect.
 RULE:   Note that for C++, see https://wiki.ubuntu.com/DailyRelease/FAQ
 RULE:   for a method to demangle C++ symbols files.
 RULE: - There are shared object only meant for internal use, examples

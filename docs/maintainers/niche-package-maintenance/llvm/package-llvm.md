@@ -767,10 +767,35 @@ New major versions are generally synced from Debian, and so importing a new majo
     $ git checkout --orphan upstream/22
     $ git rm -rf --cached .
     $ git clean -fd
-    $ git commit --alow-empty -m "init upstream/22"
+    $ git commit --allow-empty -m "init upstream/22"
     ```
 
 1. Import the tarball as described in {ref}`importing-a-new-llvm-minor-release`. Grab it from Launchpad rather than from Github to ensure we have a matching version to the original release, unlike what we do for minor releases.
+
+1. For a new version, you also need the component orig tarball for the [integration test suite](https://github.com/opencollab/llvm-toolchain-integration-test-suite). To get a tarball with the ideal directory structure, download it from GitHub:
+
+    ```none
+    VERSION=17.0.6
+    MAJOR=${VERSION%%.*}
+
+    curl -L https://github.com/opencollab/llvm-toolchain-integration-test-suite/archive/refs/heads/main.tar.gz \
+      | xz -c > ../llvm-toolchain-${VERSION}.orig-integration-test-suite.tar.xz
+    ```
+
+    Unfortunately, `gbp` doesn't seem to handle component tarball imports well, so we have to create the branch, untar, and commit the changes manually.
+
+    ```none
+    BRANCH="upstream-integration-test-suite/${MAJOR}"
+
+    git checkout --orphan "$BRANCH"
+    git rm -rf . --quiet
+    git commit --allow-empty -m "init ${BRANCH}"
+    tar -xJf ../llvm-toolchain-${VERSION}.orig-integration-test-suite.tar.xz --strip-components=1
+    git add -A
+    git commit -m "New upstream version ${VERSION}"
+    git tag "upstream-integration-test-suite/${VERSION}"
+    pristine-tar commit ../llvm-toolchain-${VERSION}.orig-integration-test-suite.tar.xz "$BRANCH"
+    ```
 
 1. Create the Debian tracking branch:
 
@@ -827,7 +852,7 @@ The tag should be one of the ones generated automatically by `gbp import-orig`, 
 This automatically creates a branch named, e.g. `patch-queue/ubuntu/<MAJOR_LLVM_VERSION>/<UBUNTU_RELEASE>`. Switch to it, and you can interactively rebase to modify commits, or create new commits that correspond to new patches. Once you are satisfied, turn the commits back into patch files.
 
 ```none
-# gbp pq --commit export
+# gbp pq export --pq-from=TAG --commit
 ```
 
 Now clean up to ensure that you aren't pushing this work to the repo.

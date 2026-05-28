@@ -39,9 +39,34 @@ If it looks OK, please move it to the 'Needs Review' state.
 ```
 
 :::{note}
-Using a target branch of `debian/sid` may seem wrong, but is a workaround for
-{lpbug}`1976112`.
+It is important to target `debian/sid`, **not `ubuntu/devel`** when submitting a merge proposal. Using a target branch of `debian/sid` may seem wrong, but is a workaround for {lpbug}`1976112`.
 :::
+
+:::{note}
+Git branches with `%` in their name don't work. Use something like `_`.
+:::
+
+Set `--reviewer` to the team (or user) on Launchpad that should look at your change -- by default it is `--reviewer ubuntu-sponsors`.
+
+* If you do not have upload rights for this package, use `ubuntu-sponsors` here. That adds your Merge Proposal to the
+  [Ubuntu sponsoring queue](http://sponsoring-reports.ubuntu.com/general.html), so people with upload rights for that package may eventually review it for you.
+
+* To notify a specific team, use, e.g. `canonical-foundations`, `canonical-public-cloud`, or `ubuntu-server`.
+
+To avoid having to specify the `--reviewer` flag, configure the reviewers for {command}`git-ubuntu`. Include a section like the following either globally in `~/.gitconfig`, or in individual repositories in `.git/config`:
+
+```ini
+[gitubuntu.submit]
+    defaultReviewer = <your-ubuntu-teamname>, \
+                      <canonical-more-reviewers>, \
+                      <canonical-otherteam>
+```
+
+The equivalent `git config` command is:
+
+```none
+$ git config [--global] gitubuntu.submit.defaultReviewer <launchpad-reviewer>
+```
 
 If this fails, {ref}`do it manually <merge-submit-merge-proposal-manually>`.
 

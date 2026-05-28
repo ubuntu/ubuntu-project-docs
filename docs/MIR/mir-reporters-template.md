@@ -1,6 +1,13 @@
 (mir-reporters-template)=
 # MIR reporter's template
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 This section is a guideline for the **reporter** as they are
 {ref}`filing an MIR bug <mir-step-1>`. The intent is to:
 
@@ -360,6 +367,22 @@ RULE:   - FHS: https://refspecs.linuxfoundation.org/fhs.shtml
 RULE:   - Debian Policy: https://www.debian.org/doc/debian-policy/
 TODO-A: - This package correctly follows FHS and Debian Policy
 TODO-B: - This package violates FHS or Debian Policy, reasons for that are TBD
+
+RULE: - The package's license must remain compatible with Ubuntu main for the
+RULE:   full support lifetime of the release (including ESM where relevant).
+RULE:   Consider whether the license could expire, time out, or otherwise change
+RULE:   after promotion. Examples of concerns include time-limited patent grants,
+RULE:   licenses tied to a specific upstream entity or contract, dual-licensed
+RULE:   code where the permissive branch could be withdrawn, or terms that only
+RULE:   apply to the current upstream version.
+RULE:   If you suspect any of the above may apply, flag it explicitly so the MIR
+RULE:   team can weigh the long-term cost before promotion.
+TODO-A: - Based on a reasonable review of information available at the time of
+TODO-A:   this report, no expiry, time-limited grants, or obvious legal
+TODO-A:   encumbrances have been identified that would be expected to affect
+TODO-A:   promotion
+TODO-B: - The license carries potential encumbrances or time-bound terms,
+TODO-B:   details: TBD
 
 [Maintenance/Owner]
 RULE: The package must have an acceptable level of maintenance corresponding
