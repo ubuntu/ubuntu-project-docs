@@ -213,6 +213,7 @@ $ sudo apt install -y mmdebstrap uidmap
 
 Create the file if it does not exist:
 ```shell
+$ mkdir -p ~/.config/sbuild
 $ touch ~/.config/sbuild/config.pl
 ```
 
@@ -243,7 +244,7 @@ Add a the scratch directory to `/etc/schroot/sbuild/fstab`:
 
 ```shell
 $ echo "$HOME/schroot/scratch  /scratch          none  rw,bind  0  0" \
- >> /etc/schroot/sbuild/fstab
+  | sudo tee -a /etc/schroot/sbuild/fstab
 
 ```
 
@@ -251,7 +252,7 @@ Optionally, you can mount your home directory inside the container:
 
 ```none
 $ echo "$HOME  $HOME          none  rw,bind  0  0" \
- >> /etc/schroot/sbuild/fstab
+  | sudo tee -a /etc/schroot/sbuild/fstab
 ```
 
 `sbuild` reads the user specific configuration file
@@ -259,6 +260,7 @@ $ echo "$HOME  $HOME          none  rw,bind  0  0" \
 
 Create the file if it does not exist:
 ```shell
+$ mkdir -p ~/.config/sbuild
 $ touch ~/.config/sbuild/config.pl
 ```
 
@@ -332,50 +334,41 @@ SKIP_PROPOSED="1"
 # DEBOOTSTRAP_PROXY=http://127.0.0.1:3142/
 ```
 
-(getting-schroots)=
-### Getting Schroots
+(schroots)=
+### schroots
 
-Having `sbuild` set up is only half of the solution. Schroot environments for
-the respective builds are also needed.
+Having `sbuild` set up is only half of the solution - schroot (secure chroot)
+environments for the respective builds are also needed.
 
-As outlined in the [Ubuntu wiki page on `sbuild`](https://wiki.ubuntu.com/SimpleSbuild)
-one can use e.g. `mk-sbuild noble --arch=amd64` for that.
-But many use `sbuild-launchpad-chroot` instead which includes two `sbuild` hooks
-and a command line tool to setup and maintain build chroots that are as close
-as possible to a standard Launchpad `sbuild` chroot.
+Get a schroot for a specific release of Ubuntu using `mk-sbuild`:
 
-```none
-$ sudo sbuild-launchpad-chroot create -n noble-amd64 -s noble -a amd64
+```shell
+$ mk-sbuild resolute --arch=amd64
 ```
 
-This will create multiple schroots which allow to easily select building against
-different configurations like `-proposed` or `-backports`.
-
-In general, schroots can get stale and there are more and more updates needed
-in a build. They can be updated individually using `sbuild-update`. The common
-`-udcar` options map to `apt update`, `dist-upgrade`, `clean` and `autoremove`.
+List the available schroots:
 
 ```none
-$ sudo sbuild-update -udcar jammy-proposed-amd64
+$ sbuild -l
 ```
 
-Furthermore, sometimes a schroot for Debian is needed to contribute there
-or to compare build results. Those can be created with `sbuild-createchroot`
-that comes with the `sbuild` package. We usually add a few packages
-that help us later and refer to where to create and where to get the content.
-Here is an example:
+Update a schroot:
 
-```none
-$ sudo sbuild-createchroot --include=eatmydata,ccache,gnupg unstable /srv/chroot/unstable-amd64-sbuild http://deb.debian.org/debian
+```shell
+$ sbuild-update -udc resolute-amd64
+```
+
+Delete a schroot:
+
+```shell
+$ sudo rm /etc/schroot/chroot.d/sbuild-resolute-amd64
+$ sudo rm -rf /var/lib/schroot/chroots/resolute-amd64
 ```
 
 :::
 
 ::::
 
-```{note}
-
-For more info, see the [Ubuntu wiki page on sbuild](https://wiki.ubuntu.com/SimpleSbuild)
 ```
 
 
