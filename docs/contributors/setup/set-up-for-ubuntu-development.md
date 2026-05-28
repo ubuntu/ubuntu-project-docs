@@ -19,9 +19,9 @@ $ sudo apt update && \
   sudo apt install -y \
     autopkgtest \
     dh-make \
+    sbuild \
     git-buildpackage \
     pastebinit \
-    sbuild-launchpad-chroot \
     ubuntu-dev-tools && \
   sudo snap install lxd && \
   sudo snap install --classic snapcraft && \
@@ -242,46 +242,45 @@ SKIP_PROPOSED="1"
 # DEBOOTSTRAP_PROXY=http://127.0.0.1:3142/
 ```
 
-```{note}
-
-For more info, see the [Ubuntu wiki page on sbuild](https://wiki.ubuntu.com/SimpleSbuild)
-```
-
 (getting-schroots)=
 ### Getting Schroots
 
-Having `sbuild` set up is only half of the solution. Schroot environments for
-the respective builds are also needed.
-
-As outlined in the [Ubuntu wiki page on `sbuild`](https://wiki.ubuntu.com/SimpleSbuild)
-one can use e.g. `mk-sbuild noble --arch=amd64` for that.
-But many use `sbuild-launchpad-chroot` instead which includes two `sbuild` hooks
-and a command line tool to setup and maintain build chroots that are as close
-as possible to a standard Launchpad `sbuild` chroot.
+Having {command}`sbuild` set up is only half of the solution. Schroot
+environments for the respective builds are also needed. Use
+{command}`mk-sbuild` to create a schroot for each Ubuntu series and architecture
+you need:
 
 ```none
-$ sudo sbuild-launchpad-chroot create -n noble-amd64 -s noble -a amd64
+$ mk-sbuild noble --arch=amd64
 ```
 
-This will create multiple schroots which allow to easily select building against
-different configurations like `-proposed` or `-backports`.
-
-In general, schroots can get stale and there are more and more updates needed
-in a build. They can be updated individually using `sbuild-update`. The common
-`-udcar` options map to `apt update`, `dist-upgrade`, `clean` and `autoremove`.
+The command reads defaults from {file}`~/.mk-sbuild.rc`, including the pocket
+settings shown in the previous section. To create a separate schroot with a
+different name, use {code}`--name`:
 
 ```none
-$ sudo sbuild-update -udcar jammy-proposed-amd64
+$ mk-sbuild noble --arch=amd64 --name=noble-test
+```
+
+In general, schroots can get stale and there are more and more updates needed
+in a build. They can be updated individually using {command}`sbuild-update`.
+The common {code}`-udcar` options map to {command}`apt update`,
+{command}`apt dist-upgrade`, {command}`apt clean` and
+{command}`apt autoremove`.
+
+```none
+$ sudo sbuild-update -udcar noble-amd64
 ```
 
 Furthermore, sometimes a schroot for Debian is needed to contribute there
-or to compare build results. Those can be created with `sbuild-createchroot`
-that comes with the `sbuild` package. We usually add a few packages
-that help us later and refer to where to create and where to get the content.
-Here is an example:
+or to compare build results. Those can also be created with {command}`mk-sbuild`.
+We usually add a few packages that help us later and specify the Debian mirror
+explicitly:
 
 ```none
-$ sudo sbuild-createchroot --include=eatmydata,ccache,gnupg unstable /srv/chroot/unstable-amd64-sbuild http://deb.debian.org/debian
+$ mk-sbuild unstable --arch=amd64 --distro=debian \
+    --debootstrap-include=eatmydata,ccache,gnupg \
+    --debootstrap-mirror=http://deb.debian.org/debian
 ```
 
 
