@@ -100,7 +100,6 @@ section of the SRU docs. The upstream project also doesn't seem to have
 a formal testing procedure documented, which we hope to cover for Ubuntu
 more extensively through the test plans below.
 
-.. _sru_process:
 
 SRU Process
 -----------
