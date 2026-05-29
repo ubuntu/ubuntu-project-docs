@@ -39,6 +39,7 @@ the Technical Board.
     exception-Bind9-Updates
     exception-Certbot-Updates
     exception-Cloudinit-Updates
+    exception-CrashMakedumpfile-Updates
     exception-Curtin-Updates
     exception-DPDK-Updates
     exception-Docker-Updates
