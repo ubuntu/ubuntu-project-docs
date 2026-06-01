@@ -118,56 +118,25 @@ Policy
 
 Any request to use this exception must meet all of the following conditions:
 
-#. While it may skip active interim releases, the enablement must target at
-   least the latest active LTS release that can support it. It is not
-   appropriate to enable hardware only in an older supported LTS while
-   omitting the current LTS.
-#. Users must be protected from upgrading into a release where the
-   selectively enabled functionality is unavailable or unsupported. In
-   practice, the supported upgrade path via ``do-release-upgrade``
-   must detect affected systems and block the upgrade until a supported
-   path exists.
-#. The team requesting the exception must maintain that upgrade
-   protection for as long as it is needed, and remove or update it when
-   the subsequent releases gained that support.
+#. While it may skip active interim releases, the enablement must target at least the latest active LTS release that can support it. It is not appropriate to enable hardware only in an older supported LTS while omitting the current LTS.
+#. Users must be protected from upgrading into a release where the selectively enabled functionality is unavailable or unsupported. In practice, the supported upgrade path via ``do-release-upgrade`` must detect affected systems and block the upgrade until a supported path exists.
+#. The team requesting the exception must maintain that upgrade protection for as long as it is needed, and remove or update it when the subsequent releases gained that support.
 
 Steps
 """""
 
 Here is the process to follow when requesting an SRU using this exception:
 
-#. Prepare the SRU in the usual way, including the normal bug
-   documentation, package builds and testing.
-#. Prepare the upgrade path protection as a PR to the `ubuntu-release-upgrader
-   project <https://git.launchpad.net/ubuntu-release-upgrader>`__. It needs to
-   be reviewable as part of the following steps.
-#. Add an ubuntu-release-upgrader package task to the SRU bug. Once the PR to
-   the upstream project is accepted and merged, the Ubuntu package will also
-   need to be updated.
-#. Add an ubuntu-release-upgrader package task to the SRU bug. This change needs
-   to be prepared, tested and ready to be released alongside the actual
-   hardware enablement that you are driving.
-#. Submit a pull request against this documentation adding a standing exception
-   under :ref:`Package-specific notes <reference-package-specific-notes>`. This
-   is normally required once per class of enablement and rationale, rather than
-   once per upload.
-   #. If you can't target the latest active LTS release, because using the
-      feature there is generally not possible, please ensure that it is
-      explained in this exception why that is the case. It might be acceptable
-      if the whole infrastructure for that feature was dropped (we want to
-      tolerate that), but not if it is only a lack of enablement (which we want
-      to foster) in that release.
-#. Request reviews from the SRU team (will be added automatically by creating a
-   PR that changes SRU pages). At the same time notify the Ubuntu Technical Board
-   via their mailing list at https://lists.ubuntu.com/archives/technical-board/.
-#. Once discussed and approved by the Technical Board, the PR should provide a
-   link to this approval.
-#. With the approval properly documented, the SRU team will merge the PR into
-   this documentation, and the exception will be formally approved and
-   documented here.
-#. From now on, this formally approved exception can be used for SRUs that refer
-   to it in the description - allowing the SRU team to process it under the
-   documented terms.
+#. Prepare the SRU in the usual way, including the normal bug documentation, package builds and testing.
+#. Prepare the upgrade path protection as a PR to the `ubuntu-release-upgrader project <https://git.launchpad.net/ubuntu-release-upgrader>`__. It needs to be reviewable as part of the following steps.
+#. Add an ubuntu-release-upgrader package task to the SRU bug. Once the PR to the upstream project is accepted and merged, the Ubuntu package will also need to be updated.
+#. Add an ubuntu-release-upgrader package task to the SRU bug. This change needs to be prepared, tested and ready to be released alongside the actual hardware enablement that you are driving.
+#. Submit a pull request against this documentation adding a standing exception under :ref:`Package-specific notes <reference-package-specific-notes>`. This is normally required once per class of enablement and rationale, rather than once per upload.
+   #. If you can't target the latest active LTS release, because using the feature there is generally not possible, please ensure that it is explained in this exception why that is the case. It might be acceptable if the whole infrastructure for that feature was dropped (we want to tolerate that), but not if it is only a lack of enablement (which we want to foster) in that release.
+#. Request reviews from the SRU team (will be added automatically by creating a PR that changes SRU pages). At the same time notify the Ubuntu Technical Board via their mailing list at https://lists.ubuntu.com/archives/technical-board/.
+#. Once discussed and approved by the Technical Board, the PR should provide a link to this approval.
+#. With the approval properly documented, the SRU team will merge the PR into this documentation, and the exception will be formally approved and documented here.
+#. From now on, this formally approved exception can be used for SRUs that refer to it in the description - allowing the SRU team to process it under the documented terms.
 
 .. _explanation-documentation:
 
