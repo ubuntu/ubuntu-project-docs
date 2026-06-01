@@ -11,9 +11,9 @@ The high level goal is to keep private key material **off disk** and use hardwar
 1. One long-term **primary key** (C), used only to certify subkeys and locked away in a safe place
 2. Multiple **signing subkeys** (S) used for signing (one per YubiKey)
 3. One **encryption subkey** (E) used for encryption on all YubiKeys
-3. Subkeys only stored on a YubiKey (smartcard) – not on disk
-4. A fallback plan in case one YubiKey is lost, expired or compromised
-5. Works with Launchpad/Ubuntu uploads, signed git commits and encryption
+4. Subkeys only stored on a YubiKey (smartcard) – not on disk
+5. A fallback plan in case one YubiKey is lost, expired or compromised
+6. Works with Launchpad/Ubuntu uploads, signed git commits and encryption
 
 
 ## Prerequisites
