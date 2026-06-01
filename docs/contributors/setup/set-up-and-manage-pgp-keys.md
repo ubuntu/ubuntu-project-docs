@@ -179,13 +179,6 @@ Do this before touching the YubiKey!
 This is the part that saves you later.
 ```
 
-Create a dedicated backup directory:
-
-```shell
-mkdir -p ~/gpg-backup-$KEYFPR
-chmod 700 ~/gpg-backup-$KEYFPR
-```
-
 Export your public key:
 
 ```shell
