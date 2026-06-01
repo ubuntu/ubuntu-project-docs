@@ -167,7 +167,7 @@ If your key is entirely new, or you hereby added additional keys after already u
 Use the following command to ensure your public key is uploaded to the Ubuntu keyserver.
 
 ```shell
-gpg --keyserver hkps://keyserver.ubuntu.com --send-keys <$KEYFPR>
+gpg --keyserver hkps://keyserver.ubuntu.com --send-keys "$KEYFPR"
 ```
 
 
@@ -430,7 +430,7 @@ git config --global commit.gpgsign true
 If you have more than one primary key with the same UID (username and mail), you can specify which key to use for signing.
 
 ```shell
-git config --global user.signingkey $KEYFPR
+git config --global user.signingkey "$KEYFPR"
 ```
 
 If you want to sign a single commit:
@@ -472,7 +472,7 @@ debsign <filename>_source.changes
 ```
 
 It will determine the signature needed from the email in the changelog stanza.
-If this does not work out of the box, you might need to explicitly configure your signing key by exporting the `DEBSIGN_KEYID=$KEYFPR.`
+If this does not work out of the box, you might need to explicitly configure your signing key by exporting the `DEBSIGN_KEYID="$KEYFPR"`.
 
 You can try uploading a package to a PPA {ref}`as described in the project documentation <how-to-upload-packages-to-a-ppa>` using the key associated with your Launchpad account.
 
@@ -532,7 +532,7 @@ gpg --list-keys
 Trust yourself (well, your key):
 
 ```none
-gpg --edit-key $KEYFPR
+gpg --edit-key "$KEYFPR"
 gpg> trust
 # 5 = I trust ultimately
 gpg> 5
@@ -632,7 +632,7 @@ export KEYFPR="YOUR_PRIMARY_KEY_FINGERPRINT"
 Now edit, select and revoke the compromised/lost subkeys:
 
 ```shell
-gpg --edit-key $KEYFPR
+gpg --edit-key "$KEYFPR"
 ```
 
 Then select the subkey (by index) and revoke it:
@@ -661,5 +661,5 @@ Warning - this is an irreversible action\!
 
 ```shell
 gpg --import /path/to/your/backup/revocation.asc
-gpg --keyserver hkps://keyserver.ubuntu.com --send-keys <KEYFPR>
+gpg --keyserver hkps://keyserver.ubuntu.com --send-keys "KEYFPR"
 ```
