@@ -11,9 +11,9 @@ The high level goal is to keep private key material **off disk** and use hardwar
 1. One long-term **primary key** (C), used only to certify subkeys and locked away in a safe place
 2. Multiple **signing subkeys** (S) used for signing (one per YubiKey)
 3. One **encryption subkey** (E) used for encryption on all YubiKeys
-3. Subkeys only stored on a YubiKey (smartcard) – not on disk
-4. A fallback plan in case one YubiKey is lost, expired or compromised
-5. Works with Launchpad/Ubuntu uploads, signed git commits and encryption
+4. Subkeys only stored on a YubiKey (smartcard) – not on disk
+5. A fallback plan in case one YubiKey is lost, expired or compromised
+6. Works with Launchpad/Ubuntu uploads, signed git commits and encryption
 
 
 ## Prerequisites
@@ -77,10 +77,11 @@ gpg: marginals needed: 3  completes needed: 1  trust model: pgp
 gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
 gpg: next trustdb check due at 2031-02-02
 ------------------------
-sec   ed25519/AC7EED1BC821DF7D 2026-02-03 [SC] [expires: 2031-02-02]
-      C272017B1AC7539AFC0E6DBCAA7EED1BC821DF7D
-uid                 [ultimate] Bob Maxwell <bob@maxwell.io>
-ssb   cv25519/3BDA8E9DAD49689C 2026-02-03 [E] [expires: 2031-02-02]
+sec   ed25519/1234567890ABCDEF 2026-02-03 [SC] [expires: 2031-02-02]
+      1234567890ABCDEF1234567890ABCDEF123456
+uid                 [ultimate] Foo Bar <foo.bar@company.com>
+uid                 [ultimate] Some One <some.1@gmail.com>
+ssb   cv25519/DEADBEEFDEADBEEF 2026-02-03 [E] [expires: 2031-02-02]
 ```
 
 For the further steps in this how-to export the fingerprint into an environment variable (replace with yours):
@@ -142,15 +143,16 @@ gpg --list-secret-keys --with-subkey-fingerprint --keyid-format=long "$KEYFPR"
 This output shows something like:
 
 ```none
-sec   ed25519/AC7EED1BC821DF7D 2026-02-03 [SC] [expires: 2031-02-02]
-      C272027B1AC7538AFC0E6DBCAC7EED1BC821DF7D
-uid                 [ultimate] Bob Maxwell <bob@maxwell.io>
-ssb   rsa4096/AAAAB80DDB143208 2026-02-03 [E] [expires: 2028-02-02]
-      A4FB5E3F17B5DBABC652ABCC2223ASSDDB143223
-ssb   rsa4096/23BEB80DDB143208 2026-02-03 [S] [expires: 2029-02-02]
-      E0FB5E3F17B5DBD7DCAB2AFF23BEB80DDB143208
-ssb   rsa4096/AAAAB80DDB143208 2026-02-03 [S] [expires: 2028-02-02]
-      A4FB5E3F17B5DBDAAAAB2AFF23BEB80DDB143219
+sec   ed25519/1234567890ABCDEF 2026-02-03 [SC] [expires: 2031-02-02]
+      1234567890ABCDEF1234567890ABCDEF123456
+uid                 [ultimate] Foo Bar <foo.bar@company.com>
+uid                 [ultimate] Some One <some.1@gmail.com>
+ssb   cv25519/DEADBEEFDEADBEEF 2026-02-03 [E] [expires: 2031-02-02]
+      DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBE
+ssb   ed25519/CAFEBABECAFEBABE 2026-02-03 [S] [expires: 2029-02-02]
+      CAFEBABECAFEBABECAFEBABECAFEBABECAFEBA
+ssb   ed25519/FAFABABAB0B0B0B0 2026-02-03 [S] [expires: 2028-02-02]
+      FAFABABAB0B0B0B0FAFABABAB0B0B0B0FAFABA
 ```
 
 Which includes:
@@ -167,7 +169,7 @@ If your key is entirely new, or you hereby added additional keys after already u
 Use the following command to ensure your public key is uploaded to the Ubuntu keyserver.
 
 ```shell
-gpg --keyserver hkps://keyserver.ubuntu.com --send-keys <$KEYFPR>
+gpg --keyserver hkps://keyserver.ubuntu.com --send-keys "$KEYFPR"
 ```
 
 
@@ -177,13 +179,6 @@ gpg --keyserver hkps://keyserver.ubuntu.com --send-keys <$KEYFPR>
 Do this before touching the YubiKey!
 
 This is the part that saves you later.
-```
-
-Create a dedicated backup directory:
-
-```shell
-mkdir -p ~/gpg-backup-$KEYFPR
-chmod 700 ~/gpg-backup-$KEYFPR
 ```
 
 Export your public key:
@@ -205,6 +200,13 @@ gpg --output /path/to/your/backup/revocation.asc --gen-revoke "$KEYFPR"
 ```
 
 Finally, store these backups **offline** and **encrypted** and remove them from your system.
+We acknowledge that this leaves the details of that backup setup intentionally under-specified.
+Having *any* truly offline and encrypted setup will, in most places, be better than what
+has been used before.
+Here variety is ok and there is more than "one right setup". Over time
+we might add more examples here for your inspiration:
+
+- Multiple (fail-safe for HW issues, stored in two places) USB-Stick (offline), using {manpage}`cryptsetup(8)` (encrypted) to be mounted
 
 
 (pgp-step-prepare-the-yubikey)=
@@ -225,7 +227,7 @@ Manufacturer .....: Yubico
 Serial number ....: 12345678
 Name of cardholder: [not set]
 Language prefs ...: [not set]
-Salutation .......: 
+Salutation .......:
 URL of public key : [not set]
 Login data .......: [not set]
 Signature PIN ....: not forced
@@ -291,17 +293,17 @@ gpg --edit-key "$KEYFPR"
 
 Secret key is available.
 
-sec  rsa4096/1234567890ABCDEF
-     created: 2015-08-11  expires: never       usage: SC
-     trust: unknown       validity: unknown
-ssb  rsa4096/DEADBEEFDEADBEEF
-     created: 2015-08-11  expires: never       usage: E
+sec  ed25519/1234567890ABCDEF
+     created: 2026-02-03  expires: never       usage: SC
+     trust: utlimate      validity: unknown
+ssb  cv25519/DEADBEEFDEADBEEF
+     created: 2026-02-03  expires: 2031-02-02  usage: E
 ssb  ed25519/CAFEBABECAFEBABE
      created: 2026-05-14  expires: 2028-05-13  usage: S
 ssb  ed25519/FAFABABAB0B0B0B0
      created: 2026-05-14  expires: 2027-08-07  usage: S
-[ unknown] (1). Foo Bar <foo.bar@company.com>
-[ unknown] (2)  Some One <some.1@gmail.com>
+[ultimate] (1). Foo Bar <foo.bar@company.com>
+[utlimate] (2)  Some One <some.1@gmail.com>
 ```
 
 Select a key. From the previous example, keys are listed in order,
@@ -397,11 +399,11 @@ The following output shows:
 $ gpg --list-secret-keys --with-subkey-fingerprint
 /home/youruser/.gnupg/pubring.kbx
 ---------------------------------------------------------
-sec#  rsa4096 2015-08-11 [SC]
+sec#  ed25519 2026-02-03 [SC]
       1234567890ABCDEF1234567890ABCDEF123456
-uid           [ unknown] Foo Bar <foo.bar@company.com>
-uid           [ unknown] Some One <some.1@gmail.com>
-ssb>  rsa4096 2015-08-11 [E]
+uid                 [ultimate] Foo Bar <foo.bar@company.com>
+uid                 [ultimate] Some One <some.1@gmail.com>
+ssb>  cv25519 2026-02-03 [E] [expires: 2031-02-02]
       DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBE
       Card serial no. = 0006 12345678
 ssb>  ed25519 2026-05-14 [S] [expires: 2028-05-13]
@@ -430,7 +432,7 @@ git config --global commit.gpgsign true
 If you have more than one primary key with the same UID (username and mail), you can specify which key to use for signing.
 
 ```shell
-git config --global user.signingkey $KEYFPR
+git config --global user.signingkey "$KEYFPR"
 ```
 
 If you want to sign a single commit:
@@ -472,7 +474,7 @@ debsign <filename>_source.changes
 ```
 
 It will determine the signature needed from the email in the changelog stanza.
-If this does not work out of the box, you might need to explicitly configure your signing key by exporting the `DEBSIGN_KEYID=$KEYFPR.`
+If this does not work out of the box, you might need to explicitly configure your signing key by exporting the `DEBSIGN_KEYID="$KEYFPR"`.
 
 You can try uploading a package to a PPA {ref}`as described in the project documentation <how-to-upload-packages-to-a-ppa>` using the key associated with your Launchpad account.
 
@@ -532,7 +534,7 @@ gpg --list-keys
 Trust yourself (well, your key):
 
 ```none
-gpg --edit-key $KEYFPR
+gpg --edit-key "$KEYFPR"
 gpg> trust
 # 5 = I trust ultimately
 gpg> 5
@@ -570,17 +572,17 @@ This lists the keys:
 ```none
 Secret key is available.
 
-sec  rsa4096/1234567890ABCDEF
-     created: 2015-08-11  expires: never       usage: SC
-     trust: unknown       validity: unknown
-ssb  rsa4096/DEADBEEFDEADBEEF
-     created: 2015-08-11  expires: never       usage: E
+sec  ed25519/1234567890ABCDEF
+     created: 2026-02-03  expires: never       usage: SC
+     trust: ultimate      validity: unknown
+ssb  cv25519/DEADBEEFDEADBEEF
+     created: 2026-02-03  expires: 2031-02-02  usage: E
 ssb  ed25519/CAFEBABECAFEBABE
      created: 2026-05-14  expires: 2028-05-13  usage: S
 ssb  ed25519/FAFABABAB0B0B0B0
      created: 2026-05-14  expires: 2027-08-07  usage: S
-[ unknown] (1). Foo Bar <foo.bar@company.com>
-[ unknown] (2)  Some One <some.1@gmail.com>
+[ultimate] (1). Foo Bar <foo.bar@company.com>
+[utlimate] (2)  Some One <some.1@gmail.com>
 ```
 
 In the `gpg>` prompts then:
@@ -632,7 +634,7 @@ export KEYFPR="YOUR_PRIMARY_KEY_FINGERPRINT"
 Now edit, select and revoke the compromised/lost subkeys:
 
 ```shell
-gpg --edit-key $KEYFPR
+gpg --edit-key "$KEYFPR"
 ```
 
 Then select the subkey (by index) and revoke it:
@@ -661,5 +663,5 @@ Warning - this is an irreversible action\!
 
 ```shell
 gpg --import /path/to/your/backup/revocation.asc
-gpg --keyserver hkps://keyserver.ubuntu.com --send-keys <KEYFPR>
+gpg --keyserver hkps://keyserver.ubuntu.com --send-keys "KEYFPR"
 ```
