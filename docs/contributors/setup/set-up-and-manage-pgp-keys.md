@@ -77,10 +77,11 @@ gpg: marginals needed: 3  completes needed: 1  trust model: pgp
 gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
 gpg: next trustdb check due at 2031-02-02
 ------------------------
-sec   ed25519/AC7EED1BC821DF7D 2026-02-03 [SC] [expires: 2031-02-02]
-      C272017B1AC7539AFC0E6DBCAA7EED1BC821DF7D
-uid                 [ultimate] Bob Maxwell <bob@maxwell.io>
-ssb   cv25519/3BDA8E9DAD49689C 2026-02-03 [E] [expires: 2031-02-02]
+sec   ed25519/1234567890ABCDEF 2026-02-03 [SC] [expires: 2031-02-02]
+      1234567890ABCDEF1234567890ABCDEF123456
+uid                 [ultimate] Foo Bar <foo.bar@company.com>
+uid                 [ultimate] Some One <some.1@gmail.com>
+ssb   cv25519/DEADBEEFDEADBEEF 2026-02-03 [E] [expires: 2031-02-02]
 ```
 
 For the further steps in this how-to export the fingerprint into an environment variable (replace with yours):
@@ -142,15 +143,16 @@ gpg --list-secret-keys --with-subkey-fingerprint --keyid-format=long "$KEYFPR"
 This output shows something like:
 
 ```none
-sec   ed25519/AC7EED1BC821DF7D 2026-02-03 [SC] [expires: 2031-02-02]
-      C272027B1AC7538AFC0E6DBCAC7EED1BC821DF7D
-uid                 [ultimate] Bob Maxwell <bob@maxwell.io>
-ssb   rsa4096/AAAAB80DDB143208 2026-02-03 [E] [expires: 2028-02-02]
-      A4FB5E3F17B5DBABC652ABCC2223ASSDDB143223
-ssb   rsa4096/23BEB80DDB143208 2026-02-03 [S] [expires: 2029-02-02]
-      E0FB5E3F17B5DBD7DCAB2AFF23BEB80DDB143208
-ssb   rsa4096/AAAAB80DDB143208 2026-02-03 [S] [expires: 2028-02-02]
-      A4FB5E3F17B5DBDAAAAB2AFF23BEB80DDB143219
+sec   ed25519/1234567890ABCDEF 2026-02-03 [SC] [expires: 2031-02-02]
+      1234567890ABCDEF1234567890ABCDEF123456
+uid                 [ultimate] Foo Bar <foo.bar@company.com>
+uid                 [ultimate] Some One <some.1@gmail.com>
+ssb   cv25519/DEADBEEFDEADBEEF 2026-02-03 [E] [expires: 2031-02-02]
+      DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBE
+ssb   ed25519/CAFEBABECAFEBABE 2026-02-03 [S] [expires: 2029-02-02]
+      CAFEBABECAFEBABECAFEBABECAFEBABECAFEBA
+ssb   ed25519/FAFABABAB0B0B0B0 2026-02-03 [S] [expires: 2028-02-02]
+      FAFABABAB0B0B0B0FAFABABAB0B0B0B0FAFABA
 ```
 
 Which includes:
@@ -225,7 +227,7 @@ Manufacturer .....: Yubico
 Serial number ....: 12345678
 Name of cardholder: [not set]
 Language prefs ...: [not set]
-Salutation .......: 
+Salutation .......:
 URL of public key : [not set]
 Login data .......: [not set]
 Signature PIN ....: not forced
@@ -291,17 +293,17 @@ gpg --edit-key "$KEYFPR"
 
 Secret key is available.
 
-sec  rsa4096/1234567890ABCDEF
-     created: 2015-08-11  expires: never       usage: SC
-     trust: unknown       validity: unknown
-ssb  rsa4096/DEADBEEFDEADBEEF
-     created: 2015-08-11  expires: never       usage: E
+sec  ed25519/1234567890ABCDEF
+     created: 2026-02-03  expires: never       usage: SC
+     trust: utlimate      validity: unknown
+ssb  cv25519/DEADBEEFDEADBEEF
+     created: 2026-02-03  expires: 2031-02-02  usage: E
 ssb  ed25519/CAFEBABECAFEBABE
      created: 2026-05-14  expires: 2028-05-13  usage: S
 ssb  ed25519/FAFABABAB0B0B0B0
      created: 2026-05-14  expires: 2027-08-07  usage: S
-[ unknown] (1). Foo Bar <foo.bar@company.com>
-[ unknown] (2)  Some One <some.1@gmail.com>
+[ultimate] (1). Foo Bar <foo.bar@company.com>
+[utlimate] (2)  Some One <some.1@gmail.com>
 ```
 
 Select a key. From the previous example, keys are listed in order,
@@ -397,11 +399,11 @@ The following output shows:
 $ gpg --list-secret-keys --with-subkey-fingerprint
 /home/youruser/.gnupg/pubring.kbx
 ---------------------------------------------------------
-sec#  rsa4096 2015-08-11 [SC]
+sec#  ed25519 2026-02-03 [SC]
       1234567890ABCDEF1234567890ABCDEF123456
-uid           [ unknown] Foo Bar <foo.bar@company.com>
-uid           [ unknown] Some One <some.1@gmail.com>
-ssb>  rsa4096 2015-08-11 [E]
+uid                 [ultimate] Foo Bar <foo.bar@company.com>
+uid                 [ultimate] Some One <some.1@gmail.com>
+ssb>  cv25519 2026-02-03 [E] [expires: 2031-02-02]
       DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBE
       Card serial no. = 0006 12345678
 ssb>  ed25519 2026-05-14 [S] [expires: 2028-05-13]
@@ -570,17 +572,17 @@ This lists the keys:
 ```none
 Secret key is available.
 
-sec  rsa4096/1234567890ABCDEF
-     created: 2015-08-11  expires: never       usage: SC
-     trust: unknown       validity: unknown
-ssb  rsa4096/DEADBEEFDEADBEEF
-     created: 2015-08-11  expires: never       usage: E
+sec  ed25519/1234567890ABCDEF
+     created: 2026-02-03  expires: never       usage: SC
+     trust: ultimate      validity: unknown
+ssb  cv25519/DEADBEEFDEADBEEF
+     created: 2026-02-03  expires: 2031-02-02  usage: E
 ssb  ed25519/CAFEBABECAFEBABE
      created: 2026-05-14  expires: 2028-05-13  usage: S
 ssb  ed25519/FAFABABAB0B0B0B0
      created: 2026-05-14  expires: 2027-08-07  usage: S
-[ unknown] (1). Foo Bar <foo.bar@company.com>
-[ unknown] (2)  Some One <some.1@gmail.com>
+[ultimate] (1). Foo Bar <foo.bar@company.com>
+[utlimate] (2)  Some One <some.1@gmail.com>
 ```
 
 In the `gpg>` prompts then:
