@@ -1,7 +1,7 @@
-.. _crash_and_makedumpfile_sru_exception:
+.. _reference_crash_and_makedumpfile_updates:
 
-Crash and Makedumpfile SRU Exception
-====================================
+Crash and Makedumpfile Updates
+==============================
 
 This document describes the policy for introducing new upstream- and
 micro- releases of the crash and makedumpfile packages into Ubuntu
@@ -53,9 +53,9 @@ updated to latest stable versions keeps compatibility for older kernels,
 while allowing LTS releases to work with kernel dumps from newer Ubuntu
 versions.
 
-Makedumpfile is responsible for `generating the compressed memory dump <https://manpages.debian.org/unstable/makedumpfile/makedumpfile.8.en.html>`_
+:manpage:`makedumpfile(8)` is responsible for generating the compressed memory dump
 from /proc/vmcore which can be consumed by tools such as crash. The
-kdump-tools package uses `makedumpfile by default <https://manpages.debian.org/unstable/kdump-tools/kdump-tools.5.en.html>`_. Since the structure
+:manpage:`kdump-tools(5)` package uses makedumpfile by default. Since the structure
 and layout of /proc/vmcore is dependent on the kernel, updates to
 makedumpfile are necessary to ensure proper functionality.
 
@@ -63,9 +63,10 @@ Furthermore, the release of both of these projects are disconnected from
 upstream and the Ubuntu release cycles. It is possible the upstream projects of 
 crash and makedumpfile have the right support for a new kernel release. When the
 kernel is backported as an HWE kernel to an Ubuntu LTS release, it may break 
-the working of `crash and/or makedumpfile <https://bugs.launchpad.net/ubuntu/+source/makedumpfile/+bug/2125145>`_.
-In such situations, SRU of a newer upstream release or specific patches from the
-upstream crash and makedumpfile projects may be required for the LTS release.
+the working of crash and/or makedumpfile (see `LP#2125145 <https://bugs.launchpad.net/ubuntu/+source/makedumpfile/+bug/2125145>`_).
+Backporting specific patches on each HWE kernel release can be error prone and
+and time consuming. In such situations, SRU of a newer upstream release may be
+required for the LTS release.
 
 .. _upstream_policy_enforces_backwards_compatibility:
 
@@ -107,27 +108,28 @@ SRU Process
 For new releases of the crash utility, the following criteria need to be
 validated and documented in a public Launchpad bug:
 
--  Crash must be able to correctly open a makedumpfile compressed image of the system
+-  Crash must be able to correctly open a makedumpfile compressed dump of the system
 -  Crash must be able to correctly execute against the generic and HWE kernel
 
 Kernel crash dumps should be captured with default parameters for a
 given Ubuntu release, as this will cover the more general scenario for
-the tool. Alternatively and with appropriate justification from the SRU
-requester, crash can be validated against a live system image as well.
+the tool.
 
 The SRU should ensure all the supported architectures are working
-correctly with a new crash version. Likewise, we're only concerned that
-crash is able to open and parse kernel dumps correctly, extensions or
-specific crash commands **are not going to be covered** with this test.
+correctly with a new crash version through the test plan. Likewise, we're only
+concerned that crash is able to open and parse kernel dumps correctly,
+extensions or specific crash commands **are not going to be covered** with
+this test.
 
-The following steps can be followed to test a new version of crash and/or
-makedumpfile package:
+The following steps must be followed to test a new version of crash and/or
+makedumpfile package for the generic and HWE kernels:
 
 1. Install the kernel's debug symbols packages
 2. Install the updated crash/makedumpfile packages as well as `kdump-tools` and `kexec-tools` packages
 3. Ensure the system is ready to capture the dump using `sudo kdump-config show`. Reboot if necessary.
 4. Trigger kernel crash (i.e `echo c | sudo tee /proc/sysrq-trigger`)
 5. Once the machine reboots, see if crash is able to load the dumpfile against kernel's debug symbols file (i.e `crash <DEBUG_SYM_FILE> <DUMP_FILE>`.
+6. Repeat once 
 
 .. _regression_testing:
 
@@ -170,7 +172,7 @@ commits like compatibility to new kernel versions or new architectures
 [Test Plan]
 
 The test plan from
-`CrashMakedumpfileUpdates <https://github.com/ubuntu/ubuntu-project-docs/blob/main/docs/SRU/reference/exception-CrashMakedumpfile-Updates.rst>`_
+:ref:`reference_crash_and_makedumpfile_updates`
 is followed. Attached are console logs for each covered kernel version
 and architecture.
 
