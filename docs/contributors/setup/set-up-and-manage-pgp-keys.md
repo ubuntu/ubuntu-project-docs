@@ -201,9 +201,9 @@ gpg --output /path/to/your/backup/revocation.asc --gen-revoke "$KEYFPR"
 
 Finally, store these backups **offline** and **encrypted** and remove them from your system.
 We acknowledge that this leaves the details of that backup setup intentionally under-specified.
-Having any setup that is truly offline and encrypted will in most places be better than what
+Having *any* truly offline and encrypted setup will, in most places, be better than what
 has been used before.
-Here variety is ok and there likely is not only "one right setup", over time
+Here variety is ok and there is more than "one right setup". Over time
 we might add more examples here for your inspiration:
 
 - Multiple (fail-safe for HW issues, stored in two places) USB-Stick (offline), using {manpage}`cryptsetup(8)` (encrypted) to be mounted
