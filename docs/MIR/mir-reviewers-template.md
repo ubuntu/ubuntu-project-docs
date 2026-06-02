@@ -355,6 +355,7 @@ OK:
 TODO-A: - Ubuntu does not carry a delta
 TODO-B: - Ubuntu does carry a delta, but it is reasonable and maintenance under
 TODO-B:   control
+TODO-C: - This is an Ubuntu-only package
 TODO-A: - symbols tracking is in place.
 TODO-B: - For c++ libraries - symbols tracking isn't in place but the owning
 TODO-B:   team tried to set it up and came back with a reasonable rationale
