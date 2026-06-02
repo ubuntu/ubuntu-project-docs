@@ -122,14 +122,14 @@ extensions or specific crash commands **are not going to be covered** with
 this test.
 
 The following steps must be followed to test a new version of crash and/or
-makedumpfile package for the generic and HWE kernels:
+makedumpfile package for both the generic and HWE kernels of the target
+Ubuntu release:
 
 1. Install the kernel's debug symbols packages
 2. Install the updated crash/makedumpfile packages as well as `kdump-tools` and `kexec-tools` packages
 3. Ensure the system is ready to capture the dump using `sudo kdump-config show`. Reboot if necessary.
 4. Trigger kernel crash (i.e `echo c | sudo tee /proc/sysrq-trigger`)
 5. Once the machine reboots, see if crash is able to load the dumpfile against kernel's debug symbols file (i.e `crash <DEBUG_SYM_FILE> <DUMP_FILE>`.
-6. Repeat once 
 
 .. _regression_testing:
 
@@ -142,7 +142,9 @@ leave out specific flavors and other derivative kernels like
 testing within their SRU Regression Testing suite and hence would be
 running this test against all of the prepared kernels once per kernel SRU
 cycle. This testing is comprehensive and includes all the supported
-architectures.
+architectures. Final release of the packages to updates would require
+a sign-off from the kernel team. This can be in form of a comment on the
+SRU bug.
 
 .. _requesting_the_sru:
 
@@ -181,6 +183,10 @@ Checklist:
 -  Crash can open dumps for the GA kernel on supported architectures
 -  Crash can open dumps for the HWE kernel on supported architectures
 -  Update the list of previous crash updates under this SRU Exception below
+
+Once the regression testing is completed by kernel team, they would be
+responsible to add a comment to approve the release of package(s) to updates.
+This approval is mandatory for release.
 
 [Where problems could occur]
 
