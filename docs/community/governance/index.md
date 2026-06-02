@@ -47,7 +47,7 @@ The Community Council meets with the rest of the governance bodies every two mon
 
 ## Ubuntu Technical Board
 
-The {ref}`Ubuntu Technical Board <technical-board>` is responsible for the technical direction of Ubuntu. It makes decisions on package selection, packaging policy, installation systems and processes, kernel, X server, display management, library versions and dependencies. The board works with relevant teams to establish a consensus on the right path to take, especially where diverse elements of Ubuntu cannot find consensus on shared components.
+The {ref}`Ubuntu Technical Board <technical-board>` is responsible for the technical direction of Ubuntu.
 
 The Ubuntu Technical Board meets every two weeks on IRC -- [date and agenda of the next meeting](https://wiki.ubuntu.com/TechnicalBoardAgenda), alternating with the Community Council. You can propose an item for discussion by putting it on the [Technical Board Agenda](https://wiki.ubuntu.com/TechnicalBoardAgenda) on the Ubuntu Wiki.
 
