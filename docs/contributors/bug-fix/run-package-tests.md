@@ -98,13 +98,12 @@ First, we will build the image we prepared in the previous section.
 * To build a VM image:
 
   ```none
-  $ autopkgtest-buildvm-ubuntu-cloud -r focal -v \
-   --cloud-image-url http://cloud-images.ubuntu.com/daily/server
+  $ autopkgtest-buildvm-ubuntu-cloud -r noble -v
   ```
 
-  (Replace `focal` with your release of choice)
+  (Replace `noble` with your release of choice)
  
-  Copy the resulting image (`autopkgtest-focal-amd64.img`) to the
+  Copy the resulting image (`autopkgtest-noble-amd64.img`) to the
   `/var/lib/adt-images` directory.
 
   ```{note}
@@ -114,7 +113,7 @@ First, we will build the image we prepared in the previous section.
 * To build a container image:
 
   ```none
-  $ autopkgtest-build-lxd ubuntu-daily:oracular
+  $ autopkgtest-build-lxd ubuntu-daily:resolute
   ```
 
   You should see an `autopkgtest` image now when you run `lxc image list`.
@@ -165,7 +164,7 @@ $ autopkgtest \
   --shell-fail \
   --output-dir dep8-mypackage \
     mypackage/ \
-  -- qemu /var/lib/adt-images/autopkgtest-focal-amd64.img
+  -- qemu /var/lib/adt-images/autopkgtest-noble-amd64.img
 ```
 
 Where:
@@ -184,8 +183,6 @@ Everything after the `--` tells it how to run the tests. `qemu` is shorthand for
 #### In a VM, Using the PPA
 
 
-##### for Ubuntu 20.10 (Groovy Gorilla) and later
-
 ```none
 $ autopkgtest \
   --apt-upgrade \
@@ -194,10 +191,10 @@ $ autopkgtest \
   --setup-commands="sudo add-apt-repository \
     --yes \
     --enable-source \
-    --ppa mylaunchpaduser/mantic-mypackage-fixed-something-1234567" \
+    --ppa mylaunchpaduser/noble-mypackage-fixed-something-1234567" \
   --no-built-binaries \
   mypackage \
-  -- qemu /var/lib/adt-images/autopkgtest-mantic-amd64.img
+  -- qemu /var/lib/adt-images/autopkgtest-noble-amd64.img
 ```
 
 Where (in setup-commands):
@@ -213,39 +210,11 @@ Where (in setup-commands):
 Note: In this case, the package name **doesn't** have a trailing slash because we want to install the package.
 
 
-##### for Ubuntu 20.04 LTS (Focal Fossa) and earlier
-
-```none
-$ autopkgtest \
-  --apt-upgrade \
-  --shell-fail \
-  --output-dir dep8-mypackage-ppa \
-  --setup-commands="sudo add-apt-repository \
-    --yes \
-    --update \
-    --enable-source \
-    ppa:mylaunchpaduser/focal-mypackage-fixed-something-1234567" \
-  --no-built-binaries mypackage \
-  -- qemu /var/lib/adt-images/autopkgtest-focal-amd64.img
-```
-
-Where (in setup-commands):
-
- * `--yes`: Assume "yes" for all questions
- * `--update`: Run `apt-update`
- * `--enable-source`: Add `deb-src` line for the repository
- * `--no-built-binaries`: Don't build
-
-Note: In this case, the package name **doesn't** have a trailing slash because we want to install the package.
-
-
 #### In a Container, Using the PPA
 
 The command only differs after the `--` part. For example:
 
 
-##### for Ubuntu 20.10 (Groovy Gorilla) and later
-
 ```none
 $ autopkgtest \
   --apt-upgrade \
@@ -254,81 +223,10 @@ $ autopkgtest \
   --setup-commands="sudo add-apt-repository \
     --yes \
     --enable-source \
-    --ppa mylaunchpaduser/mantic-mypackage-fixed-something-1234567" \
+    --ppa mylaunchpaduser/noble-mypackage-fixed-something-1234567" \
   --no-built-binaries \
   mypackage \
-  -- lxd autopkgtest/ubuntu/mantic/amd64
-```
-
-
-##### for Ubuntu 20.04 LTS (Focal Fossa) and earlier
-
-```none
-$ autopkgtest \
-  --apt-upgrade \
-  --shell-fail \
-  --output-dir dep8-mypackage-ppa \
-  --setup-commands="sudo add-apt-repository \
-    --yes \
-    --update \
-    --enable-source \
-    ppa:mylaunchpaduser/focal-mypackage-fixed-something-1234567" \
-  --no-built-binaries mypackage \
-  -- lxd autopkgtest/ubuntu/focal/amd64
-```
-
-
-#### In Canonistack
-
-```{note}
-Canonistack is an internal environment only accessible to Canonical employees. If you are a Canonical employee, see internal IS documentation for guidance on how to set up a Canonistack environment.
-```
-
-This is by far the closest (in terms of similarity) to the real autopkgtests
-since they also run in such an environment -- but it needs some preparation.
-
-Then you can look for the image you want to boot like:
-
-```{important}
-An entire section seems to be missing, including the code referred to here?
-
-TODO: See: {ref}`4-testing-in-the-cloud-with-canonistack` in this article.
-```
-
-```{note}
-* `mypackage/`: Put your package name here. The trailing slash tells it to
-  interpret this as a directory rather than a package name.
-* `qemu`: Is shorthand for `autopkgtest-virt-qemu`.
-```
-
-
-### Run the tests (against the PPA)
-
-Make sure you're one directory up from your package directory and run:
-
-```none
-$ autopkgtest \
-  --apt-upgrade \
-  --shell-fail \
-  --output-dir dep8-mypackage-ppa \
-  --setup-commands="sudo add-apt-repository \
-    --yes \
-    --update \
-    --enable-source \
-    ppa:mylaunchpaduser focal-mypackage-fixed-something-1234567" \
-  --no-built-binaries \
-    mypackage \
-  -- qemu /var/lib/adt-images/autopkgtest-focal-amd64.img
-```
-
-Note that in the `add-apt-repository` command, the `--update` flag became part
-of the default after 20.04 LTS. So if you are running a test on Jammy or later
-you do not need to include that flag.
-
-```{note}
-
-In this case, the package name **doesn't** have a trailing slash because we
-want to install the package.
+  -- lxd autopkgtest/ubuntu/noble/amd64
 ```
 
 
@@ -343,126 +241,13 @@ $ autopkgtest \
  --shell-fail \
  --output-dir dep8-mypackage-ppa \
  --setup-commands="sudo add-apt-repository -y -u -s \
- ppa:mylaunchpaduser/focal-mypackage-fixed-something-1234567" \
+ ppa:mylaunchpaduser/noble-mypackage-fixed-something-1234567" \
  --no-built-binaries \
  mypackage \
- -- lxd autopkgtest/ubuntu/focal/amd64
+ -- lxd autopkgtest/ubuntu/noble/amd64
 ```
 
 The `setup-commands` options are as described in the previous section.
-
-
-(4-testing-in-the-cloud-with-canonistack)=
-## 4) Testing in the cloud with Canonistack
-
-```{note}
-Canonistack is an internal environment only accessible to Canonical employees. If you are a Canonical employee, see internal IS documentation for guidance on how to set up a Canonistack environment.
-```
-
-This is by far the closest in terms of "similarity" to the real `autopkgtests`
-since they also run in such an environment, but it needs some preparation.
-
-Upon setting the environment, look for the image you want to boot:
-
-```none
-$ source ~/.canonistack/novarc_bos01
-$ openstack image list | grep -i arm64 | grep hirsute
-| 4d24cfbe-b6a5-4d84-8c50-b9f025d0dd43 | ubuntu/ubuntu-hirsute-daily-arm64-server-20201124-disk1.img    | active |
-| 1cfeacff-f04a-4bce-ab92-9d8fec7e5edb | ubuntu/ubuntu-hirsute-daily-arm64-server-20201125-disk1.img    | active |
-```
-
-You need to have `glance` installed. The `nova` script we use in
-the following example needs it. To install it using `apt`:
-
-```none
-$ sudo apt install python3-glanceclient
-```
-
-Or `pip`:
-
-```none
-$ pip install python3-glanceclient
-```
-
-Finally, to
-[run the test on Canonistack](https://wiki.ubuntu.com/proposedMigration#Reproducing_tests_in_the_cloud)
-is quite similar to the other invocations. Just two things change compared to
-"local" `autopkgtest-runner` invocations.
-
-* `--setup-commands setup-testbed` will have `autopkgtest` execute
-  `/usr/share/autopkgtest/setup-commands/setup-testbed` on the target which
-  converts any system into a system that is ready for `autopkgtest` to log in.
-* `-- ssh -s nova` achieves two things:
-  * First, it selects the SSH virtualization driver `autopkgtest-virt-ssh` to
-    reach out to a remote system.
-  * It also selects the setup script `nova` from
-    `/usr/share/autopkgtest/ssh-setup/nova`, which happens to know how to deal
-    with OpenStack.
-
-```none
-# General pattern
-$ autopkgtest \
-  --no-built-binaries \
-  --apt-upgrade \
-  --setup-commands setup-testbed \
-  --shell-fail <mypackage>.dsc \
-  -- ssh -s nova -- \
-  --flavor m1.small \
-  --image <image> \
-  --keyname <yourkeyname>
-```
-
-```none
-# One example
-$ autopkgtest \
-  --no-built-binaries \
-  --apt-upgrade \
-  --setup-commands setup-testbed \
-  --shell-fail systemd_247.3-1ubuntu2.dsc \
-  -- ssh -s nova -- \
-  --flavor m1.small \
-  --image ubuntu/ubuntu-hirsute-daily-arm64-server-20201125-disk1.img \
-  --keyname paelzer_canonistack-bos01
-```
-
-You can use all the usual OpenStack terms, e.g. other flavors, sizing the VM
-used, or other images to run the same test on different releases or
-architectures.
-
-
-### Armhf is special
-
-Canonistack does not have native armhf nodes. Because of that the `autopkgtests`
-on that architecture actually run in armhf containers on arm64 hosts.
-To recreate that environment you'll first need to get a Canonistack arm64
-instance and there combine all of the above like:
-
-```none
-$ autopkgtest \
-  --no-built-binaries \
-  --apt-upgrade \
-  --setup-commands setup-testbed \
-  --shell-fail <mypackage>.dsc \
-  -- lxd ubuntu-daily:mantic/armhf
-```
-
-These days normal images mostly work, but for completeness (and because you
-read this being cursed by tracking a special case) there is also a form which
-creates an image adapted to the use for `autopkgtest.
-
-```none
-# prep armhf container image for autopkgtest
-$ autopkgtest-build-lxd ubuntu-daily:mantic/armhf
-
-# check the created container
-$ lxc image list
-...
-| autopkgtest/ubuntu/mantic/armhf | d5d93f552340 | yes    | autopkgtest Ubuntu mantic armhf       | armv7l       | CONTAINER | 571.57MB | Aug 25, 2023 at 8:56am (UTC) |
-...
-
-# run a test in that container
-$ autopkgtest --no-built-binaries --apt-upgrade --setup-commands setup-testbed --shell-fail <mypackage>.dsc -- lxd autopkgtest/ubuntu/mantic/armhf
-```
 
 
 ## Common options you'll need
@@ -501,16 +286,16 @@ Here are some examples testing various combinations against `octave-parallel`:
 ```none
 # normal
 $ autopkgtest --apt-pocket=proposed \
- --shell-fail octave-parallel_4.0.0-2ubuntu1~ppa1.dsc \
- -- qemu ~/work/autopkgtest-hirsute-amd64.img
+ --shell-fail octave-parallel_4.0.1-2ubuntu1~ppa1.dsc \
+ -- qemu ~/work/autopkgtest-noble-amd64.img
 # all proposed
 $ autopkgtest --apt-pocket=proposed \
- --shell-fail octave-parallel_4.0.0-2ubuntu1~ppa1.dsc \
- -- qemu ~/work/autopkgtest-hirsute-amd64.img
+ --shell-fail octave-parallel_4.0.2-1ubuntu1~ppa1.dsc \
+ -- qemu ~/work/autopkgtest-noble-amd64.img
 # specific subset
 $ autopkgtest --apt-pocket=proposed=src:octave,octave-parallel,octave-struct \
- --shell-fail octave-parallel_4.0.0-2ubuntu1~ppa1.dsc \
- -- qemu ~/work/autopkgtest-hirsute-amd64.img
+ --shell-fail octave-parallel_4.0.2-1ubuntu1~ppa1.dsc \
+ -- qemu ~/work/autopkgtest-noble-amd64.img
 ```
 
 
@@ -524,37 +309,11 @@ test in different sizes:
 
 ```none
 $ autopkgtest --no-built-binaries --apt-upgrade \
- --shell-fail octave-parallel_4.0.0-2ubuntu1~ppa1.dsc \
- -- qemu --ram-size=1536 --cpus 1 ~/work/autopkgtest-hirsute-amd64.img
+ --shell-fail octave-parallel_4.0.2-1ubuntu1~ppa1.dsc \
+ -- qemu --ram-size=1536 --cpus 1 ~/work/autopkgtest-noble-amd64.img
 $ autopkgtest --no-built-binaries --apt-upgrade \
- --shell-fail octave-parallel_4.0.0-2ubuntu1~ppa1.dsc \
- -- qemu --ram-size=4096 --cpus 4 ~/work/autopkgtest-hirsute-amd64.img
-```
-
-For `nova`, you use
-[OpenStack flavors](https://docs.openstack.org/nova/latest/user/flavors.html).
-If you're unsure which ones are defined you can check with
-`openstack flavor list`. Here's an example of passing `nova` different sizes:
-
-```none
-$ autopkgtest --no-built-binaries --apt-upgrade \
- --setup-commands setup-testbed --shell-fail systemd_247.3-1ubuntu2.dsc \
- -- ssh -s nova -- \
- --flavor m1.small \
- --image ubuntu/ubuntu-hirsute-daily-arm64-server-20201125-disk1.img \
- --keyname paelzer_canonistack-bos01
-$ autopkgtest --no-built-binaries --apt-upgrade \
- --setup-commands setup-testbed --shell-fail systemd_247.3-1ubuntu2.dsc \
- -- ssh -s nova -- \
- --flavor cpu4-ram8-disk20 \
- --image ubuntu/ubuntu-hirsute-daily-arm64-server-20201125-disk1.img \
- --keyname paelzer_canonistack-bos01
-$ autopkgtest --no-built-binaries --apt-upgrade \
- --setup-commands setup-testbed --shell-fail systemd_247.3-1ubuntu2.dsc \
- -- ssh -s nova -- \
- --flavor cpu8-ram16-disk50 \
- --image ubuntu/ubuntu-hirsute-daily-arm64-server-20201125-disk1.img \
- --keyname paelzer_canonistack-bos01
+ --shell-fail octave-parallel_4.0.2-1ubuntu1~ppa1.dsc \
+ -- qemu --ram-size=4096 --cpus 4 ~/work/autopkgtest-noble-amd64.img
 ```
 
 
