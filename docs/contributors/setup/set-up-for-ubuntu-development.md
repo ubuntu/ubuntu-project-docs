@@ -11,6 +11,7 @@ You must have a Launchpad ID. To get an ID:
 * Click {guilabel}`Log in / Register`
 
 
+(ubuntu-development-dependencies)=
 ## Install software
 
 ```none
@@ -27,6 +28,38 @@ $ sudo apt update && \
   sudo snap install --classic snapcraft && \
   sudo snap install --classic git-ubuntu
 ```
+
+
+(configure-groups)=
+## Configure your groups
+
+Your user should be a member of the following groups:
+
+* `adm`
+* `libvirt`
+* `lxd`
+* `sbuild`
+* `sudo`
+
+Ensure you have installed the packages listed above, which will be the trigger
+to create most of these groups. For group membership to be activated one
+usually needs to re-login. Then, one can double check group membership via:
+
+```none
+$ groups my_user
+my_user : my_user adm cdrom sudo dip plugdev lpadmin sambashare \
+ libvirt sbuild lxd
+```
+
+If any of the following groups is missing for your user you can fix it via
+`adduser`, like this:
+
+```none
+$ sudo adduser my_user lxd
+$ sudo adduser my_user sbuild
+$ sudo adduser my_user libvirt
+```
+
 
 ## Configure software
 
@@ -190,13 +223,6 @@ specify a destination, it'll default to doing nothing.
 
 [sbuild](https://wiki.debian.org/sbuild) is the recommended tool for building
 packages on Ubuntu.
-
-Add your user to the `sbuild` group:
-
-```bash
-$ sudo adduser $USER sbuild
-$ newgrp sbuild
-```
 
 ::::{tab-set}
 
@@ -369,8 +395,6 @@ $ sudo rm -rf /var/lib/schroot/chroots/resolute-amd64
 
 ::::
 
-```
-
 
 (lxd)=
 ### LXD
@@ -411,35 +435,6 @@ $ echo 'Acquire::http::Proxy "http://127.0.0.1:3142";' \
 | sudo tee /etc/apt/apt.conf.d/01acng
 ```
 
-
-## Configure your groups
-
-Your user should be a member of the following groups:
-
-* `adm`
-* `libvirt`
-* `lxd`
-* `sbuild`
-* `sudo`
-
-Ensure you have installed the packages listed above, which will be the trigger
-to create most of these groups. For group membership to be activated one
-usually needs to re-login. Then, one can double check group membership via:
-
-```none
-$ groups my_user
-my_user : my_user adm cdrom sudo dip plugdev lpadmin sambashare \
- libvirt sbuild lxd
-```
-
-If any of the following groups is missing for your user you can fix it via
-`adduser`, like this:
-
-```none
-$ sudo adduser my_user lxd
-$ sudo adduser my_user sbuild
-$ sudo adduser my_user libvirt
-```
 
 
 ## Configure your .profile
