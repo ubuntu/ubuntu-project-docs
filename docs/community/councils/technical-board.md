@@ -3,8 +3,7 @@
 
 The Ubuntu Technical Board is responsible for architectural and technical decisions in Ubuntu. They set the standards required for packaging and integration with Ubuntu, as well as signing off on the release process and goals, and are ultimately responsible for granting official status and access rights to developers.
 
-The Technical Board makes final decisions over package selection, packaging policy, installation system and process, toolchain, kernel, X server, library versions and dependencies, and any other matter which requires technical supervision in Ubuntu.
-
+The Technical Board makes final decisions on package selection, packaging policy, installation systems and processes, toolchain, kernel, X server, display management, library versions and dependencies. The board works with relevant teams to establish a consensus on the right path to take, especially where diverse elements of Ubuntu cannot find consensus on shared components.
 
 ## Purpose
 
@@ -15,6 +14,8 @@ The Technical Board is responsible for the following documents and processes:
 * Ubuntu Release Feature Goals, which determine specific features which we aim to include in each release of Ubuntu. These are documented on the wiki pages for each release. You may propose additional feature goals until that release is in Feature Freeze, after which feature goals will be deferred to the next release.
 
 * Ubuntu Package Selection, the list of packages that will be installed in a base or desktop Ubuntu installation, as well as the list of packages that qualify for full support in main as opposed to universe. You may propose packages for inclusion in the base install, or the desktop install, or in main where they will be immediately available to Ubuntu users.
+
+* If no policy nor delegation for a topic exists, the tech board can be approached for and has the power to grant any kind of exception whatsoever (in a technical area). The process is to ask. 
 
 The Ubuntu Technical Board operates on the following basis:
 
