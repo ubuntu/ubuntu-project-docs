@@ -72,7 +72,8 @@ are pending and what their status is. Note that this includes DEP-8 test
 results; if these have failed then it's unlikely the SRU team will release
 the update, so it's wise to follow-up if this happens.
 
-Once all of the SRU's bugs have reached `verification-done` and a 7-day
-waiting period has elapsed, the SRU team will move the source and binary
-packages into the `-updates` pocket and mark the bug task(s) as "Fix Released".
+Once all of the SRU's bugs have reached `verification-done`, a minimum 7-day
+aging period has elapsed, and autopkgtests pass, the SRU team will move the
+source and binary packages into the `-updates` pocket and mark the bug task(s)
+as "Fix Released".
 
