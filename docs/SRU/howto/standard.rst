@@ -73,10 +73,10 @@ Prepare a special type of SRU <howto-prepare-special-sru>` instead.
     wish, you can follow progress through the :ref:`SRU pipeline
     <explanation-sru-pipeline>` using the various :ref:`status pages
     <reference-status-pages>`.
-8.  If you find a problem while it's still unapproved, asking in the
-    Matrix `#ubuntu-release` channel for the package to be rejected
-    from the queue. If rejected at this stage the same
-    version number can be re-used.
+8.  If you find a problem while it's still unapproved, ask the SRU team to
+    reject the upload. You can contact the SRU team in #sru:ubuntu.com
+    on Matrix. If rejected at this stage, the same version number can be
+    reused.
 9.  After the package is accepted into -proposed, you will be asked to
     execute your Test Plan against the built packages. Please do so,
     using bug comments to report your results. Once done, change the bug
