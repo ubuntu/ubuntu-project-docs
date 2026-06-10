@@ -162,7 +162,7 @@ well.
 Getting the test into Ubuntu
 ----------------------------
 
-The process of submitting an autopkgtest for a package is similar to :ref:`fixing a bug in Ubuntu <how-to-fix-a-bug-in-a-package>`:
+The process of submitting an autopkgtest for a package is described in :ref:`How to run package tests <how-to-run-package-tests>`:
 
 #. Run ``git ubuntu clone <packagename>``,
 #. Edit ``debian/control`` to enable the tests,

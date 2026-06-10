@@ -1,9 +1,9 @@
-.. _how-to-propose-changes:
+.. _bugfixing-workflow:
 
-How to propose changes
-======================
+Bugfixing workflow
+==================
 
-This guide walks through the process for proposing changes to Ubuntu. When you find a problem, obtain the code, work on a solution, test the fix, push your changes to :term:`Launchpad`, and request a review and merge.
+This guide walks through the process for fixing bugs in Ubuntu. When you find a problem, obtain the code, work on a solution, test the fix, push your changes to :term:`Launchpad`, and request a review and merge.
 
 .. attention::
 
@@ -44,22 +44,21 @@ Identify the source package
 
 After selecting a bug to fix, identify the source package that contains the code related to the issue.
 
-Start by identifying the name of the binary package. If you know the path or part of the filename of the affected program, run:
+Start by identifying the name of the binary package. If the program or file is installed on your system, you can identify the package that owns it using:
 
 .. code-block:: none
 
-    apt-file find <filename-or-path>
+    dpkg -S <path-to-file>
 
 .. note::
 
-    Replace ``<filename-or-path>`` with either the full path or part of the filename.
+    Replace ``<path-to-file>`` with the full path to the file.
 
-    For example, both of the following work:
+    For example, run:
 
     .. code-block:: none
 
-        apt-file find /usr/games/bumprace
-        apt-file find bumprace
+        dpkg -S /usr/games/bumprace
 
 Running the command returns an output similar to:
 
@@ -68,6 +67,23 @@ Running the command returns an output similar to:
     bumprace: /usr/games/bumprace
 
 In the preceding output, the part before the colon is the name of the binary package.
+
+.. note::
+
+    If the package is not installed on your system, you can use ``apt-file`` to search across all packages. However, ``apt-file`` is not installed by default and must be set up before use:
+
+    .. code-block:: none
+
+        sudo apt install apt-file
+        sudo apt-file update
+
+    Once set up, run the search command:
+
+    .. code-block:: none
+
+        apt-file find <filename-or-path>
+
+    For example, ``apt-file find bumprace``.
 
 After identifying the name of the binary package, the next step is to find the source package. Use the following command:
 
@@ -90,72 +106,7 @@ Check if the bug has been fixed
 
 Once you identify the source package, make sure the issue still exists. A fix may already exist in a newer Ubuntu release, in Debian, or upstream. Checking first saves time and avoids duplicate work.
 
-Follow the steps in the following subsections to check whether the problem has already been addressed.
-
-Check if the bug is fixed in a newer Ubuntu
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Use ``rmadison`` to review the versions of the package available across Ubuntu releases.
-
-.. code-block:: none
-
-    rmadison <package-name>
-
-This shows which versions are available in different Ubuntu series. Look for a newer version than the one you are using. If a fix was introduced in a later version, check the changelog or commit history to verify.
-
-To review changes, clone the package with :command:`gitubuntu`:
-
-.. code-block:: none
-
-    git-ubuntu clone postfix postfix
-    cd postfix
-    git log -b pkg/ubuntu/<ubuntu-series>
-
-Look through the commit messages and patch files to identify if the issue has been resolved.
-
-Check if the bug is fixed in Debian
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Debian is a key source for Ubuntu packages. Search for bug reports or patches applied there.
-
-First, check Debian’s bug tracker using the URL ``https://bugs.debian.org/src:<package-name>``.
-
-To inspect changes in more detail, find the source repository used by Debian. You can do this in a few ways:
-
-- Use ``debcheckout``:
-
-    .. code-block:: none
-
-        debcheckout <package-name>
-        cd <package-name>
-        git log
-
-- Look for the ``Vcs-Git`` and ``Vcs-Browser`` fields from the ``apt showsrc`` command output. These point to the package's source code repository and its web interface:
-
-    .. code-block:: none
-
-        apt showsrc --only-source <package-name>
-
-    Look for commit messages that describe fixes relevant to your issue. If a bug number is referenced, open the link and review the context.
-
-Check if the bug is fixed upstream
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If the problem originates from the software itself and not the package, investigate :term:`upstream`. Each project has its own bug tracker and code repository.
-
-To find the upstream project:
-
-- search the package homepage listed by running the command ``apt show <package>``
-- look up the project through web search
-- check the metadata in the package description or Debian tracker
-
-Once you find the upstream repository:
-
-1. look through open and closed issues
-#. search the commit history for relevant fixes
-#. clone the upstream Git repository if available and inspect the logs
-
-If upstream has resolved the problem, consider if that version has reached Debian or Ubuntu. If not, you may propose packaging the new version or backporting the patch.
+For a detailed walkthrough — including example commands, how to clone and inspect package history with ``git-ubuntu``, how to browse Debian's repositories, and how to search upstream — see :ref:`check-if-is-it-already-fixed`.
 
 Offer to help
 -------------
