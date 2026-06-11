@@ -696,7 +696,7 @@ Ubuntu 7.10 (gutsy) reached end-of-life on April 18th, 2009
 Ubuntu 7.04 (feisty) reached end-of-life on October 19, 2008
 Ubuntu 6.10 (edgy) reached end-of-life on April 26, 2008
 
-See this document for currently supported Ubuntu releases: https://wiki.ubuntu.com/Releases
+See this document for currently supported Ubuntu releases: https://documentation.ubuntu.com/project/release-team/list-of-releases/
 
 We appreciate that this bug may be old and you might not be interested in discussing it anymore. But if you are then please upgrade to the latest Ubuntu version and re-test. If you then find the bug is still present in the newer Ubuntu version, please add a comment here telling us which new version it is in.
 ```
