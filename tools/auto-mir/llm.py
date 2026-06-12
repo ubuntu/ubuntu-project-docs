@@ -45,26 +45,27 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from utils.retry import retry_rate_limited, extract_retry_after
+
+if TYPE_CHECKING:
+    from auto_mir import RunContext
 
 log = logging.getLogger("auto_mir.llm")
 
 
 # GitHub Copilot (GitHub Models) endpoint
 COPILOT_API_URL = "https://models.inference.ai.azure.com/chat/completions"
-_COPILOT_API_URL = COPILOT_API_URL  # backward-compat alias
 DEFAULT_COPILOT_MODEL = "gpt-4.1-mini"
-_DEFAULT_COPILOT_MODEL = DEFAULT_COPILOT_MODEL  # backward-compat alias
 
 # OpenAI-compatible (OpenRouter and others) defaults.
 # OpenRouter requires the provider-namespaced model id; gpt-4.1-mini is
 # available there as "openai/gpt-4.1-mini" which mirrors the Copilot default.
 DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
-_DEFAULT_OPENAI_BASE_URL = DEFAULT_OPENAI_BASE_URL  # backward-compat alias
 DEFAULT_OPENAI_COMPAT_MODEL = "openai/gpt-4.1-mini"
-_DEFAULT_OPENAI_COMPAT_MODEL = DEFAULT_OPENAI_COMPAT_MODEL  # backward-compat alias
+
+DEFAULT_TIMEOUT_SECONDS = 60
 
 class LLMError(RuntimeError):
     """Raised when the LLM call cannot produce a usable response."""
@@ -150,7 +151,7 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
         urllib.error.HTTPError: On retryable HTTP errors (429, 5xx) - will trigger retry
     """
     token = getattr(ctx, "llm_token", "") or ""
-    api_url = getattr(ctx, "llm_api_url", "") or _COPILOT_API_URL
+    api_url = getattr(ctx, "llm_api_url", "") or COPILOT_API_URL
     provider = getattr(ctx, "llm_provider", "copilot")
 
     if not token:
@@ -200,7 +201,8 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
     )
     
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
+        timeout = getattr(ctx, "llm_timeout", DEFAULT_TIMEOUT_SECONDS)
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             raw = resp.read().decode()
             _learn_from_headers(limiter, resp.headers)
             limiter.next_allowed_at = max(
@@ -252,8 +254,8 @@ def _selected_model(ctx) -> str:
 
     provider = getattr(ctx, "llm_provider", "copilot")
     if provider == "openai-compatible":
-        return _DEFAULT_OPENAI_COMPAT_MODEL
-    return _DEFAULT_COPILOT_MODEL
+        return DEFAULT_OPENAI_COMPAT_MODEL
+    return DEFAULT_COPILOT_MODEL
 
 
 def _get_rate_limiter(model: str) -> _RateLimitState:

@@ -220,8 +220,8 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
     """
     lines: list[str] = [f"[{section}]"]
 
-    ok_findings = [f for f in findings if f["status"] == "ok"]
-    not_ok = [f for f in findings if f["status"] != "ok"]
+    ok_findings = [f for f in findings if f.status == "ok"]
+    not_ok = [f for f in findings if f.status != "ok"]
     problems = [f for f in not_ok if _is_high_confidence_failure(f)]
     undecided = [f for f in not_ok if not _is_high_confidence_failure(f)]
 

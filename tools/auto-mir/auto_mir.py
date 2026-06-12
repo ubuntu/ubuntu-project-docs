@@ -354,8 +354,8 @@ def stage_analyse(ctx: RunContext) -> None:
     ctx.findings = checks.evaluate_checks(ctx)
     ctx.evidence["analysis_summary"] = {
         "total_checks": len(ctx.findings),
-        "evaluated_checks": len([f for f in ctx.findings if f["status"] != "not-evaluated"]),
-        "pending_checks": len([f for f in ctx.findings if f["status"] == "not-evaluated"]),
+        "evaluated_checks": len([f for f in ctx.findings if f.status != "not-evaluated"]),
+        "pending_checks": len([f for f in ctx.findings if f.status == "not-evaluated"]),
     }
 
 

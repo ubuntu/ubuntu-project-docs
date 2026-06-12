@@ -126,6 +126,24 @@ class Finding:
     # --- Set during post-processing ---
     adapter_error_cause: list[str] = field(default_factory=list)
 
+    def succeed(self, message: str, confidence: str = "high") -> None:
+        """Mark this finding as successfully met (ok)."""
+        self.status = "ok"
+        self.severity = "ok"
+        self.confidence = confidence
+        self.message = message
+        self.todo = ""
+
+    def fail(self, message: str, todo: str, severity: str = "required", confidence: str = "high", status: str = "not-ok") -> None:
+        """Mark this finding as failed or unknown, requiring a human TODO."""
+        self.status = status
+        self.severity = severity
+        self.confidence = confidence
+        self.message = message
+        if not todo.startswith("TODO:"):
+            todo = f"TODO: {todo}"
+        self.todo = todo
+
     def __post_init__(self):
         """Validate Finding invariants after initialization.
         

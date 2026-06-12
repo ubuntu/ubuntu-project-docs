@@ -9,17 +9,6 @@ dependencies = [
     "tenacity>=8.0.0",
 ]
 
-[project]
-name = "auto-mir"
-version = "0.1.0"
-description = "Automated MIR (Main Inclusion Review) assistant"
-requires-python = ">=3.12"
-dependencies = [
-    "launchpadlib",
-    "pyyaml",
-    "tenacity>=8.0.0",
-]
-
 [tool.ruff]
 target-version = "py312"
 line-length = 100

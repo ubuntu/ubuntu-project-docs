@@ -53,9 +53,9 @@ _ARCHIVE_TOOLS_REPO = "https://git.launchpad.net/ubuntu-archive-tools"
 _ARCHIVE_TOOLS_DIR = "/opt/ubuntu-archive-tools"
 
 
-def _run_host(cmd: list[str], check: bool = True, capture: bool = False, **kwargs):
-    """Run a command on the host. Raise on failure unless check=False."""
-    log.debug("host$ %s", shlex.join(cmd))
+def run_command(cmd: list[str], log_prefix: str, check: bool = True, capture: bool = False, **kwargs) -> subprocess.CompletedProcess:
+    """Run a subprocess and handle uniform error logging and checking."""
+    log.debug("%s$ %s", log_prefix, shlex.join(cmd))
     result = subprocess.run(
         cmd,
         capture_output=capture,
@@ -64,15 +64,18 @@ def _run_host(cmd: list[str], check: bool = True, capture: bool = False, **kwarg
     )
     if check and result.returncode != 0:
         log.error(
-            "Command failed (exit %d): %s\nstdout: %s\nstderr: %s",
+            "Command failed (exit %d): %s",
             result.returncode,
             shlex.join(cmd),
-            result.stdout if capture else "(not captured)",
-            result.stderr if capture else "(not captured)",
         )
-        raise subprocess.CalledProcessError(result.returncode, cmd)
+        if capture:
+            log.error("stdout: %s\nstderr: %s", result.stdout.strip(), result.stderr.strip())
+        raise subprocess.CalledProcessError(result.returncode, cmd, output=result.stdout, stderr=result.stderr)
     return result
 
+def _run_host(cmd: list[str], check: bool = True, capture: bool = False, **kwargs):
+    """Run a command on the host. Raise on failure unless check=False."""
+    return run_command(cmd, log_prefix="host", check=check, capture=capture, **kwargs)
 
 def _lxc(*args, check: bool = True, capture: bool = False, **kwargs):
     """Wrapper around lxc CLI."""
@@ -338,7 +341,7 @@ def exec_in(
     *,
     check: bool = True,
     capture: bool = False,
-    env: dict | None = None,
+    env: dict[str, str] | None = None,
     workdir: str | None = None,
 ) -> subprocess.CompletedProcess:
     """Run a command inside the named LXD container.
@@ -365,23 +368,7 @@ def exec_in(
 
     lxc_cmd += ["--"] + cmd
 
-    log.debug("container(%s)$ %s", name, shlex.join(cmd))
-    result = subprocess.run(
-        lxc_cmd,
-        capture_output=capture,
-        text=True,
-    )
-    if check and result.returncode != 0:
-        log.error(
-            "In-container command failed (exit %d): %s",
-            result.returncode,
-            shlex.join(cmd),
-        )
-        if capture:
-            log.error("stdout: %s", result.stdout)
-            log.error("stderr: %s", result.stderr)
-        raise subprocess.CalledProcessError(result.returncode, cmd)
-    return result
+    return run_command(lxc_cmd, log_prefix=f"container({name})", check=check, capture=capture)
 
 
 @retry_container_command(max_attempts=4, base_delay=6.0, max_delay=60.0)
@@ -389,7 +376,7 @@ def _exec_in_retry_internal(
     name: str,
     cmd: list[str],
     *,
-    env: dict | None = None,
+    env: dict[str, str] | None = None,
     workdir: str | None = None,
 ) -> subprocess.CompletedProcess:
     """Internal function that executes with retry logic.
@@ -413,7 +400,7 @@ def exec_in_retry(
     *,
     check: bool = True,
     capture: bool = False,
-    env: dict | None = None,
+    env: dict[str, str] | None = None,
     workdir: str | None = None,
     operation: str = "command",
 ) -> subprocess.CompletedProcess:
