@@ -21,7 +21,7 @@ import lxd_runner
 class SmokeContext:
     def __init__(self, lxd_image: str | None, keep_container: bool):
         self.bug_id = "smoke"
-        self.pin_tooling = None
+        self.pin_uat_tooling = None
         self.lxd_image = lxd_image
         self.keep_container = keep_container
         self.container_name = ""

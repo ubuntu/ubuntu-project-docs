@@ -190,7 +190,7 @@ def _provision(name: str, ctx: "RunContext") -> None:
     )
 
     # Bootstrap ubuntu-archive-tools (component-mismatches and prerequisites)
-    _bootstrap_archive_tools(name, ctx.pin_tooling)
+    _bootstrap_archive_tools(name, ctx.pin_uat_tooling)
 
 
 def _bootstrap_archive_tools(name: str, pin_commit: str | None) -> None:

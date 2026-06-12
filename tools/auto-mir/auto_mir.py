@@ -5,14 +5,14 @@ Usage:
     auto_mir.py <launchpad-bug-id> [options]
 
 Options:
-    --series SERIES         Target Ubuntu series (default: detect from bug)
-    --lxd-image IMAGE       LXD image alias for isolated execution (default: Ubuntu devel)
-    --keep-container        Keep LXD container after run for debugging (default: yes during dev)
-    --no-keep-container     Destroy LXD container after run
-    --pin-tooling COMMIT    Pin ubuntu-archive-tools to specific commit for reproducible runs
-    --llm-provider PROVIDER LLM provider to use (default: from environment/config)
-    --output-dir DIR        Directory to write report and review draft (default: ./mir-<bugid>)
-    --dry-run               Fetch and collect evidence only; skip AI synthesis and rendering
+    --series SERIES          Target Ubuntu series (default: detect from bug)
+    --lxd-image IMAGE        LXD image alias for isolated execution (default: Ubuntu devel)
+    --keep-container         Keep LXD container after run for debugging (default: yes during dev)
+    --no-keep-container      Destroy LXD container after run
+    --pin-uat-tooling COMMIT Pin ubuntu-archive-tools to specific commit for reproducible runs
+    --llm-provider PROVIDER  LLM provider to use (default: from environment/config)
+    --output-dir DIR         Directory to write report and review draft (default: ./mir-<bugid>)
+    --dry-run                Fetch and collect evidence only; skip AI synthesis and rendering
 
 Exits 0 on successful run (even if review has required findings).
 Exits 1 on hard stop conditions (missing reporter MIR content, tool errors).
@@ -67,7 +67,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Destroy LXD container after run",
     )
     p.add_argument(
-        "--pin-tooling",
+        "--pin-uat-tooling",
         default=None,
         metavar="COMMIT",
         help="Pin ubuntu-archive-tools to this git commit (default: HEAD)",
@@ -103,7 +103,7 @@ class RunContext:
         self.bug_id: str = str(args.bug_id)
         self.series: str | None = args.series
         self.keep_container: bool = args.keep_container
-        self.pin_tooling: str | None = args.pin_tooling
+        self.pin_uat_tooling: str | None = args.pin_uat_tooling
         self.lxd_image: str | None = args.lxd_image
         self.llm_provider: str = args.llm_provider
         self.dry_run: bool = args.dry_run
