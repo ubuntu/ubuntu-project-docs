@@ -1,8 +1,30 @@
 """LLM adapter for auto-mir.
 
 Provides a single call_llm() entry point that dispatches to the configured
-provider.  Currently only the 'copilot' provider is implemented, using the
-GitHub Copilot chat-completions API.
+provider.  Two providers are supported; both use the OpenAI-compatible
+chat-completions HTTP API so the actual request path is shared.
+
+Providers
+---------
+copilot
+    GitHub Models endpoint (https://models.inference.ai.azure.com).
+    Auth: COPILOT_GITHUB_TOKEN / GH_TOKEN / GITHUB_TOKEN, or ``gh auth token``.
+    Default model: gpt-4.1-mini
+
+openai-compatible
+    Any OpenAI-compatible endpoint, including OpenRouter.
+    Auth: OPENAI_API_KEY.
+    Base URL: OPENAI_API_BASE (default: https://api.openai.com/v1).
+    Default model: openai/gpt-4.1-mini (OpenRouter name; change via --llm-model
+    if pointing at a different base URL).
+
+Provider selection priority
+---------------------------
+1. ``--llm-provider`` CLI flag (explicit override)
+2. COPILOT_GITHUB_TOKEN / GH_TOKEN / GITHUB_TOKEN present  → copilot
+3. OPENAI_API_KEY present                                   → openai-compatible
+4. ``gh auth token`` succeeds                               → copilot
+5. Neither token found                                      → hard-fail
 
 Design constraints:
 - No streaming; we want a complete JSON response before proceeding.
@@ -26,19 +48,18 @@ from typing import Any
 log = logging.getLogger("auto_mir.llm")
 
 
-# GitHub Copilot chat-completions endpoint
+# GitHub Copilot (GitHub Models) endpoint
+_COPILOT_API_URL = "https://models.inference.ai.azure.com/chat/completions"
+_DEFAULT_COPILOT_MODEL = "gpt-4.1-mini"
+
+# OpenAI-compatible (OpenRouter and others) defaults.
+# OpenRouter requires the provider-namespaced model id; gpt-4.1-mini is
+# available there as "openai/gpt-4.1-mini" which mirrors the Copilot default.
+_DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
+_DEFAULT_OPENAI_COMPAT_MODEL = "openai/gpt-4.1-mini"
+
 class LLMError(RuntimeError):
     """Raised when the LLM call cannot produce a usable response."""
-
-
-# GitHub Models inference endpoint — works with a standard GitHub PAT that has
-# been granted access to GitHub Models (https://github.com/marketplace/models).
-_COPILOT_API_URL = "https://models.inference.ai.azure.com/chat/completions"
-
-# Concrete default model for the GitHub Models endpoint.
-# Switched from gpt-4o-mini to gpt-4.1-mini for better reasoning on complex
-# policy synthesis and token limits matching our needs.
-_DEFAULT_COPILOT_MODEL = "gpt-4.1-mini"
 # Hard cap on response tokens — JSON responses for MIR checks are compact.
 _MAX_TOKENS = 1024
 # Retry attempts on transient HTTP errors (429, 5xx).
@@ -71,7 +92,9 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
 
     Args:
         prompt:  The fully-rendered prompt string to send as the user message.
-        ctx:     RunContext — used to determine provider and retrieve token.
+        ctx:     RunContext — used to determine provider, URL, and token.
+                 ctx.llm_provider, ctx.llm_api_url, ctx.llm_token must be
+                 populated by stage_auth before calling this function.
 
     Returns:
         Parsed JSON dict from the LLM response content.
@@ -79,7 +102,7 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
     Raises:
         LLMError: on auth failure, HTTP error, or invalid JSON in response.
     """
-    response_dict = _call_copilot(prompt, ctx)
+    response_dict = _call_openai_compatible(prompt, ctx)
 
     # Track LLM usage for cost/efficiency reporting
     model = _selected_model(ctx)
@@ -95,18 +118,24 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Copilot provider
+# Shared OpenAI-compatible provider (Copilot + OpenRouter + others)
 # ---------------------------------------------------------------------------
 
 
-def _call_copilot(prompt: str, ctx) -> dict[str, Any]:
-    """Call GitHub Copilot chat-completions and return parsed JSON."""
-    token = _get_copilot_token(ctx)
+def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
+    """Call an OpenAI-compatible chat-completions endpoint and return parsed JSON.
+
+    Reads ctx.llm_api_url and ctx.llm_token, both populated by stage_auth.
+    """
+    token = getattr(ctx, "llm_token", "") or ""
+    api_url = getattr(ctx, "llm_api_url", "") or _COPILOT_API_URL
+    provider = getattr(ctx, "llm_provider", "copilot")
+
     if not token:
         raise LLMError(
-            "No GitHub token available for Copilot calls. "
-            "Ensure COPILOT_GITHUB_TOKEN / GH_TOKEN / GITHUB_TOKEN is set "
-            "or that `gh auth status` succeeds."
+            f"No authentication token found for LLM provider '{provider}'. "
+            "For copilot: set COPILOT_GITHUB_TOKEN / GH_TOKEN / GITHUB_TOKEN or run `gh auth login`. "
+            "For openai-compatible: set OPENAI_API_KEY."
         )
 
     model = _selected_model(ctx)
@@ -145,7 +174,7 @@ def _call_copilot(prompt: str, ctx) -> dict[str, Any]:
     for attempt in range(1, _MAX_RETRIES + 1):
         _wait_for_slot(limiter)
         req = urllib.request.Request(
-            _COPILOT_API_URL,
+            api_url,
             data=body,
             headers=headers,
             method="POST",
@@ -162,7 +191,7 @@ def _call_copilot(prompt: str, ctx) -> dict[str, Any]:
         except urllib.error.HTTPError as exc:
             status = exc.code
             err_body = exc.read().decode(errors="replace")
-            log.debug("Copilot HTTP %d on attempt %d: %s", status, attempt, err_body[:200])
+            log.debug("LLM HTTP %d on attempt %d: %s", status, attempt, err_body[:200])
             _learn_from_headers(limiter, exc.headers)
 
             if status in (429, 500, 502, 503, 504) and attempt < _MAX_RETRIES:
@@ -184,7 +213,8 @@ def _call_copilot(prompt: str, ctx) -> dict[str, Any]:
                 wait = _parse_retry_after(err_body, exc.headers) or _RETRY_DELAY_S
                 limiter.next_allowed_at = max(limiter.next_allowed_at, time.time() + wait)
                 log.warning(
-                    "Copilot model=%s returned %d (attempt %d/%d), retrying in %ds",
+                    "LLM provider=%s model=%s returned %d (attempt %d/%d), retrying in %ds",
+                    provider,
                     model,
                     status,
                     attempt,
@@ -200,27 +230,12 @@ def _call_copilot(prompt: str, ctx) -> dict[str, Any]:
                 last_err = exc
                 continue
             raise LLMError(
-                f"Copilot API model={model} returned HTTP {status}: {err_body[:400]}"
+                f"LLM provider={provider} model={model} returned HTTP {status}: {err_body[:400]}"
             ) from exc
         except urllib.error.URLError as exc:
-            raise LLMError(f"Copilot API network error: {exc}") from exc
+            raise LLMError(f"LLM provider={provider} network error: {exc}") from exc
 
-    raise LLMError(f"Copilot API failed after {_MAX_RETRIES} retries") from last_err
-
-
-def _get_copilot_token(ctx) -> str:
-    """Retrieve GitHub token from context container_env or host environment."""
-    import os
-
-    # ctx.container_env is populated by stage_auth with the resolved token.
-    for key in ("COPILOT_GITHUB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"):
-        value = (getattr(ctx, "container_env", {}) or {}).get(key)
-        if value:
-            return value
-        value = os.environ.get(key)
-        if value:
-            return value
-    return ""
+    raise LLMError(f"LLM provider={provider} failed after {_MAX_RETRIES} retries") from last_err
 
 
 def _selected_model(ctx) -> str:
@@ -228,12 +243,15 @@ def _selected_model(ctx) -> str:
 
     Priority:
     1) ctx.llm_model (from --llm-model)
-    2) provider default
+    2) provider default: gpt-4.1-mini (copilot) or openai/gpt-4.1-mini (openai-compatible)
     """
     explicit = (getattr(ctx, "llm_model", "") or "").strip()
     if explicit:
         return explicit
 
+    provider = getattr(ctx, "llm_provider", "copilot")
+    if provider == "openai-compatible":
+        return _DEFAULT_OPENAI_COMPAT_MODEL
     return _DEFAULT_COPILOT_MODEL
 
 

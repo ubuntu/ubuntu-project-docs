@@ -153,9 +153,19 @@ def build_parser() -> argparse.ArgumentParser:
         "--llm-model",
         default="gpt-4.1-mini",
         help=(
-            "Model name for the selected LLM provider"
-            " (default: gpt-4.1-mini; gpt-4o-mini for resource-constrained runs,"
-            " gpt-4 for complex policy cases)"
+            "Model name for the selected LLM provider. "
+            "Defaults: copilot → gpt-4.1-mini; openai-compatible → openai/gpt-4.1-mini."
+        ),
+    )
+    p.add_argument(
+        "--llm-provider",
+        default=None,
+        choices=["copilot", "openai-compatible"],
+        help=(
+            "LLM provider to use. When omitted, auto-detected from environment: "
+            "COPILOT_GITHUB_TOKEN/GH_TOKEN/GITHUB_TOKEN → copilot; "
+            "OPENAI_API_KEY → openai-compatible; "
+            "gh auth token → copilot."
         ),
     )
     p.add_argument(
@@ -194,6 +204,7 @@ class RunContext:
         self.pin_uat_tooling: str | None = args.pin_uat_tooling
         self.lxd_image: str | None = args.lxd_image
         self.llm_model: str = args.llm_model
+        self._llm_provider_flag: str | None = getattr(args, "llm_provider", None)
         self.dry_run: bool = args.dry_run
         self.tool_root = Path(__file__).resolve().parent
         self.workspace_root = self.tool_root.parent.parent
@@ -229,6 +240,11 @@ class RunContext:
         self.container_name: str = ""
         self.auth_source: str = ""
         self.container_env: dict[str, str] = {}
+
+        # Populated by stage_auth — LLM provider config
+        self.llm_provider: str = ""
+        self.llm_api_url: str = ""
+        self.llm_token: str = ""
 
         # LLM usage tracking for cost reporting
         self.llm_calls_by_model: dict[str, int] = {}
@@ -344,66 +360,118 @@ def stage_render(ctx: RunContext) -> None:
 
 
 def stage_auth(ctx: RunContext) -> None:
-    """Stage 0: Resolve authentication for copilot provider.
+    """Stage 0: Resolve LLM provider, endpoint URL, and authentication token.
 
-    Priority:
-    1) Host env vars: COPILOT_GITHUB_TOKEN, GH_TOKEN, GITHUB_TOKEN
-    2) GitHub CLI login token: `gh auth token`
+    Provider selection priority:
+    1. --llm-provider flag (explicit override)
+    2. COPILOT_GITHUB_TOKEN / GH_TOKEN / GITHUB_TOKEN present → copilot
+    3. OPENAI_API_KEY present                                  → openai-compatible
+    4. gh auth token succeeds                                  → copilot
+    5. No token found                                          → hard-fail
     """
-    token, source = _resolve_copilot_token()
+    explicit_provider = getattr(ctx, "_llm_provider_flag", None)
+    provider, token, source, api_url = _resolve_llm_auth(explicit_provider)
+
     if not token:
         log.error(
-            "No GitHub authentication token found for copilot provider.\n"
-            "Provide one of: COPILOT_GITHUB_TOKEN, GH_TOKEN, GITHUB_TOKEN\n"
-            "or login with GitHub CLI so `gh auth status` succeeds."
+            "No LLM authentication token found.\n"
+            "For copilot:           set COPILOT_GITHUB_TOKEN, GH_TOKEN, or GITHUB_TOKEN\n"
+            "                       or run: gh auth login\n"
+            "For openai-compatible: set OPENAI_API_KEY (and optionally OPENAI_API_BASE)"
         )
         raise SystemExit(1)
 
+    ctx.llm_provider = provider
+    ctx.llm_api_url = api_url
+    ctx.llm_token = token
     ctx.auth_source = source
-    ctx.container_env = {
-        "COPILOT_GITHUB_TOKEN": token,
-        "GH_TOKEN": token,
-        "GITHUB_TOKEN": token,
-    }
+
+    # Export token into container environment for in-container use
+    if provider == "copilot":
+        ctx.container_env = {
+            "COPILOT_GITHUB_TOKEN": token,
+            "GH_TOKEN": token,
+            "GITHUB_TOKEN": token,
+        }
+    else:
+        ctx.container_env = {
+            "OPENAI_API_KEY": token,
+            "OPENAI_API_BASE": api_url.rstrip("/chat/completions"),
+        }
+
     ctx.evidence["auth"] = {
-        "provider": "copilot",
+        "provider": provider,
         "source": source,
+        "api_url": api_url,
     }
-    log.info("Copilot auth resolved from %s", source)
+    log.info("LLM provider '%s' resolved from %s (url: %s)", provider, source, api_url)
 
 
-def _resolve_copilot_token() -> tuple[str | None, str]:
-    for name in ("COPILOT_GITHUB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"):
-        value = os.environ.get(name)
-        if value:
-            return value, f"host-env:{name}"
+def _resolve_llm_auth(
+    explicit_provider: str | None,
+) -> tuple[str, str | None, str, str]:
+    """Return (provider, token, source, api_url).
 
-    try:
-        gh_status = subprocess.run(
-            ["gh", "auth", "status"],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-    except FileNotFoundError:
-        return None, ""
-    if gh_status.returncode != 0:
-        return None, ""
+    Applies the documented priority order.  Returns token=None on failure.
+    """
+    import llm as _llm
 
-    gh_token = subprocess.run(
-        ["gh", "auth", "token"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if gh_token.returncode != 0:
+    # --- Copilot token sources ---
+    def _copilot_token_from_env() -> tuple[str | None, str]:
+        for name in ("COPILOT_GITHUB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"):
+            value = os.environ.get(name)
+            if value:
+                return value, f"host-env:{name}"
         return None, ""
 
-    token = gh_token.stdout.strip()
-    if not token:
-        return None, ""
+    def _copilot_token_from_gh_cli() -> tuple[str | None, str]:
+        try:
+            status = subprocess.run(
+                ["gh", "auth", "status"], capture_output=True, text=True, check=False
+            )
+            if status.returncode != 0:
+                return None, ""
+            result = subprocess.run(
+                ["gh", "auth", "token"], capture_output=True, text=True, check=False
+            )
+            token = result.stdout.strip() if result.returncode == 0 else ""
+            return (token or None), ("gh-auth" if token else "")
+        except FileNotFoundError:
+            return None, ""
 
-    return token, "gh-auth"
+    # --- OpenAI-compatible token sources ---
+    def _openai_token_from_env() -> tuple[str | None, str, str]:
+        key = os.environ.get("OPENAI_API_KEY")
+        if not key:
+            return None, "", ""
+        base = os.environ.get("OPENAI_API_BASE", _llm._DEFAULT_OPENAI_BASE_URL).rstrip("/")
+        api_url = f"{base}/chat/completions"
+        return key, "host-env:OPENAI_API_KEY", api_url
+
+    if explicit_provider == "copilot":
+        token, source = _copilot_token_from_env()
+        if not token:
+            token, source = _copilot_token_from_gh_cli()
+        return "copilot", token, source, _llm._COPILOT_API_URL
+
+    if explicit_provider == "openai-compatible":
+        token, source, api_url = _openai_token_from_env()
+        return "openai-compatible", token, source, api_url
+
+    # Auto-detect
+    token, source = _copilot_token_from_env()
+    if token:
+        return "copilot", token, source, _llm._COPILOT_API_URL
+
+    openai_token, openai_source, openai_url = _openai_token_from_env()
+    if openai_token:
+        return "openai-compatible", openai_token, openai_source, openai_url
+
+    token, source = _copilot_token_from_gh_cli()
+    if token:
+        return "copilot", token, source, _llm._COPILOT_API_URL
+
+    return "copilot", None, "", _llm._COPILOT_API_URL
 
 
 def _stub_stage(name: str, ctx: RunContext) -> None:
@@ -456,8 +524,8 @@ def main() -> int:
         ctx.dry_run,
     )
     log.debug(
-        "LLM configuration for this run: provider=copilot requested_model=%s",
-        ctx.llm_model,
+        "LLM configuration for this run: provider=auto requested_model=%s",
+        ctx.llm_model or "(provider default)",
     )
 
     try:
