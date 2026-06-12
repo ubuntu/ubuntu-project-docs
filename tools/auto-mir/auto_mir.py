@@ -481,13 +481,36 @@ def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
 
-# Setup structured JSON logging
-    from pythonjsonlogger import jsonlogger
+    ctx = RunContext(args)
 
+    # Setup dual logging: colored console + JSON file
     class BugIdFilter(logging.Filter):
         def filter(self, record):
             record.bug_id = args.bug_id
             return True
+
+    class ColorFormatter(logging.Formatter):
+        """Colored formatter for console output."""
+        COLORS = {
+            'DEBUG': '\033[36m',    # Cyan
+            'INFO': '\033[32m',     # Green
+            'WARNING': '\033[33m',  # Yellow
+            'ERROR': '\033[31m',    # Red
+            'CRITICAL': '\033[35m', # Magenta
+        }
+        RESET = '\033[0m'
+        BOLD = '\033[1m'
+
+        def format(self, record):
+            color = self.COLORS.get(record.levelname, self.RESET)
+            levelname = f"{color}{self.BOLD}{record.levelname:8}{self.RESET}"
+            name = f"\033[34m{record.name:20}{self.RESET}"
+            bug_id = getattr(record, 'bug_id', args.bug_id)
+            bug_id_str = f"\033[90m[{bug_id}]{self.RESET}"
+            message = record.getMessage()
+            return f"{levelname} {name} {bug_id_str} {message}"
+
+    from pythonjsonlogger import jsonlogger
 
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG if args.verbose else logging.INFO)
@@ -496,15 +519,26 @@ def main() -> int:
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
-    logHandler = logging.StreamHandler()
-    formatter = jsonlogger.JsonFormatter(
-        '%(asctime)s %(levelname)s %(name)s %(bug_id)s %(message)s'
-    )
-    logHandler.setFormatter(formatter)
-    logger.addHandler(logHandler)
-    logger.addFilter(BugIdFilter())
+    bug_filter = BugIdFilter()
 
-    ctx = RunContext(args)
+    # Console handler with colors
+    console_handler = logging.StreamHandler()
+    console_formatter = ColorFormatter()
+    console_handler.setFormatter(console_formatter)
+    console_handler.addFilter(bug_filter)
+    logger.addHandler(console_handler)
+
+    # File handler with JSON (if output directory exists)
+    if ctx.output_dir.exists():
+        log_file = ctx.output_dir / "auto-mir.log"
+        file_handler = logging.FileHandler(log_file)
+        json_formatter = jsonlogger.JsonFormatter(
+            '%(asctime)s %(levelname)s %(name)s %(bug_id)s %(message)s'
+        )
+        file_handler.setFormatter(json_formatter)
+        file_handler.addFilter(bug_filter)
+        logger.addHandler(file_handler)
+        log.info("JSON log file: %s", log_file)
 
     log.info(
         "auto-mir starting: bug=%s keep_container=%s debug_collect_only=%s",
