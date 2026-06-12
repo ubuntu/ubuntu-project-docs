@@ -19,6 +19,7 @@ class AdapterID(str, Enum):
     LP_PACKAGE_API = "lp-package-api"
     UBUNTU_CVE_TRACKER = "ubuntu-cve-tracker"
     AUTOPKGTEST_DB = "autopkgtest-db"
+    TEAM_MAPPING = "team-mapping"
     
     # In-container adapters
     PACKAGING_SOURCE = "packaging-source"

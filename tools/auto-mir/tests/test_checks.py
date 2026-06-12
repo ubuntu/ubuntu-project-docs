@@ -342,6 +342,51 @@ def test_cb_7_python2_found():
 
 
 # ---------------------------------------------------------------------------
+# SUM-4: team subscriber in package-team-mapping
+# ---------------------------------------------------------------------------
+
+
+def test_sum_4_subscribed():
+    ctx = _Ctx(source_package="bash")
+    ctx.evidence["adapters"]["team-mapping"] = {
+        "status": "ok",
+        "team_mapping": {
+            "ubuntu-foundations": ["bash", "coreutils"],
+            "ubuntu-server": ["nginx", "apache2"],
+        },
+        "subscribed_teams": ["ubuntu-foundations"],
+        "source_package": "bash",
+    }
+    finding = checks.deterministic._check_sum_4(ctx, _make_finding("SUM-4"))
+    assert finding.status == "ok"
+    assert "ubuntu-foundations" in finding.message
+
+
+def test_sum_4_not_subscribed():
+    ctx = _Ctx(source_package="some-package")
+    ctx.evidence["adapters"]["team-mapping"] = {
+        "status": "ok",
+        "team_mapping": {},
+        "subscribed_teams": [],
+        "source_package": "some-package",
+    }
+    finding = checks.deterministic._check_sum_4(ctx, _make_finding("SUM-4"))
+    assert finding.status == "not-ok"
+    assert finding.severity == "recommended"
+
+
+def test_sum_4_adapter_failed():
+    ctx = _Ctx(source_package="bash")
+    ctx.evidence["adapters"]["team-mapping"] = {
+        "status": "error",
+        "error": "Launchpad API error",
+    }
+    finding = checks.deterministic._check_sum_4(ctx, _make_finding("SUM-4"))
+    assert finding.status == "unknown"
+    assert finding.confidence == "low"
+
+
+# ---------------------------------------------------------------------------
 # Language gate helpers
 # ---------------------------------------------------------------------------
 

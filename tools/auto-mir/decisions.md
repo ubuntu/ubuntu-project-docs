@@ -197,3 +197,43 @@ Choices and reasoning recorded during development. Grouped by topic.
 - Extracted language gate logic to a decorator rather than applying manual conditional wrapping within `checks/__init__.py`.
 - Consolidated all CLI wrappers (`_lxc`, `_run_host`, `exec_in`) into one standardized `subprocess.run` handler in `lxd_runner.py` for uniform logging logic.
 **Consequences:** Boilerplate has been significantly reduced, making it trivial to add new checks and evidence adapters without touching multiple files.
+
+## SUM-4 Team Mapping Source (2026-06-02)
+**Context:** The SUM-4 check needs to verify that a source package has a structural team bug subscription. The authoritative list of valid subscriber teams is maintained in `ubuntu-archive-tools/lputils.py` as `owner_names` (20+ teams), but we cannot depend on that package being installed. A separate `team_names` list in the same file contains display-only teams that should NOT count as valid subscribers.
+
+**Options considered:**
+1. Hardcode the full `owner_names` list in auto-mir (brittle, requires manual sync)
+2. Fetch `package-team-mapping.json` from static-reports.ubuntu.com and filter out known non-subscriber teams
+3. Query Launchpad API directly for each known team (slow, rate-limited, complex)
+
+**Decision:** Option 2 - Fetch the JSON report and maintain a small exclusion list of non-subscriber teams.
+
+**Tradeoffs:**
+- ✅ Single source of truth: JSON is generated from authoritative lputils.py
+- ✅ Minimal maintenance: only track 3 non-subscriber teams vs 20+ subscriber teams
+- ✅ Self-documenting: exclusion list is small and stable
+- ✅ Future-proof: new valid teams automatically work
+- ❌ Runtime network dependency (acceptable per existing adapter patterns)
+- ❌ If new display-only teams are added to lputils.py, we need to update our exclusion list (rare, documented)
+
+**Implementation:** `evidence/team_mapping_adapter.py` fetches `https://static-reports.ubuntu.com/package-team-mapping.json`, filters out `NON_SUBSCRIBER_TEAMS = {kubuntu-bugs, pkg-ime, translators-packages}`, and checks which remaining teams have subscribed to the source package.
+
+## SUM-4 Team Mapping Source (2026-06-02)
+**Context:** The SUM-4 check needs to verify that a source package has a structural team bug subscription. The authoritative list of valid subscriber teams is maintained in `ubuntu-archive-tools/lputils.py` as `owner_names` (20+ teams), but we cannot depend on that package being installed. A separate `team_names` list in the same file contains display-only teams that should NOT count as valid subscribers.
+
+**Options considered:**
+1. Hardcode the full `owner_names` list in auto-mir (brittle, requires manual sync)
+2. Fetch `package-team-mapping.json` from static-reports.ubuntu.com and filter out known non-subscriber teams
+3. Query Launchpad API directly for each known team (slow, rate-limited, complex)
+
+**Decision:** Option 2 - Fetch the JSON report and maintain a small exclusion list of non-subscriber teams.
+
+**Tradeoffs:**
+- ✅ Single source of truth: JSON is generated from authoritative lputils.py
+- ✅ Minimal maintenance: only track 3 non-subscriber teams vs 20+ subscriber teams
+- ✅ Self-documenting: exclusion list is small and stable
+- ✅ Future-proof: new valid teams automatically work
+- ❌ Runtime network dependency (acceptable per existing adapter patterns)
+- ❌ If new display-only teams are added to lputils.py, we need to update our exclusion list (rare, documented)
+
+**Implementation:** `evidence/team_mapping_adapter.py` fetches `https://static-reports.ubuntu.com/package-team-mapping.json`, filters out `NON_SUBSCRIBER_TEAMS = {kubuntu-bugs, pkg-ime, translators-packages}`, and checks which remaining teams have subscribed to the source package.

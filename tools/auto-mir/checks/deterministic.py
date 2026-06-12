@@ -210,24 +210,36 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
 
 @deterministic_check("SUM-4")
 def _check_sum_4(ctx, finding: Finding) -> Finding:
-    """SUM-4: ubuntu-mir team is subscribed to the bug."""
-    subscribers = ctx.bug.get("subscribers", [])
-    if "ubuntu-mir" in subscribers:
+    """SUM-4: Package has a team subscriber in package-team-mapping."""
+    adapters = ctx.evidence.get("adapters", {})
+    team_mapping_adapter = adapters.get("team-mapping", {})
+    
+    if team_mapping_adapter.get("status") != "ok":
+        finding.status = "unknown"
+        finding.confidence = "low"
+        finding.message = "Could not check team subscription (team-mapping adapter failed)"
+        finding.todo = "TODO: - Manually verify package has a team subscriber"
+        finding.evidence_refs = ["team-mapping:error"]
+        return finding
+    
+    subscribed_teams = team_mapping_adapter.get("subscribed_teams", [])
+    
+    if subscribed_teams:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "ubuntu-mir is subscribed to this bug."
-        finding.evidence_refs = ["lp-bug-api:subscribers"]
+        finding.message = f"Package has team subscriber(s): {', '.join(subscribed_teams)}"
+        finding.evidence_refs = ["team-mapping:subscribed_teams"]
     else:
         finding.status = "not-ok"
         finding.severity = "recommended"
         finding.confidence = "high"
-        finding.message = "ubuntu-mir is not subscribed to this bug"
+        finding.message = "Package does not have a team subscriber"
         finding.todo = (
-            "TODO: - The package should get a team bug subscriber on this bug before being promoted "
-            "(will block AA promotion)"
+            "TODO: - The package should get a team bug subscriber on this bug before being promoted"
         )
-        finding.evidence_refs = ["lp-bug-api:subscribers"]
+        finding.evidence_refs = ["team-mapping:subscribed_teams"]
+    
     return finding
 
 

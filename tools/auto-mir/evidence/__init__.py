@@ -19,6 +19,7 @@ from evidence.registry import ADAPTER_REGISTRY
 # Import adapter implementations from submodules so they register
 import evidence.host_adapters
 import evidence.container_adapters
+import evidence.team_mapping_adapter
 
 log = logging.getLogger("auto_mir.evidence")
 from evidence.host_adapters import AdapterError

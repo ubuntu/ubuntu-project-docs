@@ -643,6 +643,17 @@ evidence_adapters:
     members: list
     is_subscribed: bool
   fallback: emit_todo_continue
+- id: team-mapping
+  type: web
+  description: Fetch package-team-mapping.json to check which teams have structural bug subscriptions to the source package
+  inputs:
+  - source_package
+  output_contract:
+    team_mapping: dict
+    subscribed_teams: list
+    source_package: str
+  fallback: emit_todo_continue
+  notes: Downloads from https://static-reports.ubuntu.com/package-team-mapping.json and filters out display-only teams
 - id: debian-bts
   type: web
   description: Fetch open bugs from Debian Bug Tracking System for the package
@@ -842,8 +853,7 @@ checks:
   template_line: 45
   mode: deterministic
   adapters_required:
-  - lp-package-api
-  - lp-team-membership-api
+  - team-mapping
   ai_policy: none
   human_override: false
   blocker_class: none
