@@ -187,7 +187,7 @@ sitemap_filename = "doc-sitemap.xml"
 
 # Template and asset locations
 html_static_path = [".sphinx/_static"]
-# templates_path = [".sphinx/_static/_templates"]
+templates_path = [".sphinx/_static/_templates"]
 
 
 #############
@@ -301,13 +301,17 @@ extensions = [
 # Excludes files or directories from processing
 exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common", ".venv"]
 
-
 # Adds custom CSS files, located under 'html_static_path'
-html_css_files = ["custom_styles.css"]
-
+html_css_files = [
+    "custom_styles.css",
+    "https://assets.ubuntu.com/v1/d86746ef-cookie_banner.css",
+]
 
 # Adds custom JavaScript files, located under 'html_static_path'
-html_js_files = ["js/overwrite_links.js"]
+html_js_files = [
+    "js/overwrite_links.js",
+    "https://assets.ubuntu.com/v1/287a5e8f-bundle.js",
+]
 
 # Specifies a reST snippet to be appended to each .rst file
 
