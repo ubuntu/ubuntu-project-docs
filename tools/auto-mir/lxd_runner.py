@@ -47,6 +47,7 @@ _REQUIRED_PACKAGES = [
     "python3-apt",
     "python3-requests",
     "uidmap",  # required for sbuild unshare backend
+    "mmdebstrap",  # required for sbuild unshare auto-create backend
 ]
 
 # Remote for ubuntu-archive-tools
@@ -265,6 +266,7 @@ def _provision(name: str, ctx: "RunContext") -> None:
                 "noble-backports",
                 "--no-install-recommends",
                 "sbuild",
+                "mmdebstrap",
             ],
             env={"DEBIAN_FRONTEND": "noninteractive"},
             operation="apt-get install sbuild from backports",
@@ -273,7 +275,15 @@ def _provision(name: str, ctx: "RunContext") -> None:
         log.info("Installing sbuild")
         exec_in_retry(
             name,
-            ["apt-get", "install", "-qq", "-y", "--no-install-recommends", "sbuild"],
+            [
+                "apt-get",
+                "install",
+                "-qq",
+                "-y",
+                "--no-install-recommends",
+                "sbuild",
+                "mmdebstrap",
+            ],
             env={"DEBIAN_FRONTEND": "noninteractive"},
             operation="apt-get install sbuild",
         )
@@ -412,6 +422,8 @@ def exec_in(
     capture: bool = False,
     env: dict[str, str] | None = None,
     workdir: str | None = None,
+    user: int | None = None,
+    group: int | None = None,
 ) -> subprocess.CompletedProcess:
     """Run a command inside the named LXD container.
 
@@ -422,6 +434,8 @@ def exec_in(
         capture: Capture stdout/stderr and return them
         env: Additional environment variables to pass (merged with container env)
         workdir: Working directory inside the container
+        user: Optional numeric uid to run the command as
+        group: Optional numeric gid to run the command as
 
     Returns:
         CompletedProcess with returncode, stdout, stderr
@@ -430,6 +444,12 @@ def exec_in(
 
     if workdir:
         lxc_cmd += ["--cwd", workdir]
+
+    if user is not None:
+        lxc_cmd += ["--user", str(user)]
+
+    if group is not None:
+        lxc_cmd += ["--group", str(group)]
 
     if env:
         for key, value in env.items():
@@ -447,6 +467,8 @@ def _exec_in_retry_internal(
     *,
     env: dict[str, str] | None = None,
     workdir: str | None = None,
+    user: int | None = None,
+    group: int | None = None,
 ) -> subprocess.CompletedProcess:
     """Internal function that executes with retry logic.
 
@@ -460,6 +482,8 @@ def _exec_in_retry_internal(
         capture=True,
         env=env,
         workdir=workdir,
+        user=user,
+        group=group,
     )
 
 
@@ -471,6 +495,8 @@ def exec_in_retry(
     capture: bool = False,
     env: dict[str, str] | None = None,
     workdir: str | None = None,
+    user: int | None = None,
+    group: int | None = None,
     operation: str = "command",
 ) -> subprocess.CompletedProcess:
     """Run an in-container command with retries on transient failures.
@@ -486,6 +512,8 @@ def exec_in_retry(
         capture: Capture stdout/stderr
         env: Environment variables
         workdir: Working directory
+        user: Optional numeric uid to run the command as
+        group: Optional numeric gid to run the command as
         operation: Operation name for logging
 
     Returns:
@@ -494,7 +522,14 @@ def exec_in_retry(
     Raises:
         RuntimeError: If command fails after all retries (when check=True)
     """
-    result = _exec_in_retry_internal(name, cmd, env=env, workdir=workdir)
+    result = _exec_in_retry_internal(
+        name,
+        cmd,
+        env=env,
+        workdir=workdir,
+        user=user,
+        group=group,
+    )
 
     if result.returncode != 0 and not check:
         # Caller doesn't want exceptions, just return the result

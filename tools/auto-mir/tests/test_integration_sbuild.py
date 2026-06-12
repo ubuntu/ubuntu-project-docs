@@ -26,6 +26,8 @@ except ImportError:
 import lxd_runner
 from evidence.container_adapters import collect_sbuild
 
+_UBUNTU_ENV = {"HOME": "/home/ubuntu", "USER": "ubuntu", "LOGNAME": "ubuntu"}
+
 if HAS_PYTEST:
     # Mark all tests in this module as integration tests
     pytestmark = pytest.mark.integration
@@ -85,6 +87,9 @@ def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> 
                 "echo ${dir#./} > source_dir.txt"
             ),
         ],
+        env=_UBUNTU_ENV,
+        user=1000,
+        group=1000,
         operation=f"prepare source package {source_pkg}",
     )
 
@@ -92,6 +97,9 @@ def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> 
         vm_name,
         ["bash", "-lc", f"cd {workdir} && cat source_dir.txt"],
         capture=True,
+        env=_UBUNTU_ENV,
+        user=1000,
+        group=1000,
     ).stdout.strip()
     source_dir = f"{workdir}/{source_dir_name}"
 
@@ -100,6 +108,9 @@ def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> 
         ["bash", "-lc", f"ls {workdir}/*.dsc 2>/dev/null | head -n1"],
         capture=True,
         check=False,
+        env=_UBUNTU_ENV,
+        user=1000,
+        group=1000,
     ).stdout.strip()
     if not dsc_path:
         raise AssertionError(f"Expected a .dsc file in {workdir} after apt-get source")
@@ -109,12 +120,18 @@ def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> 
         ["bash", "-lc", f"cd {source_dir} && cat debian/control"],
         capture=True,
         check=False,
+        env=_UBUNTU_ENV,
+        user=1000,
+        group=1000,
     ).stdout
     debian_rules = lxd_runner.exec_in(
         vm_name,
         ["bash", "-lc", f"cd {source_dir} && cat debian/rules"],
         capture=True,
         check=False,
+        env=_UBUNTU_ENV,
+        user=1000,
+        group=1000,
     ).stdout
 
     return {

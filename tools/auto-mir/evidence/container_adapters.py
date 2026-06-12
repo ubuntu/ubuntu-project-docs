@@ -21,6 +21,10 @@ from evidence.types import (
 
 log = logging.getLogger("auto_mir.evidence.container")
 
+_UBUNTU_UID = 1000
+_UBUNTU_GID = 1000
+_UBUNTU_ENV = {"HOME": "/home/ubuntu", "USER": "ubuntu", "LOGNAME": "ubuntu"}
+
 
 class AdapterError(RuntimeError):
     """Raised when an evidence adapter cannot produce required output."""
@@ -31,21 +35,66 @@ class AdapterError(RuntimeError):
 # ---------------------------------------------------------------------------
 
 
-def _capture(ctx, cmd: list[str], allow_fail: bool = False) -> str:
+def _capture(
+    ctx,
+    cmd: list[str],
+    allow_fail: bool = False,
+    *,
+    as_ubuntu: bool = False,
+    env: dict[str, str] | None = None,
+) -> str:
     """Execute command in container and return stdout."""
+    run_env = _UBUNTU_ENV if as_ubuntu and env is None else env
     result = lxd_runner.exec_in(
         ctx.vm_name,
         cmd,
         check=not allow_fail,
         capture=True,
+        env=run_env,
+        user=_UBUNTU_UID if as_ubuntu else None,
+        group=_UBUNTU_GID if as_ubuntu else None,
     )
     return (result.stdout or "").strip()
 
 
-def _exists(ctx, cmd: list[str]) -> bool:
+def _exists(
+    ctx,
+    cmd: list[str],
+    *,
+    as_ubuntu: bool = False,
+    env: dict[str, str] | None = None,
+) -> bool:
     """Check if command succeeds in container."""
-    result = lxd_runner.exec_in(ctx.vm_name, cmd, check=False, capture=True)
+    run_env = _UBUNTU_ENV if as_ubuntu and env is None else env
+    result = lxd_runner.exec_in(
+        ctx.vm_name,
+        cmd,
+        check=False,
+        capture=True,
+        env=run_env,
+        user=_UBUNTU_UID if as_ubuntu else None,
+        group=_UBUNTU_GID if as_ubuntu else None,
+    )
     return result.returncode == 0
+
+
+def _read_latest_sbuild_log(ctx, output_dir: str) -> tuple[str, str]:
+    """Return the newest sbuild .build log path and contents from output_dir."""
+    build_log_path = _capture(
+        ctx,
+        ["bash", "-lc", f"ls -1t {output_dir}/*.build 2>/dev/null | head -n1"],
+        allow_fail=True,
+        as_ubuntu=True,
+    ).strip()
+    if not build_log_path:
+        return "", ""
+
+    return build_log_path, _capture(
+        ctx,
+        ["bash", "-lc", f"cat {build_log_path}"],
+        allow_fail=True,
+        as_ubuntu=True,
+    )
 
 
 def _resolve_sbuild_series(ctx, requested_series: str) -> str:
@@ -121,7 +170,12 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         raise AdapterError("source package is not set")
 
     workdir = f"/tmp/auto-mir-{ctx.bug_id}"
-    lxd_runner.exec_in(ctx.vm_name, ["mkdir", "-p", workdir])
+    lxd_runner.exec_in(
+        ctx.vm_name,
+        ["mkdir", "-p", workdir],
+        user=_UBUNTU_UID,
+        group=_UBUNTU_GID,
+    )
 
     # Fetch source package via apt source for deterministic availability.
     lxd_runner.exec_in_retry(
@@ -135,12 +189,16 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
                 "echo ${dir#./} > source_dir.txt"
             ),
         ],
+        env=_UBUNTU_ENV,
+        user=_UBUNTU_UID,
+        group=_UBUNTU_GID,
         operation=f"apt-get source {pkg}",
     )
 
     source_dir = _capture(
         ctx,
         ["bash", "-lc", f"cd {workdir} && cat source_dir.txt"],
+        as_ubuntu=True,
     ).strip()
     if not source_dir:
         raise AdapterError("failed to resolve unpacked source dir")
@@ -150,15 +208,25 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
     debian_control = _capture(
         ctx,
         ["bash", "-lc", f"cd {full_source} && cat debian/control"],
+        as_ubuntu=True,
     )
     debian_rules = _capture(
         ctx,
         ["bash", "-lc", f"cd {full_source} && cat debian/rules"],
         allow_fail=True,
+        as_ubuntu=True,
     )
 
-    cargo_lock = _exists(ctx, ["bash", "-lc", f"test -f {full_source}/Cargo.lock"])
-    go_sum = _exists(ctx, ["bash", "-lc", f"test -f {full_source}/go.sum"])
+    cargo_lock = _exists(
+        ctx,
+        ["bash", "-lc", f"test -f {full_source}/Cargo.lock"],
+        as_ubuntu=True,
+    )
+    go_sum = _exists(
+        ctx,
+        ["bash", "-lc", f"test -f {full_source}/go.sum"],
+        as_ubuntu=True,
+    )
 
     vendored_dirs_raw = _capture(
         ctx,
@@ -172,6 +240,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
             ),
         ],
         allow_fail=True,
+        as_ubuntu=True,
     )
 
     vendored_dirs = [line.strip() for line in vendored_dirs_raw.splitlines() if line.strip()]
@@ -403,7 +472,11 @@ def collect_sbuild(ctx) -> SbuildResult:
     output_dir = "/tmp/sbuild-output"
 
     # Create output directory
-    _capture(ctx, ["bash", "-lc", f"mkdir -p {output_dir}"])
+    _capture(
+        ctx,
+        ["bash", "-lc", f"mkdir -p {output_dir}"],
+        as_ubuntu=True,
+    )
 
     # Locate the .dsc file produced by apt-get source in the workdir.
     # Using the .dsc file is the correct way to invoke sbuild: it avoids
@@ -413,6 +486,7 @@ def collect_sbuild(ctx) -> SbuildResult:
         ctx,
         ["bash", "-lc", f"ls {source_workdir}/*.dsc 2>/dev/null | head -n1"],
         allow_fail=True,
+        as_ubuntu=True,
     ).strip()
     if not dsc_path:
         raise AdapterError(
@@ -432,6 +506,7 @@ def collect_sbuild(ctx) -> SbuildResult:
         ctx,
         ["bash", "-lc", "dpkg --print-architecture"],
         allow_fail=True,
+        as_ubuntu=True,
     )
     build_arch = arch_output.strip()
 
@@ -464,12 +539,25 @@ def collect_sbuild(ctx) -> SbuildResult:
         ctx,
         ["bash", "-lc", build_cmd],
         allow_fail=True,
+        as_ubuntu=True,
     )
 
     # Check if build succeeded by looking for .deb files
     build_success = _exists(
-        ctx, ["bash", "-lc", f"test -d {output_dir} && ls {output_dir}/*.deb >/dev/null 2>&1"]
+        ctx,
+        ["bash", "-lc", f"test -d {output_dir} && ls {output_dir}/*.deb >/dev/null 2>&1"],
+        as_ubuntu=True,
     )
+
+    sbuild_build_log_path, sbuild_build_log = _read_latest_sbuild_log(ctx, output_dir)
+    if sbuild_build_log:
+        if build_success and not build_log:
+            build_log = sbuild_build_log
+        elif not build_success:
+            build_log = (
+                f"{build_log}\n\n--- sbuild build file: {sbuild_build_log_path} ---\n"
+                f"{sbuild_build_log}"
+            ).strip()
 
     # Collect built .deb files
     built_debs = []
@@ -478,6 +566,7 @@ def collect_sbuild(ctx) -> SbuildResult:
             ctx,
             ["bash", "-lc", f"ls -1 {output_dir}/*.deb 2>/dev/null"],
             allow_fail=True,
+            as_ubuntu=True,
         )
         built_debs = [line.strip() for line in deb_list.splitlines() if line.strip()]
         log.info("sbuild succeeded: %d .deb files built", len(built_debs))
@@ -495,6 +584,7 @@ def collect_sbuild(ctx) -> SbuildResult:
             f"cd {source_dir} && lintian --no-tag-display-limit 2>&1 || true",
         ],
         allow_fail=True,
+        as_ubuntu=True,
     )
 
     # Parse lintian output into error/warning/info lists
@@ -535,6 +625,7 @@ def collect_sbuild(ctx) -> SbuildResult:
         "message": message,
         "build_success": build_success,
         "build_log": build_log,
+        "sbuild_build_log_path": sbuild_build_log_path,
         "built_debs": built_debs,
         "lintian_output": lintian_raw,
         "lintian_errors": lintian_errors,
