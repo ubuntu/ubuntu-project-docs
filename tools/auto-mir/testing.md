@@ -100,7 +100,7 @@ Each fixture contains:
 **To create or update artifacts (requires LP API + LXD, no LLM tokens needed):**
 
 ```bash
-./tools/auto-mir/auto_mir.py <bug_id> --save-test-artifacts tools/auto-mir/tests/fixtures --non-interactive
+./tools/auto-mir/auto_mir.py <bug_id> --debug-collect-only --output-dir tools/auto-mir/tests/fixtures/<bug_id>
 ```
 
 **Current baseline bugs:**
@@ -146,9 +146,9 @@ When setting up the test infrastructure for the first time, or when adding new b
 
 ```bash
 # Requires: Launchpad API access, LXD, no LLM tokens needed
-./tools/auto-mir/auto_mir.py 2133757 --save-test-artifacts tools/auto-mir/tests/fixtures --non-interactive
-./tools/auto-mir/auto_mir.py 2108942 --save-test-artifacts tools/auto-mir/tests/fixtures --non-interactive
-./tools/auto-mir/auto_mir.py 2138736 --save-test-artifacts tools/auto-mir/tests/fixtures --non-interactive
+./tools/auto-mir/auto_mir.py 2133757 --debug-collect-only --output-dir tools/auto-mir/tests/fixtures/2133757
+./tools/auto-mir/auto_mir.py 2108942 --debug-collect-only --output-dir tools/auto-mir/tests/fixtures/2108942
+./tools/auto-mir/auto_mir.py 2138736 --debug-collect-only --output-dir tools/auto-mir/tests/fixtures/2138736
 ```
 
 ### Re-baselining Artifacts
@@ -157,7 +157,7 @@ When deterministic adapters change or upstream data shifts significantly:
 
 ```bash
 # Re-run for affected bug(s)
-./tools/auto-mir/auto_mir.py <bug_id> --save-test-artifacts tools/auto-mir/tests/fixtures --non-interactive
+./tools/auto-mir/auto_mir.py <bug_id> --debug-collect-only --output-dir tools/auto-mir/tests/fixtures/<bug_id>
 
 # Review the diff carefully before committing
 git diff tools/auto-mir/tests/fixtures/<bug_id>/

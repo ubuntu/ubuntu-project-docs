@@ -109,12 +109,26 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--series",
         default=None,
-        metavar="SERIES",
+        help="Target Ubuntu series (e.g., 'noble', 'jammy'). Auto-detected if not specified.",
+    )
+    p.add_argument(
+        "--output-dir",
+        default=None,
+        metavar="DIR",
         help=(
-            "Force a specific Ubuntu series (e.g. focal, noble), skipping auto-detection. "
-            "When omitted, the series is derived from the Launchpad bug tasks: if all tasks "
-            "target one particular release that release is used, otherwise the development "
-            "release (devel) is assumed."
+            "Directory to save artifacts (default: /tmp/mir-<bugid>-<YYYYMMDD-HHMMSS>). "
+            "The LXD container name is auto-generated independently."
+        ),
+    )
+    p.add_argument(
+        "--debug-collect-only",
+        dest="collect_only",
+        action="store_true",
+        default=False,
+        help=(
+            "Debug mode: fetch LP bug and collect evidence only; "
+            "skip AI synthesis and rendering. "
+            "Saves evidence, context, deterministic findings, and metadata to output directory."
         ),
     )
     p.add_argument(
@@ -126,20 +140,32 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     p.add_argument(
+        "--lxd-options",
+        dest="lxd_options",
+        type=str,
+        default="--vm -c limits.cpu=4 -c limits.memory=8GiB",
+        help=(
+            "LXD launch options (default: '--vm -c limits.cpu=4 -c limits.memory=8GiB'). "
+            "Pass any lxc launch flags. Use empty string or override to change VM/container mode or resources."
+        ),
+    )
+    p.add_argument(
         "--keep-container",
         dest="keep_container",
         action="store_true",
         default=False,
-        help="Keep LXD container after run (default: off)",
+        help="Keep the LXD container after the run (default: destroy)",
     )
     p.add_argument(
         "--pin-uat-tooling",
-        default=None,
+        dest="pin_uat_tooling",
         metavar="COMMIT",
-        help="Pin ubuntu-archive-tools to this git commit (default: HEAD)",
+        default=None,
+        help="Pin ubuntu-archive-tools to a specific git commit (default: latest HEAD)",
     )
     p.add_argument(
         "--llm-model",
+        dest="llm_model",
         default="gpt-4.1-mini",
         help=(
             "Model name for the selected LLM provider. "
@@ -148,6 +174,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--llm-provider",
+        dest="llm_provider",
         default=None,
         choices=["copilot", "openai-compatible"],
         help=(
@@ -155,57 +182,6 @@ def build_parser() -> argparse.ArgumentParser:
             "COPILOT_GITHUB_TOKEN/GH_TOKEN/GITHUB_TOKEN → copilot; "
             "OPENAI_API_KEY → openai-compatible; "
             "gh auth token → copilot."
-        ),
-    )
-    p.add_argument(
-        "--run-name",
-        default=None,
-        metavar="NAME",
-        help=(
-            "Base name used for both the LXD container and the /tmp/<NAME> output directory "
-            "(default: mir-<bugid>-<YYYYMMDD-HHMMSS>). "
-            "When auto-generated, an existing name is bumped with a -1/-2 suffix. "
-            "When specified manually, the run is refused if the name already exists."
-        ),
-    )
-    p.add_argument(
-        "--debug-collect-only",
-        dest="collect_only",
-        action="store_true",
-        default=False,
-        help=(
-            "Debug mode: fetch LP bug and collect evidence only; "
-            "skip AI synthesis and rendering. "
-            "Evidence is saved to the output directory for inspection."
-        ),
-    )
-    p.add_argument(
-        "--save-test-artifacts",
-        dest="save_test_artifacts",
-        default=None,
-        metavar="DIR",
-        help=(
-            "Save test artifacts for deterministic regression testing. "
-            "Runs stages 1-3 + deterministic checks, saves to DIR/<bug_id>/. "
-            "Implies --debug-collect-only behavior (no LLM stages). "
-            "Does not require LLM tokens."
-        ),
-    )
-    p.add_argument(
-        "--non-interactive",
-        dest="non_interactive",
-        action="store_true",
-        default=False,
-        help="Skip interactive prompts (auto-accept). Use with --save-test-artifacts.",
-    )
-    p.add_argument(
-        "--lxd-options",
-        dest="lxd_options",
-        type=str,
-        default="--vm -c limits.cpu=4 -c limits.memory=8GiB",
-        help=(
-            "LXD launch options (default: '--vm -c limits.cpu=4 -c limits.memory=8GiB'). "
-            "Pass any lxc launch flags. Use empty string or override to change VM/container mode or resources."
         ),
     )
     p.add_argument(
@@ -267,19 +243,20 @@ class RunContext:
         self.llm_model: str = args.llm_model
         self._llm_provider_flag: str | None = getattr(args, "llm_provider", None)
         self.collect_only: bool = args.collect_only
-        self.save_test_artifacts: str | None = args.save_test_artifacts
-        self.non_interactive: bool = args.non_interactive
         self.lxd_options: str = args.lxd_options
         self.requested_binaries: list[str] = args.request_binaries or []
         self.tool_root = Path(__file__).resolve().parent
         self.workspace_root = self.tool_root.parent.parent
         self.catalog_path = self.tool_root / "catalog.yaml"
 
-        self.run_name: str = _resolve_run_name(
-            bug_id=self.bug_id,
-            user_name=getattr(args, "run_name", None),
-        )
-        self.output_dir = Path("/tmp") / self.run_name
+        # Container name is always auto-generated
+        self.run_name: str = _resolve_run_name(bug_id=self.bug_id, user_name=None)
+
+        # Output directory can be user-specified or auto-generated
+        if args.output_dir:
+            self.output_dir = Path(args.output_dir)
+        else:
+            self.output_dir = Path("/tmp") / self.run_name
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # --- Populated by stage_auth (Stage 0) ---
@@ -325,16 +302,14 @@ class RunContext:
 # ---------------------------------------------------------------------------
 
 
-def stage_intake(ctx: RunContext, non_interactive: bool = False) -> None:
-    """Stage 1: Launchpad API intake.
+def stage_intake(ctx: RunContext) -> None:
+    """Stage 1: Launchpad intake.
 
-    - Fetch bug metadata, description, comments, and target source package.
-    - Hard-fail if reporter MIR content is not found.
-    - Auto-detect target Ubuntu series from LP bug tasks when not explicitly forced
-      via --series; defaults to devel when no single series can be inferred.
+    Fetch bug metadata, description, comments, and target source package.
+    Hard-fail if reporter MIR content is not found.
     """
     log.info("Stage 1: Launchpad intake for bug %s", ctx.bug_id)
-    lp_intake.run(ctx, non_interactive=non_interactive)
+    lp_intake.run(ctx)
     # lp_intake.run() populates ctx.bug, ctx.source_package, ctx.reporter_mir_content
     # and raises SystemExit(1) with a clear message if reporter content is missing.
 
@@ -600,14 +575,15 @@ def main() -> int:
         ctx.llm_model or "(provider default)",
     )
 
+    exit_code = 0
     try:
         # Stage 0: Resolve provider auth and container token export values
-        # Skip auth if saving test artifacts (no LLM needed)
-        if not ctx.save_test_artifacts:
+        # Skip auth if collect-only mode (no LLM needed)
+        if not ctx.collect_only:
             stage_auth(ctx)
 
         # Stage 1: Launchpad intake (hard-fails if reporter MIR content missing)
-        stage_intake(ctx, non_interactive=ctx.non_interactive)
+        stage_intake(ctx)
 
         # Stage 2: Spawn LXD container
         stage_spawn_container(ctx)
@@ -623,66 +599,47 @@ def main() -> int:
                 .get("binary_packages", [])
             )
             if all_binaries:
-                if ctx.non_interactive:
-                    ctx.requested_binaries = all_binaries
-                    log.info("Non-interactive mode: defaulting to all binaries")
-                else:
-                    ctx.requested_binaries = _ask_requested_binaries(all_binaries)
-                    log.info("Requested binaries: %s", ", ".join(ctx.requested_binaries))
+                ctx.requested_binaries = _ask_requested_binaries(all_binaries)
+                log.info("Requested binaries: %s", ", ".join(ctx.requested_binaries))
 
-        # Save evidence checkpoint for audit/debugging (skip if saving test artifacts)
-        if not ctx.save_test_artifacts:
-            ctx.save_evidence()
-
-        # If saving test artifacts, run deterministic checks and save
-        if ctx.save_test_artifacts:
-            _save_test_artifacts(ctx)
-            _log_artifact_locations(ctx)
-            teardown_container(ctx)
-            _print_complete_banner(ctx)
-            return 0
-
+        # Handle early exit mode
         if ctx.collect_only:
             log.info("--debug-collect-only: stopping after evidence collection")
-            _log_artifact_locations(ctx)
-            teardown_container(ctx)
-            _print_complete_banner(ctx)
-            return 0
+            _save_test_artifacts(ctx)
+        else:
+            # Save evidence checkpoint for audit/debugging
+            ctx.save_evidence()
+            # Stage 4: Analyse against catalog checks
+            stage_analyse(ctx)
 
-        # Stage 4: Analyse against catalog checks
-        stage_analyse(ctx)
+            # Stage 5: Render output artefacts
+            stage_render(ctx)
 
-        # Stage 5: Render output artefacts
-        stage_render(ctx)
-
-        log.info("Review draft written to: %s", ctx.review_draft_path)
-        log.info("Structured report written to: %s", ctx.report_path)
-        _log_artifact_locations(ctx)
+            log.info("Review draft written to: %s", ctx.review_draft_path)
+            log.info("Structured report written to: %s", ctx.report_path)
 
     except SystemExit:
         raise
     except Exception as exc:
         log.error("Unexpected error: %s", exc, exc_info=args.verbose)
-        _log_artifact_locations(ctx)
-        teardown_container(ctx)
-        _print_complete_banner(ctx)
-        return 1
+        exit_code = 1
 
+    # Cleanup and final output (always runs)
+    _log_artifact_locations(ctx)
     teardown_container(ctx)
     _print_complete_banner(ctx)
-    return 0
+    return exit_code
 
 
 def _save_test_artifacts(ctx: RunContext) -> None:
-    """Save test artifacts for deterministic regression testing.
+    """Save test artifacts for debugging or regression testing.
 
-    Artifacts are saved to the directory specified by ctx.save_test_artifacts,
-    organized by bug_id. Includes context, evidence, and deterministic findings.
+    Artifacts are saved to ctx.output_dir. Includes context, evidence,
+    deterministic findings, and metadata.
     """
     from dataclasses import asdict
 
-    artifact_dir = Path(ctx.save_test_artifacts) / ctx.bug_id
-    artifact_dir.mkdir(parents=True, exist_ok=True)
+    artifact_dir = ctx.output_dir
 
     context = {
         "bug_id": ctx.bug_id,
