@@ -854,6 +854,8 @@ checks:
   ai_policy: Interpret component-mismatch output to identify promotion candidates; summarise.
   human_override: true
   blocker_class: none
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   fallback: emit_todo_continue
   fallback_message: 'Component-mismatches tooling did not produce a decisive signal. TODO: List of specific binary packages to be promoted to main: TBD TODO: Specific binary packages built, but NOT to be promoted to main: TBD
 
@@ -912,6 +914,8 @@ checks:
     '
   human_override: true
   blocker_class: none
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: SUM-5-A
     todo_ref: 'TODO-A: MIR team ACK'
@@ -940,6 +944,8 @@ checks:
     '
   human_override: true
   blocker_class: none
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: SUM-6-A
     todo_ref: 'TODO-A: This does need a security review'
@@ -964,6 +970,8 @@ checks:
     '
   human_override: true
   blocker_class: soft
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: no functional duplicate found in main
     severity: ok
@@ -990,6 +998,8 @@ checks:
     '
   human_override: true
   blocker_class: soft
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: owning team explicitly confirmed in bug or reporter represents that team
     severity: ok
@@ -1013,6 +1023,8 @@ checks:
   human_override: true
   human_override_flag: rationale-validity
   blocker_class: soft
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: rationale clearly supports a real Ubuntu user need
     severity: ok
@@ -1073,6 +1085,8 @@ checks:
     '
   human_override: true
   blocker_class: hard
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: no such deps identified
     severity: ok
@@ -1132,6 +1146,8 @@ checks:
   human_override: true
   human_override_flag: dependency-test-sufficiency
   blocker_class: none
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: key dependencies have non-trivial test coverage
     severity: ok
@@ -1887,6 +1903,9 @@ checks:
   ai_policy: none
   human_override: true
   blocker_class: soft
+  messages:
+    human_only_message: Human review required
+    human_only_todo: 'TODO: - {title} - reviewer judgment needed'
   notes: 'Whether "all options have been exhausted" is a policy judgment. Only human reviewer can decide this meets the bar. Tool surfaces reporter justification; reviewer decides.
 
     '

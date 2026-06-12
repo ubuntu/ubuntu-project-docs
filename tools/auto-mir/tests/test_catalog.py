@@ -173,3 +173,54 @@ def test_validate_catalog_dep3_placeholder_validation():
     errors = validate_catalog(catalog)
     assert any("messages.not_ok_offending_message missing placeholders" in err for err in errors)
     assert any("messages.not_ok_offending_todo missing placeholders" in err for err in errors)
+
+
+def test_validate_catalog_sum3_llm_placeholder_validation():
+    """SUM-3 LLM fallback message must include the {error} placeholder."""
+    catalog = {
+        "metadata": {},
+        "global_policies": {},
+        "evidence_adapters": [
+            {"id": "component-mismatches", "type": "local_exec", "description": "d"}
+        ],
+        "checks": [
+            {
+                "id": "SUM-3",
+                "section": "Summary",
+                "title": "Binary packages to promote",
+                "mode": "ev_to_ai",
+                "adapters_required": ["component-mismatches"],
+                "messages": {
+                    "llm_unavailable_message": "LLM unavailable",
+                },
+            }
+        ],
+    }
+
+    errors = validate_catalog(catalog)
+    assert any("messages.llm_unavailable_message missing placeholders" in err for err in errors)
+
+
+def test_validate_catalog_cb5_human_only_placeholder_validation():
+    """CB-5 human-only TODO template must include the {title} placeholder."""
+    catalog = {
+        "metadata": {},
+        "global_policies": {},
+        "evidence_adapters": [{"id": "lp-bug-api", "type": "api", "description": "d"}],
+        "checks": [
+            {
+                "id": "CB-5",
+                "section": "Common blockers",
+                "title": "Special hardware compromise accepted",
+                "mode": "human_only",
+                "adapters_required": ["lp-bug-api"],
+                "messages": {
+                    "human_only_message": "Human review required",
+                    "human_only_todo": "TODO: reviewer judgment needed",
+                },
+            }
+        ],
+    }
+
+    errors = validate_catalog(catalog)
+    assert any("messages.human_only_todo missing placeholders" in err for err in errors)

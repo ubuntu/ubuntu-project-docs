@@ -77,6 +77,34 @@ def validate_catalog(catalog: dict) -> list[str]:
             "ok_same_source_message": {"same_source"},
             "ok_message": set(),
         },
+        "SUM-3": {
+            "llm_unavailable_message": {"error"},
+        },
+        "SUM-5": {
+            "llm_unavailable_message": {"error"},
+        },
+        "SUM-6": {
+            "llm_unavailable_message": {"error"},
+        },
+        "RDO-1": {
+            "llm_unavailable_message": {"error"},
+        },
+        "RDO-2": {
+            "llm_unavailable_message": {"error"},
+        },
+        "RDO-3": {
+            "llm_unavailable_message": {"error"},
+        },
+        "DEP-2": {
+            "llm_unavailable_message": {"error"},
+        },
+        "DEP-4": {
+            "llm_unavailable_message": {"error"},
+        },
+        "CB-5": {
+            "human_only_message": set(),
+            "human_only_todo": {"title"},
+        },
         "SEC-3": {
             "ok_message": set(),
             "unknown_message": set(),
