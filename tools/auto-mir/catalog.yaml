@@ -1165,29 +1165,50 @@ checks:
   todo_refs:
   - 'TODO: - no embedded source present'
   template_line: 150
-  mode: deterministic
+  mode: ev_to_ai
   adapters_required:
   - packaging-source
-  ai_policy: none
+  - sbuild
+  language_gate: go|rust
+  ai_policy: |
+    Evaluate embedded source presence and usage in three dimensions:
+    
+    1. IDENTIFICATION: Review the file_listing and vendored_dirs to identify any embedded third-party source code.
+       Look for common patterns: vendor/, third_party/, vendored/, lib/, deps/, external/, bundle/, include/, thirdparty/.
+       Distinguish between actual embedded third-party code and the package's own lib code.
+    
+    2. USAGE: Examine build_hints (extracted compiler/linker flags, vendor path mentions) to determine if the
+       embedded source was actually used in the build. Embedded source that exists but is unused is acceptable.
+       Look for: compiler invocations referencing vendor paths, static linking of vendor libraries, archive operations on vendor code.
+    
+    3. OUTCOME: Return one of three findings:
+       - NO EMBEDDED SOURCE: No recognized patterns found. Status: ok, severity: ok
+       - EMBEDDED BUT UNUSED: Embedded source detected but NOT referenced in build. Status: ok, severity: ok
+         (Include message: "Embedded source present in {dirs}, but not used in build")
+       - EMBEDDED AND USED: Embedded source detected AND used in build. Status: not-ok, severity: required
+         (Include message: "Embedded source present in {dirs}, used in build — must remove and use archive packages or get security team sign-off")
+    
+    If debian/control contains Built-Using or Static-Built-Using entries, note this context but do not treat it as
+    automatic justification (ESL-3 handles Built-Using validation separately).
   human_override: false
   blocker_class: hard
   messages:
-    unknown_message: Could not collect packaging source
-    unknown_todo: 'TODO: - Check for embedded source (packaging-source collection failed)'
-    not_ok_message: 'Vendored directories found: {vendored_dirs}'
-    not_ok_todo: 'TODO: - Embedded source found — either remove and use archive packages, or get security team sign-off. Vendored dirs: {vendored_dirs}'
-    ok_built_using_message: no embedded source present (Built-Using present; see ESL-3 for review)
-    ok_message: no embedded source present
+    unknown_message: Could not collect packaging source and sbuild output
+    unknown_todo: 'TODO: - Check for embedded source (evidence collection failed)'
+    not_ok_message: 'Embedded source present and used in build: {embedded_dirs}'
+    not_ok_todo: 'TODO: - Embedded source found and used in build — either remove and use archive packages, or get security team sign-off. Dirs: {embedded_dirs}'
+    ok_message: no embedded source present or not used in build
   mapping_rules:
-  - condition: no vendored dirs, no bundled third-party source in debian/copyright
+  - condition: no embedded source detected
     severity: ok
-  - condition: embedded source present with security team sign-off
+  - condition: embedded source present but not used in build
     severity: ok
-  - condition: embedded source present with no justification
+  - condition: embedded source present and used in build with no justification
     severity: required
     reviewer_action: Embedded source must be replaced with archive package or security team must approve
   render_rules:
-    ok: '- no embedded source present'
+    ok: '- no embedded source present (or embedded but not used)'
+    not_ok: '- embedded source detected and used in build — removal or security team approval required'
 - id: ESL-2
   section: Embedded sources and static linking
   title: No unexpected static linking

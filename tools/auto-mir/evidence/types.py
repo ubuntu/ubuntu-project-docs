@@ -128,6 +128,13 @@ class AutopkgtestResult(TypedDict):
 # ---------------------------------------------------------------------------
 
 
+class FileListingEntry(TypedDict):
+    """Single file entry from source tree listing."""
+
+    path: str
+    size: int
+
+
 class PackagingSourceResult(TypedDict):
     """Return structure for packaging-source adapter."""
 
@@ -139,6 +146,7 @@ class PackagingSourceResult(TypedDict):
     cargo_lock_present: bool
     go_sum_present: bool
     vendored_dirs: list[str]
+    file_listing: list[FileListingEntry]
 
 
 # ---------------------------------------------------------------------------

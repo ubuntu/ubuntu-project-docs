@@ -250,6 +250,38 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
 
     vendored_dirs = [line.strip() for line in vendored_dirs_raw.splitlines() if line.strip()]
 
+    # Collect recursive file listing for embedded source detection
+    # Filter out common noise dirs and build artifacts
+    file_listing_raw = _capture(
+        ctx,
+        [
+            "bash",
+            "-lc",
+            (
+                f"cd {full_source} && "
+                "find . -type f -printf '%s %p\\n' 2>/dev/null | "
+                "grep -v -E '(/\\.git/|/node_modules/|/\\.pytest_cache/|/\\.tox/|/__pycache__/|/build/|/dist/|/\\.eggs/|\\.egg-info|/\\.coverage|/htmlcov/|/\\.cache|/vendor/.*\\.git)' | "
+                "head -50000"
+            ),
+        ],
+        allow_fail=True,
+        as_ubuntu=True,
+    )
+
+    file_listing: list[dict] = []
+    for line in file_listing_raw.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        parts = line.split(None, 1)
+        if len(parts) == 2:
+            try:
+                size = int(parts[0])
+                path = parts[1]
+                file_listing.append({"path": path, "size": size})
+            except (ValueError, IndexError):
+                pass
+
     return {
         "status": "ok",
         "source_dir": full_source,
@@ -259,6 +291,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         "cargo_lock_present": cargo_lock,
         "go_sum_present": go_sum,
         "vendored_dirs": vendored_dirs,
+        "file_listing": file_listing,
     }
 
 

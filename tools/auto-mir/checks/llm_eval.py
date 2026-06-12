@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from pathlib import Path
 
 from checks.messages import render_check_message_or_default
@@ -115,6 +116,9 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
     Only includes adapter outputs listed in adapters_required/adapters_optional
     for the check, plus basic package/bug metadata.  Large raw strings are
     truncated to keep prompt size manageable.
+
+    For ESL-1 specifically, also extracts build hints from sbuild to detect
+    embedded source usage patterns.
     """
     payload: dict = {
         "source_package": ctx.source_package,
@@ -131,6 +135,13 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
             payload[adapter_id] = {"status": "not_collected"}
         else:
             payload[adapter_id] = _truncate_adapter_data(data)
+
+    # For ESL-1, enhance with build hints extracted from sbuild log
+    if check.get("id") == "ESL-1":
+        sbuild_data = adapters_store.get("sbuild", {})
+        build_log = sbuild_data.get("build_log", "")
+        if build_log:
+            payload["build_hints"] = _extract_build_hints(build_log)
 
     # Always include compact bug context
     payload["reporter_mir_content_snippet"] = (ctx.reporter_mir_content or "")[:2000]
@@ -240,6 +251,61 @@ def _extract_template_section(template_path: Path, section: str) -> str:
                 break
             collected.append(line)
     return "\n".join(collected)
+
+
+def _extract_build_hints(build_log: str) -> dict:
+    """Extract hints from sbuild build log indicating embedded source usage.
+
+    Looks for:
+    - Static linking flags (-static, -Wl,--whole-archive, etc.)
+    - Compiler invocations mentioning vendor, third_party, vendored paths
+    - Archive operations (ar, ranlib) on potential vendor libraries
+    - References to embedded source directories in build output
+
+    Returns dict with lists of relevant lines grouped by category.
+    """
+    hints = {
+        "static_flags": [],
+        "vendor_compile_invocations": [],
+        "vendor_archive_ops": [],
+        "vendor_path_references": [],
+    }
+
+    if not build_log:
+        return hints
+
+    vendor_patterns = [r"vendor/", r"third_party/", r"vendored/", r"third-party"]
+
+    for line in build_log.splitlines():
+        # Look for static linking indicators
+        if "-static" in line or "-Wl,--whole-archive" in line or "Static-Built-Using" in line:
+            hints["static_flags"].append(line.strip())
+
+        # Look for compiler invocations with vendor paths
+        if re.search(r"(gcc|clang|cc|g\+\+|c\+\+|rustc|cargo).*(" + "|".join(vendor_patterns) + ")", line):
+            hints["vendor_compile_invocations"].append(line.strip())
+
+        # Look for archive operations on vendor paths
+        if re.search(r"(ar|ranlib|llvm-ar).*(" + "|".join(vendor_patterns) + ")", line):
+            hints["vendor_archive_ops"].append(line.strip())
+
+        # Look for general references to vendor directories
+        if any(pattern in line for pattern in vendor_patterns):
+            # Only add if it looks like an actionable build line
+            if re.search(r"(gcc|clang|cc|rustc|cargo|ar|ranlib|g\+\+|c\+\+|ld|nm)", line):
+                hints["vendor_path_references"].append(line.strip())
+
+    # Deduplicate while preserving order
+    for key in hints:
+        seen = set()
+        deduped = []
+        for item in hints[key]:
+            if item not in seen:
+                seen.add(item)
+                deduped.append(item)
+        hints[key] = deduped[:20]  # Cap at 20 lines per category to keep payload manageable
+
+    return hints
 
 
 def _render_ev_to_ai_prompt(

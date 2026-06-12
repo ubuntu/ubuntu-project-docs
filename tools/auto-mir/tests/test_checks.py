@@ -76,12 +76,11 @@ class _Ctx:
                 {
                     "id": "ESL-1",
                     "messages": {
-                        "unknown_message": "Could not collect packaging source",
-                        "unknown_todo": "TODO: - Check for embedded source (packaging-source collection failed)",
-                        "not_ok_message": "Vendored directories found: {vendored_dirs}",
-                        "not_ok_todo": "TODO: - Embedded source found — either remove and use archive packages, or get security team sign-off. Vendored dirs: {vendored_dirs}",
-                        "ok_built_using_message": "no embedded source present (Built-Using present; see ESL-3 for review)",
-                        "ok_message": "no embedded source present",
+                        "unknown_message": "Could not collect packaging source and sbuild output",
+                        "unknown_todo": "TODO: - Check for embedded source (evidence collection failed)",
+                        "not_ok_message": "Embedded source present and used in build: {embedded_dirs}",
+                        "not_ok_todo": "TODO: - Embedded source found and used in build — either remove and use archive packages, or get security team sign-off. Dirs: {embedded_dirs}",
+                        "ok_message": "no embedded source present or not used in build",
                     },
                 },
                 {
@@ -565,3 +564,84 @@ def test_language_gate_adapter_missing_defaults_active():
     ctx = _Ctx()
     # No packaging-source adapter — conservative fallback
     assert checks.language_gates._language_gate_active("go", ctx) is True
+
+
+def test_language_gate_combined_go_rust_active_with_go():
+    """Test combined gate 'go|rust' returns True when go package detected."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh-golang",
+        "go_sum_present": False,
+        "cargo_lock_present": False,
+    }
+    assert checks.language_gates._language_gate_active("go|rust", ctx) is True
+
+
+def test_language_gate_combined_go_rust_active_with_rust():
+    """Test combined gate 'go|rust' returns True when rust package detected."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "go_sum_present": False,
+        "cargo_lock_present": True,
+    }
+    assert checks.language_gates._language_gate_active("go|rust", ctx) is True
+
+
+def test_language_gate_combined_go_rust_inactive():
+    """Test combined gate 'go|rust' returns False when neither go nor rust present."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "go_sum_present": False,
+        "cargo_lock_present": False,
+    }
+    assert checks.language_gates._language_gate_active("go|rust", ctx) is False
+
+
+def test_extract_build_hints_no_vendor_references():
+    """Test _extract_build_hints returns empty results when no vendor paths present."""
+    build_log = """
+    gcc -Wall -O2 -c main.c
+    gcc -o myapp main.o
+    """
+    hints = checks.llm_eval._extract_build_hints(build_log)
+    assert hints["static_flags"] == []
+    assert hints["vendor_compile_invocations"] == []
+    assert hints["vendor_archive_ops"] == []
+
+
+def test_extract_build_hints_static_linking():
+    """Test _extract_build_hints detects static linking flags."""
+    build_log = """
+    gcc -static -Wall -c main.c
+    gcc -Wl,--whole-archive -o myapp main.o
+    """
+    hints = checks.llm_eval._extract_build_hints(build_log)
+    assert any("-static" in line for line in hints["static_flags"])
+    assert any("--whole-archive" in line for line in hints["static_flags"])
+
+
+def test_extract_build_hints_vendor_compile():
+    """Test _extract_build_hints detects vendor paths in compiler invocations."""
+    build_log = """
+    gcc -I./vendor/zlib -c main.c
+    clang -L./third_party/libs -lmylib main.o
+    """
+    hints = checks.llm_eval._extract_build_hints(build_log)
+    assert any("vendor" in line and "gcc" in line for line in hints["vendor_compile_invocations"])
+    assert any("third_party" in line and "clang" in line for line in hints["vendor_compile_invocations"])
+
+
+def test_extract_build_hints_vendor_archive():
+    """Test _extract_build_hints detects archive operations on vendor libraries."""
+    build_log = """
+    ar rcs ./vendor/libmylib.a obj1.o obj2.o
+    ranlib ./third_party/libs/libfoo.a
+    """
+    hints = checks.llm_eval._extract_build_hints(build_log)
+    assert any("ar" in line and "vendor" in line for line in hints["vendor_archive_ops"])
+    assert any("ranlib" in line and "third_party" in line for line in hints["vendor_archive_ops"])

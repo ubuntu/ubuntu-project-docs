@@ -51,8 +51,18 @@ def _language_gate_active(gate: str, ctx) -> bool:
       go     — active when go.sum present or dh-golang/golang in debian/rules
       rust   — active when Cargo.lock present or dh_cargo/--buildsystem cargo in rules
       python  — active when python3 or python in runtime deps
+      go|rust — active when either go or rust is present (combined gate)
+
+    Supports pipe-separated combined gates; returns True if any of the listed
+    gates would be active.
     """
     gate = gate.lower()
+    
+    # Support combined gates like "go|rust"
+    if "|" in gate:
+        gates = [g.strip() for g in gate.split("|")]
+        return any(_language_gate_active(g, ctx) for g in gates)
+    
     packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
 
     if packaging.get("status") != "ok":
