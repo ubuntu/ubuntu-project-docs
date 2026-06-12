@@ -10,7 +10,9 @@ Options:
     --keep-container         Keep LXD container after run for debugging (default: off)
     --pin-uat-tooling COMMIT Pin ubuntu-archive-tools to specific commit for reproducible runs
     --llm-model MODEL        LLM model to request from provider (default: gpt-4o-mini)
-    --output-dir DIR         Directory to write report and review draft (default: /tmp/mir-<bugid>)
+    --run-name NAME          Base name for both the LXD container and /tmp output directory
+                             (default: mir-<bugid>-<YYYYMMDD-HHMMSS>; auto-bumped with -1/-2
+                              suffix on collision; explicit name refuses if already in use)
     --dry-run                Fetch and collect evidence only; skip AI synthesis and rendering
 
 Exits 0 on successful run (even if review has required findings).
@@ -23,6 +25,7 @@ import logging
 import os
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 # Internal modules
@@ -34,6 +37,68 @@ import lxd_runner
 from render import write_outputs
 
 log = logging.getLogger("auto_mir")
+
+
+# ---------------------------------------------------------------------------
+# Run-name helpers (shared base name for container + output dir)
+# ---------------------------------------------------------------------------
+
+def _make_run_name(bug_id: str) -> str:
+    """Generate a human-readable run name: mir-<bugid>-<YYYYMMDD-HHMMSS>."""
+    ts = datetime.now().strftime("%Y%m%d-%H%M%S")
+    return f"mir-{bug_id}-{ts}"
+
+
+def _name_in_use(name: str) -> bool:
+    """Return True if /tmp/<name> dir exists or an LXD container named <name> exists."""
+    if Path(f"/tmp/{name}").exists():
+        return True
+    # Best-effort LXD check; ignore if lxc is not installed yet.
+    try:
+        result = subprocess.run(
+            ["lxc", "info", name],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            return True
+    except FileNotFoundError:
+        pass
+    return False
+
+
+def _resolve_run_name(bug_id: str, user_name: str | None) -> str:
+    """Return the resolved run name, applying collision logic.
+
+    Auto-generated name: bumped with -1, -2, ... suffix when taken.
+    User-supplied name:   refused with SystemExit(1) when already in use.
+    """
+    if user_name:
+        if _name_in_use(user_name):
+            log.error(
+                "Run name '%s' already exists (LXD container or /tmp/%s directory). "
+                "Choose a different name with --run-name.",
+                user_name, user_name,
+            )
+            raise SystemExit(1)
+        return user_name
+
+    base = _make_run_name(bug_id)
+    if not _name_in_use(base):
+        return base
+
+    for suffix in range(1, 100):
+        candidate = f"{base}-{suffix}"
+        if not _name_in_use(candidate):
+            log.warning(
+                "Run name '%s' already in use; using '%s' instead.",
+                base, candidate,
+            )
+            return candidate
+
+    log.error("Could not find an unused run name after 99 attempts (base: %s).", base)
+    raise SystemExit(1)
 
 
 # ---------------------------------------------------------------------------
@@ -70,9 +135,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Model name for the selected LLM provider (default: gpt-4o-mini)",
     )
     p.add_argument(
-        "--output-dir",
+        "--run-name",
         default=None,
-        help="Output directory for report and review draft (default: /tmp/mir-<bugid>)",
+        metavar="NAME",
+        help=(
+            "Base name used for both the LXD container and the /tmp/<NAME> output directory "
+            "(default: mir-<bugid>-<YYYYMMDD-HHMMSS>). "
+            "When auto-generated, an existing name is bumped with a -1/-2 suffix. "
+            "When specified manually, the run is refused if the name already exists."
+        ),
     )
     p.add_argument(
         "--dry-run",
@@ -103,8 +174,11 @@ class RunContext:
         self.workspace_root = self.tool_root.parent.parent
         self.catalog_path = self.tool_root / "catalog.yaml"
 
-        output_root = args.output_dir or f"/tmp/mir-{self.bug_id}"
-        self.output_dir = Path(output_root)
+        self.run_name: str = _resolve_run_name(
+            bug_id=self.bug_id,
+            user_name=getattr(args, "run_name", None),
+        )
+        self.output_dir = Path("/tmp") / self.run_name
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Populated by lp_intake

@@ -81,14 +81,6 @@ def _lxc(*args, check: bool = True, capture: bool = False, **kwargs):
     return _run_host(["lxc"] + list(args), check=check, capture=capture, **kwargs)
 
 
-def _container_name(bug_id: str) -> str:
-    """Generate a deterministic, human-readable container name."""
-    # Format: auto-mir-bug<bugid>-<4-digit-suffix>
-    # The last 4 digits of the current timestamp avoid collisions within the same second.
-    ts = str(int(time.time()))[-4:]
-    return f"auto-mir-bug{bug_id}-{ts}"
-
-
 def _check_lxd_available() -> None:
     """Verify lxc is available on the host; exit with guidance if not."""
     result = subprocess.run(["which", "lxc"], capture_output=True, text=True)
@@ -115,7 +107,7 @@ def spawn(ctx: "RunContext") -> None:
     """
     _check_lxd_available()
 
-    name = _container_name(ctx.bug_id)
+    name = ctx.run_name
     ctx.container_name = name
     image = _resolve_image(ctx)
     ctx.lxd_image = image
