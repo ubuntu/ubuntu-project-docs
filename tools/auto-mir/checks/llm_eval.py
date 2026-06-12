@@ -10,10 +10,12 @@ import json
 import logging
 from pathlib import Path
 
+from models import Finding
+
 log = logging.getLogger("auto_mir.checks.llm_eval")
 
 
-def _eval_ev_to_ai(check: dict, ctx, finding: dict) -> dict:
+def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate a check by combining collected evidence with an LLM call.
 
     Assembles the evidence payload relevant to this check, renders the
@@ -30,10 +32,10 @@ def _eval_ev_to_ai(check: dict, ctx, finding: dict) -> dict:
         response = llm.call_llm(prompt, ctx)
     except llm.LLMError as exc:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
-        finding["status"] = "unknown"
-        finding["confidence"] = "low"
-        finding["message"] = f"LLM unavailable: {exc}"
-        finding["todo"] = _default_todo_for_check(
+        finding.status = "unknown"
+        finding.confidence = "low"
+        finding.message = f"LLM unavailable: {exc}"
+        finding.todo = _default_todo_for_check(
             check, fallback_suffix="manual review needed (LLM unavailable)"
         )
         return finding
@@ -41,7 +43,7 @@ def _eval_ev_to_ai(check: dict, ctx, finding: dict) -> dict:
     return _apply_llm_response(response, check, finding)
 
 
-def _eval_ai(check: dict, ctx, finding: dict) -> dict:
+def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate checks that require pure AI synthesis over the full findings set.
 
     Uses the same LLM path as ev_to_ai but passes the full evidence store rather
@@ -65,21 +67,21 @@ def _eval_ai(check: dict, ctx, finding: dict) -> dict:
         response = llm.call_llm(prompt, ctx)
     except llm.LLMError as exc:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
-        finding["status"] = "unknown"
-        finding["confidence"] = "low"
-        finding["message"] = f"LLM unavailable: {exc}"
-        finding["todo"] = _default_todo_for_check(check, fallback_suffix="requires AI synthesis")
+        finding.status = "unknown"
+        finding.confidence = "low"
+        finding.message = f"LLM unavailable: {exc}"
+        finding.todo = _default_todo_for_check(check, fallback_suffix="requires AI synthesis")
         return finding
 
     return _apply_llm_response(response, check, finding)
 
 
-def _eval_human_only(check: dict, ctx, finding: dict) -> dict:
+def _eval_human_only(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate checks that require human judgment only."""
-    finding["status"] = "unknown"
-    finding["confidence"] = "low"
-    finding["message"] = "Human review required"
-    finding["todo"] = f"TODO: - {check.get('title', 'Check')} — reviewer judgment needed"
+    finding.status = "unknown"
+    finding.confidence = "low"
+    finding.message = "Human review required"
+    finding.todo = f"TODO: - {check.get('title', 'Check')} — reviewer judgment needed"
     return finding
 
 
@@ -252,7 +254,7 @@ def _render_ev_to_ai_prompt(
     return result
 
 
-def _apply_llm_response(response: dict, check: dict, finding: dict) -> dict:
+def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Finding:
     """Map a validated LLM JSON response back onto a finding dict.
 
     Accepts partial responses — only overrides fields that are present and
@@ -261,8 +263,8 @@ def _apply_llm_response(response: dict, check: dict, finding: dict) -> dict:
     """
     if not isinstance(response, dict):
         log.warning("LLM response for %s is not a dict: %r", check["id"], response)
-        finding["status"] = "unknown"
-        finding["todo"] = _default_todo_for_check(check, fallback_suffix="LLM response invalid")
+        finding.status = "unknown"
+        finding.todo = _default_todo_for_check(check, fallback_suffix="LLM response invalid")
         return finding
 
     valid_statuses = {"ok", "not-ok", "unknown"}
@@ -284,13 +286,13 @@ def _apply_llm_response(response: dict, check: dict, finding: dict) -> dict:
     if confidence == "high":
         confidence = "medium"
 
-    finding["status"] = status
-    finding["severity"] = severity
-    finding["confidence"] = confidence
+    finding.status = status
+    finding.severity = severity
+    finding.confidence = confidence
 
     message = (response.get("message") or "").strip()
     if message:
-        finding["message"] = message
+        finding.message = message
 
     todo = (response.get("todo") or "").strip()
     rationale = (response.get("rationale") or "").strip()
@@ -309,23 +311,23 @@ def _apply_llm_response(response: dict, check: dict, finding: dict) -> dict:
         if not todo:
             todo = _default_todo_for_check(check, fallback_suffix="review needed")
         if rationale:
-            finding["message"] = f"{message}\n  Rationale: {rationale}" if message else rationale
-        finding["todo"] = todo
+            finding.message = f"{message}\n  Rationale: {rationale}" if message else rationale
+        finding.todo = todo
     else:
         if rationale:
-            finding["message"] = f"{message}\n  ({rationale})" if message else rationale
-        finding["todo"] = ""
+            finding.message = f"{message}\n  ({rationale})" if message else rationale
+        finding.todo = ""
 
     risk_flags = response.get("risk_flags", [])
     if isinstance(risk_flags, list) and risk_flags:
-        finding["risk_flags"] = risk_flags
+        finding.risk_flags = risk_flags
 
     ev_refs = response.get("evidence_refs", [])
     if isinstance(ev_refs, list) and ev_refs:
-        finding["evidence_refs"] = ev_refs
+        finding.evidence_refs = ev_refs
 
     # Always require human confirmation for AI-derived findings
-    finding["human_confirmation_required"] = True
+    finding.human_confirmation_required = True
 
     return finding
 
@@ -348,11 +350,11 @@ def _summarise_findings_so_far(ctx) -> list[dict]:
     for f in getattr(ctx, "findings", []):
         results.append(
             {
-                "id": f.get("id"),
-                "section": f.get("section"),
-                "status": f.get("status"),
-                "severity": f.get("severity"),
-                "message": (f.get("message") or "")[:200],
+                "id": f.id,
+                "section": f.section,
+                "status": f.status,
+                "severity": f.severity,
+                "message": (f.message or "")[:200],
             }
         )
     return results

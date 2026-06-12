@@ -25,6 +25,9 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
+from dataclasses import asdict
+
+from models import Finding
 
 
 def _estimate_llm_tokens(ctx) -> dict:
@@ -78,7 +81,7 @@ def write_outputs(ctx) -> None:
         "container_name": ctx.container_name,
         "catalog_summary": ctx.evidence.get("catalog_summary", {}),
         "analysis_summary": ctx.evidence.get("analysis_summary", {}),
-        "findings": ctx.findings,
+        "findings": [asdict(f) for f in ctx.findings],
         "llm_usage": llm_usage,
     }
 
@@ -135,9 +138,9 @@ def _build_review_draft(ctx) -> str:
     lines.append("")
 
     # Group findings by section, preserving per-section order from catalog
-    by_section: dict[str, list[dict]] = defaultdict(list)
+    by_section: dict[str, list[Finding]] = defaultdict(list)
     for finding in ctx.findings:
-        section = finding.get("section") or "Other"
+        section = finding.section or "Other"
         by_section[section].append(finding)
 
     # Emit sections in canonical template order, then any remainder
@@ -199,16 +202,16 @@ def _build_binary_package_header(ctx) -> list[str]:
     return lines
 
 
-def _is_high_confidence_failure(finding: dict) -> bool:
+def _is_high_confidence_failure(finding: Finding) -> bool:
     """Return True when a not-ok finding is deterministic or AI high-confidence.
 
     Such findings are shown under Problems: rather than Left to decide: so the
     reviewer can see confirmed issues separately from items needing judgment.
     """
-    return finding.get("confidence") == "high" or finding.get("mode") == "deterministic"
+    return finding.confidence == "high" or finding.mode == "deterministic"
 
 
-def _render_section(section: str, findings: list[dict]) -> list[str]:
+def _render_section(section: str, findings: list[Finding]) -> list[str]:
     """Render a standard [Section] block with the three-tier structure.
 
     OK:              resolved checks
@@ -227,7 +230,7 @@ def _render_section(section: str, findings: list[dict]) -> list[str]:
         lines.append("OK:")
         seen_msgs: set[str] = set()
         for finding in ok_findings:
-            msg = (finding.get("message") or "").strip()
+            msg = (finding.message or "").strip()
             if msg and msg not in seen_msgs:
                 lines.append(f"- {msg}")
                 seen_msgs.add(msg)
@@ -236,7 +239,7 @@ def _render_section(section: str, findings: list[dict]) -> list[str]:
     if problems:
         lines.append("Problems:")
         for finding in problems:
-            msg = (finding.get("message") or "").strip()
+            msg = (finding.message or "").strip()
             if msg:
                 lines.append(f"- {msg}")
 
@@ -257,7 +260,7 @@ def _render_section(section: str, findings: list[dict]) -> list[str]:
     return lines
 
 
-def _render_summary_section(summary_findings: list[dict], all_findings: list[dict]) -> list[str]:
+def _render_summary_section(summary_findings: list[Finding], all_findings: list[Finding]) -> list[str]:
     """Render [Summary] with special MIR template semantics.
 
     - Keep resolved summary checks under OK:
@@ -268,14 +271,14 @@ def _render_summary_section(summary_findings: list[dict], all_findings: list[dic
     """
     lines: list[str] = ["[Summary]"]
 
-    visible_summary = [f for f in summary_findings if f.get("id") != "SUM-4"]
-    ok_findings = [f for f in visible_summary if f.get("status") == "ok"]
-    unresolved = [f for f in visible_summary if f.get("status") != "ok"]
+    visible_summary = [f for f in summary_findings if f.id != "SUM-4"]
+    ok_findings = [f for f in visible_summary if f.status == "ok"]
+    unresolved = [f for f in visible_summary if f.status != "ok"]
 
     if ok_findings:
         lines.append("OK:")
         for finding in ok_findings:
-            msg = (finding.get("message") or "").strip()
+            msg = (finding.message or "").strip()
             if msg:
                 lines.append(f"- {msg}")
 
@@ -309,16 +312,16 @@ def _render_summary_section(summary_findings: list[dict], all_findings: list[dic
     return lines
 
 
-def _collect_todos_by_severity(findings: list[dict], severity: str) -> list[str]:
+def _collect_todos_by_severity(findings: list[Finding], severity: str) -> list[str]:
     seen: set[str] = set()
     todos: list[str] = []
     for finding in findings:
-        if finding.get("id") == "SUM-4":
+        if finding.id == "SUM-4":
             # SUM-4 is a gate only and should not render in the final draft.
             continue
-        if finding.get("status") == "ok":
+        if finding.status == "ok":
             continue
-        if finding.get("severity") != severity:
+        if finding.severity != severity:
             continue
         for todo_line in _todo_lines_for_finding(finding):
             if todo_line not in seen:
@@ -327,11 +330,11 @@ def _collect_todos_by_severity(findings: list[dict], severity: str) -> list[str]
     return todos
 
 
-def _todo_lines_for_finding(finding: dict) -> list[str]:
+def _todo_lines_for_finding(finding: Finding) -> list[str]:
     """Return normalized TODO lines for a finding, preserving option variants."""
-    todo_text = (finding.get("todo") or "").strip()
+    todo_text = (finding.todo or "").strip()
     if not todo_text:
-        todo_text = f"TODO: - {finding.get('id')} {finding.get('title', '')}".strip()
+        todo_text = f"TODO: - {finding.id} {finding.get('title', '')}".strip()
 
     lines = [line.strip() for line in todo_text.splitlines() if line.strip()]
     normalized: list[str] = []
@@ -351,7 +354,7 @@ def _todo_lines_for_finding(finding: dict) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def _lint_review_draft(draft: str, findings: list[dict]) -> None:
+def _lint_review_draft(draft: str, findings: list[Finding]) -> None:
     """Validate the rendered draft for structural correctness.
 
     Rules enforced:
@@ -409,16 +412,16 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
 
     # Per-finding invariants
     for finding in findings:
-        status = finding.get("status")
-        message = (finding.get("message") or "").strip()
-        todo = (finding.get("todo") or "").strip()
+        status = finding.status
+        message = (finding.message or "").strip()
+        todo = (finding.todo or "").strip()
 
         if status == "ok" and message.startswith("TODO:"):
-            raise ValueError(f"Resolved finding {finding.get('id')} must not render as TODO")
+            raise ValueError(f"Resolved finding {finding.id} must not render as TODO")
         # High-confidence failures render under Problems: and need a message, not a TODO
         if status != "ok" and not _is_high_confidence_failure(finding):
             if not (todo.startswith("TODO:") or todo.startswith("TODO-")):
-                raise ValueError(f"Unresolved finding {finding.get('id')} must include TODO")
+                raise ValueError(f"Unresolved finding {finding.id} must include TODO")
 
 
 # ---------------------------------------------------------------------------
@@ -428,7 +431,7 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
 
 def _render_adapter_failure_warning(ctx) -> list[str]:
     """Render a console warning summarizing adapter failures and the checks they affected."""
-    failed_findings = [f for f in ctx.findings if f.get("adapter_error_cause")]
+    failed_findings = [f for f in ctx.findings if f.adapter_error_cause]
     if not failed_findings:
         return []
 
@@ -436,9 +439,9 @@ def _render_adapter_failure_warning(ctx) -> list[str]:
         "WARNING: adapter failure(s) caused the following checks to be left as TODO:",
     ]
     for finding in failed_findings:
-        causes = ", ".join(finding["adapter_error_cause"])
-        title = finding.get("title", "")
-        lines.append(f"  - {finding['id']} {title} (adapter(s) failed: {causes})")
+        causes = ", ".join(finding.adapter_error_cause)
+        title = finding.title
+        lines.append(f"  - {finding.id} {title} (adapter(s) failed: {causes})")
     lines.append(
         "  Review the TODO lines marked with NOTE: in the draft and follow up manually."
     )

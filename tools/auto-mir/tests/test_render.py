@@ -3,9 +3,42 @@
 import sys
 from pathlib import Path
 
+import yaml
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from render import _lint_review_draft, _todo_lines_for_finding, _build_binary_package_header
+from models import Finding
+from render import _lint_review_draft, _todo_lines_for_finding, _build_binary_package_header, _SECTION_ORDER
+
+# ---------------------------------------------------------------------------
+# Catalog section cross-check
+# ---------------------------------------------------------------------------
+
+_CATALOG_PATH = Path(__file__).resolve().parent.parent / "catalog.yaml"
+
+
+def test_section_order_covers_all_catalog_sections():
+    """Every section name used in catalog.yaml checks must appear in _SECTION_ORDER.
+
+    This prevents silent drift: adding a new section to the catalog without
+    updating _SECTION_ORDER would cause those checks to be appended under a
+    separate ad-hoc heading in the review draft rather than in the intended order.
+    """
+    with _CATALOG_PATH.open(encoding="utf-8") as fh:
+        catalog = yaml.safe_load(fh)
+
+    catalog_sections = {
+        check["section"]
+        for check in catalog.get("checks", [])
+        if check.get("section")
+    }
+
+    missing = catalog_sections - set(_SECTION_ORDER)
+    assert not missing, (
+        f"These catalog sections are not in render._SECTION_ORDER and would be "
+        f"silently appended as 'Other': {sorted(missing)}\n"
+        f"Add them to _SECTION_ORDER in render/__init__.py in the correct position."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -14,48 +47,48 @@ from render import _lint_review_draft, _todo_lines_for_finding, _build_binary_pa
 
 
 def _ok_finding(fid="TST-1", msg="everything is fine", section="Dependencies"):
-    return {
-        "id": fid,
-        "section": section,
-        "title": "Test check",
-        "mode": "deterministic",
-        "status": "ok",
-        "severity": "ok",
-        "confidence": "high",
-        "message": msg,
-        "todo": "",
-        "evidence_refs": [],
-    }
+    return Finding(
+        id=fid,
+        section=section,
+        title="Test check",
+        mode="deterministic",
+        status="ok",
+        severity="ok",
+        confidence="high",
+        message=msg,
+        todo="",
+        evidence_refs=[],
+    )
 
 
 def _unresolved_finding(fid="TST-2", title="Manual check needed", section="Dependencies"):
-    return {
-        "id": fid,
-        "section": section,
-        "title": title,
-        "mode": "ai",
-        "status": "unknown",
-        "severity": "recommended",
-        "confidence": "low",
-        "message": "Need human judgment",
-        "todo": f"TODO: - {title}",
-        "evidence_refs": [],
-    }
+    return Finding(
+        id=fid,
+        section=section,
+        title=title,
+        mode="ai",
+        status="unknown",
+        severity="recommended",
+        confidence="low",
+        message="Need human judgment",
+        todo=f"TODO: - {title}",
+        evidence_refs=[],
+    )
 
 
 def _high_conf_failure(fid="TST-3", msg="webkit dependency found", section="Security"):
-    return {
-        "id": fid,
-        "section": section,
-        "title": "webkit check",
-        "mode": "deterministic",
-        "status": "not-ok",
-        "severity": "required",
-        "confidence": "high",
-        "message": msg,
-        "todo": "",
-        "evidence_refs": [],
-    }
+    return Finding(
+        id=fid,
+        section=section,
+        title="webkit check",
+        mode="deterministic",
+        status="not-ok",
+        severity="required",
+        confidence="high",
+        message=msg,
+        todo="",
+        evidence_refs=[],
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -65,21 +98,21 @@ def _high_conf_failure(fid="TST-3", msg="webkit dependency found", section="Secu
 
 def test_todo_lines_already_prefixed():
     finding = _unresolved_finding()
-    finding["todo"] = "TODO: - check the thing"
+    finding.todo = "TODO: - check the thing"
     lines = _todo_lines_for_finding(finding)
     assert lines == ["TODO: - check the thing"]
 
 
 def test_todo_lines_option_variants():
     finding = _unresolved_finding()
-    finding["todo"] = "TODO-A: MIR team ACK\nTODO-B: MIR team NACK"
+    finding.todo = "TODO-A: MIR team ACK\nTODO-B: MIR team NACK"
     lines = _todo_lines_for_finding(finding)
     assert lines == ["TODO-A: MIR team ACK", "TODO-B: MIR team NACK"]
 
 
 def test_todo_lines_no_double_prefix():
     finding = _unresolved_finding()
-    finding["todo"] = "TODO: TODO-A: some option"
+    finding.todo = "TODO: TODO-A: some option"
     lines = _todo_lines_for_finding(finding)
     # Should strip the outer TODO: prefix
     assert lines == ["TODO-A: some option"]
@@ -87,7 +120,7 @@ def test_todo_lines_no_double_prefix():
 
 def test_todo_lines_bare_text_gets_prefixed():
     finding = _unresolved_finding()
-    finding["todo"] = "check the upstream tracker"
+    finding.todo = "check the upstream tracker"
     lines = _todo_lines_for_finding(finding)
     assert lines[0].startswith("TODO:")
 
@@ -185,7 +218,7 @@ def test_lint_rejects_ok_finding_with_todo_message():
 
 def test_lint_rejects_unresolved_finding_without_todo():
     finding = _unresolved_finding()
-    finding["todo"] = "plain text without prefix"
+    finding.todo = "plain text without prefix"
     try:
         _lint_review_draft("", [finding])
         assert False, "Should have raised"
