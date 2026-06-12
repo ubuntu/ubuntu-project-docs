@@ -101,6 +101,15 @@ def _resolve_run_name(bug_id: str, user_name: str | None) -> str:
 # ---------------------------------------------------------------------------
 
 
+def _parse_bool_arg(value: str) -> bool:
+    """Parse a boolean CLI argument (true/false)."""
+    if value.lower() in ("true", "yes", "1"):
+        return True
+    if value.lower() in ("false", "no", "0"):
+        return False
+    raise argparse.ArgumentTypeError(f"Expected true or false, got: {value!r}")
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         description="AI-assisted MIR reviewer assistant",
@@ -152,9 +161,17 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--keep-container",
         dest="keep_container",
-        action="store_true",
-        default=False,
-        help="Keep the LXD container after the run (default: destroy)",
+        nargs="?",
+        const=True,
+        default=None,
+        type=_parse_bool_arg,
+        metavar="true|false",
+        help=(
+            "Control LXD container cleanup (tri-state). "
+            "Not specified: destroy on success, preserve on failure. "
+            "--keep-container or --keep-container=true: always preserve. "
+            "--keep-container=false: always destroy."
+        ),
     )
     p.add_argument(
         "--pin-uat-tooling",
@@ -237,7 +254,7 @@ class RunContext:
         # --- From CLI args (immutable after __init__) ---
         self.bug_id: str = str(args.bug_id)
         self.series: str | None = args.series
-        self.keep_container: bool = args.keep_container
+        self.keep_container: bool | None = args.keep_container
         self.pin_uat_tooling: str | None = args.pin_uat_tooling
         self.lxd_image: str | None = args.lxd_image
         self.llm_model: str = args.llm_model
@@ -336,7 +353,7 @@ def stage_spawn_container(ctx: RunContext) -> None:
     # lxd_runner.spawn() populates ctx.vm_name
 
 
-def stage_collect_evidence(ctx: RunContext) -> None:
+def stage_collect_evidence(ctx: RunContext) -> int:
     """Stage 3: Run deterministic evidence collectors inside the container.
 
     Collectors run in-container via lxd_runner.exec():
@@ -349,13 +366,16 @@ def stage_collect_evidence(ctx: RunContext) -> None:
     - upstream tracker detection and querying
     - Ubuntu CVE tracker + cve.org queries
     - autopkgtest DB queries
+    
+    Returns:
+        0 if all evidence collection succeeded, 1 if any adapter failed.
     """
     log.info("Stage 3: Collecting evidence for %s", ctx.source_package)
     if not ctx.catalog:
         ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
         ctx.evidence["catalog_summary"] = catalog.summarize_catalog(ctx.catalog)
 
-    collect_from_catalog(ctx)
+    result = collect_from_catalog(ctx)
     adapter_results = ctx.evidence.get("adapters", {})
     ctx.evidence["collection_summary"] = {
         "total_adapters_seen": len(adapter_results),
@@ -363,6 +383,7 @@ def stage_collect_evidence(ctx: RunContext) -> None:
         "pending": len([x for x in adapter_results.values() if x.get("status") == "pending"]),
         "error": len([x for x in adapter_results.values() if x.get("status") == "error"]),
     }
+    return result
 
 
 def stage_analyse(ctx: RunContext) -> None:
@@ -495,11 +516,25 @@ def _ask_requested_binaries(all_binaries: list[str]) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def teardown_container(ctx: RunContext) -> None:
-    """Destroy or preserve LXD VM based on --keep-container flag."""
+def teardown_container(ctx: RunContext, exit_code: int = 0) -> None:
+    """Destroy or preserve LXD VM based on --keep-container setting and run outcome.
+
+    Tri-state logic:
+      - keep_container=True:  always preserve the container
+      - keep_container=False: always destroy the container
+      - keep_container=None:  destroy on success (exit_code==0), preserve on failure
+    """
     if not ctx.vm_name:
         return
-    if ctx.keep_container:
+
+    if ctx.keep_container is True:
+        should_keep = True
+    elif ctx.keep_container is False:
+        should_keep = False
+    else:
+        should_keep = exit_code != 0
+
+    if should_keep:
         log.info(
             "VM %s preserved for debugging. To destroy: lxc delete --force %s",
             ctx.vm_name,
@@ -585,6 +620,7 @@ def main() -> int:
     )
 
     exit_code = 0
+    evidence_result = 0
     try:
         # Stage 0: Resolve provider auth and container token export values
         # Skip auth if collect-only mode (no LLM needed)
@@ -598,7 +634,7 @@ def main() -> int:
         stage_spawn_container(ctx)
 
         # Stage 3: Collect evidence in-container
-        stage_collect_evidence(ctx)
+        evidence_result = stage_collect_evidence(ctx)
 
         # Interactive prompt for scope confirmation (after evidence collection)
         if not ctx.requested_binaries:
@@ -635,7 +671,7 @@ def main() -> int:
 
     # Cleanup and final output (always runs)
     _log_artifact_locations(ctx)
-    teardown_container(ctx)
+    teardown_container(ctx, evidence_result)
     _print_complete_banner(ctx)
     return exit_code
 

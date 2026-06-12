@@ -41,8 +41,12 @@ def _summarize_result(result: dict) -> str:
     return ", ".join(parts)
 
 
-def collect_from_catalog(ctx) -> None:
-    """Collect evidence for all adapters referenced by the catalog."""
+def collect_from_catalog(ctx) -> int:
+    """Collect evidence for all adapters referenced by the catalog.
+    
+    Returns:
+        0 if all adapters succeeded, 1 if any adapter failed.
+    """
     checks = ctx.catalog.get("checks", [])
     required: set[str] = set()
     for check in checks:
@@ -118,6 +122,8 @@ def collect_from_catalog(ctx) -> None:
                 "message": str(exc),
             }
             failed_adapters.add(adapter_id_str)
+
+    return 0 if not failed_adapters else 1
 
 def _order_adapters(required: set[str], adapter_deps: dict[str, list[str]] | None = None) -> list[str]:
     """Return adapters in dependency-safe order using graphlib."""

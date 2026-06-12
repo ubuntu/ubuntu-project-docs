@@ -24,7 +24,7 @@
 
 1. Repository bootstrap under `tools/auto-mir`.
 2. Normalize checks from the MIR reviewer template into an executable YAML catalog schema.
-3. Host-orchestrated LXD lifecycle; container is destroyed after the run by default. Use `--keep-container` to preserve it for debugging.
+3. Host-orchestrated LXD lifecycle; container is destroyed after a successful run by default, preserved on failure for debugging. Use `--keep-container` to always preserve, or `--keep-container=false` to always destroy.
 4. Launchpad API intake; hard-fail if reporter MIR content is missing.
 5. Deterministic evidence collection in-container (sbuild + lintian + API queries and more).
 6. AI-assisted synthesis where needed, with mandatory human override on designated checks.

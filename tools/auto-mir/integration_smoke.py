@@ -19,13 +19,21 @@ import lxd_runner
 
 
 class SmokeContext:
-    def __init__(self, lxd_image: str | None, keep_container: bool):
+    def __init__(self, lxd_image: str | None, keep_container: bool | None):
         self.bug_id = "smoke"
         self.pin_uat_tooling = None
         self.lxd_image = lxd_image
         self.keep_container = keep_container
         self.lxd_options = "--vm -c limits.cpu=4 -c limits.memory=8GiB"
         self.vm_name = ""
+
+
+def _parse_bool_arg(value: str) -> bool:
+    if value.lower() in ("true", "yes", "1"):
+        return True
+    if value.lower() in ("false", "no", "0"):
+        return False
+    raise argparse.ArgumentTypeError(f"Expected true or false, got: {value!r}")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -37,9 +45,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--keep-container",
-        action="store_true",
-        default=False,
-        help="Keep the smoke-test container for debugging",
+        dest="keep_container",
+        nargs="?",
+        const=True,
+        default=None,
+        type=_parse_bool_arg,
+        metavar="true|false",
+        help=(
+            "Control smoke-test container cleanup (tri-state). "
+            "Not specified: destroy on success, preserve on failure. "
+            "--keep-container or --keep-container=true: always preserve. "
+            "--keep-container=false: always destroy."
+        ),
     )
     p.add_argument("-v", "--verbose", action="store_true", help="Verbose logs")
     return p
@@ -54,6 +71,7 @@ def main() -> int:
 
     ctx = SmokeContext(args.lxd_image, args.keep_container)
 
+    exit_code = 0
     try:
         lxd_runner.spawn(ctx)
         facts = lxd_runner.collect_runtime_facts(ctx)
@@ -71,11 +89,21 @@ def main() -> int:
             "vm_exec_ok": bool(apt_policy_pkg),
         }
         print(json.dumps(result, indent=2, sort_keys=True))
+    except Exception:
+        exit_code = 1
+        raise
     finally:
-        if ctx.vm_name and not ctx.keep_container:
-            lxd_runner.destroy(ctx)
+        if ctx.vm_name:
+            if ctx.keep_container is True:
+                should_keep = True
+            elif ctx.keep_container is False:
+                should_keep = False
+            else:
+                should_keep = exit_code != 0
+            if not should_keep:
+                lxd_runner.destroy(ctx)
 
-    return 0
+    return exit_code
 
 
 if __name__ == "__main__":
