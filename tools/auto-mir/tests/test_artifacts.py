@@ -10,6 +10,7 @@ To create or update artifacts:
 """
 
 import json
+import subprocess
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -24,6 +25,18 @@ from models import Finding
 
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
+
+
+def test_auto_mir_help_runs():
+    """Verify auto_mir.py --help executes without syntax errors."""
+    script = Path(__file__).parent.parent / "auto_mir.py"
+    result = subprocess.run(
+        [sys.executable, str(script), "--help"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"auto_mir.py --help failed:\n{result.stderr}"
+    assert "usage:" in result.stdout.lower() or "auto_mir.py" in result.stdout
 
 
 class ReplayContext:

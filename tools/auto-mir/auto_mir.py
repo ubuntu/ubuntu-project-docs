@@ -660,38 +660,6 @@ def main() -> int:
         _log_artifact_locations(ctx)
 
     except SystemExit:
-        # Hard-stop conditions (e.g. missing reporter content) raise SystemExit
-        raise
-    except Exception as exc:
-        log.error("Unexpected error: %s", exc, exc_info=args.verbose)
-        _log_artifact_locations(ctx)
-        teardown_container(ctx)
-        _print_complete_banner(ctx)
-        return 1
-
-    teardown_container(ctx)
-    _print_complete_banner(ctx)
-    return 0
-
-        if ctx.collect_only:
-            log.info("--debug-collect-only: stopping after evidence collection")
-            _log_artifact_locations(ctx)
-            teardown_container(ctx)
-            _print_complete_banner(ctx)
-            return 0
-
-        # Stage 4: Analyse against catalog checks
-        stage_analyse(ctx)
-
-        # Stage 5: Render output artefacts
-        stage_render(ctx)
-
-        log.info("Review draft written to: %s", ctx.review_draft_path)
-        log.info("Structured report written to: %s", ctx.report_path)
-        _log_artifact_locations(ctx)
-
-    except SystemExit:
-        # Hard-stop conditions (e.g. missing reporter content) raise SystemExit
         raise
     except Exception as exc:
         log.error("Unexpected error: %s", exc, exc_info=args.verbose)
