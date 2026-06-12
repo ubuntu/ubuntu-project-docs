@@ -51,6 +51,51 @@ class _Ctx:
                     },
                 },
                 {
+                    "id": "SUM-4",
+                    "messages": {
+                        "unknown_message": "Could not check team subscription (team-mapping adapter failed)",
+                        "unknown_todo": "TODO: - Manually verify package has a team subscriber",
+                        "ok_message": "Package has team subscriber(s): {subscribed_teams}",
+                        "not_ok_message": "Package does not have a team subscriber",
+                        "not_ok_todo": "TODO: - The package should get a team bug subscriber on this bug before being promoted",
+                    },
+                },
+                {
+                    "id": "DEP-1",
+                    "messages": {
+                        "unknown_adapter_message": "Could not analyse runtime dependencies",
+                        "unknown_adapter_todo": "TODO: - Verify no runtime dependencies in universe need MIR",
+                        "not_ok_message": "Runtime dependencies from other source packages outside main: {deps}",
+                        "not_ok_todo": "TODO: - File MIR for runtime dependencies from other source packages: {deps}",
+                        "unknown_component_message": "Could not determine component for some runtime dependencies: {deps}",
+                        "unknown_component_todo": "TODO: - Verify Ubuntu component for runtime dependencies: {deps}",
+                        "ok_same_source_message": "no external runtime dependencies needing MIR (same-source deps promoted together: {same_source})",
+                        "ok_message": "no runtime dependencies outside main needing MIR",
+                    },
+                },
+                {
+                    "id": "ESL-1",
+                    "messages": {
+                        "unknown_message": "Could not collect packaging source",
+                        "unknown_todo": "TODO: - Check for embedded source (packaging-source collection failed)",
+                        "not_ok_message": "Vendored directories found: {vendored_dirs}",
+                        "not_ok_todo": "TODO: - Embedded source found — either remove and use archive packages, or get security team sign-off. Vendored dirs: {vendored_dirs}",
+                        "ok_built_using_message": "no embedded source present (Built-Using present; see ESL-3 for review)",
+                        "ok_message": "no embedded source present",
+                    },
+                },
+                {
+                    "id": "ESL-3",
+                    "messages": {
+                        "unknown_message": "Could not collect debian/control",
+                        "unknown_todo": "TODO: - Check for unexpected Built-Using entries",
+                        "ok_message": "does not have unexpected Built-Using entries",
+                        "ok_toolchain_message": "Built-Using entries present but appear to be standard toolchain entries: {entries}",
+                        "not_ok_message": "Unexpected Built-Using entries that may indicate untracked embedded source: {entries}",
+                        "not_ok_todo": "TODO: - Review Built-Using entries — possible untracked embedded source: {entries}",
+                    },
+                },
+                {
                     "id": "SEC-3",
                     "messages": {
                         "ok_message": "does not use webkit1,2",

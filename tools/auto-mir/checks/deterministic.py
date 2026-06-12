@@ -62,14 +62,17 @@ def _check_sum_2(ctx, finding: Finding) -> Finding:
 @deterministic_check("DEP-1")
 def _check_dep_1(ctx, finding: Finding) -> Finding:
     """DEP-1: No unresolved runtime dependencies needing MIR."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "DEP-1"), None)
+    if check is None:
+        raise ValueError("DEP-1 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     dep_analysis = adapters.get("dep-analysis", {})
 
     if dep_analysis.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not analyse runtime dependencies"
-        finding.todo = "TODO: - Verify no runtime dependencies in universe need MIR"
+        finding.message = render_check_message(check, "unknown_adapter_message")
+        finding.todo = render_check_message(check, "unknown_adapter_todo")
         finding.evidence_refs = ["dep-analysis:error"]
         return finding
 
@@ -85,14 +88,8 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "high"
-        finding.message = (
-            "Runtime dependencies from other source packages outside main: "
-            + ", ".join(in_scope_deps)
-        )
-        finding.todo = (
-            "TODO: - File MIR for runtime dependencies from other source packages: "
-            + ", ".join(in_scope_deps)
-        )
+        finding.message = render_check_message(check, "not_ok_message", deps=", ".join(in_scope_deps))
+        finding.todo = render_check_message(check, "not_ok_todo", deps=", ".join(in_scope_deps))
         finding.evidence_refs = [
             "dep-analysis:dep_components",
             "dep-analysis:in_scope_deps_not_in_main",
@@ -104,12 +101,11 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
         finding.status = "unknown"
         finding.severity = "recommended"
         finding.confidence = "low"
-        finding.message = (
-            "Could not determine component for some runtime dependencies: "
-            + ", ".join(unknown_components)
+        finding.message = render_check_message(
+            check, "unknown_component_message", deps=", ".join(unknown_components)
         )
-        finding.todo = "TODO: - Verify Ubuntu component for runtime dependencies: " + ", ".join(
-            unknown_components
+        finding.todo = render_check_message(
+            check, "unknown_component_todo", deps=", ".join(unknown_components)
         )
         finding.evidence_refs = ["dep-analysis:dep_components"]
         return finding
@@ -118,12 +114,11 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
     finding.severity = "ok"
     finding.confidence = "high"
     if same_source:
-        finding.message = (
-            "no external runtime dependencies needing MIR "
-            f"(same-source deps promoted together: {', '.join(same_source)})"
+        finding.message = render_check_message(
+            check, "ok_same_source_message", same_source=", ".join(same_source)
         )
     else:
-        finding.message = "no runtime dependencies outside main needing MIR"
+        finding.message = render_check_message(check, "ok_message")
     finding.evidence_refs = [
         "dep-analysis:runtime_dep_packages",
         "dep-analysis:dep_components",
@@ -238,14 +233,17 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
 @deterministic_check("SUM-4")
 def _check_sum_4(ctx, finding: Finding) -> Finding:
     """SUM-4: Package has a team subscriber in package-team-mapping."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "SUM-4"), None)
+    if check is None:
+        raise ValueError("SUM-4 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     team_mapping_adapter = adapters.get("team-mapping", {})
 
     if team_mapping_adapter.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not check team subscription (team-mapping adapter failed)"
-        finding.todo = "TODO: - Manually verify package has a team subscriber"
+        finding.message = render_check_message(check, "unknown_message")
+        finding.todo = render_check_message(check, "unknown_todo")
         finding.evidence_refs = ["team-mapping:error"]
         return finding
 
@@ -255,16 +253,16 @@ def _check_sum_4(ctx, finding: Finding) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = f"Package has team subscriber(s): {', '.join(subscribed_teams)}"
+        finding.message = render_check_message(
+            check, "ok_message", subscribed_teams=", ".join(subscribed_teams)
+        )
         finding.evidence_refs = ["team-mapping:subscribed_teams"]
     else:
         finding.status = "not-ok"
         finding.severity = "recommended"
         finding.confidence = "high"
-        finding.message = "Package does not have a team subscriber"
-        finding.todo = (
-            "TODO: - The package should get a team bug subscriber on this bug before being promoted"
-        )
+        finding.message = render_check_message(check, "not_ok_message")
+        finding.todo = render_check_message(check, "not_ok_todo")
         finding.evidence_refs = ["team-mapping:subscribed_teams"]
 
     return finding
@@ -382,14 +380,17 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-1")
 def _check_esl_1(ctx, finding: Finding) -> Finding:
     """ESL-1: No embedded source present."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-1"), None)
+    if check is None:
+        raise ValueError("ESL-1 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not collect packaging source"
-        finding.todo = "TODO: - Check for embedded source (packaging-source collection failed)"
+        finding.message = render_check_message(check, "unknown_message")
+        finding.todo = render_check_message(check, "unknown_todo")
         return finding
 
     vendored_dirs = packaging.get("vendored_dirs", [])
@@ -401,10 +402,11 @@ def _check_esl_1(ctx, finding: Finding) -> Finding:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "high"
-        finding.message = f"Vendored directories found: {', '.join(vendored_dirs)}"
-        finding.todo = (
-            "TODO: - Embedded source found — either remove and use archive packages, "
-            "or get security team sign-off. Vendored dirs: " + ", ".join(vendored_dirs)
+        finding.message = render_check_message(
+            check, "not_ok_message", vendored_dirs=", ".join(vendored_dirs)
+        )
+        finding.todo = render_check_message(
+            check, "not_ok_todo", vendored_dirs=", ".join(vendored_dirs)
         )
         finding.evidence_refs = ["packaging-source:vendored_dirs"]
     elif has_built_using:
@@ -413,13 +415,13 @@ def _check_esl_1(ctx, finding: Finding) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "medium"
-        finding.message = "no embedded source present (Built-Using present; see ESL-3 for review)"
+        finding.message = render_check_message(check, "ok_built_using_message")
         finding.evidence_refs = ["packaging-source:debian_control"]
     else:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "no embedded source present"
+        finding.message = render_check_message(check, "ok_message")
         finding.evidence_refs = ["packaging-source:vendored_dirs"]
     return finding
 
@@ -427,14 +429,17 @@ def _check_esl_1(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-3")
 def _check_esl_3(ctx, finding: Finding) -> Finding:
     """ESL-3: No unexpected Built-Using entries."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-3"), None)
+    if check is None:
+        raise ValueError("ESL-3 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not collect debian/control"
-        finding.todo = "TODO: - Check for unexpected Built-Using entries"
+        finding.message = render_check_message(check, "unknown_message")
+        finding.todo = render_check_message(check, "unknown_todo")
         return finding
 
     debian_control = packaging.get("debian_control", "")
@@ -449,7 +454,7 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "does not have unexpected Built-Using entries"
+        finding.message = render_check_message(check, "ok_message")
         finding.evidence_refs = ["packaging-source:debian_control"]
         return finding
 
@@ -457,6 +462,7 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
     all_entries_text = " ".join(built_using_entries).lower()
     # Toolchain-only Built-Using (golang, rust, cgo) are expected.
     # Anything else (especially ${misc:Built-Using} with explicit pkg list) needs attention.
+    entries_joined = "; ".join(built_using_entries)
     if (
         "golang" in all_entries_text
         or "rust" in all_entries_text
@@ -465,21 +471,18 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "medium"
-        finding.message = (
-            "Built-Using entries present but appear to be standard toolchain entries: "
-            + "; ".join(built_using_entries)
+        finding.message = render_check_message(
+            check, "ok_toolchain_message", entries=entries_joined
         )
     else:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "medium"
-        finding.message = (
-            "Unexpected Built-Using entries that may indicate untracked embedded source: "
-            + "; ".join(built_using_entries)
+        finding.message = render_check_message(
+            check, "not_ok_message", entries=entries_joined
         )
-        finding.todo = (
-            "TODO: - Review Built-Using entries — possible untracked embedded source: "
-            + "; ".join(built_using_entries)
+        finding.todo = render_check_message(
+            check, "not_ok_todo", entries=entries_joined
         )
     finding.evidence_refs = ["packaging-source:debian_control"]
     return finding
