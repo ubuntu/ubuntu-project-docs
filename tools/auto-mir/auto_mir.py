@@ -16,6 +16,7 @@ import json
 import logging
 import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -537,13 +538,10 @@ def main() -> int:
     ctx = RunContext(args)
 
     # Setup dual logging: colored console + JSON file
-    class BugIdFilter(logging.Filter):
-        def filter(self, record):
-            record.bug_id = args.bug_id
-            return True
+    _log_start_time = time.monotonic()
 
     class ColorFormatter(logging.Formatter):
-        """Colored formatter for console output."""
+        """Colored formatter for console output with H:M:S elapsed timing."""
         COLORS = {
             'DEBUG': '\033[36m',    # Cyan
             'INFO': '\033[32m',     # Green
@@ -557,11 +555,13 @@ def main() -> int:
         def format(self, record):
             color = self.COLORS.get(record.levelname, self.RESET)
             levelname = f"{color}{self.BOLD}{record.levelname:8}{self.RESET}"
-            name = f"\033[34m{record.name:20}{self.RESET}"
-            bug_id = getattr(record, 'bug_id', args.bug_id)
-            bug_id_str = f"\033[90m[{bug_id}]{self.RESET}"
+            name = f"\033[34m{record.name:32}{self.RESET}"
+            elapsed = time.monotonic() - _log_start_time
+            h, remainder = divmod(int(elapsed), 3600)
+            m, s = divmod(remainder, 60)
+            timing_str = f"\033[90m[{h:02d}:{m:02d}:{s:02d}]{self.RESET}"
             message = record.getMessage()
-            return f"{levelname} {name} {bug_id_str} {message}"
+            return f"{levelname} {name} {timing_str} {message}"
 
     from pythonjsonlogger import jsonlogger
 
@@ -572,13 +572,10 @@ def main() -> int:
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
-    bug_filter = BugIdFilter()
-
     # Console handler with colors
     console_handler = logging.StreamHandler()
     console_formatter = ColorFormatter()
     console_handler.setFormatter(console_formatter)
-    console_handler.addFilter(bug_filter)
     logger.addHandler(console_handler)
 
     # File handler with JSON (if output directory exists)
@@ -586,10 +583,9 @@ def main() -> int:
         log_file = ctx.output_dir / "auto-mir.log"
         file_handler = logging.FileHandler(log_file)
         json_formatter = jsonlogger.JsonFormatter(
-            '%(asctime)s %(levelname)s %(name)s %(bug_id)s %(message)s'
+            '%(asctime)s %(levelname)s %(name)s %(message)s'
         )
         file_handler.setFormatter(json_formatter)
-        file_handler.addFilter(bug_filter)
         logger.addHandler(file_handler)
         log.info("JSON log file: %s", log_file)
 
@@ -642,16 +638,15 @@ def main() -> int:
         if ctx.save_test_artifacts:
             _save_test_artifacts(ctx)
             _log_artifact_locations(ctx)
+            teardown_container(ctx)
+            _print_complete_banner(ctx)
             return 0
 
         if ctx.collect_only:
             log.info("--debug-collect-only: stopping after evidence collection")
             _log_artifact_locations(ctx)
-            return 0
-
-        if ctx.collect_only:
-            log.info("--debug-collect-only: stopping after evidence collection")
-            _log_artifact_locations(ctx)
+            teardown_container(ctx)
+            _print_complete_banner(ctx)
             return 0
 
         # Stage 4: Analyse against catalog checks
@@ -670,10 +665,43 @@ def main() -> int:
     except Exception as exc:
         log.error("Unexpected error: %s", exc, exc_info=args.verbose)
         _log_artifact_locations(ctx)
-        return 1
-    finally:
         teardown_container(ctx)
+        _print_complete_banner(ctx)
+        return 1
 
+    teardown_container(ctx)
+    _print_complete_banner(ctx)
+    return 0
+
+        if ctx.collect_only:
+            log.info("--debug-collect-only: stopping after evidence collection")
+            _log_artifact_locations(ctx)
+            teardown_container(ctx)
+            _print_complete_banner(ctx)
+            return 0
+
+        # Stage 4: Analyse against catalog checks
+        stage_analyse(ctx)
+
+        # Stage 5: Render output artefacts
+        stage_render(ctx)
+
+        log.info("Review draft written to: %s", ctx.review_draft_path)
+        log.info("Structured report written to: %s", ctx.report_path)
+        _log_artifact_locations(ctx)
+
+    except SystemExit:
+        # Hard-stop conditions (e.g. missing reporter content) raise SystemExit
+        raise
+    except Exception as exc:
+        log.error("Unexpected error: %s", exc, exc_info=args.verbose)
+        _log_artifact_locations(ctx)
+        teardown_container(ctx)
+        _print_complete_banner(ctx)
+        return 1
+
+    teardown_container(ctx)
+    _print_complete_banner(ctx)
     return 0
 
 
@@ -756,8 +784,9 @@ def _log_artifact_locations(ctx: RunContext) -> None:
     if ctx.review_draft_path:
         log.info("Review draft: %s", ctx.review_draft_path)
 
-    # Print a prominent end-of-run summary so paths are easy to spot after
-    # verbose logging output.
+
+def _print_complete_banner(ctx: RunContext) -> None:
+    """Print a prominent end-of-run summary as the very last output."""
     lines = [
         "",
         "━" * 64,

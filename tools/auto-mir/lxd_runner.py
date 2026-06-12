@@ -120,7 +120,10 @@ def spawn(ctx: "RunContext") -> None:
     
     # Build launch command: lxc launch <image> <name> [options...]
     launch_cmd = ["launch", image, name] + lxd_opts
-    _lxc(*launch_cmd)
+    result = _lxc(*launch_cmd, capture=True, check=False)
+    if result.returncode != 0:
+        log.error("lxc launch failed (exit %d): %s", result.returncode, result.stderr.strip())
+        raise subprocess.CalledProcessError(result.returncode, ["lxc"] + launch_cmd)
 
     # Wait for network to be available inside the VM
     _wait_for_network(name)
