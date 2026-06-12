@@ -44,6 +44,27 @@ def _set_unknown_from_adapter(
     return finding
 
 
+def _get_packaging_source_or_unknown(
+    ctx,
+    finding: Finding,
+    check_id: str,
+    *,
+    with_unknown_todo: bool = True,
+) -> tuple[dict, dict] | None:
+    """Return (check, packaging-source) or set finding unknown and return None."""
+    check = _get_check_definition(ctx, check_id)
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+    if packaging.get("status") != "ok":
+        _set_unknown_from_adapter(
+            finding,
+            check,
+            todo_key="unknown_todo" if with_unknown_todo else None,
+        )
+        return None
+    return check, packaging
+
+
 @deterministic_check("SUM-1")
 def _check_sum_1(ctx, finding: Finding) -> Finding:
     """SUM-1: Source package identified."""
@@ -507,18 +528,10 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-4")
 def _check_esl_4(ctx, finding: Finding) -> Finding:
     """ESL-4: Go language detection gate."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-4"), None)
-    if check is None:
-        raise ValueError("ESL-4 check definition not found in catalog")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        finding.todo = render_check_message(check, "unknown_todo")
+    resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-4")
+    if resolved is None:
         return finding
+    check, packaging = resolved
 
     if _is_go_package(packaging):
         finding.status = "ok"
@@ -542,18 +555,10 @@ def _check_esl_4(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-7")
 def _check_esl_7(ctx, finding: Finding) -> Finding:
     """ESL-7: Go build type (shared vs static)."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-7"), None)
-    if check is None:
-        raise ValueError("ESL-7 check definition not found in catalog")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        finding.todo = render_check_message(check, "unknown_todo")
+    resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-7")
+    if resolved is None:
         return finding
+    check, packaging = resolved
 
     if not _is_go_package(packaging):
         finding.status = "ok"
@@ -590,18 +595,10 @@ def _check_esl_7(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-8")
 def _check_esl_8(ctx, finding: Finding) -> Finding:
     """ESL-8: Rust language detection gate."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-8"), None)
-    if check is None:
-        raise ValueError("ESL-8 check definition not found in catalog")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        finding.todo = render_check_message(check, "unknown_todo")
+    resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-8")
+    if resolved is None:
         return finding
+    check, packaging = resolved
 
     if _is_rust_package(packaging):
         finding.status = "ok"
@@ -623,18 +620,10 @@ def _check_esl_8(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-9")
 def _check_esl_9(ctx, finding: Finding) -> Finding:
     """ESL-9: Rust package uses dh_cargo."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-9"), None)
-    if check is None:
-        raise ValueError("ESL-9 check definition not found in catalog")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        finding.todo = render_check_message(check, "unknown_todo")
+    resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-9")
+    if resolved is None:
         return finding
+    check, packaging = resolved
 
     if not _is_rust_package(packaging):
         # Not a Rust package; gate doesn't apply.
@@ -668,18 +657,11 @@ def _check_esl_9(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-10")
 def _check_esl_10(ctx, finding: Finding) -> Finding:
     """ESL-10: Rust: vendored deps, no unexpected Built-Using, Cargo.lock present."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-10"), None)
-    if check is None:
-        raise ValueError("ESL-10 check definition not found in catalog")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        finding.todo = render_check_message(check, "unknown_todo")
+    resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-10")
+    if resolved is None:
         return finding
+    check, packaging = resolved
+    adapters = ctx.evidence.get("adapters", {})
 
     if not _is_rust_package(packaging):
         finding.status = "ok"
