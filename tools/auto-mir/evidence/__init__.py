@@ -697,3 +697,4 @@ def _detect_component(ctx, package: str) -> str:
             return component
 
     return "unknown"
+

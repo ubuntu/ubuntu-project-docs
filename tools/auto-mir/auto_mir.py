@@ -204,7 +204,7 @@ class RunContext:
         self.container_name: str = ""
         self.auth_source: str = ""
         self.container_env: dict[str, str] = {}
-        
+
         # LLM usage tracking for cost reporting
         self.llm_calls_by_model: dict[str, int] = {}
         self.llm_estimated_tokens: dict[str, int] = {}
@@ -491,3 +491,4 @@ def _log_artifact_locations(ctx: RunContext) -> None:
 
 if __name__ == "__main__":
     sys.exit(main())
+

@@ -322,3 +322,4 @@ def _render_llm_usage_report(ctx) -> list[str]:
         lines.append(f"  {model}: {calls} calls, {tokens} tokens")
 
     return lines
+

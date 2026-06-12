@@ -536,3 +536,4 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
         "apt_policy_excerpt": apt_policy,
         "auth_env_present": auth_present,
     }
+

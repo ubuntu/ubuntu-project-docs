@@ -76,7 +76,7 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
         LLMError: on auth failure, HTTP error, or invalid JSON in response.
     """
     response_dict = _call_copilot(prompt, ctx)
-    
+
     # Track LLM usage for cost/efficiency reporting
     model = _selected_model(ctx)
     if not hasattr(ctx, 'llm_calls_by_model'):
@@ -86,7 +86,7 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
     # Rough estimate: prompt words + response tokens
     estimated_total = len(prompt.split()) + _MAX_TOKENS
     ctx.llm_estimated_tokens[model] = ctx.llm_estimated_tokens.get(model, 0) + estimated_total
-    
+
     return response_dict
 
 
@@ -368,3 +368,4 @@ def _parse_rate_limit_hint(body: str) -> tuple[int, int] | None:
     if limit <= 0 or window_s <= 0 or limit > 500 or window_s > 3600:
         return None
     return limit, window_s
+
