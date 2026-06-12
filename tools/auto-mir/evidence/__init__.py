@@ -24,6 +24,23 @@ import evidence.team_mapping_adapter
 log = logging.getLogger("auto_mir.evidence")
 from evidence.host_adapters import AdapterError
 
+
+def _summarize_result(result: dict) -> str:
+    """Return a concise human-readable summary of an adapter result dict."""
+    parts = []
+    for k, v in result.items():
+        if isinstance(v, str):
+            if len(v) > 80:
+                parts.append(f"{k}=<{len(v)} chars>")
+            else:
+                parts.append(f"{k}={v!r}")
+        elif isinstance(v, (list, dict)):
+            parts.append(f"{k}=[{len(v)} items]")
+        else:
+            parts.append(f"{k}={v!r}")
+    return ", ".join(parts)
+
+
 def collect_from_catalog(ctx) -> None:
     """Collect evidence for all adapters referenced by the catalog."""
     checks = ctx.catalog.get("checks", [])
@@ -69,6 +86,12 @@ def collect_from_catalog(ctx) -> None:
         try:
             log.info("Collecting adapter: %s", adapter_id_str)
             ctx.evidence["adapters"][adapter_id_str] = collector(ctx)
+            if ctx.collect_only:
+                log.debug(
+                    "Adapter %s found: %s",
+                    adapter_id_str,
+                    _summarize_result(ctx.evidence["adapters"][adapter_id_str]),
+                )
             if ctx.evidence["adapters"][adapter_id_str].get("status") == "error":
                  failed_adapters.add(adapter_id_str)
                  log.warning(
