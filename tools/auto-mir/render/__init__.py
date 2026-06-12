@@ -91,6 +91,11 @@ def write_outputs(ctx) -> None:
     if llm_report:
         print("\n" + "\n".join(llm_report))
 
+    # Print adapter failure warning to console so degraded checks are obvious
+    failure_warning = _render_adapter_failure_warning(ctx)
+    if failure_warning:
+        print("\n" + "\n".join(failure_warning))
+
 
 # ---------------------------------------------------------------------------
 # Draft builder
@@ -181,6 +186,11 @@ def _render_section(section: str, findings: list[dict]) -> list[str]:
     if undecided:
         lines.append("Left to decide:")
         for finding in undecided:
+            causes = finding.get("adapter_error_cause", [])
+            if causes:
+                lines.append(
+                    f"- NOTE: left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
+                )
             for todo_line in _todo_lines_for_finding(finding):
                 lines.append(f"- {todo_line}")
     elif not problems:
@@ -214,6 +224,11 @@ def _render_summary_section(summary_findings: list[dict], all_findings: list[dic
     if unresolved:
         lines.append("Left to decide:")
         for finding in unresolved:
+            causes = finding.get("adapter_error_cause", [])
+            if causes:
+                lines.append(
+                    f"- NOTE: left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
+                )
             for todo_line in _todo_lines_for_finding(finding):
                 lines.append(f"- {todo_line}")
     else:
@@ -317,11 +332,15 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
             in_problems_block = False
             continue
 
-        # Every content line inside undecided block must be a TODO entry
+        # Every content line inside undecided block must be a TODO or NOTE entry
         if in_undecided_block and line:
-            if not (line.startswith("- TODO:") or line.startswith("- TODO-")):
+            if not (
+                line.startswith("- TODO:")
+                or line.startswith("- TODO-")
+                or line.startswith("- NOTE:")
+            ):
                 raise ValueError(
-                    f"Left to decide block line must start with '- TODO:' or '- TODO-': {line!r}"
+                    f"Left to decide block line must start with '- TODO:', '- TODO-', or '- NOTE:': {line!r}"
                 )
 
         # Problems block lines are confirmed finding statements, not TODOs
@@ -346,6 +365,25 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
 # ---------------------------------------------------------------------------
 # LLM Usage Report
 # ---------------------------------------------------------------------------
+
+
+def _render_adapter_failure_warning(ctx) -> list[str]:
+    """Render a console warning summarizing adapter failures and the checks they affected."""
+    failed_findings = [f for f in ctx.findings if f.get("adapter_error_cause")]
+    if not failed_findings:
+        return []
+
+    lines = [
+        "WARNING: adapter failure(s) caused the following checks to be left as TODO:",
+    ]
+    for finding in failed_findings:
+        causes = ", ".join(finding["adapter_error_cause"])
+        title = finding.get("title", "")
+        lines.append(f"  - {finding['id']} {title} (adapter(s) failed: {causes})")
+    lines.append(
+        "  Review the TODO lines marked with NOTE: in the draft and follow up manually."
+    )
+    return lines
 
 
 def _render_llm_usage_report(ctx) -> list[str]:

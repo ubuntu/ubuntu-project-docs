@@ -93,6 +93,28 @@ def evaluate_checks(ctx) -> list[dict]:
 
         findings.append(finding)
 
+    # Post-process: for unknown/low-confidence findings, record which adapter failures
+    # caused the fallback so the renderer can emit visible warnings in the draft.
+    adapters_store = ctx.evidence.get("adapters", {})
+    failed_adapters = {
+        adapter_id
+        for adapter_id, data in adapters_store.items()
+        if isinstance(data, dict) and data.get("status") in ("error", "pending")
+    }
+    if failed_adapters:
+        check_by_id = {c["id"]: c for c in checks}
+        for finding in findings:
+            if finding["status"] == "unknown" or (
+                finding["status"] != "ok" and finding.get("confidence") == "low"
+            ):
+                check_def = check_by_id.get(finding["id"], {})
+                relevant = set(check_def.get("adapters_required", [])) | set(
+                    check_def.get("adapters_optional", [])
+                )
+                caused_by = sorted(relevant & failed_adapters)
+                if caused_by:
+                    finding["adapter_error_cause"] = caused_by
+
     return findings
 
 
