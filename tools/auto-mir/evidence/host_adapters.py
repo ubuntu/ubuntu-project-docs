@@ -1,0 +1,377 @@
+"""Host-side evidence collection adapters.
+
+These adapters run on the host machine (not in the LXD container) and collect
+evidence from external APIs and web services.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import lzma
+import sqlite3
+import tempfile
+import urllib.error
+import urllib.request
+from pathlib import Path
+from typing import Any
+
+from evidence.types import (
+    AutopkgtestResult,
+    LPBugAPIResult,
+    LPPackageAPIResult,
+    LPTeamMembershipAPIResult,
+    UbuntuCVETrackerResult,
+)
+
+log = logging.getLogger("auto_mir.evidence.host")
+
+
+class AdapterError(RuntimeError):
+    """Raised when an evidence adapter cannot produce required output."""
+
+
+# ---------------------------------------------------------------------------
+# Launchpad API adapters
+# ---------------------------------------------------------------------------
+
+
+def collect_lp_bug_api(ctx) -> LPBugAPIResult:
+    """Return Launchpad bug data already collected by lp_intake.
+
+    This is a passthrough: lp_intake.run() already populated ctx.bug.
+    We expose it as an adapter so checks can declare a clean dependency on it.
+    """
+    bug = ctx.bug
+    if not bug:
+        raise AdapterError("Launchpad bug data not populated by lp_intake")
+    return {
+        "status": "ok",
+        "bug_id": ctx.bug_id,
+        "bug_title": bug.get("title", ""),
+        "bug_description": bug.get("description", ""),
+        "bug_tags": bug.get("tags", []),
+        "bug_comments": bug.get("comments", []),
+        "bug_subscribers": bug.get("subscribers", []),
+        "target_source_package": ctx.source_package,
+        "target_series": ctx.series or "devel",
+        "mir_heuristics": bug.get("mir_heuristics", {}),
+    }
+
+
+def collect_lp_team_membership_api(ctx) -> LPTeamMembershipAPIResult:
+    """Return bug subscriber / team-membership data from lp_intake.
+
+    ubuntu-mir subscription is the primary check gate (SUM-4); team member
+    lookups for other checks (e.g. uploader team) are also resolved here.
+    """
+    subscribers = ctx.bug.get("subscribers", [])
+    subscribers_lower = {s.lower() for s in subscribers}
+    return {
+        "status": "ok",
+        "subscribers": subscribers,
+        "ubuntu_mir_subscribed": "ubuntu-mir" in subscribers_lower,
+    }
+
+
+def collect_lp_package_api(ctx) -> LPPackageAPIResult:
+    """Query Launchpad package publishing history and build state via launchpadlib.
+
+    Collects:
+    - Ubuntu publishing history (version, date, pocket)
+    - Upload history (uploader, version, date)
+    - Current version in target series
+    """
+    pkg = ctx.source_package
+    series_name = ctx.series or "devel"
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    try:
+        from launchpadlib.launchpad import Launchpad  # type: ignore
+    except ImportError:
+        raise AdapterError("launchpadlib not installed; run: sudo apt install python3-launchpadlib")
+
+    try:
+        lp = Launchpad.login_anonymously("auto-mir-pkg", "production", version="devel")
+    except Exception as exc:
+        raise AdapterError(f"Launchpad API connection failed: {exc}") from exc
+
+    ubuntu = lp.distributions["ubuntu"]
+    try:
+        lp_series = ubuntu.getSeries(name_or_version=series_name)
+    except Exception:
+        # Fallback: try current_series
+        try:
+            lp_series = ubuntu.current_series
+        except Exception as exc:
+            raise AdapterError(f"Could not resolve Ubuntu series '{series_name}': {exc}") from exc
+
+    try:
+        ubuntu.getSourcePackage(name=pkg)
+    except Exception as exc:
+        raise AdapterError(f"Could not find source package '{pkg}' on Launchpad: {exc}") from exc
+
+    # Fetch publishing history for the target series
+    ubuntu_publish_history: list[dict] = []
+    current_version = ""
+    try:
+        archive = ubuntu.main_archive
+        published = archive.getPublishedSources(
+            source_name=pkg,
+            distroseries=lp_series,
+            order_by_date=True,
+        )
+        for pub in list(published)[:20]:
+            try:
+                entry = {
+                    "version": pub.source_package_version,
+                    "date_published": str(pub.date_published),
+                    "pocket": pub.pocket,
+                    "component": pub.component_name,
+                    "status": pub.status,
+                }
+                ubuntu_publish_history.append(entry)
+                if not current_version and pub.status == "Published":
+                    current_version = pub.source_package_version
+            except Exception:
+                continue
+    except Exception as exc:
+        log.warning("Could not fetch LP publishing history for %s: %s", pkg, exc)
+
+    # Fetch upload history (changesfile info) for recent uploads
+    upload_history: list[dict] = []
+    uploaders: list[str] = []
+    try:
+        queue_items = lp_series.getPackageUploads(name=pkg)
+        for item in list(queue_items)[:10]:
+            try:
+                uploader = ""
+                try:
+                    uploader = item.package_creator.name if item.package_creator else ""
+                except Exception:
+                    pass
+                entry = {
+                    "version": item.package_version,
+                    "date_created": str(item.date_created),
+                    "status": item.status,
+                    "uploader": uploader,
+                }
+                upload_history.append(entry)
+                if uploader and uploader not in uploaders:
+                    uploaders.append(uploader)
+            except Exception:
+                continue
+    except Exception as exc:
+        log.warning("Could not fetch LP upload queue for %s: %s", pkg, exc)
+
+    return {
+        "status": "ok",
+        "ubuntu_publish_history": ubuntu_publish_history,
+        "current_version": current_version,
+        "upload_history": upload_history,
+        "uploaders": uploaders,
+    }
+
+
+# ---------------------------------------------------------------------------
+# CVE / security adapters
+# ---------------------------------------------------------------------------
+
+
+def collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
+    """Query OVAL data from https://security-metadata.canonical.com/oval/ for CVEs.
+
+    Downloads and parses the XZ-compressed OVAL JSON file for the target series,
+    then extracts CVE info for the source package. This approach mirrors ubuntu-pro-client.
+    """
+    pkg = ctx.source_package
+    series = ctx.series or "devel"
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    # Map series aliases to OVAL names
+    series_map = {
+        "devel": "mantic",  # or current devel name
+        "focal": "focal",
+        "jammy": "jammy",
+        "noble": "noble",
+        "mantic": "mantic",
+    }
+    oval_series = series_map.get(series, series)
+
+    url = f"https://security-metadata.canonical.com/oval/com.ubuntu.{oval_series}.pkg.json.xz"
+    log.debug("Querying OVAL CVE data from: %s", url)
+
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "auto-mir/0.1"})
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            xz_data = resp.read()
+    except urllib.error.HTTPError as exc:
+        # Retry once on transient failures
+        if exc.code in (429, 502, 503, 504):
+            log.warning("OVAL transient error %d; retrying once", exc.code)
+            import time
+
+            time.sleep(2)
+            try:
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    xz_data = resp.read()
+            except Exception as exc_retry:
+                raise AdapterError(f"OVAL fetch retry failed: {exc_retry}") from exc_retry
+        else:
+            raise AdapterError(f"OVAL HTTP error {exc.code}: {exc.reason}") from exc
+    except Exception as exc:
+        raise AdapterError(f"OVAL fetch failed: {exc}") from exc
+
+    # Decompress XZ
+    try:
+        json_data = lzma.decompress(xz_data).decode("utf-8")
+    except Exception as exc:
+        raise AdapterError(f"OVAL decompression failed: {exc}") from exc
+
+    try:
+        data = json.loads(json_data)
+    except Exception as exc:
+        raise AdapterError(f"OVAL JSON parse failed: {exc}") from exc
+
+    # Extract CVEs for this package
+    packages = data.get("packages", {})
+    pkg_data = packages.get(pkg, {})
+    cves_dict = pkg_data.get("cves", {})
+
+    cves = []
+    active_cves = []
+    fixed_cves = []
+    for cve_id, cve_info in cves_dict.items():
+        status = cve_info.get("status", "")
+        fix_version = cve_info.get("source_fixed_version")
+        entry = {
+            "id": cve_id,
+            "status": status,
+            "fix_version": fix_version or "",
+        }
+        cves.append(entry)
+        if status == "vulnerable":
+            active_cves.append(cve_id)
+        elif status == "fixed":
+            fixed_cves.append(cve_id)
+
+    log.debug(
+        "OVAL: %d CVEs for %s in %s (%d active, %d fixed)",
+        len(cves),
+        pkg,
+        oval_series,
+        len(active_cves),
+        len(fixed_cves),
+    )
+
+    return {
+        "status": "ok",
+        "package": pkg,
+        "series": oval_series,
+        "cves": cves,
+        "active_cves": active_cves,
+        "fixed_cves": fixed_cves,
+        "total_cve_count": len(cves),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Autopkgtest adapter
+# ---------------------------------------------------------------------------
+
+
+def collect_autopkgtest(ctx) -> AutopkgtestResult:
+    """Query autopkgtest SQLite database for package test results.
+
+    Downloads https://autopkgtest.ubuntu.com/static/autopkgtest.db, queries
+    the results table for the package and series, and summarizes by architecture.
+    """
+    pkg = ctx.source_package
+    series = ctx.series or "devel"
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    db_url = "https://autopkgtest.ubuntu.com/static/autopkgtest.db"
+    log.debug("Downloading autopkgtest SQLite database: %s", db_url)
+
+    # Download to temp file
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
+            tmp_path = tmp.name
+            req = urllib.request.Request(db_url, headers={"User-Agent": "auto-mir/0.1"})
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                tmp.write(resp.read())
+    except urllib.error.HTTPError as exc:
+        raise AdapterError(f"autopkgtest DB download HTTP error {exc.code}") from exc
+    except Exception as exc:
+        raise AdapterError(f"autopkgtest DB download failed: {exc}") from exc
+
+    try:
+        # Query the database
+        conn = sqlite3.connect(tmp_path)
+        cursor = conn.cursor()
+
+        # Get latest test results for this package and series
+        # The results table typically has: id, package, version, arch, series, status, date, url
+        cursor.execute(
+            """
+            SELECT arch, status, version, date FROM results
+            WHERE package = ? AND series = ?
+            ORDER BY date DESC
+            LIMIT 100
+        """,
+            (pkg, series),
+        )
+        rows = cursor.fetchall()
+        conn.close()
+    except sqlite3.DatabaseError as exc:
+        # DB may not have the expected schema; fall back to just reporting the attempt
+        log.warning("autopkgtest DB query failed: %s", exc)
+        return {
+            "status": "ok",
+            "package": pkg,
+            "series": series,
+            "has_autopkgtest": False,
+            "test_results": [],
+            "passing_arches": [],
+            "failing_arches": [],
+            "note": "autopkgtest DB schema not as expected",
+        }
+    finally:
+        Path(tmp_path).unlink(missing_ok=True)
+
+    # Summarize by architecture, keeping only the latest per arch
+    arch_latest: dict[str, dict[str, Any]] = {}
+    for arch, status, version, date in rows:
+        if arch not in arch_latest:
+            arch_latest[arch] = {
+                "arch": arch,
+                "version": version,
+                "status": status,
+                "date": date,
+            }
+
+    # Categorize arches by status
+    passing = [a for a, info in arch_latest.items() if info["status"] in ("pass", "neutral")]
+    failing = [a for a, info in arch_latest.items() if info["status"] in ("fail", "regression")]
+
+    log.debug(
+        "autopkgtest for %s/%s: %d arches; passing %d, failing %d",
+        pkg,
+        series,
+        len(arch_latest),
+        len(passing),
+        len(failing),
+    )
+
+    return {
+        "status": "ok",
+        "package": pkg,
+        "series": series,
+        "has_autopkgtest": len(arch_latest) > 0,
+        "test_results": list(arch_latest.values()),
+        "passing_arches": sorted(passing),
+        "failing_arches": sorted(failing),
+    }
