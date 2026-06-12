@@ -26,6 +26,7 @@ class AdapterID(str, Enum):
     DEP_ANALYSIS = "dep-analysis"
     COMPONENT_MISMATCHES = "component-mismatches"
     SBUILD = "sbuild"
+    DEB_METADATA = "deb-metadata"
 
     def __str__(self) -> str:
         return self.value

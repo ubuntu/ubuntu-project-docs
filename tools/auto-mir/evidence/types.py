@@ -235,3 +235,24 @@ class SbuildResult(TypedDict):
     lintian_pedantic: list[str]
     static_link_hints: list[str]
     note: str
+
+
+class DebMetadataEntry(TypedDict):
+    """Metadata extracted from a single binary .deb package."""
+
+    package: str
+    version: str
+    built_using: list[str]  # Parsed Built-Using entries (multi-line collapsed)
+    static_built_using: list[str]  # Parsed Static-Built-Using entries
+
+
+class DebMetadataResult(TypedDict):
+    """Return structure for deb-metadata adapter.
+
+    Extracts metadata from built .deb files after sbuild completes.
+    Provides structured access to Built-Using, Static-Built-Using, etc.
+    """
+
+    status: str
+    message: str
+    deb_packages: list[DebMetadataEntry]

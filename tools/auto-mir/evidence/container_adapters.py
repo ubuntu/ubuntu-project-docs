@@ -14,6 +14,7 @@ from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
     ComponentMismatchesResult,
+    DebMetadataResult,
     DepAnalysisResult,
     PackagingSourceResult,
     SbuildResult,
@@ -715,4 +716,110 @@ def collect_sbuild(ctx) -> SbuildResult:
         "lintian_pedantic": lintian_pedantic,
         "static_link_hints": static_link_hints,
         "note": "Real sbuild with unshare backend completed" if build_success else "sbuild failed",
+    }
+
+
+# ---------------------------------------------------------------------------
+# Binary package metadata adapter
+# ---------------------------------------------------------------------------
+
+
+def _parse_built_using_entries(field_text: str) -> list[str]:
+    """Parse Built-Using or Static-Built-Using field into list of entries.
+
+    The field may span multiple lines (continuation lines start with space).
+    Each entry is typically: package (>= version) or similar.
+    Returns list of individual entries; may contain multiple per field.
+    """
+    if not field_text:
+        return []
+    
+    # Collapse multi-line entries
+    collapsed = " ".join(line.strip() for line in field_text.splitlines())
+    
+    # Split on commas to get individual entries
+    # Each entry might be "package (constraint)" or similar
+    entries = [e.strip() for e in collapsed.split(",")]
+    return [e for e in entries if e]  # Filter empty strings
+
+
+@adapter(AdapterID.DEB_METADATA, depends_on=[AdapterID.SBUILD])
+def collect_deb_metadata(ctx) -> DebMetadataResult:
+    """Extract metadata from built .deb files.
+
+    Runs after sbuild completes to extract Package, Version, Built-Using,
+    and Static-Built-Using fields from binary packages for checks that
+    need post-build metadata (e.g., ESL-3, ESL-10).
+    """
+    sbuild_result = ctx.evidence.get("adapters", {}).get("sbuild", {})
+    
+    if sbuild_result.get("status") != "ok" or not sbuild_result.get("build_success"):
+        raise AdapterError("deb-metadata adapter requires successful sbuild")
+    
+    built_debs = sbuild_result.get("built_debs", [])
+    if not built_debs:
+        raise AdapterError("No built .deb files found from sbuild")
+    
+    deb_packages = []
+    
+    for deb_path in built_debs:
+        try:
+            # Extract Package field
+            package_name = _capture(
+                ctx,
+                ["bash", "-lc", f"dpkg-deb -f {deb_path} Package"],
+                allow_fail=True,
+                as_ubuntu=True,
+            ).strip()
+            
+            if not package_name:
+                log.warning("Could not extract Package from %s", deb_path)
+                continue
+            
+            # Extract Version field
+            version = _capture(
+                ctx,
+                ["bash", "-lc", f"dpkg-deb -f {deb_path} Version"],
+                allow_fail=True,
+                as_ubuntu=True,
+            ).strip()
+            
+            # Extract Built-Using field (may be empty)
+            built_using_raw = _capture(
+                ctx,
+                ["bash", "-lc", f"dpkg-deb -f {deb_path} Built-Using"],
+                allow_fail=True,
+                as_ubuntu=True,
+            ).strip()
+            
+            # Extract Static-Built-Using field (may be empty)
+            static_built_using_raw = _capture(
+                ctx,
+                ["bash", "-lc", f"dpkg-deb -f {deb_path} Static-Built-Using"],
+                allow_fail=True,
+                as_ubuntu=True,
+            ).strip()
+            
+            # Parse multi-line fields into lists of entries
+            built_using = _parse_built_using_entries(built_using_raw)
+            static_built_using = _parse_built_using_entries(static_built_using_raw)
+            
+            deb_packages.append({
+                "package": package_name,
+                "version": version,
+                "built_using": built_using,
+                "static_built_using": static_built_using,
+            })
+            
+        except Exception as e:
+            log.warning("Error extracting metadata from %s: %s", deb_path, e)
+            continue
+    
+    if not deb_packages:
+        raise AdapterError("Could not extract metadata from any built .deb files")
+    
+    return {
+        "status": "ok",
+        "message": f"Extracted metadata from {len(deb_packages)} binary packages",
+        "deb_packages": deb_packages,
     }

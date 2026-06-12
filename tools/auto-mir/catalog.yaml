@@ -1243,13 +1243,12 @@ checks:
   template_line: 152
   mode: deterministic
   adapters_required:
-  - packaging-source
-  - sbuild
+  - deb-metadata
   ai_policy: none
   human_override: false
   blocker_class: soft
   messages:
-    unknown_message: Could not collect debian/control
+    unknown_message: Could not collect binary package metadata (deb-metadata collection failed)
     unknown_todo: 'TODO: - Check for unexpected Built-Using entries'
     ok_message: does not have unexpected Built-Using entries
     ok_toolchain_message: 'Built-Using entries present but appear to be standard toolchain entries: {entries}'
@@ -1448,12 +1447,12 @@ checks:
   language_gate: rust
   adapters_required:
   - packaging-source
-  - sbuild
+  - deb-metadata
   ai_policy: none
   human_override: false
   blocker_class: hard
   messages:
-    unknown_message: Could not collect packaging source
+    unknown_message: Could not collect packaging source or binary package metadata
     unknown_todo: 'TODO: - Verify Rust vendored deps / Cargo.lock / Built-Using'
     ok_not_rust_message: not a rust package, ESL-10 constraints not applicable
     not_ok_message: 'Rust package has issues: {problems}'

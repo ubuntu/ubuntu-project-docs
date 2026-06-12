@@ -428,41 +428,51 @@ def _check_esl_1(ctx, finding: Finding) -> Finding:
 
 @deterministic_check("ESL-3")
 def _check_esl_3(ctx, finding: Finding) -> Finding:
-    """ESL-3: No unexpected Built-Using entries."""
+    """ESL-3: No unexpected Built-Using entries.
+
+    Checks Built-Using and Static-Built-Using metadata from built .deb files
+    (not source debian/control, which doesn't have these fields).
+    """
     check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-3"), None)
     if check is None:
         raise ValueError("ESL-3 check definition not found in catalog")
+    
     adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
+    deb_metadata = adapters.get("deb-metadata", {})
 
-    if packaging.get("status") != "ok":
+    if deb_metadata.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
         finding.message = render_check_message(check, "unknown_message")
         finding.todo = render_check_message(check, "unknown_todo")
         return finding
 
-    debian_control = packaging.get("debian_control", "")
-
-    built_using_entries = re.findall(
-        r"(?:Built-Using|Static-Built-Using)\s*:\s*([^\n]+(?:\n\s[^\n]+)*)",
-        debian_control,
-        flags=re.IGNORECASE,
-    )
-
-    if not built_using_entries:
+    deb_packages = deb_metadata.get("deb_packages", [])
+    
+    # Collect all Built-Using and Static-Built-Using entries from all packages
+    all_built_using = []
+    all_static_built_using = []
+    
+    for pkg in deb_packages:
+        all_built_using.extend(pkg.get("built_using", []))
+        all_static_built_using.extend(pkg.get("static_built_using", []))
+    
+    # Combine and deduplicate for analysis
+    all_entries = sorted(set(all_built_using + all_static_built_using))
+    
+    if not all_entries:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
         finding.message = render_check_message(check, "ok_message")
-        finding.evidence_refs = ["packaging-source:debian_control"]
+        finding.evidence_refs = ["deb-metadata:deb_packages"]
         return finding
 
     # Check for toolchain-only pattern (acceptable) vs. other entries
-    all_entries_text = " ".join(built_using_entries).lower()
+    all_entries_text = " ".join(all_entries).lower()
     # Toolchain-only Built-Using (golang, rust, cgo) are expected.
     # Anything else (especially ${misc:Built-Using} with explicit pkg list) needs attention.
-    entries_joined = "; ".join(built_using_entries)
+    entries_joined = "; ".join(all_entries)
     if (
         "golang" in all_entries_text
         or "rust" in all_entries_text
@@ -484,7 +494,7 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
         finding.todo = render_check_message(
             check, "not_ok_todo", entries=entries_joined
         )
-    finding.evidence_refs = ["packaging-source:debian_control"]
+    finding.evidence_refs = ["deb-metadata:deb_packages"]
     return finding
 
 
@@ -677,19 +687,26 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
     if not packaging.get("cargo_lock_present", False):
         problems.append("Cargo.lock not found")
 
-    # Check for unexpected Built-Using (Rust packages should have none or only toolchain)
-    debian_control = packaging.get("debian_control", "")
-
-    built_using_entries = re.findall(
-        r"(?:Built-Using|Static-Built-Using)\s*:\s*([^\n]+(?:\n\s[^\n]+)*)",
-        debian_control,
-        flags=re.IGNORECASE,
-    )
-    unexpected_bu = [
-        e for e in built_using_entries if "rust" not in e.lower() and "cargo" not in e.lower()
-    ]
-    if unexpected_bu:
-        problems.append("Unexpected Built-Using entries: " + "; ".join(unexpected_bu))
+    # Check for unexpected Built-Using from binary packages (not source debian/control)
+    deb_metadata = adapters.get("deb-metadata", {})
+    if deb_metadata.get("status") == "ok":
+        deb_packages = deb_metadata.get("deb_packages", [])
+        all_built_using = []
+        for pkg in deb_packages:
+            all_built_using.extend(pkg.get("built_using", []))
+            # Note: Static-Built-Using for Rust should also be toolchain-only
+            all_built_using.extend(pkg.get("static_built_using", []))
+        
+        # Filter out expected entries (rust, cargo, cgo, standard toolchain)
+        unexpected_bu = [
+            e for e in all_built_using 
+            if not any(
+                keyword in e.lower() 
+                for keyword in ["rust", "cargo", "cgo", "golang", "${misc:built-using}"]
+            )
+        ]
+        if unexpected_bu:
+            problems.append("Unexpected Built-Using entries: " + "; ".join(unexpected_bu))
 
     if problems:
         problems_str = "; ".join(problems)
@@ -703,10 +720,11 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
         finding.severity = "ok"
         finding.confidence = "high"
         finding.message = render_check_message(check, "ok_message")
-    finding.evidence_refs = [
-        "packaging-source:cargo_lock_present",
-        "packaging-source:debian_control",
-    ]
+    
+    evidence_refs = ["packaging-source:cargo_lock_present"]
+    if deb_metadata.get("status") == "ok":
+        evidence_refs.append("deb-metadata:deb_packages")
+    finding.evidence_refs = evidence_refs
     return finding
 
 

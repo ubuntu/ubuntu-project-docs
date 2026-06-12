@@ -86,7 +86,7 @@ class _Ctx:
                 {
                     "id": "ESL-3",
                     "messages": {
-                        "unknown_message": "Could not collect debian/control",
+                        "unknown_message": "Could not collect binary package metadata (deb-metadata collection failed)",
                         "unknown_todo": "TODO: - Check for unexpected Built-Using entries",
                         "ok_message": "does not have unexpected Built-Using entries",
                         "ok_toolchain_message": "Built-Using entries present but appear to be standard toolchain entries: {entries}",
@@ -645,3 +645,97 @@ def test_extract_build_hints_vendor_archive():
     hints = checks.llm_eval._extract_build_hints(build_log)
     assert any("ar" in line and "vendor" in line for line in hints["vendor_archive_ops"])
     assert any("ranlib" in line and "third_party" in line for line in hints["vendor_archive_ops"])
+
+
+def test_parse_built_using_entries_empty():
+    """Test _parse_built_using_entries with empty input."""
+    import evidence.container_adapters as adapters
+    assert adapters._parse_built_using_entries("") == []
+    assert adapters._parse_built_using_entries(None) == []
+
+
+def test_parse_built_using_entries_single_line():
+    """Test _parse_built_using_entries with single-line field."""
+    import evidence.container_adapters as adapters
+    field = "golang-1.20 (>= 1.20~), golang-1.20 (<< 1.21~)"
+    result = adapters._parse_built_using_entries(field)
+    assert "golang-1.20 (>= 1.20~)" in result
+    assert "golang-1.20 (<< 1.21~)" in result
+
+
+def test_parse_built_using_entries_multi_line():
+    """Test _parse_built_using_entries with multi-line field (continuation lines)."""
+    import evidence.container_adapters as adapters
+    field = """golang-1.20 (>= 1.20~),
+ golang-1.20 (<< 1.21~)"""
+    result = adapters._parse_built_using_entries(field)
+    assert "golang-1.20 (>= 1.20~)" in result
+    assert "golang-1.20 (<< 1.21~)" in result
+
+
+def test_esl_3_no_built_using():
+    """Test ESL-3 with no Built-Using entries."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["deb-metadata"] = {
+        "status": "ok",
+        "message": "OK",
+        "deb_packages": [
+            {"package": "mypkg", "version": "1.0", "built_using": [], "static_built_using": []},
+        ],
+    }
+    finding = _make_finding("ESL-3", mode="deterministic")
+    result = checks.deterministic._check_esl_3(ctx, finding)
+    assert result.status == "ok"
+    assert "Built-Using" not in result.message.lower() or "not" in result.message.lower()
+
+
+def test_esl_3_toolchain_built_using():
+    """Test ESL-3 with toolchain-only Built-Using entries."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["deb-metadata"] = {
+        "status": "ok",
+        "message": "OK",
+        "deb_packages": [
+            {
+                "package": "mypkg",
+                "version": "1.0",
+                "built_using": ["golang-1.20 (>= 1.20~)"],
+                "static_built_using": [],
+            },
+        ],
+    }
+    finding = _make_finding("ESL-3", mode="deterministic")
+    result = checks.deterministic._check_esl_3(ctx, finding)
+    assert result.status == "ok"
+    assert "toolchain" in result.message.lower()
+
+
+def test_esl_3_unexpected_built_using():
+    """Test ESL-3 with unexpected Built-Using entries."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["deb-metadata"] = {
+        "status": "ok",
+        "message": "OK",
+        "deb_packages": [
+            {
+                "package": "mypkg",
+                "version": "1.0",
+                "built_using": ["libfoo (>= 1.0)"],
+                "static_built_using": [],
+            },
+        ],
+    }
+    finding = _make_finding("ESL-3", mode="deterministic")
+    result = checks.deterministic._check_esl_3(ctx, finding)
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_esl_3_missing_adapter():
+    """Test ESL-3 when deb-metadata adapter is missing."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["deb-metadata"] = {"status": "error"}
+    finding = _make_finding("ESL-3", mode="deterministic")
+    result = checks.deterministic._check_esl_3(ctx, finding)
+    assert result.status == "unknown"
+
