@@ -385,15 +385,36 @@ def collect_sbuild(ctx) -> SbuildResult:
     # Run sbuild with unshare backend
     # --chroot-mode=unshare: use unshare backend (requires Noble or newer)
     # --no-run-lintian: skip lintian (handled separately)
-    # --no-arch-all: skip arch:all packages (not needed for dependency analysis)
+    # --no-arch-all: skip arch:all packages (only on non-amd64 systems)
     # --no-source-only-changes: don't create source-only changes file
     # --build-dir: output directory for built packages
+    
+    # Detect build architecture to decide whether to build arch-all packages
+    arch_output = _capture(
+        ctx,
+        ["bash", "-lc", "dpkg --print-architecture"],
+        allow_fail=True,
+    )
+    build_arch = arch_output.strip()
+    
+    # Build arch-all packages only on amd64 (where Ubuntu builds them)
+    if build_arch == "amd64":
+        arch_all_flag = ""
+        log.info("Building arch-all packages on %s", build_arch)
+    else:
+        arch_all_flag = "--no-arch-all "
+        log.warning(
+            "Skipping arch-all packages on %s (not amd64); "
+            "arch-all dependencies cannot be included in considerations and checks",
+            build_arch,
+        )
+    
     build_cmd = (
         f"cd {source_dir} && "
         f"sbuild -d {series} "
         f"--chroot-mode=unshare "
         f"--no-run-lintian "
-        f"--no-arch-all "
+        f"{arch_all_flag}"
         f"--no-source-only-changes "
         f"--build-dir={output_dir} "
         f"2>&1"
