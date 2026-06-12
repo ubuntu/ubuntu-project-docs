@@ -80,7 +80,7 @@ pa11y-install:
 install: $(DOCS_VENVDIR)
 
 generate-includes: install
-	python3 $(TOOLS_DIR)/auto-mir/render_review_template.py --body-only
+	python3 $(TOOLS_DIR)/auto-mir/render_review_template.py
 
 run: install generate-includes
 	. $(DOCS_VENV); $(DOCS_VENVDIR)/bin/sphinx-autobuild -b dirhtml --host $(SPHINX_HOST) --port $(SPHINX_PORT) "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" $(SPHINX_OPTS_NOLLM) \

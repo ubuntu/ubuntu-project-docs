@@ -5,15 +5,10 @@ The canonical reviewer template source lives in
 `metadata.review_template_blueprint` and is rendered to an output file.
 TODO lines are emitted from check entries via `{check, todo_ref}` references.
 
-Two output modes are supported:
-
-- Full mode (default): renders the entire blueprint as-is, producing a
-  standalone Markdown file (used for reference / diffing).
-
-- Body-only mode (--body-only): renders only the content inside the
-  ``{code-block} text`` fence, stripping the fence markers, ``:linenos:``
-  and the surrounding preamble. The result is a plain-text ``.include``
-  file suitable for ``{literalinclude}`` in a Sphinx document.
+The output is the content inside the ``{code-block} text`` fence, stripping
+the fence markers, ``:linenos:`` and the surrounding preamble. The result is
+a plain-text ``.include`` file suitable for ``{literalinclude}`` in a Sphinx
+document.
 """
 
 from __future__ import annotations
@@ -65,15 +60,13 @@ def _resolve_item(item: Any, checks: dict[str, dict[str, Any]]) -> str:
     return ref_text
 
 
-def _render_from_blueprint(catalog_data: dict, *, body_only: bool = False) -> str:
-    """Render the reviewer template from the catalog blueprint.
+def _render_from_blueprint(catalog_data: dict) -> str:
+    """Render the reviewer template body from the catalog blueprint.
 
-    Args:
-        catalog_data: Loaded catalog data.
-        body_only: When True, emit only the content inside the
-            ``{code-block} text`` fence (stripping preamble, fence markers,
-            and ``:linenos:``). Produces a plain-text ``.include`` file.
-            When False (default), emit the full blueprint as Markdown.
+    Scans for the ``{code-block} text`` fence in the blueprint and emits only
+    the content between the opening and closing fences, skipping the
+    ``:linenos:`` directive line immediately after the opening fence.
+    Produces a plain-text ``.include`` file for ``{literalinclude}`` in Sphinx.
     """
     metadata = catalog_data.get("metadata", {})
     blueprint = metadata.get("review_template_blueprint")
@@ -82,14 +75,7 @@ def _render_from_blueprint(catalog_data: dict, *, body_only: bool = False) -> st
 
     checks = _check_map(catalog_data)
 
-    if not body_only:
-        lines: list[str] = [_resolve_item(item, checks) for item in blueprint]
-        return "\n".join(lines) + "\n"
-
-    # Body-only: scan for the ``{code-block} text`` fence and emit only
-    # the content between the opening and closing fences, skipping the
-    # ``:linenos:`` directive line immediately after the opening fence.
-    lines = []
+    lines: list[str] = []
     in_body = False
     skip_linenos = False
     for item in blueprint:
@@ -109,7 +95,7 @@ def _render_from_blueprint(catalog_data: dict, *, body_only: bool = False) -> st
 
     if not lines:
         raise RuntimeError(
-            "Body-only mode: could not locate '```{code-block} text' fence in blueprint."
+            "Could not locate '```{code-block} text' fence in blueprint."
         )
 
     return "\n".join(lines) + "\n"
@@ -161,16 +147,7 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help=(
             "Output path relative to workspace root. "
-            "Defaults to docs/MIR/mir-reviewers-template-body.include (--body-only) "
-            "or docs/MIR/mir-reviewers-template.generated.md (full mode)."
-        ),
-    )
-    parser.add_argument(
-        "--body-only",
-        action="store_true",
-        help=(
-            "Emit only the template body (content inside the code-block fence), "
-            "producing a plain-text .include file for use with Sphinx literalinclude."
+            "Defaults to docs/MIR/mir-reviewers-template-body.include."
         ),
     )
     parser.add_argument(
@@ -196,7 +173,7 @@ def main() -> int:
 
     catalog_data = catalog.load_catalog(catalog_path, workspace_root)
     try:
-        template_text = _render_from_blueprint(catalog_data, body_only=args.body_only)
+        template_text = _render_from_blueprint(catalog_data)
     except RuntimeError as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -214,10 +191,8 @@ def main() -> int:
 
     if args.output:
         output_rel = args.output
-    elif args.body_only:
-        output_rel = "docs/MIR/mir-reviewers-template-body.include"
     else:
-        output_rel = "docs/MIR/mir-reviewers-template.generated.md"
+        output_rel = "docs/MIR/mir-reviewers-template-body.include"
 
     output_path = workspace_root / output_rel
     output_path.parent.mkdir(parents=True, exist_ok=True)

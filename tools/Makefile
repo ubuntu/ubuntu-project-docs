@@ -40,7 +40,7 @@ test:
 
 .PHONY: render-review-template
 render-review-template:
-	python3 $(TOOLS_DIR)auto-mir/render_review_template.py --body-only
+	python3 $(TOOLS_DIR)auto-mir/render_review_template.py
 
 .PHONY: check-review-template
 check-review-template: render-review-template
