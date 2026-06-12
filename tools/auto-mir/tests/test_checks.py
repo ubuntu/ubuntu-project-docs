@@ -134,7 +134,60 @@ class _Ctx:
                         "not_ok_offending_todo": "TODO: - Consider adding extra-excludes for auto-included binaries with offending dependencies ({details}); otherwise MIR may also be needed for: {offending_deps}",
                         "ok_safe_message": "Auto-included binaries ({auto_included}) will be auto-included, and have no dependencies outside main",
                     },
-                }
+                },
+                {
+                    "id": "ESL-4",
+                    "messages": {
+                        "unknown_message": "Could not determine language (packaging-source failed)",
+                        "unknown_todo": "TODO: - Determine if this is a Go package",
+                        "ok_go_message": "Go Package — Debian Go packaging guidelines apply (see ESL-5/6/7)",
+                        "ok_not_go_message": "not a go package, no extra constraints to consider in that regard",
+                    },
+                },
+                {
+                    "id": "ESL-7",
+                    "messages": {
+                        "unknown_message": "Could not determine Go build type (packaging-source failed)",
+                        "unknown_todo": "TODO: - Determine Go build type (shared vs static)",
+                        "ok_not_go_message": "not a go package, no extra constraints to consider in that regard",
+                        "ok_shared_message": "golang: shared builds",
+                        "recommended_message": "Go package uses dh-golang; build mode not confirmed as shared",
+                        "recommended_todo": "TODO: - Confirm Go build mode — if static, team must confirm commitment to additional maintenance responsibilities implied by static builds",
+                        "unknown_build_mode_message": "Go package but build mode could not be determined from debian/rules",
+                        "unknown_build_mode_todo": "TODO: - Determine Go build type (shared vs static)",
+                    },
+                },
+                {
+                    "id": "ESL-8",
+                    "messages": {
+                        "unknown_message": "Could not determine language (packaging-source failed)",
+                        "unknown_todo": "TODO: - Determine if this is a Rust package",
+                        "ok_rust_message": "Rust Package — Rust-specific constraints apply (see ESL-9/10)",
+                        "ok_not_rust_message": "not a rust package, no extra constraints to consider in that regard",
+                    },
+                },
+                {
+                    "id": "ESL-9",
+                    "messages": {
+                        "unknown_message": "Could not check debian/rules (packaging-source failed)",
+                        "unknown_todo": "TODO: - Verify Rust package uses dh_cargo",
+                        "ok_not_rust_message": "not a rust package, dh_cargo gate not applicable",
+                        "ok_message": "rust package using dh_cargo (dh ... --buildsystem cargo)",
+                        "not_ok_message": "Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules",
+                        "not_ok_todo": "TODO: - Rust packages must use dh_cargo (dh ... --buildsystem cargo)",
+                    },
+                },
+                {
+                    "id": "ESL-10",
+                    "messages": {
+                        "unknown_message": "Could not collect packaging source",
+                        "unknown_todo": "TODO: - Verify Rust vendored deps / Cargo.lock / Built-Using",
+                        "ok_not_rust_message": "not a rust package, ESL-10 constraints not applicable",
+                        "not_ok_message": "Rust package has issues: {problems}",
+                        "not_ok_todo": "TODO: - Fix Rust package issues: {problems}",
+                        "ok_message": "Rust package that has all dependencies vendored. It does neither have *Built-Using (after build). Nor does the build log indicate built-in sources missed as Built-Using.",
+                    },
+                },
             ]
         }
         self.evidence = {"adapters": {}}

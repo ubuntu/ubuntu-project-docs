@@ -491,28 +491,31 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-4")
 def _check_esl_4(ctx, finding: Finding) -> Finding:
     """ESL-4: Go language detection gate."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-4"), None)
+    if check is None:
+        raise ValueError("ESL-4 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not determine language (packaging-source failed)"
-        finding.todo = "TODO: - Determine if this is a Go package"
+        finding.message = render_check_message(check, "unknown_message")
+        finding.todo = render_check_message(check, "unknown_todo")
         return finding
 
     if _is_go_package(packaging):
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "Go Package — Debian Go packaging guidelines apply (see ESL-5/6/7)"
+        finding.message = render_check_message(check, "ok_go_message")
         # ESL-4 itself is just the gate; it's ok to confirm it's Go.
         # The actual compliance checks are ESL-5, ESL-6, ESL-7.
     else:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "not a go package, no extra constraints to consider in that regard"
+        finding.message = render_check_message(check, "ok_not_go_message")
     finding.evidence_refs = [
         "packaging-source:go_sum_present",
         "packaging-source:debian_rules",
@@ -523,21 +526,24 @@ def _check_esl_4(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-7")
 def _check_esl_7(ctx, finding: Finding) -> Finding:
     """ESL-7: Go build type (shared vs static)."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-7"), None)
+    if check is None:
+        raise ValueError("ESL-7 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not determine Go build type (packaging-source failed)"
-        finding.todo = "TODO: - Determine Go build type (shared vs static)"
+        finding.message = render_check_message(check, "unknown_message")
+        finding.todo = render_check_message(check, "unknown_todo")
         return finding
 
     if not _is_go_package(packaging):
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "not a go package, no extra constraints to consider in that regard"
+        finding.message = render_check_message(check, "ok_not_go_message")
         finding.evidence_refs = []
         return finding
 
@@ -547,23 +553,20 @@ def _check_esl_7(ctx, finding: Finding) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "golang: shared builds"
+        finding.message = render_check_message(check, "ok_shared_message")
     elif "DH_GOLANG_BUILDPKG" in debian_rules or "dh_golang" in debian_rules:
         # dh-golang without explicit shared mode defaults to static in modern versions.
         # This needs human confirmation.
         finding.status = "not-ok"
         finding.severity = "recommended"
         finding.confidence = "medium"
-        finding.message = "Go package uses dh-golang; build mode not confirmed as shared"
-        finding.todo = (
-            "TODO: - Confirm Go build mode — if static, team must confirm commitment to "
-            "additional maintenance responsibilities implied by static builds"
-        )
+        finding.message = render_check_message(check, "recommended_message")
+        finding.todo = render_check_message(check, "recommended_todo")
     else:
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Go package but build mode could not be determined from debian/rules"
-        finding.todo = "TODO: - Determine Go build type (shared vs static)"
+        finding.message = render_check_message(check, "unknown_build_mode_message")
+        finding.todo = render_check_message(check, "unknown_build_mode_todo")
     finding.evidence_refs = ["packaging-source:debian_rules"]
     return finding
 
@@ -571,26 +574,29 @@ def _check_esl_7(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-8")
 def _check_esl_8(ctx, finding: Finding) -> Finding:
     """ESL-8: Rust language detection gate."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-8"), None)
+    if check is None:
+        raise ValueError("ESL-8 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not determine language (packaging-source failed)"
-        finding.todo = "TODO: - Determine if this is a Rust package"
+        finding.message = render_check_message(check, "unknown_message")
+        finding.todo = render_check_message(check, "unknown_todo")
         return finding
 
     if _is_rust_package(packaging):
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "Rust Package — Rust-specific constraints apply (see ESL-9/10)"
+        finding.message = render_check_message(check, "ok_rust_message")
     else:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "not a rust package, no extra constraints to consider in that regard"
+        finding.message = render_check_message(check, "ok_not_rust_message")
     finding.evidence_refs = [
         "packaging-source:cargo_lock_present",
         "packaging-source:debian_rules",
@@ -601,14 +607,17 @@ def _check_esl_8(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-9")
 def _check_esl_9(ctx, finding: Finding) -> Finding:
     """ESL-9: Rust package uses dh_cargo."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-9"), None)
+    if check is None:
+        raise ValueError("ESL-9 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not check debian/rules (packaging-source failed)"
-        finding.todo = "TODO: - Verify Rust package uses dh_cargo"
+        finding.message = render_check_message(check, "unknown_message")
+        finding.todo = render_check_message(check, "unknown_todo")
         return finding
 
     if not _is_rust_package(packaging):
@@ -616,7 +625,7 @@ def _check_esl_9(ctx, finding: Finding) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "not a rust package, dh_cargo gate not applicable"
+        finding.message = render_check_message(check, "ok_not_rust_message")
         finding.evidence_refs = []
         return finding
 
@@ -626,15 +635,13 @@ def _check_esl_9(ctx, finding: Finding) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "rust package using dh_cargo (dh ... --buildsystem cargo)"
+        finding.message = render_check_message(check, "ok_message")
     else:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "high"
-        finding.message = (
-            "Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules"
-        )
-        finding.todo = "TODO: - Rust packages must use dh_cargo (dh ... --buildsystem cargo)"
+        finding.message = render_check_message(check, "not_ok_message")
+        finding.todo = render_check_message(check, "not_ok_todo")
     finding.evidence_refs = [
         "packaging-source:debian_rules",
         "packaging-source:cargo_lock_present",
@@ -645,21 +652,24 @@ def _check_esl_9(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-10")
 def _check_esl_10(ctx, finding: Finding) -> Finding:
     """ESL-10: Rust: vendored deps, no unexpected Built-Using, Cargo.lock present."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-10"), None)
+    if check is None:
+        raise ValueError("ESL-10 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not collect packaging source"
-        finding.todo = "TODO: - Verify Rust vendored deps / Cargo.lock / Built-Using"
+        finding.message = render_check_message(check, "unknown_message")
+        finding.todo = render_check_message(check, "unknown_todo")
         return finding
 
     if not _is_rust_package(packaging):
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "not a rust package, ESL-10 constraints not applicable"
+        finding.message = render_check_message(check, "ok_not_rust_message")
         finding.evidence_refs = []
         return finding
 
@@ -682,20 +692,17 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
         problems.append("Unexpected Built-Using entries: " + "; ".join(unexpected_bu))
 
     if problems:
+        problems_str = "; ".join(problems)
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "high"
-        finding.message = "Rust package has issues: " + "; ".join(problems)
-        finding.todo = "TODO: - Fix Rust package issues: " + "; ".join(problems)
+        finding.message = render_check_message(check, "not_ok_message", problems=problems_str)
+        finding.todo = render_check_message(check, "not_ok_todo", problems=problems_str)
     else:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = (
-            "Rust package that has all dependencies vendored. "
-            "It does neither have *Built-Using (after build). "
-            "Nor does the build log indicate built-in sources missed as Built-Using."
-        )
+        finding.message = render_check_message(check, "ok_message")
     finding.evidence_refs = [
         "packaging-source:cargo_lock_present",
         "packaging-source:debian_control",
