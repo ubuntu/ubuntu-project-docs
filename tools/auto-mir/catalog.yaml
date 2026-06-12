@@ -802,6 +802,10 @@ checks:
   ai_policy: none
   human_override: false
   blocker_class: hard
+  messages:
+    ok_message: 'Review for Source Package: {source_package}'
+    not_ok_message: Source package could not be determined
+    not_ok_todo: 'TODO: Clarify which source package this review is for'
   mapping_rules:
   - condition: target_source_package resolved unambiguously
     severity: ok
@@ -821,6 +825,10 @@ checks:
   ai_policy: none
   human_override: false
   blocker_class: hard
+  messages:
+    ok_message: Reporter MIR content found and used as context.
+    nack_message: Reporter MIR template content not found (hard stop)
+    nack_todo: 'TODO: - Reporter must post their completed MIR template'
   mapping_rules:
   - condition: reporter MIR template content detected in bug description or comments
     severity: ok
@@ -1443,6 +1451,11 @@ checks:
   human_override: false
   blocker_class: hard
   security_trigger: SEC-3-WEBKIT
+  messages:
+    ok_message: does not use webkit1,2
+    unknown_message: Could not analyse webkit dependencies
+    blocker_message: 'webkit1/2 dependency found — hard blocker'
+    blocker_todo: 'TODO: - webkit1/2 dependency must be removed before main inclusion'
   mapping_rules:
   - condition: webkit1 or webkit2 not in runtime deps
     severity: ok
@@ -1465,6 +1478,11 @@ checks:
   human_override: false
   blocker_class: hard
   security_trigger: SEC-4-V8
+  messages:
+    ok_message: does not use lib*v8 directly
+    unknown_message: Could not analyse v8 dependencies
+    blocker_message: 'lib*v8 dependency found — hard blocker'
+    blocker_todo: 'TODO: - direct lib*v8 dependency must be removed before main inclusion'
   mapping_rules:
   - condition: lib*v8 not in runtime deps
     severity: ok
@@ -1856,6 +1874,11 @@ checks:
   human_override: false
   blocker_class: hard
   security_trigger: null
+  messages:
+    ok_message: no new python2 dependency
+    unknown_message: Could not analyse Python2 dependencies
+    blocker_message: 'Python2 dependency found — hard blocker'
+    blocker_todo: 'TODO: - python2 dependency must be removed or ported before main inclusion'
   mapping_rules:
   - condition: no python2 or python- style deps detected
     severity: ok

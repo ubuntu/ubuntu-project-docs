@@ -50,6 +50,34 @@ def validate_catalog(catalog: dict) -> list[str]:
     # Check-level messages required for migrated checks.
     # Placeholder sets are strict minima for each template key.
     required_message_templates: dict[str, dict[str, set[str]]] = {
+        "SUM-1": {
+            "ok_message": {"source_package"},
+            "not_ok_message": set(),
+            "not_ok_todo": set(),
+        },
+        "SUM-2": {
+            "ok_message": set(),
+            "nack_message": set(),
+            "nack_todo": set(),
+        },
+        "SEC-3": {
+            "ok_message": set(),
+            "unknown_message": set(),
+            "blocker_message": set(),
+            "blocker_todo": set(),
+        },
+        "SEC-4": {
+            "ok_message": set(),
+            "unknown_message": set(),
+            "blocker_message": set(),
+            "blocker_todo": set(),
+        },
+        "CB-7": {
+            "ok_message": set(),
+            "unknown_message": set(),
+            "blocker_message": set(),
+            "blocker_todo": set(),
+        },
         "DEP-3": {
             "unknown_packaging_message": set(),
             "unknown_packaging_todo": set(),

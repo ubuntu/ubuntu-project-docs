@@ -20,36 +20,42 @@ log = logging.getLogger("auto_mir.checks.deterministic")
 @deterministic_check("SUM-1")
 def _check_sum_1(ctx, finding: Finding) -> Finding:
     """SUM-1: Source package identified."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "SUM-1"), None)
+    if check is None:
+        raise ValueError("SUM-1 check definition not found in catalog")
     if ctx.source_package:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = f"Review for Source Package: {ctx.source_package}"
+        finding.message = render_check_message(check, "ok_message", source_package=ctx.source_package)
         finding.evidence_refs = ["lp-bug-api:source_package"]
     else:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "high"
-        finding.message = "Source package could not be determined"
-        finding.todo = "TODO: Clarify which source package this review is for"
+        finding.message = render_check_message(check, "not_ok_message")
+        finding.todo = render_check_message(check, "not_ok_todo")
     return finding
 
 
 @deterministic_check("SUM-2")
 def _check_sum_2(ctx, finding: Finding) -> Finding:
     """SUM-2: Reporter MIR content present."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "SUM-2"), None)
+    if check is None:
+        raise ValueError("SUM-2 check definition not found in catalog")
     if ctx.reporter_mir_content:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "Reporter MIR content found and used as context."
+        finding.message = render_check_message(check, "ok_message")
         finding.evidence_refs = ["lp-bug-api:reporter_content"]
     else:
         finding.status = "not-ok"
         finding.severity = "nack"
         finding.confidence = "high"
-        finding.message = "Reporter MIR template content not found (hard stop)"
-        finding.todo = "TODO: - Reporter must post their completed MIR template"
+        finding.message = render_check_message(check, "nack_message")
+        finding.todo = render_check_message(check, "nack_todo")
     return finding
 
 
@@ -129,13 +135,16 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
 @deterministic_check("SEC-3")
 def _check_sec_3(ctx, finding: Finding) -> Finding:
     """SEC-3: Does not use webkit1/2."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "SEC-3"), None)
+    if check is None:
+        raise ValueError("SEC-3 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     dep_analysis = adapters.get("dep-analysis", {})
 
     if dep_analysis.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not analyse webkit dependencies"
+        finding.message = render_check_message(check, "unknown_message")
         return finding
 
     runtime_deps_text = " ".join(
@@ -145,14 +154,14 @@ def _check_sec_3(ctx, finding: Finding) -> Finding:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "high"
-        finding.message = "webkit1/2 dependency found — hard blocker"
-        finding.todo = "TODO: - webkit1/2 dependency must be removed before main inclusion"
+        finding.message = render_check_message(check, "blocker_message")
+        finding.todo = render_check_message(check, "blocker_todo")
         finding.evidence_refs = ["dep-analysis:runtime_deps"]
     else:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "does not use webkit1,2"
+        finding.message = render_check_message(check, "ok_message")
         finding.evidence_refs = ["dep-analysis:runtime_deps"]
     return finding
 
@@ -160,13 +169,16 @@ def _check_sec_3(ctx, finding: Finding) -> Finding:
 @deterministic_check("SEC-4")
 def _check_sec_4(ctx, finding: Finding) -> Finding:
     """SEC-4: Does not use lib*v8 directly."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "SEC-4"), None)
+    if check is None:
+        raise ValueError("SEC-4 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     dep_analysis = adapters.get("dep-analysis", {})
 
     if dep_analysis.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not analyse v8 dependencies"
+        finding.message = render_check_message(check, "unknown_message")
         return finding
 
     runtime_deps_text = " ".join(
@@ -176,14 +188,14 @@ def _check_sec_4(ctx, finding: Finding) -> Finding:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "high"
-        finding.message = "lib*v8 dependency found — hard blocker"
-        finding.todo = "TODO: - direct lib*v8 dependency must be removed before main inclusion"
+        finding.message = render_check_message(check, "blocker_message")
+        finding.todo = render_check_message(check, "blocker_todo")
         finding.evidence_refs = ["dep-analysis:runtime_deps"]
     else:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "does not use lib*v8 directly"
+        finding.message = render_check_message(check, "ok_message")
         finding.evidence_refs = ["dep-analysis:runtime_deps"]
     return finding
 
@@ -191,13 +203,16 @@ def _check_sec_4(ctx, finding: Finding) -> Finding:
 @deterministic_check("CB-7")
 def _check_cb_7(ctx, finding: Finding) -> Finding:
     """CB-7: No new Python 2 dependency."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "CB-7"), None)
+    if check is None:
+        raise ValueError("CB-7 check definition not found in catalog")
     adapters = ctx.evidence.get("adapters", {})
     dep_analysis = adapters.get("dep-analysis", {})
 
     if dep_analysis.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not analyse Python2 dependencies"
+        finding.message = render_check_message(check, "unknown_message")
         return finding
 
     runtime_deps_text = " ".join(
@@ -208,14 +223,14 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "high"
-        finding.message = "Python2 dependency found — hard blocker"
-        finding.todo = "TODO: - python2 dependency must be removed or ported before main inclusion"
+        finding.message = render_check_message(check, "blocker_message")
+        finding.todo = render_check_message(check, "blocker_todo")
         finding.evidence_refs = ["dep-analysis:runtime_deps"]
     else:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "no new python2 dependency"
+        finding.message = render_check_message(check, "ok_message")
         finding.evidence_refs = ["dep-analysis:runtime_deps"]
     return finding
 

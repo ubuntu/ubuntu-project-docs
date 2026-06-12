@@ -35,6 +35,49 @@ class _Ctx:
         self.catalog = {
             "checks": [
                 {
+                    "id": "SUM-1",
+                    "messages": {
+                        "ok_message": "Review for Source Package: {source_package}",
+                        "not_ok_message": "Source package could not be determined",
+                        "not_ok_todo": "TODO: Clarify which source package this review is for",
+                    },
+                },
+                {
+                    "id": "SUM-2",
+                    "messages": {
+                        "ok_message": "Reporter MIR content found and used as context.",
+                        "nack_message": "Reporter MIR template content not found (hard stop)",
+                        "nack_todo": "TODO: - Reporter must post their completed MIR template",
+                    },
+                },
+                {
+                    "id": "SEC-3",
+                    "messages": {
+                        "ok_message": "does not use webkit1,2",
+                        "unknown_message": "Could not analyse webkit dependencies",
+                        "blocker_message": "webkit1/2 dependency found — hard blocker",
+                        "blocker_todo": "TODO: - webkit1/2 dependency must be removed before main inclusion",
+                    },
+                },
+                {
+                    "id": "SEC-4",
+                    "messages": {
+                        "ok_message": "does not use lib*v8 directly",
+                        "unknown_message": "Could not analyse v8 dependencies",
+                        "blocker_message": "lib*v8 dependency found — hard blocker",
+                        "blocker_todo": "TODO: - direct lib*v8 dependency must be removed before main inclusion",
+                    },
+                },
+                {
+                    "id": "CB-7",
+                    "messages": {
+                        "ok_message": "no new python2 dependency",
+                        "unknown_message": "Could not analyse Python2 dependencies",
+                        "blocker_message": "Python2 dependency found — hard blocker",
+                        "blocker_todo": "TODO: - python2 dependency must be removed or ported before main inclusion",
+                    },
+                },
+                {
                     "id": "DEP-3",
                     "messages": {
                         "unknown_packaging_message": "Could not analyse binary packages",
