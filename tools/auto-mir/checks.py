@@ -47,6 +47,20 @@ def evaluate_checks(ctx) -> list[dict]:
             "blocker_class": check.get("blocker_class", "none"),
         }
 
+        # Apply language gate before routing to evaluator.
+        # If the gate says the language is absent, mark ok/not-applicable and skip.
+        gate = check.get("language_gate")
+        if gate and not _language_gate_active(gate, ctx):
+            finding["status"] = "ok"
+            finding["severity"] = "ok"
+            finding["confidence"] = "high"
+            finding["message"] = (
+                f"not a {gate} package, no extra constraints to consider in that regard"
+            )
+            finding["todo"] = ""
+            findings.append(finding)
+            continue
+
         # Route to appropriate evaluator
         if mode == "deterministic":
             finding = _eval_deterministic(check, ctx, finding)
@@ -69,6 +83,61 @@ def evaluate_checks(ctx) -> list[dict]:
         findings.append(finding)
 
     return findings
+
+
+# ---------------------------------------------------------------------------
+# Language-gate helpers
+# ---------------------------------------------------------------------------
+
+def _language_gate_active(gate: str, ctx) -> bool:
+    """Return True when the named language gate is active for this package.
+
+    The gate is resolved from evidence already collected by ESL-4 (Go gate)
+    and ESL-8 (Rust gate).  If evidence is unavailable we conservatively
+    return True (treat as potentially applicable) so the check is not silently
+    skipped when we cannot confirm the absence of the language.
+
+    Gates:
+      go     — active when go.sum present or dh-golang/golang in debian/rules
+      rust   — active when Cargo.lock present or dh_cargo/--buildsystem cargo in rules
+      python  — active when python3 or python in runtime deps
+    """
+    gate = gate.lower()
+    packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        # Cannot confirm absence; assume gate may be active.
+        return True
+
+    rules = packaging.get("debian_rules", "")
+    control = packaging.get("debian_control", "")
+
+    if gate == "go":
+        go_sum = packaging.get("go_sum_present", False)
+        is_go = (
+            go_sum
+            or "dh-golang" in rules
+            or "golang" in rules.lower()
+        )
+        return is_go
+
+    if gate == "rust":
+        cargo_lock = packaging.get("cargo_lock_present", False)
+        is_rust = (
+            cargo_lock
+            or "--buildsystem cargo" in rules
+            or "dh_cargo" in rules
+        )
+        return is_rust
+
+    if gate == "python":
+        dep_analysis = ctx.evidence.get("adapters", {}).get("dep-analysis", {})
+        all_deps = " ".join(dep_analysis.get("runtime_dep_packages", []))
+        return "python3" in all_deps.lower() or "python" in all_deps.lower()
+
+    # Unknown gate — assume active (fail-safe).
+    log.warning("Unknown language_gate '%s'; treating as active", gate)
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -808,14 +877,42 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
     return payload
 
 
-def _truncate_adapter_data(data: dict, max_str_len: int = 3000) -> dict:
-    """Return a copy of data with long string values truncated."""
+def _truncate_adapter_data(data: dict, max_str_len: int = 500) -> dict:
+    """Return a copy of data with large outputs trimmed for LLM token budget.
+
+    For known large fields (lintian_output, debian_*, build_log), only include
+    a brief summary or first few lines. For other large strings, truncate to 500 chars.
+    """
+    SUMMARY_FIELDS = {
+        "lintian_output",  # lintian full output
+        "debian_control",  # control file
+        "debian_rules",    # rules file
+        "debian_watch",
+        "debian_copyright",
+        "debian_tests_control",
+        "raw_output",      # component-mismatches raw output
+        "build_log",
+    }
+
     result = {}
     for k, v in data.items():
-        if isinstance(v, str) and len(v) > max_str_len:
-            result[k] = v[:max_str_len] + f"\n... [truncated, total {len(v)} chars]"
+        if k in SUMMARY_FIELDS and isinstance(v, str):
+            # For known large fields, just count lines/errors
+            if k == "lintian_output":
+                lines = v.splitlines()
+                errors = sum(1 for l in lines if l.startswith("E: "))
+                warnings = sum(1 for l in lines if l.startswith("W: "))
+                result[k] = f"[{len(lines)} lines, {errors} errors, {warnings} warnings]"
+            else:
+                # Just keep a 200-char preview
+                result[k] = v[:200] + ("..." if len(v) > 200 else "")
+        elif isinstance(v, str) and len(v) > max_str_len:
+            result[k] = v[:max_str_len] + f" ... [truncated, total {len(v)} chars]"
         elif isinstance(v, dict):
             result[k] = _truncate_adapter_data(v, max_str_len)
+        elif isinstance(v, list) and len(v) > 20:
+            # Truncate large lists to first 10 items + summary
+            result[k] = v[:10] + [{"...": f"plus {len(v) - 10} more items"}]
         else:
             result[k] = v
     return result

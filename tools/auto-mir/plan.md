@@ -133,6 +133,35 @@ Finding model per check result:
 | SEC-11-ATTESTATION | SEC-11 | secure boot/signature/TPM involvement | Deterministic/evidence | N/A | Mandatory security review path |
 | SEC-13-MITIGATION-GAPS | SEC-13 | Exposure-level mitigations absent | EV→AI synthesis | Required | Reviewer decides severity; can escalate |
 
+## Phase 7: Evidence Adapters Completion (April 2026)
+
+Implemented full set of evidence adapters:
+- **Host-side**: lp-bug-api (passthrough), lp-team-membership-api (passthrough), lp-package-api (LP API),
+  ubuntu-cve-tracker (OVAL JSON from security-metadata.canonical.com), autopkgtest-db (SQLite DB download + query)
+- **In-container**: sbuild (lintian source-mode), packaging-source (existing), dep-analysis (existing),
+  component-mismatches (existing)
+- **Language-gate awareness**: evaluate_checks() now honors language_gate field, short-circuits non-applicable
+  language checks to ok/not-applicable status without LLM calls.
+
+### Token Limit Fixes
+- Reduced evidence payload truncation from 3000 to 500 chars for general strings.
+- Large known fields (lintian_output, debian_*, raw_output) now produce summaries only
+  (error/warning counts, preview lines) instead of full content.
+- List truncation to 10 items + summary line.
+- Result: payload should fit well within gpt-4o-mini 8000 token limit.
+
+### CVE Tracker Improvements
+- Replaced flaky ubuntu.com API (returns 422 frequently) with direct OVAL JSON parsing.
+- Downloads XZ-compressed OVAL JSON from https://security-metadata.canonical.com/oval/com.ubuntu.{series}.pkg.json.xz
+- Extracts CVEs directly from JSON structure, mirrors ubuntu-pro-client approach.
+- Added retry-once on transient HTTP errors (429, 502, 503, 504).
+
+### Autopkgtest Improvements
+- Replaced web UI scraping with direct SQLite database download.
+- Downloads https://autopkgtest.ubuntu.com/static/autopkgtest.db
+- Queries results table directly for package/series/arch test results.
+- More reliable and faster than web scraping.
+
 ## Validation Basis
 
 - Primary corpus: `old-MIRs-as-input` — use recency subset (4 from 2026 + 8 from 2025).
