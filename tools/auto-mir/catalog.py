@@ -77,34 +77,6 @@ def validate_catalog(catalog: dict) -> list[str]:
             "ok_same_source_message": {"same_source"},
             "ok_message": set(),
         },
-        "SUM-3": {
-            "llm_unavailable_message": {"error"},
-        },
-        "SUM-5": {
-            "llm_unavailable_message": {"error"},
-        },
-        "SUM-6": {
-            "llm_unavailable_message": {"error"},
-        },
-        "RDO-1": {
-            "llm_unavailable_message": {"error"},
-        },
-        "RDO-2": {
-            "llm_unavailable_message": {"error"},
-        },
-        "RDO-3": {
-            "llm_unavailable_message": {"error"},
-        },
-        "DEP-2": {
-            "llm_unavailable_message": {"error"},
-        },
-        "DEP-4": {
-            "llm_unavailable_message": {"error"},
-        },
-        "CB-5": {
-            "human_only_message": set(),
-            "human_only_todo": {"title"},
-        },
         "SEC-3": {
             "ok_message": set(),
             "unknown_message": set(),
@@ -266,12 +238,23 @@ def validate_catalog(catalog: dict) -> list[str]:
 
             # Enforce strict templates/placeholders for migrated checks.
             check_id = str(check.get("id", ""))
-            if check_id in required_message_templates:
+            mode_required_templates: dict[str, set[str]] = {}
+            mode = check.get("mode")
+            if mode in {"ev_to_ai", "ai"}:
+                mode_required_templates["llm_unavailable_message"] = {"error"}
+            elif mode == "human_only":
+                mode_required_templates["human_only_message"] = set()
+                mode_required_templates["human_only_todo"] = {"title"}
+
+            required_templates = dict(required_message_templates.get(check_id, {}))
+            required_templates.update(mode_required_templates)
+
+            if required_templates:
                 messages = check.get("messages")
                 if not isinstance(messages, dict):
                     errors.append(f"Check {check_id}: missing required messages map")
                 else:
-                    for msg_key, required_fields in required_message_templates[check_id].items():
+                    for msg_key, required_fields in required_templates.items():
                         template = messages.get(msg_key)
                         if not isinstance(template, str):
                             errors.append(

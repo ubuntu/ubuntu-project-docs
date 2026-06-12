@@ -1285,6 +1285,9 @@ checks:
     '
   human_override: true
   blocker_class: soft
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: all three conditions met; vendoring absent or security-approved
     severity: ok
@@ -1313,6 +1316,9 @@ checks:
     '
   human_override: true
   blocker_class: none
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: ESL-6-A
     todo_ref: TODO-A
@@ -1456,6 +1462,9 @@ checks:
     '
   human_override: true
   blocker_class: soft
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: ESL-11-A
     todo_ref: TODO-A
@@ -1479,6 +1488,9 @@ checks:
     '
   human_override: true
   blocker_class: none
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   security_trigger: SEC-1-CVE-SYNTH
   mapping_rules:
   - condition: no CVEs or only old low-severity resolved CVEs
@@ -1584,6 +1596,9 @@ checks:
   ai_policy: "Check runtime deps for known parser libraries. Scan source for file format handling. Read package description, man pages, and docs \u2014 out of the description one can quickly derive where data comes from and whether it is untrusted. Surface evidence; AI judges; reviewer confirms.\n"
   human_override: true
   blocker_class: soft
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: does not parse untrusted data
     severity: ok
@@ -1610,6 +1625,9 @@ checks:
     '
   human_override: true
   blocker_class: soft
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: no external endpoint
     severity: ok
@@ -1637,6 +1655,9 @@ checks:
     '
   human_override: true
   blocker_class: soft
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: does not process arbitrary web content
     severity: ok
@@ -1679,6 +1700,9 @@ checks:
   ai_policy: Check for WebKit/JS engine deps and desktop file JS integration patterns.
   human_override: true
   blocker_class: soft
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: no JS integration
     severity: ok
@@ -1722,6 +1746,9 @@ checks:
   ai_policy: Check for tpm, secureboot, pkcs11, signature patterns in source and deps.
   human_override: false
   blocker_class: hard
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   security_trigger: SEC-11-ATTESTATION
   notes: 'No recommended-only middle state. Any involvement with secure boot, TPM, or signatures triggers mandatory security review path.
 
@@ -1748,6 +1775,9 @@ checks:
   ai_policy: "Check for crypto library deps (openssl, libgcrypt, libsodium, etc.) and source patterns. Distinguish: delegating to system libraries (low concern) vs implementing own crypto or handling keys/certs/signing (high concern \u2192 security review).\n"
   human_override: true
   blocker_class: soft
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: no crypto handling
     severity: ok
@@ -1773,6 +1803,9 @@ checks:
   human_override_flag: mitigation-proportionality
   security_trigger: SEC-13-MITIGATION-GAPS
   blocker_class: none
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: mitigations present and proportionate to exposure
     severity: ok
@@ -1825,6 +1858,9 @@ checks:
     '
   human_override: true
   blocker_class: hard
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: test suite present and wired to fail build
     severity: ok
@@ -1851,6 +1887,9 @@ checks:
     '
   human_override: true
   blocker_class: hard
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: non-trivial autopkgtest present and passing
     severity: ok
@@ -1880,6 +1919,9 @@ checks:
   human_override: true
   human_override_flag: hw-exhaustion-judgment
   blocker_class: none
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: CB-4-A
     todo_ref: TODO-A
@@ -1932,6 +1974,9 @@ checks:
 
     '
   blocker_class: none
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: consumers have non-trivial tests covering this lib's functionality
     severity: ok
@@ -2008,6 +2053,9 @@ checks:
     '
   human_override: true
   blocker_class: soft
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: not a Go package
     severity: ok
@@ -2035,6 +2083,9 @@ checks:
     '
   human_override: true
   blocker_class: none
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: PRF-1-A
     todo_ref: TODO-A
@@ -2125,6 +2176,9 @@ checks:
   ai_policy: "Assess upstream release cadence from release history and upstream tracker. Intentional stability (slow because nothing changes) is typically just an explanatory statement \u2014 still ok. Dead or abandoned trajectory may reach NACK-level concern. Output a characterisation; reviewer decides framing.\n"
   human_override: true
   blocker_class: none
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: active and regular upstream
     severity: ok
@@ -2150,6 +2204,9 @@ checks:
     '
   human_override: true
   blocker_class: none
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: tracks upstream; reasonable lag
     severity: ok
@@ -2200,6 +2257,9 @@ checks:
   human_override: true
   human_override_flag: motu-impact
   blocker_class: none
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: current maintainers are not MOTU-only, or MOTU maintainers consulted
     severity: ok
@@ -2246,6 +2306,9 @@ checks:
     '
   human_override: true
   blocker_class: none
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: uses dh cleanly with minimal overrides
     severity: ok
@@ -2316,6 +2379,9 @@ checks:
     '
   human_override: true
   blocker_class: soft
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: URF-2-A
     todo_ref: TODO-A
@@ -2416,6 +2482,9 @@ checks:
     '
   human_override: true
   blocker_class: soft
+
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: no crashers or security-relevant open bugs
     severity: ok
