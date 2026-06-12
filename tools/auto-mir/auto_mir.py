@@ -511,23 +511,45 @@ def _ask_requested_binaries(all_binaries: list[str]) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def teardown_container(ctx: RunContext, exit_code: int = 0) -> None:
+def teardown_container(ctx: RunContext, evidence_collection_result: int = 0) -> None:
     """Destroy or preserve LXD VM based on --keep-container setting and run outcome.
 
     Tri-state logic:
       - keep_container=True:  always preserve the container
       - keep_container=False: always destroy the container
-      - keep_container=None:  destroy on success (exit_code==0), preserve on failure
+      - keep_container=None:  destroy on success (evidence_collection_result==0), prompt on failure
     """
     if not ctx.vm_name:
         return
+
+    def _confirm_keep_failed_vm() -> bool:
+        """Ask whether to preserve a failed VM when keep behavior is unspecified."""
+        if not (sys.stdin.isatty() and sys.stdout.isatty()):
+            log.warning(
+                "Evidence collection failed and keep behavior is unspecified, "
+                "but no interactive terminal is available."
+                "Use --keep-container=false/true to always destroy/keep."
+            )
+            return False
+
+        print(
+            f"\nEvidence collection failed and VM {ctx.vm_name} could be preserved for debugging."
+        )
+        print("Warning: Keeping failed VMs can consume significant memory, clean them up via LXD.")
+        while True:
+            response = input("Keep VM for debugging? [y/n]: ").strip().lower()
+            if response in {"y", "yes"}:
+                return True
+            if response in {"n", "no"}:
+                return False
+            print("Please answer y or n.")
 
     if ctx.keep_container is True:
         should_keep = True
     elif ctx.keep_container is False:
         should_keep = False
     else:
-        should_keep = exit_code != 0
+        should_keep = _confirm_keep_failed_vm() if evidence_collection_result != 0 else False
 
     if should_keep:
         log.info(
