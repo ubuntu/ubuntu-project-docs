@@ -197,8 +197,12 @@ def _ask_yes_no(prompt: str, default_no: bool = True) -> bool:
     return raw in ("y", "yes")
 
 
-def _evaluate_mir_heuristics(ctx) -> None:
+def _evaluate_mir_heuristics(ctx, non_interactive: bool = False) -> None:
     """Warn and ask for confirmation when bug does not look like a MIR bug.
+
+    Args:
+        ctx: RunContext with bug data
+        non_interactive: If True, skip interactive prompts (auto-accept)
 
     Heuristics:
     - title should usually contain MIR (non-mandatory)
@@ -229,10 +233,14 @@ def _evaluate_mir_heuristics(ctx) -> None:
         "Bug %s does not have ubuntu-mir subscribed, which is mandatory for MIR bug workflow.",
         ctx.bug_id,
     )
-    proceed = _ask_yes_no(
-        "This bug does not look like a MIR bug. Continue anyway?",
-        default_no=True,
-    )
+    if non_interactive:
+        log.info("Non-interactive mode: auto-accepting MIR heuristics")
+        proceed = True
+    else:
+        proceed = _ask_yes_no(
+            "This bug does not look like a MIR bug. Continue anyway?",
+            default_no=True,
+        )
     if not proceed:
         log.error("Aborted by user because bug is not MIR-qualified.")
         sys.exit(1)
@@ -254,8 +262,12 @@ def _fetch_comments(bug) -> list[str]:
     return comments
 
 
-def run(ctx: "RunContext") -> None:
+def run(ctx: "RunContext", non_interactive: bool = False) -> None:
     """Main intake entry point. Populates ctx with bug data.
+
+    Args:
+        ctx: RunContext to populate with bug data
+        non_interactive: If True, skip interactive prompts (auto-accept)
 
     Raises SystemExit(1) with a clear message if:
     - Bug ID is not found or not accessible
@@ -329,7 +341,7 @@ def run(ctx: "RunContext") -> None:
         log.warning("Could not fetch bug subscribers: %s", exc)
         ctx.bug["subscribers"] = []
 
-    _evaluate_mir_heuristics(ctx)
+    _evaluate_mir_heuristics(ctx, non_interactive=non_interactive)
 
     # Warn if prior MIR review comments are detected (re-review scenario).
     # The prior content is NOT fed to the AI to avoid anchoring bias; the

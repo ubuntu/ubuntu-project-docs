@@ -178,6 +178,25 @@ def build_parser() -> argparse.ArgumentParser:
             "Evidence is saved to the output directory for inspection."
         ),
     )
+    p.add_argument(
+        "--save-test-artifacts",
+        dest="save_test_artifacts",
+        default=None,
+        metavar="DIR",
+        help=(
+            "Save test artifacts for deterministic regression testing. "
+            "Runs stages 1-3 + deterministic checks, saves to DIR/<bug_id>/. "
+            "Implies --debug-collect-only behavior (no LLM stages). "
+            "Does not require LLM tokens."
+        ),
+    )
+    p.add_argument(
+        "--non-interactive",
+        dest="non_interactive",
+        action="store_true",
+        default=False,
+        help="Skip interactive prompts (auto-accept). Use with --save-test-artifacts.",
+    )
     p.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
     return p
 
@@ -229,6 +248,8 @@ class RunContext:
         self.llm_model: str = args.llm_model
         self._llm_provider_flag: str | None = getattr(args, "llm_provider", None)
         self.collect_only: bool = args.collect_only
+        self.save_test_artifacts: str | None = args.save_test_artifacts
+        self.non_interactive: bool = args.non_interactive
         self.tool_root = Path(__file__).resolve().parent
         self.workspace_root = self.tool_root.parent.parent
         self.catalog_path = self.tool_root / "catalog.yaml"
@@ -283,7 +304,7 @@ class RunContext:
 # ---------------------------------------------------------------------------
 
 
-def stage_intake(ctx: RunContext) -> None:
+def stage_intake(ctx: RunContext, non_interactive: bool = False) -> None:
     """Stage 1: Launchpad API intake.
 
     - Fetch bug metadata, description, comments, and target source package.
@@ -292,7 +313,7 @@ def stage_intake(ctx: RunContext) -> None:
       via --series; defaults to devel when no single series can be inferred.
     """
     log.info("Stage 1: Launchpad intake for bug %s", ctx.bug_id)
-    lp_intake.run(ctx)
+    lp_intake.run(ctx, non_interactive=non_interactive)
     # lp_intake.run() populates ctx.bug, ctx.source_package, ctx.reporter_mir_content
     # and raises SystemExit(1) with a clear message if reporter content is missing.
 
@@ -498,10 +519,12 @@ def main() -> int:
 
     try:
         # Stage 0: Resolve provider auth and container token export values
-        stage_auth(ctx)
+        # Skip auth if saving test artifacts (no LLM needed)
+        if not ctx.save_test_artifacts:
+            stage_auth(ctx)
 
         # Stage 1: Launchpad intake (hard-fails if reporter MIR content missing)
-        stage_intake(ctx)
+        stage_intake(ctx, non_interactive=ctx.non_interactive)
 
         # Stage 2: Spawn LXD container
         stage_spawn_container(ctx)
@@ -509,8 +532,20 @@ def main() -> int:
         # Stage 3: Collect evidence in-container
         stage_collect_evidence(ctx)
 
-        # Save evidence checkpoint for audit/debugging
-        ctx.save_evidence()
+        # Save evidence checkpoint for audit/debugging (skip if saving test artifacts)
+        if not ctx.save_test_artifacts:
+            ctx.save_evidence()
+
+        # If saving test artifacts, run deterministic checks and save
+        if ctx.save_test_artifacts:
+            _save_test_artifacts(ctx)
+            _log_artifact_locations(ctx)
+            return 0
+
+        if ctx.collect_only:
+            log.info("--debug-collect-only: stopping after evidence collection")
+            _log_artifact_locations(ctx)
+            return 0
 
         if ctx.collect_only:
             log.info("--debug-collect-only: stopping after evidence collection")
@@ -538,6 +573,71 @@ def main() -> int:
         teardown_container(ctx)
 
     return 0
+
+
+def _save_test_artifacts(ctx: RunContext) -> None:
+    """Save test artifacts for deterministic regression testing.
+
+    Artifacts are saved to the directory specified by ctx.save_test_artifacts,
+    organized by bug_id. Includes context, evidence, and deterministic findings.
+    """
+    from dataclasses import asdict
+
+    artifact_dir = Path(ctx.save_test_artifacts) / ctx.bug_id
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+
+    context = {
+        "bug_id": ctx.bug_id,
+        "source_package": ctx.source_package,
+        "series": ctx.series,
+        "reporter_mir_content": ctx.reporter_mir_content,
+        "bug": ctx.bug,
+    }
+    with (artifact_dir / "context.json").open("w") as f:
+        json.dump(context, f, indent=2, default=str)
+
+    with (artifact_dir / "evidence.json").open("w") as f:
+        json.dump(ctx.evidence, f, indent=2, default=str)
+
+    if not ctx.catalog:
+        ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
+
+    deterministic_catalog = {
+        "checks": [c for c in ctx.catalog.get("checks", []) if c.get("mode") == "deterministic"]
+    }
+    ctx.catalog = deterministic_catalog
+
+    findings = checks.evaluate_checks(ctx)
+
+    findings_data = [asdict(f) for f in findings]
+    with (artifact_dir / "deterministic_findings.json").open("w") as f:
+        json.dump(findings_data, f, indent=2, default=str)
+
+    try:
+        git_head = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=False,
+        ).stdout.strip()
+    except Exception:
+        git_head = "unknown"
+
+    meta = {
+        "collected_at": datetime.now().isoformat(),
+        "git_head": git_head,
+        "tool_version": "0.1.0",
+        "bug_id": ctx.bug_id,
+        "source_package": ctx.source_package,
+    }
+    with (artifact_dir / "meta.json").open("w") as f:
+        json.dump(meta, f, indent=2)
+
+    log.info("Test artifacts saved to: %s", artifact_dir)
+    log.info("  - context.json")
+    log.info("  - evidence.json")
+    log.info("  - deterministic_findings.json")
+    log.info("  - meta.json")
 
 
 def _log_artifact_locations(ctx: RunContext) -> None:
