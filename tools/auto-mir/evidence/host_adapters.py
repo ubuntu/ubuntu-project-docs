@@ -316,25 +316,26 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
         raise AdapterError(f"autopkgtest DB download failed: {exc}") from exc
 
     try:
-        # Query the database
         conn = sqlite3.connect(tmp_path)
         cursor = conn.cursor()
 
-        # Get latest test results for this package and series
-        # The results table typically has: id, package, version, arch, series, status, date, url
+        # Query test results by joining test and result tables
+        # test table: (id, release, arch, package)
+        # result table: (test_id, run_id, version, triggers, duration, exitcode, requester, env)
         cursor.execute(
             """
-            SELECT arch, status, version, date FROM results
-            WHERE package = ? AND series = ?
-            ORDER BY date DESC
+            SELECT t.arch, r.exitcode, r.version, r.run_id
+            FROM test t
+            JOIN result r ON t.id = r.test_id
+            WHERE t.package = ? AND t.release = ?
+            ORDER BY r.run_id DESC
             LIMIT 100
-        """,
+            """,
             (pkg, series),
         )
         rows = cursor.fetchall()
         conn.close()
     except sqlite3.DatabaseError as exc:
-        # DB may not have the expected schema; fall back to just reporting the attempt
         log.warning("autopkgtest DB query failed: %s", exc)
         return {
             "status": "ok",
@@ -351,18 +352,20 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
 
     # Summarize by architecture, keeping only the latest per arch
     arch_latest: dict[str, dict[str, Any]] = {}
-    for arch, status, version, date in rows:
+    for arch, exitcode, version, run_id in rows:
         if arch not in arch_latest:
+            # Convert exitcode to status: 0 = pass, non-zero = fail
+            status = "pass" if exitcode == 0 else "fail"
             arch_latest[arch] = {
                 "arch": arch,
                 "version": version,
                 "status": status,
-                "date": date,
+                "run_id": run_id,
             }
 
     # Categorize arches by status
-    passing = [a for a, info in arch_latest.items() if info["status"] in ("pass", "neutral")]
-    failing = [a for a, info in arch_latest.items() if info["status"] in ("fail", "regression")]
+    passing = [a for a, info in arch_latest.items() if info["status"] == "pass"]
+    failing = [a for a, info in arch_latest.items() if info["status"] == "fail"]
 
     log.debug(
         "autopkgtest for %s/%s: %d arches; passing %d, failing %d",
