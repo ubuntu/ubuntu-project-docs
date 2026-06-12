@@ -2,12 +2,14 @@
 
 import sys
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import checks.deterministic
 import checks.language_gates
 import checks.llm_eval
+import llm
 from models import Finding
 
 # ---------------------------------------------------------------------------
@@ -28,10 +30,13 @@ class _Ctx:
     """Minimal RunContext stub for check evaluator tests."""
 
     def __init__(self, *, source_package="testpkg", reporter_content="content"):
+        self.bug_id = "123456"
+        self.series = "devel"
         self.source_package = source_package
         self.reporter_mir_content = reporter_content
         self.requested_binaries = []
         self.bug = {"subscribers": []}
+        self.findings = []
         self.catalog = {
             "checks": [
                 {
@@ -757,6 +762,80 @@ def test_esl_3_toolchain_built_using():
     result = checks.deterministic._check_esl_3(ctx, finding)
     assert result.status == "ok"
     assert "toolchain" in result.message.lower()
+
+
+def test_select_ev_to_ai_model_tier_small_for_short_prompt_and_payload():
+    tier = checks.llm_eval._select_ev_to_ai_model_tier(
+        "short prompt",
+        {"adapter": "small"},
+    )
+    assert tier == "small"
+
+
+def test_select_ev_to_ai_model_tier_large_for_long_prompt():
+    prompt = "x" * (checks.llm_eval._PROMPT_LARGE_THRESHOLD_CHARS + 1)
+    tier = checks.llm_eval._select_ev_to_ai_model_tier(
+        prompt,
+        {"adapter": "small"},
+    )
+    assert tier == "large"
+
+
+def test_eval_ai_graceful_on_large_tier_llm_error():
+    ctx = _Ctx()
+    check = {
+        "id": "SUM-5",
+        "title": "Summary verdict",
+        "section": "Summary",
+        "todo_refs": [],
+    }
+    finding = _make_finding("SUM-5", mode="ai")
+
+    with mock.patch("llm.call_llm", side_effect=llm.LLMError("large model unavailable")):
+        result = checks.llm_eval._eval_ai(check, ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.confidence == "low"
+
+
+def test_eval_ev_to_ai_graceful_on_small_tier_llm_error():
+    ctx = _Ctx()
+    check = {
+        "id": "SEC-1",
+        "title": "Security synthesis",
+        "section": "Security",
+        "todo_refs": ["TODO: - Manual security review"],
+        "adapters_required": [],
+        "adapters_optional": [],
+    }
+    finding = _make_finding("SEC-1", mode="ev_to_ai")
+
+    with mock.patch("checks.llm_eval._select_ev_to_ai_model_tier", return_value="small"):
+        with mock.patch("llm.call_llm", side_effect=llm.LLMError("small model transient issue")):
+            result = checks.llm_eval._eval_ev_to_ai(check, ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.confidence == "low"
+
+
+def test_eval_ev_to_ai_graceful_on_large_tier_llm_error():
+    ctx = _Ctx()
+    check = {
+        "id": "SEC-1",
+        "title": "Security synthesis",
+        "section": "Security",
+        "todo_refs": ["TODO: - Manual security review"],
+        "adapters_required": [],
+        "adapters_optional": [],
+    }
+    finding = _make_finding("SEC-1", mode="ev_to_ai")
+
+    with mock.patch("checks.llm_eval._select_ev_to_ai_model_tier", return_value="large"):
+        with mock.patch("llm.call_llm", side_effect=llm.LLMError("large model unavailable")):
+            result = checks.llm_eval._eval_ev_to_ai(check, ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.confidence == "low"
 
 
 def test_esl_3_unexpected_built_using():

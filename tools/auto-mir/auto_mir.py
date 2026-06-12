@@ -174,12 +174,23 @@ def build_parser() -> argparse.ArgumentParser:
         help="Pin ubuntu-archive-tools to a specific git commit (default: latest HEAD)",
     )
     p.add_argument(
-        "--llm-model",
-        dest="llm_model",
-        default="gpt-4.1-mini",
+        "--llm-model-small",
+        dest="llm_model_small",
+        default=None,
         help=(
-            "Model name for the selected LLM provider. "
-            "Defaults: copilot → gpt-4.1-mini; openai-compatible → openai/gpt-4.1-mini."
+            "Model used for smaller/simpler LLM requests. "
+            "Provider defaults when omitted: copilot → gpt-4.1-mini; "
+            "openai-compatible → openai/gpt-4.1-mini."
+        ),
+    )
+    p.add_argument(
+        "--llm-model-large",
+        dest="llm_model_large",
+        default=None,
+        help=(
+            "Model used for larger/more complex LLM requests. "
+            "Provider defaults when omitted: copilot → gpt-5.1; "
+            "openai-compatible → openai/gpt-5.1."
         ),
     )
     p.add_argument(
@@ -218,7 +229,7 @@ class RunContext:
     -------------------
     Resolved in __init__ (from CLI args):
         bug_id, series, keep_container, pin_uat_tooling, lxd_image,
-        llm_model, _llm_provider_flag, collect_only, tool_root,
+        llm_model_small, llm_model_large, _llm_provider_flag, collect_only, tool_root,
         workspace_root, catalog_path, run_name, output_dir
 
     Populated by stage_auth (Stage 0 — auth setup):
@@ -250,7 +261,8 @@ class RunContext:
         self.keep_container: bool | None = args.keep_container
         self.pin_uat_tooling: str | None = args.pin_uat_tooling
         self.lxd_image: str | None = args.lxd_image
-        self.llm_model: str = args.llm_model
+        self.llm_model_small: str | None = args.llm_model_small
+        self.llm_model_large: str | None = args.llm_model_large
         self._llm_provider_flag: str | None = getattr(args, "llm_provider", None)
         self.collect_only: bool = args.collect_only
         self.lxd_options: str = args.lxd_options
@@ -623,8 +635,10 @@ def main() -> int:
         ctx.collect_only,
     )
     log.debug(
-        "LLM configuration for this run: provider=auto requested_model=%s",
-        ctx.llm_model or "(provider default)",
+        "LLM configuration for this run: provider=auto "
+        "requested_small_model=%s requested_large_model=%s",
+        ctx.llm_model_small or "(provider default)",
+        ctx.llm_model_large or "(provider default)",
     )
 
     exit_code = 0

@@ -17,6 +17,9 @@ from models import Finding
 
 log = logging.getLogger("auto_mir.checks.llm_eval")
 
+_PROMPT_LARGE_THRESHOLD_CHARS = 24000
+_EVIDENCE_LARGE_THRESHOLD_CHARS = 12000
+
 
 @evaluator("ev_to_ai")
 def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
@@ -32,8 +35,10 @@ def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
     policy_excerpt = _build_policy_excerpt(check, ctx)
     prompt = _render_ev_to_ai_prompt(check, evidence_payload, policy_excerpt, ctx)
 
+    model_tier = _select_ev_to_ai_model_tier(prompt, evidence_payload)
+
     try:
-        response = llm.call_llm(prompt, ctx)
+        response = llm.call_llm(prompt, ctx, model_tier=model_tier)
     except llm.LLMError as exc:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
         finding.status = "unknown"
@@ -74,7 +79,9 @@ def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
     prompt = _render_ev_to_ai_prompt(check, full_evidence, policy_excerpt, ctx)
 
     try:
-        response = llm.call_llm(prompt, ctx)
+        # Pure AI synthesis works over cross-check aggregate context and should
+        # always use the large model tier.
+        response = llm.call_llm(prompt, ctx, model_tier="large")
     except llm.LLMError as exc:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
         finding.status = "unknown"
@@ -149,6 +156,21 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
     payload["bug_tags"] = ctx.bug.get("tags", [])
 
     return payload
+
+
+def _select_ev_to_ai_model_tier(prompt: str, evidence_payload: dict) -> str:
+    """Select model tier for evidence-to-AI checks.
+
+    Use the small tier by default, and upgrade to large tier when the prompt or
+    serialized evidence payload exceeds conservative complexity thresholds.
+    """
+    prompt_len = len(prompt)
+    evidence_len = len(json.dumps(evidence_payload, default=str))
+    if prompt_len >= _PROMPT_LARGE_THRESHOLD_CHARS:
+        return "large"
+    if evidence_len >= _EVIDENCE_LARGE_THRESHOLD_CHARS:
+        return "large"
+    return "small"
 
 
 def _truncate_adapter_data(data: dict, max_str_len: int = 1000) -> dict:

@@ -44,6 +44,23 @@
 8. Validation against recent cases in `old-MIRs-as-input` (4 from 2026 + 8 from 2025).
 9. Final docs pass to put the user documentation into `tools/auto-mir/README.md`
 
+## LLM Model Tiering
+
+- The runtime now uses a dual-model configuration with separate small and large
+  model identifiers:
+  - `--llm-model-small` for smaller/simpler LLM requests
+  - `--llm-model-large` for larger/more complex LLM requests
+- Both flags are optional. Provider-specific defaults apply when omitted:
+  - copilot: `gpt-4.1-mini` (small), `gpt-5.1` (large)
+  - openai-compatible: `openai/gpt-4.1-mini` (small), `openai/gpt-5.1` (large)
+- The legacy single-model flag is removed to avoid precedence conflicts.
+- Evaluator routing behavior:
+  - `ai` checks use the large tier
+  - `ev_to_ai` checks select small vs large by prompt/evidence complexity heuristics
+- On LLM unavailability, both tiers degrade gracefully to low-confidence,
+  reviewer-actionable fallback findings using existing `llm_unavailable_message`
+  template semantics.
+
 ## Implementation-Ready Schema Direction
 
 Single file for MVP: `tools/auto-mir/catalog.yaml`.

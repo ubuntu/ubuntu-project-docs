@@ -9,14 +9,14 @@ Providers
 copilot
     GitHub Models endpoint (https://models.inference.ai.azure.com).
     Auth: COPILOT_GITHUB_TOKEN / GH_TOKEN / GITHUB_TOKEN, or ``gh auth token``.
-    Default model: gpt-4.1-mini
+    Default models: small=gpt-4.1-mini, large=gpt-5.1
 
 openai-compatible
     Any OpenAI-compatible endpoint, including OpenRouter.
     Auth: OPENAI_API_KEY.
     Base URL: OPENAI_API_BASE (default: https://api.openai.com/v1).
-    Default model: openai/gpt-4.1-mini (OpenRouter name; change via --llm-model
-    if pointing at a different base URL).
+    Default models: small=openai/gpt-4.1-mini, large=openai/gpt-5.1
+    (OpenRouter names; override via --llm-model-small / --llm-model-large).
 
 Provider selection priority
 ---------------------------
@@ -54,13 +54,15 @@ log = logging.getLogger("auto_mir.llm")
 
 # GitHub Copilot (GitHub Models) endpoint
 COPILOT_API_URL = "https://models.inference.ai.azure.com/chat/completions"
-DEFAULT_COPILOT_MODEL = "gpt-4.1-mini"
+DEFAULT_COPILOT_SMALL_MODEL = "gpt-4.1-mini"
+DEFAULT_COPILOT_LARGE_MODEL = "gpt-5.1"
 
 # OpenAI-compatible (OpenRouter and others) defaults.
 # OpenRouter requires the provider-namespaced model id; gpt-4.1-mini is
 # available there as "openai/gpt-4.1-mini" which mirrors the Copilot default.
 DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
-DEFAULT_OPENAI_COMPAT_MODEL = "openai/gpt-4.1-mini"
+DEFAULT_OPENAI_COMPAT_SMALL_MODEL = "openai/gpt-4.1-mini"
+DEFAULT_OPENAI_COMPAT_LARGE_MODEL = "openai/gpt-5.1"
 
 DEFAULT_TIMEOUT_SECONDS = 60
 
@@ -91,7 +93,7 @@ class _RateLimitState:
 _rate_limit_by_model: dict[str, _RateLimitState] = {}
 
 
-def call_llm(prompt: str, ctx) -> dict[str, Any]:
+def call_llm(prompt: str, ctx, model_tier: str = "small") -> dict[str, Any]:
     """Call the configured LLM provider and return the parsed JSON response.
 
     Args:
@@ -107,12 +109,12 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
         LLMError: on auth failure, HTTP error, or invalid JSON in response.
     """
     try:
-        response_dict = _call_openai_compatible(prompt, ctx)
+        response_dict = _call_openai_compatible(prompt, ctx, model_tier=model_tier)
     except urllib.error.HTTPError as exc:
         # Retries exhausted, convert to LLMError
         status = exc.code
         err_body = exc.read().decode(errors="replace")
-        model = _selected_model(ctx)
+        model = _selected_model(ctx, model_tier)
         provider = getattr(ctx, "llm_provider", "unknown")
         raise LLMError(
             f"LLM provider={provider} model={model} returned HTTP {status}: {err_body[:400]}"
@@ -122,7 +124,7 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
         raise LLMError(f"LLM provider={provider} network error: {exc}") from exc
 
     # Track LLM usage for cost/efficiency reporting
-    model = _selected_model(ctx)
+    model = _selected_model(ctx, model_tier)
     if not hasattr(ctx, "llm_calls_by_model"):
         ctx.llm_calls_by_model = {}
         ctx.llm_estimated_tokens = {}
@@ -140,7 +142,7 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
 
 
 @retry_rate_limited(max_attempts=4, base_delay=8.0, max_delay=60.0)
-def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
+def _call_openai_compatible(prompt: str, ctx, model_tier: str) -> dict[str, Any]:
     """Call an OpenAI-compatible chat-completions endpoint and return parsed JSON.
 
     Reads ctx.llm_api_url and ctx.llm_token, both populated by stage_auth.
@@ -161,7 +163,7 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
             "For openai-compatible: set OPENAI_API_KEY."
         )
 
-    model = _selected_model(ctx)
+    model = _selected_model(ctx, model_tier)
     limiter = _get_rate_limiter(model)
 
     payload = {
@@ -239,21 +241,34 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
         raise
 
 
-def _selected_model(ctx) -> str:
-    """Return the configured model name for this run.
+def _selected_model(ctx, model_tier: str = "small") -> str:
+    """Return the configured model name for the selected tier.
 
     Priority:
-    1) ctx.llm_model (from --llm-model)
-    2) provider default: gpt-4.1-mini (copilot) or openai/gpt-4.1-mini (openai-compatible)
+    1) Tier-specific CLI override (ctx.llm_model_small / ctx.llm_model_large)
+    2) Provider defaults:
+       - copilot: gpt-4.1-mini (small), gpt-5.1 (large)
+       - openai-compatible: openai/gpt-4.1-mini (small), openai/gpt-5.1 (large)
     """
-    explicit = (getattr(ctx, "llm_model", "") or "").strip()
-    if explicit:
-        return explicit
+    if model_tier not in {"small", "large"}:
+        raise LLMError(f"Invalid model tier: {model_tier}")
 
     provider = getattr(ctx, "llm_provider", "copilot")
+
+    if model_tier == "small":
+        explicit = (getattr(ctx, "llm_model_small", "") or "").strip()
+        if explicit:
+            return explicit
+        if provider == "openai-compatible":
+            return DEFAULT_OPENAI_COMPAT_SMALL_MODEL
+        return DEFAULT_COPILOT_SMALL_MODEL
+
+    explicit = (getattr(ctx, "llm_model_large", "") or "").strip()
+    if explicit:
+        return explicit
     if provider == "openai-compatible":
-        return DEFAULT_OPENAI_COMPAT_MODEL
-    return DEFAULT_COPILOT_MODEL
+        return DEFAULT_OPENAI_COMPAT_LARGE_MODEL
+    return DEFAULT_COPILOT_LARGE_MODEL
 
 
 def _get_rate_limiter(model: str) -> _RateLimitState:
