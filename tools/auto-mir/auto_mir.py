@@ -296,6 +296,15 @@ class RunContext:
             json.dump(self.evidence, f, indent=2, default=str)
         log.debug("Evidence saved to %s", evidence_path)
 
+        # If sbuild fails, users usually want to debug in a non json file
+        sbuild_result = self.evidence.get("adapters", {}).get("sbuild", {})
+        if not sbuild_result.get("build_success", True):
+            build_log = sbuild_result.get("build_log", "")
+            if build_log:
+                build_log_path = self.output_dir / "build_log.txt"
+                build_log_path.write_text(build_log)
+                log.debug("Build log written to %s", build_log_path)
+
 
 # ---------------------------------------------------------------------------
 # Pipeline stages (stubs)
