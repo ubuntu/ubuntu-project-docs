@@ -38,7 +38,9 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
+import subprocess
 import time
 import urllib.error
 import urllib.request
@@ -49,14 +51,18 @@ log = logging.getLogger("auto_mir.llm")
 
 
 # GitHub Copilot (GitHub Models) endpoint
-_COPILOT_API_URL = "https://models.inference.ai.azure.com/chat/completions"
-_DEFAULT_COPILOT_MODEL = "gpt-4.1-mini"
+COPILOT_API_URL = "https://models.inference.ai.azure.com/chat/completions"
+_COPILOT_API_URL = COPILOT_API_URL  # backward-compat alias
+DEFAULT_COPILOT_MODEL = "gpt-4.1-mini"
+_DEFAULT_COPILOT_MODEL = DEFAULT_COPILOT_MODEL  # backward-compat alias
 
 # OpenAI-compatible (OpenRouter and others) defaults.
 # OpenRouter requires the provider-namespaced model id; gpt-4.1-mini is
 # available there as "openai/gpt-4.1-mini" which mirrors the Copilot default.
-_DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
-_DEFAULT_OPENAI_COMPAT_MODEL = "openai/gpt-4.1-mini"
+DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
+_DEFAULT_OPENAI_BASE_URL = DEFAULT_OPENAI_BASE_URL  # backward-compat alias
+DEFAULT_OPENAI_COMPAT_MODEL = "openai/gpt-4.1-mini"
+_DEFAULT_OPENAI_COMPAT_MODEL = DEFAULT_OPENAI_COMPAT_MODEL  # backward-compat alias
 
 class LLMError(RuntimeError):
     """Raised when the LLM call cannot produce a usable response."""
@@ -391,3 +397,85 @@ def _parse_rate_limit_hint(body: str) -> tuple[int, int] | None:
     if limit <= 0 or window_s <= 0 or limit > 500 or window_s > 3600:
         return None
     return limit, window_s
+
+
+# ---------------------------------------------------------------------------
+# Auth resolution
+# ---------------------------------------------------------------------------
+
+
+def resolve_auth(
+    explicit_provider: str | None = None,
+) -> tuple[str, str | None, str, str]:
+    """Resolve LLM provider, token, source label, and API URL.
+
+    Returns:
+        (provider, token, source, api_url)
+
+        provider  — "copilot" | "openai-compatible"
+        token     — auth token string, or None if none found
+        source    — human-readable source label for logging
+        api_url   — full chat-completions endpoint URL
+
+    Priority order:
+    1. explicit_provider flag ("copilot" | "openai-compatible")
+    2. COPILOT_GITHUB_TOKEN / GH_TOKEN / GITHUB_TOKEN in env → copilot
+    3. OPENAI_API_KEY in env                                  → openai-compatible
+    4. ``gh auth token`` succeeds                             → copilot
+    5. Returns token=None — caller must handle the hard-fail
+    """
+
+    def _copilot_token_from_env() -> tuple[str | None, str]:
+        for name in ("COPILOT_GITHUB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"):
+            value = os.environ.get(name)
+            if value:
+                return value, f"host-env:{name}"
+        return None, ""
+
+    def _copilot_token_from_gh_cli() -> tuple[str | None, str]:
+        try:
+            status = subprocess.run(
+                ["gh", "auth", "status"], capture_output=True, text=True, check=False
+            )
+            if status.returncode != 0:
+                return None, ""
+            result = subprocess.run(
+                ["gh", "auth", "token"], capture_output=True, text=True, check=False
+            )
+            token = result.stdout.strip() if result.returncode == 0 else ""
+            return (token or None), ("gh-auth" if token else "")
+        except FileNotFoundError:
+            return None, ""
+
+    def _openai_token_from_env() -> tuple[str | None, str, str]:
+        key = os.environ.get("OPENAI_API_KEY")
+        if not key:
+            return None, "", ""
+        base = os.environ.get("OPENAI_API_BASE", DEFAULT_OPENAI_BASE_URL).rstrip("/")
+        api_url = f"{base}/chat/completions"
+        return key, "host-env:OPENAI_API_KEY", api_url
+
+    if explicit_provider == "copilot":
+        token, source = _copilot_token_from_env()
+        if not token:
+            token, source = _copilot_token_from_gh_cli()
+        return "copilot", token, source, COPILOT_API_URL
+
+    if explicit_provider == "openai-compatible":
+        token, source, api_url = _openai_token_from_env()
+        return "openai-compatible", token, source, api_url
+
+    # Auto-detect
+    token, source = _copilot_token_from_env()
+    if token:
+        return "copilot", token, source, COPILOT_API_URL
+
+    openai_token, openai_source, openai_url = _openai_token_from_env()
+    if openai_token:
+        return "openai-compatible", openai_token, openai_source, openai_url
+
+    token, source = _copilot_token_from_gh_cli()
+    if token:
+        return "copilot", token, source, COPILOT_API_URL
+
+    return "copilot", None, "", COPILOT_API_URL

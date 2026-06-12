@@ -678,11 +678,41 @@ def _collect_component_mismatches(ctx) -> dict[str, Any]:
         allow_fail=True,
     )
 
+    promotion_candidates = _parse_promotion_candidates(output)
+
     return {
         "status": "ok",
         "series": series,
         "raw_output": output,
+        "promotion_candidates": promotion_candidates,
     }
+
+
+def _parse_promotion_candidates(output: str) -> list[str]:
+    """Parse binary package names that need promotion from component-mismatches output.
+
+    The component-mismatches tool from ubuntu-archive-tools outputs lines such as:
+      binary-pkg-name (1.2.3) in universe but needed in main
+      binary-pkg-name (1.2.3) [arch1, arch2]
+    or a tabular format where binary package names appear at the start of lines.
+
+    This is a best-effort parser: it extracts tokens that look like Debian binary
+    package names (lowercase, digits, hyphens/dots/plus) at the start of non-empty
+    lines, excluding known header/summary lines.
+    """
+    candidates: list[str] = []
+    seen: set[str] = set()
+    for line in output.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or line.startswith("Seed:"):
+            continue
+        # Binary package name is the first whitespace-delimited token
+        token = line.split()[0].rstrip(":")
+        # Debian binary package name pattern: lowercase letters, digits, hyphens, dots, plus
+        if re.match(r"^[a-z0-9][a-z0-9.+\-]+$", token) and token not in seen:
+            seen.add(token)
+            candidates.append(token)
+    return sorted(candidates)
 
 
 def _capture(ctx, cmd: list[str], allow_fail: bool = False) -> str:

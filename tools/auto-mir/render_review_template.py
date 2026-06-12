@@ -1,9 +1,27 @@
 #!/usr/bin/env python3
 """Render the MIR reviewer template from catalog.yaml.
 
+This script regenerates the **human-readable MIR reviewer template**
+(``docs/MIR/mir-reviewers-template.md``) from the canonical source-of-truth
+stored in ``metadata.review_template_blueprint`` in ``catalog.yaml``.  It is a
+*documentation maintenance* tool, not part of the runtime auto-mir pipeline.
+
+Role vs. the ``render/`` package
+---------------------------------
+``render_review_template.py`` (this file)
+    Offline utility.  Reads ``catalog.yaml``, expands TODO references, and
+    emits a plain-text ``.include`` fragment for ``{literalinclude}`` in
+    the Sphinx docs.  Run manually when the reviewer template or catalog
+    TODO refs change.
+
+``render/__init__.py`` (the runtime renderer)
+    Called by the auto-mir pipeline (Stage 5).  Takes the findings produced
+    by check evaluation and renders a reviewer *draft* ready to post on the
+    Launchpad bug.  Does NOT use ``review_template_blueprint`` from the catalog.
+
 The canonical reviewer template source lives in
-`metadata.review_template_blueprint` and is rendered to an output file.
-TODO lines are emitted from check entries via `{check, todo_ref}` references.
+``metadata.review_template_blueprint`` and is rendered to an output file.
+TODO lines are emitted from check entries via ``{check, todo_ref}`` references.
 
 The output is the content inside the ``{code-block} text`` fence, stripping
 the fence markers, ``:linenos:`` and the surrounding preamble. The result is

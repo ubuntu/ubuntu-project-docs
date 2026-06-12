@@ -14,7 +14,6 @@ Run with --help for full option reference.
 import argparse
 import json
 import logging
-import os
 import subprocess
 import sys
 from datetime import datetime
@@ -22,6 +21,7 @@ from pathlib import Path
 
 import catalog
 import checks
+import llm
 import lp_intake
 import lxd_runner
 from evidence import collect_from_catalog
@@ -169,7 +169,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--debug-collect-only",
-        dest="dry_run",
+        dest="collect_only",
         action="store_true",
         default=False,
         help=(
@@ -188,9 +188,39 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 class RunContext:
-    """Holds all runtime parameters and accumulated evidence for one review run."""
+    """Holds all runtime parameters and accumulated evidence for one review run.
+
+    Attribute lifecycle
+    -------------------
+    Resolved in __init__ (from CLI args):
+        bug_id, series, keep_container, pin_uat_tooling, lxd_image,
+        llm_model, _llm_provider_flag, collect_only, tool_root,
+        workspace_root, catalog_path, run_name, output_dir
+
+    Populated by stage_auth (Stage 0 — auth setup):
+        llm_provider, llm_api_url, llm_token, auth_source, container_env
+
+    Populated by stage_intake / lp_intake.run() (Stage 1):
+        bug, source_package, reporter_mir_content, series (may be refined)
+
+    Populated by stage_spawn_container / lxd_runner.spawn() (Stage 2):
+        container_name, container_env (refined with run-time values)
+
+    Populated by stage_collect_evidence / evidence.collect_from_catalog() (Stage 3):
+        evidence (including evidence["adapters"], evidence["catalog_summary"], etc.)
+
+    Populated by stage_analyse / checks.evaluate_checks() (Stage 4):
+        findings
+
+    Populated by stage_render / render.write_outputs() (Stage 5):
+        report_path, review_draft_path
+
+    Updated incrementally by llm.call_llm() (during Stage 4):
+        llm_calls_by_model, llm_estimated_tokens
+    """
 
     def __init__(self, args: argparse.Namespace):
+        # --- From CLI args (immutable after __init__) ---
         self.bug_id: str = str(args.bug_id)
         self.series: str | None = args.series
         self.keep_container: bool = args.keep_container
@@ -198,7 +228,7 @@ class RunContext:
         self.lxd_image: str | None = args.lxd_image
         self.llm_model: str = args.llm_model
         self._llm_provider_flag: str | None = getattr(args, "llm_provider", None)
-        self.dry_run: bool = args.dry_run
+        self.collect_only: bool = args.collect_only
         self.tool_root = Path(__file__).resolve().parent
         self.workspace_root = self.tool_root.parent.parent
         self.catalog_path = self.tool_root / "catalog.yaml"
@@ -210,35 +240,33 @@ class RunContext:
         self.output_dir = Path("/tmp") / self.run_name
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Populated by lp_intake
+        # --- Populated by stage_auth (Stage 0) ---
+        self.llm_provider: str = ""
+        self.llm_api_url: str = ""
+        self.llm_token: str = ""
+        self.auth_source: str = ""
+        self.container_env: dict[str, str] = {}
+
+        # --- Populated by stage_intake / lp_intake.run() (Stage 1) ---
         self.bug: dict = {}
         self.source_package: str = ""
         self.reporter_mir_content: str = ""
 
-        # Populated by evidence collectors
+        # --- Populated by stage_spawn_container / lxd_runner.spawn() (Stage 2) ---
+        self.container_name: str = ""
+
+        # --- Populated by stage_collect_evidence / evidence.collect_from_catalog() (Stage 3) ---
+        self.catalog: dict = {}   # loaded in Stage 3 (or Stage 4 if Stage 3 skipped)
         self.evidence: dict = {}
 
-        # Populated by catalog loader
-        self.catalog: dict = {}
-
-        # Populated by analysis layer
+        # --- Populated by stage_analyse / checks.evaluate_checks() (Stage 4) ---
         self.findings: list[dict] = []
 
-        # Populated by renderer
+        # --- Populated by stage_render / render.write_outputs() (Stage 5) ---
         self.report_path: Path | None = None
         self.review_draft_path: Path | None = None
 
-        # Metadata recorded in report
-        self.container_name: str = ""
-        self.auth_source: str = ""
-        self.container_env: dict[str, str] = {}
-
-        # Populated by stage_auth — LLM provider config
-        self.llm_provider: str = ""
-        self.llm_api_url: str = ""
-        self.llm_token: str = ""
-
-        # LLM usage tracking for cost reporting
+        # --- Updated by llm.call_llm() during Stage 4 ---
         self.llm_calls_by_model: dict[str, int] = {}
         self.llm_estimated_tokens: dict[str, int] = {}
 
@@ -360,7 +388,7 @@ def stage_auth(ctx: RunContext) -> None:
     5. No token found                                          → hard-fail
     """
     explicit_provider = getattr(ctx, "_llm_provider_flag", None)
-    provider, token, source, api_url = _resolve_llm_auth(explicit_provider)
+    provider, token, source, api_url = llm.resolve_auth(explicit_provider)
 
     if not token:
         log.error(
@@ -395,73 +423,6 @@ def stage_auth(ctx: RunContext) -> None:
         "api_url": api_url,
     }
     log.info("LLM provider '%s' resolved from %s (url: %s)", provider, source, api_url)
-
-
-def _resolve_llm_auth(
-    explicit_provider: str | None,
-) -> tuple[str, str | None, str, str]:
-    """Return (provider, token, source, api_url).
-
-    Applies the documented priority order.  Returns token=None on failure.
-    """
-    import llm as _llm
-
-    # --- Copilot token sources ---
-    def _copilot_token_from_env() -> tuple[str | None, str]:
-        for name in ("COPILOT_GITHUB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"):
-            value = os.environ.get(name)
-            if value:
-                return value, f"host-env:{name}"
-        return None, ""
-
-    def _copilot_token_from_gh_cli() -> tuple[str | None, str]:
-        try:
-            status = subprocess.run(
-                ["gh", "auth", "status"], capture_output=True, text=True, check=False
-            )
-            if status.returncode != 0:
-                return None, ""
-            result = subprocess.run(
-                ["gh", "auth", "token"], capture_output=True, text=True, check=False
-            )
-            token = result.stdout.strip() if result.returncode == 0 else ""
-            return (token or None), ("gh-auth" if token else "")
-        except FileNotFoundError:
-            return None, ""
-
-    # --- OpenAI-compatible token sources ---
-    def _openai_token_from_env() -> tuple[str | None, str, str]:
-        key = os.environ.get("OPENAI_API_KEY")
-        if not key:
-            return None, "", ""
-        base = os.environ.get("OPENAI_API_BASE", _llm._DEFAULT_OPENAI_BASE_URL).rstrip("/")
-        api_url = f"{base}/chat/completions"
-        return key, "host-env:OPENAI_API_KEY", api_url
-
-    if explicit_provider == "copilot":
-        token, source = _copilot_token_from_env()
-        if not token:
-            token, source = _copilot_token_from_gh_cli()
-        return "copilot", token, source, _llm._COPILOT_API_URL
-
-    if explicit_provider == "openai-compatible":
-        token, source, api_url = _openai_token_from_env()
-        return "openai-compatible", token, source, api_url
-
-    # Auto-detect
-    token, source = _copilot_token_from_env()
-    if token:
-        return "copilot", token, source, _llm._COPILOT_API_URL
-
-    openai_token, openai_source, openai_url = _openai_token_from_env()
-    if openai_token:
-        return "openai-compatible", openai_token, openai_source, openai_url
-
-    token, source = _copilot_token_from_gh_cli()
-    if token:
-        return "copilot", token, source, _llm._COPILOT_API_URL
-
-    return "copilot", None, "", _llm._COPILOT_API_URL
 
 
 def _stub_stage(name: str, ctx: RunContext) -> None:
@@ -511,7 +472,7 @@ def main() -> int:
         "auto-mir starting: bug=%s keep_container=%s debug_collect_only=%s",
         ctx.bug_id,
         ctx.keep_container,
-        ctx.dry_run,
+        ctx.collect_only,
     )
     log.debug(
         "LLM configuration for this run: provider=auto requested_model=%s",
@@ -534,7 +495,7 @@ def main() -> int:
         # Save evidence checkpoint for audit/debugging
         ctx.save_evidence()
 
-        if ctx.dry_run:
+        if ctx.collect_only:
             log.info("--debug-collect-only: stopping after evidence collection")
             _log_artifact_locations(ctx)
             return 0
