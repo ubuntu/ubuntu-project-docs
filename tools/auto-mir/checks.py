@@ -58,6 +58,9 @@ def evaluate_checks(ctx) -> list[dict]:
             finding["status"] = "unknown"
             finding["message"] = f"Unknown mode: {mode}"
 
+        if finding["status"] != "ok" and not str(finding.get("todo") or "").startswith("TODO:"):
+            finding["todo"] = f"TODO: {finding['id']} {finding['title']}"
+
         findings.append(finding)
 
     return findings
@@ -87,6 +90,7 @@ def _eval_deterministic(check: dict, ctx, finding: dict) -> dict:
     else:
         finding["status"] = "unknown"
         finding["message"] = "Deterministic check evaluator not implemented"
+        finding["todo"] = f"TODO: {finding['id']} {finding['title']}"
         return finding
 
 

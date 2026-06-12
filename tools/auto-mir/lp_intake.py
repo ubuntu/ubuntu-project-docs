@@ -9,7 +9,6 @@ be detected in the bug, because the rest of the pipeline depends on it.
 """
 
 import logging
-import re
 import sys
 from typing import TYPE_CHECKING
 
@@ -108,22 +107,58 @@ def _extract_source_package_from_bug(bug, lp) -> str | None:
     return None
 
 
-def _extract_series_from_bug(bug) -> str | None:
-    """Try to detect the target Ubuntu series from bug task nominations."""
+def _ask_yes_no(prompt: str, default_no: bool = True) -> bool:
+    """Ask user for yes/no confirmation in terminal."""
+    suffix = "[y/N]" if default_no else "[Y/n]"
     try:
-        for task in bug.bug_tasks:
-            try:
-                target = task.target
-                # DistributionSourcePackage has distroseries
-                if hasattr(target, "distroseries"):
-                    series_name = target.distroseries.name
-                    log.debug("Series from bug task: %s", series_name)
-                    return series_name
-            except Exception:
-                continue
-    except Exception as exc:
-        log.debug("Could not detect series from bug: %s", exc)
-    return None
+        raw = input(f"{prompt} {suffix} ").strip().lower()
+    except EOFError:
+        return not default_no
+
+    if not raw:
+        return not default_no
+    return raw in ("y", "yes")
+
+
+def _evaluate_mir_heuristics(ctx) -> None:
+    """Warn and ask for confirmation when bug does not look like a MIR bug.
+
+    Heuristics:
+    - title should usually contain MIR (non-mandatory)
+    - ubuntu-mir team subscription is mandatory for MIR bug flow
+    """
+    title = ctx.bug.get("title", "")
+    subscribers = ctx.bug.get("subscribers", [])
+    subscribers_lower = {s.lower() for s in subscribers}
+
+    has_mir_in_title = "mir" in title.lower()
+    has_ubuntu_mir_subscription = "ubuntu-mir" in subscribers_lower
+
+    ctx.bug["mir_heuristics"] = {
+        "has_mir_in_title": has_mir_in_title,
+        "has_ubuntu_mir_subscription": has_ubuntu_mir_subscription,
+    }
+
+    if not has_mir_in_title:
+        log.warning(
+            "Bug title does not contain MIR (non-mandatory heuristic): %s",
+            title,
+        )
+
+    if has_ubuntu_mir_subscription:
+        return
+
+    log.warning(
+        "Bug %s does not have ubuntu-mir subscribed, which is mandatory for MIR bug workflow.",
+        ctx.bug_id,
+    )
+    proceed = _ask_yes_no(
+        "This bug does not look like a MIR bug. Continue anyway?",
+        default_no=True,
+    )
+    if not proceed:
+        log.error("Aborted by user because bug is not MIR-qualified.")
+        sys.exit(1)
 
 
 def _fetch_comments(bug) -> list[str]:
@@ -189,16 +224,24 @@ def run(ctx: "RunContext") -> None:
     ctx.source_package = source_package
     log.info("Source package: %s", ctx.source_package)
 
-    # Detect series if not provided
-    if not ctx.series:
-        ctx.series = _extract_series_from_bug(bug)
-        if ctx.series:
-            log.info("Detected target series: %s", ctx.series)
-        else:
-            log.warning(
-                "Could not auto-detect target series from bug. "
-                "Use --series to specify it explicitly."
-            )
+    # Series is host-selected (default devel), not auto-detected from bug.
+    log.info("Target series: %s", ctx.series)
+
+    # Fetch bug subscribers for MIR qualification heuristics and SUM-4 checks
+    subscribers = []
+    try:
+        for sub in bug.subscriptions:
+            try:
+                subscribers.append(sub.person.name)
+            except Exception:
+                pass
+        ctx.bug["subscribers"] = subscribers
+        log.debug("Subscribers: %s", subscribers)
+    except Exception as exc:
+        log.warning("Could not fetch bug subscribers: %s", exc)
+        ctx.bug["subscribers"] = []
+
+    _evaluate_mir_heuristics(ctx)
 
     # Gate: reporter MIR content must be present
     reporter_content = _find_reporter_mir_content(
@@ -223,20 +266,6 @@ def run(ctx: "RunContext") -> None:
 
     ctx.reporter_mir_content = reporter_content
     log.info("Reporter MIR content found (%d chars)", len(reporter_content))
-
-    # Fetch bug subscribers (for SUM-4 team subscriber check)
-    subscribers = []
-    try:
-        for sub in bug.subscriptions:
-            try:
-                subscribers.append(sub.person.name)
-            except Exception:
-                pass
-        ctx.bug["subscribers"] = subscribers
-        log.debug("Subscribers: %s", subscribers)
-    except Exception as exc:
-        log.warning("Could not fetch bug subscribers: %s", exc)
-        ctx.bug["subscribers"] = []
 
     log.info(
         "Launchpad intake complete: bug=%s package=%s series=%s",

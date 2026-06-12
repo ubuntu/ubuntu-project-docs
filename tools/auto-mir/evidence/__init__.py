@@ -34,6 +34,9 @@ def collect_from_catalog(ctx) -> None:
         "dep-analysis": _collect_dep_analysis,
         "component-mismatches": _collect_component_mismatches,
     }
+    adapter_deps = {
+        "dep-analysis": ["packaging-source"],
+    }
 
     checks = ctx.catalog.get("checks", [])
     required = set()
@@ -43,7 +46,9 @@ def collect_from_catalog(ctx) -> None:
 
     ctx.evidence.setdefault("adapters", {})
 
-    for adapter_id in sorted(required):
+    ordered_required = _order_adapters(required, adapter_deps)
+
+    for adapter_id in ordered_required:
         collector = supported.get(adapter_id)
         if collector is None:
             ctx.evidence["adapters"][adapter_id] = {
@@ -60,6 +65,29 @@ def collect_from_catalog(ctx) -> None:
                 "status": "error",
                 "message": str(exc),
             }
+
+
+def _order_adapters(required: set[str], adapter_deps: dict[str, list[str]]) -> list[str]:
+    """Return adapters in dependency-safe order with stable fallback."""
+    remaining = set(required)
+    ordered: list[str] = []
+
+    while remaining:
+        progressed = False
+        for adapter_id in sorted(remaining):
+            deps = adapter_deps.get(adapter_id, [])
+            if all(dep in ordered or dep not in required for dep in deps):
+                ordered.append(adapter_id)
+                remaining.remove(adapter_id)
+                progressed = True
+                break
+
+        if not progressed:
+            # Break cycles/fallback by appending sorted remainder.
+            ordered.extend(sorted(remaining))
+            break
+
+    return ordered
 
 
 def _collect_packaging_source(ctx) -> dict[str, Any]:

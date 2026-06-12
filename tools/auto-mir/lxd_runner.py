@@ -8,10 +8,12 @@ This is explicitly NOT meant to be run from inside an existing container.
 """
 
 import logging
+import re
 import shlex
 import subprocess
 import sys
 import time
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -77,10 +79,10 @@ def _lxc(*args, check: bool = True, capture: bool = False, **kwargs):
 
 def _container_name(bug_id: str) -> str:
     """Generate a deterministic, human-readable container name."""
-    # Format: auto-mir-<bugid>-<timestamp-seconds>
-    # Deterministic prefix allows easy identification; timestamp avoids collisions.
-    ts = str(int(time.time()))
-    return f"auto-mir-{bug_id}-{ts}"
+    # Format: auto-mir-bug<bugid>-<4-digit-suffix>
+    # The last 4 digits of the current timestamp avoid collisions within the same second.
+    ts = str(int(time.time()))[-4:]
+    return f"auto-mir-bug{bug_id}-{ts}"
 
 
 def _check_lxd_available() -> None:
@@ -178,6 +180,9 @@ def _wait_for_network(name: str, timeout: int = 60) -> None:
 def _provision(name: str, ctx: "RunContext") -> None:
     """Install required tools and bootstrap upstream tooling inside the container."""
 
+    # Ensure source repositories are enabled before any `apt-get source` usage.
+    _enable_source_repositories(name)
+
     # Update package lists
     exec_in(name, ["apt-get", "update", "-qq"])
 
@@ -189,8 +194,69 @@ def _provision(name: str, ctx: "RunContext") -> None:
         env={"DEBIAN_FRONTEND": "noninteractive"},
     )
 
+    # Export host-resolved auth into container env for future AI calls.
+    _export_container_env(name, getattr(ctx, "container_env", {}))
+
     # Bootstrap ubuntu-archive-tools (component-mismatches and prerequisites)
     _bootstrap_archive_tools(name, ctx.pin_uat_tooling)
+
+
+def _enable_source_repositories(name: str) -> None:
+    """Enable deb-src in both legacy .list and deb822 .sources formats.
+
+    Reads each apt sources file from the container, applies Python regex
+    substitutions to uncomment deb-src entries (legacy format) or expand
+    Types: deb to Types: deb deb-src (deb822 format), then writes it back.
+    """
+
+    def _patch_legacy(text: str) -> str:
+        """Uncomment '#deb-src' lines in a legacy .list file."""
+        return re.sub(r"^#\s*deb-src\s+", "deb-src ", text, flags=re.MULTILINE)
+
+    def _patch_deb822(text: str) -> str:
+        """Expand 'Types: deb' to 'Types: deb deb-src' in a deb822 .sources file."""
+        return re.sub(r"^(Types:\s*deb)\s*$", r"\1 deb-src", text, flags=re.MULTILINE)
+
+    def _patch_file(container_path: str, patcher) -> None:
+        """Pull a file from the container, patch it in Python, push it back."""
+        result = exec_in(name, ["cat", container_path], check=False, capture=True)
+        if result.returncode != 0:
+            return
+        patched = patcher(result.stdout)
+        if patched == result.stdout:
+            return
+        # Write patched content back via stdin
+        lxc_cmd = ["lxc", "exec", name, "--", "tee", container_path]
+        subprocess.run(lxc_cmd, input=patched, text=True, check=True, capture_output=True)
+
+    # Discover relevant files inside the container with a single listing.
+    result = exec_in(
+        name,
+        ["find", "/etc/apt", "-maxdepth", "2", "-name", "*.list", "-o", "-name", "*.sources"],
+        capture=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        log.warning("Could not list /etc/apt sources files; skipping deb-src enable")
+        return
+
+    for path in result.stdout.splitlines():
+        path = path.strip()
+        if not path:
+            continue
+        if path.endswith(".sources"):
+            _patch_file(path, _patch_deb822)
+        elif path.endswith(".list"):
+            _patch_file(path, _patch_legacy)
+
+
+def _export_container_env(name: str, env_map: dict[str, str]) -> None:
+    """Persist environment variables in container config without logging values."""
+    for key, value in env_map.items():
+        cmd = ["lxc", "config", "set", name, f"environment.{key}={value}"]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise subprocess.CalledProcessError(result.returncode, cmd)
 
 
 def _bootstrap_archive_tools(name: str, pin_commit: str | None) -> None:
@@ -339,10 +405,41 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
         check=False,
     ).stdout.strip()
 
+    auth_present = {
+        "COPILOT_GITHUB_TOKEN": bool(
+            exec_in(
+                ctx.container_name,
+                ["bash", "-lc", "test -n \"$COPILOT_GITHUB_TOKEN\""],
+                capture=True,
+                check=False,
+            ).returncode
+            == 0
+        ),
+        "GH_TOKEN": bool(
+            exec_in(
+                ctx.container_name,
+                ["bash", "-lc", "test -n \"$GH_TOKEN\""],
+                capture=True,
+                check=False,
+            ).returncode
+            == 0
+        ),
+        "GITHUB_TOKEN": bool(
+            exec_in(
+                ctx.container_name,
+                ["bash", "-lc", "test -n \"$GITHUB_TOKEN\""],
+                capture=True,
+                check=False,
+            ).returncode
+            == 0
+        ),
+    }
+
     return {
         "container_name": ctx.container_name,
         "image": getattr(ctx, "lxd_image", None),
         "os_release": os_release,
         "kernel": kernel,
         "apt_policy_excerpt": apt_policy,
+        "auth_env_present": auth_present,
     }

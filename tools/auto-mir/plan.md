@@ -137,6 +137,8 @@ Finding model per check result:
 - Verify template-conformant rendering (no RULE lines, unresolved work as TODO only).
 - Validate isolation path first via smoke run before adding larger check batches:
   `/usr/bin/python tools/auto-mir/integration_smoke.py`
+- Add real-bug integration run once check coverage stabilizes and LLM path is wired:
+  `./tools/auto-mir/auto_mir.py 2133757`
 
 ## Relevant Policy Files
 

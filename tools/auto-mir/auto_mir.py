@@ -5,13 +5,12 @@ Usage:
     auto_mir.py <launchpad-bug-id> [options]
 
 Options:
-    --series SERIES          Target Ubuntu series (default: detect from bug)
+    --series SERIES          Target Ubuntu series (default: devel)
     --lxd-image IMAGE        LXD image alias for isolated execution (default: Ubuntu devel)
-    --keep-container         Keep LXD container after run for debugging (default: yes during dev)
-    --no-keep-container      Destroy LXD container after run
+    --keep-container         Keep LXD container after run for debugging (default: off)
     --pin-uat-tooling COMMIT Pin ubuntu-archive-tools to specific commit for reproducible runs
-    --llm-provider PROVIDER  LLM provider to use (default: from environment/config)
-    --output-dir DIR         Directory to write report and review draft (default: ./mir-<bugid>)
+    --llm-provider PROVIDER  LLM provider to use (default: copilot)
+    --output-dir DIR         Directory to write report and review draft (default: /tmp/mir-<bugid>)
     --dry-run                Fetch and collect evidence only; skip AI synthesis and rendering
 
 Exits 0 on successful run (even if review has required findings).
@@ -22,6 +21,7 @@ import argparse
 import json
 import logging
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -47,7 +47,7 @@ def build_parser() -> argparse.ArgumentParser:
         epilog=__doc__,
     )
     p.add_argument("bug_id", help="Launchpad MIR bug ID")
-    p.add_argument("--series", default=None, help="Target Ubuntu series (auto-detected if omitted)")
+    p.add_argument("--series", default="devel", help="Target Ubuntu series (default: devel)")
     p.add_argument(
         "--lxd-image",
         default=None,
@@ -57,14 +57,8 @@ def build_parser() -> argparse.ArgumentParser:
         "--keep-container",
         dest="keep_container",
         action="store_true",
-        default=True,
-        help="Keep LXD container after run (default: on; useful for debugging)",
-    )
-    p.add_argument(
-        "--no-keep-container",
-        dest="keep_container",
-        action="store_false",
-        help="Destroy LXD container after run",
+        default=False,
+        help="Keep LXD container after run (default: off)",
     )
     p.add_argument(
         "--pin-uat-tooling",
@@ -74,13 +68,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--llm-provider",
-        default=os.environ.get("AUTO_MIR_LLM_PROVIDER", "openai"),
+        default=os.environ.get("AUTO_MIR_LLM_PROVIDER", "copilot"),
         help="LLM provider adapter to use",
     )
     p.add_argument(
         "--output-dir",
         default=None,
-        help="Output directory for report and review draft (default: ./mir-<bugid>)",
+        help="Output directory for report and review draft (default: /tmp/mir-<bugid>)",
     )
     p.add_argument(
         "--dry-run",
@@ -111,7 +105,7 @@ class RunContext:
         self.workspace_root = self.tool_root.parent.parent
         self.catalog_path = self.tool_root / "catalog.yaml"
 
-        output_root = args.output_dir or f"mir-{self.bug_id}"
+        output_root = args.output_dir or f"/tmp/mir-{self.bug_id}"
         self.output_dir = Path(output_root)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -136,6 +130,8 @@ class RunContext:
         # Metadata recorded in report
         self.policy_hashes: dict = {}
         self.container_name: str = ""
+        self.auth_source: str = ""
+        self.container_env: dict[str, str] = {}
 
     def save_evidence(self) -> None:
         """Persist accumulated evidence to output directory for debugging/audit."""
@@ -244,6 +240,72 @@ def stage_render(ctx: RunContext) -> None:
     write_outputs(ctx)
 
 
+def stage_auth(ctx: RunContext) -> None:
+    """Stage 0: Resolve authentication for copilot provider.
+
+    Priority:
+    1) Host env vars: COPILOT_GITHUB_TOKEN, GH_TOKEN, GITHUB_TOKEN
+    2) GitHub CLI login token: `gh auth token`
+    """
+    if ctx.llm_provider.lower() != "copilot":
+        return
+
+    token, source = _resolve_copilot_token()
+    if not token:
+        log.error(
+            "No GitHub authentication token found for copilot provider.\n"
+            "Provide one of: COPILOT_GITHUB_TOKEN, GH_TOKEN, GITHUB_TOKEN\n"
+            "or login with GitHub CLI so `gh auth status` succeeds."
+        )
+        raise SystemExit(1)
+
+    ctx.auth_source = source
+    ctx.container_env = {
+        "COPILOT_GITHUB_TOKEN": token,
+        "GH_TOKEN": token,
+        "GITHUB_TOKEN": token,
+    }
+    ctx.evidence["auth"] = {
+        "provider": ctx.llm_provider,
+        "source": source,
+    }
+    log.info("Copilot auth resolved from %s", source)
+
+
+def _resolve_copilot_token() -> tuple[str | None, str]:
+    for name in ("COPILOT_GITHUB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"):
+        value = os.environ.get(name)
+        if value:
+            return value, f"host-env:{name}"
+
+    try:
+        gh_status = subprocess.run(
+            ["gh", "auth", "status"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return None, ""
+    if gh_status.returncode != 0:
+        return None, ""
+
+    gh_token = subprocess.run(
+        ["gh", "auth", "token"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if gh_token.returncode != 0:
+        return None, ""
+
+    token = gh_token.stdout.strip()
+    if not token:
+        return None, ""
+
+    return token, "gh-auth"
+
+
 def _stub_stage(name: str, ctx: RunContext) -> None:
     """Placeholder for unimplemented pipeline stages."""
     log.warning("Stage '%s' is not yet implemented (stub)", name)
@@ -292,6 +354,9 @@ def main() -> int:
     )
 
     try:
+        # Stage 0: Resolve provider auth and container token export values
+        stage_auth(ctx)
+
         # Stage 1: Launchpad intake (hard-fails if reporter MIR content missing)
         stage_intake(ctx)
 
@@ -306,6 +371,7 @@ def main() -> int:
 
         if ctx.dry_run:
             log.info("--dry-run: stopping after evidence collection")
+            _log_artifact_locations(ctx)
             return 0
 
         # Stage 4: Analyse against catalog checks
@@ -316,17 +382,34 @@ def main() -> int:
 
         log.info("Review draft written to: %s", ctx.review_draft_path)
         log.info("Structured report written to: %s", ctx.report_path)
+        _log_artifact_locations(ctx)
 
     except SystemExit as exc:
         # Hard-stop conditions (e.g. missing reporter content) raise SystemExit
         raise
     except Exception as exc:
         log.error("Unexpected error: %s", exc, exc_info=args.verbose)
+        _log_artifact_locations(ctx)
         return 1
     finally:
         teardown_container(ctx)
 
     return 0
+
+
+def _log_artifact_locations(ctx: RunContext) -> None:
+    """Print concise artifact paths so users can continue after noisy output."""
+    log.info("Artifacts directory: %s", ctx.output_dir)
+
+    evidence_path = ctx.output_dir / "evidence.json"
+    if evidence_path.exists():
+        log.info("Evidence file: %s", evidence_path)
+
+    if ctx.report_path:
+        log.info("Structured report: %s", ctx.report_path)
+
+    if ctx.review_draft_path:
+        log.info("Review draft: %s", ctx.review_draft_path)
 
 
 if __name__ == "__main__":
