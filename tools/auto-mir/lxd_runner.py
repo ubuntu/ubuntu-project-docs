@@ -95,7 +95,16 @@ def _check_lxd_available() -> None:
     if result.returncode != 0:
         log.error("LXD is installed but not responding. Try: lxd init --auto")
         sys.exit(1)
-    log.debug("LXD version: %s", result.stdout.strip())
+    client_version = next(
+        (line.split(": ", 1)[1] for line in result.stdout.splitlines() if line.startswith("Client version")),
+        "unknown",
+    )
+    server_version = next(
+        (line.split(": ", 1)[1] for line in result.stdout.splitlines() if line.startswith("Server version")),
+        "unknown",
+    )
+    log.debug("LXD client version: %s", client_version)
+    log.debug("LXD server version: %s", server_version)
 
 
 def spawn(ctx: "RunContext") -> None:
