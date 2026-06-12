@@ -16,6 +16,7 @@ import logging
 import sys
 
 import lxd_runner
+from utils.cli import parse_bool_arg
 
 
 class SmokeContext:
@@ -26,14 +27,6 @@ class SmokeContext:
         self.keep_container = keep_container
         self.lxd_options = "--vm -c limits.cpu=4 -c limits.memory=8GiB"
         self.vm_name = ""
-
-
-def _parse_bool_arg(value: str) -> bool:
-    if value.lower() in ("true", "yes", "1"):
-        return True
-    if value.lower() in ("false", "no", "0"):
-        return False
-    raise argparse.ArgumentTypeError(f"Expected true or false, got: {value!r}")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -49,7 +42,7 @@ def build_parser() -> argparse.ArgumentParser:
         nargs="?",
         const=True,
         default=None,
-        type=_parse_bool_arg,
+        type=parse_bool_arg,
         metavar="true|false",
         help=(
             "Control smoke-test container cleanup (tri-state). "

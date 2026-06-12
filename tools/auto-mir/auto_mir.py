@@ -27,6 +27,7 @@ import lp_intake
 import lxd_runner
 from evidence import collect_from_catalog
 from render import write_outputs
+from utils.cli import parse_bool_arg
 
 log = logging.getLogger("auto_mir")
 
@@ -101,15 +102,6 @@ def _resolve_run_name(bug_id: str, user_name: str | None) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _parse_bool_arg(value: str) -> bool:
-    """Parse a boolean CLI argument (true/false)."""
-    if value.lower() in ("true", "yes", "1"):
-        return True
-    if value.lower() in ("false", "no", "0"):
-        return False
-    raise argparse.ArgumentTypeError(f"Expected true or false, got: {value!r}")
-
-
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         description="AI-assisted MIR reviewer assistant",
@@ -165,7 +157,7 @@ def build_parser() -> argparse.ArgumentParser:
         nargs="?",
         const=True,
         default=None,
-        type=_parse_bool_arg,
+        type=parse_bool_arg,
         metavar="true|false",
         help=(
             "Control LXD container cleanup (tri-state). "
