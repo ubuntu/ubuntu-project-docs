@@ -47,6 +47,8 @@ import urllib.request
 from dataclasses import dataclass
 from typing import Any
 
+from utils.retry import retry_rate_limited, extract_retry_after
+
 log = logging.getLogger("auto_mir.llm")
 
 
@@ -66,17 +68,13 @@ _DEFAULT_OPENAI_COMPAT_MODEL = DEFAULT_OPENAI_COMPAT_MODEL  # backward-compat al
 
 class LLMError(RuntimeError):
     """Raised when the LLM call cannot produce a usable response."""
+
 # Hard cap on response tokens — JSON responses for MIR checks are compact.
 _MAX_TOKENS = 1024
-# Retry attempts on transient HTTP errors (429, 5xx).
-_MAX_RETRIES = 4
-# Base delay between retries; actual delay is taken from 429 body when available.
-_RETRY_DELAY_S = 8
 # Conservative defaults until we learn real values from API responses.
 _DEFAULT_LIMIT_PER_WINDOW = 10
 _DEFAULT_WINDOW_SECONDS = 60
 _RATE_SAFETY_FACTOR = 1.10
-_WAIT_BUFFER_SECONDS = 2
 
 
 @dataclass
@@ -108,7 +106,20 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
     Raises:
         LLMError: on auth failure, HTTP error, or invalid JSON in response.
     """
-    response_dict = _call_openai_compatible(prompt, ctx)
+    try:
+        response_dict = _call_openai_compatible(prompt, ctx)
+    except urllib.error.HTTPError as exc:
+        # Retries exhausted, convert to LLMError
+        status = exc.code
+        err_body = exc.read().decode(errors="replace")
+        model = _selected_model(ctx)
+        provider = getattr(ctx, "llm_provider", "unknown")
+        raise LLMError(
+            f"LLM provider={provider} model={model} returned HTTP {status}: {err_body[:400]}"
+        ) from exc
+    except urllib.error.URLError as exc:
+        provider = getattr(ctx, "llm_provider", "unknown")
+        raise LLMError(f"LLM provider={provider} network error: {exc}") from exc
 
     # Track LLM usage for cost/efficiency reporting
     model = _selected_model(ctx)
@@ -128,10 +139,15 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
+@retry_rate_limited(max_attempts=4, base_delay=8.0, max_delay=60.0)
 def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
     """Call an OpenAI-compatible chat-completions endpoint and return parsed JSON.
 
     Reads ctx.llm_api_url and ctx.llm_token, both populated by stage_auth.
+    
+    Raises:
+        LLMError: On non-retryable errors (auth failure, non-5xx HTTP errors)
+        urllib.error.HTTPError: On retryable HTTP errors (429, 5xx) - will trigger retry
     """
     token = getattr(ctx, "llm_token", "") or ""
     api_url = getattr(ctx, "llm_api_url", "") or _COPILOT_API_URL
@@ -175,73 +191,52 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
         "Accept": "application/json",
     }
 
-    last_err: Exception | None = None
-
-    for attempt in range(1, _MAX_RETRIES + 1):
-        _wait_for_slot(limiter)
-        req = urllib.request.Request(
-            api_url,
-            data=body,
-            headers=headers,
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                raw = resp.read().decode()
-                _learn_from_headers(limiter, resp.headers)
-                limiter.next_allowed_at = max(
-                    limiter.next_allowed_at,
-                    time.time() + limiter.min_interval_s,
-                )
-            return _extract_json(raw)
-        except urllib.error.HTTPError as exc:
-            status = exc.code
-            err_body = exc.read().decode(errors="replace")
-            log.debug("LLM HTTP %d on attempt %d: %s", status, attempt, err_body[:200])
-            _learn_from_headers(limiter, exc.headers)
-
-            if status in (429, 500, 502, 503, 504) and attempt < _MAX_RETRIES:
-                if status == 429:
-                    learned = _parse_rate_limit_hint(err_body)
-                    if learned:
-                        limiter.limit, limiter.window_s = learned
-                        limiter.min_interval_s = (
-                            limiter.window_s / limiter.limit
-                        ) * _RATE_SAFETY_FACTOR
-                        log.info(
-                            "Learned rate limit for model %s: %d per %ds (min interval %.2fs)",
-                            model,
-                            limiter.limit,
-                            limiter.window_s,
-                            limiter.min_interval_s,
-                        )
-
-                wait = _parse_retry_after(err_body, exc.headers) or _RETRY_DELAY_S
-                limiter.next_allowed_at = max(limiter.next_allowed_at, time.time() + wait)
-                log.warning(
-                    "LLM provider=%s model=%s returned %d (attempt %d/%d), retrying in %ds",
-                    provider,
+    _wait_for_slot(limiter)
+    req = urllib.request.Request(
+        api_url,
+        data=body,
+        headers=headers,
+        method="POST",
+    )
+    
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            raw = resp.read().decode()
+            _learn_from_headers(limiter, resp.headers)
+            limiter.next_allowed_at = max(
+                limiter.next_allowed_at,
+                time.time() + limiter.min_interval_s,
+            )
+        return _extract_json(raw)
+    except urllib.error.HTTPError as exc:
+        status = exc.code
+        err_body = exc.read().decode(errors="replace")
+        log.debug("LLM HTTP %d: %s", status, err_body[:200])
+        _learn_from_headers(limiter, exc.headers)
+        
+        # Update rate limiter based on 429 response
+        if status == 429:
+            learned = _parse_rate_limit_hint(err_body)
+            if learned:
+                limiter.limit, limiter.window_s = learned
+                limiter.min_interval_s = (
+                    limiter.window_s / limiter.limit
+                ) * _RATE_SAFETY_FACTOR
+                log.info(
+                    "Learned rate limit for model %s: %d per %ds (min interval %.2fs)",
                     model,
-                    status,
-                    attempt,
-                    _MAX_RETRIES,
-                    wait,
+                    limiter.limit,
+                    limiter.window_s,
+                    limiter.min_interval_s,
                 )
-                log.debug(
-                    "Rate-limit backoff sleep engaged for model %s: sleeping %.2fs",
-                    model,
-                    float(wait),
-                )
-                time.sleep(wait)
-                last_err = exc
-                continue
-            raise LLMError(
-                f"LLM provider={provider} model={model} returned HTTP {status}: {err_body[:400]}"
-            ) from exc
-        except urllib.error.URLError as exc:
-            raise LLMError(f"LLM provider={provider} network error: {exc}") from exc
-
-    raise LLMError(f"LLM provider={provider} failed after {_MAX_RETRIES} retries") from last_err
+            
+            # Extract Retry-After if present
+            retry_after = extract_retry_after(exc)
+            if retry_after:
+                limiter.next_allowed_at = max(limiter.next_allowed_at, time.time() + retry_after)
+        
+        # Re-raise for tenacity to handle (will retry on 429/5xx)
+        raise
 
 
 def _selected_model(ctx) -> str:
@@ -353,30 +348,6 @@ def _strip_fences(text: str) -> str:
     if match:
         return match.group(1).strip()
     return text
-
-
-def _parse_retry_after(body: str, headers=None) -> int | None:
-    """Parse retry delay from headers or body.
-
-    Preference order:
-    1) Retry-After header
-    2) Message text: "Please wait N seconds before retrying"
-    """
-    if headers:
-        try:
-            retry_after = headers.get("Retry-After") or headers.get("retry-after")
-        except Exception:
-            retry_after = None
-        if retry_after:
-            try:
-                return int(retry_after) + _WAIT_BUFFER_SECONDS
-            except ValueError:
-                pass
-
-    match = re.search(r"please wait (\d+) seconds", body, re.IGNORECASE)
-    if match:
-        return int(match.group(1)) + _WAIT_BUFFER_SECONDS
-    return None
 
 
 def _parse_rate_limit_hint(body: str) -> tuple[int, int] | None:

@@ -16,6 +16,8 @@ import sys
 import time
 from typing import TYPE_CHECKING
 
+from utils.retry import retry_container_command
+
 if TYPE_CHECKING:
     from auto_mir import RunContext
 
@@ -49,10 +51,6 @@ _REQUIRED_PACKAGES = [
 # Remote for ubuntu-archive-tools
 _ARCHIVE_TOOLS_REPO = "https://git.launchpad.net/ubuntu-archive-tools"
 _ARCHIVE_TOOLS_DIR = "/opt/ubuntu-archive-tools"
-
-# Retry policy for transient in-container network/server failures.
-_RETRY_ATTEMPTS = 4
-_RETRY_BASE_DELAY_S = 6
 
 
 def _run_host(cmd: list[str], check: bool = True, capture: bool = False, **kwargs):
@@ -386,6 +384,29 @@ def exec_in(
     return result
 
 
+@retry_container_command(max_attempts=4, base_delay=6.0, max_delay=60.0)
+def _exec_in_retry_internal(
+    name: str,
+    cmd: list[str],
+    *,
+    env: dict | None = None,
+    workdir: str | None = None,
+) -> subprocess.CompletedProcess:
+    """Internal function that executes with retry logic.
+    
+    This function is decorated with tenacity retry and will automatically
+    retry on transient failures (503 errors, DNS failures, connection timeouts).
+    """
+    return exec_in(
+        name,
+        cmd,
+        check=False,
+        capture=True,
+        env=env,
+        workdir=workdir,
+    )
+
+
 def exec_in_retry(
     name: str,
     cmd: list[str],
@@ -394,8 +415,6 @@ def exec_in_retry(
     capture: bool = False,
     env: dict | None = None,
     workdir: str | None = None,
-    attempts: int = _RETRY_ATTEMPTS,
-    base_delay_s: int = _RETRY_BASE_DELAY_S,
     operation: str = "command",
 ) -> subprocess.CompletedProcess:
     """Run an in-container command with retries on transient failures.
@@ -403,78 +422,67 @@ def exec_in_retry(
     Intended for network/server-sensitive steps (apt, git clone/fetch, source
     downloads). Retries are attempted only when stderr/stdout indicate transient
     infrastructure issues (503, temporary DNS/connection errors, timeouts).
+    
+    Args:
+        name: Container name
+        cmd: Command to execute
+        check: Raise exception on non-zero exit (after retries exhausted)
+        capture: Capture stdout/stderr
+        env: Environment variables
+        workdir: Working directory
+        operation: Operation name for logging
+    
+    Returns:
+        CompletedProcess result
+    
+    Raises:
+        RuntimeError: If command fails after all retries (when check=True)
     """
-    last: subprocess.CompletedProcess | None = None
-    for attempt in range(1, attempts + 1):
-        result = exec_in(
-            name,
-            cmd,
-            check=False,
-            capture=True,
-            env=env,
-            workdir=workdir,
+    result = _exec_in_retry_internal(name, cmd, env=env, workdir=workdir)
+    
+    if result.returncode != 0 and not check:
+        # Caller doesn't want exceptions, just return the result
+        return result
+    
+    if result.returncode != 0:
+        # Retries exhausted and check=True, raise error
+        text = f"{result.stdout or ''}\n{result.stderr or ''}".lower()
+        transient_markers = (
+            " 503",
+            "http 503",
+            "requested url returned error: 503",
+            "temporary failure resolving",
+            "could not resolve",
+            "failed to fetch",
+            "connection timed out",
+            "connection reset",
+            "tls handshake timeout",
+            "service unavailable",
+            "network is unreachable",
         )
-        last = result
-
-        if result.returncode == 0:
-            return result
-
-        text = f"{result.stdout or ''}\n{result.stderr or ''}"
-        transient = _looks_transient_failure(text)
-        if not transient or attempt == attempts:
-            if check:
-                hint = (
-                    "\nHard stop: command failed after retries due to non-transient error."
-                    if not transient
-                    else (
-                        "\nHard stop: transient upstream/server issue"
-                        " did not recover after retries."
-                    )
-                )
-                raise RuntimeError(
-                    f"{operation} failed (attempt {attempt}/{attempts}, exit {result.returncode})."
-                    f"\nCommand: {shlex.join(cmd)}"
-                    f"\nstdout:\n{(result.stdout or '').strip()}"
-                    f"\nstderr:\n{(result.stderr or '').strip()}"
-                    f"{hint}"
-                )
-            return result
-
-        delay = base_delay_s * attempt
-        log.warning(
-            "Transient failure during %s (attempt %d/%d, exit %d). Retrying in %ds",
-            operation,
-            attempt,
-            attempts,
-            result.returncode,
-            delay,
+        transient = any(marker in text for marker in transient_markers)
+        hint = (
+            "\nHard stop: command failed after retries due to non-transient error."
+            if not transient
+            else (
+                "\nHard stop: transient upstream/server issue"
+                " did not recover after retries."
+            )
         )
-        log.debug("Transient command output: %s", text.strip()[:400])
-        time.sleep(delay)
-
-    # Defensive fallback; loop always returns/raises before this.
-    if last is None:
-        raise RuntimeError(f"{operation} failed: no command execution result")
-    return last
-
-
-def _looks_transient_failure(text: str) -> bool:
-    """Return True for retryable network/server failures."""
-    hay = text.lower()
-    transient_markers = (
-        " 503",
-        "http 503",
-        "requested url returned error: 503",
-        "temporary failure resolving",
-        "could not resolve",
-        "failed to fetch",
-        "connection timed out",
-        "connection reset",
-        "tls handshake timeout",
-        "service unavailable",
-        "network is unreachable",
-    )
-    return any(marker in hay for marker in transient_markers)
+        raise RuntimeError(
+            f"{operation} failed (exit {result.returncode})."
+            f"\nCommand: {shlex.join(cmd)}"
+            f"\nstdout:\n{(result.stdout or '').strip()}"
+            f"\nstderr:\n{(result.stderr or '').strip()}"
+            f"{hint}"
+        )
+    
+    # Success - if capture was False, clear the output
+    if not capture:
+        result.stdout = None
+        result.stderr = None
+    
+    return result
 
 
 def push_file(name: str, local_path: str, container_path: str) -> None:
