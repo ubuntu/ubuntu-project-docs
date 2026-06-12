@@ -1,15 +1,13 @@
 """lxd_runner.py — LXD container lifecycle for auto-mir.
 
 The tool is host-orchestrated: this module creates a fresh LXD container
-from the latest Ubuntu LTS image, provisions required tools inside it,
-dispatches in-container commands, and handles cleanup.
+from Ubuntu devel images, provisions tooling in-container, dispatches
+commands there, and handles cleanup.
 
 This is explicitly NOT meant to be run from inside an existing container.
 """
 
-import json
 import logging
-import os
 import shlex
 import subprocess
 import sys
@@ -21,8 +19,12 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("auto_mir.lxd_runner")
 
-# Latest Ubuntu LTS alias — update as new LTS releases land.
-_UBUNTU_LTS_IMAGE = "ubuntu:24.04"
+# Preferred Ubuntu devel image aliases in priority order.
+_UBUNTU_DEVEL_IMAGES = [
+    "ubuntu-daily:devel",
+    "images:ubuntu/devel",
+    "ubuntu:devel",
+]
 
 # Packages required inside the container for the full pipeline.
 _REQUIRED_PACKAGES = [
@@ -101,7 +103,7 @@ def _check_lxd_available() -> None:
 
 
 def spawn(ctx: "RunContext") -> None:
-    """Create a new LXD container from the latest Ubuntu LTS and provision it.
+    """Create a new LXD container from Ubuntu devel and provision it.
 
     Populates ctx.container_name.
     """
@@ -109,9 +111,11 @@ def spawn(ctx: "RunContext") -> None:
 
     name = _container_name(ctx.bug_id)
     ctx.container_name = name
+    image = _resolve_image(ctx)
+    ctx.lxd_image = image
 
-    log.info("Creating LXD container %s from %s", name, _UBUNTU_LTS_IMAGE)
-    _lxc("launch", _UBUNTU_LTS_IMAGE, name)
+    log.info("Creating LXD container %s from %s", name, image)
+    _lxc("launch", image, name)
 
     # Wait for network to be available inside the container
     _wait_for_network(name)
@@ -120,6 +124,28 @@ def spawn(ctx: "RunContext") -> None:
     _provision(name, ctx)
 
     log.info("Container %s is ready", name)
+
+
+def _resolve_image(ctx: "RunContext") -> str:
+    """Resolve the image alias to use for this run.
+
+    If the user provided --lxd-image, use that as-is.
+    Otherwise probe common Ubuntu devel aliases and choose the first available.
+    """
+    explicit = getattr(ctx, "lxd_image", None)
+    if explicit:
+        return explicit
+
+    for alias in _UBUNTU_DEVEL_IMAGES:
+        result = _lxc("image", "info", alias, check=False, capture=True)
+        if result.returncode == 0:
+            return alias
+
+    log.error(
+        "Could not find an Ubuntu devel LXD image. Tried: %s",
+        ", ".join(_UBUNTU_DEVEL_IMAGES),
+    )
+    sys.exit(1)
 
 
 def _wait_for_network(name: str, timeout: int = 60) -> None:
@@ -159,7 +185,7 @@ def _provision(name: str, ctx: "RunContext") -> None:
     log.info("Installing required packages in container")
     exec_in(
         name,
-        ["apt-get", "install", "-y", "--no-install-recommends"] + _REQUIRED_PACKAGES,
+        ["apt-get", "install", "-qq", "-y", "--no-install-recommends"] + _REQUIRED_PACKAGES,
         env={"DEBIAN_FRONTEND": "noninteractive"},
     )
 
@@ -285,3 +311,38 @@ def destroy(ctx: "RunContext") -> None:
     else:
         log.info("Container %s destroyed", ctx.container_name)
         ctx.container_name = ""
+
+
+def collect_runtime_facts(ctx: "RunContext") -> dict:
+    """Collect core in-container facts proving isolated execution context."""
+    if not ctx.container_name:
+        return {}
+
+    os_release = exec_in(
+        ctx.container_name,
+        ["bash", "-lc", "cat /etc/os-release"],
+        capture=True,
+        check=False,
+    ).stdout.strip()
+
+    kernel = exec_in(
+        ctx.container_name,
+        ["uname", "-a"],
+        capture=True,
+        check=False,
+    ).stdout.strip()
+
+    apt_policy = exec_in(
+        ctx.container_name,
+        ["bash", "-lc", "apt-cache policy | sed -n '1,40p'"],
+        capture=True,
+        check=False,
+    ).stdout.strip()
+
+    return {
+        "container_name": ctx.container_name,
+        "image": getattr(ctx, "lxd_image", None),
+        "os_release": os_release,
+        "kernel": kernel,
+        "apt_policy_excerpt": apt_policy,
+    }

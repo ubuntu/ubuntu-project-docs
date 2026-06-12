@@ -6,6 +6,7 @@ Usage:
 
 Options:
     --series SERIES         Target Ubuntu series (default: detect from bug)
+    --lxd-image IMAGE       LXD image alias for isolated execution (default: Ubuntu devel)
     --keep-container        Keep LXD container after run for debugging (default: yes during dev)
     --no-keep-container     Destroy LXD container after run
     --pin-tooling COMMIT    Pin ubuntu-archive-tools to specific commit for reproducible runs
@@ -47,6 +48,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("bug_id", help="Launchpad MIR bug ID")
     p.add_argument("--series", default=None, help="Target Ubuntu series (auto-detected if omitted)")
+    p.add_argument(
+        "--lxd-image",
+        default=None,
+        help="LXD image alias to run checks in (default: first available Ubuntu devel alias)",
+    )
     p.add_argument(
         "--keep-container",
         dest="keep_container",
@@ -98,6 +104,7 @@ class RunContext:
         self.series: str | None = args.series
         self.keep_container: bool = args.keep_container
         self.pin_tooling: str | None = args.pin_tooling
+        self.lxd_image: str | None = args.lxd_image
         self.llm_provider: str = args.llm_provider
         self.dry_run: bool = args.dry_run
         self.tool_root = Path(__file__).resolve().parent
@@ -158,12 +165,13 @@ def stage_intake(ctx: RunContext) -> None:
 def stage_spawn_container(ctx: RunContext) -> None:
     """Stage 2: Spawn LXD container and provision tooling.
 
-    - Create new container from latest Ubuntu LTS.
+    - Create new container from Ubuntu devel image alias.
     - Install required tools inside container.
     - Bootstrap ubuntu-archive-tools at requested revision.
     """
     log.info("Stage 2: Spawning LXD container for %s", ctx.source_package)
     lxd_runner.spawn(ctx)
+    ctx.evidence["runtime_isolation"] = lxd_runner.collect_runtime_facts(ctx)
     # lxd_runner.spawn() populates ctx.container_name
 
 

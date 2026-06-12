@@ -6,8 +6,8 @@ needs to restart, load this file and continue from the decisions recorded here.
 ## Scope and Goal
 
 - Build a reviewer-first MIR assistant.
-- Host-orchestrated: tool runs outside, spawns a fresh LXD container from the latest Ubuntu
-  LTS, provisions tooling, executes the pipeline in-container.
+- Host-orchestrated: tool runs outside, spawns a fresh LXD container from Ubuntu devel
+  image aliases, provisions tooling, executes the pipeline in-container.
 - Input starts from a Launchpad bug ID via the Launchpad API.
 - Output is a reviewer-template-aligned draft where findings dynamically determine severity
   (`ok`, `recommended`, `required`) rather than having severity pre-assigned to TODO lines.
@@ -135,6 +135,8 @@ Finding model per check result:
 - Primary corpus: `old-MIRs-as-input` — use recency subset (4 from 2026 + 8 from 2025).
 - Verify representability of `required`, `recommended`, and NACK outcomes.
 - Verify template-conformant rendering (no RULE lines, unresolved work as TODO only).
+- Validate isolation path first via smoke run before adding larger check batches:
+  `/usr/bin/python tools/auto-mir/integration_smoke.py`
 
 ## Relevant Policy Files
 
@@ -156,6 +158,7 @@ tools/
     auto_mir.py      ← CLI entrypoint and orchestrator
     lp_intake.py     ← Launchpad API intake module
     lxd_runner.py    ← LXD container lifecycle module
+    integration_smoke.py ← devel-container isolation smoke runner
     evidence/        ← in-container evidence collection scripts
     prompts/         ← LLM prompt templates per check section
     render/          ← template renderer and output linter
