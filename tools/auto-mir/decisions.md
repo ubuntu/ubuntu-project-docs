@@ -237,31 +237,14 @@ and runtime wording.
   - format syntax errors fail validation.
 
 **Scope and rollout:**
-- Start with migrated checks (initially DEP-3) and LLM fallback support hooks.
-- Checks without `messages` remain on existing in-code literals during migration.
+- Rollout started with DEP-3 and expanded to deterministic checks and
+  `ai`/`ev_to_ai`/`human_only` fallback/static paths.
+- Validation now enforces required templates by mode (`llm_unavailable_message`
+  for `ai`/`ev_to_ai`, `human_only_message` + `human_only_todo` for
+  `human_only`) plus per-check strict placeholder rules for deterministic checks.
 - Static renderer labels (`OK:`, `Problems:`, `Left to decide:`) stay in code for now.
 
 **Consequences:**
 - Better declarative traceability of potential output text in catalog.
 - Dynamic evidence-specific phrasing preserved via placeholder binding.
 - Additional schema/validation complexity is accepted to prevent silent drift.
-
-## SUM-4 Team Mapping Source (2026-06-02)
-**Context:** The SUM-4 check needs to verify that a source package has a structural team bug subscription. The authoritative list of valid subscriber teams is maintained in `ubuntu-archive-tools/lputils.py` as `owner_names` (20+ teams), but we cannot depend on that package being installed. A separate `team_names` list in the same file contains display-only teams that should NOT count as valid subscribers.
-
-**Options considered:**
-1. Hardcode the full `owner_names` list in auto-mir (brittle, requires manual sync)
-2. Fetch `package-team-mapping.json` from static-reports.ubuntu.com and filter out known non-subscriber teams
-3. Query Launchpad API directly for each known team (slow, rate-limited, complex)
-
-**Decision:** Option 2 - Fetch the JSON report and maintain a small exclusion list of non-subscriber teams.
-
-**Tradeoffs:**
-- ✅ Single source of truth: JSON is generated from authoritative lputils.py
-- ✅ Minimal maintenance: only track 3 non-subscriber teams vs 20+ subscriber teams
-- ✅ Self-documenting: exclusion list is small and stable
-- ✅ Future-proof: new valid teams automatically work
-- ❌ Runtime network dependency (acceptable per existing adapter patterns)
-- ❌ If new display-only teams are added to lputils.py, we need to update our exclusion list (rare, documented)
-
-**Implementation:** `evidence/team_mapping_adapter.py` fetches `https://static-reports.ubuntu.com/package-team-mapping.json`, filters out `NON_SUBSCRIBER_TEAMS = {kubuntu-bugs, pkg-ime, translators-packages}`, and checks which remaining teams have subscribed to the source package.

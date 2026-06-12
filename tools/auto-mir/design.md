@@ -65,15 +65,19 @@ Top-level sections:
 ### Message Template Source of Truth
 
 - Runtime reviewer-facing finding text is split into two concerns:
-  - **catalog declaration**: migrated checks define message templates under
+  - **catalog declaration**: checks define message templates under
     `checks[].messages` using Python `str.format` placeholders.
   - **evaluator binding**: check code computes evidence-driven values and renders
     those templates into `Finding.message` and `Finding.todo`.
 - The renderer stays presentation-only and consumes finalized `Finding` values;
   it does not evaluate check message templates.
-- For phased migration, checks without `messages` remain on in-code literals.
-  Once a check defines `messages`, rendering is strict and missing keys or
-  placeholders are treated as validation/runtime errors.
+- Validation is strict:
+  - deterministic migrated checks enforce required template keys/placeholders,
+  - `ai`/`ev_to_ai` checks enforce `llm_unavailable_message` with `{error}`,
+  - `human_only` checks enforce `human_only_message` and `human_only_todo`
+    with `{title}`.
+- Evaluators render templates via `checks/messages.py`; missing keys/placeholders
+  are validation/runtime errors.
 
 ### Finding Model (per check result)
 
@@ -139,7 +143,7 @@ section is the machine-readable source of truth documenting the intended
 cross-cutting output actions for when those checks fire: blocking ACK,
 emitting structured report fields, and mandating a security review path.
 
-The check evaluators in `checks.py` implement the critical hard-blocker
+The check evaluators in `checks/deterministic.py` implement the critical hard-blocker
 outcomes (webkit/V8) directly. Any future dispatcher that aggregates all
 active triggers and acts on the remaining output actions should read from
 `security_triggers[]` in the catalog.
@@ -151,10 +155,10 @@ tools/
   auto-mir/
     design.md          ← this file (conceptual architecture)
     decisions.md       ← choices and reasoning log
-    tasks_phase7.md    ← completed: adapters + template generation
-    tasks_phase8.md    ← current: deterministic coverage + validation
-    tasks_phase9.md    ← next: hardening + CI gates
-    tasks_phase10.md   ← final: docs closure
+    tasks_phase7.md    ← phase task notes
+    tasks_phase8.md    ← phase task notes
+    tasks_phase9.md    ← phase task notes
+    tasks_phase10.md   ← phase task notes
     testing.md         ← how to verify changes before review
     catalog.yaml       ← machine-readable check catalog and security triggers
     catalog_enums.py   ← AdapterID and CheckID enum definitions
@@ -186,48 +190,6 @@ tools/
       test_evidence.py ← evidence collection integration tests
       test_catalog.py  ← catalog loading and validation tests
       test_lp_intake.py ← Launchpad intake tests
-```
-tools/
-  auto-mir/
-    design.md          ← this file (conceptual architecture)
-    decisions.md       ← choices and reasoning log
-    tasks_phase7.md    ← completed: adapters + template generation
-    tasks_phase8.md    ← current: deterministic coverage + validation
-    tasks_phase9.md    ← next: hardening + CI gates
-    tasks_phase10.md   ← final: docs closure
-    testing.md         ← how to verify changes before review
-    catalog.yaml       ← machine-readable check catalog and security triggers
-    catalog_enums.py   ← AdapterID and CheckID enum definitions
-    models.py          ← Finding dataclass with factory methods and validation
-    auto_mir.py        ← CLI entrypoint and orchestrator
-    lp_intake.py       ← Launchpad API intake module
-    lxd_runner.py      ← LXD container lifecycle module
-    integration_smoke.py ← devel-container isolation smoke runner
-    evidence/          ← evidence collection adapters
-      __init__.py      ← orchestration and adapter registry
-      registry.py      ← decorator registry for evidence adapters
-      types.py         ← TypedDict definitions for adapter return types
-      host_adapters.py ← host-side adapters (Launchpad, CVE, autopkgtest)
-      container_adapters.py ← in-container adapters (packaging, deps, sbuild)
-    checks/            ← check evaluation logic
-      __init__.py      ← check evaluation orchestration via registered evaluators
-      deterministic.py ← deterministic check implementations
-      registry.py      ← decorator registry for check evaluators
-      llm_eval.py      ← LLM-based check evaluation
-      language_gates.py ← language detection (Go, Rust, Python)
-    utils/             ← utility modules
-      __init__.py      ← package marker
-      retry.py         ← tenacity-based retry decorators
-    prompts/           ← LLM prompt templates per check section
-    render/            ← template renderer and output linter
-    tests/             ← test suite
-      test_checks.py   ← check evaluation tests
-      test_render.py   ← render output tests
-      test_evidence.py ← evidence collection integration tests
-      test_catalog.py  ← catalog loading and validation tests
-      test_lp_intake.py ← Launchpad intake tests
-```
-
 ## Relevant Policy Files
 
 - `docs/MIR/mir-reviewers-template.md` — primary reviewer task source and render target
