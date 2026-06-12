@@ -25,6 +25,7 @@ from typing import Any
 
 log = logging.getLogger("auto_mir.llm")
 
+
 # GitHub Copilot chat-completions endpoint
 class LLMError(RuntimeError):
     """Raised when the LLM call cannot produce a usable response."""
@@ -55,12 +56,15 @@ _WAIT_BUFFER_SECONDS = 2
 class _RateLimitState:
     limit: int = _DEFAULT_LIMIT_PER_WINDOW
     window_s: int = _DEFAULT_WINDOW_SECONDS
-    min_interval_s: float = (_DEFAULT_WINDOW_SECONDS / _DEFAULT_LIMIT_PER_WINDOW) * _RATE_SAFETY_FACTOR
+    min_interval_s: float = (
+        _DEFAULT_WINDOW_SECONDS / _DEFAULT_LIMIT_PER_WINDOW
+    ) * _RATE_SAFETY_FACTOR
     next_allowed_at: float = 0.0
 
 
 # Per-model adaptive limiter state.
 _rate_limit_by_model: dict[str, _RateLimitState] = {}
+
 
 def call_llm(prompt: str, ctx) -> dict[str, Any]:
     """Call the configured LLM provider and return the parsed JSON response.
@@ -79,7 +83,7 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
 
     # Track LLM usage for cost/efficiency reporting
     model = _selected_model(ctx)
-    if not hasattr(ctx, 'llm_calls_by_model'):
+    if not hasattr(ctx, "llm_calls_by_model"):
         ctx.llm_calls_by_model = {}
         ctx.llm_estimated_tokens = {}
     ctx.llm_calls_by_model[model] = ctx.llm_calls_by_model.get(model, 0) + 1
@@ -93,6 +97,7 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Copilot provider
 # ---------------------------------------------------------------------------
+
 
 def _call_copilot(prompt: str, ctx) -> dict[str, Any]:
     """Call GitHub Copilot chat-completions and return parsed JSON."""
@@ -110,7 +115,7 @@ def _call_copilot(prompt: str, ctx) -> dict[str, Any]:
     payload = {
         "model": model,
         "max_tokens": _MAX_TOKENS,
-        "temperature": 0.0,   # Determinism — same evidence should yield same assessment
+        "temperature": 0.0,  # Determinism — same evidence should yield same assessment
         "messages": [
             {
                 "role": "system",
@@ -165,7 +170,9 @@ def _call_copilot(prompt: str, ctx) -> dict[str, Any]:
                     learned = _parse_rate_limit_hint(err_body)
                     if learned:
                         limiter.limit, limiter.window_s = learned
-                        limiter.min_interval_s = (limiter.window_s / limiter.limit) * _RATE_SAFETY_FACTOR
+                        limiter.min_interval_s = (
+                            limiter.window_s / limiter.limit
+                        ) * _RATE_SAFETY_FACTOR
                         log.info(
                             "Learned rate limit for model %s: %d per %ds (min interval %.2fs)",
                             model,
@@ -198,14 +205,13 @@ def _call_copilot(prompt: str, ctx) -> dict[str, Any]:
         except urllib.error.URLError as exc:
             raise LLMError(f"Copilot API network error: {exc}") from exc
 
-    raise LLMError(
-        f"Copilot API failed after {_MAX_RETRIES} retries"
-    ) from last_err
+    raise LLMError(f"Copilot API failed after {_MAX_RETRIES} retries") from last_err
 
 
 def _get_copilot_token(ctx) -> str:
     """Retrieve GitHub token from context container_env or host environment."""
     import os
+
     # ctx.container_env is populated by stage_auth with the resolved token.
     for key in ("COPILOT_GITHUB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"):
         value = (getattr(ctx, "container_env", {}) or {}).get(key)
@@ -301,8 +307,7 @@ def _extract_json(raw_response: str) -> dict[str, Any]:
         content = envelope["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError) as exc:
         raise LLMError(
-            f"Unexpected Copilot API response shape: {exc}\n"
-            f"Envelope keys: {list(envelope.keys())}"
+            f"Unexpected Copilot API response shape: {exc}\nEnvelope keys: {list(envelope.keys())}"
         ) from exc
 
     # Strip any accidental markdown fences the model may have added
@@ -368,4 +373,3 @@ def _parse_rate_limit_hint(body: str) -> tuple[int, int] | None:
     if limit <= 0 or window_s <= 0 or limit > 500 or window_s > 3600:
         return None
     return limit, window_s
-

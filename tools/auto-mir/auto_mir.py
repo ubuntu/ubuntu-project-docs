@@ -28,12 +28,11 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# Internal modules
 import catalog
 import checks
-from evidence import collect_from_catalog
 import lp_intake
 import lxd_runner
+from evidence import collect_from_catalog
 from render import write_outputs
 
 log = logging.getLogger("auto_mir")
@@ -42,6 +41,7 @@ log = logging.getLogger("auto_mir")
 # ---------------------------------------------------------------------------
 # Run-name helpers (shared base name for container + output dir)
 # ---------------------------------------------------------------------------
+
 
 def _make_run_name(bug_id: str) -> str:
     """Generate a human-readable run name: mir-<bugid>-<YYYYMMDD-HHMMSS>."""
@@ -79,7 +79,8 @@ def _resolve_run_name(bug_id: str, user_name: str | None) -> str:
             log.error(
                 "Run name '%s' already exists (LXD container or /tmp/%s directory). "
                 "Choose a different name with --run-name.",
-                user_name, user_name,
+                user_name,
+                user_name,
             )
             raise SystemExit(1)
         return user_name
@@ -93,7 +94,8 @@ def _resolve_run_name(bug_id: str, user_name: str | None) -> str:
         if not _name_in_use(candidate):
             log.warning(
                 "Run name '%s' already in use; using '%s' instead.",
-                base, candidate,
+                base,
+                candidate,
             )
             return candidate
 
@@ -104,6 +106,7 @@ def _resolve_run_name(bug_id: str, user_name: str | None) -> str:
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
@@ -132,7 +135,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--llm-model",
         default="gpt-4.1-mini",
-        help="Model name for the selected LLM provider (default: gpt-4.1-mini; gpt-4o-mini for resource-constrained runs, gpt-4 for complex policy cases)",
+        help=(
+            "Model name for the selected LLM provider"
+            " (default: gpt-4.1-mini; gpt-4o-mini for resource-constrained runs,"
+            " gpt-4 for complex policy cases)"
+        ),
     )
     p.add_argument(
         "--run-name",
@@ -158,6 +165,7 @@ def build_parser() -> argparse.ArgumentParser:
 # ---------------------------------------------------------------------------
 # Run context
 # ---------------------------------------------------------------------------
+
 
 class RunContext:
     """Holds all runtime parameters and accumulated evidence for one review run."""
@@ -220,6 +228,7 @@ class RunContext:
 # ---------------------------------------------------------------------------
 # Pipeline stages (stubs)
 # ---------------------------------------------------------------------------
+
 
 def stage_intake(ctx: RunContext) -> None:
     """Stage 1: Launchpad API intake.
@@ -389,6 +398,7 @@ def _stub_stage(name: str, ctx: RunContext) -> None:
 # Container teardown
 # ---------------------------------------------------------------------------
 
+
 def teardown_container(ctx: RunContext) -> None:
     """Destroy or preserve LXD container based on --keep-container flag."""
     if not ctx.container_name:
@@ -407,6 +417,7 @@ def teardown_container(ctx: RunContext) -> None:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     parser = build_parser()
@@ -462,7 +473,7 @@ def main() -> int:
         log.info("Structured report written to: %s", ctx.report_path)
         _log_artifact_locations(ctx)
 
-    except SystemExit as exc:
+    except SystemExit:
         # Hard-stop conditions (e.g. missing reporter content) raise SystemExit
         raise
     except Exception as exc:
@@ -492,4 +503,3 @@ def _log_artifact_locations(ctx: RunContext) -> None:
 
 if __name__ == "__main__":
     sys.exit(main())
-

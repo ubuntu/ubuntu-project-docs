@@ -5,6 +5,7 @@ Most sections are rendered with an OK: sub-block and a Left to decide:
 sub-block. The [Summary] section is handled specially and keeps explicit
 "Required TODOs:" and "Recommended TODOs:" blocks for final human judgment.
 """
+
 from __future__ import annotations
 
 import json
@@ -13,8 +14,8 @@ from collections import defaultdict
 
 def _estimate_llm_tokens(ctx) -> dict:
     """Estimate token usage for LLM calls made during this run."""
-    calls_by_model = getattr(ctx, 'llm_calls_by_model', {})
-    tokens_by_model = getattr(ctx, 'llm_estimated_tokens', {})
+    calls_by_model = getattr(ctx, "llm_calls_by_model", {})
+    tokens_by_model = getattr(ctx, "llm_estimated_tokens", {})
 
     if not calls_by_model:
         return {"total_calls": 0, "by_model": {}}
@@ -33,7 +34,6 @@ def _estimate_llm_tokens(ctx) -> dict:
         "total_estimated_tokens": total_tokens,
         "by_model": by_model,
     }
-
 
 
 # Canonical section order mirrors the reviewer template exactly.
@@ -87,6 +87,7 @@ def write_outputs(ctx) -> None:
 # ---------------------------------------------------------------------------
 # Draft builder
 # ---------------------------------------------------------------------------
+
 
 def _build_review_draft(ctx) -> str:
     """Build the reviewer draft with one [Section] block per template section.
@@ -232,7 +233,7 @@ def _todo_lines_for_finding(finding: dict) -> list[str]:
     for line in lines:
         # Avoid double-prefix outputs like "TODO: TODO-A: ..."
         if line.startswith("TODO: TODO-"):
-            line = line[len("TODO: "):]
+            line = line[len("TODO: ") :]
         if not (line.startswith("TODO:") or line.startswith("TODO-")):
             line = f"TODO: {line}"
         normalized.append(line)
@@ -242,6 +243,7 @@ def _todo_lines_for_finding(finding: dict) -> list[str]:
 # ---------------------------------------------------------------------------
 # Linter
 # ---------------------------------------------------------------------------
+
 
 def _lint_review_draft(draft: str, findings: list[dict]) -> None:
     """Validate the rendered draft for structural correctness.
@@ -265,7 +267,12 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
         if line == "Left to decide:":
             in_undecided_block = True
             continue
-        if line.startswith("Left to decide: ") or line in ("OK:", "Required TODOs:", "Recommended TODOs:", ""):
+        if line.startswith("Left to decide: ") or line in (
+            "OK:",
+            "Required TODOs:",
+            "Recommended TODOs:",
+            "",
+        ):
             in_undecided_block = False
             continue
 
@@ -283,18 +290,15 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
         todo = (finding.get("todo") or "").strip()
 
         if status == "ok" and message.startswith("TODO:"):
-            raise ValueError(
-                f"Resolved finding {finding.get('id')} must not render as TODO"
-            )
+            raise ValueError(f"Resolved finding {finding.get('id')} must not render as TODO")
         if status != "ok" and not (todo.startswith("TODO:") or todo.startswith("TODO-")):
-            raise ValueError(
-                f"Unresolved finding {finding.get('id')} must include TODO"
-            )
+            raise ValueError(f"Unresolved finding {finding.get('id')} must include TODO")
 
 
 # ---------------------------------------------------------------------------
 # LLM Usage Report
 # ---------------------------------------------------------------------------
+
 
 def _render_llm_usage_report(ctx) -> list[str]:
     """Render a usage report showing LLM model calls and token consumption."""
@@ -304,8 +308,8 @@ def _render_llm_usage_report(ctx) -> list[str]:
     ]
 
     # Get usage data (may be empty if no LLM calls were made)
-    calls_by_model = getattr(ctx, 'llm_calls_by_model', {})
-    tokens_by_model = getattr(ctx, 'llm_estimated_tokens', {})
+    calls_by_model = getattr(ctx, "llm_calls_by_model", {})
+    tokens_by_model = getattr(ctx, "llm_estimated_tokens", {})
 
     if not calls_by_model:
         lines.append("No LLM calls made (deterministic-only evaluation).")
@@ -324,4 +328,3 @@ def _render_llm_usage_report(ctx) -> list[str]:
         lines.append(f"  {model}: {calls} calls, {tokens} tokens")
 
     return lines
-

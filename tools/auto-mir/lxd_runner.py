@@ -13,7 +13,6 @@ import shlex
 import subprocess
 import sys
 import time
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -33,7 +32,7 @@ _REQUIRED_PACKAGES = [
     "sbuild",
     "lintian",
     "git-ubuntu",
-    "ubuntu-dev-tools",   # provides seeded-in-ubuntu
+    "ubuntu-dev-tools",  # provides seeded-in-ubuntu
     "dpkg-dev",
     "apt-utils",
     "python3-launchpadlib",
@@ -41,7 +40,7 @@ _REQUIRED_PACKAGES = [
     "curl",
     "wget",
     "git",
-    "germinate",          # prerequisite for component-mismatches
+    "germinate",  # prerequisite for component-mismatches
     "python3-apt",
     "python3-requests",
 ]
@@ -85,17 +84,13 @@ def _check_lxd_available() -> None:
     """Verify lxc is available on the host; exit with guidance if not."""
     result = subprocess.run(["which", "lxc"], capture_output=True, text=True)
     if result.returncode != 0:
-        log.error(
-            "lxc command not found. Install LXD with: sudo snap install lxd && lxd init"
-        )
+        log.error("lxc command not found. Install LXD with: sudo snap install lxd && lxd init")
         sys.exit(1)
 
     # Quick connectivity check
     result = _lxc("version", capture=True, check=False)
     if result.returncode != 0:
-        log.error(
-            "LXD is installed but not responding. Try: lxd init --auto"
-        )
+        log.error("LXD is installed but not responding. Try: lxd init --auto")
         sys.exit(1)
     log.debug("LXD version: %s", result.stdout.strip())
 
@@ -170,7 +165,11 @@ def _wait_for_network(name: str, timeout: int = 60) -> None:
                 log.debug("Network available in container %s", name)
                 return
         time.sleep(2)
-    log.warning("Network did not become available in %s within %ds; continuing anyway", name, timeout)
+    log.warning(
+        "Network did not become available in %s within %ds; continuing anyway",
+        name,
+        timeout,
+    )
 
 
 def _provision(name: str, ctx: "RunContext") -> None:
@@ -233,7 +232,17 @@ def _enable_source_repositories(name: str) -> None:
     # Discover relevant files inside the container with a single listing.
     result = exec_in(
         name,
-        ["find", "/etc/apt", "-maxdepth", "2", "-name", "*.list", "-o", "-name", "*.sources"],
+        [
+            "find",
+            "/etc/apt",
+            "-maxdepth",
+            "2",
+            "-name",
+            "*.list",
+            "-o",
+            "-name",
+            "*.sources",
+        ],
         capture=True,
         check=False,
     )
@@ -275,7 +284,15 @@ def _bootstrap_archive_tools(name: str, pin_commit: str | None) -> None:
         # Deepen clone just enough to reach the pinned commit, then check it out.
         exec_in_retry(
             name,
-            ["git", "-C", _ARCHIVE_TOOLS_DIR, "fetch", "--depth=1", "origin", pin_commit],
+            [
+                "git",
+                "-C",
+                _ARCHIVE_TOOLS_DIR,
+                "fetch",
+                "--depth=1",
+                "origin",
+                pin_commit,
+            ],
             check=False,  # May fail on shallow; fallback path below handles it
             operation="fetch pinned ubuntu-archive-tools commit",
         )
@@ -395,7 +412,10 @@ def exec_in_retry(
                 hint = (
                     "\nHard stop: command failed after retries due to non-transient error."
                     if not transient
-                    else "\nHard stop: transient upstream/server issue did not recover after retries."
+                    else (
+                        "\nHard stop: transient upstream/server issue"
+                        " did not recover after retries."
+                    )
                 )
                 raise RuntimeError(
                     f"{operation} failed (attempt {attempt}/{attempts}, exit {result.returncode})."
@@ -502,7 +522,7 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
         "COPILOT_GITHUB_TOKEN": bool(
             exec_in(
                 ctx.container_name,
-                ["bash", "-lc", "test -n \"$COPILOT_GITHUB_TOKEN\""],
+                ["bash", "-lc", 'test -n "$COPILOT_GITHUB_TOKEN"'],
                 capture=True,
                 check=False,
             ).returncode
@@ -511,7 +531,7 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
         "GH_TOKEN": bool(
             exec_in(
                 ctx.container_name,
-                ["bash", "-lc", "test -n \"$GH_TOKEN\""],
+                ["bash", "-lc", 'test -n "$GH_TOKEN"'],
                 capture=True,
                 check=False,
             ).returncode
@@ -520,7 +540,7 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
         "GITHUB_TOKEN": bool(
             exec_in(
                 ctx.container_name,
-                ["bash", "-lc", "test -n \"$GITHUB_TOKEN\""],
+                ["bash", "-lc", 'test -n "$GITHUB_TOKEN"'],
                 capture=True,
                 check=False,
             ).returncode
@@ -536,4 +556,3 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
         "apt_policy_excerpt": apt_policy,
         "auth_env_present": auth_present,
     }
-

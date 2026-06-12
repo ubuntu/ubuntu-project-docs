@@ -94,6 +94,7 @@ def evaluate_checks(ctx) -> list[dict]:
 # Language-gate helpers
 # ---------------------------------------------------------------------------
 
+
 def _language_gate_active(gate: str, ctx) -> bool:
     """Return True when the named language gate is active for this package.
 
@@ -115,24 +116,15 @@ def _language_gate_active(gate: str, ctx) -> bool:
         return True
 
     rules = packaging.get("debian_rules", "")
-    control = packaging.get("debian_control", "")
 
     if gate == "go":
         go_sum = packaging.get("go_sum_present", False)
-        is_go = (
-            go_sum
-            or "dh-golang" in rules
-            or "golang" in rules.lower()
-        )
+        is_go = go_sum or "dh-golang" in rules or "golang" in rules.lower()
         return is_go
 
     if gate == "rust":
         cargo_lock = packaging.get("cargo_lock_present", False)
-        is_rust = (
-            cargo_lock
-            or "--buildsystem cargo" in rules
-            or "dh_cargo" in rules
-        )
+        is_rust = cargo_lock or "--buildsystem cargo" in rules or "dh_cargo" in rules
         return is_rust
 
     if gate == "python":
@@ -149,27 +141,28 @@ def _language_gate_active(gate: str, ctx) -> bool:
 # Deterministic Check Evaluators
 # ---------------------------------------------------------------------------
 
+
 def _eval_deterministic(check: dict, ctx, finding: dict) -> dict:
     """Evaluate checks with deterministic logic only."""
     check_id = check["id"]
 
     # Dispatch to per-check evaluator
     _dispatch = {
-        "SUM-1":  _check_sum_1,
-        "SUM-2":  _check_sum_2,
-        "SUM-4":  _check_sum_4,
-        "DEP-1":  _check_dep_1,
-        "DEP-3":  _check_dep_3,
-        "ESL-1":  _check_esl_1,
-        "ESL-3":  _check_esl_3,
-        "ESL-4":  _check_esl_4,
-        "ESL-7":  _check_esl_7,
-        "ESL-8":  _check_esl_8,
-        "ESL-9":  _check_esl_9,
+        "SUM-1": _check_sum_1,
+        "SUM-2": _check_sum_2,
+        "SUM-4": _check_sum_4,
+        "DEP-1": _check_dep_1,
+        "DEP-3": _check_dep_3,
+        "ESL-1": _check_esl_1,
+        "ESL-3": _check_esl_3,
+        "ESL-4": _check_esl_4,
+        "ESL-7": _check_esl_7,
+        "ESL-8": _check_esl_8,
+        "ESL-9": _check_esl_9,
         "ESL-10": _check_esl_10,
-        "SEC-3":  _check_sec_3,
-        "SEC-4":  _check_sec_4,
-        "CB-7":   _check_cb_7,
+        "SEC-3": _check_sec_3,
+        "SEC-4": _check_sec_4,
+        "CB-7": _check_cb_7,
     }
     evaluator = _dispatch.get(check_id)
     if evaluator:
@@ -239,9 +232,8 @@ def _check_dep_1(ctx, finding: dict) -> dict:
         finding["status"] = "not-ok"
         finding["severity"] = "required"
         finding["confidence"] = "high"
-        finding["message"] = (
-            "Runtime dependencies outside main detected: "
-            + ", ".join(deps_not_in_main)
+        finding["message"] = "Runtime dependencies outside main detected: " + ", ".join(
+            deps_not_in_main
         )
         finding["todo"] = (
             "TODO: File MIR/extra-exclude for runtime dependencies outside main: "
@@ -261,9 +253,8 @@ def _check_dep_1(ctx, finding: dict) -> dict:
             "Could not determine component for some runtime dependencies: "
             + ", ".join(unknown_components)
         )
-        finding["todo"] = (
-            "TODO: Verify Ubuntu component for runtime dependencies: "
-            + ", ".join(unknown_components)
+        finding["todo"] = "TODO: Verify Ubuntu component for runtime dependencies: " + ", ".join(
+            unknown_components
         )
         finding["evidence_refs"] = ["dep-analysis:dep_components"]
         return finding
@@ -406,8 +397,11 @@ def _check_dep_3(ctx, finding: dict) -> dict:
         return finding
 
     binary_packages = dep_analysis.get("binary_packages", [])
-    special = [p for p in binary_packages
-               if any(p.endswith(s) for s in ("-dev", "-dbg", "-debug", "-doc", "-docs"))]
+    special = [
+        p
+        for p in binary_packages
+        if any(p.endswith(s) for s in ("-dev", "-dbg", "-debug", "-doc", "-docs"))
+    ]
 
     if not special:
         finding["status"] = "ok"
@@ -417,7 +411,9 @@ def _check_dep_3(ctx, finding: dict) -> dict:
         finding["evidence_refs"] = ["packaging-source:debian_control"]
     else:
         # Check whether any of those special packages have deps outside main
-        deps_not_in_main = dep_analysis.get("deps_not_in_main", []) if dep_analysis.get("status") == "ok" else []
+        deps_not_in_main = (
+            dep_analysis.get("deps_not_in_main", []) if dep_analysis.get("status") == "ok" else []
+        )
         if deps_not_in_main:
             finding["status"] = "not-ok"
             finding["severity"] = "recommended"
@@ -437,7 +433,10 @@ def _check_dep_3(ctx, finding: dict) -> dict:
                 f"Special packages present ({', '.join(special)}) "
                 "but their deps appear to be in main"
             )
-        finding["evidence_refs"] = ["packaging-source:debian_control", "dep-analysis:dep_components"]
+        finding["evidence_refs"] = [
+            "packaging-source:debian_control",
+            "dep-analysis:dep_components",
+        ]
     return finding
 
 
@@ -450,7 +449,9 @@ def _check_esl_1(ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = "Could not collect packaging source"
-        finding["todo"] = "TODO: ESL-1 Check for embedded source (packaging-source collection failed)"
+        finding["todo"] = (
+            "TODO: ESL-1 Check for embedded source (packaging-source collection failed)"
+        )
         return finding
 
     vendored_dirs = packaging.get("vendored_dirs", [])
@@ -474,7 +475,9 @@ def _check_esl_1(ctx, finding: dict) -> dict:
         finding["status"] = "ok"
         finding["severity"] = "ok"
         finding["confidence"] = "medium"
-        finding["message"] = "no embedded source present (Built-Using present; see ESL-3 for review)"
+        finding["message"] = (
+            "no embedded source present (Built-Using present; see ESL-3 for review)"
+        )
         finding["evidence_refs"] = ["packaging-source:debian_control"]
     else:
         finding["status"] = "ok"
@@ -500,6 +503,7 @@ def _check_esl_3(ctx, finding: dict) -> dict:
     debian_control = packaging.get("debian_control", "")
 
     import re as _re
+
     built_using_entries = _re.findall(
         r"(?:Built-Using|Static-Built-Using)\s*:\s*([^\n]+(?:\n\s[^\n]+)*)",
         debian_control,
@@ -518,7 +522,11 @@ def _check_esl_3(ctx, finding: dict) -> dict:
     all_entries_text = " ".join(built_using_entries).lower()
     # Toolchain-only Built-Using (golang, rust, cgo) are expected.
     # Anything else (especially ${misc:Built-Using} with explicit pkg list) needs attention.
-    if "golang" in all_entries_text or "rust" in all_entries_text or "${misc:built-using}" in all_entries_text:
+    if (
+        "golang" in all_entries_text
+        or "rust" in all_entries_text
+        or "${misc:built-using}" in all_entries_text
+    ):
         finding["status"] = "ok"
         finding["severity"] = "ok"
         finding["confidence"] = "medium"
@@ -570,7 +578,10 @@ def _check_esl_4(ctx, finding: dict) -> dict:
         finding["severity"] = "ok"
         finding["confidence"] = "high"
         finding["message"] = "not a go package, no extra constraints to consider in that regard"
-    finding["evidence_refs"] = ["packaging-source:go_sum_present", "packaging-source:debian_rules"]
+    finding["evidence_refs"] = [
+        "packaging-source:go_sum_present",
+        "packaging-source:debian_rules",
+    ]
     return finding
 
 
@@ -644,16 +655,15 @@ def _check_esl_8(ctx, finding: dict) -> dict:
         finding["status"] = "ok"
         finding["severity"] = "ok"
         finding["confidence"] = "high"
-        finding["message"] = (
-            "Rust Package — Rust-specific constraints apply (see ESL-9/10)"
-        )
+        finding["message"] = "Rust Package — Rust-specific constraints apply (see ESL-9/10)"
     else:
         finding["status"] = "ok"
         finding["severity"] = "ok"
         finding["confidence"] = "high"
         finding["message"] = "not a rust package, no extra constraints to consider in that regard"
     finding["evidence_refs"] = [
-        "packaging-source:cargo_lock_present", "packaging-source:debian_rules"
+        "packaging-source:cargo_lock_present",
+        "packaging-source:debian_rules",
     ]
     return finding
 
@@ -693,9 +703,14 @@ def _check_esl_9(ctx, finding: dict) -> dict:
         finding["status"] = "not-ok"
         finding["severity"] = "required"
         finding["confidence"] = "high"
-        finding["message"] = "Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules"
+        finding["message"] = (
+            "Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules"
+        )
         finding["todo"] = "TODO: Rust packages must use dh_cargo (dh ... --buildsystem cargo)"
-    finding["evidence_refs"] = ["packaging-source:debian_rules", "packaging-source:cargo_lock_present"]
+    finding["evidence_refs"] = [
+        "packaging-source:debian_rules",
+        "packaging-source:cargo_lock_present",
+    ]
     return finding
 
 
@@ -730,14 +745,14 @@ def _check_esl_10(ctx, finding: dict) -> dict:
     # Check for unexpected Built-Using (Rust packages should have none or only toolchain)
     debian_control = packaging.get("debian_control", "")
     import re as _re
+
     built_using_entries = _re.findall(
         r"(?:Built-Using|Static-Built-Using)\s*:\s*([^\n]+(?:\n\s[^\n]+)*)",
         debian_control,
         flags=_re.IGNORECASE,
     )
     unexpected_bu = [
-        e for e in built_using_entries
-        if "rust" not in e.lower() and "cargo" not in e.lower()
+        e for e in built_using_entries if "rust" not in e.lower() and "cargo" not in e.lower()
     ]
     if unexpected_bu:
         problems.append("Unexpected Built-Using entries: " + "; ".join(unexpected_bu))
@@ -768,6 +783,7 @@ def _check_esl_10(ctx, finding: dict) -> dict:
 # EV_TO_AI Check Evaluators (stubs)
 # ---------------------------------------------------------------------------
 
+
 def _eval_ev_to_ai(check: dict, ctx, finding: dict) -> dict:
     """Evaluate a check by combining collected evidence with an LLM call.
 
@@ -788,7 +804,9 @@ def _eval_ev_to_ai(check: dict, ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = f"LLM unavailable: {exc}"
-        finding["todo"] = _default_todo_for_check(check, fallback_suffix="manual review needed (LLM unavailable)")
+        finding["todo"] = _default_todo_for_check(
+            check, fallback_suffix="manual review needed (LLM unavailable)"
+        )
         return finding
 
     return _apply_llm_response(response, check, finding)
@@ -797,6 +815,7 @@ def _eval_ev_to_ai(check: dict, ctx, finding: dict) -> dict:
 # ---------------------------------------------------------------------------
 # AI Check Evaluators
 # ---------------------------------------------------------------------------
+
 
 def _eval_ai(check: dict, ctx, finding: dict) -> dict:
     """Evaluate checks that require pure AI synthesis over the full findings set.
@@ -835,6 +854,7 @@ def _eval_ai(check: dict, ctx, finding: dict) -> dict:
 # Human-Only Check Evaluators
 # ---------------------------------------------------------------------------
 
+
 def _eval_human_only(check: dict, ctx, finding: dict) -> dict:
     """Evaluate checks that require human judgment only."""
     finding["status"] = "unknown"
@@ -847,6 +867,7 @@ def _eval_human_only(check: dict, ctx, finding: dict) -> dict:
 # ---------------------------------------------------------------------------
 # LLM helpers — prompt rendering and response mapping
 # ---------------------------------------------------------------------------
+
 
 def _build_evidence_payload(check: dict, ctx) -> dict:
     """Build a compact evidence dict for the adapters required by this check.
@@ -863,10 +884,7 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
     }
 
     adapters_store = ctx.evidence.get("adapters", {})
-    relevant = (
-        list(check.get("adapters_required", []))
-        + list(check.get("adapters_optional", []))
-    )
+    relevant = list(check.get("adapters_required", [])) + list(check.get("adapters_optional", []))
     for adapter_id in relevant:
         data = adapters_store.get(adapter_id)
         if data is None:
@@ -891,11 +909,11 @@ def _truncate_adapter_data(data: dict, max_str_len: int = 1000) -> dict:
     SUMMARY_FIELDS = {
         "lintian_output",  # lintian full output
         "debian_control",  # control file
-        "debian_rules",    # rules file
+        "debian_rules",  # rules file
         "debian_watch",
         "debian_copyright",
         "debian_tests_control",
-        "raw_output",      # component-mismatches raw output
+        "raw_output",  # component-mismatches raw output
         "build_log",
     }
 
@@ -905,8 +923,8 @@ def _truncate_adapter_data(data: dict, max_str_len: int = 1000) -> dict:
             # For known large fields, just count lines/errors
             if k == "lintian_output":
                 lines = v.splitlines()
-                errors = sum(1 for l in lines if l.startswith("E: "))
-                warnings = sum(1 for l in lines if l.startswith("W: "))
+                errors = sum(1 for ln in lines if ln.startswith("E: "))
+                warnings = sum(1 for ln in lines if ln.startswith("W: "))
                 result[k] = f"[{len(lines)} lines, {errors} errors, {warnings} warnings]"
             else:
                 # Keep a 300-char preview
@@ -941,26 +959,21 @@ def _build_policy_excerpt(check: dict, ctx) -> str:
 
     if todo_refs:
         parts.append(
-            "TODO references this check resolves:\n"
-            + "\n".join(f"  {t}" for t in todo_refs)
+            "TODO references this check resolves:\n" + "\n".join(f"  {t}" for t in todo_refs)
         )
 
     # Pull RULE lines from the reviewer template for this section
     workspace_root = getattr(ctx, "workspace_root", None)
     if workspace_root:
-        template_path = (
-            Path(workspace_root) / "docs" / "MIR" / "mir-reviewers-template.md"
-        )
+        template_path = Path(workspace_root) / "docs" / "MIR" / "mir-reviewers-template.md"
         if template_path.exists():
             section_text = _extract_template_section(template_path, section)
             rule_lines = [
-                line for line in section_text.splitlines()
-                if line.strip().startswith("RULE:")
+                line for line in section_text.splitlines() if line.strip().startswith("RULE:")
             ]
             if rule_lines:
                 parts.append(
-                    f"Reviewer policy rules for [{section}]:\n"
-                    + "\n".join(rule_lines[:30])
+                    f"Reviewer policy rules for [{section}]:\n" + "\n".join(rule_lines[:30])
                 )
 
     return "\n\n".join(parts) if parts else f"Check {check.get('id')} in section [{section}]"
@@ -1118,13 +1131,15 @@ def _summarise_findings_so_far(ctx) -> list[dict]:
     """Return a compact summary of findings already evaluated in this run."""
     results = []
     for f in getattr(ctx, "findings", []):
-        results.append({
-            "id": f.get("id"),
-            "section": f.get("section"),
-            "status": f.get("status"),
-            "severity": f.get("severity"),
-            "message": (f.get("message") or "")[:200],
-        })
+        results.append(
+            {
+                "id": f.get("id"),
+                "section": f.get("section"),
+                "status": f.get("status"),
+                "severity": f.get("severity"),
+                "message": (f.get("message") or "")[:200],
+            }
+        )
     return results
 
 
@@ -1163,4 +1178,3 @@ Return ONLY a JSON object with these exact fields (no markdown fences):
   "risk_flags": []
 }
 """
-

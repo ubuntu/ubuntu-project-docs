@@ -15,8 +15,6 @@ import logging
 import lzma
 import re
 import sqlite3
-import subprocess
-import sys
 import tempfile
 import urllib.error
 import urllib.parse
@@ -37,20 +35,20 @@ def collect_from_catalog(ctx) -> None:
     """Collect evidence for all adapters referenced by the catalog."""
     supported = {
         # Host-side (no container needed)
-        "lp-bug-api":             _collect_lp_bug_api,
+        "lp-bug-api": _collect_lp_bug_api,
         "lp-team-membership-api": _collect_lp_team_membership_api,
-        "lp-package-api":         _collect_lp_package_api,
-        "ubuntu-cve-tracker":     _collect_ubuntu_cve_tracker,
-        "autopkgtest-db":         _collect_autopkgtest,
+        "lp-package-api": _collect_lp_package_api,
+        "ubuntu-cve-tracker": _collect_ubuntu_cve_tracker,
+        "autopkgtest-db": _collect_autopkgtest,
         # In-container
-        "packaging-source":       _collect_packaging_source,
-        "dep-analysis":           _collect_dep_analysis,
-        "component-mismatches":   _collect_component_mismatches,
-        "sbuild":                 _collect_sbuild,
+        "packaging-source": _collect_packaging_source,
+        "dep-analysis": _collect_dep_analysis,
+        "component-mismatches": _collect_component_mismatches,
+        "sbuild": _collect_sbuild,
     }
     adapter_deps: dict[str, list[str]] = {
         "dep-analysis": ["packaging-source"],
-        "sbuild":        ["packaging-source"],
+        "sbuild": ["packaging-source"],
     }
 
     checks = ctx.catalog.get("checks", [])
@@ -109,6 +107,7 @@ def _order_adapters(required: set[str], adapter_deps: dict[str, list[str]]) -> l
 # ---------------------------------------------------------------------------
 # Host-side adapters — LP API
 # ---------------------------------------------------------------------------
+
 
 def _collect_lp_bug_api(ctx) -> dict[str, Any]:
     """Return Launchpad bug data already collected by lp_intake.
@@ -182,7 +181,7 @@ def _collect_lp_package_api(ctx) -> dict[str, Any]:
             raise AdapterError(f"Could not resolve Ubuntu series '{series_name}': {exc}") from exc
 
     try:
-        source = ubuntu.getSourcePackage(name=pkg)
+        ubuntu.getSourcePackage(name=pkg)
     except Exception as exc:
         raise AdapterError(f"Could not find source package '{pkg}' on Launchpad: {exc}") from exc
 
@@ -252,6 +251,7 @@ def _collect_lp_package_api(ctx) -> dict[str, Any]:
 # Host-side adapters — CVE / security
 # ---------------------------------------------------------------------------
 
+
 def _collect_ubuntu_cve_tracker(ctx) -> dict[str, Any]:
     """Query OVAL data from https://security-metadata.canonical.com/oval/ for CVEs.
 
@@ -285,6 +285,7 @@ def _collect_ubuntu_cve_tracker(ctx) -> dict[str, Any]:
         if exc.code in (429, 502, 503, 504):
             log.warning("OVAL transient error %d; retrying once", exc.code)
             import time
+
             time.sleep(2)
             try:
                 with urllib.request.urlopen(req, timeout=60) as resp:
@@ -329,8 +330,14 @@ def _collect_ubuntu_cve_tracker(ctx) -> dict[str, Any]:
         elif status == "fixed":
             fixed_cves.append(cve_id)
 
-    log.debug("OVAL: %d CVEs for %s in %s (%d active, %d fixed)",
-              len(cves), pkg, oval_series, len(active_cves), len(fixed_cves))
+    log.debug(
+        "OVAL: %d CVEs for %s in %s (%d active, %d fixed)",
+        len(cves),
+        pkg,
+        oval_series,
+        len(active_cves),
+        len(fixed_cves),
+    )
 
     return {
         "status": "ok",
@@ -346,6 +353,7 @@ def _collect_ubuntu_cve_tracker(ctx) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Host-side adapters — autopkgtest
 # ---------------------------------------------------------------------------
+
 
 def _collect_autopkgtest(ctx) -> dict[str, Any]:
     """Query autopkgtest SQLite database for package test results.
@@ -380,12 +388,15 @@ def _collect_autopkgtest(ctx) -> dict[str, Any]:
 
         # Get latest test results for this package and series
         # The results table typically has: id, package, version, arch, series, status, date, url
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT arch, status, version, date FROM results
             WHERE package = ? AND series = ?
             ORDER BY date DESC
             LIMIT 100
-        """, (pkg, series))
+        """,
+            (pkg, series),
+        )
         rows = cursor.fetchall()
         conn.close()
     except sqlite3.DatabaseError as exc:
@@ -419,8 +430,14 @@ def _collect_autopkgtest(ctx) -> dict[str, Any]:
     passing = [a for a, info in arch_latest.items() if info["status"] in ("pass", "neutral")]
     failing = [a for a, info in arch_latest.items() if info["status"] in ("fail", "regression")]
 
-    log.debug("autopkgtest for %s/%s: %d arches; passing %d, failing %d",
-              pkg, series, len(arch_latest), len(passing), len(failing))
+    log.debug(
+        "autopkgtest for %s/%s: %d arches; passing %d, failing %d",
+        pkg,
+        series,
+        len(arch_latest),
+        len(passing),
+        len(failing),
+    )
 
     return {
         "status": "ok",
@@ -436,6 +453,7 @@ def _collect_autopkgtest(ctx) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # In-container adapters — sbuild (lintian MVP)
 # ---------------------------------------------------------------------------
+
 
 def _collect_sbuild(ctx) -> dict[str, Any]:
     """Run lintian over the already-fetched source package in the container.
@@ -459,7 +477,11 @@ def _collect_sbuild(ctx) -> dict[str, Any]:
     # Run lintian against the source directory
     lintian_raw = _capture(
         ctx,
-        ["bash", "-lc", f"cd {source_dir} && lintian --no-tag-display-limit 2>&1 || true"],
+        [
+            "bash",
+            "-lc",
+            f"cd {source_dir} && lintian --no-tag-display-limit 2>&1 || true",
+        ],
         allow_fail=True,
     )
 
@@ -479,7 +501,12 @@ def _collect_sbuild(ctx) -> dict[str, Any]:
     # Check for static linking indicators in debian/rules (fast heuristic)
     rules = packaging.get("debian_rules", "")
     static_link_hints = []
-    for pattern in ("-static", "LDFLAGS.*-static", "linkshared.*false", "CGO_ENABLED=0"):
+    for pattern in (
+        "-static",
+        "LDFLAGS.*-static",
+        "linkshared.*false",
+        "CGO_ENABLED=0",
+    ):
         if re.search(pattern, rules, re.IGNORECASE):
             static_link_hints.append(pattern)
 
@@ -500,13 +527,16 @@ def _collect_sbuild(ctx) -> dict[str, Any]:
         "lintian_warnings": lintian_warnings,
         "lintian_pedantic": lintian_pedantic,
         "static_link_hints": static_link_hints,
-        "note": "Full sbuild deferred; lintian source-mode only. See lp-package-api for LP build state.",
+        "note": (
+            "Full sbuild deferred; lintian source-mode only. See lp-package-api for LP build state."
+        ),
     }
 
 
 # ---------------------------------------------------------------------------
 # In-container adapters (existing)
 # ---------------------------------------------------------------------------
+
 
 def _collect_packaging_source(ctx) -> dict[str, Any]:
     pkg = ctx.source_package
@@ -606,7 +636,8 @@ def _collect_dep_analysis(ctx) -> dict[str, Any]:
             [
                 "bash",
                 "-lc",
-                f"apt-cache show {binary} 2>/dev/null | awk -F': ' '/^Depends:/ {{print $2; exit}}'",
+                f"apt-cache show {binary} 2>/dev/null"
+                f" | awk -F': ' '/^Depends:/ {{print $2; exit}}'",
             ],
             allow_fail=True,
         ).strip()
@@ -698,4 +729,3 @@ def _detect_component(ctx, package: str) -> str:
             return component
 
     return "unknown"
-

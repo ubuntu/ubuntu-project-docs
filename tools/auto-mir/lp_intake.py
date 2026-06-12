@@ -244,9 +244,7 @@ def run(ctx: "RunContext") -> None:
     _evaluate_mir_heuristics(ctx)
 
     # Gate: reporter MIR content must be present
-    reporter_content = _find_reporter_mir_content(
-        ctx.bug["description"], ctx.bug["comments"]
-    )
+    reporter_content = _find_reporter_mir_content(ctx.bug["description"], ctx.bug["comments"])
     if reporter_content is None:
         log.error(
             "\n"
@@ -273,4 +271,3 @@ def run(ctx: "RunContext") -> None:
         ctx.source_package,
         ctx.series or "(unknown)",
     )
-
