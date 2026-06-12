@@ -73,6 +73,7 @@ def collect_from_catalog(ctx) -> None:
             continue
 
         try:
+            log.info("Collecting adapter: %s", adapter_id)
             ctx.evidence["adapters"][adapter_id] = collector(ctx)
         except Exception as exc:
             log.warning("Adapter %s failed: %s", adapter_id, exc)

@@ -414,7 +414,8 @@ def main() -> int:
 
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(levelname)s  %(name)s  %(message)s",
+        format="%(asctime)s  %(levelname)s  %(name)s  %(message)s",
+        datefmt="%H:%M:%S",
     )
 
     ctx = RunContext(args)

@@ -62,6 +62,11 @@ def evaluate_checks(ctx) -> list[dict]:
             continue
 
         # Route to appropriate evaluator
+        title = str(check.get("title") or "").strip()
+        if title:
+            log.info("Evaluating check: %s - %s (%s)", check["id"], title, mode)
+        else:
+            log.info("Evaluating check: %s (%s)", check["id"], mode)
         if mode == "deterministic":
             finding = _eval_deterministic(check, ctx, finding)
         elif mode == "ev_to_ai":
