@@ -15,6 +15,7 @@ from checks.registry import evaluator
 
 log = logging.getLogger("auto_mir.checks.llm_eval")
 
+
 @evaluator("ev_to_ai")
 def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate a check by combining collected evidence with an LLM call.

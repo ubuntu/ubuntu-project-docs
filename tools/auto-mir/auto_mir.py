@@ -292,7 +292,7 @@ class RunContext:
         self.vm_name: str = ""
 
         # --- Populated by stage_collect_evidence / evidence.collect_from_catalog() (Stage 3) ---
-        self.catalog: dict = {}   # loaded in Stage 3 (or Stage 4 if Stage 3 skipped)
+        self.catalog: dict = {}  # loaded in Stage 3 (or Stage 4 if Stage 3 skipped)
         self.evidence: dict = {}
 
         # --- Populated by stage_analyse / checks.evaluate_checks() (Stage 4) ---
@@ -555,15 +555,16 @@ def main() -> int:
 
     class ColorFormatter(logging.Formatter):
         """Colored formatter for console output with H:M:S elapsed timing."""
+
         COLORS = {
-            'DEBUG': '\033[36m',    # Cyan
-            'INFO': '\033[32m',     # Green
-            'WARNING': '\033[33m',  # Yellow
-            'ERROR': '\033[31m',    # Red
-            'CRITICAL': '\033[35m', # Magenta
+            "DEBUG": "\033[36m",  # Cyan
+            "INFO": "\033[32m",  # Green
+            "WARNING": "\033[33m",  # Yellow
+            "ERROR": "\033[31m",  # Red
+            "CRITICAL": "\033[35m",  # Magenta
         }
-        RESET = '\033[0m'
-        BOLD = '\033[1m'
+        RESET = "\033[0m"
+        BOLD = "\033[1m"
 
         def format(self, record):
             color = self.COLORS.get(record.levelname, self.RESET)
@@ -595,9 +596,7 @@ def main() -> int:
     if ctx.output_dir.exists():
         log_file = ctx.output_dir / "auto-mir.log"
         file_handler = logging.FileHandler(log_file)
-        json_formatter = jsonlogger.JsonFormatter(
-            '%(asctime)s %(levelname)s %(name)s %(message)s'
-        )
+        json_formatter = jsonlogger.JsonFormatter("%(asctime)s %(levelname)s %(name)s %(message)s")
         file_handler.setFormatter(json_formatter)
         logger.addHandler(file_handler)
         log.info("JSON log file: %s", log_file)
@@ -633,9 +632,7 @@ def main() -> int:
         # Interactive prompt for scope confirmation (after evidence collection)
         if not ctx.requested_binaries:
             all_binaries = (
-                ctx.evidence.get("adapters", {})
-                .get("dep-analysis", {})
-                .get("binary_packages", [])
+                ctx.evidence.get("adapters", {}).get("dep-analysis", {}).get("binary_packages", [])
             )
             if all_binaries:
                 ctx.requested_binaries = _ask_requested_binaries(all_binaries)

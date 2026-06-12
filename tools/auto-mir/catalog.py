@@ -96,9 +96,7 @@ def validate_catalog(catalog: dict) -> list[str]:
             # Validate adapters_required if present
             if "adapters_required" in check:
                 if not isinstance(check["adapters_required"], list):
-                    errors.append(
-                        f"Check {check.get('id', i)}: adapters_required must be a list"
-                    )
+                    errors.append(f"Check {check.get('id', i)}: adapters_required must be a list")
 
     # Validate evidence_adapters
     adapters = catalog.get("evidence_adapters", [])

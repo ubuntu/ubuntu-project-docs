@@ -134,7 +134,14 @@ class Finding:
         self.message = message
         self.todo = ""
 
-    def fail(self, message: str, todo: str, severity: str = "required", confidence: str = "high", status: str = "not-ok") -> None:
+    def fail(
+        self,
+        message: str,
+        todo: str,
+        severity: str = "required",
+        confidence: str = "high",
+        status: str = "not-ok",
+    ) -> None:
         """Mark this finding as failed or unknown, requiring a human TODO."""
         self.status = status
         self.severity = severity
@@ -188,6 +195,7 @@ class Finding:
             if not (self.todo.startswith("TODO:") or self.todo.startswith("TODO-")):
                 # This is a warning, not an error, to allow for transitional states
                 import logging
+
                 logging.getLogger("auto_mir.models").warning(
                     "Finding %s: status='not-ok' but todo doesn't start with 'TODO:': %s",
                     self.id,

@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 try:
     import pytest
+
     HAS_PYTEST = True
 except ImportError:
     HAS_PYTEST = False
@@ -125,6 +126,7 @@ def test_sbuild_adapter_handles_build_failure():
     lxd_vm_context = _make_lxd_vm_context()
 
     with patch("evidence.container_adapters._capture") as mock_capture:
+
         def capture_side_effect(ctx, cmd, **kwargs):
             cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
             if "sbuild" in cmd_str:
@@ -166,12 +168,13 @@ def test_dep_analysis_with_sbuild_output():
                 "built_debs": [
                     "/tmp/sbuild-output/hello_2.10-3_amd64.deb",
                 ],
-            }
+            },
         }
     }
 
     # Mock dpkg-deb commands
     with patch("evidence.container_adapters._capture") as mock_capture:
+
         def capture_side_effect(ctx, cmd, **kwargs):
             cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
             if "Package" in cmd_str:
@@ -222,12 +225,13 @@ def test_scope_filtering_with_requested_binaries():
                     "/tmp/sbuild-output/multipkg-main_1.0_amd64.deb",
                     "/tmp/sbuild-output/multipkg-dev_1.0_amd64.deb",
                 ],
-            }
+            },
         }
     }
 
     # Mock commands
     with patch("evidence.container_adapters._capture") as mock_capture:
+
         def capture_side_effect(ctx, cmd, **kwargs):
             cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
             if "awk" in cmd_str and "Package:" in cmd_str:
@@ -254,6 +258,7 @@ def test_scope_filtering_with_requested_binaries():
 
         # Mock component detection
         with patch("evidence.container_adapters._detect_component") as mock_component:
+
             def component_side_effect(ctx, pkg):
                 if pkg in ["libuniverse1", "libuniverse2"]:
                     return "universe"
@@ -292,12 +297,13 @@ def test_same_source_deps_not_flagged():
                     "/tmp/sbuild-output/dav1d_1.0_amd64.deb",
                     "/tmp/sbuild-output/libdav1d7_1.0_amd64.deb",
                 ],
-            }
+            },
         }
     }
 
     # Mock commands
     with patch("evidence.container_adapters._capture") as mock_capture:
+
         def capture_side_effect(ctx, cmd, **kwargs):
             cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
             if "awk" in cmd_str and "Package:" in cmd_str:
@@ -323,6 +329,7 @@ def test_same_source_deps_not_flagged():
 
         # Mock component detection
         with patch("evidence.container_adapters._detect_component") as mock_component:
+
             def component_side_effect(ctx, pkg):
                 if pkg == "libdav1d7":
                     return "universe"

@@ -54,7 +54,9 @@ _ARCHIVE_TOOLS_REPO = "https://git.launchpad.net/ubuntu-archive-tools"
 _ARCHIVE_TOOLS_DIR = "/opt/ubuntu-archive-tools"
 
 
-def run_command(cmd: list[str], log_prefix: str, check: bool = True, capture: bool = False, **kwargs) -> subprocess.CompletedProcess:
+def run_command(
+    cmd: list[str], log_prefix: str, check: bool = True, capture: bool = False, **kwargs
+) -> subprocess.CompletedProcess:
     """Run a subprocess and handle uniform error logging and checking."""
     log.debug("%s$ %s", log_prefix, shlex.join(cmd))
     result = subprocess.run(
@@ -71,12 +73,16 @@ def run_command(cmd: list[str], log_prefix: str, check: bool = True, capture: bo
         )
         if capture:
             log.error("stdout: %s\nstderr: %s", result.stdout.strip(), result.stderr.strip())
-        raise subprocess.CalledProcessError(result.returncode, cmd, output=result.stdout, stderr=result.stderr)
+        raise subprocess.CalledProcessError(
+            result.returncode, cmd, output=result.stdout, stderr=result.stderr
+        )
     return result
+
 
 def _run_host(cmd: list[str], check: bool = True, capture: bool = False, **kwargs):
     """Run a command on the host. Raise on failure unless check=False."""
     return run_command(cmd, log_prefix="host", check=check, capture=capture, **kwargs)
+
 
 def _lxc(*args, check: bool = True, capture: bool = False, **kwargs):
     """Wrapper around lxc CLI."""
@@ -96,11 +102,19 @@ def _check_lxd_available() -> None:
         log.error("LXD is installed but not responding. Try: lxd init --auto")
         sys.exit(1)
     client_version = next(
-        (line.split(": ", 1)[1] for line in result.stdout.splitlines() if line.startswith("Client version")),
+        (
+            line.split(": ", 1)[1]
+            for line in result.stdout.splitlines()
+            if line.startswith("Client version")
+        ),
         "unknown",
     )
     server_version = next(
-        (line.split(": ", 1)[1] for line in result.stdout.splitlines() if line.startswith("Server version")),
+        (
+            line.split(": ", 1)[1]
+            for line in result.stdout.splitlines()
+            if line.startswith("Server version")
+        ),
         "unknown",
     )
     log.debug("LXD client version: %s", client_version)
@@ -124,8 +138,13 @@ def spawn(ctx: "RunContext") -> None:
     is_vm = "--vm" in lxd_opts
     instance_type = "VM" if is_vm else "container"
 
-    log.info("Creating LXD %s %s from %s with options: %s",
-             instance_type, name, image, " ".join(lxd_opts))
+    log.info(
+        "Creating LXD %s %s from %s with options: %s",
+        instance_type,
+        name,
+        image,
+        " ".join(lxd_opts),
+    )
 
     # Build launch command: lxc launch <image> <name> [options...]
     launch_cmd = ["launch", image, name] + lxd_opts
@@ -237,8 +256,16 @@ def _provision(name: str, ctx: "RunContext") -> None:
         log.info("Installing sbuild from noble-backports")
         exec_in_retry(
             name,
-            ["apt-get", "install", "-qq", "-y", "-t", "noble-backports",
-             "--no-install-recommends", "sbuild"],
+            [
+                "apt-get",
+                "install",
+                "-qq",
+                "-y",
+                "-t",
+                "noble-backports",
+                "--no-install-recommends",
+                "sbuild",
+            ],
             env={"DEBIAN_FRONTEND": "noninteractive"},
             operation="apt-get install sbuild from backports",
         )
@@ -493,10 +520,7 @@ def exec_in_retry(
         hint = (
             "\nHard stop: command failed after retries due to non-transient error."
             if not transient
-            else (
-                "\nHard stop: transient upstream/server issue"
-                " did not recover after retries."
-            )
+            else ("\nHard stop: transient upstream/server issue did not recover after retries.")
         )
         raise RuntimeError(
             f"{operation} failed (exit {result.returncode})."

@@ -83,7 +83,11 @@ def test_collect_from_catalog_skips_unreferenced_adapters():
     mock_lp = Mock(return_value={"status": "ok"})
     mock_cve = Mock(return_value={"status": "ok"})
 
-    with patch.dict("evidence.ADAPTER_REGISTRY", {"lp-bug-api": (mock_lp, []), "ubuntu-cve-tracker": (mock_cve, [])}, clear=True):
+    with patch.dict(
+        "evidence.ADAPTER_REGISTRY",
+        {"lp-bug-api": (mock_lp, []), "ubuntu-cve-tracker": (mock_cve, [])},
+        clear=True,
+    ):
         collect_from_catalog(ctx)
 
         # lp-bug-api should be called
@@ -115,7 +119,11 @@ def test_collect_from_catalog_respects_dependency_order():
     m_pack = Mock(side_effect=mock_packaging)
     m_dep = Mock(side_effect=mock_dep)
 
-    with patch.dict("evidence.ADAPTER_REGISTRY", {"packaging-source": (m_pack, []), "dep-analysis": (m_dep, ["packaging-source"])}, clear=True):
+    with patch.dict(
+        "evidence.ADAPTER_REGISTRY",
+        {"packaging-source": (m_pack, []), "dep-analysis": (m_dep, ["packaging-source"])},
+        clear=True,
+    ):
         collect_from_catalog(ctx)
 
         # packaging-source must be collected before dep-analysis
@@ -135,7 +143,11 @@ def test_collect_from_catalog_handles_adapter_failure():
     mock_lp = Mock(side_effect=AdapterError("LP API unavailable"))
     mock_cve = Mock(return_value={"status": "ok"})
 
-    with patch.dict("evidence.ADAPTER_REGISTRY", {"lp-bug-api": (mock_lp, []), "ubuntu-cve-tracker": (mock_cve, [])}, clear=True):
+    with patch.dict(
+        "evidence.ADAPTER_REGISTRY",
+        {"lp-bug-api": (mock_lp, []), "ubuntu-cve-tracker": (mock_cve, [])},
+        clear=True,
+    ):
         collect_from_catalog(ctx)
 
         # lp-bug-api should be marked as error
@@ -184,6 +196,7 @@ def test_lp_bug_api_output_structure():
     ctx.series = "noble"
 
     from evidence.host_adapters import collect_lp_bug_api
+
     result = collect_lp_bug_api(ctx)
 
     assert result["status"] == "ok"
@@ -233,6 +246,7 @@ def test_dep_analysis_output_structure():
             mock_component.return_value = "main"
 
             from evidence.container_adapters import collect_dep_analysis
+
             result = collect_dep_analysis(ctx)
 
             assert result["status"] == "ok"

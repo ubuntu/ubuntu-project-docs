@@ -35,9 +35,7 @@ def test_section_order_covers_all_catalog_sections():
         catalog = yaml.safe_load(fh)
 
     catalog_sections = {
-        check["section"]
-        for check in catalog.get("checks", [])
-        if check.get("section")
+        check["section"] for check in catalog.get("checks", []) if check.get("section")
     }
 
     missing = catalog_sections - set(_SECTION_ORDER)
@@ -398,8 +396,9 @@ def test_build_review_draft_section_order():
         current = _SECTION_ORDER[i]
         next_section = _SECTION_ORDER[i + 1]
         if positions[current] != -1 and positions[next_section] != -1:
-            assert positions[current] < positions[next_section], \
+            assert positions[current] < positions[next_section], (
                 f"Section {current} should appear before {next_section}"
+            )
 
 
 def test_build_review_draft_empty_findings():

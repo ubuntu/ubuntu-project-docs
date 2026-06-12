@@ -112,9 +112,7 @@ def _render_from_blueprint(catalog_data: dict) -> str:
         lines.append(text)
 
     if not lines:
-        raise RuntimeError(
-            "Could not locate '```{code-block} text' fence in blueprint."
-        )
+        raise RuntimeError("Could not locate '```{code-block} text' fence in blueprint.")
 
     return "\n".join(lines) + "\n"
 

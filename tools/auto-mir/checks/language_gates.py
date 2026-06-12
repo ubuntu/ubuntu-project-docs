@@ -20,9 +20,7 @@ def _is_go_package(packaging: dict) -> bool:
     """
     rules = packaging.get("debian_rules", "")
     return (
-        packaging.get("go_sum_present", False)
-        or "dh-golang" in rules
-        or "golang" in rules.lower()
+        packaging.get("go_sum_present", False) or "dh-golang" in rules or "golang" in rules.lower()
     )
 
 

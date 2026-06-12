@@ -97,12 +97,12 @@ def collect_from_catalog(ctx) -> int:
                     _summarize_result(ctx.evidence["adapters"][adapter_id_str]),
                 )
             if ctx.evidence["adapters"][adapter_id_str].get("status") == "error":
-                 failed_adapters.add(adapter_id_str)
-                 log.warning(
-                     "Adapter %s returned error status: %s",
-                     adapter_id_str,
-                     ctx.evidence["adapters"][adapter_id_str].get("message", "unknown"),
-                 )
+                failed_adapters.add(adapter_id_str)
+                log.warning(
+                    "Adapter %s returned error status: %s",
+                    adapter_id_str,
+                    ctx.evidence["adapters"][adapter_id_str].get("message", "unknown"),
+                )
         except Exception as exc:
             log.warning("Adapter %s failed: %s", adapter_id_str, exc)
             ctx.evidence["adapters"][adapter_id_str] = {
@@ -125,7 +125,10 @@ def collect_from_catalog(ctx) -> int:
 
     return 0 if not failed_adapters else 1
 
-def _order_adapters(required: set[str], adapter_deps: dict[str, list[str]] | None = None) -> list[str]:
+
+def _order_adapters(
+    required: set[str], adapter_deps: dict[str, list[str]] | None = None
+) -> list[str]:
     """Return adapters in dependency-safe order using graphlib."""
     graph = {}
     for adapter_id in required:

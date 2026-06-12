@@ -67,8 +67,10 @@ DEFAULT_OPENAI_COMPAT_MODEL = "openai/gpt-4.1-mini"
 
 DEFAULT_TIMEOUT_SECONDS = 60
 
+
 class LLMError(RuntimeError):
     """Raised when the LLM call cannot produce a usable response."""
+
 
 # Hard cap on response tokens — JSON responses for MIR checks are compact.
 _MAX_TOKENS = 1024
@@ -221,9 +223,7 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
             learned = _parse_rate_limit_hint(err_body)
             if learned:
                 limiter.limit, limiter.window_s = learned
-                limiter.min_interval_s = (
-                    limiter.window_s / limiter.limit
-                ) * _RATE_SAFETY_FACTOR
+                limiter.min_interval_s = (limiter.window_s / limiter.limit) * _RATE_SAFETY_FACTOR
                 log.info(
                     "Learned rate limit for model %s: %d per %ds (min interval %.2fs)",
                     model,

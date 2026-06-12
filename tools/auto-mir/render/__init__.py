@@ -186,7 +186,9 @@ def _build_binary_package_header(ctx) -> list[str]:
         lines.append(f"Binary packages: {', '.join(sorted(all_binaries))}")
     elif promotion_candidates:
         # Fallback: only component-mismatches data available
-        lines.append(f"Binary packages (promotion candidates only): {', '.join(sorted(promotion_candidates))}")
+        lines.append(
+            f"Binary packages (promotion candidates only): {', '.join(sorted(promotion_candidates))}"
+        )
         return lines
 
     # Component split: binaries NOT in the promotion list are presumably already in main
@@ -213,8 +215,7 @@ def _build_out_of_scope_dep_hint(ctx) -> list[str]:
     if out_of_scope:
         return [
             "Note: The following universe dependencies belong to binary packages "
-            "NOT requested for promotion and do not need a MIR: "
-            + ", ".join(sorted(out_of_scope))
+            "NOT requested for promotion and do not need a MIR: " + ", ".join(sorted(out_of_scope))
         ]
     return []
 
@@ -279,7 +280,9 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
     return lines
 
 
-def _render_summary_section(summary_findings: list[Finding], all_findings: list[Finding], ctx) -> list[str]:
+def _render_summary_section(
+    summary_findings: list[Finding], all_findings: list[Finding], ctx
+) -> list[str]:
     """Render [Summary] with special MIR template semantics.
 
     - Keep resolved summary checks under OK:
@@ -423,9 +426,7 @@ def _lint_review_draft(draft: str, findings: list[Finding]) -> None:
         # Every content line inside undecided block must be a TODO, NOTE, or list entry
         if in_undecided_block and line:
             if not (
-                line.startswith("TODO:")
-                or line.startswith("TODO-")
-                or line.startswith("NOTE:")
+                line.startswith("TODO:") or line.startswith("TODO-") or line.startswith("NOTE:")
             ):
                 raise ValueError(
                     f"Left to decide block line must start with 'TODO:', 'TODO-', or 'NOTE:': {line!r}"
@@ -468,9 +469,7 @@ def _render_adapter_failure_warning(ctx) -> list[str]:
         causes = ", ".join(finding.adapter_error_cause)
         title = finding.title
         lines.append(f"  - {finding.id} {title} (adapter(s) failed: {causes})")
-    lines.append(
-        "  Review the TODO lines marked with NOTE: in the draft and follow up manually."
-    )
+    lines.append("  Review the TODO lines marked with NOTE: in the draft and follow up manually.")
     return lines
 
 

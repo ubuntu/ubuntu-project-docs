@@ -55,8 +55,9 @@ def test_load_catalog_checks_have_required_fields():
 
         # mode should be one of the valid values
         valid_modes = {"deterministic", "ev_to_ai", "ai", "human_only"}
-        assert check["mode"] in valid_modes, \
+        assert check["mode"] in valid_modes, (
             f"Check {check['id']} has invalid mode: {check['mode']}"
+        )
 
 
 def test_load_catalog_adapters_have_required_fields():
@@ -114,7 +115,7 @@ def test_summarize_catalog_counts_security_triggers():
         "security_triggers": [
             {"id": "SEC-1"},
             {"id": "SEC-2"},
-        ]
+        ],
     }
 
     summary = summarize_catalog(catalog)

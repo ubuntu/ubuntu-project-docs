@@ -19,8 +19,15 @@ log = logging.getLogger("auto_mir.lp_intake")
 
 # Known Ubuntu series in chronological order for version gating.
 _KNOWN_SERIES = [
-    "focal", "jammy", "kinetic", "lunar", "mantic",
-    "noble", "oracular", "plucky", "questing"
+    "focal",
+    "jammy",
+    "kinetic",
+    "lunar",
+    "mantic",
+    "noble",
+    "oracular",
+    "plucky",
+    "questing",
 ]
 
 
@@ -100,11 +107,7 @@ def _find_prior_reviews(comments: list[str]) -> list[int]:
     Scanning all comments allows detection of re-review scenarios where the
     previous reviewer posted their completed draft on the bug.
     """
-    return [
-        i + 1
-        for i, comment in enumerate(comments)
-        if _detect_reviewer_mir_content(comment)
-    ]
+    return [i + 1 for i, comment in enumerate(comments) if _detect_reviewer_mir_content(comment)]
 
 
 def _find_reporter_mir_content(bug_description: str, comments: list[str]) -> str | None:
@@ -291,8 +294,7 @@ def _parse_requested_binaries(reporter_content: str) -> list[str] | None:
             # Extract package names
             packages = re.split(r"[,\s]+(?:and\s+)?", text)
             packages = [
-                p.strip() for p in packages
-                if p.strip() and re.match(r"^[a-z0-9][a-z0-9.+\-]+$", p)
+                p.strip() for p in packages if p.strip() and re.match(r"^[a-z0-9][a-z0-9.+\-]+$", p)
             ]
             if packages:
                 return packages

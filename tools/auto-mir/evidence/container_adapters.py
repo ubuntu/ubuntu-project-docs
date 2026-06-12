@@ -236,8 +236,11 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
     for dep in sorted(dep_names):
         source_pkg = _capture(
             ctx,
-            ["bash", "-lc",
-             f"apt-cache show {dep} 2>/dev/null | awk '/^Source:/ {{print $2; exit}}'"],
+            [
+                "bash",
+                "-lc",
+                f"apt-cache show {dep} 2>/dev/null | awk '/^Source:/ {{print $2; exit}}'",
+            ],
             allow_fail=True,
         ).strip()
         if not source_pkg:
@@ -256,10 +259,7 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
     out_of_scope_deps_not_in_main = []
     same_source_deps = []
 
-    dep_source_lookup = {
-        entry["package"]: entry["source_package"]
-        for entry in dep_source_map
-    }
+    dep_source_lookup = {entry["package"]: entry["source_package"] for entry in dep_source_map}
 
     for dep in deps_not_in_main:
         source_pkg = dep_source_lookup.get(dep, dep)
@@ -285,9 +285,7 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
     }
 
 
-def _dep_belongs_to_in_scope(
-    dep: str, runtime_deps: list[dict], in_scope: set[str]
-) -> bool:
+def _dep_belongs_to_in_scope(dep: str, runtime_deps: list[dict], in_scope: set[str]) -> bool:
     """Check if a dependency belongs to an in-scope binary package."""
     for entry in runtime_deps:
         if entry["binary"] in in_scope:
@@ -430,8 +428,7 @@ def collect_sbuild(ctx) -> SbuildResult:
 
     # Check if build succeeded by looking for .deb files
     build_success = _exists(
-        ctx,
-        ["bash", "-lc", f"test -d {output_dir} && ls {output_dir}/*.deb >/dev/null 2>&1"]
+        ctx, ["bash", "-lc", f"test -d {output_dir} && ls {output_dir}/*.deb >/dev/null 2>&1"]
     )
 
     # Collect built .deb files

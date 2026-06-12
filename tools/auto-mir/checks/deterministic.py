@@ -15,6 +15,7 @@ from checks.language_gates import _is_go_package, _is_rust_package
 from models import Finding
 from checks.registry import deterministic_check, evaluator, DETERMINISTIC_CHECKS
 
+
 @deterministic_check("SUM-1")
 def _check_sum_1(ctx, finding: Finding) -> Finding:
     """SUM-1: Source package identified."""
@@ -386,9 +387,7 @@ def _check_esl_1(ctx, finding: Finding) -> Finding:
         finding.status = "unknown"
         finding.confidence = "low"
         finding.message = "Could not collect packaging source"
-        finding.todo = (
-            "TODO: - Check for embedded source (packaging-source collection failed)"
-        )
+        finding.todo = "TODO: - Check for embedded source (packaging-source collection failed)"
         return finding
 
     vendored_dirs = packaging.get("vendored_dirs", [])
@@ -412,9 +411,7 @@ def _check_esl_1(ctx, finding: Finding) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "medium"
-        finding.message = (
-            "no embedded source present (Built-Using present; see ESL-3 for review)"
-        )
+        finding.message = "no embedded source present (Built-Using present; see ESL-3 for review)"
         finding.evidence_refs = ["packaging-source:debian_control"]
     else:
         finding.status = "ok"
@@ -706,6 +703,7 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
 # Must be defined after all _check_* functions it references.
 # ---------------------------------------------------------------------------
 
+
 @evaluator("deterministic")
 def _eval_deterministic(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate checks with deterministic logic only."""
@@ -714,5 +712,7 @@ def _eval_deterministic(check: dict, ctx, finding: Finding) -> Finding:
     if evaluator_func:
         return evaluator_func(ctx, finding)
     else:
-        finding.fail("Deterministic check evaluator not implemented", finding.title, status="unknown")
+        finding.fail(
+            "Deterministic check evaluator not implemented", finding.title, status="unknown"
+        )
         return finding
