@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "launchpadlib",
     "pyyaml",
+    "python-json-logger",
     "tenacity>=8.0.0",
 ]
 
