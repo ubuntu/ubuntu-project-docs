@@ -1,22 +1,19 @@
 #!/usr/bin/env python3
-"""Integration test runner for auto-mir.
+"""VM lifecycle helper for the make integration target.
 
-Provisions a fresh LXD VM, runs the full pytest suite with AUTO_MIR_TEST_VM
-set (so integration-gated tests execute), then destroys the VM regardless of
-the test outcome.
+Subcommands
+-----------
+setup    — Provision a fresh LXD VM and write its name to .int-vm-name.
+teardown — Read .int-vm-name, destroy the VM, and remove the file.
 
-Usage::
-
-    python3 tests/run_integration.py
-    make integration
-
-The runner performs a fast lint check before creating the VM so that obvious
-style mistakes are caught without paying the provisioning cost.
+This script is called exclusively by the Makefile integration target.
+Lint and test execution are handled by the Makefile lint / unit targets so
+there is no duplication; changing the ruff invocation in the Makefile is the
+single source of truth.
 """
 
+import argparse
 import logging
-import os
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -27,6 +24,7 @@ sys.path.insert(0, str(TOOL_ROOT))
 import lxd_runner  # noqa: E402
 
 _VM_NAME_PREFIX = "auto-mir-int"
+_VM_NAME_FILE = TOOL_ROOT / ".int-vm-name"
 
 logging.basicConfig(
     format="%(levelname)-8s %(name)s %(message)s",
@@ -48,53 +46,67 @@ class _Ctx:
         self.container_env: dict[str, str] = {}
 
 
-def _run(cmd: list[str], env: dict | None = None) -> int:
-    """Run a command in TOOL_ROOT and return its exit code."""
-    return subprocess.run(cmd, cwd=str(TOOL_ROOT), env=env).returncode
-
-
-def main() -> int:
-    # Fast lint/format check before paying the cost of VM provisioning.
-    log.info("Running lint checks before provisioning VM…")
-    for lint_cmd in (
-        ["uv", "tool", "run", "ruff", "format", "--check", "."],
-        ["uv", "tool", "run", "ruff", "check", "."],
-    ):
-        rc = _run(lint_cmd)
-        if rc != 0:
-            log.error("Lint check failed; fix issues before running integration tests.")
-            return rc
-
+def _setup() -> int:
+    """Provision a fresh VM and record its name for subsequent make targets."""
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
     vm_name = f"{_VM_NAME_PREFIX}-{ts}"
     ctx = _Ctx(vm_name)
-
     log.info("Provisioning integration VM: %s", vm_name)
     try:
         lxd_runner.spawn(ctx)
-        log.info("VM ready: %s", ctx.vm_name)
-
-        env = os.environ.copy()
-        env["AUTO_MIR_TEST_VM"] = ctx.vm_name
-        rc = _run(["pytest", "tests/", "-v"], env=env)
-        return rc
-
+        _VM_NAME_FILE.write_text(ctx.vm_name)
+        log.info("VM ready: %s (name recorded in %s)", ctx.vm_name, _VM_NAME_FILE.name)
+        return 0
     except Exception as exc:
-        log.error("Integration run failed: %s", exc)
-        return 1
-
-    finally:
+        log.error("VM provisioning failed: %s", exc)
         if ctx.vm_name:
-            log.info("Tearing down VM: %s", ctx.vm_name)
             try:
                 lxd_runner.destroy(ctx)
-                log.info("VM destroyed.")
-            except Exception as exc:
+            except Exception:
                 log.warning(
-                    "VM teardown failed — manual cleanup may be needed: lxc delete --force %s (%s)",
+                    "Could not destroy partial VM %s — manual cleanup may be needed: "
+                    "lxc delete --force %s",
                     ctx.vm_name,
-                    exc,
+                    ctx.vm_name,
                 )
+        return 1
+
+
+def _teardown() -> int:
+    """Destroy the VM recorded in .int-vm-name and remove the file."""
+    if not _VM_NAME_FILE.exists():
+        log.info("No %s found; nothing to tear down.", _VM_NAME_FILE.name)
+        return 0
+    vm_name = _VM_NAME_FILE.read_text().strip()
+    if not vm_name:
+        _VM_NAME_FILE.unlink(missing_ok=True)
+        return 0
+    ctx = _Ctx(vm_name)
+    ctx.vm_name = vm_name  # already known — skip spawn, go straight to destroy
+    log.info("Tearing down integration VM: %s", vm_name)
+    try:
+        lxd_runner.destroy(ctx)
+        log.info("VM %s destroyed.", vm_name)
+    except Exception as exc:
+        log.warning(
+            "VM teardown failed — manual cleanup may be needed: lxc delete --force %s (%s)",
+            vm_name,
+            exc,
+        )
+    finally:
+        _VM_NAME_FILE.unlink(missing_ok=True)
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Integration VM lifecycle helper (called by Makefile).",
+    )
+    parser.add_argument("command", choices=["setup", "teardown"])
+    args = parser.parse_args()
+    if args.command == "setup":
+        return _setup()
+    return _teardown()
 
 
 if __name__ == "__main__":
