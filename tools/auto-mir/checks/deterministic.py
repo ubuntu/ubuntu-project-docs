@@ -17,6 +17,33 @@ from models import Finding
 log = logging.getLogger("auto_mir.checks.deterministic")
 
 
+def _get_check_definition(ctx, check_id: str) -> dict:
+    """Return check definition by id or raise a clear error."""
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == check_id), None)
+    if check is None:
+        raise ValueError(f"{check_id} check definition not found in catalog")
+    return check
+
+
+def _set_unknown_from_adapter(
+    finding: Finding,
+    check: dict,
+    *,
+    message_key: str = "unknown_message",
+    todo_key: str | None = None,
+    evidence_refs: list[str] | None = None,
+) -> Finding:
+    """Set finding to unknown with consistent confidence and optional TODO/evidence."""
+    finding.status = "unknown"
+    finding.confidence = "low"
+    finding.message = render_check_message(check, message_key)
+    if todo_key:
+        finding.todo = render_check_message(check, todo_key)
+    if evidence_refs is not None:
+        finding.evidence_refs = evidence_refs
+    return finding
+
+
 @deterministic_check("SUM-1")
 def _check_sum_1(ctx, finding: Finding) -> Finding:
     """SUM-1: Source package identified."""
@@ -130,17 +157,12 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
 @deterministic_check("SEC-3")
 def _check_sec_3(ctx, finding: Finding) -> Finding:
     """SEC-3: Does not use webkit1/2."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "SEC-3"), None)
-    if check is None:
-        raise ValueError("SEC-3 check definition not found in catalog")
+    check = _get_check_definition(ctx, "SEC-3")
     adapters = ctx.evidence.get("adapters", {})
     dep_analysis = adapters.get("dep-analysis", {})
 
     if dep_analysis.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        return finding
+        return _set_unknown_from_adapter(finding, check)
 
     runtime_deps_text = " ".join(
         [f"{d['binary']}:{d['depends']}" for d in dep_analysis.get("runtime_deps", [])]
@@ -164,17 +186,12 @@ def _check_sec_3(ctx, finding: Finding) -> Finding:
 @deterministic_check("SEC-4")
 def _check_sec_4(ctx, finding: Finding) -> Finding:
     """SEC-4: Does not use lib*v8 directly."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "SEC-4"), None)
-    if check is None:
-        raise ValueError("SEC-4 check definition not found in catalog")
+    check = _get_check_definition(ctx, "SEC-4")
     adapters = ctx.evidence.get("adapters", {})
     dep_analysis = adapters.get("dep-analysis", {})
 
     if dep_analysis.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        return finding
+        return _set_unknown_from_adapter(finding, check)
 
     runtime_deps_text = " ".join(
         [f"{d['binary']}:{d['depends']}" for d in dep_analysis.get("runtime_deps", [])]
@@ -198,17 +215,12 @@ def _check_sec_4(ctx, finding: Finding) -> Finding:
 @deterministic_check("CB-7")
 def _check_cb_7(ctx, finding: Finding) -> Finding:
     """CB-7: No new Python 2 dependency."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "CB-7"), None)
-    if check is None:
-        raise ValueError("CB-7 check definition not found in catalog")
+    check = _get_check_definition(ctx, "CB-7")
     adapters = ctx.evidence.get("adapters", {})
     dep_analysis = adapters.get("dep-analysis", {})
 
     if dep_analysis.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        return finding
+        return _set_unknown_from_adapter(finding, check)
 
     runtime_deps_text = " ".join(
         [f"{d['binary']}:{d['depends']}" for d in dep_analysis.get("runtime_deps", [])]
@@ -433,19 +445,13 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
     Checks Built-Using and Static-Built-Using metadata from built .deb files
     (not source debian/control, which doesn't have these fields).
     """
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-3"), None)
-    if check is None:
-        raise ValueError("ESL-3 check definition not found in catalog")
+    check = _get_check_definition(ctx, "ESL-3")
 
     adapters = ctx.evidence.get("adapters", {})
     deb_metadata = adapters.get("deb-metadata", {})
 
     if deb_metadata.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        finding.todo = render_check_message(check, "unknown_todo")
-        return finding
+        return _set_unknown_from_adapter(finding, check, todo_key="unknown_todo")
 
     deb_packages = deb_metadata.get("deb_packages", [])
 
