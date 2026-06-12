@@ -540,12 +540,56 @@ def test_language_gate_go_active_via_go_sum():
     assert checks.language_gates._language_gate_active("go", ctx) is True
 
 
+def test_language_gate_go_active_via_source_tree_files():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "go_sum_present": False,
+        "file_listing": [{"path": "./cmd/tool/main.go", "size": 321}],
+    }
+    assert checks.language_gates._language_gate_active("go", ctx) is True
+
+
+def test_language_gate_go_ignores_vendor_tree_files():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "go_sum_present": False,
+        "file_listing": [{"path": "./vendor/example/lib.go", "size": 321}],
+    }
+    assert checks.language_gates._language_gate_active("go", ctx) is False
+
+
 def test_language_gate_rust_inactive():
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
         "debian_rules": "dh $@",
         "cargo_lock_present": False,
+    }
+    assert checks.language_gates._language_gate_active("rust", ctx) is False
+
+
+def test_language_gate_rust_active_via_source_tree_files():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "cargo_lock_present": False,
+        "file_listing": [{"path": "./src/main.rs", "size": 456}],
+    }
+    assert checks.language_gates._language_gate_active("rust", ctx) is True
+
+
+def test_language_gate_rust_ignores_vendor_tree_files():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "cargo_lock_present": False,
+        "file_listing": [{"path": "./third_party/rust/lib.rs", "size": 456}],
     }
     assert checks.language_gates._language_gate_active("rust", ctx) is False
 
