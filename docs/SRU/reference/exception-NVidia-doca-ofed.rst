@@ -14,12 +14,8 @@ NVIDIA DOCA-OFED drivers are used in conjunction with NVIDIA Bluefield cards,
 DGX and IGX platforms and Connect-X cards. These platforms are used in a variety
 of scenarios, included data-centers, AI/ML ...
 
-Support for new netorking hardware, platforms, bug fixes and general
-improvements are released regularly by the vendor; there are 4 major
-releases during the year (YY.01, YY.04, YY.07, YY.10) plus possible
-bug-fixes.
-
-Each major release can have minor releases.
+Support for new networking hardware, platforms, bug fixes and general
+improvements are released regularly by NVIDIA during the year.
 
 For an improved experience and support new features/hardware without installing
 drivers from an unofficial or an external source (PPAs/FTP...), it is
@@ -38,37 +34,37 @@ of release (i.e. YY = 26):
 - **Long term support releases**: The YY.10 version is the sole LTS release of
   the year; this release is designed exclusively for current upstream
   kernels and will receive kernel compatibility updates for a year only.
-
+  This release only receives bug fixes and security updates.
 - **Short lived releases**: YY.01, YY.04, YY.07 are released in their respective
   months by NVIDIA, and are considered ad-interim releases, to be substituted
   with the newer one and finish their path into the LTS release.
+  These releases receive bug fixes and security updates, but also new features.
 
-Each YY.mm release will have a separate .deb package to make easier to track
-and fix older releases, with the focus on the LTS ones.
+The release targeted by the SRU are:
 
-The releases targeted by this SRU are all the 4 releases during the year.
+-  **LTS** and **Non-LTS**
+
+  -  Long term support releases
+  -  Short lived releases
+
+As NVIDIA uses a 2 different versioning schemes, the version number of the
+driver is not directly related to the version number of the release, but it's
+a semver; as an example 26.01 is uploaded in the archive as DOCA 3.3.x and
+26.04 as 3.4.x.
 
 When a new short lived release is available and uploaded, meta-packages will
 make the user update to the newer release. This happens until the new release
 is an LTS one.
 
-If a user has a LTS release installed, the versioning will make the user update
-*ONLY* to the newer LTS release, if available for the installed Kernel.
+For example if version 3.3.0 is in the LTS and 3.4.0 is the NVIDIA LTS.
 
-What this document is asking, is for an SRU exception for the following rules:
+-  Version 3.3.1 is uploaded to the LTS, users will be upgraded.
+-  Version 3.4.0 is uploaded to the LTS, a transitional metapackage is created to upgrade the user to the latest version.
+-  Version 3.5.0 is uploaded to the LTS, user will not be upgraded and no transitional metapackage will be created.
 
-- Interim (Short-Lived) Releases: these versions require an exception for HWE
-  (Hardware Enablement) and micro-releases.
-  Rather than receiving incremental patches, these three releases are updated
-  via comprehensive package upgrades, which must be reflected as new package
-  submissions to the Universe repository.
-- LTS Releases: A micro-release exception is necessary for LTS versions to
-  facilitate the delivery of bug fixes and new features from the last
-  ad-interim release of the year.
-  Since these updates are not handled upstream via standard patching and the
-  release maintains a full year support lifecycle, this exception ensures
-  the software remains robust without requiring new hardware support.
-
+The last statement could change in the future depending on discssions with
+NVIDIA and the community, but the idea is to not force users to upgrade to a
+new release that might drop support for old hardware automatically.
 
 .. _doca-ofed_release_schedule:
 
