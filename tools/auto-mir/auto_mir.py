@@ -1,26 +1,14 @@
 #!/usr/bin/env python3
 """auto_mir.py — MIR reviewer assistant entrypoint.
 
-Usage:
-    auto_mir.py <launchpad-bug-id> [options]
-
-Options:
-    --series SERIES          Force a specific Ubuntu series, skipping auto-detection.
-                             When omitted, the series is derived from the Launchpad bug
-                             tasks; if all tasks target one particular release that release
-                             is used, otherwise the development release (devel) is assumed.
-    --lxd-image IMAGE        LXD image alias for isolated execution
-                             (default: target release image, falling back to Ubuntu devel)
-    --keep-container         Keep LXD container after run for debugging (default: off)
-    --pin-uat-tooling COMMIT Pin ubuntu-archive-tools to specific commit for reproducible runs
-    --llm-model MODEL        LLM model to request from provider (default: gpt-4o-mini)
-    --run-name NAME          Base name for both the LXD container and /tmp output directory
-                             (default: mir-<bugid>-<YYYYMMDD-HHMMSS>; auto-bumped with -1/-2
-                              suffix on collision; explicit name refuses if already in use)
-    --dry-run                Fetch and collect evidence only; skip AI synthesis and rendering
+AI-assisted tool that fetches a Launchpad MIR bug, collects evidence inside a
+fresh LXD container, evaluates checks from the catalog, and renders a
+reviewer-template-aligned draft ready to post on the bug.
 
 Exits 0 on successful run (even if review has required findings).
 Exits 1 on hard stop conditions (missing reporter MIR content, tool errors).
+
+Run with --help for full option reference.
 """
 
 import argparse
@@ -180,10 +168,15 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     p.add_argument(
-        "--dry-run",
+        "--debug-collect-only",
+        dest="dry_run",
         action="store_true",
         default=False,
-        help="Collect evidence only; skip AI synthesis and rendering",
+        help=(
+            "Debug mode: fetch LP bug and collect evidence only; "
+            "skip AI synthesis and rendering. "
+            "Evidence is saved to the output directory for inspection."
+        ),
     )
     p.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
     return p
@@ -518,7 +511,7 @@ def main() -> int:
     ctx = RunContext(args)
 
     log.info(
-        "auto-mir starting: bug=%s keep_container=%s dry_run=%s",
+        "auto-mir starting: bug=%s keep_container=%s debug_collect_only=%s",
         ctx.bug_id,
         ctx.keep_container,
         ctx.dry_run,
@@ -545,7 +538,7 @@ def main() -> int:
         ctx.save_evidence()
 
         if ctx.dry_run:
-            log.info("--dry-run: stopping after evidence collection")
+            log.info("--debug-collect-only: stopping after evidence collection")
             _log_artifact_locations(ctx)
             return 0
 
