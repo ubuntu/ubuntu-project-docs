@@ -160,15 +160,37 @@ class DepComponentEntry(TypedDict):
     component: str  # "main" | "universe" | "restricted" | "multiverse" | "unknown"
 
 
+class DepSourceEntry(TypedDict):
+    """Dependency source package mapping."""
+
+    package: str
+    source_package: str
+
+
+class DepSourceEntry(TypedDict):
+    """Dependency source package mapping."""
+
+    package: str
+    source_package: str
+
+
 class DepAnalysisResult(TypedDict):
     """Return structure for dep-analysis adapter."""
 
     status: str
     binary_packages: list[str]
+    built_packages: list[str]
     runtime_deps: list[RuntimeDepEntry]
     runtime_dep_packages: list[str]
     dep_components: list[DepComponentEntry]
+    dep_source_map: list[DepSourceEntry]
     deps_not_in_main: list[str]
+    in_scope_deps_not_in_main: list[str]
+    out_of_scope_deps_not_in_main: list[str]
+    same_source_deps: list[str]
+    in_scope_deps_not_in_main: list[str]
+    out_of_scope_deps_not_in_main: list[str]
+    same_source_deps: list[str]
 
 
 # ---------------------------------------------------------------------------
@@ -186,16 +208,17 @@ class ComponentMismatchesResult(TypedDict):
 
 
 # ---------------------------------------------------------------------------
-# In-container adapters — sbuild (lintian)
+# In-container adapters — sbuild
 # ---------------------------------------------------------------------------
 
 
 class SbuildResult(TypedDict):
-    """Return structure for sbuild adapter (currently lintian-only)."""
+    """Return structure for sbuild adapter (real build with unshare backend)."""
 
     status: str
-    build_success: bool | None
+    build_success: bool
     build_log: str
+    built_debs: list[str]
     lintian_output: str
     lintian_errors: list[str]
     lintian_warnings: list[str]

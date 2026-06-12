@@ -197,6 +197,24 @@ def build_parser() -> argparse.ArgumentParser:
         default=False,
         help="Skip interactive prompts (auto-accept). Use with --save-test-artifacts.",
     )
+    p.add_argument(
+        "--lxd-options",
+        dest="lxd_options",
+        type=str,
+        default="--vm -c limits.cpu=4 -c limits.memory=8GiB",
+        help=(
+            "LXD launch options (default: '--vm -c limits.cpu=4 -c limits.memory=8GiB'). "
+            "Pass any lxc launch flags. Use empty string or override to change VM/container mode or resources."
+        ),
+    )
+    p.add_argument(
+        "--request-binaries",
+        dest="request_binaries",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Binary packages requested for promotion in this MIR (space-separated)",
+    )
     p.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
     return p
 
@@ -223,7 +241,7 @@ class RunContext:
         bug, source_package, reporter_mir_content, series (may be refined)
 
     Populated by stage_spawn_container / lxd_runner.spawn() (Stage 2):
-        container_name, container_env (refined with run-time values)
+        vm_name, container_env (refined with run-time values)
 
     Populated by stage_collect_evidence / evidence.collect_from_catalog() (Stage 3):
         evidence (including evidence["adapters"], evidence["catalog_summary"], etc.)
@@ -250,6 +268,8 @@ class RunContext:
         self.collect_only: bool = args.collect_only
         self.save_test_artifacts: str | None = args.save_test_artifacts
         self.non_interactive: bool = args.non_interactive
+        self.lxd_options: str = args.lxd_options
+        self.requested_binaries: list[str] = args.request_binaries or []
         self.tool_root = Path(__file__).resolve().parent
         self.workspace_root = self.tool_root.parent.parent
         self.catalog_path = self.tool_root / "catalog.yaml"
@@ -274,7 +294,7 @@ class RunContext:
         self.reporter_mir_content: str = ""
 
         # --- Populated by stage_spawn_container / lxd_runner.spawn() (Stage 2) ---
-        self.container_name: str = ""
+        self.vm_name: str = ""
 
         # --- Populated by stage_collect_evidence / evidence.collect_from_catalog() (Stage 3) ---
         self.catalog: dict = {}   # loaded in Stage 3 (or Stage 4 if Stage 3 skipped)
@@ -328,7 +348,7 @@ def stage_spawn_container(ctx: RunContext) -> None:
     log.info("Stage 2: Spawning LXD container for %s", ctx.source_package)
     lxd_runner.spawn(ctx)
     ctx.evidence["runtime_isolation"] = lxd_runner.collect_runtime_facts(ctx)
-    # lxd_runner.spawn() populates ctx.container_name
+    # lxd_runner.spawn() populates ctx.vm_name
 
 
 def stage_collect_evidence(ctx: RunContext) -> None:
@@ -452,23 +472,56 @@ def _stub_stage(name: str, ctx: RunContext) -> None:
     ctx.evidence[f"_stub_{name}"] = True
 
 
+def _ask_requested_binaries(all_binaries: list[str]) -> list[str]:
+    """Interactively ask user which binaries to promote.
+    
+    Returns list of binary package names to promote, or all_binaries if user
+    selects "all" or provides no input.
+    """
+    print("\nCould not determine which binary packages are requested for promotion.")
+    print(f"Binary packages built by this source: {', '.join(sorted(all_binaries))}")
+    print("\nEnter binary packages to promote (comma-separated), or 'all' for all:")
+    try:
+        response = input("> ").strip()
+    except EOFError:
+        return all_binaries
+    
+    if not response or response.lower() == "all":
+        return all_binaries
+    
+    packages = [p.strip() for p in response.split(",")]
+    packages = [p for p in packages if p in all_binaries]
+    
+    if not packages:
+        print("No valid packages specified, defaulting to all.")
+        return all_binaries
+    
+    return packages
+
+
+# ---------------------------------------------------------------------------
+# Container teardown
+# ---------------------------------------------------------------------------
+# Container teardown
+# ---------------------------------------------------------------------------
+# Container teardown
 # ---------------------------------------------------------------------------
 # Container teardown
 # ---------------------------------------------------------------------------
 
 
 def teardown_container(ctx: RunContext) -> None:
-    """Destroy or preserve LXD container based on --keep-container flag."""
-    if not ctx.container_name:
+    """Destroy or preserve LXD VM based on --keep-container flag."""
+    if not ctx.vm_name:
         return
     if ctx.keep_container:
         log.info(
-            "Container %s preserved for debugging. To destroy: lxc delete --force %s",
-            ctx.container_name,
-            ctx.container_name,
+            "VM %s preserved for debugging. To destroy: lxc delete --force %s",
+            ctx.vm_name,
+            ctx.vm_name,
         )
     else:
-        log.info("Destroying container %s", ctx.container_name)
+        log.info("Destroying VM %s", ctx.vm_name)
         lxd_runner.destroy(ctx)
 
 
@@ -565,6 +618,21 @@ def main() -> int:
 
         # Stage 3: Collect evidence in-container
         stage_collect_evidence(ctx)
+
+        # Interactive prompt for scope confirmation (after evidence collection)
+        if not ctx.requested_binaries:
+            all_binaries = (
+                ctx.evidence.get("adapters", {})
+                .get("dep-analysis", {})
+                .get("binary_packages", [])
+            )
+            if all_binaries:
+                if ctx.non_interactive:
+                    ctx.requested_binaries = all_binaries
+                    log.info("Non-interactive mode: defaulting to all binaries")
+                else:
+                    ctx.requested_binaries = _ask_requested_binaries(all_binaries)
+                    log.info("Requested binaries: %s", ", ".join(ctx.requested_binaries))
 
         # Save evidence checkpoint for audit/debugging (skip if saving test artifacts)
         if not ctx.save_test_artifacts:

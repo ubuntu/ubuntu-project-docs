@@ -30,9 +30,9 @@ _UBUNTU_DEVEL_FALLBACK_IMAGES = [
     "ubuntu:devel",
 ]
 
-# Packages required inside the container for the full pipeline.
+# Packages required inside the VM for the full pipeline.
+# Note: sbuild is installed separately (from backports for Noble) to support unshare backend.
 _REQUIRED_PACKAGES = [
-    "sbuild",
     "lintian",
     "git-ubuntu",
     "ubuntu-dev-tools",  # provides seeded-in-ubuntu
@@ -46,6 +46,7 @@ _REQUIRED_PACKAGES = [
     "germinate",  # prerequisite for component-mismatches
     "python3-apt",
     "python3-requests",
+    "uidmap",  # required for sbuild unshare backend
 ]
 
 # Remote for ubuntu-archive-tools
@@ -98,27 +99,36 @@ def _check_lxd_available() -> None:
 
 
 def spawn(ctx: "RunContext") -> None:
-    """Create a new LXD container from the target Ubuntu release image and provision it.
+    """Create a new LXD VM from the target Ubuntu release image and provision it.
 
-    Populates ctx.container_name.
+    Populates ctx.vm_name.
     """
     _check_lxd_available()
 
     name = ctx.run_name
-    ctx.container_name = name
+    ctx.vm_name = name
     image = _resolve_image(ctx)
     ctx.lxd_image = image
 
-    log.info("Creating LXD container %s from %s", name, image)
-    _lxc("launch", image, name)
+    # Parse LXD options from ctx.lxd_options (default: "--vm -c limits.cpu=4 -c limits.memory=8GiB")
+    lxd_opts = ctx.lxd_options.split() if ctx.lxd_options else []
+    is_vm = "--vm" in lxd_opts
+    instance_type = "VM" if is_vm else "container"
 
-    # Wait for network to be available inside the container
+    log.info("Creating LXD %s %s from %s with options: %s", 
+             instance_type, name, image, " ".join(lxd_opts))
+    
+    # Build launch command: lxc launch <image> <name> [options...]
+    launch_cmd = ["launch", image, name] + lxd_opts
+    _lxc(*launch_cmd)
+
+    # Wait for network to be available inside the VM
     _wait_for_network(name)
 
-    log.info("Provisioning container %s", name)
+    log.info("Provisioning %s %s", instance_type, name)
     _provision(name, ctx)
 
-    log.info("Container %s is ready", name)
+    log.info("%s %s is ready", instance_type, name)
 
 
 def _resolve_image(ctx: "RunContext") -> str:
@@ -188,7 +198,7 @@ def _wait_for_network(name: str, timeout: int = 60) -> None:
 
 
 def _provision(name: str, ctx: "RunContext") -> None:
-    """Install required tools and bootstrap upstream tooling inside the container."""
+    """Install required tools and bootstrap upstream tooling inside the VM."""
 
     # Ensure source repositories are enabled before any `apt-get source` usage.
     _enable_source_repositories(name)
@@ -201,13 +211,33 @@ def _provision(name: str, ctx: "RunContext") -> None:
     )
 
     # Install required packages
-    log.info("Installing required packages in container")
+    log.info("Installing required packages in VM")
     exec_in_retry(
         name,
         ["apt-get", "install", "-qq", "-y", "--no-install-recommends"] + _REQUIRED_PACKAGES,
         env={"DEBIAN_FRONTEND": "noninteractive"},
         operation="apt-get install required packages",
     )
+
+    # Install sbuild (from backports for Noble to get unshare backend support)
+    series = getattr(ctx, "series", None)
+    if series == "noble":
+        log.info("Installing sbuild from noble-backports")
+        exec_in_retry(
+            name,
+            ["apt-get", "install", "-qq", "-y", "-t", "noble-backports", 
+             "--no-install-recommends", "sbuild"],
+            env={"DEBIAN_FRONTEND": "noninteractive"},
+            operation="apt-get install sbuild from backports",
+        )
+    else:
+        log.info("Installing sbuild")
+        exec_in_retry(
+            name,
+            ["apt-get", "install", "-qq", "-y", "--no-install-recommends", "sbuild"],
+            env={"DEBIAN_FRONTEND": "noninteractive"},
+            operation="apt-get install sbuild",
+        )
 
     # Export host-resolved auth into container env for future AI calls.
     _export_container_env(name, getattr(ctx, "container_env", {}))
@@ -485,43 +515,43 @@ def pull_file(name: str, container_path: str, local_path: str) -> None:
 
 
 def destroy(ctx: "RunContext") -> None:
-    """Destroy the LXD container unconditionally."""
-    if not ctx.container_name:
+    """Destroy the LXD VM unconditionally."""
+    if not ctx.vm_name:
         return
-    log.info("Destroying container %s", ctx.container_name)
-    result = _lxc("delete", "--force", ctx.container_name, check=False, capture=True)
+    log.info("Destroying VM %s", ctx.vm_name)
+    result = _lxc("delete", "--force", ctx.vm_name, check=False, capture=True)
     if result.returncode != 0:
         log.warning(
-            "Could not destroy container %s: %s",
-            ctx.container_name,
+            "Could not destroy VM %s: %s",
+            ctx.vm_name,
             result.stderr.strip(),
         )
     else:
-        log.info("Container %s destroyed", ctx.container_name)
-        ctx.container_name = ""
+        log.info("VM %s destroyed", ctx.vm_name)
+        ctx.vm_name = ""
 
 
 def collect_runtime_facts(ctx: "RunContext") -> dict:
-    """Collect core in-container facts proving isolated execution context."""
-    if not ctx.container_name:
+    """Collect core in-VM facts proving isolated execution context."""
+    if not ctx.vm_name:
         return {}
 
     os_release = exec_in(
-        ctx.container_name,
+        ctx.vm_name,
         ["bash", "-lc", "cat /etc/os-release"],
         capture=True,
         check=False,
     ).stdout.strip()
 
     kernel = exec_in(
-        ctx.container_name,
+        ctx.vm_name,
         ["uname", "-a"],
         capture=True,
         check=False,
     ).stdout.strip()
 
     apt_policy = exec_in(
-        ctx.container_name,
+        ctx.vm_name,
         ["bash", "-lc", "apt-cache policy | sed -n '1,40p'"],
         capture=True,
         check=False,
@@ -530,7 +560,7 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
     auth_present = {
         "COPILOT_GITHUB_TOKEN": bool(
             exec_in(
-                ctx.container_name,
+                ctx.vm_name,
                 ["bash", "-lc", 'test -n "$COPILOT_GITHUB_TOKEN"'],
                 capture=True,
                 check=False,
@@ -539,7 +569,7 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
         ),
         "GH_TOKEN": bool(
             exec_in(
-                ctx.container_name,
+                ctx.vm_name,
                 ["bash", "-lc", 'test -n "$GH_TOKEN"'],
                 capture=True,
                 check=False,
@@ -548,7 +578,7 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
         ),
         "GITHUB_TOKEN": bool(
             exec_in(
-                ctx.container_name,
+                ctx.vm_name,
                 ["bash", "-lc", 'test -n "$GITHUB_TOKEN"'],
                 capture=True,
                 check=False,
@@ -558,7 +588,16 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
     }
 
     return {
-        "container_name": ctx.container_name,
+        "vm_name": ctx.vm_name,
+        "image": getattr(ctx, "lxd_image", None),
+        "os_release": os_release,
+        "kernel": kernel,
+        "apt_policy_excerpt": apt_policy,
+        "auth_env_present": auth_present,
+    }
+
+    return {
+        "vm_name": ctx.vm_name,
         "image": getattr(ctx, "lxd_image", None),
         "os_release": os_release,
         "kernel": kernel,

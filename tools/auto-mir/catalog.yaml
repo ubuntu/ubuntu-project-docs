@@ -679,18 +679,25 @@ evidence_adapters:
   notes: URL detection uses debian/watch, debian/upstream/metadata, or reporter statement
 - id: sbuild
   type: local_exec
-  description: Run sbuild test build in-container; produces build log and lintian output
+  description: Run sbuild with unshare backend in LXD VM; produces build log, lintian output, and built .deb files
   inputs:
   - source_package
   - series
   - architectures
+  depends_on:
+  - packaging-source
   output_contract:
     build_log: str
     build_success: bool
+    built_debs: list
     lintian_output: str
     lintian_warnings: list
     lintian_errors: list
+    lintian_pedantic: list
+    static_link_hints: list
   fallback: emit_todo_continue
+  notes: Uses sbuild unshare backend (requires Noble or newer); installed from noble-backports when target is Noble
+  notes: Uses sbuild unshare backend (requires Noble or newer); installed from noble-backports when target is Noble
 - id: lintian
   type: local_exec
   description: Parse lintian output from sbuild run
@@ -721,16 +728,24 @@ evidence_adapters:
   fallback: emit_todo_continue
 - id: dep-analysis
   type: local_exec
-  description: Extract runtime dependencies via dpkg-query and resolve component via apt policy
+  description: Extract runtime dependencies from built .deb files, map to source packages, and filter by MIR scope
   inputs:
   - binary_packages
   - series
+  - requested_binaries
+  depends_on:
+  - packaging-source
+  - sbuild
   output_contract:
     runtime_deps: list
     deps_not_in_main: list
     dev_debug_doc_packages: list
+    dep_source_map: list
+    in_scope_deps_not_in_main: list
+    out_of_scope_deps_not_in_main: list
+    same_source_deps: list
   fallback: emit_todo_continue
-  notes: Do not use check-mir (outdated); use dpkg-query + apt policy
+  notes: Uses post-build dependencies from sbuild output; maps deps to source packages to identify same-source deps
 - id: component-mismatches
   type: local_exec
   description: Run upstream ubuntu-archive-tools/component-mismatches to identify promotion candidates

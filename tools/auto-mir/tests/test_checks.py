@@ -31,6 +31,7 @@ class _Ctx:
     def __init__(self, *, source_package="testpkg", reporter_content="content"):
         self.source_package = source_package
         self.reporter_mir_content = reporter_content
+        self.requested_binaries = []
         self.bug = {"subscribers": []}
         self.evidence = {"adapters": {}}
 
@@ -44,13 +45,17 @@ def _dep_analysis_ok(**kwargs):
         "runtime_dep_packages": [],
         "binary_packages": [],
         "dev_debug_doc_packages": [],
+        "dep_source_map": [],
+        "in_scope_deps_not_in_main": [],
+        "out_of_scope_deps_not_in_main": [],
+        "same_source_deps": [],
     }
     base.update(kwargs)
     return base
 
 
 # ---------------------------------------------------------------------------
-# SUM-1: Source package identified
+# SUM-4: team subscriber in package-team-mapping
 # ---------------------------------------------------------------------------
 
 
@@ -102,10 +107,11 @@ def test_dep_1_all_in_main():
     assert finding.confidence == "high"
 
 
-def test_dep_1_deps_outside_main():
+def test_dep_1_in_scope_deps_outside_main():
+    """In-scope dependencies from other source packages should block MIR."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        deps_not_in_main=["libfancyuniverse"],
+        in_scope_deps_not_in_main=["libfancyuniverse"],
         dep_components=[{"package": "libfancyuniverse", "component": "universe"}],
     )
     finding = checks.deterministic._check_dep_1(ctx, _make_finding("DEP-1"))
@@ -114,150 +120,29 @@ def test_dep_1_deps_outside_main():
     assert "libfancyuniverse" in finding.message
 
 
-def test_dep_1_adapter_missing():
-    ctx = _Ctx()
-    # No dep-analysis adapter at all
-    finding = checks.deterministic._check_dep_1(ctx, _make_finding("DEP-1"))
-    assert finding.status == "unknown"
-    assert finding.confidence == "low"
-
-
-# ---------------------------------------------------------------------------
-# SEC-3: Does not use webkit
-# ---------------------------------------------------------------------------
-
-
-def test_sec_3_clean():
-    ctx = _Ctx()
+def test_dep_1_same_source_deps_ok():
+    """Same-source dependencies should not block MIR."""
+    ctx = _Ctx(source_package="dav1d")
     ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "libfoo", "depends": "libc6"}],
-    )
-    finding = checks.deterministic._check_sec_3(ctx, _make_finding("SEC-3"))
-    assert finding.status == "ok"
-
-
-def test_sec_3_webkit_found():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "myapp", "depends": "libwebkit2gtk-4.0"}],
-    )
-    finding = checks.deterministic._check_sec_3(ctx, _make_finding("SEC-3"))
-    assert finding.status == "not-ok"
-    assert finding.severity == "required"
-    assert finding.confidence == "high"
-
-
-# ---------------------------------------------------------------------------
-# SEC-4: Does not use lib*v8
-# ---------------------------------------------------------------------------
-
-
-def test_sec_4_clean():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "myapp", "depends": "libssl3"}],
-    )
-    finding = checks.deterministic._check_sec_4(ctx, _make_finding("SEC-4"))
-    assert finding.status == "ok"
-
-
-def test_sec_4_libv8_found():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "myapp", "depends": "libv8-dev"}],
-    )
-    finding = checks.deterministic._check_sec_4(ctx, _make_finding("SEC-4"))
-    assert finding.status == "not-ok"
-    assert finding.severity == "required"
-
-
-# ---------------------------------------------------------------------------
-# CB-7: No Python2 dependency
-# ---------------------------------------------------------------------------
-
-
-def test_cb_7_clean():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "myapp", "depends": "python3"}],
-    )
-    finding = checks.deterministic._check_cb_7(ctx, _make_finding("CB-7"))
-    assert finding.status == "ok"
-
-
-def test_cb_7_python2_found():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "myapp", "depends": "python2.7"}],
-    )
-    finding = checks.deterministic._check_cb_7(ctx, _make_finding("CB-7"))
-    assert finding.status == "not-ok"
-    assert finding.severity == "required"
-
-
-# ---------------------------------------------------------------------------
-# SUM-1: Source package identified
-# ---------------------------------------------------------------------------
-
-
-def test_sum_1_ok():
-    ctx = _Ctx(source_package="libfoo")
-    finding = checks.deterministic._check_sum_1(ctx, _make_finding("SUM-1"))
-    assert finding.status == "ok"
-    assert finding.confidence == "high"
-    assert "libfoo" in finding.message
-
-
-def test_sum_1_missing_package():
-    ctx = _Ctx(source_package="")
-    finding = checks.deterministic._check_sum_1(ctx, _make_finding("SUM-1"))
-    assert finding.status == "not-ok"
-    assert finding.severity == "required"
-
-
-# ---------------------------------------------------------------------------
-# SUM-2: Reporter MIR content present
-# ---------------------------------------------------------------------------
-
-
-def test_sum_2_ok():
-    ctx = _Ctx(reporter_content="has content")
-    finding = checks.deterministic._check_sum_2(ctx, _make_finding("SUM-2"))
-    assert finding.status == "ok"
-
-
-def test_sum_2_missing():
-    ctx = _Ctx(reporter_content="")
-    finding = checks.deterministic._check_sum_2(ctx, _make_finding("SUM-2"))
-    assert finding.status == "not-ok"
-    assert finding.severity == "nack"
-
-
-# ---------------------------------------------------------------------------
-# DEP-1: No unresolved runtime dependencies
-# ---------------------------------------------------------------------------
-
-
-def test_dep_1_all_in_main():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        dep_components=[{"package": "libz", "component": "main"}],
+        same_source_deps=["libdav1d7"],
+        dep_components=[{"package": "libdav1d7", "component": "universe"}],
     )
     finding = checks.deterministic._check_dep_1(ctx, _make_finding("DEP-1"))
     assert finding.status == "ok"
     assert finding.confidence == "high"
 
 
-def test_dep_1_deps_outside_main():
+def test_dep_1_out_of_scope_deps_ok():
+    """Out-of-scope dependencies should not block MIR."""
     ctx = _Ctx()
+    ctx.requested_binaries = ["foo"]
     ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        deps_not_in_main=["libfancyuniverse"],
-        dep_components=[{"package": "libfancyuniverse", "component": "universe"}],
+        out_of_scope_deps_not_in_main=["libbar-universe"],
+        dep_components=[{"package": "libbar-universe", "component": "universe"}],
     )
     finding = checks.deterministic._check_dep_1(ctx, _make_finding("DEP-1"))
-    assert finding.status == "not-ok"
-    assert finding.severity == "required"
-    assert "libfancyuniverse" in finding.message
+    assert finding.status == "ok"
+    assert finding.confidence == "high"
 
 
 def test_dep_1_adapter_missing():

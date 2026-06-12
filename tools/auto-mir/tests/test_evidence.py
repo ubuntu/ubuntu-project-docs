@@ -199,12 +199,22 @@ def test_lp_bug_api_output_structure():
 def test_dep_analysis_output_structure():
     """dep-analysis adapter should return expected structure."""
     ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.requested_binaries = []
     ctx.evidence = {
         "adapters": {
             "packaging-source": {
                 "status": "ok",
                 "source_dir": "/tmp/test",
-            }
+            },
+            "sbuild": {
+                "status": "ok",
+                "build_success": True,
+                "built_debs": [
+                    "/tmp/sbuild-output/testpkg_1.0_amd64.deb",
+                    "/tmp/sbuild-output/testpkg-dev_1.0_amd64.deb",
+                ],
+            },
         }
     }
     
@@ -212,9 +222,13 @@ def test_dep_analysis_output_structure():
     with patch("evidence.container_adapters._capture") as mock_capture:
         with patch("evidence.container_adapters._detect_component") as mock_component:
             mock_capture.side_effect = [
-                "testpkg\ntestpkg-dev",  # binaries_raw
-                "libc6, libssl3",  # depends for testpkg
-                "libc6",  # depends for testpkg-dev
+                "testpkg\ntestpkg-dev",  # binaries_raw from debian/control
+                "testpkg",  # Package field for deb1
+                "libc6, libssl3",  # Depends for deb1
+                "testpkg-dev",  # Package field for deb2
+                "libc6",  # Depends for deb2
+                "",  # apt-cache show libc6 (empty -> source_pkg = dep name)
+                "",  # apt-cache show libssl3
             ]
             mock_component.return_value = "main"
             

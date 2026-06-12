@@ -65,27 +65,30 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
         finding.evidence_refs = ["dep-analysis:error"]
         return finding
 
-    deps_not_in_main = dep_analysis.get("deps_not_in_main", [])
+    in_scope_deps = dep_analysis.get("in_scope_deps_not_in_main", [])
+    same_source = dep_analysis.get("same_source_deps", [])
     unknown_components = [
         row["package"]
         for row in dep_analysis.get("dep_components", [])
         if row.get("component") == "unknown"
     ]
 
-    if deps_not_in_main:
+    if in_scope_deps:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "high"
-        finding.message = "Runtime dependencies outside main detected: " + ", ".join(
-            deps_not_in_main
+        finding.message = (
+            "Runtime dependencies from other source packages outside main: "
+            + ", ".join(in_scope_deps)
         )
         finding.todo = (
-            "TODO: - File MIR/extra-exclude for runtime dependencies outside main: "
-            + ", ".join(deps_not_in_main)
+            "TODO: - File MIR for runtime dependencies from other source packages: "
+            + ", ".join(in_scope_deps)
         )
         finding.evidence_refs = [
             "dep-analysis:dep_components",
-            "dep-analysis:deps_not_in_main",
+            "dep-analysis:in_scope_deps_not_in_main",
+            "dep-analysis:dep_source_map",
         ]
         return finding
 
@@ -106,10 +109,75 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
     finding.status = "ok"
     finding.severity = "ok"
     finding.confidence = "high"
-    finding.message = "no other runtime Dependencies to MIR due to this"
+    if same_source:
+        finding.message = (
+            "no external runtime dependencies needing MIR "
+            f"(same-source deps promoted together: {', '.join(same_source)})"
+        )
+    else:
+        finding.message = "no runtime dependencies outside main needing MIR"
     finding.evidence_refs = [
         "dep-analysis:runtime_dep_packages",
         "dep-analysis:dep_components",
+        "dep-analysis:dep_source_map",
+    ]
+    return finding
+
+    in_scope_deps = dep_analysis.get("in_scope_deps_not_in_main", [])
+    same_source = dep_analysis.get("same_source_deps", [])
+    unknown_components = [
+        row["package"]
+        for row in dep_analysis.get("dep_components", [])
+        if row.get("component") == "unknown"
+    ]
+
+    if in_scope_deps:
+        finding.status = "not-ok"
+        finding.severity = "required"
+        finding.confidence = "high"
+        finding.message = (
+            "Runtime dependencies from other source packages outside main: "
+            + ", ".join(in_scope_deps)
+        )
+        finding.todo = (
+            "TODO: - File MIR for runtime dependencies from other source packages: "
+            + ", ".join(in_scope_deps)
+        )
+        finding.evidence_refs = [
+            "dep-analysis:dep_components",
+            "dep-analysis:in_scope_deps_not_in_main",
+            "dep-analysis:dep_source_map",
+        ]
+        return finding
+
+    if unknown_components:
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = (
+            "Could not determine component for some runtime dependencies: "
+            + ", ".join(unknown_components)
+        )
+        finding.todo = "TODO: - Verify Ubuntu component for runtime dependencies: " + ", ".join(
+            unknown_components
+        )
+        finding.evidence_refs = ["dep-analysis:dep_components"]
+        return finding
+
+    finding.status = "ok"
+    finding.severity = "ok"
+    finding.confidence = "high"
+    if same_source:
+        finding.message = (
+            "no external runtime dependencies needing MIR "
+            f"(same-source deps promoted together: {', '.join(same_source)})"
+        )
+    else:
+        finding.message = "no runtime dependencies outside main needing MIR"
+    finding.evidence_refs = [
+        "dep-analysis:runtime_dep_packages",
+        "dep-analysis:dep_components",
+        "dep-analysis:dep_source_map",
     ]
     return finding
 
@@ -258,9 +326,16 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
         return finding
 
     binary_packages = dep_analysis.get("binary_packages", [])
+    
+    # Filter to in-scope binaries only
+    if ctx.requested_binaries:
+        in_scope = [p for p in binary_packages if p in ctx.requested_binaries]
+    else:
+        in_scope = binary_packages
+    
     special = [
         p
-        for p in binary_packages
+        for p in in_scope
         if any(p.endswith(s) for s in ("-dev", "-dbg", "-debug", "-doc", "-docs"))
     ]
 

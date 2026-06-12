@@ -78,7 +78,7 @@ def write_outputs(ctx) -> None:
         "bug_id": ctx.bug_id,
         "source_package": ctx.source_package,
         "series": ctx.series,
-        "container_name": ctx.container_name,
+        "vm_name": ctx.vm_name,
         "catalog_summary": ctx.evidence.get("catalog_summary", {}),
         "analysis_summary": ctx.evidence.get("analysis_summary", {}),
         "findings": [asdict(f) for f in ctx.findings],
@@ -151,7 +151,7 @@ def _build_review_draft(ctx) -> str:
             continue
         findings_in_section = by_section[section]
         if section == "Summary":
-            lines += _render_summary_section(findings_in_section, ctx.findings)
+            lines += _render_summary_section(findings_in_section, ctx.findings, ctx)
         else:
             lines += _render_section(section, findings_in_section)
         lines.append("")  # blank line between sections
@@ -200,6 +200,23 @@ def _build_binary_package_header(ctx) -> list[str]:
             )
 
     return lines
+
+
+def _build_out_of_scope_dep_hint(ctx) -> list[str]:
+    """Add informational hint about out-of-scope dependencies.
+    
+    These are universe dependencies belonging to binary packages NOT requested
+    for promotion. They do not need a MIR and are shown as informational only.
+    """
+    dep_analysis = ctx.evidence.get("adapters", {}).get("dep-analysis", {})
+    out_of_scope = dep_analysis.get("out_of_scope_deps_not_in_main", [])
+    if out_of_scope:
+        return [
+            "Note: The following universe dependencies belong to binary packages "
+            "NOT requested for promotion and do not need a MIR: "
+            + ", ".join(sorted(out_of_scope))
+        ]
+    return []
 
 
 def _is_high_confidence_failure(finding: Finding) -> bool:
@@ -262,7 +279,7 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
     return lines
 
 
-def _render_summary_section(summary_findings: list[Finding], all_findings: list[Finding]) -> list[str]:
+def _render_summary_section(summary_findings: list[Finding], all_findings: list[Finding], ctx) -> list[str]:
     """Render [Summary] with special MIR template semantics.
 
     - Keep resolved summary checks under OK:
@@ -270,6 +287,7 @@ def _render_summary_section(summary_findings: list[Finding], all_findings: list[
     - Keep unresolved summary TODO options visible for reviewer choice.
     - Always include Required TODOs: and Recommended TODOs: blocks.
     - SUM-4 is a gate check and is intentionally not rendered in the draft.
+    - Include out-of-scope dependency hints as informational notes.
     """
     lines: list[str] = ["[Summary]"]
 
@@ -283,6 +301,12 @@ def _render_summary_section(summary_findings: list[Finding], all_findings: list[
             msg = (finding.message or "").strip()
             if msg:
                 lines.append(f"- {msg}")
+
+    # Add out-of-scope dependency hints
+    out_of_scope_hints = _build_out_of_scope_dep_hint(ctx)
+    if out_of_scope_hints:
+        for hint in out_of_scope_hints:
+            lines.append(f"- {hint}")
 
     if unresolved:
         lines.append("Left to decide:")

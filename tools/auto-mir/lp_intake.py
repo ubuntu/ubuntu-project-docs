@@ -17,6 +17,25 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("auto_mir.lp_intake")
 
+# Known Ubuntu series in chronological order for version gating.
+_KNOWN_SERIES = [
+    "focal", "jammy", "kinetic", "lunar", "mantic",
+    "noble", "oracular", "plucky", "questing"
+]
+
+
+def _series_supports_unshare_sbuild(series: str) -> bool:
+    """Check if series is Noble (24.04) or newer for sbuild unshare support.
+    
+    Returns True if the series is Noble or newer, False if older.
+    Unknown series are assumed to be newer than Noble.
+    """
+    try:
+        return _KNOWN_SERIES.index(series) >= _KNOWN_SERIES.index("noble")
+    except ValueError:
+        return True
+
+
 # Sentinel strings that reliably identify reporter MIR template content.
 # The reporter is expected to have processed the reporters template and posted it.
 _REPORTER_TEMPLATE_MARKERS = [
@@ -253,6 +272,39 @@ def _fetch_comments(bug) -> list[str]:
     return comments
 
 
+def _parse_requested_binaries(reporter_content: str) -> list[str] | None:
+    """Parse binary packages requested for promotion from reporter MIR template.
+    
+    Returns list of binary package names if found, None if scope is unclear or "all".
+    """
+    import re
+    
+    patterns = [
+        r"The binary packages?\s+(.+?)\s+(?:need|needs)\s+to be in main",
+        r"binary packages? to be promoted.*?:\s*(.+)",
+        r"packages?\s+(.+?)\s+should be in main",
+        r"List of specific binary packages to be promoted to main:\s*(.+)",
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, reporter_content, re.IGNORECASE | re.MULTILINE)
+        if match:
+            text = match.group(1)
+            # Check for "all" keyword
+            if re.search(r"\ball\b", text, re.IGNORECASE):
+                return None  # None means "all binaries"
+            # Extract package names
+            packages = re.split(r"[,\s]+(?:and\s+)?", text)
+            packages = [
+                p.strip() for p in packages 
+                if p.strip() and re.match(r"^[a-z0-9][a-z0-9.+\-]+$", p)
+            ]
+            if packages:
+                return packages
+    
+    return None  # No clear scope found
+
+
 def run(ctx: "RunContext", non_interactive: bool = False) -> None:
     """Main intake entry point. Populates ctx with bug data.
 
@@ -318,6 +370,15 @@ def run(ctx: "RunContext", non_interactive: bool = False) -> None:
     else:
         log.info("Target series forced by --series: %s", ctx.series)
 
+    # Gate: sbuild unshare backend requires Noble (24.04) or newer
+    if not _series_supports_unshare_sbuild(ctx.series):
+        log.error(
+            "Automated MIR review requires Ubuntu Noble (24.04) or newer for sbuild unshare backend. "
+            "Target series '%s' is not supported.",
+            ctx.series,
+        )
+        sys.exit(1)
+
     # Fetch bug subscribers for MIR qualification heuristics and SUM-4 checks
     subscribers = []
     try:
@@ -369,6 +430,13 @@ def run(ctx: "RunContext", non_interactive: bool = False) -> None:
 
     ctx.reporter_mir_content = reporter_content
     log.info("Reporter MIR content found (%d chars)", len(reporter_content))
+
+    # Parse requested binaries from reporter MIR content
+    if not ctx.requested_binaries:
+        parsed = _parse_requested_binaries(reporter_content)
+        if parsed is not None:
+            ctx.requested_binaries = parsed
+            log.info("Requested binaries parsed from reporter: %s", ", ".join(parsed))
 
     log.info(
         "Launchpad intake complete: bug=%s package=%s series=%s",

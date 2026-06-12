@@ -65,22 +65,7 @@ def test_find_reporter_mir_content_not_found():
 
 
 def _reviewer_block() -> str:
-    return "\n".join(
-        [
-            "Required TODOs:",
-            "- TODO: - Fix the thing",
-            "Recommended TODOs:",
-            "- TODO: - Consider the other thing",
-            "Left to decide:",
-            "TODO: - Review the policy",
-            "[Rationale, Duplication and Ownership]",
-            "OK:",
-            "- package is unique",
-            "[Embedded sources and static linking]",
-            "OK:",
-            "- no embedded sources",
-        ]
-    )
+    return "Review for Source Package: testpkg\n\n(review content)"
 
 
 def test_detect_reviewer_mir_content_positive():
