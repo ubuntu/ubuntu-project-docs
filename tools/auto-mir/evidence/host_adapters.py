@@ -124,7 +124,7 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
         archive = ubuntu.main_archive
         published = archive.getPublishedSources(
             source_name=pkg,
-            distroseries=lp_series,
+            distro_series=lp_series,
             order_by_date=True,
         )
         for pub in list(published)[:20]:

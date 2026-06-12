@@ -97,7 +97,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         raise AdapterError("source package is not set")
 
     workdir = f"/tmp/auto-mir-{ctx.bug_id}"
-    lxd_runner.exec_in(ctx.container_name, ["mkdir", "-p", workdir])
+    lxd_runner.exec_in(ctx.vm_name, ["mkdir", "-p", workdir])
 
     # Fetch source package via apt source for deterministic availability.
     lxd_runner.exec_in_retry(
