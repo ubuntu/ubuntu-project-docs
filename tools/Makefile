@@ -20,7 +20,7 @@ help:
 	@echo "  make format   — format all Python tools with ruff"
 	@echo "  make render-review-template - generate reviewer template from tooling inputs"
 	@echo "  make check-review-template  - verify generated template matches docs template"
-	@echo "  make test     — run unit tests (when added)"
+	@echo "  make test     — run unit tests (tools/auto-mir/tests/)"
 	@echo "  make clean    — remove __pycache__ directories"
 	@echo ""
 	@echo "Targets can be scoped to a subdirectory, e.g.:"
@@ -36,7 +36,7 @@ format:
 
 .PHONY: test
 test:
-	@echo "No unit tests defined yet."
+	uv run --with pytest pytest $(TOOLS_DIR)auto-mir/tests/ -v
 
 .PHONY: render-review-template
 render-review-template:

@@ -27,6 +27,17 @@ _REPORTER_TEMPLATE_MARKERS = [
     "[Maintenance",
 ]
 
+# Sentinel strings that reliably identify a prior reviewer MIR review comment.
+# These markers are specific to the reviewer template output structure and do
+# not overlap with reporter content — the threshold is 3 out of 5.
+_REVIEWER_TEMPLATE_MARKERS = [
+    "Required TODOs:",
+    "Recommended TODOs:",
+    "Left to decide:",
+    "[Rationale, Duplication and Ownership]",
+    "[Embedded sources and static linking]",
+]
+
 # The MIR bug tag used to find MIR-related bugs on Launchpad.
 _MIR_BUG_TAG = "MIR"
 
@@ -60,6 +71,30 @@ def _detect_reporter_mir_content(text: str) -> bool:
     hits = sum(1 for marker in _REPORTER_TEMPLATE_MARKERS if marker in text)
     # Require at least 3 distinct section markers to avoid false positives.
     return hits >= 3
+
+
+def _detect_reviewer_mir_content(text: str) -> bool:
+    """Return True if text looks like a completed MIR reviewer template output.
+
+    Checks for markers that are unique to the reviewer's rendered output
+    (Required TODOs:, Recommended TODOs:, Left to decide:, etc.).
+    Requires at least 3 of the 5 known markers to reduce false positives.
+    """
+    hits = sum(1 for marker in _REVIEWER_TEMPLATE_MARKERS if marker in text)
+    return hits >= 3
+
+
+def _find_prior_reviews(comments: list[str]) -> list[int]:
+    """Return 1-based indices of comments that look like prior MIR reviewer output.
+
+    Scanning all comments allows detection of re-review scenarios where the
+    previous reviewer posted their completed draft on the bug.
+    """
+    return [
+        i + 1
+        for i, comment in enumerate(comments)
+        if _detect_reviewer_mir_content(comment)
+    ]
 
 
 def _find_reporter_mir_content(bug_description: str, comments: list[str]) -> str | None:
@@ -295,6 +330,20 @@ def run(ctx: "RunContext") -> None:
         ctx.bug["subscribers"] = []
 
     _evaluate_mir_heuristics(ctx)
+
+    # Warn if prior MIR review comments are detected (re-review scenario).
+    # The prior content is NOT fed to the AI to avoid anchoring bias; the
+    # reviewer sees this warning on the console and can consult the bug manually.
+    prior_review_indices = _find_prior_reviews(ctx.bug["comments"])
+    ctx.bug["prior_review_comment_indices"] = prior_review_indices
+    if prior_review_indices:
+        indices_str = ", ".join(f"#{i}" for i in prior_review_indices)
+        log.warning(
+            "Prior MIR review(s) detected in bug %s comment(s): %s. "
+            "This run generates a fresh review — prior review content is NOT fed to the AI.",
+            ctx.bug_id,
+            indices_str,
+        )
 
     # Gate: reporter MIR content must be present
     reporter_content = _find_reporter_mir_content(ctx.bug["description"], ctx.bug["comments"])

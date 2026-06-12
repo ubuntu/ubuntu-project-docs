@@ -76,7 +76,6 @@ def write_outputs(ctx) -> None:
         "source_package": ctx.source_package,
         "series": ctx.series,
         "container_name": ctx.container_name,
-        "policy_hashes": ctx.policy_hashes,
         "catalog_summary": ctx.evidence.get("catalog_summary", {}),
         "analysis_summary": ctx.evidence.get("analysis_summary", {}),
         "findings": ctx.findings,
@@ -123,8 +122,17 @@ def _build_review_draft(ctx) -> str:
         f"Review for Source Package: {ctx.source_package}",
         f"Launchpad bug: https://bugs.launchpad.net/bugs/{ctx.bug_id}",
         f"Target series: {ctx.series or 'TBD'}",
-        "",
     ]
+
+    # Binary package overview — helps the reviewer see scope at a glance.
+    # Data comes from dep-analysis (all binaries) and component-mismatches
+    # (which are already in main vs. need promotion).  Both are best-effort;
+    # the SUM-3 check in [Summary] handles the formal scope decision.
+    binary_lines = _build_binary_package_header(ctx)
+    if binary_lines:
+        lines += binary_lines
+
+    lines.append("")
 
     # Group findings by section, preserving per-section order from catalog
     by_section: dict[str, list[dict]] = defaultdict(list)
@@ -146,6 +154,49 @@ def _build_review_draft(ctx) -> str:
         lines.append("")  # blank line between sections
 
     return "\n".join(lines)
+
+
+def _build_binary_package_header(ctx) -> list[str]:
+    """Build binary package overview lines for the draft preamble.
+
+    Returns an empty list when no binary package data is available so
+    the header degrades gracefully to 'Source Package / bug / series' only.
+
+    When data is available, emits:
+      Binary packages: <list>
+      Component split: <binaries already in main> | <binaries needing promotion>
+    The component split line is only emitted when both sets are non-empty.
+    """
+    adapters = ctx.evidence.get("adapters", {})
+    dep_analysis = adapters.get("dep-analysis", {})
+    cm = adapters.get("component-mismatches", {})
+
+    all_binaries: list[str] = dep_analysis.get("binary_packages", [])
+    promotion_candidates: list[str] = cm.get("promotion_candidates", [])
+
+    if not all_binaries and not promotion_candidates:
+        return []
+
+    lines: list[str] = []
+
+    if all_binaries:
+        lines.append(f"Binary packages: {', '.join(sorted(all_binaries))}")
+    elif promotion_candidates:
+        # Fallback: only component-mismatches data available
+        lines.append(f"Binary packages (promotion candidates only): {', '.join(sorted(promotion_candidates))}")
+        return lines
+
+    # Component split: binaries NOT in the promotion list are presumably already in main
+    if promotion_candidates:
+        already_in_main = sorted(set(all_binaries) - set(promotion_candidates))
+        needing_promotion = sorted(set(promotion_candidates) & set(all_binaries))
+        if already_in_main and needing_promotion:
+            lines.append(
+                f"Component split: already in main: {', '.join(already_in_main)}"
+                f" | needs promotion: {', '.join(needing_promotion)}"
+            )
+
+    return lines
 
 
 def _is_high_confidence_failure(finding: dict) -> bool:

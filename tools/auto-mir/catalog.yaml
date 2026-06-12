@@ -1,5 +1,4 @@
 metadata:
-  schema_version: '0.1'
   policy_authority: Ubuntu MIR policy (docs/MIR/) overrides Debian policy where they conflict
   policy_files:
   - path: docs/MIR/mir-reviewers-template.md
@@ -12,7 +11,6 @@ metadata:
     role: Rust and Go language-specific policy
   - path: docs/MIR/main-inclusion-review.md
     role: MIR policy framing and terminology
-  policy_hashes: {}
   reviewer_template_source: catalog-blueprint
   external_policy_refs:
   - url: https://www.debian.org/doc/debian-policy/

@@ -229,7 +229,6 @@ class RunContext:
         self.review_draft_path: Path | None = None
 
         # Metadata recorded in report
-        self.policy_hashes: dict = {}
         self.container_name: str = ""
         self.auth_source: str = ""
         self.container_env: dict[str, str] = {}
@@ -300,7 +299,6 @@ def stage_collect_evidence(ctx: RunContext) -> None:
     log.info("Stage 3: Collecting evidence for %s", ctx.source_package)
     if not ctx.catalog:
         ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
-        ctx.policy_hashes = ctx.catalog.get("metadata", {}).get("policy_hashes", {})
         ctx.evidence["catalog_summary"] = catalog.summarize_catalog(ctx.catalog)
 
     collect_from_catalog(ctx)
@@ -324,7 +322,6 @@ def stage_analyse(ctx: RunContext) -> None:
     log.info("Stage 4: Analysing evidence for %s", ctx.source_package)
     if not ctx.catalog:
         ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
-        ctx.policy_hashes = ctx.catalog.get("metadata", {}).get("policy_hashes", {})
 
     ctx.findings = checks.evaluate_checks(ctx)
     ctx.evidence["analysis_summary"] = {
@@ -578,6 +575,24 @@ def _log_artifact_locations(ctx: RunContext) -> None:
 
     if ctx.review_draft_path:
         log.info("Review draft: %s", ctx.review_draft_path)
+
+    # Print a prominent end-of-run summary so paths are easy to spot after
+    # verbose logging output.
+    lines = [
+        "",
+        "━" * 64,
+        "  auto-mir complete",
+        f"  Output directory : {ctx.output_dir}",
+    ]
+    if ctx.review_draft_path:
+        lines.append(f"  Review draft     : {ctx.review_draft_path}")
+    if ctx.report_path:
+        lines.append(f"  Structured report: {ctx.report_path}")
+    evidence_path = ctx.output_dir / "evidence.json"
+    if evidence_path.exists():
+        lines.append(f"  Evidence file    : {evidence_path}")
+    lines.append("━" * 64)
+    print("\n".join(lines))
 
 
 if __name__ == "__main__":
