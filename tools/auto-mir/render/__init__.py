@@ -113,7 +113,9 @@ def _render_section(section: str, findings: list[dict]) -> list[str]:
             todo = (finding.get("todo") or "").strip()
             if not todo.startswith("TODO:"):
                 todo = f"TODO: {finding['id']} {finding['title']}"
-            lines.append(f"- {todo}")
+            # Collapse multi-line LLM-generated TODOs to a single line
+            todo_single = " ".join(todo.splitlines()).strip()
+            lines.append(f"- {todo_single}")
     else:
         lines.append("Problems: None")
 
