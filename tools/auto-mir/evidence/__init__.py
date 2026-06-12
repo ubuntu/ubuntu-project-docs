@@ -99,7 +99,7 @@ def _collect_packaging_source(ctx) -> dict[str, Any]:
     lxd_runner.exec_in(ctx.container_name, ["mkdir", "-p", workdir])
 
     # Fetch source package via apt source for deterministic availability.
-    lxd_runner.exec_in(
+    lxd_runner.exec_in_retry(
         ctx.container_name,
         [
             "bash",
@@ -110,6 +110,7 @@ def _collect_packaging_source(ctx) -> dict[str, Any]:
                 "echo ${dir#./} > source_dir.txt"
             ),
         ],
+        operation=f"apt-get source {pkg}",
     )
 
     source_dir = _capture(

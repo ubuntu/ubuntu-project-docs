@@ -60,7 +60,10 @@ def evaluate_checks(ctx) -> list[dict]:
             finding["status"] = "unknown"
             finding["message"] = f"Unknown mode: {mode}"
 
-        if finding["status"] != "ok" and not str(finding.get("todo") or "").startswith("TODO:"):
+        todo_value = str(finding.get("todo") or "")
+        if finding["status"] != "ok" and not (
+            todo_value.startswith("TODO:") or todo_value.startswith("TODO-")
+        ):
             finding["todo"] = f"TODO: {finding['id']} {finding['title']}"
 
         findings.append(finding)
@@ -294,21 +297,21 @@ def _check_cb_7(ctx, finding: dict) -> dict:
 
 
 def _check_sum_4(ctx, finding: dict) -> dict:
-    """SUM-4: Team bug subscriber present on the source package."""
+    """SUM-4: ubuntu-mir team is subscribed to the bug."""
     subscribers = ctx.bug.get("subscribers", [])
     if "ubuntu-mir" in subscribers:
         finding["status"] = "ok"
         finding["severity"] = "ok"
         finding["confidence"] = "high"
-        finding["message"] = "Package has a team bug subscriber (ubuntu-mir subscribed)."
+        finding["message"] = "ubuntu-mir is subscribed to this bug."
         finding["evidence_refs"] = ["lp-bug-api:subscribers"]
     else:
         finding["status"] = "not-ok"
         finding["severity"] = "recommended"
         finding["confidence"] = "high"
-        finding["message"] = "No team bug subscriber found on source package"
+        finding["message"] = "ubuntu-mir is not subscribed to this bug"
         finding["todo"] = (
-            "TODO: The package should get a team bug subscriber before being promoted "
+            "TODO: The package should get a team bug subscriber on this bug before being promoted "
             "(will block AA promotion)"
         )
         finding["evidence_refs"] = ["lp-bug-api:subscribers"]
@@ -711,9 +714,7 @@ def _eval_ev_to_ai(check: dict, ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = f"LLM unavailable: {exc}"
-        finding["todo"] = (
-            f"TODO: {check.get('title', 'Check')} — manual review needed (LLM unavailable)"
-        )
+        finding["todo"] = _default_todo_for_check(check, fallback_suffix="manual review needed (LLM unavailable)")
         return finding
 
     return _apply_llm_response(response, check, finding)
@@ -750,7 +751,7 @@ def _eval_ai(check: dict, ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = f"LLM unavailable: {exc}"
-        finding["todo"] = f"TODO: {check.get('title', 'Check')} — requires AI synthesis"
+        finding["todo"] = _default_todo_for_check(check, fallback_suffix="requires AI synthesis")
         return finding
 
     return _apply_llm_response(response, check, finding)
@@ -932,7 +933,7 @@ def _apply_llm_response(response: dict, check: dict, finding: dict) -> dict:
     if not isinstance(response, dict):
         log.warning("LLM response for %s is not a dict: %r", check["id"], response)
         finding["status"] = "unknown"
-        finding["todo"] = f"TODO: {check.get('title', 'Check')} — LLM response invalid"
+        finding["todo"] = _default_todo_for_check(check, fallback_suffix="LLM response invalid")
         return finding
 
     valid_statuses = {"ok", "not-ok", "unknown"}
@@ -966,10 +967,17 @@ def _apply_llm_response(response: dict, check: dict, finding: dict) -> dict:
     rationale = (response.get("rationale") or "").strip()
 
     if status != "ok":
-        if todo and not todo.startswith("TODO:"):
+        # [Summary] option checks (e.g. SUM-5/SUM-6) must keep all variants
+        # visible for human final judgment when unresolved.
+        if check.get("section") == "Summary" and check.get("options"):
+            todo_refs = [str(x).strip() for x in check.get("todo_refs", []) if str(x).strip()]
+            if todo_refs:
+                todo = "\n".join(todo_refs)
+
+        if todo and not (todo.startswith("TODO:") or todo.startswith("TODO-")):
             todo = f"TODO: {todo}"
         if not todo:
-            todo = f"TODO: {check.get('title', check['id'])} — review needed"
+            todo = _default_todo_for_check(check, fallback_suffix="review needed")
         if rationale:
             finding["message"] = f"{message}\n  Rationale: {rationale}" if message else rationale
         finding["todo"] = todo
@@ -990,6 +998,18 @@ def _apply_llm_response(response: dict, check: dict, finding: dict) -> dict:
     finding["human_confirmation_required"] = True
 
     return finding
+
+
+def _default_todo_for_check(check: dict, fallback_suffix: str) -> str:
+    """Return a default TODO string for a check.
+
+    Prefer catalog todo_refs so mutually-exclusive options (TODO-A/B/C) are kept
+    visible for human review when the tool cannot decide.
+    """
+    todo_refs = [str(x).strip() for x in check.get("todo_refs", []) if str(x).strip()]
+    if todo_refs:
+        return "\n".join(todo_refs)
+    return f"TODO: {check.get('title', check.get('id', 'Check'))} — {fallback_suffix}"
 
 
 def _summarise_findings_so_far(ctx) -> list[dict]:

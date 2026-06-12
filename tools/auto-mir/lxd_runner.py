@@ -50,6 +50,10 @@ _REQUIRED_PACKAGES = [
 _ARCHIVE_TOOLS_REPO = "https://git.launchpad.net/ubuntu-archive-tools"
 _ARCHIVE_TOOLS_DIR = "/opt/ubuntu-archive-tools"
 
+# Retry policy for transient in-container network/server failures.
+_RETRY_ATTEMPTS = 4
+_RETRY_BASE_DELAY_S = 6
+
 
 def _run_host(cmd: list[str], check: bool = True, capture: bool = False, **kwargs):
     """Run a command on the host. Raise on failure unless check=False."""
@@ -184,14 +188,19 @@ def _provision(name: str, ctx: "RunContext") -> None:
     _enable_source_repositories(name)
 
     # Update package lists
-    exec_in(name, ["apt-get", "update", "-qq"])
+    exec_in_retry(
+        name,
+        ["apt-get", "update", "-qq"],
+        operation="apt-get update",
+    )
 
     # Install required packages
     log.info("Installing required packages in container")
-    exec_in(
+    exec_in_retry(
         name,
         ["apt-get", "install", "-qq", "-y", "--no-install-recommends"] + _REQUIRED_PACKAGES,
         env={"DEBIAN_FRONTEND": "noninteractive"},
+        operation="apt-get install required packages",
     )
 
     # Export host-resolved auth into container env for future AI calls.
@@ -265,16 +274,18 @@ def _bootstrap_archive_tools(name: str, pin_commit: str | None) -> None:
         "Bootstrapping ubuntu-archive-tools (%s)",
         f"pinned to {pin_commit}" if pin_commit else "latest HEAD",
     )
-    exec_in(
+    exec_in_retry(
         name,
         ["git", "clone", "--depth=1", _ARCHIVE_TOOLS_REPO, _ARCHIVE_TOOLS_DIR],
+        operation="clone ubuntu-archive-tools",
     )
     if pin_commit:
         # Deepen clone just enough to reach the pinned commit, then check it out.
-        exec_in(
+        exec_in_retry(
             name,
             ["git", "-C", _ARCHIVE_TOOLS_DIR, "fetch", "--depth=1", "origin", pin_commit],
-            check=False,  # May fail on shallow; fall back to full fetch if needed
+            check=False,  # May fail on shallow; fallback path below handles it
+            operation="fetch pinned ubuntu-archive-tools commit",
         )
         result = exec_in(
             name,
@@ -285,13 +296,15 @@ def _bootstrap_archive_tools(name: str, pin_commit: str | None) -> None:
         if result.returncode != 0:
             # Shallow clone may not have the commit; do a full unshallow fetch
             log.debug("Shallow fetch missed commit; unshallowing")
-            exec_in(
+            exec_in_retry(
                 name,
                 ["git", "-C", _ARCHIVE_TOOLS_DIR, "fetch", "--unshallow", "origin"],
+                operation="unshallow ubuntu-archive-tools",
             )
-            exec_in(
+            exec_in_retry(
                 name,
                 ["git", "-C", _ARCHIVE_TOOLS_DIR, "checkout", pin_commit],
+                operation="checkout pinned ubuntu-archive-tools commit",
             )
         log.info("Pinned ubuntu-archive-tools to %s", pin_commit)
     else:
@@ -348,6 +361,94 @@ def exec_in(
             log.error("stderr: %s", result.stderr)
         raise subprocess.CalledProcessError(result.returncode, cmd)
     return result
+
+
+def exec_in_retry(
+    name: str,
+    cmd: list[str],
+    *,
+    check: bool = True,
+    capture: bool = False,
+    env: dict | None = None,
+    workdir: str | None = None,
+    attempts: int = _RETRY_ATTEMPTS,
+    base_delay_s: int = _RETRY_BASE_DELAY_S,
+    operation: str = "command",
+) -> subprocess.CompletedProcess:
+    """Run an in-container command with retries on transient failures.
+
+    Intended for network/server-sensitive steps (apt, git clone/fetch, source
+    downloads). Retries are attempted only when stderr/stdout indicate transient
+    infrastructure issues (503, temporary DNS/connection errors, timeouts).
+    """
+    last: subprocess.CompletedProcess | None = None
+    for attempt in range(1, attempts + 1):
+        result = exec_in(
+            name,
+            cmd,
+            check=False,
+            capture=True,
+            env=env,
+            workdir=workdir,
+        )
+        last = result
+
+        if result.returncode == 0:
+            return result
+
+        text = f"{result.stdout or ''}\n{result.stderr or ''}"
+        transient = _looks_transient_failure(text)
+        if not transient or attempt == attempts:
+            if check:
+                hint = (
+                    "\nHard stop: command failed after retries due to non-transient error."
+                    if not transient
+                    else "\nHard stop: transient upstream/server issue did not recover after retries."
+                )
+                raise RuntimeError(
+                    f"{operation} failed (attempt {attempt}/{attempts}, exit {result.returncode})."
+                    f"\nCommand: {shlex.join(cmd)}"
+                    f"\nstdout:\n{(result.stdout or '').strip()}"
+                    f"\nstderr:\n{(result.stderr or '').strip()}"
+                    f"{hint}"
+                )
+            return result
+
+        delay = base_delay_s * attempt
+        log.warning(
+            "Transient failure during %s (attempt %d/%d, exit %d). Retrying in %ds",
+            operation,
+            attempt,
+            attempts,
+            result.returncode,
+            delay,
+        )
+        log.debug("Transient command output: %s", text.strip()[:400])
+        time.sleep(delay)
+
+    # Defensive fallback; loop always returns/raises before this.
+    if last is None:
+        raise RuntimeError(f"{operation} failed: no command execution result")
+    return last
+
+
+def _looks_transient_failure(text: str) -> bool:
+    """Return True for retryable network/server failures."""
+    hay = text.lower()
+    transient_markers = (
+        " 503",
+        "http 503",
+        "requested url returned error: 503",
+        "temporary failure resolving",
+        "could not resolve",
+        "failed to fetch",
+        "connection timed out",
+        "connection reset",
+        "tls handshake timeout",
+        "service unavailable",
+        "network is unreachable",
+    )
+    return any(marker in hay for marker in transient_markers)
 
 
 def push_file(name: str, local_path: str, container_path: str) -> None:

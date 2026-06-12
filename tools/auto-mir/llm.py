@@ -73,10 +73,7 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
     Raises:
         LLMError: on auth failure, HTTP error, or invalid JSON in response.
     """
-    provider = getattr(ctx, "llm_provider", "copilot").lower()
-    if provider == "copilot":
-        return _call_copilot(prompt, ctx)
-    raise LLMError(f"Unknown LLM provider: {provider!r}")
+    return _call_copilot(prompt, ctx)
 
 
 # ---------------------------------------------------------------------------
@@ -255,7 +252,9 @@ def _learn_from_headers(limiter: _RateLimitState, headers) -> None:
     if limit_val:
         try:
             parsed_limit = int(limit_val)
-            if parsed_limit > 0:
+            # Guardrail: request-per-window limits are expected to be modest.
+            # Large values (e.g. 60000) are typically token quotas, not request rates.
+            if 0 < parsed_limit <= 500:
                 limiter.limit = parsed_limit
         except ValueError:
             pass
@@ -350,6 +349,8 @@ def _parse_rate_limit_hint(body: str) -> tuple[int, int] | None:
         return None
     limit = int(match.group(1))
     window_s = int(match.group(2))
-    if limit <= 0 or window_s <= 0:
+    # Guardrails: request-rate hints are expected to be modest. Very large
+    # values are usually token quotas and should not drive request pacing.
+    if limit <= 0 or window_s <= 0 or limit > 500 or window_s > 3600:
         return None
     return limit, window_s

@@ -9,7 +9,6 @@ Options:
     --lxd-image IMAGE        LXD image alias for isolated execution (default: Ubuntu devel)
     --keep-container         Keep LXD container after run for debugging (default: off)
     --pin-uat-tooling COMMIT Pin ubuntu-archive-tools to specific commit for reproducible runs
-    --llm-provider PROVIDER  LLM provider to use (default: copilot)
     --llm-model MODEL        LLM model to request from provider (default: gpt-4o-mini)
     --output-dir DIR         Directory to write report and review draft (default: /tmp/mir-<bugid>)
     --dry-run                Fetch and collect evidence only; skip AI synthesis and rendering
@@ -44,8 +43,6 @@ log = logging.getLogger("auto_mir")
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         description="AI-assisted MIR reviewer assistant",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__,
     )
     p.add_argument("bug_id", help="Launchpad MIR bug ID")
     p.add_argument("--series", default="devel", help="Target Ubuntu series (default: devel)")
@@ -66,11 +63,6 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         metavar="COMMIT",
         help="Pin ubuntu-archive-tools to this git commit (default: HEAD)",
-    )
-    p.add_argument(
-        "--llm-provider",
-        default=os.environ.get("AUTO_MIR_LLM_PROVIDER", "copilot"),
-        help="LLM provider adapter to use",
     )
     p.add_argument(
         "--llm-model",
@@ -105,7 +97,6 @@ class RunContext:
         self.keep_container: bool = args.keep_container
         self.pin_uat_tooling: str | None = args.pin_uat_tooling
         self.lxd_image: str | None = args.lxd_image
-        self.llm_provider: str = args.llm_provider
         self.llm_model: str = args.llm_model
         self.dry_run: bool = args.dry_run
         self.tool_root = Path(__file__).resolve().parent
@@ -254,9 +245,6 @@ def stage_auth(ctx: RunContext) -> None:
     1) Host env vars: COPILOT_GITHUB_TOKEN, GH_TOKEN, GITHUB_TOKEN
     2) GitHub CLI login token: `gh auth token`
     """
-    if ctx.llm_provider.lower() != "copilot":
-        return
-
     token, source = _resolve_copilot_token()
     if not token:
         log.error(
@@ -273,7 +261,7 @@ def stage_auth(ctx: RunContext) -> None:
         "GITHUB_TOKEN": token,
     }
     ctx.evidence["auth"] = {
-        "provider": ctx.llm_provider,
+        "provider": "copilot",
         "source": source,
     }
     log.info("Copilot auth resolved from %s", source)
@@ -360,8 +348,7 @@ def main() -> int:
         ctx.dry_run,
     )
     log.debug(
-        "LLM configuration for this run: provider=%s requested_model=%s",
-        ctx.llm_provider,
+        "LLM configuration for this run: provider=copilot requested_model=%s",
         ctx.llm_model,
     )
 

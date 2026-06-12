@@ -1,10 +1,9 @@
 """Renderer for auto-mir structured outputs.
 
-The review draft mirrors the structure of docs/MIR/mir-reviewers-template.md:
-each template section becomes a labelled block with an OK: sub-block for
-resolved checks and a Problems: sub-block for outstanding TODO items.
-This keeps the draft directly usable as a starting point for the human
-reviewer to paste into the Launchpad bug.
+The review draft mirrors the structure of docs/MIR/mir-reviewers-template.md.
+Most sections are rendered with an OK: sub-block and a Left to decide:
+sub-block. The [Summary] section is handled specially and keeps explicit
+"Required TODOs:" and "Recommended TODOs:" blocks for final human judgment.
 """
 from __future__ import annotations
 
@@ -85,18 +84,21 @@ def _build_review_draft(ctx) -> str:
         if section not in by_section:
             continue
         findings_in_section = by_section[section]
-        lines += _render_section(section, findings_in_section)
+        if section == "Summary":
+            lines += _render_summary_section(findings_in_section, ctx.findings)
+        else:
+            lines += _render_section(section, findings_in_section)
         lines.append("")  # blank line between sections
 
     return "\n".join(lines)
 
 
 def _render_section(section: str, findings: list[dict]) -> list[str]:
-    """Render a single [Section] block."""
+    """Render a standard [Section] block."""
     lines: list[str] = [f"[{section}]"]
 
     ok_findings = [f for f in findings if f["status"] == "ok"]
-    problem_findings = [f for f in findings if f["status"] != "ok"]
+    undecided_findings = [f for f in findings if f["status"] != "ok"]
 
     # OK sub-block
     if ok_findings:
@@ -106,20 +108,99 @@ def _render_section(section: str, findings: list[dict]) -> list[str]:
             if msg:
                 lines.append(f"- {msg}")
 
-    # Problems sub-block
-    if problem_findings:
-        lines.append("Problems:")
-        for finding in problem_findings:
-            todo = (finding.get("todo") or "").strip()
-            if not todo.startswith("TODO:"):
-                todo = f"TODO: {finding['id']} {finding['title']}"
-            # Collapse multi-line LLM-generated TODOs to a single line
-            todo_single = " ".join(todo.splitlines()).strip()
-            lines.append(f"- {todo_single}")
+    # Left to decide sub-block
+    if undecided_findings:
+        lines.append("Left to decide:")
+        for finding in undecided_findings:
+            for todo_line in _todo_lines_for_finding(finding):
+                lines.append(f"- {todo_line}")
     else:
-        lines.append("Problems: None")
+        lines.append("Left to decide: None")
 
     return lines
+
+
+def _render_summary_section(summary_findings: list[dict], all_findings: list[dict]) -> list[str]:
+    """Render [Summary] with special MIR template semantics.
+
+    - Keep resolved summary checks under OK:
+    - Do not emit a "Problems:" block here.
+    - Keep unresolved summary TODO options visible for reviewer choice.
+    - Always include Required TODOs: and Recommended TODOs: blocks.
+    - SUM-4 is a gate check and is intentionally not rendered in the draft.
+    """
+    lines: list[str] = ["[Summary]"]
+
+    visible_summary = [f for f in summary_findings if f.get("id") != "SUM-4"]
+    ok_findings = [f for f in visible_summary if f.get("status") == "ok"]
+    unresolved = [f for f in visible_summary if f.get("status") != "ok"]
+
+    if ok_findings:
+        lines.append("OK:")
+        for finding in ok_findings:
+            msg = (finding.get("message") or "").strip()
+            if msg:
+                lines.append(f"- {msg}")
+
+    if unresolved:
+        lines.append("Left to decide:")
+        for finding in unresolved:
+            for todo_line in _todo_lines_for_finding(finding):
+                lines.append(f"- {todo_line}")
+    else:
+        lines.append("Left to decide: None")
+
+    lines.append("Required TODOs:")
+    lines.append("- TODO: - TBD (Please add them numbered for later reference)")
+    required = _collect_todos_by_severity(all_findings, "required")
+    if required:
+        for todo in required:
+            lines.append(f"- {todo}")
+
+    lines.append("Recommended TODOs:")
+    lines.append("- TODO: - TBD (Please add them numbered for later reference)")
+    recommended = _collect_todos_by_severity(all_findings, "recommended")
+    if recommended:
+        for todo in recommended:
+            lines.append(f"- {todo}")
+
+    return lines
+
+
+def _collect_todos_by_severity(findings: list[dict], severity: str) -> list[str]:
+    seen: set[str] = set()
+    todos: list[str] = []
+    for finding in findings:
+        if finding.get("id") == "SUM-4":
+            # SUM-4 is a gate only and should not render in the final draft.
+            continue
+        if finding.get("status") == "ok":
+            continue
+        if finding.get("severity") != severity:
+            continue
+        for todo_line in _todo_lines_for_finding(finding):
+            if todo_line not in seen:
+                seen.add(todo_line)
+                todos.append(todo_line)
+    return todos
+
+
+def _todo_lines_for_finding(finding: dict) -> list[str]:
+    """Return normalized TODO lines for a finding, preserving option variants."""
+    todo_text = (finding.get("todo") or "").strip()
+    if not todo_text:
+        todo_text = f"TODO: {finding.get('id')} {finding.get('title', '')}".strip()
+
+    lines = [line.strip() for line in todo_text.splitlines() if line.strip()]
+    normalized: list[str] = []
+    for line in lines:
+        # Avoid double-prefix outputs like "TODO: TODO-A: ..."
+        if line.startswith("TODO: TODO-"):
+            line = line[len("TODO: "):]
+        if not (line.startswith("TODO:") or line.startswith("TODO-")):
+            line = f"TODO: {line}"
+        normalized.append(line)
+    return normalized
 
 
 # ---------------------------------------------------------------------------
@@ -131,11 +212,11 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
 
     Rules enforced:
     - No RULE: lines (template directives must never reach the output)
-    - Lines inside a Problems: block must start with "- TODO:" or be blank
+    - Lines inside a Left to decide: block must start with "- TODO:" or "- TODO-"
     - Resolved (ok) findings must not produce a TODO message
     - Unresolved findings must carry a TODO string
     """
-    in_problems_block = False
+    in_undecided_block = False
     for line in draft.splitlines():
         # No raw RULE lines allowed
         if line.startswith("RULE:") or line.startswith("RULE "):
@@ -143,20 +224,20 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
 
         # Track section / sub-section transitions
         if line.startswith("[") and line.endswith("]"):
-            in_problems_block = False
+            in_undecided_block = False
             continue
-        if line == "Problems:":
-            in_problems_block = True
+        if line == "Left to decide:":
+            in_undecided_block = True
             continue
-        if line.startswith("Problems: ") or line in ("OK:", ""):
-            in_problems_block = False
+        if line.startswith("Left to decide: ") or line in ("OK:", "Required TODOs:", "Recommended TODOs:", ""):
+            in_undecided_block = False
             continue
 
-        # Every content line inside a Problems: block must be a TODO entry
-        if in_problems_block and line:
-            if not line.startswith("- TODO:"):
+        # Every content line inside undecided block must be a TODO entry
+        if in_undecided_block and line:
+            if not (line.startswith("- TODO:") or line.startswith("- TODO-")):
                 raise ValueError(
-                    f"Problems block line must start with '- TODO:': {line!r}"
+                    f"Left to decide block line must start with '- TODO:' or '- TODO-': {line!r}"
                 )
 
     # Per-finding invariants
@@ -169,7 +250,7 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
             raise ValueError(
                 f"Resolved finding {finding.get('id')} must not render as TODO"
             )
-        if status != "ok" and not todo.startswith("TODO:"):
+        if status != "ok" and not (todo.startswith("TODO:") or todo.startswith("TODO-")):
             raise ValueError(
                 f"Unresolved finding {finding.get('id')} must include TODO"
             )

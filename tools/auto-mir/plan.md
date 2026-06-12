@@ -24,6 +24,9 @@ needs to restart, load this file and continue from the decisions recorded here.
 6. AI-assisted synthesis where needed, with mandatory human override on designated checks.
 7. Strict template-close rendering: unresolved tasks as `TODO` lines only, no `RULE` leakage.
 8. Validation against recent corpus in `old-MIRs-as-input` (4 from 2026 + 8 from 2025).
+9. Final docs pass in `tools/auto-mir/README.md` describing architecture/design
+  (including a Mermaid diagram) and concise usage intent (with `--help` as
+  the reference for detailed CLI options).
 
 ## Locked Traceability Decisions
 
