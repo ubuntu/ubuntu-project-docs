@@ -11,10 +11,11 @@ import logging
 from pathlib import Path
 
 from models import Finding
+from checks.registry import evaluator
 
 log = logging.getLogger("auto_mir.checks.llm_eval")
 
-
+@evaluator("ev_to_ai")
 def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate a check by combining collected evidence with an LLM call.
 
@@ -43,6 +44,7 @@ def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
     return _apply_llm_response(response, check, finding)
 
 
+@evaluator("ai")
 def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate checks that require pure AI synthesis over the full findings set.
 
@@ -76,6 +78,7 @@ def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
     return _apply_llm_response(response, check, finding)
 
 
+@evaluator("human_only")
 def _eval_human_only(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate checks that require human judgment only."""
     finding.status = "unknown"

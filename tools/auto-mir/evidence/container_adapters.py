@@ -10,6 +10,8 @@ import logging
 import re
 
 import lxd_runner
+from catalog_enums import AdapterID
+from evidence.registry import adapter
 from evidence.types import (
     ComponentMismatchesResult,
     DepAnalysisResult,
@@ -82,6 +84,7 @@ def _detect_component(ctx, package: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+@adapter(AdapterID.PACKAGING_SOURCE)
 def collect_packaging_source(ctx) -> PackagingSourceResult:
     """Fetch and analyze Debian packaging source files.
 
@@ -165,6 +168,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
 # ---------------------------------------------------------------------------
 
 
+@adapter(AdapterID.DEP_ANALYSIS, depends_on=[AdapterID.PACKAGING_SOURCE])
 def collect_dep_analysis(ctx) -> DepAnalysisResult:
     """Analyze runtime dependencies and their Ubuntu components.
 
@@ -230,6 +234,7 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
 # ---------------------------------------------------------------------------
 
 
+@adapter(AdapterID.COMPONENT_MISMATCHES)
 def collect_component_mismatches(ctx) -> ComponentMismatchesResult:
     """Run component-mismatches tool to identify packages needing promotion.
 
@@ -291,6 +296,7 @@ def _parse_promotion_candidates(output: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
+@adapter(AdapterID.SBUILD, depends_on=[AdapterID.PACKAGING_SOURCE])
 def collect_sbuild(ctx) -> SbuildResult:
     """Run lintian over the already-fetched source package in the container.
 

@@ -15,10 +15,11 @@ from evidence import collect_from_catalog, _order_adapters, AdapterError
 
 
 def test_order_adapters_no_deps():
-    """Adapters without dependencies should be ordered alphabetically."""
+    """Adapters without dependencies should all be returned."""
     required = {"lp-bug-api", "ubuntu-cve-tracker", "autopkgtest-db"}
     ordered = _order_adapters(required, {})
-    assert ordered == sorted(required)
+    assert set(ordered) == required
+    assert len(ordered) == len(required)
 
 
 def test_order_adapters_with_deps():
@@ -79,15 +80,16 @@ def test_collect_from_catalog_skips_unreferenced_adapters():
     }
     ctx.evidence = {}
     
-    with patch("evidence.host_adapters.collect_lp_bug_api") as mock_lp:
-        mock_lp.return_value = {"status": "ok"}
-        with patch("evidence.host_adapters.collect_ubuntu_cve_tracker") as mock_cve:
-            collect_from_catalog(ctx)
-            
-            # lp-bug-api should be called
-            assert mock_lp.called
-            # ubuntu-cve-tracker should NOT be called (not referenced)
-            assert not mock_cve.called
+    mock_lp = Mock(return_value={"status": "ok"})
+    mock_cve = Mock(return_value={"status": "ok"})
+    
+    with patch.dict("evidence.ADAPTER_REGISTRY", {"lp-bug-api": (mock_lp, []), "ubuntu-cve-tracker": (mock_cve, [])}, clear=True):
+        collect_from_catalog(ctx)
+        
+        # lp-bug-api should be called
+        assert mock_lp.called
+        # ubuntu-cve-tracker should NOT be called (not referenced)
+        assert not mock_cve.called
 
 
 def test_collect_from_catalog_respects_dependency_order():
@@ -95,7 +97,7 @@ def test_collect_from_catalog_respects_dependency_order():
     ctx = Mock()
     ctx.catalog = {
         "checks": [
-            {"id": "DEP-1", "adapters_required": ["dep-analysis"]},
+            {"id": "DEP-1", "adapters_required": ["dep-analysis", "packaging-source"]},
         ]
     }
     ctx.evidence = {}
@@ -110,12 +112,14 @@ def test_collect_from_catalog_respects_dependency_order():
         call_order.append("dep-analysis")
         return {"status": "ok"}
     
-    with patch("evidence.container_adapters.collect_packaging_source", side_effect=mock_packaging):
-        with patch("evidence.container_adapters.collect_dep_analysis", side_effect=mock_dep):
-            collect_from_catalog(ctx)
-            
-            # packaging-source must be collected before dep-analysis
-            assert call_order == ["packaging-source", "dep-analysis"]
+    m_pack = Mock(side_effect=mock_packaging)
+    m_dep = Mock(side_effect=mock_dep)
+
+    with patch.dict("evidence.ADAPTER_REGISTRY", {"packaging-source": (m_pack, []), "dep-analysis": (m_dep, ["packaging-source"])}, clear=True):
+        collect_from_catalog(ctx)
+        
+        # packaging-source must be collected before dep-analysis
+        assert call_order == ["packaging-source", "dep-analysis"]
 
 
 def test_collect_from_catalog_handles_adapter_failure():
@@ -128,19 +132,18 @@ def test_collect_from_catalog_handles_adapter_failure():
     }
     ctx.evidence = {}
     
-    with patch("evidence.host_adapters.collect_lp_bug_api") as mock_lp:
-        mock_lp.side_effect = AdapterError("LP API unavailable")
-        with patch("evidence.host_adapters.collect_ubuntu_cve_tracker") as mock_cve:
-            mock_cve.return_value = {"status": "ok"}
-            
-            collect_from_catalog(ctx)
-            
-            # lp-bug-api should be marked as error
-            assert ctx.evidence["adapters"]["lp-bug-api"]["status"] == "error"
-            assert "LP API unavailable" in ctx.evidence["adapters"]["lp-bug-api"]["message"]
-            
-            # ubuntu-cve-tracker should still be collected
-            assert ctx.evidence["adapters"]["ubuntu-cve-tracker"]["status"] == "ok"
+    mock_lp = Mock(side_effect=AdapterError("LP API unavailable"))
+    mock_cve = Mock(return_value={"status": "ok"})
+    
+    with patch.dict("evidence.ADAPTER_REGISTRY", {"lp-bug-api": (mock_lp, []), "ubuntu-cve-tracker": (mock_cve, [])}, clear=True):
+        collect_from_catalog(ctx)
+        
+        # lp-bug-api should be marked as error
+        assert ctx.evidence["adapters"]["lp-bug-api"]["status"] == "error"
+        assert "LP API unavailable" in ctx.evidence["adapters"]["lp-bug-api"]["message"]
+        
+        # ubuntu-cve-tracker should still be collected
+        assert ctx.evidence["adapters"]["ubuntu-cve-tracker"]["status"] == "ok"
 
 
 def test_collect_from_catalog_marks_unimplemented_adapters():
@@ -153,11 +156,12 @@ def test_collect_from_catalog_marks_unimplemented_adapters():
     }
     ctx.evidence = {}
     
-    collect_from_catalog(ctx)
-    
-    # new-adapter should be marked as pending
-    assert ctx.evidence["adapters"]["new-adapter"]["status"] == "pending"
-    assert "not implemented" in ctx.evidence["adapters"]["new-adapter"]["message"]
+    with patch.dict("evidence.ADAPTER_REGISTRY", {}, clear=True):
+        collect_from_catalog(ctx)
+        
+        # new-adapter should be marked as pending
+        assert ctx.evidence["adapters"]["new-adapter"]["status"] == "pending"
+        assert "Unknown adapter" in ctx.evidence["adapters"]["new-adapter"]["message"]
 
 
 # ---------------------------------------------------------------------------

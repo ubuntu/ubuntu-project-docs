@@ -208,6 +208,8 @@ def _is_high_confidence_failure(finding: Finding) -> bool:
     Such findings are shown under Problems: rather than Left to decide: so the
     reviewer can see confirmed issues separately from items needing judgment.
     """
+    if finding.status == "unknown":
+        return False
     return finding.confidence == "high" or finding.mode == "deterministic"
 
 
@@ -247,7 +249,7 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
     if undecided:
         lines.append("Left to decide:")
         for finding in undecided:
-            causes = finding.get("adapter_error_cause", [])
+            causes = finding.adapter_error_cause
             if causes:
                 lines.append(
                     f"NOTE: - left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
@@ -285,7 +287,7 @@ def _render_summary_section(summary_findings: list[Finding], all_findings: list[
     if unresolved:
         lines.append("Left to decide:")
         for finding in unresolved:
-            causes = finding.get("adapter_error_cause", [])
+            causes = finding.adapter_error_cause
             if causes:
                 lines.append(
                     f"NOTE: - left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
@@ -334,7 +336,7 @@ def _todo_lines_for_finding(finding: Finding) -> list[str]:
     """Return normalized TODO lines for a finding, preserving option variants."""
     todo_text = (finding.todo or "").strip()
     if not todo_text:
-        todo_text = f"TODO: - {finding.id} {finding.get('title', '')}".strip()
+        todo_text = f"TODO: - {finding.id} {finding.title}".strip()
 
     lines = [line.strip() for line in todo_text.splitlines() if line.strip()]
     normalized: list[str] = []

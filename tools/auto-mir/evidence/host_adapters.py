@@ -16,6 +16,8 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from catalog_enums import AdapterID
+from evidence.registry import adapter
 from evidence.types import (
     AutopkgtestResult,
     LPBugAPIResult,
@@ -36,6 +38,7 @@ class AdapterError(RuntimeError):
 # ---------------------------------------------------------------------------
 
 
+@adapter(AdapterID.LP_BUG_API)
 def collect_lp_bug_api(ctx) -> LPBugAPIResult:
     """Return Launchpad bug data already collected by lp_intake.
 
@@ -59,6 +62,7 @@ def collect_lp_bug_api(ctx) -> LPBugAPIResult:
     }
 
 
+@adapter(AdapterID.LP_TEAM_MEMBERSHIP_API)
 def collect_lp_team_membership_api(ctx) -> LPTeamMembershipAPIResult:
     """Return bug subscriber / team-membership data from lp_intake.
 
@@ -74,6 +78,7 @@ def collect_lp_team_membership_api(ctx) -> LPTeamMembershipAPIResult:
     }
 
 
+@adapter(AdapterID.LP_PACKAGE_API)
 def collect_lp_package_api(ctx) -> LPPackageAPIResult:
     """Query Launchpad package publishing history and build state via launchpadlib.
 
@@ -179,6 +184,7 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
 # ---------------------------------------------------------------------------
 
 
+@adapter(AdapterID.UBUNTU_CVE_TRACKER)
 def collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
     """Query OVAL data from https://security-metadata.canonical.com/oval/ for CVEs.
 
@@ -282,6 +288,7 @@ def collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
 # ---------------------------------------------------------------------------
 
 
+@adapter(AdapterID.AUTOPKGTEST_DB)
 def collect_autopkgtest(ctx) -> AutopkgtestResult:
     """Query autopkgtest SQLite database for package test results.
 

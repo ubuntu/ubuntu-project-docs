@@ -17,25 +17,9 @@ from checks.language_gates import _is_go_package, _is_rust_package, _language_ga
 log = logging.getLogger("auto_mir.checks")
 
 
-from checks.deterministic import (
-    _eval_deterministic,
-    _check_sum_1,
-    _check_sum_2,
-    _check_sum_4,
-    _check_dep_1,
-    _check_dep_3,
-    _check_esl_1,
-    _check_esl_3,
-    _check_esl_4,
-    _check_esl_7,
-    _check_esl_8,
-    _check_esl_9,
-    _check_esl_10,
-    _check_sec_3,
-    _check_sec_4,
-    _check_cb_7,
-)
-from checks.llm_eval import _eval_ev_to_ai, _eval_ai, _eval_human_only
+from checks.registry import EVALUATORS
+import checks.deterministic
+import checks.llm_eval
 
 
 def evaluate_checks(ctx) -> list[Finding]:
@@ -94,17 +78,11 @@ def evaluate_checks(ctx) -> list[Finding]:
             log.info("Evaluating check: %s - %s (%s)", check["id"], title, mode)
         else:
             log.info("Evaluating check: %s (%s)", check["id"], mode)
-        if mode == "deterministic":
-            finding = _eval_deterministic(check, ctx, finding)
-        elif mode == "ev_to_ai":
-            finding = _eval_ev_to_ai(check, ctx, finding)
-        elif mode == "ai":
-            finding = _eval_ai(check, ctx, finding)
-        elif mode == "human_only":
-            finding = _eval_human_only(check, ctx, finding)
+        evaluator = EVALUATORS.get(mode)
+        if evaluator:
+            finding = evaluator(check, ctx, finding)
         else:
-            finding.status = "unknown"
-            finding.message = f"Unknown mode: {mode}"
+            finding.fail(f"Unknown mode: {mode}", finding.title, status="unknown")
 
         todo_value = str(finding.todo or "")
         if finding.status != "ok" and not (

@@ -11,10 +11,11 @@ import re
 
 log = logging.getLogger("auto_mir.checks.deterministic")
 
-from checks import _is_go_package, _is_rust_package
+from checks.language_gates import _is_go_package, _is_rust_package
 from models import Finding
+from checks.registry import deterministic_check, evaluator, DETERMINISTIC_CHECKS
 
-
+@deterministic_check("SUM-1")
 def _check_sum_1(ctx, finding: Finding) -> Finding:
     """SUM-1: Source package identified."""
     if ctx.source_package:
@@ -32,6 +33,7 @@ def _check_sum_1(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("SUM-2")
 def _check_sum_2(ctx, finding: Finding) -> Finding:
     """SUM-2: Reporter MIR content present."""
     if ctx.reporter_mir_content:
@@ -49,6 +51,7 @@ def _check_sum_2(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("DEP-1")
 def _check_dep_1(ctx, finding: Finding) -> Finding:
     """DEP-1: No unresolved runtime dependencies needing MIR."""
     adapters = ctx.evidence.get("adapters", {})
@@ -111,6 +114,7 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("SEC-3")
 def _check_sec_3(ctx, finding: Finding) -> Finding:
     """SEC-3: Does not use webkit1/2."""
     adapters = ctx.evidence.get("adapters", {})
@@ -141,6 +145,7 @@ def _check_sec_3(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("SEC-4")
 def _check_sec_4(ctx, finding: Finding) -> Finding:
     """SEC-4: Does not use lib*v8 directly."""
     adapters = ctx.evidence.get("adapters", {})
@@ -171,6 +176,7 @@ def _check_sec_4(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("CB-7")
 def _check_cb_7(ctx, finding: Finding) -> Finding:
     """CB-7: No new Python 2 dependency."""
     adapters = ctx.evidence.get("adapters", {})
@@ -202,6 +208,7 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("SUM-4")
 def _check_sum_4(ctx, finding: Finding) -> Finding:
     """SUM-4: ubuntu-mir team is subscribed to the bug."""
     subscribers = ctx.bug.get("subscribers", [])
@@ -224,6 +231,7 @@ def _check_sum_4(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("DEP-3")
 def _check_dep_3(ctx, finding: Finding) -> Finding:
     """DEP-3: No -dev/-debug/-doc packages needing exclusion."""
     adapters = ctx.evidence.get("adapters", {})
@@ -281,6 +289,7 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("ESL-1")
 def _check_esl_1(ctx, finding: Finding) -> Finding:
     """ESL-1: No embedded source present."""
     adapters = ctx.evidence.get("adapters", {})
@@ -329,6 +338,7 @@ def _check_esl_1(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("ESL-3")
 def _check_esl_3(ctx, finding: Finding) -> Finding:
     """ESL-3: No unexpected Built-Using entries."""
     adapters = ctx.evidence.get("adapters", {})
@@ -389,6 +399,7 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("ESL-4")
 def _check_esl_4(ctx, finding: Finding) -> Finding:
     """ESL-4: Go language detection gate."""
     adapters = ctx.evidence.get("adapters", {})
@@ -420,6 +431,7 @@ def _check_esl_4(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("ESL-7")
 def _check_esl_7(ctx, finding: Finding) -> Finding:
     """ESL-7: Go build type (shared vs static)."""
     adapters = ctx.evidence.get("adapters", {})
@@ -467,6 +479,7 @@ def _check_esl_7(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("ESL-8")
 def _check_esl_8(ctx, finding: Finding) -> Finding:
     """ESL-8: Rust language detection gate."""
     adapters = ctx.evidence.get("adapters", {})
@@ -496,6 +509,7 @@ def _check_esl_8(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("ESL-9")
 def _check_esl_9(ctx, finding: Finding) -> Finding:
     """ESL-9: Rust package uses dh_cargo."""
     adapters = ctx.evidence.get("adapters", {})
@@ -539,6 +553,7 @@ def _check_esl_9(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("ESL-10")
 def _check_esl_10(ctx, finding: Finding) -> Finding:
     """ESL-10: Rust: vendored deps, no unexpected Built-Using, Cargo.lock present."""
     adapters = ctx.evidence.get("adapters", {})
@@ -604,33 +619,13 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
 # Must be defined after all _check_* functions it references.
 # ---------------------------------------------------------------------------
 
-_DETERMINISTIC_EVALUATORS: dict = {
-    "SUM-1": _check_sum_1,
-    "SUM-2": _check_sum_2,
-    "SUM-4": _check_sum_4,
-    "DEP-1": _check_dep_1,
-    "DEP-3": _check_dep_3,
-    "ESL-1": _check_esl_1,
-    "ESL-3": _check_esl_3,
-    "ESL-4": _check_esl_4,
-    "ESL-7": _check_esl_7,
-    "ESL-8": _check_esl_8,
-    "ESL-9": _check_esl_9,
-    "ESL-10": _check_esl_10,
-    "SEC-3": _check_sec_3,
-    "SEC-4": _check_sec_4,
-    "CB-7": _check_cb_7,
-}
-
-
+@evaluator("deterministic")
 def _eval_deterministic(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate checks with deterministic logic only."""
     check_id = check["id"]
-    evaluator = _DETERMINISTIC_EVALUATORS.get(check_id)
-    if evaluator:
-        return evaluator(ctx, finding)
+    evaluator_func = DETERMINISTIC_CHECKS.get(check_id)
+    if evaluator_func:
+        return evaluator_func(ctx, finding)
     else:
-        finding.status = "unknown"
-        finding.message = "Deterministic check evaluator not implemented"
-        finding.todo = f"TODO: - {finding.title}"
+        finding.fail("Deterministic check evaluator not implemented", finding.title, status="unknown")
         return finding
