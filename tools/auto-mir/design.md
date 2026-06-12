@@ -1,0 +1,106 @@
+# Auto-MIR Design
+
+## Scope and Goal
+
+- Build a reviewer-first MIR assistant.
+- Host-orchestrated: tool runs outside, spawns a fresh LXD container from Ubuntu devel
+  image aliases, provisions tooling, executes the pipeline in-container.
+- Input starts from a Launchpad bug ID via the Launchpad API.
+- Output is a reviewer-template-aligned draft where findings dynamically determine severity
+  (`ok`, `recommended`, `required`) rather than having severity pre-assigned to TODO lines.
+- Policy/tool co-development in this repository under `tools/auto-mir` so MIR wording and
+  tool logic/prompts evolve together in the same PR when rules change.
+
+## Core Workflow Phases
+
+1. Repository bootstrap under `tools/auto-mir`.
+2. Normalize checks from the MIR reviewer template into an executable YAML catalog schema.
+3. Host-orchestrated LXD lifecycle with `--keep-container` default during development.
+4. Launchpad API intake; hard-fail if reporter MIR content is missing.
+5. Deterministic evidence collection in-container (sbuild + lintian + API queries).
+6. AI-assisted synthesis where needed, with mandatory human override on designated checks.
+7. Strict template-close rendering: unresolved tasks as `TODO` lines only, no `RULE` leakage.
+8. Validation against recent corpus in `old-MIRs-as-input` (4 from 2026 + 8 from 2025).
+9. Final docs pass in `tools/auto-mir/README.md` describing architecture/design
+  (including a Mermaid diagram) and concise usage intent (with `--help` as
+  the reference for detailed CLI options).
+
+## Implementation-Ready Schema Direction
+
+Single file for MVP: `tools/auto-mir/catalog.yaml`.
+
+Top-level sections:
+- `metadata` — schema version, policy file refs and hashes, target series, generator info
+- `global_policies` — severity model, confidence model, ACK-block rules, NACK rules
+- `tooling_bootstrap` — mode default/override, upstream sources, required tools
+- `evidence_adapters[]` — id, type, description, inputs, output_contract, retry_policy
+- `checks[]` — id, section, title, todo_refs, options[], mode, language_gate,
+  adapters_required, adapters_optional, ai_policy, human_override, fallback,
+  blocker_class, mapping_rules, render_rules
+- `security_triggers[]` — id, linked_checks, trigger_condition, synthesis,
+  human_confirmation_required, action, output_flags
+- `render_policy` — template_mode, allow_rationale_append, forbidden_line_prefixes,
+  todo_prefix_rule
+- `fallback_policy` — on_adapter_error, on_missing_optional_data,
+  on_missing_required_data
+
+### Finding Model (per check result)
+
+- `status`: pass | fail | unknown | not-applicable
+- `severity`: ok | recommended | required | nack
+- `confidence`: low | medium | high
+- `evidence_refs[]`
+- `rationale`
+- `reviewer_action`
+- `todo_output_line`
+- `blocks_ack`: bool
+
+## Security Trigger Table (MVP)
+
+| ID | Source checks | Condition | Synthesis | Human confirmation | Action |
+|----|--------------|-----------|-----------|-------------------|--------|
+| SEC-1-CVE-SYNTH | SEC-1 | CVE history present from either tracker | AI risk synthesis across both trackers | Required | Structured field + summary line; may trigger security review |
+| SEC-3-WEBKIT | SEC-3 | webkit1 or webkit2 in runtime deps | Deterministic | N/A | Required hard blocker; block ACK |
+| SEC-4-V8 | SEC-4 | libv8 direct use in runtime deps | Deterministic | N/A | Required hard blocker; block ACK |
+| SEC-11-ATTESTATION | SEC-11 | secure boot/signature/TPM involvement | Deterministic/evidence | N/A | Mandatory security review path |
+| SEC-13-MITIGATION-GAPS | SEC-13 | Exposure-level mitigations absent | EV→AI synthesis | Required | Reviewer decides severity; can escalate |
+
+## File Layout
+
+```
+tools/
+  auto-mir/
+    design.md          ← this file (conceptual architecture)
+    decisions.md       ← choices and reasoning log
+    tasks_phase7.md    ← completed: adapters + template generation
+    tasks_phase8.md    ← current: deterministic coverage + validation
+    tasks_phase9.md    ← next: hardening + CI gates
+    tasks_phase10.md   ← final: docs closure
+    testing.md         ← how to verify changes before review
+    catalog.yaml       ← machine-readable check catalog and security triggers
+    auto_mir.py        ← CLI entrypoint and orchestrator
+    lp_intake.py       ← Launchpad API intake module
+    lxd_runner.py      ← LXD container lifecycle module
+    integration_smoke.py ← devel-container isolation smoke runner
+    evidence/          ← in-container evidence collection scripts
+    prompts/           ← LLM prompt templates per check section
+    render/            ← template renderer and output linter
+```
+
+## Relevant Policy Files
+
+- `docs/MIR/mir-reviewers-template.md` — primary reviewer task source and render target
+- `docs/MIR/mir-reporters-template.md` — reporter-content structure for intake gate
+- `docs/MIR/mir-how-to-use-templates.md` — TODO/RULE semantics and posting workflow
+- `docs/MIR/mir-rust.md` — Rust/Go language-specific policy
+- `docs/MIR/main-inclusion-review.md` — MIR policy framing
+- Debian policy: https://www.debian.org/doc/debian-policy/
+- autopkgtest DB: https://autopkgtest.ubuntu.com/static/autopkgtest.db
+
+## Intersphinx / Template Integration
+
+- Template generation is catalog-driven via `metadata.review_template_blueprint` in
+  `catalog.yaml`.
+- TODO lines in blueprint reference check IDs + `todo_ref` index, so automated check
+  text is sourced from `checks[]` instead of duplicated markdown.
+- `make -C tools/ render-review-template` regenerates; `check-review-template` verifies.
