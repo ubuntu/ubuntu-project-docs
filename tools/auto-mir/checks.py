@@ -7,7 +7,6 @@ This module handles the interpretation and mapping of findings to severities.
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 log = logging.getLogger("auto_mir.checks")
 
@@ -71,7 +70,6 @@ def evaluate_checks(ctx) -> list[dict]:
 def _eval_deterministic(check: dict, ctx, finding: dict) -> dict:
     """Evaluate checks with deterministic logic only."""
     check_id = check["id"]
-    evidence = ctx.evidence
 
     # Dispatch to per-check evaluator
     if check_id == "SUM-1":
@@ -139,13 +137,54 @@ def _check_dep_1(ctx, finding: dict) -> dict:
         finding["evidence_refs"] = ["dep-analysis:error"]
         return finding
 
-    # For now, assume all extracted deps are in main (real check would verify component)
-    # This is a stub pending full apt policy integration
+    deps_not_in_main = dep_analysis.get("deps_not_in_main", [])
+    unknown_components = [
+        row["package"]
+        for row in dep_analysis.get("dep_components", [])
+        if row.get("component") == "unknown"
+    ]
+
+    if deps_not_in_main:
+        finding["status"] = "not-ok"
+        finding["severity"] = "required"
+        finding["confidence"] = "high"
+        finding["message"] = (
+            "Runtime dependencies outside main detected: "
+            + ", ".join(deps_not_in_main)
+        )
+        finding["todo"] = (
+            "TODO: File MIR/extra-exclude for runtime dependencies outside main: "
+            + ", ".join(deps_not_in_main)
+        )
+        finding["evidence_refs"] = [
+            "dep-analysis:dep_components",
+            "dep-analysis:deps_not_in_main",
+        ]
+        return finding
+
+    if unknown_components:
+        finding["status"] = "unknown"
+        finding["severity"] = "recommended"
+        finding["confidence"] = "low"
+        finding["message"] = (
+            "Could not determine component for some runtime dependencies: "
+            + ", ".join(unknown_components)
+        )
+        finding["todo"] = (
+            "TODO: Verify Ubuntu component for runtime dependencies: "
+            + ", ".join(unknown_components)
+        )
+        finding["evidence_refs"] = ["dep-analysis:dep_components"]
+        return finding
+
     finding["status"] = "ok"
     finding["severity"] = "ok"
-    finding["confidence"] = "medium"
+    finding["confidence"] = "high"
     finding["message"] = "- no other runtime Dependencies to MIR due to this"
-    finding["evidence_refs"] = ["dep-analysis:runtime_deps"]
+    finding["evidence_refs"] = [
+        "dep-analysis:runtime_dep_packages",
+        "dep-analysis:dep_components",
+    ]
     return finding
 
 

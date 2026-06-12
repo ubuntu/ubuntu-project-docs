@@ -6,8 +6,8 @@ and store structured outputs under ctx.evidence[adapter_id].
 
 from __future__ import annotations
 
-import json
 import logging
+import re
 from typing import Any
 
 import lxd_runner
@@ -152,6 +152,7 @@ def _collect_dep_analysis(ctx) -> dict[str, Any]:
     binaries = [line.strip() for line in binaries_raw.splitlines() if line.strip()]
 
     runtime_deps = []
+    dep_names: set[str] = set()
     for binary in binaries:
         depends = _capture(
             ctx,
@@ -165,11 +166,23 @@ def _collect_dep_analysis(ctx) -> dict[str, Any]:
         if not depends:
             continue
         runtime_deps.append({"binary": binary, "depends": depends})
+        dep_names.update(_extract_dependency_names(depends))
+
+    dep_components = []
+    deps_not_in_main = []
+    for dep in sorted(dep_names):
+        component = _detect_component(ctx, dep)
+        dep_components.append({"package": dep, "component": component})
+        if component and component != "main":
+            deps_not_in_main.append(dep)
 
     return {
         "status": "ok",
         "binary_packages": binaries,
         "runtime_deps": runtime_deps,
+        "runtime_dep_packages": sorted(dep_names),
+        "dep_components": dep_components,
+        "deps_not_in_main": sorted(set(deps_not_in_main)),
     }
 
 
@@ -207,3 +220,34 @@ def _capture(ctx, cmd: list[str], allow_fail: bool = False) -> str:
 def _exists(ctx, cmd: list[str]) -> bool:
     result = lxd_runner.exec_in(ctx.container_name, cmd, check=False, capture=True)
     return result.returncode == 0
+
+
+def _extract_dependency_names(depends: str) -> set[str]:
+    """Extract package names from a Debian Depends expression."""
+    names: set[str] = set()
+    for comma_group in depends.split(","):
+        for alternative in comma_group.split("|"):
+            token = alternative.strip()
+            if not token:
+                continue
+            match = re.match(r"^([a-z0-9][a-z0-9+.-]*)(?::[a-z0-9-]+)?", token)
+            if match:
+                names.add(match.group(1))
+    return names
+
+
+def _detect_component(ctx, package: str) -> str:
+    """Best-effort component detection via apt-cache policy output."""
+    policy = _capture(
+        ctx,
+        ["bash", "-lc", f"apt-cache policy {package} 2>/dev/null"],
+        allow_fail=True,
+    )
+    if not policy:
+        return "unknown"
+
+    for component in ("main", "universe", "restricted", "multiverse"):
+        if re.search(rf"/ubuntu\s+[^\n]*/{component}\b", policy):
+            return component
+
+    return "unknown"
