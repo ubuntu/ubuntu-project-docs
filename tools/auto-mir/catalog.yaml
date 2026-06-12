@@ -1,3 +1,18 @@
+# ============================================================================
+# MIR Review Catalog - Canonical source of truth for automated MIR checks
+# ============================================================================
+# This file defines all checks performed during MIR (Main Inclusion Review).
+# It serves as both runtime configuration and documentation template source.
+#
+# Structure:
+#   metadata:              Policy references and template blueprint
+#   global_policies:       Severity/confidence models and blocking rules
+#   tooling_bootstrap:     Container setup and tool dependencies
+#   evidence_adapters:     Data collection interfaces (APIs, tools, scripts)
+#   checks:                Individual check definitions with evaluation rules
+#
+# ============================================================================
+
 metadata:
   policy_authority: Ubuntu MIR policy (docs/MIR/) overrides Debian policy where they conflict
   policy_files:
@@ -491,7 +506,18 @@ metadata:
   - 'TODO-A: - TBD'
   - 'TODO-B: Problems: None'
   - '```'
+# ============================================================================
+# Global Policies - Severity, confidence, and blocking rules
+# ============================================================================
+# These policies apply across all checks and define the decision framework.
+# ============================================================================
+
 global_policies:
+  # Severity levels indicate impact on MIR approval
+  # - ok:          No issues found
+  # - recommended: Best practice, should address but not blocking
+  # - required:    Must resolve before MIR approval
+  # - nack:        Automatic rejection (e.g., missing reporter content)
   severity_model:
     levels:
     - ok
@@ -501,6 +527,11 @@ global_policies:
     description: 'Severity is determined by findings, not pre-assigned to TODO lines. A check may resolve to any level depending on what the evidence shows.
 
       '
+  # Confidence bands indicate evidence strength
+  # - low:    Insufficient evidence, needs manual review
+  # - medium: Reasonable evidence, human should verify
+  # - high:   Strong evidence from deterministic checks
+  # Note: AI-only findings are capped at medium confidence
   confidence_model:
     bands:
     - low
@@ -509,6 +540,14 @@ global_policies:
     description: 'Confidence reflects how strongly the evidence supports the finding. AI-derived findings cap at medium unless corroborated by deterministic evidence.
 
       '
+  # Rules that block MIR approval (ACK)
+  # - required severity: Must resolve before approval
+  # - hard_blocker: Explicit blocking condition
+  # - NACK-eligible: Fundamental issues requiring rejection
+  # Rules that block MIR approval (ACK)
+  # - required severity: Must resolve before approval
+  # - hard_blocker: Explicit blocking condition
+  # - NACK-eligible: Fundamental issues requiring rejection
   ack_block_rules:
   - any finding with severity "required" blocks ACK suggestion
   - any active hard_blocker finding blocks ACK suggestion

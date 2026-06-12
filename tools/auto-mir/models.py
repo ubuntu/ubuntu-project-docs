@@ -9,27 +9,98 @@ from dataclasses import dataclass, field
 class Finding:
     """A structured result for a single catalog check evaluation.
 
-    Fields set at construction (from the check definition):
-        id:           Catalog check identifier (e.g. "SUM-1")
-        section:      Template section name (e.g. "Summary")
-        title:        Human-readable check title
-        mode:         Evaluation mode: "deterministic" | "ev_to_ai" | "ai" | "human_only"
-        blocker_class: Blocker class from catalog (e.g. "none", "advisory", "hard")
+    This dataclass represents the outcome of evaluating one MIR check from the catalog.
+    It captures the check result, severity, confidence level, and any TODO items for
+    human reviewers.
 
-    Fields set by evaluators:
-        status:       "ok" | "not-ok" | "unknown" | "not-evaluated"
-        severity:     "ok" | "recommended" | "required" | "nack"
-        confidence:   "low" | "medium" | "high"
-        message:      Reviewer-facing statement (1-2 sentences)
-        todo:         Empty when resolved; TODO: prefixed line(s) when unresolved
-        evidence_refs: Adapter keys consulted (e.g. ["dep-analysis:runtime_deps"])
+    Required Fields (set at construction from check definition):
+        id:             Catalog check identifier (e.g. "SUM-1", "DEP-3", "SEC-2")
+        section:        Template section name (e.g. "Summary", "Dependencies", "Security")
+        title:          Human-readable check title (e.g. "Source package identified")
+        mode:           Evaluation mode, one of:
+                        - "deterministic": Pure logic, no AI
+                        - "ev_to_ai": Evidence-based AI analysis
+                        - "ai": AI synthesis across findings
+                        - "human_only": Requires manual review
 
-    Fields set by LLM evaluators only:
+    Optional Fields (set by evaluators, have sensible defaults):
+        blocker_class:  Blocker class from catalog: "none" (default), "advisory", or "hard"
+        status:         Check result: "ok", "not-ok", "unknown", or "not-evaluated" (default)
+        severity:       Impact level: "ok" (default), "recommended", "required", or "nack"
+        confidence:     Evidence strength: "low" (default), "medium", or "high"
+        message:        Reviewer-facing statement (1-2 sentences), defaults to "Check not evaluated"
+        todo:           TODO item for unresolved checks, empty string when resolved (default)
+        evidence_refs:  List of adapter keys consulted (e.g. ["dep-analysis:runtime_deps"])
+
+    LLM-Specific Fields (set only by AI evaluators):
         risk_flags:                  Free-form risk annotations from LLM response
-        human_confirmation_required: Always True for AI-derived findings
+        human_confirmation_required: Always True for AI-derived findings, False otherwise
 
-    Fields set during post-processing in evaluate_checks():
-        adapter_error_cause: Adapter IDs whose failure caused this finding to be unresolved
+    Post-Processing Fields (set during evaluate_checks()):
+        adapter_error_cause: List of adapter IDs whose failure caused unresolved status
+
+    Invariants:
+        - When status == "ok", severity MUST also be "ok"
+        - When status == "not-ok", todo should contain a TODO: prefixed line
+        - AI-derived findings (mode in ["ev_to_ai", "ai"]) have confidence capped at "medium"
+
+    Examples:
+        # Successful deterministic check
+        >>> ok_finding = Finding(
+        ...     id="SUM-1",
+        ...     section="Summary",
+        ...     title="Source package identified",
+        ...     mode="deterministic",
+        ...     status="ok",
+        ...     severity="ok",
+        ...     confidence="high",
+        ...     message="Source package: libfoo",
+        ...     evidence_refs=["lp-bug-api:source_package"]
+        ... )
+
+        # Failed check requiring action
+        >>> failed_finding = Finding(
+        ...     id="DEP-1",
+        ...     section="Dependencies",
+        ...     title="Runtime dependencies in main",
+        ...     mode="deterministic",
+        ...     blocker_class="hard",
+        ...     status="not-ok",
+        ...     severity="required",
+        ...     confidence="high",
+        ...     message="Runtime dependency 'libbar' not in main",
+        ...     todo="TODO: - Promote libbar to main or remove dependency",
+        ...     evidence_refs=["dep-analysis:runtime_deps"]
+        ... )
+
+        # AI-evaluated check with medium confidence
+        >>> ai_finding = Finding(
+        ...     id="RDO-1",
+        ...     section="Rationale, Duplication and Ownership",
+        ...     title="Duplicate functionality",
+        ...     mode="ev_to_ai",
+        ...     status="not-ok",
+        ...     severity="recommended",
+        ...     confidence="medium",
+        ...     message="Possible overlap with libfoo-utils",
+        ...     todo="TODO: - Investigate overlap with libfoo-utils",
+        ...     human_confirmation_required=True,
+        ...     risk_flags=["functional overlap detected"]
+        ... )
+
+        # Unresolved check due to adapter failure
+        >>> unresolved_finding = Finding(
+        ...     id="SEC-1",
+        ...     section="Security",
+        ...     title="CVE analysis",
+        ...     mode="deterministic",
+        ...     status="unknown",
+        ...     severity="ok",
+        ...     confidence="low",
+        ...     message="Could not evaluate: adapter failed",
+        ...     todo="TODO: - Manually check CVE database",
+        ...     adapter_error_cause=["ubuntu-cve-tracker"]
+        ... )
     """
 
     # --- From check definition ---

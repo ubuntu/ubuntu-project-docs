@@ -23,6 +23,17 @@ from pathlib import Path
 from typing import Any
 
 import lxd_runner
+from evidence.types import (
+    AutopkgtestResult,
+    ComponentMismatchesResult,
+    DepAnalysisResult,
+    LPBugAPIResult,
+    LPPackageAPIResult,
+    LPTeamMembershipAPIResult,
+    PackagingSourceResult,
+    SbuildResult,
+    UbuntuCVETrackerResult,
+)
 
 log = logging.getLogger("auto_mir.evidence")
 
@@ -109,7 +120,7 @@ def _order_adapters(required: set[str], adapter_deps: dict[str, list[str]]) -> l
 # ---------------------------------------------------------------------------
 
 
-def _collect_lp_bug_api(ctx) -> dict[str, Any]:
+def _collect_lp_bug_api(ctx) -> LPBugAPIResult:
     """Return Launchpad bug data already collected by lp_intake.
 
     This is a passthrough: lp_intake.run() already populated ctx.bug.
@@ -132,7 +143,7 @@ def _collect_lp_bug_api(ctx) -> dict[str, Any]:
     }
 
 
-def _collect_lp_team_membership_api(ctx) -> dict[str, Any]:
+def _collect_lp_team_membership_api(ctx) -> LPTeamMembershipAPIResult:
     """Return bug subscriber / team-membership data from lp_intake.
 
     ubuntu-mir subscription is the primary check gate (SUM-4); team member
@@ -147,7 +158,7 @@ def _collect_lp_team_membership_api(ctx) -> dict[str, Any]:
     }
 
 
-def _collect_lp_package_api(ctx) -> dict[str, Any]:
+def _collect_lp_package_api(ctx) -> LPPackageAPIResult:
     """Query Launchpad package publishing history and build state via launchpadlib.
 
     Collects:
@@ -252,7 +263,7 @@ def _collect_lp_package_api(ctx) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def _collect_ubuntu_cve_tracker(ctx) -> dict[str, Any]:
+def _collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
     """Query OVAL data from https://security-metadata.canonical.com/oval/ for CVEs.
 
     Downloads and parses the XZ-compressed OVAL JSON file for the target series,
@@ -355,7 +366,7 @@ def _collect_ubuntu_cve_tracker(ctx) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def _collect_autopkgtest(ctx) -> dict[str, Any]:
+def _collect_autopkgtest(ctx) -> AutopkgtestResult:
     """Query autopkgtest SQLite database for package test results.
 
     Downloads https://autopkgtest.ubuntu.com/static/autopkgtest.db, queries
@@ -455,7 +466,7 @@ def _collect_autopkgtest(ctx) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def _collect_sbuild(ctx) -> dict[str, Any]:
+def _collect_sbuild(ctx) -> SbuildResult:
     """Run lintian over the already-fetched source package in the container.
 
     Full sbuild is intentionally deferred; this gives lintian errors/warnings
@@ -538,7 +549,7 @@ def _collect_sbuild(ctx) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def _collect_packaging_source(ctx) -> dict[str, Any]:
+def _collect_packaging_source(ctx) -> PackagingSourceResult:
     pkg = ctx.source_package
     if not pkg:
         raise AdapterError("source package is not set")
@@ -610,7 +621,7 @@ def _collect_packaging_source(ctx) -> dict[str, Any]:
     }
 
 
-def _collect_dep_analysis(ctx) -> dict[str, Any]:
+def _collect_dep_analysis(ctx) -> DepAnalysisResult:
     packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
     source_dir = packaging.get("source_dir")
     if not source_dir:
@@ -664,7 +675,7 @@ def _collect_dep_analysis(ctx) -> dict[str, Any]:
     }
 
 
-def _collect_component_mismatches(ctx) -> dict[str, Any]:
+def _collect_component_mismatches(ctx) -> ComponentMismatchesResult:
     pkg = ctx.source_package
     script = "/opt/ubuntu-archive-tools/component-mismatches"
     exists = _exists(ctx, ["bash", "-lc", f"test -x {script}"])
