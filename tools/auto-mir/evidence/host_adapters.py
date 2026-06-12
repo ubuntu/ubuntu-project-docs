@@ -10,6 +10,7 @@ import json
 import logging
 import lzma
 import sqlite3
+import subprocess
 import tempfile
 import urllib.error
 import urllib.request
@@ -184,6 +185,67 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
 # ---------------------------------------------------------------------------
 
 
+def _distro_info_lines(flag: str) -> list[str]:
+    """Run distro-info with the given flag and return output lines."""
+    try:
+        result = subprocess.run(
+            ["distro-info", flag],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            log.debug("distro-info %s failed: %s", flag, result.stderr.strip())
+            return []
+        return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    except FileNotFoundError:
+        log.debug("distro-info not installed")
+        return []
+
+
+def _resolve_oval_series(series: str) -> tuple[str | None, str | None]:
+    """Resolve target series to an OVAL-available codename using distro-info.
+
+    Returns (oval_series, skip_reason). If skip_reason is not None,
+    CVE data is not available and the caller should skip OVAL queries.
+
+    Logic:
+    - devel series has no OVAL data yet -> fall back to latest stable supported
+    - supported / ESM-supported series -> use directly
+    - unsupported series -> skip with warning
+    """
+    devel_list = _distro_info_lines("--devel")
+    supported = _distro_info_lines("--supported")
+    esm = _distro_info_lines("--supported-esm")
+
+    devel_codename = devel_list[0] if devel_list else None
+
+    if series == "devel":
+        if devel_codename:
+            series = devel_codename
+        else:
+            return None, "distro-info --devel unavailable; cannot resolve 'devel'"
+
+    cve_available = set(supported) | set(esm)
+
+    if series == devel_codename:
+        stable = [s for s in supported if s != series]
+        if stable:
+            fallback = stable[-1]
+            log.info(
+                "Devel series '%s' has no OVAL data; falling back to '%s'",
+                series,
+                fallback,
+            )
+            return fallback, None
+        return None, f"no stable supported release available as fallback for devel '{series}'"
+
+    if series in cve_available:
+        return series, None
+
+    return None, f"series '{series}' is not in supported or ESM-supported releases"
+
+
 @adapter(AdapterID.UBUNTU_CVE_TRACKER)
 def collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
     """Query OVAL data from https://security-metadata.canonical.com/oval/ for CVEs.
@@ -196,15 +258,20 @@ def collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
     if not pkg:
         raise AdapterError("source_package not set")
 
-    # Map series aliases to OVAL names
-    series_map = {
-        "devel": "mantic",  # or current devel name
-        "focal": "focal",
-        "jammy": "jammy",
-        "noble": "noble",
-        "mantic": "mantic",
-    }
-    oval_series = series_map.get(series, series)
+    # Resolve series to OVAL-available codename using distro-info
+    oval_series, skip_reason = _resolve_oval_series(series)
+    if skip_reason:
+        log.warning("CVE checks skipped for %s: %s", pkg, skip_reason)
+        return {
+            "status": "ok",
+            "package": pkg,
+            "series": series,
+            "cves": [],
+            "active_cves": [],
+            "fixed_cves": [],
+            "total_cve_count": 0,
+            "note": skip_reason,
+        }
 
     url = f"https://security-metadata.canonical.com/oval/com.ubuntu.{oval_series}.pkg.json.xz"
     log.debug("Querying OVAL CVE data from: %s", url)
