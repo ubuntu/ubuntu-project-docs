@@ -52,11 +52,16 @@ def collect_from_catalog(ctx) -> None:
         collector, deps = ADAPTER_REGISTRY[adapter_id_str]
         
         # Check if deps failed
-        if any(dep in failed_adapters for dep in deps):
-            log.warning("Skipping adapter %s due to failed dependencies", adapter_id_str)
+        failed_deps = [dep for dep in deps if dep in failed_adapters]
+        if failed_deps:
+            log.warning(
+                "Skipping adapter %s due to failed dependencies: %s",
+                adapter_id_str,
+                ", ".join(failed_deps),
+            )
             ctx.evidence["adapters"][adapter_id_str] = {
                 "status": "error",
-                "message": "upstream dependency failed",
+                "message": f"upstream dependency failed: {', '.join(failed_deps)}",
             }
             failed_adapters.add(adapter_id_str)
             continue
@@ -66,6 +71,23 @@ def collect_from_catalog(ctx) -> None:
             ctx.evidence["adapters"][adapter_id_str] = collector(ctx)
             if ctx.evidence["adapters"][adapter_id_str].get("status") == "error":
                  failed_adapters.add(adapter_id_str)
+                 log.warning(
+                     "Adapter %s returned error status: %s",
+                     adapter_id_str,
+                     ctx.evidence["adapters"][adapter_id_str].get("message", "unknown"),
+                 )
+        except Exception as exc:
+            log.warning("Adapter %s failed: %s", adapter_id_str, exc)
+            ctx.evidence["adapters"][adapter_id_str] = {
+                "status": "error",
+                "message": str(exc),
+            }
+            failed_adapters.add(adapter_id_str)
+            log.warning(
+                "Adapter %s returned error status: %s",
+                adapter_id_str,
+                ctx.evidence["adapters"][adapter_id_str].get("message", "unknown"),
+            )
         except Exception as exc:
             log.warning("Adapter %s failed: %s", adapter_id_str, exc)
             ctx.evidence["adapters"][adapter_id_str] = {
