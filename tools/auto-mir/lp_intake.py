@@ -27,16 +27,9 @@ _REPORTER_TEMPLATE_MARKERS = [
     "[Maintenance",
 ]
 
-# Sentinel strings that reliably identify a prior reviewer MIR review comment.
-# These markers are specific to the reviewer template output structure and do
-# not overlap with reporter content — the threshold is 3 out of 5.
-_REVIEWER_TEMPLATE_MARKERS = [
-    "Required TODOs:",
-    "Recommended TODOs:",
-    "Left to decide:",
-    "[Rationale, Duplication and Ownership]",
-    "[Embedded sources and static linking]",
-]
+# Sentinel string that reliably identifies a prior reviewer MIR review comment.
+# This is the only reliable marker - it appears at the start of all reviewer outputs.
+_REVIEWER_MARKER = "Review for Source Package:"
 
 # The MIR bug tag used to find MIR-related bugs on Launchpad.
 _MIR_BUG_TAG = "MIR"
@@ -74,14 +67,12 @@ def _detect_reporter_mir_content(text: str) -> bool:
 
 
 def _detect_reviewer_mir_content(text: str) -> bool:
-    """Return True if text looks like a completed MIR reviewer template output.
+    """Return True if text contains a prior MIR reviewer output.
 
-    Checks for markers that are unique to the reviewer's rendered output
-    (Required TODOs:, Recommended TODOs:, Left to decide:, etc.).
-    Requires at least 3 of the 5 known markers to reduce false positives.
+    Checks for the single reliable marker that appears at the start of all
+    reviewer template outputs: "Review for Source Package:".
     """
-    hits = sum(1 for marker in _REVIEWER_TEMPLATE_MARKERS if marker in text)
-    return hits >= 3
+    return _REVIEWER_MARKER in text
 
 
 def _find_prior_reviews(comments: list[str]) -> list[int]:
