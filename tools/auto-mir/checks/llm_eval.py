@@ -10,6 +10,7 @@ import json
 import logging
 from pathlib import Path
 
+from checks.messages import render_check_message_or_default
 from checks.registry import evaluator
 from models import Finding
 
@@ -36,7 +37,12 @@ def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = f"LLM unavailable: {exc}"
+        finding.message = render_check_message_or_default(
+            check,
+            "llm_unavailable_message",
+            f"LLM unavailable: {exc}",
+            error=str(exc),
+        )
         finding.todo = _default_todo_for_check(
             check, fallback_suffix="manual review needed (LLM unavailable)"
         )
@@ -72,7 +78,12 @@ def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = f"LLM unavailable: {exc}"
+        finding.message = render_check_message_or_default(
+            check,
+            "llm_unavailable_message",
+            f"LLM unavailable: {exc}",
+            error=str(exc),
+        )
         finding.todo = _default_todo_for_check(check, fallback_suffix="requires AI synthesis")
         return finding
 
@@ -84,8 +95,17 @@ def _eval_human_only(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate checks that require human judgment only."""
     finding.status = "unknown"
     finding.confidence = "low"
-    finding.message = "Human review required"
-    finding.todo = f"TODO: - {check.get('title', 'Check')} — reviewer judgment needed"
+    finding.message = render_check_message_or_default(
+        check,
+        "human_only_message",
+        "Human review required",
+    )
+    finding.todo = render_check_message_or_default(
+        check,
+        "human_only_todo",
+        f"TODO: - {check.get('title', 'Check')} — reviewer judgment needed",
+        title=check.get("title", "Check"),
+    )
     return finding
 
 

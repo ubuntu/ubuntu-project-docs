@@ -32,6 +32,23 @@ class _Ctx:
         self.reporter_mir_content = reporter_content
         self.requested_binaries = []
         self.bug = {"subscribers": []}
+        self.catalog = {
+            "checks": [
+                {
+                    "id": "DEP-3",
+                    "messages": {
+                        "unknown_packaging_message": "Could not analyse binary packages",
+                        "unknown_packaging_todo": "TODO: - Check whether -dev/-debug/-doc packages need exclusion",
+                        "unknown_dep_analysis_message": "Could not analyse auto-included binary dependencies",
+                        "unknown_dep_analysis_todo": "TODO: - Check whether auto-included -dev/-debug/-doc packages need exclusion",
+                        "ok_no_auto_included_message": "no -dev/-debug/-doc packages that need exclusion",
+                        "not_ok_offending_message": "Auto-included binaries ({auto_included}) pull dependencies outside main or with unknown component: {offending_deps}",
+                        "not_ok_offending_todo": "TODO: - Consider adding extra-excludes for auto-included binaries with offending dependencies ({details}); otherwise MIR may also be needed for: {offending_deps}",
+                        "ok_safe_message": "Auto-included binaries ({auto_included}) will be auto-included, and have no dependencies outside main",
+                    },
+                }
+            ]
+        }
         self.evidence = {"adapters": {}}
 
 

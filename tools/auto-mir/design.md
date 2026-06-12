@@ -62,6 +62,19 @@ Top-level sections:
 - `fallback_policy` — on_adapter_error, on_missing_optional_data,
   on_missing_required_data
 
+### Message Template Source of Truth
+
+- Runtime reviewer-facing finding text is split into two concerns:
+  - **catalog declaration**: migrated checks define message templates under
+    `checks[].messages` using Python `str.format` placeholders.
+  - **evaluator binding**: check code computes evidence-driven values and renders
+    those templates into `Finding.message` and `Finding.todo`.
+- The renderer stays presentation-only and consumes finalized `Finding` values;
+  it does not evaluate check message templates.
+- For phased migration, checks without `messages` remain on in-code literals.
+  Once a check defines `messages`, rendering is strict and missing keys or
+  placeholders are treated as validation/runtime errors.
+
 ### Finding Model (per check result)
 
 The `Finding` dataclass in `models.py` represents the result of evaluating a single

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import string
 import sys
 from pathlib import Path
 
@@ -45,6 +46,21 @@ def validate_catalog(catalog: dict) -> list[str]:
         List of error messages (empty if valid)
     """
     errors = []
+
+    # Check-level messages required for migrated checks.
+    # Placeholder sets are strict minima for each template key.
+    required_message_templates: dict[str, dict[str, set[str]]] = {
+        "DEP-3": {
+            "unknown_packaging_message": set(),
+            "unknown_packaging_todo": set(),
+            "unknown_dep_analysis_message": set(),
+            "unknown_dep_analysis_todo": set(),
+            "ok_no_auto_included_message": set(),
+            "not_ok_offending_message": {"auto_included", "offending_deps"},
+            "not_ok_offending_todo": {"details", "offending_deps"},
+            "ok_safe_message": {"auto_included"},
+        }
+    }
 
     # Check required top-level sections
     required_sections = {"metadata", "global_policies", "checks", "evidence_adapters"}
@@ -98,6 +114,56 @@ def validate_catalog(catalog: dict) -> list[str]:
             if "adapters_required" in check:
                 if not isinstance(check["adapters_required"], list):
                     errors.append(f"Check {check.get('id', i)}: adapters_required must be a list")
+
+            # Validate check-level message templates when present
+            if "messages" in check:
+                if not isinstance(check["messages"], dict):
+                    errors.append(f"Check {check.get('id', i)}: messages must be a dictionary")
+                else:
+                    for msg_key, msg_template in check["messages"].items():
+                        if not isinstance(msg_template, str):
+                            errors.append(
+                                f"Check {check.get('id', i)}: messages.{msg_key} must be a string"
+                            )
+                            continue
+                        try:
+                            # Parse for basic format string validity.
+                            for _literal, _field_name, _fmt, _conv in string.Formatter().parse(
+                                msg_template
+                            ):
+                                pass
+                        except ValueError as exc:
+                            errors.append(
+                                f"Check {check.get('id', i)}: messages.{msg_key} format error: {exc}"
+                            )
+
+            # Enforce strict templates/placeholders for migrated checks.
+            check_id = str(check.get("id", ""))
+            if check_id in required_message_templates:
+                messages = check.get("messages")
+                if not isinstance(messages, dict):
+                    errors.append(f"Check {check_id}: missing required messages map")
+                else:
+                    for msg_key, required_fields in required_message_templates[check_id].items():
+                        template = messages.get(msg_key)
+                        if not isinstance(template, str):
+                            errors.append(
+                                f"Check {check_id}: missing required message template '{msg_key}'"
+                            )
+                            continue
+                        fields_found = {
+                            field_name
+                            for _literal, field_name, _fmt, _conv in string.Formatter().parse(
+                                template
+                            )
+                            if field_name
+                        }
+                        missing_fields = sorted(required_fields - fields_found)
+                        if missing_fields:
+                            errors.append(
+                                f"Check {check_id}: messages.{msg_key} missing placeholders: "
+                                + ", ".join(missing_fields)
+                            )
 
     # Validate evidence_adapters
     adapters = catalog.get("evidence_adapters", [])

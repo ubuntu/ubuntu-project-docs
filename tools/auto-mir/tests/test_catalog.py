@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from catalog import load_catalog, summarize_catalog
+from catalog import load_catalog, summarize_catalog, validate_catalog
 
 # ---------------------------------------------------------------------------
 # Catalog loading
@@ -120,3 +120,56 @@ def test_summarize_catalog_counts_security_triggers():
     summary = summarize_catalog(catalog)
 
     assert summary["security_trigger_count"] == 2
+
+
+def test_validate_catalog_requires_dep3_messages():
+    """DEP-3 must define migrated strict message templates."""
+    catalog = {
+        "metadata": {},
+        "global_policies": {},
+        "evidence_adapters": [{"id": "dep-analysis", "type": "local_exec", "description": "d"}],
+        "checks": [
+            {
+                "id": "DEP-3",
+                "section": "Dependencies",
+                "title": "No -dev/-debug/-doc packages needing exclusion",
+                "mode": "deterministic",
+                "adapters_required": ["dep-analysis"],
+            }
+        ],
+    }
+
+    errors = validate_catalog(catalog)
+    assert any("DEP-3: missing required messages map" in err for err in errors)
+
+
+def test_validate_catalog_dep3_placeholder_validation():
+    """DEP-3 template placeholders are validated strictly."""
+    catalog = {
+        "metadata": {},
+        "global_policies": {},
+        "evidence_adapters": [{"id": "dep-analysis", "type": "local_exec", "description": "d"}],
+        "checks": [
+            {
+                "id": "DEP-3",
+                "section": "Dependencies",
+                "title": "No -dev/-debug/-doc packages needing exclusion",
+                "mode": "deterministic",
+                "adapters_required": ["dep-analysis"],
+                "messages": {
+                    "unknown_packaging_message": "Could not analyse binary packages",
+                    "unknown_packaging_todo": "TODO: - Check whether -dev/-debug/-doc packages need exclusion",
+                    "unknown_dep_analysis_message": "Could not analyse auto-included binary dependencies",
+                    "unknown_dep_analysis_todo": "TODO: - Check whether auto-included -dev/-debug/-doc packages need exclusion",
+                    "ok_no_auto_included_message": "no -dev/-debug/-doc packages that need exclusion",
+                    "not_ok_offending_message": "bad {auto_included}",
+                    "not_ok_offending_todo": "TODO {offending_deps}",
+                    "ok_safe_message": "safe {auto_included}",
+                },
+            }
+        ],
+    }
+
+    errors = validate_catalog(catalog)
+    assert any("messages.not_ok_offending_message missing placeholders" in err for err in errors)
+    assert any("messages.not_ok_offending_todo missing placeholders" in err for err in errors)

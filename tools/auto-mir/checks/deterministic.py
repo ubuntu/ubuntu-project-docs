@@ -10,6 +10,7 @@ import logging
 import re
 
 from checks.language_gates import _is_go_package, _is_rust_package
+from checks.messages import render_check_message
 from checks.registry import DETERMINISTIC_CHECKS, deterministic_check, evaluator
 from models import Finding
 
@@ -258,23 +259,25 @@ def _check_sum_4(ctx, finding: Finding) -> Finding:
 def _check_dep_3(ctx, finding: Finding) -> Finding:
     """DEP-3: No -dev/-debug/-doc packages needing exclusion."""
     adapters = ctx.evidence.get("adapters", {})
+    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "DEP-3"), None)
+    if check is None:
+        raise ValueError("DEP-3 check definition not found in catalog")
+
     packaging = adapters.get("packaging-source", {})
     dep_analysis = adapters.get("dep-analysis", {})
 
     if packaging.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not analyse binary packages"
-        finding.todo = "TODO: - Check whether -dev/-debug/-doc packages need exclusion"
+        finding.message = render_check_message(check, "unknown_packaging_message")
+        finding.todo = render_check_message(check, "unknown_packaging_todo")
         return finding
 
     if dep_analysis.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
-        finding.message = "Could not analyse auto-included binary dependencies"
-        finding.todo = (
-            "TODO: - Check whether auto-included -dev/-debug/-doc packages need exclusion"
-        )
+        finding.message = render_check_message(check, "unknown_dep_analysis_message")
+        finding.todo = render_check_message(check, "unknown_dep_analysis_todo")
         finding.evidence_refs = ["dep-analysis:error"]
         return finding
 
@@ -299,7 +302,7 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = "no -dev/-debug/-doc packages that need exclusion"
+        finding.message = render_check_message(check, "ok_no_auto_included_message")
         finding.evidence_refs = [
             "packaging-source:debian_control",
             "dep-analysis:binary_packages",
@@ -329,22 +332,26 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
         finding.status = "not-ok"
         finding.severity = "recommended"
         finding.confidence = "high"
-        finding.message = (
-            f"Auto-included binaries ({', '.join(auto_included)}) pull dependencies outside main "
-            f"or with unknown component: {', '.join(offending_deps)}"
+        finding.message = render_check_message(
+            check,
+            "not_ok_offending_message",
+            auto_included=", ".join(auto_included),
+            offending_deps=", ".join(offending_deps),
         )
-        finding.todo = (
-            "TODO: - Consider adding extra-excludes for auto-included binaries with "
-            f"offending dependencies ({details}); otherwise MIR may also be needed for: "
-            f"{', '.join(offending_deps)}"
+        finding.todo = render_check_message(
+            check,
+            "not_ok_offending_todo",
+            details=details,
+            offending_deps=", ".join(offending_deps),
         )
     else:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = (
-            f"Auto-included binaries ({', '.join(auto_included)}) will be auto-included, "
-            "and have no dependencies outside main"
+        finding.message = render_check_message(
+            check,
+            "ok_safe_message",
+            auto_included=", ".join(auto_included),
         )
 
     finding.evidence_refs = [

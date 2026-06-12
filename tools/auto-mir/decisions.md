@@ -218,6 +218,34 @@ Choices and reasoning recorded during development. Grouped by topic.
 
 **Implementation:** `evidence/team_mapping_adapter.py` fetches `https://static-reports.ubuntu.com/package-team-mapping.json`, filters out `NON_SUBSCRIBER_TEAMS = {kubuntu-bugs, pkg-ime, translators-packages}`, and checks which remaining teams have subscribed to the source package.
 
+## Check Message Templates in Catalog (2026-06-11)
+
+**Context:** Check evaluators currently emit reviewer-facing `Finding.message` and
+`Finding.todo` text directly in code. This caused drift between policy/catalog intent
+and runtime wording.
+
+**Decision:**
+- Add per-check message templates under `checks[].messages` in `catalog.yaml`.
+- Use Python `str.format` placeholders for dynamic substitution.
+- Keep runtime architecture unchanged:
+  - checks evaluate evidence and bind values,
+  - checks render templates into `Finding.message/todo`,
+  - renderer remains presentation-only.
+- Enforce strict validation for migrated checks:
+  - required template keys must exist,
+  - required placeholders must exist,
+  - format syntax errors fail validation.
+
+**Scope and rollout:**
+- Start with migrated checks (initially DEP-3) and LLM fallback support hooks.
+- Checks without `messages` remain on existing in-code literals during migration.
+- Static renderer labels (`OK:`, `Problems:`, `Left to decide:`) stay in code for now.
+
+**Consequences:**
+- Better declarative traceability of potential output text in catalog.
+- Dynamic evidence-specific phrasing preserved via placeholder binding.
+- Additional schema/validation complexity is accepted to prevent silent drift.
+
 ## SUM-4 Team Mapping Source (2026-06-02)
 **Context:** The SUM-4 check needs to verify that a source package has a structural team bug subscription. The authoritative list of valid subscriber teams is maintained in `ubuntu-archive-tools/lputils.py` as `owner_names` (20+ teams), but we cannot depend on that package being installed. A separate `team_names` list in the same file contains display-only teams that should NOT count as valid subscribers.
 
