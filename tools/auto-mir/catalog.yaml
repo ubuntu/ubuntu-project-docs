@@ -1,1985 +1,2425 @@
-# Auto-MIR Check Catalog
-# Schema version 0.1
-#
-# This file is the single source of truth for all MIR reviewer checks.
-# It maps every TODO line from docs/MIR/mir-reviewers-template.md to an
-# executable check entry with deterministic evidence sources, AI synthesis
-# policy, human-override requirements, and dynamic finding-to-severity rules.
-#
-# Co-development intent: when MIR policy changes, update both the docs and
-# the relevant check(s) here in the same PR.
-#
-# Traceability IDs use semantic names (not line numbers) so they remain stable
-# across template edits. Optional `template_line` metadata is supplemental.
-
-# ---------------------------------------------------------------------------
-# METADATA
-# ---------------------------------------------------------------------------
 metadata:
-  schema_version: "0.1"
-  policy_authority: "Ubuntu MIR policy (docs/MIR/) overrides Debian policy where they conflict"
+  schema_version: '0.1'
+  policy_authority: Ubuntu MIR policy (docs/MIR/) overrides Debian policy where they conflict
   policy_files:
-    - path: "docs/MIR/mir-reviewers-template.md"
-      role: "primary reviewer task source and render target"
-    - path: "docs/MIR/mir-reporters-template.md"
-      role: "reporter-content structure for intake gate"
-    - path: "docs/MIR/mir-how-to-use-templates.md"
-      role: "TODO/RULE semantics and reviewer posting workflow"
-    - path: "docs/MIR/mir-rust.md"
-      role: "Rust and Go language-specific policy"
-    - path: "docs/MIR/main-inclusion-review.md"
-      role: "MIR policy framing and terminology"
-  # policy_hashes is populated at runtime by the tool from git SHA or file hash
+  - path: docs/MIR/mir-reviewers-template.md
+    role: generated render target for reviewer template
+  - path: docs/MIR/mir-reporters-template.md
+    role: reporter-content structure for intake gate
+  - path: docs/MIR/mir-how-to-use-templates.md
+    role: TODO/RULE semantics and reviewer posting workflow
+  - path: docs/MIR/mir-rust.md
+    role: Rust and Go language-specific policy
+  - path: docs/MIR/main-inclusion-review.md
+    role: MIR policy framing and terminology
   policy_hashes: {}
+  reviewer_template_source: catalog-blueprint
   external_policy_refs:
-    - url: "https://www.debian.org/doc/debian-policy/"
-      role: "secondary packaging best-practice baseline"
-    - url: "https://go-team.pages.debian.net/packaging.html"
-      role: "Debian Go packaging guidelines (Ubuntu rules take precedence)"
-
-# ---------------------------------------------------------------------------
-# GLOBAL POLICIES
-# ---------------------------------------------------------------------------
+  - url: https://www.debian.org/doc/debian-policy/
+    role: secondary packaging best-practice baseline
+  - url: https://go-team.pages.debian.net/packaging.html
+    role: Debian Go packaging guidelines (Ubuntu rules take precedence)
+  review_template_blueprint:
+  - (mir-reviewers-template)=
+  - '# MIR reviewer''s template'
+  - ''
+  - This section is a guideline for the **reviewer** as they
+  - '{ref}`review an MIR bug <mir-step-2>`. The intent is to answer the primary'
+  - 'question:'
+  - ''
+  - '*Will this package be well maintained in main?*'
+  - ''
+  - Usage follows {ref}`mir-how-to-use-templates`.
+  - ''
+  - '* By default, statements are in the **OK** section.'
+  - ''
+  - '* Issues to be addressed should go to the **Problem:** sections (and briefly'
+  - '  the **[Summary]** at the top of the template).'
+  - ''
+  - '```{code-block} text'
+  - ':linenos:'
+  - ''
+  - 'RULE: Since we sometimes have many such posts on one bug, in case multiple'
+  - 'RULE: packages are associated, clearly state which one this is for.'
+  - check: SUM-1
+    todo_ref: 0
+  - ''
+  - '[Summary]'
+  - 'TODO: WRITE - TBD The essence of the review result from the MIR POV'
+  - check: SUM-5
+    todo_ref: 0
+  - check: SUM-5
+    todo_ref: 1
+  - 'TODO-C: MIR team ACK under the constraint to resolve the below listed'
+  - 'TODO-C: required TODOs and as much as possible having a look at the'
+  - 'TODO-C: recommended TODOs.'
+  - check: SUM-6
+    todo_ref: 0
+  - check: SUM-6
+    todo_ref: 1
+  - check: SUM-3
+    todo_ref: 0
+  - check: SUM-3
+    todo_ref: 1
+  - ''
+  - 'Notes:'
+  - 'TODO: - add todos, issues or special cases to discuss'
+  - 'Required TODOs:'
+  - 'TODO: - TBD (Please add them numbered for later reference)'
+  - 'Recommended TODOs:'
+  - 'RULE: - Does it have a team bug subscriber? (This is not a blocker for a MIR'
+  - 'RULE:   team ACK, but needs to be provided before the package can be promoted'
+  - 'RULE:   by an AA)'
+  - check: SUM-4
+    todo_ref: 0
+  - 'TODO: - TBD (Please add them numbered for later reference)'
+  - ''
+  - '[Rationale, Duplication and Ownership]'
+  - 'RULE: One easy way to avoid the burden of maintaining the package is to not'
+  - 'RULE: use it in the first place! If a package is pulling in some random jpeg'
+  - 'RULE: parsing library that needs a MIR, maybe it makes more sense to patch the'
+  - 'RULE: package to just use libjpeg instead. Keep an eye out for duplicated'
+  - 'RULE: functionality in main, since that makes bug fixing and security'
+  - 'RULE: reviewing that much harder.'
+  - 'RULE: Duplicates can be found by searching packages in "main", e.g. using:'
+  - 'RULE: $ apt list "?not(?section(/))" | grep <SEARCH_TERM>'
+  - 'RULE: and/or by checking for alternatives on https://www.libhunt.com/ or'
+  - 'RULE: similar databases.'
+  - 'RULE: Sometimes duplicates are not too obvious, but can often be found by'
+  - 'RULE: searching through full descriptions, provides and all that. If the above'
+  - 'RULE: check didn''t already find a duplicate then this check can be done via the'
+  - 'RULE: following steps:'
+  - 'RULE:   $ apt-cache search  <SEARCH_TERM>'
+  - 'RULE: In the returned list pick anything that looks suspicious by name or'
+  - 'RULE: description and check if any of them is in main:'
+  - 'RULE:   $ rmadison -c main {all,packages,that,look,like,duplicates}'
+  - 'RULE: If any of them are reported to be in main check in detail if they cover'
+  - 'RULE: indeed the same use case as the package this MIR is about.'
+  - check: RDO-1
+    todo_ref: 0
+  - 'RULE: No matter how useful a rationale is and how unique a package might be'
+  - 'RULE: it will need an owning team that is willing and able to spend the time'
+  - 'RULE: to maintain it well for the benefit of all Ubuntu users and use cases.'
+  - 'RULE: If someone submitted an MIR on behalf of another team and suggested them'
+  - 'RULE: to own it, we expect someone representing that to be owning team to'
+  - 'RULE: comment on the bug and acknowledge that they are ok to own that package'
+  - 'RULE: (to avoid review and process effort being spent only to then'
+  - 'RULE: immediately be cancelled by a lack of ownership).'
+  - check: RDO-2
+    todo_ref: 0
+  - 'RULE: In the template to submit cases we ask the reporter to state a rationale'
+  - 'RULE: why this should be considered. But a MIR team member needs to'
+  - 'RULE: try to judge if this rationale is good for Ubuntu and its users.'
+  - 'RULE: We''ve also seen requests that thought they need to be in main, but that'
+  - 'RULE: was based on wrong assumptions, ensure the requester understands what and'
+  - 'RULE: why they request a main inclusion when judging if the rationale is valid.'
+  - check: RDO-3
+    todo_ref: 0
+  - 'RULE: If any of the above checks in this section the MIR team can decide to'
+  - 'RULE: skip the rest of the check until these basic questions are resolved.'
+  - ''
+  - '[Dependencies]'
+  - 'RULE: Long ago also build dependencies needed to be in main, but since 14.04'
+  - 'RULE: that no more is the case. Therefore if checking in the build logs do not'
+  - 'RULE: rely on sections like "Install main build dependencies (apt-based'
+  - 'RULE: resolver)". Similarly some of the tools shown below are capable of'
+  - 'RULE: checking both, build and runtime dependencies. Only runtime dependencies'
+  - 'RULE: matter.'
+  - 'RULE: This got further complex with languages like rust that embed their code'
+  - 'RULE: into static builds by default - there, as you can read in the respective'
+  - 'RULE: section, build dependencies matter just like runtime dependencies.'
+  - 'RULE: To make it even more "be careful, because it depends", some solutions are'
+  - 'RULE: e.g. C based headers that put not just definitions but large amounts'
+  - 'RULE: of active code that is built into the binaries - that in turn shall be'
+  - 'RULE: considered like a runtime dependency that should be in main.'
+  - 'RULE: Common tools to check dependencies are:'
+  - 'RULE:   - `check-mir` of package ubuntu-dev-tools'
+  - 'RULE:   - `seeded-in-ubuntu` of package ubuntu-dev-tools'
+  - 'RULE:   - Do not check d/control (dependencies might be generated) but the'
+  - 'RULE:     buildlog if none of the Depends and Recommends present after build'
+  - 'RULE:     are not in main'
+  - 'RULE:   - Please read https://documentation.ubuntu.com/project/contributors/advanced/check-reverse-dependencies/'
+  - 'RULE:     for more about checking reverse dependencies in general'
+  - 'OK:'
+  - check: DEP-1
+    todo_ref: 0
+  - 'TODO: - no other build-time Dependencies with active code in the final binaries'
+  - 'TODO:   to MIR due to this'
+  - check: DEP-3
+    todo_ref: 0
+  - 'TODO: - No dependencies in main that are only superficially tested requiring'
+  - 'TODO:   more tests now.'
+  - ''
+  - 'TODO-A: Problems:'
+  - 'TODO-A: - TBD'
+  - 'TODO-B: Problems: None'
+  - ''
+  - '[Embedded sources and static linking]'
+  - 'RULE: - Embedding a library source increases the maintenance burden of a package'
+  - 'RULE:   since that source needs to be maintained separately from the source in'
+  - 'RULE:   the Ubuntu archive. If a source embeds another package, in general the'
+  - 'RULE:   embedded package should not be used and the packaging should be modified'
+  - 'RULE:   to use the Ubuntu archive version. When this is not possible, the'
+  - 'RULE:   security team must agree to using the embedded source.'
+  - 'RULE: - Similarly, when a binary from one source package statically links to'
+  - 'RULE:   libraries from another source package from the archive, when those'
+  - 'RULE:   libraries are updated the statically linked binaries must be rebuilt'
+  - 'RULE:   with the updated libraries to receive the fix, which increases the'
+  - 'RULE:   maintenance burden. For this reason, static linking in archive builds'
+  - 'RULE:   is discouraged unless static linking is required for the package in'
+  - 'RULE:   question to function correctly (e.g. an integrity scanner).'
+  - 'RULE: - If debian/control uses `Built-Using` or `Static-Built-Using:` it may'
+  - 'RULE:   indicate static linking'
+  - 'RULE:   which should be discouraged (except golang/rust, see below)'
+  - 'RULE:   - Rust - toolchain and dh tools are still changing a lot. Currently it'
+  - 'RULE:     is expected to only list the rust toolchain in `Built-Using`.'
+  - 'RULE:     the remaining (currently vendored) dependencies shall be tracked'
+  - 'RULE:     in a Cargo.lock file'
+  - 'RULE:   - Go - here `Built-Using` is expected to only contain the go'
+  - 'RULE:     toolchain used to build it. Additional packaged dependencies'
+  - 'RULE:     will be tracked in `Static-Built-Using:` automatically.'
+  - 'RULE:     The superset of packaged and vendored (if used) dependencies shall be'
+  - 'RULE:     tracked in a go.sum file (go.mod are direct dependencies, go.sum'
+  - 'RULE:     covers checksum content for direct and indirect dependencies. This'
+  - 'RULE:     should be present for reproducible builds already which involve'
+  - 'RULE:     having a go.sum.'
+  - 'RULE:     We have let go packages into main before this existed, so we have'
+  - 'RULE:     sub-optimal prior-art. But down the road - if vendoring is used - we'
+  - 'RULE:     want to switch to require that once the toolchain is ready to'
+  - 'RULE:     create it accordingly.'
+  - ''
+  - 'OK:'
+  - check: ESL-1
+    todo_ref: 0
+  - check: ESL-2
+    todo_ref: 0
+  - check: ESL-3
+    todo_ref: 0
+  - ''
+  - 'RULE: Golang'
+  - 'RULE: - golang 1.4 packages and earlier could only statically compile their'
+  - 'RULE:   binaries. golang 1.5 in Ubuntu 16.10 introduced `-buildmode=shared`'
+  - 'RULE:   to build shared libraries and `-linkshared` to dynamically link against'
+  - 'RULE:   shared libraries. In general, statically compiled binaries are not'
+  - 'RULE:   suitable for the Ubuntu archive because they increase the maintenance'
+  - 'RULE:   burden significantly. As such, from Ubuntu 16.10 and later, golang'
+  - 'RULE:   packages in main were expected to be built with shared'
+  - 'RULE:   libraries.'
+  - 'RULE: - Evaluating cost/benefits while considering the ABI instability of golang'
+  - 'RULE:   libraries during this period, the MIR team decided for 17.10 and later'
+  - 'RULE:   to allow static builds of golang packages in main, so long as the number'
+  - 'RULE:   of these packages remains low and they follow the guidelines below:'
+  - 'RULE:   - golang applications in main are expected:'
+  - 'RULE:       1. to build using `golang-*-dev` packages from the Ubuntu archive'
+  - 'RULE:          creating `Built-Using` in debian/control. This requirement ensures'
+  - 'RULE:          that the security team is able to track security issues for all'
+  - 'RULE:          affected static binary packages'
+  - 'RULE:       2. not to build any vendored (i.e. embedded) code in the source'
+  - 'RULE:          package whose binaries appear in the archive (e.g. test code is'
+  - 'RULE:          ok) without clear justification from the requesting team and'
+  - 'RULE:          approval from the security team. This requirement ensures that'
+  - 'RULE:          the security team is able to track security issues for all'
+  - 'RULE:          affected source packages.'
+  - 'RULE:       3. only build against approved vendored sources (when applicable).'
+  - 'RULE:          If new versions add new components or dependencies in subsequent'
+  - 'RULE:          Ubuntu uploads this will need re-evaluation by the security'
+  - 'RULE:          team. This requirement ensures that the security team is able'
+  - 'RULE:          to track security issues for all affected source packages.'
+  - 'RULE: - The intended outcomes from the above requirements (if not vendored) are'
+  - 'RULE:   for packages in main to standardize on particular versions of'
+  - 'RULE:   `golang-*-dev` packages (when possible) with the requesting team'
+  - 'RULE:    adjusting their packaging as necessary, all teams responsible for'
+  - 'RULE:    golang packages coordinating on transitions and the requesting team'
+  - 'RULE:    occasionally creating new `golang-*-dev` packages as agreed to in the'
+  - 'RULE:    MIR bug (upstreaming to Debian whenever possible).'
+  - 'RULE: - As a practical matter, golang/rust source packages in main are not'
+  - 'RULE:   required to remove unused embedded code copies.'
+  - 'RULE: - If based on the above options it''s a statically compiled golang package:'
+  - 'RULE:   - Does the package use dh-golang (if not, suggest dh-make-golang to'
+  - 'RULE:     create the package)?'
+  - 'RULE:   - Does debian/control use `Built-Using: ${misc:Built-Using}` for each'
+  - 'RULE:     non''-dev'' binary package (importantly, golang-*-dev packages only'
+  - 'RULE:     ship source files so don''t need Built-Using)?'
+  - 'RULE:   - Does the package follow Debian Go packaging guidelines?'
+  - 'RULE:     (See: https://go-team.pages.debian.net/packaging.html)'
+  - 'RULE: - When it is infeasible to comply with this policy, the justification,'
+  - 'RULE:   discussion and approval should all be clearly represented in the bug.'
+  - ''
+  - 'OK:'
+  - check: ESL-4
+    todo_ref: 0
+  - check: ESL-4
+    todo_ref: 1
+  - ''
+  - 'TODO-A:   - vendoring is used, but the reasoning is sufficiently explained'
+  - 'TODO-B:   - No vendoring used, all Built-Using are in main'
+  - ''
+  - 'TODO-A:   - golang: shared builds'
+  - 'TODO-B:   - golang: static builds are used, the team confirmed their commitment'
+  - 'TODO-B:     to the additional responsibilities implied by static builds.'
+  - ''
+  - check: ESL-8
+    todo_ref: 0
+  - 'TODO-B: - Rust package that has all dependencies vendored. It does neither'
+  - 'TODO-B:   have *Built-Using (after build). Nor does the build log indicate'
+  - 'TODO-B:   built-in sources that are missed to be reported as Built-Using.'
+  - ''
+  - check: ESL-9
+    todo_ref: 0
+  - ''
+  - 'TODO-A: - Includes vendored code, the package has documented how to refresh this'
+  - 'TODO-A:   code at <TBD>'
+  - check: ESL-11
+    todo_ref: 1
+  - ''
+  - 'TODO-A: Problems:'
+  - 'TODO-A: - TBD'
+  - 'TODO-B: Problems: None'
+  - ''
+  - '[Security]'
+  - 'RULE: - Determine if the package may have security implications or history.'
+  - 'RULE:   Err on the side of caution.'
+  - 'RULE: - If the package is security sensitive, you should review as much as you'
+  - 'RULE:   can and then assign to the ubuntu-security team. The bug will then be'
+  - 'RULE:   added to the prioritized list of MIR security reviews.'
+  - 'RULE: - We do not block on, but want to recommend using enhanced isolation'
+  - 'RULE:   features, things like systemd isolation, apparmor and such shall at'
+  - 'RULE:   least have gotten a thought if they would help to mitigate risks in'
+  - 'RULE:   this case. If we spot a case where we think it should be either easy or'
+  - 'RULE:   very beneficial to use such features we should add them to recommended'
+  - 'RULE:   tasks.'
+  - ''
+  - 'OK:'
+  - check: SEC-1
+    todo_ref: 0
+  - check: SEC-2
+    todo_ref: 0
+  - check: SEC-3
+    todo_ref: 0
+  - check: SEC-4
+    todo_ref: 0
+  - 'TODO: - does not parse data formats (files [images, video, audio,'
+  - 'TODO:   xml, json, asn.1], network packets, structures, ...) from'
+  - 'TODO:   an untrusted source.'
+  - check: SEC-6
+    todo_ref: 0
+  - check: SEC-7
+    todo_ref: 0
+  - check: SEC-8
+    todo_ref: 0
+  - check: SEC-9
+    todo_ref: 0
+  - check: SEC-10
+    todo_ref: 0
+  - check: SEC-11
+    todo_ref: 0
+  - 'TODO: - does not deal with cryptography (en-/decryption, certificates,'
+  - 'TODO:   signing, ...)'
+  - 'TODO: - this makes appropriate (for its exposure) use of established risk'
+  - 'TODO:   mitigation features (dropping permissions, using temporary environments,'
+  - 'TODO:   restricted users/groups, seccomp, systemd isolation features,'
+  - 'TODO:   apparmor, ...)'
+  - ''
+  - 'TODO-A: Problems:'
+  - 'TODO-A: - TBD'
+  - 'TODO-B: Problems: None'
+  - ''
+  - '[Common blockers]'
+  - 'RULE: - There are plenty of testing requirements, hopefully already resolved'
+  - 'RULE:   by the reporter upfront, see "Quality assurance - testing" section of'
+  - 'RULE:   the Main Inclusion requirements'
+  - 'RULE: - The MIR process shall ensure quality and maintainability, due to that'
+  - 'RULE:   the expectations to that are quite high, but especially in cases where'
+  - 'RULE:   special HW is needed that can be a hard to achieve which bloats the'
+  - 'RULE:   options below, it is a balance or compromise we need to strike between'
+  - 'RULE:   giving such cases a pass too easily and making them impossible.'
+  - 'RULE:   Please read (to keep this short) for more background:'
+  - 'RULE:   https://github.com/canonical/ubuntu-mir/issues/30'
+  - ''
+  - 'OK:'
+  - check: CB-1
+    todo_ref: 0
+  - check: CB-2
+    todo_ref: 0
+  - check: CB-2
+    todo_ref: 1
+  - check: CB-3
+    todo_ref: 0
+  - 'TODO-A: - This does seem to need special HW for build or test so it can''t be'
+  - 'TODO-A:   automatic at build or autopkgtest time. But as outlined'
+  - 'TODO-A:   by the requester in [Quality assurance - testing] there:'
+  - 'TODO-A1:   - is hardware and a test plan or code'
+  - 'TODO-A2:   - are partner engagements and a test plan or code'
+  - 'TODO-A3:   - is community support to test this for Ubuntu'
+  - 'TODO-A4:   - a simulator and a test plan or code'
+  - 'TODO-A5:   - is upstream support to test this for Ubuntu'
+  - 'TODO-A6:   - an agreement with the manufacturer to test this for Ubuntu'
+  - 'TODO-A7:   - an agreement with solutions-qa to be able to test this for Ubuntu'
+  - 'TODO-A8:   - an agreement with another team to be able to test this for Ubuntu'
+  - check: CB-4
+    todo_ref: 1
+  - 'TODO-C: - This does need special HW for thorough testing, but all options to'
+  - 'TODO-C:   get this covered have been exhausted and based on demonstration of'
+  - 'TODO-C:   enough investigation and proof of why there is currently no other'
+  - 'TODO-C:   option it is accepted as-is as a compromise.'
+  - 'TODO-C:   The owning team is committed and aware of the implications for'
+  - 'TODO-C:   ongoing maintenance.'
+  - 'TODO: - if a non-trivial test on this level does not make sense (the lib alone'
+  - 'TODO:   is only doing rather simple things), is the overall solution (app+libs)'
+  - 'TODO:   extensively covered i.e. via end to end autopkgtest ?'
+  - check: CB-7
+    todo_ref: 0
+  - check: CB-8
+    todo_ref: 0
+  - check: CB-9
+    todo_ref: 0
+  - ''
+  - 'TODO-A: Problems:'
+  - 'TODO-A: - TBD'
+  - 'TODO-B: Problems: None'
+  - ''
+  - '[Packaging red flags]'
+  - 'RULE: - Does Ubuntu carry a non necessary delta?'
+  - 'RULE: - If it''s a library, does it either have a symbols file or use an empty'
+  - 'RULE:   argument to dh_makeshlibs -V? (pass such a patch on to Debian, but'
+  - 'RULE:   don''t block on it).'
+  - 'RULE:   Note that for C++, see https://wiki.ubuntu.com/DailyRelease/FAQ'
+  - 'RULE:   for a method to demangle C++ symbols files.'
+  - 'RULE: - There are shared object only meant for internal use, examples'
+  - 'RULE:   that come to mind are .so for perl or python implementation.'
+  - 'RULE:   in such cases symbols tracking is not needed as it isn''t meant'
+  - 'RULE:   to expose an external API/ABI. But then in return we should ensure'
+  - 'RULE:   the package does not ship external headers to build against e.g.'
+  - 'RULE:   in a -dev package or similar.'
+  - 'RULE: - Does it have a watch file? (If relevant, e.g. non-native)'
+  - 'RULE: - Is its update history slow or sporadic?'
+  - 'RULE: - Is the current release packaged?'
+  - 'RULE: - Will entering main make it harder for the people currently keeping it'
+  - 'RULE:   up to date? (i.e. are they only MOTUs?)'
+  - 'RULE: - Lintian warnings'
+  - 'RULE: - Is debian/rules a mess? Ideally it uses dh and overrides to make it as'
+  - 'RULE:   tiny as possible.'
+  - 'RULE: - If a package shall be promoted it should NOT be on the lto-disabled'
+  - 'RULE:   list, but the fix, or the workaround should be directly in the package'
+  - 'RULE:   to enforce maintainer awareness and make it more visible to anyone'
+  - 'RULE:   looking at the package - see https://wiki.ubuntu.com/ToolChain/LTO.'
+  - ''
+  - 'OK:'
+  - check: PRF-1
+    todo_ref: 0
+  - 'TODO-B: - Ubuntu does carry a delta, but it is reasonable and maintenance under'
+  - 'TODO-B:   control'
+  - check: PRF-2
+    todo_ref: 0
+  - 'TODO-B: - For c++ libraries - symbols tracking isn''t in place but the owning'
+  - 'TODO-B:   team tried to set it up and came back with a reasonable rationale'
+  - 'TODO-B:   of why it isn''t practical to do for the package.'
+  - 'TODO-B:   If symbols tracking isn''t used then it''s recommended to investigate'
+  - 'TODO-B:   using an alternative like abigail or abi-compliance-check in CI'
+  - 'TODO-B:   or bumping SOVER with every package update.'
+  - check: PRF-2
+    todo_ref: 2
+  - 'TODO-D: - symbols tracking not applicable for this kind of code because it'
+  - 'TODO-D:   the shared objects are only used internally and no headers made'
+  - 'TODO-D:   available.'
+  - check: PRF-3
+    todo_ref: 0
+  - check: PRF-3
+    todo_ref: 1
+  - check: PRF-4
+    todo_ref: 0
+  - check: PRF-5
+    todo_ref: 0
+  - check: PRF-6
+    todo_ref: 0
+  - 'TODO: - promoting this does not seem to cause issues for MOTUs that so far'
+  - 'TODO:   maintained the package'
+  - check: PRF-8
+    todo_ref: 0
+  - check: PRF-9
+    todo_ref: 0
+  - check: PRF-10
+    todo_ref: 0
+  - 'RULE:   (fix, or the workaround should be directly in the package,'
+  - 'RULE:    see https://launchpad.net/ubuntu/+source/lto-disabled-list)'
+  - ''
+  - 'TODO-A: Problems:'
+  - 'TODO-A: - TBD'
+  - 'TODO-B: Problems: None'
+  - ''
+  - '[Upstream red flags]'
+  - 'RULE: flag common issues:'
+  - 'RULE: - if you see anything else odd, speak up and ask for clarification'
+  - ''
+  - 'OK:'
+  - check: URF-1
+    todo_ref: 0
+  - check: URF-2
+    todo_ref: 0
+  - check: URF-2
+    todo_ref: 1
+  - 'TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside'
+  - 'TODO:   tests)'
+  - check: URF-4
+    todo_ref: 0
+  - 'RULE:   (consider at least `grep -Hrn nobody` for it'
+  - 'RULE:    and run `find . -user nobody` in source and built binaries)'
+  - check: URF-5
+    todo_ref: 0
+  - 'RULE:   (consider at least `grep -Hrn -e setuid -e setgid` for it'
+  - 'RULE:    and run `find . \( -perm -4000 -o -perm -2000 \)` in source and'
+  - 'RULE:    built binaries)'
+  - 'TODO: - use of setuid, but ok because TBD (prefer systemd to set those'
+  - 'TODO:   for services)'
+  - check: URF-6
+    todo_ref: 0
+  - 'RULE: Old dependencies, partially even still in main we want to get rid of over'
+  - 'RULE: time. While they may be still there, we''d not want to add new'
+  - 'RULE: dependencies. webkit = Web content engine library for GTK,'
+  - 'RULE: qtwebkit = Web content engine library for Qt, libseed = GObject JavaScript'
+  - 'RULE: bindings for the webkit engine'
+  - check: URF-7
+    todo_ref: 0
+  - check: URF-8
+    todo_ref: 0
+  - check: URF-8
+    todo_ref: 1
+  - check: URF-9
+    todo_ref: 0
+  - check: URF-9
+    todo_ref: 1
+  - ''
+  - 'TODO-A: Problems:'
+  - 'TODO-A: - TBD'
+  - 'TODO-B: Problems: None'
+  - '```'
 global_policies:
   severity_model:
-    levels: [ok, recommended, required, nack]
-    description: >
-      Severity is determined by findings, not pre-assigned to TODO lines.
-      A check may resolve to any level depending on what the evidence shows.
+    levels:
+    - ok
+    - recommended
+    - required
+    - nack
+    description: 'Severity is determined by findings, not pre-assigned to TODO lines. A check may resolve to any level depending on what the evidence shows.
+
+      '
   confidence_model:
-    bands: [low, medium, high]
-    description: >
-      Confidence reflects how strongly the evidence supports the finding.
-      AI-derived findings cap at medium unless corroborated by deterministic evidence.
+    bands:
+    - low
+    - medium
+    - high
+    description: 'Confidence reflects how strongly the evidence supports the finding. AI-derived findings cap at medium unless corroborated by deterministic evidence.
+
+      '
   ack_block_rules:
-    - any finding with severity "required" blocks ACK suggestion
-    - any active hard_blocker finding blocks ACK suggestion
-    - NACK-eligible findings are explicitly marked per check
+  - any finding with severity "required" blocks ACK suggestion
+  - any active hard_blocker finding blocks ACK suggestion
+  - NACK-eligible findings are explicitly marked per check
   nack_conditions:
-    - id: "reporter-mir-content-missing"
-      description: "Reporter MIR content not found in bug; hard stop before any checks run"
-    - id: "SEC-3-WEBKIT"
-      description: "Direct webkit1/2 dependency found"
-    - id: "SEC-4-V8"
-      description: "Direct libv8 dependency found"
-    - id: "CB-7-PYTHON2"
-      description: "New python2 dependency introduced"
-
-# ---------------------------------------------------------------------------
-# TOOLING BOOTSTRAP
-# ---------------------------------------------------------------------------
-tooling_bootstrap:
-  mode_default: "latest-branch"
-  mode_override_flag: "--pin-tooling"
-  description: >
-    Default: clone upstream tools at HEAD of default branch each run for freshness.
-    Override: --pin-tooling <commit> for reproducible benchmark or replay runs.
-  upstream_sources:
-    - id: "ubuntu-archive-tools"
-      repo: "https://git.launchpad.net/ubuntu-archive-tools"
-      required_scripts: ["component-mismatches"]
-      prerequisites: ["germinate"]
-    - id: "ubuntu-dev-tools"
-      apt_package: "ubuntu-dev-tools"
-      provides: ["seeded-in-ubuntu"]
-  required_in_container:
-    - sbuild
-    - lintian
-    - git-ubuntu
-    - ubuntu-dev-tools
-    - dpkg-dev
-    - apt-utils
-    - python3-launchpadlib
-
-# ---------------------------------------------------------------------------
-# EVIDENCE ADAPTERS
-# ---------------------------------------------------------------------------
-# Each adapter is a reusable collector referenced by checks.
-# output_contract describes what keys the adapter populates in the evidence store.
-# fallback describes behavior on retrieval failure.
-evidence_adapters:
-
-  - id: lp-bug-api
-    type: api
-    description: "Fetch Launchpad bug metadata, description, comments, and target package"
-    inputs: [bug_id]
-    output_contract:
-      bug_title: str
-      bug_description: str
-      bug_comments: list
-      target_source_package: str
-      target_series: str
-      bug_tags: list
-      bug_subscribers: list
-    fallback: hard_fail
-    notes: "No web scraping; Launchpad API only"
-
-  - id: lp-package-api
-    type: api
-    description: "Fetch source package publishing history for Ubuntu and Debian via LP API"
-    inputs: [source_package, series]
-    output_contract:
-      ubuntu_publish_history: list
-      debian_publish_history: list
-      current_version: str
-      upload_history: list
-      uploaders: list
-    fallback: emit_todo_continue
-
-  - id: lp-build-api
-    type: api
-    description: "Fetch per-architecture build state from Launchpad for the current package version"
-    inputs: [source_package, series]
-    output_contract:
-      builds: list  # [{arch, state, log_url}]
-    fallback: emit_todo_continue
-
-  - id: lp-bug-search-api
-    type: api
-    description: "Search Ubuntu package bug space on Launchpad for open/critical bugs"
-    inputs: [source_package]
-    output_contract:
-      open_bugs: list
-      critical_bugs: list
-      security_bugs: list
-    fallback: emit_todo_continue
-
-  - id: lp-team-membership-api
-    type: api
-    description: "Check team membership and bug subscriber status via Launchpad API"
-    inputs: [team_name]
-    output_contract:
-      members: list
-      is_subscribed: bool
-    fallback: emit_todo_continue
-
-  - id: debian-bts
-    type: web
-    description: "Fetch open bugs from Debian Bug Tracking System for the package"
-    inputs: [source_package]
-    output_contract:
-      open_bugs: list
-      rc_bugs: list
-      security_bugs: list
-    fallback: emit_todo_continue
-
-  - id: upstream-tracker
-    type: heuristic
-    description: "Detect and query upstream project bug tracker and release history"
-    inputs: [source_package, upstream_url_hint]
-    output_contract:
-      upstream_url: str
-      open_issues_count: int
-      recent_releases: list
-      last_release_date: str
-    fallback: emit_todo_continue
-    notes: "URL detection uses debian/watch, debian/upstream/metadata, or reporter statement"
-
-  - id: sbuild
-    type: local_exec
-    description: "Run sbuild test build in-container; produces build log and lintian output"
-    inputs: [source_package, series, architectures]
-    output_contract:
-      build_log: str
-      build_success: bool
-      lintian_output: str
-      lintian_warnings: list
-      lintian_errors: list
-    fallback: emit_todo_continue
-
-  - id: lintian
-    type: local_exec
-    description: "Parse lintian output from sbuild run"
-    inputs: [sbuild_output]
-    output_contract:
-      errors: list
-      warnings: list
-      pedantic: list
-    fallback: emit_todo_continue
-
-  - id: packaging-source
-    type: local_exec
-    description: "Fetch package source via git-ubuntu and analyse packaging files"
-    inputs: [source_package]
-    output_contract:
-      debian_control: dict
-      debian_rules: str
-      debian_watch: str
-      debian_copyright: str
-      debian_tests_control: str
-      service_files: list
-      apparmor_profiles: list
-      built_using_entries: list
-      cargo_lock_present: bool
-      go_sum_present: bool
-      vendored_dirs: list
-    fallback: emit_todo_continue
-
-  - id: dep-analysis
-    type: local_exec
-    description: "Extract runtime dependencies via dpkg-query and resolve component via apt policy"
-    inputs: [binary_packages, series]
-    output_contract:
-      runtime_deps: list  # [{package, component, version}]
-      deps_not_in_main: list
-      dev_debug_doc_packages: list
-    fallback: emit_todo_continue
-    notes: "Do not use check-mir (outdated); use dpkg-query + apt policy"
-
-  - id: component-mismatches
-    type: local_exec
-    description: "Run upstream ubuntu-archive-tools/component-mismatches to identify promotion candidates"
-    inputs: [source_package, series]
-    output_contract:
-      promotion_candidates: list
-      mismatch_report: str
-    fallback: emit_todo_continue
-    notes: "Fetch and run original ubuntu-archive-tools script; no local reimplementation"
-
-  - id: autopkgtest-db
-    type: web
-    description: "Query autopkgtest.ubuntu.com/static/autopkgtest.db for test results"
-    inputs: [source_package, series]
-    output_contract:
-      test_results: list  # [{package, arch, status, url}]
-      has_autopkgtest: bool
-      passing_arches: list
-      failing_arches: list
-    fallback: emit_todo_continue
-
-  - id: ubuntu-cve-tracker
-    type: web
-    description: "Search Ubuntu CVE tracker for package-relevant CVEs"
-    inputs: [source_package]
-    output_contract:
-      cves: list  # [{id, description, status, priority}]
-      active_cves: list
-      fixed_cves: list
-    fallback: emit_todo_continue
-
-  - id: cve-org
-    type: web
-    description: "Search cve.org for CVEs referencing this package or its upstream project"
-    inputs: [source_package, upstream_project_hint]
-    output_contract:
-      cves: list
-      high_severity_cves: list
-    fallback: emit_todo_continue
-
-# ---------------------------------------------------------------------------
-# CHECKS
-# ---------------------------------------------------------------------------
-# mode values: deterministic | ev_to_ai | ai | human_only
-# blocker_class values: none | soft | hard
-# options list is used for mutually exclusive TODO-A/B/C variants; the tool
-# selects the most applicable option based on evidence predicates.
-
-checks:
-
-  # -------------------------------------------------------------------------
-  # [Summary]
-  # -------------------------------------------------------------------------
-
-  - id: SUM-1
-    section: Summary
-    title: "Source package identified"
-    todo_refs: ["TODO: Review for Source Package: TBDSRC"]
-    template_line: 21
-    mode: deterministic
-    adapters_required: [lp-bug-api]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    mapping_rules:
-      - condition: "target_source_package resolved unambiguously"
-        severity: ok
-      - condition: "multiple packages targeted; ambiguous"
-        severity: required
-        reviewer_action: "Clarify which source package this review is for"
-    render_rules:
-      ok: "Review for Source Package: {source_package}"
-
-  - id: SUM-2
-    section: Summary
-    title: "Reporter MIR content present"
-    todo_refs: ["prerequisite gate before all other checks"]
-    mode: deterministic
-    adapters_required: [lp-bug-api]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    mapping_rules:
-      - condition: "reporter MIR template content detected in bug description or comments"
-        severity: ok
-      - condition: "reporter MIR content not found"
-        severity: nack
-        reviewer_action: "Reporter template content is missing. Ask reporter to fill the MIR reporters template before proceeding."
-        blocks_all_further_checks: true
-    render_rules:
-      ok: "Reporter MIR content found and used as context (helpful but not fully trusted as evidence)."
-
-  - id: SUM-3
-    section: Summary
-    title: "Binary packages to promote"
-    todo_refs:
-      - "TODO: List of specific binary packages to be promoted to main: TBD"
-      - "TODO: Specific binary packages built, but NOT to be promoted to main: TBD"
-    template_line: 35
-    mode: ev_to_ai
-    adapters_required: [component-mismatches, packaging-source]
-    adapters_optional: [lp-package-api]
-    ai_policy: "Interpret component-mismatch output to identify promotion candidates; summarise."
-    human_override: true
-    blocker_class: none
-    fallback: "emit_todo_continue"
-    fallback_message: >
-      Component-mismatches tooling did not produce a decisive signal.
-      TODO: List of specific binary packages to be promoted to main: TBD
-      TODO: Specific binary packages built, but NOT to be promoted to main: TBD
-    mapping_rules:
-      - condition: "component-mismatches identifies clear promotion candidates"
-        severity: ok
-      - condition: "mismatch tooling unavailable or ambiguous"
-        severity: ok
-        reviewer_action: "Verify promotion candidates manually from debian/control binary package list"
-    render_rules:
-      ok: >
-        List of specific binary packages to be promoted to main: {promotion_candidates}
-        Specific binary packages built, but NOT to be promoted to main: {non_promoted_packages}
-
-  - id: SUM-4
-    section: Summary
-    title: "Team bug subscriber present"
-    todo_refs: ["TODO: - The package should get a team bug subscriber before being promoted"]
-    template_line: 45
-    mode: deterministic
-    adapters_required: [lp-package-api, lp-team-membership-api]
-    ai_policy: none
-    human_override: false
-    blocker_class: none
-    mapping_rules:
-      - condition: "team bug subscriber detected on the source package"
-        severity: ok
-      - condition: "no team bug subscriber found"
-        severity: recommended
-        reviewer_action: >
-          The package should get a team bug subscriber before being promoted.
-          NOTE: This is not a blocker for MIR team ACK, but Archive Admins
-          will not promote the package until this is in place. Act now to avoid
-          stalling the process at the final step.
-    render_rules:
-      ok: "Package has a team bug subscriber."
-      recommended: "TODO: - The package should get a team bug subscriber before being promoted (will block AA promotion)"
-
-  - id: SUM-5
-    section: Summary
-    title: "Overall ACK/NACK/ACK-with-conditions"
-    todo_refs:
-      - "TODO-A: MIR team ACK"
-      - "TODO-B: MIR team NACK"
-      - "TODO-C: MIR team ACK under the constraint to resolve..."
-    template_line: 26
-    mode: ai
-    adapters_required: []
-    ai_policy: >
-      Synthesise all section findings. If zero required findings and zero hard blockers:
-      suggest ACK. If required findings present but package is otherwise sound: suggest
-      ACK-with-conditions listing required TODOs. If fundamental problems exist: suggest
-      NACK. Always mark as requiring human confirmation.
-    human_override: true
-    blocker_class: none
-    options:
-      - id: SUM-5-A
-        todo_ref: "TODO-A: MIR team ACK"
-        predicate: "no required findings and no hard blockers"
-      - id: SUM-5-B
-        todo_ref: "TODO-B: MIR team NACK"
-        predicate: "NACK-eligible finding present or reporter content missing"
-      - id: SUM-5-C
-        todo_ref: "TODO-C: MIR team ACK under the constraint..."
-        predicate: "required findings present but no NACK-eligible finding"
-
-  - id: SUM-6
-    section: Summary
-    title: "Security review needed"
-    todo_refs:
-      - "TODO-A: This does need a security review, so I'll assign ubuntu-security"
-      - "TODO-B: This does not need a security review"
-    template_line: 30
-    mode: ev_to_ai
-    adapters_required: [ubuntu-cve-tracker, cve-org, packaging-source, lp-bug-api]
-    ai_policy: >
-      Evaluate security section findings. If any security trigger fires (SEC-1-CVE-SYNTH,
-      SEC-11-ATTESTATION) or package is security-sensitive (parses untrusted data, exposes
-      endpoints, handles auth/crypto), suggest security review needed.
-    human_override: true
-    blocker_class: none
-    options:
-      - id: SUM-6-A
-        todo_ref: "TODO-A: This does need a security review"
-        predicate: "security trigger active or security-sensitive characteristics detected"
-      - id: SUM-6-B
-        todo_ref: "TODO-B: This does not need a security review"
-        predicate: "no security triggers and no security-sensitive characteristics"
-
-  # -------------------------------------------------------------------------
-  # [Rationale, Duplication and Ownership]
-  # -------------------------------------------------------------------------
-
-  - id: RDO-1
-    section: "Rationale, Duplication and Ownership"
-    title: "No duplicate functionality in main"
-    todo_refs: ["TODO: There is no other package in main providing the same functionality."]
-    template_line: 60
-    mode: ev_to_ai
-    adapters_required: [dep-analysis, lp-package-api]
-    adapters_optional: [lp-bug-api]
-    ai_policy: >
-      Search main for packages with overlapping functionality using apt list/cache data
-      and libhunt or similar. AI should reason about functional overlap, not just name
-      similarity. Produce a tentative finding; reviewer must confirm.
-    human_override: true
-    blocker_class: soft
-    mapping_rules:
-      - condition: "no functional duplicate found in main"
-        severity: ok
-      - condition: "potential duplicate found but use-case difference is clear"
-        severity: ok
-        reviewer_action: "Note the similar package and explain the difference"
-      - condition: "functional duplicate in main with no clear justification"
-        severity: required
-        reviewer_action: "Identify duplicate and explain why it cannot be used instead"
-    render_rules:
-      ok: "There is no other package in main providing the same functionality."
-
-  - id: RDO-2
-    section: "Rationale, Duplication and Ownership"
-    title: "Owning team committed"
-    todo_refs: ["TODO: A team is committed to own long term maintenance of this package."]
-    template_line: 72
-    mode: ev_to_ai
-    adapters_required: [lp-bug-api, lp-team-membership-api]
-    ai_policy: >
-      Check if owning team is explicitly named and confirmed in bug comments.
-      If reporter submitted on behalf of another team, verify that team acknowledged
-      ownership in a comment. Surface evidence; AI suggests verdict; reviewer confirms.
-    human_override: true
-    blocker_class: soft
-    mapping_rules:
-      - condition: "owning team explicitly confirmed in bug or reporter represents that team"
-        severity: ok
-      - condition: "submitted on behalf of another team with no acknowledgment comment"
-        severity: required
-        reviewer_action: "Ask the proposed owning team to comment and confirm ownership"
-    render_rules:
-      ok: "A team is committed to own long term maintenance of this package."
-
-  - id: RDO-3
-    section: "Rationale, Duplication and Ownership"
-    title: "Rationale valid and useful for Ubuntu"
-    todo_refs: ["TODO: The rationale given in the report seems valid and useful for Ubuntu"]
-    template_line: 80
-    mode: ai
-    adapters_required: [lp-bug-api]
-    adapters_optional: [dep-analysis]
-    ai_policy: >
-      Analyse the reporter's stated rationale. Check for: clear Ubuntu user benefit,
-      whether the request is based on correct assumptions about what needs to be in main,
-      and whether reverse-dep analysis supports the stated need. Produce a tentative
-      verdict suggestion. Always require human confirmation — this is a judgment call.
-    human_override: true
-    human_override_flag: "rationale-validity"
-    blocker_class: soft
-    mapping_rules:
-      - condition: "rationale clearly supports a real Ubuntu user need"
-        severity: ok
-      - condition: "rationale present but thin or assumptions questionable"
-        severity: recommended
-        reviewer_action: "Probe reporter for stronger rationale before proceeding"
-      - condition: "rationale absent, circular, or based on demonstrably wrong assumptions"
-        severity: required
-        reviewer_action: "Ask reporter to provide a valid rationale"
-    render_rules:
-      ok: "The rationale given in the report seems valid and useful for Ubuntu."
-
-  # -------------------------------------------------------------------------
-  # [Dependencies]
-  # -------------------------------------------------------------------------
-
-  - id: DEP-1
-    section: Dependencies
-    title: "No unresolved runtime dependencies needing MIR"
-    todo_refs: ["TODO: - no other runtime Dependencies to MIR due to this"]
-    template_line: 104
-    mode: deterministic
-    adapters_required: [dep-analysis, packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    notes: >
-      Do not use check-mir (outdated). Use dpkg-query to extract runtime deps from
-      installed binaries, then apt policy to verify component in target release.
-      Only runtime deps matter unless language/headers embed active code in binaries.
-    mapping_rules:
-      - condition: "all runtime deps already in main"
-        severity: ok
-      - condition: "one or more runtime deps still in universe"
-        severity: required
-        reviewer_action: "File MIR or extra-exclude for each universe runtime dependency"
-    render_rules:
-      ok: "- no other runtime Dependencies to MIR due to this"
-
-  - id: DEP-2
-    section: Dependencies
-    title: "No build-time deps with active code in final binaries"
-    todo_refs: ["TODO: - no other build-time Dependencies with active code in the final binaries to MIR due to this"]
-    template_line: 105
-    mode: ev_to_ai
-    adapters_required: [dep-analysis, sbuild, packaging-source]
-    ai_policy: >
-      Identify language/toolchain patterns that embed build deps into final binaries
-      (e.g. Go static builds, C header-only libraries with active code, Rust vendoring).
-      Check Built-Using and Static-Built-Using. AI assesses risk; reviewer confirms.
-    human_override: true
-    blocker_class: hard
-    mapping_rules:
-      - condition: "no such deps identified"
-        severity: ok
-      - condition: "static embedding detected with justification"
-        severity: recommended
-      - condition: "static embedding without justification"
-        severity: required
-    render_rules:
-      ok: "- no other build-time Dependencies with active code in the final binaries to MIR due to this"
-
-  - id: DEP-3
-    section: Dependencies
-    title: "No -dev/-debug/-doc packages needing exclusion"
-    todo_refs: ["TODO: - no -dev/-debug/-doc packages that need exclusion"]
-    template_line: 106
-    mode: deterministic
-    adapters_required: [dep-analysis, component-mismatches, packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: none
-    notes: >
-      Not a hard blocker by itself. Only matters if -dev/-debug/-doc packages
-      would create additional component mismatches. If so, recommend adding
-      extra-excludes.
-    mapping_rules:
-      - condition: "no -dev/-debug/-doc binary packages, or all their deps are in main"
-        severity: ok
-      - condition: "-dev/-debug/-doc binaries would pull universe deps into main"
-        severity: recommended
-        reviewer_action: "Add these packages to the extra-exclude list to avoid component mismatches"
-    render_rules:
-      ok: "- no -dev/-debug/-doc packages that need exclusion"
-
-  - id: DEP-4
-    section: Dependencies
-    title: "Main dependencies not only superficially tested"
-    todo_refs: ["TODO: - No dependencies in main that are only superficially tested requiring more tests now."]
-    template_line: 107
-    mode: ev_to_ai
-    adapters_required: [dep-analysis, autopkgtest-db]
-    ai_policy: >
-      For each runtime dependency already in main, check autopkgtest.db for test coverage
-      and results. Focus on the most intensively-used and important dependencies, not every
-      transitive dep. AI should assess whether existing tests would catch regressions
-      introduced by this package. Weight importance by dep usage, not by counting deps.
-      Result is a suggested assessment; human reviewer makes final call.
-    human_override: true
-    human_override_flag: "dependency-test-sufficiency"
-    blocker_class: none
-    mapping_rules:
-      - condition: "key dependencies have non-trivial test coverage"
-        severity: ok
-      - condition: "some key deps have only shallow tests; risk is bounded"
-        severity: recommended
-        reviewer_action: "Consider whether the package should add tests that cover the shared dep"
-      - condition: "critical deps have no meaningful test coverage"
-        severity: required
-        reviewer_action: "Require test coverage improvements before promotion"
-    render_rules:
-      ok: "- No dependencies in main that are only superficially tested requiring more tests now."
-
-  # -------------------------------------------------------------------------
-  # [Embedded sources and static linking]
-  # -------------------------------------------------------------------------
-
-  - id: ESL-1
-    section: "Embedded sources and static linking"
-    title: "No embedded source present"
-    todo_refs: ["TODO: - no embedded source present"]
-    template_line: 150
-    mode: deterministic
-    adapters_required: [packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    mapping_rules:
-      - condition: "no vendored dirs, no bundled third-party source in debian/copyright"
-        severity: ok
-      - condition: "embedded source present with security team sign-off"
-        severity: ok
-      - condition: "embedded source present with no justification"
-        severity: required
-        reviewer_action: "Embedded source must be replaced with archive package or security team must approve"
-    render_rules:
-      ok: "- no embedded source present"
-
-  - id: ESL-2
-    section: "Embedded sources and static linking"
-    title: "No unexpected static linking"
-    todo_refs: ["TODO: - no static linking"]
-    template_line: 151
-    mode: deterministic
-    adapters_required: [sbuild, packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    notes: >
-      Check build log for '-static' flag in compiler/linker invocations.
-      Inspect ldd output on installed binaries. Check Built-Using/Static-Built-Using.
-      Distinguish acceptable static linking (integrity scanner, etc.) from unwanted.
-    mapping_rules:
-      - condition: "no static linking detected"
-        severity: ok
-      - condition: "static linking present and justified (e.g. integrity scanner)"
-        severity: ok
-        reviewer_action: "Note justification in review"
-      - condition: "static linking to archive library without justification"
-        severity: required
-    render_rules:
-      ok: "- no static linking"
-
-  - id: ESL-3
-    section: "Embedded sources and static linking"
-    title: "No unexpected Built-Using entries"
-    todo_refs: ["TODO: - does not have unexpected Built-Using entries"]
-    template_line: 152
-    mode: deterministic
-    adapters_required: [packaging-source, sbuild]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    mapping_rules:
-      - condition: "all Built-Using entries are expected (toolchain only, or none)"
-        severity: ok
-      - condition: "unexpected Built-Using entry suggesting untracked embedded source"
-        severity: required
-    render_rules:
-      ok: "- does not have unexpected Built-Using entries"
-
-  - id: ESL-4
-    section: "Embedded sources and static linking"
-    title: "Go language detection gate"
-    todo_refs:
-      - "TODO-A: - not a go package, no extra constraints to consider in that regard"
-      - "TODO-B: - Go Package that follows the Debian Go packaging guidelines"
-    template_line: 155
-    mode: deterministic
-    language_gate: go
-    adapters_required: [packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: none
-    options:
-      - id: ESL-4-A
-        todo_ref: "TODO-A"
-        predicate: "no Go source detected"
-        render: "- not a go package, no extra constraints to consider in that regard"
-      - id: ESL-4-B
-        todo_ref: "TODO-B"
-        predicate: "Go source detected"
-        render: "- Go Package"
-
-  - id: ESL-5
-    section: "Embedded sources and static linking"
-    title: "Go: follows Debian/Ubuntu Go packaging guidelines"
-    todo_refs:
-      - "TODO-B: - Go Package that follows the Debian Go packaging guidelines"
-    template_line: 156
-    mode: ev_to_ai
-    language_gate: go
-    adapters_required: [packaging-source, sbuild]
-    ai_policy: >
-      Ubuntu rules override Debian guidelines where they conflict. Check: dh-golang used,
-      Built-Using: ${misc:Built-Using} present for non-dev binaries, go.sum present.
-      Assess vendoring against Ubuntu MIR policy (vendoring may be acceptable or even
-      recommended; dialogue with reporter is often appropriate).
-    human_override: true
-    blocker_class: soft
-    mapping_rules:
-      - condition: "all three conditions met; vendoring absent or security-approved"
-        severity: ok
-      - condition: "vendoring used with clear justification and security team awareness"
-        severity: ok
-      - condition: "missing Built-Using or dh-golang without justification"
-        severity: recommended
-        reviewer_action: "Suggest fixes to align with Go packaging guidelines"
-      - condition: "vendored code without security team sign-off"
-        severity: required
-    render_rules:
-      ok: "- Go Package that follows the Debian Go packaging guidelines"
-
-  - id: ESL-6
-    section: "Embedded sources and static linking"
-    title: "Go: vendoring documented and justified"
-    todo_refs:
-      - "TODO-A: - vendoring is used, but the reasoning is sufficiently explained"
-      - "TODO-B: - No vendoring used, all Built-Using are in main"
-    template_line: 160
-    mode: ev_to_ai
-    language_gate: go
-    adapters_required: [packaging-source]
-    ai_policy: >
-      Check go.sum presence, vendoring directories, and whether security team discussion
-      is documented in the bug or debian/README.source. Ubuntu allows and sometimes
-      recommends vendoring; this is a dialogue rather than a hard requirement in most cases.
-    human_override: true
-    blocker_class: none
-    options:
-      - id: ESL-6-A
-        todo_ref: "TODO-A"
-        predicate: "vendoring used with justification"
-        render: "- vendoring is used, but the reasoning is sufficiently explained"
-      - id: ESL-6-B
-        todo_ref: "TODO-B"
-        predicate: "no vendoring"
-        render: "- No vendoring used, all Built-Using are in main"
-
-  - id: ESL-7
-    section: "Embedded sources and static linking"
-    title: "Go: build type (shared vs static)"
-    todo_refs:
-      - "TODO-A: - golang: shared builds"
-      - "TODO-B: - golang: static builds are used, the team confirmed their commitment"
-    template_line: 165
-    mode: deterministic
-    language_gate: go
-    adapters_required: [sbuild, packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: none
-    options:
-      - id: ESL-7-A
-        todo_ref: "TODO-A"
-        predicate: "shared build"
-        render: "- golang: shared builds"
-      - id: ESL-7-B
-        todo_ref: "TODO-B"
-        predicate: "static build with team commitment confirmed"
-        render: "- golang: static builds are used, the team confirmed their commitment to the additional responsibilities implied by static builds."
-
-  - id: ESL-8
-    section: "Embedded sources and static linking"
-    title: "Rust language detection gate"
-    todo_refs:
-      - "TODO-A: - not a rust package, no extra constraints to consider in that regard"
-      - "TODO-B: - Rust package that has all dependencies vendored..."
-    template_line: 168
-    mode: deterministic
-    language_gate: rust
-    adapters_required: [packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: none
-    options:
-      - id: ESL-8-A
-        todo_ref: "TODO-A"
-        predicate: "no Rust source detected"
-        render: "- not a rust package, no extra constraints to consider in that regard"
-      - id: ESL-8-B
-        todo_ref: "TODO-B"
-        predicate: "Rust source detected"
-        render: "- Rust package"
-
-  - id: ESL-9
-    section: "Embedded sources and static linking"
-    title: "Rust: uses dh_cargo"
-    todo_refs: ["TODO: - rust package using dh_cargo (dh ... --buildsystem cargo)"]
-    template_line: 172
-    mode: deterministic
-    language_gate: rust
-    adapters_required: [packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    mapping_rules:
-      - condition: "dh_cargo / --buildsystem cargo present in debian/rules"
-        severity: ok
-      - condition: "Rust package not using dh_cargo"
-        severity: required
-        reviewer_action: "Rust packages must use dh_cargo (dh ... --buildsystem cargo)"
-    render_rules:
-      ok: "- rust package using dh_cargo (dh ... --buildsystem cargo)"
-
-  - id: ESL-10
-    section: "Embedded sources and static linking"
-    title: "Rust: vendored deps; no unexpected Built-Using; Cargo.lock present"
-    todo_refs:
-      - "TODO-B: - Rust package that has all dependencies vendored. It does neither have *Built-Using..."
-    template_line: 174
-    mode: deterministic
-    language_gate: rust
-    adapters_required: [packaging-source, sbuild]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    mapping_rules:
-      - condition: "all three conditions met (vendored, no unexpected Built-Using, Cargo.lock present)"
-        severity: ok
-      - condition: "Cargo.lock missing"
-        severity: required
-      - condition: "unexpected Built-Using entries"
-        severity: required
-    render_rules:
-      ok: "- Rust package that has all dependencies vendored. It does neither have *Built-Using (after build). Nor does the build log indicate built-in sources that are missed to be reported as Built-Using."
-
-  - id: ESL-11
-    section: "Embedded sources and static linking"
-    title: "Vendored code refresh documented"
-    todo_refs:
-      - "TODO-A: - Includes vendored code, the package has documented how to refresh this code at <TBD>"
-      - "TODO-B: - Does not include vendored code"
-    template_line: 177
-    mode: ev_to_ai
-    adapters_required: [packaging-source]
-    ai_policy: >
-      Check debian/README.source and debian/rules vendor targets for documented refresh process.
-      Surface what exists; AI suggests adequacy of documentation; reviewer confirms.
-    human_override: true
-    blocker_class: soft
-    options:
-      - id: ESL-11-A
-        todo_ref: "TODO-A"
-        predicate: "vendored code present"
-      - id: ESL-11-B
-        todo_ref: "TODO-B"
-        predicate: "no vendored code"
-        render: "- Does not include vendored code"
-
-  # -------------------------------------------------------------------------
-  # [Security]
-  # -------------------------------------------------------------------------
-
-  - id: SEC-1
-    section: Security
-    title: "CVE history assessment"
-    todo_refs: ["TODO: - history of CVEs does not look concerning"]
-    template_line: 190
-    mode: ev_to_ai
-    adapters_required: [ubuntu-cve-tracker, cve-org]
-    ai_policy: >
-      AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes,
-      whether fixes are timely, patterns suggesting systemic issues. Output 3-band
-      confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding.
-      Even historically patched but risk-significant patterns should surface as
-      security-review-triggering.
-    human_override: true
-    blocker_class: none
-    security_trigger: SEC-1-CVE-SYNTH
-    mapping_rules:
-      - condition: "no CVEs or only old low-severity resolved CVEs"
-        severity: ok
-        confidence: high
-      - condition: "some CVEs; patched; pattern not concerning"
-        severity: recommended
-        reviewer_action: "Note CVE history in review; consider security review"
-      - condition: "concerning CVE pattern or active unpatched CVEs"
-        severity: required
-        reviewer_action: "Assign to ubuntu-security for security review"
-    render_rules:
-      ok: "- history of CVEs does not look concerning"
-
-  - id: SEC-2
-    section: Security
-    title: "Does not run daemon as root"
-    todo_refs: ["TODO: - does not run a daemon as root"]
-    template_line: 191
-    mode: deterministic
-    adapters_required: [packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    notes: "Check systemd unit User= field; init scripts; DynamicUser= usage"
-    mapping_rules:
-      - condition: "runs as non-root or drops privileges at startup"
-        severity: ok
-      - condition: "runs as root with other mitigations (seccomp, AppArmor)"
-        severity: recommended
-        reviewer_action: "Note root execution and mitigations; consider security review"
-      - condition: "runs as root with no mitigations"
-        severity: required
-        reviewer_action: "Assign to ubuntu-security for security review"
-    render_rules:
-      ok: "- does not run a daemon as root"
-
-  - id: SEC-3
-    section: Security
-    title: "Does not use webkit1/2"
-    todo_refs: ["TODO: - does not use webkit1,2"]
-    template_line: 192
-    mode: deterministic
-    adapters_required: [dep-analysis]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    security_trigger: SEC-3-WEBKIT
-    mapping_rules:
-      - condition: "webkit1 or webkit2 not in runtime deps"
-        severity: ok
-      - condition: "webkit1 or webkit2 found in runtime deps"
-        severity: required
-        blocks_ack: true
-        reviewer_action: "Hard blocker: webkit1/2 dependency must be removed before main inclusion"
-    render_rules:
-      ok: "- does not use webkit1,2"
-
-  - id: SEC-4
-    section: Security
-    title: "Does not use lib*v8 directly"
-    todo_refs: ["TODO: - does not use lib*v8 directly"]
-    template_line: 193
-    mode: deterministic
-    adapters_required: [dep-analysis]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    security_trigger: SEC-4-V8
-    mapping_rules:
-      - condition: "lib*v8 not in runtime deps"
-        severity: ok
-      - condition: "lib*v8 found in runtime deps"
-        severity: required
-        blocks_ack: true
-        reviewer_action: "Hard blocker: direct lib*v8 dependency must be removed before main inclusion"
-    render_rules:
-      ok: "- does not use lib*v8 directly"
-
-  - id: SEC-5
-    section: Security
-    title: "Does not parse untrusted data formats"
-    todo_refs: ["TODO: - does not parse data formats (files [images, video, audio, xml, json, asn.1], network packets, structures, ...) from an untrusted source."]
-    template_line: 194
-    mode: ev_to_ai
-    adapters_required: [dep-analysis, packaging-source, lp-bug-api]
-    ai_policy: >
-      Check runtime deps for known parser libraries. Scan source for file format handling.
-      Read package description, man pages, and docs — out of the description one can quickly
-      derive where data comes from and whether it is untrusted. Surface evidence; AI judges;
-      reviewer confirms.
-    human_override: true
-    blocker_class: soft
-    mapping_rules:
-      - condition: "does not parse untrusted data"
-        severity: ok
-      - condition: "parses data but in a well-bounded library-delegated way"
-        severity: ok
-        reviewer_action: "Note parsing scope in review"
-      - condition: "direct parsing of untrusted network/file input"
-        severity: required
-        reviewer_action: "Assign to ubuntu-security for security review"
-    render_rules:
-      ok: "- does not parse data formats (files [images, video, audio, xml, json, asn.1], network packets, structures, ...) from an untrusted source."
-
-  - id: SEC-6
-    section: Security
-    title: "Does not expose external endpoint"
-    todo_refs: ["TODO: - does not expose any external endpoint (port/socket/... or similar)"]
-    template_line: 196
-    mode: ev_to_ai
-    adapters_required: [packaging-source, lp-bug-api]
-    ai_policy: >
-      Check service files for listen/bind/socket usage. Scan source for network binding
-      patterns. Surface evidence; AI judges exposure scope; reviewer confirms.
-    human_override: true
-    blocker_class: soft
-    mapping_rules:
-      - condition: "no external endpoint"
-        severity: ok
-      - condition: "endpoint exists but restricted (loopback, authenticated)"
-        severity: recommended
-        reviewer_action: "Note restriction scope; may need security review"
-      - condition: "open network endpoint with no restriction"
-        severity: required
-        reviewer_action: "Assign to ubuntu-security for security review"
-    render_rules:
-      ok: "- does not expose any external endpoint (port/socket/... or similar)"
-
-  - id: SEC-7
-    section: Security
-    title: "Does not process arbitrary web content"
-    todo_refs: ["TODO: - does not process arbitrary web content"]
-    template_line: 197
-    mode: ev_to_ai
-    adapters_required: [dep-analysis, packaging-source, lp-bug-api]
-    ai_policy: >
-      Check dep list, source, description, man pages and documentation. From the package
-      description one can often quickly determine whether it processes web content and
-      where that content comes from.
-    human_override: true
-    blocker_class: soft
-    mapping_rules:
-      - condition: "does not process arbitrary web content"
-        severity: ok
-      - condition: "processes web content"
-        severity: required
-        reviewer_action: "Assign to ubuntu-security for security review"
-    render_rules:
-      ok: "- does not process arbitrary web content"
-
-  - id: SEC-8
-    section: Security
-    title: "Does not use centralised online accounts"
-    todo_refs: ["TODO: - does not use centralized online accounts"]
-    template_line: 198
-    mode: deterministic
-    adapters_required: [dep-analysis, packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    mapping_rules:
-      - condition: "no centralised accounts API usage"
-        severity: ok
-      - condition: "uses centralised accounts"
-        severity: required
-        reviewer_action: "Assign to ubuntu-security for security review"
-    render_rules:
-      ok: "- does not use centralized online accounts"
-
-  - id: SEC-9
-    section: Security
-    title: "Does not integrate arbitrary JS into desktop"
-    todo_refs: ["TODO: - does not integrate arbitrary javascript into the desktop"]
-    template_line: 199
-    mode: ev_to_ai
-    adapters_required: [dep-analysis, packaging-source]
-    ai_policy: "Check for WebKit/JS engine deps and desktop file JS integration patterns."
-    human_override: true
-    blocker_class: soft
-    mapping_rules:
-      - condition: "no JS integration"
-        severity: ok
-      - condition: "arbitrary JS in desktop detected"
-        severity: required
-        reviewer_action: "Assign to ubuntu-security for security review"
-    render_rules:
-      ok: "- does not integrate arbitrary javascript into the desktop"
-
-  - id: SEC-10
-    section: Security
-    title: "Does not handle system authentication (PAM)"
-    todo_refs: ["TODO: - does not deal with system authentication (eg, pam), etc)"]
-    template_line: 200
-    mode: deterministic
-    adapters_required: [dep-analysis, packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    notes: "Check for libpam dep; grep for pam_ function calls in source"
-    mapping_rules:
-      - condition: "no PAM or auth handling"
-        severity: ok
-      - condition: "PAM or auth handling present"
-        severity: required
-        reviewer_action: "Assign to ubuntu-security for security review"
-    render_rules:
-      ok: "- does not deal with system authentication (eg, pam), etc)"
-
-  - id: SEC-11
-    section: Security
-    title: "Does not handle security attestation (TPM, secure boot)"
-    todo_refs: ["TODO: - does not deal with security attestation (secure boot, tpm, signatures)"]
-    template_line: 201
-    mode: ev_to_ai
-    adapters_required: [dep-analysis, packaging-source]
-    ai_policy: "Check for tpm, secureboot, pkcs11, signature patterns in source and deps."
-    human_override: false
-    blocker_class: hard
-    security_trigger: SEC-11-ATTESTATION
-    notes: >
-      No recommended-only middle state. Any involvement with secure boot, TPM, or
-      signatures triggers mandatory security review path.
-    mapping_rules:
-      - condition: "no attestation involvement"
-        severity: ok
-      - condition: "attestation involvement detected (any level)"
-        severity: required
-        blocks_ack: false
-        reviewer_action: "Assign to ubuntu-security for security review (mandatory)"
-    render_rules:
-      ok: "- does not deal with security attestation (secure boot, tpm, signatures)"
-
-  - id: SEC-12
-    section: Security
-    title: "Does not handle cryptography"
-    todo_refs: ["TODO: - does not deal with cryptography (en-/decryption, certificates, signing, ...)"]
-    template_line: 202
-    mode: ev_to_ai
-    adapters_required: [dep-analysis, packaging-source]
-    ai_policy: >
-      Check for crypto library deps (openssl, libgcrypt, libsodium, etc.) and source
-      patterns. Distinguish: delegating to system libraries (low concern) vs implementing
-      own crypto or handling keys/certs/signing (high concern → security review).
-    human_override: true
-    blocker_class: soft
-    mapping_rules:
-      - condition: "no crypto handling"
-        severity: ok
-      - condition: "uses system crypto libraries for non-sensitive operations"
-        severity: ok
-      - condition: "implements own crypto or handles keys/certs/signing"
-        severity: required
-        reviewer_action: "Assign to ubuntu-security for security review"
-    render_rules:
-      ok: "- does not deal with cryptography (en-/decryption, certificates, signing, ...)"
-
-  - id: SEC-13
-    section: Security
-    title: "Appropriate use of risk mitigation features"
-    todo_refs: ["TODO: - this makes appropriate (for its exposure) use of established risk mitigation features (dropping permissions, using temporary environments, restricted users/groups, seccomp, systemd isolation features, apparmor, ...)"]
-    template_line: 203
-    mode: ev_to_ai
-    adapters_required: [packaging-source, sbuild]
-    ai_policy: >
-      Enumerate existing mitigations: AppArmor profiles, systemd isolation directives
-      (PrivateTmp, ProtectSystem, etc.), capability drops, seccomp filters, restricted
-      users/groups. Characterise the exposure level from SEC-1 through SEC-12 findings.
-      Surface what mitigations exist and what is absent; AI does NOT make the final call —
-      reviewer judges proportionality.
-    human_override: true
-    human_override_flag: "mitigation-proportionality"
-    security_trigger: SEC-13-MITIGATION-GAPS
-    blocker_class: none
-    mapping_rules:
-      - condition: "mitigations present and proportionate to exposure"
-        severity: ok
-      - condition: "mitigations possible and clearly beneficial; not yet done"
-        severity: recommended
-        reviewer_action: "Recommend adding identified mitigations"
-      - condition: "high-exposure package with no mitigations and no justification"
-        severity: required
-        reviewer_action: "Require mitigations before promotion; consider security review"
-    render_rules:
-      ok: "- this makes appropriate (for its exposure) use of established risk mitigation features ({mitigation_list})"
-
-  # -------------------------------------------------------------------------
-  # [Common blockers]
-  # -------------------------------------------------------------------------
-
-  - id: CB-1
-    section: "Common blockers"
-    title: "Does not FTBFS currently"
-    todo_refs: ["TODO: - does not FTBFS currently"]
-    template_line: 215
-    mode: deterministic
-    adapters_required: [sbuild, lp-build-api]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    notes: >
-      sbuild is one signal. Also check Launchpad multi-architecture build state
-      via API for all architectures the package targets. All must pass.
-    mapping_rules:
-      - condition: "sbuild passes and all LP arches pass"
-        severity: ok
-      - condition: "build fails on any architecture"
-        severity: required
-        blocks_ack: true
-        reviewer_action: "Package FTBFS; must be fixed before promotion"
-    render_rules:
-      ok: "- does not FTBFS currently"
-
-  - id: CB-2
-    section: "Common blockers"
-    title: "Build-time test suite exists and fails build on error"
-    todo_refs:
-      - "TODO: - does have a test suite that runs at build time"
-      - "TODO:   - test suite fails will fail the build upon error."
-    template_line: 216
-    mode: ev_to_ai
-    adapters_required: [sbuild, packaging-source]
-    ai_policy: >
-      Build log alone is often insufficient. Inspect debian/rules wiring to verify
-      test failures gate the build failure. AI assesses whether wiring is correct;
-      determine trivial vs non-trivial quality of the test suite.
-    human_override: true
-    blocker_class: hard
-    mapping_rules:
-      - condition: "test suite present and wired to fail build"
-        severity: ok
-      - condition: "test suite exists but does not fail build on error"
-        severity: required
-        reviewer_action: "Fix test wiring so failures stop the build"
-      - condition: "no build-time test suite at all"
-        severity: required
-        reviewer_action: "Add a build-time test suite"
-    render_rules:
-      ok: "- does have a test suite that runs at build time\n  - test suite fails will fail the build upon error."
-
-  - id: CB-3
-    section: "Common blockers"
-    title: "Non-trivial autopkgtest exists"
-    todo_refs: ["TODO: - does have a non-trivial test suite that runs as autopkgtest"]
-    template_line: 218
-    mode: ev_to_ai
-    adapters_required: [packaging-source, autopkgtest-db]
-    ai_policy: >
-      Deterministic part: detect presence of debian/tests/control and content.
-      AI-assisted part: assess whether the tests are non-trivial (not just import check
-      or syntax check). Reviewer override available.
-    human_override: true
-    blocker_class: hard
-    mapping_rules:
-      - condition: "non-trivial autopkgtest present and passing"
-        severity: ok
-      - condition: "trivial autopkgtest only (e.g. import check)"
-        severity: recommended
-        reviewer_action: "Improve autopkgtest to non-trivial coverage"
-      - condition: "no autopkgtest at all"
-        severity: required
-        reviewer_action: "Add autopkgtest"
-    render_rules:
-      ok: "- does have a non-trivial test suite that runs as autopkgtest"
-
-  - id: CB-4
-    section: "Common blockers"
-    title: "Special hardware: requirement and coverage plan"
-    todo_refs:
-      - "TODO-A: - This does seem to need special HW for build or test..."
-      - "TODO-B: - This does not need special HW for build or test"
-      - "TODO-C: - This does need special HW for thorough testing, but all options... have been exhausted"
-    template_line: 220
-    mode: ev_to_ai
-    adapters_required: [lp-bug-api, packaging-source]
-    ai_policy: >
-      Detect whether special hardware is needed from reporter content and test metadata.
-      For cases that require it, check whether one of the accepted alternatives is present
-      in the reporter content (testflinger, partner, simulator, community, manufacturer,
-      solutions-qa, or other team). Surface evidence. Reviewer makes final judgment on
-      whether options are truly exhausted for TODO-C.
-    human_override: true
-    human_override_flag: "hw-exhaustion-judgment"
-    blocker_class: none
-    options:
-      - id: CB-4-A
-        todo_ref: "TODO-A"
-        predicate: "special HW needed and one coverage alternative documented"
-      - id: CB-4-B
-        todo_ref: "TODO-B"
-        predicate: "no special HW needed"
-        render: "- This does not need special HW for build or test"
-      - id: CB-4-C
-        todo_ref: "TODO-C"
-        predicate: "special HW needed; all options exhausted; human must confirm"
-
-  - id: CB-5
-    section: "Common blockers"
-    title: "Special hardware compromise accepted"
-    todo_refs: ["TODO-C: accepted as-is as a compromise"]
-    template_line: 228
-    mode: human_only
-    adapters_required: [lp-bug-api]
-    ai_policy: none
-    human_override: true
-    blocker_class: soft
-    notes: >
-      Whether "all options have been exhausted" is a policy judgment. Only human
-      reviewer can decide this meets the bar. Tool surfaces reporter justification;
-      reviewer decides.
-    render_rules:
-      todo: "TODO: - Reviewer must judge whether the special-HW exhaustion claim is credible"
-
-  - id: CB-6
-    section: "Common blockers"
-    title: "E2E coverage for simple libs via consumers"
-    todo_refs: ["TODO: - if a non-trivial test on this level does not make sense..., is the overall solution (app+libs) extensively covered i.e. via end to end autopkgtest ?"]
-    template_line: 232
-    mode: ev_to_ai
-    adapters_required: [dep-analysis, autopkgtest-db]
-    adapters_optional: [lp-package-api]
-    ai_policy: >
-      Attempt to pull reverse-dep autopkgtest status and summarise whether key consumers
-      have non-trivial tests covering the lib's functionality. Weight by importance of
-      consumer. On retrieval failure, fall back to human-only TODO.
-    human_override: true
-    fallback: emit_todo_continue
-    fallback_message: >
-      TODO: - if a non-trivial test on this level does not make sense, check whether
-      the overall solution (app+libs) is extensively covered via end-to-end autopkgtest
-    blocker_class: none
-    mapping_rules:
-      - condition: "consumers have non-trivial tests covering this lib's functionality"
-        severity: ok
-      - condition: "coverage exists but could be broadened"
-        severity: recommended
-      - condition: "no consumer-level coverage and lib has no standalone tests"
-        severity: required
-    render_rules:
-      ok: "- the overall solution is covered via end-to-end autopkgtest in consuming packages"
-
-  - id: CB-7
-    section: "Common blockers"
-    title: "No new Python 2 dependency"
-    todo_refs: ["TODO: - no new python2 dependency"]
-    template_line: 234
-    mode: deterministic
-    adapters_required: [dep-analysis, packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    security_trigger: null
-    mapping_rules:
-      - condition: "no python2 or python- style deps detected"
-        severity: ok
-      - condition: "python2 dependency found"
-        severity: required
-        blocks_ack: true
-        reviewer_action: "Hard blocker: python2 dependency must be removed or ported before main inclusion"
-    render_rules:
-      ok: "- no new python2 dependency"
-
-  - id: CB-8
-    section: "Common blockers"
-    title: "Python: uses dh_python"
-    todo_refs: ["TODO: - Python package, but using dh_python"]
-    template_line: 235
-    mode: deterministic
-    language_gate: python
-    adapters_required: [packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    mapping_rules:
-      - condition: "not a Python package"
-        severity: ok
-        skipped: true
-      - condition: "Python package using dh_python3"
-        severity: ok
-      - condition: "Python package not using dh_python"
-        severity: required
-        reviewer_action: "Python packages must use dh_python"
-    render_rules:
-      ok: "- Python package, but using dh_python"
-
-  - id: CB-9
-    section: "Common blockers"
-    title: "Go: uses dh-golang"
-    todo_refs: ["TODO: - Go package, but using dh-golang"]
-    template_line: 236
-    mode: ev_to_ai
-    language_gate: go
-    adapters_required: [packaging-source]
-    ai_policy: >
-      Ubuntu rules for Go packaging may differ from Debian guidance. MIR docs are
-      authoritative. Check for dh-golang; if absent, suggest dh-make-golang.
-      Often a recommendation rather than a hard requirement.
-    human_override: true
-    blocker_class: soft
-    mapping_rules:
-      - condition: "not a Go package"
-        severity: ok
-        skipped: true
-      - condition: "Go package using dh-golang"
-        severity: ok
-      - condition: "Go package not using dh-golang"
-        severity: recommended
-        reviewer_action: "Consider using dh-golang or dh-make-golang for packaging"
-    render_rules:
-      ok: "- Go package, but using dh-golang"
-
-  # -------------------------------------------------------------------------
-  # [Packaging red flags]
-  # -------------------------------------------------------------------------
-
-  - id: PRF-1
-    section: "Packaging red flags"
-    title: "Ubuntu delta reasonableness"
-    todo_refs:
-      - "TODO-A: - Ubuntu does not carry a delta"
-      - "TODO-B: - Ubuntu does carry a delta, but it is reasonable and maintenance under control"
-    template_line: 245
-    mode: ev_to_ai
-    adapters_required: [packaging-source, lp-package-api]
-    ai_policy: >
-      Use git-ubuntu log and diff vs Debian to assess delta size and nature.
-      Escalate to required/NACK only when: large unjustified delta AND no explanation
-      AND no active minimization activity in progress.
-    human_override: true
-    blocker_class: none
-    options:
-      - id: PRF-1-A
-        todo_ref: "TODO-A"
-        predicate: "no delta"
-        render: "- Ubuntu does not carry a delta"
-      - id: PRF-1-B
-        todo_ref: "TODO-B"
-        predicate: "delta present but justified and controlled"
-        render: "- Ubuntu does carry a delta, but it is reasonable and maintenance under control"
-    mapping_rules:
-      - condition: "no delta or justified minimal delta"
-        severity: ok
-      - condition: "large unjustified delta with no explanation AND no minimization effort"
-        severity: required
-        reviewer_action: "Large uncontrolled delta is a maintenance risk; must be justified or minimised"
-
-  - id: PRF-2
-    section: "Packaging red flags"
-    title: "Symbols tracking for C/C++ libraries"
-    todo_refs:
-      - "TODO-A: - symbols tracking is in place."
-      - "TODO-B: - For c++ libraries - symbols tracking isn't in place but the owning team tried..."
-      - "TODO-C: - symbols tracking not applicable for this kind of code."
-      - "TODO-D: - symbols tracking not applicable for this kind of code because it the shared objects are only used internally..."
-    template_line: 249
-    mode: deterministic
-    adapters_required: [packaging-source, sbuild]
-    ai_policy: none
-    human_override: false
-    blocker_class: none
-    notes: >
-      Language-aware N/A handling required. Some languages (Python, Go, Rust) do not
-      have symbols files. Internal-only .so files with no external headers are also N/A.
-      Reviewer keeps only the matching TODO-A/B/C/D option and may extend with rationale.
-    options:
-      - id: PRF-2-A
-        todo_ref: "TODO-A"
-        predicate: "C/C++ library with symbols file present and maintained"
-        render: "- symbols tracking is in place."
-      - id: PRF-2-B
-        todo_ref: "TODO-B"
-        predicate: "C++ library; symbols tracking impractical; alternatives considered"
-        render: "- For c++ libraries - symbols tracking isn't in place but the owning team tried to set it up..."
-      - id: PRF-2-C
-        todo_ref: "TODO-C"
-        predicate: "symbols tracking not applicable for this language/runtime"
-        render: "- symbols tracking not applicable for this kind of code."
-      - id: PRF-2-D
-        todo_ref: "TODO-D"
-        predicate: "internal-only .so, no external headers"
-        render: "- symbols tracking not applicable for this kind of code because the shared objects are only used internally and no headers are made available."
-
-  - id: PRF-3
-    section: "Packaging red flags"
-    title: "debian/watch present"
-    todo_refs:
-      - "TODO-A: - debian/watch is present and looks ok (if needed, e.g. non-native)"
-      - "TODO-B: - debian/watch is not present but also not needed (e.g. native)"
-    template_line: 257
-    mode: deterministic
-    adapters_required: [packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: none
-    options:
-      - id: PRF-3-A
-        todo_ref: "TODO-A"
-        predicate: "non-native package with watch file present"
-        render: "- debian/watch is present and looks ok"
-      - id: PRF-3-B
-        todo_ref: "TODO-B"
-        predicate: "native package or watch file not needed"
-        render: "- debian/watch is not present but also not needed (native package)"
-    mapping_rules:
-      - condition: "non-native package without watch file"
-        severity: recommended
-        reviewer_action: "Add debian/watch to track upstream releases"
-
-  - id: PRF-4
-    section: "Packaging red flags"
-    title: "Upstream update history"
-    todo_refs: ["TODO: - Upstream update history is (good/slow/sporadic)"]
-    template_line: 259
-    mode: ev_to_ai
-    adapters_required: [upstream-tracker, lp-package-api]
-    ai_policy: >
-      Assess upstream release cadence from release history and upstream tracker.
-      Intentional stability (slow because nothing changes) is typically just an
-      explanatory statement — still ok. Dead or abandoned trajectory may reach
-      NACK-level concern. Output a characterisation; reviewer decides framing.
-    human_override: true
-    blocker_class: none
-    mapping_rules:
-      - condition: "active and regular upstream"
-        severity: ok
-      - condition: "slow but intentionally stable"
-        severity: ok
-        reviewer_action: "Note stability in review as explanatory context"
-      - condition: "effectively abandoned upstream"
-        severity: required
-        reviewer_action: "Request explanation of maintenance plan; may be NACK if none exists"
-    render_rules:
-      ok: "- Upstream update history is {upstream_cadence_description}"
-
-  - id: PRF-5
-    section: "Packaging red flags"
-    title: "Debian/Ubuntu update history"
-    todo_refs: ["TODO: - Debian/Ubuntu update history is (good/slow/sporadic)"]
-    template_line: 260
-    mode: ev_to_ai
-    adapters_required: [lp-package-api]
-    ai_policy: >
-      Compare Debian/Ubuntu publishing history cadence to upstream release cadence.
-      Distinguish: slow because upstream is stable (ok, explanatory) vs slow while
-      upstream is active (may need justification). Output characterisation.
-    human_override: true
-    blocker_class: none
-    mapping_rules:
-      - condition: "tracks upstream; reasonable lag"
-        severity: ok
-      - condition: "slow because upstream is also slow and stable"
-        severity: ok
-        reviewer_action: "Note as explanatory statement in review"
-      - condition: "consistently behind active upstream with no justification"
-        severity: recommended
-        reviewer_action: "Ask reporter to explain update lag"
-    render_rules:
-      ok: "- Debian/Ubuntu update history is {distro_cadence_description}"
-
-  - id: PRF-6
-    section: "Packaging red flags"
-    title: "Current release packaged"
-    todo_refs: ["TODO: - the current release is packaged"]
-    template_line: 261
-    mode: deterministic
-    adapters_required: [lp-package-api, upstream-tracker]
-    ai_policy: none
-    human_override: false
-    blocker_class: none
-    mapping_rules:
-      - condition: "latest upstream version matches or is within one/two releases of archive version"
-        severity: ok
-      - condition: "somewhat behind latest upstream"
-        severity: recommended
-        reviewer_action: "Note version lag; ask if update is planned"
-      - condition: "very old version with no update path"
-        severity: required
-    render_rules:
-      ok: "- the current release is packaged"
-
-  - id: PRF-7
-    section: "Packaging red flags"
-    title: "Promoting does not harm MOTU maintainers"
-    todo_refs: ["TODO: - promoting this does not seem to cause issues for MOTUs that so far maintained the package"]
-    template_line: 262
-    mode: ev_to_ai
-    adapters_required: [lp-package-api, lp-team-membership-api]
-    ai_policy: >
-      Fetch Launchpad upload history and identify uploaders. Check MOTU team membership
-      via LP API. Assess whether current maintainers are MOTU-only or have been consulted.
-      Output EV->AI suggested rating; reviewer makes final call.
-    human_override: true
-    human_override_flag: "motu-impact"
-    blocker_class: none
-    mapping_rules:
-      - condition: "current maintainers are not MOTU-only, or MOTU maintainers consulted"
-        severity: ok
-      - condition: "MOTU maintainers present; should be notified"
-        severity: recommended
-        reviewer_action: "Notify current MOTU maintainers of the promotion"
-      - condition: "MOTU-only maintainers with no team transition plan"
-        severity: required
-    render_rules:
-      ok: "- promoting this does not seem to cause issues for MOTUs that so far maintained the package"
-
-  - id: PRF-8
-    section: "Packaging red flags"
-    title: "No excessive lintian warnings"
-    todo_refs: ["TODO: - no massive Lintian warnings"]
-    template_line: 263
-    mode: deterministic
-    adapters_required: [lintian]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    mapping_rules:
-      - condition: "clean or only informational/style warnings"
-        severity: ok
-      - condition: "minor warnings present"
-        severity: recommended
-        reviewer_action: "Pass minor warnings to Debian for fixing"
-      - condition: "error-level warnings, especially security-relevant"
-        severity: required
-    render_rules:
-      ok: "- no massive Lintian warnings"
-
-  - id: PRF-9
-    section: "Packaging red flags"
-    title: "debian/rules cleanliness"
-    todo_refs: ["TODO: - debian/rules is rather clean"]
-    template_line: 264
-    mode: ev_to_ai
-    adapters_required: [packaging-source]
-    ai_policy: >
-      Assess debian/rules complexity. Good: uses dh with minimal overrides.
-      Warn if it is a complex maintenance hazard.
-    human_override: true
-    blocker_class: none
-    mapping_rules:
-      - condition: "uses dh cleanly with minimal overrides"
-        severity: ok
-      - condition: "moderate complexity; could be simplified"
-        severity: recommended
-      - condition: "rules file is a maintenance hazard"
-        severity: required
-    render_rules:
-      ok: "- debian/rules is rather clean"
-
-  - id: PRF-10
-    section: "Packaging red flags"
-    title: "Not on lto-disabled list"
-    todo_refs: ["TODO: - It is not on the lto-disabled list"]
-    template_line: 265
-    mode: deterministic
-    adapters_required: [lp-package-api]
-    ai_policy: none
-    human_override: false
-    blocker_class: hard
-    notes: >
-      Check against lp:ubuntu/+source/lto-disabled-list.
-      If present, the fix or workaround must be in the package itself before promotion.
-    mapping_rules:
-      - condition: "not on lto-disabled list"
-        severity: ok
-      - condition: "on lto-disabled list"
-        severity: required
-        blocks_ack: true
-        reviewer_action: "LTO fix or in-package workaround required before promotion; see https://wiki.ubuntu.com/ToolChain/LTO"
-    render_rules:
-      ok: "- It is not on the lto-disabled list"
-
-  # -------------------------------------------------------------------------
-  # [Upstream red flags]
-  # -------------------------------------------------------------------------
-
-  - id: URF-1
-    section: "Upstream red flags"
-    title: "No build errors or warnings"
-    todo_refs: ["TODO: - no Errors/warnings during the build"]
-    template_line: 278
-    mode: deterministic
-    adapters_required: [sbuild]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    mapping_rules:
-      - condition: "clean build log"
-        severity: ok
-      - condition: "minor warnings"
-        severity: recommended
-      - condition: "errors or security-relevant warnings"
-        severity: required
-    render_rules:
-      ok: "- no Errors/warnings during the build"
-
-  - id: URF-2
-    section: "Upstream red flags"
-    title: "No incautious malloc/sprintf usage"
-    todo_refs:
-      - "TODO-A: - no incautious use of malloc/sprintf (as far as we can check it)"
-      - "TODO-B: - no incautious use of malloc/sprintf (the language has no direct MM)"
-    template_line: 279
-    mode: ev_to_ai
-    adapters_required: [sbuild, packaging-source]
-    ai_policy: >
-      Check build log warnings and source patterns for unsafe memory management.
-      Memory-safe languages (Python, Go, Rust, Java, etc.) should use TODO-B.
-      For C/C++: scan for dangerous patterns; AI assesses risk in context.
-    human_override: true
-    blocker_class: soft
-    options:
-      - id: URF-2-A
-        todo_ref: "TODO-A"
-        predicate: "C/C++ or language with manual memory management"
-      - id: URF-2-B
-        todo_ref: "TODO-B"
-        predicate: "memory-safe language; no direct MM"
-        render: "- no incautious use of malloc/sprintf (the language has no direct MM)"
-    mapping_rules:
-      - condition: "not found or language has no direct memory management"
-        severity: ok
-      - condition: "pattern found in clearly bounded/non-security-critical code"
-        severity: recommended
-      - condition: "unsafe memory patterns in security-sensitive code paths"
-        severity: required
-
-  - id: URF-3
-    section: "Upstream red flags"
-    title: "No sudo/gksu/pkexec/LD_LIBRARY_PATH outside tests"
-    todo_refs: ["TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)"]
-    template_line: 281
-    mode: deterministic
-    adapters_required: [packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    notes: "grep source excluding test directories"
-    mapping_rules:
-      - condition: "none found outside tests"
-        severity: ok
-      - condition: "found outside tests"
-        severity: required
-        reviewer_action: "Usage outside tests must be justified or removed"
-    render_rules:
-      ok: "- no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)"
-
-  - id: URF-4
-    section: "Upstream red flags"
-    title: "No use of user 'nobody' outside tests"
-    todo_refs: ["TODO: - no use of user 'nobody' outside of tests"]
-    template_line: 283
-    mode: deterministic
-    adapters_required: [packaging-source, sbuild]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    notes: "grep -Hrn nobody in source; find . -user nobody in built binaries"
-    mapping_rules:
-      - condition: "not found outside tests"
-        severity: ok
-      - condition: "found outside tests"
-        severity: required
-    render_rules:
-      ok: "- no use of user 'nobody' outside of tests"
-
-  - id: URF-5
-    section: "Upstream red flags"
-    title: "No setuid/setgid binaries"
-    todo_refs:
-      - "TODO: - no use of setuid / setgid"
-      - "TODO: - use of setuid, but ok because TBD (prefer systemd to set those for services)"
-    template_line: 285
-    mode: deterministic
-    adapters_required: [packaging-source, sbuild]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    notes: >
-      grep -Hrn -e setuid -e setgid in source;
-      find . \( -perm -4000 -o -perm -2000 \) in built binaries
-    mapping_rules:
-      - condition: "not found"
-        severity: ok
-      - condition: "setuid/setgid present but justified (prefer systemd)"
-        severity: recommended
-        reviewer_action: "Note justification; prefer systemd service permissions instead"
-      - condition: "setuid/setgid with no justification"
-        severity: required
-    render_rules:
-      ok: "- no use of setuid / setgid"
-
-  - id: URF-6
-    section: "Upstream red flags"
-    title: "No important open bugs"
-    todo_refs: ["TODO: - no important open bugs (crashers, etc) in Debian or Ubuntu"]
-    template_line: 288
-    mode: ev_to_ai
-    adapters_required: [lp-bug-search-api, debian-bts, upstream-tracker]
-    ai_policy: >
-      Aggregate evidence from: Launchpad Ubuntu package bug space
-      (bugs.launchpad.net/ubuntu/+source/{package} via LP API), Debian BTS,
-      and upstream issue tracker. AI assesses severity and age of open issues.
-      Surface findings; reviewer makes final severity call.
-    human_override: true
-    blocker_class: soft
-    mapping_rules:
-      - condition: "no crashers or security-relevant open bugs"
-        severity: ok
-      - condition: "minor/cosmetic open bugs"
-        severity: ok
-        reviewer_action: "Note minor bugs in review"
-      - condition: "open crashers or unaddressed security bugs"
-        severity: required
-        reviewer_action: "Open critical bugs must be resolved or justified before promotion"
-    render_rules:
-      ok: "- no important open bugs (crashers, etc) in Debian or Ubuntu"
-
-  - id: URF-7
-    section: "Upstream red flags"
-    title: "No webkit/qtwebkit/libseed dependency"
-    todo_refs: ["TODO: - no dependency on webkit, qtwebkit or libseed"]
-    template_line: 291
-    mode: deterministic
-    adapters_required: [dep-analysis]
-    ai_policy: none
-    human_override: false
-    blocker_class: soft
-    mapping_rules:
-      - condition: "not present"
-        severity: ok
-      - condition: "present"
-        severity: required
-        reviewer_action: "Old web engine dependency must be justified or removed"
-    render_rules:
-      ok: "- no dependency on webkit, qtwebkit or libseed"
-
-  - id: URF-8
-    section: "Upstream red flags"
-    title: "UI/desktop file check"
-    todo_refs:
-      - "TODO-A: - not part of the UI for extra checks"
-      - "TODO-B: - part of the UI, desktop file is ok"
-    template_line: 292
-    mode: deterministic
-    adapters_required: [packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: none
-    options:
-      - id: URF-8-A
-        todo_ref: "TODO-A"
-        predicate: "no .desktop file or UI component"
-        render: "- not part of the UI for extra checks"
-      - id: URF-8-B
-        todo_ref: "TODO-B"
-        predicate: "UI package with valid .desktop file"
-        render: "- part of the UI, desktop file is ok"
-    mapping_rules:
-      - condition: "UI package with malformed .desktop file"
-        severity: required
-
-  - id: URF-9
-    section: "Upstream red flags"
-    title: "Translation coverage"
-    todo_refs:
-      - "TODO-A: - no translation present, but none needed for this case (user visible)?"
-      - "TODO-B: - translation present"
-    template_line: 294
-    mode: deterministic
-    adapters_required: [packaging-source]
-    ai_policy: none
-    human_override: false
-    blocker_class: none
-    options:
-      - id: URF-9-A
-        todo_ref: "TODO-A"
-        predicate: "not user-visible or no translations needed"
-        render: "- no translation present, but none needed for this case (not user visible)"
-      - id: URF-9-B
-        todo_ref: "TODO-B"
-        predicate: "user-visible with translations present"
-        render: "- translation present"
-    mapping_rules:
-      - condition: "user-visible strings with no translations"
-        severity: recommended
-        reviewer_action: "Recommend adding translation support"
-
-# ---------------------------------------------------------------------------
-# SECURITY TRIGGERS
-# ---------------------------------------------------------------------------
-# Triggers are evaluated after all check findings are collected.
-# They represent cross-cutting escalation policies separate from per-check verdicts.
-
-security_triggers:
-
-  - id: SEC-1-CVE-SYNTH
-    title: "CVE history risk synthesis"
-    linked_checks: [SEC-1]
-    trigger_condition: "CVE data present from ubuntu-cve-tracker or cve-org for this package"
-    synthesis: required
-    synthesis_policy: >
-      AI synthesises risk across both trackers. Assess: total volume, severity classes,
-      fix timeliness, systemic patterns. Output 3-band confidence (low/medium/high).
-    human_confirmation_required: true
-    action: >
-      Emit structured security_trigger field in report with risk band and summary.
-      May trigger security review assignment (SUM-6).
-    output_flags:
-      structured_field: security_trigger
-      summary_line: true
-      blocks_ack: false
-
+  - id: reporter-mir-content-missing
+    description: Reporter MIR content not found in bug; hard stop before any checks run
   - id: SEC-3-WEBKIT
-    title: "webkit1/2 direct dependency"
-    linked_checks: [SEC-3]
-    trigger_condition: "webkit1 or webkit2 found in runtime dependency list"
-    synthesis: none
-    human_confirmation_required: false
-    action: "Emit required TODO; block ACK suggestion"
-    output_flags:
-      structured_field: hard_blocker
-      summary_line: true
-      blocks_ack: true
-
+    description: Direct webkit1/2 dependency found
   - id: SEC-4-V8
-    title: "Direct lib*v8 dependency"
-    linked_checks: [SEC-4]
-    trigger_condition: "lib*v8 found in runtime dependency list"
-    synthesis: none
-    human_confirmation_required: false
-    action: "Emit required TODO; block ACK suggestion"
-    output_flags:
-      structured_field: hard_blocker
-      summary_line: true
-      blocks_ack: true
+    description: Direct libv8 dependency found
+  - id: CB-7-PYTHON2
+    description: New python2 dependency introduced
+tooling_bootstrap:
+  mode_default: latest-branch
+  mode_override_flag: --pin-tooling
+  description: 'Default: clone upstream tools at HEAD of default branch each run for freshness. Override: --pin-tooling <commit> for reproducible benchmark or replay runs.
 
-  - id: SEC-11-ATTESTATION
-    title: "Secure boot / TPM / signature involvement"
-    linked_checks: [SEC-11]
-    trigger_condition: "secure boot, TPM, or signature handling detected in source or deps"
-    synthesis: ev_to_ai
-    human_confirmation_required: false
-    action: "Mandatory security review path; no recommended-only outcome"
-    output_flags:
-      structured_field: security_review_required
-      summary_line: true
-      blocks_ack: false
+    '
+  upstream_sources:
+  - id: ubuntu-archive-tools
+    repo: https://git.launchpad.net/ubuntu-archive-tools
+    required_scripts:
+    - component-mismatches
+    prerequisites:
+    - germinate
+  - id: ubuntu-dev-tools
+    apt_package: ubuntu-dev-tools
+    provides:
+    - seeded-in-ubuntu
+  required_in_container:
+  - sbuild
+  - lintian
+  - git-ubuntu
+  - ubuntu-dev-tools
+  - dpkg-dev
+  - apt-utils
+  - python3-launchpadlib
+evidence_adapters:
+- id: lp-bug-api
+  type: api
+  description: Fetch Launchpad bug metadata, description, comments, and target package
+  inputs:
+  - bug_id
+  output_contract:
+    bug_title: str
+    bug_description: str
+    bug_comments: list
+    target_source_package: str
+    target_series: str
+    bug_tags: list
+    bug_subscribers: list
+  fallback: hard_fail
+  notes: No web scraping; Launchpad API only
+- id: lp-package-api
+  type: api
+  description: Fetch source package publishing history for Ubuntu and Debian via LP API
+  inputs:
+  - source_package
+  - series
+  output_contract:
+    ubuntu_publish_history: list
+    debian_publish_history: list
+    current_version: str
+    upload_history: list
+    uploaders: list
+  fallback: emit_todo_continue
+- id: lp-build-api
+  type: api
+  description: Fetch per-architecture build state from Launchpad for the current package version
+  inputs:
+  - source_package
+  - series
+  output_contract:
+    builds: list
+  fallback: emit_todo_continue
+- id: lp-bug-search-api
+  type: api
+  description: Search Ubuntu package bug space on Launchpad for open/critical bugs
+  inputs:
+  - source_package
+  output_contract:
+    open_bugs: list
+    critical_bugs: list
+    security_bugs: list
+  fallback: emit_todo_continue
+- id: lp-team-membership-api
+  type: api
+  description: Check team membership and bug subscriber status via Launchpad API
+  inputs:
+  - team_name
+  output_contract:
+    members: list
+    is_subscribed: bool
+  fallback: emit_todo_continue
+- id: debian-bts
+  type: web
+  description: Fetch open bugs from Debian Bug Tracking System for the package
+  inputs:
+  - source_package
+  output_contract:
+    open_bugs: list
+    rc_bugs: list
+    security_bugs: list
+  fallback: emit_todo_continue
+- id: upstream-tracker
+  type: heuristic
+  description: Detect and query upstream project bug tracker and release history
+  inputs:
+  - source_package
+  - upstream_url_hint
+  output_contract:
+    upstream_url: str
+    open_issues_count: int
+    recent_releases: list
+    last_release_date: str
+  fallback: emit_todo_continue
+  notes: URL detection uses debian/watch, debian/upstream/metadata, or reporter statement
+- id: sbuild
+  type: local_exec
+  description: Run sbuild test build in-container; produces build log and lintian output
+  inputs:
+  - source_package
+  - series
+  - architectures
+  output_contract:
+    build_log: str
+    build_success: bool
+    lintian_output: str
+    lintian_warnings: list
+    lintian_errors: list
+  fallback: emit_todo_continue
+- id: lintian
+  type: local_exec
+  description: Parse lintian output from sbuild run
+  inputs:
+  - sbuild_output
+  output_contract:
+    errors: list
+    warnings: list
+    pedantic: list
+  fallback: emit_todo_continue
+- id: packaging-source
+  type: local_exec
+  description: Fetch package source via git-ubuntu and analyse packaging files
+  inputs:
+  - source_package
+  output_contract:
+    debian_control: dict
+    debian_rules: str
+    debian_watch: str
+    debian_copyright: str
+    debian_tests_control: str
+    service_files: list
+    apparmor_profiles: list
+    built_using_entries: list
+    cargo_lock_present: bool
+    go_sum_present: bool
+    vendored_dirs: list
+  fallback: emit_todo_continue
+- id: dep-analysis
+  type: local_exec
+  description: Extract runtime dependencies via dpkg-query and resolve component via apt policy
+  inputs:
+  - binary_packages
+  - series
+  output_contract:
+    runtime_deps: list
+    deps_not_in_main: list
+    dev_debug_doc_packages: list
+  fallback: emit_todo_continue
+  notes: Do not use check-mir (outdated); use dpkg-query + apt policy
+- id: component-mismatches
+  type: local_exec
+  description: Run upstream ubuntu-archive-tools/component-mismatches to identify promotion candidates
+  inputs:
+  - source_package
+  - series
+  output_contract:
+    promotion_candidates: list
+    mismatch_report: str
+  fallback: emit_todo_continue
+  notes: Fetch and run original ubuntu-archive-tools script; no local reimplementation
+- id: autopkgtest-db
+  type: web
+  description: Query autopkgtest.ubuntu.com/static/autopkgtest.db for test results
+  inputs:
+  - source_package
+  - series
+  output_contract:
+    test_results: list
+    has_autopkgtest: bool
+    passing_arches: list
+    failing_arches: list
+  fallback: emit_todo_continue
+- id: ubuntu-cve-tracker
+  type: web
+  description: Search Ubuntu CVE tracker for package-relevant CVEs
+  inputs:
+  - source_package
+  output_contract:
+    cves: list
+    active_cves: list
+    fixed_cves: list
+  fallback: emit_todo_continue
+- id: cve-org
+  type: web
+  description: Search cve.org for CVEs referencing this package or its upstream project
+  inputs:
+  - source_package
+  - upstream_project_hint
+  output_contract:
+    cves: list
+    high_severity_cves: list
+  fallback: emit_todo_continue
+checks:
+- id: SUM-1
+  section: Summary
+  title: Source package identified
+  todo_refs:
+  - 'TODO: Review for Source Package: TBDSRC'
+  template_line: 21
+  mode: deterministic
+  adapters_required:
+  - lp-bug-api
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  mapping_rules:
+  - condition: target_source_package resolved unambiguously
+    severity: ok
+  - condition: multiple packages targeted; ambiguous
+    severity: required
+    reviewer_action: Clarify which source package this review is for
+  render_rules:
+    ok: 'Review for Source Package: {source_package}'
+- id: SUM-2
+  section: Summary
+  title: Reporter MIR content present
+  todo_refs:
+  - prerequisite gate before all other checks
+  mode: deterministic
+  adapters_required:
+  - lp-bug-api
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  mapping_rules:
+  - condition: reporter MIR template content detected in bug description or comments
+    severity: ok
+  - condition: reporter MIR content not found
+    severity: nack
+    reviewer_action: Reporter template content is missing. Ask reporter to fill the MIR reporters template before proceeding.
+    blocks_all_further_checks: true
+  render_rules:
+    ok: Reporter MIR content found and used as context (helpful but not fully trusted as evidence).
+- id: SUM-3
+  section: Summary
+  title: Binary packages to promote
+  todo_refs:
+  - 'TODO: List of specific binary packages to be promoted to main: TBD'
+  - 'TODO: Specific binary packages built, but NOT to be promoted to main: TBD'
+  template_line: 35
+  mode: ev_to_ai
+  adapters_required:
+  - component-mismatches
+  - packaging-source
+  adapters_optional:
+  - lp-package-api
+  ai_policy: Interpret component-mismatch output to identify promotion candidates; summarise.
+  human_override: true
+  blocker_class: none
+  fallback: emit_todo_continue
+  fallback_message: 'Component-mismatches tooling did not produce a decisive signal. TODO: List of specific binary packages to be promoted to main: TBD TODO: Specific binary packages built, but NOT to be promoted to main: TBD
 
-  - id: SEC-13-MITIGATION-GAPS
-    title: "Risk mitigation gap assessment"
-    linked_checks: [SEC-13]
-    trigger_condition: "exposure-level assessment from SEC-1 through SEC-12 is non-trivial"
-    synthesis: ev_to_ai
-    human_confirmation_required: true
-    action: >
-      Surface mitigations present and absent. Human reviewer determines severity
-      (ok / recommended / required) based on proportionality judgment.
-    output_flags:
-      structured_field: mitigation_assessment
-      summary_line: true
-      blocks_ack: false
+    '
+  mapping_rules:
+  - condition: component-mismatches identifies clear promotion candidates
+    severity: ok
+  - condition: mismatch tooling unavailable or ambiguous
+    severity: ok
+    reviewer_action: Verify promotion candidates manually from debian/control binary package list
+  render_rules:
+    ok: 'List of specific binary packages to be promoted to main: {promotion_candidates} Specific binary packages built, but NOT to be promoted to main: {non_promoted_packages}
 
-# ---------------------------------------------------------------------------
-# RENDER POLICY
-# ---------------------------------------------------------------------------
+      '
+- id: SUM-4
+  section: Summary
+  title: Team bug subscriber present
+  todo_refs:
+  - 'TODO: - The package should get a team bug subscriber before being promoted'
+  template_line: 45
+  mode: deterministic
+  adapters_required:
+  - lp-package-api
+  - lp-team-membership-api
+  ai_policy: none
+  human_override: false
+  blocker_class: none
+  mapping_rules:
+  - condition: team bug subscriber detected on the source package
+    severity: ok
+  - condition: no team bug subscriber found
+    severity: recommended
+    reviewer_action: 'The package should get a team bug subscriber before being promoted. NOTE: This is not a blocker for MIR team ACK, but Archive Admins will not promote the package until this is in place. Act now to avoid stalling the process at the final step.
+
+      '
+  render_rules:
+    ok: Package has a team bug subscriber.
+    recommended: 'TODO: - The package should get a team bug subscriber before being promoted (will block AA promotion)'
+- id: SUM-5
+  section: Summary
+  title: Overall ACK/NACK/ACK-with-conditions
+  todo_refs:
+  - 'TODO-A: MIR team ACK'
+  - 'TODO-B: MIR team NACK'
+  - 'TODO-C: MIR team ACK under the constraint to resolve...'
+  template_line: 26
+  mode: ai
+  adapters_required: []
+  ai_policy: 'Synthesise all section findings. If zero required findings and zero hard blockers: suggest ACK. If required findings present but package is otherwise sound: suggest ACK-with-conditions listing required TODOs. If fundamental problems exist: suggest NACK. Always mark as requiring human confirmation.
+
+    '
+  human_override: true
+  blocker_class: none
+  options:
+  - id: SUM-5-A
+    todo_ref: 'TODO-A: MIR team ACK'
+    predicate: no required findings and no hard blockers
+  - id: SUM-5-B
+    todo_ref: 'TODO-B: MIR team NACK'
+    predicate: NACK-eligible finding present or reporter content missing
+  - id: SUM-5-C
+    todo_ref: 'TODO-C: MIR team ACK under the constraint...'
+    predicate: required findings present but no NACK-eligible finding
+- id: SUM-6
+  section: Summary
+  title: Security review needed
+  todo_refs:
+  - 'TODO-A: This does need a security review, so I''ll assign ubuntu-security'
+  - 'TODO-B: This does not need a security review'
+  template_line: 30
+  mode: ev_to_ai
+  adapters_required:
+  - ubuntu-cve-tracker
+  - cve-org
+  - packaging-source
+  - lp-bug-api
+  ai_policy: 'Evaluate security section findings. If any security trigger fires (SEC-1-CVE-SYNTH, SEC-11-ATTESTATION) or package is security-sensitive (parses untrusted data, exposes endpoints, handles auth/crypto), suggest security review needed.
+
+    '
+  human_override: true
+  blocker_class: none
+  options:
+  - id: SUM-6-A
+    todo_ref: 'TODO-A: This does need a security review'
+    predicate: security trigger active or security-sensitive characteristics detected
+  - id: SUM-6-B
+    todo_ref: 'TODO-B: This does not need a security review'
+    predicate: no security triggers and no security-sensitive characteristics
+- id: RDO-1
+  section: Rationale, Duplication and Ownership
+  title: No duplicate functionality in main
+  todo_refs:
+  - 'TODO: There is no other package in main providing the same functionality.'
+  template_line: 60
+  mode: ev_to_ai
+  adapters_required:
+  - dep-analysis
+  - lp-package-api
+  adapters_optional:
+  - lp-bug-api
+  ai_policy: 'Search main for packages with overlapping functionality using apt list/cache data and libhunt or similar. AI should reason about functional overlap, not just name similarity. Produce a tentative finding; reviewer must confirm.
+
+    '
+  human_override: true
+  blocker_class: soft
+  mapping_rules:
+  - condition: no functional duplicate found in main
+    severity: ok
+  - condition: potential duplicate found but use-case difference is clear
+    severity: ok
+    reviewer_action: Note the similar package and explain the difference
+  - condition: functional duplicate in main with no clear justification
+    severity: required
+    reviewer_action: Identify duplicate and explain why it cannot be used instead
+  render_rules:
+    ok: There is no other package in main providing the same functionality.
+- id: RDO-2
+  section: Rationale, Duplication and Ownership
+  title: Owning team committed
+  todo_refs:
+  - 'TODO: A team is committed to own long term maintenance of this package.'
+  template_line: 72
+  mode: ev_to_ai
+  adapters_required:
+  - lp-bug-api
+  - lp-team-membership-api
+  ai_policy: 'Check if owning team is explicitly named and confirmed in bug comments. If reporter submitted on behalf of another team, verify that team acknowledged ownership in a comment. Surface evidence; AI suggests verdict; reviewer confirms.
+
+    '
+  human_override: true
+  blocker_class: soft
+  mapping_rules:
+  - condition: owning team explicitly confirmed in bug or reporter represents that team
+    severity: ok
+  - condition: submitted on behalf of another team with no acknowledgment comment
+    severity: required
+    reviewer_action: Ask the proposed owning team to comment and confirm ownership
+  render_rules:
+    ok: A team is committed to own long term maintenance of this package.
+- id: RDO-3
+  section: Rationale, Duplication and Ownership
+  title: Rationale valid and useful for Ubuntu
+  todo_refs:
+  - 'TODO: The rationale given in the report seems valid and useful for Ubuntu'
+  template_line: 80
+  mode: ai
+  adapters_required:
+  - lp-bug-api
+  adapters_optional:
+  - dep-analysis
+  ai_policy: "Analyse the reporter's stated rationale. Check for: clear Ubuntu user benefit, whether the request is based on correct assumptions about what needs to be in main, and whether reverse-dep analysis supports the stated need. Produce a tentative verdict suggestion. Always require human confirmation \u2014 this is a judgment call.\n"
+  human_override: true
+  human_override_flag: rationale-validity
+  blocker_class: soft
+  mapping_rules:
+  - condition: rationale clearly supports a real Ubuntu user need
+    severity: ok
+  - condition: rationale present but thin or assumptions questionable
+    severity: recommended
+    reviewer_action: Probe reporter for stronger rationale before proceeding
+  - condition: rationale absent, circular, or based on demonstrably wrong assumptions
+    severity: required
+    reviewer_action: Ask reporter to provide a valid rationale
+  render_rules:
+    ok: The rationale given in the report seems valid and useful for Ubuntu.
+- id: DEP-1
+  section: Dependencies
+  title: No unresolved runtime dependencies needing MIR
+  todo_refs:
+  - 'TODO: - no other runtime Dependencies to MIR due to this'
+  template_line: 104
+  mode: deterministic
+  adapters_required:
+  - dep-analysis
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  notes: 'Do not use check-mir (outdated). Use dpkg-query to extract runtime deps from installed binaries, then apt policy to verify component in target release. Only runtime deps matter unless language/headers embed active code in binaries.
+
+    '
+  mapping_rules:
+  - condition: all runtime deps already in main
+    severity: ok
+  - condition: one or more runtime deps still in universe
+    severity: required
+    reviewer_action: File MIR or extra-exclude for each universe runtime dependency
+  render_rules:
+    ok: '- no other runtime Dependencies to MIR due to this'
+- id: DEP-2
+  section: Dependencies
+  title: No build-time deps with active code in final binaries
+  todo_refs:
+  - 'TODO: - no other build-time Dependencies with active code in the final binaries to MIR due to this'
+  template_line: 105
+  mode: ev_to_ai
+  adapters_required:
+  - dep-analysis
+  - sbuild
+  - packaging-source
+  ai_policy: 'Identify language/toolchain patterns that embed build deps into final binaries (e.g. Go static builds, C header-only libraries with active code, Rust vendoring). Check Built-Using and Static-Built-Using. AI assesses risk; reviewer confirms.
+
+    '
+  human_override: true
+  blocker_class: hard
+  mapping_rules:
+  - condition: no such deps identified
+    severity: ok
+  - condition: static embedding detected with justification
+    severity: recommended
+  - condition: static embedding without justification
+    severity: required
+  render_rules:
+    ok: '- no other build-time Dependencies with active code in the final binaries to MIR due to this'
+- id: DEP-3
+  section: Dependencies
+  title: No -dev/-debug/-doc packages needing exclusion
+  todo_refs:
+  - 'TODO: - no -dev/-debug/-doc packages that need exclusion'
+  template_line: 106
+  mode: deterministic
+  adapters_required:
+  - dep-analysis
+  - component-mismatches
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: none
+  notes: 'Not a hard blocker by itself. Only matters if -dev/-debug/-doc packages would create additional component mismatches. If so, recommend adding extra-excludes.
+
+    '
+  mapping_rules:
+  - condition: no -dev/-debug/-doc binary packages, or all their deps are in main
+    severity: ok
+  - condition: -dev/-debug/-doc binaries would pull universe deps into main
+    severity: recommended
+    reviewer_action: Add these packages to the extra-exclude list to avoid component mismatches
+  render_rules:
+    ok: '- no -dev/-debug/-doc packages that need exclusion'
+- id: DEP-4
+  section: Dependencies
+  title: Main dependencies not only superficially tested
+  todo_refs:
+  - 'TODO: - No dependencies in main that are only superficially tested requiring more tests now.'
+  template_line: 107
+  mode: ev_to_ai
+  adapters_required:
+  - dep-analysis
+  - autopkgtest-db
+  ai_policy: 'For each runtime dependency already in main, check autopkgtest.db for test coverage and results. Focus on the most intensively-used and important dependencies, not every transitive dep. AI should assess whether existing tests would catch regressions introduced by this package. Weight importance by dep usage, not by counting deps. Result is a suggested assessment; human reviewer makes final call.
+
+    '
+  human_override: true
+  human_override_flag: dependency-test-sufficiency
+  blocker_class: none
+  mapping_rules:
+  - condition: key dependencies have non-trivial test coverage
+    severity: ok
+  - condition: some key deps have only shallow tests; risk is bounded
+    severity: recommended
+    reviewer_action: Consider whether the package should add tests that cover the shared dep
+  - condition: critical deps have no meaningful test coverage
+    severity: required
+    reviewer_action: Require test coverage improvements before promotion
+  render_rules:
+    ok: '- No dependencies in main that are only superficially tested requiring more tests now.'
+- id: ESL-1
+  section: Embedded sources and static linking
+  title: No embedded source present
+  todo_refs:
+  - 'TODO: - no embedded source present'
+  template_line: 150
+  mode: deterministic
+  adapters_required:
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  mapping_rules:
+  - condition: no vendored dirs, no bundled third-party source in debian/copyright
+    severity: ok
+  - condition: embedded source present with security team sign-off
+    severity: ok
+  - condition: embedded source present with no justification
+    severity: required
+    reviewer_action: Embedded source must be replaced with archive package or security team must approve
+  render_rules:
+    ok: '- no embedded source present'
+- id: ESL-2
+  section: Embedded sources and static linking
+  title: No unexpected static linking
+  todo_refs:
+  - 'TODO: - no static linking'
+  template_line: 151
+  mode: deterministic
+  adapters_required:
+  - sbuild
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  notes: 'Check build log for ''-static'' flag in compiler/linker invocations. Inspect ldd output on installed binaries. Check Built-Using/Static-Built-Using. Distinguish acceptable static linking (integrity scanner, etc.) from unwanted.
+
+    '
+  mapping_rules:
+  - condition: no static linking detected
+    severity: ok
+  - condition: static linking present and justified (e.g. integrity scanner)
+    severity: ok
+    reviewer_action: Note justification in review
+  - condition: static linking to archive library without justification
+    severity: required
+  render_rules:
+    ok: '- no static linking'
+- id: ESL-3
+  section: Embedded sources and static linking
+  title: No unexpected Built-Using entries
+  todo_refs:
+  - 'TODO: - does not have unexpected Built-Using entries'
+  template_line: 152
+  mode: deterministic
+  adapters_required:
+  - packaging-source
+  - sbuild
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  mapping_rules:
+  - condition: all Built-Using entries are expected (toolchain only, or none)
+    severity: ok
+  - condition: unexpected Built-Using entry suggesting untracked embedded source
+    severity: required
+  render_rules:
+    ok: '- does not have unexpected Built-Using entries'
+- id: ESL-4
+  section: Embedded sources and static linking
+  title: Go language detection gate
+  todo_refs:
+  - 'TODO-A: - not a go package, no extra constraints to consider in that regard'
+  - 'TODO-B: - Go Package that follows the Debian Go packaging guidelines'
+  template_line: 155
+  mode: deterministic
+  language_gate: go
+  adapters_required:
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: none
+  options:
+  - id: ESL-4-A
+    todo_ref: TODO-A
+    predicate: no Go source detected
+    render: '- not a go package, no extra constraints to consider in that regard'
+  - id: ESL-4-B
+    todo_ref: TODO-B
+    predicate: Go source detected
+    render: '- Go Package'
+- id: ESL-5
+  section: Embedded sources and static linking
+  title: 'Go: follows Debian/Ubuntu Go packaging guidelines'
+  todo_refs:
+  - 'TODO-B: - Go Package that follows the Debian Go packaging guidelines'
+  template_line: 156
+  mode: ev_to_ai
+  language_gate: go
+  adapters_required:
+  - packaging-source
+  - sbuild
+  ai_policy: 'Ubuntu rules override Debian guidelines where they conflict. Check: dh-golang used, Built-Using: ${misc:Built-Using} present for non-dev binaries, go.sum present. Assess vendoring against Ubuntu MIR policy (vendoring may be acceptable or even recommended; dialogue with reporter is often appropriate).
+
+    '
+  human_override: true
+  blocker_class: soft
+  mapping_rules:
+  - condition: all three conditions met; vendoring absent or security-approved
+    severity: ok
+  - condition: vendoring used with clear justification and security team awareness
+    severity: ok
+  - condition: missing Built-Using or dh-golang without justification
+    severity: recommended
+    reviewer_action: Suggest fixes to align with Go packaging guidelines
+  - condition: vendored code without security team sign-off
+    severity: required
+  render_rules:
+    ok: '- Go Package that follows the Debian Go packaging guidelines'
+- id: ESL-6
+  section: Embedded sources and static linking
+  title: 'Go: vendoring documented and justified'
+  todo_refs:
+  - 'TODO-A: - vendoring is used, but the reasoning is sufficiently explained'
+  - 'TODO-B: - No vendoring used, all Built-Using are in main'
+  template_line: 160
+  mode: ev_to_ai
+  language_gate: go
+  adapters_required:
+  - packaging-source
+  ai_policy: 'Check go.sum presence, vendoring directories, and whether security team discussion is documented in the bug or debian/README.source. Ubuntu allows and sometimes recommends vendoring; this is a dialogue rather than a hard requirement in most cases.
+
+    '
+  human_override: true
+  blocker_class: none
+  options:
+  - id: ESL-6-A
+    todo_ref: TODO-A
+    predicate: vendoring used with justification
+    render: '- vendoring is used, but the reasoning is sufficiently explained'
+  - id: ESL-6-B
+    todo_ref: TODO-B
+    predicate: no vendoring
+    render: '- No vendoring used, all Built-Using are in main'
+- id: ESL-7
+  section: Embedded sources and static linking
+  title: 'Go: build type (shared vs static)'
+  todo_refs:
+  - 'TODO-A: - golang: shared builds'
+  - 'TODO-B: - golang: static builds are used, the team confirmed their commitment'
+  template_line: 165
+  mode: deterministic
+  language_gate: go
+  adapters_required:
+  - sbuild
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: none
+  options:
+  - id: ESL-7-A
+    todo_ref: TODO-A
+    predicate: shared build
+    render: '- golang: shared builds'
+  - id: ESL-7-B
+    todo_ref: TODO-B
+    predicate: static build with team commitment confirmed
+    render: '- golang: static builds are used, the team confirmed their commitment to the additional responsibilities implied by static builds.'
+- id: ESL-8
+  section: Embedded sources and static linking
+  title: Rust language detection gate
+  todo_refs:
+  - 'TODO-A: - not a rust package, no extra constraints to consider in that regard'
+  - 'TODO-B: - Rust package that has all dependencies vendored...'
+  template_line: 168
+  mode: deterministic
+  language_gate: rust
+  adapters_required:
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: none
+  options:
+  - id: ESL-8-A
+    todo_ref: TODO-A
+    predicate: no Rust source detected
+    render: '- not a rust package, no extra constraints to consider in that regard'
+  - id: ESL-8-B
+    todo_ref: TODO-B
+    predicate: Rust source detected
+    render: '- Rust package'
+- id: ESL-9
+  section: Embedded sources and static linking
+  title: 'Rust: uses dh_cargo'
+  todo_refs:
+  - 'TODO: - rust package using dh_cargo (dh ... --buildsystem cargo)'
+  template_line: 172
+  mode: deterministic
+  language_gate: rust
+  adapters_required:
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  mapping_rules:
+  - condition: dh_cargo / --buildsystem cargo present in debian/rules
+    severity: ok
+  - condition: Rust package not using dh_cargo
+    severity: required
+    reviewer_action: Rust packages must use dh_cargo (dh ... --buildsystem cargo)
+  render_rules:
+    ok: '- rust package using dh_cargo (dh ... --buildsystem cargo)'
+- id: ESL-10
+  section: Embedded sources and static linking
+  title: 'Rust: vendored deps; no unexpected Built-Using; Cargo.lock present'
+  todo_refs:
+  - 'TODO-B: - Rust package that has all dependencies vendored. It does neither have *Built-Using...'
+  template_line: 174
+  mode: deterministic
+  language_gate: rust
+  adapters_required:
+  - packaging-source
+  - sbuild
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  mapping_rules:
+  - condition: all three conditions met (vendored, no unexpected Built-Using, Cargo.lock present)
+    severity: ok
+  - condition: Cargo.lock missing
+    severity: required
+  - condition: unexpected Built-Using entries
+    severity: required
+  render_rules:
+    ok: '- Rust package that has all dependencies vendored. It does neither have *Built-Using (after build). Nor does the build log indicate built-in sources that are missed to be reported as Built-Using.'
+- id: ESL-11
+  section: Embedded sources and static linking
+  title: Vendored code refresh documented
+  todo_refs:
+  - 'TODO-A: - Includes vendored code, the package has documented how to refresh this code at <TBD>'
+  - 'TODO-B: - Does not include vendored code'
+  template_line: 177
+  mode: ev_to_ai
+  adapters_required:
+  - packaging-source
+  ai_policy: 'Check debian/README.source and debian/rules vendor targets for documented refresh process. Surface what exists; AI suggests adequacy of documentation; reviewer confirms.
+
+    '
+  human_override: true
+  blocker_class: soft
+  options:
+  - id: ESL-11-A
+    todo_ref: TODO-A
+    predicate: vendored code present
+  - id: ESL-11-B
+    todo_ref: TODO-B
+    predicate: no vendored code
+    render: '- Does not include vendored code'
+- id: SEC-1
+  section: Security
+  title: CVE history assessment
+  todo_refs:
+  - 'TODO: - history of CVEs does not look concerning'
+  template_line: 190
+  mode: ev_to_ai
+  adapters_required:
+  - ubuntu-cve-tracker
+  - cve-org
+  ai_policy: 'AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes, whether fixes are timely, patterns suggesting systemic issues. Output 3-band confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding. Even historically patched but risk-significant patterns should surface as security-review-triggering.
+
+    '
+  human_override: true
+  blocker_class: none
+  security_trigger: SEC-1-CVE-SYNTH
+  mapping_rules:
+  - condition: no CVEs or only old low-severity resolved CVEs
+    severity: ok
+    confidence: high
+  - condition: some CVEs; patched; pattern not concerning
+    severity: recommended
+    reviewer_action: Note CVE history in review; consider security review
+  - condition: concerning CVE pattern or active unpatched CVEs
+    severity: required
+    reviewer_action: Assign to ubuntu-security for security review
+  render_rules:
+    ok: '- history of CVEs does not look concerning'
+- id: SEC-2
+  section: Security
+  title: Does not run daemon as root
+  todo_refs:
+  - 'TODO: - does not run a daemon as root'
+  template_line: 191
+  mode: deterministic
+  adapters_required:
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  notes: Check systemd unit User= field; init scripts; DynamicUser= usage
+  mapping_rules:
+  - condition: runs as non-root or drops privileges at startup
+    severity: ok
+  - condition: runs as root with other mitigations (seccomp, AppArmor)
+    severity: recommended
+    reviewer_action: Note root execution and mitigations; consider security review
+  - condition: runs as root with no mitigations
+    severity: required
+    reviewer_action: Assign to ubuntu-security for security review
+  render_rules:
+    ok: '- does not run a daemon as root'
+- id: SEC-3
+  section: Security
+  title: Does not use webkit1/2
+  todo_refs:
+  - 'TODO: - does not use webkit1,2'
+  template_line: 192
+  mode: deterministic
+  adapters_required:
+  - dep-analysis
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  security_trigger: SEC-3-WEBKIT
+  mapping_rules:
+  - condition: webkit1 or webkit2 not in runtime deps
+    severity: ok
+  - condition: webkit1 or webkit2 found in runtime deps
+    severity: required
+    blocks_ack: true
+    reviewer_action: 'Hard blocker: webkit1/2 dependency must be removed before main inclusion'
+  render_rules:
+    ok: '- does not use webkit1,2'
+- id: SEC-4
+  section: Security
+  title: Does not use lib*v8 directly
+  todo_refs:
+  - 'TODO: - does not use lib*v8 directly'
+  template_line: 193
+  mode: deterministic
+  adapters_required:
+  - dep-analysis
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  security_trigger: SEC-4-V8
+  mapping_rules:
+  - condition: lib*v8 not in runtime deps
+    severity: ok
+  - condition: lib*v8 found in runtime deps
+    severity: required
+    blocks_ack: true
+    reviewer_action: 'Hard blocker: direct lib*v8 dependency must be removed before main inclusion'
+  render_rules:
+    ok: '- does not use lib*v8 directly'
+- id: SEC-5
+  section: Security
+  title: Does not parse untrusted data formats
+  todo_refs:
+  - 'TODO: - does not parse data formats (files [images, video, audio, xml, json, asn.1], network packets, structures, ...) from an untrusted source.'
+  template_line: 194
+  mode: ev_to_ai
+  adapters_required:
+  - dep-analysis
+  - packaging-source
+  - lp-bug-api
+  ai_policy: "Check runtime deps for known parser libraries. Scan source for file format handling. Read package description, man pages, and docs \u2014 out of the description one can quickly derive where data comes from and whether it is untrusted. Surface evidence; AI judges; reviewer confirms.\n"
+  human_override: true
+  blocker_class: soft
+  mapping_rules:
+  - condition: does not parse untrusted data
+    severity: ok
+  - condition: parses data but in a well-bounded library-delegated way
+    severity: ok
+    reviewer_action: Note parsing scope in review
+  - condition: direct parsing of untrusted network/file input
+    severity: required
+    reviewer_action: Assign to ubuntu-security for security review
+  render_rules:
+    ok: '- does not parse data formats (files [images, video, audio, xml, json, asn.1], network packets, structures, ...) from an untrusted source.'
+- id: SEC-6
+  section: Security
+  title: Does not expose external endpoint
+  todo_refs:
+  - 'TODO: - does not expose any external endpoint (port/socket/... or similar)'
+  template_line: 196
+  mode: ev_to_ai
+  adapters_required:
+  - packaging-source
+  - lp-bug-api
+  ai_policy: 'Check service files for listen/bind/socket usage. Scan source for network binding patterns. Surface evidence; AI judges exposure scope; reviewer confirms.
+
+    '
+  human_override: true
+  blocker_class: soft
+  mapping_rules:
+  - condition: no external endpoint
+    severity: ok
+  - condition: endpoint exists but restricted (loopback, authenticated)
+    severity: recommended
+    reviewer_action: Note restriction scope; may need security review
+  - condition: open network endpoint with no restriction
+    severity: required
+    reviewer_action: Assign to ubuntu-security for security review
+  render_rules:
+    ok: '- does not expose any external endpoint (port/socket/... or similar)'
+- id: SEC-7
+  section: Security
+  title: Does not process arbitrary web content
+  todo_refs:
+  - 'TODO: - does not process arbitrary web content'
+  template_line: 197
+  mode: ev_to_ai
+  adapters_required:
+  - dep-analysis
+  - packaging-source
+  - lp-bug-api
+  ai_policy: 'Check dep list, source, description, man pages and documentation. From the package description one can often quickly determine whether it processes web content and where that content comes from.
+
+    '
+  human_override: true
+  blocker_class: soft
+  mapping_rules:
+  - condition: does not process arbitrary web content
+    severity: ok
+  - condition: processes web content
+    severity: required
+    reviewer_action: Assign to ubuntu-security for security review
+  render_rules:
+    ok: '- does not process arbitrary web content'
+- id: SEC-8
+  section: Security
+  title: Does not use centralised online accounts
+  todo_refs:
+  - 'TODO: - does not use centralized online accounts'
+  template_line: 198
+  mode: deterministic
+  adapters_required:
+  - dep-analysis
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  mapping_rules:
+  - condition: no centralised accounts API usage
+    severity: ok
+  - condition: uses centralised accounts
+    severity: required
+    reviewer_action: Assign to ubuntu-security for security review
+  render_rules:
+    ok: '- does not use centralized online accounts'
+- id: SEC-9
+  section: Security
+  title: Does not integrate arbitrary JS into desktop
+  todo_refs:
+  - 'TODO: - does not integrate arbitrary javascript into the desktop'
+  template_line: 199
+  mode: ev_to_ai
+  adapters_required:
+  - dep-analysis
+  - packaging-source
+  ai_policy: Check for WebKit/JS engine deps and desktop file JS integration patterns.
+  human_override: true
+  blocker_class: soft
+  mapping_rules:
+  - condition: no JS integration
+    severity: ok
+  - condition: arbitrary JS in desktop detected
+    severity: required
+    reviewer_action: Assign to ubuntu-security for security review
+  render_rules:
+    ok: '- does not integrate arbitrary javascript into the desktop'
+- id: SEC-10
+  section: Security
+  title: Does not handle system authentication (PAM)
+  todo_refs:
+  - 'TODO: - does not deal with system authentication (eg, pam), etc)'
+  template_line: 200
+  mode: deterministic
+  adapters_required:
+  - dep-analysis
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  notes: Check for libpam dep; grep for pam_ function calls in source
+  mapping_rules:
+  - condition: no PAM or auth handling
+    severity: ok
+  - condition: PAM or auth handling present
+    severity: required
+    reviewer_action: Assign to ubuntu-security for security review
+  render_rules:
+    ok: '- does not deal with system authentication (eg, pam), etc)'
+- id: SEC-11
+  section: Security
+  title: Does not handle security attestation (TPM, secure boot)
+  todo_refs:
+  - 'TODO: - does not deal with security attestation (secure boot, tpm, signatures)'
+  template_line: 201
+  mode: ev_to_ai
+  adapters_required:
+  - dep-analysis
+  - packaging-source
+  ai_policy: Check for tpm, secureboot, pkcs11, signature patterns in source and deps.
+  human_override: false
+  blocker_class: hard
+  security_trigger: SEC-11-ATTESTATION
+  notes: 'No recommended-only middle state. Any involvement with secure boot, TPM, or signatures triggers mandatory security review path.
+
+    '
+  mapping_rules:
+  - condition: no attestation involvement
+    severity: ok
+  - condition: attestation involvement detected (any level)
+    severity: required
+    blocks_ack: false
+    reviewer_action: Assign to ubuntu-security for security review (mandatory)
+  render_rules:
+    ok: '- does not deal with security attestation (secure boot, tpm, signatures)'
+- id: SEC-12
+  section: Security
+  title: Does not handle cryptography
+  todo_refs:
+  - 'TODO: - does not deal with cryptography (en-/decryption, certificates, signing, ...)'
+  template_line: 202
+  mode: ev_to_ai
+  adapters_required:
+  - dep-analysis
+  - packaging-source
+  ai_policy: "Check for crypto library deps (openssl, libgcrypt, libsodium, etc.) and source patterns. Distinguish: delegating to system libraries (low concern) vs implementing own crypto or handling keys/certs/signing (high concern \u2192 security review).\n"
+  human_override: true
+  blocker_class: soft
+  mapping_rules:
+  - condition: no crypto handling
+    severity: ok
+  - condition: uses system crypto libraries for non-sensitive operations
+    severity: ok
+  - condition: implements own crypto or handles keys/certs/signing
+    severity: required
+    reviewer_action: Assign to ubuntu-security for security review
+  render_rules:
+    ok: '- does not deal with cryptography (en-/decryption, certificates, signing, ...)'
+- id: SEC-13
+  section: Security
+  title: Appropriate use of risk mitigation features
+  todo_refs:
+  - 'TODO: - this makes appropriate (for its exposure) use of established risk mitigation features (dropping permissions, using temporary environments, restricted users/groups, seccomp, systemd isolation features, apparmor, ...)'
+  template_line: 203
+  mode: ev_to_ai
+  adapters_required:
+  - packaging-source
+  - sbuild
+  ai_policy: "Enumerate existing mitigations: AppArmor profiles, systemd isolation directives (PrivateTmp, ProtectSystem, etc.), capability drops, seccomp filters, restricted users/groups. Characterise the exposure level from SEC-1 through SEC-12 findings. Surface what mitigations exist and what is absent; AI does NOT make the final call \u2014 reviewer judges proportionality.\n"
+  human_override: true
+  human_override_flag: mitigation-proportionality
+  security_trigger: SEC-13-MITIGATION-GAPS
+  blocker_class: none
+  mapping_rules:
+  - condition: mitigations present and proportionate to exposure
+    severity: ok
+  - condition: mitigations possible and clearly beneficial; not yet done
+    severity: recommended
+    reviewer_action: Recommend adding identified mitigations
+  - condition: high-exposure package with no mitigations and no justification
+    severity: required
+    reviewer_action: Require mitigations before promotion; consider security review
+  render_rules:
+    ok: '- this makes appropriate (for its exposure) use of established risk mitigation features ({mitigation_list})'
+- id: CB-1
+  section: Common blockers
+  title: Does not FTBFS currently
+  todo_refs:
+  - 'TODO: - does not FTBFS currently'
+  template_line: 215
+  mode: deterministic
+  adapters_required:
+  - sbuild
+  - lp-build-api
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  notes: 'sbuild is one signal. Also check Launchpad multi-architecture build state via API for all architectures the package targets. All must pass.
+
+    '
+  mapping_rules:
+  - condition: sbuild passes and all LP arches pass
+    severity: ok
+  - condition: build fails on any architecture
+    severity: required
+    blocks_ack: true
+    reviewer_action: Package FTBFS; must be fixed before promotion
+  render_rules:
+    ok: '- does not FTBFS currently'
+- id: CB-2
+  section: Common blockers
+  title: Build-time test suite exists and fails build on error
+  todo_refs:
+  - 'TODO: - does have a test suite that runs at build time'
+  - 'TODO:   - test suite fails will fail the build upon error.'
+  template_line: 216
+  mode: ev_to_ai
+  adapters_required:
+  - sbuild
+  - packaging-source
+  ai_policy: 'Build log alone is often insufficient. Inspect debian/rules wiring to verify test failures gate the build failure. AI assesses whether wiring is correct; determine trivial vs non-trivial quality of the test suite.
+
+    '
+  human_override: true
+  blocker_class: hard
+  mapping_rules:
+  - condition: test suite present and wired to fail build
+    severity: ok
+  - condition: test suite exists but does not fail build on error
+    severity: required
+    reviewer_action: Fix test wiring so failures stop the build
+  - condition: no build-time test suite at all
+    severity: required
+    reviewer_action: Add a build-time test suite
+  render_rules:
+    ok: "- does have a test suite that runs at build time\n  - test suite fails will fail the build upon error."
+- id: CB-3
+  section: Common blockers
+  title: Non-trivial autopkgtest exists
+  todo_refs:
+  - 'TODO: - does have a non-trivial test suite that runs as autopkgtest'
+  template_line: 218
+  mode: ev_to_ai
+  adapters_required:
+  - packaging-source
+  - autopkgtest-db
+  ai_policy: 'Deterministic part: detect presence of debian/tests/control and content. AI-assisted part: assess whether the tests are non-trivial (not just import check or syntax check). Reviewer override available.
+
+    '
+  human_override: true
+  blocker_class: hard
+  mapping_rules:
+  - condition: non-trivial autopkgtest present and passing
+    severity: ok
+  - condition: trivial autopkgtest only (e.g. import check)
+    severity: recommended
+    reviewer_action: Improve autopkgtest to non-trivial coverage
+  - condition: no autopkgtest at all
+    severity: required
+    reviewer_action: Add autopkgtest
+  render_rules:
+    ok: '- does have a non-trivial test suite that runs as autopkgtest'
+- id: CB-4
+  section: Common blockers
+  title: 'Special hardware: requirement and coverage plan'
+  todo_refs:
+  - 'TODO-A: - This does seem to need special HW for build or test...'
+  - 'TODO-B: - This does not need special HW for build or test'
+  - 'TODO-C: - This does need special HW for thorough testing, but all options... have been exhausted'
+  template_line: 220
+  mode: ev_to_ai
+  adapters_required:
+  - lp-bug-api
+  - packaging-source
+  ai_policy: 'Detect whether special hardware is needed from reporter content and test metadata. For cases that require it, check whether one of the accepted alternatives is present in the reporter content (testflinger, partner, simulator, community, manufacturer, solutions-qa, or other team). Surface evidence. Reviewer makes final judgment on whether options are truly exhausted for TODO-C.
+
+    '
+  human_override: true
+  human_override_flag: hw-exhaustion-judgment
+  blocker_class: none
+  options:
+  - id: CB-4-A
+    todo_ref: TODO-A
+    predicate: special HW needed and one coverage alternative documented
+  - id: CB-4-B
+    todo_ref: TODO-B
+    predicate: no special HW needed
+    render: '- This does not need special HW for build or test'
+  - id: CB-4-C
+    todo_ref: TODO-C
+    predicate: special HW needed; all options exhausted; human must confirm
+- id: CB-5
+  section: Common blockers
+  title: Special hardware compromise accepted
+  todo_refs:
+  - 'TODO-C: accepted as-is as a compromise'
+  template_line: 228
+  mode: human_only
+  adapters_required:
+  - lp-bug-api
+  ai_policy: none
+  human_override: true
+  blocker_class: soft
+  notes: 'Whether "all options have been exhausted" is a policy judgment. Only human reviewer can decide this meets the bar. Tool surfaces reporter justification; reviewer decides.
+
+    '
+  render_rules:
+    todo: 'TODO: - Reviewer must judge whether the special-HW exhaustion claim is credible'
+- id: CB-6
+  section: Common blockers
+  title: E2E coverage for simple libs via consumers
+  todo_refs:
+  - 'TODO: - if a non-trivial test on this level does not make sense..., is the overall solution (app+libs) extensively covered i.e. via end to end autopkgtest ?'
+  template_line: 232
+  mode: ev_to_ai
+  adapters_required:
+  - dep-analysis
+  - autopkgtest-db
+  adapters_optional:
+  - lp-package-api
+  ai_policy: 'Attempt to pull reverse-dep autopkgtest status and summarise whether key consumers have non-trivial tests covering the lib''s functionality. Weight by importance of consumer. On retrieval failure, fall back to human-only TODO.
+
+    '
+  human_override: true
+  fallback: emit_todo_continue
+  fallback_message: 'TODO: - if a non-trivial test on this level does not make sense, check whether the overall solution (app+libs) is extensively covered via end-to-end autopkgtest
+
+    '
+  blocker_class: none
+  mapping_rules:
+  - condition: consumers have non-trivial tests covering this lib's functionality
+    severity: ok
+  - condition: coverage exists but could be broadened
+    severity: recommended
+  - condition: no consumer-level coverage and lib has no standalone tests
+    severity: required
+  render_rules:
+    ok: '- the overall solution is covered via end-to-end autopkgtest in consuming packages'
+- id: CB-7
+  section: Common blockers
+  title: No new Python 2 dependency
+  todo_refs:
+  - 'TODO: - no new python2 dependency'
+  template_line: 234
+  mode: deterministic
+  adapters_required:
+  - dep-analysis
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  security_trigger: null
+  mapping_rules:
+  - condition: no python2 or python- style deps detected
+    severity: ok
+  - condition: python2 dependency found
+    severity: required
+    blocks_ack: true
+    reviewer_action: 'Hard blocker: python2 dependency must be removed or ported before main inclusion'
+  render_rules:
+    ok: '- no new python2 dependency'
+- id: CB-8
+  section: Common blockers
+  title: 'Python: uses dh_python'
+  todo_refs:
+  - 'TODO: - Python package, but using dh_python'
+  template_line: 235
+  mode: deterministic
+  language_gate: python
+  adapters_required:
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  mapping_rules:
+  - condition: not a Python package
+    severity: ok
+    skipped: true
+  - condition: Python package using dh_python3
+    severity: ok
+  - condition: Python package not using dh_python
+    severity: required
+    reviewer_action: Python packages must use dh_python
+  render_rules:
+    ok: '- Python package, but using dh_python'
+- id: CB-9
+  section: Common blockers
+  title: 'Go: uses dh-golang'
+  todo_refs:
+  - 'TODO: - Go package, but using dh-golang'
+  template_line: 236
+  mode: ev_to_ai
+  language_gate: go
+  adapters_required:
+  - packaging-source
+  ai_policy: 'Ubuntu rules for Go packaging may differ from Debian guidance. MIR docs are authoritative. Check for dh-golang; if absent, suggest dh-make-golang. Often a recommendation rather than a hard requirement.
+
+    '
+  human_override: true
+  blocker_class: soft
+  mapping_rules:
+  - condition: not a Go package
+    severity: ok
+    skipped: true
+  - condition: Go package using dh-golang
+    severity: ok
+  - condition: Go package not using dh-golang
+    severity: recommended
+    reviewer_action: Consider using dh-golang or dh-make-golang for packaging
+  render_rules:
+    ok: '- Go package, but using dh-golang'
+- id: PRF-1
+  section: Packaging red flags
+  title: Ubuntu delta reasonableness
+  todo_refs:
+  - 'TODO-A: - Ubuntu does not carry a delta'
+  - 'TODO-B: - Ubuntu does carry a delta, but it is reasonable and maintenance under control'
+  template_line: 245
+  mode: ev_to_ai
+  adapters_required:
+  - packaging-source
+  - lp-package-api
+  ai_policy: 'Use git-ubuntu log and diff vs Debian to assess delta size and nature. Escalate to required/NACK only when: large unjustified delta AND no explanation AND no active minimization activity in progress.
+
+    '
+  human_override: true
+  blocker_class: none
+  options:
+  - id: PRF-1-A
+    todo_ref: TODO-A
+    predicate: no delta
+    render: '- Ubuntu does not carry a delta'
+  - id: PRF-1-B
+    todo_ref: TODO-B
+    predicate: delta present but justified and controlled
+    render: '- Ubuntu does carry a delta, but it is reasonable and maintenance under control'
+  mapping_rules:
+  - condition: no delta or justified minimal delta
+    severity: ok
+  - condition: large unjustified delta with no explanation AND no minimization effort
+    severity: required
+    reviewer_action: Large uncontrolled delta is a maintenance risk; must be justified or minimised
+- id: PRF-2
+  section: Packaging red flags
+  title: Symbols tracking for C/C++ libraries
+  todo_refs:
+  - 'TODO-A: - symbols tracking is in place.'
+  - 'TODO-B: - For c++ libraries - symbols tracking isn''t in place but the owning team tried...'
+  - 'TODO-C: - symbols tracking not applicable for this kind of code.'
+  - 'TODO-D: - symbols tracking not applicable for this kind of code because it the shared objects are only used internally...'
+  template_line: 249
+  mode: deterministic
+  adapters_required:
+  - packaging-source
+  - sbuild
+  ai_policy: none
+  human_override: false
+  blocker_class: none
+  notes: 'Language-aware N/A handling required. Some languages (Python, Go, Rust) do not have symbols files. Internal-only .so files with no external headers are also N/A. Reviewer keeps only the matching TODO-A/B/C/D option and may extend with rationale.
+
+    '
+  options:
+  - id: PRF-2-A
+    todo_ref: TODO-A
+    predicate: C/C++ library with symbols file present and maintained
+    render: '- symbols tracking is in place.'
+  - id: PRF-2-B
+    todo_ref: TODO-B
+    predicate: C++ library; symbols tracking impractical; alternatives considered
+    render: '- For c++ libraries - symbols tracking isn''t in place but the owning team tried to set it up...'
+  - id: PRF-2-C
+    todo_ref: TODO-C
+    predicate: symbols tracking not applicable for this language/runtime
+    render: '- symbols tracking not applicable for this kind of code.'
+  - id: PRF-2-D
+    todo_ref: TODO-D
+    predicate: internal-only .so, no external headers
+    render: '- symbols tracking not applicable for this kind of code because the shared objects are only used internally and no headers are made available.'
+- id: PRF-3
+  section: Packaging red flags
+  title: debian/watch present
+  todo_refs:
+  - 'TODO-A: - debian/watch is present and looks ok (if needed, e.g. non-native)'
+  - 'TODO-B: - debian/watch is not present but also not needed (e.g. native)'
+  template_line: 257
+  mode: deterministic
+  adapters_required:
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: none
+  options:
+  - id: PRF-3-A
+    todo_ref: TODO-A
+    predicate: non-native package with watch file present
+    render: '- debian/watch is present and looks ok'
+  - id: PRF-3-B
+    todo_ref: TODO-B
+    predicate: native package or watch file not needed
+    render: '- debian/watch is not present but also not needed (native package)'
+  mapping_rules:
+  - condition: non-native package without watch file
+    severity: recommended
+    reviewer_action: Add debian/watch to track upstream releases
+- id: PRF-4
+  section: Packaging red flags
+  title: Upstream update history
+  todo_refs:
+  - 'TODO: - Upstream update history is (good/slow/sporadic)'
+  template_line: 259
+  mode: ev_to_ai
+  adapters_required:
+  - upstream-tracker
+  - lp-package-api
+  ai_policy: "Assess upstream release cadence from release history and upstream tracker. Intentional stability (slow because nothing changes) is typically just an explanatory statement \u2014 still ok. Dead or abandoned trajectory may reach NACK-level concern. Output a characterisation; reviewer decides framing.\n"
+  human_override: true
+  blocker_class: none
+  mapping_rules:
+  - condition: active and regular upstream
+    severity: ok
+  - condition: slow but intentionally stable
+    severity: ok
+    reviewer_action: Note stability in review as explanatory context
+  - condition: effectively abandoned upstream
+    severity: required
+    reviewer_action: Request explanation of maintenance plan; may be NACK if none exists
+  render_rules:
+    ok: '- Upstream update history is {upstream_cadence_description}'
+- id: PRF-5
+  section: Packaging red flags
+  title: Debian/Ubuntu update history
+  todo_refs:
+  - 'TODO: - Debian/Ubuntu update history is (good/slow/sporadic)'
+  template_line: 260
+  mode: ev_to_ai
+  adapters_required:
+  - lp-package-api
+  ai_policy: 'Compare Debian/Ubuntu publishing history cadence to upstream release cadence. Distinguish: slow because upstream is stable (ok, explanatory) vs slow while upstream is active (may need justification). Output characterisation.
+
+    '
+  human_override: true
+  blocker_class: none
+  mapping_rules:
+  - condition: tracks upstream; reasonable lag
+    severity: ok
+  - condition: slow because upstream is also slow and stable
+    severity: ok
+    reviewer_action: Note as explanatory statement in review
+  - condition: consistently behind active upstream with no justification
+    severity: recommended
+    reviewer_action: Ask reporter to explain update lag
+  render_rules:
+    ok: '- Debian/Ubuntu update history is {distro_cadence_description}'
+- id: PRF-6
+  section: Packaging red flags
+  title: Current release packaged
+  todo_refs:
+  - 'TODO: - the current release is packaged'
+  template_line: 261
+  mode: deterministic
+  adapters_required:
+  - lp-package-api
+  - upstream-tracker
+  ai_policy: none
+  human_override: false
+  blocker_class: none
+  mapping_rules:
+  - condition: latest upstream version matches or is within one/two releases of archive version
+    severity: ok
+  - condition: somewhat behind latest upstream
+    severity: recommended
+    reviewer_action: Note version lag; ask if update is planned
+  - condition: very old version with no update path
+    severity: required
+  render_rules:
+    ok: '- the current release is packaged'
+- id: PRF-7
+  section: Packaging red flags
+  title: Promoting does not harm MOTU maintainers
+  todo_refs:
+  - 'TODO: - promoting this does not seem to cause issues for MOTUs that so far maintained the package'
+  template_line: 262
+  mode: ev_to_ai
+  adapters_required:
+  - lp-package-api
+  - lp-team-membership-api
+  ai_policy: 'Fetch Launchpad upload history and identify uploaders. Check MOTU team membership via LP API. Assess whether current maintainers are MOTU-only or have been consulted. Output EV->AI suggested rating; reviewer makes final call.
+
+    '
+  human_override: true
+  human_override_flag: motu-impact
+  blocker_class: none
+  mapping_rules:
+  - condition: current maintainers are not MOTU-only, or MOTU maintainers consulted
+    severity: ok
+  - condition: MOTU maintainers present; should be notified
+    severity: recommended
+    reviewer_action: Notify current MOTU maintainers of the promotion
+  - condition: MOTU-only maintainers with no team transition plan
+    severity: required
+  render_rules:
+    ok: '- promoting this does not seem to cause issues for MOTUs that so far maintained the package'
+- id: PRF-8
+  section: Packaging red flags
+  title: No excessive lintian warnings
+  todo_refs:
+  - 'TODO: - no massive Lintian warnings'
+  template_line: 263
+  mode: deterministic
+  adapters_required:
+  - lintian
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  mapping_rules:
+  - condition: clean or only informational/style warnings
+    severity: ok
+  - condition: minor warnings present
+    severity: recommended
+    reviewer_action: Pass minor warnings to Debian for fixing
+  - condition: error-level warnings, especially security-relevant
+    severity: required
+  render_rules:
+    ok: '- no massive Lintian warnings'
+- id: PRF-9
+  section: Packaging red flags
+  title: debian/rules cleanliness
+  todo_refs:
+  - 'TODO: - debian/rules is rather clean'
+  template_line: 264
+  mode: ev_to_ai
+  adapters_required:
+  - packaging-source
+  ai_policy: 'Assess debian/rules complexity. Good: uses dh with minimal overrides. Warn if it is a complex maintenance hazard.
+
+    '
+  human_override: true
+  blocker_class: none
+  mapping_rules:
+  - condition: uses dh cleanly with minimal overrides
+    severity: ok
+  - condition: moderate complexity; could be simplified
+    severity: recommended
+  - condition: rules file is a maintenance hazard
+    severity: required
+  render_rules:
+    ok: '- debian/rules is rather clean'
+- id: PRF-10
+  section: Packaging red flags
+  title: Not on lto-disabled list
+  todo_refs:
+  - 'TODO: - It is not on the lto-disabled list'
+  template_line: 265
+  mode: deterministic
+  adapters_required:
+  - lp-package-api
+  ai_policy: none
+  human_override: false
+  blocker_class: hard
+  notes: 'Check against lp:ubuntu/+source/lto-disabled-list. If present, the fix or workaround must be in the package itself before promotion.
+
+    '
+  mapping_rules:
+  - condition: not on lto-disabled list
+    severity: ok
+  - condition: on lto-disabled list
+    severity: required
+    blocks_ack: true
+    reviewer_action: LTO fix or in-package workaround required before promotion; see https://wiki.ubuntu.com/ToolChain/LTO
+  render_rules:
+    ok: '- It is not on the lto-disabled list'
+- id: URF-1
+  section: Upstream red flags
+  title: No build errors or warnings
+  todo_refs:
+  - 'TODO: - no Errors/warnings during the build'
+  template_line: 278
+  mode: deterministic
+  adapters_required:
+  - sbuild
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  mapping_rules:
+  - condition: clean build log
+    severity: ok
+  - condition: minor warnings
+    severity: recommended
+  - condition: errors or security-relevant warnings
+    severity: required
+  render_rules:
+    ok: '- no Errors/warnings during the build'
+- id: URF-2
+  section: Upstream red flags
+  title: No incautious malloc/sprintf usage
+  todo_refs:
+  - 'TODO-A: - no incautious use of malloc/sprintf (as far as we can check it)'
+  - 'TODO-B: - no incautious use of malloc/sprintf (the language has no direct MM)'
+  template_line: 279
+  mode: ev_to_ai
+  adapters_required:
+  - sbuild
+  - packaging-source
+  ai_policy: 'Check build log warnings and source patterns for unsafe memory management. Memory-safe languages (Python, Go, Rust, Java, etc.) should use TODO-B. For C/C++: scan for dangerous patterns; AI assesses risk in context.
+
+    '
+  human_override: true
+  blocker_class: soft
+  options:
+  - id: URF-2-A
+    todo_ref: TODO-A
+    predicate: C/C++ or language with manual memory management
+  - id: URF-2-B
+    todo_ref: TODO-B
+    predicate: memory-safe language; no direct MM
+    render: '- no incautious use of malloc/sprintf (the language has no direct MM)'
+  mapping_rules:
+  - condition: not found or language has no direct memory management
+    severity: ok
+  - condition: pattern found in clearly bounded/non-security-critical code
+    severity: recommended
+  - condition: unsafe memory patterns in security-sensitive code paths
+    severity: required
+- id: URF-3
+  section: Upstream red flags
+  title: No sudo/gksu/pkexec/LD_LIBRARY_PATH outside tests
+  todo_refs:
+  - 'TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)'
+  template_line: 281
+  mode: deterministic
+  adapters_required:
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  notes: grep source excluding test directories
+  mapping_rules:
+  - condition: none found outside tests
+    severity: ok
+  - condition: found outside tests
+    severity: required
+    reviewer_action: Usage outside tests must be justified or removed
+  render_rules:
+    ok: '- no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)'
+- id: URF-4
+  section: Upstream red flags
+  title: No use of user 'nobody' outside tests
+  todo_refs:
+  - 'TODO: - no use of user ''nobody'' outside of tests'
+  template_line: 283
+  mode: deterministic
+  adapters_required:
+  - packaging-source
+  - sbuild
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  notes: grep -Hrn nobody in source; find . -user nobody in built binaries
+  mapping_rules:
+  - condition: not found outside tests
+    severity: ok
+  - condition: found outside tests
+    severity: required
+  render_rules:
+    ok: '- no use of user ''nobody'' outside of tests'
+- id: URF-5
+  section: Upstream red flags
+  title: No setuid/setgid binaries
+  todo_refs:
+  - 'TODO: - no use of setuid / setgid'
+  - 'TODO: - use of setuid, but ok because TBD (prefer systemd to set those for services)'
+  template_line: 285
+  mode: deterministic
+  adapters_required:
+  - packaging-source
+  - sbuild
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  notes: 'grep -Hrn -e setuid -e setgid in source; find . \( -perm -4000 -o -perm -2000 \) in built binaries
+
+    '
+  mapping_rules:
+  - condition: not found
+    severity: ok
+  - condition: setuid/setgid present but justified (prefer systemd)
+    severity: recommended
+    reviewer_action: Note justification; prefer systemd service permissions instead
+  - condition: setuid/setgid with no justification
+    severity: required
+  render_rules:
+    ok: '- no use of setuid / setgid'
+- id: URF-6
+  section: Upstream red flags
+  title: No important open bugs
+  todo_refs:
+  - 'TODO: - no important open bugs (crashers, etc) in Debian or Ubuntu'
+  template_line: 288
+  mode: ev_to_ai
+  adapters_required:
+  - lp-bug-search-api
+  - debian-bts
+  - upstream-tracker
+  ai_policy: 'Aggregate evidence from: Launchpad Ubuntu package bug space (bugs.launchpad.net/ubuntu/+source/{package} via LP API), Debian BTS, and upstream issue tracker. AI assesses severity and age of open issues. Surface findings; reviewer makes final severity call.
+
+    '
+  human_override: true
+  blocker_class: soft
+  mapping_rules:
+  - condition: no crashers or security-relevant open bugs
+    severity: ok
+  - condition: minor/cosmetic open bugs
+    severity: ok
+    reviewer_action: Note minor bugs in review
+  - condition: open crashers or unaddressed security bugs
+    severity: required
+    reviewer_action: Open critical bugs must be resolved or justified before promotion
+  render_rules:
+    ok: '- no important open bugs (crashers, etc) in Debian or Ubuntu'
+- id: URF-7
+  section: Upstream red flags
+  title: No webkit/qtwebkit/libseed dependency
+  todo_refs:
+  - 'TODO: - no dependency on webkit, qtwebkit or libseed'
+  template_line: 291
+  mode: deterministic
+  adapters_required:
+  - dep-analysis
+  ai_policy: none
+  human_override: false
+  blocker_class: soft
+  mapping_rules:
+  - condition: not present
+    severity: ok
+  - condition: present
+    severity: required
+    reviewer_action: Old web engine dependency must be justified or removed
+  render_rules:
+    ok: '- no dependency on webkit, qtwebkit or libseed'
+- id: URF-8
+  section: Upstream red flags
+  title: UI/desktop file check
+  todo_refs:
+  - 'TODO-A: - not part of the UI for extra checks'
+  - 'TODO-B: - part of the UI, desktop file is ok'
+  template_line: 292
+  mode: deterministic
+  adapters_required:
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: none
+  options:
+  - id: URF-8-A
+    todo_ref: TODO-A
+    predicate: no .desktop file or UI component
+    render: '- not part of the UI for extra checks'
+  - id: URF-8-B
+    todo_ref: TODO-B
+    predicate: UI package with valid .desktop file
+    render: '- part of the UI, desktop file is ok'
+  mapping_rules:
+  - condition: UI package with malformed .desktop file
+    severity: required
+- id: URF-9
+  section: Upstream red flags
+  title: Translation coverage
+  todo_refs:
+  - 'TODO-A: - no translation present, but none needed for this case (user visible)?'
+  - 'TODO-B: - translation present'
+  template_line: 294
+  mode: deterministic
+  adapters_required:
+  - packaging-source
+  ai_policy: none
+  human_override: false
+  blocker_class: none
+  options:
+  - id: URF-9-A
+    todo_ref: TODO-A
+    predicate: not user-visible or no translations needed
+    render: '- no translation present, but none needed for this case (not user visible)'
+  - id: URF-9-B
+    todo_ref: TODO-B
+    predicate: user-visible with translations present
+    render: '- translation present'
+  mapping_rules:
+  - condition: user-visible strings with no translations
+    severity: recommended
+    reviewer_action: Recommend adding translation support
+security_triggers:
+- id: SEC-1-CVE-SYNTH
+  title: CVE history risk synthesis
+  linked_checks:
+  - SEC-1
+  trigger_condition: CVE data present from ubuntu-cve-tracker or cve-org for this package
+  synthesis: required
+  synthesis_policy: 'AI synthesises risk across both trackers. Assess: total volume, severity classes, fix timeliness, systemic patterns. Output 3-band confidence (low/medium/high).
+
+    '
+  human_confirmation_required: true
+  action: 'Emit structured security_trigger field in report with risk band and summary. May trigger security review assignment (SUM-6).
+
+    '
+  output_flags:
+    structured_field: security_trigger
+    summary_line: true
+    blocks_ack: false
+- id: SEC-3-WEBKIT
+  title: webkit1/2 direct dependency
+  linked_checks:
+  - SEC-3
+  trigger_condition: webkit1 or webkit2 found in runtime dependency list
+  synthesis: none
+  human_confirmation_required: false
+  action: Emit required TODO; block ACK suggestion
+  output_flags:
+    structured_field: hard_blocker
+    summary_line: true
+    blocks_ack: true
+- id: SEC-4-V8
+  title: Direct lib*v8 dependency
+  linked_checks:
+  - SEC-4
+  trigger_condition: lib*v8 found in runtime dependency list
+  synthesis: none
+  human_confirmation_required: false
+  action: Emit required TODO; block ACK suggestion
+  output_flags:
+    structured_field: hard_blocker
+    summary_line: true
+    blocks_ack: true
+- id: SEC-11-ATTESTATION
+  title: Secure boot / TPM / signature involvement
+  linked_checks:
+  - SEC-11
+  trigger_condition: secure boot, TPM, or signature handling detected in source or deps
+  synthesis: ev_to_ai
+  human_confirmation_required: false
+  action: Mandatory security review path; no recommended-only outcome
+  output_flags:
+    structured_field: security_review_required
+    summary_line: true
+    blocks_ack: false
+- id: SEC-13-MITIGATION-GAPS
+  title: Risk mitigation gap assessment
+  linked_checks:
+  - SEC-13
+  trigger_condition: exposure-level assessment from SEC-1 through SEC-12 is non-trivial
+  synthesis: ev_to_ai
+  human_confirmation_required: true
+  action: 'Surface mitigations present and absent. Human reviewer determines severity (ok / recommended / required) based on proportionality judgment.
+
+    '
+  output_flags:
+    structured_field: mitigation_assessment
+    summary_line: true
+    blocks_ack: false
 render_policy:
   template_mode: template_close
   allow_rationale_append: true
   rationale_max_sentences: 2
   forbidden_line_prefixes:
-    - "RULE:"
-    - "RULE "
-  todo_prefix_rule: >
-    Unresolved reviewer actions must begin with 'TODO:'.
-    Resolved statements must not begin with 'TODO'.
-  option_pruning: >
-    For mutually exclusive TODO-A/B/C/D variants, emit only the single most
-    applicable option based on evidence. Remove all others.
-  conformance_check: >
-    Before emitting final output, run line-linter to verify: no RULE lines remain,
-    all unresolved items start with TODO, all resolved items have the TODO prefix removed.
+  - 'RULE:'
+  - 'RULE '
+  todo_prefix_rule: 'Unresolved reviewer actions must begin with ''TODO:''. Resolved statements must not begin with ''TODO''.
 
-# ---------------------------------------------------------------------------
-# FALLBACK POLICY
-# ---------------------------------------------------------------------------
+    '
+  option_pruning: 'For mutually exclusive TODO-A/B/C/D variants, emit only the single most applicable option based on evidence. Remove all others.
+
+    '
+  conformance_check: 'Before emitting final output, run line-linter to verify: no RULE lines remain, all unresolved items start with TODO, all resolved items have the TODO prefix removed.
+
+    '
 fallback_policy:
   on_adapter_error:
     action: emit_todo_continue
-    behavior: >
-      When a deterministic evidence adapter fails (API unavailable, tool error, etc.):
-      emit an explicit reviewer TODO noting the evidence gap, mark the finding unknown
-      with confidence=low, include the retrieval failure reason, and continue the run.
-      Never silently infer from missing data.
+    behavior: 'When a deterministic evidence adapter fails (API unavailable, tool error, etc.): emit an explicit reviewer TODO noting the evidence gap, mark the finding unknown with confidence=low, include the retrieval failure reason, and continue the run. Never silently infer from missing data.
+
+      '
   on_missing_optional_data:
     action: continue_without
-    behavior: >
-      Optional adapters that fail are noted in report metadata but do not block
-      the run or affect severity of other checks.
+    behavior: 'Optional adapters that fail are noted in report metadata but do not block the run or affect severity of other checks.
+
+      '
   on_missing_required_data:
     action: emit_todo_fail_gracefully
-    behavior: >
-      Required data that cannot be collected causes that check's finding to be
-      unknown/low-confidence with an explicit reviewer TODO. The run continues
-      unless the missing data is the reporter MIR content (which causes a hard stop).
+    behavior: 'Required data that cannot be collected causes that check''s finding to be unknown/low-confidence with an explicit reviewer TODO. The run continues unless the missing data is the reporter MIR content (which causes a hard stop).
+
+      '
