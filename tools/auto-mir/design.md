@@ -53,14 +53,58 @@ Top-level sections:
 
 ### Finding Model (per check result)
 
-- `status`: pass | fail | unknown | not-applicable
-- `severity`: ok | recommended | required | nack
-- `confidence`: low | medium | high
-- `evidence_refs[]`
-- `rationale`
-- `reviewer_action`
-- `todo_output_line`
-- `blocks_ack`: bool
+The `Finding` dataclass in `models.py` represents the result of evaluating a single
+check. It includes factory methods for common patterns and enforces invariants via
+`__post_init__()`.
+
+**Fields:**
+- `check_id`: str — check identifier (e.g., "SUM-1", "DEP-3")
+- `status`: "ok" | "not-ok" | "unknown" | "not-applicable"
+- `severity`: "ok" | "recommended" | "required" | "nack"
+- `confidence`: "low" | "medium" | "high"
+- `message`: str — human-readable result description
+- `todo`: str — TODO text for unresolved checks (empty if resolved)
+- `evidence_refs`: list[str] — references to evidence used
+- `adapter_error_cause`: list[str] — adapter IDs that caused unknown status
+
+**Factory Methods:**
+- `Finding.ok(check, message, evidence_refs)` — create successful finding
+- `Finding.not_ok(check, severity, message, todo, evidence_refs)` — create failed finding
+- `Finding.unknown(check, message, todo, adapter_error_cause)` — create unresolved finding
+
+**Invariants (enforced in `__post_init__`):**
+- `status="ok"` implies `severity="ok"`
+- `status="not-ok"` requires non-empty `todo` field
+- All enum fields must contain valid values
+
+**Example Usage:**
+```python
+from models import Finding
+
+# Successful check
+finding = Finding.ok(
+    check={"id": "SUM-1", "section": "Summary"},
+    message="Source package identified: foo",
+    evidence_refs=["lp-bug-api"]
+)
+
+# Failed check
+finding = Finding.not_ok(
+    check={"id": "DEP-1", "section": "Dependencies"},
+    severity="required",
+    message="Missing runtime dependency",
+    todo="TODO: - Add libfoo to Depends",
+    evidence_refs=["dep-analysis"]
+)
+
+# Unresolved check (adapter failure)
+finding = Finding.unknown(
+    check={"id": "SEC-1", "section": "Security"},
+    message="CVE tracker unavailable",
+    todo="TODO: - Manually check CVE database",
+    adapter_error_cause=["ubuntu-cve-tracker"]
+)
+```
 
 ## Security Triggers
 
@@ -89,13 +133,71 @@ tools/
     tasks_phase10.md   ← final: docs closure
     testing.md         ← how to verify changes before review
     catalog.yaml       ← machine-readable check catalog and security triggers
+    catalog_enums.py   ← AdapterID and CheckID enum definitions
+    models.py          ← Finding dataclass with factory methods and validation
     auto_mir.py        ← CLI entrypoint and orchestrator
     lp_intake.py       ← Launchpad API intake module
     lxd_runner.py      ← LXD container lifecycle module
     integration_smoke.py ← devel-container isolation smoke runner
-    evidence/          ← in-container evidence collection scripts
+    evidence/          ← evidence collection adapters
+      __init__.py      ← orchestration and adapter registry
+      types.py         ← TypedDict definitions for adapter return types
+      host_adapters.py ← host-side adapters (Launchpad, CVE, autopkgtest)
+      container_adapters.py ← in-container adapters (packaging, deps, sbuild)
+    checks/            ← check evaluation logic
+      __init__.py      ← check dispatcher and evaluation orchestration
+      deterministic.py ← deterministic check implementations
+      llm_eval.py      ← LLM-based check evaluation
+      language_gates.py ← language detection (Go, Rust, Python)
+    utils/             ← utility modules
+      __init__.py      ← package marker
+      retry.py         ← tenacity-based retry decorators
     prompts/           ← LLM prompt templates per check section
     render/            ← template renderer and output linter
+    tests/             ← test suite
+      test_checks.py   ← check evaluation tests
+      test_render.py   ← render output tests
+      test_evidence.py ← evidence collection integration tests
+      test_catalog.py  ← catalog loading and validation tests
+      test_lp_intake.py ← Launchpad intake tests
+```
+tools/
+  auto-mir/
+    design.md          ← this file (conceptual architecture)
+    decisions.md       ← choices and reasoning log
+    tasks_phase7.md    ← completed: adapters + template generation
+    tasks_phase8.md    ← current: deterministic coverage + validation
+    tasks_phase9.md    ← next: hardening + CI gates
+    tasks_phase10.md   ← final: docs closure
+    testing.md         ← how to verify changes before review
+    catalog.yaml       ← machine-readable check catalog and security triggers
+    catalog_enums.py   ← AdapterID and CheckID enum definitions
+    models.py          ← Finding dataclass with factory methods and validation
+    auto_mir.py        ← CLI entrypoint and orchestrator
+    lp_intake.py       ← Launchpad API intake module
+    lxd_runner.py      ← LXD container lifecycle module
+    integration_smoke.py ← devel-container isolation smoke runner
+    evidence/          ← evidence collection adapters
+      __init__.py      ← orchestration and adapter registry
+      types.py         ← TypedDict definitions for adapter return types
+      host_adapters.py ← host-side adapters (Launchpad, CVE, autopkgtest)
+      container_adapters.py ← in-container adapters (packaging, deps, sbuild)
+    checks/            ← check evaluation logic
+      __init__.py      ← check dispatcher and evaluation orchestration
+      deterministic.py ← deterministic check implementations
+      llm_eval.py      ← LLM-based check evaluation
+      language_gates.py ← language detection (Go, Rust, Python)
+    utils/             ← utility modules
+      __init__.py      ← package marker
+      retry.py         ← tenacity-based retry decorators
+    prompts/           ← LLM prompt templates per check section
+    render/            ← template renderer and output linter
+    tests/             ← test suite
+      test_checks.py   ← check evaluation tests
+      test_render.py   ← render output tests
+      test_evidence.py ← evidence collection integration tests
+      test_catalog.py  ← catalog loading and validation tests
+      test_lp_intake.py ← Launchpad intake tests
 ```
 
 ## Relevant Policy Files
@@ -115,3 +217,173 @@ tools/
 - TODO lines in blueprint reference check IDs + `todo_ref` index, so automated check
   text is sourced from `checks[]` instead of duplicated markdown.
 - `make -C tools/ render-review-template` regenerates; `check-review-template` verifies.
+
+## Type Safety and Validation
+
+### TypedDict Contracts
+
+The `evidence/types.py` module defines TypedDict classes for all adapter return types,
+providing type safety and IDE autocomplete for adapter contracts:
+
+- `LPBugAPIResult` — Launchpad bug data
+- `UbuntuCVETrackerResult` — CVE data from Ubuntu tracker
+- `AutopkgtestResult` — autopkgtest database results
+- `PackagingSourceResult` — packaging source analysis
+- `DepAnalysisResult` — dependency analysis
+- `ComponentMismatchesResult` — component mismatch data
+- `SbuildResult` — sbuild/lintian results
+
+### Enum Definitions
+
+The `catalog_enums.py` module provides type-safe identifiers:
+
+- `AdapterID` — enum for adapter identifiers (e.g., `AdapterID.LP_BUG_API`)
+- `CheckID` — enum for check identifiers (e.g., `CheckID.SUM_1`)
+
+These enums catch typos at development time and provide IDE autocomplete.
+
+### Catalog Validation
+
+The `validate_catalog()` function in `catalog.py` validates catalog structure on load:
+
+- Checks required top-level sections (metadata, global_policies, checks, evidence_adapters)
+- Validates check fields (id, section, title, mode)
+- Validates adapter fields (id, type, description)
+- Checks for duplicate IDs
+- Validates adapter references in checks
+
+Validation is integrated into `load_catalog()` to fail fast on schema errors.
+
+## Retry Utilities
+
+The `utils/retry.py` module provides standardized retry decorators using python3-tenacity:
+
+### retry_transient_network()
+
+For network operations that may fail with transient errors:
+- Retries on: ConnectionError, TimeoutError, urllib.error.URLError, 5xx HTTP errors
+- Default: 4 attempts, exponential backoff (2s base, 30s max)
+
+### retry_rate_limited()
+
+For API calls that may encounter rate limiting:
+- Retries on: 429 (rate limit), 5xx HTTP errors
+- Default: 4 attempts, exponential backoff (8s base, 60s max)
+
+### retry_container_command()
+
+For container commands that may fail with transient infrastructure issues:
+- Retries on: 503 errors, DNS failures, connection timeouts, service unavailable
+- Default: 4 attempts, exponential backoff (6s base, 60s max)
+
+**Usage Example:**
+```python
+from utils.retry import retry_transient_network
+
+@retry_transient_network(max_attempts=3, base_delay=1.0)
+def fetch_data(url: str) -> dict:
+    # Network operation that may fail transiently
+    response = urllib.request.urlopen(url)
+    return json.loads(response.read())
+```
+
+## Testing Infrastructure
+
+The test suite in `tests/` provides comprehensive coverage:
+
+- `test_checks.py` — unit tests for check evaluation logic
+- `test_render.py` — unit tests for render output and snapshot tests
+- `test_evidence.py` — integration tests for evidence collection orchestration
+- `test_catalog.py` — tests for catalog loading and validation
+- `test_lp_intake.py` — tests for Launchpad intake
+
+All tests use pytest and can be run with:
+```bash
+cd tools/auto-mir
+python3 -m pytest tests/ -v
+```
+
+## Type Safety and Validation
+
+### TypedDict Contracts
+
+The `evidence/types.py` module defines TypedDict classes for all adapter return types,
+providing type safety and IDE autocomplete for adapter contracts:
+
+- `LPBugAPIResult` — Launchpad bug data
+- `UbuntuCVETrackerResult` — CVE data from Ubuntu tracker
+- `AutopkgtestResult` — autopkgtest database results
+- `PackagingSourceResult` — packaging source analysis
+- `DepAnalysisResult` — dependency analysis
+- `ComponentMismatchesResult` — component mismatch data
+- `SbuildResult` — sbuild/lintian results
+
+### Enum Definitions
+
+The `catalog_enums.py` module provides type-safe identifiers:
+
+- `AdapterID` — enum for adapter identifiers (e.g., `AdapterID.LP_BUG_API`)
+- `CheckID` — enum for check identifiers (e.g., `CheckID.SUM_1`)
+
+These enums catch typos at development time and provide IDE autocomplete.
+
+### Catalog Validation
+
+The `validate_catalog()` function in `catalog.py` validates catalog structure on load:
+
+- Checks required top-level sections (metadata, global_policies, checks, evidence_adapters)
+- Validates check fields (id, section, title, mode)
+- Validates adapter fields (id, type, description)
+- Checks for duplicate IDs
+- Validates adapter references in checks
+
+Validation is integrated into `load_catalog()` to fail fast on schema errors.
+
+## Retry Utilities
+
+The `utils/retry.py` module provides standardized retry decorators using python3-tenacity:
+
+### retry_transient_network()
+
+For network operations that may fail with transient errors:
+- Retries on: ConnectionError, TimeoutError, urllib.error.URLError, 5xx HTTP errors
+- Default: 4 attempts, exponential backoff (2s base, 30s max)
+
+### retry_rate_limited()
+
+For API calls that may encounter rate limiting:
+- Retries on: 429 (rate limit), 5xx HTTP errors
+- Default: 4 attempts, exponential backoff (8s base, 60s max)
+
+### retry_container_command()
+
+For container commands that may fail with transient infrastructure issues:
+- Retries on: 503 errors, DNS failures, connection timeouts, service unavailable
+- Default: 4 attempts, exponential backoff (6s base, 60s max)
+
+**Usage Example:**
+```python
+from utils.retry import retry_transient_network
+
+@retry_transient_network(max_attempts=3, base_delay=1.0)
+def fetch_data(url: str) -> dict:
+    # Network operation that may fail transiently
+    response = urllib.request.urlopen(url)
+    return json.loads(response.read())
+```
+
+## Testing Infrastructure
+
+The test suite in `tests/` provides comprehensive coverage:
+
+- `test_checks.py` — unit tests for check evaluation logic
+- `test_render.py` — unit tests for render output and snapshot tests
+- `test_evidence.py` — integration tests for evidence collection orchestration
+- `test_catalog.py` — tests for catalog loading and validation
+- `test_lp_intake.py` — tests for Launchpad intake
+
+All tests use pytest and can be run with:
+```bash
+cd tools/auto-mir
+python3 -m pytest tests/ -v
+```

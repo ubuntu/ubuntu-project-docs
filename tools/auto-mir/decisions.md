@@ -92,3 +92,67 @@ Choices and reasoning recorded during development. Grouped by topic.
   JSON, extracts CVEs directly. Added retry-once on transient HTTP errors.
 - **Autopkgtest**: replaced web UI scraping with direct SQLite database download from
   autopkgtest.ubuntu.com/static/autopkgtest.db. Queries results table directly.
+
+## Refactoring Decisions (Phases A-E)
+
+### Phase A: Documentation and Type Safety
+
+- **TypedDict for adapter contracts**: introduced `evidence/types.py` with TypedDict
+  definitions for all adapter return types. Provides IDE autocomplete, type checking,
+  and self-documenting contracts between adapters and check evaluators.
+- **Finding dataclass enhancement**: added comprehensive docstring with field descriptions,
+  invariants, and usage examples to improve developer onboarding.
+
+### Phase B: Code Organization
+
+- **Evidence module split**: split monolithic `evidence/__init__.py` into logical submodules:
+  - `evidence/host_adapters.py` — host-side adapters (Launchpad API, CVE tracker, autopkgtest)
+  - `evidence/container_adapters.py` — in-container adapters (packaging, dependencies, sbuild)
+  - `evidence/__init__.py` — orchestration and adapter registry
+  - Rationale: improves code navigation, reduces file size, clarifies execution context.
+- **Language gates extraction**: moved language detection logic to dedicated
+  `checks/language_gates.py` module. Separates concerns and makes language-specific
+  check logic easier to locate and maintain.
+- **Finding factory methods**: added `Finding.ok()`, `Finding.not_ok()`, and
+  `Finding.unknown()` class methods to simplify finding creation and enforce
+  consistent field initialization patterns.
+
+### Phase C: Testing Infrastructure
+
+- **Integration tests**: added `tests/test_evidence.py` with integration tests for
+  evidence collection orchestration, adapter dependency ordering, and error handling.
+- **Catalog loading tests**: added `tests/test_catalog.py` to verify catalog parsing
+  and validation logic.
+- **Render snapshot tests**: added snapshot tests to `tests/test_render.py` to ensure
+  review draft output remains stable across refactors.
+- **Test coverage**: all new modules include corresponding test files to prevent
+  regressions during future changes.
+
+### Phase D: Type Safety and Validation
+
+- **Catalog validation**: added `validate_catalog()` function to catch malformed
+  catalogs early. Validates required sections, check fields, adapter references,
+  and enum values. Integrated into `load_catalog()` to fail fast on schema errors.
+- **Finding invariant validation**: added `__post_init__()` method to Finding dataclass
+  to enforce invariants at construction time:
+  - `status="ok"` implies `severity="ok"`
+  - `status="not-ok"` requires non-empty `todo` field
+  - Confidence, severity, and status must be valid enum values
+- **Enum definitions**: added `catalog_enums.py` with `AdapterID` and `CheckID` enums
+  to provide type safety for adapter and check identifiers, catching typos at
+  development time rather than runtime.
+
+### Phase E: Retry Utility Extraction
+
+- **Tenacity adoption**: replaced custom retry implementations with python3-tenacity
+  library (>=8.0.0). Provides well-tested, standardized retry decorators with
+  exponential backoff, jitter, and configurable stop conditions.
+- **Retry utilities module**: created `utils/retry.py` with three retry decorators:
+  - `retry_transient_network()` — for network operations (ConnectionError, TimeoutError,
+    urllib.error.URLError, 5xx HTTP errors)
+  - `retry_rate_limited()` — for API calls with rate limiting (429, 5xx errors)
+  - `retry_container_command()` — for container commands with transient failures
+    (503 errors, DNS failures, connection timeouts)
+- **Refactored modules**: updated `lxd_runner.py` and `llm.py` to use tenacity decorators
+  instead of custom retry loops. Improves maintainability and reduces code duplication.
+- **Dependency management**: added `tenacity>=8.0.0` to `pyproject.toml` dependencies.
