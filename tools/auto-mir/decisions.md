@@ -93,6 +93,38 @@ Choices and reasoning recorded during development. Grouped by topic.
 - **Autopkgtest**: replaced web UI scraping with direct SQLite database download from
   autopkgtest.ubuntu.com/static/autopkgtest.db. Queries results table directly.
 
+## Initial Modularization and Testing Infrastructure
+
+- **Template rendering simplification**: removed body-only mode from render_review_template.py
+  and updated Makefile commands. The old "build the full file" mode was no longer needed
+  after catalog-driven template generation was established.
+
+- **Prior review detection**: added detection of prior MIR review comments in Launchpad bugs
+  to provide context and avoid duplicating work. The tool now identifies existing reviews
+  and can reference them in the generated output.
+
+- **Multi-binary-package handling**: implemented graceful handling of packages with multiple
+  binary packages. The tool now correctly processes and reports on all binary packages
+  produced by a source package.
+
+- **Output path visibility**: added prominent display of output file paths at the end of
+  each run to make it easier for users to locate generated reports and evidence.
+
+- **Version tracking removal**: removed embedded version/hash tracking from generated output.
+  Git history is now the authoritative source for version information, eliminating redundancy
+  and potential inconsistencies.
+
+- **Three-tier testing strategy**: established comprehensive test coverage with:
+  - Unit tests for individual check evaluators (test_checks.py)
+  - Integration tests for Launchpad intake logic (test_lp_intake.py)
+  - End-to-end tests for render output validation (test_render.py)
+
+- **Modular code structure**: refactored from flat file layout to modular package structure:
+  - Split monolithic checks.py into checks/ package with deterministic.py, llm_eval.py
+  - Created evidence/ package for evidence collection adapters
+  - Extracted models.py for shared data structures (Finding dataclass)
+  - This modularization improved code navigation, testability, and maintainability
+
 ## Refactoring Decisions (Phases A-E)
 
 ### Phase A: Documentation and Type Safety

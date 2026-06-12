@@ -217,6 +217,66 @@ tools/
 - TODO lines in blueprint reference check IDs + `todo_ref` index, so automated check
   text is sourced from `checks[]` instead of duplicated markdown.
 - `make -C tools/ render-review-template` regenerates; `check-review-template` verifies.
+- Body-only rendering mode was removed in favor of catalog-driven full template generation,
+  simplifying the rendering pipeline and Makefile integration.
+
+## Initial Modularization Architecture
+
+The codebase evolved from a flat file structure to a modular package layout to improve
+maintainability and testability:
+
+### Package Structure Evolution
+
+**Original flat structure:**
+- Single `checks.py` file containing all check evaluators
+- Evidence collection logic embedded in main modules
+- No clear separation between data models and business logic
+
+**Modular package structure:**
+- `checks/` package with specialized modules:
+  - `__init__.py` — check dispatcher and evaluation orchestration
+  - `deterministic.py` — deterministic check implementations (pure logic, no AI)
+  - `llm_eval.py` — LLM-based check evaluation (ev_to_ai, ai modes)
+  - `language_gates.py` — language detection (Go, Rust, Python)
+- `evidence/` package for evidence collection:
+  - `__init__.py` — orchestration and adapter registry
+  - `types.py` — TypedDict definitions for adapter contracts
+  - `host_adapters.py` — host-side adapters (Launchpad, CVE, autopkgtest)
+  - `container_adapters.py` — in-container adapters (packaging, deps, sbuild)
+- `models.py` — shared data structures (Finding dataclass with factory methods)
+- `utils/` package for cross-cutting concerns:
+  - `retry.py` — tenacity-based retry decorators
+
+### Key Architectural Decisions
+
+- **Separation of concerns**: Check evaluation logic separated from evidence collection
+  and rendering. Each package has a single responsibility.
+- **Deterministic vs AI checks**: Split check evaluators into deterministic (pure logic)
+  and LLM-based (AI synthesis) to clarify execution paths and testing strategies.
+- **Adapter pattern**: Evidence collection uses adapter pattern with TypedDict contracts,
+  making it easy to add new evidence sources without modifying check evaluators.
+- **Data model extraction**: Finding dataclass extracted to dedicated module to avoid
+  circular dependencies and provide clear data contracts between packages.
+- **Prior review detection**: Tool detects existing MIR reviews in Launchpad bugs to
+  provide context and avoid duplicating work.
+- **Multi-binary-package support**: Gracefully handles source packages that produce
+  multiple binary packages, processing and reporting on all binaries.
+- **Git as version authority**: Removed embedded version/hash tracking from generated
+  output. Git history is authoritative, eliminating redundancy and inconsistencies.
+
+### Testing Strategy
+
+Three-tier testing approach established during initial modularization:
+
+1. **Unit tests** (`test_checks.py`): Test individual check evaluators in isolation
+   with mocked evidence data.
+2. **Integration tests** (`test_lp_intake.py`): Test Launchpad API intake logic with
+   mocked API responses.
+3. **End-to-end tests** (`test_render.py`): Validate complete render output against
+   expected templates and linting rules.
+
+This testing strategy was later expanded in Phase C with evidence collection integration
+tests and catalog validation tests.
 
 ## Type Safety and Validation
 
