@@ -121,14 +121,14 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     p.add_argument(
-        "--debug-collect-only",
+        "--collect-only",
         dest="collect_only",
         action="store_true",
         default=False,
         help=(
-            "Debug mode: fetch LP bug and collect evidence only; "
-            "skip AI synthesis and rendering. "
-            "Saves evidence, context, deterministic findings, and metadata to output directory."
+            "Collect evidence only; skip AI synthesis and rendering. "
+            "Use this to regenerate test fixtures by passing "
+            "--output-dir tools/auto-mir/tests/fixtures/<bug_id>."
         ),
     )
     p.add_argument(
@@ -574,7 +574,7 @@ def main() -> int:
         log.info("JSON log file: %s", log_file)
 
     log.info(
-        "auto-mir starting: bug=%s keep_container=%s debug_collect_only=%s",
+        "auto-mir starting: bug=%s keep_container=%s collect_only=%s",
         ctx.bug_id,
         ctx.keep_container,
         ctx.collect_only,
@@ -613,7 +613,7 @@ def main() -> int:
 
         # Handle early exit mode
         if ctx.collect_only:
-            log.info("--debug-collect-only: stopping after evidence collection")
+            log.info("--collect-only: stopping after evidence collection")
             _save_test_artifacts(ctx)
         else:
             # Save evidence checkpoint for audit/debugging
