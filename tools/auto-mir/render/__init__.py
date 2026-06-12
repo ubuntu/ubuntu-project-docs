@@ -8,10 +8,17 @@ Most sections are rendered with a three-tier structure:
                    and confidence == "high" or mode == "deterministic").
                    The reviewer should treat these as confirmed findings.
   Left to decide:  Unresolvable items and low/medium-confidence results that
-                   need human judgment.  Always rendered as TODO lines.
+                   need human judgment.  Always rendered as ``TODO: - <text>``
+                   lines (without a leading ``- `` prefix added by the renderer).
 
 The [Summary] section is handled specially and keeps explicit
 "Required TODOs:" and "Recommended TODOs:" blocks for final human judgment.
+Each collected TODO is emitted as-is (``TODO: - <text>``) so the reviewer
+can resolve it by removing the ``TODO: `` prefix.
+
+Linting rules enforced before writing the draft:
+- Lines in a Left to decide: block must start with ``TODO:`` or ``TODO-``.
+- Lines in a Problems: block must not start with ``TODO:``.
 """
 
 from __future__ import annotations
@@ -189,10 +196,10 @@ def _render_section(section: str, findings: list[dict]) -> list[str]:
             causes = finding.get("adapter_error_cause", [])
             if causes:
                 lines.append(
-                    f"- NOTE: left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
+                    f"NOTE: - left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
                 )
             for todo_line in _todo_lines_for_finding(finding):
-                lines.append(f"- {todo_line}")
+                lines.append(todo_line)
     elif not problems:
         lines.append("Left to decide: None")
 
@@ -227,10 +234,10 @@ def _render_summary_section(summary_findings: list[dict], all_findings: list[dic
             causes = finding.get("adapter_error_cause", [])
             if causes:
                 lines.append(
-                    f"- NOTE: left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
+                    f"NOTE: - left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
                 )
             for todo_line in _todo_lines_for_finding(finding):
-                lines.append(f"- {todo_line}")
+                lines.append(todo_line)
     else:
         lines.append("Left to decide: None")
 
@@ -239,14 +246,14 @@ def _render_summary_section(summary_findings: list[dict], all_findings: list[dic
     required = _collect_todos_by_severity(all_findings, "required")
     if required:
         for todo in required:
-            lines.append(f"- {todo}")
+            lines.append(todo)
 
     lines.append("Recommended TODOs:")
     lines.append("- TODO: - TBD (Please add them numbered for later reference)")
     recommended = _collect_todos_by_severity(all_findings, "recommended")
     if recommended:
         for todo in recommended:
-            lines.append(f"- {todo}")
+            lines.append(todo)
 
     return lines
 
@@ -273,7 +280,7 @@ def _todo_lines_for_finding(finding: dict) -> list[str]:
     """Return normalized TODO lines for a finding, preserving option variants."""
     todo_text = (finding.get("todo") or "").strip()
     if not todo_text:
-        todo_text = f"TODO: {finding.get('id')} {finding.get('title', '')}".strip()
+        todo_text = f"TODO: - {finding.get('id')} {finding.get('title', '')}".strip()
 
     lines = [line.strip() for line in todo_text.splitlines() if line.strip()]
     normalized: list[str] = []
@@ -282,7 +289,8 @@ def _todo_lines_for_finding(finding: dict) -> list[str]:
         if line.startswith("TODO: TODO-"):
             line = line[len("TODO: ") :]
         if not (line.startswith("TODO:") or line.startswith("TODO-")):
-            line = f"TODO: {line}"
+            prefix_inner = "" if line.startswith("- ") else "- "
+            line = f"TODO: {prefix_inner}{line}"
         normalized.append(line)
     return normalized
 
@@ -332,20 +340,20 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
             in_problems_block = False
             continue
 
-        # Every content line inside undecided block must be a TODO or NOTE entry
+        # Every content line inside undecided block must be a TODO, NOTE, or list entry
         if in_undecided_block and line:
             if not (
-                line.startswith("- TODO:")
-                or line.startswith("- TODO-")
-                or line.startswith("- NOTE:")
+                line.startswith("TODO:")
+                or line.startswith("TODO-")
+                or line.startswith("NOTE:")
             ):
                 raise ValueError(
-                    f"Left to decide block line must start with '- TODO:', '- TODO-', or '- NOTE:': {line!r}"
+                    f"Left to decide block line must start with 'TODO:', 'TODO-', or 'NOTE:': {line!r}"
                 )
 
         # Problems block lines are confirmed finding statements, not TODOs
         if in_problems_block and line:
-            if line.startswith("- TODO:") or line.startswith("- TODO-"):
+            if line.startswith("TODO:") or line.startswith("TODO-"):
                 raise ValueError(f"Problems block line must not be a TODO line: {line!r}")
 
     # Per-finding invariants

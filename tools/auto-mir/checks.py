@@ -89,7 +89,7 @@ def evaluate_checks(ctx) -> list[dict]:
         if finding["status"] != "ok" and not (
             todo_value.startswith("TODO:") or todo_value.startswith("TODO-")
         ):
-            finding["todo"] = f"TODO: {finding['id']} {finding['title']}"
+            finding["todo"] = f"TODO: - {finding['title']}"
 
         findings.append(finding)
 
@@ -198,7 +198,7 @@ def _eval_deterministic(check: dict, ctx, finding: dict) -> dict:
     else:
         finding["status"] = "unknown"
         finding["message"] = "Deterministic check evaluator not implemented"
-        finding["todo"] = f"TODO: {finding['id']} {finding['title']}"
+        finding["todo"] = f"TODO: - {finding['title']}"
         return finding
 
 
@@ -232,7 +232,7 @@ def _check_sum_2(ctx, finding: dict) -> dict:
         finding["severity"] = "nack"
         finding["confidence"] = "high"
         finding["message"] = "Reporter MIR template content not found (hard stop)"
-        finding["todo"] = "TODO: Reporter must post their completed MIR template"
+        finding["todo"] = "TODO: - Reporter must post their completed MIR template"
     return finding
 
 
@@ -245,7 +245,7 @@ def _check_dep_1(ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = "Could not analyse runtime dependencies"
-        finding["todo"] = "TODO: Verify no runtime dependencies in universe need MIR"
+        finding["todo"] = "TODO: - Verify no runtime dependencies in universe need MIR"
         finding["evidence_refs"] = ["dep-analysis:error"]
         return finding
 
@@ -264,7 +264,7 @@ def _check_dep_1(ctx, finding: dict) -> dict:
             deps_not_in_main
         )
         finding["todo"] = (
-            "TODO: File MIR/extra-exclude for runtime dependencies outside main: "
+            "TODO: - File MIR/extra-exclude for runtime dependencies outside main: "
             + ", ".join(deps_not_in_main)
         )
         finding["evidence_refs"] = [
@@ -281,7 +281,7 @@ def _check_dep_1(ctx, finding: dict) -> dict:
             "Could not determine component for some runtime dependencies: "
             + ", ".join(unknown_components)
         )
-        finding["todo"] = "TODO: Verify Ubuntu component for runtime dependencies: " + ", ".join(
+        finding["todo"] = "TODO: - Verify Ubuntu component for runtime dependencies: " + ", ".join(
             unknown_components
         )
         finding["evidence_refs"] = ["dep-analysis:dep_components"]
@@ -317,7 +317,7 @@ def _check_sec_3(ctx, finding: dict) -> dict:
         finding["severity"] = "required"
         finding["confidence"] = "high"
         finding["message"] = "webkit1/2 dependency found — hard blocker"
-        finding["todo"] = "TODO: webkit1/2 dependency must be removed before main inclusion"
+        finding["todo"] = "TODO: - webkit1/2 dependency must be removed before main inclusion"
         finding["evidence_refs"] = ["dep-analysis:runtime_deps"]
     else:
         finding["status"] = "ok"
@@ -347,7 +347,7 @@ def _check_sec_4(ctx, finding: dict) -> dict:
         finding["severity"] = "required"
         finding["confidence"] = "high"
         finding["message"] = "lib*v8 dependency found — hard blocker"
-        finding["todo"] = "TODO: direct lib*v8 dependency must be removed before main inclusion"
+        finding["todo"] = "TODO: - direct lib*v8 dependency must be removed before main inclusion"
         finding["evidence_refs"] = ["dep-analysis:runtime_deps"]
     else:
         finding["status"] = "ok"
@@ -378,7 +378,7 @@ def _check_cb_7(ctx, finding: dict) -> dict:
         finding["severity"] = "required"
         finding["confidence"] = "high"
         finding["message"] = "Python2 dependency found — hard blocker"
-        finding["todo"] = "TODO: python2 dependency must be removed or ported before main inclusion"
+        finding["todo"] = "TODO: - python2 dependency must be removed or ported before main inclusion"
         finding["evidence_refs"] = ["dep-analysis:runtime_deps"]
     else:
         finding["status"] = "ok"
@@ -404,7 +404,7 @@ def _check_sum_4(ctx, finding: dict) -> dict:
         finding["confidence"] = "high"
         finding["message"] = "ubuntu-mir is not subscribed to this bug"
         finding["todo"] = (
-            "TODO: The package should get a team bug subscriber on this bug before being promoted "
+            "TODO: - The package should get a team bug subscriber on this bug before being promoted "
             "(will block AA promotion)"
         )
         finding["evidence_refs"] = ["lp-bug-api:subscribers"]
@@ -421,7 +421,7 @@ def _check_dep_3(ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = "Could not analyse binary packages"
-        finding["todo"] = "TODO: DEP-3 Check whether -dev/-debug/-doc packages need exclusion"
+        finding["todo"] = "TODO: - Check whether -dev/-debug/-doc packages need exclusion"
         return finding
 
     binary_packages = dep_analysis.get("binary_packages", [])
@@ -450,7 +450,7 @@ def _check_dep_3(ctx, finding: dict) -> dict:
                 f"Special packages {special} may pull universe deps; verify extra-excludes needed"
             )
             finding["todo"] = (
-                f"TODO: Verify whether {', '.join(special)} should be added to extra-exclude list "
+                f"TODO: - Verify whether {', '.join(special)} should be added to extra-exclude list "
                 "(they may pull universe deps into component-mismatches)"
             )
         else:
@@ -478,7 +478,7 @@ def _check_esl_1(ctx, finding: dict) -> dict:
         finding["confidence"] = "low"
         finding["message"] = "Could not collect packaging source"
         finding["todo"] = (
-            "TODO: ESL-1 Check for embedded source (packaging-source collection failed)"
+            "TODO: - Check for embedded source (packaging-source collection failed)"
         )
         return finding
 
@@ -493,7 +493,7 @@ def _check_esl_1(ctx, finding: dict) -> dict:
         finding["confidence"] = "high"
         finding["message"] = f"Vendored directories found: {', '.join(vendored_dirs)}"
         finding["todo"] = (
-            "TODO: Embedded source found — either remove and use archive packages, "
+            "TODO: - Embedded source found — either remove and use archive packages, "
             "or get security team sign-off. Vendored dirs: " + ", ".join(vendored_dirs)
         )
         finding["evidence_refs"] = ["packaging-source:vendored_dirs"]
@@ -525,7 +525,7 @@ def _check_esl_3(ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = "Could not collect debian/control"
-        finding["todo"] = "TODO: ESL-3 Check for unexpected Built-Using entries"
+        finding["todo"] = "TODO: - Check for unexpected Built-Using entries"
         return finding
 
     debian_control = packaging.get("debian_control", "")
@@ -571,7 +571,7 @@ def _check_esl_3(ctx, finding: dict) -> dict:
             + "; ".join(built_using_entries)
         )
         finding["todo"] = (
-            "TODO: Review Built-Using entries — possible untracked embedded source: "
+            "TODO: - Review Built-Using entries — possible untracked embedded source: "
             + "; ".join(built_using_entries)
         )
     finding["evidence_refs"] = ["packaging-source:debian_control"]
@@ -587,7 +587,7 @@ def _check_esl_4(ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = "Could not determine language (packaging-source failed)"
-        finding["todo"] = "TODO: ESL-4 Determine if this is a Go package"
+        finding["todo"] = "TODO: - Determine if this is a Go package"
         return finding
 
     go_sum = packaging.get("go_sum_present", False)
@@ -622,7 +622,7 @@ def _check_esl_7(ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = "Could not determine Go build type (packaging-source failed)"
-        finding["todo"] = "TODO: ESL-7 Determine Go build type (shared vs static)"
+        finding["todo"] = "TODO: - Determine Go build type (shared vs static)"
         return finding
 
     go_sum = packaging.get("go_sum_present", False)
@@ -651,14 +651,14 @@ def _check_esl_7(ctx, finding: dict) -> dict:
         finding["confidence"] = "medium"
         finding["message"] = "Go package uses dh-golang; build mode not confirmed as shared"
         finding["todo"] = (
-            "TODO: Confirm Go build mode — if static, team must confirm commitment to "
+            "TODO: - Confirm Go build mode — if static, team must confirm commitment to "
             "additional maintenance responsibilities implied by static builds"
         )
     else:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = "Go package but build mode could not be determined from debian/rules"
-        finding["todo"] = "TODO: ESL-7 Determine Go build type (shared vs static)"
+        finding["todo"] = "TODO: - Determine Go build type (shared vs static)"
     finding["evidence_refs"] = ["packaging-source:debian_rules"]
     return finding
 
@@ -672,7 +672,7 @@ def _check_esl_8(ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = "Could not determine language (packaging-source failed)"
-        finding["todo"] = "TODO: ESL-8 Determine if this is a Rust package"
+        finding["todo"] = "TODO: - Determine if this is a Rust package"
         return finding
 
     cargo_lock = packaging.get("cargo_lock_present", False)
@@ -705,7 +705,7 @@ def _check_esl_9(ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = "Could not check debian/rules (packaging-source failed)"
-        finding["todo"] = "TODO: ESL-9 Verify Rust package uses dh_cargo"
+        finding["todo"] = "TODO: - Verify Rust package uses dh_cargo"
         return finding
 
     cargo_lock = packaging.get("cargo_lock_present", False)
@@ -734,7 +734,7 @@ def _check_esl_9(ctx, finding: dict) -> dict:
         finding["message"] = (
             "Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules"
         )
-        finding["todo"] = "TODO: Rust packages must use dh_cargo (dh ... --buildsystem cargo)"
+        finding["todo"] = "TODO: - Rust packages must use dh_cargo (dh ... --buildsystem cargo)"
     finding["evidence_refs"] = [
         "packaging-source:debian_rules",
         "packaging-source:cargo_lock_present",
@@ -751,7 +751,7 @@ def _check_esl_10(ctx, finding: dict) -> dict:
         finding["status"] = "unknown"
         finding["confidence"] = "low"
         finding["message"] = "Could not collect packaging source"
-        finding["todo"] = "TODO: ESL-10 Verify Rust vendored deps / Cargo.lock / Built-Using"
+        finding["todo"] = "TODO: - Verify Rust vendored deps / Cargo.lock / Built-Using"
         return finding
 
     cargo_lock = packaging.get("cargo_lock_present", False)
@@ -790,7 +790,7 @@ def _check_esl_10(ctx, finding: dict) -> dict:
         finding["severity"] = "required"
         finding["confidence"] = "high"
         finding["message"] = "Rust package has issues: " + "; ".join(problems)
-        finding["todo"] = "TODO: Fix Rust package issues: " + "; ".join(problems)
+        finding["todo"] = "TODO: - Fix Rust package issues: " + "; ".join(problems)
     else:
         finding["status"] = "ok"
         finding["severity"] = "ok"
@@ -888,7 +888,7 @@ def _eval_human_only(check: dict, ctx, finding: dict) -> dict:
     finding["status"] = "unknown"
     finding["confidence"] = "low"
     finding["message"] = "Human review required"
-    finding["todo"] = f"TODO: {check.get('title', 'Check')} — reviewer judgment needed"
+    finding["todo"] = f"TODO: - {check.get('title', 'Check')} — reviewer judgment needed"
     return finding
 
 
@@ -1118,7 +1118,8 @@ def _apply_llm_response(response: dict, check: dict, finding: dict) -> dict:
                 todo = "\n".join(todo_refs)
 
         if todo and not (todo.startswith("TODO:") or todo.startswith("TODO-")):
-            todo = f"TODO: {todo}"
+            prefix_inner = "" if todo.startswith("- ") else "- "
+            todo = f"TODO: {prefix_inner}{todo}"
         if not todo:
             todo = _default_todo_for_check(check, fallback_suffix="review needed")
         if rationale:
@@ -1152,7 +1153,7 @@ def _default_todo_for_check(check: dict, fallback_suffix: str) -> str:
     todo_refs = [str(x).strip() for x in check.get("todo_refs", []) if str(x).strip()]
     if todo_refs:
         return "\n".join(todo_refs)
-    return f"TODO: {check.get('title', check.get('id', 'Check'))} — {fallback_suffix}"
+    return f"TODO: - {check.get('title', check.get('id', 'Check'))} — {fallback_suffix}"
 
 
 def _summarise_findings_so_far(ctx) -> list[dict]:
