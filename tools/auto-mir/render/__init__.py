@@ -134,13 +134,15 @@ def _render_section(section: str, findings: list[dict]) -> list[str]:
     ok_findings = [f for f in findings if f["status"] == "ok"]
     undecided_findings = [f for f in findings if f["status"] != "ok"]
 
-    # OK sub-block
+    # OK sub-block — de-duplicate identical messages (e.g. "not a go package" repeated per check)
     if ok_findings:
         lines.append("OK:")
+        seen_msgs: set[str] = set()
         for finding in ok_findings:
             msg = (finding.get("message") or "").strip()
-            if msg:
+            if msg and msg not in seen_msgs:
                 lines.append(f"- {msg}")
+                seen_msgs.add(msg)
 
     # Left to decide sub-block
     if undecided_findings:
