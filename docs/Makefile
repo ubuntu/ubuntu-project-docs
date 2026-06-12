@@ -46,10 +46,12 @@ help:
 	@echo "-------------------------------------------------------------"
 	@echo
 
+TOOLS_DIR        ?= ../tools
+
 .PHONY: help full-help html html-lite epub pdf linkcheck spelling spellcheck woke \
         vale pa11y run serve install pa11y-install \
-        vale-install pdf-prep pdf-prep-force clean clean-doc \
-        update
+        vale-install pdf-prep pdf-prep-force clean clean-doc clean-generated \
+        generate-includes update
 
 full-help: $(DOCS_VENVDIR)
 	@. $(DOCS_VENV); $(SPHINX_BUILD) -M help "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" $(SPHINX_OPTS) $(O)
@@ -77,23 +79,28 @@ pa11y-install:
 
 install: $(DOCS_VENVDIR)
 
-run: install
-	. $(DOCS_VENV); $(DOCS_VENVDIR)/bin/sphinx-autobuild -b dirhtml --host $(SPHINX_HOST) --port $(SPHINX_PORT) "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" $(SPHINX_OPTS_NOLLM)
+generate-includes: install
+	python3 $(TOOLS_DIR)/auto-mir/render_review_template.py --body-only
+
+run: install generate-includes
+	. $(DOCS_VENV); $(DOCS_VENVDIR)/bin/sphinx-autobuild -b dirhtml --host $(SPHINX_HOST) --port $(SPHINX_PORT) "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" $(SPHINX_OPTS_NOLLM) \
+		--pre-build "make -C $(DOCS_SOURCEDIR) generate-includes" \
+		--watch $(TOOLS_DIR)/auto-mir/catalog.yaml
 
 # Does not depend on $(DOCS_BUILDDIR) to rebuild properly at every run.
-html: install
+html: install generate-includes
 	. $(DOCS_VENV); $(SPHINX_BUILD) --fail-on-warning --keep-going -b dirhtml "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" -w $(SPHINX_DIR)/warnings.txt $(SPHINX_OPTS)
 
-html-lite: install
+html-lite: install generate-includes
 	. $(DOCS_VENV); $(SPHINX_BUILD) --fail-on-warning --keep-going -b dirhtml "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" -w $(SPHINX_DIR)/warnings.txt $(SPHINX_OPTS_NOLLM)
 
-epub: install
+epub: install generate-includes
 	. $(DOCS_VENV); $(SPHINX_BUILD) -b epub "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" -w $(SPHINX_DIR)/warnings.txt $(SPHINX_OPTS_NOLLM)
 
 serve: html-lite
 	cd "$(DOCS_BUILDDIR)"; python3 -m http.server --bind $(SPHINX_HOST) $(SPHINX_PORT)
 
-clean: clean-doc
+clean: clean-doc clean-generated
 	@test ! -e "$(DOCS_VENVDIR)" -o -d "$(DOCS_VENVDIR)" -a "$(abspath $(DOCS_VENVDIR))" != "$(DOCS_VENVDIR)"
 	rm -rf $(DOCS_VENVDIR)
 	rm -rf $(SPHINX_DIR)/node_modules/
@@ -104,7 +111,10 @@ clean-doc:
 	git clean -fx "$(DOCS_BUILDDIR)"
 	rm -rf $(SPHINX_DIR)/.doctrees
 
-linkcheck: install
+clean-generated:
+	rm -f MIR/mir-reviewers-template-body.include
+
+linkcheck: install generate-includes
 	. $(DOCS_VENV) ; $(SPHINX_BUILD) -b linkcheck -q "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" $(SPHINX_OPTS_NOLLM) || { grep --color -F "[broken]" "$(DOCS_BUILDDIR)/output.txt"; exit 1; }
 	exit 0
 

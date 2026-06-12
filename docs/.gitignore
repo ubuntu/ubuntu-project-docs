@@ -16,6 +16,9 @@
 # Build outputs
 _build
 
+# Generated includes (built from catalog.yaml, not committed)
+MIR/mir-reviewers-template-body.include
+
 # Node.js
 package*.json
 
