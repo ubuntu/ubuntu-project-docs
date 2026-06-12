@@ -184,7 +184,7 @@ def _check_dep_1(ctx, finding: dict) -> dict:
     finding["status"] = "ok"
     finding["severity"] = "ok"
     finding["confidence"] = "high"
-    finding["message"] = "- no other runtime Dependencies to MIR due to this"
+    finding["message"] = "no other runtime Dependencies to MIR due to this"
     finding["evidence_refs"] = [
         "dep-analysis:runtime_dep_packages",
         "dep-analysis:dep_components",
@@ -217,7 +217,7 @@ def _check_sec_3(ctx, finding: dict) -> dict:
         finding["status"] = "ok"
         finding["severity"] = "ok"
         finding["confidence"] = "high"
-        finding["message"] = "- does not use webkit1,2"
+        finding["message"] = "does not use webkit1,2"
         finding["evidence_refs"] = ["dep-analysis:runtime_deps"]
     return finding
 
@@ -247,7 +247,7 @@ def _check_sec_4(ctx, finding: dict) -> dict:
         finding["status"] = "ok"
         finding["severity"] = "ok"
         finding["confidence"] = "high"
-        finding["message"] = "- does not use lib*v8 directly"
+        finding["message"] = "does not use lib*v8 directly"
         finding["evidence_refs"] = ["dep-analysis:runtime_deps"]
     return finding
 
@@ -278,7 +278,7 @@ def _check_cb_7(ctx, finding: dict) -> dict:
         finding["status"] = "ok"
         finding["severity"] = "ok"
         finding["confidence"] = "high"
-        finding["message"] = "- no new python2 dependency"
+        finding["message"] = "no new python2 dependency"
         finding["evidence_refs"] = ["dep-analysis:runtime_deps"]
     return finding
 
