@@ -131,8 +131,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--llm-model",
-        default="gpt-4o-mini",
-        help="Model name for the selected LLM provider (default: gpt-4o-mini)",
+        default="gpt-4.1-mini",
+        help="Model name for the selected LLM provider (default: gpt-4.1-mini; gpt-4o-mini for resource-constrained runs, gpt-4 for complex policy cases)",
     )
     p.add_argument(
         "--run-name",
@@ -204,6 +204,10 @@ class RunContext:
         self.container_name: str = ""
         self.auth_source: str = ""
         self.container_env: dict[str, str] = {}
+        
+        # LLM usage tracking for cost reporting
+        self.llm_calls_by_model: dict[str, int] = {}
+        self.llm_estimated_tokens: dict[str, int] = {}
 
     def save_evidence(self) -> None:
         """Persist accumulated evidence to output directory for debugging/audit."""

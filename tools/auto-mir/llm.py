@@ -35,7 +35,9 @@ class LLMError(RuntimeError):
 _COPILOT_API_URL = "https://models.inference.ai.azure.com/chat/completions"
 
 # Concrete default model for the GitHub Models endpoint.
-_DEFAULT_COPILOT_MODEL = "gpt-4o-mini"
+# Switched from gpt-4o-mini to gpt-4.1-mini for better reasoning on complex
+# policy synthesis and token limits matching our needs.
+_DEFAULT_COPILOT_MODEL = "gpt-4.1-mini"
 # Hard cap on response tokens — JSON responses for MIR checks are compact.
 _MAX_TOKENS = 1024
 # Retry attempts on transient HTTP errors (429, 5xx).
@@ -73,7 +75,19 @@ def call_llm(prompt: str, ctx) -> dict[str, Any]:
     Raises:
         LLMError: on auth failure, HTTP error, or invalid JSON in response.
     """
-    return _call_copilot(prompt, ctx)
+    response_dict = _call_copilot(prompt, ctx)
+    
+    # Track LLM usage for cost/efficiency reporting
+    model = _selected_model(ctx)
+    if not hasattr(ctx, 'llm_calls_by_model'):
+        ctx.llm_calls_by_model = {}
+        ctx.llm_estimated_tokens = {}
+    ctx.llm_calls_by_model[model] = ctx.llm_calls_by_model.get(model, 0) + 1
+    # Rough estimate: prompt words + response tokens
+    estimated_total = len(prompt.split()) + _MAX_TOKENS
+    ctx.llm_estimated_tokens[model] = ctx.llm_estimated_tokens.get(model, 0) + estimated_total
+    
+    return response_dict
 
 
 # ---------------------------------------------------------------------------

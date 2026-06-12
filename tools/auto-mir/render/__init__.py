@@ -11,6 +11,31 @@ import json
 from collections import defaultdict
 
 
+def _estimate_llm_tokens(ctx) -> dict:
+    """Estimate token usage for LLM calls made during this run."""
+    calls_by_model = getattr(ctx, 'llm_calls_by_model', {})
+    tokens_by_model = getattr(ctx, 'llm_estimated_tokens', {})
+
+    if not calls_by_model:
+        return {"total_calls": 0, "by_model": {}}
+
+    total_calls = sum(calls_by_model.values())
+    total_tokens = sum(tokens_by_model.values())
+    by_model = {}
+
+    for model in sorted(calls_by_model.keys()):
+        calls = calls_by_model.get(model, 0)
+        tokens = tokens_by_model.get(model, 0)
+        by_model[model] = {"calls": calls, "estimated_tokens": tokens}
+
+    return {
+        "total_calls": total_calls,
+        "total_estimated_tokens": total_tokens,
+        "by_model": by_model,
+    }
+
+
+
 # Canonical section order mirrors the reviewer template exactly.
 # Any check whose section name is not listed here is appended at the end
 # under an "Other" heading so nothing is silently dropped.
@@ -28,6 +53,9 @@ _SECTION_ORDER = [
 
 def write_outputs(ctx) -> None:
     """Write structured report (JSON) and reviewer draft (text) for a run."""
+    # Prepare LLM token usage estimates
+    llm_usage = _estimate_llm_tokens(ctx)
+
     report = {
         "bug_id": ctx.bug_id,
         "source_package": ctx.source_package,
@@ -37,6 +65,7 @@ def write_outputs(ctx) -> None:
         "catalog_summary": ctx.evidence.get("catalog_summary", {}),
         "analysis_summary": ctx.evidence.get("analysis_summary", {}),
         "findings": ctx.findings,
+        "llm_usage": llm_usage,
     }
 
     ctx.report_path = ctx.output_dir / "report.json"
@@ -48,6 +77,11 @@ def write_outputs(ctx) -> None:
 
     ctx.review_draft_path = ctx.output_dir / "review-draft.txt"
     ctx.review_draft_path.write_text(draft, encoding="utf-8")
+
+    # Print LLM usage report to console instead of including in review-draft
+    llm_report = _render_llm_usage_report(ctx)
+    if llm_report:
+        print("\n" + "\n".join(llm_report))
 
 
 # ---------------------------------------------------------------------------
@@ -254,3 +288,37 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
             raise ValueError(
                 f"Unresolved finding {finding.get('id')} must include TODO"
             )
+
+
+# ---------------------------------------------------------------------------
+# LLM Usage Report
+# ---------------------------------------------------------------------------
+
+def _render_llm_usage_report(ctx) -> list[str]:
+    """Render a usage report showing LLM model calls and token consumption."""
+    lines: list[str] = [
+        "",
+        "[LLM Usage Report]",
+    ]
+
+    # Get usage data (may be empty if no LLM calls were made)
+    calls_by_model = getattr(ctx, 'llm_calls_by_model', {})
+    tokens_by_model = getattr(ctx, 'llm_estimated_tokens', {})
+
+    if not calls_by_model:
+        lines.append("No LLM calls made (deterministic-only evaluation).")
+        return lines
+
+    total_calls = sum(calls_by_model.values())
+    total_tokens = sum(tokens_by_model.values())
+    lines.append(f"Total LLM calls: {total_calls}")
+    lines.append(f"Total estimated tokens: {total_tokens}")
+    lines.append("")
+
+    # Model-by-model breakdown
+    for model in sorted(calls_by_model.keys()):
+        calls = calls_by_model.get(model, 0)
+        tokens = tokens_by_model.get(model, 0)
+        lines.append(f"  {model}: {calls} calls, {tokens} tokens")
+
+    return lines

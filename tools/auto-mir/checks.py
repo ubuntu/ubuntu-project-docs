@@ -877,11 +877,11 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
     return payload
 
 
-def _truncate_adapter_data(data: dict, max_str_len: int = 500) -> dict:
+def _truncate_adapter_data(data: dict, max_str_len: int = 1000) -> dict:
     """Return a copy of data with large outputs trimmed for LLM token budget.
 
     For known large fields (lintian_output, debian_*, build_log), only include
-    a brief summary or first few lines. For other large strings, truncate to 500 chars.
+    a brief summary or first few lines. For other large strings, truncate to 1000 chars.
     """
     SUMMARY_FIELDS = {
         "lintian_output",  # lintian full output
@@ -904,15 +904,15 @@ def _truncate_adapter_data(data: dict, max_str_len: int = 500) -> dict:
                 warnings = sum(1 for l in lines if l.startswith("W: "))
                 result[k] = f"[{len(lines)} lines, {errors} errors, {warnings} warnings]"
             else:
-                # Just keep a 200-char preview
-                result[k] = v[:200] + ("..." if len(v) > 200 else "")
+                # Keep a 300-char preview
+                result[k] = v[:300] + ("..." if len(v) > 300 else "")
         elif isinstance(v, str) and len(v) > max_str_len:
             result[k] = v[:max_str_len] + f" ... [truncated, total {len(v)} chars]"
         elif isinstance(v, dict):
             result[k] = _truncate_adapter_data(v, max_str_len)
-        elif isinstance(v, list) and len(v) > 20:
-            # Truncate large lists to first 10 items + summary
-            result[k] = v[:10] + [{"...": f"plus {len(v) - 10} more items"}]
+        elif isinstance(v, list) and len(v) > 30:
+            # Truncate large lists to first 15 items + summary
+            result[k] = v[:15] + [{"...": f"plus {len(v) - 15} more items"}]
         else:
             result[k] = v
     return result
