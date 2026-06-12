@@ -188,3 +188,12 @@ Choices and reasoning recorded during development. Grouped by topic.
 - **Refactored modules**: updated `lxd_runner.py` and `llm.py` to use tenacity decorators
   instead of custom retry loops. Improves maintainability and reduces code duplication.
 - **Dependency management**: added `tenacity>=8.0.0` to `pyproject.toml` dependencies.
+
+## Structural Refactoring and Registries
+**Context:** As auto-mir scaled, the `evidence/__init__.py` and `checks/__init__.py` files accumulated massive manual dictionaries tracking adapter dependencies and check support matrices. Furthermore, multiple overlapping subprocess helpers for container and host execution scattered error handling logic.
+**Decision:**
+- Adopted `graphlib.TopologicalSorter` to handle evidence dependency sorting dynamically, removing custom cycle-breaking logic in `evidence/__init__.py`.
+- Replaced hard-coded config dictionaries in `evidence/__init__.py` and `checks/__init__.py` with decorator-based registries (e.g. `@adapter`, `@evaluator`, `@deterministic_check`). Check and adapter configurations now live natively with their implementations.
+- Extracted language gate logic to a decorator rather than applying manual conditional wrapping within `checks/__init__.py`.
+- Consolidated all CLI wrappers (`_lxc`, `_run_host`, `exec_in`) into one standardized `subprocess.run` handler in `lxd_runner.py` for uniform logging logic.
+**Consequences:** Boilerplate has been significantly reduced, making it trivial to add new checks and evidence adapters without touching multiple files.

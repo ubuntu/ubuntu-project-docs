@@ -141,12 +141,14 @@ tools/
     integration_smoke.py ← devel-container isolation smoke runner
     evidence/          ← evidence collection adapters
       __init__.py      ← orchestration and adapter registry
+      registry.py      ← decorator registry for evidence adapters
       types.py         ← TypedDict definitions for adapter return types
       host_adapters.py ← host-side adapters (Launchpad, CVE, autopkgtest)
       container_adapters.py ← in-container adapters (packaging, deps, sbuild)
     checks/            ← check evaluation logic
-      __init__.py      ← check dispatcher and evaluation orchestration
+      __init__.py      ← check evaluation orchestration via registered evaluators
       deterministic.py ← deterministic check implementations
+      registry.py      ← decorator registry for check evaluators
       llm_eval.py      ← LLM-based check evaluation
       language_gates.py ← language detection (Go, Rust, Python)
     utils/             ← utility modules
@@ -179,12 +181,14 @@ tools/
     integration_smoke.py ← devel-container isolation smoke runner
     evidence/          ← evidence collection adapters
       __init__.py      ← orchestration and adapter registry
+      registry.py      ← decorator registry for evidence adapters
       types.py         ← TypedDict definitions for adapter return types
       host_adapters.py ← host-side adapters (Launchpad, CVE, autopkgtest)
       container_adapters.py ← in-container adapters (packaging, deps, sbuild)
     checks/            ← check evaluation logic
-      __init__.py      ← check dispatcher and evaluation orchestration
+      __init__.py      ← check evaluation orchestration via registered evaluators
       deterministic.py ← deterministic check implementations
+      registry.py      ← decorator registry for check evaluators
       llm_eval.py      ← LLM-based check evaluation
       language_gates.py ← language detection (Go, Rust, Python)
     utils/             ← utility modules
