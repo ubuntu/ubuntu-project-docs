@@ -16,7 +16,7 @@ import sys
 import time
 from typing import TYPE_CHECKING
 
-from utils.retry import retry_container_command
+from utils.retry import is_transient_command_failure, retry_container_command
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
@@ -537,21 +537,7 @@ def exec_in_retry(
 
     if result.returncode != 0:
         # Retries exhausted and check=True, raise error
-        text = f"{result.stdout or ''}\n{result.stderr or ''}".lower()
-        transient_markers = (
-            " 503",
-            "http 503",
-            "requested url returned error: 503",
-            "temporary failure resolving",
-            "could not resolve",
-            "failed to fetch",
-            "connection timed out",
-            "connection reset",
-            "tls handshake timeout",
-            "service unavailable",
-            "network is unreachable",
-        )
-        transient = any(marker in text for marker in transient_markers)
+        transient = is_transient_command_failure(result.stdout, result.stderr)
         hint = (
             "\nHard stop: command failed after retries due to non-transient error."
             if not transient

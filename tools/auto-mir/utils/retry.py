@@ -22,6 +22,21 @@ from tenacity import (
 log = logging.getLogger("auto_mir.utils.retry")
 
 
+TRANSIENT_COMMAND_FAILURE_MARKERS = (
+    " 503",
+    "http 503",
+    "requested url returned error: 503",
+    "temporary failure resolving",
+    "could not resolve",
+    "failed to fetch",
+    "connection timed out",
+    "connection reset",
+    "tls handshake timeout",
+    "service unavailable",
+    "network is unreachable",
+)
+
+
 # ---------------------------------------------------------------------------
 # Retry strategies
 # ---------------------------------------------------------------------------
@@ -130,22 +145,7 @@ def retry_container_command(
         """Check if command result indicates transient failure."""
         if result.returncode == 0:
             return False
-
-        text = f"{result.stdout or ''}\n{result.stderr or ''}".lower()
-        transient_markers = (
-            " 503",
-            "http 503",
-            "requested url returned error: 503",
-            "temporary failure resolving",
-            "could not resolve",
-            "failed to fetch",
-            "connection timed out",
-            "connection reset",
-            "tls handshake timeout",
-            "service unavailable",
-            "network is unreachable",
-        )
-        return any(marker in text for marker in transient_markers)
+        return is_transient_command_failure(result.stdout, result.stderr)
 
     return retry(
         stop=stop_after_attempt(max_attempts),
@@ -153,6 +153,12 @@ def retry_container_command(
         retry=retry_if_result(is_transient_failure),
         before_sleep=before_sleep_log(log, logging.WARNING),
     )
+
+
+def is_transient_command_failure(stdout: str | None, stderr: str | None) -> bool:
+    """Return True when command output matches known transient infra failures."""
+    text = f"{stdout or ''}\n{stderr or ''}".lower()
+    return any(marker in text for marker in TRANSIENT_COMMAND_FAILURE_MARKERS)
 
 
 # ---------------------------------------------------------------------------
