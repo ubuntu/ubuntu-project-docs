@@ -10,6 +10,7 @@ Options:
     --keep-container         Keep LXD container after run for debugging (default: off)
     --pin-uat-tooling COMMIT Pin ubuntu-archive-tools to specific commit for reproducible runs
     --llm-provider PROVIDER  LLM provider to use (default: copilot)
+    --llm-model MODEL        LLM model to request from provider (default: gpt-4o-mini)
     --output-dir DIR         Directory to write report and review draft (default: /tmp/mir-<bugid>)
     --dry-run                Fetch and collect evidence only; skip AI synthesis and rendering
 
@@ -72,6 +73,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="LLM provider adapter to use",
     )
     p.add_argument(
+        "--llm-model",
+        default="gpt-4o-mini",
+        help="Model name for the selected LLM provider (default: gpt-4o-mini)",
+    )
+    p.add_argument(
         "--output-dir",
         default=None,
         help="Output directory for report and review draft (default: /tmp/mir-<bugid>)",
@@ -100,6 +106,7 @@ class RunContext:
         self.pin_uat_tooling: str | None = args.pin_uat_tooling
         self.lxd_image: str | None = args.lxd_image
         self.llm_provider: str = args.llm_provider
+        self.llm_model: str = args.llm_model
         self.dry_run: bool = args.dry_run
         self.tool_root = Path(__file__).resolve().parent
         self.workspace_root = self.tool_root.parent.parent
@@ -351,6 +358,11 @@ def main() -> int:
         ctx.bug_id,
         ctx.keep_container,
         ctx.dry_run,
+    )
+    log.debug(
+        "LLM configuration for this run: provider=%s requested_model=%s",
+        ctx.llm_provider,
+        ctx.llm_model,
     )
 
     try:
