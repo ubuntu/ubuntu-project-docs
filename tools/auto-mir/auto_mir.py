@@ -26,6 +26,7 @@ from pathlib import Path
 
 # Internal modules
 import catalog
+import checks
 from evidence import collect_from_catalog
 import lp_intake
 import lxd_runner
@@ -209,42 +210,11 @@ def stage_analyse(ctx: RunContext) -> None:
         ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
         ctx.policy_hashes = ctx.catalog.get("metadata", {}).get("policy_hashes", {})
 
-    checks = ctx.catalog.get("checks", [])
-    evaluated = {
-        "SUM-1": {
-            "status": "ok",
-            "severity": "ok",
-            "confidence": "high",
-            "message": f"Review for Source Package: {ctx.source_package}",
-        },
-        "SUM-2": {
-            "status": "ok",
-            "severity": "ok",
-            "confidence": "high",
-            "message": "Reporter MIR content found and used as context.",
-        },
-    }
-
-    findings = []
-    for check in checks:
-        finding = {
-            "id": check["id"],
-            "section": check["section"],
-            "title": check["title"],
-            "mode": check["mode"],
-            "status": "not-evaluated",
-            "severity": None,
-            "confidence": "low",
-            "message": "TODO: Check logic not implemented yet.",
-        }
-        finding.update(evaluated.get(check["id"], {}))
-        findings.append(finding)
-
-    ctx.findings = findings
+    ctx.findings = checks.evaluate_checks(ctx)
     ctx.evidence["analysis_summary"] = {
-        "total_checks": len(findings),
-        "evaluated_checks": len(evaluated),
-        "pending_checks": len(findings) - len(evaluated),
+        "total_checks": len(ctx.findings),
+        "evaluated_checks": len([f for f in ctx.findings if f["status"] != "not-evaluated"]),
+        "pending_checks": len([f for f in ctx.findings if f["status"] == "not-evaluated"]),
     }
 
 
