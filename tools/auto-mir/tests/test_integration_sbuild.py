@@ -46,6 +46,7 @@ def _make_lxd_vm_context():
             "packaging-source": {
                 "status": "ok",
                 "source_dir": "/tmp/hello-source",
+                "source_workdir": "/tmp/hello-source-workdir",
                 "debian_control": "Source: hello\n\nPackage: hello\nArchitecture: any",
                 "debian_rules": "#!/usr/bin/make -f\n%:\n\tdh $@",
             }
@@ -70,13 +71,14 @@ def _require_vm_name() -> str:
 
 def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> dict:
     """Fetch source package inside VM and return packaging-source adapter payload."""
+    workdir = f"/tmp/auto-mir-int-{source_pkg}"
     lxd_runner.exec_in_retry(
         vm_name,
         [
             "bash",
             "-lc",
             (
-                f"work=/tmp/auto-mir-int-{source_pkg} && "
+                f"work={workdir} && "
                 'rm -rf "$work" && mkdir -p "$work" && cd "$work" && '
                 f"apt-get source -qq {source_pkg} && "
                 "dir=$(find . -maxdepth 1 -type d -name '*-*' | head -n1) && "
@@ -88,10 +90,19 @@ def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> 
 
     source_dir_name = lxd_runner.exec_in(
         vm_name,
-        ["bash", "-lc", f"cd /tmp/auto-mir-int-{source_pkg} && cat source_dir.txt"],
+        ["bash", "-lc", f"cd {workdir} && cat source_dir.txt"],
         capture=True,
     ).stdout.strip()
-    source_dir = f"/tmp/auto-mir-int-{source_pkg}/{source_dir_name}"
+    source_dir = f"{workdir}/{source_dir_name}"
+
+    dsc_path = lxd_runner.exec_in(
+        vm_name,
+        ["bash", "-lc", f"ls {workdir}/*.dsc 2>/dev/null | head -n1"],
+        capture=True,
+        check=False,
+    ).stdout.strip()
+    if not dsc_path:
+        raise AssertionError(f"Expected a .dsc file in {workdir} after apt-get source")
 
     debian_control = lxd_runner.exec_in(
         vm_name,
@@ -109,6 +120,7 @@ def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> 
     return {
         "status": "ok",
         "source_dir": source_dir,
+        "source_workdir": workdir,
         "debian_control": debian_control,
         "debian_rules": debian_rules,
     }
