@@ -422,8 +422,10 @@ def collect_sbuild(ctx) -> SbuildResult:
         )
         built_debs = [line.strip() for line in deb_list.splitlines() if line.strip()]
         log.info("sbuild succeeded: %d .deb files built", len(built_debs))
+        message = f"Build succeeded: {len(built_debs)} .deb files produced"
     else:
         log.warning("sbuild failed for %s", ctx.source_package)
+        message = "Build failed, see build_log for details"
     
     # Run lintian on the source package (keep existing functionality)
     lintian_raw = _capture(
@@ -471,6 +473,7 @@ def collect_sbuild(ctx) -> SbuildResult:
     
     return {
         "status": "ok" if build_success else "error",
+        "message": message,
         "build_success": build_success,
         "build_log": build_log,
         "built_debs": built_debs,

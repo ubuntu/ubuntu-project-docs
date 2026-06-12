@@ -216,6 +216,7 @@ class SbuildResult(TypedDict):
     """Return structure for sbuild adapter (real build with unshare backend)."""
 
     status: str
+    message: str
     build_success: bool
     build_log: str
     built_debs: list[str]
