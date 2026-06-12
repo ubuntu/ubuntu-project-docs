@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import logging
 
+from catalog_enums import AdapterID
+
 # Import adapter implementations from submodules
 from evidence.host_adapters import (
     AdapterError,
@@ -35,20 +37,20 @@ def collect_from_catalog(ctx) -> None:
     """Collect evidence for all adapters referenced by the catalog."""
     supported = {
         # Host-side (no container needed)
-        "lp-bug-api": collect_lp_bug_api,
-        "lp-team-membership-api": collect_lp_team_membership_api,
-        "lp-package-api": collect_lp_package_api,
-        "ubuntu-cve-tracker": collect_ubuntu_cve_tracker,
-        "autopkgtest-db": collect_autopkgtest,
+        AdapterID.LP_BUG_API: collect_lp_bug_api,
+        AdapterID.LP_TEAM_MEMBERSHIP_API: collect_lp_team_membership_api,
+        AdapterID.LP_PACKAGE_API: collect_lp_package_api,
+        AdapterID.UBUNTU_CVE_TRACKER: collect_ubuntu_cve_tracker,
+        AdapterID.AUTOPKGTEST_DB: collect_autopkgtest,
         # In-container
-        "packaging-source": collect_packaging_source,
-        "dep-analysis": collect_dep_analysis,
-        "component-mismatches": collect_component_mismatches,
-        "sbuild": collect_sbuild,
+        AdapterID.PACKAGING_SOURCE: collect_packaging_source,
+        AdapterID.DEP_ANALYSIS: collect_dep_analysis,
+        AdapterID.COMPONENT_MISMATCHES: collect_component_mismatches,
+        AdapterID.SBUILD: collect_sbuild,
     }
     adapter_deps: dict[str, list[str]] = {
-        "dep-analysis": ["packaging-source"],
-        "sbuild": ["packaging-source"],
+        str(AdapterID.DEP_ANALYSIS): [str(AdapterID.PACKAGING_SOURCE)],
+        str(AdapterID.SBUILD): [str(AdapterID.PACKAGING_SOURCE)],
     }
 
     checks = ctx.catalog.get("checks", [])
@@ -61,21 +63,32 @@ def collect_from_catalog(ctx) -> None:
 
     ordered_required = _order_adapters(required, adapter_deps)
 
-    for adapter_id in ordered_required:
+    for adapter_id_str in ordered_required:
+        # Convert string to enum for lookup
+        try:
+            adapter_id = AdapterID(adapter_id_str)
+        except ValueError:
+            log.warning("Unknown adapter ID in catalog: %s", adapter_id_str)
+            ctx.evidence["adapters"][adapter_id_str] = {
+                "status": "pending",
+                "message": f"Unknown adapter: {adapter_id_str}",
+            }
+            continue
+        
         collector = supported.get(adapter_id)
         if collector is None:
-            ctx.evidence["adapters"][adapter_id] = {
+            ctx.evidence["adapters"][adapter_id_str] = {
                 "status": "pending",
                 "message": "Adapter collector not implemented yet",
             }
             continue
 
         try:
-            log.info("Collecting adapter: %s", adapter_id)
-            ctx.evidence["adapters"][adapter_id] = collector(ctx)
+            log.info("Collecting adapter: %s", adapter_id_str)
+            ctx.evidence["adapters"][adapter_id_str] = collector(ctx)
         except Exception as exc:
-            log.warning("Adapter %s failed: %s", adapter_id, exc)
-            ctx.evidence["adapters"][adapter_id] = {
+            log.warning("Adapter %s failed: %s", adapter_id_str, exc)
+            ctx.evidence["adapters"][adapter_id_str] = {
                 "status": "error",
                 "message": str(exc),
             }
