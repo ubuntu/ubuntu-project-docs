@@ -2,13 +2,20 @@
 
 import sys
 from pathlib import Path
+from unittest.mock import Mock
 
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from models import Finding
-from render import _lint_review_draft, _todo_lines_for_finding, _build_binary_package_header, _SECTION_ORDER
+from render import (
+    _lint_review_draft,
+    _todo_lines_for_finding,
+    _build_binary_package_header,
+    _build_review_draft,
+    _SECTION_ORDER,
+)
 
 # ---------------------------------------------------------------------------
 # Catalog section cross-check
@@ -278,3 +285,135 @@ def test_binary_header_no_split_when_all_need_promotion():
     )
     lines = _build_binary_package_header(ctx)
     assert not any("Component split" in l for l in lines)
+
+
+# ---------------------------------------------------------------------------
+# Snapshot tests for complete review draft
+# ---------------------------------------------------------------------------
+
+
+def test_build_review_draft_complete_structure():
+    """Test that a complete review draft has the expected structure."""
+    # Create a mock context with findings
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1234567"
+    ctx.series = "noble"
+    ctx.evidence = {
+        "adapters": {
+            "dep-analysis": {
+                "status": "ok",
+                "binary_packages": ["testpkg", "testpkg-dev"],
+            },
+            "component-mismatches": {
+                "status": "ok",
+                "promotion_candidates": ["testpkg"],
+            },
+        }
+    }
+    
+    # Create sample findings
+    ctx.findings = [
+        Finding(
+            id="SUM-1",
+            section="Summary",
+            title="Source package identified",
+            mode="deterministic",
+            status="ok",
+            severity="ok",
+            confidence="high",
+            message="Source package: testpkg",
+            todo="",
+            evidence_refs=["lp-bug-api:source_package"],
+        ),
+        Finding(
+            id="DEP-1",
+            section="Dependencies",
+            title="Runtime dependencies in main",
+            mode="deterministic",
+            status="not-ok",
+            severity="required",
+            confidence="high",
+            message="Runtime dependency 'libbar' not in main",
+            todo="TODO: - Promote libbar to main or remove dependency",
+            evidence_refs=["dep-analysis:runtime_deps"],
+        ),
+        Finding(
+            id="SEC-1",
+            section="Security",
+            title="CVE analysis",
+            mode="deterministic",
+            status="unknown",
+            severity="ok",
+            confidence="low",
+            message="Could not evaluate: adapter failed",
+            todo="TODO: - Manually check CVE database",
+            adapter_error_cause=["ubuntu-cve-tracker"],
+        ),
+    ]
+    
+    draft = _build_review_draft(ctx)
+    
+    # Verify structure
+    assert "[Summary]" in draft
+    assert "[Dependencies]" in draft
+    assert "[Security]" in draft
+    assert "Source package: testpkg" in draft
+    assert "Runtime dependency 'libbar' not in main" in draft
+    assert "TODO: - Manually check CVE database" in draft
+
+
+def test_build_review_draft_section_order():
+    """Test that sections appear in canonical order."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1234567"
+    ctx.series = "noble"
+    ctx.evidence = {"adapters": {}}
+    
+    # Create findings for all sections (in reverse order)
+    ctx.findings = [
+        Finding(
+            id=f"TEST-{i}",
+            section=section,
+            title=f"Test {section}",
+            mode="deterministic",
+            status="ok",
+            severity="ok",
+            confidence="high",
+            message=f"Test message for {section}",
+            todo="",
+            evidence_refs=[],
+        )
+        for i, section in enumerate(reversed(_SECTION_ORDER))
+    ]
+    
+    draft = _build_review_draft(ctx)
+    
+    # Verify sections appear in canonical order
+    positions = {section: draft.find(f"[{section}]") for section in _SECTION_ORDER}
+    
+    # Check that each section appears after the previous one
+    for i in range(len(_SECTION_ORDER) - 1):
+        current = _SECTION_ORDER[i]
+        next_section = _SECTION_ORDER[i + 1]
+        if positions[current] != -1 and positions[next_section] != -1:
+            assert positions[current] < positions[next_section], \
+                f"Section {current} should appear before {next_section}"
+
+
+def test_build_review_draft_empty_findings():
+    """Test that an empty findings list produces a valid draft."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1234567"
+    ctx.series = "noble"
+    ctx.evidence = {"adapters": {}}
+    ctx.findings = []
+    
+    draft = _build_review_draft(ctx)
+    
+    # Should still have preamble
+    assert "Source Package: testpkg" in draft
+    assert "1234567" in draft
+    assert "noble" in draft
