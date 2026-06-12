@@ -99,8 +99,10 @@ def _language_gate_active(gate: str, ctx) -> bool:
     skipped when we cannot confirm the absence of the language.
 
     Gates:
-            go     — active when go.sum, dh-golang/golang hints, or Go source/tree hints are present
-            rust   — active when Cargo.lock, dh_cargo/buildsystem hints, or Rust source/tree hints are present
+            go     — active when go.sum, dh-golang/golang hints, or Go
+                   source/tree hints are present
+            rust   — active when Cargo.lock, dh_cargo/buildsystem hints, or
+                   Rust source/tree hints are present
       python  — active when python3 or python in runtime deps
       go|rust — active when either go or rust is present (combined gate)
 

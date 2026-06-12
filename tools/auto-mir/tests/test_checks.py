@@ -677,7 +677,9 @@ def test_extract_build_hints_vendor_compile():
     """
     hints = checks.llm_eval._extract_build_hints(build_log)
     assert any("vendor" in line and "gcc" in line for line in hints["vendor_compile_invocations"])
-    assert any("third_party" in line and "clang" in line for line in hints["vendor_compile_invocations"])
+    assert any(
+        "third_party" in line and "clang" in line for line in hints["vendor_compile_invocations"]
+    )
 
 
 def test_extract_build_hints_vendor_archive():
@@ -694,6 +696,7 @@ def test_extract_build_hints_vendor_archive():
 def test_parse_built_using_entries_empty():
     """Test _parse_built_using_entries with empty input."""
     import evidence.container_adapters as adapters
+
     assert adapters._parse_built_using_entries("") == []
     assert adapters._parse_built_using_entries(None) == []
 
@@ -701,6 +704,7 @@ def test_parse_built_using_entries_empty():
 def test_parse_built_using_entries_single_line():
     """Test _parse_built_using_entries with single-line field."""
     import evidence.container_adapters as adapters
+
     field = "golang-1.20 (>= 1.20~), golang-1.20 (<< 1.21~)"
     result = adapters._parse_built_using_entries(field)
     assert "golang-1.20 (>= 1.20~)" in result
@@ -710,6 +714,7 @@ def test_parse_built_using_entries_single_line():
 def test_parse_built_using_entries_multi_line():
     """Test _parse_built_using_entries with multi-line field (continuation lines)."""
     import evidence.container_adapters as adapters
+
     field = """golang-1.20 (>= 1.20~),
  golang-1.20 (<< 1.21~)"""
     result = adapters._parse_built_using_entries(field)
@@ -782,4 +787,3 @@ def test_esl_3_missing_adapter():
     finding = _make_finding("ESL-3", mode="deterministic")
     result = checks.deterministic._check_esl_3(ctx, finding)
     assert result.status == "unknown"
-

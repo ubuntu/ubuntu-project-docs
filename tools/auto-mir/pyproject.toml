@@ -18,6 +18,13 @@ line-length = 100
 select = ["E", "F", "W", "I"]
 ignore = []
 
+[tool.ruff.lint.per-file-ignores]
+# These test fixture files contain catalog message strings that intentionally mirror
+# catalog.yaml verbatim. Splitting them across lines would obscure their relationship
+# to the source data and make the test table harder to audit.
+"tests/test_checks.py" = ["E501"]
+"tests/test_catalog.py" = ["E501"]
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"

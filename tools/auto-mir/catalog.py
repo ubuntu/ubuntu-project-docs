@@ -159,7 +159,7 @@ def validate_catalog(catalog: dict) -> list[str]:
             "not_ok_offending_message": {"auto_included", "offending_deps"},
             "not_ok_offending_todo": {"details", "offending_deps"},
             "ok_safe_message": {"auto_included"},
-        }
+        },
     }
 
     # Check required top-level sections
@@ -234,7 +234,8 @@ def validate_catalog(catalog: dict) -> list[str]:
                                 pass
                         except ValueError as exc:
                             errors.append(
-                                f"Check {check.get('id', i)}: messages.{msg_key} format error: {exc}"
+                                f"Check {check.get('id', i)}: messages.{msg_key} "
+                                f"format error: {exc}"
                             )
 
             # Enforce strict templates/placeholders for migrated checks.

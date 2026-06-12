@@ -7,7 +7,6 @@ the dispatch table, and the _eval_deterministic entry point.
 from __future__ import annotations
 
 import logging
-import re
 
 from checks.language_gates import _is_go_package, _is_rust_package
 from checks.messages import render_check_message
@@ -75,7 +74,9 @@ def _check_sum_1(ctx, finding: Finding) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_message", source_package=ctx.source_package)
+        finding.message = render_check_message(
+            check, "ok_message", source_package=ctx.source_package
+        )
         finding.evidence_refs = ["lp-bug-api:source_package"]
     else:
         finding.status = "not-ok"
@@ -136,7 +137,9 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "high"
-        finding.message = render_check_message(check, "not_ok_message", deps=", ".join(in_scope_deps))
+        finding.message = render_check_message(
+            check, "not_ok_message", deps=", ".join(in_scope_deps)
+        )
         finding.todo = render_check_message(check, "not_ok_todo", deps=", ".join(in_scope_deps))
         finding.evidence_refs = [
             "dep-analysis:dep_components",
@@ -515,12 +518,8 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
         finding.status = "not-ok"
         finding.severity = "required"
         finding.confidence = "medium"
-        finding.message = render_check_message(
-            check, "not_ok_message", entries=entries_joined
-        )
-        finding.todo = render_check_message(
-            check, "not_ok_todo", entries=entries_joined
-        )
+        finding.message = render_check_message(check, "not_ok_message", entries=entries_joined)
+        finding.todo = render_check_message(check, "not_ok_todo", entries=entries_joined)
     finding.evidence_refs = ["deb-metadata:deb_packages"]
     return finding
 
@@ -687,7 +686,8 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
 
         # Filter out expected entries (rust, cargo, cgo, standard toolchain)
         unexpected_bu = [
-            e for e in all_built_using
+            e
+            for e in all_built_using
             if not any(
                 keyword in e.lower()
                 for keyword in ["rust", "cargo", "cgo", "golang", "${misc:built-using}"]

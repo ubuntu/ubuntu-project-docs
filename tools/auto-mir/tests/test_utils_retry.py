@@ -13,7 +13,9 @@ def test_is_transient_command_failure_true_for_503():
 
 
 def test_is_transient_command_failure_true_for_dns_error():
-    assert is_transient_command_failure("", "Temporary failure resolving archive.ubuntu.com") is True
+    assert (
+        is_transient_command_failure("", "Temporary failure resolving archive.ubuntu.com") is True
+    )
 
 
 def test_is_transient_command_failure_false_for_generic_error():

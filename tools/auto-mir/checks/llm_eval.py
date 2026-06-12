@@ -282,7 +282,9 @@ def _extract_build_hints(build_log: str) -> dict:
             hints["static_flags"].append(line.strip())
 
         # Look for compiler invocations with vendor paths
-        if re.search(r"(gcc|clang|cc|g\+\+|c\+\+|rustc|cargo).*(" + "|".join(vendor_patterns) + ")", line):
+        if re.search(
+            r"(gcc|clang|cc|g\+\+|c\+\+|rustc|cargo).*(" + "|".join(vendor_patterns) + ")", line
+        ):
             hints["vendor_compile_invocations"].append(line.strip())
 
         # Look for archive operations on vendor paths

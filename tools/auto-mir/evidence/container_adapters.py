@@ -261,7 +261,9 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
             (
                 f"cd {full_source} && "
                 "find . -type f -printf '%s %p\\n' 2>/dev/null | "
-                "grep -v -E '(/\\.git/|/node_modules/|/\\.pytest_cache/|/\\.tox/|/__pycache__/|/build/|/dist/|/\\.eggs/|\\.egg-info|/\\.coverage|/htmlcov/|/\\.cache|/vendor/.*\\.git)' | "
+                "grep -v -E '(/\\.git/|/node_modules/|/\\.pytest_cache/|"
+                "/\\.tox/|/__pycache__/|/build/|/dist/|/\\.eggs/|\\.egg-info|"
+                "/\\.coverage|/htmlcov/|/\\.cache|/vendor/.*\\.git)' | "
                 "head -50000"
             ),
         ],
@@ -804,12 +806,14 @@ def collect_deb_metadata(ctx) -> DebMetadataResult:
             built_using = _parse_built_using_entries(built_using_raw)
             static_built_using = _parse_built_using_entries(static_built_using_raw)
 
-            deb_packages.append({
-                "package": package_name,
-                "version": version,
-                "built_using": built_using,
-                "static_built_using": static_built_using,
-            })
+            deb_packages.append(
+                {
+                    "package": package_name,
+                    "version": version,
+                    "built_using": built_using,
+                    "static_built_using": static_built_using,
+                }
+            )
 
         except Exception as e:
             log.warning("Error extracting metadata from %s: %s", deb_path, e)

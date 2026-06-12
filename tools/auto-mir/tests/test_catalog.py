@@ -158,10 +158,18 @@ def test_validate_catalog_dep3_placeholder_validation():
                 "adapters_required": ["dep-analysis"],
                 "messages": {
                     "unknown_packaging_message": "Could not analyse binary packages",
-                    "unknown_packaging_todo": "TODO: - Check whether -dev/-debug/-doc packages need exclusion",
-                    "unknown_dep_analysis_message": "Could not analyse auto-included binary dependencies",
-                    "unknown_dep_analysis_todo": "TODO: - Check whether auto-included -dev/-debug/-doc packages need exclusion",
-                    "ok_no_auto_included_message": "no -dev/-debug/-doc packages that need exclusion",
+                    "unknown_packaging_todo": (
+                        "TODO: - Check whether -dev/-debug/-doc packages need exclusion"
+                    ),
+                    "unknown_dep_analysis_message": (
+                        "Could not analyse auto-included binary dependencies"
+                    ),
+                    "unknown_dep_analysis_todo": (
+                        "TODO: - Check whether auto-included -dev/-debug/-doc packages need exclusion"
+                    ),
+                    "ok_no_auto_included_message": (
+                        "no -dev/-debug/-doc packages that need exclusion"
+                    ),
                     "not_ok_offending_message": "bad {auto_included}",
                     "not_ok_offending_todo": "TODO {offending_deps}",
                     "ok_safe_message": "safe {auto_included}",
