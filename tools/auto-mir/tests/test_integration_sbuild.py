@@ -445,3 +445,85 @@ def test_same_source_deps_not_flagged():
             assert result["status"] == "ok"
             assert "libdav1d7" in result["same_source_deps"]
             assert "libdav1d7" not in result["in_scope_deps_not_in_main"]
+
+
+def test_auto_included_dep_classification_scoped_to_requested_binaries():
+    """Auto-included dependency classification should use in-scope binaries only."""
+    from evidence.container_adapters import collect_dep_analysis
+
+    ctx = Mock()
+    ctx.source_package = "multipkg"
+    ctx.requested_binaries = ["multipkg-main", "multipkg-dev"]
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "source_dir": "/tmp/multipkg-source",
+            },
+            "sbuild": {
+                "status": "ok",
+                "build_success": True,
+                "built_debs": [
+                    "/tmp/sbuild-output/multipkg-main_1.0_amd64.deb",
+                    "/tmp/sbuild-output/multipkg-dev_1.0_amd64.deb",
+                    "/tmp/sbuild-output/multipkg-doc_1.0_all.deb",
+                ],
+            },
+        }
+    }
+
+    with patch("evidence.container_adapters._capture") as mock_capture:
+
+        def capture_side_effect(ctx, cmd, **kwargs):
+            cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
+            if "awk" in cmd_str and "Package:" in cmd_str:
+                return "multipkg-main\nmultipkg-dev\nmultipkg-doc"
+            elif "Package" in cmd_str:
+                if "multipkg-main" in cmd_str:
+                    return "multipkg-main"
+                if "multipkg-dev" in cmd_str:
+                    return "multipkg-dev"
+                return "multipkg-doc"
+            elif "Depends" in cmd_str:
+                if "multipkg-main" in cmd_str:
+                    return "libc6, libmain-only"
+                if "multipkg-dev" in cmd_str:
+                    return "libc6, libuniverse-dev, libunknown-dev"
+                return "libc6, libdoc-extra"
+            elif "apt-cache show" in cmd_str:
+                if "libuniverse-dev" in cmd_str:
+                    return "other-src"
+                if "libunknown-dev" in cmd_str:
+                    return "unknown-src"
+                if "libdoc-extra" in cmd_str:
+                    return "doc-src"
+                return "glibc"
+            return ""
+
+        mock_capture.side_effect = capture_side_effect
+
+        with patch("evidence.container_adapters._detect_component") as mock_component:
+
+            def component_side_effect(ctx, pkg):
+                if pkg == "libuniverse-dev":
+                    return "universe"
+                if pkg == "libunknown-dev":
+                    return "unknown"
+                return "main"
+
+            mock_component.side_effect = component_side_effect
+
+            result = collect_dep_analysis(ctx)
+
+            assert result["status"] == "ok"
+            assert result["auto_included_binaries"] == ["multipkg-dev"]
+            assert result["auto_included_deps_not_in_main_or_unknown"] == [
+                "libuniverse-dev",
+                "libunknown-dev",
+            ]
+            assert result["auto_included_offending_deps_by_binary"] == [
+                {
+                    "binary": "multipkg-dev",
+                    "dependencies": ["libuniverse-dev", "libunknown-dev"],
+                }
+            ]

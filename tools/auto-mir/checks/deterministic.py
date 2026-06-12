@@ -268,6 +268,16 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
         finding.todo = "TODO: - Check whether -dev/-debug/-doc packages need exclusion"
         return finding
 
+    if dep_analysis.get("status") != "ok":
+        finding.status = "unknown"
+        finding.confidence = "low"
+        finding.message = "Could not analyse auto-included binary dependencies"
+        finding.todo = (
+            "TODO: - Check whether auto-included -dev/-debug/-doc packages need exclusion"
+        )
+        finding.evidence_refs = ["dep-analysis:error"]
+        return finding
+
     binary_packages = dep_analysis.get("binary_packages", [])
 
     # Filter to in-scope binaries only
@@ -276,47 +286,74 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
     else:
         in_scope = binary_packages
 
-    special = [
-        p
-        for p in in_scope
-        if any(p.endswith(s) for s in ("-dev", "-dbg", "-debug", "-doc", "-docs"))
-    ]
+    auto_included = dep_analysis.get("auto_included_binaries")
+    if auto_included is None:
+        auto_included = [
+            p
+            for p in in_scope
+            if any(p.endswith(s) for s in ("-dev", "-dbg", "-debug", "-doc", "-docs"))
+        ]
 
-    if not special:
+    auto_included = sorted(auto_included)
+    if not auto_included:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
         finding.message = "no -dev/-debug/-doc packages that need exclusion"
-        finding.evidence_refs = ["packaging-source:debian_control"]
-    else:
-        # Check whether any of those special packages have deps outside main
-        deps_not_in_main = (
-            dep_analysis.get("deps_not_in_main", []) if dep_analysis.get("status") == "ok" else []
-        )
-        if deps_not_in_main:
-            finding.status = "not-ok"
-            finding.severity = "recommended"
-            finding.confidence = "medium"
-            finding.message = (
-                f"Special packages {special} may pull universe deps; verify extra-excludes needed"
-            )
-            finding.todo = (
-                f"TODO: - Verify whether {', '.join(special)} "
-                "should be added to extra-exclude list "
-                "(they may pull universe deps into component-mismatches)"
-            )
-        else:
-            finding.status = "ok"
-            finding.severity = "ok"
-            finding.confidence = "medium"
-            finding.message = (
-                f"Special packages present ({', '.join(special)}) "
-                "but their deps appear to be in main"
-            )
         finding.evidence_refs = [
             "packaging-source:debian_control",
-            "dep-analysis:dep_components",
+            "dep-analysis:binary_packages",
         ]
+        return finding
+
+    offending_deps = sorted(dep_analysis.get("auto_included_deps_not_in_main_or_unknown", []))
+    offending_by_binary = dep_analysis.get("auto_included_offending_deps_by_binary", [])
+    offending_by_binary = sorted(
+        [
+            {
+                "binary": str(entry.get("binary", "")),
+                "dependencies": sorted(str(d) for d in entry.get("dependencies", [])),
+            }
+            for entry in offending_by_binary
+            if entry.get("binary")
+        ],
+        key=lambda e: e["binary"],
+    )
+
+    if offending_deps:
+        details = "; ".join(
+            f"{entry['binary']}: {', '.join(entry['dependencies'])}"
+            for entry in offending_by_binary
+            if entry["dependencies"]
+        )
+        finding.status = "not-ok"
+        finding.severity = "recommended"
+        finding.confidence = "high"
+        finding.message = (
+            f"Auto-included binaries ({', '.join(auto_included)}) pull dependencies outside main "
+            f"or with unknown component: {', '.join(offending_deps)}"
+        )
+        finding.todo = (
+            "TODO: - Consider adding extra-excludes for auto-included binaries with "
+            f"offending dependencies ({details}); otherwise MIR may also be needed for: "
+            f"{', '.join(offending_deps)}"
+        )
+    else:
+        finding.status = "ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = (
+            f"Auto-included binaries ({', '.join(auto_included)}) will be auto-included, "
+            "and have no dependencies outside main"
+        )
+
+    finding.evidence_refs = [
+        "packaging-source:debian_control",
+        "dep-analysis:auto_included_binaries",
+        "dep-analysis:auto_included_dep_components",
+        "dep-analysis:auto_included_deps_not_in_main_or_unknown",
+        "dep-analysis:auto_included_offending_deps_by_binary",
+    ]
     return finding
 
 

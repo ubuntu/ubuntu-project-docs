@@ -167,6 +167,13 @@ class DepSourceEntry(TypedDict):
     source_package: str
 
 
+class AutoIncludedDepByBinaryEntry(TypedDict):
+    """Offending dependencies for an auto-included binary package."""
+
+    binary: str
+    dependencies: list[str]
+
+
 class DepAnalysisResult(TypedDict):
     """Return structure for dep-analysis adapter."""
 
@@ -181,6 +188,10 @@ class DepAnalysisResult(TypedDict):
     in_scope_deps_not_in_main: list[str]
     out_of_scope_deps_not_in_main: list[str]
     same_source_deps: list[str]
+    auto_included_binaries: list[str]
+    auto_included_dep_components: list[DepComponentEntry]
+    auto_included_deps_not_in_main_or_unknown: list[str]
+    auto_included_offending_deps_by_binary: list[AutoIncludedDepByBinaryEntry]
 
 
 # ---------------------------------------------------------------------------

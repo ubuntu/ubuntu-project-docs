@@ -48,6 +48,10 @@ def _dep_analysis_ok(**kwargs):
         "in_scope_deps_not_in_main": [],
         "out_of_scope_deps_not_in_main": [],
         "same_source_deps": [],
+        "auto_included_binaries": [],
+        "auto_included_dep_components": [],
+        "auto_included_deps_not_in_main_or_unknown": [],
+        "auto_included_offending_deps_by_binary": [],
     }
     base.update(kwargs)
     return base
@@ -150,6 +154,80 @@ def test_dep_1_adapter_missing():
     finding = checks.deterministic._check_dep_1(ctx, _make_finding("DEP-1"))
     assert finding.status == "unknown"
     assert finding.confidence == "low"
+
+
+# ---------------------------------------------------------------------------
+# DEP-3: No -dev/-debug/-doc packages needing exclusion
+# ---------------------------------------------------------------------------
+
+
+def test_dep_3_no_auto_included_binaries():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {"status": "ok"}
+    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
+        binary_packages=["mypkg", "libmypkg1"],
+        auto_included_binaries=[],
+    )
+
+    finding = checks.deterministic._check_dep_3(ctx, _make_finding("DEP-3"))
+
+    assert finding.status == "ok"
+    assert finding.confidence == "high"
+    assert "no -dev/-debug/-doc packages" in finding.message
+
+
+def test_dep_3_auto_included_binaries_safe():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {"status": "ok"}
+    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
+        binary_packages=["mypkg", "libmypkg-dev"],
+        auto_included_binaries=["libmypkg-dev"],
+        auto_included_deps_not_in_main_or_unknown=[],
+    )
+
+    finding = checks.deterministic._check_dep_3(ctx, _make_finding("DEP-3"))
+
+    assert finding.status == "ok"
+    assert finding.confidence == "high"
+    assert "will be auto-included" in finding.message
+
+
+def test_dep_3_auto_included_binaries_with_offending_deps():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {"status": "ok"}
+    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
+        binary_packages=["mypkg", "libmypkg-dev"],
+        auto_included_binaries=["libmypkg-dev"],
+        auto_included_deps_not_in_main_or_unknown=["libuniverse1", "libunknown1"],
+        auto_included_offending_deps_by_binary=[
+            {"binary": "libmypkg-dev", "dependencies": ["libunknown1", "libuniverse1"]}
+        ],
+    )
+
+    finding = checks.deterministic._check_dep_3(ctx, _make_finding("DEP-3"))
+
+    assert finding.status == "not-ok"
+    assert finding.severity == "recommended"
+    assert finding.confidence == "high"
+    assert "libuniverse1" in finding.message
+    assert "libunknown1" in finding.todo
+    assert "libmypkg-dev" in finding.todo
+
+
+def test_dep_3_ignores_global_non_main_for_non_auto_included_binaries():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {"status": "ok"}
+    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
+        binary_packages=["mypkg", "libmypkg-dev"],
+        deps_not_in_main=["libuniverse-from-mainpkg"],
+        auto_included_binaries=["libmypkg-dev"],
+        auto_included_deps_not_in_main_or_unknown=[],
+    )
+
+    finding = checks.deterministic._check_dep_3(ctx, _make_finding("DEP-3"))
+
+    assert finding.status == "ok"
+    assert "have no dependencies outside main" in finding.message
 
 
 # ---------------------------------------------------------------------------

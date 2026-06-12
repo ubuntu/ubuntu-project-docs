@@ -135,6 +135,11 @@ def _extract_dependency_names(depends: str) -> set[str]:
     return names
 
 
+def _is_auto_included_binary(package: str) -> bool:
+    """Return whether a binary package is auto-included by suffix convention."""
+    return package.endswith(("-dev", "-dbg", "-debug", "-doc", "-docs"))
+
+
 def _detect_component(ctx, package: str) -> str:
     """Best-effort component detection via apt-cache policy output."""
     policy = _capture(
@@ -352,6 +357,19 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
     out_of_scope_deps_not_in_main = []
     same_source_deps = []
 
+    # Build fast lookup maps for scoped dependency analysis.
+    dep_component_lookup = {entry["package"]: entry["component"] for entry in dep_components}
+    deps_by_binary = {
+        entry["binary"]: sorted(_extract_dependency_names(entry["depends"]))
+        for entry in runtime_deps
+    }
+
+    auto_included_binaries = sorted(p for p in in_scope if _is_auto_included_binary(p))
+    auto_included_dep_components: list[dict[str, str]] = []
+    auto_included_offending_deps_by_binary: list[dict[str, list[str] | str]] = []
+    auto_included_dep_names: set[str] = set()
+    auto_included_deps_not_in_main_or_unknown: set[str] = set()
+
     dep_source_lookup = {entry["package"]: entry["source_package"] for entry in dep_source_map}
 
     for dep in deps_not_in_main:
@@ -362,6 +380,31 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
             in_scope_deps_not_in_main.append(dep)
         else:
             out_of_scope_deps_not_in_main.append(dep)
+
+    for binary in auto_included_binaries:
+        binary_deps = deps_by_binary.get(binary, [])
+        binary_offending_deps: list[str] = []
+        for dep in binary_deps:
+            component = dep_component_lookup.get(dep, "unknown")
+            auto_included_dep_names.add(dep)
+            if component != "main":
+                binary_offending_deps.append(dep)
+                auto_included_deps_not_in_main_or_unknown.add(dep)
+
+        auto_included_offending_deps_by_binary.append(
+            {
+                "binary": binary,
+                "dependencies": binary_offending_deps,
+            }
+        )
+
+    for dep in sorted(auto_included_dep_names):
+        auto_included_dep_components.append(
+            {
+                "package": dep,
+                "component": dep_component_lookup.get(dep, "unknown"),
+            }
+        )
 
     return {
         "status": "ok",
@@ -375,6 +418,12 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
         "in_scope_deps_not_in_main": sorted(set(in_scope_deps_not_in_main)),
         "out_of_scope_deps_not_in_main": sorted(set(out_of_scope_deps_not_in_main)),
         "same_source_deps": sorted(set(same_source_deps)),
+        "auto_included_binaries": auto_included_binaries,
+        "auto_included_dep_components": auto_included_dep_components,
+        "auto_included_deps_not_in_main_or_unknown": sorted(
+            auto_included_deps_not_in_main_or_unknown
+        ),
+        "auto_included_offending_deps_by_binary": auto_included_offending_deps_by_binary,
     }
 
 
