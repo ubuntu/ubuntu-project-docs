@@ -383,7 +383,7 @@ def collect_sbuild(ctx) -> SbuildResult:
     _capture(ctx, ["bash", "-lc", f"mkdir -p {output_dir}"])
     
     # Run sbuild with unshare backend
-    # --build-mode=unshare: use unshare backend (requires Noble or newer)
+    # --chroot-mode=unshare: use unshare backend (requires Noble or newer)
     # --no-run-lintian: skip lintian (handled separately)
     # --no-arch-all: skip arch:all packages (not needed for dependency analysis)
     # --no-source-only-changes: don't create source-only changes file
@@ -391,7 +391,7 @@ def collect_sbuild(ctx) -> SbuildResult:
     build_cmd = (
         f"cd {source_dir} && "
         f"sbuild -d {series} "
-        f"--build-mode=unshare "
+        f"--chroot-mode=unshare "
         f"--no-run-lintian "
         f"--no-arch-all "
         f"--no-source-only-changes "
@@ -400,6 +400,7 @@ def collect_sbuild(ctx) -> SbuildResult:
     )
     
     log.info("Running sbuild for %s in series %s", ctx.source_package, series)
+    log.info("sbuild command: %s", build_cmd)
     build_log = _capture(
         ctx,
         ["bash", "-lc", build_cmd],
