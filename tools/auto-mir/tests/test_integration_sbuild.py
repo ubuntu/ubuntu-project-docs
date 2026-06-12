@@ -153,7 +153,23 @@ def test_sbuild_hello_package_builds_successfully():
 
     result = collect_sbuild(ctx)
 
-    assert result["status"] == "ok"
+    if result["status"] != "ok":
+        details = (
+            "sbuild smoke test failed unexpectedly\n"
+            f"status={result.get('status')} build_success={result.get('build_success')}\n"
+            f"message={result.get('message', '')}\n"
+            f"built_debs={result.get('built_debs', [])}\n"
+            f"lintian_errors={result.get('lintian_errors', [])}\n"
+            f"lintian_warnings={result.get('lintian_warnings', [])}\n"
+            "--- build_log ---\n"
+            f"{result.get('build_log', '')}\n"
+            "--- lintian_output ---\n"
+            f"{result.get('lintian_output', '')}\n"
+        )
+        if HAS_PYTEST:
+            pytest.fail(details)
+        assert False, details
+
     assert result["build_success"] is True
     assert len(result["built_debs"]) > 0
     assert result["build_log"] != ""
