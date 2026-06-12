@@ -281,7 +281,7 @@ def _check_sum_4(ctx, finding: Finding) -> Finding:
     """SUM-4: Package has a team subscriber in package-team-mapping."""
     adapters = ctx.evidence.get("adapters", {})
     team_mapping_adapter = adapters.get("team-mapping", {})
-    
+
     if team_mapping_adapter.get("status") != "ok":
         finding.status = "unknown"
         finding.confidence = "low"
@@ -289,9 +289,9 @@ def _check_sum_4(ctx, finding: Finding) -> Finding:
         finding.todo = "TODO: - Manually verify package has a team subscriber"
         finding.evidence_refs = ["team-mapping:error"]
         return finding
-    
+
     subscribed_teams = team_mapping_adapter.get("subscribed_teams", [])
-    
+
     if subscribed_teams:
         finding.status = "ok"
         finding.severity = "ok"
@@ -307,7 +307,7 @@ def _check_sum_4(ctx, finding: Finding) -> Finding:
             "TODO: - The package should get a team bug subscriber on this bug before being promoted"
         )
         finding.evidence_refs = ["team-mapping:subscribed_teams"]
-    
+
     return finding
 
 
@@ -326,13 +326,13 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
         return finding
 
     binary_packages = dep_analysis.get("binary_packages", [])
-    
+
     # Filter to in-scope binaries only
     if ctx.requested_binaries:
         in_scope = [p for p in binary_packages if p in ctx.requested_binaries]
     else:
         in_scope = binary_packages
-    
+
     special = [
         p
         for p in in_scope

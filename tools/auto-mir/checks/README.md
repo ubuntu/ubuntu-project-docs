@@ -74,13 +74,13 @@ The dispatcher routes checks to evaluators:
 # checks/__init__.py::evaluate_checks()
 for check in catalog_checks:
     mode = check.get("mode")
-    
+
     # Language gate check
     if "language_gate" in check:
         if not _language_gate_active(check["language_gate"], ctx):
             findings.append(_not_applicable_finding(check))
             continue
-    
+
     # Route to evaluator
     if mode == "deterministic":
         finding = deterministic.evaluate(check, ctx)
@@ -88,7 +88,7 @@ for check in catalog_checks:
         finding = llm_eval.evaluate(check, ctx)
     elif mode == "human_only":
         finding = _human_only_finding(check)
-    
+
     findings.append(finding)
 ```
 
@@ -101,10 +101,10 @@ Located in `checks/deterministic.py`, these checks use pure logic:
 def evaluate(check: dict, ctx: RunContext) -> Finding:
     """Evaluate a deterministic check"""
     check_id = check["id"]
-    
+
     # Get required evidence
     evidence = _get_evidence(ctx, check["adapters_required"])
-    
+
     # Apply logic
     if _check_condition(evidence):
         return Finding.ok(check, "Condition met", evidence_refs=[...])
@@ -133,13 +133,13 @@ def evaluate_with_evidence(check: dict, ctx: RunContext) -> Finding:
     """Evaluate using evidence + AI analysis"""
     # Collect evidence from adapters
     evidence = _gather_evidence(ctx, check["adapters_required"])
-    
+
     # Build prompt with evidence
     prompt = _build_prompt(check, evidence)
-    
+
     # Call LLM
     response = llm.call_llm(prompt, ctx)
-    
+
     # Parse response
     return Finding(
         id=check["id"],

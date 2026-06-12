@@ -37,7 +37,7 @@ def _collect_adapter_name(ctx: RunContext) -> AdapterResultType:
     """Collect evidence for a specific aspect"""
     # Gather data from source (API, tool, file)
     data = _fetch_data(ctx)
-    
+
     # Return structured result
     return {
         "status": "ok",  # or "error", "pending"
@@ -62,7 +62,7 @@ ADAPTER_REGISTRY = {
     "lp-bug-api": host_adapters.collect_lp_bug_api,
     "lp-package-api": host_adapters.collect_lp_package_api,
     "ubuntu-cve-tracker": host_adapters.collect_ubuntu_cve_tracker,
-    
+
     # In-container
     "packaging-source": container_adapters.collect_packaging_source,
     "dep-analysis": container_adapters.collect_dep_analysis,
@@ -77,13 +77,13 @@ ADAPTER_REGISTRY = {
 ```python
 def collect_from_catalog(ctx: RunContext) -> None:
     """Collect evidence for all adapters referenced by catalog checks"""
-    
+
     # 1. Scan catalog.yaml for required adapters
     required_adapters = _scan_catalog_for_adapters(ctx.catalog)
-    
+
     # 2. Order adapters by dependencies
     ordered = _order_adapters(required_adapters)
-    
+
     # 3. Execute each adapter
     for adapter_id in ordered:
         collector = ADAPTER_REGISTRY.get(adapter_id)
@@ -93,7 +93,7 @@ def collect_from_catalog(ctx: RunContext) -> None:
                 "message": "Adapter not implemented"
             }
             continue
-        
+
         try:
             result = collector(ctx)
             ctx.evidence["adapters"][adapter_id] = result

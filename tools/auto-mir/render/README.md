@@ -104,24 +104,24 @@ The Summary section is rendered specially with ACK/NACK recommendation:
 def _render_summary(findings: list[Finding]) -> list[str]:
     """Render Summary section with overall recommendation"""
     lines = ["[Summary]"]
-    
+
     # Determine overall recommendation
     has_required = any(f.severity == "required" for f in findings)
     has_nack = any(f.severity == "nack" for f in findings)
-    
+
     if has_nack:
         lines.append("TODO-B: MIR team NACK")
     elif has_required:
         lines.append("TODO-C: MIR team ACK under constraint to resolve required TODOs")
     else:
         lines.append("TODO-A: MIR team ACK")
-    
+
     # Add OK findings
     lines.append("OK:")
     for finding in findings:
         if finding.section == "Summary" and finding.status == "ok":
             lines.append(f"- {finding.message}")
-    
+
     return lines
 ```
 
@@ -154,17 +154,17 @@ The renderer enforces structural correctness:
 ```python
 def _lint_review_draft(draft: str, findings: list[Finding]) -> None:
     """Validate review draft structure"""
-    
+
     # Rule 1: No RULE: lines in output
     if "RULE:" in draft:
         raise ValueError("Draft contains RULE: lines")
-    
+
     # Rule 2: TODO lines must start with "TODO:" or "TODO-"
     for line in draft.split("\n"):
         if line.strip().startswith("TODO"):
             if not (line.startswith("TODO:") or line.startswith("TODO-")):
                 raise ValueError(f"Invalid TODO format: {line}")
-    
+
     # Rule 3: Problems section cannot contain TODO lines
     in_problems = False
     for line in draft.split("\n"):
@@ -174,7 +174,7 @@ def _lint_review_draft(draft: str, findings: list[Finding]) -> None:
             in_problems = False
         elif in_problems and line.strip().startswith("TODO"):
             raise ValueError("TODO found in Problems section")
-    
+
     # Rule 4: OK findings cannot have TODO
     for finding in findings:
         if finding.status == "ok" and finding.todo:
@@ -188,22 +188,22 @@ def _lint_review_draft(draft: str, findings: list[Finding]) -> None:
 ```python
 def write_outputs(ctx: RunContext) -> None:
     """Generate review draft and structured report"""
-    
+
     # 1. Build review draft
     draft = _build_review_draft(ctx.findings, ctx.catalog)
-    
+
     # 2. Lint the draft
     _lint_review_draft(draft, ctx.findings)
-    
+
     # 3. Write review draft
     draft_path = ctx.output_dir / "review-draft.txt"
     draft_path.write_text(draft)
-    
+
     # 4. Build structured report (JSON)
     report = _build_structured_report(ctx)
     report_path = ctx.output_dir / "report.json"
     report_path.write_text(json.dumps(report, indent=2))
-    
+
     ctx.review_draft_path = draft_path
     ctx.report_path = report_path
 ```

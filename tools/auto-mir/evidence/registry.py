@@ -8,7 +8,7 @@ def adapter(adapter_id: AdapterID, depends_on: list[AdapterID] | None = None) ->
     """Decorator to register an evidence adapter and its dependencies."""
     if depends_on is None:
         depends_on = []
-    
+
     def decorator(func: Callable[[Any], dict[str, Any]]) -> Callable[[Any], dict[str, Any]]:
         id_str = str(adapter_id)
         deps_str = [str(dep) for dep in depends_on]

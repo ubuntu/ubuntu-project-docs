@@ -27,7 +27,7 @@ def test_order_adapters_with_deps():
     required = {"dep-analysis", "packaging-source", "lp-bug-api"}
     deps = {"dep-analysis": ["packaging-source"]}
     ordered = _order_adapters(required, deps)
-    
+
     # packaging-source must come before dep-analysis
     assert ordered.index("packaging-source") < ordered.index("dep-analysis")
     # lp-bug-api has no deps, can be anywhere
@@ -42,7 +42,7 @@ def test_order_adapters_chain_deps():
         "sbuild": ["packaging-source"],
     }
     ordered = _order_adapters(required, deps)
-    
+
     # packaging-source must come first
     assert ordered[0] == "packaging-source"
     # dep-analysis and sbuild can be in any order after packaging-source
@@ -59,7 +59,7 @@ def test_order_adapters_cycle_breaking():
         "c": ["a"],  # Cycle: a -> b -> c -> a
     }
     ordered = _order_adapters(required, deps)
-    
+
     # Should not hang; should return all adapters
     assert len(ordered) == 3
     assert set(ordered) == required
@@ -79,13 +79,13 @@ def test_collect_from_catalog_skips_unreferenced_adapters():
         ]
     }
     ctx.evidence = {}
-    
+
     mock_lp = Mock(return_value={"status": "ok"})
     mock_cve = Mock(return_value={"status": "ok"})
-    
+
     with patch.dict("evidence.ADAPTER_REGISTRY", {"lp-bug-api": (mock_lp, []), "ubuntu-cve-tracker": (mock_cve, [])}, clear=True):
         collect_from_catalog(ctx)
-        
+
         # lp-bug-api should be called
         assert mock_lp.called
         # ubuntu-cve-tracker should NOT be called (not referenced)
@@ -101,23 +101,23 @@ def test_collect_from_catalog_respects_dependency_order():
         ]
     }
     ctx.evidence = {}
-    
+
     call_order = []
-    
+
     def mock_packaging(ctx):
         call_order.append("packaging-source")
         return {"status": "ok", "source_dir": "/tmp/test"}
-    
+
     def mock_dep(ctx):
         call_order.append("dep-analysis")
         return {"status": "ok"}
-    
+
     m_pack = Mock(side_effect=mock_packaging)
     m_dep = Mock(side_effect=mock_dep)
 
     with patch.dict("evidence.ADAPTER_REGISTRY", {"packaging-source": (m_pack, []), "dep-analysis": (m_dep, ["packaging-source"])}, clear=True):
         collect_from_catalog(ctx)
-        
+
         # packaging-source must be collected before dep-analysis
         assert call_order == ["packaging-source", "dep-analysis"]
 
@@ -131,17 +131,17 @@ def test_collect_from_catalog_handles_adapter_failure():
         ]
     }
     ctx.evidence = {}
-    
+
     mock_lp = Mock(side_effect=AdapterError("LP API unavailable"))
     mock_cve = Mock(return_value={"status": "ok"})
-    
+
     with patch.dict("evidence.ADAPTER_REGISTRY", {"lp-bug-api": (mock_lp, []), "ubuntu-cve-tracker": (mock_cve, [])}, clear=True):
         collect_from_catalog(ctx)
-        
+
         # lp-bug-api should be marked as error
         assert ctx.evidence["adapters"]["lp-bug-api"]["status"] == "error"
         assert "LP API unavailable" in ctx.evidence["adapters"]["lp-bug-api"]["message"]
-        
+
         # ubuntu-cve-tracker should still be collected
         assert ctx.evidence["adapters"]["ubuntu-cve-tracker"]["status"] == "ok"
 
@@ -155,10 +155,10 @@ def test_collect_from_catalog_marks_unimplemented_adapters():
         ]
     }
     ctx.evidence = {}
-    
+
     with patch.dict("evidence.ADAPTER_REGISTRY", {}, clear=True):
         collect_from_catalog(ctx)
-        
+
         # new-adapter should be marked as pending
         assert ctx.evidence["adapters"]["new-adapter"]["status"] == "pending"
         assert "Unknown adapter" in ctx.evidence["adapters"]["new-adapter"]["message"]
@@ -182,10 +182,10 @@ def test_lp_bug_api_output_structure():
     }
     ctx.source_package = "testpkg"
     ctx.series = "noble"
-    
+
     from evidence.host_adapters import collect_lp_bug_api
     result = collect_lp_bug_api(ctx)
-    
+
     assert result["status"] == "ok"
     assert result["bug_id"] == "1234567"
     assert result["target_source_package"] == "testpkg"
@@ -217,7 +217,7 @@ def test_dep_analysis_output_structure():
             },
         }
     }
-    
+
     # Mock the container execution functions
     with patch("evidence.container_adapters._capture") as mock_capture:
         with patch("evidence.container_adapters._detect_component") as mock_component:
@@ -231,10 +231,10 @@ def test_dep_analysis_output_structure():
                 "",  # apt-cache show libssl3
             ]
             mock_component.return_value = "main"
-            
+
             from evidence.container_adapters import collect_dep_analysis
             result = collect_dep_analysis(ctx)
-            
+
             assert result["status"] == "ok"
             assert "binary_packages" in result
             assert "runtime_deps" in result

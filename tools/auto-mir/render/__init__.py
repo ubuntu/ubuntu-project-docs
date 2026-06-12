@@ -204,7 +204,7 @@ def _build_binary_package_header(ctx) -> list[str]:
 
 def _build_out_of_scope_dep_hint(ctx) -> list[str]:
     """Add informational hint about out-of-scope dependencies.
-    
+
     These are universe dependencies belonging to binary packages NOT requested
     for promotion. They do not need a MIR and are shown as informational only.
     """

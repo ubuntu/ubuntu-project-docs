@@ -26,7 +26,7 @@ _KNOWN_SERIES = [
 
 def _series_supports_unshare_sbuild(series: str) -> bool:
     """Check if series is Noble (24.04) or newer for sbuild unshare support.
-    
+
     Returns True if the series is Noble or newer, False if older.
     Unknown series are assumed to be newer than Noble.
     """
@@ -269,18 +269,18 @@ def _fetch_comments(bug) -> list[str]:
 
 def _parse_requested_binaries(reporter_content: str) -> list[str] | None:
     """Parse binary packages requested for promotion from reporter MIR template.
-    
+
     Returns list of binary package names if found, None if scope is unclear or "all".
     """
     import re
-    
+
     patterns = [
         r"The binary packages?\s+(.+?)\s+(?:need|needs)\s+to be in main",
         r"binary packages? to be promoted.*?:\s*(.+)",
         r"packages?\s+(.+?)\s+should be in main",
         r"List of specific binary packages to be promoted to main:\s*(.+)",
     ]
-    
+
     for pattern in patterns:
         match = re.search(pattern, reporter_content, re.IGNORECASE | re.MULTILINE)
         if match:
@@ -291,12 +291,12 @@ def _parse_requested_binaries(reporter_content: str) -> list[str] | None:
             # Extract package names
             packages = re.split(r"[,\s]+(?:and\s+)?", text)
             packages = [
-                p.strip() for p in packages 
+                p.strip() for p in packages
                 if p.strip() and re.match(r"^[a-z0-9][a-z0-9.+\-]+$", p)
             ]
             if packages:
                 return packages
-    
+
     return None  # No clear scope found
 
 

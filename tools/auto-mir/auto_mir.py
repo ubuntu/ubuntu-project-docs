@@ -366,7 +366,7 @@ def stage_collect_evidence(ctx: RunContext) -> int:
     - upstream tracker detection and querying
     - Ubuntu CVE tracker + cve.org queries
     - autopkgtest DB queries
-    
+
     Returns:
         0 if all evidence collection succeeded, 1 if any adapter failed.
     """
@@ -480,7 +480,7 @@ def _stub_stage(name: str, ctx: RunContext) -> None:
 
 def _ask_requested_binaries(all_binaries: list[str]) -> list[str]:
     """Interactively ask user which binaries to promote.
-    
+
     Returns list of binary package names to promote, or all_binaries if user
     selects "all" or provides no input.
     """
@@ -491,26 +491,20 @@ def _ask_requested_binaries(all_binaries: list[str]) -> list[str]:
         response = input("> ").strip()
     except EOFError:
         return all_binaries
-    
+
     if not response or response.lower() == "all":
         return all_binaries
-    
+
     packages = [p.strip() for p in response.split(",")]
     packages = [p for p in packages if p in all_binaries]
-    
+
     if not packages:
         print("No valid packages specified, defaulting to all.")
         return all_binaries
-    
+
     return packages
 
 
-# ---------------------------------------------------------------------------
-# Container teardown
-# ---------------------------------------------------------------------------
-# Container teardown
-# ---------------------------------------------------------------------------
-# Container teardown
 # ---------------------------------------------------------------------------
 # Container teardown
 # ---------------------------------------------------------------------------
@@ -586,7 +580,7 @@ def main() -> int:
 
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG if args.verbose else logging.INFO)
-    
+
     # Remove any existing handlers
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)

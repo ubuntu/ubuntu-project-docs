@@ -146,7 +146,7 @@ class Finding:
 
     def __post_init__(self):
         """Validate Finding invariants after initialization.
-        
+
         Invariants:
         - When status == "ok", severity MUST also be "ok"
         - When status == "not-ok", todo should contain a TODO: prefixed line
@@ -157,32 +157,32 @@ class Finding:
         valid_statuses = {"ok", "not-ok", "unknown", "not-evaluated"}
         valid_severities = {"ok", "recommended", "required", "nack"}
         valid_confidences = {"low", "medium", "high"}
-        
+
         if self.status not in valid_statuses:
             raise ValueError(
                 f"Finding {self.id}: invalid status '{self.status}'. "
                 f"Must be one of: {', '.join(sorted(valid_statuses))}"
             )
-        
+
         if self.severity not in valid_severities:
             raise ValueError(
                 f"Finding {self.id}: invalid severity '{self.severity}'. "
                 f"Must be one of: {', '.join(sorted(valid_severities))}"
             )
-        
+
         if self.confidence not in valid_confidences:
             raise ValueError(
                 f"Finding {self.id}: invalid confidence '{self.confidence}'. "
                 f"Must be one of: {', '.join(sorted(valid_confidences))}"
             )
-        
+
         # Invariant: status="ok" implies severity="ok"
         if self.status == "ok" and self.severity != "ok":
             raise ValueError(
                 f"Finding {self.id}: invariant violation - status='ok' requires severity='ok', "
                 f"but severity='{self.severity}'"
             )
-        
+
         # Invariant: status="not-ok" should have a TODO
         if self.status == "not-ok" and self.todo:
             if not (self.todo.startswith("TODO:") or self.todo.startswith("TODO-")):

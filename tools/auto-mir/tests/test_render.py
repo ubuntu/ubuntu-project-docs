@@ -311,7 +311,7 @@ def test_build_review_draft_complete_structure():
             },
         }
     }
-    
+
     # Create sample findings
     ctx.findings = [
         Finding(
@@ -351,9 +351,9 @@ def test_build_review_draft_complete_structure():
             adapter_error_cause=["ubuntu-cve-tracker"],
         ),
     ]
-    
+
     draft = _build_review_draft(ctx)
-    
+
     # Verify structure
     assert "[Summary]" in draft
     assert "[Dependencies]" in draft
@@ -370,7 +370,7 @@ def test_build_review_draft_section_order():
     ctx.bug_id = "1234567"
     ctx.series = "noble"
     ctx.evidence = {"adapters": {}}
-    
+
     # Create findings for all sections (in reverse order)
     ctx.findings = [
         Finding(
@@ -387,12 +387,12 @@ def test_build_review_draft_section_order():
         )
         for i, section in enumerate(reversed(_SECTION_ORDER))
     ]
-    
+
     draft = _build_review_draft(ctx)
-    
+
     # Verify sections appear in canonical order
     positions = {section: draft.find(f"[{section}]") for section in _SECTION_ORDER}
-    
+
     # Check that each section appears after the previous one
     for i in range(len(_SECTION_ORDER) - 1):
         current = _SECTION_ORDER[i]
@@ -410,9 +410,9 @@ def test_build_review_draft_empty_findings():
     ctx.series = "noble"
     ctx.evidence = {"adapters": {}}
     ctx.findings = []
-    
+
     draft = _build_review_draft(ctx)
-    
+
     # Should still have preamble
     assert "Source Package: testpkg" in draft
     assert "1234567" in draft

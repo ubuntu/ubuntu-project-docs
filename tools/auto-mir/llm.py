@@ -145,7 +145,7 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
     """Call an OpenAI-compatible chat-completions endpoint and return parsed JSON.
 
     Reads ctx.llm_api_url and ctx.llm_token, both populated by stage_auth.
-    
+
     Raises:
         LLMError: On non-retryable errors (auth failure, non-5xx HTTP errors)
         urllib.error.HTTPError: On retryable HTTP errors (429, 5xx) - will trigger retry
@@ -199,7 +199,7 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
         headers=headers,
         method="POST",
     )
-    
+
     try:
         timeout = getattr(ctx, "llm_timeout", DEFAULT_TIMEOUT_SECONDS)
         with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -215,7 +215,7 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
         err_body = exc.read().decode(errors="replace")
         log.debug("LLM HTTP %d: %s", status, err_body[:200])
         _learn_from_headers(limiter, exc.headers)
-        
+
         # Update rate limiter based on 429 response
         if status == 429:
             learned = _parse_rate_limit_hint(err_body)
@@ -231,12 +231,12 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
                     limiter.window_s,
                     limiter.min_interval_s,
                 )
-            
+
             # Extract Retry-After if present
             retry_after = extract_retry_after(exc)
             if retry_after:
                 limiter.next_allowed_at = max(limiter.next_allowed_at, time.time() + retry_after)
-        
+
         # Re-raise for tenacity to handle (will retry on 429/5xx)
         raise
 

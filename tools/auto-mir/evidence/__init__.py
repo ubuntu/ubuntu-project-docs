@@ -43,7 +43,7 @@ def _summarize_result(result: dict) -> str:
 
 def collect_from_catalog(ctx) -> int:
     """Collect evidence for all adapters referenced by the catalog.
-    
+
     Returns:
         0 if all adapters succeeded, 1 if any adapter failed.
     """
@@ -69,9 +69,9 @@ def collect_from_catalog(ctx) -> int:
             }
             failed_adapters.add(adapter_id_str)
             continue
-        
+
         collector, deps = ADAPTER_REGISTRY[adapter_id_str]
-        
+
         # Check if deps failed
         failed_deps = [dep for dep in deps if dep in failed_adapters]
         if failed_deps:
@@ -138,7 +138,7 @@ def _order_adapters(required: set[str], adapter_deps: dict[str, list[str]] | Non
         # topological_sorter expects {node: [predecessors]}
         # Only track dependencies that are also in required set to avoid trying to resolve unneeded adapters
         graph[adapter_id] = [d for d in deps if d in required]
-            
+
     sorter = graphlib.TopologicalSorter(graph)
     try:
         return list(sorter.static_order())

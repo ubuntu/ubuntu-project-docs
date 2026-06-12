@@ -30,7 +30,7 @@ if HAS_PYTEST:
 
 def _make_lxd_vm_context():
     """Create a mock context for LXD VM testing.
-    
+
     This fixture assumes an LXD VM is available and configured.
     In a real CI environment, this would be set up beforehand.
     """
@@ -53,16 +53,16 @@ def _make_lxd_vm_context():
 
 def test_sbuild_hello_package_builds_successfully():
     """Test that sbuild can successfully build the hello package.
-    
+
     This is a smoke test to verify:
     1. sbuild unshare backend works in LXD VM
     2. Built .deb files are produced
     3. Build log is captured
-    
+
     Note: This test mocks container execution, so no real VM is needed.
     """
     lxd_vm_context = _make_lxd_vm_context()
-    
+
     # Mock the packaging-source to point to a real hello package source
     # In a real test, we would fetch the source first
     with patch("evidence.container_adapters._capture") as mock_capture:
@@ -81,16 +81,16 @@ def test_sbuild_hello_package_builds_successfully():
                 # Simulate built .deb files
                 return "/tmp/sbuild-output/hello_2.10-3_amd64.deb"
             return ""
-        
+
         mock_capture.side_effect = capture_side_effect
-        
+
         # Mock _exists to simulate successful build
         with patch("evidence.container_adapters._exists") as mock_exists:
             mock_exists.return_value = True
-            
+
             # Run sbuild adapter
             result = collect_sbuild(lxd_vm_context)
-            
+
             # Verify build succeeded
             assert result["status"] == "ok"
             assert result["build_success"] is True
@@ -105,9 +105,9 @@ def test_sbuild_adapter_requires_packaging_source():
     ctx.vm_name = "test-vm"
     ctx.series = "noble"
     ctx.evidence = {"adapters": {}}
-    
+
     from evidence.container_adapters import AdapterError
-    
+
     if HAS_PYTEST:
         with pytest.raises(AdapterError, match="packaging-source.source_dir"):
             collect_sbuild(ctx)
@@ -123,7 +123,7 @@ def test_sbuild_adapter_requires_packaging_source():
 def test_sbuild_adapter_handles_build_failure():
     """Test that sbuild adapter handles build failures correctly."""
     lxd_vm_context = _make_lxd_vm_context()
-    
+
     with patch("evidence.container_adapters._capture") as mock_capture:
         def capture_side_effect(ctx, cmd, **kwargs):
             cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
@@ -131,16 +131,16 @@ def test_sbuild_adapter_handles_build_failure():
                 # Simulate build failure
                 return "sbuild: build failed: missing build dependencies"
             return ""
-        
+
         mock_capture.side_effect = capture_side_effect
-        
+
         # Mock _exists to simulate no .deb files produced
         with patch("evidence.container_adapters._exists") as mock_exists:
             mock_exists.return_value = False
-            
+
             # Run sbuild adapter
             result = collect_sbuild(lxd_vm_context)
-            
+
             # Verify build failure is reported
             assert result["status"] == "error"
             assert result["build_success"] is False
@@ -150,7 +150,7 @@ def test_sbuild_adapter_handles_build_failure():
 def test_dep_analysis_with_sbuild_output():
     """Test that dep-analysis adapter correctly processes sbuild output."""
     from evidence.container_adapters import collect_dep_analysis
-    
+
     ctx = Mock()
     ctx.source_package = "hello"
     ctx.requested_binaries = ["hello"]
@@ -169,7 +169,7 @@ def test_dep_analysis_with_sbuild_output():
             }
         }
     }
-    
+
     # Mock dpkg-deb commands
     with patch("evidence.container_adapters._capture") as mock_capture:
         def capture_side_effect(ctx, cmd, **kwargs):
@@ -184,16 +184,16 @@ def test_dep_analysis_with_sbuild_output():
                 # Mock source package lookup
                 return "glibc"
             return ""
-        
+
         mock_capture.side_effect = capture_side_effect
-        
+
         # Mock component detection
         with patch("evidence.container_adapters._detect_component") as mock_component:
             mock_component.return_value = "main"
-            
+
             # Run dep-analysis
             result = collect_dep_analysis(ctx)
-            
+
             # Verify structure
             assert result["status"] == "ok"
             assert "hello" in result["binary_packages"]
@@ -205,7 +205,7 @@ def test_dep_analysis_with_sbuild_output():
 def test_scope_filtering_with_requested_binaries():
     """Test that scope filtering works correctly with requested_binaries."""
     from evidence.container_adapters import collect_dep_analysis
-    
+
     ctx = Mock()
     ctx.source_package = "multipkg"
     ctx.requested_binaries = ["multipkg-main"]  # Only request main package
@@ -225,7 +225,7 @@ def test_scope_filtering_with_requested_binaries():
             }
         }
     }
-    
+
     # Mock commands
     with patch("evidence.container_adapters._capture") as mock_capture:
         def capture_side_effect(ctx, cmd, **kwargs):
@@ -249,21 +249,21 @@ def test_scope_filtering_with_requested_binaries():
                     return "another-pkg"
                 return "glibc"
             return ""
-        
+
         mock_capture.side_effect = capture_side_effect
-        
+
         # Mock component detection
         with patch("evidence.container_adapters._detect_component") as mock_component:
             def component_side_effect(ctx, pkg):
                 if pkg in ["libuniverse1", "libuniverse2"]:
                     return "universe"
                 return "main"
-            
+
             mock_component.side_effect = component_side_effect
-            
+
             # Run dep-analysis
             result = collect_dep_analysis(ctx)
-            
+
             # Verify scope filtering
             assert result["status"] == "ok"
             # libuniverse1 is a dependency of multipkg-main (in scope)
@@ -275,7 +275,7 @@ def test_scope_filtering_with_requested_binaries():
 def test_same_source_deps_not_flagged():
     """Test that dependencies from the same source package are not flagged."""
     from evidence.container_adapters import collect_dep_analysis
-    
+
     ctx = Mock()
     ctx.source_package = "dav1d"
     ctx.requested_binaries = ["dav1d", "libdav1d7"]
@@ -295,7 +295,7 @@ def test_same_source_deps_not_flagged():
             }
         }
     }
-    
+
     # Mock commands
     with patch("evidence.container_adapters._capture") as mock_capture:
         def capture_side_effect(ctx, cmd, **kwargs):
@@ -318,21 +318,21 @@ def test_same_source_deps_not_flagged():
                     return "dav1d"
                 return "glibc"
             return ""
-        
+
         mock_capture.side_effect = capture_side_effect
-        
+
         # Mock component detection
         with patch("evidence.container_adapters._detect_component") as mock_component:
             def component_side_effect(ctx, pkg):
                 if pkg == "libdav1d7":
                     return "universe"
                 return "main"
-            
+
             mock_component.side_effect = component_side_effect
-            
+
             # Run dep-analysis
             result = collect_dep_analysis(ctx)
-            
+
             # Verify same-source deps are not in in_scope_deps_not_in_main
             assert result["status"] == "ok"
             assert "libdav1d7" in result["same_source_deps"]

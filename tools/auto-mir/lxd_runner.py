@@ -124,9 +124,9 @@ def spawn(ctx: "RunContext") -> None:
     is_vm = "--vm" in lxd_opts
     instance_type = "VM" if is_vm else "container"
 
-    log.info("Creating LXD %s %s from %s with options: %s", 
+    log.info("Creating LXD %s %s from %s with options: %s",
              instance_type, name, image, " ".join(lxd_opts))
-    
+
     # Build launch command: lxc launch <image> <name> [options...]
     launch_cmd = ["launch", image, name] + lxd_opts
     result = _lxc(*launch_cmd, capture=True, check=False)
@@ -237,7 +237,7 @@ def _provision(name: str, ctx: "RunContext") -> None:
         log.info("Installing sbuild from noble-backports")
         exec_in_retry(
             name,
-            ["apt-get", "install", "-qq", "-y", "-t", "noble-backports", 
+            ["apt-get", "install", "-qq", "-y", "-t", "noble-backports",
              "--no-install-recommends", "sbuild"],
             env={"DEBIAN_FRONTEND": "noninteractive"},
             operation="apt-get install sbuild from backports",
@@ -422,7 +422,7 @@ def _exec_in_retry_internal(
     workdir: str | None = None,
 ) -> subprocess.CompletedProcess:
     """Internal function that executes with retry logic.
-    
+
     This function is decorated with tenacity retry and will automatically
     retry on transient failures (503 errors, DNS failures, connection timeouts).
     """
@@ -451,7 +451,7 @@ def exec_in_retry(
     Intended for network/server-sensitive steps (apt, git clone/fetch, source
     downloads). Retries are attempted only when stderr/stdout indicate transient
     infrastructure issues (503, temporary DNS/connection errors, timeouts).
-    
+
     Args:
         name: Container name
         cmd: Command to execute
@@ -460,19 +460,19 @@ def exec_in_retry(
         env: Environment variables
         workdir: Working directory
         operation: Operation name for logging
-    
+
     Returns:
         CompletedProcess result
-    
+
     Raises:
         RuntimeError: If command fails after all retries (when check=True)
     """
     result = _exec_in_retry_internal(name, cmd, env=env, workdir=workdir)
-    
+
     if result.returncode != 0 and not check:
         # Caller doesn't want exceptions, just return the result
         return result
-    
+
     if result.returncode != 0:
         # Retries exhausted and check=True, raise error
         text = f"{result.stdout or ''}\n{result.stderr or ''}".lower()
@@ -505,12 +505,12 @@ def exec_in_retry(
             f"\nstderr:\n{(result.stderr or '').strip()}"
             f"{hint}"
         )
-    
+
     # Success - if capture was False, clear the output
     if not capture:
         result.stdout = None
         result.stderr = None
-    
+
     return result
 
 

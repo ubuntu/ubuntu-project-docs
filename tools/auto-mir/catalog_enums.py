@@ -9,10 +9,10 @@ from enum import Enum
 
 class AdapterID(str, Enum):
     """Evidence adapter identifiers.
-    
+
     These must match the adapter IDs defined in catalog.yaml.
     """
-    
+
     # Host-side adapters
     LP_BUG_API = "lp-bug-api"
     LP_TEAM_MEMBERSHIP_API = "lp-team-membership-api"
@@ -20,24 +20,24 @@ class AdapterID(str, Enum):
     UBUNTU_CVE_TRACKER = "ubuntu-cve-tracker"
     AUTOPKGTEST_DB = "autopkgtest-db"
     TEAM_MAPPING = "team-mapping"
-    
+
     # In-container adapters
     PACKAGING_SOURCE = "packaging-source"
     DEP_ANALYSIS = "dep-analysis"
     COMPONENT_MISMATCHES = "component-mismatches"
     SBUILD = "sbuild"
-    
+
     def __str__(self) -> str:
         return self.value
 
 
 class CheckID(str, Enum):
     """Check identifiers.
-    
+
     These must match the check IDs defined in catalog.yaml.
     Note: This is a partial list of the most commonly referenced checks.
     """
-    
+
     # Summary checks
     SUM_1 = "SUM-1"
     SUM_2 = "SUM-2"
@@ -45,18 +45,18 @@ class CheckID(str, Enum):
     SUM_4 = "SUM-4"
     SUM_5 = "SUM-5"
     SUM_6 = "SUM-6"
-    
+
     # Rationale, Duplication, Ownership checks
     RDO_1 = "RDO-1"
     RDO_2 = "RDO-2"
     RDO_3 = "RDO-3"
-    
+
     # Dependencies checks
     DEP_1 = "DEP-1"
     DEP_2 = "DEP-2"
     DEP_3 = "DEP-3"
     DEP_4 = "DEP-4"
-    
+
     # Embedded sources and static linking checks
     ESL_1 = "ESL-1"
     ESL_2 = "ESL-2"
@@ -69,7 +69,7 @@ class CheckID(str, Enum):
     ESL_9 = "ESL-9"
     ESL_10 = "ESL-10"
     ESL_11 = "ESL-11"
-    
+
     # Security checks
     SEC_1 = "SEC-1"
     SEC_2 = "SEC-2"
@@ -82,7 +82,7 @@ class CheckID(str, Enum):
     SEC_9 = "SEC-9"
     SEC_10 = "SEC-10"
     SEC_11 = "SEC-11"
-    
+
     # Common blockers checks
     CB_1 = "CB-1"
     CB_2 = "CB-2"
@@ -93,7 +93,7 @@ class CheckID(str, Enum):
     CB_7 = "CB-7"
     CB_8 = "CB-8"
     CB_9 = "CB-9"
-    
+
     # Packaging red flags checks
     PRF_1 = "PRF-1"
     PRF_2 = "PRF-2"
@@ -105,7 +105,7 @@ class CheckID(str, Enum):
     PRF_8 = "PRF-8"
     PRF_9 = "PRF-9"
     PRF_10 = "PRF-10"
-    
+
     # Upstream red flags checks
     URF_1 = "URF-1"
     URF_2 = "URF-2"
@@ -116,6 +116,6 @@ class CheckID(str, Enum):
     URF_7 = "URF-7"
     URF_8 = "URF-8"
     URF_9 = "URF-9"
-    
+
     def __str__(self) -> str:
         return self.value

@@ -178,13 +178,13 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
     packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
     sbuild_result = ctx.evidence.get("adapters", {}).get("sbuild", {})
     source_dir = packaging.get("source_dir")
-    
+
     if not source_dir:
         raise AdapterError("dep-analysis requires packaging-source.source_dir")
-    
+
     if sbuild_result.get("status") != "ok" or not sbuild_result.get("build_success"):
         raise AdapterError("dep-analysis requires successful sbuild")
-    
+
     # Get binary package names from debian/control (for scope comparison)
     binaries_raw = _capture(
         ctx,
@@ -192,12 +192,12 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
         allow_fail=True,
     )
     binary_packages = [line.strip() for line in binaries_raw.splitlines() if line.strip()]
-    
+
     # Extract dependencies from built .deb files
     runtime_deps = []
     dep_names: set[str] = set()
     built_packages = []
-    
+
     for deb_path in sbuild_result.get("built_debs", []):
         # Extract Package: field
         pkg_name = _capture(
@@ -205,23 +205,23 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
             ["bash", "-lc", f"dpkg-deb -f {deb_path} Package"],
             allow_fail=True,
         ).strip()
-        
+
         if not pkg_name:
             continue
-        
+
         built_packages.append(pkg_name)
-        
+
         # Extract Depends: field
         depends = _capture(
             ctx,
             ["bash", "-lc", f"dpkg-deb -f {deb_path} Depends"],
             allow_fail=True,
         ).strip()
-        
+
         if depends:
             runtime_deps.append({"binary": pkg_name, "depends": depends})
             dep_names.update(_extract_dependency_names(depends))
-    
+
     # Component detection
     dep_components = []
     deps_not_in_main = []
@@ -230,37 +230,37 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
         dep_components.append({"package": dep, "component": component})
         if component and component != "main":
             deps_not_in_main.append(dep)
-    
+
     # Source package mapping
     dep_source_map = []
     for dep in sorted(dep_names):
         source_pkg = _capture(
             ctx,
-            ["bash", "-lc", 
+            ["bash", "-lc",
              f"apt-cache show {dep} 2>/dev/null | awk '/^Source:/ {{print $2; exit}}'"],
             allow_fail=True,
         ).strip()
         if not source_pkg:
             source_pkg = dep  # Debian convention: binary name = source name
         dep_source_map.append({"package": dep, "source_package": source_pkg})
-    
+
     # Scope-aware filtering
     in_scope = (
-        set(ctx.requested_binaries) & set(binary_packages) 
-        if ctx.requested_binaries 
+        set(ctx.requested_binaries) & set(binary_packages)
+        if ctx.requested_binaries
         else set(binary_packages)
     )
     out_of_scope = set(binary_packages) - in_scope
-    
+
     in_scope_deps_not_in_main = []
     out_of_scope_deps_not_in_main = []
     same_source_deps = []
-    
+
     dep_source_lookup = {
-        entry["package"]: entry["source_package"] 
+        entry["package"]: entry["source_package"]
         for entry in dep_source_map
     }
-    
+
     for dep in deps_not_in_main:
         source_pkg = dep_source_lookup.get(dep, dep)
         if source_pkg == ctx.source_package:
@@ -269,7 +269,7 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
             in_scope_deps_not_in_main.append(dep)
         else:
             out_of_scope_deps_not_in_main.append(dep)
-    
+
     return {
         "status": "ok",
         "binary_packages": binary_packages,
@@ -367,7 +367,7 @@ def _parse_promotion_candidates(output: str) -> list[str]:
 @adapter(AdapterID.SBUILD, depends_on=[AdapterID.PACKAGING_SOURCE])
 def collect_sbuild(ctx) -> SbuildResult:
     """Build source package using sbuild with unshare backend.
-    
+
     Performs a real build in the target Ubuntu series to extract accurate
     post-build dependencies from built .deb files.
     """
@@ -375,20 +375,20 @@ def collect_sbuild(ctx) -> SbuildResult:
     source_dir = packaging.get("source_dir")
     if not source_dir:
         raise AdapterError("sbuild adapter requires packaging-source.source_dir")
-    
+
     series = ctx.series or "devel"
     output_dir = "/tmp/sbuild-output"
-    
+
     # Create output directory
     _capture(ctx, ["bash", "-lc", f"mkdir -p {output_dir}"])
-    
+
     # Run sbuild with unshare backend
     # --chroot-mode=unshare: use unshare backend (requires Noble or newer)
     # --no-run-lintian: skip lintian (handled separately)
     # --no-arch-all: skip arch:all packages (only on non-amd64 systems)
     # --no-source-only-changes: don't create source-only changes file
     # --build-dir: output directory for built packages
-    
+
     # Detect build architecture to decide whether to build arch-all packages
     arch_output = _capture(
         ctx,
@@ -396,7 +396,7 @@ def collect_sbuild(ctx) -> SbuildResult:
         allow_fail=True,
     )
     build_arch = arch_output.strip()
-    
+
     # Build arch-all packages only on amd64 (where Ubuntu builds them)
     if build_arch == "amd64":
         arch_all_flag = ""
@@ -408,7 +408,7 @@ def collect_sbuild(ctx) -> SbuildResult:
             "arch-all dependencies cannot be included in considerations and checks",
             build_arch,
         )
-    
+
     build_cmd = (
         f"cd {source_dir} && "
         f"sbuild -d {series} "
@@ -419,7 +419,7 @@ def collect_sbuild(ctx) -> SbuildResult:
         f"--build-dir={output_dir} "
         f"2>&1"
     )
-    
+
     log.info("Running sbuild for %s in series %s", ctx.source_package, series)
     log.info("sbuild command: %s", build_cmd)
     build_log = _capture(
@@ -427,13 +427,13 @@ def collect_sbuild(ctx) -> SbuildResult:
         ["bash", "-lc", build_cmd],
         allow_fail=True,
     )
-    
+
     # Check if build succeeded by looking for .deb files
     build_success = _exists(
-        ctx, 
+        ctx,
         ["bash", "-lc", f"test -d {output_dir} && ls {output_dir}/*.deb >/dev/null 2>&1"]
     )
-    
+
     # Collect built .deb files
     built_debs = []
     if build_success:
@@ -448,7 +448,7 @@ def collect_sbuild(ctx) -> SbuildResult:
     else:
         log.warning("sbuild failed for %s", ctx.source_package)
         message = "Build failed, see build_log for details"
-    
+
     # Run lintian on the source package (keep existing functionality)
     lintian_raw = _capture(
         ctx,
@@ -459,7 +459,7 @@ def collect_sbuild(ctx) -> SbuildResult:
         ],
         allow_fail=True,
     )
-    
+
     # Parse lintian output into error/warning/info lists
     lintian_errors: list[str] = []
     lintian_warnings: list[str] = []
@@ -472,7 +472,7 @@ def collect_sbuild(ctx) -> SbuildResult:
             lintian_warnings.append(stripped)
         elif stripped.startswith("I: ") or stripped.startswith("P: "):
             lintian_pedantic.append(stripped)
-    
+
     # Check for static linking indicators in debian/rules (fast heuristic)
     rules = packaging.get("debian_rules", "")
     static_link_hints = []
@@ -484,7 +484,7 @@ def collect_sbuild(ctx) -> SbuildResult:
     ):
         if re.search(pattern, rules, re.IGNORECASE):
             static_link_hints.append(pattern)
-    
+
     log.info(
         "lintian for %s: %d errors, %d warnings, %d info",
         ctx.source_package,
@@ -492,7 +492,7 @@ def collect_sbuild(ctx) -> SbuildResult:
         len(lintian_warnings),
         len(lintian_pedantic),
     )
-    
+
     return {
         "status": "ok" if build_success else "error",
         "message": message,
