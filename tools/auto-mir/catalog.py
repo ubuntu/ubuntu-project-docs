@@ -84,7 +84,8 @@ def validate_catalog(catalog: dict) -> list[str]:
                 if check["blocker_class"] not in valid_blockers:
                     errors.append(
                         f"Check {check.get('id', i)} has invalid blocker_class: "
-                        f"{check['blocker_class']}. Must be one of: {', '.join(sorted(valid_blockers))}"
+                        f"{check['blocker_class']}. "
+                        f"Must be one of: {', '.join(sorted(valid_blockers))}"
                     )
 
             # Check for duplicate IDs

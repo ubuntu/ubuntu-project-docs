@@ -6,10 +6,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import checks.deterministic
-import checks.llm_eval
 import checks.language_gates
+import checks.llm_eval
 from models import Finding
-
 
 # ---------------------------------------------------------------------------
 # Helpers

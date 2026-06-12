@@ -369,7 +369,8 @@ def run(ctx: "RunContext") -> None:
     # Gate: sbuild unshare backend requires Noble (24.04) or newer
     if not _series_supports_unshare_sbuild(ctx.series):
         log.error(
-            "Automated MIR review requires Ubuntu Noble (24.04) or newer for sbuild unshare backend. "
+            "Automated MIR review requires Ubuntu Noble (24.04) or newer "
+            "for sbuild unshare backend. "
             "Target series '%s' is not supported.",
             ctx.series,
         )

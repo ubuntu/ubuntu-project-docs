@@ -13,8 +13,7 @@ Usage:
 
 from __future__ import annotations
 
-from typing import Any, TypedDict
-
+from typing import TypedDict
 
 # ---------------------------------------------------------------------------
 # Host-side adapters — LP API
@@ -167,13 +166,6 @@ class DepSourceEntry(TypedDict):
     source_package: str
 
 
-class DepSourceEntry(TypedDict):
-    """Dependency source package mapping."""
-
-    package: str
-    source_package: str
-
-
 class DepAnalysisResult(TypedDict):
     """Return structure for dep-analysis adapter."""
 
@@ -185,9 +177,6 @@ class DepAnalysisResult(TypedDict):
     dep_components: list[DepComponentEntry]
     dep_source_map: list[DepSourceEntry]
     deps_not_in_main: list[str]
-    in_scope_deps_not_in_main: list[str]
-    out_of_scope_deps_not_in_main: list[str]
-    same_source_deps: list[str]
     in_scope_deps_not_in_main: list[str]
     out_of_scope_deps_not_in_main: list[str]
     same_source_deps: list[str]

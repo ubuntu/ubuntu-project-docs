@@ -10,8 +10,8 @@ import json
 import logging
 from pathlib import Path
 
-from models import Finding
 from checks.registry import evaluator
+from models import Finding
 
 log = logging.getLogger("auto_mir.checks.llm_eval")
 

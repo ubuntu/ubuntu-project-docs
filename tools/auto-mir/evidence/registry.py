@@ -1,4 +1,5 @@
-from typing import Callable, Any
+from typing import Any, Callable
+
 from catalog_enums import AdapterID
 
 # Mapping from string adapter ID to a tuple of (collector_function, list_of_dependencies)

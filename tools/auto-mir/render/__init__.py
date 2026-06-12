@@ -187,7 +187,8 @@ def _build_binary_package_header(ctx) -> list[str]:
     elif promotion_candidates:
         # Fallback: only component-mismatches data available
         lines.append(
-            f"Binary packages (promotion candidates only): {', '.join(sorted(promotion_candidates))}"
+            "Binary packages (promotion candidates only): "
+            f"{', '.join(sorted(promotion_candidates))}"
         )
         return lines
 
@@ -429,7 +430,8 @@ def _lint_review_draft(draft: str, findings: list[Finding]) -> None:
                 line.startswith("TODO:") or line.startswith("TODO-") or line.startswith("NOTE:")
             ):
                 raise ValueError(
-                    f"Left to decide block line must start with 'TODO:', 'TODO-', or 'NOTE:': {line!r}"
+                    "Left to decide block line must start with "
+                    f"'TODO:', 'TODO-', or 'NOTE:': {line!r}"
                 )
 
         # Problems block lines are confirmed finding statements, not TODOs

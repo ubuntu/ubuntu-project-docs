@@ -9,11 +9,11 @@ from __future__ import annotations
 import logging
 import re
 
-log = logging.getLogger("auto_mir.checks.deterministic")
-
 from checks.language_gates import _is_go_package, _is_rust_package
+from checks.registry import DETERMINISTIC_CHECKS, deterministic_check, evaluator
 from models import Finding
-from checks.registry import deterministic_check, evaluator, DETERMINISTIC_CHECKS
+
+log = logging.getLogger("auto_mir.checks.deterministic")
 
 
 @deterministic_check("SUM-1")
@@ -65,64 +65,6 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
         finding.todo = "TODO: - Verify no runtime dependencies in universe need MIR"
         finding.evidence_refs = ["dep-analysis:error"]
         return finding
-
-    in_scope_deps = dep_analysis.get("in_scope_deps_not_in_main", [])
-    same_source = dep_analysis.get("same_source_deps", [])
-    unknown_components = [
-        row["package"]
-        for row in dep_analysis.get("dep_components", [])
-        if row.get("component") == "unknown"
-    ]
-
-    if in_scope_deps:
-        finding.status = "not-ok"
-        finding.severity = "required"
-        finding.confidence = "high"
-        finding.message = (
-            "Runtime dependencies from other source packages outside main: "
-            + ", ".join(in_scope_deps)
-        )
-        finding.todo = (
-            "TODO: - File MIR for runtime dependencies from other source packages: "
-            + ", ".join(in_scope_deps)
-        )
-        finding.evidence_refs = [
-            "dep-analysis:dep_components",
-            "dep-analysis:in_scope_deps_not_in_main",
-            "dep-analysis:dep_source_map",
-        ]
-        return finding
-
-    if unknown_components:
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = (
-            "Could not determine component for some runtime dependencies: "
-            + ", ".join(unknown_components)
-        )
-        finding.todo = "TODO: - Verify Ubuntu component for runtime dependencies: " + ", ".join(
-            unknown_components
-        )
-        finding.evidence_refs = ["dep-analysis:dep_components"]
-        return finding
-
-    finding.status = "ok"
-    finding.severity = "ok"
-    finding.confidence = "high"
-    if same_source:
-        finding.message = (
-            "no external runtime dependencies needing MIR "
-            f"(same-source deps promoted together: {', '.join(same_source)})"
-        )
-    else:
-        finding.message = "no runtime dependencies outside main needing MIR"
-    finding.evidence_refs = [
-        "dep-analysis:runtime_dep_packages",
-        "dep-analysis:dep_components",
-        "dep-analysis:dep_source_map",
-    ]
-    return finding
 
     in_scope_deps = dep_analysis.get("in_scope_deps_not_in_main", [])
     same_source = dep_analysis.get("same_source_deps", [])
@@ -359,7 +301,8 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
                 f"Special packages {special} may pull universe deps; verify extra-excludes needed"
             )
             finding.todo = (
-                f"TODO: - Verify whether {', '.join(special)} should be added to extra-exclude list "
+                f"TODO: - Verify whether {', '.join(special)} "
+                "should be added to extra-exclude list "
                 "(they may pull universe deps into component-mismatches)"
             )
         else:

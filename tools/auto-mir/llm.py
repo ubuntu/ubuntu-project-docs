@@ -45,12 +45,9 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
-from typing import Any, TYPE_CHECKING
+from typing import Any
 
-from utils.retry import retry_rate_limited, extract_retry_after
-
-if TYPE_CHECKING:
-    from auto_mir import RunContext
+from utils.retry import extract_retry_after, retry_rate_limited
 
 log = logging.getLogger("auto_mir.llm")
 
@@ -159,7 +156,8 @@ def _call_openai_compatible(prompt: str, ctx) -> dict[str, Any]:
     if not token:
         raise LLMError(
             f"No authentication token found for LLM provider '{provider}'. "
-            "For copilot: set COPILOT_GITHUB_TOKEN / GH_TOKEN / GITHUB_TOKEN or run `gh auth login`. "
+            "For copilot: set COPILOT_GITHUB_TOKEN / GH_TOKEN / GITHUB_TOKEN "
+            "or run `gh auth login`. "
             "For openai-compatible: set OPENAI_API_KEY."
         )
 

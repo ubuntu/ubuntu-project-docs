@@ -7,7 +7,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import lp_intake
 
-
 # ---------------------------------------------------------------------------
 # Reporter template detection
 # ---------------------------------------------------------------------------

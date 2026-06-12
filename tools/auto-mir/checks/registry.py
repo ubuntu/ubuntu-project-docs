@@ -1,4 +1,5 @@
-from typing import Callable, Any
+from typing import Any, Callable
+
 from models import Finding
 
 EVALUATORS: dict[str, Callable[[dict, Any, Finding], Finding]] = {}

@@ -4,22 +4,25 @@ Package structure:
 - checks (this module): public API, evaluate_checks()
 - checks.deterministic: deterministic evaluators (_check_* functions, _eval_deterministic)
 - checks.llm_eval: LLM-based evaluators (_eval_ev_to_ai, _eval_ai, _eval_human_only)
-- checks.language_gates: language detection helpers (_is_go_package, _is_rust_package, _language_gate_active)
+- checks.language_gates: language detection helpers (_language_gate_active)
 """
 
 from __future__ import annotations
 
+import importlib
 import logging
 
+from checks.language_gates import _language_gate_active
+from checks.registry import EVALUATORS
 from models import Finding
-from checks.language_gates import _is_go_package, _is_rust_package, _language_gate_active
 
 log = logging.getLogger("auto_mir.checks")
 
 
-from checks.registry import EVALUATORS
-import checks.deterministic
-import checks.llm_eval
+def _ensure_evaluators_registered() -> None:
+    """Import evaluator modules for their registration side effects."""
+    importlib.import_module("checks.deterministic")
+    importlib.import_module("checks.llm_eval")
 
 
 def evaluate_checks(ctx) -> list[Finding]:
@@ -42,6 +45,8 @@ def evaluate_checks(ctx) -> list[Finding]:
     """
     if not ctx.catalog:
         return []
+
+    _ensure_evaluators_registered()
 
     checks = ctx.catalog.get("checks", [])
     findings = []

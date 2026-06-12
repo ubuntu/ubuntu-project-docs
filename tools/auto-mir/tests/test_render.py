@@ -10,11 +10,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from models import Finding
 from render import (
-    _lint_review_draft,
-    _todo_lines_for_finding,
+    _SECTION_ORDER,
     _build_binary_package_header,
     _build_review_draft,
-    _SECTION_ORDER,
+    _lint_review_draft,
+    _todo_lines_for_finding,
 )
 
 # ---------------------------------------------------------------------------
@@ -261,7 +261,7 @@ def test_binary_header_empty_when_no_data():
 def test_binary_header_lists_all_binaries():
     ctx = _Ctx(all_binaries=["libfoo1", "libfoo-dev"])
     lines = _build_binary_package_header(ctx)
-    assert any("libfoo1" in l and "libfoo-dev" in l for l in lines)
+    assert any("libfoo1" in line and "libfoo-dev" in line for line in lines)
 
 
 def test_binary_header_shows_component_split():
@@ -270,7 +270,7 @@ def test_binary_header_shows_component_split():
         promotion_candidates=["libfoo1"],
     )
     lines = _build_binary_package_header(ctx)
-    split_line = next((l for l in lines if "Component split" in l), None)
+    split_line = next((line for line in lines if "Component split" in line), None)
     assert split_line is not None
     assert "libfoo1" in split_line
     assert "libfoo-dev" in split_line or "libfoo-doc" in split_line
@@ -282,7 +282,7 @@ def test_binary_header_no_split_when_all_need_promotion():
         promotion_candidates=["libfoo1", "libfoo-dev"],
     )
     lines = _build_binary_package_header(ctx)
-    assert not any("Component split" in l for l in lines)
+    assert not any("Component split" in line for line in lines)
 
 
 # ---------------------------------------------------------------------------

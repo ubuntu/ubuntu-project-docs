@@ -253,7 +253,6 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
         if ctx.requested_binaries
         else set(binary_packages)
     )
-    out_of_scope = set(binary_packages) - in_scope
 
     in_scope_deps_not_in_main = []
     out_of_scope_deps_not_in_main = []

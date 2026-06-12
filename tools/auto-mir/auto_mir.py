@@ -155,7 +155,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="--vm -c limits.cpu=4 -c limits.memory=8GiB",
         help=(
             "LXD launch options (default: '--vm -c limits.cpu=4 -c limits.memory=8GiB'). "
-            "Pass any lxc launch flags. Use empty string or override to change VM/container mode or resources."
+            "Pass any lxc launch flags. Use empty string or override "
+            "to change VM/container mode or resources."
         ),
     )
     p.add_argument(

@@ -7,18 +7,16 @@ in network operations and container commands.
 from __future__ import annotations
 
 import logging
-from typing import Callable, Any
+from typing import Callable
 
 from tenacity import (
+    before_sleep_log,
     retry,
+    retry_if_exception,
+    retry_if_exception_type,
+    retry_if_result,
     stop_after_attempt,
     wait_exponential,
-    wait_fixed,
-    retry_if_exception_type,
-    retry_if_exception,
-    retry_if_result,
-    before_sleep_log,
-    RetryCallState,
 )
 
 log = logging.getLogger("auto_mir.utils.retry")
@@ -171,8 +169,8 @@ def extract_retry_after(exc: BaseException) -> float | None:
     Returns:
         Delay in seconds, or None if not found
     """
-    import urllib.error
     import re
+    import urllib.error
 
     if not isinstance(exc, urllib.error.HTTPError):
         return None

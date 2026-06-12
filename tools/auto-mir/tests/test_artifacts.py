@@ -6,7 +6,8 @@ and compare findings against known-good baselines.
 Artifacts are stored in: tools/auto-mir/tests/fixtures/<bug_id>/
 
 To create or update artifacts:
-    ./tools/auto-mir/auto_mir.py <bug_id> --collect-only --output-dir tools/auto-mir/tests/fixtures/<bug_id>
+    ./tools/auto-mir/auto_mir.py <bug_id> --collect-only \
+      --output-dir tools/auto-mir/tests/fixtures/<bug_id>
 """
 
 import json
@@ -21,8 +22,6 @@ import pytest
 
 import catalog
 import checks
-from models import Finding
-
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 

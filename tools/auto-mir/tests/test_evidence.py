@@ -2,12 +2,11 @@
 
 import sys
 from pathlib import Path
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from evidence import collect_from_catalog, _order_adapters, AdapterError
-
+from evidence import AdapterError, _order_adapters, collect_from_catalog
 
 # ---------------------------------------------------------------------------
 # Adapter dependency ordering

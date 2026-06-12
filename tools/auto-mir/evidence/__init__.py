@@ -10,19 +10,21 @@ to run before or after container operations.
 
 from __future__ import annotations
 
-import logging
 import graphlib
+import importlib
+import logging
 
-from catalog_enums import AdapterID
+from evidence.host_adapters import AdapterError as AdapterError
 from evidence.registry import ADAPTER_REGISTRY
 
-# Import adapter implementations from submodules so they register
-import evidence.host_adapters
-import evidence.container_adapters
-import evidence.team_mapping_adapter
-
 log = logging.getLogger("auto_mir.evidence")
-from evidence.host_adapters import AdapterError
+
+
+def _ensure_adapters_registered() -> None:
+    """Import adapter modules for their registry side effects."""
+    importlib.import_module("evidence.host_adapters")
+    importlib.import_module("evidence.container_adapters")
+    importlib.import_module("evidence.team_mapping_adapter")
 
 
 def _summarize_result(result: dict) -> str:
@@ -47,6 +49,8 @@ def collect_from_catalog(ctx) -> int:
     Returns:
         0 if all adapters succeeded, 1 if any adapter failed.
     """
+    _ensure_adapters_registered()
+
     checks = ctx.catalog.get("checks", [])
     required: set[str] = set()
     for check in checks:
@@ -115,13 +119,6 @@ def collect_from_catalog(ctx) -> int:
                 adapter_id_str,
                 ctx.evidence["adapters"][adapter_id_str].get("message", "unknown"),
             )
-        except Exception as exc:
-            log.warning("Adapter %s failed: %s", adapter_id_str, exc)
-            ctx.evidence["adapters"][adapter_id_str] = {
-                "status": "error",
-                "message": str(exc),
-            }
-            failed_adapters.add(adapter_id_str)
 
     return 0 if not failed_adapters else 1
 
@@ -138,8 +135,8 @@ def _order_adapters(
             _, deps = ADAPTER_REGISTRY[adapter_id]
         else:
             deps = []
-        # topological_sorter expects {node: [predecessors]}
-        # Only track dependencies that are also in required set to avoid trying to resolve unneeded adapters
+        # topological_sorter expects {node: [predecessors]}.
+        # Only keep dependencies that are required in this run.
         graph[adapter_id] = [d for d in deps if d in required]
 
     sorter = graphlib.TopologicalSorter(graph)
