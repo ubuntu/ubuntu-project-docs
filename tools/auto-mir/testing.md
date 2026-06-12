@@ -79,5 +79,5 @@ Before requesting human review, an agent should:
 |---------|-------------|-----|
 | `ruff check` errors | New code with lint issues | Run `make -C tools/ format` then fix remaining |
 | Template mismatch | Catalog blueprint changed without regenerating template | Run `make -C tools/ render-review-template` |
-| Smoke test container fail | LXD not available or image missing | Ensure `lxc` works and devel image exists |
+| Smoke test container fail | LXD not available or image missing | Ensure `lxc` works and the target release (or devel fallback) image is available |
 | Token limit errors in LLM checks | Evidence payload too large | Check truncation logic in evidence summarization |

@@ -24,6 +24,12 @@ def evaluate_checks(ctx) -> list[dict]:
     - message: reviewer-facing statement
     - todo: empty if resolved, TODO line if not
     - evidence_refs: which adapters/keys were used
+
+    The confidence level determines how the finding is rendered in the output:
+    - ``confidence == "high"`` or ``mode == "deterministic"``: a not-ok finding
+      is shown under ``Problems:`` as a confirmed statement (no TODO needed).
+    - ``confidence in ("low", "medium")``: a not-ok finding is shown under
+      ``Left to decide:`` as a TODO for the reviewer to resolve.
     """
     if not ctx.catalog:
         return []

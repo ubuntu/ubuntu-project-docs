@@ -1,8 +1,9 @@
 """lxd_runner.py — LXD container lifecycle for auto-mir.
 
 The tool is host-orchestrated: this module creates a fresh LXD container
-from Ubuntu devel images, provisions tooling in-container, dispatches
-commands there, and handles cleanup.
+from the target Ubuntu release image (falling back to Ubuntu devel when the
+series is unknown), provisions tooling in-container, dispatches commands
+there, and handles cleanup.
 
 This is explicitly NOT meant to be run from inside an existing container.
 """
@@ -20,8 +21,8 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("auto_mir.lxd_runner")
 
-# Preferred Ubuntu devel image aliases in priority order.
-_UBUNTU_DEVEL_IMAGES = [
+# Fallback Ubuntu devel image aliases, tried when the target series is unknown.
+_UBUNTU_DEVEL_FALLBACK_IMAGES = [
     "ubuntu-daily:devel",
     "images:ubuntu/devel",
     "ubuntu:devel",
@@ -96,7 +97,7 @@ def _check_lxd_available() -> None:
 
 
 def spawn(ctx: "RunContext") -> None:
-    """Create a new LXD container from Ubuntu devel and provision it.
+    """Create a new LXD container from the target Ubuntu release image and provision it.
 
     Populates ctx.container_name.
     """
@@ -123,20 +124,33 @@ def _resolve_image(ctx: "RunContext") -> str:
     """Resolve the image alias to use for this run.
 
     If the user provided --lxd-image, use that as-is.
-    Otherwise probe common Ubuntu devel aliases and choose the first available.
+    If the target series is known, probe series-specific aliases first
+    (``ubuntu-daily:SERIES``, ``ubuntu:SERIES``) for reproducibility.
+    Falls back to the Ubuntu devel aliases when the series is unknown or when
+    no series-specific image is found.
     """
     explicit = getattr(ctx, "lxd_image", None)
     if explicit:
         return explicit
 
-    for alias in _UBUNTU_DEVEL_IMAGES:
+    series = getattr(ctx, "series", None)
+    candidates: list[str] = []
+    if series and series != "devel":
+        candidates = [
+            f"ubuntu-daily:{series}",
+            f"ubuntu:{series}",
+        ]
+
+    for alias in candidates + _UBUNTU_DEVEL_FALLBACK_IMAGES:
         result = _lxc("image", "info", alias, check=False, capture=True)
         if result.returncode == 0:
             return alias
 
+    tried = candidates + _UBUNTU_DEVEL_FALLBACK_IMAGES
     log.error(
-        "Could not find an Ubuntu devel LXD image. Tried: %s",
-        ", ".join(_UBUNTU_DEVEL_IMAGES),
+        "Could not find a suitable LXD image for series %r. Tried: %s",
+        series or "devel",
+        ", ".join(tried),
     )
     sys.exit(1)
 

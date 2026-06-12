@@ -2,28 +2,35 @@
 
 ## Scope and Goal
 
-- Build a reviewer-first MIR assistant.
-- Host-orchestrated: tool runs outside, spawns a fresh LXD container from Ubuntu devel
-  image aliases, provisions tooling, executes the pipeline in-container.
-- Input starts from a Launchpad bug ID via the Launchpad API.
-- Output is a reviewer-template-aligned draft where findings dynamically determine severity
-  (`ok`, `recommended`, `required`) rather than having severity pre-assigned to TODO lines.
-- Policy/tool co-development in this repository under `tools/auto-mir` so MIR wording and
-  tool logic/prompts evolve together in the same PR when rules change.
+- Build tool to assist MIR review
+- Host-orchestrated: but provisions tooling, executes the pipeline in a LXD
+  container of the target Ubuntu release for reproducibility.
+- Input starts from a Launchpad bug ID to fetch details via the Launchpad API.
+- Output is a reviewer-template-aligned draft.
+  - TODO statements that can not be resolved stay for the MIR member to resolve.
+  - TODO statements that have a low confidence can make suggestions but leave it
+    to the MIR member to resolve.
+  - Where findings are deterministic or have high confidence results from the AI
+    they are answered and their correct review statement grouped either under
+    `OK` or `Problems` part in the respective in the section.
+- Identified tasks that need to be acted on by the MIR reporter are added to
+  make this MIR case acceptable get explained in the respective section
+  (reasoning) and referred in the `recommended` or `required` areas of the
+  `[Summary]` section
+- Policy and the tool needs to be co-developed in this repository so MIR policy
+  wording and tool logic/prompts evolve together in the same PR when rules change.
 
 ## Core Workflow Phases
 
 1. Repository bootstrap under `tools/auto-mir`.
 2. Normalize checks from the MIR reviewer template into an executable YAML catalog schema.
-3. Host-orchestrated LXD lifecycle with `--keep-container` default during development.
+3. Host-orchestrated LXD lifecycle; container is destroyed after the run by default. Use `--keep-container` to preserve it for debugging.
 4. Launchpad API intake; hard-fail if reporter MIR content is missing.
-5. Deterministic evidence collection in-container (sbuild + lintian + API queries).
+5. Deterministic evidence collection in-container (sbuild + lintian + API queries and more).
 6. AI-assisted synthesis where needed, with mandatory human override on designated checks.
 7. Strict template-close rendering: unresolved tasks as `TODO` lines only, no `RULE` leakage.
-8. Validation against recent corpus in `old-MIRs-as-input` (4 from 2026 + 8 from 2025).
-9. Final docs pass in `tools/auto-mir/README.md` describing architecture/design
-  (including a Mermaid diagram) and concise usage intent (with `--help` as
-  the reference for detailed CLI options).
+8. Validation against recent cases in `old-MIRs-as-input` (4 from 2026 + 8 from 2025).
+9. Final docs pass to put the user documentation into `tools/auto-mir/README.md`
 
 ## Implementation-Ready Schema Direction
 
@@ -55,15 +62,19 @@ Top-level sections:
 - `todo_output_line`
 - `blocks_ack`: bool
 
-## Security Trigger Table (MVP)
+## Security Triggers
 
-| ID | Source checks | Condition | Synthesis | Human confirmation | Action |
-|----|--------------|-----------|-----------|-------------------|--------|
-| SEC-1-CVE-SYNTH | SEC-1 | CVE history present from either tracker | AI risk synthesis across both trackers | Required | Structured field + summary line; may trigger security review |
-| SEC-3-WEBKIT | SEC-3 | webkit1 or webkit2 in runtime deps | Deterministic | N/A | Required hard blocker; block ACK |
-| SEC-4-V8 | SEC-4 | libv8 direct use in runtime deps | Deterministic | N/A | Required hard blocker; block ACK |
-| SEC-11-ATTESTATION | SEC-11 | secure boot/signature/TPM involvement | Deterministic/evidence | N/A | Mandatory security review path |
-| SEC-13-MITIGATION-GAPS | SEC-13 | Exposure-level mitigations absent | EV→AI synthesis | Required | Reviewer decides severity; can escalate |
+Security-sensitive checks (SEC-1, SEC-3, SEC-4, SEC-11, SEC-13) carry a
+`security_trigger` field in the catalog that links them to entries in the
+top-level `security_triggers[]` section of `catalog.yaml`. That catalog
+section is the machine-readable source of truth documenting the intended
+cross-cutting output actions for when those checks fire: blocking ACK,
+emitting structured report fields, and mandating a security review path.
+
+The check evaluators in `checks.py` implement the critical hard-blocker
+outcomes (webkit/V8) directly. Any future dispatcher that aggregates all
+active triggers and acts on the remaining output actions should read from
+`security_triggers[]` in the catalog.
 
 ## File Layout
 

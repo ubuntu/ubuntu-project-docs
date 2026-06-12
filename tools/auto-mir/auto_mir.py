@@ -5,8 +5,12 @@ Usage:
     auto_mir.py <launchpad-bug-id> [options]
 
 Options:
-    --series SERIES          Target Ubuntu series (default: devel)
-    --lxd-image IMAGE        LXD image alias for isolated execution (default: Ubuntu devel)
+    --series SERIES          Force a specific Ubuntu series, skipping auto-detection.
+                             When omitted, the series is derived from the Launchpad bug
+                             tasks; if all tasks target one particular release that release
+                             is used, otherwise the development release (devel) is assumed.
+    --lxd-image IMAGE        LXD image alias for isolated execution
+                             (default: target release image, falling back to Ubuntu devel)
     --keep-container         Keep LXD container after run for debugging (default: off)
     --pin-uat-tooling COMMIT Pin ubuntu-archive-tools to specific commit for reproducible runs
     --llm-model MODEL        LLM model to request from provider (default: gpt-4o-mini)
@@ -113,11 +117,24 @@ def build_parser() -> argparse.ArgumentParser:
         description="AI-assisted MIR reviewer assistant",
     )
     p.add_argument("bug_id", help="Launchpad MIR bug ID")
-    p.add_argument("--series", default="devel", help="Target Ubuntu series (default: devel)")
+    p.add_argument(
+        "--series",
+        default=None,
+        metavar="SERIES",
+        help=(
+            "Force a specific Ubuntu series (e.g. focal, noble), skipping auto-detection. "
+            "When omitted, the series is derived from the Launchpad bug tasks: if all tasks "
+            "target one particular release that release is used, otherwise the development "
+            "release (devel) is assumed."
+        ),
+    )
     p.add_argument(
         "--lxd-image",
         default=None,
-        help="LXD image alias to run checks in (default: first available Ubuntu devel alias)",
+        help=(
+            "LXD image alias to run checks in"
+            " (default: target release image, falling back to Ubuntu devel)"
+        ),
     )
     p.add_argument(
         "--keep-container",
@@ -235,7 +252,8 @@ def stage_intake(ctx: RunContext) -> None:
 
     - Fetch bug metadata, description, comments, and target source package.
     - Hard-fail if reporter MIR content is not found.
-    - Detect target Ubuntu series if not specified.
+    - Auto-detect target Ubuntu series from LP bug tasks when not explicitly forced
+      via --series; defaults to devel when no single series can be inferred.
     """
     log.info("Stage 1: Launchpad intake for bug %s", ctx.bug_id)
     lp_intake.run(ctx)
@@ -246,7 +264,7 @@ def stage_intake(ctx: RunContext) -> None:
 def stage_spawn_container(ctx: RunContext) -> None:
     """Stage 2: Spawn LXD container and provision tooling.
 
-    - Create new container from Ubuntu devel image alias.
+    - Create new container from target Ubuntu release image (or devel fallback).
     - Install required tools inside container.
     - Bootstrap ubuntu-archive-tools at requested revision.
     """

@@ -107,6 +107,48 @@ def _extract_source_package_from_bug(bug, lp) -> str | None:
     return None
 
 
+def _detect_series_from_bug(bug) -> str | None:
+    """Infer the target Ubuntu series from bug task targets.
+
+    Inspects all bug tasks looking for series-specific targets
+    (``DistroSeriesSourcePackage``).  If every such task points to the same
+    single series codename that name is returned.  If there are no
+    series-specific tasks, or tasks span multiple different series, returns
+    ``None`` so the caller can fall back to the development release.
+    """
+    series_names: set[str] = set()
+    try:
+        tasks = list(bug.bug_tasks)
+    except Exception as exc:
+        log.debug("Could not fetch bug tasks for series detection: %s", exc)
+        return None
+
+    for task in tasks:
+        try:
+            target = task.target
+            # DistroSeriesSourcePackage has a .distroseries attribute
+            distroseries = getattr(target, "distroseries", None)
+            if distroseries is not None:
+                name = getattr(distroseries, "name", None)
+                if name:
+                    series_names.add(name)
+        except Exception as exc:
+            log.debug("Skipping task target during series detection: %s", exc)
+            continue
+
+    if len(series_names) == 1:
+        detected = next(iter(series_names))
+        log.debug("Series auto-detected from bug tasks: %s", detected)
+        return detected
+
+    if len(series_names) > 1:
+        log.debug(
+            "Multiple series found in bug tasks (%s); defaulting to devel",
+            ", ".join(sorted(series_names)),
+        )
+    return None
+
+
 def _ask_yes_no(prompt: str, default_no: bool = True) -> bool:
     """Ask user for yes/no confirmation in terminal."""
     suffix = "[y/N]" if default_no else "[Y/n]"
@@ -224,8 +266,19 @@ def run(ctx: "RunContext") -> None:
     ctx.source_package = source_package
     log.info("Source package: %s", ctx.source_package)
 
-    # Series is host-selected (default devel), not auto-detected from bug.
-    log.info("Target series: %s", ctx.series)
+    # Determine the target series.
+    # If the caller forced a series via --series, respect it exactly.
+    # Otherwise auto-detect from bug tasks; fall back to "devel" when no
+    # single specific series can be inferred.
+    if ctx.series is None:
+        detected = _detect_series_from_bug(bug)
+        ctx.series = detected if detected is not None else "devel"
+        if detected is not None:
+            log.info("Target series auto-detected from bug tasks: %s", ctx.series)
+        else:
+            log.info("No specific series found in bug tasks; using development release (devel)")
+    else:
+        log.info("Target series forced by --series: %s", ctx.series)
 
     # Fetch bug subscribers for MIR qualification heuristics and SUM-4 checks
     subscribers = []

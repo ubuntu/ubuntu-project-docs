@@ -1,8 +1,16 @@
 """Renderer for auto-mir structured outputs.
 
 The review draft mirrors the structure of docs/MIR/mir-reviewers-template.md.
-Most sections are rendered with an OK: sub-block and a Left to decide:
-sub-block. The [Summary] section is handled specially and keeps explicit
+Most sections are rendered with a three-tier structure:
+
+  OK:              Resolved checks (status == "ok").
+  Problems:        High-confidence or deterministic failures (status != "ok"
+                   and confidence == "high" or mode == "deterministic").
+                   The reviewer should treat these as confirmed findings.
+  Left to decide:  Unresolvable items and low/medium-confidence results that
+                   need human judgment.  Always rendered as TODO lines.
+
+The [Summary] section is handled specially and keeps explicit
 "Required TODOs:" and "Recommended TODOs:" blocks for final human judgment.
 """
 
@@ -128,12 +136,28 @@ def _build_review_draft(ctx) -> str:
     return "\n".join(lines)
 
 
+def _is_high_confidence_failure(finding: dict) -> bool:
+    """Return True when a not-ok finding is deterministic or AI high-confidence.
+
+    Such findings are shown under Problems: rather than Left to decide: so the
+    reviewer can see confirmed issues separately from items needing judgment.
+    """
+    return finding.get("confidence") == "high" or finding.get("mode") == "deterministic"
+
+
 def _render_section(section: str, findings: list[dict]) -> list[str]:
-    """Render a standard [Section] block."""
+    """Render a standard [Section] block with the three-tier structure.
+
+    OK:              resolved checks
+    Problems:        high-confidence / deterministic failures
+    Left to decide:  low/medium-confidence or unresolvable items (as TODO lines)
+    """
     lines: list[str] = [f"[{section}]"]
 
     ok_findings = [f for f in findings if f["status"] == "ok"]
-    undecided_findings = [f for f in findings if f["status"] != "ok"]
+    not_ok = [f for f in findings if f["status"] != "ok"]
+    problems = [f for f in not_ok if _is_high_confidence_failure(f)]
+    undecided = [f for f in not_ok if not _is_high_confidence_failure(f)]
 
     # OK sub-block — de-duplicate identical messages (e.g. "not a go package" repeated per check)
     if ok_findings:
@@ -145,13 +169,21 @@ def _render_section(section: str, findings: list[dict]) -> list[str]:
                 lines.append(f"- {msg}")
                 seen_msgs.add(msg)
 
+    # Problems sub-block — confirmed findings, shown as statements not TODOs
+    if problems:
+        lines.append("Problems:")
+        for finding in problems:
+            msg = (finding.get("message") or "").strip()
+            if msg:
+                lines.append(f"- {msg}")
+
     # Left to decide sub-block
-    if undecided_findings:
+    if undecided:
         lines.append("Left to decide:")
-        for finding in undecided_findings:
+        for finding in undecided:
             for todo_line in _todo_lines_for_finding(finding):
                 lines.append(f"- {todo_line}")
-    else:
+    elif not problems:
         lines.append("Left to decide: None")
 
     return lines
@@ -251,10 +283,12 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
     Rules enforced:
     - No RULE: lines (template directives must never reach the output)
     - Lines inside a Left to decide: block must start with "- TODO:" or "- TODO-"
+    - Lines inside a Problems: block must not start with "- TODO:" (confirmed findings)
     - Resolved (ok) findings must not produce a TODO message
-    - Unresolved findings must carry a TODO string
+    - Unresolved low/medium-confidence findings must carry a TODO string
     """
     in_undecided_block = False
+    in_problems_block = False
     for line in draft.splitlines():
         # No raw RULE lines allowed
         if line.startswith("RULE:") or line.startswith("RULE "):
@@ -263,9 +297,15 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
         # Track section / sub-section transitions
         if line.startswith("[") and line.endswith("]"):
             in_undecided_block = False
+            in_problems_block = False
             continue
         if line == "Left to decide:":
             in_undecided_block = True
+            in_problems_block = False
+            continue
+        if line == "Problems:":
+            in_problems_block = True
+            in_undecided_block = False
             continue
         if line.startswith("Left to decide: ") or line in (
             "OK:",
@@ -274,6 +314,7 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
             "",
         ):
             in_undecided_block = False
+            in_problems_block = False
             continue
 
         # Every content line inside undecided block must be a TODO entry
@@ -283,6 +324,11 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
                     f"Left to decide block line must start with '- TODO:' or '- TODO-': {line!r}"
                 )
 
+        # Problems block lines are confirmed finding statements, not TODOs
+        if in_problems_block and line:
+            if line.startswith("- TODO:") or line.startswith("- TODO-"):
+                raise ValueError(f"Problems block line must not be a TODO line: {line!r}")
+
     # Per-finding invariants
     for finding in findings:
         status = finding.get("status")
@@ -291,8 +337,10 @@ def _lint_review_draft(draft: str, findings: list[dict]) -> None:
 
         if status == "ok" and message.startswith("TODO:"):
             raise ValueError(f"Resolved finding {finding.get('id')} must not render as TODO")
-        if status != "ok" and not (todo.startswith("TODO:") or todo.startswith("TODO-")):
-            raise ValueError(f"Unresolved finding {finding.get('id')} must include TODO")
+        # High-confidence failures render under Problems: and need a message, not a TODO
+        if status != "ok" and not _is_high_confidence_failure(finding):
+            if not (todo.startswith("TODO:") or todo.startswith("TODO-")):
+                raise ValueError(f"Unresolved finding {finding.get('id')} must include TODO")
 
 
 # ---------------------------------------------------------------------------

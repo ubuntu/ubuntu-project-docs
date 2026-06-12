@@ -20,6 +20,6 @@ Implement the 6 missing evidence adapters:
 
 ## Phase 8C — Corpus Validation
 
-Run against recency corpus in `old-MIRs-as-input`.
+Run against recency cases in `old-MIRs-as-input`.
 
 **Exit criteria**: template-conformant outputs and acceptable review quality.
