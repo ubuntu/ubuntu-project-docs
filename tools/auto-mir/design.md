@@ -20,6 +20,17 @@
 - Policy and the tool needs to be co-developed in this repository so MIR policy
   wording and tool logic/prompts evolve together in the same PR when rules change.
 
+## Coding Guidelines (Ruff + Python)
+
+- Run formatting check before committing: `uv tool run ruff format --check .`
+- Run linting before committing: `uv tool run ruff check .`
+- Keep code Ruff-clean by fixing root causes (do not silence warnings with broad ignores).
+- Avoid whitespace damage: no trailing spaces, no spaces on empty lines, and keep file endings clean.
+- Keep imports sorted and explicit; avoid unused imports and dead code blocks.
+- Prefer small, typed helper functions over repeated inline logic.
+- Preserve behavior when refactoring: run `make test` after changes.
+- Keep error messages actionable and concise, especially for CLI failures.
+
 ## Core Workflow Phases
 
 1. Repository bootstrap under `tools/auto-mir`.
