@@ -8,6 +8,7 @@ These tests require:
 Run with: pytest -m integration tests/test_integration_sbuild.py
 """
 
+import os
 import sys
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -22,6 +23,7 @@ except ImportError:
     HAS_PYTEST = False
     pytest = None
 
+import lxd_runner
 from evidence.container_adapters import collect_sbuild
 
 if HAS_PYTEST:
@@ -52,6 +54,66 @@ def _make_lxd_vm_context():
     return ctx
 
 
+def _require_vm_name() -> str:
+    """Return integration VM name or skip when not configured.
+
+    This keeps the test as a real integration check while remaining optional
+    for environments without a prepared VM.
+    """
+    vm_name = os.environ.get("AUTO_MIR_TEST_VM")
+    if not vm_name:
+        if HAS_PYTEST:
+            pytest.skip("Set AUTO_MIR_TEST_VM to a running provisioned VM for sbuild integration")
+        return ""
+    return vm_name
+
+
+def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> dict:
+    """Fetch source package inside VM and return packaging-source adapter payload."""
+    lxd_runner.exec_in_retry(
+        vm_name,
+        [
+            "bash",
+            "-lc",
+            (
+                f"work=/tmp/auto-mir-int-{source_pkg} && "
+                'rm -rf "$work" && mkdir -p "$work" && cd "$work" && '
+                f"apt-get source -qq {source_pkg} && "
+                "dir=$(find . -maxdepth 1 -type d -name '*-*' | head -n1) && "
+                "echo ${dir#./} > source_dir.txt"
+            ),
+        ],
+        operation=f"prepare source package {source_pkg}",
+    )
+
+    source_dir_name = lxd_runner.exec_in(
+        vm_name,
+        ["bash", "-lc", f"cd /tmp/auto-mir-int-{source_pkg} && cat source_dir.txt"],
+        capture=True,
+    ).stdout.strip()
+    source_dir = f"/tmp/auto-mir-int-{source_pkg}/{source_dir_name}"
+
+    debian_control = lxd_runner.exec_in(
+        vm_name,
+        ["bash", "-lc", f"cd {source_dir} && cat debian/control"],
+        capture=True,
+        check=False,
+    ).stdout
+    debian_rules = lxd_runner.exec_in(
+        vm_name,
+        ["bash", "-lc", f"cd {source_dir} && cat debian/rules"],
+        capture=True,
+        check=False,
+    ).stdout
+
+    return {
+        "status": "ok",
+        "source_dir": source_dir,
+        "debian_control": debian_control,
+        "debian_rules": debian_rules,
+    }
+
+
 def test_sbuild_hello_package_builds_successfully():
     """Test that sbuild can successfully build the hello package.
 
@@ -60,44 +122,29 @@ def test_sbuild_hello_package_builds_successfully():
     2. Built .deb files are produced
     3. Build log is captured
 
-    Note: This test mocks container execution, so no real VM is needed.
+    This test exercises the real adapter code path in a real VM.
     """
-    lxd_vm_context = _make_lxd_vm_context()
+    vm_name = _require_vm_name()
+    if not vm_name:
+        return
 
-    # Mock the packaging-source to point to a real hello package source
-    # In a real test, we would fetch the source first
-    with patch("evidence.container_adapters._capture") as mock_capture:
-        # Mock apt-get source to fetch hello package
-        def capture_side_effect(ctx, cmd, **kwargs):
-            cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
-            if "apt-get source" in cmd_str:
-                # Simulate fetching hello source
-                return "/tmp/hello-source"
-            elif "mkdir -p" in cmd_str:
-                return ""
-            elif "sbuild" in cmd_str:
-                # Simulate successful build
-                return "sbuild: successfully built hello"
-            elif "ls -1" in cmd_str and ".deb" in cmd_str:
-                # Simulate built .deb files
-                return "/tmp/sbuild-output/hello_2.10-3_amd64.deb"
-            return ""
+    ctx = Mock()
+    ctx.vm_name = vm_name
+    ctx.series = "devel"
+    ctx.source_package = "hello"
+    ctx.requested_binaries = []
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": _prepare_packaging_source_in_vm(vm_name, "hello"),
+        }
+    }
 
-        mock_capture.side_effect = capture_side_effect
+    result = collect_sbuild(ctx)
 
-        # Mock _exists to simulate successful build
-        with patch("evidence.container_adapters._exists") as mock_exists:
-            mock_exists.return_value = True
-
-            # Run sbuild adapter
-            result = collect_sbuild(lxd_vm_context)
-
-            # Verify build succeeded
-            assert result["status"] == "ok"
-            assert result["build_success"] is True
-            assert len(result["built_debs"]) > 0
-            assert "hello" in result["built_debs"][0]
-            assert result["build_log"] != ""
+    assert result["status"] == "ok"
+    assert result["build_success"] is True
+    assert len(result["built_debs"]) > 0
+    assert result["build_log"] != ""
 
 
 def test_sbuild_adapter_requires_packaging_source():
@@ -122,31 +169,40 @@ def test_sbuild_adapter_requires_packaging_source():
 
 
 def test_sbuild_adapter_handles_build_failure():
-    """Test that sbuild adapter handles build failures correctly."""
-    lxd_vm_context = _make_lxd_vm_context()
+    """Test that sbuild adapter reports errors for invalid source directories."""
+    vm_name = _require_vm_name()
+    if not vm_name:
+        return
 
-    with patch("evidence.container_adapters._capture") as mock_capture:
+    ctx = Mock()
+    ctx.vm_name = vm_name
+    ctx.series = "devel"
+    ctx.source_package = "hello"
+    ctx.requested_binaries = []
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "source_dir": "/tmp/does-not-exist-auto-mir-sbuild/hello-0.0",
+                "source_workdir": "/tmp/does-not-exist-auto-mir-sbuild",
+                "debian_control": "",
+                "debian_rules": "",
+            }
+        }
+    }
 
-        def capture_side_effect(ctx, cmd, **kwargs):
-            cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
-            if "sbuild" in cmd_str:
-                # Simulate build failure
-                return "sbuild: build failed: missing build dependencies"
-            return ""
+    # With no .dsc in the (nonexistent) workdir the adapter raises AdapterError.
+    from evidence.container_adapters import AdapterError
 
-        mock_capture.side_effect = capture_side_effect
-
-        # Mock _exists to simulate no .deb files produced
-        with patch("evidence.container_adapters._exists") as mock_exists:
-            mock_exists.return_value = False
-
-            # Run sbuild adapter
-            result = collect_sbuild(lxd_vm_context)
-
-            # Verify build failure is reported
-            assert result["status"] == "error"
-            assert result["build_success"] is False
-            assert len(result["built_debs"]) == 0
+    if HAS_PYTEST:
+        with pytest.raises(AdapterError, match=".dsc"):
+            collect_sbuild(ctx)
+    else:
+        try:
+            collect_sbuild(ctx)
+            assert False, "Expected AdapterError to be raised"
+        except AdapterError as e:
+            assert ".dsc" in str(e)
 
 
 def test_dep_analysis_with_sbuild_output():

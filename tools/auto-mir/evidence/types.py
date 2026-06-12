@@ -133,6 +133,7 @@ class PackagingSourceResult(TypedDict):
 
     status: str
     source_dir: str
+    source_workdir: str
     debian_control: str
     debian_rules: str
     cargo_lock_present: bool

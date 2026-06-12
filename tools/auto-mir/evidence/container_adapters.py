@@ -48,6 +48,30 @@ def _exists(ctx, cmd: list[str]) -> bool:
     return result.returncode == 0
 
 
+def _resolve_sbuild_series(ctx, requested_series: str) -> str:
+    """Resolve alias series names to an actual in-container suite name.
+
+    sbuild expects a concrete suite/codename. When callers pass "devel",
+    resolve it to the container codename to avoid suite ambiguity.
+    """
+    if requested_series != "devel":
+        return requested_series
+
+    codename = _capture(
+        ctx,
+        [
+            "bash",
+            "-lc",
+            ". /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME:-devel}}",
+        ],
+        allow_fail=True,
+    ).strip()
+    if codename:
+        log.info("Resolved sbuild suite alias 'devel' to container codename '%s'", codename)
+        return codename
+    return requested_series
+
+
 def _extract_dependency_names(depends: str) -> set[str]:
     """Extract package names from a Debian Depends expression."""
     names: set[str] = set()
@@ -155,6 +179,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
     return {
         "status": "ok",
         "source_dir": full_source,
+        "source_workdir": workdir,
         "debian_control": debian_control,
         "debian_rules": debian_rules,
         "cargo_lock_present": cargo_lock,
@@ -373,11 +398,27 @@ def collect_sbuild(ctx) -> SbuildResult:
     if not source_dir:
         raise AdapterError("sbuild adapter requires packaging-source.source_dir")
 
-    series = ctx.series or "devel"
+    source_workdir = packaging.get("source_workdir", "")
+    series = _resolve_sbuild_series(ctx, ctx.series or "devel")
     output_dir = "/tmp/sbuild-output"
 
     # Create output directory
     _capture(ctx, ["bash", "-lc", f"mkdir -p {output_dir}"])
+
+    # Locate the .dsc file produced by apt-get source in the workdir.
+    # Using the .dsc file is the correct way to invoke sbuild: it avoids
+    # a spurious clean step that sbuild would run when given a source dir,
+    # and it ensures sbuild copies a pristine source tree into the chroot.
+    dsc_path = _capture(
+        ctx,
+        ["bash", "-lc", f"ls {source_workdir}/*.dsc 2>/dev/null | head -n1"],
+        allow_fail=True,
+    ).strip()
+    if not dsc_path:
+        raise AdapterError(
+            f"sbuild adapter requires a .dsc file in {source_workdir}; "
+            "none found after apt-get source"
+        )
 
     # Run sbuild with unshare backend
     # --chroot-mode=unshare: use unshare backend (requires Noble or newer)
@@ -407,13 +448,13 @@ def collect_sbuild(ctx) -> SbuildResult:
         )
 
     build_cmd = (
-        f"cd {source_dir} && "
         f"sbuild -d {series} "
         f"--chroot-mode=unshare "
         f"--no-run-lintian "
         f"{arch_all_flag}"
         f"--no-source-only-changes "
         f"--build-dir={output_dir} "
+        f"{dsc_path} "
         f"2>&1"
     )
 
