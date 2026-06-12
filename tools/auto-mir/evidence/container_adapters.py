@@ -733,10 +733,10 @@ def _parse_built_using_entries(field_text: str) -> list[str]:
     """
     if not field_text:
         return []
-    
+
     # Collapse multi-line entries
     collapsed = " ".join(line.strip() for line in field_text.splitlines())
-    
+
     # Split on commas to get individual entries
     # Each entry might be "package (constraint)" or similar
     entries = [e.strip() for e in collapsed.split(",")]
@@ -752,16 +752,16 @@ def collect_deb_metadata(ctx) -> DebMetadataResult:
     need post-build metadata (e.g., ESL-3, ESL-10).
     """
     sbuild_result = ctx.evidence.get("adapters", {}).get("sbuild", {})
-    
+
     if sbuild_result.get("status") != "ok" or not sbuild_result.get("build_success"):
         raise AdapterError("deb-metadata adapter requires successful sbuild")
-    
+
     built_debs = sbuild_result.get("built_debs", [])
     if not built_debs:
         raise AdapterError("No built .deb files found from sbuild")
-    
+
     deb_packages = []
-    
+
     for deb_path in built_debs:
         try:
             # Extract Package field
@@ -771,11 +771,11 @@ def collect_deb_metadata(ctx) -> DebMetadataResult:
                 allow_fail=True,
                 as_ubuntu=True,
             ).strip()
-            
+
             if not package_name:
                 log.warning("Could not extract Package from %s", deb_path)
                 continue
-            
+
             # Extract Version field
             version = _capture(
                 ctx,
@@ -783,7 +783,7 @@ def collect_deb_metadata(ctx) -> DebMetadataResult:
                 allow_fail=True,
                 as_ubuntu=True,
             ).strip()
-            
+
             # Extract Built-Using field (may be empty)
             built_using_raw = _capture(
                 ctx,
@@ -791,7 +791,7 @@ def collect_deb_metadata(ctx) -> DebMetadataResult:
                 allow_fail=True,
                 as_ubuntu=True,
             ).strip()
-            
+
             # Extract Static-Built-Using field (may be empty)
             static_built_using_raw = _capture(
                 ctx,
@@ -799,25 +799,25 @@ def collect_deb_metadata(ctx) -> DebMetadataResult:
                 allow_fail=True,
                 as_ubuntu=True,
             ).strip()
-            
+
             # Parse multi-line fields into lists of entries
             built_using = _parse_built_using_entries(built_using_raw)
             static_built_using = _parse_built_using_entries(static_built_using_raw)
-            
+
             deb_packages.append({
                 "package": package_name,
                 "version": version,
                 "built_using": built_using,
                 "static_built_using": static_built_using,
             })
-            
+
         except Exception as e:
             log.warning("Error extracting metadata from %s: %s", deb_path, e)
             continue
-    
+
     if not deb_packages:
         raise AdapterError("Could not extract metadata from any built .deb files")
-    
+
     return {
         "status": "ok",
         "message": f"Extracted metadata from {len(deb_packages)} binary packages",

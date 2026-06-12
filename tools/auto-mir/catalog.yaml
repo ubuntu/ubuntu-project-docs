@@ -1172,22 +1172,22 @@ checks:
   language_gate: go|rust
   ai_policy: |
     Evaluate embedded source presence and usage in three dimensions:
-    
+
     1. IDENTIFICATION: Review the file_listing and vendored_dirs to identify any embedded third-party source code.
        Look for common patterns: vendor/, third_party/, vendored/, lib/, deps/, external/, bundle/, include/, thirdparty/.
        Distinguish between actual embedded third-party code and the package's own lib code.
-    
+
     2. USAGE: Examine build_hints (extracted compiler/linker flags, vendor path mentions) to determine if the
        embedded source was actually used in the build. Embedded source that exists but is unused is acceptable.
        Look for: compiler invocations referencing vendor paths, static linking of vendor libraries, archive operations on vendor code.
-    
+
     3. OUTCOME: Return one of three findings:
        - NO EMBEDDED SOURCE: No recognized patterns found. Status: ok, severity: ok
        - EMBEDDED BUT UNUSED: Embedded source detected but NOT referenced in build. Status: ok, severity: ok
          (Include message: "Embedded source present in {dirs}, but not used in build")
        - EMBEDDED AND USED: Embedded source detected AND used in build. Status: not-ok, severity: required
          (Include message: "Embedded source present in {dirs}, used in build — must remove and use archive packages or get security team sign-off")
-    
+
     If debian/control contains Built-Using or Static-Built-Using entries, note this context but do not treat it as
     automatic justification (ESL-3 handles Built-Using validation separately).
   human_override: false

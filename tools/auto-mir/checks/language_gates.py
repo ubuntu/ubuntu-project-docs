@@ -108,12 +108,12 @@ def _language_gate_active(gate: str, ctx) -> bool:
     gates would be active.
     """
     gate = gate.lower()
-    
+
     # Support combined gates like "go|rust"
     if "|" in gate:
         gates = [g.strip() for g in gate.split("|")]
         return any(_language_gate_active(g, ctx) for g in gates)
-    
+
     packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
 
     if packaging.get("status") != "ok":

@@ -436,7 +436,7 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
     check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-3"), None)
     if check is None:
         raise ValueError("ESL-3 check definition not found in catalog")
-    
+
     adapters = ctx.evidence.get("adapters", {})
     deb_metadata = adapters.get("deb-metadata", {})
 
@@ -448,18 +448,18 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
         return finding
 
     deb_packages = deb_metadata.get("deb_packages", [])
-    
+
     # Collect all Built-Using and Static-Built-Using entries from all packages
     all_built_using = []
     all_static_built_using = []
-    
+
     for pkg in deb_packages:
         all_built_using.extend(pkg.get("built_using", []))
         all_static_built_using.extend(pkg.get("static_built_using", []))
-    
+
     # Combine and deduplicate for analysis
     all_entries = sorted(set(all_built_using + all_static_built_using))
-    
+
     if not all_entries:
         finding.status = "ok"
         finding.severity = "ok"
@@ -696,12 +696,12 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
             all_built_using.extend(pkg.get("built_using", []))
             # Note: Static-Built-Using for Rust should also be toolchain-only
             all_built_using.extend(pkg.get("static_built_using", []))
-        
+
         # Filter out expected entries (rust, cargo, cgo, standard toolchain)
         unexpected_bu = [
-            e for e in all_built_using 
+            e for e in all_built_using
             if not any(
-                keyword in e.lower() 
+                keyword in e.lower()
                 for keyword in ["rust", "cargo", "cgo", "golang", "${misc:built-using}"]
             )
         ]
@@ -720,7 +720,7 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
         finding.severity = "ok"
         finding.confidence = "high"
         finding.message = render_check_message(check, "ok_message")
-    
+
     evidence_refs = ["packaging-source:cargo_lock_present"]
     if deb_metadata.get("status") == "ok":
         evidence_refs.append("deb-metadata:deb_packages")

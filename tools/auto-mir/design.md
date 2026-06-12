@@ -25,6 +25,7 @@
 - Run formatting check before committing: `uv tool run ruff format --check .`
 - Run linting before committing: `uv tool run ruff check .`
 - Keep code Ruff-clean by fixing root causes (do not silence warnings with broad ignores).
+- Use spaces for indentation; do not use tab characters for leading indentation.
 - Avoid whitespace damage: no trailing spaces, no spaces on empty lines, and keep file endings clean.
 - Keep imports sorted and explicit; avoid unused imports and dead code blocks.
 - Prefer small, typed helper functions over repeated inline logic.

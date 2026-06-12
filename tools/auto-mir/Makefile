@@ -28,5 +28,5 @@ teardown:
 # always tear the VM down via an EXIT trap even when tests fail.
 integration: lint
 	@$(MAKE) setup && \
-	    trap "$(MAKE) teardown" EXIT && \
-	    AUTO_MIR_TEST_VM=$$(cat $(INT_VM_FILE)) $(MAKE) unit
+	trap "$(MAKE) teardown" EXIT && \
+	AUTO_MIR_TEST_VM=$$(cat $(INT_VM_FILE)) $(MAKE) unit
