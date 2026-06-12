@@ -698,6 +698,18 @@ evidence_adapters:
   fallback: emit_todo_continue
   notes: Uses sbuild unshare backend (requires Noble or newer); installed from noble-backports when target is Noble
   notes: Uses sbuild unshare backend (requires Noble or newer); installed from noble-backports when target is Noble
+- id: deb-metadata
+  type: local_exec
+  description: Extract Built-Using and Static-Built-Using metadata from built .deb files after sbuild
+  inputs:
+  - built_debs
+  depends_on:
+  - sbuild
+  output_contract:
+    status: str
+    message: str
+    deb_packages: list
+  fallback: emit_todo_continue
 - id: lintian
   type: local_exec
   description: Parse lintian output from sbuild run
@@ -1197,7 +1209,9 @@ checks:
     unknown_todo: 'TODO: - Check for embedded source (evidence collection failed)'
     not_ok_message: 'Embedded source present and used in build: {embedded_dirs}'
     not_ok_todo: 'TODO: - Embedded source found and used in build — either remove and use archive packages, or get security team sign-off. Dirs: {embedded_dirs}'
+    ok_built_using_message: 'Built-Using entries present but no embedded source was detected in the package source'
     ok_message: no embedded source present or not used in build
+    llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
   - condition: no embedded source detected
     severity: ok

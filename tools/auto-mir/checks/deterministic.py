@@ -436,10 +436,10 @@ def _check_esl_1(ctx, finding: Finding) -> Finding:
         finding.severity = "required"
         finding.confidence = "high"
         finding.message = render_check_message(
-            check, "not_ok_message", vendored_dirs=", ".join(vendored_dirs)
+            check, "not_ok_message", embedded_dirs=", ".join(vendored_dirs)
         )
         finding.todo = render_check_message(
-            check, "not_ok_todo", vendored_dirs=", ".join(vendored_dirs)
+            check, "not_ok_todo", embedded_dirs=", ".join(vendored_dirs)
         )
         finding.evidence_refs = ["packaging-source:vendored_dirs"]
     elif has_built_using:

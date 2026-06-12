@@ -98,10 +98,11 @@ def validate_catalog(catalog: dict) -> list[str]:
         "ESL-1": {
             "unknown_message": set(),
             "unknown_todo": set(),
-            "not_ok_message": {"vendored_dirs"},
-            "not_ok_todo": {"vendored_dirs"},
+            "not_ok_message": {"embedded_dirs"},
+            "not_ok_todo": {"embedded_dirs"},
             "ok_built_using_message": set(),
             "ok_message": set(),
+            "llm_unavailable_message": {"error"},
         },
         "ESL-3": {
             "unknown_message": set(),
