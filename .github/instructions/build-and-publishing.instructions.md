@@ -1,8 +1,12 @@
 ---
-applyTo: "**"
+applyTo: "docs/**"
 ---
 
 # Build and publishing
+
+Scope contract: This file governs documentation build and publishing behavior for
+`docs/**` only. It does not define coding, linting, or testing conventions for
+`tools/**`.
 
 
 ## Commands
@@ -56,6 +60,14 @@ Cross-references into external doc sets are available via these keys:
 
 - `maintainers/niche-package-maintenance/rustc/common` — excluded from build (`exclude_patterns` in `conf.py`)
 - `SRU/**`, `tech-board/**`, `**/*.txt`, `**/*.html` — excluded from all Vale/style checks (`VALE_IGNORE` in Makefile)
+
+
+## Docs and tools coupling
+
+- `docs/Makefile` runs `generate-includes`, which renders MIR template includes
+  from `tools/auto-mir/catalog.yaml`.
+- This is an operational dependency, not a style-scope merge: docs guidance still
+  applies to `docs/**`, and tools guidance applies to `tools/**`.
 
 
 ## Publishing

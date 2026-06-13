@@ -2,6 +2,17 @@
 
 Choices and reasoning recorded during development. Grouped by topic.
 
+## Promotion tagging convention
+
+Use this log as the source for deciding what should be promoted into
+`.github/instructions/tools-development.instructions.md`.
+
+- Promote only stable, repeated contributor workflow rules.
+- Keep one-off tradeoffs and historical context in this file.
+- When adding a decision that should become instruction-level guidance, include
+  `Promotion: yes` in that decision entry.
+- For decisions that should stay local rationale, include `Promotion: no`.
+
 ## Traceability Decisions
 
 - **SUM-3**: use upstream `ubuntu-archive-tools/component-mismatches` logic by fetching and

@@ -20,6 +20,15 @@
 - Policy and the tool needs to be co-developed in this repository so MIR policy
   wording and tool logic/prompts evolve together in the same PR when rules change.
 
+## Guidance boundaries
+
+- `tools/auto-mir/design.md` is the authoritative architecture and workflow
+  reference for Auto-MIR.
+- `.github/instructions/tools-development.instructions.md` should only contain
+  compact, high-frequency contributor rules and command routing.
+- Do not duplicate long architecture narratives in instruction files. Link back
+  here for detail instead.
+
 ## Coding Guidelines (Ruff + Python)
 
 - Run formatting check before committing: `uv tool run ruff format --check .`
