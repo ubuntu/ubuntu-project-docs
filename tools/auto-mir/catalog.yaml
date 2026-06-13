@@ -953,7 +953,6 @@ checks:
   - ubuntu-cve-tracker
   - cve-org
   - packaging-source
-  - lp-bug-api
   ai_policy: 'Evaluate security section findings. If any security trigger fires (SEC-1-CVE-SYNTH, SEC-11-ATTESTATION) or package is security-sensitive (parses untrusted data, exposes endpoints, handles auth/crypto), suggest security review needed.
 
     '
@@ -978,8 +977,6 @@ checks:
   adapters_required:
   - dep-analysis
   - lp-package-api
-  adapters_optional:
-  - lp-bug-api
   ai_policy: 'Search main for packages with overlapping functionality using apt list/cache data and libhunt or similar. AI should reason about functional overlap, not just name similarity. Produce a tentative finding; reviewer must confirm.
 
     '
@@ -1629,7 +1626,6 @@ checks:
   adapters_required:
   - dep-analysis
   - packaging-source
-  - lp-bug-api
   ai_policy: "Check runtime deps for known parser libraries. Scan source for file format handling. Read package description, man pages, and docs \u2014 out of the description one can quickly derive where data comes from and whether it is untrusted. Surface evidence; AI judges; reviewer confirms.\n"
   human_override: true
   blocker_class: soft
@@ -1656,7 +1652,6 @@ checks:
   mode: ev_to_ai
   adapters_required:
   - packaging-source
-  - lp-bug-api
   ai_policy: 'Check service files for listen/bind/socket usage. Scan source for network binding patterns. Surface evidence; AI judges exposure scope; reviewer confirms.
 
     '
@@ -1686,7 +1681,6 @@ checks:
   adapters_required:
   - dep-analysis
   - packaging-source
-  - lp-bug-api
   ai_policy: 'Check dep list, source, description, man pages and documentation. From the package description one can often quickly determine whether it processes web content and where that content comes from.
 
     '
@@ -1948,7 +1942,6 @@ checks:
   template_line: 220
   mode: ev_to_ai
   adapters_required:
-  - lp-bug-api
   - packaging-source
   ai_policy: 'Detect whether special hardware is needed from reporter content and test metadata. For cases that require it, check whether one of the accepted alternatives is present in the reporter content (testflinger, partner, simulator, community, manufacturer, solutions-qa, or other team). Surface evidence. Reviewer makes final judgment on whether options are truly exhausted for TODO-C.
 

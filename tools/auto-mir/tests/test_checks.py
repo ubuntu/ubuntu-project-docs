@@ -838,6 +838,82 @@ def test_eval_ev_to_ai_graceful_on_large_tier_llm_error():
     assert result.confidence == "low"
 
 
+def test_reduce_file_listing_strips_common_prefix_without_reducing_small_list():
+    listing = [
+        {"path": "./src/pkg/a.py", "size": 10},
+        {"path": "./src/pkg/b.py", "size": 11},
+    ]
+
+    reduced = checks.llm_eval._reduce_file_listing(listing)
+
+    assert isinstance(reduced, list)
+    assert reduced[0]["path"] == "a.py"
+    assert reduced[1]["path"] == "b.py"
+
+
+def test_reduce_file_listing_reduces_above_threshold():
+    listing = [{"path": f"./tree/dir/file-{i}.txt", "size": i} for i in range(1005)]
+
+    reduced = checks.llm_eval._reduce_file_listing(listing)
+
+    assert isinstance(reduced, dict)
+    assert reduced["total_paths"] == 1005
+    assert reduced["shown_paths"] == checks.llm_eval._FILE_LISTING_REDUCTION_THRESHOLD
+    assert reduced["truncated"] is True
+    assert reduced["paths"][0]["path"] == "file-0.txt"
+
+
+def test_eval_ev_to_ai_performs_followup_when_model_requests_more_evidence():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": "\n".join([f"line {i}" for i in range(1, 501)]),
+    }
+    check = {
+        "id": "SEC-6",
+        "title": "Endpoint exposure",
+        "section": "Security",
+        "todo_refs": ["TODO: - Manual review"],
+        "adapters_required": ["sbuild"],
+        "adapters_optional": [],
+    }
+    finding = _make_finding("SEC-6", mode="ev_to_ai")
+
+    first_response = {
+        "status": "unknown",
+        "severity": "required",
+        "confidence": "low",
+        "message": "Need more context",
+        "todo": "TODO: - request details",
+        "rationale": "Insufficient context",
+        "human_confirmation_required": True,
+        "evidence_refs": [],
+        "risk_flags": [],
+        "additional_evidence_requests": [{"type": "line_range", "start": 300, "end": 320}],
+    }
+    second_response = {
+        "status": "ok",
+        "severity": "ok",
+        "confidence": "medium",
+        "message": "No endpoint exposure detected",
+        "todo": "",
+        "rationale": "Reviewed requested lines",
+        "human_confirmation_required": True,
+        "evidence_refs": ["sbuild:build_log"],
+        "risk_flags": [],
+    }
+
+    with mock.patch("checks.llm_eval._select_ev_to_ai_model_tier", return_value="small"):
+        with mock.patch("llm.call_llm", side_effect=[first_response, second_response]) as mocked:
+            result = checks.llm_eval._eval_ev_to_ai(check, ctx, finding)
+
+    assert mocked.call_count == 2
+    second_prompt = mocked.call_args_list[1].args[0]
+    assert "additional_evidence_requested" in second_prompt
+    assert '"line": 300' in second_prompt
+    assert result.status == "ok"
+
+
 def test_esl_3_unexpected_built_using():
     """Test ESL-3 with unexpected Built-Using entries."""
     ctx = _Ctx()

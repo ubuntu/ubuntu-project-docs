@@ -273,3 +273,27 @@ caused confusion.
 - Improved average quality on complex checks while preserving cost control on
   simpler checks.
 - Consistent fallback semantics across both tiers reduce operational surprise.
+
+## LLM Evidence Reducers and Comment Exclusion (2026-06-12)
+
+**Context:**
+Large MIR cases showed that raw adapter payloads (especially large file lists and
+build logs) can dominate prompt context. For several LLM checks, Launchpad bug
+comments did not improve decision quality and only increased noise.
+
+**Decision:**
+- Remove `lp-bug-api` evidence dependency for these LLM checks:
+  - `SUM-6`, `RDO-1`, `SEC-5`, `SEC-6`, `SEC-7`, `CB-4`
+- Add `packaging-source.file_listing` reducer policy:
+  - Strip common leading path prefix when present.
+  - Keep full listing up to 1000 paths.
+  - Above 1000, send capped normalized listing plus summary metadata.
+- Add `sbuild.build_log` two-step retrieval policy:
+  - First pass sends condensed line-numbered summary.
+  - Model may request up to 3 additional snippets by line range or regex pattern.
+  - Runtime executes one follow-up LLM call with requested snippets.
+
+**Consequences:**
+- Better context efficiency on large MIR inputs.
+- More reliable evidence focus for security and hardware-related LLM checks.
+- Keeps interaction bounded and deterministic (single follow-up round, max 3 requests).

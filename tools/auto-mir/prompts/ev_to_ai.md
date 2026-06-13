@@ -28,5 +28,12 @@ Output JSON schema:
   "rationale": "max 2 sentences grounded in evidence",
   "human_confirmation_required": true,
   "evidence_refs": ["adapter:key", "..."],
-  "risk_flags": ["optional flags"]
+  "risk_flags": ["optional flags"],
+  "additional_evidence_requests": [
+    {"type": "line_range", "start": 300, "end": 400},
+    {"type": "pattern", "pattern": "foo.*", "max_matches": 20}
+  ]
 }
+
+Only include additional_evidence_requests when missing context prevents a reliable answer.
+At most 3 follow-up requests are allowed.

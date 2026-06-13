@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 from pathlib import Path
 
@@ -19,6 +20,8 @@ log = logging.getLogger("auto_mir.checks.llm_eval")
 
 _PROMPT_LARGE_THRESHOLD_CHARS = 24000
 _EVIDENCE_LARGE_THRESHOLD_CHARS = 12000
+_FILE_LISTING_REDUCTION_THRESHOLD = 1000
+_MAX_ADDITIONAL_EVIDENCE_REQUESTS = 3
 
 
 @evaluator("ev_to_ai")
@@ -53,6 +56,15 @@ def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
             check, fallback_suffix="manual review needed (LLM unavailable)"
         )
         return finding
+
+    response = _maybe_refine_with_additional_evidence(
+        check,
+        ctx,
+        response,
+        evidence_payload,
+        policy_excerpt,
+        model_tier,
+    )
 
     return _apply_llm_response(response, check, finding)
 
@@ -141,7 +153,7 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
         if data is None:
             payload[adapter_id] = {"status": "not_collected"}
         else:
-            payload[adapter_id] = _truncate_adapter_data(data)
+            payload[adapter_id] = _truncate_adapter_data(data, adapter_id=adapter_id)
 
     # For ESL-1, enhance with build hints extracted from sbuild log
     if check.get("id") == "ESL-1":
@@ -173,7 +185,7 @@ def _select_ev_to_ai_model_tier(prompt: str, evidence_payload: dict) -> str:
     return "small"
 
 
-def _truncate_adapter_data(data: dict, max_str_len: int = 1000) -> dict:
+def _truncate_adapter_data(data: dict, max_str_len: int = 1000, adapter_id: str = "") -> dict:
     """Return a copy of data with large outputs trimmed for LLM token budget.
 
     For known large fields (lintian_output, debian_*, build_log), only include
@@ -192,6 +204,10 @@ def _truncate_adapter_data(data: dict, max_str_len: int = 1000) -> dict:
 
     result = {}
     for k, v in data.items():
+        if adapter_id == "packaging-source" and k == "file_listing" and isinstance(v, list):
+            result[k] = _reduce_file_listing(v)
+            continue
+
         if k in SUMMARY_FIELDS and isinstance(v, str):
             # For known large fields, just count lines/errors
             if k == "lintian_output":
@@ -199,19 +215,305 @@ def _truncate_adapter_data(data: dict, max_str_len: int = 1000) -> dict:
                 errors = sum(1 for ln in lines if ln.startswith("E: "))
                 warnings = sum(1 for ln in lines if ln.startswith("W: "))
                 result[k] = f"[{len(lines)} lines, {errors} errors, {warnings} warnings]"
+            elif k == "build_log":
+                result[k] = _summarise_build_log(v)
             else:
                 # Keep a 300-char preview
                 result[k] = v[:300] + ("..." if len(v) > 300 else "")
         elif isinstance(v, str) and len(v) > max_str_len:
             result[k] = v[:max_str_len] + f" ... [truncated, total {len(v)} chars]"
         elif isinstance(v, dict):
-            result[k] = _truncate_adapter_data(v, max_str_len)
+            result[k] = _truncate_adapter_data(v, max_str_len, adapter_id=adapter_id)
         elif isinstance(v, list) and len(v) > 30:
             # Truncate large lists to first 15 items + summary
             result[k] = v[:15] + [{"...": f"plus {len(v) - 15} more items"}]
         else:
             result[k] = v
     return result
+
+
+def _reduce_file_listing(file_listing: list[dict]) -> list[dict] | dict:
+    """Reduce packaging file listings while preserving path signal for LLMs.
+
+    - Always strip a shared leading path prefix when all entries share one.
+    - Keep full listing until threshold, then cap to threshold with summary.
+    """
+    if not file_listing:
+        return []
+
+    common_prefix = _common_path_prefix(
+        [str(item.get("path", "")) for item in file_listing if isinstance(item, dict)]
+    )
+    stripped_entries = [_strip_listing_entry_prefix(item, common_prefix) for item in file_listing]
+
+    if len(stripped_entries) <= _FILE_LISTING_REDUCTION_THRESHOLD:
+        return stripped_entries
+
+    return {
+        "total_paths": len(stripped_entries),
+        "shown_paths": _FILE_LISTING_REDUCTION_THRESHOLD,
+        "common_prefix_stripped": common_prefix,
+        "paths": stripped_entries[:_FILE_LISTING_REDUCTION_THRESHOLD],
+        "truncated": True,
+    }
+
+
+def _strip_listing_entry_prefix(entry: object, common_prefix: str) -> object:
+    if not isinstance(entry, dict):
+        return entry
+    path = entry.get("path")
+    if not isinstance(path, str) or not common_prefix:
+        return entry
+    stripped = _strip_common_prefix(path, common_prefix)
+    updated = dict(entry)
+    updated["path"] = stripped
+    return updated
+
+
+def _common_path_prefix(paths: list[str]) -> str:
+    normalized = [p for p in (_normalize_listed_path(x) for x in paths) if p]
+    if len(normalized) < 2:
+        return ""
+
+    try:
+        raw = os.path.commonpath(normalized)
+    except ValueError:
+        return ""
+
+    if not raw or raw == ".":
+        return ""
+
+    prefix = raw.rstrip("/")
+    if not prefix:
+        return ""
+    if all(_normalize_listed_path(p).startswith(prefix + "/") for p in paths if p):
+        return prefix + "/"
+    return ""
+
+
+def _normalize_listed_path(path: str) -> str:
+    if not isinstance(path, str):
+        return ""
+    normalized = path.strip()
+    while normalized.startswith("./"):
+        normalized = normalized[2:]
+    return normalized.strip("/")
+
+
+def _strip_common_prefix(path: str, prefix: str) -> str:
+    normalized = _normalize_listed_path(path)
+    pref = prefix
+    if pref.endswith("/"):
+        pref = pref[:-1]
+    if pref and normalized.startswith(pref + "/"):
+        return normalized[len(pref) + 1 :]
+    return normalized
+
+
+def _summarise_build_log(build_log: str) -> dict:
+    """Produce a compact, line-numbered build-log summary for first-pass LLM use."""
+    lines = build_log.splitlines()
+    line_count = len(lines)
+    head = _line_slice(lines, 1, min(120, line_count))
+    tail_start = max(1, line_count - 119)
+    tail = _line_slice(lines, tail_start, line_count)
+
+    highlight_regex = re.compile(
+        r"error|failed|failure|fatal|traceback|undefined reference|test.*fail",
+        re.IGNORECASE,
+    )
+    highlighted = []
+    for idx, line in enumerate(lines, start=1):
+        if highlight_regex.search(line):
+            highlighted.append(
+                {
+                    "line": idx,
+                    "text": line,
+                }
+            )
+        if len(highlighted) >= 80:
+            break
+
+    return {
+        "line_count": line_count,
+        "head": head,
+        "tail": tail,
+        "highlighted_lines": highlighted,
+        "follow_up_request_examples": [
+            "line 300-400",
+            "pattern foo.*",
+        ],
+    }
+
+
+def _line_slice(lines: list[str], start_line: int, end_line: int) -> list[dict]:
+    if start_line > end_line:
+        return []
+    start_idx = max(1, start_line)
+    end_idx = min(len(lines), end_line)
+    return [
+        {
+            "line": i,
+            "text": lines[i - 1],
+        }
+        for i in range(start_idx, end_idx + 1)
+    ]
+
+
+def _maybe_refine_with_additional_evidence(
+    check: dict,
+    ctx,
+    response: dict,
+    evidence_payload: dict,
+    policy_excerpt: str,
+    model_tier: str,
+) -> dict:
+    """Run one follow-up LLM pass when it requests additional evidence snippets."""
+    import llm
+
+    requests = _extract_additional_evidence_requests(response)
+    if not requests:
+        return response
+
+    requested_evidence = _build_additional_requested_evidence(ctx, requests)
+    if not requested_evidence:
+        return response
+
+    follow_up_payload = dict(evidence_payload)
+    follow_up_payload["additional_evidence_requested"] = requested_evidence
+    follow_up_prompt = _render_ev_to_ai_prompt(check, follow_up_payload, policy_excerpt, ctx)
+
+    try:
+        return llm.call_llm(follow_up_prompt, ctx, model_tier=model_tier)
+    except llm.LLMError as exc:
+        log.warning(
+            "Follow-up LLM call failed for check %s after additional requests: %s",
+            check["id"],
+            exc,
+        )
+        return response
+
+
+def _extract_additional_evidence_requests(response: dict) -> list[dict | str]:
+    if not isinstance(response, dict):
+        return []
+    raw = response.get("additional_evidence_requests", [])
+    if isinstance(raw, str):
+        raw = [raw]
+    if not isinstance(raw, list):
+        return []
+    return raw[:_MAX_ADDITIONAL_EVIDENCE_REQUESTS]
+
+
+def _build_additional_requested_evidence(ctx, requests: list[dict | str]) -> dict:
+    adapters_store = ctx.evidence.get("adapters", {})
+    sbuild_data = adapters_store.get("sbuild", {})
+    build_log = sbuild_data.get("build_log", "")
+    if not isinstance(build_log, str) or not build_log:
+        return {}
+
+    snippets = _resolve_build_log_requests(build_log, requests)
+    if not snippets:
+        return {}
+    return {"sbuild": {"build_log_snippets": snippets}}
+
+
+def _resolve_build_log_requests(build_log: str, requests: list[dict | str]) -> list[dict]:
+    lines = build_log.splitlines()
+    snippets: list[dict] = []
+    for req in requests:
+        parsed = _parse_build_log_request(req)
+        if not parsed:
+            continue
+        req_type = parsed.get("type")
+        if req_type == "line_range":
+            start = int(parsed["start"])
+            end = int(parsed["end"])
+            snippets.append(
+                {
+                    "request": parsed,
+                    "lines": _line_slice(lines, start, end),
+                }
+            )
+            continue
+        if req_type == "pattern":
+            snippets.append(
+                {
+                    "request": parsed,
+                    "matches": _build_log_pattern_matches(
+                        lines,
+                        parsed["pattern"],
+                        int(parsed.get("max_matches", 20)),
+                    ),
+                }
+            )
+    return snippets
+
+
+def _parse_build_log_request(request: dict | str) -> dict | None:
+    if isinstance(request, dict):
+        req_type = str(request.get("type", "")).strip().lower()
+        if req_type == "line_range":
+            try:
+                start = int(request.get("start"))
+                end = int(request.get("end"))
+            except (TypeError, ValueError):
+                return None
+            if start <= 0 or end < start:
+                return None
+            return {"type": "line_range", "start": start, "end": end}
+        if req_type == "pattern":
+            pattern = str(request.get("pattern", "")).strip()
+            if not pattern:
+                return None
+            max_matches = request.get("max_matches", 20)
+            try:
+                max_matches = int(max_matches)
+            except (TypeError, ValueError):
+                max_matches = 20
+            return {
+                "type": "pattern",
+                "pattern": pattern,
+                "max_matches": max(1, min(max_matches, 50)),
+            }
+        return None
+
+    if not isinstance(request, str):
+        return None
+
+    text = request.strip()
+    if not text:
+        return None
+
+    range_match = re.search(r"line(?:s)?\s+(\d+)\s*-\s*(\d+)", text, flags=re.IGNORECASE)
+    if range_match:
+        start = int(range_match.group(1))
+        end = int(range_match.group(2))
+        if start > 0 and end >= start:
+            return {"type": "line_range", "start": start, "end": end}
+
+    pattern_match = re.search(r"pattern\s+(.+)$", text, flags=re.IGNORECASE)
+    if pattern_match:
+        pattern = pattern_match.group(1).strip()
+        if pattern:
+            return {"type": "pattern", "pattern": pattern, "max_matches": 20}
+
+    return {"type": "pattern", "pattern": text, "max_matches": 20}
+
+
+def _build_log_pattern_matches(lines: list[str], pattern: str, max_matches: int) -> list[dict]:
+    try:
+        regex = re.compile(pattern)
+    except re.error:
+        return [{"error": f"invalid regex: {pattern}"}]
+
+    matches = []
+    for idx, line in enumerate(lines, start=1):
+        if regex.search(line):
+            matches.append({"line": idx, "text": line})
+            if len(matches) >= max_matches:
+                break
+    return matches
 
 
 def _build_policy_excerpt(check: dict, ctx) -> str:
@@ -506,6 +808,14 @@ Return ONLY a JSON object with these exact fields (no markdown fences):
   "rationale": "max 2 sentences grounded in evidence",
   "human_confirmation_required": true,
   "evidence_refs": ["adapter:key"],
-  "risk_flags": []
+    "risk_flags": [],
+    "additional_evidence_requests": [
+        {"type": "line_range", "start": 300, "end": 400},
+        {"type": "pattern", "pattern": "foo.*", "max_matches": 20}
+    ]
 }
+
+Only include `additional_evidence_requests` when missing context prevents a good answer.
+You may request up to 3 items.
+When you request additional evidence, still fill the other fields using best effort.
 """

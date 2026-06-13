@@ -61,6 +61,23 @@
   reviewer-actionable fallback findings using existing `llm_unavailable_message`
   template semantics.
 
+## LLM Evidence Reduction and Follow-up Retrieval
+
+- The LLM payload builder now avoids passing Launchpad bug comments for these
+  checks, because they are not needed for decision quality:
+  - `SUM-6`, `RDO-1`, `SEC-5`, `SEC-6`, `SEC-7`, `CB-4`
+- `packaging-source.file_listing` handling:
+  - If all listed paths share a leading prefix, that prefix is stripped from
+    all paths before sending to the LLM.
+  - Reduction only triggers when listing size exceeds 1000 paths.
+  - Above threshold, payload includes a summary and first 1000 normalized paths.
+- `sbuild.build_log` handling:
+  - First pass sends condensed, line-numbered content (head, tail, highlights).
+  - The model can ask for up to 3 extra snippets using
+    `additional_evidence_requests` in JSON output.
+  - Supported follow-up requests: line ranges and regex/pattern matches.
+  - Tool performs one follow-up LLM round with requested snippets attached.
+
 ## Implementation-Ready Schema Direction
 
 Single file for MVP: `tools/auto-mir/catalog.yaml`.
