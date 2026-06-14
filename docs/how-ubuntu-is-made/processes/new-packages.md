@@ -67,50 +67,12 @@ A number of Ubuntu Developers are also Debian Maintainers or Debian Developers, 
 ```
 
 
-### Going through MOTU
+### Request sponsorship
 
 Submitting new packages through Debian is the preferred path.
-However, if your package is Ubuntu-specific or can't go into Debian for some other reason, you can submit it directly to MOTU.
-There are a limited number of available reviewers, so you may encounter delays here.
+However, if your package is Ubuntu-specific or can't go into Debian for some other reason, request sponsorship to have it reviewed and uploaded.
 
-New packages require extra scrutiny and go through a special review process, before they get uploaded and get a final review by the [Archive Admins](https://launchpad.net/~ubuntu-archive).
-More information on the review process, including the criteria that will be applied, can be found on the [Code Reviewers page](https://wiki.ubuntu.com/UbuntuDevelopment/CodeReviews#NewPackage).
-Developers are encouraged to examine their own packages using these guidelines prior to submitting them for review.
-
-To receive higher quality bug reports, consider writing an [apport hook](https://wiki.ubuntu.com/Apport#Per-package_Apport_Hooks) for your package.
-
-The {ref}`MOTU <dmb-joining-motu>` team approval policy for new packages:
-
-* New MOTU contributors (who are not [members of the MOTU team](https://launchpad.net/~motu) yet), need to get their packages reviewed and signed off by two [MOTUs (core-devs are included in this)](https://launchpad.net/~motu/+members) to get them uploaded to Ubuntu.
-
-* MOTUs can upload new packages directly to the Archive.
-  However they are greatly encouraged to have a new package reviewed prior to uploading.
-  (cf. [MOTU/Council/Meetings/2007-02-23](https://wiki.ubuntu.com/MOTU/Council/Meetings/2007-02-23))
-
-The MOTU team uses the following workflow:
-
-* Join the {matrix}`devel` channel on Matrix and talk with the MOTU.
-  It's good to do this early on, to get advice on how to package (avoid common mistakes), to find out if your package is likely to be accepted (before you invest a lot of work in packaging it), and to find mentors {ref}`willing to sponsor your package <sponsorship>` or to point you in the right direction.
-
-* When you start to work on a new package, assign the `needs-packaging` bug to yourself and set it to {guilabel}`In Progress` (if there is no `needs-packaging` bug, [file one first](https://bugs.launchpad.net/ubuntu/+filebug/+login)).
-
-* Once you have an initial package, follow the {ref}`new packaging instructions <how-to-create-a-new-package>` to upload it to your PPA or a Launchpad branch, then add a link to the package   in the description of the bug.
-  Requests for changes or other communication about your package will be made as comments on your bug.
-  Subscribing `ubuntu-sponsors` to sponsorship requests is generally advised, as it makes the request appear on the list that people look at.
-
-* Once the approved package is uploaded, the uploading MOTU will set the bug status to {guilabel}`Fix Committed`.
-
-* When the package clears the NEW queue it will automatically be set to {guilabel`Fix Released` (`debian/changelog` must close the `needs-packaging` bug).
-  This is done with a bullet point that follows the format:
-
-  * `Initial release (LP: #242910)`
- 
-  where "LP" refers to "Launchpad". See the {ref}`debian-directory` page for more information on changelogs.
-
-* Even if you don't run Debian as your primary OS, most packaging can be tested perfectly well in a chroot, or failing that, in a Virtual Machine (and most packages will work fine without any changes anyway).
-  (→ [Using Development Releases](https://wiki.ubuntu.com/UsingDevelopmentReleases))
-
-* `#debian-ubuntu` on OFTC and the [debian-derivatives mailing list](https://lists.debian.org/debian-derivatives/) are good places for Ubuntu Developers to ask questions.
+Start with {ref}`how-to-find-a-sponsor` for the current sponsorship process.
 
 
 ### Deadline
