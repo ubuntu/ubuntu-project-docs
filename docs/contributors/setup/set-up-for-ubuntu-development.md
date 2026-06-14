@@ -22,7 +22,6 @@ $ sudo apt update && \
     dh-make \
     git-buildpackage \
     pastebinit \
-    sbuild-launchpad-chroot \
     ubuntu-dev-tools && \
   sudo snap install lxd && \
   sudo snap install --classic snapcraft && \
