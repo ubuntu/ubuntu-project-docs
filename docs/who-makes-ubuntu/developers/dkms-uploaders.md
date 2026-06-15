@@ -65,7 +65,7 @@ Members must understand that uploading a package is not the end of the process. 
 should be proficient in monitoring the proposed pocket migration queue and resolving issues
 that prevent migration, including build failures and autopkgtest regressions.
 
-Members must be capable of writing new autopkgtest for DKMS packages and running them
+Members must be capable of writing new autopkgtests for DKMS packages and running them
 locally to validate changes before upload.
 
 
