@@ -50,25 +50,28 @@ The release targeted by the SRU are:
 As NVIDIA uses a 2 different versioning schemes, the version number of the
 driver is not directly related to the version number of the release, but it's
 a semver; as an example 26.01 is uploaded in the archive as DOCA 3.3.x and
-26.04 as 3.4.x.
+26.04 as 3.4.x; Canonical will use only the first two digits of the semver
+to create a package (e.g. doca-ofed-3.4-dkms); the third digit will be used
+to upgrade an existing package (for bug-fixes etc...)
 
 When a new short lived release is available and uploaded, meta-packages will
 make the user update to the newer release. This happens until the new release
 is an LTS one.
 
-For example if version 3.3.0 is in the LTS and 3.4.0 is the NVIDIA LTS.
+For example if the non-LTS DOCA version 3.3.0 is in the Ubuntu LTS release, 
+and 3.4.0 is the next DOCA LTS:
 
 -  Version 3.3.1 is uploaded to the LTS, users will be upgraded.
 -  Version 3.4.0 is uploaded to the LTS, a transitional metapackage is created to upgrade the user to the latest version.
 -  Version 3.5.0 is uploaded to the LTS, user will not be upgraded and no transitional metapackage will be created.
 
-The last statement could change in the future depending on discssions with
+The last statement could change in the future depending on discussions with
 NVIDIA and the community, but the idea is to not force users to upgrade to a
 new release that might drop support for old hardware automatically.
 
-.. _doca-ofed_release_schedule:
+.. _doca-ofed_release_process:
 
-DOCA-OFED Release Schedule
+DOCA-OFED Release Process
 --------------------------
 
 - New version of the driver released by NVIDIA
