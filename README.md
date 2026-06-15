@@ -1,6 +1,6 @@
 # Ubuntu project docs
 
-This repository contains the sources for the [Ubuntu Project Documentation](https://documentation.ubuntu.com/project/).
+This repository contains the sources for the [Ubuntu Project Documentation](https://ubuntu.com/project/docs/).
 
 It is documentation about the workings of the Ubuntu project. These docs aim
 to encompass the entirety of the processes that together form the
@@ -13,8 +13,8 @@ distribution. The documentation is structured into three pillars:
 
 ## Publishing
 
-The documentation is published using Sphinx and hosted on Read the Docs: [![Documentation Status](https://app.readthedocs.com/projects/canonical-ubuntu-project/badge/?version=latest)](https://app.readthedocs.com/projects/canonical-ubuntu-project/badge/?version=latest)
+The documentation is published using Sphinx and hosted on Read the Docs: [![Documentation Status](https://app.readthedocs.com/projects/canonical-ubuntu-projectubuntu/badge/?version=latest)](https://app.readthedocs.com/projects/canonical-ubuntu-projectubuntu/badge/?version=latest)
 
 ## Contributing
 
-See [How to contribute documentation](https://documentation.ubuntu.com/project/contributors/contribute-docs/).
+See [How to contribute documentation](https://ubuntu.com/project/docs/contributors/contribute-docs/).
