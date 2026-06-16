@@ -11,6 +11,7 @@ You must have a Launchpad ID. To get an ID:
 * Click {guilabel}`Log in / Register`
 
 
+(ubuntu-development-dependencies)=
 ## Install software
 
 ```none
@@ -21,12 +22,43 @@ $ sudo apt update && \
     dh-make \
     git-buildpackage \
     pastebinit \
-    sbuild-launchpad-chroot \
     ubuntu-dev-tools && \
   sudo snap install lxd && \
   sudo snap install --classic snapcraft && \
   sudo snap install --classic git-ubuntu
 ```
+
+
+(configure-groups)=
+## Configure your groups
+
+Your user should be a member of the following groups:
+
+* `adm`
+* `libvirt`
+* `lxd`
+* `sbuild`
+* `sudo`
+
+Ensure you have installed the packages listed above, which will be the trigger
+to create most of these groups. For group membership to be activated one
+usually needs to re-login. Then, one can double check group membership via:
+
+```none
+$ groups my_user
+my_user : my_user adm cdrom sudo dip plugdev lpadmin sambashare \
+ libvirt sbuild lxd
+```
+
+If any of the following groups is missing for your user you can fix it via
+`adduser`, like this:
+
+```none
+$ sudo adduser my_user lxd
+$ sudo adduser my_user sbuild
+$ sudo adduser my_user libvirt
+```
+
 
 ## Configure software
 
@@ -37,58 +69,11 @@ $ sudo apt update && \
 {term}`encryption keys <Signing Key>`. You'll need it later to be able to add
 a {term}`signature` to each {ref}`upload <uploading-to-the-archive>`.
 
-This setup example is quite concise and only contains the basics, but
-eventually the {term}`private key <Signing Key>` will represent your identity
-and therefore has to be {ref}`kept safe <pgp-key-storage>` and out of reach of
-other entities.
-
-
-* Install and set up GPG normally.
-* List the keys and make sure you associate the email you want to use for
-  publishing.
-
-  ```none
-  $ gpg --list-secret-key
-  /home/karl/.gnupg/pubring.kbx
-  -----------------------------
-  sec   rsa4096 2018-08-15 [SC]
-        7C177302572849D84A5048349E9C224744EF2A5A
-  uid           [ultimate] Karl Stenerud <kstenerud@gmail.com>
-  ssb   rsa4096 2018-08-15 [E]
-  ```
-
-  * In this case, my Canonical address isn't in there, so I need to add it:
-
-    ```none
-    $ gpg --edit-key 7C177302572849D84A5048349E9C224744EF2A5A
-    ...
-    gpg> adduid
-    Real name: Karl Stenerud
-    Email address: karl.stenerud@canonical.com
-    Comment:
-    You selected this USER-ID:
-        "Karl Stenerud <karl.stenerud@canonical.com>"
-
-    Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
-    ```
-
-* Then save and quit:
-
-  ```none
-  gpg> save
-  ```
-
-* And push to the keyserver:
-
-  ```none
-  $ gpg --keyserver keyserver.ubuntu.com --send-keys 7C177302572849D84A5048349E9C224744EF2A5A
-  ```
-
-Make sure you note the key strength of your GPG key. In this case its rsa4096,
-but if you have an older key it may be a weaker 2048-bit or 1024-bit key. If
-so, create a new 4096-bit one and deprecate the old one in Launchpad, GitHub,
-etc.
-
+Eventually the {term}`key <Signing Key>` will represent your identity.
+Therefore it needs to {ref}`fulfil several recommendations <pgp-key-storage>`
+and be kept safe as well as out of reach of other entities.
+The setup can be quite complex and is outlined step by step
+in {ref}`set-up-and-manage-pgp-keys`.
 
 (git)=
 ### Git
@@ -188,50 +173,76 @@ specify a destination, it'll default to doing nothing.
 (sbuild)=
 ### sbuild
 
-[sbuild](https://wiki.debian.org/sbuild) is a wrapper script around `schroot`.
+[sbuild](https://wiki.debian.org/sbuild) is the recommended tool for building
+packages on Ubuntu.
 
-```{note}
-A newer backend, `unshare`, can be used for `sbuild` in place of `schroot`. Compared to `schroot`, it does not need chroot configuration and does not need to run the build as root.
+::::{tab-set}
 
-To use `unshare`:
+:::{tab-item} Ubuntu 25.10 and later
 
-* Install the {pkg}`mmdebstrap` and {pkg}`uidmap` packages.
+Install the `mmdebstrap` and `uidmap` packages:
 
-* Add the following to your `sbuild` configuration in {file}`~/.sbuildrc`:
-
-    ```none
-    $chroot_mode = "unshare";
-    $unshare_mmdebstrap_keep_tarball = 1;
-    ```
-
-Note that while Debian has transitioned to `unshare`, it is not used by Launchpad builders, so it may fail to build some packages.
+```shell
+$ sudo apt install -y mmdebstrap uidmap
 ```
 
-In these examples, replace `my_user` with your own username.
+`sbuild` reads the user specific configuration file
+`~/.config/sbuild/config.pl`.
 
-Make mount points:
-
-```none
-$ mkdir -p ~/schroot/build
-$ mkdir -p ~/schroot/logs
+Create the file if it does not exist:
+```shell
+$ mkdir -p ~/.config/sbuild
+$ touch ~/.config/sbuild/config.pl
 ```
 
-Set up a scratch directory:
 
-```none
-$ mkdir -p ~/schroot/scratch
-$ echo "/home/my_user/schroot/scratch  /scratch          none  rw,bind  0  0" \
- >> /etc/schroot/sbuild/fstab
+Save the file with the following content:
+
+```perl
+$chroot_mode = 'unshare';
+$unshare_mmdebstrap_keep_tarball = 1;
+
+$unshare_tmpdir_template = '/var/tmp/tmp.sbuild.XXXXXXXXXX';
+
+$clean_source = 0;
+$run_lintian = 0;
+```
+
+:::
+
+:::{tab-item} Ubuntu 24.04 LTS and earlier
+
+Make the required mount points for builds, logs, and scratch:
+
+```shell
+$ mkdir -p ~/schroot/{build,logs,scratch}
+```
+
+Add a scratch directory to `/etc/schroot/sbuild/fstab`:
+
+```shell
+$ echo "$HOME/schroot/scratch  /scratch          none  rw,bind  0  0" \
+  | sudo tee -a /etc/schroot/sbuild/fstab
+
 ```
 
 Optionally, you can mount your home directory inside the container:
 
 ```none
-$ echo "/home/my_user  /home/my_user          none  rw,bind  0  0" \
- >> /etc/schroot/sbuild/fstab
+$ echo "$HOME  $HOME          none  rw,bind  0  0" \
+  | sudo tee -a /etc/schroot/sbuild/fstab
 ```
 
-In the following template (`.sbuildrc`), replace the following:
+`sbuild` reads the user specific configuration file
+`~/.config/sbuild/config.pl`.
+
+Create the file if it does not exist:
+```shell
+$ mkdir -p ~/.config/sbuild
+$ touch ~/.config/sbuild/config.pl
+```
+
+Save the file with the following content, replacing the placeholders:
 
 * `$maintainer_name = 'Your Full Name <your@email.com>';`
 
@@ -239,17 +250,23 @@ In the following template (`.sbuildrc`), replace the following:
 
 * `$log_dir = "/home/my_user/schroot/logs";`
 
-Template:
-
-```none
+```perl
 # Name to use as override in .changes files for the Maintainer: field
 # (optional; only uncomment if needed).
 # $maintainer_name = 'Your Full Name <your@email.com>';
 
+$chroot_mode = 'schroot';
+$unshare_mmdebstrap_keep_tarball = 1;
+
 # Default distribution to build.
-$distribution = "focal";
+$distribution = "resolute";
 # Build arch-all by default.
 $build_arch_all = 1;
+
+# Do not check for the presence of the build dependencies on the host
+# system, as these exist only in the unshare chroot.
+$clean_source = 0;
+$run_lintian = 0;
 
 # When to purge the build directory afterwards; possible values are 'never',
 # 'successful', and 'always'.  'always' is the default. It can be helpful
@@ -259,9 +276,6 @@ $build_arch_all = 1;
 $purge_build_directory = 'successful';
 $purge_session = 'successful';
 $purge_build_deps = 'successful';
-# $purge_build_directory = 'never';
-# $purge_session = 'never';
-# $purge_build_deps = 'never';
 
 # Directory for chroot symlinks and sbuild logs.  Defaults to the
 # current directory if unspecified.
@@ -270,11 +284,20 @@ $build_dir = '/home/my_user/schroot/build';
 # Directory for writing build logs to
 $log_dir = '/home/my_user/schroot/logs';
 
+# Key used to sign the source package. Defaults to not using any key.
+# $key_id = '';
+
 # don't remove this, Perl needs it:
 1;
 ```
 
-A working `.mk-sbuild.rc`:
+Create `~/.mk-sbuild.rc`:
+
+```shell
+$ touch ~/.mk-sbuild.rc
+```
+
+Save the file with the following content:
 
 ```none
 SCHROOT_CONF_SUFFIX="source-root-users=root,sbuild,admin
@@ -289,47 +312,40 @@ SKIP_PROPOSED="1"
 # DEBOOTSTRAP_PROXY=http://127.0.0.1:3142/
 ```
 
-```{note}
+(schroots)=
+### schroots
 
-For more info, see the [Ubuntu wiki page on sbuild](https://wiki.ubuntu.com/SimpleSbuild)
+Having `sbuild` set up is only half of the solution - schroot (secure chroot)
+environments for the respective builds are also needed.
+
+Get a schroot for a specific release of Ubuntu using `mk-sbuild`:
+
+```shell
+$ mk-sbuild resolute --arch=amd64
 ```
 
-(getting-schroots)=
-### Getting Schroots
-
-Having `sbuild` set up is only half of the solution. Schroot environments for
-the respective builds are also needed.
-
-As outlined in the [Ubuntu wiki page on `sbuild`](https://wiki.ubuntu.com/SimpleSbuild)
-one can use e.g. `mk-sbuild noble --arch=amd64` for that.
-But many use `sbuild-launchpad-chroot` instead which includes two `sbuild` hooks
-and a command line tool to setup and maintain build chroots that are as close
-as possible to a standard Launchpad `sbuild` chroot.
+List the available schroots:
 
 ```none
-$ sudo sbuild-launchpad-chroot create -n noble-amd64 -s noble -a amd64
+$ sbuild -l
 ```
 
-This will create multiple schroots which allow to easily select building against
-different configurations like `-proposed` or `-backports`.
+Update a schroot:
 
-In general, schroots can get stale and there are more and more updates needed
-in a build. They can be updated individually using `sbuild-update`. The common
-`-udcar` options map to `apt update`, `dist-upgrade`, `clean` and `autoremove`.
-
-```none
-$ sudo sbuild-update -udcar jammy-proposed-amd64
+```shell
+$ sbuild-update -udc resolute-amd64
 ```
 
-Furthermore, sometimes a schroot for Debian is needed to contribute there
-or to compare build results. Those can be created with `sbuild-createchroot`
-that comes with the `sbuild` package. We usually add a few packages
-that help us later and refer to where to create and where to get the content.
-Here is an example:
+Delete a schroot:
 
-```none
-$ sudo sbuild-createchroot --include=eatmydata,ccache,gnupg unstable /srv/chroot/unstable-amd64-sbuild http://deb.debian.org/debian
+```shell
+$ sudo rm /etc/schroot/chroot.d/sbuild-resolute-amd64
+$ sudo rm -rf /var/lib/schroot/chroots/resolute-amd64
 ```
+
+:::
+
+::::
 
 
 (lxd)=
@@ -364,42 +380,47 @@ For more info, see the
 (caching-packages)=
 ## Caching packages
 
-Downloading packages can be a bottleneck, so it helps to set up a local cache:
+When building packages with tools like `sbuild` or `autopkgtest`, the build
+environment downloads packages from the Ubuntu mirrors on each run. This can
+amount to hundreds of megabytes per build and significantly slow down the
+iteration cycle.
+
+Setting up a local package cache is strongly recommended.
+
+### apt-cacher-ng
+
+The simplest approach is to install `apt-cacher-ng` on your development machine
+with its default configuration:
 
 ```none
-$ echo 'Acquire::http::Proxy "http://127.0.0.1:3142";' \
-| sudo tee /etc/apt/apt.conf.d/01acng
+$ sudo apt install apt-cacher-ng
 ```
 
-
-## Configure your groups
-
-Your user should be a member of the following groups:
-
-* `adm`
-* `libvirt`
-* `lxd`
-* `sbuild`
-* `sudo`
-
-Ensure you have installed the packages listed above, which will be the trigger
-to create most of these groups. For group membership to be activated one
-usually needs to re-login. Then, one can double check group membership via:
+Then configure `apt` to use it by creating {file}`/etc/apt/apt.conf.d/01acng` with:
 
 ```none
-$ groups my_user
-my_user : my_user adm cdrom sudo dip plugdev lpadmin sambashare \
- libvirt sbuild lxd
+Acquire::http { Proxy "http://127.0.0.1:3142"; }
 ```
 
-If any of the following groups is missing for your user you can fix it via
-`adduser`, like this:
+See also the `DEBOOTSTRAP_PROXY` setting in {file}`.mk-sbuild.rc` as an example.
+
+
+### auto-apt-proxy
+
+`auto-apt-proxy` detects a cache on your local network automatically. This is
+useful if:
+
+- You have a shared cache on your LAN rather than your local machine.
+- You need the setup to work without reconfiguring when changing networks
+  (e.g., at sprints or conferences).
 
 ```none
-$ sudo adduser my_user lxd
-$ sudo adduser my_user sbuild
-$ sudo adduser my_user libvirt
+$ sudo apt install auto-apt-proxy
 ```
+
+Even with a local `apt-cacher-ng`, `auto-apt-proxy` can help resolve the
+correct address to use from inside VMs or containers.
+
 
 
 ## Configure your .profile

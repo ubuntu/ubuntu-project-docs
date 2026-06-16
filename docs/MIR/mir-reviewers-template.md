@@ -326,9 +326,10 @@ TODO-B: Problems: None
 
 [Packaging red flags]
 RULE: - Does Ubuntu carry a non necessary delta?
-RULE: - If it's a library, does it either have a symbols file or use an empty
-RULE:   argument to dh_makeshlibs -V? (pass such a patch on to Debian, but
-RULE:   don't block on it).
+RULE: - If it's a library, does it have a symbols file? In the absence
+RULE:   of a symbols file, dh_makeshlibs imposes a tighter constraint
+RULE:   by default, using 'Upstream-Version'; dh_makeshlibs -V with an
+RULE:   empty argument has the same effect.
 RULE:   Note that for C++, see https://wiki.ubuntu.com/DailyRelease/FAQ
 RULE:   for a method to demangle C++ symbols files.
 RULE: - There are shared object only meant for internal use, examples
@@ -354,6 +355,7 @@ OK:
 TODO-A: - Ubuntu does not carry a delta
 TODO-B: - Ubuntu does carry a delta, but it is reasonable and maintenance under
 TODO-B:   control
+TODO-C: - This is an Ubuntu-only package
 TODO-A: - symbols tracking is in place.
 TODO-B: - For c++ libraries - symbols tracking isn't in place but the owning
 TODO-B:   team tried to set it up and came back with a reasonable rationale

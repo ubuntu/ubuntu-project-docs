@@ -107,21 +107,21 @@ Now build a testbed with::
 
 (Please see its manpage and ``--help`` output for selecting different releases,
 architectures, output directory, or using proxies). This will build e. g.
-``adt-trusty-amd64-cloud.img``.
+``autopkgtest-noble-amd64.img``.
 
 Then run the tests of a source package like ``libpng`` in that QEMU image::
 
-        autopkgtest libpng -- qemu adt-trusty-amd64-cloud.img
+        autopkgtest libpng -- qemu autopkgtest-noble-amd64.img
 
 The Ubuntu CI system runs packages with only selected packages from
 ``-proposed`` available (the package which caused the test to be run); to
 enable that, run::
 
-        autopkgtest libpng -U --apt-pocket=proposed=src:foo -- qemu adt-release-amd64-cloud.img
+        autopkgtest libpng -U --apt-pocket=proposed=src:foo -- qemu autopkgtest-release-amd64.img
 
 or to run with all packages from ``-proposed``::
 
-        autopkgtest libpng -U --apt-pocket=proposed -- qemu adt-release-amd64-cloud.img
+        autopkgtest libpng -U --apt-pocket=proposed -- qemu autopkgtest-release-amd64.img
 
 The ``autopkgtest`` manpage has a lot more valuable information on other
 testing options.
@@ -150,13 +150,13 @@ Ubuntu infrastructure
 
 Packages which have ``autopkgtest`` enabled will have their tests run whenever
 they get uploaded or any of their dependencies change. The output of
-`automatically run autopkgtest tests <jenkins_>`_ can be viewed on the web and is 
+`automatically run autopkgtest tests <autopkgtest_ubuntu>`_ can be viewed on the web and is
 regularly updated.
 
-Debian also uses ``autopkgtest`` to run package tests, although currently only
-in schroots, so results may vary a bit. Results and logs can be seen on
-https://ci.debian.net/. So please submit any test fixes or new tests to Debian as
-well.
+Debian also uses ``autopkgtest`` to run package tests, although results may
+vary a bit due to differences in dependencies between Ubuntu and Debian.
+Results and logs can be seen on https://ci.debian.net/. So please submit any
+test fixes or new tests to Debian as well.
 
 
 Getting the test into Ubuntu
@@ -189,7 +189,7 @@ Further reading
 .. _gvfs: https://git.launchpad.net/ubuntu/+source/gvfs/tree/debian/tests
 .. _gtk3: https://git.launchpad.net/ubuntu/+source/gtk+3.0/tree/debian/tests
 .. _ubiquity: https://git.launchpad.net/ubiquity/tree/debian/tests
-.. _jenkins: https://autopkgtest.ubuntu.com/
+.. _autopkgtest_ubuntu: https://autopkgtest.ubuntu.com/
 .. _running_tests: https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.running-tests.rst
 .. _requiredtests: https://wiki.ubuntu.com/QATeam/RequiredTests
 .. _autopkgtest: https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.package-tests.rst

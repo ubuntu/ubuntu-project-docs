@@ -65,7 +65,7 @@ Apport does not trap SIGABRT signals. If you are getting such a signal, then ple
 (how-to-enable-apport)=
 ## How to enable Apport
 
-On Ubuntu Desktop, you can manage error reporting from the Control Center. Open {guilabel}`Settings`, go to {guilabel}`Privacy & Security` > {guilabel}`Diagnostics`, and use {guilabel}`Send error reports to Canonical` to choose how error reports are handled.
+On Ubuntu Desktop, you can manage error reporting from the Control Center. Open {guilabel}`Settings`, go to {guilabel}`Privacy & Security` > {guilabel}`Telemetry`, and use {guilabel}`Send error reports to Canonical` to choose how error reports are handled.
 
 The default setting is {guilabel}`Manual`, which means Ubuntu asks before sending an error report. You can also choose to send reports automatically or disable error reporting from the same settings page.
 
