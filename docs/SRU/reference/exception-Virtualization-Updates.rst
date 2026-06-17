@@ -100,7 +100,7 @@ SRU Process
 -----------
 
 The SRU should be done with a single bug, for all the source packages. This is because the components
-are tightly coupled and need to be upgraded together to ensure the compatibility of the stack.
+are tightly coupled and should to be upgraded together to ensure the compatibility of the stack.
 The SRU process should be followed as usual, with the following additional requirements to ensure
 that the upgrade is done smoothly and with minimal regressions:
 
