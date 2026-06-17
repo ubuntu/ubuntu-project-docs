@@ -4,7 +4,7 @@ Virtualization Updates
 ======================
 
 This document describes the policy for updating [hardware enablement virtualization components](https://ubuntu.com/server/docs/how-to/virtualisation/virt-hwe/) in a stable,
-supported release starting from Ubuntu Resolute 26.04.
+supported release. These opt-in components are available in Ubuntu starting from Ubuntu Resolute 26.04.
 
 This cover the following list of source packages:
 
