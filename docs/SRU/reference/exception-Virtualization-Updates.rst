@@ -25,7 +25,7 @@ virtualization features to LTS-only users in a timely manner.
 
 To address this, and mirroring the long-standing
 :ref:`HWE kernel <https://canonical-kernel-docs.readthedocs-hosted.com/reference/hwe-kernels/>`
-model, Starting from 26.04 LTS, Ubuntu provides a rolling **HWE virtualization stack** for the
+model, Starting from 26.04 LTS, Ubuntu provides an opt-in rolling **HWE virtualization stack** for the
 LTS that tracks the upstream versions shipped in the latest Ubuntu interim release.
 
 Key notes
