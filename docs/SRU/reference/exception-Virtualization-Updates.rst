@@ -38,7 +38,7 @@ Key notes
 
 - The HWE virtualization stack will be **upgraded once every 6 months**
 
-   The upgrade follows the same schedule as the HWE kernel. For example, when the next Ubuntu
+   The upgrade follows the same schedule as the [HWE kernel](https://documentation.ubuntu.com/kernel/reference/hwe-kernels/). For example, shortly after the next Ubuntu
    interim release (e.g. 26.10) is released, the HWE virtualization stack will be updated in
    the current LTS (e.g. 26.04) to match the versions shipped in that interim release.
 
