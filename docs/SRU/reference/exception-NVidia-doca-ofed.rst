@@ -61,9 +61,10 @@ is an LTS one.
 For example if the non-LTS DOCA version 3.3.0 is in the Ubuntu LTS release, 
 and 3.4.0 is the next DOCA LTS:
 
--  Version 3.3.1 is uploaded to the LTS, users will be upgraded.
--  Version 3.4.0 is uploaded to the LTS, a transitional metapackage is created to upgrade the user to the latest version.
--  Version 3.5.0 is uploaded to the LTS, user will not be upgraded and no transitional metapackage will be created.
+-  Version 3.3.1 is uploaded to the Ubuntu LTS, users will be upgraded.
+-  Version 3.4.0 is uploaded to the Ubuntu LTS, a transitional metapackage is created to upgrade the user to the latest version.
+-  Version 4.0.0 (DOCA GA) is uploaded to the Ubuntu LTS, user will not be upgraded and no transitional metapackage will be created.
+-  Version 4.4.0 (next DOCA LTS) is uploaded to the Ubuntu LTS. Once the previous DOCA GA and LTS versions reach end of support upstream, a transitional metapackage is created to upgrade users from those previous GA versions and from the previous LTS (3.4.0) to the latest version.
 
 The last statement could change in the future depending on discussions with
 NVIDIA and the community, but the idea is to not force users to upgrade to a
