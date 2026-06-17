@@ -88,6 +88,17 @@ The less experience you have in Debian or other open source communities, the mor
 
 Finally, you'll know you're past ready for applying if anyone ever asks, "How do you not already have upload rights??"
 
+## Scope and definition
+
+It is easy to mix up this and {ref}`dmb-joining-ppu`, here a clarification:
+
+* Packagesets are defined by their description.
+* Applicants prove to be able to handle what the description defines.
+* Adding packages can be done on non-formal request as long as they fit the description.
+* Usually a team managed by the DMB is the uploader of a packageset.
+* On successful packageset application people become member of that team.
+* Existing packagesets, their definition and teams can be [seen per release here](https://static-reports.ubuntu.com/packagesets/).
+* relation: `developer` *-is-member-of->* `team` *-is-uploader-of->* `packageset` *-covers->* `packages`
 
 ## Voting
 
