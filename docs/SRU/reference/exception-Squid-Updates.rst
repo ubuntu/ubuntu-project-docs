@@ -75,14 +75,6 @@ any benchmarks or coverage data for that.
 Squid Upstream CI
 -----------------
 
-BuildFarm
-^^^^^^^^^
-
-The upstream project performs builds for different OSes and platforms
-from different branches in a continuous manner. This process is
-described in http://wiki.squid-cache.org/BuildFarm and is performed in
-Squid's own Jenkins instance at http://build.squid-cache.org/.
-
 .. _github_actions:
 
 GitHub Actions
