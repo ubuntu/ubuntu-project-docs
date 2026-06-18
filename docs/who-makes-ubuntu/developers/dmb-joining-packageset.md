@@ -1,6 +1,11 @@
 (dmb-joining-packageset)=
 # Packageset uploaders
 
+```{include} ../_dmb-series.md
+```
+
+
+
 Upload rights can be given for certain **[packagesets](https://ubuntu-archive-team.ubuntu.com/packagesets/)**, such as '[ubuntu-server](https://ubuntu-archive-team.ubuntu.com/packagesets/questing/ubuntu-server)' or '[ubuntu-desktop](https://ubuntu-archive-team.ubuntu.com/packagesets/questing/ubuntu-desktop)'.
 The original design intent was for the packageset level to be applied to individuals who will only be working on a very small set of packages.
 
