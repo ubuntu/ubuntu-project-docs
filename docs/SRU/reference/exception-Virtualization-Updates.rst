@@ -48,7 +48,7 @@ Key notes
    the latest Ubuntu release. For example, when 26.10 is released, the 26.04 HWE stack will be upgraded
    to have the same upstream version as the one shipped in 26.10.
 
-- The HWE virtualization stack is **stopped from rolling after 2 years**.
+- The HWE virtualization stack **stops rolling after 2 years** when the next LTS becomes available.
 
    For example, the 26.04 LTS HWE virtualization stack will stop rolling when the next LTS (e.g. 28.04) is released,
    and the last upgrade will be to match the versions shipped in the 28.04 LTS.
