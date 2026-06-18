@@ -124,7 +124,8 @@ contributors/index-new-package/ contributors/new-package/
 contributors/new-package/create-new-package/ contributors/new-package/create-a-new-package/
 tutorial/create-new-package/ contributors/new-package/create-a-new-package/
 
-contributors/new-package/request-sru/ contributors/new-package/request-an-sru/
+contributors/new-package/request-sru/ SRU/howto/standard/
+contributors/new-package/request-an-sru/ SRU/howto/standard/
 
 contributors/new-package/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa/
 how-to/upload-packages-to-ppa/ contributors/new-package/upload-packages-to-a-ppa/
