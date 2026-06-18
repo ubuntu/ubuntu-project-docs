@@ -64,9 +64,7 @@ The {ref}`stable-release-updates-sru` bugfix requires a bug independently verifi
 who reported the bug), but if it sits idle too long (2 days or so), you can
 verify it yourself. Follow the
 [instructions provided](https://documentation.ubuntu.com/sru/en/latest/howto/common-issues/)
-by the SRU team. In practice, this means replacing the `verification-needed` tag and its
-per-series counterparts (for example, `verification-needed-noble`) with `verification-done` and
-the matching `verification-done-noble`.
+by the SRU team. In practice, this means replacing the `verification-needed-<series>` tag (for example, `verification-needed-noble`) with `verification-done-<series>` (for example, `verification-done-noble`).
 
 [Pending SRU](https://ubuntu-archive-team.ubuntu.com/pending-sru.html) shows which SRUs
 are pending and what their status is. Note that this includes DEP-8 test
