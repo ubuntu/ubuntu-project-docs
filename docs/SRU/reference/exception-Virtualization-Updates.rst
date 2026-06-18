@@ -6,7 +6,7 @@ Virtualization Updates
 This document describes the policy for updating [hardware enablement virtualization components](https://ubuntu.com/server/docs/how-to/virtualisation/virt-hwe/) in a stable,
 supported release. These opt-in components are available in Ubuntu starting from Ubuntu Resolute 26.04.
 
-This cover the following list of source packages:
+This covers the following list of source packages:
 
 -  `qemu-hwe <https://launchpad.net/ubuntu/+source/qemu-hwe>`__
 -  `libvirt-hwe <https://launchpad.net/ubuntu/+source/libvirt-hwe>`__
@@ -25,7 +25,7 @@ virtualization features to LTS-only users in a timely manner.
 
 To address this, and mirroring the long-standing
 :ref:`HWE kernel <https://canonical-kernel-docs.readthedocs-hosted.com/reference/hwe-kernels/>`
-model, Starting from 26.04 LTS, Ubuntu provides an opt-in rolling **HWE virtualization stack** for the
+model, starting from 26.04 LTS, Ubuntu provides an opt-in rolling **HWE virtualization stack** for the
 LTS that tracks the upstream versions shipped in the latest Ubuntu interim release.
 
 Key notes
@@ -57,7 +57,7 @@ Upgrade contents
 
 - The upgrade will include the **upstream version** along with **relevant bug & security fixes** from the latest Ubuntu release.
 
-- Some **adjustments** (e.g. not enabling a particular new feature in the backport) may be needed to the new upstream version to make it build in fit into the older LTS.
+- Some **adjustments** (e.g. not enabling a particular new feature in the backport) may be needed for the new upstream version to make it build and fit into the older LTS.
 
 - Sometimes it might happen that adjustments are not enough to ensure the build and compatibility of the virtualization stack. In that case updating it might depend on the availability of **additional packages**, it is expected that build dependencies like toolchains are the most likely to come up like that. We'd need to wait for (by toolchain team) or drive such updates (if the components are on us) to unblock the hardware enablement virtualization stack updates.
 
@@ -66,54 +66,82 @@ Risk and mitigation
 
 Upgrading the virtualization stack to have a whole new upstream version in a stable release is a major change that
 might break our traditional commitments of stability and security in stable releases. This section covers the mitigations
-that we put in place to both minimize the risk of such breakage.
+that we put in place to both minimize the risk of such breakage. The mitigations are of 3 kinds:
 
-1 - The new version will bring in new features, deprecate/modify existing features. These should be detailed both in the file d/NEWS and the SRU bug that is linked to the d/changelog entry.
+- Documentation
+- Feature drop: case by case decision on dropping support for a particular feature or component if it is too risky to upgrade it.
+- Testing
 
-2 - Any adjustments that are needed to make the new upstream version fit in the older LTS should be detailed in the SRU bug, and should be as minimal as possible to reduce the risk of regressions.
+.. _virt-updates-documentation:
 
-3 - The upgrade might break compatibility or existing usage. Where possible that should be avoided and to do so detected by extensive testing:
+Documentation
+~~~~~~~~~~~~~
+Can you add the link to the Documentation section 
+The places where the upgrade is documented are:
 
-There are complex packaging dependencies between the *base* and the *HWE* stack, to ensure they are not mixed. The upgrade of the HWE stack could affect the base installation and usage.
-Extensive testing should be done to ensure that the upgrade does
-not do so, and that switching between the base and HWE stacks with `ubuntu_virt_helper switch`
-performs a complete one-to-one replacement, preserving dependencies and each package's auto/manual install mark.
+  - d/NEWS, d/changelog
+  - `Launchpad`_ SRU bug.
+  - `Ubuntu Discourse <UbuntuDiscourse_>`_
 
-Introducting a new version might affect VM migration as Ubuntu defines new machine types; extensive testing 
+For each upgrade, the following information should be documented:
+
+- any adjustments that are needed to make the new upstream version fit in the current LTS.
+- any compatibility breakage with existing components or usage.
+
+Features drop
+~~~~~~~~~~~~~
+
+To mitigate the risk of breakage, we might decide to drop support for a particular
+feature or component if it is too risky or impossible to have it in the current LTS.
+This decision should be made on a case by case basis after careful consideration of the potential impact.
+
+Testing
+~~~~~~~
+
+In addition to the usual testing that the HWE stack naturally inherits
+from the last Ubuntu release (since it has the same upstream version), some specific testing is needed to ensure
+that the upgrade does not break existing usage or compatibility in the current LTS.
+The following are the main areas of concern:
+
+1) There are complex packaging dependencies between the *base* and the *HWE* stack, to ensure they are not mixed.
+The upgrade of the HWE stack could affect the installation and usage of the base stack.
+Testing should be done to ensure that:
+
+-  installing the HWE stack should remain opt-in and needs to be explicitly requested by the user.
+-  switching between the base and HWE stacks performs a complete one-to-one replacement, preserving dependencies and each package's auto/manual install mark.
+
+2) The new version might also break runtime compatibility with existing components in the LTS. This runtime
+breakage is hard to identify and occurs in production, so we need to do our best to identify and fix it before the
+upgrade is released. This is done by the integration test suite that makes sure that the HWE stack is compatible
+with the depending applications (virt-manager, libvirt-python, ...).
+
+3) Introducing a new version might affect VM migration as Ubuntu defines new machine types; extensive testing 
 on migration is important to ensure we do not break existing migration scenarios, and to identify any necessary
 adjustments to the new upstream version to ensure the compatibility of the stack.
 
-The new version might also break runtime compatibility with existing components in the LTS. This runtime
-breakage is hard to identify and occurs in production, so we need to do our best to identify and fix it before the
-upgrade is released. This is done by the extensive integration test suite that the virtualization components contain,
-which covers a wide range of scenarios and use cases, and is ran using the SRU package for each release. The results
-of these tests are attached to the SRU bug.
+.. important::
 
+   As of now, we cannot run the autopkgtests for the reverse dependencies against the HWE stack since the HWE stack
+   is opt-in and by default the base stack will be installed for these tests. We need to figure out a way to force
+   the HWE stack to be installed for these tests, or to run the tests against the HWE stack in a different way.
 
 SRU Process
 -----------
 
 The SRU should be done with a single bug, for all the source packages. This is because the components
-are tightly coupled and should to be upgraded together to ensure the compatibility of the stack.
+are tightly coupled and should be upgraded together to ensure the compatibility of the stack.
 The SRU process should be followed as usual, with the following additional requirements to ensure
 that the upgrade is done smoothly and with minimal regressions:
 
--  The SRU should be requested per the StableReleaseUpdates
-   documented process
+-  The SRU should be requested per the :ref:`Stable Release Updates <stable-release-updates-sru>`
+   documented process.
 -  The template at the end of this document should be used and all
    ‘TODO’ filled out
 -  For each release (e.g. resolute, etc.) that is proposed to
    be updated by the SRU a link to the results of integration
-   testing, via autopkgtest, successfully completed using the
+   testing, via autopkgtest or other testing frameworks, successfully completed using the
    proposed package with no unexplained errors or failures
--  Any packaging changes (e.g. a dependency changes) need to be
-   stated
-
-If backwards compatibility is to be broken, this should be clearly
-written in the bug description for the SRU, as well as in the
-title with "[breaks-compat]". Furthermore, an email to ubuntu-release
-will be sent to point the release / SRU teams to the bug in order to get
-approval before uploading to the release's upload queue.
+-  Documentation as described in the :ref:`Documentation <virt-updates-documentation>` section.
 
 
 SRU Template
@@ -122,50 +150,51 @@ SRU Template
 ::
 
    [Impact]
-   This release contains bug fixes, security fixes and/or new features (and, for
-   the HWE stack, may bring it in line with a newer upstream version) and we
-   would like to make sure all of our supported customers have access to these
-   improvements. The notable ones are:
 
-   *** <TODO: Create list with LP: # included>
+   This release upgrades the HWE stack to the upstream version shipped in Ubuntu <version>.
 
-   See the changelog entry below for a full list of changes and bugs.
+   *** <TODO: List the packages and target version>
+
+   [Notable changes and changelog]
+
+   To have a complete list of changes, please refer to the Ubuntu release notes:
+   *** <TODO: link to release notes for each package>.
+
+   Following are the notable adjustments that have been done to make the new upstream version fit
+   in the current LTS:
+
+   *** <TODO: list of the adjustments>
+
+   Following are the breaking changes with existing components or usage:
+
+   *** <TODO: list of the breakages>
 
    [Test Plan]
-   The following additional detail to the SRU process for this case shall hereby be followed:
-   https://documentation.ubuntu.com/sru/en/latest/reference/exception-Virtualization-Updates
 
-   Virtualization components contain an extensive integration test suite that is ran using
-   the SRU package for each releases. This test suite's results are available here:
-   http://autopkgtest.ubuntu.com/packages/n/virtualization-components
-   A successful run is required before the proposed virtualization components package
-   can be let into -updates.
+   - Autopkgtests with -proposed from the PPA
 
-   The virtualization team will be in charge of attaching the artifacts and console
-   output of the appropriate run to the bug.  Virtualization team members will not
-   mark ‘verification-done’ until this has happened.
+   - Regression tests : migration
 
-   For HWE stack uploads, verification must also confirm that switching between
-   the base and HWE variants with `ubuntu_virt_helper switch` performs a complete
-   one-to-one replacement, preserving dependencies and each package's auto/manual
-   install mark.
+   - Additional integration tests with the depending applications (virt-manager, libvirt-python, ...)
 
    [Where problems could occur]
-   In order to mitigate the regression potential, the results of the
-   aforementioned integration tests are attached to this bug.
 
-   The HWE and base stacks are mutually exclusive and the HWE packages are
-   separate source packages; particular attention is required to ensure that no
-   variant or supported release misses a relevant change, including security
-   fixes.
+   This update brings a whole new upstream version into a stable release, so the
+   regression potential is higher than a typical SRU. The main areas where
+   problems could occur are:
 
-   <TODO: attach test artifacts for every SRU release, not a link as links expire>
+   - The HWE and base stacks are mutually exclusive. A packaging mistake could
+     mix packages from both stacks, or cause the HWE stack to be pulled in
+     without the user explicitly opting in.
+
+   - Runtime compatibility with depending applications (virt-manager,
+     libvirt-python, ...) could break.
+
+   - New machine types may affect VM migration, potentially breaking existing
+     migration scenarios.
+
+   To mitigate these risks, the integration test suite, migration regression
+   tests and autopkgtests described in the [Test Plan] are run with
+   the proposed packages, and their results are attached to this bug.
 
    [Other Info]
-   <TODO: other background, including which variant (base or HWE) and which
-   releases are targeted>
-
-   [Changelog]
-   <TODO: Paste in change log entry, including a link to the upstream release
-   announcement for any new upstream version>
-

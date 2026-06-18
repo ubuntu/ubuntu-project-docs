@@ -580,14 +580,12 @@ policy.
 Virtualization
 ~~~~~~~~~~~~~~
 
-The core virtualization components (``qemu``, ``libvirt``, ``edk2`` and
-``seabios``), including their Hardware Enablement (HWE) counterparts
+The Hardware Enablement (HWE) virtualization components
 (``qemu-hwe``, ``libvirt-hwe``, ``edk2-hwe`` and ``seabios-hwe``), may be
 uploaded according to the procedure documented in
 :ref:`Virtualization Updates <reference-exception-VirtualizationUpdates>`.
 The HWE stack provides a rolling, opt-in virtualization stack on the LTS that
-tracks the upstream versions of the latest Ubuntu release, mirroring the HWE
-kernel model.
+tracks the upstream versions of the latest Ubuntu release.
 
 Language Packs (language-pack-\*)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
