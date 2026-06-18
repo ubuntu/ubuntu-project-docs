@@ -90,7 +90,7 @@ These substitutions are defined in `conf.py` and available in all pages:
 | Substitution | Value |
 |---|---|
 | `{{ stable_distro }}` | Current stable Ubuntu release codename |
-| `{{ release_schedule }}` | URL to the current release schedule on Discourse |
+| `{{ release_schedule }}` | URL to the current release schedule |
 
 
 ## Command-line examples and terminal output
