@@ -63,7 +63,7 @@ Upgrade contents
 
 - The upgrade will include the **upstream version** along with **relevant bug & security fixes** from the latest Ubuntu release.
 
-- Some **adjusments** may be needed to the new upstream version to make it fit in the older LTS.
+- Some **adjustments** (e.g. not enabling a particular new feature in the backport) may be needed to the new upstream version to make it build in fit into the older LTS.
 
 - With the above adjustments are not possible or enough to ensure the compability of the virtualization stack, **additional packages** might be needed in the SRU. For example, the build system or other dependencies of the virtualization stack (libvirt-python, virt-manager, meson, ...etc).
 
