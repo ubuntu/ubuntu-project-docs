@@ -38,7 +38,7 @@ There is a slightly special procedure for Debian Developers wishing to have uplo
 
 ## Scope and definition
 
-It is easy to mix up this and {ref}`dmb-joining-packageset`, here a clarification:
+It is easy to mix up {ref}`dmb-joining-ppu` and {ref}`dmb-joining-packageset`, here a clarification:
 
 * Per-package-upload rights are defined per person.
 * Applicants prove to be able to handle the requested package(s).
