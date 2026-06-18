@@ -40,13 +40,7 @@ Key notes
 
    The upgrade follows the same schedule as the [HWE kernel](https://documentation.ubuntu.com/kernel/reference/hwe-kernels/). For example, shortly after the next Ubuntu
    interim release (e.g. 26.10) is released, the HWE virtualization stack will be updated in
-   the current LTS (e.g. 26.04) to match the versions shipped in that interim release.
-
-- The HWE virtualization stack rolls to have the **same upstream version that is in the latest Ubuntu release**, it has already been tested and available there for a while to collect additional feedback before rolling its counterpart in the LTS.
-
-   When the HWE stack rolls, it will be upgraded to have the same upstream version as the one shipped in
-   the latest Ubuntu release. For example, when 26.10 is released, the 26.04 HWE stack will be upgraded
-   to have the same upstream version as the one shipped in 26.10.
+   the current LTS (e.g. 26.04) to **match the version shipped in that interim release**.
 
 - The HWE virtualization stack **stops rolling after 2 years** when the next LTS becomes available.
 
