@@ -65,7 +65,7 @@ Upgrade contents
 
 - Some **adjustments** (e.g. not enabling a particular new feature in the backport) may be needed to the new upstream version to make it build in fit into the older LTS.
 
-- With the above adjustments are not possible or enough to ensure the compability of the virtualization stack, **additional packages** might be needed in the SRU. For example, the build system or other dependencies of the virtualization stack (libvirt-python, virt-manager, meson, ...etc).
+- Sometimes it might happen that adjustments are not enough to ensure the build and compatibility of the virtualization stack. In that case updating it might depend on the availability of **additional packages**, it is expected that build dependencies like toolchains are the most likely to come up like that. We'd need to wait for (by toolchain team) or drive such updates (if the components are on us) to unblock the hardware enablement virtualization stack updates.
 
 Risk and mitigation
 -------------------
@@ -78,11 +78,11 @@ that we put in place to both minimize the risk of such breakage.
 
 2 - Any adjustments that are needed to make the new upstream version fit in the older LTS should be detailed in the SRU bug, and should be as minimal as possible to reduce the risk of regressions.
 
-3 - The upgrade might break compatiblity or exising usage. This should be avoided by extensive testing:
+3 - The upgrade might break compatibility or existing usage. Where possible that should be avoided and to do so detected by extensive testing:
 
-Since there is complex packaging dependencies between the base and the HWE stacks to ensure they are not mixed, the upgrade
-might break the base stack installation and usage. Extensive testing should be done to ensure that the upgrade does
-not break the base stack installation and usage, and that switching between the base and HWE stacks with `ubuntu_virt_helper switch`
+There are complex packaging dependencies between the *base* and the *HWE* stack, to ensure they are not mixed. The upgrade of the HWE stack could affect the base installation and usage.
+Extensive testing should be done to ensure that the upgrade does
+not do so, and that switching between the base and HWE stacks with `ubuntu_virt_helper switch`
 performs a complete one-to-one replacement, preserving dependencies and each package's auto/manual install mark.
 
 Introducting a new version might affect VM migration as Ubuntu defines new machine types; extensive testing 
@@ -116,7 +116,7 @@ that the upgrade is done smoothly and with minimal regressions:
    stated
 
 If backwards compatibility is to be broken, this should be clearly
-written at the top of the bug description for the SRU, as well as in the
+written in the bug description for the SRU, as well as in the
 title with "[breaks-compat]". Furthermore, an email to ubuntu-release
 will be sent to point the release / SRU teams to the bug in order to get
 approval before uploading to the release's upload queue.
@@ -138,7 +138,7 @@ SRU Template
    See the changelog entry below for a full list of changes and bugs.
 
    [Test Plan]
-   The following development and SRU process was followed:
+   The following additional detail to the SRU process for this case shall hereby be followed:
    https://documentation.ubuntu.com/sru/en/latest/reference/exception-Virtualization-Updates
 
    Virtualization components contain an extensive integration test suite that is ran using
