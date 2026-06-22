@@ -75,7 +75,7 @@ The Ubuntu Server Team has its own checks usable through the `ubuntu-helpers` re
 To set up the Server Team's check suite, use the following commands (`python3-termcolor` is a Python module required to run the check scripts):
 ```
 $ sudo apt install python3-termcolor
-$ git clone https://git.launchpad.net/~ubuntu-server/ubuntu-helpers 
+$ git clone https://git.launchpad.net/~ubuntu-server/+git/ubuntu-helpers
 $ ln -s ~/.dput.d ./ubuntu-helpers/cpaelzer/.dput.d/
 ```
 You can also copy instead of symlinking if you want to make your own changes to the checking scripts.
