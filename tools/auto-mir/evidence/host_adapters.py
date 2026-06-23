@@ -21,11 +21,17 @@ from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
     AutopkgtestResult,
+    LPBuildAPIResult,
     LPBugAPIResult,
     LPPackageAPIResult,
     LPTeamMembershipAPIResult,
     UbuntuCVETrackerResult,
 )
+
+try:
+    from launchpadlib.launchpad import Launchpad as _Launchpad  # type: ignore
+except ImportError:  # pragma: no cover - optional runtime dependency
+    _Launchpad = None
 
 log = logging.getLogger("auto_mir.evidence.host")
 
@@ -177,6 +183,106 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
         "current_version": current_version,
         "upload_history": upload_history,
         "uploaders": uploaders,
+    }
+
+
+def _resolve_launchpad_series(ubuntu, requested_series: str):
+    """Return a Launchpad series object for a requested Ubuntu series name."""
+    try:
+        return ubuntu.getSeries(name_or_version=requested_series)
+    except Exception:
+        try:
+            return ubuntu.current_series
+        except Exception as exc:
+            raise AdapterError(f"Could not resolve Ubuntu series '{requested_series}': {exc}") from exc
+
+
+def _build_attr(record: Any, *names: str, default: str = "") -> str:
+    """Return the first matching attribute or dict key from a build record."""
+    for name in names:
+        if isinstance(record, dict) and name in record:
+            value = record[name]
+        else:
+            value = getattr(record, name, None)
+        if value is None:
+            continue
+        if hasattr(value, "name"):
+            value = getattr(value, "name")
+        if value is None:
+            continue
+        text = str(value).strip()
+        if text:
+            return text
+    return default
+
+
+@adapter(AdapterID.LP_BUILD_API)
+def collect_lp_build_api(ctx) -> LPBuildAPIResult:
+    """Fetch Launchpad build-state information for the current source package."""
+    pkg = ctx.source_package
+    series_name = ctx.series or "devel"
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    if _Launchpad is None:
+        raise AdapterError("launchpadlib not installed; run: sudo apt install python3-launchpadlib")
+
+    try:
+        lp = _Launchpad.login_anonymously("auto-mir-build", "production", version="devel")
+    except Exception as exc:
+        raise AdapterError(f"Launchpad API connection failed: {exc}") from exc
+
+    ubuntu = lp.distributions["ubuntu"]
+    lp_series = _resolve_launchpad_series(ubuntu, series_name)
+
+    try:
+        source_pkg = ubuntu.getSourcePackage(name=pkg)
+    except Exception as exc:
+        raise AdapterError(f"Could not find source package '{pkg}' on Launchpad: {exc}") from exc
+
+    build_records: list[Any] = []
+    for attr_name in ("getBuildRecords", "builds"):
+        candidate = getattr(source_pkg, attr_name, None)
+        if candidate is None:
+            continue
+        try:
+            build_records = list(candidate() if callable(candidate) else candidate)
+        except TypeError:
+            build_records = list(candidate)
+        break
+
+    if not build_records and hasattr(lp_series, "getBuildRecords"):
+        try:
+            build_records = list(lp_series.getBuildRecords(source_package_name=pkg))
+        except TypeError:
+            try:
+                build_records = list(lp_series.getBuildRecords(source_name=pkg))
+            except Exception:
+                build_records = []
+        except Exception:
+            build_records = []
+
+    builds: list[dict] = []
+    for record in build_records:
+        builds.append(
+            {
+                "arch_tag": _build_attr(record, "arch_tag", "arch_tag_name", "architecture_tag"),
+                "build_state": _build_attr(record, "buildstate", "build_state", "status"),
+                "build_reason": _build_attr(record, "build_reason", "build_summary", "status_message"),
+                "version": _build_attr(record, "source_package_version", "version"),
+                "date_created": _build_attr(record, "date_created", "datebuilt", "date_built"),
+                "pocket": _build_attr(record, "pocket"),
+                "archive": _build_attr(record, "archive"),
+            }
+        )
+
+    builds.sort(key=lambda entry: (entry["arch_tag"], entry["version"]))
+
+    return {
+        "status": "ok",
+        "source_package": pkg,
+        "series": series_name,
+        "builds": builds,
     }
 
 

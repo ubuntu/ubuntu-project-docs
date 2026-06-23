@@ -17,6 +17,7 @@ class AdapterID(str, Enum):
     LP_BUG_API = "lp-bug-api"
     LP_TEAM_MEMBERSHIP_API = "lp-team-membership-api"
     LP_PACKAGE_API = "lp-package-api"
+    LP_BUILD_API = "lp-build-api"
     UBUNTU_CVE_TRACKER = "ubuntu-cve-tracker"
     AUTOPKGTEST_DB = "autopkgtest-db"
     TEAM_MAPPING = "team-mapping"
@@ -26,6 +27,7 @@ class AdapterID(str, Enum):
     DEP_ANALYSIS = "dep-analysis"
     COMPONENT_MISMATCHES = "component-mismatches"
     SBUILD = "sbuild"
+    LINTIAN = "lintian"
     DEB_METADATA = "deb-metadata"
 
     def __str__(self) -> str:

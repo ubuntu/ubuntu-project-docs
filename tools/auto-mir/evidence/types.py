@@ -72,6 +72,27 @@ class LPPackageAPIResult(TypedDict):
     uploaders: list[str]
 
 
+class LPBuildEntry(TypedDict):
+    """Single Launchpad build-state entry."""
+
+    arch_tag: str
+    build_state: str
+    build_reason: str
+    version: str
+    date_created: str
+    pocket: str
+    archive: str
+
+
+class LPBuildAPIResult(TypedDict):
+    """Return structure for lp-build-api adapter."""
+
+    status: str
+    source_package: str
+    series: str
+    builds: list[LPBuildEntry]
+
+
 # ---------------------------------------------------------------------------
 # Host-side adapters — CVE / security
 # ---------------------------------------------------------------------------
@@ -235,6 +256,16 @@ class SbuildResult(TypedDict):
     lintian_pedantic: list[str]
     static_link_hints: list[str]
     note: str
+
+
+class LintianResult(TypedDict):
+    """Return structure for lintian adapter."""
+
+    status: str
+    lintian_output: str
+    lintian_errors: list[str]
+    lintian_warnings: list[str]
+    lintian_pedantic: list[str]
 
 
 class DebMetadataEntry(TypedDict):

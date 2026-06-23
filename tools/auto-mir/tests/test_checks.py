@@ -192,6 +192,12 @@ class _Ctx:
                         "ok_message": "Rust package that has all dependencies vendored. It does neither have *Built-Using (after build). Nor does the build log indicate built-in sources missed as Built-Using.",
                     },
                 },
+                {
+                    "id": "CB-1",
+                },
+                {
+                    "id": "PRF-8",
+                },
             ]
         }
         self.evidence = {"adapters": {}}
@@ -912,6 +918,77 @@ def test_eval_ev_to_ai_performs_followup_when_model_requests_more_evidence():
     assert "additional_evidence_requested" in second_prompt
     assert '"line": 300' in second_prompt
     assert result.status == "ok"
+
+
+def test_cb_1_ok_when_sbuild_and_lp_builds_pass():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {"status": "ok", "build_success": True}
+    ctx.evidence["adapters"]["lp-build-api"] = {
+        "status": "ok",
+        "builds": [
+            {"arch_tag": "amd64", "build_state": "Successfully built"},
+            {"arch_tag": "arm64", "build_state": "Successfully built"},
+        ],
+    }
+
+    finding = _make_finding("CB-1", mode="deterministic")
+    result = checks.deterministic._check_cb_1(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "Launchpad build records pass" in result.message
+
+
+def test_cb_1_not_ok_when_lp_build_state_fails():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {"status": "ok", "build_success": True}
+    ctx.evidence["adapters"]["lp-build-api"] = {
+        "status": "ok",
+        "builds": [
+            {"arch_tag": "amd64", "build_state": "Successfully built"},
+            {"arch_tag": "arm64", "build_state": "Failed to build"},
+        ],
+    }
+
+    finding = _make_finding("CB-1", mode="deterministic")
+    result = checks.deterministic._check_cb_1(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "arm64" in result.message
+
+
+def test_prf_8_ok_for_pedantic_only_lintian_output():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": ["I: testpkg: pedantic-tag"],
+    }
+
+    finding = _make_finding("PRF-8", mode="deterministic")
+    result = checks.deterministic._check_prf_8(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "Lintian" in result.message or "lintian" in result.message.lower()
+
+
+def test_prf_8_recommended_for_warnings():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": ["W: testpkg: description-synopsis-starts-with-article"],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("PRF-8", mode="deterministic")
+    result = checks.deterministic._check_prf_8(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
 
 
 def test_esl_3_unexpected_built_using():

@@ -266,6 +266,123 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("CB-1")
+def _check_cb_1(ctx, finding: Finding) -> Finding:
+    """CB-1: Package does not FTBFS currently."""
+    check = _get_check_definition(ctx, "CB-1")
+    adapters = ctx.evidence.get("adapters", {})
+
+    sbuild_result = adapters.get("sbuild", {})
+    lp_build_result = adapters.get("lp-build-api", {})
+
+    if sbuild_result.get("status") != "ok" or not sbuild_result.get("build_success"):
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not confirm build success from sbuild output"
+        finding.todo = "TODO: - does not FTBFS currently"
+        finding.evidence_refs = ["sbuild:build_success"]
+        return finding
+
+    if lp_build_result.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not confirm Launchpad build state"
+        finding.todo = "TODO: - does not FTBFS currently"
+        finding.evidence_refs = ["lp-build-api:error"]
+        return finding
+
+    builds = lp_build_result.get("builds", [])
+    if not builds:
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "No Launchpad build records were found"
+        finding.todo = "TODO: - does not FTBFS currently"
+        finding.evidence_refs = ["lp-build-api:builds"]
+        return finding
+
+    failed_builds = []
+    passing_arches = []
+    for build in builds:
+        arch = str(build.get("arch_tag", "")).strip() or "unknown-arch"
+        state = str(build.get("build_state", "")).strip().lower()
+        if any(token in state for token in ("successful", "succeeded", "built")):
+            passing_arches.append(arch)
+        else:
+            failed_builds.append(f"{arch}: {build.get('build_state', 'unknown')}")
+
+    if failed_builds:
+        finding.fail(
+            "Launchpad build state shows failures: " + "; ".join(failed_builds),
+            "does not FTBFS currently",
+            severity="required",
+            confidence="high",
+        )
+        finding.evidence_refs = ["sbuild:build_success", "lp-build-api:builds"]
+        return finding
+
+    finding.succeed(
+        "does not FTBFS currently; Launchpad build records pass for arches: "
+        + ", ".join(passing_arches),
+        confidence="high",
+    )
+    finding.evidence_refs = ["sbuild:build_success", "lp-build-api:builds"]
+    return finding
+
+
+@deterministic_check("PRF-8")
+def _check_prf_8(ctx, finding: Finding) -> Finding:
+    """PRF-8: No excessive lintian warnings."""
+    check = _get_check_definition(ctx, "PRF-8")
+    adapters = ctx.evidence.get("adapters", {})
+    lintian_result = adapters.get("lintian", {})
+
+    if lintian_result.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not inspect lintian output"
+        finding.todo = "TODO: - no massive Lintian warnings"
+        finding.evidence_refs = ["lintian:error"]
+        return finding
+
+    lintian_errors = list(lintian_result.get("lintian_errors", []))
+    lintian_warnings = list(lintian_result.get("lintian_warnings", []))
+    lintian_pedantic = list(lintian_result.get("lintian_pedantic", []))
+
+    if lintian_errors:
+        finding.fail(
+            "Lintian reports error-level issues: " + "; ".join(lintian_errors),
+            "no massive Lintian warnings",
+            severity="required",
+            confidence="high",
+        )
+        finding.evidence_refs = ["lintian:lintian_errors"]
+        return finding
+
+    if lintian_warnings:
+        finding.fail(
+            "Lintian warnings need review: " + "; ".join(lintian_warnings),
+            "no massive Lintian warnings",
+            severity="recommended",
+            confidence="medium",
+        )
+        finding.evidence_refs = ["lintian:lintian_warnings"]
+        return finding
+
+    finding.succeed(
+        "no massive Lintian warnings; only informational output was reported",
+        confidence="high",
+    )
+    if lintian_pedantic:
+        finding.evidence_refs = ["lintian:lintian_pedantic"]
+    else:
+        finding.evidence_refs = ["lintian:lintian_errors", "lintian:lintian_warnings"]
+    return finding
+
+
 @deterministic_check("SUM-4")
 def _check_sum_4(ctx, finding: Finding) -> Finding:
     """SUM-4: Package has a team subscriber in package-team-mapping."""

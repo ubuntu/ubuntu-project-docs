@@ -208,6 +208,47 @@ def test_lp_bug_api_output_structure():
     assert "bug_subscribers" in result
 
 
+def test_lp_build_api_output_structure():
+    """lp-build-api adapter should return normalized build records."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.series = "noble"
+
+    fake_record = Mock()
+    fake_record.arch_tag = "amd64"
+    fake_record.buildstate = "Successfully built"
+    fake_record.build_reason = ""
+    fake_record.source_package_version = "1.0"
+    fake_record.date_created = "2026-06-23"
+    fake_record.pocket = "Release"
+    fake_record.archive = Mock(name="ubuntu")
+
+    fake_source_pkg = Mock()
+    fake_source_pkg.getBuildRecords.return_value = [fake_record]
+
+    fake_series = Mock()
+
+    fake_ubuntu = Mock()
+    fake_ubuntu.getSeries.return_value = fake_series
+    fake_ubuntu.getSourcePackage.return_value = fake_source_pkg
+
+    fake_lp = Mock()
+    fake_lp.distributions = {"ubuntu": fake_ubuntu}
+
+    with patch("evidence.host_adapters._Launchpad") as mock_launchpad:
+        mock_launchpad.login_anonymously.return_value = fake_lp
+
+        from evidence.host_adapters import collect_lp_build_api
+
+        result = collect_lp_build_api(ctx)
+
+    assert result["status"] == "ok"
+    assert result["source_package"] == "testpkg"
+    assert result["series"] == "noble"
+    assert result["builds"][0]["arch_tag"] == "amd64"
+    assert result["builds"][0]["build_state"] == "Successfully built"
+
+
 def test_dep_analysis_output_structure():
     """dep-analysis adapter should return expected structure."""
     ctx = Mock()
@@ -254,3 +295,24 @@ def test_dep_analysis_output_structure():
             assert "runtime_dep_packages" in result
             assert "dep_components" in result
             assert "deps_not_in_main" in result
+
+
+def test_lintian_output_structure():
+    """lintian adapter should expose parsed sbuild lintian output."""
+    ctx = Mock()
+    ctx.evidence = {
+        "adapters": {
+            "sbuild": {
+                "status": "ok",
+                "lintian_output": "W: testpkg: description-synopsis-starts-with-article\nE: testpkg: unknown-field",
+            }
+        }
+    }
+
+    from evidence.container_adapters import collect_lintian
+
+    result = collect_lintian(ctx)
+
+    assert result["status"] == "ok"
+    assert result["lintian_errors"] == ["E: testpkg: unknown-field"]
+    assert result["lintian_warnings"] == ["W: testpkg: description-synopsis-starts-with-article"]

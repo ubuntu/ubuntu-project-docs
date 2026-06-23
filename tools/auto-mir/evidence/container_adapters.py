@@ -16,6 +16,7 @@ from evidence.types import (
     ComponentMismatchesResult,
     DebMetadataResult,
     DepAnalysisResult,
+    LintianResult,
     PackagingSourceResult,
     SbuildResult,
 )
@@ -96,6 +97,22 @@ def _read_latest_sbuild_log(ctx, output_dir: str) -> tuple[str, str]:
         allow_fail=True,
         as_ubuntu=True,
     )
+
+
+def _parse_lintian_output(lintian_raw: str) -> tuple[list[str], list[str], list[str]]:
+    """Parse lintian output into error, warning, and pedantic buckets."""
+    lintian_errors: list[str] = []
+    lintian_warnings: list[str] = []
+    lintian_pedantic: list[str] = []
+    for line in lintian_raw.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("E: "):
+            lintian_errors.append(stripped)
+        elif stripped.startswith("W: "):
+            lintian_warnings.append(stripped)
+        elif stripped.startswith("I: ") or stripped.startswith("P: "):
+            lintian_pedantic.append(stripped)
+    return lintian_errors, lintian_warnings, lintian_pedantic
 
 
 def _resolve_sbuild_series(ctx, requested_series: str) -> str:
@@ -672,18 +689,7 @@ def collect_sbuild(ctx) -> SbuildResult:
         as_ubuntu=True,
     )
 
-    # Parse lintian output into error/warning/info lists
-    lintian_errors: list[str] = []
-    lintian_warnings: list[str] = []
-    lintian_pedantic: list[str] = []
-    for line in lintian_raw.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("E: "):
-            lintian_errors.append(stripped)
-        elif stripped.startswith("W: "):
-            lintian_warnings.append(stripped)
-        elif stripped.startswith("I: ") or stripped.startswith("P: "):
-            lintian_pedantic.append(stripped)
+    lintian_errors, lintian_warnings, lintian_pedantic = _parse_lintian_output(lintian_raw)
 
     # Check for static linking indicators in debian/rules (fast heuristic)
     rules = packaging.get("debian_rules", "")
@@ -718,6 +724,30 @@ def collect_sbuild(ctx) -> SbuildResult:
         "lintian_pedantic": lintian_pedantic,
         "static_link_hints": static_link_hints,
         "note": "Real sbuild with unshare backend completed" if build_success else "sbuild failed",
+    }
+
+
+# ---------------------------------------------------------------------------
+# Lintian adapter
+# ---------------------------------------------------------------------------
+
+
+@adapter(AdapterID.LINTIAN, depends_on=[AdapterID.SBUILD])
+def collect_lintian(ctx) -> LintianResult:
+    """Expose the lintian output parsed from the sbuild run as a standalone adapter."""
+    sbuild_result = ctx.evidence.get("adapters", {}).get("sbuild", {})
+    if sbuild_result.get("status") != "ok":
+        raise AdapterError("lintian adapter requires successful sbuild evidence")
+
+    lintian_raw = str(sbuild_result.get("lintian_output", ""))
+    lintian_errors, lintian_warnings, lintian_pedantic = _parse_lintian_output(lintian_raw)
+
+    return {
+        "status": "ok",
+        "lintian_output": lintian_raw,
+        "lintian_errors": lintian_errors,
+        "lintian_warnings": lintian_warnings,
+        "lintian_pedantic": lintian_pedantic,
     }
 
 
