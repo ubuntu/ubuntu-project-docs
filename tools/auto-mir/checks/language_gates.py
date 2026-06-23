@@ -90,6 +90,40 @@ def _is_rust_package(packaging: dict) -> bool:
     )
 
 
+def _is_python_package(packaging: dict) -> bool:
+    """Return True when the packaging evidence indicates a Python package.
+
+    Heuristics (any one sufficient):
+    - setup.py, setup.cfg, or pyproject.toml present
+    - dh_python, dh_python3 in debian/rules
+    - source tree contains .py files (excluding vendor trees)
+    - distutils, setuptools, or flit mentioned in debian/rules
+    """
+    rules = packaging.get("debian_rules", "")
+    if (
+        "dh_python" in rules
+        or "dh_python3" in rules
+        or "distutils" in rules
+        or "setuptools" in rules
+        or "flit" in rules.lower()
+    ):
+        return True
+
+    # Check for Python packaging files in root
+    debian_control = packaging.get("debian_control", "")
+    if "setup.py" in debian_control or "setup.cfg" in debian_control or "pyproject.toml" in debian_control:
+        return True
+
+    # Check for .py files in source tree (excluding vendor)
+    for path in _iter_non_third_party_paths(packaging):
+        if path.endswith(".py"):
+            return True
+        if path.endswith("/setup.py") or path.endswith("/setup.cfg") or path.endswith("/pyproject.toml"):
+            return True
+
+    return False
+
+
 def _language_gate_active(gate: str, ctx) -> bool:
     """Return True when the named language gate is active for this package.
 

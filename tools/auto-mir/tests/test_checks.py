@@ -212,6 +212,22 @@ class _Ctx:
                         "unknown_todo": "TODO: - Check if package is on lto-disabled list",
                     },
                 },
+                {
+                    "id": "CB-8",
+                    "messages": {
+                        "ok_message": "Python package, but using dh_python",
+                        "not_ok_message": "Python package not using dh_python",
+                        "not_ok_todo": "TODO: - Python packages must use dh_python",
+                        "unknown_todo": "TODO: - Check debian/rules for dh_python",
+                    },
+                },
+                {
+                    "id": "ESL-2",
+                    "messages": {
+                        "ok_message": "no static linking",
+                        "unknown_todo": "TODO: - Check build log for static linking",
+                    },
+                },
             ]
         }
         self.evidence = {"adapters": {}}
@@ -1131,3 +1147,120 @@ def test_prf_10_on_list():
     assert result.status == "not-ok"
     assert result.severity == "required"
     assert "lto-disabled list" in result.message.lower()
+
+
+def test_cb_8_not_python():
+    """Test CB-8 when package is not Python."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure\ndh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("CB-8", mode="deterministic")
+    result = checks.deterministic._check_cb_8(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "not a Python package" in result.message
+
+
+def test_cb_8_python_with_dh_python():
+    """Test CB-8 when Python package uses dh_python."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure\ndh_python3 build",
+        "file_listing": [{"path": "setup.py", "size": 100}],
+    }
+
+    finding = _make_finding("CB-8", mode="deterministic")
+    result = checks.deterministic._check_cb_8(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "using dh_python" in result.message
+
+
+def test_cb_8_python_without_dh_python():
+    """Test CB-8 when Python package does not use dh_python."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure\ndh_auto_build",
+        "file_listing": [{"path": "setup.py", "size": 100}],
+    }
+
+    finding = _make_finding("CB-8", mode="deterministic")
+    result = checks.deterministic._check_cb_8(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "dh_python" in result.message.lower()
+
+
+def test_esl_2_no_static_linking():
+    """Test ESL-2 with clean build log (no static linking)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": "dh_auto_configure\ndh_auto_build\ndh_auto_test",
+        "static_link_hints": [],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("ESL-2", mode="deterministic")
+    result = checks.deterministic._check_esl_2(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "static linking" in result.message
+
+
+def test_esl_2_static_linking_detected():
+    """Test ESL-2 when static linking is detected."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": "gcc -static -o myapp main.c",
+        "static_link_hints": ["myapp"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("ESL-2", mode="deterministic")
+    result = checks.deterministic._check_esl_2(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "static linking" in result.message.lower()
+
+
+def test_esl_2_static_linking_justified():
+    """Test ESL-2 when static linking is justified."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": "gcc -static -o scanner security_scanner.c  # integrity checker",
+        "static_link_hints": ["scanner"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("ESL-2", mode="deterministic")
+    result = checks.deterministic._check_esl_2(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "justified" in result.message.lower()

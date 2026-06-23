@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 
-from checks.language_gates import _is_go_package, _is_rust_package
+from checks.language_gates import _is_go_package, _is_rust_package, _is_python_package
 from checks.messages import render_check_message
 from checks.registry import DETERMINISTIC_CHECKS, deterministic_check, evaluator
 from models import Finding
@@ -954,6 +954,116 @@ def _check_prf_10(ctx, finding: Finding) -> Finding:
         confidence="medium",
     )
     finding.evidence_refs = ["lp-package-api:status"]
+    return finding
+
+
+@deterministic_check("CB-8")
+def _check_cb_8(ctx, finding: Finding) -> Finding:
+    """CB-8: Python packages use dh_python."""
+    check = _get_check_definition(ctx, "CB-8")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not inspect debian/rules (packaging-source failed)"
+        finding.todo = render_check_message(check, "unknown_todo")
+        finding.evidence_refs = ["packaging-source:error"]
+        return finding
+
+    is_python = _is_python_package(packaging)
+    rules = packaging.get("debian_rules", "")
+    uses_dh_python = "dh_python" in rules or "dh_python3" in rules
+
+    if not is_python:
+        # Not a Python package; gate doesn't apply
+        finding.succeed(
+            "not a Python package; Python packaging constraints do not apply",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:debian_rules"]
+        return finding
+
+    if uses_dh_python:
+        finding.succeed(
+            "Python package, but using dh_python",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:debian_rules"]
+        return finding
+
+    # Python package not using dh_python
+    finding.fail(
+        "Python package detected but dh_python/dh_python3 not found in debian/rules",
+        "Python package, but using dh_python",
+        severity="required",
+        confidence="high",
+    )
+    finding.evidence_refs = ["packaging-source:debian_rules"]
+    return finding
+
+
+@deterministic_check("ESL-2")
+def _check_esl_2(ctx, finding: Finding) -> Finding:
+    """ESL-2: No unexpected static linking."""
+    check = _get_check_definition(ctx, "ESL-2")
+    adapters = ctx.evidence.get("adapters", {})
+    sbuild_result = adapters.get("sbuild", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if sbuild_result.get("status") != "ok" or packaging.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not inspect build log for static linking"
+        finding.todo = render_check_message(check, "unknown_todo")
+        finding.evidence_refs = ["sbuild:build_log"]
+        return finding
+
+    build_log = sbuild_result.get("build_log", "")
+    static_link_hints = sbuild_result.get("static_link_hints", [])
+
+    # Check for -static flag in build log
+    has_static_flag = "-static" in build_log or "--static" in build_log
+    
+    # Common patterns for justifiable static linking
+    justifiable_patterns = [
+        "integrity checker",
+        "security scanner",
+        "initramfs",
+        "bootloader",
+        "firmware",
+        "kernel module",
+    ]
+    
+    is_justifiable = any(pattern.lower() in build_log.lower() for pattern in justifiable_patterns)
+
+    if not has_static_flag and not static_link_hints:
+        finding.succeed(
+            "no static linking",
+            confidence="high",
+        )
+        finding.evidence_refs = ["sbuild:build_log"]
+        return finding
+
+    if is_justifiable:
+        finding.succeed(
+            "static linking present but appears to be justified (e.g., scanner/bootloader)",
+            confidence="medium",
+        )
+        finding.evidence_refs = ["sbuild:build_log"]
+        return finding
+
+    # Static linking without clear justification
+    finding.fail(
+        "Static linking detected without clear justification; review needed",
+        "no static linking",
+        severity="required",
+        confidence="medium",
+    )
+    finding.evidence_refs = ["sbuild:build_log"]
     return finding
 
 
