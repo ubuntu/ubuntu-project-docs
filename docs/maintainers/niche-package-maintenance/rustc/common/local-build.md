@@ -71,4 +71,4 @@ Otherwise, you must create your own patch. A template {term}`DEP-3 <DEP 3>` head
 $ quilt header -e --dep3 <path/to/patch>
 ```
 
-For the most part, you can follow the [Debian DEP-3 patch guidelines](https://dep-team.pages.debian.net/deps/dep3/). However, if this patch isn't something needed to get the new Rust version to build, and you're instead updating an existing source package, add a `Bug-Ubuntu:` line linking to the Launchpad bug.
+Then, follow the [Debian DEP-3 patch guidelines](https://dep-team.pages.debian.net/deps/dep3/).
