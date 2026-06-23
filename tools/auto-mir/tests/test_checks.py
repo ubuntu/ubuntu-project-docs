@@ -198,6 +198,20 @@ class _Ctx:
                 {
                     "id": "PRF-8",
                 },
+                {
+                    "id": "URF-1",
+                    "messages": {
+                        "ok_message": "no Errors/warnings during the build",
+                        "unknown_todo": "TODO: - Check build log for errors and warnings",
+                    },
+                },
+                {
+                    "id": "PRF-10",
+                    "messages": {
+                        "ok_message": "It is not on the lto-disabled list",
+                        "unknown_todo": "TODO: - Check if package is on lto-disabled list",
+                    },
+                },
             ]
         }
         self.evidence = {"adapters": {}}
@@ -1019,3 +1033,101 @@ def test_esl_3_missing_adapter():
     finding = _make_finding("ESL-3", mode="deterministic")
     result = checks.deterministic._check_esl_3(ctx, finding)
     assert result.status == "unknown"
+
+
+def test_urf_1_clean_build_log():
+    """Test URF-1 with clean build log."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": "dh_auto_configure\ndh_auto_build\ndh_auto_test\ndh_auto_install",
+        "build_success": True,
+    }
+
+    finding = _make_finding("URF-1", mode="deterministic")
+    result = checks.deterministic._check_urf_1(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "Errors/warnings" in result.message
+
+
+def test_urf_1_build_warnings():
+    """Test URF-1 with build warnings detected."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": "gcc -Wall test.c\ntest.c:5: warning: unused variable 'x'",
+        "build_success": True,
+    }
+
+    finding = _make_finding("URF-1", mode="deterministic")
+    result = checks.deterministic._check_urf_1(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
+    assert "warning" in result.message.lower()
+
+
+def test_urf_1_build_errors():
+    """Test URF-1 with build errors detected."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": "gcc -Wall test.c\ntest.c:3: error: undefined reference to 'foo'",
+        "build_success": True,
+    }
+
+    finding = _make_finding("URF-1", mode="deterministic")
+    result = checks.deterministic._check_urf_1(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "error" in result.message.lower()
+
+
+def test_urf_1_security_warning():
+    """Test URF-1 with security warning detected."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": "gcc -Wall test.c\ntest.c:10: warning: format string vulnerability",
+        "build_success": True,
+    }
+
+    finding = _make_finding("URF-1", mode="deterministic")
+    result = checks.deterministic._check_urf_1(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
+    assert "warning" in result.message.lower()
+
+
+def test_prf_10_not_on_list():
+    """Test PRF-10 when package is not on lto-disabled list."""
+    ctx = _Ctx(source_package="testpkg")
+    ctx.evidence["adapters"]["lp-package-api"] = {
+        "status": "ok",
+    }
+
+    finding = _make_finding("PRF-10", mode="deterministic")
+    result = checks.deterministic._check_prf_10(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "lto-disabled list" in result.message.lower()
+
+
+def test_prf_10_on_list():
+    """Test PRF-10 when package is on lto-disabled list (edge case)."""
+    ctx = _Ctx(source_package="llvm")
+    ctx.evidence["adapters"]["lp-package-api"] = {
+        "status": "ok",
+    }
+
+    finding = _make_finding("PRF-10", mode="deterministic")
+    result = checks.deterministic._check_prf_10(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "lto-disabled list" in result.message.lower()

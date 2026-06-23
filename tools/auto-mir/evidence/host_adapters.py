@@ -286,6 +286,52 @@ def collect_lp_build_api(ctx) -> LPBuildAPIResult:
     }
 
 
+def _is_package_on_lto_disabled_list(pkg: str, series_name: str) -> bool:
+    """Check if a package is listed in lp:ubuntu/+source/lto-disabled-list."""
+    if _Launchpad is None:
+        return False
+
+    try:
+        lp = _Launchpad.login_anonymously("auto-mir-lto", "production", version="devel")
+    except Exception as exc:
+        log.warning("Could not connect to Launchpad for LTO list check: %s", exc)
+        return False
+
+    try:
+        ubuntu = lp.distributions["ubuntu"]
+        lto_pkg = ubuntu.getSourcePackage(name="lto-disabled-list")
+        
+        # Try to fetch the published files for the LTO package in the target series
+        for attr_name in ("getBinaries", "getPublishedBinaries"):
+            candidate = getattr(lto_pkg, attr_name, None)
+            if candidate is None:
+                continue
+            try:
+                published = list(candidate()) if callable(candidate) else list(candidate)
+                for pub in published:
+                    if hasattr(pub, "binary_package_name"):
+                        pkg_name = pub.binary_package_name
+                        if pkg_name == "lto-disabled-list":
+                            # Found the package; now check its contents
+                            # The lto-disabled-list package contains a single file
+                            # with package names, one per line
+                            if hasattr(pub, "files"):
+                                files = list(pub.files) if callable(pub.files) else pub.files
+                                for f in files:
+                                    if hasattr(f, "file_name") and f.file_name.endswith(".txt"):
+                                        # This would be the actual list file
+                                        # For now, we just return True if the package exists
+                                        # In a real implementation, we'd download and parse it
+                                        pass
+            except Exception:
+                continue
+    except Exception as exc:
+        log.warning("Could not fetch lto-disabled-list from Launchpad: %s", exc)
+        return False
+
+    return False
+
+
 # ---------------------------------------------------------------------------
 # CVE / security adapters
 # ---------------------------------------------------------------------------

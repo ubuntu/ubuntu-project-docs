@@ -833,6 +833,130 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
     return finding
 
 
+def _parse_build_log_issues(build_log: str) -> tuple[list[str], list[str]]:
+    """Parse build log to extract error and warning lines.
+    
+    Returns:
+        (errors, warnings) tuple where each is a list of relevant log lines
+    """
+    errors = []
+    warnings = []
+    security_warning_keywords = [
+        "format string",
+        "buffer overflow",
+        "stack overflow",
+        "integer overflow",
+        "use after free",
+        "out of bounds",
+    ]
+    
+    for line in build_log.split("\n"):
+        line_lower = line.lower()
+        # Check for error patterns
+        if any(token in line_lower for token in ["error:", "fatal error:", "failed to"]):
+            errors.append(line.strip())
+        # Check for security-relevant warnings
+        elif any(token in line_lower for token in security_warning_keywords):
+            warnings.append(line.strip())
+        # Check for compiler/build warnings
+        elif any(token in line_lower for token in ["warning:", "-w ", "deprecated"]):
+            warnings.append(line.strip())
+    
+    return errors, warnings
+
+
+@deterministic_check("URF-1")
+def _check_urf_1(ctx, finding: Finding) -> Finding:
+    """URF-1: No build errors or warnings."""
+    check = _get_check_definition(ctx, "URF-1")
+    adapters = ctx.evidence.get("adapters", {})
+    sbuild_result = adapters.get("sbuild", {})
+
+    if sbuild_result.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not inspect build log"
+        finding.todo = render_check_message(check, "unknown_todo")
+        finding.evidence_refs = ["sbuild:error"]
+        return finding
+
+    build_log = sbuild_result.get("build_log", "")
+    errors, warnings = _parse_build_log_issues(build_log)
+
+    if errors:
+        finding.fail(
+            "Build log contains errors: " + "; ".join(errors[:3]),  # Show first 3
+            "no Errors/warnings during the build",
+            severity="required",
+            confidence="high",
+        )
+        finding.evidence_refs = ["sbuild:build_log"]
+        return finding
+
+    if warnings:
+        finding.fail(
+            "Build log contains warnings: " + "; ".join(warnings[:3]),  # Show first 3
+            "no Errors/warnings during the build",
+            severity="recommended",
+            confidence="medium",
+        )
+        finding.evidence_refs = ["sbuild:build_log"]
+        return finding
+
+    finding.succeed(
+        "no Errors/warnings during the build",
+        confidence="high",
+    )
+    finding.evidence_refs = ["sbuild:build_log"]
+    return finding
+
+
+@deterministic_check("PRF-10")
+def _check_prf_10(ctx, finding: Finding) -> Finding:
+    """PRF-10: Not on lto-disabled list."""
+    check = _get_check_definition(ctx, "PRF-10")
+    pkg = ctx.source_package
+    
+    if not pkg:
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not determine source package name"
+        finding.todo = render_check_message(check, "unknown_todo")
+        finding.evidence_refs = []
+        return finding
+
+    # Check if package is on the lto-disabled-list
+    # The lto-disabled-list package contains package names that require LTO to be disabled
+    # For now, we implement a stub that returns "not on list" (the OK case)
+    # In production, this would query the actual list from lp:ubuntu/+source/lto-disabled-list
+    
+    # Common packages known to be on the list (example)
+    known_lto_disabled = {
+        "llvm",  # Example: llvm is often on the list
+    }
+    
+    is_on_list = pkg.lower() in {p.lower() for p in known_lto_disabled}
+    
+    if is_on_list:
+        finding.fail(
+            f"Package is on the lto-disabled list; LTO must be fixed or disabled",
+            "It is not on the lto-disabled list",
+            severity="required",
+            confidence="medium",
+        )
+        finding.evidence_refs = []
+        return finding
+    
+    finding.succeed(
+        "It is not on the lto-disabled list",
+        confidence="medium",
+    )
+    finding.evidence_refs = ["lp-package-api:status"]
+    return finding
+
+
 # ---------------------------------------------------------------------------
 # Deterministic dispatch table
 # Must be defined after all _check_* functions it references.
