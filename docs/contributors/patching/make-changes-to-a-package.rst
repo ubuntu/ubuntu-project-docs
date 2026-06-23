@@ -160,7 +160,7 @@ Not everything here needs to be filled in. In this case, our headers might look 
      $ hello -u
      hello, user123!
     Author: Nick Rosbrook <enr0n@ubuntu.com>
-    Forwarded: no, Ubuntu only
+    Forwarded: not-needed
     Last-Update: 2025-04-23 
     ---
     This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
@@ -174,7 +174,7 @@ Our final patch should look something like:
      $ hello -u
      hello, user123!
     Author: Nick Rosbrook <enr0n@ubuntu.com>
-    Forwarded: no, Ubuntu only
+    Forwarded: not-needed
     Last-Update: 2025-04-23
     ---
     This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
