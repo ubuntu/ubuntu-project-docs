@@ -249,6 +249,35 @@ def test_lp_build_api_output_structure():
     assert result["builds"][0]["build_state"] == "Successfully built"
 
 
+def test_upstream_tracker_output_structure():
+    """upstream-tracker adapter should return latest version and release history."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+
+    payload = {
+        "items": [
+            {
+                "name": "testpkg",
+                "homepage": "https://example.invalid/testpkg",
+                "version": "2.4.1",
+                "open_bugs": 3,
+                "versions": ["2.4.1", "2.4.0", "2.3.9"],
+                "last_release_date": "2026-06-01",
+            }
+        ]
+    }
+
+    with patch("evidence.host_adapters._fetch_json", return_value=payload):
+        from evidence.host_adapters import collect_upstream_tracker
+
+        result = collect_upstream_tracker(ctx)
+
+    assert result["status"] == "ok"
+    assert result["latest_version"] == "2.4.1"
+    assert result["recent_releases"][0]["version"] == "2.4.1"
+    assert result["upstream_url"] == "https://example.invalid/testpkg"
+
+
 def test_dep_analysis_output_structure():
     """dep-analysis adapter should return expected structure."""
     ctx = Mock()
@@ -304,7 +333,10 @@ def test_lintian_output_structure():
         "adapters": {
             "sbuild": {
                 "status": "ok",
-                "lintian_output": "W: testpkg: description-synopsis-starts-with-article\nE: testpkg: unknown-field",
+                "lintian_output": (
+                    "W: testpkg: description-synopsis-starts-with-article\n"
+                    "E: testpkg: unknown-field"
+                ),
             }
         }
     }

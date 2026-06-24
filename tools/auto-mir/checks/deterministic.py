@@ -7,8 +7,10 @@ the dispatch table, and the _eval_deterministic entry point.
 from __future__ import annotations
 
 import logging
+import re
+import subprocess
 
-from checks.language_gates import _is_go_package, _is_rust_package, _is_python_package
+from checks.language_gates import _is_go_package, _is_python_package, _is_rust_package
 from checks.messages import render_check_message
 from checks.registry import DETERMINISTIC_CHECKS, deterministic_check, evaluator
 from models import Finding
@@ -269,7 +271,6 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
 @deterministic_check("CB-1")
 def _check_cb_1(ctx, finding: Finding) -> Finding:
     """CB-1: Package does not FTBFS currently."""
-    check = _get_check_definition(ctx, "CB-1")
     adapters = ctx.evidence.get("adapters", {})
 
     sbuild_result = adapters.get("sbuild", {})
@@ -335,7 +336,6 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
 @deterministic_check("PRF-8")
 def _check_prf_8(ctx, finding: Finding) -> Finding:
     """PRF-8: No excessive lintian warnings."""
-    check = _get_check_definition(ctx, "PRF-8")
     adapters = ctx.evidence.get("adapters", {})
     lintian_result = adapters.get("lintian", {})
 
@@ -835,7 +835,7 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
 
 def _parse_build_log_issues(build_log: str) -> tuple[list[str], list[str]]:
     """Parse build log to extract error and warning lines.
-    
+
     Returns:
         (errors, warnings) tuple where each is a list of relevant log lines
     """
@@ -849,7 +849,7 @@ def _parse_build_log_issues(build_log: str) -> tuple[list[str], list[str]]:
         "use after free",
         "out of bounds",
     ]
-    
+
     for line in build_log.split("\n"):
         line_lower = line.lower()
         # Check for error patterns
@@ -861,7 +861,7 @@ def _parse_build_log_issues(build_log: str) -> tuple[list[str], list[str]]:
         # Check for compiler/build warnings
         elif any(token in line_lower for token in ["warning:", "-w ", "deprecated"]):
             warnings.append(line.strip())
-    
+
     return errors, warnings
 
 
@@ -917,7 +917,7 @@ def _check_prf_10(ctx, finding: Finding) -> Finding:
     """PRF-10: Not on lto-disabled list."""
     check = _get_check_definition(ctx, "PRF-10")
     pkg = ctx.source_package
-    
+
     if not pkg:
         finding.status = "unknown"
         finding.severity = "recommended"
@@ -931,24 +931,24 @@ def _check_prf_10(ctx, finding: Finding) -> Finding:
     # The lto-disabled-list package contains package names that require LTO to be disabled
     # For now, we implement a stub that returns "not on list" (the OK case)
     # In production, this would query the actual list from lp:ubuntu/+source/lto-disabled-list
-    
+
     # Common packages known to be on the list (example)
     known_lto_disabled = {
         "llvm",  # Example: llvm is often on the list
     }
-    
+
     is_on_list = pkg.lower() in {p.lower() for p in known_lto_disabled}
-    
+
     if is_on_list:
         finding.fail(
-            f"Package is on the lto-disabled list; LTO must be fixed or disabled",
+            "Package is on the lto-disabled list; LTO must be fixed or disabled",
             "It is not on the lto-disabled list",
             severity="required",
             confidence="medium",
         )
         finding.evidence_refs = []
         return finding
-    
+
     finding.succeed(
         "It is not on the lto-disabled list",
         confidence="medium",
@@ -1027,7 +1027,7 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
 
     # Check for -static flag in build log
     has_static_flag = "-static" in build_log or "--static" in build_log
-    
+
     # Common patterns for justifiable static linking
     justifiable_patterns = [
         "integrity checker",
@@ -1037,7 +1037,7 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
         "firmware",
         "kernel module",
     ]
-    
+
     is_justifiable = any(pattern.lower() in build_log.lower() for pattern in justifiable_patterns)
 
     if not has_static_flag and not static_link_hints:
@@ -1073,7 +1073,6 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
     check = _get_check_definition(ctx, "PRF-2")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
-    sbuild_result = adapters.get("sbuild", {})
 
     if packaging.get("status") != "ok":
         finding.status = "unknown"
@@ -1092,7 +1091,7 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
         marker in debian_control.lower()
         for marker in ["library", "libdev", "symbols", "lib", "shared object"]
     )
-    
+
     # Check for non-C/C++ languages (Python, Go, Rust, etc.)
     if _is_python_package(packaging) or _is_go_package(packaging) or _is_rust_package(packaging):
         finding.succeed(
@@ -1132,8 +1131,13 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
         finding.status = "not-ok"
         finding.severity = "recommended"
         finding.confidence = "medium"
-        finding.message = "C++ library without symbols file but appears to have documented consideration"
-        finding.todo = "TODO: - For c++ libraries - symbols tracking isn't in place but the owning team tried..."
+        finding.message = (
+            "C++ library without symbols file but appears to have documented consideration"
+        )
+        finding.todo = (
+            "TODO: - For c++ libraries - symbols tracking isn't in place but "
+            "the owning team tried..."
+        )
         finding.evidence_refs = ["packaging-source:debian_rules"]
         return finding
 
@@ -1142,7 +1146,9 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
     finding.severity = "recommended"
     finding.confidence = "medium"
     finding.message = "C/C++ library detected but symbols tracking not found in package"
-    finding.todo = "TODO: - For c++ libraries - symbols tracking isn't in place but the owning team tried..."
+    finding.todo = (
+        "TODO: - For c++ libraries - symbols tracking isn't in place but the owning team tried..."
+    )
     finding.evidence_refs = ["packaging-source:debian_control"]
     return finding
 
@@ -1167,10 +1173,7 @@ def _check_prf_3(ctx, finding: Finding) -> Finding:
     file_listing = packaging.get("file_listing", [])
 
     # Check if debian/watch is present
-    has_watch_file = any(
-        f.get("path", "").endswith("debian/watch")
-        for f in file_listing
-    )
+    has_watch_file = any(f.get("path", "").endswith("debian/watch") for f in file_listing)
 
     # Check if it's a native package (Version ends with ~)
     is_native = "debian/source/format: 3.0 (native)" in debian_control
@@ -1290,7 +1293,7 @@ def _check_urf_3(ctx, finding: Finding) -> Finding:
 
     # Search for privilege escalation patterns outside tests
     escalation_keywords = ["sudo", "gksu", "pkexec", "LD_LIBRARY_PATH"]
-    
+
     for keyword in escalation_keywords:
         if keyword.lower() in debian_rules.lower() or keyword.lower() in debian_control.lower():
             # Check if it's inside a test block/comment
@@ -1333,7 +1336,7 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
 
     # Search for "nobody" user outside tests
     combined = (debian_rules + "\n" + debian_control).lower()
-    
+
     if "nobody" in combined:
         # Check if it's in a test context
         if "test" in combined:
@@ -1381,7 +1384,7 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
 
     # Check for setuid/setgid patterns
     setuid_patterns = ["chmod 4", "chmod 2", "perm -4000", "perm -2000", "setuid", "setgid"]
-    
+
     has_setuid = any(p.lower() in debian_rules for p in setuid_patterns)
 
     if has_setuid:
@@ -1425,7 +1428,7 @@ def _check_urf_7(ctx, finding: Finding) -> Finding:
 
     dependencies = dep_analysis.get("dependencies", [])
     old_webkit = ["webkit", "qtwebkit", "libseed"]
-    
+
     for dep in dependencies:
         if any(web in dep.lower() for web in old_webkit):
             finding.fail(
@@ -1536,7 +1539,7 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
 
     # Check for PAM or authentication libraries
     pam_patterns = ["libpam", "libpam-", "pam", "gdm", "lightdm", "sddm"]
-    
+
     for dep in dependencies:
         if any(p in dep.lower() for p in pam_patterns):
             # Make sure it's not a system service (which may have PAM modules)
@@ -1553,7 +1556,7 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
     # Check for pam_* function patterns in source
     pam_function_patterns = ["pam_", "pam_authenticate", "pam_acct", "pam_open_session"]
     combined_source = (debian_control + "\n" + debian_rules).lower()
-    
+
     for pattern in pam_function_patterns:
         if pattern.lower() in combined_source:
             finding.fail(
@@ -1588,7 +1591,16 @@ def _check_urf_8(ctx, finding: Finding) -> Finding:
     debian_control = packaging.get("debian_control", "")
 
     # Check if this is a UI/desktop package
-    desktop_patterns = ["x11-apps", "gnome-", "kde-", "xfce-", "lxde-", "mate-", "cinnamon-", "apps"]
+    desktop_patterns = [
+        "x11-apps",
+        "gnome-",
+        "kde-",
+        "xfce-",
+        "lxde-",
+        "mate-",
+        "cinnamon-",
+        "apps",
+    ]
     has_desktop = any(p in debian_control.lower() for p in desktop_patterns)
 
     # Check for .desktop files
@@ -1640,14 +1652,23 @@ def _check_urf_9(ctx, finding: Finding) -> Finding:
     debian_control = packaging.get("debian_control", "")
 
     # Check if package is user-visible
-    user_visible_patterns = ["gnome", "kde", "xfce", "lxde", "mate", "cinnamon", "app", "utils", "tools"]
+    user_visible_patterns = [
+        "gnome",
+        "kde",
+        "xfce",
+        "lxde",
+        "mate",
+        "cinnamon",
+        "app",
+        "utils",
+        "tools",
+    ]
     is_user_visible = any(p in debian_control.lower() for p in user_visible_patterns)
 
     # Check for translation/locale files
     translation_patterns = [".mo", ".po", "locale/", "translations/", "i18n/"]
     has_translations = any(
-        any(p in str(f.get("path", "")).lower() for p in translation_patterns) 
-        for f in file_listing
+        any(p in str(f.get("path", "")).lower() for p in translation_patterns) for f in file_listing
     )
 
     if not is_user_visible:
@@ -1656,7 +1677,9 @@ def _check_urf_9(ctx, finding: Finding) -> Finding:
         finding.severity = "ok"
         finding.confidence = "high"
         finding.message = "not user-visible, translations not needed"
-        finding.todo = "TODO-A: - no translation present, but none needed for this case (not user visible)"
+        finding.todo = (
+            "TODO-A: - no translation present, but none needed for this case (not user visible)"
+        )
         finding.evidence_refs = ["packaging-source:debian_control"]
         return finding
 
@@ -1875,7 +1898,7 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
         # Skip if it's in main or a standard lib
         if dep in main_packages or "libc" in dep or "lib" in dep:
             continue
-        
+
         # If dependency is not obviously in main, flag it
         if not any(pattern in dep.lower() for pattern in ["lib", "gcc", "perl", "python", "ruby"]):
             unresolved_deps.append(dep)
@@ -1884,7 +1907,7 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
         deps_str = ", ".join(unresolved_deps[:3])  # Show first 3
         finding.fail(
             f"Runtime dependencies from other source packages outside main: {deps_str}",
-            f"no other runtime Dependencies to MIR due to this",
+            "no other runtime Dependencies to MIR due to this",
             severity="required",
             confidence="medium",
         )
@@ -1998,54 +2021,86 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
     return finding
 
 
-def _parse_version_tuple(version_str: str) -> tuple:
-    """Parse version string into comparable tuple (numeric parts for sorting).
-    
-    E.g., '1.2.3' -> (1, 2, 3), '1.2.3rc1' -> (1, 2, 3, 0, 'rc1')
-    """
-    import re
+def _split_debian_version(version_str: str) -> tuple[int, str, str]:
+    """Split a Debian/Ubuntu package version into epoch, upstream, revision."""
     if not version_str:
+        return (0, "", "")
+
+    epoch = 0
+    remainder = version_str
+    if ":" in version_str:
+        epoch_str, _, tail = version_str.partition(":")
+        if epoch_str.isdigit():
+            epoch = int(epoch_str)
+            remainder = tail
+
+    if "-" in remainder:
+        upstream_version, _, debian_revision = remainder.rpartition("-")
+    else:
+        upstream_version = remainder
+        debian_revision = ""
+
+    return (epoch, upstream_version, debian_revision)
+
+
+def _normalize_upstream_version(version_str: str) -> str:
+    """Normalize a version string to the upstream version part used for PRF-6."""
+    _, upstream_version, _ = _split_debian_version(version_str)
+    normalized = upstream_version or version_str
+    if normalized.startswith("v") and len(normalized) > 1 and normalized[1].isdigit():
+        normalized = normalized[1:]
+    return normalized
+
+
+def _parse_version_tuple(version_str: str) -> tuple:
+    """Parse the normalized upstream version into a coarse semantic tuple."""
+    normalized = _normalize_upstream_version(version_str)
+    if not normalized:
         return ()
-    
-    # Split on dots and dash/plus for pre-release/post-release
-    parts = re.split(r'[-+~.]', version_str)
-    result = []
-    for part in parts:
-        # Try to convert to int if it's all digits
-        if part.isdigit():
-            result.append(int(part))
-        elif part:
-            result.append(part)
-    return tuple(result)
+
+    tokens = re.findall(r"\d+|[A-Za-z]+|~", normalized)
+    parsed: list[int | str] = []
+    for token in tokens:
+        if token.isdigit():
+            parsed.append(int(token))
+        else:
+            parsed.append(token.lower())
+    return tuple(parsed)
+
+
+def _compare_versions(left: str, right: str) -> int:
+    """Compare two Debian-style versions using dpkg semantics."""
+    comparisons = (("lt", -1), ("gt", 1), ("eq", 0))
+    for operator, result in comparisons:
+        completed = subprocess.run(
+            ["dpkg", "--compare-versions", left, operator, right],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if completed.returncode == 0:
+            return result
+    raise RuntimeError(f"Could not compare versions: {left!r} vs {right!r}")
 
 
 def _versions_compatible(archive_version: str, upstream_version: str) -> tuple[bool, str]:
-    """Check if archive version is reasonably up-to-date with upstream.
-    
-    Returns:
-        (is_compatible, reason) tuple
-        - Compatible: archive is within 1-2 releases behind
-        - Behind: archive is 3+ releases behind
-        - Old: archive is very old (major version gap)
-    """
+    """Check if the packaged upstream version is up-to-date with upstream."""
     if not archive_version or not upstream_version:
         return (True, "Could not determine versions")
-    
-    archive_parts = _parse_version_tuple(archive_version)
-    upstream_parts = _parse_version_tuple(upstream_version)
-    
-    if not archive_parts or not upstream_parts:
+
+    packaged_upstream = _normalize_upstream_version(archive_version)
+    latest_upstream = _normalize_upstream_version(upstream_version)
+    if not packaged_upstream or not latest_upstream:
         return (True, "Could not parse versions")
-    
-    # If upstream < archive, we're ahead (good)
-    if upstream_parts <= archive_parts:
-        return (True, "Archive version meets or exceeds upstream")
-    
-    # Both versions are behind - compare directly
-    if archive_parts < upstream_parts:
-        return (False, f"Archive version behind upstream: {archive_version} < {upstream_version}")
-    
-    return (True, f"Archive version matches or exceeds upstream")
+
+    comparison = _compare_versions(packaged_upstream, latest_upstream)
+    if comparison >= 0:
+        return (True, "Packaged upstream version meets or exceeds latest upstream")
+
+    return (
+        False,
+        f"Packaged upstream version behind upstream: {packaged_upstream} < {latest_upstream}",
+    )
 
 
 @deterministic_check("PRF-6")
@@ -2053,25 +2108,25 @@ def _check_prf_6(ctx, finding: Finding) -> Finding:
     """PRF-6: Current release packaged."""
     check = _get_check_definition(ctx, "PRF-6")
     adapters = ctx.evidence.get("adapters", {})
-    
+
     # Get package info
     lp_package = adapters.get("lp-package-api", {})
     if lp_package.get("status") != "ok":
         return _set_unknown_from_adapter(finding, check)
-    
+
     upstream_tracker = adapters.get("upstream-tracker", {})
     if upstream_tracker.get("status") != "ok":
         return _set_unknown_from_adapter(finding, check)
-    
-    archive_version = lp_package.get("version", "")
+
+    archive_version = lp_package.get("current_version", "")
     upstream_version = upstream_tracker.get("latest_version", "")
-    
+
     if not archive_version or not upstream_version:
         return _set_unknown_from_adapter(finding, check)
-    
+
     # Check version compatibility
     is_compatible, reason = _versions_compatible(archive_version, upstream_version)
-    
+
     if is_compatible:
         finding.status = "ok"
         finding.severity = "ok"
@@ -2081,36 +2136,48 @@ def _check_prf_6(ctx, finding: Finding) -> Finding:
         # Archive is behind - determine if "somewhat behind" or "very old"
         archive_parts = _parse_version_tuple(archive_version)
         upstream_parts = _parse_version_tuple(upstream_version)
-        
+
         if archive_parts and upstream_parts:
             # Compare major versions
             archive_major = archive_parts[0] if isinstance(archive_parts[0], int) else 0
             upstream_major = upstream_parts[0] if isinstance(upstream_parts[0], int) else 0
-            
+
             # If major version is 2+ behind, it's very old
             if isinstance(archive_major, int) and isinstance(upstream_major, int):
                 major_gap = upstream_major - archive_major
-                
+
                 if major_gap >= 2:
                     # Very old
                     finding.status = "not-ok"
                     finding.severity = "required"
                     finding.confidence = "high"
-                    finding.message = f"Package is very behind upstream: {archive_version} vs {upstream_version}"
+                    finding.message = (
+                        f"Package is very behind upstream: "
+                        f"{_normalize_upstream_version(archive_version)} vs "
+                        f"{_normalize_upstream_version(upstream_version)}"
+                    )
                     finding.todo = "TODO: - Consider updating to a more recent upstream release"
                 else:
                     # Somewhat behind (1 major version or minor version differences)
                     finding.status = "not-ok"
                     finding.severity = "recommended"
                     finding.confidence = "high"
-                    finding.message = f"Package is somewhat behind upstream: {archive_version} vs {upstream_version}"
+                    finding.message = (
+                        f"Package is somewhat behind upstream: "
+                        f"{_normalize_upstream_version(archive_version)} vs "
+                        f"{_normalize_upstream_version(upstream_version)}"
+                    )
                     finding.todo = "TODO: - Consider updating to a more recent upstream release"
             else:
                 # Can't determine major - mark as recommended
                 finding.status = "not-ok"
                 finding.severity = "recommended"
                 finding.confidence = "medium"
-                finding.message = f"Package version lag detected: {archive_version} vs {upstream_version}"
+                finding.message = (
+                    f"Package version lag detected: "
+                    f"{_normalize_upstream_version(archive_version)} vs "
+                    f"{_normalize_upstream_version(upstream_version)}"
+                )
                 finding.todo = "TODO: - Verify upstream version availability"
         else:
             finding.status = "not-ok"
@@ -2118,8 +2185,8 @@ def _check_prf_6(ctx, finding: Finding) -> Finding:
             finding.confidence = "medium"
             finding.message = "Could not determine version lag"
             finding.todo = "TODO: - Verify upstream version availability"
-    
-    finding.evidence_refs = ["lp-package-api:version", "upstream-tracker:latest_version"]
+
+    finding.evidence_refs = ["lp-package-api:current_version", "upstream-tracker:latest_version"]
     return finding
 
 

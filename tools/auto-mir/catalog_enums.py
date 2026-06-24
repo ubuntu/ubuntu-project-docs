@@ -18,6 +18,7 @@ class AdapterID(str, Enum):
     LP_TEAM_MEMBERSHIP_API = "lp-team-membership-api"
     LP_PACKAGE_API = "lp-package-api"
     LP_BUILD_API = "lp-build-api"
+    UPSTREAM_TRACKER = "upstream-tracker"
     UBUNTU_CVE_TRACKER = "ubuntu-cve-tracker"
     AUTOPKGTEST_DB = "autopkgtest-db"
     TEAM_MAPPING = "team-mapping"

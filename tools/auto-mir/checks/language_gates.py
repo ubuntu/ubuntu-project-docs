@@ -111,14 +111,22 @@ def _is_python_package(packaging: dict) -> bool:
 
     # Check for Python packaging files in root
     debian_control = packaging.get("debian_control", "")
-    if "setup.py" in debian_control or "setup.cfg" in debian_control or "pyproject.toml" in debian_control:
+    if (
+        "setup.py" in debian_control
+        or "setup.cfg" in debian_control
+        or "pyproject.toml" in debian_control
+    ):
         return True
 
     # Check for .py files in source tree (excluding vendor)
     for path in _iter_non_third_party_paths(packaging):
         if path.endswith(".py"):
             return True
-        if path.endswith("/setup.py") or path.endswith("/setup.cfg") or path.endswith("/pyproject.toml"):
+        if (
+            path.endswith("/setup.py")
+            or path.endswith("/setup.cfg")
+            or path.endswith("/pyproject.toml")
+        ):
             return True
 
     return False

@@ -13,6 +13,7 @@ import sqlite3
 import subprocess
 import tempfile
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -21,11 +22,12 @@ from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
     AutopkgtestResult,
-    LPBuildAPIResult,
     LPBugAPIResult,
+    LPBuildAPIResult,
     LPPackageAPIResult,
     LPTeamMembershipAPIResult,
     UbuntuCVETrackerResult,
+    UpstreamTrackerResult,
 )
 
 try:
@@ -186,6 +188,102 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
     }
 
 
+def _fetch_json(url: str) -> Any:
+    """Fetch and decode JSON from a remote endpoint."""
+    req = urllib.request.Request(url, headers={"User-Agent": "auto-mir/0.1"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _select_upstream_project(
+    projects: list[dict[str, Any]], package_name: str
+) -> dict[str, Any] | None:
+    """Return the best upstream project match for a source package name."""
+    if not projects:
+        return None
+
+    normalized = package_name.lower().replace("python3-", "").replace("python-", "")
+    for project in projects:
+        name = str(project.get("name", "")).strip().lower()
+        if name == normalized or name == package_name.lower():
+            return project
+
+    return projects[0]
+
+
+@adapter(AdapterID.UPSTREAM_TRACKER)
+def collect_upstream_tracker(ctx) -> UpstreamTrackerResult:
+    """Query release-monitoring.org for upstream release history.
+
+    This is intentionally heuristic: it starts from the source package name and
+    returns the best matching project entry when an exact match is not available.
+    """
+    pkg = ctx.source_package
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    query = urllib.parse.quote(pkg)
+    url = f"https://release-monitoring.org/api/v2/projects/?name={query}"
+
+    try:
+        data = _fetch_json(url)
+    except urllib.error.HTTPError as exc:
+        raise AdapterError(f"upstream tracker HTTP error: {exc.code}") from exc
+    except urllib.error.URLError as exc:
+        raise AdapterError(f"upstream tracker request failed: {exc.reason}") from exc
+    except json.JSONDecodeError as exc:
+        raise AdapterError(f"upstream tracker JSON parse failed: {exc}") from exc
+
+    projects = data.get("items") or data.get("projects") or data.get("results") or []
+    if isinstance(projects, dict):
+        projects = [projects]
+    if not isinstance(projects, list):
+        projects = []
+
+    project = _select_upstream_project(projects, pkg)
+    if project is None:
+        raise AdapterError(f"no upstream project match found for {pkg}")
+
+    versions = project.get("versions") or []
+    if not isinstance(versions, list):
+        versions = []
+    recent_releases = [
+        {"version": str(version)} for version in versions[:10] if str(version).strip()
+    ]
+
+    latest_version = (
+        project.get("version")
+        or project.get("stable_version")
+        or project.get("latest_version")
+        or (recent_releases[0]["version"] if recent_releases else "")
+    )
+    latest_version = str(latest_version).strip()
+    if not latest_version:
+        raise AdapterError(f"upstream tracker returned no usable latest version for {pkg}")
+
+    open_issues_count = project.get("open_issues_count")
+    if open_issues_count is None:
+        open_issues_count = project.get("open_bugs")
+    try:
+        open_issues_count = int(open_issues_count or 0)
+    except (TypeError, ValueError):
+        open_issues_count = 0
+
+    return {
+        "status": "ok",
+        "upstream_url": str(project.get("homepage") or project.get("url") or "").strip(),
+        "latest_version": latest_version,
+        "open_issues_count": open_issues_count,
+        "recent_releases": recent_releases,
+        "last_release_date": str(
+            project.get("last_release_date")
+            or project.get("last_release_published_at")
+            or project.get("release_date")
+            or ""
+        ).strip(),
+    }
+
+
 def _resolve_launchpad_series(ubuntu, requested_series: str):
     """Return a Launchpad series object for a requested Ubuntu series name."""
     try:
@@ -194,7 +292,9 @@ def _resolve_launchpad_series(ubuntu, requested_series: str):
         try:
             return ubuntu.current_series
         except Exception as exc:
-            raise AdapterError(f"Could not resolve Ubuntu series '{requested_series}': {exc}") from exc
+            raise AdapterError(
+                f"Could not resolve Ubuntu series '{requested_series}': {exc}"
+            ) from exc
 
 
 def _build_attr(record: Any, *names: str, default: str = "") -> str:
@@ -268,7 +368,9 @@ def collect_lp_build_api(ctx) -> LPBuildAPIResult:
             {
                 "arch_tag": _build_attr(record, "arch_tag", "arch_tag_name", "architecture_tag"),
                 "build_state": _build_attr(record, "buildstate", "build_state", "status"),
-                "build_reason": _build_attr(record, "build_reason", "build_summary", "status_message"),
+                "build_reason": _build_attr(
+                    record, "build_reason", "build_summary", "status_message"
+                ),
                 "version": _build_attr(record, "source_package_version", "version"),
                 "date_created": _build_attr(record, "date_created", "datebuilt", "date_built"),
                 "pocket": _build_attr(record, "pocket"),
@@ -300,7 +402,7 @@ def _is_package_on_lto_disabled_list(pkg: str, series_name: str) -> bool:
     try:
         ubuntu = lp.distributions["ubuntu"]
         lto_pkg = ubuntu.getSourcePackage(name="lto-disabled-list")
-        
+
         # Try to fetch the published files for the LTO package in the target series
         for attr_name in ("getBinaries", "getPublishedBinaries"):
             candidate = getattr(lto_pkg, attr_name, None)

@@ -2266,6 +2266,9 @@ checks:
   ai_policy: none
   human_override: false
   blocker_class: none
+  messages:
+    unknown_message: Could not determine package version information
+    unknown_todo: 'TODO: - Verify packaged version against latest upstream release'
   mapping_rules:
   - condition: latest upstream version matches or is within one/two releases of archive version
     severity: ok

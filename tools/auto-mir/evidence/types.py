@@ -93,6 +93,23 @@ class LPBuildAPIResult(TypedDict):
     builds: list[LPBuildEntry]
 
 
+class UpstreamReleaseEntry(TypedDict):
+    """Single upstream release entry."""
+
+    version: str
+
+
+class UpstreamTrackerResult(TypedDict):
+    """Return structure for upstream-tracker adapter."""
+
+    status: str
+    upstream_url: str
+    latest_version: str
+    open_issues_count: int
+    recent_releases: list[UpstreamReleaseEntry]
+    last_release_date: str
+
+
 # ---------------------------------------------------------------------------
 # Host-side adapters — CVE / security
 # ---------------------------------------------------------------------------

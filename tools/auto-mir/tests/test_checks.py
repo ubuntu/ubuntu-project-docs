@@ -200,6 +200,7 @@ class _Ctx:
                     "messages": {
                         "ok_message": "the current release is packaged",
                         "unknown_message": "Could not determine package version information",
+                        "unknown_todo": "TODO: - Verify packaged version against latest upstream release",
                     },
                 },
                 {
@@ -2064,7 +2065,7 @@ def test_prf_6_current_version():
     ctx = _Ctx()
     ctx.evidence["adapters"]["lp-package-api"] = {
         "status": "ok",
-        "version": "1.2.3",
+        "current_version": "1.2.3-0ubuntu1",
     }
     ctx.evidence["adapters"]["upstream-tracker"] = {
         "status": "ok",
@@ -2084,7 +2085,7 @@ def test_prf_6_behind_upstream():
     ctx = _Ctx()
     ctx.evidence["adapters"]["lp-package-api"] = {
         "status": "ok",
-        "version": "1.1.0",
+        "current_version": "1.1.0-2ubuntu1",
     }
     ctx.evidence["adapters"]["upstream-tracker"] = {
         "status": "ok",
@@ -2103,7 +2104,7 @@ def test_prf_6_very_old_version():
     ctx = _Ctx()
     ctx.evidence["adapters"]["lp-package-api"] = {
         "status": "ok",
-        "version": "0.9.0",
+        "current_version": "1:0.9.0-0ubuntu1",
     }
     ctx.evidence["adapters"]["upstream-tracker"] = {
         "status": "ok",
@@ -2128,3 +2129,31 @@ def test_prf_6_adapter_missing():
     result = checks.deterministic._check_prf_6(ctx, finding)
 
     assert result.status == "unknown"
+
+
+def test_prf_6_current_version_with_epoch_and_ubuntu_revision():
+    """PRF-6 should ignore epoch and Ubuntu revision when matching upstream."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lp-package-api"] = {
+        "status": "ok",
+        "current_version": "2:3.4.5-1ubuntu2",
+    }
+    ctx.evidence["adapters"]["upstream-tracker"] = {
+        "status": "ok",
+        "latest_version": "3.4.5",
+    }
+
+    finding = _make_finding("PRF-6", mode="deterministic")
+    result = checks.deterministic._check_prf_6(ctx, finding)
+
+    assert result.status == "ok"
+
+
+def test_versions_compatible_strips_debian_revision():
+    """PRF-6 version comparison should use the upstream portion of package versions."""
+    is_compatible, _ = checks.deterministic._versions_compatible(
+        "1:2.3.4-0ubuntu1",
+        "2.3.4",
+    )
+
+    assert is_compatible is True
