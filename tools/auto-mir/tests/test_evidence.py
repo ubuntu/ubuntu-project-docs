@@ -312,6 +312,59 @@ def test_lp_bug_search_api_output_structure():
     assert result["open_bugs"][0]["title"] == "CVE-2026-0001 testpkg privilege escalation"
 
 
+def test_debian_bts_output_structure():
+    """debian-bts adapter should classify RC and security bugs from BTS HTML."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+
+    page_html = """
+    <H2 CLASS="outstanding"><a name="_0_3_2"></a>
+    Outstanding bugs -- Important bugs; Patch Available (1 bug)</H2>
+    <div class="msgreceived">
+    <UL class="bugs">
+    <li><div class="shortbugstatus">
+      <a href="bugreport.cgi?bug=111">#111</a>
+      [<font face="fixed"><span class="link"><abbr title="important">i</abbr>
+      |<abbr title="security">S</abbr></span></font>]
+      [<a class="submitter" href="pkgreport.cgi?package=testpkg">testpkg</a>]
+      <a href="bugreport.cgi?bug=111">testpkg: CVE-2026-0001 privilege escalation</a>
+      <div id="extra_status_111" class="shortbugstatusextra">
+      <span>Severity: important;</span>
+      <span>Tags: patch, security, upstream;</span>
+      </div>
+    </div></li>
+    </UL>
+    </div>
+    <H2 CLASS="outstanding"><a name="_0_1_4"></a>
+    Outstanding bugs -- Critical bugs; Unclassified (1 bug)</H2>
+    <div class="msgreceived">
+    <UL class="bugs">
+    <li><div class="shortbugstatus">
+      <a href="bugreport.cgi?bug=222">#222</a>
+      [<a class="submitter" href="pkgreport.cgi?package=testpkg">testpkg</a>]
+      <a href="bugreport.cgi?bug=222">testpkg: release-blocking crash</a>
+      <div id="extra_status_222" class="shortbugstatusextra">
+      <span>Severity: critical;</span>
+      <span>Tags: patch;</span>
+      </div>
+    </div></li>
+    </UL>
+    </div>
+    """
+
+    with patch("evidence.host_adapters._fetch_text", return_value=page_html):
+        from evidence.host_adapters import collect_debian_bts
+
+        result = collect_debian_bts(ctx)
+
+    assert result["status"] == "ok"
+    assert result["source_package"] == "testpkg"
+    assert result["total_open_bug_count"] == 2
+    assert [bug["id"] for bug in result["security_bugs"]] == ["111"]
+    assert [bug["id"] for bug in result["rc_bugs"]] == ["222"]
+    assert result["open_bugs"][0]["web_link"].startswith("https://bugs.debian.org/")
+
+
 def test_upstream_tracker_output_structure():
     """upstream-tracker adapter should return latest version and release history."""
     ctx = Mock()

@@ -66,6 +66,28 @@ class LPBugSearchAPIResult(TypedDict):
     total_open_bug_count: int
 
 
+class DebianBTSBugEntry(TypedDict):
+    """Single Debian BTS bug entry."""
+
+    id: str
+    title: str
+    severity: str
+    status: str
+    tags: list[str]
+    web_link: str
+
+
+class DebianBTSResult(TypedDict):
+    """Return structure for debian-bts adapter."""
+
+    status: str
+    source_package: str
+    open_bugs: list[DebianBTSBugEntry]
+    rc_bugs: list[DebianBTSBugEntry]
+    security_bugs: list[DebianBTSBugEntry]
+    total_open_bug_count: int
+
+
 class PublishHistoryEntry(TypedDict):
     """Single entry in Ubuntu publishing history."""
 

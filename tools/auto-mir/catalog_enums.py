@@ -23,6 +23,7 @@ class AdapterID(str, Enum):
     UBUNTU_CVE_TRACKER = "ubuntu-cve-tracker"
     AUTOPKGTEST_DB = "autopkgtest-db"
     TEAM_MAPPING = "team-mapping"
+    DEBIAN_BTS = "debian-bts"
 
     # In-container adapters
     PACKAGING_SOURCE = "packaging-source"

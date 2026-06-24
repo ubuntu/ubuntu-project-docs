@@ -6,9 +6,11 @@ evidence from external APIs and web services.
 
 from __future__ import annotations
 
+import html
 import json
 import logging
 import lzma
+import re
 import sqlite3
 import subprocess
 import tempfile
@@ -22,6 +24,7 @@ from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
     AutopkgtestResult,
+    DebianBTSResult,
     LPBugAPIResult,
     LPBugSearchAPIResult,
     LPBuildAPIResult,
@@ -294,6 +297,116 @@ def _fetch_json(url: str) -> Any:
     req = urllib.request.Request(url, headers={"User-Agent": "auto-mir/0.1"})
     with urllib.request.urlopen(req, timeout=60) as resp:
         return json.loads(resp.read().decode("utf-8"))
+
+
+def _fetch_text(url: str) -> str:
+    """Fetch and decode text from a remote endpoint."""
+    req = urllib.request.Request(url, headers={"User-Agent": "auto-mir/0.1"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return resp.read().decode("utf-8", "replace")
+
+
+def _strip_html(value: str) -> str:
+    """Collapse HTML fragments into plain text."""
+    text = re.sub(r"<[^>]+>", " ", value)
+    return " ".join(html.unescape(text).split())
+
+
+def _parse_debian_bts_bug_sections(page_html: str) -> list[dict[str, Any]]:
+    """Extract Debian BTS bug entries from the package report HTML."""
+    section_re = re.compile(
+        r"<H2[^>]*>(?P<header>.*?)</H2>"
+        r'\s*<div class="msgreceived">\s*<UL class="bugs">(?P<body>.*?)</UL>',
+        re.IGNORECASE | re.DOTALL,
+    )
+    bug_block_re = re.compile(
+        r'<div class="shortbugstatus">(?P<block>.*?)</div>\s*</li>',
+        re.IGNORECASE | re.DOTALL,
+    )
+
+    bugs: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
+    for section_match in section_re.finditer(page_html):
+        header_text = _strip_html(section_match.group("header"))
+        body_html = section_match.group("body")
+        for bug_block_match in bug_block_re.finditer(body_html):
+            block_html = bug_block_match.group("block")
+            id_match = re.search(r"bugreport\.cgi\?bug=(\d+)", block_html, re.IGNORECASE)
+            title_match = re.search(
+                r'<a href="bugreport\.cgi\?bug=\d+">(?P<title>.*?)</a>',
+                block_html,
+                re.IGNORECASE | re.DOTALL,
+            )
+            extra_match = re.search(
+                r'<div id="extra_status_\d+" class="shortbugstatusextra">(?P<extra>.*?)</div>',
+                block_html,
+                re.IGNORECASE | re.DOTALL,
+            )
+            if not id_match or not title_match:
+                continue
+
+            bug_id = id_match.group(1)
+            if bug_id in seen_ids:
+                continue
+            seen_ids.add(bug_id)
+
+            title = _strip_html(title_match.group("title"))
+            extra_text = _strip_html(extra_match.group("extra") if extra_match else "")
+            severity_match = re.search(r"Severity:\s*([^;]+)", extra_text, re.IGNORECASE)
+            tags_match = re.search(r"Tags:\s*([^;]+)", extra_text, re.IGNORECASE)
+            severity = severity_match.group(1).strip().lower() if severity_match else "unknown"
+            tags = []
+            if tags_match:
+                tags = [
+                    tag.strip().lower() for tag in tags_match.group(1).split(",") if tag.strip()
+                ]
+
+            bugs.append(
+                {
+                    "id": bug_id,
+                    "title": title,
+                    "severity": severity,
+                    "status": header_text,
+                    "tags": tags,
+                    "web_link": f"https://bugs.debian.org/cgi-bin/bugreport.cgi?bug={bug_id}",
+                }
+            )
+    return bugs
+
+
+@adapter(AdapterID.DEBIAN_BTS)
+def collect_debian_bts(ctx) -> DebianBTSResult:
+    """Fetch open Debian BTS bugs for the current source package."""
+    pkg = ctx.source_package
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    url = (
+        "https://bugs.debian.org/cgi-bin/pkgreport.cgi?"
+        f"src={urllib.parse.quote(pkg)};dist=unstable;archive=no;pend-exc=done;repeatmerged=no"
+    )
+
+    try:
+        page_html = _fetch_text(url)
+    except urllib.error.HTTPError as exc:
+        raise AdapterError(f"Debian BTS HTTP error: {exc.code}") from exc
+    except urllib.error.URLError as exc:
+        raise AdapterError(f"Debian BTS request failed: {exc.reason}") from exc
+
+    open_bugs = _parse_debian_bts_bug_sections(page_html)
+    rc_bugs = [bug for bug in open_bugs if bug["severity"] in {"critical", "grave", "serious"}]
+    security_bugs = [
+        bug for bug in open_bugs if "security" in bug["tags"] or "cve-" in bug["title"].lower()
+    ]
+
+    return {
+        "status": "ok",
+        "source_package": pkg,
+        "open_bugs": open_bugs,
+        "rc_bugs": rc_bugs,
+        "security_bugs": security_bugs,
+        "total_open_bug_count": len(open_bugs),
+    }
 
 
 def _select_upstream_project(
