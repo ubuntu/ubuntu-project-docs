@@ -1678,7 +1678,7 @@ def test_sec_10_pam_found():
 
 
 def test_urf_8_not_ui_package():
-    """Test URF-8 when not a UI package."""
+    """Test URF-8 when not a UI package (gate N/A; check passes)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1690,13 +1690,13 @@ def test_urf_8_not_ui_package():
     finding = _make_finding("URF-8", mode="deterministic")
     result = checks.deterministic._check_urf_8(ctx, finding)
 
-    assert result.status == "not-ok"
+    assert result.status == "ok"
     assert result.severity == "ok"
     assert "not part of the ui" in result.message.lower()
 
 
 def test_urf_8_ui_with_desktop():
-    """Test URF-8 when UI package with desktop file."""
+    """Test URF-8 when UI package with a valid .desktop file (check passes)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1710,13 +1710,13 @@ def test_urf_8_ui_with_desktop():
     finding = _make_finding("URF-8", mode="deterministic")
     result = checks.deterministic._check_urf_8(ctx, finding)
 
-    assert result.status == "not-ok"
+    assert result.status == "ok"
     assert result.severity == "ok"
     assert "part of the ui" in result.message.lower()
 
 
 def test_urf_9_not_user_visible():
-    """Test URF-9 when package is not user-visible."""
+    """Test URF-9 when package is not user-visible (gate N/A; check passes)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1728,13 +1728,13 @@ def test_urf_9_not_user_visible():
     finding = _make_finding("URF-9", mode="deterministic")
     result = checks.deterministic._check_urf_9(ctx, finding)
 
-    assert result.status == "not-ok"
+    assert result.status == "ok"
     assert result.severity == "ok"
     assert "not user-visible" in result.message.lower()
 
 
 def test_urf_9_user_visible_with_translations():
-    """Test URF-9 when user-visible package has translations."""
+    """Test URF-9 when user-visible package has translations (check passes)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1748,7 +1748,7 @@ def test_urf_9_user_visible_with_translations():
     finding = _make_finding("URF-9", mode="deterministic")
     result = checks.deterministic._check_urf_9(ctx, finding)
 
-    assert result.status == "not-ok"
+    assert result.status == "ok"
     assert result.severity == "ok"
     assert "translation present" in result.message.lower()
 
@@ -1859,73 +1859,81 @@ def test_sec_4_v8_not_found():
 
 
 def test_esl_4_not_go():
-    """Test ESL-4 when package is not Go."""
+    """Test ESL-4 when package is not Go (gate N/A; check passes)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
         "debian_rules": "dh_auto_configure\ndh_auto_build",
         "debian_control": "Package: myapp",
         "file_listing": [],
+        "go_sum_present": False,
+        "cargo_lock_present": False,
     }
 
     finding = _make_finding("ESL-4", mode="deterministic")
     result = checks.deterministic._check_esl_4(ctx, finding)
 
-    assert result.status == "not-ok"
+    assert result.status == "ok"
     assert result.severity == "ok"
     assert "not" in result.message.lower() and "go" in result.message.lower()
 
 
 def test_esl_4_is_go():
-    """Test ESL-4 when package is Go."""
+    """Test ESL-4 when package is Go (gate active; check still passes)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
         "debian_rules": "dh_auto_configure --buildsystem golang",
         "debian_control": "Package: myapp\nBuild-Depends: golang-go",
         "file_listing": [{"path": "main.go", "size": 100}],
+        "go_sum_present": False,
+        "cargo_lock_present": False,
     }
 
     finding = _make_finding("ESL-4", mode="deterministic")
     result = checks.deterministic._check_esl_4(ctx, finding)
 
-    assert result.status == "not-ok"
+    assert result.status == "ok"
     assert result.severity == "ok"
     assert "go" in result.message.lower()
 
 
 def test_esl_8_not_rust():
-    """Test ESL-8 when package is not Rust."""
+    """Test ESL-8 when package is not Rust (gate N/A; check passes)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
         "debian_rules": "dh_auto_configure\ndh_auto_build",
         "debian_control": "Package: myapp",
         "file_listing": [],
+        "go_sum_present": False,
+        "cargo_lock_present": False,
     }
 
     finding = _make_finding("ESL-8", mode="deterministic")
     result = checks.deterministic._check_esl_8(ctx, finding)
 
-    assert result.status == "not-ok"
+    assert result.status == "ok"
     assert result.severity == "ok"
     assert "not" in result.message.lower() and "rust" in result.message.lower()
 
 
 def test_esl_8_is_rust():
-    """Test ESL-8 when package is Rust."""
+    """Test ESL-8 when package is Rust (gate active; check still passes)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
         "debian_rules": "dh_auto_configure --buildsystem cargo",
         "debian_control": "Package: myapp\nBuild-Depends: cargo, rustc",
         "file_listing": [{"path": "src/main.rs", "size": 100}],
+        "go_sum_present": False,
+        "cargo_lock_present": False,
     }
 
     finding = _make_finding("ESL-8", mode="deterministic")
     result = checks.deterministic._check_esl_8(ctx, finding)
 
-    assert result.status == "not-ok"
+    assert result.status == "ok"
     assert result.severity == "ok"
     assert "rust" in result.message.lower()
 

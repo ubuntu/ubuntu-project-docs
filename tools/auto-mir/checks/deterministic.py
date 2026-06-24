@@ -1414,8 +1414,8 @@ def _check_urf_8(ctx, finding: Finding) -> Finding:
     has_desktop_file = any(".desktop" in str(f.get("path", "")) for f in file_listing)
 
     if not has_desktop and not has_desktop_file:
-        # Not a UI package
-        finding.status = "not-ok"
+        # Not a UI package — gate does not apply, check passes
+        finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
         finding.message = "not part of the UI for extra checks"
@@ -1424,8 +1424,8 @@ def _check_urf_8(ctx, finding: Finding) -> Finding:
         return finding
 
     if has_desktop_file:
-        # Is a UI package with desktop file
-        finding.status = "not-ok"
+        # Is a UI package with a valid .desktop file — check passes
+        finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
         finding.message = "part of the UI, desktop file is ok"
@@ -1479,8 +1479,8 @@ def _check_urf_9(ctx, finding: Finding) -> Finding:
     )
 
     if not is_user_visible:
-        # Not user-visible, no translations needed
-        finding.status = "not-ok"
+        # Not user-visible — gate does not apply, check passes
+        finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
         finding.message = "not user-visible, translations not needed"
@@ -1491,8 +1491,8 @@ def _check_urf_9(ctx, finding: Finding) -> Finding:
         return finding
 
     if has_translations:
-        # User-visible with translations
-        finding.status = "not-ok"
+        # User-visible with translations present — check passes
+        finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
         finding.message = "user-visible with translation present"
@@ -1614,68 +1614,6 @@ def _check_sec_4(ctx, finding: Finding) -> Finding:
         confidence="high",
     )
     finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
-    return finding
-
-
-@deterministic_check("ESL-4")
-def _check_esl_4(ctx, finding: Finding) -> Finding:
-    """ESL-4: Go language detection gate."""
-    check = _get_check_definition(ctx, "ESL-4")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        _set_unknown_from_adapter(finding, check, "packaging-source")
-        return finding
-
-    is_go = _is_go_package(packaging)
-
-    if is_go:
-        finding.status = "not-ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = "Go package detected - Go-specific constraints apply"
-        finding.todo = "TODO-B: - Golang package detected; ESL-7 constraints apply"
-        finding.evidence_refs = ["packaging-source:debian_rules"]
-        return finding
-
-    finding.status = "not-ok"
-    finding.severity = "ok"
-    finding.confidence = "high"
-    finding.message = "Not a Go package, no extra constraints"
-    finding.todo = "TODO-A: - not a go package, no extra constraints to consider in that regard"
-    finding.evidence_refs = ["packaging-source:debian_control"]
-    return finding
-
-
-@deterministic_check("ESL-8")
-def _check_esl_8(ctx, finding: Finding) -> Finding:
-    """ESL-8: Rust language detection gate."""
-    check = _get_check_definition(ctx, "ESL-8")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        _set_unknown_from_adapter(finding, check, "packaging-source")
-        return finding
-
-    is_rust = _is_rust_package(packaging)
-
-    if is_rust:
-        finding.status = "not-ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = "Rust package detected - Rust-specific constraints apply"
-        finding.todo = "TODO-B: - Rust package that has all dependencies vendored..."
-        finding.evidence_refs = ["packaging-source:debian_rules"]
-        return finding
-
-    finding.status = "not-ok"
-    finding.severity = "ok"
-    finding.confidence = "high"
-    finding.message = "Not a Rust package, no extra constraints"
-    finding.todo = "TODO-A: - not a rust package, no extra constraints to consider in that regard"
-    finding.evidence_refs = ["packaging-source:debian_control"]
     return finding
 
 
