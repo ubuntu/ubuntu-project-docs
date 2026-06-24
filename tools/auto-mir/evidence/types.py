@@ -43,6 +43,29 @@ class LPTeamMembershipAPIResult(TypedDict):
     ubuntu_mir_subscribed: bool
 
 
+class LPBugSearchEntry(TypedDict):
+    """Single Launchpad package bug entry."""
+
+    id: str
+    title: str
+    status: str
+    importance: str
+    date_created: str
+    web_link: str
+    tags: list[str]
+
+
+class LPBugSearchAPIResult(TypedDict):
+    """Return structure for lp-bug-search-api adapter."""
+
+    status: str
+    source_package: str
+    open_bugs: list[LPBugSearchEntry]
+    critical_bugs: list[LPBugSearchEntry]
+    security_bugs: list[LPBugSearchEntry]
+    total_open_bug_count: int
+
+
 class PublishHistoryEntry(TypedDict):
     """Single entry in Ubuntu publishing history."""
 

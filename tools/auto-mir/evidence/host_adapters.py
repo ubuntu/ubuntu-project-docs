@@ -23,6 +23,7 @@ from evidence.registry import adapter
 from evidence.types import (
     AutopkgtestResult,
     LPBugAPIResult,
+    LPBugSearchAPIResult,
     LPBuildAPIResult,
     LPPackageAPIResult,
     LPTeamMembershipAPIResult,
@@ -84,6 +85,106 @@ def collect_lp_team_membership_api(ctx) -> LPTeamMembershipAPIResult:
         "status": "ok",
         "subscribers": subscribers,
         "ubuntu_mir_subscribed": "ubuntu-mir" in subscribers_lower,
+    }
+
+
+def _lp_task_is_open(status: str) -> bool:
+    """Return True when a Launchpad task status still represents an open bug."""
+    closed_statuses = {"Fix Released", "Invalid", "Won't Fix", "Expired"}
+    return status not in closed_statuses
+
+
+@adapter(AdapterID.LP_BUG_SEARCH_API)
+def collect_lp_bug_search_api(ctx) -> LPBugSearchAPIResult:
+    """Search Launchpad bug tasks for the current Ubuntu source package.
+
+    Uses the anonymous Launchpad REST API on the source-package object itself,
+    which correctly scopes searchTasks to that package. Tasks are enriched with
+    bug detail lookups to expose titles and tags for downstream LLM checks.
+    """
+    pkg = ctx.source_package
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    search_url = f"https://api.launchpad.net/devel/ubuntu/+source/{urllib.parse.quote(pkg)}?ws.op=searchTasks"
+
+    open_bugs: list[dict[str, Any]] = []
+    critical_bugs: list[dict[str, Any]] = []
+    security_bugs: list[dict[str, Any]] = []
+    next_url: str | None = search_url
+    seen_bug_ids: set[str] = set()
+    max_tasks = 100
+
+    while next_url and len(open_bugs) < max_tasks:
+        try:
+            page = _fetch_json(next_url)
+        except urllib.error.HTTPError as exc:
+            raise AdapterError(f"Launchpad bug search HTTP error: {exc.code}") from exc
+        except urllib.error.URLError as exc:
+            raise AdapterError(f"Launchpad bug search failed: {exc.reason}") from exc
+        except json.JSONDecodeError as exc:
+            raise AdapterError(f"Launchpad bug search JSON parse failed: {exc}") from exc
+
+        entries = page.get("entries", [])
+        if not isinstance(entries, list):
+            entries = []
+
+        for task in entries:
+            if len(open_bugs) >= max_tasks:
+                break
+
+            status = str(task.get("status") or "").strip()
+            if not _lp_task_is_open(status):
+                continue
+
+            bug_link = str(task.get("bug_link") or "").strip()
+            web_link = str(task.get("web_link") or "").strip()
+            importance = str(task.get("importance") or "Unknown").strip()
+            date_created = str(task.get("date_created") or "").strip()
+            bug_id = bug_link.rstrip("/").split("/")[-1] if bug_link else ""
+            if not bug_id or bug_id in seen_bug_ids:
+                continue
+            seen_bug_ids.add(bug_id)
+
+            title = ""
+            tags: list[str] = []
+            if bug_link:
+                try:
+                    bug_data = _fetch_json(bug_link)
+                    title = str(bug_data.get("title") or "").strip()
+                    raw_tags = bug_data.get("tags") or []
+                    if isinstance(raw_tags, list):
+                        tags = [str(tag).strip() for tag in raw_tags if str(tag).strip()]
+                except Exception as exc:
+                    log.debug("Could not enrich Launchpad bug %s: %s", bug_id, exc)
+
+            entry = {
+                "id": bug_id,
+                "title": title,
+                "status": status,
+                "importance": importance,
+                "date_created": date_created,
+                "web_link": web_link,
+                "tags": tags,
+            }
+            open_bugs.append(entry)
+
+            if importance in {"Critical", "High"}:
+                critical_bugs.append(entry)
+            if any(tag.lower() == "security" for tag in tags) or "cve-" in title.lower():
+                security_bugs.append(entry)
+
+        next_url = page.get("next_collection_link")
+        if next_url is not None:
+            next_url = str(next_url).strip() or None
+
+    return {
+        "status": "ok",
+        "source_package": pkg,
+        "open_bugs": open_bugs,
+        "critical_bugs": critical_bugs,
+        "security_bugs": security_bugs,
+        "total_open_bug_count": len(open_bugs),
     }
 
 

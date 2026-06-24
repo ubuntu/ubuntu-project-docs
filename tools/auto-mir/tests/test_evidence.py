@@ -249,6 +249,69 @@ def test_lp_build_api_output_structure():
     assert result["builds"][0]["build_state"] == "Successfully built"
 
 
+def test_lp_bug_search_api_output_structure():
+    """lp-bug-search-api should return open, critical, and security bug slices."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+
+    task_page = {
+        "entries": [
+            {
+                "bug_link": "https://api.launchpad.net/devel/bugs/111",
+                "web_link": "https://bugs.launchpad.net/bugs/111",
+                "status": "New",
+                "importance": "Critical",
+                "date_created": "2026-06-01T00:00:00+00:00",
+            },
+            {
+                "bug_link": "https://api.launchpad.net/devel/bugs/222",
+                "web_link": "https://bugs.launchpad.net/bugs/222",
+                "status": "Confirmed",
+                "importance": "Medium",
+                "date_created": "2026-06-02T00:00:00+00:00",
+            },
+            {
+                "bug_link": "https://api.launchpad.net/devel/bugs/333",
+                "web_link": "https://bugs.launchpad.net/bugs/333",
+                "status": "Fix Released",
+                "importance": "High",
+                "date_created": "2026-06-03T00:00:00+00:00",
+            },
+        ],
+        "next_collection_link": None,
+    }
+    bug_111 = {
+        "title": "CVE-2026-0001 testpkg privilege escalation",
+        "tags": ["security", "patch"],
+    }
+    bug_222 = {
+        "title": "testpkg cosmetic regression",
+        "tags": ["ui"],
+    }
+
+    def fake_fetch(url: str):
+        if "ws.op=searchTasks" in url:
+            return task_page
+        if url.endswith("/111"):
+            return bug_111
+        if url.endswith("/222"):
+            return bug_222
+        raise AssertionError(f"unexpected url: {url}")
+
+    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+        from evidence.host_adapters import collect_lp_bug_search_api
+
+        result = collect_lp_bug_search_api(ctx)
+
+    assert result["status"] == "ok"
+    assert result["source_package"] == "testpkg"
+    assert result["total_open_bug_count"] == 2
+    assert [bug["id"] for bug in result["open_bugs"]] == ["111", "222"]
+    assert [bug["id"] for bug in result["critical_bugs"]] == ["111"]
+    assert [bug["id"] for bug in result["security_bugs"]] == ["111"]
+    assert result["open_bugs"][0]["title"] == "CVE-2026-0001 testpkg privilege escalation"
+
+
 def test_upstream_tracker_output_structure():
     """upstream-tracker adapter should return latest version and release history."""
     ctx = Mock()

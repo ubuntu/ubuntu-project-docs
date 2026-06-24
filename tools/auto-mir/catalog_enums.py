@@ -15,6 +15,7 @@ class AdapterID(str, Enum):
 
     # Host-side adapters
     LP_BUG_API = "lp-bug-api"
+    LP_BUG_SEARCH_API = "lp-bug-search-api"
     LP_TEAM_MEMBERSHIP_API = "lp-team-membership-api"
     LP_PACKAGE_API = "lp-package-api"
     LP_BUILD_API = "lp-build-api"
