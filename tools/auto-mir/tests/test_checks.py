@@ -1531,7 +1531,7 @@ def test_urf_7_no_old_webkit():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "libglib2.0", "libgtk-3-0"],
+        "runtime_dep_packages": ["libc6", "libglib2.0", "libgtk-3-0"],
     }
 
     finding = _make_finding("URF-7", mode="deterministic")
@@ -1546,7 +1546,7 @@ def test_urf_7_webkit_found():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "libwebkit2gtk-4.0", "libgtk-3-0"],
+        "runtime_dep_packages": ["libc6", "libwebkit2gtk-4.0", "libgtk-3-0"],
     }
 
     finding = _make_finding("URF-7", mode="deterministic")
@@ -1562,7 +1562,7 @@ def test_sec_8_no_accounts():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "libglib2.0", "libgtk-3-0"],
+        "runtime_dep_packages": ["libc6", "libglib2.0", "libgtk-3-0"],
     }
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1583,7 +1583,7 @@ def test_sec_8_accounts_found():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "gnome-online-accounts", "libgtk-3-0"],
+        "runtime_dep_packages": ["libc6", "gnome-online-accounts", "libgtk-3-0"],
     }
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1605,7 +1605,7 @@ def test_sec_10_no_pam():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "libglib2.0", "libgtk-3-0"],
+        "runtime_dep_packages": ["libc6", "libglib2.0", "libgtk-3-0"],
     }
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1626,7 +1626,7 @@ def test_sec_10_pam_found():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "libpam0g", "libgtk-3-0"],
+        "runtime_dep_packages": ["libc6", "libpam0g", "libgtk-3-0"],
     }
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1724,7 +1724,7 @@ def test_cb_7_no_py2():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["python3", "libc6", "libglib2.0"],
+        "runtime_dep_packages": ["python3", "libc6", "libglib2.0"],
     }
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1745,7 +1745,7 @@ def test_cb_7_py2_found():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["python2", "libc6", "libglib2.0"],
+        "runtime_dep_packages": ["python2", "libc6", "libglib2.0"],
     }
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1767,7 +1767,7 @@ def test_sec_3_no_webkit():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "libgtk-3-0", "libglib2.0"],
+        "runtime_dep_packages": ["libc6", "libgtk-3-0", "libglib2.0"],
     }
 
     finding = _make_finding("SEC-3", mode="deterministic")
@@ -1782,7 +1782,7 @@ def test_sec_3_webkit_found():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "libwebkit2gtk-4.0", "libgtk-3-0"],
+        "runtime_dep_packages": ["libc6", "libwebkit2gtk-4.0", "libgtk-3-0"],
     }
 
     finding = _make_finding("SEC-3", mode="deterministic")
@@ -1798,7 +1798,7 @@ def test_sec_4_no_v8():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "libnode", "libglib2.0"],
+        "runtime_dep_packages": ["libc6", "libnode", "libglib2.0"],
     }
 
     finding = _make_finding("SEC-4", mode="deterministic")
@@ -1814,7 +1814,7 @@ def test_sec_4_v8_not_found():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "libgtk-3-0", "libglib2.0"],
+        "runtime_dep_packages": ["libc6", "libgtk-3-0", "libglib2.0"],
     }
 
     finding = _make_finding("SEC-4", mode="deterministic")
@@ -1901,8 +1901,7 @@ def test_dep_1_no_unresolved():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "libssl3", "libglib2.0"],
-        "main_packages": ["libc6", "libssl3", "libglib2.0"],
+        "in_scope_deps_not_in_main": [],
     }
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1923,8 +1922,7 @@ def test_dep_1_unresolved_dep():
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
-        "dependencies": ["libc6", "myuniversepkg"],
-        "main_packages": ["libc6"],
+        "in_scope_deps_not_in_main": ["myuniversepkg"],
     }
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1996,8 +1994,8 @@ def test_prf_8_no_warnings():
     ctx = _Ctx()
     ctx.evidence["adapters"]["lintian"] = {
         "status": "ok",
-        "warnings": [],
-        "errors": [],
+        "lintian_warnings": [],
+        "lintian_errors": [],
     }
 
     finding = _make_finding("PRF-8", mode="deterministic")
@@ -2012,8 +2010,8 @@ def test_prf_8_few_warnings():
     ctx = _Ctx()
     ctx.evidence["adapters"]["lintian"] = {
         "status": "ok",
-        "warnings": ["W1", "W2"],
-        "errors": [],
+        "lintian_warnings": ["W1", "W2"],
+        "lintian_errors": [],
     }
 
     finding = _make_finding("PRF-8", mode="deterministic")
@@ -2028,8 +2026,8 @@ def test_prf_8_excessive_warnings():
     ctx = _Ctx()
     ctx.evidence["adapters"]["lintian"] = {
         "status": "ok",
-        "warnings": ["W1", "W2", "W3", "W4", "W5", "W6"],
-        "errors": [],
+        "lintian_warnings": ["W1", "W2", "W3", "W4", "W5", "W6"],
+        "lintian_errors": [],
     }
 
     finding = _make_finding("PRF-8", mode="deterministic")
@@ -2044,8 +2042,8 @@ def test_prf_8_errors():
     ctx = _Ctx()
     ctx.evidence["adapters"]["lintian"] = {
         "status": "ok",
-        "warnings": [],
-        "errors": ["E1", "E2"],
+        "lintian_warnings": [],
+        "lintian_errors": ["E1", "E2"],
     }
 
     finding = _make_finding("PRF-8", mode="deterministic")

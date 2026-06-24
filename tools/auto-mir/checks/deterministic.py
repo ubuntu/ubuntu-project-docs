@@ -1426,7 +1426,7 @@ def _check_urf_7(ctx, finding: Finding) -> Finding:
         _set_unknown_from_adapter(finding, check, "dep-analysis")
         return finding
 
-    dependencies = dep_analysis.get("dependencies", [])
+    dependencies = dep_analysis.get("runtime_dep_packages", [])
     old_webkit = ["webkit", "qtwebkit", "libseed"]
 
     for dep in dependencies:
@@ -1437,14 +1437,14 @@ def _check_urf_7(ctx, finding: Finding) -> Finding:
                 severity="required",
                 confidence="high",
             )
-            finding.evidence_refs = ["dep-analysis:dependencies"]
+            finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
             return finding
 
     finding.succeed(
         "no dependency on webkit, qtwebkit or libseed",
         confidence="high",
     )
-    finding.evidence_refs = ["dep-analysis:dependencies"]
+    finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
     return finding
 
 
@@ -1464,7 +1464,7 @@ def _check_sec_8(ctx, finding: Finding) -> Finding:
         _set_unknown_from_adapter(finding, check, "packaging-source")
         return finding
 
-    dependencies = dep_analysis.get("dependencies", [])
+    dependencies = dep_analysis.get("runtime_dep_packages", [])
     debian_control = packaging.get("debian_control", "")
 
     # Check for centralized accounts/online service APIs
@@ -1494,7 +1494,7 @@ def _check_sec_8(ctx, finding: Finding) -> Finding:
                 severity="required",
                 confidence="high",
             )
-            finding.evidence_refs = ["dep-analysis:dependencies"]
+            finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
             return finding
 
     debian_control_lower = debian_control.lower()
@@ -1513,7 +1513,7 @@ def _check_sec_8(ctx, finding: Finding) -> Finding:
         "does not use centralized online accounts",
         confidence="high",
     )
-    finding.evidence_refs = ["dep-analysis:dependencies"]
+    finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
     return finding
 
 
@@ -1533,7 +1533,7 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
         _set_unknown_from_adapter(finding, check, "packaging-source")
         return finding
 
-    dependencies = dep_analysis.get("dependencies", [])
+    dependencies = dep_analysis.get("runtime_dep_packages", [])
     debian_control = packaging.get("debian_control", "")
     debian_rules = packaging.get("debian_rules", "")
 
@@ -1550,7 +1550,7 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
                     severity="required",
                     confidence="medium",
                 )
-                finding.evidence_refs = ["dep-analysis:dependencies"]
+                finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
                 return finding
 
     # Check for pam_* function patterns in source
@@ -1572,7 +1572,7 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
         "does not deal with system authentication (eg, pam), etc)",
         confidence="high",
     )
-    finding.evidence_refs = ["dep-analysis:dependencies"]
+    finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
     return finding
 
 
@@ -1718,7 +1718,7 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
     if packaging.get("status") != "ok":
         return _set_unknown_from_adapter(finding, check)
 
-    dependencies = dep_analysis.get("dependencies", [])
+    dependencies = dep_analysis.get("runtime_dep_packages", [])
 
     # Python 2 patterns
     py2_patterns = ["python2", "python-", "py2-", "libpython2"]
@@ -1731,14 +1731,14 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
                 severity="required",
                 confidence="high",
             )
-            finding.evidence_refs = ["dep-analysis:dependencies"]
+            finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
             return finding
 
     finding.succeed(
         "no new python2 dependency",
         confidence="high",
     )
-    finding.evidence_refs = ["dep-analysis:dependencies"]
+    finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
     return finding
 
 
@@ -1752,7 +1752,7 @@ def _check_sec_3(ctx, finding: Finding) -> Finding:
     if dep_analysis.get("status") != "ok":
         return _set_unknown_from_adapter(finding, check)
 
-    dependencies = dep_analysis.get("dependencies", [])
+    dependencies = dep_analysis.get("runtime_dep_packages", [])
 
     # Webkit patterns
     webkit_patterns = ["webkit", "webkit1", "webkit2", "libwebkit"]
@@ -1765,14 +1765,14 @@ def _check_sec_3(ctx, finding: Finding) -> Finding:
                 severity="required",
                 confidence="high",
             )
-            finding.evidence_refs = ["dep-analysis:dependencies"]
+            finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
             return finding
 
     finding.succeed(
         "does not use webkit1,2",
         confidence="high",
     )
-    finding.evidence_refs = ["dep-analysis:dependencies"]
+    finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
     return finding
 
 
@@ -1786,7 +1786,7 @@ def _check_sec_4(ctx, finding: Finding) -> Finding:
     if dep_analysis.get("status") != "ok":
         return _set_unknown_from_adapter(finding, check)
 
-    dependencies = dep_analysis.get("dependencies", [])
+    dependencies = dep_analysis.get("runtime_dep_packages", [])
 
     # V8 patterns
     v8_patterns = ["libv8", "v8", "libnode"]
@@ -1799,14 +1799,14 @@ def _check_sec_4(ctx, finding: Finding) -> Finding:
                 severity="required",
                 confidence="high",
             )
-            finding.evidence_refs = ["dep-analysis:dependencies"]
+            finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
             return finding
 
     finding.succeed(
         "does not use lib*v8 directly",
         confidence="high",
     )
-    finding.evidence_refs = ["dep-analysis:dependencies"]
+    finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
     return finding
 
 
@@ -1886,22 +1886,7 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
     if packaging.get("status") != "ok":
         return _set_unknown_from_adapter(finding, check)
 
-    # Get runtime dependencies from dep-analysis
-    dependencies = dep_analysis.get("dependencies", [])
-
-    # Main components that don't need MIR
-    main_packages = set(dep_analysis.get("main_packages", []))
-
-    # Check if any runtime deps are outside main (universe/multiverse/etc.)
-    unresolved_deps = []
-    for dep in dependencies:
-        # Skip if it's in main or a standard lib
-        if dep in main_packages or "libc" in dep or "lib" in dep:
-            continue
-
-        # If dependency is not obviously in main, flag it
-        if not any(pattern in dep.lower() for pattern in ["lib", "gcc", "perl", "python", "ruby"]):
-            unresolved_deps.append(dep)
+    unresolved_deps = dep_analysis.get("in_scope_deps_not_in_main", [])
 
     if unresolved_deps:
         deps_str = ", ".join(unresolved_deps[:3])  # Show first 3
@@ -1911,14 +1896,14 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
             severity="required",
             confidence="medium",
         )
-        finding.evidence_refs = ["dep-analysis:dependencies"]
+        finding.evidence_refs = ["dep-analysis:in_scope_deps_not_in_main"]
         return finding
 
     finding.succeed(
         "no other runtime Dependencies to MIR due to this",
         confidence="high",
     )
-    finding.evidence_refs = ["dep-analysis:dependencies"]
+    finding.evidence_refs = ["dep-analysis:in_scope_deps_not_in_main"]
     return finding
 
 
@@ -1977,8 +1962,8 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
         return _set_unknown_from_adapter(finding, check)
 
     # Get lintian output
-    warnings = lintian.get("warnings", [])
-    errors = lintian.get("errors", [])
+    warnings = lintian.get("lintian_warnings", [])
+    errors = lintian.get("lintian_errors", [])
 
     # Hard failures on errors
     if errors:
@@ -1989,7 +1974,7 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
             severity="required",
             confidence="high",
         )
-        finding.evidence_refs = ["lintian:errors"]
+        finding.evidence_refs = ["lintian:lintian_errors"]
         return finding
 
     # Check for excessive warnings (more than a few)
@@ -1999,7 +1984,7 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
         finding.confidence = "medium"
         finding.message = f"Lintian found {len(warnings)} warnings - review and fix if possible"
         finding.todo = "TODO: - Review and fix lintian warnings"
-        finding.evidence_refs = ["lintian:warnings"]
+        finding.evidence_refs = ["lintian:lintian_warnings"]
         return finding
 
     # Some warnings are OK, but document them
@@ -2008,8 +1993,8 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
         finding.severity = "ok"
         finding.confidence = "high"
         finding.message = f"Lintian found {len(warnings)} minor warnings - acceptable"
-        finding.todo = "TODO: - {len(warnings)} minor lintian warnings documented"
-        finding.evidence_refs = ["lintian:warnings"]
+        finding.todo = f"TODO: - {len(warnings)} minor lintian warnings documented"
+        finding.evidence_refs = ["lintian:lintian_warnings"]
         return finding
 
     # No warnings/errors
