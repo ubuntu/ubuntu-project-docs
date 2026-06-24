@@ -7,7 +7,7 @@ OpenJDK packaging code is maintained on [Salsa](https://salsa.debian.org/openjdk
 
 To contribute to OpenJDK packaging, clone the repository from Salsa:
 
-```bash
+```
 $ git clone https://salsa.debian.org/openjdk-team/openjdk.git
 ```
 

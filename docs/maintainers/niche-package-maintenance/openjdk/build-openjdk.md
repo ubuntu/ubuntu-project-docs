@@ -9,11 +9,11 @@
 For faster iteration during development, disable optional steps, such as full test runs, Javadoc generation, and the "bootcycle" (double) build verification:
 
 1. Install build dependencies (example for OpenJDK 21):
-   ```bash
+   ```
    $ sudo apt build-dep openjdk-21
    ```
 2. Build with shortcuts:
-   ```bash
+   ```
    $ DEB_BUILD_OPTIONS="nocheck nodoc nobootcycle parallel=$(nproc)" dpkg-buildpackage -b
    ```
 
@@ -78,8 +78,8 @@ architectures and on older releases that do not package `jtreg`.
 
 ### Package generation: `update-control-files`
 
-```bash
-lsb_release --codename && make -f debian/rules update-control-files
+```
+$ lsb_release --codename && make -f debian/rules update-control-files
 ```
 
 This must be run whenever the package version, supported Ubuntu/Debian
@@ -100,8 +100,8 @@ before retrying.
 To suppress the auto-regeneration step during a build (e.g. for local
 experiments), add `nogen` to `DEB_BUILD_OPTIONS`:
 
-```bash
-DEB_BUILD_OPTIONS=nogen dpkg-buildpackage -b
+```
+$ DEB_BUILD_OPTIONS=nogen dpkg-buildpackage -b
 ```
 
 ### Build: `build`, `build-arch`, `build-indep`
@@ -157,8 +157,8 @@ post-processing, and sorts files across the binary packages:
 Downloads and repacks the upstream source tarball, removing bundled copies of
 system libraries (`zlib`, `libjpeg`, `giflib`, `libpng`, MUSCLE/pcsclite):
 
-```bash
-make -f debian/rules get-orig
+```
+$ make -f debian/rules get-orig
 ```
 
 This also downloads the GoogleTest source (needed for the JVM unit tests) as a
@@ -178,12 +178,12 @@ JDK is then used to compile OpenJDK again (`bootcycle-images`). This confirms
 the new JDK can build itself.
 
 ```{note}
-This does not protect from the bugs in packaging such as missing files in the resulting package. To validate that the package works correctly, please build openjdk against the newly built package.
+This does not protect from the bugs in packaging such as missing files in the resulting package.
+To validate that the package works correctly, please build OpenJDK against the newly built package.
 ```
 
 The bootcycle can be disabled with:
 
-```bash
-DEB_BUILD_OPTIONS=nobootcycle dpkg-buildpackage -b
 ```
-
+$ DEB_BUILD_OPTIONS=nobootcycle dpkg-buildpackage -b
+```

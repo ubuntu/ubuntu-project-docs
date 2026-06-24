@@ -10,7 +10,7 @@ manually, refer to the [upstream documentation](https://openjdk.org/jtreg/runtes
 
 Install `jtreg<N>` before running any tests, e.g. for OpenJDK 25 and later:
 
-```bash
+```
 $ sudo apt install jtreg8
 ```
 
@@ -41,19 +41,22 @@ export JDK_TO_TEST=$(pwd)/build/images/jdk
 
 Then run one or more of the following:
 
-```bash
-# HotSpot VM tests
-debian/tests/hotspot
-
-# Core JDK library tests (requires a virtual display; Xvfb is started automatically)
-debian/tests/jdk
-
-# JAXP (XML processing) tests
-debian/tests/jaxp
-
-# Langtools (javac, javadoc, etc.) tests
-debian/tests/langtools
-```
+- HotSpot VM tests:
+  ```
+  $ debian/tests/hotspot
+  ```
+-  Core JDK library tests (requires a virtual display; Xvfb is started automatically)
+   ```
+   $ debian/tests/jdk
+   ```
+- JAXP (XML processing) tests
+  ```
+  $ debian/tests/jaxp
+  ```
+-  Langtools (javac, javadoc, etc.) tests
+   ```
+   $ debian/tests/langtools
+   ```
 
 Each script:
 
@@ -92,11 +95,10 @@ Both scripts skip tests listed in `debian/tests/skip-large-autopkgtest.txt` in
 addition to the standard problem list, to avoid tests that exceed typical
 autopkgtest resource limits.
 
-To override the defaults, pass additional `jtreg` arguments:
-
-```bash
-# Run only a single test
-debian/tests/hotspot-autopkgtest.sh -dir:test/hotspot/jtreg Test.java
+To override the defaults, pass additional `jtreg` arguments. For example,
+run only a single test:
+```
+$ debian/tests/hotspot-autopkgtest.sh -dir:test/hotspot/jtreg Test.java
 ```
 
 ```{note}

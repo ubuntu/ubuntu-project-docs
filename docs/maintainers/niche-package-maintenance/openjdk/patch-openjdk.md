@@ -33,7 +33,7 @@ Fixes are submitted as pull requests against the
 
 Download the commit as a patch. For example:
 
-```bash
+```
 $ wget -O debian/patches/jdk-8312488.patch \
     https://github.com/openjdk/jdk/commit/78a8a99d990dcc0b77c096bb2ca2c1bb86462e3f.patch
 ```
@@ -74,19 +74,19 @@ The key fields are:
 
 Append the patch file name to `debian/patches/series`:
 
-```bash
+```
 $ echo jdk-8312488.patch >> debian/patches/series
 ```
 
 Then verify that the patch applies cleanly:
 
-```bash
+```
 $ quilt push -a
 ```
 
 Restore the source tree:
 
-```bash
+```
 $ quilt pop -a
 ```
 

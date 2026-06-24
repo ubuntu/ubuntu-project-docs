@@ -5,7 +5,7 @@
 
 ### Check for the new version
 
-```bash
+```
 $ uscan
 ```
 
@@ -14,7 +14,7 @@ $ uscan
 1. Update variable `git_tag` in `debian/rules`.
 2. Add a changelog entry with the new version.
 3. Generate the original tarball:
-   ```bash
+   ```
    $ make -f debian/rules get-orig
    ```
 
@@ -30,7 +30,7 @@ The vendored libraries should be removed from the source tree:
 - Add package dependency in `bd_syslibs` variable in `debian/rules`
 - Patch the build if necessary, see `debian/patches/system-pcsclite.diff`
 - Regenerate control files:
-  ```bash
+  ```
   $ make -f debian/rules update-control-files
   ```
 
@@ -41,7 +41,7 @@ Build the package locally (see {ref}`how-to-build-packages-locally`), refreshing
 To ensure the package is fully functional and the build environment is correct, install the newly built packages and perform a "bootcycle" build check:
 
 1. Install the built packages:
-   ```bash
+   ```
    $ sudo apt install ../openjdk-*.deb
    ```
    (See {ref}`how-to-install-built-packages` for more details on installing built packages).
@@ -59,6 +59,6 @@ To update an existing version in the archive (e.g., to fix a packaging bug or ad
 1. Add a new changelog entry with `dch -i`.
 2. Apply your fixes or add new patches to `debian/patches/`.
 3. Regenerate the control files:
-   ```bash
+   ```
    $ make -f debian/rules update-control-files
    ```
