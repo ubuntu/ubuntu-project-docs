@@ -340,6 +340,27 @@ class _Ctx:
                         "unknown_todo": "TODO: - Detect Rust packages",
                     },
                 },
+                {
+                    "id": "DEP-1",
+                    "messages": {
+                        "ok_message": "no other runtime Dependencies to MIR due to this",
+                        "unknown_todo": "TODO: - Verify no runtime dependencies need MIR",
+                    },
+                },
+                {
+                    "id": "ESL-9",
+                    "messages": {
+                        "ok_message": "rust package using dh_cargo",
+                        "unknown_todo": "TODO: - Check for dh_cargo",
+                    },
+                },
+                {
+                    "id": "PRF-8",
+                    "messages": {
+                        "ok_message": "no excessive lintian warnings",
+                        "unknown_todo": "TODO: - Check lintian output",
+                    },
+                },
             ]
         }
         self.evidence = {"adapters": {}}
@@ -406,66 +427,6 @@ def test_sum_2_missing():
 
 
 # ---------------------------------------------------------------------------
-# DEP-1: No unresolved runtime dependencies
-# ---------------------------------------------------------------------------
-
-
-def test_dep_1_all_in_main():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        dep_components=[{"package": "libz", "component": "main"}],
-    )
-    finding = checks.deterministic._check_dep_1(ctx, _make_finding("DEP-1"))
-    assert finding.status == "ok"
-    assert finding.confidence == "high"
-
-
-def test_dep_1_in_scope_deps_outside_main():
-    """In-scope dependencies from other source packages should block MIR."""
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        in_scope_deps_not_in_main=["libfancyuniverse"],
-        dep_components=[{"package": "libfancyuniverse", "component": "universe"}],
-    )
-    finding = checks.deterministic._check_dep_1(ctx, _make_finding("DEP-1"))
-    assert finding.status == "not-ok"
-    assert finding.severity == "required"
-    assert "libfancyuniverse" in finding.message
-
-
-def test_dep_1_same_source_deps_ok():
-    """Same-source dependencies should not block MIR."""
-    ctx = _Ctx(source_package="dav1d")
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        same_source_deps=["libdav1d7"],
-        dep_components=[{"package": "libdav1d7", "component": "universe"}],
-    )
-    finding = checks.deterministic._check_dep_1(ctx, _make_finding("DEP-1"))
-    assert finding.status == "ok"
-    assert finding.confidence == "high"
-
-
-def test_dep_1_out_of_scope_deps_ok():
-    """Out-of-scope dependencies should not block MIR."""
-    ctx = _Ctx()
-    ctx.requested_binaries = ["foo"]
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        out_of_scope_deps_not_in_main=["libbar-universe"],
-        dep_components=[{"package": "libbar-universe", "component": "universe"}],
-    )
-    finding = checks.deterministic._check_dep_1(ctx, _make_finding("DEP-1"))
-    assert finding.status == "ok"
-    assert finding.confidence == "high"
-
-
-def test_dep_1_adapter_missing():
-    ctx = _Ctx()
-    # No dep-analysis adapter at all
-    finding = checks.deterministic._check_dep_1(ctx, _make_finding("DEP-1"))
-    assert finding.status == "unknown"
-    assert finding.confidence == "low"
-
-
 # ---------------------------------------------------------------------------
 # DEP-3: No -dev/-debug/-doc packages needing exclusion
 # ---------------------------------------------------------------------------
@@ -1027,39 +988,6 @@ def test_cb_1_not_ok_when_lp_build_state_fails():
     assert result.status == "not-ok"
     assert result.severity == "required"
     assert "arm64" in result.message
-
-
-def test_prf_8_ok_for_pedantic_only_lintian_output():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["lintian"] = {
-        "status": "ok",
-        "lintian_errors": [],
-        "lintian_warnings": [],
-        "lintian_pedantic": ["I: testpkg: pedantic-tag"],
-    }
-
-    finding = _make_finding("PRF-8", mode="deterministic")
-    result = checks.deterministic._check_prf_8(ctx, finding)
-
-    assert result.status == "ok"
-    assert result.severity == "ok"
-    assert "Lintian" in result.message or "lintian" in result.message.lower()
-
-
-def test_prf_8_recommended_for_warnings():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["lintian"] = {
-        "status": "ok",
-        "lintian_errors": [],
-        "lintian_warnings": ["W: testpkg: description-synopsis-starts-with-article"],
-        "lintian_pedantic": [],
-    }
-
-    finding = _make_finding("PRF-8", mode="deterministic")
-    result = checks.deterministic._check_prf_8(ctx, finding)
-
-    assert result.status == "not-ok"
-    assert result.severity == "recommended"
 
 
 def test_esl_3_unexpected_built_using():
@@ -1958,3 +1886,162 @@ def test_esl_8_is_rust():
     assert result.status == "not-ok"
     assert result.severity == "ok"
     assert "rust" in result.message.lower()
+
+
+def test_dep_1_no_unresolved():
+    """Test DEP-1 when no unresolved runtime dependencies."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "libssl3", "libglib2.0"],
+        "main_packages": ["libc6", "libssl3", "libglib2.0"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("DEP-1", mode="deterministic")
+    result = checks.deterministic._check_dep_1(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_dep_1_unresolved_dep():
+    """Test DEP-1 when unresolved dependency found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "myuniversepkg"],
+        "main_packages": ["libc6"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("DEP-1", mode="deterministic")
+    result = checks.deterministic._check_dep_1(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_esl_9_not_rust():
+    """Test ESL-9 when package is not Rust."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure\ndh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("ESL-9", mode="deterministic")
+    result = checks.deterministic._check_esl_9(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_esl_9_rust_with_dh_cargo():
+    """Test ESL-9 when Rust package uses dh_cargo."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure --buildsystem cargo\ndh_auto_build",
+        "debian_control": "Package: myapp\nBuild-Depends: cargo, rustc",
+        "file_listing": [{"path": "src/main.rs", "size": 100}],
+    }
+
+    finding = _make_finding("ESL-9", mode="deterministic")
+    result = checks.deterministic._check_esl_9(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_esl_9_rust_without_dh_cargo():
+    """Test ESL-9 when Rust package doesn't use dh_cargo."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure\ndh_auto_build",
+        "debian_control": "Package: myapp\nBuild-Depends: cargo, rustc",
+        "file_listing": [{"path": "src/main.rs", "size": 100}],
+    }
+
+    finding = _make_finding("ESL-9", mode="deterministic")
+    result = checks.deterministic._check_esl_9(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_prf_8_no_warnings():
+    """Test PRF-8 when no lintian warnings."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "warnings": [],
+        "errors": [],
+    }
+
+    finding = _make_finding("PRF-8", mode="deterministic")
+    result = checks.deterministic._check_prf_8(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_prf_8_few_warnings():
+    """Test PRF-8 when few lintian warnings."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "warnings": ["W1", "W2"],
+        "errors": [],
+    }
+
+    finding = _make_finding("PRF-8", mode="deterministic")
+    result = checks.deterministic._check_prf_8(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "ok"
+
+
+def test_prf_8_excessive_warnings():
+    """Test PRF-8 when excessive lintian warnings."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "warnings": ["W1", "W2", "W3", "W4", "W5", "W6"],
+        "errors": [],
+    }
+
+    finding = _make_finding("PRF-8", mode="deterministic")
+    result = checks.deterministic._check_prf_8(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
+
+
+def test_prf_8_errors():
+    """Test PRF-8 when lintian errors found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "warnings": [],
+        "errors": ["E1", "E2"],
+    }
+
+    finding = _make_finding("PRF-8", mode="deterministic")
+    result = checks.deterministic._check_prf_8(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"

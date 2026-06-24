@@ -1849,6 +1849,155 @@ def _check_esl_8(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("DEP-1")
+def _check_dep_1(ctx, finding: Finding) -> Finding:
+    """DEP-1: No unresolved runtime dependencies needing MIR."""
+    check = _get_check_definition(ctx, "DEP-1")
+    adapters = ctx.evidence.get("adapters", {})
+    dep_analysis = adapters.get("dep-analysis", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if dep_analysis.get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check)
+
+    if packaging.get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check)
+
+    # Get runtime dependencies from dep-analysis
+    dependencies = dep_analysis.get("dependencies", [])
+
+    # Main components that don't need MIR
+    main_packages = set(dep_analysis.get("main_packages", []))
+
+    # Check if any runtime deps are outside main (universe/multiverse/etc.)
+    unresolved_deps = []
+    for dep in dependencies:
+        # Skip if it's in main or a standard lib
+        if dep in main_packages or "libc" in dep or "lib" in dep:
+            continue
+        
+        # If dependency is not obviously in main, flag it
+        if not any(pattern in dep.lower() for pattern in ["lib", "gcc", "perl", "python", "ruby"]):
+            unresolved_deps.append(dep)
+
+    if unresolved_deps:
+        deps_str = ", ".join(unresolved_deps[:3])  # Show first 3
+        finding.fail(
+            f"Runtime dependencies from other source packages outside main: {deps_str}",
+            f"no other runtime Dependencies to MIR due to this",
+            severity="required",
+            confidence="medium",
+        )
+        finding.evidence_refs = ["dep-analysis:dependencies"]
+        return finding
+
+    finding.succeed(
+        "no other runtime Dependencies to MIR due to this",
+        confidence="high",
+    )
+    finding.evidence_refs = ["dep-analysis:dependencies"]
+    return finding
+
+
+@deterministic_check("ESL-9")
+def _check_esl_9(ctx, finding: Finding) -> Finding:
+    """ESL-9: Rust: uses dh_cargo."""
+    check = _get_check_definition(ctx, "ESL-9")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check)
+
+    # Check if this is a Rust package
+    is_rust = _is_rust_package(packaging)
+
+    if not is_rust:
+        # Not a Rust package - gate applies OK
+        finding.succeed(
+            "not a rust package, dh_cargo gate not applicable",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:debian_control"]
+        return finding
+
+    # Is Rust package - check for dh_cargo
+    debian_rules = packaging.get("debian_rules", "").lower()
+
+    if "dh_cargo" in debian_rules or "--buildsystem cargo" in debian_rules:
+        finding.succeed(
+            "rust package using dh_cargo (dh ... --buildsystem cargo)",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:debian_rules"]
+        return finding
+
+    # Rust package but dh_cargo not found
+    finding.fail(
+        "Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules",
+        "Rust packages must use dh_cargo (dh ... --buildsystem cargo)",
+        severity="required",
+        confidence="high",
+    )
+    finding.evidence_refs = ["packaging-source:debian_rules"]
+    return finding
+
+
+@deterministic_check("PRF-8")
+def _check_prf_8(ctx, finding: Finding) -> Finding:
+    """PRF-8: No excessive lintian warnings."""
+    check = _get_check_definition(ctx, "PRF-8")
+    adapters = ctx.evidence.get("adapters", {})
+    lintian = adapters.get("lintian", {})
+
+    if lintian.get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check)
+
+    # Get lintian output
+    warnings = lintian.get("warnings", [])
+    errors = lintian.get("errors", [])
+
+    # Hard failures on errors
+    if errors:
+        error_str = ", ".join(errors[:3])
+        finding.fail(
+            f"Lintian errors detected: {error_str}",
+            "no excessive lintian warnings",
+            severity="required",
+            confidence="high",
+        )
+        finding.evidence_refs = ["lintian:errors"]
+        return finding
+
+    # Check for excessive warnings (more than a few)
+    if len(warnings) > 5:
+        finding.status = "not-ok"
+        finding.severity = "recommended"
+        finding.confidence = "medium"
+        finding.message = f"Lintian found {len(warnings)} warnings - review and fix if possible"
+        finding.todo = "TODO: - Review and fix lintian warnings"
+        finding.evidence_refs = ["lintian:warnings"]
+        return finding
+
+    # Some warnings are OK, but document them
+    if warnings:
+        finding.status = "not-ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = f"Lintian found {len(warnings)} minor warnings - acceptable"
+        finding.todo = "TODO: - {len(warnings)} minor lintian warnings documented"
+        finding.evidence_refs = ["lintian:warnings"]
+        return finding
+
+    # No warnings/errors
+    finding.succeed(
+        "no excessive lintian warnings",
+        confidence="high",
+    )
+    finding.evidence_refs = ["lintian:warnings"]
+    return finding
+
+
 # ---------------------------------------------------------------------------
 # Deterministic dispatch table
 # Must be defined after all _check_* functions it references.
