@@ -1681,6 +1681,174 @@ def _check_urf_9(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("CB-7")
+def _check_cb_7(ctx, finding: Finding) -> Finding:
+    """CB-7: No new Python 2 dependency."""
+    check = _get_check_definition(ctx, "CB-7")
+    adapters = ctx.evidence.get("adapters", {})
+    dep_analysis = adapters.get("dep-analysis", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if dep_analysis.get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check)
+
+    if packaging.get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check)
+
+    dependencies = dep_analysis.get("dependencies", [])
+
+    # Python 2 patterns
+    py2_patterns = ["python2", "python-", "py2-", "libpython2"]
+
+    for dep in dependencies:
+        if any(p in dep.lower() for p in py2_patterns):
+            finding.fail(
+                f"Python 2 dependency found: {dep}",
+                "no new python2 dependency",
+                severity="required",
+                confidence="high",
+            )
+            finding.evidence_refs = ["dep-analysis:dependencies"]
+            return finding
+
+    finding.succeed(
+        "no new python2 dependency",
+        confidence="high",
+    )
+    finding.evidence_refs = ["dep-analysis:dependencies"]
+    return finding
+
+
+@deterministic_check("SEC-3")
+def _check_sec_3(ctx, finding: Finding) -> Finding:
+    """SEC-3: Does not use webkit1/2."""
+    check = _get_check_definition(ctx, "SEC-3")
+    adapters = ctx.evidence.get("adapters", {})
+    dep_analysis = adapters.get("dep-analysis", {})
+
+    if dep_analysis.get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check)
+
+    dependencies = dep_analysis.get("dependencies", [])
+
+    # Webkit patterns
+    webkit_patterns = ["webkit", "webkit1", "webkit2", "libwebkit"]
+
+    for dep in dependencies:
+        if any(p in dep.lower() for p in webkit_patterns):
+            finding.fail(
+                f"Webkit dependency found: {dep}",
+                "does not use webkit1,2",
+                severity="required",
+                confidence="high",
+            )
+            finding.evidence_refs = ["dep-analysis:dependencies"]
+            return finding
+
+    finding.succeed(
+        "does not use webkit1,2",
+        confidence="high",
+    )
+    finding.evidence_refs = ["dep-analysis:dependencies"]
+    return finding
+
+
+@deterministic_check("SEC-4")
+def _check_sec_4(ctx, finding: Finding) -> Finding:
+    """SEC-4: Does not use lib*v8 directly."""
+    check = _get_check_definition(ctx, "SEC-4")
+    adapters = ctx.evidence.get("adapters", {})
+    dep_analysis = adapters.get("dep-analysis", {})
+
+    if dep_analysis.get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check)
+
+    dependencies = dep_analysis.get("dependencies", [])
+
+    # V8 patterns
+    v8_patterns = ["libv8", "v8", "libnode"]
+
+    for dep in dependencies:
+        if any(p in dep.lower() for p in v8_patterns):
+            finding.fail(
+                f"V8 dependency found: {dep}",
+                "does not use lib*v8 directly",
+                severity="required",
+                confidence="high",
+            )
+            finding.evidence_refs = ["dep-analysis:dependencies"]
+            return finding
+
+    finding.succeed(
+        "does not use lib*v8 directly",
+        confidence="high",
+    )
+    finding.evidence_refs = ["dep-analysis:dependencies"]
+    return finding
+
+
+@deterministic_check("ESL-4")
+def _check_esl_4(ctx, finding: Finding) -> Finding:
+    """ESL-4: Go language detection gate."""
+    check = _get_check_definition(ctx, "ESL-4")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        _set_unknown_from_adapter(finding, check, "packaging-source")
+        return finding
+
+    is_go = _is_go_package(packaging)
+
+    if is_go:
+        finding.status = "not-ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = "Go package detected - Go-specific constraints apply"
+        finding.todo = "TODO-B: - Golang package detected; ESL-7 constraints apply"
+        finding.evidence_refs = ["packaging-source:debian_rules"]
+        return finding
+
+    finding.status = "not-ok"
+    finding.severity = "ok"
+    finding.confidence = "high"
+    finding.message = "Not a Go package, no extra constraints"
+    finding.todo = "TODO-A: - not a go package, no extra constraints to consider in that regard"
+    finding.evidence_refs = ["packaging-source:debian_control"]
+    return finding
+
+
+@deterministic_check("ESL-8")
+def _check_esl_8(ctx, finding: Finding) -> Finding:
+    """ESL-8: Rust language detection gate."""
+    check = _get_check_definition(ctx, "ESL-8")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        _set_unknown_from_adapter(finding, check, "packaging-source")
+        return finding
+
+    is_rust = _is_rust_package(packaging)
+
+    if is_rust:
+        finding.status = "not-ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = "Rust package detected - Rust-specific constraints apply"
+        finding.todo = "TODO-B: - Rust package that has all dependencies vendored..."
+        finding.evidence_refs = ["packaging-source:debian_rules"]
+        return finding
+
+    finding.status = "not-ok"
+    finding.severity = "ok"
+    finding.confidence = "high"
+    finding.message = "Not a Rust package, no extra constraints"
+    finding.todo = "TODO-A: - not a rust package, no extra constraints to consider in that regard"
+    finding.evidence_refs = ["packaging-source:debian_control"]
+    return finding
+
+
 # ---------------------------------------------------------------------------
 # Deterministic dispatch table
 # Must be defined after all _check_* functions it references.

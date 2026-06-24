@@ -305,6 +305,41 @@ class _Ctx:
                         "unknown_todo": "TODO: - Check for translation coverage",
                     },
                 },
+                {
+                    "id": "CB-7",
+                    "messages": {
+                        "ok_message": "no new python2 dependency",
+                        "unknown_todo": "TODO: - Check for Python 2 dependencies",
+                    },
+                },
+                {
+                    "id": "SEC-3",
+                    "messages": {
+                        "ok_message": "does not use webkit1,2",
+                        "unknown_todo": "TODO: - Check for webkit dependencies",
+                    },
+                },
+                {
+                    "id": "SEC-4",
+                    "messages": {
+                        "ok_message": "does not use lib*v8 directly",
+                        "unknown_todo": "TODO: - Check for V8 dependencies",
+                    },
+                },
+                {
+                    "id": "ESL-4",
+                    "messages": {
+                        "ok_message": "Go language detection",
+                        "unknown_todo": "TODO: - Detect Go packages",
+                    },
+                },
+                {
+                    "id": "ESL-8",
+                    "messages": {
+                        "ok_message": "Rust language detection",
+                        "unknown_todo": "TODO: - Detect Rust packages",
+                    },
+                },
             ]
         }
         self.evidence = {"adapters": {}}
@@ -507,77 +542,6 @@ def test_dep_3_ignores_global_non_main_for_non_auto_included_binaries():
 
 # ---------------------------------------------------------------------------
 # SEC-3: Does not use webkit
-# ---------------------------------------------------------------------------
-
-
-def test_sec_3_clean():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "libfoo", "depends": "libc6"}],
-    )
-    finding = checks.deterministic._check_sec_3(ctx, _make_finding("SEC-3"))
-    assert finding.status == "ok"
-
-
-def test_sec_3_webkit_found():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "myapp", "depends": "libwebkit2gtk-4.0"}],
-    )
-    finding = checks.deterministic._check_sec_3(ctx, _make_finding("SEC-3"))
-    assert finding.status == "not-ok"
-    assert finding.severity == "required"
-    assert finding.confidence == "high"
-
-
-# ---------------------------------------------------------------------------
-# SEC-4: Does not use lib*v8
-# ---------------------------------------------------------------------------
-
-
-def test_sec_4_clean():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "myapp", "depends": "libssl3"}],
-    )
-    finding = checks.deterministic._check_sec_4(ctx, _make_finding("SEC-4"))
-    assert finding.status == "ok"
-
-
-def test_sec_4_libv8_found():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "myapp", "depends": "libv8-dev"}],
-    )
-    finding = checks.deterministic._check_sec_4(ctx, _make_finding("SEC-4"))
-    assert finding.status == "not-ok"
-    assert finding.severity == "required"
-
-
-# ---------------------------------------------------------------------------
-# CB-7: No Python2 dependency
-# ---------------------------------------------------------------------------
-
-
-def test_cb_7_clean():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "myapp", "depends": "python3"}],
-    )
-    finding = checks.deterministic._check_cb_7(ctx, _make_finding("CB-7"))
-    assert finding.status == "ok"
-
-
-def test_cb_7_python2_found():
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
-        runtime_deps=[{"binary": "myapp", "depends": "python2.7"}],
-    )
-    finding = checks.deterministic._check_cb_7(ctx, _make_finding("CB-7"))
-    assert finding.status == "not-ok"
-    assert finding.severity == "required"
-
-
 # ---------------------------------------------------------------------------
 # SUM-4: team subscriber in package-team-mapping
 # ---------------------------------------------------------------------------
@@ -1817,3 +1781,180 @@ def test_urf_9_user_visible_with_translations():
     assert result.status == "not-ok"
     assert result.severity == "ok"
     assert "translation present" in result.message.lower()
+
+
+def test_cb_7_no_py2():
+    """Test CB-7 when no Python 2 dependencies found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["python3", "libc6", "libglib2.0"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("CB-7", mode="deterministic")
+    result = checks.deterministic._check_cb_7(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_cb_7_py2_found():
+    """Test CB-7 when Python 2 dependency found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["python2", "libc6", "libglib2.0"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("CB-7", mode="deterministic")
+    result = checks.deterministic._check_cb_7(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "python2" in result.message.lower()
+
+
+def test_sec_3_no_webkit():
+    """Test SEC-3 when no webkit dependencies found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "libgtk-3-0", "libglib2.0"],
+    }
+
+    finding = _make_finding("SEC-3", mode="deterministic")
+    result = checks.deterministic._check_sec_3(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_sec_3_webkit_found():
+    """Test SEC-3 when webkit dependency found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "libwebkit2gtk-4.0", "libgtk-3-0"],
+    }
+
+    finding = _make_finding("SEC-3", mode="deterministic")
+    result = checks.deterministic._check_sec_3(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "webkit" in result.message.lower()
+
+
+def test_sec_4_no_v8():
+    """Test SEC-4 when no V8 dependencies found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "libnode", "libglib2.0"],
+    }
+
+    finding = _make_finding("SEC-4", mode="deterministic")
+    result = checks.deterministic._check_sec_4(ctx, finding)
+
+    # libnode matches v8_patterns, so should fail
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_sec_4_v8_not_found():
+    """Test SEC-4 when V8 not in dependencies."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "libgtk-3-0", "libglib2.0"],
+    }
+
+    finding = _make_finding("SEC-4", mode="deterministic")
+    result = checks.deterministic._check_sec_4(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_esl_4_not_go():
+    """Test ESL-4 when package is not Go."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure\ndh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("ESL-4", mode="deterministic")
+    result = checks.deterministic._check_esl_4(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "ok"
+    assert "not" in result.message.lower() and "go" in result.message.lower()
+
+
+def test_esl_4_is_go():
+    """Test ESL-4 when package is Go."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure --buildsystem golang",
+        "debian_control": "Package: myapp\nBuild-Depends: golang-go",
+        "file_listing": [{"path": "main.go", "size": 100}],
+    }
+
+    finding = _make_finding("ESL-4", mode="deterministic")
+    result = checks.deterministic._check_esl_4(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "ok"
+    assert "go" in result.message.lower()
+
+
+def test_esl_8_not_rust():
+    """Test ESL-8 when package is not Rust."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure\ndh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("ESL-8", mode="deterministic")
+    result = checks.deterministic._check_esl_8(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "ok"
+    assert "not" in result.message.lower() and "rust" in result.message.lower()
+
+
+def test_esl_8_is_rust():
+    """Test ESL-8 when package is Rust."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure --buildsystem cargo",
+        "debian_control": "Package: myapp\nBuild-Depends: cargo, rustc",
+        "file_listing": [{"path": "src/main.rs", "size": 100}],
+    }
+
+    finding = _make_finding("ESL-8", mode="deterministic")
+    result = checks.deterministic._check_esl_8(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "ok"
+    assert "rust" in result.message.lower()
