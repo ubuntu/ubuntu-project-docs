@@ -228,6 +228,20 @@ class _Ctx:
                         "unknown_todo": "TODO: - Check build log for static linking",
                     },
                 },
+                {
+                    "id": "PRF-2",
+                    "messages": {
+                        "ok_message": "symbols tracking is in place",
+                        "unknown_todo": "TODO: - Check for symbols file",
+                    },
+                },
+                {
+                    "id": "PRF-3",
+                    "messages": {
+                        "ok_message": "debian/watch is present and looks ok",
+                        "unknown_todo": "TODO: - Check for debian/watch file",
+                    },
+                },
             ]
         }
         self.evidence = {"adapters": {}}
@@ -1264,3 +1278,114 @@ def test_esl_2_static_linking_justified():
     assert result.status == "ok"
     assert result.severity == "ok"
     assert "justified" in result.message.lower()
+
+
+def test_prf_2_not_library():
+    """Test PRF-2 when package is not a library."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp\nDescription: Command line tool",
+        "debian_rules": "dh_auto_configure",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("PRF-2", mode="deterministic")
+    result = checks.deterministic._check_prf_2(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "not applicable" in result.message.lower()
+
+
+def test_prf_2_python_library():
+    """Test PRF-2 when library is Python (symbols not applicable)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: libpython-mylib\nDescription: Python library",
+        "debian_rules": "dh_auto_configure\ndh_python3 build",
+        "file_listing": [{"path": "setup.py", "size": 100}],
+    }
+
+    finding = _make_finding("PRF-2", mode="deterministic")
+    result = checks.deterministic._check_prf_2(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "language" in result.message.lower()
+
+
+def test_prf_2_cpp_library_with_symbols():
+    """Test PRF-2 when C++ library has symbols file."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: libmyapp1\nLibrary package with .so and .symbols",
+        "debian_rules": "dh_makeshlibs",
+        "file_listing": [{"path": "debian/libmyapp1.symbols", "size": 500}],
+    }
+
+    finding = _make_finding("PRF-2", mode="deterministic")
+    result = checks.deterministic._check_prf_2(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "symbols tracking is in place" in result.message
+
+
+def test_prf_3_watch_present():
+    """Test PRF-3 when debian/watch is present."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "file_listing": [
+            {"path": "debian/watch", "size": 200},
+            {"path": "debian/control", "size": 500},
+        ],
+    }
+
+    finding = _make_finding("PRF-3", mode="deterministic")
+    result = checks.deterministic._check_prf_3(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "debian/watch" in result.message
+
+
+def test_prf_3_native_package():
+    """Test PRF-3 when package is native (watch not needed)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "debian/source/format: 3.0 (native)",
+        "file_listing": [{"path": "debian/control", "size": 500}],
+    }
+
+    finding = _make_finding("PRF-3", mode="deterministic")
+    result = checks.deterministic._check_prf_3(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "not needed" in result.message.lower()
+
+
+def test_prf_3_non_native_no_watch():
+    """Test PRF-3 when non-native package lacks debian/watch."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: upstream-tool\nVersion: 1.2.3-1",
+        "file_listing": [
+            {"path": "debian/control", "size": 500},
+            {"path": "debian/changelog", "size": 300},
+        ],
+    }
+
+    finding = _make_finding("PRF-3", mode="deterministic")
+    result = checks.deterministic._check_prf_3(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
+    assert "debian/watch" in result.message

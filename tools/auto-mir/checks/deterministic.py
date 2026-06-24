@@ -1067,6 +1067,142 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("PRF-2")
+def _check_prf_2(ctx, finding: Finding) -> Finding:
+    """PRF-2: Symbols tracking for C/C++ libraries."""
+    check = _get_check_definition(ctx, "PRF-2")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+    sbuild_result = adapters.get("sbuild", {})
+
+    if packaging.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not inspect packaging (packaging-source failed)"
+        finding.todo = render_check_message(check, "unknown_todo")
+        finding.evidence_refs = ["packaging-source:error"]
+        return finding
+
+    debian_control = packaging.get("debian_control", "")
+    debian_rules = packaging.get("debian_rules", "")
+
+    # Check if this is a library package
+    is_library = any(
+        marker in debian_control.lower()
+        for marker in ["library", "libdev", "symbols", "lib", "shared object"]
+    )
+    
+    # Check for non-C/C++ languages (Python, Go, Rust, etc.)
+    if _is_python_package(packaging) or _is_go_package(packaging) or _is_rust_package(packaging):
+        finding.succeed(
+            "symbols tracking not applicable for this language/runtime",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:debian_control"]
+        return finding
+
+    # Not a library or no shared objects
+    if not is_library or ".so" not in debian_control:
+        finding.succeed(
+            "symbols tracking not applicable for this kind of code",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:debian_control"]
+        return finding
+
+    # Check for symbols file presence
+    has_symbols_file = ".symbols" in debian_control or ".symbols" in debian_rules
+
+    if has_symbols_file:
+        finding.succeed(
+            "symbols tracking is in place",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:debian_control"]
+        return finding
+
+    # C/C++ library without symbols tracking - check if there's documentation
+    has_documented_reason = any(
+        marker.lower() in debian_rules.lower()
+        for marker in ["#.symbols", "# symbols", "todo: symbols"]
+    )
+
+    if has_documented_reason:
+        finding.status = "not-ok"
+        finding.severity = "recommended"
+        finding.confidence = "medium"
+        finding.message = "C++ library without symbols file but appears to have documented consideration"
+        finding.todo = "TODO: - For c++ libraries - symbols tracking isn't in place but the owning team tried..."
+        finding.evidence_refs = ["packaging-source:debian_rules"]
+        return finding
+
+    # No symbols tracking and no documentation
+    finding.status = "not-ok"
+    finding.severity = "recommended"
+    finding.confidence = "medium"
+    finding.message = "C/C++ library detected but symbols tracking not found in package"
+    finding.todo = "TODO: - For c++ libraries - symbols tracking isn't in place but the owning team tried..."
+    finding.evidence_refs = ["packaging-source:debian_control"]
+    return finding
+
+
+@deterministic_check("PRF-3")
+def _check_prf_3(ctx, finding: Finding) -> Finding:
+    """PRF-3: debian/watch present."""
+    check = _get_check_definition(ctx, "PRF-3")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not inspect packaging (packaging-source failed)"
+        finding.todo = render_check_message(check, "unknown_todo")
+        finding.evidence_refs = ["packaging-source:error"]
+        return finding
+
+    debian_control = packaging.get("debian_control", "")
+    file_listing = packaging.get("file_listing", [])
+
+    # Check if debian/watch is present
+    has_watch_file = any(
+        f.get("path", "").endswith("debian/watch")
+        for f in file_listing
+    )
+
+    # Check if it's a native package (Version ends with ~)
+    is_native = "debian/source/format: 3.0 (native)" in debian_control
+
+    if has_watch_file:
+        finding.succeed(
+            "debian/watch is present and looks ok",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:file_listing"]
+        return finding
+
+    if is_native:
+        finding.succeed(
+            "debian/watch is not present but also not needed (native package)",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:debian_control"]
+        return finding
+
+    # Non-native package without watch file
+    finding.fail(
+        "Non-native package but debian/watch not found",
+        "debian/watch is present and looks ok",
+        severity="recommended",
+        confidence="medium",
+    )
+    finding.todo = "TODO: - Add debian/watch to track upstream releases"
+    finding.evidence_refs = ["packaging-source:file_listing"]
+    return finding
+
+
 # ---------------------------------------------------------------------------
 # Deterministic dispatch table
 # Must be defined after all _check_* functions it references.
