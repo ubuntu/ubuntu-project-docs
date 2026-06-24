@@ -5,7 +5,7 @@ Ubuntu follows an **N-2 policy** for OpenJDK backports. Under this policy, a new
 
 **Interim OpenJDK releases** (the non-LTS releases published every six months) are strictly for the current development version of Ubuntu and are not backported to older releases.
 
-## JTREG<N> packages
+## jtreg<N> packages
 
 Each OpenJDK release depends on a specific version of `jtreg<N>` versioned package. `TEST.ROOT` files in the upstream source tree define the
 minimal required version. Run `make -f debian/rules update-control-files` to regenerate `debian/control` and set the version requirement
