@@ -1203,6 +1203,215 @@ def _check_prf_3(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("SEC-2")
+def _check_sec_2(ctx, finding: Finding) -> Finding:
+    """SEC-2: Does not run daemon as root."""
+    check = _get_check_definition(ctx, "SEC-2")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not inspect packaging source"
+        finding.todo = render_check_message(check, "unknown_todo")
+        finding.evidence_refs = ["packaging-source:error"]
+        return finding
+
+    debian_rules = packaging.get("debian_rules", "")
+    debian_control = packaging.get("debian_control", "")
+    combined_lower = (debian_rules + "\n" + debian_control).lower()
+
+    # First priority: check for explicit root execution (exact match)
+    if "user=root" in combined_lower:
+        # Has root execution; check for mitigations
+        mitigations = ["seccomp", "apparmor", "selinux", "capabilities"]
+        has_mitigations = any(m.lower() in combined_lower for m in mitigations)
+
+        if has_mitigations:
+            finding.status = "not-ok"
+            finding.severity = "recommended"
+            finding.confidence = "medium"
+            finding.message = "Package runs as root but has security mitigations"
+            finding.todo = "TODO: - Note root execution and mitigations"
+            finding.evidence_refs = ["packaging-source:debian_rules"]
+            return finding
+        else:
+            finding.fail(
+                "Package runs daemon as root without security mitigations",
+                "does not run a daemon as root",
+                severity="required",
+                confidence="medium",
+            )
+            finding.evidence_refs = ["packaging-source:debian_rules"]
+            return finding
+
+    # Second: check for non-root indicators
+    non_root_indicators = ["user=", "dynamicuser=yes", "droppriv", "drop_privileges"]
+    has_non_root = any(ind.lower() in combined_lower for ind in non_root_indicators)
+    has_nobody = "nobody" in combined_lower
+
+    if has_non_root or has_nobody:
+        finding.succeed(
+            "does not run a daemon as root",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:debian_control"]
+        return finding
+
+    # No explicit indicators found; assume safe
+    finding.succeed(
+        "does not run a daemon as root",
+        confidence="medium",
+    )
+    finding.evidence_refs = ["packaging-source:debian_rules"]
+    return finding
+
+
+@deterministic_check("URF-3")
+def _check_urf_3(ctx, finding: Finding) -> Finding:
+    """URF-3: No sudo/gksu/pkexec/LD_LIBRARY_PATH outside tests."""
+    check = _get_check_definition(ctx, "URF-3")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not inspect packaging source"
+        finding.todo = render_check_message(check, "unknown_todo")
+        finding.evidence_refs = ["packaging-source:error"]
+        return finding
+
+    debian_rules = packaging.get("debian_rules", "")
+    debian_control = packaging.get("debian_control", "")
+
+    # Search for privilege escalation patterns outside tests
+    escalation_keywords = ["sudo", "gksu", "pkexec", "LD_LIBRARY_PATH"]
+    
+    for keyword in escalation_keywords:
+        if keyword.lower() in debian_rules.lower() or keyword.lower() in debian_control.lower():
+            # Check if it's inside a test block/comment
+            if "test" not in debian_rules.lower() and "test" not in debian_control.lower():
+                finding.fail(
+                    f"Potential {keyword} usage found outside tests",
+                    "no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
+                    severity="required",
+                    confidence="low",
+                )
+                finding.evidence_refs = ["packaging-source:debian_rules"]
+                return finding
+
+    finding.succeed(
+        "no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
+        confidence="high",
+    )
+    finding.evidence_refs = ["packaging-source:debian_rules"]
+    return finding
+
+
+@deterministic_check("URF-4")
+def _check_urf_4(ctx, finding: Finding) -> Finding:
+    """URF-4: No use of user 'nobody' outside tests."""
+    check = _get_check_definition(ctx, "URF-4")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not inspect packaging source"
+        finding.todo = render_check_message(check, "unknown_todo")
+        finding.evidence_refs = ["packaging-source:error"]
+        return finding
+
+    debian_rules = packaging.get("debian_rules", "")
+    debian_control = packaging.get("debian_control", "")
+
+    # Search for "nobody" user outside tests
+    combined = (debian_rules + "\n" + debian_control).lower()
+    
+    if "nobody" in combined:
+        # Check if it's in a test context
+        if "test" in combined:
+            finding.succeed(
+                "no use of user 'nobody' outside of tests",
+                confidence="medium",
+            )
+            finding.evidence_refs = ["packaging-source:debian_rules"]
+            return finding
+
+        finding.fail(
+            "User 'nobody' found in packaging",
+            "no use of user 'nobody' outside of tests",
+            severity="required",
+            confidence="low",
+        )
+        finding.evidence_refs = ["packaging-source:debian_rules"]
+        return finding
+
+    finding.succeed(
+        "no use of user 'nobody' outside of tests",
+        confidence="high",
+    )
+    finding.evidence_refs = ["packaging-source:debian_rules"]
+    return finding
+
+
+@deterministic_check("URF-5")
+def _check_urf_5(ctx, finding: Finding) -> Finding:
+    """URF-5: No setuid/setgid binaries."""
+    check = _get_check_definition(ctx, "URF-5")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        finding.status = "unknown"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "Could not inspect packaging source"
+        finding.todo = render_check_message(check, "unknown_todo")
+        finding.evidence_refs = ["packaging-source:error"]
+        return finding
+
+    debian_rules = packaging.get("debian_rules", "").lower()
+
+    # Check for setuid/setgid patterns
+    setuid_patterns = ["chmod 4", "chmod 2", "perm -4000", "perm -2000", "setuid", "setgid"]
+    
+    has_setuid = any(p.lower() in debian_rules for p in setuid_patterns)
+
+    if has_setuid:
+        # Check for documented justification (prefer systemd)
+        if "systemd" in debian_rules:
+            finding.status = "not-ok"
+            finding.severity = "recommended"
+            finding.confidence = "medium"
+            finding.message = "setuid/setgid present but using systemd service permissions"
+            finding.todo = "TODO: - use of setuid, but ok because systemd is used"
+            finding.evidence_refs = ["packaging-source:debian_rules"]
+            return finding
+
+        finding.fail(
+            "setuid/setgid binaries found in packaging",
+            "no use of setuid / setgid",
+            severity="required",
+            confidence="low",
+        )
+        finding.evidence_refs = ["packaging-source:debian_rules"]
+        return finding
+
+    finding.succeed(
+        "no use of setuid / setgid",
+        confidence="high",
+    )
+    finding.evidence_refs = ["packaging-source:debian_rules"]
+    return finding
+
+
 # ---------------------------------------------------------------------------
 # Deterministic dispatch table
 # Must be defined after all _check_* functions it references.

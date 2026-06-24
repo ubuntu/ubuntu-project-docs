@@ -242,6 +242,34 @@ class _Ctx:
                         "unknown_todo": "TODO: - Check for debian/watch file",
                     },
                 },
+                {
+                    "id": "SEC-2",
+                    "messages": {
+                        "ok_message": "does not run a daemon as root",
+                        "unknown_todo": "TODO: - Check for daemon running as root",
+                    },
+                },
+                {
+                    "id": "URF-3",
+                    "messages": {
+                        "ok_message": "no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
+                        "unknown_todo": "TODO: - Check for privilege escalation outside tests",
+                    },
+                },
+                {
+                    "id": "URF-4",
+                    "messages": {
+                        "ok_message": "no use of user 'nobody' outside of tests",
+                        "unknown_todo": "TODO: - Check for 'nobody' user usage",
+                    },
+                },
+                {
+                    "id": "URF-5",
+                    "messages": {
+                        "ok_message": "no use of setuid / setgid",
+                        "unknown_todo": "TODO: - Check for setuid/setgid binaries",
+                    },
+                },
             ]
         }
         self.evidence = {"adapters": {}}
@@ -1389,3 +1417,175 @@ def test_prf_3_non_native_no_watch():
     assert result.status == "not-ok"
     assert result.severity == "recommended"
     assert "debian/watch" in result.message
+
+
+def test_sec_2_non_root():
+    """Test SEC-2 when daemon does not run as root."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "[Unit]\nUser=myuser\nDynamicUser=yes",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("SEC-2", mode="deterministic")
+    result = checks.deterministic._check_sec_2(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "root" in result.message.lower()
+
+
+def test_sec_2_root_with_mitigations():
+    """Test SEC-2 when daemon runs as root but has mitigations."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "User=root\nSeccomp=strict\nAppArmor=profile",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("SEC-2", mode="deterministic")
+    result = checks.deterministic._check_sec_2(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
+    assert "mitigations" in result.message.lower()
+
+
+def test_sec_2_root_no_mitigations():
+    """Test SEC-2 when daemon runs as root with no mitigations."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "User=root",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("SEC-2", mode="deterministic")
+    result = checks.deterministic._check_sec_2(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_urf_3_no_escalation():
+    """Test URF-3 when no privilege escalation found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure\ndh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-3", mode="deterministic")
+    result = checks.deterministic._check_urf_3(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_urf_3_escalation_outside_tests():
+    """Test URF-3 when privilege escalation found outside tests."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "sudo apt-get install foo",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-3", mode="deterministic")
+    result = checks.deterministic._check_urf_3(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_urf_4_no_nobody():
+    """Test URF-4 when no 'nobody' user found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "User=myapp",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_urf_4_nobody_found():
+    """Test URF-4 when 'nobody' user found outside tests."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "User=nobody",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_urf_5_no_setuid():
+    """Test URF-5 when no setuid/setgid found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure\ndh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_urf_5_setuid_with_systemd():
+    """Test URF-5 when setuid present but using systemd."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "chmod 4755 myapp\n# Using systemd service permissions",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
+
+
+def test_urf_5_setuid_no_justification():
+    """Test URF-5 when setuid present without justification."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "chmod 4755 myapp",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
