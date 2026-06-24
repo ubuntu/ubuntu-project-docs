@@ -1510,13 +1510,19 @@ def test_urf_4_test_marker_elsewhere_does_not_bypass():
 
 
 def test_urf_5_no_setuid():
-    """Test URF-5 when no setuid/setgid found."""
+    """Test URF-5 when no setuid/setgid found in rules or lintian."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
         "debian_rules": "dh_auto_configure\ndh_auto_build",
         "debian_control": "Package: myapp",
         "file_listing": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
     }
 
     finding = _make_finding("URF-5", mode="deterministic")
@@ -1527,7 +1533,7 @@ def test_urf_5_no_setuid():
 
 
 def test_urf_5_setuid_with_systemd():
-    """Test URF-5 when setuid present but using systemd."""
+    """Test URF-5 when setuid present but using systemd (mitigated)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1544,7 +1550,7 @@ def test_urf_5_setuid_with_systemd():
 
 
 def test_urf_5_setuid_no_justification():
-    """Test URF-5 when setuid present without justification."""
+    """Test URF-5 when setuid present in rules without justification."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
@@ -1558,6 +1564,30 @@ def test_urf_5_setuid_no_justification():
 
     assert result.status == "not-ok"
     assert result.severity == "required"
+
+
+def test_urf_5_lintian_setuid_tag():
+    """Test URF-5 when lintian reports a setuid-binary tag on the built artifact."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure\ndh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": ["W: myapp: setuid-binary usr/bin/myapp 4755 root/root"],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "lintian" in result.message.lower()
 
 
 def test_urf_7_no_old_webkit():

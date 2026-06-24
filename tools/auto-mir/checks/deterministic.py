@@ -1177,6 +1177,7 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
     check = _get_check_definition(ctx, "URF-5")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
+    lintian = adapters.get("lintian", {})
 
     if packaging.get("status") != "ok":
         finding.status = "unknown"
@@ -1187,38 +1188,54 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
         finding.evidence_refs = ["packaging-source:error"]
         return finding
 
+    # Check lintian output for setuid/setgid tags (covers built binary artefacts).
+    _LINTIAN_SETUID_TAGS = ("setuid-binary", "setgid-binary", "set-uid", "set-gid")
+    lintian_triggered = False
+    if lintian.get("status") == "ok":
+        all_lintian = " ".join(
+            lintian.get("lintian_errors", [])
+            + lintian.get("lintian_warnings", [])
+            + lintian.get("lintian_pedantic", [])
+        ).lower()
+        lintian_triggered = any(tag in all_lintian for tag in _LINTIAN_SETUID_TAGS)
+
+    # Also check debian/rules text for explicit setuid/setgid patterns.
     debian_rules = packaging.get("debian_rules", "").lower()
-
-    # Check for setuid/setgid patterns
     setuid_patterns = ["chmod 4", "chmod 2", "perm -4000", "perm -2000", "setuid", "setgid"]
+    rules_triggered = any(p in debian_rules for p in setuid_patterns)
 
-    has_setuid = any(p.lower() in debian_rules for p in setuid_patterns)
-
-    if has_setuid:
+    if lintian_triggered or rules_triggered:
+        source = "lintian output" if lintian_triggered else "debian/rules"
         # Check for documented justification (prefer systemd)
         if "systemd" in debian_rules:
             finding.status = "not-ok"
             finding.severity = "recommended"
             finding.confidence = "medium"
-            finding.message = "setuid/setgid present but using systemd service permissions"
+            finding.message = (
+                f"setuid/setgid present ({source}) but using systemd service permissions"
+            )
             finding.todo = "TODO: - use of setuid, but ok because systemd is used"
-            finding.evidence_refs = ["packaging-source:debian_rules"]
+            finding.evidence_refs = ["packaging-source:debian_rules", "lintian:lintian_warnings"]
             return finding
 
         finding.fail(
-            "setuid/setgid binaries found in packaging",
+            f"setuid/setgid detected in {source}",
             "no use of setuid / setgid",
             severity="required",
-            confidence="low",
+            confidence="high" if lintian_triggered else "low",
         )
-        finding.evidence_refs = ["packaging-source:debian_rules"]
+        finding.evidence_refs = [
+            "lintian:lintian_warnings" if lintian_triggered else "packaging-source:debian_rules"
+        ]
         return finding
 
     finding.succeed(
         "no use of setuid / setgid",
-        confidence="high",
+        confidence="high" if lintian.get("status") == "ok" else "medium",
     )
     finding.evidence_refs = ["packaging-source:debian_rules"]
+    if lintian.get("status") == "ok":
+        finding.evidence_refs.append("lintian:lintian_warnings")
     return finding
 
 
