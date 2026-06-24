@@ -13,7 +13,7 @@ In Ubuntu, we maintain the following versions:
 
 ### Maintenance
 
-OpenJDK packaging is generally maintained as a shared effort with Debian on Salsa: [openjdk](https://salsa.debian.org/openjdk-team/openjdk). A notable exception is OpenJDK 11, which is maintained in Ubuntu through the `openjdk-lts` package.
+OpenJDK packaging is generally maintained as a shared effort with Debian on Salsa: [{pkg}`openjdk`](https://salsa.debian.org/openjdk-team/openjdk). A notable exception is OpenJDK 11, which is maintained in Ubuntu through the `openjdk-lts` package.
 
 ### Help and communication
 

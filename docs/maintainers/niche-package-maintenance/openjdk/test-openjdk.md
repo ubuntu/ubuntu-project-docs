@@ -53,7 +53,7 @@ Then run one or more of the following:
   ```
   $ debian/tests/jaxp
   ```
--  `langtools` (javac, javadoc, etc.) test suite
+-  `langtools` (`javac`, `javadoc`, etc.) test suite
    ```
    $ debian/tests/langtools
    ```
