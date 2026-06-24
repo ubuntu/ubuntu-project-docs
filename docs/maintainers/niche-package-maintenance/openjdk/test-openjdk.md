@@ -92,7 +92,7 @@ Both scripts skip tests listed in `debian/tests/skip-large-autopkgtest.txt` in
 addition to the standard problem list, to avoid tests that exceed typical
 autopkgtest resource limits.
 
-You can pass additional `jtreg` arguments to override the defaults:
+To override the defaults, pass additional `jtreg` arguments:
 
 ```bash
 # Run only a single test
