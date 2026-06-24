@@ -1998,6 +1998,131 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
     return finding
 
 
+def _parse_version_tuple(version_str: str) -> tuple:
+    """Parse version string into comparable tuple (numeric parts for sorting).
+    
+    E.g., '1.2.3' -> (1, 2, 3), '1.2.3rc1' -> (1, 2, 3, 0, 'rc1')
+    """
+    import re
+    if not version_str:
+        return ()
+    
+    # Split on dots and dash/plus for pre-release/post-release
+    parts = re.split(r'[-+~.]', version_str)
+    result = []
+    for part in parts:
+        # Try to convert to int if it's all digits
+        if part.isdigit():
+            result.append(int(part))
+        elif part:
+            result.append(part)
+    return tuple(result)
+
+
+def _versions_compatible(archive_version: str, upstream_version: str) -> tuple[bool, str]:
+    """Check if archive version is reasonably up-to-date with upstream.
+    
+    Returns:
+        (is_compatible, reason) tuple
+        - Compatible: archive is within 1-2 releases behind
+        - Behind: archive is 3+ releases behind
+        - Old: archive is very old (major version gap)
+    """
+    if not archive_version or not upstream_version:
+        return (True, "Could not determine versions")
+    
+    archive_parts = _parse_version_tuple(archive_version)
+    upstream_parts = _parse_version_tuple(upstream_version)
+    
+    if not archive_parts or not upstream_parts:
+        return (True, "Could not parse versions")
+    
+    # If upstream < archive, we're ahead (good)
+    if upstream_parts <= archive_parts:
+        return (True, "Archive version meets or exceeds upstream")
+    
+    # Both versions are behind - compare directly
+    if archive_parts < upstream_parts:
+        return (False, f"Archive version behind upstream: {archive_version} < {upstream_version}")
+    
+    return (True, f"Archive version matches or exceeds upstream")
+
+
+@deterministic_check("PRF-6")
+def _check_prf_6(ctx, finding: Finding) -> Finding:
+    """PRF-6: Current release packaged."""
+    check = _get_check_definition(ctx, "PRF-6")
+    adapters = ctx.evidence.get("adapters", {})
+    
+    # Get package info
+    lp_package = adapters.get("lp-package-api", {})
+    if lp_package.get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check)
+    
+    upstream_tracker = adapters.get("upstream-tracker", {})
+    if upstream_tracker.get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check)
+    
+    archive_version = lp_package.get("version", "")
+    upstream_version = upstream_tracker.get("latest_version", "")
+    
+    if not archive_version or not upstream_version:
+        return _set_unknown_from_adapter(finding, check)
+    
+    # Check version compatibility
+    is_compatible, reason = _versions_compatible(archive_version, upstream_version)
+    
+    if is_compatible:
+        finding.status = "ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = "the current release is packaged"
+    else:
+        # Archive is behind - determine if "somewhat behind" or "very old"
+        archive_parts = _parse_version_tuple(archive_version)
+        upstream_parts = _parse_version_tuple(upstream_version)
+        
+        if archive_parts and upstream_parts:
+            # Compare major versions
+            archive_major = archive_parts[0] if isinstance(archive_parts[0], int) else 0
+            upstream_major = upstream_parts[0] if isinstance(upstream_parts[0], int) else 0
+            
+            # If major version is 2+ behind, it's very old
+            if isinstance(archive_major, int) and isinstance(upstream_major, int):
+                major_gap = upstream_major - archive_major
+                
+                if major_gap >= 2:
+                    # Very old
+                    finding.status = "not-ok"
+                    finding.severity = "required"
+                    finding.confidence = "high"
+                    finding.message = f"Package is very behind upstream: {archive_version} vs {upstream_version}"
+                    finding.todo = "TODO: - Consider updating to a more recent upstream release"
+                else:
+                    # Somewhat behind (1 major version or minor version differences)
+                    finding.status = "not-ok"
+                    finding.severity = "recommended"
+                    finding.confidence = "high"
+                    finding.message = f"Package is somewhat behind upstream: {archive_version} vs {upstream_version}"
+                    finding.todo = "TODO: - Consider updating to a more recent upstream release"
+            else:
+                # Can't determine major - mark as recommended
+                finding.status = "not-ok"
+                finding.severity = "recommended"
+                finding.confidence = "medium"
+                finding.message = f"Package version lag detected: {archive_version} vs {upstream_version}"
+                finding.todo = "TODO: - Verify upstream version availability"
+        else:
+            finding.status = "not-ok"
+            finding.severity = "recommended"
+            finding.confidence = "medium"
+            finding.message = "Could not determine version lag"
+            finding.todo = "TODO: - Verify upstream version availability"
+    
+    finding.evidence_refs = ["lp-package-api:version", "upstream-tracker:latest_version"]
+    return finding
+
+
 # ---------------------------------------------------------------------------
 # Deterministic dispatch table
 # Must be defined after all _check_* functions it references.

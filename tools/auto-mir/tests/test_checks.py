@@ -196,6 +196,13 @@ class _Ctx:
                     "id": "CB-1",
                 },
                 {
+                    "id": "PRF-6",
+                    "messages": {
+                        "ok_message": "the current release is packaged",
+                        "unknown_message": "Could not determine package version information",
+                    },
+                },
+                {
                     "id": "PRF-8",
                 },
                 {
@@ -2045,3 +2052,79 @@ def test_prf_8_errors():
 
     assert result.status == "not-ok"
     assert result.severity == "required"
+
+
+# ---------------------------------------------------------------------------
+# PRF-6: Current release packaged
+# ---------------------------------------------------------------------------
+
+
+def test_prf_6_current_version():
+    """Test PRF-6 when archive version is current with upstream."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lp-package-api"] = {
+        "status": "ok",
+        "version": "1.2.3",
+    }
+    ctx.evidence["adapters"]["upstream-tracker"] = {
+        "status": "ok",
+        "latest_version": "1.2.3",
+    }
+
+    finding = _make_finding("PRF-6", mode="deterministic")
+    result = checks.deterministic._check_prf_6(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "current" in result.message.lower() or "packaged" in result.message.lower()
+
+
+def test_prf_6_behind_upstream():
+    """Test PRF-6 when archive version is somewhat behind upstream."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lp-package-api"] = {
+        "status": "ok",
+        "version": "1.1.0",
+    }
+    ctx.evidence["adapters"]["upstream-tracker"] = {
+        "status": "ok",
+        "latest_version": "1.3.0",
+    }
+
+    finding = _make_finding("PRF-6", mode="deterministic")
+    result = checks.deterministic._check_prf_6(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
+
+
+def test_prf_6_very_old_version():
+    """Test PRF-6 when archive version is very old compared to upstream."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lp-package-api"] = {
+        "status": "ok",
+        "version": "0.9.0",
+    }
+    ctx.evidence["adapters"]["upstream-tracker"] = {
+        "status": "ok",
+        "latest_version": "2.0.0",
+    }
+
+    finding = _make_finding("PRF-6", mode="deterministic")
+    result = checks.deterministic._check_prf_6(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_prf_6_adapter_missing():
+    """Test PRF-6 when lp-package-api adapter is missing."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["lp-package-api"] = {
+        "status": "error",
+    }
+
+    finding = _make_finding("PRF-6", mode="deterministic")
+    result = checks.deterministic._check_prf_6(ctx, finding)
+
+    assert result.status == "unknown"
