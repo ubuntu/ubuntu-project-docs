@@ -14,7 +14,7 @@ Install `jtreg<N>` before running any tests, e.g. for OpenJDK 25 and later:
 $ sudo apt install jtreg8
 ```
 
-OpenJDK 11, 17 and 21 use `jtreg7`.
+OpenJDK 11, 17, and 21 use `jtreg7`.
 
 The test scripts require the following environment variables to be set:
 
