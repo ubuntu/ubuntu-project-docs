@@ -11,7 +11,7 @@ Ensure that every patch that updates the upstream source tree is submitted upstr
 
 ## OpenJDK developer guide
 
-Please use the [OpenJDK developer guide](https://openjdk.org/guide/) when working with the upstream source tree.
+Use the [OpenJDK developer guide](https://openjdk.org/guide/) when working with the upstream source tree.
 
 ## Example: adding an upstream patch
 
