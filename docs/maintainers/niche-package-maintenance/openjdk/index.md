@@ -1,5 +1,5 @@
 (openjdk-packaging)=
-# `openjdk` packaging
+# {pkg}`openjdk` packaging
 
 How to update, package, and maintain versions of {pkg}`openjdk` in Ubuntu.
 

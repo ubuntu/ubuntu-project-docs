@@ -45,15 +45,15 @@ Then run one or more of the following:
   ```
   $ debian/tests/hotspot
   ```
--  Core JDK library tests (requires a virtual display; Xvfb is started automatically)
+-  Core JDK library tests (requires a virtual display; `Xvfb` is started automatically)
    ```
    $ debian/tests/jdk
    ```
-- JAXP (XML processing) tests
+- `JAXP`  (XML processing) test suite
   ```
   $ debian/tests/jaxp
   ```
--  Langtools (javac, javadoc, etc.) tests
+-  `langtools` (javac, javadoc, etc.) test suite
    ```
    $ debian/tests/langtools
    ```
