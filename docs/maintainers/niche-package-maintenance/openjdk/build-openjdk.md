@@ -6,7 +6,7 @@
 
 ### Fast build for development
 
-For faster iteration during development, you can disable optional steps such as full test runs, Javadoc generation, and the "bootcycle" (double) build verification:
+For faster iteration during development, disable optional steps, such as full test runs, Javadoc generation, and the "bootcycle" (double) build verification:
 
 1. Install build dependencies (example for OpenJDK 21):
    ```bash
