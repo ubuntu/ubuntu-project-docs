@@ -24,7 +24,7 @@ Our goals in setting up the governance structures of Ubuntu are to ensure that:
 
 3. Necessary decisions are actually taken, even when there is no clear consensus among the community. There is a single path for the appeal or escalation of a decision when needed.
 
-
+(governance-structure)=
 ## Governance structure
 
 Ubuntu has always been a very openly governed community. This open governance means that we have some community organized and run decision-making groups that help to lead and make decisions about different elements of Ubuntu.
