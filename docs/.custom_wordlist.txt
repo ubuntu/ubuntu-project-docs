@@ -142,7 +142,6 @@ neurotype
 onboarding
 oniguruma
 OSI's
-openjdk
 packageset
 packagesets
 papercuts
