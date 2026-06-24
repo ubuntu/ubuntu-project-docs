@@ -270,6 +270,41 @@ class _Ctx:
                         "unknown_todo": "TODO: - Check for setuid/setgid binaries",
                     },
                 },
+                {
+                    "id": "URF-7",
+                    "messages": {
+                        "ok_message": "no dependency on webkit, qtwebkit or libseed",
+                        "unknown_todo": "TODO: - Check for old webkit dependencies",
+                    },
+                },
+                {
+                    "id": "SEC-8",
+                    "messages": {
+                        "ok_message": "does not use centralized online accounts",
+                        "unknown_todo": "TODO: - Check for centralized accounts APIs",
+                    },
+                },
+                {
+                    "id": "SEC-10",
+                    "messages": {
+                        "ok_message": "does not deal with system authentication (eg, pam), etc)",
+                        "unknown_todo": "TODO: - Check for PAM/system auth",
+                    },
+                },
+                {
+                    "id": "URF-8",
+                    "messages": {
+                        "ok_message": "UI/desktop file check",
+                        "unknown_todo": "TODO: - Check for .desktop files",
+                    },
+                },
+                {
+                    "id": "URF-9",
+                    "messages": {
+                        "ok_message": "translation coverage check",
+                        "unknown_todo": "TODO: - Check for translation coverage",
+                    },
+                },
             ]
         }
         self.evidence = {"adapters": {}}
@@ -1589,3 +1624,196 @@ def test_urf_5_setuid_no_justification():
 
     assert result.status == "not-ok"
     assert result.severity == "required"
+
+
+def test_urf_7_no_old_webkit():
+    """Test URF-7 when no old webkit dependencies found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "libglib2.0", "libgtk-3-0"],
+    }
+
+    finding = _make_finding("URF-7", mode="deterministic")
+    result = checks.deterministic._check_urf_7(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_urf_7_webkit_found():
+    """Test URF-7 when webkit dependency found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "libwebkit2gtk-4.0", "libgtk-3-0"],
+    }
+
+    finding = _make_finding("URF-7", mode="deterministic")
+    result = checks.deterministic._check_urf_7(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "webkit" in result.message.lower()
+
+
+def test_sec_8_no_accounts():
+    """Test SEC-8 when no centralized accounts found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "libglib2.0", "libgtk-3-0"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("SEC-8", mode="deterministic")
+    result = checks.deterministic._check_sec_8(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_sec_8_accounts_found():
+    """Test SEC-8 when centralized accounts dependency found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "gnome-online-accounts", "libgtk-3-0"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("SEC-8", mode="deterministic")
+    result = checks.deterministic._check_sec_8(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "account" in result.message.lower()
+
+
+def test_sec_10_no_pam():
+    """Test SEC-10 when no PAM dependencies found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "libglib2.0", "libgtk-3-0"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("SEC-10", mode="deterministic")
+    result = checks.deterministic._check_sec_10(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_sec_10_pam_found():
+    """Test SEC-10 when PAM dependency found."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "dependencies": ["libc6", "libpam0g", "libgtk-3-0"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("SEC-10", mode="deterministic")
+    result = checks.deterministic._check_sec_10(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "pam" in result.message.lower()
+
+
+def test_urf_8_not_ui_package():
+    """Test URF-8 when not a UI package."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: libfoo-dev",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-8", mode="deterministic")
+    result = checks.deterministic._check_urf_8(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "ok"
+    assert "not part of the ui" in result.message.lower()
+
+
+def test_urf_8_ui_with_desktop():
+    """Test URF-8 when UI package with desktop file."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: gnome-calculator",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [
+            {"path": "usr/share/applications/gnome-calculator.desktop", "size": 500},
+        ],
+    }
+
+    finding = _make_finding("URF-8", mode="deterministic")
+    result = checks.deterministic._check_urf_8(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "ok"
+    assert "part of the ui" in result.message.lower()
+
+
+def test_urf_9_not_user_visible():
+    """Test URF-9 when package is not user-visible."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: libfoo-dev",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-9", mode="deterministic")
+    result = checks.deterministic._check_urf_9(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "ok"
+    assert "not user-visible" in result.message.lower()
+
+
+def test_urf_9_user_visible_with_translations():
+    """Test URF-9 when user-visible package has translations."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: gnome-calculator",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [
+            {"path": "usr/share/locale/de/LC_MESSAGES/gnome-calculator.mo", "size": 500},
+        ],
+    }
+
+    finding = _make_finding("URF-9", mode="deterministic")
+    result = checks.deterministic._check_urf_9(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "ok"
+    assert "translation present" in result.message.lower()

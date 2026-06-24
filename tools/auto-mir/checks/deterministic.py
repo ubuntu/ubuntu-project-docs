@@ -1412,6 +1412,275 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
     return finding
 
 
+@deterministic_check("URF-7")
+def _check_urf_7(ctx, finding: Finding) -> Finding:
+    """URF-7: No webkit/qtwebkit/libseed dependency."""
+    check = _get_check_definition(ctx, "URF-7")
+    adapters = ctx.evidence.get("adapters", {})
+    dep_analysis = adapters.get("dep-analysis", {})
+
+    if dep_analysis.get("status") != "ok":
+        _set_unknown_from_adapter(finding, check, "dep-analysis")
+        return finding
+
+    dependencies = dep_analysis.get("dependencies", [])
+    old_webkit = ["webkit", "qtwebkit", "libseed"]
+    
+    for dep in dependencies:
+        if any(web in dep.lower() for web in old_webkit):
+            finding.fail(
+                f"Old web engine dependency found: {dep}",
+                "no dependency on webkit, qtwebkit or libseed",
+                severity="required",
+                confidence="high",
+            )
+            finding.evidence_refs = ["dep-analysis:dependencies"]
+            return finding
+
+    finding.succeed(
+        "no dependency on webkit, qtwebkit or libseed",
+        confidence="high",
+    )
+    finding.evidence_refs = ["dep-analysis:dependencies"]
+    return finding
+
+
+@deterministic_check("SEC-8")
+def _check_sec_8(ctx, finding: Finding) -> Finding:
+    """SEC-8: Does not use centralized online accounts."""
+    check = _get_check_definition(ctx, "SEC-8")
+    adapters = ctx.evidence.get("adapters", {})
+    dep_analysis = adapters.get("dep-analysis", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if dep_analysis.get("status") != "ok":
+        _set_unknown_from_adapter(finding, check, "dep-analysis")
+        return finding
+
+    if packaging.get("status") != "ok":
+        _set_unknown_from_adapter(finding, check, "packaging-source")
+        return finding
+
+    dependencies = dep_analysis.get("dependencies", [])
+    debian_control = packaging.get("debian_control", "")
+
+    # Check for centralized accounts/online service APIs
+    online_account_patterns = [
+        "evolution-data-server",
+        "gnome-online-accounts",
+        "account-plugin",
+        "accountsservice",
+        "telepathy",
+    ]
+
+    # Also check source code for API patterns
+    source_patterns = [
+        "oauth",
+        "oauth2",
+        "google-api",
+        "facebook-sdk",
+        "twitter-api",
+        "accounts_manager",
+    ]
+
+    for dep in dependencies:
+        if any(p in dep.lower() for p in online_account_patterns):
+            finding.fail(
+                f"Centralized accounts dependency found: {dep}",
+                "does not use centralized online accounts",
+                severity="required",
+                confidence="high",
+            )
+            finding.evidence_refs = ["dep-analysis:dependencies"]
+            return finding
+
+    debian_control_lower = debian_control.lower()
+    for pattern in source_patterns:
+        if pattern.lower() in debian_control_lower:
+            finding.fail(
+                f"Online accounts pattern found: {pattern}",
+                "does not use centralized online accounts",
+                severity="required",
+                confidence="medium",
+            )
+            finding.evidence_refs = ["packaging-source:debian_control"]
+            return finding
+
+    finding.succeed(
+        "does not use centralized online accounts",
+        confidence="high",
+    )
+    finding.evidence_refs = ["dep-analysis:dependencies"]
+    return finding
+
+
+@deterministic_check("SEC-10")
+def _check_sec_10(ctx, finding: Finding) -> Finding:
+    """SEC-10: Does not handle system authentication (PAM)."""
+    check = _get_check_definition(ctx, "SEC-10")
+    adapters = ctx.evidence.get("adapters", {})
+    dep_analysis = adapters.get("dep-analysis", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if dep_analysis.get("status") != "ok":
+        _set_unknown_from_adapter(finding, check, "dep-analysis")
+        return finding
+
+    if packaging.get("status") != "ok":
+        _set_unknown_from_adapter(finding, check, "packaging-source")
+        return finding
+
+    dependencies = dep_analysis.get("dependencies", [])
+    debian_control = packaging.get("debian_control", "")
+    debian_rules = packaging.get("debian_rules", "")
+
+    # Check for PAM or authentication libraries
+    pam_patterns = ["libpam", "libpam-", "pam", "gdm", "lightdm", "sddm"]
+    
+    for dep in dependencies:
+        if any(p in dep.lower() for p in pam_patterns):
+            # Make sure it's not a system service (which may have PAM modules)
+            if not any(x in dep.lower() for x in ["session", "client", "common"]):
+                finding.fail(
+                    f"PAM authentication dependency found: {dep}",
+                    "does not deal with system authentication (eg, pam), etc)",
+                    severity="required",
+                    confidence="medium",
+                )
+                finding.evidence_refs = ["dep-analysis:dependencies"]
+                return finding
+
+    # Check for pam_* function patterns in source
+    pam_function_patterns = ["pam_", "pam_authenticate", "pam_acct", "pam_open_session"]
+    combined_source = (debian_control + "\n" + debian_rules).lower()
+    
+    for pattern in pam_function_patterns:
+        if pattern.lower() in combined_source:
+            finding.fail(
+                f"PAM function usage detected: {pattern}",
+                "does not deal with system authentication (eg, pam), etc)",
+                severity="required",
+                confidence="low",
+            )
+            finding.evidence_refs = ["packaging-source:debian_rules"]
+            return finding
+
+    finding.succeed(
+        "does not deal with system authentication (eg, pam), etc)",
+        confidence="high",
+    )
+    finding.evidence_refs = ["dep-analysis:dependencies"]
+    return finding
+
+
+@deterministic_check("URF-8")
+def _check_urf_8(ctx, finding: Finding) -> Finding:
+    """URF-8: UI/desktop file check."""
+    check = _get_check_definition(ctx, "URF-8")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        _set_unknown_from_adapter(finding, check, "packaging-source")
+        return finding
+
+    file_listing = packaging.get("file_listing", [])
+    debian_control = packaging.get("debian_control", "")
+
+    # Check if this is a UI/desktop package
+    desktop_patterns = ["x11-apps", "gnome-", "kde-", "xfce-", "lxde-", "mate-", "cinnamon-", "apps"]
+    has_desktop = any(p in debian_control.lower() for p in desktop_patterns)
+
+    # Check for .desktop files
+    has_desktop_file = any(".desktop" in str(f.get("path", "")) for f in file_listing)
+
+    if not has_desktop and not has_desktop_file:
+        # Not a UI package
+        finding.status = "not-ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = "not part of the UI for extra checks"
+        finding.todo = "TODO-A: - not part of the UI for extra checks"
+        finding.evidence_refs = ["packaging-source:debian_control"]
+        return finding
+
+    if has_desktop_file:
+        # Is a UI package with desktop file
+        finding.status = "not-ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = "part of the UI, desktop file is ok"
+        finding.todo = "TODO-B: - part of the UI, desktop file is ok"
+        finding.evidence_refs = ["packaging-source:file_listing"]
+        return finding
+
+    # Is a UI package but no desktop file - this might be an issue
+    finding.fail(
+        "UI package without valid .desktop file",
+        "part of the UI, desktop file is ok",
+        severity="required",
+        confidence="medium",
+    )
+    finding.evidence_refs = ["packaging-source:debian_control"]
+    return finding
+
+
+@deterministic_check("URF-9")
+def _check_urf_9(ctx, finding: Finding) -> Finding:
+    """URF-9: Translation coverage."""
+    check = _get_check_definition(ctx, "URF-9")
+    adapters = ctx.evidence.get("adapters", {})
+    packaging = adapters.get("packaging-source", {})
+
+    if packaging.get("status") != "ok":
+        _set_unknown_from_adapter(finding, check, "packaging-source")
+        return finding
+
+    file_listing = packaging.get("file_listing", [])
+    debian_control = packaging.get("debian_control", "")
+
+    # Check if package is user-visible
+    user_visible_patterns = ["gnome", "kde", "xfce", "lxde", "mate", "cinnamon", "app", "utils", "tools"]
+    is_user_visible = any(p in debian_control.lower() for p in user_visible_patterns)
+
+    # Check for translation/locale files
+    translation_patterns = [".mo", ".po", "locale/", "translations/", "i18n/"]
+    has_translations = any(
+        any(p in str(f.get("path", "")).lower() for p in translation_patterns) 
+        for f in file_listing
+    )
+
+    if not is_user_visible:
+        # Not user-visible, no translations needed
+        finding.status = "not-ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = "not user-visible, translations not needed"
+        finding.todo = "TODO-A: - no translation present, but none needed for this case (not user visible)"
+        finding.evidence_refs = ["packaging-source:debian_control"]
+        return finding
+
+    if has_translations:
+        # User-visible with translations
+        finding.status = "not-ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = "user-visible with translation present"
+        finding.todo = "TODO-B: - translation present"
+        finding.evidence_refs = ["packaging-source:file_listing"]
+        return finding
+
+    # User-visible but no translations - might be an issue
+    finding.fail(
+        "User-visible package without translations",
+        "translation present",
+        severity="recommended",
+        confidence="medium",
+    )
+    finding.evidence_refs = ["packaging-source:file_listing"]
+    return finding
+
+
 # ---------------------------------------------------------------------------
 # Deterministic dispatch table
 # Must be defined after all _check_* functions it references.
