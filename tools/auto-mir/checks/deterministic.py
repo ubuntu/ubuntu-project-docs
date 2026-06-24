@@ -66,6 +66,22 @@ def _get_packaging_source_or_unknown(
     return check, packaging
 
 
+_TEST_CONTEXT_MARKERS = (
+    "test",
+    "tests/",
+    "autopkgtest",
+    "pytest",
+    "unittest",
+    "debian/tests",
+)
+
+
+def _line_is_test_context(line: str) -> bool:
+    """Return True when a source line clearly belongs to test context."""
+    lowered = line.lower()
+    return any(marker in lowered for marker in _TEST_CONTEXT_MARKERS)
+
+
 @deterministic_check("SUM-1")
 def _check_sum_1(ctx, finding: Finding) -> Finding:
     """SUM-1: Source package identified."""
@@ -1083,21 +1099,26 @@ def _check_urf_3(ctx, finding: Finding) -> Finding:
     debian_rules = packaging.get("debian_rules", "")
     debian_control = packaging.get("debian_control", "")
 
-    # Search for privilege escalation patterns outside tests
-    escalation_keywords = ["sudo", "gksu", "pkexec", "LD_LIBRARY_PATH"]
+    # Search for privilege escalation patterns and ignore only explicit test-context lines.
+    escalation_keywords = ["sudo", "gksu", "pkexec", "ld_library_path"]
+    combined_lines = [
+        *(line for line in debian_rules.splitlines()),
+        *(line for line in debian_control.splitlines()),
+    ]
 
-    for keyword in escalation_keywords:
-        if keyword.lower() in debian_rules.lower() or keyword.lower() in debian_control.lower():
-            # Check if it's inside a test block/comment
-            if "test" not in debian_rules.lower() and "test" not in debian_control.lower():
-                finding.fail(
-                    f"Potential {keyword} usage found outside tests",
-                    "no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
-                    severity="required",
-                    confidence="low",
-                )
-                finding.evidence_refs = ["packaging-source:debian_rules"]
-                return finding
+    for line in combined_lines:
+        lowered = line.lower()
+        if any(keyword in lowered for keyword in escalation_keywords) and not _line_is_test_context(
+            line
+        ):
+            finding.fail(
+                "Potential sudo/gksu/pkexec/LD_LIBRARY_PATH usage found outside tests",
+                "no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
+                severity="required",
+                confidence="medium",
+            )
+            finding.evidence_refs = ["packaging-source:debian_rules"]
+            return finding
 
     finding.succeed(
         "no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
@@ -1126,27 +1147,21 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
     debian_rules = packaging.get("debian_rules", "")
     debian_control = packaging.get("debian_control", "")
 
-    # Search for "nobody" user outside tests
-    combined = (debian_rules + "\n" + debian_control).lower()
+    combined_lines = [
+        *(line for line in debian_rules.splitlines()),
+        *(line for line in debian_control.splitlines()),
+    ]
 
-    if "nobody" in combined:
-        # Check if it's in a test context
-        if "test" in combined:
-            finding.succeed(
+    for line in combined_lines:
+        if "nobody" in line.lower() and not _line_is_test_context(line):
+            finding.fail(
+                "User 'nobody' found outside test context",
                 "no use of user 'nobody' outside of tests",
+                severity="required",
                 confidence="medium",
             )
             finding.evidence_refs = ["packaging-source:debian_rules"]
             return finding
-
-        finding.fail(
-            "User 'nobody' found in packaging",
-            "no use of user 'nobody' outside of tests",
-            severity="required",
-            confidence="low",
-        )
-        finding.evidence_refs = ["packaging-source:debian_rules"]
-        return finding
 
     finding.succeed(
         "no use of user 'nobody' outside of tests",

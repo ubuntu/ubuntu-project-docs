@@ -1441,6 +1441,23 @@ def test_urf_3_escalation_outside_tests():
     assert result.severity == "required"
 
 
+def test_urf_3_test_marker_elsewhere_does_not_bypass():
+    """Test URF-3 when escalation exists outside test-context lines."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "# tests run in autopkgtest\nsudo apt-get install foo",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-3", mode="deterministic")
+    result = checks.deterministic._check_urf_3(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
 def test_urf_4_no_nobody():
     """Test URF-4 when no 'nobody' user found."""
     ctx = _Ctx()
@@ -1464,6 +1481,23 @@ def test_urf_4_nobody_found():
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
         "debian_rules": "User=nobody",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_urf_4_test_marker_elsewhere_does_not_bypass():
+    """Test URF-4 when nobody exists outside test-context lines."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "# tests use fake users\nUser=nobody",
         "debian_control": "Package: myapp",
         "file_listing": [],
     }
