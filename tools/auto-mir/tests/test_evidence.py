@@ -365,6 +365,69 @@ def test_debian_bts_output_structure():
     assert result["open_bugs"][0]["web_link"].startswith("https://bugs.debian.org/")
 
 
+def test_cve_org_output_structure():
+    """cve-org adapter should filter search noise by affected products and classify severity."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+
+    search_payload = {
+        "data": [
+            {"_source": {"cveMetadata": {"cveId": "CVE-2026-0001"}}},
+            {"_source": {"cveMetadata": {"cveId": "CVE-2026-0002"}}},
+        ]
+    }
+    matching_record = {
+        "cveMetadata": {"cveId": "CVE-2026-0001", "datePublished": "2026-06-01T00:00:00Z"},
+        "containers": {
+            "cna": {
+                "title": "testpkg privilege escalation",
+                "providerMetadata": {"shortName": "TEST-CNA"},
+                "descriptions": [{"lang": "en", "value": "Privilege escalation in testpkg"}],
+                "affected": [{"vendor": "Example", "product": "testpkg"}],
+                "metrics": [{"cvssV3_1": {"baseScore": 8.8, "baseSeverity": "HIGH"}}],
+            }
+        },
+    }
+    noise_record = {
+        "cveMetadata": {"cveId": "CVE-2026-0002", "datePublished": "2026-06-02T00:00:00Z"},
+        "containers": {
+            "cna": {
+                "title": "generic shell issue",
+                "providerMetadata": {"shortName": "OTHER-CNA"},
+                "descriptions": [{"lang": "en", "value": "Uses shell commands"}],
+                "affected": [{"vendor": "Example", "product": "otherpkg"}],
+                "metrics": [{"cvssV3_1": {"baseScore": 4.2, "baseSeverity": "MEDIUM"}}],
+            }
+        },
+    }
+
+    def fake_post(url: str, payload: dict):
+        assert url == "https://www.cve.org/restapiv1/search"
+        assert payload["query"] == "testpkg"
+        return search_payload
+
+    def fake_fetch(url: str):
+        if url.endswith("CVE-2026-0001"):
+            return matching_record
+        if url.endswith("CVE-2026-0002"):
+            return noise_record
+        raise AssertionError(f"unexpected url: {url}")
+
+    with patch("evidence.host_adapters._post_json", side_effect=fake_post):
+        with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+            from evidence.host_adapters import collect_cve_org
+
+            result = collect_cve_org(ctx)
+
+    assert result["status"] == "ok"
+    assert result["source_package"] == "testpkg"
+    assert result["matched_terms"] == ["testpkg"]
+    assert result["total_cve_count"] == 1
+    assert [item["id"] for item in result["cves"]] == ["CVE-2026-0001"]
+    assert [item["id"] for item in result["high_severity_cves"]] == ["CVE-2026-0001"]
+    assert result["cves"][0]["affected_products"] == ["testpkg", "Example"]
+
+
 def test_upstream_tracker_output_structure():
     """upstream-tracker adapter should return latest version and release history."""
     ctx = Mock()

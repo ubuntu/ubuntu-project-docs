@@ -24,6 +24,7 @@ from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
     AutopkgtestResult,
+    CVEOrgResult,
     DebianBTSResult,
     LPBugAPIResult,
     LPBugSearchAPIResult,
@@ -304,6 +305,17 @@ def _fetch_text(url: str) -> str:
     req = urllib.request.Request(url, headers={"User-Agent": "auto-mir/0.1"})
     with urllib.request.urlopen(req, timeout=60) as resp:
         return resp.read().decode("utf-8", "replace")
+
+
+def _post_json(url: str, payload: dict[str, Any]) -> Any:
+    """POST JSON payload and decode a JSON response."""
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json", "User-Agent": "auto-mir/0.1"},
+    )
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return json.loads(resp.read().decode("utf-8"))
 
 
 def _strip_html(value: str) -> str:
@@ -712,6 +724,166 @@ def _resolve_oval_series(series: str) -> tuple[str | None, str | None]:
         return series, None
 
     return None, f"series '{series}' is not in supported or ESM-supported releases"
+
+
+def _candidate_cve_search_terms(pkg: str) -> list[str]:
+    """Return package-name variants worth trying against cve.org search."""
+    terms = [pkg]
+    normalized = pkg.lower()
+    for prefix in ("python3-", "python-", "golang-", "rust-"):
+        if normalized.startswith(prefix):
+            terms.append(pkg[len(prefix) :])
+    if normalized.startswith("lib") and "-" in normalized:
+        terms.append(pkg[3:].split("-", 1)[0])
+    elif normalized.endswith("-dev"):
+        terms.append(pkg[: -len("-dev")])
+    cleaned = []
+    for term in terms:
+        term = term.strip()
+        if term and term not in cleaned:
+            cleaned.append(term)
+    return cleaned
+
+
+def _record_affected_products(record: dict[str, Any]) -> list[str]:
+    """Extract affected product/vendor labels from a CVE record."""
+    affected = record.get("containers", {}).get("cna", {}).get("affected", []) or []
+    labels: list[str] = []
+    for item in affected:
+        if not isinstance(item, dict):
+            continue
+        for key in ("product", "vendor"):
+            value = str(item.get(key) or "").strip()
+            if value and value not in labels:
+                labels.append(value)
+    return labels
+
+
+def _record_matches_terms(record: dict[str, Any], terms: list[str]) -> bool:
+    """Return True when the CVE record appears relevant to the package terms."""
+    lowered_terms = [term.lower() for term in terms if term.strip()]
+    if not lowered_terms:
+        return False
+
+    cna = record.get("containers", {}).get("cna", {})
+    affected_labels = " ".join(_record_affected_products(record)).lower()
+    provider = str(cna.get("providerMetadata", {}).get("shortName") or "").lower()
+    title = str(cna.get("title") or "").lower()
+    descriptions = " ".join(
+        str(desc.get("value") or "")
+        for desc in (cna.get("descriptions") or [])
+        if isinstance(desc, dict)
+    ).lower()
+    references = " ".join(
+        str(ref.get("url") or "") for ref in (cna.get("references") or []) if isinstance(ref, dict)
+    ).lower()
+
+    searchable = [affected_labels, provider, title, descriptions, references]
+    return any(term in haystack for term in lowered_terms for haystack in searchable)
+
+
+def _record_high_severity(record: dict[str, Any]) -> str:
+    """Return normalized severity label for the record, defaulting to UNKNOWN."""
+    metrics = record.get("containers", {}).get("cna", {}).get("metrics", []) or []
+    best_label = "UNKNOWN"
+    best_score = -1.0
+    for metric in metrics:
+        if not isinstance(metric, dict):
+            continue
+        for key in ("cvssV4_0", "cvssV3_1", "cvssV3_0"):
+            values = metric.get(key)
+            if isinstance(values, dict):
+                label = str(values.get("baseSeverity") or "UNKNOWN").upper()
+                try:
+                    score = float(values.get("baseScore", -1))
+                except (TypeError, ValueError):
+                    score = -1.0
+                if score > best_score:
+                    best_score = score
+                    best_label = label
+        other = metric.get("other")
+        if isinstance(other, dict):
+            text = str(other.get("content", {}).get("text") or "").upper()
+            if text in {"LOW", "MEDIUM", "HIGH", "CRITICAL"} and best_score < 0:
+                best_label = text
+    return best_label
+
+
+@adapter(AdapterID.CVE_ORG)
+def collect_cve_org(ctx) -> CVEOrgResult:
+    """Search cve.org public search and refine via public CVE record lookups."""
+    pkg = ctx.source_package
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    matched_terms = _candidate_cve_search_terms(pkg)
+    search_payload = {
+        "query": " OR ".join(matched_terms),
+        "from": 0,
+        "size": 25,
+        "sort": {"property": "cveId", "order": "DESC"},
+    }
+
+    try:
+        search_result = _post_json("https://www.cve.org/restapiv1/search", search_payload)
+    except urllib.error.HTTPError as exc:
+        raise AdapterError(f"cve.org search HTTP error: {exc.code}") from exc
+    except urllib.error.URLError as exc:
+        raise AdapterError(f"cve.org search failed: {exc.reason}") from exc
+    except json.JSONDecodeError as exc:
+        raise AdapterError(f"cve.org search JSON parse failed: {exc}") from exc
+
+    cves: list[dict[str, Any]] = []
+    high_severity_cves: list[dict[str, Any]] = []
+    for item in search_result.get("data", []) or []:
+        source = item.get("_source", {}) if isinstance(item, dict) else {}
+        metadata = source.get("cveMetadata", {})
+        cve_id = str(metadata.get("cveId") or "").strip()
+        if not cve_id:
+            continue
+
+        try:
+            record = _fetch_json(f"https://cveawg.mitre.org/api/cve/{urllib.parse.quote(cve_id)}")
+        except Exception as exc:
+            log.debug("Could not enrich cve.org record %s: %s", cve_id, exc)
+            continue
+
+        if not _record_matches_terms(record, matched_terms):
+            continue
+
+        cna = record.get("containers", {}).get("cna", {})
+        severity = _record_high_severity(record)
+        descriptions = cna.get("descriptions") or []
+        description = ""
+        for desc in descriptions:
+            if isinstance(desc, dict) and str(desc.get("lang") or "").lower() == "en":
+                description = str(desc.get("value") or "").strip()
+                break
+        if not description and descriptions:
+            description = str(descriptions[0].get("value") or "").strip()
+
+        entry = {
+            "id": cve_id,
+            "title": str(cna.get("title") or "").strip(),
+            "cna": str(cna.get("providerMetadata", {}).get("shortName") or "").strip(),
+            "published_date": str(metadata.get("datePublished") or "").strip(),
+            "severity": severity,
+            "description": description,
+            "affected_products": _record_affected_products(record),
+            "web_link": f"https://www.cve.org/CVERecord?id={cve_id}",
+        }
+        cves.append(entry)
+        if severity in {"HIGH", "CRITICAL"}:
+            high_severity_cves.append(entry)
+
+    return {
+        "status": "ok",
+        "source_package": pkg,
+        "matched_terms": matched_terms,
+        "cves": cves,
+        "high_severity_cves": high_severity_cves,
+        "total_cve_count": len(cves),
+    }
 
 
 @adapter(AdapterID.UBUNTU_CVE_TRACKER)

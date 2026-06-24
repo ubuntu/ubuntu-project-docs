@@ -180,6 +180,30 @@ class UbuntuCVETrackerResult(TypedDict):
     total_cve_count: int
 
 
+class CVEOrgEntry(TypedDict):
+    """Single CVE entry returned from cve.org public search + record fetch."""
+
+    id: str
+    title: str
+    cna: str
+    published_date: str
+    severity: str
+    description: str
+    affected_products: list[str]
+    web_link: str
+
+
+class CVEOrgResult(TypedDict):
+    """Return structure for cve-org adapter."""
+
+    status: str
+    source_package: str
+    matched_terms: list[str]
+    cves: list[CVEOrgEntry]
+    high_severity_cves: list[CVEOrgEntry]
+    total_cve_count: int
+
+
 # ---------------------------------------------------------------------------
 # Host-side adapters — autopkgtest
 # ---------------------------------------------------------------------------
