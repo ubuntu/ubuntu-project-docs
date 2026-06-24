@@ -11,7 +11,7 @@ Each OpenJDK release depends on a specific version of `jtreg<N>` versioned packa
 minimal required version. Run `make -f debian/rules update-control-files` to regenerate `debian/control` and set the version requirement
 of `jtreg<N>` dependency. Ensure that a minimal required version of `jtreg<N>` is available in the target release before backporting OpenJDK.
 
-The jtreg package is maintained on [salsa](https://salsa.debian.org/java-team/jtreg8). It uses an exception from Java policy that allows vendoring of jtreg dependencies.
+The jtreg package is maintained on Salsa: [jtreg8](https://salsa.debian.org/java-team/jtreg8). It uses an exception from Java policy that allows vendoring of jtreg dependencies.
 
 ## Regenerate control files
 
