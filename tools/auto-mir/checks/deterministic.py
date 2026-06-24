@@ -1032,13 +1032,21 @@ def _check_sec_2(ctx, finding: Finding) -> Finding:
 
     debian_rules = packaging.get("debian_rules", "")
     debian_control = packaging.get("debian_control", "")
-    combined_lower = (debian_rules + "\n" + debian_control).lower()
+
+    # Scan non-comment lines only — a comment like '# Do not use User=root' must
+    # not trigger a false positive.
+    def _non_comment_lines(text: str) -> list[str]:
+        return [ln for ln in text.splitlines() if not ln.lstrip().startswith("#")]
+
+    active_lines = "\n".join(
+        _non_comment_lines(debian_rules) + _non_comment_lines(debian_control)
+    ).lower()
 
     # First priority: check for explicit root execution (exact match)
-    if "user=root" in combined_lower:
+    if "user=root" in active_lines:
         # Has root execution; check for mitigations
         mitigations = ["seccomp", "apparmor", "selinux", "capabilities"]
-        has_mitigations = any(m.lower() in combined_lower for m in mitigations)
+        has_mitigations = any(m.lower() in active_lines for m in mitigations)
 
         if has_mitigations:
             finding.status = "not-ok"
@@ -1060,8 +1068,8 @@ def _check_sec_2(ctx, finding: Finding) -> Finding:
 
     # Second: check for non-root indicators
     non_root_indicators = ["user=", "dynamicuser=yes", "droppriv", "drop_privileges"]
-    has_non_root = any(ind.lower() in combined_lower for ind in non_root_indicators)
-    has_nobody = "nobody" in combined_lower
+    has_non_root = any(ind.lower() in active_lines for ind in non_root_indicators)
+    has_nobody = "nobody" in active_lines
 
     if has_non_root or has_nobody:
         finding.succeed(
@@ -1358,38 +1366,36 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
         return finding
 
     dependencies = dep_analysis.get("runtime_dep_packages", [])
-    debian_control = packaging.get("debian_control", "")
-    debian_rules = packaging.get("debian_rules", "")
 
-    # Check for PAM or authentication libraries
-    pam_patterns = ["libpam", "libpam-", "pam", "gdm", "lightdm", "sddm"]
+    # Tier-1: direct PAM development deps — definitively indicates PAM implementation.
+    _PAM_DEV_PATTERNS = ("libpam-dev", "libpam0g-dev", "libpam-abi")
+    # Tier-2: direct PAM runtime library — likely PAM usage (medium confidence).
+    _PAM_RUNTIME_DIRECT = ("libpam0g",)
+    # Tier-0: system-level PAM meta-packages that nearly every service depends on
+    # transitively — NOT a signal of direct PAM usage.
+    _PAM_SYSTEM_META = ("libpam-runtime", "libpam-modules", "libpam-modules-bin")
 
     for dep in dependencies:
-        if any(p in dep.lower() for p in pam_patterns):
-            # Make sure it's not a system service (which may have PAM modules)
-            if not any(x in dep.lower() for x in ["session", "client", "common"]):
-                finding.fail(
-                    f"PAM authentication dependency found: {dep}",
-                    "does not deal with system authentication (eg, pam), etc)",
-                    severity="required",
-                    confidence="medium",
-                )
-                finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
-                return finding
-
-    # Check for pam_* function patterns in source
-    pam_function_patterns = ["pam_", "pam_authenticate", "pam_acct", "pam_open_session"]
-    combined_source = (debian_control + "\n" + debian_rules).lower()
-
-    for pattern in pam_function_patterns:
-        if pattern.lower() in combined_source:
+        dep_lower = dep.lower()
+        if any(dep_lower == meta for meta in _PAM_SYSTEM_META):
+            continue
+        if any(pat in dep_lower for pat in _PAM_DEV_PATTERNS):
             finding.fail(
-                f"PAM function usage detected: {pattern}",
+                f"Direct PAM development dependency found: {dep}",
                 "does not deal with system authentication (eg, pam), etc)",
                 severity="required",
-                confidence="low",
+                confidence="high",
             )
-            finding.evidence_refs = ["packaging-source:debian_rules"]
+            finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
+            return finding
+        if any(dep_lower == pat for pat in _PAM_RUNTIME_DIRECT):
+            finding.fail(
+                f"PAM runtime library dependency found: {dep} — verify it does not handle auth",
+                "does not deal with system authentication (eg, pam), etc)",
+                severity="required",
+                confidence="medium",
+            )
+            finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
             return finding
 
     finding.succeed(

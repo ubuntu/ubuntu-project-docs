@@ -1407,6 +1407,24 @@ def test_sec_2_root_no_mitigations():
     assert result.severity == "required"
 
 
+def test_sec_2_root_in_comment_no_trigger():
+    """Test SEC-2 when 'User=root' appears only in a comment line."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "# Do not set User=root\nUser=daemon",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("SEC-2", mode="deterministic")
+    result = checks.deterministic._check_sec_2(ctx, finding)
+
+    # comment line must not trigger the root check; User=daemon satisfies non-root
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
 def test_urf_3_no_escalation():
     """Test URF-3 when no privilege escalation found."""
     ctx = _Ctx()
@@ -1686,7 +1704,7 @@ def test_sec_10_no_pam():
 
 
 def test_sec_10_pam_found():
-    """Test SEC-10 when PAM dependency found."""
+    """Test SEC-10 when direct PAM runtime library found (libpam0g)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["dep-analysis"] = {
         "status": "ok",
@@ -1705,6 +1723,49 @@ def test_sec_10_pam_found():
     assert result.status == "not-ok"
     assert result.severity == "required"
     assert "pam" in result.message.lower()
+
+
+def test_sec_10_pam_dev_triggers():
+    """Test SEC-10 when libpam-dev found (direct PAM development dep)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "runtime_dep_packages": ["libc6", "libpam-dev"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("SEC-10", mode="deterministic")
+    result = checks.deterministic._check_sec_10(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert result.confidence == "high"
+
+
+def test_sec_10_pam_runtime_meta_no_trigger():
+    """Test SEC-10 when only system PAM meta-packages present (no direct auth usage)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["dep-analysis"] = {
+        "status": "ok",
+        "runtime_dep_packages": ["libc6", "libpam-runtime", "libpam-modules"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Package: myapp",
+        "debian_rules": "dh_auto_build",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("SEC-10", mode="deterministic")
+    result = checks.deterministic._check_sec_10(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
 
 
 def test_urf_8_not_ui_package():
