@@ -1,7 +1,7 @@
 (technical-board)=
 # Technical Board
 
-In the [governance structure of Ubuntu](https://ubuntu.com/community/docs/governance#p-83779-governance-structure) the Ubuntu Technical Board is a [delegated team](https://ubuntu.com/community/docs/governance#p-83779-governance-structure) responsible for architectural and technical decisions in Ubuntu. They set the standards required for packaging and integration with Ubuntu, as well as signing off on the release process and goals, and are ultimately responsible for granting official status and access rights to developers.
+In the {ref}`governance structure of Ubuntu <governance-structure>` the Ubuntu Technical Board is a delegated team responsible for architectural and technical decisions in Ubuntu. They set the standards required for packaging and integration with Ubuntu, as well as signing off on the release process and goals, and are ultimately responsible for granting official status and access rights to developers.
 
 The Technical Board makes final decisions on package selection, packaging policy, installation systems and processes, toolchain, kernel, X server, display management, library versions and dependencies. The board works with relevant teams to establish a consensus on the right path to take, especially where diverse elements of Ubuntu cannot find consensus on shared components.
 
