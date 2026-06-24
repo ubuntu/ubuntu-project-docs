@@ -15,7 +15,7 @@ The Technical Board is responsible for the following documents and processes:
 
 * Ubuntu Package Selection, the list of packages that will be installed in a base or desktop Ubuntu installation, as well as the list of packages that qualify for full support in main as opposed to universe. You may propose packages for inclusion in the base install, or the desktop install, or in main where they will be immediately available to Ubuntu users.
 
-* If no policy or delegation exists, or if technical consensus cannot be reached, the Technical Board (TB) can be asked for an exception or decision. In line with the [Code of Conduct](https://ubuntu.com/community/docs/ethos/code-of-conduct), escalation to the TB should be exceptional. The process is to ask.
+* If no policy or delegation exists, or if technical consensus cannot be reached, the Technical Board (TB) can be asked for an exception or decision. In line with the {ref}`code-of-conduct`, escalation to the TB should be exceptional. The process is to ask.
 
 The Ubuntu Technical Board operates on the following basis:
 
