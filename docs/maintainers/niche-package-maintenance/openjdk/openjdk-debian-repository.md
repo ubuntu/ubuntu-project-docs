@@ -3,7 +3,7 @@
 
 OpenJDK packaging code is maintained on [Salsa](https://salsa.debian.org/openjdk-team/openjdk).
 
-## Repository Access
+## Repository access
 
 To contribute to OpenJDK packaging, clone the repository from Salsa:
 
