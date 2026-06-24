@@ -17,7 +17,7 @@ The jtreg package is maintained on Salsa: [jtreg8](https://salsa.debian.org/java
 
 OpenJDK `debian/rules` provides `update-control-files` target that regenerates files using the current Debian or Ubuntu release. Ensure that `lsb_release` is installed so that the target can determine the current release.
 
-```bash
+```
 $ lsb_release --codename && make -f debian/rules update-control-files
 ```
 
