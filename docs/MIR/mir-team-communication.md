@@ -1,10 +1,35 @@
-(mir-team-meeting)=
-# MIR team weekly status meeting
+(mir-team-communication)=
+# MIR team communication
 
-The {ref}`MIR Team <about-mir-role>` holds weekly meetings for 30 minutes
+```{include} _mir-series.md
+```
+
+
+
+
+(mir-reaching-the-team)=
+## MIR reaching the team
+
+Preferably join and participate in the weekly {ref}`mir-team-meeting`
+where you can raise issues or discuss your case with the whole team.
+
+At other times, but with no guarantee that a majority of the team will
+be available, you might join and ask in the
+[Ubuntu Main inclusion requests](https://matrix.to/#/#ubuntu-mir:ubuntu.com)
+channel.
+
+(mir-team-meeting)=
+## MIR team meeting
+
+The {ref}`MIR Team <main-inclusion-review>` holds weekly meetings for 30 minutes
 every Tuesday at <time datetime="T16:30+01:00">16:30 CET</time> on the
 {ref}`Ubuntu Matrix Server <matrix-index>`
 in the {matrix}`Ubuntu Main inclusion requests <ubuntu-mir>` channel.
+
+If you have a request or issue to discuss, it is highly recommended to
+join and participate in this weekly meeting. You should also attend these
+meetings if you submit an {ref}`MIR request <mir-submit-bug>`,
+until it is approved or rejected.
 
 The purpose of the meeting is:
 
@@ -12,11 +37,8 @@ The purpose of the meeting is:
 * to provide a timely response to reporters of MIR requests
 * to detect and discuss any current or complex cases
 
-You should attend these meetings if you submit an {ref}`MIR request <mir-submit-bug>`,
-until it is approved or rejected.
-
 Due to the nature of the
-[Ubuntu Development Process](https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/2.0-preview/explanation/development-process/),
+{ref}`Ubuntu Development Process <release-cycle>`,
 there are times (e.g. close to Feature Freeze) when this meeting is busy and
 others (e.g. right after a new release) when it is quieter. Consequently,
 response times along the {ref}`MIR process <mir-process-overview>` are
@@ -31,7 +53,7 @@ If you're chairing the meeting, you can use the following template:
 ```
 # Start of the Main inclusion request team meeting
 Welcome to the MIR Team's weekly meeting
-General rules and the process description can be found at https://documentation.ubuntu.com/project/MIR/main-inclusion-review
+General rules and the process description can be found at https://documentation.ubuntu.com/project/MIR/main-inclusion-review and this meeting template can be found at https://documentation.ubuntu.com/project/MIR/mir-team-meeting/#mir-team-meeting
 Ping for MIR meeting members - @didrocks:matrix.org @joalif:matrix.org @seth-arnold:ubuntu.com @paelzer:ubuntu.com @mylesjp:matrix.org @pushkarnk:matrix.org ( @dviererbe:ubuntu.com )
 
 ## Topic 1/7: Awareness of external agenda items

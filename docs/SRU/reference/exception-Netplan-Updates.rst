@@ -66,7 +66,7 @@ Merges
 ------
 
 Updates to `netplan master
-branch <http://github.com/canonical/netplan>`__ go through the following
+branch <https://github.com/canonical/netplan>`__ go through the following
 process:
 
 -  Reviewed and approved by a member of the development team

@@ -1,6 +1,11 @@
 (dmb-application)=
 # Developer Membership application process
 
+```{include} ../_dmb-series.md
+```
+
+
+
 ```{toctree}
 :titlesonly:
 :hidden:
@@ -19,32 +24,28 @@ To understand how the Ubuntu development skills map to the various uploader leve
 
 ## Application process overview
 
-Reserve your spot
-: Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see when the DMB next meeting is, and to check the queue of applications.
-: Only a few applications are considered each meeting so if there's a queue, make sure to reserve a spot for when you think you'll be ready for consideration.
-: Applications to {ref}`Ubuntu Contributing Developers <dmb-joining-contributing>` are handled only via the mailing list, therefore no agenda entry is needed for those (the DMB will vote as replies to your post to the `devel-permissions@` mailing list).
-
-Create your space
-: If it's your first time applying for upload rights, {ref}`dmb-create-a-discourse-post`. If you already have a page, you can
-  reuse it.
-
 Training and preparation
-: The depth of your learning here depends on the upload rights you are applying
-  for:
-: 1. {ref}`PPU or packageset <packageset-training-and-preparation>`
-: 1. {ref}`MOTU <motu-training-and-preparation>`
-: 1. {ref}`Core Developer <core-dev-training-and-preparation>`
+: The depth of your required learning depends on the upload rights you are applying for:
+  * {ref}`PPU or packageset <packageset-training-and-preparation>`
 
-Prepare application form
-: {ref}`dmb-prepare-application-form` on your Discourse post.
+  * {ref}`MOTU <motu-training-and-preparation>`
+
+  * {ref}`Core Developer <core-dev-training-and-preparation>`
+
+Create your Application on Discourse
+: {ref}`dmb-create-a-discourse-post` to hold the details about you in the context of the Ubuntu project.
+: Note: If you already have a post from a former application, you can reuse it.
 
 Collect endorsements
 : {ref}`dmb-collect-endorsements` from those who have worked with you.
 
-Once you have enough endorsements
-: If you haven't already, add yourself to the [DMB agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634).
-: Then you can announce your application and meeting date by writing an email to the `devel-permissions@` mailing list. Your email should include:
+Once you have enough endorsements - Reserve your agenda spot
+: Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see upcoming DMB meetings.
+: Only one application can be considered each meeting.
+: Note: Applications to {ref}`Ubuntu Contributing Developers <dmb-joining-contributing>` are handled only via the mailing list, therefore no agenda entry is needed for those (the DMB will vote as replies to your post to the `devel-permissions@` mailing list).
 
+Once you have an agenda spot - announce your application
+: Announce your application and selected meeting date by writing an email to the `devel-permissions@` mailing list. Your email should include:
   * The link to your Discourse application page
 
   * The date you reserved for your meeting
@@ -52,39 +53,19 @@ Once you have enough endorsements
   * A link to the meeting agenda
 
 Attend your meeting
-: Then you can {ref}`attend your meeting <dmb-application-meeting>`, answer questions, and receive your votes.
+: Then {ref}`attend your meeting <dmb-application-meeting>`, answer questions, and receive your votes.
 
 
 (dmb-create-a-discourse-post)=
 ## Create a Discourse post
 
-Create a dedicated Discourse page for your application in the [Developer Membership section](https://discourse.ubuntu.com/c/community/developer-membership/423), using the [Developer Application Template](https://discourse.ubuntu.com/t/developer-application-template/66670).
+Create (or update) a dedicated Discourse page for your application in the [Developer Membership section](https://discourse.ubuntu.com/c/community/developer-membership/423).
 
-On this page you should (at least):
-
-* Introduce yourself and your past Ubuntu-related work
-
-* Include a "Contact Information" section with
-
-  * Your Matrix nickname
-
-  * Your Launchpad ID
-
-You can look at other people's pages for ideas of other things you can include.
-You'll be reusing this text in your membership applications later.
-
-
-(dmb-prepare-application-form)=
-## Prepare your application form
-
-In your {ref}`personal Discourse page <dmb-create-a-discourse-post>`, copy and paste the [Developer Application Template](https://discourse.ubuntu.com/t/developer-application-template/66670) and add your details in each section.
-
-Specify in your post title what upload rights you're applying for.
+The content of this page you should follow the [Developer Application Template](https://discourse.ubuntu.com/t/developer-application-template/66670)
 
 ```{note}
-You can look at [past Wiki applications](https://wiki.ubuntu.com/Home?action=fullsearch&context=180&value=DeveloperApplication&titlesearch=Titles) such as [{spellexception}`Paride`'s](https://wiki.ubuntu.com/ParideLegovini/UbuntuServerDeveloperApplication) or check out the Discourse [Ubuntu Membership section](https://discourse.ubuntu.com/c/community/membership/93) if you need some examples.
+You can look at [past applications](https://discourse.ubuntu.com/c/community/developer-membership/423) if you need some examples.
 ```
-
 
 (dmb-collect-endorsements)=
 ## Collect endorsements
@@ -136,6 +117,11 @@ To exercise this process, the Debian Developer should first be an existing Ubunt
 Subsequent changes are requested by mailing `devel-permissions@lists.ubuntu.com` listing the packages to add. This only requires one DMB member to agree in order to pass.
 If the "impact" of the packages changes -- for example, one of the packages is part of release media for the first time -- the DMB may wish to ask some further clarifying questions to satisfy itself that the Debian Developer is sufficiently familiar with the differences between Ubuntu and Debian to upload the package(s) in question without supervision.
 
+```{note}
+In Debian, there are some teams who maintain hundreds or even thousands of packages (e.g., the Python team owns over 3000 packges).
+If you as a Debian Developer decide you want upload rights for such a large a set of packages, for which a package set does not exist in Ubuntu, please consider applying for MOTU or Core Developer instead of using the policy described here.
+You may also want to go through another application if the usage of this policy would drastically increase the number of packages you have upload rights to. For instance, if you have Per-Package Upload rights to a single Go package, it may not be reasonable to use this policy to request access to all Debian Golang team packages given you are part of the Debian Golang team. When in doubt, please reach out to the DMB.
+```
 
 
 ## Applying for upload permissions which grant no further access

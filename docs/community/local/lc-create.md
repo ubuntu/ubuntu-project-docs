@@ -72,7 +72,7 @@ Once your event is created and listed on the Community Portal, don't forget to s
 ### Share your successes
 
 After you've hosted or taken part in an event, be sure to let the community hear all about it.
-Consider posting a topic on the Ubuntu Discourse, either in the [Events section](https://discourse.ubuntu.com/c/events/11) or under your Local Community, with a recap of everything you did, learned and experienced.
+Consider posting a topic on the Ubuntu Discourse, either in the [Events section](https://discourse.ubuntu.com/c/community/events/11) or under your Local Community, with a recap of everything you did, learned and experienced.
 Don't forget to use the **`#event-report`** tag and add any pictures or videos you may have snapped while you were there!
 
 
@@ -85,7 +85,7 @@ Once you've successfully held a few events and have demonstrated a strong degree
 Gaining verified status will allow you to request Ubuntu swag, funds for traveling and possible invitations to future Ubuntu events.
 Note that the council will look at activity on the Ubuntu Discourse (event reports, general conversations) to determine if your team is eligible, so it's important to be active on that platform.
 
-To request verification for your local community, post a topic with the title "Verification Request - LOCAL COMMUNITY NAME" in the [LoCo Support category](https://discourse.ubuntu.com/c/locos/loco-support/156) on Discourse.
+To request verification for your Local Community, post a topic with the title "Verification Request - LOCAL COMMUNITY NAME" in the [Local Community Support category](https://discourse.ubuntu.com/c/community/circles/circle-support/156) on Discourse.
 
 
 ### UbuCons

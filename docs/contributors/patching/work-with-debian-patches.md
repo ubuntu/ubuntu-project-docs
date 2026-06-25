@@ -59,7 +59,7 @@ $ git checkout path/to/file1 path/to/file2
 (the-patchfile-header)=
 ## The patchfile header
 
-The patchfile must have [a DEP3 header](http://dep.debian.net/deps/dep3). The
+The patchfile must have [a DEP3 header](https://dep-team.pages.debian.net/deps/dep3/). The
 basic structure is:
 
 ```text
@@ -74,7 +74,7 @@ Applied-Upstream: <version|URL|commit, identifies patches merged upstream, optio
 Reviewed-by: <name and email of a reviewer, optional>
 Last-Update: 2018-05-10 <YYYY-MM-DD, last update of the meta-information, optional>
 ---
-This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+This patch header follows DEP-3: https://dep-team.pages.debian.net/deps/dep3//
 ```
 
 Description

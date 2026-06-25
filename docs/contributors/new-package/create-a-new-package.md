@@ -2,7 +2,7 @@
 # How to create a new package
 
 While there are thousands of packages in the Ubuntu archive, there are still a lot nobody has gotten to yet.
-If there is an exciting new piece of software that you feel needs wider exposure, maybe you want to try your hand at creating a package for Ubuntu [or a PPA](https://help.launchpad.net/Packaging/PPA).
+If there is an exciting new piece of software that you feel needs wider exposure, maybe you want to try your hand at creating a package for Ubuntu [or a PPA](https://documentation.ubuntu.com/launchpad/user/Packaging/PPA/).
 This guide will take you through the steps of packaging new software.
 
 You should read the {ref}`Getting set up <how-to-set-up-for-ubuntu-development>` article first to prepare your development environment.
@@ -147,6 +147,7 @@ override_dh_auto_clean:
         [ -f Makefile ] || ./configure
         dh_auto_clean
 ```
+
 :::
 
 You can view the contents of the package with:
@@ -245,6 +246,6 @@ Once you have uploaded a package to debian, you should add screenshots to allow 
 
 To get a screenshot for software-center, use [screenshots.debian.net](https://screenshots.debian.net/packages).
 
-You can use the same tool to [upload your screenshots](https://screenshots.debian.net/upload).
+You can use the same tool to [upload your screenshots](https://screenshots.debian.net/packages).
 
 

@@ -1,6 +1,13 @@
 (mir-rust)=
 # MIR - Rust code in main
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 Due to the current state of the Rust ecosystem, the MIR rules state that
 packages in main that contain Rust code should vendor their Rust dependencies
 rather than rely on the individual package versions.
@@ -293,6 +300,7 @@ ensure that system-wide cryptographic policies are followed as described by the 
 reporter's rule {ref}`"Check for security relevant binaries, services and behavior" <mir-reporters-template>`.
 
 ### OpenSSL crate configuration
+
 The [`openssl` crate](https://docs.rs/openssl/latest/openssl/) provides a safe Rust
 interface for the system OpenSSL package.  The `vendored` Cargo feature MUST NOT
 be used to ensure that the system OpenSSL package and corresponding policy are used.

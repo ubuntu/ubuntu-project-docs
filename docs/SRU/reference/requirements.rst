@@ -40,6 +40,8 @@ Stable release updates will, in general, only be issued in order to fix
    -  A library for a web service needs to be updated for changes to the
       web server API.
 
+.. _sru-other-safe-cases:
+
 Other safe cases
 ^^^^^^^^^^^^^^^^
 
@@ -115,7 +117,7 @@ For upstreams who have
 -  the tests are covering both functionality and API/ABI stability,
 -  the tests run during package build to cover all architectures,
 -  the package has an
-   `autopkgtest <http://packaging.ubuntu.com/html/auto-pkg-test.html>`__
+   :ref:`autopkgtest <automatic-package-testing-autopkgtest>`
    to run the tests in an Ubuntu environment against the actual binary
    packages,
 

@@ -73,7 +73,7 @@ The following review procedure is recommended:
    -  If something is wrong: send the feedback to the bug and set the
       task to "Incomplete"
 
-The `pending SRUs <http://people.canonical.com/~ubuntu-archive/pending-sru>`__ should
+The `pending SRUs <https://ubuntu-archive-team.ubuntu.com/pending-sru>`__ should
 also be reviewed to see whether or not there are any to be released or
 removed from the archive. The process for dealing with these follows:
 
@@ -92,7 +92,7 @@ package to -security ping a member of the
 `ubuntu-security <https://launchpad.net/~ubuntu-security/+members>`__
 team.
 
--  `Currently pending SRUs <http://people.canonical.com/~ubuntu-archive/pending-sru.html>`__
+-  `Currently pending SRUs <https://ubuntu-archive-team.ubuntu.com/pending-sru.html>`__
 
 If a package should be removed from -proposed, use the ``remove-package``
 tool (from ``ubuntu-archive-tools``). e.g., to remove source and binaries

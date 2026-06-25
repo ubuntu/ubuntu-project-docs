@@ -22,6 +22,14 @@ Once we have :command:`git-ubuntu` installed, use it to fetch the source code fo
     $ git-ubuntu clone hello
     $ cd hello/
 
+To eventually build or upload our changed package, we also need the tarball containing the original upstream source code:
+
+.. prompt:: none $ auto
+
+    $ git-ubuntu export-orig
+
+This puts the tarball in the parent directory, at `../hello_2.10.orig.tar.gz`. Most ecosystem tools expect orig tarballs placed one directory up like this, so don't move it.
+
 We are using some tools from the :pkg:`ubuntu-dev-tools` package. Install it with:
 
 .. prompt:: none $ auto
@@ -382,7 +390,7 @@ Next steps
 From here, there are many options for testing our patch before proposing the change in a merge proposal:
 
 * Build and test the package locally using :command:`sbuild` and :command:`autopkgtest`.
-* Upload to a PPA and test from there.
+* :ref:`Upload to a PPA <merge-create-a-ppa>` and test from there.
 
 Once you feel confident that the patch is working correctly, open a merge proposal and request :ref:`sponsorship` for your change.
 

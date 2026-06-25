@@ -69,7 +69,7 @@ Bind9 contains a set of build and code tests which are executed for each
 commit and release via `GitHub
 Actions <https://github.com/isc-projects/bind9/actions>`__.
 `CodeQL <https://codeql.github.com/>`__ and
-`SonarCloud <https://www.sonarsource.com/products/sonarcloud/>`__ are
+`SonarCloud <https://www.sonarsource.com/products/sonarqube/cloud/>`__ are
 used to build bind9 and check for vulnerabilities in the code. Upstream
 tests and additional builds are also run via `GitLab
 pipelines <https://gitlab.isc.org/isc-projects/bind9/-/pipelines>`__.
@@ -183,14 +183,14 @@ Here is a log of known regressions.
    These were reported in both Debian and Ubuntu:
 
    -  segfault: https://lists.debian.org/debian-security-announce/2024/msg00146.html,
-      https://bugs.debian.org/1077281, https://bugs.debian.org/1074378.
+      https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1077281, https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1074378.
       Ubuntu not affected because we don't link with jemalloc
 
    -  removal of SIG(0) (this removal is the actual CVE fix):
-      https://bugs.debian.org/1077653
+      https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1077653
 
    -  Deprecated options now finally removed:
-      https://bugs.debian.org/1077512. Reporter seems to be using ubuntu
+      https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1077512. Reporter seems to be using ubuntu
       packages, though.
 
    -  `LP: #2075542 Missing binaries, new DNSSEC

@@ -1,7 +1,12 @@
 (dmb-restaffing)=
 # DMB restaffing
 
-See [Governance docs: DMB selection process](https://canonical-ubuntu-governance-docs.readthedocs-hosted.com/en/latest/policy/dmb-selection-process/) for details on how new {ref}`dmb` members are appointed.
+```{include} ../_dmb-series.md
+```
+
+
+
+See {ref}`Governance docs: DMB selection process <dmb-selection-process>` for details on how new {ref}`dmb` members are appointed.
 
 
 ## Checklist after new DMB appointments

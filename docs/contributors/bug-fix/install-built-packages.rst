@@ -16,7 +16,7 @@ You can use the :manpage:`apt(8)`, :manpage:`apt-get(8)`, or :manpage:`dpkg(1)` 
 
     :manpage:`dpkg(1)` is a package manager for :term:`Debian`-based systems. It can install, remove, and build packages, but unlike the :term:`APT` package management systems, it cannot automatically download and install packages or their dependencies.
 
-    See the :external+ubuntu-server:doc:`how-to/software/package-management` article from the :term:`Ubuntu Server` documentation for more details.
+    See the `package management <https://ubuntu.com/server/docs/how-to/software/package-management/>`_ article from the Ubuntu Server documentation for more details.
 
 .. _install-deb-files:
 

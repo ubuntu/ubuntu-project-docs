@@ -241,10 +241,10 @@ this. Where no revision control system is used, the history of uploads recorded
 in [Launchpad](https://launchpad.net/ubuntu/+search) may be useful.
 
 
-### Ubuntu Flavors and derivative distributions
+### Ubuntu flavors and derivative distributions
 
 The Ubuntu project produces several distributions each release cycle. These are
-sometimes called "Flavours". Kubuntu, Edubuntu, and Xubuntu are all maintained
+sometimes called "flavors". Kubuntu, Edubuntu, and Xubuntu are all maintained
 directly in the Ubuntu Archive. There are also a large number of derivative
 distributions that are based on the Ubuntu Archive, but separately developed.
 
@@ -284,9 +284,7 @@ so please be considerate.
 
 [Ubuntu Developers' Tools Installation Quick Start](https://wiki.ubuntu.com/BeginnersTeam/FocusGroups/Development/Devbeginnings)
 
-You will find some tools explained in the {ref}`how-to-contribute`, also from
-Gutsy on, you will find `ubuntu-dev-tools` in the Archive, which contains
-[tools for developing Ubuntu](https://wiki.ubuntu.com/UbuntuDevTools).
+Tools for contributors are explained in the {ref}`guides-for-contributors`. There's also the {pkg}`ubuntu-dev-tools` package in the Archive, which contains useful scripts for Ubuntu developers. See [Ubuntu Developer Tools](https://launchpad.net/ubuntu-dev-tools) on Launchpad.
 
 
 ### New packages

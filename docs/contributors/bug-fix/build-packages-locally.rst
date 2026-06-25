@@ -3,72 +3,146 @@
 How to build packages locally
 =============================
 
-In Ubuntu, packages can be built in several ways, depending on the intended artifacts. This article describes local building using the following methods:
+.. note::
 
-* Source and binary (using ``dpkg-buildpackage``)
-* Source and binary (using ``sbuild`` for a clean environment)
-* Binary-only (using ``sbuild`` for a clean environment)
-* Source-only (using ``debuild``)
-* Binary-only (using ``debuild`` and installed build dependencies)
+        This is about building an existing package locally. If you want to
+        build a new package, please refer to
+        :ref:`how-to-create-a-new-package`.
 
-(Many other backends are available, including an ``schroot``-based backend.)
+In Ubuntu, packages can be built in several ways, depending on the intended
+artifacts. The standard and recommended way to build packages for Ubuntu is
+with ``dpkg-buildpackage`` and ``sbuild``. This ensures that the build
+dependencies are properly declared and that the resulting package is
+reproducible.
 
-Only source uploads are permitted to PPAs or the Archive. That said, it is best practice to perform a local build and fix any potential issues before uploading it to any Archive.
+``dpkg-buildpackage`` is used to build **source-only** packages.
 
-To let the Launchpad infrastructure build packages for you, see :ref:`how-to-build-packages-in-a-ppa`.
+``sbuild`` is used to build **binary-only** and **source** + **binary**
+packages.
+
+PPAs and the Archive permit exclusively **source-only** package uploads,
+however it is best practice to first perform a local **binary** build and fix
+any potential issues before uploading.
+
+To let the Launchpad infrastructure build packages for you, see
+:ref:`how-to-build-packages-in-a-ppa`.
 
 
 Prerequisites
 -------------
 
-.. code-block:: none
+Complete the following sections from :ref:`how-to-set-up-for-ubuntu-development`:
 
-    $ sudo apt install dpkg-dev sbuild debhelper ubuntu-dev-tools
+* :ref:`ubuntu-development-dependencies` - install the dependencies for Ubuntu
+  development
+* :ref:`configure-groups` - setup your user groups for Ubuntu development
+* :ref:`sbuild` - setup ``sbuild``
 
-All of the following sections assume you have already fetched the packaging (see :ref:`how-to-get-the-source-of-a-package`) and are in the same directory as the :file:`debian/` sub-directory.
+
+Fetching the package source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`how-to-get-the-source-of-a-package` for instructions on how to fetch the source of a package. You need the source to build it locally.
 
 
-.. _build-with-dpkg-buildpackage:
+.. _building-packages:
 
-Build with ``dpkg-buildpackage``
---------------------------------
+Building packages
+-----------------
 
-To build the source from within the package repository:
-
-.. code-block:: none
-
-    $ dpkg-buildpackage -S -I -i -nc -d
-
-**Used options:**
-
-``-S`` (``--build=source``):
-  Build a source (``.dsc``, ``.changes``).
-
-``-I`` (``--tar-ignore``):
-  For the created tarball, filter out control files and directories of the most common revision control systems, backup and swap files, and Libtool build output directories.
-
-``-i`` (``--diff-ignore``):
-  Like ``--tar-ignore`` but for the ``diff``.
-
-``-nc`` (``--no-pre-clean``):
-  Do not clean the tree before building.
-
-``-d`` (``--no-check-builddeps``):
-  Do not check build dependencies and conflicts (the check is not unnecessary for source builds).
-
-When building a package based on a ``git-ubuntu`` branch for an upload to the Ubuntu Archive, add the output of ``git ubuntu prepare-upload args``, which adds the arguments to allow ``git-ubuntu`` to properly reference this on importing the new version - thereby retaining the history of your branch.
-
-Build for an upload to the Archive:
+Issue ``sbuild`` build commands from the source package directory that contains
+:file:`debian/`:
 
 .. code-block:: none
 
-    $ dpkg-buildpackage -S -I -i -nc -d $(git ubuntu prepare-upload args)
+    $ cd <package>/debian/
+
+``sbuild`` allows for targeting builds towards specific releases of Ubuntu. This is useful for testing builds in the same environment as the intended upload target.
+
+Specify the release using the ``--dist=`` (``-d``) option:
+
+.. code-block:: none
+
+    $ sbuild --dist=<RELEASE>
+
+where ``<RELEASE>`` is the name of the Ubuntu release (e.g. ``resolute``).
+
+.. tip::
+
+    If you have set a default distribution in :file:`~/.config/sbuild/config.pl`, you can omit the ``-d`` option to build for the default release.
 
 
-Sign the ``changes`` file
+Building binary-only packages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, ``sbuild`` builds a **binary-only** package. Run the following command to build a binary package for a specific release:
+
+.. code-block:: none
+
+    $ sbuild --dist=<RELEASE>
+
+This produces architecture-specific binary packages without generating a source package and is mostly useful for packages you need to test locally.
+
+
+Building source-only packages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To build a **source-only** package for a specific release, the current
+recommended practice is to use ``dpkg-buildpackage`` instead of ``sbuild``:
+
+.. code-block:: none
+
+    $ dpkg-buildpackage --build=source --no-check-builddeps --no-pre-clean
+
+The flags used have the following meaning:
+
+* ``--build=source`` (``-S``): source-only build
+* ``--no-check-builddeps`` (``-d``): do not check build dependencies
+* ``--no-pre-clean`` (``-nc``): do not clean the source tree before build
+
+
+Building both source and binary packages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To build both **source** and **binary** packages for a specific release, use the ``--source`` (``-s``) option:
+
+.. code-block:: none
+
+    $ sbuild --source --dist=<RELEASE>
+
+.. note::
+
+    Launchpad rejects uploads that contain both binaries and sources.
+
+
+Useful ``sbuild`` options
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order for a source package to be accepted by Launchpad, it must be signed. If your GPG keys are properly installed, `dpkg-buildpackage` may automatically sign the package. If not, sign the source package manually with ``debsign``:
+Parallel building:
+  To speed up the build, set the ``parallel`` option through the ``DEB_BUILD_OPTIONS`` environment variable. For example:
+
+  .. code-block:: none
+
+      $ DEB_BUILD_OPTIONS="parallel=3" sbuild --chroot <RELEASE>-<ARCH>[-shm]
+
+Run :term:`lintian` after the build:
+  .. code-block:: none
+
+     --run-lintian [--lintian-opts="-vIiL +pedantic"]
+
+Large package linting:
+  Some large packages take a long time to lint. To avoid :term:`lintian` after
+  the build:
+
+  .. code-block:: none
+
+     --no-run-lintian
+
+
+Signing the ``changes`` file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For a source package to be accepted by Launchpad, it must be signed. If you specify ``key_id`` in your ``sbuild`` configuration, this is used. Otherwise, sign the source package manually with the ``debsign`` tool:
 
 .. code-block:: none
 
@@ -85,136 +159,77 @@ In order for a source package to be accepted by Launchpad, it must be signed. If
         $ debsign "../${source_package}_${version}_source.changes
 
 
+Advanced usage
+--------------
 
-Build with ``sbuild``
----------------------
+In some cases, builds may be more complex and require additional configuration. For example, you may need to build for a different architecture or use locally built dependencies.
 
-This is the standard way of building a package for Ubuntu. All of the Debian and Ubuntu infrastructure use :manpage:`sbuild(1)`. For more information on setting it up, see :ref:`sbuild`.
 
-Consider
+Building for a different architecture (cross-building)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To do a binary-only build of a package using ``sbuild``, run:
+.. dropdown:: Without ``unshare`` (additional setup required)
 
-.. code-block:: none
+   Building for a different architecture without ``unshare`` requires using an emulated schroot. To setup an emulated schroot, use the ``mk-sbuild`` command from the ``ubuntu-dev-tools`` package.
 
-    $ sbuild --chroot <RELEASE>-<ARCH>[-shm]
+   Install ``ubuntu-dev-tools``:
 
-**Useful options:**
+   .. code-block:: none
 
-Distribution:
-  It is possible to use ``--dist`` (``-d``) to specify the distribution for the build instead of ``--chroot``, which explicitly selects the chroot to use, but that causes the produced files to contain the entire chroot name (``<RELEASE>-<ARCH>[-shm]``) instead of just ``<RELEASE>``. An example chroot name is ``noble-amd64-shm``.
+       $ sudo apt install ubuntu-dev-tools
 
-Parallel building:
-  To speed up the build, set the ``parallel`` option through the ``DEB_BUILD_OPTIONS`` environment variable. For example:
+   Then, create the schroot with the ``mk-sbuild`` command:
 
-  .. code-block:: none
+   .. code-block:: none
 
-      $ DEB_BUILD_OPTIONS="parallel=3" sbuild --chroot <RELEASE>-<ARCH>[-shm]
+       $ mk-sbuild --arch=<ARCH> <RELEASE>
 
-Shell in the chroot:
-  To get a shell inside of the chroot (e.g. to investigate build failures), use the ``--build-failed-commands`` option. For example:
+   where ``<ARCH>`` is the *target* architecture (e.g. ``arm64``).
 
-  .. code-block:: none
-
-      $ sbuild --chroot <RELEASE>-<ARCH>[-shm] \
-               --build-failed-commands=%SBUILD_SHELL
-
-Run :term:`lintian` after the build:
-  .. code-block:: none
-
-      $ sbuild -c <RELEASE>-<ARCH>[-shm] \
-               --run-lintian [--lintian-opts="-EvIiL +pedantic"]
-
-Build without running :manpage:`dh_clean(1)`:
-  .. code-block:: none
-
-      $ sbuild -c <RELEASE>-<ARCH>[-shm] --no-clean-source
-
-Build both a binary *and* a source package:
-  .. code-block:: none
-
-      $ sbuild -c <RELEASE>-<ARCH>[-shm] -s
-
-.. note::
-
-    Launchpad rejects uploads that contains both binaries and sources. However, this is required for uploads to the Debian NEW queue. That said, uploads to Debian with binaries `do not migrate to Testing <https://lists.debian.org/debian-devel-announce/2019/07/msg00002.html>`_.
-
-Here is a complete, working example of running :manpage:`autopkgtest(1)` following the build:
+When building with ``sbuild``, specify the target architecture with the ``--arch=`` option:
 
 .. code-block:: none
 
-    $ sbuild -c noble-amd64-shm --run-autopkgtest \
-      --autopkgtest-virt-server=qemu \
-      --autopkgtest-virt-server-opt="/path/to/autopkgtest-noble-amd64.img" \
-      --autopkgtest-opt="--apt-pocket=proposed=src:qt6-base" \
-      --autopkgtest-opt="-U" --autopkgtest-opt="--ram-size=12000" \
-      --autopkgtest-opt="--setup-commands='apt-get -y install aptitude \
-        && aptitude -t noble-proposed -y install qt6-base-dev=6.8.1+dfsg-0ubuntu1'"
-
-.. note::
-
-    Starting with Ubuntu 23.04 (Lunar Lobster), the ``series-proposed`` suite is disabled by default via :manpage:`APT Preferences <apt_preferences(5)>`. This affects schroots created with ``sbuild-launchpad-chroot``, so packages from the ``-proposed`` pocket are not used in the build process (see :lpbug:`1996205`).
+    $ sbuild --arch=<ARCH> --dist=<RELEASE>
 
 
-Build with ``debuild``
-----------------------
+Building for architecture variants
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:manpage:`debuild(1)` (short for :manpage:`dpkg-buildpackage(1)`) is another tool used to build Debian packages. It is part of the :manpage:`debhelper(7)` package and written in Perl.
-
-Ubuntu maintains its own version of the ``debhelper`` package. Therefore, packages built on Debian may be slightly different than packages built on Ubuntu.
-
-
-Source-only builds
-~~~~~~~~~~~~~~~~~~
-
-To build a source package *without* including the upstream tarball, run:
+Some architectures have variants (e.g. ``amd64`` has ``amd64v3``). To build for an architecture variant, specify the variant as an argument to ``--host=``:
 
 .. code-block:: none
 
-    $ debuild -S -d
+    $ sbuild --host=<ARCH_VARIANT> --dist=<RELEASE>
+
+where ``<ARCH_VARIANT>`` is the architecture variant (e.g. ``amd64v3``).
 
 
-**Useful options:**
+Using locally built dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Build a source package *with* the upstream tarball:
-  .. code-block:: none
-
-      $ debuild -S -d -sa
-
-Build a source package without running :term:`lintian`:
-  .. code-block:: none
-
-      $ debuild --no-lintian -S -d
-
-  .. note::
-
-      The ``--no-lintian`` flag only works in this case if it is first.
-
-Build a source package without running :manpage:`dh_clean(1)`:
-  .. code-block:: none
-
-      $ debuild -S -d -nc
-
-  Use this to fix failures regarding missing build dependencies.
-
-
-Local binary-only builds
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-This is really only useful for packages you need to test locally or packages with minimal build dependencies. Otherwise use :manpage:`sbuild(1)`.
-
-To do a binary-only build of a package, run:
+To use a locally built a dependency in your build, specify the path to the
+dependency or a directory of dependencies with the ``--extra-package`` option:
 
 .. code-block:: none
 
-    $ debuild -b
+    $ sbuild --extra-package=/path/to/dependency.deb -d <RELEASE>
+
+To specify extra packages in your ``sbuild`` configuration file:
+
+.. code-block:: perl
+
+    $extra_packages = [
+      # '/path/to/dependency.deb',
+    ];
+
+This way, it is possible to quickly toggle between using the locally built dependency by commenting/uncommenting the path in the configuration file.
 
 
-Clean up after build
---------------------
+Other build tools
+-----------------
 
-To remove build artifacts for a clean package directory, use one of the following methods to call the ``clean`` target from :file:`debian/control`. This is not required before running a new build because all build methods perform the cleaning automatically before starting a build (unless instructed otherwise).
+While ``sbuild`` is the recommended tool for building packages locally, there are other tools that can be used for building packages. These include:
 
-* ``dpkg-buildpackage -T clean``
-* ``sbuild --clean-source``
-* ``debuild -T clean``
+* :manpage:`pbuilder(8)` - a tool that builds packages in a clean chroot environment, similar to ``sbuild``. It is less commonly used than ``sbuild`` but can be useful in certain situations.
+* :manpage:`cowbuilder(8)` - a wrapper for ``pbuilder`` that builds packages in a clean chroot environment using copy-on-write filesystems. It is similar to ``pbuilder`` but can be faster for subsequent builds.

@@ -275,7 +275,7 @@ Vendor tarball rule
 After that, call the `vendor-tarball` rule in `debian/rules`. This uses `cargo-vendor-filterer` to generate a vendor directory that _only_ contains the dependencies required by supported Ubuntu targets. It then repacks this directory into the `vendor` tarball component. Make sure you point it to your installed Rust toolchain via `RUST_BOOTSTRAP_DIR`:
 
 ```none
-$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu/bin/rustc \
+$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu \
     debian/rules vendor-tarball
 ```
 
@@ -523,7 +523,7 @@ Certain {term}`control files <control file>`, such as `debian/control` and `debi
 `update-version`, in `debian/rules`, updates all relevant control files automatically. In order to run it, it must be given an up-to-date Rust toolchain via `RUST_BOOTSTRAP_DIR`:
 
 ```none
-$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu/bin/rustc \
+$ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu \
     debian/rules update-version
 ```
 
@@ -699,7 +699,7 @@ We must experimentally verify that the default resources allocated to the autopk
 
 If this is your first time running Rust autopkgtests locally, you must create two local test beds.
 
-There are multiple [Openstack flavours](https://wiki.ubuntu.com/ProposedMigration#autopkgtests) used to run autopkgtests. Compare the default `m1.small` unit resources with the `m1.large` unit resources:
+There are multiple [OpenStack flavors](https://wiki.ubuntu.com/ProposedMigration#autopkgtests) used to run autopkgtests. Compare the default `m1.small` unit resources with the `m1.large` unit resources:
 
 | Unit       | RAM Size (MB) | CPU Cores | Disk Size (GB) |
 | ---------- | ------------- | --------- | -------------- |
@@ -724,7 +724,7 @@ $ mv autopkgtest-<release>-<arch>.img autopkgtest-<release>-<arch>-big.img
 
 #### Verifying the necessity of big_packages
 
-First, run the autopkgtests locally using the default test bed to check if the default Openstack flavour resources are sufficient for this build:
+First, run the autopkgtests locally using the default test bed to check if the default OpenStack flavor resources are sufficient for this build:
 
 :::{note}
 The `--log-file` option is picky. It doesn't do bash path expansions and the log file needs to exist already.

@@ -2,12 +2,12 @@
 # Dual maintenance with Salsa and git-ubuntu
 
 Some packages for Ubuntu are maintained simultaneously using git-ubuntu and
-[Debian Salsa](https://salsa.debian.org). This page outlines how to manage
+[Debian Salsa](https://salsa.debian.org/public). This page outlines how to manage
 packages with a specific model such as:
 
 * MySQL:
   [Launchpad](https://launchpad.net/ubuntu/+source/mysql-8.0) |
-  [Salsa](https://salsa.debian.org/mariadb-team/mysql/-/tree/mysql-8.0/ubuntu/devel)
+  [Salsa](https://salsa.debian.org/public/mariadb-team/mysql/-/tree/mysql-8.0/ubuntu/devel)
 
 More packages of this style may be added here later on. There are also some
 packages that require dual maintenance with a slightly different behavior. This
@@ -15,7 +15,7 @@ includes:
 
 * QEMU:
   [Launchpad](https://launchpad.net/ubuntu/+source/qemu) |
-  [Salsa](https://salsa.debian.org/qemu-team/qemu/-/tree/ubuntu-dev)
+  [Salsa](https://salsa.debian.org/public/qemu-team/qemu/-/tree/ubuntu-dev)
 
   Neither git-ubuntu nor Salsa are dominant for QEMU. A long term Ubuntu delta
   is submitted to Debian and becomes part of build-time procedure which
@@ -24,7 +24,7 @@ includes:
 
 * DPDK:
   [Launchpad](https://launchpad.net/ubuntu/+source/dpdk) |
-  [Salsa](https://salsa.debian.org/debian/dpdk)
+  [Salsa](https://salsa.debian.org/public/debian/dpdk)
 
   This is primarily managed in Salsa and, whenever possible, Ubuntu is just a
   sync. All new changes are proposed and committed to the main branch in Salsa
@@ -365,7 +365,7 @@ ubuntu/devel:               1.4-1ubuntu1 -- 1.4-1ubuntu2 -- 1.5-0ubuntu1
 If Salsa's `ubuntu/devel` branch contains extra commits not found in git-ubuntu,
 these commits should be submitted to it via a rebase. However, if there are also
 commits to transfer from git-ubuntu to Salsa, this should be done first. Run
-through the [Salsa is behind git ubuntu](#salsa-is-behind-git-ubuntu) process,
+through the [Salsa is behind git ubuntu](#salsa-is-behind-git-ubuntu) steps,
 but instead of checking out a local copy of Salsa's `ubuntu/devel`, create a new
 branch at the commit where git-ubuntu and Salsa diverge. For example:
 

@@ -61,6 +61,7 @@ The requirement to have a list of bug reports you worked on can be waived if you
 are an upstream developer or bug triager, or if an Ubuntu developer vouches for
 your triaging ability.
 ```
+
 :::
 
 :::{tab-item} **For teams**
@@ -128,6 +129,7 @@ email, copy and answer the following questions:
 If you are an upstream developer, or a bug triager for an upstream project,
 contact the `#ubuntu-devel` Matrix channel.
 ```
+
 :::
 
 :::{tab-item} **For teams**

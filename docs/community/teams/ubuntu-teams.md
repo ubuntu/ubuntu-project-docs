@@ -71,7 +71,7 @@ Below is a list of key teams that operate within the Ubuntu project and their re
 | [Kubuntu Team](https://wiki.ubuntu.com/Kubuntu) | Provide the KDE desktop and software to integrate KDE with Ubuntu |
 | [Lubuntu Team](https://wiki.ubuntu.com/Lubuntu) | Provide a lightweight and easy-to-use distribution, based on Ubuntu and {spellexception}`LXQt` |
 | [Ubuntu Budgie Team](https://ubuntubudgie.org/team/) | Provide an Ubuntu-powered desktop integrating the Budgie Desktop Environment |
-| [Ubuntu Kylin Team](https://wiki.ubuntu.com/Ubuntu%20kylin) | Provide exquisite user experience and make an operating system catering to the specific needs of Chinese users |
+| [Ubuntu Kylin Team](https://wiki.ubuntu.com/Ubuntu%20Kylin) | Provide exquisite user experience and make an operating system catering to the specific needs of Chinese users |
 | [Ubuntu MATE Team](https://ubuntu-mate.community/) | Provide an Ubuntu-based operating system that beautifully integrates the MATE desktop |
 | [Ubuntu Studio Team](https://wiki.ubuntu.com/UbuntuStudio) | Provide an installable disk for multimedia production machines and better maintain those apps in Ubuntu |
 | [Ubuntu Unity Team](https://launchpad.net/~unity7maintainers) | Provide the Unity desktop environment for the modern Ubuntu desktop |

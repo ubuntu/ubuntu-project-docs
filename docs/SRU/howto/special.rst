@@ -1,3 +1,5 @@
+.. _special-types-of-sru:
+
 Special types of SRU
 --------------------
 

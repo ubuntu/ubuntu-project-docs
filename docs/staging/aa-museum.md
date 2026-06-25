@@ -237,7 +237,7 @@ following:
   kernels are copied to `-proposed` and accepted, update the bug to close the
   "Promote-to-proposed" task and assign it to yourself.
 
-  However, with some flavours like `-ec2` or `armel` kernels, which are mostly
+  However, with some flavors like `-ec2` or `armel` kernels, which are mostly
   just a merge with the main `linux` kernel, it is too much overhead to add
   `-ec2` tasks to all the bugs.
 

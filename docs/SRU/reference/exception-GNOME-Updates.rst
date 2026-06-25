@@ -22,7 +22,12 @@ policy:
 -  GNOME provides a list of what they consider core as a part of the
    release. The lists are found at
    \`https://download.gnome.org/teams/releng/$GNOME_VERSION/versions\`
-   (eg: https://download.gnome.org/teams/releng/42.0/versions). A Debian
+   (eg: https://download.gnome.org/teams/releng/42.0/versions) for versions
+   older than 48, and at
+   \`https://gitlab.gnome.org/GNOME/releng/-/blob/master/tools/versions-$GNOME_VERSION\`
+   (eg: https://gitlab.gnome.org/GNOME/releng/-/blob/master/tools/versions-48)
+   for versions newer or equal to 48. 
+   A Debian
    maintainer produces a helpfully-parsed version of this list with
    upstream names matched to source package names at
    https://people.debian.org/~fpeters/gnome/debian-gnome-42-status.html.

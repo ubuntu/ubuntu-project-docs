@@ -48,7 +48,7 @@ Various packages are exceptional for various reasons, and Ubuntu has a tradition
 
 ## Specific principles
 
-### Principle 1: behavior will remain "stable" for the lifetime of an Ubuntu release.
+### Principle 1: behavior will remain "stable" for the lifetime of an Ubuntu release
 
 The package publisher must agree that the package and any subsequent updates presented to Ubuntu users by default will remain stable for the lifetime of the Ubuntu release.
 
@@ -70,7 +70,7 @@ A documented test plan must be maintained that is used to validate a package bui
 
 Rationale: if a package is found not to meet Ubuntu's quality standards, it must be possible for Ubuntu developers to be able to fix it in order to uphold these standards. This already exists for the Ubuntu deb archive, and should continue to exist for anything Ubuntu ships by default. Issues related to law remain out of scope and their effects unchanged.
 
-### Principle 3: package maintainer agrees to maintain packages for the lifetime of the Ubuntu release.
+### Principle 3: package maintainer agrees to maintain packages for the lifetime of the Ubuntu release
 
 Maintainers of the package must agree to maintain the package for the lifetime of each Ubuntu release in which the package was made available.
 

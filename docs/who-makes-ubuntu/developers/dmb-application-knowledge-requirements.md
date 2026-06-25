@@ -1,10 +1,15 @@
 (dmb-application-knowledge-requirements)=
 # DMB application knowledge requirements
 
+```{include} ../_dmb-series.md
+```
+
+
+
 There are several {ref}`dmb-aspects-of-a-good-application`, but questions are often asked around what knowledge and evidence an applicant should provide.
 
 In the table below we show the topics, descriptions of what the topic includes, and the depth to which the topic should be understood for each role.
-We do not expect rote memorization of answers. 
+We do not expect rote memorization of answers.
 The objective is to determine your understanding of the underlying reasons for those answers.
 This often requires a thorough understanding of the policies, technologies, and processes pertinent to a given topic.
 
@@ -17,7 +22,7 @@ Consider the following not as "questions you must be able to answer," but rather
 
 | Topic | Description => Expected level\*¹ | |  |  |  |  |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
-|  |  | PPU*² | pkg-set | SRU-dev | MOTU | core-dev |
+|  |  | {ref}`PPU*² <dmb-joining-ppu>` | {ref}`pkg-set <dmb-joining-packageset>` | {ref}`SRU-dev <dmb-joining-sru-dev>` | {ref}`MOTU <dmb-joining-motu>` | {ref}`core-dev <dmb-joining-core-dev>` |
 | **Upstream/Downstream** |  |  |  |  |  |  |
 | The Derived Distribution Model | Understanding the derivative model (upstream \-\> Debian \-\> Ubuntu); how deltas are added and managed; basic package versioning in regard to that context; Ubuntu as a derivative. | I | I | B | A | A |
 | To fork or not to fork | When adding a delta is appropriate, the maintenance burden of doing so, and how we track and manage that burden. | I | A | B | A | A |

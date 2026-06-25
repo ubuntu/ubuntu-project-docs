@@ -235,11 +235,11 @@ References
 ----------
 
 -  `nVidia Unix Drivers
-   Archive <https://www.nvidia.com/object/unix.html>`__
+   Archive <https://www.nvidia.com/en-us/drivers/unix/>`__
 -  `Full
-   history <https://www.nvidia.com/object/linux-amd64-display-archive.html>`__
+   history <https://download.nvidia.com/XFree86/Linux-x86_64/>`__
    of the drivers
 -  `Support timeframe for legacy
    drivers <https://nvidia.custhelp.com/app/answers/detail/a_id/3142>`__
 -  `What is a legacy
-   GPU <https://www.nvidia.com/object/IO_32667.html>`__
+   GPU <https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/>`__

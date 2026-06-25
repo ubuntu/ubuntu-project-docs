@@ -83,8 +83,7 @@ following:
    specific test results included
 -  Any packaging changes (e.g. a dependency change) need to be stated
 -  If any manual testing occurs it should also be documented. See
-   `LP: #1588052 <http://launchpad.net/bugs/1588052>`__ as an
-   example.
+   :lpbug:`1588052` as an example.
 
 
 cloud-init QA Process

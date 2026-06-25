@@ -24,7 +24,7 @@ Our goals in setting up the governance structures of Ubuntu are to ensure that:
 
 3. Necessary decisions are actually taken, even when there is no clear consensus among the community. There is a single path for the appeal or escalation of a decision when needed.
 
-
+(governance-structure)=
 ## Governance structure
 
 Ubuntu has always been a very openly governed community. This open governance means that we have some community organized and run decision-making groups that help to lead and make decisions about different elements of Ubuntu.
@@ -47,7 +47,7 @@ The Community Council meets with the rest of the governance bodies every two mon
 
 ## Ubuntu Technical Board
 
-The {ref}`Ubuntu Technical Board <technical-board>` is responsible for the technical direction of Ubuntu. It makes decisions on package selection, packaging policy, installation systems and processes, kernel, X server, display management, library versions and dependencies. The board works with relevant teams to establish a consensus on the right path to take, especially where diverse elements of Ubuntu cannot find consensus on shared components.
+The {ref}`Ubuntu Technical Board <technical-board>` is responsible for the technical direction of Ubuntu.
 
 The Ubuntu Technical Board meets every two weeks on IRC -- [date and agenda of the next meeting](https://wiki.ubuntu.com/TechnicalBoardAgenda), alternating with the Community Council. You can propose an item for discussion by putting it on the [Technical Board Agenda](https://wiki.ubuntu.com/TechnicalBoardAgenda) on the Ubuntu Wiki.
 
@@ -81,8 +81,8 @@ If you have a particular interest in a specific aspect of the project, please jo
 
 ## Local Community Teams
 
-A major part of the fabric of the community is the Local Community (LoCo) team structure. LoCo teams work with local Linux User Groups (LUGs), schools, municipalities and even national governments to open people's eyes to the world of free software.
+A major part of the fabric of the community is the Local Community team structure. Local Community teams work with local Linux User Groups (LUGs), schools, municipalities and even national governments to open people's eyes to the world of free software.
 
-Local Community teams are a great way to gather free software lovers together for beer, open discussion, talks, marketing events and to recognise the achievements of local free software contributors. LoCo teams are provided with spaces for discussion, collaboration and event planning on the [Ubuntu Discourse](https://discourse.ubuntu.com/c/locos/129).
+Local Community teams are a great way to gather free software lovers together for beer, open discussion, talks, marketing events and to recognise the achievements of local free software contributors. Local Community teams are provided with spaces for discussion, collaboration and event planning on the [Ubuntu Discourse](https://discourse.ubuntu.com/c/community/circles/129).
 
 To join a Local Community team or learn how to start one in your area, check out {ref}`Ubuntu Local Communities <local-communities>`.

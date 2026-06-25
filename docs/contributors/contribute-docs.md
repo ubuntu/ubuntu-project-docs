@@ -129,8 +129,8 @@ Follow these steps to build the documentation on your local machine.
 
 The Ubuntu Project documentation is built with Sphinx using a combination of the MyST flavor of the Markdown and reStructuredText mark-up languages. MyST is preferred for new content. If you're new to this, see our guides:
 
-* [MyST style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/myst-syntax-reference/)
-* [reStructuredText style guide](https://canonical-starter-pack.readthedocs-hosted.com/latest/reference/rst-syntax-reference/)
+* [MyST style guide](https://canonical-starter-pack.readthedocs-hosted.com/stable/reference/myst-syntax-reference/)
+* [reStructuredText style guide](https://canonical-starter-pack.readthedocs-hosted.com/stable/reference/rst-syntax-reference/)
 
 
 ### Organization principles
@@ -466,6 +466,18 @@ Test your changes before submitting a pull request. Run the following commands f
 | `make pa11y` | Check for accessibility issues |
 
 
+## Access control
+
+Pull requests require review from the team responsible for the relevant section of the documentation, enforced by `.github/CODEOWNERS`. The technical authors are default reviewers for all content; for sections owned by a specific team, the tech. authors are replaced as required reviewers by that team. Some sections are identified by directory (e.g. `SRU/`, `MIR/`), others by file-name prefix (e.g. `aa-*.md`, `dmb-*.md`). Changes to `CODEOWNERS` itself require sign-off from representatives of all teams.
+
+
+### Launchpad team synchronization
+
+Because Launchpad and GitHub maintain separate accounts, the mapping between LP and GitHub usernames in `CODEOWNERS` must be kept manually. A nightly GitHub Actions workflow (`.github/workflows/lp-teams-check.yaml`) queries the Launchpad API for each team tracked in `.github/lpteams/` —- one `<lp-team-name>.team` file per team, containing one LP username per line —- and opens an automated PR if the membership has changed. Merging that PR only updates the `.team` file; a follow-up PR must update the relevant `CODEOWNERS` entries manually.
+
+To start tracking a new team, add a `<lp-team-name>.team` file to `.github/lpteams/` with the current LP usernames and update `CODEOWNERS` accordingly.
+
+
 ## Open Documentation Academy
 
 If you've never contributed to an open source project before, the [Open Documentation Academy](https://documentation.academy) (ODA) is a great way to begin.
@@ -482,4 +494,4 @@ Stay in touch either through the task list, or through one of the following loca
 * {matrix}`documentation` on Matrix for interactive chat.
 * [Fosstodon](https://fosstodon.org/@CanonicalDocumentation) for the latest updates and events.
 
-In addition to the above, we have a weekly [Open Documentation Hour](https://discourse.ubuntu.com/t/community-hour-schedule/45291) at 16:00 UTC each Friday. Everyone is welcome.
+In addition to the above, we have a weekly [Open Documentation Hour](https://discourse.ubuntu.com/t/community-hour-ideas-pool/45291) at 16:00 UTC each Friday. Everyone is welcome.

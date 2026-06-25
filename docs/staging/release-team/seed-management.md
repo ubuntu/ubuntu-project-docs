@@ -244,7 +244,7 @@ The Launchpad stuff:
 
 * Launchpad gains a concept called a 'Flavour' which for now has an arch branch
   in a text field. Later we can always key seed tables off this table.
-* Flavours do not inherit within the Launchpad because that'd be too confusing
+* Flavors do not inherit within the Launchpad because that'd be too confusing
   for the seed management people. They get inheritance by virtue of bazaar's
   branching and merging, ancestry etc and this seems a desirable level for them.
 ```

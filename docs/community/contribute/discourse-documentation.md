@@ -136,6 +136,7 @@ Mostly, you don't need to worry about the syntax. If you are unfamiliar with Mar
 ## Subheading within a document
 ### Subheading of a subheading
 ```
+
 We don't use the top-level heading (`# Heading`) because the topic title in Discourse serves this purpose.
 
 Headings and subheadings need to use _sentence case_, which means the first letter is typically the only one capitalised, unless the title includes names, product names or acronyms.
@@ -279,7 +280,7 @@ An informative note. This box is dark blue.
 
 Which produces:
 
-![](note-block-with-status.png)
+![Note block with status](note-block-with-status.png)
 
 You can omit the status header.
 
@@ -292,7 +293,7 @@ A note without a title.
 
 Which produces:
 
-![](note-block-without-status.png)
+![Note block without status](note-block-without-status.png)
 
 
 #### Types of `[note]`
@@ -317,7 +318,7 @@ Uses `caution` type.
 [/note]
 ```
 
-![](note-block-caution.png)
+![Note block with caution type](note-block-caution.png)
 
 
 #### Positive
@@ -330,7 +331,7 @@ Uses `positive` type.
 [/note]
 ```
 
-![](note-block-positive.png)
+![Note block with positive type](note-block-positive.png)
 
 
 #### Negative
@@ -343,7 +344,7 @@ Uses `negative` type.
 [/note]
 ```
 
-![](note-block-negative.png)
+![Note block with negative type](note-block-negative.png)
 
 Hyperlinks cannot be word-wrapped within admonishments. Doing so will not format the links.
 
@@ -383,7 +384,7 @@ then the final step of the Iinit* may fail with the following error:
 
 The above will appear as follows:
 
-![](foldout.png)
+![Foldout block example](foldout.png)
 
 
 ### Images

@@ -32,12 +32,11 @@ Certbot Requesting the SRU
 --------------------------
 
 The SRU should be done with a single process bug, instead of individual
-bug reports for individual bug fixes. See `bug
-1640978 <https://launchpad.net/bugs/1640978>`__ for an example. The one
+bug reports for individual bug fixes. See :lpbug:`1640978` for an example. The one
 bug should have the following:
 
 -  The SRU should be requested per the
-   `StableReleaseUpdates </howto/standard>`__
+   :ref:`Stable Release Updates <howto-perform-standard-sru>`
    documented process.
 -  The template at the end of this document should be used and all
    ‘TODO’ filled out.

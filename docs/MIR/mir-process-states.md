@@ -1,6 +1,13 @@
 (mir-process-states)=
 # Process states
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 The {ref}`overview <main-inclusion-review>` aims to clarify and provide an easy
 simplified entry to the topic. This page instead outlines the detailed
 meaning of all MIR related bug states. This allows one to understand the

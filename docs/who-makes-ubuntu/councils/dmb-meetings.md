@@ -1,6 +1,11 @@
 (dmb-meetings)=
 # DMB meetings
 
+```{include} ../_dmb-series.md
+```
+
+
+
 The {ref}`dmb` conducts meetings every two weeks.
 
 
@@ -42,6 +47,7 @@ modern meetings for more efficient evaluation of the candidates more types
 like text files, auto generated logs, google docs or video recording got used.
 
 The goals of these logs is to:
+
 - allow to retrace how people have been evaluated in the past
 - allow to refer to when a decision was done
 - allow someone to prepare for an application based on former ones

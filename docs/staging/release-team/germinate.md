@@ -109,9 +109,11 @@ This bold text pointing to the manpage was present on the original wiki page.
 Please determine what is the correct approach, and make sure that is reflected
 here (to avoid confusion). If it's a versioning issue, let us know!
 ```
+
 **It is probably best to refer to the [manual page](https://manpages.ubuntu.com/manpages/questing/en/man1/germinate.1.html) instead and ignore the following.**
 
 Grab the seeds that you need:
+
 ```bash
 mkdir -p /home/user/projects/seeds
 cd /home/user/projects/seeds

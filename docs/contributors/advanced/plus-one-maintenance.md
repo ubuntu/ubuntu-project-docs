@@ -53,7 +53,7 @@ However, it is perfectly fine to pick up shifts for a shorter duration.
 Regardless of the exact work, it is advised to keep track of what has been
 accomplished during a shift. This will serve as the basis for a +1 maintenance
 report to be posted to the [dedicated Discourse
-category](https://discourse.ubuntu.com/c/pre-release-discussion/plusone-maintenance/415)
+category](https://discourse.ubuntu.com/c/project/pre-release-discussion/plusone-maintenance/415)
 at the end of shift.
 
 The report has two main purposes. The first is to act as a hand-off document to
@@ -110,7 +110,7 @@ While that can happen for several reasons, by far the most common is that the bi
 in question is the old version of a library that is having an ABI transition.
 
 A more specialized view for transitions is the [transition
-tracker](https://ubuntu-archive-team.ubuntu.com/transitions/) but it might not
+tracker](https://transitions.ubuntu.com/) but it might not
 track all ongoing transitions since it requires manual intervention to setup a
 new tracker.
 
