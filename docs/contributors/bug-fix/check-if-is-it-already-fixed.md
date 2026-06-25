@@ -51,7 +51,7 @@ $ git ubuntu clone postfix postfix-gu
 ```
 
 This creates a new Git clone of the ``postfix`` repo named `postfix-gu`, with
-a remote of `pkg`. The current branch will be `ubuntu-devel`, and the various
+a remote of `pkg`. The current branch is `ubuntu-devel`, and the various
 versions for each distribution version will be under `pkg/ubuntu/version`.
 
 Notes:
