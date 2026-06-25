@@ -44,7 +44,7 @@ Identify the source package
 
 After selecting a bug to fix, identify the source package that contains the code related to the issue.
 
-Start by identifying the name of the binary package. If the program or file is installed on your system, you can identify the package that owns it using:
+Start by identifying the name of the binary package. To identify the package that owns a file installed on your system, use:
 
 .. code-block:: none
 
