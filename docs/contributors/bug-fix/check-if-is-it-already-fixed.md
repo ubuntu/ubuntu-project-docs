@@ -44,7 +44,7 @@ Find the repository name:
 $ apt-cache show postfix | grep Source:
 ```
 
-In this case, there is no "Source" field, so we just use "`postfix`".
+In this case, there is no ``Source`` field, so we just use "`postfix`".
 
 ```none
 $ git ubuntu clone postfix postfix-gu
