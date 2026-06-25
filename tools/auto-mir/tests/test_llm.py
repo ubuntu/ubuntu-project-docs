@@ -1,5 +1,6 @@
-"""Tests for LLM model tier selection and CLI model flags."""
+"""Tests for LLM model tier selection and response parsing behavior."""
 
+import json
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -47,3 +48,31 @@ def test_selected_model_invalid_tier_raises():
 
     with pytest.raises(llm.LLMError):
         llm._selected_model(ctx, "invalid")
+
+
+def test_extract_json_rejects_null_message_content():
+    raw = json.dumps({"choices": [{"message": {"content": None}}]})
+
+    with pytest.raises(llm.LLMError, match="content is null"):
+        llm._extract_json(raw)
+
+
+def test_extract_json_accepts_list_message_content_parts():
+    raw = json.dumps(
+        {
+            "choices": [
+                {
+                    "message": {
+                        "content": [
+                            {"type": "text", "text": '{"status":"ok",'},
+                            {"type": "text", "text": '"message":"fine"}'},
+                        ]
+                    }
+                }
+            ]
+        }
+    )
+
+    parsed = llm._extract_json(raw)
+
+    assert parsed == {"status": "ok", "message": "fine"}

@@ -320,6 +320,8 @@ def _extract_json(raw_response: str) -> dict[str, Any]:
             f"Unexpected LLM API response shape: {exc}\nEnvelope keys: {list(envelope.keys())}"
         ) from exc
 
+    content = _normalize_message_content(content)
+
     # Strip any accidental markdown fences the model may have added
     content = _strip_fences(content)
 
@@ -339,6 +341,36 @@ def _strip_fences(text: str) -> str:
     if match:
         return match.group(1).strip()
     return text
+
+
+def _normalize_message_content(content: Any) -> str:
+    """Normalize OpenAI-compatible message content to plain text.
+
+    Some providers can return message.content as null or as a structured list
+    of content parts instead of a plain string.
+    """
+    if content is None:
+        raise LLMError("Model response content is null (choices[0].message.content).")
+
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+                continue
+            if isinstance(item, dict):
+                text = item.get("text")
+                if isinstance(text, str):
+                    parts.append(text)
+        merged = "".join(parts).strip()
+        if merged:
+            return merged
+        raise LLMError("Model response content list does not contain text parts.")
+
+    raise LLMError(f"Model response content has unsupported type: {type(content).__name__}")
 
 
 def _parse_rate_limit_hint(body: str) -> tuple[int, int] | None:
