@@ -288,6 +288,9 @@ class RunContext:
         self.report_path: Path | None = None
         self.review_draft_path: Path | None = None
 
+        # --- Populated on failures for teardown/user messaging ---
+        self.failure_summary: str | None = None
+
         # --- Updated by llm.call_llm() during Stage 4 ---
         self.llm_calls_by_model: dict[str, int] = {}
         self.llm_estimated_tokens: dict[str, int] = {}
@@ -489,18 +492,24 @@ def teardown_container(ctx: RunContext, evidence_collection_result: int = 0) -> 
     if not ctx.vm_name:
         return
 
+    failure_summary = getattr(ctx, "failure_summary", None)
+    if not failure_summary and evidence_collection_result != 0:
+        failure_summary = "Evidence collection encountered adapter failures."
+
     def _confirm_keep_failed_vm() -> bool:
         """Ask whether to preserve a failed VM when keep behavior is unspecified."""
         if not (sys.stdin.isatty() and sys.stdout.isatty()):
             log.warning(
-                "Evidence collection failed and keep behavior is unspecified, "
+                "%s Keep behavior is unspecified, "
                 "but no interactive terminal is available."
-                "Use --keep-container=false/true to always destroy/keep."
+                "Use --keep-container=false/true to always destroy/keep.",
+                failure_summary or "The run failed.",
             )
             return False
 
         print(
-            f"\nEvidence collection failed and VM {ctx.vm_name} could be preserved for debugging."
+            f"\n{failure_summary or 'The run failed.'} "
+            f"VM {ctx.vm_name} could be preserved for debugging."
         )
         print("Warning: Keeping failed VMs can consume significant memory, clean them up via LXD.")
         while True:
@@ -606,20 +615,27 @@ def main() -> int:
 
     exit_code = 0
     evidence_result = 0
+    current_stage = "startup"
     try:
         # Stage 0: Resolve provider auth and container token export values
         # Skip auth if collect-only mode (no LLM needed)
         if not ctx.collect_only:
+            current_stage = "Stage 0 (auth)"
             stage_auth(ctx)
 
         # Stage 1: Launchpad intake (hard-fails if reporter MIR content missing)
+        current_stage = "Stage 1 (Launchpad intake)"
         stage_intake(ctx)
 
         # Stage 2: Spawn LXD container
+        current_stage = "Stage 2 (container setup)"
         stage_spawn_container(ctx)
 
         # Stage 3: Collect evidence in-container
+        current_stage = "Stage 3 (evidence collection)"
         evidence_result = stage_collect_evidence(ctx)
+        if evidence_result != 0:
+            ctx.failure_summary = "Evidence collection encountered adapter failures."
 
         # Interactive prompt for scope confirmation (after evidence collection)
         if not ctx.requested_binaries:
@@ -638,9 +654,11 @@ def main() -> int:
             # Save evidence checkpoint for audit/debugging
             ctx.save_evidence()
             # Stage 4: Analyse against catalog checks
+            current_stage = "Stage 4 (analysis)"
             stage_analyse(ctx)
 
             # Stage 5: Render output artefacts
+            current_stage = "Stage 5 (rendering)"
             stage_render(ctx)
 
             log.info("Review draft written to: %s", ctx.review_draft_path)
@@ -649,6 +667,12 @@ def main() -> int:
     except SystemExit:
         raise
     except Exception as exc:
+        if evidence_result != 0:
+            ctx.failure_summary = (
+                f"{current_stage} failed after evidence collection encountered adapter failures."
+            )
+        else:
+            ctx.failure_summary = f"{current_stage} failed."
         log.error("Unexpected error: %s", exc, exc_info=args.verbose)
         exit_code = 1
 
