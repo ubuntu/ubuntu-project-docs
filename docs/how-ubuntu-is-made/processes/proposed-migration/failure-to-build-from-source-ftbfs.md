@@ -3,6 +3,10 @@
 
 A package has to be buildable to be able to migrate from the `-proposed` to `-release` {term}`pocket`. This article describes a number of common reasons why a package build may fail.
 
+A community-maintained, automatically generated FTBFS report is available at [UbuntuWire](http://qa.ubuntuwire.com/ftbfs). It lists the packages that are currently FTBFS in the primary Ubuntu archive for the current development release.
+
+At any time, every package must be able to build from source so that changes (such as security fixes) can be applied - this is an Ubuntu policy. To verify that all packages can still build from source, periodic "Archive Test Rebuilds" are organized: a test rebuild archive is created, and all packages are rebuilt there. Then, the `lp-ftbfs-report` tool is used to generate a report that is made accessible to the Ubuntu community. Packages that are FTBFS will need a new upload to fix the issue.
+
 :::{admonition} **Proposed migration** series
 The {ref}`proposed-migration` article series explains the various migration failures and ways of investigating them.
 
