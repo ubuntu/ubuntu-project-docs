@@ -177,32 +177,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--llm-model-small",
         dest="llm_model_small",
         default=None,
-        help=(
-            "Model used for smaller/simpler LLM requests. "
-            "Provider defaults when omitted: copilot → gpt-4.1-mini; "
-            "openai-compatible → openai/gpt-4.1-mini."
-        ),
+        help=("Model used for smaller/simpler LLM requests. Default when omitted: z-ai/glm-4.7."),
     )
     p.add_argument(
         "--llm-model-large",
         dest="llm_model_large",
         default=None,
         help=(
-            "Model used for larger/more complex LLM requests. "
-            "Provider defaults when omitted: copilot → gpt-5.1; "
-            "openai-compatible → openai/gpt-5.1."
-        ),
-    )
-    p.add_argument(
-        "--llm-provider",
-        dest="llm_provider",
-        default=None,
-        choices=["copilot", "openai-compatible"],
-        help=(
-            "LLM provider to use. When omitted, auto-detected from environment: "
-            "COPILOT_GITHUB_TOKEN/GH_TOKEN/GITHUB_TOKEN → copilot; "
-            "OPENAI_API_KEY → openai-compatible; "
-            "gh auth token → copilot."
+            "Model used for larger/more complex LLM requests. Default when omitted: z-ai/glm-5.2."
         ),
     )
     p.add_argument(
@@ -229,7 +211,7 @@ class RunContext:
     -------------------
     Resolved in __init__ (from CLI args):
         bug_id, series, keep_container, pin_uat_tooling, lxd_image,
-        llm_model_small, llm_model_large, _llm_provider_flag, collect_only, tool_root,
+        llm_model_small, llm_model_large, collect_only, tool_root,
         workspace_root, catalog_path, run_name, output_dir
 
     Populated by stage_auth (Stage 0 — auth setup):
@@ -263,7 +245,6 @@ class RunContext:
         self.lxd_image: str | None = args.lxd_image
         self.llm_model_small: str | None = args.llm_model_small
         self.llm_model_large: str | None = args.llm_model_large
-        self._llm_provider_flag: str | None = getattr(args, "llm_provider", None)
         self.collect_only: bool = args.collect_only
         self.lxd_options: str = args.lxd_options
         self.requested_binaries: list[str] = args.request_binaries or []
@@ -430,24 +411,13 @@ def stage_render(ctx: RunContext) -> None:
 
 
 def stage_auth(ctx: RunContext) -> None:
-    """Stage 0: Resolve LLM provider, endpoint URL, and authentication token.
-
-    Provider selection priority:
-    1. --llm-provider flag (explicit override)
-    2. COPILOT_GITHUB_TOKEN / GH_TOKEN / GITHUB_TOKEN present → copilot
-    3. OPENAI_API_KEY present                                  → openai-compatible
-    4. gh auth token succeeds                                  → copilot
-    5. No token found                                          → hard-fail
-    """
-    explicit_provider = getattr(ctx, "_llm_provider_flag", None)
-    provider, token, source, api_url = llm.resolve_auth(explicit_provider)
+    """Stage 0: Resolve OpenAI-compatible endpoint URL and authentication token."""
+    provider, token, source, api_url = llm.resolve_auth()
 
     if not token:
         log.error(
             "No LLM authentication token found.\n"
-            "For copilot:           set COPILOT_GITHUB_TOKEN, GH_TOKEN, or GITHUB_TOKEN\n"
-            "                       or run: gh auth login\n"
-            "For openai-compatible: set OPENAI_API_KEY (and optionally OPENAI_API_BASE)"
+            "Set OPENAI_API_KEY (and optionally OPENAI_API_BASE)."
         )
         raise SystemExit(1)
 
@@ -457,17 +427,10 @@ def stage_auth(ctx: RunContext) -> None:
     ctx.auth_source = source
 
     # Export token into container environment for in-container use
-    if provider == "copilot":
-        ctx.container_env = {
-            "COPILOT_GITHUB_TOKEN": token,
-            "GH_TOKEN": token,
-            "GITHUB_TOKEN": token,
-        }
-    else:
-        ctx.container_env = {
-            "OPENAI_API_KEY": token,
-            "OPENAI_API_BASE": api_url.rstrip("/chat/completions"),
-        }
+    ctx.container_env = {
+        "OPENAI_API_KEY": token,
+        "OPENAI_API_BASE": api_url.rstrip("/chat/completions"),
+    }
 
     ctx.evidence["auth"] = {
         "provider": provider,

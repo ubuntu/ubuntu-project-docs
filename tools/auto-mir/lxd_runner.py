@@ -615,42 +615,24 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
     ).stdout.strip()
 
     auth_present = {
-        "COPILOT_GITHUB_TOKEN": bool(
+        "OPENAI_API_KEY": bool(
             exec_in(
                 ctx.vm_name,
-                ["bash", "-lc", 'test -n "$COPILOT_GITHUB_TOKEN"'],
+                ["bash", "-lc", 'test -n "$OPENAI_API_KEY"'],
                 capture=True,
                 check=False,
             ).returncode
             == 0
         ),
-        "GH_TOKEN": bool(
+        "OPENAI_API_BASE": bool(
             exec_in(
                 ctx.vm_name,
-                ["bash", "-lc", 'test -n "$GH_TOKEN"'],
+                ["bash", "-lc", 'test -n "$OPENAI_API_BASE"'],
                 capture=True,
                 check=False,
             ).returncode
             == 0
         ),
-        "GITHUB_TOKEN": bool(
-            exec_in(
-                ctx.vm_name,
-                ["bash", "-lc", 'test -n "$GITHUB_TOKEN"'],
-                capture=True,
-                check=False,
-            ).returncode
-            == 0
-        ),
-    }
-
-    return {
-        "vm_name": ctx.vm_name,
-        "image": getattr(ctx, "lxd_image", None),
-        "os_release": os_release,
-        "kernel": kernel,
-        "apt_policy_excerpt": apt_policy,
-        "auth_env_present": auth_present,
     }
 
     return {

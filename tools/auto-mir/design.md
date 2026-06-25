@@ -59,9 +59,9 @@
   model identifiers:
   - `--llm-model-small` for smaller/simpler LLM requests
   - `--llm-model-large` for larger/more complex LLM requests
-- Both flags are optional. Provider-specific defaults apply when omitted:
-  - copilot: `gpt-4.1-mini` (small), `gpt-5.1` (large)
-  - openai-compatible: `openai/gpt-4.1-mini` (small), `openai/gpt-5.1` (large)
+- Both flags are optional. OpenAI-compatible defaults apply when omitted:
+  - `z-ai/glm-4.7` (small)
+  - `z-ai/glm-5.2` (large)
 - The legacy single-model flag is removed to avoid precedence conflicts.
 - Evaluator routing behavior:
   - `ai` checks use the large tier

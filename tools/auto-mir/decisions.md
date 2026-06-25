@@ -271,9 +271,9 @@ caused confusion.
 - Replace `--llm-model` with two explicit optional flags:
   - `--llm-model-small`
   - `--llm-model-large`
-- Keep provider-specific defaults when omitted:
-  - copilot: `gpt-4.1-mini` (small), `gpt-5.1` (large)
-  - openai-compatible: `openai/gpt-4.1-mini` (small), `openai/gpt-5.1` (large)
+- Keep openai-compatible defaults when omitted:
+  - `z-ai/glm-4.7` (small)
+  - `z-ai/glm-5.2` (large)
 - Route `ai` checks to large tier, and route `ev_to_ai` checks using lightweight
   complexity thresholds over rendered prompt and serialized evidence size.
 - LLM failures on both tiers degrade gracefully to low-confidence manual-review
