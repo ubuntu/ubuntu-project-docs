@@ -43,7 +43,7 @@ when the bug report filing is automatically triggered, or if the user uses a
 bug reporting assistant (such as Apport).
 
 Sometimes these types of bug reports also include an attached
-"`something.crash`" file. This is created by the Apport process running on the
+`something.crash` file. This is created by the Apport process running on the
 user's system at the time of segfault, and typically includes the core dump,
 logs, and other relevant information. If the user has provided a `.crash`
 file, you can examine the

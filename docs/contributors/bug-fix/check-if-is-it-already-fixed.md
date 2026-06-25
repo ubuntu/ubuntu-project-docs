@@ -63,7 +63,7 @@ Notes:
    `.gitignore`.
  * Sometimes it can be helpful to checkout the Git repositories for the
    package maintained by Debian and/or upstream. These would be checked out
-   to "`postfix-debian`" and "`postfix`" respectively.
+   to `postfix-debian` and `postfix` respectively.
 
 
 ### View the commit log
