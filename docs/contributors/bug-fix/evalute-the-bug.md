@@ -43,7 +43,7 @@ Note that the metadata at the end of the description is what gets appended
 when the bug report filing is automatically triggered, or if the user uses a
 bug reporting assistant (such as Apport).
 
-Sometimes these types of bug reports will also include an attached
+Sometimes these types of bug reports also include an attached
 "`something.crash`" file. This is created by the Apport process running on the
 user's system at the time of segfault, and typically includes the core dump,
 logs, and other relevant information. If the user has provided a `.crash`
@@ -55,8 +55,8 @@ to get a useful stacktrace.
 ## Try to reproduce the issue
 
 Not all bugs can be easily reproduced, and it's not always obvious how to
-reproduce even reproducible bugs. In these cases, some bug work will be needed
-to isolate the problem ourselves, or you'll need to work with bug reporters to
+reproduce even reproducible bugs. In these cases, some bug work is needed
+to isolate the problem ourselves, or you need to work with bug reporters to
 narrow the cause enough to identify a fix.
 
 However, in our example case we're lucky. The bug triagers have identified a

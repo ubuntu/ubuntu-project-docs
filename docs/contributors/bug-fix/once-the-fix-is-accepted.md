@@ -4,7 +4,7 @@
 
 ## The acceptance email
 
-You'll receive an email notification that the bugfix was accepted:
+You receive an email notification that the bugfix was accepted:
 
 ```none
 Accepted postfix into bionic-proposed. The package will build now and be
@@ -50,9 +50,9 @@ in this case.
 
 [General page](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html)
 
-Eventually, the package with your fixes will appear there (search for
-`postfix` in this case). It will show the DEP-8 tests for `postfix` and
-anything that depends on it. Any tests that fail will show in red.
+Eventually, the package with your fixes appears there (search for
+`postfix` in this case). It shows the DEP-8 tests for `postfix` and
+anything that depends on it. Any tests that fail show in red.
 
 ```{note}
 This page is generated every few minutes, and doesn't update in real-time.
@@ -72,7 +72,7 @@ results; if these have failed then it's unlikely the SRU team will release
 the update, so it's wise to follow-up if this happens.
 
 Once all of the SRU's bugs have reached `verification-done`, a minimum 7-day
-aging period has elapsed, and autopkgtests pass, the SRU team will move the
+aging period has elapsed, and autopkgtests pass, the SRU team moves the
 source and binary packages into the `-updates` pocket and marks the bug task(s)
 as "Fix Released".
 

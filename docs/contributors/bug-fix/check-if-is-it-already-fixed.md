@@ -52,14 +52,14 @@ $ git ubuntu clone postfix postfix-gu
 
 This creates a new Git clone of the ``postfix`` repo named `postfix-gu`, with
 a remote of `pkg`. The current branch is `ubuntu-devel`, and the various
-versions for each distribution version will be under `pkg/ubuntu/version`.
+versions for each distribution version is under `pkg/ubuntu/version`.
 
 Notes:
 
 * Due to {lpbug}`this bug <1761821>`, you may get:
   `fatal: could not read Username for 'https://git.launchpad.net': terminal prompts disabled.`
   It's safe to ignore this.
- * The first time you run this command, a git-ubuntu entry will be added to
+ * The first time you run this command, a ``git-ubuntu`` entry is added to
    `.gitignore`.
  * Sometimes it can be helpful to checkout the git repositories for the
    package maintained by Debian and/or upstream. These would be checked out
@@ -201,7 +201,7 @@ $ git branch -av | cat
   remotes/origin/wheezy-backports      1d95da812 Remove now-unnecessary backports-specific version changes.
 ```
 
-That's a lot of branches, but the ones of most interest will be `master` and
+That's a lot of branches, but the ones of most interest are `master` and
 sometimes `experimental`. `master` is already checked out, so lets peruse its
 commit history. Doing this, we find:
 
