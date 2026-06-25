@@ -3,11 +3,11 @@
 
 The process of bug fixing in Ubuntu consists of:
 
-- Evaluating a bug
+1. Evaluating a bug
 
-- Finding a fix for it
+2. Finding a fix for it
 
-- Packaging the fix for Ubuntu
+3. Packaging the fix for Ubuntu
 
 Every bug is unique, of course; this is intended to illustrate the mindset and
 steps one should follow generally.
