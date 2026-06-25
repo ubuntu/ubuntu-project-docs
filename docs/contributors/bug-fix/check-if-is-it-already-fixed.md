@@ -61,12 +61,12 @@ Notes:
   It's safe to ignore this.
  * The first time you run this command, a ``git-ubuntu`` entry is added to
    `.gitignore`.
- * Sometimes it can be helpful to checkout the git repositories for the
+ * Sometimes it can be helpful to checkout the Git repositories for the
    package maintained by Debian and/or upstream. These would be checked out
    to "`postfix-debian`" and "`postfix`" respectively.
 
 
-### View the Commit Log
+### View the commit log
 
 ```none
 $ git log -b pkg/ubuntu/cosmic
@@ -140,7 +140,7 @@ include the patch. This is the fix we need!
 ## Was it fixed in Debian?
 
 Sometimes the fix may have been updated in Debian instead of Ubuntu. There are
-many ways to locate fixes from Debian. Debian maintains its own git
+many ways to locate fixes from Debian. Debian maintains its own Git
 repository for many (but not all) of its packages, so having a clone of this
 can be handy.
 
@@ -172,7 +172,7 @@ For example, let's assume for argument's sake that we had a problem with
 ([as in this bug](https://bugs.launchpad.net/ubuntu/+source/openssh/+bug/1771340)).
 From Debian's `openssh`
 [source package page](https://packages.debian.org/source/stretch/openssh),
-we find the git repository at `https://salsa.debian.org/ssh-team/openssh` and
+we find the Git repository at `https://salsa.debian.org/ssh-team/openssh` and
 can check it out:
 
 ```none
@@ -217,7 +217,7 @@ CommitDate: Mon Jun 26 10:18:26 2017 +0100
 
 Our issue would be the same as Debian bug #865770.
 
-It's also possible to search for commits via Debian's web front-end for git,
+It's also possible to search for commits via Debian's web front-end for Git,
 [Salsa](https://salsa.debian.org/public). Doing so in this case would bring you to
 [this commit](https://salsa.debian.org/ssh-team/openssh/-/commit/d4181e15b03171d1363cd9d7a50b209697a80b01)
 

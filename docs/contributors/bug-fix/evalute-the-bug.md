@@ -1,5 +1,5 @@
 (evaluate-the-bug)=
-# Evaluate the Bug
+# Evaluate the bug
 
 Let's look at an example: bug {lpbug}`1753470`.
 

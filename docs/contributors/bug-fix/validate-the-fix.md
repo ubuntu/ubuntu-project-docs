@@ -12,7 +12,7 @@ earlier for a temporary one to test with. However, for bug fixes we often
 need to keep the container around for reference as the bug fix goes through
 the review, sponsorship, and SRU processes.
 
-So, to keep things consistent let's reuse our git branch name, and just
+So, to keep things consistent let's reuse our Git branch name, and just
 prefix the package name:
 
 ```none
