@@ -308,3 +308,29 @@ comments did not improve decision quality and only increased noise.
 - Better context efficiency on large MIR inputs.
 - More reliable evidence focus for security and hardware-related LLM checks.
 - Keeps interaction bounded and deterministic (single follow-up round, max 3 requests).
+
+## OpenAI-Compatible-Only LLM Path and Parser Hardening (2026-06-25)
+
+**Context:**
+Operational runs showed that maintaining multiple auth/provider paths increased
+complexity without improving reliability, and real provider responses can include
+`choices[0].message.content = null` or structured content parts instead of a
+single string.
+
+**Decision:**
+- Remove Copilot-specific support and provider auto-failover behavior.
+- Keep a single openai-compatible auth/runtime path:
+  - Auth via `OPENAI_API_KEY`
+  - Optional base override via `OPENAI_API_BASE`
+- Keep model tier defaults:
+  - small: `z-ai/glm-4.7`
+  - large: `z-ai/glm-5.2`
+- Harden response parsing to normalize non-string message content and convert
+  null/unsupported content into explicit `LLMError` instead of uncaught
+  attribute errors.
+
+**Consequences:**
+- Simpler operational surface and clearer failure modes.
+- Stage 4 LLM parsing now fails gracefully with actionable errors when provider
+  response content is null or unexpectedly structured.
+- Added regression tests for null and list-based message content handling.
