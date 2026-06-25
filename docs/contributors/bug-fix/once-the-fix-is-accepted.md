@@ -73,6 +73,6 @@ the update, so it's wise to follow-up if this happens.
 
 Once all of the SRU's bugs have reached `verification-done`, a minimum 7-day
 aging period has elapsed, and autopkgtests pass, the SRU team will move the
-source and binary packages into the `-updates` pocket and mark the bug task(s)
+source and binary packages into the `-updates` pocket and marks the bug task(s)
 as "Fix Released".
 
