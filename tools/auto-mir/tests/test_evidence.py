@@ -457,6 +457,52 @@ def test_upstream_tracker_output_structure():
     assert result["upstream_url"] == "https://example.invalid/testpkg"
 
 
+def test_upstream_tracker_uses_watch_and_homepage_hints_for_search():
+    """upstream-tracker should fall back to upstream hints when package name misses."""
+    ctx = Mock()
+    ctx.source_package = "lua5.5"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "debian_watch": "version=4\nhttps://www.lua.org/ftp/lua-(\\d.*)\\.tar\\.gz\n",
+                "debian_control": "Source: lua5.5\nHomepage: https://www.lua.org/\nVcs-Git: https://salsa.debian.org/lua-team/lua5.5.git\n",
+            }
+        }
+    }
+
+    def _fake_fetch(url):
+        if "name=lua5.5" in url:
+            return {"items": []}
+        if "name=lua" in url:
+            return {
+                "items": [
+                    {
+                        "name": "lua",
+                        "homepage": "https://www.lua.org/",
+                        "version": "5.5.0",
+                        "open_bugs": 1,
+                        "versions": ["5.5.0", "5.4.8"],
+                        "last_release_date": "2026-06-01",
+                    }
+                ]
+            }
+        raise AssertionError(f"unexpected URL: {url}")
+
+    with patch("evidence.host_adapters._fetch_json", side_effect=_fake_fetch) as mock_fetch:
+        from evidence.host_adapters import collect_upstream_tracker
+
+        result = collect_upstream_tracker(ctx)
+
+    assert result["status"] == "ok"
+    assert result["latest_version"] == "5.5.0"
+    assert result["upstream_url"] == "https://www.lua.org/"
+    queried_urls = [call.args[0] for call in mock_fetch.call_args_list]
+    assert any("name=lua5.5" in url for url in queried_urls)
+    assert any("name=lua" in url for url in queried_urls)
+    assert not any("salsa" in url for url in queried_urls)
+
+
 def test_dep_analysis_output_structure():
     """dep-analysis adapter should return expected structure."""
     ctx = Mock()

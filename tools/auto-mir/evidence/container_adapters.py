@@ -233,6 +233,12 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         ["bash", "-lc", f"cd {full_source} && cat debian/control"],
         as_ubuntu=True,
     )
+    debian_watch = _capture(
+        ctx,
+        ["bash", "-lc", f"cd {full_source} && cat debian/watch"],
+        allow_fail=True,
+        as_ubuntu=True,
+    )
     debian_rules = _capture(
         ctx,
         ["bash", "-lc", f"cd {full_source} && cat debian/rules"],
@@ -307,6 +313,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         "source_dir": full_source,
         "source_workdir": workdir,
         "debian_control": debian_control,
+        "debian_watch": debian_watch,
         "debian_rules": debian_rules,
         "cargo_lock_present": cargo_lock,
         "go_sum_present": go_sum,

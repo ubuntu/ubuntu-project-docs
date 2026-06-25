@@ -42,6 +42,26 @@ except ImportError:  # pragma: no cover - optional runtime dependency
 
 log = logging.getLogger("auto_mir.evidence.host")
 
+_GENERIC_URL_TOKENS = {
+    "www",
+    "ftp",
+    "downloads",
+    "download",
+    "releases",
+    "release",
+    "sources",
+    "source",
+    "src",
+    "git",
+    "cgit",
+    "archive",
+    "tarballs",
+    "files",
+    "org",
+    "com",
+    "net",
+}
+
 
 class AdapterError(RuntimeError):
     """Raised when an evidence adapter cannot produce required output."""
@@ -421,20 +441,147 @@ def collect_debian_bts(ctx) -> DebianBTSResult:
     }
 
 
+def _normalize_project_name(name: str) -> str:
+    normalized = name.lower().replace("python3-", "").replace("python-", "")
+    normalized = re.sub(r"[-_.]?\d+(?:\.\d+)*$", "", normalized)
+    return normalized.strip("-_. ")
+
+
+def _extract_homepage_from_control(debian_control: str) -> str:
+    match = re.search(r"^Homepage:\s*(\S+)\s*$", debian_control, flags=re.MULTILINE)
+    return match.group(1).strip() if match else ""
+
+
+def _dedupe_preserve_order(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for item in items:
+        if item not in seen:
+            deduped.append(item)
+            seen.add(item)
+    return deduped
+
+
+def _extract_urls_from_watch(debian_watch: str) -> list[str]:
+    urls: list[str] = []
+    for raw_line in debian_watch.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        for match in re.findall(r"(?:https?|ftp)://[^\s)>'\"]+", line):
+            urls.append(match.rstrip(",;"))
+    return _dedupe_preserve_order(urls)
+
+
+def _project_terms_from_url(url: str) -> list[str]:
+    parsed = urllib.parse.urlparse(url)
+    terms: list[str] = []
+
+    hostname = (parsed.hostname or "").lower()
+    labels = [label for label in hostname.split(".") if label and label not in _GENERIC_URL_TOKENS]
+    if labels:
+        terms.append(_normalize_project_name(labels[0]))
+
+    path_parts = [part for part in parsed.path.split("/") if part]
+    for part in reversed(path_parts):
+        cleaned = re.sub(r"\.(?:git|tar\.[a-z0-9]+|zip|tgz|tbz2)$", "", part, flags=re.IGNORECASE)
+        cleaned = re.sub(r"\([^)]*\)", "", cleaned)
+        cleaned = re.sub(r"\[[^\]]*\]", "", cleaned)
+        cleaned = re.sub(r"[^a-zA-Z0-9+._-]", "-", cleaned)
+        candidate = _normalize_project_name(cleaned)
+        if candidate and candidate not in _GENERIC_URL_TOKENS:
+            terms.append(candidate)
+            break
+
+    return _dedupe_preserve_order([term for term in terms if term])
+
+
+def _urls_look_related(project_url: str, hint_url: str) -> bool:
+    if not project_url or not hint_url:
+        return False
+
+    project_parsed = urllib.parse.urlparse(project_url)
+    hint_parsed = urllib.parse.urlparse(hint_url)
+    project_host = (project_parsed.hostname or "").lower().removeprefix("www.")
+    hint_host = (hint_parsed.hostname or "").lower().removeprefix("www.")
+    if project_host and hint_host and project_host == hint_host:
+        return True
+
+    project_terms = set(_project_terms_from_url(project_url))
+    hint_terms = set(_project_terms_from_url(hint_url))
+    return bool(project_terms & hint_terms)
+
+
+def _collect_upstream_search_terms(ctx, package_name: str) -> tuple[list[str], list[str]]:
+    packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
+    if not isinstance(packaging, dict):
+        packaging = {}
+
+    debian_watch = str(packaging.get("debian_watch") or "")
+    debian_control = str(packaging.get("debian_control") or "")
+
+    url_hints = _extract_urls_from_watch(debian_watch)
+    homepage = _extract_homepage_from_control(debian_control)
+    if homepage:
+        url_hints.append(homepage)
+    url_hints = _dedupe_preserve_order(url_hints)
+
+    search_terms = [package_name]
+    normalized_package = _normalize_project_name(package_name)
+    if normalized_package and normalized_package != package_name:
+        search_terms.append(normalized_package)
+    for url in url_hints:
+        search_terms.extend(_project_terms_from_url(url))
+
+    return _dedupe_preserve_order([term for term in search_terms if term]), url_hints
+
+
 def _select_upstream_project(
-    projects: list[dict[str, Any]], package_name: str
+    projects: list[dict[str, Any]],
+    package_name: str,
+    candidate_name: str,
+    url_hints: list[str],
 ) -> dict[str, Any] | None:
     """Return the best upstream project match for a source package name."""
     if not projects:
         return None
 
-    normalized = package_name.lower().replace("python3-", "").replace("python-", "")
+    normalized_pkg = _normalize_project_name(package_name)
+    normalized_candidate = _normalize_project_name(candidate_name)
+    best_project: dict[str, Any] | None = None
+    best_score = -1
+
     for project in projects:
         name = str(project.get("name", "")).strip().lower()
-        if name == normalized or name == package_name.lower():
-            return project
+        score = 0
 
-    return projects[0]
+        project_urls = [
+            str(project.get("homepage") or "").strip(),
+            str(project.get("url") or "").strip(),
+        ]
+        if any(
+            _urls_look_related(project_url, hint)
+            for project_url in project_urls
+            for hint in url_hints
+        ):
+            score = max(score, 100)
+
+        if name == normalized_candidate and normalized_candidate:
+            score = max(score, 90)
+        if name == normalized_pkg and normalized_pkg:
+            score = max(score, 80)
+        if normalized_candidate and normalized_candidate in name:
+            score = max(score, 60)
+
+        if score > best_score:
+            best_project = project
+            best_score = score
+
+    if best_score > 0:
+        return best_project
+    if len(projects) == 1:
+        return projects[0]
+    return None
 
 
 @adapter(AdapterID.UPSTREAM_TRACKER)
@@ -448,25 +595,34 @@ def collect_upstream_tracker(ctx) -> UpstreamTrackerResult:
     if not pkg:
         raise AdapterError("source_package not set")
 
-    query = urllib.parse.quote(pkg)
-    url = f"https://release-monitoring.org/api/v2/projects/?name={query}"
+    search_terms, url_hints = _collect_upstream_search_terms(ctx, pkg)
+    project = None
 
-    try:
-        data = _fetch_json(url)
-    except urllib.error.HTTPError as exc:
-        raise AdapterError(f"upstream tracker HTTP error: {exc.code}") from exc
-    except urllib.error.URLError as exc:
-        raise AdapterError(f"upstream tracker request failed: {exc.reason}") from exc
-    except json.JSONDecodeError as exc:
-        raise AdapterError(f"upstream tracker JSON parse failed: {exc}") from exc
+    for term in search_terms:
+        query = urllib.parse.quote(term)
+        url = f"https://release-monitoring.org/api/v2/projects/?name={query}"
 
-    projects = data.get("items") or data.get("projects") or data.get("results") or []
-    if isinstance(projects, dict):
-        projects = [projects]
-    if not isinstance(projects, list):
-        projects = []
+        try:
+            data = _fetch_json(url)
+        except urllib.error.HTTPError as exc:
+            raise AdapterError(f"upstream tracker HTTP error: {exc.code}") from exc
+        except urllib.error.URLError as exc:
+            raise AdapterError(f"upstream tracker request failed: {exc.reason}") from exc
+        except json.JSONDecodeError as exc:
+            raise AdapterError(f"upstream tracker JSON parse failed: {exc}") from exc
 
-    project = _select_upstream_project(projects, pkg)
+        projects = data.get("items") or data.get("projects") or data.get("results") or []
+        if isinstance(projects, dict):
+            projects = [projects]
+        if not isinstance(projects, list):
+            projects = []
+        if not projects:
+            continue
+
+        project = _select_upstream_project(projects, pkg, term, url_hints)
+        if project is not None:
+            break
+
     if project is None:
         raise AdapterError(f"no upstream project match found for {pkg}")
 
@@ -497,7 +653,8 @@ def collect_upstream_tracker(ctx) -> UpstreamTrackerResult:
 
     return {
         "status": "ok",
-        "upstream_url": str(project.get("homepage") or project.get("url") or "").strip(),
+        "upstream_url": str(project.get("homepage") or project.get("url") or "").strip()
+        or (url_hints[0] if url_hints else ""),
         "latest_version": latest_version,
         "open_issues_count": open_issues_count,
         "recent_releases": recent_releases,

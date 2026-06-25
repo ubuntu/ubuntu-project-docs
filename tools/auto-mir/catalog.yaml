@@ -679,7 +679,7 @@ evidence_adapters:
     recent_releases: list
     last_release_date: str
   fallback: emit_todo_continue
-  notes: URL detection uses debian/watch, debian/upstream/metadata, or reporter statement
+  notes: URL detection prefers debian/watch, then Homepage in debian/control, then package-name-based search; ignore Vcs-Git packaging repos
 - id: sbuild
   type: local_exec
   description: Run sbuild with unshare backend in LXD VM; produces build log, lintian output, and built .deb files

@@ -249,6 +249,7 @@ class PackagingSourceResult(TypedDict):
     source_dir: str
     source_workdir: str
     debian_control: str
+    debian_watch: str
     debian_rules: str
     cargo_lock_present: bool
     go_sum_present: bool
