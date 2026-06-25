@@ -8,7 +8,7 @@ We need to validate the test in an isolated environment and LXC containers are a
 For example when investigating a segfault for bionic, start a `bionic` container.
 
 We can name our LXC containers with any scheme we wish, such as 'tester'
-earlier for a temporary one to test with. However, for bug fixes we'll often
+earlier for a temporary one to test with. However, for bug fixes we often
 need to keep the container around for reference as the bug fix goes through
 the review, sponsorship, and SRU processes.
 
