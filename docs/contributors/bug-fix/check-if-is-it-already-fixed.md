@@ -56,7 +56,7 @@ versions for each distribution version is under `pkg/ubuntu/version`.
 
 Notes:
 
-* Due to {lpbug}`this bug <1761821>`, you may get:
+* Due to bug {lpbug}`1761821`, you may get:
   `fatal: could not read Username for 'https://git.launchpad.net': terminal prompts disabled.`
   It's safe to ignore this.
  * The first time you run this command, a ``git-ubuntu`` entry is added to

@@ -1,8 +1,7 @@
 (evaluate-the-bug)=
 # Evaluate the Bug
 
-Let's look at an example:
-[bug #1753470 report](https://bugs.launchpad.net/ubuntu/+source/postfix/+bug/1753470).
+Let's look at an example: bug {lpbug}`1753470`.
 
 
 ## Bug report description:

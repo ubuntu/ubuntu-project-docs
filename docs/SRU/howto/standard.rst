@@ -74,7 +74,7 @@ Prepare a special type of SRU <howto-prepare-special-sru>` instead.
     <explanation-sru-pipeline>` using the various :ref:`status pages
     <reference-status-pages>`.
 8.  If you find a problem while it's still unapproved, ask the SRU team to
-    reject the upload. You can contact the SRU team in #sru:ubuntu.com
+    reject the upload. You can contact the SRU team in {matrix}`sru`
     on Matrix. If rejected at this stage, the same version number can be
     reused.
 9.  After the package is accepted into -proposed, you will be asked to
