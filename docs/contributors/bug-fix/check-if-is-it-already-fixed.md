@@ -36,7 +36,7 @@ We see from the first output that `3.3.0-1ubuntu1` exists under Cosmic, so
 `postfix` has been modified there. Let's see what was changed.
 
 
-### Clone the Package
+### Clone the package
 
 Find the repository name:
 
