@@ -16,7 +16,7 @@ Mar 5 14:30:06 hostname-here kernel: [ 672.303499] postconf[13004]: segfault at 
 ```
 
 According to the Apport log (which is automatically attached to the Launchpad
-bug by Apport), the crash is caused by following command line:
+bug by Apport), the crash is caused by the following command line:
 
 ```none
 $ postconf -h queue_directory
@@ -107,7 +107,7 @@ $ lxc exec tester -- sudo -i -u ubuntu
 ```
 
 ```{note}
-The "ubuntu" user's password is locked, but `sudo` can be run without password.
+The "ubuntu" user's password is locked, but `sudo` can be run without a password.
 ```
 
 

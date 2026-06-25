@@ -202,7 +202,7 @@ $ git branch -av | cat
 ```
 
 That's a lot of branches, but the ones of most interest are `master` and
-sometimes `experimental`. `master` is already checked out, so lets peruse its
+sometimes `experimental`. `master` is already checked out, so let's peruse its
 commit history. Doing this, we find:
 
 ```none
