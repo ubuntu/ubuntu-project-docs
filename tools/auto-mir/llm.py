@@ -36,6 +36,8 @@ from utils.retry import extract_retry_after, retry_rate_limited
 
 log = logging.getLogger("auto_mir.llm")
 
+_MISSING = object()
+
 # OpenAI-compatible (OpenRouter and others) defaults.
 DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
 DEFAULT_OPENAI_COMPAT_SMALL_MODEL = "z-ai/glm-4.7"
@@ -316,11 +318,16 @@ def _extract_json(raw_response: str) -> dict[str, Any]:
     try:
         content = envelope["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError) as exc:
+        _log_response_parse_hint(envelope)
         raise LLMError(
             f"Unexpected LLM API response shape: {exc}\nEnvelope keys: {list(envelope.keys())}"
         ) from exc
 
-    content = _normalize_message_content(content)
+    try:
+        content = _normalize_message_content(content)
+    except LLMError:
+        _log_response_parse_hint(envelope, content)
+        raise
 
     # Strip any accidental markdown fences the model may have added
     content = _strip_fences(content)
@@ -328,9 +335,24 @@ def _extract_json(raw_response: str) -> dict[str, Any]:
     try:
         return json.loads(content)
     except json.JSONDecodeError as exc:
+        _log_response_parse_hint(envelope, content)
         raise LLMError(
             f"Model response is not valid JSON: {exc}\nContent: {content[:400]}"
         ) from exc
+
+
+def _log_response_parse_hint(envelope: dict[str, Any], content: Any = _MISSING) -> None:
+    """Log a compact parse hint only when debug logging is enabled."""
+    if not log.isEnabledFor(logging.DEBUG):
+        return
+
+    envelope_keys = list(envelope.keys())[:10] if isinstance(envelope, dict) else []
+    content_type = type(content).__name__ if content is not _MISSING else "missing"
+    log.debug(
+        "LLM parse hint: envelope_keys=%s content_type=%s",
+        envelope_keys,
+        content_type,
+    )
 
 
 def _strip_fences(text: str) -> str:

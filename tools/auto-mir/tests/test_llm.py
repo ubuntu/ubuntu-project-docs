@@ -1,6 +1,7 @@
 """Tests for LLM model tier selection and response parsing behavior."""
 
 import json
+import logging
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -76,3 +77,39 @@ def test_extract_json_accepts_list_message_content_parts():
     parsed = llm._extract_json(raw)
 
     assert parsed == {"status": "ok", "message": "fine"}
+
+
+def test_extract_json_logs_parse_hint_only_in_debug(monkeypatch):
+    raw = json.dumps({"choices": [{"message": {"content": None}}], "model": "demo"})
+    debug_messages = []
+
+    monkeypatch.setattr(llm.log, "isEnabledFor", lambda level: level == logging.DEBUG)
+    monkeypatch.setattr(
+        llm.log,
+        "debug",
+        lambda message, *args: debug_messages.append(message % args),
+    )
+
+    with pytest.raises(llm.LLMError, match="content is null"):
+        llm._extract_json(raw)
+
+    assert debug_messages == [
+        "LLM parse hint: envelope_keys=['choices', 'model'] content_type=NoneType"
+    ]
+
+
+def test_extract_json_skips_parse_hint_when_debug_disabled(monkeypatch):
+    raw = json.dumps({"choices": [{"message": {"content": None}}], "model": "demo"})
+    debug_messages = []
+
+    monkeypatch.setattr(llm.log, "isEnabledFor", lambda level: False)
+    monkeypatch.setattr(
+        llm.log,
+        "debug",
+        lambda message, *args: debug_messages.append(message % args),
+    )
+
+    with pytest.raises(llm.LLMError, match="content is null"):
+        llm._extract_json(raw)
+
+    assert debug_messages == []
