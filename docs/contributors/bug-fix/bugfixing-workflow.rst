@@ -70,7 +70,7 @@ In the preceding output, the part before the colon is the name of the binary pac
 
 .. note::
 
-    If the package is not installed on your system, you can use ``apt-file`` to search across all packages. However, ``apt-file`` is not installed by default and must be set up before use:
+    For packages not installed on your system, use ``apt-file`` to search across all packages. However, ``apt-file`` is not installed by default and must be set up before use:
 
     .. code-block:: none
 
