@@ -235,6 +235,7 @@ def collect_lp_bug_search_api(ctx) -> LPBugSearchAPIResult:
     }
 
 
+@adapter(AdapterID.LP_PACKAGE_API)
 def collect_lp_package_api(ctx) -> LPPackageAPIResult:
     """Query Launchpad package publishing history and build state via launchpadlib.
 

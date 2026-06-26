@@ -7,7 +7,19 @@ from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from evidence import AdapterError, _order_adapters, collect_from_catalog
+from evidence import (
+    AdapterError,
+    _ensure_adapters_registered,
+    _order_adapters,
+    collect_from_catalog,
+)
+
+# Register all adapters into the real registry up front. Several tests below use
+# patch.dict("evidence.ADAPTER_REGISTRY", ..., clear=True); if the lazy first
+# import of the container/team adapter modules happened inside such a cleared
+# context, their decorator registrations would be discarded on patch exit and
+# lost for the rest of the session (modules are cached, so they never re-run).
+_ensure_adapters_registered()
 
 # ---------------------------------------------------------------------------
 # Adapter dependency ordering
@@ -174,6 +186,30 @@ def test_collect_from_catalog_marks_unimplemented_adapters():
         # new-adapter should be marked as pending
         assert ctx.evidence["adapters"]["new-adapter"]["status"] == "pending"
         assert "Unknown adapter" in ctx.evidence["adapters"]["new-adapter"]["message"]
+
+
+def test_all_catalog_adapters_are_registered():
+    """Every adapter referenced by the catalog must have a registered collector.
+
+    Guards against a collector function losing (or never gaining) its @adapter
+    decorator, which silently drops it from ADAPTER_REGISTRY and turns every
+    dependent check into an "Unknown adapter" TODO at runtime.
+    """
+    import catalog
+    from evidence.registry import ADAPTER_REGISTRY
+
+    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
+    workspace_root = Path(__file__).resolve().parent.parent.parent.parent
+    catalog_data = catalog.load_catalog(catalog_path, workspace_root)
+
+    referenced: set[str] = set()
+    for check in catalog_data.get("checks", []):
+        referenced.update(check.get("adapters_required", []))
+        referenced.update(check.get("adapters_optional", []))
+
+    _ensure_adapters_registered()
+    missing = sorted(referenced - set(ADAPTER_REGISTRY))
+    assert not missing, f"Catalog references unregistered adapters: {missing}"
 
 
 # ---------------------------------------------------------------------------

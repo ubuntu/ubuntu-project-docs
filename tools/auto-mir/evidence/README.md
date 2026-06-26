@@ -53,21 +53,25 @@ def _collect_adapter_name(ctx: RunContext) -> AdapterResultType:
 
 ## Adapter Registry
 
-The orchestrator maintains a registry mapping adapter IDs to collector functions:
+Adapters self-register via the `@adapter` decorator from `evidence/registry.py`,
+which populates `ADAPTER_REGISTRY` (a map of adapter ID to
+`(collector_function, dependencies)`). A collector that is missing its decorator
+is silently absent from the registry, so every dependent check becomes an
+"Unknown adapter" TODO at runtime — `tests/test_evidence.py` guards against this.
 
 ```python
-# evidence/__init__.py
-ADAPTER_REGISTRY = {
-    # Host-side
-    "lp-bug-api": host_adapters.collect_lp_bug_api,
-    "lp-package-api": host_adapters.collect_lp_package_api,
-    "ubuntu-cve-tracker": host_adapters.collect_ubuntu_cve_tracker,
+# evidence/host_adapters.py
+from catalog_enums import AdapterID
+from evidence.registry import adapter
 
-    # In-container
-    "packaging-source": container_adapters.collect_packaging_source,
-    "dep-analysis": container_adapters.collect_dep_analysis,
-    "component-mismatches": container_adapters.collect_component_mismatches,
-}
+@adapter(AdapterID.LP_PACKAGE_API)
+def collect_lp_package_api(ctx) -> LPPackageAPIResult:
+    ...
+
+# Declaring a dependency on another adapter:
+@adapter(AdapterID.DEP_ANALYSIS, depends_on=[AdapterID.PACKAGING_SOURCE, AdapterID.SBUILD])
+def collect_dep_analysis(ctx) -> DepAnalysisResult:
+    ...
 ```
 
 ## Collection Orchestration
