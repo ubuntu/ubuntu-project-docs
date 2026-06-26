@@ -82,6 +82,13 @@ def collect_lp_bug_api(ctx) -> LPBugAPIResult:
     bug = ctx.bug
     if not bug:
         raise AdapterError("Launchpad bug data not populated by lp_intake")
+    log.debug(
+        "lp-bug-api: bug %s '%s', %d comment(s), %d subscriber(s)",
+        ctx.bug_id,
+        bug.get("title", ""),
+        len(bug.get("comments", [])),
+        len(bug.get("subscribers", [])),
+    )
     return {
         "status": "ok",
         "bug_id": ctx.bug_id,
@@ -105,6 +112,11 @@ def collect_lp_team_membership_api(ctx) -> LPTeamMembershipAPIResult:
     """
     subscribers = ctx.bug.get("subscribers", [])
     subscribers_lower = {s.lower() for s in subscribers}
+    log.debug(
+        "lp-team-membership-api: %d subscriber(s), ubuntu-mir subscribed: %s",
+        len(subscribers),
+        "ubuntu-mir" in subscribers_lower,
+    )
     return {
         "status": "ok",
         "subscribers": subscribers,
@@ -202,6 +214,13 @@ def collect_lp_bug_search_api(ctx) -> LPBugSearchAPIResult:
         if next_url is not None:
             next_url = str(next_url).strip() or None
 
+    log.debug(
+        "lp-bug-search-api: %d open bug(s) for %s (%d critical/high, %d security)",
+        len(open_bugs),
+        pkg,
+        len(critical_bugs),
+        len(security_bugs),
+    )
     return {
         "status": "ok",
         "source_package": pkg,
@@ -212,7 +231,6 @@ def collect_lp_bug_search_api(ctx) -> LPBugSearchAPIResult:
     }
 
 
-@adapter(AdapterID.LP_PACKAGE_API)
 def collect_lp_package_api(ctx) -> LPPackageAPIResult:
     """Query Launchpad package publishing history and build state via launchpadlib.
 
@@ -304,6 +322,12 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
     except Exception as exc:
         log.warning("Could not fetch LP upload queue for %s: %s", pkg, exc)
 
+    log.debug(
+        "lp-package-api: current version %s, %d publish record(s), %d uploader(s)",
+        current_version or "unknown",
+        len(ubuntu_publish_history),
+        len(uploaders),
+    )
     return {
         "status": "ok",
         "ubuntu_publish_history": ubuntu_publish_history,
@@ -431,6 +455,13 @@ def collect_debian_bts(ctx) -> DebianBTSResult:
         bug for bug in open_bugs if "security" in bug["tags"] or "cve-" in bug["title"].lower()
     ]
 
+    log.debug(
+        "debian-bts: %d open bug(s) for %s (%d RC, %d security)",
+        len(open_bugs),
+        pkg,
+        len(rc_bugs),
+        len(security_bugs),
+    )
     return {
         "status": "ok",
         "source_package": pkg,
@@ -651,6 +682,13 @@ def collect_upstream_tracker(ctx) -> UpstreamTrackerResult:
     except (TypeError, ValueError):
         open_issues_count = 0
 
+    log.debug(
+        "upstream-tracker: %s latest version %s, %d open issue(s), %d recent release(s)",
+        pkg,
+        latest_version,
+        open_issues_count,
+        len(recent_releases),
+    )
     return {
         "status": "ok",
         "upstream_url": str(project.get("homepage") or project.get("url") or "").strip()
@@ -763,6 +801,12 @@ def collect_lp_build_api(ctx) -> LPBuildAPIResult:
 
     builds.sort(key=lambda entry: (entry["arch_tag"], entry["version"]))
 
+    log.debug(
+        "lp-build-api: %d build record(s) for %s in %s",
+        len(builds),
+        pkg,
+        series_name,
+    )
     return {
         "status": "ok",
         "source_package": pkg,
@@ -1033,6 +1077,13 @@ def collect_cve_org(ctx) -> CVEOrgResult:
         if severity in {"HIGH", "CRITICAL"}:
             high_severity_cves.append(entry)
 
+    log.debug(
+        "cve-org: %d CVE record(s) for %s (%d high/critical), search terms: %s",
+        len(cves),
+        pkg,
+        len(high_severity_cves),
+        ", ".join(matched_terms),
+    )
     return {
         "status": "ok",
         "source_package": pkg,

@@ -308,6 +308,15 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
             except (ValueError, IndexError):
                 pass
 
+    log.debug(
+        "packaging-source: source dir %s, %d file(s), vendored dirs: %d, "
+        "Cargo.lock: %s, go.sum: %s",
+        full_source,
+        len(file_listing),
+        len(vendored_dirs),
+        cargo_lock,
+        go_sum,
+    )
     return {
         "status": "ok",
         "source_dir": full_source,
@@ -466,6 +475,14 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
             }
         )
 
+    log.debug(
+        "dep-analysis: %d binary package(s), %d runtime dep(s), %d dep(s) not in main "
+        "(%d in scope)",
+        len(binary_packages),
+        len(dep_names),
+        len(set(deps_not_in_main)),
+        len(set(in_scope_deps_not_in_main)),
+    )
     return {
         "status": "ok",
         "binary_packages": binary_packages,
@@ -524,6 +541,12 @@ def collect_component_mismatches(ctx) -> ComponentMismatchesResult:
 
     promotion_candidates = _parse_promotion_candidates(output)
 
+    log.debug(
+        "component-mismatches: %d promotion candidate(s) for %s in %s",
+        len(promotion_candidates),
+        pkg,
+        series,
+    )
     return {
         "status": "ok",
         "series": series,
@@ -859,6 +882,14 @@ def collect_deb_metadata(ctx) -> DebMetadataResult:
     if not deb_packages:
         raise AdapterError("Could not extract metadata from any built .deb files")
 
+    built_using_count = sum(1 for p in deb_packages if p["built_using"])
+    static_built_using_count = sum(1 for p in deb_packages if p["static_built_using"])
+    log.debug(
+        "deb-metadata: %d binary package(s), %d with Built-Using, %d with Static-Built-Using",
+        len(deb_packages),
+        built_using_count,
+        static_built_using_count,
+    )
     return {
         "status": "ok",
         "message": f"Extracted metadata from {len(deb_packages)} binary packages",
