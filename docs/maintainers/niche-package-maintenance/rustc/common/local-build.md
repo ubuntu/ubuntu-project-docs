@@ -63,7 +63,7 @@ $ debian/rules override_dh_auto_test-arch RUSTBUILD_TEST_FLAGS="src/bootstrap/ -
 
 In order to fix certain bugs, it's likely you'll need to create your own patch at some point. It's important that this patch contains enough information for other people to understand _what_ it's doing and _why_ it's doing it.
 
-First, ensure that [Debian](https://salsa.debian.org/rust-team/rust/-/tree/debian/experimental?ref_type=heads) has not already created an equivalent patch. If so, you can simply use their patch directly. If you need to modify the patch in any way, make sure to add `Origin: backport, <Debian VCS patch URL>` to the patch header.
+First, ensure that neither the upstream project nor [Debian](https://salsa.debian.org/rust-team/rust/-/tree/debian/experimental?ref_type=heads) has already created an equivalent patch. If so, you can simply use their patch directly. In such cases, make sure to include [DEP-3](https://dep-team.pages.debian.net/deps/dep3/) headers when appropriate.
 
 Otherwise, you must create your own patch. A template {term}`DEP-3 <DEP 3>` header can be generated using the following command:
 
@@ -71,7 +71,4 @@ Otherwise, you must create your own patch. A template {term}`DEP-3 <DEP 3>` head
 $ quilt header -e --dep3 <path/to/patch>
 ```
 
-For the most part, you can follow the [Debian DEP-3 patch guidelines](https://dep-team.pages.debian.net/deps/dep3/). However, there are a few extra things you must do:
-
-- Debian developers typically don't use the `This patch header follows DEP-3 [...]` line added by `quilt`. Delete this line.
-- If this patch isn't something needed to get the new Rust version to build, and you're instead updating an existing source package, add a `Bug-Ubuntu:` line linking to the Launchpad bug.
+Then, follow the [Debian DEP-3 patch guidelines](https://dep-team.pages.debian.net/deps/dep3/).

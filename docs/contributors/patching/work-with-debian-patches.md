@@ -103,8 +103,12 @@ Bug-[Vendor]
   them if they're readily available, but you don't need to go hunting for them.
 
 Forwarded
-: Information about where you sent the patch if it hasn't been upstreamed. Only
-  useful for vendor-specific patches.
+: Information about how the patch was sent to the upstream project in case it
+  was not originated from there.  When present, this should be a URL proving
+  that the patch was forwarded (e.g., a Pull Request or a patch in a bug
+  tracker).  If the patch is specific to Debian or to Ubuntu, i.e., whenever it
+  makes no sense to forward the patch to the upstream project, the value for
+  this field must be "not-needed".
 
 Applied-Upstream
 : If the patch has already been applied upstream, link to it. This is not
