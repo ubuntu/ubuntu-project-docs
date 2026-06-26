@@ -923,6 +923,7 @@ checks:
   - 'TODO-C: MIR team ACK under the constraint to resolve...'
   template_line: 26
   mode: ai
+  synthesis: true
   adapters_required: []
   ai_policy: 'Synthesise all section findings. If zero required findings and zero hard blockers: suggest ACK. If required findings present but package is otherwise sound: suggest ACK-with-conditions listing required TODOs. If fundamental problems exist: suggest NACK. Always mark as requiring human confirmation.
 
@@ -949,6 +950,7 @@ checks:
   - 'TODO-B: This does not need a security review'
   template_line: 30
   mode: ev_to_ai
+  synthesis: true
   adapters_required:
   - ubuntu-cve-tracker
   - cve-org
@@ -1026,7 +1028,7 @@ checks:
   todo_refs:
   - 'TODO: The rationale given in the report seems valid and useful for Ubuntu'
   template_line: 80
-  mode: ai
+  mode: ev_to_ai
   adapters_required:
   - lp-bug-api
   adapters_optional:

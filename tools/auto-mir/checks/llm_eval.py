@@ -23,6 +23,15 @@ _EVIDENCE_LARGE_THRESHOLD_CHARS = 12000
 _FILE_LISTING_REDUCTION_THRESHOLD = 1000
 _MAX_ADDITIONAL_EVIDENCE_REQUESTS = 3
 
+# Input-sizing budgets. Synthesis checks (SUM-5 overall verdict, SUM-6
+# security-review-needed) must reason over essentially all of the run, so they
+# get much larger caps than per-check evaluations. Caps still exist as a cost
+# guardrail, just set high; the large model's context is not the bottleneck.
+_DEFAULT_FINDING_MESSAGE_CHARS = 200
+_SYNTHESIS_FINDING_MESSAGE_CHARS = 1500
+_DEFAULT_REPORTER_SNIPPET_CHARS = 2000
+_SYNTHESIS_REPORTER_CONTENT_CHARS = 20000
+
 
 @evaluator("ev_to_ai")
 def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
@@ -38,7 +47,12 @@ def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
     policy_excerpt = _build_policy_excerpt(check, ctx)
     prompt = _render_ev_to_ai_prompt(check, evidence_payload, policy_excerpt, ctx)
 
-    model_tier = _select_ev_to_ai_model_tier(prompt, evidence_payload)
+    # Synthesis checks always use the large tier; their inputs are intentionally
+    # large and they reason over the whole run.
+    if check.get("synthesis"):
+        model_tier = "large"
+    else:
+        model_tier = _select_ev_to_ai_model_tier(prompt, evidence_payload)
 
     try:
         response = llm.call_llm(prompt, ctx, model_tier=model_tier, trace_label=check["id"])
@@ -79,13 +93,21 @@ def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
     import llm
 
     # For pure-AI checks, pass all available context (findings so far + bug metadata).
+    # Synthesis checks (e.g. SUM-5 overall verdict) must see essentially all the
+    # information, so include the full reporter MIR content and larger per-finding
+    # messages rather than the compact per-check budgets.
     full_evidence = {
         "source_package": ctx.source_package,
         "bug_id": ctx.bug_id,
         "series": ctx.series,
         "bug_title": ctx.bug.get("title", ""),
         "reporter_mir_content_present": bool(ctx.reporter_mir_content),
-        "findings_so_far": _summarise_findings_so_far(ctx),
+        "reporter_mir_content": (ctx.reporter_mir_content or "")[
+            :_SYNTHESIS_REPORTER_CONTENT_CHARS
+        ],
+        "findings_so_far": _summarise_findings_so_far(
+            ctx, max_message_len=_SYNTHESIS_FINDING_MESSAGE_CHARS
+        ),
     }
     policy_excerpt = _build_policy_excerpt(check, ctx)
     prompt = _render_ev_to_ai_prompt(check, full_evidence, policy_excerpt, ctx)
@@ -162,8 +184,18 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
         if build_log:
             payload["build_hints"] = _extract_build_hints(build_log)
 
-    # Always include compact bug context
-    payload["reporter_mir_content_snippet"] = (ctx.reporter_mir_content or "")[:2000]
+    # Always include compact bug context. Synthesis checks (e.g. SUM-6
+    # security-review-needed) need the full picture, so they get a much larger
+    # reporter-content cap and the accumulated section findings.
+    is_synthesis = bool(check.get("synthesis"))
+    snippet_cap = (
+        _SYNTHESIS_REPORTER_CONTENT_CHARS if is_synthesis else _DEFAULT_REPORTER_SNIPPET_CHARS
+    )
+    payload["reporter_mir_content_snippet"] = (ctx.reporter_mir_content or "")[:snippet_cap]
+    if is_synthesis:
+        payload["findings_so_far"] = _summarise_findings_so_far(
+            ctx, max_message_len=_SYNTHESIS_FINDING_MESSAGE_CHARS
+        )
     payload["bug_subscribers"] = ctx.bug.get("subscribers", [])
     payload["bug_tags"] = ctx.bug.get("tags", [])
 
@@ -762,7 +794,9 @@ def _default_todo_for_check(check: dict, fallback_suffix: str) -> str:
     return f"TODO: - {check.get('title', check.get('id', 'Check'))} — {fallback_suffix}"
 
 
-def _summarise_findings_so_far(ctx) -> list[dict]:
+def _summarise_findings_so_far(
+    ctx, max_message_len: int = _DEFAULT_FINDING_MESSAGE_CHARS
+) -> list[dict]:
     """Return a compact summary of findings already evaluated in this run."""
     results = []
     for f in getattr(ctx, "findings", []):
@@ -772,7 +806,7 @@ def _summarise_findings_so_far(ctx) -> list[dict]:
                 "section": f.section,
                 "status": f.status,
                 "severity": f.severity,
-                "message": (f.message or "")[:200],
+                "message": (f.message or "")[:max_message_len],
             }
         )
     return results

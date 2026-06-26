@@ -49,53 +49,37 @@ def evaluate_checks(ctx) -> list[Finding]:
     _ensure_evaluators_registered()
 
     checks = ctx.catalog.get("checks", [])
-    findings = []
 
+    # Two-pass evaluation: synthesis checks (e.g. SUM-5 overall verdict, SUM-6
+    # security-review-needed) summarise the other checks, so they must run AFTER
+    # all non-synthesis checks. We evaluate non-synthesis checks first, expose
+    # their findings via ctx.findings, then evaluate the deferred synthesis
+    # checks. The returned list is reassembled in catalog order so rendering and
+    # Summary-section placement are unaffected.
+    findings_by_id: dict[str, Finding] = {}
+
+    # Pass 1: non-synthesis checks, in catalog order.
+    pass1_findings: list[Finding] = []
     for check in checks:
-        mode = check.get("mode", "unknown")
-        # Invariant: severity is always "ok" when status is "ok",
-        # and always set to a non-None value by every evaluator path.
-        finding = Finding(
-            id=check["id"],
-            section=check.get("section", "unknown"),
-            title=check.get("title", ""),
-            mode=mode,
-            blocker_class=check.get("blocker_class", "none"),
-        )
-
-        # Apply language gate before routing to evaluator.
-        # If the gate says the language is absent, mark ok/not-applicable and skip.
-        gate = check.get("language_gate")
-        if gate and not _language_gate_active(gate, ctx):
-            finding.status = "ok"
-            finding.severity = "ok"
-            finding.confidence = "high"
-            finding.message = (
-                f"not a {gate} package, no extra constraints to consider in that regard"
-            )
-            finding.todo = ""
-            findings.append(finding)
+        if check.get("synthesis"):
             continue
+        finding = _evaluate_single_check(check, ctx)
+        findings_by_id[check["id"]] = finding
+        pass1_findings.append(finding)
 
-        # Route to appropriate evaluator
-        title = str(check.get("title") or "").strip()
-        if title:
-            log.info("Evaluating check: %s - %s (%s)", check["id"], title, mode)
-        else:
-            log.info("Evaluating check: %s (%s)", check["id"], mode)
-        evaluator = EVALUATORS.get(mode)
-        if evaluator:
-            finding = evaluator(check, ctx, finding)
-        else:
-            finding.fail(f"Unknown mode: {mode}", finding.title, status="unknown")
+    # Make pass-1 findings available to synthesis evaluators (SUM-5/SUM-6 read
+    # ctx.findings); it is overwritten with the full ordered list by the caller.
+    ctx.findings = list(pass1_findings)
 
-        todo_value = str(finding.todo or "")
-        if finding.status != "ok" and not (
-            todo_value.startswith("TODO:") or todo_value.startswith("TODO-")
-        ):
-            finding.todo = f"TODO: - {finding.title}"
+    # Pass 2: deferred synthesis checks, after everything else.
+    for check in checks:
+        if not check.get("synthesis"):
+            continue
+        finding = _evaluate_single_check(check, ctx)
+        findings_by_id[check["id"]] = finding
 
-        findings.append(finding)
+    # Reassemble in catalog order so render/Summary placement is unchanged.
+    findings = [findings_by_id[check["id"]] for check in checks]
 
     # Post-process: for unknown/low-confidence findings, record which adapter failures
     # caused the fallback so the renderer can emit visible warnings in the draft.
@@ -120,3 +104,52 @@ def evaluate_checks(ctx) -> list[Finding]:
                     finding.adapter_error_cause = caused_by
 
     return findings
+
+
+def _evaluate_single_check(check: dict, ctx) -> Finding:
+    """Evaluate one catalog check and return its Finding.
+
+    Handles the language gate, evaluator routing, and TODO normalisation shared
+    by both evaluation passes in evaluate_checks().
+    """
+    mode = check.get("mode", "unknown")
+    # Invariant: severity is always "ok" when status is "ok",
+    # and always set to a non-None value by every evaluator path.
+    finding = Finding(
+        id=check["id"],
+        section=check.get("section", "unknown"),
+        title=check.get("title", ""),
+        mode=mode,
+        blocker_class=check.get("blocker_class", "none"),
+    )
+
+    # Apply language gate before routing to evaluator.
+    # If the gate says the language is absent, mark ok/not-applicable and skip.
+    gate = check.get("language_gate")
+    if gate and not _language_gate_active(gate, ctx):
+        finding.status = "ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = f"not a {gate} package, no extra constraints to consider in that regard"
+        finding.todo = ""
+        return finding
+
+    # Route to appropriate evaluator
+    title = str(check.get("title") or "").strip()
+    if title:
+        log.info("Evaluating check: %s - %s (%s)", check["id"], title, mode)
+    else:
+        log.info("Evaluating check: %s (%s)", check["id"], mode)
+    evaluator = EVALUATORS.get(mode)
+    if evaluator:
+        finding = evaluator(check, ctx, finding)
+    else:
+        finding.fail(f"Unknown mode: {mode}", finding.title, status="unknown")
+
+    todo_value = str(finding.todo or "")
+    if finding.status != "ok" and not (
+        todo_value.startswith("TODO:") or todo_value.startswith("TODO-")
+    ):
+        finding.todo = f"TODO: - {finding.title}"
+
+    return finding

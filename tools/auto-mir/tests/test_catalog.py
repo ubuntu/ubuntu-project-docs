@@ -75,6 +75,32 @@ def test_load_catalog_adapters_have_required_fields():
         assert "description" in adapter, f"Adapter {adapter['id']} missing 'description'"
 
 
+def test_synthesis_checks_are_marked():
+    """SUM-5 and SUM-6 must carry the synthesis flag so they run last."""
+    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
+    workspace_root = Path(__file__).resolve().parent.parent.parent
+
+    catalog = load_catalog(catalog_path, workspace_root)
+    by_id = {c["id"]: c for c in catalog.get("checks", [])}
+
+    assert by_id["SUM-5"].get("synthesis") is True
+    assert by_id["SUM-6"].get("synthesis") is True
+
+
+def test_rdo_3_uses_ev_to_ai_with_lp_bug_api():
+    """RDO-3 should route through ev_to_ai and keep the lp-bug-api adapter."""
+    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
+    workspace_root = Path(__file__).resolve().parent.parent.parent
+
+    catalog = load_catalog(catalog_path, workspace_root)
+    by_id = {c["id"]: c for c in catalog.get("checks", [])}
+
+    rdo_3 = by_id["RDO-3"]
+    assert rdo_3["mode"] == "ev_to_ai"
+    assert "lp-bug-api" in rdo_3.get("adapters_required", [])
+    assert not rdo_3.get("synthesis")
+
+
 # ---------------------------------------------------------------------------
 # Catalog summarization
 # ---------------------------------------------------------------------------

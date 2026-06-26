@@ -2288,3 +2288,84 @@ def test_versions_compatible_strips_debian_revision():
     )
 
     assert is_compatible is True
+
+
+def test_synthesis_checks_evaluated_last(monkeypatch):
+    """Synthesis checks run after all others and see the accumulated findings.
+
+    The returned list still preserves catalog order so rendering/Summary
+    placement is unaffected.
+    """
+    from types import SimpleNamespace
+
+    order = []
+    synthesis_seen = {}
+
+    def normal_eval(check, ctx, finding):
+        order.append(check["id"])
+        finding.status = "ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = f"msg {check['id']}"
+        return finding
+
+    def synth_eval(check, ctx, finding):
+        order.append(check["id"])
+        synthesis_seen[check["id"]] = [f.id for f in ctx.findings]
+        finding.status = "ok"
+        finding.severity = "ok"
+        finding.confidence = "high"
+        finding.message = "synthesis"
+        return finding
+
+    monkeypatch.setattr(checks, "_ensure_evaluators_registered", lambda: None)
+    monkeypatch.setitem(checks.EVALUATORS, "tnorm", normal_eval)
+    monkeypatch.setitem(checks.EVALUATORS, "tsyn", synth_eval)
+
+    ctx = SimpleNamespace(
+        catalog={
+            "checks": [
+                {"id": "A-1", "mode": "tnorm", "section": "Summary"},
+                {"id": "SUM-X", "mode": "tsyn", "section": "Summary", "synthesis": True},
+                {"id": "B-1", "mode": "tnorm", "section": "Dependencies"},
+            ]
+        },
+        evidence={},
+        findings=[],
+    )
+
+    result = checks.evaluate_checks(ctx)
+
+    # Synthesis check evaluated last, after both non-synthesis checks.
+    assert order == ["A-1", "B-1", "SUM-X"]
+    # Returned list preserves catalog order.
+    assert [f.id for f in result] == ["A-1", "SUM-X", "B-1"]
+    # Synthesis check saw the accumulated non-synthesis findings via ctx.findings.
+    assert synthesis_seen["SUM-X"] == ["A-1", "B-1"]
+
+
+def test_summarise_findings_so_far_respects_message_cap():
+    """The per-finding message cap is honoured and overridable for synthesis."""
+    from types import SimpleNamespace
+
+    ctx = SimpleNamespace(
+        findings=[
+            Finding(
+                id="X-1",
+                section="Summary",
+                title="t",
+                mode="deterministic",
+                status="not-ok",
+                severity="required",
+                message="y" * 5000,
+            )
+        ]
+    )
+
+    default = checks.llm_eval._summarise_findings_so_far(ctx)
+    assert len(default[0]["message"]) == checks.llm_eval._DEFAULT_FINDING_MESSAGE_CHARS
+
+    synth = checks.llm_eval._summarise_findings_so_far(
+        ctx, max_message_len=checks.llm_eval._SYNTHESIS_FINDING_MESSAGE_CHARS
+    )
+    assert len(synth[0]["message"]) == checks.llm_eval._SYNTHESIS_FINDING_MESSAGE_CHARS
