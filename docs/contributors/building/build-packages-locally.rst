@@ -170,7 +170,7 @@ Building for a different architecture (cross-building)
 
 .. dropdown:: Without ``unshare`` (additional setup required)
 
-   Building for a different architecture without ``unshare`` requires using an emulated schroot.
+   Building for a different architecture without ``unshare`` requires using an emulated ``schroot``.
 
    Make sure you have followed the ``schroot`` setup for
    :ref:`sbuild` in :ref:`how-to-set-up-for-ubuntu-development` before proceeding.

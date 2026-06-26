@@ -183,11 +183,11 @@ packages on Ubuntu. It supports two backends: `unshare` (recommended) and
 
 The `unshare` backend uses user namespaces and [`mmdebstrap`](https://wiki.debian.org/mmdebstrap)
 to create isolated build environments without requiring `root` or `schroot`
-setup. With recent versions of `sbuild`, chroot tarballs are created and
+setup. With recent versions of `sbuild`, `chroot` tarballs are created and
 managed automatically on demand using `mmdebstrap`, making the `unshare`
 backend the recommended approach for most users.
 
-This automatic chroot management is available out of the box on Ubuntu 25.10
+This automatic `chroot` management is available out of the box on Ubuntu 25.10
 and later. It is also available on Ubuntu 24.04 LTS when `sbuild` is
 installed from the `noble-backports` pocket. It is **not** available on Ubuntu
 22.04 LTS and earlier -- use the `schroot` backend setup instead.
