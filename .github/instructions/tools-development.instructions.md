@@ -40,6 +40,19 @@ make integration  # full integration flow with VM setup/teardown
   validation target) must pass before committing.
 
 
+## Planning-mode interactivity
+
+When planning changes under `tools/**` (before writing code):
+
+- Feel empowered to ask. Whenever a requirement, scope boundary, or design
+  tradeoff is unclear, ask the user rather than guessing or deferring.
+- Aim for full alignment before acting. Resolve open questions up front so the
+  agreed plan can be implemented without mid-flight reinterpretation.
+- Present "further considerations" as interactive questions, not free-text-only
+  prompts. Offer concrete options (with a recommended default where sensible) so
+  the user can answer with a quick selection instead of composing prose.
+
+
 ## Source-of-truth boundaries
 
 - Architecture and operating model live in `tools/auto-mir/design.md`.
