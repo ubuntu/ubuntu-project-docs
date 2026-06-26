@@ -49,14 +49,11 @@ def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
     prompt = _render_ev_to_ai_prompt(check, evidence_payload, policy_excerpt, ctx)
 
     # Synthesis checks always use the large tier; their inputs are intentionally
-    # large and they reason over the whole run. An explicit catalog model_tier
-    # override wins next (used for checks whose compact inputs still exhaust the
-    # small-tier budget because the reasoning model spends it on reasoning).
-    # Otherwise fall back to size-based selection.
+    # large and they reason over the whole run. Other ev_to_ai checks select the
+    # tier from prompt/evidence complexity, with the one-shot larger-budget retry
+    # in call_llm() as the backstop when a reasoning model overflows.
     if check.get("synthesis"):
         model_tier = "large"
-    elif check.get("model_tier"):
-        model_tier = check["model_tier"]
     else:
         model_tier = _select_ev_to_ai_model_tier(prompt, evidence_payload)
 
