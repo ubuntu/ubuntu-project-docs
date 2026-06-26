@@ -217,7 +217,10 @@ class _Ctx:
                     "id": "PRF-10",
                     "messages": {
                         "ok_message": "It is not on the lto-disabled list",
-                        "unknown_todo": "TODO: - Check if package is on lto-disabled list",
+                        "not_ok_message": "Package is on the lto-disabled list (architectures: {arches}); LTO must be fixed or disabled in the package before promotion",
+                        "not_ok_todo": "TODO: - Package is on the lto-disabled list ({arches}); ensure the LTO fix or in-package workaround is present before promotion",
+                        "unknown_message": "Could not retrieve the lto-disabled-list (adapter failed)",
+                        "unknown_todo": "TODO: - Manually verify the package is not on lp:ubuntu/+source/lto-disabled-list",
                     },
                 },
                 {
@@ -1118,8 +1121,10 @@ def test_urf_1_security_warning():
 def test_prf_10_not_on_list():
     """Test PRF-10 when package is not on lto-disabled list."""
     ctx = _Ctx(source_package="testpkg")
-    ctx.evidence["adapters"]["lp-package-api"] = {
+    ctx.evidence["adapters"]["lto-disabled-list"] = {
         "status": "ok",
+        "on_list": False,
+        "disabled_arches": [],
     }
 
     finding = _make_finding("PRF-10", mode="deterministic")
@@ -1131,10 +1136,12 @@ def test_prf_10_not_on_list():
 
 
 def test_prf_10_on_list():
-    """Test PRF-10 when package is on lto-disabled list (edge case)."""
+    """Test PRF-10 when package is on lto-disabled list (any architecture)."""
     ctx = _Ctx(source_package="llvm")
-    ctx.evidence["adapters"]["lp-package-api"] = {
+    ctx.evidence["adapters"]["lto-disabled-list"] = {
         "status": "ok",
+        "on_list": True,
+        "disabled_arches": ["arm64", "s390x"],
     }
 
     finding = _make_finding("PRF-10", mode="deterministic")
@@ -1143,6 +1150,26 @@ def test_prf_10_on_list():
     assert result.status == "not-ok"
     assert result.severity == "required"
     assert "lto-disabled list" in result.message.lower()
+    # Affected architectures are surfaced to the reviewer.
+    assert "arm64" in result.message
+    assert "s390x" in result.message
+
+
+def test_prf_10_adapter_error_degrades_to_unknown():
+    """Test PRF-10 degrades to unknown (left for reviewer) when fetch fails."""
+    ctx = _Ctx(source_package="testpkg")
+    ctx.evidence["adapters"]["lto-disabled-list"] = {
+        "status": "error",
+        "error": "network unreachable",
+    }
+
+    finding = _make_finding("PRF-10", mode="deterministic")
+    result = checks.deterministic._check_prf_10(ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.confidence == "low"
+    assert result.todo.startswith("TODO:")
+    assert "lto-disabled" in result.message.lower()
 
 
 def test_cb_8_not_python():

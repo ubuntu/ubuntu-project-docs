@@ -811,3 +811,91 @@ def test_lintian_output_structure():
     assert result["status"] == "ok"
     assert result["lintian_errors"] == ["E: testpkg: unknown-field"]
     assert result["lintian_warnings"] == ["W: testpkg: description-synopsis-starts-with-article"]
+
+
+# ---------------------------------------------------------------------------
+# lto-disabled-list adapter
+# ---------------------------------------------------------------------------
+
+_LTO_LIST_SAMPLE = """\
+# list of source packages not to build with link time optimization (LTO).
+#
+# packages in main:
+abinit any
+abiword arm64
+# packages not in main:
+llvm arm64 s390x
+zfs-fuse amd64 ppc64el
+"""
+
+
+def test_parse_lto_disabled_list_skips_comments_and_blanks():
+    """Parser keeps source->arches mappings and ignores comments/blank lines."""
+    from evidence.lto_disabled_adapter import _parse_lto_disabled_list
+
+    mapping = _parse_lto_disabled_list(_LTO_LIST_SAMPLE)
+
+    assert mapping == {
+        "abinit": ["any"],
+        "abiword": ["arm64"],
+        "llvm": ["arm64", "s390x"],
+        "zfs-fuse": ["amd64", "ppc64el"],
+    }
+
+
+def test_collect_lto_disabled_list_on_list():
+    """Adapter reports on_list with the architectures for a listed package."""
+    from evidence import lto_disabled_adapter
+
+    ctx = Mock()
+    ctx.source_package = "llvm"
+
+    mock_resp = Mock()
+    mock_resp.read.return_value = _LTO_LIST_SAMPLE.encode("utf-8")
+    mock_resp.__enter__ = Mock(return_value=mock_resp)
+    mock_resp.__exit__ = Mock(return_value=False)
+
+    with patch.object(lto_disabled_adapter.urllib.request, "urlopen", return_value=mock_resp):
+        result = lto_disabled_adapter.collect_lto_disabled_list(ctx)
+
+    assert result["status"] == "ok"
+    assert result["on_list"] is True
+    assert result["disabled_arches"] == ["arm64", "s390x"]
+
+
+def test_collect_lto_disabled_list_not_on_list():
+    """Adapter reports on_list False for an unlisted package."""
+    from evidence import lto_disabled_adapter
+
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+
+    mock_resp = Mock()
+    mock_resp.read.return_value = _LTO_LIST_SAMPLE.encode("utf-8")
+    mock_resp.__enter__ = Mock(return_value=mock_resp)
+    mock_resp.__exit__ = Mock(return_value=False)
+
+    with patch.object(lto_disabled_adapter.urllib.request, "urlopen", return_value=mock_resp):
+        result = lto_disabled_adapter.collect_lto_disabled_list(ctx)
+
+    assert result["status"] == "ok"
+    assert result["on_list"] is False
+    assert result["disabled_arches"] == []
+
+
+def test_collect_lto_disabled_list_fetch_error():
+    """Adapter returns error status when the list cannot be fetched."""
+    from evidence import lto_disabled_adapter
+
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+
+    with patch.object(
+        lto_disabled_adapter.urllib.request,
+        "urlopen",
+        side_effect=OSError("network unreachable"),
+    ):
+        result = lto_disabled_adapter.collect_lto_disabled_list(ctx)
+
+    assert result["status"] == "error"
+    assert "network unreachable" in result["error"]

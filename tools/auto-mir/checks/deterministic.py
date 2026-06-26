@@ -724,44 +724,38 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
 def _check_prf_10(ctx, finding: Finding) -> Finding:
     """PRF-10: Not on lto-disabled list."""
     check = _get_check_definition(ctx, "PRF-10")
-    pkg = ctx.source_package
+    adapters = ctx.evidence.get("adapters", {})
+    lto = adapters.get("lto-disabled-list", {})
 
-    if not pkg:
-        finding.status = "unknown"
+    # If the list could not be fetched, leave the decision to the reviewer
+    # rather than emitting a false pass.
+    if lto.get("status") != "ok":
+        _set_unknown_from_adapter(
+            finding,
+            check,
+            todo_key="unknown_todo",
+            evidence_refs=["lto-disabled-list:status"],
+        )
         finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not determine source package name"
-        finding.todo = render_check_message(check, "unknown_todo")
-        finding.evidence_refs = []
         return finding
 
-    # Check if package is on the lto-disabled-list
-    # The lto-disabled-list package contains package names that require LTO to be disabled
-    # For now, we implement a stub that returns "not on list" (the OK case)
-    # In production, this would query the actual list from lp:ubuntu/+source/lto-disabled-list
-
-    # Common packages known to be on the list (example)
-    known_lto_disabled = {
-        "llvm",  # Example: llvm is often on the list
-    }
-
-    is_on_list = pkg.lower() in {p.lower() for p in known_lto_disabled}
-
-    if is_on_list:
+    if lto.get("on_list"):
+        arches = lto.get("disabled_arches") or []
+        arch_str = ", ".join(arches) if arches else "unknown"
         finding.fail(
-            "Package is on the lto-disabled list; LTO must be fixed or disabled",
-            "It is not on the lto-disabled list",
+            render_check_message(check, "not_ok_message", arches=arch_str),
+            render_check_message(check, "not_ok_todo", arches=arch_str),
             severity="required",
-            confidence="medium",
+            confidence="high",
         )
-        finding.evidence_refs = []
+        finding.evidence_refs = ["lto-disabled-list:disabled_arches"]
         return finding
 
     finding.succeed(
-        "It is not on the lto-disabled list",
-        confidence="medium",
+        render_check_message(check, "ok_message"),
+        confidence="high",
     )
-    finding.evidence_refs = ["lp-package-api:status"]
+    finding.evidence_refs = ["lto-disabled-list:on_list"]
     return finding
 
 

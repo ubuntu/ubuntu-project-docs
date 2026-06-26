@@ -657,6 +657,17 @@ evidence_adapters:
     source_package: str
   fallback: emit_todo_continue
   notes: Downloads from https://static-reports.ubuntu.com/package-team-mapping.json and filters out display-only teams
+- id: lto-disabled-list
+  type: web
+  description: Fetch the lto-disabled-list to check whether the source package must not be built with LTO
+  inputs:
+  - source_package
+  output_contract:
+    on_list: bool
+    disabled_arches: list
+    source_package: str
+  fallback: emit_todo_continue
+  notes: Downloads from https://git.launchpad.net/ubuntu/+source/lto-disabled-list/plain/lto-disabled-list; a package listed for any architecture qualifies
 - id: debian-bts
   type: web
   description: Fetch open bugs from Debian Bug Tracking System for the package
@@ -2383,13 +2394,19 @@ checks:
   template_line: 265
   mode: deterministic
   adapters_required:
-  - lp-package-api
+  - lto-disabled-list
   ai_policy: none
   human_override: false
   blocker_class: hard
   notes: 'Check against lp:ubuntu/+source/lto-disabled-list. If present, the fix or workaround must be in the package itself before promotion.
 
     '
+  messages:
+    ok_message: It is not on the lto-disabled list
+    not_ok_message: 'Package is on the lto-disabled list (architectures: {arches}); LTO must be fixed or disabled in the package before promotion'
+    not_ok_todo: 'TODO: - Package is on the lto-disabled list ({arches}); ensure the LTO fix or in-package workaround is present before promotion (see https://launchpad.net/ubuntu/+source/lto-disabled-list)'
+    unknown_message: Could not retrieve the lto-disabled-list (adapter failed)
+    unknown_todo: 'TODO: - Manually verify the package is not on lp:ubuntu/+source/lto-disabled-list'
   mapping_rules:
   - condition: not on lto-disabled list
     severity: ok

@@ -25,6 +25,7 @@ def _ensure_adapters_registered() -> None:
     importlib.import_module("evidence.host_adapters")
     importlib.import_module("evidence.container_adapters")
     importlib.import_module("evidence.team_mapping_adapter")
+    importlib.import_module("evidence.lto_disabled_adapter")
 
 
 def _summarize_result(result: dict) -> str:

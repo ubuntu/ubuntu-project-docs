@@ -26,6 +26,7 @@ class AdapterID(str, Enum):
     DEBIAN_BTS = "debian-bts"
     CVE_SEARCH_TERMS = "cve-search-terms"
     NVD_ENRICH = "nvd-enrich"
+    LTO_DISABLED_LIST = "lto-disabled-list"
 
     # In-container adapters
     PACKAGING_SOURCE = "packaging-source"
