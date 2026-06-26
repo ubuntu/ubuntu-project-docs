@@ -3,6 +3,7 @@
 
 This article provides a guide for understanding how the LLVM toolchain is packaged for Ubuntu.
 
+
 ## Setting up
 
 Ubuntu's LLVM packages follow Debian as closely as is reasonable. To simplify that process, maintainers typically use [git-ubuntu](https://ubuntu.com/project/docs/how-ubuntu-is-made/processes/git-ubuntu/) rather than a separate, dedicated repository.
@@ -12,6 +13,7 @@ As an example, if you are planning to work on LLVM version 22, you would clone t
 ```none
 git ubuntu clone llvm-toolchain-22
 ```
+
 
 (understanding-the-common-llvm-packages)=
 ### Understanding the common LLVM packages
@@ -30,6 +32,7 @@ The way the package treats the common packages can be configured in `debian/rule
 
 If, for example, you are working on a fix for LLVM 19 on Resolute, where LLVM 22 is the newest in the archive and the default, you would set `SKIP_COMMON_PACKAGES=yes` and `NEW_LLVM_VERSION=22`.
 
+
 ### Regenerating the control file
 
 The LLVM package uses many templated configuration files, generally named with a `.in` suffix. This includes `debian/control.in`, which you will likely need to tweak frequently. However, because we track `debian/control` in git, unlike some other generated files, we always need to re-generate the control file whenever we make a change.
@@ -41,6 +44,7 @@ debian/rules stamps/preconfigure APT_LLVM_ORG=yes DISTRO=resolute
 
 git clean -fd   # to remove the other generated files not tracked in git
 ```
+
 
 ## Fixing or updating an existing LLVM version
 
@@ -56,6 +60,7 @@ The steps are generally similar to any other Ubuntu package and so some details 
 1. Lint the debs by pointing `lintian` at them.
 1. Run the autopkgtests with the LXD backend, i.e. `autopkgtest . --shell-fail -- lxd autopkgtest/ubuntu/resolute/amd64`. If you need the image, run `autopkgtest-build-lxd ubuntu:resolute` or use the `daily:` remote for devel.
 1. Assuming success, push the source package to a PPA with `dput`.
+
 
 ## Backporting a new version of LLVM to a stable Ubuntu
 
@@ -78,6 +83,7 @@ There a number of steps you will need to go through, which will vary slightly fo
   It's good practice to also make the python libraries co-installable by not installing those files in the global python `site-packages` directory. Users can adjust their `PYTHON_PATH` if they absolutely need to make use of the backported Python libraries.
 - Updating `.gitignore` as needed for file renames.
 
+
 (bootstrapping-a-backport)=
 ### Bootstrapping a backport
 
@@ -96,6 +102,7 @@ sbuild -d noble --extra-repository="deb [trusted=yes] http://ppa.launchpadconten
 ```
 
 The PPA itself will automatically pick up its own dependencies, but if you want to use several you can configure them to depend on one another as necessary.
+
 
 ### New major LLVM releases
 
