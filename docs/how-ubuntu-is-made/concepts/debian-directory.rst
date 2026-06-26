@@ -12,6 +12,19 @@ This article explains the different files important to the packaging of Ubuntu p
 
 These are required for all packages. A number of additional files in the :file:`debian/` directory may be used to customize and configure the behavior of the package. Some of these files are discussed in this article, but this is not meant to be a complete list.
 
+.. note::
+
+   The :file:`debian/` directory contains files used to define a
+   *source package* and is not to be confused with the :file:`DEBIAN/`
+   directory which contains files used for installing *binary packages*. More
+   specifically the :file:`DEBIAN/` directory includes the binary package
+   control file used to declare the package's "vital statistics" (name,
+   version, relationships, etc.). It can additionally include maintainer
+   scripts such as :file:`postinst`, :file:`preinst`, :file:`postrm`, and
+   :file:`prerm` that extend beyond the processing provided py :pkg:`dpkg`.
+   Predominantly the :file:`DEBIAN/` directory is not created manually, and is
+   instead generated when using higher-level packaging tools like
+   :pkg:`dpkg-buildpackage`.
 
 .. _debian-directory-changelog:
 
