@@ -439,19 +439,6 @@ def _parse_chat_response(
     return parsed, meta
 
 
-def _extract_json(raw_response: str) -> dict[str, Any]:
-    """Extract the JSON content from a chat-completions API response.
-
-    The response is the full OpenAI-compatible response envelope; we extract
-    choices[0].message.content (or fall back to the reasoning text) and parse
-    that as JSON (the model's actual reply).
-    """
-    envelope = _parse_envelope(raw_response)
-    message = _get_message(envelope)
-    reasoning = _extract_reasoning(message)
-    return _content_or_reasoning_to_json(message, envelope, reasoning)
-
-
 def _parse_envelope(raw_response: str) -> dict[str, Any]:
     """Parse the raw HTTP body into the response envelope dict."""
     try:

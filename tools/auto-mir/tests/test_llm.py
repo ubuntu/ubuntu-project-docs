@@ -51,14 +51,14 @@ def test_selected_model_invalid_tier_raises():
         llm._selected_model(ctx, "invalid")
 
 
-def test_extract_json_rejects_null_message_content():
+def test_parse_chat_response_rejects_null_message_content():
     raw = json.dumps({"choices": [{"message": {"content": None}}]})
 
     with pytest.raises(llm.LLMError, match="content is null"):
-        llm._extract_json(raw)
+        llm._parse_chat_response(raw, llm._MAX_TOKENS_BY_TIER["small"])
 
 
-def test_extract_json_accepts_list_message_content_parts():
+def test_parse_chat_response_accepts_list_message_content_parts():
     raw = json.dumps(
         {
             "choices": [
@@ -74,12 +74,12 @@ def test_extract_json_accepts_list_message_content_parts():
         }
     )
 
-    parsed = llm._extract_json(raw)
+    parsed, _meta = llm._parse_chat_response(raw, llm._MAX_TOKENS_BY_TIER["small"])
 
     assert parsed == {"status": "ok", "message": "fine"}
 
 
-def test_extract_json_logs_parse_hint_only_in_debug(monkeypatch):
+def test_parse_chat_response_logs_parse_hint_only_in_debug(monkeypatch):
     raw = json.dumps({"choices": [{"message": {"content": None}}], "model": "demo"})
     debug_messages = []
 
@@ -91,14 +91,14 @@ def test_extract_json_logs_parse_hint_only_in_debug(monkeypatch):
     )
 
     with pytest.raises(llm.LLMError, match="content is null"):
-        llm._extract_json(raw)
+        llm._parse_chat_response(raw, llm._MAX_TOKENS_BY_TIER["small"])
 
     assert debug_messages == [
         "LLM parse hint: envelope_keys=['choices', 'model'] content_type=NoneType"
     ]
 
 
-def test_extract_json_skips_parse_hint_when_debug_disabled(monkeypatch):
+def test_parse_chat_response_skips_parse_hint_when_debug_disabled(monkeypatch):
     raw = json.dumps({"choices": [{"message": {"content": None}}], "model": "demo"})
     debug_messages = []
 
@@ -110,7 +110,7 @@ def test_extract_json_skips_parse_hint_when_debug_disabled(monkeypatch):
     )
 
     with pytest.raises(llm.LLMError, match="content is null"):
-        llm._extract_json(raw)
+        llm._parse_chat_response(raw, llm._MAX_TOKENS_BY_TIER["small"])
 
     assert debug_messages == []
 
@@ -124,7 +124,7 @@ def test_max_tokens_for_tier_defaults_and_override():
     assert llm._max_tokens_for_tier("small", override=123) == 123
 
 
-def test_extract_json_falls_back_to_reasoning_when_content_null():
+def test_parse_chat_response_falls_back_to_reasoning_when_content_null():
     raw = json.dumps(
         {
             "choices": [
@@ -138,12 +138,12 @@ def test_extract_json_falls_back_to_reasoning_when_content_null():
         }
     )
 
-    parsed = llm._extract_json(raw)
+    parsed, _meta = llm._parse_chat_response(raw, llm._MAX_TOKENS_BY_TIER["small"])
 
     assert parsed == {"status": "ok", "message": "from reasoning"}
 
 
-def test_extract_json_uses_reasoning_details_parts():
+def test_parse_chat_response_uses_reasoning_details_parts():
     raw = json.dumps(
         {
             "choices": [
@@ -160,7 +160,7 @@ def test_extract_json_uses_reasoning_details_parts():
         }
     )
 
-    parsed = llm._extract_json(raw)
+    parsed, _meta = llm._parse_chat_response(raw, llm._MAX_TOKENS_BY_TIER["small"])
 
     assert parsed == {"status": "ok", "message": "ok"}
 
