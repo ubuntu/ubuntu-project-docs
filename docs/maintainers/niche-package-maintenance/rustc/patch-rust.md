@@ -14,8 +14,7 @@ This guide assumes that you already have a basic understanding of maintaining Ub
 ## Background
 
 `rustc` {term}`VCS` policy is unique because it is a versioned {term}`source
-package`. This means that every new upstream Rust version corresponds to a new
-package in the {term}`Ubuntu Archive`.
+package`. This means that every new upstream Rust version corresponds to a package with a new, unique name in the {term}`Ubuntu Archive`.
 
 Therefore, there are two repositories for every `rustc` version uploaded to the
 archive:
@@ -39,25 +38,36 @@ the release's `git-ubuntu` repository, then manually copying over the changes to
 the Foundations Rust repository after your changes are uploaded to the archive.
 
 
-## Substitution Terms
+## Substitution terms
 
-From now on, the documentation will contain certain terms within angle brackets
+From now on, the documentation contains certain terms within angle brackets,
 which must be replaced with the actual value that applies to your situation.
 
 As an example, let's assume you are patching `rustc-1.94` ({term}`upstream` version
 `1.94.1`) for 26.10 Stonking Stingray:
 
-- `<X.Y>`: The short Rust version you're working on.
+`<X.Y>`
+: The short Rust version you're working on.
   - Example: `1.94`
-- `<X.Y.Z>`: The long Rust version you're on.
+
+`<X.Y.Z>`
+: The long Rust version you're on.
   - Example: `1.94.1`
-- `<release>`: The target {term}`Ubuntu release` adjective.
+
+`<release>`
+: The target {term}`Ubuntu release` adjective.
   - Example: `stonking`
-- `<lpuser>`: Your {term}`Launchpad` username. This is also used to refer to
+
+`<lpuser>`
+: Your {term}`Launchpad` username. This is also used to refer to
   your personal Launchpad Git {term}`repository's <repository>` remote name.
-- `<foundations>`: Your local Git remote name for the [Foundations Rust repository](https://code.launchpad.net/~canonical-foundations/ubuntu/+source/rustc).
-- `<lp_bug_number>`: The number of the {term}`Launchpad` {term}`bug` associated
-   with this upload.
+
+`<foundations>`
+: Your local Git remote name for the [Foundations Rust repository](https://code.launchpad.net/~canonical-foundations/ubuntu/+source/rustc).
+
+`<lp_bug_number>`
+: The number of the {term}`Launchpad` {term}`bug` associated
+  with this upload.
 
 
 (foundations-rust-repo-setup)=
@@ -66,7 +76,7 @@ As an example, let's assume you are patching `rustc-1.94` ({term}`upstream` vers
 ```
 
 
-## Setting up the git-ubuntu Repository
+## Setting up the git-ubuntu repository
 
 Just like the Foundations Rust repository, set up a parent directory, then clone
 the versioned package repository:
@@ -81,7 +91,7 @@ $ cd rustc-<X.Y>
 Inspect `debian/changelog` and make sure the most recent {term}`changelog` entry
 version matches the version in the archive.
 
-After that, get the current {term}`orig tarball` from the archive so you are
+After that, get the current {term}`orig tarball` from the archive, so you are
 able to build the package locally:
 
 ```none
@@ -101,16 +111,16 @@ your changelog.
 :::
 
 
-## The Patching Process
+## Patching process
 
 You must make _all changes_ to the package within the `git-ubuntu` repository,
 _not_ the Foundations Rust repository.
 
 You may make your changes to the package the same way you would with any other
-package.
+package: {ref}`how-to-make-changes-to-a-package`.
 
 Don't forget to update the changelog! See the
-{ref}`version string format guide <version-strings>` if you need help selecting
+{ref}`version string format guide <version-strings>` for help on selecting
 the proper version string.
 
 The changelog must also reference the bug you are fixing.
@@ -133,9 +143,9 @@ You must also verify that none of your changes have interfered with {term}`autop
 
 ```
 
-### Uploading the Patched Package
+### Uploading the patched package
 
-Once you are satisfied with your changes, you are ready to upload the package.
+Once you are satisfied with your changes, upload the package.
 
 First, push your changes to your personal branch:
 
@@ -149,7 +159,7 @@ Then, go to your personal repository list at
 {term}`merge proposal` there.
 
 
-## Updating the Foundations Rust Repository
+## Updating the Foundations Rust repository
 
 After your changes have been uploaded to the archive, the Foundations Rust
 repository must be manually updated to reflect the package's actual state in the
@@ -157,7 +167,7 @@ archive.
 
 You must add your changes to the rich Git history of the Foundations repo.
 First, go to your `git-ubuntu` repo, switch to the `ubuntu/devel` branch, and
-ensure it's synced up with the archive:
+ensure it's synced with the archive:
 
 ```none
 $ git checkout ubuntu/devel
@@ -171,7 +181,7 @@ version published in the archive:
 $ git format-patch pkg/import/<version_string_before_your_changes>..
 ```
 
-This command will generate a series of numbered patches which you can then apply
+This command generates a series of numbered patches, which you can then apply
 to the Foundations Rust repository.
 
 Go to the Foundations Rust repository working tree you
