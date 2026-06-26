@@ -221,7 +221,7 @@ See [Stable Release Updates](https://documentation.ubuntu.com/sru/en/latest/) do
 | :---- | :---- |
 | [`verification-done`](https://launchpad.net/ubuntu/+bugs?field.tag=verification-done) | A Stable Release Update bug with a package in `-proposed` that has been confirmed to fix the bug |
 | [`verification-failed`](https://launchpad.net/ubuntu/+bugs?field.tag=verification-failed) | A Stable Release Update bug with a package in `-proposed` that has been verified to not fix the bug |
-| [`verification-needed`](https://launchpad.net/ubuntu/+bugs?field.tag=verification-needed) | A Stable Release Update bug with a package in `-proposed` needing testing |
+| [`verification-needed-<series>`](https://launchpad.net/ubuntu/+bugs?field.tag=verification-needed-noble) | A Stable Release Update bug with a package in `-proposed` needing testing |
 | `block-proposed-<series>` | A bug that should be held back from being released into the `-updates` pocket for the corresponding stable series (see {ref}`Staging an upload <special-types-of-sru>`) |
 
 
