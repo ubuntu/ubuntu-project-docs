@@ -74,11 +74,11 @@ class LLMContentError(LLMError):
 # message.content null while reasoning consumes everything. Tier-aware defaults
 # give the small and large models ample headroom above the ~300-600 token JSON
 # answer. Limits still exist as a cost guardrail.
-_MAX_TOKENS_BY_TIER = {"small": 8192, "large": 16384}
+_MAX_TOKENS_BY_TIER = {"small": 16384, "large": 32768}
 # Default used when a tier is unknown.
 _MAX_TOKENS = _MAX_TOKENS_BY_TIER["small"]
 # Absolute ceiling for the one-shot retry-with-larger-budget path.
-_MAX_TOKENS_HARD_CAP = 32768
+_MAX_TOKENS_HARD_CAP = 65536
 # Conservative defaults until we learn real values from API responses.
 _DEFAULT_LIMIT_PER_WINDOW = 10
 _DEFAULT_WINDOW_SECONDS = 60

@@ -1001,6 +1001,9 @@ checks:
     '
   human_override: true
   blocker_class: soft
+  # Compact inputs, but the reasoning model exhausts the small-tier token budget
+  # on reasoning (observed finish_reason=length); pin to the large tier.
+  model_tier: large
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:
@@ -1177,6 +1180,9 @@ checks:
   human_override: true
   human_override_flag: dependency-test-sufficiency
   blocker_class: none
+  # Compact inputs, but the reasoning model exhausts the small-tier token budget
+  # on reasoning (observed finish_reason=length); pin to the large tier.
+  model_tier: large
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   mapping_rules:

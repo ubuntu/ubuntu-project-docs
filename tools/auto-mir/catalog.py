@@ -204,6 +204,16 @@ def validate_catalog(catalog: dict) -> list[str]:
                         f"Must be one of: {', '.join(sorted(valid_blockers))}"
                     )
 
+            # Validate model_tier override if present
+            if "model_tier" in check:
+                valid_tiers = {"small", "large"}
+                if check["model_tier"] not in valid_tiers:
+                    errors.append(
+                        f"Check {check.get('id', i)} has invalid model_tier: "
+                        f"{check['model_tier']}. "
+                        f"Must be one of: {', '.join(sorted(valid_tiers))}"
+                    )
+
             # Check for duplicate IDs
             if "id" in check:
                 if check["id"] in check_ids:

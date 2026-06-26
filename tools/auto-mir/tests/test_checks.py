@@ -884,7 +884,32 @@ def test_eval_ev_to_ai_graceful_on_large_tier_llm_error():
     assert result.confidence == "low"
 
 
-def test_reduce_file_listing_strips_common_prefix_without_reducing_small_list():
+def test_eval_ev_to_ai_honours_explicit_model_tier_override():
+    """A catalog model_tier override wins over size-based tier selection."""
+    ctx = _Ctx()
+    check = {
+        "id": "RDO-1",
+        "title": "No duplicate functionality in main",
+        "section": "Rationale, Duplication and Ownership",
+        "todo_refs": ["TODO: no duplicate"],
+        "adapters_required": [],
+        "adapters_optional": [],
+        "model_tier": "large",
+    }
+    finding = _make_finding("RDO-1", mode="ev_to_ai")
+
+    captured = {}
+
+    def fake_call_llm(prompt, ctx_arg, model_tier, trace_label):
+        captured["model_tier"] = model_tier
+        return {"status": "ok", "severity": "ok", "message": "fine"}
+
+    # Force size-based selection to "small" so we can prove the override wins.
+    with mock.patch("checks.llm_eval._select_ev_to_ai_model_tier", return_value="small"):
+        with mock.patch("llm.call_llm", side_effect=fake_call_llm):
+            checks.llm_eval._eval_ev_to_ai(check, ctx, finding)
+
+    assert captured["model_tier"] == "large"
     listing = [
         {"path": "./src/pkg/a.py", "size": 10},
         {"path": "./src/pkg/b.py", "size": 11},
