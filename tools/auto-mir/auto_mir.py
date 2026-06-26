@@ -26,7 +26,7 @@ import llm
 import lp_intake
 import lxd_runner
 from evidence import collect_from_catalog
-from render import write_outputs
+from render import _render_llm_usage_report, write_outputs
 from utils.cli import parse_bool_arg
 
 log = logging.getLogger("auto_mir")
@@ -764,6 +764,12 @@ def _log_artifact_locations(ctx: RunContext) -> None:
 
 def _print_complete_banner(ctx: RunContext) -> None:
     """Print a prominent end-of-run summary as the very last output."""
+    # Print the LLM usage report immediately before the banner so it appears
+    # together with the completion summary and artifact list.
+    llm_report = _render_llm_usage_report(ctx)
+    if llm_report:
+        print("\n" + "\n".join(llm_report))
+
     lines = [
         "",
         "━" * 64,
