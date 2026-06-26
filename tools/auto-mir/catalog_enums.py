@@ -4,10 +4,10 @@ These enums provide type safety for adapter and check IDs, catching typos
 at development time rather than runtime.
 """
 
-from enum import Enum
+from enum import StrEnum
 
 
-class AdapterID(str, Enum):
+class AdapterID(StrEnum):
     """Evidence adapter identifiers.
 
     These must match the adapter IDs defined in catalog.yaml.
@@ -37,11 +37,8 @@ class AdapterID(str, Enum):
     DEB_METADATA = "deb-metadata"
     CVELIST_SCAN = "cvelist-scan"
 
-    def __str__(self) -> str:
-        return self.value
 
-
-class CheckID(str, Enum):
+class CheckID(StrEnum):
     """Check identifiers.
 
     These must match the check IDs defined in catalog.yaml.
@@ -126,6 +123,3 @@ class CheckID(str, Enum):
     URF_7 = "URF-7"
     URF_8 = "URF-8"
     URF_9 = "URF-9"
-
-    def __str__(self) -> str:
-        return self.value
