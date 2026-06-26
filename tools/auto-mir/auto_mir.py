@@ -445,12 +445,6 @@ def stage_auth(ctx: RunContext) -> None:
     log.info("LLM provider '%s' resolved from %s (url: %s)", provider, source, api_url)
 
 
-def _stub_stage(name: str, ctx: RunContext) -> None:
-    """Placeholder for unimplemented pipeline stages."""
-    log.warning("Stage '%s' is not yet implemented (stub)", name)
-    ctx.evidence[f"_stub_{name}"] = True
-
-
 def _ask_requested_binaries(all_binaries: list[str]) -> list[str]:
     """Interactively ask user which binaries to promote.
 
