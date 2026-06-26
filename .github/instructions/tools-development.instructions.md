@@ -29,6 +29,17 @@ make integration  # full integration flow with VM setup/teardown
 - Preserve explicit typing and typed contracts where already established.
 
 
+## Commit hygiene for multi-task work
+
+- When handed multiple tasks in one request, produce individual, logically
+  separated commits — one per task — rather than a single combined commit.
+- Sign-off is not configured here: create every commit with
+  `git commit --no-gpg-sign` (It will be reviewed and signed by a human
+  reviewer later).
+- Validate each commit independently: `make test` (or the tool's documented
+  validation target) must pass before committing.
+
+
 ## Source-of-truth boundaries
 
 - Architecture and operating model live in `tools/auto-mir/design.md`.
