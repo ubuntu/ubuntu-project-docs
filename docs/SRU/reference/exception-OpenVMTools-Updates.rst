@@ -26,7 +26,11 @@ OpenVMTools Process
 No less than 6 weeks after each Ubuntu release (to allow some widespread
 testing) the version of open-vm-tools can be backported from the current
 Ubuntu release to the most recent LTS' -updates pocket and any non-LTS
-stable release in support.
+stable release in support. In the cases where the most recent supported Ubuntu
+release is an LTS release, this policy will also apply to updating
+open-vm-tools in the second most recent LTS release, e.g., this should cover
+backporting the open-vm-tools version available in Ubuntu 26.04 LTS to Ubuntu
+24.04 LTS during the ubuntu 26.10 development cycle (before its release).
 
 There should be a single SRU bug tracking the backport. Other bugs may be
 included in the changelog; they must have test cases and be verified as
