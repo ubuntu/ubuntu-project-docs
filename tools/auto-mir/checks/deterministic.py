@@ -85,44 +85,34 @@ def _line_is_test_context(line: str) -> bool:
 @deterministic_check("SUM-1")
 def _check_sum_1(ctx, finding: Finding) -> Finding:
     """SUM-1: Source package identified."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "SUM-1"), None)
-    if check is None:
-        raise ValueError("SUM-1 check definition not found in catalog")
+    check = _get_check_definition(ctx, "SUM-1")
     if ctx.source_package:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(
-            check, "ok_message", source_package=ctx.source_package
+        finding.succeed(
+            render_check_message(check, "ok_message", source_package=ctx.source_package)
         )
         finding.evidence_refs = ["lp-bug-api:source_package"]
     else:
-        finding.status = "not-ok"
-        finding.severity = "required"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "not_ok_message")
-        finding.todo = render_check_message(check, "not_ok_todo")
+        finding.fail(
+            render_check_message(check, "not_ok_message"),
+            render_check_message(check, "not_ok_todo"),
+            severity="required",
+        )
     return finding
 
 
 @deterministic_check("SUM-2")
 def _check_sum_2(ctx, finding: Finding) -> Finding:
     """SUM-2: Reporter MIR content present."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "SUM-2"), None)
-    if check is None:
-        raise ValueError("SUM-2 check definition not found in catalog")
+    check = _get_check_definition(ctx, "SUM-2")
     if ctx.reporter_mir_content:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_message")
+        finding.succeed(render_check_message(check, "ok_message"))
         finding.evidence_refs = ["lp-bug-api:reporter_content"]
     else:
-        finding.status = "not-ok"
-        finding.severity = "nack"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "nack_message")
-        finding.todo = render_check_message(check, "nack_todo")
+        finding.fail(
+            render_check_message(check, "nack_message"),
+            render_check_message(check, "nack_todo"),
+            severity="nack",
+        )
     return finding
 
 
@@ -135,30 +125,36 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
     lp_build_result = adapters.get("lp-build-api", {})
 
     if sbuild_result.get("status") != "ok" or not sbuild_result.get("build_success"):
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not confirm build success from sbuild output"
-        finding.todo = "TODO: - does not FTBFS currently"
+        finding.fail(
+            "Could not confirm build success from sbuild output",
+            "TODO: - does not FTBFS currently",
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["sbuild:build_success"]
         return finding
 
     if lp_build_result.get("status") != "ok":
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not confirm Launchpad build state"
-        finding.todo = "TODO: - does not FTBFS currently"
+        finding.fail(
+            "Could not confirm Launchpad build state",
+            "TODO: - does not FTBFS currently",
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["lp-build-api:error"]
         return finding
 
     builds = lp_build_result.get("builds", [])
     if not builds:
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "No Launchpad build records were found"
-        finding.todo = "TODO: - does not FTBFS currently"
+        finding.fail(
+            "No Launchpad build records were found",
+            "TODO: - does not FTBFS currently",
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["lp-build-api:builds"]
         return finding
 
@@ -194,38 +190,32 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
 @deterministic_check("SUM-4")
 def _check_sum_4(ctx, finding: Finding) -> Finding:
     """SUM-4: Package has a team subscriber in package-team-mapping."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "SUM-4"), None)
-    if check is None:
-        raise ValueError("SUM-4 check definition not found in catalog")
+    check = _get_check_definition(ctx, "SUM-4")
     adapters = ctx.evidence.get("adapters", {})
     team_mapping_adapter = adapters.get("team-mapping", {})
 
     if team_mapping_adapter.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        finding.todo = render_check_message(check, "unknown_todo")
-        finding.evidence_refs = ["team-mapping:error"]
-        return finding
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            todo_key="unknown_todo",
+            evidence_refs=["team-mapping:error"],
+        )
 
     subscribed_teams = team_mapping_adapter.get("subscribed_teams", [])
 
     if subscribed_teams:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(
-            check, "ok_message", subscribed_teams=", ".join(subscribed_teams)
+        finding.succeed(
+            render_check_message(check, "ok_message", subscribed_teams=", ".join(subscribed_teams))
         )
-        finding.evidence_refs = ["team-mapping:subscribed_teams"]
     else:
-        finding.status = "not-ok"
-        finding.severity = "recommended"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "not_ok_message")
-        finding.todo = render_check_message(check, "not_ok_todo")
-        finding.evidence_refs = ["team-mapping:subscribed_teams"]
+        finding.fail(
+            render_check_message(check, "not_ok_message"),
+            render_check_message(check, "not_ok_todo"),
+            severity="recommended",
+        )
 
+    finding.evidence_refs = ["team-mapping:subscribed_teams"]
     return finding
 
 
@@ -233,27 +223,27 @@ def _check_sum_4(ctx, finding: Finding) -> Finding:
 def _check_dep_3(ctx, finding: Finding) -> Finding:
     """DEP-3: No -dev/-debug/-doc packages needing exclusion."""
     adapters = ctx.evidence.get("adapters", {})
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "DEP-3"), None)
-    if check is None:
-        raise ValueError("DEP-3 check definition not found in catalog")
+    check = _get_check_definition(ctx, "DEP-3")
 
     packaging = adapters.get("packaging-source", {})
     dep_analysis = adapters.get("dep-analysis", {})
 
     if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_packaging_message")
-        finding.todo = render_check_message(check, "unknown_packaging_todo")
-        return finding
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_packaging_message",
+            todo_key="unknown_packaging_todo",
+        )
 
     if dep_analysis.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_dep_analysis_message")
-        finding.todo = render_check_message(check, "unknown_dep_analysis_todo")
-        finding.evidence_refs = ["dep-analysis:error"]
-        return finding
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_dep_analysis_message",
+            todo_key="unknown_dep_analysis_todo",
+            evidence_refs=["dep-analysis:error"],
+        )
 
     binary_packages = dep_analysis.get("binary_packages", [])
 
@@ -273,10 +263,7 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
 
     auto_included = sorted(auto_included)
     if not auto_included:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_no_auto_included_message")
+        finding.succeed(render_check_message(check, "ok_no_auto_included_message"))
         finding.evidence_refs = [
             "packaging-source:debian_control",
             "dep-analysis:binary_packages",
@@ -303,29 +290,28 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
             for entry in offending_by_binary
             if entry["dependencies"]
         )
-        finding.status = "not-ok"
-        finding.severity = "recommended"
-        finding.confidence = "high"
-        finding.message = render_check_message(
-            check,
-            "not_ok_offending_message",
-            auto_included=", ".join(auto_included),
-            offending_deps=", ".join(offending_deps),
-        )
-        finding.todo = render_check_message(
-            check,
-            "not_ok_offending_todo",
-            details=details,
-            offending_deps=", ".join(offending_deps),
+        finding.fail(
+            render_check_message(
+                check,
+                "not_ok_offending_message",
+                auto_included=", ".join(auto_included),
+                offending_deps=", ".join(offending_deps),
+            ),
+            render_check_message(
+                check,
+                "not_ok_offending_todo",
+                details=details,
+                offending_deps=", ".join(offending_deps),
+            ),
+            severity="recommended",
         )
     else:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(
-            check,
-            "ok_safe_message",
-            auto_included=", ".join(auto_included),
+        finding.succeed(
+            render_check_message(
+                check,
+                "ok_safe_message",
+                auto_included=", ".join(auto_included),
+            )
         )
 
     finding.evidence_refs = [
@@ -341,18 +327,12 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
 @deterministic_check("ESL-1")
 def _check_esl_1(ctx, finding: Finding) -> Finding:
     """ESL-1: No embedded source present."""
-    check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == "ESL-1"), None)
-    if check is None:
-        raise ValueError("ESL-1 check definition not found in catalog")
+    check = _get_check_definition(ctx, "ESL-1")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_message")
-        finding.todo = render_check_message(check, "unknown_todo")
-        return finding
+        return _set_unknown_from_adapter(finding, check, todo_key="unknown_todo")
 
     vendored_dirs = packaging.get("vendored_dirs", [])
     # Also check debian/control for Built-Using (indicates possible embedded source)
@@ -360,29 +340,19 @@ def _check_esl_1(ctx, finding: Finding) -> Finding:
     has_built_using = "Built-Using" in debian_control or "Static-Built-Using" in debian_control
 
     if vendored_dirs:
-        finding.status = "not-ok"
-        finding.severity = "required"
-        finding.confidence = "high"
-        finding.message = render_check_message(
-            check, "not_ok_message", embedded_dirs=", ".join(vendored_dirs)
-        )
-        finding.todo = render_check_message(
-            check, "not_ok_todo", embedded_dirs=", ".join(vendored_dirs)
+        finding.fail(
+            render_check_message(check, "not_ok_message", embedded_dirs=", ".join(vendored_dirs)),
+            render_check_message(check, "not_ok_todo", embedded_dirs=", ".join(vendored_dirs)),
+            severity="required",
         )
         finding.evidence_refs = ["packaging-source:vendored_dirs"]
     elif has_built_using:
         # Built-Using alone is not a blocker; ESL-3 handles unexpected entries.
         # Here we note it's clean w.r.t. embedded source.
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "medium"
-        finding.message = render_check_message(check, "ok_built_using_message")
+        finding.succeed(render_check_message(check, "ok_built_using_message"), confidence="medium")
         finding.evidence_refs = ["packaging-source:debian_control"]
     else:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_message")
+        finding.succeed(render_check_message(check, "ok_message"))
         finding.evidence_refs = ["packaging-source:vendored_dirs"]
     return finding
 
@@ -416,10 +386,7 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
     all_entries = sorted(set(all_built_using + all_static_built_using))
 
     if not all_entries:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_message")
+        finding.succeed(render_check_message(check, "ok_message"))
         finding.evidence_refs = ["deb-metadata:deb_packages"]
         return finding
 
@@ -433,18 +400,17 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
         or "rust" in all_entries_text
         or "${misc:built-using}" in all_entries_text
     ):
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "medium"
-        finding.message = render_check_message(
-            check, "ok_toolchain_message", entries=entries_joined
+        finding.succeed(
+            render_check_message(check, "ok_toolchain_message", entries=entries_joined),
+            confidence="medium",
         )
     else:
-        finding.status = "not-ok"
-        finding.severity = "required"
-        finding.confidence = "medium"
-        finding.message = render_check_message(check, "not_ok_message", entries=entries_joined)
-        finding.todo = render_check_message(check, "not_ok_todo", entries=entries_joined)
+        finding.fail(
+            render_check_message(check, "not_ok_message", entries=entries_joined),
+            render_check_message(check, "not_ok_todo", entries=entries_joined),
+            severity="required",
+            confidence="medium",
+        )
     finding.evidence_refs = ["deb-metadata:deb_packages"]
     return finding
 
@@ -458,17 +424,11 @@ def _check_esl_4(ctx, finding: Finding) -> Finding:
     check, packaging = resolved
 
     if _is_go_package(packaging):
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_go_message")
         # ESL-4 itself is just the gate; it's ok to confirm it's Go.
         # The actual compliance checks are ESL-5, ESL-6, ESL-7.
+        finding.succeed(render_check_message(check, "ok_go_message"))
     else:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_not_go_message")
+        finding.succeed(render_check_message(check, "ok_not_go_message"))
     finding.evidence_refs = [
         "packaging-source:go_sum_present",
         "packaging-source:debian_rules",
@@ -485,33 +445,30 @@ def _check_esl_7(ctx, finding: Finding) -> Finding:
     check, packaging = resolved
 
     if not _is_go_package(packaging):
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_not_go_message")
+        finding.succeed(render_check_message(check, "ok_not_go_message"))
         finding.evidence_refs = []
         return finding
 
     # Detect build mode
     debian_rules = packaging.get("debian_rules", "")
     if "-buildmode=shared" in debian_rules or "linkshared" in debian_rules:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_shared_message")
+        finding.succeed(render_check_message(check, "ok_shared_message"))
     elif "DH_GOLANG_BUILDPKG" in debian_rules or "dh_golang" in debian_rules:
         # dh-golang without explicit shared mode defaults to static in modern versions.
         # This needs human confirmation.
-        finding.status = "not-ok"
-        finding.severity = "recommended"
-        finding.confidence = "medium"
-        finding.message = render_check_message(check, "recommended_message")
-        finding.todo = render_check_message(check, "recommended_todo")
+        finding.fail(
+            render_check_message(check, "recommended_message"),
+            render_check_message(check, "recommended_todo"),
+            severity="recommended",
+            confidence="medium",
+        )
     else:
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message(check, "unknown_build_mode_message")
-        finding.todo = render_check_message(check, "unknown_build_mode_todo")
+        _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_build_mode_message",
+            todo_key="unknown_build_mode_todo",
+        )
     finding.evidence_refs = ["packaging-source:debian_rules"]
     return finding
 
@@ -525,15 +482,9 @@ def _check_esl_8(ctx, finding: Finding) -> Finding:
     check, packaging = resolved
 
     if _is_rust_package(packaging):
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_rust_message")
+        finding.succeed(render_check_message(check, "ok_rust_message"))
     else:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_not_rust_message")
+        finding.succeed(render_check_message(check, "ok_not_rust_message"))
     finding.evidence_refs = [
         "packaging-source:cargo_lock_present",
         "packaging-source:debian_rules",
@@ -551,26 +502,20 @@ def _check_esl_9(ctx, finding: Finding) -> Finding:
 
     if not _is_rust_package(packaging):
         # Not a Rust package; gate doesn't apply.
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_not_rust_message")
+        finding.succeed(render_check_message(check, "ok_not_rust_message"))
         finding.evidence_refs = []
         return finding
 
     debian_rules = packaging.get("debian_rules", "")
     uses_dh_cargo = "--buildsystem cargo" in debian_rules or "dh_cargo" in debian_rules
     if uses_dh_cargo:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_message")
+        finding.succeed(render_check_message(check, "ok_message"))
     else:
-        finding.status = "not-ok"
-        finding.severity = "required"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "not_ok_message")
-        finding.todo = render_check_message(check, "not_ok_todo")
+        finding.fail(
+            render_check_message(check, "not_ok_message"),
+            render_check_message(check, "not_ok_todo"),
+            severity="required",
+        )
     finding.evidence_refs = [
         "packaging-source:debian_rules",
         "packaging-source:cargo_lock_present",
@@ -588,10 +533,7 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
     adapters = ctx.evidence.get("adapters", {})
 
     if not _is_rust_package(packaging):
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_not_rust_message")
+        finding.succeed(render_check_message(check, "ok_not_rust_message"))
         finding.evidence_refs = []
         return finding
 
@@ -623,16 +565,13 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
 
     if problems:
         problems_str = "; ".join(problems)
-        finding.status = "not-ok"
-        finding.severity = "required"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "not_ok_message", problems=problems_str)
-        finding.todo = render_check_message(check, "not_ok_todo", problems=problems_str)
+        finding.fail(
+            render_check_message(check, "not_ok_message", problems=problems_str),
+            render_check_message(check, "not_ok_todo", problems=problems_str),
+            severity="required",
+        )
     else:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = render_check_message(check, "ok_message")
+        finding.succeed(render_check_message(check, "ok_message"))
 
     evidence_refs = ["packaging-source:cargo_lock_present"]
     if deb_metadata.get("status") == "ok":
@@ -681,11 +620,13 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
     sbuild_result = adapters.get("sbuild", {})
 
     if sbuild_result.get("status") != "ok":
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not inspect build log"
-        finding.todo = render_check_message(check, "unknown_todo")
+        finding.fail(
+            "Could not inspect build log",
+            render_check_message(check, "unknown_todo"),
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["sbuild:error"]
         return finding
 
@@ -767,11 +708,13 @@ def _check_cb_8(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not inspect debian/rules (packaging-source failed)"
-        finding.todo = render_check_message(check, "unknown_todo")
+        finding.fail(
+            "Could not inspect debian/rules (packaging-source failed)",
+            render_check_message(check, "unknown_todo"),
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["packaging-source:error"]
         return finding
 
@@ -816,11 +759,13 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if sbuild_result.get("status") != "ok" or packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not inspect build log for static linking"
-        finding.todo = render_check_message(check, "unknown_todo")
+        finding.fail(
+            "Could not inspect build log for static linking",
+            render_check_message(check, "unknown_todo"),
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["sbuild:build_log"]
         return finding
 
@@ -877,11 +822,13 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not inspect packaging (packaging-source failed)"
-        finding.todo = render_check_message(check, "unknown_todo")
+        finding.fail(
+            "Could not inspect packaging (packaging-source failed)",
+            render_check_message(check, "unknown_todo"),
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["packaging-source:error"]
         return finding
 
@@ -930,26 +877,22 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
     )
 
     if has_documented_reason:
-        finding.status = "not-ok"
-        finding.severity = "recommended"
-        finding.confidence = "medium"
-        finding.message = (
-            "C++ library without symbols file but appears to have documented consideration"
-        )
-        finding.todo = (
+        finding.fail(
+            "C++ library without symbols file but appears to have documented consideration",
             "TODO: - For c++ libraries - symbols tracking isn't in place but "
-            "the owning team tried..."
+            "the owning team tried...",
+            severity="recommended",
+            confidence="medium",
         )
         finding.evidence_refs = ["packaging-source:debian_rules"]
         return finding
 
     # No symbols tracking and no documentation
-    finding.status = "not-ok"
-    finding.severity = "recommended"
-    finding.confidence = "medium"
-    finding.message = "C/C++ library detected but symbols tracking not found in package"
-    finding.todo = (
-        "TODO: - For c++ libraries - symbols tracking isn't in place but the owning team tried..."
+    finding.fail(
+        "C/C++ library detected but symbols tracking not found in package",
+        "TODO: - For c++ libraries - symbols tracking isn't in place but the owning team tried...",
+        severity="recommended",
+        confidence="medium",
     )
     finding.evidence_refs = ["packaging-source:debian_control"]
     return finding
@@ -963,11 +906,13 @@ def _check_prf_3(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not inspect packaging (packaging-source failed)"
-        finding.todo = render_check_message(check, "unknown_todo")
+        finding.fail(
+            "Could not inspect packaging (packaging-source failed)",
+            render_check_message(check, "unknown_todo"),
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["packaging-source:error"]
         return finding
 
@@ -1016,11 +961,13 @@ def _check_sec_2(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not inspect packaging source"
-        finding.todo = render_check_message(check, "unknown_todo")
+        finding.fail(
+            "Could not inspect packaging source",
+            render_check_message(check, "unknown_todo"),
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["packaging-source:error"]
         return finding
 
@@ -1043,11 +990,12 @@ def _check_sec_2(ctx, finding: Finding) -> Finding:
         has_mitigations = any(m.lower() in active_lines for m in mitigations)
 
         if has_mitigations:
-            finding.status = "not-ok"
-            finding.severity = "recommended"
-            finding.confidence = "medium"
-            finding.message = "Package runs as root but has security mitigations"
-            finding.todo = "TODO: - Note root execution and mitigations"
+            finding.fail(
+                "Package runs as root but has security mitigations",
+                "TODO: - Note root execution and mitigations",
+                severity="recommended",
+                confidence="medium",
+            )
             finding.evidence_refs = ["packaging-source:debian_rules"]
             return finding
         else:
@@ -1090,11 +1038,13 @@ def _check_urf_3(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not inspect packaging source"
-        finding.todo = render_check_message(check, "unknown_todo")
+        finding.fail(
+            "Could not inspect packaging source",
+            render_check_message(check, "unknown_todo"),
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["packaging-source:error"]
         return finding
 
@@ -1138,11 +1088,13 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not inspect packaging source"
-        finding.todo = render_check_message(check, "unknown_todo")
+        finding.fail(
+            "Could not inspect packaging source",
+            render_check_message(check, "unknown_todo"),
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["packaging-source:error"]
         return finding
 
@@ -1182,11 +1134,13 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
     lintian = adapters.get("lintian", {})
 
     if packaging.get("status") != "ok":
-        finding.status = "unknown"
-        finding.severity = "recommended"
-        finding.confidence = "low"
-        finding.message = "Could not inspect packaging source"
-        finding.todo = render_check_message(check, "unknown_todo")
+        finding.fail(
+            "Could not inspect packaging source",
+            render_check_message(check, "unknown_todo"),
+            severity="recommended",
+            confidence="low",
+            status="unknown",
+        )
         finding.evidence_refs = ["packaging-source:error"]
         return finding
 
@@ -1210,13 +1164,12 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
         source = "lintian output" if lintian_triggered else "debian/rules"
         # Check for documented justification (prefer systemd)
         if "systemd" in debian_rules:
-            finding.status = "not-ok"
-            finding.severity = "recommended"
-            finding.confidence = "medium"
-            finding.message = (
-                f"setuid/setgid present ({source}) but using systemd service permissions"
+            finding.fail(
+                f"setuid/setgid present ({source}) but using systemd service permissions",
+                "TODO: - use of setuid, but ok because systemd is used",
+                severity="recommended",
+                confidence="medium",
             )
-            finding.todo = "TODO: - use of setuid, but ok because systemd is used"
             finding.evidence_refs = ["packaging-source:debian_rules", "lintian:lintian_warnings"]
             return finding
 
@@ -1741,21 +1694,23 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
 
     # Check for excessive warnings (more than a few)
     if len(warnings) > 5:
-        finding.status = "not-ok"
-        finding.severity = "recommended"
-        finding.confidence = "medium"
-        finding.message = f"Lintian found {len(warnings)} warnings - review and fix if possible"
-        finding.todo = "TODO: - Review and fix lintian warnings"
+        finding.fail(
+            f"Lintian found {len(warnings)} warnings - review and fix if possible",
+            "TODO: - Review and fix lintian warnings",
+            severity="recommended",
+            confidence="medium",
+        )
         finding.evidence_refs = ["lintian:lintian_warnings"]
         return finding
 
     # Some warnings are OK, but document them
     if warnings:
-        finding.status = "not-ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = f"Lintian found {len(warnings)} minor warnings - acceptable"
-        finding.todo = f"TODO: - {len(warnings)} minor lintian warnings documented"
+        finding.fail(
+            f"Lintian found {len(warnings)} minor warnings - acceptable",
+            f"TODO: - {len(warnings)} minor lintian warnings documented",
+            severity="ok",
+            confidence="high",
+        )
         finding.evidence_refs = ["lintian:lintian_warnings"]
         return finding
 
@@ -1875,10 +1830,7 @@ def _check_prf_6(ctx, finding: Finding) -> Finding:
     is_compatible, reason = _versions_compatible(archive_version, upstream_version)
 
     if is_compatible:
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = "the current release is packaged"
+        finding.succeed("the current release is packaged")
     else:
         # Archive is behind - determine if "somewhat behind" or "very old"
         archive_parts = _parse_version_tuple(archive_version)
@@ -1895,43 +1847,41 @@ def _check_prf_6(ctx, finding: Finding) -> Finding:
 
                 if major_gap >= 2:
                     # Very old
-                    finding.status = "not-ok"
-                    finding.severity = "required"
-                    finding.confidence = "high"
-                    finding.message = (
+                    finding.fail(
                         f"Package is very behind upstream: "
                         f"{_normalize_upstream_version(archive_version)} vs "
-                        f"{_normalize_upstream_version(upstream_version)}"
+                        f"{_normalize_upstream_version(upstream_version)}",
+                        "TODO: - Consider updating to a more recent upstream release",
+                        severity="required",
+                        confidence="high",
                     )
-                    finding.todo = "TODO: - Consider updating to a more recent upstream release"
                 else:
                     # Somewhat behind (1 major version or minor version differences)
-                    finding.status = "not-ok"
-                    finding.severity = "recommended"
-                    finding.confidence = "high"
-                    finding.message = (
+                    finding.fail(
                         f"Package is somewhat behind upstream: "
                         f"{_normalize_upstream_version(archive_version)} vs "
-                        f"{_normalize_upstream_version(upstream_version)}"
+                        f"{_normalize_upstream_version(upstream_version)}",
+                        "TODO: - Consider updating to a more recent upstream release",
+                        severity="recommended",
+                        confidence="high",
                     )
-                    finding.todo = "TODO: - Consider updating to a more recent upstream release"
             else:
                 # Can't determine major - mark as recommended
-                finding.status = "not-ok"
-                finding.severity = "recommended"
-                finding.confidence = "medium"
-                finding.message = (
+                finding.fail(
                     f"Package version lag detected: "
                     f"{_normalize_upstream_version(archive_version)} vs "
-                    f"{_normalize_upstream_version(upstream_version)}"
+                    f"{_normalize_upstream_version(upstream_version)}",
+                    "TODO: - Verify upstream version availability",
+                    severity="recommended",
+                    confidence="medium",
                 )
-                finding.todo = "TODO: - Verify upstream version availability"
         else:
-            finding.status = "not-ok"
-            finding.severity = "recommended"
-            finding.confidence = "medium"
-            finding.message = "Could not determine version lag"
-            finding.todo = "TODO: - Verify upstream version availability"
+            finding.fail(
+                "Could not determine version lag",
+                "TODO: - Verify upstream version availability",
+                severity="recommended",
+                confidence="medium",
+            )
 
     finding.evidence_refs = ["lp-package-api:current_version", "upstream-tracker:latest_version"]
     return finding
