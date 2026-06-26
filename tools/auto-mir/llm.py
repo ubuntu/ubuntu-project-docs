@@ -50,12 +50,46 @@ class LLMError(RuntimeError):
     """Raised when the LLM call cannot produce a usable response."""
 
 
-# Hard cap on response tokens — JSON responses for MIR checks are compact.
-_MAX_TOKENS = 1024
+class LLMTruncationError(LLMError):
+    """Raised when a response was cut off by the token budget (finish_reason=length).
+
+    Subclass of LLMError so existing callers keep treating it as a failure; the
+    call_llm() wrapper recognises it to retry once with a larger token budget.
+    """
+
+
+class LLMContentError(LLMError):
+    """Raised when a response has null/empty/invalid content that may be transient.
+
+    Subclass of LLMError; recognised by call_llm() to retry once with a larger
+    token budget (reasoning models can spend the whole budget on reasoning and
+    leave message.content empty).
+    """
+
+
+# Hard cap on response tokens — JSON responses for MIR checks are compact, but
+# the configured default models (z-ai/glm-4.7, z-ai/glm-5.2) are reasoning
+# models whose internal reasoning tokens count against this budget. A budget
+# that is too low truncates the JSON answer (finish_reason=length) or leaves
+# message.content null while reasoning consumes everything. Tier-aware defaults
+# give the small and large models ample headroom above the ~300-600 token JSON
+# answer. Limits still exist as a cost guardrail.
+_MAX_TOKENS_BY_TIER = {"small": 8192, "large": 16384}
+# Default used when a tier is unknown.
+_MAX_TOKENS = _MAX_TOKENS_BY_TIER["small"]
+# Absolute ceiling for the one-shot retry-with-larger-budget path.
+_MAX_TOKENS_HARD_CAP = 32768
 # Conservative defaults until we learn real values from API responses.
 _DEFAULT_LIMIT_PER_WINDOW = 10
 _DEFAULT_WINDOW_SECONDS = 60
 _RATE_SAFETY_FACTOR = 1.10
+
+
+def _max_tokens_for_tier(model_tier: str, override: int | None = None) -> int:
+    """Return the response token budget for a tier, honouring an explicit override."""
+    if override:
+        return override
+    return _MAX_TOKENS_BY_TIER.get(model_tier, _MAX_TOKENS_BY_TIER["small"])
 
 
 @dataclass
@@ -72,7 +106,7 @@ class _RateLimitState:
 _rate_limit_by_model: dict[str, _RateLimitState] = {}
 
 
-def call_llm(prompt: str, ctx, model_tier: str = "small") -> dict[str, Any]:
+def call_llm(prompt: str, ctx, model_tier: str = "small", trace_label: str = "") -> dict[str, Any]:
     """Call the configured LLM provider and return the parsed JSON response.
 
     Args:
@@ -80,15 +114,43 @@ def call_llm(prompt: str, ctx, model_tier: str = "small") -> dict[str, Any]:
         ctx:     RunContext — used to determine provider, URL, and token.
                  ctx.llm_provider, ctx.llm_api_url, ctx.llm_token must be
                  populated by stage_auth before calling this function.
+        model_tier: "small" or "large" — selects model and token budget.
+        trace_label: optional identifier (e.g. a check id) used to label the
+                 stored reasoning trace for later debugging.
 
     Returns:
         Parsed JSON dict from the LLM response content.
 
     Raises:
         LLMError: on auth failure, HTTP error, or invalid JSON in response.
+
+    On a truncated (finish_reason=length) or null/invalid-content response the
+    call is retried once with a larger token budget before giving up.
     """
+    base_budget = _max_tokens_for_tier(model_tier)
     try:
-        response_dict = _call_openai_compatible(prompt, ctx, model_tier=model_tier)
+        return _invoke_with_budget(prompt, ctx, model_tier, base_budget, trace_label)
+    except (LLMTruncationError, LLMContentError) as exc:
+        retry_budget = min(base_budget * 2, _MAX_TOKENS_HARD_CAP)
+        if retry_budget <= base_budget:
+            raise
+        log.warning(
+            "LLM response problem for %s (%s); retrying once with max_tokens=%d",
+            trace_label or model_tier,
+            exc,
+            retry_budget,
+        )
+        return _invoke_with_budget(prompt, ctx, model_tier, retry_budget, trace_label)
+
+
+def _invoke_with_budget(
+    prompt: str, ctx, model_tier: str, max_tokens: int, trace_label: str
+) -> dict[str, Any]:
+    """Single LLM invocation: HTTP call, usage tracking, and reasoning capture."""
+    try:
+        parsed, meta = _call_openai_compatible(
+            prompt, ctx, model_tier=model_tier, max_tokens=max_tokens
+        )
     except urllib.error.HTTPError as exc:
         # Retries exhausted, convert to LLMError
         status = exc.code
@@ -102,17 +164,40 @@ def call_llm(prompt: str, ctx, model_tier: str = "small") -> dict[str, Any]:
         provider = getattr(ctx, "llm_provider", "unknown")
         raise LLMError(f"LLM provider={provider} network error: {exc}") from exc
 
-    # Track LLM usage for cost/efficiency reporting
     model = _selected_model(ctx, model_tier)
+    _record_usage(ctx, model, prompt, max_tokens)
+    _record_reasoning(ctx, model, trace_label, meta)
+    return parsed
+
+
+def _record_usage(ctx, model: str, prompt: str, max_tokens: int) -> None:
+    """Track LLM usage for cost/efficiency reporting."""
     if not hasattr(ctx, "llm_calls_by_model"):
         ctx.llm_calls_by_model = {}
         ctx.llm_estimated_tokens = {}
     ctx.llm_calls_by_model[model] = ctx.llm_calls_by_model.get(model, 0) + 1
-    # Rough estimate: prompt words + response tokens
-    estimated_total = len(prompt.split()) + _MAX_TOKENS
+    # Rough estimate: prompt words + response token budget
+    estimated_total = len(prompt.split()) + max_tokens
     ctx.llm_estimated_tokens[model] = ctx.llm_estimated_tokens.get(model, 0) + estimated_total
 
-    return response_dict
+
+def _record_reasoning(ctx, model: str, trace_label: str, meta: dict[str, Any]) -> None:
+    """Persist the model's reasoning text for later debugging/analysis."""
+    reasoning = (meta or {}).get("reasoning") or ""
+    if not reasoning:
+        return
+    traces = getattr(ctx, "llm_reasoning_traces", None)
+    if traces is None:
+        traces = []
+        ctx.llm_reasoning_traces = traces
+    traces.append(
+        {
+            "label": trace_label,
+            "model": model,
+            "finish_reason": (meta or {}).get("finish_reason", ""),
+            "reasoning": reasoning,
+        }
+    )
 
 
 def _http_error_body(exc: urllib.error.HTTPError) -> str:
@@ -129,13 +214,20 @@ def _http_error_body(exc: urllib.error.HTTPError) -> str:
 
 
 @retry_rate_limited(max_attempts=4, base_delay=8.0, max_delay=60.0)
-def _call_openai_compatible(prompt: str, ctx, model_tier: str) -> dict[str, Any]:
+def _call_openai_compatible(
+    prompt: str, ctx, model_tier: str, max_tokens: int
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Call an OpenAI-compatible chat-completions endpoint and return parsed JSON.
 
     Reads ctx.llm_api_url and ctx.llm_token, both populated by stage_auth.
 
+    Returns:
+        (parsed_json, meta) where meta carries reasoning text and finish_reason.
+
     Raises:
         LLMError: On non-retryable errors (auth failure, non-5xx HTTP errors)
+        LLMTruncationError / LLMContentError: On length-truncated or null/invalid
+            content (recognised by call_llm to retry with a larger budget).
         urllib.error.HTTPError: On retryable HTTP errors (429, 5xx) - will trigger retry
     """
     token = getattr(ctx, "llm_token", "") or ""
@@ -152,8 +244,11 @@ def _call_openai_compatible(prompt: str, ctx, model_tier: str) -> dict[str, Any]
 
     payload = {
         "model": model,
-        "max_tokens": _MAX_TOKENS,
+        "max_tokens": max_tokens,
         "temperature": 0.0,  # Determinism — same evidence should yield same assessment
+        # Keep low-effort reasoning enabled: the configured models are reasoning
+        # models, and the reasoning text is captured and stored for debugging.
+        "reasoning": {"effort": "low"},
         "messages": [
             {
                 "role": "system",
@@ -195,7 +290,7 @@ def _call_openai_compatible(prompt: str, ctx, model_tier: str) -> dict[str, Any]
                 limiter.next_allowed_at,
                 time.time() + limiter.min_interval_s,
             )
-        return _extract_json(raw)
+        return _parse_chat_response(raw, max_tokens)
     except urllib.error.HTTPError as exc:
         status = exc.code
         err_body = exc.read().decode(errors="replace")
@@ -304,41 +399,161 @@ def _learn_from_headers(limiter: _RateLimitState, headers) -> None:
     limiter.min_interval_s = (limiter.window_s / limiter.limit) * _RATE_SAFETY_FACTOR
 
 
+def _parse_chat_response(
+    raw_response: str, max_tokens: int
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Parse a chat-completions envelope into (parsed_json, meta).
+
+    meta carries the model's reasoning text and the finish_reason. Raises
+    LLMTruncationError when the response was cut off by the token budget and
+    LLMContentError when the content is null/empty/invalid (both retryable).
+    """
+    envelope = _parse_envelope(raw_response)
+    message = _get_message(envelope)
+    finish_reason = _get_finish_reason(envelope)
+    reasoning = _extract_reasoning(message)
+
+    if finish_reason == "length":
+        raise LLMTruncationError(
+            f"Model response truncated (finish_reason=length) at max_tokens={max_tokens}."
+        )
+
+    parsed = _content_or_reasoning_to_json(message, envelope, reasoning)
+    meta = {"reasoning": reasoning, "finish_reason": finish_reason}
+    return parsed, meta
+
+
 def _extract_json(raw_response: str) -> dict[str, Any]:
     """Extract the JSON content from a chat-completions API response.
 
     The response is the full OpenAI-compatible response envelope; we extract
-    choices[0].message.content and parse that as JSON (the model's actual reply).
+    choices[0].message.content (or fall back to the reasoning text) and parse
+    that as JSON (the model's actual reply).
     """
+    envelope = _parse_envelope(raw_response)
+    message = _get_message(envelope)
+    reasoning = _extract_reasoning(message)
+    return _content_or_reasoning_to_json(message, envelope, reasoning)
+
+
+def _parse_envelope(raw_response: str) -> dict[str, Any]:
+    """Parse the raw HTTP body into the response envelope dict."""
     try:
-        envelope = json.loads(raw_response)
+        return json.loads(raw_response)
     except json.JSONDecodeError as exc:
         raise LLMError(f"LLM API response is not valid JSON: {exc}") from exc
 
+
+def _get_message(envelope: dict[str, Any]) -> dict[str, Any]:
+    """Return choices[0].message from the envelope or raise LLMError."""
     try:
-        content = envelope["choices"][0]["message"]["content"]
+        return envelope["choices"][0]["message"]
     except (KeyError, IndexError, TypeError) as exc:
         _log_response_parse_hint(envelope)
-        raise LLMError(
-            f"Unexpected LLM API response shape: {exc}\nEnvelope keys: {list(envelope.keys())}"
-        ) from exc
+        keys = list(envelope.keys()) if isinstance(envelope, dict) else []
+        raise LLMError(f"Unexpected LLM API response shape: {exc}\nEnvelope keys: {keys}") from exc
 
+
+def _get_finish_reason(envelope: dict[str, Any]) -> str:
+    """Return choices[0].finish_reason (best effort, empty string if absent)."""
     try:
-        content = _normalize_message_content(content)
-    except LLMError:
+        return str(envelope["choices"][0].get("finish_reason") or "").strip()
+    except (KeyError, IndexError, TypeError, AttributeError):
+        return ""
+
+
+def _extract_reasoning(message: Any) -> str:
+    """Return the model's reasoning text, if any.
+
+    Handles OpenRouter/OpenAI-compatible shapes: message.reasoning (string),
+    message.reasoning_content (string), and message.reasoning_details (list of
+    parts).
+    """
+    if not isinstance(message, dict):
+        return ""
+    for key in ("reasoning", "reasoning_content"):
+        value = message.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    details = message.get("reasoning_details")
+    if isinstance(details, list):
+        parts: list[str] = []
+        for item in details:
+            if isinstance(item, dict):
+                text = item.get("text") or item.get("content") or item.get("reasoning")
+                if isinstance(text, str):
+                    parts.append(text)
+        merged = "".join(parts).strip()
+        if merged:
+            return merged
+    return ""
+
+
+def _content_or_reasoning_to_json(
+    message: dict[str, Any], envelope: dict[str, Any], reasoning: str
+) -> dict[str, Any]:
+    """Parse JSON from message.content, falling back to the reasoning text.
+
+    Reasoning models sometimes return a null/empty content while the JSON answer
+    ends up in the reasoning channel. Raises LLMContentError on failure so the
+    caller can retry with a larger budget.
+    """
+    content = message.get("content") if isinstance(message, dict) else None
+    try:
+        text = _normalize_message_content(content)
+        return _text_to_json(text)
+    except LLMError as content_exc:
+        if reasoning:
+            try:
+                return _text_to_json(reasoning)
+            except LLMError:
+                pass
         _log_response_parse_hint(envelope, content)
-        raise
+        raise LLMContentError(str(content_exc)) from content_exc
 
-    # Strip any accidental markdown fences the model may have added
-    content = _strip_fences(content)
 
+def _text_to_json(text: str) -> dict[str, Any]:
+    """Strip fences, parse JSON, and attempt a light repair before failing."""
+    text = _strip_fences(text)
     try:
-        return json.loads(content)
+        return json.loads(text)
     except json.JSONDecodeError as exc:
-        _log_response_parse_hint(envelope, content)
-        raise LLMError(
-            f"Model response is not valid JSON: {exc}\nContent: {content[:400]}"
+        repaired = _repair_json(text)
+        if repaired is not None:
+            return repaired
+        raise LLMContentError(
+            f"Model response is not valid JSON: {exc}\nContent: {text[:400]}"
         ) from exc
+
+
+def _repair_json(text: str) -> dict[str, Any] | None:
+    """Best-effort repair of slightly malformed/truncated JSON.
+
+    Handles trailing commas and trailing garbage/truncation by trimming back to
+    the last balanced closing brace. Returns the parsed dict on success, or None
+    when the text cannot be recovered.
+    """
+    if not text:
+        return None
+
+    # Remove trailing commas before a closing brace/bracket.
+    candidate = re.sub(r",(\s*[}\]])", r"\1", text)
+    try:
+        result = json.loads(candidate)
+        return result if isinstance(result, dict) else None
+    except json.JSONDecodeError:
+        pass
+
+    # Trim back to progressively earlier closing braces (recovers trailing
+    # garbage or a truncated tail after a complete object).
+    end = candidate.rfind("}")
+    while end != -1:
+        try:
+            result = json.loads(candidate[: end + 1])
+            return result if isinstance(result, dict) else None
+        except json.JSONDecodeError:
+            end = candidate.rfind("}", 0, end)
+    return None
 
 
 def _log_response_parse_hint(envelope: dict[str, Any], content: Any = _MISSING) -> None:
@@ -356,12 +571,22 @@ def _log_response_parse_hint(envelope: dict[str, Any], content: Any = _MISSING) 
 
 
 def _strip_fences(text: str) -> str:
-    """Remove ```json ... ``` fences from model output if present."""
+    """Remove ```json ... ``` fences from model output if present.
+
+    Also handles an UNTERMINATED leading fence — a truncated response can open
+    a ```json block without ever closing it.
+    """
     text = text.strip()
     # Match optional language tag after opening fence
     match = re.match(r"^```(?:json)?\s*([\s\S]*?)```\s*$", text, re.IGNORECASE)
     if match:
         return match.group(1).strip()
+    # Unterminated/leading fence (e.g. truncated output): drop the opening fence
+    # line and any dangling closing fence.
+    if text.startswith("```"):
+        text = re.sub(r"^```[^\n]*\n?", "", text)
+        text = re.sub(r"\n?```\s*$", "", text)
+        return text.strip()
     return text
 
 

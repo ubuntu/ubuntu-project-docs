@@ -41,7 +41,7 @@ def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
     model_tier = _select_ev_to_ai_model_tier(prompt, evidence_payload)
 
     try:
-        response = llm.call_llm(prompt, ctx, model_tier=model_tier)
+        response = llm.call_llm(prompt, ctx, model_tier=model_tier, trace_label=check["id"])
     except llm.LLMError as exc:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
         finding.status = "unknown"
@@ -93,7 +93,7 @@ def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
     try:
         # Pure AI synthesis works over cross-check aggregate context and should
         # always use the large model tier.
-        response = llm.call_llm(prompt, ctx, model_tier="large")
+        response = llm.call_llm(prompt, ctx, model_tier="large", trace_label=check["id"])
     except llm.LLMError as exc:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
         finding.status = "unknown"
@@ -384,7 +384,9 @@ def _maybe_refine_with_additional_evidence(
     follow_up_prompt = _render_ev_to_ai_prompt(check, follow_up_payload, policy_excerpt, ctx)
 
     try:
-        return llm.call_llm(follow_up_prompt, ctx, model_tier=model_tier)
+        return llm.call_llm(
+            follow_up_prompt, ctx, model_tier=model_tier, trace_label=f"{check['id']}-followup"
+        )
     except llm.LLMError as exc:
         log.warning(
             "Follow-up LLM call failed for check %s after additional requests: %s",

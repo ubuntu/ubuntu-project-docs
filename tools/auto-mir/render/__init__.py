@@ -83,6 +83,7 @@ def write_outputs(ctx) -> None:
         "analysis_summary": ctx.evidence.get("analysis_summary", {}),
         "findings": [asdict(f) for f in ctx.findings],
         "llm_usage": llm_usage,
+        "llm_reasoning_traces": getattr(ctx, "llm_reasoning_traces", []),
     }
 
     ctx.report_path = ctx.output_dir / "report.json"
