@@ -38,7 +38,7 @@ In terms of the {ref}`uploaders-journey`, you should work your way through the s
 
 Ideally, you should have a solid mastery of the basic packaging skills for Debian/Ubuntu distributions, including the following:
 
-* {ref}`Fixing bugs in packages <how-to-fix-a-bug-in-a-package>`
+* {ref}`Fixing bugs in packages <fixing-bugs>`
 * Building binary packages from source, using `sbuild` or `debuild` in a
   `chroot` or `lxc` environment
 * Creating the initial packaging for new software
@@ -88,6 +88,17 @@ The less experience you have in Debian or other open source communities, the mor
 
 Finally, you'll know you're past ready for applying if anyone ever asks, "How do you not already have upload rights??"
 
+## Scope and definition
+
+It is easy to mix up {ref}`dmb-joining-packageset` and {ref}`dmb-joining-ppu`, here a clarification:
+
+* Packagesets are defined by their description.
+* Applicants prove to be able to handle what the description defines.
+* Adding packages can be done on non-formal request as long as they fit the description.
+* Usually a team managed by the DMB is the uploader of a packageset.
+* On successful packageset application people become member of that team.
+* Reports list existing [packagesets](https://static-reports.ubuntu.com/packagesets/) and [teams](https://static-reports.ubuntu.com/archive-permissions/teams)
+* relation: `developer` *-is-member-of->* `team` *-has-upload-rights-for->* `packageset` *-covers->* `packages`
 
 ## Voting
 

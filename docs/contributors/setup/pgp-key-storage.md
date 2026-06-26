@@ -53,7 +53,7 @@ Project strongly encourages, though does not strictly mandate, the adoption of
 hardware security keys that support PGP operations. Devices such as some
 YubiKey models, designed with secure elements, offer a significant enhancement
 over purely file-based PGP key protection. We are not selecting a particular
-manufacturer like Yubikey or model, alternatives like
+manufacturer like YubiKey or model, alternatives like
 [TKey](https://www.tillitis.se/products/tkey/) are just as valid. Check their
 capabilities against the recommended setup outlined here when selecting one.
 
@@ -69,15 +69,9 @@ The primary benefits of using hardware security keys include:
   operations. This adds a crucial layer of control over who can manage and use
   the key.
 
-By generating subkeys (see below) directly on the hardware key you also
-gain the ability to create an
-[attestation certificate](https://developers.yubico.com/PGP/Attestation.html).
-Such a certificate can be published by you to allow verification of your key by
-third parties.
-
-We recommend configuring the key for user-presence.
-Combination with attestation `Fixed` is the suggested
-[touch policy](https://docs.yubico.com/software/yubikey/tools/ykman/OpenPGP_Commands.html#touch-policies).
+We recommend configuring the key for [user-presence](https://docs.yubico.com/software/yubikey/tools/ykman/OpenPGP_Commands.html#touch-policies)
+and [pin input](https://docs.yubico.com/software/yubikey/tools/ykman/OpenPGP_Commands.html#ykman-openpgp-access-set-signature-policy-options-policy)
+to reduce the chance that a program can sign on your behalf without your awareness.
 
 (pgp-encrypted-offline-storage)=
 ### Encrypted offline storage
@@ -188,15 +182,8 @@ their usage will be included here once possible.
 (pgp-setup-guidelines)=
 ## Setup guidelines
 
-The guide on an {ref}`Ubuntu developer’s initial setup <gnupg>` so far only
-outlines the basic usage of PGP keys. Guides on setting up and using PGP-capable
-hardware security keys shall be provided via the project's documentation once
-we standardize more on it.
-
-Until then, starting with these articles on
-[Using your YubiKey with OpenPGP](https://support.yubico.com/s/article/Using-Your-YubiKey-with-OpenPGP)
-and the [YubiKey Guide](https://drduh.github.io/YubiKey-Guide) are a great way
-to begin.
+The guide about {ref}`set-up-and-manage-pgp-keys` outlines all the steps
+needed to achieve the goals outlined in this policy about the usage of PGP keys.
 
 ## Alternatives
 
@@ -243,9 +230,4 @@ related aspects that are known to still be missing. Tracking them here
 within the document itself for easier reader awareness to avoid searching
 for them in vain.
 
-* The {ref}`pgp-setup-guidelines` are not yet defined in detail.
-* It would be great to add what actions to take if a key or signing compromise
-  is suspected.
 * Set of requirements an alternative recommendation would need to fulfil
-* Outline what "in a secure location" could be in a sub-article. That will
-  probably never be complete, but could list acknowledged known good/bad cases.

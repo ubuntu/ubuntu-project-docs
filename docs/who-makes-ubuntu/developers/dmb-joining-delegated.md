@@ -4,7 +4,12 @@
 ```{include} ../_dmb-series.md
 ```
 
+```{toctree}
+:titlesonly:
+:hidden:
 
+dkms-uploaders
+```
 
 Delegated Developers are members of a [delegated development group](https://wiki.ubuntu.com/UbuntuDevelopers/TeamDelegation) in Launchpad.
 They are collectively responsible for the maintenance of a subset of packages in Ubuntu.
@@ -33,6 +38,7 @@ Delegated teams admitting their own members:
 
 
 Delegated teams whose prospective members apply to the {ref}`Developer Membership Board <dmb>`:
+: * {ref}`Ubuntu Kernel DKMS Uploaders <dkms-uploaders>` (Launchpad: [`~ubuntu-kernel-dkms-uploaders`](https://launchpad.net/~ubuntu-kernel-dkms-uploaders))
 : * [Ubuntu Kylin](https://wiki.ubuntu.com/Ubuntu%20Kylin) Developers (Launchpad: [`~ubuntukylin-dev`](https://launchpad.net/~ubuntukylin-dev))
 : * Ubuntu GNOME Developers (Launchpad: [`~ubuntu-gnome-dev`](https://launchpad.net/~ubuntu-gnome-dev))
 : * Ubuntu Bazaar Uploaders (Launchpad: [`~ubuntu-bzr-dev`](https://launchpad.net/~ubuntu-bzr-dev))
