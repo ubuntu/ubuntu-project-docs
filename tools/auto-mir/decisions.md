@@ -116,9 +116,14 @@ Use this log as the source for deciding what should be promoted into
     CPE version ranges from NVD API 2.0, falling back to the cvelist record data when NVD is
     unavailable. Runs without an API key (5 req/30s budget enforced via a small inter-request
     sleep).
-  - Predecessor/sibling terms (e.g. `lua5.5` -> historical `lua` CVEs) are tagged
-    `kind="predecessor"`; matching findings are surfaced as clearly-labelled *historical*
-    evidence that can influence SEC-1 severity but never hard-blocks the current version.
+  - Predecessor/sibling terms (e.g. `lua5.5` -> historical `lua` CVEs) are produced by a
+    best-effort small-tier LLM call inside `cve-search-terms` (prompt
+    `prompts/cve_predecessor_terms.md`), bounded to a handful of distinctive terms and
+    instructed to avoid broad ambiguous words. The call degrades gracefully (no LLM token or
+    any LLMError -> current-only terms). Matching findings are tagged `kind="predecessor"`
+    and surfaced as clearly-labelled *historical* evidence that can influence SEC-1 severity
+    (raising the recommendation toward a security review) but never hard-blocks the current
+    version.
 - **Autopkgtest**: replaced web UI scraping with direct SQLite database download from
   autopkgtest.ubuntu.com/static/autopkgtest.db. Queries results table directly.
 

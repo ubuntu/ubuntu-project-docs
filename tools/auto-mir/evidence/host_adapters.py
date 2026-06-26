@@ -21,6 +21,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+import llm
 from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
@@ -941,23 +942,35 @@ def _candidate_cve_search_terms(pkg: str) -> list[str]:
 def collect_cve_search_terms(ctx) -> CVESearchTermsResult:
     """Produce the candidate search terms used to identify relevant CVEs.
 
-    For now this yields deterministic source-package name variants, all tagged as
-    ``current``. A later predecessor-detection step augments this with historical
-    or sibling-version terms tagged ``predecessor``.
+    Always yields deterministic source-package name variants tagged ``current``.
+    Additionally makes one best-effort LLM call to propose a bounded set of
+    predecessor/sibling product or version-family terms (tagged ``predecessor``)
+    so that historical CVE history recorded under an upstream or older versioned
+    name (e.g. ``lua5.5`` -> ``lua``/``lua5.4``) can be surfaced. The LLM step is
+    opportunistic: any failure degrades gracefully to the current-only terms.
     """
     pkg = ctx.source_package
     if not pkg:
         raise AdapterError("source_package not set")
 
-    terms = [
+    terms: list[dict[str, str]] = [
         {"term": term, "kind": "current", "rationale": "source package name variant"}
         for term in _candidate_cve_search_terms(pkg)
     ]
 
+    current_lower = {t["term"].lower() for t in terms}
+    predecessor_terms = _llm_predecessor_terms(ctx, pkg)
+    for entry in predecessor_terms:
+        if entry["term"].lower() in current_lower:
+            continue
+        current_lower.add(entry["term"].lower())
+        terms.append(entry)
+
     log.debug(
-        "cve-search-terms: %d term(s) for %s: %s",
+        "cve-search-terms: %d term(s) for %s (%d predecessor): %s",
         len(terms),
         pkg,
+        sum(1 for t in terms if t["kind"] == "predecessor"),
         ", ".join(t["term"] for t in terms),
     )
     return {
@@ -965,6 +978,106 @@ def collect_cve_search_terms(ctx) -> CVESearchTermsResult:
         "source_package": pkg,
         "terms": terms,
     }
+
+
+_PREDECESSOR_PROMPT = "cve_predecessor_terms.md"
+_PREDECESSOR_MAX_TERMS = 8
+
+
+def _llm_predecessor_terms(ctx, pkg: str) -> list[dict[str, str]]:
+    """Best-effort LLM proposal of predecessor/sibling CVE search terms.
+
+    Returns a bounded list of ``{term, kind, rationale}`` dicts, all tagged
+    ``predecessor``. Returns an empty list when the LLM is unavailable, errors, or
+    proposes nothing credible — the adapter never fails because of this step.
+    """
+    if not getattr(ctx, "llm_token", ""):
+        log.debug("cve-search-terms: LLM not configured; skipping predecessor terms")
+        return []
+
+    upstream = ctx.evidence.get("adapters", {}).get("upstream-tracker", {})
+    upstream = upstream if isinstance(upstream, dict) else {}
+    recent = ", ".join(
+        str(r.get("version") or "") for r in upstream.get("recent_releases", []) if r.get("version")
+    )
+    reporter_excerpt = str(getattr(ctx, "reporter_mir_content", "") or "")[:2000]
+
+    prompt = _render_predecessor_prompt(
+        ctx,
+        source_package=pkg,
+        upstream_url=str(upstream.get("upstream_url") or ""),
+        latest_version=str(upstream.get("latest_version") or ""),
+        recent_releases=recent,
+        reporter_excerpt=reporter_excerpt,
+    )
+
+    try:
+        response = llm.call_llm(prompt, ctx, model_tier="small", trace_label="cve-search-terms")
+    except llm.LLMError as exc:
+        log.warning("cve-search-terms: predecessor LLM call failed: %s", exc)
+        return []
+
+    raw_terms = response.get("terms") if isinstance(response, dict) else None
+    if not isinstance(raw_terms, list):
+        return []
+
+    cleaned: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for item in raw_terms:
+        if not isinstance(item, dict):
+            continue
+        term = str(item.get("term") or "").strip()
+        if not term or term.lower() == pkg.lower() or term.lower() in seen:
+            continue
+        seen.add(term.lower())
+        cleaned.append(
+            {
+                "term": term,
+                "kind": "predecessor",
+                "rationale": str(item.get("rationale") or "").strip(),
+            }
+        )
+        if len(cleaned) >= _PREDECESSOR_MAX_TERMS:
+            break
+    return cleaned
+
+
+def _render_predecessor_prompt(
+    ctx,
+    *,
+    source_package: str,
+    upstream_url: str,
+    latest_version: str,
+    recent_releases: str,
+    reporter_excerpt: str,
+) -> str:
+    """Render the predecessor-terms prompt template with run-specific substitutions."""
+    tool_root = getattr(ctx, "tool_root", None)
+    template_path = tool_root and (Path(tool_root) / "prompts" / _PREDECESSOR_PROMPT)
+    if template_path and Path(template_path).exists():
+        template = Path(template_path).read_text(encoding="utf-8")
+    else:
+        template = _PREDECESSOR_FALLBACK_PROMPT
+
+    substitutions = {
+        "{{source_package}}": source_package,
+        "{{upstream_url}}": upstream_url or "(none)",
+        "{{latest_version}}": latest_version or "(none)",
+        "{{recent_releases}}": recent_releases or "(none)",
+        "{{reporter_excerpt}}": reporter_excerpt or "(none)",
+    }
+    for placeholder, value in substitutions.items():
+        template = template.replace(placeholder, value)
+    return template
+
+
+_PREDECESSOR_FALLBACK_PROMPT = (
+    "Propose at most 8 distinctive predecessor or sibling CVE search terms for the "
+    "Ubuntu source package {{source_package}} (upstream {{upstream_url}}, latest "
+    "{{latest_version}}). Avoid the package name itself and broad ambiguous words. "
+    'Return JSON {"terms": [{"term": "...", "kind": "predecessor", "rationale": "..."}]} '
+    'and {"terms": []} when nothing credible applies.'
+)
 
 
 _NVD_API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"

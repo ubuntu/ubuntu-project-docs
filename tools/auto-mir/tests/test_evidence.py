@@ -370,6 +370,8 @@ def test_cve_search_terms_output_structure():
     """cve-search-terms adapter should emit deterministic current-package term variants."""
     ctx = Mock()
     ctx.source_package = "python3-foo"
+    ctx.llm_token = ""  # disable the predecessor LLM step
+    ctx.evidence = {"adapters": {}}
 
     from evidence.host_adapters import collect_cve_search_terms
 
@@ -380,6 +382,65 @@ def test_cve_search_terms_output_structure():
     term_values = [t["term"] for t in result["terms"]]
     assert "python3-foo" in term_values
     assert "foo" in term_values
+    assert all(t["kind"] == "current" for t in result["terms"])
+
+
+def test_cve_search_terms_adds_predecessor_terms():
+    """cve-search-terms should append LLM-proposed predecessor terms, tagged and bounded."""
+    ctx = Mock()
+    ctx.source_package = "lua5.5"
+    ctx.llm_token = "token"
+    ctx.tool_root = None  # force fallback prompt template
+    ctx.reporter_mir_content = "lua 5.5 interpreter"
+    ctx.evidence = {
+        "adapters": {
+            "upstream-tracker": {
+                "upstream_url": "https://www.lua.org",
+                "latest_version": "5.5.0",
+                "recent_releases": [{"version": "5.5.0"}, {"version": "5.4.7"}],
+            }
+        }
+    }
+
+    llm_response = {
+        "terms": [
+            {"term": "lua", "kind": "predecessor", "rationale": "upstream project"},
+            {"term": "lua5.4", "kind": "predecessor", "rationale": "sibling version"},
+            # duplicate of current term should be dropped
+            {"term": "lua5.5", "kind": "predecessor", "rationale": "self"},
+        ]
+    }
+
+    with patch("evidence.host_adapters.llm.call_llm", return_value=llm_response) as mock_llm:
+        from evidence.host_adapters import collect_cve_search_terms
+
+        result = collect_cve_search_terms(ctx)
+
+    mock_llm.assert_called_once()
+    by_kind = {t["term"]: t["kind"] for t in result["terms"]}
+    assert by_kind["lua5.5"] == "current"
+    assert by_kind["lua"] == "predecessor"
+    assert by_kind["lua5.4"] == "predecessor"
+    # The predecessor variant duplicating the current term must not be re-added.
+    assert sum(1 for t in result["terms"] if t["term"] == "lua5.5") == 1
+
+
+def test_cve_search_terms_degrades_on_llm_error():
+    """cve-search-terms must fall back to current-only terms when the LLM fails."""
+    from evidence.host_adapters import collect_cve_search_terms
+    from llm import LLMError
+
+    ctx = Mock()
+    ctx.source_package = "lua5.5"
+    ctx.llm_token = "token"
+    ctx.tool_root = None
+    ctx.reporter_mir_content = ""
+    ctx.evidence = {"adapters": {}}
+
+    with patch("evidence.host_adapters.llm.call_llm", side_effect=LLMError("boom")):
+        result = collect_cve_search_terms(ctx)
+
+    assert result["status"] == "ok"
     assert all(t["kind"] == "current" for t in result["terms"])
 
 

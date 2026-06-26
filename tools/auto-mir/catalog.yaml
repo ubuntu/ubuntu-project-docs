@@ -1536,7 +1536,7 @@ checks:
   adapters_required:
   - ubuntu-cve-tracker
   - nvd-enrich
-  ai_policy: 'AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes, whether fixes are timely, patterns suggesting systemic issues. Output 3-band confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding. Even historically patched but risk-significant patterns should surface as security-review-triggering.
+  ai_policy: 'AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes, whether fixes are timely, patterns suggesting systemic issues. The nvd-enrich evidence tags each CVE as current or predecessor (historical_cves): predecessor/historical CVEs come from upstream or older versioned package names and inform severity. Clearly label historical findings as such; they may raise the recommendation to a security review but must never hard-block the current version. Output 3-band confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding. Even historically patched but risk-significant patterns should surface as security-review-triggering.
 
     '
   human_override: true
@@ -1549,10 +1549,10 @@ checks:
   - condition: no CVEs or only old low-severity resolved CVEs
     severity: ok
     confidence: high
-  - condition: some CVEs; patched; pattern not concerning
+  - condition: some CVEs (current or historical/predecessor); patched; pattern not concerning
     severity: recommended
-    reviewer_action: Note CVE history in review; consider security review
-  - condition: concerning CVE pattern or active unpatched CVEs
+    reviewer_action: Note CVE history (mark historical/predecessor findings as such) in review; consider security review
+  - condition: concerning CVE pattern, active unpatched CVEs, or risk-significant historical/predecessor pattern
     severity: required
     reviewer_action: Assign to ubuntu-security for security review
   render_rules:
@@ -2631,7 +2631,7 @@ security_triggers:
   - SEC-1
   trigger_condition: CVE data present from ubuntu-cve-tracker or nvd-enrich for this package
   synthesis: required
-  synthesis_policy: 'AI synthesises risk across both trackers. Assess: total volume, severity classes, fix timeliness, systemic patterns. Output 3-band confidence (low/medium/high).
+  synthesis_policy: 'AI synthesises risk across both trackers. Assess: total volume, severity classes, fix timeliness, systemic patterns. Weigh current and historical/predecessor CVEs (nvd-enrich historical_cves) separately: historical findings from upstream or older versioned names can raise the risk band and trigger a security review but must be clearly labelled historical and never block the current version. Output 3-band confidence (low/medium/high).
 
     '
   human_confirmation_required: true
