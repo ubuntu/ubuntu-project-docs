@@ -57,14 +57,14 @@ index 7460220..0ecb9df 100755
 ## Creating auditable binaries without `dh-cargo`
 
 There are many Rust packages, such as {manpage}`rust-coreutils(1)` and {manpage}`fish(1)`, that manually invoke {manpage}`cargo(1)` without using `dh-cargo`.
-In these cases, you can manually build using cargo-auditable:
+In these cases, you can manually build using `cargo-auditable`:
 
 1. Include `cargo-auditable` in the package's `Build-Depends` (via `debian/control`).
 2. Find where `cargo` is called from the `debian/rules` file, and replace it with `cargo auditable`.
 
 Using `rust-coreutils` as an example, by searching in the repository a little bit, we see that `debian/rules` invokes {manpage}`gmake(1)`,
 so we search where the `GNUmakefile` invokes `cargo`.
-Then we can edit it, and save our changes as a debian patch using [the standard workflow](https://ubuntu.com/project/docs/contributors/patching/make-changes-to-a-package/).
+Then we can edit it, and save our changes as a Debian patch using {ref}`the standard workflow <how-to-make-changes-to-a-package>`.
 
 ```diff
 Description: Build with cargo-auditable
