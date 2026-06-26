@@ -138,7 +138,9 @@ contributors/patching/committing-changes/ contributors/updating/commit-changes/
 contributors/patching/salsa-dual-maintenance/ contributors/updating/dual-maintenance-with-salsa-and-git-ubuntu/
 
 contributors/patching/make-changes-to-package/ contributors/updating/make-changes-to-a-package/
+contributors/patching/make-changes-to-a-package/ contributors/updating/make-changes-to-a-package/
 tutorial/make-changes-to-package/ contributors/updating/make-changes-to-a-package/
+tutorial/make-changes-to-a-package/ contributors/updating/make-changes-to-a-package/
 
 contributors/patching/patch-management/ contributors/updating/manage-patches/
 how-to/patch-management/ contributors/updating/manage-patches/
