@@ -34,7 +34,7 @@ backporting the open-vm-tools version available in Ubuntu 26.04 LTS to Ubuntu
 
 There should be a single SRU bug tracking the backport. Other bugs may be
 included in the changelog; they must have test cases and be verified as
-usual. It is expected that no packaging changes from the current
+regular SRUs. It is expected that no packaging changes from the current
 release will be required for this backport - any necessary changes
 should be highlighted in the SRU bug. Similarly, any packaging changes
 from the previous stable version should be called out in the SRU bug.
