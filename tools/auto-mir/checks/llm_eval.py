@@ -728,7 +728,7 @@ def _render_ev_to_ai_prompt(
     if template_path and Path(template_path).exists():
         template = Path(template_path).read_text(encoding="utf-8")
     else:
-        template = _FALLBACK_PROMPT_TEMPLATE
+        template = _load_fallback_prompt()
 
     confidence_model = (
         ctx.catalog.get("global_policies", {})
@@ -859,46 +859,12 @@ def _summarise_findings_so_far(
     return results
 
 
-# Fallback prompt template — used when prompts/ev_to_ai.md is missing.
-_FALLBACK_PROMPT_TEMPLATE = """\
-You are assisting a human MIR reviewer for Ubuntu main inclusion.
+# Fallback prompt — used when prompts/ev_to_ai.md cannot be resolved from the
+# run context. Loaded from prompts/ev_to_ai_fallback.md next to this package so
+# it stays versioned alongside the primary template.
+_FALLBACK_PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "ev_to_ai_fallback.md"
 
-Task:
-- Evaluate check {{check_id}} ({{check_title}}) in section {{section}}.
-- Use only the provided evidence payload.
-- Apply Ubuntu MIR policy as authoritative.
-- Return a tentative reviewer-facing finding.
 
-Policy:
-{{policy_excerpt}}
-
-TODO references this check resolves:
-{{todo_refs}}
-
-Evidence:
-{{evidence_json}}
-
-Confidence model: {{confidence_model}}
-
-Return ONLY a JSON object with these exact fields (no markdown fences):
-{
-  "id": "{{check_id}}",
-  "status": "ok|not-ok|unknown",
-  "severity": "ok|recommended|required|nack",
-  "confidence": "low|medium|high",
-  "message": "short reviewer-facing statement (1-2 sentences)",
-  "todo": "empty string if resolved, otherwise a TODO: prefixed line",
-  "rationale": "max 2 sentences grounded in evidence",
-  "human_confirmation_required": true,
-  "evidence_refs": ["adapter:key"],
-    "risk_flags": [],
-    "additional_evidence_requests": [
-        {"type": "line_range", "start": 300, "end": 400},
-        {"type": "pattern", "pattern": "foo.*", "max_matches": 20}
-    ]
-}
-
-Only include `additional_evidence_requests` when missing context prevents a good answer.
-You may request up to 3 items.
-When you request additional evidence, still fill the other fields using best effort.
-"""
+def _load_fallback_prompt() -> str:
+    """Read the on-disk fallback prompt template."""
+    return _FALLBACK_PROMPT_PATH.read_text(encoding="utf-8")

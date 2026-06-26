@@ -827,6 +827,25 @@ def test_select_ev_to_ai_model_tier_large_for_long_prompt():
     assert tier == "large"
 
 
+def test_render_ev_to_ai_prompt_uses_disk_fallback_when_tool_root_missing():
+    """When prompts/ev_to_ai.md cannot be resolved, the on-disk fallback is used."""
+    ctx = _Ctx()
+    ctx.tool_root = None  # force the fallback path
+    check = {
+        "id": "URF-2",
+        "title": "Memory safety",
+        "section": "Upstream red flags",
+        "todo_refs": ["TODO: - check"],
+    }
+
+    prompt = checks.llm_eval._render_ev_to_ai_prompt(check, {"adapter": "x"}, "policy text", ctx)
+
+    # Placeholders are substituted and the fallback body is present.
+    assert "URF-2" in prompt
+    assert "{{check_id}}" not in prompt
+    assert "human MIR reviewer" in prompt
+
+
 def test_eval_ai_graceful_on_large_tier_llm_error():
     ctx = _Ctx()
     check = {
