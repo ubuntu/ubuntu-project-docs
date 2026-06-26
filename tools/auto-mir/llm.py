@@ -96,9 +96,12 @@ def _max_tokens_for_tier(model_tier: str, override: int | None = None) -> int:
 class _RateLimitState:
     limit: int = _DEFAULT_LIMIT_PER_WINDOW
     window_s: int = _DEFAULT_WINDOW_SECONDS
-    min_interval_s: float = (
-        _DEFAULT_WINDOW_SECONDS / _DEFAULT_LIMIT_PER_WINDOW
-    ) * _RATE_SAFETY_FACTOR
+    # No proactive pacing by default: a fresh limiter does not sleep between
+    # calls. We only start pacing once the provider tells us a real limit, via
+    # a 429 response body/Retry-After or rate-limit response headers. The
+    # conservative limit/window defaults above are only used to derive a real
+    # interval *after* such a signal, never to throttle pre-emptively.
+    min_interval_s: float = 0.0
     next_allowed_at: float = 0.0
 
 
@@ -382,6 +385,7 @@ def _learn_from_headers(limiter: _RateLimitState, headers) -> None:
     except Exception:
         return
 
+    learned = False
     if limit_val:
         try:
             parsed_limit = int(limit_val)
@@ -389,6 +393,7 @@ def _learn_from_headers(limiter: _RateLimitState, headers) -> None:
             # Large values (e.g. 60000) are typically token quotas, not request rates.
             if 0 < parsed_limit <= 500:
                 limiter.limit = parsed_limit
+                learned = True
         except ValueError:
             pass
 
@@ -399,10 +404,15 @@ def _learn_from_headers(limiter: _RateLimitState, headers) -> None:
             parsed_reset = int(reset_val)
             if 0 < parsed_reset <= 3600:
                 limiter.window_s = parsed_reset
+                learned = True
         except ValueError:
             pass
 
-    limiter.min_interval_s = (limiter.window_s / limiter.limit) * _RATE_SAFETY_FACTOR
+    # Only start (or adjust) proactive pacing once a real limit was learned from
+    # the provider. Otherwise leave min_interval_s untouched so a fresh limiter
+    # keeps its no-pacing default and does not sleep before every call.
+    if learned:
+        limiter.min_interval_s = (limiter.window_s / limiter.limit) * _RATE_SAFETY_FACTOR
 
 
 def _parse_chat_response(
