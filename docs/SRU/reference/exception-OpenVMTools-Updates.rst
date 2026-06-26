@@ -16,9 +16,9 @@ machines.
 As such it is an odd case of being userspace software, even one that is
 not tied to real hardware - but it is bound to support virtual hardware.
 
-As such it is often required to have get an updated version of it to
-provide platform enablement while being in the lifecycle of a Ubuntu LTS
-release.
+As such it is often required to have an updated version of the open-vm-tools
+package to provide platform enablement while being in the lifecycle of a Ubuntu
+LTS release.
 
 OpenVMTools Process
 -------------------
@@ -28,9 +28,9 @@ testing) the version of open-vm-tools can be backported from the current
 Ubuntu release to the most recent LTS' -updates pocket and any non-LTS
 stable release in support.
 
-There should be a single SRU bug tracking the backport. Other bugs may
+There should be a single SRU bug tracking the backport. Other bugs may be
 included in the changelog; they must have test cases and be verified as
-normal. It is expected that no packaging changes from the current
+usual. It is expected that no packaging changes from the current
 release will be required for this backport - any necessary changes
 should be highlighted in the SRU bug. Similarly, any packaging changes
 from the previous stable version should be called out in the SRU bug.
@@ -38,7 +38,7 @@ from the previous stable version should be called out in the SRU bug.
 Verification
 ------------
 
-On one hand we want to keep these upload longer in -proposed to give the
+On one hand we want to keep these uploads longer in -proposed to give the
 few that run canary with -proposed a better chance to speak up. And we
 need that time anyway to allow for the following.
 
@@ -114,8 +114,8 @@ Ambiguity
 ---------
 
 The server team does many MREs and therefore sometimes it happened that
-these uploads were called an MRE, it is not. This is a platform
-enablement SRU upload under the condition of :ref:`"other safe cases" sub section 2 <sru-other-safe-cases>`:
+these uploads were called MREs. They are not. These are platform
+enablement SRU uploads under the condition of :ref:`"other safe cases" sub section 2 <sru-other-safe-cases>`:
 
 .. code-block:: text
 
@@ -166,7 +166,7 @@ Steve was so kind to share his
   selectively cherry-pick bugfixes is waived."
 
 So it would be a valid SRU, but what was left to resolve, was how to
-ensure to avoid regressions. Back then we reached out to VMware and cam
+ensure to avoid regressions. Back then we reached out to VMware and came
 to an agreement that VMware would have the set of different hypervisor
 versions and the ability to run tests using all kind of VMware features.
 This coordination was negotiated back then under Dean H > David B >
