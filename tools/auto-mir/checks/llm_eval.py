@@ -15,6 +15,7 @@ from pathlib import Path
 from checks.messages import render_check_message_or_default
 from checks.registry import evaluator
 from models import Finding
+from utils import llm_sanitize
 
 log = logging.getLogger("auto_mir.checks.llm_eval")
 
@@ -100,11 +101,13 @@ def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
         "source_package": ctx.source_package,
         "bug_id": ctx.bug_id,
         "series": ctx.series,
-        "bug_title": ctx.bug.get("title", ""),
+        "bug_title": _wrap_untrusted(ctx, "bug_title", ctx.bug.get("title", "")),
         "reporter_mir_content_present": bool(ctx.reporter_mir_content),
-        "reporter_mir_content": (ctx.reporter_mir_content or "")[
-            :_SYNTHESIS_REPORTER_CONTENT_CHARS
-        ],
+        "reporter_mir_content": _wrap_untrusted(
+            ctx,
+            "reporter_mir_content",
+            (ctx.reporter_mir_content or "")[:_SYNTHESIS_REPORTER_CONTENT_CHARS],
+        ),
         "findings_so_far": _summarise_findings_so_far(
             ctx, max_message_len=_SYNTHESIS_FINDING_MESSAGE_CHARS
         ),
@@ -151,6 +154,43 @@ def _eval_human_only(check: dict, ctx, finding: Finding) -> Finding:
     return finding
 
 
+def _wrap_untrusted(ctx, label: str, text: str) -> str:
+    """Wrap attacker-controllable text in a per-run untrusted-data envelope.
+
+    Uses the run's nonce (ctx.untrusted_nonce) so injected content cannot forge
+    the closing delimiter. Falls back to a fresh nonce if the context predates
+    nonce assignment (e.g. in unit tests).
+    """
+    nonce = getattr(ctx, "untrusted_nonce", None) or llm_sanitize.make_nonce()
+    return llm_sanitize.wrap_untrusted(label, text, nonce)
+
+
+def _spotlight_lp_bug_api(ctx, data: dict) -> dict:
+    """Wrap the attacker-controllable fields of the lp-bug-api adapter output.
+
+    bug_title, bug_description, and bug_comments originate from Launchpad bug
+    text that anyone can post, so they are neutralised and enveloped before
+    reaching the LLM. Other fields (subscribers, tags, package, series) are
+    left untouched.
+    """
+    if not isinstance(data, dict):
+        return data
+    result = dict(data)
+    if "bug_title" in result:
+        result["bug_title"] = _wrap_untrusted(ctx, "bug_title", str(result.get("bug_title") or ""))
+    if "bug_description" in result:
+        result["bug_description"] = _wrap_untrusted(
+            ctx, "bug_description", str(result.get("bug_description") or "")
+        )
+    comments = result.get("bug_comments")
+    if isinstance(comments, list):
+        result["bug_comments"] = [
+            _wrap_untrusted(ctx, f"bug_comment[{i}]", str(comment))
+            for i, comment in enumerate(comments)
+        ]
+    return result
+
+
 def _build_evidence_payload(check: dict, ctx) -> dict:
     """Build a compact evidence dict for the adapters required by this check.
 
@@ -165,7 +205,7 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
         "source_package": ctx.source_package,
         "bug_id": ctx.bug_id,
         "series": ctx.series,
-        "bug_title": ctx.bug.get("title", ""),
+        "bug_title": _wrap_untrusted(ctx, "bug_title", ctx.bug.get("title", "")),
     }
 
     adapters_store = ctx.evidence.get("adapters", {})
@@ -175,7 +215,10 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
         if data is None:
             payload[adapter_id] = {"status": "not_collected"}
         else:
-            payload[adapter_id] = _truncate_adapter_data(data, adapter_id=adapter_id)
+            truncated = _truncate_adapter_data(data, adapter_id=adapter_id)
+            if adapter_id == "lp-bug-api":
+                truncated = _spotlight_lp_bug_api(ctx, truncated)
+            payload[adapter_id] = truncated
 
     # For ESL-1, enhance with build hints extracted from sbuild log
     if check.get("id") == "ESL-1":
@@ -191,7 +234,9 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
     snippet_cap = (
         _SYNTHESIS_REPORTER_CONTENT_CHARS if is_synthesis else _DEFAULT_REPORTER_SNIPPET_CHARS
     )
-    payload["reporter_mir_content_snippet"] = (ctx.reporter_mir_content or "")[:snippet_cap]
+    payload["reporter_mir_content_snippet"] = _wrap_untrusted(
+        ctx, "reporter_mir_content", (ctx.reporter_mir_content or "")[:snippet_cap]
+    )
     if is_synthesis:
         payload["findings_so_far"] = _summarise_findings_so_far(
             ctx, max_message_len=_SYNTHESIS_FINDING_MESSAGE_CHARS

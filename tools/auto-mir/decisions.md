@@ -357,3 +357,70 @@ single string.
 - Stage 4 LLM parsing now fails gracefully with actionable errors when provider
   response content is null or unexpectedly structured.
 - Added regression tests for null and list-based message content handling.
+
+## Prompt-Injection Mitigation via Spotlighting (2026-06-26)
+
+Promotion: no
+
+**Context:**
+Launchpad bug text — title, description, and comments — is attacker-controllable:
+anyone with a Launchpad account can post content on an MIR bug. That text is fed
+into LLM prompts (reporter MIR content, bug metadata, the `lp-bug-api` adapter,
+and the CVE predecessor-terms helper), making it an attack surface for prompt
+injection. Other evidence sources (package files, build logs, Ubuntu infra APIs)
+are lower risk and out of scope for this change.
+
+We evaluated dedicated defences: ML-based detectors (LLM Guard `PromptInjection`,
+Rebuff) and external guard APIs (Lakera). All were rejected for this tool:
+
+- ML detectors pull in heavy dependencies (torch/transformers) or extra LLM
+  calls, inflating the footprint that has to run alongside the LXD workflow.
+- External guard APIs send untrusted *and* package-derived content to a third
+  party (privacy/data-egress) and add network, cost, and availability surface.
+- Both add ongoing maintenance and supply-chain burden disproportionate to a
+  tool that only ever produces a *draft* for a human.
+
+**Decision:**
+- Use lightweight "spotlighting" — the standard, dependency-free process —
+  implemented in `utils/llm_sanitize.py` and applied at the few points where
+  untrusted text enters a prompt:
+  - Detect instruction-like patterns at intake (`lp_intake._evaluate_injection_risk`),
+    record indicators on `ctx.bug`, warn prominently, and gate the run on
+    reviewer confirmation. The gate fails closed (EOF/negative answer aborts).
+  - Neutralise chat-structure tokens (role markers, `<|...|>`, control chars)
+    and wrap untrusted fields in a per-run nonce'd `<<UNTRUSTED_DATA ...>>`
+    envelope so injected text cannot forge the closing delimiter.
+  - Harden the LLM system prompt and prompt templates to treat envelope content
+    as data only and to raise a `prompt-injection` risk flag on manipulation
+    attempts.
+- Scope is limited to Launchpad bug text; package-derived evidence is not
+  enveloped at this time.
+
+**Rationale:**
+- Better maintainability: a small, self-contained, stdlib-only module with no
+  model to retrain or service to operate.
+- No third-party dependence: nothing is sent to an external classifier; no new
+  failure or data-egress surface.
+- Limited dependencies: stays within the tool's existing stdlib + launchpadlib
+  footprint, which matters for the constrained LXD runtime.
+- Human-in-the-loop backstop: every run produces a draft that a human MIR
+  reviewer must vet before any action, so the tool never acts autonomously on
+  model output.
+
+**Residual risk (accepted):**
+- Spotlighting reduces, but cannot eliminate, prompt injection. A crafted bug
+  could still bias the *wording* of a generated draft.
+- It cannot trigger actions or exfiltrate secrets: the only output is a review
+  draft, and existing guards constrain it — strict JSON schema, whitelisted
+  status/severity/confidence enums, AI confidence capped at "medium", and
+  `human_confirmation_required` always set.
+- The mandatory final human review of the draft is the authoritative safeguard;
+  the injection warning at intake tells the reviewer when to apply extra
+  scrutiny.
+
+**Consequences:**
+- One new module (`utils/llm_sanitize.py`) plus small call-site changes in
+  `lp_intake.py`, `llm.py`, `checks/llm_eval.py`, and `evidence/host_adapters.py`.
+- A new interactive confirmation gate can abort runs on suspicious bug content;
+  non-interactive runs abort by default when indicators are present.
+- Added unit tests for detection, neutralisation, enveloping, and the gate.

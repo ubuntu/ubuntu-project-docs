@@ -12,6 +12,8 @@ import logging
 import sys
 from typing import TYPE_CHECKING
 
+from utils import llm_sanitize
+
 if TYPE_CHECKING:
     from auto_mir import RunContext
 
@@ -254,6 +256,55 @@ def _evaluate_mir_heuristics(ctx) -> None:
         sys.exit(1)
 
 
+def _evaluate_injection_risk(ctx) -> None:
+    """Scan attacker-controllable bug text for prompt-injection indicators.
+
+    Launchpad bug title, description, and comments can be posted by anyone and
+    later become part of LLM prompts. When instruction-like content is detected
+    we record the indicators, warn prominently, and ask the reviewer to confirm
+    before continuing. The check fails closed: a non-interactive run (EOF) or a
+    negative answer aborts. See utils/llm_sanitize.py and decisions.md.
+    """
+    title = ctx.bug.get("title", "") or ""
+    description = ctx.bug.get("description", "") or ""
+    comments = ctx.bug.get("comments", []) or []
+
+    indicators: set[str] = set()
+    indicators.update(llm_sanitize.scan_for_injection(title))
+    indicators.update(llm_sanitize.scan_for_injection(description))
+    for comment in comments:
+        indicators.update(llm_sanitize.scan_for_injection(comment))
+
+    sorted_indicators = sorted(indicators)
+    ctx.bug["injection_indicators"] = sorted_indicators
+
+    if not sorted_indicators:
+        return
+
+    log.warning(
+        "\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        "POTENTIAL PROMPT-INJECTION CONTENT in bug %s\n"
+        "\n"
+        "The bug text contains instruction-like patterns that could be an\n"
+        "attempt to manipulate the AI review. Indicators: %s\n"
+        "\n"
+        "The content is neutralised and clearly marked as untrusted data\n"
+        "before it reaches the LLM, but you should review the bug manually\n"
+        "and treat the generated draft with extra scrutiny.\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",
+        ctx.bug_id,
+        ", ".join(sorted_indicators),
+    )
+    proceed = _ask_yes_no(
+        "Suspicious instruction-like content detected in the bug. Continue anyway?",
+        default_no=True,
+    )
+    if not proceed:
+        log.error("Aborted by user due to potential prompt-injection content.")
+        sys.exit(1)
+
+
 def _fetch_comments(bug) -> list[str]:
     """Fetch all comment bodies from a bug."""
     comments = []
@@ -391,6 +442,10 @@ def run(ctx: "RunContext") -> None:
         ctx.bug["subscribers"] = []
 
     _evaluate_mir_heuristics(ctx)
+
+    # Scan attacker-controllable bug text for prompt-injection indicators and
+    # gate the run on reviewer confirmation when anything suspicious is found.
+    _evaluate_injection_risk(ctx)
 
     # Warn if prior MIR review comments are detected (re-review scenario).
     # The prior content is NOT fed to the AI to avoid anchoring bias; the

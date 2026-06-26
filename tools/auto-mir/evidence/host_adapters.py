@@ -37,6 +37,7 @@ from evidence.types import (
     UbuntuCVETrackerResult,
     UpstreamTrackerResult,
 )
+from utils import llm_sanitize
 
 try:
     from launchpadlib.launchpad import Launchpad as _Launchpad  # type: ignore
@@ -1001,6 +1002,8 @@ def _llm_predecessor_terms(ctx, pkg: str) -> list[dict[str, str]]:
         str(r.get("version") or "") for r in upstream.get("recent_releases", []) if r.get("version")
     )
     reporter_excerpt = str(getattr(ctx, "reporter_mir_content", "") or "")[:2000]
+    nonce = getattr(ctx, "untrusted_nonce", None) or llm_sanitize.make_nonce()
+    reporter_excerpt = llm_sanitize.wrap_untrusted("reporter_mir_content", reporter_excerpt, nonce)
 
     prompt = _render_predecessor_prompt(
         ctx,

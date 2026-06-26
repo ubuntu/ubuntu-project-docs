@@ -28,6 +28,7 @@ import lxd_runner
 from evidence import collect_from_catalog
 from render import _render_llm_usage_report, write_outputs
 from utils.cli import parse_bool_arg
+from utils.llm_sanitize import make_nonce
 
 log = logging.getLogger("auto_mir")
 
@@ -273,7 +274,8 @@ class RunContext:
         self.bug: dict = {}
         self.source_package: str = ""
         self.reporter_mir_content: str = ""
-
+        # Per-run nonce used to delimit untrusted-data envelopes in LLM prompts.
+        self.untrusted_nonce: str = make_nonce()
         # --- Populated by stage_spawn_container / lxd_runner.spawn() (Stage 2) ---
         self.vm_name: str = ""
 
