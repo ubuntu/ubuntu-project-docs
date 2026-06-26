@@ -1,5 +1,6 @@
 """Integration tests for evidence collection orchestration."""
 
+import json
 import sys
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -365,67 +366,207 @@ def test_debian_bts_output_structure():
     assert result["open_bugs"][0]["web_link"].startswith("https://bugs.debian.org/")
 
 
-def test_cve_org_output_structure():
-    """cve-org adapter should filter search noise by affected products and classify severity."""
+def test_cve_search_terms_output_structure():
+    """cve-search-terms adapter should emit deterministic current-package term variants."""
+    ctx = Mock()
+    ctx.source_package = "python3-foo"
+
+    from evidence.host_adapters import collect_cve_search_terms
+
+    result = collect_cve_search_terms(ctx)
+
+    assert result["status"] == "ok"
+    assert result["source_package"] == "python3-foo"
+    term_values = [t["term"] for t in result["terms"]]
+    assert "python3-foo" in term_values
+    assert "foo" in term_values
+    assert all(t["kind"] == "current" for t in result["terms"])
+
+
+def test_cvelist_scan_output_structure():
+    """cvelist-scan adapter should push the scanner and parse VM JSON output."""
     ctx = Mock()
     ctx.source_package = "testpkg"
-
-    search_payload = {
-        "data": [
-            {"_source": {"cveMetadata": {"cveId": "CVE-2026-0001"}}},
-            {"_source": {"cveMetadata": {"cveId": "CVE-2026-0002"}}},
-        ]
-    }
-    matching_record = {
-        "cveMetadata": {"cveId": "CVE-2026-0001", "datePublished": "2026-06-01T00:00:00Z"},
-        "containers": {
-            "cna": {
-                "title": "testpkg privilege escalation",
-                "providerMetadata": {"shortName": "TEST-CNA"},
-                "descriptions": [{"lang": "en", "value": "Privilege escalation in testpkg"}],
-                "affected": [{"vendor": "Example", "product": "testpkg"}],
-                "metrics": [{"cvssV3_1": {"baseScore": 8.8, "baseSeverity": "HIGH"}}],
+    ctx.vm_name = "vm-test"
+    ctx.evidence = {
+        "adapters": {
+            "cve-search-terms": {
+                "status": "ok",
+                "terms": [{"term": "testpkg", "kind": "current", "rationale": "name"}],
             }
-        },
+        }
     }
-    noise_record = {
-        "cveMetadata": {"cveId": "CVE-2026-0002", "datePublished": "2026-06-02T00:00:00Z"},
-        "containers": {
-            "cna": {
-                "title": "generic shell issue",
-                "providerMetadata": {"shortName": "OTHER-CNA"},
-                "descriptions": [{"lang": "en", "value": "Uses shell commands"}],
-                "affected": [{"vendor": "Example", "product": "otherpkg"}],
-                "metrics": [{"cvssV3_1": {"baseScore": 4.2, "baseSeverity": "MEDIUM"}}],
+
+    vm_payload = {
+        "status": "ok",
+        "baseline": "2026-06-25_all_CVEs_at_midnight.zip",
+        "candidates": [
+            {
+                "id": "CVE-2026-0001",
+                "matched_term": "testpkg",
+                "matched_kind": "current",
+                "title": "testpkg flaw",
+                "description": "Flaw in testpkg",
+                "affected_products": ["testpkg"],
+                "affected_versions": ["1.0"],
+                "references": [],
+                "severity": "HIGH",
+                "published_date": "2026-06-01T00:00:00Z",
             }
-        },
+        ],
     }
 
-    def fake_post(url: str, payload: dict):
-        assert url == "https://www.cve.org/restapiv1/search"
-        assert payload["query"] == "testpkg"
-        return search_payload
+    import evidence.container_adapters as container_adapters
 
-    def fake_fetch(url: str):
-        if url.endswith("CVE-2026-0001"):
-            return matching_record
-        if url.endswith("CVE-2026-0002"):
-            return noise_record
-        raise AssertionError(f"unexpected url: {url}")
+    with patch.object(container_adapters.lxd_runner, "push_file") as mock_push:
+        with patch.object(container_adapters, "_capture", return_value=json.dumps(vm_payload)):
+            result = container_adapters.collect_cvelist_scan(ctx)
 
-    with patch("evidence.host_adapters._post_json", side_effect=fake_post):
-        with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
-            from evidence.host_adapters import collect_cve_org
+    assert mock_push.call_count == 2
+    assert result["status"] == "ok"
+    assert result["source_package"] == "testpkg"
+    assert result["baseline"] == "2026-06-25_all_CVEs_at_midnight.zip"
+    assert result["scanned_terms"] == ["testpkg"]
+    assert result["total_candidate_count"] == 1
+    assert result["candidates"][0]["id"] == "CVE-2026-0001"
 
-            result = collect_cve_org(ctx)
+
+def test_cvelist_scan_skips_without_terms():
+    """cvelist-scan adapter should no-op cleanly when no search terms are present."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.vm_name = "vm-test"
+    ctx.evidence = {"adapters": {"cve-search-terms": {"status": "ok", "terms": []}}}
+
+    import evidence.container_adapters as container_adapters
+
+    with patch.object(container_adapters.lxd_runner, "push_file") as mock_push:
+        result = container_adapters.collect_cvelist_scan(ctx)
+
+    mock_push.assert_not_called()
+    assert result["status"] == "ok"
+    assert result["candidates"] == []
+    assert result["total_candidate_count"] == 0
+
+
+def test_nvd_enrich_output_structure():
+    """nvd-enrich adapter should enrich candidates and tag historical predecessors."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.evidence = {
+        "adapters": {
+            "cvelist-scan": {
+                "status": "ok",
+                "candidates": [
+                    {
+                        "id": "CVE-2026-0001",
+                        "matched_kind": "current",
+                        "title": "testpkg flaw",
+                        "description": "cvelist description",
+                        "affected_products": ["testpkg"],
+                        "affected_versions": ["1.0"],
+                        "severity": "MEDIUM",
+                    },
+                    {
+                        "id": "CVE-2020-0002",
+                        "matched_kind": "predecessor",
+                        "title": "legacy flaw",
+                        "description": "cvelist legacy description",
+                        "affected_products": ["oldpkg"],
+                        "affected_versions": ["0.9"],
+                        "severity": "LOW",
+                    },
+                ],
+            }
+        }
+    }
+
+    nvd_records = {
+        "CVE-2026-0001": {
+            "id": "CVE-2026-0001",
+            "descriptions": [{"lang": "en", "value": "NVD description"}],
+            "metrics": {
+                "cvssMetricV31": [
+                    {"baseSeverity": "HIGH", "cvssData": {"baseScore": 8.8, "baseSeverity": "HIGH"}}
+                ]
+            },
+            "weaknesses": [
+                {"description": [{"value": "CWE-79"}]},
+            ],
+            "configurations": [],
+        }
+    }
+
+    def fake_lookup(cve_id):
+        return nvd_records.get(cve_id)
+
+    with patch("evidence.host_adapters._nvd_lookup", side_effect=fake_lookup):
+        with patch("evidence.host_adapters.time.sleep"):
+            from evidence.host_adapters import collect_nvd_enrich
+
+            result = collect_nvd_enrich(ctx)
 
     assert result["status"] == "ok"
     assert result["source_package"] == "testpkg"
-    assert result["matched_terms"] == ["testpkg"]
-    assert result["total_cve_count"] == 1
-    assert [item["id"] for item in result["cves"]] == ["CVE-2026-0001"]
-    assert [item["id"] for item in result["high_severity_cves"]] == ["CVE-2026-0001"]
-    assert result["cves"][0]["affected_products"] == ["testpkg", "Example"]
+    assert result["total_cve_count"] == 2
+
+    by_id = {c["id"]: c for c in result["cves"]}
+    enriched = by_id["CVE-2026-0001"]
+    assert enriched["enrichment_source"] == "nvd"
+    assert enriched["severity"] == "HIGH"
+    assert enriched["cwe"] == ["CWE-79"]
+    assert enriched["description"] == "NVD description"
+
+    # Fallback to cvelist data when NVD has no record.
+    fallback = by_id["CVE-2020-0002"]
+    assert fallback["enrichment_source"] == "cvelist"
+    assert fallback["severity"] == "LOW"
+
+    assert [c["id"] for c in result["high_severity_cves"]] == ["CVE-2026-0001"]
+    assert [c["id"] for c in result["historical_cves"]] == ["CVE-2020-0002"]
+
+
+def test_scan_zip_identifies_candidates(tmp_path):
+    """scan_zip should word-match CVE records and dedupe by ID."""
+    import zipfile
+
+    from evidence.cvelist_scan_invm import scan_zip
+
+    matching = {
+        "cveMetadata": {"cveId": "CVE-2026-1234", "datePublished": "2026-06-01T00:00:00Z"},
+        "containers": {
+            "cna": {
+                "title": "testpkg buffer overflow",
+                "descriptions": [{"lang": "en", "value": "Overflow in testpkg parser"}],
+                "affected": [{"vendor": "Example", "product": "testpkg"}],
+                "metrics": [{"cvssV3_1": {"baseScore": 7.5, "baseSeverity": "HIGH"}}],
+            }
+        },
+    }
+    noise = {
+        "cveMetadata": {"cveId": "CVE-2026-9999", "datePublished": "2026-06-02T00:00:00Z"},
+        "containers": {
+            "cna": {
+                "title": "unrelated issue",
+                "descriptions": [{"lang": "en", "value": "Something about testpkgextra only"}],
+                "affected": [{"vendor": "Other", "product": "otherpkg"}],
+                "metrics": [],
+            }
+        },
+    }
+
+    zip_path = tmp_path / "baseline.zip"
+    with zipfile.ZipFile(zip_path, "w") as zf:
+        zf.writestr("cves/2026/CVE-2026-1234.json", json.dumps(matching))
+        zf.writestr("cves/2026/CVE-2026-9999.json", json.dumps(noise))
+        zf.writestr("README.md", "not a cve")
+
+    candidates = scan_zip(str(zip_path), [{"term": "testpkg", "kind": "current"}])
+
+    assert [c["id"] for c in candidates] == ["CVE-2026-1234"]
+    assert candidates[0]["matched_kind"] == "current"
+    assert candidates[0]["affected_products"] == ["testpkg", "Example"]
+    assert candidates[0]["severity"] == "HIGH"
 
 
 def test_upstream_tracker_output_structure():

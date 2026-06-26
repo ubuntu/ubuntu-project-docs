@@ -180,27 +180,76 @@ class UbuntuCVETrackerResult(TypedDict):
     total_cve_count: int
 
 
-class CVEOrgEntry(TypedDict):
-    """Single CVE entry returned from cve.org public search + record fetch."""
+class CVESearchTerm(TypedDict):
+    """A single candidate search term for CVE lookups.
 
-    id: str
-    title: str
-    cna: str
-    published_date: str
-    severity: str
-    description: str
-    affected_products: list[str]
-    web_link: str
+    kind distinguishes the current package/project ("current") from historical
+    predecessors or sibling versions worth checking ("predecessor").
+    """
+
+    term: str
+    kind: str
+    rationale: str
 
 
-class CVEOrgResult(TypedDict):
-    """Return structure for cve-org adapter."""
+class CVESearchTermsResult(TypedDict):
+    """Return structure for cve-search-terms adapter."""
 
     status: str
     source_package: str
-    matched_terms: list[str]
-    cves: list[CVEOrgEntry]
-    high_severity_cves: list[CVEOrgEntry]
+    terms: list[CVESearchTerm]
+
+
+class CvelistCandidate(TypedDict):
+    """A candidate CVE identified by scanning the cvelistV5 baseline corpus."""
+
+    id: str
+    matched_term: str
+    matched_kind: str
+    title: str
+    description: str
+    affected_products: list[str]
+    affected_versions: list[str]
+    references: list[str]
+    severity: str
+    published_date: str
+
+
+class CvelistScanResult(TypedDict):
+    """Return structure for cvelist-scan adapter (runs inside the VM)."""
+
+    status: str
+    source_package: str
+    baseline: str
+    scanned_terms: list[str]
+    candidates: list[CvelistCandidate]
+    total_candidate_count: int
+
+
+class NvdEnrichedCVE(TypedDict):
+    """A CVE enriched with NVD metadata (or cvelist fallback data)."""
+
+    id: str
+    kind: str
+    title: str
+    description: str
+    severity: str
+    cvss_score: float
+    cwe: list[str]
+    affected_versions: list[str]
+    affected_products: list[str]
+    enrichment_source: str
+    web_link: str
+
+
+class NvdEnrichResult(TypedDict):
+    """Return structure for nvd-enrich adapter."""
+
+    status: str
+    source_package: str
+    cves: list[NvdEnrichedCVE]
+    high_severity_cves: list[NvdEnrichedCVE]
+    historical_cves: list[NvdEnrichedCVE]
     total_cve_count: int
 
 

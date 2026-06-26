@@ -24,7 +24,8 @@ class AdapterID(str, Enum):
     AUTOPKGTEST_DB = "autopkgtest-db"
     TEAM_MAPPING = "team-mapping"
     DEBIAN_BTS = "debian-bts"
-    CVE_ORG = "cve-org"
+    CVE_SEARCH_TERMS = "cve-search-terms"
+    NVD_ENRICH = "nvd-enrich"
 
     # In-container adapters
     PACKAGING_SOURCE = "packaging-source"
@@ -33,6 +34,7 @@ class AdapterID(str, Enum):
     SBUILD = "sbuild"
     LINTIAN = "lintian"
     DEB_METADATA = "deb-metadata"
+    CVELIST_SCAN = "cvelist-scan"
 
     def __str__(self) -> str:
         return self.value

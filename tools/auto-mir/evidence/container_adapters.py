@@ -6,14 +6,18 @@ evidence from package build tools, dependency analysis, and packaging inspection
 
 from __future__ import annotations
 
+import json
 import logging
 import re
+import tempfile
+from pathlib import Path
 
 import lxd_runner
 from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
     ComponentMismatchesResult,
+    CvelistScanResult,
     DebMetadataResult,
     DepAnalysisResult,
     LintianResult,
@@ -894,4 +898,89 @@ def collect_deb_metadata(ctx) -> DebMetadataResult:
         "status": "ok",
         "message": f"Extracted metadata from {len(deb_packages)} binary packages",
         "deb_packages": deb_packages,
+    }
+
+
+# ---------------------------------------------------------------------------
+# CVE / security — cvelistV5 baseline scan (in-VM)
+# ---------------------------------------------------------------------------
+
+
+_CVELIST_SCAN_SCRIPT = "cvelist_scan_invm.py"
+_CVELIST_VM_SCRIPT = "/tmp/auto-mir-cvelist-scan.py"
+_CVELIST_VM_TERMS = "/tmp/auto-mir-cve-terms.json"
+
+
+@adapter(AdapterID.CVELIST_SCAN, depends_on=[AdapterID.CVE_SEARCH_TERMS])
+def collect_cvelist_scan(ctx) -> CvelistScanResult:
+    """Identify candidate CVEs by scanning the cvelistV5 baseline corpus in the VM.
+
+    Downloads the documented ``*_all_CVEs_at_midnight.zip`` baseline inside the
+    throwaway VM (keeping the bulky corpus off the host) and word-matches it
+    against the search terms produced by the cve-search-terms adapter. Returns a
+    small set of candidate CVE IDs for downstream NVD enrichment.
+    """
+    pkg = ctx.source_package
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    terms_result = ctx.evidence.get("adapters", {}).get("cve-search-terms", {})
+    terms = terms_result.get("terms", []) if isinstance(terms_result, dict) else []
+    if not terms:
+        log.warning("cvelist-scan: no search terms available; skipping scan")
+        return {
+            "status": "ok",
+            "source_package": pkg,
+            "baseline": "",
+            "scanned_terms": [],
+            "candidates": [],
+            "total_candidate_count": 0,
+            "note": "no search terms produced by cve-search-terms",
+        }
+
+    scanned_terms = [str(t.get("term") or "") for t in terms if t.get("term")]
+
+    # Push the self-contained scanner and the terms list into the VM.
+    script_path = Path(__file__).resolve().parent / _CVELIST_SCAN_SCRIPT
+    lxd_runner.push_file(ctx.vm_name, str(script_path), _CVELIST_VM_SCRIPT)
+
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".json", delete=False, encoding="utf-8"
+    ) as terms_file:
+        json.dump(terms, terms_file)
+        terms_local = terms_file.name
+    lxd_runner.push_file(ctx.vm_name, terms_local, _CVELIST_VM_TERMS)
+
+    raw = _capture(
+        ctx,
+        ["python3", _CVELIST_VM_SCRIPT, _CVELIST_VM_TERMS],
+        allow_fail=True,
+    ).strip()
+
+    if not raw:
+        raise AdapterError("cvelist-scan produced no output from the VM")
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise AdapterError(f"cvelist-scan returned invalid JSON: {exc}") from exc
+
+    if payload.get("status") != "ok":
+        raise AdapterError(f"cvelist-scan failed in VM: {payload.get('message', 'unknown error')}")
+
+    candidates = payload.get("candidates", []) or []
+    log.debug(
+        "cvelist-scan: %d candidate CVE(s) for %s from baseline %s (terms: %s)",
+        len(candidates),
+        pkg,
+        payload.get("baseline", ""),
+        ", ".join(scanned_terms),
+    )
+    return {
+        "status": "ok",
+        "source_package": pkg,
+        "baseline": str(payload.get("baseline") or ""),
+        "scanned_terms": scanned_terms,
+        "candidates": candidates,
+        "total_candidate_count": len(candidates),
     }

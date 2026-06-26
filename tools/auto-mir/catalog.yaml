@@ -794,15 +794,32 @@ evidence_adapters:
     active_cves: list
     fixed_cves: list
   fallback: emit_todo_continue
-- id: cve-org
-  type: web
-  description: Search cve.org for CVEs referencing this package or its upstream project
+- id: cve-search-terms
+  type: heuristic
+  description: Produce candidate CVE search terms (current package plus historical predecessors)
   inputs:
   - source_package
-  - upstream_project_hint
+  output_contract:
+    terms: list
+  fallback: emit_todo_continue
+- id: cvelist-scan
+  type: local_exec
+  description: Scan the cvelistV5 baseline corpus in the VM to identify candidate CVEs
+  inputs:
+  - cve-search-terms
+  output_contract:
+    candidates: list
+    baseline: str
+  fallback: emit_todo_continue
+- id: nvd-enrich
+  type: web
+  description: Enrich scan candidates with normalized NVD severity, CWE and version ranges
+  inputs:
+  - cvelist-scan
   output_contract:
     cves: list
     high_severity_cves: list
+    historical_cves: list
   fallback: emit_todo_continue
 checks:
 - id: SUM-1
@@ -953,7 +970,7 @@ checks:
   synthesis: true
   adapters_required:
   - ubuntu-cve-tracker
-  - cve-org
+  - nvd-enrich
   - packaging-source
   ai_policy: 'Evaluate security section findings. If any security trigger fires (SEC-1-CVE-SYNTH, SEC-11-ATTESTATION) or package is security-sensitive (parses untrusted data, exposes endpoints, handles auth/crypto), suggest security review needed.
 
@@ -1518,7 +1535,7 @@ checks:
   mode: ev_to_ai
   adapters_required:
   - ubuntu-cve-tracker
-  - cve-org
+  - nvd-enrich
   ai_policy: 'AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes, whether fixes are timely, patterns suggesting systemic issues. Output 3-band confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding. Even historically patched but risk-significant patterns should surface as security-review-triggering.
 
     '
@@ -2612,7 +2629,7 @@ security_triggers:
   title: CVE history risk synthesis
   linked_checks:
   - SEC-1
-  trigger_condition: CVE data present from ubuntu-cve-tracker or cve-org for this package
+  trigger_condition: CVE data present from ubuntu-cve-tracker or nvd-enrich for this package
   synthesis: required
   synthesis_policy: 'AI synthesises risk across both trackers. Assess: total volume, severity classes, fix timeliness, systemic patterns. Output 3-band confidence (low/medium/high).
 

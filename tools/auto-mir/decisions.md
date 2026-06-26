@@ -36,9 +36,10 @@ Use this log as the source for deciding what should be promoted into
 
 ## Security Decisions
 
-- **SEC-1**: always check both Ubuntu CVE tracker and cve.org; AI risk synthesis required
-  with mandatory human confirmation. Concerning patterns (including historically patched but
-  risk-significant trends) surface as security-review-triggering findings.
+- **SEC-1**: always check both the Ubuntu CVE tracker and the cvelistV5/NVD chain; AI risk
+  synthesis required with mandatory human confirmation. Concerning patterns (including
+  historically patched but risk-significant trends) surface as security-review-triggering
+  findings.
 - **SEC-3/SEC-4**: hard blockers (required remediation), not merely "security review maybe".
 - **SEC-7**: include docs/manpage/package-description evidence in arbitrary web-content
   assessment.
@@ -101,6 +102,23 @@ Use this log as the source for deciding what should be promoted into
 - **CVE tracker**: replaced flaky ubuntu.com API (returns 422 frequently) with direct
   OVAL JSON parsing from security-metadata.canonical.com. Downloads XZ-compressed OVAL
   JSON, extracts CVEs directly. Added retry-once on transient HTTP errors.
+- **cve.org replacement (cvelistV5 + NVD)**: dropped the unreliable cve.org search API in
+  favour of a three-adapter chain:
+  - `cve-search-terms` (host/heuristic): produces the candidate search terms. Has no hard
+    dependencies so a missing upstream match never cascades and skips the whole CVE chain.
+  - `cvelist-scan` (container): downloads the documented
+    `*_all_CVEs_at_midnight.zip` cvelistV5 baseline *inside the throwaway VM* (keeping the
+    bulky corpus off the host) and word-matches every record with a self-contained,
+    stdlib-only scanner (`evidence/cvelist_scan_invm.py`, no `unzip` dependency). "Parse a
+    lot, identify few": the whole corpus is scanned but only a handful of candidate CVE IDs
+    are returned.
+  - `nvd-enrich` (host/web): enriches each candidate with normalized CVSS severity, CWE and
+    CPE version ranges from NVD API 2.0, falling back to the cvelist record data when NVD is
+    unavailable. Runs without an API key (5 req/30s budget enforced via a small inter-request
+    sleep).
+  - Predecessor/sibling terms (e.g. `lua5.5` -> historical `lua` CVEs) are tagged
+    `kind="predecessor"`; matching findings are surfaced as clearly-labelled *historical*
+    evidence that can influence SEC-1 severity but never hard-blocks the current version.
 - **Autopkgtest**: replaced web UI scraping with direct SQLite database download from
   autopkgtest.ubuntu.com/static/autopkgtest.db. Queries results table directly.
 

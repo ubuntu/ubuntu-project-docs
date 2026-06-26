@@ -14,6 +14,7 @@ import re
 import sqlite3
 import subprocess
 import tempfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -24,13 +25,14 @@ from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
     AutopkgtestResult,
-    CVEOrgResult,
+    CVESearchTermsResult,
     DebianBTSResult,
     LPBugAPIResult,
     LPBugSearchAPIResult,
     LPBuildAPIResult,
     LPPackageAPIResult,
     LPTeamMembershipAPIResult,
+    NvdEnrichResult,
     UbuntuCVETrackerResult,
     UpstreamTrackerResult,
 )
@@ -349,17 +351,6 @@ def _fetch_text(url: str) -> str:
     req = urllib.request.Request(url, headers={"User-Agent": "auto-mir/0.1"})
     with urllib.request.urlopen(req, timeout=60) as resp:
         return resp.read().decode("utf-8", "replace")
-
-
-def _post_json(url: str, payload: dict[str, Any]) -> Any:
-    """POST JSON payload and decode a JSON response."""
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json", "User-Agent": "auto-mir/0.1"},
-    )
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return json.loads(resp.read().decode("utf-8"))
 
 
 def _strip_html(value: str) -> str:
@@ -928,7 +919,7 @@ def _resolve_oval_series(series: str) -> tuple[str | None, str | None]:
 
 
 def _candidate_cve_search_terms(pkg: str) -> list[str]:
-    """Return package-name variants worth trying against cve.org search."""
+    """Return package-name variants worth trying when identifying relevant CVEs."""
     terms = [pkg]
     normalized = pkg.lower()
     for prefix in ("python3-", "python-", "golang-", "rust-"):
@@ -946,150 +937,208 @@ def _candidate_cve_search_terms(pkg: str) -> list[str]:
     return cleaned
 
 
-def _record_affected_products(record: dict[str, Any]) -> list[str]:
-    """Extract affected product/vendor labels from a CVE record."""
-    affected = record.get("containers", {}).get("cna", {}).get("affected", []) or []
-    labels: list[str] = []
-    for item in affected:
-        if not isinstance(item, dict):
-            continue
-        for key in ("product", "vendor"):
-            value = str(item.get(key) or "").strip()
-            if value and value not in labels:
-                labels.append(value)
-    return labels
+@adapter(AdapterID.CVE_SEARCH_TERMS)
+def collect_cve_search_terms(ctx) -> CVESearchTermsResult:
+    """Produce the candidate search terms used to identify relevant CVEs.
 
-
-def _record_matches_terms(record: dict[str, Any], terms: list[str]) -> bool:
-    """Return True when the CVE record appears relevant to the package terms."""
-    lowered_terms = [term.lower() for term in terms if term.strip()]
-    if not lowered_terms:
-        return False
-
-    cna = record.get("containers", {}).get("cna", {})
-    affected_labels = " ".join(_record_affected_products(record)).lower()
-    provider = str(cna.get("providerMetadata", {}).get("shortName") or "").lower()
-    title = str(cna.get("title") or "").lower()
-    descriptions = " ".join(
-        str(desc.get("value") or "")
-        for desc in (cna.get("descriptions") or [])
-        if isinstance(desc, dict)
-    ).lower()
-    references = " ".join(
-        str(ref.get("url") or "") for ref in (cna.get("references") or []) if isinstance(ref, dict)
-    ).lower()
-
-    searchable = [affected_labels, provider, title, descriptions, references]
-    return any(term in haystack for term in lowered_terms for haystack in searchable)
-
-
-def _record_high_severity(record: dict[str, Any]) -> str:
-    """Return normalized severity label for the record, defaulting to UNKNOWN."""
-    metrics = record.get("containers", {}).get("cna", {}).get("metrics", []) or []
-    best_label = "UNKNOWN"
-    best_score = -1.0
-    for metric in metrics:
-        if not isinstance(metric, dict):
-            continue
-        for key in ("cvssV4_0", "cvssV3_1", "cvssV3_0"):
-            values = metric.get(key)
-            if isinstance(values, dict):
-                label = str(values.get("baseSeverity") or "UNKNOWN").upper()
-                try:
-                    score = float(values.get("baseScore", -1))
-                except (TypeError, ValueError):
-                    score = -1.0
-                if score > best_score:
-                    best_score = score
-                    best_label = label
-        other = metric.get("other")
-        if isinstance(other, dict):
-            text = str(other.get("content", {}).get("text") or "").upper()
-            if text in {"LOW", "MEDIUM", "HIGH", "CRITICAL"} and best_score < 0:
-                best_label = text
-    return best_label
-
-
-@adapter(AdapterID.CVE_ORG)
-def collect_cve_org(ctx) -> CVEOrgResult:
-    """Search cve.org public search and refine via public CVE record lookups."""
+    For now this yields deterministic source-package name variants, all tagged as
+    ``current``. A later predecessor-detection step augments this with historical
+    or sibling-version terms tagged ``predecessor``.
+    """
     pkg = ctx.source_package
     if not pkg:
         raise AdapterError("source_package not set")
 
-    matched_terms = _candidate_cve_search_terms(pkg)
-    search_payload = {
-        "query": " OR ".join(matched_terms),
-        "from": 0,
-        "size": 25,
-        "sort": {"property": "cveId", "order": "DESC"},
-    }
-
-    try:
-        search_result = _post_json("https://www.cve.org/restapiv1/search", search_payload)
-    except urllib.error.HTTPError as exc:
-        raise AdapterError(f"cve.org search HTTP error: {exc.code}") from exc
-    except urllib.error.URLError as exc:
-        raise AdapterError(f"cve.org search failed: {exc.reason}") from exc
-    except json.JSONDecodeError as exc:
-        raise AdapterError(f"cve.org search JSON parse failed: {exc}") from exc
-
-    cves: list[dict[str, Any]] = []
-    high_severity_cves: list[dict[str, Any]] = []
-    for item in search_result.get("data", []) or []:
-        source = item.get("_source", {}) if isinstance(item, dict) else {}
-        metadata = source.get("cveMetadata", {})
-        cve_id = str(metadata.get("cveId") or "").strip()
-        if not cve_id:
-            continue
-
-        try:
-            record = _fetch_json(f"https://cveawg.mitre.org/api/cve/{urllib.parse.quote(cve_id)}")
-        except Exception as exc:
-            log.debug("Could not enrich cve.org record %s: %s", cve_id, exc)
-            continue
-
-        if not _record_matches_terms(record, matched_terms):
-            continue
-
-        cna = record.get("containers", {}).get("cna", {})
-        severity = _record_high_severity(record)
-        descriptions = cna.get("descriptions") or []
-        description = ""
-        for desc in descriptions:
-            if isinstance(desc, dict) and str(desc.get("lang") or "").lower() == "en":
-                description = str(desc.get("value") or "").strip()
-                break
-        if not description and descriptions:
-            description = str(descriptions[0].get("value") or "").strip()
-
-        entry = {
-            "id": cve_id,
-            "title": str(cna.get("title") or "").strip(),
-            "cna": str(cna.get("providerMetadata", {}).get("shortName") or "").strip(),
-            "published_date": str(metadata.get("datePublished") or "").strip(),
-            "severity": severity,
-            "description": description,
-            "affected_products": _record_affected_products(record),
-            "web_link": f"https://www.cve.org/CVERecord?id={cve_id}",
-        }
-        cves.append(entry)
-        if severity in {"HIGH", "CRITICAL"}:
-            high_severity_cves.append(entry)
+    terms = [
+        {"term": term, "kind": "current", "rationale": "source package name variant"}
+        for term in _candidate_cve_search_terms(pkg)
+    ]
 
     log.debug(
-        "cve-org: %d CVE record(s) for %s (%d high/critical), search terms: %s",
-        len(cves),
+        "cve-search-terms: %d term(s) for %s: %s",
+        len(terms),
         pkg,
-        len(high_severity_cves),
-        ", ".join(matched_terms),
+        ", ".join(t["term"] for t in terms),
     )
     return {
         "status": "ok",
         "source_package": pkg,
-        "matched_terms": matched_terms,
+        "terms": terms,
+    }
+
+
+_NVD_API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
+# Without an API key NVD allows 5 requests per rolling 30 seconds. Pause between
+# lookups to stay within that budget. Candidate sets are expected to be small.
+_NVD_REQUEST_INTERVAL_SECONDS = 6.5
+_NVD_MAX_CANDIDATES = 50
+
+
+def _nvd_lookup(cve_id: str) -> dict[str, Any] | None:
+    """Fetch a single CVE from the NVD API, returning the ``cve`` object or None."""
+    url = f"{_NVD_API_URL}?cveId={urllib.parse.quote(cve_id)}"
+    try:
+        data = _fetch_json(url)
+    except Exception as exc:  # noqa: BLE001 - any failure falls back to cvelist data
+        log.debug("NVD lookup failed for %s: %s", cve_id, exc)
+        return None
+    vulns = data.get("vulnerabilities") or []
+    if not vulns or not isinstance(vulns[0], dict):
+        return None
+    cve = vulns[0].get("cve")
+    return cve if isinstance(cve, dict) else None
+
+
+def _nvd_severity(cve: dict[str, Any]) -> tuple[str, float]:
+    """Extract the best normalized severity label and score from NVD metrics."""
+    metrics = cve.get("metrics", {}) or {}
+    best_label = "UNKNOWN"
+    best_score = -1.0
+    for key in ("cvssMetricV40", "cvssMetricV31", "cvssMetricV30", "cvssMetricV2"):
+        for metric in metrics.get(key, []) or []:
+            if not isinstance(metric, dict):
+                continue
+            cvss = metric.get("cvssData", {}) if isinstance(metric.get("cvssData"), dict) else {}
+            label = str(metric.get("baseSeverity") or cvss.get("baseSeverity") or "").upper()
+            try:
+                score = float(cvss.get("baseScore", -1))
+            except (TypeError, ValueError):
+                score = -1.0
+            if score > best_score:
+                best_score = score
+                best_label = label or "UNKNOWN"
+    return best_label, best_score
+
+
+def _nvd_cwes(cve: dict[str, Any]) -> list[str]:
+    """Extract CWE identifiers from NVD weaknesses."""
+    cwes: list[str] = []
+    for weakness in cve.get("weaknesses", []) or []:
+        if not isinstance(weakness, dict):
+            continue
+        for desc in weakness.get("description", []) or []:
+            if isinstance(desc, dict):
+                value = str(desc.get("value") or "").strip()
+                if value and value.upper() != "NVD-CWE-NOINFO" and value not in cwes:
+                    cwes.append(value)
+    return cwes
+
+
+def _nvd_version_ranges(cve: dict[str, Any]) -> list[str]:
+    """Summarize affected CPE version ranges from NVD configurations."""
+    ranges: list[str] = []
+    for config in cve.get("configurations", []) or []:
+        if not isinstance(config, dict):
+            continue
+        for node in config.get("nodes", []) or []:
+            if not isinstance(node, dict):
+                continue
+            for match in node.get("cpeMatch", []) or []:
+                if not isinstance(match, dict) or not match.get("vulnerable", True):
+                    continue
+                start = match.get("versionStartIncluding") or match.get("versionStartExcluding")
+                end = match.get("versionEndIncluding") or match.get("versionEndExcluding")
+                if start and end:
+                    label = f"{start} - {end}"
+                elif end:
+                    label = f"up to {end}"
+                elif start:
+                    label = f"{start} and later"
+                else:
+                    continue
+                if label not in ranges:
+                    ranges.append(label)
+    return ranges[:20]
+
+
+def _nvd_description(cve: dict[str, Any]) -> str:
+    for desc in cve.get("descriptions", []) or []:
+        if isinstance(desc, dict) and str(desc.get("lang") or "").lower().startswith("en"):
+            return str(desc.get("value") or "").strip()
+    return ""
+
+
+@adapter(AdapterID.NVD_ENRICH, depends_on=[AdapterID.CVELIST_SCAN])
+def collect_nvd_enrich(ctx) -> NvdEnrichResult:
+    """Enrich cvelist-scan candidates with normalized NVD metadata.
+
+    For each candidate CVE identified in the baseline scan, query the NVD API for
+    normalized CVSS severity, CWE classification, and CPE version ranges. When NVD
+    is unavailable for a record, fall back to the data already parsed from the
+    cvelistV5 record. Entries carry the ``kind`` (current/predecessor) recorded by
+    the scan so downstream synthesis can weigh historical findings separately.
+    """
+    pkg = ctx.source_package
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    scan_result = ctx.evidence.get("adapters", {}).get("cvelist-scan", {})
+    candidates = scan_result.get("candidates", []) if isinstance(scan_result, dict) else []
+
+    cves: list[dict[str, Any]] = []
+    high_severity_cves: list[dict[str, Any]] = []
+    historical_cves: list[dict[str, Any]] = []
+
+    for index, candidate in enumerate(candidates[:_NVD_MAX_CANDIDATES]):
+        cve_id = str(candidate.get("id") or "").strip()
+        if not cve_id:
+            continue
+        kind = str(candidate.get("matched_kind") or "current").strip() or "current"
+
+        if index > 0:
+            time.sleep(_NVD_REQUEST_INTERVAL_SECONDS)
+        nvd_cve = _nvd_lookup(cve_id)
+
+        if nvd_cve is not None:
+            severity, score = _nvd_severity(nvd_cve)
+            entry = {
+                "id": cve_id,
+                "kind": kind,
+                "title": candidate.get("title", ""),
+                "description": _nvd_description(nvd_cve) or candidate.get("description", ""),
+                "severity": severity,
+                "cvss_score": score if score >= 0 else 0.0,
+                "cwe": _nvd_cwes(nvd_cve),
+                "affected_versions": _nvd_version_ranges(nvd_cve)
+                or candidate.get("affected_versions", []),
+                "affected_products": candidate.get("affected_products", []),
+                "enrichment_source": "nvd",
+                "web_link": f"https://nvd.nist.gov/vuln/detail/{cve_id}",
+            }
+        else:
+            entry = {
+                "id": cve_id,
+                "kind": kind,
+                "title": candidate.get("title", ""),
+                "description": candidate.get("description", ""),
+                "severity": str(candidate.get("severity") or "UNKNOWN").upper(),
+                "cvss_score": 0.0,
+                "cwe": [],
+                "affected_versions": candidate.get("affected_versions", []),
+                "affected_products": candidate.get("affected_products", []),
+                "enrichment_source": "cvelist",
+                "web_link": f"https://www.cve.org/CVERecord?id={cve_id}",
+            }
+
+        cves.append(entry)
+        if entry["severity"] in {"HIGH", "CRITICAL"}:
+            high_severity_cves.append(entry)
+        if kind == "predecessor":
+            historical_cves.append(entry)
+
+    log.debug(
+        "nvd-enrich: %d CVE(s) for %s (%d high/critical, %d historical)",
+        len(cves),
+        pkg,
+        len(high_severity_cves),
+        len(historical_cves),
+    )
+    return {
+        "status": "ok",
+        "source_package": pkg,
         "cves": cves,
         "high_severity_cves": high_severity_cves,
+        "historical_cves": historical_cves,
         "total_cve_count": len(cves),
     }
 
@@ -1132,8 +1181,6 @@ def collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
         # Retry once on transient failures
         if exc.code in (429, 502, 503, 504):
             log.warning("OVAL transient error %d; retrying once", exc.code)
-            import time
-
             time.sleep(2)
             try:
                 with urllib.request.urlopen(req, timeout=60) as resp:
