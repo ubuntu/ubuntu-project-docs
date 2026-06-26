@@ -34,10 +34,54 @@ backporting the open-vm-tools version available in Ubuntu 26.04 LTS to Ubuntu
 
 There should be a single SRU bug tracking the backport. Other bugs may be
 included in the changelog; they must have test cases and be verified as
-regular SRUs. It is expected that no packaging changes from the current
-release will be required for this backport - any necessary changes
-should be highlighted in the SRU bug. Similarly, any packaging changes
-from the previous stable version should be called out in the SRU bug.
+regular SRUs.
+
+Only the pristine source tarball is expected to be backported. No changes to
+the debian directory should be performed unless they are necessary (with the
+obvious exception of debian/changelog). Any such changes should be documented
+in debian/changelog. In practice, what this means is that we are updating the
+open-vm-tools package upstream version of the target Ubuntu LTS to the the same
+upstream version available in the latest supported Ubuntu release (in this
+sense, this is arguably a backport).
+
+Here are some examples:
+
+=========  ==========================  ========================
+Series     Current Version             Updating to version
+=========  ==========================  ========================
+devel      2:13.0.10-1ubuntu1          NOT UPDATING
+26.04 LTS  2:13.0.10-1ubuntu1          NOT UPDATING
+25.10      2:13.0.0-2ubuntu1           2:13.0.10-0ubuntu0.25.10
+24.04 LTS  2:12.5.0-0~ubuntu0.24.04.2  2:13.0.10-0ubuntu0.24.04
+=========  ==========================  ========================
+
+=========  ==========================  ========================
+Series     Current Version             Updating to version
+=========  ==========================  ========================
+devel      2:13.1.4-3ubuntu4           NOT UPDATING
+26.10      2:13.0.10-1ubuntu1          NOT UPDATING
+26.04 LTS  2:13.0.10-1ubuntu1          NOT UPDATING
+24.04 LTS  2:13.0.10-0ubuntu0.24.04    NOT UPDATING
+=========  ==========================  ========================
+
+=========  ==========================  ========================
+Series     Current Version             Updating to version
+=========  ==========================  ========================
+devel      2:13.1.4-3ubuntu4           NOT UPDATING
+26.10      2:13.1.2-2ubuntu2           NOT UPDATING
+26.04 LTS  2:13.0.10-1ubuntu1          2:13.1.2-0ubuntu0.26.04
+24.04 LTS  2:13.0.10-0ubuntu0.24.04    NOT UPDATING
+=========  ==========================  ========================
+
+=========  ==========================  ========================
+Series     Current Version             Updating to version
+=========  ==========================  ========================
+devel      2:13.1.4-3ubuntu4           NOT UPDATING
+27.04      2:13.1.4-3ubuntu3           NOT UPDATING
+26.10      2:13.1.2-2ubuntu2           2:13.1.4-0buntu0.26.10
+26.04 LTS  2:13.0.10-1ubuntu1          2:13.1.4-0buntu0.26.04
+24.04 LTS  2:13.0.10-0ubuntu0.24.04    NOT UPDATING
+=========  ==========================  ========================
 
 Verification
 ------------
