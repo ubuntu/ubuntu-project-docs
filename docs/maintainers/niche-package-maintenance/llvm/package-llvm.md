@@ -11,7 +11,7 @@ Ubuntu's LLVM packages follow Debian as closely as is reasonable. To simplify th
 As an example, if you are planning to work on LLVM version 22, you would clone that package directly.
 
 ```none
-git ubuntu clone llvm-toolchain-22
+$ git ubuntu clone llvm-toolchain-22
 ```
 
 
@@ -40,9 +40,9 @@ The LLVM package uses many templated configuration files, generally named with a
 However, since the Debian maintainers also maintain infrastructure for LLVM upstream, the package that Ubuntu inherits is set up for some CI/CD systems we do not use and generating this file is a bit unintuitive. The easiest way is to set variables to pretend to be that CI/CD system. You can do that with `APT_LLVM_ORG=yes`. You should also set the `DISTRO` flag, which can sometimes affect package dependencies. So, if you are building a package for Resolute and need to generate the control file, you can do that as follows.
 
 ```none
-debian/rules stamps/preconfigure APT_LLVM_ORG=yes DISTRO=resolute
+$ debian/rules stamps/preconfigure APT_LLVM_ORG=yes DISTRO=resolute
 
-git clean -fd   # to remove the other generated files not tracked in git
+$ git clean -fd   # to remove the other generated files not tracked in git
 ```
 
 
@@ -98,7 +98,7 @@ After you build your `stage1` version of LLVM, you will need to build the circul
 Once you have the `stage1` compiler, and those 3 packages together in a PPA, you can use that PPA to start doing full builds of LLVM. To use them locally, you can have sbuild inject the PPA as a source. The simplest, but not very secure way to do this is as follows. Handling the signing correctly is out of scope here. Do not use this insecure approach outside of a sandboxed build with no access to your system.
 
 ```none
-sbuild -d noble --extra-repository="deb [trusted=yes] http://ppa.launchpadcontent.net/gcc-llvm-toolchains/llvm-staging/ubuntu noble main"
+$ sbuild -d noble --extra-repository="deb [trusted=yes] http://ppa.launchpadcontent.net/gcc-llvm-toolchains/llvm-staging/ubuntu noble main"
 ```
 
 The PPA itself will automatically pick up its own dependencies, but if you want to use several you can configure them to depend on one another as necessary.
