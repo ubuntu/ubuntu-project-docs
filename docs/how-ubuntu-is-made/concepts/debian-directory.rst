@@ -16,13 +16,13 @@ These are required for all packages. A number of additional files in the :file:`
 
    The :file:`debian/` directory contains files used to define a
    *source package* and is not to be confused with the :file:`DEBIAN/`
-   directory which contains files used for installing *binary packages*. More
-   specifically the :file:`DEBIAN/` directory includes the binary package
+   directory, which contains files used for installing *binary packages*. More
+   specifically, the :file:`DEBIAN/` directory includes the binary package
    control file used to declare the package's "vital statistics" (name,
    version, relationships, etc.). It can additionally include maintainer
-   scripts such as :file:`postinst`, :file:`preinst`, :file:`postrm`, and
-   :file:`prerm` that extend beyond the processing provided py :pkg:`dpkg`.
-   Predominantly the :file:`DEBIAN/` directory is not created manually, and is
+   scripts, such as :file:`postinst`, :file:`preinst`, :file:`postrm`, and
+   :file:`prerm` that extend beyond the processing provided by :pkg:`dpkg`.
+   Predominantly, the :file:`DEBIAN/` directory is not created manually, and is
    instead generated when using higher-level packaging tools like
    :pkg:`dpkg-buildpackage`.
 
