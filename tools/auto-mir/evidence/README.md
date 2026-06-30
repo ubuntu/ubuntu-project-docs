@@ -23,10 +23,16 @@ Run on the host machine, no LXD container required:
 
 ### In-Container Adapters
 Run inside the LXD container via `lxd_runner.exec_in()`:
-- **Packaging Source**: Fetch and analyze debian/ files
+- **Packaging Source**: Fetch and analyze debian/ files; scan source tree for
+  nobody/setuid/setgid markers
 - **Dependency Analysis**: Extract runtime dependencies, check components
 - **Component Mismatches**: Identify packages needing promotion
-- **Sbuild**: Run lintian, detect static linking
+- **Sbuild**: Run the build + lintian; inspect built `.deb` contents for static,
+  setuid/setgid and nobody-owned binaries
+- **Ubuntu Upload Permission**: List who may upload the package
+  (`ubuntu-upload-permission`) for MOTU-impact assessment
+- **Git-Ubuntu Delta**: Classify the Ubuntu delta vs Debian and, for
+  `...ubuntuN` versions, produce a git-ubuntu diffstat
 
 ## Adapter Interface
 

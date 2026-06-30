@@ -127,6 +127,57 @@ Use this log as the source for deciding what should be promoted into
 - **Autopkgtest**: replaced web UI scraping with direct SQLite database download from
   autopkgtest.ubuntu.com/static/autopkgtest.db. Queries results table directly.
 
+## Review Feedback Round (bug 2155757 / lua5.5)
+
+Outcomes from the first real reviewer feedback. Promotion: no (local rationale).
+
+### Rendering / TODO routing
+- A finding renders in exactly one of: its section OK block, its section
+  Problems block (confirmed), or its section "Left to decide" (reviewer
+  judgement). Summary decision checks (ACK/NACK verdict SUM-5, security review
+  SUM-6) render their options inline only. The catalog flag `aggregate_todo`
+  (carried onto `Finding`) marks the few Summary findings (SUM-4 team
+  subscriber) whose actionable TODO is forwarded to the consolidated
+  Required/Recommended blocks; everything else in Summary is excluded from
+  aggregation so nothing is listed twice.
+- Every non-summary section always renders a Problems status, emitting
+  `Problems: none` (blank line above) when clean.
+- Consolidated Required/Recommended TODOs are auto-numbered `- #N` with one
+  continuous index, stripping internal `TODO:`/`TODO-X:` markers.
+- Combined language gates (e.g. `go|rust` on ESL-1) suppress their umbrella OK
+  message so only the per-language ESL-4/ESL-8 lines render.
+
+### Check correctness / new evidence
+- **ESL-2**: static linking is judged from built `.deb` contents (`file`
+  "statically linked"), not raw `-static` build-log tokens. libtool
+  `-static <pkg>.la` (own convenience lib) and configure probes are not static
+  linking; cross-source-package archive linking stays ESL-3's job (Built-Using).
+- **PRF-2**: a shipped `debian/*.symbols` file is authoritative for "symbols
+  tracking is in place"; shared libraries are recognised from soname-versioned
+  package names (control + built deb names), not a `.so` substring in control.
+- **CB-1**: Launchpad build records remain authoritative for the FTBFS verdict;
+  the local sbuild result is surfaced only as a hint when LP data is missing.
+- **URF-1**: generic dpkg-source/dpkg-buildflags diagnostics are filtered as
+  noise; genuine toolchain warnings route to "Left to decide" (reviewer judges),
+  real errors stay a Problem.
+- **URF-4/URF-5**: scan the whole source tree (`grep -RIn`, `find -user nobody`,
+  `find -perm -4000/-2000`) and the built binaries (single deb-extraction pass
+  shared with ESL-2), with test-context filtering.
+- **PRF-5**: cross-series publishing history is collected and a deterministic
+  `release_cadence` descriptor (good <=183d avg, slow <=400d, else sporadic) is
+  computed and fed to the LLM as primary evidence.
+- **PRF-7**: new `ubuntu-upload-permission` adapter lists uploaders so the LLM
+  can tell a MOTU-only/sync-from-Debian package (OK) from one with a MOTU-only
+  regular Ubuntu uploader.
+- **PRF-1**: new `git-ubuntu-delta` adapter classifies the delta from the
+  changelog version; git-ubuntu is run only for `...ubuntuN` versions (a pure
+  Debian sync carries no delta), removing the hallucinated "provide git-ubuntu
+  log/diff" TODO.
+- **CB-2**: build-test-hints (rules wiring, nocheck, runners, failures-ignored,
+  log pass/fail) are extracted into the payload; the policy decides
+  ok/required/left-to-decide and folds the reporter's stated reason for a
+  missing suite into the message.
+
 ## Initial Modularization and Testing Infrastructure
 
 - **Template rendering simplification**: removed body-only mode from render_review_template.py
