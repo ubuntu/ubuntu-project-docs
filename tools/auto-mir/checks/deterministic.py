@@ -841,7 +841,7 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
 
     if sbuild_result.get("status") != "ok" or packaging.get("status") != "ok":
         finding.fail(
-            "Could not inspect build log for static linking",
+            render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
             severity="recommended",
             confidence="low",
@@ -876,7 +876,7 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
 
     if not static_binaries and not static_link_hints:
         finding.succeed(
-            "no static linking",
+            render_check_message(check, "ok_message"),
             confidence="high",
         )
         finding.evidence_refs = ["sbuild:static_binaries", "sbuild:build_log"]
@@ -884,22 +884,28 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
 
     if is_justifiable:
         finding.succeed(
-            "static linking present but appears to be justified (e.g., scanner/bootloader)",
+            render_check_message(check, "ok_justified_message"),
             confidence="medium",
         )
         finding.evidence_refs = ["sbuild:static_binaries", "sbuild:build_log"]
         return finding
 
     # Static linking without clear justification
-    detail: list[str] = []
+    detail_parts: list[str] = []
     if static_binaries:
-        detail.append("statically linked binaries: " + ", ".join(static_binaries[:5]))
+        detail_parts.append(
+            render_check_message(
+                check, "not_ok_detail_binaries", binaries=", ".join(static_binaries[:5])
+            )
+        )
     if static_link_hints:
-        detail.append("debian/rules hints: " + ", ".join(static_link_hints))
+        detail_parts.append(
+            render_check_message(check, "not_ok_detail_hints", hints=", ".join(static_link_hints))
+        )
+    detail = f" ({'; '.join(detail_parts)})" if detail_parts else ""
     finding.fail(
-        "Static linking detected without clear justification; review needed"
-        + (" (" + "; ".join(detail) + ")" if detail else ""),
-        "no static linking",
+        render_check_message(check, "not_ok_message", detail=detail),
+        render_check_message(check, "not_ok_todo"),
         severity="required",
         confidence="medium",
     )
@@ -1767,50 +1773,6 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
         confidence="high",
     )
     finding.evidence_refs = ["dep-analysis:in_scope_deps_not_in_main"]
-    return finding
-
-
-@deterministic_check("ESL-9")
-def _check_esl_9(ctx, finding: Finding) -> Finding:
-    """ESL-9: Rust: uses dh_cargo."""
-    check = _get_check_definition(ctx, "ESL-9")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        return _set_unknown_from_adapter(finding, check)
-
-    # Check if this is a Rust package
-    is_rust = _is_rust_package(packaging)
-
-    if not is_rust:
-        # Not a Rust package - gate applies OK
-        finding.succeed(
-            "not a rust package, dh_cargo gate not applicable",
-            confidence="high",
-        )
-        finding.evidence_refs = ["packaging-source:debian_control"]
-        return finding
-
-    # Is Rust package - check for dh_cargo
-    debian_rules = packaging.get("debian_rules", "").lower()
-
-    if "dh_cargo" in debian_rules or "--buildsystem cargo" in debian_rules:
-        finding.succeed(
-            "rust package using dh_cargo (dh ... --buildsystem cargo)",
-            confidence="high",
-        )
-        finding.evidence_refs = ["packaging-source:debian_rules"]
-        return finding
-
-    # Rust package but dh_cargo not found
-    finding.fail(
-        "Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules",
-        "Rust packages must use dh_cargo (dh ... --buildsystem cargo)",
-        severity="required",
-        confidence="high",
-    )
-    finding.evidence_refs = ["packaging-source:debian_rules"]
     return finding
 
 

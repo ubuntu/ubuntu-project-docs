@@ -1063,6 +1063,15 @@ checks:
   notes: 'Check build log for ''-static'' flag in compiler/linker invocations. Inspect ldd output on installed binaries. Check Built-Using/Static-Built-Using. Distinguish acceptable static linking (integrity scanner, etc.) from unwanted.
 
     '
+  messages:
+    unknown_message: Could not inspect build log for static linking
+    unknown_todo: 'TODO: - Check build log for static linking'
+    ok_message: no static linking
+    ok_justified_message: static linking present but appears to be justified (e.g., scanner/bootloader)
+    not_ok_detail_binaries: 'statically linked binaries: {binaries}'
+    not_ok_detail_hints: 'debian/rules hints: {hints}'
+    not_ok_message: 'Static linking detected without clear justification; review needed{detail}'
+    not_ok_todo: 'TODO: - no static linking'
 - id: ESL-3
   section: Embedded sources and static linking
   title: No unexpected Built-Using entries

@@ -136,6 +136,16 @@ _REQUIRED_MESSAGE_TEMPLATES: dict[str, dict[str, set[str]]] = {
         "ok_message": set(),
         "llm_unavailable_message": {"error"},
     },
+    "ESL-2": {
+        "unknown_message": set(),
+        "unknown_todo": set(),
+        "ok_message": set(),
+        "ok_justified_message": set(),
+        "not_ok_detail_binaries": {"binaries"},
+        "not_ok_detail_hints": {"hints"},
+        "not_ok_message": {"detail"},
+        "not_ok_todo": set(),
+    },
     "ESL-3": {
         "unknown_message": set(),
         "unknown_todo": set(),

@@ -247,8 +247,14 @@ class _Ctx:
                 {
                     "id": "ESL-2",
                     "messages": {
-                        "ok_message": "no static linking",
+                        "unknown_message": "Could not inspect build log for static linking",
                         "unknown_todo": "TODO: - Check build log for static linking",
+                        "ok_message": "no static linking",
+                        "ok_justified_message": "static linking present but appears to be justified (e.g., scanner/bootloader)",
+                        "not_ok_detail_binaries": "statically linked binaries: {binaries}",
+                        "not_ok_detail_hints": "debian/rules hints: {hints}",
+                        "not_ok_message": "Static linking detected without clear justification; review needed{detail}",
+                        "not_ok_todo": "TODO: - no static linking",
                     },
                 },
                 {
