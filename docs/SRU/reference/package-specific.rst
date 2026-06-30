@@ -68,6 +68,7 @@ the Technical Board.
     exception-UbuntuDevTools-Updates
     exception-UbuntuImage-Updates
     exception-Virtualbox-Updates
+    exception-Virtualization-Updates
     exception-autopkgtest-Updates
     exception-ec2-hibinit-agent-Updates
     exception-firmware-updates
@@ -575,6 +576,16 @@ special case documentation at :ref:`OpenVPNUpdates <reference-exception-OpenVPNU
 This is not a standing approval or policy exception, but a general pattern to
 update OpenVPN upstream microreleases consistently under existing SRU
 policy.
+
+Virtualization
+~~~~~~~~~~~~~~
+
+The Hardware Enablement (HWE) virtualization components
+(``qemu-hwe``, ``libvirt-hwe``, ``edk2-hwe`` and ``seabios-hwe``), may be
+uploaded according to the procedure documented in
+:ref:`Virtualization Updates <reference-exception-VirtualizationUpdates>`.
+The HWE stack provides a rolling, opt-in virtualization stack on the LTS that
+tracks the upstream versions of the latest Ubuntu release.
 
 Language Packs (language-pack-\*)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
