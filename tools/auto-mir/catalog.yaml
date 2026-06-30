@@ -507,9 +507,7 @@ global_policies:
     - low
     - medium
     - high
-    description: 'Confidence reflects how strongly the evidence supports the finding. AI-derived findings cap at medium unless corroborated by deterministic evidence.
-
-      '
+    description: 'Confidence reflects how strongly the evidence supports the finding. AI-derived findings cap at medium unless corroborated by deterministic evidence.'
 evidence_adapters:
 - id: lp-bug-api
   type: api
@@ -850,9 +848,7 @@ checks:
   mode: ai
   synthesis: true
   adapters_required: []
-  ai_policy: 'Synthesise all section findings. If zero required findings and zero hard blockers: suggest ACK. If required findings present but package is otherwise sound: suggest ACK-with-conditions listing required TODOs. If fundamental problems exist: suggest NACK. Always mark as requiring human confirmation.
-
-    '
+  ai_policy: 'Synthesise all section findings. If zero required findings and zero hard blockers: suggest ACK. If required findings present but package is otherwise sound: suggest ACK-with-conditions listing required TODOs. If fundamental problems exist: suggest NACK. Always mark as requiring human confirmation.'
   blocker_class: none
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -878,9 +874,7 @@ checks:
   - ubuntu-cve-tracker
   - nvd-enrich
   - packaging-source
-  ai_policy: 'Evaluate security section findings. If any security trigger fires (SEC-1-CVE-SYNTH, SEC-11-ATTESTATION) or package is security-sensitive (parses untrusted data, exposes endpoints, handles auth/crypto), suggest security review needed.
-
-    '
+  ai_policy: 'Evaluate security section findings. If any security trigger fires (SEC-1-CVE-SYNTH, SEC-11-ATTESTATION) or package is security-sensitive (parses untrusted data, exposes endpoints, handles auth/crypto), suggest security review needed.'
   blocker_class: none
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -900,9 +894,7 @@ checks:
   adapters_required:
   - dep-analysis
   - lp-package-api
-  ai_policy: 'Search main for packages with overlapping functionality using apt list/cache data and libhunt or similar. AI should reason about functional overlap, not just name similarity. Produce a tentative finding; reviewer must confirm.
-
-    '
+  ai_policy: 'Search main for packages with overlapping functionality using apt list/cache data and libhunt or similar. AI should reason about functional overlap, not just name similarity. Produce a tentative finding; reviewer must confirm.'
   blocker_class: soft
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -915,9 +907,7 @@ checks:
   adapters_required:
   - lp-bug-api
   - lp-team-membership-api
-  ai_policy: 'Check if owning team is explicitly named and confirmed in bug comments. If reporter submitted on behalf of another team, verify that team acknowledged ownership in a comment. Surface evidence; AI suggests verdict; reviewer confirms.
-
-    '
+  ai_policy: 'Check if owning team is explicitly named and confirmed in bug comments. If reporter submitted on behalf of another team, verify that team acknowledged ownership in a comment. Surface evidence; AI suggests verdict; reviewer confirms.'
   blocker_class: soft
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -931,7 +921,7 @@ checks:
   - lp-bug-api
   adapters_optional:
   - dep-analysis
-  ai_policy: "Analyse the reporter's stated rationale. Check for: clear Ubuntu user benefit, whether the request is based on correct assumptions about what needs to be in main, and whether reverse-dep analysis supports the stated need. Produce a tentative verdict suggestion. Always require human confirmation \u2014 this is a judgment call.\n"
+  ai_policy: "Analyse the reporter's stated rationale. Check for: clear Ubuntu user benefit, whether the request is based on correct assumptions about what needs to be in main, and whether reverse-dep analysis supports the stated need. Produce a tentative verdict suggestion. Always require human confirmation \u2014 this is a judgment call."
   blocker_class: soft
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -946,9 +936,7 @@ checks:
   - packaging-source
   ai_policy: none
   blocker_class: hard
-  notes: 'Do not use check-mir (outdated). Use dpkg-query to extract runtime deps from installed binaries, then apt policy to verify component in target release. Only runtime deps matter unless language/headers embed active code in binaries.
-
-    '
+  notes: 'Do not use check-mir (outdated). Use dpkg-query to extract runtime deps from installed binaries, then apt policy to verify component in target release. Only runtime deps matter unless language/headers embed active code in binaries.'
   messages:
     unknown_adapter_message: Could not analyse runtime dependencies
     unknown_adapter_todo: 'TODO: - Verify no runtime dependencies in universe need MIR'
@@ -965,9 +953,7 @@ checks:
   - dep-analysis
   - sbuild
   - packaging-source
-  ai_policy: 'Identify language/toolchain patterns that embed build deps into final binaries (e.g. Go static builds, C header-only libraries with active code, Rust vendoring). Check Built-Using and Static-Built-Using. AI assesses risk; reviewer confirms.
-
-    '
+  ai_policy: 'Identify language/toolchain patterns that embed build deps into final binaries (e.g. Go static builds, C header-only libraries with active code, Rust vendoring). Check Built-Using and Static-Built-Using. AI assesses risk; reviewer confirms.'
   blocker_class: hard
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -992,9 +978,7 @@ checks:
     not_ok_offending_message: 'Auto-included binaries ({auto_included}) pull dependencies outside main or with unknown component: {offending_deps}'
     not_ok_offending_todo: 'TODO: - Consider adding extra-excludes for auto-included binaries with offending dependencies ({details}); otherwise MIR may also be needed for: {offending_deps}'
     ok_safe_message: Auto-included binaries ({auto_included}) will be auto-included, and have no dependencies outside main
-  notes: 'Not a hard blocker by itself. Only matters if -dev/-debug/-doc packages would create additional component mismatches. If so, recommend adding extra-excludes.
-
-    '
+  notes: 'Not a hard blocker by itself. Only matters if -dev/-debug/-doc packages would create additional component mismatches. If so, recommend adding extra-excludes.'
 - id: DEP-4
   section: Dependencies
   title: Main dependencies not only superficially tested
@@ -1004,9 +988,7 @@ checks:
   adapters_required:
   - dep-analysis
   - autopkgtest-db
-  ai_policy: 'For each runtime dependency already in main, check autopkgtest.db for test coverage and results. Focus on the most intensively-used and important dependencies, not every transitive dep. AI should assess whether existing tests would catch regressions introduced by this package. Weight importance by dep usage, not by counting deps. Result is a suggested assessment; human reviewer makes final call.
-
-    '
+  ai_policy: 'For each runtime dependency already in main, check autopkgtest.db for test coverage and results. Focus on the most intensively-used and important dependencies, not every transitive dep. AI should assess whether existing tests would catch regressions introduced by this package. Weight importance by dep usage, not by counting deps. Result is a suggested assessment; human reviewer makes final call.'
   blocker_class: none
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -1060,9 +1042,7 @@ checks:
   - packaging-source
   ai_policy: none
   blocker_class: soft
-  notes: 'Check build log for ''-static'' flag in compiler/linker invocations. Inspect ldd output on installed binaries. Check Built-Using/Static-Built-Using. Distinguish acceptable static linking (integrity scanner, etc.) from unwanted.
-
-    '
+  notes: 'Check build log for ''-static'' flag in compiler/linker invocations. Inspect ldd output on installed binaries. Check Built-Using/Static-Built-Using. Distinguish acceptable static linking (integrity scanner, etc.) from unwanted.'
   messages:
     unknown_message: Could not inspect build log for static linking
     unknown_todo: 'TODO: - Check build log for static linking'
@@ -1125,9 +1105,7 @@ checks:
   adapters_required:
   - packaging-source
   - sbuild
-  ai_policy: 'Ubuntu rules override Debian guidelines where they conflict. Check: dh-golang used, Built-Using: ${misc:Built-Using} present for non-dev binaries, go.sum present. Assess vendoring against Ubuntu MIR policy (vendoring may be acceptable or even recommended; dialogue with reporter is often appropriate).
-
-    '
+  ai_policy: 'Ubuntu rules override Debian guidelines where they conflict. Check: dh-golang used, Built-Using: ${misc:Built-Using} present for non-dev binaries, go.sum present. Assess vendoring against Ubuntu MIR policy (vendoring may be acceptable or even recommended; dialogue with reporter is often appropriate).'
   blocker_class: soft
 
   messages:
@@ -1142,9 +1120,7 @@ checks:
   language_gate: go
   adapters_required:
   - packaging-source
-  ai_policy: 'Check go.sum presence, vendoring directories, and whether security team discussion is documented in the bug or debian/README.source. Ubuntu allows and sometimes recommends vendoring; this is a dialogue rather than a hard requirement in most cases.
-
-    '
+  ai_policy: 'Check go.sum presence, vendoring directories, and whether security team discussion is documented in the bug or debian/README.source. Ubuntu allows and sometimes recommends vendoring; this is a dialogue rather than a hard requirement in most cases.'
   blocker_class: none
 
   messages:
@@ -1261,9 +1237,7 @@ checks:
   mode: ev_to_ai
   adapters_required:
   - packaging-source
-  ai_policy: 'Check debian/README.source and debian/rules vendor targets for documented refresh process. Surface what exists; AI suggests adequacy of documentation; reviewer confirms.
-
-    '
+  ai_policy: 'Check debian/README.source and debian/rules vendor targets for documented refresh process. Surface what exists; AI suggests adequacy of documentation; reviewer confirms.'
   blocker_class: soft
 
   messages:
@@ -1285,9 +1259,7 @@ checks:
   adapters_required:
   - ubuntu-cve-tracker
   - nvd-enrich
-  ai_policy: 'AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes, whether fixes are timely, patterns suggesting systemic issues. The nvd-enrich evidence tags each CVE as current or predecessor (historical_cves): predecessor/historical CVEs come from upstream or older versioned package names and inform severity. Clearly label historical findings as such; they may raise the recommendation to a security review but must never hard-block the current version. Output 3-band confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding. Even historically patched but risk-significant patterns should surface as security-review-triggering.
-
-    '
+  ai_policy: 'AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes, whether fixes are timely, patterns suggesting systemic issues. The nvd-enrich evidence tags each CVE as current or predecessor (historical_cves): predecessor/historical CVEs come from upstream or older versioned package names and inform severity. Clearly label historical findings as such; they may raise the recommendation to a security review but must never hard-block the current version. Output 3-band confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding. Even historically patched but risk-significant patterns should surface as security-review-triggering.'
   blocker_class: none
 
   messages:
@@ -1353,7 +1325,7 @@ checks:
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: "Check runtime deps for known parser libraries. Scan source for file format handling. Read package description, man pages, and docs \u2014 out of the description one can quickly derive where data comes from and whether it is untrusted. Surface evidence; AI judges; reviewer confirms.\n"
+  ai_policy: "Check runtime deps for known parser libraries. Scan source for file format handling. Read package description, man pages, and docs \u2014 out of the description one can quickly derive where data comes from and whether it is untrusted. Surface evidence; AI judges; reviewer confirms."
   blocker_class: soft
 
   messages:
@@ -1366,9 +1338,7 @@ checks:
   mode: ev_to_ai
   adapters_required:
   - packaging-source
-  ai_policy: 'Check service files for listen/bind/socket usage. Scan source for network binding patterns. Surface evidence; AI judges exposure scope; reviewer confirms.
-
-    '
+  ai_policy: 'Check service files for listen/bind/socket usage. Scan source for network binding patterns. Surface evidence; AI judges exposure scope; reviewer confirms.'
   blocker_class: soft
 
   messages:
@@ -1382,9 +1352,7 @@ checks:
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: 'Check dep list, source, description, man pages and documentation. From the package description one can often quickly determine whether it processes web content and where that content comes from.
-
-    '
+  ai_policy: 'Check dep list, source, description, man pages and documentation. From the package description one can often quickly determine whether it processes web content and where that content comes from.'
   blocker_class: soft
 
   messages:
@@ -1455,9 +1423,7 @@ checks:
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   security_trigger: SEC-11-ATTESTATION
-  notes: 'No recommended-only middle state. Any involvement with secure boot, TPM, or signatures triggers mandatory security review path.
-
-    '
+  notes: 'No recommended-only middle state. Any involvement with secure boot, TPM, or signatures triggers mandatory security review path.'
 - id: SEC-12
   section: Security
   title: Does not handle cryptography
@@ -1467,7 +1433,7 @@ checks:
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: "Check for crypto library deps (openssl, libgcrypt, libsodium, etc.) and source patterns. Distinguish: delegating to system libraries (low concern) vs implementing own crypto or handling keys/certs/signing (high concern \u2192 security review).\n"
+  ai_policy: "Check for crypto library deps (openssl, libgcrypt, libsodium, etc.) and source patterns. Distinguish: delegating to system libraries (low concern) vs implementing own crypto or handling keys/certs/signing (high concern \u2192 security review)."
   blocker_class: soft
 
   messages:
@@ -1481,7 +1447,7 @@ checks:
   adapters_required:
   - packaging-source
   - sbuild
-  ai_policy: "Enumerate existing mitigations: AppArmor profiles, systemd isolation directives (PrivateTmp, ProtectSystem, etc.), capability drops, seccomp filters, restricted users/groups. Characterise the exposure level from SEC-1 through SEC-12 findings. Surface what mitigations exist and what is absent; AI does NOT make the final call \u2014 reviewer judges proportionality.\n"
+  ai_policy: "Enumerate existing mitigations: AppArmor profiles, systemd isolation directives (PrivateTmp, ProtectSystem, etc.), capability drops, seccomp filters, restricted users/groups. Characterise the exposure level from SEC-1 through SEC-12 findings. Surface what mitigations exist and what is absent; AI does NOT make the final call \u2014 reviewer judges proportionality."
   security_trigger: SEC-13-MITIGATION-GAPS
   blocker_class: none
 
@@ -1498,9 +1464,7 @@ checks:
   - lp-build-api
   ai_policy: none
   blocker_class: hard
-  notes: 'sbuild is one signal. Also check Launchpad multi-architecture build state via API for all architectures the package targets. All must pass.
-
-    '
+  notes: 'sbuild is one signal. Also check Launchpad multi-architecture build state via API for all architectures the package targets. All must pass.'
   messages:
     hint_local_ok: local sbuild build succeeded
     hint_local_failed: local sbuild build FAILED (see build log)
@@ -1523,9 +1487,7 @@ checks:
   adapters_required:
   - sbuild
   - packaging-source
-  ai_policy: 'Determine whether a build-time test suite exists and whether its failure fails the build. Use the build_test_hints evidence (extracted from debian/rules and the build log: dh_auto_test wiring, override_dh_auto_test, DEB_BUILD_OPTIONS nocheck, make check/test, pytest/meson test/ctest invocations, and test pass/fail lines in the build log) together with the build log itself. Outcomes: (1) a test suite runs at build time and failures gate the build -> ok; (2) the suite exists but failures are ignored (e.g. test errors swallowed) -> required, ask to wire failures to fail the build; (3) no build-time test suite at all -> required, BUT first check the reporter MIR content: if the reporter explained the absence (e.g. upstream provides no test suite), include that explanation in the message so the reviewer can decide whether to accept it rather than presenting it as an unexplained gap; (4) genuinely cannot tell from the evidence -> low confidence so it is left for the reviewer to decide. Do not emit the raw template TODO verbatim; produce a decisive characterisation.
-
-    '
+  ai_policy: 'Determine whether a build-time test suite exists and whether its failure fails the build. Use the build_test_hints evidence (extracted from debian/rules and the build log: dh_auto_test wiring, override_dh_auto_test, DEB_BUILD_OPTIONS nocheck, make check/test, pytest/meson test/ctest invocations, and test pass/fail lines in the build log) together with the build log itself. Outcomes: (1) a test suite runs at build time and failures gate the build -> ok; (2) the suite exists but failures are ignored (e.g. test errors swallowed) -> required, ask to wire failures to fail the build; (3) no build-time test suite at all -> required, BUT first check the reporter MIR content: if the reporter explained the absence (e.g. upstream provides no test suite), include that explanation in the message so the reviewer can decide whether to accept it rather than presenting it as an unexplained gap; (4) genuinely cannot tell from the evidence -> low confidence so it is left for the reviewer to decide. Do not emit the raw template TODO verbatim; produce a decisive characterisation.'
   blocker_class: hard
 
   messages:
@@ -1539,9 +1501,7 @@ checks:
   adapters_required:
   - packaging-source
   - autopkgtest-db
-  ai_policy: 'Deterministic part: detect presence of debian/tests/control and content. AI-assisted part: assess whether the tests are non-trivial (not just import check or syntax check). Reviewer override available.
-
-    '
+  ai_policy: 'Deterministic part: detect presence of debian/tests/control and content. AI-assisted part: assess whether the tests are non-trivial (not just import check or syntax check). Reviewer override available.'
   blocker_class: hard
 
   messages:
@@ -1556,9 +1516,7 @@ checks:
   mode: ev_to_ai
   adapters_required:
   - packaging-source
-  ai_policy: 'Detect whether special hardware is needed from reporter content and test metadata. For cases that require it, check whether one of the accepted alternatives is present in the reporter content (testflinger, partner, simulator, community, manufacturer, solutions-qa, or other team). Surface evidence. Reviewer makes final judgment on whether options are truly exhausted for TODO-C.
-
-    '
+  ai_policy: 'Detect whether special hardware is needed from reporter content and test metadata. For cases that require it, check whether one of the accepted alternatives is present in the reporter content (testflinger, partner, simulator, community, manufacturer, solutions-qa, or other team). Surface evidence. Reviewer makes final judgment on whether options are truly exhausted for TODO-C.'
   blocker_class: none
 
   messages:
@@ -1587,9 +1545,7 @@ checks:
   messages:
     human_only_message: Human review required
     human_only_todo: 'TODO: - {title} - reviewer judgment needed'
-  notes: 'Whether "all options have been exhausted" is a policy judgment. Only human reviewer can decide this meets the bar. Tool surfaces reporter justification; reviewer decides.
-
-    '
+  notes: 'Whether "all options have been exhausted" is a policy judgment. Only human reviewer can decide this meets the bar. Tool surfaces reporter justification; reviewer decides.'
 - id: CB-6
   section: Common blockers
   title: E2E coverage for simple libs via consumers
@@ -1601,9 +1557,7 @@ checks:
   - autopkgtest-db
   adapters_optional:
   - lp-package-api
-  ai_policy: 'Attempt to pull reverse-dep autopkgtest status and summarise whether key consumers have non-trivial tests covering the lib''s functionality. Weight by importance of consumer. On retrieval failure, fall back to human-only TODO.
-
-    '
+  ai_policy: 'Attempt to pull reverse-dep autopkgtest status and summarise whether key consumers have non-trivial tests covering the lib''s functionality. Weight by importance of consumer. On retrieval failure, fall back to human-only TODO.'
   blocker_class: none
 
   messages:
@@ -1652,9 +1606,7 @@ checks:
   language_gate: go
   adapters_required:
   - packaging-source
-  ai_policy: 'Ubuntu rules for Go packaging may differ from Debian guidance. MIR docs are authoritative. Check for dh-golang; if absent, suggest dh-make-golang. Often a recommendation rather than a hard requirement.
-
-    '
+  ai_policy: 'Ubuntu rules for Go packaging may differ from Debian guidance. MIR docs are authoritative. Check for dh-golang; if absent, suggest dh-make-golang. Often a recommendation rather than a hard requirement.'
   blocker_class: soft
 
   messages:
@@ -1672,9 +1624,7 @@ checks:
   - lp-package-api
   adapters_optional:
   - git-ubuntu-delta
-  ai_policy: 'Decide which option applies using the git-ubuntu-delta adapter evidence (delta_kind, delta_present, diffstat, delta_summary). If delta_kind is "sync" (delta_present false) choose option A: Ubuntu does not carry a delta. If delta_kind is "native" or the package exists only in Ubuntu choose option C: Ubuntu-only package. If delta_kind is "ubuntu_delta" choose option B and assess the diffstat: a small/contained delta is reasonable and maintenance under control; escalate to required/NACK only when the diffstat shows a large unjustified delta AND there is no explanation AND no active minimisation in progress. Do NOT ask anyone to "provide git-ubuntu log and diff" and do NOT invent TODO-A/TODO-B placeholders: the git-ubuntu-delta adapter already supplies the diff; decide from it.
-
-    '
+  ai_policy: 'Decide which option applies using the git-ubuntu-delta adapter evidence (delta_kind, delta_present, diffstat, delta_summary). If delta_kind is "sync" (delta_present false) choose option A: Ubuntu does not carry a delta. If delta_kind is "native" or the package exists only in Ubuntu choose option C: Ubuntu-only package. If delta_kind is "ubuntu_delta" choose option B and assess the diffstat: a small/contained delta is reasonable and maintenance under control; escalate to required/NACK only when the diffstat shows a large unjustified delta AND there is no explanation AND no active minimisation in progress. Do NOT ask anyone to "provide git-ubuntu log and diff" and do NOT invent TODO-A/TODO-B placeholders: the git-ubuntu-delta adapter already supplies the diff; decide from it.'
   blocker_class: none
 
   messages:
@@ -1714,9 +1664,7 @@ checks:
     ok_no_shared_message: symbols tracking not applicable for this kind of code
     not_ok_message: Shared library is shipped but no debian/*.symbols file was found
     not_ok_todo: 'TODO: - symbols tracking isn''t in place; add a debian/*.symbols file (or, for C++ libraries, document why tracking is impractical)'
-  notes: 'Language-aware N/A handling required. Some languages (Python, Go, Rust) do not have symbols files. Internal-only .so files with no external headers are also N/A. Reviewer keeps only the matching TODO-A/B/C/D option and may extend with rationale.
-
-    '
+  notes: 'Language-aware N/A handling required. Some languages (Python, Go, Rust) do not have symbols files. Internal-only .so files with no external headers are also N/A. Reviewer keeps only the matching TODO-A/B/C/D option and may extend with rationale.'
   options:
   - id: PRF-2-A
     todo_ref: TODO-A
@@ -1770,7 +1718,7 @@ checks:
   adapters_required:
   - upstream-tracker
   - lp-package-api
-  ai_policy: "Assess upstream release cadence from release history and upstream tracker. Intentional stability (slow because nothing changes) is typically just an explanatory statement \u2014 still ok. Dead or abandoned trajectory may reach NACK-level concern. Output a characterisation; reviewer decides framing.\n"
+  ai_policy: "Assess upstream release cadence from release history and upstream tracker. Intentional stability (slow because nothing changes) is typically just an explanatory statement \u2014 still ok. Dead or abandoned trajectory may reach NACK-level concern. Output a characterisation; reviewer decides framing."
   blocker_class: none
 
   messages:
@@ -1785,9 +1733,7 @@ checks:
   - lp-package-api
   adapters_optional:
   - upstream-tracker
-  ai_policy: 'Characterise the Debian/Ubuntu update history as good, slow or sporadic. The lp-package-api adapter provides a computed release_cadence object (descriptor good/slow/sporadic plus releases, span_days and avg_interval_days) derived from the cross-series publishing history in all_publish_history; treat that computed descriptor as the primary signal. Guidance for the descriptors: good means roughly one or more uploads per six months; slow means about one upload per year; sporadic means less frequent than that. Then compare against the upstream release cadence (upstream-tracker, when available): a slow distro cadence is acceptable and explanatory when upstream itself is stable/slow, but may warrant a recommendation when upstream is active and the distro is consistently behind. Do NOT ask for more data: decide from release_cadence even if it is the only signal, and only report unknown when release_cadence.descriptor is unknown. Output the chosen characterisation.
-
-    '
+  ai_policy: 'Characterise the Debian/Ubuntu update history as good, slow or sporadic. The lp-package-api adapter provides a computed release_cadence object (descriptor good/slow/sporadic plus releases, span_days and avg_interval_days) derived from the cross-series publishing history in all_publish_history; treat that computed descriptor as the primary signal. Guidance for the descriptors: good means roughly one or more uploads per six months; slow means about one upload per year; sporadic means less frequent than that. Then compare against the upstream release cadence (upstream-tracker, when available): a slow distro cadence is acceptable and explanatory when upstream itself is stable/slow, but may warrant a recommendation when upstream is active and the distro is consistently behind. Do NOT ask for more data: decide from release_cadence even if it is the only signal, and only report unknown when release_cadence.descriptor is unknown. Output the chosen characterisation.'
   blocker_class: none
 
   messages:
@@ -1824,9 +1770,7 @@ checks:
   - lp-team-membership-api
   adapters_optional:
   - ubuntu-upload-permission
-  ai_policy: 'Decide whether promoting this package to main would remove a current maintainer''s ability to upload it. Use ubuntu-upload-permission (components, team_uploaders, individual_uploaders) to see who may currently upload: a package uploadable only by the MOTU team in universe is the typical sync-from-Debian case. Cross-reference lp-package-api upload_history and uploaders: if the package is generally synced from Debian (versions without an ubuntuN delta), has no regular Ubuntu uploader, or its Ubuntu uploads come from people who are not MOTU-only (e.g. core-dev or specific package uploaders), then promotion does not harm MOTU maintainers (severity ok). Only flag (recommended/required) when a person who regularly uploads Ubuntu-specific changes is a MOTU member who would lose upload access after promotion. Do NOT request more data: decide from the provided evidence; core developers can always upload and are not listed by ubuntu-upload-permission.
-
-    '
+  ai_policy: 'Decide whether promoting this package to main would remove a current maintainer''s ability to upload it. Use ubuntu-upload-permission (components, team_uploaders, individual_uploaders) to see who may currently upload: a package uploadable only by the MOTU team in universe is the typical sync-from-Debian case. Cross-reference lp-package-api upload_history and uploaders: if the package is generally synced from Debian (versions without an ubuntuN delta), has no regular Ubuntu uploader, or its Ubuntu uploads come from people who are not MOTU-only (e.g. core-dev or specific package uploaders), then promotion does not harm MOTU maintainers (severity ok). Only flag (recommended/required) when a person who regularly uploads Ubuntu-specific changes is a MOTU member who would lose upload access after promotion. Do NOT request more data: decide from the provided evidence; core developers can always upload and are not listed by ubuntu-upload-permission.'
   blocker_class: none
 
   messages:
@@ -1858,9 +1802,7 @@ checks:
   mode: ev_to_ai
   adapters_required:
   - packaging-source
-  ai_policy: 'Assess debian/rules complexity. Good: uses dh with minimal overrides. Warn if it is a complex maintenance hazard.
-
-    '
+  ai_policy: 'Assess debian/rules complexity. Good: uses dh with minimal overrides. Warn if it is a complex maintenance hazard.'
   blocker_class: none
 
   messages:
@@ -1875,9 +1817,7 @@ checks:
   - lto-disabled-list
   ai_policy: none
   blocker_class: hard
-  notes: 'Check against lp:ubuntu/+source/lto-disabled-list. If present, the fix or workaround must be in the package itself before promotion.
-
-    '
+  notes: 'Check against lp:ubuntu/+source/lto-disabled-list. If present, the fix or workaround must be in the package itself before promotion.'
   messages:
     ok_message: It is not on the lto-disabled list
     not_ok_message: 'Package is on the lto-disabled list (architectures: {arches}); LTO must be fixed or disabled in the package before promotion'
@@ -1912,9 +1852,7 @@ checks:
   adapters_required:
   - sbuild
   - packaging-source
-  ai_policy: 'Check build log warnings and source patterns for unsafe memory management. Memory-safe languages (Python, Go, Rust, Java, etc.) should use TODO-B. For C/C++: scan for dangerous patterns; AI assesses risk in context.
-
-    '
+  ai_policy: 'Check build log warnings and source patterns for unsafe memory management. Memory-safe languages (Python, Go, Rust, Java, etc.) should use TODO-B. For C/C++: scan for dangerous patterns; AI assesses risk in context.'
   blocker_class: soft
 
   messages:
@@ -1974,9 +1912,7 @@ checks:
   - sbuild
   ai_policy: none
   blocker_class: soft
-  notes: 'grep -Hrn -e setuid -e setgid in source; find . \( -perm -4000 -o -perm -2000 \) in built binaries
-
-    '
+  notes: 'grep -Hrn -e setuid -e setgid in source; find . \( -perm -4000 -o -perm -2000 \) in built binaries'
   messages:
     unknown_message: Could not inspect packaging source
     unknown_todo: 'TODO: - Check for setuid/setgid binaries'
@@ -1999,9 +1935,7 @@ checks:
   - lp-bug-search-api
   - debian-bts
   - upstream-tracker
-  ai_policy: 'Aggregate evidence from: Launchpad Ubuntu package bug space (bugs.launchpad.net/ubuntu/+source/{package} via LP API), Debian BTS, and upstream issue tracker. AI assesses severity and age of open issues. Surface findings; reviewer makes final severity call.
-
-    '
+  ai_policy: 'Aggregate evidence from: Launchpad Ubuntu package bug space (bugs.launchpad.net/ubuntu/+source/{package} via LP API), Debian BTS, and upstream issue tracker. AI assesses severity and age of open issues. Surface findings; reviewer makes final severity call.'
   blocker_class: soft
 
   messages:
@@ -2087,13 +2021,9 @@ security_triggers:
   - SEC-1
   trigger_condition: CVE data present from ubuntu-cve-tracker or nvd-enrich for this package
   synthesis: required
-  synthesis_policy: 'AI synthesises risk across both trackers. Assess: total volume, severity classes, fix timeliness, systemic patterns. Weigh current and historical/predecessor CVEs (nvd-enrich historical_cves) separately: historical findings from upstream or older versioned names can raise the risk band and trigger a security review but must be clearly labelled historical and never block the current version. Output 3-band confidence (low/medium/high).
-
-    '
+  synthesis_policy: 'AI synthesises risk across both trackers. Assess: total volume, severity classes, fix timeliness, systemic patterns. Weigh current and historical/predecessor CVEs (nvd-enrich historical_cves) separately: historical findings from upstream or older versioned names can raise the risk band and trigger a security review but must be clearly labelled historical and never block the current version. Output 3-band confidence (low/medium/high).'
   human_confirmation_required: true
-  action: 'Emit structured security_trigger field in report with risk band and summary. May trigger security review assignment (SUM-6).
-
-    '
+  action: 'Emit structured security_trigger field in report with risk band and summary. May trigger security review assignment (SUM-6).'
   output_flags:
     structured_field: security_trigger
     summary_line: true
@@ -2141,9 +2071,7 @@ security_triggers:
   trigger_condition: exposure-level assessment from SEC-1 through SEC-12 is non-trivial
   synthesis: ev_to_ai
   human_confirmation_required: true
-  action: 'Surface mitigations present and absent. Human reviewer determines severity (ok / recommended / required) based on proportionality judgment.
-
-    '
+  action: 'Surface mitigations present and absent. Human reviewer determines severity (ok / recommended / required) based on proportionality judgment.'
   output_flags:
     structured_field: mitigation_assessment
     summary_line: true
@@ -2155,28 +2083,16 @@ render_policy:
   forbidden_line_prefixes:
   - 'RULE:'
   - 'RULE '
-  todo_prefix_rule: 'Unresolved reviewer actions must begin with ''TODO:''. Resolved statements must not begin with ''TODO''.
-
-    '
-  option_pruning: 'For mutually exclusive TODO-A/B/C/D variants, emit only the single most applicable option based on evidence. Remove all others.
-
-    '
-  conformance_check: 'Before emitting final output, run line-linter to verify: no RULE lines remain, all unresolved items start with TODO, all resolved items have the TODO prefix removed.
-
-    '
+  todo_prefix_rule: 'Unresolved reviewer actions must begin with ''TODO:''. Resolved statements must not begin with ''TODO''.'
+  option_pruning: 'For mutually exclusive TODO-A/B/C/D variants, emit only the single most applicable option based on evidence. Remove all others.'
+  conformance_check: 'Before emitting final output, run line-linter to verify: no RULE lines remain, all unresolved items start with TODO, all resolved items have the TODO prefix removed.'
 fallback_policy:
   on_adapter_error:
     action: emit_todo_continue
-    behavior: 'When a deterministic evidence adapter fails (API unavailable, tool error, etc.): emit an explicit reviewer TODO noting the evidence gap, mark the finding unknown with confidence=low, include the retrieval failure reason, and continue the run. Never silently infer from missing data.
-
-      '
+    behavior: 'When a deterministic evidence adapter fails (API unavailable, tool error, etc.): emit an explicit reviewer TODO noting the evidence gap, mark the finding unknown with confidence=low, include the retrieval failure reason, and continue the run. Never silently infer from missing data.'
   on_missing_optional_data:
     action: continue_without
-    behavior: 'Optional adapters that fail are noted in report metadata but do not block the run or affect severity of other checks.
-
-      '
+    behavior: 'Optional adapters that fail are noted in report metadata but do not block the run or affect severity of other checks.'
   on_missing_required_data:
     action: emit_todo_fail_gracefully
-    behavior: 'Required data that cannot be collected causes that check''s finding to be unknown/low-confidence with an explicit reviewer TODO. The run continues unless the missing data is the reporter MIR content (which causes a hard stop).
-
-      '
+    behavior: 'Required data that cannot be collected causes that check''s finding to be unknown/low-confidence with an explicit reviewer TODO. The run continues unless the missing data is the reporter MIR content (which causes a hard stop).'
