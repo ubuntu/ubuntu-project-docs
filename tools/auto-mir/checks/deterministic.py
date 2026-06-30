@@ -82,6 +82,12 @@ def _line_is_test_context(line: str) -> bool:
     return any(marker in lowered for marker in _TEST_CONTEXT_MARKERS)
 
 
+def _path_is_test_context(path: str) -> bool:
+    """Return True when a file path lives under a test directory."""
+    marked = f"/{str(path).lower().lstrip('./')}"
+    return "/test/" in marked or "/tests/" in marked or "/debian/tests/" in marked
+
+
 # Soname-versioned shared-library runtime package names end in a digit
 # (e.g. liblua5.5-0, libfoo1). -dev/-doc/-dbg packages are excluded.
 _SHARED_LIB_PKG_RE = re.compile(r"^lib.+\d$")
@@ -1178,27 +1184,45 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
     debian_rules = packaging.get("debian_rules", "")
     debian_control = packaging.get("debian_control", "")
 
-    combined_lines = [
-        *(line for line in debian_rules.splitlines()),
-        *(line for line in debian_control.splitlines()),
-    ]
-
-    for line in combined_lines:
+    # Combine the classic debian/{rules,control} text scan with the full
+    # source-tree grep (grep -RIn nobody) and the find -user nobody results from
+    # both the source tree and the built binaries. Test-context hits are ignored.
+    hits: list[str] = []
+    for line in (*debian_rules.splitlines(), *debian_control.splitlines()):
         if "nobody" in line.lower() and not _line_is_test_context(line):
-            finding.fail(
-                "User 'nobody' found outside test context",
-                "no use of user 'nobody' outside of tests",
-                severity="required",
-                confidence="medium",
-            )
-            finding.evidence_refs = ["packaging-source:debian_rules"]
-            return finding
+            hits.append(line.strip())
+    for line in packaging.get("nobody_source_hits", []):
+        if not _line_is_test_context(line):
+            hits.append(line)
+    for path in packaging.get("nobody_source_files", []):
+        if not _path_is_test_context(path):
+            hits.append(f"file owned by nobody (source): {path}")
+    sbuild = adapters.get("sbuild", {})
+    for path in sbuild.get("nobody_owned_binaries", []):
+        if not _path_is_test_context(path):
+            hits.append(f"file owned by nobody (built binary): {path}")
+
+    if hits:
+        finding.fail(
+            "User 'nobody' found outside test context: " + "; ".join(hits[:3]),
+            "no use of user 'nobody' outside of tests",
+            severity="required",
+            confidence="medium",
+        )
+        finding.evidence_refs = [
+            "packaging-source:nobody_source_hits",
+            "sbuild:nobody_owned_binaries",
+        ]
+        return finding
 
     finding.succeed(
         "no use of user 'nobody' outside of tests",
         confidence="high",
     )
-    finding.evidence_refs = ["packaging-source:debian_rules"]
+    finding.evidence_refs = [
+        "packaging-source:nobody_source_hits",
+        "sbuild:nobody_owned_binaries",
+    ]
     return finding
 
 
@@ -1237,8 +1261,35 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
     setuid_patterns = ["chmod 4", "chmod 2", "perm -4000", "perm -2000", "setuid", "setgid"]
     rules_triggered = any(p in debian_rules for p in setuid_patterns)
 
-    if lintian_triggered or rules_triggered:
-        source = "lintian output" if lintian_triggered else "debian/rules"
+    # Full source-tree grep (grep -RIn setuid/setgid) and find -perm results from
+    # both the source tree and the built binaries. Test-context hits are ignored.
+    source_hits = [
+        line
+        for line in packaging.get("setuid_setgid_source_hits", [])
+        if not _line_is_test_context(line)
+    ]
+    source_perm_files = [
+        path
+        for path in packaging.get("setuid_setgid_source_files", [])
+        if not _path_is_test_context(path)
+    ]
+    sbuild = adapters.get("sbuild", {})
+    binary_perm_files = [
+        path for path in sbuild.get("setuid_setgid_binaries", []) if not _path_is_test_context(path)
+    ]
+    source_triggered = bool(source_hits or source_perm_files)
+    binary_triggered = bool(binary_perm_files)
+
+    if lintian_triggered or rules_triggered or source_triggered or binary_triggered:
+        if binary_triggered:
+            source = "built binaries: " + ", ".join(binary_perm_files[:3])
+        elif lintian_triggered:
+            source = "lintian output"
+        elif source_triggered:
+            sample = (source_hits + source_perm_files)[:3]
+            source = "source tree: " + "; ".join(sample)
+        else:
+            source = "debian/rules"
         # Check for documented justification (prefer systemd)
         if "systemd" in debian_rules:
             finding.fail(
@@ -1250,14 +1301,19 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
             finding.evidence_refs = ["packaging-source:debian_rules", "lintian:lintian_warnings"]
             return finding
 
+        # A confirmed setuid/setgid binary in the built artefacts is high
+        # confidence; source-only or rules-only hints are lower confidence.
+        confidence = "high" if (lintian_triggered or binary_triggered) else "low"
         finding.fail(
             f"setuid/setgid detected in {source}",
             "no use of setuid / setgid",
             severity="required",
-            confidence="high" if lintian_triggered else "low",
+            confidence=confidence,
         )
         finding.evidence_refs = [
-            "lintian:lintian_warnings" if lintian_triggered else "packaging-source:debian_rules"
+            "packaging-source:setuid_setgid_source_hits",
+            "sbuild:setuid_setgid_binaries",
+            "lintian:lintian_warnings",
         ]
         return finding
 
@@ -1265,7 +1321,10 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
         "no use of setuid / setgid",
         confidence="high" if lintian.get("status") == "ok" else "medium",
     )
-    finding.evidence_refs = ["packaging-source:debian_rules"]
+    finding.evidence_refs = [
+        "packaging-source:setuid_setgid_source_hits",
+        "sbuild:setuid_setgid_binaries",
+    ]
     if lintian.get("status") == "ok":
         finding.evidence_refs.append("lintian:lintian_warnings")
     return finding

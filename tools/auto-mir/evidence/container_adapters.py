@@ -184,6 +184,26 @@ def _detect_component(ctx, package: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+def _grep_source_tree(ctx, source_dir: str, terms: list[str]) -> list[str]:
+    """Return ``path:lineno:content`` hits for fixed terms across the source tree.
+
+    Uses ``grep -RIn`` (recursive, skip binary files, line numbers). The terms
+    are fixed literals (no user input), matched as fixed strings (-F) so regex
+    metacharacters are harmless. Results are capped to keep evidence bounded.
+    """
+    term_args = " ".join(f"-e {t}" for t in terms)
+    cmd = f"cd {source_dir} && grep -RInF --exclude-dir=.git {term_args} . 2>/dev/null | head -200"
+    out = _capture(ctx, ["bash", "-lc", cmd], allow_fail=True, as_ubuntu=True)
+    return [line.strip() for line in out.splitlines() if line.strip()]
+
+
+def _find_source_tree(ctx, source_dir: str, predicate: str) -> list[str]:
+    """Return source-tree paths matching a ``find`` predicate (capped)."""
+    cmd = f"cd {source_dir} && find . {predicate} 2>/dev/null | head -200"
+    out = _capture(ctx, ["bash", "-lc", cmd], allow_fail=True, as_ubuntu=True)
+    return [line.strip() for line in out.splitlines() if line.strip()]
+
+
 @adapter(AdapterID.PACKAGING_SOURCE)
 def collect_packaging_source(ctx) -> PackagingSourceResult:
     """Fetch and analyze Debian packaging source files.
@@ -321,6 +341,17 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         cargo_lock,
         go_sum,
     )
+
+    # Scan the unpacked source tree for privilege-related markers feeding URF-4
+    # (user 'nobody') and URF-5 (setuid/setgid). Capture grep hits and find
+    # results so the checks reason over the whole source, not just debian/.
+    nobody_source_hits = _grep_source_tree(ctx, full_source, ["nobody"])
+    setuid_setgid_source_hits = _grep_source_tree(ctx, full_source, ["setuid", "setgid"])
+    nobody_source_files = _find_source_tree(ctx, full_source, "-user nobody")
+    setuid_setgid_source_files = _find_source_tree(
+        ctx, full_source, "\\( -perm -4000 -o -perm -2000 \\)"
+    )
+
     return {
         "status": "ok",
         "source_dir": full_source,
@@ -332,6 +363,10 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         "go_sum_present": go_sum,
         "vendored_dirs": vendored_dirs,
         "file_listing": file_listing,
+        "nobody_source_hits": nobody_source_hits,
+        "setuid_setgid_source_hits": setuid_setgid_source_hits,
+        "nobody_source_files": nobody_source_files,
+        "setuid_setgid_source_files": setuid_setgid_source_files,
     }
 
 
@@ -591,14 +626,17 @@ def _parse_promotion_candidates(output: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def _detect_static_binaries(ctx, output_dir: str) -> list[str]:
-    """Return package paths of fully statically linked ELF binaries in built debs.
+def _inspect_built_debs(ctx, output_dir: str) -> dict[str, list[str]]:
+    """Inspect built .deb contents for static, setuid/setgid and nobody-owned files.
 
-    Each .deb is extracted and every regular file is classified with ``file``.
-    Only fully static ELF executables/objects ("statically linked") are
-    reported; this is the authoritative signal that the package ships a static
-    binary. Files under test directories are excluded, matching MIR policy that
-    static linking inside tests is acceptable.
+    The debs are extracted once and scanned for three signals:
+      * fully statically linked ELF binaries ("statically linked") — ESL-2
+      * setuid/setgid binaries (-perm -4000/-2000) — URF-5
+      * files owned by user 'nobody' (-user nobody) — URF-4
+
+    Files under test directories are excluded for the static-linking signal
+    (acceptable by MIR policy); setuid/setgid and nobody results are reported
+    verbatim and the consuming checks apply their own test-context filtering.
     """
     script = (
         "tmp=$(mktemp -d) || exit 0; "
@@ -608,25 +646,47 @@ def _detect_static_binaries(ctx, output_dir: str) -> list[str]:
         '  mkdir -p "$dest"; '
         '  dpkg-deb -x "$deb" "$dest" 2>/dev/null || true; '
         "done; "
+        'echo "=== STATIC ==="; '
         'find "$tmp" -type f 2>/dev/null | while read -r f; do '
         '  desc=$(file -b "$f" 2>/dev/null || true); '
-        '  case "$desc" in '
-        '    *"statically linked"*) echo "${f#"$tmp"/}";; '
-        "  esac; "
+        '  case "$desc" in *"statically linked"*) echo "${f#"$tmp"/}";; esac; '
         "done; "
+        'echo "=== SETUIDGID ==="; '
+        'find "$tmp" -type f \\( -perm -4000 -o -perm -2000 \\) 2>/dev/null '
+        '| sed "s#^$tmp/##"; '
+        'echo "=== NOBODY ==="; '
+        'find "$tmp" -user nobody 2>/dev/null | sed "s#^$tmp/##"; '
         'rm -rf "$tmp"'
     )
     out = _capture(ctx, ["bash", "-lc", script], allow_fail=True, as_ubuntu=True)
-    results: list[str] = []
+
+    sections: dict[str, list[str]] = {"STATIC": [], "SETUIDGID": [], "NOBODY": []}
+    current: str | None = None
     for line in out.splitlines():
-        path = line.strip()
-        if not path:
+        stripped = line.strip()
+        if stripped == "=== STATIC ===":
+            current = "STATIC"
             continue
-        marked = f"/{path.lower()}"
-        if "/test/" in marked or "/tests/" in marked:
+        if stripped == "=== SETUIDGID ===":
+            current = "SETUIDGID"
             continue
-        results.append(path)
-    return results
+        if stripped == "=== NOBODY ===":
+            current = "NOBODY"
+            continue
+        if current is None or not stripped:
+            continue
+        sections[current].append(stripped)
+
+    static_binaries = [
+        path
+        for path in sections["STATIC"]
+        if "/test/" not in f"/{path.lower()}" and "/tests/" not in f"/{path.lower()}"
+    ]
+    return {
+        "static_binaries": static_binaries,
+        "setuid_setgid_binaries": sections["SETUIDGID"],
+        "nobody_owned_binaries": sections["NOBODY"],
+    }
 
 
 @adapter(AdapterID.SBUILD, depends_on=[AdapterID.PACKAGING_SOURCE])
@@ -749,12 +809,17 @@ def collect_sbuild(ctx) -> SbuildResult:
         log.warning("sbuild failed for %s", ctx.source_package)
         message = "Build failed, see build_log for details"
 
-    # Inspect built binaries for fully static ELF linkage (authoritative signal
-    # for ESL-2). Partial static linking of individual archive libraries is
-    # tracked separately via Built-Using (ESL-3).
+    # Inspect built binaries for fully static ELF linkage (ESL-2), setuid/setgid
+    # binaries (URF-5) and nobody-owned files (URF-4). Partial static linking of
+    # individual archive libraries is tracked separately via Built-Using (ESL-3).
     static_binaries: list[str] = []
+    setuid_setgid_binaries: list[str] = []
+    nobody_owned_binaries: list[str] = []
     if build_success and built_debs:
-        static_binaries = _detect_static_binaries(ctx, output_dir)
+        deb_scan = _inspect_built_debs(ctx, output_dir)
+        static_binaries = deb_scan["static_binaries"]
+        setuid_setgid_binaries = deb_scan["setuid_setgid_binaries"]
+        nobody_owned_binaries = deb_scan["nobody_owned_binaries"]
 
     # Run lintian on the source package (keep existing functionality)
     lintian_raw = _capture(
@@ -803,6 +868,8 @@ def collect_sbuild(ctx) -> SbuildResult:
         "lintian_pedantic": lintian_pedantic,
         "static_link_hints": static_link_hints,
         "static_binaries": static_binaries,
+        "setuid_setgid_binaries": setuid_setgid_binaries,
+        "nobody_owned_binaries": nobody_owned_binaries,
         "note": "Real sbuild with unshare backend completed" if build_success else "sbuild failed",
     }
 

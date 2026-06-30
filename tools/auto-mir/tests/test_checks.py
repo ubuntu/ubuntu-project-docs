@@ -1823,6 +1823,75 @@ def test_urf_5_lintian_setuid_tag():
     assert "lintian" in result.message.lower()
 
 
+def test_urf_4_nobody_found_in_source_tree():
+    """URF-4 detects 'nobody' in the broader source tree, not just debian/."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "nobody_source_hits": ['src/daemon.c:42:    setuser("nobody");'],
+        "nobody_source_files": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "nobody" in result.message.lower()
+
+
+def test_urf_4_nobody_in_tests_is_ignored():
+    """A 'nobody' hit under a test path does not trip URF-4."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "nobody_source_hits": ['tests/test_user.c:5:    run_as("nobody");'],
+        "nobody_source_files": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "ok"
+
+
+def test_urf_5_setgid_binary_in_built_deb():
+    """URF-5 flags a setuid/setgid binary found in the built artifacts."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "setuid_setgid_source_hits": [],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "setuid_setgid_binaries": ["myapp/usr/bin/myhelper"],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert result.confidence == "high"
+    assert "myhelper" in result.message
+
+
 def test_urf_7_no_old_webkit():
     """Test URF-7 when no old webkit dependencies found."""
     ctx = _Ctx()

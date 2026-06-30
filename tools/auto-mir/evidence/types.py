@@ -304,6 +304,10 @@ class PackagingSourceResult(TypedDict):
     go_sum_present: bool
     vendored_dirs: list[str]
     file_listing: list[FileListingEntry]
+    nobody_source_hits: list[str]
+    setuid_setgid_source_hits: list[str]
+    nobody_source_files: list[str]
+    setuid_setgid_source_files: list[str]
 
 
 # ---------------------------------------------------------------------------
@@ -392,6 +396,8 @@ class SbuildResult(TypedDict):
     lintian_pedantic: list[str]
     static_link_hints: list[str]
     static_binaries: list[str]
+    setuid_setgid_binaries: list[str]
+    nobody_owned_binaries: list[str]
     note: str
 
 
