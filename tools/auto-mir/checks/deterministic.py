@@ -1639,8 +1639,8 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
     for dep in dependencies:
         if any(p in dep.lower() for p in py2_patterns):
             finding.fail(
-                f"Python 2 dependency found: {dep}",
-                "no new python2 dependency",
+                render_check_message(check, "blocker_message", dep=dep),
+                render_check_message(check, "blocker_todo"),
                 severity="required",
                 confidence="high",
             )
@@ -1648,7 +1648,7 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
             return finding
 
     finding.succeed(
-        "no new python2 dependency",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
@@ -1673,8 +1673,8 @@ def _check_sec_3(ctx, finding: Finding) -> Finding:
     for dep in dependencies:
         if any(p in dep.lower() for p in webkit_patterns):
             finding.fail(
-                f"Webkit dependency found: {dep}",
-                "does not use webkit1,2",
+                render_check_message(check, "blocker_message", dep=dep),
+                render_check_message(check, "blocker_todo"),
                 severity="required",
                 confidence="high",
             )
@@ -1682,7 +1682,7 @@ def _check_sec_3(ctx, finding: Finding) -> Finding:
             return finding
 
     finding.succeed(
-        "does not use webkit1,2",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
@@ -1707,8 +1707,8 @@ def _check_sec_4(ctx, finding: Finding) -> Finding:
     for dep in dependencies:
         if any(p in dep.lower() for p in v8_patterns):
             finding.fail(
-                f"V8 dependency found: {dep}",
-                "does not use lib*v8 directly",
+                render_check_message(check, "blocker_message", dep=dep),
+                render_check_message(check, "blocker_todo"),
                 severity="required",
                 confidence="high",
             )
@@ -1716,7 +1716,7 @@ def _check_sec_4(ctx, finding: Finding) -> Finding:
             return finding
 
     finding.succeed(
-        "does not use lib*v8 directly",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]

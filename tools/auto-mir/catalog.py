@@ -69,19 +69,19 @@ _REQUIRED_MESSAGE_TEMPLATES: dict[str, dict[str, set[str]]] = {
     "SEC-3": {
         "ok_message": set(),
         "unknown_message": set(),
-        "blocker_message": set(),
+        "blocker_message": {"dep"},
         "blocker_todo": set(),
     },
     "SEC-4": {
         "ok_message": set(),
         "unknown_message": set(),
-        "blocker_message": set(),
+        "blocker_message": {"dep"},
         "blocker_todo": set(),
     },
     "CB-7": {
         "ok_message": set(),
         "unknown_message": set(),
-        "blocker_message": set(),
+        "blocker_message": {"dep"},
         "blocker_todo": set(),
     },
     "ESL-1": {

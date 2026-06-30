@@ -104,7 +104,7 @@ class _Ctx:
                     "messages": {
                         "ok_message": "does not use webkit1,2",
                         "unknown_message": "Could not analyse webkit dependencies",
-                        "blocker_message": "webkit1/2 dependency found — hard blocker",
+                        "blocker_message": "webkit1/2 dependency found ({dep}) — hard blocker",
                         "blocker_todo": "TODO: - webkit1/2 dependency must be removed before main inclusion",
                     },
                 },
@@ -113,7 +113,7 @@ class _Ctx:
                     "messages": {
                         "ok_message": "does not use lib*v8 directly",
                         "unknown_message": "Could not analyse v8 dependencies",
-                        "blocker_message": "lib*v8 dependency found — hard blocker",
+                        "blocker_message": "lib*v8 dependency found ({dep}) — hard blocker",
                         "blocker_todo": "TODO: - direct lib*v8 dependency must be removed before main inclusion",
                     },
                 },
@@ -122,7 +122,7 @@ class _Ctx:
                     "messages": {
                         "ok_message": "no new python2 dependency",
                         "unknown_message": "Could not analyse Python2 dependencies",
-                        "blocker_message": "Python2 dependency found — hard blocker",
+                        "blocker_message": "Python2 dependency found ({dep}) — hard blocker",
                         "blocker_todo": "TODO: - python2 dependency must be removed or ported before main inclusion",
                     },
                 },
