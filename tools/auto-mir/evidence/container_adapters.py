@@ -20,6 +20,7 @@ from evidence.types import (
     CvelistScanResult,
     DebMetadataResult,
     DepAnalysisResult,
+    GitUbuntuDeltaResult,
     LintianResult,
     PackagingSourceResult,
     SbuildResult,
@@ -627,6 +628,121 @@ def collect_ubuntu_upload_permission(ctx) -> UbuntuUploadPermissionResult:
         "components": components,
         "team_uploaders": team_uploaders,
         "individual_uploaders": individual_uploaders,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Git-ubuntu delta adapter
+# ---------------------------------------------------------------------------
+
+
+def classify_ubuntu_delta(version: str) -> str:
+    """Classify the Ubuntu delta kind from a source version string.
+
+    Returns one of:
+      ubuntu_delta — version carries an explicit Ubuntu revision (``...ubuntuN``)
+      sync         — plain Debian revision (``X-Y``), i.e. synced from Debian
+      native       — no Debian revision (``-``), native or Ubuntu-only
+      unknown      — empty/unparseable version
+    """
+    text = (version or "").strip()
+    if not text:
+        return "unknown"
+    if "ubuntu" in text.lower():
+        return "ubuntu_delta"
+    if "-" not in text:
+        return "native"
+    return "sync"
+
+
+@adapter(AdapterID.GIT_UBUNTU_DELTA, depends_on=[AdapterID.PACKAGING_SOURCE])
+def collect_git_ubuntu_delta(ctx) -> GitUbuntuDeltaResult:
+    """Determine the Ubuntu delta vs Debian, using git-ubuntu only when needed.
+
+    The current source version (from debian/changelog) is classified first.
+    A pure Debian sync (``X-Y``) carries no Ubuntu delta, so git-ubuntu is not
+    run at all (it is expensive). When the version carries an Ubuntu revision
+    (``...ubuntuN``), git-ubuntu is used best-effort to produce a diffstat of
+    the Ubuntu delta against the Debian base it was branched from.
+    """
+    packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
+    source_dir = packaging.get("source_dir")
+    if not source_dir:
+        raise AdapterError("git-ubuntu-delta adapter requires packaging-source.source_dir")
+
+    version = _capture(
+        ctx,
+        ["bash", "-lc", f"cd {source_dir} && dpkg-parsechangelog -S Version 2>/dev/null"],
+        allow_fail=True,
+        as_ubuntu=True,
+    ).strip()
+
+    delta_kind = classify_ubuntu_delta(version)
+
+    if delta_kind == "sync":
+        summary = (
+            "Ubuntu carries no delta; package is synced from Debian "
+            f"(version {version} has no Ubuntu revision)."
+        )
+        return {
+            "status": "ok",
+            "version": version,
+            "delta_kind": delta_kind,
+            "delta_present": False,
+            "diffstat": "",
+            "delta_summary": summary,
+        }
+
+    if delta_kind in ("native", "unknown"):
+        summary = (
+            f"No Debian revision in version {version!r}; package is native or "
+            "Ubuntu-only. No Debian base to diff against."
+        )
+        return {
+            "status": "ok",
+            "version": version,
+            "delta_kind": delta_kind,
+            "delta_present": delta_kind == "native",
+            "diffstat": "",
+            "delta_summary": summary,
+        }
+
+    # delta_kind == "ubuntu_delta": compute a best-effort diffstat via git-ubuntu.
+    pkg = ctx.source_package
+    has_tool = _exists(ctx, ["bash", "-lc", "command -v git-ubuntu >/dev/null 2>&1"])
+    diffstat = ""
+    if has_tool:
+        clone_dir = f"/tmp/git-ubuntu-{pkg}"
+        script = (
+            f"rm -rf {clone_dir}; "
+            f"git ubuntu clone {pkg} {clone_dir} >/dev/null 2>&1 || exit 0; "
+            f"cd {clone_dir} || exit 0; "
+            "base=$(git merge-base remotes/origin/ubuntu/devel "
+            "remotes/origin/debian/latest 2>/dev/null); "
+            '[ -z "$base" ] && base=$(git merge-base remotes/origin/ubuntu/devel '
+            "remotes/origin/debian/sid 2>/dev/null); "
+            '[ -z "$base" ] && exit 0; '
+            'git diff --stat "$base" remotes/origin/ubuntu/devel '
+            "-- . ':(exclude)debian/changelog' 2>/dev/null | tail -n 60"
+        )
+        diffstat = _capture(ctx, ["bash", "-lc", script], allow_fail=True, as_ubuntu=True).strip()
+
+    if diffstat:
+        summary = f"Ubuntu carries a delta (version {version}); see diffstat vs Debian base."
+    else:
+        summary = (
+            f"Ubuntu carries a delta (version {version}), but an automated "
+            "git-ubuntu diffstat could not be produced; reviewer should inspect "
+            "the delta with git-ubuntu."
+        )
+
+    return {
+        "status": "ok",
+        "version": version,
+        "delta_kind": delta_kind,
+        "delta_present": True,
+        "diffstat": diffstat,
+        "delta_summary": summary,
     }
 
 

@@ -389,6 +389,17 @@ class UbuntuUploadPermissionResult(TypedDict):
     individual_uploaders: list[dict]
 
 
+class GitUbuntuDeltaResult(TypedDict):
+    """Return structure for git-ubuntu-delta adapter."""
+
+    status: str
+    version: str
+    delta_kind: str
+    delta_present: bool
+    diffstat: str
+    delta_summary: str
+
+
 # ---------------------------------------------------------------------------
 # In-container adapters — sbuild
 # ---------------------------------------------------------------------------

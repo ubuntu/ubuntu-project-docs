@@ -795,6 +795,19 @@ evidence_adapters:
     individual_uploaders: list
   fallback: emit_todo_continue
   notes: From ubuntu-dev-tools; reveals whether only the MOTU team (universe) can upload (typical sync-from-Debian case) versus specific individuals/teams
+- id: git-ubuntu-delta
+  type: local_exec
+  description: Classify the Ubuntu delta vs Debian and, when an Ubuntu revision exists, produce a git-ubuntu diffstat
+  inputs:
+  - source_package
+  output_contract:
+    version: str
+    delta_kind: str
+    delta_present: bool
+    diffstat: str
+    delta_summary: str
+  fallback: emit_todo_continue
+  notes: A pure Debian sync (X-Y) carries no Ubuntu delta and git-ubuntu is not run; only ...ubuntuN versions trigger a best-effort git-ubuntu clone and diffstat
 - id: autopkgtest-db
   type: web
   description: Query autopkgtest.ubuntu.com/static/autopkgtest.db for test results
@@ -2152,7 +2165,9 @@ checks:
   adapters_required:
   - packaging-source
   - lp-package-api
-  ai_policy: 'Use git-ubuntu log and diff vs Debian to assess delta size and nature. Escalate to required/NACK only when: large unjustified delta AND no explanation AND no active minimization activity in progress.
+  adapters_optional:
+  - git-ubuntu-delta
+  ai_policy: 'Decide which option applies using the git-ubuntu-delta adapter evidence (delta_kind, delta_present, diffstat, delta_summary). If delta_kind is "sync" (delta_present false) choose option A: Ubuntu does not carry a delta. If delta_kind is "native" or the package exists only in Ubuntu choose option C: Ubuntu-only package. If delta_kind is "ubuntu_delta" choose option B and assess the diffstat: a small/contained delta is reasonable and maintenance under control; escalate to required/NACK only when the diffstat shows a large unjustified delta AND there is no explanation AND no active minimisation in progress. Do NOT ask anyone to "provide git-ubuntu log and diff" and do NOT invent TODO-A/TODO-B placeholders: the git-ubuntu-delta adapter already supplies the diff; decide from it.
 
     '
   human_override: true

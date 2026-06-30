@@ -37,6 +37,7 @@ class AdapterID(StrEnum):
     DEB_METADATA = "deb-metadata"
     CVELIST_SCAN = "cvelist-scan"
     UBUNTU_UPLOAD_PERMISSION = "ubuntu-upload-permission"
+    GIT_UBUNTU_DELTA = "git-ubuntu-delta"
 
 
 class CheckID(StrEnum):

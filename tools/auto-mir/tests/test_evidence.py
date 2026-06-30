@@ -986,3 +986,18 @@ def test_parse_upload_permission_individual_uploader():
     assert components == ["main"]
     assert {"name": "Jane Developer (jane)", "component": "main"} in individuals
     assert {"name": "Some Team (some-team)", "component": "main"} in teams
+
+
+# ---------------------------------------------------------------------------
+# git-ubuntu delta classification
+# ---------------------------------------------------------------------------
+
+
+def test_classify_ubuntu_delta_kinds():
+    from evidence.container_adapters import classify_ubuntu_delta
+
+    assert classify_ubuntu_delta("5.5.0-4") == "sync"
+    assert classify_ubuntu_delta("5.5.0-4ubuntu1") == "ubuntu_delta"
+    assert classify_ubuntu_delta("1.2.3") == "native"
+    assert classify_ubuntu_delta("") == "unknown"
+    assert classify_ubuntu_delta("2:1.0-1ubuntu2") == "ubuntu_delta"
