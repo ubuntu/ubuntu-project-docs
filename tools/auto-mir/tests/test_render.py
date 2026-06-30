@@ -592,3 +592,32 @@ def test_strip_todo_prefix_variants():
     assert _strip_todo_prefix("TODO: foo") == "foo"
     assert _strip_todo_prefix("TODO-A: foo") == "foo"
     assert _strip_todo_prefix("plain text") == "plain text"
+
+
+def test_sum4_ok_message_visible_in_summary():
+    """When a team subscriber is present, SUM-4's OK statement shows in Summary."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1234567"
+    ctx.series = "noble"
+    ctx.evidence = {"adapters": {}}
+    ctx.findings = [
+        Finding(
+            id="SUM-4",
+            section="Summary",
+            title="Team bug subscriber present",
+            mode="deterministic",
+            status="ok",
+            severity="ok",
+            confidence="high",
+            message="Package has team subscriber(s): foo-team",
+            todo="",
+            aggregate_todo=True,
+        ),
+    ]
+
+    draft = _build_review_draft(ctx)
+
+    summary_idx = draft.index("[Summary]")
+    summary_block = draft[summary_idx:]
+    assert "Package has team subscriber(s): foo-team" in summary_block

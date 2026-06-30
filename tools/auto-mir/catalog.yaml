@@ -920,6 +920,7 @@ checks:
   - 'TODO: - The package should get a team bug subscriber before being promoted'
   template_line: 45
   mode: deterministic
+  aggregate_todo: true
   adapters_required:
   - team-mapping
   ai_policy: none

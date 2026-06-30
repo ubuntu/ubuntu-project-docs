@@ -292,16 +292,21 @@ def _render_summary_section(
 
     - Keep resolved summary checks under OK:
     - Do not emit a "Problems:" block here.
-    - Keep unresolved summary TODO options visible for reviewer choice.
+    - Keep unresolved summary decision checks visible for reviewer choice.
     - Always include Required TODOs: and Recommended TODOs: blocks.
-    - SUM-4 is a gate check and is intentionally not rendered in the draft.
+    - Findings flagged aggregate_todo (e.g. the team-subscriber gate) render
+      their OK statement here but route their TODO to the consolidated blocks
+      rather than the inline "Left to decide" list.
     - Include out-of-scope dependency hints as informational notes.
     """
     lines: list[str] = ["[Summary]"]
 
-    visible_summary = [f for f in summary_findings if f.id != "SUM-4"]
-    ok_findings = [f for f in visible_summary if f.status == "ok"]
-    unresolved = [f for f in visible_summary if f.status != "ok"]
+    ok_findings = [f for f in summary_findings if f.status == "ok"]
+    # Decision checks (ACK/NACK verdict, security review) stay inline under
+    # "Left to decide". aggregate_todo findings are forwarded to the consolidated
+    # Required/Recommended blocks instead, so exclude them here to avoid listing
+    # them twice.
+    unresolved = [f for f in summary_findings if f.status != "ok" and not f.aggregate_todo]
 
     if ok_findings:
         lines.append("OK:")
