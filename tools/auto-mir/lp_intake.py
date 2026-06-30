@@ -269,17 +269,40 @@ def _evaluate_injection_risk(ctx) -> None:
     description = ctx.bug.get("description", "") or ""
     comments = ctx.bug.get("comments", []) or []
 
+    # Scan each attacker-controllable field separately so the warning can name
+    # *where* the suspicious content is and *what* matched. ``findings`` maps a
+    # human-readable source location to its list of (label, snippet) pairs.
+    sources: list[tuple[str, str]] = [
+        ("bug title", title),
+        ("bug description", description),
+    ]
+    for index, comment in enumerate(comments, start=1):
+        sources.append((f"comment #{index}", comment))
+
+    findings: list[tuple[str, list[tuple[str, str]]]] = []
     indicators: set[str] = set()
-    indicators.update(llm_sanitize.scan_for_injection(title))
-    indicators.update(llm_sanitize.scan_for_injection(description))
-    for comment in comments:
-        indicators.update(llm_sanitize.scan_for_injection(comment))
+    for location, text in sources:
+        matches = llm_sanitize.scan_for_injection_matches(text)
+        if matches:
+            findings.append((location, matches))
+            indicators.update(label for label, _ in matches)
 
     sorted_indicators = sorted(indicators)
     ctx.bug["injection_indicators"] = sorted_indicators
 
-    if not sorted_indicators:
+    if not findings:
         return
+
+    detail_lines = []
+    for location, matches in findings:
+        detail_lines.append(f"  In {location}:")
+        for label, snippet in matches:
+            # Preserve the original line breaks of the matched excerpt while
+            # keeping continuation lines aligned under the indicator.
+            snippet_lines = snippet.split("\n")
+            detail_lines.append(f"    - {label}: {snippet_lines[0]}")
+            detail_lines.extend(f"        {line}" for line in snippet_lines[1:])
+    details = "\n".join(detail_lines)
 
     log.warning(
         "\n"
@@ -287,14 +310,16 @@ def _evaluate_injection_risk(ctx) -> None:
         "POTENTIAL PROMPT-INJECTION CONTENT in bug %s\n"
         "\n"
         "The bug text contains instruction-like patterns that could be an\n"
-        "attempt to manipulate the AI review. Indicators: %s\n"
+        "attempt to manipulate the AI review. What was found and where:\n"
+        "\n"
+        "%s\n"
         "\n"
         "The content is neutralised and clearly marked as untrusted data\n"
         "before it reaches the LLM, but you should review the bug manually\n"
         "and treat the generated draft with extra scrutiny.\n"
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",
         ctx.bug_id,
-        ", ".join(sorted_indicators),
+        details,
     )
     proceed = _ask_yes_no(
         "Suspicious instruction-like content detected in the bug. Continue anyway?",

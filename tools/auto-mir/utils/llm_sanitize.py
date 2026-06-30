@@ -114,6 +114,41 @@ def scan_for_injection(text: str) -> list[str]:
     return sorted(found)
 
 
+def _snippet(text: str, start: int, end: int, context: int = 30) -> str:
+    """Return a one-line excerpt of ``text[start:end]`` with surrounding context.
+
+    The matched span is wrapped in ``»…«`` markers so the reviewer can see what
+    triggered the indicator. The original line breaks within the excerpt are
+    preserved, and the excerpt is bounded so the warning stays readable.
+    """
+    lead = text[max(0, start - context):start]
+    match = text[start:end]
+    trail = text[end:end + context]
+    prefix = "…" if start - context > 0 else ""
+    suffix = "…" if end + context < len(text) else ""
+    return f"{prefix}{lead}»{match}«{trail}{suffix}"
+
+
+def scan_for_injection_matches(text: str) -> list[tuple[str, str]]:
+    """Return ``(label, snippet)`` pairs for each injection pattern found.
+
+    Like :func:`scan_for_injection`, but also reports the matched text (with a
+    little surrounding context) so callers can show the reviewer *what* tripped
+    each indicator. Read-only; never mutates input. At most one snippet per
+    label is returned (the first match), and the result is sorted by label.
+    """
+    if not text:
+        return []
+    matches: dict[str, str] = {}
+    for label, pattern in _INJECTION_PATTERNS:
+        if label in matches:
+            continue
+        found = pattern.search(text)
+        if found:
+            matches[label] = _snippet(text, found.start(), found.end())
+    return sorted(matches.items())
+
+
 def neutralize(text: str) -> str:
     """Return ``text`` with chat structure defanged for safe prompt embedding.
 
