@@ -112,6 +112,8 @@ class LPPackageAPIResult(TypedDict):
 
     status: str
     ubuntu_publish_history: list[PublishHistoryEntry]
+    all_publish_history: list[PublishHistoryEntry]
+    release_cadence: dict
     current_version: str
     upload_history: list[UploadHistoryEntry]
     uploaders: list[str]

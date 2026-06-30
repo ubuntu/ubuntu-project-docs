@@ -899,3 +899,50 @@ def test_collect_lto_disabled_list_fetch_error():
 
     assert result["status"] == "error"
     assert "network unreachable" in result["error"]
+
+
+# ---------------------------------------------------------------------------
+# Release cadence summarisation (lp-package-api)
+# ---------------------------------------------------------------------------
+
+
+def test_release_cadence_unknown_with_few_dates():
+    from evidence.host_adapters import summarise_release_cadence
+
+    assert summarise_release_cadence([])["descriptor"] == "unknown"
+    one = [{"version": "1.0-1", "date_published": "2024-01-01 00:00:00+00:00"}]
+    assert summarise_release_cadence(one)["descriptor"] == "unknown"
+
+
+def test_release_cadence_good_when_frequent():
+    from evidence.host_adapters import summarise_release_cadence
+
+    history = [
+        {"version": "1.0-1", "date_published": "2024-01-01 00:00:00+00:00"},
+        {"version": "1.0-2", "date_published": "2024-03-01 00:00:00+00:00"},
+        {"version": "1.0-3", "date_published": "2024-05-01 00:00:00+00:00"},
+    ]
+    result = summarise_release_cadence(history)
+    assert result["descriptor"] == "good"
+    assert result["releases"] == 3
+
+
+def test_release_cadence_sporadic_when_rare():
+    from evidence.host_adapters import summarise_release_cadence
+
+    history = [
+        {"version": "1.0-1", "date_published": "2018-01-01 00:00:00+00:00"},
+        {"version": "2.0-1", "date_published": "2024-01-01 00:00:00+00:00"},
+    ]
+    assert summarise_release_cadence(history)["descriptor"] == "sporadic"
+
+
+def test_release_cadence_deduplicates_versions():
+    from evidence.host_adapters import summarise_release_cadence
+
+    # Same version published to multiple pockets/series must count once.
+    history = [
+        {"version": "1.0-1", "date_published": "2024-01-01 00:00:00+00:00"},
+        {"version": "1.0-1", "date_published": "2024-01-05 00:00:00+00:00"},
+    ]
+    assert summarise_release_cadence(history)["descriptor"] == "unknown"

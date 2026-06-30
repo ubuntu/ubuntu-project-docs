@@ -18,6 +18,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -235,6 +236,69 @@ def collect_lp_bug_search_api(ctx) -> LPBugSearchAPIResult:
     }
 
 
+def _parse_lp_date(value: object) -> datetime | None:
+    """Parse a Launchpad date string into a tz-naive UTC datetime, or None."""
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() == "none":
+        return None
+    text = text.replace("Z", "+00:00")
+    for candidate in (text, text.split(".")[0], text.split(" ")[0]):
+        try:
+            parsed = datetime.fromisoformat(candidate)
+        except ValueError:
+            continue
+        if parsed.tzinfo is not None:
+            parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+        return parsed
+    return None
+
+
+def summarise_release_cadence(history: list[dict]) -> dict:
+    """Characterise distro publishing cadence from publish-history entries.
+
+    Each history item carries ``version`` and ``date_published``. The earliest
+    publication date per distinct source version is taken, the dates are sorted,
+    and the average interval is classified (thresholds are deliberately soft):
+
+      good      >= ~1 upload per 6 months (average interval <= 183 days)
+      slow      ~ 1 upload per year (average interval <= 400 days)
+      sporadic  less frequent than that
+      unknown   fewer than 2 dated versions to compare
+    """
+    by_version: dict[str, datetime] = {}
+    for entry in history:
+        version = str(entry.get("version") or "").strip()
+        parsed = _parse_lp_date(entry.get("date_published"))
+        if not version or parsed is None:
+            continue
+        if version not in by_version or parsed < by_version[version]:
+            by_version[version] = parsed
+
+    dates = sorted(by_version.values())
+    if len(dates) < 2:
+        return {"releases": len(dates), "descriptor": "unknown"}
+
+    intervals = [(dates[i] - dates[i - 1]).days for i in range(1, len(dates))]
+    avg_interval = sum(intervals) / len(intervals)
+    if avg_interval <= 183:
+        descriptor = "good"
+    elif avg_interval <= 400:
+        descriptor = "slow"
+    else:
+        descriptor = "sporadic"
+
+    return {
+        "releases": len(dates),
+        "span_days": (dates[-1] - dates[0]).days,
+        "avg_interval_days": round(avg_interval, 1),
+        "first": dates[0].date().isoformat(),
+        "last": dates[-1].date().isoformat(),
+        "descriptor": descriptor,
+    }
+
+
 @adapter(AdapterID.LP_PACKAGE_API)
 def collect_lp_package_api(ctx) -> LPPackageAPIResult:
     """Query Launchpad package publishing history and build state via launchpadlib.
@@ -301,6 +365,34 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
     except Exception as exc:
         log.warning("Could not fetch LP publishing history for %s: %s", pkg, exc)
 
+    # Fetch the cross-series publishing history (all Ubuntu series) so the
+    # update cadence can be characterised over a meaningful time span rather
+    # than just the development series (which often holds only a few records).
+    all_publish_history: list[dict] = []
+    try:
+        archive = ubuntu.main_archive
+        published_all = archive.getPublishedSources(
+            source_name=pkg,
+            exact_match=True,
+            order_by_date=True,
+        )
+        for pub in list(published_all)[:100]:
+            try:
+                all_publish_history.append(
+                    {
+                        "version": pub.source_package_version,
+                        "date_published": str(pub.date_published),
+                        "pocket": pub.pocket,
+                        "status": pub.status,
+                    }
+                )
+            except Exception:
+                continue
+    except Exception as exc:
+        log.warning("Could not fetch cross-series LP history for %s: %s", pkg, exc)
+
+    release_cadence = summarise_release_cadence(all_publish_history or ubuntu_publish_history)
+
     # Fetch upload history (changesfile info) for recent uploads
     upload_history: list[dict] = []
     uploaders: list[str] = []
@@ -328,14 +420,19 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
         log.warning("Could not fetch LP upload queue for %s: %s", pkg, exc)
 
     log.debug(
-        "lp-package-api: current version %s, %d publish record(s), %d uploader(s)",
+        "lp-package-api: current version %s, %d publish record(s), "
+        "%d cross-series record(s), cadence=%s, %d uploader(s)",
         current_version or "unknown",
         len(ubuntu_publish_history),
+        len(all_publish_history),
+        release_cadence.get("descriptor", "unknown"),
         len(uploaders),
     )
     return {
         "status": "ok",
         "ubuntu_publish_history": ubuntu_publish_history,
+        "all_publish_history": all_publish_history,
+        "release_cadence": release_cadence,
         "current_version": current_version,
         "upload_history": upload_history,
         "uploaders": uploaders,

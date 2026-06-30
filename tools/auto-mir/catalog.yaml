@@ -2265,7 +2265,9 @@ checks:
   mode: ev_to_ai
   adapters_required:
   - lp-package-api
-  ai_policy: 'Compare Debian/Ubuntu publishing history cadence to upstream release cadence. Distinguish: slow because upstream is stable (ok, explanatory) vs slow while upstream is active (may need justification). Output characterisation.
+  adapters_optional:
+  - upstream-tracker
+  ai_policy: 'Characterise the Debian/Ubuntu update history as good, slow or sporadic. The lp-package-api adapter provides a computed release_cadence object (descriptor good/slow/sporadic plus releases, span_days and avg_interval_days) derived from the cross-series publishing history in all_publish_history; treat that computed descriptor as the primary signal. Guidance for the descriptors: good means roughly one or more uploads per six months; slow means about one upload per year; sporadic means less frequent than that. Then compare against the upstream release cadence (upstream-tracker, when available): a slow distro cadence is acceptable and explanatory when upstream itself is stable/slow, but may warrant a recommendation when upstream is active and the distro is consistently behind. Do NOT ask for more data: decide from release_cadence even if it is the only signal, and only report unknown when release_cadence.descriptor is unknown. Output the chosen characterisation.
 
     '
   human_override: true
