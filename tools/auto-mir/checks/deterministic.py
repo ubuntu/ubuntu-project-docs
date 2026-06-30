@@ -771,9 +771,16 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
 
     build_log = sbuild_result.get("build_log", "")
     static_link_hints = sbuild_result.get("static_link_hints", [])
+    static_binaries = sbuild_result.get("static_binaries", [])
 
-    # Check for -static flag in build log
-    has_static_flag = "-static" in build_log or "--static" in build_log
+    # The authoritative signal for unwanted static linking is a fully static
+    # ELF binary shipped in a built deb (static_binaries). Raw "-static" tokens
+    # in the build log are NOT used: libtool emits "-static <pkg>.la" to link a
+    # package's own convenience library into its own binary (acceptable
+    # intra-package linking), and configure probes ("checking if gcc static
+    # flag -static works... yes") are not links at all. Cross-source-package
+    # static linking of individual archive libraries is tracked via Built-Using
+    # (ESL-3). debian/rules hints capture deliberate -static in LDFLAGS.
 
     # Common patterns for justifiable static linking
     justifiable_patterns = [
@@ -784,15 +791,14 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
         "firmware",
         "kernel module",
     ]
-
     is_justifiable = any(pattern.lower() in build_log.lower() for pattern in justifiable_patterns)
 
-    if not has_static_flag and not static_link_hints:
+    if not static_binaries and not static_link_hints:
         finding.succeed(
             "no static linking",
             confidence="high",
         )
-        finding.evidence_refs = ["sbuild:build_log"]
+        finding.evidence_refs = ["sbuild:static_binaries", "sbuild:build_log"]
         return finding
 
     if is_justifiable:
@@ -800,17 +806,23 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
             "static linking present but appears to be justified (e.g., scanner/bootloader)",
             confidence="medium",
         )
-        finding.evidence_refs = ["sbuild:build_log"]
+        finding.evidence_refs = ["sbuild:static_binaries", "sbuild:build_log"]
         return finding
 
     # Static linking without clear justification
+    detail: list[str] = []
+    if static_binaries:
+        detail.append("statically linked binaries: " + ", ".join(static_binaries[:5]))
+    if static_link_hints:
+        detail.append("debian/rules hints: " + ", ".join(static_link_hints))
     finding.fail(
-        "Static linking detected without clear justification; review needed",
+        "Static linking detected without clear justification; review needed"
+        + (" (" + "; ".join(detail) + ")" if detail else ""),
         "no static linking",
         severity="required",
         confidence="medium",
     )
-    finding.evidence_refs = ["sbuild:build_log"]
+    finding.evidence_refs = ["sbuild:static_binaries", "sbuild:build_log"]
     return finding
 
 

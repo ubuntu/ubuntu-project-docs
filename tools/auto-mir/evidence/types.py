@@ -391,6 +391,7 @@ class SbuildResult(TypedDict):
     lintian_warnings: list[str]
     lintian_pedantic: list[str]
     static_link_hints: list[str]
+    static_binaries: list[str]
     note: str
 
 

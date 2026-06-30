@@ -591,6 +591,44 @@ def _parse_promotion_candidates(output: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
+def _detect_static_binaries(ctx, output_dir: str) -> list[str]:
+    """Return package paths of fully statically linked ELF binaries in built debs.
+
+    Each .deb is extracted and every regular file is classified with ``file``.
+    Only fully static ELF executables/objects ("statically linked") are
+    reported; this is the authoritative signal that the package ships a static
+    binary. Files under test directories are excluded, matching MIR policy that
+    static linking inside tests is acceptable.
+    """
+    script = (
+        "tmp=$(mktemp -d) || exit 0; "
+        f"for deb in {output_dir}/*.deb; do "
+        '  [ -e "$deb" ] || continue; '
+        '  dest="$tmp/$(basename "$deb" .deb)"; '
+        '  mkdir -p "$dest"; '
+        '  dpkg-deb -x "$deb" "$dest" 2>/dev/null || true; '
+        "done; "
+        'find "$tmp" -type f 2>/dev/null | while read -r f; do '
+        '  desc=$(file -b "$f" 2>/dev/null || true); '
+        '  case "$desc" in '
+        '    *"statically linked"*) echo "${f#"$tmp"/}";; '
+        "  esac; "
+        "done; "
+        'rm -rf "$tmp"'
+    )
+    out = _capture(ctx, ["bash", "-lc", script], allow_fail=True, as_ubuntu=True)
+    results: list[str] = []
+    for line in out.splitlines():
+        path = line.strip()
+        if not path:
+            continue
+        marked = f"/{path.lower()}"
+        if "/test/" in marked or "/tests/" in marked:
+            continue
+        results.append(path)
+    return results
+
+
 @adapter(AdapterID.SBUILD, depends_on=[AdapterID.PACKAGING_SOURCE])
 def collect_sbuild(ctx) -> SbuildResult:
     """Build source package using sbuild with unshare backend.
@@ -711,6 +749,13 @@ def collect_sbuild(ctx) -> SbuildResult:
         log.warning("sbuild failed for %s", ctx.source_package)
         message = "Build failed, see build_log for details"
 
+    # Inspect built binaries for fully static ELF linkage (authoritative signal
+    # for ESL-2). Partial static linking of individual archive libraries is
+    # tracked separately via Built-Using (ESL-3).
+    static_binaries: list[str] = []
+    if build_success and built_debs:
+        static_binaries = _detect_static_binaries(ctx, output_dir)
+
     # Run lintian on the source package (keep existing functionality)
     lintian_raw = _capture(
         ctx,
@@ -757,6 +802,7 @@ def collect_sbuild(ctx) -> SbuildResult:
         "lintian_warnings": lintian_warnings,
         "lintian_pedantic": lintian_pedantic,
         "static_link_hints": static_link_hints,
+        "static_binaries": static_binaries,
         "note": "Real sbuild with unshare backend completed" if build_success else "sbuild failed",
     }
 

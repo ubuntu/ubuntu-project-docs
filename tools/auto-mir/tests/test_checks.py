@@ -1289,6 +1289,78 @@ def test_esl_2_static_linking_justified():
     assert "justified" in result.message.lower()
 
 
+def test_esl_2_ignores_configure_static_probe():
+    """A configure feature probe for -static must not be treated as static linking."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": (
+            "checking if gcc static flag -static works... yes\n"
+            "checking if g++ static flag -static works... yes\n"
+            "libtool --mode=link gcc -Wl,-Bsymbolic-functions -o liblua.so lua.o\n"
+        ),
+        "static_link_hints": [],
+        "static_binaries": [],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("ESL-2", mode="deterministic")
+    result = checks.deterministic._check_esl_2(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert result.message == "no static linking"
+
+
+def test_esl_2_static_binary_in_built_deb_flagged():
+    """A fully static ELF binary shipped in a built deb is flagged."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": "dh_auto_build\n",
+        "static_link_hints": [],
+        "static_binaries": ["mytool/usr/bin/mytool"],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("ESL-2", mode="deterministic")
+    result = checks.deterministic._check_esl_2(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "mytool" in result.message
+
+
+def test_esl_2_ignores_static_libgcc_helper_flag():
+    """A build log with only helper flags / no static binaries reports no static linking."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": "gcc -static-libgcc -static-libstdc++ -o app app.c\n",
+        "static_link_hints": [],
+        "static_binaries": [],
+    }
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_configure",
+        "file_listing": [],
+    }
+
+    finding = _make_finding("ESL-2", mode="deterministic")
+    result = checks.deterministic._check_esl_2(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.message == "no static linking"
+
+
 def test_prf_2_not_library():
     """Test PRF-2 when package is not a library."""
     ctx = _Ctx()
