@@ -229,6 +229,17 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
         if build_log:
             payload["build_hints"] = _extract_build_hints(build_log)
 
+    # For CB-2, surface concrete build-time test wiring signals from
+    # debian/rules and the build log so the model can decide rather than echo
+    # the template TODO.
+    if check.get("id") == "CB-2":
+        sbuild_data = adapters_store.get("sbuild", {})
+        packaging_data = adapters_store.get("packaging-source", {})
+        payload["build_test_hints"] = _extract_build_test_hints(
+            packaging_data.get("debian_rules", ""),
+            sbuild_data.get("build_log", ""),
+        )
+
     # Always include compact bug context. Synthesis checks (e.g. SUM-6
     # security-review-needed) need the full picture, so they get a much larger
     # reporter-content cap and the accumulated section findings.
@@ -656,6 +667,54 @@ def _extract_template_section(template_path: Path, section: str) -> str:
                 break
             collected.append(line)
     return "\n".join(collected)
+
+
+def _extract_build_test_hints(debian_rules: str, build_log: str) -> dict:
+    """Extract concrete build-time test signals from debian/rules and build log.
+
+    Surfaces the markers an MIR reviewer would look for when judging CB-2:
+    - rules wiring: dh_auto_test / override_dh_auto_test, DEB_BUILD_OPTIONS
+      nocheck, and explicit test runners (make check/test, pytest, meson test,
+      ctest, go test, cargo test)
+    - whether test failures are ignored (e.g. ``... || true`` around tests)
+    - build-log evidence that tests actually ran (test/PASS/FAIL markers)
+
+    The result is advisory evidence for the CB-2 LLM check, not a verdict.
+    """
+    rules_lower = (debian_rules or "").lower()
+    log_lower = (build_log or "").lower()
+
+    runner_markers = [
+        "dh_auto_test",
+        "override_dh_auto_test",
+        "make check",
+        "make test",
+        "pytest",
+        "meson test",
+        "ctest",
+        "go test",
+        "cargo test",
+    ]
+    rules_runners = [marker for marker in runner_markers if marker in rules_lower]
+
+    failures_possibly_ignored = bool(
+        re.search(r"(dh_auto_test|make\s+(check|test)|pytest|ctest)[^\n]*\|\|\s*true", rules_lower)
+    )
+
+    log_runs_tests = any(
+        marker in log_lower
+        for marker in ("running tests", "make check", "make test", "test session starts", "ctest")
+    )
+    log_pass_fail = bool(re.search(r"\b(\d+\s+passed|tests? passed|pass|fail(ed)?)\b", log_lower))
+
+    return {
+        "rules_test_runners": rules_runners,
+        "rules_has_test_wiring": bool(rules_runners),
+        "nocheck_in_rules": "nocheck" in rules_lower,
+        "failures_possibly_ignored": failures_possibly_ignored,
+        "build_log_runs_tests": log_runs_tests,
+        "build_log_has_pass_fail": log_pass_fail,
+    }
 
 
 def _extract_build_hints(build_log: str) -> dict:

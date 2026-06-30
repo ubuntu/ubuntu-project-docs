@@ -2699,3 +2699,32 @@ def test_single_language_gate_still_emits_message():
 
     assert finding.status == "ok"
     assert finding.message == "not a go package, no extra constraints to consider in that regard"
+
+
+def test_extract_build_test_hints_detects_wiring():
+    hints = checks.llm_eval._extract_build_test_hints(
+        "override_dh_auto_test:\n\tmake check\n",
+        "Running tests\n5 passed\n",
+    )
+    assert hints["rules_has_test_wiring"] is True
+    assert "make check" in hints["rules_test_runners"]
+    assert hints["build_log_runs_tests"] is True
+    assert hints["build_log_has_pass_fail"] is True
+    assert hints["failures_possibly_ignored"] is False
+
+
+def test_extract_build_test_hints_no_tests():
+    hints = checks.llm_eval._extract_build_test_hints(
+        "%:\n\tdh $@\n",
+        "dh_auto_build\n",
+    )
+    assert hints["rules_has_test_wiring"] is False
+    assert hints["rules_test_runners"] == []
+
+
+def test_extract_build_test_hints_failures_ignored():
+    hints = checks.llm_eval._extract_build_test_hints(
+        "override_dh_auto_test:\n\tmake check || true\n",
+        "",
+    )
+    assert hints["failures_possibly_ignored"] is True

@@ -1940,7 +1940,7 @@ checks:
   adapters_required:
   - sbuild
   - packaging-source
-  ai_policy: 'Build log alone is often insufficient. Inspect debian/rules wiring to verify test failures gate the build failure. AI assesses whether wiring is correct; determine trivial vs non-trivial quality of the test suite.
+  ai_policy: 'Determine whether a build-time test suite exists and whether its failure fails the build. Use the build_test_hints evidence (extracted from debian/rules and the build log: dh_auto_test wiring, override_dh_auto_test, DEB_BUILD_OPTIONS nocheck, make check/test, pytest/meson test/ctest invocations, and test pass/fail lines in the build log) together with the build log itself. Outcomes: (1) a test suite runs at build time and failures gate the build -> ok; (2) the suite exists but failures are ignored (e.g. test errors swallowed) -> required, ask to wire failures to fail the build; (3) no build-time test suite at all -> required, BUT first check the reporter MIR content: if the reporter explained the absence (e.g. upstream provides no test suite), include that explanation in the message so the reviewer can decide whether to accept it rather than presenting it as an unexplained gap; (4) genuinely cannot tell from the evidence -> low confidence so it is left for the reviewer to decide. Do not emit the raw template TODO verbatim; produce a decisive characterisation.
 
     '
   human_override: true
