@@ -946,3 +946,43 @@ def test_release_cadence_deduplicates_versions():
         {"version": "1.0-1", "date_published": "2024-01-05 00:00:00+00:00"},
     ]
     assert summarise_release_cadence(history)["descriptor"] == "unknown"
+
+
+# ---------------------------------------------------------------------------
+# ubuntu-upload-permission parsing
+# ---------------------------------------------------------------------------
+
+
+def test_parse_upload_permission_motu_only():
+    from evidence.container_adapters import _parse_upload_permission
+
+    output = (
+        "All upload permissions for lua5.5:\n"
+        "\n"
+        "Component (universe)\n"
+        "====================\n"
+        "* MOTU (motu) [team]\n"
+        "\n"
+        "You can upload lua5.5 to stonking.\n"
+    )
+    components, teams, individuals = _parse_upload_permission(output)
+    assert components == ["universe"]
+    assert teams == [{"name": "MOTU (motu)", "component": "universe"}]
+    assert individuals == []
+
+
+def test_parse_upload_permission_individual_uploader():
+    from evidence.container_adapters import _parse_upload_permission
+
+    output = (
+        "All upload permissions for foo:\n"
+        "\n"
+        "Component (main)\n"
+        "================\n"
+        "* Jane Developer (jane)\n"
+        "* Some Team (some-team) [team]\n"
+    )
+    components, teams, individuals = _parse_upload_permission(output)
+    assert components == ["main"]
+    assert {"name": "Jane Developer (jane)", "component": "main"} in individuals
+    assert {"name": "Some Team (some-team)", "component": "main"} in teams

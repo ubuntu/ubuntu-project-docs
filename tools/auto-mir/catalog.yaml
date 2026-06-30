@@ -783,6 +783,18 @@ evidence_adapters:
     mismatch_report: str
   fallback: emit_todo_continue
   notes: Fetch and run original ubuntu-archive-tools script; no local reimplementation
+- id: ubuntu-upload-permission
+  type: local_exec
+  description: Run ubuntu-upload-permission --list-uploaders to determine who may upload the package
+  inputs:
+  - source_package
+  output_contract:
+    raw_output: str
+    components: list
+    team_uploaders: list
+    individual_uploaders: list
+  fallback: emit_todo_continue
+  notes: From ubuntu-dev-tools; reveals whether only the MOTU team (universe) can upload (typical sync-from-Debian case) versus specific individuals/teams
 - id: autopkgtest-db
   type: web
   description: Query autopkgtest.ubuntu.com/static/autopkgtest.db for test results
@@ -2322,7 +2334,9 @@ checks:
   adapters_required:
   - lp-package-api
   - lp-team-membership-api
-  ai_policy: 'Fetch Launchpad upload history and identify uploaders. Check MOTU team membership via LP API. Assess whether current maintainers are MOTU-only or have been consulted. Output EV->AI suggested rating; reviewer makes final call.
+  adapters_optional:
+  - ubuntu-upload-permission
+  ai_policy: 'Decide whether promoting this package to main would remove a current maintainer''s ability to upload it. Use ubuntu-upload-permission (components, team_uploaders, individual_uploaders) to see who may currently upload: a package uploadable only by the MOTU team in universe is the typical sync-from-Debian case. Cross-reference lp-package-api upload_history and uploaders: if the package is generally synced from Debian (versions without an ubuntuN delta), has no regular Ubuntu uploader, or its Ubuntu uploads come from people who are not MOTU-only (e.g. core-dev or specific package uploaders), then promotion does not harm MOTU maintainers (severity ok). Only flag (recommended/required) when a person who regularly uploads Ubuntu-specific changes is a MOTU member who would lose upload access after promotion. Do NOT request more data: decide from the provided evidence; core developers can always upload and are not listed by ubuntu-upload-permission.
 
     '
   human_override: true

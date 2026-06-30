@@ -36,6 +36,7 @@ class AdapterID(StrEnum):
     LINTIAN = "lintian"
     DEB_METADATA = "deb-metadata"
     CVELIST_SCAN = "cvelist-scan"
+    UBUNTU_UPLOAD_PERMISSION = "ubuntu-upload-permission"
 
 
 class CheckID(StrEnum):

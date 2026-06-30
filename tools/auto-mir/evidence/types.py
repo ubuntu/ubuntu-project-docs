@@ -379,6 +379,16 @@ class ComponentMismatchesResult(TypedDict):
     promotion_candidates: list[str]
 
 
+class UbuntuUploadPermissionResult(TypedDict):
+    """Return structure for ubuntu-upload-permission adapter."""
+
+    status: str
+    raw_output: str
+    components: list[str]
+    team_uploaders: list[dict]
+    individual_uploaders: list[dict]
+
+
 # ---------------------------------------------------------------------------
 # In-container adapters — sbuild
 # ---------------------------------------------------------------------------
