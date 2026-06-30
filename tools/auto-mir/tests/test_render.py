@@ -481,3 +481,46 @@ def test_summary_aggregate_todo_finding_surfaces_in_consolidated_block():
     # The subscriber TODO belongs in the consolidated Recommended TODOs block.
     recommended_idx = draft.index("Recommended TODOs:")
     assert "team bug subscriber" in draft[recommended_idx:]
+
+
+# ---------------------------------------------------------------------------
+# Problems status sentinel
+# ---------------------------------------------------------------------------
+
+
+def test_clean_section_states_problems_none():
+    """A non-summary section with no problems must explicitly say 'Problems: none'."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1234567"
+    ctx.series = "noble"
+    ctx.evidence = {"adapters": {}}
+    ctx.findings = [_ok_finding(fid="DEP-1", section="Dependencies")]
+
+    draft = _build_review_draft(ctx)
+
+    assert "Problems: none" in draft
+    # The 'none' sentinel must be preceded by a blank line for visual separation.
+    lines = draft.splitlines()
+    idx = lines.index("Problems: none")
+    assert lines[idx - 1] == ""
+
+
+def test_section_with_problem_has_no_none_sentinel():
+    """A section that has a real problem shows the Problems list, not 'none'."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1234567"
+    ctx.series = "noble"
+    ctx.evidence = {"adapters": {}}
+    ctx.findings = [_high_conf_failure(fid="SEC-7", section="Security")]
+
+    draft = _build_review_draft(ctx)
+
+    # Security section should list the problem and not claim 'Problems: none'.
+    sec_idx = draft.index("[Security]")
+    security_block = draft[sec_idx:]
+    next_section = security_block.find("\n[", 1)
+    security_only = security_block if next_section == -1 else security_block[:next_section]
+    assert "webkit dependency found" in security_only
+    assert "Problems: none" not in security_only

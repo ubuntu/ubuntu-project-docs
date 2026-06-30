@@ -254,14 +254,6 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
                 lines.append(f"- {msg}")
                 seen_msgs.add(msg)
 
-    # Problems sub-block — confirmed findings, shown as statements not TODOs
-    if problems:
-        lines.append("Problems:")
-        for finding in problems:
-            msg = (finding.message or "").strip()
-            if msg:
-                lines.append(f"- {msg}")
-
     # Left to decide sub-block
     if undecided:
         lines.append("Left to decide:")
@@ -273,8 +265,21 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
                 )
             for todo_line in _todo_lines_for_finding(finding):
                 lines.append(todo_line)
-    elif not problems:
+    else:
         lines.append("Left to decide: None")
+
+    # Problems sub-block — always rendered last, separated by a blank line, so a
+    # clean section explicitly states "Problems: none" rather than silently
+    # omitting any problem status.
+    lines.append("")
+    if problems:
+        lines.append("Problems:")
+        for finding in problems:
+            msg = (finding.message or "").strip()
+            if msg:
+                lines.append(f"- {msg}")
+    else:
+        lines.append("Problems: none")
 
     return lines
 
