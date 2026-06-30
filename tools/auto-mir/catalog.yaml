@@ -1706,6 +1706,14 @@ checks:
   - sbuild
   ai_policy: none
   blocker_class: none
+  messages:
+    unknown_message: Could not inspect packaging (packaging-source failed)
+    unknown_todo: 'TODO: - Check for symbols file'
+    ok_lang_message: symbols tracking not applicable for this language/runtime
+    ok_message: symbols tracking is in place
+    ok_no_shared_message: symbols tracking not applicable for this kind of code
+    not_ok_message: Shared library is shipped but no debian/*.symbols file was found
+    not_ok_todo: 'TODO: - symbols tracking isn''t in place; add a debian/*.symbols file (or, for C++ libraries, document why tracking is impractical)'
   notes: 'Language-aware N/A handling required. Some languages (Python, Go, Rust) do not have symbols files. Internal-only .so files with no external headers are also N/A. Reviewer keeps only the matching TODO-A/B/C/D option and may extend with rationale.
 
     '
@@ -1737,6 +1745,13 @@ checks:
   - packaging-source
   ai_policy: none
   blocker_class: none
+  messages:
+    unknown_message: Could not inspect packaging (packaging-source failed)
+    unknown_todo: 'TODO: - Check for debian/watch file'
+    ok_message: debian/watch is present and looks ok
+    ok_native_message: debian/watch is not present but also not needed (native package)
+    not_ok_message: Non-native package but debian/watch not found
+    not_ok_todo: 'TODO: - Add debian/watch to track upstream releases'
   options:
   - id: PRF-3-A
     todo_ref: TODO-A
@@ -1791,6 +1806,13 @@ checks:
   messages:
     unknown_message: Could not determine package version information
     unknown_todo: 'TODO: - Verify packaged version against latest upstream release'
+    ok_message: the current release is packaged
+    very_behind_message: 'Package is very behind upstream: {archive} vs {upstream}'
+    somewhat_behind_message: 'Package is somewhat behind upstream: {archive} vs {upstream}'
+    behind_todo: 'TODO: - Consider updating to a more recent upstream release'
+    version_lag_message: 'Package version lag detected: {archive} vs {upstream}'
+    unknown_lag_message: Could not determine version lag
+    version_lag_todo: 'TODO: - Verify upstream version availability'
 - id: PRF-7
   section: Packaging red flags
   title: Promoting does not harm MOTU maintainers
@@ -1819,6 +1841,15 @@ checks:
   - lintian
   ai_policy: none
   blocker_class: soft
+  messages:
+    unknown_message: Could not run lintian (lintian adapter failed)
+    not_ok_errors_message: 'Lintian errors detected: {errors}'
+    not_ok_errors_todo: 'TODO: - no excessive lintian warnings'
+    not_ok_many_message: 'Lintian found {count} warnings - review and fix if possible'
+    not_ok_many_todo: 'TODO: - Review and fix lintian warnings'
+    minor_message: 'Lintian found {count} minor warnings - acceptable'
+    minor_todo: 'TODO: - {count} minor lintian warnings documented'
+    ok_message: no excessive lintian warnings
 - id: PRF-9
   section: Packaging red flags
   title: debian/rules cleanliness

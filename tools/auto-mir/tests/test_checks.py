@@ -208,13 +208,29 @@ class _Ctx:
                 {
                     "id": "PRF-6",
                     "messages": {
-                        "ok_message": "the current release is packaged",
                         "unknown_message": "Could not determine package version information",
                         "unknown_todo": "TODO: - Verify packaged version against latest upstream release",
+                        "ok_message": "the current release is packaged",
+                        "very_behind_message": "Package is very behind upstream: {archive} vs {upstream}",
+                        "somewhat_behind_message": "Package is somewhat behind upstream: {archive} vs {upstream}",
+                        "behind_todo": "TODO: - Consider updating to a more recent upstream release",
+                        "version_lag_message": "Package version lag detected: {archive} vs {upstream}",
+                        "unknown_lag_message": "Could not determine version lag",
+                        "version_lag_todo": "TODO: - Verify upstream version availability",
                     },
                 },
                 {
                     "id": "PRF-8",
+                    "messages": {
+                        "unknown_message": "Could not run lintian (lintian adapter failed)",
+                        "not_ok_errors_message": "Lintian errors detected: {errors}",
+                        "not_ok_errors_todo": "TODO: - no excessive lintian warnings",
+                        "not_ok_many_message": "Lintian found {count} warnings - review and fix if possible",
+                        "not_ok_many_todo": "TODO: - Review and fix lintian warnings",
+                        "minor_message": "Lintian found {count} minor warnings - acceptable",
+                        "minor_todo": "TODO: - {count} minor lintian warnings documented",
+                        "ok_message": "no excessive lintian warnings",
+                    },
                 },
                 {
                     "id": "URF-1",
@@ -260,15 +276,24 @@ class _Ctx:
                 {
                     "id": "PRF-2",
                     "messages": {
-                        "ok_message": "symbols tracking is in place",
+                        "unknown_message": "Could not inspect packaging (packaging-source failed)",
                         "unknown_todo": "TODO: - Check for symbols file",
+                        "ok_lang_message": "symbols tracking not applicable for this language/runtime",
+                        "ok_message": "symbols tracking is in place",
+                        "ok_no_shared_message": "symbols tracking not applicable for this kind of code",
+                        "not_ok_message": "Shared library is shipped but no debian/*.symbols file was found",
+                        "not_ok_todo": "TODO: - symbols tracking isn't in place; add a debian/*.symbols file (or, for C++ libraries, document why tracking is impractical)",
                     },
                 },
                 {
                     "id": "PRF-3",
                     "messages": {
-                        "ok_message": "debian/watch is present and looks ok",
+                        "unknown_message": "Could not inspect packaging (packaging-source failed)",
                         "unknown_todo": "TODO: - Check for debian/watch file",
+                        "ok_message": "debian/watch is present and looks ok",
+                        "ok_native_message": "debian/watch is not present but also not needed (native package)",
+                        "not_ok_message": "Non-native package but debian/watch not found",
+                        "not_ok_todo": "TODO: - Add debian/watch to track upstream releases",
                     },
                 },
                 {
@@ -394,13 +419,6 @@ class _Ctx:
                     "messages": {
                         "ok_message": "rust package using dh_cargo",
                         "unknown_todo": "TODO: - Check for dh_cargo",
-                    },
-                },
-                {
-                    "id": "PRF-8",
-                    "messages": {
-                        "ok_message": "no excessive lintian warnings",
-                        "unknown_todo": "TODO: - Check lintian output",
                     },
                 },
             ]

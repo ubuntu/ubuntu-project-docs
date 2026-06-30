@@ -922,7 +922,7 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
 
     if packaging.get("status") != "ok":
         finding.fail(
-            "Could not inspect packaging (packaging-source failed)",
+            render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
             severity="recommended",
             confidence="low",
@@ -937,7 +937,7 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
     # Languages that do not use C-style ELF symbol files at all.
     if _is_python_package(packaging) or _is_go_package(packaging) or _is_rust_package(packaging):
         finding.succeed(
-            "symbols tracking not applicable for this language/runtime",
+            render_check_message(check, "ok_lang_message"),
             confidence="high",
         )
         finding.evidence_refs = ["packaging-source:debian_control"]
@@ -950,7 +950,7 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
     )
     if has_symbols_file:
         finding.succeed(
-            "symbols tracking is in place",
+            render_check_message(check, "ok_message"),
             confidence="high",
         )
         finding.evidence_refs = ["packaging-source:file_listing"]
@@ -964,7 +964,7 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
 
     if not ships_shared_library:
         finding.succeed(
-            "symbols tracking not applicable for this kind of code",
+            render_check_message(check, "ok_no_shared_message"),
             confidence="high",
         )
         finding.evidence_refs = ["packaging-source:debian_control"]
@@ -973,9 +973,8 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
     # Ships a shared library but has no symbols file. C++ ABI tracking is hard,
     # so this is a recommendation rather than a hard requirement.
     finding.fail(
-        "Shared library is shipped but no debian/*.symbols file was found",
-        "TODO: - symbols tracking isn't in place; add a debian/*.symbols file "
-        "(or, for C++ libraries, document why tracking is impractical)",
+        render_check_message(check, "not_ok_message"),
+        render_check_message(check, "not_ok_todo"),
         severity="recommended",
         confidence="medium",
     )
@@ -992,7 +991,7 @@ def _check_prf_3(ctx, finding: Finding) -> Finding:
 
     if packaging.get("status") != "ok":
         finding.fail(
-            "Could not inspect packaging (packaging-source failed)",
+            render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
             severity="recommended",
             confidence="low",
@@ -1012,7 +1011,7 @@ def _check_prf_3(ctx, finding: Finding) -> Finding:
 
     if has_watch_file:
         finding.succeed(
-            "debian/watch is present and looks ok",
+            render_check_message(check, "ok_message"),
             confidence="high",
         )
         finding.evidence_refs = ["packaging-source:file_listing"]
@@ -1020,7 +1019,7 @@ def _check_prf_3(ctx, finding: Finding) -> Finding:
 
     if is_native:
         finding.succeed(
-            "debian/watch is not present but also not needed (native package)",
+            render_check_message(check, "ok_native_message"),
             confidence="high",
         )
         finding.evidence_refs = ["packaging-source:debian_control"]
@@ -1028,12 +1027,11 @@ def _check_prf_3(ctx, finding: Finding) -> Finding:
 
     # Non-native package without watch file
     finding.fail(
-        "Non-native package but debian/watch not found",
-        "debian/watch is present and looks ok",
+        render_check_message(check, "not_ok_message"),
+        render_check_message(check, "not_ok_todo"),
         severity="recommended",
         confidence="medium",
     )
-    finding.todo = "TODO: - Add debian/watch to track upstream releases"
     finding.evidence_refs = ["packaging-source:file_listing"]
     return finding
 
@@ -1794,8 +1792,8 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
     if errors:
         error_str = ", ".join(errors[:3])
         finding.fail(
-            f"Lintian errors detected: {error_str}",
-            "no excessive lintian warnings",
+            render_check_message(check, "not_ok_errors_message", errors=error_str),
+            render_check_message(check, "not_ok_errors_todo"),
             severity="required",
             confidence="high",
         )
@@ -1805,8 +1803,8 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
     # Check for excessive warnings (more than a few)
     if len(warnings) > 5:
         finding.fail(
-            f"Lintian found {len(warnings)} warnings - review and fix if possible",
-            "TODO: - Review and fix lintian warnings",
+            render_check_message(check, "not_ok_many_message", count=len(warnings)),
+            render_check_message(check, "not_ok_many_todo"),
             severity="recommended",
             confidence="medium",
         )
@@ -1816,8 +1814,8 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
     # Some warnings are OK, but document them
     if warnings:
         finding.fail(
-            f"Lintian found {len(warnings)} minor warnings - acceptable",
-            f"TODO: - {len(warnings)} minor lintian warnings documented",
+            render_check_message(check, "minor_message", count=len(warnings)),
+            render_check_message(check, "minor_todo", count=len(warnings)),
             severity="ok",
             confidence="high",
         )
@@ -1826,7 +1824,7 @@ def _check_prf_8(ctx, finding: Finding) -> Finding:
 
     # No warnings/errors
     finding.succeed(
-        "no excessive lintian warnings",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = ["lintian:warnings"]
@@ -1940,11 +1938,13 @@ def _check_prf_6(ctx, finding: Finding) -> Finding:
     is_compatible, reason = _versions_compatible(archive_version, upstream_version)
 
     if is_compatible:
-        finding.succeed("the current release is packaged")
+        finding.succeed(render_check_message(check, "ok_message"))
     else:
         # Archive is behind - determine if "somewhat behind" or "very old"
         archive_parts = _parse_version_tuple(archive_version)
         upstream_parts = _parse_version_tuple(upstream_version)
+        archive_norm = _normalize_upstream_version(archive_version)
+        upstream_norm = _normalize_upstream_version(upstream_version)
 
         if archive_parts and upstream_parts:
             # Compare major versions
@@ -1958,37 +1958,43 @@ def _check_prf_6(ctx, finding: Finding) -> Finding:
                 if major_gap >= 2:
                     # Very old
                     finding.fail(
-                        f"Package is very behind upstream: "
-                        f"{_normalize_upstream_version(archive_version)} vs "
-                        f"{_normalize_upstream_version(upstream_version)}",
-                        "TODO: - Consider updating to a more recent upstream release",
+                        render_check_message(
+                            check,
+                            "very_behind_message",
+                            archive=archive_norm,
+                            upstream=upstream_norm,
+                        ),
+                        render_check_message(check, "behind_todo"),
                         severity="required",
                         confidence="high",
                     )
                 else:
                     # Somewhat behind (1 major version or minor version differences)
                     finding.fail(
-                        f"Package is somewhat behind upstream: "
-                        f"{_normalize_upstream_version(archive_version)} vs "
-                        f"{_normalize_upstream_version(upstream_version)}",
-                        "TODO: - Consider updating to a more recent upstream release",
+                        render_check_message(
+                            check,
+                            "somewhat_behind_message",
+                            archive=archive_norm,
+                            upstream=upstream_norm,
+                        ),
+                        render_check_message(check, "behind_todo"),
                         severity="recommended",
                         confidence="high",
                     )
             else:
                 # Can't determine major - mark as recommended
                 finding.fail(
-                    f"Package version lag detected: "
-                    f"{_normalize_upstream_version(archive_version)} vs "
-                    f"{_normalize_upstream_version(upstream_version)}",
-                    "TODO: - Verify upstream version availability",
+                    render_check_message(
+                        check, "version_lag_message", archive=archive_norm, upstream=upstream_norm
+                    ),
+                    render_check_message(check, "version_lag_todo"),
                     severity="recommended",
                     confidence="medium",
                 )
         else:
             finding.fail(
-                "Could not determine version lag",
-                "TODO: - Verify upstream version availability",
+                render_check_message(check, "unknown_lag_message"),
+                render_check_message(check, "version_lag_todo"),
                 severity="recommended",
                 confidence="medium",
             )
