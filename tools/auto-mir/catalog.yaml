@@ -777,81 +777,83 @@ evidence_adapters:
     historical_cves: list
   fallback: emit_todo_continue
 checks:
+# ==========================================================================
+# Summary
+# ==========================================================================
 - id: SUM-1
   section: Summary
   title: Source package identified
-  todo_refs:
-  - 'TODO: Review for Source Package: TBDSRC'
   mode: deterministic
+  blocker_class: hard
   adapters_required:
   - lp-bug-api
-  ai_policy: none
-  blocker_class: hard
   messages:
     ok_message: 'Review for Source Package: {source_package}'
     not_ok_message: Source package could not be determined
     not_ok_todo: 'TODO: Clarify which source package this review is for'
+  todo_refs:
+  - 'TODO: Review for Source Package: TBDSRC'
+  ai_policy: none
 - id: SUM-2
   section: Summary
   title: Reporter MIR content present
-  todo_refs:
-  - prerequisite gate before all other checks
   mode: deterministic
+  blocker_class: hard
   adapters_required:
   - lp-bug-api
-  ai_policy: none
-  blocker_class: hard
   messages:
     ok_message: Reporter MIR content found and used as context.
     nack_message: Reporter MIR template content not found (hard stop)
     nack_todo: 'TODO: - Reporter must post their completed MIR template'
+  todo_refs:
+  - prerequisite gate before all other checks
+  ai_policy: none
 - id: SUM-3
   section: Summary
   title: Binary packages to promote
-  todo_refs:
-  - 'TODO: List of specific binary packages to be promoted to main: TBD'
-  - 'TODO: Specific binary packages built, but NOT to be promoted to main: TBD'
   mode: ev_to_ai
+  blocker_class: none
   adapters_required:
   - component-mismatches
   - packaging-source
   adapters_optional:
   - lp-package-api
-  ai_policy: Interpret component-mismatch output to identify promotion candidates; summarise.
-  blocker_class: none
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: List of specific binary packages to be promoted to main: TBD'
+  - 'TODO: Specific binary packages built, but NOT to be promoted to main: TBD'
+  ai_policy: Interpret component-mismatch output to identify promotion candidates; summarise.
 - id: SUM-4
   section: Summary
   title: Team bug subscriber present
-  todo_refs:
-  - 'TODO: - The package should get a team bug subscriber before being promoted'
   mode: deterministic
+  blocker_class: none
   aggregate_todo: true
   adapters_required:
   - team-mapping
-  ai_policy: none
-  blocker_class: none
   messages:
     unknown_message: Could not check team subscription (team-mapping adapter failed)
     unknown_todo: 'TODO: - Manually verify package has a team subscriber'
     ok_message: 'Package has team subscriber(s): {subscribed_teams}'
     not_ok_message: Package does not have a team subscriber
     not_ok_todo: 'TODO: - The package should get a team bug subscriber on this bug before being promoted'
+  todo_refs:
+  - 'TODO: - The package should get a team bug subscriber before being promoted'
+  ai_policy: none
 - id: SUM-5
   section: Summary
   title: Overall ACK/NACK/ACK-with-conditions
+  mode: ai
+  blocker_class: none
+  synthesis: true
+  adapters_required: []
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO-A: MIR team ACK'
   - 'TODO-B: MIR team NACK'
   - 'TODO-C: MIR team ACK under the constraint to resolve...'
-  mode: ai
-  synthesis: true
-  adapters_required: []
-  ai_policy: 'Synthesise all section findings. If zero required findings and zero hard blockers: suggest ACK. If required findings present but package is otherwise sound: suggest ACK-with-conditions listing required TODOs. If fundamental problems exist: suggest NACK. Always mark as requiring human confirmation.'
-  blocker_class: none
-  messages:
-    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: SUM-5-A
     todo_ref: 'TODO-A: MIR team ACK'
@@ -862,22 +864,22 @@ checks:
   - id: SUM-5-C
     todo_ref: 'TODO-C: MIR team ACK under the constraint...'
     predicate: required findings present but no NACK-eligible finding
+  ai_policy: 'Synthesise all section findings. If zero required findings and zero hard blockers: suggest ACK. If required findings present but package is otherwise sound: suggest ACK-with-conditions listing required TODOs. If fundamental problems exist: suggest NACK. Always mark as requiring human confirmation.'
 - id: SUM-6
   section: Summary
   title: Security review needed
-  todo_refs:
-  - 'TODO-A: This does need a security review, so I''ll assign ubuntu-security'
-  - 'TODO-B: This does not need a security review'
   mode: ev_to_ai
+  blocker_class: none
   synthesis: true
   adapters_required:
   - ubuntu-cve-tracker
   - nvd-enrich
   - packaging-source
-  ai_policy: 'Evaluate security section findings. If any security trigger fires (SEC-1-CVE-SYNTH, SEC-11-ATTESTATION) or package is security-sensitive (parses untrusted data, exposes endpoints, handles auth/crypto), suggest security review needed.'
-  blocker_class: none
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO-A: This does need a security review, so I''ll assign ubuntu-security'
+  - 'TODO-B: This does not need a security review'
   options:
   - id: SUM-6-A
     todo_ref: 'TODO-A: This does need a security review'
@@ -885,90 +887,94 @@ checks:
   - id: SUM-6-B
     todo_ref: 'TODO-B: This does not need a security review'
     predicate: no security triggers and no security-sensitive characteristics
+  ai_policy: 'Evaluate security section findings. If any security trigger fires (SEC-1-CVE-SYNTH, SEC-11-ATTESTATION) or package is security-sensitive (parses untrusted data, exposes endpoints, handles auth/crypto), suggest security review needed.'
+# ==========================================================================
+# Rationale, Duplication and Ownership
+# ==========================================================================
 - id: RDO-1
   section: Rationale, Duplication and Ownership
   title: No duplicate functionality in main
-  todo_refs:
-  - 'TODO: There is no other package in main providing the same functionality.'
   mode: ev_to_ai
+  blocker_class: soft
   adapters_required:
   - dep-analysis
   - lp-package-api
-  ai_policy: 'Search main for packages with overlapping functionality using apt list/cache data and libhunt or similar. AI should reason about functional overlap, not just name similarity. Produce a tentative finding; reviewer must confirm.'
-  blocker_class: soft
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: There is no other package in main providing the same functionality.'
+  ai_policy: 'Search main for packages with overlapping functionality using apt list/cache data and libhunt or similar. AI should reason about functional overlap, not just name similarity. Produce a tentative finding; reviewer must confirm.'
 - id: RDO-2
   section: Rationale, Duplication and Ownership
   title: Owning team committed
-  todo_refs:
-  - 'TODO: A team is committed to own long term maintenance of this package.'
   mode: ev_to_ai
+  blocker_class: soft
   adapters_required:
   - lp-bug-api
   - lp-team-membership-api
-  ai_policy: 'Check if owning team is explicitly named and confirmed in bug comments. If reporter submitted on behalf of another team, verify that team acknowledged ownership in a comment. Surface evidence; AI suggests verdict; reviewer confirms.'
-  blocker_class: soft
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: A team is committed to own long term maintenance of this package.'
+  ai_policy: 'Check if owning team is explicitly named and confirmed in bug comments. If reporter submitted on behalf of another team, verify that team acknowledged ownership in a comment. Surface evidence; AI suggests verdict; reviewer confirms.'
 - id: RDO-3
   section: Rationale, Duplication and Ownership
   title: Rationale valid and useful for Ubuntu
-  todo_refs:
-  - 'TODO: The rationale given in the report seems valid and useful for Ubuntu'
   mode: ev_to_ai
+  blocker_class: soft
   adapters_required:
   - lp-bug-api
   adapters_optional:
   - dep-analysis
-  ai_policy: "Analyse the reporter's stated rationale. Check for: clear Ubuntu user benefit, whether the request is based on correct assumptions about what needs to be in main, and whether reverse-dep analysis supports the stated need. Produce a tentative verdict suggestion. Always require human confirmation \u2014 this is a judgment call."
-  blocker_class: soft
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: The rationale given in the report seems valid and useful for Ubuntu'
+  ai_policy: "Analyse the reporter's stated rationale. Check for: clear Ubuntu user benefit, whether the request is based on correct assumptions about what needs to be in main, and whether reverse-dep analysis supports the stated need. Produce a tentative verdict suggestion. Always require human confirmation \u2014 this is a judgment call."
+# ==========================================================================
+# Dependencies
+# ==========================================================================
 - id: DEP-1
   section: Dependencies
   title: No unresolved runtime dependencies needing MIR
-  todo_refs:
-  - 'TODO: - no other runtime Dependencies to MIR due to this'
   mode: deterministic
+  blocker_class: hard
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: none
-  blocker_class: hard
-  notes: 'Do not use check-mir (outdated). Use dpkg-query to extract runtime deps from installed binaries, then apt policy to verify component in target release. Only runtime deps matter unless language/headers embed active code in binaries.'
   messages:
     unknown_adapter_message: Could not analyse runtime dependencies
     unknown_adapter_todo: 'TODO: - Verify no runtime dependencies in universe need MIR'
     not_ok_message: 'Runtime dependencies from other source packages outside main: {deps}'
     not_ok_todo: 'TODO: - File MIR for runtime dependencies from other source packages: {deps}'
     ok_message: no runtime dependencies outside main needing MIR
+  todo_refs:
+  - 'TODO: - no other runtime Dependencies to MIR due to this'
+  ai_policy: none
+  notes: 'Do not use check-mir (outdated). Use dpkg-query to extract runtime deps from installed binaries, then apt policy to verify component in target release. Only runtime deps matter unless language/headers embed active code in binaries.'
 - id: DEP-2
   section: Dependencies
   title: No build-time deps with active code in final binaries
-  todo_refs:
-  - 'TODO: - no other build-time Dependencies with active code in the final binaries to MIR due to this'
   mode: ev_to_ai
+  blocker_class: hard
   adapters_required:
   - dep-analysis
   - sbuild
   - packaging-source
-  ai_policy: 'Identify language/toolchain patterns that embed build deps into final binaries (e.g. Go static builds, C header-only libraries with active code, Rust vendoring). Check Built-Using and Static-Built-Using. AI assesses risk; reviewer confirms.'
-  blocker_class: hard
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - no other build-time Dependencies with active code in the final binaries to MIR due to this'
+  ai_policy: 'Identify language/toolchain patterns that embed build deps into final binaries (e.g. Go static builds, C header-only libraries with active code, Rust vendoring). Check Built-Using and Static-Built-Using. AI assesses risk; reviewer confirms.'
 - id: DEP-3
   section: Dependencies
   title: No -dev/-debug/-doc packages needing exclusion
-  todo_refs:
-  - 'TODO: - no -dev/-debug/-doc packages that need exclusion'
   mode: deterministic
+  blocker_class: none
   adapters_required:
   - dep-analysis
   - component-mismatches
   - packaging-source
-  ai_policy: none
-  blocker_class: none
   messages:
     unknown_packaging_message: Could not analyse binary packages
     unknown_packaging_todo: 'TODO: - Check whether -dev/-debug/-doc packages need exclusion'
@@ -978,30 +984,45 @@ checks:
     not_ok_offending_message: 'Auto-included binaries ({auto_included}) pull dependencies outside main or with unknown component: {offending_deps}'
     not_ok_offending_todo: 'TODO: - Consider adding extra-excludes for auto-included binaries with offending dependencies ({details}); otherwise MIR may also be needed for: {offending_deps}'
     ok_safe_message: Auto-included binaries ({auto_included}) will be auto-included, and have no dependencies outside main
+  todo_refs:
+  - 'TODO: - no -dev/-debug/-doc packages that need exclusion'
+  ai_policy: none
   notes: 'Not a hard blocker by itself. Only matters if -dev/-debug/-doc packages would create additional component mismatches. If so, recommend adding extra-excludes.'
 - id: DEP-4
   section: Dependencies
   title: Main dependencies not only superficially tested
-  todo_refs:
-  - 'TODO: - No dependencies in main that are only superficially tested requiring more tests now.'
   mode: ev_to_ai
+  blocker_class: none
   adapters_required:
   - dep-analysis
   - autopkgtest-db
-  ai_policy: 'For each runtime dependency already in main, check autopkgtest.db for test coverage and results. Focus on the most intensively-used and important dependencies, not every transitive dep. AI should assess whether existing tests would catch regressions introduced by this package. Weight importance by dep usage, not by counting deps. Result is a suggested assessment; human reviewer makes final call.'
-  blocker_class: none
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - No dependencies in main that are only superficially tested requiring more tests now.'
+  ai_policy: 'For each runtime dependency already in main, check autopkgtest.db for test coverage and results. Focus on the most intensively-used and important dependencies, not every transitive dep. AI should assess whether existing tests would catch regressions introduced by this package. Weight importance by dep usage, not by counting deps. Result is a suggested assessment; human reviewer makes final call.'
+# ==========================================================================
+# Embedded sources and static linking
+# ==========================================================================
 - id: ESL-1
   section: Embedded sources and static linking
   title: No embedded source present
-  todo_refs:
-  - 'TODO: - no embedded source present'
   mode: ev_to_ai
+  language_gate: go|rust
+  blocker_class: hard
   adapters_required:
   - packaging-source
   - sbuild
-  language_gate: go|rust
+  messages:
+    unknown_message: Could not collect packaging source and sbuild output
+    unknown_todo: 'TODO: - Check for embedded source (evidence collection failed)'
+    not_ok_message: 'Embedded source present and used in build: {embedded_dirs}'
+    not_ok_todo: 'TODO: - Embedded source found and used in build — either remove and use archive packages, or get security team sign-off. Dirs: {embedded_dirs}'
+    ok_built_using_message: 'Built-Using entries present but no embedded source was detected in the package source'
+    ok_message: no embedded source present or not used in build
+    llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - no embedded source present'
   ai_policy: |
     Evaluate embedded source presence and usage in three dimensions:
 
@@ -1022,27 +1043,14 @@ checks:
 
     If debian/control contains Built-Using or Static-Built-Using entries, note this context but do not treat it as
     automatic justification (ESL-3 handles Built-Using validation separately).
-  blocker_class: hard
-  messages:
-    unknown_message: Could not collect packaging source and sbuild output
-    unknown_todo: 'TODO: - Check for embedded source (evidence collection failed)'
-    not_ok_message: 'Embedded source present and used in build: {embedded_dirs}'
-    not_ok_todo: 'TODO: - Embedded source found and used in build — either remove and use archive packages, or get security team sign-off. Dirs: {embedded_dirs}'
-    ok_built_using_message: 'Built-Using entries present but no embedded source was detected in the package source'
-    ok_message: no embedded source present or not used in build
-    llm_unavailable_message: 'LLM unavailable: {error}'
 - id: ESL-2
   section: Embedded sources and static linking
   title: No unexpected static linking
-  todo_refs:
-  - 'TODO: - no static linking'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - sbuild
   - packaging-source
-  ai_policy: none
-  blocker_class: soft
-  notes: 'Check build log for ''-static'' flag in compiler/linker invocations. Inspect ldd output on installed binaries. Check Built-Using/Static-Built-Using. Distinguish acceptable static linking (integrity scanner, etc.) from unwanted.'
   messages:
     unknown_message: Could not inspect build log for static linking
     unknown_todo: 'TODO: - Check build log for static linking'
@@ -1052,16 +1060,17 @@ checks:
     not_ok_detail_hints: 'debian/rules hints: {hints}'
     not_ok_message: 'Static linking detected without clear justification; review needed{detail}'
     not_ok_todo: 'TODO: - no static linking'
+  todo_refs:
+  - 'TODO: - no static linking'
+  ai_policy: none
+  notes: 'Check build log for ''-static'' flag in compiler/linker invocations. Inspect ldd output on installed binaries. Check Built-Using/Static-Built-Using. Distinguish acceptable static linking (integrity scanner, etc.) from unwanted.'
 - id: ESL-3
   section: Embedded sources and static linking
   title: No unexpected Built-Using entries
-  todo_refs:
-  - 'TODO: - does not have unexpected Built-Using entries'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - deb-metadata
-  ai_policy: none
-  blocker_class: soft
   messages:
     unknown_message: Could not collect binary package metadata (deb-metadata collection failed)
     unknown_todo: 'TODO: - Check for unexpected Built-Using entries'
@@ -1069,23 +1078,25 @@ checks:
     ok_toolchain_message: 'Built-Using entries present but appear to be standard toolchain entries: {entries}'
     not_ok_message: 'Unexpected Built-Using entries that may indicate untracked embedded source: {entries}'
     not_ok_todo: 'TODO: - Review Built-Using entries — possible untracked embedded source: {entries}'
+  todo_refs:
+  - 'TODO: - does not have unexpected Built-Using entries'
+  ai_policy: none
 - id: ESL-4
   section: Embedded sources and static linking
   title: Go language detection gate
-  todo_refs:
-  - 'TODO-A: - not a go package, no extra constraints to consider in that regard'
-  - 'TODO-B: - Go Package that follows the Debian Go packaging guidelines'
   mode: deterministic
   language_gate: go
+  blocker_class: none
   adapters_required:
   - packaging-source
-  ai_policy: none
-  blocker_class: none
   messages:
     unknown_message: Could not determine language (packaging-source failed)
     unknown_todo: 'TODO: - Determine if this is a Go package'
     ok_go_message: 'Go Package — Debian Go packaging guidelines apply (see ESL-5/6/7)'
     ok_not_go_message: not a go package, no extra constraints to consider in that regard
+  todo_refs:
+  - 'TODO-A: - not a go package, no extra constraints to consider in that regard'
+  - 'TODO-B: - Go Package that follows the Debian Go packaging guidelines'
   options:
   - id: ESL-4-A
     todo_ref: TODO-A
@@ -1095,36 +1106,35 @@ checks:
     todo_ref: TODO-B
     predicate: Go source detected
     render: '- Go Package'
+  ai_policy: none
 - id: ESL-5
   section: Embedded sources and static linking
   title: 'Go: follows Debian/Ubuntu Go packaging guidelines'
-  todo_refs:
-  - 'TODO-B: - Go Package that follows the Debian Go packaging guidelines'
   mode: ev_to_ai
   language_gate: go
+  blocker_class: soft
   adapters_required:
   - packaging-source
   - sbuild
-  ai_policy: 'Ubuntu rules override Debian guidelines where they conflict. Check: dh-golang used, Built-Using: ${misc:Built-Using} present for non-dev binaries, go.sum present. Assess vendoring against Ubuntu MIR policy (vendoring may be acceptable or even recommended; dialogue with reporter is often appropriate).'
-  blocker_class: soft
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO-B: - Go Package that follows the Debian Go packaging guidelines'
+  ai_policy: 'Ubuntu rules override Debian guidelines where they conflict. Check: dh-golang used, Built-Using: ${misc:Built-Using} present for non-dev binaries, go.sum present. Assess vendoring against Ubuntu MIR policy (vendoring may be acceptable or even recommended; dialogue with reporter is often appropriate).'
+
 - id: ESL-6
   section: Embedded sources and static linking
   title: 'Go: vendoring documented and justified'
+  mode: ev_to_ai
+  language_gate: go
+  blocker_class: none
+  adapters_required:
+  - packaging-source
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO-A: - vendoring is used, but the reasoning is sufficiently explained'
   - 'TODO-B: - No vendoring used, all Built-Using are in main'
-  mode: ev_to_ai
-  language_gate: go
-  adapters_required:
-  - packaging-source
-  ai_policy: 'Check go.sum presence, vendoring directories, and whether security team discussion is documented in the bug or debian/README.source. Ubuntu allows and sometimes recommends vendoring; this is a dialogue rather than a hard requirement in most cases.'
-  blocker_class: none
-
-  messages:
-    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: ESL-6-A
     todo_ref: TODO-A
@@ -1134,19 +1144,17 @@ checks:
     todo_ref: TODO-B
     predicate: no vendoring
     render: '- No vendoring used, all Built-Using are in main'
+  ai_policy: 'Check go.sum presence, vendoring directories, and whether security team discussion is documented in the bug or debian/README.source. Ubuntu allows and sometimes recommends vendoring; this is a dialogue rather than a hard requirement in most cases.'
+
 - id: ESL-7
   section: Embedded sources and static linking
   title: 'Go: build type (shared vs static)'
-  todo_refs:
-  - 'TODO-A: - golang: shared builds'
-  - 'TODO-B: - golang: static builds are used, the team confirmed their commitment'
   mode: deterministic
   language_gate: go
+  blocker_class: none
   adapters_required:
   - sbuild
   - packaging-source
-  ai_policy: none
-  blocker_class: none
   messages:
     unknown_message: Could not determine Go build type (packaging-source failed)
     unknown_todo: 'TODO: - Determine Go build type (shared vs static)'
@@ -1156,6 +1164,9 @@ checks:
     recommended_todo: 'TODO: - Confirm Go build mode — if static, team must confirm commitment to additional maintenance responsibilities implied by static builds'
     unknown_build_mode_message: Go package but build mode could not be determined from debian/rules
     unknown_build_mode_todo: 'TODO: - Determine Go build type (shared vs static)'
+  todo_refs:
+  - 'TODO-A: - golang: shared builds'
+  - 'TODO-B: - golang: static builds are used, the team confirmed their commitment'
   options:
   - id: ESL-7-A
     todo_ref: TODO-A
@@ -1165,23 +1176,23 @@ checks:
     todo_ref: TODO-B
     predicate: static build with team commitment confirmed
     render: '- golang: static builds are used, the team confirmed their commitment to the additional responsibilities implied by static builds.'
+  ai_policy: none
 - id: ESL-8
   section: Embedded sources and static linking
   title: Rust language detection gate
-  todo_refs:
-  - 'TODO-A: - not a rust package, no extra constraints to consider in that regard'
-  - 'TODO-B: - Rust package that has all dependencies vendored...'
   mode: deterministic
   language_gate: rust
+  blocker_class: none
   adapters_required:
   - packaging-source
-  ai_policy: none
-  blocker_class: none
   messages:
     unknown_message: Could not determine language (packaging-source failed)
     unknown_todo: 'TODO: - Determine if this is a Rust package'
     ok_rust_message: 'Rust Package — Rust-specific constraints apply (see ESL-9/10)'
     ok_not_rust_message: not a rust package, no extra constraints to consider in that regard
+  todo_refs:
+  - 'TODO-A: - not a rust package, no extra constraints to consider in that regard'
+  - 'TODO-B: - Rust package that has all dependencies vendored...'
   options:
   - id: ESL-8-A
     todo_ref: TODO-A
@@ -1191,17 +1202,15 @@ checks:
     todo_ref: TODO-B
     predicate: Rust source detected
     render: '- Rust package'
+  ai_policy: none
 - id: ESL-9
   section: Embedded sources and static linking
   title: 'Rust: uses dh_cargo'
-  todo_refs:
-  - 'TODO: - rust package using dh_cargo (dh ... --buildsystem cargo)'
   mode: deterministic
   language_gate: rust
+  blocker_class: hard
   adapters_required:
   - packaging-source
-  ai_policy: none
-  blocker_class: hard
   messages:
     unknown_message: Could not check debian/rules (packaging-source failed)
     unknown_todo: 'TODO: - Verify Rust package uses dh_cargo'
@@ -1209,18 +1218,18 @@ checks:
     ok_message: 'rust package using dh_cargo (dh ... --buildsystem cargo)'
     not_ok_message: Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules
     not_ok_todo: 'TODO: - Rust packages must use dh_cargo (dh ... --buildsystem cargo)'
+  todo_refs:
+  - 'TODO: - rust package using dh_cargo (dh ... --buildsystem cargo)'
+  ai_policy: none
 - id: ESL-10
   section: Embedded sources and static linking
   title: 'Rust: vendored deps; no unexpected Built-Using; Cargo.lock present'
-  todo_refs:
-  - 'TODO-B: - Rust package that has all dependencies vendored. It does neither have *Built-Using...'
   mode: deterministic
   language_gate: rust
+  blocker_class: hard
   adapters_required:
   - packaging-source
   - deb-metadata
-  ai_policy: none
-  blocker_class: hard
   messages:
     unknown_message: Could not collect packaging source or binary package metadata
     unknown_todo: 'TODO: - Verify Rust vendored deps / Cargo.lock / Built-Using'
@@ -1228,20 +1237,21 @@ checks:
     not_ok_message: 'Rust package has issues: {problems}'
     not_ok_todo: 'TODO: - Fix Rust package issues: {problems}'
     ok_message: 'Rust package that has all dependencies vendored. It does neither have *Built-Using (after build). Nor does the build log indicate built-in sources missed as Built-Using.'
+  todo_refs:
+  - 'TODO-B: - Rust package that has all dependencies vendored. It does neither have *Built-Using...'
+  ai_policy: none
 - id: ESL-11
   section: Embedded sources and static linking
   title: Vendored code refresh documented
+  mode: ev_to_ai
+  blocker_class: soft
+  adapters_required:
+  - packaging-source
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO-A: - Includes vendored code, the package has documented how to refresh this code at <TBD>'
   - 'TODO-B: - Does not include vendored code'
-  mode: ev_to_ai
-  adapters_required:
-  - packaging-source
-  ai_policy: 'Check debian/README.source and debian/rules vendor targets for documented refresh process. Surface what exists; AI suggests adequacy of documentation; reviewer confirms.'
-  blocker_class: soft
-
-  messages:
-    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: ESL-11-A
     todo_ref: TODO-A
@@ -1250,32 +1260,33 @@ checks:
     todo_ref: TODO-B
     predicate: no vendored code
     render: '- Does not include vendored code'
+  ai_policy: 'Check debian/README.source and debian/rules vendor targets for documented refresh process. Surface what exists; AI suggests adequacy of documentation; reviewer confirms.'
+
+# ==========================================================================
+# Security
+# ==========================================================================
 - id: SEC-1
   section: Security
   title: CVE history assessment
-  todo_refs:
-  - 'TODO: - history of CVEs does not look concerning'
   mode: ev_to_ai
+  blocker_class: none
+  security_trigger: SEC-1-CVE-SYNTH
   adapters_required:
   - ubuntu-cve-tracker
   - nvd-enrich
-  ai_policy: 'AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes, whether fixes are timely, patterns suggesting systemic issues. The nvd-enrich evidence tags each CVE as current or predecessor (historical_cves): predecessor/historical CVEs come from upstream or older versioned package names and inform severity. Clearly label historical findings as such; they may raise the recommendation to a security review but must never hard-block the current version. Output 3-band confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding. Even historically patched but risk-significant patterns should surface as security-review-triggering.'
-  blocker_class: none
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
-  security_trigger: SEC-1-CVE-SYNTH
+  todo_refs:
+  - 'TODO: - history of CVEs does not look concerning'
+  ai_policy: 'AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes, whether fixes are timely, patterns suggesting systemic issues. The nvd-enrich evidence tags each CVE as current or predecessor (historical_cves): predecessor/historical CVEs come from upstream or older versioned package names and inform severity. Clearly label historical findings as such; they may raise the recommendation to a security review but must never hard-block the current version. Output 3-band confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding. Even historically patched but risk-significant patterns should surface as security-review-triggering.'
+
 - id: SEC-2
   section: Security
   title: Does not run daemon as root
-  todo_refs:
-  - 'TODO: - does not run a daemon as root'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - packaging-source
-  ai_policy: none
-  blocker_class: soft
-  notes: Check systemd unit User= field; init scripts; DynamicUser= usage
   messages:
     unknown_message: Could not inspect packaging source
     unknown_todo: 'TODO: - Manually verify the package does not run a daemon as root'
@@ -1284,90 +1295,91 @@ checks:
     not_ok_message: Package runs daemon as root without security mitigations
     not_ok_todo: 'TODO: - does not run a daemon as root'
     ok_message: does not run a daemon as root
+  todo_refs:
+  - 'TODO: - does not run a daemon as root'
+  ai_policy: none
+  notes: Check systemd unit User= field; init scripts; DynamicUser= usage
 - id: SEC-3
   section: Security
   title: Does not use webkit1/2
-  todo_refs:
-  - 'TODO: - does not use webkit1,2'
   mode: deterministic
-  adapters_required:
-  - dep-analysis
-  ai_policy: none
   blocker_class: hard
   security_trigger: SEC-3-WEBKIT
+  adapters_required:
+  - dep-analysis
   messages:
     ok_message: does not use webkit1,2
     unknown_message: Could not analyse webkit dependencies
     blocker_message: 'webkit1/2 dependency found ({dep}) — hard blocker'
     blocker_todo: 'TODO: - webkit1/2 dependency must be removed before main inclusion'
+  todo_refs:
+  - 'TODO: - does not use webkit1,2'
+  ai_policy: none
 - id: SEC-4
   section: Security
   title: Does not use lib*v8 directly
-  todo_refs:
-  - 'TODO: - does not use lib*v8 directly'
   mode: deterministic
-  adapters_required:
-  - dep-analysis
-  ai_policy: none
   blocker_class: hard
   security_trigger: SEC-4-V8
+  adapters_required:
+  - dep-analysis
   messages:
     ok_message: does not use lib*v8 directly
     unknown_message: Could not analyse v8 dependencies
     blocker_message: 'lib*v8 dependency found ({dep}) — hard blocker'
     blocker_todo: 'TODO: - direct lib*v8 dependency must be removed before main inclusion'
+  todo_refs:
+  - 'TODO: - does not use lib*v8 directly'
+  ai_policy: none
 - id: SEC-5
   section: Security
   title: Does not parse untrusted data formats
-  todo_refs:
-  - 'TODO: - does not parse data formats (files [images, video, audio, xml, json, asn.1], network packets, structures, ...) from an untrusted source.'
   mode: ev_to_ai
+  blocker_class: soft
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: "Check runtime deps for known parser libraries. Scan source for file format handling. Read package description, man pages, and docs \u2014 out of the description one can quickly derive where data comes from and whether it is untrusted. Surface evidence; AI judges; reviewer confirms."
-  blocker_class: soft
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - does not parse data formats (files [images, video, audio, xml, json, asn.1], network packets, structures, ...) from an untrusted source.'
+  ai_policy: "Check runtime deps for known parser libraries. Scan source for file format handling. Read package description, man pages, and docs \u2014 out of the description one can quickly derive where data comes from and whether it is untrusted. Surface evidence; AI judges; reviewer confirms."
+
 - id: SEC-6
   section: Security
   title: Does not expose external endpoint
-  todo_refs:
-  - 'TODO: - does not expose any external endpoint (port/socket/... or similar)'
   mode: ev_to_ai
+  blocker_class: soft
   adapters_required:
   - packaging-source
-  ai_policy: 'Check service files for listen/bind/socket usage. Scan source for network binding patterns. Surface evidence; AI judges exposure scope; reviewer confirms.'
-  blocker_class: soft
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - does not expose any external endpoint (port/socket/... or similar)'
+  ai_policy: 'Check service files for listen/bind/socket usage. Scan source for network binding patterns. Surface evidence; AI judges exposure scope; reviewer confirms.'
+
 - id: SEC-7
   section: Security
   title: Does not process arbitrary web content
-  todo_refs:
-  - 'TODO: - does not process arbitrary web content'
   mode: ev_to_ai
+  blocker_class: soft
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: 'Check dep list, source, description, man pages and documentation. From the package description one can often quickly determine whether it processes web content and where that content comes from.'
-  blocker_class: soft
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - does not process arbitrary web content'
+  ai_policy: 'Check dep list, source, description, man pages and documentation. From the package description one can often quickly determine whether it processes web content and where that content comes from.'
+
 - id: SEC-8
   section: Security
   title: Does not use centralised online accounts
-  todo_refs:
-  - 'TODO: - does not use centralized online accounts'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: none
-  blocker_class: soft
   messages:
     unknown_message: Could not analyse online-accounts usage
     unknown_todo: 'TODO: - does not use centralized online accounts'
@@ -1375,32 +1387,31 @@ checks:
     not_ok_source_message: 'Online accounts pattern found: {pattern}'
     not_ok_todo: 'TODO: - does not use centralized online accounts'
     ok_message: does not use centralized online accounts
+  todo_refs:
+  - 'TODO: - does not use centralized online accounts'
+  ai_policy: none
 - id: SEC-9
   section: Security
   title: Does not integrate arbitrary JS into desktop
-  todo_refs:
-  - 'TODO: - does not integrate arbitrary javascript into the desktop'
   mode: ev_to_ai
+  blocker_class: soft
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: Check for WebKit/JS engine deps and desktop file JS integration patterns.
-  blocker_class: soft
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - does not integrate arbitrary javascript into the desktop'
+  ai_policy: Check for WebKit/JS engine deps and desktop file JS integration patterns.
+
 - id: SEC-10
   section: Security
   title: Does not handle system authentication (PAM)
-  todo_refs:
-  - 'TODO: - does not deal with system authentication (eg, pam), etc)'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: none
-  blocker_class: soft
-  notes: Check for libpam dep; grep for pam_ function calls in source
   messages:
     unknown_message: Could not analyse PAM/authentication usage
     unknown_todo: 'TODO: - does not deal with system authentication (eg, pam), etc)'
@@ -1408,63 +1419,66 @@ checks:
     not_ok_runtime_message: 'PAM runtime library dependency found: {dep} — verify it does not handle auth'
     not_ok_todo: 'TODO: - does not deal with system authentication (eg, pam), etc)'
     ok_message: does not deal with system authentication (eg, pam), etc)
+  todo_refs:
+  - 'TODO: - does not deal with system authentication (eg, pam), etc)'
+  ai_policy: none
+  notes: Check for libpam dep; grep for pam_ function calls in source
 - id: SEC-11
   section: Security
   title: Does not handle security attestation (TPM, secure boot)
-  todo_refs:
-  - 'TODO: - does not deal with security attestation (secure boot, tpm, signatures)'
   mode: ev_to_ai
+  blocker_class: hard
+  security_trigger: SEC-11-ATTESTATION
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: Check for tpm, secureboot, pkcs11, signature patterns in source and deps.
-  blocker_class: hard
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
-  security_trigger: SEC-11-ATTESTATION
+  todo_refs:
+  - 'TODO: - does not deal with security attestation (secure boot, tpm, signatures)'
+  ai_policy: Check for tpm, secureboot, pkcs11, signature patterns in source and deps.
   notes: 'No recommended-only middle state. Any involvement with secure boot, TPM, or signatures triggers mandatory security review path.'
+
 - id: SEC-12
   section: Security
   title: Does not handle cryptography
-  todo_refs:
-  - 'TODO: - does not deal with cryptography (en-/decryption, certificates, signing, ...)'
   mode: ev_to_ai
+  blocker_class: soft
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: "Check for crypto library deps (openssl, libgcrypt, libsodium, etc.) and source patterns. Distinguish: delegating to system libraries (low concern) vs implementing own crypto or handling keys/certs/signing (high concern \u2192 security review)."
-  blocker_class: soft
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - does not deal with cryptography (en-/decryption, certificates, signing, ...)'
+  ai_policy: "Check for crypto library deps (openssl, libgcrypt, libsodium, etc.) and source patterns. Distinguish: delegating to system libraries (low concern) vs implementing own crypto or handling keys/certs/signing (high concern \u2192 security review)."
+
 - id: SEC-13
   section: Security
   title: Appropriate use of risk mitigation features
-  todo_refs:
-  - 'TODO: - this makes appropriate (for its exposure) use of established risk mitigation features (dropping permissions, using temporary environments, restricted users/groups, seccomp, systemd isolation features, apparmor, ...)'
   mode: ev_to_ai
+  blocker_class: none
+  security_trigger: SEC-13-MITIGATION-GAPS
   adapters_required:
   - packaging-source
   - sbuild
-  ai_policy: "Enumerate existing mitigations: AppArmor profiles, systemd isolation directives (PrivateTmp, ProtectSystem, etc.), capability drops, seccomp filters, restricted users/groups. Characterise the exposure level from SEC-1 through SEC-12 findings. Surface what mitigations exist and what is absent; AI does NOT make the final call \u2014 reviewer judges proportionality."
-  security_trigger: SEC-13-MITIGATION-GAPS
-  blocker_class: none
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - this makes appropriate (for its exposure) use of established risk mitigation features (dropping permissions, using temporary environments, restricted users/groups, seccomp, systemd isolation features, apparmor, ...)'
+  ai_policy: "Enumerate existing mitigations: AppArmor profiles, systemd isolation directives (PrivateTmp, ProtectSystem, etc.), capability drops, seccomp filters, restricted users/groups. Characterise the exposure level from SEC-1 through SEC-12 findings. Surface what mitigations exist and what is absent; AI does NOT make the final call \u2014 reviewer judges proportionality."
+
+# ==========================================================================
+# Common blockers
+# ==========================================================================
 - id: CB-1
   section: Common blockers
   title: Does not FTBFS currently
-  todo_refs:
-  - 'TODO: - does not FTBFS currently'
   mode: deterministic
+  blocker_class: hard
   adapters_required:
   - sbuild
   - lp-build-api
-  ai_policy: none
-  blocker_class: hard
-  notes: 'sbuild is one signal. Also check Launchpad multi-architecture build state via API for all architectures the package targets. All must pass.'
   messages:
     hint_local_ok: local sbuild build succeeded
     hint_local_failed: local sbuild build FAILED (see build log)
@@ -1477,50 +1491,52 @@ checks:
     not_ok_todo: 'TODO: - does not FTBFS currently'
     ok_message: 'does not FTBFS currently; Launchpad build records pass for arches: {passing_arches}'
     ok_local_suffix: '; local sbuild build also succeeded'
+  todo_refs:
+  - 'TODO: - does not FTBFS currently'
+  ai_policy: none
+  notes: 'sbuild is one signal. Also check Launchpad multi-architecture build state via API for all architectures the package targets. All must pass.'
 - id: CB-2
   section: Common blockers
   title: Build-time test suite exists and fails build on error
-  todo_refs:
-  - 'TODO: - does have a test suite that runs at build time'
-  - 'TODO:   - test suite fails will fail the build upon error.'
   mode: ev_to_ai
+  blocker_class: hard
   adapters_required:
   - sbuild
   - packaging-source
-  ai_policy: 'Determine whether a build-time test suite exists and whether its failure fails the build. Use the build_test_hints evidence (extracted from debian/rules and the build log: dh_auto_test wiring, override_dh_auto_test, DEB_BUILD_OPTIONS nocheck, make check/test, pytest/meson test/ctest invocations, and test pass/fail lines in the build log) together with the build log itself. Outcomes: (1) a test suite runs at build time and failures gate the build -> ok; (2) the suite exists but failures are ignored (e.g. test errors swallowed) -> required, ask to wire failures to fail the build; (3) no build-time test suite at all -> required, BUT first check the reporter MIR content: if the reporter explained the absence (e.g. upstream provides no test suite), include that explanation in the message so the reviewer can decide whether to accept it rather than presenting it as an unexplained gap; (4) genuinely cannot tell from the evidence -> low confidence so it is left for the reviewer to decide. Do not emit the raw template TODO verbatim; produce a decisive characterisation.'
-  blocker_class: hard
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - does have a test suite that runs at build time'
+  - 'TODO:   - test suite fails will fail the build upon error.'
+  ai_policy: 'Determine whether a build-time test suite exists and whether its failure fails the build. Use the build_test_hints evidence (extracted from debian/rules and the build log: dh_auto_test wiring, override_dh_auto_test, DEB_BUILD_OPTIONS nocheck, make check/test, pytest/meson test/ctest invocations, and test pass/fail lines in the build log) together with the build log itself. Outcomes: (1) a test suite runs at build time and failures gate the build -> ok; (2) the suite exists but failures are ignored (e.g. test errors swallowed) -> required, ask to wire failures to fail the build; (3) no build-time test suite at all -> required, BUT first check the reporter MIR content: if the reporter explained the absence (e.g. upstream provides no test suite), include that explanation in the message so the reviewer can decide whether to accept it rather than presenting it as an unexplained gap; (4) genuinely cannot tell from the evidence -> low confidence so it is left for the reviewer to decide. Do not emit the raw template TODO verbatim; produce a decisive characterisation.'
+
 - id: CB-3
   section: Common blockers
   title: Non-trivial autopkgtest exists
-  todo_refs:
-  - 'TODO: - does have a non-trivial test suite that runs as autopkgtest'
   mode: ev_to_ai
+  blocker_class: hard
   adapters_required:
   - packaging-source
   - autopkgtest-db
-  ai_policy: 'Deterministic part: detect presence of debian/tests/control and content. AI-assisted part: assess whether the tests are non-trivial (not just import check or syntax check). Reviewer override available.'
-  blocker_class: hard
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - does have a non-trivial test suite that runs as autopkgtest'
+  ai_policy: 'Deterministic part: detect presence of debian/tests/control and content. AI-assisted part: assess whether the tests are non-trivial (not just import check or syntax check). Reviewer override available.'
+
 - id: CB-4
   section: Common blockers
   title: 'Special hardware: requirement and coverage plan'
+  mode: ev_to_ai
+  blocker_class: none
+  adapters_required:
+  - packaging-source
+  messages:
+    llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO-A: - This does seem to need special HW for build or test...'
   - 'TODO-B: - This does not need special HW for build or test'
   - 'TODO-C: - This does need special HW for thorough testing, but all options... have been exhausted'
-  mode: ev_to_ai
-  adapters_required:
-  - packaging-source
-  ai_policy: 'Detect whether special hardware is needed from reporter content and test metadata. For cases that require it, check whether one of the accepted alternatives is present in the reporter content (testflinger, partner, simulator, community, manufacturer, solutions-qa, or other team). Surface evidence. Reviewer makes final judgment on whether options are truly exhausted for TODO-C.'
-  blocker_class: none
-
-  messages:
-    llm_unavailable_message: 'LLM unavailable: {error}'
   options:
   - id: CB-4-A
     todo_ref: TODO-A
@@ -1532,64 +1548,63 @@ checks:
   - id: CB-4-C
     todo_ref: TODO-C
     predicate: special HW needed; all options exhausted; human must confirm
+  ai_policy: 'Detect whether special hardware is needed from reporter content and test metadata. For cases that require it, check whether one of the accepted alternatives is present in the reporter content (testflinger, partner, simulator, community, manufacturer, solutions-qa, or other team). Surface evidence. Reviewer makes final judgment on whether options are truly exhausted for TODO-C.'
+
 - id: CB-5
   section: Common blockers
   title: Special hardware compromise accepted
-  todo_refs:
-  - 'TODO-C: accepted as-is as a compromise'
   mode: human_only
+  blocker_class: soft
   adapters_required:
   - lp-bug-api
-  ai_policy: none
-  blocker_class: soft
   messages:
     human_only_message: Human review required
     human_only_todo: 'TODO: - {title} - reviewer judgment needed'
+  todo_refs:
+  - 'TODO-C: accepted as-is as a compromise'
+  ai_policy: none
   notes: 'Whether "all options have been exhausted" is a policy judgment. Only human reviewer can decide this meets the bar. Tool surfaces reporter justification; reviewer decides.'
 - id: CB-6
   section: Common blockers
   title: E2E coverage for simple libs via consumers
-  todo_refs:
-  - 'TODO: - if a non-trivial test on this level does not make sense..., is the overall solution (app+libs) extensively covered i.e. via end to end autopkgtest ?'
   mode: ev_to_ai
+  blocker_class: none
   adapters_required:
   - dep-analysis
   - autopkgtest-db
   adapters_optional:
   - lp-package-api
-  ai_policy: 'Attempt to pull reverse-dep autopkgtest status and summarise whether key consumers have non-trivial tests covering the lib''s functionality. Weight by importance of consumer. On retrieval failure, fall back to human-only TODO.'
-  blocker_class: none
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - if a non-trivial test on this level does not make sense..., is the overall solution (app+libs) extensively covered i.e. via end to end autopkgtest ?'
+  ai_policy: 'Attempt to pull reverse-dep autopkgtest status and summarise whether key consumers have non-trivial tests covering the lib''s functionality. Weight by importance of consumer. On retrieval failure, fall back to human-only TODO.'
+
 - id: CB-7
   section: Common blockers
   title: No new Python 2 dependency
-  todo_refs:
-  - 'TODO: - no new python2 dependency'
   mode: deterministic
+  blocker_class: hard
+  security_trigger: null
   adapters_required:
   - dep-analysis
   - packaging-source
-  ai_policy: none
-  blocker_class: hard
-  security_trigger: null
   messages:
     ok_message: no new python2 dependency
     unknown_message: Could not analyse Python2 dependencies
     blocker_message: 'Python2 dependency found ({dep}) — hard blocker'
     blocker_todo: 'TODO: - python2 dependency must be removed or ported before main inclusion'
+  todo_refs:
+  - 'TODO: - no new python2 dependency'
+  ai_policy: none
 - id: CB-8
   section: Common blockers
   title: 'Python: uses dh_python'
-  todo_refs:
-  - 'TODO: - Python package, but using dh_python'
   mode: deterministic
   language_gate: python
+  blocker_class: hard
   adapters_required:
   - packaging-source
-  ai_policy: none
-  blocker_class: hard
   messages:
     unknown_message: Could not inspect debian/rules (packaging-source failed)
     unknown_todo: 'TODO: - Check debian/rules for dh_python'
@@ -1597,38 +1612,42 @@ checks:
     ok_message: Python package, but using dh_python
     not_ok_message: Python package detected but dh_python/dh_python3 not found in debian/rules
     not_ok_todo: 'TODO: - Python packages must use dh_python'
+  todo_refs:
+  - 'TODO: - Python package, but using dh_python'
+  ai_policy: none
 - id: CB-9
   section: Common blockers
   title: 'Go: uses dh-golang'
-  todo_refs:
-  - 'TODO: - Go package, but using dh-golang'
   mode: ev_to_ai
   language_gate: go
+  blocker_class: soft
   adapters_required:
   - packaging-source
-  ai_policy: 'Ubuntu rules for Go packaging may differ from Debian guidance. MIR docs are authoritative. Check for dh-golang; if absent, suggest dh-make-golang. Often a recommendation rather than a hard requirement.'
-  blocker_class: soft
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - Go package, but using dh-golang'
+  ai_policy: 'Ubuntu rules for Go packaging may differ from Debian guidance. MIR docs are authoritative. Check for dh-golang; if absent, suggest dh-make-golang. Often a recommendation rather than a hard requirement.'
+
+# ==========================================================================
+# Packaging red flags
+# ==========================================================================
 - id: PRF-1
   section: Packaging red flags
   title: Ubuntu delta reasonableness
-  todo_refs:
-  - 'TODO-A: - Ubuntu does not carry a delta'
-  - 'TODO-B: - Ubuntu does carry a delta, but it is reasonable and maintenance under control'
-  - 'TODO-C: - This is an Ubuntu-only package'
   mode: ev_to_ai
+  blocker_class: none
   adapters_required:
   - packaging-source
   - lp-package-api
   adapters_optional:
   - git-ubuntu-delta
-  ai_policy: 'Decide which option applies using the git-ubuntu-delta adapter evidence (delta_kind, delta_present, diffstat, delta_summary). If delta_kind is "sync" (delta_present false) choose option A: Ubuntu does not carry a delta. If delta_kind is "native" or the package exists only in Ubuntu choose option C: Ubuntu-only package. If delta_kind is "ubuntu_delta" choose option B and assess the diffstat: a small/contained delta is reasonable and maintenance under control; escalate to required/NACK only when the diffstat shows a large unjustified delta AND there is no explanation AND no active minimisation in progress. Do NOT ask anyone to "provide git-ubuntu log and diff" and do NOT invent TODO-A/TODO-B placeholders: the git-ubuntu-delta adapter already supplies the diff; decide from it.'
-  blocker_class: none
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO-A: - Ubuntu does not carry a delta'
+  - 'TODO-B: - Ubuntu does carry a delta, but it is reasonable and maintenance under control'
+  - 'TODO-C: - This is an Ubuntu-only package'
   options:
   - id: PRF-1-A
     todo_ref: TODO-A
@@ -1642,20 +1661,16 @@ checks:
     todo_ref: TODO-C
     predicate: package is Ubuntu-only
     render: '- This is an Ubuntu-only package'
+  ai_policy: 'Decide which option applies using the git-ubuntu-delta adapter evidence (delta_kind, delta_present, diffstat, delta_summary). If delta_kind is "sync" (delta_present false) choose option A: Ubuntu does not carry a delta. If delta_kind is "native" or the package exists only in Ubuntu choose option C: Ubuntu-only package. If delta_kind is "ubuntu_delta" choose option B and assess the diffstat: a small/contained delta is reasonable and maintenance under control; escalate to required/NACK only when the diffstat shows a large unjustified delta AND there is no explanation AND no active minimisation in progress. Do NOT ask anyone to "provide git-ubuntu log and diff" and do NOT invent TODO-A/TODO-B placeholders: the git-ubuntu-delta adapter already supplies the diff; decide from it.'
+
 - id: PRF-2
   section: Packaging red flags
   title: Symbols tracking for C/C++ libraries
-  todo_refs:
-  - 'TODO-A: - symbols tracking is in place.'
-  - 'TODO-B: - For c++ libraries - symbols tracking isn''t in place but the owning team tried...'
-  - 'TODO-C: - symbols tracking not applicable for this kind of code.'
-  - 'TODO-D: - symbols tracking not applicable for this kind of code because it the shared objects are only used internally...'
   mode: deterministic
+  blocker_class: none
   adapters_required:
   - packaging-source
   - sbuild
-  ai_policy: none
-  blocker_class: none
   messages:
     unknown_message: Could not inspect packaging (packaging-source failed)
     unknown_todo: 'TODO: - Check for symbols file'
@@ -1664,7 +1679,11 @@ checks:
     ok_no_shared_message: symbols tracking not applicable for this kind of code
     not_ok_message: Shared library is shipped but no debian/*.symbols file was found
     not_ok_todo: 'TODO: - symbols tracking isn''t in place; add a debian/*.symbols file (or, for C++ libraries, document why tracking is impractical)'
-  notes: 'Language-aware N/A handling required. Some languages (Python, Go, Rust) do not have symbols files. Internal-only .so files with no external headers are also N/A. Reviewer keeps only the matching TODO-A/B/C/D option and may extend with rationale.'
+  todo_refs:
+  - 'TODO-A: - symbols tracking is in place.'
+  - 'TODO-B: - For c++ libraries - symbols tracking isn''t in place but the owning team tried...'
+  - 'TODO-C: - symbols tracking not applicable for this kind of code.'
+  - 'TODO-D: - symbols tracking not applicable for this kind of code because it the shared objects are only used internally...'
   options:
   - id: PRF-2-A
     todo_ref: TODO-A
@@ -1682,17 +1701,15 @@ checks:
     todo_ref: TODO-D
     predicate: internal-only .so, no external headers
     render: '- symbols tracking not applicable for this kind of code because the shared objects are only used internally and no headers are made available.'
+  ai_policy: none
+  notes: 'Language-aware N/A handling required. Some languages (Python, Go, Rust) do not have symbols files. Internal-only .so files with no external headers are also N/A. Reviewer keeps only the matching TODO-A/B/C/D option and may extend with rationale.'
 - id: PRF-3
   section: Packaging red flags
   title: debian/watch present
-  todo_refs:
-  - 'TODO-A: - debian/watch is present and looks ok (if needed, e.g. non-native)'
-  - 'TODO-B: - debian/watch is not present but also not needed (e.g. native)'
   mode: deterministic
+  blocker_class: none
   adapters_required:
   - packaging-source
-  ai_policy: none
-  blocker_class: none
   messages:
     unknown_message: Could not inspect packaging (packaging-source failed)
     unknown_todo: 'TODO: - Check for debian/watch file'
@@ -1700,6 +1717,9 @@ checks:
     ok_native_message: debian/watch is not present but also not needed (native package)
     not_ok_message: Non-native package but debian/watch not found
     not_ok_todo: 'TODO: - Add debian/watch to track upstream releases'
+  todo_refs:
+  - 'TODO-A: - debian/watch is present and looks ok (if needed, e.g. non-native)'
+  - 'TODO-B: - debian/watch is not present but also not needed (e.g. native)'
   options:
   - id: PRF-3-A
     todo_ref: TODO-A
@@ -1709,46 +1729,44 @@ checks:
     todo_ref: TODO-B
     predicate: native package or watch file not needed
     render: '- debian/watch is not present but also not needed (native package)'
+  ai_policy: none
 - id: PRF-4
   section: Packaging red flags
   title: Upstream update history
-  todo_refs:
-  - 'TODO: - Upstream update history is (good/slow/sporadic)'
   mode: ev_to_ai
+  blocker_class: none
   adapters_required:
   - upstream-tracker
   - lp-package-api
-  ai_policy: "Assess upstream release cadence from release history and upstream tracker. Intentional stability (slow because nothing changes) is typically just an explanatory statement \u2014 still ok. Dead or abandoned trajectory may reach NACK-level concern. Output a characterisation; reviewer decides framing."
-  blocker_class: none
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - Upstream update history is (good/slow/sporadic)'
+  ai_policy: "Assess upstream release cadence from release history and upstream tracker. Intentional stability (slow because nothing changes) is typically just an explanatory statement \u2014 still ok. Dead or abandoned trajectory may reach NACK-level concern. Output a characterisation; reviewer decides framing."
+
 - id: PRF-5
   section: Packaging red flags
   title: Debian/Ubuntu update history
-  todo_refs:
-  - 'TODO: - Debian/Ubuntu update history is (good/slow/sporadic)'
   mode: ev_to_ai
+  blocker_class: none
   adapters_required:
   - lp-package-api
   adapters_optional:
   - upstream-tracker
-  ai_policy: 'Characterise the Debian/Ubuntu update history as good, slow or sporadic. The lp-package-api adapter provides a computed release_cadence object (descriptor good/slow/sporadic plus releases, span_days and avg_interval_days) derived from the cross-series publishing history in all_publish_history; treat that computed descriptor as the primary signal. Guidance for the descriptors: good means roughly one or more uploads per six months; slow means about one upload per year; sporadic means less frequent than that. Then compare against the upstream release cadence (upstream-tracker, when available): a slow distro cadence is acceptable and explanatory when upstream itself is stable/slow, but may warrant a recommendation when upstream is active and the distro is consistently behind. Do NOT ask for more data: decide from release_cadence even if it is the only signal, and only report unknown when release_cadence.descriptor is unknown. Output the chosen characterisation.'
-  blocker_class: none
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - Debian/Ubuntu update history is (good/slow/sporadic)'
+  ai_policy: 'Characterise the Debian/Ubuntu update history as good, slow or sporadic. The lp-package-api adapter provides a computed release_cadence object (descriptor good/slow/sporadic plus releases, span_days and avg_interval_days) derived from the cross-series publishing history in all_publish_history; treat that computed descriptor as the primary signal. Guidance for the descriptors: good means roughly one or more uploads per six months; slow means about one upload per year; sporadic means less frequent than that. Then compare against the upstream release cadence (upstream-tracker, when available): a slow distro cadence is acceptable and explanatory when upstream itself is stable/slow, but may warrant a recommendation when upstream is active and the distro is consistently behind. Do NOT ask for more data: decide from release_cadence even if it is the only signal, and only report unknown when release_cadence.descriptor is unknown. Output the chosen characterisation.'
+
 - id: PRF-6
   section: Packaging red flags
   title: Current release packaged
-  todo_refs:
-  - 'TODO: - the current release is packaged'
   mode: deterministic
+  blocker_class: none
   adapters_required:
   - lp-package-api
   - upstream-tracker
-  ai_policy: none
-  blocker_class: none
   messages:
     unknown_message: Could not determine package version information
     unknown_todo: 'TODO: - Verify packaged version against latest upstream release'
@@ -1759,32 +1777,32 @@ checks:
     version_lag_message: 'Package version lag detected: {archive} vs {upstream}'
     unknown_lag_message: Could not determine version lag
     version_lag_todo: 'TODO: - Verify upstream version availability'
+  todo_refs:
+  - 'TODO: - the current release is packaged'
+  ai_policy: none
 - id: PRF-7
   section: Packaging red flags
   title: Promoting does not harm MOTU maintainers
-  todo_refs:
-  - 'TODO: - promoting this does not seem to cause issues for MOTUs that so far maintained the package'
   mode: ev_to_ai
+  blocker_class: none
   adapters_required:
   - lp-package-api
   - lp-team-membership-api
   adapters_optional:
   - ubuntu-upload-permission
-  ai_policy: 'Decide whether promoting this package to main would remove a current maintainer''s ability to upload it. Use ubuntu-upload-permission (components, team_uploaders, individual_uploaders) to see who may currently upload: a package uploadable only by the MOTU team in universe is the typical sync-from-Debian case. Cross-reference lp-package-api upload_history and uploaders: if the package is generally synced from Debian (versions without an ubuntuN delta), has no regular Ubuntu uploader, or its Ubuntu uploads come from people who are not MOTU-only (e.g. core-dev or specific package uploaders), then promotion does not harm MOTU maintainers (severity ok). Only flag (recommended/required) when a person who regularly uploads Ubuntu-specific changes is a MOTU member who would lose upload access after promotion. Do NOT request more data: decide from the provided evidence; core developers can always upload and are not listed by ubuntu-upload-permission.'
-  blocker_class: none
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - promoting this does not seem to cause issues for MOTUs that so far maintained the package'
+  ai_policy: 'Decide whether promoting this package to main would remove a current maintainer''s ability to upload it. Use ubuntu-upload-permission (components, team_uploaders, individual_uploaders) to see who may currently upload: a package uploadable only by the MOTU team in universe is the typical sync-from-Debian case. Cross-reference lp-package-api upload_history and uploaders: if the package is generally synced from Debian (versions without an ubuntuN delta), has no regular Ubuntu uploader, or its Ubuntu uploads come from people who are not MOTU-only (e.g. core-dev or specific package uploaders), then promotion does not harm MOTU maintainers (severity ok). Only flag (recommended/required) when a person who regularly uploads Ubuntu-specific changes is a MOTU member who would lose upload access after promotion. Do NOT request more data: decide from the provided evidence; core developers can always upload and are not listed by ubuntu-upload-permission.'
+
 - id: PRF-8
   section: Packaging red flags
   title: No excessive lintian warnings
-  todo_refs:
-  - 'TODO: - no massive Lintian warnings'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - lintian
-  ai_policy: none
-  blocker_class: soft
   messages:
     unknown_message: Could not run lintian (lintian adapter failed)
     not_ok_errors_message: 'Lintian errors detected: {errors}'
@@ -1794,46 +1812,49 @@ checks:
     minor_message: 'Lintian found {count} minor warnings - acceptable'
     minor_todo: 'TODO: - {count} minor lintian warnings documented'
     ok_message: no excessive lintian warnings
+  todo_refs:
+  - 'TODO: - no massive Lintian warnings'
+  ai_policy: none
 - id: PRF-9
   section: Packaging red flags
   title: debian/rules cleanliness
-  todo_refs:
-  - 'TODO: - debian/rules is rather clean'
   mode: ev_to_ai
+  blocker_class: none
   adapters_required:
   - packaging-source
-  ai_policy: 'Assess debian/rules complexity. Good: uses dh with minimal overrides. Warn if it is a complex maintenance hazard.'
-  blocker_class: none
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - debian/rules is rather clean'
+  ai_policy: 'Assess debian/rules complexity. Good: uses dh with minimal overrides. Warn if it is a complex maintenance hazard.'
+
 - id: PRF-10
   section: Packaging red flags
   title: Not on lto-disabled list
-  todo_refs:
-  - 'TODO: - It is not on the lto-disabled list'
   mode: deterministic
+  blocker_class: hard
   adapters_required:
   - lto-disabled-list
-  ai_policy: none
-  blocker_class: hard
-  notes: 'Check against lp:ubuntu/+source/lto-disabled-list. If present, the fix or workaround must be in the package itself before promotion.'
   messages:
     ok_message: It is not on the lto-disabled list
     not_ok_message: 'Package is on the lto-disabled list (architectures: {arches}); LTO must be fixed or disabled in the package before promotion'
     not_ok_todo: 'TODO: - Package is on the lto-disabled list ({arches}); ensure the LTO fix or in-package workaround is present before promotion (see https://launchpad.net/ubuntu/+source/lto-disabled-list)'
     unknown_message: Could not retrieve the lto-disabled-list (adapter failed)
     unknown_todo: 'TODO: - Manually verify the package is not on lp:ubuntu/+source/lto-disabled-list'
+  todo_refs:
+  - 'TODO: - It is not on the lto-disabled list'
+  ai_policy: none
+  notes: 'Check against lp:ubuntu/+source/lto-disabled-list. If present, the fix or workaround must be in the package itself before promotion.'
+# ==========================================================================
+# Upstream red flags
+# ==========================================================================
 - id: URF-1
   section: Upstream red flags
   title: No build errors or warnings
-  todo_refs:
-  - 'TODO: - no Errors/warnings during the build'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - sbuild
-  ai_policy: none
-  blocker_class: soft
   messages:
     unknown_message: Could not inspect build log
     unknown_todo: 'TODO: - Check build log for errors and warnings'
@@ -1842,21 +1863,22 @@ checks:
     warnings_message: 'Build log contains {count} toolchain warning(s); first: {sample}'
     warnings_todo: 'TODO: - review {count} build warning(s) and decide if acceptable: {sample}'
     ok_message: no Errors/warnings during the build
+  todo_refs:
+  - 'TODO: - no Errors/warnings during the build'
+  ai_policy: none
 - id: URF-2
   section: Upstream red flags
   title: No incautious malloc/sprintf usage
-  todo_refs:
-  - 'TODO-A: - no incautious use of malloc/sprintf (as far as we can check it)'
-  - 'TODO-B: - no incautious use of malloc/sprintf (the language has no direct MM)'
   mode: ev_to_ai
+  blocker_class: soft
   adapters_required:
   - sbuild
   - packaging-source
-  ai_policy: 'Check build log warnings and source patterns for unsafe memory management. Memory-safe languages (Python, Go, Rust, Java, etc.) should use TODO-B. For C/C++: scan for dangerous patterns; AI assesses risk in context.'
-  blocker_class: soft
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO-A: - no incautious use of malloc/sprintf (as far as we can check it)'
+  - 'TODO-B: - no incautious use of malloc/sprintf (the language has no direct MM)'
   options:
   - id: URF-2-A
     todo_ref: TODO-A
@@ -1865,54 +1887,51 @@ checks:
     todo_ref: TODO-B
     predicate: memory-safe language; no direct MM
     render: '- no incautious use of malloc/sprintf (the language has no direct MM)'
+  ai_policy: 'Check build log warnings and source patterns for unsafe memory management. Memory-safe languages (Python, Go, Rust, Java, etc.) should use TODO-B. For C/C++: scan for dangerous patterns; AI assesses risk in context.'
+
 - id: URF-3
   section: Upstream red flags
   title: No sudo/gksu/pkexec/LD_LIBRARY_PATH outside tests
-  todo_refs:
-  - 'TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - packaging-source
-  ai_policy: none
-  blocker_class: soft
-  notes: grep source excluding test directories
   messages:
     unknown_message: Could not inspect packaging source
     unknown_todo: 'TODO: - Check for privilege escalation outside tests'
     not_ok_message: Potential sudo/gksu/pkexec/LD_LIBRARY_PATH usage found outside tests
     not_ok_todo: 'TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)'
     ok_message: no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)
+  todo_refs:
+  - 'TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)'
+  ai_policy: none
+  notes: grep source excluding test directories
 - id: URF-4
   section: Upstream red flags
   title: No use of user 'nobody' outside tests
-  todo_refs:
-  - 'TODO: - no use of user ''nobody'' outside of tests'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - packaging-source
   - sbuild
-  ai_policy: none
-  blocker_class: soft
-  notes: grep -Hrn nobody in source; find . -user nobody in built binaries
   messages:
     unknown_message: Could not inspect packaging source
     unknown_todo: 'TODO: - Check for ''nobody'' user usage'
     not_ok_message: 'User ''nobody'' found outside test context: {hits}'
     not_ok_todo: 'TODO: - no use of user ''nobody'' outside of tests'
     ok_message: no use of user 'nobody' outside of tests
+  todo_refs:
+  - 'TODO: - no use of user ''nobody'' outside of tests'
+  ai_policy: none
+  notes: grep -Hrn nobody in source; find . -user nobody in built binaries
 - id: URF-5
   section: Upstream red flags
   title: No setuid/setgid binaries
-  todo_refs:
-  - 'TODO: - no use of setuid / setgid'
-  - 'TODO: - use of setuid, but ok because TBD (prefer systemd to set those for services)'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - packaging-source
   - sbuild
-  ai_policy: none
-  blocker_class: soft
-  notes: 'grep -Hrn -e setuid -e setgid in source; find . \( -perm -4000 -o -perm -2000 \) in built binaries'
   messages:
     unknown_message: Could not inspect packaging source
     unknown_todo: 'TODO: - Check for setuid/setgid binaries'
@@ -1925,48 +1944,49 @@ checks:
     not_ok_message: 'setuid/setgid detected in {source}'
     not_ok_todo: 'TODO: - no use of setuid / setgid'
     ok_message: no use of setuid / setgid
+  todo_refs:
+  - 'TODO: - no use of setuid / setgid'
+  - 'TODO: - use of setuid, but ok because TBD (prefer systemd to set those for services)'
+  ai_policy: none
+  notes: 'grep -Hrn -e setuid -e setgid in source; find . \( -perm -4000 -o -perm -2000 \) in built binaries'
 - id: URF-6
   section: Upstream red flags
   title: No important open bugs
-  todo_refs:
-  - 'TODO: - no important open bugs (crashers, etc) in Debian or Ubuntu'
   mode: ev_to_ai
+  blocker_class: soft
   adapters_required:
   - lp-bug-search-api
   - debian-bts
   - upstream-tracker
-  ai_policy: 'Aggregate evidence from: Launchpad Ubuntu package bug space (bugs.launchpad.net/ubuntu/+source/{package} via LP API), Debian BTS, and upstream issue tracker. AI assesses severity and age of open issues. Surface findings; reviewer makes final severity call.'
-  blocker_class: soft
-
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
+  todo_refs:
+  - 'TODO: - no important open bugs (crashers, etc) in Debian or Ubuntu'
+  ai_policy: 'Aggregate evidence from: Launchpad Ubuntu package bug space (bugs.launchpad.net/ubuntu/+source/{package} via LP API), Debian BTS, and upstream issue tracker. AI assesses severity and age of open issues. Surface findings; reviewer makes final severity call.'
+
 - id: URF-7
   section: Upstream red flags
   title: No webkit/qtwebkit/libseed dependency
-  todo_refs:
-  - 'TODO: - no dependency on webkit, qtwebkit or libseed'
   mode: deterministic
+  blocker_class: soft
   adapters_required:
   - dep-analysis
-  ai_policy: none
-  blocker_class: soft
   messages:
     unknown_message: Could not analyse webkit/qtwebkit/libseed dependencies
     unknown_todo: 'TODO: - Check for old webkit dependencies'
     not_ok_message: 'Old web engine dependency found: {dep}'
     not_ok_todo: 'TODO: - no dependency on webkit, qtwebkit or libseed'
     ok_message: no dependency on webkit, qtwebkit or libseed
+  todo_refs:
+  - 'TODO: - no dependency on webkit, qtwebkit or libseed'
+  ai_policy: none
 - id: URF-8
   section: Upstream red flags
   title: UI/desktop file check
-  todo_refs:
-  - 'TODO-A: - not part of the UI for extra checks'
-  - 'TODO-B: - part of the UI, desktop file is ok'
   mode: deterministic
+  blocker_class: none
   adapters_required:
   - packaging-source
-  ai_policy: none
-  blocker_class: none
   messages:
     unknown_message: Could not inspect packaging (packaging-source failed)
     unknown_todo: 'TODO: - Check for .desktop files'
@@ -1976,6 +1996,9 @@ checks:
     ok_desktop_todo: 'TODO-B: - part of the UI, desktop file is ok'
     not_ok_message: UI package without valid .desktop file
     not_ok_todo: 'TODO: - part of the UI, desktop file is ok'
+  todo_refs:
+  - 'TODO-A: - not part of the UI for extra checks'
+  - 'TODO-B: - part of the UI, desktop file is ok'
   options:
   - id: URF-8-A
     todo_ref: TODO-A
@@ -1985,17 +2008,14 @@ checks:
     todo_ref: TODO-B
     predicate: UI package with valid .desktop file
     render: '- part of the UI, desktop file is ok'
+  ai_policy: none
 - id: URF-9
   section: Upstream red flags
   title: Translation coverage
-  todo_refs:
-  - 'TODO-A: - no translation present, but none needed for this case (user visible)?'
-  - 'TODO-B: - translation present'
   mode: deterministic
+  blocker_class: none
   adapters_required:
   - packaging-source
-  ai_policy: none
-  blocker_class: none
   messages:
     unknown_message: Could not inspect packaging (packaging-source failed)
     unknown_todo: 'TODO: - Check for translation coverage'
@@ -2005,6 +2025,9 @@ checks:
     ok_translated_todo: 'TODO-B: - translation present'
     not_ok_message: User-visible package without translations
     not_ok_todo: 'TODO: - translation present'
+  todo_refs:
+  - 'TODO-A: - no translation present, but none needed for this case (user visible)?'
+  - 'TODO-B: - translation present'
   options:
   - id: URF-9-A
     todo_ref: TODO-A
@@ -2014,6 +2037,7 @@ checks:
     todo_ref: TODO-B
     predicate: user-visible with translations present
     render: '- translation present'
+  ai_policy: none
 security_triggers:
 - id: SEC-1-CVE-SYNTH
   title: CVE history risk synthesis
