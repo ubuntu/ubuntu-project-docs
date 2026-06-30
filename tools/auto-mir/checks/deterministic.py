@@ -82,6 +82,44 @@ def _line_is_test_context(line: str) -> bool:
     return any(marker in lowered for marker in _TEST_CONTEXT_MARKERS)
 
 
+# Soname-versioned shared-library runtime package names end in a digit
+# (e.g. liblua5.5-0, libfoo1). -dev/-doc/-dbg packages are excluded.
+_SHARED_LIB_PKG_RE = re.compile(r"^lib.+\d$")
+
+
+def _binary_package_names(debian_control: str) -> list[str]:
+    """Return the binary package names declared in a debian/control file."""
+    names: list[str] = []
+    for line in debian_control.splitlines():
+        if line.startswith("Package:"):
+            names.append(line.split(":", 1)[1].strip())
+    return names
+
+
+def _is_shared_lib_pkg_name(name: str) -> bool:
+    """Return True when a binary package name looks like a shared-library package."""
+    base = name.strip().lower()
+    if base.endswith(("-dev", "-doc", "-dbg", "-dbgsym")):
+        return False
+    return bool(_SHARED_LIB_PKG_RE.match(base))
+
+
+def _ships_shared_library(debian_control: str, built_debs: list[str]) -> bool:
+    """Return True when the package ships a soname-versioned shared library.
+
+    Detection uses the binary package names from debian/control and, when
+    available, the names of the built .deb files (more reliable than parsing
+    control alone, since control packages may be generated).
+    """
+    if any(_is_shared_lib_pkg_name(name) for name in _binary_package_names(debian_control)):
+        return True
+    for deb in built_debs:
+        deb_name = str(deb).rsplit("/", 1)[-1].split("_", 1)[0]
+        if _is_shared_lib_pkg_name(deb_name):
+            return True
+    return False
+
+
 @deterministic_check("SUM-1")
 def _check_sum_1(ctx, finding: Finding) -> Finding:
     """SUM-1: Source package identified."""
@@ -845,15 +883,9 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
         return finding
 
     debian_control = packaging.get("debian_control", "")
-    debian_rules = packaging.get("debian_rules", "")
+    file_listing = packaging.get("file_listing", [])
 
-    # Check if this is a library package
-    is_library = any(
-        marker in debian_control.lower()
-        for marker in ["library", "libdev", "symbols", "lib", "shared object"]
-    )
-
-    # Check for non-C/C++ languages (Python, Go, Rust, etc.)
+    # Languages that do not use C-style ELF symbol files at all.
     if _is_python_package(packaging) or _is_go_package(packaging) or _is_rust_package(packaging):
         finding.succeed(
             "symbols tracking not applicable for this language/runtime",
@@ -862,8 +894,26 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
         finding.evidence_refs = ["packaging-source:debian_control"]
         return finding
 
-    # Not a library or no shared objects
-    if not is_library or ".so" not in debian_control:
+    # A debian/*.symbols file is authoritative: it both proves a shared library
+    # is shipped and that symbols tracking is in place.
+    has_symbols_file = any(
+        str(entry.get("path", "")).rstrip("/").endswith(".symbols") for entry in file_listing
+    )
+    if has_symbols_file:
+        finding.succeed(
+            "symbols tracking is in place",
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:file_listing"]
+        return finding
+
+    # No symbols file: decide whether the package ships a shared library at all.
+    # Shared-library runtime packages are soname-versioned (e.g. liblua5.5-0).
+    sbuild = adapters.get("sbuild", {})
+    built_debs = sbuild.get("built_debs", []) if sbuild.get("status") == "ok" else []
+    ships_shared_library = _ships_shared_library(debian_control, built_debs)
+
+    if not ships_shared_library:
         finding.succeed(
             "symbols tracking not applicable for this kind of code",
             confidence="high",
@@ -871,38 +921,12 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
         finding.evidence_refs = ["packaging-source:debian_control"]
         return finding
 
-    # Check for symbols file presence
-    has_symbols_file = ".symbols" in debian_control or ".symbols" in debian_rules
-
-    if has_symbols_file:
-        finding.succeed(
-            "symbols tracking is in place",
-            confidence="high",
-        )
-        finding.evidence_refs = ["packaging-source:debian_control"]
-        return finding
-
-    # C/C++ library without symbols tracking - check if there's documentation
-    has_documented_reason = any(
-        marker.lower() in debian_rules.lower()
-        for marker in ["#.symbols", "# symbols", "todo: symbols"]
-    )
-
-    if has_documented_reason:
-        finding.fail(
-            "C++ library without symbols file but appears to have documented consideration",
-            "TODO: - For c++ libraries - symbols tracking isn't in place but "
-            "the owning team tried...",
-            severity="recommended",
-            confidence="medium",
-        )
-        finding.evidence_refs = ["packaging-source:debian_rules"]
-        return finding
-
-    # No symbols tracking and no documentation
+    # Ships a shared library but has no symbols file. C++ ABI tracking is hard,
+    # so this is a recommendation rather than a hard requirement.
     finding.fail(
-        "C/C++ library detected but symbols tracking not found in package",
-        "TODO: - For c++ libraries - symbols tracking isn't in place but the owning team tried...",
+        "Shared library is shipped but no debian/*.symbols file was found",
+        "TODO: - symbols tracking isn't in place; add a debian/*.symbols file "
+        "(or, for C++ libraries, document why tracking is impractical)",
         severity="recommended",
         confidence="medium",
     )

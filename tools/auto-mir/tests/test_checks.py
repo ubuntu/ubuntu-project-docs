@@ -1415,6 +1415,53 @@ def test_prf_2_cpp_library_with_symbols():
     assert "symbols tracking is in place" in result.message
 
 
+def test_prf_2_shared_library_with_symbols_file():
+    """A C shared library that ships debian/<pkg>.symbols reports tracking in place."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": (
+            "Source: lua5.5\n\n"
+            "Package: liblua5.5-0\nArchitecture: any\n\n"
+            "Package: liblua5.5-dev\nArchitecture: any\n"
+        ),
+        "debian_rules": "dh_makeshlibs",
+        "file_listing": [
+            {"path": "./debian/liblua5.5-0.symbols", "size": 500},
+            {"path": "./debian/control", "size": 500},
+        ],
+    }
+
+    finding = _make_finding("PRF-2", mode="deterministic")
+    result = checks.deterministic._check_prf_2(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert result.message == "symbols tracking is in place"
+
+
+def test_prf_2_shared_library_without_symbols_file():
+    """A shared library with no symbols file is flagged as a recommendation."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Source: foo\n\nPackage: libfoo1\nArchitecture: any\n",
+        "debian_rules": "dh_auto_configure",
+        "file_listing": [{"path": "./debian/control", "size": 500}],
+    }
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "built_debs": ["/tmp/out/libfoo1_1.0-1_amd64.deb"],
+    }
+
+    finding = _make_finding("PRF-2", mode="deterministic")
+    result = checks.deterministic._check_prf_2(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
+    assert "symbols" in result.message.lower()
+
+
 def test_prf_3_watch_present():
     """Test PRF-3 when debian/watch is present."""
     ctx = _Ctx()
