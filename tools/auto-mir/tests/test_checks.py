@@ -256,8 +256,13 @@ class _Ctx:
                 {
                     "id": "SEC-2",
                     "messages": {
-                        "ok_message": "does not run a daemon as root",
+                        "unknown_message": "Could not inspect packaging source",
                         "unknown_todo": "TODO: - Check for daemon running as root",
+                        "mitigated_message": "Package runs as root but has security mitigations",
+                        "mitigated_todo": "TODO: - Note root execution and mitigations",
+                        "not_ok_message": "Package runs daemon as root without security mitigations",
+                        "not_ok_todo": "TODO: - does not run a daemon as root",
+                        "ok_message": "does not run a daemon as root",
                     },
                 },
                 {
@@ -291,15 +296,23 @@ class _Ctx:
                 {
                     "id": "SEC-8",
                     "messages": {
+                        "unknown_message": "Could not analyse online-accounts usage",
+                        "unknown_todo": "TODO: - does not use centralized online accounts",
+                        "not_ok_dep_message": "Centralized accounts dependency found: {dep}",
+                        "not_ok_source_message": "Online accounts pattern found: {pattern}",
+                        "not_ok_todo": "TODO: - does not use centralized online accounts",
                         "ok_message": "does not use centralized online accounts",
-                        "unknown_todo": "TODO: - Check for centralized accounts APIs",
                     },
                 },
                 {
                     "id": "SEC-10",
                     "messages": {
+                        "unknown_message": "Could not analyse PAM/authentication usage",
+                        "unknown_todo": "TODO: - does not deal with system authentication (eg, pam), etc)",
+                        "not_ok_dev_message": "Direct PAM development dependency found: {dep}",
+                        "not_ok_runtime_message": "PAM runtime library dependency found: {dep} — verify it does not handle auth",
+                        "not_ok_todo": "TODO: - does not deal with system authentication (eg, pam), etc)",
                         "ok_message": "does not deal with system authentication (eg, pam), etc)",
-                        "unknown_todo": "TODO: - Check for PAM/system auth",
                     },
                 },
                 {

@@ -1298,6 +1298,14 @@ checks:
   ai_policy: none
   blocker_class: soft
   notes: Check systemd unit User= field; init scripts; DynamicUser= usage
+  messages:
+    unknown_message: Could not inspect packaging source
+    unknown_todo: 'TODO: - Manually verify the package does not run a daemon as root'
+    mitigated_message: Package runs as root but has security mitigations
+    mitigated_todo: 'TODO: - Note root execution and mitigations'
+    not_ok_message: Package runs daemon as root without security mitigations
+    not_ok_todo: 'TODO: - does not run a daemon as root'
+    ok_message: does not run a daemon as root
 - id: SEC-3
   section: Security
   title: Does not use webkit1/2
@@ -1386,6 +1394,13 @@ checks:
   - packaging-source
   ai_policy: none
   blocker_class: soft
+  messages:
+    unknown_message: Could not analyse online-accounts usage
+    unknown_todo: 'TODO: - does not use centralized online accounts'
+    not_ok_dep_message: 'Centralized accounts dependency found: {dep}'
+    not_ok_source_message: 'Online accounts pattern found: {pattern}'
+    not_ok_todo: 'TODO: - does not use centralized online accounts'
+    ok_message: does not use centralized online accounts
 - id: SEC-9
   section: Security
   title: Does not integrate arbitrary JS into desktop
@@ -1412,6 +1427,13 @@ checks:
   ai_policy: none
   blocker_class: soft
   notes: Check for libpam dep; grep for pam_ function calls in source
+  messages:
+    unknown_message: Could not analyse PAM/authentication usage
+    unknown_todo: 'TODO: - does not deal with system authentication (eg, pam), etc)'
+    not_ok_dev_message: 'Direct PAM development dependency found: {dep}'
+    not_ok_runtime_message: 'PAM runtime library dependency found: {dep} — verify it does not handle auth'
+    not_ok_todo: 'TODO: - does not deal with system authentication (eg, pam), etc)'
+    ok_message: does not deal with system authentication (eg, pam), etc)
 - id: SEC-11
   section: Security
   title: Does not handle security attestation (TPM, secure boot)

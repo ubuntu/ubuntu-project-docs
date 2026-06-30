@@ -1045,7 +1045,7 @@ def _check_sec_2(ctx, finding: Finding) -> Finding:
 
     if packaging.get("status") != "ok":
         finding.fail(
-            "Could not inspect packaging source",
+            render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
             severity="recommended",
             confidence="low",
@@ -1074,8 +1074,8 @@ def _check_sec_2(ctx, finding: Finding) -> Finding:
 
         if has_mitigations:
             finding.fail(
-                "Package runs as root but has security mitigations",
-                "TODO: - Note root execution and mitigations",
+                render_check_message(check, "mitigated_message"),
+                render_check_message(check, "mitigated_todo"),
                 severity="recommended",
                 confidence="medium",
             )
@@ -1083,8 +1083,8 @@ def _check_sec_2(ctx, finding: Finding) -> Finding:
             return finding
         else:
             finding.fail(
-                "Package runs daemon as root without security mitigations",
-                "does not run a daemon as root",
+                render_check_message(check, "not_ok_message"),
+                render_check_message(check, "not_ok_todo"),
                 severity="required",
                 confidence="medium",
             )
@@ -1098,7 +1098,7 @@ def _check_sec_2(ctx, finding: Finding) -> Finding:
 
     if has_non_root or has_nobody:
         finding.succeed(
-            "does not run a daemon as root",
+            render_check_message(check, "ok_message"),
             confidence="high",
         )
         finding.evidence_refs = ["packaging-source:debian_control"]
@@ -1106,7 +1106,7 @@ def _check_sec_2(ctx, finding: Finding) -> Finding:
 
     # No explicit indicators found; assume safe
     finding.succeed(
-        "does not run a daemon as root",
+        render_check_message(check, "ok_message"),
         confidence="medium",
     )
     finding.evidence_refs = ["packaging-source:debian_rules"]
@@ -1372,12 +1372,14 @@ def _check_sec_8(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if dep_analysis.get("status") != "ok":
-        _set_unknown_from_adapter(finding, check, "dep-analysis")
-        return finding
+        return _set_unknown_from_adapter(
+            finding, check, todo_key="unknown_todo", evidence_refs=["dep-analysis:error"]
+        )
 
     if packaging.get("status") != "ok":
-        _set_unknown_from_adapter(finding, check, "packaging-source")
-        return finding
+        return _set_unknown_from_adapter(
+            finding, check, todo_key="unknown_todo", evidence_refs=["packaging-source:error"]
+        )
 
     dependencies = dep_analysis.get("runtime_dep_packages", [])
     debian_control = packaging.get("debian_control", "")
@@ -1404,8 +1406,8 @@ def _check_sec_8(ctx, finding: Finding) -> Finding:
     for dep in dependencies:
         if any(p in dep.lower() for p in online_account_patterns):
             finding.fail(
-                f"Centralized accounts dependency found: {dep}",
-                "does not use centralized online accounts",
+                render_check_message(check, "not_ok_dep_message", dep=dep),
+                render_check_message(check, "not_ok_todo"),
                 severity="required",
                 confidence="high",
             )
@@ -1416,8 +1418,8 @@ def _check_sec_8(ctx, finding: Finding) -> Finding:
     for pattern in source_patterns:
         if pattern.lower() in debian_control_lower:
             finding.fail(
-                f"Online accounts pattern found: {pattern}",
-                "does not use centralized online accounts",
+                render_check_message(check, "not_ok_source_message", pattern=pattern),
+                render_check_message(check, "not_ok_todo"),
                 severity="required",
                 confidence="medium",
             )
@@ -1425,7 +1427,7 @@ def _check_sec_8(ctx, finding: Finding) -> Finding:
             return finding
 
     finding.succeed(
-        "does not use centralized online accounts",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
@@ -1441,12 +1443,14 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if dep_analysis.get("status") != "ok":
-        _set_unknown_from_adapter(finding, check, "dep-analysis")
-        return finding
+        return _set_unknown_from_adapter(
+            finding, check, todo_key="unknown_todo", evidence_refs=["dep-analysis:error"]
+        )
 
     if packaging.get("status") != "ok":
-        _set_unknown_from_adapter(finding, check, "packaging-source")
-        return finding
+        return _set_unknown_from_adapter(
+            finding, check, todo_key="unknown_todo", evidence_refs=["packaging-source:error"]
+        )
 
     dependencies = dep_analysis.get("runtime_dep_packages", [])
 
@@ -1464,8 +1468,8 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
             continue
         if any(pat in dep_lower for pat in _PAM_DEV_PATTERNS):
             finding.fail(
-                f"Direct PAM development dependency found: {dep}",
-                "does not deal with system authentication (eg, pam), etc)",
+                render_check_message(check, "not_ok_dev_message", dep=dep),
+                render_check_message(check, "not_ok_todo"),
                 severity="required",
                 confidence="high",
             )
@@ -1473,8 +1477,8 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
             return finding
         if any(dep_lower == pat for pat in _PAM_RUNTIME_DIRECT):
             finding.fail(
-                f"PAM runtime library dependency found: {dep} — verify it does not handle auth",
-                "does not deal with system authentication (eg, pam), etc)",
+                render_check_message(check, "not_ok_runtime_message", dep=dep),
+                render_check_message(check, "not_ok_todo"),
                 severity="required",
                 confidence="medium",
             )
@@ -1482,7 +1486,7 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
             return finding
 
     finding.succeed(
-        "does not deal with system authentication (eg, pam), etc)",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
