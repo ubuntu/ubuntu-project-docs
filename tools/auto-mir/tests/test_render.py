@@ -524,3 +524,71 @@ def test_section_with_problem_has_no_none_sentinel():
     security_only = security_block if next_section == -1 else security_block[:next_section]
     assert "webkit dependency found" in security_only
     assert "Problems: none" not in security_only
+
+
+# ---------------------------------------------------------------------------
+# Consolidated TODO numbering
+# ---------------------------------------------------------------------------
+
+
+def test_consolidated_todos_are_numbered_continuously():
+    """Required and Recommended TODO items share one continuous #N index."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1234567"
+    ctx.series = "noble"
+    ctx.evidence = {"adapters": {}}
+    ctx.findings = [
+        _ok_finding(fid="SUM-1", section="Summary"),
+        Finding(
+            id="DEP-1",
+            section="Dependencies",
+            title="dep one",
+            mode="deterministic",
+            status="not-ok",
+            severity="required",
+            confidence="high",
+            message="dep one problem",
+            todo="TODO: - fix dependency one",
+        ),
+        Finding(
+            id="DEP-2",
+            section="Dependencies",
+            title="dep two",
+            mode="deterministic",
+            status="not-ok",
+            severity="required",
+            confidence="high",
+            message="dep two problem",
+            todo="TODO: - fix dependency two",
+        ),
+        Finding(
+            id="PRF-3",
+            section="Packaging red flags",
+            title="watch",
+            mode="deterministic",
+            status="not-ok",
+            severity="recommended",
+            confidence="medium",
+            message="watch problem",
+            todo="TODO: - add debian/watch",
+        ),
+    ]
+
+    draft = _build_review_draft(ctx)
+
+    assert "- #1 fix dependency one" in draft
+    assert "- #2 fix dependency two" in draft
+    # Numbering continues into the Recommended block.
+    assert "- #3 add debian/watch" in draft
+    rec_idx = draft.index("Recommended TODOs:")
+    assert "- #3 add debian/watch" in draft[rec_idx:]
+
+
+def test_strip_todo_prefix_variants():
+    from render import _strip_todo_prefix
+
+    assert _strip_todo_prefix("TODO: - foo") == "foo"
+    assert _strip_todo_prefix("TODO: foo") == "foo"
+    assert _strip_todo_prefix("TODO-A: foo") == "foo"
+    assert _strip_todo_prefix("plain text") == "plain text"

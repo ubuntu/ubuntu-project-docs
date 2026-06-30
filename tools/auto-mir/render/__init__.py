@@ -24,6 +24,7 @@ Linting rules enforced before writing the draft:
 from __future__ import annotations
 
 import json
+import re
 from collections import defaultdict
 from dataclasses import asdict
 
@@ -329,20 +330,44 @@ def _render_summary_section(
         lines.append("Left to decide: None")
 
     lines.append("Required TODOs:")
-    lines.append("- TODO: - TBD (Please add them numbered for later reference)")
     required = _collect_todos_by_severity(all_findings, "required")
-    if required:
-        for todo in required:
-            lines.append(todo)
+    numbered, todo_index = _render_numbered_todos(required, start_index=1)
+    lines.extend(numbered)
+    lines.append("- TODO: - TBD (Please add more, numbered for later reference)")
 
     lines.append("Recommended TODOs:")
-    lines.append("- TODO: - TBD (Please add them numbered for later reference)")
     recommended = _collect_todos_by_severity(all_findings, "recommended")
-    if recommended:
-        for todo in recommended:
-            lines.append(todo)
+    numbered, todo_index = _render_numbered_todos(recommended, start_index=todo_index)
+    lines.extend(numbered)
+    lines.append("- TODO: - TBD (Please add more, numbered for later reference)")
 
     return lines
+
+
+_TODO_PREFIX_RE = re.compile(r"^\s*(?:TODO(?:-[A-Z])?:\s*)+(?:-\s*)?")
+
+
+def _strip_todo_prefix(line: str) -> str:
+    """Strip leading ``TODO:``/``TODO-X:`` and ``- `` markers, leaving the text."""
+    return _TODO_PREFIX_RE.sub("", line).strip()
+
+
+def _render_numbered_todos(items: list[str], start_index: int) -> tuple[list[str], int]:
+    """Render consolidated TODO items as ``- #N <text>`` with a running index.
+
+    The index continues across the Required and Recommended blocks so each item
+    has a stable, unique reference number the reviewer can cite. Returns the
+    rendered lines and the next free index.
+    """
+    out: list[str] = []
+    index = start_index
+    for item in items:
+        text = _strip_todo_prefix(item)
+        if not text:
+            continue
+        out.append(f"- #{index} {text}")
+        index += 1
+    return out, index
 
 
 def _collect_todos_by_severity(findings: list[Finding], severity: str) -> list[str]:
