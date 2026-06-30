@@ -61,9 +61,6 @@ _REQUIRED_MESSAGE_TEMPLATES: dict[str, dict[str, set[str]]] = {
         "unknown_adapter_todo": set(),
         "not_ok_message": {"deps"},
         "not_ok_todo": {"deps"},
-        "unknown_component_message": {"deps"},
-        "unknown_component_todo": {"deps"},
-        "ok_same_source_message": {"same_source"},
         "ok_message": set(),
     },
     "SEC-3": {

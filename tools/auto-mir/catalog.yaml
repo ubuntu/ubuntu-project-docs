@@ -954,9 +954,6 @@ checks:
     unknown_adapter_todo: 'TODO: - Verify no runtime dependencies in universe need MIR'
     not_ok_message: 'Runtime dependencies from other source packages outside main: {deps}'
     not_ok_todo: 'TODO: - File MIR for runtime dependencies from other source packages: {deps}'
-    unknown_component_message: 'Could not determine component for some runtime dependencies: {deps}'
-    unknown_component_todo: 'TODO: - Verify Ubuntu component for runtime dependencies: {deps}'
-    ok_same_source_message: 'no external runtime dependencies needing MIR (same-source deps promoted together: {same_source})'
     ok_message: no runtime dependencies outside main needing MIR
 - id: DEP-2
   section: Dependencies

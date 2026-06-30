@@ -1736,18 +1736,30 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if dep_analysis.get("status") != "ok":
-        return _set_unknown_from_adapter(finding, check)
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_adapter_message",
+            todo_key="unknown_adapter_todo",
+            evidence_refs=["dep-analysis:error"],
+        )
 
     if packaging.get("status") != "ok":
-        return _set_unknown_from_adapter(finding, check)
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_adapter_message",
+            todo_key="unknown_adapter_todo",
+            evidence_refs=["packaging-source:error"],
+        )
 
     unresolved_deps = dep_analysis.get("in_scope_deps_not_in_main", [])
 
     if unresolved_deps:
         deps_str = ", ".join(unresolved_deps[:3])  # Show first 3
         finding.fail(
-            f"Runtime dependencies from other source packages outside main: {deps_str}",
-            "no other runtime Dependencies to MIR due to this",
+            render_check_message(check, "not_ok_message", deps=deps_str),
+            render_check_message(check, "not_ok_todo", deps=deps_str),
             severity="required",
             confidence="medium",
         )
@@ -1755,7 +1767,7 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
         return finding
 
     finding.succeed(
-        "no other runtime Dependencies to MIR due to this",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = ["dep-analysis:in_scope_deps_not_in_main"]
