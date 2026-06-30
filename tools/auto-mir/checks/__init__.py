@@ -131,7 +131,16 @@ def _evaluate_single_check(check: dict, ctx) -> Finding:
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = "high"
-        finding.message = f"not a {gate} package, no extra constraints to consider in that regard"
+        # Combined gates (e.g. "go|rust") would emit a redundant umbrella line
+        # on top of the per-language statements produced by the single-language
+        # gate checks (e.g. ESL-4 for go, ESL-8 for rust). Suppress the umbrella
+        # message so only the specific per-language lines render.
+        if "|" in gate:
+            finding.message = ""
+        else:
+            finding.message = (
+                f"not a {gate} package, no extra constraints to consider in that regard"
+            )
         finding.todo = ""
         return finding
 

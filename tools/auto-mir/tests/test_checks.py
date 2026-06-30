@@ -2415,3 +2415,49 @@ def test_summarise_findings_so_far_respects_message_cap():
         ctx, max_message_len=checks.llm_eval._SYNTHESIS_FINDING_MESSAGE_CHARS
     )
     assert len(synth[0]["message"]) == checks.llm_eval._SYNTHESIS_FINDING_MESSAGE_CHARS
+
+
+def test_combined_language_gate_suppresses_umbrella_message():
+    """A combined 'go|rust' gate must not emit a redundant umbrella OK line."""
+    from types import SimpleNamespace
+
+    import checks
+
+    ctx = SimpleNamespace(
+        evidence={"adapters": {"packaging-source": {"status": "ok"}}},
+    )
+    check = {
+        "id": "ESL-1",
+        "section": "Embedded sources and static linking",
+        "title": "No embedded source present",
+        "mode": "ev_to_ai",
+        "language_gate": "go|rust",
+    }
+
+    finding = checks._evaluate_single_check(check, ctx)
+
+    assert finding.status == "ok"
+    assert finding.message == ""
+
+
+def test_single_language_gate_still_emits_message():
+    """A single-language gate keeps its specific 'not a <lang> package' line."""
+    from types import SimpleNamespace
+
+    import checks
+
+    ctx = SimpleNamespace(
+        evidence={"adapters": {"packaging-source": {"status": "ok"}}},
+    )
+    check = {
+        "id": "ESL-4",
+        "section": "Embedded sources and static linking",
+        "title": "Go gate",
+        "mode": "ev_to_ai",
+        "language_gate": "go",
+    }
+
+    finding = checks._evaluate_single_check(check, ctx)
+
+    assert finding.status == "ok"
+    assert finding.message == "not a go package, no extra constraints to consider in that regard"
