@@ -1,0 +1,202 @@
+# Auto-MIR Catalog Reference (`catalog.yaml`)
+
+`catalog.yaml` is the single, human-auditable source of truth for the automated
+MIR review. It declares every check, the evidence adapters they consume, and —
+crucially — **all reviewer-facing text every check can emit**. Evaluator code in
+`checks/` contains only logic; it never contains reviewer-draft wording.
+
+If you want to change *what the tool says*, you change the catalog. If you want to
+change *how the tool decides*, you change the evaluator. This separation is
+enforced by a test (see [Message single-sourcing](#message-single-sourcing)).
+
+---
+
+## Top-level structure
+
+```yaml
+metadata:            # review_template_blueprint for the offline doc renderer
+global_policies:     # confidence_model shared across checks
+evidence_adapters:   # data-collection interfaces (APIs, tools, scripts)
+checks:              # the check definitions (grouped by section, with banners)
+security_triggers:   # cross-cutting security actions linked from SEC-* checks
+```
+
+Only fields that runtime code actually reads (plus `notes`, kept as human
+documentation) live in the file. Nothing is declared "for future use".
+
+| Section | Read by | Purpose |
+| --- | --- | --- |
+| `metadata.review_template_blueprint` | `render_review_template.py` | Regenerates the human reviewer template (`docs/MIR/`). Offline only. |
+| `global_policies.confidence_model.description` | `checks/llm_eval.py` | Injected into AI prompts. |
+| `evidence_adapters[]` | `evidence/` | Adapter id/type/description and dependency wiring. |
+| `checks[]` | `checks/` | Check definitions (see below). |
+| `security_triggers[]` | `catalog.py` (count), future dispatcher | Documents intended actions when a `security_trigger` fires. |
+
+---
+
+## Check schema
+
+Every check is a mapping under `checks:`. Fields appear in one **canonical
+order** (enforced by hand; keep new checks consistent):
+
+```yaml
+- id: SUM-1                    # required — unique check id
+  section: Summary             # required — section name (drives banners + grouping)
+  title: Source package identified   # required — short human title
+  mode: deterministic          # required — deterministic | ev_to_ai | ai | human_only
+  language_gate: python        # optional — only run for go/rust/python packages
+  blocker_class: hard          # optional — hard | soft | none
+  synthesis: true              # optional — aggregate across other findings (ai mode)
+  aggregate_todo: true         # optional — surface TODO in a consolidated block
+  security_trigger: SEC-3-WEBKIT     # optional — links to security_triggers[]
+  adapters_required:           # optional — adapters that must succeed
+  - lp-bug-api
+  adapters_optional:           # optional — adapters used if available
+  - lp-package-api
+  messages:                    # see "Messages" — all reviewer text lives here
+    ok_message: 'Review for Source Package: {source_package}'
+    not_ok_message: Source package could not be determined
+    not_ok_todo: 'TODO: Clarify which source package this review is for'
+  todo_refs:                   # canonical TODO lines used by the doc renderer
+  - 'TODO: Review for Source Package: TBDSRC'
+  options:                     # Summary-only: enumerated reviewer decision options
+  - id: SUM-5-A
+    todo_ref: 'TODO-A: MIR team ACK'
+    predicate: no required findings and no hard blockers
+  ai_policy: none              # ev_to_ai/ai: per-check policy excerpt for the prompt
+  notes: free-form implementation hint (documentation only)
+```
+
+**Required for every check:** `id`, `section`, `title`, `mode`.
+
+**Notes on individual fields**
+
+- `options` is consumed at runtime only as a presence flag for `Summary` checks
+  (`checks/llm_eval.py`); its inner fields (`id`/`predicate`/`render`/`todo_ref`)
+  are human documentation of the decision options. Keep the list non-empty.
+- `ai_policy` is the per-check text spliced into the shared AI prompt
+  (`prompts/ev_to_ai.md`) as `{{policy_excerpt}}`. Use `none` for deterministic
+  checks.
+- `notes` is never read by code; use it for short implementation hints.
+
+---
+
+## Message single-sourcing
+
+All reviewer-facing text a check can produce is declared under
+`checks[].messages`, using Python `str.format` placeholders. Evaluators render
+them with `render_check_message(check, key, **values)` from
+[`checks/messages.py`](checks/messages.py):
+
+```python
+finding.fail(
+    render_check_message(check, "blocker_message", dep=dep),
+    render_check_message(check, "blocker_todo"),
+    severity="required",
+)
+```
+
+Three rules keep this honest:
+
+1. **No literals in evaluators.** A deterministic `_check_*` function must never
+   pass a string literal or f-string as the `message`/`todo` argument of
+   `finding.succeed()`/`finding.fail()`, nor assign one to `finding.message`/
+   `finding.todo`. Dynamic detail is passed as a placeholder value
+   (e.g. `{dep}`, `{count}`, `{source}`). This is enforced by
+   [`tests/test_message_sourcing.py`](tests/test_message_sourcing.py).
+2. **Every outcome is in the catalog.** The `messages` map lists *all* outcomes
+   the evaluator can emit (each unknown/ok/not-ok variant), so a reviewer can
+   read every possible draft without reading Python.
+3. **Strict placeholder validation.** Checks listed in
+   `_REQUIRED_MESSAGE_TEMPLATES` (`catalog.py`) must define the named template
+   keys, and each template must contain its required placeholders. Mode-based
+   templates are also enforced: `ev_to_ai`/`ai` need `llm_unavailable_message`
+   with `{error}`; `human_only` needs `human_only_message` and `human_only_todo`
+   with `{title}`. Validation runs on every catalog load (`validate_catalog`).
+
+AI (`ev_to_ai`/`ai`) checks keep their runtime, LLM-generated message and only
+declare `llm_unavailable_message` plus their `todo_refs`/`options`; the
+single-sourcing rule above applies to deterministic checks.
+
+---
+
+## Check modes
+
+| Mode | Evaluator | Reviewer text |
+| --- | --- | --- |
+| `deterministic` | `checks/deterministic.py` | Fully from `messages` (no LLM). |
+| `ev_to_ai` | `checks/llm_eval.py` | LLM draft from evidence; `ai_policy` shapes the prompt; capped at medium confidence. |
+| `ai` | `checks/llm_eval.py` | LLM synthesis across findings (`synthesis: true`). |
+| `human_only` | — | Reviewer fills in; requires `human_only_message`/`human_only_todo`. |
+
+---
+
+## How to add or modify a deterministic check
+
+1. **Declare the check** in `catalog.yaml` under the right `section:` (keep the
+   canonical field order; place it within the section's banner block).
+2. **Declare every outcome** under `messages:` — one key per draft the evaluator
+   can emit. Put dynamic detail in `{placeholders}`. Example:
+   ```yaml
+   messages:
+     unknown_message: Could not inspect packaging source
+     unknown_todo: 'TODO: - Manually verify ...'
+     not_ok_message: 'Offending dependency found: {dep}'
+     not_ok_todo: 'TODO: - remove {dep}'
+     ok_message: dependency policy satisfied
+   ```
+3. **Add strict validation** (recommended) in `_REQUIRED_MESSAGE_TEMPLATES`
+   (`catalog.py`): list the template keys and the placeholders each must contain.
+4. **Write the evaluator** in `checks/deterministic.py`, registering it with
+   `@deterministic_check("ID")`. Render every outcome:
+   ```python
+   @deterministic_check("XYZ-1")
+   def _check_xyz_1(ctx, finding):
+       check = _get_check_definition(ctx, "XYZ-1")
+       adapters = ctx.evidence.get("adapters", {})
+       data = adapters.get("dep-analysis", {})
+       if data.get("status") != "ok":
+           return _set_unknown_from_adapter(
+               finding, check, todo_key="unknown_todo",
+               evidence_refs=["dep-analysis:error"],
+           )
+       if offending:
+           finding.fail(
+               render_check_message(check, "not_ok_message", dep=offending),
+               render_check_message(check, "not_ok_todo", dep=offending),
+               severity="required",
+           )
+           return finding
+       finding.succeed(render_check_message(check, "ok_message"))
+       return finding
+   ```
+5. **Add a unit test** in `tests/test_checks.py`. The test harness builds a
+   small catalog fixture inline — add your check's `messages` there too, then
+   assert on `status`/`severity`/`confidence` and a message substring.
+6. **Run `make test`.** The message-sourcing guard, placeholder validation, and
+   your unit test all run.
+
+**To change wording only:** edit the value in `catalog.yaml` `messages` (and the
+matching fixture in `tests/test_checks.py`). No evaluator change is needed — that
+is the whole point of the design.
+
+---
+
+## The reviewer-template blueprint
+
+`metadata.review_template_blueprint` plus each check's `todo_refs` drive
+`render_review_template.py`, which regenerates the human reviewer template under
+`docs/MIR/`. This is an **offline documentation tool**, not part of a review run.
+After editing `todo_refs` or the blueprint, regenerate and commit the result.
+
+---
+
+## Validation and tests
+
+- `catalog.py:validate_catalog()` runs on every load: structure, modes,
+  adapter references, and message templates/placeholders.
+- `tests/test_catalog.py` covers catalog validation.
+- `tests/test_message_sourcing.py` enforces the no-literals rule.
+- `tests/test_checks.py` covers evaluator behaviour.
+
+Run everything with `make test` from `tools/auto-mir`.

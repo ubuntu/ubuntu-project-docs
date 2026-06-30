@@ -89,22 +89,19 @@
 
 ## Implementation-Ready Schema Direction
 
-Single file for MVP: `tools/auto-mir/catalog.yaml`.
+Single file for MVP: `tools/auto-mir/catalog.yaml`. The full field-by-field
+schema and a step-by-step "how to add or change a rule and its messages" guide
+live in [`CATALOG.md`](CATALOG.md); this section only summarises the shape.
 
-Top-level sections:
-- `metadata` — schema version, policy file refs and hashes, target series, generator info
-- `global_policies` — severity model, confidence model, ACK-block rules, NACK rules
-- `tooling_bootstrap` — mode default/override, upstream sources, required tools
-- `evidence_adapters[]` — id, type, description, inputs, output_contract, retry_policy
-- `checks[]` — id, section, title, todo_refs, options[], mode, language_gate,
-  adapters_required, adapters_optional, ai_policy, human_override, fallback,
-  blocker_class, mapping_rules, render_rules
-- `security_triggers[]` — id, linked_checks, trigger_condition, synthesis,
-  human_confirmation_required, action, output_flags
-- `render_policy` — template_mode, allow_rationale_append, forbidden_line_prefixes,
-  todo_prefix_rule
-- `fallback_policy` — on_adapter_error, on_missing_optional_data,
-  on_missing_required_data
+Top-level sections (only fields that runtime code reads are kept; `notes` is the
+one documentation-only exception):
+- `metadata` — `review_template_blueprint` consumed by the offline doc renderer
+- `global_policies` — `confidence_model` shared across checks
+- `evidence_adapters[]` — id, type, description, and dependency wiring
+- `checks[]` — id, section, title, mode, language_gate, blocker_class,
+  synthesis, aggregate_todo, security_trigger, adapters_required,
+  adapters_optional, messages, todo_refs, options, ai_policy, notes
+- `security_triggers[]` — id, linked checks, and intended cross-cutting actions
 
 ### Message Template Source of Truth
 
