@@ -235,8 +235,13 @@ class _Ctx:
                 {
                     "id": "URF-1",
                     "messages": {
-                        "ok_message": "no Errors/warnings during the build",
+                        "unknown_message": "Could not inspect build log",
                         "unknown_todo": "TODO: - Check build log for errors and warnings",
+                        "not_ok_errors_message": "Build log contains errors: {errors}",
+                        "not_ok_errors_todo": "TODO: - no Errors/warnings during the build",
+                        "warnings_message": "Build log contains {count} toolchain warning(s); first: {sample}",
+                        "warnings_todo": "TODO: - review {count} build warning(s) and decide if acceptable: {sample}",
+                        "ok_message": "no Errors/warnings during the build",
                     },
                 },
                 {
@@ -311,29 +316,47 @@ class _Ctx:
                 {
                     "id": "URF-3",
                     "messages": {
-                        "ok_message": "no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
+                        "unknown_message": "Could not inspect packaging source",
                         "unknown_todo": "TODO: - Check for privilege escalation outside tests",
+                        "not_ok_message": "Potential sudo/gksu/pkexec/LD_LIBRARY_PATH usage found outside tests",
+                        "not_ok_todo": "TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
+                        "ok_message": "no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
                     },
                 },
                 {
                     "id": "URF-4",
                     "messages": {
-                        "ok_message": "no use of user 'nobody' outside of tests",
+                        "unknown_message": "Could not inspect packaging source",
                         "unknown_todo": "TODO: - Check for 'nobody' user usage",
+                        "not_ok_message": "User 'nobody' found outside test context: {hits}",
+                        "not_ok_todo": "TODO: - no use of user 'nobody' outside of tests",
+                        "ok_message": "no use of user 'nobody' outside of tests",
                     },
                 },
                 {
                     "id": "URF-5",
                     "messages": {
-                        "ok_message": "no use of setuid / setgid",
+                        "unknown_message": "Could not inspect packaging source",
                         "unknown_todo": "TODO: - Check for setuid/setgid binaries",
+                        "source_binaries": "built binaries: {files}",
+                        "source_lintian": "lintian output",
+                        "source_tree": "source tree: {hits}",
+                        "source_rules": "debian/rules",
+                        "systemd_message": "setuid/setgid present ({source}) but using systemd service permissions",
+                        "systemd_todo": "TODO: - use of setuid, but ok because systemd is used",
+                        "not_ok_message": "setuid/setgid detected in {source}",
+                        "not_ok_todo": "TODO: - no use of setuid / setgid",
+                        "ok_message": "no use of setuid / setgid",
                     },
                 },
                 {
                     "id": "URF-7",
                     "messages": {
-                        "ok_message": "no dependency on webkit, qtwebkit or libseed",
+                        "unknown_message": "Could not analyse webkit/qtwebkit/libseed dependencies",
                         "unknown_todo": "TODO: - Check for old webkit dependencies",
+                        "not_ok_message": "Old web engine dependency found: {dep}",
+                        "not_ok_todo": "TODO: - no dependency on webkit, qtwebkit or libseed",
+                        "ok_message": "no dependency on webkit, qtwebkit or libseed",
                     },
                 },
                 {
@@ -361,15 +384,27 @@ class _Ctx:
                 {
                     "id": "URF-8",
                     "messages": {
-                        "ok_message": "UI/desktop file check",
+                        "unknown_message": "Could not inspect packaging (packaging-source failed)",
                         "unknown_todo": "TODO: - Check for .desktop files",
+                        "ok_not_ui_message": "not part of the UI for extra checks",
+                        "ok_not_ui_todo": "TODO-A: - not part of the UI for extra checks",
+                        "ok_desktop_message": "part of the UI, desktop file is ok",
+                        "ok_desktop_todo": "TODO-B: - part of the UI, desktop file is ok",
+                        "not_ok_message": "UI package without valid .desktop file",
+                        "not_ok_todo": "TODO: - part of the UI, desktop file is ok",
                     },
                 },
                 {
                     "id": "URF-9",
                     "messages": {
-                        "ok_message": "translation coverage check",
+                        "unknown_message": "Could not inspect packaging (packaging-source failed)",
                         "unknown_todo": "TODO: - Check for translation coverage",
+                        "ok_not_visible_message": "not user-visible, translations not needed",
+                        "ok_not_visible_todo": "TODO-A: - no translation present, but none needed for this case (not user visible)",
+                        "ok_translated_message": "user-visible with translation present",
+                        "ok_translated_todo": "TODO-B: - translation present",
+                        "not_ok_message": "User-visible package without translations",
+                        "not_ok_todo": "TODO: - translation present",
                     },
                 },
                 {

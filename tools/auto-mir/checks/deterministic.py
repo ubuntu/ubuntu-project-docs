@@ -697,7 +697,7 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
 
     if sbuild_result.get("status") != "ok":
         finding.fail(
-            "Could not inspect build log",
+            render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
             severity="recommended",
             confidence="low",
@@ -711,8 +711,8 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
 
     if errors:
         finding.fail(
-            "Build log contains errors: " + "; ".join(errors[:3]),  # Show first 3
-            "no Errors/warnings during the build",
+            render_check_message(check, "not_ok_errors_message", errors="; ".join(errors[:3])),
+            render_check_message(check, "not_ok_errors_todo"),
             severity="required",
             confidence="high",
         )
@@ -725,8 +725,8 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
         # human call. Routed to "Left to decide" via the unknown status.
         sample = "; ".join(warnings[:3])
         finding.fail(
-            f"Build log contains {len(warnings)} toolchain warning(s); first: {sample}",
-            f"TODO: - review {len(warnings)} build warning(s) and decide if acceptable: {sample}",
+            render_check_message(check, "warnings_message", count=len(warnings), sample=sample),
+            render_check_message(check, "warnings_todo", count=len(warnings), sample=sample),
             severity="recommended",
             confidence="medium",
             status="unknown",
@@ -735,7 +735,7 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
         return finding
 
     finding.succeed(
-        "no Errors/warnings during the build",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = ["sbuild:build_log"]
@@ -1122,7 +1122,7 @@ def _check_urf_3(ctx, finding: Finding) -> Finding:
 
     if packaging.get("status") != "ok":
         finding.fail(
-            "Could not inspect packaging source",
+            render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
             severity="recommended",
             confidence="low",
@@ -1147,8 +1147,8 @@ def _check_urf_3(ctx, finding: Finding) -> Finding:
             line
         ):
             finding.fail(
-                "Potential sudo/gksu/pkexec/LD_LIBRARY_PATH usage found outside tests",
-                "no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
+                render_check_message(check, "not_ok_message"),
+                render_check_message(check, "not_ok_todo"),
                 severity="required",
                 confidence="medium",
             )
@@ -1156,7 +1156,7 @@ def _check_urf_3(ctx, finding: Finding) -> Finding:
             return finding
 
     finding.succeed(
-        "no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = ["packaging-source:debian_rules"]
@@ -1172,7 +1172,7 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
 
     if packaging.get("status") != "ok":
         finding.fail(
-            "Could not inspect packaging source",
+            render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
             severity="recommended",
             confidence="low",
@@ -1204,8 +1204,8 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
 
     if hits:
         finding.fail(
-            "User 'nobody' found outside test context: " + "; ".join(hits[:3]),
-            "no use of user 'nobody' outside of tests",
+            render_check_message(check, "not_ok_message", hits="; ".join(hits[:3])),
+            render_check_message(check, "not_ok_todo"),
             severity="required",
             confidence="medium",
         )
@@ -1216,7 +1216,7 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
         return finding
 
     finding.succeed(
-        "no use of user 'nobody' outside of tests",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = [
@@ -1236,7 +1236,7 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
 
     if packaging.get("status") != "ok":
         finding.fail(
-            "Could not inspect packaging source",
+            render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
             severity="recommended",
             confidence="low",
@@ -1282,19 +1282,21 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
 
     if lintian_triggered or rules_triggered or source_triggered or binary_triggered:
         if binary_triggered:
-            source = "built binaries: " + ", ".join(binary_perm_files[:3])
+            source = render_check_message(
+                check, "source_binaries", files=", ".join(binary_perm_files[:3])
+            )
         elif lintian_triggered:
-            source = "lintian output"
+            source = render_check_message(check, "source_lintian")
         elif source_triggered:
             sample = (source_hits + source_perm_files)[:3]
-            source = "source tree: " + "; ".join(sample)
+            source = render_check_message(check, "source_tree", hits="; ".join(sample))
         else:
-            source = "debian/rules"
+            source = render_check_message(check, "source_rules")
         # Check for documented justification (prefer systemd)
         if "systemd" in debian_rules:
             finding.fail(
-                f"setuid/setgid present ({source}) but using systemd service permissions",
-                "TODO: - use of setuid, but ok because systemd is used",
+                render_check_message(check, "systemd_message", source=source),
+                render_check_message(check, "systemd_todo"),
                 severity="recommended",
                 confidence="medium",
             )
@@ -1305,8 +1307,8 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
         # confidence; source-only or rules-only hints are lower confidence.
         confidence = "high" if (lintian_triggered or binary_triggered) else "low"
         finding.fail(
-            f"setuid/setgid detected in {source}",
-            "no use of setuid / setgid",
+            render_check_message(check, "not_ok_message", source=source),
+            render_check_message(check, "not_ok_todo"),
             severity="required",
             confidence=confidence,
         )
@@ -1318,7 +1320,7 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
         return finding
 
     finding.succeed(
-        "no use of setuid / setgid",
+        render_check_message(check, "ok_message"),
         confidence="high" if lintian.get("status") == "ok" else "medium",
     )
     finding.evidence_refs = [
@@ -1338,8 +1340,9 @@ def _check_urf_7(ctx, finding: Finding) -> Finding:
     dep_analysis = adapters.get("dep-analysis", {})
 
     if dep_analysis.get("status") != "ok":
-        _set_unknown_from_adapter(finding, check, "dep-analysis")
-        return finding
+        return _set_unknown_from_adapter(
+            finding, check, todo_key="unknown_todo", evidence_refs=["dep-analysis:error"]
+        )
 
     dependencies = dep_analysis.get("runtime_dep_packages", [])
     old_webkit = ["webkit", "qtwebkit", "libseed"]
@@ -1347,8 +1350,8 @@ def _check_urf_7(ctx, finding: Finding) -> Finding:
     for dep in dependencies:
         if any(web in dep.lower() for web in old_webkit):
             finding.fail(
-                f"Old web engine dependency found: {dep}",
-                "no dependency on webkit, qtwebkit or libseed",
+                render_check_message(check, "not_ok_message", dep=dep),
+                render_check_message(check, "not_ok_todo"),
                 severity="required",
                 confidence="high",
             )
@@ -1356,7 +1359,7 @@ def _check_urf_7(ctx, finding: Finding) -> Finding:
             return finding
 
     finding.succeed(
-        "no dependency on webkit, qtwebkit or libseed",
+        render_check_message(check, "ok_message"),
         confidence="high",
     )
     finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
@@ -1501,8 +1504,9 @@ def _check_urf_8(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        _set_unknown_from_adapter(finding, check, "packaging-source")
-        return finding
+        return _set_unknown_from_adapter(
+            finding, check, todo_key="unknown_todo", evidence_refs=["packaging-source:error"]
+        )
 
     file_listing = packaging.get("file_listing", [])
     debian_control = packaging.get("debian_control", "")
@@ -1525,28 +1529,22 @@ def _check_urf_8(ctx, finding: Finding) -> Finding:
 
     if not has_desktop and not has_desktop_file:
         # Not a UI package — gate does not apply, check passes
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = "not part of the UI for extra checks"
-        finding.todo = "TODO-A: - not part of the UI for extra checks"
+        finding.succeed(render_check_message(check, "ok_not_ui_message"), confidence="high")
+        finding.todo = render_check_message(check, "ok_not_ui_todo")
         finding.evidence_refs = ["packaging-source:debian_control"]
         return finding
 
     if has_desktop_file:
         # Is a UI package with a valid .desktop file — check passes
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = "part of the UI, desktop file is ok"
-        finding.todo = "TODO-B: - part of the UI, desktop file is ok"
+        finding.succeed(render_check_message(check, "ok_desktop_message"), confidence="high")
+        finding.todo = render_check_message(check, "ok_desktop_todo")
         finding.evidence_refs = ["packaging-source:file_listing"]
         return finding
 
     # Is a UI package but no desktop file - this might be an issue
     finding.fail(
-        "UI package without valid .desktop file",
-        "part of the UI, desktop file is ok",
+        render_check_message(check, "not_ok_message"),
+        render_check_message(check, "not_ok_todo"),
         severity="required",
         confidence="medium",
     )
@@ -1562,8 +1560,9 @@ def _check_urf_9(ctx, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        _set_unknown_from_adapter(finding, check, "packaging-source")
-        return finding
+        return _set_unknown_from_adapter(
+            finding, check, todo_key="unknown_todo", evidence_refs=["packaging-source:error"]
+        )
 
     file_listing = packaging.get("file_listing", [])
     debian_control = packaging.get("debian_control", "")
@@ -1590,30 +1589,22 @@ def _check_urf_9(ctx, finding: Finding) -> Finding:
 
     if not is_user_visible:
         # Not user-visible — gate does not apply, check passes
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = "not user-visible, translations not needed"
-        finding.todo = (
-            "TODO-A: - no translation present, but none needed for this case (not user visible)"
-        )
+        finding.succeed(render_check_message(check, "ok_not_visible_message"), confidence="high")
+        finding.todo = render_check_message(check, "ok_not_visible_todo")
         finding.evidence_refs = ["packaging-source:debian_control"]
         return finding
 
     if has_translations:
         # User-visible with translations present — check passes
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
-        finding.message = "user-visible with translation present"
-        finding.todo = "TODO-B: - translation present"
+        finding.succeed(render_check_message(check, "ok_translated_message"), confidence="high")
+        finding.todo = render_check_message(check, "ok_translated_todo")
         finding.evidence_refs = ["packaging-source:file_listing"]
         return finding
 
     # User-visible but no translations - might be an issue
     finding.fail(
-        "User-visible package without translations",
-        "translation present",
+        render_check_message(check, "not_ok_message"),
+        render_check_message(check, "not_ok_todo"),
         severity="recommended",
         confidence="medium",
     )
