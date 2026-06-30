@@ -191,6 +191,19 @@ class _Ctx:
                 },
                 {
                     "id": "CB-1",
+                    "messages": {
+                        "hint_local_ok": "local sbuild build succeeded",
+                        "hint_local_failed": "local sbuild build FAILED (see build log)",
+                        "hint_local_unavailable": "local sbuild result unavailable",
+                        "unknown_no_lp_message": "Could not confirm Launchpad build state ({local_hint})",
+                        "unknown_no_lp_todo": "TODO: - does not FTBFS currently ({local_hint}; verify recent Launchpad build records)",
+                        "unknown_no_builds_message": "No Launchpad build records were found ({local_hint})",
+                        "unknown_no_builds_todo": "TODO: - does not FTBFS currently ({local_hint}; no Launchpad build records to confirm)",
+                        "not_ok_message": "Launchpad build state shows failures: {failed_builds}",
+                        "not_ok_todo": "TODO: - does not FTBFS currently",
+                        "ok_message": "does not FTBFS currently; Launchpad build records pass for arches: {passing_arches}",
+                        "ok_local_suffix": "; local sbuild build also succeeded",
+                    },
                 },
                 {
                     "id": "PRF-6",
@@ -223,10 +236,12 @@ class _Ctx:
                 {
                     "id": "CB-8",
                     "messages": {
-                        "ok_message": "Python package, but using dh_python",
-                        "not_ok_message": "Python package not using dh_python",
-                        "not_ok_todo": "TODO: - Python packages must use dh_python",
+                        "unknown_message": "Could not inspect debian/rules (packaging-source failed)",
                         "unknown_todo": "TODO: - Check debian/rules for dh_python",
+                        "ok_not_python_message": "not a Python package; Python packaging constraints do not apply",
+                        "ok_message": "Python package, but using dh_python",
+                        "not_ok_message": "Python package detected but dh_python/dh_python3 not found in debian/rules",
+                        "not_ok_todo": "TODO: - Python packages must use dh_python",
                     },
                 },
                 {

@@ -165,6 +165,7 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
     """CB-1: Package does not FTBFS currently."""
     adapters = ctx.evidence.get("adapters", {})
 
+    check = _get_check_definition(ctx, "CB-1")
     sbuild_result = adapters.get("sbuild", {})
     lp_build_result = adapters.get("lp-build-api", {})
 
@@ -173,21 +174,18 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
     # surfacing the local result helps when Launchpad data is unavailable.
     if sbuild_result.get("status") == "ok":
         local_build_ok = bool(sbuild_result.get("build_success"))
-        local_hint = (
-            "local sbuild build succeeded"
-            if local_build_ok
-            else "local sbuild build FAILED (see build log)"
+        local_hint = render_check_message(
+            check, "hint_local_ok" if local_build_ok else "hint_local_failed"
         )
     else:
         local_build_ok = False
-        local_hint = "local sbuild result unavailable"
+        local_hint = render_check_message(check, "hint_local_unavailable")
 
     # Launchpad build records are required to confirm all architectures build.
     if lp_build_result.get("status") != "ok":
         finding.fail(
-            f"Could not confirm Launchpad build state ({local_hint})",
-            f"TODO: - does not FTBFS currently ({local_hint}; "
-            "verify recent Launchpad build records)",
+            render_check_message(check, "unknown_no_lp_message", local_hint=local_hint),
+            render_check_message(check, "unknown_no_lp_todo", local_hint=local_hint),
             severity="recommended",
             confidence="low",
             status="unknown",
@@ -198,9 +196,8 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
     builds = lp_build_result.get("builds", [])
     if not builds:
         finding.fail(
-            f"No Launchpad build records were found ({local_hint})",
-            f"TODO: - does not FTBFS currently ({local_hint}; "
-            "no Launchpad build records to confirm)",
+            render_check_message(check, "unknown_no_builds_message", local_hint=local_hint),
+            render_check_message(check, "unknown_no_builds_todo", local_hint=local_hint),
             severity="recommended",
             confidence="low",
             status="unknown",
@@ -220,20 +217,19 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
 
     if failed_builds:
         finding.fail(
-            "Launchpad build state shows failures: " + "; ".join(failed_builds),
-            "does not FTBFS currently",
+            render_check_message(check, "not_ok_message", failed_builds="; ".join(failed_builds)),
+            render_check_message(check, "not_ok_todo"),
             severity="required",
             confidence="high",
         )
         finding.evidence_refs = ["sbuild:build_success", "lp-build-api:builds"]
         return finding
 
-    success_message = (
-        "does not FTBFS currently; Launchpad build records pass for arches: "
-        + ", ".join(passing_arches)
+    success_message = render_check_message(
+        check, "ok_message", passing_arches=", ".join(passing_arches)
     )
     if local_build_ok:
-        success_message += "; local sbuild build also succeeded"
+        success_message += render_check_message(check, "ok_local_suffix")
     finding.succeed(success_message, confidence="high")
     finding.evidence_refs = ["sbuild:build_success", "lp-build-api:builds"]
     return finding
@@ -794,7 +790,7 @@ def _check_cb_8(ctx, finding: Finding) -> Finding:
 
     if packaging.get("status") != "ok":
         finding.fail(
-            "Could not inspect debian/rules (packaging-source failed)",
+            render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
             severity="recommended",
             confidence="low",
@@ -810,7 +806,7 @@ def _check_cb_8(ctx, finding: Finding) -> Finding:
     if not is_python:
         # Not a Python package; gate doesn't apply
         finding.succeed(
-            "not a Python package; Python packaging constraints do not apply",
+            render_check_message(check, "ok_not_python_message"),
             confidence="high",
         )
         finding.evidence_refs = ["packaging-source:debian_rules"]
@@ -818,7 +814,7 @@ def _check_cb_8(ctx, finding: Finding) -> Finding:
 
     if uses_dh_python:
         finding.succeed(
-            "Python package, but using dh_python",
+            render_check_message(check, "ok_message"),
             confidence="high",
         )
         finding.evidence_refs = ["packaging-source:debian_rules"]
@@ -826,8 +822,8 @@ def _check_cb_8(ctx, finding: Finding) -> Finding:
 
     # Python package not using dh_python
     finding.fail(
-        "Python package detected but dh_python/dh_python3 not found in debian/rules",
-        "Python package, but using dh_python",
+        render_check_message(check, "not_ok_message"),
+        render_check_message(check, "not_ok_todo"),
         severity="required",
         confidence="high",
     )
