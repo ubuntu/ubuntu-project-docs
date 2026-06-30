@@ -103,7 +103,7 @@ The baseline backport process is simple, but there are many different things tha
 
 In some cases, a backport is requested for a specific reason, e.g., a Rust-based application in an old Ubuntu release has an SRU that needs a newer toolchain to build. In this case, create a Launchpad bug if one does not already exist (see a good example bug: {lpbug}`rustc 1.82 required by firefox 137 and chromium 138 <2100492>`).
 
-The Launchpad bug helps to keep track of backport progress and status, which is essential if it the backport is to be uploaded to the Ubuntu Archive. If you need to go back multiple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored.
+The Launchpad bug helps to keep track of backport progress and status, which is essential if the backport is to be uploaded to the Ubuntu Archive. If you need to go back multiple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored.
 
 In other cases, backports are prepared proactively in case they may be needed in the future. In this case, a Launchpad bug does not need to be created for the backport. Even if a given backport is not needed in the Ubuntu Archive, it will likely still be needed to bootstrap later Rust versions. We upload all backports to the ["Rust Toolchain" Staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/). A backport that successfully builds in this PPA and passes its {term}`autopkgtest` suite may later be copied into the Ubuntu Archive as needed.
   
@@ -133,16 +133,13 @@ $ git checkout -b jammy-1.85
 
 The first thing we should do on our new branch is create a new changelog entry. Before we change anything, however, it's important to understand the meaning of every component of the version number. Ensure you read and understand the {ref}`rust-version-strings` article before proceeding.
 
-
-#### Creating the new changelog entry
-
 To begin, run the command `dch`:
 
 ```none
 $ dch
 ```
 
- This adds a new entry to the changelog and opens an editor allowing you to modify it:
+This adds a new entry to the changelog and opens an editor allowing you to modify it:
 
 - Change `UNRELEASED` to the Ubuntu series you are backporting to, using its short name, e.g. `jammy`. 
 - Update the version string to reference the series you are backporting to, using its numeric value, e.g. `22.04`, and reset any revision number after the existing series numbers. Note that the series number occurs twice in backport version strings: once in the orig tarball part and once in the Ubuntu component, both of which need to be updated.
@@ -152,7 +149,7 @@ $ dch
 | Existing release | Backport | `<existing_version_number>` | New version number |
 | --- | --- | --- | --- |
 | 1.93 Devel | 1.93 Noble | `1.93.0+dfsg-0ubuntu1` | `1.93.0+dfsg~24.04-0ubuntu1~24.04.1` |
-| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg2~24.04.1-0ubuntu3~24.04.2 ` | `1.89.0+dfsg2~22.04-0ubuntu3~22.04.1` |
+| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg2~24.04.1-0ubuntu3~24.04.2` | `1.89.0+dfsg2~22.04-0ubuntu3~22.04.1` |
 
 Make the initial changelog entry description something like this:
 
@@ -206,14 +203,39 @@ Even in the absence of this test, the build process already includes a self-buil
 
 ### Uploading the backport to the staging PPA
 
-Once your backport builds successfully in an individual PPA, bump the `<release_number>` to its proper number (dropping any `~ppa<N>` suffix) and upload to the [staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/):
+Once your backport builds successfully in an individual PPA, bump the `<release_number>` to its proper number (dropping any `~ppa<N>` suffix) and upload to the [staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/).
+
+To bump the release number, you can create a new changelog entry with `dch`. However, if you have previously created an entry for this backport, `dch -r` is preferable since it edits the latest entry instead of inserting a new one, and also updates the latest entry metadata.
+
+Each backport changelog entry is expected to list out the specific changes that were made to get the backport to build, so make sure to include these in the changelog entry description. An example of a good changelog entry for the `rustc-1.90` backport to Noble is as follows:
+
+```none
+rustc-1.90 (1.90.0+dfsg~24.04-0ubuntu0.24.04.1) noble; urgency=medium
+
+  * Backport Rust 1.90 to Noble Numbat
+    - Downgrade libgit2 to 1.7.2
+    - Replace system LLVM dependencies with vendored version
+    - Vendor dh-cargo-vendored-sources to use specific cargo version
+
+ -- Brent Kerby <brent.kerby@canonical.com>  Fri, 05 Dec 2025 13:12:38 -0700
+```
+
+After the changelog entry is updated, build the source package with:
+
+```none
+$ dpkg-buildpackage -S -I -i -nc -d -sa
+```
+
+Then upload the source package to the staging PPA with:
 
 ```none
 $ dput ppa:rust-toolchain/staging <path_to_source_changes>
 ```
 
+Here, `<path_to_source_changes>` is the path to the generated `.changes` file from the source build step, normally located in the parent directory of the source directory.
+
 :::{admonition} Skipping personal PPA upload
-It is also possible to upload directly the staging PPA without first uploading to a personal PPA, in which case the proper version number can also be used from the beginning (skipping the step of uploading with a `~ppa<N>` suffix). This can save time by avoiding the need to rebuild the package a second time. The main drawback is that if the build fails, that version number is now "used up" in the staging PPA, so it would be required to bump the version number before uploading again.
+It is also possible to upload directly to the staging PPA without first uploading to a personal PPA, in which case the proper version number can also be used from the beginning (skipping the step of uploading with a `~ppa<N>` suffix). This can save time by avoiding the need to rebuild the package a second time. The main drawback is that if the build fails, that version number is now "used up" in the staging PPA, so it would be required to bump the version number before uploading again.
 
 This can lead to gaps in the version numbers that are uploaded to the Archive. For backports, this is considered acceptable and can be a worthwhile trade-off to avoid wasting time and resources on duplicate builds (particularly while `riscv64` is running using emulation, which makes builds take a very long time). It is only required that the version numbers increase monotonically, not that they be sequential.
 :::
@@ -226,13 +248,13 @@ After the package builds successfully in the staging PPA, the next step is to en
 To trigger `autopkgtest` tests, run the following command:
 
 ```none
-ppa tests ppa:rust-toolchain/staging -p rustc-<X.Y> --release <release> --show-url
+$ ppa tests ppa:rust-toolchain/staging -p rustc-<X.Y> --release <release> --show-url
 ```
 
 For example, for `rustc-1.89` on Noble, the command would be:
 
 ```none
-ppa tests ppa:rust-toolchain/staging -p rustc-1.89 --release noble --show-url
+$ ppa tests ppa:rust-toolchain/staging -p rustc-1.89 --release noble --show-url
 ```
 
 This command outputs a series of URLs that can be used to trigger an `autopkgtest` run for each architecture. The tests run remotely on the `autopkgtest` infrastructure. Monitor the progress and results of these tests by running the same command again after a few minutes. If any tests fail, the output includes a link to the logs for troubleshooting the failures. See {ref}`how-to-run-package-tests` for more details and options on how to run `autopkgtest` tests; for example, it is possible to run tests locally, which can be helpful when developing a new test or investigating a failure.
@@ -585,7 +607,7 @@ We also need to re-include the LLVM copyright stanza in `debian/copyright`:
 
 #### Re-including the LLVM source
 
-You can now {ref}`regenerate the orig tarball <rust-version-strings>`, which should now include the upstream LLVM source in `src/llvm-project`.
+You can now {ref}`regenerate the orig tarball <rust-generating-the-orig-tarball>`, which should now include the upstream LLVM source in `src/llvm-project`.
 
 After regenerating the orig tarball, get all the new LLVM files and overlay them on your working directory:
 
@@ -942,7 +964,7 @@ Then, right before the builder runs out of space, add some diagnostic informatio
 	-du -xh $(CURDIR) | sort -h | tail -n 20
 ```
 
-Hopefully, the PPA builder will run out of space _past_ the point at which `stage0` `stage1`, and `test` artifacts are no longer needed. In that case, they can simply be deleted earlier than usual:
+Hopefully, the PPA builder will run out of space _past_ the point at which `stage0`, `stage1`, and `test` artifacts are no longer needed. In that case, they can simply be deleted earlier than usual:
 
 ```makefile
 	$(RM) -rf $(CURDIR)/build/$(DEB_BUILD_RUST_TYPE)/test
