@@ -344,8 +344,12 @@ def _collect_todos_by_severity(findings: list[Finding], severity: str) -> list[s
     seen: set[str] = set()
     todos: list[str] = []
     for finding in findings:
-        if finding.id == "SUM-4":
-            # SUM-4 is a gate only and should not render in the final draft.
+        # Summary-section decision checks (ACK/NACK verdict, security review,
+        # promotion list) render inline in the [Summary] block. Re-listing them
+        # here would duplicate them in the consolidated TODO blocks. Findings
+        # explicitly flagged aggregate_todo (e.g. the team-subscriber gate) are
+        # the exception: they belong in the consolidated list.
+        if finding.section == "Summary" and not finding.aggregate_todo:
             continue
         if finding.status == "ok":
             continue

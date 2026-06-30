@@ -123,6 +123,13 @@ class Finding:
     risk_flags: list[str] = field(default_factory=list)
     human_confirmation_required: bool = False
 
+    # --- Rendering routing (from check definition) ---
+    # When True, this finding's TODO is surfaced in the consolidated
+    # Required/Recommended TODO blocks even though it lives in the [Summary]
+    # section. Summary decision checks (ACK/NACK verdict, security review)
+    # default to False so they render inline only and are not duplicated.
+    aggregate_todo: bool = False
+
     # --- Set during post-processing ---
     adapter_error_cause: list[str] = field(default_factory=list)
 

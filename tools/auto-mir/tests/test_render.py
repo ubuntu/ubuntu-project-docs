@@ -416,3 +416,68 @@ def test_build_review_draft_empty_findings():
     assert "Source Package: testpkg" in draft
     assert "1234567" in draft
     assert "noble" in draft
+
+
+# ---------------------------------------------------------------------------
+# Summary TODO routing — no duplication between inline and consolidated blocks
+# ---------------------------------------------------------------------------
+
+
+def _summary_ctx_with_decision_finding():
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1234567"
+    ctx.series = "noble"
+    ctx.evidence = {"adapters": {}}
+    ctx.findings = [
+        # A Summary decision check (e.g. SUM-5 ACK/NACK) rendering reviewer
+        # options inline. It must not be duplicated into Required TODOs.
+        Finding(
+            id="SUM-5",
+            section="Summary",
+            title="Overall ACK/NACK",
+            mode="ai",
+            status="unknown",
+            severity="required",
+            confidence="low",
+            message="Need verdict",
+            todo="TODO-A: MIR team ACK\nTODO-B: MIR team NACK",
+            aggregate_todo=False,
+        ),
+    ]
+    return ctx
+
+
+def test_summary_decision_finding_not_duplicated_in_required_todos():
+    """A Summary decision check renders inline only, never re-listed below."""
+    ctx = _summary_ctx_with_decision_finding()
+    draft = _build_review_draft(ctx)
+
+    # The decision options must appear exactly once (in Left to decide), not
+    # again under Required TODOs.
+    assert draft.count("TODO-A: MIR team ACK") == 1
+    assert draft.count("TODO-B: MIR team NACK") == 1
+
+
+def test_summary_aggregate_todo_finding_surfaces_in_consolidated_block():
+    """A Summary finding flagged aggregate_todo IS surfaced in the TODO blocks."""
+    ctx = _summary_ctx_with_decision_finding()
+    ctx.findings.append(
+        Finding(
+            id="SUM-4",
+            section="Summary",
+            title="Team bug subscriber present",
+            mode="deterministic",
+            status="not-ok",
+            severity="recommended",
+            confidence="high",
+            message="Package does not have a team subscriber",
+            todo="TODO: - The package should get a team bug subscriber before being promoted",
+            aggregate_todo=True,
+        )
+    )
+    draft = _build_review_draft(ctx)
+
+    # The subscriber TODO belongs in the consolidated Recommended TODOs block.
+    recommended_idx = draft.index("Recommended TODOs:")
+    assert "team bug subscriber" in draft[recommended_idx:]

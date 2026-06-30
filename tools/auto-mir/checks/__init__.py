@@ -121,6 +121,7 @@ def _evaluate_single_check(check: dict, ctx) -> Finding:
         title=check.get("title", ""),
         mode=mode,
         blocker_class=check.get("blocker_class", "none"),
+        aggregate_todo=bool(check.get("aggregate_todo", False)),
     )
 
     # Apply language gate before routing to evaluator.
