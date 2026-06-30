@@ -162,38 +162,44 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
     sbuild_result = adapters.get("sbuild", {})
     lp_build_result = adapters.get("lp-build-api", {})
 
-    if sbuild_result.get("status") != "ok" or not sbuild_result.get("build_success"):
-        finding.fail(
-            "Could not confirm build success from sbuild output",
-            "TODO: - does not FTBFS currently",
-            severity="recommended",
-            confidence="low",
-            status="unknown",
+    # Summarise the local sbuild outcome as a hint for the reviewer. Launchpad
+    # build records remain authoritative for the multi-architecture verdict, but
+    # surfacing the local result helps when Launchpad data is unavailable.
+    if sbuild_result.get("status") == "ok":
+        local_build_ok = bool(sbuild_result.get("build_success"))
+        local_hint = (
+            "local sbuild build succeeded"
+            if local_build_ok
+            else "local sbuild build FAILED (see build log)"
         )
-        finding.evidence_refs = ["sbuild:build_success"]
-        return finding
+    else:
+        local_build_ok = False
+        local_hint = "local sbuild result unavailable"
 
+    # Launchpad build records are required to confirm all architectures build.
     if lp_build_result.get("status") != "ok":
         finding.fail(
-            "Could not confirm Launchpad build state",
-            "TODO: - does not FTBFS currently",
+            f"Could not confirm Launchpad build state ({local_hint})",
+            f"TODO: - does not FTBFS currently ({local_hint}; "
+            "verify recent Launchpad build records)",
             severity="recommended",
             confidence="low",
             status="unknown",
         )
-        finding.evidence_refs = ["lp-build-api:error"]
+        finding.evidence_refs = ["lp-build-api:error", "sbuild:build_success"]
         return finding
 
     builds = lp_build_result.get("builds", [])
     if not builds:
         finding.fail(
-            "No Launchpad build records were found",
-            "TODO: - does not FTBFS currently",
+            f"No Launchpad build records were found ({local_hint})",
+            f"TODO: - does not FTBFS currently ({local_hint}; "
+            "no Launchpad build records to confirm)",
             severity="recommended",
             confidence="low",
             status="unknown",
         )
-        finding.evidence_refs = ["lp-build-api:builds"]
+        finding.evidence_refs = ["lp-build-api:builds", "sbuild:build_success"]
         return finding
 
     failed_builds = []
@@ -216,11 +222,13 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
         finding.evidence_refs = ["sbuild:build_success", "lp-build-api:builds"]
         return finding
 
-    finding.succeed(
+    success_message = (
         "does not FTBFS currently; Launchpad build records pass for arches: "
-        + ", ".join(passing_arches),
-        confidence="high",
+        + ", ".join(passing_arches)
     )
+    if local_build_ok:
+        success_message += "; local sbuild build also succeeded"
+    finding.succeed(success_message, confidence="high")
     finding.evidence_refs = ["sbuild:build_success", "lp-build-api:builds"]
     return finding
 

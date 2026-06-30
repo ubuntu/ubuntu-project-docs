@@ -1020,6 +1020,33 @@ def test_cb_1_not_ok_when_lp_build_state_fails():
     assert "arm64" in result.message
 
 
+def test_cb_1_todo_with_local_build_hint_when_lp_missing():
+    """When Launchpad records are missing, stay TODO but hint the local build worked."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {"status": "ok", "build_success": True}
+    ctx.evidence["adapters"]["lp-build-api"] = {"status": "ok", "builds": []}
+
+    finding = _make_finding("CB-1", mode="deterministic")
+    result = checks.deterministic._check_cb_1(ctx, finding)
+
+    assert result.status == "unknown"
+    assert "local sbuild build succeeded" in result.message
+    assert "local sbuild build succeeded" in result.todo
+
+
+def test_cb_1_todo_hints_local_build_failure():
+    """A failed local build is surfaced in the hint when Launchpad data is absent."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {"status": "ok", "build_success": False}
+    ctx.evidence["adapters"]["lp-build-api"] = {"status": "error"}
+
+    finding = _make_finding("CB-1", mode="deterministic")
+    result = checks.deterministic._check_cb_1(ctx, finding)
+
+    assert result.status == "unknown"
+    assert "FAILED" in result.message
+
+
 def test_esl_3_unexpected_built_using():
     """Test ESL-3 with unexpected Built-Using entries."""
     ctx = _Ctx()
