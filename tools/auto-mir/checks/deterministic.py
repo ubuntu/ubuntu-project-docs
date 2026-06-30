@@ -626,8 +626,34 @@ def _check_esl_10(ctx, finding: Finding) -> Finding:
     return finding
 
 
+# Generic packaging diagnostics that appear on virtually every build and carry
+# no signal about the quality of the upstream code. They must not be reported as
+# build warnings/errors (they are pure noise for an MIR reviewer).
+_BUILD_LOG_NOISE_MARKERS = (
+    "dpkg-source: warning:",
+    "dpkg-buildflags: warning:",
+    "dpkg-genbuildinfo: warning:",
+    "dpkg-gencontrol: warning:",
+    "dpkg-genchanges: warning:",
+    "dpkg-deb: warning:",
+    "dpkg-architecture: warning:",
+    "debian/changelog not found",
+    "cannot verify inline signature",
+    "no acceptable signature found",
+)
+
+
+def _is_build_log_noise(line_lower: str) -> bool:
+    """Return True for generic packaging diagnostics that are not code issues."""
+    return any(marker in line_lower for marker in _BUILD_LOG_NOISE_MARKERS)
+
+
 def _parse_build_log_issues(build_log: str) -> tuple[list[str], list[str]]:
-    """Parse build log to extract error and warning lines.
+    """Parse build log to extract real error and warning lines.
+
+    Generic packaging noise that appears on essentially every build (dpkg-source
+    signature notes, dpkg-buildflags changelog notes, etc.) is filtered out so
+    only genuine toolchain diagnostics remain.
 
     Returns:
         (errors, warnings) tuple where each is a list of relevant log lines
@@ -645,6 +671,8 @@ def _parse_build_log_issues(build_log: str) -> tuple[list[str], list[str]]:
 
     for line in build_log.split("\n"):
         line_lower = line.lower()
+        if _is_build_log_noise(line_lower):
+            continue
         # Check for error patterns
         if any(token in line_lower for token in ["error:", "fatal error:", "failed to"]):
             errors.append(line.strip())
@@ -690,11 +718,16 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
         return finding
 
     if warnings:
+        # Genuine toolchain warnings are surfaced for reviewer judgement rather
+        # than auto-classified as a confirmed problem: whether they matter is a
+        # human call. Routed to "Left to decide" via the unknown status.
+        sample = "; ".join(warnings[:3])
         finding.fail(
-            "Build log contains warnings: " + "; ".join(warnings[:3]),  # Show first 3
-            "no Errors/warnings during the build",
+            f"Build log contains {len(warnings)} toolchain warning(s); first: {sample}",
+            f"TODO: - review {len(warnings)} build warning(s) and decide if acceptable: {sample}",
             severity="recommended",
             confidence="medium",
+            status="unknown",
         )
         finding.evidence_refs = ["sbuild:build_log"]
         return finding

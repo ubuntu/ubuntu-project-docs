@@ -1095,7 +1095,7 @@ def test_urf_1_clean_build_log():
 
 
 def test_urf_1_build_warnings():
-    """Test URF-1 with build warnings detected."""
+    """Genuine build warnings are routed to reviewer judgement (Left to decide)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["sbuild"] = {
         "status": "ok",
@@ -1106,9 +1106,32 @@ def test_urf_1_build_warnings():
     finding = _make_finding("URF-1", mode="deterministic")
     result = checks.deterministic._check_urf_1(ctx, finding)
 
-    assert result.status == "not-ok"
+    assert result.status == "unknown"
     assert result.severity == "recommended"
     assert "warning" in result.message.lower()
+
+
+def test_urf_1_ignores_dpkg_noise():
+    """dpkg-source/dpkg-buildflags noise must not be reported as build warnings."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["sbuild"] = {
+        "status": "ok",
+        "build_log": (
+            "dpkg-source: warning: cannot verify inline signature for ./foo.dsc: "
+            "no acceptable signature found\n"
+            "dpkg-buildflags: warning: debian/changelog not found. Not setting "
+            "ELF package metadata parameter.\n"
+            "gcc -O2 -c foo.c\n"
+        ),
+        "build_success": True,
+    }
+
+    finding = _make_finding("URF-1", mode="deterministic")
+    result = checks.deterministic._check_urf_1(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "Errors/warnings" in result.message
 
 
 def test_urf_1_build_errors():
@@ -1129,7 +1152,7 @@ def test_urf_1_build_errors():
 
 
 def test_urf_1_security_warning():
-    """Test URF-1 with security warning detected."""
+    """Test URF-1 with security warning detected (reviewer judgement)."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["sbuild"] = {
         "status": "ok",
@@ -1140,7 +1163,7 @@ def test_urf_1_security_warning():
     finding = _make_finding("URF-1", mode="deterministic")
     result = checks.deterministic._check_urf_1(ctx, finding)
 
-    assert result.status == "not-ok"
+    assert result.status == "unknown"
     assert result.severity == "recommended"
     assert "warning" in result.message.lower()
 
