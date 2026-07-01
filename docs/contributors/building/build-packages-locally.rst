@@ -168,6 +168,13 @@ In some cases, builds may be more complex and require additional configuration. 
 Building for a different architecture (cross-building)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. note::
+
+   Cross-building requires the ``schroot`` backend. The ``unshare`` backend
+   does not currently support cross-building. See the
+   `Debian sbuild wiki <https://wiki.debian.org/sbuild#Use_schroot_instead_of_unshare>`_
+   for details.
+
 .. dropdown:: Without ``unshare`` (additional setup required)
 
    Building for a different architecture without ``unshare`` requires using an emulated ``schroot``.
