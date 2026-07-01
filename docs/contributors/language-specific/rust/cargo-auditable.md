@@ -4,10 +4,11 @@
 [`cargo-auditable`](https://github.com/rust-secure-code/cargo-auditable) is a tool by the Rustsec Working Group that augments the Rust binary build process by embedding metadata showing the dependency tree into a the binary.
 Specifically, it puts a JSON-encoded, Zlib-compressed payload into the `.dep-v0` header.
 
-If you develop a Rust binary package for Ubuntu versions 26.04 and later and {manpage}`rustc(1)` versions 1.93 and later, you can opt-in to adding `cargo-auditable` metadata to your binaries.
+If you develop a Rust binary package for Ubuntu versions 26.04 and later and {manpage}`rustc(1)` versions 1.93 and later, and it uses {manpage}`dh-cargo`, you can opt-in to adding `cargo-auditable` metadata to your binaries.
+If your package doesn't use `dh-cargo` we still recommend turning it on manually (see below).
 
 ```{admonition} Some caveats
-`cargo-auditable` support is still **experimental**, which is why it is opt-in for now.
+`cargo-auditable` support for `dh-cargo` is still **experimental**, which is why it is opt-in for now.
 We hope to make it on-by-default in a later version of Ubuntu, but we would like to have the community test it first.
 If you do not follow the steps below, at time of writing, nothing about your package will change.
 
@@ -16,9 +17,9 @@ Also, note that this *only* works on Ubuntu 26.04 (Resolute Raccoon) and later, 
 To learn more technical details, see the Github repo: [`cargo-auditable`](https://github.com/rust-secure-code/cargo-auditable).
 ```
 
-## Creating auditable binaries
+## Creating auditable binaries with `dh-cargo`
 
-To enable building with `cargo-auditable`, it takes two steps:
+To quickly enable `cargo-auditable`, it takes two steps:
 
 1. Export `UBUNTU_ENABLE_CARGO_AUDITABLE=1` in your `debian/rules` file.
 2. Put a `Build-Depends` on `cargo-auditable` in your `debian/control` file.
@@ -51,6 +52,38 @@ index 7460220..0ecb9df 100755
 +
  %:
         dh $@ --buildsystem cargo
+```
+
+## Creating auditable binaries without `dh-cargo`
+
+There are many Rust packages, such as {manpage}`rust-coreutils(1)` and {manpage}`fish(1)`, that manually invoke {manpage}`cargo(1)` without using `dh-cargo`.
+In these cases, you can manually build using `cargo-auditable`:
+
+1. Include `cargo-auditable` in the package's `Build-Depends` (via `debian/control`).
+2. Find where `cargo` is called from the `debian/rules` file, and replace it with `cargo auditable`.
+
+Using `rust-coreutils` as an example, by searching in the repository a little bit, we see that `debian/rules` invokes {manpage}`gmake(1)`,
+so we search where the `GNUmakefile` invokes `cargo`.
+Then we can edit it, and save our changes as a Debian patch using {ref}`the standard workflow <how-to-make-changes-to-a-package>`.
+
+```diff
+Description: Build with cargo-auditable
+Author: Petrichor Park <petrichor.park@canonical.com>
+Bug: https://bugs.launchpad.net/ubuntu/+source/rust-coreutils/+bug/2158288
+Last-Update: 2026-06-25
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/GNUmakefile
++++ b/GNUmakefile
+@@ -139,7 +139,7 @@
+ endif
+
+ build-coreutils:
+-      ${CARGO} build ${CARGOFLAGS} --features "${EXES} $(BUILD_SPEC_FEATURE)" ${PROFILE_CMD} --no-default-features
++      ${CARGO} auditable build ${CARGOFLAGS} --features "${EXES} $(BUILD_SPEC_FEATURE)" ${PROFILE_CMD} --no-default-features
+
+ ifeq (${MULTICALL}, y)
+ build: build-coreutils locales
 ```
 
 ## Reading auditable metadata
@@ -127,4 +160,3 @@ rust-audit-info /usr/bin/batcat
 
 # ... and many more dependencies
 ```
-
