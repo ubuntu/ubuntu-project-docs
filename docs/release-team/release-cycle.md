@@ -111,3 +111,30 @@ list.
 See, for example, the Ubuntu 24.04 LTS (Noble Numbat)
 [release announcement](https://lists.ubuntu.com/archives/ubuntu-announce/2024-April/000301.html).
 ```
+
+
+(flavor-expectations)=
+## Flavor expectations
+
+{term}`Ubuntu flavors` are community-maintained variants of
+Ubuntu that ship with different default application sets and desktop
+environments. Flavor leads play an important role in the release cycle and
+are expected to coordinate closely with the Release Team.
+
+The Release Team expects flavor leads to:
+
+- **Acknowledge and drive** the upcoming development cycle for their flavor,
+  including confirming that they intend to participate in the release.
+- **Monitor and fix** issues related to their flavor image builds throughout
+  the cycle, ensuring images are buildable and installable at each milestone.
+- **Respect freeze deadlines** (feature freeze, UI freeze, beta freeze, etc.)
+  by coordinating with their development team to avoid unapproved changes
+  during freeze periods.
+- **Be available around key dates** (beta, final freeze, final release) for
+  artifact testing and release approval.
+- **Communicate proactively** if anything deviates from the usual plan,
+  including last-minute major version bumps, lack of availability, changes
+  in leadership, or any other situation that may affect the release timeline.
+
+Failure to meet these expectations may result in a flavor not being included
+in a given release.
