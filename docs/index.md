@@ -8,6 +8,7 @@ How Ubuntu is made <how-ubuntu-is-made/index>
 Contributors <contributors/index>
 Maintainers <maintainers/index>
 Who makes Ubuntu <who-makes-ubuntu/index>
+Debian <debian/index>
 how-ubuntu-is-made/concepts/glossary
 :::
 
@@ -84,6 +85,14 @@ About the people of Ubuntu, their roles, and their responsibilities
 * {ref}`local-communities`
 * {ref}`ubuntu-developers`
 * {ref}`Uploaders and specialist roles <roles-and-responsibilities>`
+:::
+::::
+
+::::{grid} 1 1 2 2
+:::{grid-item-card} [Debian](debian/index)
+Information about Ubuntu's relationship with Debian
+* {ref}`debian-bugs`
+* {ref}`for-ubuntu-developers`
 :::
 ::::
 

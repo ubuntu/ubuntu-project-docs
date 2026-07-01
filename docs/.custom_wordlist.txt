@@ -126,6 +126,7 @@ microrelease
 microreleases
 MIRs
 milestoned
+mips
 misassignment
 misconfigured
 Mjolnir
@@ -263,6 +264,7 @@ Charmcraft
 Charmhub
 CPUs
 debian
+debbugs
 Devel
 devel
 DMB
@@ -301,3 +303,4 @@ openssh
 walkthrough
 whoopsie
 wnpp
+Usertagging
