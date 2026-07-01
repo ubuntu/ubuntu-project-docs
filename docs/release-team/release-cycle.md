@@ -68,6 +68,13 @@ These releases are not intended to be used in production, but rather are
 curated, testable milestones that can be used to detect failure modes during the
 development cycle.
 
+Throughout the release cycle, the Release Team tracks milestone tasks using
+checklist cards in Jira. These checklists are generated from YAML templates
+maintained in the
+[ubuntu-release-tools templates repository](https://code.launchpad.net/~ubuntu-release/ubuntu-release-tools/+git/templates/+ref/main).
+If a milestone checklist needs to be updated, the templates are the source of
+truth.
+
 
 ## Stabilization and Freezes
 
