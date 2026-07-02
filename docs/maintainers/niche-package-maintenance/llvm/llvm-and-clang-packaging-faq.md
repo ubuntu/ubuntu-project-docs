@@ -45,7 +45,7 @@ These packages contain no code of their own, they simply depend on the appropria
 
 The ABI-stable **library packages**, like `libomp5` and `libc++1`, work differently.  These are built directly by the latest `llvm-toolchain-X` in the archive, and can be inspected via that package's `debian/packages.common` file. Any version of LLVM that is older, links against these. While that means that the code used to generate the shared libraries can change throughout the lifetime of an Ubuntu release, upstream guarantees that this is transparent by their ABI stability promise.  Configuring the package itself is done by the `SKIP_COMMON_PACKAGES` mechanism described below.
 
-
+(llvm-common-packages)=
 ## What are the "common packages" and why do they matter?
 
 Some LLVM libraries have a stable ABI and are intentionally shipped without a version suffix in the package name.
@@ -53,7 +53,7 @@ These are called the common packages, listed in `debian/packages.common`, and in
 
 The `SKIP_COMMON_PACKAGES` variable in `debian/rules` is how maintainers control which version of LLVM builds them.  When set to `no`, the package builds the unversioned forms directly, which is what the default version for a given Ubuntu series should do.  When set to `yes`, the package skips building the common libraries and instead declares dependencies on the ones produced by `NEW_LLVM_VERSION`.
 
-See {ref}`configuring-the-common-llvm-packages` for more detail.
+See {ref}`understanding-the-common-llvm-packages` for more detail.
 
 
 ## What components does the `llvm-toolchain-X` source package produce?
@@ -76,6 +76,7 @@ The `llvm-toolchain-X` source package is a monolithic build of the entire LLVM p
 Because the source package builds so many binary packages, build times are substantial. The `PROJECTS` and `RUNTIMES` variables in `debian/rules` control which subprojects are compiled, and trimming them down is a good way to speed up local test builds.
 
 
+(llvm-circular-dependencies)=
 ## What is the circular dependency involving SPIR-V?
 
 LLVM can target SPIR-V, a GPU intermediate representation used by Vulkan and OpenCL. Building the SPIR-V backend requires `llvm-spirv-X`, a separate tool for converting LLVM IR to SPIR-V, but `llvm-spirv-X` itself depends on LLVM libraries.
@@ -83,8 +84,7 @@ LLVM can target SPIR-V, a GPU intermediate representation used by Vulkan and Ope
 In practice this is only a problem when no version of `llvm-spirv-X` is yet available in the archive for the LLVM version you are building, which typically comes up when backporting a brand-new LLVM major version to an LTS release.
 In that case you need to bootstrap: build a stripped-down LLVM first without SPIR-V support, use that to build `llvm-spirv-X`, and then do a full LLVM build.
 
-See {ref}`bootstrapping-a-new-llvm-version` for instructions.
-
+See {ref}`bootstrapping-the-backport` for instructions.
 
 ## How do `clang/llvm` and `gcc` interact on an Ubuntu system?
 
