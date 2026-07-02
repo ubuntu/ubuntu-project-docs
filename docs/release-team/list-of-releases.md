@@ -59,7 +59,7 @@ feature-based one), approximately every 6 months.
 
 | Version | Code name | Schedule | Docs | Release | End of Standard Support |
 | :---- | :---- | :---- | :---- | :---- | :---- |
-| Ubuntu 26.04 LTS | Resolute Raccoon | [Release Schedule](https://documentation.ubuntu.com/release-notes/26.04/schedule/) | [Release Notes](https://documentation.ubuntu.com/release-notes/26.04/) | April 23, 2026 | July 2031 |
+| Ubuntu 26.10 | Stonking Stingray | TBD | TBD | October 2026 | July 2027 |
 
 
 ## Expanded Security Maintenance
