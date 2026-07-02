@@ -50,6 +50,7 @@ the Technical Board.
     exception-MariaDB-Galera-Updates
     exception-multipath-tools-Updates
     exception-NVidia-Updates
+    exception-NVidia-doca-ofed
     exception-Netplan-Updates
     exception-OEMMeta-Updates
     exception-OpenJDK-Updates
