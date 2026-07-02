@@ -144,11 +144,18 @@ conform to standard Debian practices.
 
 
 (dput)=
-### DPut
+### dput-ng
 
-[DPut](https://packages.debian.org/sid/dput) is the Debian Package Upload Tool.
-It's used to upload a software package to the Ubuntu repository, or to a
-personal package archive (PPA).
+[dput-ng](https://packages.ubuntu.com/resolute/dput) (the Debian Package Upload Tool,
+next generation) is the modern replacement for `dput`. It's used to upload a
+software package to the Ubuntu repository, or to a personal package archive (PPA).
+
+On recent Ubuntu releases, `dput-ng` is provided by the `dput` package, so
+installing `dput` gives you `dput-ng` automatically:
+
+```none
+$ sudo apt install dput
+```
 
 A working `.dput.cf`:
 
