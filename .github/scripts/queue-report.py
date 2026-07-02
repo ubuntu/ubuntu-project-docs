@@ -139,10 +139,12 @@ class Config:
             repo_slug=os.environ["GITHUB_REPOSITORY"],
             mattermost_token=os.environ.get("MATTERMOST_TOKEN", ""),
             mattermost_channel_id=os.environ.get("MATTERMOST_CHANNEL_ID", ""),
-            mattermost_url=os.environ.get("MATTERMOST_URL") or "https://chat.canonical.com",
+            mattermost_url=os.environ.get("MATTERMOST_URL")
+            or "https://chat.canonical.com",
             matrix_token=os.environ.get("MATRIX_TOKEN", ""),
             matrix_room_id=os.environ.get("MATRIX_ROOM_ID", ""),
-            matrix_homeserver=os.environ.get("MATRIX_HOMESERVER") or "https://ubuntu.com",
+            matrix_homeserver=os.environ.get("MATRIX_HOMESERVER")
+            or "https://ubuntu.com",
         )
 
     @property
@@ -236,14 +238,16 @@ def fetch_issue_stats(cfg: Config) -> IssueStats:
     query($owner: String!, $repo: String!) {
       repository(owner: $owner, name: $repo) {
         allOpen: issues(states: OPEN) { totalCount }
-        triaged: issues(states: OPEN, filterBy: { labels: ["triaged"] }) { totalCount }
+        untriaged: issues(states: OPEN, filterBy: { labels: ["untriaged"] }) { totalCount }
       }
     }
     """
-    data = _github_graphql(cfg.github_token, query, {"owner": cfg.owner, "repo": cfg.repo})
-    triaged = data["repository"]["triaged"]["totalCount"]
+    data = _github_graphql(
+        cfg.github_token, query, {"owner": cfg.owner, "repo": cfg.repo}
+    )
+    untriaged = data["repository"]["untriaged"]["totalCount"]
     total = data["repository"]["allOpen"]["totalCount"]
-    return IssueStats(triaged=triaged, untriaged=total - triaged)
+    return IssueStats(triaged=total - untriaged, untriaged=untriaged)
 
 
 def _classify_pr(pr: dict[str, Any], cutoff: datetime) -> dict[str, int]:
@@ -323,7 +327,9 @@ def fetch_pr_stats(cfg: Config) -> PRStats:
 
     while True:
         data = _github_graphql(
-            cfg.github_token, query, {"owner": cfg.owner, "repo": cfg.repo, "cursor": cursor}
+            cfg.github_token,
+            query,
+            {"owner": cfg.owner, "repo": cfg.repo, "cursor": cursor},
         )
         page = data["repository"]["pullRequests"]
         for pr in page["nodes"]:
@@ -358,8 +364,8 @@ def build_filter_urls(repo_url: str) -> dict[str, str]:
         Dict mapping category names to GitHub filter URLs.
     """
     return {
-        "triaged": _issue_url(repo_url, " label:triaged"),
-        "untriaged": _issue_url(repo_url, " -label:triaged"),
+        "triaged": _issue_url(repo_url, " -label:untriaged"),
+        "untriaged": _issue_url(repo_url, " label:untriaged"),
         "draft": _pr_url(repo_url, " draft:true"),
         # GitHub has no native age filter; sort oldest-first as a visual proxy.
         "old": _pr_url(repo_url, " sort:created-asc"),
@@ -377,7 +383,9 @@ def build_filter_urls(repo_url: str) -> dict[str, str]:
 # REPORT_* / *_ROWS constants.
 
 
-def build_report(issues: IssueStats, prs: PRStats, urls: dict[str, str], repo_url: str) -> Report:
+def build_report(
+    issues: IssueStats, prs: PRStats, urls: dict[str, str], repo_url: str
+) -> Report:
     """Assemble the report model from stats, using the module-level layout.
 
     Args:
@@ -492,10 +500,15 @@ def render_html(report: Report) -> str:
 # Mattermost
 
 
-def _mm_api(cfg: Config, method: str, path: str, body: dict[str, Any] | None = None) -> Any:
+def _mm_api(
+    cfg: Config, method: str, path: str, body: dict[str, Any] | None = None
+) -> Any:
     """Call the Mattermost REST API."""
     return _http_json_request(
-        f"{cfg.mattermost_url.rstrip('/')}/api/v4{path}", cfg.mattermost_token, method, body
+        f"{cfg.mattermost_url.rstrip('/')}/api/v4{path}",
+        cfg.mattermost_token,
+        method,
+        body,
     )
 
 
@@ -507,9 +520,16 @@ def send_mattermost(cfg: Config, message: str) -> None:
         message: Markdown-formatted message text.
     """
     if not cfg.mattermost_token or not cfg.mattermost_channel_id:
-        print("MATTERMOST_TOKEN or MATTERMOST_CHANNEL_ID not set — skipping Mattermost.")
+        print(
+            "MATTERMOST_TOKEN or MATTERMOST_CHANNEL_ID not set — skipping Mattermost."
+        )
         return
-    _mm_api(cfg, "POST", "/posts", {"channel_id": cfg.mattermost_channel_id, "message": message})
+    _mm_api(
+        cfg,
+        "POST",
+        "/posts",
+        {"channel_id": cfg.mattermost_channel_id, "message": message},
+    )
     print(f"✓ Sent to Mattermost channel '{cfg.mattermost_channel_id}'")
 
 

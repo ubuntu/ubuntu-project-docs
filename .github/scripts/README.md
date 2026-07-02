@@ -10,8 +10,8 @@ Each row in the report table links to a pre-filtered GitHub view.
 
 | Category | GitHub filter query |
 |---|---|
-| ✅ Issues — triaged | `is:open is:issue label:triaged` |
-| ⚠️ Issues — untriaged | `is:open is:issue -label:triaged` |
+| ✅ Issues — triaged | `is:open is:issue -label:untriaged` |
+| ⚠️ Issues — untriaged | `is:open is:issue label:untriaged` |
 | 📝 Draft PRs | `is:open is:pr draft:true` |
 | 🕐 PRs older than 2 weeks | `is:open is:pr sort:created-asc` (oldest-first proxy) |
 | 👀 PRs awaiting review | `is:open is:pr review:required draft:false` |
