@@ -4,17 +4,14 @@
 It is common when triaging bugs that you need to respond to the original reporter -- perhaps to request more information, or to redirect their request, etc.
 Over time, a set of curated standard responses has been created, and you can use these when you correspond with the reporter.
 
-These standard responses (and other amazing scripts) are available as a FireFox extension [in a PPA](https://launchpad.net/~gm-dev-launchpad/+archive/ubuntu/ppa).
-
-When you update one of these responses, you should also update the response used by the Firefox extension.
-These responses can be found in the bazaar branch [lp:ubuntu-bugcontrol-tools](https://code.launchpad.net/ubuntu-bugcontrol-tools) in the `gm-xml-files/bugsquad-replies.xml` file.
-To check out a branch, use:
-
-```none
-bzr branch lp:ubuntu-bugcontrol-tools
+```{admonition} Keeping responses up to date
+The standard responses below are the canonical source of truth for bug triage
+responses. A Firefox extension and a PPA
+([~gm-dev-launchpad](https://launchpad.net/~gm-dev-launchpad/+archive/ubuntu/ppa))
+were used in the past to distribute these responses, but they are out
+of date. If you find a response that is outdated, please update it directly on
+this page.
 ```
-
-Only members of `bug-control` can commit to this branch, but even if you are not a member you can submit a merge proposal, and they can be used when replying to a bug report if merged.
 
 
 ## Missing information
