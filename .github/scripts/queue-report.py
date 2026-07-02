@@ -5,32 +5,57 @@ Fetches open-issue and open-PR statistics via the GitHub GraphQL API,
 formats a summary message, and posts it to Mattermost and Matrix.
 
 Environment variables:
-    GITHUB_TOKEN        (required) GitHub API token — auto-set in Actions.
-    GITHUB_REPOSITORY   (required) owner/repo slug — auto-set in Actions.
+  GITHUB_TOKEN        (required) GitHub API token — auto-set in Actions.
+  GITHUB_REPOSITORY   (required) owner/repo slug — auto-set in Actions.
 
-    MATTERMOST_TOKEN       Bot-user token [secret]; notification skipped if absent.
-    MATTERMOST_CHANNEL_ID  Channel ID [secret]; notification skipped if absent.
-    MATTERMOST_URL         Base URL [var]; default: https://chat.canonical.com.
+  MATTERMOST_TOKEN       Bot-user token [secret]; notif. skipped if absent.
+  MATTERMOST_CHANNEL_ID  Channel ID [secret]; notification skipped if absent.
+  MATTERMOST_URL         Base URL [var]; default: https://chat.canonical.com.
 
-    MATRIX_TOKEN           Access token [secret]; notification skipped if absent.
-    MATRIX_ROOM_ID         Room ID [secret]; notification skipped if absent.
-    MATRIX_HOMESERVER      Homeserver URL [var]; default: https://ubuntu.com.
+  MATRIX_TOKEN           Access token [secret]; notification skipped if absent.
+  MATRIX_ROOM_ID         Room ID [secret]; notification skipped if absent.
+  MATRIX_HOMESERVER      Homeserver URL [var]; default: https://ubuntu.com.
 """
 
+import html
 import json
 import os
 import time
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
 GRAPHQL_URL = "https://api.github.com/graphql"
 TWO_WEEKS = timedelta(weeks=2)
 
+# Report structure — the single source of truth for message content.
+#
+# Each format (Markdown, plain text, HTML) is rendered from this one
+# definition, so labels, order, and columns only ever need editing here.
+# ``{count}`` and ``{url}`` are filled in per row when the report is built.
+REPORT_TITLE = "📋 Ubuntu Project Docs — Issue & PR Queue"
+REPORT_INTRO = "Weekly snapshot of issues and PRs in the {repo_link} repo."
+REPORT_REPO_NAME = "ubuntu-project-docs"
 
-# ── Domain models ──────────────────────────────────────────────────────────
+# Per-section row definitions: (label, stats-attribute, filter-URL key).
+# The stats attribute is read from the IssueStats / PRStats instance.
+ISSUE_ROWS: tuple[tuple[str, str, str], ...] = (
+    ("✅ Triaged", "triaged", "triaged"),
+    ("⚠️ Untriaged", "untriaged", "untriaged"),
+)
+PR_ROWS: tuple[tuple[str, str, str], ...] = (
+    ("📝 Draft", "draft", "draft"),
+    ("🕐 Older than 2 weeks", "old", "old"),
+    ("👀 Awaiting review", "unreviewed", "unreviewed"),
+    ("✅ Ready to merge", "approved", "approved"),
+    ("🔄 Changes requested", "changes_requested", "changes_requested"),
+)
+TABLE_COLUMNS = ("Status", "Count", "GitHub filter")
+
+
+# Domain models
 
 
 @dataclass
@@ -56,6 +81,34 @@ class PRStats:
     approved: int
     changes_requested: int
     total: int
+
+
+@dataclass
+class ReportRow:
+    """A single row of a report section: a label, a count, and a filter URL."""
+
+    label: str
+    count: int
+    url: str
+
+
+@dataclass
+class ReportSection:
+    """A titled section of the report containing a table of rows."""
+
+    heading: str
+    rows: list[ReportRow]
+
+
+@dataclass
+class Report:
+    """The full report as structured data — the single source of truth."""
+
+    title: str
+    intro: str
+    repo_url: str
+    repo_name: str
+    sections: list[ReportSection] = field(default_factory=list)
 
 
 @dataclass
@@ -108,7 +161,7 @@ class Config:
         return f"https://github.com/{self.repo_slug}"
 
 
-# ── HTTP helper ────────────────────────────────────────────────────────────
+# HTTP helper
 
 
 def _http_json_request(
@@ -142,7 +195,7 @@ def _http_json_request(
         return json.loads(resp.read())
 
 
-# ── GitHub API ─────────────────────────────────────────────────────────────
+# GitHub API
 
 
 def _github_graphql(
@@ -202,7 +255,7 @@ def _classify_pr(pr: dict[str, Any], cutoff: datetime) -> dict[str, int]:
         REVIEW_REQUIRED     At least one required reviewer hasn't reviewed yet.
         None                No review rules apply — nothing blocking merge.
 
-    Draft PRs are counted only in the draft bucket; their review state is ignored.
+    Draft PRs are counted only in the draft bucket; review state is ignored.
 
     Args:
         pr: A pullRequests.nodes entry from the GitHub GraphQL response.
@@ -232,7 +285,7 @@ def _classify_pr(pr: dict[str, Any], cutoff: datetime) -> dict[str, int]:
     elif decision == "REVIEW_REQUIRED":
         counts["unreviewed"] = 1
     else:
-        # APPROVED or None (no required reviewers) — unblocked from a review perspective
+        # APPR'D or None (no req. reviews) — unblocked from a review persp.
         counts["approved"] = 1
 
     return counts
@@ -284,7 +337,7 @@ def fetch_pr_stats(cfg: Config) -> PRStats:
     return PRStats(**totals)
 
 
-# ── URL building ───────────────────────────────────────────────────────────
+# URL building
 
 
 def _issue_url(repo_url: str, extra: str) -> str:
@@ -316,131 +369,127 @@ def build_filter_urls(repo_url: str) -> dict[str, str]:
     }
 
 
-# ── Message formatting ─────────────────────────────────────────────────────
+# Message formatting
+#
+# The report is assembled once as a Report model (build_report), then each
+# renderer below turns that same model into a specific output format. Message
+# content — titles, labels, section order — is defined once in the module-level
+# REPORT_* / *_ROWS constants.
 
 
-def build_markdown(
-    issues: IssueStats, prs: PRStats, urls: dict[str, str], repo_url: str
-) -> str:
-    """Format the Markdown report message for Mattermost.
+def build_report(issues: IssueStats, prs: PRStats, urls: dict[str, str], repo_url: str) -> Report:
+    """Assemble the report model from stats, using the module-level layout.
 
     Args:
         issues: Issue statistics.
         prs: PR statistics.
         urls: GitHub filter URLs keyed by category name.
         repo_url: Repository URL used in the header link.
+
+    Returns:
+        A fully populated Report ready to be rendered into any format.
+    """
+
+    def rows(stats: Any, spec: tuple[tuple[str, str, str], ...]) -> list[ReportRow]:
+        return [
+            ReportRow(label=label, count=getattr(stats, attr), url=urls[url_key])
+            for label, attr, url_key in spec
+        ]
+
+    return Report(
+        title=REPORT_TITLE,
+        intro=REPORT_INTRO,
+        repo_url=repo_url,
+        repo_name=REPORT_REPO_NAME,
+        sections=[
+            ReportSection(f"🐛 Issues ({issues.total} open)", rows(issues, ISSUE_ROWS)),
+            ReportSection(f"🔀 Pull Requests ({prs.total} open)", rows(prs, PR_ROWS)),
+        ],
+    )
+
+
+def render_markdown(report: Report) -> str:
+    """Render the report as Markdown for Mattermost.
+
+    Args:
+        report: The report model.
 
     Returns:
         Formatted Markdown string.
     """
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    return (
-        f"## 📋 Ubuntu Project Docs — Issue & PR Queue ({today})\n"
-        "\n"
-        "Weekly snapshot of open issues and pull requests"
-        f" in the [ubuntu-project-docs]({repo_url}) repository.\n"
-        "\n"
-        f"### 🐛 Issues ({issues.total} open)\n"
-        "\n"
-        "| Status | Count | GitHub filter |\n"
-        "|:--|--:|:--|\n"
-        f"| ✅ Triaged | **{issues.triaged}** | [view]({urls['triaged']}) |\n"
-        f"| ⚠️ Untriaged | **{issues.untriaged}** | [view]({urls['untriaged']}) |\n"
-        "\n"
-        f"### 🔀 Pull Requests ({prs.total} open)\n"
-        "\n"
-        "| Status | Count | GitHub filter |\n"
-        "|:--|--:|:--|\n"
-        f"| 📝 Draft | **{prs.draft}** | [view]({urls['draft']}) |\n"
-        f"| 🕐 Older than 2 weeks | **{prs.old}** | [view]({urls['old']}) |\n"
-        f"| 👀 Awaiting review | **{prs.unreviewed}** | [view]({urls['unreviewed']}) |\n"
-        f"| ✅ Ready to merge | **{prs.approved}** | [view]({urls['approved']}) |\n"
-        f"| 🔄 Changes requested | **{prs.changes_requested}** |"
-        f" [view]({urls['changes_requested']}) |\n"
-    )
+    repo_link = f"[{report.repo_name}]({report.repo_url})"
+    lines = [
+        f"## {report.title} ({today})",
+        "",
+        report.intro.format(repo_link=repo_link),
+    ]
+    header = f"| {' | '.join(TABLE_COLUMNS)} |"
+    divider = "|:--|--:|---|"
+    for section in report.sections:
+        lines += ["", f"### {section.heading}", "", header, divider]
+        for r in section.rows:
+            lines.append(f"| {r.label} | **{r.count}** | [view]({r.url}) |")
+    return "\n".join(lines) + "\n"
 
 
-def build_plain_text(issues: IssueStats, prs: PRStats) -> str:
-    """Format a plain-text summary for the Matrix message body field.
+def render_plain_text(report: Report) -> str:
+    """Render the report as plain text for the Matrix message body field.
 
-    The Matrix spec requires the `body` field to be plain text.
-    This function avoids all Markdown syntax so it renders correctly in
-    every Matrix client.
+    The Matrix spec requires the `body` field to be plain text, so this
+    avoids all Markdown syntax and renders correctly in every Matrix client.
 
     Args:
-        issues: Issue statistics.
-        prs: PR statistics.
+        report: The report model.
 
     Returns:
         Formatted plain text string (no Markdown syntax).
     """
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    return (
-        f"📋 Ubuntu Project Docs — Issue & PR Queue ({today})\n"
-        "\n"
-        "Weekly snapshot of open issues and pull requests"
-        " in the ubuntu-project-docs repository.\n"
-        "\n"
-        f"🐛 Issues ({issues.total} open)\n"
-        f"  ✅ Triaged: {issues.triaged}\n"
-        f"  ⚠️ Untriaged: {issues.untriaged}\n"
-        "\n"
-        f"🔀 Pull Requests ({prs.total} open)\n"
-        f"  📝 Draft: {prs.draft}\n"
-        f"  🕐 Older than 2 weeks: {prs.old}\n"
-        f"  👀 Awaiting review: {prs.unreviewed}\n"
-        f"  ✅ Ready to merge: {prs.approved}\n"
-        f"  🔄 Changes requested: {prs.changes_requested}\n"
-    )
+    lines = [
+        f"{report.title} ({today})",
+        "",
+        report.intro.format(repo_link=report.repo_name),
+    ]
+    for section in report.sections:
+        lines += ["", section.heading]
+        for r in section.rows:
+            lines.append(f"  {r.label}: {r.count}")
+    return "\n".join(lines) + "\n"
 
 
-def build_html(
-    issues: IssueStats, prs: PRStats, urls: dict[str, str], repo_url: str
-) -> str:
-    """Format the HTML report message for Matrix formatted_body.
+def render_html(report: Report) -> str:
+    """Render the report as HTML for the Matrix formatted_body field.
 
     Args:
-        issues: Issue statistics.
-        prs: PR statistics.
-        urls: GitHub filter URLs keyed by category name.
-        repo_url: Repository URL used in the header link.
+        report: The report model.
 
     Returns:
         HTML string suitable for Matrix formatted_body.
     """
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
-    def row(label: str, count: int, url: str) -> str:
-        return (
-            f"<tr><td>{label}</td>"
-            f"<td align='right'><strong>{count}</strong></td>"
-            f"<td><a href='{url}'>view</a></td></tr>"
-        )
-
-    table_head = "<table><thead><tr><th>Status</th><th>Count</th><th>GitHub filter</th></tr></thead><tbody>"
+    repo_link = f"<a href='{report.repo_url}'>{html.escape(report.repo_name)}</a>"
+    parts = [
+        f"<h2>{html.escape(f'{report.title} ({today})')}</h2>",
+        f"<p>{html.escape(report.intro).format(repo_link=repo_link)}</p>",
+    ]
+    header_cells = "".join(f"<th>{html.escape(c)}</th>" for c in TABLE_COLUMNS)
+    table_head = f"<table><thead><tr>{header_cells}</tr></thead><tbody>"
     table_foot = "</tbody></table>"
-
-    return (
-        f"<h2>📋 Ubuntu Project Docs — Issue &amp; PR Queue ({today})</h2>"
-        f"<p>Weekly snapshot of open issues and pull requests in the"
-        f" <a href='{repo_url}'>ubuntu-project-docs</a> repository.</p>"
-        f"<h3>🐛 Issues ({issues.total} open)</h3>"
-        f"{table_head}"
-        f"{row('✅ Triaged', issues.triaged, urls['triaged'])}"
-        f"{row('⚠️ Untriaged', issues.untriaged, urls['untriaged'])}"
-        f"{table_foot}"
-        f"<h3>🔀 Pull Requests ({prs.total} open)</h3>"
-        f"{table_head}"
-        f"{row('📝 Draft', prs.draft, urls['draft'])}"
-        f"{row('🕐 Older than 2 weeks', prs.old, urls['old'])}"
-        f"{row('👀 Awaiting review', prs.unreviewed, urls['unreviewed'])}"
-        f"{row('✅ Ready to merge', prs.approved, urls['approved'])}"
-        f"{row('🔄 Changes requested', prs.changes_requested, urls['changes_requested'])}"
-        f"{table_foot}"
-    )
+    for section in report.sections:
+        parts.append(f"<h3>{html.escape(section.heading)}</h3>")
+        parts.append(table_head)
+        for r in section.rows:
+            parts.append(
+                f"<tr><td>{html.escape(r.label)}</td>"
+                f"<td align='right'><strong>{r.count}</strong></td>"
+                f"<td><a href='{r.url}'>view</a></td></tr>"
+            )
+        parts.append(table_foot)
+    return "".join(parts)
 
 
-# ── Mattermost ─────────────────────────────────────────────────────────────
+# Mattermost
 
 
 def _mm_api(cfg: Config, method: str, path: str, body: dict[str, Any] | None = None) -> Any:
@@ -464,7 +513,7 @@ def send_mattermost(cfg: Config, message: str) -> None:
     print(f"✓ Sent to Mattermost channel '{cfg.mattermost_channel_id}'")
 
 
-# ── Matrix ─────────────────────────────────────────────────────────────────
+# Matrix
 
 
 def _matrix_api(
@@ -505,7 +554,7 @@ def send_matrix(cfg: Config, body_plain: str, body_html: str) -> None:
     print(f"✓ Sent to Matrix room '{cfg.matrix_room_id}'")
 
 
-# ── Entry point ────────────────────────────────────────────────────────────
+# Entry point
 
 
 def main() -> None:
@@ -525,9 +574,10 @@ def main() -> None:
     )
 
     urls = build_filter_urls(cfg.repo_url)
-    message_md = build_markdown(issues, prs, urls, cfg.repo_url)
-    message_plain = build_plain_text(issues, prs)
-    message_html = build_html(issues, prs, urls, cfg.repo_url)
+    report = build_report(issues, prs, urls, cfg.repo_url)
+    message_md = render_markdown(report)
+    message_plain = render_plain_text(report)
+    message_html = render_html(report)
 
     print("\n── Message preview ──────────────────────────────────────────────")
     print(message_md)
