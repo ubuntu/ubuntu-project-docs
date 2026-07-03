@@ -121,9 +121,9 @@ def _snippet(text: str, start: int, end: int, context: int = 30) -> str:
     triggered the indicator. The original line breaks within the excerpt are
     preserved, and the excerpt is bounded so the warning stays readable.
     """
-    lead = text[max(0, start - context):start]
+    lead = text[max(0, start - context) : start]
     match = text[start:end]
-    trail = text[end:end + context]
+    trail = text[end : end + context]
     prefix = "…" if start - context > 0 else ""
     suffix = "…" if end + context < len(text) else ""
     return f"{prefix}{lead}»{match}«{trail}{suffix}"
