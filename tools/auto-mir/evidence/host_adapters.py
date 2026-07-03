@@ -828,6 +828,41 @@ def _build_attr(record: Any, *names: str, default: str = "") -> str:
     return default
 
 
+def _builds_from_published_sources(ubuntu, lp_series, pkg: str) -> list[Any]:
+    """Return build records for the newest published source in the target series.
+
+    Uses ``archive.getPublishedSources`` to find the most recent publication of
+    ``pkg`` in ``lp_series`` and returns its per-architecture builds via
+    ``getBuilds()``. Returns an empty list (never raises) so the caller can fall
+    back to the older getBuildRecords path when this yields nothing.
+    """
+    try:
+        archive = ubuntu.main_archive
+    except Exception:
+        return []
+
+    for kwargs in (
+        {"source_name": pkg, "distro_series": lp_series, "exact_match": True},
+        {"source_name": pkg, "exact_match": True},
+    ):
+        try:
+            pubs = list(archive.getPublishedSources(**kwargs))
+        except Exception:
+            continue
+        if not pubs:
+            continue
+        # getPublishedSources returns newest first; use the most recent
+        # publication that can enumerate builds.
+        for pub in pubs:
+            try:
+                builds = list(pub.getBuilds())
+            except Exception:
+                continue
+            if builds:
+                return builds
+    return []
+
+
 @adapter(AdapterID.LP_BUILD_API)
 def collect_lp_build_api(ctx) -> LPBuildAPIResult:
     """Fetch Launchpad build-state information for the current source package."""
@@ -852,16 +887,22 @@ def collect_lp_build_api(ctx) -> LPBuildAPIResult:
     except Exception as exc:
         raise AdapterError(f"Could not find source package '{pkg}' on Launchpad: {exc}") from exc
 
-    build_records: list[Any] = []
-    for attr_name in ("getBuildRecords", "builds"):
-        candidate = getattr(source_pkg, attr_name, None)
-        if candidate is None:
-            continue
-        try:
-            build_records = list(candidate() if callable(candidate) else candidate)
-        except TypeError:
-            build_records = list(candidate)
-        break
+    # The authoritative way to enumerate per-architecture build outcomes is via
+    # the current published source in the target series and its getBuilds().
+    # getBuildRecords() on the distro source is kept only as a fallback because
+    # it can return nothing for packages published solely in the Release pocket.
+    build_records: list[Any] = _builds_from_published_sources(ubuntu, lp_series, pkg)
+
+    if not build_records:
+        for attr_name in ("getBuildRecords", "builds"):
+            candidate = getattr(source_pkg, attr_name, None)
+            if candidate is None:
+                continue
+            try:
+                build_records = list(candidate() if callable(candidate) else candidate)
+            except TypeError:
+                build_records = list(candidate)
+            break
 
     if not build_records and hasattr(lp_series, "getBuildRecords"):
         try:
@@ -1491,25 +1532,34 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
     except Exception as exc:
         raise AdapterError(f"autopkgtest DB download failed: {exc}") from exc
 
+    # The DB is keyed by concrete release codename, not by the alias "devel".
+    # Resolve candidates (devel codename first, then latest supported stable as a
+    # fallback for a fresh cycle with no results yet) so a real test suite is not
+    # missed just because the series was passed as "devel".
+    candidates = _autopkgtest_release_candidates(series)
+    query = """
+        SELECT t.arch, r.exitcode, r.version, r.run_id
+        FROM test t
+        JOIN result r ON t.id = r.test_id
+        WHERE t.package = ? AND t.release = ?
+        ORDER BY r.run_id DESC
+        LIMIT 100
+        """
+
     try:
         conn = sqlite3.connect(tmp_path)
         cursor = conn.cursor()
-
-        # Query test results by joining test and result tables
         # test table: (id, release, arch, package)
         # result table: (test_id, run_id, version, triggers, duration, exitcode, requester, env)
-        cursor.execute(
-            """
-            SELECT t.arch, r.exitcode, r.version, r.run_id
-            FROM test t
-            JOIN result r ON t.id = r.test_id
-            WHERE t.package = ? AND t.release = ?
-            ORDER BY r.run_id DESC
-            LIMIT 100
-            """,
-            (pkg, series),
-        )
-        rows = cursor.fetchall()
+        rows: list[Any] = []
+        resolved_release = candidates[0] if candidates else series
+        for release in candidates:
+            cursor.execute(query, (pkg, release))
+            fetched = cursor.fetchall()
+            if fetched:
+                rows = fetched
+                resolved_release = release
+                break
         conn.close()
     except sqlite3.DatabaseError as exc:
         log.warning("autopkgtest DB query failed: %s", exc)
@@ -1517,6 +1567,7 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
             "status": "ok",
             "package": pkg,
             "series": series,
+            "requested_series": series,
             "has_autopkgtest": False,
             "test_results": [],
             "passing_arches": [],
@@ -1525,6 +1576,13 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
         }
     finally:
         Path(tmp_path).unlink(missing_ok=True)
+
+    note = ""
+    if resolved_release != series:
+        note = (
+            f"results are from '{resolved_release}' "
+            f"(requested series '{series}' resolved/fell back to it)"
+        )
 
     # Summarize by architecture, keeping only the latest per arch
     arch_latest: dict[str, dict[str, Any]] = {}
@@ -1546,7 +1604,7 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
     log.debug(
         "autopkgtest for %s/%s: %d arches; passing %d, failing %d",
         pkg,
-        series,
+        resolved_release,
         len(arch_latest),
         len(passing),
         len(failing),
@@ -1555,9 +1613,38 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
     return {
         "status": "ok",
         "package": pkg,
-        "series": series,
+        "series": resolved_release,
+        "requested_series": series,
+        "note": note,
         "has_autopkgtest": len(arch_latest) > 0,
         "test_results": list(arch_latest.values()),
         "passing_arches": sorted(passing),
         "failing_arches": sorted(failing),
     }
+
+
+def _autopkgtest_release_candidates(series: str) -> list[str]:
+    """Return release codenames to query in preference order for autopkgtest.
+
+    The autopkgtest DB is keyed by codename. For the "devel" alias we try the
+    current development codename first, then the newest supported stable release
+    as a fallback (a freshly opened devel cycle may have no results yet). For an
+    explicit series we try it first, then the newest supported stable as a
+    fallback when it differs.
+    """
+    devel = _distro_info_lines("--devel")
+    devel_codename = devel[0] if devel else None
+    supported = _distro_info_lines("--supported")
+    newest_stable = next((s for s in reversed(supported) if s != devel_codename), None)
+
+    candidates: list[str] = []
+    if series == "devel":
+        if devel_codename:
+            candidates.append(devel_codename)
+    else:
+        candidates.append(series)
+
+    if newest_stable and newest_stable not in candidates:
+        candidates.append(newest_stable)
+
+    return candidates or [series]

@@ -260,21 +260,24 @@ class NvdEnrichResult(TypedDict):
 # ---------------------------------------------------------------------------
 
 
-class TestResultEntry(TypedDict):
+class TestResultEntry(TypedDict, total=False):
     """Single autopkgtest result entry."""
 
     arch: str
     version: str
     status: str
     date: str
+    run_id: str
 
 
-class AutopkgtestResult(TypedDict):
+class AutopkgtestResult(TypedDict, total=False):
     """Return structure for autopkgtest-db adapter."""
 
     status: str
     package: str
     series: str
+    requested_series: str
+    note: str
     has_autopkgtest: bool
     test_results: list[TestResultEntry]
     passing_arches: list[str]
@@ -302,10 +305,15 @@ class PackagingSourceResult(TypedDict):
     debian_control: str
     debian_watch: str
     debian_rules: str
+    debian_tests_control: str
     cargo_lock_present: bool
     go_sum_present: bool
     vendored_dirs: list[str]
+    shipped_vendored_dirs: list[str]
     file_listing: list[FileListingEntry]
+    has_desktop_file: bool
+    has_translation_files: bool
+    binary_sections: list[str]
     nobody_source_hits: list[str]
     setuid_setgid_source_hits: list[str]
     nobody_source_files: list[str]
@@ -397,6 +405,7 @@ class GitUbuntuDeltaResult(TypedDict):
     delta_kind: str
     delta_present: bool
     diffstat: str
+    delta_category: str
     delta_summary: str
 
 

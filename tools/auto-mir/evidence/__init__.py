@@ -54,18 +54,31 @@ def collect_from_catalog(ctx) -> int:
 
     checks = ctx.catalog.get("checks", [])
     required: set[str] = set()
+    optional: set[str] = set()
     for check in checks:
         for adapter_id in check.get("adapters_required", []):
             required.add(adapter_id)
+        for adapter_id in check.get("adapters_optional", []):
+            optional.add(adapter_id)
+
+    # Optional adapters are collected best-effort: they enrich checks (e.g.
+    # git-ubuntu-delta for PRF-1) but their failure must not fail the run or be
+    # reported as a hard adapter failure. Anything that is also required stays
+    # required.
+    optional -= required
 
     ctx.evidence.setdefault("adapters", {})
 
-    ordered_required = _order_adapters(required)
+    ordered = _order_adapters(required | optional)
 
     # Track missing dependencies to skip downstream adapters
     failed_adapters: set[str] = set()
+    # Failures of purely-optional adapters are tracked separately so they do
+    # not flip the overall return status.
+    failed_required: set[str] = set()
 
-    for adapter_id_str in ordered_required:
+    for adapter_id_str in ordered:
+        is_optional = adapter_id_str in optional
         if adapter_id_str not in ADAPTER_REGISTRY:
             log.warning("Unknown adapter ID in catalog: %s", adapter_id_str)
             ctx.evidence["adapters"][adapter_id_str] = {
@@ -73,6 +86,8 @@ def collect_from_catalog(ctx) -> int:
                 "message": f"Unknown adapter: {adapter_id_str}",
             }
             failed_adapters.add(adapter_id_str)
+            if not is_optional:
+                failed_required.add(adapter_id_str)
             continue
 
         collector, deps = ADAPTER_REGISTRY[adapter_id_str]
@@ -90,10 +105,13 @@ def collect_from_catalog(ctx) -> int:
                 "message": f"upstream dependency failed: {', '.join(failed_deps)}",
             }
             failed_adapters.add(adapter_id_str)
+            if not is_optional:
+                failed_required.add(adapter_id_str)
             continue
 
         try:
-            log.info("Collecting adapter: %s", adapter_id_str)
+            suffix = " (optional)" if is_optional else ""
+            log.info("Collecting adapter: %s%s", adapter_id_str, suffix)
             ctx.evidence["adapters"][adapter_id_str] = collector(ctx)
             if ctx.collect_only:
                 log.debug(
@@ -103,6 +121,8 @@ def collect_from_catalog(ctx) -> int:
                 )
             if ctx.evidence["adapters"][adapter_id_str].get("status") == "error":
                 failed_adapters.add(adapter_id_str)
+                if not is_optional:
+                    failed_required.add(adapter_id_str)
                 log.warning(
                     "Adapter %s returned error status: %s",
                     adapter_id_str,
@@ -115,13 +135,15 @@ def collect_from_catalog(ctx) -> int:
                 "message": str(exc),
             }
             failed_adapters.add(adapter_id_str)
+            if not is_optional:
+                failed_required.add(adapter_id_str)
             log.warning(
                 "Adapter %s returned error status: %s",
                 adapter_id_str,
                 ctx.evidence["adapters"][adapter_id_str].get("message", "unknown"),
             )
 
-    return 0 if not failed_adapters else 1
+    return 0 if not failed_required else 1
 
 
 def _order_adapters(

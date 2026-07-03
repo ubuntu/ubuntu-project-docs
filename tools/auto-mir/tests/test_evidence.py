@@ -1001,3 +1001,189 @@ def test_classify_ubuntu_delta_kinds():
     assert classify_ubuntu_delta("1.2.3") == "native"
     assert classify_ubuntu_delta("") == "unknown"
     assert classify_ubuntu_delta("2:1.0-1ubuntu2") == "ubuntu_delta"
+
+
+# ---------------------------------------------------------------------------
+# git-ubuntu delta categorisation (tests-only detection)
+# ---------------------------------------------------------------------------
+
+
+def test_classify_delta_category_tests_only():
+    from evidence.container_adapters import _classify_delta_category
+
+    diffstat = (
+        " debian/tests/control | 5 +++++\n"
+        " debian/tests/smoke   | 20 ++++++++++++++++++++\n"
+        " 2 files changed, 25 insertions(+)"
+    )
+    assert _classify_delta_category(diffstat) == "tests-only"
+
+
+def test_classify_delta_category_general():
+    from evidence.container_adapters import _classify_delta_category
+
+    diffstat = (
+        " src/foo.c        | 30 ++++++++++++++++++------\n"
+        " debian/tests/x   | 4 ++++\n"
+        " 2 files changed, 34 insertions(+)"
+    )
+    assert _classify_delta_category(diffstat) == "general"
+
+
+def test_classify_delta_category_empty_is_general():
+    from evidence.container_adapters import _classify_delta_category
+
+    assert _classify_delta_category("") == "general"
+
+
+# ---------------------------------------------------------------------------
+# shipped vs test-only vendoring classification
+# ---------------------------------------------------------------------------
+
+
+def test_classify_shipped_vendored_dirs_excludes_test_only():
+    from evidence.container_adapters import _classify_shipped_vendored_dirs
+
+    # tests/third_party is test-only; a top-level vendor dir is shipped.
+    dirs = ["./tests/third_party", "./third_party", "./vendor"]
+    shipped = _classify_shipped_vendored_dirs(dirs)
+    assert "./tests/third_party" not in shipped
+    assert "./third_party" in shipped
+    assert "./vendor" in shipped
+
+
+def test_classify_shipped_vendored_dirs_all_test_only():
+    from evidence.container_adapters import _classify_shipped_vendored_dirs
+
+    assert _classify_shipped_vendored_dirs(["./tests/third_party"]) == []
+
+
+# ---------------------------------------------------------------------------
+# binary Section parsing (UI signal for URF-8/URF-9)
+# ---------------------------------------------------------------------------
+
+
+def test_parse_binary_sections():
+    from evidence.container_adapters import _parse_binary_sections
+
+    control = (
+        "Source: libgav1\n"
+        "Section: libs\n"
+        "\n"
+        "Package: libgav1-2\n"
+        "Section: libs\n"
+        "\n"
+        "Package: libgav1-dev\n"
+        "Section: libdevel\n"
+    )
+    sections = _parse_binary_sections(control)
+    assert sections == ["libs", "libdevel"]
+
+
+# ---------------------------------------------------------------------------
+# autopkgtest release candidate resolution
+# ---------------------------------------------------------------------------
+
+
+def test_autopkgtest_release_candidates_devel(monkeypatch):
+    import evidence.host_adapters as ha
+
+    def fake_distro_info(flag):
+        return {"--devel": ["stonking"], "--supported": ["jammy", "noble", "resolute"]}.get(
+            flag, []
+        )
+
+    monkeypatch.setattr(ha, "_distro_info_lines", fake_distro_info)
+    candidates = ha._autopkgtest_release_candidates("devel")
+    # devel codename first, then newest supported stable as fallback
+    assert candidates[0] == "stonking"
+    assert "resolute" in candidates
+
+
+def test_autopkgtest_release_candidates_explicit(monkeypatch):
+    import evidence.host_adapters as ha
+
+    def fake_distro_info(flag):
+        return {"--devel": ["stonking"], "--supported": ["jammy", "noble", "resolute"]}.get(
+            flag, []
+        )
+
+    monkeypatch.setattr(ha, "_distro_info_lines", fake_distro_info)
+    candidates = ha._autopkgtest_release_candidates("noble")
+    assert candidates[0] == "noble"
+
+
+# ---------------------------------------------------------------------------
+# adapters_optional are collected best-effort
+# ---------------------------------------------------------------------------
+
+
+def test_collect_from_catalog_collects_optional_adapters():
+    from unittest.mock import Mock
+
+    from evidence import collect_from_catalog
+
+    ctx = Mock()
+    ctx.catalog = {
+        "checks": [
+            {
+                "id": "PRF-1",
+                "adapters_required": ["packaging-source"],
+                "adapters_optional": ["git-ubuntu-delta"],
+            },
+        ]
+    }
+    ctx.evidence = {}
+    ctx.collect_only = False
+
+    m_pack = Mock(return_value={"status": "ok", "source_dir": "/tmp/x"})
+    m_delta = Mock(return_value={"status": "ok", "delta_kind": "sync"})
+
+    with patch.dict(
+        "evidence.ADAPTER_REGISTRY",
+        {
+            "packaging-source": (m_pack, []),
+            "git-ubuntu-delta": (m_delta, ["packaging-source"]),
+        },
+        clear=True,
+    ):
+        collect_from_catalog(ctx)
+
+    assert m_delta.called
+    assert ctx.evidence["adapters"]["git-ubuntu-delta"]["status"] == "ok"
+
+
+def test_collect_from_catalog_optional_failure_does_not_fail_run():
+    from unittest.mock import Mock
+
+    from evidence import collect_from_catalog
+
+    ctx = Mock()
+    ctx.catalog = {
+        "checks": [
+            {
+                "id": "PRF-1",
+                "adapters_required": ["packaging-source"],
+                "adapters_optional": ["git-ubuntu-delta"],
+            },
+        ]
+    }
+    ctx.evidence = {}
+    ctx.collect_only = False
+
+    m_pack = Mock(return_value={"status": "ok", "source_dir": "/tmp/x"})
+    m_delta = Mock(side_effect=AdapterError("git-ubuntu unavailable"))
+
+    with patch.dict(
+        "evidence.ADAPTER_REGISTRY",
+        {
+            "packaging-source": (m_pack, []),
+            "git-ubuntu-delta": (m_delta, ["packaging-source"]),
+        },
+        clear=True,
+    ):
+        rc = collect_from_catalog(ctx)
+
+    # Optional adapter failure must not flip the overall return status.
+    assert rc == 0
+    assert ctx.evidence["adapters"]["git-ubuntu-delta"]["status"] == "error"

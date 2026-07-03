@@ -206,6 +206,59 @@ def _find_source_tree(ctx, source_dir: str, predicate: str) -> list[str]:
     return [line.strip() for line in out.splitlines() if line.strip()]
 
 
+# Path segments that mark a directory as build/test-time only. Vendored code
+# confined to these locations is not shipped in the binary packages, so it does
+# not carry the maintenance/security burden that ESL-11 is concerned with.
+_TEST_ONLY_PATH_SEGMENTS = (
+    "test",
+    "tests",
+    "testing",
+    "example",
+    "examples",
+    "doc",
+    "docs",
+    "benchmark",
+    "benchmarks",
+)
+
+
+def _classify_shipped_vendored_dirs(vendored_dirs: list[str]) -> list[str]:
+    """Return the subset of vendored dirs that are not confined to tests/examples.
+
+    A vendored directory is considered test-only (and excluded) when any path
+    segment matches a known build/test-time marker (e.g. ``tests/third_party``).
+    Everything else is treated as potentially shipped and returned for review.
+    """
+    shipped: list[str] = []
+    for entry in vendored_dirs:
+        normalized = entry.strip().lstrip("./")
+        segments = [seg for seg in normalized.split("/") if seg]
+        # Exclude the final segment (the vendor dir name itself, e.g.
+        # "third_party") so a top-level "./third_party" is not misread as tests.
+        parent_segments = segments[:-1] if len(segments) > 1 else []
+        if any(seg.lower() in _TEST_ONLY_PATH_SEGMENTS for seg in parent_segments):
+            continue
+        shipped.append(entry)
+    return shipped
+
+
+def _parse_binary_sections(debian_control: str) -> list[str]:
+    """Return the distinct ``Section:`` values declared in debian/control.
+
+    Includes the source stanza and every binary stanza. Sections such as
+    ``libs``/``libdevel``/``doc``/``debug`` are strong signals that a package is
+    not a user-facing desktop program, so URF-8/URF-9 use this as evidence.
+    """
+    sections: list[str] = []
+    for line in (debian_control or "").splitlines():
+        stripped = line.strip()
+        if stripped.lower().startswith("section:"):
+            value = stripped.split(":", 1)[1].strip()
+            if value and value not in sections:
+                sections.append(value)
+    return sections
+
+
 @adapter(AdapterID.PACKAGING_SOURCE)
 def collect_packaging_source(ctx) -> PackagingSourceResult:
     """Fetch and analyze Debian packaging source files.
@@ -271,6 +324,12 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         allow_fail=True,
         as_ubuntu=True,
     )
+    debian_tests_control = _capture(
+        ctx,
+        ["bash", "-lc", f"cd {full_source} && cat debian/tests/control"],
+        allow_fail=True,
+        as_ubuntu=True,
+    )
 
     cargo_lock = _exists(
         ctx,
@@ -299,6 +358,13 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
     )
 
     vendored_dirs = [line.strip() for line in vendored_dirs_raw.splitlines() if line.strip()]
+
+    # Distinguish vendored directories that are actually shipped in the built
+    # binaries from those confined to tests/examples/docs. Test-only vendoring
+    # (e.g. tests/third_party) does not carry the maintenance/security burden of
+    # shipped embedded code, so ESL-11 must not flag it as "includes vendored
+    # code". shipped_vendored_dirs holds only the non-test candidates.
+    shipped_vendored_dirs = _classify_shipped_vendored_dirs(vendored_dirs)
 
     # Collect recursive file listing for embedded source detection
     # Filter out common noise dirs and build artifacts
@@ -334,6 +400,20 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
             except (ValueError, IndexError):
                 pass
 
+    # UI/user-visibility signals used by URF-8/URF-9. These are FACTS for the
+    # reviewer/model to verify against; they are deliberately NOT used to
+    # classify whether the package is a desktop program (a desktop app missing
+    # its .desktop file is exactly the case we must still catch).
+    has_desktop_file = any(".desktop" in str(f.get("path", "")) for f in file_listing)
+    has_translation_files = any(
+        any(
+            marker in str(f.get("path", "")).lower()
+            for marker in (".mo", ".po", "locale/", "translations/", "i18n/", "/po/")
+        )
+        for f in file_listing
+    )
+    binary_sections = _parse_binary_sections(debian_control)
+
     log.debug(
         "packaging-source: source dir %s, %d file(s), vendored dirs: %d, "
         "Cargo.lock: %s, go.sum: %s",
@@ -361,10 +441,15 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         "debian_control": debian_control,
         "debian_watch": debian_watch,
         "debian_rules": debian_rules,
+        "debian_tests_control": debian_tests_control,
         "cargo_lock_present": cargo_lock,
         "go_sum_present": go_sum,
         "vendored_dirs": vendored_dirs,
+        "shipped_vendored_dirs": shipped_vendored_dirs,
         "file_listing": file_listing,
+        "has_desktop_file": has_desktop_file,
+        "has_translation_files": has_translation_files,
+        "binary_sections": binary_sections,
         "nobody_source_hits": nobody_source_hits,
         "setuid_setgid_source_hits": setuid_setgid_source_hits,
         "nobody_source_files": nobody_source_files,
@@ -655,6 +740,33 @@ def classify_ubuntu_delta(version: str) -> str:
     return "sync"
 
 
+def _classify_delta_category(diffstat: str) -> str:
+    """Categorise an Ubuntu delta from its ``git diff --stat`` output.
+
+    Returns:
+      "tests-only" — every changed file lives under debian/tests (adding or
+                     changing tests is always considered acceptable delta);
+      "general"    — any other (or unparseable) delta, left for the reviewer.
+
+    Note: debian/changelog is excluded from the diff upstream, so a tests-only
+    delta shows only debian/tests paths here.
+    """
+    paths: list[str] = []
+    for line in diffstat.splitlines():
+        # git diff --stat body lines look like: " debian/tests/control | 5 +++"
+        if "|" not in line:
+            continue
+        path = line.split("|", 1)[0].strip()
+        if not path or path.endswith("changed") or "files changed" in path:
+            continue
+        paths.append(path)
+    if not paths:
+        return "general"
+    if all(p.startswith("debian/tests") for p in paths):
+        return "tests-only"
+    return "general"
+
+
 @adapter(AdapterID.GIT_UBUNTU_DELTA, depends_on=[AdapterID.PACKAGING_SOURCE])
 def collect_git_ubuntu_delta(ctx) -> GitUbuntuDeltaResult:
     """Determine the Ubuntu delta vs Debian, using git-ubuntu only when needed.
@@ -690,6 +802,7 @@ def collect_git_ubuntu_delta(ctx) -> GitUbuntuDeltaResult:
             "delta_kind": delta_kind,
             "delta_present": False,
             "diffstat": "",
+            "delta_category": "none",
             "delta_summary": summary,
         }
 
@@ -704,6 +817,7 @@ def collect_git_ubuntu_delta(ctx) -> GitUbuntuDeltaResult:
             "delta_kind": delta_kind,
             "delta_present": delta_kind == "native",
             "diffstat": "",
+            "delta_category": "ubuntu-only",
             "delta_summary": summary,
         }
 
@@ -742,6 +856,7 @@ def collect_git_ubuntu_delta(ctx) -> GitUbuntuDeltaResult:
         "delta_kind": delta_kind,
         "delta_present": True,
         "diffstat": diffstat,
+        "delta_category": _classify_delta_category(diffstat),
         "delta_summary": summary,
     }
 
