@@ -912,11 +912,12 @@ checks:
   adapters_required:
   - lp-bug-api
   - lp-team-membership-api
+  - team-mapping
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO: A team is committed to own long term maintenance of this package.'
-  ai_policy: 'Check if owning team is explicitly named and confirmed in bug comments. If reporter submitted on behalf of another team, verify that team acknowledged ownership in a comment. Surface evidence; AI suggests verdict; reviewer confirms.'
+  ai_policy: 'Determine whether a team is committed to long-term maintenance. An existing team bug subscription is strong evidence of ownership: if the team-mapping evidence lists one or more subscribed_teams for this package, treat ownership as satisfied (status ok) and name the team(s) in the message; do NOT emit any TODO and never mark this required. If there is no team subscriber, check whether the owning team is explicitly named and acknowledged in the bug comments (a MIR submitted on behalf of another team needs that team to acknowledge ownership). When neither a subscriber nor an explicit acknowledgement is present, emit a recommended (never required) note that a team should confirm ownership; lack of it blocks final promotion by an AA but not the MIR ACK. Reviewer confirms.'
 - id: RDO-3
   section: Rationale, Duplication and Ownership
   title: Rationale valid and useful for Ubuntu
@@ -1140,10 +1141,12 @@ checks:
     todo_ref: TODO-A
     predicate: vendoring used with justification
     render: '- vendoring is used, but the reasoning is sufficiently explained'
+    outcome: ok
   - id: ESL-6-B
     todo_ref: TODO-B
     predicate: no vendoring
     render: '- No vendoring used, all Built-Using are in main'
+    outcome: ok
   ai_policy: 'Check go.sum presence, vendoring directories, and whether security team discussion is documented in the bug or debian/README.source. Ubuntu allows and sometimes recommends vendoring; this is a dialogue rather than a hard requirement in most cases.'
 
 - id: ESL-7
@@ -1255,12 +1258,15 @@ checks:
   options:
   - id: ESL-11-A
     todo_ref: TODO-A
-    predicate: vendored code present
+    predicate: vendored code shipped in the binary packages (test-only vendoring does not count)
+    render: '- Includes vendored code, the package has documented how to refresh this code at <TBD>'
+    outcome: recommended
   - id: ESL-11-B
     todo_ref: TODO-B
-    predicate: no vendored code
+    predicate: no vendored code shipped in the binaries (test-only third_party/vendor dirs do not count)
     render: '- Does not include vendored code'
-  ai_policy: 'Check debian/README.source and debian/rules vendor targets for documented refresh process. Surface what exists; AI suggests adequacy of documentation; reviewer confirms.'
+    outcome: ok
+  ai_policy: 'Use the packaging-source evidence: vendored_dirs lists candidate vendor/third_party/vendored directories, and shipped_vendored_dirs lists only those NOT confined to test/example paths. If shipped_vendored_dirs is empty, choose ESL-11-B (does not include vendored code) even when test-only third_party directories exist. Only choose ESL-11-A when vendored code is actually shipped in the binary packages; then check debian/README.source and debian/rules vendor targets for a documented refresh process. Reviewer confirms.'
 
 # ==========================================================================
 # Security
@@ -1522,7 +1528,7 @@ checks:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO: - does have a non-trivial test suite that runs as autopkgtest'
-  ai_policy: 'Deterministic part: detect presence of debian/tests/control and content. AI-assisted part: assess whether the tests are non-trivial (not just import check or syntax check). Reviewer override available.'
+  ai_policy: 'Decide whether a non-trivial autopkgtest exists and runs. Use two evidence sources together: (1) packaging-source.debian_tests_control — presence and content of debian/tests/control shows whether autopkgtests are declared and what they exercise (a real functional test, e.g. decoding/encoding, counts as non-trivial; a bare import/version/smoke check does not); (2) autopkgtest-db — has_autopkgtest, passing_arches and failing_arches show whether those tests actually run in the Ubuntu autopkgtest infrastructure and their result (note the results may come from a fallback release, see its note field). When debian/tests/control declares a real functional test AND the autopkgtest DB shows it running (passing across arches), resolve status ok with the template statement. Only when there is no test, or only a trivial one, emit a required TODO. If the DB shows no rows but debian/tests/control clearly declares a non-trivial test, prefer ok and mention that infra results were unavailable. Reviewer override available.'
 
 - id: CB-4
   section: Common blockers
@@ -1541,29 +1547,35 @@ checks:
   - id: CB-4-A
     todo_ref: TODO-A
     predicate: special HW needed and one coverage alternative documented
+    render: '- This does seem to need special HW for build or test; the requester documented a coverage plan (see [Quality assurance - testing])'
+    outcome: recommended
   - id: CB-4-B
     todo_ref: TODO-B
     predicate: no special HW needed
     render: '- This does not need special HW for build or test'
+    outcome: ok
   - id: CB-4-C
     todo_ref: TODO-C
     predicate: special HW needed; all options exhausted; human must confirm
-  ai_policy: 'Detect whether special hardware is needed from reporter content and test metadata. For cases that require it, check whether one of the accepted alternatives is present in the reporter content (testflinger, partner, simulator, community, manufacturer, solutions-qa, or other team). Surface evidence. Reviewer makes final judgment on whether options are truly exhausted for TODO-C.'
+    render: '- This does need special HW for thorough testing, but all options to get this covered have been exhausted and it is accepted as-is as a compromise'
+    outcome: required
+  ai_policy: 'Detect whether special hardware is needed from reporter content and test metadata. Default to CB-4-B (no special HW needed) unless there is positive evidence that exotic/dedicated hardware is required to build or test the package. For cases that require it, check whether one of the accepted alternatives is present in the reporter content (testflinger, partner, simulator, community, manufacturer, solutions-qa, or other team). Surface evidence. Reviewer makes final judgment on whether options are truly exhausted for TODO-C.'
 
 - id: CB-5
   section: Common blockers
   title: Special hardware compromise accepted
-  mode: human_only
+  mode: deterministic
   blocker_class: soft
   adapters_required:
   - lp-bug-api
   messages:
+    ok_message: no special hardware needed, so there is no compromise to accept
     human_only_message: Human review required
     human_only_todo: 'TODO: - {title} - reviewer judgment needed'
   todo_refs:
   - 'TODO-C: accepted as-is as a compromise'
   ai_policy: none
-  notes: 'Whether "all options have been exhausted" is a policy judgment. Only human reviewer can decide this meets the bar. Tool surfaces reporter justification; reviewer decides.'
+  notes: 'This only becomes a judgment call when special hardware is actually needed. It is gated on CB-4: when CB-4 concludes no special hardware is required, there is no compromise to accept and this resolves ok. Otherwise the tool surfaces the reporter justification and the reviewer decides whether "all options have been exhausted" meets the bar.'
 - id: CB-6
   section: Common blockers
   title: E2E coverage for simple libs via consumers
@@ -1653,15 +1665,18 @@ checks:
     todo_ref: TODO-A
     predicate: no delta
     render: '- Ubuntu does not carry a delta'
+    outcome: ok
   - id: PRF-1-B
     todo_ref: TODO-B
     predicate: delta present but justified and controlled
     render: '- Ubuntu does carry a delta, but it is reasonable and maintenance under control'
+    outcome: ok
   - id: PRF-1-C
     todo_ref: TODO-C
     predicate: package is Ubuntu-only
     render: '- This is an Ubuntu-only package'
-  ai_policy: 'Decide which option applies using the git-ubuntu-delta adapter evidence (delta_kind, delta_present, diffstat, delta_summary). If delta_kind is "sync" (delta_present false) choose option A: Ubuntu does not carry a delta. If delta_kind is "native" or the package exists only in Ubuntu choose option C: Ubuntu-only package. If delta_kind is "ubuntu_delta" choose option B and assess the diffstat: a small/contained delta is reasonable and maintenance under control; escalate to required/NACK only when the diffstat shows a large unjustified delta AND there is no explanation AND no active minimisation in progress. Do NOT ask anyone to "provide git-ubuntu log and diff" and do NOT invent TODO-A/TODO-B placeholders: the git-ubuntu-delta adapter already supplies the diff; decide from it.'
+    outcome: ok
+  ai_policy: 'Decide which option applies using the git-ubuntu-delta adapter evidence (delta_kind, delta_present, delta_category, diffstat, delta_summary). If delta_kind is "sync" (delta_present false) choose option A: Ubuntu does not carry a delta. If delta_kind is "native" or the package exists only in Ubuntu choose option C: Ubuntu-only package. If delta_kind is "ubuntu_delta" choose option B: the following delta categories are considered reasonable and maintenance-under-control and MUST resolve to ok without escalation: (1) delta_category "tests-only" (the delta only adds or changes tests, e.g. only debian/tests paths in the diffstat); (2) delta fully upstreamed to Debian and/or upstream and expected to drop on the next merge. For option B always include in the message a one-line summary of what the delta actually changes (from delta_summary/diffstat) so the reviewer can judge quickly. Escalate to required/NACK only when the diffstat shows a large unjustified delta AND there is no explanation AND no active minimisation in progress. Do NOT ask anyone to "provide git-ubuntu log and diff" and do NOT invent TODO-A/TODO-B placeholders: the git-ubuntu-delta adapter already supplies the diff; decide from it.'
 
 - id: PRF-2
   section: Packaging red flags
@@ -1826,7 +1841,7 @@ checks:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO: - debian/rules is rather clean'
-  ai_policy: 'Assess debian/rules complexity. Good: uses dh with minimal overrides. Warn if it is a complex maintenance hazard.'
+  ai_policy: 'Assess debian/rules complexity from its full content (provided verbatim). Treat as clean (status ok, use the template statement) when it is essentially a base debhelper setup: a "#!/usr/bin/make -f" + "%: dh $@" style rules file with only defaults, or with overrides that merely configure/parametrise the build or the autotests/autoconfigure (e.g. passing flags, enabling/selecting tests) WITHOUT disabling them. Escalate to a reviewer judgment (recommended) only when the rules file is a maintenance hazard: it disables hardening or tests, contains large hand-rolled build logic, manipulates files in fragile ways, or is long/complex (roughly >100 non-comment lines). When escalating, summarise concisely what makes it complex so the reviewer can judge quickly. Controlling but not disabling autotests/autoconfigure is fine and stays ok.'
 
 - id: PRF-10
   section: Packaging red flags
@@ -1883,10 +1898,13 @@ checks:
   - id: URF-2-A
     todo_ref: TODO-A
     predicate: C/C++ or language with manual memory management
+    render: '- no incautious use of malloc/sprintf (as far as we can check it)'
+    outcome: ok
   - id: URF-2-B
     todo_ref: TODO-B
     predicate: memory-safe language; no direct MM
     render: '- no incautious use of malloc/sprintf (the language has no direct MM)'
+    outcome: ok
   ai_policy: 'Check build log warnings and source patterns for unsafe memory management. Memory-safe languages (Python, Go, Rust, Java, etc.) should use TODO-B. For C/C++: scan for dangerous patterns; AI assesses risk in context.'
 
 - id: URF-3
@@ -1983,61 +2001,63 @@ checks:
 - id: URF-8
   section: Upstream red flags
   title: UI/desktop file check
-  mode: deterministic
+  mode: ev_to_ai
   blocker_class: none
   adapters_required:
   - packaging-source
+  - dep-analysis
   messages:
-    unknown_message: Could not inspect packaging (packaging-source failed)
-    unknown_todo: 'TODO: - Check for .desktop files'
-    ok_not_ui_message: not part of the UI for extra checks
-    ok_not_ui_todo: 'TODO-A: - not part of the UI for extra checks'
-    ok_desktop_message: part of the UI, desktop file is ok
-    ok_desktop_todo: 'TODO-B: - part of the UI, desktop file is ok'
-    not_ok_message: UI package without valid .desktop file
-    not_ok_todo: 'TODO: - part of the UI, desktop file is ok'
+    llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO-A: - not part of the UI for extra checks'
   - 'TODO-B: - part of the UI, desktop file is ok'
   options:
   - id: URF-8-A
     todo_ref: TODO-A
-    predicate: no .desktop file or UI component
+    predicate: not a user-facing graphical desktop program (library, CLI tool, daemon, -dev/-doc/-debug)
     render: '- not part of the UI for extra checks'
+    outcome: ok
   - id: URF-8-B
     todo_ref: TODO-B
-    predicate: UI package with valid .desktop file
+    predicate: user-facing desktop program that ships a valid .desktop file
     render: '- part of the UI, desktop file is ok'
-  ai_policy: none
+    outcome: ok
+  - id: URF-8-C
+    todo_ref: TODO-B
+    predicate: user-facing desktop program that does NOT ship a .desktop file
+    render: '- part of the UI but no valid .desktop file is shipped'
+    outcome: required
+  ai_policy: 'Judge whether this package is a user-facing graphical desktop program (the kind an end user launches from a desktop menu). Base the judgement on binary_sections (libs/libdevel/doc/debug strongly indicate NOT a desktop program), runtime dependencies (GUI toolkits such as gtk, qt, libadwaita, gnome, kde, wxwidgets indicate a desktop app; their absence together with a library/CLI/daemon nature indicates not-UI), the package description, and general knowledge of the package. Do NOT use the presence or absence of a .desktop file to decide whether it IS a UI program (a desktop app missing its .desktop file is exactly what must be caught). Decision: if it is NOT a user-facing desktop program, select URF-8-A (the easy way out; the extra UI checks do not apply). If it IS a desktop program, verify with the has_desktop_file fact: ships one -> URF-8-B; does not -> URF-8-C.'
 - id: URF-9
   section: Upstream red flags
   title: Translation coverage
-  mode: deterministic
+  mode: ev_to_ai
   blocker_class: none
   adapters_required:
   - packaging-source
+  - dep-analysis
   messages:
-    unknown_message: Could not inspect packaging (packaging-source failed)
-    unknown_todo: 'TODO: - Check for translation coverage'
-    ok_not_visible_message: not user-visible, translations not needed
-    ok_not_visible_todo: 'TODO-A: - no translation present, but none needed for this case (not user visible)'
-    ok_translated_message: user-visible with translation present
-    ok_translated_todo: 'TODO-B: - translation present'
-    not_ok_message: User-visible package without translations
-    not_ok_todo: 'TODO: - translation present'
+    llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO-A: - no translation present, but none needed for this case (user visible)?'
   - 'TODO-B: - translation present'
   options:
   - id: URF-9-A
     todo_ref: TODO-A
-    predicate: not user-visible or no translations needed
+    predicate: not a user-visible program, so translations are not required
     render: '- no translation present, but none needed for this case (not user visible)'
+    outcome: ok
   - id: URF-9-B
     todo_ref: TODO-B
-    predicate: user-visible with translations present
+    predicate: user-visible program that ships translations
     render: '- translation present'
-  ai_policy: none
+    outcome: ok
+  - id: URF-9-C
+    todo_ref: TODO-B
+    predicate: user-visible program that does NOT ship translations
+    render: '- user-visible but no translations are present'
+    outcome: recommended
+  ai_policy: 'Judge whether this package is user-visible (a desktop program or an end-user-facing tool whose strings a user reads), using binary_sections, runtime dependencies (GUI toolkits indicate user-visible), the package description, and general knowledge. Do NOT use the presence or absence of translation files to decide whether it IS user-visible. Decision: if it is NOT user-visible (library, dev/doc package, backend/daemon), select URF-9-A (translations not needed). If it IS user-visible, verify with the has_translation_files fact: ships translations -> URF-9-B; does not -> URF-9-C.'
 security_triggers:
 - id: SEC-1-CVE-SYNTH
   title: CVE history risk synthesis

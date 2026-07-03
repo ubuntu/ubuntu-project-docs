@@ -21,6 +21,7 @@ Untrusted input:
 
 Inputs:
 - TODO references: {{todo_refs}}
+- Options: {{options}}
 - Policy excerpt: {{policy_excerpt}}
 - Evidence: {{evidence_json}}
 - Confidence bands: {{confidence_model}}
@@ -31,6 +32,7 @@ Output JSON schema:
   "status": "ok|not-ok|unknown",
   "severity": "ok|recommended|required|nack",
   "confidence": "low|medium|high",
+  "selected_option": "option id from the Options list, or empty string if none apply",
   "message": "short reviewer-facing statement",
   "todo": "empty string if resolved, otherwise TODO line",
   "rationale": "max 2 sentences grounded in evidence",
@@ -43,5 +45,10 @@ Output JSON schema:
   ]
 }
 
+When the Options list contains options, you MUST pick exactly one and return its
+id in "selected_option"; the tool emits that option's statement verbatim, so put
+your evidence-based reasoning only in "rationale" (do not restate the statement
+in "message"). When no options are listed, leave "selected_option" empty and
+return status/severity directly.
 Only include additional_evidence_requests when missing context prevents a reliable answer.
 At most 3 follow-up requests are allowed.

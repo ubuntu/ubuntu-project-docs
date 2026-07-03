@@ -59,7 +59,10 @@ def evaluate_checks(ctx) -> list[Finding]:
     findings_by_id: dict[str, Finding] = {}
 
     # Pass 1: non-synthesis checks, in catalog order.
+    # ctx.findings is populated incrementally so a later check can consult an
+    # earlier one's result within this pass (e.g. CB-5 gates on CB-4's verdict).
     pass1_findings: list[Finding] = []
+    ctx.findings = pass1_findings
     for check in checks:
         if check.get("synthesis"):
             continue

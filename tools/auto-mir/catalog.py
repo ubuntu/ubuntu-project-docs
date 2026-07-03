@@ -283,26 +283,6 @@ _REQUIRED_MESSAGE_TEMPLATES: dict[str, dict[str, set[str]]] = {
         "not_ok_todo": set(),
         "ok_message": set(),
     },
-    "URF-8": {
-        "unknown_message": set(),
-        "unknown_todo": set(),
-        "ok_not_ui_message": set(),
-        "ok_not_ui_todo": set(),
-        "ok_desktop_message": set(),
-        "ok_desktop_todo": set(),
-        "not_ok_message": set(),
-        "not_ok_todo": set(),
-    },
-    "URF-9": {
-        "unknown_message": set(),
-        "unknown_todo": set(),
-        "ok_not_visible_message": set(),
-        "ok_not_visible_todo": set(),
-        "ok_translated_message": set(),
-        "ok_translated_todo": set(),
-        "not_ok_message": set(),
-        "not_ok_todo": set(),
-    },
 }
 
 
@@ -419,8 +399,51 @@ def _validate_checks(catalog: dict) -> list[str]:
                 errors.append(f"Check {check.get('id', i)}: adapters_required must be a list")
 
         _validate_check_messages(check, i, errors)
+        _validate_check_options(check, i, errors)
 
     return errors
+
+
+# Outcomes an option can resolve to. "ok" renders as an OK statement with no
+# TODO; the others render as TODO/Problem lines at the matching severity.
+_VALID_OPTION_OUTCOMES = {"ok", "recommended", "required", "nack"}
+
+
+def _validate_check_options(check: dict, index: int, errors: list[str]) -> None:
+    """Validate option lists for AI-evaluated option checks.
+
+    ev_to_ai/ai checks that expose ``options`` are wired so the model selects
+    one option id and the renderer emits that option's canonical ``render``
+    statement at the ``outcome`` severity. To keep the output template-faithful
+    (rather than free-form model prose) every such option must declare both a
+    ``render`` string and a valid ``outcome``. Summary-section decision checks
+    (ACK/NACK verdict, security review) keep all variants visible and are exempt.
+    Deterministic option checks render via their ``messages`` map and are exempt.
+    """
+    options = check.get("options")
+    if not options:
+        return
+    check_id = str(check.get("id", index))
+    if check.get("mode") not in {"ev_to_ai", "ai"}:
+        return
+    if check.get("section") == "Summary":
+        return
+    if not isinstance(options, list):
+        errors.append(f"Check {check_id}: options must be a list")
+        return
+    for opt in options:
+        if not isinstance(opt, dict):
+            errors.append(f"Check {check_id}: each option must be a mapping")
+            continue
+        opt_id = opt.get("id", "?")
+        if not opt.get("render"):
+            errors.append(f"Check {check_id}: option {opt_id} missing required 'render' statement")
+        outcome = opt.get("outcome")
+        if outcome not in _VALID_OPTION_OUTCOMES:
+            errors.append(
+                f"Check {check_id}: option {opt_id} has invalid outcome '{outcome}'. "
+                f"Must be one of: {', '.join(sorted(_VALID_OPTION_OUTCOMES))}"
+            )
 
 
 def _validate_adapters(catalog: dict) -> list[str]:

@@ -33,6 +33,14 @@ _SYNTHESIS_FINDING_MESSAGE_CHARS = 1500
 _DEFAULT_REPORTER_SNIPPET_CHARS = 2000
 _SYNTHESIS_REPORTER_CONTENT_CHARS = 20000
 
+# Checks that must receive specific large adapter fields verbatim (bounded only
+# by a generous cap) rather than the short summary preview, because the check's
+# judgement depends on the full content.
+_FULL_CONTENT_FIELDS_BY_CHECK: dict[str, set[str]] = {
+    "PRF-9": {"debian_rules"},
+    "CB-3": {"debian_tests_control"},
+}
+
 
 @evaluator("ev_to_ai")
 def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
@@ -212,12 +220,17 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
 
     adapters_store = ctx.evidence.get("adapters", {})
     relevant = list(check.get("adapters_required", [])) + list(check.get("adapters_optional", []))
+    # Some checks need specific large fields verbatim rather than a short
+    # preview (e.g. PRF-9 must see the whole debian/rules to judge cleanliness).
+    keep_full_fields = _FULL_CONTENT_FIELDS_BY_CHECK.get(check.get("id", ""), set())
     for adapter_id in relevant:
         data = adapters_store.get(adapter_id)
         if data is None:
             payload[adapter_id] = {"status": "not_collected"}
         else:
-            truncated = _truncate_adapter_data(data, adapter_id=adapter_id)
+            truncated = _truncate_adapter_data(
+                data, adapter_id=adapter_id, keep_full_fields=keep_full_fields
+            )
             if adapter_id == "lp-bug-api":
                 truncated = _spotlight_lp_bug_api(ctx, truncated)
             payload[adapter_id] = truncated
@@ -275,12 +288,26 @@ def _select_ev_to_ai_model_tier(prompt: str, evidence_payload: dict) -> str:
     return "small"
 
 
-def _truncate_adapter_data(data: dict, max_str_len: int = 1000, adapter_id: str = "") -> dict:
+def _truncate_adapter_data(
+    data: dict,
+    max_str_len: int = 1000,
+    adapter_id: str = "",
+    keep_full_fields: set[str] | None = None,
+) -> dict:
     """Return a copy of data with large outputs trimmed for LLM token budget.
 
     For known large fields (lintian_output, debian_*, build_log), only include
     a brief summary or first few lines. For other large strings, truncate to 1000 chars.
+
+    ``keep_full_fields`` lists field names that must NOT be summarised to a short
+    preview because the evaluating check needs their full content (e.g. PRF-9
+    needs the whole debian/rules to judge cleanliness). Such fields are still
+    bounded by a generous cap to protect the token budget.
     """
+    keep_full_fields = keep_full_fields or set()
+    # Generous upper bound for fields a check explicitly needs in full, so the
+    # token budget is still protected on pathological inputs.
+    FULL_FIELD_CAP = 12000
     SUMMARY_FIELDS = {
         "lintian_output",  # lintian full output
         "debian_control",  # control file
@@ -298,7 +325,12 @@ def _truncate_adapter_data(data: dict, max_str_len: int = 1000, adapter_id: str 
             result[k] = _reduce_file_listing(v)
             continue
 
-        if k in SUMMARY_FIELDS and isinstance(v, str):
+        if k in keep_full_fields and isinstance(v, str):
+            # Field the check needs verbatim; bound only by the generous cap.
+            result[k] = v[:FULL_FIELD_CAP] + (
+                f" ... [truncated, total {len(v)} chars]" if len(v) > FULL_FIELD_CAP else ""
+            )
+        elif k in SUMMARY_FIELDS and isinstance(v, str):
             # For known large fields, just count lines/errors
             if k == "lintian_output":
                 lines = v.splitlines()
@@ -313,7 +345,9 @@ def _truncate_adapter_data(data: dict, max_str_len: int = 1000, adapter_id: str 
         elif isinstance(v, str) and len(v) > max_str_len:
             result[k] = v[:max_str_len] + f" ... [truncated, total {len(v)} chars]"
         elif isinstance(v, dict):
-            result[k] = _truncate_adapter_data(v, max_str_len, adapter_id=adapter_id)
+            result[k] = _truncate_adapter_data(
+                v, max_str_len, adapter_id=adapter_id, keep_full_fields=keep_full_fields
+            )
         elif isinstance(v, list) and len(v) > 30:
             # Truncate large lists to first 15 items + summary
             result[k] = v[:15] + [{"...": f"plus {len(v) - 15} more items"}]
@@ -800,6 +834,7 @@ def _render_ev_to_ai_prompt(
         "{{check_title}}": check.get("title", ""),
         "{{section}}": check.get("section", ""),
         "{{todo_refs}}": "\n".join(check.get("todo_refs", [])),
+        "{{options}}": _render_options_for_prompt(check),
         "{{policy_excerpt}}": policy_excerpt,
         "{{evidence_json}}": json.dumps(evidence_payload, indent=2, default=str),
         "{{confidence_model}}": confidence_model,
@@ -808,6 +843,31 @@ def _render_ev_to_ai_prompt(
     for placeholder, value in substitutions.items():
         result = result.replace(placeholder, value)
     return result
+
+
+def _render_options_for_prompt(check: dict) -> str:
+    """Describe selectable options so the model returns a ``selected_option`` id.
+
+    Only non-Summary ev_to_ai/ai option checks are wired for option selection;
+    for all other checks this returns an explicit "no options" note so the model
+    falls back to returning status/severity directly.
+    """
+    options = check.get("options")
+    if not options or check.get("mode") not in {"ev_to_ai", "ai"}:
+        return "No predefined options for this check; return status/severity directly."
+    if check.get("section") == "Summary":
+        return "No predefined options for this check; return status/severity directly."
+    lines = [
+        "Select exactly one option by returning its id in the 'selected_option' field.",
+        "Each option's statement will be emitted verbatim; put your reasoning in 'rationale'.",
+    ]
+    for opt in options:
+        opt_id = str(opt.get("id", "")).strip()
+        render_text = str(opt.get("render", "")).strip()
+        predicate = str(opt.get("predicate", "")).strip()
+        outcome = str(opt.get("outcome", "")).strip()
+        lines.append(f"  - {opt_id} (outcome={outcome}): {render_text} [when: {predicate}]")
+    return "\n".join(lines)
 
 
 def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Finding:
@@ -822,6 +882,13 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
         finding.status = "unknown"
         finding.todo = _default_todo_for_check(check, fallback_suffix="LLM response invalid")
         return finding
+
+    # Option-based ev_to_ai checks are wired so the model picks one option id and
+    # we emit that option's canonical template statement at its declared outcome
+    # severity, keeping the draft template-faithful rather than free-form prose.
+    option = _resolve_selected_option(response, check)
+    if option is not None:
+        return _apply_option_response(option, response, check, finding)
 
     valid_statuses = {"ok", "not-ok", "unknown"}
     valid_severities = {"ok", "recommended", "required", "nack"}
@@ -870,7 +937,13 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
             finding.message = f"{message}\n  Rationale: {rationale}" if message else rationale
         finding.todo = todo
     else:
-        if rationale:
+        # Prefer the catalog's canonical OK statement over free-form model prose
+        # so the reviewer sees the familiar template wording, with the model's
+        # reasoning appended in parentheses (matching how a human writes it).
+        canonical = _canonical_ok_statement(check)
+        if canonical:
+            finding.message = f"{canonical}\n  ({rationale})" if rationale else canonical
+        elif rationale:
             finding.message = f"{message}\n  ({rationale})" if message else rationale
         finding.todo = ""
 
@@ -885,6 +958,103 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
     # Always require human confirmation for AI-derived findings
     finding.human_confirmation_required = True
 
+    return finding
+
+
+# Matches a leading "TODO:" / "TODO-X:" (possibly repeated) plus an optional
+# "- " list marker, so a catalog todo_ref can be reduced to its statement text.
+_TODO_PREFIX_RE = re.compile(r"^\s*(?:TODO(?:-[A-Z0-9]+)?:\s*)+(?:-\s*)?")
+
+
+def _strip_todo_prefix_text(line: str) -> str:
+    """Strip leading TODO markers and list dashes, leaving the statement text."""
+    return _TODO_PREFIX_RE.sub("", line).strip()
+
+
+def _canonical_ok_statement(check: dict) -> str:
+    """Return the canonical OK statement for a single-statement ev_to_ai check.
+
+    For checks that map to exactly one template statement (most SEC/DEP/RDO
+    checks), the reviewer expects the familiar template wording rather than
+    free-form model prose. Returns an empty string when the check has options
+    (handled separately), is a Summary decision check, has multiple candidate
+    statements, or the statement is a placeholder (TBD / <...>), in which case
+    the caller keeps the model's message.
+    """
+    if check.get("options") or check.get("section") == "Summary":
+        return ""
+    if check.get("mode") != "ev_to_ai":
+        return ""
+    todo_refs = [str(x).strip() for x in check.get("todo_refs", []) if str(x).strip()]
+    if len(todo_refs) != 1:
+        return ""
+    statement = _strip_todo_prefix_text(todo_refs[0])
+    if not statement or "TBD" in statement or "<" in statement:
+        return ""
+    return statement
+
+
+def _resolve_selected_option(response: dict, check: dict) -> dict | None:
+    """Return the catalog option the model selected, or None.
+
+    Only applies to non-Summary ev_to_ai/ai option checks. The model may name
+    the option by its id (e.g. "PRF-1-B") or by its todo_ref (e.g. "TODO-B").
+    """
+    options = check.get("options")
+    if not options or check.get("mode") not in {"ev_to_ai", "ai"}:
+        return None
+    if check.get("section") == "Summary":
+        return None
+    selected = str(response.get("selected_option", "")).strip()
+    if not selected:
+        return None
+    for opt in options:
+        if str(opt.get("id", "")).strip() == selected:
+            return opt
+    for opt in options:
+        if str(opt.get("todo_ref", "")).strip() == selected:
+            return opt
+    return None
+
+
+def _apply_option_response(option: dict, response: dict, check: dict, finding: Finding) -> Finding:
+    """Render a selected option's canonical statement at its declared outcome."""
+    render_text = str(option.get("render", "")).strip()
+    message = render_text[2:].strip() if render_text.startswith("- ") else render_text
+    outcome = option.get("outcome", "ok")
+    rationale = (response.get("rationale") or "").strip()
+
+    confidence = response.get("confidence", "medium")
+    if confidence not in {"low", "medium", "high"}:
+        confidence = "medium"
+    # AI-derived findings are capped at medium confidence.
+    if confidence == "high":
+        confidence = "medium"
+
+    if outcome == "ok":
+        finding.status = "ok"
+        finding.severity = "ok"
+        finding.confidence = confidence
+        finding.message = f"{message}\n  ({rationale})" if rationale else message
+        finding.todo = ""
+    else:
+        finding.status = "not-ok"
+        finding.severity = outcome
+        finding.confidence = confidence
+        finding.message = f"{message}\n  Rationale: {rationale}" if rationale else message
+        todo = render_text or str(option.get("todo_ref", "")).strip()
+        if not (todo.startswith("TODO:") or todo.startswith("TODO-")):
+            prefix_inner = "" if todo.startswith("- ") else "- "
+            todo = f"TODO: {prefix_inner}{todo}"
+        finding.todo = todo
+
+    ev_refs = response.get("evidence_refs", [])
+    if isinstance(ev_refs, list) and ev_refs:
+        finding.evidence_refs = ev_refs
+    risk_flags = response.get("risk_flags", [])
+    if isinstance(risk_flags, list) and risk_flags:
+        finding.risk_flags = risk_flags
+    finding.human_confirmation_required = True
     return finding
 
 

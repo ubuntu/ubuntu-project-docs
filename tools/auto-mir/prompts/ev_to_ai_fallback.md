@@ -12,6 +12,9 @@ Policy:
 TODO references this check resolves:
 {{todo_refs}}
 
+Options:
+{{options}}
+
 Evidence:
 {{evidence_json}}
 
@@ -23,6 +26,7 @@ Return ONLY a JSON object with these exact fields (no markdown fences):
   "status": "ok|not-ok|unknown",
   "severity": "ok|recommended|required|nack",
   "confidence": "low|medium|high",
+  "selected_option": "option id from the Options list, or empty string if none apply",
   "message": "short reviewer-facing statement (1-2 sentences)",
   "todo": "empty string if resolved, otherwise a TODO: prefixed line",
   "rationale": "max 2 sentences grounded in evidence",
@@ -35,6 +39,8 @@ Return ONLY a JSON object with these exact fields (no markdown fences):
     ]
 }
 
+When the Options list contains options, pick exactly one and return its id in
+`selected_option`; the tool emits that option's statement verbatim, so put your
+reasoning only in `rationale`. When no options are listed, leave
+`selected_option` empty and return status/severity directly.
 Only include `additional_evidence_requests` when missing context prevents a good answer.
-You may request up to 3 items.
-When you request additional evidence, still fill the other fields using best effort.

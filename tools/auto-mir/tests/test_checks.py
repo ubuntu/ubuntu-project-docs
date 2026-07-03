@@ -2136,80 +2136,260 @@ def test_sec_10_pam_runtime_meta_no_trigger():
     assert result.severity == "ok"
 
 
-def test_urf_8_not_ui_package():
-    """Test URF-8 when not a UI package (gate N/A; check passes)."""
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["packaging-source"] = {
-        "status": "ok",
-        "debian_control": "Package: libfoo-dev",
-        "debian_rules": "dh_auto_build",
-        "file_listing": [],
+def test_canonical_ok_statement_used_for_single_statement_ev_to_ai():
+    """A single-statement ev_to_ai OK finding uses the template wording + rationale."""
+    check = {
+        "id": "SEC-1",
+        "section": "Security",
+        "mode": "ev_to_ai",
+        "todo_refs": ["TODO: - history of CVEs does not look concerning"],
     }
-
-    finding = _make_finding("URF-8", mode="deterministic")
-    result = checks.deterministic._check_urf_8(ctx, finding)
+    finding = _make_finding("SEC-1", mode="ev_to_ai")
+    response = {
+        "status": "ok",
+        "message": "no CVEs anywhere",
+        "rationale": "Both trackers report zero CVEs for the package.",
+    }
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
 
     assert result.status == "ok"
-    assert result.severity == "ok"
-    assert "not part of the ui" in result.message.lower()
+    assert result.message.startswith("history of CVEs does not look concerning")
+    assert "Both trackers report zero CVEs" in result.message
+    assert result.todo == ""
 
 
-def test_urf_8_ui_with_desktop():
-    """Test URF-8 when UI package with a valid .desktop file (check passes)."""
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["packaging-source"] = {
+def test_canonical_ok_statement_skipped_for_placeholder_todo():
+    """A placeholder (TBD) template statement falls back to the model message."""
+    check = {
+        "id": "SUM-3",
+        "section": "Summary",
+        "mode": "ev_to_ai",
+        "todo_refs": ["TODO: List of binary packages to be promoted: TBD"],
+    }
+    finding = _make_finding("SUM-3", mode="ev_to_ai")
+    response = {
         "status": "ok",
-        "debian_control": "Package: gnome-calculator",
-        "debian_rules": "dh_auto_build",
-        "file_listing": [
-            {"path": "usr/share/applications/gnome-calculator.desktop", "size": 500},
+        "message": "libgav1-2 is the sole promotion candidate",
+        "rationale": "The reporter lists only libgav1-2.",
+    }
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
+
+    assert result.status == "ok"
+    # Summary section is excluded from canonical substitution.
+    assert result.message.startswith("libgav1-2 is the sole promotion candidate")
+
+
+def test_selected_option_ok_sets_template_statement():
+    """An ev_to_ai option with outcome ok renders its canonical statement, no TODO."""
+    check = {
+        "id": "PRF-1",
+        "section": "Packaging red flags",
+        "mode": "ev_to_ai",
+        "options": [
+            {
+                "id": "PRF-1-B",
+                "todo_ref": "TODO-B",
+                "render": "- Ubuntu does carry a delta, but it is reasonable and maintenance under control",
+                "outcome": "ok",
+            },
         ],
     }
-
-    finding = _make_finding("URF-8", mode="deterministic")
-    result = checks.deterministic._check_urf_8(ctx, finding)
-
-    assert result.status == "ok"
-    assert result.severity == "ok"
-    assert "part of the ui" in result.message.lower()
-
-
-def test_urf_9_not_user_visible():
-    """Test URF-9 when package is not user-visible (gate N/A; check passes)."""
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["packaging-source"] = {
+    finding = _make_finding("PRF-1", mode="ev_to_ai")
+    response = {
         "status": "ok",
-        "debian_control": "Package: libfoo-dev",
-        "debian_rules": "dh_auto_build",
-        "file_listing": [],
+        "selected_option": "PRF-1-B",
+        "rationale": "The delta only adds autopkgtests (debian/tests).",
     }
-
-    finding = _make_finding("URF-9", mode="deterministic")
-    result = checks.deterministic._check_urf_9(ctx, finding)
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
 
     assert result.status == "ok"
     assert result.severity == "ok"
-    assert "not user-visible" in result.message.lower()
+    assert result.message.startswith(
+        "Ubuntu does carry a delta, but it is reasonable and maintenance under control"
+    )
+    assert "only adds autopkgtests" in result.message
+    assert result.todo == ""
 
 
-def test_urf_9_user_visible_with_translations():
-    """Test URF-9 when user-visible package has translations (check passes)."""
-    ctx = _Ctx()
-    ctx.evidence["adapters"]["packaging-source"] = {
-        "status": "ok",
-        "debian_control": "Package: gnome-calculator",
-        "debian_rules": "dh_auto_build",
-        "file_listing": [
-            {"path": "usr/share/locale/de/LC_MESSAGES/gnome-calculator.mo", "size": 500},
+def test_selected_option_matches_by_todo_ref():
+    """The model may name an option by its todo_ref instead of its id."""
+    check = {
+        "id": "ESL-11",
+        "section": "Embedded sources and static linking",
+        "mode": "ev_to_ai",
+        "options": [
+            {
+                "id": "ESL-11-B",
+                "todo_ref": "TODO-B",
+                "render": "- Does not include vendored code",
+                "outcome": "ok",
+            },
         ],
     }
+    finding = _make_finding("ESL-11", mode="ev_to_ai")
+    response = {"status": "ok", "selected_option": "TODO-B", "rationale": "Only test-only dirs."}
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
 
-    finding = _make_finding("URF-9", mode="deterministic")
-    result = checks.deterministic._check_urf_9(ctx, finding)
+    assert result.status == "ok"
+    assert result.message.startswith("Does not include vendored code")
+
+
+def test_urf_8_option_not_ui_renders_template_statement():
+    """URF-8 (ev_to_ai): selecting the not-UI option yields the template line."""
+    check = {
+        "id": "URF-8",
+        "section": "Upstream red flags",
+        "mode": "ev_to_ai",
+        "options": [
+            {
+                "id": "URF-8-A",
+                "todo_ref": "TODO-A",
+                "render": "- not part of the UI for extra checks",
+                "outcome": "ok",
+            },
+            {
+                "id": "URF-8-C",
+                "todo_ref": "TODO-B",
+                "render": "- part of the UI but no valid .desktop file is shipped",
+                "outcome": "required",
+            },
+        ],
+    }
+    finding = _make_finding("URF-8", mode="ev_to_ai")
+    response = {
+        "status": "ok",
+        "selected_option": "URF-8-A",
+        "rationale": "libgav1 is a codec library with a CLI helper, not a desktop program.",
+    }
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
 
     assert result.status == "ok"
     assert result.severity == "ok"
-    assert "translation present" in result.message.lower()
+    assert result.message.startswith("not part of the UI for extra checks")
+    assert result.todo == ""
+
+
+def test_urf_8_option_missing_desktop_is_required():
+    """URF-8: a desktop program without a .desktop file is a required TODO."""
+    check = {
+        "id": "URF-8",
+        "section": "Upstream red flags",
+        "mode": "ev_to_ai",
+        "options": [
+            {
+                "id": "URF-8-B",
+                "todo_ref": "TODO-B",
+                "render": "- part of the UI, desktop file is ok",
+                "outcome": "ok",
+            },
+            {
+                "id": "URF-8-C",
+                "todo_ref": "TODO-B",
+                "render": "- part of the UI but no valid .desktop file is shipped",
+                "outcome": "required",
+            },
+        ],
+    }
+    finding = _make_finding("URF-8", mode="ev_to_ai")
+    response = {
+        "status": "not-ok",
+        "selected_option": "URF-8-C",
+        "rationale": "GTK app but ships no .desktop file.",
+    }
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert result.todo.startswith("TODO:")
+    assert "no valid .desktop" in result.todo
+
+
+def test_urf_9_option_not_user_visible_needs_no_translation():
+    """URF-9 (ev_to_ai): not-user-visible option resolves ok without a TODO."""
+    check = {
+        "id": "URF-9",
+        "section": "Upstream red flags",
+        "mode": "ev_to_ai",
+        "options": [
+            {
+                "id": "URF-9-A",
+                "todo_ref": "TODO-A",
+                "render": "- no translation present, but none needed for this case (not user visible)",
+                "outcome": "ok",
+            },
+            {
+                "id": "URF-9-C",
+                "todo_ref": "TODO-B",
+                "render": "- user-visible but no translations are present",
+                "outcome": "recommended",
+            },
+        ],
+    }
+    finding = _make_finding("URF-9", mode="ev_to_ai")
+    response = {
+        "status": "ok",
+        "selected_option": "URF-9-A",
+        "rationale": "A shared library exposes no user-facing strings.",
+    }
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "not user visible" in result.message.lower()
+    assert result.todo == ""
+
+
+def _cb5_ctx_with_cb4(cb4_status):
+    """Build a ctx whose findings already contain a CB-4 result."""
+    ctx = _Ctx()
+    ctx.catalog["checks"].append(
+        {
+            "id": "CB-5",
+            "section": "Common blockers",
+            "title": "Special hardware compromise accepted",
+            "mode": "deterministic",
+            "messages": {
+                "ok_message": "no special hardware needed, so there is no compromise to accept",
+                "human_only_message": "Human review required",
+                "human_only_todo": "TODO: - {title} - reviewer judgment needed",
+            },
+        }
+    )
+    ctx.findings = [
+        Finding(
+            id="CB-4",
+            section="Common blockers",
+            title="Special hardware: requirement and coverage plan",
+            mode="ev_to_ai",
+            status=cb4_status,
+            severity="ok" if cb4_status == "ok" else "recommended",
+            confidence="medium",
+            message="",
+        )
+    ]
+    return ctx
+
+
+def test_cb_5_ok_when_cb4_needs_no_special_hw():
+    """CB-5 resolves ok (no TODO) when CB-4 concluded no special hardware is needed."""
+    ctx = _cb5_ctx_with_cb4("ok")
+    finding = _make_finding("CB-5", mode="deterministic")
+    result = checks.deterministic._check_cb_5(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert result.todo == ""
+
+
+def test_cb_5_needs_judgment_when_cb4_not_ok():
+    """CB-5 asks for reviewer judgment only when CB-4 did not clear special HW."""
+    ctx = _cb5_ctx_with_cb4("not-ok")
+    finding = _make_finding("CB-5", mode="deterministic")
+    result = checks.deterministic._check_cb_5(ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.todo.startswith("TODO:")
+    assert "reviewer judgment needed" in result.todo
 
 
 def test_cb_7_no_py2():

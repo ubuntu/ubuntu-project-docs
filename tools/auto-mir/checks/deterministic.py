@@ -650,12 +650,41 @@ def _is_build_log_noise(line_lower: str) -> bool:
     return any(marker in line_lower for marker in _BUILD_LOG_NOISE_MARKERS)
 
 
+# Per-test output emitted by test runners (ctest verbose prefixes each test's
+# stdout/stderr with "N: "; meson uses a similar convention). Such lines are the
+# program's OWN logging during the test phase (e.g. a decoder emitting
+# "ERROR ... Failed to parse FrameHeader" while decoding a deliberately-broken
+# fixture) and must never be mistaken for build/toolchain errors.
+_TEST_OUTPUT_PREFIX_RE = re.compile(r"^\s*\d+:\s")
+
+# Genuine build failures are compiler/linker/build-tool diagnostics, not
+# free-form "error"/"failed to" substrings that also occur in program output.
+_BUILD_ERROR_RE = re.compile(
+    r":\d+:\d+:\s*(?:fatal\s+)?error:"  # gcc/clang: file:line:col: error:
+    r"|:\d+:\s*(?:fatal\s+)?error:"  # file:line: error:
+    r"|(?:^|\s)fatal error:"  # preprocessor fatal error
+    r"|undefined reference to"  # linker
+    r"|\bld:\s*(?:error|cannot)"  # linker
+    r"|\bcollect2:\s*error"  # linker driver
+    r"|\bdh_[a-z_]+:\s*error"  # debhelper
+    r"|make(?:\[\d+\])?:\s*\*\*\*"  # make failure marker
+    r"|dpkg-buildpackage:\s*error",
+    re.IGNORECASE,
+)
+
+# Compiler warnings use a lowercase "warning:" token (optionally with a
+# file:line: prefix). Matched case-sensitively so uppercase runtime log levels
+# (e.g. glog "WARNING") are not swept in.
+_BUILD_WARNING_RE = re.compile(r"(?::\d+:\d*:\s*)?warning:")
+
+
 def _parse_build_log_issues(build_log: str) -> tuple[list[str], list[str]]:
     """Parse build log to extract real error and warning lines.
 
     Generic packaging noise that appears on essentially every build (dpkg-source
-    signature notes, dpkg-buildflags changelog notes, etc.) is filtered out so
-    only genuine toolchain diagnostics remain.
+    signature notes, dpkg-buildflags changelog notes, etc.) is filtered out, and
+    per-test runner output is skipped, so only genuine toolchain diagnostics
+    remain.
 
     Returns:
         (errors, warnings) tuple where each is a list of relevant log lines
@@ -675,14 +704,19 @@ def _parse_build_log_issues(build_log: str) -> tuple[list[str], list[str]]:
         line_lower = line.lower()
         if _is_build_log_noise(line_lower):
             continue
-        # Check for error patterns
-        if any(token in line_lower for token in ["error:", "fatal error:", "failed to"]):
+        # Skip the program's own output during the test phase (see regex note).
+        if _TEST_OUTPUT_PREFIX_RE.match(line):
+            continue
+        # Genuine build errors: compiler/linker/build-tool diagnostics only.
+        if _BUILD_ERROR_RE.search(line):
             errors.append(line.strip())
-        # Check for security-relevant warnings
+        # Security-relevant warnings anywhere in the log.
         elif any(token in line_lower for token in security_warning_keywords):
             warnings.append(line.strip())
-        # Check for compiler/build warnings
-        elif any(token in line_lower for token in ["warning:", "-w ", "deprecated"]):
+        # Compiler/build warnings (lowercase "warning:" or deprecation notes).
+        elif _BUILD_WARNING_RE.search(line) or any(
+            token in line_lower for token in [" -w ", "deprecated"]
+        ):
             warnings.append(line.strip())
 
     return errors, warnings
@@ -1496,120 +1530,12 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
     return finding
 
 
-@deterministic_check("URF-8")
-def _check_urf_8(ctx, finding: Finding) -> Finding:
-    """URF-8: UI/desktop file check."""
-    check = _get_check_definition(ctx, "URF-8")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        return _set_unknown_from_adapter(
-            finding, check, todo_key="unknown_todo", evidence_refs=["packaging-source:error"]
-        )
-
-    file_listing = packaging.get("file_listing", [])
-    debian_control = packaging.get("debian_control", "")
-
-    # Check if this is a UI/desktop package
-    desktop_patterns = [
-        "x11-apps",
-        "gnome-",
-        "kde-",
-        "xfce-",
-        "lxde-",
-        "mate-",
-        "cinnamon-",
-        "apps",
-    ]
-    has_desktop = any(p in debian_control.lower() for p in desktop_patterns)
-
-    # Check for .desktop files
-    has_desktop_file = any(".desktop" in str(f.get("path", "")) for f in file_listing)
-
-    if not has_desktop and not has_desktop_file:
-        # Not a UI package — gate does not apply, check passes
-        finding.succeed(render_check_message(check, "ok_not_ui_message"), confidence="high")
-        finding.todo = render_check_message(check, "ok_not_ui_todo")
-        finding.evidence_refs = ["packaging-source:debian_control"]
-        return finding
-
-    if has_desktop_file:
-        # Is a UI package with a valid .desktop file — check passes
-        finding.succeed(render_check_message(check, "ok_desktop_message"), confidence="high")
-        finding.todo = render_check_message(check, "ok_desktop_todo")
-        finding.evidence_refs = ["packaging-source:file_listing"]
-        return finding
-
-    # Is a UI package but no desktop file - this might be an issue
-    finding.fail(
-        render_check_message(check, "not_ok_message"),
-        render_check_message(check, "not_ok_todo"),
-        severity="required",
-        confidence="medium",
-    )
-    finding.evidence_refs = ["packaging-source:debian_control"]
-    return finding
-
-
-@deterministic_check("URF-9")
-def _check_urf_9(ctx, finding: Finding) -> Finding:
-    """URF-9: Translation coverage."""
-    check = _get_check_definition(ctx, "URF-9")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        return _set_unknown_from_adapter(
-            finding, check, todo_key="unknown_todo", evidence_refs=["packaging-source:error"]
-        )
-
-    file_listing = packaging.get("file_listing", [])
-    debian_control = packaging.get("debian_control", "")
-
-    # Check if package is user-visible
-    user_visible_patterns = [
-        "gnome",
-        "kde",
-        "xfce",
-        "lxde",
-        "mate",
-        "cinnamon",
-        "app",
-        "utils",
-        "tools",
-    ]
-    is_user_visible = any(p in debian_control.lower() for p in user_visible_patterns)
-
-    # Check for translation/locale files
-    translation_patterns = [".mo", ".po", "locale/", "translations/", "i18n/"]
-    has_translations = any(
-        any(p in str(f.get("path", "")).lower() for p in translation_patterns) for f in file_listing
-    )
-
-    if not is_user_visible:
-        # Not user-visible — gate does not apply, check passes
-        finding.succeed(render_check_message(check, "ok_not_visible_message"), confidence="high")
-        finding.todo = render_check_message(check, "ok_not_visible_todo")
-        finding.evidence_refs = ["packaging-source:debian_control"]
-        return finding
-
-    if has_translations:
-        # User-visible with translations present — check passes
-        finding.succeed(render_check_message(check, "ok_translated_message"), confidence="high")
-        finding.todo = render_check_message(check, "ok_translated_todo")
-        finding.evidence_refs = ["packaging-source:file_listing"]
-        return finding
-
-    # User-visible but no translations - might be an issue
-    finding.fail(
-        render_check_message(check, "not_ok_message"),
-        render_check_message(check, "not_ok_todo"),
-        severity="recommended",
-        confidence="medium",
-    )
-    finding.evidence_refs = ["packaging-source:file_listing"]
-    return finding
+# URF-8 (UI/desktop) and URF-9 (translations) are evaluated as ev_to_ai checks
+# (see catalog.yaml): whether a package is a user-facing desktop program is a
+# judgement best made from Section, GUI-toolkit dependencies, the description
+# and general knowledge — not from crude substring matching on debian/control.
+# The .desktop / translation file facts are surfaced by packaging-source for
+# verification only, not for classification.
 
 
 @deterministic_check("CB-7")
@@ -1647,6 +1573,35 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
         confidence="high",
     )
     finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
+    return finding
+
+
+@deterministic_check("CB-5")
+def _check_cb_5(ctx, finding: Finding) -> Finding:
+    """CB-5: Special hardware compromise accepted.
+
+    This is only a genuine human judgment call when special hardware is actually
+    required. It is gated on CB-4: when CB-4 concluded no special hardware is
+    needed, there is no compromise to accept and the check resolves ok. When
+    CB-4 indicates (or could not rule out) a special-hardware need, the reviewer
+    must decide whether the compromise is acceptable, so it is left to decide.
+    """
+    check = _get_check_definition(ctx, "CB-5")
+    cb4 = next((f for f in ctx.findings if f.id == "CB-4"), None)
+
+    if cb4 is not None and cb4.status == "ok":
+        finding.succeed(render_check_message(check, "ok_message"), confidence="high")
+        finding.evidence_refs = ["CB-4:status"]
+        return finding
+
+    finding.fail(
+        render_check_message(check, "human_only_message"),
+        render_check_message(check, "human_only_todo", title=finding.title),
+        severity="recommended",
+        confidence="low",
+        status="unknown",
+    )
+    finding.evidence_refs = ["CB-4:status"]
     return finding
 
 

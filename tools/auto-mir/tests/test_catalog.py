@@ -3,6 +3,8 @@
 import sys
 from pathlib import Path
 
+import yaml
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from catalog import load_catalog, summarize_catalog, validate_catalog
@@ -235,17 +237,70 @@ def test_validate_catalog_sum3_llm_placeholder_validation():
     assert any("messages.llm_unavailable_message missing placeholders" in err for err in errors)
 
 
-def test_validate_catalog_cb5_human_only_placeholder_validation():
-    """CB-5 human-only TODO template must include the {title} placeholder."""
+def _option_check_catalog(options):
+    return {
+        "metadata": {},
+        "global_policies": {},
+        "evidence_adapters": [{"id": "packaging-source", "type": "local_exec", "description": "d"}],
+        "checks": [
+            {
+                "id": "OPT-1",
+                "section": "Packaging red flags",
+                "title": "Option check",
+                "mode": "ev_to_ai",
+                "adapters_required": ["packaging-source"],
+                "messages": {"llm_unavailable_message": "LLM unavailable: {error}"},
+                "options": options,
+            }
+        ],
+    }
+
+
+def test_validate_catalog_option_requires_render_and_outcome():
+    """Non-Summary ev_to_ai options must declare render and a valid outcome."""
+    errors = validate_catalog(
+        _option_check_catalog(
+            [
+                {"id": "OPT-1-A", "todo_ref": "TODO-A", "outcome": "ok"},  # missing render
+                {"id": "OPT-1-B", "todo_ref": "TODO-B", "render": "- ok"},  # missing outcome
+            ]
+        )
+    )
+    assert any("option OPT-1-A missing required 'render'" in err for err in errors)
+    assert any("option OPT-1-B has invalid outcome" in err for err in errors)
+
+
+def test_validate_catalog_option_accepts_valid_render_and_outcome():
+    """A well-formed ev_to_ai option check passes validation."""
+    errors = validate_catalog(
+        _option_check_catalog(
+            [
+                {"id": "OPT-1-A", "todo_ref": "TODO-A", "render": "- fine", "outcome": "ok"},
+            ]
+        )
+    )
+    assert not any("OPT-1" in err for err in errors)
+
+
+def test_validate_catalog_real_catalog_options_are_wellformed():
+    """The shipped catalog's ev_to_ai option checks all declare render+outcome."""
+    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
+    with catalog_path.open(encoding="utf-8") as fh:
+        loaded = yaml.safe_load(fh)
+    assert validate_catalog(loaded) == []
+
+
+def test_validate_catalog_human_only_placeholder_validation():
+    """A human-only check's TODO template must include the {title} placeholder."""
     catalog = {
         "metadata": {},
         "global_policies": {},
         "evidence_adapters": [{"id": "lp-bug-api", "type": "api", "description": "d"}],
         "checks": [
             {
-                "id": "CB-5",
+                "id": "HUM-1",
                 "section": "Common blockers",
-                "title": "Special hardware compromise accepted",
+                "title": "Some human-only judgment",
                 "mode": "human_only",
                 "adapters_required": ["lp-bug-api"],
                 "messages": {
