@@ -14,6 +14,7 @@ from render import (
     _build_binary_package_header,
     _build_review_draft,
     _lint_review_draft,
+    _render_section,
     _todo_lines_for_finding,
 )
 
@@ -128,6 +129,33 @@ def test_todo_lines_bare_text_gets_prefixed():
     finding.todo = "check the upstream tracker"
     lines = _todo_lines_for_finding(finding)
     assert lines[0].startswith("TODO:")
+
+
+# ---------------------------------------------------------------------------
+# _render_section — Left to decide omission
+# ---------------------------------------------------------------------------
+
+
+def test_render_section_omits_empty_left_to_decide():
+    """A section with no undecided items must not print a 'Left to decide' line."""
+    lines = _render_section("Dependencies", [_ok_finding()])
+    text = "\n".join(lines)
+    assert "Left to decide" not in text
+    assert "Problems: none" in text
+
+
+def test_render_section_shows_left_to_decide_when_present():
+    """A section with an undecided item still renders the block with the TODO."""
+    lines = _render_section("Dependencies", [_ok_finding(), _unresolved_finding()])
+    text = "\n".join(lines)
+    assert "Left to decide:" in text
+    assert "TODO: - Manual check needed" in text
+
+
+def test_render_section_never_emits_left_to_decide_none():
+    """The meaningless 'Left to decide: None' line is never produced anymore."""
+    lines = _render_section("Security", [_high_conf_failure()])
+    assert "Left to decide: None" not in "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------

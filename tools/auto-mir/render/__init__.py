@@ -255,7 +255,10 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
                 lines.append(f"- {msg}")
                 seen_msgs.add(msg)
 
-    # Left to decide sub-block
+    # Left to decide sub-block — only rendered when there is something to
+    # decide. An empty "Left to decide" carries no meaning (unlike
+    # "Problems: none", which asserts the checks ran and found nothing), so it
+    # is omitted entirely when there are no undecided items.
     if undecided:
         lines.append("Left to decide:")
         for finding in undecided:
@@ -266,8 +269,6 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
                 )
             for todo_line in _todo_lines_for_finding(finding):
                 lines.append(todo_line)
-    else:
-        lines.append("Left to decide: None")
 
     # Problems sub-block — always rendered last, separated by a blank line, so a
     # clean section explicitly states "Problems: none" rather than silently
@@ -321,6 +322,8 @@ def _render_summary_section(
         for hint in out_of_scope_hints:
             lines.append(f"- {hint}")
 
+    # Only render "Left to decide" when there is something undecided; an empty
+    # block carries no meaning and is omitted (see _render_section).
     if unresolved:
         lines.append("Left to decide:")
         for finding in unresolved:
@@ -331,8 +334,6 @@ def _render_summary_section(
                 )
             for todo_line in _todo_lines_for_finding(finding):
                 lines.append(todo_line)
-    else:
-        lines.append("Left to decide: None")
 
     lines.append("Required TODOs:")
     required = _collect_todos_by_severity(all_findings, "required")
