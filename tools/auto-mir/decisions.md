@@ -475,3 +475,68 @@ Rebuff) and external guard APIs (Lakera). All were rejected for this tool:
 - A new interactive confirmation gate can abort runs on suspicious bug content;
   non-interactive runs abort by default when indicators are present.
 - Added unit tests for detection, neutralisation, enveloping, and the gate.
+
+## User Feedback Round 2 (bugs 2158712 libgav1 / 2155204 atkmm)
+
+Nine reviewer-reported issues from the first real runs, and how they were resolved.
+Promotion: no (implementation detail; the durable rules are captured per-check above).
+
+- **Rendering — empty "Left to decide"**: the renderer no longer emits
+  `Left to decide: None`. An empty block carries no meaning (unlike
+  `Problems: none`, which asserts checks ran and found nothing), so it is
+  omitted. Both `_render_section` and `_render_summary_section` in
+  `render/__init__.py` do this. (issue 3)
+- **Template fidelity for ev_to_ai OK lines (option render mechanism)**:
+  ev_to_ai/ai option checks now carry a canonical `render` statement and an
+  `outcome` (`ok|recommended|required|nack`) per option. The model returns a
+  `selected_option` id; `checks/llm_eval._apply_option_response` emits that
+  option's statement verbatim at its outcome severity, with the model's
+  reasoning appended only in parentheses. Single-statement ev_to_ai checks
+  reuse the canonical statement from `todo_refs[0]` (unless it is a placeholder
+  or a Summary decision check). Catalog validation (`catalog._validate_check_options`)
+  enforces `render`+`outcome` on all non-Summary ev_to_ai/ai option checks. (issues 2, 4, 7)
+- **RDO-2 owning team vs subscriber**: RDO-2 now also consumes `team-mapping`.
+  An existing team bug subscriber satisfies ownership (status ok, team named,
+  no TODO). Absence yields a recommended (never required) note — lack of a
+  subscriber blocks AA promotion, not the MIR ACK. This removes the false
+  "Required" TODO when a subscriber already exists. (issue 1)
+- **ESL-11 test-only vendoring**: `packaging-source` now classifies
+  `vendored_dirs` into `shipped_vendored_dirs`, excluding directories confined
+  to test/example/doc paths (e.g. `tests/third_party`). ESL-11 selects
+  "Does not include vendored code" when nothing is shipped, so test-only
+  vendoring no longer produces a spurious refresh-documentation TODO. (issue 2)
+- **lp-build-api build records**: `collect_lp_build_api` now enumerates builds
+  via `archive.getPublishedSources(...).getBuilds()` (newest publication in the
+  target series) before falling back to the older `getBuildRecords` paths, so
+  CB-1 sees the real multi-arch pass state instead of "no Launchpad build
+  records". (issue 5)
+- **autopkgtest series resolution**: the autopkgtest DB is keyed by codename,
+  not the alias "devel". `collect_autopkgtest` resolves candidates via
+  `distro-info` (devel codename first, newest supported stable as fallback for a
+  fresh cycle) and records which release the results came from. (issue 6a)
+- **CB-3 test non-triviality**: `packaging-source` now captures
+  `debian/tests/control`; CB-3 combines it with the fixed autopkgtest results to
+  recognise a real functional test as non-trivial and passing. (issue 6a)
+- **CB-5 special-hardware gating**: CB-5 is now deterministic and gated on CB-4.
+  When CB-4 concludes no special hardware is needed, CB-5 resolves ok (no TODO);
+  otherwise it asks for reviewer judgment. Pass-1 findings are exposed on
+  `ctx.findings` incrementally so a later check can consult an earlier one. (issue 6b)
+- **PRF-1 delta reasonableness**: `git-ubuntu-delta` is collected (adapters_optional
+  are now collected best-effort) and adds `delta_category` ("tests-only" when the
+  diffstat only touches `debian/tests`). PRF-1 treats tests-only or fully-upstreamed
+  deltas as reasonable/ok and always summarises what the delta changes. (issue 7)
+- **PRF-9 rules cleanliness**: the full `debian/rules` is now passed to PRF-9
+  (per-check `keep_full_fields` bypasses the 300-char summary), and the policy
+  encodes the heuristic: base dh + non-disabling overrides = clean; disabling
+  hardening/tests or large/complex rules = reviewer judgment with a summary. (issue 8)
+- **URF-8/URF-9 UI judgment**: both are now ev_to_ai option checks. Whether a
+  package is a user-facing desktop/user-visible program is judged from Section,
+  GUI-toolkit dependencies, the description and general knowledge — NOT from the
+  presence of a `.desktop`/translation file (a desktop app missing its `.desktop`
+  file must still be caught). The `.desktop`/translation facts are surfaced by
+  `packaging-source` for verification only. Libraries/CLI tools take the easy way
+  out ("not part of the UI"). (issue 9)
+- **URF-1 build errors vs test output**: `_parse_build_log_issues` now matches
+  only compiler/linker/build-tool diagnostics and skips per-test runner output
+  (ctest "N: " prefixed lines), so a decoder emitting "ERROR ... Failed to parse"
+  while decoding a fixture is no longer mistaken for a build error. (further consideration, included)

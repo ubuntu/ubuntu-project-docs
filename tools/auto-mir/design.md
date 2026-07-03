@@ -120,6 +120,36 @@ one documentation-only exception):
 - Evaluators render templates via `checks/messages.py`; missing keys/placeholders
   are validation/runtime errors.
 
+### AI Option Checks (canonical statement selection)
+
+- `ev_to_ai`/`ai` checks may declare mutually-exclusive `options`. Each such
+  option (outside the `[Summary]` section) carries a canonical `render`
+  statement and an `outcome` (`ok|recommended|required|nack`).
+- The model returns a `selected_option` id (or the option's `todo_ref`); the
+  evaluator emits that option's `render` statement verbatim at the declared
+  `outcome` severity, appending the model's reasoning only in parentheses. This
+  keeps the draft template-faithful instead of surfacing free-form model prose.
+- Single-statement `ev_to_ai` checks (no options) reuse the canonical statement
+  from `todo_refs[0]` for OK findings, unless it is a placeholder (`TBD`/`<…>`)
+  or a `[Summary]` decision check.
+- `catalog._validate_check_options` enforces `render`+`outcome` on every
+  non-Summary `ev_to_ai`/`ai` option. Deterministic option checks render via
+  their `messages` map and are exempt.
+- Some checks need specific large adapter fields verbatim (e.g. PRF-9 needs the
+  whole `debian/rules`); these are declared in
+  `checks/llm_eval._FULL_CONTENT_FIELDS_BY_CHECK` and bypass the short-preview
+  truncation (bounded by a generous cap).
+
+### Evidence Collection Scope
+
+- `evidence.collect_from_catalog` collects every `adapters_required` referenced
+  by the catalog, plus `adapters_optional` on a best-effort basis: an optional
+  adapter's failure never fails the run and never counts as a hard adapter
+  failure (e.g. `git-ubuntu-delta` enriching PRF-1).
+- Check evaluation exposes pass-1 `Finding`s on `ctx.findings` incrementally, so
+  a later non-synthesis check can consult an earlier one's verdict (e.g. CB-5
+  gates on CB-4).
+
 ### Finding Model (per check result)
 
 The `Finding` dataclass in `models.py` represents the result of evaluating a single
