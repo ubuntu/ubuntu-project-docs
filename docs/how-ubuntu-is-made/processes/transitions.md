@@ -202,5 +202,3 @@ transition project can truly be considered finished:
 
 1. Bug reports filed against packages within the ecosystem relating to upgrade
    failures or other problems caused with the newly-introduced package
-
->>>>>>> 9d833bf (Add process pages)
