@@ -85,7 +85,7 @@ There a number of steps you will need to go through, which will vary slightly fo
 
 
 (bootstrapping-the-backport)=
-### Bootstrapping a backport
+### Bootstrapping the backport
 
 It's quite likely that you'll need to bootstrap your backport, due to some {ref}`circular dependencies <llvm-circular-dependencies>`. This process is tedious, but not difficult.
 
