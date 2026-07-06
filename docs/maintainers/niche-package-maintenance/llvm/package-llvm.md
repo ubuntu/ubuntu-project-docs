@@ -101,7 +101,7 @@ Once you have the `stage1` compiler, and those 3 packages together in a PPA, use
 $ sbuild -d noble --extra-repository="deb [trusted=yes] http://ppa.launchpadcontent.net/gcc-llvm-toolchains/llvm-staging/ubuntu noble main"
 ```
 
-The PPA itself will automatically pick up its own dependencies, but if you want to use several you can configure them to depend on one another as necessary.
+The PPA itself automatically picks up its own dependencies, but if you want to use several, configure them to depend on one another as necessary.
 
 
 ### New major LLVM releases
