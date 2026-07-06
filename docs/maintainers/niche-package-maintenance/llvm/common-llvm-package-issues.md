@@ -18,7 +18,7 @@ For doing that, see the instructions in {ref}`bootstrapping-the-backport`.
 
 Another possibility is that you encountering issues related to the "common packages". This will generally manifest as an error where a dependency on an LLVM package is unsatisfiable, and the missing package does not contain an LLVM version name. For example, the build or tests might tell you that you're missing `libomp5`. But your package should be configured to build and use `libomp5-19` instead. This means that you haven't fully reverted the upstream change to this.
 
-For help on this, see {ref}`configuring-the-common-llvm-packages`.
+For help on this, see {ref}`understanding-the-common-llvm-packages`.
 
 Note that if you see an unversioned `libllvm` dependency resolution failure, that's because that package doesn't exist, and your settings are incorrect. Ensure you're setting `SKIP_COMMON_PACKAGES` to `no`.
 
