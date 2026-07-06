@@ -30,7 +30,7 @@ The way the package treats the common packages can be configured in `debian/rule
 `NEW_LLVM_VERSION`
 : Set this to the major LLVM version number of the package that builds the common package.
 
-If, for example, you are working on a fix for LLVM 19 on Resolute, where LLVM 22 is the newest in the archive and the default, you would set `SKIP_COMMON_PACKAGES=yes` and `NEW_LLVM_VERSION=22`.
+For example, when working on a fix for LLVM 19 on Resolute, where LLVM 22 is the newest in the archive and the default, set `SKIP_COMMON_PACKAGES=yes` and `NEW_LLVM_VERSION=22`.
 
 
 ### Regenerating the control file
