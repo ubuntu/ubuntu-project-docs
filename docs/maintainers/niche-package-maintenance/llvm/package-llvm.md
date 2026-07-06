@@ -106,7 +106,7 @@ The PPA itself automatically picks up its own dependencies, but if you want to u
 
 ### New major LLVM releases
 
-Usually, new versions of LLVM are first produced by Debian maintainers. In general, the process is not significantly different from {ref}`bootstrapping-the-backport`. Start with the code available on [Debian Salsa](https://salsa.debian.org/pkg-llvm-team/llvm-toolchain). You will likely also need to create new packages corresponding to the circular dependencies, which you can also get via Salsa in the following repos:
+Usually, new versions of LLVM are first produced by Debian maintainers. The process is not significantly different from {ref}`bootstrapping-the-backport`. Start with the code available on [Debian Salsa](https://salsa.debian.org/pkg-llvm-team/llvm-toolchain). To create new packages corresponding to the circular dependencies, get them from Salsa in the following repos:
 
 - https://salsa.debian.org/xorg-team/vulkan/spirv-tools
 - https://salsa.debian.org/xorg-team/vulkan/spirv-headers
