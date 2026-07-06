@@ -93,7 +93,7 @@ First, build LLVM using the `stage1` [build profile](https://wiki.debian.org/Bui
 
 We have an experimental script to do this on your behalf, which is currently available only upon request until it stabilizes. Reach out to maintainers on Ubuntu's matrix channels.
 
-After you build your `stage1` version of LLVM, you will need to build the circular dependencies to match. Depending on your version of LLVM, that is likely to include `spirv-llvm-translator-XY`, `spirv-headers`, and `spirv-tools`. You can generally backport the versions that are in the archive from which you're backporting LLVM itself.
+After you build your `stage1` version of LLVM, build the circular dependencies to match. Depending on your version of LLVM, that is likely to include `spirv-llvm-translator-XY`, `spirv-headers`, and `spirv-tools`. You can generally backport the versions that are in the archive from which you're backporting LLVM itself.
 
 Once you have the `stage1` compiler, and those 3 packages together in a PPA, you can use that PPA to start doing full builds of LLVM. To use them locally, you can have sbuild inject the PPA as a source. The simplest, but not very secure way to do this is as follows. Handling the signing correctly is out of scope here. Do not use this insecure approach outside of a sandboxed build with no access to your system.
 
