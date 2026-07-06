@@ -45,7 +45,7 @@ These packages contain no code of their own, they simply depend on the appropria
 
 The ABI-stable **library packages**, like `libomp5` and `libc++1`, work differently.  These are built directly by the latest `llvm-toolchain-X` in the archive, and can be inspected via that package's `debian/packages.common` file. Any version of LLVM that is older, links against these. While that means that the code used to generate the shared libraries can change throughout the lifetime of an Ubuntu release, upstream guarantees that this is transparent by their ABI stability promise.  Configuring the package itself is done by the `SKIP_COMMON_PACKAGES` mechanism described below.
 
-(llvm-common-packages)=
+(what-are-llvm-common-packages)=
 ## What are the "common packages" and why do they matter?
 
 Some LLVM libraries have a stable ABI and are intentionally shipped without a version suffix in the package name.
