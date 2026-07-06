@@ -27,7 +27,7 @@ The way the package treats the common packages can be configured in `debian/rule
 `SKIP_COMMON_PACKAGES`
 : When set to `no`, the package will build the common packages. When set to `yes`, building them is skipped. If you skip the common packages, you must then set `NEW_LLVM_VERSION` to teach the package what to depend on.
 
-`NEW_LLVM_VEDRSION`
+`NEW_LLVM_VERSION`
 : Set this to the major LLVM version number of the package that builds the common package.
 
 If, for example, you are working on a fix for LLVM 19 on Resolute, where LLVM 22 is the newest in the archive and the default, you would set `SKIP_COMMON_PACKAGES=yes` and `NEW_LLVM_VERSION=22`.
