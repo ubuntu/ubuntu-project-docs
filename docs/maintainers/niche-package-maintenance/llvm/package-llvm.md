@@ -6,7 +6,7 @@ This article provides a guide for understanding how the LLVM toolchain is packag
 
 ## Setting up
 
-Ubuntu's LLVM packages follow Debian as closely as is reasonable. To simplify that process, maintainers typically use [git-ubuntu](https://ubuntu.com/project/docs/how-ubuntu-is-made/processes/git-ubuntu/) rather than a separate, dedicated repository.
+Ubuntu's LLVM packages follow Debian as closely as is reasonable. To simplify that process, maintainers typically use {ref}`git-ubuntu` rather than a separate, dedicated repository.
 
 As an example, if you are planning to work on LLVM version 22, you would clone that package directly.
 
