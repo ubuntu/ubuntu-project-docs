@@ -134,6 +134,8 @@ The Release Team expects flavor leads to:
   including confirming that they intend to participate in the release.
 - **Monitor and fix** issues related to their flavor image builds throughout
   the cycle, ensuring images are buildable and installable at each milestone.
+  This is a shared responsibility with the Release Team, depending on how
+  flavor-specifc the issues are.
 - **Respect freeze deadlines** (feature freeze, UI freeze, beta freeze, etc.)
   by coordinating with their development team to avoid unapproved changes
   during freeze periods.
@@ -142,6 +144,11 @@ The Release Team expects flavor leads to:
 - **Communicate proactively** if anything deviates from the usual plan,
   including last-minute major version bumps, lack of availability, changes
   in leadership, or any other situation that may affect the release timeline.
+
+Flavor leads are free to delegate some of those tasks within their team, as long
+as they inform the Release Team.
+
+The key and spirit of these expectations really is communication.
 
 Failure to meet these expectations may result in a flavor not being included
 in a given release.
