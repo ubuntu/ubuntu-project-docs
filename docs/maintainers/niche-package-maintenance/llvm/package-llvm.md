@@ -18,7 +18,7 @@ $ git ubuntu clone llvm-toolchain-22
 (understanding-the-common-llvm-packages)=
 ### Understanding the common LLVM packages
 
-LLVM packages are versioned (i.e., the major version is appended to the package name), but Debian maintainers have made an effort to avoid some duplication across versions using the notion of {ref}`common packages <llvm-common-packages>`, and are listed in the repository in `debian/packages.common`. These packages are generally considered ABI-stable, and so can be shared among all versions of LLVM in the archive.
+LLVM packages are versioned (i.e., the major version is appended to the package name), but Debian maintainers have made an effort to avoid some duplication across versions using the notion of {ref}`common packages <what-are-llvm-common-packages>`, and are listed in the repository in `debian/packages.common`. These packages are generally considered ABI-stable, and so can be shared among all versions of LLVM in the archive.
 
 In Debian, the latest version of LLVM in the archive is used to build the common libraries without the version info appended. Consider Resolute as an example: while the `llvm-toolchain-22` source package produces a versioned `libllvm22` binary package, because it is the most recent version available at the time of writing it also produces an unversioned `libc++1` binary package, one of the common packages. Each of the earlier versions in the Resolute archive then depend on that. For example, `libc++-19-dev` depends on `libc++1`.
 
