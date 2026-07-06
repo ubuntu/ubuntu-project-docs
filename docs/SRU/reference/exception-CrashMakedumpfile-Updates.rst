@@ -159,44 +159,51 @@ below.
 Template
 ~~~~~~~~
 
-New Upstream release for *crash* and/or *makedumpfile*
+::
 
-[Impact]
+    New Upstream release for *crash* and/or *makedumpfile*
 
-This new release contains important bug fixes and compatibility patches
-for [...].
+    [Impact]
 
-[Upstream Changes]
+    This new release contains important bug fixes and compatibility patches
+    for [...].
 
-TODO: link to upstream changelog, making note of any significant
-commits like compatibility to new kernel versions or new architectures
+    [Upstream Changes]
 
-[Test Plan]
+    TODO: link to upstream changelog, making note of any significant
+    commits like compatibility to new kernel versions or new architectures
 
-The test plan from
-:ref:`reference_crash_and_makedumpfile_updates`
-is followed. Attached are console logs for each covered kernel version
-and architecture.
+    [Test Plan]
 
-Checklist:
+    Checklist:
 
--  Crash can open dumps for the GA kernel on supported architectures
--  Crash can open dumps for the HWE kernel on supported architectures
--  Update the list of previous crash updates under this SRU Exception below
+    -  Crash can open dumps for the GA kernel on supported architectures
+    -  Crash can open dumps for the HWE kernel on supported architectures
+    -  Update the list of previous crash updates under this SRU Exception below
 
-Once the regression testing is completed by kernel team, they would be
-responsible to add a comment to approve the release of package(s) to updates.
-This approval is mandatory for release.
+    The test plan followed for each kernel combination is as follows:
 
-[Where problems could occur]
+    1. Install the kernel’s debug symbols packages
+    2. Install the updated crash/makedumpfile packages as well as kdump-tools and kexec-tools packages
+    3. Ensure the system is ready to capture the dump using sudo kdump-config show. Reboot if necessary.
+    4. Trigger kernel crash (i.e echo c | sudo tee /proc/sysrq-trigger)
+    5. Once the machine reboots, see if crash is able to load the dumpfile against kernel’s debug symbols file (i.e crash <DEBUG_SYM_FILE> <DUMP_FILE>.
 
-TODO: document any potential issues or risky patches, as per regular
-SRU process
+    Attached are the console logs for each combination.
 
-[Other Info]
+    Once the regression testing is completed by kernel team, they are
+    responsible to add a comment to approve the release of package(s) to updates.
+    This approval is mandatory for release.
 
-TODO: fill out any relevant information to the test plan or the new
-release
+    [Where problems could occur]
+
+    TODO: document any potential issues or risky patches, as per regular
+    SRU process
+
+    [Other Info]
+
+    TODO: fill out any relevant information to the test plan or the new
+    release
 
 .. _previous_crash_updates_bugs:
 
