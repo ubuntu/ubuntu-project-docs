@@ -89,7 +89,7 @@ There a number of steps you will need to go through, which will vary slightly fo
 
 It's quite likely that you'll need to bootstrap your backport, due to some {ref}`circular dependencies <llvm-circular-dependencies>`. This process is tedious, but not difficult.
 
-First, you'll need to build LLVM using the `stage1` [build profile](https://wiki.debian.org/BuildProfileSpec). Unfortunately, while the `dpkg` tooling supports this natively, Launchpad does not. That means that you currently can't just specify the type of build you want and upload it to a PPA. Instead, you'll need to hardcode that profile to make its configuration the default. That is, you will literally remove dependencies from the `control` file that are marked as `<!stage1>` and so on.
+First, build LLVM using the `stage1` [build profile](https://wiki.debian.org/BuildProfileSpec). Unfortunately, while the `dpkg` tooling supports this natively, Launchpad does not. That means that you currently can't specify the type of build you want and upload it to a PPA. Instead, you need to hardcode that profile to make its configuration the default. That is, remove dependencies from the `control` file that are marked as `<!stage1>` and so on.
 
 We have an experimental script to do this on your behalf, which is currently available only upon request until it stabilizes. Reach out to maintainers on Ubuntu's matrix channels.
 
