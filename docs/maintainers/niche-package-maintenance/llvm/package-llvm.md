@@ -74,7 +74,7 @@ According to how the common packages work, we should be building the shared libr
 
 We do not have the option of setting `NEW_LLVM_VERSION=<X>` for version X+1, as the libraries' backwards compatibility does not imply forward compatibility.
 
-That leaves us with the requirement that we ship backports that are entirely standalone and sandboxed. That means Ubuntu maintainers will need to actually restore the versioned binary outputs for the common packages which Debian explicitly removed. That means, e.g., `llvm-toolchain-22` backported to an older LTS will likely ship `libc++1-22`.
+That leaves us with the requirement that we ship backports that are entirely standalone and sandboxed. That means Ubuntu maintainers need to restore the versioned binary outputs for the common packages, which Debian explicitly removed. That means, e.g., `llvm-toolchain-22` backported to an older LTS would likely ship `libc++1-22`.
 
 There a number of steps you will need to go through, which will vary slightly for every version. At a high level, they are as follows:
 
