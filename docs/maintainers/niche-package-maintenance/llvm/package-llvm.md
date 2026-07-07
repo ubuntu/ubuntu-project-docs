@@ -82,7 +82,7 @@ There a number of steps you need to go through, which vary slightly for every ve
 - Modifying `debian/rules`, so that when `dh_makeshlibs` is invoked, the major version is appended.
 - Modifying `control.in` to restore the versioned packages and ensure you regenerate `control`.
 - Renaming `.install.in`, `.links.in`, and `.lintian-overrides.in` files, so that the names match the new package names in `control`.
-- Ensuring that all of the files in `.install.in` and `.links.in` files are not in potentially conflicting global directories. Generally, a backported LLVM package should just install files into a versioned directory like `usr/lib/llvm-@LLVM_VERSION@/lib/` and not put anything, including symlinks, in the global multiarch directory. The version of clang that you will build from this package will know how to find its own libraries, which is all we need.
+- Ensuring that all of the files in `.install.in` and `.links.in` files are not in conflict with global directories. A backported LLVM package should install files into a versioned directory like `usr/lib/llvm-@LLVM_VERSION@/lib/` and not put anything, including symlinks, in the global multiarch directory. The version of `clang` that you build from this package knows how to find its own libraries, which is all we need.
 
   It's good practice to also make the python libraries co-installable by not installing those files in the global python `site-packages` directory. Users can adjust their `PYTHON_PATH` if they absolutely need to make use of the backported Python libraries.
 - Updating `.gitignore` as needed for file renames.
