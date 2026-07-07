@@ -76,7 +76,7 @@ We do not have the option of setting `NEW_LLVM_VERSION=<X>` for version X+1, as 
 
 That leaves us with the requirement that we ship backports that are entirely standalone and sandboxed. That means Ubuntu maintainers need to restore the versioned binary outputs for the common packages, which Debian explicitly removed. That means, e.g., `llvm-toolchain-22` backported to an older LTS would likely ship `libc++1-22`.
 
-There a number of steps you will need to go through, which will vary slightly for every version. At a high level, they are as follows:
+There a number of steps you need to go through, which vary slightly for every version. At a high level, they are as follows:
 
 - Ensuring `SKIP_COMMON_PACKAGES` is *always* set to `no`, so we always build everything.
 - Modifying `debian/rules`, so that when `dh_makeshlibs` is invoked, the major version is appended.
