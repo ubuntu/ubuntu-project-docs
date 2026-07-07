@@ -3,63 +3,22 @@
 DEP 3 - patch file headers
 ==========================
 
-This article lists and briefly explains standard fields of the `Debian Enhancement Proposal 3 Specification (DEP-3) -- Patch Tagging Guidelines <DEP3Spec_>`_ for ``.patch`` file headers and also shows :ref:`sample-dep-3-compliant-headers`.
+This article provides a brief overview of the `Debian Enhancement Proposal 3
+Specification (DEP-3) -- Patch Tagging Guidelines <DEP3Spec_>`_ for ``.patch``
+file headers and shows :ref:`sample-dep-3-compliant-headers`.
 
-Standard fields
----------------
+For the full, authoritative specification of each field -- including
+``Description``, ``Origin``, ``Bug-<Vendor>``, ``Forwarded``, ``Author``,
+``Reviewed-by``, ``Last-Update``, and ``Applied-Upstream`` -- refer to
+the `DEP-3 Specification <DEP3Spec_>`_ on the Debian wiki. The Debian
+specification is the canonical source and is updated independently; this page
+only provides Ubuntu-specific context and examples.
 
-``Description`` or ``Subject`` |required|
-    This obligatory field contains at least a short description on the first line. When ``Subject`` is used, it is expected that the long description is outside of the structured fields. With ``Description`` it is possible to embed them in the field using continuation lines.
+.. note::
 
-    In both cases, the long description allows for a more verbose explanation of the patch and its history.
-
-    This field should explain why the patch is vendor-specific (e.g., branding patch) when that is the case. If the patch has been submitted :term:`upstream` but has been rejected, the description should also document why it's kept and what were the reasons for the reject.
-
-    It's recommended to keep each line shorter than 80 characters.
-
-``Origin`` |required|
-    .. note::
-
-        If the ``Author`` field is present, the ``Origin`` field can be omitted and it's assumed that the patch comes from its author.
-
-    This field should document the origin of the patch. In most cases, it should be a simple URL. For patches backported/taken from upstream, it should point into the upstream :term:`VCS` web interface when possible, otherwise it can simply list the relevant commit identifier (it should be prefixed with "commit:" in that case). For other cases, one should simply indicate the URL where the patch was taken from (mailing list archives, distribution :term:`bug tracking system`, etc.) when possible.
-
-    The field can be optionally prefixed with a single keyword followed by a comma and a space to categorize the origin. The allowed keywords are:
-
-    - ``upstream`` in the case of a patch cherry-picked from the upstream VCS,
-    - ``backport`` in the case of an upstream patch that had to be modified to apply on the current version,
-    - ``vendor`` for a patch created by Debian or another distribution vendor, or
-    - ``other`` for all other kind of patches.
-
-    In general, a user-created patch grabbed from a :term:`Bug Tracking System` should be categorized as `other`. When copying a patch from another vendor, the meta-information (and hence this field) should be kept if present, or created if necessary with a `vendor` origin.
-
-``Bug-<Vendor>`` or ``Bug`` |optional|
-    It contains one URL pointing to the related bug (possibly fixed by the patch). The ``Bug`` field is reserved for the bug URL of the upstream bug tracker. Those fields can be used multiple times if several bugs are concerned.
-
-    The ``<Vendor>`` name is explicitly encoded in the field name so that vendors can share patches among them without having to update the meta-information in most cases. The upstream bug URL is special cased because it's the central point of cooperation and it must be easily distinguishable among all the bug URLs.
-
-``Forwarded`` |optional|
-    Any value other than ``no`` or ``not-needed`` means that the patch has been forwarded upstream. Ideally the value is an URL proving that it has been forwarded and where one can find more information about its inclusion status.
-
-    If the field is missing, its implicit value is ``yes`` if the ``Bug`` field is present, otherwise it's ``no``. The field is really required only if the patch is vendor specific, in that case its value should be ``not-needed`` to indicate that the patch must not be forwarded upstream (whereas ``no`` simply means that it has not yet been done).
-
-``Author`` or ``From`` |optional|
-    This field can be used to record the name and email of the patch author (e.g., ``John Bear <john@example.com>``). Its usage is recommended when the patch author did not add copyright notices for his work in the patch itself. It's also a good idea to add this contact information when the patch needs to be maintained over time because it has very little chance of being integrated upstream.
-
-    This field can be used multiple times if several people authored the patch.
-
-``Reviewed-by`` or ``Acked-by`` |optional|
-    This field can be used to document the fact that the patch has been reviewed and approved by someone. It should list their name and email in the standard format (e.g., ``John Bear <john@example.com>``).
-
-    This field can be used multiple times if several people reviewed the patch.
-
-``Last-Update`` |optional|
-    This field can be used to record the date when the meta-information was last updated. It should use the ISO date format ``YYYY-MM-DD``.
-
-``Applied-Upstream`` |optional|
-    This field can be used to document the fact that the patch has been applied upstream.
-
-    It may contain the upstream version expected to contain this patch, or the URL or commit identifier of the upstream commit (with commit identifiers prefixed with ``commit:``, as in the ``Origin`` field), or both separated by a comma and a space.
+   Keeping the canonical field definitions on the Debian side avoids
+   duplication and ensures Ubuntu packagers always reference the latest
+   version of the spec.
 
 
 .. _sample-dep-3-compliant-headers:
@@ -123,6 +82,3 @@ Further reading
 ---------------
 
 - `DEP-3 Specification -- Patch Tagging Guidelines <DEP3Spec_>`_
-
-.. |required| replace:: :bdg-primary:`required`
-.. |optional| replace:: :bdg-secondary:`optional`
