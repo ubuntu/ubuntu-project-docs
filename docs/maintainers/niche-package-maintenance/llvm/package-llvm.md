@@ -25,7 +25,7 @@ In Debian, the latest version of LLVM in the archive is used to build the common
 The way the package treats the common packages can be configured in `debian/rules` using two variables: `SKIP_COMMON_PACKAGES` and `NEW_LLVM_VERSION`.
 
 `SKIP_COMMON_PACKAGES`
-: When set to `no`, the package will build the common packages. When set to `yes`, building them is skipped. If you skip the common packages, you must then set `NEW_LLVM_VERSION` to teach the package what to depend on.
+: When set to `no`, the package builds the common packages. When set to `yes`, building them is skipped. If you skip the common packages, you must then set `NEW_LLVM_VERSION` to teach the package what to depend on.
 
 `NEW_LLVM_VERSION`
 : Set this to the major LLVM version number of the package that builds the common package.
