@@ -144,11 +144,18 @@ conform to standard Debian practices.
 
 
 (dput)=
-### DPut
+### dput-ng
 
-[DPut](https://packages.debian.org/sid/dput) is the Debian Package Upload Tool.
-It's used to upload a software package to the Ubuntu repository, or to a
-personal package archive (PPA).
+[dput-ng](https://packages.ubuntu.com/resolute/dput) (the Debian Package Upload Tool,
+next generation) is the modern replacement for `dput`. It's used to upload a
+software package to the Ubuntu repository, or to a personal package archive (PPA).
+
+On recent Ubuntu releases, `dput-ng` is provided by the `dput` package, so
+installing `dput` gives you `dput-ng` automatically:
+
+```none
+$ sudo apt install dput
+```
 
 A working `.dput.cf`:
 
@@ -174,16 +181,45 @@ specify a destination, it'll default to doing nothing.
 ### sbuild
 
 [sbuild](https://wiki.debian.org/sbuild) is the recommended tool for building
-packages on Ubuntu.
+packages on Ubuntu. It supports two backends: `unshare` (recommended) and
+`schroot` (needed for cross-building without `unshare`).
 
 ::::{tab-set}
 
-:::{tab-item} Ubuntu 25.10 and later
+:::{tab-item} `unshare` (recommended)
 
-Install the `mmdebstrap` and `uidmap` packages:
+The `unshare` backend uses user namespaces and [`mmdebstrap`](https://wiki.debian.org/mmdebstrap)
+to create isolated build environments without requiring `root` or `schroot`
+setup. With recent versions of `sbuild`, `chroot` tarballs are created and
+managed automatically on demand using `mmdebstrap`, making the `unshare`
+backend the recommended approach for most users.
+
+This automatic `chroot` management is available out of the box on Ubuntu 25.10
+and later. It is also available on Ubuntu 24.04 LTS when `sbuild` is
+installed from the `noble-backports` pocket. It is **not** available on Ubuntu
+22.04 LTS and earlier -- use the `schroot` backend setup instead.
+
+```{note}
+
+On Ubuntu 24.04 LTS, the `noble-backports` pocket is enabled by default in
+`/etc/apt/sources.list.d/ubuntu.sources`. If you have disabled it, re-enable
+it before installing `sbuild` from backports.
+
+```
+
+Install `sbuild` (from backports on 24.04 LTS) together with `mmdebstrap` and
+`uidmap`:
+
+**Ubuntu 25.10 and later:**
 
 ```shell
-$ sudo apt install -y mmdebstrap uidmap
+$ sudo apt install -y sbuild mmdebstrap uidmap
+```
+
+**Ubuntu 24.04 LTS:**
+
+```shell
+$ sudo apt install -y -t noble-backports sbuild mmdebstrap uidmap
 ```
 
 `sbuild` reads the user specific configuration file
@@ -210,7 +246,11 @@ $run_lintian = 0;
 
 :::
 
-:::{tab-item} Ubuntu 24.04 LTS and earlier
+:::{tab-item} `schroot` (legacy / cross-building)
+
+The `schroot` backend is the traditional approach. Use this if you are on
+Ubuntu 22.04 LTS or earlier, or if you need to cross-build packages without
+`unshare` (see {ref}`how-to-build-packages-locally`).
 
 Make the required mount points for builds, logs, and scratch:
 

@@ -10,7 +10,11 @@ On Ubuntu installations, the Ubuntu package archive is configured as the default
 The general flow is that the archive splits into :ref:`Ubuntu series <archive-series>`. Each series is split up into :ref:`pockets <archive-pockets>`, and then each pocket contains four :ref:`components <archive-components>`. This diagram shows a look through a single path:
 
 .. mermaid::
+   :align: center
 
+   %%{init: {'themeVariables': {
+                'fontSize': '25px',
+                'fontFamily': 'Ubuntu'}}}%%
     flowchart TD;
       A[Ubuntu package archive] --> B([Splits into Ubuntu **series**]);
 
@@ -33,19 +37,6 @@ The general flow is that the archive splits into :ref:`Ubuntu series <archive-se
       N --> Q[restricted];
       N --> R[multiverse];
 
-      style C fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-      style D fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-      style E fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-
-      style I fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-      style J fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-      style K fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-      style L fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-      style M fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-      style O fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-      style P fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-      style Q fill:#fff,stroke:#cfcfcf,stroke-width:2px;
-      style R fill:#fff,stroke:#cfcfcf,stroke-width:2px;
 
 .. note::
 
@@ -324,13 +315,26 @@ In the worst case a bad actor gets informed about a CVE and can use it before th
 
 Therefore the APT package manager (on Ubuntu) is configured by default to also check for updates from ``security.ubuntu.com``. Security updates get uploaded there first. If a mirror does not provide the update yet, a client downloads it from ``security.ubuntu.com`` instead from the mirror.
 
-To see this yourself, look what the :manpage:`sources.list(5)` file contains on your Ubuntu machine:
+To see this yourself, look at the APT source configuration on your Ubuntu machine.
+
+On Ubuntu 24.04 LTS and later, APT sources use the deb822 format in
+``/etc/apt/sources.list.d/ubuntu.sources``:
 
 .. code:: none
 
-    cat /etc/apt/sources.list
+    cat /etc/apt/sources.list.d/ubuntu.sources
 
-At the end of the file, you find something similar to this:
+The file contains entries similar to the following:
+
+.. code:: text
+
+    Types: deb
+    URIs: http://security.ubuntu.com/ubuntu/
+    Suites: SERIES-security
+    Components: main restricted universe multiverse
+
+On releases prior to 24.04 LTS, the legacy ``/etc/apt/sources.list`` file is
+used instead (see :manpage:`sources.list(5)`):
 
 .. code:: text
 
@@ -341,9 +345,11 @@ At the end of the file, you find something similar to this:
     deb http://security.ubuntu.com/ubuntu SERIES-security multiverse
     # deb-src http://security.ubuntu.com/ubuntu SERIES-security multiverse
 
-Because the :manpage:`sources.list(5)` file is read from top to bottom, the APT package manager downloads updates from the mirror first and only downloads them from ``security.ubuntu.com`` if the mirror has an older version.
+In both cases, the APT package manager downloads updates from the mirror first
+and only downloads them from ``security.ubuntu.com`` if the mirror has an older
+version.
 
-``security.ubuntu.com`` points to the same servers as ``archive.ubuntu.com``. It is used in the :manpage:`sources.list(5)` file for the security pocket to prevent a user or script from accidentally changing it to a mirror.
+``security.ubuntu.com`` points to the same servers as ``archive.ubuntu.com``. It is used in the APT sources configuration for the security pocket to prevent a user or script from accidentally changing it to a mirror.
 
 
 Landscape repositories

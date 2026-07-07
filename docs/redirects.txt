@@ -87,13 +87,19 @@ contributors/index-bug-fix/ contributors/bug-fix/
 
 contributors/bug-fix/build-packages/ contributors/building/build-packages-in-a-ppa/
 contributors/bug-fix/package-building/ contributors/building/build-packages-in-a-ppa/
+contributors/bug-fix/build-packages-in-a-ppa/ contributors/building/build-packages-in-a-ppa/
 
 how-to/build-packages/ contributors/building/build-packages-locally/
+contributors/bug-fix/build-packages-locally/ contributors/building/build-packages-locally/
+
+contributors/bug-fix/propose-changes/ contributors/bug-fix/bugfixing-workflow/
 
 how-to/extract-packages/ contributors/updating/extract-packages/
+contributors/bug-fix/extract-packages/ contributors/updating/extract-packages/
 
-contributors/bug-fix/download-new-upstream-version/ contributors/updating/get-a-new-upstream-version/
 how-to/download-new-upstream-version/ contributors/updating/get-a-new-upstream-version/
+contributors/bug-fix/download-new-upstream-version/ contributors/updating/get-a-new-upstream-version/
+contributors/bug-fix/get-a-new-upstream-version/ contributors/updating/get-a-new-upstream-version/
 
 how-to/install-built-packages/ contributors/building/install-built-packages/
 contributors/bug-fix/install-built-packages/ contributors/building/install-built-packages/
@@ -107,6 +113,8 @@ contributors/index-bug-triage/ contributors/bug-triage/
 contributors/bug-triage/assign-bug-to-package/ contributors/bug-triage/assign-a-bug-to-a-package/
 
 how-to/contribute-docs/ contributors/contribute-docs/
+
+contributors/bug-fix/fix-a-bug-in-a-package/ contributors/bug-fix/index/
 
 contributors/index-debugging/ contributors/debugging/
 
@@ -142,10 +150,14 @@ contributors/patching/make-changes-to-a-package/ contributors/updating/make-chan
 tutorial/make-changes-to-package/ contributors/updating/make-changes-to-a-package/
 tutorial/make-changes-to-a-package/ contributors/updating/make-changes-to-a-package/
 
-contributors/patching/patch-management/ contributors/updating/manage-patches/
+contributors/patching/work-with-debian-patches/ contributors/updating/work-with-debian-patches/
+
 how-to/patch-management/ contributors/updating/manage-patches/
+contributors/patching/patch-management/ contributors/updating/manage-patches/
+contributors/patching/manage-patches/ contributors/updating/manage-patches/
 
 contributors/patching/merge-proposal/ contributors/updating/submit-a-merge-proposal/
+contributors/patching/submit-a-merge-proposal/ contributors/updating/submit-a-merge-proposal/
 
 contributors/index-qa-and-testing/ contributors/qa-and-testing/
 

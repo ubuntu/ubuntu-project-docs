@@ -103,7 +103,7 @@ The baseline backport process is simple, but there are many different things tha
 
 In some cases, a backport is requested for a specific reason, e.g., a Rust-based application in an old Ubuntu release has an SRU that needs a newer toolchain to build. In this case, create a Launchpad bug if one does not already exist (see a good example bug: {lpbug}`rustc 1.82 required by firefox 137 and chromium 138 <2100492>`).
 
-The Launchpad bug helps to keep track of backport progress and status, which is essential if it the backport is to be uploaded to the Ubuntu Archive. If you need to go back multiple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored.
+The Launchpad bug helps to keep track of backport progress and status, which is essential if the backport is to be uploaded to the Ubuntu Archive. If you need to go back multiple Ubuntu releases, target the bug to _all_ series along the way as well, so each of the intermediate backports can be monitored.
 
 In other cases, backports are prepared proactively in case they may be needed in the future. In this case, a Launchpad bug does not need to be created for the backport. Even if a given backport is not needed in the Ubuntu Archive, it will likely still be needed to bootstrap later Rust versions. We upload all backports to the ["Rust Toolchain" Staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/). A backport that successfully builds in this PPA and passes its {term}`autopkgtest` suite may later be copied into the Ubuntu Archive as needed.
   
@@ -133,16 +133,13 @@ $ git checkout -b jammy-1.85
 
 The first thing we should do on our new branch is create a new changelog entry. Before we change anything, however, it's important to understand the meaning of every component of the version number. Ensure you read and understand the {ref}`rust-version-strings` article before proceeding.
 
-
-#### Creating the new changelog entry
-
 To begin, run the command `dch`:
 
 ```none
 $ dch
 ```
 
- This adds a new entry to the changelog and opens an editor allowing you to modify it:
+This adds a new entry to the changelog and opens an editor allowing you to modify it:
 
 - Change `UNRELEASED` to the Ubuntu series you are backporting to, using its short name, e.g. `jammy`. 
 - Update the version string to reference the series you are backporting to, using its numeric value, e.g. `22.04`, and reset any revision number after the existing series numbers. Note that the series number occurs twice in backport version strings: once in the orig tarball part and once in the Ubuntu component, both of which need to be updated.
@@ -152,7 +149,7 @@ $ dch
 | Existing release | Backport | `<existing_version_number>` | New version number |
 | --- | --- | --- | --- |
 | 1.93 Devel | 1.93 Noble | `1.93.0+dfsg-0ubuntu1` | `1.93.0+dfsg~24.04-0ubuntu1~24.04.1` |
-| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg2~24.04.1-0ubuntu3~24.04.2 ` | `1.89.0+dfsg2~22.04-0ubuntu3~22.04.1` |
+| 1.89 Noble | 1.89 Jammy | `1.89.0+dfsg2~24.04.1-0ubuntu3~24.04.2` | `1.89.0+dfsg2~22.04-0ubuntu3~22.04.1` |
 
 Make the initial changelog entry description something like this:
 
@@ -176,6 +173,33 @@ The part with the Launchpad bug number is optional but should be included if an 
 ```{include} common/orig-vendor.md
 
 ```
+
+
+(rust-rolling-back-the-rva23-target)=
+### Rolling back the RVA23 target
+
+As of 25.10, Ubuntu has made the RISC-V RVA23 profile mandatory. Therefore, starting with [`rustc-1.92`](https://launchpad.net/ubuntu/+source/rustc-1.92), the Rust platform for `riscv64` targets on Ubuntu is [`riscv64a23-unknown-linux-gnu`](https://doc.rust-lang.org/beta/rustc/platform-support/riscv64a23-unknown-linux-gnu.html) instead of [`riscv64gc-unknown-linux-gnu`](https://doc.rust-lang.org/beta/rustc/platform-support/riscv64gc-unknown-linux-gnu.html).
+
+Any Ubuntu releases before 25.10 don't require RVA23, meaning that any Rust code built with the RVA23 target on those releases wouldn't run on pre-RVA23 machines.
+
+Because of this, every time you backport a new toolchain to *any release older than 25.10*, you must verify that `debian/architecture.mk` uses `riscv64gc`, not `riscv64a23`.
+
+Luckily, the change itself is simple — change the Rust platform architecture in `debian/architecture.mk` from `riscv64a23` to `riscv64gc`:
+
+```diff
+--- a/debian/architecture.mk
++++ b/debian/architecture.mk
+@@ -3,7 +3,7 @@
+ include /usr/share/dpkg/architecture.mk
+
+ rust_cpu = $(subst i586,i686,\
+-$(if $(findstring -riscv64-,-$(2)-),$(subst riscv64,riscv64a23,$(1)),\
++$(if $(findstring -riscv64-,-$(2)-),$(subst riscv64,riscv64gc,$(1)),\
+ $(if $(findstring -armhf-,-$(2)-),$(subst arm,armv7,$(1)),\
+ $(if $(findstring -armel-,-$(2)-),$(subst arm,armv5te,$(1)),\
+ $(1)))))
+```
+
 
 ```{include} common/local-build.md
 
@@ -206,14 +230,39 @@ Even in the absence of this test, the build process already includes a self-buil
 
 ### Uploading the backport to the staging PPA
 
-Once your backport builds successfully in an individual PPA, bump the `<release_number>` to its proper number (dropping any `~ppa<N>` suffix) and upload to the [staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/):
+Once your backport builds successfully in an individual PPA, bump the `<release_number>` to its proper number (dropping any `~ppa<N>` suffix) and upload to the [staging PPA](https://launchpad.net/~rust-toolchain/+archive/ubuntu/staging/).
+
+To bump the release number, you can create a new changelog entry with `dch`. However, if you have previously created an entry for this backport, `dch -r` is preferable since it edits the latest entry instead of inserting a new one, and also updates the latest entry metadata.
+
+Each backport changelog entry is expected to list out the specific changes that were made to get the backport to build, so make sure to include these in the changelog entry description. An example of a good changelog entry for the `rustc-1.90` backport to Noble is as follows:
+
+```none
+rustc-1.90 (1.90.0+dfsg~24.04-0ubuntu0.24.04.1) noble; urgency=medium
+
+  * Backport Rust 1.90 to Noble Numbat
+    - Downgrade libgit2 to 1.7.2
+    - Replace system LLVM dependencies with vendored version
+    - Vendor dh-cargo-vendored-sources to use specific cargo version
+
+ -- Brent Kerby <brent.kerby@canonical.com>  Fri, 05 Dec 2025 13:12:38 -0700
+```
+
+After the changelog entry is updated, build the source package with:
+
+```none
+$ dpkg-buildpackage -S -I -i -nc -d -sa
+```
+
+Then upload the source package to the staging PPA with:
 
 ```none
 $ dput ppa:rust-toolchain/staging <path_to_source_changes>
 ```
 
+Here, `<path_to_source_changes>` is the path to the generated `.changes` file from the source build step, normally located in the parent directory of the source directory.
+
 :::{admonition} Skipping personal PPA upload
-It is also possible to upload directly the staging PPA without first uploading to a personal PPA, in which case the proper version number can also be used from the beginning (skipping the step of uploading with a `~ppa<N>` suffix). This can save time by avoiding the need to rebuild the package a second time. The main drawback is that if the build fails, that version number is now "used up" in the staging PPA, so it would be required to bump the version number before uploading again.
+It is also possible to upload directly to the staging PPA without first uploading to a personal PPA, in which case the proper version number can also be used from the beginning (skipping the step of uploading with a `~ppa<N>` suffix). This can save time by avoiding the need to rebuild the package a second time. The main drawback is that if the build fails, that version number is now "used up" in the staging PPA, so it would be required to bump the version number before uploading again.
 
 This can lead to gaps in the version numbers that are uploaded to the Archive. For backports, this is considered acceptable and can be a worthwhile trade-off to avoid wasting time and resources on duplicate builds (particularly while `riscv64` is running using emulation, which makes builds take a very long time). It is only required that the version numbers increase monotonically, not that they be sequential.
 :::
@@ -226,13 +275,13 @@ After the package builds successfully in the staging PPA, the next step is to en
 To trigger `autopkgtest` tests, run the following command:
 
 ```none
-ppa tests ppa:rust-toolchain/staging -p rustc-<X.Y> --release <release> --show-url
+$ ppa tests ppa:rust-toolchain/staging -p rustc-<X.Y> --release <release> --show-url
 ```
 
 For example, for `rustc-1.89` on Noble, the command would be:
 
 ```none
-ppa tests ppa:rust-toolchain/staging -p rustc-1.89 --release noble --show-url
+$ ppa tests ppa:rust-toolchain/staging -p rustc-1.89 --release noble --show-url
 ```
 
 This command outputs a series of URLs that can be used to trigger an `autopkgtest` run for each architecture. The tests run remotely on the `autopkgtest` infrastructure. Monitor the progress and results of these tests by running the same command again after a few minutes. If any tests fail, the output includes a link to the logs for troubleshooting the failures. See {ref}`how-to-run-package-tests` for more details and options on how to run `autopkgtest` tests; for example, it is possible to run tests locally, which can be helpful when developing a new test or investigating a failure.
@@ -585,7 +634,7 @@ We also need to re-include the LLVM copyright stanza in `debian/copyright`:
 
 #### Re-including the LLVM source
 
-You can now {ref}`regenerate the orig tarball <rust-version-strings>`, which should now include the upstream LLVM source in `src/llvm-project`.
+You can now {ref}`regenerate the orig tarball <rust-generating-the-orig-tarball>`, which should now include the upstream LLVM source in `src/llvm-project`.
 
 After regenerating the orig tarball, get all the new LLVM files and overlay them on your working directory:
 
@@ -942,7 +991,7 @@ Then, right before the builder runs out of space, add some diagnostic informatio
 	-du -xh $(CURDIR) | sort -h | tail -n 20
 ```
 
-Hopefully, the PPA builder will run out of space _past_ the point at which `stage0` `stage1`, and `test` artifacts are no longer needed. In that case, they can simply be deleted earlier than usual:
+Hopefully, the PPA builder will run out of space _past_ the point at which `stage0`, `stage1`, and `test` artifacts are no longer needed. In that case, they can simply be deleted earlier than usual:
 
 ```makefile
 	$(RM) -rf $(CURDIR)/build/$(DEB_BUILD_RUST_TYPE)/test
@@ -953,7 +1002,11 @@ Hopefully, the PPA builder will run out of space _past_ the point at which `stag
 (rust-stage0-bootstrap)=
 ### Using an upstream stage0 bootstrap toolchain
 
-If no packaged version of the Rust toolchain is available to use for bootstrapping, it is possible to use the stage0 compiler provided by the upstream Rust project. These are pre-built binaries of the previous Rust release, which can be used to build the new Rust version from source. To identify a package built in this way, include `~stage0` in the version string just before the hyphen, for example `1.92.0+dfsg~24.04~stage0-0ubuntu1~24.04.3`. After creating an entry in `debian/changelog` with the appropriate version string, run the following command to generate the stage0 tarball:
+If no packaged version of the Rust toolchain is available to use for bootstrapping, it is possible to use the stage0 compiler provided by the upstream Rust project. These are pre-built binaries of the previous Rust release, which can be used to build the new Rust version from source. To identify a package built in this way, include `~stage0` in the version string just before the hyphen, for example `1.92.0+dfsg~24.04~stage0-0ubuntu1~24.04.3`.
+
+Additionally, ensure that the correct RISC-V target is set before generating the stage0 compiler. This process is detailed in the {ref}`Rolling back the RVA23 target <rust-rolling-back-the-rva23-target>` section above.
+
+After creating an entry in `debian/changelog` with the appropriate version string, run the following command to generate the stage0 tarball:
 
 ```none
 $ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<...> debian/rules source_orig-stage0

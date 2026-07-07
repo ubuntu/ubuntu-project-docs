@@ -6,31 +6,128 @@ This guide details the process of fixing an existing versioned `rustc` Ubuntu pa
 - To see the process of creating a _new_ versioned `rustc` package, consult the {ref}`how-to-update-rust` guide instead.
 - To see the process of {term}`backporting <backport>` Rust, consult the {ref}`how-to-backport-rust` guide instead.
 
-## Background
-
-Unfortunately, since `rustc` is a versioned {term}`source package`, we are unable to use the more modern {term}`git-ubuntu` ({manpage}`git-ubuntu(1)`) workflow. Whenever you must fix a bug in an already-released Rust source package, you must follow the legacy {manpage}`debdiff(1)` workflow instead.
-
 :::{attention}
 This guide assumes that you already have a basic understanding of maintaining Ubuntu packages in general. It _only_ covers the things that make Rust package patching unique.
 :::
 
-```{include} common/substitution-terms.md
 
-```
+## Background
 
+`rustc` {term}`VCS` policy is unique because it is a versioned {term}`source
+package`. This means that every new upstream Rust version corresponds to a package with a new, unique name in the {term}`Ubuntu Archive`.
+
+Therefore, there are two repositories for every `rustc` version uploaded to the
+archive:
+
+1. The
+   [Foundations Rust repository](https://code.launchpad.net/~canonical-foundations/ubuntu/+source/rustc):
+   this repository is used for
+   {ref}`adding new Rust versions to the archive <how-to-update-rust>`. It
+   tracks the complete history of all `rustc` packages in Ubuntu, but once a
+   versioned package is uploaded to the archive, updates to that package must
+   be synced back to this repository manually.
+
+2. The package's unique {term}`git-ubuntu` ({manpage}`git-ubuntu(1)`) repository
+   (example: [rustc-1.93](https://code.launchpad.net/ubuntu/+source/rustc-1.93)):
+   this is the repository that matches the actual state of the package in the
+   Ubuntu archive. Whenever an update to the package is uploaded, this
+   repository gets updated automatically.
+
+In short, patching an existing `rustc` release entails modifying and uploading
+the release's `git-ubuntu` repository, then manually copying over the changes to
+the Foundations Rust repository after your changes are uploaded to the archive.
+
+
+## Substitution terms
+
+From now on, the documentation contains certain terms within angle brackets,
+which must be replaced with the actual value that applies to your situation.
+
+As an example, let's assume you are patching `rustc-1.94` ({term}`upstream` version
+`1.94.1`) for 26.10 Stonking Stingray:
+
+`<X.Y>`
+: The short Rust version you're working on.
+  - Example: `1.94`
+
+`<X.Y.Z>`
+: The long Rust version you're on.
+  - Example: `1.94.1`
+
+`<release>`
+: The target {term}`Ubuntu release` adjective.
+  - Example: `stonking`
+
+`<lpuser>`
+: Your {term}`Launchpad` username. This is also used to refer to
+  your personal Launchpad Git {term}`repository's <repository>` remote name.
+
+`<foundations>`
+: Your local Git remote name for the [Foundations Rust repository](https://code.launchpad.net/~canonical-foundations/ubuntu/+source/rustc).
+
+`<lp_bug_number>`
+: The number of the {term}`Launchpad` {term}`bug` associated
+  with this upload.
+
+
+(foundations-rust-repo-setup)=
 ```{include} common/local-repo-setup.md
 
 ```
 
-## The Patching Process
 
-You may make your changes to the package the same way you would with any other package. After that, you are ready to test the build locally.
+## Setting up the git-ubuntu repository
 
-```{include} common/local-build.md
+Just like the Foundations Rust repository, set up a parent directory, then clone
+the versioned package repository:
 
+```none
+$ mkdir rustc-<X.Y>
+$ cd rustc-<X.Y>
+$ git-ubuntu clone rustc-<X.Y>
+$ cd rustc-<X.Y>
 ```
 
-```{include} common/lintian-checks.md
+Inspect `debian/changelog` and make sure the most recent {term}`changelog` entry
+version matches the version in the archive.
+
+After that, get the current {term}`orig tarball` from the archive, so you are
+able to build the package locally:
+
+```none
+$ git-ubuntu export-orig
+```
+
+Create your own new branch referencing the Launchpad bug you're fixing:
+
+```none
+$ git checkout -b lp<lp_bug_number>
+```
+
+:::{attention}
+Any patches to `rustc` must fix at least one Launchpad bug. If your patch
+doesn't have a Launchpad bug yet, create one and reference its version number in
+your changelog.
+:::
+
+
+## Patching process
+
+You must make _all changes_ to the package within the `git-ubuntu` repository,
+_not_ the Foundations Rust repository.
+
+You may make your changes to the package the same way you would with any other
+package: {ref}`how-to-make-changes-to-a-package`.
+
+Don't forget to update the changelog! See the
+{ref}`version string format guide <version-strings>` for help on selecting
+the proper version string.
+
+The changelog must also reference the bug you are fixing.
+
+After that, you are ready to test the build locally.
+
+```{include} common/local-build.md
 
 ```
 
@@ -46,54 +143,73 @@ You must also verify that none of your changes have interfered with {term}`autop
 
 ```
 
-### Creating a Reviewable Diff
+### Uploading the patched package
 
-Once you've verified that your updated package builds properly in a PPA, passes all autopkgtests, and meets Lintian standards, then you're ready to create a reviewable diff using {manpage}`debdiff(1)`.
+Once you are satisfied with your changes, upload the package.
 
-:::{seealso}
-To get more info on the legacy `debdiff` process in general, consult the {ref}`submitting-the-fix` section.
-:::
-
-Essentially, since the Git history of `rustc-<X.Y>` was wiped when it was uploaded as a new package, we need to manually generate a diff between the uploaded version of `rustc-<X.Y>` and your updated version of `rustc` that doesn't rely on Git. To do this, we'll need `.dsc`s for both package versions.
-
-Build the source package for both the new and old versions:
+First, push your changes to your personal branch:
 
 ```none
-$ dpkg-buildpackage -S -I -i -nc -d -sa
+$ git push <lpuser>
 ```
 
-After that, use `debdiff` to generate a diff between the two `.dsc`s. Redirect the output to an easily-accessible place:
+Then, go to your personal repository list at
+`https://code.launchpad.net/~<lpuser>/+git`. Select your repo, select your
+`lp<lp_bug_number>` branch, then select "Propose for merging". Submit your
+{term}`merge proposal` there.
+
+
+## Updating the Foundations Rust repository
+
+After your changes have been uploaded to the archive, the Foundations Rust
+repository must be manually updated to reflect the package's actual state in the
+archive.
+
+You must add your changes to the rich Git history of the Foundations repo.
+First, go to your `git-ubuntu` repo, switch to the `ubuntu/devel` branch, and
+ensure it's synced with the archive:
 
 ```none
-$ debdiff <old_dsc> <new_dsc> > 1-<new_full_version_number>.debdiff
+$ git checkout ubuntu/devel
+$ git pull
 ```
 
-### debdiff patch naming convention
+Then, create a series of patches for each commit you added since the last
+version published in the archive:
 
-:::{important}
-An understanding of Rust-specific version string conventions is necessary for this portion. Read the {ref}`rust-version-strings` article before continuing.
-:::
+```none
+$ git format-patch pkg/import/<version_string_before_your_changes>..
+```
 
-Let's break down an example debdiff patch name: `1-1.86.0+dfsg0ubuntu2-0ubuntu1.debdiff`
+This command generates a series of numbered patches, which you can then apply
+to the Foundations Rust repository.
 
-- `1-` means that this is the first revision of this patch.
-- `1.86.0+dfsg0ubuntu2-0ubuntu1` is the full version number of your updated version.
-  - `0ubuntu2` means that the orig tarball has been regenerated after the initial upload. You don't have to increment this number unless you've changed the orig tarball.
-  - `0ubuntu1` has been reset, no matter what the previous version number is. This is because the orig tarball was regenerated. You only have to increment this portion of the version number when the orig tarball was the same.
-- The `.debdiff` suffix is simply a hint that this is a patch. Launchpad will complain (but still allow you to upload the patch) if this is not here.
+Go to the Foundations Rust repository working tree you
+{ref}`set up earlier <foundations-rust-repo-setup>` and switch to the
+appropriate `merge` branch:
 
-Here's another example: `2-1.81.0+dfsg0ubuntu1-0ubuntu3.debdiff`
+```none
+$ git checkout merge-<X.Y>
+```
 
-- `2-`: It's the second revision of this patch, meaning that the sponsor had some feedback and another patch had to be generated.
-- `0ubuntu1`: The orig tarball has been unchanged since the initial upload.
-- `0ubuntu3`: This package has already been updated once before since its initial upload.
+Then, apply each patch to the branch in numerical order:
 
-### Sharing your changes for review
+```none
+$ git am <path_to_git_ubuntu_repo>/rustc-<X.Y>/rustc-<X.Y>/0001-<patch_name>.patch
+$ git am <path_to_git_ubuntu_repo>/rustc-<X.Y>/rustc-<X.Y>/0002-<patch_name>.patch
+[...]
+```
 
-Instead of opening a merge proposal, you must share your patch directly underneath the bug report.
+Once every patch has been applied, update both your personal remote and the
+general Foundations remote:
 
-First, subscribe `ubuntu-sponsors` to the bug.
+```none
+$ git push <lpuser>
+$ git push <foundations>
+```
 
-Then, click "Add attachment or patch" underneath the bug report description and add your `debdiff` as an attachment, ticking the box labelled "This attachment contains a solution (patch) for this bug". As for the comment field itself, all the regular sponsorship request standards apply — include links to the passing autopkgtests, the PPA build, the Lintian results, and the updated Git branch itself.
+Finally, delete the patches you generated from your `git-ubuntu` repo:
 
-If you had to regenerate the orig tarball, you must also include the tarball as an attachment to the bug report.
+```none
+$ rm <path_to_git_ubuntu_repo>/rustc-<X.Y>/rustc-<X.Y>/00*
+```
