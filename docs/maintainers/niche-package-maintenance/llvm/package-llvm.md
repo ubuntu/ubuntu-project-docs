@@ -84,7 +84,7 @@ There a number of steps you need to go through, which vary slightly for every ve
 - Renaming `.install.in`, `.links.in`, and `.lintian-overrides.in` files, so that the names match the new package names in `control`.
 - Ensuring that all of the files in `.install.in` and `.links.in` files are not in conflict with global directories. A backported LLVM package should install files into a versioned directory like `usr/lib/llvm-@LLVM_VERSION@/lib/` and not put anything, including symlinks, in the global multiarch directory. The version of `clang` that you build from this package knows how to find its own libraries, which is all we need.
 
-  It's good practice to also make the python libraries co-installable by not installing those files in the global python `site-packages` directory. Users can adjust their `PYTHON_PATH` if they absolutely need to make use of the backported Python libraries.
+  It's good practice to make the Python libraries co-installable by not installing those files in the global Python `site-packages` directory. Users can adjust their `PYTHON_PATH` if they absolutely need to make use of the backported Python libraries.
 - Updating `.gitignore` as needed for file renames.
 
 
