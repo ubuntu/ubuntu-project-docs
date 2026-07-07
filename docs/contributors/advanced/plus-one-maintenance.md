@@ -23,7 +23,7 @@ coordinating the effort.
 
 ## Who can participate?
 
-We expect participants to be proficient in "distro work". Core Developers and
+We expect participants to be proficient in "distro work". {ref}`Core Developers <dmb-joining-core-dev>` and
 {ref}`MOTUs <dmb-joining-MOTU>` would of course qualify, but people working on their application for such
 a status are welcome. For the latter category, +1 shifts are a good way to get
 more exposure to some specific situations such as transitions, proposed
