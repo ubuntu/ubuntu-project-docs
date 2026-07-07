@@ -54,7 +54,7 @@ $ git clean -fd   # to remove the other generated files not tracked in git
 
 When shipping a new patch release for an existing LLVM package, or fixing a bug in an existing package, it's important to minimize the diff from the existing package. To do that, cherry-pick all required fixes into the existing `git-ubuntu` source tree instead of bringing all the latest packaging from Debian.
 
-The steps are generally similar to any other Ubuntu package and so some details are omitted. For more information of making changes to a package, see {ref}`how-to-make-changes-to-a-package`.
+The steps are similar to any other Ubuntu package, and so some details are omitted. For more information, see {ref}`how-to-make-changes-to-a-package`.
 
 1. Ensure that you set the common package variables in `debian/rules` appropriately.
 1. Make your fix, or unpack the new upstream LLVM source code using `uupdate`.
