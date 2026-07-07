@@ -70,7 +70,7 @@ The steps are similar to any other Ubuntu package, and so some details are omitt
 
 This is often the most complex of the packaging tasks that Ubuntu LLVM maintainers perform regularly. The reason is that the entire architecture of the package is designed for the common package workflow, discussed above. However, consider what happens if you backport LLVM version X+1 to a stable LTS Ubuntu series with a default LLVM version of X.
 
-According to how the common packages work, we should be building the shared libraries with the most recent version of the package. However, the new backport is the most recent version, and not every user will have access to backports. Moreover, changing the libraries away from being provided by the default LLVM version might be problematic for some users—backports are intended to be standalone applications which can be safely updated without impacting the rest of the system.
+According to how the common packages work, we should be building the shared libraries with the most recent version of the package. However, the new backport is the most recent version, and not every user has access to backports. Moreover, changing the libraries away from being provided by the default LLVM version might be problematic for some users -- backports are intended to be standalone applications that can be safely updated without impacting the rest of the system.
 
 We also do not really have the option of setting `NEW_LLVM_VERSION=<X>` for version X+1, as the libraries' backwards compatibility does not imply forward compatibility.
 
