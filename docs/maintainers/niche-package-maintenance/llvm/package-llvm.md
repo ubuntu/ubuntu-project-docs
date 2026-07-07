@@ -52,7 +52,7 @@ $ git clean -fd   # to remove the other generated files not tracked in git
 
 ## Fixing or updating an existing LLVM version
 
-When shipping a new patch release for an existing LLVM package, or fixing a bug in an existing package, it's generally important to try to minimize the diff from the existing package. Because of that, any required fixes should typically be cherry-picked into the existing git-ubuntu source tree rather than wholesale bringing in the latest packaging from Debian.
+When shipping a new patch release for an existing LLVM package, or fixing a bug in an existing package, it's important to minimize the diff from the existing package. To do that, cherry-pick all required fixes into the existing `git-ubuntu` source tree instead of bringing all the latest packaging from Debian.
 
 The steps are generally similar to any other Ubuntu package and so some details are omitted. For more information of making changes to a package, see {ref}`how-to-make-changes-to-a-package`.
 
