@@ -72,7 +72,7 @@ This is often the most complex of the packaging tasks that Ubuntu LLVM maintaine
 
 According to how the common packages work, we should be building the shared libraries with the most recent version of the package. However, the new backport is the most recent version, and not every user has access to backports. Moreover, changing the libraries away from being provided by the default LLVM version might be problematic for some users -- backports are intended to be standalone applications that can be safely updated without impacting the rest of the system.
 
-We also do not really have the option of setting `NEW_LLVM_VERSION=<X>` for version X+1, as the libraries' backwards compatibility does not imply forward compatibility.
+We do not have the option of setting `NEW_LLVM_VERSION=<X>` for version X+1, as the libraries' backwards compatibility does not imply forward compatibility.
 
 That leaves us with the requirement that we ship backports that are entirely standalone and sandboxed. That means Ubuntu maintainers will need to actually restore the versioned binary outputs for the common packages which Debian explicitly removed. That means, e.g., `llvm-toolchain-22` backported to an older LTS will likely ship `libc++1-22`.
 
