@@ -58,7 +58,7 @@ The steps are similar to any other Ubuntu package, and so some details are omitt
 
 1. Set the common package variables in `debian/rules` appropriately.
 1. Make your fix, or unpack the new upstream LLVM source code using `uupdate`.
-1. Build the source package using `dpkg-buildpackage`, `debuild`, or `sbuild`. Usually something like `dpkg-buildpackage -S -nc -sa` is good enough.
+1. Build the source package. Usually, `dpkg-buildpackage -S -nc -sa` is good enough.
 1. Lint the source package by running `lintian` on the `.dsc` file.
 1. Build the binary package with `sbuild`.
 1. Lint the debs by pointing `lintian` at them.
