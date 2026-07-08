@@ -36,7 +36,7 @@ community/ @aaronprisk @ilvipero
 
 # DMB team PR approvals
 # Like the AA team, these files are prefixed with "dmb-" but not kept in a specific directory
-**/dmb-*.md @cpaelzer @lvoytek @rbasak @utkarsh2102 @athos-ribeiro @bdrung @julian-klode
+**/dmb-*.md @cpaelzer @lvoytek @rbasak @utkarsh2102 @athos-ribeiro @bdrung
 
 # TAs' & special teams' ack required for changes to the CODEOWNERS file
 /.github/CODEOWNERS @s-makin @rkratky @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof @aaronprisk @ilvipero @basak @teward @enr0n @julian-klode @awhitcroft @Hyask
