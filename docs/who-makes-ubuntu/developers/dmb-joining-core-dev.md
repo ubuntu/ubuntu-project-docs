@@ -10,7 +10,8 @@ Core Developers (Core Devs) are members of the [`ubuntu-core-dev`](https://launc
 Core Devs collectively maintain all packages in Ubuntu, which notably includes uploading to the `main` component.
 Core Devs also have elevated privileges for re-triggering autopkgtests and performing other administrative actions in Ubuntu.
 
-## Coverage Ubuntu on Github
+(dmb-access-to-ubuntu-on-github)=
+## Access to Ubuntu on Github
 
 To maintain all resources used to make Ubuntu, a Core Developer also gets access to {ref}`ubuntu-on-github`.
 
