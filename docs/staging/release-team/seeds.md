@@ -24,7 +24,7 @@ Practical guidance:
 
 A seed is a plain-text file that defines a curated set of packages using a small, specialized syntax.
 Seeds are used to describe which packages should be included in the support
-package set represented by the [main component](https://documentation.ubuntu.com/project/how-ubuntu-is-made/concepts/package-archive/#main)
+package set represented by the {ref}`main component <archive-components-main>`
 , as well as which packages make up different Ubuntu system images.
 
 Rather than listing every dependency explicitly, seeds express the intended package selection at a high level; tools
@@ -208,7 +208,7 @@ desktop list.
 (seeds-supported)=
 ### Supported
 
-The supported seeds allow to include packages into main while not including
+The supported seeds allow the inclusion of packages into main while not including
 it in any media (ISOs), images or installation (via meta packages). This list
 is all the extra packages we think need to be supported in our distro.
 
@@ -216,7 +216,7 @@ Additional packages can be added to this list, but they need to complete a
 {ref}`Main Inclusion Review <main-inclusion-review>` process and have an
 owning team.
 
-The supported set is categorized into different sets, usually prefixed with
+The supported set is categorized into different subsets, usually prefixed with
 "supported":
 
 supported-server
@@ -257,5 +257,5 @@ A binary package being in `main` implies that the
 [owning team](http://reports.qa.ubuntu.com/m-r-package-team-mapping.html)
 commits to maintain the source package. Furthermore, the Ubuntu security team
 provides security coverage.
-This coverage is further extended by [Ubuntu Pro](https://documentation.ubuntu.com/project/how-ubuntu-is-made/concepts/glossary/#term-Ubuntu-Pro),
+This coverage is further extended by [Ubuntu Pro](https://ubuntu.com/pro),
 which provides expanded security maintenance coverage.
