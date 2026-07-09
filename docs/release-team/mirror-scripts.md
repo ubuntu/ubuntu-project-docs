@@ -57,22 +57,22 @@ RSYNCSOURCE=rsync://archive.ubuntu.mirror.isp.com/ubuntu
 # Define where you want the mirror-data to be on your mirror
 BASEDIR=/var/www/ubuntuarchive/
 
-if [ ! -d ${BASEDIR} ]; then
+if [ ! -d "${BASEDIR}" ]; then
   warn "${BASEDIR} does not exist yet, trying to create it..."
-  mkdir -p ${BASEDIR} || fatal "Creation of ${BASEDIR} failed."
+  mkdir -p "${BASEDIR}" || fatal "Creation of ${BASEDIR} failed."
 fi
 
 rsync --recursive --times --links --safe-links --hard-links \
   --stats \
   --exclude "Packages*" --exclude "Sources*" \
   --exclude "Release*" --exclude "InRelease" \
-  ${RSYNCSOURCE} ${BASEDIR} || fatal "First stage of sync failed."
+  "${RSYNCSOURCE}" "${BASEDIR}" || fatal "First stage of sync failed."
 
 rsync --recursive --times --links --safe-links --hard-links \
   --stats --delete --delete-after \
-  ${RSYNCSOURCE} ${BASEDIR} || fatal "Second stage of sync failed."
+  "${RSYNCSOURCE}" "${BASEDIR}" || fatal "Second stage of sync failed."
 
-date -u > ${BASEDIR}/project/trace/$(hostname -f)
+date -u > "${BASEDIR}/project/trace/$(hostname -f)"
 ```
 
 
@@ -102,15 +102,14 @@ RSYNCSOURCE=rsync://releases.ubuntu.mirror.isp.com/releases
 # Define where you want the mirror-data to be on your mirror
 BASEDIR=/var/www/ubuntureleases/
 
-if [ ! -d ${BASEDIR} ]; then
+if [ ! -d "${BASEDIR}" ]; then
   warn "${BASEDIR} does not exist yet, trying to create it..."
-  mkdir -p ${BASEDIR} || fatal "Creation of ${BASEDIR} failed."
+  mkdir -p "${BASEDIR}" || fatal "Creation of ${BASEDIR} failed."
 fi
 
 rsync --verbose --recursive --times --links --safe-links --hard-links \
   --stats --delete-after \
-  ${RSYNCSOURCE} ${BASEDIR} || fatal "Failed to rsync from ${RSYNCSOURCE}."
+  "${RSYNCSOURCE}" "${BASEDIR}" || fatal "Failed to rsync from ${RSYNCSOURCE}."
 
-date -u > ${BASEDIR}/.trace/$(hostname -f)
+date -u > "${BASEDIR}/.trace/$(hostname -f)"
 ```
-
