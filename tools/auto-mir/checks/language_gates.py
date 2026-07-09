@@ -93,40 +93,44 @@ def _is_rust_package(packaging: dict) -> bool:
 def _is_python_package(packaging: dict) -> bool:
     """Return True when the packaging evidence indicates a Python package.
 
+    Detection requires a genuine Python *packaging* signal rather than the mere
+    presence of a ``.py`` file, because C/C++ (and other) source trees routinely
+    ship helper or test scripts written in Python. A single stray ``.py`` must
+    not classify such a package as Python (this previously mis-gated e.g. a C++
+    library that ships a helper script).
+
     Heuristics (any one sufficient):
-    - setup.py, setup.cfg, or pyproject.toml present
-    - dh_python, dh_python3 in debian/rules
-    - source tree contains .py files (excluding vendor trees)
-    - distutils, setuptools, or flit mentioned in debian/rules
+    - a Python build system in debian/rules (dh_python(3)/dh-python/pybuild, or
+      distutils/setuptools/flit);
+    - a python3 / dh-python / pybuild build dependency, or an X[S]-Python*
+      field, in debian/control;
+    - a Python packaging metadata file (setup.py, setup.cfg, pyproject.toml) in
+      the source tree (excluding vendored/third-party trees).
     """
     rules = packaging.get("debian_rules", "")
-    if (
-        "dh_python" in rules
-        or "dh_python3" in rules
-        or "distutils" in rules
-        or "setuptools" in rules
-        or "flit" in rules.lower()
+    rules_lower = rules.lower()
+    if any(sig in rules for sig in ("dh_python", "dh_python3")):
+        return True
+    if any(
+        sig in rules_lower for sig in ("dh-python", "pybuild", "distutils", "setuptools", "flit")
     ):
         return True
 
-    # Check for Python packaging files in root
+    # debian/control: python3 build-deps or X[S]-Python* fields.
     debian_control = packaging.get("debian_control", "")
-    if (
-        "setup.py" in debian_control
-        or "setup.cfg" in debian_control
-        or "pyproject.toml" in debian_control
-    ):
-        return True
-
-    # Check for .py files in source tree (excluding vendor)
-    for path in _iter_non_third_party_paths(packaging):
-        if path.endswith(".py"):
-            return True
-        if (
-            path.endswith("/setup.py")
-            or path.endswith("/setup.cfg")
-            or path.endswith("/pyproject.toml")
+    for raw_line in debian_control.splitlines():
+        low = raw_line.lower()
+        if low.startswith(("build-depends", "build-depends-indep")) and (
+            "python3" in low or "dh-python" in low or "pybuild" in low
         ):
+            return True
+        if low.startswith(("x-python3-version", "xs-python-version", "x-python-version")):
+            return True
+
+    # Python packaging metadata files anywhere in the (non-third-party) tree.
+    for path in _iter_non_third_party_paths(packaging):
+        base = path.rsplit("/", 1)[-1]
+        if base in ("setup.py", "setup.cfg", "pyproject.toml"):
             return True
 
     return False

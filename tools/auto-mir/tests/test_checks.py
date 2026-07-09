@@ -285,7 +285,6 @@ class _Ctx:
                     "messages": {
                         "unknown_message": "Could not inspect packaging (packaging-source failed)",
                         "unknown_todo": "TODO: - Check for symbols file",
-                        "ok_lang_message": "symbols tracking not applicable for this language/runtime",
                         "ok_message": "symbols tracking is in place",
                         "ok_no_shared_message": "symbols tracking not applicable for this kind of code",
                         "not_ok_message": "Shared library is shipped but no debian/*.symbols file was found",
@@ -784,6 +783,34 @@ def test_language_gate_combined_go_rust_inactive():
         "cargo_lock_present": False,
     }
     assert checks.language_gates._language_gate_active("go|rust", ctx) is False
+
+
+def test_is_python_package_ignores_stray_py_file():
+    """A stray .py helper/test script must not classify a C/C++ package as Python."""
+    packaging = {
+        "status": "ok",
+        "debian_control": "Source: libgav1\n\nPackage: libgav1-2\nBuild-Depends: cmake",
+        "debian_rules": "%:\n\tdh $@",
+        "file_listing": [{"path": "tests/helper.py", "size": 80}],
+    }
+    assert checks.language_gates._is_python_package(packaging) is False
+
+
+def test_is_python_package_detects_real_signals():
+    """Genuine Python packaging signals are still detected."""
+    dh_python = {
+        "debian_control": "Package: python3-x\nBuild-Depends: dh-python, python3-all",
+        "debian_rules": "%:\n\tdh $@ --with python3 --buildsystem=pybuild",
+        "file_listing": [],
+    }
+    assert checks.language_gates._is_python_package(dh_python) is True
+
+    metadata = {
+        "debian_control": "Package: python3-y",
+        "debian_rules": "dh $@",
+        "file_listing": [{"path": "pyproject.toml", "size": 40}],
+    }
+    assert checks.language_gates._is_python_package(metadata) is True
 
 
 def test_extract_build_hints_no_vendor_references():
@@ -1516,11 +1543,11 @@ def test_prf_2_not_library():
 
 
 def test_prf_2_python_library():
-    """Test PRF-2 when library is Python (symbols not applicable)."""
+    """A pure-Python library (no shared object) needs no symbols tracking."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {
         "status": "ok",
-        "debian_control": "Package: libpython-mylib\nDescription: Python library",
+        "debian_control": "Package: python3-mylib\nDescription: Python library",
         "debian_rules": "dh_auto_configure\ndh_python3 build",
         "file_listing": [{"path": "setup.py", "size": 100}],
     }
@@ -1530,7 +1557,53 @@ def test_prf_2_python_library():
 
     assert result.status == "ok"
     assert result.severity == "ok"
-    assert "language" in result.message.lower()
+    assert "not applicable" in result.message.lower()
+
+
+def test_prf_2_python_package_shipping_shared_lib_still_tracked():
+    """A package that ships BOTH Python code and a .so is still responsible for
+    symbols tracking of that shared library (language does not exempt it)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": (
+            "Source: mymix\n\n"
+            "Package: python3-mymix\nDepends: ${python3:Depends}\n\n"
+            "Package: libmymix1\nDepends: ${shlibs:Depends}\n"
+        ),
+        "debian_rules": "dh_python3 build",
+        "file_listing": [{"path": "setup.py", "size": 100}],
+    }
+
+    finding = _make_finding("PRF-2", mode="deterministic")
+    result = checks.deterministic._check_prf_2(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
+    assert "libmymix1" in result.rationale
+
+
+def test_prf_2_cpp_library_with_helper_py_and_symbols():
+    """Feedback #8: a C++ library that ships a helper .py and a .symbols file is
+    credited with tracking in place (not mis-gated as Python/not-applicable)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_control": "Source: libgav1\n\nPackage: libgav1-2\nDepends: ${shlibs:Depends}",
+        "debian_rules": "%:\n\tdh $@",
+        "file_listing": [
+            {"path": "debian/libgav1-2.symbols", "size": 500},
+            {"path": "tests/helper.py", "size": 80},
+        ],
+    }
+
+    finding = _make_finding("PRF-2", mode="deterministic")
+    result = checks.deterministic._check_prf_2(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "symbols tracking is in place" in result.message
+    assert "libgav1-2.symbols" in result.rationale
 
 
 def test_prf_2_cpp_library_with_symbols():

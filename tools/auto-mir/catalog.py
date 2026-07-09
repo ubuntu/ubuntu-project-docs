@@ -205,7 +205,6 @@ _REQUIRED_MESSAGE_TEMPLATES: dict[str, dict[str, set[str]]] = {
     "PRF-2": {
         "unknown_message": set(),
         "unknown_todo": set(),
-        "ok_lang_message": set(),
         "ok_message": set(),
         "ok_no_shared_message": set(),
         "not_ok_message": set(),

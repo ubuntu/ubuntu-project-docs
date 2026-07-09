@@ -1693,7 +1693,6 @@ checks:
   messages:
     unknown_message: Could not inspect packaging (packaging-source failed)
     unknown_todo: 'TODO: - Check for symbols file'
-    ok_lang_message: symbols tracking not applicable for this language/runtime
     ok_message: symbols tracking is in place
     ok_no_shared_message: symbols tracking not applicable for this kind of code
     not_ok_message: Shared library is shipped but no debian/*.symbols file was found

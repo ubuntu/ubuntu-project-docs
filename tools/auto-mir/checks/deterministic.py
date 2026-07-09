@@ -117,13 +117,24 @@ def _ships_shared_library(debian_control: str, built_debs: list[str]) -> bool:
     available, the names of the built .deb files (more reliable than parsing
     control alone, since control packages may be generated).
     """
-    if any(_is_shared_lib_pkg_name(name) for name in _binary_package_names(debian_control)):
-        return True
+    return bool(_shared_library_package_names(debian_control, built_debs))
+
+
+def _shared_library_package_names(debian_control: str, built_debs: list[str]) -> list[str]:
+    """Return the soname-versioned shared-library package names for a source.
+
+    Combines the binary package names declared in debian/control with the names
+    of any built .deb files (more reliable when control packages are generated).
+    """
+    names: list[str] = []
+    for name in _binary_package_names(debian_control):
+        if _is_shared_lib_pkg_name(name) and name not in names:
+            names.append(name)
     for deb in built_debs:
         deb_name = str(deb).rsplit("/", 1)[-1].split("_", 1)[0]
-        if _is_shared_lib_pkg_name(deb_name):
-            return True
-    return False
+        if _is_shared_lib_pkg_name(deb_name) and deb_name not in names:
+            names.append(deb_name)
+    return names
 
 
 @deterministic_check("SUM-1")
@@ -955,7 +966,15 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
 
 @deterministic_check("PRF-2")
 def _check_prf_2(ctx, finding: Finding) -> Finding:
-    """PRF-2: Symbols tracking for C/C++ libraries."""
+    """PRF-2: Symbols tracking for shared libraries.
+
+    Whether symbols tracking is *needed* is governed solely by whether the
+    package ships a shared library (a ``.so``): the programming language is
+    irrelevant. A package that also ships Python code is still responsible for
+    tracking the symbols of any shared library it ships; only the absence of a
+    shared library removes the obligation. The ``.symbols`` file is therefore
+    the first, authoritative signal, checked before anything else.
+    """
     check = _get_check_definition(ctx, "PRF-2")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
@@ -974,49 +993,55 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
     debian_control = packaging.get("debian_control", "")
     file_listing = packaging.get("file_listing", [])
 
-    # Languages that do not use C-style ELF symbol files at all.
-    if _is_python_package(packaging) or _is_go_package(packaging) or _is_rust_package(packaging):
-        finding.succeed(
-            render_check_message(check, "ok_lang_message"),
-            confidence="high",
-        )
-        finding.evidence_refs = ["packaging-source:debian_control"]
-        return finding
-
-    # A debian/*.symbols file is authoritative: it both proves a shared library
-    # is shipped and that symbols tracking is in place.
-    has_symbols_file = any(
-        str(entry.get("path", "")).rstrip("/").endswith(".symbols") for entry in file_listing
-    )
-    if has_symbols_file:
+    # A debian/*.symbols file is authoritative: it proves the maintainer tracks
+    # the shared library's symbols. This is checked first and independently of
+    # the language, so a C++ library that ships a helper .py script (which used
+    # to be misdetected as "Python, not applicable") is still credited here.
+    symbols_files = [
+        str(entry.get("path", "")).strip()
+        for entry in file_listing
+        if str(entry.get("path", "")).rstrip("/").endswith(".symbols")
+    ]
+    if symbols_files:
         finding.succeed(
             render_check_message(check, "ok_message"),
             confidence="high",
+            rationale=f"a symbols file is shipped: {', '.join(sorted(symbols_files))}",
         )
         finding.evidence_refs = ["packaging-source:file_listing"]
         return finding
 
-    # No symbols file: decide whether the package ships a shared library at all.
-    # Shared-library runtime packages are soname-versioned (e.g. liblua5.5-0).
+    # No symbols file: the obligation depends purely on whether a shared library
+    # is shipped. Shared-library runtime packages are soname-versioned
+    # (e.g. liblua5.5-0); check debian/control and the built .deb names.
     sbuild = adapters.get("sbuild", {})
     built_debs = sbuild.get("built_debs", []) if sbuild.get("status") == "ok" else []
-    ships_shared_library = _ships_shared_library(debian_control, built_debs)
+    shared_lib_pkgs = _shared_library_package_names(debian_control, built_debs)
 
-    if not ships_shared_library:
+    if not shared_lib_pkgs:
         finding.succeed(
             render_check_message(check, "ok_no_shared_message"),
             confidence="high",
+            rationale="the package ships no shared library (.so), so ABI symbol tracking "
+            "does not apply",
         )
         finding.evidence_refs = ["packaging-source:debian_control"]
         return finding
 
-    # Ships a shared library but has no symbols file. C++ ABI tracking is hard,
-    # so this is a recommendation rather than a hard requirement.
+    # Ships a shared library but has no symbols file. This applies regardless of
+    # language (e.g. a package that ships both Python code and a .so is still
+    # responsible for that .so). C++ ABI tracking is hard, so it is a
+    # recommendation rather than a hard requirement.
     finding.fail(
         render_check_message(check, "not_ok_message"),
         render_check_message(check, "not_ok_todo"),
         severity="recommended",
         confidence="medium",
+        rationale=(
+            f"shared library package(s) {', '.join(sorted(shared_lib_pkgs))} ship a .so but no "
+            "debian/*.symbols file; for C++ libraries where tracking is impractical, document "
+            "why (or use abigail/abi-compliance-check in CI, or bump SOVER on every update)"
+        ),
     )
     finding.evidence_refs = ["packaging-source:debian_control"]
     return finding
