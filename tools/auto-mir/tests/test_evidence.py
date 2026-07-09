@@ -1280,3 +1280,117 @@ def test_build_proposed_stanza_returns_none_without_primary():
         "Components: main\n"
     )
     assert _build_proposed_stanza(ubuntu_sources, "stonking") is None
+
+
+# ---------------------------------------------------------------------------
+# dup-search adapter + RDO-1 fallback (feedback #6)
+# ---------------------------------------------------------------------------
+
+from types import SimpleNamespace  # noqa: E402
+
+from evidence import container_adapters  # noqa: E402
+
+
+def test_extract_binary_descriptions_and_names():
+    control = (
+        "Source: libgav1\n\n"
+        "Package: libgav1-2\n"
+        "Description: AV1 decoder developed by Google -- runtime library\n\n"
+        "Package: libgav1-dev\n"
+        "Description: AV1 decoder -- development files\n"
+    )
+    assert container_adapters._extract_binary_descriptions(control) == [
+        "AV1 decoder developed by Google -- runtime library",
+        "AV1 decoder -- development files",
+    ]
+    assert container_adapters._binary_package_names(control) == ["libgav1-2", "libgav1-dev"]
+
+
+def test_apt_package_component_classifies_universe_and_main():
+    calls = []
+
+    def fake_capture(ctx, cmd, allow_fail=False, **kwargs):
+        calls.append(cmd)
+        # Simulate Section output: universe/libs for libdav1d7, libs for libaom3.
+        joined = " ".join(cmd)
+        if "libdav1d7" in joined:
+            return "universe/libs"
+        if "libaom3" in joined:
+            return "libs"
+        return ""
+
+    with patch.object(container_adapters, "_capture", side_effect=fake_capture):
+        ctx = SimpleNamespace(vm_name="vm")
+        assert container_adapters._apt_package_component(ctx, "libdav1d7") == "universe"
+        assert container_adapters._apt_package_component(ctx, "libaom3") == "main"
+        assert container_adapters._apt_package_component(ctx, "unknownpkg") == "unknown"
+
+
+def test_collect_dup_search_probes_terms_and_tags_components():
+    ctx = SimpleNamespace(
+        source_package="libgav1",
+        vm_name="vm",
+        llm_token="tok",
+        untrusted_nonce="N",
+        evidence={
+            "adapters": {
+                "packaging-source": {
+                    "status": "ok",
+                    "debian_control": (
+                        "Source: libgav1\n\n"
+                        "Package: libgav1-2\n"
+                        "Description: AV1 decoder developed by Google -- runtime library\n"
+                    ),
+                }
+            }
+        },
+    )
+
+    def fake_capture(ctx_arg, cmd, allow_fail=False, **kwargs):
+        joined = " ".join(cmd)
+        if cmd[:2] == ["apt-cache", "search"]:
+            return "libaom3 - AV1 Video Codec Library\nlibgav1-2 - own package\n"
+        if "Section:" in joined and "libaom3" in joined:
+            return "libs"
+        return ""
+
+    with (
+        patch.object(container_adapters, "_capture", side_effect=fake_capture),
+        patch.object(container_adapters, "_llm_dup_search_terms", return_value=["AV1 decoder"]),
+    ):
+        result = container_adapters.collect_dup_search(ctx)
+
+    names = [c["name"] for c in result["candidates"]]
+    assert "libaom3" in names
+    # The package's own binary must be excluded from candidates.
+    assert "libgav1-2" not in names
+    assert result["candidates"][0]["component"] == "main"
+
+
+def test_rdo1_fallback_rationale_lists_dup_candidates():
+    import checks.llm_eval as llm_eval
+
+    check = {"id": "RDO-1"}
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "dup-search": {
+                    "status": "ok",
+                    "candidates": [
+                        {"name": "libaom3", "synopsis": "AV1", "component": "main"},
+                        {"name": "libdav1d7", "synopsis": "AV1", "component": "universe"},
+                    ],
+                }
+            }
+        }
+    )
+    rationale = llm_eval._fallback_rationale_for_check(check, ctx)
+    assert "libaom3 (main)" in rationale
+    assert "libdav1d7 (universe)" in rationale
+
+
+def test_fallback_rationale_empty_for_other_checks():
+    import checks.llm_eval as llm_eval
+
+    ctx = SimpleNamespace(evidence={"adapters": {}})
+    assert llm_eval._fallback_rationale_for_check({"id": "SEC-5"}, ctx) == ""

@@ -38,6 +38,7 @@ class AdapterID(StrEnum):
     CVELIST_SCAN = "cvelist-scan"
     UBUNTU_UPLOAD_PERMISSION = "ubuntu-upload-permission"
     GIT_UBUNTU_DELTA = "git-ubuntu-delta"
+    DUP_SEARCH = "dup-search"
 
 
 class CheckID(StrEnum):

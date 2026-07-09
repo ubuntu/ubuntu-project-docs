@@ -80,6 +80,10 @@ def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
         finding.todo = _default_todo_for_check(
             check, fallback_suffix="manual review needed (LLM unavailable)"
         )
+        # Even when the model is unavailable, surface any deterministic evidence
+        # already gathered (e.g. dup-search candidates for RDO-1) so the reviewer
+        # is not left with a bare TODO.
+        finding.rationale = _fallback_rationale_for_check(check, ctx)
         return finding
 
     response = _maybe_refine_with_additional_evidence(
@@ -1065,6 +1069,35 @@ def _default_todo_for_check(check: dict, fallback_suffix: str) -> str:
     if todo_refs:
         return "\n".join(todo_refs)
     return f"TODO: - {check.get('title', check.get('id', 'Check'))} — {fallback_suffix}"
+
+
+def _fallback_rationale_for_check(check: dict, ctx) -> str:
+    """Return a deterministic-evidence rationale for a check when the LLM failed.
+
+    Currently specialises RDO-1: even without the model, the dup-search adapter
+    has already found candidate overlapping packages, so surface them (with their
+    components) rather than leaving only a bare TODO. Returns "" for checks with
+    no such fallback.
+    """
+    if check.get("id") != "RDO-1":
+        return ""
+    dup = ctx.evidence.get("adapters", {}).get("dup-search", {})
+    if not isinstance(dup, dict) or dup.get("status") != "ok":
+        return ""
+    candidates = dup.get("candidates", []) or []
+    if not candidates:
+        return ""
+    named = [
+        f"{c.get('name', '?')} ({c.get('component', 'unknown')})"
+        for c in candidates
+        if isinstance(c, dict) and c.get("name")
+    ]
+    if not named:
+        return ""
+    return (
+        "LLM unavailable; archive search found candidate package(s) to check for functional "
+        "overlap: " + ", ".join(named[:10])
+    )
 
 
 def _summarise_findings_so_far(

@@ -322,6 +322,22 @@ class PackagingSourceResult(TypedDict):
     setuid_setgid_source_files: list[str]
 
 
+class DupCandidate(TypedDict):
+    """A candidate potentially-duplicate package found in the archive."""
+
+    name: str
+    synopsis: str
+    component: str
+
+
+class DupSearchResult(TypedDict):
+    """Return structure for the dup-search adapter."""
+
+    status: str
+    search_terms: list[str]
+    candidates: list[DupCandidate]
+
+
 # ---------------------------------------------------------------------------
 # In-container adapters — dependency analysis
 # ---------------------------------------------------------------------------
