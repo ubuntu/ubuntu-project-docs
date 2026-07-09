@@ -235,6 +235,13 @@ def _provision(name: str, ctx: "RunContext") -> None:
     # Ensure source repositories are enabled before any `apt-get source` usage.
     _enable_source_repositories(name)
 
+    # Enable the -proposed pocket so `apt-get source` (and sbuild) can resolve
+    # the proposed-pocket version, which is what a MIR review should analyse
+    # when the maintainer has staged fixes there. Skipped when the operator
+    # explicitly pinned the release pocket.
+    if getattr(ctx, "source_pocket", "auto") != "release":
+        _enable_proposed_pocket(name)
+
     # Update package lists
     exec_in_retry(
         name,
@@ -352,6 +359,83 @@ def _enable_source_repositories(name: str) -> None:
             _patch_file(path, _patch_deb822)
         elif path.endswith(".list"):
             _patch_file(path, _patch_legacy)
+
+
+def _enable_proposed_pocket(name: str) -> None:
+    """Add the ``<codename>-proposed`` pocket (deb + deb-src) to the container.
+
+    MIR maintainers frequently stage test/lintian/packaging fixes in -proposed
+    before they migrate to the release pocket, so a faithful review should be
+    able to fetch, build and analyse that version. We derive a proposed deb822
+    stanza from the existing ubuntu.sources (reusing its URIs, components and
+    signing key) with the suite replaced by ``<codename>-proposed``, and write
+    it to a dedicated file so the base configuration is left untouched.
+    """
+    codename = exec_in(
+        name,
+        ["bash", "-lc", ". /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}"],
+        capture=True,
+        check=False,
+    ).stdout.strip()
+    if not codename:
+        log.warning("Could not resolve container codename; skipping -proposed enable")
+        return
+
+    base = exec_in(
+        name,
+        ["cat", "/etc/apt/sources.list.d/ubuntu.sources"],
+        capture=True,
+        check=False,
+    )
+    if base.returncode != 0 or not base.stdout.strip():
+        log.warning("Could not read ubuntu.sources; skipping -proposed enable")
+        return
+
+    stanza = _build_proposed_stanza(base.stdout, codename)
+    if not stanza:
+        log.warning("Could not derive a -proposed stanza; skipping -proposed enable")
+        return
+
+    proposed_path = "/etc/apt/sources.list.d/auto-mir-proposed.sources"
+    lxc_cmd = ["lxc", "exec", name, "--", "tee", proposed_path]
+    subprocess.run(lxc_cmd, input=stanza, text=True, check=True, capture_output=True)
+    log.info("Enabled %s-proposed pocket for source fetch and build", codename)
+
+
+def _build_proposed_stanza(ubuntu_sources: str, codename: str) -> str | None:
+    """Return a deb822 stanza enabling ``<codename>-proposed`` (deb + deb-src).
+
+    Reuses the primary archive stanza from ``ubuntu.sources`` (the one whose
+    Suites reference the release codename, not the security archive) and rewrites
+    its Suites to ``<codename>-proposed`` and Types to include deb-src.
+    """
+    # Split the deb822 file into blank-line-separated stanzas.
+    stanzas = [s for s in re.split(r"\n\s*\n", ubuntu_sources) if s.strip()]
+    primary = None
+    for stanza in stanzas:
+        suites = ""
+        for line in stanza.splitlines():
+            if line.lower().startswith("suites:"):
+                suites = line.split(":", 1)[1]
+                break
+        # The primary stanza carries the plain release suite (codename) and is
+        # not the security-only archive.
+        if codename in suites and "security" not in suites.lower():
+            primary = stanza
+            break
+    if primary is None:
+        return None
+
+    out_lines: list[str] = []
+    for line in primary.splitlines():
+        low = line.lower()
+        if low.startswith("types:"):
+            out_lines.append("Types: deb deb-src")
+        elif low.startswith("suites:"):
+            out_lines.append(f"Suites: {codename}-proposed")
+        else:
+            out_lines.append(line)
+    return "\n".join(out_lines) + "\n"
 
 
 def _export_container_env(name: str, env_map: dict[str, str]) -> None:

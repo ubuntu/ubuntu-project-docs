@@ -259,13 +259,73 @@ def _parse_binary_sections(debian_control: str) -> list[str]:
     return sections
 
 
-@adapter(AdapterID.PACKAGING_SOURCE)
+def _latest_published_in_pocket(history: list, pocket: str) -> str:
+    """Return the most recent Published version in the given pocket, or ''.
+
+    ``history`` is the lp-package-api ``ubuntu_publish_history`` (ordered newest
+    first). Matching is case-insensitive on the pocket name (e.g. "Proposed").
+    """
+    pocket_lc = pocket.lower()
+    for entry in history:
+        if not isinstance(entry, dict):
+            continue
+        if str(entry.get("pocket", "")).lower() != pocket_lc:
+            continue
+        if str(entry.get("status", "")).lower() != "published":
+            continue
+        version = str(entry.get("version", "")).strip()
+        if version:
+            return version
+    return ""
+
+
+def _resolve_source_pocket_version(ctx) -> tuple[str, str]:
+    """Resolve which source version/pocket to fetch for analysis.
+
+    Returns ``(version, pocket_label)`` where an empty ``version`` means "let
+    apt pick the default (release-pocket) candidate". ``pocket_label`` is one of
+    "release" or "proposed" and is recorded for the reviewer.
+
+    Honours ``ctx.source_pocket``:
+      - "release":  always the release pocket (no pin).
+      - "proposed": the published -proposed version; falls back to release with
+                    a warning when none is published.
+      - "auto":     prefer -proposed when published, else release.
+    """
+    pocket = getattr(ctx, "source_pocket", "auto")
+    if pocket == "release":
+        return "", "release"
+
+    lp = ctx.evidence.get("adapters", {}).get("lp-package-api", {})
+    history = lp.get("ubuntu_publish_history", []) if isinstance(lp, dict) else []
+    proposed_version = _latest_published_in_pocket(history, "Proposed")
+
+    if proposed_version:
+        log.info(
+            "Analysing -proposed source version %s (source-pocket=%s)", proposed_version, pocket
+        )
+        return proposed_version, "proposed"
+
+    if pocket == "proposed":
+        log.warning(
+            "source-pocket=proposed requested but no published -proposed version found; "
+            "falling back to the release pocket"
+        )
+    return "", "release"
+
+
+@adapter(AdapterID.PACKAGING_SOURCE, depends_on=[AdapterID.LP_PACKAGE_API])
 def collect_packaging_source(ctx) -> PackagingSourceResult:
     """Fetch and analyze Debian packaging source files.
 
     Runs apt-get source in the container to fetch the source package, then
     extracts debian/control, debian/rules, and checks for language-specific
     files (Cargo.lock, go.sum, vendored directories).
+
+    The version fetched depends on ``ctx.source_pocket`` (auto|release|proposed):
+    by default (auto) the -proposed version is preferred when one is published,
+    since MIR maintainers often stage test/packaging fixes there before they
+    migrate to the release pocket.
     """
     pkg = ctx.source_package
     if not pkg:
@@ -279,6 +339,11 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         group=_UBUNTU_GID,
     )
 
+    # Resolve which pocket's version to fetch. An explicit version pins the
+    # exact upload so `apt-get source` does not silently pick the release pocket.
+    target_version, analyzed_pocket = _resolve_source_pocket_version(ctx)
+    pkg_spec = f"{pkg}={target_version}" if target_version else pkg
+
     # Fetch source package via apt source for deterministic availability.
     lxd_runner.exec_in_retry(
         ctx.vm_name,
@@ -286,7 +351,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
             "bash",
             "-lc",
             (
-                f"cd {workdir} && apt-get source -qq {pkg} && "
+                f"cd {workdir} && apt-get source -qq {pkg_spec} && "
                 "dir=$(find . -maxdepth 1 -type d -name '*-*' | head -n1) && "
                 "echo ${dir#./} > source_dir.txt"
             ),
@@ -294,7 +359,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         env=_UBUNTU_ENV,
         user=_UBUNTU_UID,
         group=_UBUNTU_GID,
-        operation=f"apt-get source {pkg}",
+        operation=f"apt-get source {pkg_spec}",
     )
 
     source_dir = _capture(
@@ -306,6 +371,15 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         raise AdapterError("failed to resolve unpacked source dir")
 
     full_source = f"{workdir}/{source_dir}"
+
+    # Record the exact version actually unpacked (from the changelog) so the
+    # reviewer can see which upload was analysed and from which pocket.
+    analyzed_version = _capture(
+        ctx,
+        ["bash", "-lc", f"cd {full_source} && dpkg-parsechangelog -S Version 2>/dev/null"],
+        allow_fail=True,
+        as_ubuntu=True,
+    ).strip()
 
     debian_control = _capture(
         ctx,
@@ -438,6 +512,8 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         "status": "ok",
         "source_dir": full_source,
         "source_workdir": workdir,
+        "analyzed_version": analyzed_version,
+        "analyzed_pocket": analyzed_pocket,
         "debian_control": debian_control,
         "debian_watch": debian_watch,
         "debian_rules": debian_rules,
@@ -1064,11 +1140,25 @@ def collect_sbuild(ctx) -> SbuildResult:
             build_arch,
         )
 
+    # When analysing the -proposed source, also make the -proposed pocket
+    # available inside the sbuild chroot so any build-dependencies that only
+    # exist in -proposed resolve (mirroring how Launchpad builds in proposed).
+    extra_repo_flag = ""
+    if packaging.get("analyzed_pocket") == "proposed":
+        if build_arch in ("amd64", "i386"):
+            mirror = "http://archive.ubuntu.com/ubuntu"
+        else:
+            mirror = "http://ports.ubuntu.com/ubuntu-ports"
+        components = "main restricted universe multiverse"
+        extra_repo_flag = f"--extra-repository='deb {mirror} {series}-proposed {components}' "
+        log.info("Adding %s-proposed as an sbuild extra repository", series)
+
     build_cmd = (
         f"sbuild -d {series} "
         f"--chroot-mode=unshare "
         f"--no-run-lintian "
         f"{arch_all_flag}"
+        f"{extra_repo_flag}"
         f"--no-source-only-changes "
         f"--build-dir={output_dir} "
         f"{dsc_path} "

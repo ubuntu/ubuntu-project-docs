@@ -1187,3 +1187,96 @@ def test_collect_from_catalog_optional_failure_does_not_fail_run():
     # Optional adapter failure must not flip the overall return status.
     assert rc == 0
     assert ctx.evidence["adapters"]["git-ubuntu-delta"]["status"] == "error"
+
+
+# ---------------------------------------------------------------------------
+# Proposed-pocket source selection (feedback #7)
+# ---------------------------------------------------------------------------
+
+from evidence.container_adapters import (  # noqa: E402
+    _latest_published_in_pocket,
+    _resolve_source_pocket_version,
+)
+from lxd_runner import _build_proposed_stanza  # noqa: E402
+
+
+class _PocketCtx:
+    def __init__(self, source_pocket, publish_history):
+        self.source_pocket = source_pocket
+        self.evidence = {
+            "adapters": {
+                "lp-package-api": {
+                    "status": "ok",
+                    "ubuntu_publish_history": publish_history,
+                }
+            }
+        }
+
+
+_PROPOSED = {"version": "0.20.0-2ubuntu1", "pocket": "Proposed", "status": "Published"}
+_RELEASE = {"version": "0.20.0-2build1", "pocket": "Release", "status": "Published"}
+
+
+def test_latest_published_in_pocket_matches_case_insensitively():
+    assert _latest_published_in_pocket([_RELEASE, _PROPOSED], "proposed") == "0.20.0-2ubuntu1"
+    assert _latest_published_in_pocket([_RELEASE], "Proposed") == ""
+
+
+def test_latest_published_ignores_non_published():
+    history = [
+        {"version": "9.9", "pocket": "Proposed", "status": "Pending"},
+        _PROPOSED,
+    ]
+    assert _latest_published_in_pocket(history, "Proposed") == "0.20.0-2ubuntu1"
+
+
+def test_resolve_auto_prefers_proposed_when_present():
+    ctx = _PocketCtx("auto", [_RELEASE, _PROPOSED])
+    assert _resolve_source_pocket_version(ctx) == ("0.20.0-2ubuntu1", "proposed")
+
+
+def test_resolve_auto_falls_back_to_release_without_proposed():
+    ctx = _PocketCtx("auto", [_RELEASE])
+    assert _resolve_source_pocket_version(ctx) == ("", "release")
+
+
+def test_resolve_release_never_pins_proposed():
+    ctx = _PocketCtx("release", [_RELEASE, _PROPOSED])
+    assert _resolve_source_pocket_version(ctx) == ("", "release")
+
+
+def test_resolve_proposed_requested_but_missing_falls_back():
+    ctx = _PocketCtx("proposed", [_RELEASE])
+    assert _resolve_source_pocket_version(ctx) == ("", "release")
+
+
+def test_build_proposed_stanza_derives_from_primary():
+    ubuntu_sources = (
+        "Types: deb\n"
+        "URIs: http://archive.ubuntu.com/ubuntu\n"
+        "Suites: stonking stonking-updates stonking-backports\n"
+        "Components: main restricted universe multiverse\n"
+        "Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n"
+        "\n"
+        "Types: deb\n"
+        "URIs: http://security.ubuntu.com/ubuntu\n"
+        "Suites: stonking-security\n"
+        "Components: main restricted universe multiverse\n"
+        "Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n"
+    )
+    stanza = _build_proposed_stanza(ubuntu_sources, "stonking")
+    assert "Types: deb deb-src" in stanza
+    assert "Suites: stonking-proposed" in stanza
+    assert "http://archive.ubuntu.com/ubuntu" in stanza
+    # Must not pick the security stanza's URI.
+    assert "security.ubuntu.com" not in stanza
+
+
+def test_build_proposed_stanza_returns_none_without_primary():
+    ubuntu_sources = (
+        "Types: deb\n"
+        "URIs: http://security.ubuntu.com/ubuntu\n"
+        "Suites: stonking-security\n"
+        "Components: main\n"
+    )
+    assert _build_proposed_stanza(ubuntu_sources, "stonking") is None

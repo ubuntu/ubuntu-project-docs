@@ -813,3 +813,38 @@ def test_problem_finding_negated_statement_surfaces_in_summary_todo():
     req_block = draft[req_idx:]
     assert "- #1 does FTBFS currently" in req_block
     assert "s390x: Dependency wait" in req_block
+
+
+def test_preamble_shows_analysed_version_and_pocket():
+    """Feedback #7: the draft preamble states which version/pocket was analysed."""
+    ctx = Mock()
+    ctx.source_package = "libgav1"
+    ctx.bug_id = "2158712"
+    ctx.series = "devel"
+    ctx.catalog = {"checks": []}
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "analyzed_version": "0.20.0-2ubuntu1",
+                "analyzed_pocket": "proposed",
+            }
+        }
+    }
+    ctx.findings = []
+
+    draft = _build_review_draft(ctx)
+    assert "Analysed source version: 0.20.0-2ubuntu1 (proposed pocket)" in draft
+
+
+def test_preamble_omits_version_line_when_unknown():
+    ctx = Mock()
+    ctx.source_package = "libgav1"
+    ctx.bug_id = "2158712"
+    ctx.series = "devel"
+    ctx.catalog = {"checks": []}
+    ctx.evidence = {"adapters": {}}
+    ctx.findings = []
+
+    draft = _build_review_draft(ctx)
+    assert "Analysed source version" not in draft

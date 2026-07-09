@@ -196,6 +196,19 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Binary packages requested for promotion in this MIR (space-separated)",
     )
+    p.add_argument(
+        "--source-pocket",
+        dest="source_pocket",
+        choices=["auto", "release", "proposed"],
+        default="auto",
+        help=(
+            "Which archive pocket's source version to fetch, build and analyse. "
+            "'auto' (default): prefer the version in -proposed when one exists "
+            "(MIR maintainers often stage test/lintian fixes there), else the "
+            "release pocket. 'proposed': require the proposed version. "
+            "'release': always use the release-pocket version."
+        ),
+    )
     p.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
     return p
 
@@ -249,6 +262,8 @@ class RunContext:
         self.collect_only: bool = args.collect_only
         self.lxd_options: str = args.lxd_options
         self.requested_binaries: list[str] = args.request_binaries or []
+        # Which archive pocket's source to fetch/build/analyse (auto|release|proposed).
+        self.source_pocket: str = getattr(args, "source_pocket", "auto")
         self.tool_root = Path(__file__).resolve().parent
         self.workspace_root = self.tool_root.parent.parent
         self.catalog_path = self.tool_root / "catalog.yaml"

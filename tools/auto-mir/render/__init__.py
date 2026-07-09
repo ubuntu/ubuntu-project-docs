@@ -126,6 +126,13 @@ def _build_review_draft(ctx) -> str:
         f"Target series: {ctx.series or 'TBD'}",
     ]
 
+    # Surface which upload was actually fetched, built and analysed, and from
+    # which pocket, so the reviewer knows whether a staged -proposed version was
+    # used rather than the release-pocket one.
+    version_line = _build_analysed_version_line(ctx)
+    if version_line:
+        lines.append(version_line)
+
     # Binary package overview — helps the reviewer see scope at a glance.
     # Data comes from dep-analysis (all binaries) and component-mismatches
     # (which are already in main vs. need promotion).  Both are best-effort;
@@ -157,6 +164,24 @@ def _build_review_draft(ctx) -> str:
         lines.append("")  # blank line between sections
 
     return "\n".join(lines)
+
+
+def _build_analysed_version_line(ctx) -> str:
+    """Return the 'Analysed source version' preamble line, or '' when unknown.
+
+    Reads the version actually unpacked and the pocket it came from
+    (packaging-source), degrading gracefully when the adapter did not run.
+    """
+    packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
+    if not isinstance(packaging, dict):
+        return ""
+    version = str(packaging.get("analyzed_version", "") or "").strip()
+    pocket = str(packaging.get("analyzed_pocket", "") or "").strip()
+    if not version:
+        return ""
+    if pocket:
+        return f"Analysed source version: {version} ({pocket} pocket)"
+    return f"Analysed source version: {version}"
 
 
 def _build_binary_package_header(ctx) -> list[str]:

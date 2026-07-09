@@ -302,6 +302,8 @@ class PackagingSourceResult(TypedDict):
     status: str
     source_dir: str
     source_workdir: str
+    analyzed_version: str
+    analyzed_pocket: str
     debian_control: str
     debian_watch: str
     debian_rules: str
