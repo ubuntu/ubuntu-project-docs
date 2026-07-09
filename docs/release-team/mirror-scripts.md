@@ -38,7 +38,7 @@ the `Packages.gz` files, it's safe to delete old packages.
 
 
 ```none
-#/bin/dash
+#!/bin/dash
 
 fatal() {
   echo "$1"
@@ -83,7 +83,7 @@ dependencies between files, so you can just `rsync`.
 
 
 ```none
-#/bin/dash
+#!/bin/dash
 
 fatal() {
   echo "$1"
