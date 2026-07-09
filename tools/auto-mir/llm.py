@@ -67,6 +67,15 @@ class LLMContentError(LLMError):
     """
 
 
+class LLMEnvelopeError(LLMError):
+    """Raised when the HTTP response body is not valid JSON (transient).
+
+    A malformed/partial chat-completions envelope is usually a transient
+    provider hiccup rather than a permanent error, so call_llm() retries once
+    with a larger budget and a stricter "return only JSON" instruction.
+    """
+
+
 # Hard cap on response tokens — JSON responses for MIR checks are compact, but
 # the configured default models (z-ai/glm-4.7, z-ai/glm-5.2) are reasoning
 # models whose internal reasoning tokens count against this budget. A budget
@@ -127,23 +136,37 @@ def call_llm(prompt: str, ctx, model_tier: str = "small", trace_label: str = "")
     Raises:
         LLMError: on auth failure, HTTP error, or invalid JSON in response.
 
-    On a truncated (finish_reason=length) or null/invalid-content response the
-    call is retried once with a larger token budget before giving up.
+    On a truncated (finish_reason=length), null/invalid-content, or malformed
+    HTTP-envelope response the call is retried once with a larger token budget
+    and a stricter "return only JSON" instruction before giving up.
     """
     base_budget = _max_tokens_for_tier(model_tier)
     try:
         return _invoke_with_budget(prompt, ctx, model_tier, base_budget, trace_label)
-    except (LLMTruncationError, LLMContentError) as exc:
+    except (LLMTruncationError, LLMContentError, LLMEnvelopeError) as exc:
         retry_budget = min(base_budget * 2, _MAX_TOKENS_HARD_CAP)
-        if retry_budget <= base_budget:
-            raise
+        # Content/envelope parse failures are often the model wrapping the JSON
+        # in prose or emitting a malformed object; re-instruct strict JSON on the
+        # retry. Truncation benefits from the larger budget. When the budget is
+        # already at the ceiling we still retry once with the stricter prompt.
+        retry_prompt = prompt + _JSON_RETRY_INSTRUCTION
         log.warning(
-            "LLM response problem for %s (%s); retrying once with max_tokens=%d",
+            "LLM response problem for %s (%s); retrying once with max_tokens=%d and a "
+            "strict-JSON instruction",
             trace_label or model_tier,
             exc,
             retry_budget,
         )
-        return _invoke_with_budget(prompt, ctx, model_tier, retry_budget, trace_label)
+        return _invoke_with_budget(retry_prompt, ctx, model_tier, retry_budget, trace_label)
+
+
+# Appended to the prompt on the one-shot retry when the first response could not
+# be parsed as JSON, to steer the model back to a single valid JSON object.
+_JSON_RETRY_INSTRUCTION = (
+    "\n\nIMPORTANT: Your previous response could not be parsed as JSON. Reply with "
+    "ONLY a single valid JSON object matching the schema described above — no prose, "
+    "no explanation, and no markdown code fences."
+)
 
 
 def _invoke_with_budget(
@@ -444,7 +467,7 @@ def _parse_envelope(raw_response: str) -> dict[str, Any]:
     try:
         return json.loads(raw_response)
     except json.JSONDecodeError as exc:
-        raise LLMError(f"LLM API response is not valid JSON: {exc}") from exc
+        raise LLMEnvelopeError(f"LLM API response is not valid JSON: {exc}") from exc
 
 
 def _get_message(envelope: dict[str, Any]) -> dict[str, Any]:

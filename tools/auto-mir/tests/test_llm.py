@@ -218,6 +218,37 @@ def test_call_llm_retries_once_with_larger_budget(monkeypatch):
     ]
 
 
+def test_call_llm_retries_on_invalid_envelope_and_reinstructs_json(monkeypatch):
+    """A malformed HTTP envelope is transient: retry once with a strict-JSON prompt."""
+    ctx = SimpleNamespace(llm_model_small=None, llm_model_large=None)
+    prompts = []
+
+    def fake_call(prompt, ctx_arg, model_tier, max_tokens):
+        prompts.append(prompt)
+        if len(prompts) == 1:
+            raise llm.LLMEnvelopeError("LLM API response is not valid JSON: Expecting value")
+        return {"status": "ok"}, {"reasoning": "", "finish_reason": "stop"}
+
+    monkeypatch.setattr(llm, "_call_openai_compatible", fake_call)
+
+    result = llm.call_llm("original prompt", ctx, model_tier="small", trace_label="RDO-1")
+
+    assert result == {"status": "ok"}
+    assert len(prompts) == 2
+    # First attempt uses the bare prompt; the retry appends the strict-JSON steer.
+    assert prompts[0] == "original prompt"
+    assert "ONLY a single valid JSON object" in prompts[1]
+
+
+def test_parse_envelope_raises_retryable_error_on_invalid_json():
+    import pytest
+
+    with pytest.raises(llm.LLMEnvelopeError):
+        llm._parse_envelope("this is not json")
+    # It remains an LLMError subclass so existing callers still catch it.
+    assert issubclass(llm.LLMEnvelopeError, llm.LLMError)
+
+
 def test_call_llm_records_reasoning_trace(monkeypatch):
     ctx = SimpleNamespace(llm_model_small=None, llm_model_large=None)
 
