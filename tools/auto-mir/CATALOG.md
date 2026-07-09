@@ -59,6 +59,7 @@ order** (enforced by hand; keep new checks consistent):
     not_ok_todo: 'TODO: Clarify which source package this review is for'
   todo_refs:                   # canonical TODO lines used by the doc renderer
   - 'TODO: Review for Source Package: TBDSRC'
+  negated_statement: does FTBFS currently   # optional — problem phrasing (see below)
   options:                     # Summary-only: enumerated reviewer decision options
   - id: SUM-5-A
     todo_ref: 'TODO-A: MIR team ACK'
@@ -74,6 +75,14 @@ order** (enforced by hand; keep new checks consistent):
 - `options` is consumed at runtime only as a presence flag for `Summary` checks
   (`checks/llm_eval.py`); its inner fields (`id`/`predicate`/`render`/`todo_ref`)
   are human documentation of the decision options. Keep the list non-empty.
+- `negated_statement` is the reviewer phrasing used when a one-dimensional check
+  becomes a confirmed **problem**. Most template statements are written to pass
+  ("does not FTBFS currently"); when the check fails, the renderer needs the
+  inverted statement ("does FTBFS currently") for the Problems section and the
+  Summary TODO. It is stored explicitly (never rewritten on the fly) and
+  validated to be a non-empty string. Only add it to single-statement checks
+  that can fail; option checks (TODO-A/B/...) do not need it because the reviewer
+  selects the applicable option instead.
 - `ai_policy` is the per-check text spliced into the shared AI prompt
   (`prompts/ev_to_ai.md`) as `{{policy_excerpt}}`. Use `none` for deterministic
   checks.

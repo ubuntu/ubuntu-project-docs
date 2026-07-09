@@ -540,3 +540,52 @@ Promotion: no (implementation detail; the durable rules are captured per-check a
   only compiler/linker/build-tool diagnostics and skips per-test runner output
   (ctest "N: " prefixed lines), so a decoder emitting "ERROR ... Failed to parse"
   while decoding a fixture is no longer mistaken for a build error. (further consideration, included)
+
+## 2026-07-09 — libgav1 (bug 2158712) feedback round 3
+
+- **Three-path outcome model (feedback #2/#3/#4/#5)**: every finding is now
+  classified as `ok`, `problem`, or `undecided` by `render.finding_outcome_class`.
+  A `problem` is a deterministic not-ok OR an AI not-ok reported with high
+  confidence; it renders in Problems and is surfaced as a Summary Required/
+  Recommended TODO. Everything else that is not-ok/unknown is `undecided` and
+  renders ONLY in the section's "Left to decide" — it is no longer duplicated
+  into the Summary TODOs (the previous `_collect_todos_by_severity` pulled any
+  not-ok finding regardless of confidence).
+- **Rationale is a first-class field**: `Finding.rationale` holds the evidence/
+  reasoning separately from the reviewer statement. The renderer composes it as
+  an indented parenthetical for all three paths, so ok/problem/undecided lines
+  all carry the "why". Undecided lines keep the original template statement and
+  append "(Can't decide: …)".
+- **Negation stored, not rewritten (feedback #5)**: single-dimensional checks
+  carry an explicit `negated_statement` in the catalog (e.g. CB-1
+  "does FTBFS currently"). The renderer uses it for problems; option checks need
+  none. Validated non-empty by `catalog.py`.
+- **AI confidence cap relaxed (Option A)**: `_apply_llm_response` no longer caps
+  AI confidence at medium, so a clear-cut model verdict can raise a Problem/TODO.
+  Human confirmation is still always required. The ev_to_ai prompt/policies
+  reserve "high" for decisive cases.
+- **Analyse the -proposed source (feedback #7)**: `--source-pocket
+  {auto,release,proposed}` (default auto). The container enables
+  `<codename>-proposed`; packaging-source (now depending on lp-package-api) pins
+  the published -proposed version via `apt-get source pkg=<version>` and records
+  the analysed version+pocket (shown in the draft preamble); sbuild adds
+  -proposed as an `--extra-repository`. Auto falls back to release when no
+  -proposed version exists.
+- **CB-3 autopkgtest authority (feedback #1)**: the autopkgtest DB pass/fail
+  state is authoritative for whether tests run and pass; debian/tests/control
+  (now visible via -proposed) confirms declaration and non-triviality. The tool
+  must never report a missing test suite while the DB shows passing tests.
+- **PRF-2 symbols by shared library, not language (feedback #8)**: the presence
+  of a `.so` — not the language — governs whether symbols tracking is required.
+  `.symbols` is authoritative and checked first; the python/go/rust
+  short-circuit was removed; `_is_python_package` was tightened to require a real
+  Python packaging signal rather than any stray `.py`.
+- **dup-search adapter (feedback #6)**: a best-effort, suggestion-only adapter
+  derives functional search terms from the package description (LLM), probes the
+  archive with `apt-cache search`, excludes own binaries, and tags candidates
+  with their component. RDO-1 consumes it and, on LLM failure, still surfaces the
+  candidates as a fallback rationale.
+- **LLM JSON-retry robustness (consideration #1)**: a malformed HTTP envelope now
+  raises the retryable `LLMEnvelopeError`, and the one-shot retry appends a
+  strict "reply with ONLY valid JSON" instruction rather than only enlarging the
+  token budget.

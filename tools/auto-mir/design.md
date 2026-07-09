@@ -100,7 +100,8 @@ one documentation-only exception):
 - `evidence_adapters[]` — id, type, description, and dependency wiring
 - `checks[]` — id, section, title, mode, language_gate, blocker_class,
   synthesis, aggregate_todo, security_trigger, adapters_required,
-  adapters_optional, messages, todo_refs, options, ai_policy, notes
+  adapters_optional, messages, todo_refs, negated_statement, options,
+  ai_policy, notes
 - `security_triggers[]` — id, linked checks, and intended cross-cutting actions
 
 ### Message Template Source of Truth
@@ -149,6 +150,31 @@ one documentation-only exception):
 - Check evaluation exposes pass-1 `Finding`s on `ctx.findings` incrementally, so
   a later non-synthesis check can consult an earlier one's verdict (e.g. CB-5
   gates on CB-4).
+
+### Source pocket selection
+
+- `--source-pocket {auto,release,proposed}` (default `auto`, on `RunContext`)
+  chooses which upload is fetched, built and analysed. `auto` prefers the
+  published `-proposed` version when one exists (MIR maintainers often stage
+  test/lintian/packaging fixes there) and falls back to the release pocket.
+- The container enables `<codename>-proposed` (deb + deb-src, derived from the
+  primary `ubuntu.sources` stanza) unless the release pocket was pinned;
+  `packaging-source` (which now depends on `lp-package-api`) pins the resolved
+  version via `apt-get source pkg=<version>` and records the analysed version
+  and pocket, which the draft preamble reports; `sbuild` adds `-proposed` as an
+  `--extra-repository` when the analysed source came from proposed.
+
+### Reviewer-facing outcome model
+
+- The renderer classifies each `Finding` as `ok`, `problem`, or `undecided`
+  (`render.finding_outcome_class`). A `problem` (a deterministic not-ok, or an AI
+  not-ok reported with high confidence) renders under `Problems:` and as a
+  consolidated `[Summary]` Required/Recommended TODO, phrased with the catalog
+  `negated_statement`. An `undecided` item renders ONLY in the section's
+  `Left to decide:` and is never duplicated into the Summary. `Finding.rationale`
+  carries the evidence and is composed as an indented parenthetical for every
+  path (undecided lines keep the affirmative statement and add
+  "(Can't decide: …)").
 
 ### Finding Model (per check result)
 
