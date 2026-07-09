@@ -3,6 +3,9 @@
 
 The easiest way to build a package is to let Launchpad do it. {term}`Personal Package Archives (PPAs) <ppa>` are encapsulated build spaces in Launchpad that are owned and controlled by you. Packages you sign and upload to a PPA are built with the same machinery as official Ubuntu packages, so they're also a great way to verify your work before formally submitting it to Ubuntu.
 
+For a general overview of PPAs, see the
+{external:ref}`Launchpad PPA documentation <personal-package-archive>`.
+
 See also {ref}`how-to-build-packages-locally`.
 
 
@@ -21,17 +24,18 @@ The downsides to PPAs are:
 
 ### Set the version string
 
-For the PPA, we should change the version in the changelog to one that's lower
-than the official version we plan to release. For example:
+PPAs require version strings that don't conflict with existing official versions.
+The tilde `~` character sorts lower than everything else in Launchpad, so you
+can append `~<string>1` to the version string in `debian/changelog` to create
+a PPA-specific version. For full details on version string semantics, see
+{ref}`version-strings`.
+
+For example:
 
 ```diff
 -postfix (3.3.0-1ubuntu0.1) bionic; urgency=medium
 +postfix (3.3.0-1ubuntu0.1~bionic1) bionic; urgency=medium
 ```
-
-Since the tilde `~` character sorts lower than everything else in Launchpad, we
-can append `~<string>1` to the version string in `debian/changelog`. See more
-details about the sorting algorithm here: {manpage}`deb-version(7)`
 
 Having a numeric digit in this suffix is important because once Launchpad has
 accepted your upload, it won't accept another one with the same version number
@@ -47,13 +51,6 @@ you're doing an MRE, or an SRU that has the same official version in multiple
 Ubuntu releases), using the codename ensures each has a unique version (for
 Launchpad) while also indicating which package to use for which Ubuntu release
 (for users).
-
-As an aside, you'll sometimes run across the suffix style `"~18.04.1"` which is
-adopted for reasons similar to the codename, and tends to be a preferred choice
-in semi-official PPAs such as ones used for official customer deliveries or
-formally maintained backports to the wider user base. To avoid confusion, the
-`'~<codename>N'` style may be better for the one-off testing-oriented PPAs
-being discussed here.
 
 
 ### Modify the version for PPA
@@ -75,16 +72,11 @@ $ dpkg-buildpackage -S -I -i -nc -d
 
 ### Create the PPA archive
 
-First, install `ppa-dev-tools` from the snap store:
+To create and manage PPAs, use the `ppa-dev-tools` snap. For full details, see
+{ref}`how-to-upload-packages-to-a-ppa`.
 
 ```none
 $ sudo snap install ppa-dev-tools
-```
-
-Next, follow the directions in `INSTALL.md` to install prerequisites and to install
-the tool. Then, to use it:
-
-```none
 $ ppa create <ppa-name>
 ```
 
@@ -108,28 +100,10 @@ Many of us even keep the associated git-ubuntu branch names consistent with the 
 So for example, you might have PPAs named `apache2-sru-lp12345678`, `clamav-fix-lp1920217`, and `clamav-fix-lp1920217-alternative`.
 
 
-### (Optional) Create the PPA archive via web
-
-Alternatively, you can create PPAs directly via Launchpad's web interface.
-
-Go to your Launchpad page (`https://launchpad.net/~your-username`) and click
-"Create a new PPA". Give it a name such that you'll remember what it's about
-in a few months' time. A useful form is `package-type-lpbug-description`:
-
-For example:
-
-* **URL:** `postfix-sru-lp1753470-segfault`
-* **Display name:** `postfix-fix-lp1753470-segfault`
-* **Description:** `(leave it empty)`
-
-Now click "Activate".
-
-It is also helpful to enable all architectures to ensure no build regressions
-were introduced. Do so by clicking on `Change Details` in the newly-created
-PPA page, and then selecting the other architectures.
-
-
 ### Upload the source package
+
+For comprehensive instructions on uploading to a PPA, see the
+{external:ref}`Launchpad documentation on uploading to a PPA <upload-a-package-to-a-ppa>`.
 
 ```none
 $ dput ppa:kstenerud/postfix-sru-lp1753470-segfault ../postfix_3.3.0-1ubuntu0.1~bionic1_source.changes

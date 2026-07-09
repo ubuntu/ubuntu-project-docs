@@ -1,6 +1,11 @@
 (dmb-joining-ppu)=
 # Per-Package Uploaders
 
+```{include} ../_dmb-series.md
+```
+
+
+
 Per-Package Uploaders are developers with a specialization in a specific package (or packages) in Ubuntu.
 They are granted direct upload to the Ubuntu Archive for those packages.
 
@@ -31,6 +36,15 @@ They also need to have documented previous concern for the packages in question 
 
 There is a slightly special procedure for Debian Developers wishing to have upload rights to their packages. See {ref}`application process <dmb-application>`.
 
+## Scope and definition
+
+It is easy to mix up {ref}`dmb-joining-ppu` and {ref}`dmb-joining-packageset`, here a clarification:
+
+* Per-package-upload rights are defined per person.
+* Applicants prove to be able to handle the requested package(s).
+* Adding packages is essentially another Per Package uploader application.
+* Existing individual upload rights can be [seen here](https://static-reports.ubuntu.com/archive-permissions/individuals).
+* relation: `developer` *-is-uploader-of->* `packages`.
 
 ## Voting
 

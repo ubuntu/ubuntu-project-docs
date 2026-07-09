@@ -34,8 +34,8 @@ For the test in ``debian/tests/build`` this would ensure that the packages
         question.
 
 
-The actual tests
-----------------
+An actual test
+--------------
 
 The accompanying test for the example above might be:
 
@@ -80,8 +80,8 @@ pkg-config files, headers and libraries are put into the right place, or that
 the compiler and linker work. This helps to uncover critical issues early on.
 
 
-Executing the test
-------------------
+Executing your tests
+--------------------
 
 While the test script can be easily executed on its own, it is strongly
 recommended to actually use ``autopkgtest`` from the ``autopkgtest`` package for
@@ -90,38 +90,50 @@ Integration (CI) system, it will not land in Ubuntu.  This also avoids clutterin
 your workstation with test packages or test configuration if the test does
 something more intrusive than the simple example above.
 
+For the purposes of this tutorial, we download ``libxml2`` from the Noble series::
+
+        sudo apt install ubuntu-dev-tools
+        pull-lp-source libxml2 noble
+
+Among other things, you should see a new ``libxml2-2.9.14+dfsg`` directory with the
+extracted source code.
+
 The `README.running-tests <running_tests_>`_ documentation explains all
 available testbeds (schroot, LXD, QEMU, etc.) and the most common scenarios how
-to run your tests with ``autopkgtest``, e. g. with locally built binaries, locally
+to run your tests with ``autopkgtest``, e.g., with locally built binaries, locally
 modified tests, etc.
 
 The Ubuntu CI system uses the QEMU runner and runs the tests from the packages
 in the archive, with ``-proposed`` enabled. To reproduce the exact same
-environment, first install the necessary packages::
+environment, first install the necessary packages and add your user to the ``kvm``
+group (so that you can run the test commands without ``sudo``)::
 
         sudo apt install autopkgtest qemu-system qemu-utils autodep8
+        sudo usermod -aG kvm $USER
+
+You may need to log in again for the group changes to take effect.
 
 Now build a testbed with::
 
-        autopkgtest-buildvm-ubuntu-cloud -v
+        autopkgtest-buildvm-ubuntu-cloud -v -r noble
 
 (Please see its manpage and ``--help`` output for selecting different releases,
-architectures, output directory, or using proxies). This will build e. g.
-``adt-trusty-amd64-cloud.img``.
+architectures, output directory, or using proxies). This will build e.g.,
+``autopkgtest-noble-amd64.img``.
 
-Then run the tests of a source package like ``libpng`` in that QEMU image::
+Then run the tests for the downloaded ``libxml2`` source package using the created QEMU image::
 
-        autopkgtest libpng -- qemu adt-trusty-amd64-cloud.img
+        autopkgtest ./libxml2-2.9.14+dfsg -- qemu autopkgtest-noble-amd64.img
 
-The Ubuntu CI system runs packages with only selected packages from
+The Ubuntu CI system runs tests with only selected packages from
 ``-proposed`` available (the package which caused the test to be run); to
 enable that, run::
 
-        autopkgtest libpng -U --apt-pocket=proposed=src:foo -- qemu adt-release-amd64-cloud.img
+        autopkgtest somepkg -U --apt-pocket=proposed=src:foo -- qemu autopkgtest-release-amd64.img
 
 or to run with all packages from ``-proposed``::
 
-        autopkgtest libpng -U --apt-pocket=proposed -- qemu adt-release-amd64-cloud.img
+        autopkgtest somepkg -U --apt-pocket=proposed -- qemu autopkgtest-release-amd64.img
 
 The ``autopkgtest`` manpage has a lot more valuable information on other
 testing options.
@@ -150,19 +162,19 @@ Ubuntu infrastructure
 
 Packages which have ``autopkgtest`` enabled will have their tests run whenever
 they get uploaded or any of their dependencies change. The output of
-`automatically run autopkgtest tests <jenkins_>`_ can be viewed on the web and is 
+`automatically run autopkgtest tests <autopkgtest_ubuntu>`_ can be viewed on the web and is
 regularly updated.
 
-Debian also uses ``autopkgtest`` to run package tests, although currently only
-in schroots, so results may vary a bit. Results and logs can be seen on
-https://ci.debian.net/. So please submit any test fixes or new tests to Debian as
-well.
+Debian also uses ``autopkgtest`` to run package tests, although results may
+vary a bit due to differences in dependencies between Ubuntu and Debian.
+Results and logs can be seen on https://ci.debian.net/. So please submit any
+test fixes or new tests to Debian as well.
 
 
 Getting the test into Ubuntu
 ----------------------------
 
-The process of submitting an autopkgtest for a package is similar to :ref:`fixing a bug in Ubuntu <how-to-fix-a-bug-in-a-package>`:
+The process of submitting an autopkgtest for a package is described in :ref:`How to run package tests <how-to-run-package-tests>`:
 
 #. Run ``git ubuntu clone <packagename>``,
 #. Edit ``debian/control`` to enable the tests,
@@ -183,14 +195,13 @@ For help with resolving problems, join the :matrix:`devel` Matrix channel to get
 Further reading
 ---------------
 
-* `Autopkgtest - Defining tests for Debian packages <https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.package-tests.rst>`_
+* `Autopkgtest - Defining tests for Debian packages <autopkgtest_>`_
 
-.. wokeignore:rule=master
 .. _libxml2: https://git.launchpad.net/ubuntu/+source/libxml2/tree/debian/tests
 .. _gvfs: https://git.launchpad.net/ubuntu/+source/gvfs/tree/debian/tests
 .. _gtk3: https://git.launchpad.net/ubuntu/+source/gtk+3.0/tree/debian/tests
 .. _ubiquity: https://git.launchpad.net/ubiquity/tree/debian/tests
-.. _jenkins: https://autopkgtest.ubuntu.com/
-.. wokeignore:rule=master
+.. _autopkgtest_ubuntu: https://autopkgtest.ubuntu.com/
 .. _running_tests: https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.running-tests.rst
 .. _requiredtests: https://wiki.ubuntu.com/QATeam/RequiredTests
+.. _autopkgtest: https://salsa.debian.org/ci-team/autopkgtest/blob/master/doc/README.package-tests.rst

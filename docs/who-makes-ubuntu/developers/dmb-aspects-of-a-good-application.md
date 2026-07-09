@@ -1,6 +1,11 @@
 (dmb-aspects-of-a-good-application)=
 # Aspects of a good DMB application
 
+```{include} ../_dmb-series.md
+```
+
+
+
 Since every applicant is unique, what makes a "good" DMB application can be flexible. No two applications are ever exactly the same, and everyone has a different position to some extent.
 
 If you need different considerations for some reason, make sure to explain this in your application and we are happy to consider it.

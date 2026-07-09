@@ -610,45 +610,31 @@ tzdata
 ~~~~~~
 
 The tzdata package is updated to reflect changes in timezones or
-daylight saving policies. The verification is done with the "zdump"
-utility. The first timezone that gets changed in the updated package is
-dumped with "zdump -v $region/$timezone_that_changed" (you can find the
-region and timezone name by grep'ing for it in /usr/share/zoneinfo/).
-This is compared to the same output after the updated package was
-installed. If those are different the verification is considered done.
+daylight saving policies. The verification is done by adding a test case to
+`debian/tests/python`. One timezone that gets changed in the updated package
+is checked via the added test case. If the package builds (with running the
+tests) and the autopkgtest are green the verification is considered done.
 
-+---------------+-----------+-----------+-----------+-------+-------+
-| Feature       | 16.04 LTS | 18.04 LTS | 20.04 LTS | 21.04 | 21.10 |
-+===============+===========+===========+===========+=======+=======+
-| icu-data      | No        | No        | Yes       | Yes   | Yes   |
-+---------------+-----------+-----------+-----------+-------+-------+
-| SystemV tzs   | Yes       | Yes       | Yes       | No    | No    |
-+---------------+-----------+-----------+-----------+-------+-------+
++---------------+-----------+-----------+-----------+---------------------+
+| Feature       | 16.04 LTS | 18.04 LTS | 20.04 LTS | 22.04 LTS and later |
++===============+===========+===========+===========+=====================+
+| icu-data      | No        | No        | Yes       | Yes                 |
++---------------+-----------+-----------+-----------+---------------------+
+| SystemV tzs   | Yes       | Yes       | Yes       | No                  |
++---------------+-----------+-----------+-----------+---------------------+
 
 The version of tzdata in Ubuntu 20.04 LTS and later includes icu-data
 (see the update-icu rule in debian/rules) and the verification of it can
-be done after installing the **python3-icu** package. There can be a
+be done by adding a test case to `debian/tests/python-icu` (similar to the
+one in `debian/tests/python`). There can be a
 slight lag between the tzdata release and the matching icu-data release,
 we usually wait for the latter to be released before uploading the
 update.
 
-::
-
-   python3 -c "from datetime import datetime; from icu import ICUtzinfo, TimeZone; tz = ICUtzinfo(TimeZone.createTimeZone('Pacific/Fiji')); print(str(tz.utcoffset(datetime(2020, 11, 10))))"
-
-In the above we are checking a timezone with a change, "Pacific/Fiji",
-and a date that falls with in the changing period. We expect the output
-to be different before (13:00:00) and after (12:00:00) the SRU is
-installed.
-
 The version of tzdata in Ubuntu 20.10 removed supported for SystemV
 timezones, however SRUs of tzdata to Ubuntu 20.04 LTS and earlier
-releases should still include the SystemV timezones. To test that they
-are still available confirm the following command returns nothing.
-
-::
-
-   diff <(zdump -v America/Phoenix | cut -d' ' -f2-) <(zdump -v SystemV/MST7 | cut -d' ' -f2-)
+releases should still include the SystemV timezones. This is tested
+by `test_systemv_timezones` in `debian/tests/python`.
 
 Because tzdata's packaging has changed subtly from release to release,
 rather than just backporting the most recent release's source package,
@@ -709,9 +695,10 @@ be taken to not leave the kernel with a mismatched firmware package.
 
 However, it is a very large package (over 500MiB in size), and making it
 instantly available in the -security pocket to all Ubuntu users in the world
-via unattended-upgrades causes a lot of strain on the archive network
-and servers. The kernel team is working on that, but until then we need to
-mitigate the impact to all users.
+via unattended-upgrades causes a lot of strain on the archive network and
+servers. Ubuntu 26.04 LTS has split the linux-firmware package into multiple
+smaller packages, but for older releases we need to mitigate the impact to all
+users.
 
 Therefore, for now, once the verification is done and linux-firmware is ready
 to be (SRU) released we have to stagger the release to spread the load.
@@ -719,11 +706,15 @@ to be (SRU) released we have to stagger the release to spread the load.
 * First it should be released to the updates pocket - allowing mirrors to sync
   it and anyone running explicit updates to pick it up.
 
-* Then after phasing has completed, it must be copied to the -security pocket
-  by either an archive admin, or a security team member. That copy should also
-  be spread out over releases. The suggested delay in-between is 4 days,
-  which combined with the "avoid Friday" rule suggests Mon,Thu,Mon,... until
-  all are fully released.
+* After the phasing has completed and we are ready to copy it to the security
+  pocket, first we need to notify Canonical IS, so that they can put mitigation
+  measures in place and prepare for the increased load on the archive.
+
+* After Canonical IS has given the go-ahead, the linux-firmware packages must
+  be copied to the security pocket by either an archive admin, or a security
+  team member. That copy should also be spread out over Ubuntu releases, one at
+  a time. The suggested delay in-between is 4 days, which combined with the
+  "avoid Friday" rule suggests Mon,Thu,Mon,... until all are fully released.
 
 Note that this release process described above only applies to SRUs. Actual
 security updates to this package are not handled through the SRU process
@@ -755,3 +746,4 @@ Toolchains:
 
 * Java: `Java updates PPA <https://launchpad.net/~openjdk-r/+archive/ubuntu/ppa>`__
 * Go: `Go updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/golang>`__
+* Python: `Python updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/python>`__

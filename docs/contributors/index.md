@@ -1,9 +1,15 @@
-(how-to-contribute)=
-# Contributing to Ubuntu Development
+(guides-for-contributors)=
+# Guides for contributors
+
+These guides help you with the specific tasks and processes that build Ubuntu.
+
+
+## Contributing to Ubuntu Development
 
 Contributing to Ubuntu can mean many things, from {ref}`developing new applications <contribute-to-app-development>` to {ref}`reporting <how-to-report-a-bug>`, {ref}`triaging <triaging-bugs>`, and {ref}`fixing bugs <fixing-bugs>`, and many more development tasks. 
 
-## Getting Started with Ubuntu Development
+
+### Getting Started with Ubuntu Development
 
 A great place to start working on Ubuntu is through {ref}`reporting a bug <how-to-report-a-bug>`. Being active on the bug discussion after posting is important as developers and other community members may ask follow up questions or ask for additional log information.
 
@@ -11,9 +17,7 @@ A great place to start working on Ubuntu is through {ref}`reporting a bug <how-t
 
 {ref}`Fixing bugs <fixing-bugs>` is a more advanced task that requires greater knowledge of `git` and {ref}`patching workflows <patching>`. If you're feeling more comfortable in your skills as a software developer then finding upstream fixes, applying them to existing packages, and contributing to upstream projects to fix issues is of great help to Ubuntu.
 
-# Guides for contributors
-
-These guides help you with the specific tasks and processes that build Ubuntu.
+---
 
 
 ## Setting up for distro work
@@ -61,7 +65,7 @@ debugging/index
 
 ## Bug fixing
 
-Pages on finding fixes upstream, building locally or in a PPA, and running package tests.
+Pages on finding fixes upstream and applying patches.
 
 ```{toctree}
 :maxdepth: 1
@@ -70,14 +74,25 @@ bug-fix/index
 ```
 
 
-## Patching
+## Building
+
+How to build packages locally or in a PPA, install built packages, and run package tests.
+
+```{toctree}
+:maxdepth: 1
+
+building/index
+```
+
+
+## Updating
 
 Specific pages on working with Debian patches.
 
 ```{toctree}
 :maxdepth: 1
 
-patching/index
+updating/index
 ```
 
 

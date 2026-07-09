@@ -26,7 +26,7 @@ repositories of Ubuntu packages in Launchpad.
 
 ## CLI
 
-The {command}`git-ubuntu` CLI is installed with `sudo snap install --classic git-ubuntu`. It adds `ubuntu` subcommands to the `git` command. For example: `git ubuntu clone hello`.
+The {command}`git-ubuntu` CLI is installed with `sudo snap install --classic git-ubuntu`. It adds `ubuntu` subcommands to the `git` command. For example: `git ubuntu clone hello`. Installing git-ubuntu does not interfere with your existing `git` installation; it only extends `git` by adding the {command}`git ubuntu` subcommand.
 
 Just like the `git` command itself, most git-ubuntu subcommands expect to be
 running in the context of a git repository.
@@ -135,8 +135,7 @@ it.
 See {ref}`keyring-with-plaintext-storage` for instructions on configuring keyring to use
 plaintext password storage instead, to avoid getting keyring password prompts.
 
-git-ubuntu uses {external:std:ref}`launchpadlib <get-started-with-launchpadlib>` for Launchpad API access. This
-library in turn uses the [Python keyring package](https://pypi.org/project/keyring/) for credential storage. If you see a password prompt, it is because the keyring package's defaults in your particular environment require encrypted password-based credential storage. Configure this to your needs by following the [keyring documentation](https://pypi.org/project/keyring/).
+git-ubuntu uses [`launchpadlib`](https://documentation.ubuntu.com/launchpad/user/tutorial/launchpadlib/) for Launchpad API access. This library in turn uses the [Python keyring package](https://pypi.org/project/keyring/) for credential storage. If you see a password prompt, it is because the keyring package's defaults in your particular environment require encrypted password-based credential storage. Configure this to your needs by following the [keyring documentation](https://pypi.org/project/keyring/).
 
 
 ## Further reading

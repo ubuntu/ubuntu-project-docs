@@ -1,15 +1,15 @@
 .. _reference-exception-NVidiaUpdates:
 
-Nvidia GPU Driver Updates
+NVIDIA GPU Driver Updates
 =========================
 
 Introduction
 ------------
 
 This document describes the policy, process and criteria for updating
-nVidia proprietary drivers in a stable supported distro, including LTS.
+NVIDIA proprietary drivers in a stable supported distro, including LTS.
 
-nVidia proprietary GPU drivers are broadly used by gamers or for GPU
+NVIDIA proprietary GPU drivers are broadly used by gamers or for GPU
 compute activities (AI/ML). Support for new GPUs as well as bug fixes
 are regularly released by the vendor (on average 2 driver updates a
 month). For an improved experience or simply to support new GPUs without
@@ -32,14 +32,14 @@ There are 3 levels of supported drivers:
    series.
 -  **Short lived branch**: As opposed to the long lived branch, this
    series provides introduces new features.
--  **Legacy drivers**: Legacy GPUs are older-generation nVidia GPUs
-   which are no longer supported in the regular nVidia Unified UNIX
+-  **Legacy drivers**: Legacy GPUs are older-generation NVIDIA GPUs
+   which are no longer supported in the regular NVIDIA Unified UNIX
    Graphics Driver. Instead, these GPUs will continue to be supported
    through special "Legacy GPU" drivers that will be updated
    periodically to add support for new versions of Linux system
    components (e.g., new Linux kernels, new versions of the X server,
    etc). Support timeframe for legacy drivers is documented on `the
-   official nVidia site support
+   official NVIDIA site support
    page <https://nvidia.custhelp.com/app/answers/detail/a_id/3142>`__
 
 The release targeted by the SRU are:
@@ -98,7 +98,7 @@ Release Schedule
                -  **Week 8**: Promotion to the -updates pocket.
 
 
-NVidia Requesting the SRU
+NVIDIA Requesting the SRU
 -------------------------
 
 The SRU should be done with a single process bug, instead of individual
@@ -126,12 +126,12 @@ following:
 -  Any packaging changes (e.g. a dependency change) need to be stated
 
 
-NVidia QA Process
+NVIDIA QA Process
 -----------------
 
 
-NVidia Packaging QA
--------------------
+NVIDIA Packaging QA
+~~~~~~~~~~~~~~~~~~~
 
 The objective of the separate packaging QA is to test:
 
@@ -165,18 +165,15 @@ pass the following additional QA procedures:
 .. _qa_tests:
 
 QA tests
---------
+~~~~~~~~
 
 -  `Certification test
    suite <https://git.launchpad.net/plainbox-provider-sru/tree/units/sru.pxu>`__
    must pass on a range of hardware.
--  Call for testing is sent to the community via the `community
-   hub <https://discourse.ubuntu.com/>`__ as soon as the drivers are
-   available in the staging PPA.
 
 
-NVidia SRU Template
--------------------
+NVIDIA SRU Template
+~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -195,7 +192,7 @@ NVidia SRU Template
 
    <TODO Document any QA done, automated and manual>
 
-   The QA team that executed the tests will be in charge of attaching the artifacts and console output of the appropriate run to the bug. nVidia maintainers team members will not mark ‘verification-done’ until this has happened.
+   The QA team that executed the tests will be in charge of attaching the artifacts and console output of the appropriate run to the bug. NVIDIA maintainers team members will not mark ‘verification-done’ until this has happened.
 
    [Regression Potential]
    In order to mitigate the regression potential, the results of the
@@ -208,7 +205,7 @@ NVidia SRU Template
    <TODO: other background>
 
 
-   <TODO: Paste in change log entry from nVidia for this version of the driver>
+   <TODO: Paste in change log entry from NVIDIA for this version of the driver>
 
 .. _additional_notes:
 
@@ -218,17 +215,17 @@ Additional notes
 .. _driver_upgrades:
 
 Driver Upgrades
----------------
+~~~~~~~~~~~~~~~
 
-If an nVidia driver is updated then all nVidia user space components
+If an NVIDIA driver is updated then all NVIDIA user space components
 will stop working immediately after the respective package updates as
 the loaded kernel module and the user space components have a version
 mismatch. The consequences are not immediately visible to the user as
-nVidia components in memory are still properly matched and hence still
+NVIDIA components in memory are still properly matched and hence still
 work. The real issue is with new processes as for an instance no OpenGL
 applications or CUDA workloads can be launched anymore.
 
-The way to fix this is to reboot immediately after an nVidia driver has
+The way to fix this is to reboot immediately after an NVIDIA driver has
 been updated, including for minor version updates.
 
 This particular issue is discussed in `Debian Bug
@@ -237,7 +234,7 @@ This particular issue is discussed in `Debian Bug
 References
 ----------
 
--  `nVidia Unix Drivers
+-  `NVIDIA Unix Drivers
    Archive <https://www.nvidia.com/en-us/drivers/unix/>`__
 -  `Full
    history <https://download.nvidia.com/XFree86/Linux-x86_64/>`__
@@ -246,5 +243,3 @@ References
    drivers <https://nvidia.custhelp.com/app/answers/detail/a_id/3142>`__
 -  `What is a legacy
    GPU <https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/>`__
--  `nVidia drivers staging
-   PPA <https://launchpad.net/~canonical-hwe-team/+archive/ubuntu/intermediate-kernel>`__

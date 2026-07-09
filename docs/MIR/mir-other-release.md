@@ -1,6 +1,13 @@
 (mir-other-release)=
 # MIR - promoting in other releases
 
+```{include} _mir-series.md
+```
+
+
+
+
+
 A common case is the need to promote something while it is already in main in
 another release. Examples:
 

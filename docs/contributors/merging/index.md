@@ -15,7 +15,6 @@ Merge manually <merge-manually>
 merge-cheat-sheet
 ```
 
-Merging is the process of taking all Ubuntu changes ({term}`Ubuntu delta`) made on top of one Debian version of a package and re-doing them on top of a new Debian version of the package. See {ref}`merges-syncs` for more context information.
 
 :::{admonition} **Merging** series
 The article series provides guidance on performing package merges.
@@ -43,34 +42,17 @@ Extra:
 
 ## Overview
 
-Merging is done using the {command}`git-ubuntu` tool. As such, the process in many ways follows that of a {command}`git rebase` where commits from one point are replayed on top of another point:
+**Merging** (also called "delta rebasing") is the process of taking all Ubuntu changes ({term}`Ubuntu delta`) made on top of one Debian version of a package and re-doing them on top of a new Debian version of the package. See {ref}`merges-syncs` for more context information.
 
-<!--
-```{mermaid}
-   :caption: `git-ubuntu` process overview
-   :alt: git-ubuntu process overview
-   :zoom:
+This is not to be confused with a **git merge**, wherein two diverging branches are reconciled together. The Ubuntu merge process (counter-intuitively) does not directly involve a git merge. 
 
-gitGraph
-   commit id: "something 1.2"
-   branch 1.2ubuntu
-   checkout 1.2ubuntu
-   commit id: "Ubuntu changes a, b, c on 1.2"
-   commit id: "1.2ubuntu1"
-   checkout main
-   commit id: "something 1.3"
-   branch 1.3ubuntu
-   checkout 1.3ubuntu
-   commit id: "Ubuntu changes a, b, c on 1.3"
-   commit id: "1.3ubuntu1"
+The following diagram compares a standard git merge with an Ubuntu merge:
+
+```{figure} ubuntu_merge_comparison.svg
+:alt: Comparison of a standard git merge with an Ubuntu merge
 ```
--->
 
-```none
---- something 1.2 ----------------------------- something 1.3
-     \                                           \
-      -- Ubuntu changes a, b, c -- 1.2ubuntu1     -- Ubuntu changes a, b, c -- 1.3ubuntu1
-```
+Merging is done using the {command}`git-ubuntu` tool and is quite similar to a standard {command}`git rebase` where commits from one point are replayed on top of another point.
 
 At a more detailed level, there are other sub-tasks to be done, including:
 

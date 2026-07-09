@@ -74,7 +74,7 @@ copyright = "%s CC-BY-SA, %s" % (datetime.date.today().year, author)
 # NOTE: The Open Graph Protocol (OGP) enhances page display in a social graph
 #       and is used by social media platforms; see https://ogp.me/
 
-ogp_site_url = "https://documentation.ubuntu.com/project/"
+ogp_site_url = f"https://ubuntu.com/project/docs/"
 
 
 # Preview name of the documentation website
@@ -158,7 +158,7 @@ html_theme_options = {
 # If your documentation is hosted on https://docs.ubuntu.com/,
 #       uncomment and update as needed.
 
-slug = "project"
+slug = 'project/docs'
 
 
 #######################
@@ -166,7 +166,7 @@ slug = "project"
 #######################
 
 # Use RTD canonical URL to ensure duplicate pages have a specific canonical URL
-html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
+html_baseurl = f"https://ubuntu.com/project/docs/"
 
 # URL scheme.
 sitemap_url_scheme = "{link}"
@@ -182,9 +182,12 @@ sitemap_excludes = [
     "search/",
 ]
 
+sitemap_filename = "doc-sitemap.xml"
+
+
 # Template and asset locations
 html_static_path = [".sphinx/_static"]
-# templates_path = [".sphinx/_static/_templates"]
+templates_path = [".sphinx/_static/_templates"]
 
 
 #############
@@ -292,21 +295,23 @@ extensions = [
     "sphinx_prompt",
     "sphinx.ext.extlinks",
     "sphinx_togglebutton",
-    "sphinx.ext.graphviz",
     "sphinx_llm.txt",
 ]
 
 # Excludes files or directories from processing
 exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common", ".venv"]
 
-
 # Adds custom CSS files, located under 'html_static_path'
-html_css_files = ["custom_styles.css"]
-
+html_css_files = [
+    "custom_styles.css",
+    "https://assets.ubuntu.com/v1/d86746ef-cookie_banner.css",
+]
 
 # Adds custom JavaScript files, located under 'html_static_path'
-# html_js_files = []
-
+html_js_files = [
+    "js/overwrite_links.js",
+    "https://assets.ubuntu.com/v1/287a5e8f-bundle.js",
+]
 
 # Specifies a reST snippet to be appended to each .rst file
 
@@ -338,12 +343,12 @@ stable_distro = "questing"
 manpages_url = (
     "https://manpages.ubuntu.com/manpages/"
     + stable_distro
-    + "/en/man{section}/{page}.{section}.html"
+    + "/man{section}/{page}.{section}.html"
 )
 
 myst_substitutions = {
     "stable_distro": stable_distro,
-    "release_schedule": "https://discourse.ubuntu.com/t/questing-quokka-release-schedule/36462",
+    "release_schedule": "https://documentation.ubuntu.com/release-notes/26.04/schedule/",
 }
 
 # Configure hoverxref options
