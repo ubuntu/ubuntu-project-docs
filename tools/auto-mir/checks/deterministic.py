@@ -756,14 +756,20 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
     if warnings:
         # Genuine toolchain warnings are surfaced for reviewer judgement rather
         # than auto-classified as a confirmed problem: whether they matter is a
-        # human call. Routed to "Left to decide" via the unknown status.
+        # human call. Routed to "Left to decide" via the unknown status. The
+        # TODO keeps the original affirmative template statement so the reviewer
+        # can resolve it in place; the warning detail is carried as the rationale
+        # ("Can't decide: …") so the original statement is not lost.
         sample = "; ".join(warnings[:3])
         finding.fail(
             render_check_message(check, "warnings_message", count=len(warnings), sample=sample),
-            render_check_message(check, "warnings_todo", count=len(warnings), sample=sample),
+            render_check_message(check, "warnings_todo"),
             severity="recommended",
             confidence="medium",
             status="unknown",
+            rationale=render_check_message(
+                check, "warnings_rationale", count=len(warnings), sample=sample
+            ),
         )
         finding.evidence_refs = ["sbuild:build_log"]
         return finding

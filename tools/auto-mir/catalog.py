@@ -246,7 +246,8 @@ _REQUIRED_MESSAGE_TEMPLATES: dict[str, dict[str, set[str]]] = {
         "not_ok_errors_message": {"errors"},
         "not_ok_errors_todo": set(),
         "warnings_message": {"count", "sample"},
-        "warnings_todo": {"count", "sample"},
+        "warnings_todo": set(),
+        "warnings_rationale": {"count", "sample"},
         "ok_message": set(),
     },
     "URF-3": {
@@ -346,6 +347,12 @@ def _validate_check_messages(check: dict, index: int, errors: list[str]) -> None
                         f"Check {check_id}: messages.{msg_key} missing placeholders: "
                         + ", ".join(missing_fields)
                     )
+
+    # A negated_statement (used by the renderer to phrase a confirmed problem,
+    # e.g. "does FTBFS currently") must be a non-empty string when present.
+    negated = check.get("negated_statement")
+    if negated is not None and not (isinstance(negated, str) and negated.strip()):
+        errors.append(f"Check {check_id}: negated_statement must be a non-empty string")
 
 
 def _validate_checks(catalog: dict) -> list[str]:

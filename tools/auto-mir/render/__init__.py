@@ -145,14 +145,15 @@ def _build_review_draft(ctx) -> str:
     # Emit sections in canonical template order, then any remainder
     known = list(_SECTION_ORDER)
     remainder = [s for s in by_section if s not in known]
+    checks_by_id = _checks_by_id(ctx)
     for section in known + remainder:
         if section not in by_section:
             continue
         findings_in_section = by_section[section]
         if section == "Summary":
-            lines += _render_summary_section(findings_in_section, ctx.findings, ctx)
+            lines += _render_summary_section(findings_in_section, ctx.findings, ctx, checks_by_id)
         else:
-            lines += _render_section(section, findings_in_section)
+            lines += _render_section(section, findings_in_section, checks_by_id)
         lines.append("")  # blank line between sections
 
     return "\n".join(lines)
@@ -220,24 +221,125 @@ def _build_out_of_scope_dep_hint(ctx) -> list[str]:
     return []
 
 
-def _is_high_confidence_failure(finding: Finding) -> bool:
-    """Return True when a not-ok finding is deterministic or AI high-confidence.
+def finding_outcome_class(finding: Finding) -> str:
+    """Classify a finding into one of the three reviewer-facing paths.
 
-    Such findings are shown under Problems: rather than Left to decide: so the
-    reviewer can see confirmed issues separately from items needing judgment.
+    Returns one of:
+      - "ok":        the check is satisfied (status == "ok").
+      - "problem":   a confident failure — a deterministic not-ok, or an
+                     AI not-ok the model reported with high confidence. These
+                     are shown under Problems: and surfaced as Required/
+                     Recommended TODOs in the Summary.
+      - "undecided": everything else (unknown status, or an AI failure below
+                     high confidence). These are shown under Left to decide:
+                     only and never duplicated into the Summary TODOs.
     """
-    if finding.status == "unknown":
-        return False
-    return finding.confidence == "high" or finding.mode == "deterministic"
+    if finding.status == "ok":
+        return "ok"
+    if finding.status == "not-ok" and (
+        finding.mode == "deterministic" or finding.confidence == "high"
+    ):
+        return "problem"
+    return "undecided"
 
 
-def _render_section(section: str, findings: list[Finding]) -> list[str]:
+def _is_high_confidence_failure(finding: Finding) -> bool:
+    """Return True when a not-ok finding is a confident (Problems-worthy) failure."""
+    return finding_outcome_class(finding) == "problem"
+
+
+def _checks_by_id(ctx) -> dict[str, dict]:
+    """Return a {check_id: check_definition} map from the run catalog.
+
+    Used by the renderer to look up per-check statement variants (the
+    affirmative template statement and its ``negated_statement``) so problem
+    and undecided lines can be phrased correctly and carry their rationale.
+    """
+    catalog = getattr(ctx, "catalog", None)
+    if not isinstance(catalog, dict):
+        return {}
+    return {c["id"]: c for c in catalog.get("checks", []) if isinstance(c, dict) and c.get("id")}
+
+
+def _affirmative_statement(check: dict | None) -> str | None:
+    """Return the single canonical affirmative statement for a check, or None.
+
+    Applies only to single-statement checks (exactly one non-placeholder
+    todo_ref, no options, not a Summary decision check). Option and Summary
+    checks keep their own message/todo wording.
+    """
+    if not check or check.get("options") or check.get("section") == "Summary":
+        return None
+    todo_refs = [str(x).strip() for x in check.get("todo_refs", []) if str(x).strip()]
+    if len(todo_refs) != 1:
+        return None
+    statement = _strip_todo_prefix(todo_refs[0])
+    if not statement or "TBD" in statement or "<" in statement:
+        return None
+    return statement
+
+
+def _negated_statement(check: dict | None) -> str | None:
+    """Return the catalog-provided negated statement for a check, or None.
+
+    Negation is stored explicitly in the catalog (``negated_statement``) rather
+    than rewritten on the fly, so a problem is phrased as the reviewer expects
+    (e.g. "does FTBFS currently") instead of the pass-oriented template line.
+    """
+    if not check:
+        return None
+    negated = check.get("negated_statement")
+    if isinstance(negated, str) and negated.strip():
+        return negated.strip()
+    return None
+
+
+def _with_rationale(statement: str, rationale: str, *, cant_decide: bool = False) -> str:
+    """Append a rationale as an indented parenthetical continuation line.
+
+    Keeps the statement on its own line and the reasoning/evidence on an
+    indented follow-up line, matching how a human reviewer annotates the draft.
+    """
+    statement = statement.rstrip()
+    rationale = (rationale or "").strip()
+    if not rationale:
+        return statement
+    prefix = "Can't decide: " if cant_decide else ""
+    return f"{statement}\n  ({prefix}{rationale})"
+
+
+def _problem_line(finding: Finding, check: dict | None) -> str:
+    """Compose a Problems: line: the negated statement plus its rationale.
+
+    When the catalog provides a negated statement it is used (with the
+    finding's rationale/evidence in parentheses). Otherwise the finding's own
+    message is used verbatim, since deterministic checks phrase their message
+    as the evidence statement directly.
+    """
+    negated = _negated_statement(check)
+    if negated:
+        return "- " + _with_rationale(negated, finding.rationale or finding.message)
+    rationale = (
+        finding.rationale if finding.rationale and finding.rationale != finding.message else ""
+    )
+    return "- " + _with_rationale(finding.message, rationale)
+
+
+def _ok_line(finding: Finding) -> str:
+    """Compose an OK: line: the affirmative statement plus its rationale."""
+    return "- " + _with_rationale(finding.message, finding.rationale)
+
+
+def _render_section(
+    section: str, findings: list[Finding], checks_by_id: dict[str, dict] | None = None
+) -> list[str]:
     """Render a standard [Section] block with the three-tier structure.
 
     OK:              resolved checks
     Problems:        high-confidence / deterministic failures
     Left to decide:  low/medium-confidence or unresolvable items (as TODO lines)
     """
+    checks_by_id = checks_by_id or {}
     lines: list[str] = [f"[{section}]"]
 
     ok_findings = [f for f in findings if f.status == "ok"]
@@ -245,14 +347,16 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
     problems = [f for f in not_ok if _is_high_confidence_failure(f)]
     undecided = [f for f in not_ok if not _is_high_confidence_failure(f)]
 
-    # OK sub-block — de-duplicate identical messages (e.g. "not a go package" repeated per check)
+    # OK sub-block — de-duplicate identical statements (e.g. "not a go package"
+    # repeated per check). De-dup keys on the statement (message) so findings
+    # that share a statement but differ in rationale still collapse to one line.
     if ok_findings:
         lines.append("OK:")
         seen_msgs: set[str] = set()
         for finding in ok_findings:
             msg = (finding.message or "").strip()
             if msg and msg not in seen_msgs:
-                lines.append(f"- {msg}")
+                lines.append(_ok_line(finding))
                 seen_msgs.add(msg)
 
     # Left to decide sub-block — only rendered when there is something to
@@ -267,8 +371,10 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
                 lines.append(
                     f"NOTE: - left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
                 )
-            for todo_line in _todo_lines_for_finding(finding):
-                lines.append(todo_line)
+            todo_block = "\n".join(_todo_lines_for_finding(finding))
+            if finding.rationale:
+                todo_block = _with_rationale(todo_block, finding.rationale, cant_decide=True)
+            lines.append(todo_block)
 
     # Problems sub-block — always rendered last, separated by a blank line, so a
     # clean section explicitly states "Problems: none" rather than silently
@@ -277,9 +383,8 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
     if problems:
         lines.append("Problems:")
         for finding in problems:
-            msg = (finding.message or "").strip()
-            if msg:
-                lines.append(f"- {msg}")
+            check = checks_by_id.get(finding.id)
+            lines.append(_problem_line(finding, check))
     else:
         lines.append("Problems: none")
 
@@ -287,7 +392,10 @@ def _render_section(section: str, findings: list[Finding]) -> list[str]:
 
 
 def _render_summary_section(
-    summary_findings: list[Finding], all_findings: list[Finding], ctx
+    summary_findings: list[Finding],
+    all_findings: list[Finding],
+    ctx,
+    checks_by_id: dict[str, dict] | None = None,
 ) -> list[str]:
     """Render [Summary] with special MIR template semantics.
 
@@ -300,6 +408,7 @@ def _render_summary_section(
       rather than the inline "Left to decide" list.
     - Include out-of-scope dependency hints as informational notes.
     """
+    checks_by_id = checks_by_id or {}
     lines: list[str] = ["[Summary]"]
 
     ok_findings = [f for f in summary_findings if f.status == "ok"]
@@ -314,7 +423,7 @@ def _render_summary_section(
         for finding in ok_findings:
             msg = (finding.message or "").strip()
             if msg:
-                lines.append(f"- {msg}")
+                lines.append(_ok_line(finding))
 
     # Add out-of-scope dependency hints
     out_of_scope_hints = _build_out_of_scope_dep_hint(ctx)
@@ -332,17 +441,19 @@ def _render_summary_section(
                 lines.append(
                     f"NOTE: - left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
                 )
-            for todo_line in _todo_lines_for_finding(finding):
-                lines.append(todo_line)
+            todo_block = "\n".join(_todo_lines_for_finding(finding))
+            if finding.rationale:
+                todo_block = _with_rationale(todo_block, finding.rationale, cant_decide=True)
+            lines.append(todo_block)
 
     lines.append("Required TODOs:")
-    required = _collect_todos_by_severity(all_findings, "required")
+    required = _collect_todos_by_severity(all_findings, "required", checks_by_id)
     numbered, todo_index = _render_numbered_todos(required, start_index=1)
     lines.extend(numbered)
     lines.append("- TODO: - TBD (Please add more, numbered for later reference)")
 
     lines.append("Recommended TODOs:")
-    recommended = _collect_todos_by_severity(all_findings, "recommended")
+    recommended = _collect_todos_by_severity(all_findings, "recommended", checks_by_id)
     numbered, todo_index = _render_numbered_todos(recommended, start_index=todo_index)
     lines.extend(numbered)
     lines.append("- TODO: - TBD (Please add more, numbered for later reference)")
@@ -376,7 +487,10 @@ def _render_numbered_todos(items: list[str], start_index: int) -> tuple[list[str
     return out, index
 
 
-def _collect_todos_by_severity(findings: list[Finding], severity: str) -> list[str]:
+def _collect_todos_by_severity(
+    findings: list[Finding], severity: str, checks_by_id: dict[str, dict] | None = None
+) -> list[str]:
+    checks_by_id = checks_by_id or {}
     seen: set[str] = set()
     todos: list[str] = []
     for finding in findings:
@@ -389,13 +503,34 @@ def _collect_todos_by_severity(findings: list[Finding], severity: str) -> list[s
             continue
         if finding.status == "ok":
             continue
+        # Only confident problems become Required/Recommended TODOs. Undecided
+        # items (unknown status, or an AI failure below high confidence) live in
+        # their section's "Left to decide" block only and must not be duplicated
+        # here. aggregate_todo findings are always forwarded regardless.
+        if not finding.aggregate_todo and finding_outcome_class(finding) != "problem":
+            continue
         if finding.severity != severity:
             continue
-        for todo_line in _todo_lines_for_finding(finding):
-            if todo_line not in seen:
-                seen.add(todo_line)
-                todos.append(todo_line)
+        for text in _summary_todo_texts_for_finding(finding, checks_by_id):
+            if text not in seen:
+                seen.add(text)
+                todos.append(text)
     return todos
+
+
+def _summary_todo_texts_for_finding(finding: Finding, checks_by_id: dict[str, dict]) -> list[str]:
+    """Return consolidated-TODO text(s) for a finding.
+
+    A confident problem with a catalog-provided negated statement is phrased as
+    that negated statement plus its rationale (so the reviewer sees, e.g.,
+    "does FTBFS currently (…s390x…)" rather than the pass-oriented template
+    line). Otherwise the finding's TODO lines are used verbatim.
+    """
+    check = checks_by_id.get(finding.id)
+    negated = _negated_statement(check)
+    if negated and finding_outcome_class(finding) == "problem":
+        return [_with_rationale(negated, finding.rationale or finding.message)]
+    return _todo_lines_for_finding(finding)
 
 
 def _todo_lines_for_finding(finding: Finding) -> list[str]:
@@ -464,6 +599,10 @@ def _lint_review_draft(draft: str, findings: list[Finding]) -> None:
 
         # Every content line inside undecided block must be a TODO, NOTE, or list entry
         if in_undecided_block and line:
+            # Indented continuation lines carry the rationale parenthetical for
+            # the preceding TODO and are exempt from the prefix rule.
+            if line[:1] in (" ", "\t"):
+                continue
             if not (
                 line.startswith("TODO:") or line.startswith("TODO-") or line.startswith("NOTE:")
             ):
@@ -474,6 +613,9 @@ def _lint_review_draft(draft: str, findings: list[Finding]) -> None:
 
         # Problems block lines are confirmed finding statements, not TODOs
         if in_problems_block and line:
+            # Indented continuation lines carry the rationale parenthetical.
+            if line[:1] in (" ", "\t"):
+                continue
             if line.startswith("TODO:") or line.startswith("TODO-"):
                 raise ValueError(f"Problems block line must not be a TODO line: {line!r}")
 

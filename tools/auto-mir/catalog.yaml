@@ -1061,6 +1061,7 @@ checks:
     not_ok_detail_hints: 'debian/rules hints: {hints}'
     not_ok_message: 'Static linking detected without clear justification; review needed{detail}'
     not_ok_todo: 'TODO: - no static linking'
+  negated_statement: static linking present without clear justification
   todo_refs:
   - 'TODO: - no static linking'
   ai_policy: none
@@ -1301,6 +1302,7 @@ checks:
     not_ok_message: Package runs daemon as root without security mitigations
     not_ok_todo: 'TODO: - does not run a daemon as root'
     ok_message: does not run a daemon as root
+  negated_statement: runs a daemon as root without security mitigations
   todo_refs:
   - 'TODO: - does not run a daemon as root'
   ai_policy: none
@@ -1349,6 +1351,7 @@ checks:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO: - does not parse data formats (files [images, video, audio, xml, json, asn.1], network packets, structures, ...) from an untrusted source.'
+  negated_statement: 'does parse data formats (files [images, video, audio, xml, json, asn.1], network packets, structures, ...) from an untrusted source.'
   ai_policy: "Check runtime deps for known parser libraries. Scan source for file format handling. Read package description, man pages, and docs \u2014 out of the description one can quickly derive where data comes from and whether it is untrusted. Surface evidence; AI judges; reviewer confirms."
 
 - id: SEC-6
@@ -1497,6 +1500,7 @@ checks:
     not_ok_todo: 'TODO: - does not FTBFS currently'
     ok_message: 'does not FTBFS currently; Launchpad build records pass for arches: {passing_arches}'
     ok_local_suffix: '; local sbuild build also succeeded'
+  negated_statement: does FTBFS currently
   todo_refs:
   - 'TODO: - does not FTBFS currently'
   ai_policy: none
@@ -1876,8 +1880,10 @@ checks:
     not_ok_errors_message: 'Build log contains errors: {errors}'
     not_ok_errors_todo: 'TODO: - no Errors/warnings during the build'
     warnings_message: 'Build log contains {count} toolchain warning(s); first: {sample}'
-    warnings_todo: 'TODO: - review {count} build warning(s) and decide if acceptable: {sample}'
+    warnings_todo: 'TODO: - no Errors/warnings during the build'
+    warnings_rationale: 'review {count} build warning(s) and decide if acceptable: {sample}'
     ok_message: no Errors/warnings during the build
+  negated_statement: Concerning Errors/warnings during the build
   todo_refs:
   - 'TODO: - no Errors/warnings during the build'
   ai_policy: none

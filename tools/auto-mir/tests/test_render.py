@@ -649,3 +649,167 @@ def test_sum4_ok_message_visible_in_summary():
     summary_idx = draft.index("[Summary]")
     summary_block = draft[summary_idx:]
     assert "Package has team subscriber(s): foo-team" in summary_block
+
+
+# ---------------------------------------------------------------------------
+# Three-path model: outcome classification, negation, rationale continuation
+# ---------------------------------------------------------------------------
+
+
+def _catalog_ctx(findings, checks):
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1234567"
+    ctx.series = "noble"
+    ctx.evidence = {"adapters": {}}
+    ctx.catalog = {"checks": checks}
+    ctx.findings = findings
+    return ctx
+
+
+def test_outcome_class_deterministic_not_ok_is_problem():
+    from render import finding_outcome_class
+
+    f = _high_conf_failure()
+    assert finding_outcome_class(f) == "problem"
+
+
+def test_outcome_class_ai_medium_not_ok_is_undecided():
+    from render import finding_outcome_class
+
+    f = Finding(
+        id="SEC-5",
+        section="Security",
+        title="parse untrusted",
+        mode="ev_to_ai",
+        status="not-ok",
+        severity="recommended",
+        confidence="medium",
+        message="might parse untrusted data",
+        todo="TODO: - does not parse data formats from an untrusted source",
+    )
+    assert finding_outcome_class(f) == "undecided"
+
+
+def test_outcome_class_ai_high_not_ok_is_problem():
+    from render import finding_outcome_class
+
+    f = Finding(
+        id="SEC-5",
+        section="Security",
+        title="parse untrusted",
+        mode="ev_to_ai",
+        status="not-ok",
+        severity="required",
+        confidence="high",
+        message="parses untrusted data",
+        todo="TODO: - does not parse data formats from an untrusted source",
+    )
+    assert finding_outcome_class(f) == "problem"
+
+
+def test_undecided_finding_keeps_statement_and_adds_cant_decide_rationale():
+    """Feedback #2: an undecided item keeps its original TODO statement and the
+    reasoning is carried as a 'Can't decide:' continuation line."""
+    finding = Finding(
+        id="URF-1",
+        section="Upstream red flags",
+        title="No build errors or warnings",
+        mode="deterministic",
+        status="unknown",
+        severity="recommended",
+        confidence="medium",
+        message="Build log contains 57 toolchain warning(s)",
+        todo="TODO: - no Errors/warnings during the build",
+        rationale="review 57 build warning(s) and decide if acceptable: threadpool.h deprecated",
+    )
+    lines = _render_section("Upstream red flags", [finding])
+    text = "\n".join(lines)
+    assert "TODO: - no Errors/warnings during the build" in text
+    assert "(Can't decide: review 57 build warning(s)" in text
+
+
+def test_problem_finding_uses_negated_statement_with_rationale():
+    """Feedback #4/#5: a confirmed problem is phrased with the negated statement
+    and carries its evidence as a parenthetical."""
+    checks = [
+        {"id": "CB-1", "section": "Common blockers", "negated_statement": "does FTBFS currently"}
+    ]
+    finding = Finding(
+        id="CB-1",
+        section="Common blockers",
+        title="Does not FTBFS currently",
+        mode="deterministic",
+        status="not-ok",
+        severity="required",
+        confidence="high",
+        message="Launchpad build state shows failures: s390x: Dependency wait",
+        todo="TODO: - does not FTBFS currently",
+    )
+    checks_by_id = {c["id"]: c for c in checks}
+    lines = _render_section("Common blockers", [finding], checks_by_id)
+    text = "\n".join(lines)
+    assert "- does FTBFS currently" in text
+    assert "(Launchpad build state shows failures: s390x: Dependency wait)" in text
+    # The pass-oriented template line must not leak into the Problems block.
+    assert "does not FTBFS currently" not in text
+
+
+def test_undecided_ai_finding_not_duplicated_in_summary_todos():
+    """Feedback #3: a medium-confidence AI failure lives in its section's
+    'Left to decide' only and is never surfaced as a Summary TODO."""
+    checks = [{"id": "SEC-5", "section": "Security"}]
+    findings = [
+        _ok_finding(fid="SUM-1", section="Summary"),
+        Finding(
+            id="SEC-5",
+            section="Security",
+            title="parse untrusted",
+            mode="ev_to_ai",
+            status="not-ok",
+            severity="recommended",
+            confidence="medium",
+            message="might parse untrusted data",
+            todo="TODO: - does not parse data formats from an untrusted source",
+            rationale="the library decodes AV1 bitstreams",
+        ),
+    ]
+    ctx = _catalog_ctx(findings, checks)
+    draft = _build_review_draft(ctx)
+
+    # Present once, in the Security section's Left to decide.
+    assert draft.count("does not parse data formats from an untrusted source") == 1
+    # The Summary's Recommended TODOs block (bounded by the next section header)
+    # must not re-list the undecided item.
+    rec_idx = draft.index("Recommended TODOs:")
+    summary_todo_block = draft[rec_idx : draft.index("[", rec_idx)]
+    assert "parse data formats" not in summary_todo_block
+
+
+def test_problem_finding_negated_statement_surfaces_in_summary_todo():
+    """A confident problem is surfaced as a Summary TODO using its negated
+    statement plus rationale, continuously numbered."""
+    checks = [
+        {"id": "CB-1", "section": "Common blockers", "negated_statement": "does FTBFS currently"}
+    ]
+    findings = [
+        _ok_finding(fid="SUM-1", section="Summary"),
+        Finding(
+            id="CB-1",
+            section="Common blockers",
+            title="Does not FTBFS currently",
+            mode="deterministic",
+            status="not-ok",
+            severity="required",
+            confidence="high",
+            message="Launchpad build state shows failures: s390x: Dependency wait",
+            todo="TODO: - does not FTBFS currently",
+        ),
+    ]
+    ctx = _catalog_ctx(findings, checks)
+    draft = _build_review_draft(ctx)
+
+    req_idx = draft.index("Required TODOs:")
+    req_block = draft[req_idx:]
+    assert "- #1 does FTBFS currently" in req_block
+    assert "s390x: Dependency wait" in req_block

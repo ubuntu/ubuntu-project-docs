@@ -117,6 +117,11 @@ class Finding:
     confidence: str = "low"
     message: str = "Check not evaluated"
     todo: str = ""
+    # Evidence/reasoning behind the verdict, kept separate from the reviewer
+    # statement (message/todo). The renderer composes it into a parenthetical
+    # continuation line so the reviewer sees why the tool reached its
+    # conclusion, whether the outcome is ok, a problem, or left to decide.
+    rationale: str = ""
     evidence_refs: list[str] = field(default_factory=list)
 
     # --- Set by LLM evaluators only ---
@@ -133,13 +138,14 @@ class Finding:
     # --- Set during post-processing ---
     adapter_error_cause: list[str] = field(default_factory=list)
 
-    def succeed(self, message: str, confidence: str = "high") -> None:
+    def succeed(self, message: str, confidence: str = "high", rationale: str = "") -> None:
         """Mark this finding as successfully met (ok)."""
         self.status = "ok"
         self.severity = "ok"
         self.confidence = confidence
         self.message = message
         self.todo = ""
+        self.rationale = rationale
 
     def fail(
         self,
@@ -148,6 +154,7 @@ class Finding:
         severity: str = "required",
         confidence: str = "high",
         status: str = "not-ok",
+        rationale: str = "",
     ) -> None:
         """Mark this finding as failed or unknown, requiring a human TODO."""
         self.status = status
@@ -157,6 +164,7 @@ class Finding:
         if not todo.startswith("TODO:"):
             todo = f"TODO: {todo}"
         self.todo = todo
+        self.rationale = rationale
 
     def __post_init__(self):
         """Validate Finding invariants after initialization.

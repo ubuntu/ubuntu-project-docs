@@ -240,9 +240,11 @@ class _Ctx:
                         "not_ok_errors_message": "Build log contains errors: {errors}",
                         "not_ok_errors_todo": "TODO: - no Errors/warnings during the build",
                         "warnings_message": "Build log contains {count} toolchain warning(s); first: {sample}",
-                        "warnings_todo": "TODO: - review {count} build warning(s) and decide if acceptable: {sample}",
+                        "warnings_todo": "TODO: - no Errors/warnings during the build",
+                        "warnings_rationale": "review {count} build warning(s) and decide if acceptable: {sample}",
                         "ok_message": "no Errors/warnings during the build",
                     },
+                    "negated_statement": "Concerning Errors/warnings during the build",
                 },
                 {
                     "id": "PRF-10",
@@ -2154,7 +2156,7 @@ def test_canonical_ok_statement_used_for_single_statement_ev_to_ai():
 
     assert result.status == "ok"
     assert result.message.startswith("history of CVEs does not look concerning")
-    assert "Both trackers report zero CVEs" in result.message
+    assert "Both trackers report zero CVEs" in result.rationale
     assert result.todo == ""
 
 
@@ -2207,7 +2209,7 @@ def test_selected_option_ok_sets_template_statement():
     assert result.message.startswith(
         "Ubuntu does carry a delta, but it is reasonable and maintenance under control"
     )
-    assert "only adds autopkgtests" in result.message
+    assert "only adds autopkgtests" in result.rationale
     assert result.todo == ""
 
 

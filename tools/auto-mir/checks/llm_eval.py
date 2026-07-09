@@ -905,9 +905,9 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
     confidence = response.get("confidence", "medium")
     if confidence not in valid_confidences:
         confidence = "medium"
-    # AI-derived findings are capped at medium unless a deterministic check corroborates.
-    if confidence == "high":
-        confidence = "medium"
+    # The model may report "high" for a clear-cut verdict; that is honoured so a
+    # confident AI failure can be surfaced as a Problem/Required TODO. Human
+    # confirmation is still always required (set below).
 
     finding.status = status
     finding.severity = severity
@@ -919,6 +919,7 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
 
     todo = (response.get("todo") or "").strip()
     rationale = (response.get("rationale") or "").strip()
+    finding.rationale = rationale
 
     if status != "ok":
         # [Summary] option checks (e.g. SUM-5/SUM-6) must keep all variants
@@ -933,18 +934,14 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
             todo = f"TODO: {prefix_inner}{todo}"
         if not todo:
             todo = _default_todo_for_check(check, fallback_suffix="review needed")
-        if rationale:
-            finding.message = f"{message}\n  Rationale: {rationale}" if message else rationale
         finding.todo = todo
     else:
         # Prefer the catalog's canonical OK statement over free-form model prose
-        # so the reviewer sees the familiar template wording, with the model's
-        # reasoning appended in parentheses (matching how a human writes it).
+        # so the reviewer sees the familiar template wording; the rationale is
+        # kept in its own field and composed into a parenthetical by the renderer.
         canonical = _canonical_ok_statement(check)
         if canonical:
-            finding.message = f"{canonical}\n  ({rationale})" if rationale else canonical
-        elif rationale:
-            finding.message = f"{message}\n  ({rationale})" if message else rationale
+            finding.message = canonical
         finding.todo = ""
 
     risk_flags = response.get("risk_flags", [])
@@ -1027,21 +1024,21 @@ def _apply_option_response(option: dict, response: dict, check: dict, finding: F
     confidence = response.get("confidence", "medium")
     if confidence not in {"low", "medium", "high"}:
         confidence = "medium"
-    # AI-derived findings are capped at medium confidence.
-    if confidence == "high":
-        confidence = "medium"
+    # The model's confidence is honoured (including "high" for a clear-cut
+    # option selection); human confirmation is still required (set below).
 
+    finding.rationale = rationale
     if outcome == "ok":
         finding.status = "ok"
         finding.severity = "ok"
         finding.confidence = confidence
-        finding.message = f"{message}\n  ({rationale})" if rationale else message
+        finding.message = message
         finding.todo = ""
     else:
         finding.status = "not-ok"
         finding.severity = outcome
         finding.confidence = confidence
-        finding.message = f"{message}\n  Rationale: {rationale}" if rationale else message
+        finding.message = message
         todo = render_text or str(option.get("todo_ref", "")).strip()
         if not (todo.startswith("TODO:") or todo.startswith("TODO-")):
             prefix_inner = "" if todo.startswith("- ") else "- "
