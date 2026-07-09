@@ -161,19 +161,7 @@ Which includes:
 - One subkey for encryption \[E\]
 - And two additional subkeys for signing \[S\]
 
-(make-your-keys-known)=
-### Step 3 - Make your new key(s) known
-
-If your key is entirely new, or you hereby added additional keys after already uploading the key to the Ubuntu keyserver in the past – you will need to re-upload, otherwise Launchpad will silently reject uploads signed with the (sub)keys.
-
-Use the following command to ensure your public key is uploaded to the Ubuntu keyserver.
-
-```shell
-gpg --keyserver hkps://keyserver.ubuntu.com --send-keys "$KEYFPR"
-```
-
-
-### Step 4 — Backup
+### Step 3 — Backup
 
 ```{important}
 Do this before touching the YubiKey!
@@ -210,7 +198,7 @@ we might add more examples here for your inspiration:
 
 
 (pgp-step-prepare-the-yubikey)=
-### Step 5 — Prepare the YubiKey
+### Step 4 — Prepare the YubiKey
 
 Insert the YubiKey and verify it is visible. Make sure you have only one YubiKey inserted at a time.
 
@@ -283,7 +271,7 @@ To prepare a second YubiKey, repeat {ref}`pgp-step-prepare-the-yubikey` with ano
 ```
 
 
-### Step 6 – Move subkeys to YubiKey
+### Step 5 – Move subkeys to YubiKey
 
 First, you need to move the signing subkey to the signature slot.
 Open the key editor, which will start listing the keys:
@@ -375,8 +363,8 @@ To handle a second hardware key, run through the steps in this section again wit
 At the step of transferring the signing key (Where you selected the first subkey when doing the first iteration of the steps), please select the second signing subkey this time. Combined with the different expiration dates, this ensures they will not both expire at the same time.
 ```
 
-(step-7-remove-your-keys-from-the-system)=
-### Step 7 — Remove your keys from the system
+(step-6-remove-your-keys-from-the-system)=
+### Step 6 — Remove your keys from the system
 
 ```{important}
 Before you go on, ensure that you stored the backups created in step 3 in a safe location.
@@ -413,6 +401,18 @@ ssb>  ed25519 2026-05-14 [S] [expires: 2027-08-07]
       FAFABABAB0B0B0B0FAFABABAB0B0B0B0FAFABA
       Card serial no. = 0006 12345678
 ```
+
+(make-your-keys-known)=
+### Step 7 — Make your new key(s) known
+
+If your key is entirely new, or you hereby added additional keys after already uploading the key to the Ubuntu keyserver in the past – you will need to re-upload, otherwise Launchpad will silently reject uploads signed with the (sub)keys.
+
+Use the following command to ensure your public key is uploaded to the Ubuntu keyserver.
+
+```shell
+gpg --keyserver hkps://keyserver.ubuntu.com --send-keys "$KEYFPR"
+```
+
 
 ### Step 8 — Git commit signing
 
@@ -650,7 +650,7 @@ gpg> revkey
 
 Save your changes and *immediately* upload to any keyserver(s) to which you previously used your key following the steps of {ref}`make-your-keys-known`.
 
-After doing that repeat steps {ref}`pgp-step-2-add-subkeys` to {ref}`step-7-remove-your-keys-from-the-system`, to create new subkeys to replace the revoked ones on your hardware keys.
+After doing that repeat steps {ref}`pgp-step-2-add-subkeys` to {ref}`step-6-remove-your-keys-from-the-system`, to create new subkeys to replace the revoked ones on your hardware keys.
 
 ### If the primary key is compromised
 
