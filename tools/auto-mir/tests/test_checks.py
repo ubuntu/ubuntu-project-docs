@@ -3067,3 +3067,58 @@ def test_extract_build_test_hints_failures_ignored():
         "",
     )
     assert hints["failures_possibly_ignored"] is True
+
+
+# ---------------------------------------------------------------------------
+# CB-3 autopkgtest detection: both evidence sources reach the model (feedback #1)
+# ---------------------------------------------------------------------------
+
+
+class _EvCtx:
+    """Minimal ctx for exercising _build_evidence_payload."""
+
+    def __init__(self, adapters):
+        self.source_package = "libgav1"
+        self.bug_id = "2158712"
+        self.series = "devel"
+        self.bug = {"title": "[MIR] libgav1"}
+        self.reporter_mir_content = ""
+        self.findings = []
+        self.untrusted_nonce = "NONCE"
+        self.evidence = {"adapters": adapters}
+
+
+def test_cb3_payload_includes_autopkgtest_and_tests_control():
+    """CB-3 must receive the autopkgtest DB result AND the full debian/tests/control
+    so the model can credit a passing autopkgtest even though it judges non-triviality."""
+    control = "Tests: decode\nDepends: libgav1-bin\nRestrictions: allow-stderr\n"
+    ctx = _EvCtx(
+        {
+            "packaging-source": {
+                "status": "ok",
+                "debian_tests_control": control,
+                "debian_control": "Source: libgav1",
+                "file_listing": [],
+            },
+            "autopkgtest-db": {
+                "status": "ok",
+                "has_autopkgtest": True,
+                "passing_arches": ["amd64", "arm64", "armhf", "ppc64el", "s390x"],
+                "failing_arches": [],
+            },
+        }
+    )
+    check = {
+        "id": "CB-3",
+        "section": "Common blockers",
+        "mode": "ev_to_ai",
+        "adapters_required": ["packaging-source", "autopkgtest-db"],
+    }
+    payload = checks.llm_eval._build_evidence_payload(check, ctx)
+
+    # debian/tests/control is kept verbatim (declares the functional 'decode' test).
+    assert payload["packaging-source"]["debian_tests_control"] == control
+    # The authoritative pass/fail signal is present.
+    assert payload["autopkgtest-db"]["has_autopkgtest"] is True
+    assert "s390x" in payload["autopkgtest-db"]["passing_arches"]
+    assert payload["autopkgtest-db"]["failing_arches"] == []
