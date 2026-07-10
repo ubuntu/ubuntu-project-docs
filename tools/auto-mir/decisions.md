@@ -164,7 +164,7 @@ phases do not drift.
 - Parity result summary:
   - Behavior-preserving internal simplification; no output drift observed via tests.
 - Follow-up impacts:
-  - Remaining direct LXD config-set wrapper paths can be normalized incrementally.
+  - Remaining direct `lxc exec ... tee` wrapper paths can be normalized incrementally.
 
 ### Phase Ledger Entry: PR-33 LXD execution wrapper consolidation (slice 2)
 
@@ -188,6 +188,29 @@ phases do not drift.
   - Behavior-preserving internal wrapper normalization only.
 - Follow-up impacts:
   - LXD wrapper consolidation work is now limited to intentional higher-level execution API boundaries.
+
+### Phase Ledger Entry: PR-34 LXD stdin exec wrapper normalization (slice 3)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Route the remaining stdin-fed `lxc exec ... tee` write paths through the shared `_lxc` wrapper.
+- Scope boundaries touched:
+  - `tools/auto-mir/lxd_runner.py`
+- Explicit non-goals:
+  - No changes to apt-source patching semantics.
+  - No changes to proposed-pocket enablement behavior.
+- Invariants preserved:
+  - Patched apt source content is still written via `tee` inside the container.
+  - Shared command logging/error handling now also covers these write-back paths.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Behavior-preserving wrapper normalization only.
+- Follow-up impacts:
+  - LXD wrapper consolidation is now complete aside from intentional host-level prerequisite probes.
 
 ### Phase Ledger Entry: PR-12 Evaluator fallback centralization (slice 1)
 

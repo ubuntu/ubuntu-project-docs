@@ -328,8 +328,7 @@ def _enable_source_repositories(name: str) -> None:
         if patched == result.stdout:
             return
         # Write patched content back via stdin
-        lxc_cmd = ["lxc", "exec", name, "--", "tee", container_path]
-        subprocess.run(lxc_cmd, input=patched, text=True, check=True, capture_output=True)
+        _lxc("exec", name, "--", "tee", container_path, capture=True, input=patched)
 
     # Discover relevant files inside the container with a single listing.
     result = exec_in(
@@ -398,8 +397,7 @@ def _enable_proposed_pocket(name: str) -> None:
         return
 
     proposed_path = "/etc/apt/sources.list.d/auto-mir-proposed.sources"
-    lxc_cmd = ["lxc", "exec", name, "--", "tee", proposed_path]
-    subprocess.run(lxc_cmd, input=stanza, text=True, check=True, capture_output=True)
+    _lxc("exec", name, "--", "tee", proposed_path, capture=True, input=stanza)
     log.info("Enabled %s-proposed pocket for source fetch and build", codename)
 
 
