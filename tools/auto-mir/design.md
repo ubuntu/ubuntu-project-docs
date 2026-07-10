@@ -204,6 +204,6 @@ The codebase is in phased structural refactoring with:
 - characterization tests first,
 - behavior-preserving decoupling and simplification,
 - documentation convergence toward source-of-truth status,
-- temporary strict guardrails planned for retirement after demonstrated stability.
+- steady-state advisory parity checks to monitor baseline drift.
 
 See `decisions.md` phase ledger entries for per-batch status and validation.

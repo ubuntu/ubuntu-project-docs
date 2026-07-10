@@ -212,10 +212,9 @@ Run everything with `make test` from `tools/auto-mir`.
 
 ---
 
-## Refactor-era guardrails
+## Catalog stability guardrails
 
-While structural refactoring is in progress, catalog changes should keep these
-stability rules:
+Catalog changes should keep these stability rules:
 
 1. Keep check ids stable. Moving evaluator code is acceptable; renaming ids is
    not, unless explicitly planned with migration notes.
@@ -233,5 +232,5 @@ make test
 make parity-contract
 ```
 
-Use `make parity-contract-strict` only when baseline fixtures are available and
-the current phase gate requires strict parity enforcement.
+`make parity-contract` is advisory in steady state: use it to detect baseline
+drift without blocking day-to-day development when fixture packs are incomplete.

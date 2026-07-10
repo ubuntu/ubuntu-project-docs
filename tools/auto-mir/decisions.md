@@ -36,7 +36,7 @@ phases do not drift.
 - Validation run from `tools/auto-mir`:
   - `make lint`: PASS/FAIL
   - `make test`: PASS/FAIL
-  - `make parity-contract` or `make parity-contract-strict`: PASS/WARN/FAIL
+  - `make parity-contract` (advisory): PASS/WARN/FAIL
   - `python3 integration_smoke.py` (if applicable): PASS/FAIL/SKIP
 - Parity result summary:
   - <byte-level parity status against baseline artifacts>
