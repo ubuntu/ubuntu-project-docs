@@ -14,6 +14,7 @@ import graphlib
 import importlib
 import logging
 
+from contracts import EvidenceContext
 from evidence.host_adapters import AdapterError as AdapterError
 from evidence.registry import ADAPTER_REGISTRY
 
@@ -44,7 +45,7 @@ def _summarize_result(result: dict) -> str:
     return ", ".join(parts)
 
 
-def collect_from_catalog(ctx) -> int:
+def collect_from_catalog(ctx: EvidenceContext) -> int:
     """Collect evidence for all adapters referenced by the catalog.
 
     Returns:

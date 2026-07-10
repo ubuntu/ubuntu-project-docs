@@ -14,6 +14,7 @@ import logging
 
 from checks.language_gates import _language_gate_active
 from checks.registry import EVALUATORS
+from contracts import ChecksContext
 from models import Finding
 
 log = logging.getLogger("auto_mir.checks")
@@ -25,7 +26,7 @@ def _ensure_evaluators_registered() -> None:
     importlib.import_module("checks.llm_eval")
 
 
-def evaluate_checks(ctx) -> list[Finding]:
+def evaluate_checks(ctx: ChecksContext) -> list[Finding]:
     """Evaluate all checks from catalog against collected evidence.
 
     Returns list of Finding objects with:
@@ -109,7 +110,7 @@ def evaluate_checks(ctx) -> list[Finding]:
     return findings
 
 
-def _evaluate_single_check(check: dict, ctx) -> Finding:
+def _evaluate_single_check(check: dict, ctx: ChecksContext) -> Finding:
     """Evaluate one catalog check and return its Finding.
 
     Handles the language gate, evaluator routing, and TODO normalisation shared
@@ -131,20 +132,17 @@ def _evaluate_single_check(check: dict, ctx) -> Finding:
     # If the gate says the language is absent, mark ok/not-applicable and skip.
     gate = check.get("language_gate")
     if gate and not _language_gate_active(gate, ctx):
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = "high"
         # Combined gates (e.g. "go|rust") would emit a redundant umbrella line
         # on top of the per-language statements produced by the single-language
         # gate checks (e.g. ESL-4 for go, ESL-8 for rust). Suppress the umbrella
         # message so only the specific per-language lines render.
         if "|" in gate:
-            finding.message = ""
+            finding.succeed("", confidence="high")
         else:
-            finding.message = (
-                f"not a {gate} package, no extra constraints to consider in that regard"
+            finding.succeed(
+                f"not a {gate} package, no extra constraints to consider in that regard",
+                confidence="high",
             )
-        finding.todo = ""
         return finding
 
     # Route to appropriate evaluator

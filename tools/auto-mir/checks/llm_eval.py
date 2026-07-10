@@ -69,16 +69,11 @@ def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
         response = llm.call_llm(prompt, ctx, model_tier=model_tier, trace_label=check["id"])
     except llm.LLMError as exc:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message_or_default(
+        _apply_llm_unavailable_fallback(
             check,
-            "llm_unavailable_message",
-            f"LLM unavailable: {exc}",
-            error=str(exc),
-        )
-        finding.todo = _default_todo_for_check(
-            check, fallback_suffix="manual review needed (LLM unavailable)"
+            finding,
+            exc,
+            fallback_suffix="manual review needed (LLM unavailable)",
         )
         # Even when the model is unavailable, surface any deterministic evidence
         # already gathered (e.g. dup-search candidates for RDO-1) so the reviewer
@@ -135,15 +130,12 @@ def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
         response = llm.call_llm(prompt, ctx, model_tier="large", trace_label=check["id"])
     except llm.LLMError as exc:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
-        finding.status = "unknown"
-        finding.confidence = "low"
-        finding.message = render_check_message_or_default(
+        _apply_llm_unavailable_fallback(
             check,
-            "llm_unavailable_message",
-            f"LLM unavailable: {exc}",
-            error=str(exc),
+            finding,
+            exc,
+            fallback_suffix="requires AI synthesis",
         )
-        finding.todo = _default_todo_for_check(check, fallback_suffix="requires AI synthesis")
         return finding
 
     return _apply_llm_response(response, check, finding)
@@ -166,6 +158,25 @@ def _eval_human_only(check: dict, ctx, finding: Finding) -> Finding:
         title=check.get("title", "Check"),
     )
     return finding
+
+
+def _apply_llm_unavailable_fallback(
+    check: dict,
+    finding: Finding,
+    error: Exception,
+    *,
+    fallback_suffix: str,
+) -> None:
+    """Apply the standard unknown/low-confidence fallback for LLM outages."""
+    finding.status = "unknown"
+    finding.confidence = "low"
+    finding.message = render_check_message_or_default(
+        check,
+        "llm_unavailable_message",
+        f"LLM unavailable: {error}",
+        error=str(error),
+    )
+    finding.todo = _default_todo_for_check(check, fallback_suffix=fallback_suffix)
 
 
 def _wrap_untrusted(ctx, label: str, text: str) -> str:

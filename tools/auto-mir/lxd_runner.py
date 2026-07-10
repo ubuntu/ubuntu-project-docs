@@ -80,14 +80,15 @@ def run_command(
     return result
 
 
-def _run_host(cmd: list[str], check: bool = True, capture: bool = False, **kwargs):
-    """Run a command on the host. Raise on failure unless check=False."""
-    return run_command(cmd, log_prefix="host", check=check, capture=capture, **kwargs)
-
-
 def _lxc(*args, check: bool = True, capture: bool = False, **kwargs):
     """Wrapper around lxc CLI."""
-    return _run_host(["lxc"] + list(args), check=check, capture=capture, **kwargs)
+    return run_command(
+        ["lxc"] + list(args),
+        log_prefix="host",
+        check=check,
+        capture=capture,
+        **kwargs,
+    )
 
 
 def _check_lxd_available() -> None:
