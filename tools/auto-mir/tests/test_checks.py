@@ -2376,6 +2376,7 @@ def test_urf_8_option_missing_desktop_is_required():
 
     assert result.status == "not-ok"
     assert result.severity == "required"
+    assert "GTK app" in result.rationale
     assert result.todo.startswith("TODO:")
     assert "no valid .desktop" in result.todo
 

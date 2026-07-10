@@ -1053,7 +1053,6 @@ def _apply_option_response(option: dict, response: dict, check: dict, finding: F
     # The model's confidence is honoured (including "high" for a clear-cut
     # option selection); human confirmation is still required (set below).
 
-    finding.rationale = rationale
     if outcome == "ok":
         finding.succeed(message=message, confidence=confidence, rationale=rationale)
     else:

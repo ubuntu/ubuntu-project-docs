@@ -360,6 +360,30 @@ phases do not drift.
 - Follow-up impacts:
   - Remaining direct assignment sites are intentionally limited to response payload extras (`risk_flags`, `evidence_refs`, confirmation flag).
 
+### Phase Ledger Entry: PR-29 LLM option rationale helper cleanup (slice 8)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Remove redundant direct rationale assignment in option response mapping and rely on helper-based state assignment.
+- Scope boundaries touched:
+  - `tools/auto-mir/checks/llm_eval.py`
+  - `tools/auto-mir/tests/test_checks.py`
+- Explicit non-goals:
+  - No option-selection or outcome policy changes.
+  - No changes to TODO routing semantics.
+- Invariants preserved:
+  - Option outcomes continue to propagate model rationale into findings.
+  - Required/recommended option TODO behavior remains unchanged.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Behavior-preserving deduplication; rationale propagation remains covered by tests.
+- Follow-up impacts:
+  - LLM state transitions and rationale propagation now consistently flow through helper methods.
+
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
 - Date: 2026-07-10
