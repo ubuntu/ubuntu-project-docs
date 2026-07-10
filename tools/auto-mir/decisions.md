@@ -211,7 +211,7 @@ phases do not drift.
 - Parity result summary:
   - No observed output drift in existing test suite; refactor is state-mutation-internal.
 - Follow-up impacts:
-  - Remaining deterministic checks can be migrated incrementally to helper-based state transitions.
+  - Deterministic helper migration continued in PR-23 and later slices.
 
 ### Phase Ledger Entry: PR-23 Unknown-state helper normalization (slice 2)
 
@@ -237,7 +237,7 @@ phases do not drift.
 - Parity result summary:
   - Internal state transition wiring changed only; no behavior drift observed in tests.
 - Follow-up impacts:
-  - Remaining direct finding-field mutation in deterministic checks can be reduced in future slices.
+  - Deterministic check state mutation paths were normalized through helper methods.
 
 ### Phase Ledger Entry: PR-24 TODO normalization helper in orchestration (slice 3)
 
@@ -286,7 +286,7 @@ phases do not drift.
 - Parity result summary:
   - Internal fallback state mutation paths are unified; no policy drift expected.
 - Follow-up impacts:
-  - Remaining direct state mutation in LLM response mapping can be addressed in later slices.
+  - Core LLM response state mutation paths were migrated in PR-28.
 
 ### Phase Ledger Entry: PR-26 LLM option-response ok-path helper migration (slice 5)
 
