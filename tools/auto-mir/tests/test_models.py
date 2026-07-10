@@ -95,3 +95,26 @@ def test_mark_unknown_prefixes_todo_and_allows_severity_override():
     assert finding.status == "unknown"
     assert finding.severity == "recommended"
     assert finding.todo.startswith("TODO:")
+
+
+def test_ensure_todo_sets_fallback_for_unresolved_without_todo_prefix():
+    finding = Finding.ok(_base_check(), "Package identified")
+    finding.fail(
+        message="Needs review",
+        todo="not prefixed",
+        severity="recommended",
+        confidence="low",
+    )
+    finding.todo = "not prefixed"
+
+    finding.ensure_todo("Source package identified")
+
+    assert finding.todo == "TODO: - Source package identified"
+
+
+def test_ensure_todo_is_noop_for_ok_findings():
+    finding = Finding.ok(_base_check(), "Package identified")
+
+    finding.ensure_todo("Source package identified")
+
+    assert finding.todo == ""

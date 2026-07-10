@@ -182,6 +182,14 @@ class Finding:
         self.todo = todo if (not todo or todo.startswith("TODO:")) else f"TODO: {todo}"
         self.rationale = rationale
 
+    def ensure_todo(self, fallback: str) -> None:
+        """Ensure unresolved findings carry a normalized TODO line."""
+        if self.status == "ok":
+            return
+        if self.todo.startswith("TODO:") or self.todo.startswith("TODO-"):
+            return
+        self.todo = f"TODO: - {fallback}"
+
     def __post_init__(self):
         """Validate Finding invariants after initialization.
 

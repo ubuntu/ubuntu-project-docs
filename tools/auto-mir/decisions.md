@@ -239,6 +239,31 @@ phases do not drift.
 - Follow-up impacts:
   - Remaining direct finding-field mutation in deterministic checks can be reduced in future slices.
 
+### Phase Ledger Entry: PR-24 TODO normalization helper in orchestration (slice 3)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Centralize unresolved TODO normalization in `Finding` helpers and remove orchestrator-level field mutation.
+- Scope boundaries touched:
+  - `tools/auto-mir/models.py`
+  - `tools/auto-mir/checks/__init__.py`
+  - `tools/auto-mir/tests/test_models.py`
+- Explicit non-goals:
+  - No evaluator routing changes.
+  - No changes to catalog message/template policy.
+- Invariants preserved:
+  - Unresolved findings continue to render `TODO:`-prefixed reviewer actions.
+  - `status=ok` findings continue to carry empty TODOs.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Behavior-preserving normalization path extraction; no output drift observed in tests.
+- Follow-up impacts:
+  - Additional helper migration in evaluator internals can proceed incrementally.
+
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
 - Date: 2026-07-10

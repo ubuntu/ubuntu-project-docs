@@ -157,10 +157,6 @@ def _evaluate_single_check(check: dict, ctx: ChecksContext) -> Finding:
     else:
         finding.fail(f"Unknown mode: {mode}", finding.title, status="unknown")
 
-    todo_value = str(finding.todo or "")
-    if finding.status != "ok" and not (
-        todo_value.startswith("TODO:") or todo_value.startswith("TODO-")
-    ):
-        finding.todo = f"TODO: - {finding.title}"
+    finding.ensure_todo(finding.title)
 
     return finding
