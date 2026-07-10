@@ -409,6 +409,29 @@ phases do not drift.
 - Follow-up impacts:
   - Remaining direct field assignment sites are now limited to intentional semantic overrides.
 
+### Phase Ledger Entry: PR-31 Non-prompt markdown convergence closure (slice 10)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Close stale documentation follow-up markers after non-prompt markdown alignment audit.
+- Scope boundaries touched:
+  - `tools/auto-mir/decisions.md`
+- Explicit non-goals:
+  - No runtime code changes.
+  - No prompt markdown changes.
+- Invariants preserved:
+  - Architecture/testing policy documentation remains aligned with current command surface.
+  - Historical strict-parity retirement entries remain as historical context only.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Documentation consistency update only; runtime behavior unchanged.
+- Follow-up impacts:
+  - Functional test and review can proceed on a stable, converged non-prompt markdown set.
+
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
 - Date: 2026-07-10
@@ -433,7 +456,7 @@ phases do not drift.
 - Parity result summary:
   - Documentation-only changes; runtime output behavior unchanged.
 - Follow-up impacts:
-  - Remaining non-prompt markdown convergence can proceed from an updated architecture baseline.
+  - Non-prompt markdown convergence completed in subsequent documentation cleanup slices.
 
 ### Phase Ledger Entry: PR-50 Guardrail retirement (strict parity gate)
 
