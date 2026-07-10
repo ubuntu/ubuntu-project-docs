@@ -70,3 +70,28 @@ def test_unknown_factory_sets_low_confidence_and_adapter_error_cause():
     assert finding.severity == "ok"
     assert finding.confidence == "low"
     assert finding.adapter_error_cause == ["lp-bug-api"]
+
+
+def test_mark_unknown_without_todo_clears_todo_and_keeps_unknown_state():
+    finding = Finding.ok(_base_check(), "Package identified")
+
+    finding.mark_unknown("Evidence could not be collected")
+
+    assert finding.status == "unknown"
+    assert finding.severity == "ok"
+    assert finding.confidence == "low"
+    assert finding.todo == ""
+
+
+def test_mark_unknown_prefixes_todo_and_allows_severity_override():
+    finding = Finding.ok(_base_check(), "Package identified")
+
+    finding.mark_unknown(
+        message="Adapter failed",
+        todo="Verify manually",
+        severity="recommended",
+    )
+
+    assert finding.status == "unknown"
+    assert finding.severity == "recommended"
+    assert finding.todo.startswith("TODO:")

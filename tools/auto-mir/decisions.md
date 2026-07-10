@@ -213,6 +213,32 @@ phases do not drift.
 - Follow-up impacts:
   - Remaining deterministic checks can be migrated incrementally to helper-based state transitions.
 
+### Phase Ledger Entry: PR-23 Unknown-state helper normalization (slice 2)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Complete helper-based unknown-state mutation for deterministic fallback paths.
+- Scope boundaries touched:
+  - `tools/auto-mir/models.py`
+  - `tools/auto-mir/checks/deterministic.py`
+  - `tools/auto-mir/tests/test_models.py`
+  - `tools/auto-mir/tests/test_checks.py`
+- Explicit non-goals:
+  - No check decision policy changes.
+  - No renderer or catalog schema changes.
+- Invariants preserved:
+  - Unknown fallback remains low-confidence with the same reviewer-facing message/TODO text.
+  - PRF-10 adapter-error path remains `status=unknown` with recommended severity.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Internal state transition wiring changed only; no behavior drift observed in tests.
+- Follow-up impacts:
+  - Remaining direct finding-field mutation in deterministic checks can be reduced in future slices.
+
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
 - Date: 2026-07-10

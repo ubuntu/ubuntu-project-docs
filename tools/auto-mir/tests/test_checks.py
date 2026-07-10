@@ -1330,6 +1330,7 @@ def test_prf_10_adapter_error_degrades_to_unknown():
     result = checks.deterministic._check_prf_10(ctx, finding)
 
     assert result.status == "unknown"
+    assert result.severity == "recommended"
     assert result.confidence == "low"
     assert result.todo.startswith("TODO:")
     assert "lto-disabled" in result.message.lower()

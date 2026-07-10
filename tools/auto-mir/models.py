@@ -166,6 +166,22 @@ class Finding:
         self.todo = todo
         self.rationale = rationale
 
+    def mark_unknown(
+        self,
+        message: str,
+        todo: str = "",
+        severity: str = "ok",
+        confidence: str = "low",
+        rationale: str = "",
+    ) -> None:
+        """Mark this finding as unresolved and leave reviewer guidance if needed."""
+        self.status = "unknown"
+        self.severity = severity
+        self.confidence = confidence
+        self.message = message
+        self.todo = todo if (not todo or todo.startswith("TODO:")) else f"TODO: {todo}"
+        self.rationale = rationale
+
     def __post_init__(self):
         """Validate Finding invariants after initialization.
 

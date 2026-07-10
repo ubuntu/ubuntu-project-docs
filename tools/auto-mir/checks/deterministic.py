@@ -32,24 +32,17 @@ def _set_unknown_from_adapter(
     *,
     message_key: str = "unknown_message",
     todo_key: str | None = None,
+    severity: str = "ok",
     evidence_refs: list[str] | None = None,
 ) -> Finding:
     """Set finding to unknown with consistent confidence and optional TODO/evidence."""
     message = render_check_message(check, message_key)
-    if todo_key:
-        finding.fail(
-            message=message,
-            todo=render_check_message(check, todo_key),
-            severity="ok",
-            confidence="low",
-            status="unknown",
-        )
-    else:
-        finding.status = "unknown"
-        finding.severity = "ok"
-        finding.confidence = "low"
-        finding.message = message
-        finding.todo = ""
+    finding.mark_unknown(
+        message=message,
+        todo=render_check_message(check, todo_key) if todo_key else "",
+        severity=severity,
+        confidence="low",
+    )
     if evidence_refs is not None:
         finding.evidence_refs = evidence_refs
     return finding
@@ -817,9 +810,9 @@ def _check_prf_10(ctx, finding: Finding) -> Finding:
             finding,
             check,
             todo_key="unknown_todo",
+            severity="recommended",
             evidence_refs=["lto-disabled-list:status"],
         )
-        finding.severity = "recommended"
         return finding
 
     if lto.get("on_list"):
