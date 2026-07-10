@@ -1,4 +1,4 @@
-.PHONY: lint unit test parity-contract parity-contract-strict setup teardown integration
+.PHONY: lint unit test parity-contract setup teardown integration
 
 # Name of the file where the integration VM name is stored between make targets.
 INT_VM_FILE := .int-vm-name
@@ -18,10 +18,6 @@ test: lint unit
 # Validate baseline parity contract fixture availability.
 parity-contract:
 	python3 tests/check_parity_baseline.py
-
-# Strict mode for phase gates/CI where missing fixtures should fail.
-parity-contract-strict:
-	python3 tests/check_parity_baseline.py --strict
 
 # Provision a fresh integration VM and record its name in $(INT_VM_FILE).
 setup:

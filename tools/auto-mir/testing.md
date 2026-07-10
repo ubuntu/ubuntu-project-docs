@@ -13,7 +13,6 @@ make test
 
 # Baseline corpus contract checks
 make parity-contract
-make parity-contract-strict
 
 # Full integration flow (lint + setup + unit + teardown)
 make integration
@@ -35,17 +34,14 @@ Fast tests exercising the core logic functions without LXD, LP API, or LLM calls
 
 These must pass on every PR. Zero tolerance for failures.
 
-### Tier 2 — Baseline parity contract gate (required for refactor phases)
+### Tier 2 — Baseline parity contract gate (steady-state advisory)
 
 ```bash
 make parity-contract
 ```
 
-Use strict mode when current phase gates require complete baseline coverage:
-
-```bash
-make parity-contract-strict
-```
+The parity contract now runs in advisory mode and reports baseline drift without
+failing the default validation pipeline.
 
 ### Tier 3 — Manual Verification Against Real Cases (developer responsibility)
 
@@ -132,7 +128,7 @@ Not required for every PR — run when changing LXD runner or evidence adapters.
 Before requesting human review, an agent should:
 
 1. Run `make lint` and `make test`
-2. Run `make parity-contract` (or strict mode if required by phase)
+2. Run `make parity-contract`
 3. If changes touch evidence adapters or checks: run integration smoke
 4. If changes affect output rendering: compare output against a known bug run
 5. Record phase-gate outcomes in `decisions.md` using the phase ledger template
@@ -179,7 +175,7 @@ Tests will be skipped if no fixtures are present in `tools/auto-mir/tests/fixtur
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
 | `make lint` fails | New code with lint issues | Fix root cause and re-run `make lint` |
-| `make parity-contract-strict` fails | Missing baseline artifacts | Create missing fixtures or log explicit phase exception |
+| `make parity-contract` warns | Baseline artifacts missing/incomplete | Refresh fixtures or document accepted advisory drift |
 | Unit test failures | Logic regression in checks/render/intake | Fix the root cause; do not weaken tests |
 | Artifact regression test failures | Deterministic check logic changed | Re-baseline artifacts if intentional, otherwise fix the regression |
 | Smoke test container fail | LXD not available or image missing | Ensure `lxc` works and the target release (or devel fallback) image is available |

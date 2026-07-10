@@ -239,6 +239,52 @@ phases do not drift.
 - Follow-up impacts:
   - Remaining non-prompt markdown convergence can proceed from an updated architecture baseline.
 
+### Phase Ledger Entry: PR-50 Guardrail retirement (strict parity gate)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Retire temporary strict parity command-surface enforcement and move to steady-state advisory parity checks.
+- Scope boundaries touched:
+  - `tools/auto-mir/Makefile`
+  - `tools/auto-mir/testing.md`
+- Explicit non-goals:
+  - No removal of characterization or contract tests.
+  - No runtime pipeline behavior changes.
+- Invariants preserved:
+  - `make test` remains the primary mandatory gate.
+  - `make parity-contract` remains available for baseline drift visibility.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: WARN (advisory mode; baseline fixtures absent)
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Strict parity enforcement path retired from Makefile; advisory parity monitoring retained.
+- Follow-up impacts:
+  - PR-51 finalizes steady-state verification wording and guardrail rationale.
+
+### Phase Ledger Entry: PR-51 Steady-state testing policy update
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Align user-facing testing policy with post-refactor steady-state gates.
+- Scope boundaries touched:
+  - `tools/auto-mir/testing.md`
+- Explicit non-goals:
+  - No test implementation changes.
+- Invariants preserved:
+  - Existing lint/unit and integration guidance remains intact.
+  - Baseline parity visibility remains documented via advisory checks.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: WARN (advisory mode; baseline fixtures absent)
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Documentation now reflects settled post-refactor guardrail model.
+- Follow-up impacts:
+  - Functional test and review can proceed on a stable, documented validation surface.
+
 ## Traceability Decisions
 
 - **SUM-3**: use upstream `ubuntu-archive-tools/component-mismatches` logic by fetching and
