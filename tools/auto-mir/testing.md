@@ -4,21 +4,19 @@ How agents (and developers) verify changes before requesting human review.
 
 ## Quick Reference
 
-All commands run from the repository root unless noted.
+All commands run from `tools/auto-mir`.
 
 ```bash
-# Lint + format (fast, run after every change)
-make -C tools/ check
-make -C tools/ format
+# Fast local validation
+make lint
+make test
 
-# Verify template/catalog consistency
-make -C tools/ check-review-template
+# Baseline corpus contract checks
+make parity-contract
+make parity-contract-strict
 
-# Run unit tests (fast, offline, no LXD or LP API)
-make -C tools/ test
-
-# Full default target (format + check + render-review-template + test)
-make -C tools/
+# Full integration flow (lint + setup + unit + teardown)
+make integration
 ```
 
 ## Verification Layers
@@ -26,7 +24,7 @@ make -C tools/
 ### Tier 1 — Unit Tests (seconds, offline, automated)
 
 ```bash
-make -C tools/ test
+make test
 ```
 
 Fast tests exercising the core logic functions without LXD, LP API, or LLM calls:
@@ -37,17 +35,17 @@ Fast tests exercising the core logic functions without LXD, LP API, or LLM calls
 
 These must pass on every PR. Zero tolerance for failures.
 
-### Tier 2 — Static Analysis + Template Consistency (seconds, automated)
+### Tier 2 — Baseline parity contract gate (required for refactor phases)
 
 ```bash
-make -C tools/ check          # ruff check — linting
-make -C tools/ format         # ruff format — formatting
-make -C tools/ check-review-template
+make parity-contract
 ```
 
-Must pass cleanly. Zero warnings policy.
-`check-review-template` ensures `docs/MIR/mir-reviewers-template.md` matches what
-the catalog blueprint would generate — fails if catalog and template drift apart.
+Use strict mode when current phase gates require complete baseline coverage:
+
+```bash
+make parity-contract-strict
+```
 
 ### Tier 3 — Manual Verification Against Real Cases (developer responsibility)
 
@@ -83,7 +81,7 @@ Use `--keep-container` to iterate without re-provisioning the LXD container.
 ### Tier 3.5 — Deterministic Regression Tests (offline, automated)
 
 ```bash
-make -C tools/ test
+make test
 ```
 
 Includes `tests/test_artifacts.py` which replays saved test artifacts from real MIR bugs
@@ -133,10 +131,12 @@ Not required for every PR — run when changing LXD runner or evidence adapters.
 
 Before requesting human review, an agent should:
 
-1. Run `make -C tools/` (combines format, check, render-review-template, test)
-2. If changes touch evidence adapters or checks: run integration smoke
-3. If changes affect output rendering: compare output against a known bug run
-4. Report any failures with full error output
+1. Run `make lint` and `make test`
+2. Run `make parity-contract` (or strict mode if required by phase)
+3. If changes touch evidence adapters or checks: run integration smoke
+4. If changes affect output rendering: compare output against a known bug run
+5. Record phase-gate outcomes in `decisions.md` using the phase ledger template
+6. Report any failures with full error output
 
 ## Test Artifact Management
 
@@ -166,10 +166,10 @@ git add tools/auto-mir/tests/fixtures/<bug_id>/
 
 ### Verifying Artifacts
 
-The regression tests run automatically as part of `make -C tools/ test`:
+The regression tests run automatically as part of `make test`:
 
 ```bash
-make -C tools/ test
+make test
 ```
 
 Tests will be skipped if no fixtures are present in `tools/auto-mir/tests/fixtures/`.
@@ -178,8 +178,8 @@ Tests will be skipped if no fixtures are present in `tools/auto-mir/tests/fixtur
 
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
-| `ruff check` errors | New code with lint issues | Run `make -C tools/ format` then fix remaining |
-| Template mismatch | Catalog blueprint changed without regenerating template | Run `make -C tools/ render-review-template` |
+| `make lint` fails | New code with lint issues | Fix root cause and re-run `make lint` |
+| `make parity-contract-strict` fails | Missing baseline artifacts | Create missing fixtures or log explicit phase exception |
 | Unit test failures | Logic regression in checks/render/intake | Fix the root cause; do not weaken tests |
 | Artifact regression test failures | Deterministic check logic changed | Re-baseline artifacts if intentional, otherwise fix the regression |
 | Smoke test container fail | LXD not available or image missing | Ensure `lxc` works and the target release (or devel fallback) image is available |

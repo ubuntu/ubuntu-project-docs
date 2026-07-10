@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "enforcement": "advisory",
+  "required_artifacts": [
+    "context.json",
+    "evidence.json",
+    "deterministic_findings.json",
+    "meta.json"
+  ],
+  "cases": [
+    {
+      "bug_id": "2133757",
+      "name": "dav1d",
+      "notes": "Typical library; clean output structure"
+    },
+    {
+      "bug_id": "2108942",
+      "name": "ptyxis",
+      "notes": "Terminal emulator"
+    },
+    {
+      "bug_id": "2138736",
+      "name": "tbd",
+      "notes": "Reserved baseline slot"
+    }
+  ]
+}
