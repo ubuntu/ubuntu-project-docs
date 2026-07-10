@@ -384,6 +384,31 @@ phases do not drift.
 - Follow-up impacts:
   - LLM state transitions and rationale propagation now consistently flow through helper methods.
 
+### Phase Ledger Entry: PR-30 AI metadata helper extraction (slice 9)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Extract repeated AI metadata assignment (`risk_flags`, `evidence_refs`, confirmation flag) into a shared `Finding` helper.
+- Scope boundaries touched:
+  - `tools/auto-mir/models.py`
+  - `tools/auto-mir/checks/llm_eval.py`
+  - `tools/auto-mir/tests/test_models.py`
+- Explicit non-goals:
+  - No changes to LLM status/severity/todo mapping behavior.
+  - No changes to canonical message override policy.
+- Invariants preserved:
+  - Empty metadata payload fields do not clear previously set finding fields.
+  - AI-derived findings remain marked as requiring human confirmation.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Deduplicated metadata assignment only; no policy-level drift expected.
+- Follow-up impacts:
+  - Remaining direct field assignment sites are now limited to intentional semantic overrides.
+
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
 - Date: 2026-07-10

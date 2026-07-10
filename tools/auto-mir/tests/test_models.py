@@ -130,3 +130,33 @@ def test_fail_preserves_todo_ref_variant_without_double_prefix():
     )
 
     assert finding.todo == "TODO-B: Reviewer selects option B"
+
+
+def test_apply_ai_metadata_sets_non_empty_payload_fields_and_confirmation():
+    finding = Finding.ok(_base_check(), "Package identified")
+
+    finding.apply_ai_metadata(
+        risk_flags=["security-review-needed"],
+        evidence_refs=["lp-bug-api:description"],
+        human_confirmation_required=True,
+    )
+
+    assert finding.risk_flags == ["security-review-needed"]
+    assert finding.evidence_refs == ["lp-bug-api:description"]
+    assert finding.human_confirmation_required is True
+
+
+def test_apply_ai_metadata_keeps_existing_values_for_empty_payload_fields():
+    finding = Finding.ok(_base_check(), "Package identified")
+    finding.risk_flags = ["preexisting-flag"]
+    finding.evidence_refs = ["preexisting:ref"]
+
+    finding.apply_ai_metadata(
+        risk_flags=[],
+        evidence_refs=[],
+        human_confirmation_required=False,
+    )
+
+    assert finding.risk_flags == ["preexisting-flag"]
+    assert finding.evidence_refs == ["preexisting:ref"]
+    assert finding.human_confirmation_required is False

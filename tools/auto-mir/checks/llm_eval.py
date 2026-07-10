@@ -970,16 +970,11 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
         if canonical:
             finding.message = canonical
 
-    risk_flags = response.get("risk_flags", [])
-    if isinstance(risk_flags, list) and risk_flags:
-        finding.risk_flags = risk_flags
-
-    ev_refs = response.get("evidence_refs", [])
-    if isinstance(ev_refs, list) and ev_refs:
-        finding.evidence_refs = ev_refs
-
-    # Always require human confirmation for AI-derived findings
-    finding.human_confirmation_required = True
+    finding.apply_ai_metadata(
+        risk_flags=response.get("risk_flags", []),
+        evidence_refs=response.get("evidence_refs", []),
+        human_confirmation_required=True,
+    )
 
     return finding
 
@@ -1068,13 +1063,11 @@ def _apply_option_response(option: dict, response: dict, check: dict, finding: F
             rationale=rationale,
         )
 
-    ev_refs = response.get("evidence_refs", [])
-    if isinstance(ev_refs, list) and ev_refs:
-        finding.evidence_refs = ev_refs
-    risk_flags = response.get("risk_flags", [])
-    if isinstance(risk_flags, list) and risk_flags:
-        finding.risk_flags = risk_flags
-    finding.human_confirmation_required = True
+    finding.apply_ai_metadata(
+        risk_flags=response.get("risk_flags", []),
+        evidence_refs=response.get("evidence_refs", []),
+        human_confirmation_required=True,
+    )
     return finding
 
 

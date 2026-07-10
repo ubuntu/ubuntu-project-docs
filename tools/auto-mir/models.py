@@ -194,6 +194,21 @@ class Finding:
             return
         self.todo = f"TODO: - {fallback}"
 
+    def apply_ai_metadata(
+        self,
+        *,
+        risk_flags: list[str] | None = None,
+        evidence_refs: list[str] | None = None,
+        human_confirmation_required: bool = True,
+    ) -> None:
+        """Apply optional AI-derived metadata without clearing existing values."""
+        if isinstance(risk_flags, list) and risk_flags:
+            self.risk_flags = risk_flags
+        if isinstance(evidence_refs, list) and evidence_refs:
+            self.evidence_refs = evidence_refs
+        if human_confirmation_required:
+            self.human_confirmation_required = True
+
     def __post_init__(self):
         """Validate Finding invariants after initialization.
 
