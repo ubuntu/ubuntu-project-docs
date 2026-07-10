@@ -442,10 +442,7 @@ def _build_proposed_stanza(ubuntu_sources: str, codename: str) -> str | None:
 def _export_container_env(name: str, env_map: dict[str, str]) -> None:
     """Persist environment variables in container config without logging values."""
     for key, value in env_map.items():
-        cmd = ["lxc", "config", "set", name, f"environment.{key}={value}"]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        if result.returncode != 0:
-            raise subprocess.CalledProcessError(result.returncode, cmd)
+        _lxc("config", "set", name, f"environment.{key}={value}")
 
 
 def _bootstrap_archive_tools(name: str, pin_commit: str | None) -> None:

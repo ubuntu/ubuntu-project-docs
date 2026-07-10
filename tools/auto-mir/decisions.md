@@ -164,7 +164,30 @@ phases do not drift.
 - Parity result summary:
   - Behavior-preserving internal simplification; no output drift observed via tests.
 - Follow-up impacts:
-  - Additional wrapper consolidation can proceed incrementally with existing characterization coverage.
+  - Remaining direct LXD config-set wrapper paths can be normalized incrementally.
+
+### Phase Ledger Entry: PR-33 LXD execution wrapper consolidation (slice 2)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Remove one remaining direct `subprocess.run` LXD config path in favour of the shared `_lxc` wrapper.
+- Scope boundaries touched:
+  - `tools/auto-mir/lxd_runner.py`
+- Explicit non-goals:
+  - No retry-policy changes for in-container commands.
+  - No container lifecycle flow changes.
+- Invariants preserved:
+  - Container environment export still uses `lxc config set` for persistence.
+  - Shared command logging/error semantics now cover this path as well.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Behavior-preserving internal wrapper normalization only.
+- Follow-up impacts:
+  - LXD wrapper consolidation work is now limited to intentional higher-level execution API boundaries.
 
 ### Phase Ledger Entry: PR-12 Evaluator fallback centralization (slice 1)
 
