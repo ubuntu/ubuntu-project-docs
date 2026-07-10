@@ -432,6 +432,30 @@ phases do not drift.
 - Follow-up impacts:
   - Functional test and review can proceed on a stable, converged non-prompt markdown set.
 
+### Phase Ledger Entry: PR-32 LLM RunContext typing completion (slice 11)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Complete the previously planned type-boundary cleanup by typing `llm.py` against `RunContext` explicitly.
+- Scope boundaries touched:
+  - `tools/auto-mir/llm.py`
+  - `tools/auto-mir/auto_mir.py`
+- Explicit non-goals:
+  - No provider, retry, or token-budget behavior changes.
+  - No prompt/rendering changes.
+- Invariants preserved:
+  - `llm.call_llm()` runtime behavior and retry semantics remain unchanged.
+  - Reasoning traces remain optional runtime metadata, now declared on `RunContext`.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Type-only boundary tightening; no output drift expected.
+- Follow-up impacts:
+  - The earlier RunContext typing suggestion for `llm.py` is now closed.
+
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
 - Date: 2026-07-10

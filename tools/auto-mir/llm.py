@@ -30,9 +30,12 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from utils.retry import extract_retry_after, retry_rate_limited
+
+if TYPE_CHECKING:
+    from auto_mir import RunContext
 
 log = logging.getLogger("auto_mir.llm")
 
@@ -118,7 +121,12 @@ class _RateLimitState:
 _rate_limit_by_model: dict[str, _RateLimitState] = {}
 
 
-def call_llm(prompt: str, ctx, model_tier: str = "small", trace_label: str = "") -> dict[str, Any]:
+def call_llm(
+    prompt: str,
+    ctx: "RunContext",
+    model_tier: str = "small",
+    trace_label: str = "",
+) -> dict[str, Any]:
     """Call the configured LLM provider and return the parsed JSON response.
 
     Args:
@@ -170,7 +178,11 @@ _JSON_RETRY_INSTRUCTION = (
 
 
 def _invoke_with_budget(
-    prompt: str, ctx, model_tier: str, max_tokens: int, trace_label: str
+    prompt: str,
+    ctx: "RunContext",
+    model_tier: str,
+    max_tokens: int,
+    trace_label: str,
 ) -> dict[str, Any]:
     """Single LLM invocation: HTTP call, usage tracking, and reasoning capture."""
     try:
@@ -196,7 +208,7 @@ def _invoke_with_budget(
     return parsed
 
 
-def _record_usage(ctx, model: str, prompt: str, max_tokens: int) -> None:
+def _record_usage(ctx: "RunContext", model: str, prompt: str, max_tokens: int) -> None:
     """Track LLM usage for cost/efficiency reporting."""
     if not hasattr(ctx, "llm_calls_by_model"):
         ctx.llm_calls_by_model = {}
@@ -207,7 +219,9 @@ def _record_usage(ctx, model: str, prompt: str, max_tokens: int) -> None:
     ctx.llm_estimated_tokens[model] = ctx.llm_estimated_tokens.get(model, 0) + estimated_total
 
 
-def _record_reasoning(ctx, model: str, trace_label: str, meta: dict[str, Any]) -> None:
+def _record_reasoning(
+    ctx: "RunContext", model: str, trace_label: str, meta: dict[str, Any]
+) -> None:
     """Persist the model's reasoning text for later debugging/analysis."""
     reasoning = (meta or {}).get("reasoning") or ""
     if not reasoning:
@@ -241,7 +255,7 @@ def _http_error_body(exc: urllib.error.HTTPError) -> str:
 
 @retry_rate_limited(max_attempts=4, base_delay=8.0, max_delay=60.0)
 def _call_openai_compatible(
-    prompt: str, ctx, model_tier: str, max_tokens: int
+    prompt: str, ctx: "RunContext", model_tier: str, max_tokens: int
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Call an OpenAI-compatible chat-completions endpoint and return parsed JSON.
 
@@ -352,7 +366,7 @@ def _call_openai_compatible(
         raise
 
 
-def _selected_model(ctx, model_tier: str = "small") -> str:
+def _selected_model(ctx: "RunContext", model_tier: str = "small") -> str:
     """Return the configured model name for the selected tier.
 
     Priority:

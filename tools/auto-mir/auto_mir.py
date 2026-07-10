@@ -247,7 +247,7 @@ class RunContext:
         report_path, review_draft_path
 
     Updated incrementally by llm.call_llm() (during Stage 4):
-        llm_calls_by_model, llm_estimated_tokens
+        llm_calls_by_model, llm_estimated_tokens, llm_reasoning_traces
     """
 
     def __init__(self, args: argparse.Namespace):
@@ -311,6 +311,7 @@ class RunContext:
         # --- Updated by llm.call_llm() during Stage 4 ---
         self.llm_calls_by_model: dict[str, int] = {}
         self.llm_estimated_tokens: dict[str, int] = {}
+        self.llm_reasoning_traces: list[dict[str, str]] = []
 
     def save_evidence(self) -> None:
         """Persist accumulated evidence to output directory for debugging/audit."""
