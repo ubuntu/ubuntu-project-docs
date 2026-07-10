@@ -1046,11 +1046,7 @@ def _apply_option_response(option: dict, response: dict, check: dict, finding: F
 
     finding.rationale = rationale
     if outcome == "ok":
-        finding.status = "ok"
-        finding.severity = "ok"
-        finding.confidence = confidence
-        finding.message = message
-        finding.todo = ""
+        finding.succeed(message=message, confidence=confidence, rationale=rationale)
     else:
         finding.status = "not-ok"
         finding.severity = outcome

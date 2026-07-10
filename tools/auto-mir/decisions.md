@@ -288,6 +288,29 @@ phases do not drift.
 - Follow-up impacts:
   - Remaining direct state mutation in LLM response mapping can be addressed in later slices.
 
+### Phase Ledger Entry: PR-26 LLM option-response ok-path helper migration (slice 5)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Migrate the option-response `outcome=ok` state mutation path to shared `Finding.succeed` helper semantics.
+- Scope boundaries touched:
+  - `tools/auto-mir/checks/llm_eval.py`
+- Explicit non-goals:
+  - No changes to `not-ok` option outcome routing.
+  - No changes to option selection matching (`id`/`todo_ref`).
+- Invariants preserved:
+  - Option checks that resolve to `ok` keep canonical statement behavior and empty TODOs.
+  - Human confirmation requirement remains enabled for AI-derived findings.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Internal state mutation path simplification only; no intended output-policy changes.
+- Follow-up impacts:
+  - Remaining `not-ok` option response assignments can migrate in a later bounded slice.
+
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
 - Date: 2026-07-10
