@@ -164,7 +164,7 @@ phases do not drift.
 - Parity result summary:
   - Behavior-preserving internal simplification; no output drift observed via tests.
 - Follow-up impacts:
-  - Remaining direct `lxc exec ... tee` wrapper paths can be normalized incrementally.
+  - Additional wrapper consolidation continued in PR-33 and PR-34.
 
 ### Phase Ledger Entry: PR-33 LXD execution wrapper consolidation (slice 2)
 
@@ -233,7 +233,7 @@ phases do not drift.
 - Parity result summary:
   - Behavior-preserving deduplication only; no output drift observed in test suite.
 - Follow-up impacts:
-  - Additional simplification of evaluator pathways can build on shared fallback helper.
+  - Evaluator-path simplification continued in PR-25 through PR-30.
 
 ### Phase Ledger Entry: PR-22 Finding state transition normalization (slice 1)
 
@@ -308,7 +308,7 @@ phases do not drift.
 - Parity result summary:
   - Behavior-preserving normalization path extraction; no output drift observed in tests.
 - Follow-up impacts:
-  - Additional helper migration in evaluator internals can proceed incrementally.
+  - Evaluator helper migration continued in PR-25 and subsequent slices.
 
 ### Phase Ledger Entry: PR-25 LLM unknown-path helper normalization (slice 4)
 
