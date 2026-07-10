@@ -13,6 +13,232 @@ Use this log as the source for deciding what should be promoted into
   `Promotion: yes` in that decision entry.
 - For decisions that should stay local rationale, include `Promotion: no`.
 
+## Refactor phase ledger template (2026-07)
+
+Use this template for each refactor PR batch under `tools/auto-mir`.
+The goal is to keep intent, boundaries, and parity outcomes explicit so later
+phases do not drift.
+
+```md
+### Phase Ledger Entry: <PR-ID / batch name>
+
+- Date: YYYY-MM-DD
+- Promotion: no
+- Intent: <single architectural intent for this PR>
+- Scope boundaries touched:
+  - <module/file group 1>
+  - <module/file group 2>
+- Explicit non-goals:
+  - <what was intentionally not changed>
+- Invariants preserved:
+  - <behavior or contract 1>
+  - <behavior or contract 2>
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS/FAIL
+  - `make test`: PASS/FAIL
+  - `make parity-contract` or `make parity-contract-strict`: PASS/WARN/FAIL
+  - `python3 integration_smoke.py` (if applicable): PASS/FAIL/SKIP
+- Parity result summary:
+  - <byte-level parity status against baseline artifacts>
+- Follow-up impacts:
+  - <next PR dependency or cleanup>
+```
+
+### Phase Ledger Entry: PR-00 Baseline contract and governance rails
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Establish explicit refactor guardrail mechanics and command-surface governance.
+- Scope boundaries touched:
+  - `tools/auto-mir/Makefile`
+  - `tools/auto-mir/testing.md`
+  - `tools/auto-mir/tests/check_parity_baseline.py`
+  - `tools/auto-mir/tests/parity_baseline.json`
+- Explicit non-goals:
+  - No production runtime behavior changes.
+  - No check logic or adapter logic changes.
+- Invariants preserved:
+  - `make test` remains the fast validation gate.
+  - Existing test suite behavior is unchanged.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: WARN (advisory mode; baseline fixtures absent)
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Baseline manifest and checker are in place; strict parity is not yet enforceable until fixtures are populated.
+- Follow-up impacts:
+  - PR-01 can rely on a stable test and phase-gate command surface.
+
+### Phase Ledger Entry: PR-01 Characterization tests for orchestration and adapter graph
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Add explicit characterization tests for stage sequencing, collect-only routing, dependency failure propagation, and Finding invariants.
+- Scope boundaries touched:
+  - `tools/auto-mir/tests/test_auto_mir.py`
+  - `tools/auto-mir/tests/test_evidence.py`
+  - `tools/auto-mir/tests/test_models.py`
+- Explicit non-goals:
+  - No changes to stage orchestration implementation semantics.
+  - No changes to adapter execution logic.
+- Invariants preserved:
+  - Stage order in `auto_mir.main` remains auth -> intake -> spawn -> collect -> analyse -> render (with collect-only exceptions).
+  - Downstream adapters are not executed when required upstream dependency fails.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: WARN (advisory mode; baseline fixtures absent)
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Test-only changes; runtime parity unaffected.
+- Follow-up impacts:
+  - PR-02 can safely extend evaluator-routing characterization with stronger guardrails.
+
+### Phase Ledger Entry: PR-02 Characterization tests for evaluator and rendering contracts
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Strengthen evaluator routing and fallback contract tests, including adapter error-cause mapping and unknown-mode normalization.
+- Scope boundaries touched:
+  - `tools/auto-mir/tests/test_checks.py`
+- Explicit non-goals:
+  - No modifications to evaluator implementations.
+  - No rendering logic changes.
+- Invariants preserved:
+  - Low-confidence unresolved findings map failed adapter causes deterministically.
+  - Unknown-mode fallback remains normalized to `TODO:`-prefixed manual action.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: WARN (advisory mode; baseline fixtures absent)
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Test-only changes; runtime parity unaffected.
+- Follow-up impacts:
+  - PR-10+ refactors now have stronger evaluator contract protection.
+
+### Phase Ledger Entry: PR-10 Context and boundary typing pass
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Introduce explicit protocol contracts for checks/evidence orchestration boundaries without runtime behavior changes.
+- Scope boundaries touched:
+  - `tools/auto-mir/contracts.py`
+  - `tools/auto-mir/checks/__init__.py`
+  - `tools/auto-mir/evidence/__init__.py`
+- Explicit non-goals:
+  - No refactor of orchestration flow.
+  - No adapter/check implementation changes.
+- Invariants preserved:
+  - `evaluate_checks` and `collect_from_catalog` behavior remains unchanged.
+  - Existing call sites continue to pass `RunContext` objects.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: WARN (advisory mode; baseline fixtures absent)
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Type annotation and protocol only; no output drift introduced.
+- Follow-up impacts:
+  - PR-11/PR-12 can refactor execution and evaluator policies with clearer boundary contracts.
+
+### Phase Ledger Entry: PR-11 LXD execution wrapper consolidation (slice 1)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Reduce wrapper indirection in host/container execution by removing one redundant host wrapper layer.
+- Scope boundaries touched:
+  - `tools/auto-mir/lxd_runner.py`
+- Explicit non-goals:
+  - No command retry policy changes.
+  - No subprocess behavior or argument-shaping changes.
+- Invariants preserved:
+  - `_lxc` remains the public helper for `lxc` CLI calls.
+  - Error handling still routes through `run_command` with existing logging/check semantics.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: WARN (advisory mode; baseline fixtures absent)
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Behavior-preserving internal simplification; no output drift observed via tests.
+- Follow-up impacts:
+  - Additional wrapper consolidation can proceed incrementally with existing characterization coverage.
+
+### Phase Ledger Entry: PR-12 Evaluator fallback centralization (slice 1)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Remove duplicated LLM-unavailable fallback logic by introducing a shared helper in `checks/llm_eval.py`.
+- Scope boundaries touched:
+  - `tools/auto-mir/checks/llm_eval.py`
+- Explicit non-goals:
+  - No prompt/evidence transformation changes.
+  - No confidence, severity, or TODO policy changes.
+- Invariants preserved:
+  - `ev_to_ai` and `ai` modes still degrade to `status=unknown`, `confidence=low` on LLM errors.
+  - Existing fallback messages and TODO generation semantics are unchanged.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: WARN (advisory mode; baseline fixtures absent)
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Behavior-preserving deduplication only; no output drift observed in test suite.
+- Follow-up impacts:
+  - Additional simplification of evaluator pathways can build on shared fallback helper.
+
+### Phase Ledger Entry: PR-22 Finding state transition normalization (slice 1)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Start replacing manual finding field mutation with `Finding` helper methods in shared orchestration paths.
+- Scope boundaries touched:
+  - `tools/auto-mir/checks/__init__.py`
+  - `tools/auto-mir/checks/deterministic.py`
+- Explicit non-goals:
+  - No check policy or severity policy changes.
+  - No catalog or renderer behavior changes.
+- Invariants preserved:
+  - Language-gate skip path still yields `status=ok`, `severity=ok`, `confidence=high`.
+  - Adapter-missing unknown fallback remains `status=unknown`, `severity=ok`, `confidence=low`.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: WARN (advisory mode; baseline fixtures absent)
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - No observed output drift in existing test suite; refactor is state-mutation-internal.
+- Follow-up impacts:
+  - Remaining deterministic checks can be migrated incrementally to helper-based state transitions.
+
+### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Refresh architecture and subsystem documentation to match current runtime boundaries and flow.
+- Scope boundaries touched:
+  - `tools/auto-mir/design.md`
+  - `tools/auto-mir/checks/README.md`
+  - `tools/auto-mir/evidence/README.md`
+  - `tools/auto-mir/render/README.md`
+- Explicit non-goals:
+  - No runtime code path or policy behavior changes.
+  - No prompt content updates.
+- Invariants preserved:
+  - Documentation remains aligned with current command surface and stage model.
+  - `design.md` now includes an ASCII architecture diagram without external dependencies.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: WARN (advisory mode; baseline fixtures absent)
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Documentation-only changes; runtime output behavior unchanged.
+- Follow-up impacts:
+  - Remaining non-prompt markdown convergence can proceed from an updated architecture baseline.
+
 ## Traceability Decisions
 
 - **SUM-3**: use upstream `ubuntu-archive-tools/component-mismatches` logic by fetching and

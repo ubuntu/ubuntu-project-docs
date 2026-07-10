@@ -209,3 +209,29 @@ After editing `todo_refs` or the blueprint, regenerate and commit the result.
 - `tests/test_checks.py` covers evaluator behaviour.
 
 Run everything with `make test` from `tools/auto-mir`.
+
+---
+
+## Refactor-era guardrails
+
+While structural refactoring is in progress, catalog changes should keep these
+stability rules:
+
+1. Keep check ids stable. Moving evaluator code is acceptable; renaming ids is
+   not, unless explicitly planned with migration notes.
+2. Preserve section ordering semantics so renderer grouping stays stable.
+3. Keep `messages` complete for deterministic checks; do not move reviewer text
+   back into Python logic.
+4. If adapter dependencies change, update both `adapters_required`/
+   `adapters_optional` and corresponding tests in `tests/test_catalog.py` and
+   `tests/test_checks.py`.
+5. Validate from `tools/auto-mir` with:
+
+```bash
+make lint
+make test
+make parity-contract
+```
+
+Use `make parity-contract-strict` only when baseline fixtures are available and
+the current phase gate requires strict parity enforcement.
