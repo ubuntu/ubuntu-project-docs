@@ -1048,15 +1048,17 @@ def _apply_option_response(option: dict, response: dict, check: dict, finding: F
     if outcome == "ok":
         finding.succeed(message=message, confidence=confidence, rationale=rationale)
     else:
-        finding.status = "not-ok"
-        finding.severity = outcome
-        finding.confidence = confidence
-        finding.message = message
         todo = render_text or str(option.get("todo_ref", "")).strip()
         if not (todo.startswith("TODO:") or todo.startswith("TODO-")):
             prefix_inner = "" if todo.startswith("- ") else "- "
             todo = f"TODO: {prefix_inner}{todo}"
-        finding.todo = todo
+        finding.fail(
+            message=message,
+            todo=todo,
+            severity=outcome,
+            confidence=confidence,
+            rationale=rationale,
+        )
 
     ev_refs = response.get("evidence_refs", [])
     if isinstance(ev_refs, list) and ev_refs:

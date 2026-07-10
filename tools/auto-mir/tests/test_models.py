@@ -118,3 +118,15 @@ def test_ensure_todo_is_noop_for_ok_findings():
     finding.ensure_todo("Source package identified")
 
     assert finding.todo == ""
+
+
+def test_fail_preserves_todo_ref_variant_without_double_prefix():
+    finding = Finding.ok(_base_check(), "Package identified")
+
+    finding.fail(
+        message="Needs follow-up",
+        todo="TODO-B: Reviewer selects option B",
+        severity="recommended",
+    )
+
+    assert finding.todo == "TODO-B: Reviewer selects option B"

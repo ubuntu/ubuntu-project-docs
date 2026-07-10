@@ -311,6 +311,32 @@ phases do not drift.
 - Follow-up impacts:
   - Remaining `not-ok` option response assignments can migrate in a later bounded slice.
 
+### Phase Ledger Entry: PR-27 LLM option-response not-ok helper migration (slice 6)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Migrate option-response `not-ok` assignment path to `Finding.fail` and normalize TODO-ref prefix handling.
+- Scope boundaries touched:
+  - `tools/auto-mir/models.py`
+  - `tools/auto-mir/checks/llm_eval.py`
+  - `tools/auto-mir/tests/test_models.py`
+  - `tools/auto-mir/tests/test_checks.py`
+- Explicit non-goals:
+  - No changes to option outcome policy (`ok`/`recommended`/`required`/`nack`).
+  - No changes to option selection resolution logic.
+- Invariants preserved:
+  - Non-ok option responses continue to render reviewer TODOs.
+  - Existing `TODO:` and `TODO-X:` prefixes remain stable and are not double-prefixed.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Internal state mutation path consolidation only; no intended behavior drift.
+- Follow-up impacts:
+  - LLM response mapping now uses helpers for both option outcomes and unknown fallbacks.
+
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
 - Date: 2026-07-10

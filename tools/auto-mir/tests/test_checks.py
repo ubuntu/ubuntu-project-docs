@@ -2415,6 +2415,34 @@ def test_urf_9_option_not_user_visible_needs_no_translation():
     assert result.todo == ""
 
 
+def test_selected_option_uses_todo_ref_when_render_is_empty():
+    """Option mapping keeps TODO-ref prefixes intact when render text is missing."""
+    check = {
+        "id": "URF-8",
+        "section": "Upstream red flags",
+        "mode": "ev_to_ai",
+        "options": [
+            {
+                "id": "URF-8-C",
+                "todo_ref": "TODO-C: - no valid .desktop file",
+                "render": "",
+                "outcome": "required",
+            }
+        ],
+    }
+    finding = _make_finding("URF-8", mode="ev_to_ai")
+    response = {
+        "status": "not-ok",
+        "selected_option": "URF-8-C",
+        "rationale": "No desktop file found.",
+    }
+
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
+
+    assert result.status == "not-ok"
+    assert result.todo.startswith("TODO-C:")
+
+
 def _cb5_ctx_with_cb4(cb4_status):
     """Build a ctx whose findings already contain a CB-4 result."""
     ctx = _Ctx()

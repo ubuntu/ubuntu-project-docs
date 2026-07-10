@@ -161,7 +161,7 @@ class Finding:
         self.severity = severity
         self.confidence = confidence
         self.message = message
-        if not todo.startswith("TODO:"):
+        if not (todo.startswith("TODO:") or todo.startswith("TODO-")):
             todo = f"TODO: {todo}"
         self.todo = todo
         self.rationale = rationale
@@ -179,7 +179,11 @@ class Finding:
         self.severity = severity
         self.confidence = confidence
         self.message = message
-        self.todo = todo if (not todo or todo.startswith("TODO:")) else f"TODO: {todo}"
+        self.todo = (
+            todo
+            if (not todo or todo.startswith("TODO:") or todo.startswith("TODO-"))
+            else f"TODO: {todo}"
+        )
         self.rationale = rationale
 
     def ensure_todo(self, fallback: str) -> None:
