@@ -170,6 +170,41 @@ def test_collect_from_catalog_handles_adapter_failure():
         assert ctx.evidence["adapters"]["ubuntu-cve-tracker"]["status"] == "ok"
 
 
+def test_collect_from_catalog_propagates_failed_dependency_to_downstream_adapter():
+    """Downstream adapters should be marked as failed when an upstream dependency fails."""
+    ctx = Mock()
+    ctx.catalog = {
+        "checks": [
+            {"id": "DEP-1", "adapters_required": ["packaging-source", "dep-analysis"]},
+        ]
+    }
+    ctx.evidence = {}
+    ctx.collect_only = False
+
+    mock_packaging = Mock(side_effect=AdapterError("cannot fetch packaging source"))
+    mock_dep = Mock(return_value={"status": "ok"})
+
+    with patch.dict(
+        "evidence.ADAPTER_REGISTRY",
+        {
+            "packaging-source": (mock_packaging, []),
+            "dep-analysis": (mock_dep, ["packaging-source"]),
+        },
+        clear=True,
+    ):
+        result = collect_from_catalog(ctx)
+
+    assert result == 1
+    assert ctx.evidence["adapters"]["packaging-source"]["status"] == "error"
+    assert ctx.evidence["adapters"]["dep-analysis"]["status"] == "error"
+    assert (
+        "upstream dependency failed: packaging-source"
+        in ctx.evidence["adapters"]["dep-analysis"]["message"]
+    )
+    assert mock_packaging.called
+    assert not mock_dep.called
+
+
 def test_collect_from_catalog_marks_unimplemented_adapters():
     """Adapters without collectors should be marked as pending."""
     ctx = Mock()

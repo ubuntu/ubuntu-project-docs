@@ -3040,6 +3040,70 @@ def test_single_language_gate_still_emits_message():
     assert finding.message == "not a go package, no extra constraints to consider in that regard"
 
 
+def test_evaluate_checks_maps_failed_adapters_to_low_confidence_findings(monkeypatch):
+    """Low-confidence unresolved findings should expose causing adapter failures."""
+    from types import SimpleNamespace
+
+    import checks
+
+    def low_conf_eval(check, ctx, finding):
+        finding.status = "not-ok"
+        finding.severity = "recommended"
+        finding.confidence = "low"
+        finding.message = "needs review"
+        finding.todo = "TODO: - verify manually"
+        return finding
+
+    monkeypatch.setattr(checks, "_ensure_evaluators_registered", lambda: None)
+    monkeypatch.setitem(checks.EVALUATORS, "tlow", low_conf_eval)
+
+    ctx = SimpleNamespace(
+        catalog={
+            "checks": [
+                {
+                    "id": "RDO-X",
+                    "mode": "tlow",
+                    "section": "Rationale",
+                    "adapters_required": ["dep-analysis", "packaging-source"],
+                    "adapters_optional": ["git-ubuntu-delta"],
+                }
+            ]
+        },
+        evidence={
+            "adapters": {
+                "dep-analysis": {"status": "error"},
+                "packaging-source": {"status": "ok"},
+                "git-ubuntu-delta": {"status": "pending"},
+            }
+        },
+        findings=[],
+    )
+
+    findings = checks.evaluate_checks(ctx)
+    assert len(findings) == 1
+    assert findings[0].adapter_error_cause == ["dep-analysis", "git-ubuntu-delta"]
+
+
+def test_evaluate_single_check_unknown_mode_has_normalized_todo_prefix():
+    """Unknown evaluator mode should degrade to unknown with TODO prefix preserved."""
+    from types import SimpleNamespace
+
+    import checks
+
+    ctx = SimpleNamespace(evidence={"adapters": {}})
+    check = {
+        "id": "X-UNKNOWN",
+        "section": "Summary",
+        "title": "Unknown mode check",
+        "mode": "does-not-exist",
+    }
+
+    finding = checks._evaluate_single_check(check, ctx)
+
+    assert finding.status == "unknown"
+    assert finding.todo.startswith("TODO:")
+
+
 def test_extract_build_test_hints_detects_wiring():
     hints = checks.llm_eval._extract_build_test_hints(
         "override_dh_auto_test:\n\tmake check\n",
