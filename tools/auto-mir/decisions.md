@@ -309,7 +309,7 @@ phases do not drift.
 - Parity result summary:
   - Internal state mutation path simplification only; no intended output-policy changes.
 - Follow-up impacts:
-  - Remaining `not-ok` option response assignments can migrate in a later bounded slice.
+  - `not-ok` option response assignments were migrated in PR-27.
 
 ### Phase Ledger Entry: PR-27 LLM option-response not-ok helper migration (slice 6)
 
@@ -358,7 +358,7 @@ phases do not drift.
 - Parity result summary:
   - State transition wiring simplified with no intended policy changes.
 - Follow-up impacts:
-  - Remaining direct assignment sites are limited to response payload extras (risk flags/evidence refs).
+  - Remaining direct assignment sites are intentionally limited to response payload extras (`risk_flags`, `evidence_refs`, confirmation flag).
 
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
