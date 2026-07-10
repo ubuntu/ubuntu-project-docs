@@ -199,11 +199,11 @@ Integration gate (when execution/evidence boundaries change):
 
 ## Current refactor posture
 
-The codebase is in phased structural refactoring with:
+The 2026 phased structural refactor is complete. The codebase now operates with:
 
-- characterization tests first,
-- behavior-preserving decoupling and simplification,
-- documentation convergence toward source-of-truth status,
+- characterization and contract tests in place,
+- simplified helper-driven state transitions and wrapper boundaries,
+- documentation aligned to the current runtime architecture,
 - steady-state advisory parity checks to monitor baseline drift.
 
 See `decisions.md` phase ledger entries for per-batch status and validation.

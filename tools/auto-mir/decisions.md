@@ -212,6 +212,30 @@ phases do not drift.
 - Follow-up impacts:
   - LXD wrapper consolidation is now complete aside from intentional host-level prerequisite probes.
 
+### Phase Ledger Entry: PR-99 Refactor completion alignment
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Mark the 2026 phased structural refactor as complete and align architecture documentation with that completed state.
+- Scope boundaries touched:
+  - `tools/auto-mir/design.md`
+  - `tools/auto-mir/decisions.md`
+- Explicit non-goals:
+  - No runtime code changes.
+  - No validation-policy changes.
+- Invariants preserved:
+  - Steady-state gates remain `make test` plus advisory `make parity-contract`.
+  - Historical phase entries remain the detailed audit trail of each incremental batch.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Documentation-only completion alignment; runtime behavior unchanged.
+- Follow-up impacts:
+  - Implementation/refactor phase is complete; next work should be code review and functional testing.
+
 ### Phase Ledger Entry: PR-12 Evaluator fallback centralization (slice 1)
 
 - Date: 2026-07-10
