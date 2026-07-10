@@ -144,18 +144,18 @@ def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
 @evaluator("human_only")
 def _eval_human_only(check: dict, ctx, finding: Finding) -> Finding:
     """Evaluate checks that require human judgment only."""
-    finding.status = "unknown"
-    finding.confidence = "low"
-    finding.message = render_check_message_or_default(
-        check,
-        "human_only_message",
-        "Human review required",
-    )
-    finding.todo = render_check_message_or_default(
-        check,
-        "human_only_todo",
-        f"TODO: - {check.get('title', 'Check')} — reviewer judgment needed",
-        title=check.get("title", "Check"),
+    finding.mark_unknown(
+        message=render_check_message_or_default(
+            check,
+            "human_only_message",
+            "Human review required",
+        ),
+        todo=render_check_message_or_default(
+            check,
+            "human_only_todo",
+            f"TODO: - {check.get('title', 'Check')} — reviewer judgment needed",
+            title=check.get("title", "Check"),
+        ),
     )
     return finding
 
@@ -168,15 +168,15 @@ def _apply_llm_unavailable_fallback(
     fallback_suffix: str,
 ) -> None:
     """Apply the standard unknown/low-confidence fallback for LLM outages."""
-    finding.status = "unknown"
-    finding.confidence = "low"
-    finding.message = render_check_message_or_default(
-        check,
-        "llm_unavailable_message",
-        f"LLM unavailable: {error}",
-        error=str(error),
+    finding.mark_unknown(
+        message=render_check_message_or_default(
+            check,
+            "llm_unavailable_message",
+            f"LLM unavailable: {error}",
+            error=str(error),
+        ),
+        todo=_default_todo_for_check(check, fallback_suffix=fallback_suffix),
     )
-    finding.todo = _default_todo_for_check(check, fallback_suffix=fallback_suffix)
 
 
 def _wrap_untrusted(ctx, label: str, text: str) -> str:
@@ -894,8 +894,10 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
     """
     if not isinstance(response, dict):
         log.warning("LLM response for %s is not a dict: %r", check["id"], response)
-        finding.status = "unknown"
-        finding.todo = _default_todo_for_check(check, fallback_suffix="LLM response invalid")
+        finding.mark_unknown(
+            message=finding.message,
+            todo=_default_todo_for_check(check, fallback_suffix="LLM response invalid"),
+        )
         return finding
 
     # Option-based ev_to_ai checks are wired so the model picks one option id and

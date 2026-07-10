@@ -3105,6 +3105,22 @@ def test_evaluate_single_check_unknown_mode_has_normalized_todo_prefix():
     assert finding.todo.startswith("TODO:")
 
 
+def test_apply_llm_response_invalid_payload_degrades_to_unknown_low_confidence():
+    check = {
+        "id": "RDO-X",
+        "section": "Rationale",
+        "title": "Malformed response check",
+        "mode": "ev_to_ai",
+    }
+    finding = _make_finding("RDO-X", title="Malformed response check", mode="ev_to_ai")
+
+    result = checks.llm_eval._apply_llm_response("not-a-dict", check, finding)
+
+    assert result.status == "unknown"
+    assert result.confidence == "low"
+    assert result.todo.startswith("TODO:")
+
+
 def test_extract_build_test_hints_detects_wiring():
     hints = checks.llm_eval._extract_build_test_hints(
         "override_dh_auto_test:\n\tmake check\n",

@@ -264,6 +264,30 @@ phases do not drift.
 - Follow-up impacts:
   - Additional helper migration in evaluator internals can proceed incrementally.
 
+### Phase Ledger Entry: PR-25 LLM unknown-path helper normalization (slice 4)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Normalize LLM evaluator unknown-state fallbacks through shared `Finding` helpers.
+- Scope boundaries touched:
+  - `tools/auto-mir/checks/llm_eval.py`
+  - `tools/auto-mir/tests/test_checks.py`
+- Explicit non-goals:
+  - No prompt rendering changes.
+  - No model tier selection policy changes.
+- Invariants preserved:
+  - Human-only and LLM-unavailable checks remain unresolved and reviewer-driven.
+  - Fallback TODO text and status routing remain unchanged in meaning.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - Internal fallback state mutation paths are unified; no policy drift expected.
+- Follow-up impacts:
+  - Remaining direct state mutation in LLM response mapping can be addressed in later slices.
+
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
 - Date: 2026-07-10
