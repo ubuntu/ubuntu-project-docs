@@ -337,6 +337,29 @@ phases do not drift.
 - Follow-up impacts:
   - LLM response mapping now uses helpers for both option outcomes and unknown fallbacks.
 
+### Phase Ledger Entry: PR-28 Core LLM response helper migration (slice 7)
+
+- Date: 2026-07-10
+- Promotion: no
+- Intent: Route generic LLM response status transitions (`ok`/`not-ok`/`unknown`) through `Finding` helpers.
+- Scope boundaries touched:
+  - `tools/auto-mir/checks/llm_eval.py`
+- Explicit non-goals:
+  - No change to status/severity/confidence normalization rules.
+  - No change to Summary option TODO aggregation behavior.
+- Invariants preserved:
+  - Canonical `ok` statement override remains in place for single-statement ev_to_ai checks.
+  - Non-ok and unknown outcomes still receive default/normalized TODO text when absent.
+- Validation run from `tools/auto-mir`:
+  - `make lint`: PASS
+  - `make test`: PASS
+  - `make parity-contract`: SKIP
+  - `python3 integration_smoke.py` (if applicable): SKIP
+- Parity result summary:
+  - State transition wiring simplified with no intended policy changes.
+- Follow-up impacts:
+  - Remaining direct assignment sites are limited to response payload extras (risk flags/evidence refs).
+
 ### Phase Ledger Entry: PR-40/41 Documentation convergence (slice 1)
 
 - Date: 2026-07-10

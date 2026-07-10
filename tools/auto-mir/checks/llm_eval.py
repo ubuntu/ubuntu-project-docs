@@ -926,17 +926,11 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
     # confident AI failure can be surfaced as a Problem/Required TODO. Human
     # confirmation is still always required (set below).
 
-    finding.status = status
-    finding.severity = severity
-    finding.confidence = confidence
-
     message = (response.get("message") or "").strip()
-    if message:
-        finding.message = message
+    resolved_message = message or finding.message
 
     todo = (response.get("todo") or "").strip()
     rationale = (response.get("rationale") or "").strip()
-    finding.rationale = rationale
 
     if status != "ok":
         # [Summary] option checks (e.g. SUM-5/SUM-6) must keep all variants
@@ -951,15 +945,30 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
             todo = f"TODO: {prefix_inner}{todo}"
         if not todo:
             todo = _default_todo_for_check(check, fallback_suffix="review needed")
-        finding.todo = todo
+        if status == "unknown":
+            finding.mark_unknown(
+                message=resolved_message,
+                todo=todo,
+                severity=severity,
+                confidence=confidence,
+                rationale=rationale,
+            )
+        else:
+            finding.fail(
+                message=resolved_message,
+                todo=todo,
+                severity=severity,
+                confidence=confidence,
+                rationale=rationale,
+            )
     else:
         # Prefer the catalog's canonical OK statement over free-form model prose
         # so the reviewer sees the familiar template wording; the rationale is
         # kept in its own field and composed into a parenthetical by the renderer.
+        finding.succeed(resolved_message, confidence=confidence, rationale=rationale)
         canonical = _canonical_ok_statement(check)
         if canonical:
             finding.message = canonical
-        finding.todo = ""
 
     risk_flags = response.get("risk_flags", [])
     if isinstance(risk_flags, list) and risk_flags:
