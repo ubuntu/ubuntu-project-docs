@@ -503,13 +503,7 @@ def _extract_reasoning(message: Any) -> str:
             return value.strip()
     details = message.get("reasoning_details")
     if isinstance(details, list):
-        parts: list[str] = []
-        for item in details:
-            if isinstance(item, dict):
-                text = item.get("text") or item.get("content") or item.get("reasoning")
-                if isinstance(text, str):
-                    parts.append(text)
-        merged = "".join(parts).strip()
+        merged = _extract_text_from_parts(details, ("text", "content", "reasoning"))
         if merged:
             return merged
     return ""
@@ -629,21 +623,28 @@ def _normalize_message_content(content: Any) -> str:
         return content
 
     if isinstance(content, list):
-        parts: list[str] = []
-        for item in content:
-            if isinstance(item, str):
-                parts.append(item)
-                continue
-            if isinstance(item, dict):
-                text = item.get("text")
-                if isinstance(text, str):
-                    parts.append(text)
-        merged = "".join(parts).strip()
+        merged = _extract_text_from_parts(content, ("text",))
         if merged:
             return merged
         raise LLMError("Model response content list does not contain text parts.")
 
     raise LLMError(f"Model response content has unsupported type: {type(content).__name__}")
+
+
+def _extract_text_from_parts(items: list[Any], fields: tuple[str, ...]) -> str:
+    """Concatenate text fields from structured LLM content parts."""
+    parts: list[str] = []
+    for item in items:
+        if isinstance(item, str):
+            parts.append(item)
+            continue
+        if isinstance(item, dict):
+            for field in fields:
+                value = item.get(field)
+                if isinstance(value, str) and value:
+                    parts.append(value)
+                    break
+    return "".join(parts).strip()
 
 
 def _parse_rate_limit_hint(body: str) -> tuple[int, int] | None:
