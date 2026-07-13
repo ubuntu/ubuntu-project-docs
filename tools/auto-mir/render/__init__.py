@@ -536,6 +536,16 @@ def _collect_todos_by_severity(
         # the exception: they belong in the consolidated list.
         if finding.section == "Summary" and not finding.aggregate_todo:
             continue
+        # Security-section findings never populate the consolidated Required/
+        # Recommended TODOs. Unlike other sections, a security signal is not an
+        # action item for the reporter; it is evidence for the human reviewer's
+        # "does this need a security review?" call. Those findings therefore
+        # surface in the [Security] Problems block and feed the SUM-6 decision
+        # (and the SUM-5 verdict), but must not be turned into a reporter TODO.
+        # See decisions.md (2026-07-13) for the rationale and its reconciliation
+        # with the earlier SEC-3/SEC-4 hard-blocker note.
+        if finding.section == "Security":
+            continue
         if finding.status == "ok":
             continue
         # Only confident problems become Required/Recommended TODOs. Undecided

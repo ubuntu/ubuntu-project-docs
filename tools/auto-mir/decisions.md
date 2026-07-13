@@ -632,6 +632,31 @@ phases do not drift.
   recommended-only middle state.
 - **SEC-13**: EV→AI mitigation analysis with HUM final judgment.
 
+### Security findings never populate the consolidated TODO blocks (2026-07-13)
+
+- Promotion: no
+- Decision: findings in the `[Security]` section are **excluded** from the
+  Summary's consolidated `Required TODOs:` / `Recommended TODOs:` lists
+  (`render._collect_todos_by_severity` skips `section == "Security"`).
+- Rationale: a security signal is not an action item for the *reporter* to
+  resolve. It is evidence for the human reviewer's single judgement call — "does
+  this need a security review?" (SUM-6). Turning e.g. SEC-5 ("does parse
+  untrusted data formats") into a "Recommended TODO #3" wrongly implied the
+  reporter had to *do* something, when the correct handling is to leave the
+  ACK/NACK-style security-review options and their reasoning in the Summary
+  (SUM-6 lines) and list the detailed evidence in the `[Security]` Problems
+  block. From there the reviewer decides; they can always promote a line
+  manually if warranted.
+- Reconciliation with the SEC-3/SEC-4 and SEC-11 hard-blocker notes above: those
+  checks remain hard blockers and still (a) render in the `[Security]` Problems
+  block and (b) drive the SUM-5 ACK/NACK verdict and SUM-6 security-review
+  decision. What changed is only the *routing*: they no longer emit a duplicate
+  line into the consolidated reporter TODO blocks. The blocking effect lives in
+  the verdict, not in a reporter TODO.
+- Scope: this is grouped and true for every `[Security]` check; no other section
+  is affected (other sections still translate confident problems into
+  Required/Recommended TODOs as before).
+
 ## Build / Test Decisions
 
 - **CB-1**: combine local sbuild result with Launchpad multi-arch build state via API.

@@ -538,6 +538,70 @@ def test_summary_aggregate_todo_finding_surfaces_in_consolidated_block():
     assert "team bug subscriber" in draft[recommended_idx:]
 
 
+def test_security_finding_not_in_consolidated_todos_but_in_problems():
+    """A confident [Security] failure surfaces in Security Problems, not TODOs.
+
+    Security signals are evidence for the reviewer's 'needs a security review?'
+    call, not action items for the reporter, so they must never appear in the
+    Summary's Required/Recommended TODO blocks.
+    """
+    ctx = _summary_ctx_with_decision_finding()
+    ctx.findings.append(
+        Finding(
+            id="SEC-5",
+            section="Security",
+            title="Parses untrusted data formats",
+            mode="ev_to_ai",
+            status="not-ok",
+            severity="recommended",
+            confidence="high",
+            message="does parse data formats from an untrusted source",
+            todo="TODO: - does parse data formats from an untrusted source",
+            aggregate_todo=False,
+        )
+    )
+    draft = _build_review_draft(ctx)
+
+    # It renders in the [Security] section Problems block ...
+    security_idx = draft.index("[Security]")
+    assert "does parse data formats" in draft[security_idx:]
+
+    # ... but must not appear in the Summary's consolidated TODO blocks, which
+    # sit before the [Security] section in the draft.
+    required_idx = draft.index("Required TODOs:")
+    summary_todo_region = draft[required_idx:security_idx]
+    assert "does parse data formats" not in summary_todo_region
+
+
+def test_security_hard_blocker_not_in_consolidated_todos():
+    """A required-severity [Security] finding (e.g. webkit) stays out of TODOs.
+
+    Hard blockers still render in the Security Problems block and drive the
+    verdict, but they are not duplicated into the consolidated reporter TODOs.
+    """
+    ctx = _summary_ctx_with_decision_finding()
+    ctx.findings.append(
+        Finding(
+            id="SEC-3",
+            section="Security",
+            title="Uses webkit",
+            mode="deterministic",
+            status="not-ok",
+            severity="required",
+            confidence="high",
+            message="webkit1/2 dependency found",
+            todo="TODO: - webkit1/2 dependency must be removed before main inclusion",
+            aggregate_todo=False,
+        )
+    )
+    draft = _build_review_draft(ctx)
+
+    security_idx = draft.index("[Security]")
+    required_idx = draft.index("Required TODOs:")
+    assert "webkit" not in draft[required_idx:security_idx]
+    assert "webkit1/2 dependency found" in draft[security_idx:]
+
+
 # ---------------------------------------------------------------------------
 # Problems status sentinel
 # ---------------------------------------------------------------------------
