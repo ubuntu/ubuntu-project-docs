@@ -124,4 +124,4 @@ For details, see :ref:`Explanation → Reason for requirements → Documentation
 .. seealso::
 
    :ref:`Reference → Requirements <reference-general-requirements>`
-      Additional, more detailed SRU requirements (general, documentation, and upload requirements).
+      Detailed SRU requirements (general, documentation, and upload requirements).
