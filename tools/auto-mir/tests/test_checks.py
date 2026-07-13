@@ -134,6 +134,7 @@ class _Ctx:
                         "not_ok_offending_message": "Auto-included binaries ({auto_included}) pull dependencies outside main or with unknown component: {offending_deps}",
                         "not_ok_offending_todo": "TODO: - Consider adding extra-excludes for auto-included binaries with offending dependencies ({details}); otherwise MIR may also be needed for: {offending_deps}",
                         "ok_safe_message": "Auto-included binaries ({auto_included}) will be auto-included, and have no dependencies outside main",
+                        "ok_same_request_message": "no -dev/-debug/-doc packages that need exclusion (Auto-included binaries ({auto_included}) pull dependencies outside main or with unknown component: {same_request_deps}, but that is part of this very request and therefore ok)",
                     },
                 },
                 {
@@ -479,6 +480,8 @@ def _dep_analysis_ok(**kwargs):
         "auto_included_dep_components": [],
         "auto_included_deps_not_in_main_or_unknown": [],
         "auto_included_offending_deps_by_binary": [],
+        "auto_included_deps_same_source": [],
+        "auto_included_same_source_deps_by_binary": [],
     }
     base.update(kwargs)
     return base
@@ -579,6 +582,32 @@ def test_dep_3_auto_included_binaries_with_offending_deps():
     assert "libuniverse1" in finding.message
     assert "libunknown1" in finding.todo
     assert "libmypkg-dev" in finding.todo
+
+
+def test_dep_3_auto_included_dep_from_same_source_is_ok():
+    # libebur128-dev auto-includes libebur128-1, which is built by the same
+    # source and being promoted by this very MIR request. It must not be flagged
+    # as an offending dependency; instead DEP-3 succeeds with an explanatory note.
+    ctx = _Ctx(source_package="libebur128")
+    ctx.evidence["adapters"]["packaging-source"] = {"status": "ok"}
+    ctx.evidence["adapters"]["dep-analysis"] = _dep_analysis_ok(
+        binary_packages=["libebur128-1", "libebur128-dev"],
+        auto_included_binaries=["libebur128-dev"],
+        auto_included_deps_not_in_main_or_unknown=[],
+        auto_included_offending_deps_by_binary=[{"binary": "libebur128-dev", "dependencies": []}],
+        auto_included_deps_same_source=["libebur128-1"],
+        auto_included_same_source_deps_by_binary=[
+            {"binary": "libebur128-dev", "dependencies": ["libebur128-1"]}
+        ],
+    )
+
+    finding = checks.deterministic._check_dep_3(ctx, _make_finding("DEP-3"))
+
+    assert finding.status == "ok"
+    assert finding.confidence == "high"
+    assert "part of this very request" in finding.message
+    assert "libebur128-1" in finding.message
+    assert not finding.todo
 
 
 def test_dep_3_ignores_global_non_main_for_non_auto_included_binaries():

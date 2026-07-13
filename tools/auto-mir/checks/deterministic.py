@@ -415,6 +415,8 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
         key=lambda e: e["binary"],
     )
 
+    same_source_deps = sorted(dep_analysis.get("auto_included_deps_same_source", []))
+
     if offending_deps:
         details = "; ".join(
             f"{entry['binary']}: {', '.join(entry['dependencies'])}"
@@ -436,6 +438,18 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
             ),
             severity="recommended",
         )
+    elif same_source_deps:
+        # The only "outside main" dependencies of the auto-included binaries are
+        # built by this very source package, so they are being promoted by this
+        # MIR request too. That is not an offending component mismatch.
+        finding.succeed(
+            render_check_message(
+                check,
+                "ok_same_request_message",
+                auto_included=", ".join(auto_included),
+                same_request_deps=", ".join(same_source_deps),
+            )
+        )
     else:
         finding.succeed(
             render_check_message(
@@ -451,6 +465,7 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
         "dep-analysis:auto_included_dep_components",
         "dep-analysis:auto_included_deps_not_in_main_or_unknown",
         "dep-analysis:auto_included_offending_deps_by_binary",
+        "dep-analysis:auto_included_deps_same_source",
     ]
     return finding
 

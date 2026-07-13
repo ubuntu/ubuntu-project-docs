@@ -414,6 +414,8 @@ class DepAnalysisResult(TypedDict):
     auto_included_dep_components: list[DepComponentEntry]
     auto_included_deps_not_in_main_or_unknown: list[str]
     auto_included_offending_deps_by_binary: list[AutoIncludedDepByBinaryEntry]
+    auto_included_deps_same_source: list[str]
+    auto_included_same_source_deps_by_binary: list[AutoIncludedDepByBinaryEntry]
 
 
 # ---------------------------------------------------------------------------

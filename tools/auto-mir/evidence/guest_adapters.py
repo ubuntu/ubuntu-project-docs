@@ -826,8 +826,10 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
     auto_included_binaries = sorted(p for p in in_scope if _is_auto_included_binary(p))
     auto_included_dep_components: list[dict[str, str]] = []
     auto_included_offending_deps_by_binary: list[dict[str, list[str] | str]] = []
+    auto_included_same_source_deps_by_binary: list[dict[str, list[str] | str]] = []
     auto_included_dep_names: set[str] = set()
     auto_included_deps_not_in_main_or_unknown: set[str] = set()
+    auto_included_deps_same_source: set[str] = set()
 
     dep_source_lookup = {entry["package"]: entry["source_package"] for entry in dep_source_map}
 
@@ -843,10 +845,19 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
     for binary in auto_included_binaries:
         binary_deps = deps_by_binary.get(binary, [])
         binary_offending_deps: list[str] = []
+        binary_same_source_deps: list[str] = []
         for dep in binary_deps:
             component = dep_component_lookup.get(dep, "unknown")
             auto_included_dep_names.add(dep)
-            if component != "main":
+            if component == "main":
+                continue
+            # A dependency built by the source package under review is itself
+            # being promoted by this very MIR request, so it is not an offending
+            # component mismatch — it just cannot be resolved to main *yet*.
+            if dep_source_lookup.get(dep, dep) == ctx.source_package:
+                binary_same_source_deps.append(dep)
+                auto_included_deps_same_source.add(dep)
+            else:
                 binary_offending_deps.append(dep)
                 auto_included_deps_not_in_main_or_unknown.add(dep)
 
@@ -854,6 +865,12 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
             {
                 "binary": binary,
                 "dependencies": binary_offending_deps,
+            }
+        )
+        auto_included_same_source_deps_by_binary.append(
+            {
+                "binary": binary,
+                "dependencies": binary_same_source_deps,
             }
         )
 
@@ -891,6 +908,8 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
             auto_included_deps_not_in_main_or_unknown
         ),
         "auto_included_offending_deps_by_binary": auto_included_offending_deps_by_binary,
+        "auto_included_deps_same_source": sorted(auto_included_deps_same_source),
+        "auto_included_same_source_deps_by_binary": auto_included_same_source_deps_by_binary,
     }
 
 

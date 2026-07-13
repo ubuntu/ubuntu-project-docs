@@ -201,6 +201,7 @@ _REQUIRED_MESSAGE_TEMPLATES: dict[str, dict[str, set[str]]] = {
         "not_ok_offending_message": {"auto_included", "offending_deps"},
         "not_ok_offending_todo": {"details", "offending_deps"},
         "ok_safe_message": {"auto_included"},
+        "ok_same_request_message": {"auto_included", "same_request_deps"},
     },
     "PRF-2": {
         "unknown_message": set(),

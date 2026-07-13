@@ -1010,6 +1010,7 @@ checks:
     not_ok_offending_message: 'Auto-included binaries ({auto_included}) pull dependencies outside main or with unknown component: {offending_deps}'
     not_ok_offending_todo: 'TODO: - Consider adding extra-excludes for auto-included binaries with offending dependencies ({details}); otherwise MIR may also be needed for: {offending_deps}'
     ok_safe_message: Auto-included binaries ({auto_included}) will be auto-included, and have no dependencies outside main
+    ok_same_request_message: 'no -dev/-debug/-doc packages that need exclusion (Auto-included binaries ({auto_included}) pull dependencies outside main or with unknown component: {same_request_deps}, but that is part of this very request and therefore ok)'
   todo_refs:
   - 'TODO: - no -dev/-debug/-doc packages that need exclusion'
   ai_policy: none

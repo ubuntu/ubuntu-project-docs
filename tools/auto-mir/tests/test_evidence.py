@@ -929,6 +929,61 @@ def test_dep_analysis_output_structure():
             assert "deps_not_in_main" in result
 
 
+def test_dep_analysis_same_source_auto_included_dep_not_offending():
+    """An auto-included dep built by the same source is part of this MIR request.
+
+    libebur128-dev auto-includes libebur128-1 which is currently in universe but
+    is being promoted by this very request. It must land in the same-source
+    bucket, not the offending bucket.
+    """
+    ctx = Mock()
+    ctx.source_package = "libebur128"
+    ctx.requested_binaries = []
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {"status": "ok", "source_dir": "/tmp/test"},
+            "sbuild": {
+                "status": "ok",
+                "build_success": True,
+                "built_debs": [
+                    "/tmp/out/libebur128-1_1.0_amd64.deb",
+                    "/tmp/out/libebur128-dev_1.0_amd64.deb",
+                ],
+            },
+        }
+    }
+
+    with patch("evidence.guest_adapters._capture") as mock_capture:
+        with patch("evidence.guest_adapters._detect_component") as mock_component:
+            mock_capture.side_effect = [
+                "libebur128-1\nlibebur128-dev",  # binaries from debian/control
+                "libebur128-1",  # deb1 Package
+                "libc6",  # deb1 Depends
+                "libebur128-dev",  # deb2 Package
+                "libebur128-1",  # deb2 Depends
+                "",  # apt-cache show libc6 -> source = libc6
+                "libebur128",  # apt-cache show libebur128-1 -> source = libebur128
+            ]
+            mock_component.side_effect = lambda _ctx, pkg: (
+                "universe" if pkg == "libebur128-1" else "main"
+            )
+
+            from evidence.guest_adapters import collect_dep_analysis
+
+            result = collect_dep_analysis(ctx)
+
+    assert result["status"] == "ok"
+    assert result["auto_included_binaries"] == ["libebur128-dev"]
+    assert result["auto_included_deps_not_in_main_or_unknown"] == []
+    assert result["auto_included_deps_same_source"] == ["libebur128-1"]
+    assert result["auto_included_same_source_deps_by_binary"] == [
+        {"binary": "libebur128-dev", "dependencies": ["libebur128-1"]}
+    ]
+    assert result["auto_included_offending_deps_by_binary"] == [
+        {"binary": "libebur128-dev", "dependencies": []}
+    ]
+
+
 def test_lintian_output_structure():
     """lintian adapter should expose parsed sbuild lintian output."""
     ctx = Mock()
