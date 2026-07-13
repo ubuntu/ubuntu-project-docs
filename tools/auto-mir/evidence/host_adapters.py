@@ -1286,9 +1286,15 @@ def collect_cvelist_scan(ctx) -> CvelistScanResult:
         from evidence.cvelist_scan_invm import scan_zip
 
         baseline_name, download_url = _cvelist_discover_baseline()
-        with tempfile.NamedTemporaryFile(suffix=".zip", delete=True) as tmp:
-            http_utils.download_to_file(download_url, tmp.name)
-            candidates = scan_zip(tmp.name, terms)
+        baseline_path = ""
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+            baseline_path = tmp.name
+        try:
+            http_utils.download_to_file(download_url, baseline_path)
+            candidates = scan_zip(baseline_path, terms)
+        finally:
+            if baseline_path:
+                Path(baseline_path).unlink(missing_ok=True)
     except urllib.error.HTTPError as exc:
         raise AdapterError(f"cvelist-scan HTTP error {exc.code}: {exc.reason}") from exc
     except Exception as exc:
