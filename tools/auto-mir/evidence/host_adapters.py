@@ -27,6 +27,7 @@ from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
     AutopkgtestResult,
+    ConsumerAutopkgtestsResult,
     CvelistScanResult,
     CVESearchTermsResult,
     DebianBTSResult,
@@ -599,6 +600,116 @@ def _download_oval_xz(url: str) -> bytes:
 def _download_autopkgtest_db(url: str, tmp_path: str) -> None:
     """Download autopkgtest DB to a local file path with resilient retry/backoff."""
     http_utils.download_to_file(url, tmp_path)
+
+
+# The autopkgtest SQLite database is large (hundreds of MB). Several adapters
+# need to query it (the package itself and each reverse-dep consumer), so it is
+# downloaded once per run and cached on the context. The cached temp file is
+# removed by ``cleanup_cached_autopkgtest_db`` at the end of evidence collection.
+_AUTOPKGTEST_DB_URL = "https://autopkgtest.ubuntu.com/static/autopkgtest.db"
+_AUTOPKGTEST_DB_CACHE_ATTR = "_autopkgtest_db_path"
+
+
+def _get_cached_autopkgtest_db(ctx) -> str:
+    """Return a local path to the autopkgtest DB, downloading it once per run.
+
+    The path is cached on ``ctx`` so repeated lookups (package + consumers)
+    reuse a single download. Raises AdapterError on download failure.
+    """
+    cached = getattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, None)
+    if isinstance(cached, str) and cached and Path(cached).exists():
+        return cached
+
+    log.debug("Downloading autopkgtest SQLite database: %s", _AUTOPKGTEST_DB_URL)
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
+            tmp_path = tmp.name
+        _download_autopkgtest_db(_AUTOPKGTEST_DB_URL, tmp_path)
+    except urllib.error.HTTPError as exc:
+        Path(tmp_path).unlink(missing_ok=True)
+        raise AdapterError(f"autopkgtest DB download HTTP error {exc.code}") from exc
+    except Exception as exc:
+        Path(tmp_path).unlink(missing_ok=True)
+        raise AdapterError(f"autopkgtest DB download failed: {exc}") from exc
+
+    try:
+        setattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, tmp_path)
+    except (AttributeError, TypeError):
+        # Some minimal contexts do not accept new attributes; the caller then
+        # simply re-downloads on the next lookup and cleanup is a no-op.
+        pass
+    return tmp_path
+
+
+def cleanup_cached_autopkgtest_db(ctx) -> None:
+    """Remove the cached autopkgtest DB temp file, if any, at end of a run."""
+    cached = getattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, None)
+    if not isinstance(cached, str) or not cached:
+        return
+    try:
+        Path(cached).unlink(missing_ok=True)
+        log.debug("Removed cached autopkgtest DB: %s", cached)
+    except OSError as exc:
+        log.warning("Could not remove cached autopkgtest DB %s: %s", cached, exc)
+    finally:
+        try:
+            setattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, None)
+        except (AttributeError, TypeError):
+            pass
+
+
+def _query_autopkgtest_for_package(
+    db_path: str, package: str, candidates: list[str]
+) -> tuple[list[Any], str]:
+    """Query the autopkgtest DB for a package across candidate releases.
+
+    Returns the latest result rows and the release they came from. Rows are
+    ``(arch, exitcode, version, run_id)`` tuples. The first candidate release
+    with any results wins; if none match, empty rows are returned for the first
+    candidate. Raises sqlite3.DatabaseError on a malformed database.
+    """
+    query = """
+        SELECT t.arch, r.exitcode, r.version, r.run_id
+        FROM test t
+        JOIN result r ON t.id = r.test_id
+        WHERE t.package = ? AND t.release = ?
+        ORDER BY r.run_id DESC
+        LIMIT 100
+        """
+    conn = sqlite3.connect(db_path)
+    try:
+        cursor = conn.cursor()
+        rows: list[Any] = []
+        resolved_release = candidates[0] if candidates else ""
+        for release in candidates:
+            cursor.execute(query, (package, release))
+            fetched = cursor.fetchall()
+            if fetched:
+                return fetched, release
+        return rows, resolved_release
+    finally:
+        conn.close()
+
+
+def _summarize_autopkgtest_rows(rows: list[Any]) -> dict[str, list]:
+    """Summarize per-arch autopkgtest rows into passing/failing/results."""
+    arch_latest: dict[str, dict[str, Any]] = {}
+    for arch, exitcode, version, run_id in rows:
+        if arch not in arch_latest:
+            status = "pass" if exitcode == 0 else "fail"
+            arch_latest[arch] = {
+                "arch": arch,
+                "version": version,
+                "status": status,
+                "run_id": run_id,
+            }
+    passing = sorted(a for a, info in arch_latest.items() if info["status"] == "pass")
+    failing = sorted(a for a, info in arch_latest.items() if info["status"] == "fail")
+    return {
+        "test_results": list(arch_latest.values()),
+        "passing_arches": passing,
+        "failing_arches": failing,
+    }
 
 
 def _strip_html(value: str) -> str:
@@ -1725,57 +1836,25 @@ def collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
 def collect_autopkgtest(ctx) -> AutopkgtestResult:
     """Query autopkgtest SQLite database for package test results.
 
-    Downloads https://autopkgtest.ubuntu.com/static/autopkgtest.db, queries
-    the results table for the package and series, and summarizes by architecture.
+    Downloads https://autopkgtest.ubuntu.com/static/autopkgtest.db (once per
+    run, cached on ctx), queries the results table for the package and series,
+    and summarizes by architecture.
     """
     pkg = ctx.source_package
     series = ctx.series or "devel"
     if not pkg:
         raise AdapterError("source_package not set")
 
-    db_url = "https://autopkgtest.ubuntu.com/static/autopkgtest.db"
-    log.debug("Downloading autopkgtest SQLite database: %s", db_url)
-    tmp_path = ""
-
-    # Download to temp file
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
-            tmp_path = tmp.name
-        _download_autopkgtest_db(db_url, tmp_path)
-    except urllib.error.HTTPError as exc:
-        raise AdapterError(f"autopkgtest DB download HTTP error {exc.code}") from exc
-    except Exception as exc:
-        raise AdapterError(f"autopkgtest DB download failed: {exc}") from exc
+    db_path = _get_cached_autopkgtest_db(ctx)
 
     # The DB is keyed by concrete release codename, not by the alias "devel".
     # Resolve candidates (devel codename first, then latest supported stable as a
     # fallback for a fresh cycle with no results yet) so a real test suite is not
     # missed just because the series was passed as "devel".
     candidates = _autopkgtest_release_candidates(series)
-    query = """
-        SELECT t.arch, r.exitcode, r.version, r.run_id
-        FROM test t
-        JOIN result r ON t.id = r.test_id
-        WHERE t.package = ? AND t.release = ?
-        ORDER BY r.run_id DESC
-        LIMIT 100
-        """
 
     try:
-        conn = sqlite3.connect(tmp_path)
-        cursor = conn.cursor()
-        # test table: (id, release, arch, package)
-        # result table: (test_id, run_id, version, triggers, duration, exitcode, requester, env)
-        rows: list[Any] = []
-        resolved_release = candidates[0] if candidates else series
-        for release in candidates:
-            cursor.execute(query, (pkg, release))
-            fetched = cursor.fetchall()
-            if fetched:
-                rows = fetched
-                resolved_release = release
-                break
-        conn.close()
+        rows, resolved_release = _query_autopkgtest_for_package(db_path, pkg, candidates)
     except sqlite3.DatabaseError as exc:
         log.warning("autopkgtest DB query failed: %s", exc)
         return {
@@ -1789,9 +1868,6 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
             "failing_arches": [],
             "note": "autopkgtest DB schema not as expected",
         }
-    finally:
-        if tmp_path:
-            Path(tmp_path).unlink(missing_ok=True)
 
     note = ""
     if resolved_release != series:
@@ -1800,30 +1876,15 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
             f"(requested series '{series}' resolved/fell back to it)"
         )
 
-    # Summarize by architecture, keeping only the latest per arch
-    arch_latest: dict[str, dict[str, Any]] = {}
-    for arch, exitcode, version, run_id in rows:
-        if arch not in arch_latest:
-            # Convert exitcode to status: 0 = pass, non-zero = fail
-            status = "pass" if exitcode == 0 else "fail"
-            arch_latest[arch] = {
-                "arch": arch,
-                "version": version,
-                "status": status,
-                "run_id": run_id,
-            }
-
-    # Categorize arches by status
-    passing = [a for a, info in arch_latest.items() if info["status"] == "pass"]
-    failing = [a for a, info in arch_latest.items() if info["status"] == "fail"]
+    summary = _summarize_autopkgtest_rows(rows)
 
     log.debug(
         "autopkgtest for %s/%s: %d arches; passing %d, failing %d",
         pkg,
         resolved_release,
-        len(arch_latest),
-        len(passing),
-        len(failing),
+        len(summary["test_results"]),
+        len(summary["passing_arches"]),
+        len(summary["failing_arches"]),
     )
 
     return {
@@ -1832,10 +1893,95 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
         "series": resolved_release,
         "requested_series": series,
         "note": note,
-        "has_autopkgtest": len(arch_latest) > 0,
-        "test_results": list(arch_latest.values()),
-        "passing_arches": sorted(passing),
-        "failing_arches": sorted(failing),
+        "has_autopkgtest": len(summary["test_results"]) > 0,
+        "test_results": summary["test_results"],
+        "passing_arches": summary["passing_arches"],
+        "failing_arches": summary["failing_arches"],
+    }
+
+
+@adapter(AdapterID.CONSUMER_AUTOPKGTESTS, depends_on=[AdapterID.REVERSE_DEPS])
+def collect_consumer_autopkgtests(ctx) -> ConsumerAutopkgtestsResult:
+    """Look up autopkgtest status for the source's reverse-dependency consumers.
+
+    Reads the consumer source packages discovered by the reverse-deps adapter
+    and queries the (already cached) autopkgtest DB for each one. This provides
+    the E2E-via-consumers evidence CB-6 needs: whether key consumers of a simple
+    library have non-trivial tests that exercise it indirectly.
+    """
+    series = ctx.series or "devel"
+    reverse_deps = ctx.evidence.get("adapters", {}).get("reverse-deps", {})
+    consumer_entries = reverse_deps.get("consumers", []) or []
+
+    if not consumer_entries:
+        return {
+            "status": "ok",
+            "series": series,
+            "requested_series": series,
+            "consumers": [],
+            "note": "no reverse-dependency consumers found",
+        }
+
+    try:
+        db_path = _get_cached_autopkgtest_db(ctx)
+    except AdapterError as exc:
+        # Best-effort: without the DB we cannot report consumer tests, but the
+        # reverse-dep list itself is still useful context for the reviewer.
+        return {
+            "status": "ok",
+            "series": series,
+            "requested_series": series,
+            "consumers": [],
+            "note": f"autopkgtest DB unavailable: {exc}",
+        }
+
+    candidates = _autopkgtest_release_candidates(series)
+    consumers: list[dict[str, Any]] = []
+    for entry in consumer_entries:
+        consumer_source = str(entry.get("source", "")).strip()
+        if not consumer_source:
+            continue
+        kind = str(entry.get("kind", ""))
+        try:
+            rows, resolved = _query_autopkgtest_for_package(db_path, consumer_source, candidates)
+        except sqlite3.DatabaseError as exc:
+            log.warning("autopkgtest DB query failed for %s: %s", consumer_source, exc)
+            consumers.append(
+                {
+                    "source": consumer_source,
+                    "kind": kind,
+                    "has_autopkgtest": False,
+                    "passing_arches": [],
+                    "failing_arches": [],
+                    "note": "autopkgtest DB schema not as expected",
+                }
+            )
+            continue
+        summary = _summarize_autopkgtest_rows(rows)
+        note = ""
+        if resolved and resolved != series:
+            note = f"results from '{resolved}'"
+        consumers.append(
+            {
+                "source": consumer_source,
+                "kind": kind,
+                "has_autopkgtest": len(summary["test_results"]) > 0,
+                "passing_arches": summary["passing_arches"],
+                "failing_arches": summary["failing_arches"],
+                "note": note,
+            }
+        )
+
+    log.debug(
+        "consumer-autopkgtests: %d consumer(s), %d with tests",
+        len(consumers),
+        sum(1 for c in consumers if c["has_autopkgtest"]),
+    )
+    return {
+        "status": "ok",
+        "series": series,
+        "requested_series": series,
+        "consumers": consumers,
     }
 
 

@@ -984,6 +984,158 @@ def test_dep_analysis_same_source_auto_included_dep_not_offending():
     ]
 
 
+def test_reverse_deps_parses_consumers_and_maps_sources():
+    """reverse-deps should parse bullet output and map binaries to sources."""
+    ctx = Mock()
+    ctx.source_package = "libebur128"
+    ctx.series = "plucky"
+
+    def fake_capture(_ctx, cmd, allow_fail=False, **kwargs):
+        script = cmd[-1]
+        if "--build-depends" in script:
+            return ""  # no build reverse-deps
+        if "reverse-depends --release plucky-proposed" in script:
+            return "Reverse-Depends\n===============\n* pipewire\n* gst-plugins-bad  [amd64]\n"
+        if script.startswith("apt-cache show pipewire"):
+            return "pipewire"
+        if script.startswith("apt-cache show gst-plugins-bad"):
+            return "gst-plugins-bad1.0"
+        return ""
+
+    from evidence import guest_adapters
+
+    with patch.object(guest_adapters, "_exists", return_value=True):
+        with patch.object(guest_adapters, "_capture", side_effect=fake_capture):
+            result = guest_adapters.collect_reverse_deps(ctx)
+
+    assert result["status"] == "ok"
+    assert result["release"] == "plucky-proposed"
+    assert result["consumer_sources"] == ["gst-plugins-bad1.0", "pipewire"]
+    assert {"source": "pipewire", "kind": "runtime"} in result["consumers"]
+    assert {"source": "gst-plugins-bad1.0", "kind": "runtime"} in result["consumers"]
+
+
+def test_reverse_deps_excludes_own_source():
+    """A reverse-dep binary from the same source is not a consumer."""
+    ctx = Mock()
+    ctx.source_package = "libebur128"
+    ctx.series = "plucky"
+
+    def fake_capture(_ctx, cmd, allow_fail=False, **kwargs):
+        script = cmd[-1]
+        if "--build-depends" in script:
+            return ""
+        if "reverse-depends --release plucky-proposed" in script:
+            return "* libebur128-1\n* pipewire\n"
+        if script.startswith("apt-cache show libebur128-1"):
+            return "libebur128"
+        if script.startswith("apt-cache show pipewire"):
+            return "pipewire"
+        return ""
+
+    from evidence import guest_adapters
+
+    with patch.object(guest_adapters, "_exists", return_value=True):
+        with patch.object(guest_adapters, "_capture", side_effect=fake_capture):
+            result = guest_adapters.collect_reverse_deps(ctx)
+
+    assert result["consumer_sources"] == ["pipewire"]
+
+
+def test_reverse_deps_missing_tool_raises():
+    """Absence of reverse-depends surfaces as an AdapterError (best-effort fallback)."""
+    ctx = Mock()
+    ctx.source_package = "libebur128"
+    ctx.series = "plucky"
+
+    from evidence import guest_adapters
+
+    with patch.object(guest_adapters, "_exists", return_value=False):
+        try:
+            guest_adapters.collect_reverse_deps(ctx)
+            assert False, "expected AdapterError when reverse-depends is absent"
+        except guest_adapters.AdapterError:
+            pass
+
+
+def test_consumer_autopkgtests_looks_up_each_consumer():
+    """consumer-autopkgtests should query the shared DB per consumer source."""
+    import evidence.host_adapters as ha
+
+    ctx = Mock()
+    ctx.series = "plucky"
+    ctx.evidence = {
+        "adapters": {
+            "reverse-deps": {
+                "status": "ok",
+                "consumers": [
+                    {"source": "pipewire", "kind": "runtime"},
+                    {"source": "quietapp", "kind": "build"},
+                ],
+            }
+        }
+    }
+
+    def fake_query(_db, package, _candidates):
+        if package == "pipewire":
+            return [("amd64", 0, "1.0", 5), ("arm64", 0, "1.0", 4)], "plucky"
+        return [], "plucky"
+
+    with patch.object(ha, "_get_cached_autopkgtest_db", return_value="/tmp/fake.db"):
+        with patch.object(ha, "_query_autopkgtest_for_package", side_effect=fake_query):
+            result = ha.collect_consumer_autopkgtests(ctx)
+
+    assert result["status"] == "ok"
+    by_source = {c["source"]: c for c in result["consumers"]}
+    assert by_source["pipewire"]["has_autopkgtest"] is True
+    assert by_source["pipewire"]["passing_arches"] == ["amd64", "arm64"]
+    assert by_source["quietapp"]["has_autopkgtest"] is False
+
+
+def test_consumer_autopkgtests_no_consumers_returns_empty():
+    """With no reverse-dep consumers, the adapter returns an empty, ok result."""
+    import evidence.host_adapters as ha
+
+    ctx = Mock()
+    ctx.series = "plucky"
+    ctx.evidence = {"adapters": {"reverse-deps": {"status": "ok", "consumers": []}}}
+
+    result = ha.collect_consumer_autopkgtests(ctx)
+
+    assert result["status"] == "ok"
+    assert result["consumers"] == []
+
+
+def test_autopkgtest_db_downloaded_once_and_cleaned_up():
+    """The large autopkgtest DB is downloaded once per run and removed afterwards."""
+    import evidence.host_adapters as ha
+
+    class _Ctx:
+        pass
+
+    ctx = _Ctx()
+    ctx._autopkgtest_db_path = None
+
+    downloads: list[str] = []
+
+    def fake_download(_url, tmp_path):
+        downloads.append(tmp_path)
+        Path(tmp_path).write_bytes(b"db")
+
+    with patch.object(ha, "_download_autopkgtest_db", side_effect=fake_download):
+        first = ha._get_cached_autopkgtest_db(ctx)
+        second = ha._get_cached_autopkgtest_db(ctx)
+
+    assert first == second
+    assert len(downloads) == 1
+    assert Path(first).exists()
+
+    ha.cleanup_cached_autopkgtest_db(ctx)
+
+    assert not Path(first).exists()
+    assert ctx._autopkgtest_db_path is None
+
+
 def test_lintian_output_structure():
     """lintian adapter should expose parsed sbuild lintian output."""
     ctx = Mock()

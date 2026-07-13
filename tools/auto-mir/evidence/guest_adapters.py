@@ -20,6 +20,7 @@ from evidence.types import (
     GitUbuntuDeltaResult,
     LintianResult,
     PackagingSourceResult,
+    ReverseDepsResult,
     SbuildResult,
     UbuntuUploadPermissionResult,
 )
@@ -1141,6 +1142,137 @@ def collect_git_ubuntu_delta(ctx) -> GitUbuntuDeltaResult:
         "diffstat": diffstat,
         "delta_category": _classify_delta_category(diffstat),
         "delta_summary": summary,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Reverse dependencies adapter
+# ---------------------------------------------------------------------------
+
+
+def _resolve_guest_codename(ctx) -> str:
+    """Resolve the target release codename inside the guest.
+
+    ``ctx.series`` may be the alias ``devel`` (or empty); in that case ask
+    ``distro-info --devel`` in the guest. An explicit codename is used as-is.
+    """
+    series = (ctx.series or "").strip()
+    if series and series != "devel":
+        return series
+    codename = _capture(ctx, ["bash", "-lc", "distro-info --devel"], allow_fail=True).strip()
+    return codename or series or "devel"
+
+
+def _parse_reverse_depends(output: str) -> list[str]:
+    """Parse binary package names from ``reverse-depends`` output.
+
+    The tool prints section headers (e.g. ``Reverse-Depends``) followed by
+    bullet lines such as ``* pkgname`` optionally annotated with architectures
+    (``* pkgname  [amd64 arm64]``) or a reason (``* pkgname (for libfoo1)``).
+    We extract the first token of each bullet line that looks like a Debian
+    binary package name. Header/underline lines are ignored.
+    """
+    names: list[str] = []
+    seen: set[str] = set()
+    for raw in output.splitlines():
+        line = raw.strip()
+        if not line.startswith(("*", "-")):
+            continue
+        token = line.lstrip("*- \t").split()[0] if line.lstrip("*- \t") else ""
+        token = token.rstrip(":,")
+        if re.match(r"^[a-z0-9][a-z0-9.+\-]+$", token) and token not in seen:
+            seen.add(token)
+            names.append(token)
+    return names
+
+
+def _map_binaries_to_sources(ctx, binaries: list[str]) -> dict[str, str]:
+    """Map binary package names to their source package via apt-cache show."""
+    mapping: dict[str, str] = {}
+    for binary in binaries:
+        source = _capture(
+            ctx,
+            [
+                "bash",
+                "-lc",
+                f"apt-cache show {binary} 2>/dev/null | awk '/^Source:/ {{print $2; exit}}'",
+            ],
+            allow_fail=True,
+        ).strip()
+        # Debian convention: when no explicit Source field, the source name
+        # equals the binary name.
+        mapping[binary] = source or binary
+    return mapping
+
+
+@adapter(AdapterID.REVERSE_DEPS)
+def collect_reverse_deps(ctx) -> ReverseDepsResult:
+    """Collect reverse-dependency consumers of the source package.
+
+    Runs ``reverse-depends`` (from ubuntu-dev-tools) for both binary and
+    build dependencies against ``<codename>-proposed`` (falling back to the
+    bare codename), maps the resulting binary packages to their source
+    packages and returns the deduplicated consumer sources with a ``kind``
+    (runtime or build). This feeds CB-6's E2E-coverage-via-consumers question.
+    """
+    source = ctx.source_package
+    if not source:
+        raise AdapterError("source_package not set")
+
+    if not _exists(ctx, ["bash", "-lc", "command -v reverse-depends"]):
+        raise AdapterError("reverse-depends not available in guest (ubuntu-dev-tools)")
+
+    codename = _resolve_guest_codename(ctx)
+    # Prefer the -proposed pocket (the MIR candidate lives there), fall back to
+    # the plain release when -proposed yields nothing usable.
+    releases = [f"{codename}-proposed", codename]
+
+    def _run(build_depends: bool) -> tuple[list[str], str]:
+        flag = " --build-depends" if build_depends else ""
+        for release in releases:
+            out = _capture(
+                ctx,
+                ["bash", "-lc", f"reverse-depends --release {release}{flag} src:{source}"],
+                allow_fail=True,
+            )
+            names = _parse_reverse_depends(out)
+            if names:
+                return names, release
+        return [], releases[0]
+
+    runtime_bins, runtime_release = _run(build_depends=False)
+    build_bins, _build_release = _run(build_depends=True)
+
+    all_bins = sorted(set(runtime_bins) | set(build_bins))
+    bin_to_source = _map_binaries_to_sources(ctx, all_bins)
+
+    # Collapse to consumer SOURCE packages. A source that shows up as both a
+    # runtime and a build reverse-dep is reported as runtime (the stronger
+    # signal for E2E coverage). The package's own source is never a consumer.
+    kind_by_source: dict[str, str] = {}
+    for binary in build_bins:
+        src = bin_to_source.get(binary, binary)
+        if src != source:
+            kind_by_source.setdefault(src, "build")
+    for binary in runtime_bins:
+        src = bin_to_source.get(binary, binary)
+        if src != source:
+            kind_by_source[src] = "runtime"
+
+    consumers = [{"source": src, "kind": kind} for src, kind in sorted(kind_by_source.items())]
+
+    log.debug(
+        "reverse-deps for src:%s in %s: %d consumer source(s)",
+        source,
+        runtime_release,
+        len(consumers),
+    )
+    return {
+        "status": "ok",
+        "series": ctx.series or "devel",
+        "release": runtime_release,
+        "consumers": consumers,
+        "consumer_sources": sorted(kind_by_source),
     }
 
 

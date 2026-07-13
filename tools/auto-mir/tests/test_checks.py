@@ -3375,3 +3375,66 @@ def test_cb3_payload_includes_autopkgtest_and_tests_control():
     assert payload["autopkgtest-db"]["has_autopkgtest"] is True
     assert "s390x" in payload["autopkgtest-db"]["passing_arches"]
     assert payload["autopkgtest-db"]["failing_arches"] == []
+
+
+# ---------------------------------------------------------------------------
+# CB-6 E2E-via-consumers: reverse-dep + consumer autopkgtest evidence reaches AI
+# ---------------------------------------------------------------------------
+
+
+def test_cb6_payload_includes_prioritised_consumer_summary():
+    """CB-6 must receive a compact, prioritised reverse-dep consumer summary."""
+    ctx = _EvCtx(
+        {
+            "dep-analysis": {"status": "ok"},
+            "autopkgtest-db": {"status": "ok", "has_autopkgtest": False},
+            "reverse-deps": {
+                "status": "ok",
+                "release": "plucky-proposed",
+                "consumers": [
+                    {"source": "pipewire", "kind": "runtime"},
+                    {"source": "quietlib", "kind": "build"},
+                ],
+            },
+            "consumer-autopkgtests": {
+                "status": "ok",
+                "consumers": [
+                    {
+                        "source": "pipewire",
+                        "kind": "runtime",
+                        "has_autopkgtest": True,
+                        "passing_arches": ["amd64", "arm64"],
+                        "failing_arches": [],
+                    },
+                    {
+                        "source": "quietlib",
+                        "kind": "build",
+                        "has_autopkgtest": False,
+                        "passing_arches": [],
+                        "failing_arches": [],
+                    },
+                ],
+            },
+        }
+    )
+    check = {
+        "id": "CB-6",
+        "section": "Common blockers",
+        "mode": "ev_to_ai",
+        "adapters_required": [
+            "dep-analysis",
+            "autopkgtest-db",
+            "reverse-deps",
+            "consumer-autopkgtests",
+        ],
+    }
+    payload = checks.llm_eval._build_evidence_payload(check, ctx)
+
+    summary = payload["consumer_test_summary"]
+    assert summary["reverse_deps_release"] == "plucky-proposed"
+    assert summary["total_consumers"] == 2
+    assert summary["consumers_with_tests_count"] == 1
+    assert summary["consumers_with_tests"][0]["source"] == "pipewire"
+    assert summary["consumers_with_tests"][0]["passing_arches"] == ["amd64", "arm64"]
+    assert summary["consumers_without_tests_count"] == 1
+    assert summary["consumers_without_tests"][0]["source"] == "quietlib"

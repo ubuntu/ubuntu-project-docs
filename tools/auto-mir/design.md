@@ -135,6 +135,17 @@ Key rules:
 - optional adapter failures are best-effort and do not fail the run,
 - dependency failures propagate to downstream adapters as explicit error status.
 
+The reverse-dependency chain feeds CB-6 (E2E coverage via consumers):
+
+- `reverse-deps` (guest) lists reverse-dependency consumer source packages via
+  `reverse-depends` (runtime and build) against the target release,
+- `consumer-autopkgtests` (host, depends on `reverse-deps`) reports each
+  consumer's autopkgtest status.
+
+The large `autopkgtest.db` is downloaded once per run and cached on the context
+(shared by `autopkgtest-db` and `consumer-autopkgtests`), then removed at the
+end of evidence collection (`cleanup_cached_autopkgtest_db`).
+
 ## LLM usage model
 
 `checks/llm_eval.py` controls AI paths with guardrails:

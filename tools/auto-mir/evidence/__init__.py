@@ -16,6 +16,7 @@ import logging
 
 from contracts import EvidenceContext
 from evidence.host_adapters import AdapterError as AdapterError
+from evidence.host_adapters import cleanup_cached_autopkgtest_db
 from evidence.registry import ADAPTER_REGISTRY
 
 log = logging.getLogger("auto_mir.evidence")
@@ -78,49 +79,64 @@ def collect_from_catalog(ctx: EvidenceContext) -> int:
     # not flip the overall return status.
     failed_required: set[str] = set()
 
-    for adapter_id_str in ordered:
-        is_optional = adapter_id_str in optional
-        if adapter_id_str not in ADAPTER_REGISTRY:
-            log.warning("Unknown adapter ID in catalog: %s", adapter_id_str)
-            ctx.evidence["adapters"][adapter_id_str] = {
-                "status": "pending",
-                "message": f"Unknown adapter: {adapter_id_str}",
-            }
-            failed_adapters.add(adapter_id_str)
-            if not is_optional:
-                failed_required.add(adapter_id_str)
-            continue
+    try:
+        for adapter_id_str in ordered:
+            is_optional = adapter_id_str in optional
+            if adapter_id_str not in ADAPTER_REGISTRY:
+                log.warning("Unknown adapter ID in catalog: %s", adapter_id_str)
+                ctx.evidence["adapters"][adapter_id_str] = {
+                    "status": "pending",
+                    "message": f"Unknown adapter: {adapter_id_str}",
+                }
+                failed_adapters.add(adapter_id_str)
+                if not is_optional:
+                    failed_required.add(adapter_id_str)
+                continue
 
-        collector, deps = ADAPTER_REGISTRY[adapter_id_str]
+            collector, deps = ADAPTER_REGISTRY[adapter_id_str]
 
-        # Check if deps failed
-        failed_deps = [dep for dep in deps if dep in failed_adapters]
-        if failed_deps:
-            log.warning(
-                "Skipping adapter %s due to failed dependencies: %s",
-                adapter_id_str,
-                ", ".join(failed_deps),
-            )
-            ctx.evidence["adapters"][adapter_id_str] = {
-                "status": "error",
-                "message": f"upstream dependency failed: {', '.join(failed_deps)}",
-            }
-            failed_adapters.add(adapter_id_str)
-            if not is_optional:
-                failed_required.add(adapter_id_str)
-            continue
-
-        try:
-            suffix = " (optional)" if is_optional else ""
-            log.info("Collecting adapter: %s%s", adapter_id_str, suffix)
-            ctx.evidence["adapters"][adapter_id_str] = collector(ctx)
-            if ctx.collect_only:
-                log.debug(
-                    "Adapter %s found: %s",
+            # Check if deps failed
+            failed_deps = [dep for dep in deps if dep in failed_adapters]
+            if failed_deps:
+                log.warning(
+                    "Skipping adapter %s due to failed dependencies: %s",
                     adapter_id_str,
-                    _summarize_result(ctx.evidence["adapters"][adapter_id_str]),
+                    ", ".join(failed_deps),
                 )
-            if ctx.evidence["adapters"][adapter_id_str].get("status") == "error":
+                ctx.evidence["adapters"][adapter_id_str] = {
+                    "status": "error",
+                    "message": f"upstream dependency failed: {', '.join(failed_deps)}",
+                }
+                failed_adapters.add(adapter_id_str)
+                if not is_optional:
+                    failed_required.add(adapter_id_str)
+                continue
+
+            try:
+                suffix = " (optional)" if is_optional else ""
+                log.info("Collecting adapter: %s%s", adapter_id_str, suffix)
+                ctx.evidence["adapters"][adapter_id_str] = collector(ctx)
+                if ctx.collect_only:
+                    log.debug(
+                        "Adapter %s found: %s",
+                        adapter_id_str,
+                        _summarize_result(ctx.evidence["adapters"][adapter_id_str]),
+                    )
+                if ctx.evidence["adapters"][adapter_id_str].get("status") == "error":
+                    failed_adapters.add(adapter_id_str)
+                    if not is_optional:
+                        failed_required.add(adapter_id_str)
+                    log.warning(
+                        "Adapter %s returned error status: %s",
+                        adapter_id_str,
+                        ctx.evidence["adapters"][adapter_id_str].get("message", "unknown"),
+                    )
+            except Exception as exc:
+                log.warning("Adapter %s failed: %s", adapter_id_str, exc)
+                ctx.evidence["adapters"][adapter_id_str] = {
+                    "status": "error",
+                    "message": str(exc),
+                }
                 failed_adapters.add(adapter_id_str)
                 if not is_optional:
                     failed_required.add(adapter_id_str)
@@ -129,20 +145,10 @@ def collect_from_catalog(ctx: EvidenceContext) -> int:
                     adapter_id_str,
                     ctx.evidence["adapters"][adapter_id_str].get("message", "unknown"),
                 )
-        except Exception as exc:
-            log.warning("Adapter %s failed: %s", adapter_id_str, exc)
-            ctx.evidence["adapters"][adapter_id_str] = {
-                "status": "error",
-                "message": str(exc),
-            }
-            failed_adapters.add(adapter_id_str)
-            if not is_optional:
-                failed_required.add(adapter_id_str)
-            log.warning(
-                "Adapter %s returned error status: %s",
-                adapter_id_str,
-                ctx.evidence["adapters"][adapter_id_str].get("message", "unknown"),
-            )
+    finally:
+        # The autopkgtest DB is a large temp file cached on ctx and shared by
+        # several adapters; always remove it once collection is done.
+        cleanup_cached_autopkgtest_db(ctx)
 
     return 0 if not failed_required else 1
 

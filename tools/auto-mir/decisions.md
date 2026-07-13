@@ -704,8 +704,10 @@ phases do not drift.
 - **CB non-trivial**: deterministic discovery of tests; AI-assisted trivial/non-trivial
   quality assessment; reviewer override.
 - **CB-4/5**: special HW exhaustion judgment remains human-only.
-- **CB-6**: reverse-dep autopkgtest summary EV→AI; on retrieval failure fall back to
-  human-only TODO.
+- **CB-6**: reverse-dep autopkgtest summary EV→AI; leaves the final call to the human
+  reviewer (never auto-ACK). Fed by the `reverse-deps` + `consumer-autopkgtests`
+  adapters (see the 2026-07-13 feedback-round-4 entry). On retrieval failure it falls
+  back to the human-only TODO and says the reverse-dep data was unavailable.
 - **CB-7**: python2 dependency is a hard blocker.
 
 ## Packaging / Maintenance Decisions
@@ -1294,3 +1296,48 @@ Promotion: no (implementation detail; the durable rules are captured per-check a
   infrastructure.
 - Execution-location consistency now follows operational fit (build/source work
   stays in VM; web/bulk lookups may run on host) rather than payload size.
+
+## 2026-07-13 — Feedback round 4 (bug 2118381 / libebur128)
+
+**Promotion:** no
+
+**Context:** first user reports against libebur128 surfaced two issues.
+
+**Issue 1 — DEP-3 flagged a same-source promoted binary as offending.**
+- `libebur128-dev` auto-includes `libebur128-1`, which is built by the same
+  source and is being promoted by this very MIR. The auto-included dependency
+  loop in `collect_dep_analysis` marked any non-main dep as offending, ignoring
+  the same-source case that the general `deps_not_in_main` loop already handled.
+- Decision: "part of this request" == **same source package**. The auto-included
+  loop now splits non-main deps into a genuine-offender bucket and a same-source
+  bucket (`auto_included_deps_same_source`,
+  `auto_included_same_source_deps_by_binary`). DEP-3 succeeds with an
+  explanatory note (`ok_same_request_message`) when the only non-main deps are
+  same-source, and only fails on genuine offenders.
+
+**Issue 2 — CB-6 had no reverse-dependency autopkgtest data (missed
+implementation).**
+- CB-6 was designed as a reverse-dep autopkgtest summary, but no adapter ever
+  collected reverse dependencies; `collect_autopkgtest` only queried the package
+  itself. The model therefore correctly reported it could not see consumer test
+  status (the consumer name in reports came from reporter text, not a query).
+- Decision: add two adapters.
+  - `reverse-deps` (guest): runs `reverse-depends` (ubuntu-dev-tools, already
+    provisioned) for runtime and `--build-depends` reverse deps against
+    `<codename>-proposed` (fallback to bare codename), maps reverse-dep binaries
+    to source packages, and returns deduplicated consumer sources tagged
+    runtime/build. The package's own source is excluded.
+  - `consumer-autopkgtests` (host, depends_on `reverse-deps`): looks up each
+    consumer source in the autopkgtest DB and reports per-consumer
+    passing/failing arches.
+- The large `autopkgtest.db` is downloaded **once per run** and cached on the
+  context (`_get_cached_autopkgtest_db`), shared by `autopkgtest-db` and
+  `consumer-autopkgtests`, and removed at the end of evidence collection
+  (`cleanup_cached_autopkgtest_db`, called from a `finally` in
+  `collect_from_catalog`) — consistent with the data-lifecycle policy above.
+- CB-6 stays EV→AI and **reviewer-decided**: the rewritten `ai_policy` names key
+  consumers with their autopkgtest arches and reasons about E2E coverage, but
+  always leaves the final judgment to the human (never a hard OK). `llm_eval`
+  emits a compact, prioritised `consumer_test_summary` (consumers with tests
+  first, capped) so the decision-relevant data survives list truncation.
+

@@ -309,6 +309,27 @@ class AutopkgtestResult(TypedDict, total=False):
     failing_arches: list[str]
 
 
+class ConsumerAutopkgtestEntry(TypedDict, total=False):
+    """Autopkgtest status for a single reverse-dependency consumer source."""
+
+    source: str
+    kind: str
+    has_autopkgtest: bool
+    passing_arches: list[str]
+    failing_arches: list[str]
+    note: str
+
+
+class ConsumerAutopkgtestsResult(TypedDict, total=False):
+    """Return structure for the consumer-autopkgtests adapter."""
+
+    status: str
+    series: str
+    requested_series: str
+    consumers: list[ConsumerAutopkgtestEntry]
+    note: str
+
+
 # ---------------------------------------------------------------------------
 # In-guest adapters — packaging source
 # ---------------------------------------------------------------------------
@@ -416,6 +437,29 @@ class DepAnalysisResult(TypedDict):
     auto_included_offending_deps_by_binary: list[AutoIncludedDepByBinaryEntry]
     auto_included_deps_same_source: list[str]
     auto_included_same_source_deps_by_binary: list[AutoIncludedDepByBinaryEntry]
+
+
+# ---------------------------------------------------------------------------
+# In-guest adapters — reverse dependencies
+# ---------------------------------------------------------------------------
+
+
+class ReverseDepConsumer(TypedDict):
+    """A reverse-dependency consumer source package with the dependency kind."""
+
+    source: str
+    kind: str
+
+
+class ReverseDepsResult(TypedDict, total=False):
+    """Return structure for the reverse-deps adapter."""
+
+    status: str
+    series: str
+    release: str
+    consumers: list[ReverseDepConsumer]
+    consumer_sources: list[str]
+    note: str
 
 
 # ---------------------------------------------------------------------------

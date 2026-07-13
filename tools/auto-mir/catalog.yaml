@@ -712,6 +712,18 @@ evidence_adapters:
     mismatch_report: str
   fallback: emit_todo_continue
   notes: Fetch and run original ubuntu-archive-tools script; no local reimplementation
+- id: reverse-deps
+  type: local_exec
+  description: List reverse-dependency consumer source packages via reverse-depends (runtime and build-depends) against the target release
+  inputs:
+  - source_package
+  - series
+  output_contract:
+    consumers: list
+    consumer_sources: list
+    release: str
+  fallback: emit_todo_continue
+  notes: Uses reverse-depends from ubuntu-dev-tools (already provisioned in the guest) against <codename>-proposed with fallback to the bare codename; maps reverse-dep binaries to their source packages so CB-6 can reason about end-to-end coverage via consumers
 - id: ubuntu-upload-permission
   type: local_exec
   description: Run ubuntu-upload-permission --list-uploaders to determine who may upload the package
@@ -749,6 +761,17 @@ evidence_adapters:
     passing_arches: list
     failing_arches: list
   fallback: emit_todo_continue
+- id: consumer-autopkgtests
+  type: web
+  description: Look up autopkgtest status for each reverse-dependency consumer source in the (shared, cached) autopkgtest DB
+  inputs:
+  - series
+  depends_on:
+  - reverse-deps
+  output_contract:
+    consumers: list
+  fallback: emit_todo_continue
+  notes: Reuses the single per-run autopkgtest.db download shared with the autopkgtest-db adapter; reports per-consumer passing/failing arches so CB-6 can weigh end-to-end coverage via consumers
 - id: dup-search
   type: local_exec
   description: Suggest possible duplicate/overlapping packages by deriving search terms from the package description (LLM) and probing the archive with apt-cache search, tagging each candidate's component
@@ -1614,13 +1637,15 @@ checks:
   adapters_required:
   - dep-analysis
   - autopkgtest-db
+  - reverse-deps
+  - consumer-autopkgtests
   adapters_optional:
   - lp-package-api
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO: - if a non-trivial test on this level does not make sense..., is the overall solution (app+libs) extensively covered i.e. via end to end autopkgtest ?'
-  ai_policy: 'Attempt to pull reverse-dep autopkgtest status and summarise whether key consumers have non-trivial tests covering the lib''s functionality. Weight by importance of consumer. On retrieval failure, fall back to human-only TODO.'
+  ai_policy: 'This question is only meaningful when the library itself has no (or only trivial) autopkgtest of its own: use autopkgtest-db for this package plus packaging-source to judge that. If this package already has a non-trivial autopkgtest, say so and treat E2E-via-consumers as not required. Otherwise assess whether the overall solution is covered indirectly by consumers. reverse-deps lists the reverse-dependency CONSUMER source packages (runtime and build) of this source; consumer-autopkgtests reports, per consumer, has_autopkgtest and the passing/failing arches from the autopkgtest DB. Name the key consumers (weight by importance/prominence, not raw count), and for each state whether it has autopkgtests and whether they pass, citing arches. Reason about whether those consumer tests plausibly exercise THIS library end-to-end. ALWAYS leave the final judgment to the human reviewer: never resolve this as a hard OK/ACK. Emit a reasoned TODO (left-to-decide) that summarises the collected evidence so the reviewer can decide quickly. If reverse-deps or consumer-autopkgtests could not be collected, fall back to the human-only TODO and say the reverse-dependency data was unavailable.'
 
 - id: CB-7
   section: Common blockers

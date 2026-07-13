@@ -319,6 +319,9 @@ class RunContext:
         # --- Populated by stage_collect_evidence / evidence.collect_from_catalog() (Stage 3) ---
         self.catalog: dict = {}  # loaded in Stage 3 (or Stage 4 if Stage 3 skipped)
         self.evidence: dict = {}
+        # Path to the shared, cached autopkgtest DB temp file (large). Set on
+        # first use by the autopkgtest adapters and removed at end of Stage 3.
+        self._autopkgtest_db_path: str | None = None
 
         # --- Populated by stage_analyse / checks.evaluate_checks() (Stage 4) ---
         self.findings: list[dict] = []

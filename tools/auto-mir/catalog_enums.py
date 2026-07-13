@@ -28,6 +28,7 @@ class AdapterID(StrEnum):
     CVE_SEARCH_TERMS = "cve-search-terms"
     NVD_ENRICH = "nvd-enrich"
     LTO_DISABLED_LIST = "lto-disabled-list"
+    CONSUMER_AUTOPKGTESTS = "consumer-autopkgtests"
 
     # In-guest adapters
     PACKAGING_SOURCE = "packaging-source"
@@ -40,6 +41,7 @@ class AdapterID(StrEnum):
     UBUNTU_UPLOAD_PERMISSION = "ubuntu-upload-permission"
     GIT_UBUNTU_DELTA = "git-ubuntu-delta"
     DUP_SEARCH = "dup-search"
+    REVERSE_DEPS = "reverse-deps"
 
 
 class CheckID(StrEnum):

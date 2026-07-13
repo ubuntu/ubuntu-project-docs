@@ -268,6 +268,12 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
             sbuild_data.get("build_log", ""),
         )
 
+    # For CB-6, surface a compact, prioritised consumer summary so the most
+    # decision-relevant reverse-dep consumers (those that actually have
+    # autopkgtests) survive generic list truncation.
+    if check.get("id") == "CB-6":
+        payload["consumer_test_summary"] = _summarise_consumer_autopkgtests(adapters_store)
+
     # Always include compact bug context. Synthesis checks (e.g. SUM-6
     # security-review-needed) need the full picture, so they get a much larger
     # reporter-content cap and the accumulated section findings.
@@ -763,6 +769,37 @@ def _extract_build_test_hints(debian_rules: str, build_log: str) -> dict:
         "failures_possibly_ignored": failures_possibly_ignored,
         "build_log_runs_tests": log_runs_tests,
         "build_log_has_pass_fail": log_pass_fail,
+    }
+
+
+def _summarise_consumer_autopkgtests(adapters_store: dict) -> dict:
+    """Build a compact, prioritised summary of reverse-dep consumer tests.
+
+    Consumers that actually have autopkgtests are the decision-relevant ones for
+    CB-6, so they are listed first (capped) followed by a count of the rest. The
+    reverse-dep release used is surfaced so the reviewer knows what was queried.
+    """
+    reverse_deps = adapters_store.get("reverse-deps", {})
+    consumer_tests = adapters_store.get("consumer-autopkgtests", {})
+
+    consumers = consumer_tests.get("consumers", []) or []
+    with_tests = [c for c in consumers if c.get("has_autopkgtest")]
+    without_tests = [c for c in consumers if not c.get("has_autopkgtest")]
+
+    _CAP = 15
+    return {
+        "reverse_deps_status": reverse_deps.get("status", "not_collected"),
+        "consumer_autopkgtests_status": consumer_tests.get("status", "not_collected"),
+        "reverse_deps_release": reverse_deps.get("release", ""),
+        "reverse_deps_note": reverse_deps.get("note", ""),
+        "consumer_autopkgtests_note": consumer_tests.get("note", ""),
+        "total_consumers": len(consumers),
+        "consumers_with_tests": with_tests[:_CAP],
+        "consumers_with_tests_count": len(with_tests),
+        "consumers_without_tests": [
+            {"source": c.get("source", ""), "kind": c.get("kind", "")} for c in without_tests[:_CAP]
+        ],
+        "consumers_without_tests_count": len(without_tests),
     }
 
 
