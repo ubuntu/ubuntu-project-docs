@@ -27,6 +27,7 @@ from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
     AutopkgtestResult,
+    CvelistScanResult,
     CVESearchTermsResult,
     DebianBTSResult,
     LPBugAPIResult,
@@ -1234,6 +1235,80 @@ _NVD_API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 # lookups to stay within that budget. Candidate sets are expected to be small.
 _NVD_REQUEST_INTERVAL_SECONDS = 6.5
 _NVD_MAX_CANDIDATES = 50
+
+_CVELIST_RELEASES_API = "https://api.github.com/repos/CVEProject/cvelistV5/releases?per_page=40"
+_CVELIST_BASELINE_SUFFIX = "_all_CVEs_at_midnight.zip"
+
+
+def _cvelist_discover_baseline(url: str = _CVELIST_RELEASES_API) -> tuple[str, str]:
+    """Return (asset_name, download_url) of the newest midnight baseline zip."""
+    releases = _fetch_json(url)
+    if not isinstance(releases, list):
+        raise AdapterError("unexpected releases payload from GitHub API")
+    for release in releases:
+        assets = release.get("assets", []) if isinstance(release, dict) else []
+        for asset in assets:
+            if not isinstance(asset, dict):
+                continue
+            name = str(asset.get("name") or "")
+            if not name.endswith(_CVELIST_BASELINE_SUFFIX):
+                continue
+            download_url = str(asset.get("browser_download_url") or "")
+            if download_url:
+                return name, download_url
+    raise AdapterError("no '*_all_CVEs_at_midnight.zip' asset found in recent releases")
+
+
+@adapter(AdapterID.CVELIST_SCAN, depends_on=[AdapterID.CVE_SEARCH_TERMS])
+def collect_cvelist_scan(ctx) -> CvelistScanResult:
+    """Identify candidate CVEs by scanning cvelistV5 baseline corpus on the host."""
+    pkg = ctx.source_package
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    terms_result = ctx.evidence.get("adapters", {}).get("cve-search-terms", {})
+    terms = terms_result.get("terms", []) if isinstance(terms_result, dict) else []
+    if not terms:
+        log.warning("cvelist-scan: no search terms available; skipping scan")
+        return {
+            "status": "ok",
+            "source_package": pkg,
+            "baseline": "",
+            "scanned_terms": [],
+            "candidates": [],
+            "total_candidate_count": 0,
+            "note": "no search terms produced by cve-search-terms",
+        }
+
+    scanned_terms = [str(t.get("term") or "") for t in terms if t.get("term")]
+
+    try:
+        from evidence.cvelist_scan_invm import scan_zip
+
+        baseline_name, download_url = _cvelist_discover_baseline()
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=True) as tmp:
+            http_utils.download_to_file(download_url, tmp.name)
+            candidates = scan_zip(tmp.name, terms)
+    except urllib.error.HTTPError as exc:
+        raise AdapterError(f"cvelist-scan HTTP error {exc.code}: {exc.reason}") from exc
+    except Exception as exc:
+        raise AdapterError(f"cvelist-scan failed on host: {exc}") from exc
+
+    log.debug(
+        "cvelist-scan: %d candidate CVE(s) for %s from baseline %s (terms: %s)",
+        len(candidates),
+        pkg,
+        baseline_name,
+        ", ".join(scanned_terms),
+    )
+    return {
+        "status": "ok",
+        "source_package": pkg,
+        "baseline": baseline_name,
+        "scanned_terms": scanned_terms,
+        "candidates": candidates,
+        "total_candidate_count": len(candidates),
+    }
 
 
 def _nvd_lookup(cve_id: str) -> dict[str, Any] | None:

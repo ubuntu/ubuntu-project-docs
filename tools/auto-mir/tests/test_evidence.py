@@ -517,10 +517,9 @@ def test_cve_search_terms_degrades_on_llm_error():
 
 
 def test_cvelist_scan_output_structure():
-    """cvelist-scan adapter should push the scanner and parse VM JSON output."""
+    """cvelist-scan adapter should run on host and return expected structure."""
     ctx = Mock()
     ctx.source_package = "testpkg"
-    ctx.vm_name = "vm-test"
     ctx.evidence = {
         "adapters": {
             "cve-search-terms": {
@@ -530,32 +529,32 @@ def test_cvelist_scan_output_structure():
         }
     }
 
-    vm_payload = {
-        "status": "ok",
-        "baseline": "2026-06-25_all_CVEs_at_midnight.zip",
-        "candidates": [
-            {
-                "id": "CVE-2026-0001",
-                "matched_term": "testpkg",
-                "matched_kind": "current",
-                "title": "testpkg flaw",
-                "description": "Flaw in testpkg",
-                "affected_products": ["testpkg"],
-                "affected_versions": ["1.0"],
-                "references": [],
-                "severity": "HIGH",
-                "published_date": "2026-06-01T00:00:00Z",
-            }
-        ],
-    }
+    import evidence.host_adapters as host_adapters
 
-    import evidence.container_adapters as container_adapters
+    candidates = [
+        {
+            "id": "CVE-2026-0001",
+            "matched_term": "testpkg",
+            "matched_kind": "current",
+            "title": "testpkg flaw",
+            "description": "Flaw in testpkg",
+            "affected_products": ["testpkg"],
+            "affected_versions": ["1.0"],
+            "references": [],
+            "severity": "HIGH",
+            "published_date": "2026-06-01T00:00:00Z",
+        }
+    ]
 
-    with patch.object(container_adapters.lxd_runner, "push_file") as mock_push:
-        with patch.object(container_adapters, "_capture", return_value=json.dumps(vm_payload)):
-            result = container_adapters.collect_cvelist_scan(ctx)
+    with patch.object(
+        host_adapters,
+        "_cvelist_discover_baseline",
+        return_value=("2026-06-25_all_CVEs_at_midnight.zip", "https://example.invalid/base.zip"),
+    ):
+        with patch.object(host_adapters.http_utils, "download_to_file"):
+            with patch("evidence.cvelist_scan_invm.scan_zip", return_value=candidates):
+                result = host_adapters.collect_cvelist_scan(ctx)
 
-    assert mock_push.call_count == 2
     assert result["status"] == "ok"
     assert result["source_package"] == "testpkg"
     assert result["baseline"] == "2026-06-25_all_CVEs_at_midnight.zip"
@@ -568,18 +567,42 @@ def test_cvelist_scan_skips_without_terms():
     """cvelist-scan adapter should no-op cleanly when no search terms are present."""
     ctx = Mock()
     ctx.source_package = "testpkg"
-    ctx.vm_name = "vm-test"
     ctx.evidence = {"adapters": {"cve-search-terms": {"status": "ok", "terms": []}}}
 
-    import evidence.container_adapters as container_adapters
+    import evidence.host_adapters as host_adapters
 
-    with patch.object(container_adapters.lxd_runner, "push_file") as mock_push:
-        result = container_adapters.collect_cvelist_scan(ctx)
+    with patch.object(host_adapters.http_utils, "download_to_file") as mock_download:
+        result = host_adapters.collect_cvelist_scan(ctx)
 
-    mock_push.assert_not_called()
+    mock_download.assert_not_called()
     assert result["status"] == "ok"
     assert result["candidates"] == []
     assert result["total_candidate_count"] == 0
+
+
+def test_cvelist_scan_reports_discovery_failure():
+    """cvelist-scan should raise AdapterError when baseline discovery fails."""
+    import evidence.host_adapters as host_adapters
+
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.evidence = {
+        "adapters": {
+            "cve-search-terms": {
+                "status": "ok",
+                "terms": [{"term": "testpkg", "kind": "current", "rationale": "name"}],
+            }
+        }
+    }
+
+    with patch.object(
+        host_adapters, "_cvelist_discover_baseline", side_effect=RuntimeError("boom")
+    ):
+        try:
+            host_adapters.collect_cvelist_scan(ctx)
+            assert False, "collect_cvelist_scan should raise AdapterError on discovery failures"
+        except host_adapters.AdapterError as exc:
+            assert "cvelist-scan failed on host" in str(exc)
 
 
 def test_nvd_enrich_output_structure():

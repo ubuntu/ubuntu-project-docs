@@ -691,12 +691,11 @@ phases do not drift.
   favour of a three-adapter chain:
   - `cve-search-terms` (host/heuristic): produces the candidate search terms. Has no hard
     dependencies so a missing upstream match never cascades and skips the whole CVE chain.
-  - `cvelist-scan` (container): downloads the documented
-    `*_all_CVEs_at_midnight.zip` cvelistV5 baseline *inside the throwaway VM* (keeping the
-    bulky corpus off the host) and word-matches every record with a self-contained,
-    stdlib-only scanner (`evidence/cvelist_scan_invm.py`, no `unzip` dependency). "Parse a
-    lot, identify few": the whole corpus is scanned but only a handful of candidate CVE IDs
-    are returned.
+  - `cvelist-scan` (host): downloads the documented
+    `*_all_CVEs_at_midnight.zip` cvelistV5 baseline on the host and word-matches every record
+    with the same stdlib-only scanner logic (`evidence/cvelist_scan_invm.py`). "Parse a lot,
+    identify few": the whole corpus is scanned but only a handful of candidate CVE IDs are
+    returned.
   - `nvd-enrich` (host/web): enriches each candidate with normalized CVSS severity, CWE and
     CPE version ranges from NVD API 2.0, falling back to the cvelist record data when NVD is
     unavailable. Runs without an API key (5 req/30s budget enforced via a small inter-request
@@ -1209,3 +1208,25 @@ Promotion: no (implementation detail; the durable rules are captured per-check a
   evidence collection with less duplicated retry code.
 - Behavior contracts of adapters are preserved: successful outputs are
   unchanged; terminal failures still degrade to existing adapter error paths.
+
+## 2026-07-13 — Bulky-download-in-VM rationale retired
+
+**Context:**
+- Earlier decisions preferred running cvelist baseline download/scan inside the
+  throwaway VM to keep bulky data off the host.
+- Current architecture already performs large host-side downloads (for example
+  `autopkgtest.db`) and now has standardized host retry/backoff helpers.
+
+**Decision:**
+- Retire the old blanket rationale "bulky downloads should stay in the VM".
+- Move `cvelist-scan` to host execution while preserving adapter contracts and
+  dependency chain semantics.
+- Replace the old rationale with a stricter data-lifecycle policy:
+  - large temporary artifacts are allowed on host or VM,
+  - they must be created via temporary paths and cleaned up after execution.
+
+**Consequences:**
+- Lower implementation and maintenance risk by reusing host-side helper/retry
+  infrastructure.
+- Execution-location consistency now follows operational fit (build/source work
+  stays in VM; web/bulk lookups may run on host) rather than payload size.

@@ -218,7 +218,7 @@ class CvelistCandidate(TypedDict):
 
 
 class CvelistScanResult(TypedDict):
-    """Return structure for cvelist-scan adapter (runs inside the VM)."""
+    """Return structure for cvelist-scan adapter (runs on the host)."""
 
     status: str
     source_package: str
