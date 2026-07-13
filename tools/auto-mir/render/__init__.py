@@ -79,7 +79,7 @@ def write_outputs(ctx) -> None:
         "bug_id": ctx.bug_id,
         "source_package": ctx.source_package,
         "series": ctx.series,
-        "vm_name": ctx.vm_name,
+        "guest_name": ctx.guest_name,
         "catalog_summary": ctx.evidence.get("catalog_summary", {}),
         "analysis_summary": ctx.evidence.get("analysis_summary", {}),
         "findings": [asdict(f) for f in ctx.findings],

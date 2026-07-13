@@ -872,7 +872,7 @@ Outcomes from the first real reviewer feedback. Promotion: no (local rationale).
 
 - **Evidence module split**: split monolithic `evidence/__init__.py` into logical submodules:
   - `evidence/host_adapters.py` — host-side adapters (Launchpad API, CVE tracker, autopkgtest)
-  - `evidence/container_adapters.py` — in-container adapters (packaging, dependencies, sbuild)
+  - `evidence/guest_adapters.py` — in-guest adapters (packaging, dependencies, sbuild)
   - `evidence/__init__.py` — orchestration and adapter registry
   - Rationale: improves code navigation, reduces file size, clarifies execution context.
 - **Language gates extraction**: moved language detection logic to dedicated
@@ -916,7 +916,7 @@ Outcomes from the first real reviewer feedback. Promotion: no (local rationale).
   - `retry_transient_network()` — for network operations (ConnectionError, TimeoutError,
     urllib.error.URLError, 5xx HTTP errors)
   - `retry_rate_limited()` — for API calls with rate limiting (429, 5xx errors)
-  - `retry_container_command()` — for container commands with transient failures
+  - `retry_guest_command()` — for LXD-guest commands with transient failures
     (503 errors, DNS failures, connection timeouts)
 - **Refactored modules**: updated `lxd_runner.py` and `llm.py` to use tenacity decorators
   instead of custom retry loops. Improves maintainability and reduces code duplication.

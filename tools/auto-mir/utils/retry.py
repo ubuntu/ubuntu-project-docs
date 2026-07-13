@@ -1,7 +1,7 @@
 """Retry utilities using tenacity.
 
 Provides standardized retry decorators for handling transient failures
-in network operations and container commands.
+in network operations and LXD-guest commands.
 """
 
 from __future__ import annotations
@@ -121,12 +121,12 @@ def retry_rate_limited(
     )
 
 
-def retry_container_command(
+def retry_guest_command(
     max_attempts: int = 4,
     base_delay: float = 6.0,
     max_delay: float = 60.0,
 ) -> Callable:
-    """Decorator for retrying container commands on transient failures.
+    """Decorator for retrying LXD-guest commands on transient failures.
 
     Retries when command output indicates transient infrastructure issues
     (503 errors, DNS failures, connection timeouts, etc.).

@@ -29,7 +29,7 @@ class AdapterID(StrEnum):
     NVD_ENRICH = "nvd-enrich"
     LTO_DISABLED_LIST = "lto-disabled-list"
 
-    # In-container adapters
+    # In-guest adapters
     PACKAGING_SOURCE = "packaging-source"
     DEP_ANALYSIS = "dep-analysis"
     COMPONENT_MISMATCHES = "component-mismatches"

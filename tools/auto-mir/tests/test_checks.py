@@ -862,7 +862,7 @@ def test_extract_build_hints_vendor_archive():
 
 def test_parse_built_using_entries_empty():
     """Test _parse_built_using_entries with empty input."""
-    import evidence.container_adapters as adapters
+    import evidence.guest_adapters as adapters
 
     assert adapters._parse_built_using_entries("") == []
     assert adapters._parse_built_using_entries(None) == []
@@ -870,7 +870,7 @@ def test_parse_built_using_entries_empty():
 
 def test_parse_built_using_entries_single_line():
     """Test _parse_built_using_entries with single-line field."""
-    import evidence.container_adapters as adapters
+    import evidence.guest_adapters as adapters
 
     field = "golang-1.20 (>= 1.20~), golang-1.20 (<< 1.21~)"
     result = adapters._parse_built_using_entries(field)
@@ -880,7 +880,7 @@ def test_parse_built_using_entries_single_line():
 
 def test_parse_built_using_entries_multi_line():
     """Test _parse_built_using_entries with multi-line field (continuation lines)."""
-    import evidence.container_adapters as adapters
+    import evidence.guest_adapters as adapters
 
     field = """golang-1.20 (>= 1.20~),
  golang-1.20 (<< 1.21~)"""

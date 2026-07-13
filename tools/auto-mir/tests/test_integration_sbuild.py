@@ -24,7 +24,7 @@ except ImportError:
     pytest = None
 
 import lxd_runner
-from evidence.container_adapters import collect_sbuild
+from evidence.guest_adapters import collect_sbuild
 
 _UBUNTU_ENV = {"HOME": "/home/ubuntu", "USER": "ubuntu", "LOGNAME": "ubuntu"}
 
@@ -40,7 +40,7 @@ def _make_lxd_vm_context():
     In a real CI environment, this would be set up beforehand.
     """
     ctx = Mock()
-    ctx.vm_name = "test-sbuild-vm"
+    ctx.guest_name = "test-sbuild-vm"
     ctx.series = "noble"
     ctx.source_package = "hello"
     ctx.evidence = {
@@ -158,7 +158,7 @@ def test_sbuild_hello_package_builds_successfully():
         return
 
     ctx = Mock()
-    ctx.vm_name = vm_name
+    ctx.guest_name = vm_name
     ctx.series = "devel"
     ctx.source_package = "hello"
     ctx.requested_binaries = []
@@ -195,11 +195,11 @@ def test_sbuild_hello_package_builds_successfully():
 def test_sbuild_adapter_requires_packaging_source():
     """Test that sbuild adapter fails gracefully without packaging-source."""
     ctx = Mock()
-    ctx.vm_name = "test-vm"
+    ctx.guest_name = "test-vm"
     ctx.series = "noble"
     ctx.evidence = {"adapters": {}}
 
-    from evidence.container_adapters import AdapterError
+    from evidence.guest_adapters import AdapterError
 
     if HAS_PYTEST:
         with pytest.raises(AdapterError, match="packaging-source.source_dir"):
@@ -220,7 +220,7 @@ def test_sbuild_adapter_handles_build_failure():
         return
 
     ctx = Mock()
-    ctx.vm_name = vm_name
+    ctx.guest_name = vm_name
     ctx.series = "devel"
     ctx.source_package = "hello"
     ctx.requested_binaries = []
@@ -237,7 +237,7 @@ def test_sbuild_adapter_handles_build_failure():
     }
 
     # With no .dsc in the (nonexistent) workdir the adapter raises AdapterError.
-    from evidence.container_adapters import AdapterError
+    from evidence.guest_adapters import AdapterError
 
     if HAS_PYTEST:
         with pytest.raises(AdapterError, match=".dsc"):
@@ -252,7 +252,7 @@ def test_sbuild_adapter_handles_build_failure():
 
 def test_dep_analysis_with_sbuild_output():
     """Test that dep-analysis adapter correctly processes sbuild output."""
-    from evidence.container_adapters import collect_dep_analysis
+    from evidence.guest_adapters import collect_dep_analysis
 
     ctx = Mock()
     ctx.source_package = "hello"
@@ -274,7 +274,7 @@ def test_dep_analysis_with_sbuild_output():
     }
 
     # Mock dpkg-deb commands
-    with patch("evidence.container_adapters._capture") as mock_capture:
+    with patch("evidence.guest_adapters._capture") as mock_capture:
 
         def capture_side_effect(ctx, cmd, **kwargs):
             cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
@@ -292,7 +292,7 @@ def test_dep_analysis_with_sbuild_output():
         mock_capture.side_effect = capture_side_effect
 
         # Mock component detection
-        with patch("evidence.container_adapters._detect_component") as mock_component:
+        with patch("evidence.guest_adapters._detect_component") as mock_component:
             mock_component.return_value = "main"
 
             # Run dep-analysis
@@ -308,7 +308,7 @@ def test_dep_analysis_with_sbuild_output():
 
 def test_scope_filtering_with_requested_binaries():
     """Test that scope filtering works correctly with requested_binaries."""
-    from evidence.container_adapters import collect_dep_analysis
+    from evidence.guest_adapters import collect_dep_analysis
 
     ctx = Mock()
     ctx.source_package = "multipkg"
@@ -331,7 +331,7 @@ def test_scope_filtering_with_requested_binaries():
     }
 
     # Mock commands
-    with patch("evidence.container_adapters._capture") as mock_capture:
+    with patch("evidence.guest_adapters._capture") as mock_capture:
 
         def capture_side_effect(ctx, cmd, **kwargs):
             cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
@@ -358,7 +358,7 @@ def test_scope_filtering_with_requested_binaries():
         mock_capture.side_effect = capture_side_effect
 
         # Mock component detection
-        with patch("evidence.container_adapters._detect_component") as mock_component:
+        with patch("evidence.guest_adapters._detect_component") as mock_component:
 
             def component_side_effect(ctx, pkg):
                 if pkg in ["libuniverse1", "libuniverse2"]:
@@ -380,7 +380,7 @@ def test_scope_filtering_with_requested_binaries():
 
 def test_same_source_deps_not_flagged():
     """Test that dependencies from the same source package are not flagged."""
-    from evidence.container_adapters import collect_dep_analysis
+    from evidence.guest_adapters import collect_dep_analysis
 
     ctx = Mock()
     ctx.source_package = "dav1d"
@@ -403,7 +403,7 @@ def test_same_source_deps_not_flagged():
     }
 
     # Mock commands
-    with patch("evidence.container_adapters._capture") as mock_capture:
+    with patch("evidence.guest_adapters._capture") as mock_capture:
 
         def capture_side_effect(ctx, cmd, **kwargs):
             cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
@@ -429,7 +429,7 @@ def test_same_source_deps_not_flagged():
         mock_capture.side_effect = capture_side_effect
 
         # Mock component detection
-        with patch("evidence.container_adapters._detect_component") as mock_component:
+        with patch("evidence.guest_adapters._detect_component") as mock_component:
 
             def component_side_effect(ctx, pkg):
                 if pkg == "libdav1d7":
@@ -449,7 +449,7 @@ def test_same_source_deps_not_flagged():
 
 def test_auto_included_dep_classification_scoped_to_requested_binaries():
     """Auto-included dependency classification should use in-scope binaries only."""
-    from evidence.container_adapters import collect_dep_analysis
+    from evidence.guest_adapters import collect_dep_analysis
 
     ctx = Mock()
     ctx.source_package = "multipkg"
@@ -472,7 +472,7 @@ def test_auto_included_dep_classification_scoped_to_requested_binaries():
         }
     }
 
-    with patch("evidence.container_adapters._capture") as mock_capture:
+    with patch("evidence.guest_adapters._capture") as mock_capture:
 
         def capture_side_effect(ctx, cmd, **kwargs):
             cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
@@ -502,7 +502,7 @@ def test_auto_included_dep_classification_scoped_to_requested_binaries():
 
         mock_capture.side_effect = capture_side_effect
 
-        with patch("evidence.container_adapters._detect_component") as mock_component:
+        with patch("evidence.guest_adapters._detect_component") as mock_component:
 
             def component_side_effect(ctx, pkg):
                 if pkg == "libuniverse-dev":

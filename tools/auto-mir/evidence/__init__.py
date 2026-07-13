@@ -1,11 +1,11 @@
 """Evidence collection adapters for auto-mir.
 
-These collectors run inside the provisioned LXD container via lxd_runner.exec_in
+These collectors run inside the provisioned LXD guest via lxd_runner.exec_in
 and store structured outputs under ctx.evidence[adapter_id].
 
 Host-side adapters (lp-*-api, ubuntu-cve-tracker, autopkgtest-db) do NOT use the
-container; they call Launchpad / HTTP APIs directly from the tool host and are safe
-to run before or after container operations.
+LXD guest; they call Launchpad / HTTP APIs directly from the tool host and are safe
+to run before or after guest operations.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ log = logging.getLogger("auto_mir.evidence")
 def _ensure_adapters_registered() -> None:
     """Import adapter modules for their registry side effects."""
     importlib.import_module("evidence.host_adapters")
-    importlib.import_module("evidence.container_adapters")
+    importlib.import_module("evidence.guest_adapters")
     importlib.import_module("evidence.team_mapping_adapter")
     importlib.import_module("evidence.lto_disabled_adapter")
 

@@ -19,7 +19,7 @@ def _patch_main_context(monkeypatch, *, collect_only: bool):
         collect_only=collect_only,
         lxd_image=None,
         lxd_options="",
-        keep_container=None,
+        keep_guest=None,
         pin_uat_tooling=None,
         llm_model_small=None,
         llm_model_large=None,
@@ -34,12 +34,12 @@ def _patch_main_context(monkeypatch, *, collect_only: bool):
     ctx = SimpleNamespace(
         bug_id="12345",
         source_package="pkg",
-        keep_container=None,
+        keep_guest=None,
         collect_only=collect_only,
         output_dir=Path("/tmp"),
         llm_model_small=None,
         llm_model_large=None,
-        vm_name="",
+        guest_name="",
         evidence={"adapters": {}},
         requested_binaries=[],
         catalog={},
@@ -58,8 +58,8 @@ def test_teardown_uses_failure_summary_in_noninteractive_warning(monkeypatch):
         "Stage 4 (analysis) failed after evidence collection encountered adapter failures."
     )
     ctx = SimpleNamespace(
-        vm_name="mir-test",
-        keep_container=None,
+        guest_name="mir-test",
+        keep_guest=None,
         failure_summary=failure_summary,
     )
     warnings = []
@@ -71,7 +71,7 @@ def test_teardown_uses_failure_summary_in_noninteractive_warning(monkeypatch):
     )
     monkeypatch.setattr(auto_mir.lxd_runner, "destroy", lambda run_ctx: None)
 
-    auto_mir.teardown_container(ctx, evidence_collection_result=1)
+    auto_mir.teardown_guest(ctx, evidence_collection_result=1)
 
     assert warnings
     assert (
@@ -81,7 +81,7 @@ def test_teardown_uses_failure_summary_in_noninteractive_warning(monkeypatch):
 
 
 def test_teardown_falls_back_to_adapter_failure_summary(monkeypatch):
-    ctx = SimpleNamespace(vm_name="mir-test", keep_container=None, failure_summary=None)
+    ctx = SimpleNamespace(guest_name="mir-test", keep_guest=None, failure_summary=None)
     warnings = []
 
     monkeypatch.setattr(auto_mir.sys.stdin, "isatty", lambda: False)
@@ -91,7 +91,7 @@ def test_teardown_falls_back_to_adapter_failure_summary(monkeypatch):
     )
     monkeypatch.setattr(auto_mir.lxd_runner, "destroy", lambda run_ctx: None)
 
-    auto_mir.teardown_container(ctx, evidence_collection_result=1)
+    auto_mir.teardown_guest(ctx, evidence_collection_result=1)
 
     assert warnings
     assert "Evidence collection encountered adapter failures." in warnings[0]
@@ -103,7 +103,7 @@ def test_main_runs_stages_in_expected_order(monkeypatch):
 
     monkeypatch.setattr(auto_mir, "stage_auth", lambda _ctx: calls.append("auth"))
     monkeypatch.setattr(auto_mir, "stage_intake", lambda _ctx: calls.append("intake"))
-    monkeypatch.setattr(auto_mir, "stage_spawn_container", lambda _ctx: calls.append("spawn"))
+    monkeypatch.setattr(auto_mir, "stage_spawn_guest", lambda _ctx: calls.append("spawn"))
 
     def _collect(_ctx):
         calls.append("collect")
@@ -122,7 +122,7 @@ def test_main_runs_stages_in_expected_order(monkeypatch):
     monkeypatch.setattr(auto_mir, "_log_artifact_locations", lambda _ctx: calls.append("artifacts"))
     monkeypatch.setattr(
         auto_mir,
-        "teardown_container",
+        "teardown_guest",
         lambda _ctx, _result=0: calls.append("teardown"),
     )
     monkeypatch.setattr(auto_mir, "_print_complete_banner", lambda _ctx: calls.append("banner"))
@@ -148,7 +148,7 @@ def test_main_collect_only_skips_auth_analysis_and_render(monkeypatch):
 
     monkeypatch.setattr(auto_mir, "stage_auth", lambda _ctx: calls.append("auth"))
     monkeypatch.setattr(auto_mir, "stage_intake", lambda _ctx: calls.append("intake"))
-    monkeypatch.setattr(auto_mir, "stage_spawn_container", lambda _ctx: calls.append("spawn"))
+    monkeypatch.setattr(auto_mir, "stage_spawn_guest", lambda _ctx: calls.append("spawn"))
     monkeypatch.setattr(
         auto_mir, "stage_collect_evidence", lambda _ctx: calls.append("collect") or 0
     )
@@ -158,7 +158,7 @@ def test_main_collect_only_skips_auth_analysis_and_render(monkeypatch):
     monkeypatch.setattr(auto_mir, "_log_artifact_locations", lambda _ctx: calls.append("artifacts"))
     monkeypatch.setattr(
         auto_mir,
-        "teardown_container",
+        "teardown_guest",
         lambda _ctx, _result=0: calls.append("teardown"),
     )
     monkeypatch.setattr(auto_mir, "_print_complete_banner", lambda _ctx: calls.append("banner"))
@@ -174,7 +174,7 @@ def test_main_propagates_evidence_failure_summary_to_teardown(monkeypatch):
 
     monkeypatch.setattr(auto_mir, "stage_auth", lambda _ctx: calls.append("auth"))
     monkeypatch.setattr(auto_mir, "stage_intake", lambda _ctx: calls.append("intake"))
-    monkeypatch.setattr(auto_mir, "stage_spawn_container", lambda _ctx: calls.append("spawn"))
+    monkeypatch.setattr(auto_mir, "stage_spawn_guest", lambda _ctx: calls.append("spawn"))
     monkeypatch.setattr(
         auto_mir, "stage_collect_evidence", lambda _ctx: calls.append("collect") or 1
     )
@@ -183,7 +183,7 @@ def test_main_propagates_evidence_failure_summary_to_teardown(monkeypatch):
     monkeypatch.setattr(auto_mir, "_log_artifact_locations", lambda _ctx: calls.append("artifacts"))
     monkeypatch.setattr(
         auto_mir,
-        "teardown_container",
+        "teardown_guest",
         lambda _ctx, result=0: teardown_results.append(result),
     )
     monkeypatch.setattr(auto_mir, "_print_complete_banner", lambda _ctx: calls.append("banner"))

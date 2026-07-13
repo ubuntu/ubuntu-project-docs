@@ -17,7 +17,7 @@ sources with in-VM analysis.
 - `evidence/registry.py`: adapter registration decorator.
 - `evidence/types.py`: TypedDict contracts for adapter payloads.
 - `evidence/host_adapters.py`: host-executed adapters (APIs, web/data feeds).
-- `evidence/container_adapters.py`: in-VM adapters (packaging, build, lint, scans).
+- `evidence/guest_adapters.py`: in-guest adapters (packaging, build, lint, scans).
 - `evidence/team_mapping_adapter.py`: SUM-4 team-mapping integration.
 - `evidence/lto_disabled_adapter.py`: PRF-10 LTO-disabled list integration.
 

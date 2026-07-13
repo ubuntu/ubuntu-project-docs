@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""integration_smoke.py - container isolation smoke test for auto-mir.
+"""integration_smoke.py - LXD guest isolation smoke test for auto-mir.
 
 This script verifies that command execution happens inside an isolated LXD
-Ubuntu devel container and captures runtime facts relevant to integration tests.
+Ubuntu devel guest and captures runtime facts relevant to integration tests.
 
 Usage:
-    /usr/bin/python tools/auto-mir/integration_smoke.py [--lxd-image IMAGE] [--keep-container]
+    /usr/bin/python tools/auto-mir/integration_smoke.py [--lxd-image IMAGE] [--keep-guest]
 """
 
 from __future__ import annotations
@@ -20,13 +20,13 @@ from utils.cli import parse_bool_arg
 
 
 class SmokeContext:
-    def __init__(self, lxd_image: str | None, keep_container: bool | None):
+    def __init__(self, lxd_image: str | None, keep_guest: bool | None):
         self.bug_id = "smoke"
         self.pin_uat_tooling = None
         self.lxd_image = lxd_image
-        self.keep_container = keep_container
-        self.lxd_options = "--vm -c limits.cpu=4 -c limits.memory=8GiB"
-        self.vm_name = ""
+        self.keep_guest = keep_guest
+        self.lxd_options = "--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB"
+        self.guest_name = ""
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -37,18 +37,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional explicit LXD image alias (default: first available Ubuntu devel alias)",
     )
     p.add_argument(
-        "--keep-container",
-        dest="keep_container",
+        "--keep-guest",
+        dest="keep_guest",
         nargs="?",
         const=True,
         default=None,
         type=parse_bool_arg,
         metavar="true|false",
         help=(
-            "Control smoke-test container cleanup (tri-state). "
+            "Control smoke-test guest cleanup (tri-state). "
             "Not specified: destroy on success, preserve on failure. "
-            "--keep-container or --keep-container=true: always preserve. "
-            "--keep-container=false: always destroy."
+            "--keep-guest or --keep-guest=true: always preserve. "
+            "--keep-guest=false: always destroy."
         ),
     )
     p.add_argument("-v", "--verbose", action="store_true", help="Verbose logs")
@@ -62,7 +62,7 @@ def main() -> int:
         format="%(levelname)s  %(name)s  %(message)s",
     )
 
-    ctx = SmokeContext(args.lxd_image, args.keep_container)
+    ctx = SmokeContext(args.lxd_image, args.keep_guest)
 
     exit_code = 0
     try:
@@ -70,7 +70,7 @@ def main() -> int:
         facts = lxd_runner.collect_runtime_facts(ctx)
 
         apt_policy_pkg = lxd_runner.exec_in(
-            ctx.vm_name,
+            ctx.guest_name,
             ["bash", "-lc", "apt-cache policy bash"],
             capture=True,
             check=False,
@@ -79,17 +79,17 @@ def main() -> int:
         result = {
             "runtime_isolation": facts,
             "apt_policy_bash_excerpt": "\n".join(apt_policy_pkg.splitlines()[:20]),
-            "vm_exec_ok": bool(apt_policy_pkg),
+            "guest_exec_ok": bool(apt_policy_pkg),
         }
         print(json.dumps(result, indent=2, sort_keys=True))
     except Exception:
         exit_code = 1
         raise
     finally:
-        if ctx.vm_name:
-            if ctx.keep_container is True:
+        if ctx.guest_name:
+            if ctx.keep_guest is True:
                 should_keep = True
-            elif ctx.keep_container is False:
+            elif ctx.keep_guest is False:
                 should_keep = False
             else:
                 should_keep = exit_code != 0

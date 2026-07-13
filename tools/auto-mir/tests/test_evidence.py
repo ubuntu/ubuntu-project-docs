@@ -17,7 +17,7 @@ from evidence import (
 
 # Register all adapters into the real registry up front. Several tests below use
 # patch.dict("evidence.ADAPTER_REGISTRY", ..., clear=True); if the lazy first
-# import of the container/team adapter modules happened inside such a cleared
+# import of the guest/team adapter modules happened inside such a cleared
 # context, their decorator registrations would be discarded on patch exit and
 # lost for the rest of the session (modules are cached, so they never re-run).
 _ensure_adapters_registered()
@@ -903,9 +903,9 @@ def test_dep_analysis_output_structure():
         }
     }
 
-    # Mock the container execution functions
-    with patch("evidence.container_adapters._capture") as mock_capture:
-        with patch("evidence.container_adapters._detect_component") as mock_component:
+    # Mock the in-guest execution functions
+    with patch("evidence.guest_adapters._capture") as mock_capture:
+        with patch("evidence.guest_adapters._detect_component") as mock_component:
             mock_capture.side_effect = [
                 "testpkg\ntestpkg-dev",  # binaries_raw from debian/control
                 "testpkg",  # Package field for deb1
@@ -917,7 +917,7 @@ def test_dep_analysis_output_structure():
             ]
             mock_component.return_value = "main"
 
-            from evidence.container_adapters import collect_dep_analysis
+            from evidence.guest_adapters import collect_dep_analysis
 
             result = collect_dep_analysis(ctx)
 
@@ -944,7 +944,7 @@ def test_lintian_output_structure():
         }
     }
 
-    from evidence.container_adapters import collect_lintian
+    from evidence.guest_adapters import collect_lintian
 
     result = collect_lintian(ctx)
 
@@ -1179,7 +1179,7 @@ def test_release_cadence_deduplicates_versions():
 
 
 def test_parse_upload_permission_motu_only():
-    from evidence.container_adapters import _parse_upload_permission
+    from evidence.guest_adapters import _parse_upload_permission
 
     output = (
         "All upload permissions for lua5.5:\n"
@@ -1197,7 +1197,7 @@ def test_parse_upload_permission_motu_only():
 
 
 def test_parse_upload_permission_individual_uploader():
-    from evidence.container_adapters import _parse_upload_permission
+    from evidence.guest_adapters import _parse_upload_permission
 
     output = (
         "All upload permissions for foo:\n"
@@ -1219,7 +1219,7 @@ def test_parse_upload_permission_individual_uploader():
 
 
 def test_classify_ubuntu_delta_kinds():
-    from evidence.container_adapters import classify_ubuntu_delta
+    from evidence.guest_adapters import classify_ubuntu_delta
 
     assert classify_ubuntu_delta("5.5.0-4") == "sync"
     assert classify_ubuntu_delta("5.5.0-4ubuntu1") == "ubuntu_delta"
@@ -1234,7 +1234,7 @@ def test_classify_ubuntu_delta_kinds():
 
 
 def test_classify_delta_category_tests_only():
-    from evidence.container_adapters import _classify_delta_category
+    from evidence.guest_adapters import _classify_delta_category
 
     diffstat = (
         " debian/tests/control | 5 +++++\n"
@@ -1245,7 +1245,7 @@ def test_classify_delta_category_tests_only():
 
 
 def test_classify_delta_category_general():
-    from evidence.container_adapters import _classify_delta_category
+    from evidence.guest_adapters import _classify_delta_category
 
     diffstat = (
         " src/foo.c        | 30 ++++++++++++++++++------\n"
@@ -1256,7 +1256,7 @@ def test_classify_delta_category_general():
 
 
 def test_classify_delta_category_empty_is_general():
-    from evidence.container_adapters import _classify_delta_category
+    from evidence.guest_adapters import _classify_delta_category
 
     assert _classify_delta_category("") == "general"
 
@@ -1267,7 +1267,7 @@ def test_classify_delta_category_empty_is_general():
 
 
 def test_classify_shipped_vendored_dirs_excludes_test_only():
-    from evidence.container_adapters import _classify_shipped_vendored_dirs
+    from evidence.guest_adapters import _classify_shipped_vendored_dirs
 
     # tests/third_party is test-only; a top-level vendor dir is shipped.
     dirs = ["./tests/third_party", "./third_party", "./vendor"]
@@ -1278,7 +1278,7 @@ def test_classify_shipped_vendored_dirs_excludes_test_only():
 
 
 def test_classify_shipped_vendored_dirs_all_test_only():
-    from evidence.container_adapters import _classify_shipped_vendored_dirs
+    from evidence.guest_adapters import _classify_shipped_vendored_dirs
 
     assert _classify_shipped_vendored_dirs(["./tests/third_party"]) == []
 
@@ -1289,7 +1289,7 @@ def test_classify_shipped_vendored_dirs_all_test_only():
 
 
 def test_parse_binary_sections():
-    from evidence.container_adapters import _parse_binary_sections
+    from evidence.guest_adapters import _parse_binary_sections
 
     control = (
         "Source: libgav1\n"
@@ -1418,7 +1418,7 @@ def test_collect_from_catalog_optional_failure_does_not_fail_run():
 # Proposed-pocket source selection (feedback #7)
 # ---------------------------------------------------------------------------
 
-from evidence.container_adapters import (  # noqa: E402
+from evidence.guest_adapters import (  # noqa: E402
     _latest_published_in_pocket,
     _resolve_source_pocket_version,
 )
@@ -1513,7 +1513,7 @@ def test_build_proposed_stanza_returns_none_without_primary():
 
 from types import SimpleNamespace  # noqa: E402
 
-from evidence import container_adapters  # noqa: E402
+from evidence import guest_adapters  # noqa: E402
 
 
 def test_extract_binary_descriptions_and_names():
@@ -1524,11 +1524,11 @@ def test_extract_binary_descriptions_and_names():
         "Package: libgav1-dev\n"
         "Description: AV1 decoder -- development files\n"
     )
-    assert container_adapters._extract_binary_descriptions(control) == [
+    assert guest_adapters._extract_binary_descriptions(control) == [
         "AV1 decoder developed by Google -- runtime library",
         "AV1 decoder -- development files",
     ]
-    assert container_adapters._binary_package_names(control) == ["libgav1-2", "libgav1-dev"]
+    assert guest_adapters._binary_package_names(control) == ["libgav1-2", "libgav1-dev"]
 
 
 def test_apt_package_component_classifies_universe_and_main():
@@ -1544,17 +1544,17 @@ def test_apt_package_component_classifies_universe_and_main():
             return "libs"
         return ""
 
-    with patch.object(container_adapters, "_capture", side_effect=fake_capture):
-        ctx = SimpleNamespace(vm_name="vm")
-        assert container_adapters._apt_package_component(ctx, "libdav1d7") == "universe"
-        assert container_adapters._apt_package_component(ctx, "libaom3") == "main"
-        assert container_adapters._apt_package_component(ctx, "unknownpkg") == "unknown"
+    with patch.object(guest_adapters, "_capture", side_effect=fake_capture):
+        ctx = SimpleNamespace(guest_name="vm")
+        assert guest_adapters._apt_package_component(ctx, "libdav1d7") == "universe"
+        assert guest_adapters._apt_package_component(ctx, "libaom3") == "main"
+        assert guest_adapters._apt_package_component(ctx, "unknownpkg") == "unknown"
 
 
 def test_collect_dup_search_probes_terms_and_tags_components():
     ctx = SimpleNamespace(
         source_package="libgav1",
-        vm_name="vm",
+        guest_name="vm",
         llm_token="tok",
         untrusted_nonce="N",
         evidence={
@@ -1580,10 +1580,10 @@ def test_collect_dup_search_probes_terms_and_tags_components():
         return ""
 
     with (
-        patch.object(container_adapters, "_capture", side_effect=fake_capture),
-        patch.object(container_adapters, "_llm_dup_search_terms", return_value=["AV1 decoder"]),
+        patch.object(guest_adapters, "_capture", side_effect=fake_capture),
+        patch.object(guest_adapters, "_llm_dup_search_terms", return_value=["AV1 decoder"]),
     ):
-        result = container_adapters.collect_dup_search(ctx)
+        result = guest_adapters.collect_dup_search(ctx)
 
     names = [c["name"] for c in result["candidates"]]
     assert "libaom3" in names

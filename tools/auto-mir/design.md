@@ -59,7 +59,7 @@ LXD VM for reproducibility and isolation.
 - Pull Launchpad bug metadata and reporter MIR content.
 - Resolve source package and series context.
 
-3. Stage 2: isolation setup (`stage_spawn_container`)
+3. Stage 2: isolation setup (`stage_spawn_guest`)
 - Create/provision LXD VM and tooling.
 
 4. Stage 3: evidence (`stage_collect_evidence`)

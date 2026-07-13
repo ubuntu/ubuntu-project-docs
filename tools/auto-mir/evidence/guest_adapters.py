@@ -1,6 +1,6 @@
-"""In-container evidence collection adapters.
+"""In-guest evidence collection adapters.
 
-These adapters run inside the LXD container via lxd_runner.exec_in() and collect
+These adapters run inside the LXD guest via lxd_runner.exec_in() and collect
 evidence from package build tools, dependency analysis, and packaging inspection.
 """
 
@@ -24,7 +24,7 @@ from evidence.types import (
     UbuntuUploadPermissionResult,
 )
 
-log = logging.getLogger("auto_mir.evidence.container")
+log = logging.getLogger("auto_mir.evidence.guest")
 
 _UBUNTU_UID = 1000
 _UBUNTU_GID = 1000
@@ -36,7 +36,7 @@ class AdapterError(RuntimeError):
 
 
 # ---------------------------------------------------------------------------
-# Helper functions for container execution
+# Helper functions for in-guest execution
 # ---------------------------------------------------------------------------
 
 
@@ -48,10 +48,10 @@ def _capture(
     as_ubuntu: bool = False,
     env: dict[str, str] | None = None,
 ) -> str:
-    """Execute command in container and return stdout."""
+    """Execute command in the LXD guest and return stdout."""
     run_env = _UBUNTU_ENV if as_ubuntu and env is None else env
     result = lxd_runner.exec_in(
-        ctx.vm_name,
+        ctx.guest_name,
         cmd,
         check=not allow_fail,
         capture=True,
@@ -69,10 +69,10 @@ def _exists(
     as_ubuntu: bool = False,
     env: dict[str, str] | None = None,
 ) -> bool:
-    """Check if command succeeds in container."""
+    """Check if command succeeds in the LXD guest."""
     run_env = _UBUNTU_ENV if as_ubuntu and env is None else env
     result = lxd_runner.exec_in(
-        ctx.vm_name,
+        ctx.guest_name,
         cmd,
         check=False,
         capture=True,
@@ -119,10 +119,10 @@ def _parse_lintian_output(lintian_raw: str) -> tuple[list[str], list[str], list[
 
 
 def _resolve_sbuild_series(ctx, requested_series: str) -> str:
-    """Resolve alias series names to an actual in-container suite name.
+    """Resolve alias series names to an actual in-guest suite name.
 
     sbuild expects a concrete suite/codename. When callers pass "devel",
-    resolve it to the container codename to avoid suite ambiguity.
+    resolve it to the guest codename to avoid suite ambiguity.
     """
     if requested_series != "devel":
         return requested_series
@@ -137,7 +137,7 @@ def _resolve_sbuild_series(ctx, requested_series: str) -> str:
         allow_fail=True,
     ).strip()
     if codename:
-        log.info("Resolved sbuild suite alias 'devel' to container codename '%s'", codename)
+        log.info("Resolved sbuild suite alias 'devel' to guest codename '%s'", codename)
         return codename
     return requested_series
 
@@ -315,7 +315,7 @@ def _resolve_source_pocket_version(ctx) -> tuple[str, str]:
 def collect_packaging_source(ctx) -> PackagingSourceResult:
     """Fetch and analyze Debian packaging source files.
 
-    Runs apt-get source in the container to fetch the source package, then
+    Runs apt-get source in the LXD guest to fetch the source package, then
     extracts debian/control, debian/rules, and checks for language-specific
     files (Cargo.lock, go.sum, vendored directories).
 
@@ -330,7 +330,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
 
     workdir = f"/tmp/auto-mir-{ctx.bug_id}"
     lxd_runner.exec_in(
-        ctx.vm_name,
+        ctx.guest_name,
         ["mkdir", "-p", workdir],
         user=_UBUNTU_UID,
         group=_UBUNTU_GID,
@@ -343,7 +343,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
 
     # Fetch source package via apt source for deterministic availability.
     lxd_runner.exec_in_retry(
-        ctx.vm_name,
+        ctx.guest_name,
         [
             "bash",
             "-lc",
@@ -1141,7 +1141,7 @@ def collect_component_mismatches(ctx) -> ComponentMismatchesResult:
     script = "/opt/ubuntu-archive-tools/component-mismatches"
     exists = _exists(ctx, ["bash", "-lc", f"test -x {script}"])
     if not exists:
-        raise AdapterError("component-mismatches script not present in container")
+        raise AdapterError("component-mismatches script not present in guest")
 
     series = ctx.series or "devel"
     output = _capture(

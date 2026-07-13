@@ -1,6 +1,6 @@
 """Host-side evidence collection adapters.
 
-These adapters run on the host machine (not in the LXD container) and collect
+These adapters run on the host machine (not in the LXD guest) and collect
 evidence from external APIs and web services.
 """
 

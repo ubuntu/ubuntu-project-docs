@@ -72,7 +72,7 @@ For each case, verify:
 - Binary package list appears in the preamble header (where data is available)
 - Console warns on adapter failures and prior reviews (where applicable)
 
-Use `--keep-container` to iterate without re-provisioning the LXD container.
+Use `--keep-guest` to iterate without re-provisioning the LXD guest.
 
 ### Tier 3.5 — Deterministic Regression Tests (offline, automated)
 
@@ -119,8 +119,8 @@ git diff tools/auto-mir/tests/fixtures/
 /usr/bin/python tools/auto-mir/integration_smoke.py
 ```
 
-Spins up a devel LXD container, provisions tooling, runs a minimal pipeline
-exercise. Validates container lifecycle and basic adapter connectivity.
+Spins up a devel LXD guest, provisions tooling, runs a minimal pipeline
+exercise. Validates guest lifecycle and basic adapter connectivity.
 Not required for every PR — run when changing LXD runner or evidence adapters.
 
 ## Agent Workflow
@@ -178,5 +178,5 @@ Tests will be skipped if no fixtures are present in `tools/auto-mir/tests/fixtur
 | `make parity-contract` warns | Baseline artifacts missing/incomplete | Refresh fixtures or document accepted advisory drift |
 | Unit test failures | Logic regression in checks/render/intake | Fix the root cause; do not weaken tests |
 | Artifact regression test failures | Deterministic check logic changed | Re-baseline artifacts if intentional, otherwise fix the regression |
-| Smoke test container fail | LXD not available or image missing | Ensure `lxc` works and the target release (or devel fallback) image is available |
+| Smoke test guest fail | LXD not available or image missing | Ensure `lxc` works and the target release (or devel fallback) image is available |
 | Token limit errors in LLM checks | Evidence payload too large | Check truncation logic in evidence summarization |

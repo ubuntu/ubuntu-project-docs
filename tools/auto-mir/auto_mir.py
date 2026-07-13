@@ -2,7 +2,7 @@
 """auto_mir.py — MIR reviewer assistant entrypoint.
 
 AI-assisted tool that fetches a Launchpad MIR bug, collects evidence inside a
-fresh LXD container, evaluates checks from the catalog, and renders a
+fresh LXD guest, evaluates checks from the catalog, and renders a
 reviewer-template-aligned draft ready to post on the bug.
 
 Exits 0 on successful run (even if review has required findings).
@@ -34,7 +34,7 @@ log = logging.getLogger("auto_mir")
 
 
 # ---------------------------------------------------------------------------
-# Run-name helpers (shared base name for container + output dir)
+# Run-name helpers (shared base name for LXD guest + output dir)
 # ---------------------------------------------------------------------------
 
 
@@ -45,7 +45,7 @@ def _make_run_name(bug_id: str) -> str:
 
 
 def _name_in_use(name: str) -> bool:
-    """Return True if /tmp/<name> dir exists or an LXD container named <name> exists."""
+    """Return True if /tmp/<name> dir exists or an LXD guest named <name> exists."""
     if Path(f"/tmp/{name}").exists():
         return True
     # Best-effort LXD check; ignore if lxc is not installed yet.
@@ -72,7 +72,7 @@ def _resolve_run_name(bug_id: str, user_name: str | None) -> str:
     if user_name:
         if _name_in_use(user_name):
             log.error(
-                "Run name '%s' already exists (LXD container or /tmp/%s directory). "
+                "Run name '%s' already exists (LXD guest or /tmp/%s directory). "
                 "Choose a different name with --run-name.",
                 user_name,
                 user_name,
@@ -119,7 +119,7 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="DIR",
         help=(
             "Directory to save artifacts (default: /tmp/mir-<bugid>-<YYYYMMDD-HHMMSS>). "
-            "The LXD container name is auto-generated independently."
+            "The LXD guest name is auto-generated independently."
         ),
     )
     p.add_argument(
@@ -150,22 +150,22 @@ def build_parser() -> argparse.ArgumentParser:
             "LXD launch options (default: "
             "'--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB'). "
             "Pass any lxc launch flags. Use empty string or override "
-            "to change VM/container mode or resources."
+            "to switch guest type or change resources."
         ),
     )
     p.add_argument(
-        "--keep-container",
-        dest="keep_container",
+        "--keep-guest",
+        dest="keep_guest",
         nargs="?",
         const=True,
         default=None,
         type=parse_bool_arg,
         metavar="true|false",
         help=(
-            "Control LXD container cleanup (tri-state). "
+            "Control LXD guest cleanup (tri-state). "
             "Not specified: destroy on success, preserve on failure. "
-            "--keep-container or --keep-container=true: always preserve. "
-            "--keep-container=false: always destroy."
+            "--keep-guest or --keep-guest=true: always preserve. "
+            "--keep-guest=false: always destroy."
         ),
     )
     p.add_argument(
@@ -240,18 +240,18 @@ class RunContext:
     Attribute lifecycle
     -------------------
     Resolved in __init__ (from CLI args):
-        bug_id, series, keep_container, pin_uat_tooling, lxd_image,
+        bug_id, series, keep_guest, pin_uat_tooling, lxd_image,
         llm_model_small, llm_model_large, collect_only, tool_root,
         workspace_root, catalog_path, run_name, output_dir
 
     Populated by stage_auth (Stage 0 — auth setup):
-        llm_provider, llm_api_url, llm_token, auth_source, container_env
+        llm_provider, llm_api_url, llm_token, auth_source, guest_env
 
     Populated by stage_intake / lp_intake.run() (Stage 1):
         bug, source_package, reporter_mir_content, series (may be refined)
 
-    Populated by stage_spawn_container / lxd_runner.spawn() (Stage 2):
-        vm_name, container_env (refined with run-time values)
+    Populated by stage_spawn_guest / lxd_runner.spawn() (Stage 2):
+        guest_name, guest_env (refined with run-time values)
 
     Populated by stage_collect_evidence / evidence.collect_from_catalog() (Stage 3):
         evidence (including evidence["adapters"], evidence["catalog_summary"], etc.)
@@ -270,7 +270,7 @@ class RunContext:
         # --- From CLI args (immutable after __init__) ---
         self.bug_id: str = str(args.bug_id)
         self.series: str | None = args.series
-        self.keep_container: bool | None = args.keep_container
+        self.keep_guest: bool | None = args.keep_guest
         self.pin_uat_tooling: str | None = args.pin_uat_tooling
         self.lxd_image: str | None = args.lxd_image
         self.llm_model_small: str | None = args.llm_model_small
@@ -290,7 +290,7 @@ class RunContext:
         self.workspace_root = self.tool_root.parent.parent
         self.catalog_path = self.tool_root / "catalog.yaml"
 
-        # Container name is always auto-generated
+        # LXD guest name is always auto-generated
         self.run_name: str = _resolve_run_name(bug_id=self.bug_id, user_name=None)
 
         # Output directory can be user-specified or auto-generated
@@ -305,7 +305,7 @@ class RunContext:
         self.llm_api_url: str = ""
         self.llm_token: str = ""
         self.auth_source: str = ""
-        self.container_env: dict[str, str] = {}
+        self.guest_env: dict[str, str] = {}
 
         # --- Populated by stage_intake / lp_intake.run() (Stage 1) ---
         self.bug: dict = {}
@@ -313,8 +313,8 @@ class RunContext:
         self.reporter_mir_content: str = ""
         # Per-run nonce used to delimit untrusted-data envelopes in LLM prompts.
         self.untrusted_nonce: str = make_nonce()
-        # --- Populated by stage_spawn_container / lxd_runner.spawn() (Stage 2) ---
-        self.vm_name: str = ""
+        # --- Populated by stage_spawn_guest / lxd_runner.spawn() (Stage 2) ---
+        self.guest_name: str = ""
 
         # --- Populated by stage_collect_evidence / evidence.collect_from_catalog() (Stage 3) ---
         self.catalog: dict = {}  # loaded in Stage 3 (or Stage 4 if Stage 3 skipped)
@@ -369,23 +369,23 @@ def stage_intake(ctx: RunContext) -> None:
     # and raises SystemExit(1) with a clear message if reporter content is missing.
 
 
-def stage_spawn_container(ctx: RunContext) -> None:
-    """Stage 2: Spawn LXD container and provision tooling.
+def stage_spawn_guest(ctx: RunContext) -> None:
+    """Stage 2: Spawn the LXD guest and provision tooling.
 
-    - Create new container from target Ubuntu release image (or devel fallback).
-    - Install required tools inside container.
+    - Create a new LXD guest from target Ubuntu release image (or devel fallback).
+    - Install required tools inside the guest.
     - Bootstrap ubuntu-archive-tools at requested revision.
     """
-    log.info("Stage 2: Spawning LXD container for %s", ctx.source_package)
+    log.info("Stage 2: Spawning LXD guest for %s", ctx.source_package)
     lxd_runner.spawn(ctx)
     ctx.evidence["runtime_isolation"] = lxd_runner.collect_runtime_facts(ctx)
-    # lxd_runner.spawn() populates ctx.vm_name
+    # lxd_runner.spawn() populates ctx.guest_name
 
 
 def stage_collect_evidence(ctx: RunContext) -> int:
-    """Stage 3: Run deterministic evidence collectors inside the container.
+    """Stage 3: Run deterministic evidence collectors inside the LXD guest.
 
-    Collectors run in-container via lxd_runner.exec():
+    Collectors run in-guest via lxd_runner.exec():
     - sbuild test build -> build logs + lintian output
     - packaging source fetch via git-ubuntu
     - runtime dependency extraction
@@ -469,8 +469,8 @@ def stage_auth(ctx: RunContext) -> None:
     ctx.llm_token = token
     ctx.auth_source = source
 
-    # Export token into container environment for in-container use
-    ctx.container_env = {
+    # Export token into guest environment for in-guest use
+    ctx.guest_env = {
         "OPENAI_API_KEY": token,
         "OPENAI_API_BASE": api_url.rstrip("/chat/completions"),
     }
@@ -543,64 +543,66 @@ def _ask_requested_binaries(all_binaries: list[str]) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# Container teardown
+# LXD guest teardown
 # ---------------------------------------------------------------------------
 
 
-def teardown_container(ctx: RunContext, evidence_collection_result: int = 0) -> None:
-    """Destroy or preserve LXD VM based on --keep-container setting and run outcome.
+def teardown_guest(ctx: RunContext, evidence_collection_result: int = 0) -> None:
+    """Destroy or preserve the LXD guest based on --keep-guest and run outcome.
 
     Tri-state logic:
-      - keep_container=True:  always preserve the container
-      - keep_container=False: always destroy the container
-      - keep_container=None:  destroy on success (evidence_collection_result==0), prompt on failure
+      - keep_guest=True:  always preserve the guest
+      - keep_guest=False: always destroy the guest
+      - keep_guest=None:  destroy on success (evidence_collection_result==0), prompt on failure
     """
-    if not ctx.vm_name:
+    if not ctx.guest_name:
         return
 
     failure_summary = getattr(ctx, "failure_summary", None)
     if not failure_summary and evidence_collection_result != 0:
         failure_summary = "Evidence collection encountered adapter failures."
 
-    def _confirm_keep_failed_vm() -> bool:
-        """Ask whether to preserve a failed VM when keep behavior is unspecified."""
+    def _confirm_keep_failed_guest() -> bool:
+        """Ask whether to preserve a failed guest when keep behavior is unspecified."""
         if not (sys.stdin.isatty() and sys.stdout.isatty()):
             log.warning(
                 "%s Keep behavior is unspecified, "
                 "but no interactive terminal is available."
-                "Use --keep-container=false/true to always destroy/keep.",
+                "Use --keep-guest=false/true to always destroy/keep.",
                 failure_summary or "The run failed.",
             )
             return False
 
         print(
             f"\n{failure_summary or 'The run failed.'} "
-            f"VM {ctx.vm_name} could be preserved for debugging."
+            f"LXD guest {ctx.guest_name} could be preserved for debugging."
         )
-        print("Warning: Keeping failed VMs can consume significant memory, clean them up via LXD.")
+        print(
+            "Warning: Keeping failed guests can consume significant memory, clean them up via LXD."
+        )
         while True:
-            response = input("Keep VM for debugging? [y/n]: ").strip().lower()
+            response = input("Keep LXD guest for debugging? [y/n]: ").strip().lower()
             if response in {"y", "yes"}:
                 return True
             if response in {"n", "no"}:
                 return False
             print("Please answer y or n.")
 
-    if ctx.keep_container is True:
+    if ctx.keep_guest is True:
         should_keep = True
-    elif ctx.keep_container is False:
+    elif ctx.keep_guest is False:
         should_keep = False
     else:
-        should_keep = _confirm_keep_failed_vm() if evidence_collection_result != 0 else False
+        should_keep = _confirm_keep_failed_guest() if evidence_collection_result != 0 else False
 
     if should_keep:
         log.info(
-            "VM %s preserved for debugging. To destroy: lxc delete --force %s",
-            ctx.vm_name,
-            ctx.vm_name,
+            "LXD guest %s preserved for debugging. To destroy: lxc delete --force %s",
+            ctx.guest_name,
+            ctx.guest_name,
         )
     else:
-        log.info("Destroying VM %s", ctx.vm_name)
+        log.info("Destroying LXD guest %s", ctx.guest_name)
         lxd_runner.destroy(ctx)
 
 
@@ -667,9 +669,9 @@ def main() -> int:
         log.info("JSON log file: %s", log_file)
 
     log.info(
-        "auto-mir starting: bug=%s keep_container=%s collect_only=%s",
+        "auto-mir starting: bug=%s keep_guest=%s collect_only=%s",
         ctx.bug_id,
-        ctx.keep_container,
+        ctx.keep_guest,
         ctx.collect_only,
     )
     log.debug(
@@ -683,7 +685,7 @@ def main() -> int:
     evidence_result = 0
     current_stage = "startup"
     try:
-        # Stage 0: Resolve provider auth and container token export values
+        # Stage 0: Resolve provider auth and guest token export values
         # Skip auth if collect-only mode (no LLM needed)
         if not ctx.collect_only:
             current_stage = "Stage 0 (auth)"
@@ -693,11 +695,11 @@ def main() -> int:
         current_stage = "Stage 1 (Launchpad intake)"
         stage_intake(ctx)
 
-        # Stage 2: Spawn LXD container
-        current_stage = "Stage 2 (container setup)"
-        stage_spawn_container(ctx)
+        # Stage 2: Spawn LXD guest
+        current_stage = "Stage 2 (guest setup)"
+        stage_spawn_guest(ctx)
 
-        # Stage 3: Collect evidence in-container
+        # Stage 3: Collect evidence in-guest
         current_stage = "Stage 3 (evidence collection)"
         evidence_result = stage_collect_evidence(ctx)
         if evidence_result != 0:
@@ -745,7 +747,7 @@ def main() -> int:
 
     # Cleanup and final output (always runs)
     _log_artifact_locations(ctx)
-    teardown_container(ctx, evidence_result)
+    teardown_guest(ctx, evidence_result)
     _print_complete_banner(ctx)
     return exit_code
 

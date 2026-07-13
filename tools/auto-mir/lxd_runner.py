@@ -1,11 +1,11 @@
-"""lxd_runner.py — LXD container lifecycle for auto-mir.
+"""lxd_runner.py — LXD guest lifecycle for auto-mir.
 
-The tool is host-orchestrated: this module creates a fresh LXD container
+The tool is host-orchestrated: this module creates a fresh LXD guest
 from the target Ubuntu release image (falling back to Ubuntu devel when the
-series is unknown), provisions tooling in-container, dispatches commands
+series is unknown), provisions tooling in-guest, dispatches commands
 there, and handles cleanup.
 
-This is explicitly NOT meant to be run from inside an existing container.
+This is explicitly NOT meant to be run from inside an existing LXD guest.
 """
 
 import logging
@@ -16,7 +16,7 @@ import sys
 import time
 from typing import TYPE_CHECKING
 
-from utils.retry import is_transient_command_failure, retry_container_command
+from utils.retry import is_transient_command_failure, retry_guest_command
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
@@ -30,7 +30,7 @@ _UBUNTU_DEVEL_FALLBACK_IMAGES = [
     "ubuntu:devel",
 ]
 
-# Packages required inside the VM for the full pipeline.
+# Packages required inside the guest for the full pipeline.
 # Note: sbuild is installed separately (from backports for Noble) to support unshare backend.
 _REQUIRED_PACKAGES = [
     "lintian",
@@ -124,26 +124,23 @@ def _check_lxd_available() -> None:
 
 
 def spawn(ctx: "RunContext") -> None:
-    """Create a new LXD VM from the target Ubuntu release image and provision it.
+    """Create a new LXD guest from the target Ubuntu release image and provision it.
 
-    Populates ctx.vm_name.
+    Populates ctx.guest_name.
     """
     _check_lxd_available()
 
     name = ctx.run_name
-    ctx.vm_name = name
+    ctx.guest_name = name
     image = _resolve_image(ctx)
     ctx.lxd_image = image
 
     # Parse LXD options from ctx.lxd_options
     # (default: "--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB")
     lxd_opts = ctx.lxd_options.split() if ctx.lxd_options else []
-    is_vm = "--vm" in lxd_opts
-    instance_type = "VM" if is_vm else "container"
 
     log.info(
-        "Creating LXD %s %s from %s with options: %s",
-        instance_type,
+        "Creating LXD guest %s from %s with options: %s",
         name,
         image,
         " ".join(lxd_opts),
@@ -156,13 +153,13 @@ def spawn(ctx: "RunContext") -> None:
         log.error("lxc launch failed (exit %d): %s", result.returncode, result.stderr.strip())
         raise subprocess.CalledProcessError(result.returncode, ["lxc"] + launch_cmd)
 
-    # Wait for network to be available inside the VM
+    # Wait for network to be available inside the guest
     _wait_for_network(name)
 
-    log.info("Provisioning %s %s", instance_type, name)
+    log.info("Provisioning guest %s", name)
     _provision(name, ctx)
 
-    log.info("%s %s is ready", instance_type, name)
+    log.info("Guest %s is ready", name)
 
 
 def _resolve_image(ctx: "RunContext") -> str:
@@ -201,7 +198,7 @@ def _resolve_image(ctx: "RunContext") -> str:
 
 
 def _wait_for_network(name: str, timeout: int = 60) -> None:
-    """Wait until the container has network connectivity."""
+    """Wait until the LXD guest has network connectivity."""
     log.debug("Waiting for network in %s", name)
     deadline = time.time() + timeout
     while time.time() < deadline:
@@ -221,7 +218,7 @@ def _wait_for_network(name: str, timeout: int = 60) -> None:
                 capture=True,
             )
             if check.returncode == 0:
-                log.debug("Network available in container %s", name)
+                log.debug("Network available in guest %s", name)
                 return
         time.sleep(2)
     log.warning(
@@ -232,7 +229,7 @@ def _wait_for_network(name: str, timeout: int = 60) -> None:
 
 
 def _provision(name: str, ctx: "RunContext") -> None:
-    """Install required tools and bootstrap upstream tooling inside the VM."""
+    """Install required tools and bootstrap upstream tooling inside the guest."""
 
     # Ensure source repositories are enabled before any `apt-get source` usage.
     _enable_source_repositories(name)
@@ -252,7 +249,7 @@ def _provision(name: str, ctx: "RunContext") -> None:
     )
 
     # Install required packages
-    log.info("Installing required packages in VM")
+    log.info("Installing required packages in guest")
     exec_in_retry(
         name,
         ["apt-get", "install", "-qq", "-y", "--no-install-recommends"] + _REQUIRED_PACKAGES,
@@ -297,8 +294,8 @@ def _provision(name: str, ctx: "RunContext") -> None:
             operation="apt-get install sbuild",
         )
 
-    # Export host-resolved auth into container env for future AI calls.
-    _export_container_env(name, getattr(ctx, "container_env", {}))
+    # Export host-resolved auth into guest env for future AI calls.
+    _export_guest_env(name, getattr(ctx, "guest_env", {}))
 
     # Bootstrap ubuntu-archive-tools (component-mismatches and prerequisites)
     _bootstrap_archive_tools(name, ctx.pin_uat_tooling)
@@ -307,7 +304,7 @@ def _provision(name: str, ctx: "RunContext") -> None:
 def _enable_source_repositories(name: str) -> None:
     """Enable deb-src in both legacy .list and deb822 .sources formats.
 
-    Reads each apt sources file from the container, applies Python regex
+    Reads each apt sources file from the guest, applies Python regex
     substitutions to uncomment deb-src entries (legacy format) or expand
     Types: deb to Types: deb deb-src (deb822 format), then writes it back.
     """
@@ -320,18 +317,18 @@ def _enable_source_repositories(name: str) -> None:
         """Expand 'Types: deb' to 'Types: deb deb-src' in a deb822 .sources file."""
         return re.sub(r"^(Types:\s*deb)\s*$", r"\1 deb-src", text, flags=re.MULTILINE)
 
-    def _patch_file(container_path: str, patcher) -> None:
-        """Pull a file from the container, patch it in Python, push it back."""
-        result = exec_in(name, ["cat", container_path], check=False, capture=True)
+    def _patch_file(guest_path: str, patcher) -> None:
+        """Pull a file from the guest, patch it in Python, push it back."""
+        result = exec_in(name, ["cat", guest_path], check=False, capture=True)
         if result.returncode != 0:
             return
         patched = patcher(result.stdout)
         if patched == result.stdout:
             return
         # Write patched content back via stdin
-        _lxc("exec", name, "--", "tee", container_path, capture=True, input=patched)
+        _lxc("exec", name, "--", "tee", guest_path, capture=True, input=patched)
 
-    # Discover relevant files inside the container with a single listing.
+    # Discover relevant files inside the guest with a single listing.
     result = exec_in(
         name,
         [
@@ -363,7 +360,7 @@ def _enable_source_repositories(name: str) -> None:
 
 
 def _enable_proposed_pocket(name: str) -> None:
-    """Add the ``<codename>-proposed`` pocket (deb + deb-src) to the container.
+    """Add the ``<codename>-proposed`` pocket (deb + deb-src) to the guest.
 
     MIR maintainers frequently stage test/lintian/packaging fixes in -proposed
     before they migrate to the release pocket, so a faithful review should be
@@ -379,7 +376,7 @@ def _enable_proposed_pocket(name: str) -> None:
         check=False,
     ).stdout.strip()
     if not codename:
-        log.warning("Could not resolve container codename; skipping -proposed enable")
+        log.warning("Could not resolve guest codename; skipping -proposed enable")
         return
 
     base = exec_in(
@@ -438,8 +435,8 @@ def _build_proposed_stanza(ubuntu_sources: str, codename: str) -> str | None:
     return "\n".join(out_lines) + "\n"
 
 
-def _export_container_env(name: str, env_map: dict[str, str]) -> None:
-    """Persist environment variables in container config without logging values."""
+def _export_guest_env(name: str, env_map: dict[str, str]) -> None:
+    """Persist environment variables in guest config without logging values."""
     for key, value in env_map.items():
         _lxc("config", "set", name, f"environment.{key}={value}")
 
@@ -506,15 +503,15 @@ def exec_in(
     user: int | None = None,
     group: int | None = None,
 ) -> subprocess.CompletedProcess:
-    """Run a command inside the named LXD container.
+    """Run a command inside the named LXD guest.
 
     Args:
-        name: Container name
-        cmd: Command and arguments to run in the container
+        name: LXD guest name
+        cmd: Command and arguments to run in the guest
         check: Raise CalledProcessError on non-zero exit
         capture: Capture stdout/stderr and return them
-        env: Additional environment variables to pass (merged with container env)
-        workdir: Working directory inside the container
+        env: Additional environment variables to pass (merged with guest env)
+        workdir: Working directory inside the guest
         user: Optional numeric uid to run the command as
         group: Optional numeric gid to run the command as
 
@@ -538,10 +535,10 @@ def exec_in(
 
     lxc_cmd += ["--"] + cmd
 
-    return run_command(lxc_cmd, log_prefix=f"container({name})", check=check, capture=capture)
+    return run_command(lxc_cmd, log_prefix=f"guest({name})", check=check, capture=capture)
 
 
-@retry_container_command(max_attempts=4, base_delay=6.0, max_delay=60.0)
+@retry_guest_command(max_attempts=4, base_delay=6.0, max_delay=60.0)
 def _exec_in_retry_internal(
     name: str,
     cmd: list[str],
@@ -580,14 +577,14 @@ def exec_in_retry(
     group: int | None = None,
     operation: str = "command",
 ) -> subprocess.CompletedProcess:
-    """Run an in-container command with retries on transient failures.
+    """Run an in-guest command with retries on transient failures.
 
     Intended for network/server-sensitive steps (apt, git clone/fetch, source
     downloads). Retries are attempted only when stderr/stdout indicate transient
     infrastructure issues (503, temporary DNS/connection errors, timeouts).
 
     Args:
-        name: Container name
+        name: LXD guest name
         cmd: Command to execute
         check: Raise exception on non-zero exit (after retries exhausted)
         capture: Capture stdout/stderr
@@ -640,56 +637,56 @@ def exec_in_retry(
     return result
 
 
-def push_file(name: str, local_path: str, container_path: str) -> None:
-    """Copy a file from the host into the container."""
-    log.debug("push %s -> %s:%s", local_path, name, container_path)
-    _lxc("file", "push", local_path, f"{name}{container_path}")
+def push_file(name: str, local_path: str, guest_path: str) -> None:
+    """Copy a file from the host into the LXD guest."""
+    log.debug("push %s -> %s:%s", local_path, name, guest_path)
+    _lxc("file", "push", local_path, f"{name}{guest_path}")
 
 
-def pull_file(name: str, container_path: str, local_path: str) -> None:
-    """Copy a file from the container to the host."""
-    log.debug("pull %s:%s -> %s", name, container_path, local_path)
-    _lxc("file", "pull", f"{name}{container_path}", local_path)
+def pull_file(name: str, guest_path: str, local_path: str) -> None:
+    """Copy a file from the LXD guest to the host."""
+    log.debug("pull %s:%s -> %s", name, guest_path, local_path)
+    _lxc("file", "pull", f"{name}{guest_path}", local_path)
 
 
 def destroy(ctx: "RunContext") -> None:
-    """Destroy the LXD VM unconditionally."""
-    if not ctx.vm_name:
+    """Destroy the LXD guest unconditionally."""
+    if not ctx.guest_name:
         return
-    log.info("Destroying VM %s", ctx.vm_name)
-    result = _lxc("delete", "--force", ctx.vm_name, check=False, capture=True)
+    log.info("Destroying LXD guest %s", ctx.guest_name)
+    result = _lxc("delete", "--force", ctx.guest_name, check=False, capture=True)
     if result.returncode != 0:
         log.warning(
-            "Could not destroy VM %s: %s",
-            ctx.vm_name,
+            "Could not destroy LXD guest %s: %s",
+            ctx.guest_name,
             result.stderr.strip(),
         )
     else:
-        log.info("VM %s destroyed", ctx.vm_name)
-        ctx.vm_name = ""
+        log.info("LXD guest %s destroyed", ctx.guest_name)
+        ctx.guest_name = ""
 
 
 def collect_runtime_facts(ctx: "RunContext") -> dict:
-    """Collect core in-VM facts proving isolated execution context."""
-    if not ctx.vm_name:
+    """Collect core in-guest facts proving isolated execution context."""
+    if not ctx.guest_name:
         return {}
 
     os_release = exec_in(
-        ctx.vm_name,
+        ctx.guest_name,
         ["bash", "-lc", "cat /etc/os-release"],
         capture=True,
         check=False,
     ).stdout.strip()
 
     kernel = exec_in(
-        ctx.vm_name,
+        ctx.guest_name,
         ["uname", "-a"],
         capture=True,
         check=False,
     ).stdout.strip()
 
     apt_policy = exec_in(
-        ctx.vm_name,
+        ctx.guest_name,
         ["bash", "-lc", "apt-cache policy | sed -n '1,40p'"],
         capture=True,
         check=False,
@@ -698,7 +695,7 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
     auth_present = {
         "OPENAI_API_KEY": bool(
             exec_in(
-                ctx.vm_name,
+                ctx.guest_name,
                 ["bash", "-lc", 'test -n "$OPENAI_API_KEY"'],
                 capture=True,
                 check=False,
@@ -707,7 +704,7 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
         ),
         "OPENAI_API_BASE": bool(
             exec_in(
-                ctx.vm_name,
+                ctx.guest_name,
                 ["bash", "-lc", 'test -n "$OPENAI_API_BASE"'],
                 capture=True,
                 check=False,
@@ -717,7 +714,7 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
     }
 
     return {
-        "vm_name": ctx.vm_name,
+        "guest_name": ctx.guest_name,
         "image": getattr(ctx, "lxd_image", None),
         "os_release": os_release,
         "kernel": kernel,

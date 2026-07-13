@@ -310,7 +310,7 @@ class AutopkgtestResult(TypedDict, total=False):
 
 
 # ---------------------------------------------------------------------------
-# In-container adapters — packaging source
+# In-guest adapters — packaging source
 # ---------------------------------------------------------------------------
 
 
@@ -364,7 +364,7 @@ class DupSearchResult(TypedDict):
 
 
 # ---------------------------------------------------------------------------
-# In-container adapters — dependency analysis
+# In-guest adapters — dependency analysis
 # ---------------------------------------------------------------------------
 
 
@@ -417,7 +417,7 @@ class DepAnalysisResult(TypedDict):
 
 
 # ---------------------------------------------------------------------------
-# In-container adapters — component mismatches
+# In-guest adapters — component mismatches
 # ---------------------------------------------------------------------------
 
 
@@ -453,7 +453,7 @@ class GitUbuntuDeltaResult(TypedDict):
 
 
 # ---------------------------------------------------------------------------
-# In-container adapters — sbuild
+# In-guest adapters — sbuild
 # ---------------------------------------------------------------------------
 
 
