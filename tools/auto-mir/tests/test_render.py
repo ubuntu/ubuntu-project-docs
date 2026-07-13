@@ -13,6 +13,7 @@ from render import (
     _SECTION_ORDER,
     _build_binary_package_header,
     _build_review_draft,
+    _build_review_type_line,
     _lint_review_draft,
     _render_section,
     _render_summary_section,
@@ -600,6 +601,51 @@ def test_security_hard_blocker_not_in_consolidated_todos():
     required_idx = draft.index("Required TODOs:")
     assert "webkit" not in draft[required_idx:security_idx]
     assert "webkit1/2 dependency found" in draft[security_idx:]
+
+
+# ---------------------------------------------------------------------------
+# Review type — preamble line and Summary note
+# ---------------------------------------------------------------------------
+
+
+def test_review_type_line_omitted_for_fresh():
+    ctx = Mock()
+    ctx.evidence = {"review_type": {"review_type": "fresh", "rationale": "normal"}}
+    ctx.review_type = "fresh"
+    assert _build_review_type_line(ctx) == ""
+
+
+def test_review_type_line_present_for_rereview():
+    ctx = Mock()
+    ctx.evidence = {
+        "review_type": {
+            "review_type": "rereview",
+            "rationale": "all binary packages are already in main",
+        }
+    }
+    ctx.review_type = "rereview"
+    line = _build_review_type_line(ctx)
+    assert line.startswith("Review type: rereview")
+    assert "voluntary re-review" in line
+    assert "already in main" in line
+
+
+def test_summary_note_for_reorg_review():
+    ctx = _summary_ctx_with_decision_finding()
+    ctx.evidence["review_type"] = {
+        "review_type": "reorg",
+        "rationale": "renamed source",
+    }
+    ctx.review_type = "reorg"
+    draft = _build_review_draft(ctx)
+
+    summary_idx = draft.index("[Summary]")
+    required_idx = draft.index("Required TODOs:")
+    note_region = draft[summary_idx:required_idx]
+    assert "renamed/reorganised source" in note_region
+    assert "non-blocking recommendations" in note_region
+    # Preamble also carries the review-type line.
+    assert "Review type: reorg" in draft[:summary_idx]
 
 
 # ---------------------------------------------------------------------------

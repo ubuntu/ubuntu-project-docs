@@ -385,6 +385,87 @@ def test_lp_bug_search_api_output_structure():
     assert result["open_bugs"][0]["title"] == "CVE-2026-0001 testpkg privilege escalation"
 
 
+def test_lp_mir_history_matches_prior_mir_bug_under_predecessor_name():
+    """lp-mir-history keeps only MIR-titled bugs and records the matched name."""
+    ctx = Mock()
+    ctx.source_package = "libfoo2"
+    ctx.evidence = {
+        "adapters": {
+            "cve-search-terms": {
+                "terms": [
+                    {"term": "libfoo", "kind": "predecessor", "rationale": "old name"},
+                    {"term": "libfoo2", "kind": "current", "rationale": "self"},
+                ]
+            }
+        }
+    }
+
+    # Two tasks: one is a real "[MIR] libfoo" bug, the other mentions 'mirror'
+    # and must be filtered out by the whole-word MIR title match.
+    task_page = {
+        "entries": [
+            {
+                "bug_link": "https://api.launchpad.net/devel/bugs/900",
+                "web_link": "https://bugs.launchpad.net/bugs/900",
+                "status": "Fix Released",
+            },
+            {
+                "bug_link": "https://api.launchpad.net/devel/bugs/901",
+                "web_link": "https://bugs.launchpad.net/bugs/901",
+                "status": "New",
+            },
+        ],
+    }
+    bug_900 = {"title": "[MIR] libfoo"}
+    bug_901 = {"title": "libfoo mirror selection is wrong"}
+
+    def fake_fetch(url: str):
+        if "+source/libfoo2" in url:
+            # No MIR bugs filed under the current name.
+            return {"entries": []}
+        if "+source/libfoo" in url:
+            return task_page
+        if url.endswith("/900"):
+            return bug_900
+        if url.endswith("/901"):
+            return bug_901
+        raise AssertionError(f"unexpected url: {url}")
+
+    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+        from evidence.host_adapters import collect_lp_mir_history
+
+        result = collect_lp_mir_history(ctx)
+
+    assert result["status"] == "ok"
+    assert result["source_package"] == "libfoo2"
+    assert "libfoo" in result["candidate_names"]
+    prior = result["prior_mir_bugs"]
+    assert len(prior) == 1
+    assert prior[0]["id"] == "900"
+    assert prior[0]["matched_name"] == "libfoo"
+    assert prior[0]["title"] == "[MIR] libfoo"
+
+
+def test_lp_mir_history_skips_missing_source_names_gracefully():
+    """A 404 for one candidate name is skipped, not fatal."""
+    import urllib.error
+
+    ctx = Mock()
+    ctx.source_package = "libfoo"
+    ctx.evidence = {"adapters": {}}
+
+    def fake_fetch(url: str):
+        raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
+
+    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+        from evidence.host_adapters import collect_lp_mir_history
+
+        result = collect_lp_mir_history(ctx)
+
+    assert result["status"] == "ok"
+    assert result["prior_mir_bugs"] == []
+
+
 def test_debian_bts_output_structure():
     """debian-bts adapter should classify RC and security bugs from BTS HTML."""
     ctx = Mock()

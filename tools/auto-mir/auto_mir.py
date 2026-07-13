@@ -209,6 +209,21 @@ def build_parser() -> argparse.ArgumentParser:
             "'release': always use the release-pocket version."
         ),
     )
+    p.add_argument(
+        "--review-type",
+        dest="review_type",
+        choices=["auto", "fresh", "rereview", "reorg"],
+        default="auto",
+        help=(
+            "How to treat this review. 'auto' (default): detect a fast-path from "
+            "the bug and evidence. 'fresh': a normal full review with blocking "
+            "findings. 'rereview': a voluntary opt-in re-review of a package "
+            "already in main; all findings are softened to non-blocking "
+            "recommendations. 'reorg': a renamed/reorganised source that was "
+            "already in main under another name; treated like a re-review with "
+            "all findings softened to recommendations."
+        ),
+    )
     p.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
     return p
 
@@ -264,6 +279,12 @@ class RunContext:
         self.requested_binaries: list[str] = args.request_binaries or []
         # Which archive pocket's source to fetch/build/analyse (auto|release|proposed).
         self.source_pocket: str = getattr(args, "source_pocket", "auto")
+        # How to treat this review (auto|fresh|rereview|reorg). 'auto' lets the
+        # code detect a fast-path; the resolved value lands in review_type below.
+        self.review_type_arg: str = getattr(args, "review_type", "auto")
+        # Resolved review type (fresh|rereview|reorg), filled in during analysis
+        # by review_type.detect_review_type(). Defaults to 'fresh' until then.
+        self.review_type: str = "fresh"
         self.tool_root = Path(__file__).resolve().parent
         self.workspace_root = self.tool_root.parent.parent
         self.catalog_path = self.tool_root / "catalog.yaml"

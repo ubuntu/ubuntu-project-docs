@@ -19,6 +19,7 @@ class AdapterID(StrEnum):
     LP_TEAM_MEMBERSHIP_API = "lp-team-membership-api"
     LP_PACKAGE_API = "lp-package-api"
     LP_BUILD_API = "lp-build-api"
+    LP_MIR_HISTORY = "lp-mir-history"
     UPSTREAM_TRACKER = "upstream-tracker"
     UBUNTU_CVE_TRACKER = "ubuntu-cve-tracker"
     AUTOPKGTEST_DB = "autopkgtest-db"

@@ -33,6 +33,7 @@ from evidence.types import (
     LPBugAPIResult,
     LPBugSearchAPIResult,
     LPBuildAPIResult,
+    LPMirHistoryResult,
     LPPackageAPIResult,
     LPTeamMembershipAPIResult,
     NvdEnrichResult,
@@ -235,6 +236,145 @@ def collect_lp_bug_search_api(ctx) -> LPBugSearchAPIResult:
         "critical_bugs": critical_bugs,
         "security_bugs": security_bugs,
         "total_open_bug_count": len(open_bugs),
+    }
+
+
+# Match a MIR bug by its conventional "[MIR] <package>" title, or a title that
+# uses "MIR" as a standalone word (case-insensitive). "mirror"/"admire" etc. are
+# not matched because \bmir\b requires a whole-word boundary.
+_MIR_TITLE_RE = re.compile(r"\[mir\]|\bmir\b", re.IGNORECASE)
+
+# Bound the best-effort search so a review run never fans out into dozens of
+# Launchpad round-trips: at most this many candidate source names, and at most
+# this many MIR-matching tasks enriched per candidate.
+_MIR_HISTORY_MAX_CANDIDATES = 6
+_MIR_HISTORY_MAX_TASKS_PER_NAME = 10
+
+
+def _mir_history_candidate_names(ctx) -> list[str]:
+    """Return distinct candidate source names to probe for a prior MIR bug.
+
+    The current source package is always first. Predecessor/sibling names from
+    the cve-search-terms adapter and archive-neighbour names from dup-search are
+    added when available, so a renamed or split source can be linked back to the
+    name it was reviewed under. All lookups are read defensively; missing or
+    failed adapters simply contribute nothing.
+    """
+    names: list[str] = []
+    seen: set[str] = set()
+
+    def _add(raw: object) -> None:
+        name = str(raw or "").strip()
+        key = name.lower()
+        if name and key not in seen:
+            seen.add(key)
+            names.append(name)
+
+    _add(getattr(ctx, "source_package", ""))
+
+    adapters = {}
+    evidence = getattr(ctx, "evidence", None)
+    if isinstance(evidence, dict):
+        adapters = evidence.get("adapters", {}) or {}
+
+    cve_terms = adapters.get("cve-search-terms", {})
+    if isinstance(cve_terms, dict):
+        for term in cve_terms.get("terms", []) or []:
+            if isinstance(term, dict) and term.get("kind") == "predecessor":
+                _add(term.get("term"))
+
+    dup_search = adapters.get("dup-search", {})
+    if isinstance(dup_search, dict):
+        for cand in dup_search.get("candidates", []) or []:
+            if isinstance(cand, dict):
+                _add(cand.get("name"))
+
+    return names[:_MIR_HISTORY_MAX_CANDIDATES]
+
+
+@adapter(AdapterID.LP_MIR_HISTORY)
+def collect_lp_mir_history(ctx) -> LPMirHistoryResult:
+    """Search Launchpad for prior MIR bugs on this source or a predecessor name.
+
+    Best-effort: probes each candidate source name's bug tasks with a server-side
+    ``search_text=MIR`` filter and keeps tasks whose (enriched) title looks like
+    a Main Inclusion Review bug. Used by review-type detection to recognise a
+    source that was renamed or reorganised from something already in main. A
+    missing package (404) or transient API hiccup for one candidate is skipped
+    rather than failing the adapter.
+    """
+    pkg = getattr(ctx, "source_package", "")
+    if not pkg:
+        raise AdapterError("source_package not set")
+
+    candidate_names = _mir_history_candidate_names(ctx)
+    prior_mir_bugs: list[dict[str, Any]] = []
+    seen_bug_ids: set[str] = set()
+
+    for name in candidate_names:
+        search_url = (
+            f"https://api.launchpad.net/devel/ubuntu/+source/{urllib.parse.quote(name)}"
+            "?ws.op=searchTasks&search_text=MIR"
+        )
+        try:
+            page = _fetch_json(search_url)
+        except urllib.error.HTTPError as exc:
+            # 404 = no such source under this name; anything else = transient.
+            log.debug("lp-mir-history: search for %s failed (HTTP %s)", name, exc.code)
+            continue
+        except (urllib.error.URLError, json.JSONDecodeError) as exc:
+            log.debug("lp-mir-history: search for %s failed: %s", name, exc)
+            continue
+
+        entries = page.get("entries", [])
+        if not isinstance(entries, list):
+            continue
+
+        enriched = 0
+        for task in entries:
+            if enriched >= _MIR_HISTORY_MAX_TASKS_PER_NAME:
+                break
+            bug_link = str(task.get("bug_link") or "").strip()
+            web_link = str(task.get("web_link") or "").strip()
+            bug_id = bug_link.rstrip("/").split("/")[-1] if bug_link else ""
+            if not bug_id or bug_id in seen_bug_ids:
+                continue
+
+            title = ""
+            status = str(task.get("status") or "").strip()
+            if bug_link:
+                try:
+                    bug_data = _fetch_json(bug_link)
+                    title = str(bug_data.get("title") or "").strip()
+                except Exception as exc:
+                    log.debug("lp-mir-history: could not enrich bug %s: %s", bug_id, exc)
+            enriched += 1
+
+            if not _MIR_TITLE_RE.search(title):
+                continue
+
+            seen_bug_ids.add(bug_id)
+            prior_mir_bugs.append(
+                {
+                    "id": bug_id,
+                    "title": title,
+                    "status": status,
+                    "web_link": web_link,
+                    "matched_name": name,
+                }
+            )
+
+    log.debug(
+        "lp-mir-history: %d prior MIR bug(s) across %d candidate name(s) for %s",
+        len(prior_mir_bugs),
+        len(candidate_names),
+        pkg,
+    )
+    return {
+        "status": "ok",
+        "source_package": pkg,
+        "candidate_names": candidate_names,
+        "prior_mir_bugs": prior_mir_bugs,
     }
 
 

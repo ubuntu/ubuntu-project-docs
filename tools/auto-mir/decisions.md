@@ -657,6 +657,45 @@ phases do not drift.
   is affected (other sections still translate confident problems into
   Required/Recommended TODOs as before).
 
+## Review types: fresh / rereview / reorg fast-paths (2026-07-13)
+
+- Promotion: no
+- Context: two MIR fast-paths exist beyond a normal (fresh) review —
+  (1) voluntary opt-in re-reviews of packages long in main
+  (mir-rereview/#opt-in-re-review) and (2) renamed/reorganised sources already
+  in main under another name (mir-rereview/#renamed-or-reorganized-sources). In
+  both, the reviewer runs an essentially normal review but treats every finding
+  as non-blocking and recommendation-only.
+- Decision: add a `review_type` concept resolved once per run.
+  - CLI `--review-type {auto,fresh,rereview,reorg}` (default auto). A non-auto
+    value forces the type (and is recorded with a rationale); `auto` runs
+    detection in `review_type.detect_review_type()`.
+  - Detection signals (best-effort, never raising):
+    - reorg (checked first, more specific): reporter text mentions a
+      rename/split/reorganisation; OR the new `lp-mir-history` adapter found a
+      prior MIR bug under a different source name; OR dup-search shows a
+      functionally-similar package already in main.
+    - rereview: reporter text requests a (voluntary) re-review; OR all binary
+      packages are already in main (dep-analysis has binaries while
+      component-mismatches lists no promotion candidates).
+    - else fresh.
+  - Softening: for rereview/reorg, `checks._apply_review_type_softening()`
+    downgrades every non-Summary finding with severity required/nack to
+    recommended, in place, BEFORE the SUM-5/SUM-6 synthesis runs. This is
+    deliberately blunt (Option A, user-confirmed 2026-07-13): even genuine hard
+    blockers are softened, because policy says everything is non-blocking on
+    these paths and the human can promote any line back to Required. Because
+    softening runs before pass 2, the SUM-5 verdict naturally leans ACK (it sees
+    no remaining required findings) — no prompt-template change was needed.
+  - Rendering: a `Review type:` preamble line and a `[Summary]` NOTE flag the
+    fast-path so the reviewer sees why findings were softened.
+- New adapter `lp-mir-history` (host, best-effort, `adapters_optional` on
+  RDO-1): searches Launchpad bug tasks for the current source and predecessor/
+  dup-search candidate names with a server-side `search_text=MIR` filter and
+  keeps only MIR-titled bugs (`\[mir\]` / whole-word `\bmir\b`). Inspired by the
+  get-mir-bug helper but does not import or reuse it. 404/transient failures per
+  candidate are skipped rather than failing the adapter.
+
 ## Build / Test Decisions
 
 - **CB-1**: combine local sbuild result with Launchpad multi-arch build state via API.

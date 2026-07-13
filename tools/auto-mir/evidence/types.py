@@ -202,6 +202,31 @@ class CVESearchTermsResult(TypedDict):
     terms: list[CVESearchTerm]
 
 
+class PriorMirBug(TypedDict):
+    """A prior MIR bug found on Launchpad for this source or a predecessor name."""
+
+    id: str
+    title: str
+    status: str
+    web_link: str
+    matched_name: str
+
+
+class LPMirHistoryResult(TypedDict):
+    """Return structure for the lp-mir-history adapter.
+
+    Best-effort record of any previous Main Inclusion Review bug filed against
+    the current source package or a candidate predecessor/renamed name. Used to
+    detect renamed/reorganised sources that were already reviewed under a
+    different name.
+    """
+
+    status: str
+    source_package: str
+    candidate_names: list[str]
+    prior_mir_bugs: list[PriorMirBug]
+
+
 class CvelistCandidate(TypedDict):
     """A candidate CVE identified by scanning the cvelistV5 baseline corpus."""
 

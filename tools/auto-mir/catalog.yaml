@@ -556,6 +556,16 @@ evidence_adapters:
     critical_bugs: list
     security_bugs: list
   fallback: emit_todo_continue
+- id: lp-mir-history
+  type: api
+  description: Search Launchpad for prior MIR bugs on this source or predecessor names
+  inputs:
+  - source_package
+  output_contract:
+    candidate_names: list
+    prior_mir_bugs: list
+  fallback: emit_todo_continue
+  notes: Best-effort; informs review-type detection (renamed/reorganised sources)
 - id: lp-team-membership-api
   type: api
   description: Check team membership and bug subscriber status via Launchpad API
@@ -913,6 +923,7 @@ checks:
   - lp-package-api
   adapters_optional:
   - dup-search
+  - lp-mir-history
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:

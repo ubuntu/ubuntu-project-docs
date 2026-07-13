@@ -75,6 +75,10 @@ LXD VM for reproducibility and isolation.
 - Store adapter payloads under `ctx.evidence["adapters"]`.
 
 5. Stage 4: analysis (`stage_analyse`)
+- Resolve the review type (`review_type.detect_review_type`): fresh, or a
+  softened fast-path (rereview / reorg) forced via `--review-type` or detected
+  from the bug text and evidence (incl. the best-effort `lp-mir-history`
+  adapter). Fast-paths downgrade blocking findings to recommendations.
 - Evaluate checks with deterministic and LLM evaluators.
 - Produce `Finding` objects with severity/confidence.
 

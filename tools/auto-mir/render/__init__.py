@@ -141,6 +141,13 @@ def _build_review_draft(ctx) -> str:
     if binary_lines:
         lines += binary_lines
 
+    # Review type — flags the two fast-path cases (voluntary re-review /
+    # renamed-reorganised source) so the reviewer immediately sees why findings
+    # were softened to recommendations. Omitted for the default 'fresh' review.
+    review_type_line = _build_review_type_line(ctx)
+    if review_type_line:
+        lines.append(review_type_line)
+
     lines.append("")
 
     # Group findings by section, preserving per-section order from catalog
@@ -182,6 +189,50 @@ def _build_analysed_version_line(ctx) -> str:
     if pocket:
         return f"Analysed source version: {version} ({pocket} pocket)"
     return f"Analysed source version: {version}"
+
+
+def _build_review_type_line(ctx) -> str:
+    """Return the 'Review type:' preamble line, or '' for a plain fresh review.
+
+    Reads the decision recorded by review_type.detect_review_type() from the
+    evidence (falling back to ctx.review_type). Only non-fresh fast-paths are
+    surfaced, since a fresh review is the unremarkable default.
+    """
+    info = {}
+    evidence = getattr(ctx, "evidence", None)
+    if isinstance(evidence, dict):
+        candidate = evidence.get("review_type")
+        if isinstance(candidate, dict):
+            info = candidate
+    rtype = str(info.get("review_type") or getattr(ctx, "review_type", "fresh") or "fresh")
+    if rtype == "fresh":
+        return ""
+    label = {"rereview": "voluntary re-review", "reorg": "renamed/reorganised source"}.get(
+        rtype, rtype
+    )
+    rationale = str(info.get("rationale") or "").strip()
+    line = f"Review type: {rtype} ({label})"
+    if rationale:
+        line += f" — {rationale}"
+    return line
+
+
+def _build_review_type_summary_note(ctx) -> str:
+    """Return a Summary-block note for non-fresh reviews, or '' for fresh ones."""
+    evidence = getattr(ctx, "evidence", None)
+    rtype = getattr(ctx, "review_type", "fresh")
+    if isinstance(evidence, dict):
+        candidate = evidence.get("review_type")
+        if isinstance(candidate, dict) and candidate.get("review_type"):
+            rtype = str(candidate.get("review_type"))
+    if rtype not in ("rereview", "reorg"):
+        return ""
+    kind = "voluntary re-review" if rtype == "rereview" else "renamed/reorganised source"
+    return (
+        f"NOTE: - This is a {kind}; per MIR policy all findings below are treated "
+        "as non-blocking recommendations. Promote any line into the Required "
+        "TODOs list if you judge it blocking."
+    )
 
 
 def _build_binary_package_header(ctx) -> list[str]:
@@ -438,6 +489,13 @@ def _render_summary_section(
     """
     checks_by_id = checks_by_id or {}
     lines: list[str] = ["[Summary]"]
+
+    # For the re-review / reorg fast-paths, lead with a note so the reviewer
+    # knows every finding below was softened to a non-blocking recommendation
+    # and that they may promote any line back to Required.
+    note = _build_review_type_summary_note(ctx)
+    if note:
+        lines.append(note)
 
     ok_findings = [f for f in summary_findings if f.status == "ok"]
     # Decision checks (ACK/NACK verdict, security review) stay inline under

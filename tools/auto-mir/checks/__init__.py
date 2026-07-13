@@ -12,6 +12,7 @@ from __future__ import annotations
 import importlib
 import logging
 
+import review_type
 from checks.language_gates import _language_gate_active
 from checks.registry import EVALUATORS
 from contracts import ChecksContext
@@ -24,6 +25,41 @@ def _ensure_evaluators_registered() -> None:
     """Import evaluator modules for their registration side effects."""
     importlib.import_module("checks.deterministic")
     importlib.import_module("checks.llm_eval")
+
+
+# Severities considered "blocking" that a re-review / reorg fast-path softens
+# down to a plain recommendation.
+_BLOCKING_SEVERITIES = {"required", "nack"}
+
+
+def _apply_review_type_softening(findings: list[Finding], decision) -> None:
+    """Soften blocking findings in place for re-review / reorg fast-paths.
+
+    For voluntary re-reviews and renamed/reorganised sources, MIR policy treats
+    everything as non-blocking and recommendation-only. We therefore downgrade
+    every non-Summary finding whose severity is 'required' or 'nack' to
+    'recommended' so it lands in the Summary's *Recommended* TODO block rather
+    than the *Required* one, and so the SUM-5 verdict synthesis (which runs next
+    and reads these findings) naturally leans towards ACK.
+
+    Summary-section findings (the ACK/NACK verdict and security-review decision)
+    are left untouched: they are the reviewer's judgement surface, not blocking
+    action items. The human can always promote a softened line back to Required.
+    """
+    if decision.review_type == review_type.FRESH:
+        return
+    softened = 0
+    for finding in findings:
+        if finding.section == "Summary":
+            continue
+        if finding.severity in _BLOCKING_SEVERITIES:
+            finding.severity = "recommended"
+            softened += 1
+    log.info(
+        "review type '%s': softened %d blocking finding(s) to recommended",
+        decision.review_type,
+        softened,
+    )
 
 
 def evaluate_checks(ctx: ChecksContext) -> list[Finding]:
@@ -49,6 +85,15 @@ def evaluate_checks(ctx: ChecksContext) -> list[Finding]:
 
     _ensure_evaluators_registered()
 
+    # Detect (or honour a forced) review type up front so the softening pass and
+    # the SUM-5/SUM-6 synthesis both see a consistent decision. Store it on the
+    # context and in the evidence so the renderer and report.json can surface it.
+    decision = review_type.detect_review_type(ctx)
+    ctx.review_type = decision.review_type
+    if isinstance(getattr(ctx, "evidence", None), dict):
+        ctx.evidence["review_type"] = decision.to_evidence()
+    log.info("review type resolved to '%s' (forced=%s)", decision.review_type, decision.forced)
+
     checks = ctx.catalog.get("checks", [])
 
     # Two-pass evaluation: synthesis checks (e.g. SUM-5 overall verdict, SUM-6
@@ -73,6 +118,12 @@ def evaluate_checks(ctx: ChecksContext) -> list[Finding]:
 
     # Make pass-1 findings available to synthesis evaluators (SUM-5/SUM-6 read
     # ctx.findings); it is overwritten with the full ordered list by the caller.
+    #
+    # Re-review / reorg fast-paths soften blocking findings to recommendations
+    # BEFORE the synthesis runs, so the SUM-5 verdict naturally leans towards ACK
+    # (it sees no remaining required findings) and the softened severities flow
+    # into the consolidated Recommended TODO block.
+    _apply_review_type_softening(pass1_findings, decision)
     ctx.findings = list(pass1_findings)
 
     # Pass 2: deferred synthesis checks, after everything else.
