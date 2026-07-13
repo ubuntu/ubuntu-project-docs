@@ -9,6 +9,15 @@ Task:
 Policy:
 {{policy_excerpt}}
 
+Wording:
+- Write the "message" and "rationale" in reviewer-facing language a human MIR
+  reviewer would use; describe what was found, not how the evidence is stored.
+- Never quote internal evidence field names (e.g. snake_case keys like
+  `vendored_dirs`, `shipped_vendored_dirs`, `file_listing`). Refer to the
+  underlying concept in plain terms instead — for example, say "no usual
+  vendored directories (vendor/, third_party/, ...) were found" rather than
+  naming the empty field.
+
 TODO references this check resolves:
 {{todo_refs}}
 

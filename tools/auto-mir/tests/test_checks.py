@@ -962,6 +962,24 @@ def test_render_ev_to_ai_prompt_uses_disk_fallback_when_tool_root_missing():
     assert "human MIR reviewer" in prompt
 
 
+def test_render_ev_to_ai_prompt_carries_reviewer_wording_guardrail():
+    """The rendered prompt must instruct the model to avoid internal field names."""
+    ctx = _Ctx()
+    check = {
+        "id": "ESL-11",
+        "title": "Vendored code refresh documented",
+        "section": "Embedded sources and static linking",
+        "todo_refs": ["TODO-B: - Does not include vendored code"],
+    }
+
+    prompt = checks.llm_eval._render_ev_to_ai_prompt(check, {"adapter": "x"}, "policy text", ctx)
+
+    # Guardrail wording present regardless of whether the on-disk template or the
+    # fallback was used (both carry it).
+    assert "reviewer-facing language" in prompt
+    assert "vendored_dirs" in prompt  # named as an example of what NOT to quote
+
+
 def test_eval_ai_graceful_on_large_tier_llm_error():
     ctx = _Ctx()
     check = {

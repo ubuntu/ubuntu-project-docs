@@ -1281,7 +1281,7 @@ checks:
     predicate: no vendored code shipped in the binaries (test-only third_party/vendor dirs do not count)
     render: '- Does not include vendored code'
     outcome: ok
-  ai_policy: 'Use the packaging-source evidence: vendored_dirs lists candidate vendor/third_party/vendored directories, and shipped_vendored_dirs lists only those NOT confined to test/example paths. If shipped_vendored_dirs is empty, choose ESL-11-B (does not include vendored code) even when test-only third_party directories exist. Only choose ESL-11-A when vendored code is actually shipped in the binary packages; then check debian/README.source and debian/rules vendor targets for a documented refresh process. Reviewer confirms.'
+  ai_policy: 'Use the packaging-source evidence: vendored_dirs lists candidate vendor/third_party/vendored directories, and shipped_vendored_dirs lists only those NOT confined to test/example paths. If shipped_vendored_dirs is empty, choose ESL-11-B (does not include vendored code) even when test-only third_party directories exist. Only choose ESL-11-A when vendored code is actually shipped in the binary packages; then check debian/README.source and debian/rules vendor targets for a documented refresh process. Reviewer confirms. Phrase the rationale in reviewer-facing terms and do NOT name internal evidence fields: when nothing is found, say something like "no usual vendored directories (vendor/, third_party/, ...) were found in the source or shipped in the binaries" rather than referring to vendored_dirs or shipped_vendored_dirs by name.'
 
 # ==========================================================================
 # Security
