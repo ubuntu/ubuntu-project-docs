@@ -9,7 +9,10 @@ from typing import Any
 
 from utils.retry import retry_rate_limited
 
-_DEFAULT_USER_AGENT = "auto-mir/0.1"
+# The ``ubuntu/`` prefix identifies this as Ubuntu project tooling; some
+# services (e.g. autopkgtest) grant ``ubuntu/*`` clients more generous rate
+# limits than an anonymous agent.
+_DEFAULT_USER_AGENT = "ubuntu/auto-mir/0.1"
 _DEFAULT_TIMEOUT_SECONDS = 300
 _RETRY_ATTEMPTS = 6
 _RETRY_BASE_DELAY = 30.0
