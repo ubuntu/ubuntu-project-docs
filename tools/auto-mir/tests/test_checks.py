@@ -2039,6 +2039,26 @@ def test_urf_4_nobody_in_tests_is_ignored():
     assert result.status == "ok"
 
 
+def test_urf_4_nobody_in_doc_text_file_is_ignored():
+    """A 'nobody' mention inside a non-executable doc/text file is not a risk."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "nobody_source_hits": [
+            "./tools/execsnoop_example.txt:37:chown 9664 0 /bin/chown nobody:nobody ./main",
+        ],
+        "nobody_source_files": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "ok"
+
+
 def test_urf_5_setgid_binary_in_built_deb():
     """URF-5 flags a setuid/setgid binary found in the built artifacts."""
     ctx = _Ctx()
@@ -2068,6 +2088,82 @@ def test_urf_5_setgid_binary_in_built_deb():
     assert result.severity == "required"
     assert result.confidence == "high"
     assert "myhelper" in result.message
+
+
+def test_urf_5_setuid_in_doc_text_file_is_ignored():
+    """A setuid/setgid keyword inside a doc/text file (sample output) is ignored."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "setuid_setgid_source_hits": [
+            "./tools/execsnoop_example.txt:40:run 9660 -2 /usr/local/bin/setuidgid nobody",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "ok"
+
+
+def test_urf_5_setuid_in_script_still_flags():
+    """Softening is by file type only: a real script hit still trips URF-5."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "setuid_setgid_source_hits": [
+            "./scripts/install.sh:5:chmod u+s /usr/bin/myhelper  # setuid",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "not-ok"
+
+
+def test_path_is_nonexecutable_doc_classification():
+    doc = checks.deterministic._path_is_nonexecutable_doc
+    # Plain-text / documentation files.
+    assert doc("./tools/execsnoop_example.txt")
+    assert doc("docs/guide.md")
+    assert doc("README")
+    assert doc("COPYING")
+    assert doc("man/foo.1")
+    assert doc("man/foo.3pm")
+    # Code and scripts are never softened, even with "example" in the name.
+    assert not doc("./tools/execsnoop_example.py")
+    assert not doc("scripts/install.sh")
+    assert not doc("src/daemon.c")
+    assert not doc("license_check.py")
+
+
+def test_grep_hit_path_extracts_path():
+    hit = checks.deterministic._grep_hit_path
+    assert hit("./tools/execsnoop_example.txt:37:chown nobody:nobody") == (
+        "./tools/execsnoop_example.txt"
+    )
+    assert hit("src/daemon.c:42:setuser") == "src/daemon.c"
 
 
 def test_urf_7_no_old_webkit():

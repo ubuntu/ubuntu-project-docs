@@ -91,6 +91,75 @@ def _path_is_test_context(path: str) -> bool:
     return "/test/" in marked or "/tests/" in marked or "/debian/tests/" in marked
 
 
+# Documentation / plain-text file extensions. A grep match for a privilege
+# keyword inside one of these is prose or sample output (e.g. an example of what
+# console output looks like), not active code, so it carries no security risk.
+_NONEXECUTABLE_DOC_EXTENSIONS = (
+    ".txt",
+    ".md",
+    ".markdown",
+    ".rst",
+    ".rdoc",
+    ".html",
+    ".htm",
+    ".pod",
+    ".adoc",
+    ".asciidoc",
+    ".texi",
+    ".tex",
+    ".org",
+    ".rtf",
+)
+# Extensionless conventional documentation files found at the top of source
+# trees. Matched by exact basename only so code such as ``license_check.py`` is
+# never misclassified.
+_NONEXECUTABLE_DOC_BASENAMES = (
+    "readme",
+    "news",
+    "changelog",
+    "changes",
+    "authors",
+    "contributors",
+    "copying",
+    "license",
+    "licence",
+    "notice",
+    "thanks",
+    "todo",
+    "install",
+)
+# Manpage (roff) sources: section digit 1-9, optionally with a locale/suffix
+# (e.g. ``.3pm``, ``.1p``). These are documentation, not executables.
+_MANPAGE_SUFFIX_RE = re.compile(r"\.[1-9][a-z]*$")
+
+
+def _grep_hit_path(hit: str) -> str:
+    """Return the file-path portion of a ``path:lineno:content`` grep hit."""
+    match = re.match(r"^(?P<path>.+?):\d+:", hit)
+    if match:
+        return match.group("path")
+    return hit.split(":", 1)[0]
+
+
+def _path_is_nonexecutable_doc(path: str) -> bool:
+    """Return True when a path is a non-executable documentation/text file.
+
+    The classification is by file type, not directory: a plain-text or
+    documentation file can *mention* privilege keywords (in prose or sample
+    output) without shipping active code, whereas a script or source file named
+    ``foo_example.py`` is still executable code and is not matched here.
+    """
+    name = str(path).strip().lstrip("./").rsplit("/", 1)[-1].lower()
+    if not name:
+        return False
+    if "." not in name:
+        return name in _NONEXECUTABLE_DOC_BASENAMES
+    if _MANPAGE_SUFFIX_RE.search(name):
+        return True
+    ext = "." + name.rsplit(".", 1)[-1]
+    return ext in _NONEXECUTABLE_DOC_EXTENSIONS
+
+
 # Soname-versioned shared-library runtime package names end in a digit
 # (e.g. liblua5.5-0, libfoo1). -dev/-doc/-dbg packages are excluded.
 _SHARED_LIB_PKG_RE = re.compile(r"^lib.+\d$")
@@ -1260,8 +1329,11 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
         if "nobody" in line.lower() and not _line_is_test_context(line):
             hits.append(line.strip())
     for line in packaging.get("nobody_source_hits", []):
-        if not _line_is_test_context(line):
-            hits.append(line)
+        # A text mention in a non-executable doc/text file (e.g. sample console
+        # output) is not active code; skip it. Ownership facts below are kept.
+        if _line_is_test_context(line) or _path_is_nonexecutable_doc(_grep_hit_path(line)):
+            continue
+        hits.append(line)
     for path in packaging.get("nobody_source_files", []):
         if not _path_is_test_context(path):
             hits.append(f"file owned by nobody (source): {path}")
@@ -1330,11 +1402,13 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
     rules_triggered = any(p in debian_rules for p in setuid_patterns)
 
     # Full source-tree grep (grep -RIn setuid/setgid) and find -perm results from
-    # both the source tree and the built binaries. Test-context hits are ignored.
+    # both the source tree and the built binaries. Test-context hits are ignored,
+    # as are text mentions inside non-executable doc/text files (prose or sample
+    # output rather than active code).
     source_hits = [
         line
         for line in packaging.get("setuid_setgid_source_hits", [])
-        if not _line_is_test_context(line)
+        if not _line_is_test_context(line) and not _path_is_nonexecutable_doc(_grep_hit_path(line))
     ]
     source_perm_files = [
         path
