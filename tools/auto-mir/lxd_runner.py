@@ -135,7 +135,8 @@ def spawn(ctx: "RunContext") -> None:
     image = _resolve_image(ctx)
     ctx.lxd_image = image
 
-    # Parse LXD options from ctx.lxd_options (default: "--vm -c limits.cpu=4 -c limits.memory=8GiB")
+    # Parse LXD options from ctx.lxd_options
+    # (default: "--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB")
     lxd_opts = ctx.lxd_options.split() if ctx.lxd_options else []
     is_vm = "--vm" in lxd_opts
     instance_type = "VM" if is_vm else "container"

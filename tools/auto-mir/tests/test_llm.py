@@ -28,6 +28,15 @@ def test_build_parser_rejects_removed_single_model_flag():
         parser.parse_args(["123", "--llm-model", "gpt-4.1-mini"])
 
 
+def test_build_parser_default_lxd_options_request_larger_disk():
+    parser = build_parser()
+    args = parser.parse_args(["123"])
+
+    # LXD VMs default to a 10GB root disk, which is too small for large builds.
+    assert "-d root,size=20GiB" in args.lxd_options
+    assert "--vm" in args.lxd_options
+
+
 def test_selected_model_defaults_for_openai_compatible():
     ctx = SimpleNamespace(llm_model_small=None, llm_model_large=None)
     assert llm._selected_model(ctx, "small") == llm.DEFAULT_OPENAI_COMPAT_SMALL_MODEL
