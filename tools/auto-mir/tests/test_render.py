@@ -15,6 +15,7 @@ from render import (
     _build_review_draft,
     _lint_review_draft,
     _render_section,
+    _render_summary_section,
     _todo_lines_for_finding,
 )
 
@@ -156,6 +157,32 @@ def test_render_section_never_emits_left_to_decide_none():
     """The meaningless 'Left to decide: None' line is never produced anymore."""
     lines = _render_section("Security", [_high_conf_failure()])
     assert "Left to decide: None" not in "\n".join(lines)
+
+
+def test_render_section_blank_line_before_left_to_decide():
+    """A blank line precedes 'Left to decide:' so it reads as its own block."""
+    lines = _render_section("Dependencies", [_ok_finding(), _unresolved_finding()])
+    idx = lines.index("Left to decide:")
+    assert idx > 0
+    assert lines[idx - 1] == "", (
+        "Expected a blank line immediately before the 'Left to decide:' header"
+    )
+
+
+def test_render_summary_blank_lines_before_headers():
+    """Summary headers each get a preceding blank line for readable flow."""
+    ctx = Mock()
+    ctx.evidence = {}
+    summary_findings = [
+        _ok_finding(fid="SUM-1", msg="reporter content found", section="Summary"),
+        _unresolved_finding(fid="SUM-5", title="MIR team ACK/NACK", section="Summary"),
+    ]
+    required = _high_conf_failure(fid="CB-2", msg="does FTBFS", section="Common blockers")
+    lines = _render_summary_section(summary_findings, summary_findings + [required], ctx)
+    for header in ("Left to decide:", "Required TODOs:", "Recommended TODOs:"):
+        idx = lines.index(header)
+        assert idx > 0
+        assert lines[idx - 1] == "", f"Expected a blank line immediately before '{header}'"
 
 
 # ---------------------------------------------------------------------------

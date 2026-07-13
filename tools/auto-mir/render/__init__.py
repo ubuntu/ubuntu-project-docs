@@ -387,8 +387,11 @@ def _render_section(
     # Left to decide sub-block — only rendered when there is something to
     # decide. An empty "Left to decide" carries no meaning (unlike
     # "Problems: none", which asserts the checks ran and found nothing), so it
-    # is omitted entirely when there are no undecided items.
+    # is omitted entirely when there are no undecided items. A blank line
+    # precedes the header so it stands apart from the OK block above and reads
+    # as its own section (matching the spacing before "Problems:").
     if undecided:
+        lines.append("")
         lines.append("Left to decide:")
         for finding in undecided:
             causes = finding.adapter_error_cause
@@ -457,8 +460,10 @@ def _render_summary_section(
             lines.append(f"- {hint}")
 
     # Only render "Left to decide" when there is something undecided; an empty
-    # block carries no meaning and is omitted (see _render_section).
+    # block carries no meaning and is omitted (see _render_section). A blank
+    # line precedes the header so it reads as its own section.
     if unresolved:
+        lines.append("")
         lines.append("Left to decide:")
         for finding in unresolved:
             causes = finding.adapter_error_cause
@@ -471,12 +476,17 @@ def _render_summary_section(
                 todo_block = _with_rationale(todo_block, finding.rationale, cant_decide=True)
             lines.append(todo_block)
 
+    # The consolidated TODO blocks each get a preceding blank line so the
+    # "Required TODOs:" / "Recommended TODOs:" headers stand apart and the draft
+    # reads with the same natural spacing as the "Problems:" blocks.
+    lines.append("")
     lines.append("Required TODOs:")
     required = _collect_todos_by_severity(all_findings, "required", checks_by_id)
     numbered, todo_index = _render_numbered_todos(required, start_index=1)
     lines.extend(numbered)
     lines.append("- TODO: - TBD (Please add more, numbered for later reference)")
 
+    lines.append("")
     lines.append("Recommended TODOs:")
     recommended = _collect_todos_by_severity(all_findings, "recommended", checks_by_id)
     numbered, todo_index = _render_numbered_todos(recommended, start_index=todo_index)
