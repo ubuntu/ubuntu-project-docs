@@ -9,6 +9,7 @@ on:
 jobs:
   queue-report:
     name: Generate and send queue report
+    environment: 'IM notifications'
     runs-on: ubuntu-latest
 
     permissions:
