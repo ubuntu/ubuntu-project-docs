@@ -83,6 +83,7 @@ Greasemonkey
 groff
 Guiver
 gvfs
+hardcode
 homeserver
 homeservers
 Hotspot
@@ -195,6 +196,7 @@ sysroot
 systemd
 tarball
 Tegra
+templated
 testsuite
 timeframes
 TKey
@@ -215,6 +217,7 @@ triaging
 txt
 unapplied
 unapply
+unintuitive
 uncompress
 unpatched
 unpruned
