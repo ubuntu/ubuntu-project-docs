@@ -38,6 +38,7 @@ from evidence.types import (
     UbuntuCVETrackerResult,
     UpstreamTrackerResult,
 )
+from utils import http as http_utils
 from utils import llm_sanitize
 
 try:
@@ -441,16 +442,22 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
 
 def _fetch_json(url: str) -> Any:
     """Fetch and decode JSON from a remote endpoint."""
-    req = urllib.request.Request(url, headers={"User-Agent": "auto-mir/0.1"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    return http_utils.get_json(url)
 
 
 def _fetch_text(url: str) -> str:
     """Fetch and decode text from a remote endpoint."""
-    req = urllib.request.Request(url, headers={"User-Agent": "auto-mir/0.1"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return resp.read().decode("utf-8", "replace")
+    return http_utils.get_text(url)
+
+
+def _download_oval_xz(url: str) -> bytes:
+    """Download an OVAL XZ payload with resilient retry/backoff."""
+    return http_utils.get_bytes(url)
+
+
+def _download_autopkgtest_db(url: str, tmp_path: str) -> None:
+    """Download autopkgtest DB to a local file path with resilient retry/backoff."""
+    http_utils.download_to_file(url, tmp_path)
 
 
 def _strip_html(value: str) -> str:
@@ -1429,21 +1436,9 @@ def collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
     log.debug("Querying OVAL CVE data from: %s", url)
 
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "auto-mir/0.1"})
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            xz_data = resp.read()
+        xz_data = _download_oval_xz(url)
     except urllib.error.HTTPError as exc:
-        # Retry once on transient failures
-        if exc.code in (429, 502, 503, 504):
-            log.warning("OVAL transient error %d; retrying once", exc.code)
-            time.sleep(2)
-            try:
-                with urllib.request.urlopen(req, timeout=60) as resp:
-                    xz_data = resp.read()
-            except Exception as exc_retry:
-                raise AdapterError(f"OVAL fetch retry failed: {exc_retry}") from exc_retry
-        else:
-            raise AdapterError(f"OVAL HTTP error {exc.code}: {exc.reason}") from exc
+        raise AdapterError(f"OVAL HTTP error {exc.code}: {exc.reason}") from exc
     except Exception as exc:
         raise AdapterError(f"OVAL fetch failed: {exc}") from exc
 
@@ -1519,14 +1514,13 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
 
     db_url = "https://autopkgtest.ubuntu.com/static/autopkgtest.db"
     log.debug("Downloading autopkgtest SQLite database: %s", db_url)
+    tmp_path = ""
 
     # Download to temp file
     try:
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             tmp_path = tmp.name
-            req = urllib.request.Request(db_url, headers={"User-Agent": "auto-mir/0.1"})
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                tmp.write(resp.read())
+        _download_autopkgtest_db(db_url, tmp_path)
     except urllib.error.HTTPError as exc:
         raise AdapterError(f"autopkgtest DB download HTTP error {exc.code}") from exc
     except Exception as exc:
@@ -1575,7 +1569,8 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
             "note": "autopkgtest DB schema not as expected",
         }
     finally:
-        Path(tmp_path).unlink(missing_ok=True)
+        if tmp_path:
+            Path(tmp_path).unlink(missing_ok=True)
 
     note = ""
     if resolved_release != series:

@@ -2,6 +2,7 @@
 
 import json
 import sys
+import urllib.error
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -885,12 +886,7 @@ def test_collect_lto_disabled_list_on_list():
     ctx = Mock()
     ctx.source_package = "llvm"
 
-    mock_resp = Mock()
-    mock_resp.read.return_value = _LTO_LIST_SAMPLE.encode("utf-8")
-    mock_resp.__enter__ = Mock(return_value=mock_resp)
-    mock_resp.__exit__ = Mock(return_value=False)
-
-    with patch.object(lto_disabled_adapter.urllib.request, "urlopen", return_value=mock_resp):
+    with patch.object(lto_disabled_adapter.http_utils, "get_text", return_value=_LTO_LIST_SAMPLE):
         result = lto_disabled_adapter.collect_lto_disabled_list(ctx)
 
     assert result["status"] == "ok"
@@ -905,12 +901,7 @@ def test_collect_lto_disabled_list_not_on_list():
     ctx = Mock()
     ctx.source_package = "testpkg"
 
-    mock_resp = Mock()
-    mock_resp.read.return_value = _LTO_LIST_SAMPLE.encode("utf-8")
-    mock_resp.__enter__ = Mock(return_value=mock_resp)
-    mock_resp.__exit__ = Mock(return_value=False)
-
-    with patch.object(lto_disabled_adapter.urllib.request, "urlopen", return_value=mock_resp):
+    with patch.object(lto_disabled_adapter.http_utils, "get_text", return_value=_LTO_LIST_SAMPLE):
         result = lto_disabled_adapter.collect_lto_disabled_list(ctx)
 
     assert result["status"] == "ok"
@@ -926,14 +917,109 @@ def test_collect_lto_disabled_list_fetch_error():
     ctx.source_package = "testpkg"
 
     with patch.object(
-        lto_disabled_adapter.urllib.request,
-        "urlopen",
-        side_effect=OSError("network unreachable"),
+        lto_disabled_adapter.http_utils, "get_text", side_effect=OSError("network unreachable")
     ):
         result = lto_disabled_adapter.collect_lto_disabled_list(ctx)
 
     assert result["status"] == "error"
     assert "network unreachable" in result["error"]
+
+
+# ---------------------------------------------------------------------------
+# team-mapping adapter
+# ---------------------------------------------------------------------------
+
+
+def test_collect_team_mapping_filters_non_subscriber_teams():
+    """Team mapping adapter should filter non-subscriber/display-only teams."""
+    from evidence import team_mapping_adapter
+
+    ctx = Mock()
+    ctx.source_package = "mypkg"
+
+    payload = {
+        "ubuntu-server": ["mypkg"],
+        "kubuntu-bugs": ["mypkg"],
+        "unsubscribed": ["mypkg"],
+    }
+
+    with patch.object(team_mapping_adapter.http_utils, "get_json", return_value=payload):
+        result = team_mapping_adapter.collect_team_mapping(ctx)
+
+    assert result["status"] == "ok"
+    assert result["subscribed_teams"] == ["ubuntu-server"]
+    assert "kubuntu-bugs" not in result["team_mapping"]
+    assert "unsubscribed" not in result["team_mapping"]
+
+
+def test_collect_team_mapping_fetch_error():
+    """Team mapping adapter should return error status when fetch fails."""
+    from evidence import team_mapping_adapter
+
+    ctx = Mock()
+    ctx.source_package = "mypkg"
+
+    with patch.object(
+        team_mapping_adapter.http_utils, "get_json", side_effect=OSError("network unreachable")
+    ):
+        result = team_mapping_adapter.collect_team_mapping(ctx)
+
+    assert result["status"] == "error"
+    assert "network unreachable" in result["error"]
+
+
+# ---------------------------------------------------------------------------
+# adapter HTTP error propagation
+# ---------------------------------------------------------------------------
+
+
+def test_collect_autopkgtest_reports_http_error_code():
+    """autopkgtest adapter should preserve HTTP status context in AdapterError."""
+    import evidence.host_adapters as ha
+
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.series = "noble"
+
+    http_error = urllib.error.HTTPError(
+        "https://autopkgtest.ubuntu.com/static/autopkgtest.db",
+        429,
+        "Too Many Requests",
+        None,
+        None,
+    )
+
+    with patch.object(ha, "_download_autopkgtest_db", side_effect=http_error):
+        try:
+            ha.collect_autopkgtest(ctx)
+            assert False, "collect_autopkgtest should raise AdapterError on HTTP errors"
+        except ha.AdapterError as exc:
+            assert "autopkgtest DB download HTTP error 429" in str(exc)
+
+
+def test_collect_ubuntu_cve_tracker_reports_http_error_code():
+    """OVAL adapter should preserve HTTP status context in AdapterError."""
+    import evidence.host_adapters as ha
+
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.series = "noble"
+
+    http_error = urllib.error.HTTPError(
+        "https://security-metadata.canonical.com/oval/com.ubuntu.noble.pkg.json.xz",
+        429,
+        "Too Many Requests",
+        None,
+        None,
+    )
+
+    with patch.object(ha, "_resolve_oval_series", return_value=("noble", None)):
+        with patch.object(ha, "_download_oval_xz", side_effect=http_error):
+            try:
+                ha.collect_ubuntu_cve_tracker(ctx)
+                assert False, "collect_ubuntu_cve_tracker should raise AdapterError on HTTP errors"
+            except ha.AdapterError as exc:
+                assert "OVAL HTTP error 429" in str(exc)
 
 
 # ---------------------------------------------------------------------------

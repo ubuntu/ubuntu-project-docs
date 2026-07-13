@@ -12,11 +12,11 @@ https://git.launchpad.net/ubuntu/+source/lto-disabled-list/plain/lto-disabled-li
 from __future__ import annotations
 
 import logging
-import urllib.request
 from typing import Any
 
 from catalog_enums import AdapterID
 from evidence.registry import adapter
+from utils import http as http_utils
 
 log = logging.getLogger("auto_mir.evidence.lto_disabled")
 
@@ -60,8 +60,7 @@ def collect_lto_disabled_list(ctx) -> dict[str, Any]:
 
     try:
         log.info("Fetching lto-disabled-list from %s", LTO_DISABLED_LIST_URL)
-        with urllib.request.urlopen(LTO_DISABLED_LIST_URL, timeout=30) as response:
-            text = response.read().decode("utf-8")
+        text = http_utils.get_text(LTO_DISABLED_LIST_URL, errors="strict")
     except Exception as e:
         log.error("Failed to fetch lto-disabled-list: %s", e)
         return {

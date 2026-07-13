@@ -6,13 +6,12 @@ structural bug subscriptions to the source package being reviewed.
 
 from __future__ import annotations
 
-import json
 import logging
-import urllib.request
 from typing import Any
 
 from catalog_enums import AdapterID
 from evidence.registry import adapter
+from utils import http as http_utils
 
 log = logging.getLogger("auto_mir.evidence.team_mapping")
 
@@ -46,9 +45,7 @@ def collect_team_mapping(ctx) -> dict[str, Any]:
 
     try:
         log.info("Fetching team mapping from %s", TEAM_MAPPING_URL)
-
-        with urllib.request.urlopen(TEAM_MAPPING_URL, timeout=30) as response:
-            raw_mapping = json.load(response)
+        raw_mapping = http_utils.get_json(TEAM_MAPPING_URL)
 
         # Filter out non-subscriber teams and 'unsubscribed'
         team_mapping = {

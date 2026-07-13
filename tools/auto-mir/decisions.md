@@ -1174,3 +1174,38 @@ Promotion: no (implementation detail; the durable rules are captured per-check a
   raises the retryable `LLMEnvelopeError`, and the one-shot retry appends a
   strict "reply with ONLY valid JSON" instruction rather than only enlarging the
   token budget.
+
+## 2026-07-13 — Host-side web download resilience hardening
+
+**Context:**
+- Real runs hit `autopkgtest.db` download `HTTP 429` from
+  `https://autopkgtest.ubuntu.com/static/autopkgtest.db`.
+- The prior `autopkgtest-db` path had no retry; OVAL had a bespoke one-shot
+  retry; other host-side web fetches had inconsistent/no retry behavior.
+
+**Decision:**
+- Standardize host-side HTTP resilience via shared helpers in `utils/http.py`
+  (`get_bytes`, `get_text`, `get_json`, `download_to_file`) using the existing
+  `retry_rate_limited` tenacity strategy.
+- Apply one uniform retry profile across hardened host-side endpoints.
+- Migrate these paths to shared helpers:
+  - `evidence/host_adapters.py`: `_fetch_json`, `_fetch_text`, OVAL download,
+    autopkgtest DB download
+  - `evidence/team_mapping_adapter.py`: package-team-mapping fetch
+  - `evidence/lto_disabled_adapter.py`: lto-disabled-list fetch
+
+**Out of scope (intentional):**
+- Container-side downloader logic in `evidence/cvelist_scan_invm.py`
+- Replacing autopkgtest DB usage with web page scraping
+
+**Rationale for not adding web scraping fallback:**
+- No stable public JSON results API for historical per-package test results.
+- Website output is template-driven HTML and has active anti-crawler controls,
+  making scraping brittle and operationally fragile.
+- `autopkgtest.db` remains the most stable machine-readable source.
+
+**Consequences:**
+- Better tolerance of transient 429/5xx/network failures across host-side
+  evidence collection with less duplicated retry code.
+- Behavior contracts of adapters are preserved: successful outputs are
+  unchanged; terminal failures still degrade to existing adapter error paths.
