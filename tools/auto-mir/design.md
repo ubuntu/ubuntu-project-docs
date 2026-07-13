@@ -25,34 +25,26 @@ LXD VM for reproducibility and isolation.
 ### System boundary map (ASCII)
 
 ```
-+-------------------------------------------------------------------+
-|                         Host Process (CLI)                        |
-|                                                                   |
-|  auto_mir.py                                                      |
-|   - parse args                                                    |
-|   - build RunContext                                              |
-|   - run stages 0..5                                               |
-|                                                                   |
-|  +-------------------+      +------------------+                  |
-|  |  checks/          |<-----| evidence/        |                  |
-|  |  - deterministic  |      | - orchestrator   |                  |
-|  |  - llm_eval       |      | - host adapters  |                  |
-|  +-------------------+      | - container ad.  |                  |
-|          |                  +------------------+                  |
-|          v                          |                              |
-|  +-------------------+              |                              |
-|  | render/           |              v                              |
-|  | - review draft    |      +----------------------+               |
-|  | - report.json     |      | LXD VM instance      |               |
-|  +-------------------+      | - apt/source/sbuild  |               |
-|                             | - lintian/tooling    |               |
-|                             +----------------------+               |
-|                                                                   |
-|  External host integrations:                                      |
-|   - Launchpad APIs                                                 |
-|   - CVE/NVD sources                                                |
-|   - autopkgtest DB                                                 |
-+-------------------------------------------------------------------+
+┌──────────────────────────┐
+│ auto-mir.py              │ defines┌─────────┐
+│ orchestrates order and   ◄────────┼ catalog │
+│ dependencies             │        └─────────┘
+└────────────────┬─────────┘
+┌────────────────▼────────────────────────────┐  ┌────────────────────────────────┐
+│ adapters/                                   ┼──► Interaction                    │
+│ abstract the various sources of information │  │ reports progress and asks when │
+│ to generate Data (build, CVEs, apt, ...).   ◄──┼ automatism can't decide        │
+└────────────────┬──▲─────────────────────────┘  └────────────────────────────────┘
+┌────────────────▼──┴─────────────────────────┐  ┌────────────────────────────────┐
+│ checks/                                     ┼──► prompts/                       │
+│ Use Data to decide about MIR rules          │  │ guide LLM calls and handling   │
+│ Where interpretation is needed call to LLM. ◄──┼ of answers.                    │
+└────────────────┬────────────────────────────┘  └────────────────────────────────┘
+┌────────────────▼────────────────────────────┐
+│ render/                                     │
+│ converts all insight to full report.json    │
+│ and review-draft.txt for human finalization.│
+└─────────────────────────────────────────────┘
 ```
 
 ## End-to-end stage flow
