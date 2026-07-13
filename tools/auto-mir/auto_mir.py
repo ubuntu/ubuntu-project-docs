@@ -482,6 +482,38 @@ def stage_auth(ctx: RunContext) -> None:
     log.info("LLM provider '%s' resolved from %s (url: %s)", provider, source, api_url)
 
 
+def _resolve_requested_binaries(all_binaries: list[str]) -> list[str]:
+    """Determine the promotion scope when nothing was requested explicitly.
+
+    Neither the reporter's MIR template nor the ``--request-binaries`` CLI flag
+    named any binaries. Resolve the scope without needless interaction:
+
+    - No binaries built: nothing to resolve (return empty).
+    - Exactly one binary built: it is unambiguously the promotion target, so
+      select it silently (this is why a reporter can omit it too).
+    - More than one binary and an interactive TTY: ask the reviewer.
+    - More than one binary without a TTY (headless/automation): default to all
+      rather than blocking on input the caller cannot provide.
+    """
+    if not all_binaries:
+        return []
+
+    if len(all_binaries) == 1:
+        only = all_binaries[0]
+        log.info("Single binary package built (%s); selecting it as the promotion target", only)
+        return [only]
+
+    if not sys.stdin.isatty():
+        log.info(
+            "Multiple binary packages built and no interactive terminal; "
+            "defaulting promotion scope to all: %s",
+            ", ".join(sorted(all_binaries)),
+        )
+        return list(all_binaries)
+
+    return _ask_requested_binaries(all_binaries)
+
+
 def _ask_requested_binaries(all_binaries: list[str]) -> list[str]:
     """Interactively ask user which binaries to promote.
 
@@ -670,13 +702,14 @@ def main() -> int:
         if evidence_result != 0:
             ctx.failure_summary = "Evidence collection encountered adapter failures."
 
-        # Interactive prompt for scope confirmation (after evidence collection)
+        # Resolve promotion scope when neither the reporter nor the CLI named
+        # binaries (after evidence collection).
         if not ctx.requested_binaries:
             all_binaries = (
                 ctx.evidence.get("adapters", {}).get("dep-analysis", {}).get("binary_packages", [])
             )
-            if all_binaries:
-                ctx.requested_binaries = _ask_requested_binaries(all_binaries)
+            ctx.requested_binaries = _resolve_requested_binaries(all_binaries)
+            if ctx.requested_binaries:
                 log.info("Requested binaries: %s", ", ".join(ctx.requested_binaries))
 
         # Handle early exit mode

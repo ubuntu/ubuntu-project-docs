@@ -191,3 +191,37 @@ def test_main_propagates_evidence_failure_summary_to_teardown(monkeypatch):
     assert auto_mir.main() == 0
     assert teardown_results == [1]
     assert ctx.failure_summary == "Evidence collection encountered adapter failures."
+
+
+def test_resolve_requested_binaries_empty_returns_empty():
+    assert auto_mir._resolve_requested_binaries([]) == []
+
+
+def test_resolve_requested_binaries_single_auto_selects_without_prompt(monkeypatch):
+    def _fail(*_args, **_kwargs):
+        raise AssertionError("must not prompt when exactly one binary is built")
+
+    monkeypatch.setattr(auto_mir, "_ask_requested_binaries", _fail)
+    monkeypatch.setattr(auto_mir.sys.stdin, "isatty", lambda: True)
+
+    assert auto_mir._resolve_requested_binaries(["linuxptp"]) == ["linuxptp"]
+
+
+def test_resolve_requested_binaries_multiple_noninteractive_defaults_to_all(monkeypatch):
+    def _fail(*_args, **_kwargs):
+        raise AssertionError("must not prompt without an interactive terminal")
+
+    monkeypatch.setattr(auto_mir, "_ask_requested_binaries", _fail)
+    monkeypatch.setattr(auto_mir.sys.stdin, "isatty", lambda: False)
+
+    assert auto_mir._resolve_requested_binaries(["libfoo1", "foo-tools"]) == [
+        "libfoo1",
+        "foo-tools",
+    ]
+
+
+def test_resolve_requested_binaries_multiple_interactive_prompts(monkeypatch):
+    monkeypatch.setattr(auto_mir.sys.stdin, "isatty", lambda: True)
+    monkeypatch.setattr(auto_mir, "_ask_requested_binaries", lambda binaries: ["foo-tools"])
+
+    assert auto_mir._resolve_requested_binaries(["libfoo1", "foo-tools"]) == ["foo-tools"]
