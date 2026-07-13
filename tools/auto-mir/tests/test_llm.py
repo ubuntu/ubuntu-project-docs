@@ -124,6 +124,14 @@ def test_max_tokens_for_tier_defaults_and_override():
     assert llm._max_tokens_for_tier("small", override=123) == 123
 
 
+def test_default_token_budgets_leave_room_for_doubling_retry():
+    # Generous first-call ceilings avoid truncation for reasoning models.
+    assert llm._MAX_TOKENS_BY_TIER["small"] == 32768
+    assert llm._MAX_TOKENS_BY_TIER["large"] == 49152
+    # The hard cap must not clip the "twice the base budget" retry for any tier.
+    assert llm._MAX_TOKENS_HARD_CAP >= 2 * llm._MAX_TOKENS_BY_TIER["large"]
+
+
 def test_parse_chat_response_falls_back_to_reasoning_when_content_null():
     raw = json.dumps(
         {
@@ -215,6 +223,29 @@ def test_call_llm_retries_once_with_larger_budget(monkeypatch):
     assert budgets == [
         llm._MAX_TOKENS_BY_TIER["small"],
         min(llm._MAX_TOKENS_BY_TIER["small"] * 2, llm._MAX_TOKENS_HARD_CAP),
+    ]
+
+
+def test_call_llm_large_tier_retry_doubles_within_hard_cap(monkeypatch):
+    ctx = SimpleNamespace(llm_model_small=None, llm_model_large=None)
+    budgets = []
+
+    def fake_call(prompt, ctx_arg, model_tier, max_tokens):
+        budgets.append(max_tokens)
+        if len(budgets) == 1:
+            raise llm.LLMTruncationError("truncated")
+        return {"status": "ok"}, {"reasoning": "", "finish_reason": "stop"}
+
+    monkeypatch.setattr(llm, "_call_openai_compatible", fake_call)
+
+    result = llm.call_llm("prompt", ctx, model_tier="large", trace_label="URF-6")
+
+    assert result == {"status": "ok"}
+    # The large-tier retry must reach exactly twice the base budget, not a
+    # value clipped by the hard cap.
+    assert budgets == [
+        llm._MAX_TOKENS_BY_TIER["large"],
+        llm._MAX_TOKENS_BY_TIER["large"] * 2,
     ]
 
 

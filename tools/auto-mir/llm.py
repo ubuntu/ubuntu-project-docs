@@ -83,14 +83,23 @@ class LLMEnvelopeError(LLMError):
 # the configured default models (z-ai/glm-4.7, z-ai/glm-5.2) are reasoning
 # models whose internal reasoning tokens count against this budget. A budget
 # that is too low truncates the JSON answer (finish_reason=length) or leaves
-# message.content null while reasoning consumes everything. Tier-aware defaults
-# give the small and large models ample headroom above the ~300-600 token JSON
-# answer. Limits still exist as a cost guardrail.
-_MAX_TOKENS_BY_TIER = {"small": 16384, "large": 32768}
+# message.content null while reasoning consumes everything.
+#
+# max_tokens is only a ceiling: providers bill for tokens actually generated,
+# not for the ceiling, so a headroom that is never used costs nothing. A
+# truncation retry is by contrast the most wasteful path — it throws away the
+# whole truncated generation (up to the full budget) and re-sends the entire
+# prompt before paying for a second answer. We therefore keep the default
+# ceilings generously above the reasoning + ~300-600 token JSON answer so the
+# common case succeeds on the first call, and reserve the doubling retry below
+# for the rare model that still overruns. Ceilings remain as a cost guardrail.
+_MAX_TOKENS_BY_TIER = {"small": 32768, "large": 49152}
 # Default used when a tier is unknown.
 _MAX_TOKENS = _MAX_TOKENS_BY_TIER["small"]
-# Absolute ceiling for the one-shot retry-with-larger-budget path.
-_MAX_TOKENS_HARD_CAP = 65536
+# Absolute ceiling for the one-shot retry-with-larger-budget path. Sized to keep
+# the "twice the base budget" doubling intact for the largest tier
+# (49152 * 2 == 98304) so a retry is never silently clipped below 2x.
+_MAX_TOKENS_HARD_CAP = 98304
 # Conservative defaults until we learn real values from API responses.
 _DEFAULT_LIMIT_PER_WINDOW = 10
 _DEFAULT_WINDOW_SECONDS = 60
