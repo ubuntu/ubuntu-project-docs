@@ -640,7 +640,6 @@ evidence_adapters:
     static_link_hints: list
   fallback: emit_todo_continue
   notes: Uses sbuild unshare backend (requires Noble or newer); installed from noble-backports when target is Noble
-  notes: Uses sbuild unshare backend (requires Noble or newer); installed from noble-backports when target is Noble
 - id: deb-metadata
   type: local_exec
   description: Extract Built-Using and Static-Built-Using metadata from built .deb files after sbuild

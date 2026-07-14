@@ -13,6 +13,23 @@ Use this log as the source for deciding what should be promoted into
   `Promotion: yes` in that decision entry.
 - For decisions that should stay local rationale, include `Promotion: no`.
 
+## 2026-07-14 — Strict catalog YAML loading
+
+- Promotion: no
+- Context: reporter support will compose several policy catalogs. PyYAML's
+  default safe loader silently accepts duplicate mapping keys and keeps the
+  final value; the existing review catalog already contained one duplicate
+  `notes` key. Silent shadowing would make composed policy difficult to audit.
+- Decision: load catalogs with a SafeLoader-derived mapping constructor that
+  rejects duplicate or unhashable keys and rejects a non-mapping document
+  root. Report the YAML source location and fail before catalog validation or
+  runtime work.
+- Consequences:
+  - Duplicate policy/configuration keys are now hard errors rather than silent
+    last-value-wins behavior.
+  - The duplicate sbuild `notes` key was collapsed without changing its value.
+  - Validation from `tools/auto-mir`: `make test` PASS (430 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

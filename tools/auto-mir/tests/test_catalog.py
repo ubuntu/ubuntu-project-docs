@@ -3,6 +3,7 @@
 import sys
 from pathlib import Path
 
+import pytest
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -23,6 +24,32 @@ def test_load_catalog_parses_yaml():
 
     assert catalog is not None
     assert isinstance(catalog, dict)
+
+
+def test_load_catalog_rejects_duplicate_keys(tmp_path, capsys):
+    """Catalog policy must not be silently shadowed by duplicate YAML keys."""
+    catalog_path = tmp_path / "catalog.yaml"
+    catalog_path.write_text("metadata: {}\nmetadata: {}\n", encoding="utf-8")
+
+    with pytest.raises(SystemExit) as exc_info:
+        load_catalog(catalog_path, tmp_path)
+
+    assert exc_info.value.code == 1
+    error = capsys.readouterr().err
+    assert "found duplicate key 'metadata'" in error
+    assert str(catalog_path) in error
+
+
+def test_load_catalog_rejects_non_mapping_root(tmp_path, capsys):
+    """A catalog root must be a mapping rather than a YAML sequence."""
+    catalog_path = tmp_path / "catalog.yaml"
+    catalog_path.write_text("- metadata\n", encoding="utf-8")
+
+    with pytest.raises(SystemExit) as exc_info:
+        load_catalog(catalog_path, tmp_path)
+
+    assert exc_info.value.code == 1
+    assert "catalog root must be a mapping" in capsys.readouterr().err
 
 
 def test_load_catalog_has_required_sections():

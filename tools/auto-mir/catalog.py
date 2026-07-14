@@ -5,8 +5,59 @@ from __future__ import annotations
 import string
 import sys
 from pathlib import Path
+from typing import Any
 
 from utils.dependencies import ubuntu_package_for
+
+
+def _load_yaml_strict(handle: Any, yaml_module: Any) -> dict:
+    """Load one YAML mapping while rejecting duplicate keys.
+
+    PyYAML's default safe loader silently keeps the last value for duplicate
+    mapping keys. Catalog keys are policy and runtime configuration, so a
+    duplicate must fail with its source location instead of shadowing data.
+    """
+
+    class StrictSafeLoader(yaml_module.SafeLoader):
+        pass
+
+    def construct_mapping(loader: Any, node: Any, deep: bool = False) -> dict:
+        loader.flatten_mapping(node)
+        mapping: dict[Any, Any] = {}
+        for key_node, value_node in node.value:
+            key = loader.construct_object(key_node, deep=deep)
+            try:
+                duplicate = key in mapping
+            except TypeError as exc:
+                raise yaml_module.constructor.ConstructorError(
+                    "while constructing a mapping",
+                    node.start_mark,
+                    "found an unhashable mapping key",
+                    key_node.start_mark,
+                ) from exc
+            if duplicate:
+                raise yaml_module.constructor.ConstructorError(
+                    "while constructing a mapping",
+                    node.start_mark,
+                    f"found duplicate key {key!r}",
+                    key_node.start_mark,
+                )
+            mapping[key] = loader.construct_object(value_node, deep=deep)
+        return mapping
+
+    StrictSafeLoader.add_constructor(
+        yaml_module.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+        construct_mapping,
+    )
+    loaded = yaml_module.load(handle, Loader=StrictSafeLoader)
+    if not isinstance(loaded, dict):
+        raise yaml_module.constructor.ConstructorError(
+            None,
+            None,
+            "catalog root must be a mapping",
+            None,
+        )
+    return loaded
 
 
 def load_catalog(catalog_path: Path, workspace_root: Path) -> dict:
@@ -25,8 +76,12 @@ def load_catalog(catalog_path: Path, workspace_root: Path) -> dict:
         )
         raise SystemExit(1)
 
-    with catalog_path.open("r", encoding="utf-8") as handle:
-        loaded = yaml.safe_load(handle)
+    try:
+        with catalog_path.open("r", encoding="utf-8") as handle:
+            loaded = _load_yaml_strict(handle, yaml)
+    except yaml.YAMLError as exc:
+        print(f"Catalog YAML error in {catalog_path}: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
 
     # Validate catalog structure
     errors = validate_catalog(loaded)
