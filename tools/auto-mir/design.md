@@ -20,33 +20,6 @@ LXD VM for reproducibility and isolation.
 - Rationale/history is defined in `decisions.md`.
 - Prompt content is defined in `prompts/` and is out of scope for this document.
 
-## Runtime architecture
-
-### System boundary map (ASCII)
-
-```
-┌──────────────────────────┐
-│ auto-mir.py              │ defines┌─────────┐
-│ orchestrates order and   ◄────────┼ catalog │
-│ dependencies             │        └─────────┘
-└────────────────┬─────────┘
-┌────────────────▼────────────────────────────┐  ┌────────────────────────────────┐
-│ adapters/                                   ┼──► Interaction                    │
-│ abstract the various sources of information │  │ reports progress and asks when │
-│ to generate Data (build, CVEs, apt, ...).   ◄──┼ automatism can't decide        │
-└────────────────┬──▲─────────────────────────┘  └────────────────────────────────┘
-┌────────────────▼──┴─────────────────────────┐  ┌────────────────────────────────┐
-│ checks/                                     ┼──► prompts/                       │
-│ Use Data to decide about MIR rules          │  │ guide LLM calls and handling   │
-│ Where interpretation is needed call to LLM. ◄──┼ of answers.                    │
-└────────────────┬────────────────────────────┘  └────────────────────────────────┘
-┌────────────────▼────────────────────────────┐
-│ render/                                     │
-│ converts all insight to full report.json    │
-│ and review-draft.txt for human finalization.│
-└─────────────────────────────────────────────┘
-```
-
 ## End-to-end stage flow
 
 `auto_mir.main()` executes these stages:
