@@ -59,6 +59,7 @@ feature-based one), approximately every 6 months.
 
 | Version | Code name | Schedule | Docs | Release | End of Standard Support |
 | :---- | :---- | :---- | :---- | :---- | :---- |
+| Ubuntu 26.04.1 LTS | Resolute Raccoon | TBD | TBD | August 2026 | May 2031 |
 | Ubuntu 26.10 | Stonking Stingray | TBD | TBD | October 2026 | July 2027 |
 
 
