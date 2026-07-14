@@ -47,6 +47,32 @@ class SecretRedactor:
         return value
 
 
+def ensure_secret_redactor(ctx: Any, logger: logging.Logger | None = None) -> SecretRedactor:
+    """Return a context-bound redactor, creating one if needed.
+
+    Some code paths may operate on partially-populated context-like objects
+    (for example tests or legacy serialized state). To keep redaction best-effort
+    and avoid hard failures during rendering, ensure a usable redactor exists.
+    """
+    redactor = getattr(ctx, "secret_redactor", None)
+    if isinstance(redactor, SecretRedactor):
+        return redactor
+
+    redactor = SecretRedactor()
+    try:
+        setattr(ctx, "secret_redactor", redactor)
+    except Exception:
+        # If the context is immutable, continue with an unbound redactor.
+        pass
+
+    if logger is not None:
+        logger.warning(
+            "Context %s missing valid secret_redactor; using a fallback redactor",
+            type(ctx).__name__,
+        )
+    return redactor
+
+
 class RedactingFormatter(logging.Formatter):
     """Apply exact-value redaction after another formatter has rendered a record."""
 

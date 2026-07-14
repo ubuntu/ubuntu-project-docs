@@ -23,7 +23,7 @@ from pathlib import Path
 from utils.cli import parse_bool_arg
 from utils.dependencies import ensure_runtime_environment
 from utils.llm_sanitize import make_nonce
-from utils.secrets import RedactingFormatter, SecretRedactor
+from utils.secrets import RedactingFormatter, SecretRedactor, ensure_secret_redactor
 
 log = logging.getLogger("auto_mir")
 
@@ -328,8 +328,9 @@ class RunContext:
     def save_evidence(self) -> None:
         """Persist accumulated evidence to output directory for debugging/audit."""
         evidence_path = self.output_dir / "evidence.json"
+        redactor = ensure_secret_redactor(self, log)
         with evidence_path.open("w") as f:
-            json.dump(self.secret_redactor.sanitize(self.evidence), f, indent=2, default=str)
+            json.dump(redactor.sanitize(self.evidence), f, indent=2, default=str)
         log.debug("Evidence saved to %s", evidence_path)
 
         # If sbuild fails, users usually want to debug in a non json file
@@ -338,7 +339,7 @@ class RunContext:
             build_log = sbuild_result.get("build_log", "")
             if build_log:
                 build_log_path = self.output_dir / "build_log.txt"
-                build_log_path.write_text(self.secret_redactor.redact_text(build_log))
+                build_log_path.write_text(redactor.redact_text(build_log))
                 log.debug("Build log written to %s", build_log_path)
 
 
@@ -473,7 +474,7 @@ def stage_auth(ctx: RunContext) -> None:
     ctx.llm_api_url = api_url
     ctx.llm_token = token
     ctx.auth_source = source
-    ctx.secret_redactor.register(token)
+    ensure_secret_redactor(ctx, log).register(token)
 
     ctx.evidence["auth"] = {
         "provider": provider,
@@ -666,9 +667,11 @@ def main() -> int:
         logger.removeHandler(handler)
 
     # Console handler with colors
+    redactor = ensure_secret_redactor(ctx, log)
+
     console_handler = logging.StreamHandler()
     console_formatter = ColorFormatter()
-    console_handler.setFormatter(RedactingFormatter(console_formatter, ctx.secret_redactor))
+    console_handler.setFormatter(RedactingFormatter(console_formatter, redactor))
     logger.addHandler(console_handler)
 
     # File handler with JSON (if output directory exists)
@@ -676,7 +679,7 @@ def main() -> int:
         log_file = ctx.output_dir / "auto-mir.log"
         file_handler = logging.FileHandler(log_file)
         json_formatter = jsonlogger.JsonFormatter("%(asctime)s %(levelname)s %(name)s %(message)s")
-        file_handler.setFormatter(RedactingFormatter(json_formatter, ctx.secret_redactor))
+        file_handler.setFormatter(RedactingFormatter(json_formatter, redactor))
         logger.addHandler(file_handler)
         log.info("JSON log file: %s", log_file)
 
@@ -776,6 +779,7 @@ def _save_test_artifacts(ctx: RunContext) -> None:
     import checks
 
     artifact_dir = ctx.output_dir
+    redactor = ensure_secret_redactor(ctx, log)
 
     context = {
         "bug_id": ctx.bug_id,
@@ -785,10 +789,10 @@ def _save_test_artifacts(ctx: RunContext) -> None:
         "bug": ctx.bug,
     }
     with (artifact_dir / "context.json").open("w") as f:
-        json.dump(ctx.secret_redactor.sanitize(context), f, indent=2, default=str)
+        json.dump(redactor.sanitize(context), f, indent=2, default=str)
 
     with (artifact_dir / "evidence.json").open("w") as f:
-        json.dump(ctx.secret_redactor.sanitize(ctx.evidence), f, indent=2, default=str)
+        json.dump(redactor.sanitize(ctx.evidence), f, indent=2, default=str)
 
     if not ctx.catalog:
         ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
@@ -802,7 +806,7 @@ def _save_test_artifacts(ctx: RunContext) -> None:
 
     findings_data = [asdict(f) for f in findings]
     with (artifact_dir / "deterministic_findings.json").open("w") as f:
-        json.dump(ctx.secret_redactor.sanitize(findings_data), f, indent=2, default=str)
+        json.dump(redactor.sanitize(findings_data), f, indent=2, default=str)
 
     try:
         git_head = subprocess.run(
@@ -822,7 +826,7 @@ def _save_test_artifacts(ctx: RunContext) -> None:
         "source_package": ctx.source_package,
     }
     with (artifact_dir / "meta.json").open("w") as f:
-        json.dump(ctx.secret_redactor.sanitize(meta), f, indent=2)
+        json.dump(redactor.sanitize(meta), f, indent=2)
 
     log.info("Test artifacts saved to: %s", artifact_dir)
     log.info("  - context.json")
@@ -852,9 +856,10 @@ def _print_complete_banner(ctx: RunContext) -> None:
 
     # Print the LLM usage report immediately before the banner so it appears
     # together with the completion summary and artifact list.
+    redactor = ensure_secret_redactor(ctx, log)
     llm_report = _render_llm_usage_report(ctx)
     if llm_report:
-        print(ctx.secret_redactor.redact_text("\n" + "\n".join(llm_report)))
+        print(redactor.redact_text("\n" + "\n".join(llm_report)))
 
     lines = [
         "",
@@ -870,7 +875,7 @@ def _print_complete_banner(ctx: RunContext) -> None:
     if evidence_path.exists():
         lines.append(f"  Evidence file    : {evidence_path}")
     lines.append("━" * 64)
-    print(ctx.secret_redactor.redact_text("\n".join(lines)))
+    print(redactor.redact_text("\n".join(lines)))
 
 
 if __name__ == "__main__":

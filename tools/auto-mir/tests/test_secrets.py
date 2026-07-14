@@ -18,7 +18,7 @@ import llm
 import lxd_runner
 import render
 from models import Finding
-from utils.secrets import RedactingFormatter, SecretRedactor
+from utils.secrets import RedactingFormatter, SecretRedactor, ensure_secret_redactor
 
 _SENTINEL = "arbitrary-provider-credential-SENTINEL-42"
 
@@ -37,6 +37,15 @@ def test_redactor_uses_registered_exact_values_only():
         "public": "sk-looking-but-not-registered",
     }
     assert value["nested"][1]["secret"] == _SENTINEL
+
+
+def test_ensure_secret_redactor_creates_and_binds_fallback_when_missing():
+    ctx = SimpleNamespace()
+
+    redactor = ensure_secret_redactor(ctx)
+
+    assert isinstance(redactor, SecretRedactor)
+    assert ctx.secret_redactor is redactor
 
 
 def test_stage_auth_registers_host_secret_without_guest_export(monkeypatch):
@@ -180,6 +189,16 @@ def test_all_shareable_artifact_writers_redact_registered_secrets(monkeypatch, t
     for path in files:
         assert _SENTINEL not in path.read_text(), path.name
     assert _SENTINEL not in capsys.readouterr().out
+
+
+def test_render_outputs_do_not_fail_when_context_misses_secret_redactor(tmp_path):
+    ctx = _run_context(tmp_path)
+    del ctx.secret_redactor
+
+    render.write_outputs(ctx)
+
+    assert ctx.report_path and ctx.report_path.exists()
+    assert ctx.review_draft_path and ctx.review_draft_path.exists()
 
 
 def test_runtime_facts_do_not_probe_or_report_auth(monkeypatch):
