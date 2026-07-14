@@ -49,6 +49,32 @@ Use this log as the source for deciding what should be promoted into
     later catalog-authority migration under parity tests.
   - Cvelist documentation now identifies normal host execution accurately.
 
+## 2026-07-14 — Role-based CLI foundation
+
+- Promotion: no
+- Context: reviewer runs start from a Launchpad bug, while reporter runs must
+  start from a source package. A single positional value plus a mode flag would
+  make validation ambiguous and keep reviewer assumptions in the reporter
+  path.
+- Decision:
+  - Introduce explicit `review BUG` and `report SOURCE` commands.
+  - Preserve the historical bare numeric bug form by normalizing it to
+    `review BUG` before dependency preflight and emit a deprecation warning on
+    actual runs.
+  - Never infer a bare non-numeric value as a source package; reporter use must
+    be explicit.
+  - Record the role and role-specific subject on `RunContext` and use either
+    value for collision-safe run naming.
+  - Require an interactive terminal for `report` before dependency checks,
+    output creation, network access, or LXD work. Keep reporter execution
+    gated until its dedicated pipeline is connected rather than accidentally
+    sending a source package through reviewer Launchpad intake.
+- Consequences:
+  - Existing scripts using a numeric bug ID continue to parse and run.
+  - `--help` remains standard-library-only and now exposes both roles.
+  - `report SOURCE` is a recognized but deliberately gated command at this
+    foundation stage.
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

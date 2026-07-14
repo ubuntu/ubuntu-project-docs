@@ -27,6 +27,32 @@ from utils.secrets import RedactingFormatter, SecretRedactor, ensure_secret_reda
 
 log = logging.getLogger("auto_mir")
 
+ROLE_REVIEW = "review"
+ROLE_REPORT = "report"
+
+
+def _normalize_cli_args(args: list[str]) -> list[str]:
+    """Normalize the legacy ``auto_mir.py BUG`` form to ``review BUG``.
+
+    This runs before dependency preflight and uses only the standard library so
+    both legacy invocation and ``--help`` continue to work on an unprepared
+    host. Only an all-decimal first argument is treated as a legacy bug ID;
+    source package names must use the explicit ``report`` command.
+    """
+    if not args or args[0] in {ROLE_REVIEW, ROLE_REPORT, "-h", "--help"}:
+        return args
+    if args[0].isdecimal():
+        return [ROLE_REVIEW, "--legacy-invocation", *args]
+    return args
+
+
+class _RoleArgumentParser(argparse.ArgumentParser):
+    """Argument parser that preserves the pre-subcommand reviewer syntax."""
+
+    def parse_args(self, args=None, namespace=None):
+        raw_args = list(sys.argv[1:] if args is None else args)
+        return super().parse_args(_normalize_cli_args(raw_args), namespace)
+
 
 # ---------------------------------------------------------------------------
 # Run-name helpers (shared base name for LXD guest + output dir)
@@ -99,16 +125,16 @@ def _resolve_run_name(bug_id: str, user_name: str | None) -> str:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(
-        description="AI-assisted MIR reviewer assistant",
+    p = _RoleArgumentParser(
+        description="AI-assisted Ubuntu Main Inclusion Review assistant",
     )
-    p.add_argument("bug_id", help="Launchpad MIR bug ID")
-    p.add_argument(
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument(
         "--series",
         default=None,
         help="Target Ubuntu series (e.g., 'noble', 'jammy'). Auto-detected if not specified.",
     )
-    p.add_argument(
+    common.add_argument(
         "--output-dir",
         default=None,
         metavar="DIR",
@@ -117,7 +143,7 @@ def build_parser() -> argparse.ArgumentParser:
             "The LXD guest name is auto-generated independently."
         ),
     )
-    p.add_argument(
+    common.add_argument(
         "--collect-only",
         dest="collect_only",
         action="store_true",
@@ -128,7 +154,7 @@ def build_parser() -> argparse.ArgumentParser:
             "--output-dir tools/auto-mir/tests/fixtures/<bug_id>."
         ),
     )
-    p.add_argument(
+    common.add_argument(
         "--lxd-image",
         default=None,
         help=(
@@ -136,7 +162,7 @@ def build_parser() -> argparse.ArgumentParser:
             " (default: target release image, falling back to Ubuntu devel)"
         ),
     )
-    p.add_argument(
+    common.add_argument(
         "--lxd-options",
         dest="lxd_options",
         type=str,
@@ -148,7 +174,7 @@ def build_parser() -> argparse.ArgumentParser:
             "to switch guest type or change resources."
         ),
     )
-    p.add_argument(
+    common.add_argument(
         "--keep-guest",
         dest="keep_guest",
         nargs="?",
@@ -163,13 +189,13 @@ def build_parser() -> argparse.ArgumentParser:
             "--keep-guest=false: always destroy."
         ),
     )
-    p.add_argument(
+    common.add_argument(
         "--llm-model-small",
         dest="llm_model_small",
         default=None,
         help=("Model used for smaller/simpler LLM requests. Default when omitted: z-ai/glm-4.7."),
     )
-    p.add_argument(
+    common.add_argument(
         "--llm-model-large",
         dest="llm_model_large",
         default=None,
@@ -177,7 +203,7 @@ def build_parser() -> argparse.ArgumentParser:
             "Model used for larger/more complex LLM requests. Default when omitted: z-ai/glm-5.2."
         ),
     )
-    p.add_argument(
+    common.add_argument(
         "--request-binaries",
         dest="request_binaries",
         type=str,
@@ -185,7 +211,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Binary packages requested for promotion in this MIR (space-separated)",
     )
-    p.add_argument(
+    common.add_argument(
         "--source-pocket",
         dest="source_pocket",
         choices=["auto", "release", "proposed"],
@@ -198,7 +224,17 @@ def build_parser() -> argparse.ArgumentParser:
             "'release': always use the release-pocket version."
         ),
     )
-    p.add_argument(
+    common.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
+
+    subparsers = p.add_subparsers(dest="role", required=True)
+    review = subparsers.add_parser(
+        ROLE_REVIEW,
+        parents=[common],
+        help="Review an existing Launchpad MIR bug",
+        description="Collect evidence and prepare a reviewer draft for a Launchpad MIR bug.",
+    )
+    review.add_argument("bug_id", help="Launchpad MIR bug ID")
+    review.add_argument(
         "--review-type",
         dest="review_type",
         choices=["auto", "fresh", "rereview", "reorg"],
@@ -213,7 +249,20 @@ def build_parser() -> argparse.ArgumentParser:
             "all findings softened to recommendations."
         ),
     )
-    p.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
+    review.add_argument("--legacy-invocation", action="store_true", help=argparse.SUPPRESS)
+
+    report = subparsers.add_parser(
+        ROLE_REPORT,
+        parents=[common],
+        help="Prepare a reporter draft from an Ubuntu source package",
+        description="Collect evidence and guide a reporter through preparing an MIR request.",
+    )
+    report.add_argument("source_package", help="Ubuntu source package to prepare an MIR for")
+    report.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="Disable optional AI suggestions and use deterministic evidence plus human input",
+    )
     return p
 
 
@@ -256,7 +305,9 @@ class RunContext:
 
     def __init__(self, args: argparse.Namespace):
         # --- From CLI args (immutable after __init__) ---
-        self.bug_id: str = str(args.bug_id)
+        self.role: str = getattr(args, "role", ROLE_REVIEW)
+        self.bug_id: str = str(getattr(args, "bug_id", ""))
+        self.source_package: str = str(getattr(args, "source_package", ""))
         self.series: str | None = args.series
         self.keep_guest: bool | None = args.keep_guest
         self.lxd_image: str | None = args.lxd_image
@@ -265,6 +316,7 @@ class RunContext:
         self.collect_only: bool = args.collect_only
         self.lxd_options: str = args.lxd_options
         self.requested_binaries: list[str] = args.request_binaries or []
+        self.no_llm: bool = bool(getattr(args, "no_llm", False))
         # Which archive pocket's source to fetch/build/analyse (auto|release|proposed).
         self.source_pocket: str = getattr(args, "source_pocket", "auto")
         # How to treat this review (auto|fresh|rereview|reorg). 'auto' lets the
@@ -278,7 +330,8 @@ class RunContext:
         self.catalog_path = self.tool_root / "catalog.yaml"
 
         # LXD guest name is always auto-generated
-        self.run_name: str = _resolve_run_name(bug_id=self.bug_id, user_name=None)
+        run_subject = self.bug_id if self.role == ROLE_REVIEW else self.source_package
+        self.run_name: str = _resolve_run_name(bug_id=run_subject, user_name=None)
 
         # Output directory can be user-specified or auto-generated
         if args.output_dir:
@@ -296,7 +349,6 @@ class RunContext:
 
         # --- Populated by stage_intake / lp_intake.run() (Stage 1) ---
         self.bug: dict = {}
-        self.source_package: str = ""
         self.reporter_mir_content: str = ""
         # Per-run nonce used to delimit untrusted-data envelopes in LLM prompts.
         self.untrusted_nonce: str = make_nonce()
@@ -623,6 +675,13 @@ def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
 
+    # Reporter mode is intentionally terminal-only. Enforce this boundary
+    # before dependency checks, output creation, network access, or LXD work.
+    if getattr(args, "role", ROLE_REVIEW) == ROLE_REPORT:
+        if not (sys.stdin.isatty() and sys.stdout.isatty()):
+            parser.error("the report command requires an interactive terminal")
+        parser.error("the report workflow is not connected yet")
+
     # Keep argument parsing dependency-free so ``--help`` remains available on
     # an unprepared host. Validate before RunContext creates output state or any
     # network/LXD work starts.
@@ -684,11 +743,18 @@ def main() -> int:
         log.info("JSON log file: %s", log_file)
 
     log.info(
-        "auto-mir starting: bug=%s keep_guest=%s collect_only=%s",
+        "auto-mir starting: role=%s bug=%s keep_guest=%s collect_only=%s",
+        ctx.role,
         ctx.bug_id,
         ctx.keep_guest,
         ctx.collect_only,
     )
+    if getattr(args, "legacy_invocation", False):
+        log.warning(
+            "The bare bug-ID invocation is deprecated; use '%s review %s' instead.",
+            Path(sys.argv[0]).name,
+            ctx.bug_id,
+        )
     log.debug(
         "LLM configuration for this run: provider=auto "
         "requested_small_model=%s requested_large_model=%s",

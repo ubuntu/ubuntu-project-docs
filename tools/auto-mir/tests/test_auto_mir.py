@@ -20,10 +20,59 @@ def test_pin_uat_tooling_option_is_removed():
         parser.parse_args(["12345", "--pin-uat-tooling", "deadbeef"])
 
 
+def test_cli_normalizes_legacy_numeric_bug_to_review():
+    args = auto_mir.build_parser().parse_args(["12345"])
+
+    assert args.role == "review"
+    assert args.bug_id == "12345"
+    assert args.legacy_invocation is True
+
+
+def test_cli_accepts_explicit_review_command():
+    args = auto_mir.build_parser().parse_args(["review", "12345"])
+
+    assert args.role == "review"
+    assert args.bug_id == "12345"
+    assert args.legacy_invocation is False
+
+
+def test_cli_accepts_report_source_and_no_llm():
+    args = auto_mir.build_parser().parse_args(["report", "libfoo", "--no-llm"])
+
+    assert args.role == "report"
+    assert args.source_package == "libfoo"
+    assert args.no_llm is True
+
+
+def test_cli_does_not_treat_bare_source_as_legacy_review():
+    with pytest.raises(SystemExit, match="2"):
+        auto_mir.build_parser().parse_args(["libfoo"])
+
+
+def test_main_report_requires_tty_before_preflight(monkeypatch):
+    calls: list[str] = []
+    args = SimpleNamespace(role="report")
+    parser = SimpleNamespace(
+        parse_args=lambda: args,
+        error=lambda message: (_ for _ in ()).throw(SystemExit(message)),
+    )
+    monkeypatch.setattr(auto_mir, "build_parser", lambda: parser)
+    monkeypatch.setattr(auto_mir.sys.stdin, "isatty", lambda: False)
+    monkeypatch.setattr(auto_mir.sys.stdout, "isatty", lambda: False)
+    monkeypatch.setattr(auto_mir, "ensure_runtime_environment", lambda: calls.append("preflight"))
+
+    with pytest.raises(SystemExit, match="requires an interactive terminal"):
+        auto_mir.main()
+
+    assert calls == []
+
+
 def _patch_main_context(monkeypatch, *, collect_only: bool):
     """Patch parser/context setup so main() can be exercised deterministically."""
 
     args = SimpleNamespace(
+        role="review",
+        legacy_invocation=False,
         bug_id="12345",
         series=None,
         output_dir=None,
@@ -42,6 +91,7 @@ def _patch_main_context(monkeypatch, *, collect_only: bool):
     monkeypatch.setattr(auto_mir, "build_parser", lambda: parser)
 
     ctx = SimpleNamespace(
+        role="review",
         bug_id="12345",
         source_package="pkg",
         keep_guest=None,

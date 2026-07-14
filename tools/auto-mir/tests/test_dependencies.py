@@ -79,5 +79,7 @@ def test_help_works_without_site_packages():
     )
 
     assert result.returncode == 0
-    assert "AI-assisted MIR reviewer assistant" in result.stdout
+    assert "AI-assisted Ubuntu Main Inclusion Review assistant" in result.stdout
+    assert "review" in result.stdout
+    assert "report" in result.stdout
     assert "ModuleNotFoundError" not in result.stderr

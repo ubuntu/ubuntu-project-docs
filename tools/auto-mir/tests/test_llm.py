@@ -16,7 +16,9 @@ from auto_mir import build_parser
 
 def test_build_parser_accepts_new_model_flags():
     parser = build_parser()
-    args = parser.parse_args(["123", "--llm-model-small", "foo", "--llm-model-large", "bar"])
+    args = parser.parse_args(
+        ["review", "123", "--llm-model-small", "foo", "--llm-model-large", "bar"]
+    )
 
     assert args.llm_model_small == "foo"
     assert args.llm_model_large == "bar"
