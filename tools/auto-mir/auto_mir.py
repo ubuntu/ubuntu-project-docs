@@ -471,7 +471,8 @@ def stage_auth(ctx: RunContext) -> None:
     if not token:
         log.error(
             "No LLM authentication token found.\n"
-            "Set OPENAI_API_KEY (and optionally OPENAI_API_BASE)."
+            "Set OPENAI_API_KEY to an OpenRouter API key. For another "
+            "OpenAI-compatible service, also set OPENAI_API_BASE."
         )
         raise SystemExit(1)
 

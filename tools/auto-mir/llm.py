@@ -8,7 +8,7 @@ Provider
 openai-compatible
         Any OpenAI-compatible endpoint, including OpenRouter.
         Auth: OPENAI_API_KEY.
-        Base URL: OPENAI_API_BASE (default: https://api.openai.com/v1).
+    Base URL: OPENAI_API_BASE (default: https://openrouter.ai/api/v1).
         Default models: small=z-ai/glm-4.7, large=z-ai/glm-5.2
         (OpenRouter names; override via --llm-model-small / --llm-model-large).
 
@@ -41,8 +41,10 @@ log = logging.getLogger("auto_mir.llm")
 
 _MISSING = object()
 
-# OpenAI-compatible (OpenRouter and others) defaults.
-DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
+# OpenAI-compatible defaults. The model slugs below are OpenRouter model IDs,
+# so the default endpoint must be OpenRouter as well. OPENAI_API_BASE remains
+# available for other compatible services.
+DEFAULT_OPENAI_BASE_URL = "https://openrouter.ai/api/v1"
 DEFAULT_OPENAI_COMPAT_SMALL_MODEL = "z-ai/glm-4.7"
 DEFAULT_OPENAI_COMPAT_LARGE_MODEL = "z-ai/glm-5.2"
 

@@ -60,6 +60,39 @@ def test_selected_model_invalid_tier_raises():
         llm._selected_model(ctx, "invalid")
 
 
+def test_resolve_auth_defaults_to_openrouter(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "test-token")
+    monkeypatch.delenv("OPENAI_API_BASE", raising=False)
+
+    provider, token, source, api_url = llm.resolve_auth()
+
+    assert provider == "openai-compatible"
+    assert token == "test-token"
+    assert source == "host-env:OPENAI_API_KEY"
+    assert api_url == "https://openrouter.ai/api/v1/chat/completions"
+
+
+def test_resolve_auth_honors_compatible_base_override(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "test-token")
+    monkeypatch.setenv("OPENAI_API_BASE", "https://llm.example/v1/")
+
+    _provider, _token, _source, api_url = llm.resolve_auth()
+
+    assert api_url == "https://llm.example/v1/chat/completions"
+
+
+def test_resolve_auth_without_token_has_no_endpoint(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_BASE", raising=False)
+
+    provider, token, source, api_url = llm.resolve_auth()
+
+    assert provider == "openai-compatible"
+    assert token is None
+    assert source == ""
+    assert api_url == ""
+
+
 def test_parse_chat_response_rejects_null_message_content():
     raw = json.dumps({"choices": [{"message": {"content": None}}]})
 

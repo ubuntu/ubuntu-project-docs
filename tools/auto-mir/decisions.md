@@ -1380,3 +1380,31 @@ implementation).**
 - A unit test keeps the runtime registry aligned with `pyproject.toml`; the
   registry is the source for Ubuntu package names shown by the CLI.
 
+## 2026-07-14 — OpenRouter as the coherent beta default
+
+**Promotion:** no
+
+**Context:**
+- The 2026-06-25 provider simplification retained OpenRouter model identifiers
+  (`z-ai/glm-4.7` and `z-ai/glm-5.2`) but left the default base URL pointing at
+  the OpenAI API. A default run therefore combined models and an endpoint that
+  are not compatible.
+- The transport already uses the standard OpenAI-compatible request shape.
+  OpenRouter's attribution headers are optional, so no provider-specific client
+  dependency or request branch is needed.
+
+**Decision:**
+- Use `https://openrouter.ai/api/v1` as the default base URL for the beta while
+  retaining the existing OpenRouter model defaults.
+- Continue reading the credential from `OPENAI_API_KEY` and keep
+  `OPENAI_API_BASE` as an explicit override for other compatible services.
+- Do not validate token prefixes or log token values. Keep the standard bearer
+  authorization and content-type headers.
+
+**Consequences:**
+- The zero-configuration endpoint and model defaults now form a working pair.
+- Users of another OpenAI-compatible service can still override both the base
+  URL and model flags without code changes.
+- Tests lock endpoint construction, trailing-slash normalization, overrides,
+  and missing-token behavior.
+
