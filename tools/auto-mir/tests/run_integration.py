@@ -43,7 +43,6 @@ class _Ctx:
         self.lxd_image = None
         self.lxd_options = "--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB"
         self.pin_uat_tooling = None
-        self.guest_env: dict[str, str] = {}
 
 
 def _setup() -> int:

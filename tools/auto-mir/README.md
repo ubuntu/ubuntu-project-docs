@@ -116,6 +116,16 @@ A normal run writes these files beneath the reported output directory:
 | `auto-mir.log` | JSON-formatted execution log. |
 | `build_log.txt` | Build output, written when the package build fails and a log is available. |
 
+Resolved API credentials stay on the host and are not persisted in the LXD
+guest. Auto-MIR redacts registered credential values from console logs and all
+files in the output directory, including exception and subprocess output. The
+directory is therefore safe to share for diagnosis with respect to credentials.
+It is not anonymous: it still contains public Launchpad content, package
+evidence, versions, guest names, and diagnostic paths.
+
+Redaction cannot repair logs produced by older versions. If an older log
+contains a credential, revoke or rotate that credential before sharing the log.
+
 An exit status of zero means the pipeline completed. It does not mean the
 package is ready for an ACK, that every adapter succeeded, or that the draft has
 no findings. Confirmed deterministic problems and lower-confidence items are

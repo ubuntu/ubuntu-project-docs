@@ -294,9 +294,6 @@ def _provision(name: str, ctx: "RunContext") -> None:
             operation="apt-get install sbuild",
         )
 
-    # Export host-resolved auth into guest env for future AI calls.
-    _export_guest_env(name, getattr(ctx, "guest_env", {}))
-
     # Bootstrap ubuntu-archive-tools (component-mismatches and prerequisites)
     _bootstrap_archive_tools(name, ctx.pin_uat_tooling)
 
@@ -433,12 +430,6 @@ def _build_proposed_stanza(ubuntu_sources: str, codename: str) -> str | None:
         else:
             out_lines.append(line)
     return "\n".join(out_lines) + "\n"
-
-
-def _export_guest_env(name: str, env_map: dict[str, str]) -> None:
-    """Persist environment variables in guest config without logging values."""
-    for key, value in env_map.items():
-        _lxc("config", "set", name, f"environment.{key}={value}")
 
 
 def _bootstrap_archive_tools(name: str, pin_commit: str | None) -> None:
@@ -692,32 +683,10 @@ def collect_runtime_facts(ctx: "RunContext") -> dict:
         check=False,
     ).stdout.strip()
 
-    auth_present = {
-        "OPENAI_API_KEY": bool(
-            exec_in(
-                ctx.guest_name,
-                ["bash", "-lc", 'test -n "$OPENAI_API_KEY"'],
-                capture=True,
-                check=False,
-            ).returncode
-            == 0
-        ),
-        "OPENAI_API_BASE": bool(
-            exec_in(
-                ctx.guest_name,
-                ["bash", "-lc", 'test -n "$OPENAI_API_BASE"'],
-                capture=True,
-                check=False,
-            ).returncode
-            == 0
-        ),
-    }
-
     return {
         "guest_name": ctx.guest_name,
         "image": getattr(ctx, "lxd_image", None),
         "os_release": os_release,
         "kernel": kernel,
         "apt_policy_excerpt": apt_policy,
-        "auth_env_present": auth_present,
     }

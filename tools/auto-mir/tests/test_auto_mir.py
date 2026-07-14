@@ -9,6 +9,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import auto_mir
+from utils.secrets import SecretRedactor
 
 
 def _patch_main_context(monkeypatch, *, collect_only: bool):
@@ -49,6 +50,7 @@ def _patch_main_context(monkeypatch, *, collect_only: bool):
         review_draft_path=Path("/tmp/review-draft.txt"),
         report_path=Path("/tmp/report.json"),
         failure_summary=None,
+        secret_redactor=SecretRedactor(),
         save_evidence=lambda: None,
     )
     monkeypatch.setattr(auto_mir, "RunContext", lambda _args: ctx)

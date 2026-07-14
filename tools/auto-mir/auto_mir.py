@@ -23,6 +23,7 @@ from pathlib import Path
 from utils.cli import parse_bool_arg
 from utils.dependencies import ensure_runtime_environment
 from utils.llm_sanitize import make_nonce
+from utils.secrets import RedactingFormatter, SecretRedactor
 
 log = logging.getLogger("auto_mir")
 
@@ -239,13 +240,13 @@ class RunContext:
         workspace_root, catalog_path, run_name, output_dir
 
     Populated by stage_auth (Stage 0 — auth setup):
-        llm_provider, llm_api_url, llm_token, auth_source, guest_env
+        llm_provider, llm_api_url, llm_token, auth_source
 
     Populated by stage_intake / lp_intake.run() (Stage 1):
         bug, source_package, reporter_mir_content, series (may be refined)
 
     Populated by stage_spawn_guest / lxd_runner.spawn() (Stage 2):
-        guest_name, guest_env (refined with run-time values)
+        guest_name
 
     Populated by stage_collect_evidence / evidence.collect_from_catalog() (Stage 3):
         evidence (including evidence["adapters"], evidence["catalog_summary"], etc.)
@@ -299,7 +300,7 @@ class RunContext:
         self.llm_api_url: str = ""
         self.llm_token: str = ""
         self.auth_source: str = ""
-        self.guest_env: dict[str, str] = {}
+        self.secret_redactor = SecretRedactor()
 
         # --- Populated by stage_intake / lp_intake.run() (Stage 1) ---
         self.bug: dict = {}
@@ -336,7 +337,7 @@ class RunContext:
         """Persist accumulated evidence to output directory for debugging/audit."""
         evidence_path = self.output_dir / "evidence.json"
         with evidence_path.open("w") as f:
-            json.dump(self.evidence, f, indent=2, default=str)
+            json.dump(self.secret_redactor.sanitize(self.evidence), f, indent=2, default=str)
         log.debug("Evidence saved to %s", evidence_path)
 
         # If sbuild fails, users usually want to debug in a non json file
@@ -345,7 +346,7 @@ class RunContext:
             build_log = sbuild_result.get("build_log", "")
             if build_log:
                 build_log_path = self.output_dir / "build_log.txt"
-                build_log_path.write_text(build_log)
+                build_log_path.write_text(self.secret_redactor.redact_text(build_log))
                 log.debug("Build log written to %s", build_log_path)
 
 
@@ -480,12 +481,7 @@ def stage_auth(ctx: RunContext) -> None:
     ctx.llm_api_url = api_url
     ctx.llm_token = token
     ctx.auth_source = source
-
-    # Export token into guest environment for in-guest use
-    ctx.guest_env = {
-        "OPENAI_API_KEY": token,
-        "OPENAI_API_BASE": api_url.rstrip("/chat/completions"),
-    }
+    ctx.secret_redactor.register(token)
 
     ctx.evidence["auth"] = {
         "provider": provider,
@@ -680,7 +676,7 @@ def main() -> int:
     # Console handler with colors
     console_handler = logging.StreamHandler()
     console_formatter = ColorFormatter()
-    console_handler.setFormatter(console_formatter)
+    console_handler.setFormatter(RedactingFormatter(console_formatter, ctx.secret_redactor))
     logger.addHandler(console_handler)
 
     # File handler with JSON (if output directory exists)
@@ -688,7 +684,7 @@ def main() -> int:
         log_file = ctx.output_dir / "auto-mir.log"
         file_handler = logging.FileHandler(log_file)
         json_formatter = jsonlogger.JsonFormatter("%(asctime)s %(levelname)s %(name)s %(message)s")
-        file_handler.setFormatter(json_formatter)
+        file_handler.setFormatter(RedactingFormatter(json_formatter, ctx.secret_redactor))
         logger.addHandler(file_handler)
         log.info("JSON log file: %s", log_file)
 
@@ -797,10 +793,10 @@ def _save_test_artifacts(ctx: RunContext) -> None:
         "bug": ctx.bug,
     }
     with (artifact_dir / "context.json").open("w") as f:
-        json.dump(context, f, indent=2, default=str)
+        json.dump(ctx.secret_redactor.sanitize(context), f, indent=2, default=str)
 
     with (artifact_dir / "evidence.json").open("w") as f:
-        json.dump(ctx.evidence, f, indent=2, default=str)
+        json.dump(ctx.secret_redactor.sanitize(ctx.evidence), f, indent=2, default=str)
 
     if not ctx.catalog:
         ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
@@ -814,7 +810,7 @@ def _save_test_artifacts(ctx: RunContext) -> None:
 
     findings_data = [asdict(f) for f in findings]
     with (artifact_dir / "deterministic_findings.json").open("w") as f:
-        json.dump(findings_data, f, indent=2, default=str)
+        json.dump(ctx.secret_redactor.sanitize(findings_data), f, indent=2, default=str)
 
     try:
         git_head = subprocess.run(
@@ -834,7 +830,7 @@ def _save_test_artifacts(ctx: RunContext) -> None:
         "source_package": ctx.source_package,
     }
     with (artifact_dir / "meta.json").open("w") as f:
-        json.dump(meta, f, indent=2)
+        json.dump(ctx.secret_redactor.sanitize(meta), f, indent=2)
 
     log.info("Test artifacts saved to: %s", artifact_dir)
     log.info("  - context.json")
@@ -866,7 +862,7 @@ def _print_complete_banner(ctx: RunContext) -> None:
     # together with the completion summary and artifact list.
     llm_report = _render_llm_usage_report(ctx)
     if llm_report:
-        print("\n" + "\n".join(llm_report))
+        print(ctx.secret_redactor.redact_text("\n" + "\n".join(llm_report)))
 
     lines = [
         "",
@@ -882,7 +878,7 @@ def _print_complete_banner(ctx: RunContext) -> None:
     if evidence_path.exists():
         lines.append(f"  Evidence file    : {evidence_path}")
     lines.append("━" * 64)
-    print("\n".join(lines))
+    print(ctx.secret_redactor.redact_text("\n".join(lines)))
 
 
 if __name__ == "__main__":

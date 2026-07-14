@@ -1408,3 +1408,35 @@ implementation).**
 - Tests lock endpoint construction, trailing-slash normalization, overrides,
   and missing-token behavior.
 
+## 2026-07-14 — Host-only credentials and exact-value output redaction
+
+**Promotion:** no
+
+**Context:**
+- PR-33 routed persistent `lxc config set` calls through the shared command
+  wrapper while preserving guest environment export. That improved execution
+  consistency but also caused verbose console and JSON logs to contain the full
+  API key.
+- The export helper claimed values were not logged, but the shared wrapper
+  correctly logged every command. Kept guests also retained the key in LXD
+  configuration.
+- All LLM calls are host-side. No guest process consumes the exported API key
+  or API base; runtime evidence only checked that the unused variables existed.
+
+**Decision:**
+- Supersede PR-33's persistent guest-auth invariant. Keep LLM credentials on
+  the host and remove guest export and auth-presence evidence.
+- Register exact non-empty credential values when resolved, then redact those
+  values after log formatting and before writing shareable artifacts.
+- Do not infer secrets from provider names, token prefixes, or entropy. Endpoint
+  URLs and public evidence remain visible unless they contain a registered
+  secret value.
+
+**Consequences:**
+- Preserved guests no longer retain Auto-MIR credentials, and verbose command
+  logging remains useful without exposing active keys.
+- Output directories are credential-safe rather than anonymous; public MIR and
+  package data remain available for diagnosis.
+- Previously created logs are unchanged. Any credential exposed there must be
+  revoked or rotated before the old files are shared.
+

@@ -35,6 +35,8 @@ Bootstrap and host preflight (before Stage 0):
 
 1. Stage 0: auth (`stage_auth`)
 - Resolve provider/token/API base for LLM usage.
+- Register the token with the run's exact-value redactor.
+- Keep credentials host-only; they are never stored in LXD guest configuration.
 - Skipped in `--collect-only` mode.
 
 2. Stage 1: intake (`stage_intake`)
@@ -63,6 +65,20 @@ Always-run tail logic:
 - log artifact locations,
 - teardown/preserve VM based on tri-state keep policy,
 - print completion banner.
+
+## Credential boundary
+
+LLM requests run on the host. Authentication values are therefore neither
+needed nor persisted in the LXD guest. A per-run redactor registers resolved
+secret values and sanitizes fully formatted console/JSON logs and every
+shareable artifact writer. Redaction matches exact registered values rather
+than provider-specific prefixes or heuristic token patterns, so another
+OpenAI-compatible provider does not require a new masking rule and public MIR
+evidence remains intact.
+
+The output directory is credential-safe to share after a completed run. It is
+not anonymized: public Launchpad content, package data, guest names, versions,
+and diagnostic paths remain present.
 
 ## Core data contracts
 

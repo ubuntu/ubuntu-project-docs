@@ -89,20 +89,20 @@ def write_outputs(ctx) -> None:
 
     ctx.report_path = ctx.output_dir / "report.json"
     with ctx.report_path.open("w", encoding="utf-8") as handle:
-        json.dump(report, handle, indent=2, sort_keys=True)
+        json.dump(ctx.secret_redactor.sanitize(report), handle, indent=2, sort_keys=True)
 
     draft = _build_review_draft(ctx)
     _lint_review_draft(draft, ctx.findings)
 
     ctx.review_draft_path = ctx.output_dir / "review-draft.txt"
-    ctx.review_draft_path.write_text(draft, encoding="utf-8")
+    ctx.review_draft_path.write_text(ctx.secret_redactor.redact_text(draft), encoding="utf-8")
 
     # Print adapter failure warning to console so degraded checks are obvious.
     # The LLM usage report is printed later, just before the completion banner,
     # so it appears together with the final artifact list (see auto_mir.py).
     failure_warning = _render_adapter_failure_warning(ctx)
     if failure_warning:
-        print("\n" + "\n".join(failure_warning))
+        print(ctx.secret_redactor.redact_text("\n" + "\n".join(failure_warning)))
 
 
 # ---------------------------------------------------------------------------
