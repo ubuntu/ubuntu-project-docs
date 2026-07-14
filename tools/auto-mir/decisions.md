@@ -30,6 +30,25 @@ Use this log as the source for deciding what should be promoted into
   - The duplicate sbuild `notes` key was collapsed without changing its value.
   - Validation from `tools/auto-mir`: `make test` PASS (430 passed, 3 skipped).
 
+## 2026-07-14 — Pre-reporter contract documentation reconciliation
+
+- Promotion: no
+- Context: design work for a reporter workflow exposed stale descriptions of
+  existing reviewer behavior. In particular, documentation still described an
+  AI medium-confidence cap that was intentionally relaxed on 2026-07-09,
+  described catalog adapter dependencies as runtime wiring although decorators
+  currently own execution order, and described cvelist scanning as guest-side
+  after the 2026-07-13 host migration.
+- Decision: align architecture, catalog, model, evidence and user-guide text to
+  the code and latest explicit decisions before introducing role behavior. Do
+  not change reviewer evaluation or rendering semantics in this task.
+- Consequences:
+  - High-confidence AI outcomes remain permitted and continue to require human
+    confirmation.
+  - The temporary adapter dependency duplication is explicit, ready for a
+    later catalog-authority migration under parity tests.
+  - Cvelist documentation now identifies normal host execution accurately.
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.
@@ -1131,8 +1150,9 @@ Rebuff) and external guard APIs (Lakera). All were rejected for this tool:
   could still bias the *wording* of a generated draft.
 - It cannot trigger actions or exfiltrate secrets: the only output is a review
   draft, and existing guards constrain it — strict JSON schema, whitelisted
-  status/severity/confidence enums, AI confidence capped at "medium", and
-  `human_confirmation_required` always set.
+  status/severity/confidence enums and `human_confirmation_required` always
+  set. The later 2026-07-09 outcome-model decision permits high-confidence AI
+  findings to render as problems; human confirmation remains mandatory.
 - The mandatory final human review of the draft is the authoritative safeguard;
   the injection warning at intake tells the reviewer when to apply extra
   scrutiny.

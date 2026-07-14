@@ -42,7 +42,8 @@ class Finding:
     Invariants:
         - When status == "ok", severity MUST also be "ok"
         - When status == "not-ok", todo should contain a TODO: prefixed line
-        - AI-derived findings (mode in ["ev_to_ai", "ai"]) have confidence capped at "medium"
+                - AI-derived findings always require human confirmation; a clear result
+                    may carry high confidence and render as a problem
 
     Examples:
         # Successful deterministic check

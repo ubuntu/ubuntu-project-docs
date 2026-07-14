@@ -150,8 +150,14 @@ end of evidence collection (`cleanup_cached_autopkgtest_db`).
 
 - explicit prompt rendering,
 - bounded payload truncation/summarization,
-- confidence cap for AI outcomes,
+- explicit human-confirmation metadata for every AI outcome,
 - deterministic fallback behavior when LLM calls fail.
+
+AI evaluators accept `low`, `medium`, or `high` confidence. A high-confidence
+AI failure may therefore render as a confirmed problem, but it remains marked
+as requiring human confirmation. This is the current behavior established by
+the 2026-07-09 outcome-model decision; older medium-cap descriptions are
+superseded.
 
 Model tiering:
 

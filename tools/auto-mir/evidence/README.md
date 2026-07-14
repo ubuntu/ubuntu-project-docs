@@ -28,6 +28,12 @@ Adapters register through the registry with optional dependencies:
 - required adapters can fail the evidence stage,
 - optional adapters are collected best-effort and do not fail the run.
 
+The `@adapter(..., depends_on=...)` registration is currently authoritative for
+runtime ordering. `catalog.yaml` documents adapter interfaces and checks
+references, but its adapter metadata is not used to order execution. Keep both
+representations aligned until the planned catalog consolidation removes this
+temporary duplication.
+
 `collect_from_catalog(ctx)` returns:
 
 - `0` when all required adapters succeeded,

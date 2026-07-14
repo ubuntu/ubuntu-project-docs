@@ -87,9 +87,9 @@ Component overview:
 │ dependencies             │        └──────────────┘
 └────────────────┬─────────┘
 ┌────────────────▼────────────────────────────┐  ┌────────────────────────────────┐
-│ adapters/                                   ┼──► Interaction                    │
-│ abstract the various sources of information │  │ reports progress and asks when │
-│ to generate Data (build, CVEs, apt, ...).   ◄──┼ automatism can't decide        │
+│ evidence/                                   │  │ orchestration / intake         │
+│ abstracts the sources of factual data       │  │ reports progress and handles   │
+│ (builds, CVEs, packages, tests, ...).        │  │ bounded operator interaction.  │
 └────────────────┬──▲─────────────────────────┘  └────────────────────────────────┘
 ┌────────────────▼──┴─────────────────────────┐  ┌────────────────────────────────┐
 │ checks/                                     ┼──► prompts/                       │

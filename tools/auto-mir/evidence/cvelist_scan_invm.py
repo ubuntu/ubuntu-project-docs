@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Self-contained cvelistV5 baseline scanner, executed inside the LXD VM.
+"""Self-contained cvelistV5 baseline scanner used by the host adapter.
 
 This script is intentionally dependency-free (Python standard library only) and
-does NOT import any auto-mir modules, because it is pushed into the throwaway VM
-and run with the VM's system Python. The host adapter ``collect_cvelist_scan``
-pushes this file, runs it with a JSON list of search terms, and parses the JSON
-document printed to stdout.
+does NOT import any auto-mir modules. The host adapter ``collect_cvelist_scan``
+imports its ``scan_zip`` function. The command-line entry point remains useful
+for isolated scanner tests and preserves the historical module interface; the
+2026-07-13 data-lifecycle decision moved normal execution from the guest to the
+host.
 
 Workflow:
 1. Discover the most recent cvelistV5 "all CVEs at midnight" baseline zip from the

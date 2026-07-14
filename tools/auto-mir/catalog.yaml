@@ -501,13 +501,13 @@ global_policies:
   # - low:    Insufficient evidence, needs manual review
   # - medium: Reasonable evidence, human should verify
   # - high:   Strong evidence from deterministic checks
-  # Note: AI-only findings are capped at medium confidence
+  # AI findings may use all three bands but always require human confirmation.
   confidence_model:
     bands:
     - low
     - medium
     - high
-    description: 'Confidence reflects how strongly the evidence supports the finding. AI-derived findings cap at medium unless corroborated by deterministic evidence.'
+    description: 'Confidence reflects how strongly the evidence supports the finding. AI-derived findings may reach high confidence for clear evidence, but always require human confirmation.'
 evidence_adapters:
 - id: lp-bug-api
   type: api
@@ -803,7 +803,7 @@ evidence_adapters:
   fallback: emit_todo_continue
 - id: cvelist-scan
   type: local_exec
-  description: Scan the cvelistV5 baseline corpus in the VM to identify candidate CVEs
+  description: Scan the cvelistV5 baseline corpus on the host to identify candidate CVEs
   inputs:
   - cve-search-terms
   output_contract:

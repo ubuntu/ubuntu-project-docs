@@ -28,7 +28,7 @@ documentation) live in the file. Nothing is declared "for future use".
 | --- | --- | --- |
 | `metadata.review_template_blueprint` | `render_review_template.py` | Regenerates the human reviewer template (`docs/MIR/`). Offline only. |
 | `global_policies.confidence_model.description` | `checks/llm_eval.py` | Injected into AI prompts. |
-| `evidence_adapters[]` | `evidence/` | Adapter id/type/description and dependency wiring. |
+| `evidence_adapters[]` | `catalog.py`, contributors | Adapter id/type/description documentation and reference validation. Runtime dependency wiring currently lives with `@adapter` registrations. |
 | `checks[]` | `checks/` | Check definitions (see below). |
 | `security_triggers[]` | `catalog.py` (count), future dispatcher | Documents intended actions when a `security_trigger` fires. |
 
@@ -134,7 +134,7 @@ single-sourcing rule above applies to deterministic checks.
 | Mode | Evaluator | Reviewer text |
 | --- | --- | --- |
 | `deterministic` | `checks/deterministic.py` | Fully from `messages` (no LLM). |
-| `ev_to_ai` | `checks/llm_eval.py` | LLM draft from evidence; `ai_policy` shapes the prompt; capped at medium confidence. |
+| `ev_to_ai` | `checks/llm_eval.py` | LLM draft from evidence; `ai_policy` shapes the prompt; every outcome requires human confirmation. |
 | `ai` | `checks/llm_eval.py` | LLM synthesis across findings (`synthesis: true`). |
 | `human_only` | — | Reviewer fills in; requires `human_only_message`/`human_only_todo`. |
 
@@ -225,8 +225,11 @@ Catalog changes should keep these stability rules:
 3. Keep `messages` complete for deterministic checks; do not move reviewer text
    back into Python logic.
 4. If adapter dependencies change, update both `adapters_required`/
-   `adapters_optional` and corresponding tests in `tests/test_catalog.py` and
-   `tests/test_checks.py`.
+   `adapters_optional`, the adapter's `@adapter(..., depends_on=...)`
+   registration, and corresponding tests in `tests/test_catalog.py`,
+   `tests/test_evidence.py`, and `tests/test_checks.py`. The decorator graph is
+   the current runtime authority; keeping the catalog description aligned is a
+   required maintenance step until dependency ownership is consolidated.
 5. Validate from `tools/auto-mir` with:
 
 ```bash
