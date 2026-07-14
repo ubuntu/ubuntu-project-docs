@@ -101,6 +101,24 @@ Use this log as the source for deciding what should be promoted into
     or become authoritative merely because a model generated prose.
   - Validation from `tools/auto-mir`: `make test` PASS (450 passed, 3 skipped).
 
+## 2026-07-14 — Declarative reporter applicability conditions
+
+- Promotion: no
+- Context: reporter questions have nested applicability rules, especially test
+  coverage and hardware-plan alternatives. Hardcoded per-ID branches would be
+  difficult to audit, while evaluating arbitrary catalog expressions would
+  create a code-execution and maintenance risk.
+- Decision: support a small condition tree containing only `all`, `any`, `not`,
+  item references, evidence paths, and `equals`/`in`/`truthy` comparisons.
+  Validate every node, reject unknown keys, collect references for catalog
+  validation, and reject cycles in item-to-item applicability dependencies.
+- Consequences:
+  - Complex A-H/X reporter flows can remain catalog-defined without an `eval`
+    path or item-specific orchestration code.
+  - Missing evidence paths evaluate as absent rather than raising.
+  - Diagnostics and traversal order are deterministic for tests and users.
+  - Validation from `tools/auto-mir`: `make test` PASS (465 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

@@ -1,5 +1,12 @@
 """Reporter workflow domain models and terminal interaction."""
 
+from reporter.conditions import (
+    ConditionContext,
+    ConditionError,
+    evaluate_condition,
+    validate_condition_cycles,
+    validate_condition_references,
+)
 from reporter.models import (
     Answer,
     Provenance,
@@ -14,6 +21,8 @@ from reporter.wizard import TerminalWizard, WizardAborted
 
 __all__ = [
     "Answer",
+    "ConditionContext",
+    "ConditionError",
     "Provenance",
     "QuestionKind",
     "QuestionOption",
@@ -23,4 +32,7 @@ __all__ = [
     "StatementState",
     "TerminalWizard",
     "WizardAborted",
+    "evaluate_condition",
+    "validate_condition_cycles",
+    "validate_condition_references",
 ]
