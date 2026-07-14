@@ -12,7 +12,6 @@ feature-based one), approximately every 6 months.
 | Version | Code name | Docs | Release | End of Standard Support | End of Life |
 | :---- | :---- | :---- | :---- | :---- | :---- |
 | Ubuntu 26.04 LTS | Resolute Raccoon | [Release Notes](https://documentation.ubuntu.com/release-notes/26.04/) | [April 23, 2026](https://lists.ubuntu.com/archives/ubuntu-announce/2026-April/000323.html) | May 2031 | April 2041 |
-| Ubuntu 25.10 | Questing Quokka | [Release Notes](https://discourse.ubuntu.com/t/questing-quokka-release-notes/59220) | [October 9, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-October/000317.html) | July 2026 | July 2026 |
 | Ubuntu 24.04.4 LTS | Noble Numbat | [Release Notes](https://discourse.ubuntu.com/t/noble-numbat-point-release-changes/47565/5) | [February 12, 2026](https://lists.ubuntu.com/archives/ubuntu-announce/2026-February/000321.html) | June 2029 | April 2039 |
 | Ubuntu 24.04.3 LTS | Noble Numbat | [Release Notes](https://discourse.ubuntu.com/t/noble-numbat-point-release-changes/47565/4) | [August 7, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-August/000315.html) | June 2029 | April 2039 |
 | Ubuntu 24.04.2 LTS | Noble Numbat | [Release Notes](https://discourse.ubuntu.com/t/noble-numbat-point-release-changes/47565/3) | [February 20, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-February/000308.html) | June 2029 | April 2039 |
@@ -87,6 +86,7 @@ Ubuntu Pro with the Legacy support add-on provides security updates on Ubuntu LT
 
 | Version | Code name | Docs | Release | End of Life |
 | :---- | :---- | :---- | :---- | :---- |
+| Ubuntu 25.10 | Questing Quokka | [Release Notes](https://discourse.ubuntu.com/t/questing-quokka-release-notes/59220) | [October 9, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-October/000317.html) | [July 2026](https://lists.ubuntu.com/archives/ubuntu-announce/2026-July/000325.html) |
 | Ubuntu 25.04 | Plucky Puffin | [Release Notes](https://discourse.ubuntu.com/t/plucky-puffin-release-notes/48687) | [April 17, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-April/000311.html) | [January 15, 2026](https://lists.ubuntu.com/archives/ubuntu-announce/2026-January/000320.html) |
 | Ubuntu 24.10 | Oracular Oriole | [Release Notes](https://discourse.ubuntu.com/t/oracular-oriole-release-notes/44878) | [October 10, 2024](https://lists.ubuntu.com/archives/ubuntu-announce/2024-October/000307.html) | [July 10, 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2025-July/000314.html) |
 | Ubuntu 23.10 | Mantic Minotaur | [Release Notes](https://discourse.ubuntu.com/t/mantic-minotaur-release-notes/35534) | [October 12, 2023](https://lists.ubuntu.com/archives/ubuntu-announce/2023-October/000296.html) | [July 11, 2024](https://lists.ubuntu.com/archives/ubuntu-announce/2024-July/000303.html) |
