@@ -118,6 +118,20 @@ To build both **source** and **binary** packages for a specific release, use the
 Useful ``sbuild`` options
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Skipping the source clean step:
+  By default, ``sbuild`` runs ``debian/rules clean`` before building, which
+  requires some build dependencies to be installed on the host system. If you
+  maintain your source tree in git and have already cleaned it (e.g. with
+  ``git clean -ffdx``), use ``--no-clean-source`` to skip this step:
+
+  .. code-block:: none
+
+     --no-clean-source
+
+  This is particularly useful when building source packages with
+  ``dpkg-buildpackage --no-pre-clean`` (``-nc``), as it avoids requiring build
+  dependencies on the host solely for the clean step.
+
 Parallel building:
   To speed up the build, set the ``parallel`` option through the ``DEB_BUILD_OPTIONS`` environment variable. For example:
 
@@ -209,11 +223,30 @@ When building with ``sbuild``, specify the target architecture with the ``--arch
 Building for architecture variants
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some architectures have variants (e.g. ``amd64`` has ``amd64v3``). To build for an architecture variant, specify the variant as an argument to ``--host=``:
+Some architectures have variants (e.g. ``amd64`` has ``amd64v3``). Architecture
+variants are treated as separate architectures by ``dpkg`` and ``sbuild``, so
+building for a variant requires a chroot configured for that variant.
+
+.. note::
+
+   Building for an architecture variant requires the ``schroot`` backend. The
+   ``unshare`` backend does not currently support architecture variants. See
+   the `Debian sbuild wiki
+   <https://wiki.debian.org/sbuild#Use_schroot_instead_of_unshare>`_ for
+   details on switching backends.
+
+First, create a schroot for the architecture variant using ``mk-sbuild`` from
+the ``ubuntu-dev-tools`` package:
 
 .. code-block:: none
 
-    $ sbuild --host=<ARCH_VARIANT> --dist=<RELEASE>
+    $ mk-sbuild --arch=<ARCH_VARIANT> <RELEASE>
+
+Then, build with ``sbuild`` using the ``--arch=`` option:
+
+.. code-block:: none
+
+    $ sbuild --arch=<ARCH_VARIANT> --dist=<RELEASE>
 
 where ``<ARCH_VARIANT>`` is the architecture variant (e.g. ``amd64v3``).
 
