@@ -51,6 +51,15 @@ LXD VM for reproducibility and isolation.
 
 `auto_mir.main()` executes these stages:
 
+Bootstrap and host preflight (before Stage 0):
+- Parse command-line arguments using standard-library-only imports, so
+  `--help` works on an unprepared host.
+- Require Python 3.12 or newer and discover every direct Python runtime
+  dependency before creating output state or starting network/LXD work.
+- Report all missing dependencies together as Ubuntu binary packages. The
+  mapping between project distributions, import modules, and Ubuntu packages
+  lives in `utils/dependencies.py` and is checked against `pyproject.toml`.
+
 1. Stage 0: auth (`stage_auth`)
 - Resolve provider/token/API base for LLM usage.
 - Skipped in `--collect-only` mode.

@@ -6,6 +6,8 @@ import string
 import sys
 from pathlib import Path
 
+from utils.dependencies import ubuntu_package_for
+
 
 def load_catalog(catalog_path: Path, workspace_root: Path) -> dict:
     """Load catalog.yaml and return the parsed structure.
@@ -16,8 +18,9 @@ def load_catalog(catalog_path: Path, workspace_root: Path) -> dict:
     try:
         import yaml
     except ImportError:
+        package = ubuntu_package_for("pyyaml")
         print(
-            "auto-mir requires PyYAML on the host. Install it with: sudo apt install python3-yaml",
+            f"auto-mir requires PyYAML on the host. Install it with: sudo apt install {package}",
             file=sys.stderr,
         )
         raise SystemExit(1)

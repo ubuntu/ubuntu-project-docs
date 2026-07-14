@@ -20,14 +20,8 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-import catalog
-import checks
-import llm
-import lp_intake
-import lxd_runner
-from evidence import collect_from_catalog
-from render import _render_llm_usage_report, write_outputs
 from utils.cli import parse_bool_arg
+from utils.dependencies import ensure_runtime_environment
 from utils.llm_sanitize import make_nonce
 
 log = logging.getLogger("auto_mir")
@@ -366,6 +360,8 @@ def stage_intake(ctx: RunContext) -> None:
     Fetch bug metadata, description, comments, and target source package.
     Hard-fail if reporter MIR content is not found.
     """
+    import lp_intake
+
     log.info("Stage 1: Launchpad intake for bug %s", ctx.bug_id)
     lp_intake.run(ctx)
     # lp_intake.run() populates ctx.bug, ctx.source_package, ctx.reporter_mir_content
@@ -379,6 +375,8 @@ def stage_spawn_guest(ctx: RunContext) -> None:
     - Install required tools inside the guest.
     - Bootstrap ubuntu-archive-tools at requested revision.
     """
+    import lxd_runner
+
     log.info("Stage 2: Spawning LXD guest for %s", ctx.source_package)
     lxd_runner.spawn(ctx)
     ctx.evidence["runtime_isolation"] = lxd_runner.collect_runtime_facts(ctx)
@@ -402,6 +400,9 @@ def stage_collect_evidence(ctx: RunContext) -> int:
     Returns:
         0 if all evidence collection succeeded, 1 if any adapter failed.
     """
+    import catalog
+    from evidence import collect_from_catalog
+
     log.info("Stage 3: Collecting evidence for %s", ctx.source_package)
     if not ctx.catalog:
         ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
@@ -426,6 +427,9 @@ def stage_analyse(ctx: RunContext) -> None:
     - Evaluate security triggers.
     - Produce findings list with status/severity/confidence per check.
     """
+    import catalog
+    import checks
+
     log.info("Stage 4: Analysing evidence for %s", ctx.source_package)
     if not ctx.catalog:
         ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
@@ -452,12 +456,16 @@ def stage_render(ctx: RunContext) -> None:
     - No RULE: lines survive
     - Output linter validates conformance before writing
     """
+    from render import write_outputs
+
     log.info("Stage 5: Rendering output for %s", ctx.source_package)
     write_outputs(ctx)
 
 
 def stage_auth(ctx: RunContext) -> None:
     """Stage 0: Resolve OpenAI-compatible endpoint URL and authentication token."""
+    import llm
+
     provider, token, source, api_url = llm.resolve_auth()
 
     if not token:
@@ -606,7 +614,14 @@ def teardown_guest(ctx: RunContext, evidence_collection_result: int = 0) -> None
         )
     else:
         log.info("Destroying LXD guest %s", ctx.guest_name)
-        lxd_runner.destroy(ctx)
+        _destroy_guest(ctx)
+
+
+def _destroy_guest(ctx: RunContext) -> None:
+    """Load the LXD runtime only when guest cleanup is required."""
+    import lxd_runner
+
+    lxd_runner.destroy(ctx)
 
 
 # ---------------------------------------------------------------------------
@@ -617,6 +632,11 @@ def teardown_guest(ctx: RunContext, evidence_collection_result: int = 0) -> None
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
+
+    # Keep argument parsing dependency-free so ``--help`` remains available on
+    # an unprepared host. Validate before RunContext creates output state or any
+    # network/LXD work starts.
+    ensure_runtime_environment()
 
     ctx = RunContext(args)
 
@@ -763,6 +783,9 @@ def _save_test_artifacts(ctx: RunContext) -> None:
     """
     from dataclasses import asdict
 
+    import catalog
+    import checks
+
     artifact_dir = ctx.output_dir
 
     context = {
@@ -836,6 +859,8 @@ def _log_artifact_locations(ctx: RunContext) -> None:
 
 def _print_complete_banner(ctx: RunContext) -> None:
     """Print a prominent end-of-run summary as the very last output."""
+    from render import _render_llm_usage_report
+
     # Print the LLM usage report immediately before the banner so it appears
     # together with the completion summary and artifact list.
     llm_report = _render_llm_usage_report(ctx)

@@ -13,6 +13,7 @@ import sys
 from typing import TYPE_CHECKING
 
 from utils import llm_sanitize
+from utils.dependencies import ubuntu_package_for
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
@@ -68,9 +69,8 @@ def _get_launchpad():
     try:
         from launchpadlib.launchpad import Launchpad  # type: ignore
     except ImportError:
-        log.error(
-            "launchpadlib is not installed. Install it with: sudo apt install python3-launchpadlib"
-        )
+        package = ubuntu_package_for("launchpadlib")
+        log.error("launchpadlib is not installed. Install it with: sudo apt install %s", package)
         sys.exit(1)
 
     try:

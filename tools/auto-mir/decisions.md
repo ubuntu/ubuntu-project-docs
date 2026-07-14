@@ -1341,3 +1341,42 @@ implementation).**
   emits a compact, prioritised `consumer_test_summary` (consumers with tests
   first, capped) so the decision-relevant data survives list truncation.
 
+## 2026-07-14 — Ubuntu-first host dependency preflight
+
+**Promotion:** no
+
+**Context:**
+- Beta users are expected to run auto-mir with dependencies supplied by the
+  Ubuntu archive, not to reproduce the developer `uv` workflow.
+- The four dependencies declared in `pyproject.toml` are all active runtime
+  dependencies, but they previously failed at different points: Tenacity at
+  module import, JSON logging at startup, Launchpad during intake, and PyYAML
+  during catalog loading.
+- This produced tracebacks or repeated install/run cycles and could defer a
+  failure until after useful setup work. Eager imports also prevented
+  `--help` from working on an unprepared host.
+
+**Decision:**
+- Support Ubuntu 24.04 LTS or newer with Python 3.12 or newer.
+- Keep all four PEP 621 runtime dependencies and map them explicitly to Ubuntu
+  packages in a standard-library-only registry:
+  - `launchpadlib` → `python3-launchpadlib`
+  - `pyyaml` → `python3-yaml`
+  - `python-json-logger` → `python3-pythonjsonlogger`
+  - `tenacity` → `python3-tenacity`
+- Parse arguments before the preflight, preserving dependency-free `--help`.
+  Run the preflight before `RunContext`, output creation, authentication,
+  network access, or LXD work.
+- Discover top-level modules without importing them, report all missing direct
+  dependencies together, and provide one `apt install` command. Do not catch
+  broad import failures that could hide internal or transitive defects.
+- Keep the existing Launchpad and YAML guards as defensive local diagnostics.
+  Ruff and pytest remain developer/test tools and are not runtime dependencies.
+
+**Consequences:**
+- Users get Ubuntu-native, actionable setup guidance without pip instructions.
+- `--help` remains available before installation, while every real run fails
+  early and consistently when its host is incomplete.
+- A unit test keeps the runtime registry aligned with `pyproject.toml`; the
+  registry is the source for Ubuntu package names shown by the CLI.
+

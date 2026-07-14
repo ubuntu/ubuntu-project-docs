@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import auto_mir
@@ -53,6 +55,29 @@ def _patch_main_context(monkeypatch, *, collect_only: bool):
     return ctx
 
 
+def test_main_checks_dependencies_after_parsing_before_context(monkeypatch):
+    calls: list[str] = []
+    parser = SimpleNamespace(parse_args=lambda: calls.append("parse") or SimpleNamespace())
+
+    monkeypatch.setattr(auto_mir, "build_parser", lambda: parser)
+
+    def _stop_after_preflight():
+        calls.append("preflight")
+        raise SystemExit(1)
+
+    monkeypatch.setattr(auto_mir, "ensure_runtime_environment", _stop_after_preflight)
+    monkeypatch.setattr(
+        auto_mir,
+        "RunContext",
+        lambda _args: calls.append("context") or SimpleNamespace(),
+    )
+
+    with pytest.raises(SystemExit, match="1"):
+        auto_mir.main()
+
+    assert calls == ["parse", "preflight"]
+
+
 def test_teardown_uses_failure_summary_in_noninteractive_warning(monkeypatch):
     failure_summary = (
         "Stage 4 (analysis) failed after evidence collection encountered adapter failures."
@@ -69,7 +94,7 @@ def test_teardown_uses_failure_summary_in_noninteractive_warning(monkeypatch):
     monkeypatch.setattr(
         auto_mir.log, "warning", lambda message, *args: warnings.append(message % args)
     )
-    monkeypatch.setattr(auto_mir.lxd_runner, "destroy", lambda run_ctx: None)
+    monkeypatch.setattr(auto_mir, "_destroy_guest", lambda run_ctx: None)
 
     auto_mir.teardown_guest(ctx, evidence_collection_result=1)
 
@@ -89,7 +114,7 @@ def test_teardown_falls_back_to_adapter_failure_summary(monkeypatch):
     monkeypatch.setattr(
         auto_mir.log, "warning", lambda message, *args: warnings.append(message % args)
     )
-    monkeypatch.setattr(auto_mir.lxd_runner, "destroy", lambda run_ctx: None)
+    monkeypatch.setattr(auto_mir, "_destroy_guest", lambda run_ctx: None)
 
     auto_mir.teardown_guest(ctx, evidence_collection_result=1)
 
