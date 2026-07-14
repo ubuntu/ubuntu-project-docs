@@ -59,7 +59,7 @@ full-help: $(DOCS_VENVDIR)
 	@echo "Run 'make help' to see supported targets."
 
 # If requirements are updated, venv should be rebuilt and timestamped.
-$(DOCS_VENVDIR):
+$(DOCS_VENVDIR): requirements.txt
 	@echo "... setting up virtualenv"
 	python3 -m venv $(DOCS_VENVDIR) || { echo "You must install python3-venv before you can build the documentation."; exit 1; }
 	. $(DOCS_VENV); pip install $(PIPOPTS) --require-virtualenv \
@@ -80,7 +80,7 @@ pa11y-install:
 install: $(DOCS_VENVDIR)
 
 generate-includes: install
-	python3 $(TOOLS_DIR)/auto-mir/render_review_template.py
+	$(DOCS_VENVDIR)/bin/python $(TOOLS_DIR)/auto-mir/render_review_template.py --strict
 
 run: install generate-includes
 	. $(DOCS_VENV); $(DOCS_VENVDIR)/bin/sphinx-autobuild -b dirhtml --host $(SPHINX_HOST) --port $(SPHINX_PORT) "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" $(SPHINX_OPTS_NOLLM) \

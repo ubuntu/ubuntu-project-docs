@@ -1465,3 +1465,42 @@ implementation).**
 - Invocations of the removed, undocumented option now fail argument parsing
   instead of silently implying a supported replay contract.
 
+## 2026-07-14 — Build-managed reviewer-template generation
+
+**Promotion:** no
+
+**Context:**
+- The catalog blueprint is the single source for the human MIR reviewer
+  template body, while the generated include is intentionally ignored.
+- Local Make builds regenerated it because `generate-includes` was phony, but
+  used the system Python and non-strict validation. Read the Docs invoked Sphinx
+  directly without generating it, and catalog-only pull requests could skip the
+  hosted documentation build.
+- Strict mode incorrectly required every outcome-specific runtime `todo_ref` to
+  occur in the static template, even when the blueprint intentionally selected
+  only one of those alternatives.
+
+**Decision:**
+- Supported Make and Read the Docs builds generate the include strictly before
+  Sphinx. The docs environment explicitly supplies PyYAML.
+- Strict validation covers references selected by the blueprint. Additional
+  runtime-only outcome alternatives remain valid catalog data.
+- Keep the generated include ignored and add structural/idempotency tests rather
+  than maintaining a second frozen policy copy.
+
+**Legacy parity proof:**
+- Compared `origin/main` commit `5544ab17c2e2b8ad1743dd7aa3bf14c1ff33a4e2`
+  with the catalog renderer at pre-change HEAD
+  `e0960cd42208b35119d89e08d7b8d17f145c8603`.
+- After removing only the old outer code-block fence and `:linenos:`, both
+  bodies were 395 lines and 21,604 bytes with SHA-256
+  `6f0fa5dd9e1e1bc0ecae14b11c7120fab611a7edea3733b94d51b3b36ae99cbe`.
+- `cmp` and the unified diff reported no differences; no policy text repair was
+  required.
+
+**Consequences:**
+- Catalog or renderer changes trigger hosted docs builds, and clean builds no
+  longer depend on an accidentally pre-existing include.
+- Intentional future policy changes remain possible through the catalog without
+  updating a legacy golden file.
+

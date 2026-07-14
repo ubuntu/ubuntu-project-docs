@@ -18,8 +18,8 @@ help:
 	@echo ""
 	@echo "  make check    — lint all Python tools with ruff"
 	@echo "  make format   — format all Python tools with ruff"
-	@echo "  make render-review-template - generate reviewer template from tooling inputs"
-	@echo "  make check-review-template  - verify generated template matches docs template"
+	@echo "  make render-review-template - strictly generate the reviewer template include"
+	@echo "  make check-review-template  - verify the generated include is current"
 	@echo "  make test     — run unit tests (tools/auto-mir/tests/)"
 	@echo "  make clean    — remove __pycache__ directories"
 	@echo ""
@@ -40,11 +40,11 @@ test:
 
 .PHONY: render-review-template
 render-review-template:
-	python3 $(TOOLS_DIR)auto-mir/render_review_template.py
+	python3 $(TOOLS_DIR)auto-mir/render_review_template.py --strict
 
 .PHONY: check-review-template
-check-review-template: render-review-template
-	@echo "Generated template body matches catalog: OK"
+check-review-template:
+	python3 $(TOOLS_DIR)auto-mir/render_review_template.py --strict --check
 
 .PHONY: clean
 clean:

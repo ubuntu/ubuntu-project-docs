@@ -11,8 +11,7 @@ Role vs. the ``render/`` package
 ``render_review_template.py`` (this file)
     Offline utility.  Reads ``catalog.yaml``, expands TODO references, and
     emits a plain-text ``.include`` fragment for ``{literalinclude}`` in
-    the Sphinx docs.  Run manually when the reviewer template or catalog
-    TODO refs change.
+    the Sphinx docs.  Supported documentation builds run it automatically.
 
 ``render/__init__.py`` (the runtime renderer)
     Called by the auto-mir pipeline (Stage 5).  Takes the findings produced
@@ -93,55 +92,50 @@ def _render_from_blueprint(catalog_data: dict) -> str:
 
     checks = _check_map(catalog_data)
 
-    lines: list[str] = []
-    in_body = False
-    skip_linenos = False
-    for item in blueprint:
-        text = _resolve_item(item, checks)
-        if not in_body:
-            if text.strip() == "```{code-block} text":
-                in_body = True
-                skip_linenos = True
-            continue
-        if skip_linenos:
-            skip_linenos = False
-            if text.strip() == ":linenos:":
-                continue
-        if text.strip() == "```":
-            break
-        lines.append(text)
+    resolved = [_resolve_item(item, checks) for item in blueprint]
+    opening_fence = "```{code-block} text"
+    opening_indexes = [
+        index for index, text in enumerate(resolved) if text.strip() == opening_fence
+    ]
+    if len(opening_indexes) != 1:
+        raise RuntimeError("Blueprint must contain exactly one '```{code-block} text' fence.")
 
+    body_start = opening_indexes[0] + 1
+    if body_start >= len(resolved) or resolved[body_start].strip() != ":linenos:":
+        raise RuntimeError("Reviewer template code block must enable ':linenos:'.")
+    body_start += 1
+
+    closing_index = next(
+        (index for index in range(body_start, len(resolved)) if resolved[index].strip() == "```"),
+        None,
+    )
+    if closing_index is None:
+        raise RuntimeError("Reviewer template code block is missing its closing fence.")
+
+    lines = resolved[body_start:closing_index]
     if not lines:
-        raise RuntimeError("Could not locate '```{code-block} text' fence in blueprint.")
+        raise RuntimeError("Reviewer template code block is empty.")
 
     return "\n".join(lines) + "\n"
 
 
-def _catalog_todo_refs(catalog_data: dict) -> set[str]:
-    refs: set[str] = set()
-    for check in catalog_data.get("checks", []):
-        for ref in check.get("todo_refs", []):
-            text = str(ref).strip()
-            if text.startswith("TODO"):
-                refs.add(text)
-    return refs
-
-
-def _template_todo_lines(template_text: str) -> set[str]:
-    todos: set[str] = set()
-    for raw_line in template_text.splitlines():
-        line = raw_line.strip()
-        if line.startswith("TODO"):
-            todos.add(line)
-    return todos
-
-
 def _validate_catalog_vs_template(catalog_data: dict, template_text: str) -> list[str]:
-    catalog_todos = _catalog_todo_refs(catalog_data)
-    template_todos = _template_todo_lines(template_text)
+    """Return blueprint-selected TODO refs missing from rendered output.
 
-    missing_in_template = sorted(catalog_todos - template_todos)
-    return missing_in_template
+    A check may define additional outcome-specific ``todo_refs`` for the runtime
+    renderer.  The blueprint is authoritative about which refs belong in the
+    static human template, so unselected runtime alternatives are not errors.
+    """
+    metadata = catalog_data.get("metadata", {})
+    blueprint = metadata.get("review_template_blueprint", [])
+    checks = _check_map(catalog_data)
+    rendered_lines = set(template_text.splitlines())
+    expected = {
+        _resolve_item(item, checks)
+        for item in blueprint
+        if isinstance(item, dict) and "check" in item
+    }
+    return sorted(expected - rendered_lines)
 
 
 def _parse_args() -> argparse.Namespace:
@@ -169,7 +163,12 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--strict",
         action="store_true",
-        help="Fail if catalog TODO refs are missing from the reviewer template",
+        help="Fail if a blueprint-selected TODO ref is missing from the rendered body",
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Check that the output file is current instead of rewriting it",
     )
     return parser.parse_args()
 
@@ -197,10 +196,10 @@ def main() -> int:
     if args.strict:
         missing_todos = _validate_catalog_vs_template(catalog_data, template_text)
 
-    if missing_todos and args.strict:
+    if missing_todos:
         joined = "\n  - ".join(missing_todos)
         print(
-            f"Catalog TODO refs missing from reviewer template:\n  - {joined}",
+            f"Blueprint TODO refs missing from reviewer template:\n  - {joined}",
             file=sys.stderr,
         )
         return 2
@@ -211,12 +210,22 @@ def main() -> int:
         output_rel = "docs/MIR/mir-reviewers-template-body.include"
 
     output_path = workspace_root / output_rel
+    if args.check:
+        if not output_path.exists():
+            print(f"Generated reviewer template is missing: {output_path}", file=sys.stderr)
+            return 3
+        if output_path.read_text(encoding="utf-8") != template_text:
+            print(f"Generated reviewer template is stale: {output_path}", file=sys.stderr)
+            return 3
+        print(f"Generated reviewer template is current: {output_path}")
+        return 0
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(template_text, encoding="utf-8")
 
     print(f"Rendered reviewer template: {output_path}")
     if args.strict:
-        print("Catalog TODO refs are consistent with the reviewer template.")
+        print("Blueprint TODO refs are consistent with the reviewer template.")
     return 0
 
 

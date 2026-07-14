@@ -196,7 +196,10 @@ is the whole point of the design.
 `metadata.review_template_blueprint` plus each check's `todo_refs` drive
 `render_review_template.py`, which regenerates the human reviewer template under
 `docs/MIR/`. This is an **offline documentation tool**, not part of a review run.
-After editing `todo_refs` or the blueprint, regenerate and commit the result.
+Supported documentation builds regenerate the ignored
+`mir-reviewers-template-body.include` file automatically. Do not edit or commit
+the generated include; edit the blueprint or referenced `todo_refs` and run
+`make -C docs generate-includes` to inspect the result locally.
 
 ---
 

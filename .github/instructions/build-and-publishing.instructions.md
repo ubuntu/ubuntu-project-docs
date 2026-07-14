@@ -65,7 +65,9 @@ Cross-references into external doc sets are available via these keys:
 ## Docs and tools coupling
 
 - `docs/Makefile` runs `generate-includes`, which renders MIR template includes
-  from `tools/auto-mir/catalog.yaml`.
+  strictly from `tools/auto-mir/catalog.yaml` using the documentation virtual
+  environment. Supported Make targets and Read the Docs regenerate the ignored
+  include before invoking Sphinx.
 - This is an operational dependency, not a style-scope merge: docs guidance still
   applies to `docs/**`, and tools guidance applies to `tools/**`.
 
