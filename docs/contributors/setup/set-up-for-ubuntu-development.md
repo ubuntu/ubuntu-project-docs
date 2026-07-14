@@ -367,7 +367,7 @@ $ mk-sbuild resolute --arch=amd64
 List the available schroots:
 
 ```none
-$ sbuild -l
+$ schroot -l
 ```
 
 Update a schroot:
