@@ -22,7 +22,6 @@ from utils.cli import parse_bool_arg
 class SmokeContext:
     def __init__(self, lxd_image: str | None, keep_guest: bool | None):
         self.bug_id = "smoke"
-        self.pin_uat_tooling = None
         self.lxd_image = lxd_image
         self.keep_guest = keep_guest
         self.lxd_options = "--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB"

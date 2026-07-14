@@ -12,6 +12,14 @@ import auto_mir
 from utils.secrets import SecretRedactor
 
 
+def test_pin_uat_tooling_option_is_removed():
+    parser = auto_mir.build_parser()
+
+    assert "--pin-uat-tooling" not in parser.format_help()
+    with pytest.raises(SystemExit, match="2"):
+        parser.parse_args(["12345", "--pin-uat-tooling", "deadbeef"])
+
+
 def _patch_main_context(monkeypatch, *, collect_only: bool):
     """Patch parser/context setup so main() can be exercised deterministically."""
 
@@ -23,7 +31,6 @@ def _patch_main_context(monkeypatch, *, collect_only: bool):
         lxd_image=None,
         lxd_options="",
         keep_guest=None,
-        pin_uat_tooling=None,
         llm_model_small=None,
         llm_model_large=None,
         request_binaries=None,

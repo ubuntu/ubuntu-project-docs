@@ -735,8 +735,9 @@ phases do not drift.
 - **SEC-1 confidence scale**: 3-band — `low`, `medium`, `high`.
 - **Hard blockers**: always emit required TODO and block ACK suggestion.
 - **Policy snapshot metadata**: include MIR policy/template file hashes in report metadata.
-- **Tooling bootstrap**: default to latest upstream branch each run for freshness; optional
-  `--pin-tooling <commit>` mode for reproducible benchmark/replay runs.
+- **Tooling bootstrap (superseded 2026-07-14)**: default to latest upstream branch each
+  run for freshness; optional `--pin-tooling <commit>` mode for reproducible
+  benchmark/replay runs.
 - **Traceability IDs**: semantic TODO identifiers are primary; optional line-number metadata
   is supplemental only (stable across template edits).
 
@@ -1439,4 +1440,28 @@ implementation).**
   package data remain available for diagnosis.
 - Previously created logs are unchanged. Any credential exposed there must be
   revoked or rotated before the old files are shared.
+
+## 2026-07-14 — Remove unused ubuntu-archive-tools pinning
+
+**Promotion:** no
+
+**Context:**
+- The catalog design anticipated an optional pin for reproducible benchmark or
+  replay runs, but no test, documented workflow, or invocation used it.
+- The default and every observed run already cloned the latest upstream HEAD.
+  Keeping the unexercised fetch, checkout, and unshallow branches increased the
+  provisioning and CLI surface without serving a beta workflow.
+
+**Decision:**
+- Remove `--pin-uat-tooling` and its context field.
+- Always shallow-clone the latest ubuntu-archive-tools HEAD during guest
+  provisioning.
+- If reproducible replay is needed later, design it around captured evidence
+  and explicit tool metadata rather than restoring an untested checkout branch.
+
+**Consequences:**
+- Guest provisioning retains its existing default behavior with less code and
+  fewer failure paths.
+- Invocations of the removed, undocumented option now fail argument parsing
+  instead of silently implying a supported replay contract.
 

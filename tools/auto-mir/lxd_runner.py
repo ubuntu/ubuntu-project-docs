@@ -295,7 +295,7 @@ def _provision(name: str, ctx: "RunContext") -> None:
         )
 
     # Bootstrap ubuntu-archive-tools (component-mismatches and prerequisites)
-    _bootstrap_archive_tools(name, ctx.pin_uat_tooling)
+    _bootstrap_archive_tools(name)
 
 
 def _enable_source_repositories(name: str) -> None:
@@ -432,55 +432,15 @@ def _build_proposed_stanza(ubuntu_sources: str, codename: str) -> str | None:
     return "\n".join(out_lines) + "\n"
 
 
-def _bootstrap_archive_tools(name: str, pin_commit: str | None) -> None:
-    """Clone ubuntu-archive-tools at the requested revision."""
-    log.info(
-        "Bootstrapping ubuntu-archive-tools (%s)",
-        f"pinned to {pin_commit}" if pin_commit else "latest HEAD",
-    )
+def _bootstrap_archive_tools(name: str) -> None:
+    """Clone the latest ubuntu-archive-tools HEAD."""
+    log.info("Bootstrapping ubuntu-archive-tools (latest HEAD)")
     exec_in_retry(
         name,
         ["git", "clone", "--depth=1", _ARCHIVE_TOOLS_REPO, _ARCHIVE_TOOLS_DIR],
         operation="clone ubuntu-archive-tools",
     )
-    if pin_commit:
-        # Deepen clone just enough to reach the pinned commit, then check it out.
-        exec_in_retry(
-            name,
-            [
-                "git",
-                "-C",
-                _ARCHIVE_TOOLS_DIR,
-                "fetch",
-                "--depth=1",
-                "origin",
-                pin_commit,
-            ],
-            check=False,  # May fail on shallow; fallback path below handles it
-            operation="fetch pinned ubuntu-archive-tools commit",
-        )
-        result = exec_in(
-            name,
-            ["git", "-C", _ARCHIVE_TOOLS_DIR, "checkout", pin_commit],
-            check=False,
-            capture=True,
-        )
-        if result.returncode != 0:
-            # Shallow clone may not have the commit; do a full unshallow fetch
-            log.debug("Shallow fetch missed commit; unshallowing")
-            exec_in_retry(
-                name,
-                ["git", "-C", _ARCHIVE_TOOLS_DIR, "fetch", "--unshallow", "origin"],
-                operation="unshallow ubuntu-archive-tools",
-            )
-            exec_in_retry(
-                name,
-                ["git", "-C", _ARCHIVE_TOOLS_DIR, "checkout", pin_commit],
-                operation="checkout pinned ubuntu-archive-tools commit",
-            )
-        log.info("Pinned ubuntu-archive-tools to %s", pin_commit)
-    else:
-        log.info("Using latest ubuntu-archive-tools HEAD")
+    log.info("Using latest ubuntu-archive-tools HEAD")
 
 
 def exec_in(

@@ -42,7 +42,6 @@ class _Ctx:
         self.series = None  # resolve to current devel series automatically
         self.lxd_image = None
         self.lxd_options = "--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB"
-        self.pin_uat_tooling = None
 
 
 def _setup() -> int:

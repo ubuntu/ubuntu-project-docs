@@ -164,13 +164,6 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     p.add_argument(
-        "--pin-uat-tooling",
-        dest="pin_uat_tooling",
-        metavar="COMMIT",
-        default=None,
-        help="Pin ubuntu-archive-tools to a specific git commit (default: latest HEAD)",
-    )
-    p.add_argument(
         "--llm-model-small",
         dest="llm_model_small",
         default=None,
@@ -235,7 +228,7 @@ class RunContext:
     Attribute lifecycle
     -------------------
     Resolved in __init__ (from CLI args):
-        bug_id, series, keep_guest, pin_uat_tooling, lxd_image,
+        bug_id, series, keep_guest, lxd_image,
         llm_model_small, llm_model_large, collect_only, tool_root,
         workspace_root, catalog_path, run_name, output_dir
 
@@ -266,7 +259,6 @@ class RunContext:
         self.bug_id: str = str(args.bug_id)
         self.series: str | None = args.series
         self.keep_guest: bool | None = args.keep_guest
-        self.pin_uat_tooling: str | None = args.pin_uat_tooling
         self.lxd_image: str | None = args.lxd_image
         self.llm_model_small: str | None = args.llm_model_small
         self.llm_model_large: str | None = args.llm_model_large
