@@ -75,6 +75,32 @@ Use this log as the source for deciding what should be promoted into
   - `report SOURCE` is a recognized but deliberately gated command at this
     foundation stage.
 
+## 2026-07-14 — Separate reporter results and terminal wizard
+
+- Promotion: no
+- Context: reviewer `Finding` objects encode severity, ACK/NACK implications,
+  summary aggregation, and `Problems` versus `Left to decide` rendering. A
+  reporter instead supplies declarations and evidence-backed statements whose
+  readiness and provenance must remain explicit.
+- Decision:
+  - Add reporter-only question, answer, statement-state, readiness, and
+    provenance models rather than extending `Finding`.
+  - Treat AI text as resolved only with `ai-confirmed` provenance and explicit
+    human confirmation.
+  - Implement a dependency-free terminal wizard supporting text, multiline,
+    yes/no, single-choice, and multi-choice input.
+  - End multiline input with a line containing only `.`, and accept `\.` as a
+    literal dot. `:cancel` and EOF abort required questions; optional questions
+    may be skipped.
+  - Keep answers process-local. This layer performs no persistence, network,
+    evidence, package, or LLM work.
+- Consequences:
+  - Reporter interaction is testable independently from catalog and runtime
+    orchestration.
+  - Human commitments cannot accidentally inherit reviewer severity semantics
+    or become authoritative merely because a model generated prose.
+  - Validation from `tools/auto-mir`: `make test` PASS (450 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.
