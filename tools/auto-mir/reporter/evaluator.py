@@ -361,6 +361,72 @@ def _lintian(_item: dict, ctx) -> tuple[str | None, list[str], str]:
     )
 
 
+@reporter_evaluator("source-packaging-metadata")
+def _source_packaging_metadata(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+    data = _adapter(ctx, "packaging-source")
+    if data.get("status") != "ok":
+        return None, [], "Packaging source data was unavailable"
+    maintainer = str(data.get("source_maintainer", "")).strip() or "missing"
+    source_format = str(data.get("debian_source_format", "")).strip() or "unspecified"
+    debconf = data.get("debconf_templates", [])
+    overrides = data.get("debian_rules_overrides", [])
+    statement = (
+        f"Maintainer: {maintainer}; source format: {source_format}; "
+        f"debconf templates: {len(debconf)}; debian/rules overrides: "
+        f"{', '.join(overrides) if overrides else 'none'}."
+    )
+    concerning = [
+        entry.get("template", "unknown")
+        for entry in debconf
+        if str(entry.get("priority", "")).casefold() in {"critical", "high"}
+    ]
+    rationale = (
+        "High/critical debconf templates need review: " + ", ".join(concerning)
+        if concerning
+        else ""
+    )
+    return (
+        statement,
+        ["packaging-source:source_maintainer", "packaging-source:debconf_templates"],
+        rationale,
+    )
+
+
+@reporter_evaluator("vendored-maintenance-docs")
+def _vendored_maintenance_docs(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+    data = _adapter(ctx, "packaging-source")
+    if data.get("status") != "ok":
+        return None, [], "Packaging source data was unavailable"
+    vendored = data.get("shipped_vendored_dirs", [])
+    if not vendored:
+        return (
+            "No shipped vendored directories were detected.",
+            ["packaging-source:shipped_vendored_dirs"],
+            "",
+        )
+    readme = str(data.get("debian_readme_source", "")).strip()
+    copyright_text = str(data.get("debian_copyright", "")).casefold()
+    documented = bool(readme) and any(
+        marker in readme.casefold() for marker in ("vendor", "refresh", "update", "repack")
+    )
+    covered = all(path.strip("./").split("/")[-1].casefold() in copyright_text for path in vendored)
+    statement = "Shipped vendored directories: " + ", ".join(vendored) + "."
+    gaps: list[str] = []
+    if not documented:
+        gaps.append("debian/README.source does not clearly document refresh")
+    if not covered:
+        gaps.append("debian/copyright does not clearly cover every vendored directory")
+    return (
+        statement,
+        [
+            "packaging-source:shipped_vendored_dirs",
+            "packaging-source:debian_readme_source",
+            "packaging-source:debian_copyright",
+        ],
+        "; ".join(gaps),
+    )
+
+
 @reporter_evaluator("dependencies")
 def _dependencies(_item: dict, ctx) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "dep-analysis")

@@ -48,6 +48,7 @@ metadata:
   - '[Quality assurance - packaging]'
   - item: REP-QA-PKG-001
   - item: REP-QA-PKG-002
+  - item: REP-QA-PKG-003
   - ''
   - '[UI standards]'
   - item: REP-UI-001
@@ -63,6 +64,7 @@ metadata:
   - item: REP-MAINT-001
   - item: REP-MAINT-002
   - item: REP-MAINT-003
+  - item: REP-MAINT-004
   - ''
   - '[Background information]'
   - item: REP-BG-001
@@ -228,6 +230,14 @@ items:
   readiness: warning
   adapters_required: [lintian]
   template: 'TODO: - Lintian results and overrides: TBD'
+- id: REP-QA-PKG-003
+  section: Quality assurance - packaging
+  title: Source metadata and debconf
+  mode: deterministic
+  evaluator: source-packaging-metadata
+  readiness: warning
+  adapters_required: [packaging-source]
+  template: 'TODO: - Maintainer, source format, debconf, and packaging override facts: TBD'
 - id: REP-UI-001
   section: UI standards
   title: User interface standards
@@ -289,6 +299,14 @@ items:
     kind: multiline
     prompt: Describe static/vendored code and the owning team's rebuild, update, refresh, and security commitments.
   template: 'TODO: - Static/vendored-code maintenance obligations and commitments: TBD'
+- id: REP-MAINT-004
+  section: Maintenance/Owner
+  title: Vendored source maintenance documentation
+  mode: deterministic
+  evaluator: vendored-maintenance-docs
+  readiness: blocker
+  adapters_required: [packaging-source]
+  template: 'TODO: - Vendored-source refresh and copyright documentation: TBD'
 - id: REP-BG-001
   section: Background information
   title: Package purpose

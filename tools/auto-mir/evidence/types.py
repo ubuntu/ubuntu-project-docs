@@ -354,6 +354,16 @@ class PackagingSourceResult(TypedDict):
     debian_watch: str
     debian_rules: str
     debian_tests_control: str
+    debian_readme_source: str
+    debian_copyright: str
+    debian_source_format: str
+    source_maintainer: str
+    source_homepage: str
+    source_description: str
+    debconf_templates: list[dict[str, str]]
+    debian_rules_overrides: list[str]
+    service_files: list[str]
+    apparmor_profiles: list[str]
     cargo_lock_present: bool
     go_sum_present: bool
     vendored_dirs: list[str]

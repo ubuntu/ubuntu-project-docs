@@ -1584,6 +1584,46 @@ def test_parse_binary_sections():
     assert sections == ["libs", "libdevel"]
 
 
+def test_parse_source_control_fields_handles_continuations():
+    from evidence.guest_adapters import _parse_source_control_fields
+
+    control = """Source: libfoo
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Homepage: https://example.test/libfoo
+Description: useful library
+ with additional context
+
+Package: libfoo1
+Architecture: any
+"""
+
+    fields = _parse_source_control_fields(control)
+
+    assert fields["maintainer"].startswith("Ubuntu Developers")
+    assert fields["homepage"] == "https://example.test/libfoo"
+    assert fields["description"] == "useful library with additional context"
+
+
+def test_parse_debconf_templates_extracts_declared_metadata():
+    from evidence.guest_adapters import _parse_debconf_templates
+
+    content = """Template: libfoo/enable
+Type: boolean
+Priority: high
+Description: Enable foo?
+ This is a continuation.
+
+Template: libfoo/name
+Type: string
+Description: Name
+"""
+
+    assert _parse_debconf_templates(content) == [
+        {"template": "libfoo/enable", "type": "boolean", "priority": "high"},
+        {"template": "libfoo/name", "type": "string", "priority": ""},
+    ]
+
+
 # ---------------------------------------------------------------------------
 # autopkgtest release candidate resolution
 # ---------------------------------------------------------------------------

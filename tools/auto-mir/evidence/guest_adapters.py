@@ -258,6 +258,51 @@ def _parse_binary_sections(debian_control: str) -> list[str]:
     return sections
 
 
+def _parse_source_control_fields(debian_control: str) -> dict[str, str]:
+    """Return selected fields from the source paragraph of debian/control."""
+    paragraph = debian_control.split("\n\n", 1)[0]
+    fields: dict[str, str] = {}
+    current = ""
+    for line in paragraph.splitlines():
+        if line[:1].isspace() and current:
+            fields[current] = f"{fields[current]} {line.strip()}".strip()
+            continue
+        if ":" not in line:
+            current = ""
+            continue
+        name, value = line.split(":", 1)
+        current = name.strip().casefold()
+        fields[current] = value.strip()
+    return {
+        "maintainer": fields.get("maintainer", ""),
+        "homepage": fields.get("homepage", ""),
+        "description": fields.get("description", ""),
+    }
+
+
+def _parse_debconf_templates(content: str) -> list[dict[str, str]]:
+    """Parse debconf template names, types, and optional priority metadata."""
+    templates: list[dict[str, str]] = []
+    for paragraph in re.split(r"\n\s*\n", content.strip()):
+        if not paragraph.strip():
+            continue
+        fields: dict[str, str] = {}
+        for line in paragraph.splitlines():
+            if ":" not in line or line[:1].isspace():
+                continue
+            name, value = line.split(":", 1)
+            fields[name.strip().casefold()] = value.strip()
+        if fields.get("template"):
+            templates.append(
+                {
+                    "template": fields["template"],
+                    "type": fields.get("type", ""),
+                    "priority": fields.get("priority", ""),
+                }
+            )
+    return templates
+
+
 def _latest_published_in_pocket(history: list, pocket: str) -> str:
     """Return the most recent Published version in the given pocket, or ''.
 
@@ -403,6 +448,30 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         allow_fail=True,
         as_ubuntu=True,
     )
+    debian_readme_source = _capture(
+        ctx,
+        ["bash", "-lc", f"cd {full_source} && head -c 20000 debian/README.source"],
+        allow_fail=True,
+        as_ubuntu=True,
+    )
+    debian_copyright = _capture(
+        ctx,
+        ["bash", "-lc", f"cd {full_source} && head -c 100000 debian/copyright"],
+        allow_fail=True,
+        as_ubuntu=True,
+    )
+    debian_source_format = _capture(
+        ctx,
+        ["bash", "-lc", f"cd {full_source} && cat debian/source/format"],
+        allow_fail=True,
+        as_ubuntu=True,
+    ).strip()
+    debconf_content = _capture(
+        ctx,
+        ["bash", "-lc", f"cd {full_source} && cat debian/templates"],
+        allow_fail=True,
+        as_ubuntu=True,
+    )
 
     cargo_lock = _exists(
         ctx,
@@ -486,6 +555,24 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         for f in file_listing
     )
     binary_sections = _parse_binary_sections(debian_control)
+    source_fields = _parse_source_control_fields(debian_control)
+    debconf_templates = _parse_debconf_templates(debconf_content)
+    debian_rules_overrides = sorted(
+        {
+            match.group(1)
+            for match in re.finditer(r"(?m)^override_([A-Za-z0-9_.+-]+)\s*:", debian_rules)
+        }
+    )
+    service_files = sorted(
+        str(entry.get("path", ""))
+        for entry in file_listing
+        if re.search(r"\.(?:service|socket|timer|path)$", str(entry.get("path", "")))
+    )
+    apparmor_profiles = sorted(
+        str(entry.get("path", ""))
+        for entry in file_listing
+        if "/apparmor" in str(entry.get("path", "")).casefold()
+    )
 
     log.debug(
         "packaging-source: source dir %s, %d file(s), vendored dirs: %d, "
@@ -517,6 +604,16 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         "debian_watch": debian_watch,
         "debian_rules": debian_rules,
         "debian_tests_control": debian_tests_control,
+        "debian_readme_source": debian_readme_source,
+        "debian_copyright": debian_copyright,
+        "debian_source_format": debian_source_format,
+        "source_maintainer": source_fields["maintainer"],
+        "source_homepage": source_fields["homepage"],
+        "source_description": source_fields["description"],
+        "debconf_templates": debconf_templates,
+        "debian_rules_overrides": debian_rules_overrides,
+        "service_files": service_files,
+        "apparmor_profiles": apparmor_profiles,
         "cargo_lock_present": cargo_lock,
         "go_sum_present": go_sum,
         "vendored_dirs": vendored_dirs,

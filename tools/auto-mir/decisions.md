@@ -204,6 +204,20 @@ Use this log as the source for deciding what should be promoted into
     succeeds; failure remains an explicit unavailable/TODO outcome.
   - Validation from `tools/auto-mir`: `make test` PASS (480 passed, 3 skipped).
 
+## 2026-07-15 — Reporter source packaging evidence enrichment
+
+- Promotion: no
+- Decision: extend `packaging-source` with bounded README.source and copyright
+  content, source format, source Maintainer/Homepage/description fields,
+  structured debconf templates, debian/rules override names, and source service
+  and AppArmor paths. Parse these facts deterministically and expose reporter
+  statements for packaging metadata and vendored-source refresh/copyright gaps.
+- Boundaries: license compatibility, override acceptability, ownership, and
+  maintenance commitments remain human decisions; the adapter only reports
+  observable source facts. Large text fields are bounded before leaving the
+  guest.
+- Validation from `tools/auto-mir`: `make test` PASS (482 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.
