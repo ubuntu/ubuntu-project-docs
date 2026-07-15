@@ -4,8 +4,11 @@ Fetches bug metadata, description, comments, and the targeted source package
 from the Launchpad REST API. Uses launchpadlib (python3-launchpadlib) which is
 available from the Ubuntu archive — no web scraping.
 
-Hard-fails with a clear message if the reporter MIR template content cannot
-be detected in the bug, because the rest of the pipeline depends on it.
+Hard-fails with a clear message if the reporter MIR template content cannot be
+detected in the bug and the run is not a re-review/reorg fast-path. Re-review
+and reorg runs (detected via ``--review-type`` or bug text signals in
+``review_type.pre_detect_review_type``) proceed without a reporter template,
+per MIR policy.
 """
 
 import logging
@@ -492,31 +495,53 @@ def run(ctx: "RunContext") -> None:
             indices_str,
         )
 
-    # Gate: reporter MIR content must be present
+    # Gate: reporter MIR content must be present for fresh reviews.
+    # Re-review/reorg runs (detected via --review-type or bug text signals)
+    # do not require a reporter template per MIR policy and proceed without one.
     reporter_content = _find_reporter_mir_content(ctx.bug["description"], ctx.bug["comments"])
-    if reporter_content is None:
-        log.error(
-            "\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "HARD STOP: Reporter MIR template content not found in bug %s\n"
-            "\n"
-            "auto-mir requires the reporter to have filled and posted the\n"
-            "MIR reporters template (docs/MIR/mir-reporters-template.md)\n"
-            "on the Launchpad bug before a review can be generated.\n"
-            "\n"
-            "Action: Ask the reporter to post their completed template on\n"
-            "the bug, then re-run auto-mir.\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",
-            ctx.bug_id,
-        )
-        sys.exit(1)
+    if reporter_content is not None:
+        ctx.reporter_mir_content = reporter_content
+        log.info("Reporter MIR content found (%d chars)", len(reporter_content))
+    else:
+        import review_type as _review_type
 
-    ctx.reporter_mir_content = reporter_content
-    log.info("Reporter MIR content found (%d chars)", len(reporter_content))
+        pre = _review_type.pre_detect_review_type(ctx)
+        if pre.review_type in (_review_type.REREVIEW, _review_type.REORG):
+            log.warning(
+                "Reporter MIR template content not found in bug %s, but review "
+                "type pre-detected as '%s'. Proceeding without a reporter "
+                "template — all findings will be softened to non-blocking "
+                "recommendations. Rationale: %s",
+                ctx.bug_id,
+                pre.review_type,
+                pre.rationale,
+            )
+            ctx.reporter_mir_content = ""
+        else:
+            log.error(
+                "\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "HARD STOP: Reporter MIR template content not found in bug %s\n"
+                "\n"
+                "auto-mir requires the reporter to have filled and posted the\n"
+                "MIR reporters template (docs/MIR/mir-reporters-template.md)\n"
+                "on the Launchpad bug before a fresh review can be generated.\n"
+                "\n"
+                "Action: Ask the reporter to post their completed template on\n"
+                "the bug, then re-run auto-mir.\n"
+                "\n"
+                "If this is a re-review or a renamed/reorganised source, use\n"
+                "--review-type rereview or --review-type reorg to proceed\n"
+                "without a reporter template.\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",
+                ctx.bug_id,
+            )
+            sys.exit(1)
 
-    # Parse requested binaries from reporter MIR content
-    if not ctx.requested_binaries:
-        parsed = _parse_requested_binaries(reporter_content)
+    # Parse requested binaries from reporter MIR content (may be empty for
+    # re-review/reorg runs that proceeded without a reporter template).
+    if not ctx.requested_binaries and ctx.reporter_mir_content:
+        parsed = _parse_requested_binaries(ctx.reporter_mir_content)
         if parsed is not None:
             ctx.requested_binaries = parsed
             log.info("Requested binaries parsed from reporter: %s", ", ".join(parsed))
