@@ -724,9 +724,10 @@ items:
   title: Package purpose
   mode: human_only
   readiness: warning
+  required: false
   question:
     kind: multiline
-    prompt: Explain the package purpose and any background useful to a reviewer.
+    prompt: Add anything else about the package's purpose or background useful to a reviewer, beyond what other fields in this report already capture.
   template: 'TODO: The package description and additional background explain the package: TBD'
 - id: REP-BG-002
   section: Background information

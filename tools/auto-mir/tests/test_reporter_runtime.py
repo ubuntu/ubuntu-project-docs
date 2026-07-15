@@ -464,3 +464,26 @@ def test_upstream_name_preface_surfaces_detected_url(tmp_path):
 
     preface_texts = " ".join(text for text, _detail in wizard.notes)
     assert "https://example.test" in preface_texts
+
+
+def test_background_catchall_is_omitted_when_left_empty(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class EmptyBackgroundWizard(ChoiceWizard):
+        def ask(self, question):
+            self.asked.append(question.id)
+            if question.id == "REP-BG-001":
+                return None
+            value = self.values.get(question.id, self.value)
+            return Answer(question_id=question.id, value=value, raw_input=str(value))
+
+    wizard = EmptyBackgroundWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-BG-001"].state == StatementState.NOT_APPLICABLE
+
+    write_outputs(ctx, results)
+    draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
+    assert "The package description and additional background" not in draft
