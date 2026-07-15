@@ -248,6 +248,78 @@ def test_all_catalog_adapters_are_registered():
     assert not missing, f"Catalog references unregistered adapters: {missing}"
 
 
+def test_inspect_built_debs_parses_all_binary_surface_sections(monkeypatch):
+    from evidence import guest_adapters
+
+    output = """=== STATIC ===
+pkg/usr/bin/static-tool
+=== SETUIDGID ===
+pkg/usr/bin/helper
+=== NOBODY ===
+pkg/var/lib/data
+=== SBIN ===
+pkg/usr/sbin/daemon
+=== SYSTEMD ===
+pkg/usr/lib/systemd/system/daemon.service
+=== CRON ===
+pkg/etc/cron.daily/daemon
+=== APPARMOR ===
+pkg/etc/apparmor.d/usr.sbin.daemon
+=== DESKTOP ===
+pkg/usr/share/applications/daemon.desktop
+=== TRANSLATIONS ===
+pkg/usr/share/locale/de/LC_MESSAGES/daemon.mo
+=== PLUGINS ===
+pkg/usr/lib/daemon/plugins/filter.so
+=== MAINTSCRIPTS ===
+pkg/DEBIAN/postinst
+"""
+    monkeypatch.setattr(guest_adapters, "_capture", lambda *_args, **_kwargs: output)
+
+    result = guest_adapters._inspect_built_debs(Mock(), "/tmp/output")
+
+    assert result["static_binaries"] == ["pkg/usr/bin/static-tool"]
+    assert result["setuid_setgid_binaries"] == ["pkg/usr/bin/helper"]
+    assert result["sbin_executables"] == ["pkg/usr/sbin/daemon"]
+    assert result["systemd_units"] == ["pkg/usr/lib/systemd/system/daemon.service"]
+    assert result["cron_jobs"] == ["pkg/etc/cron.daily/daemon"]
+    assert result["apparmor_profiles"] == ["pkg/etc/apparmor.d/usr.sbin.daemon"]
+    assert result["desktop_files"] == ["pkg/usr/share/applications/daemon.desktop"]
+    assert result["translation_files"] == ["pkg/usr/share/locale/de/LC_MESSAGES/daemon.mo"]
+    assert result["plugin_candidates"] == ["pkg/usr/lib/daemon/plugins/filter.so"]
+    assert result["maintainer_scripts"] == ["pkg/DEBIAN/postinst"]
+
+
+def test_binary_package_inspection_projects_sbuild_scan_without_reextracting():
+    from evidence.guest_adapters import collect_binary_package_inspection
+
+    ctx = Mock()
+    ctx.evidence = {
+        "adapters": {
+            "sbuild": {
+                "status": "ok",
+                "static_binaries": [],
+                "setuid_setgid_binaries": ["pkg/usr/bin/helper"],
+                "nobody_owned_binaries": [],
+                "sbin_executables": ["pkg/usr/sbin/daemon"],
+                "systemd_units": ["pkg/usr/lib/systemd/system/daemon.service"],
+                "cron_jobs": [],
+                "apparmor_profiles": [],
+                "desktop_files": [],
+                "translation_files": [],
+                "plugin_candidates": [],
+                "maintainer_scripts": ["pkg/DEBIAN/postinst"],
+            }
+        }
+    }
+
+    result = collect_binary_package_inspection(ctx)
+
+    assert result["status"] == "ok"
+    assert result["setuid_setgid_binaries"] == ["pkg/usr/bin/helper"]
+    assert result["maintainer_scripts"] == ["pkg/DEBIAN/postinst"]
+
+
 # ---------------------------------------------------------------------------
 # Adapter output structure validation
 # ---------------------------------------------------------------------------

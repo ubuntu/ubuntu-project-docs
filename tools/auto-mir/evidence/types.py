@@ -519,7 +519,32 @@ class SbuildResult(TypedDict):
     static_binaries: list[str]
     setuid_setgid_binaries: list[str]
     nobody_owned_binaries: list[str]
+    sbin_executables: list[str]
+    systemd_units: list[str]
+    cron_jobs: list[str]
+    apparmor_profiles: list[str]
+    desktop_files: list[str]
+    translation_files: list[str]
+    plugin_candidates: list[str]
+    maintainer_scripts: list[str]
     note: str
+
+
+class BinaryPackageInspectionResult(TypedDict):
+    """Security, service, UI, and maintenance facts from built binary packages."""
+
+    status: str
+    static_binaries: list[str]
+    setuid_setgid_binaries: list[str]
+    nobody_owned_files: list[str]
+    sbin_executables: list[str]
+    systemd_units: list[str]
+    cron_jobs: list[str]
+    apparmor_profiles: list[str]
+    desktop_files: list[str]
+    translation_files: list[str]
+    plugin_candidates: list[str]
+    maintainer_scripts: list[str]
 
 
 class LintianResult(TypedDict):

@@ -652,6 +652,14 @@ evidence_adapters:
     message: str
     deb_packages: list
   fallback: emit_todo_continue
+- id: binary-package-inspection
+  type: local_exec
+  description: Expose security, service, UI, and maintenance facts from the single extraction of built binary packages
+  inputs:
+  - sbuild
+  depends_on:
+  - sbuild
+  fallback: emit_todo_continue
 - id: lintian
   type: local_exec
   description: Parse lintian output from sbuild run

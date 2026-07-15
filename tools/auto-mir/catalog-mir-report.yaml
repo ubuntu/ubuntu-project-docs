@@ -30,6 +30,8 @@ metadata:
   - '[Security]'
   - item: REP-SECURITY-001
   - item: REP-SECURITY-002
+  - item: REP-SECURITY-003
+  - item: REP-SECURITY-004
   - ''
   - '[Quality assurance - function/usage]'
   - item: REP-QA-FUNC-001
@@ -142,6 +144,22 @@ items:
     kind: multiline
     prompt: Describe security-sensitive behavior, exposed endpoints, privileged operation, and mitigations.
   template: 'TODO: - Security-sensitive behavior and risk mitigations are: TBD'
+- id: REP-SECURITY-003
+  section: Security
+  title: Installed privilege and service surface
+  mode: deterministic
+  evaluator: binary-security-surface
+  readiness: warning
+  adapters_required: [binary-package-inspection]
+  template: 'TODO: - Installed setuid/setgid, sbin, service, timer, and recurring-job surface: TBD'
+- id: REP-SECURITY-004
+  section: Security
+  title: Installed isolation and extension surface
+  mode: deterministic
+  evaluator: binary-integration-surface
+  readiness: warning
+  adapters_required: [binary-package-inspection]
+  template: 'TODO: - Installed AppArmor, desktop, translation, and plugin/extension surface: TBD'
 - id: REP-QA-FUNC-001
   section: Quality assurance - function/usage
   title: Installed usability

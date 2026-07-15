@@ -240,6 +240,50 @@ def _important_bugs(_item: dict, ctx) -> tuple[str | None, list[str], str]:
     )
 
 
+@reporter_evaluator("binary-security-surface")
+def _binary_security_surface(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+    data = _adapter(ctx, "binary-package-inspection")
+    if data.get("status") != "ok":
+        return None, [], "Built binary package inspection was unavailable"
+    fields = {
+        "setuid/setgid": data.get("setuid_setgid_binaries", []),
+        "sbin executables": data.get("sbin_executables", []),
+        "systemd units": data.get("systemd_units", []),
+        "cron jobs": data.get("cron_jobs", []),
+    }
+    present = [f"{label}: {', '.join(values)}" for label, values in fields.items() if values]
+    statement = (
+        "No setuid/setgid files, sbin executables, systemd units, or cron jobs were found."
+        if not present
+        else "Installed privileged/service surface: " + "; ".join(present) + "."
+    )
+    return (
+        statement,
+        [f"binary-package-inspection:{field}" for field in fields],
+        "Explain the purpose and mitigations of each installed surface." if present else "",
+    )
+
+
+@reporter_evaluator("binary-integration-surface")
+def _binary_integration_surface(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+    data = _adapter(ctx, "binary-package-inspection")
+    if data.get("status") != "ok":
+        return None, [], "Built binary package inspection was unavailable"
+    fields = {
+        "AppArmor profiles": data.get("apparmor_profiles", []),
+        "desktop files": data.get("desktop_files", []),
+        "translations": data.get("translation_files", []),
+        "plugin/extension candidates": data.get("plugin_candidates", []),
+    }
+    present = [f"{label}: {', '.join(values)}" for label, values in fields.items() if values]
+    statement = (
+        "No AppArmor profiles, desktop files, translations, or plugin candidates were found."
+        if not present
+        else "Installed integration surface: " + "; ".join(present) + "."
+    )
+    return statement, [f"binary-package-inspection:{field}" for field in fields], ""
+
+
 @reporter_evaluator("build-tests")
 def _build_tests(_item: dict, ctx) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "sbuild")

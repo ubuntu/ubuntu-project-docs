@@ -182,6 +182,28 @@ Use this log as the source for deciding what should be promoted into
   - Validation from `tools/auto-mir`: `make test` PASS (478 passed, 3 skipped).
     `make -C docs html` PASS with both role includes generated strictly.
 
+## 2026-07-15 — Single-extraction binary package inspection
+
+- Promotion: no
+- Context: reporter security, service, UI, and maintenance questions need facts
+  from installed binary package contents. The reviewer sbuild adapter already
+  extracted every built deb once for static/setuid/nobody checks; a separate
+  extractor would duplicate expensive work and risk inconsistent results.
+- Decision:
+  - Extend the existing single extraction to inspect sbin executables, systemd
+    units, cron jobs, AppArmor profiles, desktop files, translations,
+    plugin/extension candidates, and maintainer scripts.
+  - Expose those cached sbuild facts through a dedicated
+    `binary-package-inspection` adapter depending on sbuild. The adapter performs
+    no extraction itself.
+  - Preserve the existing sbuild compatibility fields consumed by reviewer
+    checks.
+- Consequences:
+  - Reporter and reviewer logic share one factual binary substrate.
+  - The report catalog can make conclusive absence claims only when this adapter
+    succeeds; failure remains an explicit unavailable/TODO outcome.
+  - Validation from `tools/auto-mir`: `make test` PASS (480 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

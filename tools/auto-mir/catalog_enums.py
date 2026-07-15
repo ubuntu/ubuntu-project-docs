@@ -37,6 +37,7 @@ class AdapterID(StrEnum):
     SBUILD = "sbuild"
     LINTIAN = "lintian"
     DEB_METADATA = "deb-metadata"
+    BINARY_PACKAGE_INSPECTION = "binary-package-inspection"
     CVELIST_SCAN = "cvelist-scan"
     UBUNTU_UPLOAD_PERMISSION = "ubuntu-upload-permission"
     GIT_UBUNTU_DELTA = "git-ubuntu-delta"

@@ -13,6 +13,7 @@ import lxd_runner
 from catalog_enums import AdapterID
 from evidence.registry import adapter
 from evidence.types import (
+    BinaryPackageInspectionResult,
     ComponentMismatchesResult,
     DebMetadataResult,
     DepAnalysisResult,
@@ -1350,9 +1351,10 @@ def _parse_promotion_candidates(output: str) -> list[str]:
 
 
 def _inspect_built_debs(ctx, output_dir: str) -> dict[str, list[str]]:
-    """Inspect built .deb contents for static, setuid/setgid and nobody-owned files.
+    """Extract built debs once and inspect their security and integration surface.
 
-    The debs are extracted once and scanned for three signals:
+    The debs are extracted once and scanned for factual signals used by both
+    reviewer checks and reporter statements:
       * fully statically linked ELF binaries ("statically linked") — ESL-2
       * setuid/setgid binaries (-perm -4000/-2000) — URF-5
       * files owned by user 'nobody' (-user nobody) — URF-4
@@ -1368,6 +1370,7 @@ def _inspect_built_debs(ctx, output_dir: str) -> dict[str, list[str]]:
         '  dest="$tmp/$(basename "$deb" .deb)"; '
         '  mkdir -p "$dest"; '
         '  dpkg-deb -x "$deb" "$dest" 2>/dev/null || true; '
+        '  dpkg-deb -e "$deb" "$dest/DEBIAN" 2>/dev/null || true; '
         "done; "
         'echo "=== STATIC ==="; '
         'find "$tmp" -type f 2>/dev/null | while read -r f; do '
@@ -1379,22 +1382,55 @@ def _inspect_built_debs(ctx, output_dir: str) -> dict[str, list[str]]:
         '| sed "s#^$tmp/##"; '
         'echo "=== NOBODY ==="; '
         'find "$tmp" -user nobody 2>/dev/null | sed "s#^$tmp/##"; '
+        'echo "=== SBIN ==="; '
+        'find "$tmp" -type f -perm /111 \\( -path "*/sbin/*" -o -path "*/usr/sbin/*" \\) '
+        '2>/dev/null | sed "s#^$tmp/##"; '
+        'echo "=== SYSTEMD ==="; '
+        'find "$tmp" -type f \\( -path "*/usr/lib/systemd/system/*" '
+        '-o -path "*/lib/systemd/system/*" \\) 2>/dev/null | sed "s#^$tmp/##"; '
+        'echo "=== CRON ==="; '
+        'find "$tmp" -type f \\( -path "*/etc/cron.d/*" -o -path "*/etc/cron.daily/*" '
+        '-o -path "*/etc/cron.hourly/*" -o -path "*/etc/cron.weekly/*" '
+        '-o -path "*/etc/cron.monthly/*" \\) 2>/dev/null | sed "s#^$tmp/##"; '
+        'echo "=== APPARMOR ==="; '
+        'find "$tmp" -type f \\( -path "*/etc/apparmor.d/*" '
+        '-o -path "*/usr/share/apparmor/*" \\) 2>/dev/null | sed "s#^$tmp/##"; '
+        'echo "=== DESKTOP ==="; '
+        'find "$tmp" -type f -path "*/usr/share/applications/*.desktop" '
+        '2>/dev/null | sed "s#^$tmp/##"; '
+        'echo "=== TRANSLATIONS ==="; '
+        'find "$tmp" -type f \\( -path "*/usr/share/locale/*" -o -name "*.mo" \\) '
+        '2>/dev/null | sed "s#^$tmp/##"; '
+        'echo "=== PLUGINS ==="; '
+        'find "$tmp" -type f \\( -path "*/usr/lib/*/plugins/*" '
+        '-o -path "*/usr/lib/*/extensions/*" -o -path "*/usr/share/*/plugins/*" '
+        '-o -path "*/usr/share/*/extensions/*" \\) 2>/dev/null | sed "s#^$tmp/##"; '
+        'echo "=== MAINTSCRIPTS ==="; '
+        'find "$tmp" -type f -path "*/DEBIAN/*" 2>/dev/null | sed "s#^$tmp/##"; '
         'rm -rf "$tmp"'
     )
     out = _capture(ctx, ["bash", "-lc", script], allow_fail=True, as_ubuntu=True)
 
-    sections: dict[str, list[str]] = {"STATIC": [], "SETUIDGID": [], "NOBODY": []}
+    section_names = (
+        "STATIC",
+        "SETUIDGID",
+        "NOBODY",
+        "SBIN",
+        "SYSTEMD",
+        "CRON",
+        "APPARMOR",
+        "DESKTOP",
+        "TRANSLATIONS",
+        "PLUGINS",
+        "MAINTSCRIPTS",
+    )
+    sections: dict[str, list[str]] = {name: [] for name in section_names}
     current: str | None = None
     for line in out.splitlines():
         stripped = line.strip()
-        if stripped == "=== STATIC ===":
-            current = "STATIC"
-            continue
-        if stripped == "=== SETUIDGID ===":
-            current = "SETUIDGID"
-            continue
-        if stripped == "=== NOBODY ===":
-            current = "NOBODY"
+        if stripped.startswith("=== ") and stripped.endswith(" ==="):
+            candidate = stripped.removeprefix("=== ").removesuffix(" ===")
+            current = candidate if candidate in sections else None
             continue
         if current is None or not stripped:
             continue
@@ -1409,6 +1445,14 @@ def _inspect_built_debs(ctx, output_dir: str) -> dict[str, list[str]]:
         "static_binaries": static_binaries,
         "setuid_setgid_binaries": sections["SETUIDGID"],
         "nobody_owned_binaries": sections["NOBODY"],
+        "sbin_executables": sections["SBIN"],
+        "systemd_units": sections["SYSTEMD"],
+        "cron_jobs": sections["CRON"],
+        "apparmor_profiles": sections["APPARMOR"],
+        "desktop_files": sections["DESKTOP"],
+        "translation_files": sections["TRANSLATIONS"],
+        "plugin_candidates": sections["PLUGINS"],
+        "maintainer_scripts": sections["MAINTSCRIPTS"],
     }
 
 
@@ -1552,11 +1596,27 @@ def collect_sbuild(ctx) -> SbuildResult:
     static_binaries: list[str] = []
     setuid_setgid_binaries: list[str] = []
     nobody_owned_binaries: list[str] = []
+    sbin_executables: list[str] = []
+    systemd_units: list[str] = []
+    cron_jobs: list[str] = []
+    apparmor_profiles: list[str] = []
+    desktop_files: list[str] = []
+    translation_files: list[str] = []
+    plugin_candidates: list[str] = []
+    maintainer_scripts: list[str] = []
     if build_success and built_debs:
         deb_scan = _inspect_built_debs(ctx, output_dir)
         static_binaries = deb_scan["static_binaries"]
         setuid_setgid_binaries = deb_scan["setuid_setgid_binaries"]
         nobody_owned_binaries = deb_scan["nobody_owned_binaries"]
+        sbin_executables = deb_scan["sbin_executables"]
+        systemd_units = deb_scan["systemd_units"]
+        cron_jobs = deb_scan["cron_jobs"]
+        apparmor_profiles = deb_scan["apparmor_profiles"]
+        desktop_files = deb_scan["desktop_files"]
+        translation_files = deb_scan["translation_files"]
+        plugin_candidates = deb_scan["plugin_candidates"]
+        maintainer_scripts = deb_scan["maintainer_scripts"]
 
     # Run lintian on the source package (keep existing functionality)
     lintian_raw = _capture(
@@ -1607,7 +1667,37 @@ def collect_sbuild(ctx) -> SbuildResult:
         "static_binaries": static_binaries,
         "setuid_setgid_binaries": setuid_setgid_binaries,
         "nobody_owned_binaries": nobody_owned_binaries,
+        "sbin_executables": sbin_executables,
+        "systemd_units": systemd_units,
+        "cron_jobs": cron_jobs,
+        "apparmor_profiles": apparmor_profiles,
+        "desktop_files": desktop_files,
+        "translation_files": translation_files,
+        "plugin_candidates": plugin_candidates,
+        "maintainer_scripts": maintainer_scripts,
         "note": "Real sbuild with unshare backend completed" if build_success else "sbuild failed",
+    }
+
+
+@adapter(AdapterID.BINARY_PACKAGE_INSPECTION, depends_on=[AdapterID.SBUILD])
+def collect_binary_package_inspection(ctx) -> BinaryPackageInspectionResult:
+    """Expose the single sbuild-time binary extraction as a stable adapter contract."""
+    sbuild = ctx.evidence.get("adapters", {}).get("sbuild", {})
+    if sbuild.get("status") != "ok":
+        raise AdapterError("binary-package-inspection requires successful sbuild evidence")
+    return {
+        "status": "ok",
+        "static_binaries": list(sbuild.get("static_binaries", [])),
+        "setuid_setgid_binaries": list(sbuild.get("setuid_setgid_binaries", [])),
+        "nobody_owned_files": list(sbuild.get("nobody_owned_binaries", [])),
+        "sbin_executables": list(sbuild.get("sbin_executables", [])),
+        "systemd_units": list(sbuild.get("systemd_units", [])),
+        "cron_jobs": list(sbuild.get("cron_jobs", [])),
+        "apparmor_profiles": list(sbuild.get("apparmor_profiles", [])),
+        "desktop_files": list(sbuild.get("desktop_files", [])),
+        "translation_files": list(sbuild.get("translation_files", [])),
+        "plugin_candidates": list(sbuild.get("plugin_candidates", [])),
+        "maintainer_scripts": list(sbuild.get("maintainer_scripts", [])),
     }
 
 
