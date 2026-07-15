@@ -13,7 +13,10 @@ Reporter user testing uses a composed role catalog:
 
 - `catalog-shared.yaml` declares which established policy/adapter sections are
    shared.
-- `catalog-mir-review.yaml` records reviewer ownership during migration.
+- `catalog-mir-review.yaml` is the reviewer role entry point and records its
+   owned sections. It currently loads the established reviewer data file through
+   a compatibility reference; role-aware runtime and template generation no
+   longer bypass this contract.
 - `catalog-mir-report.yaml` is the single source for reporter items, terminal
    questions, readiness effects, and the generated reporter template body.
 

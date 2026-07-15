@@ -17,6 +17,7 @@ def test_review_role_preserves_existing_catalog():
     review = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "review")
 
     assert review == legacy
+    assert (TOOL_ROOT / "catalog-mir-review.yaml").exists()
 
 
 def test_report_role_composes_shared_adapters_and_report_items():

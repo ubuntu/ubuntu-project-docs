@@ -137,7 +137,9 @@ confirmation. Human declarations are never inferred from package evidence.
   compatibility migration.
 - `catalog-shared.yaml` explicitly declares the global policy and adapter
   sections inherited by role catalogs.
-- `catalog-mir-review.yaml` records reviewer section ownership.
+- `catalog-mir-review.yaml` is the reviewer role entry point and records
+  reviewer section ownership while loading the established data file through a
+  compatibility reference.
 - `catalog-mir-report.yaml` owns reporter items, questions, readiness policy,
   and the reporter template blueprint.
 

@@ -39,3 +39,41 @@ def test_reporter_document_uses_generated_literalinclude():
 
     assert "{literalinclude} mir-reporters-template-body.include" in document
     assert "[Availability]" not in document
+
+
+def test_reporter_template_covers_every_historic_policy_family_logically():
+    data = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    rendered = renderer.render_reporter_template(data)
+
+    required_policy_terms = {
+        "Ubuntu demand",
+        "main versus universe",
+        "existing MIR",
+        "binary promotion scope",
+        "Security history",
+        "full release lifetime",
+        "privileged binaries",
+        "Deprecated algorithms",
+        "reasonable configuration",
+        "important, old, critical",
+        "exotic hardware",
+        "non-trivial build-time test suite",
+        "written test plan",
+        "Minimal libraries",
+        "upstream release mechanism",
+        "correct Maintainer field",
+        "obsolete dependencies",
+        "debconf questions",
+        "internationalization",
+        "Runtime dependencies",
+        "FHS or Debian Policy",
+        "full support lifetime",
+        "eligible owning team",
+        "Static and vendored builds",
+        "Rust packages",
+        "build from the last three months",
+        "team affected",
+        "Package descriptions",
+    }
+    missing = sorted(term for term in required_policy_terms if term not in rendered)
+    assert not missing, f"Reporter template misses historic policy families: {missing}"

@@ -186,7 +186,12 @@ def main() -> int:
         print(f"Catalog file not found: {catalog_path}", file=sys.stderr)
         return 1
 
-    catalog_data = catalog.load_catalog(catalog_path, workspace_root)
+    if args.catalog == "tools/auto-mir/catalog.yaml":
+        catalog_data = catalog.load_catalog_for_role(
+            workspace_root / "tools/auto-mir", workspace_root, "review"
+        )
+    else:
+        catalog_data = catalog.load_catalog(catalog_path, workspace_root)
     try:
         template_text = _render_from_blueprint(catalog_data)
     except RuntimeError as exc:

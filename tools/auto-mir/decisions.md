@@ -319,6 +319,27 @@ Use this log as the source for deciding what should be promoted into
   `--help` and the end-user guide.
 - Validation from `tools/auto-mir`: `make test` PASS (495 passed, 3 skipped).
 
+## 2026-07-15 — Reporter template uses logical policy parity
+
+- Promotion: no
+- Context: preserving the former reporter body byte-for-byte would also freeze
+  historical typos, obsolete wording, and URLs, and would duplicate a large
+  prose snapshot alongside structured production items. The reporter catalog
+  now carries every planned logical question, choice family, A-H/X alternative,
+  section, and semantic RULE requirement.
+- Decision: use strict logical policy parity rather than byte parity. Keep the
+  catalog as the only editable source for generated guidance and templates;
+  validate 53 unique logical items, all section markers, option statements,
+  conditions, blueprint coverage, and key rule families. Intentional wording
+  corrections remain normal catalog changes.
+- Also make `catalog-mir-review.yaml` the real role-aware loading and template
+  generation entry point. Its compatibility reference preserves the established
+  reviewer data and exact reviewer output while completing role separation at
+  the public catalog boundary.
+- Validation from `tools/auto-mir`: `make test` PASS (496 passed, 3 skipped).
+  Strict reporter generation covers 53 items, all 12 sections, every option
+  statement, conditions/cardinality, A-H/X, and all historical policy families.
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

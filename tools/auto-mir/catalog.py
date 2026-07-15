@@ -123,7 +123,24 @@ def load_catalog_for_role(tool_root: Path, workspace_root: Path, role: str) -> d
     blueprint live only in ``catalog-mir-report.yaml``.
     """
     if role == "review":
-        return load_catalog(tool_root / "catalog.yaml", workspace_root)
+        review_contract = _load_yaml_path(tool_root / "catalog-mir-review.yaml")
+        if review_contract.get("role") != "review":
+            print("Invalid review catalog composition contract", file=sys.stderr)
+            raise SystemExit(1)
+        source_name = review_contract.get("source_catalog")
+        role_sections = review_contract.get("role_sections")
+        if not isinstance(source_name, str) or not isinstance(role_sections, list):
+            print("Invalid review catalog composition contract", file=sys.stderr)
+            raise SystemExit(1)
+        review = load_catalog(tool_root / source_name, workspace_root)
+        missing = sorted(set(role_sections) - set(review))
+        if missing:
+            print(
+                "Review source catalog is missing owned sections: " + ", ".join(missing),
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
+        return review
     if role != "report":
         print(f"Unknown catalog role: {role}", file=sys.stderr)
         raise SystemExit(1)
