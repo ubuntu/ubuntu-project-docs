@@ -6,7 +6,6 @@ import logging
 
 from reporter.consistency import run_consistency_pass
 from reporter.evaluator import evaluate_items
-from reporter.models import QuestionKind, QuestionSpec
 from reporter.render import write_outputs
 from reporter.wizard import TerminalWizard
 
@@ -14,7 +13,7 @@ log = logging.getLogger("auto_mir.reporter")
 
 
 def intake(ctx, wizard: TerminalWizard) -> None:
-    """Validate basic reporter input and collect the target series."""
+    """Validate basic reporter input and resolve the target series."""
     source = ctx.source_package.strip()
     if not source or source != source.casefold():
         raise ValueError("source package must be a non-empty lowercase name")
@@ -23,16 +22,8 @@ def intake(ctx, wizard: TerminalWizard) -> None:
         raise ValueError(f"invalid Ubuntu source package name: {source}")
 
     if not ctx.series:
-        answer = wizard.ask(
-            QuestionSpec(
-                id="report-series",
-                prompt="Target Ubuntu series (codename, or 'devel'):",
-                kind=QuestionKind.TEXT,
-                default="devel",
-            )
-        )
-        assert answer is not None
-        ctx.series = str(answer.value).strip().casefold()
+        ctx.series = "devel"
+        log.info("No --series supplied for reporter mode; using development release (devel)")
     log.info("Reporter intake: source=%s series=%s", ctx.source_package, ctx.series)
 
 

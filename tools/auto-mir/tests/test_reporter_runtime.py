@@ -185,15 +185,26 @@ def test_consistency_error_forces_not_ready_rendering(tmp_path):
     assert "REP-MAINT-001" in report["readiness"]["blockers"]
 
 
-def test_reporter_intake_prompts_for_series(tmp_path):
+def test_reporter_intake_defaults_to_devel_without_prompt(tmp_path):
     ctx = _ctx(tmp_path)
     ctx.series = None
     wizard = FakeWizard("noble")
 
     pipeline.intake(ctx, wizard)
 
+    assert ctx.series == "devel"
+    assert wizard.asked == []
+
+
+def test_reporter_intake_preserves_explicit_series(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.series = "noble"
+    wizard = FakeWizard()
+
+    pipeline.intake(ctx, wizard)
+
     assert ctx.series == "noble"
-    assert wizard.asked == ["report-series"]
+    assert wizard.asked == []
 
 
 def test_reporter_choice_conditions_and_multi_choice_are_catalog_driven(tmp_path):

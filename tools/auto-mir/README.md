@@ -48,6 +48,10 @@ To prepare a reporter draft from a source package, use an interactive terminal:
 ./auto_mir.py report <source package>
 ```
 
+Reporter mode targets the development release (`devel`) when `--series` is not
+specified. Pass an explicit codename only when preparing a request for another
+series. Reviewer mode continues to infer the series from Launchpad bug tasks.
+
 Reporter mode collects evidence before asking long-form questions. Finish a
 multiline answer with a line containing only `.`; enter `\.` for a literal dot.
 Answers are not saved for resume if the process is interrupted. Use `--no-llm`

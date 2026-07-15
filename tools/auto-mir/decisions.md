@@ -308,6 +308,17 @@ Use this log as the source for deciding what should be promoted into
   while the consistency pass still reports a blocker.
 - Validation from `tools/auto-mir`: `make test` PASS (493 passed, 3 skipped).
 
+## 2026-07-15 — Reporter series defaults to devel
+
+- Promotion: no
+- Context: reporter mode prompted for a series even though the intended default
+  is the current development release and pressing Enter selected `devel`.
+- Decision: when `report SOURCE` has no `--series`, select `devel` immediately
+  without a terminal question. Preserve reviewer behavior, where omission means
+  detecting the series from Launchpad bug tasks. Explain both behaviors in
+  `--help` and the end-user guide.
+- Validation from `tools/auto-mir`: `make test` PASS (495 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

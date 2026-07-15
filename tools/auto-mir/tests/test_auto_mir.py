@@ -44,6 +44,17 @@ def test_cli_accepts_report_source_and_no_llm():
     assert args.no_llm is True
 
 
+def test_cli_series_help_explains_role_specific_defaults():
+    parser = auto_mir.build_parser()
+    subcommands = parser._subparsers._group_actions[0].choices
+    help_text = subcommands["report"].format_help()
+
+    assert "Reviewer mode detects it from" in help_text
+    assert "Launchpad bug tasks" in help_text
+    assert "reporter mode defaults" in help_text
+    assert "release ('devel')" in help_text
+
+
 def test_cli_does_not_treat_bare_source_as_legacy_review():
     with pytest.raises(SystemExit, match="2"):
         auto_mir.build_parser().parse_args(["libfoo"])

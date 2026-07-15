@@ -132,7 +132,11 @@ def build_parser() -> argparse.ArgumentParser:
     common.add_argument(
         "--series",
         default=None,
-        help="Target Ubuntu series (e.g., 'noble', 'jammy'). Auto-detected if not specified.",
+        help=(
+            "Target Ubuntu series (e.g. 'noble' or 'jammy'). "
+            "Reviewer mode detects it from Launchpad bug tasks when omitted; "
+            "reporter mode defaults to the development release ('devel')."
+        ),
     )
     common.add_argument(
         "--output-dir",
