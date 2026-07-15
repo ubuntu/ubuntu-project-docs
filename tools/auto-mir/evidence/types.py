@@ -375,6 +375,7 @@ class PackagingSourceResult(TypedDict):
     has_desktop_file: bool
     has_translation_files: bool
     binary_sections: list[str]
+    is_library_package: bool
     nobody_source_hits: list[str]
     setuid_setgid_source_hits: list[str]
     nobody_source_files: list[str]

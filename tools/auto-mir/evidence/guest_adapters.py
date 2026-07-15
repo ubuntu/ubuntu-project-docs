@@ -275,6 +275,20 @@ def _parse_binary_sections(debian_control: str) -> list[str]:
     return sections
 
 
+_LIBRARY_BINARY_SECTIONS = {"libs", "libdevel", "oldlibs"}
+
+
+def _is_library_package(binary_sections: list[str]) -> bool:
+    """Return whether ``Section:`` values indicate a library-only source.
+
+    Section names such as ``libs``/``libdevel``/``oldlibs`` are a strong
+    signal that a source builds runtime or development libraries rather
+    than a user-facing program. REP-QA-TEST-008 uses this to only ask about
+    solution-level testing for packages that are actually libraries.
+    """
+    return any(section.casefold() in _LIBRARY_BINARY_SECTIONS for section in binary_sections)
+
+
 def _parse_source_control_fields(debian_control: str) -> dict[str, str]:
     """Return selected fields from the source paragraph of debian/control."""
     paragraph = debian_control.split("\n\n", 1)[0]
@@ -572,6 +586,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         for f in file_listing
     )
     binary_sections = _parse_binary_sections(debian_control)
+    is_library_package = _is_library_package(binary_sections)
     source_fields = _parse_source_control_fields(debian_control)
     debconf_templates = _parse_debconf_templates(debconf_content)
     debian_rules_overrides = sorted(
@@ -646,6 +661,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         "has_desktop_file": has_desktop_file,
         "has_translation_files": has_translation_files,
         "binary_sections": binary_sections,
+        "is_library_package": is_library_package,
         "nobody_source_hits": nobody_source_hits,
         "setuid_setgid_source_hits": setuid_setgid_source_hits,
         "nobody_source_files": nobody_source_files,

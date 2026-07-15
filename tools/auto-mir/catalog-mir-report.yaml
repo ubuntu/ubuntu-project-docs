@@ -403,6 +403,14 @@ items:
   title: Non-automated testing access
   mode: human_only
   readiness: blocker
+  applicability:
+    any:
+    - item: REP-QA-MAINT-004
+      equals: team-access
+    - evidence: autopkgtest-db.has_autopkgtest
+      equals: false
+    - evidence: autopkgtest-db.failing_arches
+      truthy: true
   question:
     kind: multi_choice
     prompt: Select every concrete way the owning team can test cases not covered by build tests or autopkgtests.
@@ -465,6 +473,10 @@ items:
   mode: human_only
   readiness: warning
   required: false
+  applicability:
+    evidence: packaging-source.is_library_package
+    equals: true
+  adapters_required: [packaging-source]
   question:
     kind: multiline
     prompt: If this is a minimal library tested in a wider solution, identify that solution and its end-to-end tests.

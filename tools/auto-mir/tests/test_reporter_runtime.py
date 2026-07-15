@@ -316,3 +316,55 @@ def test_reporter_choice_conditions_and_multi_choice_are_catalog_driven(tmp_path
     ]
     assert "required hardware" in by_id["REP-QA-TEST-005"].statement
     assert "simulator" in by_id["REP-QA-TEST-005"].statement
+
+
+def test_test_access_items_skipped_when_automated_testing_is_healthy(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class NoExoticHardwareWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-QA-MAINT-004": "no-exotic-hardware"}
+
+    wizard = NoExoticHardwareWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-QA-TEST-005" not in wizard.asked
+    assert "REP-QA-TEST-006" not in wizard.asked
+    assert by_id["REP-QA-TEST-005"].state == StatementState.NOT_APPLICABLE
+    assert by_id["REP-QA-TEST-006"].state == StatementState.NOT_APPLICABLE
+
+
+def test_test_access_items_asked_when_autopkgtests_are_missing(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["autopkgtest-db"]["has_autopkgtest"] = False
+
+    class NoExoticHardwareWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-QA-MAINT-004": "no-exotic-hardware"}
+
+    wizard = NoExoticHardwareWizard()
+
+    evaluate_items(ctx, wizard)
+
+    assert "REP-QA-TEST-005" in wizard.asked
+
+
+def test_micro_library_item_skipped_for_non_library_packages(tmp_path):
+    ctx = _ctx(tmp_path)
+    wizard = ChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-QA-TEST-008" not in wizard.asked
+    assert by_id["REP-QA-TEST-008"].state == StatementState.NOT_APPLICABLE
+
+
+def test_micro_library_item_asked_when_evidence_shows_a_library(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["packaging-source"]["is_library_package"] = True
+    wizard = ChoiceWizard()
+
+    evaluate_items(ctx, wizard)
+
+    assert "REP-QA-TEST-008" in wizard.asked

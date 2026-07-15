@@ -1607,6 +1607,20 @@ def test_parse_binary_sections():
     assert sections == ["libs", "libdevel"]
 
 
+def test_is_library_package_true_for_library_sections():
+    from evidence.guest_adapters import _is_library_package
+
+    assert _is_library_package(["libs", "libdevel"]) is True
+    assert _is_library_package(["oldlibs"]) is True
+
+
+def test_is_library_package_false_for_non_library_sections():
+    from evidence.guest_adapters import _is_library_package
+
+    assert _is_library_package(["utils", "net"]) is False
+    assert _is_library_package([]) is False
+
+
 def test_parse_source_control_fields_handles_continuations():
     from evidence.guest_adapters import _parse_source_control_fields
 
