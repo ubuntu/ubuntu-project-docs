@@ -152,10 +152,11 @@ honest not-ready draft containing TODOs, blockers, or warnings. Resolve and
 verify those items before posting the request. Auto-MIR never creates or edits a
 Launchpad bug.
 
-Reporter mode is ready for workflow user testing, but its first catalog groups
-some of the detailed legacy TODO variants into broader questions. It covers all
-12 reporter sections; fine-grained policy-text parity is still required before
-declaring the reporter feature production-ready.
+Reporter mode covers all 12 sections through 53 stable logical items, including
+conditional choice groups and all A-H/X non-automated-testing alternatives.
+Deterministic evidence, human declarations, accepted AI suggestions, selected
+options, readiness issues, and final consistency results remain distinguishable
+in the structured report.
 
 ## Development documentation
 

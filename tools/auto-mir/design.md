@@ -145,6 +145,12 @@ Reporter composition rejects shared-section overrides and validates every item,
 adapter reference, and blueprint reference. Physical extraction of the shared
 and review sections from the compatibility catalog remains follow-up work.
 
+The report catalog currently defines 53 stable logical items. Its runtime
+supports catalog options, multi-select choices, safe applicability conditions,
+deterministic evaluators, bounded evidence-to-AI suggestions with explicit
+confirmation, direct human fallback, and one final issue-finding consistency
+pass followed by deterministic readiness validation.
+
 ## Checks subsystem model
 
 `checks/__init__.py` orchestrates evaluation in two passes:

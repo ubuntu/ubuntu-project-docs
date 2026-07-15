@@ -83,6 +83,18 @@ make test
 Includes `tests/test_artifacts.py` which replays saved test artifacts from real MIR bugs
 through the deterministic check evaluators and verifies findings match known-good baselines.
 
+Reporter production contracts are covered separately by:
+
+- `tests/test_catalog_roles.py` — 53-item inventory, adapter/blueprint references,
+	option cardinality, and A-H/X coverage;
+- `tests/test_reporter_runtime.py` — deterministic/human evaluation, conditional
+	questions, selected-option provenance, readiness, and artifacts;
+- `tests/test_reporter_ai.py` — confirm/correct behavior and no-LLM fallback;
+- `tests/test_reporter_consistency.py` — deterministic invariants and the bounded
+	final consistency pass;
+- `tests/test_render_reporter_template.py` — strict catalog-driven documentation
+	generation and section/item coverage.
+
 **Artifacts are stored in:** `tools/auto-mir/tests/fixtures/<bug_id>/`
 
 Each fixture contains:

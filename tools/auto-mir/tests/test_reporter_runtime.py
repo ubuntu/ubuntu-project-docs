@@ -11,6 +11,7 @@ sys.path.insert(0, str(TOOL_ROOT))
 
 import catalog  # noqa: E402
 from reporter import pipeline  # noqa: E402
+from reporter.consistency import ConsistencyIssue, ConsistencyReport  # noqa: E402
 from reporter.evaluator import evaluate_items  # noqa: E402
 from reporter.models import Answer, Provenance, StatementState  # noqa: E402
 from reporter.render import write_outputs  # noqa: E402
@@ -167,6 +168,21 @@ def test_missing_deterministic_evidence_remains_honest_and_not_ready(tmp_path):
     report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
     assert report["readiness"]["ready"] is False
     assert "REP-AVAIL-001" in report["readiness"]["unresolved"]
+
+
+def test_consistency_error_forces_not_ready_rendering(tmp_path):
+    ctx = _ctx(tmp_path)
+    results = evaluate_items(ctx, FakeWizard())
+    ctx.consistency_report = ConsistencyReport(
+        ready=False,
+        errors=[ConsistencyIssue("REP-MAINT-001", "contradiction", "Ownership conflict")],
+    )
+
+    write_outputs(ctx, results)
+
+    report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
+    assert report["readiness"]["ready"] is False
+    assert "REP-MAINT-001" in report["readiness"]["blockers"]
 
 
 def test_reporter_intake_prompts_for_series(tmp_path):

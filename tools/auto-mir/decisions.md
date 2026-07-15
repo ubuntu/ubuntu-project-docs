@@ -299,6 +299,15 @@ Use this log as the source for deciding what should be promoted into
   requirements without duplicating policy in the Markdown wrapper. The catalog
   remains authoritative for both guidance and questions.
 
+## 2026-07-15 — Consistency-aware final readiness
+
+- Promotion: no
+- Decision: merge deterministic/final consistency errors into both the human
+  reporter draft readiness summary and structured report readiness. A pipeline
+  that completed successfully must never display `Ready for submission: yes`
+  while the consistency pass still reports a blocker.
+- Validation from `tools/auto-mir`: `make test` PASS (493 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

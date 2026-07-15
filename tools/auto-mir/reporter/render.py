@@ -17,7 +17,7 @@ def write_outputs(ctx, results: list[StatementResult]) -> None:
     ctx.reporter_draft_path = ctx.output_dir / "reporter-draft.txt"
     ctx.reporter_draft_path.write_text(ctx.secret_redactor.redact_text(draft), encoding="utf-8")
 
-    readiness = _readiness_summary(results)
+    readiness = _readiness_summary(results, getattr(ctx, "consistency_report", None))
     report = {
         "schema_version": 1,
         "role": "report",
@@ -65,7 +65,7 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
             if result.rationale:
                 lines.append(f"  (Unavailable: {result.rationale})")
 
-    readiness = _readiness_summary(list(by_id.values()))
+    readiness = _readiness_summary(list(by_id.values()), getattr(ctx, "consistency_report", None))
     lines.extend(
         [
             "",
@@ -81,7 +81,7 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _readiness_summary(results: list[StatementResult]) -> dict:
+def _readiness_summary(results: list[StatementResult], consistency=None) -> dict:
     blockers = sorted(
         result.id
         for result in results
@@ -99,8 +99,12 @@ def _readiness_summary(results: list[StatementResult]) -> dict:
         for result in results
         if result.state in {StatementState.NEEDS_INPUT, StatementState.UNAVAILABLE}
     )
+    consistency_blockers = (
+        [issue.item_id for issue in consistency.errors] if consistency is not None else []
+    )
+    blockers = sorted(set(blockers) | set(consistency_blockers))
     return {
-        "ready": not blockers and not unresolved,
+        "ready": not blockers and not unresolved and (consistency is None or consistency.ready),
         "blockers": blockers,
         "warnings": warnings,
         "unresolved": unresolved,
