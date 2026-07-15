@@ -45,7 +45,8 @@ _REREVIEW_TEXT_RE = re.compile(
 )
 _REORG_TEXT_RE = re.compile(
     r"renam(?:e|ed|ing)|reorganiz|reorganis|split\s+(?:out|from|of)|"
-    r"was\s+previously|formerly\s+(?:known|named|called)|supersed",
+    r"was\s+previously|formerly\s+(?:known|named|called)|supersed|"
+    r"\breplac(?:e|es|ed|ing)\b",
     re.IGNORECASE,
 )
 
@@ -77,6 +78,8 @@ def _reporter_text(ctx) -> str:
     if isinstance(bug, dict):
         parts.append(str(bug.get("title", "") or ""))
         parts.append(str(bug.get("description", "") or ""))
+        for comment in bug.get("comments", []) or []:
+            parts.append(str(comment or ""))
     return "\n".join(p for p in parts if p)
 
 
@@ -143,12 +146,40 @@ def _dup_predecessor_in_main(ctx) -> list[str]:
     return names
 
 
-def detect_review_type(ctx) -> ReviewTypeDecision:
-    """Detect (or honour a forced) review type for this run.
+def _text_signals(ctx) -> tuple[list[str], list[str]]:
+    """Return (reorg_signals, rereview_signals) from bug text patterns.
 
-    The ``--review-type`` CLI value on ``ctx.review_type_arg`` takes precedence:
-    ``fresh``/``rereview``/``reorg`` short-circuit auto-detection (but still
-    record a rationale), while ``auto`` (the default) runs the heuristics below.
+    Scans the combined reporter/bug text (including comments) for word-boundary
+    patterns. Used by both ``pre_detect_review_type`` (Stage 1, text-only) and
+    ``detect_review_type`` (Stage 4, text + evidence) so the text-based signal
+    logic stays consistent and is never duplicated.
+    """
+    text = _reporter_text(ctx)
+    reorg: list[str] = []
+    rereview: list[str] = []
+    if _REORG_TEXT_RE.search(text):
+        reorg.append("bug text mentions a rename/split/reorganisation/replacement")
+    if _REREVIEW_TEXT_RE.search(text):
+        rereview.append("bug text requests a (voluntary) re-review")
+    return reorg, rereview
+
+
+def pre_detect_review_type(ctx) -> ReviewTypeDecision:
+    """Stage-1 pre-detection using only bug text and the forced override.
+
+    Called by ``lp_intake.run()`` *before* the reporter-template hard-stop gate
+    to determine whether this is a re-review/reorg that does not require a
+    reporter template (per MIR policy). Only signals available before evidence
+    collection are consulted: the ``--review-type`` CLI value and bug text
+    patterns (title, description, comments, reporter content).
+
+    The authoritative resolution is ``detect_review_type()`` in Stage 4, which
+    additionally considers evidence adapters (``lp-mir-history``,
+    ``dup-search``, ``dep-analysis``, ``component-mismatches``). A
+    pre-detection of ``fresh`` is therefore not final: the full detection may
+    still upgrade it to ``rereview`` or ``reorg`` once evidence is available.
+    The reverse (pre-detect reorg, full detect fresh) is possible but unlikely
+    since text signals are a strong indicator.
 
     reorg is checked before rereview because a renamed/reorganised source is the
     more specific case; both soften findings identically, so the label mainly
@@ -163,13 +194,77 @@ def detect_review_type(ctx) -> ReviewTypeDecision:
             signals=[f"forced:{forced}"],
         )
 
-    text = _reporter_text(ctx)
+    reorg_signals, rereview_signals = _text_signals(ctx)
+    signals: list[str] = []
+
+    if reorg_signals:
+        signals.extend(f"reorg: {s}" for s in reorg_signals)
+        return ReviewTypeDecision(
+            review_type=REORG,
+            forced=False,
+            rationale=(
+                "Detected a renamed/reorganised source from bug text: "
+                + "; ".join(reorg_signals)
+                + ". Treated like a re-review — all findings are non-blocking "
+                "recommendations; the reviewer can promote any line back to "
+                "Required."
+            ),
+            signals=signals,
+        )
+
+    if rereview_signals:
+        signals.extend(f"rereview: {s}" for s in rereview_signals)
+        return ReviewTypeDecision(
+            review_type=REREVIEW,
+            forced=False,
+            rationale=(
+                "Detected a voluntary re-review from bug text: "
+                + "; ".join(rereview_signals)
+                + ". All findings are non-blocking recommendations; the "
+                "reviewer can promote any line back to Required."
+            ),
+            signals=signals,
+        )
+
+    return ReviewTypeDecision(
+        review_type=FRESH,
+        forced=False,
+        rationale="No re-review or reorganisation signals detected in bug text; "
+        "treated as a normal (blocking) fresh review.",
+        signals=[],
+    )
+
+
+def detect_review_type(ctx) -> ReviewTypeDecision:
+    """Detect (or honour a forced) review type for this run.
+
+    The ``--review-type`` CLI value on ``ctx.review_type_arg`` takes precedence:
+    ``fresh``/``rereview``/``reorg`` short-circuit auto-detection (but still
+    record a rationale), while ``auto`` (the default) runs the heuristics below.
+
+    This is the authoritative Stage-4 resolution. It combines bug text signals
+    (shared with ``pre_detect_review_type``) with evidence-adapter signals only
+    available after Stage 3 collection (``lp-mir-history``, ``dup-search``,
+    ``dep-analysis``, ``component-mismatches``).
+
+    reorg is checked before rereview because a renamed/reorganised source is the
+    more specific case; both soften findings identically, so the label mainly
+    tells the human reviewer which fast-path applies.
+    """
+    forced = str(getattr(ctx, "review_type_arg", "auto") or "auto").strip().lower()
+    if forced in _VALID_FORCED:
+        return ReviewTypeDecision(
+            review_type=forced,
+            forced=True,
+            rationale=f"Forced via --review-type={forced}.",
+            signals=[f"forced:{forced}"],
+        )
+
+    text_reorg, text_rereview = _text_signals(ctx)
     signals: list[str] = []
 
     # --- reorg (renamed / reorganised source already in main) -------------
-    reorg_signals: list[str] = []
-    if _REORG_TEXT_RE.search(text):
-        reorg_signals.append("reporter text mentions a rename/split/reorganisation")
+    reorg_signals: list[str] = list(text_reorg)
     prior_other = _prior_mir_under_other_name(ctx)
     if prior_other:
         reorg_signals.append(
@@ -194,9 +289,7 @@ def detect_review_type(ctx) -> ReviewTypeDecision:
         )
 
     # --- rereview (voluntary opt-in re-review of a package in main) -------
-    rereview_signals: list[str] = []
-    if _REREVIEW_TEXT_RE.search(text):
-        rereview_signals.append("reporter text requests a (voluntary) re-review")
+    rereview_signals: list[str] = list(text_rereview)
     if _all_binaries_already_in_main(ctx):
         rereview_signals.append("all binary packages are already in main")
     if rereview_signals:

@@ -89,6 +89,32 @@ def test_reporter_text_mentions_rename_signals_reorg():
     assert decision.review_type == review_type.REORG
 
 
+def test_reporter_text_replace_signals_reorg():
+    ctx = _ctx(reporter_mir_content="mysql-9.7 to replace mysql-8.4 as the provider")
+    decision = review_type.detect_review_type(ctx)
+    assert decision.review_type == review_type.REORG
+
+
+def test_replacement_word_does_not_signal_reorg():
+    # "replacement" as a noun must not trigger the verb pattern.
+    ctx = _ctx(reporter_mir_content="This package is a replacement for the old one.")
+    decision = review_type.detect_review_type(ctx)
+    assert decision.review_type == review_type.FRESH
+
+
+def test_reorg_signal_in_comment_detected():
+    # Text signals must scan comments, not just reporter content / title / desc.
+    ctx = _ctx(
+        bug={
+            "title": "MIR for testpkg",
+            "description": "clean",
+            "comments": ["The source was renamed from testpkg-old."],
+        }
+    )
+    decision = review_type.detect_review_type(ctx)
+    assert decision.review_type == review_type.REORG
+
+
 def test_prior_mir_under_other_name_signals_reorg():
     ctx = _ctx(
         source_package="libfoo2",
@@ -125,6 +151,70 @@ def test_reorg_takes_precedence_over_rereview():
     )
     decision = review_type.detect_review_type(ctx)
     assert decision.review_type == review_type.REORG
+
+
+# ---------------------------------------------------------------------------
+# Pre-detection (Stage 1, text-only, used by lp_intake gate)
+# ---------------------------------------------------------------------------
+
+
+def test_pre_detect_forced_rereview():
+    ctx = _ctx(review_type_arg="rereview", reporter_mir_content="fresh review")
+    decision = review_type.pre_detect_review_type(ctx)
+    assert decision.review_type == review_type.REREVIEW
+    assert decision.forced is True
+
+
+def test_pre_detect_forced_reorg():
+    ctx = _ctx(review_type_arg="reorg")
+    decision = review_type.pre_detect_review_type(ctx)
+    assert decision.review_type == review_type.REORG
+    assert decision.forced is True
+
+
+def test_pre_detect_reorg_from_description():
+    ctx = _ctx(bug={"title": "MIR for mysql-9.7", "description": "mysql-9.7 to replace mysql-8.4"})
+    decision = review_type.pre_detect_review_type(ctx)
+    assert decision.review_type == review_type.REORG
+    assert decision.forced is False
+
+
+def test_pre_detect_reorg_from_replace():
+    ctx = _ctx(bug={"title": "MIR for foo", "description": "foo replaces bar as the provider"})
+    decision = review_type.pre_detect_review_type(ctx)
+    assert decision.review_type == review_type.REORG
+
+
+def test_pre_detect_rereview_from_description():
+    ctx = _ctx(bug={"title": "MIR for foo", "description": "This is a voluntary re-review."})
+    decision = review_type.pre_detect_review_type(ctx)
+    assert decision.review_type == review_type.REREVIEW
+    assert decision.forced is False
+
+
+def test_pre_detect_reorg_from_comment():
+    ctx = _ctx(
+        bug={
+            "title": "MIR for foo",
+            "description": "clean",
+            "comments": ["The source was reorganized."],
+        }
+    )
+    decision = review_type.pre_detect_review_type(ctx)
+    assert decision.review_type == review_type.REORG
+
+
+def test_pre_detect_fresh_no_signals():
+    ctx = _ctx(bug={"title": "MIR for foo", "description": "A brand new library."})
+    decision = review_type.pre_detect_review_type(ctx)
+    assert decision.review_type == review_type.FRESH
+    assert decision.signals == []
+
+
+def test_pre_detect_mirror_no_false_positive():
+    ctx = _ctx(reporter_mir_content="The package sets up a mirror of upstream data.")
+    decision = review_type.pre_detect_review_type(ctx)
+    assert decision.review_type == review_type.FRESH
 
 
 # ---------------------------------------------------------------------------
