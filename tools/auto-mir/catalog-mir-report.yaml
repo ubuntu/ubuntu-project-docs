@@ -23,9 +23,13 @@ metadata:
   - ''
   - '[Rationale]'
   - item: REP-RATIONALE-001
+  - item: REP-RATIONALE-005
+  - item: REP-RATIONALE-006
   - item: REP-RATIONALE-002
   - item: REP-RATIONALE-003
   - item: REP-RATIONALE-004
+  - item: REP-RATIONALE-007
+  - item: REP-RATIONALE-008
   - ''
   - '[Security]'
   - item: REP-SECURITY-001
@@ -36,16 +40,20 @@ metadata:
   - ''
   - '[Quality assurance - function/usage]'
   - item: REP-QA-FUNC-001
+  - item: REP-QA-FUNC-002
   - ''
   - '[Quality assurance - maintenance]'
   - item: REP-QA-MAINT-001
   - item: REP-QA-MAINT-002
+  - item: REP-QA-MAINT-004
   - item: REP-QA-MAINT-003
   - ''
   - '[Quality assurance - testing]'
   - item: REP-QA-TEST-001
   - item: REP-QA-TEST-002
   - item: REP-QA-TEST-003
+  - item: REP-QA-TEST-005
+  - item: REP-QA-TEST-006
   - item: REP-QA-TEST-004
   - ''
   - '[Quality assurance - packaging]'
@@ -60,6 +68,8 @@ metadata:
   - ''
   - '[Dependencies]'
   - item: REP-DEP-001
+  - item: REP-DEP-002
+  - item: REP-DEP-003
   - ''
   - '[Standards compliance]'
   - item: REP-STD-001
@@ -106,6 +116,34 @@ items:
     kind: multiline
     prompt: Why is this source package required in Ubuntu main?
   template: 'TODO: - The package TBDSRC is required in Ubuntu main for TBD'
+- id: REP-RATIONALE-005
+  section: Rationale
+  title: User benefit scope
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: single_choice
+    prompt: Is this broadly useful, or important for a narrower use case?
+    options:
+    - id: broad
+      label: Broadly useful to a large part of the user base
+      statement: The package TBDSRC will generally be useful for a large part of our user base.
+    - id: niche
+      label: Narrower use case that still matters
+      statement: The package TBDSRC serves a narrower but important Ubuntu use case.
+  template: 'TODO-A/B: - User benefit scope: TBD'
+- id: REP-RATIONALE-006
+  section: Rationale
+  title: Narrow use-case explanation
+  mode: human_only
+  readiness: blocker
+  applicability:
+    item: REP-RATIONALE-005
+    equals: niche
+  question:
+    kind: multiline
+    prompt: Why is the narrower use case important enough to justify main inclusion?
+  template: 'TODO: - The narrower use case is important because TBD'
 - id: REP-RATIONALE-002
   section: Rationale
   title: User benefit
@@ -135,6 +173,34 @@ items:
     kind: multiline
     prompt: Which binary packages need promotion, and what purpose does that scope achieve?
   template: 'TODO: - The binary packages TBD need to be in main to achieve TBD'
+- id: REP-RATIONALE-007
+  section: Rationale
+  title: Target deadline
+  mode: human_only
+  readiness: warning
+  question:
+    kind: single_choice
+    prompt: Is there a well-founded release deadline?
+    options:
+    - id: required-by
+      label: Yes, a well-founded deadline exists
+      statement: The package TBDSRC is required in Ubuntu main by a defined deadline.
+    - id: no-deadline
+      label: No definitive deadline
+      statement: The package would be useful in main, but there is no definitive deadline.
+  template: 'TODO-A/B: - Target deadline: TBD'
+- id: REP-RATIONALE-008
+  section: Rationale
+  title: Deadline details
+  mode: human_only
+  readiness: warning
+  applicability:
+    item: REP-RATIONALE-007
+    equals: required-by
+  question:
+    kind: multiline
+    prompt: State the deadline and the major-release reason that makes it well founded.
+  template: 'TODO: - Required in main no later than TBD due to TBD'
 - id: REP-SECURITY-001
   section: Security
   title: Security history
@@ -188,6 +254,22 @@ items:
     kind: multiline
     prompt: Does the package work after installation, or what configuration/documentation is required?
   template: 'TODO: - Package function after installation and required configuration: TBD'
+- id: REP-QA-FUNC-002
+  section: Quality assurance - function/usage
+  title: Post-install behavior
+  mode: human_only
+  readiness: warning
+  question:
+    kind: single_choice
+    prompt: Which post-install behavior applies?
+    options:
+    - id: works-after-install
+      label: Works well immediately after installation
+      statement: The package works well right after install.
+    - id: configuration-required
+      label: Requires configuration or documentation
+      statement: The package needs post-install configuration or documentation because no safe default exists.
+  template: 'TODO-A/B: - Post-install behavior: TBD'
 - id: REP-QA-MAINT-001
   section: Quality assurance - maintenance
   title: Important open bugs
@@ -206,6 +288,22 @@ items:
     kind: multiline
     prompt: Does maintenance require exotic hardware, and how can the owning team access it?
   template: 'TODO: - Exotic hardware requirements and team access: TBD'
+- id: REP-QA-MAINT-004
+  section: Quality assurance - maintenance
+  title: Exotic hardware availability
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: single_choice
+    prompt: Does maintenance depend on exotic hardware unavailable to ordinary infrastructure?
+    options:
+    - id: no-exotic-hardware
+      label: No exotic hardware is required
+      statement: The package does not depend on exotic hardware we cannot support.
+    - id: team-access
+      label: Exotic hardware is required and accessible to the team
+      statement: Required exotic hardware is available to the owning team for debugging, testing, verification, and development.
+  template: 'TODO-A/B: - Exotic hardware availability: TBD'
 - id: REP-QA-MAINT-003
   section: Quality assurance - maintenance
   title: Maintenance health assessment
@@ -243,6 +341,55 @@ items:
     kind: multiline
     prompt: Explain any testing gaps, hardware/manual test plan, execution frequency, and regression consequences.
   template: 'TODO: - Testing gaps and the owning team test plan are: TBD'
+- id: REP-QA-TEST-005
+  section: Quality assurance - testing
+  title: Non-automated testing access
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: multi_choice
+    prompt: Select every concrete way the owning team can test cases not covered by build tests or autopkgtests.
+    options:
+    - id: A-team-hardware
+      label: Hardware is available in the team
+      statement: The owning team has access to the required hardware.
+    - id: B-budget
+      label: Budget is allocated to acquire hardware
+      statement: Budget is allocated to acquire the required hardware, but it is not available yet.
+    - id: C-testflinger
+      label: Solutions QA hardware through Testflinger
+      statement: Solutions QA hardware will be used through Testflinger.
+    - id: D-other-team
+      label: Hardware from another team
+      statement: Another team will provide access to the required hardware.
+    - id: E-simulator
+      label: A sufficiently representative simulator
+      statement: A simulator will provide sufficiently representative test coverage.
+    - id: F-upstream
+      label: Upstream community tests new builds
+      statement: The upstream community can test new Ubuntu package builds.
+    - id: G-users
+      label: User community tests new builds
+      statement: The user community can test new Ubuntu package builds.
+    - id: H-manufacturer
+      label: Hardware manufacturer tests new builds
+      statement: The hardware manufacturer has agreed to test new builds.
+    - id: X-exhausted
+      label: All feasible testing options are exhausted
+      statement: All feasible ways to test or recreate this case have been exhausted; the owning team accepts the additional servicing and regression risk.
+  template: 'TODO-A-H/X: - Non-automated testing access: TBD'
+- id: REP-QA-TEST-006
+  section: Quality assurance - testing
+  title: Non-automated test plan details
+  mode: human_only
+  readiness: blocker
+  applicability:
+    item: REP-QA-TEST-005
+    truthy: true
+  question:
+    kind: multiline
+    prompt: Provide the test plan or automation, example logs, execution frequency, and likely regression consequences.
+  template: 'TODO: - Test plan, logs, frequency, and regression consequences: TBD'
 - id: REP-QA-TEST-004
   section: Quality assurance - testing
   title: Test adequacy assessment
@@ -318,6 +465,37 @@ items:
   readiness: blocker
   adapters_required: [dep-analysis]
   template: 'TODO: - Runtime dependencies outside main and their MIR handling: TBD'
+- id: REP-DEP-002
+  section: Dependencies
+  title: Additional MIR routing
+  mode: human_only
+  readiness: blocker
+  applicability:
+    evidence: dep-analysis.in_scope_deps_not_in_main
+    truthy: true
+  question:
+    kind: single_choice
+    prompt: How are dependencies outside main being handled?
+    options:
+    - id: separate
+      label: Separate MIR bugs
+      statement: Further dependencies outside main are handled by separate MIR bugs.
+    - id: same-request
+      label: This MIR request
+      statement: Further dependencies outside main are handled as part of this MIR request.
+  template: 'TODO-B/C: - Additional dependency MIR routing: TBD'
+- id: REP-DEP-003
+  section: Dependencies
+  title: Separate dependency MIR references
+  mode: human_only
+  readiness: blocker
+  applicability:
+    item: REP-DEP-002
+    equals: separate
+  question:
+    kind: multiline
+    prompt: List the separate dependency MIR bug references.
+  template: 'TODO: - Separate dependency MIR bugs: TBD'
 - id: REP-STD-001
   section: Standards compliance
   title: FHS and Debian Policy

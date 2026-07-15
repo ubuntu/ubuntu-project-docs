@@ -27,6 +27,22 @@ class FakeWizard:
         return Answer(question_id=question.id, value=self.value, raw_input=self.value)
 
 
+class ChoiceWizard(FakeWizard):
+    values = {
+        "REP-RATIONALE-005": "niche",
+        "REP-RATIONALE-007": "no-deadline",
+        "REP-QA-FUNC-002": "configuration-required",
+        "REP-QA-MAINT-004": "team-access",
+        "REP-QA-TEST-005": ["A-team-hardware", "E-simulator"],
+        "REP-DEP-002": "separate",
+    }
+
+    def ask(self, question):
+        self.asked.append(question.id)
+        value = self.values.get(question.id, self.value)
+        return Answer(question_id=question.id, value=value, raw_input=str(value))
+
+
 def _ctx(tmp_path):
     report_catalog = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     evidence = {
@@ -151,3 +167,24 @@ def test_reporter_intake_prompts_for_series(tmp_path):
 
     assert ctx.series == "noble"
     assert wizard.asked == ["report-series"]
+
+
+def test_reporter_choice_conditions_and_multi_choice_are_catalog_driven(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["dep-analysis"]["in_scope_deps_not_in_main"] = ["libbar"]
+    wizard = ChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-RATIONALE-006" in wizard.asked
+    assert "REP-RATIONALE-008" not in wizard.asked
+    assert "REP-DEP-002" in wizard.asked
+    assert "REP-DEP-003" in wizard.asked
+    assert by_id["REP-RATIONALE-005"].selected_option == "niche"
+    assert by_id["REP-QA-TEST-005"].selected_option == [
+        "A-team-hardware",
+        "E-simulator",
+    ]
+    assert "required hardware" in by_id["REP-QA-TEST-005"].statement
+    assert "simulator" in by_id["REP-QA-TEST-005"].statement

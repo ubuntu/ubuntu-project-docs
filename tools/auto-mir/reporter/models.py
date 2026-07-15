@@ -109,6 +109,7 @@ class StatementResult:
     state: StatementState
     readiness: ReadinessEffect
     statement: str = ""
+    selected_option: str | list[str] | None = None
     provenance: Provenance | None = None
     evidence_refs: list[str] = field(default_factory=list)
     answer_refs: list[str] = field(default_factory=list)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 import llm
@@ -98,9 +99,9 @@ def _ask_human(item: dict, ctx, wizard, question) -> StatementResult:
         )
     template = str(item["template"]).replace("TBDSRC", ctx.source_package)
     statement = (
-        template.replace("TBD", str(answer.value), 1).removeprefix("TODO: ")
+        _strip_todo_prefix(template.replace("TBD", str(answer.value), 1))
         if "TBD" in template
-        else f"{template.removeprefix('TODO: ')} {answer.value}".strip()
+        else f"{_strip_todo_prefix(template)} {answer.value}".strip()
     )
     return StatementResult(
         id=item["id"],
@@ -112,3 +113,7 @@ def _ask_human(item: dict, ctx, wizard, question) -> StatementResult:
         answer_refs=[answer.question_id],
         human_confirmed=True,
     )
+
+
+def _strip_todo_prefix(text: str) -> str:
+    return re.sub(r"^TODO(?:-[A-Z0-9/-]+)?:\s*", "", text).strip()

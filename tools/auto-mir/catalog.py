@@ -170,6 +170,7 @@ def validate_report_catalog(catalog: dict) -> list[str]:
     }
     valid_modes = {"deterministic", "human_only", "ev_to_ai"}
     valid_readiness = {"clear", "warning", "blocker"}
+    conditions_by_item: dict[str, dict | None] = {}
     for index, item in enumerate(items):
         if not isinstance(item, dict):
             errors.append(f"reporter item {index} must be a mapping")
@@ -181,6 +182,7 @@ def validate_report_catalog(catalog: dict) -> list[str]:
         if item_id in item_ids:
             errors.append(f"duplicate reporter item id: {item_id}")
         item_ids.add(item_id)
+        conditions_by_item[item_id] = item.get("applicability")
         for field in ("section", "title", "mode", "template"):
             if not isinstance(item.get(field), str) or not item[field].strip():
                 errors.append(f"reporter item {item_id} missing {field}")
@@ -194,6 +196,22 @@ def validate_report_catalog(catalog: dict) -> list[str]:
             errors.append(f"interactive reporter item {item_id} requires a question")
         if item.get("mode") == "ev_to_ai" and not str(item.get("ai_policy", "")).strip():
             errors.append(f"AI reporter item {item_id} requires ai_policy")
+        question = item.get("question", {})
+        options = question.get("options", []) if isinstance(question, dict) else []
+        if options:
+            option_ids: set[str] = set()
+            for option in options:
+                option_id = option.get("id") if isinstance(option, dict) else None
+                if not isinstance(option_id, str) or not option_id:
+                    errors.append(f"reporter item {item_id} has option without id")
+                    continue
+                if option_id in option_ids:
+                    errors.append(f"reporter item {item_id} repeats option: {option_id}")
+                option_ids.add(option_id)
+                if not str(option.get("label", "")).strip():
+                    errors.append(f"reporter item {item_id} option {option_id} missing label")
+                if not str(option.get("statement", "")).strip():
+                    errors.append(f"reporter item {item_id} option {option_id} missing statement")
         if item.get("mode") == "deterministic" and not item.get("evaluator"):
             errors.append(f"deterministic reporter item {item_id} requires an evaluator")
         for adapter_field in ("adapters_required", "adapters_optional"):
@@ -223,6 +241,18 @@ def validate_report_catalog(catalog: dict) -> list[str]:
         missing = sorted(item_ids - referenced)
         if missing:
             errors.append("reporter blueprint omits items: " + ", ".join(missing))
+    from reporter.conditions import validate_condition_cycles, validate_condition_references
+
+    for item_id, condition in conditions_by_item.items():
+        errors.extend(
+            f"reporter item {item_id}: {error}"
+            for error in validate_condition_references(
+                condition,
+                known_items=item_ids,
+                known_adapters={str(adapter_id) for adapter_id in adapter_ids if adapter_id},
+            )
+        )
+    errors.extend(validate_condition_cycles(conditions_by_item))
     return errors
 
 

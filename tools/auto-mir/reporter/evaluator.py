@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from typing import Any
 
 from reporter.ai import evaluate_ai_item
+from reporter.conditions import ConditionContext, evaluate_condition
 from reporter.models import (
     Provenance,
     QuestionKind,
@@ -36,7 +38,23 @@ def reporter_evaluator(name: str):
 def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
     """Evaluate reporter items in catalog order, asking only human-owned input."""
     results: list[StatementResult] = []
+    item_values: dict[str, Any] = {}
     for item in ctx.catalog.get("items", []):
+        condition_context = ConditionContext(
+            items=item_values,
+            evidence=ctx.evidence.get("adapters", {}),
+        )
+        if not evaluate_condition(item.get("applicability"), condition_context):
+            results.append(
+                StatementResult(
+                    id=item["id"],
+                    section=item["section"],
+                    state=StatementState.NOT_APPLICABLE,
+                    readiness=ReadinessEffect.CLEAR,
+                )
+            )
+            item_values[item["id"]] = None
+            continue
         mode = item["mode"]
         readiness = ReadinessEffect(item.get("readiness", "clear"))
         if mode == "human_only":
@@ -52,32 +70,39 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
                     )
                 )
                 continue
-            statement = _human_statement(item, str(answer.value), ctx.source_package)
-            results.append(
-                StatementResult(
-                    id=item["id"],
-                    section=item["section"],
-                    state=StatementState.RESOLVED,
-                    readiness=ReadinessEffect.CLEAR,
-                    statement=statement,
-                    provenance=Provenance.HUMAN,
-                    answer_refs=[question.id],
-                    human_confirmed=True,
-                )
+            statement = _human_statement(item, answer.value, ctx.source_package)
+            result = StatementResult(
+                id=item["id"],
+                section=item["section"],
+                state=StatementState.RESOLVED,
+                readiness=ReadinessEffect.CLEAR,
+                statement=statement,
+                selected_option=answer.value
+                if question.kind in {QuestionKind.SINGLE_CHOICE, QuestionKind.MULTI_CHOICE}
+                else None,
+                provenance=Provenance.HUMAN,
+                answer_refs=[question.id],
+                human_confirmed=True,
             )
+            results.append(result)
+            item_values[item["id"]] = answer.value
             continue
 
         if mode == "ev_to_ai":
-            results.append(evaluate_ai_item(item, ctx, wizard, _question_from_item(item)))
+            result = evaluate_ai_item(item, ctx, wizard, _question_from_item(item))
+            results.append(result)
+            item_values[item["id"]] = result.selected_option or result.statement
             continue
 
         evaluator = _EVALUATORS.get(str(item.get("evaluator", "")))
         if evaluator is None:
             results.append(_unavailable(item, readiness, "deterministic evaluator unavailable"))
+            item_values[item["id"]] = None
             continue
         statement, evidence_refs, rationale = evaluator(item, ctx)
         if statement is None:
             results.append(_unavailable(item, readiness, rationale))
+            item_values[item["id"]] = None
             continue
         results.append(
             StatementResult(
@@ -91,6 +116,7 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
                 rationale=rationale,
             )
         )
+        item_values[item["id"]] = statement
     return results
 
 
@@ -112,11 +138,27 @@ def _question_from_item(item: dict) -> QuestionSpec:
     )
 
 
-def _human_statement(item: dict, answer: str, source_package: str) -> str:
+def _human_statement(item: dict, answer: Any, source_package: str) -> str:
     template = str(item["template"]).replace("TBDSRC", source_package)
+    options = item.get("question", {}).get("options", [])
+    selected = answer if isinstance(answer, list) else [answer]
+    option_statements = [
+        str(option.get("statement", "")).replace("TBDSRC", source_package)
+        for option in options
+        if option.get("id") in selected and option.get("statement")
+    ]
+    if option_statements:
+        return "\n".join(option_statements)
+    answer_text = (
+        ", ".join(str(value) for value in answer) if isinstance(answer, list) else str(answer)
+    )
     if "TBD" in template:
-        return template.replace("TBD", answer, 1).removeprefix("TODO: ")
-    return f"{template.removeprefix('TODO: ')} {answer}".strip()
+        return _strip_todo_prefix(template.replace("TBD", answer_text, 1))
+    return f"{_strip_todo_prefix(template)} {answer_text}".strip()
+
+
+def _strip_todo_prefix(text: str) -> str:
+    return re.sub(r"^TODO(?:-[A-Z0-9/-]+)?:\s*", "", text).strip()
 
 
 def _unavailable(item: dict, readiness: ReadinessEffect, rationale: str) -> StatementResult:

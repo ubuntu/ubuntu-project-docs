@@ -579,6 +579,7 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
         "current_version": current_version,
         "upload_history": upload_history,
         "uploaders": uploaders,
+        "source_url": f"https://launchpad.net/ubuntu/+source/{pkg}",
     }
 
 
@@ -1187,6 +1188,7 @@ def collect_lp_build_api(ctx) -> LPBuildAPIResult:
                 "date_created": _build_attr(record, "date_created", "datebuilt", "date_built"),
                 "pocket": _build_attr(record, "pocket"),
                 "archive": _build_attr(record, "archive"),
+                "web_link": _build_attr(record, "web_link", "self_link"),
             }
         )
 
@@ -1203,6 +1205,7 @@ def collect_lp_build_api(ctx) -> LPBuildAPIResult:
         "source_package": pkg,
         "series": series_name,
         "builds": builds,
+        "source_url": f"https://launchpad.net/ubuntu/+source/{pkg}",
     }
 
 

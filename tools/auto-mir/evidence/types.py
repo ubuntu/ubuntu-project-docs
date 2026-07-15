@@ -117,6 +117,7 @@ class LPPackageAPIResult(TypedDict):
     current_version: str
     upload_history: list[UploadHistoryEntry]
     uploaders: list[str]
+    source_url: str
 
 
 class LPBuildEntry(TypedDict):
@@ -129,6 +130,7 @@ class LPBuildEntry(TypedDict):
     date_created: str
     pocket: str
     archive: str
+    web_link: str
 
 
 class LPBuildAPIResult(TypedDict):
@@ -138,6 +140,7 @@ class LPBuildAPIResult(TypedDict):
     source_package: str
     series: str
     builds: list[LPBuildEntry]
+    source_url: str
 
 
 class UpstreamReleaseEntry(TypedDict):

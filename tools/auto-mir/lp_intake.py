@@ -10,6 +10,8 @@ be detected in the bug, because the rest of the pipeline depends on it.
 
 import logging
 import sys
+from functools import lru_cache
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils import llm_sanitize
@@ -46,15 +48,19 @@ def _series_supports_unshare_sbuild(series: str) -> bool:
         return True
 
 
-# Sentinel strings that reliably identify reporter MIR template content.
-# The reporter is expected to have processed the reporters template and posted it.
-_REPORTER_TEMPLATE_MARKERS = [
-    "[Availability]",
-    "[Rationale]",
-    "[Security]",
-    "[Quality assurance",
-    "[Maintenance",
-]
+@lru_cache(maxsize=1)
+def _reporter_template_markers() -> tuple[str, ...]:
+    """Return authoritative reporter section markers from the report catalog."""
+    import catalog
+
+    tool_root = Path(__file__).resolve().parent
+    workspace_root = tool_root.parent.parent
+    report_catalog = catalog.load_catalog_for_role(tool_root, workspace_root, "report")
+    markers = report_catalog.get("metadata", {}).get("section_markers", [])
+    if not isinstance(markers, list) or len(markers) < 3:
+        raise RuntimeError("Reporter catalog must define at least three section markers")
+    return tuple(str(marker) for marker in markers)
+
 
 # Sentinel string that reliably identifies a prior reviewer MIR review comment.
 # This is the only reliable marker - it appears at the start of all reviewer outputs.
@@ -89,7 +95,7 @@ def _get_launchpad():
 
 def _detect_reporter_mir_content(text: str) -> bool:
     """Return True if text contains recognisable reporter MIR template sections."""
-    hits = sum(1 for marker in _REPORTER_TEMPLATE_MARKERS if marker in text)
+    hits = sum(1 for marker in _reporter_template_markers() if marker in text)
     # Require at least 3 distinct section markers to avoid false positives.
     return hits >= 3
 

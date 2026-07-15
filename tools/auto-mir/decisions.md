@@ -240,6 +240,22 @@ Use this log as the source for deciding what should be promoted into
   provenance and evidence references.
 - Validation from `tools/auto-mir`: `make test` PASS (489 passed, 3 skipped).
 
+## 2026-07-15 — Catalog-driven reporter choices and applicability
+
+- Promotion: no
+- Decision: activate the safe condition engine in reporter evaluation, persist
+  stable selected option IDs, and render catalog-owned canonical statements for
+  single/multi-choice answers. Add conditional rationale/deadline, post-install,
+  exotic-hardware, dependency-routing, and full A-H/X non-automated-testing
+  flows. Validate option IDs/statements and all condition references/cycles at
+  catalog load time.
+- Also derive reviewer intake's reporter-template detection markers from the
+  report catalog and enrich Launchpad evidence with canonical source/build URLs.
+- Consequences: conditional questions are no longer hardcoded or always asked;
+  nested test-plan alternatives remain machine-auditable and structured output
+  records the exact choices used.
+- Validation from `tools/auto-mir`: `make test` PASS (490 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.
