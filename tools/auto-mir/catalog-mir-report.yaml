@@ -1,0 +1,300 @@
+schema_version: 1
+role: report
+metadata:
+  title: MIR reporter's template
+  section_markers:
+  - '[Availability]'
+  - '[Rationale]'
+  - '[Security]'
+  - '[Quality assurance - function/usage]'
+  - '[Quality assurance - maintenance]'
+  - '[Quality assurance - testing]'
+  - '[Quality assurance - packaging]'
+  - '[UI standards]'
+  - '[Dependencies]'
+  - '[Standards compliance]'
+  - '[Maintenance/Owner]'
+  - '[Background information]'
+  reporter_template_blueprint:
+  - '[Availability]'
+  - item: REP-AVAIL-001
+  - item: REP-AVAIL-002
+  - item: REP-AVAIL-003
+  - ''
+  - '[Rationale]'
+  - item: REP-RATIONALE-001
+  - item: REP-RATIONALE-002
+  - item: REP-RATIONALE-003
+  - item: REP-RATIONALE-004
+  - ''
+  - '[Security]'
+  - item: REP-SECURITY-001
+  - item: REP-SECURITY-002
+  - ''
+  - '[Quality assurance - function/usage]'
+  - item: REP-QA-FUNC-001
+  - ''
+  - '[Quality assurance - maintenance]'
+  - item: REP-QA-MAINT-001
+  - item: REP-QA-MAINT-002
+  - ''
+  - '[Quality assurance - testing]'
+  - item: REP-QA-TEST-001
+  - item: REP-QA-TEST-002
+  - item: REP-QA-TEST-003
+  - ''
+  - '[Quality assurance - packaging]'
+  - item: REP-QA-PKG-001
+  - item: REP-QA-PKG-002
+  - ''
+  - '[UI standards]'
+  - item: REP-UI-001
+  - ''
+  - '[Dependencies]'
+  - item: REP-DEP-001
+  - ''
+  - '[Standards compliance]'
+  - item: REP-STD-001
+  - item: REP-STD-002
+  - ''
+  - '[Maintenance/Owner]'
+  - item: REP-MAINT-001
+  - item: REP-MAINT-002
+  - item: REP-MAINT-003
+  - ''
+  - '[Background information]'
+  - item: REP-BG-001
+  - item: REP-BG-002
+  - item: REP-BG-003
+items:
+- id: REP-AVAIL-001
+  section: Availability
+  title: Source package availability
+  mode: deterministic
+  evaluator: source-availability
+  adapters_required: [lp-package-api]
+  template: 'TODO: The package TBDSRC is already in Ubuntu universe.'
+- id: REP-AVAIL-002
+  section: Availability
+  title: Architecture build state
+  mode: deterministic
+  evaluator: build-architectures
+  adapters_required: [lp-build-api]
+  template: 'TODO: It currently builds and works for architectures: TBD'
+- id: REP-AVAIL-003
+  section: Availability
+  title: Source package link
+  mode: deterministic
+  evaluator: source-link
+  adapters_required: []
+  template: 'TODO: Link to package https://launchpad.net/ubuntu/+source/TBDSRC'
+- id: REP-RATIONALE-001
+  section: Rationale
+  title: Main-inclusion reason
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: multiline
+    prompt: Why is this source package required in Ubuntu main?
+  template: 'TODO: - The package TBDSRC is required in Ubuntu main for TBD'
+- id: REP-RATIONALE-002
+  section: Rationale
+  title: User benefit
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: multiline
+    prompt: Describe the Ubuntu users and use cases that benefit from this promotion.
+  template: 'TODO: - The Ubuntu user benefit and enabled use cases are TBD'
+- id: REP-RATIONALE-003
+  section: Rationale
+  title: Alternatives considered
+  mode: human_only
+  readiness: warning
+  adapters_optional: [dup-search]
+  question:
+    kind: multiline
+    prompt: What alternatives already in main were considered, and why are they insufficient?
+  template: 'TODO: - There is no other/better way already in main; alternatives considered: TBD'
+- id: REP-RATIONALE-004
+  section: Rationale
+  title: Promotion binary scope
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: multiline
+    prompt: Which binary packages need promotion, and what purpose does that scope achieve?
+  template: 'TODO: - The binary packages TBD need to be in main to achieve TBD'
+- id: REP-SECURITY-001
+  section: Security
+  title: Security history
+  mode: deterministic
+  evaluator: cve-history
+  readiness: warning
+  adapters_required: [ubuntu-cve-tracker, nvd-enrich]
+  template: 'TODO: - Security history and relevant CVEs: TBD'
+- id: REP-SECURITY-002
+  section: Security
+  title: Security exposure and mitigations
+  mode: human_only
+  readiness: warning
+  question:
+    kind: multiline
+    prompt: Describe security-sensitive behavior, exposed endpoints, privileged operation, and mitigations.
+  template: 'TODO: - Security-sensitive behavior and risk mitigations are: TBD'
+- id: REP-QA-FUNC-001
+  section: Quality assurance - function/usage
+  title: Installed usability
+  mode: human_only
+  readiness: warning
+  question:
+    kind: multiline
+    prompt: Does the package work after installation, or what configuration/documentation is required?
+  template: 'TODO: - Package function after installation and required configuration: TBD'
+- id: REP-QA-MAINT-001
+  section: Quality assurance - maintenance
+  title: Important open bugs
+  mode: deterministic
+  evaluator: important-bugs
+  readiness: warning
+  adapters_required: [lp-bug-search-api, debian-bts]
+  adapters_optional: [upstream-tracker]
+  template: 'TODO: - Important Ubuntu, Debian, and upstream bugs: TBD'
+- id: REP-QA-MAINT-002
+  section: Quality assurance - maintenance
+  title: Hardware access
+  mode: human_only
+  readiness: warning
+  question:
+    kind: multiline
+    prompt: Does maintenance require exotic hardware, and how can the owning team access it?
+  template: 'TODO: - Exotic hardware requirements and team access: TBD'
+- id: REP-QA-TEST-001
+  section: Quality assurance - testing
+  title: Build-time tests
+  mode: deterministic
+  evaluator: build-tests
+  readiness: warning
+  adapters_required: [sbuild, packaging-source]
+  template: 'TODO: - Build-time test execution and failure gating: TBD'
+- id: REP-QA-TEST-002
+  section: Quality assurance - testing
+  title: Autopkgtests
+  mode: deterministic
+  evaluator: autopkgtests
+  readiness: warning
+  adapters_required: [autopkgtest-db]
+  template: 'TODO: - Autopkgtest presence and results: TBD'
+- id: REP-QA-TEST-003
+  section: Quality assurance - testing
+  title: Testing gaps and plan
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: multiline
+    prompt: Explain any testing gaps, hardware/manual test plan, execution frequency, and regression consequences.
+  template: 'TODO: - Testing gaps and the owning team test plan are: TBD'
+- id: REP-QA-PKG-001
+  section: Quality assurance - packaging
+  title: Upstream update mechanism
+  mode: deterministic
+  evaluator: watch-file
+  readiness: warning
+  adapters_required: [packaging-source]
+  template: 'TODO: - A mechanism to detect and fetch upstream versions is present or explained: TBD'
+- id: REP-QA-PKG-002
+  section: Quality assurance - packaging
+  title: Lintian status
+  mode: deterministic
+  evaluator: lintian
+  readiness: warning
+  adapters_required: [lintian]
+  template: 'TODO: - Lintian results and overrides: TBD'
+- id: REP-UI-001
+  section: UI standards
+  title: User interface standards
+  mode: human_only
+  readiness: warning
+  question:
+    kind: multiline
+    prompt: Is this end-user facing, and how are desktop integration and translations handled?
+  template: 'TODO: - User-interface, desktop-file, and translation applicability: TBD'
+- id: REP-DEP-001
+  section: Dependencies
+  title: Dependencies outside main
+  mode: deterministic
+  evaluator: dependencies
+  readiness: blocker
+  adapters_required: [dep-analysis]
+  template: 'TODO: - Runtime dependencies outside main and their MIR handling: TBD'
+- id: REP-STD-001
+  section: Standards compliance
+  title: FHS and Debian Policy
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: multiline
+    prompt: Confirm FHS and Debian Policy compliance, or explain and justify violations.
+  template: 'TODO: - FHS and Debian Policy compliance or justified violations: TBD'
+- id: REP-STD-002
+  section: Standards compliance
+  title: License lifetime
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: multiline
+    prompt: State the license-lifetime review conclusion and any time-bound or legal concerns.
+  template: 'TODO: - License compatibility over the full support lifetime: TBD'
+- id: REP-MAINT-001
+  section: Maintenance/Owner
+  title: Owning team commitment
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: multiline
+    prompt: Name the owning team and describe its explicit acknowledgement of the long-term commitment.
+  template: 'TODO: - The owning team will be TBD and has acknowledged the commitment.'
+- id: REP-MAINT-002
+  section: Maintenance/Owner
+  title: Team subscription
+  mode: deterministic
+  evaluator: team-subscription
+  readiness: warning
+  adapters_required: [team-mapping]
+  template: 'TODO: - Future owning-team package subscription status: TBD'
+- id: REP-MAINT-003
+  section: Maintenance/Owner
+  title: Static and vendored obligations
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: multiline
+    prompt: Describe static/vendored code and the owning team's rebuild, update, refresh, and security commitments.
+  template: 'TODO: - Static/vendored-code maintenance obligations and commitments: TBD'
+- id: REP-BG-001
+  section: Background information
+  title: Package purpose
+  mode: human_only
+  readiness: warning
+  question:
+    kind: multiline
+    prompt: Explain the package purpose and any background useful to a reviewer.
+  template: 'TODO: The package description and additional background explain the package: TBD'
+- id: REP-BG-002
+  section: Background information
+  title: Upstream name
+  mode: human_only
+  readiness: clear
+  required: false
+  question:
+    kind: text
+    prompt: If it differs from the source package, what is the upstream project name?
+  template: 'TODO: Upstream Name is TBD'
+- id: REP-BG-003
+  section: Background information
+  title: Upstream link
+  mode: deterministic
+  evaluator: upstream-link
+  readiness: warning
+  adapters_required: [upstream-tracker]
+  template: 'TODO: Link to upstream project TBD'

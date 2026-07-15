@@ -1,0 +1,10 @@
+# Reviewer role composition contract.
+schema_version: 1
+role: review
+source_catalog: catalog.yaml
+role_sections:
+- metadata
+- checks
+- security_triggers
+- render_policy
+- fallback_policy

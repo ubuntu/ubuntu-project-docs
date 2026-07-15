@@ -327,7 +327,9 @@ class RunContext:
         self.review_type: str = "fresh"
         self.tool_root = Path(__file__).resolve().parent
         self.workspace_root = self.tool_root.parent.parent
-        self.catalog_path = self.tool_root / "catalog.yaml"
+        self.catalog_path = self.tool_root / (
+            "catalog.yaml" if self.role == ROLE_REVIEW else "catalog-mir-report.yaml"
+        )
 
         # LXD guest name is always auto-generated
         run_subject = self.bug_id if self.role == ROLE_REVIEW else self.source_package
@@ -451,7 +453,7 @@ def stage_collect_evidence(ctx: RunContext) -> int:
 
     log.info("Stage 3: Collecting evidence for %s", ctx.source_package)
     if not ctx.catalog:
-        ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
+        ctx.catalog = catalog.load_catalog_for_role(ctx.tool_root, ctx.workspace_root, ctx.role)
         ctx.evidence["catalog_summary"] = catalog.summarize_catalog(ctx.catalog)
 
     result = collect_from_catalog(ctx)
@@ -478,7 +480,7 @@ def stage_analyse(ctx: RunContext) -> None:
 
     log.info("Stage 4: Analysing evidence for %s", ctx.source_package)
     if not ctx.catalog:
-        ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
+        ctx.catalog = catalog.load_catalog_for_role(ctx.tool_root, ctx.workspace_root, ctx.role)
 
     ctx.findings = checks.evaluate_checks(ctx)
     ctx.evidence["analysis_summary"] = {

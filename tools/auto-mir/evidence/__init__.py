@@ -54,7 +54,7 @@ def collect_from_catalog(ctx: EvidenceContext) -> int:
     """
     _ensure_adapters_registered()
 
-    checks = ctx.catalog.get("checks", [])
+    checks = ctx.catalog.get("checks", ctx.catalog.get("items", []))
     required: set[str] = set()
     optional: set[str] = set()
     for check in checks:

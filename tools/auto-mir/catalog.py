@@ -94,6 +94,134 @@ def load_catalog(catalog_path: Path, workspace_root: Path) -> dict:
     return loaded
 
 
+def _load_yaml_path(path: Path) -> dict:
+    """Strictly load one YAML mapping with the host dependency diagnostic."""
+    try:
+        import yaml
+    except ImportError:
+        package = ubuntu_package_for("pyyaml")
+        print(
+            f"auto-mir requires PyYAML on the host. Install it with: sudo apt install {package}",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            return _load_yaml_strict(handle, yaml)
+    except (OSError, yaml.YAMLError) as exc:
+        print(f"Catalog YAML error in {path}: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
+
+
+def load_catalog_for_role(tool_root: Path, workspace_root: Path, role: str) -> dict:
+    """Load the composed catalog view for ``review`` or ``report``.
+
+    Reviewer policy remains authoritative in ``catalog.yaml`` during the
+    compatibility migration. The shared composition contract explicitly names
+    the sections inherited by reporter mode; reporter items and its template
+    blueprint live only in ``catalog-mir-report.yaml``.
+    """
+    if role == "review":
+        return load_catalog(tool_root / "catalog.yaml", workspace_root)
+    if role != "report":
+        print(f"Unknown catalog role: {role}", file=sys.stderr)
+        raise SystemExit(1)
+
+    shared_contract = _load_yaml_path(tool_root / "catalog-shared.yaml")
+    source_name = shared_contract.get("source_catalog")
+    shared_sections = shared_contract.get("shared_sections")
+    if not isinstance(source_name, str) or not isinstance(shared_sections, list):
+        print("Invalid shared catalog composition contract", file=sys.stderr)
+        raise SystemExit(1)
+
+    source = load_catalog(tool_root / source_name, workspace_root)
+    report = _load_yaml_path(tool_root / "catalog-mir-report.yaml")
+    composed = {section: source[section] for section in shared_sections if section in source}
+    for key, value in report.items():
+        if key in composed:
+            print(f"Reporter catalog attempts to override shared section: {key}", file=sys.stderr)
+            raise SystemExit(1)
+        composed[key] = value
+
+    errors = validate_report_catalog(composed)
+    if errors:
+        print("Reporter catalog validation errors:", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        raise SystemExit(1)
+    return composed
+
+
+def validate_report_catalog(catalog: dict) -> list[str]:
+    """Validate the reporter item and blueprint contract."""
+    errors: list[str] = []
+    if catalog.get("role") != "report":
+        errors.append("reporter catalog role must be 'report'")
+    items = catalog.get("items")
+    if not isinstance(items, list) or not items:
+        return [*errors, "reporter catalog items must be a non-empty list"]
+
+    item_ids: set[str] = set()
+    adapter_ids = {
+        adapter.get("id")
+        for adapter in catalog.get("evidence_adapters", [])
+        if isinstance(adapter, dict)
+    }
+    valid_modes = {"deterministic", "human_only", "ev_to_ai"}
+    valid_readiness = {"clear", "warning", "blocker"}
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            errors.append(f"reporter item {index} must be a mapping")
+            continue
+        item_id = item.get("id")
+        if not isinstance(item_id, str) or not item_id:
+            errors.append(f"reporter item {index} missing id")
+            continue
+        if item_id in item_ids:
+            errors.append(f"duplicate reporter item id: {item_id}")
+        item_ids.add(item_id)
+        for field in ("section", "title", "mode", "template"):
+            if not isinstance(item.get(field), str) or not item[field].strip():
+                errors.append(f"reporter item {item_id} missing {field}")
+        if item.get("mode") not in valid_modes:
+            errors.append(f"reporter item {item_id} has invalid mode: {item.get('mode')}")
+        if item.get("readiness", "clear") not in valid_readiness:
+            errors.append(f"reporter item {item_id} has invalid readiness")
+        if item.get("mode") == "human_only" and not isinstance(item.get("question"), dict):
+            errors.append(f"human reporter item {item_id} requires a question")
+        if item.get("mode") == "deterministic" and not item.get("evaluator"):
+            errors.append(f"deterministic reporter item {item_id} requires an evaluator")
+        for adapter_field in ("adapters_required", "adapters_optional"):
+            references = item.get(adapter_field, [])
+            if not isinstance(references, list):
+                errors.append(f"reporter item {item_id} {adapter_field} must be a list")
+                continue
+            for adapter_id in references:
+                if adapter_id not in adapter_ids:
+                    errors.append(
+                        f"reporter item {item_id} references unknown adapter: {adapter_id}"
+                    )
+
+    blueprint = catalog.get("metadata", {}).get("reporter_template_blueprint")
+    if not isinstance(blueprint, list) or not blueprint:
+        errors.append("reporter template blueprint must be a non-empty list")
+    else:
+        referenced: set[str] = set()
+        for entry in blueprint:
+            if isinstance(entry, dict):
+                item_id = entry.get("item")
+                if item_id not in item_ids:
+                    errors.append(f"reporter blueprint references unknown item: {item_id}")
+                elif item_id in referenced:
+                    errors.append(f"reporter blueprint repeats item: {item_id}")
+                referenced.add(item_id)
+        missing = sorted(item_ids - referenced)
+        if missing:
+            errors.append("reporter blueprint omits items: " + ", ".join(missing))
+    return errors
+
+
 # Check-level messages required for migrated checks.
 # Placeholder sets are strict minima for each template key.
 _REQUIRED_MESSAGE_TEMPLATES: dict[str, dict[str, set[str]]] = {

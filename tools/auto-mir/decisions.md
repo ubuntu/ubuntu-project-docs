@@ -119,6 +119,38 @@ Use this log as the source for deciding what should be promoted into
   - Diagnostics and traversal order are deterministic for tests and users.
   - Validation from `tools/auto-mir`: `make test` PASS (465 passed, 3 skipped).
 
+## 2026-07-15 — Composed reporter catalog and review compatibility contract
+
+- Promotion: no
+- Context: the initial reporter foundation had no reporter policy catalog and
+  therefore could not select evidence, drive questions, or generate a template.
+  Moving the full established reviewer catalog in the same change would add a
+  large, behavior-sensitive file relocation before reporter runtime existed.
+- Decision:
+  - Add an explicit shared composition contract naming the global policy and
+    adapter sections currently inherited from the established catalog.
+  - Add an explicit review role contract documenting the reviewer-owned
+    sections, while preserving `catalog.yaml` as their single compatibility
+    authority during migration.
+  - Add `catalog-mir-report.yaml` as the sole authority for reporter items,
+    questions, readiness effects, and reporter-template blueprint.
+  - Compose a fixed report view with no shared-section overrides and strict
+    item, adapter-reference, and blueprint-coverage validation.
+  - Let evidence discovery consume either reviewer `checks` or reporter
+    `items`.
+- Consequences:
+  - Reporter policy is now concrete and machine-validated rather than planned
+    only.
+  - Reviewer loading remains byte-for-byte equivalent to direct legacy catalog
+    loading.
+  - Physical extraction of shared/review sections remains a later migration;
+    the compatibility contracts make ownership explicit without duplicating
+    the 48 reviewer checks.
+  - The first reporter catalog is intentionally a user-test schema covering all
+    12 sections with grouped questions. Fine-grained parity with every legacy
+    TODO variant remains required before production readiness.
+  - Validation from `tools/auto-mir`: `make test` PASS (470 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.
