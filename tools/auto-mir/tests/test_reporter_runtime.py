@@ -54,10 +54,21 @@ def _ctx(tmp_path):
             "lp-build-api": {
                 "status": "ok",
                 "builds": [
-                    {"arch_tag": "amd64", "build_state": "Successfully built"},
-                    {"arch_tag": "arm64", "build_state": "Successfully built"},
+                    {
+                        "arch_tag": "amd64",
+                        "build_state": "Successfully built",
+                        "date_created": "2099-01-01T00:00:00+00:00",
+                        "web_link": "https://launchpad.net/+build/1",
+                    },
+                    {
+                        "arch_tag": "arm64",
+                        "build_state": "Successfully built",
+                        "date_created": "2099-01-01T00:00:00+00:00",
+                        "web_link": "https://launchpad.net/+build/2",
+                    },
                 ],
             },
+            "lp-mir-history": {"status": "ok", "prior_mir_bugs": []},
             "ubuntu-cve-tracker": {"status": "ok", "cves": []},
             "nvd-enrich": {"status": "ok", "cves": []},
             "lp-bug-search-api": {"status": "ok", "critical_bugs": []},

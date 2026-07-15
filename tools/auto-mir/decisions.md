@@ -256,6 +256,22 @@ Use this log as the source for deciding what should be promoted into
   records the exact choices used.
 - Validation from `tools/auto-mir`: `make test` PASS (490 passed, 3 skipped).
 
+## 2026-07-15 — Complete logical reporter-item inventory
+
+- Promotion: no
+- Decision: complete the approved 53-item logical reporter inventory across all
+  12 sections. Add explicit prior-MIR history, optional deprecated-crypto hint,
+  failing-test explanation, micro-library solution testing, obsolete dependency
+  detection, recent-build evidence, and cross-team impact coordination. Keep
+  option variants nested under stable parent IDs; the non-automated testing
+  group exposes all A-H and X alternatives.
+- Consequences: every planned logical question has a catalog identity, mode,
+  readiness effect, blueprint position, and deterministic or human/AI handling
+  path. Exact line-for-line preservation of the former prose/RULE body remains
+  a separate documentation-parity concern rather than an untracked question
+  gap.
+- Validation from `tools/auto-mir`: `make test` PASS (491 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

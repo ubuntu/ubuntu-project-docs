@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from reporter.ai import evaluate_ai_item
@@ -235,6 +236,26 @@ def _source_link(_item: dict, ctx) -> tuple[str | None, list[str], str]:
         f"Source package: https://launchpad.net/ubuntu/+source/{ctx.source_package}",
         [],
         "",
+    )
+
+
+@reporter_evaluator("prior-mir-history")
+def _prior_mir_history(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+    data = _adapter(ctx, "lp-mir-history")
+    if data.get("status") != "ok":
+        return None, [], "Prior MIR history was unavailable"
+    bugs = data.get("prior_mir_bugs", [])
+    if not bugs:
+        return (
+            "No prior MIR bug was found for this source or identified predecessor names.",
+            ["lp-mir-history:prior_mir_bugs"],
+            "",
+        )
+    links = [str(bug.get("web_link") or bug.get("id")) for bug in bugs[:20]]
+    return (
+        "Prior MIR history was found: " + ", ".join(links) + ".",
+        ["lp-mir-history:prior_mir_bugs"],
+        "Confirm whether the existing discussion should receive a new series task.",
     )
 
 
@@ -491,6 +512,64 @@ def _dependencies(_item: dict, ctx) -> tuple[str | None, list[str], str]:
         ["dep-analysis:in_scope_deps_not_in_main"],
         "Reference separate MIR bugs or include those sources in this request.",
     )
+
+
+@reporter_evaluator("obsolete-dependencies")
+def _obsolete_dependencies(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+    data = _adapter(ctx, "dep-analysis")
+    if data.get("status") != "ok":
+        return None, [], "Dependency analysis was unavailable"
+    dependency_names = {
+        str(entry.get("depends", ""))
+        for entry in data.get("runtime_deps", [])
+        if isinstance(entry, dict)
+    } | {str(name) for name in data.get("runtime_dep_packages", [])}
+    obsolete = sorted(
+        name
+        for name in dependency_names
+        if re.search(r"(?:python2|python2\.|gtk2|libgtk2|webkit1|qtwebkit|libseed)", name)
+    )
+    if not obsolete:
+        return (
+            "No Python 2, GTK 2, or other catalogued obsolete runtime dependency was found.",
+            ["dep-analysis:runtime_deps"],
+            "",
+        )
+    return (
+        "Potential obsolete runtime dependencies: " + ", ".join(obsolete) + ".",
+        ["dep-analysis:runtime_deps"],
+        "Remove or replace obsolete dependencies before promotion.",
+    )
+
+
+@reporter_evaluator("recent-build")
+def _recent_build(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+    data = _adapter(ctx, "lp-build-api")
+    if data.get("status") != "ok":
+        return None, [], "Launchpad build evidence was unavailable"
+    threshold = datetime.now(UTC) - timedelta(days=93)
+    recent: list[dict] = []
+    for build in data.get("builds", []):
+        value = str(build.get("date_created", "")).replace("Z", "+00:00")
+        try:
+            date = datetime.fromisoformat(value)
+        except ValueError:
+            continue
+        if date.tzinfo is None:
+            date = date.replace(tzinfo=UTC)
+        if date >= threshold:
+            recent.append(build)
+    if not recent:
+        return (
+            "No Launchpad build within the last three months was confirmed.",
+            ["lp-build-api:builds"],
+            "Provide a recent archive, test-rebuild, PPA, or local sbuild reference.",
+        )
+    links = [str(build.get("web_link", "")) for build in recent if build.get("web_link")]
+    statement = f"Launchpad records contain {len(recent)} build(s) from the last three months."
+    if links:
+        statement += " Builds: " + ", ".join(links[:10]) + "."
+    return statement, ["lp-build-api:builds"], ""
 
 
 @reporter_evaluator("team-subscription")

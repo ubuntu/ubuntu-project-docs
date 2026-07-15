@@ -42,6 +42,25 @@ def test_report_catalog_every_item_is_rendered_once():
     assert actual == expected
 
 
+def test_report_catalog_has_complete_logical_item_and_hardware_choice_inventory():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+
+    assert len(by_id) == 53
+    hardware_options = by_id["REP-QA-TEST-005"]["question"]["options"]
+    assert {option["id"] for option in hardware_options} == {
+        "A-team-hardware",
+        "B-budget",
+        "C-testflinger",
+        "D-other-team",
+        "E-simulator",
+        "F-upstream",
+        "G-users",
+        "H-manufacturer",
+        "X-exhausted",
+    }
+
+
 def test_unknown_catalog_role_fails(capsys):
     with pytest.raises(SystemExit, match="1"):
         catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "unknown")
