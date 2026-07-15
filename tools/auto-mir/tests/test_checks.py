@@ -29,12 +29,15 @@ def _make_finding(check_id="TST-1", title="Test check", mode="deterministic"):
 class _Ctx:
     """Minimal RunContext stub for check evaluator tests."""
 
-    def __init__(self, *, source_package="testpkg", reporter_content="content"):
+    def __init__(
+        self, *, source_package="testpkg", reporter_content="content", review_type="fresh"
+    ):
         self.bug_id = "123456"
         self.series = "devel"
         self.source_package = source_package
         self.reporter_mir_content = reporter_content
         self.requested_binaries = []
+        self.review_type = review_type
         self.bug = {"subscribers": []}
         self.findings = []
         self.catalog = {
@@ -51,6 +54,7 @@ class _Ctx:
                     "id": "SUM-2",
                     "messages": {
                         "ok_message": "Reporter MIR content found and used as context.",
+                        "rereview_ok_message": "Reporter template not required for re-review/reorg; proceeding without it.",
                         "nack_message": "Reporter MIR template content not found (hard stop)",
                         "nack_todo": "TODO: - Reporter must post their completed MIR template",
                     },
@@ -523,6 +527,18 @@ def test_sum_2_missing():
     finding = checks.deterministic._check_sum_2(ctx, _make_finding("SUM-2"))
     assert finding.status == "not-ok"
     assert finding.severity == "nack"
+
+
+def test_sum_2_rereview_ok_without_reporter_content():
+    ctx = _Ctx(reporter_content="", review_type="rereview")
+    finding = checks.deterministic._check_sum_2(ctx, _make_finding("SUM-2"))
+    assert finding.status == "ok"
+
+
+def test_sum_2_reorg_ok_without_reporter_content():
+    ctx = _Ctx(reporter_content="", review_type="reorg")
+    finding = checks.deterministic._check_sum_2(ctx, _make_finding("SUM-2"))
+    assert finding.status == "ok"
 
 
 # ---------------------------------------------------------------------------

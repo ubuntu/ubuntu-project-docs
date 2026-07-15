@@ -865,6 +865,7 @@ checks:
   - lp-bug-api
   messages:
     ok_message: Reporter MIR content found and used as context.
+    rereview_ok_message: Reporter template not required for re-review/reorg; proceeding without it.
     nack_message: Reporter MIR template content not found (hard stop)
     nack_todo: 'TODO: - Reporter must post their completed MIR template'
   todo_refs:

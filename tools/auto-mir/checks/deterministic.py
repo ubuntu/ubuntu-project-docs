@@ -234,6 +234,8 @@ def _check_sum_2(ctx, finding: Finding) -> Finding:
     if ctx.reporter_mir_content:
         finding.succeed(render_check_message(check, "ok_message"))
         finding.evidence_refs = ["lp-bug-api:reporter_content"]
+    elif str(getattr(ctx, "review_type", "fresh")) in ("rereview", "reorg"):
+        finding.succeed(render_check_message(check, "rereview_ok_message"))
     else:
         finding.fail(
             render_check_message(check, "nack_message"),
