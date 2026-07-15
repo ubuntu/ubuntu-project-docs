@@ -91,6 +91,48 @@ def test_multi_choice_deduplicates_and_preserves_order():
     assert wizard.ask(question).value == ["hardware", "upstream"]
 
 
+def test_multi_choice_rejects_exclusive_option_combined_with_others():
+    output: list[str] = []
+    wizard = TerminalWizard(
+        read_line=_reader(["all, ntpd-rs", "all"]),
+        write_line=output.append,
+    )
+    question = QuestionSpec(
+        id="REP-SCOPE",
+        prompt="Which binaries need promotion?",
+        kind=QuestionKind.MULTI_CHOICE,
+        options=(
+            QuestionOption("all", "All binaries", exclusive=True),
+            QuestionOption("ntpd-rs", "ntpd-rs"),
+        ),
+    )
+
+    answer = wizard.ask(question)
+
+    assert answer is not None
+    assert answer.value == ["all"]
+    assert any("shortcut options cannot be combined" in line.casefold() for line in output)
+
+
+def test_multi_choice_renders_shortcut_marker_for_exclusive_options():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader(["all"]), write_line=output.append)
+    question = QuestionSpec(
+        id="REP-SCOPE",
+        prompt="Which binaries need promotion?",
+        kind=QuestionKind.MULTI_CHOICE,
+        options=(
+            QuestionOption("all", "All binaries", exclusive=True),
+            QuestionOption("ntpd-rs", "ntpd-rs"),
+        ),
+    )
+
+    wizard.ask(question)
+
+    assert any("(shortcut)" in line for line in output)
+    assert not any("(shortcut)" in line for line in output if "ntpd-rs" in line)
+
+
 def test_multiline_uses_dot_sentinel_and_supports_literal_dot():
     wizard = TerminalWizard(
         read_line=_reader(["first paragraph", r"\.", "last paragraph", "."]),

@@ -32,6 +32,7 @@ metadata:
   - item: REP-RATIONALE-002
   - item: REP-RATIONALE-003
   - item: REP-RATIONALE-004
+  - item: REP-RATIONALE-004B
   - item: REP-RATIONALE-007
   - item: REP-RATIONALE-008
   - item: REP-RATIONALE-009
@@ -191,7 +192,9 @@ items:
   mode: ev_to_ai
   readiness: warning
   adapters_optional: [dup-search]
-  ai_policy: Assess only whether the supplied archive candidates plausibly overlap this package's stated functionality. Name candidates and uncertainty; do not decide Ubuntu demand or invent alternatives.
+  rule_context: 'RULE: Main inclusion needs demonstrated Ubuntu demand, correct understanding of main versus universe, and no better supported alternative.'
+  answer_guidance: Only alternatives already in Ubuntu main count against inclusion; a similar package in universe is not itself a reason to reject this promotion.
+  ai_policy: Assess only whether the supplied archive candidates plausibly overlap this package's stated functionality. For each credible candidate, state its name and archive component (main/universe/...); a candidate already in main is the relevant kind of alternative, a candidate in universe is not a blocker but may still be worth naming. Name candidates and uncertainty; do not decide Ubuntu demand or invent alternatives.
   question:
     kind: multiline
     prompt: What alternatives already in main were considered, and why are they insufficient?
@@ -201,10 +204,34 @@ items:
   title: Promotion binary scope
   mode: human_only
   readiness: blocker
+  adapters_optional: [dep-analysis]
+  rule_context: 'RULE: State the exact binary promotion scope and a well-founded major-release deadline, if any; wishes without a definite deadline should be identified as such.'
+  answer_guidance: Choose the specific binary packages that need to move to main, or pick a shortcut if the whole source (or everything except -dev/-doc/-dbg) applies.
+  question:
+    kind: multi_choice
+    prompt: Which binary packages need promotion to main?
+    options:
+    - id: __all_binaries__
+      label: All binary packages built by this source
+      statement: All binary packages built by TBDSRC need to be in main.
+      exclusive: true
+    - id: __all_except_dev_doc_dbg__
+      label: All binary packages except -dev, -doc, and -dbg(sym) packages
+      statement: All binary packages built by TBDSRC, except -dev, -doc, and debug-symbol packages, need to be in main.
+      exclusive: true
+    options_source:
+      adapter: dep-analysis
+      field: binary_packages
+  template: 'TODO: - The binary packages TBD need to be in main.'
+- id: REP-RATIONALE-004B
+  section: Rationale
+  title: Promotion scope purpose
+  mode: human_only
+  readiness: blocker
   question:
     kind: multiline
-    prompt: Which binary packages need promotion, and what purpose does that scope achieve?
-  template: 'TODO: - The binary packages TBD need to be in main to achieve TBD'
+    prompt: What purpose does promoting this binary scope achieve?
+  template: 'TODO: - Promoting this binary scope achieves TBD'
 - id: REP-RATIONALE-007
   section: Rationale
   title: Target deadline

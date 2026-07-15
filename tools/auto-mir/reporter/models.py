@@ -49,6 +49,7 @@ class QuestionOption:
     id: str
     label: str
     statement: str = ""
+    exclusive: bool = False
 
     def __post_init__(self) -> None:
         if not self.id.strip():

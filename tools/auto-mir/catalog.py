@@ -232,6 +232,26 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                     errors.append(f"reporter item {item_id} option {option_id} missing label")
                 if not str(option.get("statement", "")).strip():
                     errors.append(f"reporter item {item_id} option {option_id} missing statement")
+                if "exclusive" in option and not isinstance(option["exclusive"], bool):
+                    errors.append(
+                        f"reporter item {item_id} option {option_id} exclusive must be a bool"
+                    )
+        options_source = question.get("options_source") if isinstance(question, dict) else None
+        if options_source is not None:
+            valid_source = (
+                isinstance(options_source, dict)
+                and isinstance(options_source.get("adapter"), str)
+                and isinstance(options_source.get("field"), str)
+            )
+            if not valid_source:
+                errors.append(
+                    f"reporter item {item_id} options_source must define adapter and field strings"
+                )
+            elif options_source["adapter"] not in adapter_ids:
+                errors.append(
+                    f"reporter item {item_id} options_source references unknown adapter: "
+                    f"{options_source['adapter']}"
+                )
         if item.get("mode") == "deterministic" and not item.get("evaluator"):
             errors.append(f"deterministic reporter item {item_id} requires an evaluator")
         for adapter_field in ("adapters_required", "adapters_optional"):

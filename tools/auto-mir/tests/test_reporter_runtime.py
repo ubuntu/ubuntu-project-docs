@@ -12,7 +12,7 @@ sys.path.insert(0, str(TOOL_ROOT))
 import catalog  # noqa: E402
 from reporter import pipeline  # noqa: E402
 from reporter.consistency import ConsistencyIssue, ConsistencyReport  # noqa: E402
-from reporter.evaluator import _show_preface, evaluate_items  # noqa: E402
+from reporter.evaluator import _question_from_item, _show_preface, evaluate_items  # noqa: E402
 from reporter.models import Answer, Provenance, StatementState  # noqa: E402
 from reporter.render import write_outputs  # noqa: E402
 from utils.secrets import SecretRedactor  # noqa: E402
@@ -228,6 +228,52 @@ def test_preface_evaluator_absent_is_a_no_op(tmp_path):
     _show_preface({"id": "REP-X"}, ctx, wizard)
 
     assert wizard.notes == []
+
+
+def test_question_from_item_appends_dynamic_options_from_evidence(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["dep-analysis"]["binary_packages"] = ["ntpd-rs", "ntpd-rs-metrics"]
+    item = {
+        "id": "REP-RATIONALE-004",
+        "question": {
+            "kind": "multi_choice",
+            "prompt": "Which binary packages need promotion?",
+            "options": [
+                {
+                    "id": "__all_binaries__",
+                    "label": "All binaries",
+                    "statement": "All binary packages built by TBDSRC need to be in main.",
+                    "exclusive": True,
+                }
+            ],
+            "options_source": {"adapter": "dep-analysis", "field": "binary_packages"},
+        },
+    }
+
+    question = _question_from_item(item, ctx)
+
+    option_ids = [option.id for option in question.options]
+    assert option_ids == ["__all_binaries__", "ntpd-rs", "ntpd-rs-metrics"]
+    assert question.options[0].exclusive is True
+    assert question.options[1].exclusive is False
+
+
+def test_question_from_item_skips_options_source_values_already_declared(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["dep-analysis"]["binary_packages"] = ["ntpd-rs"]
+    item = {
+        "id": "REP-RATIONALE-004",
+        "question": {
+            "kind": "multi_choice",
+            "prompt": "Which binary packages need promotion?",
+            "options": [{"id": "ntpd-rs", "label": "ntpd-rs (already listed)"}],
+            "options_source": {"adapter": "dep-analysis", "field": "binary_packages"},
+        },
+    }
+
+    question = _question_from_item(item, ctx)
+
+    assert [option.id for option in question.options] == ["ntpd-rs"]
 
 
 def test_reporter_intake_defaults_to_devel_without_prompt(tmp_path):

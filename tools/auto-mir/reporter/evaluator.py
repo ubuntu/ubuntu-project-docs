@@ -60,7 +60,7 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
         readiness = ReadinessEffect(item.get("readiness", "clear"))
         if mode == "human_only":
             _show_preface(item, ctx, wizard)
-            question = _question_from_item(item)
+            question = _question_from_item(item, ctx)
             answer = wizard.ask(question)
             if answer is None:
                 results.append(
@@ -92,7 +92,7 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
 
         if mode == "ev_to_ai":
             _show_preface(item, ctx, wizard)
-            result = evaluate_ai_item(item, ctx, wizard, _question_from_item(item))
+            result = evaluate_ai_item(item, ctx, wizard, _question_from_item(item, ctx))
             results.append(result)
             item_values[item["id"]] = result.selected_option or result.statement
             continue
@@ -123,28 +123,55 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
     return results
 
 
-def _question_from_item(item: dict) -> QuestionSpec:
+def _question_from_item(item: dict, ctx) -> QuestionSpec:
     definition = item["question"]
     kind = QuestionKind(definition["kind"])
-    options = tuple(
+    options = [
         QuestionOption(
             str(option["id"]),
             str(option["label"]),
             str(option.get("statement", "")),
+            bool(option.get("exclusive", False)),
         )
         for option in definition.get("options", [])
-    )
+    ]
+    options.extend(_dynamic_options(definition.get("options_source"), ctx, existing=options))
     return QuestionSpec(
         id=item["id"],
         prompt=str(definition["prompt"]),
         kind=kind,
         required=bool(item.get("required", True)),
-        options=options,
+        options=tuple(options),
         hint=str(definition.get("hint", "")),
         default=definition.get("default"),
         rule_context=str(item.get("rule_context", "")),
         answer_guidance=str(item.get("answer_guidance", "")),
     )
+
+
+def _dynamic_options(
+    options_source: dict | None, ctx, *, existing: list[QuestionOption]
+) -> list[QuestionOption]:
+    """Build extra question options from an evidence adapter field at runtime.
+
+    Used for catalog items where the valid choices (e.g. binary packages built
+    by this source) are only known once evidence has been collected, instead
+    of being enumerable ahead of time in the catalog YAML.
+    """
+    if not options_source:
+        return []
+    adapter_id = str(options_source["adapter"])
+    field = str(options_source["field"])
+    data = _adapter(ctx, adapter_id)
+    values = data.get(field, []) if isinstance(data, dict) else []
+    existing_ids = {option.id for option in existing}
+    dynamic: list[QuestionOption] = []
+    for value in values:
+        name = str(value)
+        if name and name not in existing_ids:
+            dynamic.append(QuestionOption(name, name))
+            existing_ids.add(name)
+    return dynamic
 
 
 def _show_preface(item: dict, ctx, wizard: TerminalWizard) -> None:

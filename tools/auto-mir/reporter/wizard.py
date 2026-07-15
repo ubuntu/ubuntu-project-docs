@@ -171,11 +171,15 @@ class TerminalWizard:
         if question.kind not in {QuestionKind.SINGLE_CHOICE, QuestionKind.MULTI_CHOICE}:
             return
         for index, option in enumerate(question.options, start=1):
-            self._write_line(f"  {index}. {option.label} [{option.id}]")
+            marker = " (shortcut)" if option.exclusive else ""
+            self._write_line(f"  {index}. {option.label}{marker} [{option.id}]")
             if option.statement:
                 self._write_line(f"       recorded as: {option.statement}")
         if question.kind == QuestionKind.MULTI_CHOICE:
-            self._write_line("Select one or more options, separated by commas.")
+            self._write_line(
+                "Select one or more options, separated by commas. Shortcut options "
+                "cannot be combined with other selections."
+            )
 
     def _render_answer_guidance(self, question: QuestionSpec) -> None:
         if question.answer_guidance:
@@ -202,14 +206,21 @@ class TerminalWizard:
             return self._resolve_option(question.options, raw).id
         if question.kind == QuestionKind.MULTI_CHOICE:
             selected: list[str] = []
+            selected_options: list[QuestionOption] = []
             for token in (part.strip() for part in raw.split(",")):
                 if not token:
                     continue
-                option_id = self._resolve_option(question.options, token).id
-                if option_id not in selected:
-                    selected.append(option_id)
+                option = self._resolve_option(question.options, token)
+                if option.id not in selected:
+                    selected.append(option.id)
+                    selected_options.append(option)
             if not selected:
                 raise ValueError("select at least one option")
+            if len(selected) > 1 and any(option.exclusive for option in selected_options):
+                raise ValueError(
+                    "choose either one of the shortcut options alone, or specific "
+                    "packages, not both"
+                )
             return selected
         raise ValueError(f"unsupported question kind: {question.kind}")
 
