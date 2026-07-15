@@ -98,6 +98,7 @@ metadata:
   - 'RULE: Licensing must remain compatible with Ubuntu main throughout the full support lifetime. Flag expiry, time-limited grants, entity/contract coupling, withdrawable license branches, patents, or other encumbrances for human review.'
   - item: REP-STD-001
   - item: REP-STD-002
+  - item: REP-STD-002B
   - ''
   - '[Maintenance/Owner]'
   - 'RULE: Every package needs an eligible owning team that explicitly accepts long-term maintenance and subscribes before promotion; suggested ownership without acknowledgement is not sufficient.'
@@ -614,10 +615,30 @@ items:
   title: License lifetime
   mode: human_only
   readiness: blocker
+  rule_context: 'RULE: Licensing must remain compatible with Ubuntu main throughout the full support lifetime. Flag expiry, time-limited grants, entity/contract coupling, withdrawable license branches, patents, or other encumbrances for human review.'
+  question:
+    kind: single_choice
+    prompt: Does the license raise any expiry, time-bound, contract-coupling, or other encumbrance concerns for the full support lifetime?
+    options:
+    - id: A-no-concerns
+      label: No expiry, time-bound terms, or encumbrances were identified
+      statement: No license expiry, time-bound terms, entity/contract coupling, withdrawable branches, patents, or other encumbrances were identified; the license is expected to remain compatible with Ubuntu main throughout the full support lifetime.
+    - id: B-concerns
+      label: A concern was identified and needs explanation
+      statement: A license concern relevant to the full support lifetime was identified.
+  template: 'TODO-A/B: - License compatibility over the full support lifetime: TBD'
+- id: REP-STD-002B
+  section: Standards compliance
+  title: License lifetime concern details
+  mode: human_only
+  readiness: blocker
+  applicability:
+    item: REP-STD-002
+    equals: B-concerns
   question:
     kind: multiline
-    prompt: State the license-lifetime review conclusion and any time-bound or legal concerns.
-  template: 'TODO: - License compatibility over the full support lifetime: TBD'
+    prompt: Explain the license expiry, time-bound term, contract coupling, or other encumbrance, and why it is still acceptable.
+  template: 'TODO: - License lifetime concern details: TBD'
 - id: REP-MAINT-001
   section: Maintenance/Owner
   title: Owning team commitment

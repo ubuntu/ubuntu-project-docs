@@ -392,3 +392,31 @@ def test_micro_library_item_asked_when_evidence_shows_a_library(tmp_path):
     evaluate_items(ctx, wizard)
 
     assert "REP-QA-TEST-008" in wizard.asked
+
+
+def test_license_lifetime_followup_skipped_when_no_concern_selected(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class NoConcernWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-STD-002": "A-no-concerns"}
+
+    wizard = NoConcernWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-STD-002B" not in wizard.asked
+    assert by_id["REP-STD-002B"].state == StatementState.NOT_APPLICABLE
+
+
+def test_license_lifetime_followup_asked_when_concern_selected(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class ConcernWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-STD-002": "B-concerns"}
+
+    wizard = ConcernWizard()
+
+    evaluate_items(ctx, wizard)
+
+    assert "REP-STD-002B" in wizard.asked
