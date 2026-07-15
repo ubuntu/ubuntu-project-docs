@@ -9,6 +9,17 @@ If you want to change *what the tool says*, you change the catalog. If you want 
 change *how the tool decides*, you change the evaluator. This separation is
 enforced by a test (see [Message single-sourcing](#message-single-sourcing)).
 
+Reporter user testing uses a composed role catalog:
+
+- `catalog-shared.yaml` declares which established policy/adapter sections are
+   shared.
+- `catalog-mir-review.yaml` records reviewer ownership during migration.
+- `catalog-mir-report.yaml` is the single source for reporter items, terminal
+   questions, readiness effects, and the generated reporter template body.
+
+Use `catalog.load_catalog_for_role()` for role-aware runtime loading. Direct
+`load_catalog()` remains the reviewer compatibility API.
+
 ---
 
 ## Top-level structure

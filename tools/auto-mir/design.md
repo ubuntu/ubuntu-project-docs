@@ -2,12 +2,18 @@
 
 ## Purpose
 
-Auto-MIR turns a Launchpad MIR bug into a structured, reviewer-facing draft by:
+Auto-MIR supports two role-specific workflows:
+
+- `review BUG` turns a Launchpad MIR bug into a structured reviewer draft.
+- `report SOURCE` turns source-package evidence and terminal answers into a
+  structured reporter draft.
+
+Both workflows operate by:
 
 1. collecting deterministic evidence,
 2. evaluating catalog-defined checks,
 3. using LLM analysis only where policy allows,
-4. rendering results into reviewer-template-aligned output.
+4. rendering results into the applicable role template.
 
 The tool is host-orchestrated and executes build/evidence-sensitive work in an
 LXD VM for reproducibility and isolation.
@@ -22,7 +28,7 @@ LXD VM for reproducibility and isolation.
 
 ## End-to-end stage flow
 
-`auto_mir.main()` executes these stages:
+`auto_mir.main()` executes a shared bootstrap followed by a role pipeline.
 
 Bootstrap and host preflight (before Stage 0):
 - Parse command-line arguments using standard-library-only imports, so
@@ -39,7 +45,7 @@ Bootstrap and host preflight (before Stage 0):
 - Keep credentials host-only; they are never stored in LXD guest configuration.
 - Skipped in `--collect-only` mode.
 
-2. Stage 1: intake (`stage_intake`)
+Reviewer Stage 1: intake (`stage_intake`)
 - Pull Launchpad bug metadata and reporter MIR content.
 - Resolve source package and series context.
 
@@ -60,6 +66,18 @@ Bootstrap and host preflight (before Stage 0):
 
 6. Stage 5: rendering (`stage_render`)
 - Write review draft and structured report.
+
+Reporter stages:
+
+1. Optional auth: use configured LLM credentials when present; never require
+  them for deterministic collection or terminal questions.
+2. Source intake: validate the source name and collect the target series.
+3. Isolation setup and catalog-selected evidence: reuse the LXD and adapter
+  subsystems without Launchpad bug intake.
+4. Statement evaluation: resolve deterministic report items and ask only the
+  human-owned questions through the terminal wizard.
+5. Rendering: write `reporter-draft.txt`, `report.json`, and `evidence.json`.
+  Pipeline success and MIR readiness are represented separately.
 
 Always-run tail logic:
 - log artifact locations,
@@ -105,6 +123,27 @@ Rendering semantics are driven by `status + confidence + mode`:
 
 - deterministic non-ok or high-confidence non-ok -> `Problems`.
 - low/medium-confidence non-ok -> `Left to decide`.
+
+### StatementResult (reporter result contract)
+
+Reporter results deliberately do not use reviewer severity or ACK/NACK
+semantics. They record resolution state, readiness effect, statement
+provenance, evidence references, answer references, and explicit human
+confirmation. Human declarations are never inferred from package evidence.
+
+## Catalog composition
+
+- `catalog.yaml` remains the established reviewer policy authority during the
+  compatibility migration.
+- `catalog-shared.yaml` explicitly declares the global policy and adapter
+  sections inherited by role catalogs.
+- `catalog-mir-review.yaml` records reviewer section ownership.
+- `catalog-mir-report.yaml` owns reporter items, questions, readiness policy,
+  and the reporter template blueprint.
+
+Reporter composition rejects shared-section overrides and validates every item,
+adapter reference, and blueprint reference. Physical extraction of the shared
+and review sections from the compatibility catalog remains follow-up work.
 
 ## Checks subsystem model
 

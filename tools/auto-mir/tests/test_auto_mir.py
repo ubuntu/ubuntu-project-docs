@@ -67,6 +67,68 @@ def test_main_report_requires_tty_before_preflight(monkeypatch):
     assert calls == []
 
 
+def test_main_report_runs_connected_reporter_pipeline(monkeypatch, tmp_path):
+    from reporter import pipeline as reporter_pipeline
+
+    calls: list[str] = []
+    args = SimpleNamespace(role="report", verbose=False, legacy_invocation=False)
+    parser = SimpleNamespace(parse_args=lambda: args)
+    ctx = SimpleNamespace(
+        role="report",
+        bug_id="",
+        source_package="libfoo",
+        series="devel",
+        keep_guest=None,
+        collect_only=False,
+        output_dir=tmp_path,
+        llm_model_small=None,
+        llm_model_large=None,
+        guest_name="",
+        evidence={"adapters": {}},
+        requested_binaries=[],
+        catalog={},
+        findings=[],
+        statement_results=[],
+        review_draft_path=None,
+        reporter_draft_path=None,
+        report_path=None,
+        failure_summary=None,
+        secret_redactor=SecretRedactor(),
+        save_evidence=lambda: calls.append("save"),
+    )
+    monkeypatch.setattr(auto_mir, "build_parser", lambda: parser)
+    monkeypatch.setattr(auto_mir.sys.stdin, "isatty", lambda: True)
+    monkeypatch.setattr(auto_mir.sys.stdout, "isatty", lambda: True)
+    monkeypatch.setattr(auto_mir, "ensure_runtime_environment", lambda: calls.append("preflight"))
+    monkeypatch.setattr(auto_mir, "RunContext", lambda _args: ctx)
+    monkeypatch.setattr(auto_mir, "stage_optional_auth", lambda _ctx: calls.append("auth"))
+    monkeypatch.setattr(reporter_pipeline, "intake", lambda _ctx, _wizard: calls.append("intake"))
+    monkeypatch.setattr(auto_mir, "stage_spawn_guest", lambda _ctx: calls.append("spawn"))
+    monkeypatch.setattr(
+        auto_mir, "stage_collect_evidence", lambda _ctx: calls.append("collect") or 0
+    )
+    monkeypatch.setattr(reporter_pipeline, "analyse", lambda _ctx, _wizard: calls.append("analyse"))
+    monkeypatch.setattr(reporter_pipeline, "render", lambda _ctx: calls.append("render"))
+    monkeypatch.setattr(
+        auto_mir,
+        "_finish_run",
+        lambda _ctx, _evidence_result, exit_code: calls.append("finish") or exit_code,
+    )
+
+    assert auto_mir.main() == 0
+    assert calls == [
+        "preflight",
+        "auth",
+        "intake",
+        "spawn",
+        "collect",
+        "save",
+        "analyse",
+        "render",
+        "finish",
+    ]
+
+
 def _patch_main_context(monkeypatch, *, collect_only: bool):
     """Patch parser/context setup so main() can be exercised deterministically."""
 

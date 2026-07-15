@@ -329,7 +329,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
     if not pkg:
         raise AdapterError("source package is not set")
 
-    workdir = f"/tmp/auto-mir-{ctx.bug_id}"
+    workdir = f"/tmp/auto-mir-{ctx.run_name}"
     lxd_runner.exec_in(
         ctx.guest_name,
         ["mkdir", "-p", workdir],

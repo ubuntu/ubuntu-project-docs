@@ -151,6 +151,37 @@ Use this log as the source for deciding what should be promoted into
     TODO variant remains required before production readiness.
   - Validation from `tools/auto-mir`: `make test` PASS (470 passed, 3 skipped).
 
+## 2026-07-15 — Connected reporter user-test pipeline
+
+- Promotion: no
+- Context: `report SOURCE` previously parsed but stopped unconditionally. The
+  reporter catalog and wizard could not be exercised end to end, and the
+  documentation reporter template remained a hand-maintained second source.
+- Decision:
+  - Connect reporter source/series intake, optional authentication, shared LXD
+    evidence collection, catalog-driven deterministic/human item evaluation,
+    readiness calculation, and draft/JSON rendering.
+  - Keep reviewer Launchpad intake, review checks, and renderer on their
+    existing path.
+  - Use run identity rather than bug ID for source work directories.
+  - Preserve unavailable deterministic facts as visible TODO statements and
+    distinguish pipeline completion from submission readiness.
+  - Generate the reporter documentation include strictly from
+    `catalog-mir-report.yaml` during local and Read the Docs builds; the Markdown
+    page is now a literalinclude wrapper.
+- Consequences:
+  - `./auto_mir.py report SOURCE` is runnable for interactive user testing and
+    writes `reporter-draft.txt`, `report.json`, and `evidence.json` without any
+    Launchpad write operation.
+  - The user-test catalog covers all 12 sections using grouped questions. It is
+    not yet a production replacement for every fine-grained TODO/RULE variant
+    in the former reporter template; that parity remains explicit follow-up.
+  - Reporter AI confirmation and full-report consistency primitives remain
+    designed but are not activated by this deterministic/human user-test
+    catalog.
+  - Validation from `tools/auto-mir`: `make test` PASS (478 passed, 3 skipped).
+    `make -C docs html` PASS with both role includes generated strictly.
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

@@ -370,6 +370,8 @@ class RunContext:
         # --- Populated by stage_render / render.write_outputs() (Stage 5) ---
         self.report_path: Path | None = None
         self.review_draft_path: Path | None = None
+        self.reporter_draft_path: Path | None = None
+        self.statement_results: list = []
 
         # --- Populated on failures for teardown/user messaging ---
         self.failure_summary: str | None = None
@@ -538,6 +540,25 @@ def stage_auth(ctx: RunContext) -> None:
     log.info("LLM provider '%s' resolved from %s (url: %s)", provider, source, api_url)
 
 
+def stage_optional_auth(ctx: RunContext) -> None:
+    """Resolve reporter LLM auth when available, without making it mandatory."""
+    if ctx.no_llm:
+        log.info("Reporter AI suggestions disabled by --no-llm")
+        return
+    import llm
+
+    provider, token, source, api_url = llm.resolve_auth()
+    if not token:
+        log.info("No LLM credential found; reporter flow will use deterministic and human input")
+        return
+    ctx.llm_provider = provider
+    ctx.llm_api_url = api_url
+    ctx.llm_token = token
+    ctx.auth_source = source
+    ctx.secret_redactor.register(token)
+    ctx.evidence["auth"] = {"provider": provider, "source": source, "api_url": api_url}
+
+
 def _resolve_requested_binaries(all_binaries: list[str]) -> list[str]:
     """Determine the promotion scope when nothing was requested explicitly.
 
@@ -682,7 +703,6 @@ def main() -> int:
     if getattr(args, "role", ROLE_REVIEW) == ROLE_REPORT:
         if not (sys.stdin.isatty() and sys.stdout.isatty()):
             parser.error("the report command requires an interactive terminal")
-        parser.error("the report workflow is not connected yet")
 
     # Keep argument parsing dependency-free so ``--help`` remains available on
     # an unprepared host. Validate before RunContext creates output state or any
@@ -768,6 +788,33 @@ def main() -> int:
     evidence_result = 0
     current_stage = "startup"
     try:
+        if ctx.role == ROLE_REPORT:
+            from reporter import pipeline as reporter_pipeline
+            from reporter.wizard import TerminalWizard
+
+            wizard = TerminalWizard()
+            current_stage = "Reporter Stage 0 (optional auth)"
+            stage_optional_auth(ctx)
+            current_stage = "Reporter Stage 1 (source intake)"
+            reporter_pipeline.intake(ctx, wizard)
+            current_stage = "Reporter Stage 2 (guest setup)"
+            stage_spawn_guest(ctx)
+            current_stage = "Reporter Stage 3 (evidence collection)"
+            evidence_result = stage_collect_evidence(ctx)
+            if evidence_result != 0:
+                ctx.failure_summary = "Evidence collection encountered adapter failures."
+            if ctx.collect_only:
+                ctx.save_evidence()
+            else:
+                ctx.save_evidence()
+                current_stage = "Reporter Stage 4 (statements and questions)"
+                reporter_pipeline.analyse(ctx, wizard)
+                current_stage = "Reporter Stage 5 (rendering)"
+                reporter_pipeline.render(ctx)
+                log.info("Reporter draft written to: %s", ctx.reporter_draft_path)
+                log.info("Structured report written to: %s", ctx.report_path)
+            return _finish_run(ctx, evidence_result, 0)
+
         # Stage 0: Resolve provider auth and guest token export values
         # Skip auth if collect-only mode (no LLM needed)
         if not ctx.collect_only:
@@ -829,6 +876,14 @@ def main() -> int:
         exit_code = 1
 
     # Cleanup and final output (always runs)
+    _log_artifact_locations(ctx)
+    teardown_guest(ctx, evidence_result)
+    _print_complete_banner(ctx)
+    return exit_code
+
+
+def _finish_run(ctx: RunContext, evidence_result: int, exit_code: int) -> int:
+    """Run the common artifact, teardown, and completion tail."""
     _log_artifact_locations(ctx)
     teardown_guest(ctx, evidence_result)
     _print_complete_banner(ctx)
@@ -916,6 +971,8 @@ def _log_artifact_locations(ctx: RunContext) -> None:
 
     if ctx.review_draft_path:
         log.info("Review draft: %s", ctx.review_draft_path)
+    if ctx.reporter_draft_path:
+        log.info("Reporter draft: %s", ctx.reporter_draft_path)
 
 
 def _print_complete_banner(ctx: RunContext) -> None:
@@ -937,6 +994,8 @@ def _print_complete_banner(ctx: RunContext) -> None:
     ]
     if ctx.review_draft_path:
         lines.append(f"  Review draft     : {ctx.review_draft_path}")
+    if ctx.reporter_draft_path:
+        lines.append(f"  Reporter draft   : {ctx.reporter_draft_path}")
     if ctx.report_path:
         lines.append(f"  Structured report: {ctx.report_path}")
     evidence_path = ctx.output_dir / "evidence.json"

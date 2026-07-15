@@ -727,7 +727,7 @@ def validate_catalog(catalog: dict) -> list[str]:
 
 def summarize_catalog(loaded: dict) -> dict:
     """Return lightweight counts that are useful in evidence and debug output."""
-    checks = loaded.get("checks", [])
+    checks = loaded.get("checks", loaded.get("items", []))
     section_counts = {}
     for check in checks:
         section = check.get("section", "unknown")
@@ -735,6 +735,7 @@ def summarize_catalog(loaded: dict) -> dict:
 
     return {
         "check_count": len(checks),
+        "item_count": len(loaded.get("items", [])),
         "security_trigger_count": len(loaded.get("security_triggers", [])),
         "sections": section_counts,
     }

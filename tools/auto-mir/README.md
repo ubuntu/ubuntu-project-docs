@@ -1,9 +1,9 @@
 # Auto-MIR
 
-Auto-MIR is an assistant for Ubuntu Main Inclusion Review (MIR) reviewers.
-It reads a Launchpad MIR bug, builds and inspects the source package in a fresh
-LXD guest, evaluates the MIR checks, and produces a review draft with supporting
-evidence.
+Auto-MIR assists both Ubuntu Main Inclusion Review (MIR) reporters and
+reviewers. Reviewer mode reads an existing Launchpad MIR bug. Reporter mode
+starts from an Ubuntu source package and guides the reporter through preparing
+an evidence-backed request in a terminal.
 
 Auto-MIR does not post to Launchpad and does not make the final ACK or NACK
 decision. A reviewer must verify, edit, and complete every generated draft.
@@ -33,11 +33,26 @@ echo
 export OPENAI_API_KEY
 ```
 
-From this directory, run Auto-MIR with a Launchpad bug number:
+From this directory, review an existing Launchpad MIR bug:
 
 ```text
-./auto_mir.py <bug number>
+./auto_mir.py review <bug number>
 ```
+
+The historical `./auto_mir.py <bug number>` form remains available but is
+deprecated.
+
+To prepare a reporter draft from a source package, use an interactive terminal:
+
+```text
+./auto_mir.py report <source package>
+```
+
+Reporter mode collects evidence before asking long-form questions. Finish a
+multiline answer with a line containing only `.`; enter `\.` for a literal dot.
+Answers are not saved for resume if the process is interrupted. Use `--no-llm`
+to disable optional model-backed enrichment; the current user-test catalog is
+deterministic plus human input and does not require an API key.
 
 The completion banner prints the artifact directory and the path to
 `review-draft.txt`. Open that file, resolve its remaining TODOs, verify its
@@ -111,6 +126,7 @@ A normal run writes these files beneath the reported output directory:
 | File | Purpose |
 | --- | --- |
 | `review-draft.txt` | Reviewer-template-aligned draft to verify and edit before posting. |
+| `reporter-draft.txt` | Reporter-template-aligned draft with an explicit readiness summary. |
 | `report.json` | Structured findings, confidence, evidence references, and LLM usage. |
 | `evidence.json` | Collected adapter evidence for auditing and diagnosis. |
 | `auto-mir.log` | JSON-formatted execution log. |
@@ -130,6 +146,16 @@ An exit status of zero means the pipeline completed. It does not mean the
 package is ready for an ACK, that every adapter succeeded, or that the draft has
 no findings. Confirmed deterministic problems and lower-confidence items are
 rendered differently so the reviewer can apply the appropriate judgment.
+
+The same distinction applies to reporter mode: a successful run can produce an
+honest not-ready draft containing TODOs, blockers, or warnings. Resolve and
+verify those items before posting the request. Auto-MIR never creates or edits a
+Launchpad bug.
+
+Reporter mode is ready for workflow user testing, but its first catalog groups
+some of the detailed legacy TODO variants into broader questions. It covers all
+12 reporter sections; fine-grained policy-text parity is still required before
+declaring the reporter feature production-ready.
 
 ## Development documentation
 
