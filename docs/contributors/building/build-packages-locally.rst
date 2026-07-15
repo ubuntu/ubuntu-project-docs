@@ -115,7 +115,7 @@ To build both **source** and **binary** packages for a specific release, use the
     Launchpad rejects uploads that contain both binaries and sources.
 
 
-Useful ``sbuild`` options
+Useful build options
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Skipping the source clean step:
