@@ -42,7 +42,6 @@ metadata:
   - 'RULE: Identify privileged binaries, services, recurring jobs, ports, endpoints, untrusted inputs, security-sensitive extensions, and cryptography. Explain exposure and proportional isolation such as restricted users, capability drops, seccomp, systemd hardening, and AppArmor.'
   - 'RULE: Deprecated algorithms such as 3DES and TLS/SSL 1.1 are unacceptable; report any suspicion for Security review rather than claiming certainty without evidence.'
   - item: REP-SECURITY-001
-  - item: REP-SECURITY-002
   - item: REP-SECURITY-003
   - item: REP-SECURITY-004
   - item: REP-SECURITY-005
@@ -276,15 +275,6 @@ items:
   readiness: warning
   adapters_required: [ubuntu-cve-tracker, nvd-enrich]
   template: 'TODO: - Security history and relevant CVEs: TBD'
-- id: REP-SECURITY-002
-  section: Security
-  title: Security exposure and mitigations
-  mode: human_only
-  readiness: warning
-  question:
-    kind: multiline
-    prompt: Describe security-sensitive behavior, exposed endpoints, privileged operation, and mitigations.
-  template: 'TODO: - Security-sensitive behavior and risk mitigations are: TBD'
 - id: REP-SECURITY-003
   section: Security
   title: Installed privilege and service surface
@@ -307,21 +297,25 @@ items:
   mode: ev_to_ai
   readiness: warning
   adapters_required: [packaging-source, binary-package-inspection]
-  ai_policy: Assess bounded evidence for privileged operation, listeners/endpoints, parsers, deprecated cryptographic patterns, and proportional mitigations. Never claim exhaustive absence when source evidence is incomplete.
+  rule_context: 'RULE: Identify privileged binaries, services, recurring jobs, ports, endpoints, untrusted inputs, security-sensitive extensions, and cryptography. Explain exposure and proportional isolation such as restricted users, capability drops, seccomp, systemd hardening, and AppArmor.'
+  ai_policy: Assess bounded evidence for privileged operation, exposed listeners/endpoints/ports, parsers of untrusted input, security-sensitive extensions, deprecated cryptographic patterns, and whether mitigations (restricted users, capability drops, seccomp, systemd hardening, AppArmor) are proportional to that exposure. Never claim exhaustive absence when source evidence is incomplete.
   question:
     kind: multiline
-    prompt: Assess privileged operation, endpoints, parsers, cryptography, and whether mitigations are proportional.
+    prompt: Assess security-sensitive behavior, exposed endpoints, privileged operation, cryptography, and whether mitigations are proportional.
   template: 'TODO: - Security exposure and proportional mitigation assessment: TBD'
 - id: REP-SECURITY-006
   section: Security
-  title: Deprecated cryptography reporter hint
-  mode: human_only
+  title: Deprecated cryptography scan
+  mode: ev_to_ai
   readiness: warning
-  required: false
+  adapters_optional: [packaging-source]
+  rule_context: 'RULE: Deprecated algorithms such as 3DES and TLS/SSL 1.1 are unacceptable; report any suspicion for Security review rather than claiming certainty without evidence.'
+  answer_guidance: The evidence is a best-effort textual scan for deprecated algorithm names (MD5, SHA1, 3DES, RC4, SSLv2/3, TLSv1.0); a hit is not proof of use and no hits is not proof of absence.
+  ai_policy: Evidence is a best-effort grep of the source tree for deprecated cryptographic algorithm name patterns (packaging-source.crypto_pattern_hits), each as a path:line:content match. If hits exist, list the distinct files/lines and state that the reporter should confirm whether the algorithm is actually used before flagging Security review. If the list is empty, state plainly that the pattern search found no deprecated-algorithm indicators, while noting this is not an exhaustive proof of absence.
   question:
     kind: multiline
-    prompt: If anything suggests deprecated cryptographic algorithms, provide the details for Security review.
-  template: 'TODO: - Deprecated cryptographic algorithm concerns spotted by the reporter: TBD'
+    prompt: Confirm or correct - does anything suggest deprecated cryptographic algorithms that Security review should see?
+  template: 'TODO: - Deprecated cryptographic algorithm concerns: TBD'
 - id: REP-QA-FUNC-001
   section: Quality assurance - function/usage
   title: Installed usability

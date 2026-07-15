@@ -205,6 +205,23 @@ def _find_source_tree(ctx, source_dir: str, predicate: str) -> list[str]:
     return [line.strip() for line in out.splitlines() if line.strip()]
 
 
+# Fixed-string patterns for a best-effort scan of deprecated cryptographic
+# algorithm names, feeding REP-SECURITY-006. Not exhaustive; a hit only means
+# the reporter should double-check the actual usage before reporting it.
+_DEPRECATED_CRYPTO_TERMS = [
+    "MD5",
+    "SHA1",
+    "3DES",
+    "DES3",
+    "RC4",
+    "SSLv2",
+    "SSLv3",
+    "TLSv1.0",
+    "TLSv1_0",
+    "TLS1.0",
+]
+
+
 # Path segments that mark a directory as build/test-time only. Vendored code
 # confined to these locations is not shipped in the binary packages, so it does
 # not carry the maintenance/security burden that ESL-11 is concerned with.
@@ -594,6 +611,13 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         ctx, full_source, "\\( -perm -4000 -o -perm -2000 \\)"
     )
 
+    # Best-effort textual scan for deprecated cryptographic algorithm names,
+    # feeding the Security section's deprecated-crypto check (REP-SECURITY-006).
+    # Suggestion-only: a hit is not proof of use (comments, disabled code, or
+    # compatibility shims also match), and absence of a hit is not proof of
+    # correctness (the pattern list is not exhaustive).
+    crypto_pattern_hits = _grep_source_tree(ctx, full_source, _DEPRECATED_CRYPTO_TERMS)
+
     return {
         "status": "ok",
         "source_dir": full_source,
@@ -626,6 +650,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         "setuid_setgid_source_hits": setuid_setgid_source_hits,
         "nobody_source_files": nobody_source_files,
         "setuid_setgid_source_files": setuid_setgid_source_files,
+        "crypto_pattern_hits": crypto_pattern_hits,
     }
 
 

@@ -379,6 +379,7 @@ class PackagingSourceResult(TypedDict):
     setuid_setgid_source_hits: list[str]
     nobody_source_files: list[str]
     setuid_setgid_source_files: list[str]
+    crypto_pattern_hits: list[str]
 
 
 class DupCandidate(TypedDict):
