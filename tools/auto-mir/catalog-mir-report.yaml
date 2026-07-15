@@ -572,16 +572,18 @@ items:
   applicability:
     evidence: dep-analysis.in_scope_deps_not_in_main
     truthy: true
+  preface_evaluator: dependencies
+  rule_context: 'RULE: Every in-scope runtime dependency outside main must complete its own MIR before or alongside this promotion; the reporter must state how each dependency listed above will be routed.'
   question:
     kind: single_choice
     prompt: How are dependencies outside main being handled?
     options:
     - id: separate
       label: Separate MIR bugs
-      statement: Further dependencies outside main are handled by separate MIR bugs.
+      statement: Further dependencies outside main are handled by separate MIR bugs, referenced below.
     - id: same-request
       label: This MIR request
-      statement: Further dependencies outside main are handled as part of this MIR request.
+      statement: Further dependencies outside main are promoted together with this MIR request; their sources must also complete MIR review as part of this bug.
   template: 'TODO-B/C: - Additional dependency MIR routing: TBD'
 - id: REP-DEP-003
   section: Dependencies

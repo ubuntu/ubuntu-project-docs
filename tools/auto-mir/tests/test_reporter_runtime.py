@@ -27,6 +27,9 @@ class FakeWizard:
         self.asked.append(question.id)
         return Answer(question_id=question.id, value=self.value, raw_input=self.value)
 
+    def show_note(self, text, detail=""):
+        pass
+
 
 class ChoiceWizard(FakeWizard):
     values = {
@@ -227,6 +230,27 @@ def test_preface_evaluator_absent_is_a_no_op(tmp_path):
     _show_preface({"id": "REP-X"}, ctx, wizard)
 
     assert wizard.notes == []
+
+
+def test_dependency_routing_shows_out_of_main_deps_before_asking(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["dep-analysis"]["in_scope_deps_not_in_main"] = ["libbar", "libbaz"]
+
+    class NotingChoiceWizard(NotingWizard, ChoiceWizard):
+        pass
+
+    wizard = NotingChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-DEP-002" in wizard.asked
+    preface_texts = " ".join(text for text, _detail in wizard.notes)
+    assert "libbar" in preface_texts
+    assert "libbaz" in preface_texts
+    assert by_id["REP-DEP-002"].statement.startswith(
+        "Further dependencies outside main are handled by separate MIR bugs"
+    )
 
 
 def test_question_from_item_appends_dynamic_options_from_evidence(tmp_path):
