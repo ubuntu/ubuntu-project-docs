@@ -2213,4 +2213,4 @@ fallback_policy:
     behavior: 'Optional adapters that fail are noted in report metadata but do not block the run or affect severity of other checks.'
   on_missing_required_data:
     action: emit_todo_fail_gracefully
-    behavior: 'Required data that cannot be collected causes that check''s finding to be unknown/low-confidence with an explicit reviewer TODO. The run continues unless the missing data is the reporter MIR content (which causes a hard stop).'
+    behavior: 'Required data that cannot be collected causes that check''s finding to be unknown/low-confidence with an explicit reviewer TODO. The run continues unless the missing data is the reporter MIR content for a fresh review (which causes a hard stop); re-review/reorg fast-paths proceed without a reporter template.'

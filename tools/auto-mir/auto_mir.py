@@ -413,7 +413,8 @@ def stage_intake(ctx: RunContext) -> None:
     """Stage 1: Launchpad intake.
 
     Fetch bug metadata, description, comments, and target source package.
-    Hard-fail if reporter MIR content is not found.
+    Hard-fail if reporter MIR content is not found and the run is not a
+    re-review/reorg fast-path (detected via --review-type or bug text signals).
     """
     import lp_intake
 

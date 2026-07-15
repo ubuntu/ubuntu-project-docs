@@ -48,6 +48,11 @@ Bootstrap and host preflight (before Stage 0):
 Reviewer Stage 1: intake (`stage_intake`)
 - Pull Launchpad bug metadata and reporter MIR content.
 - Resolve source package and series context.
+- Run early review-type pre-detection
+  (`review_type.pre_detect_review_type`): if bug text or `--review-type`
+  indicates a re-review/reorg, the reporter template requirement is skipped
+  (per MIR policy, it is not required for these fast-paths). The authoritative
+  detection runs in Stage 4.
 
 3. Stage 2: isolation setup (`stage_spawn_guest`)
 - Create/provision LXD VM and tooling.

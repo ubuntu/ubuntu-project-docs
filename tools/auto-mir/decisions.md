@@ -1023,6 +1023,66 @@ phases do not drift.
   get-mir-bug helper but does not import or reuse it. 404/transient failures per
   candidate are skipped rather than failing the adapter.
 
+## Early review-type pre-detection for reporter template gate (2026-07-15)
+
+- Promotion: no
+- Context: the reporter-template hard-stop in `lp_intake.run()` (Stage 1) fired
+  before `review_type.detect_review_type()` (Stage 4) could classify a run as a
+  re-review/reorg. This blocked legitimate re-review/reorg runs (e.g. a source
+  rename like mysql-8.4 → mysql-9.7) where the reporter did not fill a full
+  template, which MIR policy explicitly allows
+  (mir-rereview: "We'd appreciate it if the owning team could file a
+  MIR-reporter bug for it, but would not insist on it if they can't").
+- Root cause: stage-ordering conflict. The hard-stop in Stage 1 used only
+  `_find_reporter_mir_content()`, while the review-type detection that would
+  have allowed the run to proceed lived in Stage 4 — after the hard-stop. The
+  evidence adapters feeding detection (`lp-mir-history`, `dup-search`,
+  `dep-analysis`, `component-mismatches`) run in Stage 3 and are therefore not
+  available at Stage 1.
+- Decision:
+  - Add `review_type.pre_detect_review_type()` — a Stage-1-compatible function
+    that uses only signals available before evidence collection: the
+    `--review-type` CLI override and bug text patterns (title, description,
+    comments, reporter content). The authoritative `detect_review_type()`
+    in Stage 4 remains unchanged and still considers evidence adapters.
+  - The two functions share `_text_signals()`, a helper that scans the combined
+    bug text with the existing `_REREVIEW_TEXT_RE` and `_REORG_TEXT_RE`
+    regexes, so text-based signal logic is never duplicated.
+  - `lp_intake.run()` now calls `pre_detect_review_type()` when reporter
+    template content is not found. If the result is rereview or reorg, the run
+    proceeds with `ctx.reporter_mir_content = ""` and a warning. If fresh, the
+    hard-stop fires with an improved message that mentions
+    `--review-type rereview/reorg` as the override.
+  - Extend `_reporter_text()` to scan bug comments (not just reporter content,
+    title, and description) so a re-review/reorg mention in a comment is
+    detected by both pre-detection and full detection.
+  - Add `\breplac(?:e|es|ed|ing)\b` to `_REORG_TEXT_RE` with word boundaries
+    so "mysql-9.7 to replace mysql-8.4" is detected as a reorg signal even
+    without the mir-rereview URL. Word boundaries prevent false positives on
+    "replacement" (noun).
+  - Make SUM-2 (Reporter MIR content present) review-type-aware: when
+    `ctx.review_type` is rereview or reorg and `reporter_mir_content` is empty,
+    SUM-2 resolves to ok with a dedicated `rereview_ok_message` instead of
+    NACKing and relying on the softening pass.
+- Non-goals (user-confirmed):
+  - Prior reviewer MIR output in comments (`_find_prior_reviews` /
+    `prior_review_comment_indices`) stays a console warning only; it is not
+    promoted to a formal review-type detection signal.
+  - Fresh reviews without a reporter template still hard-stop; the fix is not
+    a blanket "proceed without template" — it requires a re-review/reorg
+    signal or override.
+- Consequences:
+  - A pre-detection of `fresh` is not final: Stage 4 full detection may still
+    upgrade it to rereview/reorg once evidence adapters are available. The
+    reverse (pre-detect reorg, full detect fresh) is possible but unlikely
+    since text signals are a strong indicator.
+  - All downstream consumers of `reporter_mir_content` already handle empty
+    strings gracefully; the only one that NACKed (SUM-2) now resolves to ok.
+  - The mysql-9.7 rename case (bug 2160635) is now detected as reorg via
+    "replace" in the bug description and the mir-rereview URL, allowing the
+    review to proceed without a reporter template.
+- Validation from `tools/auto-mir`: `make test` PASS (538 passed, 3 skipped).
+
 ## Build / Test Decisions
 
 - **CB-1**: combine local sbuild result with Launchpad multi-arch build state via API.
