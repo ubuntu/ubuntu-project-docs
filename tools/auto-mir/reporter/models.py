@@ -48,6 +48,7 @@ class QuestionOption:
 
     id: str
     label: str
+    statement: str = ""
 
     def __post_init__(self) -> None:
         if not self.id.strip():
@@ -67,6 +68,8 @@ class QuestionSpec:
     options: tuple[QuestionOption, ...] = ()
     hint: str = ""
     default: Any = None
+    rule_context: str = ""
+    answer_guidance: str = ""
 
     def __post_init__(self) -> None:
         if not self.id.strip():

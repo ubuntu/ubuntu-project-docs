@@ -110,3 +110,38 @@ def test_missing_llm_credential_goes_directly_to_human(monkeypatch):
 
     assert result.provenance == Provenance.HUMAN
     assert wizard.questions == [("human", "REP-AI-001")]
+
+
+class EditingWizard:
+    """Fake wizard whose confirm_suggestion returns the reporter's edited text."""
+
+    def __init__(self, edited_text):
+        self.edited_text = edited_text
+        self.questions = []
+
+    def confirm_suggestion(self, *, question_id, suggestion, rationale):
+        self.questions.append(("confirm", suggestion, rationale))
+        return Answer(question_id=question_id, value=self.edited_text, raw_input="edit")
+
+    def ask(self, question):  # pragma: no cover - not expected to be called
+        raise AssertionError("edited suggestions must not fall back to a manual question")
+
+
+def test_edited_ai_suggestion_keeps_ai_confirmed_provenance(monkeypatch):
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "suggestion": "Original suggestion.",
+            "rationale": "Because of the evidence.",
+            "evidence_refs": ["binary-package-inspection:systemd_units"],
+        },
+    )
+    wizard = EditingWizard(edited_text="Original suggestion, plus a reporter addendum.")
+
+    result = ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
+
+    assert result.provenance == Provenance.AI_CONFIRMED
+    assert result.human_confirmed is True
+    assert result.statement == "Original suggestion, plus a reporter addendum."
+    assert result.rationale == "Because of the evidence."

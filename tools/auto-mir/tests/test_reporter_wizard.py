@@ -144,3 +144,104 @@ def test_ai_suggestion_requires_explicit_confirmation():
     assert answer.value is True
     assert "Suggested statement:" in output
     assert any(line.startswith("Reasoning:") for line in output)
+    assert any("edit = keep most of it" in line for line in output)
+
+
+def test_ai_suggestion_reject_returns_false():
+    wizard = TerminalWizard(read_line=_reader(["no"]), write_line=lambda _line: None)
+
+    answer = wizard.confirm_suggestion(
+        question_id="REP-CONFIRM", suggestion="Suggested text.", rationale=""
+    )
+
+    assert answer.value is False
+
+
+def test_ai_suggestion_edit_returns_reporter_revised_text():
+    output: list[str] = []
+    wizard = TerminalWizard(
+        read_line=_reader(["edit", "revised first line", "."]),
+        write_line=output.append,
+    )
+
+    answer = wizard.confirm_suggestion(
+        question_id="REP-CONFIRM",
+        suggestion="Original suggested text.",
+        rationale="Because of evidence X.",
+    )
+
+    assert answer.value == "revised first line"
+    assert any("Original suggested text." in line for line in output)
+
+
+def test_ai_suggestion_invalid_response_reprompts():
+    wizard = TerminalWizard(read_line=_reader(["maybe", "yes"]), write_line=lambda _line: None)
+
+    answer = wizard.confirm_suggestion(
+        question_id="REP-CONFIRM", suggestion="Suggested text.", rationale=""
+    )
+
+    assert answer.value is True
+
+
+def test_rule_context_and_answer_guidance_are_rendered():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader(["an answer"]), write_line=output.append)
+    question = QuestionSpec(
+        id="REP-X",
+        prompt="Explain it",
+        kind=QuestionKind.TEXT,
+        rule_context="RULE: packages must justify inclusion.",
+        answer_guidance="This is recorded verbatim in the [Rationale] section.",
+    )
+
+    wizard.ask(question)
+
+    assert any("RULE: packages must justify inclusion." in line for line in output)
+    assert any("recorded verbatim" in line for line in output)
+
+
+def test_optional_question_without_explicit_guidance_gets_default_skip_note():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader([""]), write_line=output.append)
+    question = QuestionSpec(
+        id="REP-Y", prompt="Anything else?", kind=QuestionKind.TEXT, required=False
+    )
+
+    wizard.ask(question)
+
+    assert any("optional" in line.casefold() for line in output)
+
+
+def test_option_statements_are_echoed_next_to_labels():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader(["1"]), write_line=output.append)
+    question = QuestionSpec(
+        id="REP-Z",
+        prompt="Choose",
+        kind=QuestionKind.SINGLE_CHOICE,
+        options=(QuestionOption("a", "Option A", "The package does A."),),
+    )
+
+    wizard.ask(question)
+
+    assert any("recorded as: The package does A." in line for line in output)
+
+
+def test_show_note_prints_evidence_derived_context():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader([]), write_line=output.append)
+
+    wizard.show_note("Team foo-bugs is already subscribed.", "Detected via team-mapping.")
+
+    assert any("Note: Team foo-bugs is already subscribed." in line for line in output)
+    assert any("Detected via team-mapping." in line for line in output)
+
+
+def test_show_note_ignores_empty_text():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader([]), write_line=output.append)
+
+    wizard.show_note("")
+
+    assert output == []

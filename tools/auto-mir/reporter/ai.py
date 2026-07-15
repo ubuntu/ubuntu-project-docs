@@ -57,13 +57,16 @@ Return exactly one JSON object:
         suggestion=suggestion,
         rationale=rationale,
     )
-    if confirmation.value is True:
+    # confirmation.value is True (use as-is), False (discard, ask manually), or
+    # a str holding the reporter's edited version of the suggested statement.
+    if confirmation.value is True or isinstance(confirmation.value, str):
+        statement = suggestion if confirmation.value is True else confirmation.value
         return StatementResult(
             id=item["id"],
             section=item["section"],
             state=StatementState.RESOLVED,
             readiness=readiness,
-            statement=suggestion,
+            statement=statement,
             provenance=Provenance.AI_CONFIRMED,
             evidence_refs=refs,
             answer_refs=[confirmation.question_id],

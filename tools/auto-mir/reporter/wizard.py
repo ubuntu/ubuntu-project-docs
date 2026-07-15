@@ -34,9 +34,12 @@ class TerminalWizard:
     def ask(self, question: QuestionSpec) -> Answer | None:
         """Ask until a valid answer is provided, or return None if optional."""
         self._write_line("")
+        if question.rule_context:
+            self._write_line(f"Context: {question.rule_context}")
         self._write_line(question.prompt)
         if question.hint:
             self._write_line(f"Hint: {question.hint}")
+        self._render_answer_guidance(question)
 
         if question.kind == QuestionKind.MULTILINE:
             return self._ask_multiline(question)
@@ -72,21 +75,73 @@ class TerminalWizard:
         suggestion: str,
         rationale: str,
     ) -> Answer:
-        """Require the reporter to accept or reject one AI suggestion."""
+        """Require the reporter to accept, edit, or reject one AI suggestion.
+
+        Returns an :class:`Answer` whose ``value`` is ``True`` (use as-is),
+        ``False`` (discard and answer manually), or a ``str`` containing the
+        reporter's edited version of the suggested statement.
+        """
         self._write_line("")
         self._write_line("Suggested statement:")
         self._write_line(suggestion)
         if rationale.strip():
             self._write_line(f"Reasoning: {rationale.strip()}")
-        question = QuestionSpec(
+        self._write_line("")
+        self._write_line(
+            "Options: yes = use this statement as-is; "
+            "edit = keep most of it but amend or extend it; "
+            "no = discard it and answer the question yourself."
+        )
+        placeholder_question = QuestionSpec(
             id=question_id,
             prompt="Use this statement?",
             kind=QuestionKind.CONFIRM,
             required=True,
         )
-        answer = self.ask(question)
+        while True:
+            try:
+                raw = self._read_line("> ").strip()
+            except EOFError as exc:
+                self._handle_missing(placeholder_question, "input ended", exc)
+                continue
+            if raw == _CANCEL_TOKEN:
+                self._handle_missing(placeholder_question, "question cancelled")
+                continue
+            normalized = raw.casefold()
+            if normalized in {"y", "yes"}:
+                return Answer(question_id=question_id, value=True, raw_input=raw)
+            if normalized in {"n", "no"}:
+                return Answer(question_id=question_id, value=False, raw_input=raw)
+            if normalized in {"e", "edit"}:
+                edited = self._edit_multiline(suggestion)
+                return Answer(question_id=question_id, value=edited, raw_input=raw)
+            self._write_line("Invalid response: enter yes, edit, or no")
+
+    def show_note(self, text: str, detail: str = "") -> None:
+        """Display one evidence-derived note ahead of a question, if any."""
+        if not text.strip():
+            return
+        self._write_line("")
+        self._write_line(f"Note: {text.strip()}")
+        if detail.strip():
+            self._write_line(f"  ({detail.strip()})")
+
+    def _edit_multiline(self, prefill: str) -> str:
+        self._write_line("")
+        self._write_line("Current suggested text (revise, extend, or replace it below):")
+        for line in prefill.splitlines() or [prefill]:
+            self._write_line(f"  {line}")
+        self._write_line("")
+        question = QuestionSpec(
+            id="__edit__",
+            prompt="Enter your revised statement.",
+            kind=QuestionKind.MULTILINE,
+            required=True,
+        )
+        self._write_line(question.prompt)
+        answer = self._ask_multiline(question)
         assert answer is not None
-        return answer
+        return str(answer.value)
 
     def _ask_multiline(self, question: QuestionSpec) -> Answer | None:
         self._write_line(
@@ -117,8 +172,21 @@ class TerminalWizard:
             return
         for index, option in enumerate(question.options, start=1):
             self._write_line(f"  {index}. {option.label} [{option.id}]")
+            if option.statement:
+                self._write_line(f"       recorded as: {option.statement}")
         if question.kind == QuestionKind.MULTI_CHOICE:
             self._write_line("Select one or more options, separated by commas.")
+
+    def _render_answer_guidance(self, question: QuestionSpec) -> None:
+        if question.answer_guidance:
+            self._write_line(question.answer_guidance)
+            return
+        if not question.required:
+            self._write_line(
+                "This is optional. If nothing applies, skip it (empty line, or '.' "
+                "on the first line for multi-line questions); nothing will be added "
+                "to the report."
+            )
 
     def _parse_answer(self, question: QuestionSpec, raw: str):
         if question.kind == QuestionKind.TEXT:

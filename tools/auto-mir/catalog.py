@@ -207,6 +207,9 @@ def validate_report_catalog(catalog: dict) -> list[str]:
             errors.append(f"reporter item {item_id} has invalid mode: {item.get('mode')}")
         if item.get("readiness", "clear") not in valid_readiness:
             errors.append(f"reporter item {item_id} has invalid readiness")
+        for context_field in ("rule_context", "answer_guidance", "preface_evaluator"):
+            if context_field in item and not isinstance(item[context_field], str):
+                errors.append(f"reporter item {item_id} {context_field} must be a string")
         if item.get("mode") in {"human_only", "ev_to_ai"} and not isinstance(
             item.get("question"), dict
         ):

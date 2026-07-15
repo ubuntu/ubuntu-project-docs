@@ -12,7 +12,7 @@ sys.path.insert(0, str(TOOL_ROOT))
 import catalog  # noqa: E402
 from reporter import pipeline  # noqa: E402
 from reporter.consistency import ConsistencyIssue, ConsistencyReport  # noqa: E402
-from reporter.evaluator import evaluate_items  # noqa: E402
+from reporter.evaluator import _show_preface, evaluate_items  # noqa: E402
 from reporter.models import Answer, Provenance, StatementState  # noqa: E402
 from reporter.render import write_outputs  # noqa: E402
 from utils.secrets import SecretRedactor  # noqa: E402
@@ -183,6 +183,51 @@ def test_consistency_error_forces_not_ready_rendering(tmp_path):
     report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
     assert report["readiness"]["ready"] is False
     assert "REP-MAINT-001" in report["readiness"]["blockers"]
+
+
+class NotingWizard(FakeWizard):
+    def __init__(self, value="human-provided explanation"):
+        super().__init__(value)
+        self.notes: list[tuple[str, str]] = []
+
+    def show_note(self, text, detail=""):
+        self.notes.append((text, detail))
+
+
+def test_preface_evaluator_surfaces_deterministic_note_before_question(tmp_path):
+    ctx = _ctx(tmp_path)
+    wizard = NotingWizard()
+    item = {
+        "id": "REP-RATIONALE-001",
+        "section": "Rationale",
+        "evaluator": "source-availability",
+        "preface_evaluator": "source-availability",
+    }
+
+    _show_preface(item, ctx, wizard)
+
+    assert wizard.notes
+    assert "universe" in wizard.notes[0][0]
+
+
+def test_preface_evaluator_silent_when_unavailable(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["lp-package-api"] = {"status": "error"}
+    wizard = NotingWizard()
+    item = {"id": "REP-RATIONALE-001", "preface_evaluator": "source-availability"}
+
+    _show_preface(item, ctx, wizard)
+
+    assert wizard.notes == []
+
+
+def test_preface_evaluator_absent_is_a_no_op(tmp_path):
+    ctx = _ctx(tmp_path)
+    wizard = NotingWizard()
+
+    _show_preface({"id": "REP-X"}, ctx, wizard)
+
+    assert wizard.notes == []
 
 
 def test_reporter_intake_defaults_to_devel_without_prompt(tmp_path):

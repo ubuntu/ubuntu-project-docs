@@ -59,6 +59,7 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
         mode = item["mode"]
         readiness = ReadinessEffect(item.get("readiness", "clear"))
         if mode == "human_only":
+            _show_preface(item, ctx, wizard)
             question = _question_from_item(item)
             answer = wizard.ask(question)
             if answer is None:
@@ -90,6 +91,7 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
             continue
 
         if mode == "ev_to_ai":
+            _show_preface(item, ctx, wizard)
             result = evaluate_ai_item(item, ctx, wizard, _question_from_item(item))
             results.append(result)
             item_values[item["id"]] = result.selected_option or result.statement
@@ -125,7 +127,11 @@ def _question_from_item(item: dict) -> QuestionSpec:
     definition = item["question"]
     kind = QuestionKind(definition["kind"])
     options = tuple(
-        QuestionOption(str(option["id"]), str(option["label"]))
+        QuestionOption(
+            str(option["id"]),
+            str(option["label"]),
+            str(option.get("statement", "")),
+        )
         for option in definition.get("options", [])
     )
     return QuestionSpec(
@@ -136,7 +142,27 @@ def _question_from_item(item: dict) -> QuestionSpec:
         options=options,
         hint=str(definition.get("hint", "")),
         default=definition.get("default"),
+        rule_context=str(item.get("rule_context", "")),
+        answer_guidance=str(item.get("answer_guidance", "")),
     )
+
+
+def _show_preface(item: dict, ctx, wizard: TerminalWizard) -> None:
+    """Surface one deterministic-evidence note ahead of a human/AI question.
+
+    Reuses the deterministic evaluator registry so preface content stays
+    grounded in the same evidence-derived facts as ``deterministic`` items,
+    instead of re-implementing lookups per catalog item.
+    """
+    name = item.get("preface_evaluator")
+    if not name:
+        return
+    evaluator = _EVALUATORS.get(str(name))
+    if evaluator is None:
+        return
+    statement, _evidence_refs, rationale = evaluator(item, ctx)
+    if statement:
+        wizard.show_note(statement, rationale)
 
 
 def _human_statement(item: dict, answer: Any, source_package: str) -> str:
