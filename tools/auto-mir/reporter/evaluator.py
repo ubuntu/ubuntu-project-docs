@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
+from reporter.ai import evaluate_ai_item
 from reporter.models import (
     Provenance,
     QuestionKind,
@@ -64,6 +65,10 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
                     human_confirmed=True,
                 )
             )
+            continue
+
+        if mode == "ev_to_ai":
+            results.append(evaluate_ai_item(item, ctx, wizard, _question_from_item(item)))
             continue
 
         evaluator = _EVALUATORS.get(str(item.get("evaluator", "")))

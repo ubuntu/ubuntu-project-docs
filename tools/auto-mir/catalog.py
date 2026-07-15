@@ -188,8 +188,12 @@ def validate_report_catalog(catalog: dict) -> list[str]:
             errors.append(f"reporter item {item_id} has invalid mode: {item.get('mode')}")
         if item.get("readiness", "clear") not in valid_readiness:
             errors.append(f"reporter item {item_id} has invalid readiness")
-        if item.get("mode") == "human_only" and not isinstance(item.get("question"), dict):
-            errors.append(f"human reporter item {item_id} requires a question")
+        if item.get("mode") in {"human_only", "ev_to_ai"} and not isinstance(
+            item.get("question"), dict
+        ):
+            errors.append(f"interactive reporter item {item_id} requires a question")
+        if item.get("mode") == "ev_to_ai" and not str(item.get("ai_policy", "")).strip():
+            errors.append(f"AI reporter item {item_id} requires ai_policy")
         if item.get("mode") == "deterministic" and not item.get("evaluator"):
             errors.append(f"deterministic reporter item {item_id} requires an evaluator")
         for adapter_field in ("adapters_required", "adapters_optional"):

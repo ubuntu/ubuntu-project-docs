@@ -372,6 +372,7 @@ class RunContext:
         self.review_draft_path: Path | None = None
         self.reporter_draft_path: Path | None = None
         self.statement_results: list = []
+        self.consistency_report = None
 
         # --- Populated on failures for teardown/user messaging ---
         self.failure_summary: str | None = None

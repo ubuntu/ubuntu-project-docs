@@ -25,6 +25,9 @@ def write_outputs(ctx, results: list[StatementResult]) -> None:
         "series": ctx.series,
         "guest_name": ctx.guest_name,
         "readiness": readiness,
+        "consistency": asdict(ctx.consistency_report)
+        if getattr(ctx, "consistency_report", None)
+        else None,
         "statements": [asdict(result) for result in results],
         "catalog_summary": ctx.evidence.get("catalog_summary", {}),
         "collection_summary": ctx.evidence.get("collection_summary", {}),

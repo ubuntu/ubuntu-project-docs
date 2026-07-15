@@ -32,6 +32,7 @@ metadata:
   - item: REP-SECURITY-002
   - item: REP-SECURITY-003
   - item: REP-SECURITY-004
+  - item: REP-SECURITY-005
   - ''
   - '[Quality assurance - function/usage]'
   - item: REP-QA-FUNC-001
@@ -39,19 +40,23 @@ metadata:
   - '[Quality assurance - maintenance]'
   - item: REP-QA-MAINT-001
   - item: REP-QA-MAINT-002
+  - item: REP-QA-MAINT-003
   - ''
   - '[Quality assurance - testing]'
   - item: REP-QA-TEST-001
   - item: REP-QA-TEST-002
   - item: REP-QA-TEST-003
+  - item: REP-QA-TEST-004
   - ''
   - '[Quality assurance - packaging]'
   - item: REP-QA-PKG-001
   - item: REP-QA-PKG-002
   - item: REP-QA-PKG-003
+  - item: REP-QA-PKG-004
   - ''
   - '[UI standards]'
   - item: REP-UI-001
+  - item: REP-UI-002
   - ''
   - '[Dependencies]'
   - item: REP-DEP-001
@@ -113,9 +118,10 @@ items:
 - id: REP-RATIONALE-003
   section: Rationale
   title: Alternatives considered
-  mode: human_only
+  mode: ev_to_ai
   readiness: warning
   adapters_optional: [dup-search]
+  ai_policy: Assess only whether the supplied archive candidates plausibly overlap this package's stated functionality. Name candidates and uncertainty; do not decide Ubuntu demand or invent alternatives.
   question:
     kind: multiline
     prompt: What alternatives already in main were considered, and why are they insufficient?
@@ -162,6 +168,17 @@ items:
   readiness: warning
   adapters_required: [binary-package-inspection]
   template: 'TODO: - Installed AppArmor, desktop, translation, and plugin/extension surface: TBD'
+- id: REP-SECURITY-005
+  section: Security
+  title: Exposure and mitigation assessment
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [packaging-source, binary-package-inspection]
+  ai_policy: Assess bounded evidence for privileged operation, listeners/endpoints, parsers, deprecated cryptographic patterns, and proportional mitigations. Never claim exhaustive absence when source evidence is incomplete.
+  question:
+    kind: multiline
+    prompt: Assess privileged operation, endpoints, parsers, cryptography, and whether mitigations are proportional.
+  template: 'TODO: - Security exposure and proportional mitigation assessment: TBD'
 - id: REP-QA-FUNC-001
   section: Quality assurance - function/usage
   title: Installed usability
@@ -189,6 +206,18 @@ items:
     kind: multiline
     prompt: Does maintenance require exotic hardware, and how can the owning team access it?
   template: 'TODO: - Exotic hardware requirements and team access: TBD'
+- id: REP-QA-MAINT-003
+  section: Quality assurance - maintenance
+  title: Maintenance health assessment
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [lp-bug-search-api, debian-bts]
+  adapters_optional: [upstream-tracker, lp-package-api]
+  ai_policy: Summarize tracker counts, important bug age/severity, and release cadence. Distinguish observable history from the reporter's final maintenance judgment.
+  question:
+    kind: multiline
+    prompt: Assess Ubuntu, Debian, and upstream maintenance health and explain important concerns.
+  template: 'TODO: - The package maintenance health is: TBD'
 - id: REP-QA-TEST-001
   section: Quality assurance - testing
   title: Build-time tests
@@ -214,6 +243,18 @@ items:
     kind: multiline
     prompt: Explain any testing gaps, hardware/manual test plan, execution frequency, and regression consequences.
   template: 'TODO: - Testing gaps and the owning team test plan are: TBD'
+- id: REP-QA-TEST-004
+  section: Quality assurance - testing
+  title: Test adequacy assessment
+  mode: ev_to_ai
+  readiness: blocker
+  adapters_required: [sbuild, packaging-source, autopkgtest-db]
+  adapters_optional: [consumer-autopkgtests]
+  ai_policy: Assess whether observed build tests and autopkgtests are non-trivial and plausibly cover regressions. Surface gaps; never invent test execution or a team commitment.
+  question:
+    kind: multiline
+    prompt: Assess whether test coverage is adequate and explain how remaining gaps will be covered.
+  template: 'TODO: - Overall automated and end-to-end test adequacy: TBD'
 - id: REP-QA-PKG-001
   section: Quality assurance - packaging
   title: Upstream update mechanism
@@ -238,6 +279,17 @@ items:
   readiness: warning
   adapters_required: [packaging-source]
   template: 'TODO: - Maintainer, source format, debconf, and packaging override facts: TBD'
+- id: REP-QA-PKG-004
+  section: Quality assurance - packaging
+  title: Packaging complexity assessment
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [packaging-source]
+  ai_policy: Assess only maintainability of debian/rules and packaging metadata. Simple debhelper overrides are acceptable; identify disabling tests/hardening or large hand-written logic without inventing policy violations.
+  question:
+    kind: multiline
+    prompt: Assess packaging complexity and explain why any complex build logic is maintainable.
+  template: 'TODO: - Packaging complexity and maintainability assessment: TBD'
 - id: REP-UI-001
   section: UI standards
   title: User interface standards
@@ -247,6 +299,17 @@ items:
     kind: multiline
     prompt: Is this end-user facing, and how are desktop integration and translations handled?
   template: 'TODO: - User-interface, desktop-file, and translation applicability: TBD'
+- id: REP-UI-002
+  section: UI standards
+  title: UI applicability evidence assessment
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [packaging-source, binary-package-inspection, dep-analysis]
+  ai_policy: Determine whether evidence suggests an end-user-facing graphical or user-visible program, then compare desktop and translation facts. Do not use absence of a desktop file to decide that a program is not graphical.
+  question:
+    kind: multiline
+    prompt: Confirm UI applicability and explain desktop-file or translation exceptions.
+  template: 'TODO: - Evidence-based UI applicability assessment: TBD'
 - id: REP-DEP-001
   section: Dependencies
   title: Dependencies outside main

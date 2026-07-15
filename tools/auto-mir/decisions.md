@@ -218,6 +218,28 @@ Use this log as the source for deciding what should be promoted into
   guest.
 - Validation from `tools/auto-mir`: `make test` PASS (482 passed, 3 skipped).
 
+## 2026-07-15 — Confirm-before-use reporter AI and bounded consistency pass
+
+- Promotion: no
+- Decision:
+  - Add catalog-declared `ev_to_ai` reporter assessments for alternatives,
+    security exposure, maintenance health, test adequacy, packaging complexity,
+    and UI applicability.
+  - Wrap all evidence and completed statements as untrusted data, restrict AI
+    responses to small JSON schemas, and discard evidence references outside an
+    item's declared adapters.
+  - Require explicit terminal confirmation before model text receives
+    `ai-confirmed` provenance. Rejection, missing credentials, `--no-llm`, or an
+    LLM error routes directly to the human fallback question.
+  - Run one final bounded issue-finding pass. It may reference only known item
+    IDs and three issue categories, cannot rewrite the draft, and can only ask a
+    targeted follow-up which the reporter answers. Deterministic readiness is
+    rerun after corrections.
+- Consequences: model output cannot satisfy intent, ownership, legal, or
+  commitment questions autonomously; all accepted AI text is auditable by
+  provenance and evidence references.
+- Validation from `tools/auto-mir`: `make test` PASS (489 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

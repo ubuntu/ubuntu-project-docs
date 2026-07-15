@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 
+from reporter.consistency import run_consistency_pass
 from reporter.evaluator import evaluate_items
 from reporter.models import QuestionKind, QuestionSpec
 from reporter.render import write_outputs
@@ -38,10 +39,12 @@ def intake(ctx, wizard: TerminalWizard) -> None:
 def analyse(ctx, wizard: TerminalWizard) -> None:
     """Evaluate all report-catalog items and retain their typed results."""
     ctx.statement_results = evaluate_items(ctx, wizard)
+    ctx.consistency_report = run_consistency_pass(ctx, wizard)
     ctx.evidence["analysis_summary"] = {
         "total_items": len(ctx.statement_results),
         "resolved_items": sum(result.state == "resolved" for result in ctx.statement_results),
         "unavailable_items": sum(result.state == "unavailable" for result in ctx.statement_results),
+        "consistency_ready": ctx.consistency_report.ready,
     }
 
 
