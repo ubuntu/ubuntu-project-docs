@@ -286,6 +286,19 @@ Use this log as the source for deciding what should be promoted into
   the unit suite.
 - Validation from `tools/auto-mir`: `make test` PASS (492 passed, 3 skipped).
 
+## 2026-07-15 — Reporter rule guidance restored to catalog generation
+
+- Promotion: no
+- Decision: store the semantic MIR policy guidance for every reporter section
+  as catalog blueprint `RULE:` lines. The offline documentation renderer emits
+  them, while the runtime draft deliberately removes them after the terminal
+  workflow has processed the corresponding questions.
+- Consequences: generated reporter documentation again explains demand,
+  security lifetime/exposure, maintenance, testing/hardware, packaging,
+  standards/licensing, ownership, static/vendored obligations, and background
+  requirements without duplicating policy in the Markdown wrapper. The catalog
+  remains authoritative for both guidance and questions.
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

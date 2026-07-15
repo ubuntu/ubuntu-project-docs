@@ -17,11 +17,15 @@ metadata:
   - '[Background information]'
   reporter_template_blueprint:
   - '[Availability]'
+  - 'RULE: The source package must already be published in Ubuntu universe and build for every architecture it is intended to support.'
   - item: REP-AVAIL-001
   - item: REP-AVAIL-002
   - item: REP-AVAIL-003
   - ''
   - '[Rationale]'
+  - 'RULE: Main inclusion needs demonstrated Ubuntu demand, correct understanding of main versus universe, and no better supported alternative.'
+  - 'RULE: Reuse an existing MIR with a new series task when prior package content, reasoning, and circumstances remain applicable; otherwise reference the prior MIR and explain the difference.'
+  - 'RULE: State the exact binary promotion scope and a well-founded major-release deadline, if any; wishes without a definite deadline should be identified as such.'
   - item: REP-RATIONALE-001
   - item: REP-RATIONALE-005
   - item: REP-RATIONALE-006
@@ -33,6 +37,9 @@ metadata:
   - item: REP-RATIONALE-009
   - ''
   - '[Security]'
+  - 'RULE: Security history and current issues must allow support for the full release lifetime, including LTS and ESM where applicable; consult Ubuntu, Debian, NVD/CVE, and OSS-security sources.'
+  - 'RULE: Identify privileged binaries, services, recurring jobs, ports, endpoints, untrusted inputs, security-sensitive extensions, and cryptography. Explain exposure and proportional isolation such as restricted users, capability drops, seccomp, systemd hardening, and AppArmor.'
+  - 'RULE: Deprecated algorithms such as 3DES and TLS/SSL 1.1 are unacceptable; report any suspicion for Security review rather than claiming certainty without evidence.'
   - item: REP-SECURITY-001
   - item: REP-SECURITY-002
   - item: REP-SECURITY-003
@@ -41,16 +48,23 @@ metadata:
   - item: REP-SECURITY-006
   - ''
   - '[Quality assurance - function/usage]'
+  - 'RULE: After installation, the package must work with reasonable configuration and documentation effort; explain why a safe default is impossible when configuration is required.'
   - item: REP-QA-FUNC-001
   - item: REP-QA-FUNC-002
   - ''
   - '[Quality assurance - maintenance]'
+  - 'RULE: Upstream, Debian, and Ubuntu maintenance must inspire confidence. Evaluate important, old, critical, and security bugs and discuss relevant open issues.'
+  - 'RULE: If exotic hardware is required, identify realistic long-term access for debugging, testing, verification, and development; speculative future access provides less confidence.'
   - item: REP-QA-MAINT-001
   - item: REP-QA-MAINT-002
   - item: REP-QA-MAINT-004
   - item: REP-QA-MAINT-003
   - ''
   - '[Quality assurance - testing]'
+  - 'RULE: The package must have a non-trivial build-time test suite whose failures fail the build and should have meaningful autopkgtests; explain existing ignored failures.'
+  - 'RULE: When automated testing is insufficient or special hardware is required, provide a written test plan, code or documented steps, example logs, and a commitment to execute it on uploads or at least each release cycle.'
+  - 'RULE: Exhaust hardware, partner, simulator, upstream, manufacturer, QA, and community options before declaring a case untestable; explain why universe delivery cannot work and the consequences of regressions.'
+  - 'RULE: Minimal libraries may rely on wider solution-level end-to-end tests only when that special case and the stronger solution coverage are identified explicitly.'
   - item: REP-QA-TEST-001
   - item: REP-QA-TEST-002
   - item: REP-QA-TEST-003
@@ -61,6 +75,8 @@ metadata:
   - item: REP-QA-TEST-004
   - ''
   - '[Quality assurance - packaging]'
+  - 'RULE: Provide a working upstream release mechanism (debian/watch, upstream metadata, or documented native/repack instructions), a correct Maintainer field, recent build evidence, and complete lintian output.'
+  - 'RULE: Explain lintian overrides, avoid obsolete dependencies such as Python 2 and GTK 2, avoid intrusive debconf questions for default installs, and keep debian/ packaging understandable and maintainable.'
   - item: REP-QA-PKG-001
   - item: REP-QA-PKG-002
   - item: REP-QA-PKG-003
@@ -68,19 +84,27 @@ metadata:
   - item: REP-QA-PKG-005
   - ''
   - '[UI standards]'
+  - 'RULE: User-facing applications need appropriate internationalization and standard desktop integration; when either is not applicable, explain why.'
   - item: REP-UI-001
   - item: REP-UI-002
   - ''
   - '[Dependencies]'
+  - 'RULE: Runtime dependencies and first alternatives must be in main or covered by MIR. Build-only dependencies may remain in universe unless their active code is embedded in final binaries.'
   - item: REP-DEP-001
   - item: REP-DEP-002
   - item: REP-DEP-003
   - ''
   - '[Standards compliance]'
+  - 'RULE: Document and justify major FHS or Debian Policy violations.'
+  - 'RULE: Licensing must remain compatible with Ubuntu main throughout the full support lifetime. Flag expiry, time-limited grants, entity/contract coupling, withdrawable license branches, patents, or other encumbrances for human review.'
   - item: REP-STD-001
   - item: REP-STD-002
   - ''
   - '[Maintenance/Owner]'
+  - 'RULE: Every package needs an eligible owning team that explicitly accepts long-term maintenance and subscribes before promotion; suggested ownership without acknowledgement is not sufficient.'
+  - 'RULE: Static and vendored builds impose rebuild, testing, tracking, refresh, copyright, update, and backport commitments for the full release lifetime, including ESM. New vendored components require renewed agreement.'
+  - 'RULE: Rust packages currently vendor non-runtime dependencies and use the supported cargo packaging path; all vendored ecosystems need reproducible dependency tracking and refresh documentation.'
+  - 'RULE: Provide a build from the last three months and coordinate in advance with every team affected by the promotion.'
   - item: REP-MAINT-001
   - item: REP-MAINT-002
   - item: REP-MAINT-003
@@ -89,6 +113,7 @@ metadata:
   - item: REP-MAINT-006
   - ''
   - '[Background information]'
+  - 'RULE: Package descriptions must explain purpose and context. Explain renamed packages or differing upstream names and link the upstream project.'
   - item: REP-BG-001
   - item: REP-BG-002
   - item: REP-BG-003

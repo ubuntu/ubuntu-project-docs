@@ -49,6 +49,8 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
     ]
     for entry in ctx.catalog["metadata"]["reporter_template_blueprint"]:
         if isinstance(entry, str):
+            if entry.startswith("RULE:"):
+                continue
             lines.append(entry)
             continue
         result = by_id[entry["item"]]

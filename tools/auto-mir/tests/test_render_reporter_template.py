@@ -22,6 +22,8 @@ def test_real_report_catalog_renders_strictly_and_idempotently():
     assert first.endswith("\n")
     assert "[Availability]" in first
     assert "[Maintenance/Owner]" in first
+    assert "RULE: Security history" in first
+    assert "RULE: Every package needs an eligible owning team" in first
 
 
 def test_every_reporter_item_template_is_generated_once():
