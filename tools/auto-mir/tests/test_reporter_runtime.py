@@ -420,3 +420,47 @@ def test_license_lifetime_followup_asked_when_concern_selected(tmp_path):
     evaluate_items(ctx, wizard)
 
     assert "REP-STD-002B" in wizard.asked
+
+
+def test_owning_team_followup_skipped_when_keeping_subscribed_team(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class NotingChoiceWizard(NotingWizard, ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-MAINT-001": "confirm-subscribed"}
+
+    wizard = NotingChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    preface_texts = " ".join(text for text, _detail in wizard.notes)
+    assert "foundations-bugs" in preface_texts
+    assert "REP-MAINT-001B" not in wizard.asked
+    assert by_id["REP-MAINT-001B"].state == StatementState.NOT_APPLICABLE
+
+
+def test_owning_team_followup_asked_when_new_team_selected(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class NewTeamWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-MAINT-001": "new-team"}
+
+    wizard = NewTeamWizard()
+
+    evaluate_items(ctx, wizard)
+
+    assert "REP-MAINT-001B" in wizard.asked
+
+
+def test_upstream_name_preface_surfaces_detected_url(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class NotingChoiceWizard(NotingWizard, ChoiceWizard):
+        pass
+
+    wizard = NotingChoiceWizard()
+
+    evaluate_items(ctx, wizard)
+
+    preface_texts = " ".join(text for text, _detail in wizard.notes)
+    assert "https://example.test" in preface_texts

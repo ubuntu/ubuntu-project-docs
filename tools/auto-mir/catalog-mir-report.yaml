@@ -106,6 +106,7 @@ metadata:
   - 'RULE: Rust packages currently vendor non-runtime dependencies and use the supported cargo packaging path; all vendored ecosystems need reproducible dependency tracking and refresh documentation.'
   - 'RULE: Provide a build from the last three months and coordinate in advance with every team affected by the promotion.'
   - item: REP-MAINT-001
+  - item: REP-MAINT-001B
   - item: REP-MAINT-002
   - item: REP-MAINT-003
   - item: REP-MAINT-004
@@ -644,10 +645,31 @@ items:
   title: Owning team commitment
   mode: human_only
   readiness: blocker
+  preface_evaluator: team-subscription
+  rule_context: 'RULE: Every package needs an eligible owning team that explicitly accepts long-term maintenance and subscribes before promotion; suggested ownership without acknowledgement is not sufficient.'
+  question:
+    kind: single_choice
+    prompt: Is the team already subscribed to this package (shown above, if any) the owning team, or will a different team take ownership?
+    options:
+    - id: confirm-subscribed
+      label: Keep the already-subscribed team shown above as the owning team
+      statement: The owning team already subscribed to this package is confirmed and has explicitly acknowledged the long-term maintenance commitment.
+    - id: new-team
+      label: A different team will take ownership
+      statement: A different owning team will subscribe to this package, named below.
+  template: 'TODO-A/B: - The owning team commitment is: TBD'
+- id: REP-MAINT-001B
+  section: Maintenance/Owner
+  title: New owning team details
+  mode: human_only
+  readiness: blocker
+  applicability:
+    item: REP-MAINT-001
+    equals: new-team
   question:
     kind: multiline
-    prompt: Name the owning team and describe its explicit acknowledgement of the long-term commitment.
-  template: 'TODO: - The owning team will be TBD and has acknowledged the commitment.'
+    prompt: Name the new owning team and describe its explicit acknowledgement of the long-term commitment.
+  template: 'TODO: - The new owning team will be TBD and has acknowledged the commitment.'
 - id: REP-MAINT-002
   section: Maintenance/Owner
   title: Team subscription
@@ -712,9 +734,10 @@ items:
   mode: human_only
   readiness: clear
   required: false
+  preface_evaluator: upstream-link
   question:
     kind: text
-    prompt: If it differs from the source package, what is the upstream project name?
+    prompt: What is the upstream project name? Reply 'same as source' if it matches the source package name shown above, or if no upstream project was detected above, provide the name (or project URL) yourself.
   template: 'TODO: Upstream Name is TBD'
 - id: REP-BG-003
   section: Background information
