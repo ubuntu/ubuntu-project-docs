@@ -81,6 +81,7 @@ install: $(DOCS_VENVDIR)
 
 generate-includes: install
 	$(DOCS_VENVDIR)/bin/python $(TOOLS_DIR)/auto-mir/render_review_template.py --strict
+	$(DOCS_VENVDIR)/bin/python $(TOOLS_DIR)/auto-mir/render_reporter_template.py --strict
 
 run: install generate-includes
 	. $(DOCS_VENV); $(DOCS_VENVDIR)/bin/sphinx-autobuild -b dirhtml --host $(SPHINX_HOST) --port $(SPHINX_PORT) "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" $(SPHINX_OPTS_NOLLM) \
@@ -112,7 +113,7 @@ clean-doc:
 	rm -rf $(SPHINX_DIR)/.doctrees
 
 clean-generated:
-	rm -f MIR/mir-reviewers-template-body.include
+	rm -f MIR/mir-reviewers-template-body.include MIR/mir-reporters-template-body.include
 
 linkcheck: install generate-includes
 	. $(DOCS_VENV) ; $(SPHINX_BUILD) -b linkcheck -q "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" $(SPHINX_OPTS_NOLLM) || { grep --color -F "[broken]" "$(DOCS_BUILDDIR)/output.txt"; exit 1; }
