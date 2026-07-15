@@ -248,6 +248,29 @@ def test_all_catalog_adapters_are_registered():
     assert not missing, f"Catalog references unregistered adapters: {missing}"
 
 
+def test_catalog_adapter_dependencies_match_registrations():
+    import catalog
+    from evidence import _catalog_adapter_dependencies
+    from evidence.registry import ADAPTER_REGISTRY
+
+    tool_root = Path(__file__).resolve().parent.parent
+    workspace_root = tool_root.parent.parent
+    catalog_data = catalog.load_catalog(tool_root / "catalog.yaml", workspace_root)
+    _ensure_adapters_registered()
+
+    catalog_dependencies = _catalog_adapter_dependencies(catalog_data)
+    registered_dependencies = {
+        adapter_id: dependencies
+        for adapter_id, (_collector, dependencies) in ADAPTER_REGISTRY.items()
+    }
+    mismatches = {
+        adapter_id: (catalog_dependencies.get(adapter_id, []), dependencies)
+        for adapter_id, dependencies in registered_dependencies.items()
+        if catalog_dependencies.get(adapter_id, []) != dependencies
+    }
+    assert not mismatches, f"Catalog/registration dependency drift: {mismatches}"
+
+
 def test_inspect_built_debs_parses_all_binary_surface_sections(monkeypatch):
     from evidence import guest_adapters
 

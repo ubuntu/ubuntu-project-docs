@@ -272,6 +272,20 @@ Use this log as the source for deciding what should be promoted into
   gap.
 - Validation from `tools/auto-mir`: `make test` PASS (491 passed, 3 skipped).
 
+## 2026-07-15 — Catalog-authoritative adapter topology
+
+- Promotion: no
+- Decision: use `evidence_adapters[].depends_on` as the production dependency
+  graph, expand the complete transitive closure before execution, and use the
+  same graph for ordering and failed-dependency propagation. Registration
+  dependencies remain temporarily present for decorator compatibility and are
+  checked for exact equality; only minimal catalogs with no adapter metadata
+  fall back to registrations.
+- Consequences: adapter selection no longer depends on every transitive adapter
+  being repeated by checks/items, and catalog/runtime dependency drift fails
+  the unit suite.
+- Validation from `tools/auto-mir`: `make test` PASS (492 passed, 3 skipped).
+
 ## Refactor phase ledger template (2026-07)
 
 Use this template for each refactor PR batch under `tools/auto-mir`.

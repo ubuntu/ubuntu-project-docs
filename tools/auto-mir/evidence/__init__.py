@@ -68,10 +68,18 @@ def collect_from_catalog(ctx: EvidenceContext) -> int:
     # reported as a hard adapter failure. Anything that is also required stays
     # required.
     optional -= required
+    adapter_deps = _catalog_adapter_dependencies(ctx.catalog)
+    if not adapter_deps:
+        adapter_deps = {
+            adapter_id: list(dependencies)
+            for adapter_id, (_collector, dependencies) in ADAPTER_REGISTRY.items()
+        }
+    required = _expand_adapter_dependencies(required, adapter_deps)
+    optional = _expand_adapter_dependencies(optional, adapter_deps) - required
 
     ctx.evidence.setdefault("adapters", {})
 
-    ordered = _order_adapters(required | optional)
+    ordered = _order_adapters(required | optional, adapter_deps)
 
     # Track missing dependencies to skip downstream adapters
     failed_adapters: set[str] = set()
@@ -93,7 +101,8 @@ def collect_from_catalog(ctx: EvidenceContext) -> int:
                     failed_required.add(adapter_id_str)
                 continue
 
-            collector, deps = ADAPTER_REGISTRY[adapter_id_str]
+            collector, _registered_deps = ADAPTER_REGISTRY[adapter_id_str]
+            deps = adapter_deps.get(adapter_id_str, [])
 
             # Check if deps failed
             failed_deps = [dep for dep in deps if dep in failed_adapters]
@@ -151,6 +160,36 @@ def collect_from_catalog(ctx: EvidenceContext) -> int:
         cleanup_cached_autopkgtest_db(ctx)
 
     return 0 if not failed_required else 1
+
+
+def _catalog_adapter_dependencies(catalog: dict) -> dict[str, list[str]]:
+    """Return the catalog-authoritative adapter dependency graph."""
+    graph: dict[str, list[str]] = {}
+    for adapter_definition in catalog.get("evidence_adapters", []):
+        if not isinstance(adapter_definition, dict) or not adapter_definition.get("id"):
+            continue
+        dependencies = adapter_definition.get("depends_on", [])
+        graph[str(adapter_definition["id"])] = (
+            [str(dependency) for dependency in dependencies]
+            if isinstance(dependencies, list)
+            else []
+        )
+    return graph
+
+
+def _expand_adapter_dependencies(
+    adapter_ids: set[str], adapter_deps: dict[str, list[str]]
+) -> set[str]:
+    """Add every transitive dependency needed by the selected adapters."""
+    expanded = set(adapter_ids)
+    pending = list(adapter_ids)
+    while pending:
+        adapter_id = pending.pop()
+        for dependency in adapter_deps.get(adapter_id, []):
+            if dependency not in expanded:
+                expanded.add(dependency)
+                pending.append(dependency)
+    return expanded
 
 
 def _order_adapters(

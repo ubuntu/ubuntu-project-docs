@@ -665,6 +665,8 @@ evidence_adapters:
   description: Parse lintian output from sbuild run
   inputs:
   - sbuild_output
+  depends_on:
+  - sbuild
   output_contract:
     errors: list
     warnings: list
@@ -675,6 +677,8 @@ evidence_adapters:
   description: Fetch package source via git-ubuntu and analyse packaging files
   inputs:
   - source_package
+  depends_on:
+  - lp-package-api
   output_contract:
     debian_control: dict
     debian_rules: str
@@ -748,6 +752,8 @@ evidence_adapters:
   description: Classify the Ubuntu delta vs Debian and, when an Ubuntu revision exists, produce a git-ubuntu diffstat
   inputs:
   - source_package
+  depends_on:
+  - packaging-source
   output_contract:
     version: str
     delta_kind: str
@@ -814,6 +820,8 @@ evidence_adapters:
   description: Scan the cvelistV5 baseline corpus on the host to identify candidate CVEs
   inputs:
   - cve-search-terms
+  depends_on:
+  - cve-search-terms
   output_contract:
     candidates: list
     baseline: str
@@ -822,6 +830,8 @@ evidence_adapters:
   type: web
   description: Enrich scan candidates with normalized NVD severity, CWE and version ranges
   inputs:
+  - cvelist-scan
+  depends_on:
   - cvelist-scan
   output_contract:
     cves: list
