@@ -50,7 +50,6 @@ metadata:
   - '[Quality assurance - function/usage]'
   - 'RULE: After installation, the package must work with reasonable configuration and documentation effort; explain why a safe default is impossible when configuration is required.'
   - item: REP-QA-FUNC-001
-  - item: REP-QA-FUNC-002
   - ''
   - '[Quality assurance - maintenance]'
   - 'RULE: Upstream, Debian, and Ubuntu maintenance must inspire confidence. Evaluate important, old, critical, and security bugs and discuss relevant open issues.'
@@ -319,28 +318,15 @@ items:
 - id: REP-QA-FUNC-001
   section: Quality assurance - function/usage
   title: Installed usability
-  mode: human_only
+  mode: ev_to_ai
   readiness: warning
+  adapters_required: [packaging-source, binary-package-inspection]
+  rule_context: 'RULE: After installation, the package must work with reasonable configuration and documentation effort; explain why a safe default is impossible when configuration is required.'
+  ai_policy: Assess whether the package works immediately after installation or needs configuration, using packaging-source.debconf_templates (debconf prompts shown during install), packaging-source.service_files and binary-package-inspection.systemd_units (services that may need enabling or configuration before use), and packaging-source.source_description for context. If nothing suggests required configuration, state plainly that it works with sane defaults. If configuration appears required, name what (e.g. debconf templates, a service that is not enabled by default) and explain, from the evidence, why a safe default is not possible; do not invent reasons the evidence does not support.
   question:
     kind: multiline
-    prompt: Does the package work after installation, or what configuration/documentation is required?
+    prompt: Does the package work after installation, or what configuration/documentation is required? If configuration is required, why is a safe default not possible?
   template: 'TODO: - Package function after installation and required configuration: TBD'
-- id: REP-QA-FUNC-002
-  section: Quality assurance - function/usage
-  title: Post-install behavior
-  mode: human_only
-  readiness: warning
-  question:
-    kind: single_choice
-    prompt: Which post-install behavior applies?
-    options:
-    - id: works-after-install
-      label: Works well immediately after installation
-      statement: The package works well right after install.
-    - id: configuration-required
-      label: Requires configuration or documentation
-      statement: The package needs post-install configuration or documentation because no safe default exists.
-  template: 'TODO-A/B: - Post-install behavior: TBD'
 - id: REP-QA-MAINT-001
   section: Quality assurance - maintenance
   title: Important open bugs
@@ -600,8 +586,11 @@ items:
 - id: REP-STD-001
   section: Standards compliance
   title: FHS and Debian Policy
-  mode: human_only
+  mode: ev_to_ai
   readiness: blocker
+  adapters_required: [lintian, packaging-source]
+  rule_context: 'RULE: Document and justify major FHS or Debian Policy violations.'
+  ai_policy: Assess FHS/Debian Policy compliance using lintian.lintian_errors and lintian.lintian_warnings (lintian enforces most FHS/Policy rules) plus packaging-source for context. If there are no FHS/Policy-relevant lintian findings, state plainly that lintian found no such violations. If there are relevant findings, name them and note they need justification or a documented override; do not claim compliance the evidence does not support.
   question:
     kind: multiline
     prompt: Confirm FHS and Debian Policy compliance, or explain and justify violations.

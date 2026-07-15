@@ -32,7 +32,6 @@ class ChoiceWizard(FakeWizard):
     values = {
         "REP-RATIONALE-005": "niche",
         "REP-RATIONALE-007": "no-deadline",
-        "REP-QA-FUNC-002": "configuration-required",
         "REP-QA-MAINT-004": "team-access",
         "REP-QA-TEST-005": ["A-team-hardware", "E-simulator"],
         "REP-DEP-002": "separate",
