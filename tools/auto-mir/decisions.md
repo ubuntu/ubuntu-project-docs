@@ -1200,7 +1200,11 @@ Outcomes from the first real reviewer feedback. Promotion: no (local rationale).
   real errors stay a Problem.
 - **URF-4/URF-5**: scan the whole source tree (`grep -RIn`, `find -user nobody`,
   `find -perm -4000/-2000`) and the built binaries (single deb-extraction pass
-  shared with ESL-2), with test-context filtering.
+  shared with ESL-2), with test-context filtering. URF-4 source-tree 'nobody'
+  hits additionally require a user-reference code context (quoted strings,
+  assignments, chown-style, privilege-dropping functions, CLI flags) so the
+  English pronoun in comments/prose does not trip the check; non-executable doc
+  files (including Debian's `*.README.Debian`) are filtered for both checks.
 - **PRF-5**: cross-series publishing history is collected and a deterministic
   `release_cadence` descriptor (good <=183d avg, slow <=400d, else sporadic) is
   computed and fed to the LLM as primary evidence.
@@ -1979,4 +1983,66 @@ implementation).**
 
 **Validation from `tools/auto-mir`:** `make lint` PASS, `make test` PASS
 (565 passed, 3 skipped).
+
+## 2026-07-16 — URF-4 false-positive: 'nobody' pronoun in comments/prose
+
+**Promotion:** no
+
+**Context:**
+- A test review of mysql-9.7 (bug 2160635) produced a URF-4 false positive:
+  "User 'nobody' found outside test context: ./debian/mysql-server.README.Debian:71:...
+  to ensure that nobody else can read; ./vio/viosocket.cc:162:/* Ensure nobody
+  uses vio_read_buff ... */; ./storage/ndb/.../DbdihMain.cpp:23689:...nobody
+  else can ...".
+- Analysis of all 72 raw `grep -RInF nobody` hits in the source tree showed
+  zero genuine Unix-user references. After the existing test-context and
+  doc-type filters, 54 hits survived: ~51 were the English pronoun "nobody"
+  in C/C++ comments, 2 were quoted string literals, and 1 was a prose mention
+  in `debian/mysql-server.README.Debian` (a doc file not recognised as such).
+- Two distinct root causes:
+  - **Problem A:** `_path_is_nonexecutable_doc` classified by the last
+    extension only, so Debian's conventional `*.README.Debian` and
+    `README.source` (last extension `.Debian` / `.source`, not in the
+    doc-extensions list) were not recognised as non-executable docs.
+  - **Problem B:** the source-tree grep loop in URF-4 had no comment-context
+    filter, so the bare word "nobody" in English comments/prose tripped the
+    check.
+
+**Decision:**
+- **A1 — Doc classification for compound Debian basenames.** Extended
+  `_path_is_nonexecutable_doc` to check whether any dot-separated component of
+  the basename (lowercased) is in `_NONEXECUTABLE_DOC_BASENAMES`, so
+  `mysql-server.README.Debian` matches because the component `readme` is a
+  known doc basename. A denylist of code/script extensions (`.py`, `.sh`, `.c`,
+  ...) prevents misclassifying code like `install.sh` (where `install` is a doc
+  basename but `.sh` is a code extension). Benefits both URF-4 and URF-5, which
+  share the helper for source-tree grep-hit filtering.
+- **B1 — User-reference context filter for 'nobody'.** Added
+  `_line_references_nobody_user`, a positive regex requiring a code-context
+  marker: quoted string literals (`"nobody"` / `'nobody'`), chown-style colon
+  syntax (`nobody:group`), assignments (`User=nobody`), privilege-dropping
+  function calls (`setuid`, `setuser`, `getpwnam`, `chown`, `su`, `runuser`,
+  `initgroups` followed by `nobody`), and CLI flags (`--user nobody`, `-u
+  nobody`). Applied to source-tree grep hits only in `_check_urf_4`.
+
+**Non-goals:**
+- The debian/rules and debian/control bare-word scan is unchanged (packaging
+  files are small and "nobody" there almost always means the user).
+- URF-3 (sudo/gksu/pkexec) is unchanged: it only scans debian/rules/control,
+  and those keywords are not English pronouns.
+- `nobody_source_files` and `nobody_owned_binaries` (find -user nobody) are
+  unchanged: they are filesystem ownership facts, not text matches.
+
+**Consequences:**
+- The mysql-9.7 case: 72 raw hits → 54 after existing filters → 2 surviving
+  hits (both `"nobody"` quoted string literals in C++ code, genuinely worth
+  human review).
+- A non-standard "nobody" reference pattern not matching the regex would be a
+  false negative. This is acceptable: realistic user references in source code
+  always appear in code contexts (quoted strings, function calls, assignments).
+- The doc-classification fix also benefits URF-5 (setuid/setgid source-tree
+  grep hits) since both checks share `_path_is_nonexecutable_doc`.
+
+**Validation from `tools/auto-mir`:** `make lint` PASS, `make test` PASS
+(570 passed, 3 skipped).
 
