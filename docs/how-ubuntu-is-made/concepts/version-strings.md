@@ -262,7 +262,7 @@ There are two ways to do this, depending on whether you want to anchor the versi
 If you know the version identifier of the next upstream release, use pre-release versioning. If not (for example, if upstream
 versions are date-based or you are unsure whether the next release will be major or minor), use post-release versioning.
 
-### Pre-releases
+#### Pre-releases
 
 For pre-releases, if your target commit has a labeled pre-relase version, you can separate the pre-release part from the core version number with a `~` character,
 and then follow the conventions for merging from upstream.
@@ -292,7 +292,7 @@ If we are targeting an arbitrary git commit, our "version" string has a specific
 | `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `3.1`                 | `cab005e......`    | `3.1~git20260716.cab005e-0ubuntu1` |
 | `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `2.3`                 | `0ddba11......`    | `2.3~git20260716.0ddba11-0ubuntu1` |
 
-### Post-releases
+#### Post-releases
 
 For post-releases, you should always use the git commit format as described in pre-releases. However, instead of using `~` (which sorts *first*), you should use `+` (which sorts *last*). 
 
