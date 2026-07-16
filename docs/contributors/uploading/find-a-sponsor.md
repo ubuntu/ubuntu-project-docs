@@ -4,7 +4,7 @@
 The ability to upload or sync directly to the Archive is carefully managed to ensure the stability and security of Ubuntu. New contributors don't have upload rights immediately -- they must request {ref}`sponsorship` from someone who *does* have upload rights to:
 
 - Make changes to existing packages or incremental updates.
-- Submit security updates or bug fixes.
+- Upload security updates or bug fixes.
 - Introduce new packages to Ubuntu.
 - Initiate syncs from Debian.
 
