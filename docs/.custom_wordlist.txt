@@ -3,6 +3,7 @@ ABIs
 Ayatana
 allowlist
 apport
+baz
 archs
 auditable
 autobuilders
@@ -163,6 +164,7 @@ rasdaemon
 recompiles
 repo
 retracer
+recurse
 RFPs
 Rockcraft
 Rosbrook
