@@ -270,7 +270,7 @@ Make sure that `~/.cargo/bin` is in your `$PATH`, otherwise you won't be able to
 
 
 (updating-rust-vendor-tarball-rule)=
-Vendor tarball rule
+#### Vendor tarball rule
 
 After that, call the `vendor-tarball` rule in `debian/rules`. This uses `cargo-vendor-filterer` to generate a vendor directory that _only_ contains the dependencies required by supported Ubuntu targets. It then repacks this directory into the `vendor` tarball component. Make sure you point it to your installed Rust toolchain via `RUST_BOOTSTRAP_DIR`:
 
@@ -280,6 +280,10 @@ $ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu \
 ```
 
 You should now see a new tarball in the parent directory: `../rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz`. In later steps, we use this to replace the existing `vendor/` directory.
+
+You may also notice that `debian/rust-X.Y-src.install.in` has been updated — this is intentional. One binary package, `rust-<X.Y>-src`, installs certain vendored dependencies needed to build the Rust standard library from source. The `vendor-tarball` rule updates the dependency numbers so `rust-<X.Y>-src` ships the proper files. Commit the changes to `debian/rust-X.Y-src.install.in` before proceeding.
+
+All other changes to the repository may be safely restored.
 
 ### Removing Vendored C Libraries
 
