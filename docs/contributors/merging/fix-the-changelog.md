@@ -82,33 +82,6 @@ If you {command}`diff` your final logical tag against the Ubuntu package it anal
    For the purposes of this workflow, these are not considered part of our "logical delta", and instead are re-added at the end.
 :::
 
-:::{tip}
-You can use the {command}`execsnoop-bpfcc` tool from the {pkg}`bpfcc-tools` package to find what `debhelper` scripts were called for a certain package. This is helpful for debugging what scripts were called, and what parameters were passed to them.
-
-For example:
-
-```none
-$ sudo execsnoop-bpfcc -n multipath
-```
-
-Now in another shell run:
-
-```none
-$ sudo apt install --reinstall multipath-tools
-```
-
-In the original shell, you should see something like:
-
-```none
-PCOMM            PID     PPID    RET ARGS
-multipath-tools  13939   13931     0 /var/lib/dpkg/info/multipath-tools.prerm upgrade 0.9.4-5ubuntu3
-multipath-tools  13951   13931     0 /var/lib/dpkg/info/multipath-tools.postrm upgrade 0.9.4-5ubuntu3
-multipath-tools  13959   13956     0 /var/lib/dpkg/info/multipath-tools.postinst configure 0.9.4-5ubuntu3
-multipathd       14009   1         0 /sbin/multipathd -d -s
-```
-
-:::
-
 
 ## Next
 
