@@ -33,6 +33,10 @@ Think of it as a relation between Launchpad personas and a list of packages.
 
 ```{mermaid}
 %% mermaid flowcharts documentation: https://mermaid.js.org/syntax/flowchart.html
+   %%{init: {'themeVariables': {
+                'fontSize': '0.6em',
+                'fontFamily': 'Ubuntu'}}}%%
+
 flowchart TD
     %% Entities
     Developers["Developer"]
