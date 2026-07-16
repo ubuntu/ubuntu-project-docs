@@ -85,7 +85,8 @@ Here's a listing of examples of the application of these rules:
 | `2.0-2`          | Ubuntu change     | `2.0-2ubuntu1`      |
 | `2.0-2ubuntu1`   | Ubuntu change     | `2.0-2ubuntu2`      |
 | `2.0-2ubuntu2`   | Ubuntu change     | `2.0-2ubuntu3`      |
-| `2.0-3`          | Re-Sync w/ Debian | `2.0-3`             |
+| `2.0-2`          | Re-Sync w/ Debian | `2.0-3`             |
+| `2.0-2build1`    | Re-Sync w/ Debian | `2.0-3`             |
 | `2.0-3`          | No-change rebuild | `2.0-3build1`       |
 | `2.0-3build1`    | No-change rebuild | `2.0-3build2`       |
 | `2.0-3build2`    | Ubuntu change     | `2.0-3ubuntu1`      |
@@ -108,13 +109,20 @@ Only packages with no Ubuntu modifications or those with no-change updates
 (i.e., versions with `build` rather than `ubuntu` in the revision), are
 automatically synced.
 
-When your is already in Debian (and preliminary in Ubuntu), you can indicate a version with `willsync` to be overwritten by any future Debian version.
-The suffix `willsync` > `ubuntu` (and `ubuntu` prevents syncing, see above), so the next Debian update will overwrite the Ubuntu delta automatically.
+If Ubuntu currently has delta, and your upload will allow us to start automatically syncing from Debian once more, use `willsync` to indicate this. The suffix `willsync` > `ubuntu` (and only `ubuntu` prevents syncing, see above), so the next Debian update will overwrite the Ubuntu delta automatically.
+
+If there is no current Ubuntu delta, use `maysync` instead of `willsync`. This is done so that if Ubuntu delta needs to be introduced later,
+we can add delta in the standard way with (`ubuntu` in the version string), as `ubuntu` > `maysync`.
+
+It may seem strange to upload a syncable version on top of a version that is *already* synced with Debian, but it can be necessary in some cases. For example:
+- You need a change present in an unreleased Debian version in Ubuntu.
+- You are experiencing a packaging issue (e.g. a dependency-related build failure) which requires a temporary delta (versioned `maysync1`) which is then immediately dropped (`maysync2`).
+
 
 | When                                                 | Current Debian | Current Ubuntu | Next Debian        | Ubuntu sync indication |
 |------------------------------------------------------|----------------|----------------|--------------------|------------------------|
 | Ubuntu has delta, Debian caught up                   | `2.0-1`        | `2.0-1ubuntu1` | `2.0-2` or `2.1-1` | `2.0-1willsync1`       |
-| No Ubuntu delta, but new change already is in Debian | `2.0-1`        | `2.0-1`        | `2.0-2` or `2.1-1` | `2.0-1willsync1`       |
+| No Ubuntu delta, but new change already is in Debian | `2.0-1`        | `2.0-1`        | `2.0-2` or `2.1-1` | `2.0-1maysync1`        |
 
 If these updates pass Ubuntu's automated testing, they do not require manual
 intervention. However, there are scenarios where the automation cannot handle
@@ -243,6 +251,60 @@ List of this and further related examples:
 | `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `3.1`        | `3.1-0ubuntu1` |
 | `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `2.3`        | `2.3-0ubuntu1` |
 
+### Merging from a specific Upstream git commit 
+
+In certain cases, you may want to merge from a point in upstream later than the most recent tagged
+release, such as from the latest commit or a commit that contains some specific change you want.
+
+There are two ways to do this, depending on whether you want to anchor the version to the **next** upstream release 
+(called a **pre**-release) or to the **previous** upstream release (called a **post**-release).
+
+If you know the version identifier of the next upstream release, use pre-release versioning. If not (for example, if upstream
+versions are date-based or you are unsure whether the next release will be major or minor), use post-release versioning.
+
+### Pre-releases
+
+For pre-releases, if your target commit has a labeled pre-relase version, you can separate the pre-release part from the core version number with a `~` character,
+and then follow the conventions for merging from upstream.
+
+The reason a `~` character is used here is because `~` sorts before any other character, and, importantly for our purposes, 
+also sorts before the empty suffix. If our version is `3.1~pre1`, when Debian eventually uploads `3.1`,
+it will be considered a later version than ours, and users will be able to upgrade to it once we sync.
+
+| Old-Debian | Old-Ubuntu      | New-Debian     | New-Upstream            | Ubuntu Devel        |
+| ---------- | --------------- | -------------- | ----------------------- | ------------------- |
+| `2.1-1`    | `2.1-1`         | *unchanged*    | `3.1` prerelease 1      | `3.1~pre1-0ubuntu1` |
+| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `3.1` prerelease 1      | `3.1~pre1-0ubuntu1` |
+| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `2.3` prerelease 1      | `2.3~pre1-0ubuntu1` |
+
+If we are targeting an arbitrary git commit, our "version" string has a specific format to ensure proper sorting. This format is:
+
+- The *upcoming version* (e.g `3.1`).
+- `~git` to indicate that this is pre-release git commit.
+- The date of the commit in `YYYYMMDD` format.
+- A dot `.`.
+- The first seven characters of the commit hash (for informational purposes).
+
+
+| Old-Debian | Old-Ubuntu      | New-Debian     | Next Upstream Version | Target Commit Hash | Ubuntu Devel                       |
+| ---------- | --------------- | -------------- | --------------------- | ------------------ | ---------------------------------- |
+| `2.1-1`    | `2.1-1`         | *unchanged*    | `3.1`                 | `f1eeced......`    | `3.1~git20260716.f1eeced-0ubuntu1` |
+| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `3.1`                 | `cab005e......`    | `3.1~git20260716.cab005e-0ubuntu1` |
+| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `2.3`                 | `0ddba11......`    | `2.3~git20260716.0ddba11-0ubuntu1` |
+
+### Post-releases
+
+For post-releases, you should always use the git commit format as described in pre-releases. However, instead of using `~` (which sorts *first*), you should use `+` (which sorts *last*). 
+
+This ensures that if debian uploads the version we are anchoring to, our version will still be considered 
+later (as it should be, since it is based on a later commit)
+
+
+| Old-Debian | Old-Ubuntu      | New-Debian     | Latest Upstream Version Before Target Commit | Target Commit Hash | Ubuntu Devel                       |
+| ---------- | --------------- | -------------- | -------------------------------------------- | ------------------ | ---------------------------------- |
+| `2.1-1`    | `2.1-1`         | *unchanged*    | `3.1`                                        | `d00dad5......`    | `3.1+git20260716.d00dad5-0ubuntu1` |
+| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `3.1`                                        | `effab1e......`    | `3.1+git20260716.effab1e-0ubuntu1` |
+| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `2.3`                                        | `5add1ed......`    | `2.3+git20260716.5add1ed-0ubuntu1` |
 
 (version-adding-a-change-in-ubuntu-as-a-sru)=
 ## Version: Adding a change in Ubuntu as a stable release update
@@ -601,4 +663,3 @@ nobody knows if/when/what the new revision will be.
 
 The underlying principles are outlined in more detail in the
 [Debian Wiki](https://wiki.debian.org/Versioning).
-
