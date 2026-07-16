@@ -2196,11 +2196,17 @@ def test_path_is_nonexecutable_doc_classification():
     assert doc("COPYING")
     assert doc("man/foo.1")
     assert doc("man/foo.3pm")
+    # Debian conventional documentation basenames: *.README.Debian, README.source.
+    assert doc("debian/mysql-server.README.Debian")
+    assert doc("debian/README.Debian")
+    assert doc("debian/README.source")
+    assert doc("debian/libfoo.NEWS.Debian")
     # Code and scripts are never softened, even with "example" in the name.
     assert not doc("./tools/execsnoop_example.py")
     assert not doc("scripts/install.sh")
     assert not doc("src/daemon.c")
     assert not doc("license_check.py")
+    assert not doc("readme_check.py")
 
 
 def test_grep_hit_path_extracts_path():

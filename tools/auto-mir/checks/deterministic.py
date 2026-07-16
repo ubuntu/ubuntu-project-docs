@@ -132,6 +132,59 @@ _NONEXECUTABLE_DOC_BASENAMES = (
 # (e.g. ``.3pm``, ``.1p``). These are documentation, not executables.
 _MANPAGE_SUFFIX_RE = re.compile(r"\.[1-9][a-z]*$")
 
+# Code/script extensions. When the last extension of a basename is in this set,
+# the file is executable code and is never classified as a doc, even if a
+# dot-separated component happens to match a doc basename (e.g. ``install.sh``).
+_CODE_EXTENSIONS = frozenset(
+    {
+        ".py",
+        ".sh",
+        ".bash",
+        ".pl",
+        ".rb",
+        ".js",
+        ".ts",
+        ".c",
+        ".cc",
+        ".cpp",
+        ".cxx",
+        ".h",
+        ".hpp",
+        ".go",
+        ".rs",
+        ".java",
+        ".lua",
+        ".php",
+        ".tcl",
+        ".awk",
+        ".sed",
+        ".vala",
+        ".swift",
+        ".kt",
+        ".scala",
+        ".r",
+        ".jl",
+        ".ex",
+        ".exs",
+        ".erl",
+        ".hs",
+        ".ml",
+        ".nim",
+        ".cr",
+        ".d",
+        ".zig",
+        ".pas",
+        ".pp",
+        ".f",
+        ".f90",
+        ".f95",
+        ".for",
+        ".asm",
+        ".s",
+        ".S",
+    }
+)
+
 
 def _grep_hit_path(hit: str) -> str:
     """Return the file-path portion of a ``path:lineno:content`` grep hit."""
@@ -157,7 +210,21 @@ def _path_is_nonexecutable_doc(path: str) -> bool:
     if _MANPAGE_SUFFIX_RE.search(name):
         return True
     ext = "." + name.rsplit(".", 1)[-1]
-    return ext in _NONEXECUTABLE_DOC_EXTENSIONS
+    if ext in _NONEXECUTABLE_DOC_EXTENSIONS:
+        return True
+    # Debian ships conventional documentation as compound basenames such as
+    # ``mysql-server.README.Debian`` or ``README.source``. The last extension
+    # (``.Debian`` / ``.source``) is not in the doc-extensions list, but a
+    # dot-separated component (``readme``) is a known doc basename. Matching any
+    # component catches these without misclassifying code: a file like
+    # ``install.sh`` whose last extension is a code/script extension is never
+    # softened, even though ``install`` is a doc basename.
+    if ext in _CODE_EXTENSIONS:
+        return False
+    components = name.split(".")
+    if len(components) > 1 and any(c in _NONEXECUTABLE_DOC_BASENAMES for c in components):
+        return True
+    return False
 
 
 # Soname-versioned shared-library runtime package names end in a digit
