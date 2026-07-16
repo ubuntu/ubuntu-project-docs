@@ -13,7 +13,7 @@ Usage:
 
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 # ---------------------------------------------------------------------------
 # Host-side adapters — LP API
@@ -213,6 +213,7 @@ class PriorMirBug(TypedDict):
     status: str
     web_link: str
     matched_name: str
+    provenance: NotRequired[str]
 
 
 class LPMirHistoryResult(TypedDict):

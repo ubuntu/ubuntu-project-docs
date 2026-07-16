@@ -42,7 +42,7 @@ from evidence.types import (
     UpstreamTrackerResult,
 )
 from utils import http as http_utils
-from utils import llm_sanitize
+from utils import llm_sanitize, predecessor_refs
 
 try:
     from launchpadlib.launchpad import Launchpad as _Launchpad  # type: ignore
@@ -250,16 +250,56 @@ _MIR_TITLE_RE = re.compile(r"\[mir\]|\bmir\b", re.IGNORECASE)
 # this many MIR-matching tasks enriched per candidate.
 _MIR_HISTORY_MAX_CANDIDATES = 6
 _MIR_HISTORY_MAX_TASKS_PER_NAME = 10
+# At most this many explicit "LP: #NNNN" references from bug text are fetched
+# directly (each is one API call). The number of such references in a real MIR
+# bug is small; the bound keeps a pathological bug from fanning out.
+_MIR_HISTORY_MAX_EXPLICIT_REFS = 5
+
+# Parse the source name from a "[MIR] <name>" bug title. Used to derive the
+# predecessor source name from a directly-fetched prior-MIR bug title.
+_MIR_TITLE_NAME_CAPTURE_RE = re.compile(r"^\[mir\]\s+(.+?)\s*$", re.IGNORECASE)
+
+
+def _mir_history_bug_text(ctx) -> str:
+    """Return the combined bug text to scan for predecessor references.
+
+    Mirrors review_type._reporter_text(): title, description, comments, and
+    reporter MIR content. Kept local to avoid an evidence -> review_type import
+    (review_type is a downstream consumer of this adapter's output, not a
+    dependency of evidence collection).
+    """
+    parts: list[str] = []
+    parts.append(str(getattr(ctx, "reporter_mir_content", "") or ""))
+    bug = getattr(ctx, "bug", None)
+    if isinstance(bug, dict):
+        parts.append(str(bug.get("title", "") or ""))
+        parts.append(str(bug.get("description", "") or ""))
+        for comment in bug.get("comments", []) or []:
+            parts.append(str(comment or ""))
+    return "\n".join(p for p in parts if p)
+
+
+def _mir_history_predecessor_refs(ctx) -> list[predecessor_refs.PredecessorRef]:
+    """Extract rename/predecessor references from the bug text.
+
+    Best-effort and dependency-free: returns an empty list when bug text is
+    empty or contains no predecessor references.
+    """
+    pkg = str(getattr(ctx, "source_package", "") or "")
+    text = _mir_history_bug_text(ctx)
+    return predecessor_refs.extract_predecessor_refs(text, pkg)
 
 
 def _mir_history_candidate_names(ctx) -> list[str]:
     """Return distinct candidate source names to probe for a prior MIR bug.
 
     The current source package is always first. Predecessor/sibling names from
-    the cve-search-terms adapter and archive-neighbour names from dup-search are
-    added when available, so a renamed or split source can be linked back to the
-    name it was reviewed under. All lookups are read defensively; missing or
-    failed adapters simply contribute nothing.
+    the cve-search-terms adapter, archive-neighbour names from dup-search, and
+    rename/predecessor names extracted directly from the bug text (e.g.
+    "mysql-9.7 to replace mysql-8.4") are added when available, so a renamed
+    or split source can be linked back to the name it was reviewed under. All
+    lookups are read defensively; missing or failed adapters simply contribute
+    nothing.
     """
     names: list[str] = []
     seen: set[str] = set()
@@ -290,6 +330,13 @@ def _mir_history_candidate_names(ctx) -> list[str]:
             if isinstance(cand, dict):
                 _add(cand.get("name"))
 
+    # Predecessor names extracted directly from the bug text. These are the
+    # strongest signal for a rename (the reporter says "replace mysql-8.4")
+    # and are not available from the cve-search-terms or dup-search adapters.
+    for ref in _mir_history_predecessor_refs(ctx):
+        if ref.name:
+            _add(ref.name)
+
     return names[:_MIR_HISTORY_MAX_CANDIDATES]
 
 
@@ -303,6 +350,11 @@ def collect_lp_mir_history(ctx) -> LPMirHistoryResult:
     source that was renamed or reorganised from something already in main. A
     missing package (404) or transient API hiccup for one candidate is skipped
     rather than failing the adapter.
+
+    Explicit ``LP: #NNNN`` cross-references in the bug text (e.g. "MIR for
+    mysql-8.4 - LP: #2089720") are fetched directly and title-confirmed, so a
+    renamed source's prior MIR bug is recognised from the reporter's own words
+    even when the predecessor name was not probed via searchTasks.
     """
     pkg = getattr(ctx, "source_package", "")
     if not pkg:
@@ -364,6 +416,60 @@ def collect_lp_mir_history(ctx) -> LPMirHistoryResult:
                     "matched_name": name,
                 }
             )
+
+    # --- explicit "LP: #NNNN" cross-references from the bug text -------------
+    # A reporter almost always links the prior MIR bug explicitly (e.g.
+    # "MIR for mysql-8.4 - LP: #2089720"). Fetch those directly and
+    # title-confirm them, so the predecessor is recognised even when the
+    # predecessor name was not probed via searchTasks (e.g. because it was not
+    # a cve-search-terms predecessor and not a dup-search candidate).
+    text_refs = _mir_history_predecessor_refs(ctx)
+    explicit_refs = predecessor_refs.explicit_bug_ids(text_refs)
+    # Index refs by bug_id for O(1) name fallback lookup below.
+    ref_name_by_bug_id: dict[str, str] = {}
+    for ref in text_refs:
+        if ref.bug_id and ref.name and ref.bug_id not in ref_name_by_bug_id:
+            ref_name_by_bug_id[ref.bug_id] = ref.name
+
+    for bug_id in explicit_refs[:_MIR_HISTORY_MAX_EXPLICIT_REFS]:
+        if bug_id in seen_bug_ids:
+            continue
+        bug_url = f"https://api.launchpad.net/devel/bugs/{bug_id}"
+        try:
+            bug_data = _fetch_json(bug_url)
+        except urllib.error.HTTPError as exc:
+            log.debug("lp-mir-history: direct fetch of bug %s failed (HTTP %s)", bug_id, exc.code)
+            continue
+        except (urllib.error.URLError, json.JSONDecodeError) as exc:
+            log.debug("lp-mir-history: direct fetch of bug %s failed: %s", bug_id, exc)
+            continue
+
+        title = str(bug_data.get("title") or "").strip()
+        if not _MIR_TITLE_RE.search(title):
+            continue
+
+        # Derive the predecessor source name from a "[MIR] <name>" title.
+        matched_name = ""
+        name_match = _MIR_TITLE_NAME_CAPTURE_RE.match(title)
+        if name_match:
+            candidate = name_match.group(1).strip()
+            if candidate.lower() != pkg.lower():
+                matched_name = candidate
+        # Fall back to the name paired with this bug id in the bug text, if any.
+        if not matched_name:
+            matched_name = ref_name_by_bug_id.get(bug_id, "")
+
+        seen_bug_ids.add(bug_id)
+        prior_mir_bugs.append(
+            {
+                "id": bug_id,
+                "title": title,
+                "status": "",
+                "web_link": f"https://bugs.launchpad.net/bugs/{bug_id}",
+                "matched_name": matched_name or pkg,
+                "provenance": "bug-text-ref",
+            }
+        )
 
     log.debug(
         "lp-mir-history: %d prior MIR bug(s) across %d candidate name(s) for %s",

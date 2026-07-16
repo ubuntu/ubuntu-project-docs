@@ -561,7 +561,117 @@ def test_lp_mir_history_skips_missing_source_names_gracefully():
     assert result["prior_mir_bugs"] == []
 
 
-def test_debian_bts_output_structure():
+def test_lp_mir_history_direct_fetches_explicit_lp_ref_from_bug_text():
+    """An explicit 'LP: #NNNN' in the bug text is fetched and title-confirmed."""
+    ctx = Mock()
+    ctx.source_package = "mysql-9.7"
+    ctx.reporter_mir_content = ""
+    ctx.bug = {
+        "title": "[MIR] mysql-9.7",
+        "description": (
+            "This MIR will allow mysql-9.7 to replace mysql-8.4 as the provider "
+            "of libmysqlclient24.\n\nMIR for mysql-8.4 - LP: #2089720"
+        ),
+        "comments": [],
+    }
+    ctx.evidence = {"adapters": {}}
+
+    def fake_fetch(url: str):
+        # searchTasks for the current source and the extracted predecessor name
+        # return nothing — the prior bug is only reachable via the explicit ref.
+        if "searchTasks" in url:
+            return {"entries": []}
+        # Direct bug fetch for the explicit LP: #2089720 reference.
+        if url == "https://api.launchpad.net/devel/bugs/2089720":
+            return {"title": "[MIR] mysql-8.4"}
+        raise AssertionError(f"unexpected url: {url}")
+
+    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+        from evidence.host_adapters import collect_lp_mir_history
+
+        result = collect_lp_mir_history(ctx)
+
+    assert result["status"] == "ok"
+    prior = result["prior_mir_bugs"]
+    assert len(prior) == 1
+    assert prior[0]["id"] == "2089720"
+    assert prior[0]["matched_name"] == "mysql-8.4"
+    assert prior[0]["title"] == "[MIR] mysql-8.4"
+    assert prior[0]["web_link"] == "https://bugs.launchpad.net/bugs/2089720"
+    assert prior[0]["provenance"] == "bug-text-ref"
+    # The predecessor name extracted from the bug text is also a candidate.
+    assert "mysql-8.4" in result["candidate_names"]
+
+
+def test_lp_mir_history_direct_fetch_404_is_skipped():
+    """A 404 on the direct fetch of an explicit LP ref is skipped, not fatal."""
+    ctx = Mock()
+    ctx.source_package = "mysql-9.7"
+    ctx.reporter_mir_content = ""
+    ctx.bug = {
+        "title": "[MIR] mysql-9.7",
+        "description": "Prior review: LP: #9999999",
+        "comments": [],
+    }
+    ctx.evidence = {"adapters": {}}
+
+    def fake_fetch(url: str):
+        if "searchTasks" in url:
+            return {"entries": []}
+        raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
+
+    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+        from evidence.host_adapters import collect_lp_mir_history
+
+        result = collect_lp_mir_history(ctx)
+
+    assert result["status"] == "ok"
+    assert result["prior_mir_bugs"] == []
+
+
+def test_lp_mir_history_bare_name_ref_probed_via_searchtasks():
+    """A bare predecessor name (no LP ref) is added to the candidate pool."""
+    ctx = Mock()
+    ctx.source_package = "libfoo2"
+    ctx.reporter_mir_content = ""
+    ctx.bug = {
+        "title": "[MIR] libfoo2",
+        "description": "libfoo2 to replace libfoo as the provider.",
+        "comments": [],
+    }
+    ctx.evidence = {"adapters": {}}
+
+    task_page = {
+        "entries": [
+            {
+                "bug_link": "https://api.launchpad.net/devel/bugs/800",
+                "web_link": "https://bugs.launchpad.net/bugs/800",
+                "status": "Fix Released",
+            },
+        ],
+    }
+    bug_800 = {"title": "[MIR] libfoo"}
+
+    def fake_fetch(url: str):
+        if "+source/libfoo2" in url and "searchTasks" in url:
+            return {"entries": []}
+        if "+source/libfoo" in url and "searchTasks" in url:
+            return task_page
+        if url.endswith("/bugs/800"):
+            return bug_800
+        raise AssertionError(f"unexpected url: {url}")
+
+    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+        from evidence.host_adapters import collect_lp_mir_history
+
+        result = collect_lp_mir_history(ctx)
+
+    assert result["status"] == "ok"
+    assert "libfoo" in result["candidate_names"]
+    prior = result["prior_mir_bugs"]
+    assert len(prior) == 1
+    assert prior[0]["id"] == "800"
+    assert prior[0]["matched_name"] == "libfoo"
     """debian-bts adapter should classify RC and security bugs from BTS HTML."""
     ctx = Mock()
     ctx.source_package = "testpkg"
