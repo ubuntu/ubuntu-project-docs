@@ -1892,3 +1892,91 @@ implementation).**
 - Intentional future policy changes remain possible through the catalog without
   updating a legacy golden file.
 
+## 2026-07-16 — Reorg signal: drop dup-search, add bug-text predecessor extraction
+
+**Promotion:** no
+
+**Context:**
+- A test review of mysql-9.7 (bug 2160635, a rename of mysql-8.4) produced an
+  embarrassing reorg rationale: "a functionally-similar package is already in
+  main (libdbi-perl, libecpg-compat3, libecpg-dev)". These are a Perl DB
+  interface and PostgreSQL/SQLite client libraries — unrelated category
+  neighbours, not the actual predecessor (mysql-8.4).
+- Root cause: `review_type._dup_predecessor_in_main()` consumed the raw
+  `dup-search` candidate list (an LLM-derived, `apt-cache search`-probed
+  suggestion pool) and returned every candidate tagged `component == "main"`
+  with no functional-overlap filtering. The adapter docstring states it is
+  "deliberately best-effort and suggestion-only"; its proper consumer is the
+  RDO-1 check, whose AI policy reasons about "genuine FUNCTIONAL overlap, not
+  mere name or keyword similarity".
+- This produced a direct contradiction in the same report: RDO-1 (consuming
+  the same `dup-search` evidence) resolved `ok` with high confidence
+  ("postgresql-18 is a distinct server implementation rather than a functional
+  duplicate; other candidates are client libraries, documentation, or
+  integration tools"), while the review-type rationale asserted a
+  "functionally-similar package is already in main" using the very candidates
+  RDO-1 had already reasoned away.
+- The 2026-07-13 review-types decision listed "dup-search shows a
+  functionally-similar package already in main" as a reorg signal, but the
+  implementation took the raw candidate list instead of the functional-overlap
+  reasoning the design assumed.
+- The ideal reorg signal was missed: `lp-mir-history` only matched the current
+  bug (mysql-9.7) because `_mir_history_candidate_names()` derived predecessor
+  names from `cve-search-terms` (which proposed upstream CVE version families
+  mysql-8.0 / mysql-5.7, not the Ubuntu archive source predecessor mysql-8.4)
+  and `dup-search` candidates (functionality-neighbours, not name-lineage
+  predecessors). The bug text explicitly said "mysql-9.7 to replace mysql-8.4"
+  and "MIR for mysql-8.4 - LP: #2089720", but no adapter parsed these.
+
+**Decision:**
+- **A1 — Drop dup-search as a reorg signal.** Remove
+  `_dup_predecessor_in_main()` and its call site from `review_type.py`. Reorg
+  signals are now bug-text patterns (`_REORG_TEXT_RE`) plus `lp-mir-history`
+  only. `dup-search` evidence and the RDO-1 check are unchanged; RDO-1 remains
+  the sole, correct consumer of dup-search for functional-overlap reasoning.
+  A false-fresh (rename with no text signal and no found prior MIR bug) is
+  acceptable — the reviewer can use `--review-type reorg`.
+- **B1 — Bug-text predecessor extraction.** Add `utils/predecessor_refs.py`, a
+  dependency-free module that extracts rename/predecessor references from bug
+  text: "X to replace Y", "renamed from Y", "formerly known as Y", "supersedes
+  Y", "MIR for Y", and explicit "LP: #NNNN" / bug URL references. A single
+  span like "MIR for mysql-8.4 - LP: #2089720" yields one ref carrying both the
+  name and the bug id. Names are validated against the Debian source-name
+  charset and filtered for stopwords and the current source package.
+- **B1 wire — lp-mir-history consumes extracted refs.** Bare name refs are
+  added to the searchTasks candidate pool. Explicit "LP: #NNNN" references are
+  fetched directly and title-confirmed as MIR bugs (reusing the existing
+  `_MIR_TITLE_RE`), with the predecessor source name parsed from the
+  "[MIR] <name>" title. A new optional `provenance` field on `PriorMirBug`
+  records when a bug was found via a bug-text reference. 404/transient failures
+  on the direct fetch are skipped without failing the adapter, consistent with
+  the existing searchTasks error handling.
+- No core evaluation reorder: `detect_review_type()` still runs before pass-1
+  checks (including RDO-1), then `_apply_review_type_softening` runs. The
+  reorg signal no longer depends on a check's output, so no ordering change is
+  needed.
+
+**Non-goals (user-confirmed):**
+- Reordering `evaluate_checks` so review-type detection reuses RDO-1's verdict
+  (considered as option A3) is not needed once dup-search is removed from the
+  reorg path.
+- Tuning `dup-search` search-term precision or `cve-search-terms` predecessor
+  semantics is out of scope; RDO-1 handles dup-search correctly, and
+  cve-search-terms serves CVE history, not archive rename detection.
+
+**Consequences:**
+- The mysql-9.7 reorg rationale now names the correct predecessor via
+  `lp-mir-history`: "a prior MIR bug exists under a different source name
+  (mysql-8.4, …)".
+- The review-type rationale and RDO-1 can no longer contradict each other on
+  duplicates in main: review-type detection no longer consults dup-search, and
+  RDO-1 remains the single reasoner over that evidence.
+- A rename with no textual "replace/renamed" signal and no found prior MIR bug
+  classifies as `fresh` (blocking); the reviewer can override with
+  `--review-type reorg`.
+- `lp-mir-history` may make one additional API call per explicit "LP: #NNNN"
+  reference (bounded at 5); searchTasks round-trips are unchanged.
+
+**Validation from `tools/auto-mir`:** `make lint` PASS, `make test` PASS
+(565 passed, 3 skipped).
+
