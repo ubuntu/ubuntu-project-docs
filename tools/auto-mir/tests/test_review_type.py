@@ -138,6 +138,46 @@ def test_prior_mir_under_other_name_signals_reorg():
     assert "different source name" in decision.rationale
 
 
+def test_dup_search_main_candidates_do_not_signal_reorg():
+    # dup-search is a low-precision suggestion pool whose proper consumer is the
+    # RDO-1 check. Raw main-component candidates must NOT drive reorg detection,
+    # which previously produced contradictory output (RDO-1 ok vs a
+    # "functionally-similar in main" rationale naming unrelated category
+    # neighbours such as libdbi-perl / libecpg-compat3 for mysql-9.7).
+    ctx = _ctx(
+        source_package="mysql-9.7",
+        reporter_mir_content="A brand new database package with no prior name.",
+        evidence={
+            "adapters": {
+                "dup-search": {
+                    "candidates": [
+                        {
+                            "name": "libdbi-perl",
+                            "synopsis": "Perl Database Interface (DBI)",
+                            "component": "main",
+                        },
+                        {
+                            "name": "libecpg-compat3",
+                            "synopsis": "older version of run-time library for ECPG programs",
+                            "component": "main",
+                        },
+                        {
+                            "name": "libecpg-dev",
+                            "synopsis": "development files for ECPG",
+                            "component": "main",
+                        },
+                    ]
+                }
+            }
+        },
+    )
+    decision = review_type.detect_review_type(ctx)
+    assert decision.review_type == review_type.FRESH
+    assert "functionally-similar" not in decision.rationale
+    assert "libdbi-perl" not in decision.rationale
+    assert "libecpg" not in decision.rationale
+
+
 def test_reorg_takes_precedence_over_rereview():
     # Both signal sets present: reorg (more specific) wins.
     ctx = _ctx(

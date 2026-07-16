@@ -127,25 +127,6 @@ def _prior_mir_under_other_name(ctx) -> list[str]:
     return hits
 
 
-def _dup_predecessor_in_main(ctx) -> list[str]:
-    """Return dup-search candidate names that are already in main.
-
-    A functional twin already in main is, in the rename/split context, a hint
-    that this source may be a reorganised continuation of it.
-    """
-    adapters = _adapters(ctx)
-    dup = adapters.get("dup-search", {})
-    if not isinstance(dup, dict):
-        return []
-    names: list[str] = []
-    for cand in dup.get("candidates", []) or []:
-        if isinstance(cand, dict) and str(cand.get("component", "")).lower() == "main":
-            name = str(cand.get("name", "") or "").strip()
-            if name:
-                names.append(name)
-    return names
-
-
 def _text_signals(ctx) -> tuple[list[str], list[str]]:
     """Return (reorg_signals, rereview_signals) from bug text patterns.
 
@@ -244,12 +225,18 @@ def detect_review_type(ctx) -> ReviewTypeDecision:
 
     This is the authoritative Stage-4 resolution. It combines bug text signals
     (shared with ``pre_detect_review_type``) with evidence-adapter signals only
-    available after Stage 3 collection (``lp-mir-history``, ``dup-search``,
-    ``dep-analysis``, ``component-mismatches``).
+    available after Stage 3 collection (``lp-mir-history``, ``dep-analysis``,
+    ``component-mismatches``).
 
     reorg is checked before rereview because a renamed/reorganised source is the
     more specific case; both soften findings identically, so the label mainly
     tells the human reviewer which fast-path applies.
+
+    ``dup-search`` is deliberately not a reorg signal: it is a low-precision
+    suggestion pool whose proper consumer is the RDO-1 check (which reasons about
+    genuine functional overlap). Using its raw candidate list as a reorg signal
+    produced contradictory output (RDO-1 ok vs a "functionally-similar in main"
+    rationale naming unrelated category-neighbours).
     """
     forced = str(getattr(ctx, "review_type_arg", "auto") or "auto").strip().lower()
     if forced in _VALID_FORCED:
@@ -264,17 +251,20 @@ def detect_review_type(ctx) -> ReviewTypeDecision:
     signals: list[str] = []
 
     # --- reorg (renamed / reorganised source already in main) -------------
+    # NOTE: dup-search is intentionally NOT a reorg signal. It is a low-precision
+    # suggestion pool (LLM-derived functional search terms probed against the
+    # archive) whose proper consumer is the RDO-1 check, which reasons about
+    # genuine functional overlap. Taking raw dup-search candidates as a reorg
+    # signal produced contradictory output: RDO-1 resolved ok ("no functional
+    # duplicate in main") while the review-type rationale asserted a
+    # "functionally-similar package is already in main" using unrelated
+    # category-neighbours (e.g. libdbi-perl, libecpg-compat3 for mysql-9.7).
+    # Reorg signals are bug-text patterns plus lp-mir-history only.
     reorg_signals: list[str] = list(text_reorg)
     prior_other = _prior_mir_under_other_name(ctx)
     if prior_other:
         reorg_signals.append(
             f"a prior MIR bug exists under a different source name ({', '.join(prior_other[:3])})"
-        )
-    dup_main = _dup_predecessor_in_main(ctx)
-    if dup_main:
-        reorg_signals.append(
-            "a functionally-similar package is already in main "
-            f"({', '.join(sorted(set(dup_main))[:3])})"
         )
     if reorg_signals:
         signals.extend(f"reorg: {s}" for s in reorg_signals)
