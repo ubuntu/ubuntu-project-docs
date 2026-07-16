@@ -47,3 +47,13 @@ Reference about the directory structure of the distribution.
 
 filesystem-hierarchy-standard
 ```
+
+## Debian
+
+How Ubuntu relates to and collaborates with Debian.
+
+```{toctree}
+:maxdepth: 1
+
+debian/index
+```
