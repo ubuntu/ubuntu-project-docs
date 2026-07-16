@@ -25,7 +25,7 @@ While platforms like GitHub put users and groups at the top level, Launchpad put
 Why not use platforms like GitHub?
 ----------------------------------
 
-Although Launchpad's :term:`UI` and :term:`UX` are a bit dated, Launchpad offers an unparalleled Ubuntu package building and hosting infrastructure that no other platform offers. Even simple requirements like building for architectures like :term:`PowerPC`, :term:`s390x`, or :term:`RISC-V` cannot be fulfilled by GitHub or similar platforms.
+Although Launchpad's :term:`UI` and :term:`UX` are a bit dated, Launchpad offers an unparalleled Ubuntu package building and hosting infrastructure that no other platform offers. Even simple requirements like building for architectures like :term:`ppc64el`, :term:`s390x`, or :term:`RISC-V` cannot be fulfilled by GitHub or similar platforms.
 
 
 Personal Package Archive (PPA)
