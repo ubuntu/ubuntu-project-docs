@@ -155,6 +155,7 @@ PlayStation
 Postconf
 powerpc
 PPAs
+pre
 prepends
 quantal
 Quokka
@@ -192,6 +193,7 @@ subkey
 subkeys
 subprojects
 supercomputing
+syncable
 sysroot
 systemd
 tarball
