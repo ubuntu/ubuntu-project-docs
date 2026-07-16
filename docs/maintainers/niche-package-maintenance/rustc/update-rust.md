@@ -353,7 +353,7 @@ After that, return to the previous step and {ref}`regenerate the vendored tarbal
 
 #### Adding the system library as a build dependency
 
-We can't remove a C library needed by a vendored dependency without providing a proper equivalent of said library in its place. Instead, we can use the oniguruma Ubuntu package, {lpsrc}`libonig-dev`. We do this by adding the package to `Build-Depends` in `d/control` AND `d/control.in`:
+We can't remove a C library needed by a vendored dependency without providing a proper equivalent of said library in its place. Instead, we can use the oniguruma Ubuntu package, {lpsrc}`libonig`. We do this by adding the package to `Build-Depends` in `d/control` AND `d/control.in`:
 
 ```diff
 --- a/debian/control
