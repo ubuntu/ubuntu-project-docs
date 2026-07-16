@@ -2104,7 +2104,130 @@ def test_urf_4_nobody_in_doc_text_file_is_ignored():
     assert result.status == "ok"
 
 
-def test_urf_5_setgid_binary_in_built_deb():
+def test_urf_4_nobody_pronoun_in_comment_is_ignored():
+    """The English pronoun 'nobody' in a C/C++ comment is not a user reference."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "nobody_source_hits": [
+            "./vio/viosocket.cc:162:  /* Ensure nobody uses vio_read_buff simultaneously. */",
+            "./storage/innobase/lock/lock0lock.cc:6170:  trx->mutex. In theory nobody else should use it.",
+            "./sql/sql_show.cc:4085:    but nobody cares - it may be called only in case of failed plugin",
+        ],
+        "nobody_source_files": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "ok"
+
+
+def test_urf_4_nobody_quoted_string_is_flagged():
+    """A quoted 'nobody' string literal in source code is a genuine reference."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "nobody_source_hits": [
+            './storage/innobase/sync/sync0arr.cc:367:          (owner == std::thread::id{} ? "nobody" : to_string(owner).c_str())',
+        ],
+        "nobody_source_files": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert "nobody" in result.message.lower()
+
+
+def test_urf_4_nobody_chown_style_is_flagged():
+    """A chown-style 'nobody:group' reference in a script is a genuine reference."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "nobody_source_hits": [
+            "./scripts/setup.sh:5:chown nobody:nogroup /var/lib/myapp",
+        ],
+        "nobody_source_files": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert "nobody" in result.message.lower()
+
+
+def test_urf_4_nobody_pronoun_in_readme_debian_is_ignored():
+    """A 'nobody' mention in *.README.Debian is filtered (doc + pronoun)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "nobody_source_hits": [
+            "./debian/mysql-server.README.Debian:71:(-rw------- username groupname .my.cnf) to ensure that nobody else can read",
+        ],
+        "nobody_source_files": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "ok"
+
+
+def test_urf_4_nobody_assignment_is_flagged():
+    """A 'User=nobody' assignment in a config is a genuine reference."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "nobody_source_hits": [
+            "./configs/daemon.conf:3:User=nobody",
+        ],
+        "nobody_source_files": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert "nobody" in result.message.lower()
+
+
+def test_urf_4_nobody_cli_flag_is_flagged():
+    """A '--user nobody' CLI flag in a script is a genuine reference."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "nobody_source_hits": [
+            "./scripts/run.sh:10:exec /usr/bin/myapp --user nobody",
+        ],
+        "nobody_source_files": [],
+    }
+
+    finding = _make_finding("URF-4", mode="deterministic")
+    result = checks.deterministic._check_urf_4(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert "nobody" in result.message.lower()
     """URF-5 flags a setuid/setgid binary found in the built artifacts."""
     ctx = _Ctx()
     ctx.evidence["adapters"]["packaging-source"] = {

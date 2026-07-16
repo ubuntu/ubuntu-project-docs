@@ -227,6 +227,37 @@ def _path_is_nonexecutable_doc(path: str) -> bool:
     return False
 
 
+# Pattern that identifies a genuine reference to the Unix user 'nobody' in
+# source code, as opposed to the English pronoun "nobody" used in comments or
+# prose. Real references always appear in a code context: quoted strings,
+# assignments, chown-style expressions, privilege-dropping function calls, or
+# CLI flags. The bare word "nobody" in a comment ("nobody else can read") never
+# matches because it lacks these markers.
+_NOBODY_USER_REF_RE = re.compile(
+    r'["\']nobody["\']'  # "nobody" / 'nobody' (quoted string literal)
+    r"|nobody\s*:\s*\w"  # nobody:group (chown-style colon syntax)
+    r"|\buser\s*[:=]\s*nobody\b"  # user=nobody, User=nobody (assignment)
+    r"|\b(?:chown|chuid|su|runuser)\b[^;]*\bnobody\b"  # chown/chuid/su/runuser ... nobody
+    r"|\b(?:setuid|setgid|setuser|getpwnam|initgroups)\b[^;]*\bnobody\b"
+    r"|--user\s+nobody\b"  # --user nobody (CLI flag)
+    r"|-u\s+nobody\b",  # -u nobody (CLI flag shorthand)
+    re.IGNORECASE,
+)
+
+
+def _line_references_nobody_user(line: str) -> bool:
+    """Return True when a grep hit references the Unix user 'nobody'.
+
+    Filters out the English pronoun "nobody" in comments and prose (e.g.
+    "nobody else can read", "nobody was asleep at that moment"), which is the
+    dominant source of false positives in large C/C++ source trees. A genuine
+    user reference always appears in a code context: a quoted string literal,
+    an assignment, a chown-style expression, a privilege-dropping function call,
+    or a CLI flag.
+    """
+    return bool(_NOBODY_USER_REF_RE.search(line))
+
+
 # Soname-versioned shared-library runtime package names end in a digit
 # (e.g. liblua5.5-0, libfoo1). -dev/-doc/-dbg packages are excluded.
 _SHARED_LIB_PKG_RE = re.compile(r"^lib.+\d$")
@@ -1416,6 +1447,12 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
         # A text mention in a non-executable doc/text file (e.g. sample console
         # output) is not active code; skip it. Ownership facts below are kept.
         if _line_is_test_context(line) or _path_is_nonexecutable_doc(_grep_hit_path(line)):
+            continue
+        # The English pronoun "nobody" in comments/prose (e.g. "nobody else can
+        # read") is not a user reference; only flag genuine code-context
+        # references (quoted strings, assignments, chown-style, privilege-dropping
+        # functions, CLI flags).
+        if not _line_references_nobody_user(line):
             continue
         hits.append(line)
     for path in packaging.get("nobody_source_files", []):
