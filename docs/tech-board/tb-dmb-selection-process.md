@@ -21,7 +21,7 @@ membership status.
 
 Volunteers must expect to be able to attend the majority of DMB
 meetings. Currently these take place on IRC, are scheduled on alternate
-Mondays with each meeting alternating between 1600 UTC and 1900 UTC, and
+Mondays with each meeting alternating between 1300 UTC and 1530 UTC, and
 last around an hour. Meeting times can be negotiated and adjusted by
 board members as needed.
 
