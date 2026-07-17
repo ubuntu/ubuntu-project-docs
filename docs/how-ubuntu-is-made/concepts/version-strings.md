@@ -2,11 +2,73 @@
 # Version string format
 
 Choosing the {manpage}`appropriate version <deb-version(7)>` can be complex
-since there are numerous conditions to consider. The following paragraphs first
-provide links to essential foundational information, shared with Debian.
+since there are numerous conditions to consider. The following flowchart provides 
+a quick guide on selecting the correct version string for your upload.
 
-Subsequently, each paragraph addresses specific scenarios that may arise when
-uploading to Ubuntu.
+The paragraphs that follow go into detail on foundational concepts (shared with Debian) along
+with more detail regarding the Ubuntu specific edge-cases.
+
+```{mermaid}
+%% mermaid flowcharts documentation: https://mermaid.js.org/syntax/flowchart.html
+%%{ init: { "flowchart": { "curve": "linear", "nodeSpacing": 35, "rankSpacing": 55, "htmlLabels": true } } }%%
+flowchart LR
+    classDef leaf fill:#E6F4EA,stroke:#34A853,color:#000
+    classDef q fill:#FEF7E0,stroke:#F9AB00,color:#000
+    classDef special fill:#FCE8E6,stroke:#EA4335,color:#000
+
+    Start(["<b>Which version<br>string do I pick?</b>"])
+    Start --> QWhat{"What are you<br>uploading?"}:::q
+
+    QWhat -->|"A new <code>devel</code><br>release"| QDev{"Source of the<br>change?"}:::q
+    QWhat -->|"A Stable Release<br>Update (SRU)"| QSru{"Prior Ubuntu delta<br>in this release?"}:::q
+    QWhat -->|"A Backport to a<br>stable release"| QBack{"Backport content?"}:::q
+    QWhat -->|"A <b>rollback</b> (to a<br>lower version)"| QRollW{"In devel or<br>an SRU?"}:::q
+
+    %% ---- Rollback ----
+    QRollW -->|"devel"| Rdev["prepend <code>+really</code> + target version<br><code>3.1-2ubuntu1</code> &rarr; <code>3.1+really2.0-2ubuntu2</code>"]:::special
+    QRollW -->|"SRU"| Rsru["prepend <code>+really</code>, then SRU-bump<br><code>...+really7.80+dfsg1-1ubuntu0.1</code>"]:::special
+
+    %% ---- Development release ----
+    QDev -->|"You are editing<br>the package"| QEdit{"Kind of edit?"}:::q
+    QDev -->|"Pulling in a change<br>from elsewhere"| QPull{"From where?"}:::q
+
+    QEdit -->|"New Ubuntu change"| QOwnNat{"Native in<br>Ubuntu?"}:::q
+    QEdit -->|"Rebuild only<br>(no source change)"| QReb{"Current version<br>already has...?"}:::q
+    QOwnNat -->|"No"| Lubun
+    QOwnNat -->|"Yes"| Lnatubu
+    QReb -->|"an <code>ubuntuN</code> delta"| Lubun
+    QReb -->|"nothing / a <code>buildN</code>"| Lbuild
+    QReb -->|"Ubuntu-native"| Lnatubu
+
+    QPull -->|"Debian already<br>has the change"| QSync{"Sync situation?"}:::q
+    QPull -->|"Merge newer Debian,<br>keep Ubuntu delta"| Lmerge["new Debian ver + reset <code>ubuntu1</code><br><code>3.1-2</code> &rarr; <code>3.1-2ubuntu1</code>"]:::leaf
+    QPull -->|"Merge from upstream<br>(ahead of Debian)"| QAnchor{"Anchor point?"}:::q
+
+    Lubun["add / bump the <code>ubuntuN</code> counter<br><code>2.0-2</code> &rarr; <code>2.0-2ubuntu1</code>, <code>ubuntu2</code> &rarr; <code>ubuntu3</code><br>native in Debian: <code>2.0</code> &rarr; <code>2.0ubuntu1</code>"]:::leaf
+    Lbuild["add / bump the <code>buildN</code> counter<br><code>2.0-2</code> &rarr; <code>2.0-2build1</code>, <code>build1</code> &rarr; <code>build2</code>"]:::leaf
+    Lnatubu["bump the upstream version, keep <code>ubuntu</code><br><code>2.0ubuntu</code> &rarr; <code>2.1ubuntu</code> / <code>3.0ubuntu</code><br>rebuild only: <code>2.0ubuntu.build1</code>"]:::leaf
+
+    QSync -->|"Auto-sync OK, manual<br>after DIF, or re-sync"| Lsync["use the <b>exact Debian version</b><br><code>2.0-2</code> / <code>2.0-2build1</code> &rarr; <code>2.0-3</code>"]:::leaf
+    QSync -->|"Have delta, want<br>auto-sync to resume"| Lwill["<code>willsync</code><br><code>2.0-1ubuntu1</code> &rarr; <code>2.0-1willsync1</code>"]:::leaf
+    QSync -->|"No delta, pre-empt a<br>future Debian change"| Lmay["<code>maysync</code><br><code>2.0-1</code> &rarr; <code>2.0-1maysync1</code>"]:::leaf
+
+    QAnchor -->|"Tagged<br>release"| Luprel["<code>X-0ubuntu1</code><br><code>3.1</code> &rarr; <code>3.1-0ubuntu1</code>"]:::leaf
+    QAnchor -->|"Labelled<br>pre-release"| Luppre["<code>X~pre1-0ubuntu1</code>"]:::leaf
+    QAnchor -->|"Git commit,<br>before next release"| Lgitpre["<code>~</code> sorts first<br><code>X~gitYYYYMMDD.&lt;hash7&gt;-0ubuntu1</code>"]:::leaf
+    QAnchor -->|"Git commit,<br>after last release"| Lgitpost["<code>+</code> sorts last<br><code>X+gitYYYYMMDD.&lt;hash7&gt;-0ubuntu1</code>"]:::leaf
+
+    %% ---- SRU ----
+    QSru -->|"Existing <code>ubuntuX</code>"| Lsrubump["bump the trailing counter<br><code>ubuntu2</code> &rarr; <code>ubuntu2.1</code>, <code>ubuntu0.1</code> &rarr; <code>ubuntu0.2</code>"]:::leaf
+    QSru -->|"None (or native pkg)"| Lsru0["add <code>ubuntu0.1</code><br><code>2.0-2</code> &rarr; <code>2.0-2ubuntu0.1</code><br>native <code>2.0</code> &rarr; <code>2.0ubuntu0.1</code>"]:::leaf
+    Lsrubump --> QSruMulti{"Same version in<br>several releases?"}:::q
+    Lsru0 --> QSruMulti
+    QSruMulti -->|"Yes"| Lsrumulti["insert per-release <code>YY.MM</code><br><code>...ubuntu0.24.04.1</code>"]:::leaf
+
+    %% ---- Backport ----
+    QBack -->|"New upstream to<br>all stable releases"| Lbackup["<code>X-0ubuntu0.YY.MM.1</code><br><code>3.1-0ubuntu0.22.04.1</code>"]:::leaf
+    QBack -->|"~Identical to<br>what is in devel"| Lbackdev["<code>&lt;devel-version&gt;~YY.MM.1</code><br><code>3.1-1ubuntu2~22.04.1</code><br>native: <code>X~YY.MM.1</code>"]:::leaf
+    QBack -->|"Almost-native, all<br>releases (e.g. snapd)"| Lalmost["<code>X+ubuntuYY.MM(.n)</code><br><code>2.67+ubuntu24.04</code>"]:::special
+```
 
 
 ## Testing
