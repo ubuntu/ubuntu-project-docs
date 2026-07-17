@@ -256,6 +256,16 @@ List of this and further related examples:
 In certain cases, you may want to merge from a point in upstream later than the most recent tagged
 release, such as from the latest commit or a commit that contains some specific change you want.
 
+Some reasons you might want to do this include:
+* If upstreams do not yet have a new release, but we'd like to have all the
+  content up to a certain point in time/git
+
+* In cases where the upstream release is imminent, but to meet freeze deadlines
+  one uploads the state from git (but going to final before the release)
+
+* If upstream is only using nightly builds and you need to pick one of them
+
+
 There are two ways to do this, depending on whether you want to anchor the version to the **next** upstream release 
 (called a **pre**-release) or to the **previous** upstream release (called a **post**-release).
 
@@ -643,23 +653,5 @@ Right at the beginning we had the link to the underlying concepts in Debian
 referring to the [Debian control field "Version"](https://www.debian.org/doc/debian-policy/ch-controlfields.html#version)
 for overall topic awareness.
 
-But of course there are more special cases, one that you might encounter is
-package uploads based on repository content. This is most commonly done:
-
-* If upstreams do not yet have a new release, but we'd like to have all the
-  content up to a certain point in time/git
-
-* In cases where the upstream release is imminent, but to meet freeze deadlines
-  one uploads the state from git (but going to final before the release)
-
-* If upstream is only using nightly builds and you need to pick one of them
-
-At a high level you'd either go before the next version
-`{upcoming_version}~git...` or, if this seems more appropriate to the case,
-ahead of the current `{current_version}+git...`.
-
-The former is more common, the latter a special case, for example considered if
-nobody knows if/when/what the new revision will be.
-
-The underlying principles are outlined in more detail in the
+The underlying principles are also outlined in more detail in the
 [Debian Wiki](https://wiki.debian.org/Versioning).
