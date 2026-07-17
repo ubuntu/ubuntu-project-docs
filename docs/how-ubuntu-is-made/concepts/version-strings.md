@@ -356,6 +356,8 @@ If we are targeting an arbitrary git commit, our "version" string has a specific
 - The date of the commit in `YYYYMMDD` format.
 - A dot `.`.
 - The first seven characters of the commit hash (for informational purposes).
+- `-0` to indicate that Debian has *not* packaged this particular version.
+- `ubuntu1` to indicate that this is the first Ubuntu-specific upload of this version.
 
 
 | Old-Debian | Old-Ubuntu      | New-Debian     | Next Upstream Version | Target Commit Hash | Ubuntu Devel                       |
