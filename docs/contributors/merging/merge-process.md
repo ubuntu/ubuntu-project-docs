@@ -221,6 +221,8 @@ Start a rebase at `old/debian`, and then reset to `HEAD^` to bring back the chan
 
 Next, add the commits:
 
+Each commit message follows the changelog entry format: the `*` prefix denotes a bullet point, and continuation lines are indented to align with it. The entire block constitutes the commit message (there is no separate subject/body split). See {ref}`how-to-commit-changes` for more information about commit message standards.
+
 ------------------------------------------------------------------------------
 
 Logical unit:
