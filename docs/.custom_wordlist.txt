@@ -118,6 +118,7 @@ Maintainer's
 Makefile
 Makefiles
 manpage
+maysync
 Masters
 Meetingology
 metapackage
@@ -156,6 +157,7 @@ Postconf
 powerpc
 PPAs
 pre
+prepended
 prepends
 quantal
 Quokka
@@ -184,6 +186,7 @@ sosreport
 spammy
 sponsoree
 SSDs
+SRUed
 SRUs
 Starcraft
 stacktrace
@@ -305,4 +308,5 @@ openstack
 openssh
 walkthrough
 whoopsie
+willsync
 wnpp

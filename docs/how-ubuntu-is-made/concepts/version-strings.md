@@ -1,12 +1,614 @@
 (version-strings)=
 # Version string format
 
-Choosing the {manpage}`appropriate version <deb-version(7)>` can be complex
-since there are numerous conditions to consider. The following flowchart provides 
-a quick guide on selecting the correct version string for your upload.
+Choosing the {manpage}`appropriate version <deb-version(7)>` can be complex,
+since there are numerous conditions to consider. This page explains the
+foundational concepts (shared with Debian) along with the Ubuntu-specific
+edge cases, and finishes with a {ref}`decision flowchart <version-flowchart>`
+and a consolidated {ref}`table of examples <version-table-of-examples>`.
 
-The paragraphs that follow go into detail on foundational concepts (shared with Debian) along
-with more detail regarding the Ubuntu specific edge-cases.
+
+(anatomy-of-a-version-string)=
+## Anatomy of a version string
+
+Package version strings can have many edge cases, which are discussed in the
+sections below, but in the most common case a version string contains three
+parts:
+
+- The **upstream version**, which is the version as released by the upstream
+  project.
+  - The legal characters in the upstream version are letters, digits, `.`, `+`,
+    `~`, and `-`. Upstream versioning may be adjusted to fit this format if
+    necessary.
+  - The upstream version must begin with a digit.
+- The **Debian revision**, which counts up each time the package has been
+  modified by Debian.
+  - The legal characters in the Debian revision are letters, digits, `.`, `+`,
+    and `~`.
+  - It is split from the upstream version by a single hyphen.
+- The **Ubuntu revision**, which counts up each time the _Debian_ package has
+  been modified by Ubuntu.
+  - The most common case for the Ubuntu revision is the string `ubuntu`,
+    followed by a number (for example `ubuntu1`, `ubuntu2`). The legal
+    characters in the Ubuntu revision are letters, digits, `.`, `+`, and `~`.
+
+This distinction lets each party involved in providing a package -- upstream,
+Debian, and Ubuntu -- modify and iterate on their own section of the version
+number without interfering with the others. When everyone abides by these
+conventions, package upgradability is guaranteed and much of a package's history
+can be understood by looking at its version alone.
+
+For example, here is the current (as of writing) version of the {pkg}`coreutils`
+package in Ubuntu 26.04 LTS:
+
+![Version string example](version-string-example.png)
+
+- The upstream version is `9.7`.
+- Debian has uploaded **three** revisions to the upstream version, so the Debian
+  revision is `3`.
+- Ubuntu has uploaded **two** revisions to Debian `9.7-3`, so the Ubuntu
+  revision is `ubuntu2`.
+
+Since Ubuntu's versioning specifics are derived from Debian, it is worthwhile to
+also review the
+[Debian control field "Version"](https://www.debian.org/doc/debian-policy/ch-controlfields.html#version)
+to understand the foundational principles.
+
+
+(comparing-versions)=
+## Comparing versions
+
+To compare two version strings, use {command}`dpkg --compare-versions`. The
+available comparison operators are `lt`, `le`, `eq`, `ne`, `ge`, and `gt`:
+
+```{code}
+:class: codeblock-wrap
+
+$ dpkg --compare-versions 1.2.3-3ubuntu1 lt 1.2.4-2ubuntu2 && echo true || echo false
+```
+
+It is worth noting the special sorting rules regarding the `~` character.
+Namely, `~` sorts _before_ everything else, including the empty string. So `1.0~rc1` sorts _before_ `1.0`.
+
+
+(standard-version-bumps)=
+## Standard version bumps
+
+The great majority of uploads fall into one of three routine cases: making an
+Ubuntu change in the development release, merging a newer Debian version, or
+syncing an unmodified Debian version. These are covered first; the special cases
+follow.
+
+
+(version-devel-upload)=
+### Uploading to the development release
+
+Changes within the development release are made by adding or incrementing the
+number immediately following the `ubuntu` string.
+
+The first Ubuntu modification adds `ubuntu1` to the Debian revision, and
+subsequent Ubuntu changes increment that suffix (`ubuntu1` → `ubuntu2`).
+
+> Example: adding a change to `2.0-2` in the development release produces
+  `2.0-2ubuntu1`. A further change produces `2.0-2ubuntu2`.
+
+If the current version instead ends in a `buildN`
+({ref}`no-change rebuild <version-no-change-rebuilds>`) suffix, the package is
+considered unchanged from the Debian revision, so a new Ubuntu change starts the
+counter afresh at `ubuntu1` (for example `2.0-3build2` → `2.0-3ubuntu1`).
+
+
+(version-merging-from-debian)=
+### Merging from Debian
+
+If Ubuntu carries delta, the package cannot be
+{ref}`automatically synced <version-syncing-from-debian>`, since that delta
+would be lost. Instead, an Ubuntu developer periodically
+{ref}`merges <merge-process>` the Ubuntu delta with the newer content from
+Debian (and, indirectly, from upstream).
+
+On a merge, the version becomes the new Debian version with the Ubuntu counter
+reset to `ubuntu1`.
+
+> Example: merging Debian `3.1-2` into the development release while retaining
+  former Ubuntu delta from `2.1-1ubuntu2` produces `3.1-2ubuntu1`.
+
+
+(version-syncing-from-debian)=
+### Syncing from Debian
+
+Sometimes the desired change has already been packaged by Debian in a newer
+version. During the development cycle, the Archive tooling automatically copies,
+or _syncs_, new package versions from Debian. Only packages with no Ubuntu delta
+(determined via the presence of the `ubuntu` string in the Ubuntu revision) are synced
+automatically.
+
+When a sync happens -- automatically, or as a
+{ref}`manual sync <how-to-request-a-sync>` -- the version is **identical to the
+Debian version**; no suffix is added.
+
+> Example: syncing Debian `2.0-3` on top of Ubuntu `2.0-2` or `2.0-2build1`
+  produces `2.0-3`.
+
+There are two common cases that require a manual sync:
+
+- After the development release reaches {ref}`debian-import-freeze`, the sync
+  automation is disabled, so any required update must be
+  {ref}`manually synced <how-to-request-a-sync>`.
+- When a package had Ubuntu delta that is no longer needed with the new Debian
+  version (for example, Debian adopted the Ubuntu changes, or they were
+  cherry-picked patches now present upstream), a
+  {ref}`manual re-sync <how-to-request-a-sync>` drops the delta. The version is
+  again identical to Debian.
+
+
+(version-debian-source-suffixes)=
+### Debian source-repackaging suffixes (`+dfsg`, `+ds`)
+
+You will often see extra markers on the **upstream-version** portion of a
+package (before the `-debian_revision`), most commonly `+dfsg` and `+ds`. Despite
+being added by Debian, they are part of the upstream version, not the Debian
+revision. They indicate that the source tarball Debian ships differs from the
+pristine upstream release. Ubuntu inherits them unchanged: there is never a need
+to add, remove, or renumber them ourselves.
+
+- **`+dfsg`** (Debian Free Software Guidelines) -- the upstream tarball was
+  repackaged to remove content that does not meet the
+  [DFSG](https://www.debian.org/social_contract#guidelines), such as non-free
+  files. For example, `7.80+dfsg1-5`.
+- **`+ds`** (Debian source) -- the tarball was repackaged for reasons other than
+  licensing, for example to drop bundled third-party code, pre-built artifacts,
+  or very large test data. For example, `1.2.3+ds-1`.
+
+A trailing number (`+dfsg1`, `+ds2`) counts the repackaging revisions. Because
+`+` sorts _after_ the bare version, `7.80+dfsg1` is treated as a _later_ version
+than a hypothetical pristine `7.80`, which keeps upgrade ordering sensible.
+
+
+(special-cases-ubuntu-revision)=
+## Special cases: the Ubuntu revision
+
+If a package in Ubuntu has differences that prevent it from being automatically
+updated to the latest Debian version, we say the package has **Ubuntu delta**
+(or just "delta"). Most Ubuntu-specific changes constitute delta, and the
+`ubuntuN` number is incremented with each such change.
+
+If the Ubuntu revision does _not_ begin with `ubuntu`, the package **will** be
+automatically synced and overwritten by a later Debian upload. The following
+sections cover the cases where a different Ubuntu revision string is used.
+
+
+(version-no-change-rebuilds)=
+### No-change rebuilds (`build`)
+
+Sometimes a package needs its binaries rebuilt without any source change -- for
+example, to re-link against a newer {term}`ABI` of a dependency as part of a
+{ref}`transition <transitions>`.
+
+A rebuild should not prevent future syncing, so in this case:
+
+- If the current version has no delta, add a `buildN` suffix rather than
+  `ubuntuN` (`2.0-2` → `2.0-2build1`).
+- If a `buildN` suffix is already present, increment it
+  (`2.0-2build1` → `2.0-2build2`).
+- If an `ubuntuN` suffix is already present, there would be no auto-sync anyway,
+  so simply increment it (`2.0-2ubuntu2` → `2.0-2ubuntu3`).
+
+For {ref}`native packages <version-native-packages>`, it is weakly defined
+whether a no-change rebuild is a version increment or a `build` suffix; both are
+present in the Archive and both work. Follow whatever the package has used so
+far (for example `2.0ubuntu.build1`).
+
+
+(version-syncable-changes)=
+### Syncable changes (`maysync` and `willsync`)
+
+Sometimes you need to make a non-trivial change to a package but still want it to
+be automatically synced with Debian later. Two suffixes exist for this:
+`maysync` and `willsync`.
+
+Both indicate that the package may still be automatically synced with Debian
+(only an `ubuntu` revision prevents syncing). The only difference is ordering:
+`maysync1` sorts _before_ `ubuntu1`, while `willsync1` sorts _after_ `ubuntu1`.
+Therefore:
+
+- Use `maysync` if the package previously had **no** delta, so that delta can
+  still be added later in the standard way (`ubuntu` > `maysync`).
+- Use `willsync` if the package previously **had** delta, to indicate that it is
+  now syncable again (`willsync` > `ubuntu`), so the next Debian update
+  overwrites it automatically.
+
+> Example: A syncable upload on top of `2.0-1` is `2.0-1maysync1`, and a syncable upload on top of `2.0-1ubuntu1` is `2.0-1willsync1`.
+
+It may seem strange to upload a syncable version on top of a version that is
+_already_ synced with Debian, but it can be necessary. For example:
+
+- You need a change present only in an unreleased Debian version.
+- You are working around a temporary packaging issue (for example, a
+  dependency-related build failure) with a temporary delta (`maysync1`) that is
+  then immediately dropped (`maysync2`).
+
+
+(version-srus)=
+### Stable release updates (SRUs)
+
+After a version of Ubuntu is released, changes follow a slightly different
+scheme that guarantees upgradability to later releases. Only the _Ubuntu
+revision_ changes:
+
+- Increment `Y` in the numeric `ubuntuX.Y` suffix (`ubuntu3.1` → `ubuntu3.2`).
+- Never increment `X`; an Ubuntu delta is always captured in `Y`.
+- If this is the first change via the SRU process, add `.1`
+  (`ubuntu3` → `ubuntu3.1`).
+- If there was no `ubuntuX` before, use `ubuntu0.1`. The `0` records that there
+  was no Ubuntu delta before this first SRU change (`2.0-2` → `2.0-2ubuntu0.1`).
+
+```{important}
+A given version string may only ever be uploaded **once** to the Archive, across
+_all_ releases. If the same fix is applied to a package that has the same version
+in several releases, using the same version string in each would create a
+conflict and break upgradability. To disambiguate, insert the per-release
+`YY.MM` version between `ubuntuX` and the `.Y` increment.
+```
+
+> Example: applying the same fix to `2.0-2` in both 25.04 and 24.04 produces
+  `2.0-2ubuntu0.25.04.1` and `2.0-2ubuntu0.24.04.1` respectively.
+
+
+(version-backport-from-upstream)=
+### Backporting a new upstream version
+
+In the rare case of a _new upstream release being pushed to all stable
+releases_, the upload loses all of its former version suffixes. This is common
+in some minor-release exception processes, where the most recent upstream
+content is picked up while avoiding regressions from packaging changes. The
+upload should:
+
+- Signal that it is not based on a Debian packaging version, using `-0` as the
+  Debian revision (see {ref}`version-ahead-of-debian`).
+- Signal that it was not packaged in this Ubuntu release before, using
+  `ubuntu0.`.
+- Add a per-release `YY.MM` suffix (required because the same version lands in
+  multiple releases -- see the note above).
+- Add a `.1` increment for subsequent per-release SRU uploads.
+
+> Example: uploading upstream `3.1` -- packaged as what is already in the LTS,
+  not with the delta that might be in `3.1-1ubuntu2` -- targeting 22.04 produces
+  `3.1-0ubuntu0.22.04.1`.
+
+The new version is independent of the version already present in the target
+release.
+
+(version-backport-from-devel)=
+### Backporting from the development release
+
+If instead the backport has no _meaningful differences_ from what is in the
+current development release (a common practice for packages that keep the same
+version everywhere), with only minimal backporting adaptations, it should:
+
+- Start with the **same version** as the one in the development release, to
+  signal that it is basically identical but backported.
+- Add a `~` so it sorts _earlier_ than the version in the development release.
+- Add a per-release `YY.MM` suffix.
+- Add a `.1` increment for subsequent per-release SRU uploads.
+
+> Example: uploading `3.1`, more or less identical to the `3.1-1ubuntu2` in the
+  development release, targeting 22.04 produces `3.1-1ubuntu2~22.04.1`.
+
+As with the {ref}`backport from upstream <version-backport-from-upstream>`, the new version is independent of the version already present in the target release.
+
+```{note}
+If the package in the development release is a
+{ref}`native package <version-native-packages>`, use _the same version_ as in
+the development release, with the `~YY.MM.1` suffix (for example a devel version
+of `3.1` becomes `3.1~22.04.1`).
+```
+
+
+(special-cases-debian-revision)=
+## Special cases: the Debian revision
+
+
+(version-ahead-of-debian)=
+### Going ahead of Debian
+
+Sometimes Ubuntu packages a version that Debian has never packaged -- for
+example, a newer upstream release, or a specific upstream commit. In that case
+we use a Debian revision of `0` to indicate that this is not based on any Debian
+packaging version.
+
+Because such a version is our own change, it must always carry an Ubuntu
+revision as well, giving `-0ubuntu1` for the first development upload (which also
+serves as the increment counter for further uploads).
+
+> Example: uploading upstream `3.1` while Debian is not yet at `3.1` produces
+  `3.1-0ubuntu1`.
+
+
+The `-0` marker is specific to the Debian revision. The way the _upstream_
+portion is written for pre-releases and git snapshots is described in
+{ref}`special-cases-upstream-version` below -- note that Debian could package the
+very same upstream snapshot, in which case it would use its own Debian revision
+(such as `-1`) rather than `-0`.
+
+
+(special-cases-upstream-version)=
+## Special cases: the upstream version
+
+The following conventions shape the **upstream version** portion only. When the
+snapshot is one Ubuntu has packaged ahead of Debian, combine them with the
+`-0ubuntuN` revision from {ref}`version-ahead-of-debian`.
+
+(version-tagged-pre-releases)=
+### Tagged pre-releases
+
+If you are packaging a tagged pre-release, the version string needs a small
+adjustment so that everything sorts properly. Take advantage of the `~`
+character, which sorts _before_ everything else, including the empty string.
+
+An upstream release of `3.1 Prerelease 1` is packaged with upstream version
+`3.1~pre1`. This way, when `3.1` proper is eventually released, it is considered
+a _later_ version than the pre-release, so updates and syncs work as expected.
+You might also see `~rc1` for release candidates.
+
+> Example: packaging `3.1` pre-release 1 ahead of Debian produces
+  `3.1~pre1-0ubuntu1`.
+
+
+(version-specific-git-commits)=
+### Specific git commits
+
+Sometimes it is desirable to package a specific upstream commit that is _not_ a
+tagged release. Reasons include:
+
+- Upstream has no new release yet, but we want the content up to a certain point
+  in git.
+- An upstream release is imminent, but to meet freeze deadlines we upload the
+  state from git (moving to the final release before it ships).
+- Upstream only publishes nightly builds and we need to pick one.
+
+There are two ways to do this, depending on whether you anchor the version to the
+**next** upstream release (a **pre**-release) or to the **previous** upstream
+release (a **post**-release). If you know the identifier of the next upstream
+release, use pre-release versioning; otherwise (for example, date-based
+versioning, or uncertainty about whether the next release is major or minor), use
+post-release versioning.
+
+In both cases the upstream version has the same structure:
+
+- The version you are anchoring to (for example `3.1`).
+- A `~` (pre-release, sorts _first_) or a `+` (post-release, sorts _last_) to
+  keep ordering correct.
+- `git`, indicating a git snapshot.
+- The date of the commit, in `YYYYMMDD` format.
+- A dot (`.`).
+- The first seven characters of the commit hash (for information).
+
+> Example: A pre-release anchored to upcoming `3.1` at commit `f1eeced` on 2026-07-16, ahead
+  of Debian, becomes `3.1~git20260716.f1eeced-0ubuntu1`. The equivalent
+  post-release, anchored to the previous release, uses `+`:
+  `3.1+git20260716.f1eeced-0ubuntu1`.
+
+
+(other-special-cases)=
+## Other special cases
+
+
+(version-native-packages)=
+### Native packages
+
+Some packages have Debian or Ubuntu themselves as their upstream. These are
+called **native packages**. As per the
+[Debian source packages](https://www.debian.org/doc/debian-policy/ch-source.html#s-source-packages)
+documentation, native packages are identified by the absence of a debian revision.
+
+> Example: a package native to Debian `2.0` (no `-`) getting an Ubuntu change in
+  the development release uses `2.0ubuntu1`.
+
+The same applies to **native Ubuntu packages**, which also have no
+`-debian_revision`. But remember that the package namespace is shared between
+Debian and Ubuntu: a native Ubuntu package `foo` at version `1.0` could be
+overwritten if Debian introduces a `foo` newer than `1.0`. To prevent this, add
+an `ubuntu` suffix; otherwise auto-sync would use whichever version is newer
+according to {command}`dpkg --compare-versions`.
+
+To distinguish "a native Debian package that gained an Ubuntu delta" (which would
+be `2.0ubuntu1`) from "a native Ubuntu package", the marker suffix for a native
+Ubuntu package is a bare `ubuntu` (no number). Please migrate the former native
+indication `ubuntu0` to this new format without the `0` (see the
+[discussion on ubuntu-devel](https://lists.ubuntu.com/archives/ubuntu-devel/2025-July/043402.html)).
+
+Native package versioning is package-dependent: whether it uses _major_,
+_major.minor_, or any other pattern is the maintainer's choice, just as upstream
+versions software however they see fit. Selecting the next version therefore
+requires checking the package history or conferring with its maintainer.
+
+> Example: a package native to Ubuntu `2.0ubuntu` (no `-`, `ubuntu` suffix)
+  getting a change in the development release could use `2.1ubuntu` or
+  `3.0ubuntu`. To migrate from the old `2.0ubuntu0` format, simply update to
+  `2.1ubuntu` or `3.0ubuntu`.
+
+```{note}
+A maintainer may have reason for a native Ubuntu package to _not_ carry the
+`ubuntu` suffix -- for example, if overwriting via auto-sync is desired, such as
+coordinated uploads to both distributions during freeze. Any such deviation
+should be explained in {file}`debian/README.source` so other packagers
+understand the reasoning. If the deviation is expected to be short-lived (for
+example, resolved next cycle), a note in {file}`debian/changelog` is sufficient.
+```
+
+
+(version-almost-native-packages)=
+### Almost-native packages
+
+_Almost-native packages_ are not a precise category, but some packages have
+evolved that way. The classic example is {pkg}`snapd`, historically packaged
+like a native package in Ubuntu with versions like `2.67+ubuntu24.04`, whose
+content matches upstream 1:1. It now has both a
+[separate upstream project with proper releases](https://github.com/canonical/snapd/tags)
+and Debian packaging that uses a normal `2.67-1`-style version. It is also
+usually backported with the same content to all active releases.
+
+That combination means some of the normal rules do not apply, blending the
+_native package_ and _backport from upstream_ cases. For such a package:
+
+- The first element of the version matches the upstream version it represents
+  (for example `2.67`).
+- Because it is backported to multiple releases at the same version, but being
+  native cannot use a `-`, the per-release suffix is added with `+ubuntuYY.MM`.
+  (Former versions used just `+YY.MM`, but `+ubuntuYY.MM` is preferred for
+  symmetry and to avoid auto-sync conflicts.)
+- If further iterations are needed for the same upstream version and the same
+  target release, add a `.n` increment.
+
+| Previous                    | New upstream 2.67  | Change within 2.66     |
+| --------------------------- | ------------------ | ---------------------- |
+| LTS: `2.66+ubuntu24.04`     | `2.67+ubuntu24.04` | `2.66+ubuntu24.04.1`   |
+| Devel: `2.66+ubuntu25.04`   | `2.67+ubuntu25.04` | `2.66+ubuntu25.04.1`   |
+| LTS: `2.66+ubuntu24.04.1`   | `2.67+ubuntu24.04` | `2.66+ubuntu24.04.2`   |
+| Devel: `2.66+ubuntu25.04.1` | `2.67+ubuntu25.04` | `2.66+ubuntu25.04.2`   |
+
+
+(version-rolling-back)=
+### Rolling back
+
+In the rare case where an upgrade to a new upstream version caused a major
+regression and the only way out is rolling back, the convention is to take the
+current version and append `+really` followed by the version being reverted to.
+
+> Example: uploading `3.1` caused a regression, so rolling back to the previous
+  version `2.0-2ubuntu2` uses `3.1+really2.0-2ubuntu2`.
+
+The Ubuntu-revision portion still follows the rules for the context of the
+upload -- a development upload, a plain Debian upload, or an SRU:
+
+| Before         | Current        | Upload                                    | Context       |
+| -------------- | -------------- | ----------------------------------------- | ------------- |
+| `2.0-2ubuntu2` | `3.1-2ubuntu1` | `3.1+really2.0-2ubuntu2`                  | Devel         |
+| `7.80+dfsg1-5` | `7.91+dfsg1-1` | `7.91+dfsg1+really7.80+dfsg1-1ubuntu1`    | Ubuntu upload |
+| `7.80+dfsg1-5` | `7.91+dfsg1-1` | `7.91+dfsg1+really7.80+dfsg1-1`           | Debian upload |
+| `7.80+dfsg1-5` | `7.91+dfsg1-1` | `7.91+dfsg1+really7.80+dfsg1-1ubuntu0.1`  | Ubuntu SRU    |
+
+(version-epochs)=
+### Epochs
+
+In extraordinarily rare circumstances, the versioning may need a complete reset.
+This can happen because upstream radically altered their scheme or to resolve a serious
+mistake. The version format allows an **epoch** to be prepended for this.
+
+The epoch is a single integer followed by a colon at the beginning of the version
+string. If no epoch is present (as for most packages), it is assumed to be `0`.
+
+Changing the epoch should be done with care and requires consensus in Debian.
+Epochs are explicitly **not** used when a package needs to be reverted to a
+previous version (see {ref}`version-rolling-back`). See also
+[epochs should be used sparingly](https://www.debian.org/doc/debian-policy/ch-controlfields.html#epochs-should-be-used-sparingly).
+
+(versioning-examples)=
+## Examples
+
+(version-timeline-example)=
+### Timeline example: standard flow
+
+The following pathway illustrates the standard flow of a package starting with a
+new upstream release. Suppose XX.04 is the current development release:
+
+1. The current version of {pkg}`libfoo` in both Debian and Ubuntu is `6.6-1`.
+2. The {pkg}`libfoo` maintainers release a new upstream version, `6.7`.
+3. Debian packages it as `6.7-1`.
+4. It syncs into Ubuntu, still as `6.7-1`.
+5. Ubuntu rebuilds the package and uploads it as `6.7-1build1`.
+6. Ubuntu adds some delta, uploading it as `6.7-1ubuntu1`.
+7. Debian makes a change, uploading it as `6.7-2`.
+8. Ubuntu rebases its delta onto the new Debian version, uploading `6.7-2ubuntu1`.
+9. Ubuntu makes another patch, uploading `6.7-2ubuntu2`.
+10. XX.04 is released.
+11. A bug is found that needs patching in both XX.04 and XX.10:
+    - In XX.10 (the new development release), the fix is uploaded as
+      `6.7-2ubuntu3`.
+    - The same fix is SRUed into XX.04 as `6.7-2ubuntu2.1`.
+
+
+(version-timeline-ahead-of-debian)=
+### Timeline example: Going Ahead of Debian
+
+1. {pkg}`libbar` is `2.0-1` in both Debian and Ubuntu.
+2. Upstream releases `2.1`.
+3. Ubuntu wants the new upstream release before Debian is ready, so it {ref}`merges from upstream <version-ahead-of-debian>`, uploading `2.1-0ubuntu1`.
+4. Ubuntu makes a patch, uploading `2.1-0ubuntu2`, and submits their patch to upstream.
+5. Ubuntu's patch is accepted upstream.
+6. Upstream releases version `2.2`, which includes Ubuntu's patch and a different fix.
+7. Ubuntu backports `2.2`'s other fix to `2.1`. Since all delta will be gone in `2.2`, Ubuntu uploads this fix as `2.1-0willsync1`
+8. Debian packages `2.2` as `2.2-1`.
+9. Ubuntu automatically syncs `2.2-1` from Debian. Both distributions are in sync once more.
+
+
+(version-timeline-rollback)=
+### Timeline example: Rolling Back
+
+1. {pkg}`libinsecure` is `2.0-1ubuntu1` in the development release.
+2. Debian releases `3.0-1`, which syncs into Ubuntu as `3.0-1`.
+3. Ubuntu makes a patch, and uploads `3.0-1ubuntu1`.
+4. A serious vulnerability is discovered in `libinsecure` version 3. Fixing it will take considerable time.
+5. Ubuntu makes the decision to roll back, and uploads `3.0+really2.0-1ubuntu1`.
+6. Upstream later releases `3.1` which fixes the regression. 
+7. Debian packages the upstream release as `3.1-1`.
+8. Ubuntu manually syncs and uploads `3.1-1` themselves.
+
+(version-table-of-examples)=
+### Table of examples
+
+The following table consolidates the examples used throughout this page. The
+**Base / target version** column records the external version driving the change
+(the Debian, upstream, or rollback-target version), or `—` where the action is
+self-contained.
+
+| Current version                    | Action                          | Base / target version           | New version                             |
+| ---------------------------------- | ------------------------------- | ------------------------------- | --------------------------------------- |
+| `2.0-2`                            | Devel upload                    | —                               | `2.0-2ubuntu1`                          |
+| `2.0-2ubuntu1`                     | Devel upload                    | —                               | `2.0-2ubuntu2`                          |
+| `2.0-3build2`                      | Devel upload                    | —                               | `2.0-3ubuntu1`                          |
+| `2.0-2`                            | No-change rebuild               | —                               | `2.0-2build1`                           |
+| `2.0-2build1`                      | No-change rebuild               | —                               | `2.0-2build2`                           |
+| `2.0-2ubuntu2`                     | No-change rebuild               | —                               | `2.0-2ubuntu3`                          |
+| `2.0` (native Debian)              | No-change rebuild               | —                               | `2.0build1`                             |
+| `2.0ubuntu` (native Ubuntu)        | No-change rebuild               | —                               | `2.0ubuntu.build1` or `2.1ubuntu`       |
+| `2.0-2`                            | Sync                            | Debian `2.0-3`                  | `2.0-3`                                 |
+| `2.0-2build1`                      | Sync                            | Debian `2.0-3`                  | `2.0-3`                                 |
+| `2.0-1`                            | Syncable upload                 | Debian `2.0-2` / `2.1-1`        | `2.0-1maysync1`                         |
+| `2.0-1ubuntu1`                     | Syncable upload                 | Debian `2.0-2` / `2.1-1`        | `2.0-1willsync1`                        |
+| `2.1-1ubuntu2`                     | Merge from Debian               | Debian `3.1-2`                  | `3.1-2ubuntu1`                          |
+| `1:7.0+dfsg-7ubuntu14`             | Merge from Debian               | Debian `1:8.0.4+dfsg-1`         | `1:8.0.4+dfsg-1ubuntu1`                 |
+| `2.1-1ubuntu2`                     | Merge from upstream (tagged)    | Upstream `3.1`                  | `3.1-0ubuntu1`                          |
+| `2.1-1ubuntu2`                     | Merge from upstream (pre-release) | Upstream `3.1~pre1`           | `3.1~pre1-0ubuntu1`                     |
+| `2.1-1ubuntu2`                     | Merge from upstream (git, pre)  | Upstream `3.1`, commit `cab005e` | `3.1~git20260716.cab005e-0ubuntu1` |
+| `2.1-1ubuntu2`                     | Merge from upstream (git, post) | Upstream `3.1`, commit `d00dad5` | `3.1+git20260716.d00dad5-0ubuntu1` |
+| `2.0-2`                            | SRU upload                      | —                               | `2.0-2ubuntu0.1`                        |
+| `2.0-2ubuntu0.1`                   | SRU upload                      | —                               | `2.0-2ubuntu0.2`                        |
+| `2.0-2ubuntu2`                     | SRU upload                      | —                               | `2.0-2ubuntu2.1`                        |
+| `2.0-2build1`                      | SRU upload                      | —                               | `2.0-2ubuntu0.1`                        |
+| `2.0-2` (in 25.04 and 24.04)       | SRU upload (multi-release)      | —                               | `2.0-2ubuntu0.25.04.1` and `2.0-2ubuntu0.24.04.1` |
+| `2.0-2` (in 22.04)                 | Backport: new upstream          | Upstream `3.1`                  | `3.1-0ubuntu0.22.04.1`                  |
+| `2.0-2ubuntu2.1` (in 22.04)        | Backport: new upstream          | Upstream `3.1`                  | `3.1-0ubuntu0.22.04.1`                  |
+| `2.0-2` (in 22.04)                 | Backport: from devel            | Devel `3.1-1ubuntu2`            | `3.1-1ubuntu2~22.04.1`                  |
+| `2.0-2` (in 22.04)                 | Backport: from devel (native)   | Devel `3.1` (native)            | `3.1~22.04.1`                           |
+| `2.0` (native Debian)              | Native devel upload             | —                               | `2.0ubuntu1`                            |
+| `2.0` (native Debian)              | Native SRU upload               | —                               | `2.0ubuntu0.1`                          |
+| `2ubuntu1` (native Debian, delta)  | Native devel upload             | —                               | `2ubuntu2`                              |
+| `2.0ubuntu` (native Ubuntu)        | Native devel upload             | —                               | `2.1ubuntu` or `3.0ubuntu`              |
+| `2.0ubuntu` (native Ubuntu)        | Native SRU upload               | —                               | `2.0ubuntu0.1`                          |
+| `2.66+ubuntu24.04`                 | Almost-native upload            | Upstream `2.67`                 | `2.67+ubuntu24.04`                      |
+| `2.66+ubuntu24.04`                 | Almost-native upload (in-place) | —                               | `2.66+ubuntu24.04.1`                    |
+| `3.1-2ubuntu1`                     | Rollback (devel)                | Target `2.0-2ubuntu2`           | `3.1+really2.0-2ubuntu2`                |
+| `7.91+dfsg1-1`                     | Rollback (Ubuntu upload)        | Target `7.80+dfsg1`             | `7.91+dfsg1+really7.80+dfsg1-1ubuntu1`  |
+| `7.91+dfsg1-1`                     | Rollback (Ubuntu SRU)           | Target `7.80+dfsg1`             | `7.91+dfsg1+really7.80+dfsg1-1ubuntu0.1`|
+
+
+(version-flowchart)=
+## Choosing a version string
+
+The following flowchart summarizes the decisions above and points to the
+matching version string for your upload.
 
 ```{mermaid}
 %% mermaid flowcharts documentation: https://mermaid.js.org/syntax/flowchart.html
@@ -71,651 +673,9 @@ flowchart LR
 ```
 
 
-## Testing
-
-To test the ordering of your constructed version, use `dpkg`. Available comparisons are: `lt` `le` `eq` `ne` `ge` `gt`.
-
-```console
-$ dpkg --compare-versions 1.2.3-3ubuntu1 lt 1.2.4-2ubuntu2   && echo true || echo false
-```
-
-
-## The Version field
-
-Since Ubuntu's versioning specifics are derived from Debian, it is beneficial to
-begin by thoroughly reviewing the
-[Debian control field "Version"](https://www.debian.org/doc/debian-policy/ch-controlfields.html#version)
-to understand the foundational principles.
-The key takeaway is that Debian versions are formatted as:
-
-```none
-[upstream_version]-[debian_revision]
-```
-
-using the `-` to split the upstream version from the Debian packaging revision.
-
-When we modify a package compared to what's shipped by Debian, we indicate the
-change by adding 'ubuntu' to the Debian revision.
-
-One can think of an Ubuntu version number as consisting of three components:
-
-```none
-[upstream_version]-[debian_revision_component]ubuntu[ubuntu_revision_component]
-```
-
-The `ubuntu` string then marks that whatever follows it is related to changes
-added in Ubuntu (`ubuntu` isn't the only string used here, but more on that
-shortly).
-
-This distinction allows each party involved in providing a package to the users
--- Upstream, Debian and Ubuntu -- to modify and iterate on their section of the
-version number without interfering with others.
-
-When everyone abides by these conventions we can guarantee package upgradability,
-but also allow that one can understand some of the package history by just
-looking at the package version.
-
-
-(version-adding-a-change-in-the-current-ubuntu-development-release)=
-## Version: Adding a change in the current Ubuntu development release
-
-As shown above, `[upstream_version]-[debian_revision]ubuntu[ubuntu_revision]` is
-the basic pattern. Changes within the development release require adding or
-incrementing the number immediately following the `ubuntu` string.
-
-Consequently, the first Ubuntu modification would have `ubuntu1` appended to the
-Debian revision. Subsequent Ubuntu changes would increment this suffix, i.e.
-`ubuntu1 --> ubuntu2`.
-
-> Example one: Adding a change to `2.0-2` in the Ubuntu development release will use `2.0-2ubuntu1`
-
-> Example two: Adding another change to `2.0-2ubuntu1` in the Ubuntu development release will use `2.0-2ubuntu2`
-
-As alluded to earlier, there are a number of special cases, and situations where
-we use a string other than `ubuntu` in Ubuntu version numbers.
-
-One such case is `build`, typically used for
-{ref}`no-change rebuilds <version-no-change-rebuilds>` that will be discussed
-in more depth below. The key thing to know when incrementing from a `buildN` is
-that the package is considered unchanged from the Debian revision component, and
-incremented as a *new* Ubuntu change.
-
-Here's a listing of examples of the application of these rules:
-
-| Previous version | Modification type | Recommended version |
-| ---------------- | ----------------- | ------------------- |
-| `2.0-2`          | Ubuntu change     | `2.0-2ubuntu1`      |
-| `2.0-2ubuntu1`   | Ubuntu change     | `2.0-2ubuntu2`      |
-| `2.0-2ubuntu2`   | Ubuntu change     | `2.0-2ubuntu3`      |
-| `2.0-2`          | Re-Sync w/ Debian | `2.0-3`             |
-| `2.0-2build1`    | Re-Sync w/ Debian | `2.0-3`             |
-| `2.0-3`          | No-change rebuild | `2.0-3build1`       |
-| `2.0-3build1`    | No-change rebuild | `2.0-3build2`       |
-| `2.0-3build2`    | Ubuntu change     | `2.0-3ubuntu1`      |
-
-While these examples cover common scenarios, it's important to note that they
-apply specifically to the current Ubuntu development release. Stable releases
-have different policies, but first we'll explore some special cases for
-development releases.
-
-
-(version-syncing-from-debian)=
-## Version: Syncing from Debian
-
-Sometimes the desired change has already been packaged by Debian in a newer
-version of the package. During the Ubuntu development cycle, the Archive tooling
-automatically copies or {ref}`syncs` new package versions from
-Debian.
-
-Only packages with no Ubuntu modifications or those with no-change updates
-(i.e., versions with `build` rather than `ubuntu` in the revision), are
-automatically synced.
-
-If Ubuntu currently has delta, and your upload will allow us to start automatically syncing from Debian once more, use `willsync` to indicate this. The suffix `willsync` > `ubuntu` (and only `ubuntu` prevents syncing, see above), so the next Debian update will overwrite the Ubuntu delta automatically.
-
-If there is no current Ubuntu delta, use `maysync` instead of `willsync`. This is done so that if Ubuntu delta needs to be introduced later,
-we can add delta in the standard way with (`ubuntu` in the version string), as `ubuntu` > `maysync`.
-
-It may seem strange to upload a syncable version on top of a version that is *already* synced with Debian, but it can be necessary in some cases. For example:
-- You need a change present in an unreleased Debian version in Ubuntu.
-- You are experiencing a packaging issue (e.g. a dependency-related build failure) which requires a temporary delta (versioned `maysync1`) which is then immediately dropped (`maysync2`).
-
-
-| When                                                 | Current Debian | Current Ubuntu | Next Debian        | Ubuntu sync indication |
-|------------------------------------------------------|----------------|----------------|--------------------|------------------------|
-| Ubuntu has delta, Debian caught up                   | `2.0-1`        | `2.0-1ubuntu1` | `2.0-2` or `2.1-1` | `2.0-1willsync1`       |
-| No Ubuntu delta, but new change already is in Debian | `2.0-1`        | `2.0-1`        | `2.0-2` or `2.1-1` | `2.0-1maysync1`        |
-
-If these updates pass Ubuntu's automated testing, they do not require manual
-intervention. However, there are scenarios where the automation cannot handle
-the process.
-
-First, once the development release reaches {ref}`debian-import-freeze`, the
-sync automation is disabled.
-
-Therefore, if an update from Debian *is* required, it must be
-{ref}`manually synced <how-to-request-a-sync>`. Version numbering in this case is
-trivial: It's the exact same version as in Debian.
-
-A second case is when the package does have Ubuntu changes, but our
-modifications no longer need to be carried as Ubuntu delta with the new Debian
-package.
-
-For example, perhaps the Ubuntu changes were cherry-picked patches from upstream
-that are now available in a newer release now available from Debian,
-or perhaps Debian has adopted all of the Ubuntu changes into their own packaging.
-These situations will also require a {ref}`manual re-sync with Debian <how-to-request-a-sync>`.
-The version number also remains identical to Debian (see the 'Re-Sync w/ Debian'
-example in the previous section).
-
-
-(version-no-change-rebuilds)=
-## Version: No-change Rebuilds
-
-Sometimes a package has previously successfully synced into Ubuntu, and still
-does not require changes to the packaging or source code, but the generated
-binaries *do* require rebuilding against newer versions of dependencies.
-
-A common example of this is a library being updated to a newer {term}`ABI`, such
-that a package depending on it needs to be re-linked to continue functioning
-properly. The process of updating packages dependent on a changed library like
-this is called a {ref}`transition <transitions>`.
-
-Rebuilding is not considered a change that should prevent future syncing, so in
-this special case one would:
-
-* Not add `ubuntuX` and instead add a `buildX` suffix
-
-* If there is already one such `buildX` suffix present, increment it
-
-* If there is already an `ubuntuX` suffix there would be no auto-sync anyway,
-  so increment the existing suffix
-
-So far it is weakly defined if a no change rebuild for
-{ref}`native packages <version-native-packages>` shall be a version increment
-or adding a `buildX` suffix.
-
-Both styles are present in the Archive and both will work just fine.
-Until this is properly defined, one should try to follow what the particular
-package used so far.
-
-> Example: A Debian package `2.0-2` needs a rebuild in Ubuntu which would use
-  `2.0-2build1`
-
-List of this and further related examples:
-
-| Previous version                             | No-change rebuild in devel        |
-|----------------------------------------------|-----------------------------------|
-| `2.0-2`                                      | `2.0-2build1`                     |
-| `2.0-2ubuntu2`                               | `2.0-2ubuntu3`                    |
-| `2.0-2build1`                                | `2.0-2build2`                     |
-| `2.0-0ubuntu1` (version only in Ubuntu)      | `2.0-0ubuntu2`                    |
-| `2.0ubuntu` (native in Ubuntu - new format)  | `2.0ubuntu.build1` or `2.1ubuntu` |
-| `2.0ubuntu0` (native in Ubuntu - old format) | `2.0ubuntu.build1` or `2.1ubuntu` |
-| `2.0` (native in Debian)                     | `2.0build1`                       |
-| `2`   (native in Debian)                     | `2build1`                         |
-
-It is unlikely, but possible that one needs a no-change rebuild as part of a
-[Stable release update](https://documentation.ubuntu.com/sru/en/latest/),
-but in this situation auto-syncing isn't active anyway and the need for
-upgradability applies. So a no-change-rebuild in regard to picking a version
-number in this case is identical to any other change
-(see the {ref}`version-adding-a-change-in-ubuntu-as-a-sru` section).
-
-
-(version-merging-from-debian)=
-## Version: Merging from Debian
-
-If Ubuntu has delta to the package from Debian, it can not be
-{ref}`automatically synced <syncs>` otherwise that delta would be lost.
-In that case an Ubuntu developer regularly (usually at least once per Ubuntu
-release) {ref}`merges the delta <merging>` in Ubuntu with the content
-from Debian and indirectly also with the changes by upstream.
-
-The counter for Ubuntu increments resets to 1, therefore the version for the new
-upload to the Ubuntu development is the version from Debian with a suffix of
-`ubuntu1`.
-
-> Example: Uploading `3.1` to Ubuntu `-devel` based on Debian `3.1-2` retaining
-  former Ubuntu delta of `2.1-1ubuntu2` would become `3.1-2ubuntu1`
-
-List of this and further related examples:
-
-| Old-Debian     | Old-Ubuntu             | New-Debian       | Ubuntu Devel            |
-| -------------- | ---------------------- | ---------------- | ----------------------- |
-| `2.1-1`        | `2.1-1ubuntu2`         | `3.1-2`          | `3.1-2ubuntu1`          |
-| `1:7.0+dfsg-7` | `1:7.0+dfsg-7ubuntu14` | `1:8.0.4+dfsg-1` | `1:8.0.4+dfsg-1ubuntu1` |
-
-
-(version-merging-from-upstream)=
-## Version: Merging from Upstream
-
-The mentioned special case of an *upstream merge* is triggered when Ubuntu
-merges directly from upstream ahead of Debian upstream. In this case the new
-version shall:
-
-* Reflect that it was not yet packaged in Debian (at this point in time) and
-  thereby is not *really* based on a Debian version by using `-0` as the Debian
-  version suffix.
-
-* Represent that this is the first devel upload via `ubuntu1` which also serves
-  as a place increment for further uploads to the development release.
-
-> Example: Uploading `3.1` to Ubuntu `-devel` while Debian is not yet at `3.1`,
-  so we pick `3.1` followed by `-0` representing it is not based on Debian and
-  `ubuntu1` to index and iterate changes to Ubuntu to an overall `3.1-0ubuntu1`.
-
-List of this and further related examples:
-
-| Old-Debian | Old-Ubuntu      | New-Debian     | New-Upstream | Ubuntu Devel   |
-| ---------- | --------------- | -------------- | ------------ | -------------- |
-| `2.1-1`    | `2.1-1`         | *unchanged*    | `3.1`        | `3.1-0ubuntu1` |
-| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `3.1`        | `3.1-0ubuntu1` |
-| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `2.3`        | `2.3-0ubuntu1` |
-
-### Merging from a specific Upstream git commit 
-
-In certain cases, you may want to merge from a point in upstream later than the most recent tagged
-release, such as from the latest commit or a commit that contains some specific change you want.
-
-Some reasons you might want to do this include:
-* If upstreams do not yet have a new release, but we'd like to have all the
-  content up to a certain point in time/git
-
-* In cases where the upstream release is imminent, but to meet freeze deadlines
-  one uploads the state from git (but going to final before the release)
-
-* If upstream is only using nightly builds and you need to pick one of them
-
-
-There are two ways to do this, depending on whether you want to anchor the version to the **next** upstream release 
-(called a **pre**-release) or to the **previous** upstream release (called a **post**-release).
-
-If you know the version identifier of the next upstream release, use pre-release versioning. If not (for example, if upstream
-versions are date-based or you are unsure whether the next release will be major or minor), use post-release versioning.
-
-#### Pre-releases
-
-For pre-releases, if your target commit has a labeled pre-relase version, you can separate the pre-release part from the core version number with a `~` character,
-and then follow the conventions for merging from upstream.
-
-The reason a `~` character is used here is because `~` sorts before any other character, and, importantly for our purposes, 
-also sorts before the empty suffix. If our version is `3.1~pre1`, when Debian eventually uploads `3.1`,
-it will be considered a later version than ours, and users will be able to upgrade to it once we sync.
-
-| Old-Debian | Old-Ubuntu      | New-Debian     | New-Upstream            | Ubuntu Devel        |
-| ---------- | --------------- | -------------- | ----------------------- | ------------------- |
-| `2.1-1`    | `2.1-1`         | *unchanged*    | `3.1` prerelease 1      | `3.1~pre1-0ubuntu1` |
-| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `3.1` prerelease 1      | `3.1~pre1-0ubuntu1` |
-| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `2.3` prerelease 1      | `2.3~pre1-0ubuntu1` |
-
-If we are targeting an arbitrary git commit, our "version" string has a specific format to ensure proper sorting. This format is:
-
-- The *upcoming version* (e.g `3.1`).
-- `~git` to indicate that this is pre-release git commit.
-- The date of the commit in `YYYYMMDD` format.
-- A dot `.`.
-- The first seven characters of the commit hash (for informational purposes).
-- `-0` to indicate that Debian has *not* packaged this particular version.
-- `ubuntu1` to indicate that this is the first Ubuntu-specific upload of this version.
-
-
-| Old-Debian | Old-Ubuntu      | New-Debian     | Next Upstream Version | Target Commit Hash | Ubuntu Devel                       |
-| ---------- | --------------- | -------------- | --------------------- | ------------------ | ---------------------------------- |
-| `2.1-1`    | `2.1-1`         | *unchanged*    | `3.1`                 | `f1eeced......`    | `3.1~git20260716.f1eeced-0ubuntu1` |
-| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `3.1`                 | `cab005e......`    | `3.1~git20260716.cab005e-0ubuntu1` |
-| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `2.3`                 | `0ddba11......`    | `2.3~git20260716.0ddba11-0ubuntu1` |
-
-#### Post-releases
-
-For post-releases, you should always use the git commit format as described in pre-releases. However, instead of using `~` (which sorts *first*), you should use `+` (which sorts *last*). 
-
-This ensures that if debian uploads the version we are anchoring to, our version will still be considered 
-later (as it should be, since it is based on a later commit)
-
-
-| Old-Debian | Old-Ubuntu      | New-Debian     | Latest Upstream Version Before Target Commit | Target Commit Hash | Ubuntu Devel                       |
-| ---------- | --------------- | -------------- | -------------------------------------------- | ------------------ | ---------------------------------- |
-| `2.1-1`    | `2.1-1`         | *unchanged*    | `3.1`                                        | `d00dad5......`    | `3.1+git20260716.d00dad5-0ubuntu1` |
-| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `3.1`                                        | `effab1e......`    | `3.1+git20260716.effab1e-0ubuntu1` |
-| `2.1-1`    | `2.1-1ubuntu2`  | *unchanged*    | `2.3`                                        | `5add1ed......`    | `2.3+git20260716.5add1ed-0ubuntu1` |
-
-(version-adding-a-change-in-ubuntu-as-a-sru)=
-## Version: Adding a change in Ubuntu as a stable release update
-
-After a version of Ubuntu is released, changes to packages follow a slightly
-different versioning scheme which ensures upgradability to later releases and
-allows the history of changes to be recognized from just looking at the version.
-
-The only change from the normal Ubuntu version scheme is to the
-*ubuntu revision* section of `[upstream_version]-[debian_revision]ubuntu[ubuntu_revision]`.
-
-* Increment Y in the numeric `ubuntuX.Y` suffix, like: `ubuntu3.1 -> ubuntu3.2`.
-
-* Never increment X in the numeric `ubuntuX.Y` suffix. An Ubuntu delta is
-  always captured in Y.
-
-* If this is the first change via the SRU process, add the `.1` suffix, like:
-  `ubuntu3 -> ubuntu3.1`.
-
-* If no `ubuntuX` was present before, then set `ubuntu0.1` which will represent
-  that there was no Ubuntu delta (`0`) before this upload which is the first to
-  add a change (`.1`).
-
-* If two releases have the same version, then this would make the package
-  non-upgradable and cause a version conflict (two builds, but not the same).
-  To resolve this, add the numeric `YY.MM` release version in between `ubuntuX`
-  and the increment `.1`. For Jammy that suffix might look like `ubuntu3.22.04.1`
-
-Compare these examples with the
-{ref}`adding a change in the current Ubuntu development release <version-adding-a-change-in-the-current-ubuntu-development-release>`
-section above to better see the subtle difference.
-
-> Example one: Adding a change to `2.0-2` in an Ubuntu stable release update
-  will use `2.0-2ubuntu0.1`.
-
-> Example two: Adding an Ubuntu delta to `2.0-2ubuntu2.4` in an Ubuntu stable
-  release update will use `2.0-2ubuntu2.5`.
-
-List of these and further related examples:
-
-| Previous version               | Recommended update version                        |
-| ------------------------------ | ------------------------------------------------- |
-| `2.0-2`                        | `2.0-2ubuntu0.1`                                  |
-| `2.0-2ubuntu0.1`               | `2.0-2ubuntu0.2`                                  |
-| `2.0-2ubuntu2`                 | `2.0-2ubuntu2.1`                                  |
-| `2.0-2ubuntu2.1`               | `2.0-2ubuntu2.2`                                  |
-| `2.0-2build1`                  | `2.0-2ubuntu0.1`                                  |
-| `2.0`                          | `2.0ubuntu0.1`                                    |
-| `2.0ubuntu`                 | see {ref}`native packages <version-native-packages>` |
-| `2.0-2ubuntu0.24.04.1`         | `2.0-2ubuntu0.24.04.2`                            |
-| `2.0-2` in two releases        | `2.0-2ubuntu0.25.04.1` and `2.0-2ubuntu0.24.04.1` |
-| `2.0-2ubuntu1` in two releases | `2.0-2ubuntu1.25.04.1` and `2.0-2ubuntu1.24.04.1` |
-
-
-(version-native-packages)=
-## Version: native packages
-
-There exist packages in which Debian or Ubuntu are themselves the upstream.
-This is due to the classification as *native* or *non-native* package as
-outlined by the referred
-[Debian control field version](https://www.debian.org/doc/debian-policy/ch-controlfields.html#version)
-and in more detail [Debian source packages](https://www.debian.org/doc/debian-policy/ch-source.html#s-source-packages).
-To quote: "Presence of the `debian_revision` part indicates this package is a
-non-native package. Absence indicates the package is a native package."
-
-Due to that, in a Debian native package there is no `-debian_revision`.
-
-> Example: A package native to Debian `2.0` (no `-`), getting an Ubuntu change
-  in the `-devel` release would use `2.0ubuntu1`.
-
-This continues into *native Ubuntu packages*, which also do not have a
-`-debian_revision`. But remember that the package namespace is shared between
-Debian and Ubuntu, therefore a native Ubuntu package `foo` of version `1.0`
-can be overwritten by Debian if they also add a package `foo` > `1.0`.
-To prevent this, add an `ubuntu` suffix to the package - otherwise {ref}`auto-sync <merges-syncs>` will use the newer version according to `dpkg --compare-versions`.
-
-We'd also like to be able to differentiate between "a native Debian package that got an Ubuntu Delta added" which could be `2.0ubuntu1`, and "a native Ubuntu package".
-Therefore the marker suffix for a **native package** shall be `ubuntu`.
-Please migrate the former native package indications "`ubuntu0`" to the new format without `0` (discussion on [ubuntu-devel](https://lists.ubuntu.com/archives/ubuntu-devel/2025-July/043402.html)).
-
-Furthermore, native package versioning is package-dependent; whether it uses
-only *major*, or a *major.minor*, or any other version pattern is the
-maintainer's choice. Just as upstream can and will version software the way they
-consider the best.
-Due to that, selecting the right subsequent version requires you to check the
-package history or confer with its maintainer.
-
-> Example: A package native to Ubuntu `2.0ubuntu` (no `-`, and `ubuntu` suffix) getting an Ubuntu change in the `-devel` release could use `2.1ubuntu` or `3.0ubuntu`.
-  To migrate from the previous format of `2.0ubuntu0`, you can simply update to `2.1ubuntu` or `3.0ubuntu`.
-
-Lists of these and further related examples:
-
-Native in Debian:
-
-| Previous version                 | Devel upload    | SRU upload     |
-| -------------------------------- | --------------- | -------------- |
-| `2.0`                            | `2.0ubuntu1`    | `2.0ubuntu0.1` |
-| `2`                              | `2ubuntu1`      | `2ubuntu0.1`   |
-| `2.0build1`                      | `2.0ubuntu1`    | `2.0ubuntu0.1` |
-| `2.0build2`                      | `2.0ubuntu1`    | `2.0ubuntu0.1` |
-| `2ubuntu1` (has delta in `-dev`) | `2ubuntu2`      | `2ubuntu1.1`   |
-
-Native in Ubuntu:
-
-| Previous version               | Devel upload                   | SRU upload                                       |
-|--------------------------------|--------------------------------|--------------------------------------------------|
-| `2.0ubuntu`                    | `2.1ubuntu` or `3.0ubuntu`     | patch: `2.0ubuntu0.1`                            |
-| `2.0ubuntu0` (old format)      | `2.1ubuntu` or `3.0ubuntu`     | patch: `2.0ubuntu0.1`                            |
-| `2ubuntu`                      | `3ubuntu`                      | patch: `2ubuntu0.1`                              |
-| `2ubuntu0` (old format)        | `3ubuntu` (new format)         | patch: `2ubuntu0.1`                              |
-| `3.1.2ubuntu.build10`          | `3.1.3ubuntu`                  | patch: `3.1.2ubuntu0.1`                          |
-|                                |                                | full: `3.1.3ubuntu~25.04.1`                      |
-| `2ubuntu` in multiple releases | `3ubuntu` or `3ubuntu~26.04.1` | patch: `2ubuntu0.25.10.1` and `2ubuntu0.25.04.1` |
-|                                |                                | full: `3ubuntu~25.10.1` and `3ubuntu~25.04.1`    |
-
-```{note}
-Depending on just a "patch" backport or rather the "full release", the SRU version number should be the current version incremented, or the new release version number with `~` to order before, respectively.
-
-The rule of multiple releases with the same version needing to also add a
-per-release `YY.MM` to differentiate and ensure upgradability can be applied here as
-well.
-```
-
-```{note}
-
-There might be reasons that the maintainer wants the native Ubuntu package to
-not have an `ubuntu` suffix, for example if overwriting via auto-sync is desired.
-
-An example might be coordinated uploads to both Distributions in freeze times
-when the auto-sync is disabled.
-
-In any such case that deviates from the recommendation to have an `ubuntu`
-suffix, the package should have an entry in `debian/README.source` that explains
-the reasoning, to allow fellow packagers to understand.
-
-If the deviation is expected to not last very long, for example to be resolved
-in the next Ubuntu development cycle, then a note in `debian/changelog` is
-sufficient.
-```
-
-
-(version-backport-from-upstream)=
-## Version: Backport from upstream
-
-There are more special cases, especially related to backports (as in backports
-of new versions via SRU, not as in
-[backports](https://wiki.ubuntu.com/UbuntuBackports).
-
-In the rare case of a *new upstream release being pushed to all stable releases*
-it will lose all its former version suffixes. This is a common practice on some
-minor release exception processes, where we pick up the most recent upstream
-content, but avoid regressions/changes due to packaging changes like moving files,
-splitting or removing binary packages etc. To represent this the upload should:
-
-* Signal that it is not based on a Debian packaging version by using `-0` as the
-  Debian packaging revision.
-
-* Signal that it was not yet packaged in this Ubuntu release before via
-  `ubuntu0.`.
-
-* Add a suffix per Ubuntu release like `.22.04`.
-
-* Add an increment that can be used in subsequent individual per-release SRU
-  uploads like `.1`.
-
-> Example: Uploading `3.1` but packaging-wise using what is already in LTS and
-  LTS+1 -- not with all the Ubuntu changes that might be in `3.1-1ubuntu2`.
-
-List of this and further related examples:
-
-|       | Old            | New                    |
-| ----- | -------------- | ---------------------- |
-| LTS   | `2.0-2`        | `3.1-0ubuntu0.22.04.1` |
-| LTS+1 | `2.7-2ubuntu1` | `3.1-0ubuntu0.22.10.1` |
-| LTS+2 | `2.7-2ubuntu1` | `3.1-0ubuntu0.23.04.1` |
-
-The new version is independent of the former version of the target release. Here
-is a list of examples targeting 22.04:
-
-| Previous         | New upstream | Upload for LTS         |
-| ---------------- | ------------ | ---------------------- |
-| `2.0-2`          | `3.1`        | `3.1-0ubuntu0.22.04.1` |
-| `2.0-2ubuntu2`   | `3.1`        | `3.1-0ubuntu0.22.04.1` |
-| `2.0-2ubuntu2.1` | `3.1`        | `3.1-0ubuntu0.22.04.1` |
-| `2.0-2build1`    | `3.1`        | `3.1-0ubuntu0.22.04.1` |
-
-
-(version-backport-from-ubuntu-devel)=
-## Version: Backport from Ubuntu devel
-
-But if instead the backport is actually without *meaningful differences* to
-what is in the current Ubuntu development release (a common practice for some
-packages that keep the same version everywhere) with only minimal backporting
-adaptations it would instead:
-
-* Signal that is it basically *identical but backported* by starting with the
-  same version as the one in the development release.
-
-* Add a `~` to ensure it sorts earlier than the version in `-devel`.
-
-* Add a suffix per Ubuntu release like `22.04`.
-
-* Add an increment that can be used in subsequent individual per release SRU
-  uploads like `.1`.
-
-> Example: Uploading `3.1` to LTS and LTS+1 being more or less identical to
-  what is in -devel in `3.1-1ubuntu2`.
-
-List of this and further related examples:
-
-|       | Old            | New                    |
-| ----- | -------------- | ---------------------- |
-| LTS   | `2.0-2`        | `3.1-1ubuntu2~22.04.1` |
-| LTS+1 | `2.7-2ubuntu1` | `3.1-1ubuntu2~22.10.1` |
-| LTS+2 | `2.7-2ubuntu1` | `3.1-1ubuntu2~23.04.1` |
-
-The new version is again independent of the former version that was present in
-the target release. Here are examples targeting 22.04:
-
-| Previous         | New development | Upload for LTS                                       |
-|------------------|-----------------|------------------------------------------------------|
-| `2.0-2`          | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1`                               |
-| `2.0-2ubuntu2`   | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1`                               |
-| `2.0-2ubuntu2.1` | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1`                               |
-| `2.0-2build1`    | `3.1-1ubuntu2`  | `3.1-1ubuntu2~22.04.1`                               |
-| `2.0ubuntu`      | `3.1ubuntu`     | see {ref}`native packages <version-native-packages>` |
-
-```{note}
-If in this case the package in the Ubuntu development release is a native
-package one would still use *the same version* as in the development release.
-```
-
-> Example: Uploading `3.1` to LTS and LTS+1 being more or less identical to
-  what is in `-devel` in `3.1`.
-
-List of this and further related examples:
-
-|       | Old            | New           |
-| ----- | -------------- | ------------- |
-| LTS   | `2.0-2`        | `3.1~22.04.1` |
-| LTS+1 | `2.7-2ubuntu1` | `3.1~22.10.1` |
-| LTS+2 | `2.7-2ubuntu1` | `3.1~23.04.1` |
-
-
-(version-almost-native-packages)=
-## Version: almost native packages
-
-Let us be clear, *almost native packages* is not a clear definition, but some
-have evolved that way.
-
-An example is `snapd`, which is packaged like a native package in Ubuntu with
-versions like `2.67+25.04`, the content matches 1:1 what is upstream (including
-the `debian/*` being there), and being packaged as `3.0 (native)`.
-But the package versions are nowadays no more *defined* by these native uploads
-to Ubuntu. There actually is a
-[separate upstream project with proper releases](https://github.com/canonical/snapd/tags).
-
-Furthermore the Debian packaging switched over to proper upstream/downstream
-packaging with orig tarball, Debian additions and a version like `2.67-1` and
-format being `3.0 (quilt)`.
-
-Due to that, some of the normal rules no more apply. Changing the example
-`2.67` to `2.67.1` is no more just an Ubuntu-native version choice. It
-represents a new upstream version in the upstream project which might not exist
-or not match.
-
-Furthermore the example of `snapd` is also usually backported with the same
-content to all active releases. Combined that makes this an uncommon mix of the
-rules usually applied to:
-
-* Native package
-
-* Backport from upstream
-
-Let us define how such a case could be handled for the example of `snapd`:
-
-* The first element of the version matches the upstream version it represents,
-  like `2.67`
-
-* Since this is backported to multiple releases at the same version, but being
-  native can't have a `-` like in the usual `-X` or `-XubuntuY` -- but it can
-  have the suffix is added via `+ubuntuYY.MM`
-
-  * Note: former versions just added `+YY.MM` but for symmetry and to avoid e.g.
-    conflicts with the auto-sync process `+ubuntuYY.MM` should be the way to go
-
-* If iterations on the same upstream version and for the same target Ubuntu
-  release are needed add an increment counter `.x` as suffix
-
-| Previous                    | New upstream 2.67  | Changes inside of 2.66 |
-| --------------------------- | ------------------ | ---------------------- |
-| LTS: `2.66+ubuntu24.04`     | `2.67+ubuntu24.04` | `2.66+ubuntu24.04.1`   |
-| Devel: `2.66+ubuntu25.04`   | `2.67+ubuntu25.04` | `2.66+ubuntu25.04.1`   |
-| LTS: `2.66+ubuntu24.04.1`   | `2.67+ubuntu24.04` | `2.66+ubuntu24.04.2`   |
-| Devel: `2.66+ubuntu25.04.1` | `2.67+ubuntu25.04` | `2.66+ubuntu25.04.2`   |
-
-```{note}
-
-Yes, no more being a *real* native package means this could also become
-`2.68-0ubuntu1` and thereby the more "normal" rules would apply, but
-until the release process can handle it the above is an example how we can
-apply the same rules outlined here to almost any case and still ensure
-upgradability and some reasonable instant insight looking at only the
-version number.
-```
-
-
-(version-undoing-mistakes)=
-## Version: Undoing mistakes
-
-In a very rare case where an upgrade to a new upstream version of a package
-caused major regression and the only way out is rolling back, the convention is
-to insert `+really` followed by the actual version number.
-
-To be clear, both should be used sparingly and only if really needed.
-Please also have a look at
-[+really in control fields](https://www.debian.org/doc/debian-policy/ch-controlfields.html#epochs-should-be-used-sparingly).
-
-> Example: Uploading `3.1` caused a regression, so rolling back to the previous
-  version `2.0-2ubuntu2` would use `3.1+really2.0-2ubuntu2`
-
-List of this and further related examples:
-
-| Before           | Current        | Upload                                                 |
-| ---------------- | -------------- | ------------------------------------------------------ |
-| `2.0-2ubuntu2`   | `3.1-2ubuntu1` | `3.1+really2.0-2ubuntu2`                               |
-| `7.80+dfsg1-5`   | `7.91+dfsg1-1` | `7.91+dfsg1+really7.80+dfsg1-1ubuntu1` (Ubuntu upload) |
-| `7.80+dfsg1-5`   | `7.91+dfsg1-1` | `7.91+dfsg1+really7.80+dfsg1-1` (Debian upload)        |
-| `7.80+dfsg1-5`   | `7.91+dfsg1-1` | `7.91+dfsg1+really7.80+dfsg1-1ubuntu0.1` (Ubuntu SRU)  |
-
-
 (version-further-reading)=
 ## Further reading
 
-Right at the beginning we had the link to the underlying concepts in Debian
-referring to the [Debian control field "Version"](https://www.debian.org/doc/debian-policy/ch-controlfields.html#version)
-for overall topic awareness.
-
-The underlying principles are also outlined in more detail in the
-[Debian Wiki](https://wiki.debian.org/Versioning).
+The underlying principles are documented in the
+[Debian control field "Version"](https://www.debian.org/doc/debian-policy/ch-controlfields.html#version)
+and, in more detail, in the [Debian Wiki](https://wiki.debian.org/Versioning).
