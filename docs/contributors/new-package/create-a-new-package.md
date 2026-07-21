@@ -52,20 +52,15 @@ hello
 
 ## Starting a package
 
-`bzr-builddeb` includes a plugin to create a new package from a template.
-The plugin is a wrapper around the `dh_make` command.
+`dh_make` is the tool to create a new package from upstream source.
 Run the command providing the package name, version number, and path to the upstream tarball:
 
 ```none
-sudo apt-get install dh-make bzr-builddeb
+sudo apt-get install dh-make
 cd ..
-bzr dh-make hello 2.10 hello-2.10.tar.gz
+dh_make --createorig -p hello_2.10
 ```
 
-```{note}
-Unfortunately, the `bzr dh-make` subcommand is no longer available in releases later than Ubuntu 20.04.
-You might need a container or virtual machine running Ubuntu 20.04 for this particular step.
-```
 
 When it asks what type of package, type `s` for single binary.
 This will import the code into a branch and add the `debian/` packaging directory.
@@ -118,11 +113,11 @@ Fortunately, most of the work is automatically done these days by `debhelper 7` 
 
 All of these file are explained in more detail in the {ref}`overview of the debian/ directory <debian-directory>` article.
 
-Finally, commit the code to your packaging branch (make sure to `bzr add` any untracked files that changed; for example, `debian/source/format`):
+Finally, commit the code to your packaging branch (make sure to `git add` any untracked files that changed; for example, `debian/source/format`):
 
 ```none
-bzr add debian/source/format
-bzr commit -m "Initial commit of Debian packaging."
+git add debian/source/format
+git commit -m "Initial commit of Debian packaging."
 ```
 
 
@@ -131,16 +126,16 @@ bzr commit -m "Initial commit of Debian packaging."
 Now we need to check that our packaging successfully compiles the package and builds the `.deb` binary package:
 
 ```none
-bzr builddeb -- -us -uc
+dpkg-buildpackage -us -uc
 cd ../../
 ```
 
-`bzr builddeb` is a command to build the package in its current location.
+`dpkg-buildpackage` is a command to build the package in its current location.
 The `-us -uc` tell it there is no need to GPG sign the package.
 The result will be placed in `..`.
 
 :::{note}
-If it fails with `You must run ./configure before running 'make'.`, add this to `debian/rules` (make sure to `bzr add/commit` it) and retry `bzr builddeb`:
+If it fails with `You must run ./configure before running 'make'.`, add this to `debian/rules` (make sure to `git add/commit` it) and retry `dpkg-buildpackage`:
 
 ```none
 override_dh_auto_clean:
@@ -186,17 +181,17 @@ For Python packages, there is also a `lintian4python` tool that provides some ad
 After making a fix to the packaging you can rebuild using `-nc` ("no clean") without having to build from scratch:
 
 ```none
-bzr builddeb -- -nc -us -uc
+dpkg-buildpackage -nc -us -uc
 ```
 
 Having checked that the package builds locally you should ensure it builds on a clean system using `pbuilder`.
 Since we are going to upload to a Personal Package Archive (PPA) shortly, this upload will need to be *signed* to allow Launchpad to verify that the upload comes from you.
-You can tell the upload will be signed because the `-us` and `-uc` flags are not passed to `bzr builddeb` like they were before.
+You can tell the upload will be signed because the `-us` and `-uc` flags are not passed to `dpkg-buildpackage` like they were before.
 For signing to work you need to have set up GPG.
 If you haven't set up `pbuilder-dist` or GPG yet, {ref}`do so now <how-to-set-up-for-ubuntu-development>`:
 
 ```none
-bzr builddeb -S
+dpkg-buildpackage -S
 cd ../build-area
 pbuilder-dist trusty build hello_2.10-0ubuntu1.dsc
 ```

@@ -167,7 +167,7 @@ The following formats are rarely used, experimental, or historical. You should o
 
 - ``3.0 (custom)``: Doesn't represent an actual source package format but can be used to create source packages with arbitrary files.
 - ``3.0 (git)``: An experimental format to package from a :term:`Git` repository.
-- ``3.0 (bzr)``: An experimental format to package from a :term:`Bazaar` repository.
+- ``3.0 (bzr)``: An experimental format to package from a Bazaar repository (deprecated; Bazaar is no longer in use).
 - ``2.0``: The first specification of a new-generation source package format. It was never widely adopted and eventually replaced by :ref:`3.0 (quilt) <format-3-0-quilt>`.
 
 
