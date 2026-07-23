@@ -69,8 +69,8 @@ $ git config [--global] gitubuntu.submit.defaultReviewer <launchpad-reviewer>
 ```
 
 :::{note}
-Note that the previous configurations for` defaultReviewer` will only work
-starting with git ubuntu version 1.2, before this version you need to pass
+The previous configurations for `defaultReviewer` will only work
+starting with `git-ubuntu` version 1.2, before this version you need to pass
 the `--reviewer` command-line option to the command.
 :::
 
