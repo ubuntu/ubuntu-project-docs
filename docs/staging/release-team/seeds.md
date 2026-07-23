@@ -222,7 +222,7 @@ This list is all the extra packages we think need to be supported in our distro.
 We will accept contributions of additional packages into this list, if they:
 
 1. Have an external maintainer who agrees to maintain them to our standard,
-   in [Bzr](https://wiki.ubuntu.com/Bzr), using `Soyuz`.
+   in Git, using `Soyuz`.
 1. Pass a one-time security review from `MartinPitt` and agree to be responsive to him on `SecurityPage` issues.
 
 ```{note}
@@ -337,8 +337,7 @@ the `maintenance-check.py` file from
 
 ```{note}
 Since it is no longer possible to view bazaar-hosted files in the web browser,
-it is necessary to check this file out locally, following the instructions in
-the repository.
+it is necessary to check this file out locally. The seeds have since been migrated to Git; see the repository for instructions.
 ```
 ````
 

@@ -232,7 +232,7 @@ team that we then later add developers to.
    4. Remove (deactivate) `developer-membership-board` (membership, keep ownership).
 
 9. Go to [`~ubuntu-uploaders` member page](https://launchpad.net/~ubuntu-uploaders/+members)
-   and add the new team as a member.
+   and add the new team as a member. Set this membership to never expire.
    (In rare cases the DMB may require membership of packageset uploaders, in that
     case add it to [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members) instead)
 

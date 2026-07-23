@@ -74,7 +74,7 @@ A patch submitted and applied upstream:
     Frobnicating widgets too quickly tended to cause explosions.
     Forwarded: http://lists.example.com/2010/03/1234.html
     Author: John Doe <johndoe-guest@users.alioth.debian.org>
-    Applied-Upstream: 1.2, http://bzr.example.com/frobnicator/trunk/revision/123
+    Applied-Upstream: 1.2, https://git.example.com/frobnicator/commit/123
     Last-Update: 2010-03-29
 
 

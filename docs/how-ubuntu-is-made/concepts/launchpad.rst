@@ -12,7 +12,7 @@ Launchpad is a software collaboration and hosting platform similar to platforms 
 Launchpad features, among others, are:
 
 - **Bugs**: :term:`Bug Tracking System`
-- **Code**: :term:`source code` hosting with :term:`Git` or :term:`Bazaar`, :term:`version control <Version Control System>` and :term:`code review` features
+- **Code**: :term:`source code` hosting with :term:`Git`, :term:`version control <Version Control System>` and :term:`code review` features
 - **Answers**: community support site and knowledge base
 - **Translations**: collaboration platform for localizing software
 - **Blueprints**: feature planning and specification tracking

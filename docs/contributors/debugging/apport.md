@@ -217,10 +217,9 @@ Apport is developed on Launchpad ([Apport](https://code.launchpad.net/apport)). 
 ## Further links
 
 <!-- TODO: links to wiki pages in this section may need to be migrated -->
-<!-- TODO: bazaar links may need to be migrated -->
 <!-- * The [report file data format specification](attachment:data-format.pdf). -->
 * Original specifications: [Apport design](https://wiki.ubuntu.com/AutomatedProblemReports), [User interface](https://wiki.ubuntu.com/CrashReporting)
-* [Ubuntu apport bug patterns](http://bazaar.launchpad.net/~ubuntu-bugcontrol/apport/ubuntu-bugpatterns/files)
+* [Ubuntu apport bug patterns](https://git.launchpad.net/~ubuntu-bugcontrol/apport/+git/ubuntu-bugpatterns)
 * [Whoopsie](https://wiki.ubuntu.com/ErrorTracker) is a newer Ubuntu crash submission system that doesn't require any input from the user and integrates with Apport
 * Please do not hesitate to report bugs and feature requests to the [bug tracker](https://launchpad.net/apport/+bugs).
 * See [Bugs/ApportRetraces](https://help.ubuntu.com/community/Bugs/ApportRetraces) for additional documentation for those triaging Apport-generated bug reports in LaunchPad, based on a [MOTU/School](https://help.ubuntu.com/community/MOTU/School) session by EmmetHikory .

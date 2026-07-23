@@ -68,6 +68,12 @@ The equivalent `git config` command is:
 $ git config [--global] gitubuntu.submit.defaultReviewer <launchpad-reviewer>
 ```
 
+:::{note}
+The previous configurations for `defaultReviewer` will only work
+starting with `git-ubuntu` version 1.2, before this version you need to pass
+the `--reviewer` command-line option to the command.
+:::
+
 If this fails, {ref}`do it manually <merge-submit-merge-proposal-manually>`.
 
 
