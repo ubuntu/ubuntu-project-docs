@@ -186,7 +186,6 @@ sosreport
 spammy
 sponsoree
 SSDs
-SRUed
 SRUs
 Starcraft
 stacktrace
