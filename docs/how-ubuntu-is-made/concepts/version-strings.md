@@ -4,7 +4,7 @@
 Choosing the {manpage}`appropriate version <deb-version(7)>` can be complex,
 since there are numerous conditions to consider. This page explains the
 foundational concepts (shared with Debian) along with the Ubuntu-specific
-edge cases, and finishes with a {ref}`decision flowchart <version-flowchart>`
+edge cases, and finishes with a {ref}`decision flowchart <choosing-a-version-string>`
 and a consolidated {ref}`table of examples <version-table-of-examples>`.
 
 
@@ -96,7 +96,7 @@ subsequent Ubuntu changes increment that suffix (`ubuntu1` → `ubuntu2`).
   `2.0-2ubuntu1`. A further change produces `2.0-2ubuntu2`.
 
 If the current version instead ends in a `buildN`
-({ref}`no-change rebuild <version-no-change-rebuilds>`) suffix, the package is
+({ref}`no-change rebuild <no-change-rebuilds-build>`) suffix, the package is
 considered unchanged from the Debian revision, so a new Ubuntu change starts the
 counter afresh at `ubuntu1` (for example `2.0-3build2` → `2.0-3ubuntu1`).
 
@@ -269,7 +269,7 @@ content is picked up while avoiding regressions from packaging changes. The
 upload should:
 
 - Signal that it is not based on a Debian packaging version, using `-0` as the
-  Debian revision (see {ref}`version-ahead-of-debian`).
+  Debian revision (see {ref}`going-ahead-of-debian`).
 - Signal that it was not packaged in this Ubuntu release before, using
   `ubuntu0.`.
 - Add a per-release `YY.MM` suffix (required because the same version lands in
@@ -299,7 +299,7 @@ version everywhere), with only minimal backporting adaptations, it should:
 > Example: uploading `3.1`, more or less identical to the `3.1-1ubuntu2` in the
   development release, targeting 22.04 produces `3.1-1ubuntu2~22.04.1`.
 
-As with the {ref}`backport from upstream <version-backport-from-upstream>`, the new version is independent of the version already present in the target release.
+As with the {ref}`backport from upstream <backporting-a-new-upstream-version>`, the new version is independent of the version already present in the target release.
 
 ```{note}
 If the package in the development release is a
@@ -341,7 +341,7 @@ very same upstream snapshot, in which case it would use its own Debian revision
 
 The following conventions shape the **upstream version** portion only. When the
 snapshot is one Ubuntu has packaged ahead of Debian, combine them with the
-`-0ubuntuN` revision from {ref}`version-ahead-of-debian`.
+`-0ubuntuN` revision from {ref}`going-ahead-of-debian`.
 
 (tagged-pre-releases)=
 ### Tagged pre-releases
@@ -505,7 +505,7 @@ string. If no epoch is present (as for most packages), it is assumed to be `0`.
 
 Changing the epoch should be done with care and requires consensus in Debian.
 Epochs are explicitly **not** used when a package needs to be reverted to a
-previous version (see {ref}`version-rolling-back`). See also
+previous version (see {ref}`rolling-back`). See also
 [epochs should be used sparingly](https://www.debian.org/doc/debian-policy/ch-controlfields.html#epochs-should-be-used-sparingly).
 
 (version-examples)=
@@ -538,7 +538,7 @@ new upstream release. Suppose XX.04 is the current development release:
 
 1. {pkg}`libbar` is `2.0-1` in both Debian and Ubuntu.
 2. Upstream releases `2.1`.
-3. Ubuntu wants the new upstream release before Debian is ready, so it {ref}`merges from upstream <version-ahead-of-debian>`, uploading `2.1-0ubuntu1`.
+3. Ubuntu wants the new upstream release before Debian is ready, so it {ref}`merges from upstream <going-ahead-of-debian>`, uploading `2.1-0ubuntu1`.
 4. Ubuntu makes a patch, uploading `2.1-0ubuntu2`, and submits their patch to upstream.
 5. Ubuntu's patch is accepted upstream.
 6. Upstream releases version `2.2`, which includes Ubuntu's patch and a different fix.
