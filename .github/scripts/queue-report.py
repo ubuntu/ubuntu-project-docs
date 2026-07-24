@@ -12,20 +12,23 @@ Environment variables:
   MATTERMOST_CHANNEL_ID  Channel ID [secret]; notification skipped if absent.
   MATTERMOST_URL         Base URL [var]; default: https://chat.canonical.com.
 
-  MATRIX_TOKEN           Access token [secret]; notification skipped if absent.
-  MATRIX_ROOM_ID         Room ID [secret]; notification skipped if absent.
+  MATRIX_TOKEN           Access token [secret]; all Matrix notifications
+                        skipped if absent. Room IDs are resolved at runtime
+                        from aliases defined in MAIN_MATRIX_ALIAS / LABEL_ROUTES.
   MATRIX_HOMESERVER      Homeserver URL [var]; default: https://ubuntu.com.
 """
 
+import argparse
 import html
 import json
 import os
-import time
+import sys
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any
+from uuid import uuid4
 
 GRAPHQL_URL = "https://api.github.com/graphql"
 TWO_WEEKS = timedelta(weeks=2)
@@ -53,6 +56,36 @@ PR_ROWS: tuple[tuple[str, str, str], ...] = (
     ("🔄 Changes requested", "changes_requested", "changes_requested"),
 )
 TABLE_COLUMNS = ("Status", "Count", "GitHub filter")
+
+# Matrix room alias for the all-encompassing (non-label) dashboard report.
+MAIN_MATRIX_ALIAS = "#ubuntu-devel:ubuntu.com"
+
+
+@dataclass(frozen=True)
+class LabelRoute:
+    """Maps a GitHub label to the Matrix room that should receive its report.
+
+    To add a new label→room pair, append one line to LABEL_ROUTES below.
+    """
+
+    label: str
+    matrix_alias: str
+
+
+# Label→Matrix-room routing table.
+#
+# Issues/PRs carrying a label are listed in a report sent to that label's
+# Matrix room. Items with several of these labels appear in every matching
+# room's report. Multiple labels may share one room (e.g. "Release team" and
+# "AA" both post to #release:ubuntu.com); in that case the room receives a
+# single combined report covering all its labels.
+LABEL_ROUTES: tuple[LabelRoute, ...] = (
+    LabelRoute("MIR", "#ubuntu-mir:ubuntu.com"),
+    LabelRoute("SRU", "#sru:ubuntu.com"),
+    LabelRoute("DMB", "#dmb:ubuntu.com"),
+    LabelRoute("Release team", "#release:ubuntu.com"),
+    LabelRoute("AA", "#release:ubuntu.com"),
+)
 
 
 # Domain models
@@ -93,22 +126,43 @@ class ReportRow:
 
 
 @dataclass
+class Item:
+    """A single issue or PR listed in a label report: number, title, URL."""
+
+    number: int
+    title: str
+    url: str
+
+
+@dataclass
 class ReportSection:
-    """A titled section of the report containing a table of rows."""
+    """A titled section of the report containing a table of count rows."""
 
     heading: str
     rows: list[ReportRow]
 
 
 @dataclass
+class ItemListSection:
+    """A titled section listing actual issues/PRs (for label reports)."""
+
+    heading: str
+    items: list[Item]
+
+
+@dataclass
 class Report:
-    """The full report as structured data — the single source of truth."""
+    """The full report as structured data — the single source of truth.
+
+    Sections may be count-table sections (ReportSection) or item-list
+    sections (ItemListSection); renderers branch on the type.
+    """
 
     title: str
     intro: str
     repo_url: str
     repo_name: str
-    sections: list[ReportSection] = field(default_factory=list)
+    sections: list[ReportSection | ItemListSection] = field(default_factory=list)
 
 
 @dataclass
@@ -121,19 +175,32 @@ class Config:
     mattermost_channel_id: str
     mattermost_url: str
     matrix_token: str
-    matrix_room_id: str
     matrix_homeserver: str
 
     @classmethod
     def from_env(cls) -> "Config":
         """Load configuration from environment variables.
 
+        Required variables (GITHUB_TOKEN, GITHUB_REPOSITORY) cause a clean
+        exit with a diagnostic message when absent, rather than a traceback.
+        All other variables are optional and default to empty strings.
+
         Returns:
             Populated Config instance.
-
-        Raises:
-            KeyError: If GITHUB_TOKEN or GITHUB_REPOSITORY is not set.
         """
+        missing = [
+            name
+            for name in ("GITHUB_TOKEN", "GITHUB_REPOSITORY")
+            if not os.environ.get(name)
+        ]
+        if missing:
+            print(
+                "Missing required environment variable(s): "
+                + ", ".join(missing)
+                + ". Aborting.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
         return cls(
             github_token=os.environ["GITHUB_TOKEN"],
             repo_slug=os.environ["GITHUB_REPOSITORY"],
@@ -142,7 +209,6 @@ class Config:
             mattermost_url=os.environ.get("MATTERMOST_URL")
             or "https://chat.canonical.com",
             matrix_token=os.environ.get("MATRIX_TOKEN", ""),
-            matrix_room_id=os.environ.get("MATRIX_ROOM_ID", ""),
             matrix_homeserver=os.environ.get("MATRIX_HOMESERVER")
             or "https://ubuntu.com",
         )
@@ -343,6 +409,63 @@ def fetch_pr_stats(cfg: Config) -> PRStats:
     return PRStats(**totals)
 
 
+def fetch_labeled_items(cfg: Config, label: str) -> tuple[list[Item], list[Item]]:
+    """Fetch all open issues and PRs carrying ``label``.
+
+    Args:
+        cfg: Runtime configuration.
+        label: GitHub label name to filter by.
+
+    Returns:
+        (issues, prs) as lists of Item, each paginated through all results.
+    """
+    issue_query = """
+    query($owner: String!, $repo: String!, $label: String!, $cursor: String) {
+      repository(owner: $owner, name: $repo) {
+        issues(states: OPEN, first: 100, after: $cursor,
+               filterBy: { labels: [$label] }) {
+          pageInfo { hasNextPage endCursor }
+          nodes { number title url }
+        }
+      }
+    }
+    """
+    pr_query = """
+    query($owner: String!, $repo: String!, $label: String!, $cursor: String) {
+      repository(owner: $owner, name: $repo) {
+        pullRequests(states: OPEN, first: 100, after: $cursor,
+                     labels: [$label]) {
+          pageInfo { hasNextPage endCursor }
+          nodes { number title url }
+        }
+      }
+    }
+    """
+
+    def _collect(query: str, field: str) -> list[Item]:
+        items: list[Item] = []
+        cursor: str | None = None
+        while True:
+            data = _github_graphql(
+                cfg.github_token,
+                query,
+                {
+                    "owner": cfg.owner,
+                    "repo": cfg.repo,
+                    "label": label,
+                    "cursor": cursor,
+                },
+            )
+            page = data["repository"][field]
+            items += [Item(n["number"], n["title"], n["url"]) for n in page["nodes"]]
+            if not page["pageInfo"]["hasNextPage"]:
+                break
+            cursor = page["pageInfo"]["endCursor"]
+        return items
+
+    return _collect(issue_query, "issues"), _collect(pr_query, "pullRequests")
+
+
 # URL building
 
 
@@ -377,16 +500,16 @@ def build_filter_urls(repo_url: str) -> dict[str, str]:
 
 # Message formatting
 #
-# The report is assembled once as a Report model (build_report), then each
-# renderer below turns that same model into a specific output format. Message
-# content — titles, labels, section order — is defined once in the module-level
-# REPORT_* / *_ROWS constants.
+# The report is assembled once as a Report model (build_report /
+# build_label_report), then each renderer below turns that same model into a
+# specific output format. Message content — titles, labels, section order — is
+# defined once in the module-level REPORT_* / *_ROWS constants.
 
 
 def build_report(
     issues: IssueStats, prs: PRStats, urls: dict[str, str], repo_url: str
 ) -> Report:
-    """Assemble the report model from stats, using the module-level layout.
+    """Assemble the dashboard report model from stats, using the module-level layout.
 
     Args:
         issues: Issue statistics.
@@ -416,6 +539,53 @@ def build_report(
     )
 
 
+def build_label_report(
+    alias: str,
+    labels: list[str],
+    items_by_label: dict[str, tuple[list[Item], list[Item]]],
+    repo_url: str,
+) -> Report:
+    """Assemble a per-room label report listing actual issues/PRs.
+
+    For single-label rooms, section headings omit the label name (it is
+    already in the report title). For rooms fed by several labels, each
+    label gets its own sub-heading so the audience can tell them apart.
+
+    Args:
+        alias: Matrix room alias (e.g. "#release:ubuntu.com").
+        labels: Labels routed to this room, in LABEL_ROUTES order.
+        items_by_label: {label: (issues, prs)} fetched items per label.
+        repo_url: Repository URL used in the header link.
+
+    Returns:
+        A Report whose sections are ItemListSections.
+    """
+    room_name = alias.lstrip("#").split(":")[0]
+    multi = len(labels) > 1
+    title = f"🏷️ Ubuntu Project Docs — {room_name} queue"
+    label_names = " or ".join(f"`{lbl}`" for lbl in labels)
+    intro = f"Items labeled {label_names} in the {{repo_link}} repo."
+
+    sections: list[ReportSection | ItemListSection] = []
+    for label in labels:
+        issues, prs = items_by_label[label]
+        prefix = f"{label}: " if multi else ""
+        sections.append(
+            ItemListSection(heading=f"🐛 Issues — {prefix}{len(issues)}", items=issues)
+        )
+        sections.append(
+            ItemListSection(heading=f"🔀 Pull Requests — {prefix}{len(prs)}", items=prs)
+        )
+
+    return Report(
+        title=title,
+        intro=intro,
+        repo_url=repo_url,
+        repo_name=REPORT_REPO_NAME,
+        sections=sections,
+    )
+
+
 def render_markdown(report: Report) -> str:
     """Render the report as Markdown for Mattermost.
 
@@ -435,9 +605,17 @@ def render_markdown(report: Report) -> str:
     header = f"| {' | '.join(TABLE_COLUMNS)} |"
     divider = "|:--|--:|---|"
     for section in report.sections:
-        lines += ["", f"### {section.heading}", "", header, divider]
-        for r in section.rows:
-            lines.append(f"| {r.label} | **{r.count}** | [view]({r.url}) |")
+        lines += ["", f"### {section.heading}", ""]
+        if isinstance(section, ItemListSection):
+            if section.items:
+                for it in section.items:
+                    lines.append(f"- [#{it.number}]({it.url}) {it.title}")
+            else:
+                lines.append("_(none)_")
+        else:
+            lines += [header, divider]
+            for r in section.rows:
+                lines.append(f"| {r.label} | **{r.count}** | [view]({r.url}) |")
     return "\n".join(lines) + "\n"
 
 
@@ -461,8 +639,15 @@ def render_plain_text(report: Report) -> str:
     ]
     for section in report.sections:
         lines += ["", section.heading]
-        for r in section.rows:
-            lines.append(f"  {r.label}: {r.count}")
+        if isinstance(section, ItemListSection):
+            if section.items:
+                for it in section.items:
+                    lines.append(f"  #{it.number} — {it.title}")
+            else:
+                lines.append("  (none)")
+        else:
+            for r in section.rows:
+                lines.append(f"  {r.label}: {r.count}")
     return "\n".join(lines) + "\n"
 
 
@@ -486,14 +671,26 @@ def render_html(report: Report) -> str:
     table_foot = "</tbody></table>"
     for section in report.sections:
         parts.append(f"<h3>{html.escape(section.heading)}</h3>")
-        parts.append(table_head)
-        for r in section.rows:
-            parts.append(
-                f"<tr><td>{html.escape(r.label)}</td>"
-                f"<td align='right'><strong>{r.count}</strong></td>"
-                f"<td><a href='{r.url}'>view</a></td></tr>"
-            )
-        parts.append(table_foot)
+        if isinstance(section, ItemListSection):
+            if section.items:
+                parts.append("<ul>")
+                for it in section.items:
+                    parts.append(
+                        f"<li><a href='{it.url}'>#{it.number}</a> "
+                        f"{html.escape(it.title)}</li>"
+                    )
+                parts.append("</ul>")
+            else:
+                parts.append("<p><em>(none)</em></p>")
+        else:
+            parts.append(table_head)
+            for r in section.rows:
+                parts.append(
+                    f"<tr><td>{html.escape(r.label)}</td>"
+                    f"<td align='right'><strong>{r.count}</strong></td>"
+                    f"<td><a href='{r.url}'>view</a></td></tr>"
+                )
+            parts.append(table_foot)
     return "".join(parts)
 
 
@@ -545,25 +742,50 @@ def _matrix_api(
     )
 
 
-def send_matrix(cfg: Config, body_plain: str, body_html: str) -> None:
-    """Post a message to the configured Matrix room.
+def resolve_matrix_alias(cfg: Config, alias: str) -> str:
+    """Resolve a Matrix room alias to its room ID via the directory API.
+
+    Args:
+        cfg: Runtime configuration.
+        alias: Matrix room alias, e.g. "#ubuntu-devel:ubuntu.com".
+
+    Returns:
+        Room ID string, e.g. "!abc123:ubuntu.com".
+
+    Raises:
+        RuntimeError: If the response does not contain a room_id.
+    """
+    data = _matrix_api(
+        cfg,
+        "GET",
+        f"/_matrix/client/v3/directory/room/{urllib.parse.quote(alias, safe='')}",
+    )
+    room_id = data.get("room_id")
+    if not room_id:
+        raise RuntimeError(f"Could not resolve Matrix alias '{alias}'")
+    return room_id
+
+
+def send_matrix(cfg: Config, room_id: str, body_plain: str, body_html: str) -> None:
+    """Post a message to a Matrix room.
 
     Sends with both a plain-text body and an HTML formatted_body as required
     by the Matrix client-server specification (MSC1767 / m.room.message).
 
     Args:
         cfg: Runtime configuration.
+        room_id: Matrix room ID (e.g. "!abc123:ubuntu.com").
         body_plain: Plain text version of the message (no Markdown syntax).
         body_html: HTML version of the message for clients that support it.
     """
-    if not cfg.matrix_token or not cfg.matrix_room_id:
-        print("MATRIX_TOKEN or MATRIX_ROOM_ID not set — skipping Matrix.")
+    if not cfg.matrix_token:
+        print("MATRIX_TOKEN not set — skipping Matrix.")
         return
-    txn_id = int(time.time() * 1000)
+    txn_id = uuid4().hex
     _matrix_api(
         cfg,
         "PUT",
-        f"/_matrix/client/v3/rooms/{urllib.parse.quote(cfg.matrix_room_id)}/send/m.room.message/{txn_id}",
+        f"/_matrix/client/v3/rooms/{urllib.parse.quote(room_id)}/send/m.room.message/{txn_id}",
         {
             "msgtype": "m.text",
             "body": body_plain,
@@ -571,14 +793,32 @@ def send_matrix(cfg: Config, body_plain: str, body_html: str) -> None:
             "formatted_body": body_html,
         },
     )
-    print(f"✓ Sent to Matrix room '{cfg.matrix_room_id}'")
+    print(f"✓ Sent to Matrix room '{room_id}'")
 
 
 # Entry point
 
 
 def main() -> None:
-    """Fetch queue stats, build the report, and send it to Mattermost and Matrix."""
+    """Fetch queue stats, build reports, and send them to Mattermost and Matrix.
+
+    The all-encompassing dashboard is posted to the configured Mattermost
+    channel and the main Matrix room (MAIN_MATRIX_ALIAS). Then, for each
+    label→room route in LABEL_ROUTES, a per-label item list is posted to the
+    matching Matrix room (one combined report per destination room).
+
+    With ``--preview`` all reports are built and printed to stdout but no
+    messages are sent.
+    """
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--preview",
+        action="store_true",
+        help="Build and print all reports without sending any messages.",
+    )
+    args = parser.parse_args()
+    preview = args.preview
+
     cfg = Config.from_env()
 
     print("Fetching issue counts…")
@@ -599,12 +839,59 @@ def main() -> None:
     message_plain = render_plain_text(report)
     message_html = render_html(report)
 
-    print("\n── Message preview ──────────────────────────────────────────────")
+    print("\n── Dashboard ───────────────────────────────────────────────────")
     print(message_md)
     print("─────────────────────────────────────────────────────────────────\n")
 
-    send_mattermost(cfg, message_md)
-    send_matrix(cfg, message_plain, message_html)
+    if not preview:
+        send_mattermost(cfg, message_md)
+
+    # Group labels by destination room (preserving LABEL_ROUTES order).
+    rooms: dict[str, list[str]] = {}
+    for route in LABEL_ROUTES:
+        rooms.setdefault(route.matrix_alias, []).append(route.label)
+
+    # Fetch + build + print every per-label report (always).
+    label_reports: list[tuple[str, str, str, str]] = []  # (alias, plain, html, md)
+    for alias, labels in rooms.items():
+        print(f"\nBuilding report for '{alias}' ({', '.join(labels)})…")
+        items_by_label: dict[str, tuple[list[Item], list[Item]]] = {}
+        for label in labels:
+            issues_l, prs_l = fetch_labeled_items(cfg, label)
+            print(f"  {label}: {len(issues_l)} issues, {len(prs_l)} PRs")
+            items_by_label[label] = (issues_l, prs_l)
+        label_report = build_label_report(alias, labels, items_by_label, cfg.repo_url)
+        lr_md = render_markdown(label_report)
+        lr_plain = render_plain_text(label_report)
+        lr_html = render_html(label_report)
+        print(f"\n── {alias} ──────────────────────────────────────────────────")
+        print(lr_md)
+        print("─────────────────────────────────────────────────────────────────\n")
+        label_reports.append((alias, lr_plain, lr_html, lr_md))
+
+    if preview:
+        print("Preview mode — no messages sent. Done.")
+        return
+
+    # Resolve every Matrix room alias once (main room + label rooms).
+    aliases = {MAIN_MATRIX_ALIAS} | set(rooms)
+    room_ids: dict[str, str] = {}
+    if cfg.matrix_token:
+        for alias in sorted(aliases):
+            try:
+                room_ids[alias] = resolve_matrix_alias(cfg, alias)
+            except (RuntimeError, OSError) as exc:
+                print(f"⚠ Could not resolve Matrix alias '{alias}': {exc}")
+
+    # All-encompassing dashboard → main Matrix room.
+    if MAIN_MATRIX_ALIAS in room_ids:
+        send_matrix(cfg, room_ids[MAIN_MATRIX_ALIAS], message_plain, message_html)
+
+    # Per-label reports → routed Matrix rooms.
+    for alias, lr_plain, lr_html, _ in label_reports:
+        if alias in room_ids:
+            send_matrix(cfg, room_ids[alias], lr_plain, lr_html)
+
     print("Done.")
 
 

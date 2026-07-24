@@ -33,9 +33,10 @@ jobs:
           MATTERMOST_TOKEN: ${{ secrets.MATTERMOST_TOKEN }}
           MATTERMOST_CHANNEL_ID: ${{ secrets.MATTERMOST_CHANNEL_ID }}
           MATTERMOST_URL: ${{ vars.MATTERMOST_URL }}
-          # Matrix — set both as repo secrets.
-          # MATRIX_HOMESERVER can be overridden as a repo variable if needed.
+          # Matrix — set the token as a repo secret.
+          # Room IDs are resolved at runtime from aliases defined in the script
+          # (MAIN_MATRIX_ALIAS / LABEL_ROUTES). MATRIX_HOMESERVER can be
+          # overridden as a repo variable if needed.
           MATRIX_TOKEN: ${{ secrets.MATRIX_TOKEN }}
-          MATRIX_ROOM_ID: ${{ secrets.MATRIX_ROOM_ID }}
           MATRIX_HOMESERVER: ${{ vars.MATRIX_HOMESERVER }}
         run: python .github/scripts/queue-report.py
