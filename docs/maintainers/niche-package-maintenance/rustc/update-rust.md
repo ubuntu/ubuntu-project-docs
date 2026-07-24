@@ -281,7 +281,7 @@ $ RUST_BOOTSTRAP_DIR=~/.rustup/toolchains/<X.Y.Z>-x86_64-unknown-linux-gnu \
 
 You should now see a new tarball in the parent directory: `../rustc-<X.Y>_<X.Y.Z>+dfsg.orig-vendor.tar.xz`. In later steps, we use this to replace the existing `vendor/` directory.
 
-You may also notice that `debian/rust-X.Y-src.install.in` has been updated — this is intentional. One binary package, `rust-<X.Y>-src`, installs certain vendored dependencies needed to build the Rust standard library from source. The `vendor-tarball` rule updates the dependency numbers so `rust-<X.Y>-src` ships the proper files. Commit the changes to `debian/rust-X.Y-src.install.in` before proceeding.
+Notice that `debian/rust-X.Y-src.install.in` has been updated — this is intentional. One binary package, `rust-<X.Y>-src`, installs certain vendored dependencies needed to build the Rust standard library from source. The `vendor-tarball` rule updates the dependency numbers, so `rust-<X.Y>-src` ships the proper files. Commit the changes to `debian/rust-X.Y-src.install.in` before proceeding.
 
 All other changes to the repository may be safely restored.
 

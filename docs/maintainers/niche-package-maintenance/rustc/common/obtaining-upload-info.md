@@ -10,7 +10,7 @@ Get the default Lintian output for the source package by [cleaning up all build 
 $ lintian > <path_to_saved_lintian_output_file>
 ```
 
-If you are updating the toolchain to a new version (necessitating a new package upload), an {term}`Archive Admin` will need to approve the new package. You can make their job easier and speed up your package upload by generating a diff of the `debian/` directory and including it as an attachment, allowing the Archive Admin to easily review the changes:
+For updating the toolchain to a new version (necessitating a new package upload), an {term}`Archive Admin` needs to approve the new package. To make their job easier and speed up the package upload by generating a diff of the `debian/` directory and including it as an attachment, allowing the Archive Admin to easily review the changes:
 
 ```none
 $ git diff merge-<X.Y_old> -- debian > my_diff.diff
@@ -29,6 +29,6 @@ Compile the following information:
 - A list of any notable packaging changes (_not_ upstream changes). These are changes _you_ made to the package, such as the removal or addition of patches. Nothing routine (such as patch refreshes or vendored dependency pruning) should be added here.
 - The output of `lintian` you just got
 - The links to the build logs of all PPA autopkgtests you just got
-- If this is a Rust update, an attachment of the diff of the `debian/` directory between the old and new Rust versions
+- For Rust updates, an attachment of the diff of the `debian/` directory between the old and new Rust versions
 
-You can see a real example of such an upload request [here](https://bugs.launchpad.net/ubuntu/+bug/2156635/comments/1).
+See a real example of such an upload request at {lpbug}`2156635`.
