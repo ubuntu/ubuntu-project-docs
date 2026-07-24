@@ -16,9 +16,9 @@ machines.
 As such it is an odd case of being userspace software, even one that is
 not tied to real hardware - but it is bound to support virtual hardware.
 
-As such it is often required to have get an updated version of it to
-provide platform enablement while being in the lifecycle of a Ubuntu LTS
-release.
+As such it is often required to have an updated version of the open-vm-tools
+package to provide platform enablement while being in the lifecycle of a Ubuntu
+LTS release.
 
 OpenVMTools Process
 -------------------
@@ -26,19 +26,67 @@ OpenVMTools Process
 No less than 6 weeks after each Ubuntu release (to allow some widespread
 testing) the version of open-vm-tools can be backported from the current
 Ubuntu release to the most recent LTS' -updates pocket and any non-LTS
-stable release in support.
+stable release in support. In the cases where the most recent supported Ubuntu
+release is an LTS release, this policy will also apply to updating
+open-vm-tools in the second most recent LTS release, e.g., this should cover
+backporting the open-vm-tools version available in Ubuntu 26.04 LTS to Ubuntu
+24.04 LTS during the ubuntu 26.10 development cycle (before its release).
 
-There should be a single SRU bug tracking the backport. Other bugs may
+There should be a single SRU bug tracking the backport. Other bugs may be
 included in the changelog; they must have test cases and be verified as
-normal. It is expected that no packaging changes from the current
-release will be required for this backport - any necessary changes
-should be highlighted in the SRU bug. Similarly, any packaging changes
-from the previous stable version should be called out in the SRU bug.
+regular SRUs.
+
+Only the pristine source tarball is expected to be backported. No changes to
+the debian directory should be performed unless they are necessary (with the
+obvious exception of debian/changelog). Any such changes should be documented
+in debian/changelog. In practice, what this means is that we are updating the
+open-vm-tools package upstream version of the target Ubuntu LTS to the the same
+upstream version available in the latest supported Ubuntu release (in this
+sense, this is arguably a backport).
+
+Here are some examples:
+
+=========  ==========================  ========================
+Series     Current Version             Updating to version
+=========  ==========================  ========================
+devel      2:13.0.10-1ubuntu1          NOT UPDATING
+26.04 LTS  2:13.0.10-1ubuntu1          NOT UPDATING
+25.10      2:13.0.0-2ubuntu1           2:13.0.10-0ubuntu0.25.10
+24.04 LTS  2:12.5.0-0~ubuntu0.24.04.2  2:13.0.10-0ubuntu0.24.04
+=========  ==========================  ========================
+
+=========  ==========================  ========================
+Series     Current Version             Updating to version
+=========  ==========================  ========================
+devel      2:13.1.4-3ubuntu4           NOT UPDATING
+26.10      2:13.0.10-1ubuntu1          NOT UPDATING
+26.04 LTS  2:13.0.10-1ubuntu1          NOT UPDATING
+24.04 LTS  2:13.0.10-0ubuntu0.24.04    NOT UPDATING
+=========  ==========================  ========================
+
+=========  ==========================  ========================
+Series     Current Version             Updating to version
+=========  ==========================  ========================
+devel      2:13.1.4-3ubuntu4           NOT UPDATING
+26.10      2:13.1.2-2ubuntu2           NOT UPDATING
+26.04 LTS  2:13.0.10-1ubuntu1          2:13.1.2-0ubuntu0.26.04
+24.04 LTS  2:13.0.10-0ubuntu0.24.04    NOT UPDATING
+=========  ==========================  ========================
+
+=========  ==========================  ========================
+Series     Current Version             Updating to version
+=========  ==========================  ========================
+devel      2:13.1.4-3ubuntu4           NOT UPDATING
+27.04      2:13.1.4-3ubuntu3           NOT UPDATING
+26.10      2:13.1.2-2ubuntu2           2:13.1.4-0buntu0.26.10
+26.04 LTS  2:13.0.10-1ubuntu1          2:13.1.4-0buntu0.26.04
+24.04 LTS  2:13.0.10-0ubuntu0.24.04    NOT UPDATING
+=========  ==========================  ========================
 
 Verification
 ------------
 
-On one hand we want to keep these upload longer in -proposed to give the
+On one hand we want to keep these uploads longer in -proposed to give the
 few that run canary with -proposed a better chance to speak up. And we
 need that time anyway to allow for the following.
 
@@ -114,8 +162,8 @@ Ambiguity
 ---------
 
 The server team does many MREs and therefore sometimes it happened that
-these uploads were called an MRE, it is not. This is a platform
-enablement SRU upload under the condition of :ref:`"other safe cases" sub section 2 <sru-other-safe-cases>`:
+these uploads were called MREs. They are not. These are platform
+enablement SRU uploads under the condition of :ref:`"other safe cases" sub section 2 <sru-other-safe-cases>`:
 
 .. code-block:: text
 
@@ -166,7 +214,7 @@ Steve was so kind to share his
   selectively cherry-pick bugfixes is waived."
 
 So it would be a valid SRU, but what was left to resolve, was how to
-ensure to avoid regressions. Back then we reached out to VMware and cam
+ensure to avoid regressions. Back then we reached out to VMware and came
 to an agreement that VMware would have the set of different hypervisor
 versions and the ability to run tests using all kind of VMware features.
 This coordination was negotiated back then under Dean H > David B >
