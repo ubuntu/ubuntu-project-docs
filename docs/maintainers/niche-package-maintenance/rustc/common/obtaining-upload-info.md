@@ -31,4 +31,4 @@ Compile the following information:
 - The links to the build logs of all PPA autopkgtests you just got
 - For Rust updates, an attachment of the diff of the `debian/` directory between the old and new Rust versions
 
-See a real example of such an upload request at {lpbug}`2156635`.
+See a real example of such an upload request at [LP: #2156635](https://bugs.launchpad.net/ubuntu/+bug/2156635/comments/1).
