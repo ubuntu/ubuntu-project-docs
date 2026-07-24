@@ -183,6 +183,15 @@ If the package, as shown in [update_excuses](https://ubuntu-archive-team.ubuntu.
 
 ### Parse the {file}`update_output.txt` file
 
+The {file}`update_output.txt` file is the complete output of the proposed-migration scripts as they recurse through candidate packages. It is terse, but understanding its line types helps:
+
+* **`trying:`** — the script is evaluating whether this package can migrate.
+* **`accepted:`** — the package (or group) appears to make things better and is accepted into the release pocket.
+* **`skipped:`** — the package makes things worse and is not accepted.
+* **`recur:`** — shows the recursion path. For example, `recur: [foo bar] baz` means "having already found that foo and bar make things better, now trying baz to see what happens, even though it breaks things."
+
+After all candidates have been tried, the script compares the total number of broken packages before and after. If the result is better, the changes are accepted; otherwise they are discarded.
+
 Using the {pkg}`exim4` package as an example.
 
 1. Find the package in [update output.txt](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_output.txt):
