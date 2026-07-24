@@ -15,7 +15,7 @@ Environment variables:
   MATRIX_TOKEN           Access token [secret]; all Matrix notifications
                         skipped if absent. Room IDs are resolved at runtime
                         from aliases defined in MAIN_MATRIX_ALIAS / LABEL_ROUTES.
-  MATRIX_HOMESERVER      Homeserver URL [var]; default: https://matrix.org.
+  MATRIX_HOMESERVER      Homeserver URL [var]; default: https://ubuntu.com.
 """
 
 import argparse
@@ -58,7 +58,7 @@ PR_ROWS: tuple[tuple[str, str, str], ...] = (
 TABLE_COLUMNS = ("Status", "Count", "GitHub filter")
 
 # Matrix room alias for the all-encompassing (non-label) dashboard report.
-MAIN_MATRIX_ALIAS = "#devel:ubuntu.com"
+MAIN_MATRIX_ALIAS = "#ubuntu-devel:ubuntu.com"
 
 
 @dataclass(frozen=True)
