@@ -13,3 +13,8 @@ pre.mermaid svg {
     color: #777; /* Greyed out, independent of link visited state */
     margin-left: 4px;
 }
+
+.release-table {
+    font-size: smaller;
+}
+
