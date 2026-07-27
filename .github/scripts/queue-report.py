@@ -15,7 +15,7 @@ Environment variables:
   MATRIX_TOKEN           Access token [secret]; all Matrix notifications
                         skipped if absent. Room IDs are resolved at runtime
                         from aliases defined in MAIN_MATRIX_ALIAS / LABEL_ROUTES.
-  MATRIX_HOMESERVER      Homeserver URL [var]; default: https://ubuntu.com.
+  MATRIX_HOMESERVER      Homeserver URL [var]; default: https://matrix.org.
 """
 
 import argparse
@@ -58,7 +58,7 @@ PR_ROWS: tuple[tuple[str, str, str], ...] = (
 TABLE_COLUMNS = ("Status", "Count", "GitHub filter")
 
 # Matrix room alias for the all-encompassing (non-label) dashboard report.
-MAIN_MATRIX_ALIAS = "#ubuntu-devel:ubuntu.com"
+MAIN_MATRIX_ALIAS = "#devel:ubuntu.com"
 
 
 @dataclass(frozen=True)
@@ -210,7 +210,7 @@ class Config:
             or "https://chat.canonical.com",
             matrix_token=os.environ.get("MATRIX_TOKEN", ""),
             matrix_homeserver=os.environ.get("MATRIX_HOMESERVER")
-            or "https://ubuntu.com",
+            or "https://matrix.org",
         )
 
     @property
