@@ -58,7 +58,7 @@ PR_ROWS: tuple[tuple[str, str, str], ...] = (
 TABLE_COLUMNS = ("Status", "Count", "GitHub filter")
 
 # Matrix room alias for the all-encompassing (non-label) dashboard report.
-MAIN_MATRIX_ALIAS = "#ubuntu-devel:ubuntu.com"
+MAIN_MATRIX_ALIAS = "#devel:ubuntu.com"
 
 
 @dataclass(frozen=True)
