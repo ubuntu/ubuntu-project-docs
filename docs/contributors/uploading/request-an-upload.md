@@ -13,6 +13,7 @@ For contributors:
 :   * {ref}`how-to-find-a-sponsor`
     * {ref}`how-to-request-an-upload` (this article)
     * {ref}`how-to-request-a-sync`
+    * {ref}`how-to-backport-a-package`
 
 For sponsors:
 :   * {ref}`how-to-review-a-merge-proposal`
