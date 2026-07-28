@@ -287,6 +287,12 @@ feature-based one), approximately every 6 months.
   - TBD
   - Aug 2026
   - May 2031
+* - Ubuntu 24.04.5 LTS
+  - Noble Numbat
+  - TBD
+  - TBD
+  - Sep 2026
+  - Jun 2029
 * - Ubuntu 26.10
   - Stonking Stingray
   - TBD
