@@ -10,11 +10,11 @@ On Ubuntu installations, the Ubuntu package archive is configured as the default
 The general flow is that the archive splits into :ref:`Ubuntu series <archive-series>`. Each series is split up into :ref:`pockets <archive-pockets>`, and then each pocket contains four :ref:`components <archive-components>`. This diagram shows a look through a single path:
 
 .. mermaid::
-   :align: center
 
    %%{init: {'themeVariables': {
-                'fontSize': '25px',
+                'fontSize': '1em',
                 'fontFamily': 'Ubuntu'}}}%%
+
     flowchart TD;
       A[Ubuntu package archive] --> B([Splits into Ubuntu **series**]);
 

@@ -1,4 +1,8 @@
 :::{mermaid}
+   %%{init: {'themeVariables': {
+                'fontSize': '1em',
+                'fontFamily': 'Ubuntu'}}}%%
+
 block-beta
   columns 3
 
@@ -10,12 +14,12 @@ block-beta
     SRU{{"<a href=https://canonical-sru-docs.readthedocs-hosted.com/>Study SRU</a>"}}
     space:1
   end
-   
+
   block:middle
     columns 1
     IntermediateTasks("Intermediate tasks")
-    AddAUTOPKGTESTS["<a href=https://documentation.ubuntu.com/project/contributors/bug-fix/package-tests/>Add Autopkgtest</a>"]
-    ProposeMigration["<a href=https://documentation.ubuntu.com/project/how-ubuntu-is-made/processes/proposed-migration/>Proposed Migration</a>"]
+    AddAUTOPKGTESTS["<a href='/contributors/bug-fix/package-tests/'>Add Autopkgtest</a>"]
+    ProposeMigration["<a href='/how-ubuntu-is-made/processes/proposed-migration/'>Proposed Migration</a>"]
     DoSRUS["Do SRUS"]
     WorkOnBugs["Work on packaging bugs/features"]
   end
@@ -23,7 +27,7 @@ block-beta
   block:right
     columns 2
     space
-    PPU["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-ppu/'>PPU*</a>"]
+    PPU["<a href='/who-makes-ubuntu/developers/dmb-joining-ppu/'>PPU*</a>"]
     space:8
   end
 
@@ -32,8 +36,6 @@ block-beta
   SRU --> DoSRUS
   IntermediateTasks --> PPU
 
-  classDef Studies fill: #FFDAB9, stroke:#F4A460;
-    class IntermediateStudies,IntermediateTasks Studies
   classDef invisible fill:transparent,stroke:transparent;
     class left,middle,right invisible
 :::
