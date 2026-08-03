@@ -194,9 +194,20 @@ The reverse-dependency chain feeds CB-6 (E2E coverage via consumers):
 - `consumer-autopkgtests` (host, depends on `reverse-deps`) reports each
   consumer's autopkgtest status.
 
+The dependency chain feeds DEP-4 (in-main dependencies not only superficially
+tested):
+
+- `dep-analysis` (guest) computes `runtime_deps_in_main`: runtime dependencies
+  of in-scope binaries that are already in main (so need no MIR of their own),
+- `dependency-autopkgtests` (host, depends on `dep-analysis`) resolves each to
+  its source via `dep_source_map` and reports per-dependency
+  `dependency_coverage` (has_autopkgtest, passing/failing arches) from the
+  shared autopkgtest DB.
+
 The large `autopkgtest.db` is downloaded once per run and cached on the context
-(shared by `autopkgtest-db` and `consumer-autopkgtests`), then removed at the
-end of evidence collection (`cleanup_cached_autopkgtest_db`).
+(shared by `autopkgtest-db`, `consumer-autopkgtests`, and
+`dependency-autopkgtests`), then removed at the end of evidence collection
+(`cleanup_cached_autopkgtest_db`).
 
 ## LLM usage model
 

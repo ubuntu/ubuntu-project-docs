@@ -2046,3 +2046,82 @@ implementation).**
 **Validation from `tools/auto-mir`:** `make lint` PASS, `make test` PASS
 (570 passed, 3 skipped).
 
+## 2026-08-03 — DEP-4 grounded in structured per-dependency test-coverage evidence (P10)
+
+**Promotion:** no
+
+**Context:**
+- This closes out the reporter user-feedback round started 2026-07-15 (P0-P8,
+  commits `e37569e6`..`3d9064ff`: RULE/TODO context and edit path in the
+  wizard, catalog-driven dynamic/exclusive choice options, merged security
+  items, evidence-grounded function/usage and FHS/Policy checks, gated
+  testing-fallback questions, clarified dependency-MIR routing, an A/B license
+  lifetime choice, subscribed-team/upstream-project detection, and an
+  optional background catch-all). P9 needed no code change. P10 was the last
+  substantive item: a correctness gap in **DEP-4** ("Main dependencies not
+  only superficially tested"), which lives in the reviewer catalog
+  (`catalog.yaml`), not the reporter catalog.
+- DEP-4's `adapters_required` was `[dep-analysis, autopkgtest-db]`, but
+  `autopkgtest-db` only ever queries the DB for the **source package under
+  review itself** — it has no notion of that package's dependencies. Nothing
+  in the evidence pipeline actually computed, per runtime dependency already
+  in main, whether that dependency has autopkgtest coverage. The `ai_policy`
+  asked the LLM to "check autopkgtest.db for test coverage" per dependency,
+  but no adapter surfaced that data; the LLM had no grounded evidence to do
+  so and could only guess or fabricate coverage claims.
+- The codebase already had the exact right precedent for this shape of
+  problem: `collect_consumer_autopkgtests` (added in the 2026-07-14 feedback
+  round for CB-6) reads a list of packages from one adapter's evidence
+  (`reverse-deps.consumers`), queries the shared, per-run-cached autopkgtest
+  DB (`_get_cached_autopkgtest_db`) once per source, and returns a structured
+  per-item coverage list.
+
+**Decision:**
+- **A1 — Expose the in-main dependency set explicitly.**
+  `guest_adapters.collect_dep_analysis` now computes
+  `runtime_deps_in_main`: the runtime dependencies of **in-scope binaries
+  only** (i.e. the binaries this MIR request is actually promoting, honouring
+  `ctx.requested_binaries` the same way `in_scope_deps_not_in_main` already
+  does) whose component is `main`. This is deliberately scoped the same way
+  as the existing `in_scope_deps_not_in_main`/`out_of_scope_deps_not_in_main`
+  split, so DEP-4 does not get diluted by every binary's dependency closure
+  when only a subset of binaries is requested.
+- **A2 — New adapter for per-dependency coverage.** Added
+  `evidence.host_adapters.collect_dependency_autopkgtests`
+  (`AdapterID.DEPENDENCY_AUTOPKGTESTS = "dependency-autopkgtests"`,
+  `depends_on=[AdapterID.DEP_ANALYSIS]`), following the
+  `collect_consumer_autopkgtests` pattern: resolve each in-main dependency to
+  its source package via `dep-analysis.dep_source_map`, query the shared
+  cached autopkgtest DB once per **unique** source (dependencies sharing a
+  source are only queried once), and return `dependency_coverage`: a list of
+  `{package, source, has_autopkgtest, passing_arches, failing_arches, note}`.
+  Best-effort on DB unavailability (`AdapterError`) or query failure
+  (`sqlite3.DatabaseError`), matching the existing adapters' fallback style.
+- **A3 — DEP-4 now requires the richer adapter instead of the raw DB.**
+  `adapters_required` is now `[dep-analysis, dependency-autopkgtests]` (the
+  bare `autopkgtest-db` requirement is dropped — it was never the right
+  evidence source for this check, and `dependency-autopkgtests` internally
+  reuses the same cached DB download, so there is no duplicated cost).
+  `ai_policy` now names `runtime_deps_in_main` and `dependency_coverage`
+  directly, so the LLM is grounded in structured evidence rather than being
+  asked to "check autopkgtest.db" itself.
+- **A4 — New TypedDicts.** `DependencyAutopkgtestsResult` and
+  `DependencyCoverageEntry` in `evidence/types.py`; `runtime_deps_in_main:
+  list[str]` added to `DepAnalysisResult`.
+
+**Consequences:**
+- DEP-4 remains `mode: ev_to_ai` with `blocker_class: none` — the reviewer
+  still makes the final call; this only improves the evidence the LLM's
+  suggestion is grounded in.
+- If a dependency's binary package name differs from its source package name
+  and `dep_source_map` has no entry for it (e.g. a package the archive has no
+  `Source:` field cache for), `collect_dependency_autopkgtests` falls back to
+  querying the DB using the binary name itself, same convention as
+  `collect_dep_analysis`'s own `dep_source_map` fallback ("Debian convention:
+  binary name = source name").
+- Reviewer-catalog-only change: the reporter catalog
+  (`catalog-mir-report.yaml`) and reporter pipeline are untouched by P10.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (573 passed,
+3 skipped). Commit `c0723837`.
+
