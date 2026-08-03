@@ -710,8 +710,9 @@ evidence_adapters:
     in_scope_deps_not_in_main: list
     out_of_scope_deps_not_in_main: list
     same_source_deps: list
+    runtime_deps_in_main: list
   fallback: emit_todo_continue
-  notes: Uses post-build dependencies from sbuild output; maps deps to source packages to identify same-source deps
+  notes: Uses post-build dependencies from sbuild output; maps deps to source packages to identify same-source deps; runtime_deps_in_main lists in-scope runtime deps already in main (used by DEP-4)
 - id: component-mismatches
   type: local_exec
   description: Run upstream ubuntu-archive-tools/component-mismatches to identify promotion candidates
@@ -785,6 +786,17 @@ evidence_adapters:
     consumers: list
   fallback: emit_todo_continue
   notes: Reuses the single per-run autopkgtest.db download shared with the autopkgtest-db adapter; reports per-consumer passing/failing arches so CB-6 can weigh end-to-end coverage via consumers
+- id: dependency-autopkgtests
+  type: web
+  description: Look up autopkgtest status for each in-main runtime dependency's source in the (shared, cached) autopkgtest DB
+  inputs:
+  - series
+  depends_on:
+  - dep-analysis
+  output_contract:
+    dependency_coverage: list
+  fallback: emit_todo_continue
+  notes: Reuses the single per-run autopkgtest.db download shared with the autopkgtest-db adapter; reports per-dependency passing/failing arches so DEP-4 has grounded, structured evidence instead of needing to cross-reference dep-analysis and autopkgtest-db by hand
 - id: dup-search
   type: local_exec
   description: Suggest possible duplicate/overlapping packages by deriving search terms from the package description (LLM) and probing the archive with apt-cache search, tagging each candidate's component
@@ -1063,12 +1075,12 @@ checks:
   blocker_class: none
   adapters_required:
   - dep-analysis
-  - autopkgtest-db
+  - dependency-autopkgtests
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO: - No dependencies in main that are only superficially tested requiring more tests now.'
-  ai_policy: 'For each runtime dependency already in main, check autopkgtest.db for test coverage and results. Focus on the most intensively-used and important dependencies, not every transitive dep. AI should assess whether existing tests would catch regressions introduced by this package. Weight importance by dep usage, not by counting deps. Result is a suggested assessment; human reviewer makes final call.'
+  ai_policy: 'dep-analysis.runtime_deps_in_main lists the runtime dependencies of this package that are already in main (no MIR needed for them); dependency-autopkgtests.dependency_coverage reports, per such dependency, has_autopkgtest and the passing/failing arches from the autopkgtest DB. Focus on the most intensively-used and important dependencies, not every transitive dep. AI should assess whether existing tests would catch regressions introduced by this package, using dependency_coverage as grounding rather than re-deriving coverage from raw DB rows. Weight importance by dep usage, not by counting deps. Result is a suggested assessment; human reviewer makes final call.'
 # ==========================================================================
 # Embedded sources and static linking
 # ==========================================================================

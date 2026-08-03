@@ -180,7 +180,9 @@ single-sourcing rule above applies to deterministic checks.
        data = adapters.get("dep-analysis", {})
        if data.get("status") != "ok":
            return _set_unknown_from_adapter(
-               finding, check, todo_key="unknown_todo",
+               finding,
+               check,
+               todo_key="unknown_todo",
                evidence_refs=["dep-analysis:error"],
            )
        if offending:

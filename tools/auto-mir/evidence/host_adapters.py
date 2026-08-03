@@ -31,6 +31,7 @@ from evidence.types import (
     CvelistScanResult,
     CVESearchTermsResult,
     DebianBTSResult,
+    DependencyAutopkgtestsResult,
     LPBugAPIResult,
     LPBugSearchAPIResult,
     LPBuildAPIResult,
@@ -2091,6 +2092,101 @@ def collect_consumer_autopkgtests(ctx) -> ConsumerAutopkgtestsResult:
         "series": series,
         "requested_series": series,
         "consumers": consumers,
+    }
+
+
+@adapter(AdapterID.DEPENDENCY_AUTOPKGTESTS, depends_on=[AdapterID.DEP_ANALYSIS])
+def collect_dependency_autopkgtests(ctx) -> DependencyAutopkgtestsResult:
+    """Look up autopkgtest status for each in-main runtime dependency's source.
+
+    Reads the in-main runtime dependencies discovered by the dep-analysis
+    adapter (dependencies that are already in main and so need no MIR of
+    their own) and queries the (already cached) autopkgtest DB for each one's
+    source package. This gives DEP-4 grounded per-dependency test coverage
+    evidence instead of requiring the reviewer/LLM to cross-reference
+    dep-analysis and autopkgtest-db by hand.
+    """
+    series = ctx.series or "devel"
+    dep_analysis = ctx.evidence.get("adapters", {}).get("dep-analysis", {})
+    deps_in_main = dep_analysis.get("runtime_deps_in_main", []) or []
+
+    if not deps_in_main:
+        return {
+            "status": "ok",
+            "series": series,
+            "requested_series": series,
+            "dependency_coverage": [],
+            "note": "no in-main runtime dependencies found",
+        }
+
+    dep_source_lookup = {
+        entry.get("package"): entry.get("source_package")
+        for entry in dep_analysis.get("dep_source_map", []) or []
+    }
+
+    try:
+        db_path = _get_cached_autopkgtest_db(ctx)
+    except AdapterError as exc:
+        # Best-effort: without the DB we cannot report per-dependency test
+        # coverage, but the in-main dependency list itself is still useful
+        # context for the reviewer.
+        return {
+            "status": "ok",
+            "series": series,
+            "requested_series": series,
+            "dependency_coverage": [],
+            "note": f"autopkgtest DB unavailable: {exc}",
+        }
+
+    candidates = _autopkgtest_release_candidates(series)
+    dependency_coverage: list[dict[str, Any]] = []
+    queried_sources: dict[str, dict[str, Any]] = {}
+    for dep_name in deps_in_main:
+        source_pkg = dep_source_lookup.get(dep_name) or dep_name
+        if source_pkg not in queried_sources:
+            try:
+                rows, resolved = _query_autopkgtest_for_package(db_path, source_pkg, candidates)
+            except sqlite3.DatabaseError as exc:
+                log.warning("autopkgtest DB query failed for %s: %s", source_pkg, exc)
+                queried_sources[source_pkg] = {
+                    "has_autopkgtest": False,
+                    "passing_arches": [],
+                    "failing_arches": [],
+                    "note": "autopkgtest DB schema not as expected",
+                }
+            else:
+                summary = _summarize_autopkgtest_rows(rows)
+                note = ""
+                if resolved and resolved != series:
+                    note = f"results from '{resolved}'"
+                queried_sources[source_pkg] = {
+                    "has_autopkgtest": len(summary["test_results"]) > 0,
+                    "passing_arches": summary["passing_arches"],
+                    "failing_arches": summary["failing_arches"],
+                    "note": note,
+                }
+        result = queried_sources[source_pkg]
+        dependency_coverage.append(
+            {
+                "package": dep_name,
+                "source": source_pkg,
+                "has_autopkgtest": result["has_autopkgtest"],
+                "passing_arches": result["passing_arches"],
+                "failing_arches": result["failing_arches"],
+                "note": result["note"],
+            }
+        )
+
+    log.debug(
+        "dependency-autopkgtests: %d in-main dependency(ies), %d with tests",
+        len(dependency_coverage),
+        sum(1 for c in dependency_coverage if c["has_autopkgtest"]),
+    )
+    return {
+        "status": "ok",
+        "series": series,
+        "requested_series": series,
+        "dependency_coverage": dependency_coverage,
     }
 
 

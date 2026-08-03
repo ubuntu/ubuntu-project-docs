@@ -29,6 +29,7 @@ class AdapterID(StrEnum):
     NVD_ENRICH = "nvd-enrich"
     LTO_DISABLED_LIST = "lto-disabled-list"
     CONSUMER_AUTOPKGTESTS = "consumer-autopkgtests"
+    DEPENDENCY_AUTOPKGTESTS = "dependency-autopkgtests"
 
     # In-guest adapters
     PACKAGING_SOURCE = "packaging-source"

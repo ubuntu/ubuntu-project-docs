@@ -334,6 +334,27 @@ class ConsumerAutopkgtestsResult(TypedDict, total=False):
     note: str
 
 
+class DependencyCoverageEntry(TypedDict, total=False):
+    """Autopkgtest status for a single in-main runtime dependency's source."""
+
+    package: str
+    source: str
+    has_autopkgtest: bool
+    passing_arches: list[str]
+    failing_arches: list[str]
+    note: str
+
+
+class DependencyAutopkgtestsResult(TypedDict, total=False):
+    """Return structure for the dependency-autopkgtests adapter (DEP-4 evidence)."""
+
+    status: str
+    series: str
+    requested_series: str
+    dependency_coverage: list[DependencyCoverageEntry]
+    note: str
+
+
 # ---------------------------------------------------------------------------
 # In-guest adapters — packaging source
 # ---------------------------------------------------------------------------
@@ -447,6 +468,7 @@ class DepAnalysisResult(TypedDict):
     in_scope_deps_not_in_main: list[str]
     out_of_scope_deps_not_in_main: list[str]
     same_source_deps: list[str]
+    runtime_deps_in_main: list[str]
     auto_included_binaries: list[str]
     auto_included_dep_components: list[DepComponentEntry]
     auto_included_deps_not_in_main_or_unknown: list[str]

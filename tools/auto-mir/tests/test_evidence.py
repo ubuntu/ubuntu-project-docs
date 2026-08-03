@@ -1134,6 +1134,55 @@ def test_dep_analysis_output_structure():
             assert "deps_not_in_main" in result
 
 
+def test_dep_analysis_runtime_deps_in_main_scoped_to_requested_binaries():
+    """runtime_deps_in_main lists only in-scope binaries' deps already in main.
+
+    testpkg-dev is not requested, so its dependency (libfoo, universe) must not
+    leak into runtime_deps_in_main, and libssl3 (universe, from the in-scope
+    binary) must also be excluded — only libc6 (main) qualifies.
+    """
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.requested_binaries = ["testpkg"]
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {"status": "ok", "source_dir": "/tmp/test"},
+            "sbuild": {
+                "status": "ok",
+                "build_success": True,
+                "built_debs": [
+                    "/tmp/out/testpkg_1.0_amd64.deb",
+                    "/tmp/out/testpkg-dev_1.0_amd64.deb",
+                ],
+            },
+        }
+    }
+
+    with patch("evidence.guest_adapters._capture") as mock_capture:
+        with patch("evidence.guest_adapters._detect_component") as mock_component:
+            mock_capture.side_effect = [
+                "testpkg\ntestpkg-dev",  # binaries from debian/control
+                "testpkg",  # deb1 Package
+                "libc6, libssl3",  # deb1 Depends (in-scope)
+                "testpkg-dev",  # deb2 Package
+                "libfoo",  # deb2 Depends (out of scope)
+                "",  # apt-cache show libc6 -> source = libc6
+                "",  # apt-cache show libssl3 -> source = libssl3
+                "",  # apt-cache show libfoo -> source = libfoo
+            ]
+            mock_component.side_effect = lambda _ctx, pkg: {
+                "libc6": "main",
+                "libssl3": "universe",
+                "libfoo": "main",
+            }[pkg]
+
+            from evidence.guest_adapters import collect_dep_analysis
+
+            result = collect_dep_analysis(ctx)
+
+    assert result["runtime_deps_in_main"] == ["libc6"]
+
+
 def test_dep_analysis_same_source_auto_included_dep_not_offending():
     """An auto-included dep built by the same source is part of this MIR request.
 
@@ -1309,6 +1358,57 @@ def test_consumer_autopkgtests_no_consumers_returns_empty():
 
     assert result["status"] == "ok"
     assert result["consumers"] == []
+
+
+def test_dependency_autopkgtests_looks_up_each_in_main_dependency():
+    """dependency-autopkgtests should query the shared DB per in-main dependency source."""
+    import evidence.host_adapters as ha
+
+    ctx = Mock()
+    ctx.series = "plucky"
+    ctx.evidence = {
+        "adapters": {
+            "dep-analysis": {
+                "status": "ok",
+                "runtime_deps_in_main": ["libc6", "libssl3"],
+                "dep_source_map": [
+                    {"package": "libc6", "source_package": "glibc"},
+                    {"package": "libssl3", "source_package": "openssl"},
+                ],
+            }
+        }
+    }
+
+    def fake_query(_db, source, _candidates):
+        if source == "glibc":
+            return [("amd64", 0, "1.0", 5), ("arm64", 0, "1.0", 4)], "plucky"
+        return [], "plucky"
+
+    with patch.object(ha, "_get_cached_autopkgtest_db", return_value="/tmp/fake.db"):
+        with patch.object(ha, "_query_autopkgtest_for_package", side_effect=fake_query):
+            result = ha.collect_dependency_autopkgtests(ctx)
+
+    assert result["status"] == "ok"
+    by_package = {c["package"]: c for c in result["dependency_coverage"]}
+    assert by_package["libc6"]["source"] == "glibc"
+    assert by_package["libc6"]["has_autopkgtest"] is True
+    assert by_package["libc6"]["passing_arches"] == ["amd64", "arm64"]
+    assert by_package["libssl3"]["source"] == "openssl"
+    assert by_package["libssl3"]["has_autopkgtest"] is False
+
+
+def test_dependency_autopkgtests_no_in_main_deps_returns_empty():
+    """With no in-main runtime dependencies, the adapter returns an empty, ok result."""
+    import evidence.host_adapters as ha
+
+    ctx = Mock()
+    ctx.series = "plucky"
+    ctx.evidence = {"adapters": {"dep-analysis": {"status": "ok", "runtime_deps_in_main": []}}}
+
+    result = ha.collect_dependency_autopkgtests(ctx)
+
+    assert result["status"] == "ok"
+    assert result["dependency_coverage"] == []
 
 
 def test_autopkgtest_db_downloaded_once_and_cleaned_up():

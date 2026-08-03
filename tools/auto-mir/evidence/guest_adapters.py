@@ -963,6 +963,16 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
         for entry in runtime_deps
     }
 
+    # Runtime dependencies of in-scope binaries that are already in main (so no
+    # separate MIR is needed for them) still need adequate test coverage of
+    # their own before this package can safely rely on them; DEP-4 uses this.
+    in_scope_dep_names: set[str] = set()
+    for binary in in_scope:
+        in_scope_dep_names.update(deps_by_binary.get(binary, []))
+    runtime_deps_in_main = sorted(
+        name for name in in_scope_dep_names if dep_component_lookup.get(name) == "main"
+    )
+
     auto_included_binaries = sorted(p for p in in_scope if _is_auto_included_binary(p))
     auto_included_dep_components: list[dict[str, str]] = []
     auto_included_offending_deps_by_binary: list[dict[str, list[str] | str]] = []
@@ -1042,6 +1052,7 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
         "in_scope_deps_not_in_main": sorted(set(in_scope_deps_not_in_main)),
         "out_of_scope_deps_not_in_main": sorted(set(out_of_scope_deps_not_in_main)),
         "same_source_deps": sorted(set(same_source_deps)),
+        "runtime_deps_in_main": runtime_deps_in_main,
         "auto_included_binaries": auto_included_binaries,
         "auto_included_dep_components": auto_included_dep_components,
         "auto_included_deps_not_in_main_or_unknown": sorted(
