@@ -108,7 +108,7 @@ Component overview:
 ┌────────────────▼────────────────────────────┐  ┌────────────────────────────────┐
 │ evidence/                                   │  │ orchestration / intake         │
 │ abstracts the sources of factual data       │  │ reports progress and handles   │
-│ (builds, CVEs, packages, tests, ...).        │  │ bounded operator interaction.  │
+│ (builds, CVEs, packages, tests, ...).       │  │ bounded operator interaction.  │
 └────────────────┬──▲─────────────────────────┘  └────────────────────────────────┘
 ┌────────────────▼──┴─────────────────────────┐  ┌────────────────────────────────┐
 │ checks/                                     ┼──► prompts/                       │
