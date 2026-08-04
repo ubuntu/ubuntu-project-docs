@@ -2517,3 +2517,60 @@ pass focused on genuine cross-item contradictions.
 **Validation from `tools/auto-mir`:** `make test` PASS (641 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: consistent bulleted-statement rendering (P12)
+
+**Promotion:** no
+
+**Context:** real transcripts showed the rendered draft mixing bulleted and
+unbulleted lines: catalog `template`/option `statement` text already used a
+leading `- ` in most (but not all) places, while every deterministic
+evaluator in `reporter/evaluator.py` (registered via `@reporter_evaluator`,
+19 functions) returned a hand-written f-string with no bullet at all, and
+AI-confirmed/consistency-corrected statements had no bullet either. An
+earlier design of this fix proposed detecting and inserting bullets inside
+`render.py` at render time; the reporter corrected this in favor of making
+every catalog template/option statement consistently embed its own `- `
+(matching how the reviewer catalog already behaves) and centralizing the
+handling of genuinely free-form (non-templated) text in one place instead.
+
+**Decision:**
+- Audited every `template:` and option `statement:` string in
+  `catalog-mir-report.yaml` and added the missing leading `- ` to the ones
+  that lacked it (6 templates, ~23 option statements). Catalog text is now
+  the single source of truth for the bullet: `_human_statement` no longer
+  needs to add one, since `strip_todo_prefix` only removes the `TODO:`/
+  `TODO-X/Y:` marker itself and leaves the template's own `- ` intact.
+- Added `reporter/text_utils.ensure_bulleted(text)`: prefixes `- ` onto text
+  that doesn't already start with it (checked after `lstrip()`, so it never
+  double-dashes). Wired into the three places that produce statement text
+  outside of the catalog template mechanism:
+  - `reporter/evaluator.py`'s `evaluate_items()` deterministic branch, wrapping
+    every registered evaluator's returned `statement` at the single call
+    site rather than editing all 19 evaluator functions individually.
+  - `reporter/ai.py`'s AI-confirmed branch, wrapping the final
+    accepted-or-edited suggestion.
+  - `reporter/consistency.py`'s human-correction replace step, wrapping the
+    reporter's follow-up answer.
+- Added `reporter/render.py`'s `_with_hanging_indent(text)`: for any
+  RESOLVED/UNAVAILABLE statement or rationale containing embedded newlines
+  (multi-select answers, multi-line free text), continuation lines are
+  indented by two spaces so they visually continue the leading bullet
+  instead of starting flush-left.
+- Added a `catalog.py` structural validation rule (in
+  `validate_report_catalog`) requiring every `template` to match
+  `TODO(-[A-Z0-9/-]+)?:\s*-\s` and every option `statement` to start with
+  `- `, so this can't silently regress as the catalog grows.
+
+**Consequences:**
+- Every resolved reporter-draft line now begins with exactly one bullet,
+  regardless of whether it came from a catalog template, a human answer, a
+  deterministic evaluator, an AI suggestion, or a consistency correction.
+- `item_values` (used for `applicability` `equals`/`in` conditions) now
+  stores the bulleted deterministic statement text, but no catalog condition
+  compares against deterministic statement text (only against human/AI
+  choice-option ids), so this has no behavioral effect on conditions.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (652 passed,
+3 skipped).
+
+

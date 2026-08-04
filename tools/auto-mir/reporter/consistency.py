@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 
 import llm
 from reporter.models import Provenance, QuestionKind, QuestionSpec, ReadinessEffect, StatementState
+from reporter.text_utils import ensure_bulleted
 from utils.llm_sanitize import wrap_untrusted
 
 
@@ -55,7 +56,7 @@ def run_consistency_pass(ctx, wizard) -> ConsistencyReport:
         # uncertainty, not an addendum to sit alongside it (a human who went
         # to the trouble of checking and confirming something should not see
         # their answer glued onto the statement that prompted the question).
-        result.statement = correction
+        result.statement = ensure_bulleted(correction)
         result.provenance = Provenance.HUMAN
         result.answer_refs.append(answer.question_id)
         result.human_confirmed = True

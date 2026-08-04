@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import re
 import string
 import sys
 from pathlib import Path
 from typing import Any
 
 from utils.dependencies import ubuntu_package_for
+
+_REPORTER_TEMPLATE_DASH_PATTERN = re.compile(r"^TODO(-[A-Z0-9/-]+)?:\s*-\s")
 
 
 def _load_yaml_strict(handle: Any, yaml_module: Any) -> dict:
@@ -203,6 +206,16 @@ def validate_report_catalog(catalog: dict) -> list[str]:
         for field in ("section", "title", "mode", "template"):
             if not isinstance(item.get(field), str) or not item[field].strip():
                 errors.append(f"reporter item {item_id} missing {field}")
+        template = item.get("template")
+        if (
+            isinstance(template, str)
+            and template.strip()
+            and not _REPORTER_TEMPLATE_DASH_PATTERN.match(template)
+        ):
+            errors.append(
+                f"reporter item {item_id} template must embed its own '- ' bullet marker "
+                "right after the TODO marker"
+            )
         if item.get("mode") not in valid_modes:
             errors.append(f"reporter item {item_id} has invalid mode: {item.get('mode')}")
         if item.get("readiness", "clear") not in valid_readiness:
@@ -236,6 +249,10 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                     errors.append(f"reporter item {item_id} option {option_id} missing label")
                 if not str(option.get("statement", "")).strip():
                     errors.append(f"reporter item {item_id} option {option_id} missing statement")
+                elif not str(option["statement"]).startswith("- "):
+                    errors.append(
+                        f"reporter item {item_id} option {option_id} statement must start with '- '"
+                    )
                 if "exclusive" in option and not isinstance(option["exclusive"], bool):
                     errors.append(
                         f"reporter item {item_id} option {option_id} exclusive must be a bool"

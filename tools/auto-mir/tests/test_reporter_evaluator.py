@@ -15,7 +15,7 @@ from reporter.evaluator import (  # noqa: E402
     _unavailable,
 )
 from reporter.models import ReadinessEffect  # noqa: E402
-from reporter.text_utils import substitute_source  # noqa: E402
+from reporter.text_utils import ensure_bulleted, substitute_source  # noqa: E402
 
 
 def test_human_statement_substitutes_same_as_source_case_insensitively():
@@ -31,6 +31,29 @@ def test_human_statement_keeps_other_free_text_unchanged():
     result = _human_statement(item, "ntpd-rs", "rust-ntpd")
 
     assert result == "Upstream Name is ntpd-rs"
+
+
+def test_human_statement_preserves_the_catalog_templates_own_leading_dash():
+    item = {"template": "TODO: - Upstream Name is TBD"}
+
+    result = _human_statement(item, "ntpd-rs", "rust-ntpd")
+
+    assert result == "- Upstream Name is ntpd-rs"
+
+
+def test_ensure_bulleted_adds_dash_to_plain_text():
+    assert ensure_bulleted("Some free-form statement.") == "- Some free-form statement."
+
+
+def test_ensure_bulleted_does_not_double_dash_already_bulleted_text():
+    assert ensure_bulleted("- Already bulleted.") == "- Already bulleted."
+
+
+def test_ensure_bulleted_handles_leading_whitespace_before_existing_dash():
+    assert (
+        ensure_bulleted("  - Indented but already bulleted.")
+        == "  - Indented but already bulleted."
+    )
 
 
 def test_maybe_write_evidence_backfills_empty_adapter_field_from_url_answer():

@@ -135,6 +135,26 @@ def test_reporter_items_mix_deterministic_evidence_and_human_answers(tmp_path):
     assert "REP-RATIONALE-001" in wizard.asked
     source = next(result for result in results if result.id == "REP-AVAIL-001")
     assert "universe" in source.statement
+    assert source.statement.startswith("- ")
+
+
+def test_deterministic_reporter_statements_all_get_a_leading_bullet(tmp_path):
+    """Deterministic evaluators return hand-written prose without a leading
+    bullet; ``evaluate_items`` must add exactly one, matching how catalog
+    templates and option statements already embed their own ``- ``."""
+    ctx = _ctx(tmp_path)
+
+    results = evaluate_items(ctx, FakeWizard())
+
+    deterministic_resolved = [
+        result
+        for result in results
+        if result.provenance == Provenance.DETERMINISTIC and result.state == StatementState.RESOLVED
+    ]
+    assert deterministic_resolved
+    for result in deterministic_resolved:
+        assert result.statement.startswith("- "), result.id
+        assert not result.statement.startswith("- - "), result.id
 
 
 def test_reporter_render_writes_draft_and_structured_report(tmp_path):
@@ -155,6 +175,20 @@ def test_reporter_render_writes_draft_and_structured_report(tmp_path):
     assert report["source_package"] == "libfoo"
     assert report["readiness"]["ready"] is True
     assert len(report["statements"]) == len(ctx.catalog["items"])
+
+
+def test_reporter_draft_indents_continuation_lines_of_a_multi_select_answer(tmp_path):
+    """A multi-select answer joins each selected option's own bulleted
+    statement with a newline; the rendered draft must indent every line
+    after the first so they visually continue the same bullet."""
+    ctx = _ctx(tmp_path)
+    results = evaluate_items(ctx, ChoiceWizard())
+
+    write_outputs(ctx, results)
+
+    draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
+    assert "- The owning team has access to the required hardware." in draft
+    assert "\n  - A simulator will provide sufficiently representative test coverage." in draft
 
 
 def test_missing_deterministic_evidence_remains_honest_and_not_ready(tmp_path):
@@ -249,7 +283,7 @@ def test_dependency_routing_shows_out_of_main_deps_before_asking(tmp_path):
     assert "libbar" in preface_texts
     assert "libbaz" in preface_texts
     assert by_id["REP-DEP-002"].statement.startswith(
-        "Further dependencies outside main are handled by separate MIR bugs"
+        "- Further dependencies outside main are handled by separate MIR bugs"
     )
 
 

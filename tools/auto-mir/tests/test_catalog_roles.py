@@ -103,3 +103,29 @@ def test_report_catalog_validation_rejects_unknown_default_source_adapter():
     assert any(
         "default_source references unknown adapter: no-such-adapter" in error for error in errors
     )
+
+
+def test_report_catalog_validation_rejects_template_missing_dash():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    by_id["REP-BG-002"]["template"] = "TODO: Upstream Name is TBD"
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "REP-BG-002 template must embed its own '- ' bullet marker" in error for error in errors
+    )
+
+
+def test_report_catalog_validation_rejects_option_statement_missing_dash():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    options = by_id["REP-RATIONALE-007"]["question"]["options"]
+    options[0]["statement"] = "The package TBDSRC is required in Ubuntu main by a deadline."
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "REP-RATIONALE-007 option required-by statement must start with '- '" in error
+        for error in errors
+    )

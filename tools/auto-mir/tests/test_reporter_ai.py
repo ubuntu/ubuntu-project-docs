@@ -150,7 +150,7 @@ def test_edited_ai_suggestion_keeps_ai_confirmed_provenance(monkeypatch):
 
     assert result.provenance == Provenance.AI_CONFIRMED
     assert result.human_confirmed is True
-    assert result.statement == "Original suggestion, plus a reporter addendum."
+    assert result.statement == "- Original suggestion, plus a reporter addendum."
     assert result.rationale == "Because of the evidence."
 
 
@@ -352,7 +352,7 @@ def test_autopkgtest_log_followup_upgrades_low_confidence_to_high(monkeypatch):
 
     assert call_count == 2
     assert result.provenance == Provenance.AI_CONFIRMED
-    assert result.statement == "Autopkgtests exercise real functionality and pass."
+    assert result.statement == "- Autopkgtests exercise real functionality and pass."
     assert wizard.notes == []
 
 

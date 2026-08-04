@@ -18,6 +18,22 @@ def strip_todo_prefix(text: str) -> str:
     return _TODO_PREFIX_PATTERN.sub("", text).strip()
 
 
+def ensure_bulleted(text: str) -> str:
+    """Prefix ``- `` onto free-form generated text that isn't catalog-templated.
+
+    Deterministic evaluators, AI suggestions, and consistency corrections all
+    produce statement text outside of the catalog's ``template``/option
+    ``statement`` strings, which already embed their own leading ``- ``. This
+    keeps that same "one bullet per resolved statement" shape for text that
+    doesn't go through the catalog template mechanism, without double-adding
+    a dash when the text already has one.
+    """
+    stripped = text.lstrip()
+    if stripped.startswith("- "):
+        return text
+    return f"- {text}"
+
+
 def substitute_source(text: str, source_package: str) -> str:
     """Replace the ``TBDSRC`` catalog placeholder with the actual source package.
 

@@ -143,7 +143,7 @@ def test_human_correction_replaces_statement_instead_of_appending(monkeypatch):
 
     consistency.run_consistency_pass(ctx, wizard)
 
-    assert result.statement == "Reporter correction."
+    assert result.statement == "- Reporter correction."
     assert "Autopkgtests exist and pass" not in result.statement
 
 

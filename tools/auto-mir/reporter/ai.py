@@ -7,7 +7,7 @@ from typing import Any
 
 import llm
 from reporter.models import Provenance, ReadinessEffect, StatementResult, StatementState
-from reporter.text_utils import strip_todo_prefix, substitute_source
+from reporter.text_utils import ensure_bulleted, strip_todo_prefix, substitute_source
 from utils import llm_evidence
 from utils.llm_sanitize import wrap_untrusted
 
@@ -103,7 +103,9 @@ Return exactly one JSON object:
     # confirmation.value is True (use as-is), False (discard, ask manually), or
     # a str holding the reporter's edited version of the suggested statement.
     if confirmation.value is True or isinstance(confirmation.value, str):
-        statement = suggestion if confirmation.value is True else confirmation.value
+        statement = ensure_bulleted(
+            suggestion if confirmation.value is True else confirmation.value
+        )
         return StatementResult(
             id=item["id"],
             section=item["section"],

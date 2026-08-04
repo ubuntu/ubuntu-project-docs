@@ -41,6 +41,20 @@ def write_outputs(ctx, results: list[StatementResult]) -> None:
         json.dump(ctx.secret_redactor.sanitize(report), handle, indent=2, default=str)
 
 
+def _with_hanging_indent(text: str) -> str:
+    """Indent continuation lines of multi-line text under a leading bullet.
+
+    Human free-text answers, AI/consistency corrections, and multi-select
+    catalog statements can span multiple lines. Without this, the second and
+    later lines start flush-left, breaking the visual "- one bullet per
+    statement" shape the draft otherwise keeps.
+    """
+    lines = text.split("\n")
+    if len(lines) == 1:
+        return text
+    return "\n".join([lines[0], *(f"  {line}" if line else line for line in lines[1:])])
+
+
 def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
     lines = [
         f"MIR report for source package: {ctx.source_package}",
@@ -57,13 +71,13 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
         if result.state == StatementState.NOT_APPLICABLE:
             continue
         if result.state == StatementState.RESOLVED:
-            lines.append(result.statement)
+            lines.append(_with_hanging_indent(result.statement))
             if result.rationale:
-                lines.append(f"  ({result.rationale})")
+                lines.append(f"  ({_with_hanging_indent(result.rationale)})")
         else:
-            lines.append(result.statement)
+            lines.append(_with_hanging_indent(result.statement))
             if result.rationale:
-                lines.append(f"  (Unavailable: {result.rationale})")
+                lines.append(f"  (Unavailable: {_with_hanging_indent(result.rationale)})")
 
     readiness = _readiness_summary(list(by_id.values()), getattr(ctx, "consistency_report", None))
     lines.extend(

@@ -18,7 +18,7 @@ from reporter.models import (
     StatementResult,
     StatementState,
 )
-from reporter.text_utils import strip_todo_prefix, substitute_source
+from reporter.text_utils import ensure_bulleted, strip_todo_prefix, substitute_source
 from reporter.wizard import TerminalWizard
 
 Evaluator = Callable[[dict, Any], tuple[str | None, list[str], str]]
@@ -113,6 +113,7 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
             results.append(_unavailable(item, readiness, rationale, ctx.source_package))
             item_values[item["id"]] = None
             continue
+        statement = ensure_bulleted(statement)
         results.append(
             StatementResult(
                 id=item["id"],

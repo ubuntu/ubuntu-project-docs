@@ -125,21 +125,21 @@ items:
   mode: deterministic
   evaluator: source-availability
   adapters_required: [lp-package-api]
-  template: 'TODO: The package TBDSRC is already in Ubuntu universe.'
+  template: 'TODO: - The package TBDSRC is already in Ubuntu universe.'
 - id: REP-AVAIL-002
   section: Availability
   title: Architecture build state
   mode: deterministic
   evaluator: build-architectures
   adapters_required: [lp-build-api]
-  template: 'TODO: It currently builds and works for architectures: TBD'
+  template: 'TODO: - It currently builds and works for architectures: TBD'
 - id: REP-AVAIL-003
   section: Availability
   title: Source package link
   mode: deterministic
   evaluator: source-link
   adapters_required: []
-  template: 'TODO: Link to package https://launchpad.net/ubuntu/+source/TBDSRC'
+  template: 'TODO: - Link to package https://launchpad.net/ubuntu/+source/TBDSRC'
 - id: REP-RATIONALE-001
   section: Rationale
   title: Main-inclusion reason
@@ -160,10 +160,10 @@ items:
     options:
     - id: broad
       label: Broadly useful to a large part of the user base
-      statement: The package TBDSRC will generally be useful for a large part of our user base.
+      statement: '- The package TBDSRC will generally be useful for a large part of our user base.'
     - id: niche
       label: Narrower use case that still matters
-      statement: The package TBDSRC serves a narrower but important Ubuntu use case.
+      statement: '- The package TBDSRC serves a narrower but important Ubuntu use case.'
   template: 'TODO-A/B: - User benefit scope: TBD'
 - id: REP-RATIONALE-006
   section: Rationale
@@ -213,12 +213,12 @@ items:
     options:
     - id: __all_binaries__
       label: All binary packages built by this source
-      statement: All binary packages built by TBDSRC need to be in main.
+      statement: '- All binary packages built by TBDSRC need to be in main.'
       exclusive: true
       spell_out_filter: all
     - id: __all_except_dev_doc_dbg__
       label: All binary packages except -dev, -doc, and -dbg(sym) packages
-      statement: All binary packages built by TBDSRC, except -dev, -doc, and debug-symbol packages, need to be in main.
+      statement: '- All binary packages built by TBDSRC, except -dev, -doc, and debug-symbol packages, need to be in main.'
       exclusive: true
       spell_out_filter: exclude_dev_doc_dbg
     options_source:
@@ -245,10 +245,10 @@ items:
     options:
     - id: required-by
       label: Yes, a well-founded deadline exists
-      statement: The package TBDSRC is required in Ubuntu main by a defined deadline.
+      statement: '- The package TBDSRC is required in Ubuntu main by a defined deadline.'
     - id: no-deadline
       label: No definitive deadline
-      statement: The package would be useful in main, but there is no definitive deadline.
+      statement: '- The package would be useful in main, but there is no definitive deadline.'
   template: 'TODO-A/B: - Target deadline: TBD'
 - id: REP-RATIONALE-008
   section: Rationale
@@ -360,10 +360,10 @@ items:
     options:
     - id: no-exotic-hardware
       label: No exotic hardware is required
-      statement: The package does not depend on exotic hardware we cannot support.
+      statement: '- The package does not depend on exotic hardware we cannot support.'
     - id: team-access
       label: Exotic hardware is required and accessible to the team
-      statement: Required exotic hardware is available to the owning team for debugging, testing, verification, and development.
+      statement: '- Required exotic hardware is available to the owning team for debugging, testing, verification, and development.'
   template: 'TODO-A/B: - Exotic hardware availability: TBD'
 - id: REP-QA-MAINT-003
   section: Quality assurance - maintenance
@@ -423,31 +423,31 @@ items:
     options:
     - id: A-team-hardware
       label: Hardware is available in the team
-      statement: The owning team has access to the required hardware.
+      statement: '- The owning team has access to the required hardware.'
     - id: B-budget
       label: Budget is allocated to acquire hardware
-      statement: Budget is allocated to acquire the required hardware, but it is not available yet.
+      statement: '- Budget is allocated to acquire the required hardware, but it is not available yet.'
     - id: C-testflinger
       label: Solutions QA hardware through Testflinger
-      statement: Solutions QA hardware will be used through Testflinger.
+      statement: '- Solutions QA hardware will be used through Testflinger.'
     - id: D-other-team
       label: Hardware from another team
-      statement: Another team will provide access to the required hardware.
+      statement: '- Another team will provide access to the required hardware.'
     - id: E-simulator
       label: A sufficiently representative simulator
-      statement: A simulator will provide sufficiently representative test coverage.
+      statement: '- A simulator will provide sufficiently representative test coverage.'
     - id: F-upstream
       label: Upstream community tests new builds
-      statement: The upstream community can test new Ubuntu package builds.
+      statement: '- The upstream community can test new Ubuntu package builds.'
     - id: G-users
       label: User community tests new builds
-      statement: The user community can test new Ubuntu package builds.
+      statement: '- The user community can test new Ubuntu package builds.'
     - id: H-manufacturer
       label: Hardware manufacturer tests new builds
-      statement: The hardware manufacturer has agreed to test new builds.
+      statement: '- The hardware manufacturer has agreed to test new builds.'
     - id: X-exhausted
       label: All feasible testing options are exhausted
-      statement: All feasible ways to test or recreate this case have been exhausted; the owning team accepts the additional servicing and regression risk.
+      statement: '- All feasible ways to test or recreate this case have been exhausted; the owning team accepts the additional servicing and regression risk.'
   template: 'TODO-A-H/X: - Non-automated testing access: TBD'
 - id: REP-QA-TEST-006
   section: Quality assurance - testing
@@ -587,10 +587,10 @@ items:
     options:
     - id: separate
       label: Separate MIR bugs
-      statement: Further dependencies outside main are handled by separate MIR bugs, referenced below.
+      statement: '- Further dependencies outside main are handled by separate MIR bugs, referenced below.'
     - id: same-request
       label: This MIR request
-      statement: Further dependencies outside main are promoted together with this MIR request; their sources must also complete MIR review as part of this bug.
+      statement: '- Further dependencies outside main are promoted together with this MIR request; their sources must also complete MIR review as part of this bug.'
   template: 'TODO-B/C: - Additional dependency MIR routing: TBD'
 - id: REP-DEP-003
   section: Dependencies
@@ -628,10 +628,10 @@ items:
     options:
     - id: A-no-concerns
       label: No expiry, time-bound terms, or encumbrances were identified
-      statement: No license expiry, time-bound terms, entity/contract coupling, withdrawable branches, patents, or other encumbrances were identified; the license is expected to remain compatible with Ubuntu main throughout the full support lifetime.
+      statement: '- No license expiry, time-bound terms, entity/contract coupling, withdrawable branches, patents, or other encumbrances were identified; the license is expected to remain compatible with Ubuntu main throughout the full support lifetime.'
     - id: B-concerns
       label: A concern was identified and needs explanation
-      statement: A license concern relevant to the full support lifetime was identified.
+      statement: '- A license concern relevant to the full support lifetime was identified.'
   template: 'TODO-A/B: - License compatibility over the full support lifetime: TBD'
 - id: REP-STD-002B
   section: Standards compliance
@@ -658,10 +658,10 @@ items:
     options:
     - id: confirm-subscribed
       label: Keep the already-subscribed team shown above as the owning team
-      statement: The owning team already subscribed to this package is confirmed and has explicitly acknowledged the long-term maintenance commitment.
+      statement: '- The owning team already subscribed to this package is confirmed and has explicitly acknowledged the long-term maintenance commitment.'
     - id: new-team
       label: A different team will take ownership
-      statement: A different owning team will subscribe to this package, named below.
+      statement: '- A different owning team will subscribe to this package, named below.'
   template: 'TODO-A/B: - The owning team commitment is: TBD'
 - id: REP-MAINT-001B
   section: Maintenance/Owner
@@ -719,10 +719,10 @@ items:
     options:
     - id: no-impact
       label: No expected impact on other teams
-      statement: This change is not expected to impact other Ubuntu teams.
+      statement: '- This change is not expected to impact other Ubuntu teams.'
     - id: coordinated-impact
       label: Other teams are affected and coordination is complete
-      statement: This change affects other Ubuntu teams and the required coordination has been completed.
+      statement: '- This change affects other Ubuntu teams and the required coordination has been completed.'
   template: 'TODO-A/B: - Cross-team impact and coordination: TBD'
 - id: REP-BG-001
   section: Background information
@@ -733,7 +733,7 @@ items:
   question:
     kind: multiline
     prompt: Add anything else about the package's purpose or background useful to a reviewer, beyond what other fields in this report already capture.
-  template: 'TODO: The package description and additional background explain the package: TBD'
+  template: 'TODO: - The package description and additional background explain the package: TBD'
 - id: REP-BG-002
   section: Background information
   title: Upstream name
@@ -750,7 +750,7 @@ items:
     default_source:
       adapter: upstream-tracker
       field: upstream_name
-  template: 'TODO: Upstream Name is TBD'
+  template: 'TODO: - Upstream Name is TBD'
 - id: REP-BG-003
   section: Background information
   title: Upstream link
@@ -758,4 +758,4 @@ items:
   evaluator: upstream-link
   readiness: warning
   adapters_required: [upstream-tracker]
-  template: 'TODO: Link to upstream project TBD'
+  template: 'TODO: - Link to upstream project TBD'
