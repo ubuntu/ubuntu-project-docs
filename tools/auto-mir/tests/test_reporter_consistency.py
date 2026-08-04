@@ -109,6 +109,44 @@ def test_ai_consistency_accepts_known_ids_and_prompts_correction(monkeypatch):
     assert result.provenance == Provenance.HUMAN
 
 
+def test_human_correction_replaces_statement_instead_of_appending(monkeypatch):
+    """The reporter's answer to a consistency follow-up is an authoritative
+    override, not an addendum sitting alongside the tool's earlier text."""
+    result = _result(
+        item_id="REP-1",
+        statement=(
+            "Autopkgtests exist and pass on all architectures, they are "
+            "providing sufficient coverage for all general functions."
+        ),
+    )
+    ctx = SimpleNamespace(
+        statement_results=[result],
+        llm_token="token",
+        no_llm=False,
+        untrusted_nonce="nonce",
+    )
+    monkeypatch.setattr(
+        consistency.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "issues": [
+                {
+                    "item_id": "REP-1",
+                    "category": "unsupported-claim",
+                    "explanation": "The statement contradicts its own rationale.",
+                    "follow_up_question": "Can you confirm sufficient coverage?",
+                }
+            ]
+        },
+    )
+    wizard = Wizard()
+
+    consistency.run_consistency_pass(ctx, wizard)
+
+    assert result.statement == "Reporter correction."
+    assert "Autopkgtests exist and pass" not in result.statement
+
+
 def test_no_llm_runs_deterministic_consistency_only(monkeypatch):
     ctx = SimpleNamespace(statement_results=[_result()], llm_token="", no_llm=False)
 

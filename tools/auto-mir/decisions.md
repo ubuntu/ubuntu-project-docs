@@ -2491,3 +2491,29 @@ vs. a package whose autopkgtest only runs `--help`).
 **Validation from `tools/auto-mir`:** `make test` PASS (640 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: consistency-pass corrections replace, not append (P11)
+
+**Promotion:** no
+
+**Context:** when the bounded AI consistency pass (`reporter/consistency.py`)
+raises a follow-up question and the reporter answers it, the answer was
+appended as a second line after the original (possibly self-contradictory or
+hedged) statement, e.g. a real transcript ended up with "Autopkgtests exist
+and pass on all architectures, they are providing sufficient coverage..."
+immediately followed by the reporter's own "I checked the tests, they are
+providing sufficient coverage." A reporter who went to the trouble of
+checking and confirming something is overriding the tool's uncertainty, not
+appending a footnote to it.
+
+**Decision:** `result.statement = correction` replaces the statement outright
+instead of `f"{result.statement}\n{correction}"`. `provenance`,
+`human_confirmed`, and clearing `rationale` are unchanged. Combined with
+Phase 9's confidence-tier fix (which should make same-statement
+self-contradictions between a statement and its own rationale rare going
+forward, since a low-confidence assessment no longer produces a
+"final-looking" statement in the first place), this keeps the consistency
+pass focused on genuine cross-item contradictions.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (641 passed,
+3 skipped).
+

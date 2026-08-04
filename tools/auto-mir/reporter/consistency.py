@@ -50,7 +50,12 @@ def run_consistency_pass(ctx, wizard) -> ConsistencyReport:
         if answer is None:
             continue
         correction = str(answer.value).strip()
-        result.statement = f"{result.statement}\n{correction}".strip()
+        # Replace, don't append: the reporter's answer to a consistency
+        # follow-up is an authoritative override of the tool's own earlier
+        # uncertainty, not an addendum to sit alongside it (a human who went
+        # to the trouble of checking and confirming something should not see
+        # their answer glued onto the statement that prompted the question).
+        result.statement = correction
         result.provenance = Provenance.HUMAN
         result.answer_refs.append(answer.question_id)
         result.human_confirmed = True
