@@ -458,6 +458,7 @@ def stage_collect_evidence(ctx: RunContext) -> int:
     """
     import catalog
     from evidence import collect_from_catalog
+    from evidence.registry import ADAPTER_REGISTRY
 
     log.info("Stage 3: Collecting evidence for %s", ctx.source_package)
     if not ctx.catalog:
@@ -466,11 +467,22 @@ def stage_collect_evidence(ctx: RunContext) -> int:
 
     result = collect_from_catalog(ctx)
     adapter_results = ctx.evidence.get("adapters", {})
+    failed_ids = [
+        adapter_id
+        for adapter_id, adapter_result in adapter_results.items()
+        if adapter_result.get("status") == "error"
+    ]
+    guest_adapter_failed = any(
+        adapter_id in ADAPTER_REGISTRY
+        and ADAPTER_REGISTRY[adapter_id][0].__module__ == "evidence.guest_adapters"
+        for adapter_id in failed_ids
+    )
     ctx.evidence["collection_summary"] = {
         "total_adapters_seen": len(adapter_results),
         "implemented_ok": len([x for x in adapter_results.values() if x.get("status") == "ok"]),
         "pending": len([x for x in adapter_results.values() if x.get("status") == "pending"]),
         "error": len([x for x in adapter_results.values() if x.get("status") == "error"]),
+        "guest_adapter_failed": guest_adapter_failed,
     }
     return result
 
@@ -644,6 +656,17 @@ def teardown_guest(ctx: RunContext, evidence_collection_result: int = 0) -> None
     if not failure_summary and evidence_collection_result != 0:
         failure_summary = "Evidence collection encountered adapter failures."
 
+    # Only guest-side adapter failures make preserving the guest useful for
+    # debugging (e.g. inspecting a failed sbuild or packaging-source fetch
+    # in-guest). Host-side adapters (upstream lookups, CVE trackers, etc.)
+    # never touch the guest, so keeping it around provides no diagnostic
+    # value even though their failure still counts toward the run's overall
+    # collection result. Default to the cautious True if this was never
+    # recorded (e.g. very old evidence).
+    guest_adapter_failed = (
+        getattr(ctx, "evidence", {}).get("collection_summary", {}).get("guest_adapter_failed", True)
+    )
+
     def _confirm_keep_failed_guest() -> bool:
         """Ask whether to preserve a failed guest when keep behavior is unspecified."""
         if not (sys.stdin.isatty() and sys.stdout.isatty()):
@@ -673,6 +696,15 @@ def teardown_guest(ctx: RunContext, evidence_collection_result: int = 0) -> None
     if ctx.keep_guest is True:
         should_keep = True
     elif ctx.keep_guest is False:
+        should_keep = False
+    elif evidence_collection_result != 0 and not guest_adapter_failed:
+        log.info(
+            "%s Only host-side adapter(s) failed (no guest-side collection was "
+            "affected), so LXD guest %s is being destroyed normally. Pass "
+            "--keep-guest to always preserve it.",
+            failure_summary,
+            ctx.guest_name,
+        )
         should_keep = False
     else:
         should_keep = _confirm_keep_failed_guest() if evidence_collection_result != 0 else False

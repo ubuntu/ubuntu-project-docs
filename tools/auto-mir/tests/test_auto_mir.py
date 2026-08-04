@@ -254,6 +254,114 @@ def test_teardown_falls_back_to_adapter_failure_summary(monkeypatch):
     assert "Evidence collection encountered adapter failures." in warnings[0]
 
 
+def test_teardown_skips_prompt_when_only_host_adapters_failed(monkeypatch):
+    """Host-only adapter failures never touch the guest, so no prompt/keep."""
+    ctx = SimpleNamespace(
+        guest_name="mir-test",
+        keep_guest=None,
+        failure_summary="Evidence collection encountered adapter failures.",
+        evidence={"collection_summary": {"guest_adapter_failed": False}},
+    )
+    infos = []
+    destroyed = []
+
+    monkeypatch.setattr(auto_mir.log, "info", lambda message, *args: infos.append(message % args))
+    monkeypatch.setattr(auto_mir, "_destroy_guest", lambda run_ctx: destroyed.append(run_ctx))
+
+    def _unexpected_input(_prompt=""):
+        raise AssertionError("must not prompt when only host adapters failed")
+
+    monkeypatch.setattr("builtins.input", _unexpected_input)
+
+    auto_mir.teardown_guest(ctx, evidence_collection_result=1)
+
+    assert destroyed == [ctx]
+    assert infos
+    assert "host-side adapter" in infos[0]
+
+
+def test_teardown_still_prompts_when_guest_adapter_failed(monkeypatch):
+    """A genuine guest-side adapter failure still offers to preserve the guest."""
+    ctx = SimpleNamespace(
+        guest_name="mir-test",
+        keep_guest=None,
+        failure_summary="Evidence collection encountered adapter failures.",
+        evidence={"collection_summary": {"guest_adapter_failed": True}},
+    )
+    destroyed = []
+
+    monkeypatch.setattr(auto_mir.sys.stdin, "isatty", lambda: True)
+    monkeypatch.setattr(auto_mir.sys.stdout, "isatty", lambda: True)
+    monkeypatch.setattr(auto_mir, "_destroy_guest", lambda run_ctx: destroyed.append(run_ctx))
+    inputs = iter(["n"])
+    monkeypatch.setattr("builtins.input", lambda _prompt="": next(inputs))
+
+    auto_mir.teardown_guest(ctx, evidence_collection_result=1)
+
+    assert destroyed == [ctx]
+
+
+def test_stage_collect_evidence_marks_guest_adapter_failed(monkeypatch):
+    """A failed guest-module adapter should be flagged in collection_summary."""
+
+    def _fake_collector(_ctx):
+        return {}
+
+    _fake_collector.__module__ = "evidence.guest_adapters"
+
+    def _fake_collect_from_catalog(run_ctx):
+        run_ctx.evidence["adapters"] = {
+            "packaging-source": {"status": "error", "message": "boom"},
+            "upstream-tracker": {"status": "ok"},
+        }
+        return 1
+
+    import evidence
+    import evidence.registry
+
+    monkeypatch.setattr(evidence, "collect_from_catalog", _fake_collect_from_catalog)
+    monkeypatch.setattr(
+        evidence.registry, "ADAPTER_REGISTRY", {"packaging-source": (_fake_collector, [])}
+    )
+
+    ctx = SimpleNamespace(source_package="foo", catalog={"items": []}, evidence={})
+
+    result = auto_mir.stage_collect_evidence(ctx)
+
+    assert result == 1
+    assert ctx.evidence["collection_summary"]["guest_adapter_failed"] is True
+
+
+def test_stage_collect_evidence_host_only_failure_not_marked_guest(monkeypatch):
+    """A failed host-module adapter should not be flagged as a guest failure."""
+
+    def _fake_collector(_ctx):
+        return {}
+
+    _fake_collector.__module__ = "evidence.host_adapters"
+
+    def _fake_collect_from_catalog(run_ctx):
+        run_ctx.evidence["adapters"] = {
+            "upstream-tracker": {"status": "error", "message": "no match"},
+        }
+        return 1
+
+    import evidence
+    import evidence.registry
+
+    monkeypatch.setattr(evidence, "collect_from_catalog", _fake_collect_from_catalog)
+    monkeypatch.setattr(
+        evidence.registry, "ADAPTER_REGISTRY", {"upstream-tracker": (_fake_collector, [])}
+    )
+
+    ctx = SimpleNamespace(source_package="foo", catalog={"items": []}, evidence={})
+
+    result = auto_mir.stage_collect_evidence(ctx)
+
+    assert result == 1
+    assert ctx.evidence["collection_summary"]["guest_adapter_failed"] is False
+
+
 def test_main_runs_stages_in_expected_order(monkeypatch):
     ctx = _patch_main_context(monkeypatch, collect_only=False)
     calls: list[str] = []
