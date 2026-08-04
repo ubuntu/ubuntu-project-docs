@@ -13,7 +13,7 @@ import catalog  # noqa: E402
 from reporter import pipeline  # noqa: E402
 from reporter.consistency import ConsistencyIssue, ConsistencyReport  # noqa: E402
 from reporter.evaluator import _question_from_item, _show_preface, evaluate_items  # noqa: E402
-from reporter.models import Answer, Provenance, StatementState  # noqa: E402
+from reporter.models import Answer, Provenance, ReadinessEffect, StatementState  # noqa: E402
 from reporter.render import write_outputs  # noqa: E402
 from utils.secrets import SecretRedactor  # noqa: E402
 
@@ -487,3 +487,33 @@ def test_background_catchall_is_omitted_when_left_empty(tmp_path):
     write_outputs(ctx, results)
     draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
     assert "The package description and additional background" not in draft
+
+
+def test_testing_gaps_question_is_optional_and_omitted_when_skipped(tmp_path):
+    """REP-QA-TEST-003 must be skippable ('.' on the first line) without
+    implying a gap exists, and never block readiness when skipped."""
+    ctx = _ctx(tmp_path)
+    report_catalog = ctx.catalog
+    item = next(item for item in report_catalog["items"] if item["id"] == "REP-QA-TEST-003")
+    assert item.get("required") is False
+    assert "none of these" in item["answer_guidance"].casefold()
+
+    class NoTestingGapsWizard(ChoiceWizard):
+        def ask(self, question):
+            self.asked.append(question.id)
+            if question.id == "REP-QA-TEST-003":
+                return None
+            value = self.values.get(question.id, self.value)
+            return Answer(question_id=question.id, value=value, raw_input=str(value))
+
+    wizard = NoTestingGapsWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-QA-TEST-003"].state == StatementState.NOT_APPLICABLE
+    assert by_id["REP-QA-TEST-003"].readiness == ReadinessEffect.CLEAR
+
+    write_outputs(ctx, results)
+    draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
+    assert "Testing gaps and the owning team test plan" not in draft

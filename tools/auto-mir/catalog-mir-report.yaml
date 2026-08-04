@@ -398,9 +398,11 @@ items:
   title: Testing gaps and plan
   mode: human_only
   readiness: blocker
+  required: false
   question:
     kind: multiline
-    prompt: Explain any testing gaps, hardware/manual test plan, execution frequency, and regression consequences.
+    prompt: If there are any known testing gaps, hardware/manual test plan, execution frequency, or regression consequences worth noting, explain them.
+  answer_guidance: Enter '.' on the first line if there are none of these extra testing considerations to add; nothing will be added to the report.
   template: 'TODO: - Testing gaps and the owning team test plan are: TBD'
 - id: REP-QA-TEST-005
   section: Quality assurance - testing

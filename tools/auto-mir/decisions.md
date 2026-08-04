@@ -2321,3 +2321,27 @@ instead of an inline parenthetical, for the same visual language).
 **Validation from `tools/auto-mir`:** `make test` PASS (615 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: soften the testing-gaps question wording (P7)
+
+**Promotion:** no
+
+**Context:** REP-QA-TEST-003's prompt ("Explain any testing gaps,
+hardware/manual test plan, execution frequency, and regression
+consequences.") reads as though gaps are assumed to exist, and the question
+was required, so answering "none" was the only way through rather than a
+genuine, neutrally-framed "nothing to add" path.
+
+**Decision:** reword the prompt to a neutral "if there are any ... worth
+noting, explain them" framing, and set `required: false` with a custom
+`answer_guidance` explicitly telling the reporter to enter `.` on the first
+line when there is nothing to add. `required: false` is necessary for the
+new instruction to actually work: `_ask_multiline`/`_ask_multiline_raw`
+(`reporter/wizard.py`) reject an empty first line outright for required
+questions ("A response is required..."), so without this change the new
+wording would have been actively wrong. Skipping the question now cleanly
+resolves to `StatementState.NOT_APPLICABLE` / `ReadinessEffect.CLEAR` and is
+omitted from the draft entirely, matching "no gaps, no statement needed."
+
+**Validation from `tools/auto-mir`:** `make test` PASS (616 passed,
+3 skipped).
+
