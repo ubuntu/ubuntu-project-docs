@@ -216,6 +216,10 @@ def validate_report_catalog(catalog: dict) -> list[str]:
             errors.append(f"interactive reporter item {item_id} requires a question")
         if item.get("mode") == "ev_to_ai" and not str(item.get("ai_policy", "")).strip():
             errors.append(f"AI reporter item {item_id} requires ai_policy")
+        if "autopkgtest_log_followup" in item and not isinstance(
+            item["autopkgtest_log_followup"], bool
+        ):
+            errors.append(f"reporter item {item_id} autopkgtest_log_followup must be a bool")
         question = item.get("question", {})
         options = question.get("options", []) if isinstance(question, dict) else []
         if options:

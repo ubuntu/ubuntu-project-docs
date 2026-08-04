@@ -1658,6 +1658,68 @@ def test_collect_autopkgtest_reports_http_error_code():
             assert "autopkgtest DB download HTTP error 429" in str(exc)
 
 
+def test_autopkgtest_archive_pool_prefix_matches_debian_pool_convention():
+    import evidence.host_adapters as ha
+
+    assert ha._autopkgtest_archive_pool_prefix("python-invoke") == "p"
+    assert ha._autopkgtest_archive_pool_prefix("libgit2") == "libg"
+    assert ha._autopkgtest_archive_pool_prefix("libvirt") == "libv"
+
+
+def test_fetch_autopkgtest_log_excerpt_returns_summary_on_success():
+    import gzip
+
+    import evidence.host_adapters as ha
+
+    log_text = "\n".join([f"line {i}" for i in range(5)] + ["error: something failed"])
+    compressed = gzip.compress(log_text.encode("utf-8"))
+
+    with patch.object(ha.http_utils, "get_bytes", return_value=compressed) as mock_get:
+        result = ha.fetch_autopkgtest_log_excerpt(
+            "python-invoke", "stonking", "amd64", "20260723_004254_70601@"
+        )
+
+    assert result is not None
+    assert result["line_count"] == 6
+    assert any("error" in entry["text"] for entry in result["highlighted_lines"])
+    requested_url = mock_get.call_args.args[0]
+    assert requested_url == (
+        "https://autopkgtest.ubuntu.com/results/autopkgtest-stonking/stonking/"
+        "amd64/p/python-invoke/20260723_004254_70601@/log.gz"
+    )
+
+
+def test_fetch_autopkgtest_log_excerpt_returns_none_on_fetch_failure():
+    import evidence.host_adapters as ha
+
+    with patch.object(ha.http_utils, "get_bytes", side_effect=OSError("network unreachable")):
+        result = ha.fetch_autopkgtest_log_excerpt(
+            "python-invoke", "stonking", "amd64", "20260723_004254_70601@"
+        )
+
+    assert result is None
+
+
+def test_fetch_autopkgtest_log_excerpt_returns_none_on_bad_gzip():
+    import evidence.host_adapters as ha
+
+    with patch.object(ha.http_utils, "get_bytes", return_value=b"not actually gzip"):
+        result = ha.fetch_autopkgtest_log_excerpt(
+            "python-invoke", "stonking", "amd64", "20260723_004254_70601@"
+        )
+
+    assert result is None
+
+
+def test_fetch_autopkgtest_log_excerpt_returns_none_for_missing_arguments():
+    import evidence.host_adapters as ha
+
+    assert ha.fetch_autopkgtest_log_excerpt("", "stonking", "amd64", "run1") is None
+    assert ha.fetch_autopkgtest_log_excerpt("pkg", "", "amd64", "run1") is None
+    assert ha.fetch_autopkgtest_log_excerpt("pkg", "stonking", "", "run1") is None
+    assert ha.fetch_autopkgtest_log_excerpt("pkg", "stonking", "amd64", "") is None
+
+
 def test_collect_ubuntu_cve_tracker_reports_http_error_code():
     """OVAL adapter should preserve HTTP status context in AdapterError."""
     import evidence.host_adapters as ha

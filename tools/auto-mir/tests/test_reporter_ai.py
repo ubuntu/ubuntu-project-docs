@@ -274,3 +274,137 @@ def test_invalid_confidence_value_falls_back_to_human(monkeypatch):
     result = ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
 
     assert result.provenance == Provenance.HUMAN
+
+
+def _autopkgtest_followup_item():
+    return {
+        "id": "REP-QA-TEST-004",
+        "section": "Quality assurance - testing",
+        "mode": "ev_to_ai",
+        "readiness": "blocker",
+        "template": "TODO: - Overall automated and end-to-end test adequacy: TBD",
+        "ai_policy": "Assess test adequacy using debian/tests/control.",
+        "adapters_required": ["autopkgtest-db", "packaging-source"],
+        "autopkgtest_log_followup": True,
+    }
+
+
+def _autopkgtest_ctx():
+    return SimpleNamespace(
+        llm_token="token",
+        no_llm=False,
+        untrusted_nonce="nonce",
+        source_package="python-invoke",
+        evidence={
+            "adapters": {
+                "autopkgtest-db": {
+                    "status": "ok",
+                    "series": "stonking",
+                    "test_results": [
+                        {"arch": "amd64", "run_id": "20260723_004254_70601@"},
+                        {"arch": "arm64", "run_id": "20260723_004300_70602@"},
+                    ],
+                },
+                "packaging-source": {"status": "ok", "debian_tests_control": "Test-Command: ..."},
+            }
+        },
+    )
+
+
+def test_autopkgtest_log_followup_upgrades_low_confidence_to_high(monkeypatch):
+    responses = iter(
+        [
+            {
+                "confidence": "low",
+                "rationale": "Cannot tell from debian/tests/control alone.",
+                "evidence_refs": [],
+            },
+            {
+                "confidence": "high",
+                "statement": "Autopkgtests exercise real functionality and pass.",
+                "rationale": "The fetched logs show a substantial pytest run passing.",
+                "evidence_refs": [],
+            },
+        ]
+    )
+    call_count = 0
+
+    def _fake_call_llm(*_args, **_kwargs):
+        nonlocal call_count
+        call_count += 1
+        return next(responses)
+
+    monkeypatch.setattr(ai.llm, "call_llm", _fake_call_llm)
+    monkeypatch.setattr(
+        "evidence.host_adapters.fetch_autopkgtest_log_excerpt",
+        lambda *_args, **_kwargs: {
+            "line_count": 10,
+            "head": [],
+            "tail": [],
+            "highlighted_lines": [],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(
+        _autopkgtest_followup_item(), _autopkgtest_ctx(), wizard, _fallback_question()
+    )
+
+    assert call_count == 2
+    assert result.provenance == Provenance.AI_CONFIRMED
+    assert result.statement == "Autopkgtests exercise real functionality and pass."
+    assert wizard.notes == []
+
+
+def test_autopkgtest_log_followup_not_attempted_without_flag(monkeypatch):
+    call_count = 0
+
+    def _fake_call_llm(*_args, **_kwargs):
+        nonlocal call_count
+        call_count += 1
+        return {
+            "confidence": "low",
+            "rationale": "Cannot tell.",
+            "evidence_refs": [],
+        }
+
+    monkeypatch.setattr(ai.llm, "call_llm", _fake_call_llm)
+
+    def _unexpected_fetch(*_args, **_kwargs):
+        raise AssertionError("must not fetch logs for items without the opt-in flag")
+
+    monkeypatch.setattr("evidence.host_adapters.fetch_autopkgtest_log_excerpt", _unexpected_fetch)
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
+
+    assert call_count == 1
+    assert result.provenance == Provenance.HUMAN
+
+
+def test_autopkgtest_log_followup_falls_back_when_no_logs_fetchable(monkeypatch):
+    call_count = 0
+
+    def _fake_call_llm(*_args, **_kwargs):
+        nonlocal call_count
+        call_count += 1
+        return {
+            "confidence": "low",
+            "rationale": "Cannot tell from debian/tests/control alone.",
+            "evidence_refs": [],
+        }
+
+    monkeypatch.setattr(ai.llm, "call_llm", _fake_call_llm)
+    monkeypatch.setattr(
+        "evidence.host_adapters.fetch_autopkgtest_log_excerpt", lambda *_args, **_kwargs: None
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(
+        _autopkgtest_followup_item(), _autopkgtest_ctx(), wizard, _fallback_question()
+    )
+
+    # Only the initial call: logs could not be fetched, so no follow-up round happens.
+    assert call_count == 1
+    assert result.provenance == Provenance.HUMAN
+    assert wizard.notes

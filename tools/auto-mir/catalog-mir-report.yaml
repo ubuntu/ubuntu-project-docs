@@ -494,7 +494,8 @@ items:
   readiness: blocker
   adapters_required: [sbuild, packaging-source, autopkgtest-db]
   adapters_optional: [consumer-autopkgtests]
-  ai_policy: Assess whether observed build tests and autopkgtests are non-trivial and plausibly cover regressions. Surface gaps; never invent test execution or a team commitment.
+  autopkgtest_log_followup: true
+  ai_policy: Assess whether observed build tests and autopkgtests are non-trivial and plausibly cover regressions. The actual autopkgtest test definitions are provided in full in packaging-source.debian_tests_control (debian/tests/control) - read them to judge non-triviality (e.g. a real functional test vs. only invoking --help/--version) before concluding the evidence is inconclusive; autopkgtest-db only reports pass/fail per architecture, not what the tests do. Surface gaps; never invent test execution or a team commitment.
   question:
     kind: multiline
     prompt: Assess whether test coverage is adequate and explain how remaining gaps will be covered.

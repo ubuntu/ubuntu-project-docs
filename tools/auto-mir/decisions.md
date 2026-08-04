@@ -2443,3 +2443,51 @@ gate, not a content judgment.
 **Validation from `tools/auto-mir`:** `make test` PASS (632 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: REP-QA-TEST-004 grounded in real test definitions and logs (P10)
+
+**Promotion:** no
+
+**Context:** REP-QA-TEST-004's `ai_policy` only pointed at `autopkgtest-db`
+(pass/fail per architecture) and `sbuild`, with no instruction to inspect the
+actual test definitions. The real test content
+(`packaging-source.debian_tests_control`, i.e. `debian/tests/control`) was
+already collected in evidence and already delivered in full to the model
+(Phase 8's `_FULL_CONTENT_FIELDS_BY_ITEM`), but the policy never told the
+model to use it to judge non-triviality (e.g. a real functional test suite
+vs. a package whose autopkgtest only runs `--help`).
+
+**Decision:**
+- Rewrote REP-QA-TEST-004's `ai_policy` to explicitly instruct reading
+  `packaging-source.debian_tests_control` in full to judge non-triviality
+  before ever declaring low confidence.
+- Added a bounded, opt-in second-round fallback for when even that is
+  inconclusive, gated by a new declarative catalog boolean
+  `autopkgtest_log_followup: true` (only REP-QA-TEST-004 sets it, so this
+  never becomes a blanket behavior). `reporter/ai.py`'s
+  `_maybe_refine_with_autopkgtest_logs` fetches at most two real autopkgtest
+  execution logs (one per architecture, via `test_results[].run_id`) and
+  does exactly one additional LLM call with those excerpts added as
+  `autopkgtest_log_excerpts`; if the second call still returns low
+  confidence, the original (first) rationale path is used unchanged.
+- New `evidence.host_adapters.fetch_autopkgtest_log_excerpt(package, series,
+  arch, run_id)`. **The exact log-retrieval URL was empirically verified
+  against this environment's live `autopkgtest.ubuntu.com`** (not guessed):
+  `https://autopkgtest.ubuntu.com/results/autopkgtest-<series>/<series>/<arch>/<prefix>/<package>/<run_id>/log.gz`,
+  gzip-compressed plain text, where `<prefix>` follows the standard
+  Debian/Ubuntu archive pool convention (`lib`-prefixed packages use their
+  first four characters, e.g. `libgit2` -> `libg`; everything else uses just
+  the first character, e.g. `python-invoke` -> `p`) — confirmed with
+  `libgit2`, `libvirt`, and `python-invoke` against the live site. The fetched
+  log is summarised with the existing `utils.llm_evidence.summarise_build_log`
+  (head/tail + highlighted error/failure lines) rather than a new bounding
+  scheme. This is a plain helper function, not a registered catalog evidence
+  adapter — it only runs on-demand for the one opted-in item when needed,
+  never for every package. On any failure (network, decompression, decoding,
+  missing run) it returns `None` and the original low-confidence result is
+  used unchanged; this is genuinely best-effort, matching how the plan
+  explicitly allowed "fail soft" given the URL scheme could not be verified
+  ahead of time from documentation alone (it now has been, empirically).
+
+**Validation from `tools/auto-mir`:** `make test` PASS (640 passed,
+3 skipped).
+

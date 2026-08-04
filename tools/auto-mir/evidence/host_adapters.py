@@ -6,6 +6,7 @@ evidence from external APIs and web services.
 
 from __future__ import annotations
 
+import gzip
 import html
 import json
 import logging
@@ -43,7 +44,7 @@ from evidence.types import (
     UpstreamTrackerResult,
 )
 from utils import http as http_utils
-from utils import llm_sanitize, predecessor_refs
+from utils import llm_evidence, llm_sanitize, predecessor_refs
 
 try:
     from launchpadlib.launchpad import Launchpad as _Launchpad  # type: ignore
@@ -2030,6 +2031,49 @@ def collect_autopkgtest(ctx) -> AutopkgtestResult:
         "passing_arches": summary["passing_arches"],
         "failing_arches": summary["failing_arches"],
     }
+
+
+_AUTOPKGTEST_LOG_URL_TEMPLATE = (
+    "https://autopkgtest.ubuntu.com/results/autopkgtest-{series}/{series}/"
+    "{arch}/{prefix}/{package}/{run_id}/log.gz"
+)
+
+
+def _autopkgtest_archive_pool_prefix(package: str) -> str:
+    """Debian/Ubuntu archive pool-style directory prefix for a package name.
+
+    ``lib``-prefixed packages use their first four characters (e.g.
+    ``libgit2`` -> ``libg``); everything else uses just the first character.
+    Matches the autopkgtest.ubuntu.com results bucket layout.
+    """
+    if package.startswith("lib") and len(package) > 3:
+        return package[:4]
+    return package[:1]
+
+
+def fetch_autopkgtest_log_excerpt(package: str, series: str, arch: str, run_id: str) -> dict | None:
+    """Best-effort fetch of one real autopkgtest execution log, summarised.
+
+    Used as a bounded, opt-in fallback for reporter items that need more than
+    the debian/tests/control test definitions to judge test adequacy (see
+    REP-QA-TEST-004's ``autopkgtest_log_followup``). Returns ``None`` on any
+    failure (network, decompression, decoding, or an unexpected shape) so
+    callers can proceed without it rather than fail the run; this is
+    genuinely best-effort, not a required evidence source.
+    """
+    if not package or not series or not arch or not run_id:
+        return None
+    prefix = _autopkgtest_archive_pool_prefix(package)
+    url = _AUTOPKGTEST_LOG_URL_TEMPLATE.format(
+        series=series, arch=arch, prefix=prefix, package=package, run_id=run_id
+    )
+    try:
+        compressed = http_utils.get_bytes(url)
+        text = gzip.decompress(compressed).decode("utf-8", errors="replace")
+    except (OSError, ValueError) as exc:
+        log.debug("autopkgtest log fetch failed for %s/%s (%s): %s", package, arch, run_id, exc)
+        return None
+    return llm_evidence.summarise_build_log(text)
 
 
 @adapter(AdapterID.CONSUMER_AUTOPKGTESTS, depends_on=[AdapterID.REVERSE_DEPS])
