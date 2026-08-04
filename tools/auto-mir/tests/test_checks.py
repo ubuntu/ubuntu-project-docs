@@ -1082,31 +1082,6 @@ def test_eval_ev_to_ai_graceful_on_large_tier_llm_error():
     assert result.confidence == "low"
 
 
-def test_reduce_file_listing_strips_common_prefix_without_reducing_small_list():
-    listing = [
-        {"path": "./src/pkg/a.py", "size": 10},
-        {"path": "./src/pkg/b.py", "size": 11},
-    ]
-
-    reduced = checks.llm_eval._reduce_file_listing(listing)
-
-    assert isinstance(reduced, list)
-    assert reduced[0]["path"] == "a.py"
-    assert reduced[1]["path"] == "b.py"
-
-
-def test_reduce_file_listing_reduces_above_threshold():
-    listing = [{"path": f"./tree/dir/file-{i}.txt", "size": i} for i in range(1005)]
-
-    reduced = checks.llm_eval._reduce_file_listing(listing)
-
-    assert isinstance(reduced, dict)
-    assert reduced["total_paths"] == 1005
-    assert reduced["shown_paths"] == checks.llm_eval._FILE_LISTING_REDUCTION_THRESHOLD
-    assert reduced["truncated"] is True
-    assert reduced["paths"][0]["path"] == "file-0.txt"
-
-
 def test_eval_ev_to_ai_performs_followup_when_model_requests_more_evidence():
     ctx = _Ctx()
     ctx.evidence["adapters"]["sbuild"] = {

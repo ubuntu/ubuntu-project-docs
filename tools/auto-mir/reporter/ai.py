@@ -8,7 +8,20 @@ from typing import Any
 import llm
 from reporter.models import Provenance, ReadinessEffect, StatementResult, StatementState
 from reporter.text_utils import strip_todo_prefix, substitute_source
+from utils import llm_evidence
 from utils.llm_sanitize import wrap_untrusted
+
+# Reporter items whose judgement depends on one specific adapter field in
+# full, rather than the default truncated preview (mirrors
+# checks/llm_eval.py's _FULL_CONTENT_FIELDS_BY_CHECK for the reviewer role).
+# Without this, a large, low-priority field (e.g. packaging-source's
+# crypto_pattern_hits, which can contain raw multi-KB grep matches from
+# minified files) can crowd these fields out of the LLM's view entirely.
+_FULL_CONTENT_FIELDS_BY_ITEM: dict[str, set[str]] = {
+    "REP-QA-TEST-004": {"debian_tests_control", "debian_rules"},
+    "REP-QA-PKG-004": {"debian_rules"},
+    "REP-STD-001": {"debian_control"},
+}
 
 
 def evaluate_ai_item(item: dict, ctx, wizard, fallback_question) -> StatementResult:
@@ -17,14 +30,19 @@ def evaluate_ai_item(item: dict, ctx, wizard, fallback_question) -> StatementRes
     if not getattr(ctx, "llm_token", "") or getattr(ctx, "no_llm", False):
         return _ask_human(item, ctx, wizard, fallback_question)
 
+    keep_full_fields = _FULL_CONTENT_FIELDS_BY_ITEM.get(item["id"], set())
     evidence = {
-        adapter_id: ctx.evidence.get("adapters", {}).get(adapter_id, {})
+        adapter_id: llm_evidence.truncate_adapter_data(
+            ctx.evidence.get("adapters", {}).get(adapter_id, {}),
+            adapter_id=adapter_id,
+            keep_full_fields=keep_full_fields,
+        )
         for adapter_id in [
             *item.get("adapters_required", []),
             *item.get("adapters_optional", []),
         ]
     }
-    bounded = json.dumps(evidence, default=str, sort_keys=True)[:30000]
+    bounded = json.dumps(evidence, default=str, sort_keys=True)
     wrapped = wrap_untrusted(
         f"reporter-evidence:{item['id']}",
         bounded,

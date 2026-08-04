@@ -2345,3 +2345,52 @@ omitted from the draft entirely, matching "no gaps, no statement needed."
 **Validation from `tools/auto-mir`:** `make test` PASS (616 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: shared, field-priority-aware evidence truncation (P8)
+
+**Promotion:** no
+
+**Context:** root-caused a concrete bad-suggestion bug in the reporter's
+`ev_to_ai` flow. `reporter/ai.py`'s `evaluate_ai_item` built its evidence
+payload by dumping each required/optional adapter's **entire** dict wholesale
+via `json.dumps(evidence, default=str, sort_keys=True)[:30000]` — one flat
+character cutoff over alphabetically-sorted keys. In a real rust-ntpd run,
+`packaging-source.crypto_pattern_hits` contained raw, multi-KB grep matches
+from minified SVG files, and alphabetically `crypto_pattern_hits` sorts
+before `debian_control`/`debian_rules`/`debian_tests_control` — so on a
+large package those small, decision-critical fields could be pushed out of
+the 30000-char budget entirely before the LLM ever saw them. This directly
+explained an observed bad suggestion for REP-QA-PKG-004 that literally cited
+"the provided snippet is an SVG diagram" instead of `debian/rules` content.
+The reviewer pipeline (`checks/llm_eval.py`) already solved this correctly
+with per-field, priority-aware truncation (`_truncate_adapter_data` +
+`_FULL_CONTENT_FIELDS_BY_CHECK`) — re-inventing a second, worse strategy in
+the reporter would have been duplicative and left this class of bug
+unfixed there.
+
+**Decision:**
+- Extracted `_truncate_adapter_data` (renamed `truncate_adapter_data`),
+  `_reduce_file_listing`, `_summarise_build_log`, `_line_slice`, and their
+  private path-prefix helpers out of `checks/llm_eval.py` into a new shared
+  `utils/llm_evidence.py`, parameterized by a caller-supplied
+  `keep_full_fields: set[str]`. Behavior is unchanged for the reviewer role
+  (`checks/llm_eval.py` now just imports and calls the shared functions);
+  the two directly-affected unit tests moved from `tests/test_checks.py` to
+  a new `tests/test_utils_llm_evidence.py`, which also gained broader
+  coverage (full-field capping, list truncation, nested dicts, and a direct
+  regression test proving a large low-priority field can no longer starve a
+  small `keep_full_fields` one).
+- `reporter/ai.py`'s `evaluate_ai_item` now truncates each adapter's evidence
+  individually via the shared `truncate_adapter_data` (mirroring how
+  `checks/llm_eval.py._build_evidence_payload` already did it) instead of one
+  flat post-serialization cutoff, and the flat `[:30000]` cutoff is removed
+  entirely — per-field truncation now does the real bounding, so a second,
+  blunter cutoff on top would just reintroduce the same class of risk. New
+  reporter-side `_FULL_CONTENT_FIELDS_BY_ITEM` mapping (mirroring the
+  reviewer's `_FULL_CONTENT_FIELDS_BY_CHECK`), seeded with
+  `REP-QA-TEST-004: {debian_tests_control, debian_rules}`,
+  `REP-QA-PKG-004: {debian_rules}`, `REP-STD-001: {debian_control}`.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (628 passed,
+3 skipped). `tests/check_parity_baseline.py` still exits 0 (advisory mode;
+fixture directories remain absent in this environment).
+

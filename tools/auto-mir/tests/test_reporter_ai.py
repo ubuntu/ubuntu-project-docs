@@ -145,3 +145,45 @@ def test_edited_ai_suggestion_keeps_ai_confirmed_provenance(monkeypatch):
     assert result.human_confirmed is True
     assert result.statement == "Original suggestion, plus a reporter addendum."
     assert result.rationale == "Because of the evidence."
+
+
+def test_evidence_payload_keeps_full_content_field_from_being_crowded_out(monkeypatch):
+    """A large, low-priority field must never crowd out a field the item
+    needs in full (regression test for the flat 30000-char cutoff bug)."""
+    captured_prompts = []
+
+    def _capture_call_llm(prompt, *_args, **_kwargs):
+        captured_prompts.append(prompt)
+        return {"suggestion": "x", "rationale": "y", "evidence_refs": []}
+
+    monkeypatch.setattr(ai.llm, "call_llm", _capture_call_llm)
+    item = {
+        "id": "REP-QA-PKG-004",
+        "section": "Quality assurance - packaging",
+        "mode": "ev_to_ai",
+        "readiness": "warning",
+        "template": "TODO: - Assessment: TBD",
+        "ai_policy": "Assess packaging complexity.",
+        "adapters_required": ["packaging-source"],
+    }
+    ctx = SimpleNamespace(
+        llm_token="token",
+        no_llm=False,
+        untrusted_nonce="nonce",
+        source_package="libfoo",
+        evidence={
+            "adapters": {
+                "packaging-source": {
+                    "status": "ok",
+                    "crypto_pattern_hits": ["x" * 5000, "y" * 5000, "z" * 5000],
+                    "debian_rules": "small but important debian/rules content",
+                }
+            }
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    ai.evaluate_ai_item(item, ctx, wizard, _fallback_question())
+
+    assert len(captured_prompts) == 1
+    assert "small but important debian/rules content" in captured_prompts[0]
