@@ -50,6 +50,7 @@ class QuestionOption:
     label: str
     statement: str = ""
     exclusive: bool = False
+    leads_to_followup: bool = False
 
     def __post_init__(self) -> None:
         if not self.id.strip():

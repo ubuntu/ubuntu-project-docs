@@ -151,6 +151,8 @@ def _question_from_item(item: dict, ctx) -> QuestionSpec:
             for option, raw_option in zip(options, raw_options, strict=True)
         ]
     options.extend(dynamic)
+    if kind in {QuestionKind.SINGLE_CHOICE, QuestionKind.MULTI_CHOICE}:
+        options = _mark_followup_options(options, item["id"], ctx)
     return QuestionSpec(
         id=item["id"],
         prompt=str(definition["prompt"]),
@@ -233,6 +235,76 @@ def _spell_out_option(
     return QuestionOption(
         option.id, option.label + suffix, option.statement + suffix, option.exclusive
     )
+
+
+def _mark_followup_options(
+    options: list[QuestionOption], item_id: str, ctx
+) -> list[QuestionOption]:
+    """Flag options whose selection leads to a follow-up question.
+
+    Purely derived from other catalog items' existing ``applicability``
+    blocks (already used to gate conditional items), so a hint can be shown
+    before the reporter picks an option without any new catalog authoring,
+    and stays correct automatically as applicability-linked items are added,
+    removed, or changed.
+    """
+    always, specific = _followup_trigger_values(item_id, ctx)
+    if not always and not specific:
+        return options
+    return [
+        QuestionOption(
+            option.id,
+            option.label,
+            option.statement,
+            option.exclusive,
+            leads_to_followup=always or option.id in specific,
+        )
+        for option in options
+    ]
+
+
+def _followup_trigger_values(item_id: str, ctx) -> tuple[bool, set[str]]:
+    """Return (always, specific_ids) describing which answers to ``item_id``
+    cause another catalog item to become applicable."""
+    always = False
+    specific: set[str] = set()
+    for other in ctx.catalog.get("items", []):
+        if other.get("id") == item_id:
+            continue
+        found_always, found_values = _condition_triggers(other.get("applicability"), item_id)
+        always = always or found_always
+        specific.update(found_values)
+    return always, specific
+
+
+def _condition_triggers(condition: Any, item_id: str) -> tuple[bool, set[str]]:
+    """Return whether/which answers to ``item_id`` satisfy one applicability condition.
+
+    Negated conditions (``not``) are not represented as a positive hint,
+    since "this triggers unless a specific answer is picked" doesn't map to
+    a single triggering option.
+    """
+    if not isinstance(condition, dict):
+        return False, set()
+    if "all" in condition:
+        children = [_condition_triggers(child, item_id) for child in condition["all"]]
+    elif "any" in condition:
+        children = [_condition_triggers(child, item_id) for child in condition["any"]]
+    elif condition.get("item") == item_id:
+        if condition.get("truthy") is True:
+            return True, set()
+        if "equals" in condition:
+            return False, {str(condition["equals"])}
+        if "in" in condition:
+            return False, {str(value) for value in condition["in"]}
+        return False, set()
+    else:
+        return False, set()
+    always = any(found_always for found_always, _ in children)
+    specific: set[str] = set()
+    for _, found_values in children:
+        specific.update(found_values)
+    return always, specific
 
 
 def _show_preface(item: dict, ctx, wizard: TerminalWizard) -> None:

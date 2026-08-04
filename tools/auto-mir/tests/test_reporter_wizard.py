@@ -379,6 +379,25 @@ def test_option_statements_are_echoed_next_to_labels():
     assert any("recorded as: The package does A." in line for line in output)
 
 
+def test_option_with_followup_shows_hint():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader(["1"]), write_line=output.append)
+    question = QuestionSpec(
+        id="REP-Z",
+        prompt="Choose",
+        kind=QuestionKind.SINGLE_CHOICE,
+        options=(
+            QuestionOption("a", "Option A", "The package does A.", leads_to_followup=True),
+            QuestionOption("b", "Option B", "The package does B."),
+        ),
+    )
+
+    wizard.ask(question)
+
+    hint_lines = [line for line in output if "will ask for more detail next" in line]
+    assert len(hint_lines) == 1
+
+
 def test_show_note_prints_evidence_derived_context():
     output: list[str] = []
     wizard = TerminalWizard(read_line=_reader([]), write_line=output.append)

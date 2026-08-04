@@ -220,6 +220,8 @@ class TerminalWizard:
             self._write_line(f"  {index}. {option.label}{marker} [{option.id}]")
             if option.statement:
                 self._write_line(f"       recorded as: {option.statement}")
+            if option.leads_to_followup:
+                self._write_line("       (selecting this will ask for more detail next)")
         if question.kind == QuestionKind.MULTI_CHOICE:
             self._write_line(
                 "Select one or more options, separated by commas. Shortcut options "

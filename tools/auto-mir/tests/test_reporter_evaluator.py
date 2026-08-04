@@ -127,7 +127,9 @@ def test_substitute_source_keeps_bare_name_inside_launchpad_source_url():
 
 
 def test_question_from_item_substitutes_tbdsrc_in_option_label_and_statement():
-    ctx = SimpleNamespace(source_package="rust-ntpd", evidence={"adapters": {}})
+    ctx = SimpleNamespace(
+        source_package="rust-ntpd", evidence={"adapters": {}}, catalog={"items": []}
+    )
     item = {
         "id": "REP-RATIONALE-005",
         "question": {
@@ -166,6 +168,7 @@ def test_unavailable_substitutes_tbdsrc_in_template():
 def test_question_from_item_spells_out_all_binaries_shortcut():
     ctx = SimpleNamespace(
         source_package="rust-ntpd",
+        catalog={"items": []},
         evidence={
             "adapters": {
                 "dep-analysis": {
@@ -213,3 +216,83 @@ def test_question_from_item_spells_out_all_binaries_shortcut():
         "All binary packages except -dev, -doc, and -dbg(sym) packages: ntpd-rs, ntpd-rs-metrics"
     )
     assert filtered_option.statement.endswith(": ntpd-rs, ntpd-rs-metrics")
+
+
+def test_question_from_item_marks_option_with_equals_followup():
+    ctx = SimpleNamespace(
+        source_package="rust-ntpd",
+        evidence={"adapters": {}},
+        catalog={
+            "items": [
+                {
+                    "id": "REP-RATIONALE-006",
+                    "applicability": {"item": "REP-RATIONALE-005", "equals": "niche"},
+                }
+            ]
+        },
+    )
+    item = {
+        "id": "REP-RATIONALE-005",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Broad or niche?",
+            "options": [
+                {"id": "broad", "label": "Broad", "statement": "Broadly useful."},
+                {"id": "niche", "label": "Niche", "statement": "Serves a niche."},
+            ],
+        },
+    }
+
+    question = _question_from_item(item, ctx)
+
+    by_id = {option.id: option for option in question.options}
+    assert by_id["niche"].leads_to_followup is True
+    assert by_id["broad"].leads_to_followup is False
+
+
+def test_question_from_item_marks_all_options_followup_for_truthy_condition():
+    ctx = SimpleNamespace(
+        source_package="rust-ntpd",
+        evidence={"adapters": {}},
+        catalog={
+            "items": [
+                {
+                    "id": "REP-QA-TEST-006",
+                    "applicability": {"item": "REP-QA-TEST-005", "truthy": True},
+                }
+            ]
+        },
+    )
+    item = {
+        "id": "REP-QA-TEST-005",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "How can this be tested?",
+            "options": [
+                {"id": "A-team-hardware", "label": "Team hardware", "statement": "x"},
+                {"id": "X-exhausted", "label": "Exhausted", "statement": "y"},
+            ],
+        },
+    }
+
+    question = _question_from_item(item, ctx)
+
+    assert all(option.leads_to_followup for option in question.options)
+
+
+def test_question_from_item_no_hint_when_no_downstream_item_references_it():
+    ctx = SimpleNamespace(
+        source_package="rust-ntpd", evidence={"adapters": {}}, catalog={"items": []}
+    )
+    item = {
+        "id": "REP-MAINT-006",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Will this affect other teams?",
+            "options": [{"id": "no-impact", "label": "No impact", "statement": "x"}],
+        },
+    }
+
+    question = _question_from_item(item, ctx)
+
+    assert question.options[0].leads_to_followup is False

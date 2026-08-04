@@ -2270,3 +2270,33 @@ concrete packages they resolve to.
 **Validation from `tools/auto-mir`:** `make test` PASS (609 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: follow-up-question hints for choice options (P5)
+
+**Promotion:** no
+
+**Context:** several reporter choice questions have a conditional follow-up
+item (e.g. REP-RATIONALE-007's deadline yes/no leads to REP-RATIONALE-008
+asking for the deadline details; REP-QA-TEST-005's access mechanism leads to
+REP-QA-TEST-006 asking for the test plan). A reporter picking an option had
+no way to know in advance that doing so would prompt for more detail next,
+risking them second-guessing an otherwise-fine choice.
+
+**Decision:** derive this purely from the catalog's existing `applicability`
+declarations rather than adding new per-item authoring. `_question_from_item`
+now calls `_mark_followup_options`, which scans every other catalog item's
+`applicability` block for a direct reference to the current item
+(`{item: ..., equals: ...}`, `{item: ..., in: [...]}`, or `{item: ...,
+truthy: true}`, including inside `all`/`any` wrappers) and flags the
+matching option(s) via a new `QuestionOption.leads_to_followup: bool` field.
+`reporter/wizard.py`'s `_render_options` prints "(selecting this will ask for
+more detail next)" under any flagged option. Negated (`not`) conditions are
+not represented as a positive hint (there is no single triggering option to
+point at). This keeps working automatically as applicability-linked items
+are added, removed, or changed — no catalog changes were needed to enable it
+for the five existing pairs (REP-RATIONALE-005/006, 007/008,
+REP-STD-002/002B, REP-MAINT-001/001B, REP-DEP-002/003) or the
+REP-QA-MAINT-004 -> REP-QA-TEST-005 -> REP-QA-TEST-006 chain.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (613 passed,
+3 skipped).
+
