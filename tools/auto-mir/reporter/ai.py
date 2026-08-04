@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import json
-import re
 from typing import Any
 
 import llm
 from reporter.models import Provenance, ReadinessEffect, StatementResult, StatementState
+from reporter.text_utils import strip_todo_prefix, substitute_source
 from utils.llm_sanitize import wrap_untrusted
 
 
@@ -100,11 +100,11 @@ def _ask_human(item: dict, ctx, wizard, question) -> StatementResult:
             state=StatementState.NOT_APPLICABLE,
             readiness=ReadinessEffect.CLEAR,
         )
-    template = str(item["template"]).replace("TBDSRC", ctx.source_package)
+    template = substitute_source(str(item["template"]), ctx.source_package)
     statement = (
-        _strip_todo_prefix(template.replace("TBD", str(answer.value), 1))
+        strip_todo_prefix(template.replace("TBD", str(answer.value), 1))
         if "TBD" in template
-        else f"{_strip_todo_prefix(template)} {answer.value}".strip()
+        else f"{strip_todo_prefix(template)} {answer.value}".strip()
     )
     return StatementResult(
         id=item["id"],
@@ -116,7 +116,3 @@ def _ask_human(item: dict, ctx, wizard, question) -> StatementResult:
         answer_refs=[answer.question_id],
         human_confirmed=True,
     )
-
-
-def _strip_todo_prefix(text: str) -> str:
-    return re.sub(r"^TODO(?:-[A-Z0-9/-]+)?:\s*", "", text).strip()

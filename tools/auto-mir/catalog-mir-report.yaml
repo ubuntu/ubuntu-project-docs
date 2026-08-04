@@ -215,10 +215,12 @@ items:
       label: All binary packages built by this source
       statement: All binary packages built by TBDSRC need to be in main.
       exclusive: true
+      spell_out_filter: all
     - id: __all_except_dev_doc_dbg__
       label: All binary packages except -dev, -doc, and -dbg(sym) packages
       statement: All binary packages built by TBDSRC, except -dev, -doc, and debug-symbol packages, need to be in main.
       exclusive: true
+      spell_out_filter: exclude_dev_doc_dbg
     options_source:
       adapter: dep-analysis
       field: binary_packages

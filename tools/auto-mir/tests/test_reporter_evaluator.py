@@ -12,7 +12,10 @@ from reporter.evaluator import (  # noqa: E402
     _human_statement,
     _maybe_write_evidence,
     _question_from_item,
+    _unavailable,
 )
+from reporter.models import ReadinessEffect  # noqa: E402
+from reporter.text_utils import substitute_source  # noqa: E402
 
 
 def test_human_statement_substitutes_same_as_source_case_insensitively():
@@ -89,7 +92,10 @@ def test_dynamic_default_returns_none_when_field_empty_or_missing():
 
 
 def test_question_from_item_uses_dynamic_default_when_no_static_default():
-    ctx = SimpleNamespace(evidence={"adapters": {"upstream-tracker": {"upstream_name": "ntpd-rs"}}})
+    ctx = SimpleNamespace(
+        source_package="rust-ntpd",
+        evidence={"adapters": {"upstream-tracker": {"upstream_name": "ntpd-rs"}}},
+    )
     item = {
         "id": "REP-BG-002",
         "question": {
@@ -102,3 +108,108 @@ def test_question_from_item_uses_dynamic_default_when_no_static_default():
     question = _question_from_item(item, ctx)
 
     assert question.default == "ntpd-rs"
+
+
+def test_substitute_source_uses_src_prefix_in_prose():
+    assert (
+        substitute_source("The package TBDSRC is required in main.", "rust-ntpd")
+        == "The package src:rust-ntpd is required in main."
+    )
+
+
+def test_substitute_source_keeps_bare_name_inside_launchpad_source_url():
+    text = "TODO: Link to package https://launchpad.net/ubuntu/+source/TBDSRC"
+
+    assert (
+        substitute_source(text, "rust-ntpd")
+        == "TODO: Link to package https://launchpad.net/ubuntu/+source/rust-ntpd"
+    )
+
+
+def test_question_from_item_substitutes_tbdsrc_in_option_label_and_statement():
+    ctx = SimpleNamespace(source_package="rust-ntpd", evidence={"adapters": {}})
+    item = {
+        "id": "REP-RATIONALE-005",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Broad or niche?",
+            "options": [
+                {
+                    "id": "broad",
+                    "label": "Broadly useful for TBDSRC",
+                    "statement": "The package TBDSRC will generally be useful.",
+                }
+            ],
+        },
+    }
+
+    question = _question_from_item(item, ctx)
+
+    assert question.options[0].label == "Broadly useful for src:rust-ntpd"
+    assert question.options[0].statement == "The package src:rust-ntpd will generally be useful."
+
+
+def test_unavailable_substitutes_tbdsrc_in_template():
+    item = {
+        "id": "REP-BG-003",
+        "section": "Background information",
+        "template": "TODO: Link to package https://launchpad.net/ubuntu/+source/TBDSRC",
+    }
+
+    result = _unavailable(item, ReadinessEffect.WARNING, "no data", "rust-ntpd")
+
+    assert result.statement == (
+        "TODO: Link to package https://launchpad.net/ubuntu/+source/rust-ntpd"
+    )
+
+
+def test_question_from_item_spells_out_all_binaries_shortcut():
+    ctx = SimpleNamespace(
+        source_package="rust-ntpd",
+        evidence={
+            "adapters": {
+                "dep-analysis": {
+                    "binary_packages": ["librust-ntpd-dev", "ntpd-rs", "ntpd-rs-metrics"]
+                }
+            }
+        },
+    )
+    item = {
+        "id": "REP-RATIONALE-004",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Which binary packages need promotion to main?",
+            "options": [
+                {
+                    "id": "__all_binaries__",
+                    "label": "All binary packages built by this source",
+                    "statement": "All binary packages built by TBDSRC need to be in main.",
+                    "exclusive": True,
+                    "spell_out_filter": "all",
+                },
+                {
+                    "id": "__all_except_dev_doc_dbg__",
+                    "label": "All binary packages except -dev, -doc, and -dbg(sym) packages",
+                    "statement": (
+                        "All binary packages built by TBDSRC, except -dev, -doc, and "
+                        "debug-symbol packages, need to be in main."
+                    ),
+                    "exclusive": True,
+                    "spell_out_filter": "exclude_dev_doc_dbg",
+                },
+            ],
+            "options_source": {"adapter": "dep-analysis", "field": "binary_packages"},
+        },
+    }
+
+    question = _question_from_item(item, ctx)
+
+    all_option = question.options[0]
+    filtered_option = question.options[1]
+    assert all_option.label == (
+        "All binary packages built by this source: librust-ntpd-dev, ntpd-rs, ntpd-rs-metrics"
+    )
+    assert filtered_option.label == (
+        "All binary packages except -dev, -doc, and -dbg(sym) packages: ntpd-rs, ntpd-rs-metrics"
+    )
+    assert filtered_option.statement.endswith(": ntpd-rs, ntpd-rs-metrics")

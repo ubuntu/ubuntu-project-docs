@@ -236,6 +236,14 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                     errors.append(
                         f"reporter item {item_id} option {option_id} exclusive must be a bool"
                     )
+                if "spell_out_filter" in option and option["spell_out_filter"] not in {
+                    "all",
+                    "exclude_dev_doc_dbg",
+                }:
+                    errors.append(
+                        f"reporter item {item_id} option {option_id} spell_out_filter must be "
+                        "'all' or 'exclude_dev_doc_dbg'"
+                    )
         options_source = question.get("options_source") if isinstance(question, dict) else None
         _validate_adapter_field_ref(item_id, "options_source", options_source, adapter_ids, errors)
         default_source = question.get("default_source") if isinstance(question, dict) else None

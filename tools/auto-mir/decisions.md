@@ -2230,3 +2230,43 @@ revision at a bare `| ` prompt with no way to see or edit earlier lines).
 **Validation from `tools/auto-mir`:** `make test` PASS (604 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: TBDSRC substitution and shortcut package spelling (P4)
+
+**Promotion:** no
+
+**Context:** `_question_from_item` (`reporter/evaluator.py`) built
+`QuestionOption` objects directly from raw catalog `label`/`statement`
+strings with no `TBDSRC` substitution at all — substitution only happened
+later, in `_human_statement`, after the option had already been shown to the
+reporter containing the literal placeholder (confirmed in a real
+transcript: `"1. All binary packages built by this source (shortcut)
+[__all_binaries__] recorded as: All binary packages built by TBDSRC need to
+be in main."`). `_unavailable()` never substituted at all. Separately, the
+shortcut options for binary promotion scope give no indication of which
+concrete packages they resolve to.
+
+**Decision:**
+- New `reporter/text_utils.py` module (shared between `reporter/evaluator.py`
+  and `reporter/ai.py`, which cannot import from each other):
+  `strip_todo_prefix` (moved verbatim from both files, which had duplicated
+  it identically) and new `substitute_source(text, source_package)`.
+  `substitute_source` replaces `TBDSRC` with `src:<pkg>` in prose (matching
+  how source packages are conventionally referenced when disambiguating from
+  binary package names in the same sentence), except inside a literal
+  Launchpad `/+source/` or `/source/` URL path segment, where the bare
+  package name is kept so the URL stays valid.
+- Applied everywhere `TBDSRC` is substituted: `_question_from_item` (option
+  label/statement, before they are ever shown), `_human_statement`,
+  `ai.py::_ask_human`, and `_unavailable` (which previously did not
+  substitute at all).
+- New declarative per-option catalog field `spell_out_filter: all |
+  exclude_dev_doc_dbg` (not hardcoded to any specific item). When an option
+  is backed by `options_source` (e.g. REP-RATIONALE-004's binary-package
+  shortcuts), `_spell_out_option` appends the concrete resolved package list
+  to both the option's label and its statement, e.g. "All binary packages
+  built by this source" becomes "...: librust-ntpd-dev, ntpd-rs,
+  ntpd-rs-metrics". Validated in `catalog.py`.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (609 passed,
+3 skipped).
+

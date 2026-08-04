@@ -18,6 +18,7 @@ from reporter.models import (
     StatementResult,
     StatementState,
 )
+from reporter.text_utils import strip_todo_prefix, substitute_source
 from reporter.wizard import TerminalWizard
 
 Evaluator = Callable[[dict, Any], tuple[str | None, list[str], str]]
@@ -100,12 +101,16 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
 
         evaluator = _EVALUATORS.get(str(item.get("evaluator", "")))
         if evaluator is None:
-            results.append(_unavailable(item, readiness, "deterministic evaluator unavailable"))
+            results.append(
+                _unavailable(
+                    item, readiness, "deterministic evaluator unavailable", ctx.source_package
+                )
+            )
             item_values[item["id"]] = None
             continue
         statement, evidence_refs, rationale = evaluator(item, ctx)
         if statement is None:
-            results.append(_unavailable(item, readiness, rationale))
+            results.append(_unavailable(item, readiness, rationale, ctx.source_package))
             item_values[item["id"]] = None
             continue
         results.append(
@@ -127,16 +132,25 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
 def _question_from_item(item: dict, ctx) -> QuestionSpec:
     definition = item["question"]
     kind = QuestionKind(definition["kind"])
+    source_package = ctx.source_package
+    raw_options = definition.get("options", [])
     options = [
         QuestionOption(
             str(option["id"]),
-            str(option["label"]),
-            str(option.get("statement", "")),
+            substitute_source(str(option["label"]), source_package),
+            substitute_source(str(option.get("statement", "")), source_package),
             bool(option.get("exclusive", False)),
         )
-        for option in definition.get("options", [])
+        for option in raw_options
     ]
-    options.extend(_dynamic_options(definition.get("options_source"), ctx, existing=options))
+    dynamic = _dynamic_options(definition.get("options_source"), ctx, existing=options)
+    if dynamic:
+        known_packages = [option.id for option in dynamic]
+        options = [
+            _spell_out_option(option, raw_option, known_packages)
+            for option, raw_option in zip(options, raw_options, strict=True)
+        ]
+    options.extend(dynamic)
     return QuestionSpec(
         id=item["id"],
         prompt=str(definition["prompt"]),
@@ -193,6 +207,34 @@ def _dynamic_options(
     return dynamic
 
 
+_DEV_DOC_DBG_SUFFIX_PATTERN = re.compile(r"-(dev|doc|dbg|dbgsym)$")
+
+
+def _spell_out_option(
+    option: QuestionOption, raw_option: dict, known_packages: list[str]
+) -> QuestionOption:
+    """Append the concrete package list a shortcut option resolves to.
+
+    So "All binary packages built by this source" becomes "...: pkg1, pkg2,
+    pkg3" instead of leaving the reporter to guess what the shortcut actually
+    covers. ``spell_out_filter`` is a small catalog-declared vocabulary
+    (``all`` or ``exclude_dev_doc_dbg``), not hardcoded to any specific item.
+    """
+    spell_out_filter = raw_option.get("spell_out_filter")
+    if spell_out_filter == "all":
+        selected = known_packages
+    elif spell_out_filter == "exclude_dev_doc_dbg":
+        selected = [name for name in known_packages if not _DEV_DOC_DBG_SUFFIX_PATTERN.search(name)]
+    else:
+        return option
+    if not selected:
+        return option
+    suffix = ": " + ", ".join(selected)
+    return QuestionOption(
+        option.id, option.label + suffix, option.statement + suffix, option.exclusive
+    )
+
+
 def _show_preface(item: dict, ctx, wizard: TerminalWizard) -> None:
     """Surface one deterministic-evidence note ahead of a human/AI question.
 
@@ -212,11 +254,11 @@ def _show_preface(item: dict, ctx, wizard: TerminalWizard) -> None:
 
 
 def _human_statement(item: dict, answer: Any, source_package: str) -> str:
-    template = str(item["template"]).replace("TBDSRC", source_package)
+    template = substitute_source(str(item["template"]), source_package)
     options = item.get("question", {}).get("options", [])
     selected = answer if isinstance(answer, list) else [answer]
     option_statements = [
-        str(option.get("statement", "")).replace("TBDSRC", source_package)
+        substitute_source(str(option.get("statement", "")), source_package)
         for option in options
         if option.get("id") in selected and option.get("statement")
     ]
@@ -228,8 +270,8 @@ def _human_statement(item: dict, answer: Any, source_package: str) -> str:
     if answer_text.strip().casefold() == "same as source":
         answer_text = source_package
     if "TBD" in template:
-        return _strip_todo_prefix(template.replace("TBD", answer_text, 1))
-    return f"{_strip_todo_prefix(template)} {answer_text}".strip()
+        return strip_todo_prefix(template.replace("TBD", answer_text, 1))
+    return f"{strip_todo_prefix(template)} {answer_text}".strip()
 
 
 _URL_ANSWER_PATTERN = re.compile(r"^https?://\S+$")
@@ -261,17 +303,15 @@ def _maybe_write_evidence(item: dict, ctx, answer_value: Any) -> None:
     adapter_data[field] = candidate
 
 
-def _strip_todo_prefix(text: str) -> str:
-    return re.sub(r"^TODO(?:-[A-Z0-9/-]+)?:\s*", "", text).strip()
-
-
-def _unavailable(item: dict, readiness: ReadinessEffect, rationale: str) -> StatementResult:
+def _unavailable(
+    item: dict, readiness: ReadinessEffect, rationale: str, source_package: str
+) -> StatementResult:
     return StatementResult(
         id=item["id"],
         section=item["section"],
         state=StatementState.UNAVAILABLE,
         readiness=readiness,
-        statement=str(item["template"]),
+        statement=substitute_source(str(item["template"]), source_package),
         rationale=rationale,
     )
 
