@@ -57,18 +57,38 @@ Policy:
 Evidence:
 {wrapped}
 
+You must commit to a confidence tier instead of hedging within the statement itself.
+- "high": the evidence lets you state one clear, affirmative, hedge-free claim (either a
+  confident good outcome or a confident bad/concerning one - both are "high" confidence,
+  just phrase whichever it is as one definite claim, e.g. "The packaging uses standard
+  dh-cargo tooling with no disabling of tests." or "The packaging is quite complex, ...").
+  Never use hedging language such as "appears to", "seems", "may be", "likely",
+  "possibly", "unclear", or "in the limited ... provided" in a high-confidence statement.
+- "low": the evidence is genuinely insufficient or inconclusive to state a claim either
+  way. Do not fill "statement" in this case; only explain why in "rationale" so the
+  reporter can resolve it themselves.
+
 Return exactly one JSON object:
 {{
-  "suggestion": "one concise reporter-facing factual assessment",
-  "rationale": "why the evidence supports it, including uncertainty",
+  "confidence": "high" or "low",
+  "statement": "one concise, affirmative, hedge-free claim (required only when confidence is high)",
+  "rationale": "why the evidence supports it, or (when low) what is missing/inconclusive",
   "evidence_refs": ["adapter:field"]
 }}
 """
     try:
         response = llm.call_llm(prompt, ctx, model_tier="small", trace_label=item["id"])
-        suggestion, rationale, refs = _validate_response(response, item)
+        confidence, suggestion, rationale, refs = _validate_response(response, item)
     except llm.LLMError:
         return _ask_human(item, ctx, wizard, fallback_question)
+
+    if confidence == "low":
+        wizard.show_note(
+            f'The tool could not confidently assess "{item.get("title", item["id"])}" '
+            "from the available evidence.",
+            rationale,
+        )
+        return _ask_human(item, ctx, wizard, fallback_question, rationale=rationale)
 
     confirmation = wizard.confirm_suggestion(
         question_id=f"{item['id']}-confirm",
@@ -94,22 +114,68 @@ Return exactly one JSON object:
     return _ask_human(item, ctx, wizard, fallback_question)
 
 
-def _validate_response(response: dict[str, Any], item: dict) -> tuple[str, str, list[str]]:
+_HEDGE_PHRASES = (
+    "appears to",
+    "appears that",
+    "appear to",
+    "seems to",
+    "seems that",
+    "seem to",
+    "may be",
+    "might be",
+    "likely",
+    "possibly",
+    "unclear",
+    "not entirely clear",
+    "in the limited",
+    "it is impossible to determine",
+    "cannot be determined",
+    "hard to say",
+    "difficult to determine",
+)
+
+
+def _contains_hedge_phrase(text: str) -> bool:
+    lowered = text.casefold()
+    return any(phrase in lowered for phrase in _HEDGE_PHRASES)
+
+
+def _validate_response(response: dict[str, Any], item: dict) -> tuple[str, str, str, list[str]]:
+    """Validate the model's response and return (confidence, statement, rationale, refs).
+
+    ``statement`` is empty when ``confidence`` is "low": a low-confidence
+    response supplies only reasoning, never a "final-looking" statement.
+    """
     if not isinstance(response, dict):
         raise llm.LLMError(f"Reporter AI response for {item['id']} is not an object")
-    suggestion = str(response.get("suggestion", "")).strip()
+    confidence = str(response.get("confidence", "")).strip().casefold()
+    if confidence not in {"high", "low"}:
+        raise llm.LLMError(f"Reporter AI response for {item['id']} has invalid confidence")
     rationale = str(response.get("rationale", "")).strip()
     refs = response.get("evidence_refs", [])
-    if not suggestion or not rationale or not isinstance(refs, list):
+    if not rationale or not isinstance(refs, list):
         raise llm.LLMError(f"Reporter AI response for {item['id']} is incomplete")
-    if len(suggestion) > 1000 or len(rationale) > 3000:
+    if len(rationale) > 3000:
         raise llm.LLMError(f"Reporter AI response for {item['id']} exceeds bounds")
+
+    statement = str(response.get("statement", "")).strip()
+    if confidence == "high":
+        if not statement:
+            raise llm.LLMError(f"Reporter AI response for {item['id']} is missing a statement")
+        if len(statement) > 1000:
+            raise llm.LLMError(f"Reporter AI response for {item['id']} exceeds bounds")
+        if _contains_hedge_phrase(statement):
+            raise llm.LLMError(
+                f"Reporter AI response for {item['id']} used hedge phrasing in a "
+                "high-confidence statement"
+            )
+
     allowed = set(item.get("adapters_required", [])) | set(item.get("adapters_optional", []))
     normalized_refs = [str(ref) for ref in refs if str(ref).split(":", 1)[0] in allowed]
-    return suggestion, rationale, normalized_refs
+    return confidence, statement, rationale, normalized_refs
 
 
-def _ask_human(item: dict, ctx, wizard, question) -> StatementResult:
+def _ask_human(item: dict, ctx, wizard, question, rationale: str = "") -> StatementResult:
     answer = wizard.ask(question)
     if answer is None:
         return StatementResult(
@@ -132,5 +198,6 @@ def _ask_human(item: dict, ctx, wizard, question) -> StatementResult:
         statement=statement,
         provenance=Provenance.HUMAN,
         answer_refs=[answer.question_id],
+        rationale=rationale,
         human_confirmed=True,
     )

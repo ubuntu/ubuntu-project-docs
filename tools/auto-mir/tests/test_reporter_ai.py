@@ -15,6 +15,7 @@ class ConfirmingWizard:
     def __init__(self, accept=True):
         self.accept = accept
         self.questions = []
+        self.notes = []
 
     def confirm_suggestion(self, *, question_id, suggestion, rationale):
         self.questions.append(("confirm", suggestion, rationale))
@@ -25,6 +26,9 @@ class ConfirmingWizard:
         return Answer(
             question_id=question.id, value="human correction", raw_input="human correction"
         )
+
+    def show_note(self, text, detail=""):
+        self.notes.append((text, detail))
 
 
 def _item():
@@ -65,7 +69,8 @@ def test_ai_suggestion_requires_and_records_confirmation(monkeypatch):
         ai.llm,
         "call_llm",
         lambda *_args, **_kwargs: {
-            "suggestion": "The package installs foo.service.",
+            "confidence": "high",
+            "statement": "The package installs foo.service.",
             "rationale": "The binary inspection listed that unit.",
             "evidence_refs": ["binary-package-inspection:systemd_units", "other:ignored"],
         },
@@ -85,7 +90,8 @@ def test_rejected_ai_suggestion_uses_human_correction(monkeypatch):
         ai.llm,
         "call_llm",
         lambda *_args, **_kwargs: {
-            "suggestion": "Suggested text",
+            "confidence": "high",
+            "statement": "Suggested text",
             "rationale": "Evidence rationale",
             "evidence_refs": [],
         },
@@ -132,7 +138,8 @@ def test_edited_ai_suggestion_keeps_ai_confirmed_provenance(monkeypatch):
         ai.llm,
         "call_llm",
         lambda *_args, **_kwargs: {
-            "suggestion": "Original suggestion.",
+            "confidence": "high",
+            "statement": "Original suggestion.",
             "rationale": "Because of the evidence.",
             "evidence_refs": ["binary-package-inspection:systemd_units"],
         },
@@ -154,7 +161,7 @@ def test_evidence_payload_keeps_full_content_field_from_being_crowded_out(monkey
 
     def _capture_call_llm(prompt, *_args, **_kwargs):
         captured_prompts.append(prompt)
-        return {"suggestion": "x", "rationale": "y", "evidence_refs": []}
+        return {"confidence": "high", "statement": "x", "rationale": "y", "evidence_refs": []}
 
     monkeypatch.setattr(ai.llm, "call_llm", _capture_call_llm)
     item = {
@@ -187,3 +194,83 @@ def test_evidence_payload_keeps_full_content_field_from_being_crowded_out(monkey
 
     assert len(captured_prompts) == 1
     assert "small but important debian/rules content" in captured_prompts[0]
+
+
+def test_low_confidence_skips_confirmation_and_asks_human_with_rationale(monkeypatch):
+    """A low-confidence response must never be offered via yes/edit/no as if
+    it were a final statement; it should show the rationale as a note and go
+    straight to the human question."""
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "low",
+            "rationale": "The evidence does not clearly show one way or the other.",
+            "evidence_refs": [],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
+
+    assert not any(entry[0] == "confirm" for entry in wizard.questions)
+    assert wizard.notes
+    assert "does not clearly show" in wizard.notes[0][1]
+    assert result.provenance == Provenance.HUMAN
+    assert result.statement == "- Assessment: human correction"
+    assert result.rationale == "The evidence does not clearly show one way or the other."
+
+
+def test_high_confidence_missing_statement_falls_back_to_human(monkeypatch):
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "rationale": "Some rationale.",
+            "evidence_refs": [],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
+
+    assert result.provenance == Provenance.HUMAN
+    assert not any(entry[0] == "confirm" for entry in wizard.questions)
+
+
+def test_high_confidence_hedge_phrase_rejected_and_falls_back_to_human(monkeypatch):
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "statement": "The packaging appears to use standard tooling.",
+            "rationale": "Some rationale.",
+            "evidence_refs": [],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
+
+    assert result.provenance == Provenance.HUMAN
+    assert not any(entry[0] == "confirm" for entry in wizard.questions)
+
+
+def test_invalid_confidence_value_falls_back_to_human(monkeypatch):
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "medium",
+            "statement": "x",
+            "rationale": "y",
+            "evidence_refs": [],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
+
+    assert result.provenance == Provenance.HUMAN

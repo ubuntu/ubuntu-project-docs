@@ -2394,3 +2394,52 @@ unfixed there.
 3 skipped). `tests/check_parity_baseline.py` still exits 0 (advisory mode;
 fixture directories remain absent in this environment).
 
+## 2026-08-04 — Feedback round 6: AI-suggestion confidence-tier contract (P9)
+
+**Promotion:** no
+
+**Context:** two related, real-transcript-confirmed problems in
+`reporter/ai.py`'s `evaluate_ai_item`: (6) when the model could not actually
+determine an answer, it still returned a "suggestion" that was really a task
+description (e.g. "Confirm whether the deprecated algorithm is actually used
+in ./docs/development/new-dataflow.svg:4 before flagging Security review."),
+offered through the same yes/edit/no flow as a real statement — accepting
+"yes" then baked that task description into the draft as if it were a final,
+affirmative claim. (8) even "confident-looking" suggestions let hedging
+bleed into the statement itself (e.g. "The packaging appears to use standard
+dh-cargo tooling ... in the limited metadata provided"), which is neither
+clearly a fact nor clearly a TODO.
+
+**Decision:** the model must now commit to an explicit tier instead of
+blending confidence into prose:
+```
+{"confidence": "high"|"low", "statement": "...", "rationale": "..."}
+```
+`rationale` is always required; `statement` is required (and length- and
+hedge-phrase-checked) only when `confidence` is `"high"`. `_validate_response`
+rejects (raises `llm.LLMError`, existing fallback path) an invalid
+`confidence` value, a missing/oversized `statement` when high-confidence, or
+a high-confidence `statement` containing hedge markers ("appears to",
+"seems", "may be", "likely", "possibly", "unclear", "in the limited...",
+etc.) via a new `_contains_hedge_phrase` check — a lightweight phrasing
+gate, not a content judgment.
+- `confidence == "high"`: unchanged `confirm_suggestion` yes/edit/no flow.
+  The statement is now guaranteed to be one affirmative claim, whichever way
+  it goes ("The packaging uses standard dh-cargo tooling with no disabling
+  of tests." or "The packaging is quite complex, ...").
+- `confidence == "low"`: `confirm_suggestion` is never called (no more
+  presenting a task description as if it were "the suggested statement").
+  Instead `wizard.show_note()` shows the item's title and the model's
+  rationale, then falls straight to `_ask_human`, which now accepts an
+  optional `rationale` parameter carried into the resulting
+  `StatementResult.rationale` for audit/context even though the final
+  `statement` text is the reporter's own answer. Any validation failure
+  (bad schema, invalid confidence, missing/oversized/hedged statement) also
+  falls back to `_ask_human`, matching the existing LLM-unavailable path.
+- The prompt (`reporter/ai.py`'s inline template) now explicitly describes
+  the two tiers and gives both a "confident-good" and "confident-bad"
+  example, so the model isn't nudged toward always picking "good" outcomes.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (632 passed,
+3 skipped).
+
