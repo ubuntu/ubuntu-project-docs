@@ -273,6 +273,22 @@ def test_ai_suggestion_requires_explicit_confirmation():
     assert any("edit = keep most of it" in line for line in output)
 
 
+def test_ai_suggestion_uses_title_and_indent_for_statement_and_reasoning():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader(["yes"]), write_line=output.append)
+
+    wizard.confirm_suggestion(
+        question_id="REP-CONFIRM",
+        suggestion="No equivalent package in main was identified.",
+        rationale="The candidates provide different functionality.",
+    )
+
+    statement_index = output.index("Suggested statement:")
+    assert output[statement_index + 1] == "    No equivalent package in main was identified."
+    reasoning_index = output.index("Reasoning:")
+    assert output[reasoning_index + 1] == "    The candidates provide different functionality."
+
+
 def test_ai_suggestion_reject_returns_false():
     wizard = TerminalWizard(read_line=_reader(["no"]), write_line=lambda _line: None)
 
@@ -352,6 +368,27 @@ def test_rule_context_and_answer_guidance_are_rendered():
     assert any("recorded verbatim" in line for line in output)
 
 
+def test_rule_context_and_hint_use_title_and_indent():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader(["an answer"]), write_line=output.append)
+    question = QuestionSpec(
+        id="REP-X",
+        prompt="Explain it",
+        kind=QuestionKind.TEXT,
+        rule_context="RULE: packages must justify inclusion.",
+        hint="Keep it concise.",
+    )
+
+    wizard.ask(question)
+
+    assert "Context:" in output
+    context_index = output.index("Context:")
+    assert output[context_index + 1] == "    RULE: packages must justify inclusion."
+    assert "Hint:" in output
+    hint_index = output.index("Hint:")
+    assert output[hint_index + 1] == "    Keep it concise."
+
+
 def test_optional_question_without_explicit_guidance_gets_default_skip_note():
     output: list[str] = []
     wizard = TerminalWizard(read_line=_reader([""]), write_line=output.append)
@@ -404,7 +441,9 @@ def test_show_note_prints_evidence_derived_context():
 
     wizard.show_note("Team foo-bugs is already subscribed.", "Detected via team-mapping.")
 
-    assert any("Note: Team foo-bugs is already subscribed." in line for line in output)
+    assert "Note:" in output
+    assert any("Team foo-bugs is already subscribed." in line for line in output)
+    assert "Reasoning:" in output
     assert any("Detected via team-mapping." in line for line in output)
 
 

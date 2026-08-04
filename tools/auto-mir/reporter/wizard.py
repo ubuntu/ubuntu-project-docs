@@ -38,10 +38,10 @@ class TerminalWizard:
         """Ask until a valid answer is provided, or return None if optional."""
         self._write_line("")
         if question.rule_context:
-            self._write_line(f"Context: {question.rule_context}")
+            self._write_titled_block("Context", question.rule_context)
         self._write_line(question.prompt)
         if question.hint:
-            self._write_line(f"Hint: {question.hint}")
+            self._write_titled_block("Hint", question.hint)
         self._render_answer_guidance(question)
 
         if question.kind == QuestionKind.MULTILINE:
@@ -85,10 +85,9 @@ class TerminalWizard:
         reporter's edited version of the suggested statement.
         """
         self._write_line("")
-        self._write_line("Suggested statement:")
-        self._write_line(suggestion)
+        self._write_titled_block("Suggested statement", suggestion)
         if rationale.strip():
-            self._write_line(f"Reasoning: {rationale.strip()}")
+            self._write_titled_block("Reasoning", rationale.strip())
         self._write_line("")
         self._write_line(
             "Options: yes = use this statement as-is; "
@@ -125,9 +124,20 @@ class TerminalWizard:
         if not text.strip():
             return
         self._write_line("")
-        self._write_line(f"Note: {text.strip()}")
+        self._write_titled_block("Note", text.strip())
         if detail.strip():
-            self._write_line(f"  ({detail.strip()})")
+            self._write_titled_block("Reasoning", detail.strip())
+
+    def _write_titled_block(self, title: str, text: str) -> None:
+        """Print a title line followed by its body, indented underneath.
+
+        Used for Context/Hint/Suggested statement/Reasoning/Note blocks so
+        the label and its content are visually distinct, and multi-line
+        content stays clearly associated with its title.
+        """
+        self._write_line(f"{title}:")
+        for line in text.splitlines() or [text]:
+            self._write_line(f"    {line}")
 
     def _edit_multiline(self, prefill: str, rationale: str = "") -> str:
         comment_lines = ["You are revising the tool's suggested statement below.", ""]

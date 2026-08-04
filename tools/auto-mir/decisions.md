@@ -2300,3 +2300,24 @@ REP-QA-MAINT-004 -> REP-QA-TEST-005 -> REP-QA-TEST-006 chain.
 **Validation from `tools/auto-mir`:** `make test` PASS (613 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: title + indent formatting in the wizard (P6)
+
+**Promotion:** no
+
+**Context:** the wizard's `Context: ...`, `Hint: ...`, `Suggested statement:`
++ text on the next line, `Reasoning: ...`, and `Note: ...` blocks were each
+formatted slightly differently (some `Label: text` on one line, some label
+then unindented text on the next), making it visually ambiguous which lines
+belonged to which label, especially for multi-line content.
+
+**Decision:** purely cosmetic, no information added or removed.
+`reporter/wizard.py` gains a shared `_write_titled_block(title, text)` that
+always prints the title alone on its own line, then every body line indented
+by 4 spaces underneath. Applied to `ask()`'s `Context:`/`Hint:`,
+`confirm_suggestion()`'s `Suggested statement:`/`Reasoning:`, and
+`show_note()`'s note text and detail (which now also reads `Reasoning:`
+instead of an inline parenthetical, for the same visual language).
+
+**Validation from `tools/auto-mir`:** `make test` PASS (615 passed,
+3 skipped).
+
