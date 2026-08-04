@@ -1038,6 +1038,51 @@ def test_upstream_tracker_output_structure():
     assert result["latest_version"] == "2.4.1"
     assert result["recent_releases"][0]["version"] == "2.4.1"
     assert result["upstream_url"] == "https://example.invalid/testpkg"
+    assert result["upstream_name"] == "testpkg"
+
+
+def test_upstream_tracker_no_match_falls_back_to_control_homepage():
+    """No release-monitoring.org match should still surface the package's own
+    debian/control Homepage or debian/watch URL, not fail the adapter."""
+    ctx = Mock()
+    ctx.source_package = "rust-ntpd"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "debian_watch": "",
+                "debian_control": (
+                    "Source: rust-ntpd\nHomepage: https://github.com/pendulum-project/ntpd-rs\n"
+                ),
+            }
+        }
+    }
+
+    with patch("evidence.host_adapters._fetch_json", return_value={"items": []}):
+        from evidence.host_adapters import collect_upstream_tracker
+
+        result = collect_upstream_tracker(ctx)
+
+    assert result["status"] == "ok"
+    assert result["upstream_url"] == "https://github.com/pendulum-project/ntpd-rs"
+    assert result["upstream_name"] == ""
+    assert result["latest_version"] == ""
+
+
+def test_upstream_tracker_no_match_and_no_hints_is_still_ok():
+    """A genuinely undetectable upstream project is a normal empty result, not an error."""
+    ctx = Mock()
+    ctx.source_package = "obscure-pkg"
+    ctx.evidence = {"adapters": {}}
+
+    with patch("evidence.host_adapters._fetch_json", return_value={"items": []}):
+        from evidence.host_adapters import collect_upstream_tracker
+
+        result = collect_upstream_tracker(ctx)
+
+    assert result["status"] == "ok"
+    assert result["upstream_url"] == ""
+    assert result["upstream_name"] == ""
 
 
 def test_upstream_tracker_uses_watch_and_homepage_hints_for_search():

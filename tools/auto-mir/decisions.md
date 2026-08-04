@@ -2125,3 +2125,59 @@ implementation).**
 **Validation from `tools/auto-mir`:** `make test` PASS (573 passed,
 3 skipped). Commit `c0723837`.
 
+## 2026-08-04 — Feedback round 6: guest-preserve UX and upstream-project detection (P1-P2)
+
+**Promotion:** no
+
+**Context:** first two phases of a 15-phase plan responding to real reporter
+and reviewer test runs (`mir-rust-ntpd-*` report run, `mir-2138736-*` review
+run). Full plan lives in session memory, not duplicated here; only the
+concrete decisions are recorded.
+
+**P1 — Only prompt to keep the LXD guest for genuine guest-side failures.**
+- Both test runs hit `teardown_guest`'s "Keep LXD guest for debugging?"
+  prompt purely because `upstream-tracker` and `cvelist-scan` failed — both
+  are host-side adapters (`evidence/host_adapters.py`) that never touch the
+  guest at all. Preserving a multi-GB VM for a host-side lookup miss has no
+  debugging value and contradicts the tool's own memory-usage warning.
+- `stage_collect_evidence` now classifies every failed adapter by its
+  collector function's `__module__` (`evidence.guest_adapters` vs. any
+  host-only module) and records `collection_summary.guest_adapter_failed`.
+  `teardown_guest` only offers the interactive prompt when that is true;
+  host-only failures are destroyed automatically with an explanatory log
+  line. An explicit `--keep-guest` flag always wins, and a missing/old
+  `collection_summary` defaults to the cautious `True` (prompt).
+
+**P2 — Upstream project URL/name auto-detection uses its own already-computed hints.**
+- Traced precisely in the rust-ntpd evidence: `debian/control` already had
+  `Homepage: https://github.com/pendulum-project/ntpd-rs`, and
+  `collect_upstream_tracker` already builds `url_hints` from that Homepage
+  plus `debian/watch` via `_collect_upstream_search_terms` — but discarded
+  them and raised `AdapterError` whenever release-monitoring.org itself had
+  no matching project. "No match found" is a normal, expected outcome for
+  most packages, not an adapter failure; it now returns `status: "ok"` and
+  falls back to `url_hints[0]` when available (still `""` and non-error when
+  truly nothing is known). A release-monitoring.org match now also surfaces
+  the project's own `name` as `upstream_name`.
+- New generic, catalog-declarative mechanism (`reporter/evaluator.py`):
+  `writes_evidence: {adapter, field}` on a `human_only` question backfills an
+  evidence adapter field from the human's raw answer, but only when that
+  field is still empty and the answer looks like a URL (`^https?://\S+$`),
+  and never overwrites an existing value. Used so REP-BG-002 (upstream name,
+  free text) can retroactively fill `upstream-tracker.upstream_url` when the
+  reporter types a URL there and neither release-monitoring.org nor
+  debian/control/watch found one — so REP-BG-003 (upstream link) no longer
+  reports "TBD" right next to an upstream URL the reporter already gave, and
+  the consistency pass stops flagging it as a false contradiction.
+  `default_source: {adapter, field}` mirrors the existing `options_source`
+  pattern to pre-fill a question's default answer from evidence (used to
+  suggest a confidently-detected `upstream_name`). Both validated in
+  `catalog.py` via a shared `_validate_adapter_field_ref` helper (adapter
+  must be a known evidence adapter).
+- Fixed a related bug: REP-BG-002's prompt promises replying `'same as
+  source'` works, but nothing substituted it — `_human_statement` now
+  case-insensitively substitutes the source package name for that phrase.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (590 passed,
+3 skipped).
+

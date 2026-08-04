@@ -76,3 +76,30 @@ def test_report_catalog_validation_rejects_unrendered_item():
     errors = catalog.validate_report_catalog(report)
 
     assert any("blueprint omits items" in error for error in errors)
+
+
+def test_report_catalog_validation_rejects_unknown_writes_evidence_adapter():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    by_id["REP-BG-002"]["writes_evidence"] = {"adapter": "no-such-adapter", "field": "x"}
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "writes_evidence references unknown adapter: no-such-adapter" in error for error in errors
+    )
+
+
+def test_report_catalog_validation_rejects_unknown_default_source_adapter():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    by_id["REP-BG-002"]["question"]["default_source"] = {
+        "adapter": "no-such-adapter",
+        "field": "x",
+    }
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "default_source references unknown adapter: no-such-adapter" in error for error in errors
+    )

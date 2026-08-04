@@ -73,6 +73,7 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
                 )
                 continue
             statement = _human_statement(item, answer.value, ctx.source_package)
+            _maybe_write_evidence(item, ctx, answer.value)
             result = StatementResult(
                 id=item["id"],
                 section=item["section"],
@@ -143,10 +144,28 @@ def _question_from_item(item: dict, ctx) -> QuestionSpec:
         required=bool(item.get("required", True)),
         options=tuple(options),
         hint=str(definition.get("hint", "")),
-        default=definition.get("default"),
+        default=definition.get("default")
+        or _dynamic_default(definition.get("default_source"), ctx),
         rule_context=str(item.get("rule_context", "")),
         answer_guidance=str(item.get("answer_guidance", "")),
     )
+
+
+def _dynamic_default(default_source: dict | None, ctx) -> str | None:
+    """Resolve a question's default answer from an evidence adapter field.
+
+    Used so a confidently-detected value (e.g. an upstream project name found
+    via release-monitoring.org) is offered as a one-keystroke default instead
+    of asking the reporter to retype something the tool already knows.
+    """
+    if not default_source:
+        return None
+    adapter_id = str(default_source["adapter"])
+    field = str(default_source["field"])
+    data = _adapter(ctx, adapter_id)
+    value = data.get(field) if isinstance(data, dict) else None
+    text = str(value).strip() if value else ""
+    return text or None
 
 
 def _dynamic_options(
@@ -206,9 +225,40 @@ def _human_statement(item: dict, answer: Any, source_package: str) -> str:
     answer_text = (
         ", ".join(str(value) for value in answer) if isinstance(answer, list) else str(answer)
     )
+    if answer_text.strip().casefold() == "same as source":
+        answer_text = source_package
     if "TBD" in template:
         return _strip_todo_prefix(template.replace("TBD", answer_text, 1))
     return f"{_strip_todo_prefix(template)} {answer_text}".strip()
+
+
+_URL_ANSWER_PATTERN = re.compile(r"^https?://\S+$")
+
+
+def _maybe_write_evidence(item: dict, ctx, answer_value: Any) -> None:
+    """Backfill an evidence adapter field from a human answer, if declared.
+
+    Lets a later catalog item's deterministic evaluator (e.g. the upstream
+    project link check) benefit from a URL the reporter already typed while
+    answering an earlier, differently-worded question, instead of asking
+    twice or the consistency pass flagging a false contradiction between the
+    two answers.
+    """
+    target = item.get("writes_evidence")
+    if not isinstance(target, dict):
+        return
+    adapter_id = str(target.get("adapter", ""))
+    field = str(target.get("field", ""))
+    if not adapter_id or not field or not isinstance(answer_value, str):
+        return
+    candidate = answer_value.strip()
+    if not _URL_ANSWER_PATTERN.match(candidate):
+        return
+    adapters = ctx.evidence.setdefault("adapters", {})
+    adapter_data = adapters.setdefault(adapter_id, {})
+    if not isinstance(adapter_data, dict) or adapter_data.get(field):
+        return
+    adapter_data[field] = candidate
 
 
 def _strip_todo_prefix(text: str) -> str:

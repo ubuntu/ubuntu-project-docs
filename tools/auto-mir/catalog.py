@@ -237,21 +237,12 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                         f"reporter item {item_id} option {option_id} exclusive must be a bool"
                     )
         options_source = question.get("options_source") if isinstance(question, dict) else None
-        if options_source is not None:
-            valid_source = (
-                isinstance(options_source, dict)
-                and isinstance(options_source.get("adapter"), str)
-                and isinstance(options_source.get("field"), str)
-            )
-            if not valid_source:
-                errors.append(
-                    f"reporter item {item_id} options_source must define adapter and field strings"
-                )
-            elif options_source["adapter"] not in adapter_ids:
-                errors.append(
-                    f"reporter item {item_id} options_source references unknown adapter: "
-                    f"{options_source['adapter']}"
-                )
+        _validate_adapter_field_ref(item_id, "options_source", options_source, adapter_ids, errors)
+        default_source = question.get("default_source") if isinstance(question, dict) else None
+        _validate_adapter_field_ref(item_id, "default_source", default_source, adapter_ids, errors)
+        _validate_adapter_field_ref(
+            item_id, "writes_evidence", item.get("writes_evidence"), adapter_ids, errors
+        )
         if item.get("mode") == "deterministic" and not item.get("evaluator"):
             errors.append(f"deterministic reporter item {item_id} requires an evaluator")
         for adapter_field in ("adapters_required", "adapters_optional"):
@@ -294,6 +285,30 @@ def validate_report_catalog(catalog: dict) -> list[str]:
         )
     errors.extend(validate_condition_cycles(conditions_by_item))
     return errors
+
+
+def _validate_adapter_field_ref(
+    item_id: str, label: str, ref: Any, adapter_ids: set[str], errors: list[str]
+) -> None:
+    """Validate one optional ``{adapter, field}`` evidence reference.
+
+    Shared by ``options_source``, ``default_source``, and ``writes_evidence``,
+    which all point a reporter item at one field of one evidence adapter.
+    """
+    if ref is None:
+        return
+    valid_source = (
+        isinstance(ref, dict)
+        and isinstance(ref.get("adapter"), str)
+        and isinstance(ref.get("field"), str)
+    )
+    if not valid_source:
+        errors.append(f"reporter item {item_id} {label} must define adapter and field strings")
+        return
+    if ref["adapter"] not in adapter_ids:
+        errors.append(
+            f"reporter item {item_id} {label} references unknown adapter: {ref['adapter']}"
+        )
 
 
 # Check-level messages required for migrated checks.

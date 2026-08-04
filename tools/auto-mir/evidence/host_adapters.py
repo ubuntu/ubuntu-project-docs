@@ -1079,6 +1079,11 @@ def collect_upstream_tracker(ctx) -> UpstreamTrackerResult:
 
     This is intentionally heuristic: it starts from the source package name and
     returns the best matching project entry when an exact match is not available.
+    Finding no release-monitoring.org match is a normal, expected outcome for
+    many packages, not an adapter failure: when the package's own
+    debian/control Homepage or debian/watch already names an upstream URL
+    (``url_hints``), that URL is used directly rather than discarded. Only
+    genuine transport/parse errors raise ``AdapterError``.
     """
     pkg = ctx.source_package
     if not pkg:
@@ -1113,7 +1118,23 @@ def collect_upstream_tracker(ctx) -> UpstreamTrackerResult:
             break
 
     if project is None:
-        raise AdapterError(f"no upstream project match found for {pkg}")
+        if url_hints:
+            log.debug(
+                "upstream-tracker: no release-monitoring.org match for %s; "
+                "using debian/control or debian/watch URL hint instead",
+                pkg,
+            )
+        else:
+            log.debug("upstream-tracker: no upstream project match found for %s", pkg)
+        return {
+            "status": "ok",
+            "upstream_url": url_hints[0] if url_hints else "",
+            "upstream_name": "",
+            "latest_version": "",
+            "open_issues_count": 0,
+            "recent_releases": [],
+            "last_release_date": "",
+        }
 
     versions = project.get("versions") or []
     if not isinstance(versions, list):
@@ -1151,6 +1172,7 @@ def collect_upstream_tracker(ctx) -> UpstreamTrackerResult:
         "status": "ok",
         "upstream_url": str(project.get("homepage") or project.get("url") or "").strip()
         or (url_hints[0] if url_hints else ""),
+        "upstream_name": str(project.get("name") or "").strip(),
         "latest_version": latest_version,
         "open_issues_count": open_issues_count,
         "recent_releases": recent_releases,

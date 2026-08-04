@@ -736,9 +736,15 @@ items:
   readiness: clear
   required: false
   preface_evaluator: upstream-link
+  writes_evidence:
+    adapter: upstream-tracker
+    field: upstream_url
   question:
     kind: text
     prompt: What is the upstream project name? Reply 'same as source' if it matches the source package name shown above, or if no upstream project was detected above, provide the name (or project URL) yourself.
+    default_source:
+      adapter: upstream-tracker
+      field: upstream_name
   template: 'TODO: Upstream Name is TBD'
 - id: REP-BG-003
   section: Background information

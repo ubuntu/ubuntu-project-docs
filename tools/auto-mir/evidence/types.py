@@ -154,6 +154,7 @@ class UpstreamTrackerResult(TypedDict):
 
     status: str
     upstream_url: str
+    upstream_name: str
     latest_version: str
     open_issues_count: int
     recent_releases: list[UpstreamReleaseEntry]
