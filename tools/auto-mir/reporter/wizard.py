@@ -1,10 +1,11 @@
-"""Dependency-free terminal wizard for reporter-owned MIR answers."""
+"""Terminal wizard for reporter-owned MIR answers."""
 
 from __future__ import annotations
 
 from collections.abc import Callable
 
 from reporter.models import Answer, QuestionKind, QuestionOption, QuestionSpec
+from utils import editor
 
 _CANCEL_TOKEN = ":cancel"
 _MULTILINE_SENTINEL = "."
@@ -27,9 +28,11 @@ class TerminalWizard:
         *,
         read_line: Callable[[str], str] = input,
         write_line: Callable[[str], None] = print,
+        edit_text: Callable[[str, list[str]], str | None] = editor.edit_text,
     ) -> None:
         self._read_line = read_line
         self._write_line = write_line
+        self._edit_text = edit_text
 
     def ask(self, question: QuestionSpec) -> Answer | None:
         """Ask until a valid answer is provided, or return None if optional."""
@@ -113,7 +116,7 @@ class TerminalWizard:
             if normalized in {"n", "no"}:
                 return Answer(question_id=question_id, value=False, raw_input=raw)
             if normalized in {"e", "edit"}:
-                edited = self._edit_multiline(suggestion)
+                edited = self._edit_multiline(suggestion, rationale)
                 return Answer(question_id=question_id, value=edited, raw_input=raw)
             self._write_line("Invalid response: enter yes, edit, or no")
 
@@ -126,7 +129,17 @@ class TerminalWizard:
         if detail.strip():
             self._write_line(f"  ({detail.strip()})")
 
-    def _edit_multiline(self, prefill: str) -> str:
+    def _edit_multiline(self, prefill: str, rationale: str = "") -> str:
+        comment_lines = ["You are revising the tool's suggested statement below.", ""]
+        if rationale.strip():
+            comment_lines.append(f"Reasoning: {rationale.strip()}")
+            comment_lines.append("")
+        comment_lines.append("Lines starting with '#' are ignored and will not be included.")
+        edited = self._edit_text(prefill, comment_lines)
+        if edited is not None:
+            return edited
+
+        # No usable editor: fall back to raw terminal entry, prefill shown for reference.
         self._write_line("")
         self._write_line("Current suggested text (revise, extend, or replace it below):")
         for line in prefill.splitlines() or [prefill]:
@@ -139,11 +152,43 @@ class TerminalWizard:
             required=True,
         )
         self._write_line(question.prompt)
-        answer = self._ask_multiline(question)
+        answer = self._ask_multiline_raw(question)
         assert answer is not None
         return str(answer.value)
 
     def _ask_multiline(self, question: QuestionSpec) -> Answer | None:
+        self._write_line(
+            "(opening your editor for a multi-line answer; save and close it when done)"
+        )
+        edited = self._edit_text("", self._multiline_comment_lines(question))
+        while edited is not None:
+            text = edited.strip()
+            if text:
+                return Answer(question_id=question.id, value=text, raw_input=edited)
+            if not question.required:
+                return None
+            self._write_line("A response is required. Reopening the editor.")
+            edited = self._edit_text("", self._multiline_comment_lines(question))
+        return self._ask_multiline_raw(question)
+
+    def _multiline_comment_lines(self, question: QuestionSpec) -> list[str]:
+        lines = [question.prompt]
+        if question.rule_context:
+            lines.append(f"Context: {question.rule_context}")
+        if question.hint:
+            lines.append(f"Hint: {question.hint}")
+        if question.answer_guidance:
+            lines.append(question.answer_guidance)
+        elif not question.required:
+            lines.append(
+                "This is optional. Leave the answer empty to skip; nothing will be "
+                "added to the report."
+            )
+        lines.append("")
+        lines.append("Lines starting with '#' are ignored and will not be included.")
+        return lines
+
+    def _ask_multiline_raw(self, question: QuestionSpec) -> Answer | None:
         self._write_line(
             "Enter multiple lines. A line containing only '.' finishes; "
             "enter '\\.' for a literal dot. Enter :cancel on the first line to abort."

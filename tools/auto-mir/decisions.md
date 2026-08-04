@@ -2181,3 +2181,52 @@ concrete decisions are recorded.
 **Validation from `tools/auto-mir`:** `make test` PASS (590 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: external editor support for the reporter wizard (P3)
+
+**Promotion:** no
+
+**Context:** the 2026-07-14 decision ("Separate reporter results and terminal
+wizard") deliberately made the wizard dependency-free, with raw line-by-line
+multi-line entry ended by a lone `.`. Real reporter testing showed this is
+uncomfortable for anything beyond a short sentence, especially when revising
+an AI suggestion (the transcript showed a reporter typing a multi-paragraph
+revision at a bare `| ` prompt with no way to see or edit earlier lines).
+
+**Decision — revisit the 2026-07-14 decision; add an external editor path:**
+- New `utils/editor.py`: `resolve_editor_command()` resolves `$VISUAL`, then
+  `$EDITOR`, then the Debian update-alternatives `/usr/bin/editor`, then a
+  hardcoded `nano` fallback (mirrors `git`'s own resolution order).
+  `edit_text(initial_text, comment_lines)` writes a temp file with
+  `initial_text` on top and `comment_lines` rendered as `#`-prefixed lines
+  below (matching `git rebase --interactive`'s commented-context style),
+  launches the resolved editor via `subprocess.run`, strips `#`-prefixed
+  lines back out of the result, and returns `None` (never raises) when there
+  is no interactive terminal, the editor can't be launched, or it exits
+  non-zero — so callers can cleanly fall back to raw terminal entry.
+- `reporter/wizard.py`'s `TerminalWizard` gained an injectable `edit_text`
+  constructor parameter (defaulting to the real `editor.edit_text`, following
+  the same DI pattern as `read_line`/`write_line`) so tests can fake editor
+  behavior without spawning a process.
+- Applies to **every** multiline question, not just the AI-suggestion
+  confirm flow: `_ask_multiline` now tries the editor first (comment lines
+  built from the question's prompt/rule_context/hint/answer_guidance),
+  reopening it if a required question comes back empty, and only falling
+  back to the original raw `_ask_multiline_raw` terminal loop if the editor
+  is unavailable. `confirm_suggestion`'s "edit" path (`_edit_multiline`) now
+  also opens the editor, pre-filled with the AI's suggested statement and
+  its reasoning as a comment, falling back to the old prefill-then-raw-input
+  behavior if no editor is usable. "yes" is unaffected (no editor, use
+  as-is); "no" already naturally gains editor support because it falls
+  through to the normal fallback question via the same `_ask_multiline` path.
+
+**Consequences:**
+- No raw-terminal behavior was removed — it remains the fallback whenever an
+  editor can't be launched (headless/non-interactive/binary missing), so
+  every existing raw-input test keeps passing unchanged (pytest's stdin is
+  never a tty, so `editor.edit_text` returns `None` in tests without any
+  mocking, and the wizard transparently falls back).
+- No new runtime dependency: `subprocess`/`tempfile`/`shlex` are stdlib.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (604 passed,
+3 skipped).
+

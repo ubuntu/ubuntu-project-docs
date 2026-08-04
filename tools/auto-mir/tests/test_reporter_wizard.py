@@ -149,6 +149,90 @@ def test_multiline_uses_dot_sentinel_and_supports_literal_dot():
     assert answer.value == "first paragraph\n.\nlast paragraph"
 
 
+def test_multiline_uses_editor_when_available():
+    """A usable editor is tried first, before the raw terminal fallback."""
+    calls = []
+
+    def _fake_edit_text(initial_text, comment_lines):
+        calls.append((initial_text, comment_lines))
+        return "edited via external editor"
+
+    def _unexpected_read(_prompt):
+        raise AssertionError("must not fall back to raw terminal entry when editor works")
+
+    wizard = TerminalWizard(
+        read_line=_unexpected_read, write_line=lambda _line: None, edit_text=_fake_edit_text
+    )
+    question = QuestionSpec(
+        id="REP-RATIONALE",
+        prompt="Enter rationale",
+        kind=QuestionKind.MULTILINE,
+        rule_context="RULE: some rule",
+        hint="some hint",
+    )
+
+    answer = wizard.ask(question)
+
+    assert answer.value == "edited via external editor"
+    assert calls
+    comment_lines = calls[0][1]
+    assert any("Context: RULE: some rule" in line for line in comment_lines)
+    assert any("Hint: some hint" in line for line in comment_lines)
+
+
+def test_multiline_required_reopens_editor_on_empty_result():
+    responses = iter(["", "second attempt text"])
+
+    def _fake_edit_text(_initial_text, _comment_lines):
+        return next(responses)
+
+    output: list[str] = []
+    wizard = TerminalWizard(
+        read_line=lambda _p: (_ for _ in ()).throw(AssertionError("no raw fallback expected")),
+        write_line=output.append,
+        edit_text=_fake_edit_text,
+    )
+    question = QuestionSpec(
+        id="REP-RATIONALE", prompt="Enter rationale", kind=QuestionKind.MULTILINE
+    )
+
+    answer = wizard.ask(question)
+
+    assert answer.value == "second attempt text"
+    assert any("Reopening the editor" in line for line in output)
+
+
+def test_multiline_optional_skipped_when_editor_returns_empty():
+    wizard = TerminalWizard(
+        read_line=lambda _p: (_ for _ in ()).throw(AssertionError("no raw fallback expected")),
+        write_line=lambda _line: None,
+        edit_text=lambda _initial, _comments: "",
+    )
+    question = QuestionSpec(
+        id="REP-BG",
+        prompt="Additional context?",
+        kind=QuestionKind.MULTILINE,
+        required=False,
+    )
+
+    assert wizard.ask(question) is None
+
+
+def test_multiline_falls_back_to_raw_terminal_when_editor_unavailable():
+    wizard = TerminalWizard(
+        read_line=_reader(["raw terminal answer", "."]),
+        write_line=lambda _line: None,
+        edit_text=lambda _initial, _comments: None,
+    )
+    question = QuestionSpec(
+        id="REP-RATIONALE", prompt="Enter rationale", kind=QuestionKind.MULTILINE
+    )
+
+    answer = wizard.ask(question)
+
+    assert answer.value == "raw terminal answer"
+
+
 def test_required_eof_and_cancel_abort():
     question = QuestionSpec(id="REP-OWNER", prompt="Owning team?", kind=QuestionKind.TEXT)
 
@@ -214,6 +298,31 @@ def test_ai_suggestion_edit_returns_reporter_revised_text():
 
     assert answer.value == "revised first line"
     assert any("Original suggested text." in line for line in output)
+
+
+def test_ai_suggestion_edit_uses_editor_with_suggestion_and_rationale():
+    calls = []
+
+    def _fake_edit_text(initial_text, comment_lines):
+        calls.append((initial_text, comment_lines))
+        return "revised via editor"
+
+    wizard = TerminalWizard(
+        read_line=_reader(["edit"]),
+        write_line=lambda _line: None,
+        edit_text=_fake_edit_text,
+    )
+
+    answer = wizard.confirm_suggestion(
+        question_id="REP-CONFIRM",
+        suggestion="Original suggested text.",
+        rationale="Because of evidence X.",
+    )
+
+    assert answer.value == "revised via editor"
+    initial_text, comment_lines = calls[0]
+    assert initial_text == "Original suggested text."
+    assert any("Because of evidence X." in line for line in comment_lines)
 
 
 def test_ai_suggestion_invalid_response_reprompts():
