@@ -73,54 +73,13 @@ def test_single_choice_accepts_number_and_returns_stable_option_id():
     assert wizard.ask(question).value == "selected"
 
 
-def test_multi_choice_deduplicates_and_preserves_order():
-    wizard = TerminalWizard(
-        read_line=_reader(["hardware, 1, upstream"]),
-        write_line=lambda _line: None,
-    )
-    question = QuestionSpec(
-        id="REP-TEST-PLAN",
-        prompt="Select access methods",
-        kind=QuestionKind.MULTI_CHOICE,
-        options=(
-            QuestionOption("hardware", "Team hardware"),
-            QuestionOption("upstream", "Upstream testing"),
-        ),
-    )
-
-    assert wizard.ask(question).value == ["hardware", "upstream"]
-
-
-def test_multi_choice_rejects_exclusive_option_combined_with_others():
-    output: list[str] = []
-    wizard = TerminalWizard(
-        read_line=_reader(["all, ntpd-rs", "all"]),
-        write_line=output.append,
-    )
-    question = QuestionSpec(
-        id="REP-SCOPE",
-        prompt="Which binaries need promotion?",
-        kind=QuestionKind.MULTI_CHOICE,
-        options=(
-            QuestionOption("all", "All binaries", exclusive=True),
-            QuestionOption("ntpd-rs", "ntpd-rs"),
-        ),
-    )
-
-    answer = wizard.ask(question)
-
-    assert answer is not None
-    assert answer.value == ["all"]
-    assert any("shortcut options cannot be combined" in line.casefold() for line in output)
-
-
-def test_multi_choice_renders_shortcut_marker_for_exclusive_options():
+def test_single_choice_renders_shortcut_marker_for_exclusive_options():
     output: list[str] = []
     wizard = TerminalWizard(read_line=_reader(["all"]), write_line=output.append)
     question = QuestionSpec(
         id="REP-SCOPE",
         prompt="Which binaries need promotion?",
-        kind=QuestionKind.MULTI_CHOICE,
+        kind=QuestionKind.SINGLE_CHOICE,
         options=(
             QuestionOption("all", "All binaries", exclusive=True),
             QuestionOption("ntpd-rs", "ntpd-rs"),

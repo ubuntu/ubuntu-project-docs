@@ -14,7 +14,6 @@ class QuestionKind(StrEnum):
     MULTILINE = "multiline"
     CONFIRM = "confirm"
     SINGLE_CHOICE = "single_choice"
-    MULTI_CHOICE = "multi_choice"
 
 
 class StatementState(StrEnum):
@@ -79,7 +78,7 @@ class QuestionSpec:
         if not self.prompt.strip():
             raise ValueError(f"question {self.id!r} prompt must not be empty")
 
-        choice_kind = self.kind in {QuestionKind.SINGLE_CHOICE, QuestionKind.MULTI_CHOICE}
+        choice_kind = self.kind == QuestionKind.SINGLE_CHOICE
         if choice_kind and not self.options:
             raise ValueError(f"question {self.id!r} requires at least one option")
         if not choice_kind and self.options:

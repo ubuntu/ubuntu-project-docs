@@ -82,7 +82,7 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
                 readiness=ReadinessEffect.CLEAR,
                 statement=statement,
                 selected_option=answer.value
-                if question.kind in {QuestionKind.SINGLE_CHOICE, QuestionKind.MULTI_CHOICE}
+                if question.kind == QuestionKind.SINGLE_CHOICE
                 else None,
                 provenance=Provenance.HUMAN,
                 answer_refs=[question.id],
@@ -151,8 +151,7 @@ def _question_from_item(item: dict, ctx) -> QuestionSpec:
             _spell_out_option(option, raw_option, known_packages)
             for option, raw_option in zip(options, raw_options, strict=True)
         ]
-    options.extend(dynamic)
-    if kind in {QuestionKind.SINGLE_CHOICE, QuestionKind.MULTI_CHOICE}:
+    if kind == QuestionKind.SINGLE_CHOICE:
         options = _mark_followup_options(options, item["id"], ctx)
     return QuestionSpec(
         id=item["id"],
@@ -188,11 +187,12 @@ def _dynamic_default(default_source: dict | None, ctx) -> str | None:
 def _dynamic_options(
     options_source: dict | None, ctx, *, existing: list[QuestionOption]
 ) -> list[QuestionOption]:
-    """Build extra question options from an evidence adapter field at runtime.
+    """Look up the concrete evidence-derived choices an ``options_source`` names.
 
-    Used for catalog items where the valid choices (e.g. binary packages built
-    by this source) are only known once evidence has been collected, instead
-    of being enumerable ahead of time in the catalog YAML.
+    These are no longer added as individually-selectable options (a catalog
+    item that needs that shape uses ``single_choice`` plus a free-text
+    follow-up item instead); the returned list is only used to compute the
+    known package names for ``_spell_out_option``'s shortcut suffix.
     """
     if not options_source:
         return []
@@ -727,6 +727,21 @@ def _dependencies(_item: dict, ctx) -> tuple[str | None, list[str], str]:
         f"Runtime dependencies outside main require MIR handling: {', '.join(deps)}.",
         ["dep-analysis:in_scope_deps_not_in_main"],
         "Reference separate MIR bugs or include those sources in this request.",
+    )
+
+
+@reporter_evaluator("binary-packages")
+def _binary_packages(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+    data = _adapter(ctx, "dep-analysis")
+    if data.get("status") != "ok":
+        return None, [], "Dependency analysis was unavailable"
+    packages = sorted(str(name) for name in data.get("binary_packages", []))
+    if not packages:
+        return None, [], "No binary packages were found for this source"
+    return (
+        f"This source builds the following binary packages: {', '.join(packages)}.",
+        ["dep-analysis:binary_packages"],
+        "",
     )
 
 

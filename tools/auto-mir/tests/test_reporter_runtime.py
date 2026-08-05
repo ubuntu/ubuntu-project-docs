@@ -36,7 +36,7 @@ class ChoiceWizard(FakeWizard):
         "REP-RATIONALE-005": "niche",
         "REP-RATIONALE-007": "no-deadline",
         "REP-QA-MAINT-004": "team-access",
-        "REP-QA-TEST-005": ["A-team-hardware", "E-simulator"],
+        "REP-QA-TEST-005": "E-simulator",
         "REP-DEP-002": "separate",
     }
 
@@ -177,18 +177,22 @@ def test_reporter_render_writes_draft_and_structured_report(tmp_path):
     assert len(report["statements"]) == len(ctx.catalog["items"])
 
 
-def test_reporter_draft_indents_continuation_lines_of_a_multi_select_answer(tmp_path):
-    """A multi-select answer joins each selected option's own bulleted
-    statement with a newline; the rendered draft must indent every line
-    after the first so they visually continue the same bullet."""
+def test_reporter_draft_indents_continuation_lines_of_a_multi_line_answer(tmp_path):
+    """A human multi-line free-text answer becomes one statement with
+    embedded newlines; the rendered draft must indent every line after the
+    first so they visually continue the same leading bullet."""
     ctx = _ctx(tmp_path)
-    results = evaluate_items(ctx, ChoiceWizard())
+    wizard = FakeWizard(
+        value="Team hardware access is thoroughly documented.\n"
+        "A simulator provides a secondary confirmation path."
+    )
 
+    results = evaluate_items(ctx, wizard)
     write_outputs(ctx, results)
 
     draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
-    assert "- The owning team has access to the required hardware." in draft
-    assert "\n  - A simulator will provide sufficiently representative test coverage." in draft
+    assert "Team hardware access is thoroughly documented." in draft
+    assert "\n  A simulator provides a secondary confirmation path." in draft
 
 
 def test_missing_deterministic_evidence_remains_honest_and_not_ready(tmp_path):
@@ -287,13 +291,16 @@ def test_dependency_routing_shows_out_of_main_deps_before_asking(tmp_path):
     )
 
 
-def test_question_from_item_appends_dynamic_options_from_evidence(tmp_path):
+def test_question_from_item_does_not_append_options_source_values_as_options(tmp_path):
+    """``options_source`` no longer expands into individually-selectable
+    options (that shape is now a ``single_choice`` + free-text follow-up
+    item instead); it is only used to compute the shortcut spell-out list."""
     ctx = _ctx(tmp_path)
     ctx.evidence["adapters"]["dep-analysis"]["binary_packages"] = ["ntpd-rs", "ntpd-rs-metrics"]
     item = {
         "id": "REP-RATIONALE-004",
         "question": {
-            "kind": "multi_choice",
+            "kind": "single_choice",
             "prompt": "Which binary packages need promotion?",
             "options": [
                 {
@@ -309,28 +316,35 @@ def test_question_from_item_appends_dynamic_options_from_evidence(tmp_path):
 
     question = _question_from_item(item, ctx)
 
-    option_ids = [option.id for option in question.options]
-    assert option_ids == ["__all_binaries__", "ntpd-rs", "ntpd-rs-metrics"]
+    assert [option.id for option in question.options] == ["__all_binaries__"]
     assert question.options[0].exclusive is True
-    assert question.options[1].exclusive is False
 
 
-def test_question_from_item_skips_options_source_values_already_declared(tmp_path):
+def test_question_from_item_options_source_still_drives_shortcut_spell_out(tmp_path):
     ctx = _ctx(tmp_path)
     ctx.evidence["adapters"]["dep-analysis"]["binary_packages"] = ["ntpd-rs"]
     item = {
         "id": "REP-RATIONALE-004",
         "question": {
-            "kind": "multi_choice",
+            "kind": "single_choice",
             "prompt": "Which binary packages need promotion?",
-            "options": [{"id": "ntpd-rs", "label": "ntpd-rs (already listed)"}],
+            "options": [
+                {
+                    "id": "__all_binaries__",
+                    "label": "All binaries",
+                    "statement": "All binary packages built by TBDSRC need to be in main.",
+                    "exclusive": True,
+                    "spell_out_filter": "all",
+                }
+            ],
             "options_source": {"adapter": "dep-analysis", "field": "binary_packages"},
         },
     }
 
     question = _question_from_item(item, ctx)
 
-    assert [option.id for option in question.options] == ["ntpd-rs"]
+    assert [option.id for option in question.options] == ["__all_binaries__"]
+    assert question.options[0].label == "All binaries: ntpd-rs"
 
 
 def test_reporter_intake_defaults_to_devel_without_prompt(tmp_path):
@@ -355,7 +369,7 @@ def test_reporter_intake_preserves_explicit_series(tmp_path):
     assert wizard.asked == []
 
 
-def test_reporter_choice_conditions_and_multi_choice_are_catalog_driven(tmp_path):
+def test_reporter_choice_conditions_are_catalog_driven(tmp_path):
     ctx = _ctx(tmp_path)
     ctx.evidence["adapters"]["dep-analysis"]["in_scope_deps_not_in_main"] = ["libbar"]
     wizard = ChoiceWizard()
@@ -368,11 +382,7 @@ def test_reporter_choice_conditions_and_multi_choice_are_catalog_driven(tmp_path
     assert "REP-DEP-002" in wizard.asked
     assert "REP-DEP-003" in wizard.asked
     assert by_id["REP-RATIONALE-005"].selected_option == "niche"
-    assert by_id["REP-QA-TEST-005"].selected_option == [
-        "A-team-hardware",
-        "E-simulator",
-    ]
-    assert "required hardware" in by_id["REP-QA-TEST-005"].statement
+    assert by_id["REP-QA-TEST-005"].selected_option == "E-simulator"
     assert "simulator" in by_id["REP-QA-TEST-005"].statement
 
 
@@ -454,6 +464,69 @@ def test_license_lifetime_followup_asked_when_concern_selected(tmp_path):
     evaluate_items(ctx, wizard)
 
     assert "REP-STD-002B" in wizard.asked
+
+
+def test_binary_scope_specific_packages_followup_skipped_for_shortcut(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class AllBinariesWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-RATIONALE-004": "__all_binaries__"}
+
+    wizard = AllBinariesWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-RATIONALE-004-SPECIFIC" not in wizard.asked
+    assert by_id["REP-RATIONALE-004-SPECIFIC"].state == StatementState.NOT_APPLICABLE
+
+
+def test_binary_scope_specific_packages_followup_asked_when_selected(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class SpecificPackagesWizard(ChoiceWizard):
+        values = {
+            **ChoiceWizard.values,
+            "REP-RATIONALE-004": "specific-packages",
+            "REP-RATIONALE-004-SPECIFIC": "ntpd-rs, ntpd-rs-metrics",
+        }
+
+    wizard = SpecificPackagesWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-RATIONALE-004-SPECIFIC" in wizard.asked
+    assert "ntpd-rs, ntpd-rs-metrics" in by_id["REP-RATIONALE-004-SPECIFIC"].statement
+
+
+def test_binary_packages_preface_surfaces_known_package_list(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["dep-analysis"]["binary_packages"] = ["ntpd-rs", "ntpd-rs-metrics"]
+
+    class NotingChoiceWizard(NotingWizard, ChoiceWizard):
+        pass
+
+    wizard = NotingChoiceWizard()
+
+    evaluate_items(ctx, wizard)
+
+    preface_texts = " ".join(text for text, _detail in wizard.notes)
+    assert "ntpd-rs" in preface_texts
+    assert "ntpd-rs-metrics" in preface_texts
+
+
+def test_test_access_other_option_still_triggers_details_followup(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class OtherAccessWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-QA-TEST-005": "Z-other"}
+
+    wizard = OtherAccessWizard()
+
+    evaluate_items(ctx, wizard)
+
+    assert "REP-QA-TEST-006" in wizard.asked
 
 
 def test_owning_team_followup_skipped_when_keeping_subscribed_team(tmp_path):

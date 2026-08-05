@@ -32,6 +32,7 @@ metadata:
   - item: REP-RATIONALE-002
   - item: REP-RATIONALE-003
   - item: REP-RATIONALE-004
+  - item: REP-RATIONALE-004-SPECIFIC
   - item: REP-RATIONALE-004B
   - item: REP-RATIONALE-007
   - item: REP-RATIONALE-008
@@ -205,10 +206,11 @@ items:
   mode: human_only
   readiness: blocker
   adapters_optional: [dep-analysis]
+  preface_evaluator: binary-packages
   rule_context: 'RULE: State the exact binary promotion scope and a well-founded major-release deadline, if any; wishes without a definite deadline should be identified as such.'
-  answer_guidance: Choose the specific binary packages that need to move to main, or pick a shortcut if the whole source (or everything except -dev/-doc/-dbg) applies.
+  answer_guidance: Choose a shortcut if the whole source (or everything except -dev/-doc/-dbg) applies, or pick "specific binary packages" to list them yourself below.
   question:
-    kind: multi_choice
+    kind: single_choice
     prompt: Which binary packages need promotion to main?
     options:
     - id: __all_binaries__
@@ -221,10 +223,26 @@ items:
       statement: '- All binary packages built by TBDSRC, except -dev, -doc, and debug-symbol packages, need to be in main.'
       exclusive: true
       spell_out_filter: exclude_dev_doc_dbg
+    - id: specific-packages
+      label: A specific subset of binary packages (list them below)
+      statement: '- Specific binary packages built by TBDSRC, listed below, need to be in main.'
     options_source:
       adapter: dep-analysis
       field: binary_packages
   template: 'TODO: - The binary packages TBD need to be in main.'
+- id: REP-RATIONALE-004-SPECIFIC
+  section: Rationale
+  title: Specific binary packages
+  mode: human_only
+  readiness: blocker
+  applicability:
+    item: REP-RATIONALE-004
+    equals: specific-packages
+  answer_guidance: List the specific binary package names that need to move to main, separated by commas or one per line.
+  question:
+    kind: multiline
+    prompt: Which specific binary packages need promotion to main?
+  template: 'TODO: - The specific binary packages needing promotion are TBD'
 - id: REP-RATIONALE-004B
   section: Rationale
   title: Promotion scope purpose
@@ -418,8 +436,8 @@ items:
     - evidence: autopkgtest-db.failing_arches
       truthy: true
   question:
-    kind: multi_choice
-    prompt: Select every concrete way the owning team can test cases not covered by build tests or autopkgtests.
+    kind: single_choice
+    prompt: Select the concrete way the owning team can test cases not covered by build tests or autopkgtests.
     options:
     - id: A-team-hardware
       label: Hardware is available in the team
@@ -448,6 +466,9 @@ items:
     - id: X-exhausted
       label: All feasible testing options are exhausted
       statement: '- All feasible ways to test or recreate this case have been exhausted; the owning team accepts the additional servicing and regression risk.'
+    - id: Z-other
+      label: Something else / a special situation (describe below)
+      statement: '- A different, situation-specific arrangement provides non-automated testing access; see the test plan details below.'
   template: 'TODO-A-H/X: - Non-automated testing access: TBD'
 - id: REP-QA-TEST-006
   section: Quality assurance - testing

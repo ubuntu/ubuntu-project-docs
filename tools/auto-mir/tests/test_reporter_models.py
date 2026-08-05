@@ -38,7 +38,7 @@ def test_question_rejects_case_insensitive_duplicate_option_ids():
         QuestionSpec(
             id="REP-1",
             prompt="Choose",
-            kind=QuestionKind.MULTI_CHOICE,
+            kind=QuestionKind.SINGLE_CHOICE,
             options=(QuestionOption("A", "First"), QuestionOption("a", "Second")),
         )
 

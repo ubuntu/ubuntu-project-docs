@@ -2573,4 +2573,64 @@ handling of genuinely free-form (non-templated) text in one place instead.
 **Validation from `tools/auto-mir`:** `make test` PASS (652 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: remove `multi_choice`; single_choice + free-text fallback (P13)
+
+**Promotion:** no
+
+**Context:** `multi_choice` only had two real uses: REP-QA-TEST-005 (select
+every way the owning team can test non-automated cases) and REP-RATIONALE-004
+(select which binary packages need promotion, dynamically expanded from
+`dep-analysis.binary_packages` into one selectable option per package). On
+review, both are actually "pick the one best/primary answer, or describe a
+rare special case in free text" rather than genuine multi-select, and
+per-package dynamic option expansion made REP-RATIONALE-004 unwieldy for
+sources with many binary packages. Independent of, but bundled with, the
+exotic-hardware duplicate-question fix (P14).
+
+**Decision:**
+- `reporter/models.py`: removed `QuestionKind.MULTI_CHOICE`; `QuestionSpec`'s
+  choice-kind check is now `kind == QuestionKind.SINGLE_CHOICE`.
+- `reporter/wizard.py`: removed the multi-select branch from `_parse_answer`
+  (comma-separated parsing, exclusive-combination rejection) and the
+  "Select one or more options..." message from `_render_options`; the
+  exclusive-option "(shortcut)" marker is unchanged and still renders for
+  `single_choice`.
+- `reporter/evaluator.py`: `_dynamic_options` (the `options_source` lookup)
+  no longer gets appended to a question's selectable options — it is now
+  used only to compute `known_packages` for `_spell_out_option`'s shortcut
+  suffix (`"...: pkg1, pkg2"`). Added a new `binary-packages` evaluator
+  (registered like `dependencies`/`team-subscription`, reused as a
+  `preface_evaluator`) that lists all binary packages built by the source as
+  an informational note shown before REP-RATIONALE-004's question, so the
+  concrete package list is still surfaced even though it no longer expands
+  into individual options.
+- `catalog-mir-report.yaml`:
+  - REP-RATIONALE-004: `kind: single_choice` with the two existing shortcut
+    options plus a new `specific-packages` option (generic statement,
+    "listed below"); gained `preface_evaluator: binary-packages`.
+  - New item `REP-RATIONALE-004-SPECIFIC` (`human_only`, `multiline`, gated
+    `applicability: {item: REP-RATIONALE-004, equals: specific-packages}`)
+    asks for the actual package list as free text — mirrors the existing
+    REP-MAINT-001/001B and REP-STD-002/002B choice-then-elaboration pattern
+    already used elsewhere in this catalog.
+  - REP-QA-TEST-005: `kind: single_choice`; added a new terminal option
+    `Z-other` ("Something else / a special situation"), which — like every
+    other option — already satisfies REP-QA-TEST-006's existing
+    `applicability: {item: REP-QA-TEST-005, truthy: true}` follow-up with no
+    further catalog changes needed.
+- `tests/test_catalog_roles.py`: hardcoded reporter item count bumped
+  54 -> 55 for the new item; hardware-choice-inventory set gained `Z-other`.
+
+**Consequences:**
+- Both choice items now behave like every other single-choice item in the
+  catalog: exactly one selection, with a "something else" escape hatch that
+  asks a genuine free-text follow-up instead of forcing a strained pick among
+  fixed options.
+- REP-RATIONALE-004 no longer creates one option per binary package, which
+  scales better for sources with many binary packages and avoids a wall of
+  near-duplicate selectable entries.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (654 passed,
+3 skipped).
+
 
