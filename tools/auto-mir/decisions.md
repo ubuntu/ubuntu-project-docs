@@ -2791,4 +2791,79 @@ a future round rather than guessed at here.
     from a `git worktree` at the pre-change commit).
 - Validation from `tools/auto-mir`: `make test` PASS (669 passed, 3 skipped).
 
+## 2026-08-05 — Beta feedback: cvelist-scan asset-name drift, bogus predecessor-name extraction, retry decorator swallowing HTTPError
 
+- Promotion: no
+- Context: two "consistently fails" beta reports (console logs only, no line
+  numbers) about `cvelist-scan` and `lp-mir-history`, investigated against a
+  real run's artifacts (`evidence.json`/`report.json`/`auto-mir.log` for bug
+  2161382, prompt-toolkit) plus a live check of the upstream GitHub API.
+  Three independent root causes, all confirmed empirically before fixing:
+  1. **cvelist-scan**: CVEProject/cvelistV5's release automation now uploads
+     the daily "all CVEs" baseline asset as
+     `<date>_all_CVEs_at_midnight.zip.zip` (doubled `.zip`) instead of a
+     single `.zip`; verified sustained across ~40h of hourly releases, not a
+     transient blip. `_cvelist_discover_baseline()`'s exact-suffix match no
+     longer matched anything, failing the adapter (and skipping the
+     dependent `nvd-enrich` adapter) on every run.
+  2. **lp-mir-history "them" false positive**: the actual 404'd candidate
+     name in the reported log was literally the string `"them"`. The
+     reporter's own rationale text explains prompt-toolkit replacing GNU
+     Readline/pyreadline3 for cmd2 with ordinary prose like "...prompt-toolkit
+     replaces them" (them = the readline family, named earlier in the
+     sentence). `utils/predecessor_refs.py`'s `\breplaces?\s+(\w+)`-style
+     patterns captured "them" as a literal predecessor package name because
+     `_STOPWORDS` covered only a handful of English words and no pronouns/
+     determiners at all. "them" is never a real Launchpad source package, so
+     the resulting probe 404s deterministically — this is unrelated to
+     outages or rate limiting (a very reasonable reviewer pushback that led
+     to this deeper root-cause pass rather than accepting the shallower
+     "retries are too aggressive" framing as the whole story).
+  3. **Shared retry-decorator bug**: `utils/retry.py`'s
+     `retry_transient_network()` and `retry_rate_limited()` each OR a
+     status-code predicate (meant to gate retries to 5xx/429 only) with
+     `retry_if_exception_type((..., urllib.error.URLError))`. Since
+     `HTTPError` is a Python subclass of `URLError`, that type check alone
+     matched every HTTPError regardless of status code, silently bypassing
+     the 4xx exclusion documented in both decorators' docstrings. This let a
+     single 404 retry 5 times with 30/60/120/240/300s backoff (~12.5
+     minutes) before `collect_lp_mir_history`'s own already-correct
+     `except urllib.error.HTTPError` 404-skip logic ever ran. This decorator
+     is shared by `utils/http.py` (used by nearly every host adapter) and by
+     `llm.py`'s LLM API calls, so the bug was general, not
+     lp-mir-history-specific.
+- Decision:
+  - cvelist-scan: match assets containing `_all_CVEs_at_midnight` and ending
+    in `.zip` (renamed constant `_CVELIST_BASELINE_MARKER`) instead of an
+    exact suffix, tolerating the current doubled extension and any future
+    naming variant without another code change.
+  - predecessor_refs.py: add `them, they, these, those, us, we, some, others,
+    all, both, either, neither, more, most, several, many` to `_STOPWORDS`.
+  - utils/retry.py: add `_is_network_url_error()` (true only for URLErrors
+    that are *not* also HTTPErrors) and use it in place of the bare
+    `URLError` type check in both decorators, so HTTP status-code gating
+    remains the sole authority over whether an HTTP response is retried.
+  - Explicitly rejected a separate pre-flight "does this candidate name
+    exist" check (rmadison / `apt-cache showsrc` in the guest / Launchpad
+    `getPublishedSources`) before doing the full `searchTasks` + bug-detail
+    fetch: the existing `searchTasks` call against `+source/<name>` already
+    *is* Launchpad's existence check (LP exposes a `DistributionSourcePackage`
+    for any name ever published/referenced, any series — 404 means "never a
+    real Ubuntu source package, ever"). Once the retry-decorator fix lands,
+    that already-correct 404-means-skip path resolves in one fast round
+    trip; a separate pre-check would ask Launchpad the same question twice
+    for no new information. Noted for future: cve-search-terms' LLM-guessed
+    "predecessor" terms bypass predecessor_refs.py's regex entirely, so the
+    retry-decorator fix (not the stopword fix) is the general safety net for
+    a hallucinated-but-plausible name on that path too.
+- Consequences:
+  - All three fixes are independent and were committed separately (one
+    commit per fix) per the multi-task commit-hygiene convention.
+  - New regression coverage: a realistic multi-release fixture for baseline
+    discovery (doubled-suffix, single-suffix, no-match cases); false-positive
+    and continued-true-positive cases for the expanded stopword list;
+    decorator-level tests asserting `HTTPError(404)` fails after a single
+    call while `HTTPError(503)`/`HTTPError(429)`/a genuine `URLError` still
+    retry to the configured attempt count, for both `retry_transient_network`
+    and `retry_rate_limited`.
+- Validation from `tools/auto-mir`: `make test` PASS (685 passed, 3 skipped).
