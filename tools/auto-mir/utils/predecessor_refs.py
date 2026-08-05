@@ -30,15 +30,26 @@ _SOURCE_NAME_RE = re.compile(r"[a-z0-9][a-z0-9+.\-]*")
 # not package names. Kept lowercase. This is a stopword filter, not a heuristic
 # whitelist: the patterns below only capture tokens that immediately follow a
 # rename-indicating phrase, so the false-positive surface is already small.
+#
+# Pronouns/determiners (them, they, these, ...) are included because ordinary
+# prose routinely uses "replace(s)/supersede(s) <pronoun>" to refer back to
+# something named earlier in the sentence (e.g. "prompt-toolkit replaces them"
+# meaning the GNU Readline family, not a literal package called "them"). Without
+# these, such prose is misread as a real predecessor name and probed against
+# Launchpad, where it reliably 404s (bug: candidate name "them" observed in the
+# wild from exactly this phrasing).
 _STOPWORDS = frozenset(
     {
         "the",
         "this",
         "that",
+        "these",
+        "those",
         "old",
         "new",
         "one",
         "other",
+        "others",
         "package",
         "source",
         "version",
@@ -49,6 +60,19 @@ _STOPWORDS = frozenset(
         "it",
         "a",
         "an",
+        "them",
+        "they",
+        "us",
+        "we",
+        "some",
+        "all",
+        "both",
+        "either",
+        "neither",
+        "more",
+        "most",
+        "several",
+        "many",
     }
 )
 

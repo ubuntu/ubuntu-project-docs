@@ -151,6 +151,50 @@ def test_stopword_token_not_extracted():
     assert all(r.name is None for r in refs)
 
 
+def test_replaces_pronoun_them_not_extracted():
+    # Real-world false positive (bug 2161382): rationale prose referring back to
+    # an earlier plural noun ("GNU Readline and pyreadline3") via "them" must not
+    # be misread as a literal predecessor package named "them".
+    refs = predecessor_refs.extract_predecessor_refs(
+        "cmd2 used to depend on GNU Readline and pyreadline3; prompt-toolkit "
+        "replaces them with a single cross-platform implementation.",
+        "prompt-toolkit",
+    )
+    assert all(r.name != "them" for r in refs)
+
+
+def test_replaces_other_pronouns_and_determiners_not_extracted():
+    for pronoun in (
+        "they",
+        "these",
+        "those",
+        "us",
+        "we",
+        "some",
+        "others",
+        "all",
+        "both",
+        "either",
+        "neither",
+        "more",
+        "most",
+        "several",
+        "many",
+    ):
+        refs = predecessor_refs.extract_predecessor_refs(
+            f"prompt-toolkit replaces {pronoun} in this release.", "prompt-toolkit"
+        )
+        assert all(r.name != pronoun for r in refs), f"{pronoun!r} was extracted as a name"
+
+
+def test_replaces_real_predecessor_name_still_extracted_alongside_pronoun_fix():
+    # Guard against over-filtering: a genuine rename must still be detected.
+    refs = predecessor_refs.extract_predecessor_refs(
+        "mysql-9.7 replaces mysql-8.4 in devel.", "mysql-9.7"
+    )
+    assert any(r.name == "mysql-8.4" for r in refs)
+
+
 def test_current_source_never_a_predecessor():
     refs = predecessor_refs.extract_predecessor_refs(
         "mysql-9.7 replaces mysql-9.7 (same package).", "mysql-9.7"
