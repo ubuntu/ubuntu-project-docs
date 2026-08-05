@@ -1621,7 +1621,13 @@ _NVD_REQUEST_INTERVAL_SECONDS = 6.5
 _NVD_MAX_CANDIDATES = 50
 
 _CVELIST_RELEASES_API = "https://api.github.com/repos/CVEProject/cvelistV5/releases?per_page=40"
-_CVELIST_BASELINE_SUFFIX = "_all_CVEs_at_midnight.zip"
+# Marker substring identifying the daily "all CVEs" baseline asset. Matched with
+# `in` + a ".zip" suffix check rather than an exact suffix: upstream has at times
+# uploaded this asset as "<date>_all_CVEs_at_midnight.zip.zip" (a doubled
+# extension, apparently a quirk of their release automation) instead of a single
+# ".zip". Matching loosely keeps discovery working across that kind of naming
+# drift without needing a code change every time upstream's naming shifts.
+_CVELIST_BASELINE_MARKER = "_all_CVEs_at_midnight"
 
 
 def _cvelist_discover_baseline(url: str = _CVELIST_RELEASES_API) -> tuple[str, str]:
@@ -1635,7 +1641,7 @@ def _cvelist_discover_baseline(url: str = _CVELIST_RELEASES_API) -> tuple[str, s
             if not isinstance(asset, dict):
                 continue
             name = str(asset.get("name") or "")
-            if not name.endswith(_CVELIST_BASELINE_SUFFIX):
+            if _CVELIST_BASELINE_MARKER not in name or not name.endswith(".zip"):
                 continue
             download_url = str(asset.get("browser_download_url") or "")
             if download_url:

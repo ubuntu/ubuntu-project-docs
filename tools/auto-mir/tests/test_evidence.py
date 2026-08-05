@@ -891,6 +891,82 @@ def test_cvelist_scan_reports_discovery_failure():
             assert "cvelist-scan failed on host" in str(exc)
 
 
+def _cvelist_release(tag: str, asset_names: list[str]) -> dict:
+    """Build a minimal GitHub releases-API release entry for baseline-discovery tests."""
+    return {
+        "tag_name": tag,
+        "assets": [
+            {
+                "name": name,
+                "browser_download_url": f"https://github.com/example/releases/download/{tag}/{name}",
+            }
+            for name in asset_names
+        ],
+    }
+
+
+def test_cvelist_discover_baseline_matches_doubled_zip_extension():
+    """Upstream renamed the daily baseline asset to a doubled '.zip.zip' suffix
+    (e.g. '2026-08-05_all_CVEs_at_midnight.zip.zip') while delta assets kept a
+    single '.zip'. Discovery must still find the baseline asset in that shape."""
+    import evidence.host_adapters as host_adapters
+
+    releases = [
+        _cvelist_release(
+            "cve_2026-08-05_0800Z",
+            [
+                "2026-08-05_all_CVEs_at_midnight.zip.zip",
+                "2026-08-05_delta_CVEs_at_0900Z.zip",
+                "release_notes.md",
+            ],
+        ),
+    ]
+
+    with patch.object(host_adapters, "_fetch_json", return_value=releases):
+        name, download_url = host_adapters._cvelist_discover_baseline()
+
+    assert name == "2026-08-05_all_CVEs_at_midnight.zip.zip"
+    assert download_url.endswith("2026-08-05_all_CVEs_at_midnight.zip.zip")
+
+
+def test_cvelist_discover_baseline_matches_single_zip_extension():
+    """Discovery must also keep working if upstream reverts to a single '.zip'."""
+    import evidence.host_adapters as host_adapters
+
+    releases = [
+        _cvelist_release(
+            "cve_2026-01-01_0000Z",
+            ["2026-01-01_all_CVEs_at_midnight.zip", "2026-01-01_delta_CVEs_at_0100Z.zip"],
+        ),
+    ]
+
+    with patch.object(host_adapters, "_fetch_json", return_value=releases):
+        name, download_url = host_adapters._cvelist_discover_baseline()
+
+    assert name == "2026-01-01_all_CVEs_at_midnight.zip"
+    assert download_url.endswith("2026-01-01_all_CVEs_at_midnight.zip")
+
+
+def test_cvelist_discover_baseline_raises_when_no_asset_matches():
+    """No matching asset (e.g. baseline renamed to something unrecognisable, or
+    only delta assets present) should still raise AdapterError."""
+    import evidence.host_adapters as host_adapters
+
+    releases = [
+        _cvelist_release(
+            "cve_2026-01-01_0000Z",
+            ["2026-01-01_delta_CVEs_at_0100Z.zip", "release_notes.md"],
+        ),
+    ]
+
+    with patch.object(host_adapters, "_fetch_json", return_value=releases):
+        try:
+            host_adapters._cvelist_discover_baseline()
+            assert False, "expected AdapterError when no baseline asset matches"
+        except host_adapters.AdapterError as exc:
+            assert "no '*_all_CVEs_at_midnight.zip' asset found" in str(exc)
+
+
 def test_nvd_enrich_output_structure():
     """nvd-enrich adapter should enrich candidates and tag historical predecessors."""
     ctx = Mock()
