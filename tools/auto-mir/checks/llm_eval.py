@@ -255,6 +255,13 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
         if build_log:
             payload["build_hints"] = _extract_build_hints(build_log)
 
+    # For SUM-3, surface a deterministically computed promotion status so the
+    # model only has to phrase the result rather than re-derive it from a
+    # (necessarily truncated) debian/control excerpt — see decisions.md
+    # "Correction: already in main signal was wrong" (2026-08-05).
+    if check.get("id") == "SUM-3":
+        payload["promotion_status"] = _compute_promotion_status(ctx, adapters_store)
+
     # For CB-2, surface concrete build-time test wiring signals from
     # debian/rules and the build log so the model can decide rather than echo
     # the template TODO.
@@ -602,6 +609,41 @@ def _summarise_consumer_autopkgtests(adapters_store: dict) -> dict:
             {"source": c.get("source", ""), "kind": c.get("kind", "")} for c in without_tests[:_CAP]
         ],
         "consumers_without_tests_count": len(without_tests),
+    }
+
+
+def _compute_promotion_status(ctx, adapters_store: dict) -> dict:
+    """Deterministically compute which built binaries still need promotion.
+
+    Uses lp-package-api's ``current_component`` (the source's current archive
+    placement for the target series, equivalent to ``rmadison``) rather than
+    asking the model to infer promotion status from a debian/control excerpt
+    that generic evidence truncation may cut off before any binary Package
+    stanza. Binary names come from ``ctx.requested_binaries`` (resolved during
+    evidence collection), falling back to dep-analysis's ``binary_packages``
+    when unset (e.g. in tests that construct a bare ctx).
+    """
+    lp_package = adapters_store.get("lp-package-api", {})
+    current_component = (
+        lp_package.get("current_component", "unknown")
+        if isinstance(lp_package, dict)
+        else "unknown"
+    )
+
+    binaries = list(getattr(ctx, "requested_binaries", None) or [])
+    if not binaries:
+        dep_analysis = adapters_store.get("dep-analysis", {})
+        if isinstance(dep_analysis, dict):
+            binaries = list(dep_analysis.get("binary_packages", []) or [])
+
+    already_in_main = current_component == "main"
+    needs_promotion = [] if already_in_main else list(binaries)
+
+    return {
+        "current_component": current_component,
+        "binaries": binaries,
+        "already_in_main": already_in_main,
+        "needs_promotion": needs_promotion,
     }
 
 

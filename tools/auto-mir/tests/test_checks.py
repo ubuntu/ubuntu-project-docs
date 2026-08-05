@@ -3558,3 +3558,86 @@ def test_cb6_payload_includes_prioritised_consumer_summary():
     assert summary["consumers_with_tests"][0]["passing_arches"] == ["amd64", "arm64"]
     assert summary["consumers_without_tests_count"] == 1
     assert summary["consumers_without_tests"][0]["source"] == "quietlib"
+
+
+# ---------------------------------------------------------------------------
+# SUM-3 promotion status: grounded in lp-package-api's current_component
+# rather than re-derived from a (possibly truncated) debian/control excerpt.
+# ---------------------------------------------------------------------------
+
+
+def test_sum3_payload_lists_binaries_needing_promotion():
+    """Regression for bug 2161382 (prompt-toolkit): universe component must
+    surface a concrete promotion list, not an unresolved TBD."""
+    ctx = _EvCtx({"lp-package-api": {"status": "ok", "current_component": "universe"}})
+    ctx.requested_binaries = ["python3-prompt-toolkit"]
+    check = {
+        "id": "SUM-3",
+        "section": "Summary",
+        "mode": "ev_to_ai",
+        "adapters_required": ["lp-package-api"],
+    }
+    payload = checks.llm_eval._build_evidence_payload(check, ctx)
+
+    status = payload["promotion_status"]
+    assert status["current_component"] == "universe"
+    assert status["already_in_main"] is False
+    assert status["needs_promotion"] == ["python3-prompt-toolkit"]
+    assert status["binaries"] == ["python3-prompt-toolkit"]
+
+
+def test_sum3_payload_already_in_main_needs_no_promotion():
+    ctx = _EvCtx({"lp-package-api": {"status": "ok", "current_component": "main"}})
+    ctx.requested_binaries = ["libfoo1"]
+    check = {
+        "id": "SUM-3",
+        "section": "Summary",
+        "mode": "ev_to_ai",
+        "adapters_required": ["lp-package-api"],
+    }
+    payload = checks.llm_eval._build_evidence_payload(check, ctx)
+
+    status = payload["promotion_status"]
+    assert status["already_in_main"] is True
+    assert status["needs_promotion"] == []
+    assert status["binaries"] == ["libfoo1"]
+
+
+def test_sum3_payload_falls_back_to_dep_analysis_binaries():
+    """When requested_binaries isn't set (e.g. bare test ctx), fall back to
+    dep-analysis's binary_packages list rather than an empty list."""
+    ctx = _EvCtx(
+        {
+            "lp-package-api": {"status": "ok", "current_component": "universe"},
+            "dep-analysis": {"status": "ok", "binary_packages": ["libfoo1", "libfoo-dev"]},
+        }
+    )
+    check = {
+        "id": "SUM-3",
+        "section": "Summary",
+        "mode": "ev_to_ai",
+        "adapters_required": ["lp-package-api"],
+        "adapters_optional": ["dep-analysis"],
+    }
+    payload = checks.llm_eval._build_evidence_payload(check, ctx)
+
+    status = payload["promotion_status"]
+    assert status["binaries"] == ["libfoo1", "libfoo-dev"]
+    assert status["needs_promotion"] == ["libfoo1", "libfoo-dev"]
+
+
+def test_sum3_payload_unknown_component_does_not_claim_already_in_main():
+    ctx = _EvCtx({"lp-package-api": {"status": "error"}})
+    ctx.requested_binaries = ["libfoo1"]
+    check = {
+        "id": "SUM-3",
+        "section": "Summary",
+        "mode": "ev_to_ai",
+        "adapters_required": ["lp-package-api"],
+    }
+    payload = checks.llm_eval._build_evidence_payload(check, ctx)
+
+    status = payload["promotion_status"]
+    assert status["current_component"] == "unknown"
+    assert status["already_in_main"] is False
+    assert status["needs_promotion"] == ["libfoo1"]

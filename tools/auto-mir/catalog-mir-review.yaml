@@ -538,16 +538,15 @@ checks:
   mode: ev_to_ai
   blocker_class: none
   adapters_required:
-  - component-mismatches
-  - packaging-source
-  adapters_optional:
   - lp-package-api
+  adapters_optional:
+  - dep-analysis
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO: List of specific binary packages to be promoted to main: TBD'
   - 'TODO: Specific binary packages built, but NOT to be promoted to main: TBD'
-  ai_policy: Interpret component-mismatch output to identify promotion candidates; summarise.
+  ai_policy: 'The promotion_status evidence field is already computed deterministically (current_component, binaries, already_in_main, needs_promotion) from Launchpad publishing data — never re-derive it from raw control-file text. If needs_promotion is empty, resolve ok and state that all built binaries listed in promotion_status.binaries are already published in main (promotion_status.current_component). Otherwise, resolve ok and state which specific binaries from promotion_status.needs_promotion need to be promoted to main, naming them explicitly; this is informational for the reviewer, not a blocker.'
 - id: SUM-4
   section: Summary
   title: Team bug subscriber present
