@@ -7,6 +7,7 @@ in network operations and LXD-guest commands.
 from __future__ import annotations
 
 import logging
+import urllib.error
 from typing import Callable
 
 from tenacity import (
@@ -37,6 +38,20 @@ TRANSIENT_COMMAND_FAILURE_MARKERS = (
 )
 
 
+def _is_network_url_error(exc: BaseException) -> bool:
+    """Check if exception is a genuine network-level URLError (DNS, connection).
+
+    ``urllib.error.HTTPError`` is a subclass of ``URLError``, so a plain
+    ``isinstance(exc, URLError)`` check also matches every HTTPError regardless
+    of status code - silently retrying on 4xx client errors (401/403/404/...)
+    that a caller's own status-code predicate deliberately excludes. This
+    predicate returns True only for URLErrors that are *not* HTTPErrors (e.g.
+    DNS failures, connection refused), so HTTP status-code gating stays the
+    sole authority over whether an HTTP response is retried.
+    """
+    return isinstance(exc, urllib.error.URLError) and not isinstance(exc, urllib.error.HTTPError)
+
+
 # ---------------------------------------------------------------------------
 # Retry strategies
 # ---------------------------------------------------------------------------
@@ -63,7 +78,6 @@ def retry_transient_network(
     Returns:
         Decorated function with retry behavior
     """
-    import urllib.error
 
     def is_transient_http(exc: BaseException) -> bool:
         """Check if exception is a transient HTTP error (5xx)."""
@@ -75,7 +89,8 @@ def retry_transient_network(
         stop=stop_after_attempt(max_attempts),
         wait=wait_exponential(multiplier=base_delay, max=max_delay),
         retry=(
-            retry_if_exception_type((ConnectionError, TimeoutError, urllib.error.URLError))
+            retry_if_exception_type((ConnectionError, TimeoutError))
+            | retry_if_exception(_is_network_url_error)
             | retry_if_exception(is_transient_http)
         ),
         before_sleep=before_sleep_log(log, logging.WARNING),
@@ -101,7 +116,6 @@ def retry_rate_limited(
     Returns:
         Decorated function with retry behavior
     """
-    import urllib.error
 
     def is_retryable_http(exc: BaseException) -> bool:
         """Check if exception is a retryable HTTP error (429 or 5xx)."""
@@ -113,7 +127,8 @@ def retry_rate_limited(
         stop=stop_after_attempt(max_attempts),
         wait=wait_exponential(multiplier=base_delay, max=max_delay),
         retry=(
-            retry_if_exception_type((ConnectionError, TimeoutError, urllib.error.URLError))
+            retry_if_exception_type((ConnectionError, TimeoutError))
+            | retry_if_exception(_is_network_url_error)
             | retry_if_exception(is_retryable_http)
         ),
         before_sleep=before_sleep_log(log, logging.WARNING),
