@@ -1869,6 +1869,50 @@ def test_release_cadence_deduplicates_versions():
 
 
 # ---------------------------------------------------------------------------
+# Current archive component resolution (lp-package-api)
+# ---------------------------------------------------------------------------
+
+
+def test_resolve_current_component_prefers_newest_published():
+    from evidence.host_adapters import _resolve_current_component
+
+    # Newest-first order, as returned by getPublishedSources(order_by_date=True).
+    history = [
+        {
+            "version": "3.0.53-1",
+            "pocket": "Proposed",
+            "component": "universe",
+            "status": "Published",
+        },
+        {
+            "version": "3.0.52-2",
+            "pocket": "Release",
+            "component": "universe",
+            "status": "Published",
+        },
+    ]
+    assert _resolve_current_component(history) == "universe"
+
+
+def test_resolve_current_component_falls_back_to_any_status():
+    from evidence.host_adapters import _resolve_current_component
+
+    # No Published entry (e.g. only a still-processing upload known); fall back
+    # to the newest record of any status rather than reporting unknown.
+    history = [
+        {"version": "3.0.53-1", "pocket": "Proposed", "component": "universe", "status": "Pending"},
+    ]
+    assert _resolve_current_component(history) == "universe"
+
+
+def test_resolve_current_component_unknown_when_empty():
+    from evidence.host_adapters import _resolve_current_component
+
+    assert _resolve_current_component([]) == "unknown"
+    assert _resolve_current_component([{"version": "1.0-1", "status": "Published"}]) == "unknown"
+
+
+# ---------------------------------------------------------------------------
 # ubuntu-upload-permission parsing
 # ---------------------------------------------------------------------------
 

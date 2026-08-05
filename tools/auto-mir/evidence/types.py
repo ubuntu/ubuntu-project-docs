@@ -115,6 +115,7 @@ class LPPackageAPIResult(TypedDict):
     all_publish_history: list[PublishHistoryEntry]
     release_cadence: dict
     current_version: str
+    current_component: str
     upload_history: list[UploadHistoryEntry]
     uploaders: list[str]
     source_url: str

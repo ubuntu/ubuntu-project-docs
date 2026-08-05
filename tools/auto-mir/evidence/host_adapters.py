@@ -616,6 +616,8 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
     except Exception as exc:
         log.warning("Could not fetch LP publishing history for %s: %s", pkg, exc)
 
+    current_component = _resolve_current_component(ubuntu_publish_history)
+
     # Fetch the cross-series publishing history (all Ubuntu series) so the
     # update cadence can be characterised over a meaningful time span rather
     # than just the development series (which often holds only a few records).
@@ -672,12 +674,13 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
 
     log.debug(
         "lp-package-api: current version %s, %d publish record(s), "
-        "%d cross-series record(s), cadence=%s, %d uploader(s)",
+        "%d cross-series record(s), cadence=%s, %d uploader(s), component=%s",
         current_version or "unknown",
         len(ubuntu_publish_history),
         len(all_publish_history),
         release_cadence.get("descriptor", "unknown"),
         len(uploaders),
+        current_component,
     )
     return {
         "status": "ok",
@@ -685,10 +688,31 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
         "all_publish_history": all_publish_history,
         "release_cadence": release_cadence,
         "current_version": current_version,
+        "current_component": current_component,
         "upload_history": upload_history,
         "uploaders": uploaders,
         "source_url": f"https://launchpad.net/ubuntu/+source/{pkg}",
     }
+
+
+def _resolve_current_component(ubuntu_publish_history: list[dict]) -> str:
+    """Return the archive component (main/universe/...) currently governing this source.
+
+    ``ubuntu_publish_history`` is ordered newest-first (``order_by_date=True``)
+    and covers every pocket in the target series, mirroring what ``rmadison``
+    shows for that series. The newest ``Published`` record is authoritative;
+    if none has that status (e.g. only a still-processing upload is known),
+    fall back to the newest record of any status. Returns "unknown" when no
+    record or component data is available, so callers never mistake an
+    unresolved lookup for a real "main" or "universe" answer.
+    """
+    for entry in ubuntu_publish_history:
+        if entry.get("status") == "Published" and entry.get("component"):
+            return str(entry["component"])
+    for entry in ubuntu_publish_history:
+        if entry.get("component"):
+            return str(entry["component"])
+    return "unknown"
 
 
 def _fetch_json(url: str) -> Any:
