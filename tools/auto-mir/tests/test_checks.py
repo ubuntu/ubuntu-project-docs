@@ -1425,6 +1425,32 @@ def test_cb_8_python_without_dh_python():
     assert "dh_python" in result.message.lower()
 
 
+def test_cb_8_python_with_dh_sequence_python3_in_control():
+    """Modern packaging declares dh-sequence-python3 in debian/control instead
+    of an explicit dh_python3 override in debian/rules; the sequence add-on
+    auto-invokes dh_python3, so debian/rules never contains that substring.
+    Regression for bug 2161382 (prompt-toolkit)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "%:\n\tdh $@ --buildsystem=pybuild\n",
+        "debian_control": (
+            "Source: prompt-toolkit\n"
+            "Build-Depends: debhelper-compat (= 13), dh-sequence-python3, pybuild-plugin-pyproject\n"
+            "\n"
+            "Package: python3-prompt-toolkit\n"
+        ),
+        "file_listing": [{"path": "setup.py", "size": 100}],
+    }
+
+    finding = _make_finding("CB-8", mode="deterministic")
+    result = checks.deterministic._check_cb_8(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "using dh_python" in result.message
+
+
 def test_esl_2_no_static_linking():
     """Test ESL-2 with clean build log (no static linking)."""
     ctx = _Ctx()

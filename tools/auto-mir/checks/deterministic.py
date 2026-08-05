@@ -1039,7 +1039,14 @@ def _check_cb_8(ctx, finding: Finding) -> Finding:
 
     is_python = _is_python_package(packaging)
     rules = packaging.get("debian_rules", "")
-    uses_dh_python = "dh_python" in rules or "dh_python3" in rules
+    control = packaging.get("debian_control", "")
+    # Modern packaging declares dh-sequence-python3 in debian/control
+    # Build-Depends instead of an explicit dh_python3 override in
+    # debian/rules; the sequence add-on auto-invokes dh_python3, so
+    # debian/rules never contains that substring for such packages.
+    uses_dh_python = (
+        "dh_python" in rules or "dh_python3" in rules or "dh-sequence-python3" in control
+    )
 
     if not is_python:
         # Not a Python package; gate doesn't apply
@@ -1055,7 +1062,7 @@ def _check_cb_8(ctx, finding: Finding) -> Finding:
             render_check_message(check, "ok_message"),
             confidence="high",
         )
-        finding.evidence_refs = ["packaging-source:debian_rules"]
+        finding.evidence_refs = ["packaging-source:debian_rules", "packaging-source:debian_control"]
         return finding
 
     # Python package not using dh_python
@@ -1065,7 +1072,7 @@ def _check_cb_8(ctx, finding: Finding) -> Finding:
         severity="required",
         confidence="high",
     )
-    finding.evidence_refs = ["packaging-source:debian_rules"]
+    finding.evidence_refs = ["packaging-source:debian_rules", "packaging-source:debian_control"]
     return finding
 
 
