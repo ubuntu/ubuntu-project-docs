@@ -2896,3 +2896,73 @@ a future round rather than guessed at here.
     retry to the configured attempt count, for both `retry_transient_network`
     and `retry_rate_limited`.
 - Validation from `tools/auto-mir`: `make test` PASS (685 passed, 3 skipped).
+
+## Beta feedback round 2 (bug 2161382 / prompt-toolkit), 2026-08-05
+
+**Context:** first reporter+reviewer round-trip test on a real universe
+package surfaced four issues in the same run's `review-draft.txt`.
+
+1. **Wrong "already in main" detection**: rereview rationale claimed
+   "all binary packages are already in main" for a package that is universe
+   in every active release (`rmadison -u ubuntu -a source prompt-toolkit`).
+   Root cause and fix: see the dedicated "Correction: already in main signal
+   was wrong (2026-08-05)" entry above (in the "Review types" section) —
+   `_all_binaries_already_in_main()` had wrongly treated
+   `component-mismatches` reporting zero promotion candidates as "in main";
+   it now checks a new `lp-package-api.current_component` field instead and
+   fails closed when unavailable.
+2. **SUM-3 binary-promotion list stuck on TBD**: `debian_control` is
+   unconditionally summarised to a 300-char preview
+   (`utils/llm_evidence.py` `SUMMARY_FIELDS`) for every check that doesn't
+   explicitly opt out via `_FULL_CONTENT_FIELDS_BY_CHECK`; for prompt-toolkit
+   the Source stanza alone exceeded that before any binary `Package:`
+   stanza, so the ev_to_ai model for SUM-3 correctly reported it could not
+   see one. Rather than exempting `debian_control` for SUM-3 (still fragile
+   for larger control files), the binary list and promotion decision are now
+   computed deterministically from data already reliably known
+   (`ctx.requested_binaries` / `dep-analysis.binary_packages` +
+   `lp-package-api.current_component`) and surfaced as a new
+   `promotion_status` evidence field (`checks/llm_eval.py`
+   `_compute_promotion_status`); the model only phrases it, following the
+   same grounding pattern as the earlier DEP-4 fix. SUM-3's catalog entry no
+   longer requires `packaging-source`/`component-mismatches`.
+3. **CB-8 false positive on `dh-sequence-python3`**: the check only grepped
+   `debian/rules` for `dh_python`/`dh_python3`. Modern packaging (including
+   prompt-toolkit) declares `dh-sequence-python3` in debian/control
+   Build-Depends instead, which auto-invokes `dh_python3` with no
+   debian/rules override at all. `_check_cb_8` now also accepts
+   `dh-sequence-python3` in `debian_control`.
+4. **RDO-1 cited irrelevant "main" candidates** (curl, openssl,
+   network-manager) as if they were functional neighbours of a Python
+   terminal-prompt library. Root cause: `dup-search`'s LLM-derived search
+   terms were generic single-phrase strings ("interactive CLI", "command
+   line") that any CLI tool's description can trivially contain verbatim,
+   and RDO-1's `ai_policy` said a main-component candidate was "the most
+   important to surface" with no relevance filter first — so the model
+   dutifully echoed archive noise. Genuinely relevant candidates the user
+   found via a generic AI query (`python3-urwid`, `python3-textual`) were
+   never probed because the search terms never matched their descriptions.
+   Fix, all three (user-selected):
+   - `_llm_dup_search_suggestions()` (renamed from `_llm_dup_search_terms`)
+     asks for `terms` *and* separately for `named_candidates` — concrete
+     package/library names the model directly recognises as functionally
+     similar (e.g. "urwid", "textual") — verified against the archive via a
+     small set of Debian naming-variant guesses (`_resolve_named_candidates`
+     / `_apt_cache_show_synopsis`) before being added as real candidates
+     with their own true synopsis, never the model's guess. The term prompt
+     now explicitly discourages generic phrases with a worked example.
+   - `_apt_cache_search()` now splits a multi-word term into its significant
+     (non-stopword) words and passes each as a separate `apt-cache search`
+     argv pattern, so apt-cache's real multi-pattern AND semantics apply
+     (require each distinct concept word) instead of one literal-phrase
+     substring that a shared common phrase trivially satisfies. Only a small
+     generic English stopword list is used — no domain/package names are
+     hardcoded.
+   - RDO-1's `ai_policy` now explicitly states dup-search is a noisy,
+     unfiltered suggestion pool: the model must judge genuine functional
+     relevance for every candidate first and silently discard irrelevant
+     ones, and only then consider whether a *relevant* survivor is in main.
+     It must never cite a candidate solely because it happens to be in main.
+- Validation from `tools/auto-mir`: `make test` PASS (702 passed, 3 skipped),
+  one commit per numbered issue above. `make integration` intentionally left
+  for the user to run (slow, network/LXD-dependent).

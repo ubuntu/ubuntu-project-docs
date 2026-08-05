@@ -2374,7 +2374,11 @@ def test_collect_dup_search_probes_terms_and_tags_components():
 
     with (
         patch.object(guest_adapters, "_capture", side_effect=fake_capture),
-        patch.object(guest_adapters, "_llm_dup_search_terms", return_value=["AV1 decoder"]),
+        patch.object(
+            guest_adapters,
+            "_llm_dup_search_suggestions",
+            return_value={"terms": ["AV1 decoder"], "named_candidates": []},
+        ),
     ):
         result = guest_adapters.collect_dup_search(ctx)
 
@@ -2383,6 +2387,134 @@ def test_collect_dup_search_probes_terms_and_tags_components():
     # The package's own binary must be excluded from candidates.
     assert "libgav1-2" not in names
     assert result["candidates"][0]["component"] == "main"
+
+
+def test_collect_dup_search_merges_named_candidates():
+    """Model-recognised library names (not found by the search-term probe)
+    must be resolved against the archive and merged into the candidate set."""
+    ctx = SimpleNamespace(
+        source_package="prompt-toolkit",
+        guest_name="vm",
+        llm_token="tok",
+        untrusted_nonce="N",
+        evidence={
+            "adapters": {
+                "packaging-source": {
+                    "status": "ok",
+                    "debian_control": (
+                        "Source: prompt-toolkit\n\n"
+                        "Package: python3-prompt-toolkit\n"
+                        "Description: interactive command line library\n"
+                    ),
+                }
+            }
+        },
+    )
+
+    def fake_capture(ctx_arg, cmd, allow_fail=False, **kwargs):
+        joined = " ".join(cmd)
+        if cmd[:2] == ["apt-cache", "search"]:
+            # Overly generic search terms find only irrelevant noise.
+            return "curl - command line tool for transferring data\n"
+        if "Description" in joined and "python3-urwid" in joined:
+            return "curses-based terminal UI toolkit"
+        if "Description" in joined:
+            return ""
+        if "Section:" in joined and "curl" in joined:
+            return "web"
+        if "Section:" in joined and "python3-urwid" in joined:
+            return "universe/python"
+        return ""
+
+    with (
+        patch.object(guest_adapters, "_capture", side_effect=fake_capture),
+        patch.object(
+            guest_adapters,
+            "_llm_dup_search_suggestions",
+            return_value={"terms": ["command line"], "named_candidates": ["urwid"]},
+        ),
+    ):
+        result = guest_adapters.collect_dup_search(ctx)
+
+    candidates_by_name = {c["name"]: c for c in result["candidates"]}
+    assert "python3-urwid" in candidates_by_name
+    assert candidates_by_name["python3-urwid"]["component"] == "universe"
+    assert candidates_by_name["python3-urwid"]["synopsis"] == "curses-based terminal UI toolkit"
+
+
+def test_significant_search_words_strips_generic_stopwords():
+    assert guest_adapters._significant_search_words("command line") == ["command", "line"]
+    assert guest_adapters._significant_search_words("readline replacement library") == [
+        "readline",
+        "replacement",
+        "library",
+    ]
+    assert guest_adapters._significant_search_words("based on the") == []
+
+
+def test_apt_cache_search_passes_significant_words_as_separate_patterns():
+    """Multi-word terms must be split into separate argv patterns so apt-cache
+    requires all distinct concept words (real multi-pattern AND), instead of
+    one literal-phrase substring any unrelated tool's description could match."""
+    captured_cmds = []
+
+    def fake_capture(ctx_arg, cmd, allow_fail=False, **kwargs):
+        captured_cmds.append(cmd)
+        return ""
+
+    ctx = SimpleNamespace(guest_name="vm")
+    with patch.object(guest_adapters, "_capture", side_effect=fake_capture):
+        guest_adapters._apt_cache_search(ctx, "terminal user interface")
+
+    assert captured_cmds[0] == ["apt-cache", "search", "--", "terminal", "user", "interface"]
+
+
+def test_apt_cache_search_falls_back_to_whole_term_when_not_enough_words():
+    captured_cmds = []
+
+    def fake_capture(ctx_arg, cmd, allow_fail=False, **kwargs):
+        captured_cmds.append(cmd)
+        return ""
+
+    ctx = SimpleNamespace(guest_name="vm")
+    with patch.object(guest_adapters, "_capture", side_effect=fake_capture):
+        guest_adapters._apt_cache_search(ctx, "curses")
+
+    assert captured_cmds[0] == ["apt-cache", "search", "--", "curses"]
+
+
+def test_resolve_named_candidates_tries_debian_naming_variants():
+    def fake_capture(ctx_arg, cmd, allow_fail=False, **kwargs):
+        joined = " ".join(cmd)
+        if "python3-urwid" in joined:
+            return "curses-based UI/widget library"
+        return ""
+
+    ctx = SimpleNamespace(guest_name="vm")
+    with patch.object(guest_adapters, "_capture", side_effect=fake_capture):
+        resolved = guest_adapters._resolve_named_candidates(ctx, ["urwid"], set())
+
+    assert resolved == [("python3-urwid", "curses-based UI/widget library")]
+
+
+def test_resolve_named_candidates_skips_own_binaries_and_unresolved():
+    def fake_capture(ctx_arg, cmd, allow_fail=False, **kwargs):
+        return ""
+
+    ctx = SimpleNamespace(guest_name="vm")
+    with patch.object(guest_adapters, "_capture", side_effect=fake_capture):
+        resolved = guest_adapters._resolve_named_candidates(
+            ctx, ["prompt-toolkit", "nonexistentlib"], {"prompt-toolkit"}
+        )
+
+    assert resolved == []
+
+
+def test_dedupe_suggestions_drops_own_name_and_dupes_and_caps():
+    items = guest_adapters._dedupe_suggestions(
+        ["Foo", "foo", "bar", "libgav1", "baz", "qux"], "libgav1", max_items=3
+    )
+    assert items == ["Foo", "bar", "baz"]
 
 
 def test_rdo1_fallback_rationale_lists_dup_candidates():
