@@ -417,6 +417,51 @@ def test_test_access_items_asked_when_autopkgtests_are_missing(tmp_path):
     assert "REP-QA-TEST-005" in wizard.asked
 
 
+def test_hardware_access_elaboration_skipped_when_no_exotic_hardware(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class NoExoticHardwareWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-QA-MAINT-004": "no-exotic-hardware"}
+
+    wizard = NoExoticHardwareWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-QA-MAINT-002" not in wizard.asked
+    assert by_id["REP-QA-MAINT-002"].state == StatementState.NOT_APPLICABLE
+
+
+def test_hardware_access_elaboration_asked_after_team_access_choice(tmp_path):
+    """REP-QA-MAINT-004 (the canonical choice) must be asked before, and
+    gate, REP-QA-MAINT-002 (the elaboration) instead of both asking an
+    unlinked, overlapping question."""
+    ctx = _ctx(tmp_path)
+    wizard = ChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert wizard.asked.index("REP-QA-MAINT-004") < wizard.asked.index("REP-QA-MAINT-002")
+    assert "REP-QA-MAINT-002" in wizard.asked
+    assert by_id["REP-QA-MAINT-002"].state == StatementState.RESOLVED
+
+
+def test_hardware_access_elaboration_asked_for_other_special_situation(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class OtherSpecialWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-QA-MAINT-004": "other-special"}
+
+    wizard = OtherSpecialWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-QA-MAINT-002" in wizard.asked
+    assert by_id["REP-QA-MAINT-002"].state == StatementState.RESOLVED
+
+
 def test_micro_library_item_skipped_for_non_library_packages(tmp_path):
     ctx = _ctx(tmp_path)
     wizard = ChoiceWizard()

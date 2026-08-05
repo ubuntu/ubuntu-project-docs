@@ -56,8 +56,8 @@ metadata:
   - 'RULE: Upstream, Debian, and Ubuntu maintenance must inspire confidence. Evaluate important, old, critical, and security bugs and discuss relevant open issues.'
   - 'RULE: If exotic hardware is required, identify realistic long-term access for debugging, testing, verification, and development; speculative future access provides less confidence.'
   - item: REP-QA-MAINT-001
-  - item: REP-QA-MAINT-002
   - item: REP-QA-MAINT-004
+  - item: REP-QA-MAINT-002
   - item: REP-QA-MAINT-003
   - ''
   - '[Quality assurance - testing]'
@@ -358,15 +358,6 @@ items:
   adapters_required: [lp-bug-search-api, debian-bts]
   adapters_optional: [upstream-tracker]
   template: 'TODO: - Important Ubuntu, Debian, and upstream bugs: TBD'
-- id: REP-QA-MAINT-002
-  section: Quality assurance - maintenance
-  title: Hardware access
-  mode: human_only
-  readiness: warning
-  question:
-    kind: multiline
-    prompt: Does maintenance require exotic hardware, and how can the owning team access it?
-  template: 'TODO: - Exotic hardware requirements and team access: TBD'
 - id: REP-QA-MAINT-004
   section: Quality assurance - maintenance
   title: Exotic hardware availability
@@ -382,7 +373,25 @@ items:
     - id: team-access
       label: Exotic hardware is required and accessible to the team
       statement: '- Required exotic hardware is available to the owning team for debugging, testing, verification, and development.'
-  template: 'TODO-A/B: - Exotic hardware availability: TBD'
+    - id: other-special
+      label: Something else / a special situation applies
+      statement: '- Exotic hardware access follows a different, situation-specific arrangement; see the details below.'
+  template: 'TODO-A/B/C: - Exotic hardware availability: TBD'
+- id: REP-QA-MAINT-002
+  section: Quality assurance - maintenance
+  title: Hardware access
+  mode: human_only
+  readiness: warning
+  applicability:
+    any:
+    - item: REP-QA-MAINT-004
+      equals: team-access
+    - item: REP-QA-MAINT-004
+      equals: other-special
+  question:
+    kind: multiline
+    prompt: Describe how the owning team can/will access the required exotic hardware for debugging, testing, verification, and development.
+  template: 'TODO: - Exotic hardware requirements and team access: TBD'
 - id: REP-QA-MAINT-003
   section: Quality assurance - maintenance
   title: Maintenance health assessment

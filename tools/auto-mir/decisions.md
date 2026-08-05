@@ -2633,4 +2633,45 @@ exotic-hardware duplicate-question fix (P14).
 **Validation from `tools/auto-mir`:** `make test` PASS (654 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: exotic-hardware duplicate question fixed (P14)
+
+**Promotion:** no
+
+**Context:** REP-QA-MAINT-002 (free text, "Does maintenance require exotic
+hardware, and how can the owning team access it?", always asked) and
+REP-QA-MAINT-004 (single_choice, "Does maintenance depend on exotic hardware
+unavailable to ordinary infrastructure?", always asked) were unlinked
+catalog items covering the same determination, with REP-QA-MAINT-002 asked
+*before* REP-QA-MAINT-004 in both the asking order (`items:`) and the draft
+order (`reporter_template_blueprint`) — the reporter answered the
+free-text/elaboration question before ever being asked the canonical
+yes/no. REP-QA-TEST-005 already treats REP-QA-MAINT-004's `team-access`
+answer as the canonical signal for whether exotic hardware exists, so
+REP-QA-MAINT-002 was the redundant, wrongly-ordered one.
+
+**Decision:**
+- Reordered both `items:` and `reporter_template_blueprint` so
+  REP-QA-MAINT-004 (the choice) precedes REP-QA-MAINT-002 (the elaboration),
+  matching the existing choice-then-elaboration pattern used elsewhere
+  (REP-RATIONALE-007/008, REP-STD-002/002B, REP-MAINT-001/001B).
+- Added a 3rd option to REP-QA-MAINT-004: `other-special` ("Something else /
+  a special situation applies").
+- Narrowed REP-QA-MAINT-002's prompt to elaboration-only ("Describe how the
+  owning team can/will access the required exotic hardware for debugging,
+  testing, verification, and development.") and gated it:
+  `applicability: {any: [{item: REP-QA-MAINT-004, equals: team-access},
+  {item: REP-QA-MAINT-004, equals: other-special}]}`.
+
+**Consequences:**
+- Exotic hardware is now asked about once, in the right order: the
+  yes/no/other determination first, then (only when relevant) how access is
+  actually arranged.
+- REP-QA-TEST-005's own applicability (gated on `REP-QA-MAINT-004 ==
+  team-access`) is unchanged; `other-special` was deliberately left out of
+  that gate since it wasn't part of this fix's motivating case and expanding
+  it wasn't decided.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (657 passed,
+3 skipped).
+
 
