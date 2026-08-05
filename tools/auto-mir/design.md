@@ -140,19 +140,23 @@ confirmation. Human declarations are never inferred from package evidence.
 
 ## Catalog composition
 
-- `catalog.yaml` remains the established reviewer policy authority during the
-  compatibility migration.
-- `catalog-shared.yaml` explicitly declares the global policy and adapter
-  sections inherited by role catalogs.
-- `catalog-mir-review.yaml` is the reviewer role entry point and records
-  reviewer section ownership while loading the established data file through a
-  compatibility reference.
-- `catalog-mir-report.yaml` owns reporter items, questions, readiness policy,
-  and the reporter template blueprint.
+- `catalog.yaml` holds only the sections shared by both roles:
+  `global_policies` (confidence model) and `evidence_adapters` (data
+  collection interfaces).
+- `catalog-mir-review.yaml` owns all reviewer-only content directly: `role:
+  review`, `metadata` (reviewer-template blueprint), `checks`,
+  `security_triggers`, `render_policy`, `fallback_policy`.
+- `catalog-mir-report.yaml` owns all reporter-only content directly: `role:
+  report`, `metadata` (reporter-template blueprint), `items` (questions,
+  readiness effects, terminal templates).
+- `catalog.load_catalog_for_role(tool_root, workspace_root, role)` composes
+  the runtime view for either role the same way: load `catalog.yaml`'s shared
+  sections, load the role's own file, reject either side overriding the
+  other's keys, then validate the composed dict as a whole
+  (`validate_catalog` for review, `validate_report_catalog` for report).
 
-Reporter composition rejects shared-section overrides and validates every item,
-adapter reference, and blueprint reference. Physical extraction of the shared
-and review sections from the compatibility catalog remains follow-up work.
+Both compositions reject shared-section overrides and validate every check /
+item, adapter reference, and blueprint reference on the assembled result.
 
 The report catalog currently defines 53 stable logical items. Its runtime
 supports catalog options, multi-select choices, safe applicability conditions,
@@ -249,6 +253,8 @@ tools/auto-mir/
   models.py
   contracts.py
   catalog.yaml
+  catalog-mir-review.yaml
+  catalog-mir-report.yaml
   catalog.py
   CATALOG.md
   checks/

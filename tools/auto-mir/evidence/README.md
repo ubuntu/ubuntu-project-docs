@@ -29,8 +29,9 @@ Adapters register through the registry with optional dependencies:
 - optional adapters are collected best-effort and do not fail the run.
 
 The `@adapter(..., depends_on=...)` registration is currently authoritative for
-runtime ordering. `catalog.yaml` documents adapter interfaces and checks
-references, but its adapter metadata is not used to order execution. Keep both
+runtime ordering. `catalog.yaml` documents adapter interfaces, and
+`catalog-mir-review.yaml`/`catalog-mir-report.yaml` reference them from checks
+and items, but this adapter metadata is not used to order execution. Keep both
 representations aligned until the planned catalog consolidation removes this
 temporary duplication.
 

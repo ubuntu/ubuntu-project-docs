@@ -2743,4 +2743,52 @@ a future round rather than guessed at here.
 **Validation from `tools/auto-mir`:** `make test` PASS (669 passed,
 3 skipped).
 
+## 2026-08-05 — Physical catalog split completed (user feedback on file naming)
+
+- Promotion: no
+- Context: user testing of reporter mode surfaced confusion about the catalog
+  YAML layout: `catalog-mir-review.yaml` and `catalog-shared.yaml` were not
+  content, only tiny composition contracts (5-7 lines) pointing back into
+  `catalog.yaml`, which still held all reviewer-only content (`metadata`,
+  `checks`, `security_triggers`, `render_policy`, `fallback_policy`) alongside
+  the sections actually shared with reporter mode (`global_policies`,
+  `evidence_adapters`). This was the deliberately deferred half of the
+  2026-07-15 "Composed reporter catalog and review compatibility contract"
+  decision (design.md: "Physical extraction of the shared and review sections
+  from the compatibility catalog remains follow-up work").
+- Decision:
+  - `catalog.yaml` now holds only `global_policies` and `evidence_adapters`.
+  - `catalog-mir-review.yaml` now holds the reviewer-only content directly
+    (`schema_version`, `role: review`, `metadata`, `checks`,
+    `security_triggers`, `render_policy`, `fallback_policy`), mirroring
+    `catalog-mir-report.yaml`'s existing shape exactly.
+  - `catalog-shared.yaml` is removed; its shared-section allow-list is now the
+    `_SHARED_SECTIONS` constant in `catalog.py`.
+  - `catalog.load_catalog_for_role()` is rewritten into one symmetric
+    composition flow for both roles (load `catalog.yaml`'s shared sections,
+    load the role's own file, reject either side overriding the other,
+    validate the composed dict as a whole), replacing the previous asymmetric
+    review-pointer / report-merge branches. `validate_catalog()` and
+    `validate_report_catalog()` are unchanged — they now run against the
+    composed dict instead of a single raw file.
+  - `render_review_template.py` drops the fragile `if args.catalog ==
+    "tools/auto-mir/catalog.yaml":` string-equality special case: no
+    `--catalog` override now always loads the composed review catalog.
+  - The move is a pure mechanical relocation with no wording/content changes.
+- Consequences:
+  - Adding a reviewer-only check or reporter-only item now only ever touches
+    one file; adding a genuinely shared field only ever touches `catalog.yaml`.
+  - Fixed a real latent bug surfaced while removing the now-fully-unused
+    `RunContext.catalog_path`: `_save_test_artifacts()` (the `--collect-only`
+    fixture-saving path, not covered by unit tests) still loaded
+    `catalog.load_catalog(ctx.catalog_path, ...)` against the now-partial
+    `catalog.yaml`; switched it to `catalog.load_catalog_for_role(ctx.tool_root,
+    ctx.workspace_root, ctx.role)` like every other call site.
+  - Verified byte-for-byte equivalence of the moved YAML content (diffed the
+    reconstructed original section order against the pre-change file) and
+    byte-identical generated `mir-reviewers-template-body.include` /
+    `mir-reporters-template-body.include` output before vs after (rendered
+    from a `git worktree` at the pre-change commit).
+- Validation from `tools/auto-mir`: `make test` PASS (669 passed, 3 skipped).
+
 

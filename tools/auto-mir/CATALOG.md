@@ -1,50 +1,60 @@
-# Auto-MIR Catalog Reference (`catalog.yaml`)
+# Auto-MIR Catalog Reference (`catalog.yaml` / `catalog-mir-review.yaml`)
 
-`catalog.yaml` is the single, human-auditable source of truth for the automated
-MIR review. It declares every check, the evidence adapters they consume, and —
-crucially — **all reviewer-facing text every check can emit**. Evaluator code in
-`checks/` contains only logic; it never contains reviewer-draft wording.
+The catalog is the single, human-auditable source of truth for the automated
+MIR review, split across two files by ownership:
+
+- `catalog.yaml` — sections shared by both reviewer and reporter mode:
+  `global_policies` (confidence model) and `evidence_adapters` (data
+  collection interfaces). Keep it small: only add a section here if it is
+  genuinely shared by both roles.
+- `catalog-mir-review.yaml` — everything reviewer-only: `metadata`
+  (reviewer-template blueprint), `checks` (every check definition and —
+  crucially — **all reviewer-facing text every check can emit**),
+  `security_triggers`, `render_policy`, `fallback_policy`. Evaluator code in
+  `checks/` contains only logic; it never contains reviewer-draft wording.
+- `catalog-mir-report.yaml` — the reporter-only counterpart: `metadata`
+  (reporter-template blueprint) and `items` (reporter questions, readiness
+  effects, terminal templates).
 
 If you want to change *what the tool says*, you change the catalog. If you want to
 change *how the tool decides*, you change the evaluator. This separation is
 enforced by a test (see [Message single-sourcing](#message-single-sourcing)).
 
-Reporter user testing uses a composed role catalog:
-
-- `catalog-shared.yaml` declares which established policy/adapter sections are
-   shared.
-- `catalog-mir-review.yaml` is the reviewer role entry point and records its
-   owned sections. It currently loads the established reviewer data file through
-   a compatibility reference; role-aware runtime and template generation no
-   longer bypass this contract.
-- `catalog-mir-report.yaml` is the single source for reporter items, terminal
-   questions, readiness effects, and the generated reporter template body.
-
-Use `catalog.load_catalog_for_role()` for role-aware runtime loading. Direct
-`load_catalog()` remains the reviewer compatibility API.
+`catalog.load_catalog_for_role(tool_root, workspace_root, role)` composes the
+runtime view for `"review"` or `"report"`: it loads `catalog.yaml`'s shared
+sections plus the role's own file, and rejects either side overriding the
+other. Both role files declare their own `role:` marker and are validated as a
+composed whole. Direct `load_catalog(path, workspace_root)` remains available
+for loading an ad-hoc, standalone, fully self-contained catalog file (used by
+some tests and `render_review_template.py --catalog <path>` overrides).
 
 ---
 
 ## Top-level structure
 
 ```yaml
-metadata:            # review_template_blueprint for the offline doc renderer
+# catalog.yaml (shared)
 global_policies:     # confidence_model shared across checks
 evidence_adapters:   # data-collection interfaces (APIs, tools, scripts)
+
+# catalog-mir-review.yaml (reviewer-only)
+metadata:            # review_template_blueprint for the offline doc renderer
 checks:              # the check definitions (grouped by section, with banners)
 security_triggers:   # cross-cutting security actions linked from SEC-* checks
+render_policy:       # reviewer draft rendering conventions
+fallback_policy:     # behavior when evidence collection fails
 ```
 
 Only fields that runtime code actually reads (plus `notes`, kept as human
 documentation) live in the file. Nothing is declared "for future use".
 
-| Section | Read by | Purpose |
-| --- | --- | --- |
-| `metadata.review_template_blueprint` | `render_review_template.py` | Regenerates the human reviewer template (`docs/MIR/`). Offline only. |
-| `global_policies.confidence_model.description` | `checks/llm_eval.py` | Injected into AI prompts. |
-| `evidence_adapters[]` | `catalog.py`, contributors | Adapter id/type/description documentation and reference validation. Runtime dependency wiring currently lives with `@adapter` registrations. |
-| `checks[]` | `checks/` | Check definitions (see below). |
-| `security_triggers[]` | `catalog.py` (count), future dispatcher | Documents intended actions when a `security_trigger` fires. |
+| Section | File | Read by | Purpose |
+| --- | --- | --- | --- |
+| `metadata.review_template_blueprint` | catalog-mir-review.yaml | `render_review_template.py` | Regenerates the human reviewer template (`docs/MIR/`). Offline only. |
+| `global_policies.confidence_model.description` | catalog.yaml | `checks/llm_eval.py` | Injected into AI prompts. |
+| `evidence_adapters[]` | catalog.yaml | `catalog.py`, contributors | Adapter id/type/description documentation and reference validation. Runtime dependency wiring currently lives with `@adapter` registrations. |
+| `checks[]` | catalog-mir-review.yaml | `checks/` | Check definitions (see below). |
+| `security_triggers[]` | catalog-mir-review.yaml | `catalog.py` (count), future dispatcher | Documents intended actions when a `security_trigger` fires. |
 
 ---
 
@@ -156,8 +166,8 @@ single-sourcing rule above applies to deterministic checks.
 
 ## How to add or modify a deterministic check
 
-1. **Declare the check** in `catalog.yaml` under the right `section:` (keep the
-   canonical field order; place it within the section's banner block).
+1. **Declare the check** in `catalog-mir-review.yaml` under the right `section:`
+   (keep the canonical field order; place it within the section's banner block).
 2. **Declare every outcome** under `messages:` — one key per draft the evaluator
    can emit. Put dynamic detail in `{placeholders}`. Example:
    ```yaml
@@ -201,9 +211,9 @@ single-sourcing rule above applies to deterministic checks.
 6. **Run `make test`.** The message-sourcing guard, placeholder validation, and
    your unit test all run.
 
-**To change wording only:** edit the value in `catalog.yaml` `messages` (and the
-matching fixture in `tests/test_checks.py`). No evaluator change is needed — that
-is the whole point of the design.
+**To change wording only:** edit the value in `catalog-mir-review.yaml`
+`messages` (and the matching fixture in `tests/test_checks.py`). No evaluator
+change is needed — that is the whole point of the design.
 
 ---
 

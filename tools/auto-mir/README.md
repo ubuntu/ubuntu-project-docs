@@ -101,9 +101,9 @@ Component overview:
 
 ```
 ┌──────────────────────────┐
-│ auto-mir.py              │ defines┌──────────────┐
-│ orchestrates order and   ◄────────┼ catalog.yaml │
-│ dependencies             │        └──────────────┘
+│ auto-mir.py              │ defines┌───────────────────────┐
+│ orchestrates order and   ◄────────┼ catalog*.yaml files   │
+│ dependencies             │        └───────────────────────┘
 └────────────────┬─────────┘
 ┌────────────────▼────────────────────────────┐  ┌────────────────────────────────┐
 │ evidence/                                   │  │ orchestration / intake         │
