@@ -61,14 +61,46 @@ def test_all_binaries_already_in_main_signals_rereview():
     ctx = _ctx(
         evidence={
             "adapters": {
-                "dep-analysis": {"binary_packages": ["libfoo1", "libfoo-dev"]},
-                "component-mismatches": {"promotion_candidates": []},
+                "lp-package-api": {"current_component": "main"},
             }
         }
     )
     decision = review_type.detect_review_type(ctx)
     assert decision.review_type == review_type.REREVIEW
     assert "already in main" in decision.rationale
+
+
+def test_universe_component_does_not_signal_rereview():
+    # Regression for the prompt-toolkit MIR bug: component-mismatches reporting
+    # zero promotion candidates does NOT mean "already in main" — it is equally
+    # produced when a package correctly sits in universe with no main-seed
+    # expectation. current_component is the sole source of truth now.
+    ctx = _ctx(
+        evidence={
+            "adapters": {
+                "dep-analysis": {"binary_packages": ["python3-prompt-toolkit"]},
+                "component-mismatches": {"promotion_candidates": []},
+                "lp-package-api": {"current_component": "universe"},
+            }
+        }
+    )
+    decision = review_type.detect_review_type(ctx)
+    assert decision.review_type == review_type.FRESH
+
+
+def test_missing_lp_package_api_does_not_signal_rereview():
+    # Fail closed: no positive evidence of "already in main" means fresh, never
+    # a silent fallback to the old (wrong) component-mismatches-based proxy.
+    ctx = _ctx(
+        evidence={
+            "adapters": {
+                "dep-analysis": {"binary_packages": ["libfoo1"]},
+                "component-mismatches": {"promotion_candidates": []},
+            }
+        }
+    )
+    decision = review_type.detect_review_type(ctx)
+    assert decision.review_type == review_type.FRESH
 
 
 def test_mirror_word_does_not_trigger_rereview():
@@ -184,8 +216,7 @@ def test_reorg_takes_precedence_over_rereview():
         reporter_mir_content="This renamed source is up for a re-review.",
         evidence={
             "adapters": {
-                "dep-analysis": {"binary_packages": ["libfoo1"]},
-                "component-mismatches": {"promotion_candidates": []},
+                "lp-package-api": {"current_component": "main"},
             }
         },
     )

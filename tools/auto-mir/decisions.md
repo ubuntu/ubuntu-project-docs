@@ -1023,6 +1023,35 @@ phases do not drift.
   get-mir-bug helper but does not import or reuse it. 404/transient failures per
   candidate are skipped rather than failing the adapter.
 
+### Correction: "already in main" signal was wrong (2026-08-05)
+
+- Promotion: no
+- Context: beta feedback on the prompt-toolkit MIR bug (2161382) showed the
+  tool asserting a voluntary re-review "of a package already in main: all
+  binary packages are already in main" for a package that is universe in
+  every active release (confirmed via `rmadison -u ubuntu -a source
+  prompt-toolkit`).
+- Root cause: `_all_binaries_already_in_main()` treated
+  `component-mismatches` reporting zero promotion candidates as "already in
+  main". That tool only reports seed/component *mismatches* — a package
+  correctly sitting in universe with no main-seed expectation at all also
+  produces zero candidates, which is indistinguishable from "already in
+  main" using that signal alone. This was the original 2026-07-13 design
+  decision above, and it was wrong.
+- Decision: `lp-package-api` (already fetching `component_name` per publish
+  record for the target series) now surfaces a resolved `current_component`
+  field (newest `Published` record, falling back to the newest record of any
+  status, else `"unknown"`) — the direct archive-level equivalent of
+  `rmadison`. `_all_binaries_already_in_main()` now checks
+  `current_component == "main"` only, and fails closed (`False`) when
+  `lp-package-api` is missing/unresolved, rather than falling back to the old
+  proxy. `component-mismatches` keeps running (it may still have archive
+  housekeeping value) but is no longer consulted for this decision.
+- Scope: this also fixes SUM-3's "list of binaries to promote", which is
+  grounded on the same `current_component` signal (see the SUM-3 evidence
+  fix below) instead of asking the LLM to re-derive it from a truncated
+  `debian/control` excerpt.
+
 ## Early review-type pre-detection for reporter template gate (2026-07-15)
 
 - Promotion: no

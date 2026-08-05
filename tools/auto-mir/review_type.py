@@ -93,21 +93,27 @@ def _adapters(ctx) -> dict:
 
 
 def _all_binaries_already_in_main(ctx) -> bool:
-    """True when the package ships binaries yet none need promotion.
+    """True when the source's binaries are currently published in main.
 
-    dep-analysis lists every binary package; component-mismatches lists the ones
-    still needing a universe->main promotion. If there are binaries but the
-    promotion list is empty, the package is effectively already in main — a
-    strong voluntary-re-review signal.
+    Uses ``lp-package-api``'s ``current_component`` — the component of the
+    newest publish record for this source in the target series, equivalent to
+    what ``rmadison`` shows — as the sole source of truth. Fails closed
+    (returns False) when that adapter is missing/unavailable/unresolved,
+    rather than guessing: this is deliberately the only source of truth here.
+
+    NOTE: ``component-mismatches`` (the ubuntu-archive-tools promotion-report
+    script) was previously (mis)used as this signal by treating an empty
+    promotion-candidate list as "already in main". That tool only reports
+    seed/component *mismatches*; an empty list is equally produced when a
+    package is correctly sitting in universe with no main-seed expectation at
+    all, so it cannot answer "is this already in main" (see decisions.md for
+    the 2026-08-05 correction).
     """
     adapters = _adapters(ctx)
-    dep = adapters.get("dep-analysis", {})
-    cm = adapters.get("component-mismatches", {})
-    if not isinstance(dep, dict) or not isinstance(cm, dict):
+    lp_package = adapters.get("lp-package-api", {})
+    if not isinstance(lp_package, dict):
         return False
-    binaries = dep.get("binary_packages", []) or []
-    promotion = cm.get("promotion_candidates", []) or []
-    return bool(binaries) and not promotion
+    return lp_package.get("current_component") == "main"
 
 
 def _prior_mir_under_other_name(ctx) -> list[str]:
@@ -156,10 +162,10 @@ def pre_detect_review_type(ctx) -> ReviewTypeDecision:
 
     The authoritative resolution is ``detect_review_type()`` in Stage 4, which
     additionally considers evidence adapters (``lp-mir-history``,
-    ``dup-search``, ``dep-analysis``, ``component-mismatches``). A
-    pre-detection of ``fresh`` is therefore not final: the full detection may
-    still upgrade it to ``rereview`` or ``reorg`` once evidence is available.
-    The reverse (pre-detect reorg, full detect fresh) is possible but unlikely
+    ``lp-package-api``). A pre-detection of ``fresh`` is therefore not final:
+    the full detection may still upgrade it to ``rereview`` or ``reorg`` once
+    evidence is available. The reverse (pre-detect reorg, full detect fresh)
+    is possible but unlikely
     since text signals are a strong indicator.
 
     reorg is checked before rereview because a renamed/reorganised source is the
@@ -225,8 +231,7 @@ def detect_review_type(ctx) -> ReviewTypeDecision:
 
     This is the authoritative Stage-4 resolution. It combines bug text signals
     (shared with ``pre_detect_review_type``) with evidence-adapter signals only
-    available after Stage 3 collection (``lp-mir-history``, ``dep-analysis``,
-    ``component-mismatches``).
+    available after Stage 3 collection (``lp-mir-history``, ``lp-package-api``).
 
     reorg is checked before rereview because a renamed/reorganised source is the
     more specific case; both soften findings identically, so the label mainly
