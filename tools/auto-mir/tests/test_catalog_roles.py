@@ -12,11 +12,18 @@ sys.path.insert(0, str(TOOL_ROOT))
 import catalog  # noqa: E402
 
 
-def test_review_role_preserves_existing_catalog():
-    legacy = catalog.load_catalog(TOOL_ROOT / "catalog.yaml", WORKSPACE_ROOT)
+def test_review_role_composes_shared_and_review_sections():
     review = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "review")
 
-    assert review == legacy
+    assert review["role"] == "review"
+    assert review["checks"]
+    assert review["evidence_adapters"]
+    assert review["global_policies"]
+    assert review["security_triggers"]
+    assert review["render_policy"]
+    assert review["fallback_policy"]
+    assert review["metadata"]["review_template_blueprint"]
+    assert "items" not in review
     assert (TOOL_ROOT / "catalog-mir-review.yaml").exists()
 
 

@@ -64,9 +64,12 @@ def _load_yaml_strict(handle: Any, yaml_module: Any) -> dict:
 
 
 def load_catalog(catalog_path: Path, workspace_root: Path) -> dict:
-    """Load catalog.yaml and return the parsed structure.
+    """Load a complete, standalone catalog YAML file and return its structure.
 
-    The host CLI depends on YAML parsing, so emit a precise error if PyYAML is
+    The file must carry every section ``validate_catalog`` requires (this is
+    the contract used for ad-hoc/synthetic full catalogs and CLI overrides;
+    role-composed loading goes through ``load_catalog_for_role`` instead). The
+    host CLI depends on YAML parsing, so emit a precise error if PyYAML is
     missing rather than failing later during analysis.
     """
     try:
@@ -117,56 +120,64 @@ def _load_yaml_path(path: Path) -> dict:
         raise SystemExit(1) from exc
 
 
+# Top-level sections catalog.yaml (the shared file) is allowed to hold. Both
+# role catalogs merge these in; anything else appearing in catalog.yaml would
+# silently leak into both roles, so loading rejects unexpected sections there.
+_SHARED_SECTIONS = ("global_policies", "evidence_adapters")
+
+# Role-only catalog file holding each role's real content directly (checks and
+# reviewer-template blueprint for "review"; items and reporter-template
+# blueprint for "report").
+_ROLE_CATALOG_FILENAMES = {
+    "review": "catalog-mir-review.yaml",
+    "report": "catalog-mir-report.yaml",
+}
+
+
 def load_catalog_for_role(tool_root: Path, workspace_root: Path, role: str) -> dict:
     """Load the composed catalog view for ``review`` or ``report``.
 
-    Reviewer policy remains authoritative in ``catalog.yaml`` during the
-    compatibility migration. The shared composition contract explicitly names
-    the sections inherited by reporter mode; reporter items and its template
-    blueprint live only in ``catalog-mir-report.yaml``.
+    Both roles are assembled the same way: the shared sections declared in
+    ``catalog.yaml`` (confidence model, evidence adapters) are merged with the
+    role-only content declared directly in ``catalog-mir-review.yaml`` or
+    ``catalog-mir-report.yaml``. Neither side may override the other's keys.
     """
-    if role == "review":
-        review_contract = _load_yaml_path(tool_root / "catalog-mir-review.yaml")
-        if review_contract.get("role") != "review":
-            print("Invalid review catalog composition contract", file=sys.stderr)
-            raise SystemExit(1)
-        source_name = review_contract.get("source_catalog")
-        role_sections = review_contract.get("role_sections")
-        if not isinstance(source_name, str) or not isinstance(role_sections, list):
-            print("Invalid review catalog composition contract", file=sys.stderr)
-            raise SystemExit(1)
-        review = load_catalog(tool_root / source_name, workspace_root)
-        missing = sorted(set(role_sections) - set(review))
-        if missing:
-            print(
-                "Review source catalog is missing owned sections: " + ", ".join(missing),
-                file=sys.stderr,
-            )
-            raise SystemExit(1)
-        return review
-    if role != "report":
+    role_filename = _ROLE_CATALOG_FILENAMES.get(role)
+    if role_filename is None:
         print(f"Unknown catalog role: {role}", file=sys.stderr)
         raise SystemExit(1)
 
-    shared_contract = _load_yaml_path(tool_root / "catalog-shared.yaml")
-    source_name = shared_contract.get("source_catalog")
-    shared_sections = shared_contract.get("shared_sections")
-    if not isinstance(source_name, str) or not isinstance(shared_sections, list):
-        print("Invalid shared catalog composition contract", file=sys.stderr)
+    shared = _load_yaml_path(tool_root / "catalog.yaml")
+    unexpected = sorted(set(shared) - set(_SHARED_SECTIONS))
+    if unexpected:
+        print(
+            "catalog.yaml must only hold shared sections; found unexpected: "
+            + ", ".join(unexpected),
+            file=sys.stderr,
+        )
         raise SystemExit(1)
 
-    source = load_catalog(tool_root / source_name, workspace_root)
-    report = _load_yaml_path(tool_root / "catalog-mir-report.yaml")
-    composed = {section: source[section] for section in shared_sections if section in source}
-    for key, value in report.items():
+    role_only = _load_yaml_path(tool_root / role_filename)
+    if role_only.get("role") != role:
+        print(
+            f"Invalid {role} catalog composition: {role_filename} must declare role: {role}",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
+    composed = {section: shared[section] for section in _SHARED_SECTIONS if section in shared}
+    for key, value in role_only.items():
         if key in composed:
-            print(f"Reporter catalog attempts to override shared section: {key}", file=sys.stderr)
+            print(
+                f"{role} catalog attempts to override shared section: {key}",
+                file=sys.stderr,
+            )
             raise SystemExit(1)
         composed[key] = value
 
-    errors = validate_report_catalog(composed)
+    errors = validate_catalog(composed) if role == "review" else validate_report_catalog(composed)
     if errors:
-        print("Reporter catalog validation errors:", file=sys.stderr)
+        print(f"{role.capitalize()} catalog validation errors:", file=sys.stderr)
         for error in errors:
             print(f"  - {error}", file=sys.stderr)
         raise SystemExit(1)

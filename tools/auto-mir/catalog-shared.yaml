@@ -1,6 +1,0 @@
-# Shared catalog composition contract for both MIR roles.
-schema_version: 1
-source_catalog: catalog.yaml
-shared_sections:
-- global_policies
-- evidence_adapters

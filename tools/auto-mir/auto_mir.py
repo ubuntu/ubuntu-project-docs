@@ -283,7 +283,7 @@ class RunContext:
     Resolved in __init__ (from CLI args):
         bug_id, series, keep_guest, lxd_image,
         llm_model_small, llm_model_large, collect_only, tool_root,
-        workspace_root, catalog_path, run_name, output_dir
+        workspace_root, run_name, output_dir
 
     Populated by stage_auth (Stage 0 — auth setup):
         llm_provider, llm_api_url, llm_token, auth_source
@@ -331,9 +331,6 @@ class RunContext:
         self.review_type: str = "fresh"
         self.tool_root = Path(__file__).resolve().parent
         self.workspace_root = self.tool_root.parent.parent
-        self.catalog_path = self.tool_root / (
-            "catalog.yaml" if self.role == ROLE_REVIEW else "catalog-mir-report.yaml"
-        )
 
         # LXD guest name is always auto-generated
         run_subject = self.bug_id if self.role == ROLE_REVIEW else self.source_package
@@ -956,7 +953,7 @@ def _save_test_artifacts(ctx: RunContext) -> None:
         json.dump(redactor.sanitize(ctx.evidence), f, indent=2, default=str)
 
     if not ctx.catalog:
-        ctx.catalog = catalog.load_catalog(ctx.catalog_path, ctx.workspace_root)
+        ctx.catalog = catalog.load_catalog_for_role(ctx.tool_root, ctx.workspace_root, ctx.role)
 
     deterministic_catalog = {
         "checks": [c for c in ctx.catalog.get("checks", []) if c.get("mode") == "deterministic"]

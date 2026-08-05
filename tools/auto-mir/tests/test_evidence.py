@@ -234,9 +234,9 @@ def test_all_catalog_adapters_are_registered():
     import catalog
     from evidence.registry import ADAPTER_REGISTRY
 
-    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
-    workspace_root = Path(__file__).resolve().parent.parent.parent.parent
-    catalog_data = catalog.load_catalog(catalog_path, workspace_root)
+    tool_root = Path(__file__).resolve().parent.parent
+    workspace_root = tool_root.parent.parent
+    catalog_data = catalog.load_catalog_for_role(tool_root, workspace_root, "review")
 
     referenced: set[str] = set()
     for check in catalog_data.get("checks", []):
@@ -255,7 +255,7 @@ def test_catalog_adapter_dependencies_match_registrations():
 
     tool_root = Path(__file__).resolve().parent.parent
     workspace_root = tool_root.parent.parent
-    catalog_data = catalog.load_catalog(tool_root / "catalog.yaml", workspace_root)
+    catalog_data = catalog.load_catalog_for_role(tool_root, workspace_root, "review")
     _ensure_adapters_registered()
 
     catalog_dependencies = _catalog_adapter_dependencies(catalog_data)

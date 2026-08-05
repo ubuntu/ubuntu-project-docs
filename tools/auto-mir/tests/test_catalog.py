@@ -4,11 +4,10 @@ import sys
 from pathlib import Path
 
 import pytest
-import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from catalog import load_catalog, summarize_catalog, validate_catalog
+from catalog import load_catalog, load_catalog_for_role, summarize_catalog, validate_catalog
 
 # ---------------------------------------------------------------------------
 # Catalog loading
@@ -16,11 +15,11 @@ from catalog import load_catalog, summarize_catalog, validate_catalog
 
 
 def test_load_catalog_parses_yaml():
-    """Catalog should load without errors."""
-    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
-    workspace_root = Path(__file__).resolve().parent.parent.parent
+    """The composed review catalog should load without errors."""
+    tool_root = Path(__file__).resolve().parent.parent
+    workspace_root = tool_root.parent.parent
 
-    catalog = load_catalog(catalog_path, workspace_root)
+    catalog = load_catalog_for_role(tool_root, workspace_root, "review")
 
     assert catalog is not None
     assert isinstance(catalog, dict)
@@ -53,11 +52,11 @@ def test_load_catalog_rejects_non_mapping_root(tmp_path, capsys):
 
 
 def test_load_catalog_has_required_sections():
-    """Catalog should have all required top-level sections."""
-    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
-    workspace_root = Path(__file__).resolve().parent.parent.parent
+    """The composed review catalog should have all required top-level sections."""
+    tool_root = Path(__file__).resolve().parent.parent
+    workspace_root = tool_root.parent.parent
 
-    catalog = load_catalog(catalog_path, workspace_root)
+    catalog = load_catalog_for_role(tool_root, workspace_root, "review")
 
     assert "metadata" in catalog
     assert "global_policies" in catalog
@@ -67,10 +66,10 @@ def test_load_catalog_has_required_sections():
 
 def test_load_catalog_checks_have_required_fields():
     """All checks should have required fields."""
-    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
-    workspace_root = Path(__file__).resolve().parent.parent.parent
+    tool_root = Path(__file__).resolve().parent.parent
+    workspace_root = tool_root.parent.parent
 
-    catalog = load_catalog(catalog_path, workspace_root)
+    catalog = load_catalog_for_role(tool_root, workspace_root, "review")
     checks = catalog.get("checks", [])
 
     assert len(checks) > 0, "Catalog should have at least one check"
@@ -90,10 +89,10 @@ def test_load_catalog_checks_have_required_fields():
 
 def test_load_catalog_adapters_have_required_fields():
     """All adapters should have required fields."""
-    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
-    workspace_root = Path(__file__).resolve().parent.parent.parent
+    tool_root = Path(__file__).resolve().parent.parent
+    workspace_root = tool_root.parent.parent
 
-    catalog = load_catalog(catalog_path, workspace_root)
+    catalog = load_catalog_for_role(tool_root, workspace_root, "review")
     adapters = catalog.get("evidence_adapters", [])
 
     assert len(adapters) > 0, "Catalog should have at least one adapter"
@@ -106,10 +105,10 @@ def test_load_catalog_adapters_have_required_fields():
 
 def test_synthesis_checks_are_marked():
     """SUM-5 and SUM-6 must carry the synthesis flag so they run last."""
-    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
-    workspace_root = Path(__file__).resolve().parent.parent.parent
+    tool_root = Path(__file__).resolve().parent.parent
+    workspace_root = tool_root.parent.parent
 
-    catalog = load_catalog(catalog_path, workspace_root)
+    catalog = load_catalog_for_role(tool_root, workspace_root, "review")
     by_id = {c["id"]: c for c in catalog.get("checks", [])}
 
     assert by_id["SUM-5"].get("synthesis") is True
@@ -118,10 +117,10 @@ def test_synthesis_checks_are_marked():
 
 def test_rdo_3_uses_ev_to_ai_with_lp_bug_api():
     """RDO-3 should route through ev_to_ai and keep the lp-bug-api adapter."""
-    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
-    workspace_root = Path(__file__).resolve().parent.parent.parent
+    tool_root = Path(__file__).resolve().parent.parent
+    workspace_root = tool_root.parent.parent
 
-    catalog = load_catalog(catalog_path, workspace_root)
+    catalog = load_catalog_for_role(tool_root, workspace_root, "review")
     by_id = {c["id"]: c for c in catalog.get("checks", [])}
 
     rdo_3 = by_id["RDO-3"]
@@ -311,9 +310,10 @@ def test_validate_catalog_option_accepts_valid_render_and_outcome():
 
 def test_validate_catalog_real_catalog_options_are_wellformed():
     """The shipped catalog's ev_to_ai option checks all declare render+outcome."""
-    catalog_path = Path(__file__).resolve().parent.parent / "catalog.yaml"
-    with catalog_path.open(encoding="utf-8") as fh:
-        loaded = yaml.safe_load(fh)
+    tool_root = Path(__file__).resolve().parent.parent
+    workspace_root = tool_root.parent.parent
+
+    loaded = load_catalog_for_role(tool_root, workspace_root, "review")
     assert validate_catalog(loaded) == []
 
 

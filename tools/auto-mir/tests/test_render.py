@@ -4,10 +4,9 @@ import sys
 from pathlib import Path
 from unittest.mock import Mock
 
-import yaml
-
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import catalog as catalog_module
 from models import Finding
 from render import (
     _SECTION_ORDER,
@@ -24,18 +23,18 @@ from render import (
 # Catalog section cross-check
 # ---------------------------------------------------------------------------
 
-_CATALOG_PATH = Path(__file__).resolve().parent.parent / "catalog.yaml"
+_TOOL_ROOT = Path(__file__).resolve().parent.parent
+_WORKSPACE_ROOT = _TOOL_ROOT.parent.parent
 
 
 def test_section_order_covers_all_catalog_sections():
-    """Every section name used in catalog.yaml checks must appear in _SECTION_ORDER.
+    """Every section name used in catalog checks must appear in _SECTION_ORDER.
 
     This prevents silent drift: adding a new section to the catalog without
     updating _SECTION_ORDER would cause those checks to be appended under a
     separate ad-hoc heading in the review draft rather than in the intended order.
     """
-    with _CATALOG_PATH.open(encoding="utf-8") as fh:
-        catalog = yaml.safe_load(fh)
+    catalog = catalog_module.load_catalog_for_role(_TOOL_ROOT, _WORKSPACE_ROOT, "review")
 
     catalog_sections = {
         check["section"] for check in catalog.get("checks", []) if check.get("section")

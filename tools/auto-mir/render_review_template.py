@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
-"""Render the MIR reviewer template from catalog.yaml.
+"""Render the MIR reviewer template from the composed review catalog.
 
 This script regenerates the **human-readable MIR reviewer template**
 (``docs/MIR/mir-reviewers-template.md``) from the canonical source-of-truth
-stored in ``metadata.review_template_blueprint`` in ``catalog.yaml``.  It is a
-*documentation maintenance* tool, not part of the runtime auto-mir pipeline.
+stored in ``metadata.review_template_blueprint`` in ``catalog-mir-review.yaml``
+(composed with the shared sections in ``catalog.yaml`` via
+``catalog.load_catalog_for_role``).  It is a *documentation maintenance* tool,
+not part of the runtime auto-mir pipeline.
 
 Role vs. the ``render/`` package
 ---------------------------------
 ``render_review_template.py`` (this file)
-    Offline utility.  Reads ``catalog.yaml``, expands TODO references, and
-    emits a plain-text ``.include`` fragment for ``{literalinclude}`` in
-    the Sphinx docs.  Supported documentation builds run it automatically.
+    Offline utility.  Reads the composed review catalog, expands TODO
+    references, and emits a plain-text ``.include`` fragment for
+    ``{literalinclude}`` in the Sphinx docs.  Supported documentation builds
+    run it automatically.
 
 ``render/__init__.py`` (the runtime renderer)
     Called by the auto-mir pipeline (Stage 5).  Takes the findings produced
@@ -149,8 +152,12 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--catalog",
-        default="tools/auto-mir/catalog.yaml",
-        help="Catalog path relative to workspace root",
+        default=None,
+        help=(
+            "Catalog path relative to workspace root, for an ad-hoc/synthetic full "
+            "catalog. Defaults to the composed review catalog "
+            "(catalog.yaml + catalog-mir-review.yaml)."
+        ),
     )
     parser.add_argument(
         "--output",
@@ -181,16 +188,15 @@ def main() -> int:
     else:
         workspace_root = Path(__file__).resolve().parents[2]
 
-    catalog_path = workspace_root / args.catalog
-    if not catalog_path.exists():
-        print(f"Catalog file not found: {catalog_path}", file=sys.stderr)
-        return 1
-
-    if args.catalog == "tools/auto-mir/catalog.yaml":
+    if args.catalog is None:
         catalog_data = catalog.load_catalog_for_role(
             workspace_root / "tools/auto-mir", workspace_root, "review"
         )
     else:
+        catalog_path = workspace_root / args.catalog
+        if not catalog_path.exists():
+            print(f"Catalog file not found: {catalog_path}", file=sys.stderr)
+            return 1
         catalog_data = catalog.load_catalog(catalog_path, workspace_root)
     try:
         template_text = _render_from_blueprint(catalog_data)

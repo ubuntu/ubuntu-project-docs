@@ -132,7 +132,7 @@ def test_main_check_mode_detects_current_and_stale_output(monkeypatch, tmp_path)
 
 
 def test_real_catalog_renders_strictly_and_idempotently(tmp_path):
-    data = catalog.load_catalog(TOOL_ROOT / "catalog.yaml", WORKSPACE_ROOT)
+    data = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "review")
 
     first = renderer._render_from_blueprint(data)
     second = renderer._render_from_blueprint(data)

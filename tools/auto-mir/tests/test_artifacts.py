@@ -64,9 +64,9 @@ def load_fixture(bug_id: str) -> tuple[ReplayContext, list[dict]]:
     with (fixture_dir / "deterministic_findings.json").open() as f:
         expected_findings = json.load(f)
 
-    catalog_path = Path(__file__).parent.parent / "catalog.yaml"
-    workspace_root = Path(__file__).parent.parent.parent
-    catalog_data = catalog.load_catalog(catalog_path, workspace_root)
+    tool_root = Path(__file__).parent.parent
+    workspace_root = tool_root.parent.parent
+    catalog_data = catalog.load_catalog_for_role(tool_root, workspace_root, "review")
 
     catalog_data = {
         "checks": [c for c in catalog_data.get("checks", []) if c.get("mode") == "deterministic"]
