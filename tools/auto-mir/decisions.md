@@ -2674,4 +2674,73 @@ REP-QA-MAINT-002 was the redundant, wrongly-ordered one.
 **Validation from `tools/auto-mir`:** `make test` PASS (657 passed,
 3 skipped).
 
+## 2026-08-04 — Feedback round 6: human_only readiness propagation fix (P15)
+
+**Promotion:** no
+
+**Context:** while designing REP-MAINT-006's new state, found that
+`evaluate_items`'s `human_only` branch (`reporter/evaluator.py`) hardcoded
+`readiness=ReadinessEffect.CLEAR` on every resolved answer, completely
+ignoring each item's own catalog-declared `readiness: blocker`/`warning`.
+Confirmed via a real rust-ntpd draft: "Blocking items: REP-DEP-001,
+REP-STD-001" — both `deterministic`, never a `human_only` item, even though
+~26 `human_only` items declare non-clear readiness (REP-RATIONALE-001,
+REP-STD-002, REP-MAINT-001/003/006, REP-QA-TEST-003/005/006/007, etc.).
+These declarations were structurally inert: answering any of them, however
+concerning the answer, always reported "clear."
+
+**Decision:**
+- `reporter/models.py`: `QuestionOption` gained an optional
+  `readiness: ReadinessEffect | None = None` field.
+- `reporter/evaluator.py`'s `human_only` branch now computes readiness as
+  `selected_option_readiness_override or item.get("readiness", "clear")`
+  instead of the hardcoded `CLEAR` (the skipped/optional-and-empty branch is
+  unchanged and still always `CLEAR` — "nothing to add" must never block).
+  `_spell_out_option` and `_mark_followup_options` (which reconstruct
+  `QuestionOption` instances) now both preserve `.readiness` through their
+  transformations.
+- Per-option overrides were added to exactly the two items motivating this
+  fix (not a blanket sweep across the ~26 affected items — deliberately
+  incremental): REP-QA-MAINT-004 (`no-exotic-hardware` -> `clear`,
+  `team-access`/`other-special` -> `blocker`, matching the item's own
+  declared "blocker" for the two hardware-required answers) and
+  REP-MAINT-006, which gained a third option `coordination-pending` ("Other
+  teams are affected and coordination is still in progress", -> `blocker`),
+  alongside explicit `clear` overrides on its existing `no-impact` and
+  `coordinated-impact` options (both are fully resolved, non-concerning
+  outcomes).
+- `reporter/render.py`'s `_readiness_summary` previously required
+  `state != RESOLVED or rationale` in addition to a matching readiness value
+  before counting an item as a blocker/warning. That extra condition is
+  always true for `deterministic` items (readiness is only ever non-clear
+  alongside a rationale, enforced at construction) and for `AI_CONFIRMED`
+  items (the LLM response schema always requires a non-empty rationale), so
+  it never filtered anything for those two provenances — but it silently
+  excluded `HUMAN` provenance results, which don't carry a separate
+  rationale. Removed that redundant condition; blocker/warning status now
+  depends only on `result.readiness`, matching what was already true in
+  practice for every other provenance.
+- REP-MAINT-003 (static/vendored-code obligations) gained
+  `applicability: {evidence: packaging-source.shipped_vendored_dirs, truthy:
+  true}`, mirroring exactly what REP-MAINT-004's deterministic evaluator
+  already checks, so it's skipped entirely when there's no vendored code.
+
+**Consequences (explicitly considered before deciding):** with only two
+items given per-option overrides so far, most `human_only` items with
+non-clear declared readiness (free-text ones especially, which have no
+option structure to override) now permanently carry that readiness once
+resolved — there's no mechanism yet to "clear" them. This makes
+`Ready for submission: yes` far harder to reach with the current per-option
+coverage than before this fix (a plain default-answer test run now reports
+"no", not "yes"). This is treated as a **feature, not a regression**: the
+bug being fixed is precisely that `readiness: blocker` catalog declarations
+were being silently ignored once *any* answer was given, which made the
+summary look falsely reassuring. The fix is intentionally incremental —
+extending per-option overrides to the remaining single_choice items (and
+deciding whether any multi-line item ever legitimately "clears") is left for
+a future round rather than guessed at here.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (669 passed,
+3 skipped).
+
 

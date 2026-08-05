@@ -96,17 +96,21 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
 
 
 def _readiness_summary(results: list[StatementResult], consistency=None) -> dict:
+    """Summarize which items still block or warn on submission readiness.
+
+    ``result.readiness`` is the single authoritative signal: deterministic
+    evaluators only ever report a non-clear readiness alongside a rationale
+    (enforced in ``evaluate_items``), AI-confirmed statements always carry a
+    rationale (enforced by the LLM response schema), and human answers now
+    carry the catalog item's own declared readiness (or a per-option
+    override) once genuinely resolved. No additional "must also have a
+    rationale" gate is needed on top of that.
+    """
     blockers = sorted(
-        result.id
-        for result in results
-        if result.readiness == ReadinessEffect.BLOCKER
-        and (result.state != StatementState.RESOLVED or result.rationale)
+        result.id for result in results if result.readiness == ReadinessEffect.BLOCKER
     )
     warnings = sorted(
-        result.id
-        for result in results
-        if result.readiness == ReadinessEffect.WARNING
-        and (result.state != StatementState.RESOLVED or result.rationale)
+        result.id for result in results if result.readiness == ReadinessEffect.WARNING
     )
     unresolved = sorted(
         result.id

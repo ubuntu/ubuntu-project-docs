@@ -23,6 +23,18 @@ def test_choice_question_requires_options():
         QuestionSpec(id="REP-1", prompt="Choose", kind=QuestionKind.SINGLE_CHOICE)
 
 
+def test_question_option_readiness_defaults_to_none():
+    option = QuestionOption("clean", "No concerns")
+
+    assert option.readiness is None
+
+
+def test_question_option_accepts_explicit_readiness_override():
+    option = QuestionOption("concern", "There is a concern", readiness=ReadinessEffect.BLOCKER)
+
+    assert option.readiness == ReadinessEffect.BLOCKER
+
+
 def test_non_choice_question_rejects_options():
     with pytest.raises(ValueError, match="cannot define options"):
         QuestionSpec(

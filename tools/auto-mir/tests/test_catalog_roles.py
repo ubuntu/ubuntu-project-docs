@@ -130,3 +130,17 @@ def test_report_catalog_validation_rejects_option_statement_missing_dash():
         "REP-RATIONALE-007 option required-by statement must start with '- '" in error
         for error in errors
     )
+
+
+def test_report_catalog_validation_rejects_invalid_option_readiness():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    options = by_id["REP-QA-MAINT-004"]["question"]["options"]
+    options[0]["readiness"] = "urgent"
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "REP-QA-MAINT-004 option no-exotic-hardware has invalid readiness" in error
+        for error in errors
+    )

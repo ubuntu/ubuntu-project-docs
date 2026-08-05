@@ -158,6 +158,11 @@ def test_deterministic_reporter_statements_all_get_a_leading_bullet(tmp_path):
 
 
 def test_reporter_render_writes_draft_and_structured_report(tmp_path):
+    """Most catalog items marked ``readiness: blocker``/``warning`` have no
+    per-option override (Phase 15 intentionally only added one to
+    REP-QA-MAINT-004/REP-MAINT-006), so a generic wizard answer keeps their
+    declared readiness rather than a false-positive CLEAR -- meaning this
+    default run is genuinely not "ready" until a human reviews those items."""
     ctx = _ctx(tmp_path)
     results = evaluate_items(ctx, FakeWizard())
 
@@ -168,12 +173,13 @@ def test_reporter_render_writes_draft_and_structured_report(tmp_path):
     assert "[Maintenance/Owner]" in draft
     assert "RULE:" not in draft
     assert "TBDSRC" not in draft
-    assert "Ready for submission: yes" in draft
+    assert "Ready for submission: no" in draft
 
     report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
     assert report["role"] == "report"
     assert report["source_package"] == "libfoo"
-    assert report["readiness"]["ready"] is True
+    assert report["readiness"]["ready"] is False
+    assert "REP-RATIONALE-001" in report["readiness"]["blockers"]
     assert len(report["statements"]) == len(ctx.catalog["items"])
 
 
@@ -460,6 +466,123 @@ def test_hardware_access_elaboration_asked_for_other_special_situation(tmp_path)
 
     assert "REP-QA-MAINT-002" in wizard.asked
     assert by_id["REP-QA-MAINT-002"].state == StatementState.RESOLVED
+
+
+def test_exotic_hardware_clean_answer_does_not_block_readiness(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class NoExoticHardwareWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-QA-MAINT-004": "no-exotic-hardware"}
+
+    wizard = NoExoticHardwareWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-QA-MAINT-004"].readiness == ReadinessEffect.CLEAR
+
+
+def test_exotic_hardware_team_access_answer_still_blocks_readiness(tmp_path):
+    ctx = _ctx(tmp_path)
+    wizard = ChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-QA-MAINT-004"].readiness == ReadinessEffect.BLOCKER
+
+
+def test_exotic_hardware_other_special_answer_still_blocks_readiness(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class OtherSpecialWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-QA-MAINT-004": "other-special"}
+
+    wizard = OtherSpecialWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-QA-MAINT-004"].readiness == ReadinessEffect.BLOCKER
+
+
+def test_cross_team_impact_no_impact_answer_does_not_block_readiness(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class NoImpactWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-MAINT-006": "no-impact"}
+
+    wizard = NoImpactWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-MAINT-006"].readiness == ReadinessEffect.CLEAR
+
+
+def test_cross_team_impact_coordinated_answer_does_not_block_readiness(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class CoordinatedWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-MAINT-006": "coordinated-impact"}
+
+    wizard = CoordinatedWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-MAINT-006"].readiness == ReadinessEffect.CLEAR
+
+
+def test_cross_team_impact_coordination_pending_answer_blocks_readiness(tmp_path):
+    ctx = _ctx(tmp_path)
+
+    class PendingWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-MAINT-006": "coordination-pending"}
+
+    wizard = PendingWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-MAINT-006"].readiness == ReadinessEffect.BLOCKER
+    assert "in progress" in by_id["REP-MAINT-006"].statement
+
+
+def test_readiness_summary_reflects_option_override_blockers(tmp_path):
+    """Per-option readiness overrides must actually surface in the rendered
+    readiness summary, not just on the individual StatementResult."""
+    ctx = _ctx(tmp_path)
+    wizard = ChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    write_outputs(ctx, results)
+
+    report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
+    assert "REP-QA-MAINT-004" in report["readiness"]["blockers"]
+
+
+def test_vendored_maintenance_question_skipped_without_vendored_code(tmp_path):
+    ctx = _ctx(tmp_path)
+    wizard = ChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-MAINT-003" not in wizard.asked
+    assert by_id["REP-MAINT-003"].state == StatementState.NOT_APPLICABLE
+
+
+def test_vendored_maintenance_question_asked_with_vendored_code(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["packaging-source"]["shipped_vendored_dirs"] = ["third_party/zlib"]
+    wizard = ChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-MAINT-003" in wizard.asked
+    assert by_id["REP-MAINT-003"].state == StatementState.RESOLVED
 
 
 def test_micro_library_item_skipped_for_non_library_packages(tmp_path):

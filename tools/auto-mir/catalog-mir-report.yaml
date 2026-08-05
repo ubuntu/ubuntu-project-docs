@@ -370,12 +370,15 @@ items:
     - id: no-exotic-hardware
       label: No exotic hardware is required
       statement: '- The package does not depend on exotic hardware we cannot support.'
+      readiness: clear
     - id: team-access
       label: Exotic hardware is required and accessible to the team
       statement: '- Required exotic hardware is available to the owning team for debugging, testing, verification, and development.'
+      readiness: blocker
     - id: other-special
       label: Something else / a special situation applies
       statement: '- Exotic hardware access follows a different, situation-specific arrangement; see the details below.'
+      readiness: blocker
   template: 'TODO-A/B/C: - Exotic hardware availability: TBD'
 - id: REP-QA-MAINT-002
   section: Quality assurance - maintenance
@@ -718,6 +721,10 @@ items:
   title: Static and vendored obligations
   mode: human_only
   readiness: blocker
+  applicability:
+    evidence: packaging-source.shipped_vendored_dirs
+    truthy: true
+  adapters_required: [packaging-source]
   question:
     kind: multiline
     prompt: Describe static/vendored code and the owning team's rebuild, update, refresh, and security commitments.
@@ -750,10 +757,16 @@ items:
     - id: no-impact
       label: No expected impact on other teams
       statement: '- This change is not expected to impact other Ubuntu teams.'
+      readiness: clear
     - id: coordinated-impact
       label: Other teams are affected and coordination is complete
       statement: '- This change affects other Ubuntu teams and the required coordination has been completed.'
-  template: 'TODO-A/B: - Cross-team impact and coordination: TBD'
+      readiness: clear
+    - id: coordination-pending
+      label: Other teams are affected and coordination is still in progress
+      statement: '- This change affects other Ubuntu teams and the required coordination is still in progress.'
+      readiness: blocker
+  template: 'TODO-A/B/C: - Cross-team impact and coordination: TBD'
 - id: REP-BG-001
   section: Background information
   title: Package purpose

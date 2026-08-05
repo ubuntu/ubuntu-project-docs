@@ -75,15 +75,24 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
                 continue
             statement = _human_statement(item, answer.value, ctx.source_package)
             _maybe_write_evidence(item, ctx, answer.value)
+            selected_option = answer.value if question.kind == QuestionKind.SINGLE_CHOICE else None
+            option_readiness = None
+            if selected_option is not None:
+                option_readiness = next(
+                    (
+                        option.readiness
+                        for option in question.options
+                        if option.id == selected_option
+                    ),
+                    None,
+                )
             result = StatementResult(
                 id=item["id"],
                 section=item["section"],
                 state=StatementState.RESOLVED,
-                readiness=ReadinessEffect.CLEAR,
+                readiness=option_readiness or readiness,
                 statement=statement,
-                selected_option=answer.value
-                if question.kind == QuestionKind.SINGLE_CHOICE
-                else None,
+                selected_option=selected_option,
                 provenance=Provenance.HUMAN,
                 answer_refs=[question.id],
                 human_confirmed=True,
@@ -141,6 +150,7 @@ def _question_from_item(item: dict, ctx) -> QuestionSpec:
             substitute_source(str(option["label"]), source_package),
             substitute_source(str(option.get("statement", "")), source_package),
             bool(option.get("exclusive", False)),
+            readiness=ReadinessEffect(option["readiness"]) if "readiness" in option else None,
         )
         for option in raw_options
     ]
@@ -234,7 +244,11 @@ def _spell_out_option(
         return option
     suffix = ": " + ", ".join(selected)
     return QuestionOption(
-        option.id, option.label + suffix, option.statement + suffix, option.exclusive
+        option.id,
+        option.label + suffix,
+        option.statement + suffix,
+        option.exclusive,
+        readiness=option.readiness,
     )
 
 
@@ -259,6 +273,7 @@ def _mark_followup_options(
             option.statement,
             option.exclusive,
             leads_to_followup=always or option.id in specific,
+            readiness=option.readiness,
         )
         for option in options
     ]

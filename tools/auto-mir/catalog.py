@@ -257,6 +257,10 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                     errors.append(
                         f"reporter item {item_id} option {option_id} exclusive must be a bool"
                     )
+                if "readiness" in option and option["readiness"] not in valid_readiness:
+                    errors.append(
+                        f"reporter item {item_id} option {option_id} has invalid readiness"
+                    )
                 if "spell_out_filter" in option and option["spell_out_filter"] not in {
                     "all",
                     "exclude_dev_doc_dbg",

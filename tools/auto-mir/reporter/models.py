@@ -50,6 +50,7 @@ class QuestionOption:
     statement: str = ""
     exclusive: bool = False
     leads_to_followup: bool = False
+    readiness: ReadinessEffect | None = None
 
     def __post_init__(self) -> None:
         if not self.id.strip():
