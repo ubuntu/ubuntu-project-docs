@@ -3091,3 +3091,109 @@ throughout, 743 passed/3 skipped final.
 - Validation from `tools/auto-mir`: `make test` PASS (743 passed, 3
   skipped), one commit per phase. `make integration` intentionally left for
   the user to run.
+
+## 2026-08-06 — Replace sbuild with fetch-build (download the official Launchpad build)
+
+**Feedback (round, source package prompt-toolkit/borgbackup2 test runs):**
+sbuild was "huge and has too many chances to fail" — it rebuilds the whole
+package locally (chroot/build-dep resolution, long build times, real
+CPU/memory/disk cost), only ever exercises one architecture, and a local
+failure (e.g. an unresolvable build-dependency in the local unshare chroot)
+cascades into TBD placeholders across lintian, dep-analysis, and binary
+inspection for the whole run — even when the package promotion is not
+actually blocked by anything. A promotion candidate is expected to already
+be published in universe with a successful official Launchpad build, so
+rebuilding it locally added a lot of failure surface for little real gain.
+Confirmed with real evidence: borgbackup2's local sbuild failed resolving
+`python3-backports.zstd`/`python3-jsonargparse` in the local mmdebstrap
+chroot, cascading into "Unavailable" TBDs across the reporter draft.
+
+**Design:** New `evidence/launchpad_client.py` centralises the launchpadlib
+session, series resolution, per-publication build lookups, and a
+`buildstate` classifier (successful/queued/in_progress/failed/unknown) used
+by all three of: packaging-source's version resolution, lp-build-api, and
+fetch-build.
+
+`packaging-source._resolve_source_pocket_version` is now build-aware and
+always pins an explicit version (source, build artifacts, and all
+downstream evidence must never drift apart): within the chosen pocket it
+prefers the newest fully-built version, and — a design requirement
+clarified during alignment — walks up to 5 older versions when the newest
+isn't (yet) fully built, offering a genuine choice among *all* buildable
+candidates found in that window (not just auto-picking the first one),
+differentiating "has not yet built" vs "has failed to build" vs "is
+currently building". Interactive on a TTY (numbered list, mirrors
+`auto_mir._ask_requested_binaries`'s prompt convention); headless runs
+auto-pick the newest fully-built candidate and log why. No polling/waiting
+either way — a run with nothing buildable in the lookback window fails
+closed with a clear message.
+
+`lp-build-api` is now pinned to that exact `analyzed_version` (fixing a
+real bug: `_builds_from_published_sources` used to return builds for
+whichever Launchpad publication happened to have *any* builds, not
+necessarily the version actually analysed — affecting CB-1 and two reporter
+checks that already consumed it independently of sbuild).
+
+New `fetch-build` adapter (renamed from `sbuild`) downloads, for the
+guest's own architecture only: the build log (gzip, decompressed via the
+`launchpadlib` build record's `build_log_url`), `.changes`, and the `.deb`
+binaries (via a fresh `getPublishedBinaries()`/`binaryFileUrls()` lookup
+pinned to the same analysed version) — using the existing retry-wrapped
+`utils/http.py` downloaders, pushed into the guest with
+`lxd_runner.push_file()`. Other architectures only ever get their
+lp-build-api build status; nothing is downloaded for them. Reuses
+`_inspect_built_debs()` unchanged, so `deb-metadata`/
+`binary-package-inspection`/`dep-analysis` needed no contract changes
+beyond the renamed dependency — this was a deliberate design constraint to
+keep the blast radius contained to "how the build artifacts are obtained",
+not "what shape they are".
+
+**New capability (explicit alignment decision):** the official Launchpad
+build never runs lintian, so fetch-build now runs it twice — against the
+source tree (as before) and, new, against the downloaded binaries/.changes.
+The old sbuild flow only ever linted source (`--no-run-lintian` skipped it
+during the build, and no `.changes` file existed locally to lint against
+even if it hadn't).
+
+**CB-1 simplified** (explicit alignment decision): once "local build" is
+really just a download of the already-official build, the old
+`hint_local_ok`/`hint_local_failed`/`hint_local_unavailable`/
+`ok_local_suffix` dual-phrasing ("local sbuild build succeeded" alongside
+"Launchpad build records pass") was redundant. CB-1 is now purely a
+Launchpad per-architecture build-state check and depends only on
+`lp-build-api`.
+
+**Side-effects found and fixed while wiring this up (not separately
+requested, but directly obsoleted by the redesign — left in place would
+have been actively wrong/misleading):**
+- `lxd_runner.py`'s guest provisioning no longer installs
+  `sbuild`/`mmdebstrap`/`uidmap` (including the noble-backports special
+  case) — none of it is needed once nothing runs sbuild locally. This is
+  itself further "reduced chance to fail" surface removed from every run.
+- `lp_intake.py` had a hard gate rejecting any series older than Noble
+  (24.04) "for sbuild unshare backend" — that constraint no longer exists,
+  so older series can now be reviewed/reported on too. Removed
+  `_series_supports_unshare_sbuild`/`_KNOWN_SERIES`.
+
+**Scope boundaries:** no change to `packaging-source`'s actual
+`apt-get source` fetch mechanism beyond the new candidate-version probing
+loop; no other adapters touched; no cross-architecture building/emulation;
+no change to how the reviewer/reporter roles pick which LP bug/series to
+target (only which source version within that series to analyse).
+
+Full rename sweep: `AdapterID.SBUILD` → `FETCH_BUILD`, `SbuildResult` →
+`FetchBuildResult` (`sbuild_build_log_path` → `build_log_path`), every
+`adapters_required`/`depends_on`/`evidence_refs`/message referencing
+`sbuild` across `catalog.yaml`, `catalog-mir-review.yaml`,
+`catalog-mir-report.yaml`, `checks/deterministic.py`, `checks/llm_eval.py`,
+`reporter/evaluator.py`, `auto_mir.py`, and every test fixture.
+`tests/test_integration_sbuild.py` renamed to
+`tests/test_integration_fetch_build.py` (real-VM smoke test now uses
+"hello", a small always-built Ubuntu main package, via a real
+`lp-build-api` lookup instead of a real local build).
+
+Validation from `tools/auto-mir`: `make test` PASS (792 passed, 2 skipped),
+one commit per phase (shared Launchpad client → build-aware version
+resolution → lp-build-api pin fix → fetch-build adapter + full rename
+sweep). `make integration` intentionally left for the user to run (real
+LXD guest + real Launchpad network calls).
