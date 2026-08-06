@@ -20,8 +20,29 @@ from utils.llm_sanitize import wrap_untrusted
 _FULL_CONTENT_FIELDS_BY_ITEM: dict[str, set[str]] = {
     "REP-QA-TEST-004": {"debian_tests_control", "debian_rules"},
     "REP-QA-PKG-004": {"debian_rules"},
-    "REP-STD-001": {"debian_control"},
 }
+
+
+def _required_adapters_unavailable_reason(item: dict, ctx) -> str:
+    """Name every ``adapters_required`` adapter that isn't available.
+
+    An ``ev_to_ai`` item must never let the model guess from missing or
+    errored evidence (e.g. claiming FHS/Policy compliance when lintian
+    never ran because sbuild failed) - if any required adapter is missing
+    or not ``status: ok``, this returns a rationale naming which one(s) and
+    why, so the caller can skip straight to asking the reporter instead of
+    calling the LLM at all.
+    """
+    adapters = ctx.evidence.get("adapters", {})
+    reasons = []
+    for adapter_id in item.get("adapters_required", []):
+        data = adapters.get(adapter_id)
+        if not isinstance(data, dict) or data.get("status") != "ok":
+            message = data.get("message", "no data") if isinstance(data, dict) else "no data"
+            reasons.append(f"{adapter_id} ({message})")
+    if not reasons:
+        return ""
+    return "Required evidence unavailable: " + "; ".join(reasons)
 
 
 def evaluate_ai_item(item: dict, ctx, wizard, fallback_question) -> StatementResult:
@@ -29,6 +50,15 @@ def evaluate_ai_item(item: dict, ctx, wizard, fallback_question) -> StatementRes
     readiness = ReadinessEffect(item.get("readiness", "warning"))
     if not getattr(ctx, "llm_token", "") or getattr(ctx, "no_llm", False):
         return _ask_human(item, ctx, wizard, fallback_question)
+
+    unavailable_reason = _required_adapters_unavailable_reason(item, ctx)
+    if unavailable_reason:
+        wizard.show_note(
+            f'The tool could not confidently assess "{item.get("title", item["id"])}" '
+            "because required evidence was unavailable.",
+            unavailable_reason,
+        )
+        return _ask_human(item, ctx, wizard, fallback_question, rationale=unavailable_reason)
 
     keep_full_fields = _FULL_CONTENT_FIELDS_BY_ITEM.get(item["id"], set())
     evidence = {

@@ -483,3 +483,58 @@ def test_lock_yes_reason_helper_directly():
     assert (
         ai._lock_yes_reason("The reporter should verify this.", requires_decision=False) is not None
     )
+
+
+def test_missing_required_adapter_skips_llm_and_asks_human_with_reason(monkeypatch):
+    """Regression test: an ev_to_ai item must never let the model guess from
+    missing/errored evidence (e.g. claiming FHS compliance when lintian never
+    ran because sbuild failed)."""
+
+    def fail(*_args, **_kwargs):
+        raise AssertionError("LLM must not be called when required evidence is unavailable")
+
+    monkeypatch.setattr(ai.llm, "call_llm", fail)
+    ctx = _ctx()
+    ctx.evidence["adapters"]["binary-package-inspection"] = {
+        "status": "error",
+        "message": "upstream dependency failed: sbuild",
+    }
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(_item(), ctx, wizard, _fallback_question())
+
+    assert result.provenance == Provenance.HUMAN
+    assert "binary-package-inspection" in result.rationale
+    assert "upstream dependency failed: sbuild" in result.rationale
+    assert wizard.notes
+    assert "could not confidently assess" in wizard.notes[0][0]
+
+
+def test_missing_required_adapter_entirely_absent_still_skips_llm(monkeypatch):
+    def fail(*_args, **_kwargs):
+        raise AssertionError("LLM must not be called when required evidence is unavailable")
+
+    monkeypatch.setattr(ai.llm, "call_llm", fail)
+    ctx = _ctx()
+    del ctx.evidence["adapters"]["binary-package-inspection"]
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(_item(), ctx, wizard, _fallback_question())
+
+    assert result.provenance == Provenance.HUMAN
+    assert "binary-package-inspection" in result.rationale
+
+
+def test_required_adapters_unavailable_reason_helper_directly():
+    ctx = _ctx()
+    ctx.evidence["adapters"]["binary-package-inspection"] = {"status": "ok"}
+
+    assert ai._required_adapters_unavailable_reason(_item(), ctx) == ""
+
+    ctx.evidence["adapters"]["binary-package-inspection"] = {
+        "status": "error",
+        "message": "boom",
+    }
+    reason = ai._required_adapters_unavailable_reason(_item(), ctx)
+    assert "binary-package-inspection" in reason
+    assert "boom" in reason

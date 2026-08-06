@@ -321,6 +321,7 @@ def _apply_option_lock(option: QuestionOption, raw_option: dict, ctx) -> Questio
         option.exclusive,
         readiness=option.readiness,
         locked_reason=str(raw_option.get("unavailable_reason", "")),
+        list_note=option.list_note,
     )
 
 
@@ -346,6 +347,8 @@ def _mark_followup_options(
             option.exclusive,
             leads_to_followup=always or option.id in specific,
             readiness=option.readiness,
+            locked_reason=option.locked_reason,
+            list_note=option.list_note,
         )
         for option in options
     ]
@@ -841,6 +844,39 @@ def _binary_packages(_item: dict, ctx) -> tuple[str | None, list[str], str]:
         f"This source builds the following binary packages: {', '.join(packages)}.",
         ["packaging-source:binary_package_names"],
         "",
+    )
+
+
+@reporter_evaluator("lintian-fhs-summary")
+def _lintian_fhs_summary(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+    """Surface lintian's error/warning counts ahead of the FHS/Policy question.
+
+    Without this, a reporter answering "does this follow FHS and Debian
+    Policy" has no visibility into whether lintian actually ran, or what it
+    found, until they are already inside the editor.
+    """
+    data = _adapter(ctx, "lintian")
+    if data.get("status") != "ok":
+        reason = data.get("message", "lintian did not run") if data else "lintian did not run"
+        return (
+            f"Lintian evidence is unavailable ({reason}); FHS/Policy compliance cannot be "
+            "confirmed from lintian output.",
+            [],
+            "",
+        )
+    errors = data.get("lintian_errors", [])
+    warnings = data.get("lintian_warnings", [])
+    if not errors and not warnings:
+        return (
+            "Lintian reported 0 errors and 0 warnings.",
+            ["lintian:lintian_errors", "lintian:lintian_warnings"],
+            "",
+        )
+    rationale = "; ".join(str(entry) for entry in [*errors, *warnings][:5])
+    return (
+        f"Lintian reported {len(errors)} error(s) and {len(warnings)} warning(s).",
+        ["lintian:lintian_errors", "lintian:lintian_warnings"],
+        rationale,
     )
 
 

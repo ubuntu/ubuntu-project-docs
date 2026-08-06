@@ -97,6 +97,7 @@ metadata:
   - 'RULE: Document and justify major FHS or Debian Policy violations.'
   - 'RULE: Licensing must remain compatible with Ubuntu main throughout the full support lifetime. Flag expiry, time-limited grants, entity/contract coupling, withdrawable license branches, patents, or other encumbrances for human review.'
   - item: REP-STD-001
+  - item: REP-STD-001B
   - item: REP-STD-002
   - item: REP-STD-002B
   - ''
@@ -634,15 +635,37 @@ items:
 - id: REP-STD-001
   section: Standards compliance
   title: FHS and Debian Policy
-  mode: ev_to_ai
+  mode: human_only
   readiness: blocker
-  adapters_required: [lintian, packaging-source]
+  preface_evaluator: lintian-fhs-summary
   rule_context: 'RULE: Document and justify major FHS or Debian Policy violations.'
-  ai_policy: Assess FHS/Debian Policy compliance using lintian.lintian_errors and lintian.lintian_warnings (lintian enforces most FHS/Policy rules) plus packaging-source for context. If there are no FHS/Policy-relevant lintian findings, state plainly that lintian found no such violations. If there are relevant findings, name them and note they need justification or a documented override; do not claim compliance the evidence does not support.
+  question:
+    kind: single_choice
+    prompt: Does this package correctly follow FHS and Debian Policy?
+    options:
+    - id: A-no-violations
+      label: This package correctly follows FHS and Debian Policy
+      statement: '- This package correctly follows FHS and Debian Policy.'
+      unavailable_if:
+        evidence: lintian.lintian_errors
+        truthy: true
+      unavailable_reason: Lintian reported errors for this package; select the violation option and justify them below.
+    - id: B-violations
+      label: This package violates FHS or Debian Policy, reasons for that are TBD
+      statement: '- This package violates FHS or Debian Policy; the reasons are detailed below.'
+  template: 'TODO-A/B: - FHS and Debian Policy compliance or justified violations: TBD'
+- id: REP-STD-001B
+  section: Standards compliance
+  title: FHS and Debian Policy violation details
+  mode: human_only
+  readiness: blocker
+  applicability:
+    item: REP-STD-001
+    equals: B-violations
   question:
     kind: multiline
-    prompt: Confirm FHS and Debian Policy compliance, or explain and justify violations.
-  template: 'TODO: - FHS and Debian Policy compliance or justified violations: TBD'
+    prompt: Explain and justify the FHS or Debian Policy violation(s).
+  template: 'TODO: - FHS and Debian Policy violation details: TBD'
 - id: REP-STD-002
   section: Standards compliance
   title: License lifetime

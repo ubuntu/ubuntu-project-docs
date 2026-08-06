@@ -293,6 +293,79 @@ def test_preface_evaluator_absent_is_a_no_op(tmp_path):
     assert wizard.notes == []
 
 
+def test_lintian_fhs_summary_preface_reports_error_and_warning_counts(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": ["E: fhs-violation"],
+        "lintian_warnings": [],
+    }
+    wizard = NotingWizard()
+
+    _show_preface({"id": "REP-STD-001", "preface_evaluator": "lintian-fhs-summary"}, ctx, wizard)
+
+    assert wizard.notes
+    assert "1 error(s)" in wizard.notes[0][0]
+    assert "fhs-violation" in wizard.notes[0][1]
+
+
+def test_lintian_fhs_summary_preface_explains_unavailability(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "error",
+        "message": "upstream dependency failed: sbuild",
+    }
+    wizard = NotingWizard()
+
+    _show_preface({"id": "REP-STD-001", "preface_evaluator": "lintian-fhs-summary"}, ctx, wizard)
+
+    assert wizard.notes
+    assert "upstream dependency failed: sbuild" in wizard.notes[0][0]
+
+
+def test_std_001_option_a_locked_when_lintian_reports_errors(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": ["E: fhs-violation"],
+        "lintian_warnings": [],
+    }
+    item = next(item for item in ctx.catalog["items"] if item["id"] == "REP-STD-001")
+
+    question = _question_from_item(item, ctx)
+
+    by_id = {option.id: option for option in question.options}
+    assert by_id["A-no-violations"].locked_reason != ""
+    assert by_id["B-violations"].locked_reason == ""
+
+
+def test_std_001_option_a_available_when_lintian_is_clean(tmp_path):
+    ctx = _ctx(tmp_path)
+    item = next(item for item in ctx.catalog["items"] if item["id"] == "REP-STD-001")
+
+    question = _question_from_item(item, ctx)
+
+    by_id = {option.id: option for option in question.options}
+    assert by_id["A-no-violations"].locked_reason == ""
+
+
+def test_maint_001_lock_survives_followup_marking(tmp_path):
+    """Regression test: _mark_followup_options used to rebuild every option
+    without carrying over locked_reason/list_note, so a locked option (e.g.
+    REP-MAINT-001's confirm-subscribed, whose sibling REP-MAINT-001B makes
+    'new-team' a followup-triggering option) would silently lose its lock
+    the moment ANY option in the same question led to a follow-up."""
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["team-mapping"]["subscribed_teams"] = []
+    item = next(item for item in ctx.catalog["items"] if item["id"] == "REP-MAINT-001")
+
+    question = _question_from_item(item, ctx)
+
+    by_id = {option.id: option for option in question.options}
+    assert by_id["confirm-subscribed"].locked_reason != ""
+    assert by_id["new-team"].leads_to_followup is True
+
+
 def test_question_from_item_folds_preface_into_hint_for_editor_visibility(tmp_path):
     """A preface_evaluator's finding must also reach the question's own hint,
     not just the console-only pre-question note, so it is visible in the
