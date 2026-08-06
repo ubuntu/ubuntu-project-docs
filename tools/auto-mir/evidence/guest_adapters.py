@@ -586,6 +586,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         for f in file_listing
     )
     binary_sections = _parse_binary_sections(debian_control)
+    binary_package_names = _binary_package_names(debian_control)
     is_library_package = _is_library_package(binary_sections)
     source_fields = _parse_source_control_fields(debian_control)
     debconf_templates = _parse_debconf_templates(debconf_content)
@@ -661,6 +662,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         "has_desktop_file": has_desktop_file,
         "has_translation_files": has_translation_files,
         "binary_sections": binary_sections,
+        "binary_package_names": binary_package_names,
         "is_library_package": is_library_package,
         "nobody_source_hits": nobody_source_hits,
         "setuid_setgid_source_hits": setuid_setgid_source_hits,

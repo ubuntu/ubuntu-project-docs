@@ -248,9 +248,26 @@ def _spell_out_option(
     So "All binary packages built by this source" becomes "...: pkg1, pkg2,
     pkg3" instead of leaving the reporter to guess what the shortcut actually
     covers. ``spell_out_filter`` is a small catalog-declared vocabulary
-    (``all`` or ``exclude_dev_doc_dbg``), not hardcoded to any specific item.
+    (``all``, ``exclude_dev_doc_dbg``, or ``list_only``), not hardcoded to
+    any specific item.
+
+    ``list_only`` (used by a "list them yourself" option, e.g. picking
+    specific binary packages) doesn't change the recorded statement at all —
+    it only adds an informational ``list_note`` line so the reporter sees
+    what the source builds without the tool silently deciding the scope.
     """
     spell_out_filter = raw_option.get("spell_out_filter")
+    if spell_out_filter == "list_only":
+        if not known_packages:
+            return option
+        return QuestionOption(
+            option.id,
+            option.label,
+            option.statement,
+            option.exclusive,
+            readiness=option.readiness,
+            list_note=f"The packages built by this source are: {', '.join(known_packages)}",
+        )
     if spell_out_filter == "all":
         selected = known_packages
     elif spell_out_filter == "exclude_dev_doc_dbg":
@@ -787,15 +804,15 @@ def _dependencies(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 @reporter_evaluator("binary-packages")
 def _binary_packages(_item: dict, ctx) -> tuple[str | None, list[str], str]:
-    data = _adapter(ctx, "dep-analysis")
+    data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
-        return None, [], "Dependency analysis was unavailable"
-    packages = sorted(str(name) for name in data.get("binary_packages", []))
+        return None, [], "Packaging source inspection was unavailable"
+    packages = sorted(str(name) for name in data.get("binary_package_names", []))
     if not packages:
         return None, [], "No binary packages were found for this source"
     return (
         f"This source builds the following binary packages: {', '.join(packages)}.",
-        ["dep-analysis:binary_packages"],
+        ["packaging-source:binary_package_names"],
         "",
     )
 

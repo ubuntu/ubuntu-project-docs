@@ -687,7 +687,10 @@ def test_binary_scope_specific_packages_followup_asked_when_selected(tmp_path):
 
 def test_binary_packages_preface_surfaces_known_package_list(tmp_path):
     ctx = _ctx(tmp_path)
-    ctx.evidence["adapters"]["dep-analysis"]["binary_packages"] = ["ntpd-rs", "ntpd-rs-metrics"]
+    ctx.evidence["adapters"]["packaging-source"]["binary_package_names"] = [
+        "ntpd-rs",
+        "ntpd-rs-metrics",
+    ]
 
     class NotingChoiceWizard(NotingWizard, ChoiceWizard):
         pass

@@ -50,6 +50,10 @@ class QuestionOption:
     condition resolved true against evidence). It is a *resolved* runtime
     value computed by the evaluator, not something the catalog authors
     directly on this model.
+
+    ``list_note``, when non-empty, is an informational line shown under the
+    option (e.g. spelling out concrete evidence-derived names) without being
+    part of the recorded ``statement`` itself.
     """
 
     id: str
@@ -59,6 +63,7 @@ class QuestionOption:
     leads_to_followup: bool = False
     readiness: ReadinessEffect | None = None
     locked_reason: str = ""
+    list_note: str = ""
 
     def __post_init__(self) -> None:
         if not self.id.strip():

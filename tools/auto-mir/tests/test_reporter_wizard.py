@@ -92,6 +92,28 @@ def test_single_choice_renders_shortcut_marker_for_exclusive_options():
     assert not any("(shortcut)" in line for line in output if "ntpd-rs" in line)
 
 
+def test_single_choice_shows_list_note_under_option():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader(["specific-packages"]), write_line=output.append)
+    question = QuestionSpec(
+        id="REP-RATIONALE-004",
+        prompt="Which binary packages need promotion?",
+        kind=QuestionKind.SINGLE_CHOICE,
+        options=(
+            QuestionOption(
+                "specific-packages",
+                "A specific subset of binary packages (list them below)",
+                "- Specific binary packages, listed below, need to be in main.",
+                list_note="The packages built by this source are: foo, foo-doc",
+            ),
+        ),
+    )
+
+    wizard.ask(question)
+
+    assert any("The packages built by this source are: foo, foo-doc" in line for line in output)
+
+
 def test_multiline_uses_dot_sentinel_and_supports_literal_dot():
     wizard = TerminalWizard(
         read_line=_reader(["first paragraph", r"\.", "last paragraph", "."]),

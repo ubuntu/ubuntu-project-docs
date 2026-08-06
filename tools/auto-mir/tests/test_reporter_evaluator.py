@@ -241,6 +241,73 @@ def test_question_from_item_spells_out_all_binaries_shortcut():
     assert filtered_option.statement.endswith(": ntpd-rs, ntpd-rs-metrics")
 
 
+def test_question_from_item_list_only_adds_note_without_changing_statement():
+    ctx = SimpleNamespace(
+        source_package="rust-ntpd",
+        catalog={"items": []},
+        evidence={
+            "adapters": {
+                "packaging-source": {
+                    "binary_package_names": ["ntpd-rs", "ntpd-rs-metrics"],
+                }
+            }
+        },
+    )
+    item = {
+        "id": "REP-RATIONALE-004",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Which binary packages need promotion to main?",
+            "options": [
+                {
+                    "id": "specific-packages",
+                    "label": "A specific subset of binary packages (list them below)",
+                    "statement": "- Specific binary packages built by TBDSRC, listed below, "
+                    "need to be in main.",
+                    "spell_out_filter": "list_only",
+                },
+            ],
+            "options_source": {"adapter": "packaging-source", "field": "binary_package_names"},
+        },
+    }
+
+    question = _question_from_item(item, ctx)
+
+    option = question.options[0]
+    assert option.label == "A specific subset of binary packages (list them below)"
+    assert option.statement.startswith("- Specific binary packages")
+    assert option.list_note == ("The packages built by this source are: ntpd-rs, ntpd-rs-metrics")
+
+
+def test_question_from_item_list_only_no_note_when_evidence_unavailable():
+    ctx = SimpleNamespace(
+        source_package="rust-ntpd",
+        catalog={"items": []},
+        evidence={"adapters": {}},
+    )
+    item = {
+        "id": "REP-RATIONALE-004",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Which binary packages need promotion to main?",
+            "options": [
+                {
+                    "id": "specific-packages",
+                    "label": "A specific subset of binary packages (list them below)",
+                    "statement": "- Specific binary packages built by TBDSRC, listed below, "
+                    "need to be in main.",
+                    "spell_out_filter": "list_only",
+                },
+            ],
+            "options_source": {"adapter": "packaging-source", "field": "binary_package_names"},
+        },
+    }
+
+    question = _question_from_item(item, ctx)
+
+    assert question.options[0].list_note == ""
+
+
 def test_question_from_item_marks_option_with_equals_followup():
     ctx = SimpleNamespace(
         source_package="rust-ntpd",

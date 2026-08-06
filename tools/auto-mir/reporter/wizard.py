@@ -265,6 +265,8 @@ class TerminalWizard:
                 self._write_line(f"       (unavailable: {option.locked_reason})")
             if option.statement:
                 self._write_line(f"       recorded as: {option.statement}")
+            if option.list_note:
+                self._write_line(f"       {option.list_note}")
             if option.leads_to_followup:
                 self._write_line("       (selecting this will ask for more detail next)")
 

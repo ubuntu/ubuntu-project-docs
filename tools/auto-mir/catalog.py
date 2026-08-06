@@ -276,10 +276,11 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                 if "spell_out_filter" in option and option["spell_out_filter"] not in {
                     "all",
                     "exclude_dev_doc_dbg",
+                    "list_only",
                 }:
                     errors.append(
                         f"reporter item {item_id} option {option_id} spell_out_filter must be "
-                        "'all' or 'exclude_dev_doc_dbg'"
+                        "'all', 'exclude_dev_doc_dbg', or 'list_only'"
                     )
                 unavailable_if = option.get("unavailable_if")
                 unavailable_reason = option.get("unavailable_reason")

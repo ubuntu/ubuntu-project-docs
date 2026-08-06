@@ -54,7 +54,7 @@ def test_report_catalog_has_complete_logical_item_and_hardware_choice_inventory(
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
 
-    assert len(by_id) == 55
+    assert len(by_id) == 54
     hardware_options = by_id["REP-QA-TEST-005"]["question"]["options"]
     assert {option["id"] for option in hardware_options} == {
         "A-team-hardware",
@@ -68,6 +68,21 @@ def test_report_catalog_has_complete_logical_item_and_hardware_choice_inventory(
         "X-exhausted",
         "Z-other",
     }
+
+
+def test_report_catalog_binary_scope_uses_sbuild_independent_evidence():
+    """REP-RATIONALE-004's package spell-out must not require sbuild/dep-analysis
+    to have succeeded (regression test for the borgbackup2 sbuild-failure case)."""
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+
+    item = by_id["REP-RATIONALE-004"]
+    assert item["question"]["options_source"] == {
+        "adapter": "packaging-source",
+        "field": "binary_package_names",
+    }
+    assert item["preface_evaluator"] == "binary-packages"
+    assert "REP-RATIONALE-004B" not in by_id
 
 
 def test_unknown_catalog_role_fails(capsys):
