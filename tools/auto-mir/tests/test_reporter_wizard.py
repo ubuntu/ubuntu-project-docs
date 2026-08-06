@@ -139,6 +139,49 @@ def test_multiline_uses_editor_when_available():
     assert any("Hint: some hint" in line for line in comment_lines)
 
 
+def test_multiline_editor_answer_is_recorded_in_console_and_log(caplog):
+    output: list[str] = []
+    wizard = TerminalWizard(
+        read_line=_reader([]),
+        write_line=output.append,
+        edit_text=lambda *_args, **_kwargs: "the reporter's editor answer",
+    )
+    question = QuestionSpec(
+        id="REP-RATIONALE", prompt="Enter rationale", kind=QuestionKind.MULTILINE
+    )
+
+    with caplog.at_level("INFO", logger="auto_mir.reporter"):
+        answer = wizard.ask(question)
+
+    assert answer.value == "the reporter's editor answer"
+    assert "Answer recorded as:" in output
+    assert "    the reporter's editor answer" in output
+    assert any(
+        "Answer recorded as: the reporter's editor answer" in record.getMessage()
+        for record in caplog.records
+    )
+
+
+def test_confirm_suggestion_edit_answer_is_recorded_in_console_and_log(caplog):
+    output: list[str] = []
+    wizard = TerminalWizard(
+        read_line=_reader(["edit"]),
+        write_line=output.append,
+        edit_text=lambda *_args, **_kwargs: "revised via editor",
+    )
+
+    with caplog.at_level("INFO", logger="auto_mir.reporter"):
+        answer = wizard.confirm_suggestion(
+            question_id="REP-CONFIRM", suggestion="Original text.", rationale=""
+        )
+
+    assert answer.value == "revised via editor"
+    assert "Answer recorded as:" in output
+    assert any(
+        "Answer recorded as: revised via editor" in record.getMessage() for record in caplog.records
+    )
+
+
 def test_multiline_required_reopens_editor_on_empty_result():
     responses = iter(["", "second attempt text"])
 

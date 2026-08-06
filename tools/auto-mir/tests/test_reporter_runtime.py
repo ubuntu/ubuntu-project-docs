@@ -138,6 +138,23 @@ def test_reporter_items_mix_deterministic_evidence_and_human_answers(tmp_path):
     assert source.statement.startswith("- ")
 
 
+def test_evaluate_items_logs_progress_for_every_catalog_item(tmp_path, caplog):
+    ctx = _ctx(tmp_path)
+    total = len(ctx.catalog["items"])
+
+    with caplog.at_level("INFO", logger="auto_mir.reporter"):
+        evaluate_items(ctx, FakeWizard())
+
+    progress_messages = [
+        record.getMessage() for record in caplog.records if record.getMessage().startswith("[")
+    ]
+    assert len(progress_messages) == total
+    assert progress_messages[0] == (
+        f"[1/{total}] Evaluating REP-AVAIL-001: Source package availability (deterministic)"
+    )
+    assert progress_messages[-1].startswith(f"[{total}/{total}] Evaluating ")
+
+
 def test_deterministic_reporter_statements_all_get_a_leading_bullet(tmp_path):
     """Deterministic evaluators return hand-written prose without a leading
     bullet; ``evaluate_items`` must add exactly one, matching how catalog

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
@@ -20,6 +21,8 @@ from reporter.models import (
 )
 from reporter.text_utils import ensure_bulleted, strip_todo_prefix, substitute_source
 from reporter.wizard import TerminalWizard
+
+log = logging.getLogger("auto_mir.reporter")
 
 Evaluator = Callable[[dict, Any], tuple[str | None, list[str], str]]
 _EVALUATORS: dict[str, Evaluator] = {}
@@ -41,7 +44,17 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
     """Evaluate reporter items in catalog order, asking only human-owned input."""
     results: list[StatementResult] = []
     item_values: dict[str, Any] = {}
-    for item in ctx.catalog.get("items", []):
+    catalog_items = ctx.catalog.get("items", [])
+    total = len(catalog_items)
+    for index, item in enumerate(catalog_items, start=1):
+        log.info(
+            "[%d/%d] Evaluating %s: %s (%s)",
+            index,
+            total,
+            item["id"],
+            item.get("title", ""),
+            item.get("mode", ""),
+        )
         condition_context = ConditionContext(
             items=item_values,
             evidence=ctx.evidence.get("adapters", {}),

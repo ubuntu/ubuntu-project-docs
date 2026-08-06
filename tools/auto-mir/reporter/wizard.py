@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 
 from reporter.models import Answer, QuestionKind, QuestionOption, QuestionSpec
 from utils import editor
+
+log = logging.getLogger("auto_mir.reporter")
 
 _CANCEL_TOKEN = ":cancel"
 _MULTILINE_SENTINEL = "."
@@ -133,6 +136,7 @@ class TerminalWizard:
                 return Answer(question_id=question_id, value=False, raw_input=raw)
             if normalized in {"e", "edit"}:
                 edited = self._edit_multiline(suggestion, rationale)
+                self._record_answer(edited)
                 return Answer(question_id=question_id, value=edited, raw_input=raw)
             self._write_line("Invalid response: enter yes, edit, or no")
 
@@ -144,6 +148,17 @@ class TerminalWizard:
         self._write_titled_block("Note", text.strip())
         if detail.strip():
             self._write_titled_block("Reasoning", detail.strip())
+
+    def _record_answer(self, text: str) -> None:
+        """Echo an editor-sourced answer back to the reporter and the log.
+
+        Editor mode hands control to an external process for a while; once
+        it returns, the console (and the JSON log) should say exactly what
+        was recorded, so the reporter never has to wonder whether their
+        edited text actually made it back into the tool.
+        """
+        self._write_titled_block("Answer recorded as", text)
+        log.info("Answer recorded as: %s", text)
 
     def _write_titled_block(self, title: str, text: str) -> None:
         """Print a title line followed by its body, indented underneath.
@@ -191,6 +206,7 @@ class TerminalWizard:
         while edited is not None:
             text = edited.strip()
             if text:
+                self._record_answer(text)
                 return Answer(question_id=question.id, value=text, raw_input=edited)
             if not question.required:
                 return None
