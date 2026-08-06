@@ -6,6 +6,8 @@ import urllib.error
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evidence import (
@@ -2211,6 +2213,7 @@ def test_collect_from_catalog_optional_failure_does_not_fail_run():
 # Proposed-pocket source selection (feedback #7)
 # ---------------------------------------------------------------------------
 
+from evidence import launchpad_client  # noqa: E402
 from evidence.guest_adapters import (  # noqa: E402
     _latest_published_in_pocket,
     _resolve_source_pocket_version,
@@ -2219,8 +2222,10 @@ from lxd_runner import _build_proposed_stanza  # noqa: E402
 
 
 class _PocketCtx:
-    def __init__(self, source_pocket, publish_history):
+    def __init__(self, source_pocket, publish_history, source_package="testpkg", series="noble"):
         self.source_pocket = source_pocket
+        self.source_package = source_package
+        self.series = series
         self.evidence = {
             "adapters": {
                 "lp-package-api": {
@@ -2233,6 +2238,15 @@ class _PocketCtx:
 
 _PROPOSED = {"version": "0.20.0-2ubuntu1", "pocket": "Proposed", "status": "Published"}
 _RELEASE = {"version": "0.20.0-2build1", "pocket": "Release", "status": "Published"}
+
+# Launchpad lookups are mocked to raise LaunchpadUnavailableError in the
+# "plain" pocket-resolution tests below so they exercise the same
+# unmodified-pin behaviour regardless of build-completeness (that is
+# covered separately further down).
+
+
+def _unavailable_login(*_args, **_kwargs):
+    raise launchpad_client.LaunchpadUnavailableError("no network in unit tests")
 
 
 def test_latest_published_in_pocket_matches_case_insensitively():
@@ -2250,22 +2264,148 @@ def test_latest_published_ignores_non_published():
 
 def test_resolve_auto_prefers_proposed_when_present():
     ctx = _PocketCtx("auto", [_RELEASE, _PROPOSED])
-    assert _resolve_source_pocket_version(ctx) == ("0.20.0-2ubuntu1", "proposed")
+    with patch("evidence.launchpad_client.login_anonymously", side_effect=_unavailable_login):
+        assert _resolve_source_pocket_version(ctx) == ("0.20.0-2ubuntu1", "proposed", "")
 
 
 def test_resolve_auto_falls_back_to_release_without_proposed():
     ctx = _PocketCtx("auto", [_RELEASE])
-    assert _resolve_source_pocket_version(ctx) == ("", "release")
+    with patch("evidence.launchpad_client.login_anonymously", side_effect=_unavailable_login):
+        assert _resolve_source_pocket_version(ctx) == ("0.20.0-2build1", "release", "")
 
 
 def test_resolve_release_never_pins_proposed():
     ctx = _PocketCtx("release", [_RELEASE, _PROPOSED])
-    assert _resolve_source_pocket_version(ctx) == ("", "release")
+    with patch("evidence.launchpad_client.login_anonymously", side_effect=_unavailable_login):
+        assert _resolve_source_pocket_version(ctx) == ("0.20.0-2build1", "release", "")
 
 
 def test_resolve_proposed_requested_but_missing_falls_back():
     ctx = _PocketCtx("proposed", [_RELEASE])
-    assert _resolve_source_pocket_version(ctx) == ("", "release")
+    with patch("evidence.launchpad_client.login_anonymously", side_effect=_unavailable_login):
+        assert _resolve_source_pocket_version(ctx) == ("0.20.0-2build1", "release", "")
+
+
+def test_resolve_empty_history_lets_apt_pick():
+    ctx = _PocketCtx("release", [])
+    with patch("evidence.launchpad_client.login_anonymously", side_effect=_unavailable_login):
+        assert _resolve_source_pocket_version(ctx) == ("", "release", "")
+
+
+# ---------------------------------------------------------------------------
+# Build-aware version resolution (redesign of the sbuild -> fetch-build
+# adapter): the newest candidate in the pocket is preferred, but an older,
+# fully-built candidate is offered/substituted when Launchpad has not (yet)
+# fully built the newest one.
+# ---------------------------------------------------------------------------
+
+_MULTI_PROPOSED_HISTORY = [
+    {"version": "2.0-1", "pocket": "Proposed", "status": "Published"},
+    {"version": "1.0-1", "pocket": "Proposed", "status": "Superseded"},
+    {"version": "0.9-1", "pocket": "Proposed", "status": "Superseded"},
+]
+
+
+def _fake_lp_session(builds_by_version: dict) -> Mock:
+    """Return a fake launchpadlib session for the given per-version builds.
+
+    ``builds_by_version`` maps version string -> list of build dicts (each
+    with "arch_tag"/"buildstate"). A version absent from the mapping (or
+    mapped to an empty list) resolves to "no builds yet".
+    """
+    lp = Mock()
+    ubuntu = Mock()
+    archive = Mock()
+    lp.distributions = {"ubuntu": ubuntu}
+    ubuntu.main_archive = archive
+    ubuntu.getSeries.return_value = Mock(name="lp_series")
+
+    def fake_get_published_sources(*, source_name, version, distro_series, exact_match):
+        pub = Mock()
+        pub.getBuilds.return_value = builds_by_version.get(version, [])
+        return [pub]
+
+    archive.getPublishedSources.side_effect = fake_get_published_sources
+    return lp
+
+
+def test_resolve_buildable_candidate_uses_newest_when_fully_built():
+    ctx = _PocketCtx("auto", _MULTI_PROPOSED_HISTORY)
+    lp = _fake_lp_session({"2.0-1": [{"arch_tag": "amd64", "buildstate": "Successfully built"}]})
+    with patch("evidence.launchpad_client.login_anonymously", return_value=lp):
+        assert _resolve_source_pocket_version(ctx) == ("2.0-1", "proposed", "")
+
+
+def test_resolve_buildable_candidate_falls_back_headless_when_newest_not_built():
+    ctx = _PocketCtx("auto", _MULTI_PROPOSED_HISTORY)
+    lp = _fake_lp_session(
+        {
+            "2.0-1": [{"arch_tag": "amd64", "buildstate": "Needs building"}],
+            "1.0-1": [{"arch_tag": "amd64", "buildstate": "Successfully built"}],
+            "0.9-1": [{"arch_tag": "amd64", "buildstate": "Successfully built"}],
+        }
+    )
+    with (
+        patch("evidence.launchpad_client.login_anonymously", return_value=lp),
+        patch("sys.stdin.isatty", return_value=False),
+    ):
+        version, pocket, note = _resolve_source_pocket_version(ctx)
+    assert (version, pocket) == ("1.0-1", "proposed")
+    assert "not yet built" in note
+    assert "1.0-1" in note
+
+
+def test_resolve_buildable_candidate_prompts_interactively():
+    ctx = _PocketCtx("auto", _MULTI_PROPOSED_HISTORY)
+    lp = _fake_lp_session(
+        {
+            "2.0-1": [{"arch_tag": "amd64", "buildstate": "Failed to build"}],
+            "1.0-1": [{"arch_tag": "amd64", "buildstate": "Successfully built"}],
+            "0.9-1": [{"arch_tag": "amd64", "buildstate": "Successfully built"}],
+        }
+    )
+    with (
+        patch("evidence.launchpad_client.login_anonymously", return_value=lp),
+        patch("sys.stdin.isatty", return_value=True),
+        patch("sys.stdout.isatty", return_value=True),
+        patch("builtins.input", return_value="2"),
+    ):
+        version, pocket, note = _resolve_source_pocket_version(ctx)
+    assert (version, pocket) == ("0.9-1", "proposed")
+    assert "failed to build" in note
+
+
+def test_resolve_buildable_candidate_interactive_default_on_blank_input():
+    ctx = _PocketCtx("auto", _MULTI_PROPOSED_HISTORY)
+    lp = _fake_lp_session(
+        {
+            "2.0-1": [{"arch_tag": "amd64", "buildstate": "Failed to build"}],
+            "1.0-1": [{"arch_tag": "amd64", "buildstate": "Successfully built"}],
+        }
+    )
+    with (
+        patch("evidence.launchpad_client.login_anonymously", return_value=lp),
+        patch("sys.stdin.isatty", return_value=True),
+        patch("sys.stdout.isatty", return_value=True),
+        patch("builtins.input", return_value=""),
+    ):
+        version, _pocket, _note = _resolve_source_pocket_version(ctx)
+    assert version == "1.0-1"
+
+
+def test_resolve_buildable_candidate_raises_when_none_buildable():
+    ctx = _PocketCtx("auto", _MULTI_PROPOSED_HISTORY)
+    lp = _fake_lp_session({})
+    with patch("evidence.launchpad_client.login_anonymously", return_value=lp):
+        with pytest.raises(RuntimeError, match="No fully-built"):
+            _resolve_source_pocket_version(ctx)
+
+
+def test_resolve_buildable_candidate_degrades_gracefully_without_launchpad():
+    """When Launchpad itself is unreachable, pin the newest candidate unmodified."""
+    ctx = _PocketCtx("auto", _MULTI_PROPOSED_HISTORY)
+    with patch("evidence.launchpad_client.login_anonymously", side_effect=_unavailable_login):
+        assert _resolve_source_pocket_version(ctx) == ("2.0-1", "proposed", "")
 
 
 def test_build_proposed_stanza_derives_from_primary():

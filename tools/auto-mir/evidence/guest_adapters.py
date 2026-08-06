@@ -8,9 +8,11 @@ from __future__ import annotations
 
 import logging
 import re
+import sys
 
 import lxd_runner
 from catalog_enums import AdapterID
+from evidence import launchpad_client
 from evidence.registry import adapter
 from evidence.types import (
     BinaryPackageInspectionResult,
@@ -27,6 +29,11 @@ from evidence.types import (
 )
 
 log = logging.getLogger("auto_mir.evidence.guest")
+
+# Bounded lookback when the newest published version in the target pocket is
+# not (yet) fully built on Launchpad: how many older versions of the same
+# pocket to probe for build completeness before giving up.
+_MAX_BUILD_CANDIDATES = 5
 
 _UBUNTU_UID = 1000
 _UBUNTU_GID = 1000
@@ -354,39 +361,198 @@ def _latest_published_in_pocket(history: list, pocket: str) -> str:
     return ""
 
 
-def _resolve_source_pocket_version(ctx) -> tuple[str, str]:
+def _candidate_versions_in_pocket(history: list, pocket: str, max_candidates: int) -> list[str]:
+    """Return up to ``max_candidates`` distinct version strings for a pocket.
+
+    ``history`` is already ordered newest-first (lp-package-api's
+    ``ubuntu_publish_history``). Includes every publish status (Published,
+    Superseded, Deleted, Obsolete): walking backwards from the newest upload,
+    older entries are expected to show as Superseded, and we deliberately
+    still want to offer them as fallback candidates when the newest one is
+    not (yet) fully built on Launchpad.
+    """
+    pocket_lc = pocket.lower()
+    versions: list[str] = []
+    seen: set[str] = set()
+    for entry in history:
+        if not isinstance(entry, dict):
+            continue
+        if str(entry.get("pocket", "")).lower() != pocket_lc:
+            continue
+        version = str(entry.get("version", "")).strip()
+        if not version or version in seen:
+            continue
+        seen.add(version)
+        versions.append(version)
+        if len(versions) >= max_candidates:
+            break
+    return versions
+
+
+def _headline_for_candidate(candidate: "launchpad_client.BuildCandidate") -> str:
+    """Differentiated "not built yet" vs "failed to build" headline for a candidate."""
+    state = candidate.overall_state
+    if state == "failed":
+        return f"The most recent build version {candidate.version} has failed to build."
+    if state in ("no_builds", "queued"):
+        return f"The most recent build version {candidate.version} has not yet built."
+    if state == "in_progress":
+        return f"The most recent build version {candidate.version} is currently building."
+    return f"The most recent build version {candidate.version} is only partially built."
+
+
+def _ask_buildable_candidate(
+    headline: str, candidates: list["launchpad_client.BuildCandidate"]
+) -> "launchpad_client.BuildCandidate":
+    """Interactively offer fully-built alternatives when the newest isn't ready.
+
+    Mirrors the TTY-prompt convention used by auto_mir._ask_requested_binaries:
+    a numbered list, free-text index selection, blank/EOF defaults to the
+    first (newest) offered candidate.
+    """
+    print(f"\n{headline}")
+    print("Do you want to instead analyze one of these fully-built versions?")
+    for idx, candidate in enumerate(candidates, start=1):
+        print(f"  {idx}. {candidate.label}")
+    try:
+        response = input(f"> [1-{len(candidates)}, default 1]: ").strip()
+    except EOFError:
+        return candidates[0]
+    if not response:
+        return candidates[0]
+    try:
+        index = int(response)
+    except ValueError:
+        print("Not a valid choice, defaulting to option 1.")
+        return candidates[0]
+    if 1 <= index <= len(candidates):
+        return candidates[index - 1]
+    print("Not a valid choice, defaulting to option 1.")
+    return candidates[0]
+
+
+def _resolve_buildable_candidate(
+    ctx, candidate_versions: list[str], lp_pocket: str
+) -> tuple[str, str, str]:
+    """Pick which candidate version to analyse, preferring the newest fully built.
+
+    ``candidate_versions`` is newest-first within ``lp_pocket`` (e.g.
+    "Release" or "Proposed"). Falls back to an interactive (TTY) or
+    headless-safe automatic choice among older, fully-built candidates when
+    the newest one is not (yet) fully built on Launchpad; see
+    ``evidence.launchpad_client`` for the build-completeness classification.
+
+    Returns ``(version, pocket_label, note)``. ``note`` is empty when the
+    newest candidate was used unmodified, otherwise it records why an older
+    version was substituted (surfaced to the reviewer/reporter for
+    transparency).
+
+    Raises AdapterError when none of the probed candidates are fully built
+    anywhere in the lookback window (no polling/waiting: the caller should
+    re-run once Launchpad has a successful build).
+    """
+    pocket_label = lp_pocket.lower()
+    try:
+        lp = launchpad_client.login_anonymously("auto-mir-packaging-source")
+        ubuntu = lp.distributions["ubuntu"]
+        archive = ubuntu.main_archive
+        lp_series = launchpad_client.resolve_series(ubuntu, ctx.series or "devel")
+    except launchpad_client.LaunchpadUnavailableError as exc:
+        log.warning(
+            "Could not verify Launchpad build completeness (%s); analysing "
+            "the newest %s version %s without a build-state check",
+            exc,
+            pocket_label,
+            candidate_versions[0],
+        )
+        return candidate_versions[0], pocket_label, ""
+
+    candidates = [(version, lp_pocket) for version in candidate_versions]
+    results = launchpad_client.find_buildable_version(
+        archive, lp_series, ctx.source_package, candidates
+    )
+
+    newest = results[0]
+    if newest.complete:
+        return newest.version, pocket_label, ""
+
+    complete_candidates = [c for c in results if c.complete]
+    headline = _headline_for_candidate(newest)
+
+    if not complete_candidates:
+        raise AdapterError(
+            f"{headline} No fully-built {pocket_label} candidate was found in the "
+            f"last {len(results)} published version(s) of {ctx.source_package}; "
+            "re-run once Launchpad has a successful build."
+        )
+
+    if sys.stdin.isatty() and sys.stdout.isatty():
+        chosen = _ask_buildable_candidate(headline, complete_candidates)
+    else:
+        chosen = complete_candidates[0]
+        log.warning(
+            "%s No interactive terminal available; analysing %s instead "
+            "(newest fully-built candidate found in the last %d published version(s)).",
+            headline,
+            chosen.label,
+            len(results),
+        )
+    note = f"{headline} Substituted with {chosen.version} ({chosen.label})."
+    return chosen.version, pocket_label, note
+
+
+def _resolve_source_pocket_version(ctx) -> tuple[str, str, str]:
     """Resolve which source version/pocket to fetch for analysis.
 
-    Returns ``(version, pocket_label)`` where an empty ``version`` means "let
-    apt pick the default (release-pocket) candidate". ``pocket_label`` is one of
-    "release" or "proposed" and is recorded for the reviewer.
+    Returns ``(version, pocket_label, version_resolution_note)``.
+    ``pocket_label`` is one of "release" or "proposed" and is recorded for
+    the reviewer. The returned version is always pinned to a specific
+    upload (never left for apt to pick), because it must also be the exact
+    version fetch-build later downloads build artifacts for - source and
+    binaries must never drift apart. ``version_resolution_note`` is empty
+    unless an older version had to be substituted for the newest one (see
+    ``_resolve_buildable_candidate``).
 
     Honours ``ctx.source_pocket``:
-      - "release":  always the release pocket (no pin).
-      - "proposed": the published -proposed version; falls back to release with
-                    a warning when none is published.
+      - "release":  always the release pocket.
+      - "proposed": the published -proposed version; falls back to release
+                    with a warning when none is published.
       - "auto":     prefer -proposed when published, else release.
+
+    Within the chosen pocket, prefers the newest version that Launchpad has
+    fully built. If the newest version is not (yet) fully built, walks up to
+    ``_MAX_BUILD_CANDIDATES`` older versions in the same pocket and offers a
+    choice (interactively on a TTY, automatically otherwise) among the ones
+    that are fully built.
     """
-    pocket = getattr(ctx, "source_pocket", "auto")
-    if pocket == "release":
-        return "", "release"
+    requested_pocket = getattr(ctx, "source_pocket", "auto")
 
     lp = ctx.evidence.get("adapters", {}).get("lp-package-api", {})
     history = lp.get("ubuntu_publish_history", []) if isinstance(lp, dict) else []
-    proposed_version = _latest_published_in_pocket(history, "Proposed")
 
-    if proposed_version:
-        log.info(
-            "Analysing -proposed source version %s (source-pocket=%s)", proposed_version, pocket
-        )
-        return proposed_version, "proposed"
+    if requested_pocket == "release":
+        lp_pocket = "Release"
+    else:
+        proposed_version = _latest_published_in_pocket(history, "Proposed")
+        if proposed_version:
+            lp_pocket = "Proposed"
+        else:
+            if requested_pocket == "proposed":
+                log.warning(
+                    "source-pocket=proposed requested but no published -proposed "
+                    "version found; falling back to the release pocket"
+                )
+            lp_pocket = "Release"
 
-    if pocket == "proposed":
-        log.warning(
-            "source-pocket=proposed requested but no published -proposed version found; "
-            "falling back to the release pocket"
-        )
-    return "", "release"
+    candidate_versions = _candidate_versions_in_pocket(history, lp_pocket, _MAX_BUILD_CANDIDATES)
+    if not candidate_versions:
+        return "", lp_pocket.lower(), ""
+
+    version, pocket_label, note = _resolve_buildable_candidate(ctx, candidate_versions, lp_pocket)
+    log.info(
+        "Analysing %s source version %s (source-pocket=%s)", pocket_label, version, requested_pocket
+    )
+    return version, pocket_label, note
 
 
 @adapter(AdapterID.PACKAGING_SOURCE, depends_on=[AdapterID.LP_PACKAGE_API])
@@ -416,7 +582,10 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
 
     # Resolve which pocket's version to fetch. An explicit version pins the
     # exact upload so `apt-get source` does not silently pick the release pocket.
-    target_version, analyzed_pocket = _resolve_source_pocket_version(ctx)
+    # This is also the version fetch-build later downloads build artifacts
+    # for, so the resolution is always pinned (never left for apt to pick)
+    # and prefers a version Launchpad has already fully built.
+    target_version, analyzed_pocket, version_resolution_note = _resolve_source_pocket_version(ctx)
     pkg_spec = f"{pkg}={target_version}" if target_version else pkg
 
     # Fetch source package via apt source for deterministic availability.
@@ -640,6 +809,7 @@ def collect_packaging_source(ctx) -> PackagingSourceResult:
         "source_workdir": workdir,
         "analyzed_version": analyzed_version,
         "analyzed_pocket": analyzed_pocket,
+        "version_resolution_note": version_resolution_note,
         "debian_control": debian_control,
         "debian_watch": debian_watch,
         "debian_rules": debian_rules,

@@ -30,8 +30,8 @@ class LaunchpadUnavailableError(RuntimeError):
 # not listed here is treated as "unknown" (still surfaced verbatim to the
 # user, but counted as neither a pass nor an outright failure).
 _BUILD_STATE_SUCCESSFUL = {"successfully built"}
+_BUILD_STATE_QUEUED = {"needs building"}
 _BUILD_STATE_IN_PROGRESS = {
-    "needs building",
     "currently building",
     "uploading build",
     "gathering build output",
@@ -94,12 +94,15 @@ def build_attr(record: Any, *names: str, default: str = "") -> str:
 def classify_build_state(raw_state: str) -> str:
     """Classify a raw Launchpad buildstate string.
 
-    Returns one of ``"successful"``, ``"in_progress"``, ``"failed"``,
+    Returns one of ``"successful"``, ``"queued"`` (not started yet),
+    ``"in_progress"`` (actively building/uploading), ``"failed"``,
     ``"unknown"``.
     """
     state = raw_state.strip().lower()
     if state in _BUILD_STATE_SUCCESSFUL:
         return "successful"
+    if state in _BUILD_STATE_QUEUED:
+        return "queued"
     if state in _BUILD_STATE_IN_PROGRESS:
         return "in_progress"
     if state in _BUILD_STATE_FAILED:
@@ -167,7 +170,9 @@ def summarize_build_completeness(builds: list[Any]) -> dict[str, Any]:
         overall_state = "successful"
     elif classifications == {"failed"}:
         overall_state = "failed"
-    elif "failed" not in classifications and "unknown" not in classifications:
+    elif classifications == {"queued"}:
+        overall_state = "queued"
+    elif classifications <= {"queued", "in_progress"}:
         overall_state = "in_progress"
     else:
         overall_state = "mixed"
@@ -202,7 +207,7 @@ class BuildCandidate:
         if state == "successful":
             arches = ", ".join(e["arch_tag"] for e in self.completeness["entries"])
             return f"{self.version} - built on {arches or 'no architectures'}"
-        if state == "no_builds":
+        if state in ("no_builds", "queued"):
             return f"{self.version} - not yet built"
         if state == "failed":
             return f"{self.version} - failed to build"
@@ -224,19 +229,17 @@ def find_buildable_version(
     ``candidates`` is an ordered (newest-first) list of ``(version, pocket)``
     pairs to consider (typically derived from lp-package-api's publish
     history for the desired pocket(s)). Returns the probed candidates in the
-    same order, each annotated with its build completeness, so the caller
-    can pick the first "successful" one or offer the reviewer/reporter a
-    choice among them. Never raises: an unresolvable candidate is recorded
-    with a "no_builds" verdict rather than aborting the walk. Stops probing
-    as soon as a fully-built candidate is found.
+    same order, each annotated with its build completeness. Every candidate
+    in the (bounded) window is probed - the walk does not stop at the first
+    fully-built one - so a caller can offer the reviewer/reporter a genuine
+    choice among *all* buildable candidates found, not just the newest one.
+    Never raises: an unresolvable candidate is recorded with a "no_builds"
+    verdict rather than aborting the walk.
     """
     results: list[BuildCandidate] = []
     for version, pocket in candidates[:max_candidates]:
         pub = find_source_publication(archive, lp_series, pkg, version)
         builds = builds_for_publication(pub) if pub is not None else []
         completeness = summarize_build_completeness(builds)
-        candidate = BuildCandidate(version, pocket, completeness)
-        results.append(candidate)
-        if candidate.complete:
-            break
+        results.append(BuildCandidate(version, pocket, completeness))
     return results

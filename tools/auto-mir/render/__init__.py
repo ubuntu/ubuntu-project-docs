@@ -180,6 +180,8 @@ def _build_analysed_version_line(ctx) -> str:
 
     Reads the version actually unpacked and the pocket it came from
     (packaging-source), degrading gracefully when the adapter did not run.
+    Appends a note when an older version had to be substituted for the
+    newest one because Launchpad had not (yet) fully built it.
     """
     packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
     if not isinstance(packaging, dict):
@@ -189,8 +191,13 @@ def _build_analysed_version_line(ctx) -> str:
     if not version:
         return ""
     if pocket:
-        return f"Analysed source version: {version} ({pocket} pocket)"
-    return f"Analysed source version: {version}"
+        line = f"Analysed source version: {version} ({pocket} pocket)"
+    else:
+        line = f"Analysed source version: {version}"
+    note = str(packaging.get("version_resolution_note", "") or "").strip()
+    if note:
+        line = f"{line}\n{note}"
+    return line
 
 
 def _build_review_type_line(ctx) -> str:

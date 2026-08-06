@@ -82,8 +82,9 @@ def test_build_attr_reads_dict_records():
     ("raw_state", "expected"),
     [
         ("Successfully built", "successful"),
-        ("Needs building", "in_progress"),
+        ("Needs building", "queued"),
         ("Currently building", "in_progress"),
+        ("Uploading build", "in_progress"),
         ("Failed to build", "failed"),
         ("Dependency wait", "failed"),
         ("Chroot problem", "failed"),
@@ -158,6 +159,13 @@ def test_summarize_build_completeness_all_failed():
     assert summary["overall_state"] == "failed"
 
 
+def test_summarize_build_completeness_queued():
+    builds = [_build("amd64", "Needs building"), _build("arm64", "Needs building")]
+    summary = launchpad_client.summarize_build_completeness(builds)
+    assert summary["complete"] is False
+    assert summary["overall_state"] == "queued"
+
+
 def test_summarize_build_completeness_in_progress():
     builds = [_build("amd64", "Needs building"), _build("arm64", "Currently building")]
     summary = launchpad_client.summarize_build_completeness(builds)
@@ -197,7 +205,7 @@ def test_build_candidate_label_variants():
     in_progress = launchpad_client.BuildCandidate(
         "0.7-1",
         "Release",
-        launchpad_client.summarize_build_completeness([_build("amd64", "Needs building")]),
+        launchpad_client.summarize_build_completeness([_build("amd64", "Currently building")]),
     )
     assert in_progress.label == "0.7-1 - currently building"
 
@@ -211,7 +219,7 @@ def test_build_candidate_label_variants():
     assert mixed.label == "0.6-1 - partially built"
 
 
-def test_find_buildable_version_stops_at_first_complete():
+def test_find_buildable_version_probes_every_candidate_in_window():
     archive = Mock()
     lp_series = Mock()
 
@@ -219,18 +227,23 @@ def test_find_buildable_version_stops_at_first_complete():
     pub_newest.getBuilds.return_value = [_build("amd64", "Needs building")]
     pub_older = Mock()
     pub_older.getBuilds.return_value = [_build("amd64", "Successfully built")]
+    pub_oldest = Mock()
+    pub_oldest.getBuilds.return_value = [_build("amd64", "Successfully built")]
 
     def fake_get_published_sources(*, source_name, version, distro_series, exact_match):
-        return [pub_newest] if version == "2.0-1" else [pub_older]
+        return {"2.0-1": [pub_newest], "1.0-1": [pub_older], "0.9-1": [pub_oldest]}[version]
 
     archive.getPublishedSources.side_effect = fake_get_published_sources
 
     candidates = [("2.0-1", "Proposed"), ("1.0-1", "Release"), ("0.9-1", "Release")]
     results = launchpad_client.find_buildable_version(archive, lp_series, "testpkg", candidates)
 
-    assert [c.version for c in results] == ["2.0-1", "1.0-1"]
+    # Every candidate in the window is probed - the walk does not stop early
+    # - so callers can offer a full choice of buildable alternatives.
+    assert [c.version for c in results] == ["2.0-1", "1.0-1", "0.9-1"]
     assert results[0].complete is False
     assert results[1].complete is True
+    assert results[2].complete is True
 
 
 def test_find_buildable_version_respects_max_candidates():
