@@ -11,7 +11,7 @@ sys.path.insert(0, str(TOOL_ROOT))
 
 import catalog  # noqa: E402
 from reporter import pipeline  # noqa: E402
-from reporter.consistency import ConsistencyIssue, ConsistencyReport  # noqa: E402
+from reporter.consistency import ConsistencyIssue, ConsistencyReport, validate_results  # noqa: E402
 from reporter.evaluator import _question_from_item, _show_preface, evaluate_items  # noqa: E402
 from reporter.models import Answer, Provenance, ReadinessEffect, StatementState  # noqa: E402
 from reporter.render import write_outputs  # noqa: E402
@@ -246,6 +246,60 @@ def test_consistency_error_forces_not_ready_rendering(tmp_path):
     report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
     assert report["readiness"]["ready"] is False
     assert "REP-MAINT-001" in report["readiness"]["blockers"]
+
+
+def test_readiness_summary_only_lists_items_still_genuinely_unresolved(tmp_path):
+    """Regression test: previously, every item declared readiness:
+    blocker/warning in the catalog stayed listed in the draft summary
+    forever, even once the reporter had fully answered it with no leftover
+    TODO marker. With a real consistency report (the normal production
+    path), only genuinely unresolved/placeholder/contradictory items should
+    remain listed."""
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["dep-analysis"] = {"status": "error", "message": "boom"}
+    results = evaluate_items(ctx, FakeWizard())
+    ctx.statement_results = results
+    ctx.consistency_report = validate_results(results)
+
+    write_outputs(ctx, results)
+
+    report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
+    # REP-RATIONALE-001 is readiness: blocker in the catalog but was fully
+    # answered by FakeWizard with no TODO marker left -- it must not be
+    # re-listed as still blocking.
+    assert "REP-RATIONALE-001" not in report["readiness"]["blockers"]
+    assert "REP-RATIONALE-001" not in report["readiness"]["warnings"]
+    # REP-QA-PKG-005 (readiness: blocker, deterministic) becomes genuinely
+    # unavailable because dep-analysis errored -- a real remaining gap that
+    # must stay listed.
+    assert "REP-QA-PKG-005" in report["readiness"]["blockers"]
+
+
+def test_readiness_summary_block_is_at_top_with_separator_and_labels(tmp_path):
+    ctx = _ctx(tmp_path)
+    results = evaluate_items(ctx, FakeWizard())
+    ctx.statement_results = results
+    ctx.consistency_report = validate_results(results)
+
+    write_outputs(ctx, results)
+
+    draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
+    lines = draft.splitlines()
+
+    summary_index = lines.index("[Auto-MIR readiness summary]")
+    first_section_index = next(i for i, line in enumerate(lines) if line == "[Availability]")
+    separator_index = next(i for i, line in enumerate(lines) if line == "=" * 70)
+
+    assert summary_index < separator_index < first_section_index
+    assert "Remaining TODOs (must resolve before submission):" in draft
+    assert "Remaining TODOs (recommended, non-blocking):" in draft
+    assert "Blocking items:" not in draft
+    assert "Warnings:" not in draft
+    # Every listed id is labelled by its section/title, not shown bare.
+    for line in lines[summary_index:separator_index]:
+        stripped = line.strip()
+        if stripped.startswith("REP-"):
+            assert " -- " in stripped
 
 
 class NotingWizard(FakeWizard):

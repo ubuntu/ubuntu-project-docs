@@ -56,73 +56,102 @@ def _with_hanging_indent(text: str) -> str:
 
 
 def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
-    lines = [
-        f"MIR report for source package: {ctx.source_package}",
-        f"Target series: {ctx.series}",
-        "",
-    ]
+    body_lines: list[str] = []
     for entry in ctx.catalog["metadata"]["reporter_template_blueprint"]:
         if isinstance(entry, str):
             if entry.startswith("RULE:"):
                 continue
-            lines.append(entry)
+            body_lines.append(entry)
             continue
         result = by_id[entry["item"]]
         if result.state == StatementState.NOT_APPLICABLE:
             continue
         if result.state == StatementState.RESOLVED:
-            lines.append(_with_hanging_indent(result.statement))
+            body_lines.append(_with_hanging_indent(result.statement))
             if result.rationale:
-                lines.append(f"  ({_with_hanging_indent(result.rationale)})")
+                body_lines.append(f"  ({_with_hanging_indent(result.rationale)})")
         else:
-            lines.append(_with_hanging_indent(result.statement))
+            body_lines.append(_with_hanging_indent(result.statement))
             if result.rationale:
-                lines.append(f"  (Unavailable: {_with_hanging_indent(result.rationale)})")
+                body_lines.append(f"  (Unavailable: {_with_hanging_indent(result.rationale)})")
 
     readiness = _readiness_summary(list(by_id.values()), getattr(ctx, "consistency_report", None))
-    lines.extend(
-        [
-            "",
-            "[Auto-MIR readiness summary]",
-            f"Ready for submission: {'yes' if readiness['ready'] else 'no'}",
-            f"Blocking items: {', '.join(readiness['blockers']) or 'none'}",
-            f"Warnings: {', '.join(readiness['warnings']) or 'none'}",
-            "",
-            "This is a draft. Verify every statement and remove remaining "
-            "TODO markers before posting.",
-        ]
-    )
+    lines = [
+        f"MIR report for source package: {ctx.source_package}",
+        f"Target series: {ctx.series}",
+        "",
+        *_render_readiness_summary(ctx, readiness),
+        *body_lines,
+    ]
     return "\n".join(lines) + "\n"
+
+
+def _render_readiness_summary(ctx, readiness: dict) -> list[str]:
+    """Render the readiness summary block shown at the very top of the draft.
+
+    Placed first (with a full-width separator marking where it ends) so the
+    reporter sees "am I close to done" before the section-by-section detail,
+    and each listed item is labelled by its section/title, not a bare
+    catalog id, so it is meaningful without cross-referencing the catalog.
+    """
+    labels = {
+        f"{item['id']}": f"{item['section']} / {item['title']}" for item in ctx.catalog["items"]
+    }
+
+    def _labelled(item_ids: list[str]) -> list[str]:
+        if not item_ids:
+            return ["  none"]
+        return [f"  {item_id} -- {labels.get(item_id, '')}" for item_id in item_ids]
+
+    separator = "=" * 70
+    return [
+        "[Auto-MIR readiness summary]",
+        f"Ready for submission: {'yes' if readiness['ready'] else 'no'}",
+        "Remaining TODOs (must resolve before submission):",
+        *_labelled(readiness["blockers"]),
+        "Remaining TODOs (recommended, non-blocking):",
+        *_labelled(readiness["warnings"]),
+        "",
+        "This is a draft. Verify every statement and remove remaining TODO markers before posting.",
+        separator,
+        "",
+    ]
 
 
 def _readiness_summary(results: list[StatementResult], consistency=None) -> dict:
     """Summarize which items still block or warn on submission readiness.
 
-    ``result.readiness`` is the single authoritative signal: deterministic
-    evaluators only ever report a non-clear readiness alongside a rationale
-    (enforced in ``evaluate_items``), AI-confirmed statements always carry a
-    rationale (enforced by the LLM response schema), and human answers now
-    carry the catalog item's own declared readiness (or a per-option
-    override) once genuinely resolved. No additional "must also have a
-    rationale" gate is needed on top of that.
+    When a consistency report is available (the normal case: every real run
+    calls ``run_consistency_pass``), it is the single authoritative source
+    for "Blocking"/"Warning" -- it already reflects each item's *final*
+    resolution state (deterministic placeholder/unresolved detection plus
+    any AI-detected contradictions), not just its static catalog-declared
+    readiness. This is what keeps the summary from re-listing items the
+    reporter already fully answered.
+
+    Without a consistency report (only synthetic/unit-test setups that skip
+    the consistency pass), this falls back to the coarser catalog-declared
+    ``readiness`` sweep so those callers keep working unchanged.
     """
-    blockers = sorted(
-        result.id for result in results if result.readiness == ReadinessEffect.BLOCKER
-    )
-    warnings = sorted(
-        result.id for result in results if result.readiness == ReadinessEffect.WARNING
-    )
     unresolved = sorted(
         result.id
         for result in results
         if result.state in {StatementState.NEEDS_INPUT, StatementState.UNAVAILABLE}
     )
-    consistency_blockers = (
-        [issue.item_id for issue in consistency.errors] if consistency is not None else []
-    )
-    blockers = sorted(set(blockers) | set(consistency_blockers))
+    if consistency is not None:
+        blockers = sorted({issue.item_id for issue in consistency.errors})
+        warnings = sorted({issue.item_id for issue in consistency.warnings} - set(blockers))
+        ready = consistency.ready
+    else:
+        blockers = sorted(
+            result.id for result in results if result.readiness == ReadinessEffect.BLOCKER
+        )
+        warnings = sorted(
+            result.id for result in results if result.readiness == ReadinessEffect.WARNING
+        )
+        ready = not blockers and not unresolved
     return {
-        "ready": not blockers and not unresolved and (consistency is None or consistency.ready),
+        "ready": ready,
         "blockers": blockers,
         "warnings": warnings,
         "unresolved": unresolved,
