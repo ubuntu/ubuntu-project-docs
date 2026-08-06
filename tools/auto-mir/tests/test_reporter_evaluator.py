@@ -41,6 +41,18 @@ def test_human_statement_preserves_the_catalog_templates_own_leading_dash():
     assert result == "- Upstream Name is ntpd-rs"
 
 
+def test_human_statement_deadline_template_fills_the_single_tbd_completely():
+    """Regression test: REP-RATIONALE-008's template used to have two 'TBD'
+    slots ('no later than TBD due to TBD') fed by one free-text answer, so
+    the second always stayed literal. The template now has exactly one."""
+    item = {"template": "TODO: - Required in main no later than TBD"}
+
+    result = _human_statement(item, "the feature freeze of 27.04", "rust-ntpd")
+
+    assert result == "- Required in main no later than the feature freeze of 27.04"
+    assert "TBD" not in result
+
+
 def test_ensure_bulleted_adds_dash_to_plain_text():
     assert ensure_bulleted("Some free-form statement.") == "- Some free-form statement."
 

@@ -228,6 +228,12 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                 f"reporter item {item_id} template must embed its own '- ' bullet marker "
                 "right after the TODO marker"
             )
+        if isinstance(template, str) and template.replace("TBDSRC", "").count("TBD") > 1:
+            errors.append(
+                f"reporter item {item_id} template must contain at most one 'TBD' "
+                "placeholder (a single free-text answer can only fill one slot; a "
+                "second 'TBD' silently stays unfilled in the rendered statement)"
+            )
         if item.get("mode") not in valid_modes:
             errors.append(f"reporter item {item_id} has invalid mode: {item.get('mode')}")
         if item.get("readiness", "clear") not in valid_readiness:

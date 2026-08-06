@@ -140,6 +140,31 @@ def test_report_catalog_validation_rejects_template_missing_dash():
     )
 
 
+def test_report_catalog_validation_rejects_template_with_more_than_one_tbd():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    by_id["REP-BG-002"]["template"] = "TODO: - Deadline is TBD due to TBD"
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "REP-BG-002 template must contain at most one 'TBD' placeholder" in error
+        for error in errors
+    )
+
+
+def test_report_catalog_validation_allows_tbdsrc_alongside_a_single_tbd():
+    """TBDSRC is a separate source-name substitution, not a free-text-answer
+    placeholder, so it must not count toward the "at most one TBD" limit."""
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    by_id["REP-BG-002"]["template"] = "TODO: - TBDSRC needs TBD"
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert not any("must contain at most one 'TBD' placeholder" in error for error in errors)
+
+
 def test_report_catalog_validation_rejects_option_statement_missing_dash():
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}

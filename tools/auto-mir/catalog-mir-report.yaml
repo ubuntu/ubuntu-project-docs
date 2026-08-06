@@ -268,10 +268,11 @@ items:
   applicability:
     item: REP-RATIONALE-007
     equals: required-by
+  answer_guidance: State the deadline as a date or release you need this in main. Most often one would specify a freeze type and its date.
   question:
     kind: multiline
-    prompt: State the deadline and the major-release reason that makes it well founded.
-  template: 'TODO: - Required in main no later than TBD due to TBD'
+    prompt: What is the deadline, and why is it well founded?
+  template: 'TODO: - Required in main no later than TBD'
 - id: REP-RATIONALE-009
   section: Rationale
   title: Previous MIR and main history
