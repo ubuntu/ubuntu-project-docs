@@ -222,7 +222,7 @@ class TerminalWizard:
             lines.append(f"Hint: {question.hint}")
         if question.answer_guidance:
             lines.append(question.answer_guidance)
-        elif not question.required:
+        if not question.required:
             lines.append(
                 "This is optional. Leave the answer empty to skip; nothing will be "
                 "added to the report."
@@ -273,12 +273,10 @@ class TerminalWizard:
     def _render_answer_guidance(self, question: QuestionSpec) -> None:
         if question.answer_guidance:
             self._write_line(question.answer_guidance)
-            return
         if not question.required:
             self._write_line(
-                "This is optional. If nothing applies, skip it (empty line, or '.' "
-                "on the first line for multi-line questions); nothing will be added "
-                "to the report."
+                "This is optional. Leave the answer empty to skip; nothing will be "
+                "added to the report."
             )
 
     def _parse_answer(self, question: QuestionSpec, raw: str):

@@ -904,13 +904,12 @@ def test_background_catchall_is_omitted_when_left_empty(tmp_path):
 
 
 def test_testing_gaps_question_is_optional_and_omitted_when_skipped(tmp_path):
-    """REP-QA-TEST-003 must be skippable ('.' on the first line) without
+    """REP-QA-TEST-003 must be skippable (leave the answer empty) without
     implying a gap exists, and never block readiness when skipped."""
     ctx = _ctx(tmp_path)
     report_catalog = ctx.catalog
     item = next(item for item in report_catalog["items"] if item["id"] == "REP-QA-TEST-003")
     assert item.get("required") is False
-    assert "none of these" in item["answer_guidance"].casefold()
 
     class NoTestingGapsWizard(ChoiceWizard):
         def ask(self, question):

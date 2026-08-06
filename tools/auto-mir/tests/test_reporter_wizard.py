@@ -489,6 +489,51 @@ def test_optional_question_without_explicit_guidance_gets_default_skip_note():
     assert any("optional" in line.casefold() for line in output)
 
 
+def test_optional_question_shows_skip_note_even_with_custom_answer_guidance():
+    """Regression test: a custom answer_guidance used to silently suppress
+    the generic 'leave empty to skip' note entirely, leaving the reporter
+    with no clear way to say 'nothing to add' for that specific question."""
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader([""]), write_line=output.append)
+    question = QuestionSpec(
+        id="REP-Y",
+        prompt="Anything else?",
+        kind=QuestionKind.TEXT,
+        required=False,
+        answer_guidance="Focus on aspects not already covered elsewhere.",
+    )
+
+    wizard.ask(question)
+
+    assert any("Focus on aspects not already covered elsewhere." in line for line in output)
+    assert any("leave the answer empty to skip" in line.casefold() for line in output)
+
+
+def test_optional_multiline_editor_hint_shows_skip_note_even_with_custom_guidance():
+    calls = []
+
+    def _fake_edit_text(initial_text, comment_lines):
+        calls.append(comment_lines)
+        return None  # simulate no usable editor; we only care about the comment lines
+
+    wizard = TerminalWizard(
+        read_line=_reader(["."]), write_line=lambda _line: None, edit_text=_fake_edit_text
+    )
+    question = QuestionSpec(
+        id="REP-Y",
+        prompt="Anything else?",
+        kind=QuestionKind.MULTILINE,
+        required=False,
+        answer_guidance="Focus on aspects not already covered elsewhere.",
+    )
+
+    wizard.ask(question)
+
+    comment_lines = calls[0]
+    assert any("Focus on aspects not already covered elsewhere." in line for line in comment_lines)
+    assert any("leave the answer empty to skip" in line.casefold() for line in comment_lines)
+
+
 def test_option_statements_are_echoed_next_to_labels():
     output: list[str] = []
     wizard = TerminalWizard(read_line=_reader(["1"]), write_line=output.append)
