@@ -520,18 +520,11 @@ def _resolve_source_pocket_version(ctx: RunContext) -> tuple[str, str, str]:
     return version, pocket_label, note
 
 
-@adapter(AdapterID.PACKAGING_SOURCE, depends_on=[AdapterID.LP_PACKAGE_API])
-def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
-    """Fetch and analyze Debian packaging source files.
+def _unpack_source(ctx: RunContext) -> tuple[str, str, str, str, str]:
+    """Resolve the target version, fetch it via apt source, and unpack it.
 
-    Runs apt-get source in the LXD guest to fetch the source package, then
-    extracts debian/control, debian/rules, and checks for language-specific
-    files (Cargo.lock, go.sum, vendored directories).
-
-    The version fetched depends on ``ctx.source_pocket`` (auto|release|proposed):
-    by default (auto) the -proposed version is preferred when one is published,
-    since MIR maintainers often stage test/packaging fixes there before they
-    migrate to the release pocket.
+    Returns ``(workdir, full_source, analyzed_version, analyzed_pocket,
+    version_resolution_note)``.
     """
     pkg = ctx.source_package
     if not pkg:
@@ -590,6 +583,11 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
         as_ubuntu=True,
     ).strip()
 
+    return workdir, full_source, analyzed_version, analyzed_pocket, version_resolution_note
+
+
+def _read_debian_control_files(ctx: RunContext, full_source: str) -> dict:
+    """Fetch the raw debian/* text blobs used across packaging-source facts."""
     debian_control = _capture(
         ctx,
         ["bash", "-lc", f"cd {full_source} && cat debian/control"],
@@ -637,7 +635,20 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
         allow_fail=True,
         as_ubuntu=True,
     )
+    return {
+        "debian_control": debian_control,
+        "debian_watch": debian_watch,
+        "debian_rules": debian_rules,
+        "debian_tests_control": debian_tests_control,
+        "debian_readme_source": debian_readme_source,
+        "debian_copyright": debian_copyright,
+        "debian_source_format": debian_source_format,
+        "debconf_content": debconf_content,
+    }
 
+
+def _detect_language_markers(ctx: RunContext, full_source: str) -> dict:
+    """Detect Cargo/Go markers, vendored dirs, and a bounded source file listing."""
     cargo_lock = _exists(
         ctx,
         ["bash", "-lc", f"test -f {full_source}/Cargo.lock"],
@@ -707,6 +718,22 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
             except (ValueError, IndexError):
                 pass
 
+    return {
+        "cargo_lock_present": cargo_lock,
+        "go_sum_present": go_sum,
+        "vendored_dirs": vendored_dirs,
+        "shipped_vendored_dirs": shipped_vendored_dirs,
+        "file_listing": file_listing,
+    }
+
+
+def _derive_packaging_facts(
+    debian_control: str,
+    debian_rules: str,
+    debconf_content: str,
+    file_listing: list[dict],
+) -> dict:
+    """Derive packaging metadata purely from already-fetched text and listing."""
     # UI/user-visibility signals used by URF-8/URF-9. These are FACTS for the
     # reviewer/model to verify against; they are deliberately NOT used to
     # classify whether the package is a desktop program (a desktop app missing
@@ -741,16 +768,28 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
         if "/apparmor" in str(entry.get("path", "")).casefold()
     )
 
-    log.debug(
-        "packaging-source: source dir %s, %d file(s), vendored dirs: %d, "
-        "Cargo.lock: %s, go.sum: %s",
-        full_source,
-        len(file_listing),
-        len(vendored_dirs),
-        cargo_lock,
-        go_sum,
-    )
+    return {
+        "has_desktop_file": has_desktop_file,
+        "has_translation_files": has_translation_files,
+        "binary_sections": binary_sections,
+        "binary_package_names": binary_package_names,
+        "is_library_package": is_library_package,
+        "source_maintainer": source_fields["maintainer"],
+        "source_homepage": source_fields["homepage"],
+        "source_description": source_fields["description"],
+        "debconf_templates": debconf_templates,
+        "debian_rules_overrides": debian_rules_overrides,
+        "service_files": service_files,
+        "apparmor_profiles": apparmor_profiles,
+    }
 
+
+def _scan_source_security_markers(ctx: RunContext, full_source: str) -> dict:
+    """Scan the unpacked source tree for privilege/crypto markers.
+
+    Feeds URF-4 (user 'nobody'), URF-5 (setuid/setgid), and the Security
+    section's deprecated-crypto hint (REP-SECURITY-006).
+    """
     # Scan the unpacked source tree for privilege-related markers feeding URF-4
     # (user 'nobody') and URF-5 (setuid/setgid). Capture grep hits and find
     # results so the checks reason over the whole source, not just debian/.
@@ -769,41 +808,87 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
     crypto_pattern_hits = _grep_source_tree(ctx, full_source, _DEPRECATED_CRYPTO_TERMS)
 
     return {
+        "nobody_source_hits": nobody_source_hits,
+        "setuid_setgid_source_hits": setuid_setgid_source_hits,
+        "nobody_source_files": nobody_source_files,
+        "setuid_setgid_source_files": setuid_setgid_source_files,
+        "crypto_pattern_hits": crypto_pattern_hits,
+    }
+
+
+@adapter(AdapterID.PACKAGING_SOURCE, depends_on=[AdapterID.LP_PACKAGE_API])
+def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
+    """Fetch and analyze Debian packaging source files.
+
+    Runs apt-get source in the LXD guest to fetch the source package, then
+    extracts debian/control, debian/rules, and checks for language-specific
+    files (Cargo.lock, go.sum, vendored directories).
+
+    The version fetched depends on ``ctx.source_pocket`` (auto|release|proposed):
+    by default (auto) the -proposed version is preferred when one is published,
+    since MIR maintainers often stage test/packaging fixes there before they
+    migrate to the release pocket.
+    """
+    workdir, full_source, analyzed_version, analyzed_pocket, version_resolution_note = (
+        _unpack_source(ctx)
+    )
+    control_files = _read_debian_control_files(ctx, full_source)
+    language_markers = _detect_language_markers(ctx, full_source)
+    packaging_facts = _derive_packaging_facts(
+        control_files["debian_control"],
+        control_files["debian_rules"],
+        control_files["debconf_content"],
+        language_markers["file_listing"],
+    )
+
+    log.debug(
+        "packaging-source: source dir %s, %d file(s), vendored dirs: %d, "
+        "Cargo.lock: %s, go.sum: %s",
+        full_source,
+        len(language_markers["file_listing"]),
+        len(language_markers["vendored_dirs"]),
+        language_markers["cargo_lock_present"],
+        language_markers["go_sum_present"],
+    )
+
+    security_markers = _scan_source_security_markers(ctx, full_source)
+
+    return {
         "status": "ok",
         "source_dir": full_source,
         "source_workdir": workdir,
         "analyzed_version": analyzed_version,
         "analyzed_pocket": analyzed_pocket,
         "version_resolution_note": version_resolution_note,
-        "debian_control": debian_control,
-        "debian_watch": debian_watch,
-        "debian_rules": debian_rules,
-        "debian_tests_control": debian_tests_control,
-        "debian_readme_source": debian_readme_source,
-        "debian_copyright": debian_copyright,
-        "debian_source_format": debian_source_format,
-        "source_maintainer": source_fields["maintainer"],
-        "source_homepage": source_fields["homepage"],
-        "source_description": source_fields["description"],
-        "debconf_templates": debconf_templates,
-        "debian_rules_overrides": debian_rules_overrides,
-        "service_files": service_files,
-        "apparmor_profiles": apparmor_profiles,
-        "cargo_lock_present": cargo_lock,
-        "go_sum_present": go_sum,
-        "vendored_dirs": vendored_dirs,
-        "shipped_vendored_dirs": shipped_vendored_dirs,
-        "file_listing": file_listing,
-        "has_desktop_file": has_desktop_file,
-        "has_translation_files": has_translation_files,
-        "binary_sections": binary_sections,
-        "binary_package_names": binary_package_names,
-        "is_library_package": is_library_package,
-        "nobody_source_hits": nobody_source_hits,
-        "setuid_setgid_source_hits": setuid_setgid_source_hits,
-        "nobody_source_files": nobody_source_files,
-        "setuid_setgid_source_files": setuid_setgid_source_files,
-        "crypto_pattern_hits": crypto_pattern_hits,
+        "debian_control": control_files["debian_control"],
+        "debian_watch": control_files["debian_watch"],
+        "debian_rules": control_files["debian_rules"],
+        "debian_tests_control": control_files["debian_tests_control"],
+        "debian_readme_source": control_files["debian_readme_source"],
+        "debian_copyright": control_files["debian_copyright"],
+        "debian_source_format": control_files["debian_source_format"],
+        "source_maintainer": packaging_facts["source_maintainer"],
+        "source_homepage": packaging_facts["source_homepage"],
+        "source_description": packaging_facts["source_description"],
+        "debconf_templates": packaging_facts["debconf_templates"],
+        "debian_rules_overrides": packaging_facts["debian_rules_overrides"],
+        "service_files": packaging_facts["service_files"],
+        "apparmor_profiles": packaging_facts["apparmor_profiles"],
+        "cargo_lock_present": language_markers["cargo_lock_present"],
+        "go_sum_present": language_markers["go_sum_present"],
+        "vendored_dirs": language_markers["vendored_dirs"],
+        "shipped_vendored_dirs": language_markers["shipped_vendored_dirs"],
+        "file_listing": language_markers["file_listing"],
+        "has_desktop_file": packaging_facts["has_desktop_file"],
+        "has_translation_files": packaging_facts["has_translation_files"],
+        "binary_sections": packaging_facts["binary_sections"],
+        "binary_package_names": packaging_facts["binary_package_names"],
+        "is_library_package": packaging_facts["is_library_package"],
+        "nobody_source_hits": security_markers["nobody_source_hits"],
+        "setuid_setgid_source_hits": security_markers["setuid_setgid_source_hits"],
+        "nobody_source_files": security_markers["nobody_source_files"],
+        "setuid_setgid_source_files": security_markers["setuid_setgid_source_files"],
+        "crypto_pattern_hits": security_markers["crypto_pattern_hits"],
     }
 
 
