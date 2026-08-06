@@ -21,7 +21,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import llm
 from catalog_enums import AdapterID
@@ -51,6 +51,9 @@ try:
     from launchpadlib.launchpad import Launchpad as _Launchpad  # type: ignore
 except ImportError:  # pragma: no cover - optional runtime dependency
     _Launchpad = None
+
+if TYPE_CHECKING:
+    from auto_mir import RunContext
 
 log = logging.getLogger("auto_mir.evidence.host")
 
@@ -85,7 +88,7 @@ class AdapterError(RuntimeError):
 
 
 @adapter(AdapterID.LP_BUG_API)
-def collect_lp_bug_api(ctx) -> LPBugAPIResult:
+def collect_lp_bug_api(ctx: RunContext) -> LPBugAPIResult:
     """Return Launchpad bug data already collected by lp_intake.
 
     This is a passthrough: lp_intake.run() already populated ctx.bug.
@@ -116,7 +119,7 @@ def collect_lp_bug_api(ctx) -> LPBugAPIResult:
 
 
 @adapter(AdapterID.LP_TEAM_MEMBERSHIP_API)
-def collect_lp_team_membership_api(ctx) -> LPTeamMembershipAPIResult:
+def collect_lp_team_membership_api(ctx: RunContext) -> LPTeamMembershipAPIResult:
     """Return bug subscriber / team-membership data from lp_intake.
 
     ubuntu-mir subscription is the primary check gate (SUM-4); team member
@@ -143,7 +146,7 @@ def _lp_task_is_open(status: str) -> bool:
 
 
 @adapter(AdapterID.LP_BUG_SEARCH_API)
-def collect_lp_bug_search_api(ctx) -> LPBugSearchAPIResult:
+def collect_lp_bug_search_api(ctx: RunContext) -> LPBugSearchAPIResult:
     """Search Launchpad bug tasks for the current Ubuntu source package.
 
     Uses the anonymous Launchpad REST API on the source-package object itself,
@@ -263,7 +266,7 @@ _MIR_HISTORY_MAX_EXPLICIT_REFS = 5
 _MIR_TITLE_NAME_CAPTURE_RE = re.compile(r"^\[mir\]\s+(.+?)\s*$", re.IGNORECASE)
 
 
-def _mir_history_bug_text(ctx) -> str:
+def _mir_history_bug_text(ctx: RunContext) -> str:
     """Return the combined bug text to scan for predecessor references.
 
     Mirrors review_type._reporter_text(): title, description, comments, and
@@ -282,7 +285,7 @@ def _mir_history_bug_text(ctx) -> str:
     return "\n".join(p for p in parts if p)
 
 
-def _mir_history_predecessor_refs(ctx) -> list[predecessor_refs.PredecessorRef]:
+def _mir_history_predecessor_refs(ctx: RunContext) -> list[predecessor_refs.PredecessorRef]:
     """Extract rename/predecessor references from the bug text.
 
     Best-effort and dependency-free: returns an empty list when bug text is
@@ -293,7 +296,7 @@ def _mir_history_predecessor_refs(ctx) -> list[predecessor_refs.PredecessorRef]:
     return predecessor_refs.extract_predecessor_refs(text, pkg)
 
 
-def _mir_history_candidate_names(ctx) -> list[str]:
+def _mir_history_candidate_names(ctx: RunContext) -> list[str]:
     """Return distinct candidate source names to probe for a prior MIR bug.
 
     The current source package is always first. Predecessor/sibling names from
@@ -344,7 +347,7 @@ def _mir_history_candidate_names(ctx) -> list[str]:
 
 
 @adapter(AdapterID.LP_MIR_HISTORY)
-def collect_lp_mir_history(ctx) -> LPMirHistoryResult:
+def collect_lp_mir_history(ctx: RunContext) -> LPMirHistoryResult:
     """Search Launchpad for prior MIR bugs on this source or a predecessor name.
 
     Best-effort: probes each candidate source name's bug tasks with a server-side
@@ -552,7 +555,7 @@ def summarise_release_cadence(history: list[dict]) -> dict:
 
 
 @adapter(AdapterID.LP_PACKAGE_API)
-def collect_lp_package_api(ctx) -> LPPackageAPIResult:
+def collect_lp_package_api(ctx: RunContext) -> LPPackageAPIResult:
     """Query Launchpad package publishing history and build state via launchpadlib.
 
     Collects:
@@ -731,7 +734,7 @@ _AUTOPKGTEST_DB_URL = "https://autopkgtest.ubuntu.com/static/autopkgtest.db"
 _AUTOPKGTEST_DB_CACHE_ATTR = "_autopkgtest_db_path"
 
 
-def _get_cached_autopkgtest_db(ctx) -> str:
+def _get_cached_autopkgtest_db(ctx: RunContext) -> str:
     """Return a local path to the autopkgtest DB, downloading it once per run.
 
     The path is cached on ``ctx`` so repeated lookups (package + consumers)
@@ -762,7 +765,7 @@ def _get_cached_autopkgtest_db(ctx) -> str:
     return tmp_path
 
 
-def cleanup_cached_autopkgtest_db(ctx) -> None:
+def cleanup_cached_autopkgtest_db(ctx: RunContext) -> None:
     """Remove the cached autopkgtest DB temp file, if any, at end of a run."""
     cached = getattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, None)
     if not isinstance(cached, str) or not cached:
@@ -902,7 +905,7 @@ def _parse_debian_bts_bug_sections(page_html: str) -> list[dict[str, Any]]:
 
 
 @adapter(AdapterID.DEBIAN_BTS)
-def collect_debian_bts(ctx) -> DebianBTSResult:
+def collect_debian_bts(ctx: RunContext) -> DebianBTSResult:
     """Fetch open Debian BTS bugs for the current source package."""
     pkg = ctx.source_package
     if not pkg:
@@ -1014,7 +1017,9 @@ def _urls_look_related(project_url: str, hint_url: str) -> bool:
     return bool(project_terms & hint_terms)
 
 
-def _collect_upstream_search_terms(ctx, package_name: str) -> tuple[list[str], list[str]]:
+def _collect_upstream_search_terms(
+    ctx: RunContext, package_name: str
+) -> tuple[list[str], list[str]]:
     packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
     if not isinstance(packaging, dict):
         packaging = {}
@@ -1087,7 +1092,7 @@ def _select_upstream_project(
 
 
 @adapter(AdapterID.UPSTREAM_TRACKER)
-def collect_upstream_tracker(ctx) -> UpstreamTrackerResult:
+def collect_upstream_tracker(ctx: RunContext) -> UpstreamTrackerResult:
     """Query release-monitoring.org for upstream release history.
 
     This is intentionally heuristic: it starts from the source package name and
@@ -1228,7 +1233,7 @@ def _builds_from_newest_publication(archive, lp_series, pkg: str) -> list[Any]:
 
 
 @adapter(AdapterID.LP_BUILD_API, depends_on=[AdapterID.PACKAGING_SOURCE])
-def collect_lp_build_api(ctx) -> LPBuildAPIResult:
+def collect_lp_build_api(ctx: RunContext) -> LPBuildAPIResult:
     """Fetch Launchpad build-state information for the exact analysed version.
 
     Pinned to packaging-source's ``analyzed_version``/``analyzed_pocket`` so
@@ -1492,7 +1497,7 @@ def _candidate_cve_search_terms(pkg: str) -> list[str]:
 
 
 @adapter(AdapterID.CVE_SEARCH_TERMS)
-def collect_cve_search_terms(ctx) -> CVESearchTermsResult:
+def collect_cve_search_terms(ctx: RunContext) -> CVESearchTermsResult:
     """Produce the candidate search terms used to identify relevant CVEs.
 
     Always yields deterministic source-package name variants tagged ``current``.
@@ -1537,7 +1542,7 @@ _PREDECESSOR_PROMPT = "cve_predecessor_terms.md"
 _PREDECESSOR_MAX_TERMS = 8
 
 
-def _llm_predecessor_terms(ctx, pkg: str) -> list[dict[str, str]]:
+def _llm_predecessor_terms(ctx: RunContext, pkg: str) -> list[dict[str, str]]:
     """Best-effort LLM proposal of predecessor/sibling CVE search terms.
 
     Returns a bounded list of ``{term, kind, rationale}`` dicts, all tagged
@@ -1598,7 +1603,7 @@ def _llm_predecessor_terms(ctx, pkg: str) -> list[dict[str, str]]:
 
 
 def _render_predecessor_prompt(
-    ctx,
+    ctx: RunContext,
     *,
     source_package: str,
     upstream_url: str,
@@ -1671,7 +1676,7 @@ def _cvelist_discover_baseline(url: str = _CVELIST_RELEASES_API) -> tuple[str, s
 
 
 @adapter(AdapterID.CVELIST_SCAN, depends_on=[AdapterID.CVE_SEARCH_TERMS])
-def collect_cvelist_scan(ctx) -> CvelistScanResult:
+def collect_cvelist_scan(ctx: RunContext) -> CvelistScanResult:
     """Identify candidate CVEs by scanning cvelistV5 baseline corpus on the host."""
     pkg = ctx.source_package
     if not pkg:
@@ -1813,7 +1818,7 @@ def _nvd_description(cve: dict[str, Any]) -> str:
 
 
 @adapter(AdapterID.NVD_ENRICH, depends_on=[AdapterID.CVELIST_SCAN])
-def collect_nvd_enrich(ctx) -> NvdEnrichResult:
+def collect_nvd_enrich(ctx: RunContext) -> NvdEnrichResult:
     """Enrich cvelist-scan candidates with normalized NVD metadata.
 
     For each candidate CVE identified in the baseline scan, query the NVD API for
@@ -1898,7 +1903,7 @@ def collect_nvd_enrich(ctx) -> NvdEnrichResult:
 
 
 @adapter(AdapterID.UBUNTU_CVE_TRACKER)
-def collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
+def collect_ubuntu_cve_tracker(ctx: RunContext) -> UbuntuCVETrackerResult:
     """Query OVAL data from https://security-metadata.canonical.com/oval/ for CVEs.
 
     Downloads and parses the XZ-compressed OVAL JSON file for the target series,
@@ -1993,7 +1998,7 @@ def collect_ubuntu_cve_tracker(ctx) -> UbuntuCVETrackerResult:
 
 
 @adapter(AdapterID.AUTOPKGTEST_DB)
-def collect_autopkgtest(ctx) -> AutopkgtestResult:
+def collect_autopkgtest(ctx: RunContext) -> AutopkgtestResult:
     """Query autopkgtest SQLite database for package test results.
 
     Downloads https://autopkgtest.ubuntu.com/static/autopkgtest.db (once per
@@ -2104,7 +2109,7 @@ def fetch_autopkgtest_log_excerpt(package: str, series: str, arch: str, run_id: 
 
 
 @adapter(AdapterID.CONSUMER_AUTOPKGTESTS, depends_on=[AdapterID.REVERSE_DEPS])
-def collect_consumer_autopkgtests(ctx) -> ConsumerAutopkgtestsResult:
+def collect_consumer_autopkgtests(ctx: RunContext) -> ConsumerAutopkgtestsResult:
     """Look up autopkgtest status for the source's reverse-dependency consumers.
 
     Reads the consumer source packages discovered by the reverse-deps adapter
@@ -2189,7 +2194,7 @@ def collect_consumer_autopkgtests(ctx) -> ConsumerAutopkgtestsResult:
 
 
 @adapter(AdapterID.DEPENDENCY_AUTOPKGTESTS, depends_on=[AdapterID.DEP_ANALYSIS])
-def collect_dependency_autopkgtests(ctx) -> DependencyAutopkgtestsResult:
+def collect_dependency_autopkgtests(ctx: RunContext) -> DependencyAutopkgtestsResult:
     """Look up autopkgtest status for each in-main runtime dependency's source.
 
     Reads the in-main runtime dependencies discovered by the dep-analysis

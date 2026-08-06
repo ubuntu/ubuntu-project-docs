@@ -10,11 +10,15 @@ import json
 import logging
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from checks.messages import render_check_message_or_default
 from checks.registry import evaluator
 from models import Finding
 from utils import llm_evidence, llm_sanitize
+
+if TYPE_CHECKING:
+    from auto_mir import RunContext
 
 log = logging.getLogger("auto_mir.checks.llm_eval")
 
@@ -41,7 +45,7 @@ _FULL_CONTENT_FIELDS_BY_CHECK: dict[str, set[str]] = {
 
 
 @evaluator("ev_to_ai")
-def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
+def _eval_ev_to_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     """Evaluate a check by combining collected evidence with an LLM call.
 
     Assembles the evidence payload relevant to this check, renders the
@@ -92,7 +96,7 @@ def _eval_ev_to_ai(check: dict, ctx, finding: Finding) -> Finding:
 
 
 @evaluator("ai")
-def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
+def _eval_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     """Evaluate checks that require pure AI synthesis over the full findings set.
 
     Uses the same LLM path as ev_to_ai but passes the full evidence store rather
@@ -140,7 +144,7 @@ def _eval_ai(check: dict, ctx, finding: Finding) -> Finding:
 
 
 @evaluator("human_only")
-def _eval_human_only(check: dict, ctx, finding: Finding) -> Finding:
+def _eval_human_only(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     """Evaluate checks that require human judgment only."""
     finding.mark_unknown(
         message=render_check_message_or_default(
@@ -177,7 +181,7 @@ def _apply_llm_unavailable_fallback(
     )
 
 
-def _wrap_untrusted(ctx, label: str, text: str) -> str:
+def _wrap_untrusted(ctx: RunContext, label: str, text: str) -> str:
     """Wrap attacker-controllable text in a per-run untrusted-data envelope.
 
     Uses the run's nonce (ctx.untrusted_nonce) so injected content cannot forge
@@ -188,7 +192,7 @@ def _wrap_untrusted(ctx, label: str, text: str) -> str:
     return llm_sanitize.wrap_untrusted(label, text, nonce)
 
 
-def _spotlight_lp_bug_api(ctx, data: dict) -> dict:
+def _spotlight_lp_bug_api(ctx: RunContext, data: dict) -> dict:
     """Wrap the attacker-controllable fields of the lp-bug-api adapter output.
 
     bug_title, bug_description, and bug_comments originate from Launchpad bug
@@ -214,7 +218,7 @@ def _spotlight_lp_bug_api(ctx, data: dict) -> dict:
     return result
 
 
-def _build_evidence_payload(check: dict, ctx) -> dict:
+def _build_evidence_payload(check: dict, ctx: RunContext) -> dict:
     """Build a compact evidence dict for the adapters required by this check.
 
     Only includes adapter outputs listed in adapters_required/adapters_optional
@@ -316,7 +320,7 @@ def _select_ev_to_ai_model_tier(prompt: str, evidence_payload: dict) -> str:
 
 def _maybe_refine_with_additional_evidence(
     check: dict,
-    ctx,
+    ctx: RunContext,
     response: dict,
     evidence_payload: dict,
     policy_excerpt: str,
@@ -361,7 +365,7 @@ def _extract_additional_evidence_requests(response: dict) -> list[dict | str]:
     return raw[:_MAX_ADDITIONAL_EVIDENCE_REQUESTS]
 
 
-def _build_additional_requested_evidence(ctx, requests: list[dict | str]) -> dict:
+def _build_additional_requested_evidence(ctx: RunContext, requests: list[dict | str]) -> dict:
     adapters_store = ctx.evidence.get("adapters", {})
     fetch_build_data = adapters_store.get("fetch-build", {})
     build_log = fetch_build_data.get("build_log", "")
@@ -472,7 +476,7 @@ def _build_log_pattern_matches(lines: list[str], pattern: str, max_matches: int)
     return matches
 
 
-def _build_policy_excerpt(check: dict, ctx) -> str:
+def _build_policy_excerpt(check: dict, ctx: RunContext) -> str:
     """Extract relevant policy text for a check from the MIR reviewer template.
 
     Combines:
@@ -612,7 +616,7 @@ def _summarise_consumer_autopkgtests(adapters_store: dict) -> dict:
     }
 
 
-def _compute_promotion_status(ctx, adapters_store: dict) -> dict:
+def _compute_promotion_status(ctx: RunContext, adapters_store: dict) -> dict:
     """Deterministically compute which built binaries still need promotion.
 
     Uses lp-package-api's ``current_component`` (the source's current archive
@@ -964,7 +968,7 @@ def _default_todo_for_check(check: dict, fallback_suffix: str) -> str:
     return f"TODO: - {check.get('title', check.get('id', 'Check'))} — {fallback_suffix}"
 
 
-def _fallback_rationale_for_check(check: dict, ctx) -> str:
+def _fallback_rationale_for_check(check: dict, ctx: RunContext) -> str:
     """Return a deterministic-evidence rationale for a check when the LLM failed.
 
     Currently specialises RDO-1: even without the model, the dup-search adapter

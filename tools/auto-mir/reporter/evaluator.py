@@ -6,7 +6,7 @@ import logging
 import re
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from reporter.ai import evaluate_ai_item
 from reporter.conditions import ConditionContext, evaluate_condition
@@ -22,9 +22,12 @@ from reporter.models import (
 from reporter.text_utils import ensure_bulleted, strip_todo_prefix, substitute_source
 from reporter.wizard import TerminalWizard
 
+if TYPE_CHECKING:
+    from auto_mir import RunContext
+
 log = logging.getLogger("auto_mir.reporter")
 
-Evaluator = Callable[[dict, Any], tuple[str | None, list[str], str]]
+Evaluator = Callable[[dict, "RunContext"], tuple[str | None, list[str], str]]
 _EVALUATORS: dict[str, Evaluator] = {}
 
 
@@ -40,7 +43,7 @@ def reporter_evaluator(name: str):
     return decorator
 
 
-def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
+def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementResult]:
     """Evaluate reporter items in catalog order, asking only human-owned input."""
     results: list[StatementResult] = []
     item_values: dict[str, Any] = {}
@@ -152,7 +155,7 @@ def evaluate_items(ctx, wizard: TerminalWizard) -> list[StatementResult]:
     return results
 
 
-def _question_from_item(item: dict, ctx) -> QuestionSpec:
+def _question_from_item(item: dict, ctx: RunContext) -> QuestionSpec:
     definition = item["question"]
     kind = QuestionKind(definition["kind"])
     source_package = ctx.source_package
@@ -194,7 +197,7 @@ def _question_from_item(item: dict, ctx) -> QuestionSpec:
     )
 
 
-def _evidence_hint(item: dict, ctx) -> str:
+def _evidence_hint(item: dict, ctx: RunContext) -> str:
     """Fold an item's evidence-derived preface into its question's ``hint``.
 
     ``_show_preface`` already prints this ahead of the question in the
@@ -209,7 +212,7 @@ def _evidence_hint(item: dict, ctx) -> str:
     return f"{statement} {rationale}".strip() if rationale else statement
 
 
-def _dynamic_default(default_source: dict | None, ctx) -> str | None:
+def _dynamic_default(default_source: dict | None, ctx: RunContext) -> str | None:
     """Resolve a question's default answer from an evidence adapter field.
 
     Used so a confidently-detected value (e.g. an upstream project name found
@@ -227,7 +230,7 @@ def _dynamic_default(default_source: dict | None, ctx) -> str | None:
 
 
 def _dynamic_options(
-    options_source: dict | None, ctx, *, existing: list[QuestionOption]
+    options_source: dict | None, ctx: RunContext, *, existing: list[QuestionOption]
 ) -> list[QuestionOption]:
     """Look up the concrete evidence-derived choices an ``options_source`` names.
 
@@ -301,7 +304,7 @@ def _spell_out_option(
     )
 
 
-def _apply_option_lock(option: QuestionOption, raw_option: dict, ctx) -> QuestionOption:
+def _apply_option_lock(option: QuestionOption, raw_option: dict, ctx: RunContext) -> QuestionOption:
     """Resolve a catalog-declared ``unavailable_if`` condition against evidence.
 
     The option stays visible (catalog.py enforces every ``unavailable_if``
@@ -354,7 +357,7 @@ def _mark_followup_options(
     ]
 
 
-def _followup_trigger_values(item_id: str, ctx) -> tuple[bool, set[str]]:
+def _followup_trigger_values(item_id: str, ctx: RunContext) -> tuple[bool, set[str]]:
     """Return (always, specific_ids) describing which answers to ``item_id``
     cause another catalog item to become applicable."""
     always = False
@@ -398,7 +401,7 @@ def _condition_triggers(condition: Any, item_id: str) -> tuple[bool, set[str]]:
     return always, specific
 
 
-def _show_preface(item: dict, ctx, wizard: TerminalWizard) -> None:
+def _show_preface(item: dict, ctx: RunContext, wizard: TerminalWizard) -> None:
     """Surface one deterministic-evidence note ahead of a human/AI question.
 
     Reuses the deterministic evaluator registry so preface content stays
@@ -410,7 +413,7 @@ def _show_preface(item: dict, ctx, wizard: TerminalWizard) -> None:
         wizard.show_note(statement, rationale)
 
 
-def _preface_text(item: dict, ctx) -> tuple[str, str]:
+def _preface_text(item: dict, ctx: RunContext) -> tuple[str, str]:
     """Resolve one item's ``preface_evaluator`` into (statement, rationale).
 
     Shared by ``_show_preface`` (console-only "Note" block, shown ahead of
@@ -452,7 +455,7 @@ def _human_statement(item: dict, answer: Any, source_package: str) -> str:
 _URL_ANSWER_PATTERN = re.compile(r"^https?://\S+$")
 
 
-def _maybe_write_evidence(item: dict, ctx, answer_value: Any) -> None:
+def _maybe_write_evidence(item: dict, ctx: RunContext, answer_value: Any) -> None:
     """Backfill an evidence adapter field from a human answer, if declared.
 
     Lets a later catalog item's deterministic evaluator (e.g. the upstream
@@ -491,13 +494,13 @@ def _unavailable(
     )
 
 
-def _adapter(ctx, adapter_id: str) -> dict:
+def _adapter(ctx: RunContext, adapter_id: str) -> dict:
     value = ctx.evidence.get("adapters", {}).get(adapter_id, {})
     return value if isinstance(value, dict) else {}
 
 
 @reporter_evaluator("source-availability")
-def _source_availability(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _source_availability(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "lp-package-api")
     if data.get("status") != "ok":
         return None, [], "Launchpad package data was unavailable"
@@ -520,7 +523,7 @@ def _source_availability(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("build-architectures")
-def _build_architectures(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _build_architectures(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "lp-build-api")
     if data.get("status") != "ok":
         return None, [], "Launchpad build data was unavailable"
@@ -549,7 +552,7 @@ def _build_architectures(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("source-link")
-def _source_link(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _source_link(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     return (
         f"Source package: https://launchpad.net/ubuntu/+source/{ctx.source_package}",
         [],
@@ -558,7 +561,7 @@ def _source_link(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("prior-mir-history")
-def _prior_mir_history(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _prior_mir_history(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "lp-mir-history")
     if data.get("status") != "ok":
         return None, [], "Prior MIR history was unavailable"
@@ -578,7 +581,7 @@ def _prior_mir_history(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("cve-history")
-def _cve_history(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _cve_history(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     ubuntu = _adapter(ctx, "ubuntu-cve-tracker")
     nvd = _adapter(ctx, "nvd-enrich")
     if ubuntu.get("status") != "ok" and nvd.get("status") != "ok":
@@ -606,7 +609,7 @@ def _cve_history(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("important-bugs")
-def _important_bugs(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _important_bugs(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     ubuntu = _adapter(ctx, "lp-bug-search-api")
     debian = _adapter(ctx, "debian-bts")
     if ubuntu.get("status") != "ok" and debian.get("status") != "ok":
@@ -627,7 +630,7 @@ def _important_bugs(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("binary-security-surface")
-def _binary_security_surface(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _binary_security_surface(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "binary-package-inspection")
     if data.get("status") != "ok":
         return None, [], "Built binary package inspection was unavailable"
@@ -651,7 +654,7 @@ def _binary_security_surface(_item: dict, ctx) -> tuple[str | None, list[str], s
 
 
 @reporter_evaluator("binary-integration-surface")
-def _binary_integration_surface(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _binary_integration_surface(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "binary-package-inspection")
     if data.get("status") != "ok":
         return None, [], "Built binary package inspection was unavailable"
@@ -671,7 +674,7 @@ def _binary_integration_surface(_item: dict, ctx) -> tuple[str | None, list[str]
 
 
 @reporter_evaluator("build-tests")
-def _build_tests(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _build_tests(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "fetch-build")
     if not data.get("build_log"):
         return None, [], "No build log was available"
@@ -695,7 +698,7 @@ def _build_tests(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("autopkgtests")
-def _autopkgtests(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _autopkgtests(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "autopkgtest-db")
     if data.get("status") != "ok":
         return None, [], "Autopkgtest data was unavailable"
@@ -716,7 +719,7 @@ def _autopkgtests(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("watch-file")
-def _watch_file(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _watch_file(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
         return None, [], "Packaging source data was unavailable"
@@ -734,7 +737,7 @@ def _watch_file(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("lintian")
-def _lintian(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _lintian(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "lintian")
     if data.get("status") != "ok":
         return None, [], "Lintian evidence was unavailable"
@@ -748,7 +751,7 @@ def _lintian(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("source-packaging-metadata")
-def _source_packaging_metadata(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _source_packaging_metadata(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
         return None, [], "Packaging source data was unavailable"
@@ -779,7 +782,7 @@ def _source_packaging_metadata(_item: dict, ctx) -> tuple[str | None, list[str],
 
 
 @reporter_evaluator("vendored-maintenance-docs")
-def _vendored_maintenance_docs(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _vendored_maintenance_docs(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
         return None, [], "Packaging source data was unavailable"
@@ -814,7 +817,7 @@ def _vendored_maintenance_docs(_item: dict, ctx) -> tuple[str | None, list[str],
 
 
 @reporter_evaluator("dependencies")
-def _dependencies(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _dependencies(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "dep-analysis")
     if data.get("status") != "ok":
         return None, [], "Dependency analysis was unavailable"
@@ -833,7 +836,7 @@ def _dependencies(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("binary-packages")
-def _binary_packages(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _binary_packages(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
         return None, [], "Packaging source inspection was unavailable"
@@ -848,7 +851,7 @@ def _binary_packages(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("lintian-fhs-summary")
-def _lintian_fhs_summary(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _lintian_fhs_summary(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     """Surface lintian's error/warning counts ahead of the FHS/Policy question.
 
     Without this, a reporter answering "does this follow FHS and Debian
@@ -881,7 +884,7 @@ def _lintian_fhs_summary(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("obsolete-dependencies")
-def _obsolete_dependencies(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _obsolete_dependencies(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "dep-analysis")
     if data.get("status") != "ok":
         return None, [], "Dependency analysis was unavailable"
@@ -909,7 +912,7 @@ def _obsolete_dependencies(_item: dict, ctx) -> tuple[str | None, list[str], str
 
 
 @reporter_evaluator("recent-build")
-def _recent_build(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _recent_build(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "lp-build-api")
     if data.get("status") != "ok":
         return None, [], "Launchpad build evidence was unavailable"
@@ -939,7 +942,7 @@ def _recent_build(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("team-subscription")
-def _team_subscription(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _team_subscription(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "team-mapping")
     if data.get("status") != "ok":
         return None, [], "Team subscription data was unavailable"
@@ -958,7 +961,7 @@ def _team_subscription(_item: dict, ctx) -> tuple[str | None, list[str], str]:
 
 
 @reporter_evaluator("upstream-link")
-def _upstream_link(_item: dict, ctx) -> tuple[str | None, list[str], str]:
+def _upstream_link(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "upstream-tracker")
     url = str(data.get("upstream_url", "")).strip()
     if not url:

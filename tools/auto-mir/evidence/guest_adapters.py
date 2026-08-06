@@ -12,6 +12,7 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import lxd_runner
 from catalog_enums import AdapterID
@@ -31,6 +32,9 @@ from evidence.types import (
     UbuntuUploadPermissionResult,
 )
 from utils import http as http_utils
+
+if TYPE_CHECKING:
+    from auto_mir import RunContext
 
 log = logging.getLogger("auto_mir.evidence.guest")
 
@@ -54,7 +58,7 @@ class AdapterError(RuntimeError):
 
 
 def _capture(
-    ctx,
+    ctx: RunContext,
     cmd: list[str],
     allow_fail: bool = False,
     *,
@@ -76,7 +80,7 @@ def _capture(
 
 
 def _exists(
-    ctx,
+    ctx: RunContext,
     cmd: list[str],
     *,
     as_ubuntu: bool = False,
@@ -131,7 +135,7 @@ def _is_auto_included_binary(package: str) -> bool:
     return package.endswith(("-dev", "-dbg", "-debug", "-doc", "-docs"))
 
 
-def _detect_component(ctx, package: str) -> str:
+def _detect_component(ctx: RunContext, package: str) -> str:
     """Best-effort component detection via apt-cache policy output."""
     policy = _capture(
         ctx,
@@ -153,7 +157,7 @@ def _detect_component(ctx, package: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _grep_source_tree(ctx, source_dir: str, terms: list[str]) -> list[str]:
+def _grep_source_tree(ctx: RunContext, source_dir: str, terms: list[str]) -> list[str]:
     """Return ``path:lineno:content`` hits for fixed terms across the source tree.
 
     Uses ``grep -RIn`` (recursive, skip binary files, line numbers). The terms
@@ -166,7 +170,7 @@ def _grep_source_tree(ctx, source_dir: str, terms: list[str]) -> list[str]:
     return [line.strip() for line in out.splitlines() if line.strip()]
 
 
-def _find_source_tree(ctx, source_dir: str, predicate: str) -> list[str]:
+def _find_source_tree(ctx: RunContext, source_dir: str, predicate: str) -> list[str]:
     """Return source-tree paths matching a ``find`` predicate (capped)."""
     cmd = f"cd {source_dir} && find . {predicate} 2>/dev/null | head -200"
     out = _capture(ctx, ["bash", "-lc", cmd], allow_fail=True, as_ubuntu=True)
@@ -393,7 +397,7 @@ def _ask_buildable_candidate(
 
 
 def _resolve_buildable_candidate(
-    ctx, candidate_versions: list[str], lp_pocket: str
+    ctx: RunContext, candidate_versions: list[str], lp_pocket: str
 ) -> tuple[str, str, str]:
     """Pick which candidate version to analyse, preferring the newest fully built.
 
@@ -462,7 +466,7 @@ def _resolve_buildable_candidate(
     return chosen.version, pocket_label, note
 
 
-def _resolve_source_pocket_version(ctx) -> tuple[str, str, str]:
+def _resolve_source_pocket_version(ctx: RunContext) -> tuple[str, str, str]:
     """Resolve which source version/pocket to fetch for analysis.
 
     Returns ``(version, pocket_label, version_resolution_note)``.
@@ -517,7 +521,7 @@ def _resolve_source_pocket_version(ctx) -> tuple[str, str, str]:
 
 
 @adapter(AdapterID.PACKAGING_SOURCE, depends_on=[AdapterID.LP_PACKAGE_API])
-def collect_packaging_source(ctx) -> PackagingSourceResult:
+def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
     """Fetch and analyze Debian packaging source files.
 
     Runs apt-get source in the LXD guest to fetch the source package, then
@@ -842,7 +846,7 @@ _GENERIC_SEARCH_STOPWORDS = {
 
 
 @adapter(AdapterID.DUP_SEARCH, depends_on=[AdapterID.PACKAGING_SOURCE])
-def collect_dup_search(ctx) -> DupSearchResult:
+def collect_dup_search(ctx: RunContext) -> DupSearchResult:
     """Suggest possible duplicate/overlapping packages in the archive.
 
     Deliberately best-effort and suggestion-only (RDO-1 and the human reviewer
@@ -949,7 +953,7 @@ def _significant_search_words(term: str) -> list[str]:
     return [w for w in words if len(w) > 1 and w.lower() not in _GENERIC_SEARCH_STOPWORDS]
 
 
-def _apt_cache_search(ctx, term: str) -> list[tuple[str, str]]:
+def _apt_cache_search(ctx: RunContext, term: str) -> list[tuple[str, str]]:
     """Run ``apt-cache search`` for a term and return (name, synopsis) pairs.
 
     Returns an empty list on any failure so a bad term never breaks the adapter.
@@ -980,7 +984,7 @@ def _apt_cache_search(ctx, term: str) -> list[tuple[str, str]]:
     return pairs
 
 
-def _apt_package_component(ctx, name: str) -> str:
+def _apt_package_component(ctx: RunContext, name: str) -> str:
     """Return the archive component (main/universe/...) for a package name.
 
     Ubuntu prefixes the Section of non-main packages with the component
@@ -1006,7 +1010,9 @@ def _apt_package_component(ctx, name: str) -> str:
     return "main"
 
 
-def _llm_dup_search_suggestions(ctx, pkg: str, descriptions: list[str]) -> dict[str, list[str]]:
+def _llm_dup_search_suggestions(
+    ctx: RunContext, pkg: str, descriptions: list[str]
+) -> dict[str, list[str]]:
     """Ask the LLM for archive search terms AND known-package name guesses.
 
     Returns ``{"terms": [...], "named_candidates": [...]}``. Best-effort:
@@ -1083,7 +1089,7 @@ def _dedupe_suggestions(raw_items: object, pkg: str, max_items: int) -> list[str
 
 
 def _resolve_named_candidates(
-    ctx, named_candidates: list[str], own_binaries: set[str]
+    ctx: RunContext, named_candidates: list[str], own_binaries: set[str]
 ) -> list[tuple[str, str]]:
     """Resolve LLM-suggested package/library names to real archive packages.
 
@@ -1110,7 +1116,7 @@ def _resolve_named_candidates(
     return resolved
 
 
-def _apt_cache_show_synopsis(ctx, name: str) -> str | None:
+def _apt_cache_show_synopsis(ctx: RunContext, name: str) -> str | None:
     """Return a package's one-line synopsis if it exists in the archive, else None."""
     output = _capture(
         ctx,
@@ -1131,7 +1137,7 @@ def _apt_cache_show_synopsis(ctx, name: str) -> str | None:
 
 
 @adapter(AdapterID.DEP_ANALYSIS, depends_on=[AdapterID.PACKAGING_SOURCE, AdapterID.FETCH_BUILD])
-def collect_dep_analysis(ctx) -> DepAnalysisResult:
+def collect_dep_analysis(ctx: RunContext) -> DepAnalysisResult:
     """Analyze runtime dependencies from built packages.
 
     Extracts dependencies from built .deb files (post-build), maps them to source
@@ -1373,7 +1379,7 @@ def _parse_upload_permission(output: str) -> tuple[list[str], list[dict], list[d
 
 
 @adapter(AdapterID.UBUNTU_UPLOAD_PERMISSION)
-def collect_ubuntu_upload_permission(ctx) -> UbuntuUploadPermissionResult:
+def collect_ubuntu_upload_permission(ctx: RunContext) -> UbuntuUploadPermissionResult:
     """List who may upload the source package via ``ubuntu-upload-permission``.
 
     This reveals whether the package is uploadable only by the MOTU team (the
@@ -1466,7 +1472,7 @@ def _classify_delta_category(diffstat: str) -> str:
 
 
 @adapter(AdapterID.GIT_UBUNTU_DELTA, depends_on=[AdapterID.PACKAGING_SOURCE])
-def collect_git_ubuntu_delta(ctx) -> GitUbuntuDeltaResult:
+def collect_git_ubuntu_delta(ctx: RunContext) -> GitUbuntuDeltaResult:
     """Determine the Ubuntu delta vs Debian, using git-ubuntu only when needed.
 
     The current source version (from debian/changelog) is classified first.
@@ -1564,7 +1570,7 @@ def collect_git_ubuntu_delta(ctx) -> GitUbuntuDeltaResult:
 # ---------------------------------------------------------------------------
 
 
-def _resolve_guest_codename(ctx) -> str:
+def _resolve_guest_codename(ctx: RunContext) -> str:
     """Resolve the target release codename inside the guest.
 
     ``ctx.series`` may be the alias ``devel`` (or empty); in that case ask
@@ -1600,7 +1606,7 @@ def _parse_reverse_depends(output: str) -> list[str]:
     return names
 
 
-def _map_binaries_to_sources(ctx, binaries: list[str]) -> dict[str, str]:
+def _map_binaries_to_sources(ctx: RunContext, binaries: list[str]) -> dict[str, str]:
     """Map binary package names to their source package via apt-cache show."""
     mapping: dict[str, str] = {}
     for binary in binaries:
@@ -1620,7 +1626,7 @@ def _map_binaries_to_sources(ctx, binaries: list[str]) -> dict[str, str]:
 
 
 @adapter(AdapterID.REVERSE_DEPS)
-def collect_reverse_deps(ctx) -> ReverseDepsResult:
+def collect_reverse_deps(ctx: RunContext) -> ReverseDepsResult:
     """Collect reverse-dependency consumers of the source package.
 
     Runs ``reverse-depends`` (from ubuntu-dev-tools) for both binary and
@@ -1696,7 +1702,7 @@ def collect_reverse_deps(ctx) -> ReverseDepsResult:
 
 
 @adapter(AdapterID.COMPONENT_MISMATCHES)
-def collect_component_mismatches(ctx) -> ComponentMismatchesResult:
+def collect_component_mismatches(ctx: RunContext) -> ComponentMismatchesResult:
     """Run component-mismatches tool to identify packages needing promotion.
 
     Executes the ubuntu-archive-tools component-mismatches script to determine
@@ -1763,7 +1769,7 @@ def _parse_promotion_candidates(output: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def _inspect_built_debs(ctx, output_dir: str) -> dict[str, list[str]]:
+def _inspect_built_debs(ctx: RunContext, output_dir: str) -> dict[str, list[str]]:
     """Extract built debs once and inspect their security and integration surface.
 
     The debs are extracted once and scanned for factual signals used by both
@@ -1893,7 +1899,7 @@ def _find_build_for_arch(builds: list[dict], arch: str) -> dict | None:
 
 
 def _download_binaries_for_arch(
-    ctx, analyzed_version: str, local_arch: str, dest_dir: str
+    ctx: RunContext, analyzed_version: str, local_arch: str, dest_dir: str
 ) -> list[str]:
     """Download the published .deb files for ``local_arch`` into ``dest_dir``.
 
@@ -1949,7 +1955,7 @@ def _download_binaries_for_arch(
 
 
 @adapter(AdapterID.FETCH_BUILD, depends_on=[AdapterID.PACKAGING_SOURCE, AdapterID.LP_BUILD_API])
-def collect_fetch_build(ctx) -> FetchBuildResult:
+def collect_fetch_build(ctx: RunContext) -> FetchBuildResult:
     """Fetch the official Launchpad build for the guest's own architecture.
 
     A promotion candidate is expected to already be published in universe
@@ -2164,7 +2170,7 @@ def collect_fetch_build(ctx) -> FetchBuildResult:
 
 
 @adapter(AdapterID.BINARY_PACKAGE_INSPECTION, depends_on=[AdapterID.FETCH_BUILD])
-def collect_binary_package_inspection(ctx) -> BinaryPackageInspectionResult:
+def collect_binary_package_inspection(ctx: RunContext) -> BinaryPackageInspectionResult:
     """Expose the single fetch-build-time binary extraction as a stable adapter contract."""
     fetch_build = ctx.evidence.get("adapters", {}).get("fetch-build", {})
     if fetch_build.get("status") != "ok":
@@ -2191,7 +2197,7 @@ def collect_binary_package_inspection(ctx) -> BinaryPackageInspectionResult:
 
 
 @adapter(AdapterID.LINTIAN, depends_on=[AdapterID.FETCH_BUILD])
-def collect_lintian(ctx) -> LintianResult:
+def collect_lintian(ctx: RunContext) -> LintianResult:
     """Expose the lintian output parsed from the fetch-build run as a standalone adapter."""
     fetch_build_result = ctx.evidence.get("adapters", {}).get("fetch-build", {})
     if fetch_build_result.get("status") != "ok":
@@ -2234,7 +2240,7 @@ def _parse_built_using_entries(field_text: str) -> list[str]:
 
 
 @adapter(AdapterID.DEB_METADATA, depends_on=[AdapterID.FETCH_BUILD])
-def collect_deb_metadata(ctx) -> DebMetadataResult:
+def collect_deb_metadata(ctx: RunContext) -> DebMetadataResult:
     """Extract metadata from built .deb files.
 
     Runs after fetch-build completes to extract Package, Version, Built-Using,

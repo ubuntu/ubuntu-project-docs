@@ -9,16 +9,20 @@ from __future__ import annotations
 import logging
 import re
 import subprocess
+from typing import TYPE_CHECKING
 
 from checks.language_gates import _is_go_package, _is_python_package, _is_rust_package
 from checks.messages import render_check_message
 from checks.registry import DETERMINISTIC_CHECKS, deterministic_check, evaluator
 from models import Finding
 
+if TYPE_CHECKING:
+    from auto_mir import RunContext
+
 log = logging.getLogger("auto_mir.checks.deterministic")
 
 
-def _get_check_definition(ctx, check_id: str) -> dict:
+def _get_check_definition(ctx: RunContext, check_id: str) -> dict:
     """Return check definition by id or raise a clear error."""
     check = next((c for c in ctx.catalog.get("checks", []) if c.get("id") == check_id), None)
     if check is None:
@@ -49,7 +53,7 @@ def _set_unknown_from_adapter(
 
 
 def _get_packaging_source_or_unknown(
-    ctx,
+    ctx: RunContext,
     finding: Finding,
     check_id: str,
     *,
@@ -308,7 +312,7 @@ def _shared_library_package_names(debian_control: str, built_debs: list[str]) ->
 
 
 @deterministic_check("SUM-1")
-def _check_sum_1(ctx, finding: Finding) -> Finding:
+def _check_sum_1(ctx: RunContext, finding: Finding) -> Finding:
     """SUM-1: Source package identified."""
     check = _get_check_definition(ctx, "SUM-1")
     if ctx.source_package:
@@ -326,7 +330,7 @@ def _check_sum_1(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("SUM-2")
-def _check_sum_2(ctx, finding: Finding) -> Finding:
+def _check_sum_2(ctx: RunContext, finding: Finding) -> Finding:
     """SUM-2: Reporter MIR content present."""
     check = _get_check_definition(ctx, "SUM-2")
     if ctx.reporter_mir_content:
@@ -344,7 +348,7 @@ def _check_sum_2(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("CB-1")
-def _check_cb_1(ctx, finding: Finding) -> Finding:
+def _check_cb_1(ctx: RunContext, finding: Finding) -> Finding:
     """CB-1: Package does not FTBFS currently.
 
     Purely a Launchpad per-architecture build-state check. fetch-build only
@@ -410,7 +414,7 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("SUM-4")
-def _check_sum_4(ctx, finding: Finding) -> Finding:
+def _check_sum_4(ctx: RunContext, finding: Finding) -> Finding:
     """SUM-4: Package has a team subscriber in package-team-mapping."""
     check = _get_check_definition(ctx, "SUM-4")
     adapters = ctx.evidence.get("adapters", {})
@@ -442,7 +446,7 @@ def _check_sum_4(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("DEP-3")
-def _check_dep_3(ctx, finding: Finding) -> Finding:
+def _check_dep_3(ctx: RunContext, finding: Finding) -> Finding:
     """DEP-3: No -dev/-debug/-doc packages needing exclusion."""
     adapters = ctx.evidence.get("adapters", {})
     check = _get_check_definition(ctx, "DEP-3")
@@ -562,7 +566,7 @@ def _check_dep_3(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("ESL-1")
-def _check_esl_1(ctx, finding: Finding) -> Finding:
+def _check_esl_1(ctx: RunContext, finding: Finding) -> Finding:
     """ESL-1: No embedded source present."""
     check = _get_check_definition(ctx, "ESL-1")
     adapters = ctx.evidence.get("adapters", {})
@@ -595,7 +599,7 @@ def _check_esl_1(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("ESL-3")
-def _check_esl_3(ctx, finding: Finding) -> Finding:
+def _check_esl_3(ctx: RunContext, finding: Finding) -> Finding:
     """ESL-3: No unexpected Built-Using entries.
 
     Checks Built-Using and Static-Built-Using metadata from built .deb files
@@ -653,7 +657,7 @@ def _check_esl_3(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("ESL-4")
-def _check_esl_4(ctx, finding: Finding) -> Finding:
+def _check_esl_4(ctx: RunContext, finding: Finding) -> Finding:
     """ESL-4: Go language detection gate."""
     resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-4")
     if resolved is None:
@@ -674,7 +678,7 @@ def _check_esl_4(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("ESL-7")
-def _check_esl_7(ctx, finding: Finding) -> Finding:
+def _check_esl_7(ctx: RunContext, finding: Finding) -> Finding:
     """ESL-7: Go build type (shared vs static)."""
     resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-7")
     if resolved is None:
@@ -711,7 +715,7 @@ def _check_esl_7(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("ESL-8")
-def _check_esl_8(ctx, finding: Finding) -> Finding:
+def _check_esl_8(ctx: RunContext, finding: Finding) -> Finding:
     """ESL-8: Rust language detection gate."""
     resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-8")
     if resolved is None:
@@ -730,7 +734,7 @@ def _check_esl_8(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("ESL-9")
-def _check_esl_9(ctx, finding: Finding) -> Finding:
+def _check_esl_9(ctx: RunContext, finding: Finding) -> Finding:
     """ESL-9: Rust package uses dh_cargo."""
     resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-9")
     if resolved is None:
@@ -761,7 +765,7 @@ def _check_esl_9(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("ESL-10")
-def _check_esl_10(ctx, finding: Finding) -> Finding:
+def _check_esl_10(ctx: RunContext, finding: Finding) -> Finding:
     """ESL-10: Rust: vendored deps, no unexpected Built-Using, Cargo.lock present."""
     resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-10")
     if resolved is None:
@@ -912,7 +916,7 @@ def _parse_build_log_issues(build_log: str) -> tuple[list[str], list[str]]:
 
 
 @deterministic_check("URF-1")
-def _check_urf_1(ctx, finding: Finding) -> Finding:
+def _check_urf_1(ctx: RunContext, finding: Finding) -> Finding:
     """URF-1: No build errors or warnings."""
     check = _get_check_definition(ctx, "URF-1")
     adapters = ctx.evidence.get("adapters", {})
@@ -972,7 +976,7 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("PRF-10")
-def _check_prf_10(ctx, finding: Finding) -> Finding:
+def _check_prf_10(ctx: RunContext, finding: Finding) -> Finding:
     """PRF-10: Not on lto-disabled list."""
     check = _get_check_definition(ctx, "PRF-10")
     adapters = ctx.evidence.get("adapters", {})
@@ -1011,7 +1015,7 @@ def _check_prf_10(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("CB-8")
-def _check_cb_8(ctx, finding: Finding) -> Finding:
+def _check_cb_8(ctx: RunContext, finding: Finding) -> Finding:
     """CB-8: Python packages use dh_python."""
     check = _get_check_definition(ctx, "CB-8")
     adapters = ctx.evidence.get("adapters", {})
@@ -1068,7 +1072,7 @@ def _check_cb_8(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("ESL-2")
-def _check_esl_2(ctx, finding: Finding) -> Finding:
+def _check_esl_2(ctx: RunContext, finding: Finding) -> Finding:
     """ESL-2: No unexpected static linking."""
     check = _get_check_definition(ctx, "ESL-2")
     adapters = ctx.evidence.get("adapters", {})
@@ -1150,7 +1154,7 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("PRF-2")
-def _check_prf_2(ctx, finding: Finding) -> Finding:
+def _check_prf_2(ctx: RunContext, finding: Finding) -> Finding:
     """PRF-2: Symbols tracking for shared libraries.
 
     Whether symbols tracking is *needed* is governed solely by whether the
@@ -1233,7 +1237,7 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("PRF-3")
-def _check_prf_3(ctx, finding: Finding) -> Finding:
+def _check_prf_3(ctx: RunContext, finding: Finding) -> Finding:
     """PRF-3: debian/watch present."""
     check = _get_check_definition(ctx, "PRF-3")
     adapters = ctx.evidence.get("adapters", {})
@@ -1287,7 +1291,7 @@ def _check_prf_3(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("SEC-2")
-def _check_sec_2(ctx, finding: Finding) -> Finding:
+def _check_sec_2(ctx: RunContext, finding: Finding) -> Finding:
     """SEC-2: Does not run daemon as root."""
     check = _get_check_definition(ctx, "SEC-2")
     adapters = ctx.evidence.get("adapters", {})
@@ -1364,7 +1368,7 @@ def _check_sec_2(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("URF-3")
-def _check_urf_3(ctx, finding: Finding) -> Finding:
+def _check_urf_3(ctx: RunContext, finding: Finding) -> Finding:
     """URF-3: No sudo/gksu/pkexec/LD_LIBRARY_PATH outside tests."""
     check = _get_check_definition(ctx, "URF-3")
     adapters = ctx.evidence.get("adapters", {})
@@ -1414,7 +1418,7 @@ def _check_urf_3(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("URF-4")
-def _check_urf_4(ctx, finding: Finding) -> Finding:
+def _check_urf_4(ctx: RunContext, finding: Finding) -> Finding:
     """URF-4: No use of user 'nobody' outside tests."""
     check = _get_check_definition(ctx, "URF-4")
     adapters = ctx.evidence.get("adapters", {})
@@ -1486,7 +1490,7 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("URF-5")
-def _check_urf_5(ctx, finding: Finding) -> Finding:
+def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
     """URF-5: No setuid/setgid binaries."""
     check = _get_check_definition(ctx, "URF-5")
     adapters = ctx.evidence.get("adapters", {})
@@ -1596,7 +1600,7 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("URF-7")
-def _check_urf_7(ctx, finding: Finding) -> Finding:
+def _check_urf_7(ctx: RunContext, finding: Finding) -> Finding:
     """URF-7: No webkit/qtwebkit/libseed dependency."""
     check = _get_check_definition(ctx, "URF-7")
     adapters = ctx.evidence.get("adapters", {})
@@ -1630,7 +1634,7 @@ def _check_urf_7(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("SEC-8")
-def _check_sec_8(ctx, finding: Finding) -> Finding:
+def _check_sec_8(ctx: RunContext, finding: Finding) -> Finding:
     """SEC-8: Does not use centralized online accounts."""
     check = _get_check_definition(ctx, "SEC-8")
     adapters = ctx.evidence.get("adapters", {})
@@ -1701,7 +1705,7 @@ def _check_sec_8(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("SEC-10")
-def _check_sec_10(ctx, finding: Finding) -> Finding:
+def _check_sec_10(ctx: RunContext, finding: Finding) -> Finding:
     """SEC-10: Does not handle system authentication (PAM)."""
     check = _get_check_definition(ctx, "SEC-10")
     adapters = ctx.evidence.get("adapters", {})
@@ -1768,7 +1772,7 @@ def _check_sec_10(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("CB-7")
-def _check_cb_7(ctx, finding: Finding) -> Finding:
+def _check_cb_7(ctx: RunContext, finding: Finding) -> Finding:
     """CB-7: No new Python 2 dependency."""
     check = _get_check_definition(ctx, "CB-7")
     adapters = ctx.evidence.get("adapters", {})
@@ -1806,7 +1810,7 @@ def _check_cb_7(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("CB-5")
-def _check_cb_5(ctx, finding: Finding) -> Finding:
+def _check_cb_5(ctx: RunContext, finding: Finding) -> Finding:
     """CB-5: Special hardware compromise accepted.
 
     This is only a genuine human judgment call when special hardware is actually
@@ -1835,7 +1839,7 @@ def _check_cb_5(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("SEC-3")
-def _check_sec_3(ctx, finding: Finding) -> Finding:
+def _check_sec_3(ctx: RunContext, finding: Finding) -> Finding:
     """SEC-3: Does not use webkit1/2."""
     check = _get_check_definition(ctx, "SEC-3")
     adapters = ctx.evidence.get("adapters", {})
@@ -1869,7 +1873,7 @@ def _check_sec_3(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("SEC-4")
-def _check_sec_4(ctx, finding: Finding) -> Finding:
+def _check_sec_4(ctx: RunContext, finding: Finding) -> Finding:
     """SEC-4: Does not use lib*v8 directly."""
     check = _get_check_definition(ctx, "SEC-4")
     adapters = ctx.evidence.get("adapters", {})
@@ -1903,7 +1907,7 @@ def _check_sec_4(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("DEP-1")
-def _check_dep_1(ctx, finding: Finding) -> Finding:
+def _check_dep_1(ctx: RunContext, finding: Finding) -> Finding:
     """DEP-1: No unresolved runtime dependencies needing MIR."""
     check = _get_check_definition(ctx, "DEP-1")
     adapters = ctx.evidence.get("adapters", {})
@@ -1950,7 +1954,7 @@ def _check_dep_1(ctx, finding: Finding) -> Finding:
 
 
 @deterministic_check("PRF-8")
-def _check_prf_8(ctx, finding: Finding) -> Finding:
+def _check_prf_8(ctx: RunContext, finding: Finding) -> Finding:
     """PRF-8: No excessive lintian warnings."""
     check = _get_check_definition(ctx, "PRF-8")
     adapters = ctx.evidence.get("adapters", {})
@@ -2089,7 +2093,7 @@ def _versions_compatible(archive_version: str, upstream_version: str) -> tuple[b
 
 
 @deterministic_check("PRF-6")
-def _check_prf_6(ctx, finding: Finding) -> Finding:
+def _check_prf_6(ctx: RunContext, finding: Finding) -> Finding:
     """PRF-6: Current release packaged."""
     check = _get_check_definition(ctx, "PRF-6")
     adapters = ctx.evidence.get("adapters", {})
@@ -2185,7 +2189,7 @@ def _check_prf_6(ctx, finding: Finding) -> Finding:
 
 
 @evaluator("deterministic")
-def _eval_deterministic(check: dict, ctx, finding: Finding) -> Finding:
+def _eval_deterministic(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     """Evaluate checks with deterministic logic only."""
     check_id = check["id"]
     evaluator_func = DETERMINISTIC_CHECKS.get(check_id)

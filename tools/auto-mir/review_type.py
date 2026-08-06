@@ -27,6 +27,10 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from auto_mir import RunContext
 
 log = logging.getLogger("auto_mir.review_type")
 
@@ -70,7 +74,7 @@ class ReviewTypeDecision:
         }
 
 
-def _reporter_text(ctx) -> str:
+def _reporter_text(ctx: RunContext) -> str:
     """Return the combined reporter/bug text to scan, lower-cased-safe."""
     parts: list[str] = []
     parts.append(str(getattr(ctx, "reporter_mir_content", "") or ""))
@@ -83,7 +87,7 @@ def _reporter_text(ctx) -> str:
     return "\n".join(p for p in parts if p)
 
 
-def _adapters(ctx) -> dict:
+def _adapters(ctx: RunContext) -> dict:
     evidence = getattr(ctx, "evidence", None)
     if isinstance(evidence, dict):
         adapters = evidence.get("adapters", {})
@@ -92,7 +96,7 @@ def _adapters(ctx) -> dict:
     return {}
 
 
-def _all_binaries_already_in_main(ctx) -> bool:
+def _all_binaries_already_in_main(ctx: RunContext) -> bool:
     """True when the source's binaries are currently published in main.
 
     Uses ``lp-package-api``'s ``current_component`` — the component of the
@@ -116,7 +120,7 @@ def _all_binaries_already_in_main(ctx) -> bool:
     return lp_package.get("current_component") == "main"
 
 
-def _prior_mir_under_other_name(ctx) -> list[str]:
+def _prior_mir_under_other_name(ctx: RunContext) -> list[str]:
     """Return web links of prior MIR bugs matched under a *different* name."""
     adapters = _adapters(ctx)
     hist = adapters.get("lp-mir-history", {})
@@ -133,7 +137,7 @@ def _prior_mir_under_other_name(ctx) -> list[str]:
     return hits
 
 
-def _text_signals(ctx) -> tuple[list[str], list[str]]:
+def _text_signals(ctx: RunContext) -> tuple[list[str], list[str]]:
     """Return (reorg_signals, rereview_signals) from bug text patterns.
 
     Scans the combined reporter/bug text (including comments) for word-boundary
@@ -151,7 +155,7 @@ def _text_signals(ctx) -> tuple[list[str], list[str]]:
     return reorg, rereview
 
 
-def pre_detect_review_type(ctx) -> ReviewTypeDecision:
+def pre_detect_review_type(ctx: RunContext) -> ReviewTypeDecision:
     """Stage-1 pre-detection using only bug text and the forced override.
 
     Called by ``lp_intake.run()`` *before* the reporter-template hard-stop gate
@@ -222,7 +226,7 @@ def pre_detect_review_type(ctx) -> ReviewTypeDecision:
     )
 
 
-def detect_review_type(ctx) -> ReviewTypeDecision:
+def detect_review_type(ctx: RunContext) -> ReviewTypeDecision:
     """Detect (or honour a forced) review type for this run.
 
     The ``--review-type`` CLI value on ``ctx.review_type_arg`` takes precedence:
