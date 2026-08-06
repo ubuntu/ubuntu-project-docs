@@ -25,6 +25,7 @@ from typing import Any
 
 import llm
 from catalog_enums import AdapterID
+from evidence import launchpad_client
 from evidence.registry import adapter
 from evidence.types import (
     AutopkgtestResult,
@@ -565,24 +566,11 @@ def collect_lp_package_api(ctx) -> LPPackageAPIResult:
         raise AdapterError("source_package not set")
 
     try:
-        from launchpadlib.launchpad import Launchpad  # type: ignore
-    except ImportError:
-        raise AdapterError("launchpadlib not installed; run: sudo apt install python3-launchpadlib")
-
-    try:
-        lp = Launchpad.login_anonymously("auto-mir-pkg", "production", version="devel")
-    except Exception as exc:
-        raise AdapterError(f"Launchpad API connection failed: {exc}") from exc
-
-    ubuntu = lp.distributions["ubuntu"]
-    try:
-        lp_series = ubuntu.getSeries(name_or_version=series_name)
-    except Exception:
-        # Fallback: try current_series
-        try:
-            lp_series = ubuntu.current_series
-        except Exception as exc:
-            raise AdapterError(f"Could not resolve Ubuntu series '{series_name}': {exc}") from exc
+        lp = launchpad_client.login_anonymously("auto-mir-pkg")
+        ubuntu = lp.distributions["ubuntu"]
+        lp_series = launchpad_client.resolve_series(ubuntu, series_name)
+    except launchpad_client.LaunchpadUnavailableError as exc:
+        raise AdapterError(str(exc)) from exc
 
     try:
         ubuntu.getSourcePackage(name=pkg)
@@ -1210,51 +1198,16 @@ def collect_upstream_tracker(ctx) -> UpstreamTrackerResult:
     }
 
 
-def _resolve_launchpad_series(ubuntu, requested_series: str):
-    """Return a Launchpad series object for a requested Ubuntu series name."""
-    try:
-        return ubuntu.getSeries(name_or_version=requested_series)
-    except Exception:
-        try:
-            return ubuntu.current_series
-        except Exception as exc:
-            raise AdapterError(
-                f"Could not resolve Ubuntu series '{requested_series}': {exc}"
-            ) from exc
-
-
-def _build_attr(record: Any, *names: str, default: str = "") -> str:
-    """Return the first matching attribute or dict key from a build record."""
-    for name in names:
-        if isinstance(record, dict) and name in record:
-            value = record[name]
-        else:
-            value = getattr(record, name, None)
-        if value is None:
-            continue
-        if hasattr(value, "name"):
-            value = getattr(value, "name")
-        if value is None:
-            continue
-        text = str(value).strip()
-        if text:
-            return text
-    return default
-
-
-def _builds_from_published_sources(ubuntu, lp_series, pkg: str) -> list[Any]:
+def _builds_from_newest_publication(archive, lp_series, pkg: str) -> list[Any]:
     """Return build records for the newest published source in the target series.
 
-    Uses ``archive.getPublishedSources`` to find the most recent publication of
-    ``pkg`` in ``lp_series`` and returns its per-architecture builds via
-    ``getBuilds()``. Returns an empty list (never raises) so the caller can fall
-    back to the older getBuildRecords path when this yields nothing.
+    Fallback path used only when packaging-source could not pin an exact
+    analysed version (e.g. no publish history at all in the target pocket).
+    Uses ``archive.getPublishedSources`` to find the most recent publication
+    of ``pkg`` in ``lp_series`` and returns its per-architecture builds via
+    ``getBuilds()``. Returns an empty list (never raises) so the caller can
+    fall back to the older getBuildRecords path when this yields nothing.
     """
-    try:
-        archive = ubuntu.main_archive
-    except Exception:
-        return []
-
     for kwargs in (
         {"source_name": pkg, "distro_series": lp_series, "exact_match": True},
         {"source_name": pkg, "exact_match": True},
@@ -1268,46 +1221,78 @@ def _builds_from_published_sources(ubuntu, lp_series, pkg: str) -> list[Any]:
         # getPublishedSources returns newest first; use the most recent
         # publication that can enumerate builds.
         for pub in pubs:
-            try:
-                builds = list(pub.getBuilds())
-            except Exception:
-                continue
+            builds = launchpad_client.builds_for_publication(pub)
             if builds:
                 return builds
     return []
 
 
-@adapter(AdapterID.LP_BUILD_API)
+@adapter(AdapterID.LP_BUILD_API, depends_on=[AdapterID.PACKAGING_SOURCE])
 def collect_lp_build_api(ctx) -> LPBuildAPIResult:
-    """Fetch Launchpad build-state information for the current source package."""
+    """Fetch Launchpad build-state information for the exact analysed version.
+
+    Pinned to packaging-source's ``analyzed_version``/``analyzed_pocket`` so
+    the per-architecture build state reported here always matches the exact
+    source (and, for the local architecture, the binaries fetch-build later
+    downloads) that the rest of the evidence was collected against - not
+    just "whichever publication happens to have any builds", which could
+    silently be a different version than the one actually analysed.
+    """
     pkg = ctx.source_package
     series_name = ctx.series or "devel"
     if not pkg:
         raise AdapterError("source_package not set")
 
-    if _Launchpad is None:
-        raise AdapterError("launchpadlib not installed; run: sudo apt install python3-launchpadlib")
+    packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
+    analyzed_version = (
+        str(packaging.get("analyzed_version", "") or "").strip()
+        if isinstance(packaging, dict)
+        else ""
+    )
+    analyzed_pocket = (
+        str(packaging.get("analyzed_pocket", "") or "").strip()
+        if isinstance(packaging, dict)
+        else ""
+    )
 
     try:
-        lp = _Launchpad.login_anonymously("auto-mir-build", "production", version="devel")
-    except Exception as exc:
-        raise AdapterError(f"Launchpad API connection failed: {exc}") from exc
-
-    ubuntu = lp.distributions["ubuntu"]
-    lp_series = _resolve_launchpad_series(ubuntu, series_name)
+        lp = launchpad_client.login_anonymously("auto-mir-build")
+        ubuntu = lp.distributions["ubuntu"]
+        lp_series = launchpad_client.resolve_series(ubuntu, series_name)
+    except launchpad_client.LaunchpadUnavailableError as exc:
+        raise AdapterError(str(exc)) from exc
 
     try:
-        source_pkg = ubuntu.getSourcePackage(name=pkg)
+        archive = ubuntu.main_archive
     except Exception as exc:
-        raise AdapterError(f"Could not find source package '{pkg}' on Launchpad: {exc}") from exc
+        raise AdapterError(f"Could not resolve the Ubuntu primary archive: {exc}") from exc
 
-    # The authoritative way to enumerate per-architecture build outcomes is via
-    # the current published source in the target series and its getBuilds().
-    # getBuildRecords() on the distro source is kept only as a fallback because
-    # it can return nothing for packages published solely in the Release pocket.
-    build_records: list[Any] = _builds_from_published_sources(ubuntu, lp_series, pkg)
+    build_records: list[Any] = []
+    if analyzed_version:
+        pub = launchpad_client.find_source_publication(archive, lp_series, pkg, analyzed_version)
+        build_records = launchpad_client.builds_for_publication(pub) if pub is not None else []
+        if not build_records:
+            log.warning(
+                "lp-build-api: no Launchpad build records found for the exact "
+                "analysed version %s of %s (%s pocket); the publication may not "
+                "carry build records (e.g. a pure metadata/override change)",
+                analyzed_version,
+                pkg,
+                analyzed_pocket or "unknown",
+            )
+    else:
+        # packaging-source could not pin a version (e.g. no publish history at
+        # all in the target pocket); fall back to the newest publication that
+        # has any build records.
+        build_records = _builds_from_newest_publication(archive, lp_series, pkg)
 
     if not build_records:
+        try:
+            source_pkg = ubuntu.getSourcePackage(name=pkg)
+        except Exception as exc:
+            raise AdapterError(
+                f"Could not find source package '{pkg}' on Launchpad: {exc}"
+            ) from exc
         for attr_name in ("getBuildRecords", "builds"):
             candidate = getattr(source_pkg, attr_name, None)
             if candidate is None:
@@ -1333,25 +1318,32 @@ def collect_lp_build_api(ctx) -> LPBuildAPIResult:
     for record in build_records:
         builds.append(
             {
-                "arch_tag": _build_attr(record, "arch_tag", "arch_tag_name", "architecture_tag"),
-                "build_state": _build_attr(record, "buildstate", "build_state", "status"),
-                "build_reason": _build_attr(
+                "arch_tag": launchpad_client.build_attr(
+                    record, "arch_tag", "arch_tag_name", "architecture_tag"
+                ),
+                "build_state": launchpad_client.build_attr(
+                    record, "buildstate", "build_state", "status"
+                ),
+                "build_reason": launchpad_client.build_attr(
                     record, "build_reason", "build_summary", "status_message"
                 ),
-                "version": _build_attr(record, "source_package_version", "version"),
-                "date_created": _build_attr(record, "date_created", "datebuilt", "date_built"),
-                "pocket": _build_attr(record, "pocket"),
-                "archive": _build_attr(record, "archive"),
-                "web_link": _build_attr(record, "web_link", "self_link"),
+                "version": launchpad_client.build_attr(record, "source_package_version", "version"),
+                "date_created": launchpad_client.build_attr(
+                    record, "date_created", "datebuilt", "date_built"
+                ),
+                "pocket": launchpad_client.build_attr(record, "pocket"),
+                "archive": launchpad_client.build_attr(record, "archive"),
+                "web_link": launchpad_client.build_attr(record, "web_link", "self_link"),
             }
         )
 
     builds.sort(key=lambda entry: (entry["arch_tag"], entry["version"]))
 
     log.debug(
-        "lp-build-api: %d build record(s) for %s in %s",
+        "lp-build-api: %d build record(s) for %s %s in %s",
         len(builds),
         pkg,
+        analyzed_version or "(unpinned)",
         series_name,
     )
     return {

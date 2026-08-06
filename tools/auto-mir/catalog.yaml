@@ -66,10 +66,12 @@ evidence_adapters:
   fallback: emit_todo_continue
 - id: lp-build-api
   type: api
-  description: Fetch per-architecture build state from Launchpad for the current package version
+  description: Fetch per-architecture build state from Launchpad, pinned to the exact version packaging-source analysed
   inputs:
   - source_package
   - series
+  depends_on:
+  - packaging-source
   output_contract:
     builds: list
   fallback: emit_todo_continue

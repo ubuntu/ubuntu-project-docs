@@ -379,10 +379,67 @@ def test_lp_bug_api_output_structure():
 
 
 def test_lp_build_api_output_structure():
-    """lp-build-api adapter should return normalized build records."""
+    """lp-build-api adapter returns normalized build records for the pinned version."""
     ctx = Mock()
     ctx.source_package = "testpkg"
     ctx.series = "noble"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "analyzed_version": "1.0",
+                "analyzed_pocket": "release",
+            }
+        }
+    }
+
+    fake_record = {
+        "arch_tag": "amd64",
+        "buildstate": "Successfully built",
+        "build_reason": "",
+        "source_package_version": "1.0",
+        "date_created": "2026-06-23",
+        "pocket": "Release",
+        "archive": "primary",
+    }
+
+    fake_pub = Mock()
+    fake_pub.getBuilds.return_value = [fake_record]
+
+    fake_archive = Mock()
+    fake_archive.getPublishedSources.return_value = [fake_pub]
+
+    fake_ubuntu = Mock()
+    fake_ubuntu.getSeries.return_value = Mock()
+    fake_ubuntu.main_archive = fake_archive
+
+    fake_lp = Mock()
+    fake_lp.distributions = {"ubuntu": fake_ubuntu}
+
+    with patch("evidence.launchpad_client.login_anonymously", return_value=fake_lp):
+        from evidence.host_adapters import collect_lp_build_api
+
+        result = collect_lp_build_api(ctx)
+
+    assert result["status"] == "ok"
+    assert result["source_package"] == "testpkg"
+    assert result["series"] == "noble"
+    assert result["builds"][0]["arch_tag"] == "amd64"
+    assert result["builds"][0]["build_state"] == "Successfully built"
+    fake_archive.getPublishedSources.assert_called_once_with(
+        source_name="testpkg",
+        version="1.0",
+        distro_series=fake_ubuntu.getSeries.return_value,
+        exact_match=True,
+    )
+
+
+def test_lp_build_api_falls_back_to_get_build_records_without_pinned_version():
+    """Without a pinned analyzed_version, falls back to the newest publication."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.series = "noble"
+    ctx.evidence = {"adapters": {}}
 
     fake_record = Mock()
     fake_record.arch_tag = "amd64"
@@ -396,27 +453,41 @@ def test_lp_build_api_output_structure():
     fake_source_pkg = Mock()
     fake_source_pkg.getBuildRecords.return_value = [fake_record]
 
-    fake_series = Mock()
+    fake_archive = Mock()
+    fake_archive.getPublishedSources.return_value = []  # no fallback publication found
 
     fake_ubuntu = Mock()
-    fake_ubuntu.getSeries.return_value = fake_series
+    fake_ubuntu.getSeries.return_value = Mock()
+    fake_ubuntu.main_archive = fake_archive
     fake_ubuntu.getSourcePackage.return_value = fake_source_pkg
 
     fake_lp = Mock()
     fake_lp.distributions = {"ubuntu": fake_ubuntu}
 
-    with patch("evidence.host_adapters._Launchpad") as mock_launchpad:
-        mock_launchpad.login_anonymously.return_value = fake_lp
-
+    with patch("evidence.launchpad_client.login_anonymously", return_value=fake_lp):
         from evidence.host_adapters import collect_lp_build_api
 
         result = collect_lp_build_api(ctx)
 
     assert result["status"] == "ok"
-    assert result["source_package"] == "testpkg"
-    assert result["series"] == "noble"
     assert result["builds"][0]["arch_tag"] == "amd64"
-    assert result["builds"][0]["build_state"] == "Successfully built"
+
+
+def test_lp_build_api_raises_when_launchpad_unavailable():
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.series = "noble"
+    ctx.evidence = {"adapters": {}}
+
+    from evidence import launchpad_client
+    from evidence.host_adapters import AdapterError, collect_lp_build_api
+
+    with patch(
+        "evidence.launchpad_client.login_anonymously",
+        side_effect=launchpad_client.LaunchpadUnavailableError("no network"),
+    ):
+        with pytest.raises(AdapterError, match="no network"):
+            collect_lp_build_api(ctx)
 
 
 def test_lp_bug_search_api_output_structure():
