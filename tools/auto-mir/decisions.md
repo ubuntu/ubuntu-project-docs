@@ -2966,3 +2966,128 @@ package surfaced four issues in the same run's `review-draft.txt`.
 - Validation from `tools/auto-mir`: `make test` PASS (702 passed, 3 skipped),
   one commit per numbered issue above. `make integration` intentionally left
   for the user to run (slow, network/LXD-dependent).
+
+## Beta feedback round 3 (borgbackup2, 2026-08-06), 13 numbered items, 8-phase implementation
+
+**Context:** first reporter round-trip on a real universe package
+(borgbackup2) whose `sbuild` step failed mid-run, surfacing a distinct class
+of issue from prior rounds: several problems only showed up because
+downstream evidence (lintian, dep-analysis, binary-package-inspection) was
+silently unavailable, not because the reporter logic itself was wrong for
+the "happy path". 8 commits on branch `auto-mir-review`, `make test` green
+throughout, 743 passed/3 skipped final.
+
+- **Phase A — option locking (#1, #2, #11).** No mechanism existed to
+  disable a wizard option; every suggestion's "yes" and every single_choice
+  option was always accepted. `reporter/ai.py`'s LLM JSON contract for
+  `ev_to_ai` items gained a self-reported `requires_reporter_decision` bool
+  plus a deterministic `_contains_deferral_phrase()` backstop (same style as
+  the existing `_contains_hedge_phrase`), so a suggestion that only restates
+  evidence without committing to the question's required conclusion (or
+  that says "the reporter should confirm/verify...") can no longer be
+  accepted verbatim. `wizard.confirm_suggestion()` gained `lock_yes_reason`;
+  `QuestionOption` gained `locked_reason` (runtime-resolved) plus a new
+  catalog-authorable `unavailable_if`/`unavailable_reason` pair (reusing
+  `conditions.py`'s existing evidence-condition schema, no new operators),
+  resolved by `evaluator._apply_option_lock`. Applied to REP-MAINT-001's
+  `confirm-subscribed` option (locked when no team is subscribed) and
+  strengthened `ai_policy` wording for REP-RATIONALE-003/REP-SECURITY-005 to
+  require a decisive conclusion shape.
+- **Phase B — logging (#3, #4, #10).** After any editor-sourced answer,
+  `wizard.py` now prints "Answer recorded as: ..." to console and logs it at
+  INFO via `auto_mir.reporter`, fixing "did my edit actually get recorded"
+  confusion. `evaluator.evaluate_items` logs one combined
+  `[i/total] Evaluating <id>: <title> (<mode>)` line per catalog item,
+  serving both as a progress indicator and a "what is the tool doing right
+  now" signal between questions — deliberately one shared mechanism instead
+  of two.
+- **Phase C — binary spell-out (#5, #6).** Root cause: REP-RATIONALE-004's
+  binary-package spell-out sourced names from `dep-analysis`, which is
+  skipped whenever `sbuild` fails (as it did for borgbackup2) — the shortcut
+  options silently spelled out nothing. `packaging-source` now also exposes
+  `binary_package_names` (parsed straight from `debian/control`, reusing the
+  existing `_binary_package_names` helper), independent of sbuild; the
+  catalog item and its `binary-packages` preface evaluator switched to it.
+  Added a `spell_out_filter: list_only` mode (`QuestionOption.list_note`) so
+  the "specific packages" option also shows the known package list without
+  changing its recorded statement. Removed REP-RATIONALE-004B ("what purpose
+  does promoting this scope achieve?") entirely — redundant with the
+  overall rationale already collected earlier.
+- **Phase D — deadline template (#7).** Real bug: REP-RATIONALE-008's
+  template had two `TBD` slots ("no later than TBD due to TBD") but only one
+  free-text answer is ever collected, and both `ai.py`/`evaluator.py` fill
+  templates via `template.replace("TBD", answer, 1)` — the second slot
+  always stayed literal. Collapsed to a single `TBD`; reworded the prompt to
+  ask for one combined date/release explanation. `catalog.py` gained a
+  validation rule rejecting any reporter template with more than one `TBD`
+  (excluding the unrelated `TBDSRC` source-name substitution) so this class
+  of bug can't silently recur; confirmed no other template tripped it.
+- **Phase E — evidence context in editor (#8, core of #9).** A
+  `preface_evaluator`'s finding was only ever shown as a console-only "Note"
+  before the question; it never reached the editor's commented-out hint area
+  for multiline questions. Extracted `evaluator._preface_text`, shared by
+  `_show_preface` (console, unchanged) and a new `_evidence_hint` folded into
+  `QuestionSpec.hint` (already rendered in both console and editor). Gave
+  REP-QA-TEST-007 a `preface_evaluator: autopkgtests` (reusing REP-QA-TEST-002's
+  evaluator) so the passing/failing architecture breakdown is visible before
+  answering "explain every failing autopkgtest", instead of the reporter
+  answering blind and needing a consistency-pass correction afterwards.
+- **Phase F — adapter-unavailability guard + REP-STD-001 redesign (#9b).**
+  Root cause: REP-STD-001 (`ev_to_ai`, FHS/Policy) called the LLM even when
+  its required `lintian` adapter had `status: error`, so it claimed FHS
+  compliance while its own rationale admitted lintian never ran because
+  sbuild failed. `ai.evaluate_ai_item` now checks every
+  `adapters_required` adapter's status before calling the LLM at all,
+  skipping straight to `_ask_human` with a rationale naming which
+  adapter(s) were unavailable and why — a generic fix covering every
+  `ev_to_ai` item. REP-STD-001 converted from free-text `ev_to_ai` to a
+  `human_only` single_choice A/B mirroring REP-STD-002's existing
+  License-lifetime pattern, with a `lintian-fhs-summary` preface evaluator
+  and option A locked (via Phase A's mechanism) whenever lintian reports
+  errors. While testing this, found and fixed a real bug:
+  `_mark_followup_options` rebuilt every `QuestionOption` in a question
+  without carrying over `locked_reason`/`list_note`, so a locked option
+  silently lost its lock the moment ANY sibling option in the same question
+  led to a follow-up — this had silently neutered Phase A's REP-MAINT-001
+  lock too, once exercised through the real catalog (REP-MAINT-001B) instead
+  of a synthetic no-followup test fixture. `_apply_option_lock`'s locked
+  branch had the same gap for `list_note`; both fixed.
+- **Phase G — optional-answer skip clarity (#12).** Both
+  `_render_answer_guidance` (console) and `_multiline_comment_lines`
+  (editor) used an if/elif, so a question with a custom `answer_guidance`
+  silently suppressed the generic "leave the answer empty to skip" note
+  entirely. Both now always show the skip note in addition to any custom
+  guidance. Also reworded the console version to stop mentioning the
+  raw-terminal "'.' on the first line" convention, misleading now that the
+  external editor is the default multiline path. Removed REP-QA-TEST-003's
+  matching stale `answer_guidance`.
+- **Phase H — readiness summary redesign (#13).** Root cause:
+  `_readiness_summary`'s "Blocking items"/"Warnings" lists were sourced from
+  each item's static catalog-declared `readiness`, not whether it was
+  actually still unresolved, so a fully-answered item (no leftover TODO)
+  stayed listed as blocking forever. Now sources both lists from
+  `ctx.consistency_report` when available (the normal case — every real run
+  calls `run_consistency_pass`, which already reflects final resolution
+  state including placeholder/contradiction detection), falling back to the
+  old static sweep only when no consistency report is supplied (synthetic
+  unit-test setups). The summary block moved to the very top of the draft
+  (right after the header), followed by a full-width `"=" * 70` separator;
+  each listed item now renders as `REP-ID -- Section / Title` via a catalog
+  lookup instead of a bare id; labels renamed to "Remaining TODOs (must
+  resolve before submission)" / "Remaining TODOs (recommended,
+  non-blocking)".
+- Six vscode_askQuestions decisions confirmed up front (all recommended
+  options accepted): LLM self-report + phrase backstop for option locking;
+  locked options stay visible with `(unavailable: reason)`; drop
+  REP-RATIONALE-004B entirely; collapse the deadline template to a single
+  blank; two renamed "Remaining TODOs" lists (not merged); one progress/context
+  log line per catalog item.
+- Scope boundaries: reviewer role/`catalog-mir-review.yaml` untouched (no
+  equivalent License/FHS checks exist there); no general-purpose
+  option-applicability DSL beyond what's needed (`conditions.py` reused
+  as-is, evidence-only); REP-STD-001's lock condition mirrors the existing
+  `ai_policy`'s coarser "any lintian error/warning" treatment rather than
+  classifying which lintian tags are specifically FHS/Policy-relevant.
+- Validation from `tools/auto-mir`: `make test` PASS (743 passed, 3
+  skipped), one commit per phase. `make integration` intentionally left for
+  the user to run.
