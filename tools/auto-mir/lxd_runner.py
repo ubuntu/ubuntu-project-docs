@@ -23,6 +23,12 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("auto_mir.lxd_runner")
 
+# Retry policy for transient guest command failures (503s, DNS hiccups,
+# connection timeouts). See utils.retry.retry_guest_command.
+_GUEST_RETRY_MAX_ATTEMPTS = 4
+_GUEST_RETRY_BASE_DELAY_SECONDS = 6.0
+_GUEST_RETRY_MAX_DELAY_SECONDS = 60.0
+
 # Fallback Ubuntu devel image aliases, tried when the target series is unknown.
 _UBUNTU_DEVEL_FALLBACK_IMAGES = [
     "ubuntu-daily:devel",
@@ -451,7 +457,11 @@ def exec_in(
     return run_command(lxc_cmd, log_prefix=f"guest({name})", check=check, capture=capture)
 
 
-@retry_guest_command(max_attempts=4, base_delay=6.0, max_delay=60.0)
+@retry_guest_command(
+    max_attempts=_GUEST_RETRY_MAX_ATTEMPTS,
+    base_delay=_GUEST_RETRY_BASE_DELAY_SECONDS,
+    max_delay=_GUEST_RETRY_MAX_DELAY_SECONDS,
+)
 def _exec_in_retry_internal(
     name: str,
     cmd: list[str],
