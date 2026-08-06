@@ -186,12 +186,27 @@ def _question_from_item(item: dict, ctx) -> QuestionSpec:
         kind=kind,
         required=bool(item.get("required", True)),
         options=tuple(options),
-        hint=str(definition.get("hint", "")),
+        hint=str(definition.get("hint", "")) or _evidence_hint(item, ctx),
         default=definition.get("default")
         or _dynamic_default(definition.get("default_source"), ctx),
         rule_context=str(item.get("rule_context", "")),
         answer_guidance=str(item.get("answer_guidance", "")),
     )
+
+
+def _evidence_hint(item: dict, ctx) -> str:
+    """Fold an item's evidence-derived preface into its question's ``hint``.
+
+    ``_show_preface`` already prints this ahead of the question in the
+    console (as a "Note"), but that never reached the editor's commented-out
+    hint area for multiline questions, leaving the reporter to answer
+    evidence-gated questions (e.g. "explain every failing autopkgtest") with
+    no visibility into which findings triggered them once inside the editor.
+    """
+    statement, rationale = _preface_text(item, ctx)
+    if not statement:
+        return ""
+    return f"{statement} {rationale}".strip() if rationale else statement
 
 
 def _dynamic_default(default_source: dict | None, ctx) -> str | None:
@@ -387,15 +402,27 @@ def _show_preface(item: dict, ctx, wizard: TerminalWizard) -> None:
     grounded in the same evidence-derived facts as ``deterministic`` items,
     instead of re-implementing lookups per catalog item.
     """
-    name = item.get("preface_evaluator")
-    if not name:
-        return
-    evaluator = _EVALUATORS.get(str(name))
-    if evaluator is None:
-        return
-    statement, _evidence_refs, rationale = evaluator(item, ctx)
+    statement, rationale = _preface_text(item, ctx)
     if statement:
         wizard.show_note(statement, rationale)
+
+
+def _preface_text(item: dict, ctx) -> tuple[str, str]:
+    """Resolve one item's ``preface_evaluator`` into (statement, rationale).
+
+    Shared by ``_show_preface`` (console-only "Note" block, shown ahead of
+    the question) and ``_question_from_item`` (folded into the question's
+    own ``hint``, so the same evidence-grounded context also reaches the
+    editor's commented-out hint area, not just the console).
+    """
+    name = item.get("preface_evaluator")
+    if not name:
+        return "", ""
+    evaluator = _EVALUATORS.get(str(name))
+    if evaluator is None:
+        return "", ""
+    statement, _evidence_refs, rationale = evaluator(item, ctx)
+    return statement or "", rationale or ""
 
 
 def _human_statement(item: dict, answer: Any, source_package: str) -> str:

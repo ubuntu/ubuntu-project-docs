@@ -293,6 +293,52 @@ def test_preface_evaluator_absent_is_a_no_op(tmp_path):
     assert wizard.notes == []
 
 
+def test_question_from_item_folds_preface_into_hint_for_editor_visibility(tmp_path):
+    """A preface_evaluator's finding must also reach the question's own hint,
+    not just the console-only pre-question note, so it is visible in the
+    editor's commented-out hint area too (feedback: evidence-gated multiline
+    questions were being asked with no visible context once inside the
+    editor)."""
+    ctx = _ctx(tmp_path)
+    item = {
+        "id": "REP-RATIONALE-001",
+        "preface_evaluator": "source-availability",
+        "question": {"kind": "multiline", "prompt": "Explain it"},
+    }
+
+    question = _question_from_item(item, ctx)
+
+    assert "universe" in question.hint
+
+
+def test_question_from_item_hint_empty_when_no_preface_evaluator(tmp_path):
+    ctx = _ctx(tmp_path)
+    item = {"id": "REP-X", "question": {"kind": "multiline", "prompt": "Explain it"}}
+
+    question = _question_from_item(item, ctx)
+
+    assert question.hint == ""
+
+
+def test_failing_autopkgtest_question_shows_which_architectures_fail(tmp_path):
+    """Regression test: REP-QA-TEST-007 used to ask reporters to explain
+    failing autopkgtests with zero visibility into which architectures were
+    actually failing, once thrown into the editor."""
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["autopkgtest-db"] = {
+        "status": "ok",
+        "has_autopkgtest": True,
+        "passing_arches": ["amd64", "amd64v3", "s390x"],
+        "failing_arches": ["arm64", "armhf", "i386", "ppc64el"],
+    }
+    item = next(item for item in ctx.catalog["items"] if item["id"] == "REP-QA-TEST-007")
+
+    question = _question_from_item(item, ctx)
+
+    assert "arm64" in question.hint
+    assert "i386" in question.hint
+
+
 def test_dependency_routing_shows_out_of_main_deps_before_asking(tmp_path):
     ctx = _ctx(tmp_path)
     ctx.evidence["adapters"]["dep-analysis"]["in_scope_deps_not_in_main"] = ["libbar", "libbaz"]
