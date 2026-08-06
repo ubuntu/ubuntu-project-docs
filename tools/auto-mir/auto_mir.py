@@ -471,7 +471,7 @@ def stage_collect_evidence(ctx: RunContext) -> int:
     ]
     guest_adapter_failed = any(
         adapter_id in ADAPTER_REGISTRY
-        and ADAPTER_REGISTRY[adapter_id][0].__module__ == "evidence.guest_adapters"
+        and ADAPTER_REGISTRY[adapter_id].__module__ == "evidence.guest_adapters"
         for adapter_id in failed_ids
     )
     ctx.evidence["collection_summary"] = {

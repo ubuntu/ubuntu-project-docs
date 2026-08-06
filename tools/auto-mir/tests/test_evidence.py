@@ -100,7 +100,7 @@ def test_collect_from_catalog_skips_unreferenced_adapters():
 
     with patch.dict(
         "evidence.ADAPTER_REGISTRY",
-        {"lp-bug-api": (mock_lp, []), "ubuntu-cve-tracker": (mock_cve, [])},
+        {"lp-bug-api": mock_lp, "ubuntu-cve-tracker": mock_cve},
         clear=True,
     ):
         collect_from_catalog(ctx)
@@ -117,7 +117,11 @@ def test_collect_from_catalog_respects_dependency_order():
     ctx.catalog = {
         "checks": [
             {"id": "DEP-1", "adapters_required": ["dep-analysis", "packaging-source"]},
-        ]
+        ],
+        "evidence_adapters": [
+            {"id": "packaging-source", "depends_on": []},
+            {"id": "dep-analysis", "depends_on": ["packaging-source"]},
+        ],
     }
     ctx.evidence = {}
 
@@ -136,7 +140,7 @@ def test_collect_from_catalog_respects_dependency_order():
 
     with patch.dict(
         "evidence.ADAPTER_REGISTRY",
-        {"packaging-source": (m_pack, []), "dep-analysis": (m_dep, ["packaging-source"])},
+        {"packaging-source": m_pack, "dep-analysis": m_dep},
         clear=True,
     ):
         collect_from_catalog(ctx)
@@ -160,7 +164,7 @@ def test_collect_from_catalog_handles_adapter_failure():
 
     with patch.dict(
         "evidence.ADAPTER_REGISTRY",
-        {"lp-bug-api": (mock_lp, []), "ubuntu-cve-tracker": (mock_cve, [])},
+        {"lp-bug-api": mock_lp, "ubuntu-cve-tracker": mock_cve},
         clear=True,
     ):
         collect_from_catalog(ctx)
@@ -179,7 +183,11 @@ def test_collect_from_catalog_propagates_failed_dependency_to_downstream_adapter
     ctx.catalog = {
         "checks": [
             {"id": "DEP-1", "adapters_required": ["packaging-source", "dep-analysis"]},
-        ]
+        ],
+        "evidence_adapters": [
+            {"id": "packaging-source", "depends_on": []},
+            {"id": "dep-analysis", "depends_on": ["packaging-source"]},
+        ],
     }
     ctx.evidence = {}
     ctx.collect_only = False
@@ -190,8 +198,8 @@ def test_collect_from_catalog_propagates_failed_dependency_to_downstream_adapter
     with patch.dict(
         "evidence.ADAPTER_REGISTRY",
         {
-            "packaging-source": (mock_packaging, []),
-            "dep-analysis": (mock_dep, ["packaging-source"]),
+            "packaging-source": mock_packaging,
+            "dep-analysis": mock_dep,
         },
         clear=True,
     ):
@@ -248,29 +256,6 @@ def test_all_catalog_adapters_are_registered():
     _ensure_adapters_registered()
     missing = sorted(referenced - set(ADAPTER_REGISTRY))
     assert not missing, f"Catalog references unregistered adapters: {missing}"
-
-
-def test_catalog_adapter_dependencies_match_registrations():
-    import catalog
-    from evidence import _catalog_adapter_dependencies
-    from evidence.registry import ADAPTER_REGISTRY
-
-    tool_root = Path(__file__).resolve().parent.parent
-    workspace_root = tool_root.parent.parent
-    catalog_data = catalog.load_catalog_for_role(tool_root, workspace_root, "review")
-    _ensure_adapters_registered()
-
-    catalog_dependencies = _catalog_adapter_dependencies(catalog_data)
-    registered_dependencies = {
-        adapter_id: dependencies
-        for adapter_id, (_collector, dependencies) in ADAPTER_REGISTRY.items()
-    }
-    mismatches = {
-        adapter_id: (catalog_dependencies.get(adapter_id, []), dependencies)
-        for adapter_id, dependencies in registered_dependencies.items()
-        if catalog_dependencies.get(adapter_id, []) != dependencies
-    }
-    assert not mismatches, f"Catalog/registration dependency drift: {mismatches}"
 
 
 def test_inspect_built_debs_parses_all_binary_surface_sections(monkeypatch):
@@ -2407,7 +2392,11 @@ def test_collect_from_catalog_collects_optional_adapters():
                 "adapters_required": ["packaging-source"],
                 "adapters_optional": ["git-ubuntu-delta"],
             },
-        ]
+        ],
+        "evidence_adapters": [
+            {"id": "packaging-source", "depends_on": []},
+            {"id": "git-ubuntu-delta", "depends_on": ["packaging-source"]},
+        ],
     }
     ctx.evidence = {}
     ctx.collect_only = False
@@ -2418,8 +2407,8 @@ def test_collect_from_catalog_collects_optional_adapters():
     with patch.dict(
         "evidence.ADAPTER_REGISTRY",
         {
-            "packaging-source": (m_pack, []),
-            "git-ubuntu-delta": (m_delta, ["packaging-source"]),
+            "packaging-source": m_pack,
+            "git-ubuntu-delta": m_delta,
         },
         clear=True,
     ):
@@ -2442,7 +2431,11 @@ def test_collect_from_catalog_optional_failure_does_not_fail_run():
                 "adapters_required": ["packaging-source"],
                 "adapters_optional": ["git-ubuntu-delta"],
             },
-        ]
+        ],
+        "evidence_adapters": [
+            {"id": "packaging-source", "depends_on": []},
+            {"id": "git-ubuntu-delta", "depends_on": ["packaging-source"]},
+        ],
     }
     ctx.evidence = {}
     ctx.collect_only = False
@@ -2453,8 +2446,8 @@ def test_collect_from_catalog_optional_failure_does_not_fail_run():
     with patch.dict(
         "evidence.ADAPTER_REGISTRY",
         {
-            "packaging-source": (m_pack, []),
-            "git-ubuntu-delta": (m_delta, ["packaging-source"]),
+            "packaging-source": m_pack,
+            "git-ubuntu-delta": m_delta,
         },
         clear=True,
     ):

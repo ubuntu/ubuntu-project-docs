@@ -69,11 +69,6 @@ def collect_from_catalog(ctx: EvidenceContext) -> int:
     # required.
     optional -= required
     adapter_deps = _catalog_adapter_dependencies(ctx.catalog)
-    if not adapter_deps:
-        adapter_deps = {
-            adapter_id: list(dependencies)
-            for adapter_id, (_collector, dependencies) in ADAPTER_REGISTRY.items()
-        }
     required = _expand_adapter_dependencies(required, adapter_deps)
     optional = _expand_adapter_dependencies(optional, adapter_deps) - required
 
@@ -101,7 +96,7 @@ def collect_from_catalog(ctx: EvidenceContext) -> int:
                     failed_required.add(adapter_id_str)
                 continue
 
-            collector, _registered_deps = ADAPTER_REGISTRY[adapter_id_str]
+            collector = ADAPTER_REGISTRY[adapter_id_str]
             deps = adapter_deps.get(adapter_id_str, [])
 
             # Check if deps failed
@@ -192,18 +187,11 @@ def _expand_adapter_dependencies(
     return expanded
 
 
-def _order_adapters(
-    required: set[str], adapter_deps: dict[str, list[str]] | None = None
-) -> list[str]:
+def _order_adapters(required: set[str], adapter_deps: dict[str, list[str]]) -> list[str]:
     """Return adapters in dependency-safe order using graphlib."""
     graph = {}
     for adapter_id in required:
-        if adapter_deps is not None:
-            deps = adapter_deps.get(adapter_id, [])
-        elif adapter_id in ADAPTER_REGISTRY:
-            _, deps = ADAPTER_REGISTRY[adapter_id]
-        else:
-            deps = []
+        deps = adapter_deps.get(adapter_id, [])
         # topological_sorter expects {node: [predecessors]}.
         # Only keep dependencies that are required in this run.
         graph[adapter_id] = [d for d in deps if d in required]

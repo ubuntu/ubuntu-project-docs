@@ -1232,7 +1232,7 @@ def _builds_from_newest_publication(archive, lp_series, pkg: str) -> list[Any]:
     return []
 
 
-@adapter(AdapterID.LP_BUILD_API, depends_on=[AdapterID.PACKAGING_SOURCE])
+@adapter(AdapterID.LP_BUILD_API)
 def collect_lp_build_api(ctx: RunContext) -> LPBuildAPIResult:
     """Fetch Launchpad build-state information for the exact analysed version.
 
@@ -1675,7 +1675,7 @@ def _cvelist_discover_baseline(url: str = _CVELIST_RELEASES_API) -> tuple[str, s
     raise AdapterError("no '*_all_CVEs_at_midnight.zip' asset found in recent releases")
 
 
-@adapter(AdapterID.CVELIST_SCAN, depends_on=[AdapterID.CVE_SEARCH_TERMS])
+@adapter(AdapterID.CVELIST_SCAN)
 def collect_cvelist_scan(ctx: RunContext) -> CvelistScanResult:
     """Identify candidate CVEs by scanning cvelistV5 baseline corpus on the host."""
     pkg = ctx.source_package
@@ -1817,7 +1817,7 @@ def _nvd_description(cve: dict[str, Any]) -> str:
     return ""
 
 
-@adapter(AdapterID.NVD_ENRICH, depends_on=[AdapterID.CVELIST_SCAN])
+@adapter(AdapterID.NVD_ENRICH)
 def collect_nvd_enrich(ctx: RunContext) -> NvdEnrichResult:
     """Enrich cvelist-scan candidates with normalized NVD metadata.
 
@@ -2108,7 +2108,7 @@ def fetch_autopkgtest_log_excerpt(package: str, series: str, arch: str, run_id: 
     return llm_evidence.summarise_build_log(text)
 
 
-@adapter(AdapterID.CONSUMER_AUTOPKGTESTS, depends_on=[AdapterID.REVERSE_DEPS])
+@adapter(AdapterID.CONSUMER_AUTOPKGTESTS)
 def collect_consumer_autopkgtests(ctx: RunContext) -> ConsumerAutopkgtestsResult:
     """Look up autopkgtest status for the source's reverse-dependency consumers.
 
@@ -2193,7 +2193,7 @@ def collect_consumer_autopkgtests(ctx: RunContext) -> ConsumerAutopkgtestsResult
     }
 
 
-@adapter(AdapterID.DEPENDENCY_AUTOPKGTESTS, depends_on=[AdapterID.DEP_ANALYSIS])
+@adapter(AdapterID.DEPENDENCY_AUTOPKGTESTS)
 def collect_dependency_autopkgtests(ctx: RunContext) -> DependencyAutopkgtestsResult:
     """Look up autopkgtest status for each in-main runtime dependency's source.
 

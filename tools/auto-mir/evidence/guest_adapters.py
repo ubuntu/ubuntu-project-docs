@@ -816,7 +816,7 @@ def _scan_source_security_markers(ctx: RunContext, full_source: str) -> dict:
     }
 
 
-@adapter(AdapterID.PACKAGING_SOURCE, depends_on=[AdapterID.LP_PACKAGE_API])
+@adapter(AdapterID.PACKAGING_SOURCE)
 def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
     """Fetch and analyze Debian packaging source files.
 
@@ -930,7 +930,7 @@ _GENERIC_SEARCH_STOPWORDS = {
 }
 
 
-@adapter(AdapterID.DUP_SEARCH, depends_on=[AdapterID.PACKAGING_SOURCE])
+@adapter(AdapterID.DUP_SEARCH)
 def collect_dup_search(ctx: RunContext) -> DupSearchResult:
     """Suggest possible duplicate/overlapping packages in the archive.
 
@@ -1221,7 +1221,7 @@ def _apt_cache_show_synopsis(ctx: RunContext, name: str) -> str | None:
 # ---------------------------------------------------------------------------
 
 
-@adapter(AdapterID.DEP_ANALYSIS, depends_on=[AdapterID.PACKAGING_SOURCE, AdapterID.FETCH_BUILD])
+@adapter(AdapterID.DEP_ANALYSIS)
 def collect_dep_analysis(ctx: RunContext) -> DepAnalysisResult:
     """Analyze runtime dependencies from built packages.
 
@@ -1556,7 +1556,7 @@ def _classify_delta_category(diffstat: str) -> str:
     return "general"
 
 
-@adapter(AdapterID.GIT_UBUNTU_DELTA, depends_on=[AdapterID.PACKAGING_SOURCE])
+@adapter(AdapterID.GIT_UBUNTU_DELTA)
 def collect_git_ubuntu_delta(ctx: RunContext) -> GitUbuntuDeltaResult:
     """Determine the Ubuntu delta vs Debian, using git-ubuntu only when needed.
 
@@ -2039,7 +2039,7 @@ def _download_binaries_for_arch(
     return downloaded
 
 
-@adapter(AdapterID.FETCH_BUILD, depends_on=[AdapterID.PACKAGING_SOURCE, AdapterID.LP_BUILD_API])
+@adapter(AdapterID.FETCH_BUILD)
 def collect_fetch_build(ctx: RunContext) -> FetchBuildResult:
     """Fetch the official Launchpad build for the guest's own architecture.
 
@@ -2254,7 +2254,7 @@ def collect_fetch_build(ctx: RunContext) -> FetchBuildResult:
     }
 
 
-@adapter(AdapterID.BINARY_PACKAGE_INSPECTION, depends_on=[AdapterID.FETCH_BUILD])
+@adapter(AdapterID.BINARY_PACKAGE_INSPECTION)
 def collect_binary_package_inspection(ctx: RunContext) -> BinaryPackageInspectionResult:
     """Expose the single fetch-build-time binary extraction as a stable adapter contract."""
     fetch_build = ctx.evidence.get("adapters", {}).get("fetch-build", {})
@@ -2281,7 +2281,7 @@ def collect_binary_package_inspection(ctx: RunContext) -> BinaryPackageInspectio
 # ---------------------------------------------------------------------------
 
 
-@adapter(AdapterID.LINTIAN, depends_on=[AdapterID.FETCH_BUILD])
+@adapter(AdapterID.LINTIAN)
 def collect_lintian(ctx: RunContext) -> LintianResult:
     """Expose the lintian output parsed from the fetch-build run as a standalone adapter."""
     fetch_build_result = ctx.evidence.get("adapters", {}).get("fetch-build", {})
@@ -2324,7 +2324,7 @@ def _parse_built_using_entries(field_text: str) -> list[str]:
     return [e for e in entries if e]  # Filter empty strings
 
 
-@adapter(AdapterID.DEB_METADATA, depends_on=[AdapterID.FETCH_BUILD])
+@adapter(AdapterID.DEB_METADATA)
 def collect_deb_metadata(ctx: RunContext) -> DebMetadataResult:
     """Extract metadata from built .deb files.
 

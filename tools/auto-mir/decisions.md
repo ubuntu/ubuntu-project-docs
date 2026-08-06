@@ -3197,3 +3197,44 @@ one commit per phase (shared Launchpad client → build-aware version
 resolution → lp-build-api pin fix → fetch-build adapter + full rename
 sweep). `make integration` intentionally left for the user to run (real
 LXD guest + real Launchpad network calls).
+
+## 2026-08-06 — Consolidated the dual evidence-adapter dependency graph
+
+- Promotion: no
+- Context: since the 2026-07-15 "Catalog-authoritative adapter topology"
+  decision, every adapter's `depends_on` was declared twice: once in the
+  `@adapter(AdapterID.X, depends_on=[...])` decorator (`evidence/registry.py`
+  and its ~20 call sites across `host_adapters.py`/`guest_adapters.py`), and
+  once in `catalog.yaml`'s `evidence_adapters[].depends_on`. A dedicated test
+  (`test_catalog_adapter_dependencies_match_registrations`) caught drift
+  between the two, but adding or changing an adapter's dependency still
+  required touching both places. The registry copy was already unused at
+  runtime except as a fallback for catalogs with no `evidence_adapters`
+  section — a case that in practice only existed inside unit-test fixtures.
+- Decision:
+  - `evidence/registry.py`'s `ADAPTER_REGISTRY` now maps adapter ID directly
+    to its collector function (no dependency tuple); the `@adapter` decorator
+    drops the `depends_on` parameter entirely.
+  - `evidence._catalog_adapter_dependencies(ctx.catalog)` is the sole
+    dependency source; `collect_from_catalog` no longer falls back to
+    registry-derived dependencies, and `_order_adapters` now requires an
+    explicit `adapter_deps` mapping (its dead registry-reading branch, never
+    reachable from any real call site, is removed).
+  - Stripped the now-redundant `depends_on=[...]` from all ~20 `@adapter(...)`
+    call sites; `catalog.yaml`'s `evidence_adapters` is unchanged and remains
+    the only place dependency edges are declared.
+  - Deleted `test_catalog_adapter_dependencies_match_registrations` (its
+    purpose no longer exists) and rewrote the ~6 orchestration unit tests
+    that previously monkeypatched `ADAPTER_REGISTRY` with
+    `(mock_fn, [deps])` tuples: they now patch in plain mock functions and,
+    where ordering matters, declare the dependency via an `evidence_adapters`
+    list on the synthetic `ctx.catalog` fixture — matching how real catalogs
+    already express it.
+- Consequences: an adapter's dependency wiring now has exactly one place to
+  edit and reason about (`catalog.yaml`); no behavior change for any real run
+  (production catalogs always populated `evidence_adapters`, and the drift
+  test already proved the two graphs agreed before this change).
+- Validation from `tools/auto-mir`: `make test` PASS (791 passed, 2 skipped —
+  one test count lower than before because the now-pointless drift test was
+  deleted, not because coverage was lost).
+
