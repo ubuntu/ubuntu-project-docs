@@ -266,6 +266,21 @@ def _provision(name: str, ctx: "RunContext") -> None:
     _bootstrap_archive_tools(name)
 
 
+def _exec_in_or_skip(
+    name: str, cmd: list[str], *, warning: str
+) -> subprocess.CompletedProcess | None:
+    """Run a best-effort guest command; return None (logging ``warning``) on failure.
+
+    Shared by optional provisioning steps that should skip cleanly rather than
+    abort guest setup when a single non-essential command fails.
+    """
+    result = exec_in(name, cmd, capture=True, check=False)
+    if result.returncode != 0:
+        log.warning(warning)
+        return None
+    return result
+
+
 def _enable_source_repositories(name: str) -> None:
     """Enable deb-src in both legacy .list and deb822 .sources formats.
 
@@ -294,7 +309,7 @@ def _enable_source_repositories(name: str) -> None:
         _lxc("exec", name, "--", "tee", guest_path, capture=True, input=patched)
 
     # Discover relevant files inside the guest with a single listing.
-    result = exec_in(
+    result = _exec_in_or_skip(
         name,
         [
             "find",
@@ -307,11 +322,9 @@ def _enable_source_repositories(name: str) -> None:
             "-name",
             "*.sources",
         ],
-        capture=True,
-        check=False,
+        warning="Could not list /etc/apt sources files; skipping deb-src enable",
     )
-    if result.returncode != 0:
-        log.warning("Could not list /etc/apt sources files; skipping deb-src enable")
+    if result is None:
         return
 
     for path in result.stdout.splitlines():
@@ -344,13 +357,14 @@ def _enable_proposed_pocket(name: str) -> None:
         log.warning("Could not resolve guest codename; skipping -proposed enable")
         return
 
-    base = exec_in(
+    base = _exec_in_or_skip(
         name,
         ["cat", "/etc/apt/sources.list.d/ubuntu.sources"],
-        capture=True,
-        check=False,
+        warning="Could not read ubuntu.sources; skipping -proposed enable",
     )
-    if base.returncode != 0 or not base.stdout.strip():
+    if base is None:
+        return
+    if not base.stdout.strip():
         log.warning("Could not read ubuntu.sources; skipping -proposed enable")
         return
 
