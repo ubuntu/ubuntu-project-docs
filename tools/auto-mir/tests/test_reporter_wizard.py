@@ -310,6 +310,70 @@ def test_ai_suggestion_invalid_response_reprompts():
     assert answer.value is True
 
 
+def test_locked_confirm_suggestion_rejects_yes_and_shows_reason():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader(["yes", "no"]), write_line=output.append)
+
+    answer = wizard.confirm_suggestion(
+        question_id="REP-CONFIRM",
+        suggestion="Suggested text.",
+        rationale="",
+        lock_yes_reason="it still defers a decision to the reporter",
+    )
+
+    assert answer.value is False
+    assert any("unavailable" in line and "still defers" in line for line in output)
+
+
+def test_locked_confirm_suggestion_still_allows_edit():
+    wizard = TerminalWizard(
+        read_line=_reader(["edit", "revised", "."]), write_line=lambda _line: None
+    )
+
+    answer = wizard.confirm_suggestion(
+        question_id="REP-CONFIRM",
+        suggestion="Suggested text.",
+        rationale="",
+        lock_yes_reason="locked",
+    )
+
+    assert answer.value == "revised"
+
+
+def test_unlocked_confirm_suggestion_shows_plain_yes_option():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader(["yes"]), write_line=output.append)
+
+    wizard.confirm_suggestion(question_id="REP-CONFIRM", suggestion="Text.", rationale="")
+
+    assert any(line.startswith("Options: yes = use this statement as-is;") for line in output)
+
+
+def test_locked_single_choice_option_is_marked_and_rejected():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader(["1", "2"]), write_line=output.append)
+    question = QuestionSpec(
+        id="REP-MAINT-001",
+        prompt="Owning team?",
+        kind=QuestionKind.SINGLE_CHOICE,
+        options=(
+            QuestionOption(
+                "confirm-subscribed",
+                "Keep the already-subscribed team",
+                "- Confirmed.",
+                locked_reason="No team is currently subscribed to this package.",
+            ),
+            QuestionOption("new-team", "A different team", "- New team."),
+        ),
+    )
+
+    answer = wizard.ask(question)
+
+    assert answer.value == "new-team"
+    assert any("(unavailable: No team is currently subscribed" in line for line in output)
+    assert any("currently unavailable" in line for line in output)
+
+
 def test_rule_context_and_answer_guidance_are_rendered():
     output: list[str] = []
     wizard = TerminalWizard(read_line=_reader(["an answer"]), write_line=output.append)

@@ -43,7 +43,14 @@ class Provenance(StrEnum):
 
 @dataclass(frozen=True)
 class QuestionOption:
-    """One catalog-defined choice for a terminal question."""
+    """One catalog-defined choice for a terminal question.
+
+    ``locked_reason``, when non-empty, means the option is currently shown
+    but not selectable (e.g. its catalog-declared ``unavailable_if``
+    condition resolved true against evidence). It is a *resolved* runtime
+    value computed by the evaluator, not something the catalog authors
+    directly on this model.
+    """
 
     id: str
     label: str
@@ -51,6 +58,7 @@ class QuestionOption:
     exclusive: bool = False
     leads_to_followup: bool = False
     readiness: ReadinessEffect | None = None
+    locked_reason: str = ""
 
     def __post_init__(self) -> None:
         if not self.id.strip():

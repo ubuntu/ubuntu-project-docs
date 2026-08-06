@@ -151,3 +151,57 @@ def test_report_catalog_validation_rejects_invalid_option_readiness():
         "REP-QA-MAINT-004 option no-exotic-hardware has invalid readiness" in error
         for error in errors
     )
+
+
+def test_report_catalog_validation_rejects_unavailable_if_without_reason():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    options = by_id["REP-MAINT-001"]["question"]["options"]
+    del options[0]["unavailable_reason"]
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "REP-MAINT-001 option confirm-subscribed declares unavailable_if without an "
+        "unavailable_reason" in error
+        for error in errors
+    )
+
+
+def test_report_catalog_validation_rejects_unavailable_reason_without_condition():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    options = by_id["REP-MAINT-001"]["question"]["options"]
+    options[1]["unavailable_reason"] = "Orphaned reason with no condition."
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "REP-MAINT-001 option new-team declares unavailable_reason without an "
+        "unavailable_if" in error
+        for error in errors
+    )
+
+
+def test_report_catalog_validation_rejects_unknown_adapter_in_unavailable_if():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    options = by_id["REP-MAINT-001"]["question"]["options"]
+    options[0]["unavailable_if"] = {"evidence": "no-such-adapter.field", "truthy": True}
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any("references unknown adapter: no-such-adapter" in error for error in errors)
+
+
+def test_report_catalog_validation_rejects_item_reference_in_unavailable_if():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    options = by_id["REP-MAINT-001"]["question"]["options"]
+    options[0]["unavailable_if"] = {"item": "REP-RATIONALE-005", "equals": "niche"}
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "unavailable_if must only reference evidence, not other items" in error for error in errors
+    )

@@ -319,3 +319,54 @@ def test_question_from_item_no_hint_when_no_downstream_item_references_it():
     question = _question_from_item(item, ctx)
 
     assert question.options[0].leads_to_followup is False
+
+
+def _maint_001_item():
+    return {
+        "id": "REP-MAINT-001",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Is the already-subscribed team the owning team?",
+            "options": [
+                {
+                    "id": "confirm-subscribed",
+                    "label": "Keep the already-subscribed team",
+                    "statement": "- Confirmed.",
+                    "unavailable_if": {
+                        "not": {"evidence": "team-mapping.subscribed_teams", "truthy": True}
+                    },
+                    "unavailable_reason": "No team is currently subscribed to this package.",
+                },
+                {"id": "new-team", "label": "A different team", "statement": "- New team."},
+            ],
+        },
+    }
+
+
+def test_option_locked_when_evidence_condition_is_true():
+    ctx = SimpleNamespace(
+        source_package="foo",
+        catalog={"items": []},
+        evidence={"adapters": {"team-mapping": {"subscribed_teams": []}}},
+    )
+
+    question = _question_from_item(_maint_001_item(), ctx)
+
+    by_id = {option.id: option for option in question.options}
+    assert by_id["confirm-subscribed"].locked_reason == (
+        "No team is currently subscribed to this package."
+    )
+    assert by_id["new-team"].locked_reason == ""
+
+
+def test_option_not_locked_when_evidence_condition_is_false():
+    ctx = SimpleNamespace(
+        source_package="foo",
+        catalog={"items": []},
+        evidence={"adapters": {"team-mapping": {"subscribed_teams": ["ubuntu-server"]}}},
+    )
+
+    question = _question_from_item(_maint_001_item(), ctx)
+
+    by_id = {option.id: option for option in question.options}
+    assert by_id["confirm-subscribed"].locked_reason == ""

@@ -77,20 +77,32 @@ class TerminalWizard:
         question_id: str,
         suggestion: str,
         rationale: str,
+        lock_yes_reason: str | None = None,
     ) -> Answer:
         """Require the reporter to accept, edit, or reject one AI suggestion.
 
         Returns an :class:`Answer` whose ``value`` is ``True`` (use as-is),
         ``False`` (discard and answer manually), or a ``str`` containing the
         reporter's edited version of the suggested statement.
+
+        When ``lock_yes_reason`` is set, the tool has determined the
+        suggestion does not qualify as a final report statement on its own
+        (e.g. it still defers a decision to the reporter). "yes" is then
+        rejected and the reason is shown, so the reporter must "edit" or
+        "no" instead of accidentally posting an unfinished statement as-is.
         """
         self._write_line("")
         self._write_titled_block("Suggested statement", suggestion)
         if rationale.strip():
             self._write_titled_block("Reasoning", rationale.strip())
         self._write_line("")
+        yes_clause = (
+            f"yes = unavailable ({lock_yes_reason})"
+            if lock_yes_reason
+            else "yes = use this statement as-is"
+        )
         self._write_line(
-            "Options: yes = use this statement as-is; "
+            f"Options: {yes_clause}; "
             "edit = keep most of it but amend or extend it; "
             "no = discard it and answer the question yourself."
         )
@@ -111,6 +123,11 @@ class TerminalWizard:
                 continue
             normalized = raw.casefold()
             if normalized in {"y", "yes"}:
+                if lock_yes_reason:
+                    self._write_line(
+                        f"'yes' is unavailable: {lock_yes_reason} Enter edit or no instead."
+                    )
+                    continue
                 return Answer(question_id=question_id, value=True, raw_input=raw)
             if normalized in {"n", "no"}:
                 return Answer(question_id=question_id, value=False, raw_input=raw)
@@ -228,6 +245,8 @@ class TerminalWizard:
         for index, option in enumerate(question.options, start=1):
             marker = " (shortcut)" if option.exclusive else ""
             self._write_line(f"  {index}. {option.label}{marker} [{option.id}]")
+            if option.locked_reason:
+                self._write_line(f"       (unavailable: {option.locked_reason})")
             if option.statement:
                 self._write_line(f"       recorded as: {option.statement}")
             if option.leads_to_followup:
@@ -260,16 +279,26 @@ class TerminalWizard:
 
     @staticmethod
     def _resolve_option(options: tuple[QuestionOption, ...], token: str) -> QuestionOption:
+        resolved: QuestionOption | None = None
         if token.isdecimal():
             index = int(token) - 1
             if 0 <= index < len(options):
-                return options[index]
-        normalized = token.casefold()
-        for option in options:
-            if option.id.casefold() == normalized:
-                return option
-        expected = ", ".join(option.id for option in options)
-        raise ValueError(f"choose an option number or one of: {expected}")
+                resolved = options[index]
+        if resolved is None:
+            normalized = token.casefold()
+            for option in options:
+                if option.id.casefold() == normalized:
+                    resolved = option
+                    break
+        if resolved is None:
+            expected = ", ".join(option.id for option in options)
+            raise ValueError(f"choose an option number or one of: {expected}")
+        if resolved.locked_reason:
+            raise ValueError(
+                f"{resolved.label!r} is currently unavailable: {resolved.locked_reason} "
+                "Choose a different option."
+            )
+        return resolved
 
     @staticmethod
     def _handle_missing(

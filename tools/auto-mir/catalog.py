@@ -202,6 +202,7 @@ def validate_report_catalog(catalog: dict) -> list[str]:
     valid_modes = {"deterministic", "human_only", "ev_to_ai"}
     valid_readiness = {"clear", "warning", "blocker"}
     conditions_by_item: dict[str, dict | None] = {}
+    option_conditions: list[tuple[str, dict]] = []
     for index, item in enumerate(items):
         if not isinstance(item, dict):
             errors.append(f"reporter item {index} must be a mapping")
@@ -280,6 +281,25 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                         f"reporter item {item_id} option {option_id} spell_out_filter must be "
                         "'all' or 'exclude_dev_doc_dbg'"
                     )
+                unavailable_if = option.get("unavailable_if")
+                unavailable_reason = option.get("unavailable_reason")
+                if unavailable_if is not None and not isinstance(unavailable_if, dict):
+                    errors.append(
+                        f"reporter item {item_id} option {option_id} unavailable_if must be a "
+                        "mapping"
+                    )
+                elif unavailable_if is not None:
+                    option_conditions.append((f"{item_id}.{option_id}", unavailable_if))
+                if unavailable_if is not None and not str(unavailable_reason or "").strip():
+                    errors.append(
+                        f"reporter item {item_id} option {option_id} declares unavailable_if "
+                        "without an unavailable_reason"
+                    )
+                if unavailable_reason is not None and unavailable_if is None:
+                    errors.append(
+                        f"reporter item {item_id} option {option_id} declares "
+                        "unavailable_reason without an unavailable_if"
+                    )
         options_source = question.get("options_source") if isinstance(question, dict) else None
         _validate_adapter_field_ref(item_id, "options_source", options_source, adapter_ids, errors)
         default_source = question.get("default_source") if isinstance(question, dict) else None
@@ -316,7 +336,11 @@ def validate_report_catalog(catalog: dict) -> list[str]:
         missing = sorted(item_ids - referenced)
         if missing:
             errors.append("reporter blueprint omits items: " + ", ".join(missing))
-    from reporter.conditions import validate_condition_cycles, validate_condition_references
+    from reporter.conditions import (
+        condition_references,
+        validate_condition_cycles,
+        validate_condition_references,
+    )
 
     for item_id, condition in conditions_by_item.items():
         errors.extend(
@@ -328,6 +352,19 @@ def validate_report_catalog(catalog: dict) -> list[str]:
             )
         )
     errors.extend(validate_condition_cycles(conditions_by_item))
+    known_adapter_ids = {str(adapter_id) for adapter_id in adapter_ids if adapter_id}
+    for label, condition in option_conditions:
+        errors.extend(
+            f"reporter option {label}: {error}"
+            for error in validate_condition_references(
+                condition, known_items=item_ids, known_adapters=known_adapter_ids
+            )
+        )
+        if any(reference_type == "item" for reference_type, _ in condition_references(condition)):
+            errors.append(
+                f"reporter option {label} unavailable_if must only reference evidence, "
+                "not other items (options are locked before any item answers exist)"
+            )
     return errors
 
 

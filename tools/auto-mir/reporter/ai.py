@@ -68,24 +68,35 @@ You must commit to a confidence tier instead of hedging within the statement its
   way. Do not fill "statement" in this case; only explain why in "rationale" so the
   reporter can resolve it themselves.
 
+Separately from confidence, judge whether your "high"-confidence statement still leaves a
+real decision, judgement call, or confirmation for the reporter to make (for example: it
+only names candidates/findings without committing to the specific conclusion the question
+requires, or it says the reporter should verify/confirm/decide something). Set
+"requires_reporter_decision" to true in that case - this is expected and fine, the
+reporter will be required to explicitly edit or personally answer it rather than accept it
+verbatim, so it never silently becomes a final report statement.
+
 Return exactly one JSON object:
 {{
   "confidence": "high" or "low",
   "statement": "one concise, affirmative, hedge-free claim (required only when confidence is high)",
   "rationale": "why the evidence supports it, or (when low) what is missing/inconclusive",
+  "requires_reporter_decision": true or false,
   "evidence_refs": ["adapter:field"]
 }}
 """
     try:
         response = llm.call_llm(prompt, ctx, model_tier="small", trace_label=item["id"])
-        confidence, suggestion, rationale, refs = _validate_response(response, item)
+        confidence, suggestion, rationale, refs, requires_decision = _validate_response(
+            response, item
+        )
     except llm.LLMError:
         return _ask_human(item, ctx, wizard, fallback_question)
 
     if confidence == "low" and item.get("autopkgtest_log_followup"):
         refined = _maybe_refine_with_autopkgtest_logs(item, ctx, evidence)
         if refined is not None:
-            confidence, suggestion, rationale, refs = refined
+            confidence, suggestion, rationale, refs, requires_decision = refined
 
     if confidence == "low":
         wizard.show_note(
@@ -95,10 +106,12 @@ Return exactly one JSON object:
         )
         return _ask_human(item, ctx, wizard, fallback_question, rationale=rationale)
 
+    lock_yes_reason = _lock_yes_reason(suggestion, requires_decision)
     confirmation = wizard.confirm_suggestion(
         question_id=f"{item['id']}-confirm",
         suggestion=suggestion,
         rationale=rationale,
+        lock_yes_reason=lock_yes_reason,
     )
     # confirmation.value is True (use as-is), False (discard, ask manually), or
     # a str holding the reporter's edited version of the suggested statement.
@@ -121,9 +134,53 @@ Return exactly one JSON object:
     return _ask_human(item, ctx, wizard, fallback_question)
 
 
+_DEFERRAL_PHRASES = (
+    "the reporter should",
+    "reporter must",
+    "reporter needs to",
+    "should confirm",
+    "should verify",
+    "should determine",
+    "needs to confirm",
+    "needs to verify",
+    "needs to be confirmed",
+    "needs to be verified",
+    "must be verified",
+    "must be confirmed",
+    "left to the reporter",
+    "deferred to the reporter",
+)
+
+
+def _contains_deferral_phrase(text: str) -> bool:
+    lowered = text.casefold()
+    return any(phrase in lowered for phrase in _DEFERRAL_PHRASES)
+
+
+def _lock_yes_reason(statement: str, requires_decision: bool) -> str | None:
+    """Decide whether "yes = use this statement as-is" should be disallowed.
+
+    Combines the model's own self-reported ``requires_reporter_decision``
+    judgement with a deterministic phrase backstop, so a suggestion that
+    still defers a decision to the reporter can never be accepted verbatim
+    just because the model forgot to flag it.
+    """
+    if requires_decision:
+        return (
+            "this suggestion does not fully answer the question on its own; edit it into "
+            "a final statement or answer it yourself"
+        )
+    if _contains_deferral_phrase(statement):
+        return (
+            "this suggestion still asks the reporter to confirm, verify, or decide "
+            "something; edit it into a final statement or answer it yourself"
+        )
+    return None
+
+
 def _maybe_refine_with_autopkgtest_logs(
     item: dict, ctx, evidence: dict
-) -> tuple[str, str, str, list[str]] | None:
+) -> tuple[str, str, str, list[str], bool] | None:
     """One bounded follow-up LLM round using real autopkgtest log excerpts.
 
     Only reached for items that declare ``autopkgtest_log_followup: true``
@@ -178,13 +235,16 @@ Evidence:
 {wrapped}
 
 Commit to a confidence tier as before; only use "high" if this additional evidence actually
-resolves the earlier uncertainty, otherwise stay "low".
+resolves the earlier uncertainty, otherwise stay "low". Also judge
+"requires_reporter_decision" as before: true if your statement still leaves a real
+decision or confirmation for the reporter to make.
 
 Return exactly one JSON object:
 {{
   "confidence": "high" or "low",
   "statement": "one concise, affirmative, hedge-free claim (required only when confidence is high)",
   "rationale": "why the evidence supports it, or (when low) what is still missing/inconclusive",
+  "requires_reporter_decision": true or false,
   "evidence_refs": ["adapter:field"]
 }}
 """
@@ -223,8 +283,11 @@ def _contains_hedge_phrase(text: str) -> bool:
     return any(phrase in lowered for phrase in _HEDGE_PHRASES)
 
 
-def _validate_response(response: dict[str, Any], item: dict) -> tuple[str, str, str, list[str]]:
-    """Validate the model's response and return (confidence, statement, rationale, refs).
+def _validate_response(
+    response: dict[str, Any], item: dict
+) -> tuple[str, str, str, list[str], bool]:
+    """Validate the model's response and return (confidence, statement, rationale, refs,
+    requires_reporter_decision).
 
     ``statement`` is empty when ``confidence`` is "low": a low-confidence
     response supplies only reasoning, never a "final-looking" statement.
@@ -255,7 +318,8 @@ def _validate_response(response: dict[str, Any], item: dict) -> tuple[str, str, 
 
     allowed = set(item.get("adapters_required", [])) | set(item.get("adapters_optional", []))
     normalized_refs = [str(ref) for ref in refs if str(ref).split(":", 1)[0] in allowed]
-    return confidence, statement, rationale, normalized_refs
+    requires_decision = bool(response.get("requires_reporter_decision", False))
+    return confidence, statement, rationale, normalized_refs, requires_decision
 
 
 def _ask_human(item: dict, ctx, wizard, question, rationale: str = "") -> StatementResult:

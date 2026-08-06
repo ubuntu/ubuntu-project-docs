@@ -35,6 +35,22 @@ def test_question_option_accepts_explicit_readiness_override():
     assert option.readiness == ReadinessEffect.BLOCKER
 
 
+def test_question_option_locked_reason_defaults_to_empty():
+    option = QuestionOption("confirm-subscribed", "Keep the already-subscribed team")
+
+    assert option.locked_reason == ""
+
+
+def test_question_option_accepts_locked_reason():
+    option = QuestionOption(
+        "confirm-subscribed",
+        "Keep the already-subscribed team",
+        locked_reason="No team is currently subscribed to this package.",
+    )
+
+    assert option.locked_reason == "No team is currently subscribed to this package."
+
+
 def test_non_choice_question_rejects_options():
     with pytest.raises(ValueError, match="cannot define options"):
         QuestionSpec(

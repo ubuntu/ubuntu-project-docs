@@ -161,6 +161,10 @@ def _question_from_item(item: dict, ctx) -> QuestionSpec:
             _spell_out_option(option, raw_option, known_packages)
             for option, raw_option in zip(options, raw_options, strict=True)
         ]
+    options = [
+        _apply_option_lock(option, raw_option, ctx)
+        for option, raw_option in zip(options, raw_options, strict=True)
+    ]
     if kind == QuestionKind.SINGLE_CHOICE:
         options = _mark_followup_options(options, item["id"], ctx)
     return QuestionSpec(
@@ -249,6 +253,29 @@ def _spell_out_option(
         option.statement + suffix,
         option.exclusive,
         readiness=option.readiness,
+    )
+
+
+def _apply_option_lock(option: QuestionOption, raw_option: dict, ctx) -> QuestionOption:
+    """Resolve a catalog-declared ``unavailable_if`` condition against evidence.
+
+    The option stays visible (catalog.py enforces every ``unavailable_if``
+    has a matching ``unavailable_reason``) but is marked unselectable so the
+    wizard can explain why instead of silently omitting it.
+    """
+    condition = raw_option.get("unavailable_if")
+    if not condition:
+        return option
+    context = ConditionContext(items={}, evidence=ctx.evidence.get("adapters", {}))
+    if not evaluate_condition(condition, context):
+        return option
+    return QuestionOption(
+        option.id,
+        option.label,
+        option.statement,
+        option.exclusive,
+        readiness=option.readiness,
+        locked_reason=str(raw_option.get("unavailable_reason", "")),
     )
 
 

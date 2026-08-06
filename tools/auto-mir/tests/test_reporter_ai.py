@@ -16,9 +16,11 @@ class ConfirmingWizard:
         self.accept = accept
         self.questions = []
         self.notes = []
+        self.lock_yes_reasons = []
 
-    def confirm_suggestion(self, *, question_id, suggestion, rationale):
+    def confirm_suggestion(self, *, question_id, suggestion, rationale, lock_yes_reason=None):
         self.questions.append(("confirm", suggestion, rationale))
+        self.lock_yes_reasons.append(lock_yes_reason)
         return Answer(question_id=question_id, value=self.accept, raw_input=str(self.accept))
 
     def ask(self, question):
@@ -125,7 +127,7 @@ class EditingWizard:
         self.edited_text = edited_text
         self.questions = []
 
-    def confirm_suggestion(self, *, question_id, suggestion, rationale):
+    def confirm_suggestion(self, *, question_id, suggestion, rationale, lock_yes_reason=None):
         self.questions.append(("confirm", suggestion, rationale))
         return Answer(question_id=question_id, value=self.edited_text, raw_input="edit")
 
@@ -408,3 +410,76 @@ def test_autopkgtest_log_followup_falls_back_when_no_logs_fetchable(monkeypatch)
     assert call_count == 1
     assert result.provenance == Provenance.HUMAN
     assert wizard.notes
+
+
+def test_requires_reporter_decision_locks_yes(monkeypatch):
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "statement": "Restic and backuppc provide overlapping backup functionality.",
+            "rationale": "Both are backup tools per apt-cache search.",
+            "requires_reporter_decision": True,
+            "evidence_refs": [],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
+
+    assert wizard.lock_yes_reasons == [
+        "this suggestion does not fully answer the question on its own; edit it into "
+        "a final statement or answer it yourself"
+    ]
+    # ConfirmingWizard always "accepts" regardless of locking (it's a fake); the real
+    # TerminalWizard is the one that actually refuses "yes" - covered in
+    # tests/test_reporter_wizard.py. This test only checks the reason is threaded through.
+    assert result.provenance == Provenance.AI_CONFIRMED
+
+
+def test_deferral_phrase_in_statement_locks_yes_even_without_the_flag(monkeypatch):
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "statement": "One deprecated-algorithm hit was found, which the reporter should "
+            "confirm is not actively used.",
+            "rationale": "One crypto_pattern_hit found.",
+            "evidence_refs": [],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
+
+    assert wizard.lock_yes_reasons[0] is not None
+    assert "confirm, verify, or decide" in wizard.lock_yes_reasons[0]
+
+
+def test_plain_decisive_statement_does_not_lock_yes(monkeypatch):
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "statement": "No package in main provides overlapping functionality.",
+            "rationale": "No candidates were found in main.",
+            "requires_reporter_decision": False,
+            "evidence_refs": [],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
+
+    assert wizard.lock_yes_reasons == [None]
+
+
+def test_lock_yes_reason_helper_directly():
+    assert ai._lock_yes_reason("A plain decisive claim.", requires_decision=False) is None
+    assert ai._lock_yes_reason("Anything.", requires_decision=True) is not None
+    assert (
+        ai._lock_yes_reason("The reporter should verify this.", requires_decision=False) is not None
+    )
