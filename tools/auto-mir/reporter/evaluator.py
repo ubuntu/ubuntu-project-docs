@@ -672,7 +672,7 @@ def _binary_integration_surface(_item: dict, ctx) -> tuple[str | None, list[str]
 
 @reporter_evaluator("build-tests")
 def _build_tests(_item: dict, ctx) -> tuple[str | None, list[str], str]:
-    data = _adapter(ctx, "sbuild")
+    data = _adapter(ctx, "fetch-build")
     if not data.get("build_log"):
         return None, [], "No build log was available"
     log_text = str(data["build_log"]).casefold()
@@ -684,12 +684,12 @@ def _build_tests(_item: dict, ctx) -> tuple[str | None, list[str], str]:
     if markers:
         return (
             f"Build-time test execution was observed ({', '.join(markers)}).",
-            ["sbuild:build_log"],
+            ["fetch-build:build_log"],
             "Verify that failures are not ignored.",
         )
     return (
         "No build-time test execution was identified in the collected build log.",
-        ["sbuild:build_log"],
+        ["fetch-build:build_log"],
         "A reason or alternative test plan is required.",
     )
 

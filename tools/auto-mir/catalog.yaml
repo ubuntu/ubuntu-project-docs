@@ -149,15 +149,15 @@ evidence_adapters:
     last_release_date: str
   fallback: emit_todo_continue
   notes: URL detection prefers debian/watch, then Homepage in debian/control, then package-name-based search; ignore Vcs-Git packaging repos
-- id: sbuild
+- id: fetch-build
   type: local_exec
-  description: Run sbuild with unshare backend in LXD VM; produces build log, lintian output, and built .deb files
+  description: Download the official Launchpad build (log, .changes, .deb binaries) for the local architecture instead of building locally; runs lintian against the source and the downloaded binaries since the official build does not
   inputs:
   - source_package
   - series
-  - architectures
   depends_on:
   - packaging-source
+  - lp-build-api
   output_contract:
     build_log: str
     build_success: bool
@@ -168,14 +168,14 @@ evidence_adapters:
     lintian_pedantic: list
     static_link_hints: list
   fallback: emit_todo_continue
-  notes: Uses sbuild unshare backend (requires Noble or newer); installed from noble-backports when target is Noble
+  notes: The package is expected to already be published in universe with a successful official build, so only the local architecture's binaries/log/.changes are downloaded; other architectures' build status comes from lp-build-api
 - id: deb-metadata
   type: local_exec
-  description: Extract Built-Using and Static-Built-Using metadata from built .deb files after sbuild
+  description: Extract Built-Using and Static-Built-Using metadata from built .deb files after fetch-build
   inputs:
   - built_debs
   depends_on:
-  - sbuild
+  - fetch-build
   output_contract:
     status: str
     message: str
@@ -185,17 +185,17 @@ evidence_adapters:
   type: local_exec
   description: Expose security, service, UI, and maintenance facts from the single extraction of built binary packages
   inputs:
-  - sbuild
+  - fetch-build
   depends_on:
-  - sbuild
+  - fetch-build
   fallback: emit_todo_continue
 - id: lintian
   type: local_exec
-  description: Parse lintian output from sbuild run
+  description: Parse lintian output from the fetch-build run
   inputs:
-  - sbuild_output
+  - fetch_build_output
   depends_on:
-  - sbuild
+  - fetch-build
   output_contract:
     errors: list
     warnings: list
@@ -230,7 +230,7 @@ evidence_adapters:
   - requested_binaries
   depends_on:
   - packaging-source
-  - sbuild
+  - fetch-build
   output_contract:
     runtime_deps: list
     deps_not_in_main: list
@@ -241,7 +241,7 @@ evidence_adapters:
     same_source_deps: list
     runtime_deps_in_main: list
   fallback: emit_todo_continue
-  notes: Uses post-build dependencies from sbuild output; maps deps to source packages to identify same-source deps; runtime_deps_in_main lists in-scope runtime deps already in main (used by DEP-4)
+  notes: Uses post-build dependencies from fetch-build output; maps deps to source packages to identify same-source deps; runtime_deps_in_main lists in-scope runtime deps already in main (used by DEP-4)
 - id: component-mismatches
   type: local_exec
   description: Run upstream ubuntu-archive-tools/component-mismatches to identify promotion candidates

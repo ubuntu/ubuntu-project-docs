@@ -82,7 +82,7 @@ class _Ctx:
                 {
                     "id": "ESL-1",
                     "messages": {
-                        "unknown_message": "Could not collect packaging source and sbuild output",
+                        "unknown_message": "Could not collect packaging source and fetch-build output",
                         "unknown_todo": "TODO: - Check for embedded source (evidence collection failed)",
                         "not_ok_message": "Embedded source present and used in build: {embedded_dirs}",
                         "not_ok_todo": "TODO: - Embedded source found and used in build — either remove and use archive packages, or get security team sign-off. Dirs: {embedded_dirs}",
@@ -197,17 +197,13 @@ class _Ctx:
                 {
                     "id": "CB-1",
                     "messages": {
-                        "hint_local_ok": "local sbuild build succeeded",
-                        "hint_local_failed": "local sbuild build FAILED (see build log)",
-                        "hint_local_unavailable": "local sbuild result unavailable",
-                        "unknown_no_lp_message": "Could not confirm Launchpad build state ({local_hint})",
-                        "unknown_no_lp_todo": "TODO: - does not FTBFS currently ({local_hint}; verify recent Launchpad build records)",
-                        "unknown_no_builds_message": "No Launchpad build records were found ({local_hint})",
-                        "unknown_no_builds_todo": "TODO: - does not FTBFS currently ({local_hint}; no Launchpad build records to confirm)",
+                        "unknown_no_lp_message": "Could not confirm Launchpad build state",
+                        "unknown_no_lp_todo": "TODO: - does not FTBFS currently (verify recent Launchpad build records)",
+                        "unknown_no_builds_message": "No Launchpad build records were found",
+                        "unknown_no_builds_todo": "TODO: - does not FTBFS currently (no Launchpad build records to confirm)",
                         "not_ok_message": "Launchpad build state shows failures: {failed_builds}",
                         "not_ok_todo": "TODO: - does not FTBFS currently",
                         "ok_message": "does not FTBFS currently; Launchpad build records pass for arches: {passing_arches}",
-                        "ok_local_suffix": "; local sbuild build also succeeded",
                     },
                 },
                 {
@@ -1084,7 +1080,7 @@ def test_eval_ev_to_ai_graceful_on_large_tier_llm_error():
 
 def test_eval_ev_to_ai_performs_followup_when_model_requests_more_evidence():
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": "\n".join([f"line {i}" for i in range(1, 501)]),
     }
@@ -1093,7 +1089,7 @@ def test_eval_ev_to_ai_performs_followup_when_model_requests_more_evidence():
         "title": "Endpoint exposure",
         "section": "Security",
         "todo_refs": ["TODO: - Manual review"],
-        "adapters_required": ["sbuild"],
+        "adapters_required": ["fetch-build"],
         "adapters_optional": [],
     }
     finding = _make_finding("SEC-6", mode="ev_to_ai")
@@ -1118,7 +1114,7 @@ def test_eval_ev_to_ai_performs_followup_when_model_requests_more_evidence():
         "todo": "",
         "rationale": "Reviewed requested lines",
         "human_confirmation_required": True,
-        "evidence_refs": ["sbuild:build_log"],
+        "evidence_refs": ["fetch-build:build_log"],
         "risk_flags": [],
     }
 
@@ -1133,9 +1129,8 @@ def test_eval_ev_to_ai_performs_followup_when_model_requests_more_evidence():
     assert result.status == "ok"
 
 
-def test_cb_1_ok_when_sbuild_and_lp_builds_pass():
+def test_cb_1_ok_when_lp_builds_pass():
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {"status": "ok", "build_success": True}
     ctx.evidence["adapters"]["lp-build-api"] = {
         "status": "ok",
         "builds": [
@@ -1154,7 +1149,6 @@ def test_cb_1_ok_when_sbuild_and_lp_builds_pass():
 
 def test_cb_1_not_ok_when_lp_build_state_fails():
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {"status": "ok", "build_success": True}
     ctx.evidence["adapters"]["lp-build-api"] = {
         "status": "ok",
         "builds": [
@@ -1171,31 +1165,28 @@ def test_cb_1_not_ok_when_lp_build_state_fails():
     assert "arm64" in result.message
 
 
-def test_cb_1_todo_with_local_build_hint_when_lp_missing():
-    """When Launchpad records are missing, stay TODO but hint the local build worked."""
+def test_cb_1_unknown_when_no_lp_builds_found():
+    """When Launchpad has no build records at all, the state stays unknown."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {"status": "ok", "build_success": True}
     ctx.evidence["adapters"]["lp-build-api"] = {"status": "ok", "builds": []}
 
     finding = _make_finding("CB-1", mode="deterministic")
     result = checks.deterministic._check_cb_1(ctx, finding)
 
     assert result.status == "unknown"
-    assert "local sbuild build succeeded" in result.message
-    assert "local sbuild build succeeded" in result.todo
+    assert "No Launchpad build records" in result.message
 
 
-def test_cb_1_todo_hints_local_build_failure():
-    """A failed local build is surfaced in the hint when Launchpad data is absent."""
+def test_cb_1_unknown_when_lp_build_api_unavailable():
+    """When lp-build-api itself failed to collect, the state stays unknown."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {"status": "ok", "build_success": False}
     ctx.evidence["adapters"]["lp-build-api"] = {"status": "error"}
 
     finding = _make_finding("CB-1", mode="deterministic")
     result = checks.deterministic._check_cb_1(ctx, finding)
 
     assert result.status == "unknown"
-    assert "FAILED" in result.message
+    assert "Could not confirm Launchpad build state" in result.message
 
 
 def test_esl_3_unexpected_built_using():
@@ -1231,7 +1222,7 @@ def test_esl_3_missing_adapter():
 def test_urf_1_clean_build_log():
     """Test URF-1 with clean build log."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": "dh_auto_configure\ndh_auto_build\ndh_auto_test\ndh_auto_install",
         "build_success": True,
@@ -1248,7 +1239,7 @@ def test_urf_1_clean_build_log():
 def test_urf_1_build_warnings():
     """Genuine build warnings are routed to reviewer judgement (Left to decide)."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": "gcc -Wall test.c\ntest.c:5: warning: unused variable 'x'",
         "build_success": True,
@@ -1265,7 +1256,7 @@ def test_urf_1_build_warnings():
 def test_urf_1_ignores_dpkg_noise():
     """dpkg-source/dpkg-buildflags noise must not be reported as build warnings."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": (
             "dpkg-source: warning: cannot verify inline signature for ./foo.dsc: "
@@ -1288,7 +1279,7 @@ def test_urf_1_ignores_dpkg_noise():
 def test_urf_1_build_errors():
     """Test URF-1 with build errors detected."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": "gcc -Wall test.c\ntest.c:3: error: undefined reference to 'foo'",
         "build_success": True,
@@ -1305,7 +1296,7 @@ def test_urf_1_build_errors():
 def test_urf_1_security_warning():
     """Test URF-1 with security warning detected (reviewer judgement)."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": "gcc -Wall test.c\ntest.c:10: warning: format string vulnerability",
         "build_success": True,
@@ -1454,7 +1445,7 @@ def test_cb_8_python_with_dh_sequence_python3_in_control():
 def test_esl_2_no_static_linking():
     """Test ESL-2 with clean build log (no static linking)."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": "dh_auto_configure\ndh_auto_build\ndh_auto_test",
         "static_link_hints": [],
@@ -1476,7 +1467,7 @@ def test_esl_2_no_static_linking():
 def test_esl_2_static_linking_detected():
     """Test ESL-2 when static linking is detected."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": "gcc -static -o myapp main.c",
         "static_link_hints": ["myapp"],
@@ -1498,7 +1489,7 @@ def test_esl_2_static_linking_detected():
 def test_esl_2_static_linking_justified():
     """Test ESL-2 when static linking is justified."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": "gcc -static -o scanner security_scanner.c  # integrity checker",
         "static_link_hints": ["scanner"],
@@ -1520,7 +1511,7 @@ def test_esl_2_static_linking_justified():
 def test_esl_2_ignores_configure_static_probe():
     """A configure feature probe for -static must not be treated as static linking."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": (
             "checking if gcc static flag -static works... yes\n"
@@ -1547,7 +1538,7 @@ def test_esl_2_ignores_configure_static_probe():
 def test_esl_2_static_binary_in_built_deb_flagged():
     """A fully static ELF binary shipped in a built deb is flagged."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": "dh_auto_build\n",
         "static_link_hints": [],
@@ -1570,7 +1561,7 @@ def test_esl_2_static_binary_in_built_deb_flagged():
 def test_esl_2_ignores_static_libgcc_helper_flag():
     """A build log with only helper flags / no static binaries reports no static linking."""
     ctx = _Ctx()
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "build_log": "gcc -static-libgcc -static-libstdc++ -o app app.c\n",
         "static_link_hints": [],
@@ -1723,7 +1714,7 @@ def test_prf_2_shared_library_without_symbols_file():
         "debian_rules": "dh_auto_configure",
         "file_listing": [{"path": "./debian/control", "size": 500}],
     }
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "built_debs": ["/tmp/out/libfoo1_1.0-1_amd64.deb"],
     }
@@ -2239,7 +2230,7 @@ def test_urf_4_nobody_cli_flag_is_flagged():
         "setuid_setgid_source_hits": [],
         "setuid_setgid_source_files": [],
     }
-    ctx.evidence["adapters"]["sbuild"] = {
+    ctx.evidence["adapters"]["fetch-build"] = {
         "status": "ok",
         "setuid_setgid_binaries": ["myapp/usr/bin/myhelper"],
     }

@@ -488,7 +488,7 @@ def test_lock_yes_reason_helper_directly():
 def test_missing_required_adapter_skips_llm_and_asks_human_with_reason(monkeypatch):
     """Regression test: an ev_to_ai item must never let the model guess from
     missing/errored evidence (e.g. claiming FHS compliance when lintian never
-    ran because sbuild failed)."""
+    ran because fetch-build failed)."""
 
     def fail(*_args, **_kwargs):
         raise AssertionError("LLM must not be called when required evidence is unavailable")
@@ -497,7 +497,7 @@ def test_missing_required_adapter_skips_llm_and_asks_human_with_reason(monkeypat
     ctx = _ctx()
     ctx.evidence["adapters"]["binary-package-inspection"] = {
         "status": "error",
-        "message": "upstream dependency failed: sbuild",
+        "message": "upstream dependency failed: fetch-build",
     }
     wizard = ConfirmingWizard(accept=True)
 
@@ -505,7 +505,7 @@ def test_missing_required_adapter_skips_llm_and_asks_human_with_reason(monkeypat
 
     assert result.provenance == Provenance.HUMAN
     assert "binary-package-inspection" in result.rationale
-    assert "upstream dependency failed: sbuild" in result.rationale
+    assert "upstream dependency failed: fetch-build" in result.rationale
     assert wizard.notes
     assert "could not confidently assess" in wizard.notes[0][0]
 

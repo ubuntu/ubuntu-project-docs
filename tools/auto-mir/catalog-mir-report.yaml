@@ -407,7 +407,7 @@ items:
   mode: deterministic
   evaluator: build-tests
   readiness: warning
-  adapters_required: [sbuild, packaging-source]
+  adapters_required: [fetch-build, packaging-source]
   template: 'TODO: - Build-time test execution and failure gating: TBD'
 - id: REP-QA-TEST-002
   section: Quality assurance - testing
@@ -519,7 +519,7 @@ items:
   title: Test adequacy assessment
   mode: ev_to_ai
   readiness: blocker
-  adapters_required: [sbuild, packaging-source, autopkgtest-db]
+  adapters_required: [fetch-build, packaging-source, autopkgtest-db]
   adapters_optional: [consumer-autopkgtests]
   autopkgtest_log_followup: true
   ai_policy: Assess whether observed build tests and autopkgtests are non-trivial and plausibly cover regressions. The actual autopkgtest test definitions are provided in full in packaging-source.debian_tests_control (debian/tests/control) - read them to judge non-triviality (e.g. a real functional test vs. only invoking --help/--version) before concluding the evidence is inconclusive; autopkgtest-db only reports pass/fail per architecture, not what the tests do. Surface gaps; never invent test execution or a team commitment.

@@ -51,18 +51,18 @@ def test_order_adapters_with_deps():
 
 def test_order_adapters_chain_deps():
     """Adapters with chained dependencies should be ordered correctly."""
-    required = {"sbuild", "dep-analysis", "packaging-source"}
+    required = {"fetch-build", "dep-analysis", "packaging-source"}
     deps = {
         "dep-analysis": ["packaging-source"],
-        "sbuild": ["packaging-source"],
+        "fetch-build": ["packaging-source"],
     }
     ordered = _order_adapters(required, deps)
 
     # packaging-source must come first
     assert ordered[0] == "packaging-source"
-    # dep-analysis and sbuild can be in any order after packaging-source
+    # dep-analysis and fetch-build can be in any order after packaging-source
     assert "dep-analysis" in ordered[1:]
-    assert "sbuild" in ordered[1:]
+    assert "fetch-build" in ordered[1:]
 
 
 def test_order_adapters_cycle_breaking():
@@ -315,13 +315,190 @@ pkg/DEBIAN/postinst
     assert result["maintainer_scripts"] == ["pkg/DEBIAN/postinst"]
 
 
-def test_binary_package_inspection_projects_sbuild_scan_without_reextracting():
+# ---------------------------------------------------------------------------
+# fetch-build adapter (downloads the official Launchpad build)
+# ---------------------------------------------------------------------------
+
+
+def _fetch_build_ctx(build_state: str = "Successfully built") -> Mock:
+    ctx = Mock()
+    ctx.guest_name = "test-guest"
+    ctx.series = "noble"
+    ctx.source_package = "testpkg"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "source_dir": "/tmp/testpkg-1.0",
+                "analyzed_version": "1.0-1",
+                "analyzed_pocket": "release",
+                "debian_rules": "#!/usr/bin/make -f\n%:\n\tdh $@",
+            },
+            "lp-build-api": {
+                "status": "ok",
+                "builds": [
+                    {
+                        "arch_tag": "amd64",
+                        "build_state": build_state,
+                        "build_log_url": "https://launchpad.net/x/buildlog.txt",
+                        "changesfile_url": "https://launchpad.net/x/testpkg_1.0-1_amd64.changes",
+                        "buildinfo_url": "",
+                        "web_link": "https://launchpad.net/x/+build/1",
+                    }
+                ],
+            },
+        }
+    }
+    return ctx
+
+
+_EMPTY_DEB_SCAN = {
+    "static_binaries": [],
+    "setuid_setgid_binaries": [],
+    "nobody_owned_binaries": [],
+    "sbin_executables": [],
+    "systemd_units": [],
+    "cron_jobs": [],
+    "apparmor_profiles": [],
+    "desktop_files": [],
+    "translation_files": [],
+    "plugin_candidates": [],
+    "maintainer_scripts": [],
+}
+
+
+def _fetch_build_capture_side_effect(_ctx, cmd, allow_fail=False, as_ubuntu=False, env=None):
+    script = cmd[-1] if isinstance(cmd, list) else str(cmd)
+    if "dpkg --print-architecture" in script:
+        return "amd64"
+    if "lintian" in script:
+        return "N: no issues found"
+    return ""
+
+
+def test_fetch_build_downloads_local_arch_binary_on_success():
+    from evidence.guest_adapters import collect_fetch_build
+
+    ctx = _fetch_build_ctx()
+
+    fake_binary_pub = Mock()
+    fake_binary_pub.distro_arch_series_link = "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+    fake_binary_pub.binaryFileUrls.return_value = [
+        "https://launchpad.net/x/testpkg_1.0-1_amd64.deb"
+    ]
+    fake_pub = Mock()
+    fake_pub.getPublishedBinaries.return_value = [fake_binary_pub]
+
+    fake_lp = Mock()
+    fake_lp.distributions = {"ubuntu": Mock(main_archive=Mock())}
+
+    with (
+        patch("evidence.guest_adapters._capture", side_effect=_fetch_build_capture_side_effect),
+        patch("evidence.guest_adapters.lxd_runner.push_file") as mock_push,
+        patch("evidence.guest_adapters.http_utils.get_bytes", return_value=b"build log text"),
+        patch("evidence.guest_adapters.http_utils.download_to_file") as mock_download,
+        patch("evidence.guest_adapters.launchpad_client.login_anonymously", return_value=fake_lp),
+        patch("evidence.guest_adapters.launchpad_client.resolve_series", return_value=Mock()),
+        patch(
+            "evidence.guest_adapters.launchpad_client.find_source_publication",
+            return_value=fake_pub,
+        ),
+        patch("evidence.guest_adapters._inspect_built_debs", return_value=_EMPTY_DEB_SCAN),
+    ):
+        result = collect_fetch_build(ctx)
+
+    assert result["status"] == "ok"
+    assert result["build_success"] is True
+    assert result["built_debs"] == ["/tmp/fetch-build-output/testpkg_1.0-1_amd64.deb"]
+    assert result["build_log"] == "build log text"
+    assert result["build_log_path"] == "/tmp/fetch-build-output/buildlog.txt"
+    assert "lintian (downloaded binaries)" in result["lintian_output"]
+    downloaded_urls = [call.args[0] for call in mock_download.call_args_list]
+    assert "https://launchpad.net/x/testpkg_1.0-1_amd64.deb" in downloaded_urls
+    assert any(
+        str(call.args[1]).endswith("testpkg_1.0-1_amd64.deb")
+        for call in mock_download.call_args_list
+    )
+    # build log, .changes, and the .deb were each pushed into the guest.
+    pushed_guest_paths = [call.args[2] for call in mock_push.call_args_list]
+    assert "/tmp/fetch-build-output/buildlog.txt" in pushed_guest_paths
+    assert "/tmp/fetch-build-output/testpkg_1.0-1_amd64.changes" in pushed_guest_paths
+    assert "/tmp/fetch-build-output/testpkg_1.0-1_amd64.deb" in pushed_guest_paths
+
+
+def test_fetch_build_does_not_download_binaries_when_official_build_failed():
+    from evidence.guest_adapters import collect_fetch_build
+
+    ctx = _fetch_build_ctx(build_state="Failed to build")
+
+    with (
+        patch("evidence.guest_adapters._capture", side_effect=_fetch_build_capture_side_effect),
+        patch("evidence.guest_adapters.lxd_runner.push_file") as mock_push,
+        patch("evidence.guest_adapters.http_utils.get_bytes", return_value=b"build log text"),
+        patch("evidence.guest_adapters.http_utils.download_to_file") as mock_download,
+        patch("evidence.guest_adapters.launchpad_client.login_anonymously") as mock_login,
+    ):
+        result = collect_fetch_build(ctx)
+
+    assert result["status"] == "error"
+    assert result["build_success"] is False
+    assert result["built_debs"] == []
+    # Only the (always-attempted) build log download happens; no binaries/.changes.
+    mock_download.assert_not_called()
+    mock_login.assert_not_called()
+    # Build log is still pushed for debugging even though the build failed.
+    pushed_guest_paths = [call.args[2] for call in mock_push.call_args_list]
+    assert pushed_guest_paths == ["/tmp/fetch-build-output/buildlog.txt"]
+
+
+def test_fetch_build_requires_source_dir():
+    from evidence.guest_adapters import AdapterError, collect_fetch_build
+
+    ctx = Mock()
+    ctx.evidence = {"adapters": {}}
+
+    with pytest.raises(AdapterError, match="packaging-source.source_dir"):
+        collect_fetch_build(ctx)
+
+
+def test_fetch_build_requires_successful_lp_build_api():
+    from evidence.guest_adapters import AdapterError, collect_fetch_build
+
+    ctx = Mock()
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {"status": "ok", "source_dir": "/tmp/testpkg-1.0"},
+            "lp-build-api": {"status": "error"},
+        }
+    }
+
+    with pytest.raises(AdapterError, match="lp-build-api"):
+        collect_fetch_build(ctx)
+
+
+def test_fetch_build_raises_when_no_build_for_local_arch():
+    from evidence.guest_adapters import AdapterError, collect_fetch_build
+
+    ctx = _fetch_build_ctx()
+    # Two distinct arch:any builds, neither matching the guest's amd64 arch -
+    # unlike the arch:all single-build case, this must not silently fall back.
+    ctx.evidence["adapters"]["lp-build-api"]["builds"] = [
+        {"arch_tag": "arm64", "build_state": "Successfully built"},
+        {"arch_tag": "riscv64", "build_state": "Successfully built"},
+    ]
+
+    with patch("evidence.guest_adapters._capture", return_value="amd64"):
+        with pytest.raises(AdapterError, match="amd64"):
+            collect_fetch_build(ctx)
+
+
+def test_binary_package_inspection_projects_fetch_build_scan_without_reextracting():
     from evidence.guest_adapters import collect_binary_package_inspection
 
     ctx = Mock()
     ctx.evidence = {
         "adapters": {
-            "sbuild": {
+            "fetch-build": {
                 "status": "ok",
                 "static_binaries": [],
                 "setuid_setgid_binaries": ["pkg/usr/bin/helper"],
@@ -401,6 +578,9 @@ def test_lp_build_api_output_structure():
         "date_created": "2026-06-23",
         "pocket": "Release",
         "archive": "primary",
+        "build_log_url": "https://launchpad.net/.../buildlog.txt.gz",
+        "changesfile_url": "https://launchpad.net/.../testpkg_1.0_amd64.changes",
+        "buildinfo_url": "https://launchpad.net/.../testpkg_1.0_amd64.buildinfo",
     }
 
     fake_pub = Mock()
@@ -426,6 +606,11 @@ def test_lp_build_api_output_structure():
     assert result["series"] == "noble"
     assert result["builds"][0]["arch_tag"] == "amd64"
     assert result["builds"][0]["build_state"] == "Successfully built"
+    assert result["builds"][0]["build_log_url"] == "https://launchpad.net/.../buildlog.txt.gz"
+    assert (
+        result["builds"][0]["changesfile_url"]
+        == "https://launchpad.net/.../testpkg_1.0_amd64.changes"
+    )
     fake_archive.getPublishedSources.assert_called_once_with(
         source_name="testpkg",
         version="1.0",
@@ -1291,12 +1476,12 @@ def test_dep_analysis_output_structure():
                 "status": "ok",
                 "source_dir": "/tmp/test",
             },
-            "sbuild": {
+            "fetch-build": {
                 "status": "ok",
                 "build_success": True,
                 "built_debs": [
-                    "/tmp/sbuild-output/testpkg_1.0_amd64.deb",
-                    "/tmp/sbuild-output/testpkg-dev_1.0_amd64.deb",
+                    "/tmp/fetch-build-output/testpkg_1.0_amd64.deb",
+                    "/tmp/fetch-build-output/testpkg-dev_1.0_amd64.deb",
                 ],
             },
         }
@@ -1341,7 +1526,7 @@ def test_dep_analysis_runtime_deps_in_main_scoped_to_requested_binaries():
     ctx.evidence = {
         "adapters": {
             "packaging-source": {"status": "ok", "source_dir": "/tmp/test"},
-            "sbuild": {
+            "fetch-build": {
                 "status": "ok",
                 "build_success": True,
                 "built_debs": [
@@ -1390,7 +1575,7 @@ def test_dep_analysis_same_source_auto_included_dep_not_offending():
     ctx.evidence = {
         "adapters": {
             "packaging-source": {"status": "ok", "source_dir": "/tmp/test"},
-            "sbuild": {
+            "fetch-build": {
                 "status": "ok",
                 "build_success": True,
                 "built_debs": [
@@ -1636,11 +1821,11 @@ def test_autopkgtest_db_downloaded_once_and_cleaned_up():
 
 
 def test_lintian_output_structure():
-    """lintian adapter should expose parsed sbuild lintian output."""
+    """lintian adapter should expose parsed fetch-build lintian output."""
     ctx = Mock()
     ctx.evidence = {
         "adapters": {
-            "sbuild": {
+            "fetch-build": {
                 "status": "ok",
                 "lintian_output": (
                     "W: testpkg: description-synopsis-starts-with-article\n"

@@ -221,7 +221,7 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
     for the check, plus basic package/bug metadata.  Large raw strings are
     truncated to keep prompt size manageable.
 
-    For ESL-1 specifically, also extracts build hints from sbuild to detect
+    For ESL-1 specifically, also extracts build hints from fetch-build to detect
     embedded source usage patterns.
     """
     payload: dict = {
@@ -248,10 +248,10 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
                 truncated = _spotlight_lp_bug_api(ctx, truncated)
             payload[adapter_id] = truncated
 
-    # For ESL-1, enhance with build hints extracted from sbuild log
+    # For ESL-1, enhance with build hints extracted from the fetch-build log
     if check.get("id") == "ESL-1":
-        sbuild_data = adapters_store.get("sbuild", {})
-        build_log = sbuild_data.get("build_log", "")
+        fetch_build_data = adapters_store.get("fetch-build", {})
+        build_log = fetch_build_data.get("build_log", "")
         if build_log:
             payload["build_hints"] = _extract_build_hints(build_log)
 
@@ -266,11 +266,11 @@ def _build_evidence_payload(check: dict, ctx) -> dict:
     # debian/rules and the build log so the model can decide rather than echo
     # the template TODO.
     if check.get("id") == "CB-2":
-        sbuild_data = adapters_store.get("sbuild", {})
+        fetch_build_data = adapters_store.get("fetch-build", {})
         packaging_data = adapters_store.get("packaging-source", {})
         payload["build_test_hints"] = _extract_build_test_hints(
             packaging_data.get("debian_rules", ""),
-            sbuild_data.get("build_log", ""),
+            fetch_build_data.get("build_log", ""),
         )
 
     # For CB-6, surface a compact, prioritised consumer summary so the most
@@ -363,15 +363,15 @@ def _extract_additional_evidence_requests(response: dict) -> list[dict | str]:
 
 def _build_additional_requested_evidence(ctx, requests: list[dict | str]) -> dict:
     adapters_store = ctx.evidence.get("adapters", {})
-    sbuild_data = adapters_store.get("sbuild", {})
-    build_log = sbuild_data.get("build_log", "")
+    fetch_build_data = adapters_store.get("fetch-build", {})
+    build_log = fetch_build_data.get("build_log", "")
     if not isinstance(build_log, str) or not build_log:
         return {}
 
     snippets = _resolve_build_log_requests(build_log, requests)
     if not snippets:
         return {}
-    return {"sbuild": {"build_log_snippets": snippets}}
+    return {"fetch-build": {"build_log_snippets": snippets}}
 
 
 def _resolve_build_log_requests(build_log: str, requests: list[dict | str]) -> list[dict]:
@@ -648,7 +648,7 @@ def _compute_promotion_status(ctx, adapters_store: dict) -> dict:
 
 
 def _extract_build_hints(build_log: str) -> dict:
-    """Extract hints from sbuild build log indicating embedded source usage.
+    """Extract hints from the fetch-build build log indicating embedded source usage.
 
     Looks for:
     - Static linking flags (-static, -Wl,--whole-archive, etc.)

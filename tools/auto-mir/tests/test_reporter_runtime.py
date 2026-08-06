@@ -76,7 +76,7 @@ def _ctx(tmp_path):
             "nvd-enrich": {"status": "ok", "cves": []},
             "lp-bug-search-api": {"status": "ok", "critical_bugs": []},
             "debian-bts": {"status": "ok", "rc_bugs": []},
-            "sbuild": {"status": "ok", "build_log": "dh_auto_test\npytest"},
+            "fetch-build": {"status": "ok", "build_log": "dh_auto_test\npytest"},
             "packaging-source": {"status": "ok", "debian_watch": "version=4"},
             "autopkgtest-db": {
                 "status": "ok",
@@ -367,14 +367,14 @@ def test_lintian_fhs_summary_preface_explains_unavailability(tmp_path):
     ctx = _ctx(tmp_path)
     ctx.evidence["adapters"]["lintian"] = {
         "status": "error",
-        "message": "upstream dependency failed: sbuild",
+        "message": "upstream dependency failed: fetch-build",
     }
     wizard = NotingWizard()
 
     _show_preface({"id": "REP-STD-001", "preface_evaluator": "lintian-fhs-summary"}, ctx, wizard)
 
     assert wizard.notes
-    assert "upstream dependency failed: sbuild" in wizard.notes[0][0]
+    assert "upstream dependency failed: fetch-build" in wizard.notes[0][0]
 
 
 def test_std_001_option_a_locked_when_lintian_reports_errors(tmp_path):

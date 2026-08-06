@@ -391,10 +391,10 @@ class RunContext:
             json.dump(redactor.sanitize(self.evidence), f, indent=2, default=str)
         log.debug("Evidence saved to %s", evidence_path)
 
-        # If sbuild fails, users usually want to debug in a non json file
-        sbuild_result = self.evidence.get("adapters", {}).get("sbuild", {})
-        if not sbuild_result.get("build_success", True):
-            build_log = sbuild_result.get("build_log", "")
+        # If the official Launchpad build didn't succeed, dump the log to a plain file too
+        fetch_build_result = self.evidence.get("adapters", {}).get("fetch-build", {})
+        if not fetch_build_result.get("build_success", True):
+            build_log = fetch_build_result.get("build_log", "")
             if build_log:
                 build_log_path = self.output_dir / "build_log.txt"
                 build_log_path.write_text(redactor.redact_text(build_log))
@@ -440,7 +440,7 @@ def stage_collect_evidence(ctx: RunContext) -> int:
     """Stage 3: Run deterministic evidence collectors inside the LXD guest.
 
     Collectors run in-guest via lxd_runner.exec():
-    - sbuild test build -> build logs + lintian output
+    - fetch-build: download the official Launchpad build -> build logs + lintian output
     - packaging source fetch via git-ubuntu
     - runtime dependency extraction
     - component-mismatches tooling
@@ -654,7 +654,7 @@ def teardown_guest(ctx: RunContext, evidence_collection_result: int = 0) -> None
         failure_summary = "Evidence collection encountered adapter failures."
 
     # Only guest-side adapter failures make preserving the guest useful for
-    # debugging (e.g. inspecting a failed sbuild or packaging-source fetch
+    # debugging (e.g. inspecting a failed fetch-build or packaging-source fetch
     # in-guest). Host-side adapters (upstream lookups, CVE trackers, etc.)
     # never touch the guest, so keeping it around provides no diagnostic
     # value even though their failure still counts toward the run's overall

@@ -30,8 +30,9 @@ _UBUNTU_DEVEL_FALLBACK_IMAGES = [
     "ubuntu:devel",
 ]
 
-# Packages required inside the guest for the full pipeline.
-# Note: sbuild is installed separately (from backports for Noble) to support unshare backend.
+# Packages required inside the guest for the full pipeline. fetch-build
+# downloads the official Launchpad build instead of building locally, so no
+# sbuild/mmdebstrap/uidmap unshare-backend toolchain is needed here anymore.
 _REQUIRED_PACKAGES = [
     "lintian",
     "git-ubuntu",
@@ -46,8 +47,6 @@ _REQUIRED_PACKAGES = [
     "germinate",  # prerequisite for component-mismatches
     "python3-apt",
     "python3-requests",
-    "uidmap",  # required for sbuild unshare backend
-    "mmdebstrap",  # required for sbuild unshare auto-create backend
 ]
 
 # Remote for ubuntu-archive-tools
@@ -234,9 +233,9 @@ def _provision(name: str, ctx: "RunContext") -> None:
     # Ensure source repositories are enabled before any `apt-get source` usage.
     _enable_source_repositories(name)
 
-    # Enable the -proposed pocket so `apt-get source` (and sbuild) can resolve
-    # the proposed-pocket version, which is what a MIR review should analyse
-    # when the maintainer has staged fixes there. Skipped when the operator
+    # Enable the -proposed pocket so `apt-get source` can resolve the
+    # proposed-pocket version, which is what a MIR review should analyse when
+    # the maintainer has staged fixes there. Skipped when the operator
     # explicitly pinned the release pocket.
     if getattr(ctx, "source_pocket", "auto") != "release":
         _enable_proposed_pocket(name)
@@ -256,43 +255,6 @@ def _provision(name: str, ctx: "RunContext") -> None:
         env={"DEBIAN_FRONTEND": "noninteractive"},
         operation="apt-get install required packages",
     )
-
-    # Install sbuild (from backports for Noble to get unshare backend support)
-    series = getattr(ctx, "series", None)
-    if series == "noble":
-        log.info("Installing sbuild from noble-backports")
-        exec_in_retry(
-            name,
-            [
-                "apt-get",
-                "install",
-                "-qq",
-                "-y",
-                "-t",
-                "noble-backports",
-                "--no-install-recommends",
-                "sbuild",
-                "mmdebstrap",
-            ],
-            env={"DEBIAN_FRONTEND": "noninteractive"},
-            operation="apt-get install sbuild from backports",
-        )
-    else:
-        log.info("Installing sbuild")
-        exec_in_retry(
-            name,
-            [
-                "apt-get",
-                "install",
-                "-qq",
-                "-y",
-                "--no-install-recommends",
-                "sbuild",
-                "mmdebstrap",
-            ],
-            env={"DEBIAN_FRONTEND": "noninteractive"},
-            operation="apt-get install sbuild",
-        )
 
     # Bootstrap ubuntu-archive-tools (component-mismatches and prerequisites)
     _bootstrap_archive_tools(name)

@@ -686,7 +686,7 @@ checks:
   blocker_class: hard
   adapters_required:
   - dep-analysis
-  - sbuild
+  - fetch-build
   - packaging-source
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -740,9 +740,9 @@ checks:
   blocker_class: hard
   adapters_required:
   - packaging-source
-  - sbuild
+  - fetch-build
   messages:
-    unknown_message: Could not collect packaging source and sbuild output
+    unknown_message: Could not collect packaging source and fetch-build output
     unknown_todo: 'TODO: - Check for embedded source (evidence collection failed)'
     not_ok_message: 'Embedded source present and used in build: {embedded_dirs}'
     not_ok_todo: 'TODO: - Embedded source found and used in build — either remove and use archive packages, or get security team sign-off. Dirs: {embedded_dirs}'
@@ -777,7 +777,7 @@ checks:
   mode: deterministic
   blocker_class: soft
   adapters_required:
-  - sbuild
+  - fetch-build
   - packaging-source
   messages:
     unknown_message: Could not inspect build log for static linking
@@ -844,7 +844,7 @@ checks:
   blocker_class: soft
   adapters_required:
   - packaging-source
-  - sbuild
+  - fetch-build
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
@@ -884,7 +884,7 @@ checks:
   language_gate: go
   blocker_class: none
   adapters_required:
-  - sbuild
+  - fetch-build
   - packaging-source
   messages:
     unknown_message: Could not determine Go build type (packaging-source failed)
@@ -1197,7 +1197,7 @@ checks:
   security_trigger: SEC-13-MITIGATION-GAPS
   adapters_required:
   - packaging-source
-  - sbuild
+  - fetch-build
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
@@ -1213,32 +1213,27 @@ checks:
   mode: deterministic
   blocker_class: hard
   adapters_required:
-  - sbuild
   - lp-build-api
   messages:
-    hint_local_ok: local sbuild build succeeded
-    hint_local_failed: local sbuild build FAILED (see build log)
-    hint_local_unavailable: local sbuild result unavailable
-    unknown_no_lp_message: 'Could not confirm Launchpad build state ({local_hint})'
-    unknown_no_lp_todo: 'TODO: - does not FTBFS currently ({local_hint}; verify recent Launchpad build records)'
-    unknown_no_builds_message: 'No Launchpad build records were found ({local_hint})'
-    unknown_no_builds_todo: 'TODO: - does not FTBFS currently ({local_hint}; no Launchpad build records to confirm)'
+    unknown_no_lp_message: Could not confirm Launchpad build state
+    unknown_no_lp_todo: 'TODO: - does not FTBFS currently (verify recent Launchpad build records)'
+    unknown_no_builds_message: No Launchpad build records were found
+    unknown_no_builds_todo: 'TODO: - does not FTBFS currently (no Launchpad build records to confirm)'
     not_ok_message: 'Launchpad build state shows failures: {failed_builds}'
     not_ok_todo: 'TODO: - does not FTBFS currently'
     ok_message: 'does not FTBFS currently; Launchpad build records pass for arches: {passing_arches}'
-    ok_local_suffix: '; local sbuild build also succeeded'
   negated_statement: does FTBFS currently
   todo_refs:
   - 'TODO: - does not FTBFS currently'
   ai_policy: none
-  notes: 'sbuild is one signal. Also check Launchpad multi-architecture build state via API for all architectures the package targets. All must pass.'
+  notes: 'Launchpad per-architecture build state (lp-build-api) is authoritative here; all architectures the package targets must pass. fetch-build only downloads the local architecture''s already-built artifacts for other checks - it is not an independent build signal.'
 - id: CB-2
   section: Common blockers
   title: Build-time test suite exists and fails build on error
   mode: ev_to_ai
   blocker_class: hard
   adapters_required:
-  - sbuild
+  - fetch-build
   - packaging-source
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -1418,7 +1413,7 @@ checks:
   blocker_class: none
   adapters_required:
   - packaging-source
-  - sbuild
+  - fetch-build
   messages:
     unknown_message: Could not inspect packaging (packaging-source failed)
     unknown_todo: 'TODO: - Check for symbols file'
@@ -1601,7 +1596,7 @@ checks:
   mode: deterministic
   blocker_class: soft
   adapters_required:
-  - sbuild
+  - fetch-build
   messages:
     unknown_message: Could not inspect build log
     unknown_todo: 'TODO: - Check build log for errors and warnings'
@@ -1621,7 +1616,7 @@ checks:
   mode: ev_to_ai
   blocker_class: soft
   adapters_required:
-  - sbuild
+  - fetch-build
   - packaging-source
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -1665,7 +1660,7 @@ checks:
   blocker_class: soft
   adapters_required:
   - packaging-source
-  - sbuild
+  - fetch-build
   messages:
     unknown_message: Could not inspect packaging source
     unknown_todo: 'TODO: - Check for ''nobody'' user usage'
@@ -1683,7 +1678,7 @@ checks:
   blocker_class: soft
   adapters_required:
   - packaging-source
-  - sbuild
+  - fetch-build
   messages:
     unknown_message: Could not inspect packaging source
     unknown_todo: 'TODO: - Check for setuid/setgid binaries'

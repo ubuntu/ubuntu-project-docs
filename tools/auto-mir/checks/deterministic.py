@@ -345,47 +345,40 @@ def _check_sum_2(ctx, finding: Finding) -> Finding:
 
 @deterministic_check("CB-1")
 def _check_cb_1(ctx, finding: Finding) -> Finding:
-    """CB-1: Package does not FTBFS currently."""
+    """CB-1: Package does not FTBFS currently.
+
+    Purely a Launchpad per-architecture build-state check. fetch-build only
+    downloads the local architecture's already-built artifacts for later
+    checks (dep-analysis, lintian, ...) - it is not an independent build
+    signal, so it plays no part in this verdict.
+    """
     adapters = ctx.evidence.get("adapters", {})
 
     check = _get_check_definition(ctx, "CB-1")
-    sbuild_result = adapters.get("sbuild", {})
     lp_build_result = adapters.get("lp-build-api", {})
-
-    # Summarise the local sbuild outcome as a hint for the reviewer. Launchpad
-    # build records remain authoritative for the multi-architecture verdict, but
-    # surfacing the local result helps when Launchpad data is unavailable.
-    if sbuild_result.get("status") == "ok":
-        local_build_ok = bool(sbuild_result.get("build_success"))
-        local_hint = render_check_message(
-            check, "hint_local_ok" if local_build_ok else "hint_local_failed"
-        )
-    else:
-        local_build_ok = False
-        local_hint = render_check_message(check, "hint_local_unavailable")
 
     # Launchpad build records are required to confirm all architectures build.
     if lp_build_result.get("status") != "ok":
         finding.fail(
-            render_check_message(check, "unknown_no_lp_message", local_hint=local_hint),
-            render_check_message(check, "unknown_no_lp_todo", local_hint=local_hint),
+            render_check_message(check, "unknown_no_lp_message"),
+            render_check_message(check, "unknown_no_lp_todo"),
             severity="recommended",
             confidence="low",
             status="unknown",
         )
-        finding.evidence_refs = ["lp-build-api:error", "sbuild:build_success"]
+        finding.evidence_refs = ["lp-build-api:error"]
         return finding
 
     builds = lp_build_result.get("builds", [])
     if not builds:
         finding.fail(
-            render_check_message(check, "unknown_no_builds_message", local_hint=local_hint),
-            render_check_message(check, "unknown_no_builds_todo", local_hint=local_hint),
+            render_check_message(check, "unknown_no_builds_message"),
+            render_check_message(check, "unknown_no_builds_todo"),
             severity="recommended",
             confidence="low",
             status="unknown",
         )
-        finding.evidence_refs = ["lp-build-api:builds", "sbuild:build_success"]
+        finding.evidence_refs = ["lp-build-api:builds"]
         return finding
 
     failed_builds = []
@@ -405,16 +398,14 @@ def _check_cb_1(ctx, finding: Finding) -> Finding:
             severity="required",
             confidence="high",
         )
-        finding.evidence_refs = ["sbuild:build_success", "lp-build-api:builds"]
+        finding.evidence_refs = ["lp-build-api:builds"]
         return finding
 
     success_message = render_check_message(
         check, "ok_message", passing_arches=", ".join(passing_arches)
     )
-    if local_build_ok:
-        success_message += render_check_message(check, "ok_local_suffix")
     finding.succeed(success_message, confidence="high")
-    finding.evidence_refs = ["sbuild:build_success", "lp-build-api:builds"]
+    finding.evidence_refs = ["lp-build-api:builds"]
     return finding
 
 
@@ -925,9 +916,9 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
     """URF-1: No build errors or warnings."""
     check = _get_check_definition(ctx, "URF-1")
     adapters = ctx.evidence.get("adapters", {})
-    sbuild_result = adapters.get("sbuild", {})
+    fetch_build_result = adapters.get("fetch-build", {})
 
-    if sbuild_result.get("status") != "ok":
+    if fetch_build_result.get("status") != "ok":
         finding.fail(
             render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
@@ -935,10 +926,10 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
             confidence="low",
             status="unknown",
         )
-        finding.evidence_refs = ["sbuild:error"]
+        finding.evidence_refs = ["fetch-build:error"]
         return finding
 
-    build_log = sbuild_result.get("build_log", "")
+    build_log = fetch_build_result.get("build_log", "")
     errors, warnings = _parse_build_log_issues(build_log)
 
     if errors:
@@ -948,7 +939,7 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
             severity="required",
             confidence="high",
         )
-        finding.evidence_refs = ["sbuild:build_log"]
+        finding.evidence_refs = ["fetch-build:build_log"]
         return finding
 
     if warnings:
@@ -969,14 +960,14 @@ def _check_urf_1(ctx, finding: Finding) -> Finding:
                 check, "warnings_rationale", count=len(warnings), sample=sample
             ),
         )
-        finding.evidence_refs = ["sbuild:build_log"]
+        finding.evidence_refs = ["fetch-build:build_log"]
         return finding
 
     finding.succeed(
         render_check_message(check, "ok_message"),
         confidence="high",
     )
-    finding.evidence_refs = ["sbuild:build_log"]
+    finding.evidence_refs = ["fetch-build:build_log"]
     return finding
 
 
@@ -1081,10 +1072,10 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
     """ESL-2: No unexpected static linking."""
     check = _get_check_definition(ctx, "ESL-2")
     adapters = ctx.evidence.get("adapters", {})
-    sbuild_result = adapters.get("sbuild", {})
+    fetch_build_result = adapters.get("fetch-build", {})
     packaging = adapters.get("packaging-source", {})
 
-    if sbuild_result.get("status") != "ok" or packaging.get("status") != "ok":
+    if fetch_build_result.get("status") != "ok" or packaging.get("status") != "ok":
         finding.fail(
             render_check_message(check, "unknown_message"),
             render_check_message(check, "unknown_todo"),
@@ -1092,12 +1083,12 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
             confidence="low",
             status="unknown",
         )
-        finding.evidence_refs = ["sbuild:build_log"]
+        finding.evidence_refs = ["fetch-build:build_log"]
         return finding
 
-    build_log = sbuild_result.get("build_log", "")
-    static_link_hints = sbuild_result.get("static_link_hints", [])
-    static_binaries = sbuild_result.get("static_binaries", [])
+    build_log = fetch_build_result.get("build_log", "")
+    static_link_hints = fetch_build_result.get("static_link_hints", [])
+    static_binaries = fetch_build_result.get("static_binaries", [])
 
     # The authoritative signal for unwanted static linking is a fully static
     # ELF binary shipped in a built deb (static_binaries). Raw "-static" tokens
@@ -1124,7 +1115,7 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
             render_check_message(check, "ok_message"),
             confidence="high",
         )
-        finding.evidence_refs = ["sbuild:static_binaries", "sbuild:build_log"]
+        finding.evidence_refs = ["fetch-build:static_binaries", "fetch-build:build_log"]
         return finding
 
     if is_justifiable:
@@ -1132,7 +1123,7 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
             render_check_message(check, "ok_justified_message"),
             confidence="medium",
         )
-        finding.evidence_refs = ["sbuild:static_binaries", "sbuild:build_log"]
+        finding.evidence_refs = ["fetch-build:static_binaries", "fetch-build:build_log"]
         return finding
 
     # Static linking without clear justification
@@ -1154,7 +1145,7 @@ def _check_esl_2(ctx, finding: Finding) -> Finding:
         severity="required",
         confidence="medium",
     )
-    finding.evidence_refs = ["sbuild:static_binaries", "sbuild:build_log"]
+    finding.evidence_refs = ["fetch-build:static_binaries", "fetch-build:build_log"]
     return finding
 
 
@@ -1208,8 +1199,8 @@ def _check_prf_2(ctx, finding: Finding) -> Finding:
     # No symbols file: the obligation depends purely on whether a shared library
     # is shipped. Shared-library runtime packages are soname-versioned
     # (e.g. liblua5.5-0); check debian/control and the built .deb names.
-    sbuild = adapters.get("sbuild", {})
-    built_debs = sbuild.get("built_debs", []) if sbuild.get("status") == "ok" else []
+    fetch_build = adapters.get("fetch-build", {})
+    built_debs = fetch_build.get("built_debs", []) if fetch_build.get("status") == "ok" else []
     shared_lib_pkgs = _shared_library_package_names(debian_control, built_debs)
 
     if not shared_lib_pkgs:
@@ -1465,8 +1456,8 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
     for path in packaging.get("nobody_source_files", []):
         if not _path_is_test_context(path):
             hits.append(f"file owned by nobody (source): {path}")
-    sbuild = adapters.get("sbuild", {})
-    for path in sbuild.get("nobody_owned_binaries", []):
+    fetch_build = adapters.get("fetch-build", {})
+    for path in fetch_build.get("nobody_owned_binaries", []):
         if not _path_is_test_context(path):
             hits.append(f"file owned by nobody (built binary): {path}")
 
@@ -1479,7 +1470,7 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
         )
         finding.evidence_refs = [
             "packaging-source:nobody_source_hits",
-            "sbuild:nobody_owned_binaries",
+            "fetch-build:nobody_owned_binaries",
         ]
         return finding
 
@@ -1489,7 +1480,7 @@ def _check_urf_4(ctx, finding: Finding) -> Finding:
     )
     finding.evidence_refs = [
         "packaging-source:nobody_source_hits",
-        "sbuild:nobody_owned_binaries",
+        "fetch-build:nobody_owned_binaries",
     ]
     return finding
 
@@ -1543,9 +1534,11 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
         for path in packaging.get("setuid_setgid_source_files", [])
         if not _path_is_test_context(path)
     ]
-    sbuild = adapters.get("sbuild", {})
+    fetch_build = adapters.get("fetch-build", {})
     binary_perm_files = [
-        path for path in sbuild.get("setuid_setgid_binaries", []) if not _path_is_test_context(path)
+        path
+        for path in fetch_build.get("setuid_setgid_binaries", [])
+        if not _path_is_test_context(path)
     ]
     source_triggered = bool(source_hits or source_perm_files)
     binary_triggered = bool(binary_perm_files)
@@ -1584,7 +1577,7 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
         )
         finding.evidence_refs = [
             "packaging-source:setuid_setgid_source_hits",
-            "sbuild:setuid_setgid_binaries",
+            "fetch-build:setuid_setgid_binaries",
             "lintian:lintian_warnings",
         ]
         return finding
@@ -1595,7 +1588,7 @@ def _check_urf_5(ctx, finding: Finding) -> Finding:
     )
     finding.evidence_refs = [
         "packaging-source:setuid_setgid_source_hits",
-        "sbuild:setuid_setgid_binaries",
+        "fetch-build:setuid_setgid_binaries",
     ]
     if lintian.get("status") == "ok":
         finding.evidence_refs.append("lintian:lintian_warnings")

@@ -70,8 +70,8 @@ def test_report_catalog_has_complete_logical_item_and_hardware_choice_inventory(
     }
 
 
-def test_report_catalog_binary_scope_uses_sbuild_independent_evidence():
-    """REP-RATIONALE-004's package spell-out must not require sbuild/dep-analysis
+def test_report_catalog_binary_scope_uses_fetch_build_independent_evidence():
+    """REP-RATIONALE-004's package spell-out must not require fetch-build/dep-analysis
     to have succeeded (regression test for the borgbackup2 sbuild-failure case)."""
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}

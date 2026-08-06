@@ -1,11 +1,11 @@
-"""Integration tests for sbuild adapter with real package builds.
+"""Integration tests for the fetch-build adapter with real Launchpad downloads.
 
 These tests require:
 - LXD with VM support enabled
-- Network access to download packages
+- Network access to Launchpad (build state/binaries) and the archive
 - Sufficient disk space for VM images
 
-Run with: pytest -m integration tests/test_integration_sbuild.py
+Run with: pytest -m integration tests/test_integration_fetch_build.py
 """
 
 import os
@@ -24,37 +24,14 @@ except ImportError:
     pytest = None
 
 import lxd_runner
-from evidence.guest_adapters import collect_sbuild
+from evidence.guest_adapters import collect_fetch_build
+from evidence.host_adapters import collect_lp_build_api
 
 _UBUNTU_ENV = {"HOME": "/home/ubuntu", "USER": "ubuntu", "LOGNAME": "ubuntu"}
 
 if HAS_PYTEST:
     # Mark all tests in this module as integration tests
     pytestmark = pytest.mark.integration
-
-
-def _make_lxd_vm_context():
-    """Create a mock context for LXD VM testing.
-
-    This fixture assumes an LXD VM is available and configured.
-    In a real CI environment, this would be set up beforehand.
-    """
-    ctx = Mock()
-    ctx.guest_name = "test-sbuild-vm"
-    ctx.series = "noble"
-    ctx.source_package = "hello"
-    ctx.evidence = {
-        "adapters": {
-            "packaging-source": {
-                "status": "ok",
-                "source_dir": "/tmp/hello-source",
-                "source_workdir": "/tmp/hello-source-workdir",
-                "debian_control": "Source: hello\n\nPackage: hello\nArchitecture: any",
-                "debian_rules": "#!/usr/bin/make -f\n%:\n\tdh $@",
-            }
-        }
-    }
-    return ctx
 
 
 def _require_vm_name() -> str:
@@ -66,13 +43,20 @@ def _require_vm_name() -> str:
     vm_name = os.environ.get("AUTO_MIR_TEST_VM")
     if not vm_name:
         if HAS_PYTEST:
-            pytest.skip("Set AUTO_MIR_TEST_VM to a running provisioned VM for sbuild integration")
+            pytest.skip(
+                "Set AUTO_MIR_TEST_VM to a running provisioned VM for fetch-build integration"
+            )
         return ""
     return vm_name
 
 
 def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> dict:
-    """Fetch source package inside VM and return packaging-source adapter payload."""
+    """Fetch source package inside VM and return packaging-source adapter payload.
+
+    "hello" is used throughout this module because it is a small, always
+    successfully built Ubuntu main package - a stable reference for
+    exercising fetch-build's real Launchpad download path.
+    """
     workdir = f"/tmp/auto-mir-int-{source_pkg}"
     lxd_runner.exec_in_retry(
         vm_name,
@@ -103,18 +87,6 @@ def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> 
     ).stdout.strip()
     source_dir = f"{workdir}/{source_dir_name}"
 
-    dsc_path = lxd_runner.exec_in(
-        vm_name,
-        ["bash", "-lc", f"ls {workdir}/*.dsc 2>/dev/null | head -n1"],
-        capture=True,
-        check=False,
-        env=_UBUNTU_ENV,
-        user=1000,
-        group=1000,
-    ).stdout.strip()
-    if not dsc_path:
-        raise AssertionError(f"Expected a .dsc file in {workdir} after apt-get source")
-
     debian_control = lxd_runner.exec_in(
         vm_name,
         ["bash", "-lc", f"cd {source_dir} && cat debian/control"],
@@ -133,46 +105,56 @@ def _prepare_packaging_source_in_vm(vm_name: str, source_pkg: str = "hello") -> 
         user=1000,
         group=1000,
     ).stdout
+    analyzed_version = lxd_runner.exec_in(
+        vm_name,
+        ["bash", "-lc", f"cd {source_dir} && dpkg-parsechangelog -S Version 2>/dev/null"],
+        capture=True,
+        check=False,
+        env=_UBUNTU_ENV,
+        user=1000,
+        group=1000,
+    ).stdout.strip()
 
     return {
         "status": "ok",
         "source_dir": source_dir,
         "source_workdir": workdir,
+        "analyzed_version": analyzed_version,
+        "analyzed_pocket": "release",
         "debian_control": debian_control,
         "debian_rules": debian_rules,
     }
 
 
-def test_sbuild_hello_package_builds_successfully():
-    """Test that sbuild can successfully build the hello package.
+def test_fetch_build_hello_package_downloads_successfully():
+    """Smoke test: fetch-build downloads the official Launchpad build for hello.
 
-    This is a smoke test to verify:
-    1. sbuild unshare backend works in LXD VM
-    2. Built .deb files are produced
-    3. Build log is captured
-
-    This test exercises the real adapter code path in a real VM.
+    Exercises the real adapter code path in a real VM: a real lp-build-api
+    lookup, fetch-build's own Launchpad binary lookup/download, pushing
+    files into the guest, and running lintian there.
     """
     vm_name = _require_vm_name()
     if not vm_name:
         return
+
+    packaging = _prepare_packaging_source_in_vm(vm_name, "hello")
 
     ctx = Mock()
     ctx.guest_name = vm_name
     ctx.series = "devel"
     ctx.source_package = "hello"
     ctx.requested_binaries = []
-    ctx.evidence = {
-        "adapters": {
-            "packaging-source": _prepare_packaging_source_in_vm(vm_name, "hello"),
-        }
-    }
+    ctx.evidence = {"adapters": {"packaging-source": packaging}}
 
-    result = collect_sbuild(ctx)
+    lp_build_result = collect_lp_build_api(ctx)
+    assert lp_build_result["status"] == "ok", lp_build_result
+    ctx.evidence["adapters"]["lp-build-api"] = lp_build_result
+
+    result = collect_fetch_build(ctx)
 
     if result["status"] != "ok":
         details = (
-            "sbuild smoke test failed unexpectedly\n"
+            "fetch-build smoke test failed unexpectedly\n"
             f"status={result.get('status')} build_success={result.get('build_success')}\n"
             f"message={result.get('message', '')}\n"
             f"built_debs={result.get('built_debs', [])}\n"
@@ -192,8 +174,8 @@ def test_sbuild_hello_package_builds_successfully():
     assert result["build_log"] != ""
 
 
-def test_sbuild_adapter_requires_packaging_source():
-    """Test that sbuild adapter fails gracefully without packaging-source."""
+def test_fetch_build_requires_packaging_source():
+    """fetch-build adapter fails gracefully without packaging-source."""
     ctx = Mock()
     ctx.guest_name = "test-vm"
     ctx.series = "noble"
@@ -203,55 +185,78 @@ def test_sbuild_adapter_requires_packaging_source():
 
     if HAS_PYTEST:
         with pytest.raises(AdapterError, match="packaging-source.source_dir"):
-            collect_sbuild(ctx)
+            collect_fetch_build(ctx)
     else:
-        # Without pytest, just verify it raises the expected error
         try:
-            collect_sbuild(ctx)
+            collect_fetch_build(ctx)
             assert False, "Expected AdapterError to be raised"
         except AdapterError as e:
             assert "packaging-source.source_dir" in str(e)
 
 
-def test_sbuild_adapter_handles_build_failure():
-    """Test that sbuild adapter reports errors for invalid source directories."""
-    vm_name = _require_vm_name()
-    if not vm_name:
-        return
-
+def test_fetch_build_requires_lp_build_api():
+    """fetch-build adapter fails gracefully without successful lp-build-api evidence."""
     ctx = Mock()
-    ctx.guest_name = vm_name
-    ctx.series = "devel"
+    ctx.guest_name = "test-vm"
+    ctx.series = "noble"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {"status": "ok", "source_dir": "/tmp/hello-2.10"},
+        }
+    }
+
+    from evidence.guest_adapters import AdapterError
+
+    if HAS_PYTEST:
+        with pytest.raises(AdapterError, match="lp-build-api"):
+            collect_fetch_build(ctx)
+    else:
+        try:
+            collect_fetch_build(ctx)
+            assert False, "Expected AdapterError to be raised"
+        except AdapterError as e:
+            assert "lp-build-api" in str(e)
+
+
+def test_fetch_build_requires_build_record_for_local_arch():
+    """fetch-build adapter fails gracefully when no build exists for the guest arch."""
+    ctx = Mock()
+    ctx.guest_name = "test-vm"
+    ctx.series = "noble"
     ctx.source_package = "hello"
-    ctx.requested_binaries = []
     ctx.evidence = {
         "adapters": {
             "packaging-source": {
                 "status": "ok",
-                "source_dir": "/tmp/does-not-exist-auto-mir-sbuild/hello-0.0",
-                "source_workdir": "/tmp/does-not-exist-auto-mir-sbuild",
-                "debian_control": "",
-                "debian_rules": "",
-            }
+                "source_dir": "/tmp/hello-2.10",
+                "analyzed_version": "2.10-3",
+            },
+            "lp-build-api": {
+                "status": "ok",
+                "builds": [
+                    {"arch_tag": "arm64", "build_state": "Successfully built"},
+                    {"arch_tag": "riscv64", "build_state": "Successfully built"},
+                ],
+            },
         }
     }
 
-    # With no .dsc in the (nonexistent) workdir the adapter raises AdapterError.
     from evidence.guest_adapters import AdapterError
 
-    if HAS_PYTEST:
-        with pytest.raises(AdapterError, match=".dsc"):
-            collect_sbuild(ctx)
-    else:
-        try:
-            collect_sbuild(ctx)
-            assert False, "Expected AdapterError to be raised"
-        except AdapterError as e:
-            assert ".dsc" in str(e)
+    with patch("evidence.guest_adapters._capture", return_value="amd64"):
+        if HAS_PYTEST:
+            with pytest.raises(AdapterError, match="amd64"):
+                collect_fetch_build(ctx)
+        else:
+            try:
+                collect_fetch_build(ctx)
+                assert False, "Expected AdapterError to be raised"
+            except AdapterError as e:
+                assert "amd64" in str(e)
 
 
-def test_dep_analysis_with_sbuild_output():
-    """Test that dep-analysis adapter correctly processes sbuild output."""
+def test_dep_analysis_with_fetch_build_output():
+    """Test that dep-analysis adapter correctly processes fetch-build output."""
     from evidence.guest_adapters import collect_dep_analysis
 
     ctx = Mock()
@@ -263,11 +268,11 @@ def test_dep_analysis_with_sbuild_output():
                 "status": "ok",
                 "source_dir": "/tmp/hello-source",
             },
-            "sbuild": {
+            "fetch-build": {
                 "status": "ok",
                 "build_success": True,
                 "built_debs": [
-                    "/tmp/sbuild-output/hello_2.10-3_amd64.deb",
+                    "/tmp/fetch-build-output/hello_2.10-3_amd64.deb",
                 ],
             },
         }
@@ -319,12 +324,12 @@ def test_scope_filtering_with_requested_binaries():
                 "status": "ok",
                 "source_dir": "/tmp/multipkg-source",
             },
-            "sbuild": {
+            "fetch-build": {
                 "status": "ok",
                 "build_success": True,
                 "built_debs": [
-                    "/tmp/sbuild-output/multipkg-main_1.0_amd64.deb",
-                    "/tmp/sbuild-output/multipkg-dev_1.0_amd64.deb",
+                    "/tmp/fetch-build-output/multipkg-main_1.0_amd64.deb",
+                    "/tmp/fetch-build-output/multipkg-dev_1.0_amd64.deb",
                 ],
             },
         }
@@ -391,12 +396,12 @@ def test_same_source_deps_not_flagged():
                 "status": "ok",
                 "source_dir": "/tmp/dav1d-source",
             },
-            "sbuild": {
+            "fetch-build": {
                 "status": "ok",
                 "build_success": True,
                 "built_debs": [
-                    "/tmp/sbuild-output/dav1d_1.0_amd64.deb",
-                    "/tmp/sbuild-output/libdav1d7_1.0_amd64.deb",
+                    "/tmp/fetch-build-output/dav1d_1.0_amd64.deb",
+                    "/tmp/fetch-build-output/libdav1d7_1.0_amd64.deb",
                 ],
             },
         }
@@ -460,13 +465,13 @@ def test_auto_included_dep_classification_scoped_to_requested_binaries():
                 "status": "ok",
                 "source_dir": "/tmp/multipkg-source",
             },
-            "sbuild": {
+            "fetch-build": {
                 "status": "ok",
                 "build_success": True,
                 "built_debs": [
-                    "/tmp/sbuild-output/multipkg-main_1.0_amd64.deb",
-                    "/tmp/sbuild-output/multipkg-dev_1.0_amd64.deb",
-                    "/tmp/sbuild-output/multipkg-doc_1.0_all.deb",
+                    "/tmp/fetch-build-output/multipkg-main_1.0_amd64.deb",
+                    "/tmp/fetch-build-output/multipkg-dev_1.0_amd64.deb",
+                    "/tmp/fetch-build-output/multipkg-doc_1.0_all.deb",
                 ],
             },
         }

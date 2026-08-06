@@ -28,7 +28,7 @@ def _required_adapters_unavailable_reason(item: dict, ctx) -> str:
 
     An ``ev_to_ai`` item must never let the model guess from missing or
     errored evidence (e.g. claiming FHS/Policy compliance when lintian
-    never ran because sbuild failed) - if any required adapter is missing
+    never ran because fetch-build failed) - if any required adapter is missing
     or not ``status: ok``, this returns a rationale naming which one(s) and
     why, so the caller can skip straight to asking the reporter instead of
     calling the LLM at all.

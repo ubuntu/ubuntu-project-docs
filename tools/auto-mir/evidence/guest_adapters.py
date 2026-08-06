@@ -6,9 +6,12 @@ evidence from package build tools, dependency analysis, and packaging inspection
 
 from __future__ import annotations
 
+import gzip
 import logging
 import re
 import sys
+import tempfile
+from pathlib import Path
 
 import lxd_runner
 from catalog_enums import AdapterID
@@ -20,13 +23,14 @@ from evidence.types import (
     DebMetadataResult,
     DepAnalysisResult,
     DupSearchResult,
+    FetchBuildResult,
     GitUbuntuDeltaResult,
     LintianResult,
     PackagingSourceResult,
     ReverseDepsResult,
-    SbuildResult,
     UbuntuUploadPermissionResult,
 )
+from utils import http as http_utils
 
 log = logging.getLogger("auto_mir.evidence.guest")
 
@@ -92,25 +96,6 @@ def _exists(
     return result.returncode == 0
 
 
-def _read_latest_sbuild_log(ctx, output_dir: str) -> tuple[str, str]:
-    """Return the newest sbuild .build log path and contents from output_dir."""
-    build_log_path = _capture(
-        ctx,
-        ["bash", "-lc", f"ls -1t {output_dir}/*.build 2>/dev/null | head -n1"],
-        allow_fail=True,
-        as_ubuntu=True,
-    ).strip()
-    if not build_log_path:
-        return "", ""
-
-    return build_log_path, _capture(
-        ctx,
-        ["bash", "-lc", f"cat {build_log_path}"],
-        allow_fail=True,
-        as_ubuntu=True,
-    )
-
-
 def _parse_lintian_output(lintian_raw: str) -> tuple[list[str], list[str], list[str]]:
     """Parse lintian output into error, warning, and pedantic buckets."""
     lintian_errors: list[str] = []
@@ -125,30 +110,6 @@ def _parse_lintian_output(lintian_raw: str) -> tuple[list[str], list[str], list[
         elif stripped.startswith("I: ") or stripped.startswith("P: "):
             lintian_pedantic.append(stripped)
     return lintian_errors, lintian_warnings, lintian_pedantic
-
-
-def _resolve_sbuild_series(ctx, requested_series: str) -> str:
-    """Resolve alias series names to an actual in-guest suite name.
-
-    sbuild expects a concrete suite/codename. When callers pass "devel",
-    resolve it to the guest codename to avoid suite ambiguity.
-    """
-    if requested_series != "devel":
-        return requested_series
-
-    codename = _capture(
-        ctx,
-        [
-            "bash",
-            "-lc",
-            ". /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME:-devel}}",
-        ],
-        allow_fail=True,
-    ).strip()
-    if codename:
-        log.info("Resolved sbuild suite alias 'devel' to guest codename '%s'", codename)
-        return codename
-    return requested_series
 
 
 def _extract_dependency_names(depends: str) -> set[str]:
@@ -1169,7 +1130,7 @@ def _apt_cache_show_synopsis(ctx, name: str) -> str | None:
 # ---------------------------------------------------------------------------
 
 
-@adapter(AdapterID.DEP_ANALYSIS, depends_on=[AdapterID.PACKAGING_SOURCE, AdapterID.SBUILD])
+@adapter(AdapterID.DEP_ANALYSIS, depends_on=[AdapterID.PACKAGING_SOURCE, AdapterID.FETCH_BUILD])
 def collect_dep_analysis(ctx) -> DepAnalysisResult:
     """Analyze runtime dependencies from built packages.
 
@@ -1177,14 +1138,14 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
     packages, and filters by MIR scope to identify dependencies needing separate MIRs.
     """
     packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
-    sbuild_result = ctx.evidence.get("adapters", {}).get("sbuild", {})
+    fetch_build_result = ctx.evidence.get("adapters", {}).get("fetch-build", {})
     source_dir = packaging.get("source_dir")
 
     if not source_dir:
         raise AdapterError("dep-analysis requires packaging-source.source_dir")
 
-    if sbuild_result.get("status") != "ok" or not sbuild_result.get("build_success"):
-        raise AdapterError("dep-analysis requires successful sbuild")
+    if fetch_build_result.get("status") != "ok" or not fetch_build_result.get("build_success"):
+        raise AdapterError("dep-analysis requires successful fetch-build")
 
     # Get binary package names from debian/control (for scope comparison)
     binaries_raw = _capture(
@@ -1199,7 +1160,7 @@ def collect_dep_analysis(ctx) -> DepAnalysisResult:
     dep_names: set[str] = set()
     built_packages = []
 
-    for deb_path in sbuild_result.get("built_debs", []):
+    for deb_path in fetch_build_result.get("built_debs", []):
         # Extract Package: field
         pkg_name = _capture(
             ctx,
@@ -1798,7 +1759,7 @@ def _parse_promotion_candidates(output: str) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# Sbuild adapter (real build with unshare backend)
+# Fetch-build adapter (downloads the official Launchpad build)
 # ---------------------------------------------------------------------------
 
 
@@ -1908,139 +1869,192 @@ def _inspect_built_debs(ctx, output_dir: str) -> dict[str, list[str]]:
     }
 
 
-@adapter(AdapterID.SBUILD, depends_on=[AdapterID.PACKAGING_SOURCE])
-def collect_sbuild(ctx) -> SbuildResult:
-    """Build source package using sbuild with unshare backend.
+_FETCH_BUILD_OUTPUT_DIR = "/tmp/fetch-build-output"
 
-    Performs a real build in the target Ubuntu series to extract accurate
-    post-build dependencies from built .deb files.
+
+def _find_build_for_arch(builds: list[dict], arch: str) -> dict | None:
+    """Return the lp-build-api build entry matching the guest's own architecture.
+
+    Ubuntu's archive only creates a distinct build record per architecture
+    that actually needs a build. A source that only ships arch:all binaries
+    is built once (conventionally on amd64) and that single build entry is
+    exactly what a local build for any single-architecture guest would also
+    have produced - so when there is exactly one build overall and it is
+    not tagged with ``arch``, treat that lone entry as the local build too.
+    Returns None when nothing usable is found (e.g. an arch:any package with
+    no build record for this guest's architecture).
+    """
+    for build in builds:
+        if str(build.get("arch_tag", "")) == arch:
+            return build
+    if len(builds) == 1:
+        return builds[0]
+    return None
+
+
+def _download_binaries_for_arch(
+    ctx, analyzed_version: str, local_arch: str, dest_dir: str
+) -> list[str]:
+    """Download the published .deb files for ``local_arch`` into ``dest_dir``.
+
+    Returns the list of downloaded local (host) file paths. Best-effort: if
+    Launchpad cannot be reached or the publication/binaries cannot be
+    resolved, logs a warning and returns an empty list rather than failing
+    the whole adapter - the build-log/build-state evidence collected
+    elsewhere is still useful on its own.
+    """
+    try:
+        lp = launchpad_client.login_anonymously("auto-mir-fetch-build")
+        ubuntu = lp.distributions["ubuntu"]
+        lp_series = launchpad_client.resolve_series(ubuntu, ctx.series or "devel")
+        archive = ubuntu.main_archive
+    except launchpad_client.LaunchpadUnavailableError as exc:
+        log.warning("Could not fetch binaries from Launchpad (%s)", exc)
+        return []
+
+    pub = launchpad_client.find_source_publication(
+        archive, lp_series, ctx.source_package, analyzed_version
+    )
+    if pub is None:
+        log.warning(
+            "Could not find the Launchpad source publication for %s %s to fetch binaries",
+            ctx.source_package,
+            analyzed_version,
+        )
+        return []
+
+    try:
+        binary_pubs = list(pub.getPublishedBinaries())
+    except Exception as exc:
+        log.warning("Could not list published binaries from Launchpad: %s", exc)
+        return []
+
+    downloaded: list[str] = []
+    for binary_pub in binary_pubs:
+        das_link = str(getattr(binary_pub, "distro_arch_series_link", "") or "")
+        if not das_link.endswith(f"/{local_arch}"):
+            continue
+        try:
+            urls = list(binary_pub.binaryFileUrls())
+        except Exception as exc:
+            log.warning("Could not resolve binary file URLs: %s", exc)
+            continue
+        for url in urls:
+            filename = url.rsplit("/", 1)[-1]
+            local_path = str(Path(dest_dir) / filename)
+            log.debug("Downloading built binary: %s", url)
+            http_utils.download_to_file(url, local_path)
+            downloaded.append(local_path)
+    return downloaded
+
+
+@adapter(AdapterID.FETCH_BUILD, depends_on=[AdapterID.PACKAGING_SOURCE, AdapterID.LP_BUILD_API])
+def collect_fetch_build(ctx) -> FetchBuildResult:
+    """Fetch the official Launchpad build for the guest's own architecture.
+
+    A promotion candidate is expected to already be published in universe
+    with a successful official build, so rebuilding it locally added a lot
+    of local-only failure surface (chroot/build-dep resolution differences,
+    long build times, CPU/memory/disk cost) for little real gain, and only
+    ever exercised one architecture anyway. This adapter instead downloads
+    what Launchpad already built for the local architecture (build log,
+    .changes, and the .deb binaries) via lp-build-api's per-architecture
+    build records, and reuses the existing binary-inspection pipeline on
+    them. Lintian does not run as part of the official Launchpad build, so
+    it still runs here - against both the source tree and the downloaded
+    binaries/.changes (a genuine new capability: the old sbuild flow only
+    ever linted the source, since --no-run-lintian skipped it during the
+    build and no .changes file existed locally to lint against).
+
+    For every other architecture, only the build status Launchpad already
+    reports (lp-build-api) is available - nothing else is downloaded.
     """
     packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
     source_dir = packaging.get("source_dir")
     if not source_dir:
-        raise AdapterError("sbuild adapter requires packaging-source.source_dir")
+        raise AdapterError("fetch-build adapter requires packaging-source.source_dir")
+    analyzed_version = str(packaging.get("analyzed_version", "") or "")
 
-    source_workdir = packaging.get("source_workdir", "")
-    series = _resolve_sbuild_series(ctx, ctx.series or "devel")
-    output_dir = "/tmp/sbuild-output"
+    lp_build = ctx.evidence.get("adapters", {}).get("lp-build-api", {})
+    if lp_build.get("status") != "ok":
+        raise AdapterError("fetch-build adapter requires successful lp-build-api evidence")
+    builds = lp_build.get("builds", [])
 
-    # Create output directory
-    _capture(
-        ctx,
-        ["bash", "-lc", f"mkdir -p {output_dir}"],
-        as_ubuntu=True,
-    )
+    output_dir = _FETCH_BUILD_OUTPUT_DIR
+    _capture(ctx, ["bash", "-lc", f"mkdir -p {output_dir}"], as_ubuntu=True)
 
-    # Locate the .dsc file produced by apt-get source in the workdir.
-    # Using the .dsc file is the correct way to invoke sbuild: it avoids
-    # a spurious clean step that sbuild would run when given a source dir,
-    # and it ensures sbuild copies a pristine source tree into the chroot.
-    dsc_path = _capture(
-        ctx,
-        ["bash", "-lc", f"ls {source_workdir}/*.dsc 2>/dev/null | head -n1"],
-        allow_fail=True,
-        as_ubuntu=True,
-    ).strip()
-    if not dsc_path:
-        raise AdapterError(
-            f"sbuild adapter requires a .dsc file in {source_workdir}; "
-            "none found after apt-get source"
-        )
-
-    # Run sbuild with unshare backend
-    # --chroot-mode=unshare: use unshare backend (requires Noble or newer)
-    # --no-run-lintian: skip lintian (handled separately)
-    # --no-arch-all: skip arch:all packages (only on non-amd64 systems)
-    # --no-source-only-changes: don't create source-only changes file
-    # --build-dir: output directory for built packages
-
-    # Detect build architecture to decide whether to build arch-all packages
-    arch_output = _capture(
+    local_arch = _capture(
         ctx,
         ["bash", "-lc", "dpkg --print-architecture"],
         allow_fail=True,
         as_ubuntu=True,
-    )
-    build_arch = arch_output.strip()
+    ).strip()
 
-    # Build arch-all packages only on amd64 (where Ubuntu builds them)
-    if build_arch == "amd64":
-        arch_all_flag = ""
-        log.info("Building arch-all packages on %s", build_arch)
-    else:
-        arch_all_flag = "--no-arch-all "
+    local_build = _find_build_for_arch(builds, local_arch)
+    if local_build is None:
+        raise AdapterError(
+            f"No Launchpad build record found for architecture {local_arch or 'unknown'} "
+            f"of {ctx.source_package} {analyzed_version}"
+        )
+
+    build_state = str(local_build.get("build_state", ""))
+    build_success = launchpad_client.classify_build_state(build_state) == "successful"
+
+    build_log = ""
+    build_log_path = ""
+    changes_path = ""
+    built_debs: list[str] = []
+
+    with tempfile.TemporaryDirectory(prefix="auto-mir-fetch-build-") as tmp_dir:
+        build_log_url = str(local_build.get("build_log_url", "") or "")
+        if build_log_url:
+            log.debug("Downloading Launchpad build log: %s", build_log_url)
+            try:
+                raw = http_utils.get_bytes(build_log_url)
+                if build_log_url.endswith(".gz"):
+                    raw = gzip.decompress(raw)
+                build_log = raw.decode("utf-8", errors="replace")
+            except Exception as exc:
+                log.warning("Could not download Launchpad build log: %s", exc)
+
+        if build_log:
+            local_log_path = str(Path(tmp_dir) / "buildlog.txt")
+            Path(local_log_path).write_text(build_log)
+            build_log_path = f"{output_dir}/buildlog.txt"
+            lxd_runner.push_file(ctx.guest_name, local_log_path, build_log_path)
+
+        if build_success:
+            changesfile_url = str(local_build.get("changesfile_url", "") or "")
+            if changesfile_url:
+                local_changes_path = str(Path(tmp_dir) / changesfile_url.rsplit("/", 1)[-1])
+                log.debug("Downloading Launchpad .changes file: %s", changesfile_url)
+                try:
+                    http_utils.download_to_file(changesfile_url, local_changes_path)
+                    changes_path = f"{output_dir}/{Path(local_changes_path).name}"
+                    lxd_runner.push_file(ctx.guest_name, local_changes_path, changes_path)
+                except Exception as exc:
+                    log.warning("Could not download Launchpad .changes file: %s", exc)
+
+            log.info(
+                "Fetching official Launchpad binaries for %s %s (%s)",
+                ctx.source_package,
+                analyzed_version,
+                local_arch,
+            )
+            local_deb_paths = _download_binaries_for_arch(
+                ctx, analyzed_version, local_arch, tmp_dir
+            )
+            for local_path in local_deb_paths:
+                guest_path = f"{output_dir}/{Path(local_path).name}"
+                lxd_runner.push_file(ctx.guest_name, local_path, guest_path)
+                built_debs.append(guest_path)
+
+    if build_success and not built_debs:
         log.warning(
-            "Skipping arch-all packages on %s (not amd64); "
-            "arch-all dependencies cannot be included in considerations and checks",
-            build_arch,
+            "Launchpad reports %s as successfully built for %s but no binaries could be downloaded",
+            ctx.source_package,
+            local_arch,
         )
-
-    # When analysing the -proposed source, also make the -proposed pocket
-    # available inside the sbuild chroot so any build-dependencies that only
-    # exist in -proposed resolve (mirroring how Launchpad builds in proposed).
-    extra_repo_flag = ""
-    if packaging.get("analyzed_pocket") == "proposed":
-        if build_arch in ("amd64", "i386"):
-            mirror = "http://archive.ubuntu.com/ubuntu"
-        else:
-            mirror = "http://ports.ubuntu.com/ubuntu-ports"
-        components = "main restricted universe multiverse"
-        extra_repo_flag = f"--extra-repository='deb {mirror} {series}-proposed {components}' "
-        log.info("Adding %s-proposed as an sbuild extra repository", series)
-
-    build_cmd = (
-        f"sbuild -d {series} "
-        f"--chroot-mode=unshare "
-        f"--no-run-lintian "
-        f"{arch_all_flag}"
-        f"{extra_repo_flag}"
-        f"--no-source-only-changes "
-        f"--build-dir={output_dir} "
-        f"{dsc_path} "
-        f"2>&1"
-    )
-
-    log.info("Running sbuild for %s in series %s", ctx.source_package, series)
-    log.info("sbuild command: %s", build_cmd)
-    build_log = _capture(
-        ctx,
-        ["bash", "-lc", build_cmd],
-        allow_fail=True,
-        as_ubuntu=True,
-    )
-
-    # Check if build succeeded by looking for .deb files
-    build_success = _exists(
-        ctx,
-        ["bash", "-lc", f"test -d {output_dir} && ls {output_dir}/*.deb >/dev/null 2>&1"],
-        as_ubuntu=True,
-    )
-
-    sbuild_build_log_path, sbuild_build_log = _read_latest_sbuild_log(ctx, output_dir)
-    if sbuild_build_log:
-        if build_success and not build_log:
-            build_log = sbuild_build_log
-        elif not build_success:
-            build_log = (
-                f"{build_log}\n\n--- sbuild build file: {sbuild_build_log_path} ---\n"
-                f"{sbuild_build_log}"
-            ).strip()
-
-    # Collect built .deb files
-    built_debs = []
-    if build_success:
-        deb_list = _capture(
-            ctx,
-            ["bash", "-lc", f"ls -1 {output_dir}/*.deb 2>/dev/null"],
-            allow_fail=True,
-            as_ubuntu=True,
-        )
-        built_debs = [line.strip() for line in deb_list.splitlines() if line.strip()]
-        log.info("sbuild succeeded: %d .deb files built", len(built_debs))
-        message = f"Build succeeded: {len(built_debs)} .deb files produced"
-    else:
-        log.warning("sbuild failed for %s", ctx.source_package)
-        message = "Build failed, see build_log for details"
 
     # Inspect built binaries for fully static ELF linkage (ESL-2), setuid/setgid
     # binaries (URF-5) and nobody-owned files (URF-4). Partial static linking of
@@ -2056,7 +2070,7 @@ def collect_sbuild(ctx) -> SbuildResult:
     translation_files: list[str] = []
     plugin_candidates: list[str] = []
     maintainer_scripts: list[str] = []
-    if build_success and built_debs:
+    if built_debs:
         deb_scan = _inspect_built_debs(ctx, output_dir)
         static_binaries = deb_scan["static_binaries"]
         setuid_setgid_binaries = deb_scan["setuid_setgid_binaries"]
@@ -2070,17 +2084,31 @@ def collect_sbuild(ctx) -> SbuildResult:
         plugin_candidates = deb_scan["plugin_candidates"]
         maintainer_scripts = deb_scan["maintainer_scripts"]
 
-    # Run lintian on the source package (keep existing functionality)
-    lintian_raw = _capture(
+    # Run lintian on the source package (kept from the old sbuild flow) and,
+    # new, on the downloaded binaries/.changes - the official Launchpad build
+    # never runs lintian, so this is the only place either ever happens.
+    source_lintian_raw = _capture(
         ctx,
-        [
-            "bash",
-            "-lc",
-            f"cd {source_dir} && lintian --no-tag-display-limit 2>&1 || true",
-        ],
+        ["bash", "-lc", f"cd {source_dir} && lintian --no-tag-display-limit 2>&1 || true"],
         allow_fail=True,
         as_ubuntu=True,
     )
+
+    binary_lintian_raw = ""
+    if built_debs:
+        lintian_target = changes_path or f"{output_dir}/*.deb"
+        binary_lintian_raw = _capture(
+            ctx,
+            ["bash", "-lc", f"lintian --no-tag-display-limit {lintian_target} 2>&1 || true"],
+            allow_fail=True,
+            as_ubuntu=True,
+        )
+
+    lintian_raw = source_lintian_raw
+    if binary_lintian_raw:
+        lintian_raw = (
+            f"{source_lintian_raw}\n\n--- lintian (downloaded binaries) ---\n{binary_lintian_raw}"
+        ).strip()
 
     lintian_errors, lintian_warnings, lintian_pedantic = _parse_lintian_output(lintian_raw)
 
@@ -2096,20 +2124,24 @@ def collect_sbuild(ctx) -> SbuildResult:
         if re.search(pattern, rules, re.IGNORECASE):
             static_link_hints.append(pattern)
 
-    log.info(
-        "lintian for %s: %d errors, %d warnings, %d info",
-        ctx.source_package,
-        len(lintian_errors),
-        len(lintian_warnings),
-        len(lintian_pedantic),
-    )
+    if build_success and built_debs:
+        message = f"Official Launchpad build succeeded: {len(built_debs)} .deb file(s) downloaded"
+        note = f"Fetched from Launchpad ({local_build.get('web_link', '')})"
+    elif build_success:
+        message = "Official Launchpad build succeeded but no binaries could be downloaded"
+        note = "Fetched from Launchpad; see log output for download details"
+    else:
+        message = f"Official Launchpad build did not succeed: {build_state or 'unknown state'}"
+        note = "Fetched from Launchpad; see build_log for details"
+
+    log.info("fetch-build for %s (%s): %s", ctx.source_package, local_arch, message)
 
     return {
         "status": "ok" if build_success else "error",
         "message": message,
         "build_success": build_success,
         "build_log": build_log,
-        "sbuild_build_log_path": sbuild_build_log_path,
+        "build_log_path": build_log_path,
         "built_debs": built_debs,
         "lintian_output": lintian_raw,
         "lintian_errors": lintian_errors,
@@ -2127,29 +2159,29 @@ def collect_sbuild(ctx) -> SbuildResult:
         "translation_files": translation_files,
         "plugin_candidates": plugin_candidates,
         "maintainer_scripts": maintainer_scripts,
-        "note": "Real sbuild with unshare backend completed" if build_success else "sbuild failed",
+        "note": note,
     }
 
 
-@adapter(AdapterID.BINARY_PACKAGE_INSPECTION, depends_on=[AdapterID.SBUILD])
+@adapter(AdapterID.BINARY_PACKAGE_INSPECTION, depends_on=[AdapterID.FETCH_BUILD])
 def collect_binary_package_inspection(ctx) -> BinaryPackageInspectionResult:
-    """Expose the single sbuild-time binary extraction as a stable adapter contract."""
-    sbuild = ctx.evidence.get("adapters", {}).get("sbuild", {})
-    if sbuild.get("status") != "ok":
-        raise AdapterError("binary-package-inspection requires successful sbuild evidence")
+    """Expose the single fetch-build-time binary extraction as a stable adapter contract."""
+    fetch_build = ctx.evidence.get("adapters", {}).get("fetch-build", {})
+    if fetch_build.get("status") != "ok":
+        raise AdapterError("binary-package-inspection requires successful fetch-build evidence")
     return {
         "status": "ok",
-        "static_binaries": list(sbuild.get("static_binaries", [])),
-        "setuid_setgid_binaries": list(sbuild.get("setuid_setgid_binaries", [])),
-        "nobody_owned_files": list(sbuild.get("nobody_owned_binaries", [])),
-        "sbin_executables": list(sbuild.get("sbin_executables", [])),
-        "systemd_units": list(sbuild.get("systemd_units", [])),
-        "cron_jobs": list(sbuild.get("cron_jobs", [])),
-        "apparmor_profiles": list(sbuild.get("apparmor_profiles", [])),
-        "desktop_files": list(sbuild.get("desktop_files", [])),
-        "translation_files": list(sbuild.get("translation_files", [])),
-        "plugin_candidates": list(sbuild.get("plugin_candidates", [])),
-        "maintainer_scripts": list(sbuild.get("maintainer_scripts", [])),
+        "static_binaries": list(fetch_build.get("static_binaries", [])),
+        "setuid_setgid_binaries": list(fetch_build.get("setuid_setgid_binaries", [])),
+        "nobody_owned_files": list(fetch_build.get("nobody_owned_binaries", [])),
+        "sbin_executables": list(fetch_build.get("sbin_executables", [])),
+        "systemd_units": list(fetch_build.get("systemd_units", [])),
+        "cron_jobs": list(fetch_build.get("cron_jobs", [])),
+        "apparmor_profiles": list(fetch_build.get("apparmor_profiles", [])),
+        "desktop_files": list(fetch_build.get("desktop_files", [])),
+        "translation_files": list(fetch_build.get("translation_files", [])),
+        "plugin_candidates": list(fetch_build.get("plugin_candidates", [])),
+        "maintainer_scripts": list(fetch_build.get("maintainer_scripts", [])),
     }
 
 
@@ -2158,14 +2190,14 @@ def collect_binary_package_inspection(ctx) -> BinaryPackageInspectionResult:
 # ---------------------------------------------------------------------------
 
 
-@adapter(AdapterID.LINTIAN, depends_on=[AdapterID.SBUILD])
+@adapter(AdapterID.LINTIAN, depends_on=[AdapterID.FETCH_BUILD])
 def collect_lintian(ctx) -> LintianResult:
-    """Expose the lintian output parsed from the sbuild run as a standalone adapter."""
-    sbuild_result = ctx.evidence.get("adapters", {}).get("sbuild", {})
-    if sbuild_result.get("status") != "ok":
-        raise AdapterError("lintian adapter requires successful sbuild evidence")
+    """Expose the lintian output parsed from the fetch-build run as a standalone adapter."""
+    fetch_build_result = ctx.evidence.get("adapters", {}).get("fetch-build", {})
+    if fetch_build_result.get("status") != "ok":
+        raise AdapterError("lintian adapter requires successful fetch-build evidence")
 
-    lintian_raw = str(sbuild_result.get("lintian_output", ""))
+    lintian_raw = str(fetch_build_result.get("lintian_output", ""))
     lintian_errors, lintian_warnings, lintian_pedantic = _parse_lintian_output(lintian_raw)
 
     return {
@@ -2201,22 +2233,22 @@ def _parse_built_using_entries(field_text: str) -> list[str]:
     return [e for e in entries if e]  # Filter empty strings
 
 
-@adapter(AdapterID.DEB_METADATA, depends_on=[AdapterID.SBUILD])
+@adapter(AdapterID.DEB_METADATA, depends_on=[AdapterID.FETCH_BUILD])
 def collect_deb_metadata(ctx) -> DebMetadataResult:
     """Extract metadata from built .deb files.
 
-    Runs after sbuild completes to extract Package, Version, Built-Using,
+    Runs after fetch-build completes to extract Package, Version, Built-Using,
     and Static-Built-Using fields from binary packages for checks that
     need post-build metadata (e.g., ESL-3, ESL-10).
     """
-    sbuild_result = ctx.evidence.get("adapters", {}).get("sbuild", {})
+    fetch_build_result = ctx.evidence.get("adapters", {}).get("fetch-build", {})
 
-    if sbuild_result.get("status") != "ok" or not sbuild_result.get("build_success"):
-        raise AdapterError("deb-metadata adapter requires successful sbuild")
+    if fetch_build_result.get("status") != "ok" or not fetch_build_result.get("build_success"):
+        raise AdapterError("deb-metadata adapter requires successful fetch-build")
 
-    built_debs = sbuild_result.get("built_debs", [])
+    built_debs = fetch_build_result.get("built_debs", [])
     if not built_debs:
-        raise AdapterError("No built .deb files found from sbuild")
+        raise AdapterError("No built .deb files found from fetch-build")
 
     deb_packages = []
 

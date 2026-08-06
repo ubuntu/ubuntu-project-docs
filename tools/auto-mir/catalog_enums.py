@@ -35,7 +35,7 @@ class AdapterID(StrEnum):
     PACKAGING_SOURCE = "packaging-source"
     DEP_ANALYSIS = "dep-analysis"
     COMPONENT_MISMATCHES = "component-mismatches"
-    SBUILD = "sbuild"
+    FETCH_BUILD = "fetch-build"
     LINTIAN = "lintian"
     DEB_METADATA = "deb-metadata"
     BINARY_PACKAGE_INSPECTION = "binary-package-inspection"

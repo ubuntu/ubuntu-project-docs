@@ -141,7 +141,7 @@ def _run_context(tmp_path: Path) -> auto_mir.RunContext:
     ctx.bug = {"description": f"bug {_SENTINEL}"}
     ctx.evidence = {
         "adapters": {
-            "sbuild": {
+            "fetch-build": {
                 "build_success": False,
                 "build_log": f"build failed with {_SENTINEL}",
             }

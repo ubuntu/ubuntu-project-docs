@@ -26,7 +26,7 @@ def context():
             "REP-HW": ["team", "upstream"],
         },
         evidence={
-            "sbuild": {"status": "ok", "build_success": True},
+            "fetch-build": {"status": "ok", "build_success": True},
             "autopkgtest-db": {"passing_arches": ["amd64", "arm64"]},
         },
     )
@@ -35,8 +35,8 @@ def context():
 def test_item_and_evidence_leaf_comparisons(context):
     assert evaluate_condition({"item": "REP-TEST-BUILD", "equals": "missing"}, context)
     assert evaluate_condition({"item": "REP-TEST-AUTO", "in": ["passing", "failing"]}, context)
-    assert evaluate_condition({"evidence": "sbuild.build_success", "truthy": True}, context)
-    assert not evaluate_condition({"evidence": "sbuild.missing", "truthy": True}, context)
+    assert evaluate_condition({"evidence": "fetch-build.build_success", "truthy": True}, context)
+    assert not evaluate_condition({"evidence": "fetch-build.missing", "truthy": True}, context)
 
 
 def test_nested_all_any_and_not(context):
@@ -49,7 +49,7 @@ def test_nested_all_any_and_not(context):
                     {"evidence": "autopkgtest-db.passing_arches", "truthy": True},
                 ]
             },
-            {"not": {"evidence": "sbuild.build_success", "equals": False}},
+            {"not": {"evidence": "fetch-build.build_success", "equals": False}},
         ]
     }
 
@@ -69,7 +69,7 @@ def test_none_condition_is_unconditionally_applicable(context):
         ({"item": "REP-1"}, "exactly one comparison"),
         ({"item": "REP-1", "truthy": "yes"}, "requires a boolean"),
         ({"item": "REP-1", "in": []}, "non-empty list"),
-        ({"evidence": "sbuild..status", "equals": "ok"}, "empty component"),
+        ({"evidence": "fetch-build..status", "equals": "ok"}, "empty component"),
         ({"item": "REP-1", "equals": True, "script": "run()"}, "unsupported keys"),
     ],
 )
@@ -82,13 +82,13 @@ def test_condition_references_are_collected():
     condition = {
         "all": [
             {"item": "REP-1", "equals": "a"},
-            {"not": {"evidence": "sbuild.status", "equals": "error"}},
+            {"not": {"evidence": "fetch-build.status", "equals": "error"}},
         ]
     }
 
     assert condition_references(condition) == {
         ("item", "REP-1"),
-        ("evidence", "sbuild.status"),
+        ("evidence", "fetch-build.status"),
     }
 
 
@@ -103,7 +103,7 @@ def test_reference_validation_reports_unknown_items_and_adapters():
     errors = validate_condition_references(
         condition,
         known_items={"REP-1"},
-        known_adapters={"sbuild"},
+        known_adapters={"fetch-build"},
     )
 
     assert errors == [
@@ -132,7 +132,7 @@ def test_cycle_validation_accepts_acyclic_graph_and_ignores_evidence():
     conditions = {
         "REP-1": None,
         "REP-2": {"item": "REP-1", "equals": "yes"},
-        "REP-3": {"evidence": "sbuild.status", "equals": "ok"},
+        "REP-3": {"evidence": "fetch-build.status", "equals": "ok"},
     }
 
     assert validate_condition_cycles(conditions) == []

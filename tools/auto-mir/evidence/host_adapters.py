@@ -1334,6 +1334,11 @@ def collect_lp_build_api(ctx) -> LPBuildAPIResult:
                 "pocket": launchpad_client.build_attr(record, "pocket"),
                 "archive": launchpad_client.build_attr(record, "archive"),
                 "web_link": launchpad_client.build_attr(record, "web_link", "self_link"),
+                # Needed by fetch-build to download the local architecture's
+                # official build artifacts instead of building locally.
+                "build_log_url": launchpad_client.build_attr(record, "build_log_url"),
+                "changesfile_url": launchpad_client.build_attr(record, "changesfile_url"),
+                "buildinfo_url": launchpad_client.build_attr(record, "buildinfo_url"),
             }
         )
 

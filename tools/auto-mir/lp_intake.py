@@ -25,31 +25,6 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("auto_mir.lp_intake")
 
-# Known Ubuntu series in chronological order for version gating.
-_KNOWN_SERIES = [
-    "focal",
-    "jammy",
-    "kinetic",
-    "lunar",
-    "mantic",
-    "noble",
-    "oracular",
-    "plucky",
-    "questing",
-]
-
-
-def _series_supports_unshare_sbuild(series: str) -> bool:
-    """Check if series is Noble (24.04) or newer for sbuild unshare support.
-
-    Returns True if the series is Noble or newer, False if older.
-    Unknown series are assumed to be newer than Noble.
-    """
-    try:
-        return _KNOWN_SERIES.index(series) >= _KNOWN_SERIES.index("noble")
-    except ValueError:
-        return True
-
 
 @lru_cache(maxsize=1)
 def _reporter_template_markers() -> tuple[str, ...]:
@@ -450,16 +425,6 @@ def run(ctx: "RunContext") -> None:
             log.info("No specific series found in bug tasks; using development release (devel)")
     else:
         log.info("Target series forced by --series: %s", ctx.series)
-
-    # Gate: sbuild unshare backend requires Noble (24.04) or newer
-    if not _series_supports_unshare_sbuild(ctx.series):
-        log.error(
-            "Automated MIR review requires Ubuntu Noble (24.04) or newer "
-            "for sbuild unshare backend. "
-            "Target series '%s' is not supported.",
-            ctx.series,
-        )
-        sys.exit(1)
 
     # Fetch bug subscribers for MIR qualification heuristics and SUM-4 checks
     subscribers = []

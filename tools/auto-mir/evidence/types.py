@@ -132,6 +132,9 @@ class LPBuildEntry(TypedDict):
     pocket: str
     archive: str
     web_link: str
+    build_log_url: str
+    changesfile_url: str
+    buildinfo_url: str
 
 
 class LPBuildAPIResult(TypedDict):
@@ -541,17 +544,26 @@ class GitUbuntuDeltaResult(TypedDict):
 
 
 # ---------------------------------------------------------------------------
-# In-guest adapters — sbuild
+# In-guest adapters — fetch-build
 # ---------------------------------------------------------------------------
 
 
-class SbuildResult(TypedDict):
-    """Return structure for sbuild adapter (real build with unshare backend)."""
+class FetchBuildResult(TypedDict):
+    """Return structure for the fetch-build adapter.
+
+    Downloads the official Launchpad build for the guest's own
+    architecture (build log, .changes, and .deb binaries) instead of
+    building the package locally, since a promotion candidate is expected
+    to already build successfully in the archive. Lintian is run here
+    (against both the source tree and the downloaded binaries/.changes)
+    since the official Launchpad build does not run it.
+    """
 
     status: str
     message: str
     build_success: bool
     build_log: str
+    build_log_path: str
     built_debs: list[str]
     lintian_output: str
     lintian_errors: list[str]
@@ -611,7 +623,7 @@ class DebMetadataEntry(TypedDict):
 class DebMetadataResult(TypedDict):
     """Return structure for deb-metadata adapter.
 
-    Extracts metadata from built .deb files after sbuild completes.
+    Extracts metadata from built .deb files after fetch-build completes.
     Provides structured access to Built-Using, Static-Built-Using, etc.
     """
 
