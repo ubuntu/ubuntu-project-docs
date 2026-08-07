@@ -217,7 +217,9 @@ class TerminalWizard:
     def _multiline_comment_lines(self, question: QuestionSpec) -> list[str]:
         lines = [question.prompt]
         if question.rule_context:
-            lines.append(f"Context: {question.rule_context}")
+            lines.append("")
+            lines.append("Context:")
+            lines.extend(f"   {line}" for line in question.rule_context.splitlines())
         if question.hint:
             lines.append(f"Hint: {question.hint}")
         if question.answer_guidance:

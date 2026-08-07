@@ -3424,5 +3424,26 @@ LXD guest + real Launchpad network calls).
   carried-over tests, +5 `build-tests`/`_build_tests_without_log` tests).
   `make integration` intentionally left for the user to run (real LXD guest
   + real Launchpad network calls).
+- **Follow-up correction (same day)**: item 4's `rule_context` reached the
+  external-editor comment header for `human_only`/`ev_to_ai` multiline
+  questions via `reporter/wizard.py`'s `_multiline_comment_lines()`, which
+  did `lines.append(f"Context: {question.rule_context}")` - a *single* list
+  element containing the full, now-multi-line (several `RULE:` lines plus a
+  `TODO:` line) string. `utils/editor.py`'s `edit_text()` prefixes each
+  `comment_lines` *list element* with `# ` once; it has no way to see the
+  embedded `\n` characters inside one element, so only the first physical
+  line ("Context: RULE: ...") got commented out and every subsequent
+  RULE/TODO line landed in the generated file unprefixed - meaning it would
+  have silently become part of the reporter's actual answer text instead of
+  being inert commentary. Fixed by emitting `"Context:"` as its own header
+  line followed by each `rule_context` line as a separate, indented
+  (`"   "` + line, so `edit_text`'s own `"# "` prefix yields the visually
+  4-space-indented style already used by the console's
+  `_write_titled_block`) list element - one per RULE/TODO line, so every one
+  gets its own `#` prefix. Added a direct unit test asserting the exact
+  `comment_lines` list for a multi-RULE-plus-TODO `rule_context`, and an
+  end-to-end test through the real `utils.editor.edit_text()` asserting no
+  generated line containing `RULE:`/`TODO:` is ever missing its `#` prefix.
+  `make test`: 816 passed, 2 skipped.
 
 

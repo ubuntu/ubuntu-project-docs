@@ -157,8 +157,104 @@ def test_multiline_uses_editor_when_available():
     assert answer.value == "edited via external editor"
     assert calls
     comment_lines = calls[0][1]
-    assert any("Context: RULE: some rule" in line for line in comment_lines)
+    assert "Context:" in comment_lines
+    assert any(line == "   RULE: some rule" for line in comment_lines)
     assert any("Hint: some hint" in line for line in comment_lines)
+    # The Context header must be its own comment line, never sharing a line
+    # with the first RULE - otherwise only the header line gets the '#'
+    # prefix from the editor and every subsequent RULE/TODO line leaks
+    # unprefixed straight into the effective answer text.
+    assert not any(line.startswith("Context: RULE") for line in comment_lines)
+
+
+def test_multiline_comment_lines_indents_every_rule_and_todo_line_separately():
+    """Regression test: a multi-line rule_context (several RULE lines plus
+    the item's own TODO line, joined by catalog._apply_reporter_rule_context_
+    defaults) must render as one indented comment line per RULE/TODO, each a
+    separate list element - not one element containing embedded newlines,
+    which utils.editor.edit_text would only '#'-prefix on its first physical
+    line, leaking the rest straight into the effective answer text."""
+    wizard = TerminalWizard()
+    question = QuestionSpec(
+        id="REP-RATIONALE-001",
+        prompt="Why is this source package required in Ubuntu main?",
+        kind=QuestionKind.MULTILINE,
+        rule_context=(
+            "RULE: Main inclusion needs demonstrated Ubuntu demand, correct "
+            "understanding of main versus universe, and no better supported "
+            "alternative.\n"
+            "RULE: Reuse an existing MIR with a new series task when prior "
+            "package content, reasoning, and circumstances remain applicable; "
+            "otherwise reference the prior MIR and explain the difference.\n"
+            "RULE: State the exact binary promotion scope and a well-founded "
+            "major-release deadline, if any; wishes without a definite "
+            "deadline should be identified as such.\n"
+            "TODO: - The package TBDSRC is required in Ubuntu main for TBD"
+        ),
+    )
+
+    comment_lines = wizard._multiline_comment_lines(question)
+
+    assert comment_lines == [
+        "Why is this source package required in Ubuntu main?",
+        "",
+        "Context:",
+        "   RULE: Main inclusion needs demonstrated Ubuntu demand, correct "
+        "understanding of main versus universe, and no better supported "
+        "alternative.",
+        "   RULE: Reuse an existing MIR with a new series task when prior "
+        "package content, reasoning, and circumstances remain applicable; "
+        "otherwise reference the prior MIR and explain the difference.",
+        "   RULE: State the exact binary promotion scope and a well-founded "
+        "major-release deadline, if any; wishes without a definite deadline "
+        "should be identified as such.",
+        "   TODO: - The package TBDSRC is required in Ubuntu main for TBD",
+        "",
+        "Lines starting with '#' are ignored and will not be included.",
+    ]
+
+
+def test_multiline_editor_file_never_leaks_unprefixed_rule_or_todo_lines(monkeypatch):
+    """End-to-end regression test through the real utils.editor.edit_text:
+    every RULE/TODO line from a multi-line rule_context must come back
+    '#'-prefixed in the generated file, matching git-rebase-style commentary,
+    so none of it could ever be mistaken for part of the answer."""
+    import subprocess
+    from unittest.mock import patch
+
+    from utils import editor
+
+    monkeypatch.setattr(sys.stdin, "isatty", lambda: True)
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: True)
+    monkeypatch.setenv("EDITOR", "fake-editor")
+
+    wizard = TerminalWizard()
+    question = QuestionSpec(
+        id="REP-RATIONALE-001",
+        prompt="Why is this source package required in Ubuntu main?",
+        kind=QuestionKind.MULTILINE,
+        rule_context="RULE: first rule.\nRULE: second rule.\nTODO: - TBDSRC needs TBD",
+    )
+    comment_lines = wizard._multiline_comment_lines(question)
+
+    seen_contents = []
+
+    def _fake_run(command, check=False):
+        temp_path = Path(command[-1])
+        seen_contents.append(temp_path.read_text(encoding="utf-8"))
+        return subprocess.CompletedProcess(command, 0)
+
+    with patch("utils.editor.subprocess.run", side_effect=_fake_run):
+        editor.edit_text("", comment_lines)
+
+    file_lines = seen_contents[0].splitlines()
+    for line in file_lines:
+        if "RULE:" in line or "TODO:" in line:
+            assert line.startswith("#"), f"leaked unprefixed policy line: {line!r}"
+    assert "# Context:" in file_lines
+    assert "#    RULE: first rule." in file_lines
+    assert "#    RULE: second rule." in file_lines
+    assert "#    TODO: - TBDSRC needs TBD" in file_lines
 
 
 def test_multiline_editor_answer_is_recorded_in_console_and_log(caplog):
