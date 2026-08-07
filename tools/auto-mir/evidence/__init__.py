@@ -25,6 +25,7 @@ log = logging.getLogger("auto_mir.evidence")
 def _ensure_adapters_registered() -> None:
     """Import adapter modules for their registry side effects."""
     importlib.import_module("evidence.host_adapters")
+    importlib.import_module("evidence.version_resolution")
     importlib.import_module("evidence.guest_adapters")
     importlib.import_module("evidence.team_mapping_adapter")
     importlib.import_module("evidence.lto_disabled_adapter")

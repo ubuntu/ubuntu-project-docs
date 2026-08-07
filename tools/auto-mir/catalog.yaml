@@ -64,14 +64,28 @@ evidence_adapters:
     upload_history: list
     uploaders: list
   fallback: emit_todo_continue
-- id: lp-build-api
+- id: version-resolution
   type: api
-  description: Fetch per-architecture build state from Launchpad, pinned to the exact version packaging-source analysed
+  description: Resolve, once, the exact source version/pocket every version-pinned adapter should analyse, with a fallback among older or partially-built versions when the newest is not (yet) fully built
   inputs:
   - source_package
   - series
   depends_on:
-  - packaging-source
+  - lp-package-api
+  output_contract:
+    resolved_version: str
+    resolved_pocket: str
+    resolution_note: str
+  fallback: emit_todo_continue
+  notes: Single source of truth for version/pocket selection - packaging-source and lp-build-api consume this instead of independently re-deriving it, so their statements about the package always agree
+- id: lp-build-api
+  type: api
+  description: Fetch per-architecture build state from Launchpad, pinned to the exact version version-resolution selected
+  inputs:
+  - source_package
+  - series
+  depends_on:
+  - version-resolution
   output_contract:
     builds: list
   fallback: emit_todo_continue
@@ -207,7 +221,7 @@ evidence_adapters:
   inputs:
   - source_package
   depends_on:
-  - lp-package-api
+  - version-resolution
   output_contract:
     debian_control: dict
     debian_rules: str

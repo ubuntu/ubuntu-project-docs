@@ -122,6 +122,45 @@ def builds_for_publication(pub: Any) -> list[Any]:
         return []
 
 
+def binaries_for_publication(pub: Any) -> list[Any]:
+    """Return the published binary records for one source publication.
+
+    Never raises: a publication that cannot enumerate binaries (e.g. a
+    launchpadlib/network hiccup) is treated the same as "no binaries yet".
+
+    This is the ground truth for a scenario ``getBuilds()`` alone gets wrong:
+    when a brand-new Ubuntu devel series opens, the whole archive (including
+    already-built packages) is copied across from the previous series without
+    creating fresh ``Build`` rows for the new series - the binaries are
+    copied straight across, referencing the *original* series' build. A
+    source publication can therefore have zero ``Build`` records yet be
+    fully available (published binaries for every architecture). See
+    ``summarize_build_completeness`` for how this is folded in.
+    """
+    try:
+        return list(pub.getPublishedBinaries())
+    except Exception:
+        return []
+
+
+def _binary_arch_tag(record: Any) -> str:
+    """Return the architecture tag for a published binary record.
+
+    Test fixtures may supply a plain ``arch_tag`` key/attribute directly;
+    real launchpadlib records expose it one level down, via
+    ``distro_arch_series.architecture_tag``.
+    """
+    direct = build_attr(record, "arch_tag", "arch_tag_name")
+    if direct:
+        return direct
+    das = record.get("distro_arch_series") if isinstance(record, dict) else None
+    if das is None:
+        das = getattr(record, "distro_arch_series", None)
+    if das is None:
+        return ""
+    return build_attr(das, "architecture_tag", "architecturetag", "arch_tag")
+
+
 def find_source_publication(archive: Any, lp_series: Any, pkg: str, version: str) -> Any | None:
     """Return the ISourcePackagePublishingHistory for an exact source/version, or None."""
     try:
@@ -138,29 +177,67 @@ def find_source_publication(archive: Any, lp_series: Any, pkg: str, version: str
     return pubs[0] if pubs else None
 
 
-def summarize_build_completeness(builds: list[Any]) -> dict[str, Any]:
-    """Summarise a list of raw build records into a completeness verdict.
+def summarize_build_completeness(
+    builds: list[Any], binaries: list[Any] | None = None
+) -> dict[str, Any]:
+    """Summarise build (and, as a fallback, published-binary) records.
 
     Returns a dict with:
-      - ``complete``: True only when there is at least one build record and
-        every one of them classifies as "successful".
+      - ``complete``: True only when there is at least one entry and every
+        one of them classifies as "successful".
       - ``overall_state``: ``"no_builds"`` | ``"successful"`` |
         ``"in_progress"`` | ``"failed"`` | ``"mixed"`` (some failed/pending,
         some successful).
       - ``entries``: list of ``{"arch_tag", "build_state", "classification"}``.
+      - ``carried_over``: True when at least one architecture's evidence came
+        from a published binary rather than a distinct Build record (see
+        ``binaries_for_publication``).
+
+    ``binaries`` supplies published-binary records for the same publication.
+    An architecture with a Build record is always classified from that record
+    (authoritative); an architecture with NO Build record but a Published
+    binary is treated as "successful" too - the binary being there and
+    published is itself proof the package is available for that
+    architecture, regardless of whether Launchpad recorded a distinct Build
+    row for this particular series.
     """
     entries = []
     classifications: set[str] = set()
+    seen_arches: set[str] = set()
     for record in builds:
         arch_tag = build_attr(record, "arch_tag", "arch_tag_name", "architecture_tag")
+        arch_tag = arch_tag or "unknown-arch"
         raw_state = build_attr(record, "buildstate", "build_state", "status")
         classification = classify_build_state(raw_state)
         classifications.add(classification)
+        seen_arches.add(arch_tag)
         entries.append(
             {
-                "arch_tag": arch_tag or "unknown-arch",
+                "arch_tag": arch_tag,
                 "build_state": raw_state or "unknown",
                 "classification": classification,
+            }
+        )
+
+    carried_over = False
+    for record in binaries or []:
+        arch_tag = _binary_arch_tag(record) or "unknown-arch"
+        if arch_tag in seen_arches:
+            continue  # a Build record for this arch already exists and is authoritative
+        status = build_attr(record, "status").strip().lower()
+        if status != "published":
+            continue
+        seen_arches.add(arch_tag)
+        classifications.add("successful")
+        carried_over = True
+        entries.append(
+            {
+                "arch_tag": arch_tag,
+                "build_state": (
+                    "binaries published (no distinct build record for this series - "
+                    "likely carried over unchanged from a previous series)"
+                ),
+                "classification": "successful",
             }
         )
 
@@ -181,6 +258,7 @@ def summarize_build_completeness(builds: list[Any]) -> dict[str, Any]:
         "complete": overall_state == "successful",
         "overall_state": overall_state,
         "entries": entries,
+        "carried_over": carried_over,
     }
 
 
@@ -197,15 +275,28 @@ class BuildCandidate:
         return bool(self.completeness["complete"])
 
     @property
+    def has_available_arch(self) -> bool:
+        """True when at least one architecture is built/available.
+
+        Unlike ``complete`` (which requires *every* probed architecture to be
+        successful), this is True for a "mixed" candidate too - a version
+        that built fine on some architectures but not others is still worth
+        offering to the reviewer/reporter as a real option, not silently
+        discarded in favour of an older, fully-built version.
+        """
+        return self.overall_state in ("successful", "mixed")
+
+    @property
     def overall_state(self) -> str:
         return str(self.completeness["overall_state"])
 
     @property
     def label(self) -> str:
         """Human-readable one-line summary, e.g. for interactive prompts/logs."""
+        entries = self.completeness["entries"]
         state = self.overall_state
         if state == "successful":
-            arches = ", ".join(e["arch_tag"] for e in self.completeness["entries"])
+            arches = ", ".join(e["arch_tag"] for e in entries)
             return f"{self.version} - built on {arches or 'no architectures'}"
         if state in ("no_builds", "queued"):
             return f"{self.version} - not yet built"
@@ -213,7 +304,11 @@ class BuildCandidate:
             return f"{self.version} - failed to build"
         if state == "in_progress":
             return f"{self.version} - currently building"
-        return f"{self.version} - partially built"
+        # "mixed": some architectures are available, some are not - spell out
+        # both sides so the reviewer/reporter can make an informed choice.
+        passing = ", ".join(e["arch_tag"] for e in entries if e["classification"] == "successful")
+        other = ", ".join(e["arch_tag"] for e in entries if e["classification"] != "successful")
+        return f"{self.version} - built on {passing or 'no architectures'}; not on {other}"
 
 
 def find_buildable_version(
@@ -240,6 +335,7 @@ def find_buildable_version(
     for version, pocket in candidates[:max_candidates]:
         pub = find_source_publication(archive, lp_series, pkg, version)
         builds = builds_for_publication(pub) if pub is not None else []
-        completeness = summarize_build_completeness(builds)
+        binaries = binaries_for_publication(pub) if pub is not None else []
+        completeness = summarize_build_completeness(builds, binaries)
         results.append(BuildCandidate(version, pocket, completeness))
     return results

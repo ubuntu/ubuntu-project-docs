@@ -3238,3 +3238,77 @@ LXD guest + real Launchpad network calls).
   one test count lower than before because the now-pointless drift test was
   deleted, not because coverage was lost).
 
+## 2026-08-07 — Fixed a false "has not yet built" positive and unified version resolution
+
+- Promotion: no
+- Context: a beta tester's real run against `jitterentropy-library` had
+  `packaging-source` fail with "The most recent build version 3.6.3-1 has not
+  yet built", even though Launchpad shows it fully built on every
+  architecture. Root cause (verified empirically against the live Launchpad
+  API, not just by reading code): the target devel series ("stonking") had
+  just opened this cycle, and the whole archive - including
+  already-built packages like this one - was copied across from the
+  predecessor series ("resolute") without creating fresh `Build` records for
+  the new series; the binaries were copied straight across, still
+  referencing the *original* series' builds. `ISourcePackagePublishingHistory
+  .getBuilds()` on the new series' publication legitimately returns zero
+  records, but `getPublishedBinaries()` on that same publication shows every
+  architecture Published. `evidence.launchpad_client.summarize_build_completeness`
+  only ever looked at `getBuilds()`, so a zero-build (but fully available)
+  publication was indistinguishable from a genuinely-unbuilt one. Series
+  resolution itself was ruled out as a contributing cause: Launchpad's
+  `getSeries(name_or_version="devel")` webservice operation defaults
+  `follow_aliases=True` server-side and reliably resolves to the real devel
+  series without needing an explicit fallback.
+  Separately, the same feedback asked that every adapter needing "the exact
+  version under review" (packaging-source, lp-build-api, and implicitly
+  fetch-build) select it once and agree - not each independently re-derive
+  (and potentially re-select) its own answer.
+- Decision:
+  - `evidence/launchpad_client.py`: added `binaries_for_publication()`
+    (mirrors `builds_for_publication`, never raises) and extended
+    `summarize_build_completeness(builds, binaries=None)` so an architecture
+    with a Published binary but no distinct Build record is treated as built
+    too (flagged via a new `carried_over` bool), while a real Build record
+    for an architecture always stays authoritative over a binary. `find_buildable_version`
+    now probes binaries alongside builds for every candidate.
+  - Broadened candidate offering: a "mixed" newest version (built on some
+    architectures, not others) is no longer silently discarded in favour of
+    an older fully-built one - `BuildCandidate.has_available_arch` is True
+    for both "successful" and "mixed", `BuildCandidate.label` spells out
+    which architectures pass/fail for a mixed candidate, and headless
+    (non-interactive) runs now prefer the newest available candidate even if
+    only partially built (interactive TTY runs still offer the full numbered
+    choice, newest first). The hard-fail path (`AdapterError`, "re-run once
+    Launchpad has a successful build") now only fires when nothing in the
+    whole lookback window has any built/available architecture at all.
+  - New adapter `version-resolution` (`AdapterID.VERSION_RESOLUTION`, host-
+    side, `depends_on: [lp-package-api]`) is the single place that decides
+    the exact version/pocket to analyse - moved out of `packaging-source`
+    verbatim (`evidence/version_resolution.py`), including the
+    interactive/headless fallback UX. `packaging-source`'s `depends_on`
+    changed from `lp-package-api` to `version-resolution`; it no longer logs
+    into Launchpad itself at all, and copies `resolved_version`/
+    `resolved_pocket`/`resolution_note` through into its own
+    `analyzed_version`/`analyzed_pocket`/`version_resolution_note` fields
+    unchanged, so render.py/reviewer/reporter templates and existing tests
+    keep working without a rename sweep. `lp-build-api`'s `depends_on`
+    changed from `packaging-source` to `version-resolution` and it now reads
+    `resolved_version`/`resolved_pocket` from there; it still runs its own
+    targeted Launchpad query (for per-build metadata: log/changesfile/
+    buildinfo URLs), but reuses `summarize_build_completeness` against the
+    same publication so an architecture with only a carried-over binary is
+    also surfaced in `builds` (previously CB-1 reported "no build records"
+    for exactly this scenario, a matching false-negative).
+- Consequences: a package that is fully available in the archive (whether
+  freshly built or carried over unchanged from a predecessor series) is no
+  longer misreported as unbuilt, and no longer cascades into skipping
+  dup-search/lp-build-api/fetch-build/dep-analysis/binary-package-inspection/
+  lintian. Version/pocket selection now has exactly one implementation and
+  one point of failure instead of being duplicated (and potentially
+  disagreeing) across packaging-source and lp-build-api.
+- Validation from `tools/auto-mir`: `make test` PASS (803 passed, 2 skipped).
+  `make integration` intentionally left for the user to run (real LXD guest +
+  real Launchpad network calls).
+
+

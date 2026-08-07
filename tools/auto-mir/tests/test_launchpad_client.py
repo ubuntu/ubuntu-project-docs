@@ -107,6 +107,18 @@ def test_builds_for_publication_never_raises():
     assert launchpad_client.builds_for_publication(pub) == []
 
 
+def test_binaries_for_publication_returns_list():
+    pub = Mock()
+    pub.getPublishedBinaries.return_value = ["bin1", "bin2"]
+    assert launchpad_client.binaries_for_publication(pub) == ["bin1", "bin2"]
+
+
+def test_binaries_for_publication_never_raises():
+    pub = Mock()
+    pub.getPublishedBinaries.side_effect = RuntimeError("boom")
+    assert launchpad_client.binaries_for_publication(pub) == []
+
+
 def test_find_source_publication_returns_first_match():
     archive = Mock()
     pub = Mock()
@@ -180,6 +192,53 @@ def test_summarize_build_completeness_mixed():
     assert summary["overall_state"] == "mixed"
 
 
+def _binary(arch_tag: str, status: str = "Published") -> dict:
+    return {"arch_tag": arch_tag, "status": status}
+
+
+def test_summarize_build_completeness_no_builds_has_no_carried_over_flag():
+    summary = launchpad_client.summarize_build_completeness([])
+    assert summary["carried_over"] is False
+
+
+def test_summarize_build_completeness_binaries_only_treated_as_built():
+    """Regression test: a package carried over unchanged into a newly-opened
+    devel series has zero Build records for that series but its binaries
+    were copied across and are Published - this must count as built.
+    """
+    binaries = [_binary("amd64"), _binary("arm64")]
+    summary = launchpad_client.summarize_build_completeness([], binaries)
+    assert summary["complete"] is True
+    assert summary["overall_state"] == "successful"
+    assert summary["carried_over"] is True
+    assert {e["arch_tag"] for e in summary["entries"]} == {"amd64", "arm64"}
+
+
+def test_summarize_build_completeness_build_record_takes_precedence_over_binary():
+    """A distinct Build record is authoritative even if a (stale) binary exists."""
+    builds = [_build("amd64", "Failed to build")]
+    binaries = [_binary("amd64")]
+    summary = launchpad_client.summarize_build_completeness(builds, binaries)
+    assert summary["overall_state"] == "failed"
+    assert summary["carried_over"] is False
+
+
+def test_summarize_build_completeness_ignores_unpublished_binaries():
+    binaries = [_binary("amd64", status="Superseded")]
+    summary = launchpad_client.summarize_build_completeness([], binaries)
+    assert summary["overall_state"] == "no_builds"
+
+
+def test_summarize_build_completeness_mixed_builds_plus_carried_over_binary():
+    """One arch built, one arch failed, one arch only carried-over binaries."""
+    builds = [_build("amd64", "Successfully built"), _build("arm64", "Failed to build")]
+    binaries = [_binary("s390x")]
+    summary = launchpad_client.summarize_build_completeness(builds, binaries)
+    assert summary["overall_state"] == "mixed"
+    assert summary["carried_over"] is True
+    assert {e["arch_tag"] for e in summary["entries"]} == {"amd64", "arm64", "s390x"}
+
+
 def test_build_candidate_label_variants():
     successful = launchpad_client.BuildCandidate(
         "1.0-1",
@@ -216,7 +275,9 @@ def test_build_candidate_label_variants():
             [_build("amd64", "Successfully built"), _build("arm64", "Failed to build")]
         ),
     )
-    assert mixed.label == "0.6-1 - partially built"
+    assert mixed.label == "0.6-1 - built on amd64; not on arm64"
+    assert mixed.complete is False
+    assert mixed.has_available_arch is True
 
 
 def test_find_buildable_version_probes_every_candidate_in_window():
@@ -264,3 +325,23 @@ def test_find_buildable_version_handles_unresolvable_candidate():
     )
     assert len(results) == 1
     assert results[0].overall_state == "no_builds"
+
+
+def test_find_buildable_version_uses_binaries_when_no_build_records():
+    """End-to-end: a publication with zero Build records but Published
+    binaries for every architecture resolves as fully built (not "no_builds").
+    """
+    archive = Mock()
+    lp_series = Mock()
+
+    pub = Mock()
+    pub.getBuilds.return_value = []
+    pub.getPublishedBinaries.return_value = [_binary("amd64"), _binary("arm64")]
+    archive.getPublishedSources.return_value = [pub]
+
+    results = launchpad_client.find_buildable_version(
+        archive, lp_series, "testpkg", [("3.6.3-1", "Release")]
+    )
+    assert len(results) == 1
+    assert results[0].complete is True
+    assert results[0].completeness["carried_over"] is True

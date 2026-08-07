@@ -1236,27 +1236,36 @@ def _builds_from_newest_publication(archive, lp_series, pkg: str) -> list[Any]:
 def collect_lp_build_api(ctx: RunContext) -> LPBuildAPIResult:
     """Fetch Launchpad build-state information for the exact analysed version.
 
-    Pinned to packaging-source's ``analyzed_version``/``analyzed_pocket`` so
+    Pinned to version-resolution's ``resolved_version``/``resolved_pocket`` so
     the per-architecture build state reported here always matches the exact
     source (and, for the local architecture, the binaries fetch-build later
     downloads) that the rest of the evidence was collected against - not
     just "whichever publication happens to have any builds", which could
     silently be a different version than the one actually analysed.
+
+    Reuses the same build/binary classification as version-resolution (see
+    ``evidence.launchpad_client.summarize_build_completeness``): an
+    architecture with a published binary but no distinct Build record (e.g. a
+    package carried over unchanged into a newly-opened devel series, where
+    binaries are copied across without a fresh per-series build) is reported
+    as built here too, instead of silently vanishing from this list - which
+    previously left CB-1 unable to confirm the package does not FTBFS even
+    though it plainly is available and working.
     """
     pkg = ctx.source_package
     series_name = ctx.series or "devel"
     if not pkg:
         raise AdapterError("source_package not set")
 
-    packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
+    version_resolution = ctx.evidence.get("adapters", {}).get("version-resolution", {})
     analyzed_version = (
-        str(packaging.get("analyzed_version", "") or "").strip()
-        if isinstance(packaging, dict)
+        str(version_resolution.get("resolved_version", "") or "").strip()
+        if isinstance(version_resolution, dict)
         else ""
     )
     analyzed_pocket = (
-        str(packaging.get("analyzed_pocket", "") or "").strip()
-        if isinstance(packaging, dict)
+        str(version_resolution.get("resolved_pocket", "") or "").strip()
+        if isinstance(version_resolution, dict)
         else ""
     )
 
@@ -1273,25 +1282,28 @@ def collect_lp_build_api(ctx: RunContext) -> LPBuildAPIResult:
         raise AdapterError(f"Could not resolve the Ubuntu primary archive: {exc}") from exc
 
     build_records: list[Any] = []
+    binary_records: list[Any] = []
     if analyzed_version:
         pub = launchpad_client.find_source_publication(archive, lp_series, pkg, analyzed_version)
-        build_records = launchpad_client.builds_for_publication(pub) if pub is not None else []
-        if not build_records:
+        if pub is not None:
+            build_records = launchpad_client.builds_for_publication(pub)
+            binary_records = launchpad_client.binaries_for_publication(pub)
+        if not build_records and not binary_records:
             log.warning(
-                "lp-build-api: no Launchpad build records found for the exact "
-                "analysed version %s of %s (%s pocket); the publication may not "
-                "carry build records (e.g. a pure metadata/override change)",
+                "lp-build-api: no Launchpad build or published-binary records found "
+                "for the exact analysed version %s of %s (%s pocket); the publication "
+                "may not carry build records (e.g. a pure metadata/override change)",
                 analyzed_version,
                 pkg,
                 analyzed_pocket or "unknown",
             )
     else:
-        # packaging-source could not pin a version (e.g. no publish history at
-        # all in the target pocket); fall back to the newest publication that
-        # has any build records.
+        # version-resolution could not pin a version (e.g. no publish history
+        # at all in the target pocket); fall back to the newest publication
+        # that has any build records.
         build_records = _builds_from_newest_publication(archive, lp_series, pkg)
 
-    if not build_records:
+    if not build_records and not binary_records:
         try:
             source_pkg = ubuntu.getSourcePackage(name=pkg)
         except Exception as exc:
@@ -1308,7 +1320,7 @@ def collect_lp_build_api(ctx: RunContext) -> LPBuildAPIResult:
                 build_records = list(candidate)
             break
 
-    if not build_records and hasattr(lp_series, "getBuildRecords"):
+    if not build_records and not binary_records and hasattr(lp_series, "getBuildRecords"):
         try:
             build_records = list(lp_series.getBuildRecords(source_package_name=pkg))
         except TypeError:
@@ -1319,13 +1331,18 @@ def collect_lp_build_api(ctx: RunContext) -> LPBuildAPIResult:
         except Exception:
             build_records = []
 
+    completeness = launchpad_client.summarize_build_completeness(build_records, binary_records)
+
     builds: list[dict] = []
+    seen_arches: set[str] = set()
     for record in build_records:
+        arch_tag = launchpad_client.build_attr(
+            record, "arch_tag", "arch_tag_name", "architecture_tag"
+        )
+        seen_arches.add(arch_tag)
         builds.append(
             {
-                "arch_tag": launchpad_client.build_attr(
-                    record, "arch_tag", "arch_tag_name", "architecture_tag"
-                ),
+                "arch_tag": arch_tag,
                 "build_state": launchpad_client.build_attr(
                     record, "buildstate", "build_state", "status"
                 ),
@@ -1344,6 +1361,29 @@ def collect_lp_build_api(ctx: RunContext) -> LPBuildAPIResult:
                 "build_log_url": launchpad_client.build_attr(record, "build_log_url"),
                 "changesfile_url": launchpad_client.build_attr(record, "changesfile_url"),
                 "buildinfo_url": launchpad_client.build_attr(record, "buildinfo_url"),
+            }
+        )
+
+    # Architectures with a published binary but no distinct Build record (see
+    # summarize_build_completeness's "carried_over" fallback) are added too,
+    # so this list never silently under-reports an architecture that is
+    # plainly available in the archive.
+    for entry in completeness["entries"]:
+        if entry["arch_tag"] in seen_arches:
+            continue
+        builds.append(
+            {
+                "arch_tag": entry["arch_tag"],
+                "build_state": "Successfully built",
+                "build_reason": entry["build_state"],
+                "version": analyzed_version,
+                "date_created": "",
+                "pocket": analyzed_pocket,
+                "archive": "",
+                "web_link": "",
+                "build_log_url": "",
+                "changesfile_url": "",
+                "buildinfo_url": "",
             }
         )
 

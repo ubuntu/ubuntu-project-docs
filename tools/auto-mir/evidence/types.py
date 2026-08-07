@@ -147,6 +147,21 @@ class LPBuildAPIResult(TypedDict):
     source_url: str
 
 
+class VersionResolutionResult(TypedDict):
+    """Return structure for version-resolution adapter.
+
+    The single source of truth for which source version/pocket every other
+    version-pinned adapter (packaging-source, lp-build-api, ...) should
+    analyse - computed once here instead of being re-derived independently by
+    each consumer, so their statements about the package always agree.
+    """
+
+    status: str
+    resolved_version: str
+    resolved_pocket: str
+    resolution_note: str
+
+
 class UpstreamReleaseEntry(TypedDict):
     """Single upstream release entry."""
 
