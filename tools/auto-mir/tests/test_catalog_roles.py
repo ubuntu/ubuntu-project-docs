@@ -67,6 +67,7 @@ def test_report_catalog_has_complete_logical_item_and_hardware_choice_inventory(
         "H-manufacturer",
         "X-exhausted",
         "Z-other",
+        "Y-build-autopkgtest",
     }
 
 

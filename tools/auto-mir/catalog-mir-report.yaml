@@ -474,6 +474,9 @@ items:
     - id: Z-other
       label: Something else / a special situation (describe below)
       statement: '- A different, situation-specific arrangement provides non-automated testing access; see the test plan details below.'
+    - id: Y-build-autopkgtest
+      label: Build and Autopkgtest can cover all regular tests this package needs
+      statement: '- Build and Autopkgtest can cover all regular tests this package needs.'
   template: 'TODO-A-H/X: - Non-automated testing access: TBD'
 - id: REP-QA-TEST-006
   section: Quality assurance - testing
@@ -482,7 +485,17 @@ items:
   readiness: blocker
   applicability:
     item: REP-QA-TEST-005
-    truthy: true
+    in:
+    - A-team-hardware
+    - B-budget
+    - C-testflinger
+    - D-other-team
+    - E-simulator
+    - F-upstream
+    - G-users
+    - H-manufacturer
+    - X-exhausted
+    - Z-other
   question:
     kind: multiline
     prompt: Provide the test plan or automation, example logs, execution frequency, and likely regression consequences.
