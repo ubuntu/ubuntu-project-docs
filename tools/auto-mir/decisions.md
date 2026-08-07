@@ -3311,4 +3311,118 @@ LXD guest + real Launchpad network calls).
   `make integration` intentionally left for the user to run (real LXD guest +
   real Launchpad network calls).
 
+## 2026-08-07 — Beta feedback round (jitterentropy-library reporter run), 4 items
+
+- Promotion: no
+- Context: a reporter test run against `jitterentropy-library` surfaced four
+  pieces of feedback, addressed as four independent, separately committed
+  changes on `auto-mir-review`:
+  1. REP-QA-TEST-005 (non-automated testing access) had no option for "build
+     and autopkgtest already cover everything this package needs" - every
+     existing option routed into a REP-QA-TEST-006 follow-up question asking
+     for more detail, which made no sense for this answer.
+  2. `fetch-build.build_log` stayed empty even though the reporter's own log
+     showed "Official Launchpad build succeeded: 2 .deb file(s) downloaded",
+     and the user separately confirmed a real, working build log exists and
+     is fetchable. Verified empirically against the live Launchpad web UI
+     (not just by reading code): `jitterentropy-library` 3.6.3-1's source
+     package overview page (`+source/jitterentropy-library/3.6.3-1`) lists
+     builds only under "Resolute" - there is no "Stonking" (devel) build
+     section at all, confirming the package was carried over unchanged into
+     the newly-opened devel series (the exact scenario the prior 2026-08-07
+     "has not yet built" fix already handles for *completeness*, but not yet
+     for the build log itself). `lp-build-api`'s carried-over-architecture
+     fallback (added by that same prior fix) hardcoded `build_log_url: ""`
+     for such architectures, since there genuinely is no `Build` record for
+     the *current* series to query - but the published binary itself still
+     references the real build that originally produced it (an ordinary
+     `binary_package_publishing_history.build_link`), so a real log was
+     resolvable and simply was never looked up.
+  3. REP-UI-001 (human_only free-text "is this end-user facing?") and
+     REP-UI-002 (ev_to_ai, same topic, evidence-grounded) covered the exact
+     same question with zero data flow between them - forcing a manual
+     answer immediately before a better AI-suggested one for the same topic
+     was pure friction with no compensating value.
+  4. Only 9 of the ~36 human_only/ev_to_ai reporter items showed policy
+     "Context: RULE: ..." text ahead of their question (a P0-phase feature);
+     the other ~27 showed nothing, even though the exact same policy text
+     already lives in `catalog-mir-report.yaml`'s own
+     `metadata.reporter_template_blueprint` (which interleaves `'[Section]'`
+     markers, `'RULE: ...'` lines, and `item: REP-XXX` entries in template
+     render order) - authoring per-item `rule_context` by hand risked
+     drifting from that blueprint prose over time, which item 3 below's own
+     analysis (see below) confirmed had already happened once.
+- Decision:
+  1. Added option `Y-build-autopkgtest` to REP-QA-TEST-005, recorded
+     verbatim with no follow-up question. No new code: REP-QA-TEST-006's
+     `applicability` changed from `{item: REP-QA-TEST-005, truthy: true}` to
+     `{item: REP-QA-TEST-005, in: [<the 10 pre-existing option ids>]}`,
+     reusing `reporter/conditions.py`'s existing `in` operator and
+     `reporter/evaluator.py`'s existing `_condition_triggers`/
+     `_mark_followup_options` follow-up-hint derivation unchanged.
+  2. `evidence/launchpad_client.py` gained `original_build_for_arch(binaries,
+     arch_tag)`: for a carried-over architecture, follows the matching
+     published binary's `build` reference to the real originating `IBuild`
+     object (never raises - a missing/undereferenceable link is treated as
+     "no original build found"). `evidence/host_adapters.py`'s
+     `collect_lp_build_api` carried-over-entries loop now populates
+     `build_log_url`/`changesfile_url`/`buildinfo_url`/`version`/
+     `date_created`/`pocket`/`archive` from that real build instead of
+     hardcoded empty placeholders, falling back to the previous empty
+     placeholders unchanged when no original build is resolvable. Separately
+     (defense in depth for the residual case where even this fails, e.g. a
+     genuinely pruned/never-existed log): `reporter/evaluator.py`'s
+     `build-tests` evaluator (REP-QA-TEST-001) now falls back to
+     `packaging-source.debian_rules_overrides` when `build_log` is empty,
+     stating confidently whether the default `dh_auto_test` target is
+     disabled/overridden or left to run unmodified, instead of an
+     uninformative "log unavailable" TODO. REP-QA-TEST-004's `ai_policy`
+     (ev_to_ai "Test adequacy assessment") gained an explicit instruction to
+     use the same `debian_rules_overrides`/`debian_rules` evidence (already
+     passed to the model in full for this item) the same way, instead of
+     declaring the assessment impossible purely because the log is missing.
+  3. Removed REP-UI-001 from `catalog-mir-report.yaml` (item definition and
+     blueprint reference); REP-UI-002 is now the sole UI-standards item.
+     Reporter item count is 55->54. No other code referenced REP-UI-001 by
+     name (verified via full-repo grep).
+  4. `catalog.py` gained `_blueprint_section_rules(blueprint)` (parses
+     `metadata.reporter_template_blueprint` once into `{section: [RULE
+     lines]}`, since RULE lines always precede all items in a section) and
+     `_apply_reporter_rule_context_defaults(catalog)`, called from
+     `load_catalog_for_role` only for the `"report"` role: every
+     `human_only`/`ev_to_ai` item without an explicit `rule_context` gets its
+     section's RULE line(s) plus its own `template` (`TODO: ...`) line joined
+     together, so the reporter sees WHY (policy) and WHAT (what this item
+     resolves) with zero hand-duplicated text. Items that already hand-set
+     `rule_context` (9 today, e.g. `REP-MAINT-001`) are left completely
+     unchanged, including not getting the TODO line appended - hand-picking a
+     specific RULE for one item out of several in its section is still a
+     legitimate reason to author it explicitly. `validate_report_catalog` now
+     rejects any hand-authored `rule_context` line starting with `RULE:` that
+     isn't a verbatim match of one of its own section's blueprint RULE
+     lines, as a permanent drift guard. **This check immediately caught a
+     real, pre-existing drift**: `REP-DEP-002`'s hand-authored `rule_context`
+     was a paraphrase, not a verbatim copy, of the `[Dependencies]` section's
+     actual blueprint RULE line (8 of the 9 hand-set items matched verbatim;
+     this one didn't) - fixed by removing the paraphrase entirely and letting
+     it be auto-derived like the other ~27 items, rather than trying to keep
+     a hand-written paraphrase in sync forever.
+- Consequences: REP-QA-TEST-005 now has a clean terminal answer for the
+  common "we don't need anything beyond build+autopkgtest" case. The
+  `jitterentropy-library` build-log gap is fixed at its real, verified root
+  cause (a carried-over architecture's binary still points at its real
+  build) rather than papered over with a retry/guess; REP-QA-TEST-001/004
+  additionally degrade gracefully instead of going blank in the rarer case
+  where even that resolution fails. The reporter has one fewer redundant
+  question. ~27 more reporter items now show policy context ahead of their
+  question, all sourced from the catalog's own existing blueprint data with
+  a test-enforced guarantee against future drift - and the mechanism itself
+  found and fixed one real drift bug during implementation.
+- Validation from `tools/auto-mir`: `make test` PASS (814 passed, 2 skipped,
+  up from an 803-passed baseline: +2 catalog drift-guard/auto-derivation
+  tests, +2 `original_build_for_arch` tests, +2 `collect_lp_build_api`
+  carried-over tests, +5 `build-tests`/`_build_tests_without_log` tests).
+  `make integration` intentionally left for the user to run (real LXD guest
+  + real Launchpad network calls).
+
 
