@@ -1019,7 +1019,17 @@ def _urls_look_related(project_url: str, hint_url: str) -> bool:
 
 def _collect_upstream_search_terms(
     ctx: RunContext, package_name: str
-) -> tuple[list[str], list[str]]:
+) -> tuple[list[str], str, list[str]]:
+    """Return search terms plus the Homepage hint and other (watch) hints.
+
+    debian/control's ``Homepage:`` field is kept distinct from debian/watch
+    URLs: it is usually the project's own authoritative page, while
+    debian/watch typically points at a download/tarball location that can
+    live on an entirely different domain (e.g. an author's personal site
+    hosting release tarballs). Keeping them separate lets
+    ``_select_upstream_project`` weight a Homepage match higher without
+    diluting it into one flat, unordered hint list.
+    """
     packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
     if not isinstance(packaging, dict):
         packaging = {}
@@ -1027,29 +1037,45 @@ def _collect_upstream_search_terms(
     debian_watch = str(packaging.get("debian_watch") or "")
     debian_control = str(packaging.get("debian_control") or "")
 
-    url_hints = _extract_urls_from_watch(debian_watch)
-    homepage = _extract_homepage_from_control(debian_control)
-    if homepage:
-        url_hints.append(homepage)
-    url_hints = _dedupe_preserve_order(url_hints)
+    homepage_hint = _extract_homepage_from_control(debian_control)
+    watch_url_hints = [
+        url for url in _extract_urls_from_watch(debian_watch) if url != homepage_hint
+    ]
+    all_hints = _dedupe_preserve_order(([homepage_hint] if homepage_hint else []) + watch_url_hints)
 
     search_terms = [package_name]
     normalized_package = _normalize_project_name(package_name)
     if normalized_package and normalized_package != package_name:
         search_terms.append(normalized_package)
-    for url in url_hints:
+    for url in all_hints:
         search_terms.extend(_project_terms_from_url(url))
 
-    return _dedupe_preserve_order([term for term in search_terms if term]), url_hints
+    return (
+        _dedupe_preserve_order([term for term in search_terms if term]),
+        homepage_hint,
+        watch_url_hints,
+    )
 
 
 def _select_upstream_project(
     projects: list[dict[str, Any]],
     package_name: str,
     candidate_name: str,
-    url_hints: list[str],
+    homepage_hint: str,
+    watch_url_hints: list[str],
 ) -> dict[str, Any] | None:
-    """Return the best upstream project match for a source package name."""
+    """Return the best upstream project match for a source package name.
+
+    Scoring tiers (highest wins, ties broken by first-seen): a
+    release-monitoring.org project whose own homepage/url corresponds to
+    debian/control's Homepage hint (100) outranks an exact candidate-name
+    match (90), which outranks an exact package-name match (80), which
+    outranks a project matching only a debian/watch-derived hint (70, since
+    that URL is often just a download location, not the project's real
+    home), which outranks a partial name match (60). This keeps Homepage as
+    the practical default winner while still leaving it a normal, scorable
+    (and thus outscoreable) signal rather than a hard override.
+    """
     if not projects:
         return None
 
@@ -1066,10 +1092,8 @@ def _select_upstream_project(
             str(project.get("homepage") or "").strip(),
             str(project.get("url") or "").strip(),
         ]
-        if any(
-            _urls_look_related(project_url, hint)
-            for project_url in project_urls
-            for hint in url_hints
+        if homepage_hint and any(
+            _urls_look_related(project_url, homepage_hint) for project_url in project_urls
         ):
             score = max(score, 100)
 
@@ -1077,6 +1101,14 @@ def _select_upstream_project(
             score = max(score, 90)
         if name == normalized_pkg and normalized_pkg:
             score = max(score, 80)
+
+        if any(
+            _urls_look_related(project_url, hint)
+            for project_url in project_urls
+            for hint in watch_url_hints
+        ):
+            score = max(score, 70)
+
         if normalized_candidate and normalized_candidate in name:
             score = max(score, 60)
 
@@ -1091,6 +1123,26 @@ def _select_upstream_project(
     return None
 
 
+def _verified_upstream_url(candidates: list[str]) -> str:
+    """Return the first candidate URL that actually resolves, else "".
+
+    URLs suggested to a reporter should be verified to exist first: a stale
+    or wrong upstream URL (e.g. a domain that used to host the project but
+    no longer does) is worse than no URL at all, since the reporter is
+    likely to trust a tool-provided value. Tries candidates in the given
+    preference order (already Homepage-first where applicable) and falls
+    through to the next one on a verification failure, rather than giving up
+    after the first candidate -- this is still bounded (at most a handful of
+    fast, timeout-capped checks) and lets a genuinely good URL (e.g. the
+    verified Homepage) win even when a higher-preference candidate (e.g. a
+    release-monitoring.org project's own homepage) turns out to be stale.
+    """
+    for candidate in _dedupe_preserve_order([url for url in candidates if url]):
+        if http_utils.check_url_exists(candidate):
+            return candidate
+    return ""
+
+
 @adapter(AdapterID.UPSTREAM_TRACKER)
 def collect_upstream_tracker(ctx: RunContext) -> UpstreamTrackerResult:
     """Query release-monitoring.org for upstream release history.
@@ -1099,15 +1151,21 @@ def collect_upstream_tracker(ctx: RunContext) -> UpstreamTrackerResult:
     returns the best matching project entry when an exact match is not available.
     Finding no release-monitoring.org match is a normal, expected outcome for
     many packages, not an adapter failure: when the package's own
-    debian/control Homepage or debian/watch already names an upstream URL
-    (``url_hints``), that URL is used directly rather than discarded. Only
-    genuine transport/parse errors raise ``AdapterError``.
+    debian/control Homepage or debian/watch already names an upstream URL,
+    that URL is used directly rather than discarded. Only genuine
+    transport/parse errors raise ``AdapterError``. Whatever URL is finally
+    chosen is verified to actually resolve (see ``_verified_upstream_url``)
+    before being returned; an unverified URL is dropped rather than
+    presented to the reporter as if it were confidently detected.
     """
     pkg = ctx.source_package
     if not pkg:
         raise AdapterError("source_package not set")
 
-    search_terms, url_hints = _collect_upstream_search_terms(ctx, pkg)
+    search_terms, homepage_hint, watch_url_hints = _collect_upstream_search_terms(ctx, pkg)
+    hint_candidates = _dedupe_preserve_order(
+        ([homepage_hint] if homepage_hint else []) + watch_url_hints
+    )
     project = None
 
     for term in search_terms:
@@ -1131,12 +1189,12 @@ def collect_upstream_tracker(ctx: RunContext) -> UpstreamTrackerResult:
         if not projects:
             continue
 
-        project = _select_upstream_project(projects, pkg, term, url_hints)
+        project = _select_upstream_project(projects, pkg, term, homepage_hint, watch_url_hints)
         if project is not None:
             break
 
     if project is None:
-        if url_hints:
+        if hint_candidates:
             log.debug(
                 "upstream-tracker: no release-monitoring.org match for %s; "
                 "using debian/control or debian/watch URL hint instead",
@@ -1144,9 +1202,16 @@ def collect_upstream_tracker(ctx: RunContext) -> UpstreamTrackerResult:
             )
         else:
             log.debug("upstream-tracker: no upstream project match found for %s", pkg)
+        upstream_url = _verified_upstream_url(hint_candidates)
+        if hint_candidates and not upstream_url:
+            log.debug(
+                "upstream-tracker: candidate URL(s) for %s did not resolve, "
+                "treating upstream project as undetected",
+                pkg,
+            )
         return {
             "status": "ok",
-            "upstream_url": url_hints[0] if url_hints else "",
+            "upstream_url": upstream_url,
             "upstream_name": "",
             "latest_version": "",
             "open_issues_count": 0,
@@ -1186,10 +1251,16 @@ def collect_upstream_tracker(ctx: RunContext) -> UpstreamTrackerResult:
         open_issues_count,
         len(recent_releases),
     )
+    project_url = str(project.get("homepage") or project.get("url") or "").strip()
+    upstream_url = _verified_upstream_url([project_url, *hint_candidates])
+    if not upstream_url and (project_url or hint_candidates):
+        log.debug(
+            "upstream-tracker: candidate URL(s) for %s did not resolve, omitting upstream_url",
+            pkg,
+        )
     return {
         "status": "ok",
-        "upstream_url": str(project.get("homepage") or project.get("url") or "").strip()
-        or (url_hints[0] if url_hints else ""),
+        "upstream_url": upstream_url,
         "upstream_name": str(project.get("name") or "").strip(),
         "latest_version": latest_version,
         "open_issues_count": open_issues_count,

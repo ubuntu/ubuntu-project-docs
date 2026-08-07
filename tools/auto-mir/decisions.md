@@ -3486,5 +3486,55 @@ LXD guest + real Launchpad network calls).
   updated accordingly.
   `make test`: 817 passed, 2 skipped.
 
+## 2026-08-07 — Reporter feedback round (jitterentropy-library test), phase 2: upstream URL Homepage priority + existence verification
+
+- Promotion: no
+- Context: for `jitterentropy-library`, the reporter's REP-BG-002 preface
+  suggested `http://www.chronox.de/jent.html` as the upstream project URL --
+  a page that does not exist -- instead of debian/control's own `Homepage:
+  https://github.com/smuellerDD/jitterentropy-library`. Root cause: (1)
+  `_collect_upstream_search_terms` merged debian/watch-derived URLs (usually
+  a download/tarball location, sometimes on a different domain from the
+  project's real home) and the debian/control Homepage into one flat,
+  unordered `url_hints` list, so a release-monitoring.org project matching
+  either scored identically (100) in `_select_upstream_project`, and the
+  fallback path (`url_hints[0]`) preferred whichever hint happened to be
+  collected first, not necessarily Homepage; (2) nothing ever verified a
+  candidate URL actually resolves before presenting it.
+- Decision: keep the Homepage hint distinct from debian/watch hints
+  throughout (`_collect_upstream_search_terms` now returns
+  `(search_terms, homepage_hint, watch_url_hints)`), and give a
+  Homepage-hint match the top scoring tier (100) in
+  `_select_upstream_project`, above an exact name match (90/80), which is
+  itself above a watch-hint-only match (70) and a partial name match (60) --
+  a scoring adjustment, not a hard bypass of the release-monitoring.org
+  lookup, so a strong independent signal can still outrank it. Added
+  `utils/http.py::check_url_exists()`: a single-attempt HEAD (GET fallback
+  on 405/501), ~10s timeout, deliberately NOT wrapped in the existing
+  `retry_rate_limited` policy (6 attempts, up to 300s) -- a URL-existence
+  sanity check on a value about to be shown to a human should fail fast, not
+  stall evidence collection for minutes over one broken link. New
+  `_verified_upstream_url()` tries an ordered, deduped candidate list
+  (whatever `_select_upstream_project` picked, then the Homepage hint, then
+  watch hints) and returns the first one that verifies, so a genuinely good
+  fallback candidate (e.g. the real Homepage) can still win even when a
+  higher-preference candidate (e.g. a release-monitoring.org project's own
+  homepage) turns out to be stale -- rather than giving up entirely after
+  one failed check. If nothing verifies, `upstream_url` is left empty
+  (adapter stays `status: "ok"`, matching the existing graceful-empty
+  pattern for "no match found") so the reporter is asked instead of shown a
+  dead link.
+- Consequences: for the exact jitterentropy-library scenario, the
+  release-monitoring.org match via the watch-derived chronox.de hint no
+  longer silently wins, and even if it's selected as the best-scoring
+  project, its stale URL fails verification and the tool falls through to
+  the verified GitHub Homepage. Existing upstream-tracker tests were updated
+  to mock `check_url_exists` (no real network calls in unit tests); new
+  tests cover the Homepage-vs-watch-hint scoring regression and the
+  verification-fallback/all-fail cases, plus direct `check_url_exists` unit
+  tests in `tests/test_utils_http.py` (200/404/405-fallback/timeout/
+  URLError).
+  `make test`: 825 passed, 2 skipped.
+
 
 

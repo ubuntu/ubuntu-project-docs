@@ -1450,7 +1450,10 @@ def test_upstream_tracker_output_structure():
         ]
     }
 
-    with patch("evidence.host_adapters._fetch_json", return_value=payload):
+    with (
+        patch("evidence.host_adapters._fetch_json", return_value=payload),
+        patch("evidence.host_adapters.http_utils.check_url_exists", return_value=True),
+    ):
         from evidence.host_adapters import collect_upstream_tracker
 
         result = collect_upstream_tracker(ctx)
@@ -1479,7 +1482,10 @@ def test_upstream_tracker_no_match_falls_back_to_control_homepage():
         }
     }
 
-    with patch("evidence.host_adapters._fetch_json", return_value={"items": []}):
+    with (
+        patch("evidence.host_adapters._fetch_json", return_value={"items": []}),
+        patch("evidence.host_adapters.http_utils.check_url_exists", return_value=True),
+    ):
         from evidence.host_adapters import collect_upstream_tracker
 
         result = collect_upstream_tracker(ctx)
@@ -1538,7 +1544,10 @@ def test_upstream_tracker_uses_watch_and_homepage_hints_for_search():
             }
         raise AssertionError(f"unexpected URL: {url}")
 
-    with patch("evidence.host_adapters._fetch_json", side_effect=_fake_fetch) as mock_fetch:
+    with (
+        patch("evidence.host_adapters._fetch_json", side_effect=_fake_fetch) as mock_fetch,
+        patch("evidence.host_adapters.http_utils.check_url_exists", return_value=True),
+    ):
         from evidence.host_adapters import collect_upstream_tracker
 
         result = collect_upstream_tracker(ctx)
@@ -1550,6 +1559,85 @@ def test_upstream_tracker_uses_watch_and_homepage_hints_for_search():
     assert any("name=lua5.5" in url for url in queried_urls)
     assert any("name=lua" in url for url in queried_urls)
     assert not any("salsa" in url for url in queried_urls)
+
+
+def test_upstream_tracker_prefers_verified_homepage_over_unverified_watch_hint_match():
+    """Regression test for the jitterentropy-library beta report: release-
+    monitoring.org matched a project only via the debian/watch-derived hint
+    (the author's page hosting release tarballs), and that page no longer
+    exists. debian/control's Homepage (a working GitHub mirror) must win
+    instead of the stale watch-hint-matched URL."""
+    ctx = Mock()
+    ctx.source_package = "jitterentropy-library"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "debian_watch": (
+                    "version=4\nhttps://www.chronox.de/jent/jitterentropy-(\\d.*)\\.tar\\.xz\n"
+                ),
+                "debian_control": (
+                    "Source: jitterentropy-library\n"
+                    "Homepage: https://github.com/smuellerDD/jitterentropy-library\n"
+                ),
+            }
+        }
+    }
+
+    payload = {
+        "items": [
+            {
+                "name": "jitterentropy",
+                "homepage": "http://www.chronox.de/jent.html",
+                "version": "3.6.0",
+                "versions": ["3.6.0"],
+            }
+        ]
+    }
+
+    def _fake_check_url_exists(url, **_kwargs):
+        return "chronox.de" not in url
+
+    with (
+        patch("evidence.host_adapters._fetch_json", return_value=payload),
+        patch(
+            "evidence.host_adapters.http_utils.check_url_exists",
+            side_effect=_fake_check_url_exists,
+        ),
+    ):
+        from evidence.host_adapters import collect_upstream_tracker
+
+        result = collect_upstream_tracker(ctx)
+
+    assert result["status"] == "ok"
+    assert result["upstream_url"] == "https://github.com/smuellerDD/jitterentropy-library"
+
+
+def test_upstream_tracker_drops_url_when_nothing_verifies():
+    """If every candidate URL fails verification, upstream_url stays empty
+    rather than presenting a broken link as if it were confidently detected."""
+    ctx = Mock()
+    ctx.source_package = "obscure-pkg"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "debian_watch": "",
+                "debian_control": "Source: obscure-pkg\nHomepage: https://example.invalid/gone\n",
+            }
+        }
+    }
+
+    with (
+        patch("evidence.host_adapters._fetch_json", return_value={"items": []}),
+        patch("evidence.host_adapters.http_utils.check_url_exists", return_value=False),
+    ):
+        from evidence.host_adapters import collect_upstream_tracker
+
+        result = collect_upstream_tracker(ctx)
+
+    assert result["status"] == "ok"
+    assert result["upstream_url"] == ""
 
 
 def test_dep_analysis_output_structure():
