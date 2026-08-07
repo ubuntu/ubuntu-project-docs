@@ -190,7 +190,7 @@ def test_reporter_render_writes_draft_and_structured_report(tmp_path):
     assert "[Maintenance/Owner]" in draft
     assert "RULE:" not in draft
     assert "TBDSRC" not in draft
-    assert "Ready for submission: no" in draft
+    assert "Ready for submission" not in draft
 
     report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
     assert report["role"] == "report"
@@ -275,7 +275,10 @@ def test_readiness_summary_only_lists_items_still_genuinely_unresolved(tmp_path)
     assert "REP-QA-PKG-005" in report["readiness"]["blockers"]
 
 
-def test_readiness_summary_block_is_at_top_with_separator_and_labels(tmp_path):
+def test_readiness_summary_is_absent_from_the_draft_file(tmp_path):
+    """The readiness summary must never end up in reporter-draft.txt: a
+    submitter who copy-pastes the whole draft to Launchpad should not risk
+    posting a stale "Ready for submission"/TODO-count line alongside it."""
     ctx = _ctx(tmp_path)
     results = evaluate_items(ctx, FakeWizard())
     ctx.statement_results = results
@@ -286,18 +289,39 @@ def test_readiness_summary_block_is_at_top_with_separator_and_labels(tmp_path):
     draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
     lines = draft.splitlines()
 
-    summary_index = lines.index("[Auto-MIR readiness summary]")
+    assert "[Auto-MIR readiness summary]" not in draft
+    assert "Ready for submission" not in draft
+    assert "Remaining TODOs" not in draft
+    # The draft now starts directly with the header, then the first section.
     first_section_index = next(i for i, line in enumerate(lines) if line == "[Availability]")
-    separator_index = next(i for i, line in enumerate(lines) if line == "=" * 70)
+    assert lines[0] == f"MIR report for source package: {ctx.source_package}"
+    assert first_section_index > 0
 
-    assert summary_index < separator_index < first_section_index
-    assert "Remaining TODOs (must resolve before submission):" in draft
-    assert "Remaining TODOs (recommended, non-blocking):" in draft
-    assert "Blocking items:" not in draft
-    assert "Warnings:" not in draft
+
+def test_readiness_summary_console_log_lists_only_must_resolve_items(tmp_path, caplog):
+    """The trimmed console/log-only readiness summary lists "must resolve"
+    TODOs, labelled by section/title, but never the "recommended,
+    non-blocking" section: those are almost always already resolved by the
+    end of the interactive session, and the few genuine leftovers are easy
+    to spot directly in the draft (still a bare "TODO: -" line)."""
+    ctx = _ctx(tmp_path)
+    results = evaluate_items(ctx, FakeWizard())
+    ctx.statement_results = results
+    ctx.consistency_report = validate_results(results)
+
+    with caplog.at_level("INFO", logger="auto_mir.reporter"):
+        write_outputs(ctx, results)
+
+    messages = [record.getMessage() for record in caplog.records]
+    assert "[Auto-MIR readiness summary]" in messages
+    assert any(message.startswith("Ready for submission: ") for message in messages)
+    assert "Remaining TODOs (must resolve before submission):" in messages
+    assert not any(
+        "Remaining TODOs (recommended, non-blocking):" in message for message in messages
+    )
     # Every listed id is labelled by its section/title, not shown bare.
-    for line in lines[summary_index:separator_index]:
-        stripped = line.strip()
+    for message in messages:
+        stripped = message.strip()
         if stripped.startswith("REP-"):
             assert " -- " in stripped
 

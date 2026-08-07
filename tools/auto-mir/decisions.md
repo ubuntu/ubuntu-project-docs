@@ -3446,4 +3446,45 @@ LXD guest + real Launchpad network calls).
   generated line containing `RULE:`/`TODO:` is ever missing its `#` prefix.
   `make test`: 816 passed, 2 skipped.
 
+## 2026-08-07 — Reporter feedback round (jitterentropy-library test), phase 1: readiness summary no longer in the draft file
+
+- Promotion: no
+- Context: a beta tester's `report` run left the `[Auto-MIR readiness
+  summary]` block (with "Ready for submission: yes/no" and both a
+  "must resolve" and a "recommended, non-blocking" TODO list) embedded at
+  the top of `reporter-draft.txt`. Two problems: (1) a submitter who
+  copy-pastes the whole draft onto Launchpad risks posting this internal
+  bookkeeping block verbatim into the public bug; (2) the "recommended,
+  non-blocking" list is frequently stale by the time the interactive
+  session finishes (most of those items get resolved through later
+  questions) and re-listing them creates a false impression of remaining
+  work, when any genuine leftover is already easy to spot in the draft
+  itself (it stays a bare `TODO: -` line).
+- Decision: remove the readiness summary entirely from `_build_draft()` (the
+  draft now starts directly with the header, then the catalog sections).
+  Instead, `reporter/render.py::write_outputs()` logs a trimmed console/log
+  variant (`readiness_console_lines()`) via `auto_mir.reporter` after writing
+  the files: "Ready for submission" plus the "must resolve before
+  submission" list only, each item labelled by section/title. The
+  "recommended, non-blocking" section is dropped entirely, not just moved.
+  `report.json`'s `readiness` key is left unchanged (still both `blockers`
+  and `warnings`) since it's a machine-readable artifact, not something a
+  submitter pastes verbatim into a bug — kept for tooling/audit use.
+  review mode's separate `[Summary]` rendering (`render/__init__.py`) was
+  not touched.
+- Consequences: `reporter-draft.txt` is now safe to copy-paste directly;
+  reviewers who want the readiness snapshot see it in the console/log output
+  of the run instead. Existing tests
+  `test_readiness_summary_only_lists_items_still_genuinely_unresolved` /
+  `test_readiness_summary_reflects_option_override_blockers` /
+  `test_consistency_error_forces_not_ready_rendering` (all asserting on
+  `report.json`) are unaffected; the draft-content assertion in
+  `test_reporter_render_writes_draft_and_structured_report` and the old
+  `test_readiness_summary_block_is_at_top_with_separator_and_labels` (now
+  split into `test_readiness_summary_is_absent_from_the_draft_file` and
+  `test_readiness_summary_console_log_lists_only_must_resolve_items`) were
+  updated accordingly.
+  `make test`: 817 passed, 2 skipped.
+
+
 

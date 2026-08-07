@@ -130,7 +130,7 @@ A normal run writes these files beneath the reported output directory:
 | File | Purpose |
 | --- | --- |
 | `review-draft.txt` | Reviewer-template-aligned draft to verify and edit before posting. |
-| `reporter-draft.txt` | Reporter-template-aligned draft with an explicit readiness summary. |
+| `reporter-draft.txt` | Reporter-template-aligned draft, ready to review and post. |
 | `report.json` | Structured findings, confidence, evidence references, and LLM usage. |
 | `evidence.json` | Collected adapter evidence for auditing and diagnosis. |
 | `auto-mir.log` | JSON-formatted execution log. |

@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import asdict
 
 from reporter.models import ReadinessEffect, StatementResult, StatementState
+
+log = logging.getLogger("auto_mir.reporter")
 
 
 def write_outputs(ctx, results: list[StatementResult]) -> None:
@@ -18,6 +21,8 @@ def write_outputs(ctx, results: list[StatementResult]) -> None:
     ctx.reporter_draft_path.write_text(ctx.secret_redactor.redact_text(draft), encoding="utf-8")
 
     readiness = _readiness_summary(results, getattr(ctx, "consistency_report", None))
+    for line in readiness_console_lines(ctx, readiness):
+        log.info(line)
     report = {
         "schema_version": 1,
         "role": "report",
@@ -75,46 +80,47 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
             if result.rationale:
                 body_lines.append(f"  (Unavailable: {_with_hanging_indent(result.rationale)})")
 
-    readiness = _readiness_summary(list(by_id.values()), getattr(ctx, "consistency_report", None))
     lines = [
         f"MIR report for source package: {ctx.source_package}",
         f"Target series: {ctx.series}",
         "",
-        *_render_readiness_summary(ctx, readiness),
         *body_lines,
     ]
     return "\n".join(lines) + "\n"
 
 
-def _render_readiness_summary(ctx, readiness: dict) -> list[str]:
-    """Render the readiness summary block shown at the very top of the draft.
+def _labelled_items(ctx, item_ids: list[str]) -> list[str]:
+    """Render catalog item ids as ``id -- section / title`` lines.
 
-    Placed first (with a full-width separator marking where it ends) so the
-    reporter sees "am I close to done" before the section-by-section detail,
-    and each listed item is labelled by its section/title, not a bare
-    catalog id, so it is meaningful without cross-referencing the catalog.
+    Falls back to "  none" for an empty list so the console block always has
+    a visible line under each heading.
     """
+    if not item_ids:
+        return ["  none"]
     labels = {
         f"{item['id']}": f"{item['section']} / {item['title']}" for item in ctx.catalog["items"]
     }
+    return [f"  {item_id} -- {labels.get(item_id, '')}" for item_id in item_ids]
 
-    def _labelled(item_ids: list[str]) -> list[str]:
-        if not item_ids:
-            return ["  none"]
-        return [f"  {item_id} -- {labels.get(item_id, '')}" for item_id in item_ids]
 
-    separator = "=" * 70
+def readiness_console_lines(ctx, readiness: dict) -> list[str]:
+    """Render the console/log-only readiness summary for report mode.
+
+    This intentionally never becomes part of ``reporter-draft.txt``: a
+    submitter who copy-pastes the whole draft to Launchpad should not risk
+    accidentally posting a stale "Ready for submission" line. It also
+    intentionally omits the "recommended, non-blocking" TODOs -- those are,
+    in practice, almost always already resolved by the time the reporter
+    finishes the interactive session, and any genuinely unresolved one is
+    still easy to spot in the draft itself (it stays a bare "TODO: -"
+    line), so repeating a large, frequently-stale list here does more harm
+    (noise, false sense of remaining work) than good.
+    """
     return [
         "[Auto-MIR readiness summary]",
         f"Ready for submission: {'yes' if readiness['ready'] else 'no'}",
         "Remaining TODOs (must resolve before submission):",
-        *_labelled(readiness["blockers"]),
-        "Remaining TODOs (recommended, non-blocking):",
-        *_labelled(readiness["warnings"]),
-        "",
-        "This is a draft. Verify every statement and remove remaining TODO markers before posting.",
-        separator,
-        "",
+        *_labelled_items(ctx, readiness["blockers"]),
     ]
 
 
