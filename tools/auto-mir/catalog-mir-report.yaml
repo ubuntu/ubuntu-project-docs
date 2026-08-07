@@ -534,7 +534,7 @@ items:
   adapters_required: [fetch-build, packaging-source, autopkgtest-db]
   adapters_optional: [consumer-autopkgtests]
   autopkgtest_log_followup: true
-  ai_policy: Assess whether observed build tests and autopkgtests are non-trivial and plausibly cover regressions. The actual autopkgtest test definitions are provided in full in packaging-source.debian_tests_control (debian/tests/control) - read them to judge non-triviality (e.g. a real functional test vs. only invoking --help/--version) before concluding the evidence is inconclusive; autopkgtest-db only reports pass/fail per architecture, not what the tests do. Surface gaps; never invent test execution or a team commitment.
+  ai_policy: Assess whether observed build tests and autopkgtests are non-trivial and plausibly cover regressions. The actual autopkgtest test definitions are provided in full in packaging-source.debian_tests_control (debian/tests/control) - read them to judge non-triviality (e.g. a real functional test vs. only invoking --help/--version) before concluding the evidence is inconclusive; autopkgtest-db only reports pass/fail per architecture, not what the tests do. If fetch-build.build_log is empty or unavailable, do not treat that alone as inconclusive - packaging-source.debian_rules_overrides and the full debian/rules text are provided specifically to let you state confidently whether the default dh_auto_test target is disabled/overridden or left to run unmodified, even without the log itself. Surface gaps; never invent test execution or a team commitment.
   question:
     kind: multiline
     prompt: Assess whether test coverage is adequate and explain how remaining gaps will be covered.

@@ -161,6 +161,33 @@ def _binary_arch_tag(record: Any) -> str:
     return build_attr(das, "architecture_tag", "architecturetag", "arch_tag")
 
 
+def original_build_for_arch(binaries: list[Any], arch_tag: str) -> Any | None:
+    """Return the real IBuild that produced the published binary for one architecture.
+
+    For an architecture carried over unchanged from a predecessor series (no
+    distinct Build record for the *current* series - see
+    ``binaries_for_publication``/``summarize_build_completeness``'s
+    ``carried_over`` flag), the published binary itself still references the
+    real build that originally produced it via its ``build`` (``build_link``)
+    field, even though that build belongs to a different, older distro
+    series/publication. This lets a carried-over architecture still surface
+    its real build log/changes/buildinfo URLs instead of leaving them empty,
+    without needing a separate Launchpad query for the older series. Never
+    raises - a missing binary, missing link, or dereference failure is
+    treated the same as "no original build found".
+    """
+    for record in binaries:
+        if _binary_arch_tag(record) != arch_tag:
+            continue
+        if isinstance(record, dict):
+            return record.get("build")
+        try:
+            return getattr(record, "build", None)
+        except Exception:
+            return None
+    return None
+
+
 def find_source_publication(archive: Any, lp_series: Any, pkg: str, version: str) -> Any | None:
     """Return the ISourcePackagePublishingHistory for an exact source/version, or None."""
     try:

@@ -677,7 +677,7 @@ def _binary_integration_surface(_item: dict, ctx: RunContext) -> tuple[str | Non
 def _build_tests(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "fetch-build")
     if not data.get("build_log"):
-        return None, [], "No build log was available"
+        return _build_tests_without_log(ctx)
     log_text = str(data["build_log"]).casefold()
     markers = [
         marker
@@ -694,6 +694,37 @@ def _build_tests(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], s
         "No build-time test execution was identified in the collected build log.",
         ["fetch-build:build_log"],
         "A reason or alternative test plan is required.",
+    )
+
+
+def _build_tests_without_log(ctx: RunContext) -> tuple[str | None, list[str], str]:
+    """Fall back to debian/rules when the official build log is unavailable.
+
+    A missing build log (e.g. a carried-over architecture whose original
+    build log could not be resolved either) should not silently collapse
+    into an uninformative "unavailable" TODO when the packaging itself
+    already reveals whether build-time tests are disabled: debian/rules is
+    collected independently of the build log and its presence/absence of a
+    ``dh_auto_test`` override is a confident, direct signal.
+    """
+    packaging = _adapter(ctx, "packaging-source")
+    overrides = packaging.get("debian_rules_overrides")
+    if not isinstance(overrides, list):
+        return None, [], "No build log was available"
+    if "dh_auto_test" in overrides:
+        return (
+            "The build log was unavailable, but debian/rules overrides the default "
+            "dh_auto_test target, so the packaging - not the unmodified debhelper "
+            "default - controls what (if anything) runs as a build-time test.",
+            ["packaging-source:debian_rules_overrides"],
+            "Confirm what the override actually runs and that failures are not ignored.",
+        )
+    return (
+        "The build log was unavailable, but debian/rules does not override the "
+        "default dh_auto_test target, so any build-time test suite upstream "
+        "provides runs unmodified during the build.",
+        ["packaging-source:debian_rules_overrides"],
+        "Confirm the upstream build system actually defines a test target.",
     )
 
 

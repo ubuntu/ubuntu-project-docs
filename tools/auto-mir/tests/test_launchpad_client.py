@@ -192,8 +192,35 @@ def test_summarize_build_completeness_mixed():
     assert summary["overall_state"] == "mixed"
 
 
-def _binary(arch_tag: str, status: str = "Published") -> dict:
-    return {"arch_tag": arch_tag, "status": status}
+def _binary(arch_tag: str, status: str = "Published", build: object = None) -> dict:
+    record = {"arch_tag": arch_tag, "status": status}
+    if build is not None:
+        record["build"] = build
+    return record
+
+
+def test_original_build_for_arch_returns_the_referenced_build():
+    """A carried-over architecture's published binary still references the
+    real build that produced it (possibly under an older series) - this is
+    how a carried-over package still surfaces a real build log instead of an
+    empty one."""
+    real_build = {"build_log_url": "https://launchpadlibrarian.net/1/buildlog.txt.gz"}
+    binaries = [_binary("amd64", build=real_build), _binary("arm64")]
+
+    assert launchpad_client.original_build_for_arch(binaries, "amd64") is real_build
+    assert launchpad_client.original_build_for_arch(binaries, "arm64") is None
+    assert launchpad_client.original_build_for_arch(binaries, "s390x") is None
+
+
+def test_original_build_for_arch_never_raises_on_dereference_failure():
+    class _BrokenBuildLink:
+        @property
+        def build(self):
+            raise RuntimeError("network hiccup")
+
+    record = _BrokenBuildLink()
+    record.arch_tag = "amd64"
+    assert launchpad_client.original_build_for_arch([record], "amd64") is None
 
 
 def test_summarize_build_completeness_no_builds_has_no_carried_over_flag():

@@ -604,6 +604,108 @@ def test_lp_build_api_output_structure():
     )
 
 
+def test_lp_build_api_resolves_real_build_log_for_carried_over_architecture():
+    """A source carried over unchanged into a newly-opened devel series has no
+    distinct Build record for that series (getBuilds() returns none), but its
+    published binary still references the real build that originally
+    produced it - that real build's log/changes/buildinfo URLs must be
+    surfaced instead of left empty (regression test for the
+    jitterentropy-library beta report: fetch-build downloaded the binaries
+    successfully but never attempted a build-log download at all)."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.series = "noble"
+    ctx.evidence = {
+        "adapters": {
+            "version-resolution": {
+                "status": "ok",
+                "resolved_version": "1.0",
+                "resolved_pocket": "release",
+            }
+        }
+    }
+
+    original_build = {
+        "buildstate": "Successfully built",
+        "source_package_version": "1.0",
+        "date_created": "2025-10-29",
+        "pocket": "Release",
+        "build_log_url": "https://launchpadlibrarian.net/1/buildlog_amd64.txt.gz",
+        "changesfile_url": "https://launchpadlibrarian.net/1/testpkg_1.0_amd64.changes",
+        "buildinfo_url": "https://launchpadlibrarian.net/1/testpkg_1.0_amd64.buildinfo",
+    }
+    carried_over_binary = {"arch_tag": "amd64", "status": "Published", "build": original_build}
+
+    fake_pub = Mock()
+    fake_pub.getBuilds.return_value = []  # no Build record for the current series
+    fake_pub.getPublishedBinaries.return_value = [carried_over_binary]
+
+    fake_archive = Mock()
+    fake_archive.getPublishedSources.return_value = [fake_pub]
+
+    fake_ubuntu = Mock()
+    fake_ubuntu.getSeries.return_value = Mock()
+    fake_ubuntu.main_archive = fake_archive
+
+    fake_lp = Mock()
+    fake_lp.distributions = {"ubuntu": fake_ubuntu}
+
+    with patch("evidence.launchpad_client.login_anonymously", return_value=fake_lp):
+        from evidence.host_adapters import collect_lp_build_api
+
+        result = collect_lp_build_api(ctx)
+
+    assert result["status"] == "ok"
+    assert len(result["builds"]) == 1
+    build = result["builds"][0]
+    assert build["arch_tag"] == "amd64"
+    assert build["build_state"] == "Successfully built"
+    assert build["build_log_url"] == "https://launchpadlibrarian.net/1/buildlog_amd64.txt.gz"
+    assert build["changesfile_url"] == "https://launchpadlibrarian.net/1/testpkg_1.0_amd64.changes"
+    assert build["buildinfo_url"] == "https://launchpadlibrarian.net/1/testpkg_1.0_amd64.buildinfo"
+
+
+def test_lp_build_api_carried_over_architecture_without_original_build_stays_empty():
+    """A carried-over binary with no dereferenceable build link falls back to
+    the previous placeholder fields instead of raising."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.series = "noble"
+    ctx.evidence = {
+        "adapters": {
+            "version-resolution": {
+                "status": "ok",
+                "resolved_version": "1.0",
+                "resolved_pocket": "release",
+            }
+        }
+    }
+
+    fake_pub = Mock()
+    fake_pub.getBuilds.return_value = []
+    fake_pub.getPublishedBinaries.return_value = [{"arch_tag": "amd64", "status": "Published"}]
+
+    fake_archive = Mock()
+    fake_archive.getPublishedSources.return_value = [fake_pub]
+
+    fake_ubuntu = Mock()
+    fake_ubuntu.getSeries.return_value = Mock()
+    fake_ubuntu.main_archive = fake_archive
+
+    fake_lp = Mock()
+    fake_lp.distributions = {"ubuntu": fake_ubuntu}
+
+    with patch("evidence.launchpad_client.login_anonymously", return_value=fake_lp):
+        from evidence.host_adapters import collect_lp_build_api
+
+        result = collect_lp_build_api(ctx)
+
+    build = result["builds"][0]
+    assert build["build_log_url"] == ""
+    assert build["changesfile_url"] == ""
+    assert build["buildinfo_url"] == ""
+
+
 def test_lp_build_api_falls_back_to_get_build_records_without_pinned_version():
     """Without a pinned analyzed_version, falls back to the newest publication."""
     ctx = Mock()

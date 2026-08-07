@@ -1367,23 +1367,39 @@ def collect_lp_build_api(ctx: RunContext) -> LPBuildAPIResult:
     # Architectures with a published binary but no distinct Build record (see
     # summarize_build_completeness's "carried_over" fallback) are added too,
     # so this list never silently under-reports an architecture that is
-    # plainly available in the archive.
+    # plainly available in the archive. The published binary itself still
+    # references the real build that produced it (possibly in an older
+    # series' publication), so that real build's log/changes/buildinfo URLs
+    # are resolved from there instead of being left empty - otherwise a
+    # carried-over package (e.g. copied unchanged into a newly-opened devel
+    # series) would always report "no build log available" even though a
+    # real, working log exists under its original series.
     for entry in completeness["entries"]:
         if entry["arch_tag"] in seen_arches:
             continue
+        original_build = launchpad_client.original_build_for_arch(binary_records, entry["arch_tag"])
         builds.append(
             {
                 "arch_tag": entry["arch_tag"],
                 "build_state": "Successfully built",
                 "build_reason": entry["build_state"],
-                "version": analyzed_version,
-                "date_created": "",
-                "pocket": analyzed_pocket,
-                "archive": "",
-                "web_link": "",
-                "build_log_url": "",
-                "changesfile_url": "",
-                "buildinfo_url": "",
+                "version": launchpad_client.build_attr(
+                    original_build,
+                    "source_package_version",
+                    "version",
+                    default=analyzed_version,
+                ),
+                "date_created": launchpad_client.build_attr(
+                    original_build, "date_created", "datebuilt", "date_built"
+                ),
+                "pocket": launchpad_client.build_attr(
+                    original_build, "pocket", default=analyzed_pocket
+                ),
+                "archive": launchpad_client.build_attr(original_build, "archive"),
+                "web_link": launchpad_client.build_attr(original_build, "web_link", "self_link"),
+                "build_log_url": launchpad_client.build_attr(original_build, "build_log_url"),
+                "changesfile_url": launchpad_client.build_attr(original_build, "changesfile_url"),
+                "buildinfo_url": launchpad_client.build_attr(original_build, "buildinfo_url"),
             }
         )
 

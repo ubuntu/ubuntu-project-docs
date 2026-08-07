@@ -8,6 +8,8 @@ TOOL_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(TOOL_ROOT))
 
 from reporter.evaluator import (  # noqa: E402
+    _build_tests,
+    _build_tests_without_log,
     _dynamic_default,
     _human_statement,
     _maybe_write_evidence,
@@ -66,6 +68,76 @@ def test_ensure_bulleted_handles_leading_whitespace_before_existing_dash():
         ensure_bulleted("  - Indented but already bulleted.")
         == "  - Indented but already bulleted."
     )
+
+
+def test_build_tests_reports_observed_markers_from_the_log():
+    ctx = SimpleNamespace(
+        evidence={"adapters": {"fetch-build": {"build_log": "running dh_auto_test\nPASS"}}}
+    )
+
+    statement, refs, rationale = _build_tests({}, ctx)
+
+    assert statement == "Build-time test execution was observed (dh_auto_test)."
+    assert refs == ["fetch-build:build_log"]
+    assert rationale
+
+
+def test_build_tests_reports_no_markers_found_in_the_log():
+    ctx = SimpleNamespace(evidence={"adapters": {"fetch-build": {"build_log": "just a build"}}})
+
+    statement, refs, rationale = _build_tests({}, ctx)
+
+    assert statement == "No build-time test execution was identified in the collected build log."
+    assert refs == ["fetch-build:build_log"]
+
+
+def test_build_tests_falls_back_to_debian_rules_when_log_is_unavailable():
+    """Regression test: a missing build log (e.g. a carried-over architecture
+    whose original build log could not be resolved) must not collapse into an
+    uninformative TODO when debian/rules already reveals whether build-time
+    tests are disabled."""
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "fetch-build": {"build_log": ""},
+                "packaging-source": {"debian_rules_overrides": ["dh_auto_install"]},
+            }
+        }
+    )
+
+    statement, refs, rationale = _build_tests({}, ctx)
+
+    assert statement is not None
+    assert "does not override the default dh_auto_test target" in statement
+    assert refs == ["packaging-source:debian_rules_overrides"]
+    assert rationale
+
+
+def test_build_tests_falls_back_to_debian_rules_reporting_an_override():
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "fetch-build": {"build_log": ""},
+                "packaging-source": {"debian_rules_overrides": ["dh_auto_test"]},
+            }
+        }
+    )
+
+    statement, refs, rationale = _build_tests({}, ctx)
+
+    assert statement is not None
+    assert "overrides the default dh_auto_test target" in statement
+    assert refs == ["packaging-source:debian_rules_overrides"]
+
+
+def test_build_tests_without_log_stays_unavailable_when_packaging_source_missing():
+    ctx = SimpleNamespace(evidence={"adapters": {"fetch-build": {"build_log": ""}}})
+
+    statement, refs, rationale = _build_tests_without_log(ctx)
+
+    assert statement is None
+    assert refs == []
+    assert rationale == "No build log was available"
 
 
 def test_maybe_write_evidence_backfills_empty_adapter_field_from_url_answer():
