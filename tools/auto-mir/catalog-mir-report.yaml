@@ -84,7 +84,6 @@ metadata:
   - ''
   - '[UI standards]'
   - 'RULE: User-facing applications need appropriate internationalization and standard desktop integration; when either is not applicable, explain why.'
-  - item: REP-UI-001
   - item: REP-UI-002
   - ''
   - '[Dependencies]'
@@ -583,15 +582,6 @@ items:
   readiness: blocker
   adapters_required: [dep-analysis]
   template: 'TODO: - Obsolete or about-to-be-demoted dependency assessment: TBD'
-- id: REP-UI-001
-  section: UI standards
-  title: User interface standards
-  mode: human_only
-  readiness: warning
-  question:
-    kind: multiline
-    prompt: Is this end-user facing, and how are desktop integration and translations handled?
-  template: 'TODO: - User-interface, desktop-file, and translation applicability: TBD'
 - id: REP-UI-002
   section: UI standards
   title: UI applicability evidence assessment
