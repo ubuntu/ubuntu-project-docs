@@ -229,6 +229,32 @@ the generated include; edit the blueprint or referenced `todo_refs` and run
 
 ---
 
+## Reporter item `rule_context` (auto-derived from the blueprint)
+
+`catalog-mir-report.yaml`'s `metadata.reporter_template_blueprint` interleaves
+`'[Section]'` markers, `'RULE: ...'` policy lines, and `item: REP-XXX` entries
+in the exact order the rendered template uses — RULE lines always appear
+directly after a section marker and before that section's first item. This is
+already the single source of truth for which policy rule(s) apply to which
+items, so `catalog.load_catalog_for_role(..., "report")` auto-populates each
+`human_only`/`ev_to_ai` item's `rule_context` (shown to the reporter as a
+"Context:" block ahead of the question) from its section's RULE line(s) plus
+its own `template` (the `TODO: ...` placeholder it resolves) — **do not**
+hand-author `rule_context` for a new item; it is derived automatically.
+
+A `rule_context` only needs to be hand-authored on an item when a section has
+multiple RULE lines and one specific item needs *only* a subset of them (9
+items do this today, e.g. `REP-MAINT-001`). A hand-authored `rule_context`
+must stay a **verbatim copy** of one or more of its section's blueprint RULE
+lines — `catalog.validate_report_catalog()` rejects any `rule_context` line
+starting with `RULE:` that doesn't exactly match a RULE line from its own
+section's blueprint entries, to prevent it drifting from the blueprint prose
+over time. Hand-authored items do not get the item's own `template` line
+appended automatically (unlike the auto-derived ones); add it explicitly if
+wanted.
+
+---
+
 ## Validation and tests
 
 - `catalog.py:validate_catalog()` runs on every load: structure, modes,

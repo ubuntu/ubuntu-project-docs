@@ -610,7 +610,6 @@ items:
     evidence: dep-analysis.in_scope_deps_not_in_main
     truthy: true
   preface_evaluator: dependencies
-  rule_context: 'RULE: Every in-scope runtime dependency outside main must complete its own MIR before or alongside this promotion; the reporter must state how each dependency listed above will be routed.'
   question:
     kind: single_choice
     prompt: How are dependencies outside main being handled?

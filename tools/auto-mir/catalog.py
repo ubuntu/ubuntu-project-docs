@@ -13,6 +13,62 @@ from utils.dependencies import ubuntu_package_for
 _REPORTER_TEMPLATE_DASH_PATTERN = re.compile(r"^TODO(-[A-Z0-9/-]+)?:\s*-\s")
 
 
+def _blueprint_section_rules(blueprint: Any) -> dict[str, list[str]]:
+    """Return each reporter template section's ``RULE:`` lines, keyed by section.
+
+    ``metadata.reporter_template_blueprint`` already interleaves ``'[Section]'``
+    markers, ``'RULE: ...'`` policy lines, and ``item: REP-XXX`` entries in the
+    exact order the rendered template uses. RULE lines always appear directly
+    after a section marker and before that section's first item, so this is
+    the existing, single source of truth for which policy rules apply to which
+    items - no separate copy of the policy text needs to be authored per item.
+    """
+    section_rules: dict[str, list[str]] = {}
+    current_section: str | None = None
+    seen_item_in_section = False
+    if not isinstance(blueprint, list):
+        return section_rules
+    for entry in blueprint:
+        if isinstance(entry, str):
+            stripped = entry.strip()
+            if stripped.startswith("[") and stripped.endswith("]"):
+                current_section = stripped[1:-1]
+                section_rules.setdefault(current_section, [])
+                seen_item_in_section = False
+            elif stripped.startswith("RULE:") and current_section and not seen_item_in_section:
+                section_rules[current_section].append(stripped)
+        elif isinstance(entry, dict) and "item" in entry:
+            seen_item_in_section = True
+    return section_rules
+
+
+def _apply_reporter_rule_context_defaults(catalog: dict) -> None:
+    """Auto-populate ``rule_context`` for items that don't already set one.
+
+    Every ``human_only``/``ev_to_ai`` item without an explicit ``rule_context``
+    gets its section's blueprint ``RULE:`` line(s) plus its own ``template``
+    (the ``TODO: ...`` placeholder it resolves) joined together, so the
+    reporter sees both WHY (policy) and WHAT (what this item resolves) without
+    any hand-duplicated text. Items that already declare ``rule_context`` are
+    left untouched.
+    """
+    blueprint = catalog.get("metadata", {}).get("reporter_template_blueprint")
+    section_rules = _blueprint_section_rules(blueprint)
+    for item in catalog.get("items", []):
+        if not isinstance(item, dict) or item.get("mode") not in {"human_only", "ev_to_ai"}:
+            continue
+        if str(item.get("rule_context", "")).strip():
+            continue
+        rules = section_rules.get(str(item.get("section", "")), [])
+        if not rules:
+            continue
+        lines = list(rules)
+        template = str(item.get("template", "")).strip()
+        if template:
+            lines.append(template)
+        item["rule_context"] = "\n".join(lines)
+
+
 def _load_yaml_strict(handle: Any, yaml_module: Any) -> dict:
     """Load one YAML mapping while rejecting duplicate keys.
 
@@ -181,6 +237,8 @@ def load_catalog_for_role(tool_root: Path, workspace_root: Path, role: str) -> d
         for error in errors:
             print(f"  - {error}", file=sys.stderr)
         raise SystemExit(1)
+    if role == "report":
+        _apply_reporter_rule_context_defaults(composed)
     return composed
 
 
@@ -203,6 +261,9 @@ def validate_report_catalog(catalog: dict) -> list[str]:
     valid_readiness = {"clear", "warning", "blocker"}
     conditions_by_item: dict[str, dict | None] = {}
     option_conditions: list[tuple[str, dict]] = []
+    section_rules = _blueprint_section_rules(
+        catalog.get("metadata", {}).get("reporter_template_blueprint")
+    )
     for index, item in enumerate(items):
         if not isinstance(item, dict):
             errors.append(f"reporter item {index} must be a mapping")
@@ -241,6 +302,18 @@ def validate_report_catalog(catalog: dict) -> list[str]:
         for context_field in ("rule_context", "answer_guidance", "preface_evaluator"):
             if context_field in item and not isinstance(item[context_field], str):
                 errors.append(f"reporter item {item_id} {context_field} must be a string")
+        explicit_rule_context = item.get("rule_context")
+        if isinstance(explicit_rule_context, str) and explicit_rule_context.strip():
+            allowed_rules = set(section_rules.get(str(item.get("section", "")), []))
+            for line in explicit_rule_context.splitlines():
+                stripped_line = line.strip()
+                if stripped_line.startswith("RULE:") and stripped_line not in allowed_rules:
+                    errors.append(
+                        f"reporter item {item_id} rule_context line does not match any "
+                        f"blueprint RULE for section [{item.get('section', '')}]: "
+                        f"{stripped_line!r} (hand-authored rule_context must stay a verbatim "
+                        "copy of a blueprint RULE line, or be removed so it is auto-derived)"
+                    )
         if item.get("mode") in {"human_only", "ev_to_ai"} and not isinstance(
             item.get("question"), dict
         ):

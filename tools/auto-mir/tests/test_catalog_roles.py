@@ -235,6 +235,57 @@ def test_report_catalog_validation_rejects_unknown_adapter_in_unavailable_if():
     assert any("references unknown adapter: no-such-adapter" in error for error in errors)
 
 
+def test_report_catalog_validation_rejects_mismatched_rule_context_line():
+    """A hand-authored rule_context must stay a verbatim copy of a blueprint RULE
+    line for its own section - this is the drift guard for feedback round 8's
+    RULE/TODO auto-context work: it caught a real, pre-existing paraphrase drift
+    on REP-DEP-002 during implementation."""
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    by_id["REP-MAINT-001"]["rule_context"] = "RULE: This text does not appear in the blueprint."
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "REP-MAINT-001 rule_context line does not match any blueprint RULE" in error
+        for error in errors
+    )
+
+
+def test_report_catalog_auto_derives_rule_context_from_blueprint():
+    """Items without a hand-authored rule_context get their section's blueprint
+    RULE line(s) plus their own template (TODO) line auto-populated, so the
+    reporter sees WHY and WHAT without any hand-duplicated policy text."""
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+
+    # REP-UI-002 has no hand-authored rule_context in the catalog source.
+    ui_rule_context = by_id["REP-UI-002"]["rule_context"]
+    assert ui_rule_context == (
+        "RULE: User-facing applications need appropriate internationalization and "
+        "standard desktop integration; when either is not applicable, explain why.\n"
+        "TODO: - Evidence-based UI applicability assessment: TBD"
+    )
+
+    # A section with multiple RULE lines joins all of them ahead of the item's own TODO.
+    test_plan_rule_context = by_id["REP-QA-TEST-003"]["rule_context"]
+    assert test_plan_rule_context.count("RULE:") == 4
+    assert test_plan_rule_context.endswith(
+        "TODO: - Testing gaps and the owning team test plan are: TBD"
+    )
+
+    # A deterministic item is never asked as a question, so it gets no rule_context.
+    assert "rule_context" not in by_id["REP-DEP-001"]
+
+    # An already hand-authored item (REP-MAINT-001) is left exactly as authored,
+    # with no TODO line appended.
+    assert by_id["REP-MAINT-001"]["rule_context"] == (
+        "RULE: Every package needs an eligible owning team that explicitly accepts "
+        "long-term maintenance and subscribes before promotion; suggested ownership "
+        "without acknowledgement is not sufficient."
+    )
+
+
 def test_report_catalog_validation_rejects_item_reference_in_unavailable_if():
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
