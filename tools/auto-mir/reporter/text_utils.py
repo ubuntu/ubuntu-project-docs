@@ -9,8 +9,13 @@ being duplicated in both.
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from auto_mir import RunContext
 
 _TODO_PREFIX_PATTERN = re.compile(r"^TODO(?:-[A-Z0-9/-]+)?:\s*")
+_URL_ANSWER_PATTERN = re.compile(r"^https?://\S+$")
 
 
 def strip_todo_prefix(text: str) -> str:
@@ -55,3 +60,32 @@ def substitute_source(text: str, source_package: str) -> str:
             result += f"src:{source_package}"
         result += part
     return result
+
+
+def maybe_write_evidence(item: dict, ctx: RunContext, answer_value: Any) -> None:
+    """Backfill an evidence adapter field from a human answer, if declared.
+
+    Lets a later catalog item's deterministic evaluator (e.g. the upstream
+    project link check) benefit from a URL the reporter already typed while
+    answering an earlier, differently-worded question, instead of asking
+    twice or the consistency pass flagging a false contradiction between the
+    two answers. Shared by both the ``human_only`` dispatch in
+    ``reporter.evaluator`` and ``ai._ask_human`` (the ``ev_to_ai`` fallback
+    path), since ``writes_evidence`` is a generic item-level catalog field,
+    not specific to either mode.
+    """
+    target = item.get("writes_evidence")
+    if not isinstance(target, dict):
+        return
+    adapter_id = str(target.get("adapter", ""))
+    field = str(target.get("field", ""))
+    if not adapter_id or not field or not isinstance(answer_value, str):
+        return
+    candidate = answer_value.strip()
+    if not _URL_ANSWER_PATTERN.match(candidate):
+        return
+    adapters = ctx.evidence.setdefault("adapters", {})
+    adapter_data = adapters.setdefault(adapter_id, {})
+    if not isinstance(adapter_data, dict) or adapter_data.get(field):
+        return
+    adapter_data[field] = candidate

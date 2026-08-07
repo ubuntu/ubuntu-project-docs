@@ -7,7 +7,12 @@ from typing import Any
 
 import llm
 from reporter.models import Provenance, ReadinessEffect, StatementResult, StatementState
-from reporter.text_utils import ensure_bulleted, strip_todo_prefix, substitute_source
+from reporter.text_utils import (
+    ensure_bulleted,
+    maybe_write_evidence,
+    strip_todo_prefix,
+    substitute_source,
+)
 from utils import llm_evidence
 from utils.llm_sanitize import wrap_untrusted
 
@@ -361,6 +366,7 @@ def _ask_human(item: dict, ctx, wizard, question, rationale: str = "") -> Statem
             state=StatementState.NOT_APPLICABLE,
             readiness=ReadinessEffect.CLEAR,
         )
+    maybe_write_evidence(item, ctx, answer.value)
     template = substitute_source(str(item["template"]), ctx.source_package)
     statement = (
         strip_todo_prefix(template.replace("TBD", str(answer.value), 1))

@@ -12,12 +12,15 @@ from reporter.evaluator import (  # noqa: E402
     _build_tests_without_log,
     _dynamic_default,
     _human_statement,
-    _maybe_write_evidence,
     _question_from_item,
     _unavailable,
 )
 from reporter.models import ReadinessEffect  # noqa: E402
-from reporter.text_utils import ensure_bulleted, substitute_source  # noqa: E402
+from reporter.text_utils import (  # noqa: E402
+    ensure_bulleted,
+    maybe_write_evidence,
+    substitute_source,
+)
 
 
 def test_human_statement_substitutes_same_as_source_case_insensitively():
@@ -144,7 +147,7 @@ def test_maybe_write_evidence_backfills_empty_adapter_field_from_url_answer():
     item = {"writes_evidence": {"adapter": "upstream-tracker", "field": "upstream_url"}}
     ctx = SimpleNamespace(evidence={"adapters": {"upstream-tracker": {"upstream_url": ""}}})
 
-    _maybe_write_evidence(item, ctx, "https://github.com/pendulum-project/ntpd-rs")
+    maybe_write_evidence(item, ctx, "https://github.com/pendulum-project/ntpd-rs")
 
     assert (
         ctx.evidence["adapters"]["upstream-tracker"]["upstream_url"]
@@ -156,7 +159,7 @@ def test_maybe_write_evidence_ignores_non_url_answers():
     item = {"writes_evidence": {"adapter": "upstream-tracker", "field": "upstream_url"}}
     ctx = SimpleNamespace(evidence={"adapters": {"upstream-tracker": {"upstream_url": ""}}})
 
-    _maybe_write_evidence(item, ctx, "ntpd-rs")
+    maybe_write_evidence(item, ctx, "ntpd-rs")
 
     assert ctx.evidence["adapters"]["upstream-tracker"]["upstream_url"] == ""
 
@@ -167,7 +170,7 @@ def test_maybe_write_evidence_never_overwrites_an_existing_value():
         evidence={"adapters": {"upstream-tracker": {"upstream_url": "https://existing.example"}}}
     )
 
-    _maybe_write_evidence(item, ctx, "https://typed-by-human.example")
+    maybe_write_evidence(item, ctx, "https://typed-by-human.example")
 
     assert (
         ctx.evidence["adapters"]["upstream-tracker"]["upstream_url"] == "https://existing.example"
@@ -177,7 +180,7 @@ def test_maybe_write_evidence_never_overwrites_an_existing_value():
 def test_maybe_write_evidence_no_op_without_declaration():
     ctx = SimpleNamespace(evidence={"adapters": {}})
 
-    _maybe_write_evidence({}, ctx, "https://example.invalid")
+    maybe_write_evidence({}, ctx, "https://example.invalid")
 
     assert ctx.evidence["adapters"] == {}
 

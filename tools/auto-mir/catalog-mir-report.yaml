@@ -803,13 +803,15 @@ items:
 - id: REP-BG-002
   section: Background information
   title: Upstream name
-  mode: human_only
+  mode: ev_to_ai
   readiness: clear
   required: false
   preface_evaluator: upstream-link
+  adapters_required: [upstream-tracker, packaging-source]
   writes_evidence:
     adapter: upstream-tracker
     field: upstream_url
+  ai_policy: Using upstream-tracker.upstream_url (already verified to resolve, or empty if no reliable URL was found), upstream-tracker.upstream_name (a release-monitoring.org match, may be empty), and packaging-source.debian_control (Source and Homepage fields), state the upstream project's name. If the source package name already matches the project (the Source field name, once common packaging prefixes/suffixes are stripped, names the same project), say plainly that it is the same as the source package. If upstream_url is empty and debian_control gives no clear project-name signal beyond the source package name itself, you cannot confidently name a distinct upstream project - set requires_reporter_decision to true instead of guessing.
   question:
     kind: text
     prompt: What is the upstream project name? Reply 'same as source' if it matches the source package name shown above, or if no upstream project was detected above, provide the name (or project URL) yourself.

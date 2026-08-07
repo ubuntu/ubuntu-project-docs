@@ -120,6 +120,101 @@ def test_missing_llm_credential_goes_directly_to_human(monkeypatch):
     assert wizard.questions == [("human", "REP-AI-001")]
 
 
+def _bg_002_item():
+    return {
+        "id": "REP-BG-002",
+        "section": "Background information",
+        "mode": "ev_to_ai",
+        "readiness": "clear",
+        "template": "TODO: - Upstream Name is TBD",
+        "ai_policy": "State the upstream project's name.",
+        "adapters_required": ["upstream-tracker", "packaging-source"],
+        "writes_evidence": {"adapter": "upstream-tracker", "field": "upstream_url"},
+    }
+
+
+def _bg_002_ctx(token="token"):
+    return SimpleNamespace(
+        llm_token=token,
+        no_llm=False,
+        untrusted_nonce="nonce",
+        source_package="ntpd-rs",
+        evidence={
+            "adapters": {
+                "upstream-tracker": {"status": "ok", "upstream_url": "", "upstream_name": ""},
+                "packaging-source": {
+                    "status": "ok",
+                    "debian_control": (
+                        "Source: rust-ntpd\nHomepage: https://github.com/pendulum-project/ntpd-rs\n"
+                    ),
+                },
+            }
+        },
+    )
+
+
+def _bg_002_fallback_question():
+    return QuestionSpec(
+        id="REP-BG-002", prompt="What is the upstream project name?", kind=QuestionKind.TEXT
+    )
+
+
+def test_rep_bg_002_accepted_ai_suggestion_names_the_upstream_project(monkeypatch):
+    """Regression test for feedback item 3: REP-BG-002 is ev_to_ai and can
+    suggest a project name grounded in the verified upstream URL plus
+    debian/control, which the reporter can accept as-is."""
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "statement": "The upstream project is ntpd-rs (pendulum-project/ntpd-rs on GitHub).",
+            "rationale": "debian/control's Homepage names the ntpd-rs GitHub project.",
+            "evidence_refs": ["packaging-source:debian_control"],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(_bg_002_item(), _bg_002_ctx(), wizard, _bg_002_fallback_question())
+
+    assert result.provenance == Provenance.AI_CONFIRMED
+    assert "ntpd-rs" in result.statement
+    assert wizard.questions[0][0] == "confirm"
+
+
+def test_rep_bg_002_human_fallback_still_backfills_upstream_url():
+    """writes_evidence must still fire when REP-BG-002's ev_to_ai flow falls
+    back to asking the reporter directly (e.g. no LLM credential configured)
+    -- a regression risk from moving this item off the human_only dispatch
+    branch, which used to be the only caller of this backfill."""
+
+    class URLAnsweringWizard:
+        def ask(self, question):
+            return Answer(
+                question_id=question.id,
+                value="https://github.com/pendulum-project/ntpd-rs",
+                raw_input="https://github.com/pendulum-project/ntpd-rs",
+            )
+
+        def show_note(self, text, detail=""):
+            pass
+
+    ctx = _bg_002_ctx(token="")
+
+    result = ai.evaluate_ai_item(
+        _bg_002_item(),
+        ctx,
+        URLAnsweringWizard(),
+        _bg_002_fallback_question(),
+    )
+
+    assert result.provenance == Provenance.HUMAN
+    assert (
+        ctx.evidence["adapters"]["upstream-tracker"]["upstream_url"]
+        == "https://github.com/pendulum-project/ntpd-rs"
+    )
+
+
 class EditingWizard:
     """Fake wizard whose confirm_suggestion returns the reporter's edited text."""
 

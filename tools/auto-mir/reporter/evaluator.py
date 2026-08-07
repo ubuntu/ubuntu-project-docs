@@ -19,7 +19,12 @@ from reporter.models import (
     StatementResult,
     StatementState,
 )
-from reporter.text_utils import ensure_bulleted, strip_todo_prefix, substitute_source
+from reporter.text_utils import (
+    ensure_bulleted,
+    maybe_write_evidence,
+    strip_todo_prefix,
+    substitute_source,
+)
 from reporter.wizard import TerminalWizard
 
 if TYPE_CHECKING:
@@ -90,7 +95,7 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
                 )
                 continue
             statement = _human_statement(item, answer.value, ctx.source_package)
-            _maybe_write_evidence(item, ctx, answer.value)
+            maybe_write_evidence(item, ctx, answer.value)
             selected_option = answer.value if question.kind == QuestionKind.SINGLE_CHOICE else None
             option_readiness = None
             if selected_option is not None:
@@ -450,35 +455,6 @@ def _human_statement(item: dict, answer: Any, source_package: str) -> str:
     if "TBD" in template:
         return strip_todo_prefix(template.replace("TBD", answer_text, 1))
     return f"{strip_todo_prefix(template)} {answer_text}".strip()
-
-
-_URL_ANSWER_PATTERN = re.compile(r"^https?://\S+$")
-
-
-def _maybe_write_evidence(item: dict, ctx: RunContext, answer_value: Any) -> None:
-    """Backfill an evidence adapter field from a human answer, if declared.
-
-    Lets a later catalog item's deterministic evaluator (e.g. the upstream
-    project link check) benefit from a URL the reporter already typed while
-    answering an earlier, differently-worded question, instead of asking
-    twice or the consistency pass flagging a false contradiction between the
-    two answers.
-    """
-    target = item.get("writes_evidence")
-    if not isinstance(target, dict):
-        return
-    adapter_id = str(target.get("adapter", ""))
-    field = str(target.get("field", ""))
-    if not adapter_id or not field or not isinstance(answer_value, str):
-        return
-    candidate = answer_value.strip()
-    if not _URL_ANSWER_PATTERN.match(candidate):
-        return
-    adapters = ctx.evidence.setdefault("adapters", {})
-    adapter_data = adapters.setdefault(adapter_id, {})
-    if not isinstance(adapter_data, dict) or adapter_data.get(field):
-        return
-    adapter_data[field] = candidate
 
 
 def _unavailable(

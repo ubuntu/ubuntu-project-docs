@@ -3536,5 +3536,50 @@ LXD guest + real Launchpad network calls).
   URLError).
   `make test`: 825 passed, 2 skipped.
 
+## 2026-08-07 — Reporter feedback round (jitterentropy-library test), phase 3: REP-BG-002 upstream name becomes an AI suggestion
+
+- Promotion: no
+- Context: REP-BG-002 ("Upstream name") was `human_only` even though, by the
+  time it's asked, the tool already has a (now Homepage-prioritized and
+  verified, phase 2) upstream URL plus the full `debian/control` content --
+  usually enough to confidently guess the project name, leaving the
+  reporter to just confirm rather than type it from scratch.
+- Decision: change REP-BG-002's `mode` from `human_only` to `ev_to_ai` in
+  `catalog-mir-report.yaml`, with `adapters_required: [upstream-tracker,
+  packaging-source]` and a new `ai_policy` grounding the guess in
+  `upstream-tracker.upstream_url`/`upstream_name` and
+  `packaging-source.debian_control`. The existing text question (with its
+  `default_source` dynamic default) is kept unchanged as the low-confidence/
+  unavailable fallback, reusing `reporter.ai.evaluate_ai_item` +
+  `wizard.confirm_suggestion` exactly like the other `ev_to_ai` items --
+  no new mechanism.
+  **Gotcha hit while writing the new `ai_policy` string**: a `: ` (colon
+  immediately followed by a space) mid-sentence ("...distinct upstream
+  project: set requires_reporter_decision...") is invalid as a plain YAML
+  scalar and broke catalog loading for every test; reworded with a `-`
+  instead (this exact class of mistake is already flagged in this project's
+  own notes -- see the "YAML gotcha" entries earlier in this log).
+  **Real bug found and fixed as a direct consequence of this mode change**:
+  `writes_evidence` (REP-BG-002's own URL backfill into
+  `upstream-tracker.upstream_url` from a human-typed URL answer) was only
+  ever wired into the `mode == "human_only"` dispatch branch in
+  `reporter/evaluator.py`. Moving REP-BG-002 to `ev_to_ai` would have
+  silently dropped that backfill for its `_ask_human` fallback path (the
+  only place a bare-URL answer can still occur). Fixed by moving
+  `_maybe_write_evidence`/its URL pattern out of `evaluator.py` into the
+  shared `reporter/text_utils.py` (renamed `maybe_write_evidence`, no
+  leading underscore -- it's now a cross-module helper, following the same
+  pattern already used there for `ensure_bulleted`/`substitute_source` to
+  avoid the `evaluator`<->`ai` circular import), and calling it from both
+  the `human_only` branch (unchanged behavior) and `reporter/ai.py`'s
+  `_ask_human()` (new).
+- Consequences: `tests/test_reporter_evaluator.py`'s `maybe_write_evidence`
+  tests now import from `reporter.text_utils`. New tests in
+  `tests/test_reporter_ai.py` cover the REP-BG-002-shaped ev_to_ai
+  suggestion-accept flow and confirm the `writes_evidence` backfill still
+  fires through the `_ask_human` fallback. REP-BG-001 (package purpose) is
+  untouched -- a different item, still `human_only`.
+  `make test`: 827 passed, 2 skipped.
+
 
 
