@@ -3581,5 +3581,79 @@ LXD guest + real Launchpad network calls).
   untouched -- a different item, still `human_only`.
   `make test`: 827 passed, 2 skipped.
 
+## 2026-08-07 — Reporter feedback round (jitterentropy-library test), phase 4: dead evidence field cleanup
+
+- Promotion: no
+- Context: feedback item 4 asked whether the many detail fields adapters
+  produce (e.g. `binary-package-inspection`'s `lintian_errors`,
+  `static_binaries`, `systemd_units`, etc.) are ever really used, or are
+  wasted schema/code. A field-by-field audit (checked every consumer:
+  `checks/deterministic.py`, `checks/llm_eval.py`, `reporter/evaluator.py`,
+  `reporter/ai.py`, both catalog YAML files' `ai_policy` prose, and
+  `utils/llm_evidence.py`'s truncation allow-lists) found all 13 originally-
+  cited binary-inspection fields ARE actively used (`lintian_errors`/
+  `warnings`/`pedantic` feed URF-5; `static_binaries` feeds ESL-2;
+  `setuid_setgid_binaries`/`nobody_owned_binaries` feed URF-5/URF-4;
+  `sbin_executables`/`systemd_units`/`cron_jobs`/`apparmor_profiles`/
+  `desktop_files`/`translation_files`/`plugin_candidates` are all read by
+  name in `reporter/evaluator.py`'s `_binary_security_surface`/
+  `_binary_integration_surface`) -- no change needed there, they're simply
+  empty for a simple package like jitterentropy-library, exactly as
+  hypothesized.
+  A broader sweep across every `evidence/types.py` TypedDict field did find
+  five genuinely dead ones (zero consumers anywhere outside their own
+  producing adapter and `evidence/types.py`'s own declaration -- verified
+  directly, not just via a subagent's grep, per this project's own "don't
+  trust a single/truncated grep" lesson): `packaging-source.source_homepage`
+  (extracted from debian/control but never read -- `source_description`,
+  extracted the same way, IS read, via `ai_policy` prose in
+  `catalog-mir-report.yaml`, so this isn't a wholesale "nobody reads
+  debian/control facts" issue, just this one field); `ubuntu-cve-tracker`'s
+  `active_cves`/`fixed_cves` lists (every consumer of CVE data reads the
+  combined `cves` list instead, both in `reporter/evaluator.py` and the
+  review catalog's SEC `ai_policy` prose); `ubuntu-cve-tracker`'s per-CVE
+  `fix_version` field (within `CVEEntry`); `cvelist-scan`'s per-candidate
+  `published_date` field; and `lp-team-membership-api`'s
+  `ubuntu_mir_subscribed` boolean (the real, working "ubuntu-mir team must
+  be subscribed" gate is `lp_intake.py`'s own `_evaluate_mir_heuristics()`,
+  reading `ctx.bug["subscribers"]` directly at intake time -- this
+  evidence-blob copy, and `lp-bug-api`'s parallel `mir_heuristics` copy of
+  the same intake-time dict, were never read by anything downstream).
+- Decision: remove all five dead fields from their producing adapters
+  (`evidence/guest_adapters.py`, `evidence/host_adapters.py`,
+  `evidence/cvelist_scan_invm.py`), their `evidence/types.py` TypedDict
+  declarations, and `catalog.yaml`'s `output_contract` documentation blocks
+  (confirmed these blocks are pure documentation -- `catalog.py` never
+  validates them against real adapter output, so there was no correctness
+  risk either way, but leaving them wrong right after touching the exact
+  field list would be a needless new inconsistency). Also corrected
+  `lp-team-membership-api`'s `output_contract` while there: it was already
+  badly stale (`members: list` / `is_subscribed: bool`, matching neither the
+  pre- nor post-cleanup real adapter output of `subscribers: list`) --
+  fixed to match reality, but did not otherwise change what this adapter
+  does (a deeper question of whether it should do real Launchpad team-
+  membership lookups, as its name and two consuming checks' `ai_policy`
+  text (RDO-2, PRF-7) seem to assume, is a separate, out-of-scope concern
+  flagged here for a future look, not fixed now).
+- Consequences: `evidence.json` output is slightly smaller/cleaner for every
+  run. `tests/test_evidence.py`'s
+  `test_parse_source_control_fields_handles_continuations` no longer
+  asserts a `homepage` key (the helper it tests still parses `Homepage:`
+  internally for `_collect_upstream_search_terms`, an entirely separate
+  code path added in phase 2 -- only this one now-unused derived copy was
+  removed). **Caught during implementation**: `evidence/guest_adapters.py`'s
+  `collect_packaging_source` composes its final ~35-key return dict from
+  two helper dicts (`_derive_packaging_facts`, `_scan_source_security_
+  markers`) across two separate call sites; removing the field from
+  `_derive_packaging_facts`'s own return left a second, now-dangling
+  `packaging_facts["source_homepage"]` read in the composer a few dozen
+  lines later that a whole-tree grep (not `make test`, which has zero unit
+  coverage of this specific composer function -- it's exercised only by the
+  real-VM `make integration` smoke test per an earlier refactor's own
+  documented gap) caught before it could become a runtime `KeyError`.
+  `make test`: 827 passed, 2 skipped (unchanged count -- this phase only
+  removes fields, it doesn't add or remove test cases beyond the one fixture
+  fix).
+
 
 

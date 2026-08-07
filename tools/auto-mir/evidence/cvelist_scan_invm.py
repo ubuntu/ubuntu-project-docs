@@ -219,7 +219,6 @@ def scan_zip(zip_path: str, terms: list[dict]) -> list[dict]:
                 "affected_versions": _affected_versions(cna),
                 "references": _references(cna),
                 "severity": severity,
-                "published_date": str(metadata.get("datePublished") or "").strip(),
             }
     return sorted(candidates.values(), key=lambda c: c["id"], reverse=True)
 

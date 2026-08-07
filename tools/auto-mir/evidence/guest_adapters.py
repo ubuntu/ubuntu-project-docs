@@ -272,7 +272,6 @@ def _parse_source_control_fields(debian_control: str) -> dict[str, str]:
         fields[current] = value.strip()
     return {
         "maintainer": fields.get("maintainer", ""),
-        "homepage": fields.get("homepage", ""),
         "description": fields.get("description", ""),
     }
 
@@ -563,7 +562,6 @@ def _derive_packaging_facts(
         "binary_package_names": binary_package_names,
         "is_library_package": is_library_package,
         "source_maintainer": source_fields["maintainer"],
-        "source_homepage": source_fields["homepage"],
         "source_description": source_fields["description"],
         "debconf_templates": debconf_templates,
         "debian_rules_overrides": debian_rules_overrides,
@@ -656,7 +654,6 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
         "debian_copyright": control_files["debian_copyright"],
         "debian_source_format": control_files["debian_source_format"],
         "source_maintainer": packaging_facts["source_maintainer"],
-        "source_homepage": packaging_facts["source_homepage"],
         "source_description": packaging_facts["source_description"],
         "debconf_templates": packaging_facts["debconf_templates"],
         "debian_rules_overrides": packaging_facts["debian_rules_overrides"],

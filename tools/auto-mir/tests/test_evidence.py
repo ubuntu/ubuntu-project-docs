@@ -2507,7 +2507,6 @@ Architecture: any
     fields = _parse_source_control_fields(control)
 
     assert fields["maintainer"].startswith("Ubuntu Developers")
-    assert fields["homepage"] == "https://example.test/libfoo"
     assert fields["description"] == "useful library with additional context"
 
 

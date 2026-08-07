@@ -32,7 +32,6 @@ class LPBugAPIResult(TypedDict):
     bug_subscribers: list[str]
     target_source_package: str
     target_series: str
-    mir_heuristics: dict[str, bool]
 
 
 class LPTeamMembershipAPIResult(TypedDict):
@@ -40,7 +39,6 @@ class LPTeamMembershipAPIResult(TypedDict):
 
     status: str
     subscribers: list[str]
-    ubuntu_mir_subscribed: bool
 
 
 class LPBugSearchEntry(TypedDict):
@@ -190,7 +188,6 @@ class CVEEntry(TypedDict):
 
     id: str
     status: str
-    fix_version: str
 
 
 class UbuntuCVETrackerResult(TypedDict):
@@ -200,8 +197,6 @@ class UbuntuCVETrackerResult(TypedDict):
     package: str
     series: str
     cves: list[CVEEntry]
-    active_cves: list[str]
-    fixed_cves: list[str]
     total_cve_count: int
 
 
@@ -263,7 +258,6 @@ class CvelistCandidate(TypedDict):
     affected_versions: list[str]
     references: list[str]
     severity: str
-    published_date: str
 
 
 class CvelistScanResult(TypedDict):
@@ -404,7 +398,6 @@ class PackagingSourceResult(TypedDict):
     debian_copyright: str
     debian_source_format: str
     source_maintainer: str
-    source_homepage: str
     source_description: str
     debconf_templates: list[dict[str, str]]
     debian_rules_overrides: list[str]

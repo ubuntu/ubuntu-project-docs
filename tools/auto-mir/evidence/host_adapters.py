@@ -114,7 +114,6 @@ def collect_lp_bug_api(ctx: RunContext) -> LPBugAPIResult:
         "bug_subscribers": bug.get("subscribers", []),
         "target_source_package": ctx.source_package,
         "target_series": ctx.series or "devel",
-        "mir_heuristics": bug.get("mir_heuristics", {}),
     }
 
 
@@ -126,16 +125,13 @@ def collect_lp_team_membership_api(ctx: RunContext) -> LPTeamMembershipAPIResult
     lookups for other checks (e.g. uploader team) are also resolved here.
     """
     subscribers = ctx.bug.get("subscribers", [])
-    subscribers_lower = {s.lower() for s in subscribers}
     log.debug(
-        "lp-team-membership-api: %d subscriber(s), ubuntu-mir subscribed: %s",
+        "lp-team-membership-api: %d subscriber(s)",
         len(subscribers),
-        "ubuntu-mir" in subscribers_lower,
     )
     return {
         "status": "ok",
         "subscribers": subscribers,
-        "ubuntu_mir_subscribed": "ubuntu-mir" in subscribers_lower,
     }
 
 
@@ -2050,8 +2046,6 @@ def collect_ubuntu_cve_tracker(ctx: RunContext) -> UbuntuCVETrackerResult:
             "package": pkg,
             "series": series,
             "cves": [],
-            "active_cves": [],
-            "fixed_cves": [],
             "total_cve_count": 0,
             "note": skip_reason,
         }
@@ -2083,29 +2077,27 @@ def collect_ubuntu_cve_tracker(ctx: RunContext) -> UbuntuCVETrackerResult:
     cves_dict = pkg_data.get("cves", {})
 
     cves = []
-    active_cves = []
-    fixed_cves = []
+    active_cve_count = 0
+    fixed_cve_count = 0
     for cve_id, cve_info in cves_dict.items():
         status = cve_info.get("status", "")
-        fix_version = cve_info.get("source_fixed_version")
         entry = {
             "id": cve_id,
             "status": status,
-            "fix_version": fix_version or "",
         }
         cves.append(entry)
         if status == "vulnerable":
-            active_cves.append(cve_id)
+            active_cve_count += 1
         elif status == "fixed":
-            fixed_cves.append(cve_id)
+            fixed_cve_count += 1
 
     log.debug(
         "OVAL: %d CVEs for %s in %s (%d active, %d fixed)",
         len(cves),
         pkg,
         oval_series,
-        len(active_cves),
-        len(fixed_cves),
+        active_cve_count,
+        fixed_cve_count,
     )
 
     return {
@@ -2113,8 +2105,6 @@ def collect_ubuntu_cve_tracker(ctx: RunContext) -> UbuntuCVETrackerResult:
         "package": pkg,
         "series": oval_series,
         "cves": cves,
-        "active_cves": active_cves,
-        "fixed_cves": fixed_cves,
         "total_cve_count": len(cves),
     }
 

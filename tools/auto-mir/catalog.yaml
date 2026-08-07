@@ -111,12 +111,11 @@ evidence_adapters:
   notes: Best-effort; informs review-type detection (renamed/reorganised sources)
 - id: lp-team-membership-api
   type: api
-  description: Check team membership and bug subscriber status via Launchpad API
+  description: Return bug subscriber list from lp_intake-fetched Launchpad bug data
   inputs:
   - team_name
   output_contract:
-    members: list
-    is_subscribed: bool
+    subscribers: list
   fallback: emit_todo_continue
 - id: team-mapping
   type: web
@@ -359,8 +358,6 @@ evidence_adapters:
   - source_package
   output_contract:
     cves: list
-    active_cves: list
-    fixed_cves: list
   fallback: emit_todo_continue
 - id: cve-search-terms
   type: heuristic
