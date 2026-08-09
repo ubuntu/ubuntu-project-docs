@@ -81,7 +81,7 @@ class LabelRoute:
 # "AA" both post to #release:ubuntu.com); in that case the room receives a
 # single combined report covering all its labels.
 LABEL_ROUTES: tuple[LabelRoute, ...] = (
-    LabelRoute("MIR", "#ubuntu-mir:ubuntu.com"),
+    # LabelRoute("MIR", "#ubuntu-mir:ubuntu.com"),
     LabelRoute("SRU", "#sru:ubuntu.com"),
     LabelRoute("DMB", "#dmb:ubuntu.com"),
     LabelRoute("Release team", "#release:ubuntu.com"),
