@@ -37,6 +37,12 @@ LABEL_ROUTES: tuple[LabelRoute, ...] = (
 
 Room IDs are resolved at runtime from their aliases (no per-room secrets).
 
+### Approval filtering
+
+PRs that have already been approved by a member of the team associated with a label are omitted from that label's report. Team membership is determined by parsing `.github/CODEOWNERS` — each team section is introduced by a comment line matching `# {Label} PR approvals`, and all `@handle` tokens in the following lines (until the next team header or EOF) are that team's members.
+
+Labels without a matching CODEOWNERS section have no approval filtering applied.
+
 ## Implementation
 
 The script uses only the Python standard library (no third-party packages).
