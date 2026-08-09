@@ -22,6 +22,7 @@ import argparse
 import html
 import json
 import os
+import re
 import sys
 import urllib.parse
 import urllib.request
@@ -127,11 +128,17 @@ class ReportRow:
 
 @dataclass
 class Item:
-    """A single issue or PR listed in a label report: number, title, URL."""
+    """A single issue or PR listed in a label report: number, title, URL.
+
+    ``approvers`` holds the logins of reviewers who left an APPROVED review;
+    it is only populated for PRs and used to filter out PRs that a team
+    member has already approved.
+    """
 
     number: int
     title: str
     url: str
+    approvers: frozenset[str] = field(default_factory=frozenset)
 
 
 @dataclass
@@ -412,6 +419,10 @@ def fetch_pr_stats(cfg: Config) -> PRStats:
 def fetch_labeled_items(cfg: Config, label: str) -> tuple[list[Item], list[Item]]:
     """Fetch all open issues and PRs carrying ``label``.
 
+    For PRs, each Item's ``approvers`` field is populated with the logins
+    of reviewers who left an APPROVED review, so that PRs already approved
+    by a team member can be filtered out of that team's report.
+
     Args:
         cfg: Runtime configuration.
         label: GitHub label name to filter by.
@@ -436,13 +447,18 @@ def fetch_labeled_items(cfg: Config, label: str) -> tuple[list[Item], list[Item]
         pullRequests(states: OPEN, first: 100, after: $cursor,
                      labels: [$label]) {
           pageInfo { hasNextPage endCursor }
-          nodes { number title url }
+          nodes {
+            number title url
+            reviews(first: 100) {
+              nodes { author { login } state }
+            }
+          }
         }
       }
     }
     """
 
-    def _collect(query: str, field: str) -> list[Item]:
+    def _collect_issues(query: str, field: str) -> list[Item]:
         items: list[Item] = []
         cursor: str | None = None
         while True:
@@ -463,7 +479,110 @@ def fetch_labeled_items(cfg: Config, label: str) -> tuple[list[Item], list[Item]
             cursor = page["pageInfo"]["endCursor"]
         return items
 
-    return _collect(issue_query, "issues"), _collect(pr_query, "pullRequests")
+    def _collect_prs(query: str, field: str) -> list[Item]:
+        items: list[Item] = []
+        cursor: str | None = None
+        while True:
+            data = _github_graphql(
+                cfg.github_token,
+                query,
+                {
+                    "owner": cfg.owner,
+                    "repo": cfg.repo,
+                    "label": label,
+                    "cursor": cursor,
+                },
+            )
+            page = data["repository"][field]
+            for n in page["nodes"]:
+                approvers = frozenset(
+                    r["author"]["login"].lower()
+                    for r in n.get("reviews", {}).get("nodes", [])
+                    if r.get("state") == "APPROVED" and r.get("author")
+                )
+                items.append(Item(n["number"], n["title"], n["url"], approvers))
+            if not page["pageInfo"]["hasNextPage"]:
+                break
+            cursor = page["pageInfo"]["endCursor"]
+        return items
+
+    return _collect_issues(issue_query, "issues"), _collect_prs(
+        pr_query, "pullRequests"
+    )
+
+
+# CODEOWNERS team-member resolution
+
+
+_CODEOWNERS_TEAM_RE = re.compile(r"#\s+(.+?)\s+PR\s+approvals", re.IGNORECASE)
+
+
+def fetch_codeowners(cfg: Config) -> str:
+    """Fetch the ``.github/CODEOWNERS`` file content from the default branch.
+
+    Args:
+        cfg: Runtime configuration.
+
+    Returns:
+        Raw file text, or an empty string if the file does not exist.
+    """
+    query = """
+    query($owner: String!, $repo: String!) {
+      repository(owner: $owner, name: $repo) {
+        object(expression: "HEAD:.github/CODEOWNERS") {
+          ... on Blob { text }
+        }
+      }
+    }
+    """
+    data = _github_graphql(
+        cfg.github_token, query, {"owner": cfg.owner, "repo": cfg.repo}
+    )
+    obj = data["repository"]["object"]
+    return obj["text"] if obj else ""
+
+
+def parse_team_members(
+    codeowners: str, label_names: set[str]
+) -> dict[str, frozenset[str]]:
+    """Parse CODEOWNERS to map each label to its team member logins.
+
+    Team sections are identified by comment lines matching
+    ``# {Name} PR approvals`` (e.g. ``# MIR team PR approvals``).
+    All ``@handle`` tokens in subsequent lines — until the next team header
+    or EOF — are collected as that team's members.
+
+    Labels without a matching CODEOWNERS section get an empty set, meaning
+    no approval filtering is applied for them.
+
+    Args:
+        codeowners: Raw contents of ``.github/CODEOWNERS``.
+        label_names: Set of label names to look for (from ``LABEL_ROUTES``).
+
+    Returns:
+        ``{label: frozenset[str]}`` — lowercased GitHub logins per label.
+    """
+    members: dict[str, set[str]] = {label: set() for label in label_names}
+    current_label: str | None = None
+
+    for line in codeowners.splitlines():
+        m = _CODEOWNERS_TEAM_RE.match(line)
+        if m:
+            captured = m.group(1).strip()
+            # Match "MIR team" → "MIR", "Release team" → "Release team", etc.
+            normalized = re.sub(r"\s+team$", "", captured, flags=re.IGNORECASE).strip()
+            current_label = None
+            for label in label_names:
+                if label == captured or label == normalized:
+                    current_label = label
+                    break
+            continue
+
+        if current_label is not None:
+            for handle in re.findall(r"@([a-zA-Z0-9][a-zA-Z0-9-]*)", line):
+                members[current_label].add(handle.lower())
+
+    return {label: frozenset(members[label]) for label in label_names}
 
 
 # URL building
@@ -851,6 +970,21 @@ def main() -> None:
     for route in LABEL_ROUTES:
         rooms.setdefault(route.matrix_alias, []).append(route.label)
 
+    # Fetch CODEOWNERS and parse team member sets for approval filtering.
+    # If a label has no matching CODEOWNERS section, its member set is empty
+    # and no filtering is applied.
+    print("\nFetching CODEOWNERS for team-member resolution…")
+    label_names = {r.label for r in LABEL_ROUTES}
+    try:
+        codeowners = fetch_codeowners(cfg)
+        team_members = parse_team_members(codeowners, label_names)
+    except (RuntimeError, OSError) as exc:
+        print(f"⚠ Could not fetch/parse CODEOWNERS: {exc} — skipping approval filter.")
+        team_members = {label: frozenset() for label in label_names}
+    for label in sorted(label_names):
+        n = len(team_members.get(label, frozenset()))
+        print(f"  {label}: {n} member{'s' if n != 1 else ''}")
+
     # Fetch + build + print every per-label report (always).
     label_reports: list[tuple[str, str, str, str]] = []  # (alias, plain, html, md)
     for alias, labels in rooms.items():
@@ -858,7 +992,18 @@ def main() -> None:
         items_by_label: dict[str, tuple[list[Item], list[Item]]] = {}
         for label in labels:
             issues_l, prs_l = fetch_labeled_items(cfg, label)
-            print(f"  {label}: {len(issues_l)} issues, {len(prs_l)} PRs")
+            # Filter out PRs already approved by a team member for this label.
+            members = team_members.get(label, frozenset())
+            if members:
+                before = len(prs_l)
+                prs_l = [pr for pr in prs_l if not (members & pr.approvers)]
+                skipped = before - len(prs_l)
+                print(
+                    f"  {label}: {len(issues_l)} issues, "
+                    f"{len(prs_l)} PRs ({skipped} approved by team, omitted)"
+                )
+            else:
+                print(f"  {label}: {len(issues_l)} issues, {len(prs_l)} PRs")
             items_by_label[label] = (issues_l, prs_l)
         label_report = build_label_report(alias, labels, items_by_label, cfg.repo_url)
         lr_md = render_markdown(label_report)
