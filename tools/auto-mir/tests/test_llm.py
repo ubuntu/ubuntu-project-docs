@@ -83,16 +83,27 @@ def test_resolve_auth_honors_compatible_base_override(monkeypatch):
     assert api_url == "https://llm.example/v1/chat/completions"
 
 
-def test_resolve_auth_without_token_has_no_endpoint(monkeypatch):
+def test_resolve_auth_without_key_falls_back_to_placeholder_token(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_BASE", raising=False)
 
     provider, token, source, api_url = llm.resolve_auth()
 
     assert provider == "openai-compatible"
-    assert token is None
-    assert source == ""
-    assert api_url == ""
+    assert token == llm.FALLBACK_TOKEN
+    assert source.startswith(llm.FALLBACK_AUTH_SOURCE_PREFIX)
+    assert api_url == "https://openrouter.ai/api/v1/chat/completions"
+
+
+def test_resolve_auth_without_key_honors_compatible_base_override(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("OPENAI_API_BASE", "https://llm.example/v1/")
+
+    _provider, token, source, api_url = llm.resolve_auth()
+
+    assert token == llm.FALLBACK_TOKEN
+    assert source.startswith(llm.FALLBACK_AUTH_SOURCE_PREFIX)
+    assert api_url == "https://llm.example/v1/chat/completions"
 
 
 def test_parse_chat_response_rejects_null_message_content():

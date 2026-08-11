@@ -65,6 +65,28 @@ def test_stage_auth_registers_host_secret_without_guest_export(monkeypatch):
 
     assert ctx.secret_redactor.redact_text(_SENTINEL) == "[REDACTED]"
     assert not hasattr(ctx, "guest_env")
+
+
+def test_stage_auth_warns_and_proceeds_without_openai_api_key(monkeypatch, caplog):
+    ctx = SimpleNamespace(evidence={}, secret_redactor=SecretRedactor())
+    monkeypatch.setattr(
+        llm,
+        "resolve_auth",
+        lambda: (
+            "openai-compatible",
+            llm.FALLBACK_TOKEN,
+            "fallback:no-openai-api-key",
+            "https://example.test/v1/chat/completions",
+        ),
+    )
+
+    with caplog.at_level(logging.WARNING, logger="auto_mir"):
+        auto_mir.stage_auth(ctx)  # must not raise SystemExit
+
+    assert ctx.llm_token == llm.FALLBACK_TOKEN
+    assert any("OPENAI_API_KEY" in record.message for record in caplog.records)
+    # The placeholder token is not a real secret, so it should not be registered.
+    assert ctx.secret_redactor.redact_text(llm.FALLBACK_TOKEN) == llm.FALLBACK_TOKEN
     assert ctx.evidence["auth"]["api_url"] == "https://example.test/v1/chat/completions"
 
 

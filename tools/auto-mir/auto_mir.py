@@ -533,19 +533,20 @@ def stage_auth(ctx: RunContext) -> None:
 
     provider, token, source, api_url = llm.resolve_auth()
 
-    if not token:
-        log.error(
-            "No LLM authentication token found.\n"
-            "Set OPENAI_API_KEY to an OpenRouter API key. For another "
-            "OpenAI-compatible service, also set OPENAI_API_BASE."
+    if source.startswith(llm.FALLBACK_AUTH_SOURCE_PREFIX):
+        log.warning(
+            "No OPENAI_API_KEY found; proceeding with a placeholder credential.\n"
+            "Set OPENAI_API_KEY to an OpenRouter API key for hosted use. For a "
+            "local/unauthenticated OpenAI-compatible endpoint, set OPENAI_API_BASE "
+            "and this warning can be ignored."
         )
-        raise SystemExit(1)
+    else:
+        ensure_secret_redactor(ctx, log).register(token)
 
     ctx.llm_provider = provider
     ctx.llm_api_url = api_url
     ctx.llm_token = token
     ctx.auth_source = source
-    ensure_secret_redactor(ctx, log).register(token)
 
     ctx.evidence["auth"] = {
         "provider": provider,
@@ -556,21 +557,26 @@ def stage_auth(ctx: RunContext) -> None:
 
 
 def stage_optional_auth(ctx: RunContext) -> None:
-    """Resolve reporter LLM auth when available, without making it mandatory."""
+    """Resolve reporter LLM auth. --no-llm is the only way to fully disable AI."""
     if ctx.no_llm:
         log.info("Reporter AI suggestions disabled by --no-llm")
         return
     import llm
 
     provider, token, source, api_url = llm.resolve_auth()
-    if not token:
-        log.info("No LLM credential found; reporter flow will use deterministic and human input")
-        return
+    if source.startswith(llm.FALLBACK_AUTH_SOURCE_PREFIX):
+        log.warning(
+            "No OPENAI_API_KEY found; proceeding with a placeholder credential.\n"
+            "Set OPENAI_API_KEY to an OpenRouter API key for hosted use. For a "
+            "local/unauthenticated OpenAI-compatible endpoint, set OPENAI_API_BASE "
+            "and this warning can be ignored."
+        )
+    else:
+        ctx.secret_redactor.register(token)
     ctx.llm_provider = provider
     ctx.llm_api_url = api_url
     ctx.llm_token = token
     ctx.auth_source = source
-    ctx.secret_redactor.register(token)
     ctx.evidence["auth"] = {"provider": provider, "source": source, "api_url": api_url}
 
 

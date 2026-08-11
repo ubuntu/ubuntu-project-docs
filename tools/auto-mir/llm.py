@@ -7,10 +7,16 @@ Provider
 --------
 openai-compatible
         Any OpenAI-compatible endpoint, including OpenRouter.
-        Auth: OPENAI_API_KEY.
+        Auth: OPENAI_API_KEY (optional — see FALLBACK_TOKEN below).
     Base URL: OPENAI_API_BASE (default: https://openrouter.ai/api/v1).
         Default models: small=z-ai/glm-4.7, large=z-ai/glm-5.2
         (OpenRouter names; override via --llm-model-small / --llm-model-large).
+
+OPENAI_API_KEY is optional: some local/self-hosted OpenAI-compatible servers
+(pointed at via OPENAI_API_BASE) don't check the bearer token at all. When
+OPENAI_API_KEY is unset, resolve_auth() returns FALLBACK_TOKEN instead of
+failing; callers log a warning and proceed. An endpoint that does require
+real auth will simply reject the fallback token with its own auth error.
 
 Design constraints:
 - No streaming; we want a complete JSON response before proceeding.
@@ -49,6 +55,17 @@ DEFAULT_OPENAI_COMPAT_SMALL_MODEL = "z-ai/glm-4.7"
 DEFAULT_OPENAI_COMPAT_LARGE_MODEL = "z-ai/glm-5.2"
 
 DEFAULT_TIMEOUT_SECONDS = 60
+
+# Placeholder bearer token used when OPENAI_API_KEY is unset. Many local/
+# self-hosted OpenAI-compatible servers do not check the token value at all,
+# so sending some non-empty string (rather than aborting) lets those setups
+# work without any configuration. A real endpoint that does require auth will
+# simply reject this with its own auth error, surfaced normally to the user.
+FALLBACK_TOKEN = "sk-no-key-required"
+# Prefix used in resolve_auth()'s source label when the fallback token above
+# was used (i.e. no OPENAI_API_KEY was found). Callers use this to decide
+# whether to warn the user and whether to register the value for redaction.
+FALLBACK_AUTH_SOURCE_PREFIX = "fallback:"
 
 
 class LLMError(RuntimeError):
@@ -697,27 +714,31 @@ def _parse_rate_limit_hint(body: str) -> tuple[int, int] | None:
 # ---------------------------------------------------------------------------
 
 
-def resolve_auth() -> tuple[str, str | None, str, str]:
+def resolve_auth() -> tuple[str, str, str, str]:
     """Resolve LLM provider, token, source label, and API URL.
 
     Returns:
         (provider, token, source, api_url)
 
         provider  — "openai-compatible"
-        token     — auth token string, or None if none found
-        source    — human-readable source label for logging
+        token     — auth token string (real credential, or FALLBACK_TOKEN)
+        source    — human-readable source label for logging; prefixed with
+                    FALLBACK_AUTH_SOURCE_PREFIX when OPENAI_API_KEY was unset
         api_url   — full chat-completions endpoint URL
 
-    Returns token=None when OPENAI_API_KEY is unavailable; caller handles hard-fail.
+    OPENAI_API_BASE is honoured regardless of whether OPENAI_API_KEY is set,
+    so a local/unauthenticated endpoint works without any credential. Never
+    returns token=None: callers distinguish "no real credential configured"
+    by checking source.startswith(FALLBACK_AUTH_SOURCE_PREFIX).
     """
 
-    def _openai_token_from_env() -> tuple[str | None, str, str]:
-        key = os.environ.get("OPENAI_API_KEY")
-        if not key:
-            return None, "", ""
+    def _openai_token_from_env() -> tuple[str, str, str]:
         base = os.environ.get("OPENAI_API_BASE", DEFAULT_OPENAI_BASE_URL).rstrip("/")
         api_url = f"{base}/chat/completions"
-        return key, "host-env:OPENAI_API_KEY", api_url
+        key = os.environ.get("OPENAI_API_KEY")
+        if key:
+            return key, "host-env:OPENAI_API_KEY", api_url
+        return FALLBACK_TOKEN, f"{FALLBACK_AUTH_SOURCE_PREFIX}no-openai-api-key", api_url
 
     token, source, api_url = _openai_token_from_env()
     return "openai-compatible", token, source, api_url

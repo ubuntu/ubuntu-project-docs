@@ -33,6 +33,11 @@ echo
 export OPENAI_API_KEY
 ```
 
+`OPENAI_API_KEY` is optional: if it is unset, auto-mir warns and proceeds with
+a placeholder credential, which is enough for a local/unauthenticated
+OpenAI-compatible endpoint (set via `OPENAI_API_BASE`). Set `OPENAI_API_KEY`
+for OpenRouter or any other endpoint that actually checks the token.
+
 From this directory, review an existing Launchpad MIR bug:
 
 ```text
