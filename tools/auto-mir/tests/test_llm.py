@@ -260,6 +260,72 @@ def test_repair_json_trims_trailing_garbage_after_object():
     assert llm._repair_json('{"status": "ok"} trailing junk') == {"status": "ok"}
 
 
+def test_build_parser_accepts_llm_retry_and_timeout_flags():
+    parser = build_parser()
+    args = parser.parse_args(
+        ["review", "123", "--llm-retry-base-delay", "30", "--llm-timeout", "120"]
+    )
+
+    assert args.llm_retry_base_delay == 30.0
+    assert args.llm_timeout == 120.0
+
+
+def test_build_parser_defaults_llm_retry_and_timeout_flags():
+    parser = build_parser()
+    args = parser.parse_args(["review", "123"])
+
+    assert args.llm_retry_base_delay == 8.0
+    assert args.llm_timeout == 60.0
+
+
+def test_call_openai_compatible_honours_ctx_retry_base_delay(monkeypatch):
+    captured = {}
+    real_retry_rate_limited = llm.retry_rate_limited
+
+    def spy_retry_rate_limited(*, max_attempts, base_delay, max_delay):
+        captured["max_attempts"] = max_attempts
+        captured["base_delay"] = base_delay
+        captured["max_delay"] = max_delay
+        return real_retry_rate_limited(
+            max_attempts=max_attempts, base_delay=base_delay, max_delay=max_delay
+        )
+
+    monkeypatch.setattr(llm, "retry_rate_limited", spy_retry_rate_limited)
+    monkeypatch.setattr(llm, "_call_openai_compatible_impl", lambda *a, **k: ({"ok": True}, {}))
+
+    ctx = SimpleNamespace(llm_retry_base_delay=90.0)
+    result = llm._call_openai_compatible("prompt", ctx, "small", 100)
+
+    assert result == ({"ok": True}, {})
+    assert captured["max_attempts"] == 4
+    assert captured["base_delay"] == 90.0
+    # max_delay never shrinks below the configured base delay.
+    assert captured["max_delay"] == 90.0
+
+
+def test_call_openai_compatible_default_retry_delay_unchanged(monkeypatch):
+    captured = {}
+    real_retry_rate_limited = llm.retry_rate_limited
+
+    def spy_retry_rate_limited(*, max_attempts, base_delay, max_delay):
+        captured["base_delay"] = base_delay
+        captured["max_delay"] = max_delay
+        return real_retry_rate_limited(
+            max_attempts=max_attempts, base_delay=base_delay, max_delay=max_delay
+        )
+
+    monkeypatch.setattr(llm, "retry_rate_limited", spy_retry_rate_limited)
+    monkeypatch.setattr(llm, "_call_openai_compatible_impl", lambda *a, **k: ({"ok": True}, {}))
+
+    # No llm_retry_base_delay attribute at all: must match the previous
+    # hardcoded static-decorator defaults exactly (8.0 / 60.0).
+    ctx = SimpleNamespace()
+    llm._call_openai_compatible("prompt", ctx, "small", 100)
+
+    assert captured["base_delay"] == 8.0
+    assert captured["max_delay"] == 60.0
+
+
 def test_call_llm_retries_once_with_larger_budget(monkeypatch):
     ctx = SimpleNamespace(llm_model_small=None, llm_model_large=None)
     budgets = []

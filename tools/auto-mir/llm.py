@@ -281,8 +281,7 @@ def _http_error_body(exc: urllib.error.HTTPError) -> str:
 # ---------------------------------------------------------------------------
 
 
-@retry_rate_limited(max_attempts=4, base_delay=8.0, max_delay=60.0)
-def _call_openai_compatible(
+def _call_openai_compatible_impl(
     prompt: str, ctx: "RunContext", model_tier: str, max_tokens: int
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Call an OpenAI-compatible chat-completions endpoint and return parsed JSON.
@@ -392,6 +391,27 @@ def _call_openai_compatible(
 
         # Re-raise for tenacity to handle (will retry on 429/5xx)
         raise
+
+
+def _call_openai_compatible(
+    prompt: str, ctx: "RunContext", model_tier: str, max_tokens: int
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Apply the rate-limit retry policy, honouring a per-run retry base delay.
+
+    ``retry_rate_limited`` is a decorator *factory*: applying it here (per call)
+    rather than at class/function-definition time lets ``ctx.llm_retry_base_delay``
+    (from ``--llm-retry-base-delay``, default 8.0) drive the wait schedule for a
+    given run, so a slow model/endpoint can be given more room between retries.
+    ``max_delay`` never shrinks below the configured base delay; with the
+    default base_delay=8.0 this is byte-identical to the previous static
+    ``base_delay=8.0, max_delay=60.0``.
+    """
+    base_delay = getattr(ctx, "llm_retry_base_delay", None) or 8.0
+    max_delay = max(60.0, base_delay)
+    retrying_call = retry_rate_limited(max_attempts=4, base_delay=base_delay, max_delay=max_delay)(
+        _call_openai_compatible_impl
+    )
+    return retrying_call(prompt, ctx, model_tier, max_tokens)
 
 
 def _selected_model(ctx: "RunContext", model_tier: str = "small") -> str:

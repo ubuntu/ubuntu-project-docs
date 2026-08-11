@@ -208,6 +208,31 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     common.add_argument(
+        "--llm-retry-base-delay",
+        dest="llm_retry_base_delay",
+        type=float,
+        default=8.0,
+        metavar="SECONDS",
+        help=(
+            "Base delay (seconds) for the LLM retry backoff on rate-limit/server "
+            "errors; the wait doubles on each retry, capped at max(60, this value). "
+            "8 (the default) is good for most setups; increase it for a slow "
+            "model/endpoint so requests aren't retried before a slow response has a "
+            "chance to arrive."
+        ),
+    )
+    common.add_argument(
+        "--llm-timeout",
+        dest="llm_timeout",
+        type=float,
+        default=60.0,
+        metavar="SECONDS",
+        help=(
+            "Per-request HTTP read timeout (seconds) for LLM calls. Increase this "
+            "for a slow model/endpoint that can take longer than 60s to respond."
+        ),
+    )
+    common.add_argument(
         "--request-binaries",
         dest="request_binaries",
         type=str,
@@ -282,7 +307,8 @@ class RunContext:
     -------------------
     Resolved in __init__ (from CLI args):
         bug_id, series, keep_guest, lxd_image,
-        llm_model_small, llm_model_large, collect_only, tool_root,
+        llm_model_small, llm_model_large, llm_retry_base_delay, llm_timeout,
+        collect_only, tool_root,
         workspace_root, run_name, output_dir
 
     Populated by stage_auth (Stage 0 — auth setup):
@@ -317,6 +343,10 @@ class RunContext:
         self.lxd_image: str | None = args.lxd_image
         self.llm_model_small: str | None = args.llm_model_small
         self.llm_model_large: str | None = args.llm_model_large
+        # LLM retry backoff base delay (seconds) and per-request timeout (seconds).
+        # See llm._call_openai_compatible / llm.DEFAULT_TIMEOUT_SECONDS.
+        self.llm_retry_base_delay: float = getattr(args, "llm_retry_base_delay", 8.0)
+        self.llm_timeout: float = getattr(args, "llm_timeout", 60.0)
         self.collect_only: bool = args.collect_only
         self.lxd_options: str = args.lxd_options
         self.requested_binaries: list[str] = args.request_binaries or []
