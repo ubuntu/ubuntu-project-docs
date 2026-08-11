@@ -3734,6 +3734,19 @@ LXD guest + real Launchpad network calls).
   fallback is to keep the CLI tool but find a way to force it
   non-interactive, or accept `"unknown"` status for this one optional
   adapter.
+- Decision (defense-in-depth, beyond the reported bugs): confirmed by reading
+  the whole call chain that `lxd_runner.run_command()`/`exec_in()`/
+  `exec_in_retry()` had **no execution timeout anywhere** — any guest command
+  could in principle hang forever, not just the one this round fixed.
+  `run_command()`, `exec_in()`, and `exec_in_retry()`/`_exec_in_retry_internal()`
+  now default to a new `_DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS = 1800.0` (30
+  minutes) — deliberately generous so it never interferes with legitimate
+  slow steps (`apt-get install`, `fetch-build` downloads) — with an explicit
+  per-call `timeout=` override available for any future caller that
+  genuinely needs something different. `run_command()` now catches
+  `subprocess.TimeoutExpired` to log a clear message before re-raising it, so
+  a timeout reads as an obvious "command timed out after Ns" rather than an
+  opaque traceback.
 
 
 

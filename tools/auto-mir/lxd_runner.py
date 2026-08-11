@@ -29,6 +29,14 @@ _GUEST_RETRY_MAX_ATTEMPTS = 4
 _GUEST_RETRY_BASE_DELAY_SECONDS = 6.0
 _GUEST_RETRY_MAX_DELAY_SECONDS = 60.0
 
+# Default execution timeout (seconds) for any command run via run_command()/
+# exec_in()/exec_in_retry(). Nothing bounded how long a guest command could
+# run before this was added, so an unexpected hang (e.g. a tool attempting
+# interactive auth on a headless guest) could block a run indefinitely. This
+# is deliberately generous so it never interferes with legitimate slow steps
+# (apt-get install, fetch-build downloads); it's a safety net, not a budget.
+_DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS = 1800.0
+
 # Fallback Ubuntu devel image aliases, tried when the target series is unknown.
 _UBUNTU_DEVEL_FALLBACK_IMAGES = [
     "ubuntu-daily:devel",
@@ -61,16 +69,30 @@ _ARCHIVE_TOOLS_DIR = "/opt/ubuntu-archive-tools"
 
 
 def run_command(
-    cmd: list[str], log_prefix: str, check: bool = True, capture: bool = False, **kwargs
+    cmd: list[str],
+    log_prefix: str,
+    check: bool = True,
+    capture: bool = False,
+    timeout: float | None = _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS,
+    **kwargs,
 ) -> subprocess.CompletedProcess:
     """Run a subprocess and handle uniform error logging and checking."""
     log.debug("%s$ %s", log_prefix, shlex.join(cmd))
-    result = subprocess.run(
-        cmd,
-        capture_output=capture,
-        text=True,
-        **kwargs,
-    )
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=capture,
+            text=True,
+            timeout=timeout,
+            **kwargs,
+        )
+    except subprocess.TimeoutExpired:
+        log.error(
+            "Command timed out after %ss: %s",
+            timeout,
+            shlex.join(cmd),
+        )
+        raise
     if check and result.returncode != 0:
         log.error(
             "Command failed (exit %d): %s",
@@ -435,6 +457,7 @@ def exec_in(
     workdir: str | None = None,
     user: int | None = None,
     group: int | None = None,
+    timeout: float | None = _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS,
 ) -> subprocess.CompletedProcess:
     """Run a command inside the named LXD guest.
 
@@ -447,6 +470,10 @@ def exec_in(
         workdir: Working directory inside the guest
         user: Optional numeric uid to run the command as
         group: Optional numeric gid to run the command as
+        timeout: Maximum seconds to wait before raising subprocess.TimeoutExpired.
+            Defaults to a generous safety net (see _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS)
+            so an unexpectedly hanging command (e.g. a tool attempting interactive
+            auth on a headless guest) fails clearly instead of blocking forever.
 
     Returns:
         CompletedProcess with returncode, stdout, stderr
@@ -468,7 +495,9 @@ def exec_in(
 
     lxc_cmd += ["--"] + cmd
 
-    return run_command(lxc_cmd, log_prefix=f"guest({name})", check=check, capture=capture)
+    return run_command(
+        lxc_cmd, log_prefix=f"guest({name})", check=check, capture=capture, timeout=timeout
+    )
 
 
 @retry_guest_command(
@@ -484,6 +513,7 @@ def _exec_in_retry_internal(
     workdir: str | None = None,
     user: int | None = None,
     group: int | None = None,
+    timeout: float | None = _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS,
 ) -> subprocess.CompletedProcess:
     """Internal function that executes with retry logic.
 
@@ -499,6 +529,7 @@ def _exec_in_retry_internal(
         workdir=workdir,
         user=user,
         group=group,
+        timeout=timeout,
     )
 
 
@@ -512,6 +543,7 @@ def exec_in_retry(
     workdir: str | None = None,
     user: int | None = None,
     group: int | None = None,
+    timeout: float | None = _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS,
     operation: str = "command",
 ) -> subprocess.CompletedProcess:
     """Run an in-guest command with retries on transient failures.
@@ -529,6 +561,8 @@ def exec_in_retry(
         workdir: Working directory
         user: Optional numeric uid to run the command as
         group: Optional numeric gid to run the command as
+        timeout: Maximum seconds to wait per attempt before raising
+            subprocess.TimeoutExpired (see exec_in).
         operation: Operation name for logging
 
     Returns:
@@ -544,6 +578,7 @@ def exec_in_retry(
         workdir=workdir,
         user=user,
         group=group,
+        timeout=timeout,
     )
 
     if result.returncode != 0 and not check:
