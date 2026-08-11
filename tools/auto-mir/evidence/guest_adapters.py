@@ -28,7 +28,6 @@ from evidence.types import (
     LintianResult,
     PackagingSourceResult,
     ReverseDepsResult,
-    UbuntuUploadPermissionResult,
 )
 from utils import http as http_utils
 
@@ -1212,82 +1211,6 @@ def _dep_belongs_to_in_scope(dep: str, runtime_deps: list[dict], in_scope: set[s
             if dep in dep_names:
                 return True
     return False
-
-
-# ---------------------------------------------------------------------------
-# Ubuntu upload permission adapter
-# ---------------------------------------------------------------------------
-
-
-def _parse_upload_permission(output: str) -> tuple[list[str], list[dict], list[dict]]:
-    """Parse ``ubuntu-upload-permission --list-uploaders`` output.
-
-    Returns (components, team_uploaders, individual_uploaders). Each uploader is
-    a dict {"name": str, "component": str|None}. Team entries are those marked
-    ``[team]`` (e.g. ``MOTU (motu) [team]``); everything else is an individual.
-    """
-    components: list[str] = []
-    team_uploaders: list[dict] = []
-    individual_uploaders: list[dict] = []
-    current_component: str | None = None
-
-    for raw in output.splitlines():
-        line = raw.strip()
-        comp_match = re.match(r"Component \((.+)\)", line)
-        if comp_match:
-            current_component = comp_match.group(1).strip()
-            components.append(current_component)
-            continue
-        if line.startswith("* "):
-            entry = line[2:].strip()
-            is_team = "[team]" in entry
-            name = entry.replace("[team]", "").strip()
-            record = {"name": name, "component": current_component}
-            (team_uploaders if is_team else individual_uploaders).append(record)
-
-    return components, team_uploaders, individual_uploaders
-
-
-@adapter(AdapterID.UBUNTU_UPLOAD_PERMISSION)
-def collect_ubuntu_upload_permission(ctx: RunContext) -> UbuntuUploadPermissionResult:
-    """List who may upload the source package via ``ubuntu-upload-permission``.
-
-    This reveals whether the package is uploadable only by the MOTU team (the
-    common case for a universe package that is synced from Debian) or by
-    specific individuals/teams. Combined with the upload history it lets PRF-7
-    judge whether promotion to main would remove a current maintainer's ability
-    to upload.
-    """
-    pkg = ctx.source_package
-    if not pkg:
-        raise AdapterError("ubuntu-upload-permission adapter requires source_package")
-
-    has_tool = _exists(ctx, ["bash", "-lc", "command -v ubuntu-upload-permission >/dev/null 2>&1"])
-    if not has_tool:
-        raise AdapterError("ubuntu-upload-permission not installed (ubuntu-dev-tools)")
-
-    output = _capture(
-        ctx,
-        ["bash", "-lc", f"ubuntu-upload-permission --list-uploaders {pkg} 2>&1"],
-        allow_fail=True,
-    )
-
-    components, team_uploaders, individual_uploaders = _parse_upload_permission(output)
-
-    log.debug(
-        "ubuntu-upload-permission: %s -> %d component(s), %d team(s), %d individual(s)",
-        pkg,
-        len(components),
-        len(team_uploaders),
-        len(individual_uploaders),
-    )
-    return {
-        "status": "ok",
-        "raw_output": output,
-        "components": components,
-        "team_uploaders": team_uploaders,
-        "individual_uploaders": individual_uploaders,
-    }
 
 
 # ---------------------------------------------------------------------------

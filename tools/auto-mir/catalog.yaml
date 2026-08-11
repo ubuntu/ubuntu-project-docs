@@ -279,17 +279,19 @@ evidence_adapters:
   fallback: emit_todo_continue
   notes: Uses reverse-depends from ubuntu-dev-tools (already provisioned in the guest) against <codename>-proposed with fallback to the bare codename; maps reverse-dep binaries to their source packages so CB-6 can reason about end-to-end coverage via consumers
 - id: ubuntu-upload-permission
-  type: local_exec
-  description: Run ubuntu-upload-permission --list-uploaders to determine who may upload the package
+  type: api
+  description: Query the Launchpad archive API for who may upload the source package (component and package-specific uploaders)
   inputs:
   - source_package
+  depends_on:
+  - lp-package-api
   output_contract:
     raw_output: str
     components: list
     team_uploaders: list
     individual_uploaders: list
   fallback: emit_todo_continue
-  notes: From ubuntu-dev-tools; reveals whether only the MOTU team (universe) can upload (typical sync-from-Debian case) versus specific individuals/teams
+  notes: Uses the same anonymous Launchpad session as lp-package-api/lp-build-api (archive.getUploadersForComponent/getUploadersForPackage); reveals whether only the MOTU team (universe) can upload (typical sync-from-Debian case) versus specific individuals/teams. Deliberately not the ubuntu-upload-permission guest CLI tool, which always attempts an interactive Launchpad OAuth login that hangs for ~15 minutes on a fresh, credential-less guest.
 - id: git-ubuntu-delta
   type: local_exec
   description: Classify the Ubuntu delta vs Debian and, when an Ubuntu revision exists, produce a git-ubuntu diffstat

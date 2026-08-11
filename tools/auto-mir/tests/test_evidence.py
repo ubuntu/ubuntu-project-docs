@@ -2346,43 +2346,99 @@ def test_resolve_current_component_unknown_when_empty():
 
 
 # ---------------------------------------------------------------------------
-# ubuntu-upload-permission parsing
+# ubuntu-upload-permission (Launchpad API, no guest/LXD involved)
 # ---------------------------------------------------------------------------
 
 
-def test_parse_upload_permission_motu_only():
-    from evidence.guest_adapters import _parse_upload_permission
-
-    output = (
-        "All upload permissions for lua5.5:\n"
-        "\n"
-        "Component (universe)\n"
-        "====================\n"
-        "* MOTU (motu) [team]\n"
-        "\n"
-        "You can upload lua5.5 to stonking.\n"
-    )
-    components, teams, individuals = _parse_upload_permission(output)
-    assert components == ["universe"]
-    assert teams == [{"name": "MOTU (motu)", "component": "universe"}]
-    assert individuals == []
+def _fake_upload_permission(name: str, is_team: bool, component_name: str = ""):
+    person = Mock()
+    person.name = name
+    person.is_team = is_team
+    perm = Mock(component_name=component_name)
+    perm.person = person
+    return perm
 
 
-def test_parse_upload_permission_individual_uploader():
-    from evidence.guest_adapters import _parse_upload_permission
+def test_collect_ubuntu_upload_permission_component_only_motu():
+    from evidence.host_adapters import collect_ubuntu_upload_permission
 
-    output = (
-        "All upload permissions for foo:\n"
-        "\n"
-        "Component (main)\n"
-        "================\n"
-        "* Jane Developer (jane)\n"
-        "* Some Team (some-team) [team]\n"
-    )
-    components, teams, individuals = _parse_upload_permission(output)
-    assert components == ["main"]
-    assert {"name": "Jane Developer (jane)", "component": "main"} in individuals
-    assert {"name": "Some Team (some-team)", "component": "main"} in teams
+    ctx = Mock()
+    ctx.source_package = "lua5.5"
+    ctx.evidence = {"adapters": {"lp-package-api": {"current_component": "universe"}}}
+
+    fake_archive = Mock()
+    fake_archive.getUploadersForComponent.return_value = [
+        _fake_upload_permission("motu", is_team=True)
+    ]
+    fake_archive.getUploadersForPackage.return_value = []
+
+    fake_lp = Mock()
+    fake_lp.distributions = {"ubuntu": Mock(main_archive=fake_archive)}
+
+    with patch("evidence.host_adapters.launchpad_client.login_anonymously", return_value=fake_lp):
+        result = collect_ubuntu_upload_permission(ctx)
+
+    assert result["status"] == "ok"
+    assert result["components"] == ["universe"]
+    assert result["team_uploaders"] == [{"name": "motu", "component": "universe"}]
+    assert result["individual_uploaders"] == []
+    fake_archive.getUploadersForComponent.assert_called_once_with(component_name="universe")
+    fake_archive.getUploadersForPackage.assert_called_once_with(source_package_name="lua5.5")
+
+
+def test_collect_ubuntu_upload_permission_individual_and_team_package_uploaders():
+    from evidence.host_adapters import collect_ubuntu_upload_permission
+
+    ctx = Mock()
+    ctx.source_package = "foo"
+    ctx.evidence = {"adapters": {"lp-package-api": {"current_component": "main"}}}
+
+    fake_archive = Mock()
+    fake_archive.getUploadersForComponent.return_value = []
+    fake_archive.getUploadersForPackage.return_value = [
+        _fake_upload_permission("jane", is_team=False),
+        _fake_upload_permission("some-team", is_team=True),
+    ]
+
+    fake_lp = Mock()
+    fake_lp.distributions = {"ubuntu": Mock(main_archive=fake_archive)}
+
+    with patch("evidence.host_adapters.launchpad_client.login_anonymously", return_value=fake_lp):
+        result = collect_ubuntu_upload_permission(ctx)
+
+    assert result["components"] == ["main"]
+    assert {"name": "jane", "component": None} in result["individual_uploaders"]
+    assert {"name": "some-team", "component": None} in result["team_uploaders"]
+
+
+def test_collect_ubuntu_upload_permission_skips_component_lookup_when_unknown():
+    from evidence.host_adapters import collect_ubuntu_upload_permission
+
+    ctx = Mock()
+    ctx.source_package = "foo"
+    ctx.evidence = {"adapters": {}}
+
+    fake_archive = Mock()
+    fake_archive.getUploadersForPackage.return_value = []
+
+    fake_lp = Mock()
+    fake_lp.distributions = {"ubuntu": Mock(main_archive=fake_archive)}
+
+    with patch("evidence.host_adapters.launchpad_client.login_anonymously", return_value=fake_lp):
+        result = collect_ubuntu_upload_permission(ctx)
+
+    assert result["components"] == []
+    fake_archive.getUploadersForComponent.assert_not_called()
+
+
+def test_collect_ubuntu_upload_permission_requires_source_package():
+    from evidence.host_adapters import AdapterError, collect_ubuntu_upload_permission
+
+    ctx = Mock()
+    ctx.source_package = ""
+
+    with pytest.raises(AdapterError):
+        collect_ubuntu_upload_permission(ctx)
 
 
 # ---------------------------------------------------------------------------

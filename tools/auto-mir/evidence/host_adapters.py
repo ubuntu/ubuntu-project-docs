@@ -42,6 +42,7 @@ from evidence.types import (
     LPTeamMembershipAPIResult,
     NvdEnrichResult,
     UbuntuCVETrackerResult,
+    UbuntuUploadPermissionResult,
     UpstreamTrackerResult,
 )
 from utils import http as http_utils
@@ -700,6 +701,136 @@ def _resolve_current_component(ubuntu_publish_history: list[dict]) -> str:
         if entry.get("component"):
             return str(entry["component"])
     return "unknown"
+
+
+def _upload_permission_person(perm: Any) -> Any:
+    """Return the IPerson resolved from an IArchivePermission's person_link.
+
+    Isolated so the caller can treat any resolution failure (network hiccup,
+    a permission whose person was since deleted, etc.) as "skip this entry"
+    rather than failing the whole adapter.
+    """
+    return perm.person
+
+
+def _add_upload_permission_entry(
+    perm: Any,
+    component_hint: str,
+    team_uploaders: list[dict],
+    individual_uploaders: list[dict],
+    seen: set[tuple[str, str, str]],
+) -> None:
+    """Bucket one IArchivePermission record into team/individual uploaders.
+
+    Mirrors the grouping the old ``ubuntu-upload-permission --list-uploaders``
+    CLI output had: a component-wide grant (e.g. MOTU for universe) versus a
+    person/team granted upload rights to this specific source package.
+    """
+    try:
+        person = _upload_permission_person(perm)
+    except Exception:
+        return
+    if person is None:
+        return
+    name = str(getattr(person, "name", "") or getattr(person, "display_name", "") or "").strip()
+    if not name:
+        return
+    component = str(getattr(perm, "component_name", "") or component_hint or "").strip()
+    is_team = bool(getattr(person, "is_team", False))
+    key = ("team" if is_team else "individual", name, component)
+    if key in seen:
+        return
+    seen.add(key)
+    record = {"name": name, "component": component or None}
+    (team_uploaders if is_team else individual_uploaders).append(record)
+
+
+def _upload_permission_raw_output(
+    components: list[str], team_uploaders: list[dict], individual_uploaders: list[dict]
+) -> str:
+    """Synthesize a human-readable summary for debugging/evidence continuity."""
+    lines: list[str] = [f"Component ({component})" for component in components]
+    for entry in team_uploaders:
+        suffix = f" [{entry['component']}]" if entry.get("component") else ""
+        lines.append(f"* {entry['name']} [team]{suffix}")
+    for entry in individual_uploaders:
+        suffix = f" [{entry['component']}]" if entry.get("component") else ""
+        lines.append(f"* {entry['name']}{suffix}")
+    return "\n".join(lines)
+
+
+@adapter(AdapterID.UBUNTU_UPLOAD_PERMISSION)
+def collect_ubuntu_upload_permission(ctx: RunContext) -> UbuntuUploadPermissionResult:
+    """List who may upload the source package via the Launchpad archive API.
+
+    Reveals whether the package is uploadable only by the MOTU team (the
+    common case for a universe package synced from Debian) or by specific
+    individuals/teams. Combined with the upload history it lets PRF-7 judge
+    whether promotion to main would remove a current maintainer's ability to
+    upload.
+
+    Uses the same anonymous Launchpad session already used by lp-package-api/
+    lp-build-api (archive.getUploadersForComponent / getUploadersForPackage)
+    rather than shelling out to the ``ubuntu-upload-permission`` guest CLI
+    tool: that tool always attempts a real (interactive) Launchpad OAuth
+    login, which hangs for ~15 minutes on a fresh, credential-less guest with
+    no way to complete the browser-based authorization headlessly.
+    """
+    pkg = ctx.source_package
+    if not pkg:
+        raise AdapterError("ubuntu-upload-permission adapter requires source_package")
+
+    try:
+        lp = launchpad_client.login_anonymously("auto-mir-upload-permission")
+        archive = lp.distributions["ubuntu"].main_archive
+    except launchpad_client.LaunchpadUnavailableError as exc:
+        raise AdapterError(str(exc)) from exc
+
+    lp_package_evidence = ctx.evidence.get("adapters", {}).get("lp-package-api", {})
+    current_component = str(lp_package_evidence.get("current_component") or "").strip()
+
+    components: list[str] = []
+    team_uploaders: list[dict] = []
+    individual_uploaders: list[dict] = []
+    seen: set[tuple[str, str, str]] = set()
+
+    if current_component and current_component != "unknown":
+        components.append(current_component)
+        try:
+            for perm in list(archive.getUploadersForComponent(component_name=current_component)):
+                _add_upload_permission_entry(
+                    perm, current_component, team_uploaders, individual_uploaders, seen
+                )
+        except Exception as exc:
+            log.debug(
+                "ubuntu-upload-permission: component lookup failed for %s (%s): %s",
+                pkg,
+                current_component,
+                exc,
+            )
+
+    try:
+        for perm in list(archive.getUploadersForPackage(source_package_name=pkg)):
+            _add_upload_permission_entry(perm, "", team_uploaders, individual_uploaders, seen)
+    except Exception as exc:
+        log.debug("ubuntu-upload-permission: package lookup failed for %s: %s", pkg, exc)
+
+    log.debug(
+        "ubuntu-upload-permission: %s -> %d component(s), %d team(s), %d individual(s)",
+        pkg,
+        len(components),
+        len(team_uploaders),
+        len(individual_uploaders),
+    )
+    return {
+        "status": "ok",
+        "raw_output": _upload_permission_raw_output(
+            components, team_uploaders, individual_uploaders
+        ),
+        "components": components,
+        "team_uploaders": team_uploaders,
+        "individual_uploaders": individual_uploaders,
+    }
 
 
 def _fetch_json(url: str) -> Any:

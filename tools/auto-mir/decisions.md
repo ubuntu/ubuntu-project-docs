@@ -3655,5 +3655,85 @@ LXD guest + real Launchpad network calls).
   removes fields, it doesn't add or remove test cases beyond the one fixture
   fix).
 
+## 2026-08-11 — Beta feedback round: optional LLM auth, configurable retry/timeout, ubuntu-upload-permission hang
+
+- Promotion: no
+- Context: three feedback items from a test run against a local LLM endpoint
+  and a real MIR review (bug 2161382-class run):
+  1. `stage_auth()` hard-`SystemExit(1)`'d whenever `OPENAI_API_KEY` was
+     unset, even though the endpoint (via `OPENAI_API_BASE`) may not check
+     auth at all (common for local/self-hosted OpenAI-compatible servers).
+     `stage_optional_auth()` (reporter mode) silently disabled AI suggestions
+     in the same situation instead of trying.
+  2. The LLM retry backoff (`base_delay=8.0, max_delay=60.0`, hardcoded as a
+     `@retry_rate_limited(...)` decorator applied at function-definition
+     time) and the per-request HTTP read timeout (`ctx.llm_timeout`, read
+     dynamically but never wired to any CLI flag, defaulting to a hardcoded
+     60s) gave a slow model/local setup no way to get more room before being
+     retried or timing out.
+  3. `evidence/guest_adapters.collect_ubuntu_upload_permission` shelled out
+     *inside the LXD guest* to `ubuntu-upload-permission --list-uploaders`.
+     That CLI tool always performs a real Launchpad OAuth login; a fresh
+     guest has no cached credentials, so it attempts interactive
+     browser-based authorization that can never complete headlessly and
+     hangs until Launchpad's own polling gives up (~15 minutes observed,
+     matching the reported log gap exactly). `ubuntu-dev-tools` (which
+     provides the binary) was already a required guest package, so a
+     missing binary was not the actual root cause here — the existing
+     `command -v` preflight already failed fast and cleanly in that case.
+- Decision (auth): `llm.resolve_auth()` now returns a placeholder bearer
+  token (`llm.FALLBACK_TOKEN = "sk-no-key-required"`, the llama.cpp server
+  convention) with a source prefixed `llm.FALLBACK_AUTH_SOURCE_PREFIX =
+  "fallback:"` instead of `token=None` when `OPENAI_API_KEY` is unset.
+  `stage_auth()`/`stage_optional_auth()` log a `WARNING` and proceed instead
+  of aborting/disabling AI; the placeholder is not registered for secret
+  redaction (it isn't a real credential, and redacting a well-known
+  non-secret string would be confusing if it ever appeared verbatim in
+  legitimate text). An endpoint that genuinely requires auth simply rejects
+  the placeholder with its own auth error, surfaced normally through the
+  existing HTTP error handling.
+- Decision (retry/timeout): added `--llm-retry-base-delay` (default `8.0`,
+  behavior-preserving) and `--llm-timeout` (default `60.0`) CLI flags, stored
+  on `RunContext`. `llm._call_openai_compatible`'s statically-decorated
+  function was split into `_call_openai_compatible_impl` (the real HTTP call,
+  unchanged) plus a thin `_call_openai_compatible` wrapper that applies
+  `retry_rate_limited(...)` *dynamically per call* using
+  `ctx.llm_retry_base_delay`, with `max_delay = max(60.0, base_delay)` so the
+  cap never shrinks below the configured base delay. Default (no flag) case
+  is byte-identical to the previous hardcoded values.
+- Decision (ubuntu-upload-permission): replaced the guest-exec CLI-tool
+  adapter with a host-side `collect_ubuntu_upload_permission` in
+  `evidence/host_adapters.py`, modeled directly on the existing
+  `collect_lp_package_api`/`collect_lp_build_api` pattern —
+  `launchpad_client.login_anonymously()` → `archive.getUploadersForComponent`
+  (for the package's current component, reusing `lp-package-api.
+  current_component` via a new `depends_on: [lp-package-api]`) and
+  `archive.getUploadersForPackage` (for package/packageset-specific grants).
+  Both are real, documented `IArchive` webservice methods (confirmed against
+  the vendored `launchpadlib` WADL fixtures in `.venv`, not just the public
+  docs); the same anonymous session already resolves `getPublishedSources`
+  successfully elsewhere in this codebase, so no auth is needed for these
+  either. The `UbuntuUploadPermissionResult` evidence shape
+  (`components`/`team_uploaders`/`individual_uploaders`/`raw_output`) is
+  unchanged, so PRF-7's catalog wiring needed zero changes; `raw_output` is
+  now a synthesized human-readable summary instead of literal CLI stdout.
+  `catalog.yaml`'s `ubuntu-upload-permission` entry moved from `type:
+  local_exec` to `type: api`. `ubuntu-dev-tools` stays in
+  `lxd_runner._REQUIRED_PACKAGES` — it's still needed by the unrelated
+  `reverse-deps` guest adapter (`reverse-depends` CLI tool).
+- Consequences: no interactive-auth hang is possible for this adapter
+  anymore, and it no longer depends on any guest-installed tooling at all.
+  `tests/test_evidence.py`'s two `_parse_upload_permission` text-scraping
+  tests were replaced with four tests against mocked Launchpad API responses
+  (component-only, package-specific individual+team, unknown-component
+  skip, missing-source_package error) — no LXD/subprocess mocking needed at
+  all now. Not yet verified live against a real package during
+  `make integration` (left for the user, as with prior rounds) — if
+  anonymous access to `getUploadersForPackage`/`getUploadersForComponent`
+  turns out to need auth after all despite the WADL/precedent evidence, the
+  fallback is to keep the CLI tool but find a way to force it
+  non-interactive, or accept `"unknown"` status for this one optional
+  adapter.
+
 
 
