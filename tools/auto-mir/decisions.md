@@ -4198,3 +4198,55 @@ Promotion: no
   new tests; baseline 859/2). `render_reporter_template.py --strict` and
   `render_review_template.py --strict` both regenerate cleanly with the
   restored Maintainer RULE/TODO text visible in both generated docs.
+
+## 2026-08-12 - LLM delays too long (feedback round, item 2)
+
+Promotion: no
+
+- Context: a reviewer run showed RDO-3 (`ev_to_ai`) taking ~15.5 minutes for
+  its first attempt (ending in a raw-envelope JSON parse failure) and then
+  another ~24.75 minutes for the retry-with-2x-budget attempt, which still
+  failed with `finish_reason=length`. Recent changes (`--llm-timeout`,
+  `--llm-retry-base-delay`) were only meant to let slower models override the
+  defaults, not to change default behavior.
+- Root cause (confirmed by direct code reading, not speculation):
+  `llm.py::_parse_chat_response()` raised `LLMTruncationError` the instant
+  `finish_reason == "length"`, before ever attempting to parse
+  `message.content`. Reasoning models routinely finish writing a complete,
+  valid JSON answer and then keep emitting more reasoning/prose tokens
+  afterward until the budget runs out, so `finish_reason=="length"` does not
+  by itself mean the answer is incomplete. `_repair_json()` already had the
+  exact recovery logic needed (trims trailing garbage back to the last
+  balanced closing `}`) but it was only reachable via
+  `_content_or_reasoning_to_json()`/`_text_to_json()`, a path the
+  finish_reason check bypassed entirely. Every `finish_reason=length`
+  response was therefore treated as fatal, triggering `call_llm()`'s
+  expensive fallback (resend the entire prompt with 2x the token budget) -
+  for an already-slow/reasoning-heavy model, that fallback can easily take as
+  long or longer than the first attempt, matching the ~25-minute second wait
+  observed for a check that likely would have succeeded immediately.
+- The ~15.5 minute first-attempt gap (a raw HTTP envelope that never even
+  completed as valid JSON) is a separate failure mode, not covered by the fix
+  above - per explicit user direction, this is out of scope for this round
+  (no preemptive wall-clock deadline, no write-up of that angle either).
+- Decision: reorder `_parse_chat_response()` to attempt content parsing/repair
+  first; only raise `LLMTruncationError` when that genuinely fails. Verified
+  the existing `test_parse_chat_response_raises_truncation_on_length_finish_reason`
+  test is unaffected (its content has no closing brace at all, so it's
+  genuinely unrecoverable either way) - only the case where a complete answer
+  already existed is fixed. Added
+  `test_parse_chat_response_recovers_complete_answer_despite_length_finish_reason`
+  covering the recovery path, and a one-time INFO log line when recovery
+  happens so it stays visible/diagnosable rather than silent.
+- Also added explicit before/after INFO logging around each individual LLM
+  HTTP attempt in `_call_openai_compatible_impl()` (model, tier, max_tokens,
+  configured timeout before the call; elapsed seconds after, on both the
+  success and exception paths) - `trace_label` is threaded through
+  `call_llm()` -> `_invoke_with_budget()` -> `_call_openai_compatible()` ->
+  `_call_openai_compatible_impl()` -> `_parse_chat_response()` so every log
+  line names the check/item it belongs to. Since this function is what
+  tenacity re-invokes per `retry_rate_limited` attempt, each retry now also
+  logs its own start/elapsed independently.
+- Validation: `make test` 873 passed/2 skipped (was 871/2 after the
+  Maintainer-field round in this same session; +2 new LLM tests, 4 pre-
+  existing test doubles updated to accept the new `trace_label` kwarg).

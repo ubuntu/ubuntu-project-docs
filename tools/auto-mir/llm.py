@@ -215,7 +215,7 @@ def _invoke_with_budget(
     """Single LLM invocation: HTTP call, usage tracking, and reasoning capture."""
     try:
         parsed, meta = _call_openai_compatible(
-            prompt, ctx, model_tier=model_tier, max_tokens=max_tokens
+            prompt, ctx, model_tier=model_tier, max_tokens=max_tokens, trace_label=trace_label
         )
     except urllib.error.HTTPError as exc:
         # Retries exhausted, convert to LLMError
@@ -282,7 +282,7 @@ def _http_error_body(exc: urllib.error.HTTPError) -> str:
 
 
 def _call_openai_compatible_impl(
-    prompt: str, ctx: "RunContext", model_tier: str, max_tokens: int
+    prompt: str, ctx: "RunContext", model_tier: str, max_tokens: int, trace_label: str = ""
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Call an OpenAI-compatible chat-completions endpoint and return parsed JSON.
 
@@ -354,8 +354,17 @@ def _call_openai_compatible_impl(
         method="POST",
     )
 
+    label = trace_label or model_tier
+    timeout = getattr(ctx, "llm_timeout", DEFAULT_TIMEOUT_SECONDS)
+    log.info(
+        "LLM request starting for %s: model=%s max_tokens=%d timeout=%ss",
+        label,
+        model,
+        max_tokens,
+        timeout,
+    )
+    start = time.monotonic()
     try:
-        timeout = getattr(ctx, "llm_timeout", DEFAULT_TIMEOUT_SECONDS)
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             raw = resp.read().decode()
             _learn_from_headers(limiter, resp.headers)
@@ -363,10 +372,14 @@ def _call_openai_compatible_impl(
                 limiter.next_allowed_at,
                 time.time() + limiter.min_interval_s,
             )
-        return _parse_chat_response(raw, max_tokens)
+        elapsed = time.monotonic() - start
+        log.info("LLM request for %s finished in %.1fs", label, elapsed)
+        return _parse_chat_response(raw, max_tokens, trace_label=trace_label)
     except urllib.error.HTTPError as exc:
+        elapsed = time.monotonic() - start
         status = exc.code
         err_body = exc.read().decode(errors="replace")
+        log.info("LLM request for %s failed after %.1fs with HTTP %d", label, elapsed, status)
         log.debug("LLM HTTP %d: %s", status, err_body[:200])
         _learn_from_headers(limiter, exc.headers)
 
@@ -391,10 +404,14 @@ def _call_openai_compatible_impl(
 
         # Re-raise for tenacity to handle (will retry on 429/5xx)
         raise
+    except (urllib.error.URLError, ConnectionError, TimeoutError) as exc:
+        elapsed = time.monotonic() - start
+        log.info("LLM request for %s failed after %.1fs: %s", label, elapsed, exc)
+        raise
 
 
 def _call_openai_compatible(
-    prompt: str, ctx: "RunContext", model_tier: str, max_tokens: int
+    prompt: str, ctx: "RunContext", model_tier: str, max_tokens: int, trace_label: str = ""
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Apply the rate-limit retry policy, honouring a per-run retry base delay.
 
@@ -411,7 +428,7 @@ def _call_openai_compatible(
     retrying_call = retry_rate_limited(max_attempts=4, base_delay=base_delay, max_delay=max_delay)(
         _call_openai_compatible_impl
     )
-    return retrying_call(prompt, ctx, model_tier, max_tokens)
+    return retrying_call(prompt, ctx, model_tier, max_tokens, trace_label)
 
 
 def _selected_model(ctx: "RunContext", model_tier: str = "small") -> str:
@@ -501,13 +518,22 @@ def _learn_from_headers(limiter: _RateLimitState, headers) -> None:
 
 
 def _parse_chat_response(
-    raw_response: str, max_tokens: int
+    raw_response: str, max_tokens: int, trace_label: str = ""
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Parse a chat-completions envelope into (parsed_json, meta).
 
     meta carries the model's reasoning text and the finish_reason. Raises
     LLMTruncationError when the response was cut off by the token budget and
     LLMContentError when the content is null/empty/invalid (both retryable).
+
+    A reasoning model often finishes writing a complete, valid JSON answer
+    and then keeps emitting more reasoning/prose tokens afterward until the
+    budget runs out - so finish_reason=="length" does NOT by itself mean the
+    answer is incomplete. Content is always parsed first (reusing the same
+    repair logic that already recovers trailing garbage after a complete
+    object); finish_reason=="length" is only treated as fatal when that parse
+    genuinely fails, avoiding the expensive resend-with-2x-budget retry in
+    call_llm() for an answer that was already usable.
     """
     envelope = _parse_envelope(raw_response)
     message = _get_message(envelope)
@@ -515,9 +541,19 @@ def _parse_chat_response(
     reasoning = _extract_reasoning(message)
 
     if finish_reason == "length":
-        raise LLMTruncationError(
-            f"Model response truncated (finish_reason=length) at max_tokens={max_tokens}."
+        try:
+            parsed = _content_or_reasoning_to_json(message, envelope, reasoning)
+        except LLMError as exc:
+            raise LLMTruncationError(
+                f"Model response truncated (finish_reason=length) at max_tokens={max_tokens}."
+            ) from exc
+        log.info(
+            "Recovered a complete JSON answer despite finish_reason=length for %s - "
+            "model kept generating after the answer was already complete",
+            trace_label or "LLM call",
         )
+        meta = {"reasoning": reasoning, "finish_reason": finish_reason}
+        return parsed, meta
 
     parsed = _content_or_reasoning_to_json(message, envelope, reasoning)
     meta = {"reasoning": reasoning, "finish_reason": finish_reason}

@@ -244,6 +244,39 @@ def test_parse_chat_response_raises_truncation_on_length_finish_reason():
         llm._parse_chat_response(raw, max_tokens=8192)
 
 
+def test_parse_chat_response_recovers_complete_answer_despite_length_finish_reason(caplog):
+    """A reasoning model can finish a complete JSON answer and then keep
+    rambling until it hits the token budget - finish_reason=="length" must
+    not be treated as fatal when the answer itself already parses cleanly
+    (recovered via the existing trim-to-last-balanced-brace repair)."""
+    raw = json.dumps(
+        {
+            "choices": [
+                {
+                    "finish_reason": "length",
+                    "message": {
+                        "content": (
+                            '{"status": "ok", "message": "fine"}\n\n'
+                            "Further unrelated reasoning that never closes anything"
+                        )
+                    },
+                }
+            ]
+        }
+    )
+
+    with caplog.at_level("INFO", logger="auto_mir.llm"):
+        parsed, meta = llm._parse_chat_response(raw, max_tokens=8192, trace_label="RDO-3")
+
+    assert parsed == {"status": "ok", "message": "fine"}
+    assert meta["finish_reason"] == "length"
+    assert any(
+        "Recovered a complete JSON answer despite finish_reason=length" in record.getMessage()
+        and "RDO-3" in record.getMessage()
+        for record in caplog.records
+    )
+
+
 def test_strip_fences_handles_unterminated_leading_fence():
     text = '```json\n{"status": "ok", "message": "fine"}'
     assert llm._strip_fences(text) == '{"status": "ok", "message": "fine"}'
@@ -330,7 +363,7 @@ def test_call_llm_retries_once_with_larger_budget(monkeypatch):
     ctx = SimpleNamespace(llm_model_small=None, llm_model_large=None)
     budgets = []
 
-    def fake_call(prompt, ctx_arg, model_tier, max_tokens):
+    def fake_call(prompt, ctx_arg, model_tier, max_tokens, trace_label=""):
         budgets.append(max_tokens)
         if len(budgets) == 1:
             raise llm.LLMTruncationError("truncated")
@@ -351,7 +384,7 @@ def test_call_llm_large_tier_retry_doubles_within_hard_cap(monkeypatch):
     ctx = SimpleNamespace(llm_model_small=None, llm_model_large=None)
     budgets = []
 
-    def fake_call(prompt, ctx_arg, model_tier, max_tokens):
+    def fake_call(prompt, ctx_arg, model_tier, max_tokens, trace_label=""):
         budgets.append(max_tokens)
         if len(budgets) == 1:
             raise llm.LLMTruncationError("truncated")
@@ -375,7 +408,7 @@ def test_call_llm_retries_on_invalid_envelope_and_reinstructs_json(monkeypatch):
     ctx = SimpleNamespace(llm_model_small=None, llm_model_large=None)
     prompts = []
 
-    def fake_call(prompt, ctx_arg, model_tier, max_tokens):
+    def fake_call(prompt, ctx_arg, model_tier, max_tokens, trace_label=""):
         prompts.append(prompt)
         if len(prompts) == 1:
             raise llm.LLMEnvelopeError("LLM API response is not valid JSON: Expecting value")
@@ -404,7 +437,7 @@ def test_parse_envelope_raises_retryable_error_on_invalid_json():
 def test_call_llm_records_reasoning_trace(monkeypatch):
     ctx = SimpleNamespace(llm_model_small=None, llm_model_large=None)
 
-    def fake_call(prompt, ctx_arg, model_tier, max_tokens):
+    def fake_call(prompt, ctx_arg, model_tier, max_tokens, trace_label=""):
         return {"status": "ok"}, {"reasoning": "because reasons", "finish_reason": "stop"}
 
     monkeypatch.setattr(llm, "_call_openai_compatible", fake_call)
@@ -457,3 +490,47 @@ def test_learn_from_headers_with_real_limit_starts_pacing():
     assert limiter.window_s == 60
     expected = (60 / 60) * llm._RATE_SAFETY_FACTOR
     assert limiter.min_interval_s == pytest.approx(expected)
+
+
+def test_call_openai_compatible_impl_logs_attempt_start_and_elapsed(caplog, monkeypatch):
+    """Each individual HTTP attempt logs its own start (model/budget/timeout)
+    and completion (elapsed seconds), so a long wait is directly visible in
+    the log instead of only inferable from unrelated log-line timestamps."""
+    import io
+
+    class _FakeResponse(io.BytesIO):
+        headers = {}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    def _fake_urlopen(req, timeout=None):
+        body = json.dumps(
+            {
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": '{"status": "ok"}'},
+                    }
+                ]
+            }
+        ).encode()
+        return _FakeResponse(body)
+
+    monkeypatch.setattr(llm.urllib.request, "urlopen", _fake_urlopen)
+    ctx = SimpleNamespace(llm_token="tok", llm_api_url="https://example.test/v1/chat/completions")
+
+    with caplog.at_level("INFO", logger="auto_mir.llm"):
+        parsed, _meta = llm._call_openai_compatible_impl(
+            "prompt", ctx, model_tier="small", max_tokens=1234, trace_label="SEC-1"
+        )
+
+    assert parsed == {"status": "ok"}
+    messages = [record.getMessage() for record in caplog.records]
+    assert any(
+        "LLM request starting for SEC-1" in message and "1234" in message for message in messages
+    )
+    assert any("LLM request for SEC-1 finished in" in message for message in messages)
