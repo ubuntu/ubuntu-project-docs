@@ -383,6 +383,10 @@ metadata:
   - ''
   - '[Packaging red flags]'
   - 'RULE: - Does Ubuntu carry a non necessary delta?'
+  - 'RULE: - The package should define the correct "Maintainer:" field in'
+  - 'RULE:   debian/control. This needs to be updated, using `update-maintainer`'
+  - 'RULE:   whenever any Ubuntu delta is applied to the package, as suggested by'
+  - 'RULE:   dpkg (LP: #1951988)'
   - 'RULE: - If it''s a library, does it have a symbols file? In the absence'
   - 'RULE:   of a symbols file, dh_makeshlibs imposes a tighter constraint'
   - 'RULE:   by default, using ''Upstream-Version''; dh_makeshlibs -V with an'
@@ -445,6 +449,8 @@ metadata:
   - check: PRF-9
     todo_ref: 0
   - check: PRF-10
+    todo_ref: 0
+  - check: PRF-11
     todo_ref: 0
   - 'RULE:   (fix, or the workaround should be directly in the package,'
   - 'RULE:    see https://launchpad.net/ubuntu/+source/lto-disabled-list)'
@@ -1587,6 +1593,23 @@ checks:
   - 'TODO: - It is not on the lto-disabled list'
   ai_policy: none
   notes: 'Check against lp:ubuntu/+source/lto-disabled-list. If present, the fix or workaround must be in the package itself before promotion.'
+- id: PRF-11
+  section: Packaging red flags
+  title: debian/control Maintainer field correctness
+  mode: deterministic
+  blocker_class: soft
+  adapters_required:
+  - packaging-source
+  messages:
+    unknown_message: Could not determine whether Ubuntu carries a delta (packaging-source delta_kind unavailable)
+    unknown_todo: 'TODO: - Manually verify debian/control defines a correct Maintainer field'
+    ok_message: debian/control defines a correct Maintainer field
+    not_ok_message: 'Ubuntu carries a delta (version {version}) but Maintainer is not set to Ubuntu Developers (currently: {maintainer})'
+    not_ok_todo: 'TODO: - debian/control defines a correct Maintainer field'
+  todo_refs:
+  - 'TODO: - debian/control defines a correct Maintainer field'
+  ai_policy: none
+  notes: 'Uses packaging-source.delta_kind (sync/native/ubuntu_delta/unknown, derived from the analyzed source version) plus source_maintainer. OK whenever there is no Ubuntu delta, or a delta is present and Maintainer was already updated via update-maintainer to "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>". Flags the remaining case: a delta present without that update.'
 # ==========================================================================
 # Upstream red flags
 # ==========================================================================

@@ -1014,6 +1014,61 @@ def _check_prf_10(ctx: RunContext, finding: Finding) -> Finding:
     return finding
 
 
+# The canonical Maintainer value `update-maintainer` (ubuntu-dev-tools) sets whenever
+# a package carries an Ubuntu delta - see LP: #1951988. A package with no Ubuntu
+# delta keeps its Debian-original Maintainer unchanged, which is equally correct.
+_PRF_11_UBUNTU_DEVELOPERS_MAINTAINER = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
+
+
+@deterministic_check("PRF-11")
+def _check_prf_11(ctx: RunContext, finding: Finding) -> Finding:
+    """PRF-11: debian/control Maintainer field correctness.
+
+    Uses packaging-source.delta_kind (cheap version-string classification,
+    no git-ubuntu diffstat needed) plus source_maintainer. Ok whenever there
+    is no Ubuntu delta, or a delta is present and Maintainer was already
+    updated via update-maintainer. Flags the remaining case - a delta
+    present without that update - for the reviewer to judge directly.
+    """
+    result = _get_packaging_source_or_unknown(ctx, finding, "PRF-11")
+    if result is None:
+        return finding
+    check, packaging = result
+
+    delta_kind = str(packaging.get("delta_kind", "")).strip()
+    maintainer = str(packaging.get("source_maintainer", "")).strip()
+
+    if not delta_kind or delta_kind == "unknown":
+        _set_unknown_from_adapter(
+            finding,
+            check,
+            todo_key="unknown_todo",
+            severity="recommended",
+            evidence_refs=["packaging-source:delta_kind"],
+        )
+        return finding
+
+    if delta_kind != "ubuntu_delta" or maintainer == _PRF_11_UBUNTU_DEVELOPERS_MAINTAINER:
+        finding.succeed(render_check_message(check, "ok_message"), confidence="high")
+        finding.evidence_refs = [
+            "packaging-source:delta_kind",
+            "packaging-source:source_maintainer",
+        ]
+        return finding
+
+    version = str(packaging.get("analyzed_version", "")).strip() or "unknown"
+    finding.fail(
+        render_check_message(
+            check, "not_ok_message", version=version, maintainer=maintainer or "missing"
+        ),
+        render_check_message(check, "not_ok_todo"),
+        severity="required",
+        confidence="high",
+    )
+    finding.evidence_refs = ["packaging-source:delta_kind", "packaging-source:source_maintainer"]
+    return finding
+
+
 @deterministic_check("CB-8")
 def _check_cb_8(ctx: RunContext, finding: Finding) -> Finding:
     """CB-8: Python packages use dh_python."""

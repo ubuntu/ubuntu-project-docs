@@ -258,6 +258,16 @@ class _Ctx:
                     },
                 },
                 {
+                    "id": "PRF-11",
+                    "messages": {
+                        "ok_message": "debian/control defines a correct Maintainer field",
+                        "not_ok_message": "Ubuntu carries a delta (version {version}) but Maintainer is not set to Ubuntu Developers (currently: {maintainer})",
+                        "not_ok_todo": "TODO: - debian/control defines a correct Maintainer field",
+                        "unknown_message": "Could not determine whether Ubuntu carries a delta (packaging-source delta_kind unavailable)",
+                        "unknown_todo": "TODO: - Manually verify debian/control defines a correct Maintainer field",
+                    },
+                },
+                {
                     "id": "CB-8",
                     "messages": {
                         "unknown_message": "Could not inspect debian/rules (packaging-source failed)",
@@ -1363,6 +1373,90 @@ def test_prf_10_adapter_error_degrades_to_unknown():
     assert result.confidence == "low"
     assert result.todo.startswith("TODO:")
     assert "lto-disabled" in result.message.lower()
+
+
+def test_prf_11_ok_when_no_delta():
+    """PRF-11 is ok when Ubuntu carries no delta, regardless of Maintainer."""
+    ctx = _Ctx(source_package="testpkg")
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "delta_kind": "sync",
+        "source_maintainer": "Debian Person <p@debian.org>",
+        "analyzed_version": "1.0-1",
+    }
+
+    finding = _make_finding("PRF-11", mode="deterministic")
+    result = checks.deterministic._check_prf_11(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "correct Maintainer field" in result.message
+
+
+def test_prf_11_ok_when_delta_and_updated_maintainer():
+    """PRF-11 is ok when the delta is present and Maintainer was updated."""
+    ctx = _Ctx(source_package="testpkg")
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "delta_kind": "ubuntu_delta",
+        "source_maintainer": "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
+        "analyzed_version": "1.0-1ubuntu1",
+    }
+
+    finding = _make_finding("PRF-11", mode="deterministic")
+    result = checks.deterministic._check_prf_11(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+
+
+def test_prf_11_not_ok_when_delta_and_stale_maintainer():
+    """PRF-11 flags a delta present without a Maintainer update."""
+    ctx = _Ctx(source_package="testpkg")
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "delta_kind": "ubuntu_delta",
+        "source_maintainer": "Eric Berry <eric.berry@canonical.com>",
+        "analyzed_version": "1.0-1ubuntu2",
+    }
+
+    finding = _make_finding("PRF-11", mode="deterministic")
+    result = checks.deterministic._check_prf_11(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+    assert "1.0-1ubuntu2" in result.message
+    assert "Eric Berry" in result.message
+    assert result.todo.startswith("TODO:")
+
+
+def test_prf_11_unknown_when_delta_kind_unavailable():
+    """PRF-11 degrades to unknown when delta_kind cannot be classified."""
+    ctx = _Ctx(source_package="testpkg")
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "delta_kind": "unknown",
+        "source_maintainer": "",
+        "analyzed_version": "",
+    }
+
+    finding = _make_finding("PRF-11", mode="deterministic")
+    result = checks.deterministic._check_prf_11(ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.severity == "recommended"
+
+
+def test_prf_11_adapter_error_degrades_to_unknown():
+    """PRF-11 degrades to unknown (left for reviewer) when packaging-source fails."""
+    ctx = _Ctx(source_package="testpkg")
+    ctx.evidence["adapters"]["packaging-source"] = {"status": "error"}
+
+    finding = _make_finding("PRF-11", mode="deterministic")
+    result = checks.deterministic._check_prf_11(ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.todo.startswith("TODO:")
 
 
 def test_cb_8_not_python():
