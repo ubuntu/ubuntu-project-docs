@@ -4114,3 +4114,87 @@ LXD guest + real Launchpad network calls).
 
 
 
+
+## 2026-08-12 - Maintainer-field answer fix (feedback round, item 1) + blueprint fidelity audit
+
+Promotion: no
+
+- Context: jitterentropy-library reporter test run's draft rendered
+  `- Maintainer: Eric Berry <eric.berry@canonical.com>; source format: 3.0
+  (quilt); debconf templates: 0; debian/rules overrides: dh_auto_install.`
+  for `REP-QA-PKG-003` - a raw evidence dump with no judgement, not useful
+  for a reporter deciding whether anything needs fixing.
+- Root cause: `REP-QA-PKG-003`'s deterministic evaluator
+  (`source-packaging-metadata`) never judged the Maintainer field at all,
+  just echoed `packaging-source.source_maintainer` verbatim alongside
+  unrelated source-format/debconf/overrides facts. The real rule (per the
+  original human MIR reporter template) is a 3-way judgement: no Ubuntu
+  delta -> fine as-is; delta present and Maintainer already updated via
+  `update-maintainer` to "Ubuntu Developers <ubuntu-devel-discuss@lists.
+  ubuntu.com>" -> fine; delta present and Maintainer not updated -> a real
+  problem needing the reporter's own resolution plan before promotion.
+- **Blueprint fidelity audit (git archaeology)**: neither
+  `catalog-mir-report.yaml` nor `catalog-mir-review.yaml` contained the
+  specific Maintainer-field RULE the user quoted (mentioning
+  `update-maintainer` and LP: #1951988). Recovered the verbatim
+  pre-auto-mir original reporter template via
+  `git show 15a933b9^:docs/MIR/mir-reporters-template.md` (the commit that
+  replaced it with the current `{literalinclude}` generated-doc wrapper):
+  lines 308-312 read:
+  ```
+  RULE: - The package should define the correct "Maintainer:" field in
+  RULE:   debian/control. This needs to be updated, using `update-maintainer`
+  RULE:   whenever any Ubuntu delta is applied to the package, as suggested by
+  RULE:   dpkg (LP: #1951988)
+  TODO: - debian/control defines a correct Maintainer field
+  ```
+  This RULE was folded into `REP-QA-PKG-003`'s generic one-liner during the
+  2026-07-15 "Reporter template uses logical policy parity" migration,
+  which explicitly and knowingly deferred full RULE/TODO parity as
+  "explicit follow-up" - this bug is exactly that follow-up surfacing.
+  Checking `git show bb4a51a9^:docs/MIR/mir-reviewers-template.md` (the
+  reviewer side's equivalent pre-migration commit) confirmed this specific
+  rule **never existed** in the reviewer's original template at all - the
+  reviewer-side fix below is therefore a deliberate new addition for
+  parity, not a restoration.
+  - Additional fidelity gaps found in the same audited section (original
+    `[Quality assurance - packaging]` had 6 distinct RULE/TODO sub-items;
+    the current reporter catalog only has 5, with debconf and the
+    lintian-overrides explanation folded into other items' raw-fact dumps
+    instead of getting their own judged OK/TODO statement) - **not fixed in
+    this round**, flagged here as follow-up candidates:
+    1. "Debconf questions should not bother the default user too much" had
+       its own dedicated TODO-A/B judgement in the original template;
+       `REP-QA-PKG-003` (now trimmed to source-format/debconf/overrides
+       facts) still only reports a raw debconf-template count, no judgement
+       of whether questions exceed medium priority for a default install.
+    2. "Non-obvious or non-properly commented lintian overrides should be
+       explained" - `REP-QA-PKG-002` (`lintian` evaluator) reports
+       error/warning counts only; nothing asks the reporter to explain
+       overrides specifically.
+  - This audit was scoped to the one affected section ("Quality assurance -
+    packaging"), not the entire 573-line original reporter template or the
+    421-line original reviewer template - it is not an exhaustive
+    line-by-line diff of every section.
+- Decision: fix only the Maintainer-field gap in this round (both catalogs);
+  leave the two additional debconf/lintian-overrides gaps above as
+  documented follow-up, per explicit scope agreement with the user.
+- Reporter fix: `packaging-source.delta_kind` (new evidence field, reuses
+  the existing `classify_ubuntu_delta()` pure version-string classifier -
+  no new adapter dependency). `REP-QA-PKG-003` trimmed to source-format/
+  debconf/overrides only. New `REP-QA-PKG-006` (deterministic) resolves the
+  common cases to the plain restored OK statement, flags the rare bad case
+  as a blocker. New `REP-QA-PKG-007` (`ev_to_ai`, evidence-gated
+  applicability - `packaging-source.delta_kind == ubuntu_delta` AND
+  `source_maintainer != "Ubuntu Developers <...>"`, mirrors the existing
+  `REP-QA-TEST-007` pattern) only becomes applicable in that rare case,
+  asks the reporter directly with `rule_context` restored verbatim from the
+  original template, deferrable like other `ev_to_ai` fallback questions.
+- Reviewer fix: new `PRF-11` (deterministic, `blocker_class: soft`) reusing
+  the same evidence; renders as an ordinary Problem: statement (the
+  reviewer role has no interactive question mechanism, unlike the
+  reporter's wizard).
+- Validation: `make test` 871 passed/2 skipped (reporter +7, reviewer +5
+  new tests; baseline 859/2). `render_reporter_template.py --strict` and
+  `render_review_template.py --strict` both regenerate cleanly with the
+  restored Maintainer RULE/TODO text visible in both generated docs.
