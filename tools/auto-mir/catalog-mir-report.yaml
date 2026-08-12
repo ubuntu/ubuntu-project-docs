@@ -74,11 +74,17 @@ metadata:
   - item: REP-QA-TEST-004
   - ''
   - '[Quality assurance - packaging]'
-  - 'RULE: Provide a working upstream release mechanism (debian/watch, upstream metadata, or documented native/repack instructions), a correct Maintainer field, recent build evidence, and complete lintian output.'
+  - 'RULE: Provide a working upstream release mechanism (debian/watch, upstream metadata, or documented native/repack instructions), recent build evidence, and complete lintian output.'
   - 'RULE: Explain lintian overrides, avoid obsolete dependencies such as Python 2 and GTK 2, avoid intrusive debconf questions for default installs, and keep debian/ packaging understandable and maintainable.'
+  - 'RULE: - The package should define the correct "Maintainer:" field in'
+  - 'RULE:   debian/control. This needs to be updated, using `update-maintainer`'
+  - 'RULE:   whenever any Ubuntu delta is applied to the package, as suggested by'
+  - 'RULE:   dpkg (LP: #1951988)'
   - item: REP-QA-PKG-001
   - item: REP-QA-PKG-002
   - item: REP-QA-PKG-003
+  - item: REP-QA-PKG-006
+  - item: REP-QA-PKG-007
   - item: REP-QA-PKG-004
   - item: REP-QA-PKG-005
   - ''
@@ -560,12 +566,45 @@ items:
   template: 'TODO: - Lintian results and overrides: TBD'
 - id: REP-QA-PKG-003
   section: Quality assurance - packaging
-  title: Source metadata and debconf
+  title: Source format and debconf metadata
   mode: deterministic
   evaluator: source-packaging-metadata
   readiness: warning
   adapters_required: [packaging-source]
-  template: 'TODO: - Maintainer, source format, debconf, and packaging override facts: TBD'
+  template: 'TODO: - Source format, debconf, and packaging override facts: TBD'
+- id: REP-QA-PKG-006
+  section: Quality assurance - packaging
+  title: Maintainer field correctness
+  mode: deterministic
+  evaluator: maintainer-field
+  readiness: blocker
+  adapters_required: [packaging-source]
+  template: 'TODO: - debian/control defines a correct Maintainer field'
+- id: REP-QA-PKG-007
+  section: Quality assurance - packaging
+  title: Maintainer field resolution plan
+  mode: ev_to_ai
+  readiness: blocker
+  adapters_required: [packaging-source]
+  applicability:
+    all:
+    - evidence: packaging-source.delta_kind
+      equals: ubuntu_delta
+    - not:
+        evidence: packaging-source.source_maintainer
+        equals: 'Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>'
+  preface_evaluator: maintainer-field
+  rule_context: |-
+    RULE: - The package should define the correct "Maintainer:" field in
+    RULE:   debian/control. This needs to be updated, using `update-maintainer`
+    RULE:   whenever any Ubuntu delta is applied to the package, as suggested by
+    RULE:   dpkg (LP: #1951988)
+    TODO: - debian/control defines a correct Maintainer field
+  ai_policy: 'Never invent or assume the reporter''s own remediation commitment - only the reporter can state how and when they will run update-maintainer (or otherwise correct debian/control''s Maintainer field) before promotion. You may propose a concrete, evidence-grounded draft plan for the reporter to confirm or edit (for example, citing packaging-source.delta_kind and how trivial or extensive the Ubuntu delta appears to be, and suggesting update-maintainer as the standard fix), but always report confidence "low" unless the evidence itself already shows the field was fixed - never fabricate a commitment on the reporter''s behalf.'
+  question:
+    kind: multiline
+    prompt: This package has an Ubuntu delta but the Maintainer field is not set to Ubuntu Developers. How do you intend to resolve that before promotion?
+  template: 'TODO: - Maintainer field resolution plan: TBD'
 - id: REP-QA-PKG-004
   section: Quality assurance - packaging
   title: Packaging complexity assessment

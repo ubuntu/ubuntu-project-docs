@@ -765,14 +765,12 @@ def _source_packaging_metadata(_item: dict, ctx: RunContext) -> tuple[str | None
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
         return None, [], "Packaging source data was unavailable"
-    maintainer = str(data.get("source_maintainer", "")).strip() or "missing"
     source_format = str(data.get("debian_source_format", "")).strip() or "unspecified"
     debconf = data.get("debconf_templates", [])
     overrides = data.get("debian_rules_overrides", [])
     statement = (
-        f"Maintainer: {maintainer}; source format: {source_format}; "
-        f"debconf templates: {len(debconf)}; debian/rules overrides: "
-        f"{', '.join(overrides) if overrides else 'none'}."
+        f"Source format: {source_format}; debconf templates: {len(debconf)}; "
+        f"debian/rules overrides: {', '.join(overrides) if overrides else 'none'}."
     )
     concerning = [
         entry.get("template", "unknown")
@@ -786,8 +784,56 @@ def _source_packaging_metadata(_item: dict, ctx: RunContext) -> tuple[str | None
     )
     return (
         statement,
-        ["packaging-source:source_maintainer", "packaging-source:debconf_templates"],
+        ["packaging-source:debian_source_format", "packaging-source:debconf_templates"],
         rationale,
+    )
+
+
+# The canonical Maintainer value `update-maintainer` (ubuntu-dev-tools) sets whenever
+# a package carries an Ubuntu delta - see LP: #1951988 and the "Maintainer field"
+# packaging docs. A package with no Ubuntu delta keeps its Debian-original Maintainer
+# unchanged, which is equally correct.
+_UBUNTU_DEVELOPERS_MAINTAINER = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
+
+
+@reporter_evaluator("maintainer-field")
+def _maintainer_field(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+    """Judge debian/control's Maintainer field against the Ubuntu delta status.
+
+    Common cases (no delta, or delta present with Maintainer already updated to
+    "Ubuntu Developers ...") resolve to the same simple OK statement the human
+    template's own TODO line uses. The rare case - an Ubuntu delta present but
+    Maintainer never updated via `update-maintainer` - is a real problem that
+    needs the reporter's own resolution plan, surfaced by the follow-up
+    REP-QA-PKG-007 item (gated on this exact evidence combination).
+    """
+    data = _adapter(ctx, "packaging-source")
+    if data.get("status") != "ok":
+        return None, [], "Packaging source data was unavailable"
+    delta_kind = str(data.get("delta_kind", "")).strip()
+    maintainer = str(data.get("source_maintainer", "")).strip()
+    if not delta_kind or delta_kind == "unknown":
+        return (
+            None,
+            [],
+            "Could not determine whether Ubuntu carries a delta from the source version",
+        )
+    if delta_kind != "ubuntu_delta" or maintainer == _UBUNTU_DEVELOPERS_MAINTAINER:
+        return (
+            "debian/control defines a correct Maintainer field",
+            ["packaging-source:delta_kind", "packaging-source:source_maintainer"],
+            "",
+        )
+    version = str(data.get("analyzed_version", "")).strip() or "unknown"
+    statement = (
+        f"debian/control's Maintainer field needs attention: Ubuntu carries a delta "
+        f"(version {version}) but Maintainer is not set to Ubuntu Developers "
+        f"(currently: {maintainer or 'missing'})."
+    )
+    return (
+        statement,
+        ["packaging-source:delta_kind", "packaging-source:source_maintainer"],
+        "See the following item for the reporter's resolution plan.",
     )
 
 

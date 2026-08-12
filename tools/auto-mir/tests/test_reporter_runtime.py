@@ -77,7 +77,12 @@ def _ctx(tmp_path):
             "lp-bug-search-api": {"status": "ok", "critical_bugs": []},
             "debian-bts": {"status": "ok", "rc_bugs": []},
             "fetch-build": {"status": "ok", "build_log": "dh_auto_test\npytest"},
-            "packaging-source": {"status": "ok", "debian_watch": "version=4"},
+            "packaging-source": {
+                "status": "ok",
+                "debian_watch": "version=4",
+                "delta_kind": "sync",
+                "source_maintainer": "Some Maintainer <maintainer@debian.org>",
+            },
             "autopkgtest-db": {
                 "status": "ok",
                 "has_autopkgtest": True,
@@ -1095,3 +1100,131 @@ def test_ui_end_user_facing_asks_desktop_and_translation_separately(tmp_path):
     assert "does not ship a desktop file" in draft
     assert "Translation is present" in draft
     assert "assessment:" not in draft.casefold()
+
+
+def _maintainer_field_evidence(*, delta_kind, source_maintainer, version="1.0-1ubuntu1"):
+    return {
+        "status": "ok",
+        "delta_kind": delta_kind,
+        "source_maintainer": source_maintainer,
+        "analyzed_version": version,
+    }
+
+
+def test_maintainer_field_ok_when_no_delta():
+    from reporter.evaluator import _maintainer_field
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "packaging-source": _maintainer_field_evidence(
+                    delta_kind="sync", source_maintainer="Debian Person <p@debian.org>"
+                )
+            }
+        }
+    )
+    statement, refs, rationale = _maintainer_field({}, ctx)
+    assert statement == "debian/control defines a correct Maintainer field"
+    assert rationale == ""
+    assert refs
+
+
+def test_maintainer_field_ok_when_delta_and_ubuntu_developers():
+    from reporter.evaluator import _maintainer_field
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "packaging-source": _maintainer_field_evidence(
+                    delta_kind="ubuntu_delta",
+                    source_maintainer="Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
+                )
+            }
+        }
+    )
+    statement, _refs, rationale = _maintainer_field({}, ctx)
+    assert statement == "debian/control defines a correct Maintainer field"
+    assert rationale == ""
+
+
+def test_maintainer_field_flags_delta_with_wrong_maintainer():
+    from reporter.evaluator import _maintainer_field
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "packaging-source": _maintainer_field_evidence(
+                    delta_kind="ubuntu_delta",
+                    source_maintainer="Eric Berry <eric.berry@canonical.com>",
+                    version="1.0-1ubuntu2",
+                )
+            }
+        }
+    )
+    statement, _refs, rationale = _maintainer_field({}, ctx)
+    assert "needs attention" in statement
+    assert "1.0-1ubuntu2" in statement
+    assert "Eric Berry" in statement
+    assert rationale
+
+
+def test_maintainer_field_unavailable_when_delta_kind_unknown():
+    from reporter.evaluator import _maintainer_field
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "packaging-source": _maintainer_field_evidence(
+                    delta_kind="unknown", source_maintainer=""
+                )
+            }
+        }
+    )
+    statement, _refs, rationale = _maintainer_field({}, ctx)
+    assert statement is None
+    assert rationale
+
+
+def test_maintainer_field_unavailable_when_adapter_errored():
+    from reporter.evaluator import _maintainer_field
+
+    ctx = SimpleNamespace(evidence={"adapters": {"packaging-source": {"status": "error"}}})
+    statement, _refs, rationale = _maintainer_field({}, ctx)
+    assert statement is None
+    assert rationale
+
+
+def test_reporter_maintainer_followup_not_applicable_when_no_delta(tmp_path):
+    """Default fixture has no Ubuntu delta - REP-QA-PKG-006 must resolve to the
+    plain OK statement and REP-QA-PKG-007's escalation question must never
+    fire."""
+    ctx = _ctx(tmp_path)
+    wizard = FakeWizard()
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert (
+        by_id["REP-QA-PKG-006"].statement == "- debian/control defines a correct Maintainer field"
+    )
+    assert by_id["REP-QA-PKG-006"].readiness == ReadinessEffect.CLEAR
+    assert by_id["REP-QA-PKG-007"].state == StatementState.NOT_APPLICABLE
+    assert "REP-QA-PKG-007" not in wizard.asked
+
+
+def test_reporter_maintainer_followup_fires_when_delta_and_wrong_maintainer(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["packaging-source"] = _maintainer_field_evidence(
+        delta_kind="ubuntu_delta",
+        source_maintainer="Eric Berry <eric.berry@canonical.com>",
+    )
+    wizard = FakeWizard(value="Will run update-maintainer before upload.")
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-QA-PKG-006"].readiness == ReadinessEffect.BLOCKER
+    assert "needs attention" in by_id["REP-QA-PKG-006"].statement
+    assert "REP-QA-PKG-007" in wizard.asked
+    followup = by_id["REP-QA-PKG-007"]
+    assert followup.state == StatementState.RESOLVED
+    assert followup.readiness == ReadinessEffect.BLOCKER
+    assert "update-maintainer" in followup.statement
