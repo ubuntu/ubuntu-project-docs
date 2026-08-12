@@ -820,6 +820,18 @@ def test_micro_library_item_asked_when_evidence_shows_a_library(tmp_path):
     assert "REP-QA-TEST-008" in wizard.asked
 
 
+def test_micro_library_item_is_required_when_applicable():
+    """Regression test for the Phase 5 coverage audit: RULE 4 in
+    [Quality assurance - testing] requires a minimal library's wider
+    solution-level testing to be "identified explicitly" - a
+    `required: false` item could silently skip that identification. This
+    item must stay required once its applicability condition is met."""
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+
+    assert by_id["REP-QA-TEST-008"].get("required", True) is True
+
+
 def test_license_lifetime_followup_skipped_when_no_concern_selected(tmp_path):
     ctx = _ctx(tmp_path)
 

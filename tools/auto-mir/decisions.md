@@ -4028,6 +4028,87 @@ LXD guest + real Launchpad network calls).
   anywhere, no stray `TBD` outside the clarify block. `make test`: 858
   passed/2 skipped (was 856/2 after Phase 3).
 
+## 2026-08-12 — Reporter feedback round (jitterentropy-library artifact, item 1), Phase 5
+
+- Promotion: no
+- Context: feedback item 1d asked "are there others which similarly silently
+  skipped the whole originally intended checks that also need to be fixed?"
+  - a full audit of every `[Section]`'s blueprint `RULE:` line(s) against
+  the actual `items:` coverage, looking for the same "assumed redundant,
+  actually distinct" failure mode that caused the `REP-UI-001` deletion.
+- Method: for each of the 12 sections, every `RULE:` line's individual
+  sub-concerns (a RULE line often bundles several, e.g. "X, Y, and Z") were
+  checked against every item assigned to that section (question prompt,
+  `ai_policy`, and `template` text), looking for a sub-concern with no
+  corresponding item at all (not just stylistic/wording gaps).
+- **Fixed this round** (small, low-risk, in scope): `REP-QA-TEST-008`
+  ("Minimal-library solution-level testing") was `required: false` -
+  RULE 4 of `[Quality assurance - testing]` requires a minimal library's
+  wider-solution testing to be "identified explicitly", but an optional
+  question that's silently skipped when applicable does the opposite. Now
+  `required: true` (default) - once `packaging-source.is_library_package`
+  triggers its `applicability`, the reporter must answer it. New regression
+  test in `tests/test_reporter_runtime.py` asserting this directly against
+  the loaded catalog.
+- **Found, documented, NOT fixed this round** (genuinely larger in scope -
+  each would need new evidence adapters or a new catalog section, not a
+  simple reshuffle of existing items/wording):
+  1. **No reporter-side static-linking/"Built-Using" coverage at all.** The
+     `[Dependencies]` RULE explicitly says "Build-only dependencies may
+     remain in universe unless their active code is embedded in final
+     binaries" - but `REP-DEP-001` (`_dependencies` evaluator) only ever
+     reports `dep-analysis.in_scope_deps_not_in_main` (runtime
+     dependencies). Nothing in the reporter catalog asks about embedded/
+     statically-linked build-dependencies at all. This is a structural gap,
+     not a wording one: the **reviewer** catalog has an entire dedicated
+     `[Embedded sources and static linking]` section (ESL-1 through
+     ESL-10, with Rust/Golang-specific handling) that the **reporter**
+     blueprint has no counterpart section for whatsoever. Recommended
+     follow-up: a new reporter section/items surfacing `debian_control`'s
+     `Built-Using`/`Static-Built-Using` fields (already collected on the
+     guest side for the reviewer role) so the reporter states this
+     up-front, rather than a reviewer discovering it later unprompted.
+  2. **Security RULE names sources the reporter is never asked to
+     consult.** "consult Ubuntu, Debian, NVD/CVE, and OSS-security sources"
+     - `REP-SECURITY-001` (`cve-history` evaluator) only queries
+     `ubuntu-cve-tracker`/`nvd-enrich`; no reporter item touches Debian's
+     security tracker or the OSS-security mailing list archive. Would
+     require a genuinely new evidence adapter (Debian security tracker
+     and/or oss-security archive lookup), not just a catalog reshuffle.
+  3. **Maintenance/Owner RULE 2's full commitment list is only partially
+     itemized.** `REP-MAINT-003`'s question asks about "rebuild, update,
+     refresh, and security commitments" for vendored code; the RULE also
+     explicitly names "testing, tracking, ... and backport" commitments and
+     "the full release lifetime, including ESM", plus "new vendored
+     components require renewed agreement" (not distinguished from
+     already-agreed existing ones). Likely fixable as a wording/question
+     expansion on the existing item rather than a new adapter - flagged as
+     a smaller, but still separate, follow-up.
+  4. **Maintenance/Owner RULE 3 (Rust vendoring path) has no reporter-side
+     check.** The RULE specifically calls out that "Rust packages currently
+     vendor non-runtime dependencies and use the supported cargo packaging
+     path" - the reviewer catalog validates this in its
+     `[Embedded sources and static linking]` section; the reporter catalog
+     has nothing Rust-specific at all. Related to finding 1 above (same
+     missing section).
+- **Reviewed, not a gap** (initially flagged by the audit pass, confirmed
+  as already adequately covered on closer reading): `[Quality assurance -
+  testing]` RULE 3 ("exhaust hardware/partner/simulator/... options before
+  declaring untestable") - `REP-QA-TEST-005`'s `single_choice` already
+  presents the RULE's full alternative list (including an explicit
+  "X-exhausted" option) and forces one definite pick; requiring a written
+  essay ruling out every other option individually would add friction
+  without a clear benefit. `[Rationale]` RULE 1's "correct understanding of
+  main versus universe" - tested indirectly via
+  `REP-RATIONALE-001`/`REP-RATIONALE-003`'s existing questions; a dedicated
+  standalone item would likely just restate the same ground already
+  covered by the main-inclusion rationale.
+- Per the user's explicit direction, this audit and its fixes are scoped to
+  the **reporter** catalog only; the reviewer catalog's own blueprint-vs-
+  items coverage was not re-audited (it already has the richer, more
+  mature checks in most of these areas, per the findings above).
+- `make test`: 859 passed/2 skipped (was 858/2 after Phase 4).
+
 
 
 

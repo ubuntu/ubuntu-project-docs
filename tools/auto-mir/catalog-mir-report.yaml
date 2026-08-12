@@ -521,7 +521,6 @@ items:
   title: Micro-library solution-level testing
   mode: human_only
   readiness: warning
-  required: false
   applicability:
     evidence: packaging-source.is_library_package
     equals: true
