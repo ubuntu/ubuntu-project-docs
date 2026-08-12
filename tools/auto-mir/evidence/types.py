@@ -390,6 +390,7 @@ class PackagingSourceResult(TypedDict):
     analyzed_version: str
     analyzed_pocket: str
     version_resolution_note: str
+    delta_kind: str
     debian_control: str
     debian_watch: str
     debian_rules: str

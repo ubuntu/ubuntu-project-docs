@@ -645,6 +645,13 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
         "analyzed_version": analyzed_version,
         "analyzed_pocket": analyzed_pocket,
         "version_resolution_note": version_resolution_note,
+        # Cheap classification of the source version string alone (sync/native/
+        # ubuntu_delta/unknown) via classify_ubuntu_delta() below - this does NOT
+        # run git-ubuntu or compute a diffstat (that heavier work stays specific
+        # to the git-ubuntu-delta adapter used by the reviewer's PRF-1). Checks
+        # that only need to know WHETHER Ubuntu carries a delta (not a diffstat
+        # of what it contains) can depend on packaging-source alone.
+        "delta_kind": classify_ubuntu_delta(analyzed_version),
         "debian_control": control_files["debian_control"],
         "debian_watch": control_files["debian_watch"],
         "debian_rules": control_files["debian_rules"],
