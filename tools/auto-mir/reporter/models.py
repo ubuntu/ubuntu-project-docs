@@ -54,6 +54,12 @@ class QuestionOption:
     ``list_note``, when non-empty, is an informational line shown under the
     option (e.g. spelling out concrete evidence-derived names) without being
     part of the recorded ``statement`` itself.
+
+    ``todo_ref``, when non-empty, is this option's own catalog-authored
+    ``TODO-<letter>:`` reference line (mirrors the reviewer catalog's option
+    ``todo_ref``). It is never shown as part of a resolved statement; it
+    exists so an unresolved/deferred item can still preserve each option's
+    original TODO-lettered alternative text for a "Left to clarify" block.
     """
 
     id: str
@@ -64,6 +70,7 @@ class QuestionOption:
     readiness: ReadinessEffect | None = None
     locked_reason: str = ""
     list_note: str = ""
+    todo_ref: str = ""
 
     def __post_init__(self) -> None:
         if not self.id.strip():

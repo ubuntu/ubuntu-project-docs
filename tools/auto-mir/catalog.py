@@ -348,6 +348,14 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                     errors.append(
                         f"reporter item {item_id} option {option_id} exclusive must be a bool"
                     )
+                for optional_text_field in ("todo_ref", "ai_predicate"):
+                    if optional_text_field in option and not isinstance(
+                        option[optional_text_field], str
+                    ):
+                        errors.append(
+                            f"reporter item {item_id} option {option_id} {optional_text_field} "
+                            "must be a string"
+                        )
                 if "readiness" in option and option["readiness"] not in valid_readiness:
                     errors.append(
                         f"reporter item {item_id} option {option_id} has invalid readiness"

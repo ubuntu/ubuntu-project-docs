@@ -16,6 +16,7 @@ from reporter.models import (
 from reporter.text_utils import (
     ensure_bulleted,
     maybe_write_evidence,
+    resolve_option_statements,
     strip_todo_prefix,
     substitute_source,
 )
@@ -57,10 +58,19 @@ def _required_adapters_unavailable_reason(item: dict, ctx) -> str:
 
 
 def evaluate_ai_item(item: dict, ctx, wizard, fallback_question) -> StatementResult:
-    """Suggest one evidence-grounded statement and require confirm or correction."""
+    """Suggest one evidence-grounded statement and require confirm or correction.
+
+    When the catalog item declares ``question.options`` (the same shape used
+    by ``human_only`` single_choice items, plus an optional ``ai_predicate``/
+    ``todo_ref``), the model is asked to pick exactly one option id instead of
+    writing free-form prose - the option's own catalog-authored ``statement``
+    is what gets suggested/rendered, mirroring how the reviewer catalog's
+    ``ev_to_ai`` + ``options`` checks work (``checks/llm_eval.py``).
+    """
     readiness = ReadinessEffect(item.get("readiness", "warning"))
+    options = item.get("question", {}).get("options", [])
     if not getattr(ctx, "llm_token", "") or getattr(ctx, "no_llm", False):
-        return _ask_human(item, ctx, wizard, fallback_question)
+        return _ask_human(item, ctx, wizard, fallback_question, readiness=readiness)
 
     unavailable_reason = _required_adapters_unavailable_reason(item, ctx)
     if unavailable_reason:
@@ -69,7 +79,9 @@ def evaluate_ai_item(item: dict, ctx, wizard, fallback_question) -> StatementRes
             "because required evidence was unavailable.",
             unavailable_reason,
         )
-        return _ask_human(item, ctx, wizard, fallback_question, rationale=unavailable_reason)
+        return _ask_human(
+            item, ctx, wizard, fallback_question, rationale=unavailable_reason, readiness=readiness
+        )
 
     keep_full_fields = _FULL_CONTENT_FIELDS_BY_ITEM.get(item["id"], set())
     evidence = {
@@ -95,6 +107,9 @@ Do not invent intent, ownership, commitments, legal conclusions, test execution,
 Policy:
 {item.get("ai_policy", "")}
 
+Options:
+{_render_reporter_options_section(options)}
+
 Evidence:
 {wrapped}
 
@@ -105,8 +120,10 @@ You must commit to a confidence tier instead of hedging within the statement its
   dh-cargo tooling with no disabling of tests." or "The packaging is quite complex, ...").
   Never use hedging language such as "appears to", "seems", "may be", "likely",
   "possibly", "unclear", or "in the limited ... provided" in a high-confidence statement.
+  When options are listed above, "high" confidence means you can pick exactly one of them.
 - "low": the evidence is genuinely insufficient or inconclusive to state a claim either
-  way. Do not fill "statement" in this case; only explain why in "rationale" so the
+  way (or, when options are listed, to pick one of them confidently). Do not fill
+  "statement"/"selected_option" in this case; only explain why in "rationale" so the
   reporter can resolve it themselves.
 
 Separately from confidence, judge whether your "high"-confidence statement still leaves a
@@ -120,7 +137,8 @@ verbatim, so it never silently becomes a final report statement.
 Return exactly one JSON object:
 {{
   "confidence": "high" or "low",
-  "statement": "one concise, affirmative, hedge-free claim (required only when confidence is high)",
+  "statement": "one concise, hedge-free claim - only if no options listed (required if high)",
+  "selected_option": "chosen option id from Options above - only if options listed (else \"\")",
   "rationale": "why the evidence supports it, or (when low) what is missing/inconclusive",
   "requires_reporter_decision": true or false,
   "evidence_refs": ["adapter:field"]
@@ -128,16 +146,16 @@ Return exactly one JSON object:
 """
     try:
         response = llm.call_llm(prompt, ctx, model_tier="small", trace_label=item["id"])
-        confidence, suggestion, rationale, refs, requires_decision = _validate_response(
-            response, item
+        confidence, suggestion, rationale, refs, requires_decision, selected_option_id = (
+            _validate_response(response, item, options)
         )
     except llm.LLMError:
-        return _ask_human(item, ctx, wizard, fallback_question)
+        return _ask_human(item, ctx, wizard, fallback_question, readiness=readiness)
 
     if confidence == "low" and item.get("autopkgtest_log_followup"):
-        refined = _maybe_refine_with_autopkgtest_logs(item, ctx, evidence)
+        refined = _maybe_refine_with_autopkgtest_logs(item, ctx, evidence, options)
         if refined is not None:
-            confidence, suggestion, rationale, refs, requires_decision = refined
+            confidence, suggestion, rationale, refs, requires_decision, selected_option_id = refined
 
     if confidence == "low":
         wizard.show_note(
@@ -145,8 +163,11 @@ Return exactly one JSON object:
             "from the available evidence.",
             rationale,
         )
-        return _ask_human(item, ctx, wizard, fallback_question, rationale=rationale)
+        return _ask_human(
+            item, ctx, wizard, fallback_question, rationale=rationale, readiness=readiness
+        )
 
+    option_readiness = _option_readiness(options, selected_option_id)
     lock_yes_reason = _lock_yes_reason(suggestion, requires_decision)
     confirmation = wizard.confirm_suggestion(
         question_id=f"{item['id']}-confirm",
@@ -164,15 +185,16 @@ Return exactly one JSON object:
             id=item["id"],
             section=item["section"],
             state=StatementState.RESOLVED,
-            readiness=readiness,
+            readiness=option_readiness or readiness,
             statement=statement,
+            selected_option=selected_option_id or None,
             provenance=Provenance.AI_CONFIRMED,
             evidence_refs=refs,
             answer_refs=[confirmation.question_id],
             rationale=rationale,
             human_confirmed=True,
         )
-    return _ask_human(item, ctx, wizard, fallback_question)
+    return _ask_human(item, ctx, wizard, fallback_question, readiness=readiness)
 
 
 _DEFERRAL_PHRASES = (
@@ -220,8 +242,8 @@ def _lock_yes_reason(statement: str, requires_decision: bool) -> str | None:
 
 
 def _maybe_refine_with_autopkgtest_logs(
-    item: dict, ctx, evidence: dict
-) -> tuple[str, str, str, list[str], bool] | None:
+    item: dict, ctx, evidence: dict, options: list[dict] | None = None
+) -> tuple[str, str, str, list[str], bool, str] | None:
     """One bounded follow-up LLM round using real autopkgtest log excerpts.
 
     Only reached for items that declare ``autopkgtest_log_followup: true``
@@ -272,6 +294,9 @@ Do not invent intent, ownership, commitments, legal conclusions, test execution,
 Policy:
 {item.get("ai_policy", "")}
 
+Options:
+{_render_reporter_options_section(options)}
+
 Evidence:
 {wrapped}
 
@@ -283,7 +308,8 @@ decision or confirmation for the reporter to make.
 Return exactly one JSON object:
 {{
   "confidence": "high" or "low",
-  "statement": "one concise, affirmative, hedge-free claim (required only when confidence is high)",
+  "statement": "one concise, hedge-free claim - only if no options listed (required if high)",
+  "selected_option": "chosen option id from Options above - only if options listed (else \"\")",
   "rationale": "why the evidence supports it, or (when low) what is still missing/inconclusive",
   "requires_reporter_decision": true or false,
   "evidence_refs": ["adapter:field"]
@@ -293,7 +319,7 @@ Return exactly one JSON object:
         response = llm.call_llm(
             prompt, ctx, model_tier="small", trace_label=f"{item['id']}-followup"
         )
-        return _validate_response(response, item)
+        return _validate_response(response, item, options)
     except llm.LLMError:
         return None
 
@@ -324,14 +350,60 @@ def _contains_hedge_phrase(text: str) -> bool:
     return any(phrase in lowered for phrase in _HEDGE_PHRASES)
 
 
+def _option_statement_text(option: dict) -> str:
+    """Return an option's canonical ``statement`` with its leading ``- `` marker
+    stripped, matching the shape a free-form ``suggestion`` string has before
+    ``ensure_bulleted()`` re-adds the marker at confirm/accept time."""
+    statement = str(option.get("statement", "")).strip()
+    return statement[2:].strip() if statement.startswith("- ") else statement
+
+
+def _render_reporter_options_section(options: list[dict] | None) -> str:
+    """Describe selectable options so the model returns a ``selected_option`` id.
+
+    Mirrors ``checks/llm_eval.py``'s ``_render_options_for_prompt`` (the
+    reviewer-role equivalent) so both roles teach the model the same
+    contract. Falls back to an explicit "no options" note when the item has
+    none, so free-form ``ev_to_ai`` items keep working exactly as before.
+    """
+    if not options:
+        return "No predefined options for this item; return your own statement directly."
+    lines = [
+        "Select exactly one option below by returning its id in 'selected_option'.",
+        "Each option's statement will be emitted verbatim if selected; put your reasoning "
+        "in 'rationale'.",
+    ]
+    for option in options:
+        option_id = str(option.get("id", "")).strip()
+        predicate = str(option.get("ai_predicate") or option.get("label", "")).strip()
+        lines.append(f"  - {option_id}: {_option_statement_text(option)} [when: {predicate}]")
+    return "\n".join(lines)
+
+
+def _option_readiness(
+    options: list[dict] | None, selected_option_id: str
+) -> ReadinessEffect | None:
+    """Return the selected option's own ``readiness`` override, if declared."""
+    if not options or not selected_option_id:
+        return None
+    for option in options:
+        if str(option.get("id", "")).strip() == selected_option_id and "readiness" in option:
+            return ReadinessEffect(option["readiness"])
+    return None
+
+
 def _validate_response(
-    response: dict[str, Any], item: dict
-) -> tuple[str, str, str, list[str], bool]:
+    response: dict[str, Any], item: dict, options: list[dict] | None = None
+) -> tuple[str, str, str, list[str], bool, str]:
     """Validate the model's response and return (confidence, statement, rationale, refs,
-    requires_reporter_decision).
+    requires_reporter_decision, selected_option_id).
 
     ``statement`` is empty when ``confidence`` is "low": a low-confidence
     response supplies only reasoning, never a "final-looking" statement.
+    When ``options`` is non-empty, ``statement`` is the matched option's own
+    canonical text (the model's free-form "statement" field is ignored) and
+    ``selected_option_id`` names which option was picked; otherwise
+    ``selected_option_id`` is always "".
     """
     if not isinstance(response, dict):
         raise llm.LLMError(f"Reporter AI response for {item['id']} is not an object")
@@ -345,25 +417,46 @@ def _validate_response(
     if len(rationale) > 3000:
         raise llm.LLMError(f"Reporter AI response for {item['id']} exceeds bounds")
 
+    selected_option_id = ""
     statement = str(response.get("statement", "")).strip()
     if confidence == "high":
-        if not statement:
-            raise llm.LLMError(f"Reporter AI response for {item['id']} is missing a statement")
-        if len(statement) > 1000:
-            raise llm.LLMError(f"Reporter AI response for {item['id']} exceeds bounds")
-        if _contains_hedge_phrase(statement):
-            raise llm.LLMError(
-                f"Reporter AI response for {item['id']} used hedge phrasing in a "
-                "high-confidence statement"
+        if options:
+            selected_option_id = str(response.get("selected_option", "")).strip()
+            matched = next(
+                (opt for opt in options if str(opt.get("id", "")).strip() == selected_option_id),
+                None,
             )
+            if matched is None:
+                raise llm.LLMError(
+                    f"Reporter AI response for {item['id']} has options but selected_option "
+                    f"{selected_option_id!r} does not match any declared option id"
+                )
+            statement = _option_statement_text(matched)
+        else:
+            if not statement:
+                raise llm.LLMError(f"Reporter AI response for {item['id']} is missing a statement")
+            if len(statement) > 1000:
+                raise llm.LLMError(f"Reporter AI response for {item['id']} exceeds bounds")
+            if _contains_hedge_phrase(statement):
+                raise llm.LLMError(
+                    f"Reporter AI response for {item['id']} used hedge phrasing in a "
+                    "high-confidence statement"
+                )
 
     allowed = set(item.get("adapters_required", [])) | set(item.get("adapters_optional", []))
     normalized_refs = [str(ref) for ref in refs if str(ref).split(":", 1)[0] in allowed]
     requires_decision = bool(response.get("requires_reporter_decision", False))
-    return confidence, statement, rationale, normalized_refs, requires_decision
+    return confidence, statement, rationale, normalized_refs, requires_decision, selected_option_id
 
 
-def _ask_human(item: dict, ctx, wizard, question, rationale: str = "") -> StatementResult:
+def _ask_human(
+    item: dict,
+    ctx,
+    wizard,
+    question,
+    rationale: str = "",
+    readiness: ReadinessEffect = ReadinessEffect.CLEAR,
+) -> StatementResult:
     answer = wizard.ask(question)
     if answer is None:
         return StatementResult(
@@ -373,7 +466,18 @@ def _ask_human(item: dict, ctx, wizard, question, rationale: str = "") -> Statem
             readiness=ReadinessEffect.CLEAR,
         )
     maybe_write_evidence(item, ctx, answer.value)
-    if question.kind == QuestionKind.MULTILINE:
+    selected_option: str | None = None
+    if question.kind == QuestionKind.SINGLE_CHOICE:
+        # A single_choice ev_to_ai fallback (e.g. no LLM/adapters unavailable)
+        # reuses the exact same catalog options as the AI path and the
+        # human_only dispatch - the chosen option's own canonical statement
+        # is used verbatim, never spliced into the outer item template.
+        options = item.get("question", {}).get("options", [])
+        resolved = resolve_option_statements(options, answer.value, ctx.source_package)
+        statement = resolved if resolved is not None else ensure_bulleted(str(answer.value))
+        selected_option = str(answer.value)
+        readiness = _option_readiness(options, selected_option) or readiness
+    elif question.kind == QuestionKind.MULTILINE:
         # A multiline ev_to_ai question asks the reporter for the same kind of
         # complete, self-contained claim the AI contract requires (see the
         # "one concise, affirmative, hedge-free claim" instruction above) - so
@@ -397,8 +501,9 @@ def _ask_human(item: dict, ctx, wizard, question, rationale: str = "") -> Statem
         id=item["id"],
         section=item["section"],
         state=StatementState.RESOLVED,
-        readiness=ReadinessEffect.CLEAR,
+        readiness=readiness,
         statement=statement,
+        selected_option=selected_option,
         provenance=Provenance.HUMAN,
         answer_refs=[answer.question_id],
         rationale=rationale,

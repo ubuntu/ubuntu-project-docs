@@ -8,7 +8,14 @@ TOOL_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(TOOL_ROOT))
 
 from reporter import ai  # noqa: E402
-from reporter.models import Answer, Provenance, QuestionKind, QuestionSpec  # noqa: E402
+from reporter.models import (  # noqa: E402
+    Answer,
+    Provenance,
+    QuestionKind,
+    QuestionOption,
+    QuestionSpec,
+    ReadinessEffect,
+)
 
 
 class ConfirmingWizard:
@@ -681,3 +688,195 @@ def test_required_adapters_unavailable_reason_helper_directly():
     reason = ai._required_adapters_unavailable_reason(_item(), ctx)
     assert "binary-package-inspection" in reason
     assert "boom" in reason
+
+
+def _options_item():
+    """A synthetic ev_to_ai item with catalog-declared options, mirroring the
+    reviewer catalog's ev_to_ai + options shape (checks/llm_eval.py) ported
+    to the reporter role (feedback item 1a/1c/1d, phase 2)."""
+    return {
+        "id": "REP-UI-TEST",
+        "section": "UI standards",
+        "mode": "ev_to_ai",
+        "readiness": "warning",
+        "ai_policy": "Judge whether this is a user-facing desktop program.",
+        "adapters_required": ["packaging-source"],
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Is this a user-facing desktop program with a desktop file?",
+            "options": [
+                {
+                    "id": "not-ui",
+                    "label": "Not a user-facing desktop program",
+                    "ai_predicate": "library, CLI tool, daemon, or -dev/-doc/-debug package",
+                    "statement": "- Not an end-user application, no need for a Desktop file.",
+                    "readiness": "clear",
+                    "todo_ref": "TODO-A: - not part of the UI for extra checks",
+                },
+                {
+                    "id": "ui-missing-desktop",
+                    "label": "User-facing desktop program without a desktop file",
+                    "ai_predicate": "user-facing desktop program that does NOT ship a "
+                    ".desktop file",
+                    "statement": "- Part of the UI but no valid .desktop file is shipped.",
+                    "readiness": "warning",
+                    "todo_ref": "TODO-C: - part of the UI, no desktop file",
+                },
+            ],
+        },
+    }
+
+
+def _options_fallback_question():
+    return QuestionSpec(
+        id="REP-UI-TEST",
+        prompt="Is this a user-facing desktop program with a desktop file?",
+        kind=QuestionKind.SINGLE_CHOICE,
+        options=(
+            QuestionOption(
+                "not-ui",
+                "Not a user-facing desktop program",
+                "- Not an end-user application, no need for a Desktop file.",
+                readiness=ReadinessEffect.CLEAR,
+                todo_ref="TODO-A: - not part of the UI for extra checks",
+            ),
+            QuestionOption(
+                "ui-missing-desktop",
+                "User-facing desktop program without a desktop file",
+                "- Part of the UI but no valid .desktop file is shipped.",
+                readiness=ReadinessEffect.WARNING,
+                todo_ref="TODO-C: - part of the UI, no desktop file",
+            ),
+        ),
+    )
+
+
+def _options_ctx(token="token"):
+    return SimpleNamespace(
+        llm_token=token,
+        no_llm=False,
+        untrusted_nonce="nonce",
+        source_package="libfoo",
+        evidence={"adapters": {"packaging-source": {"status": "ok"}}},
+    )
+
+
+def test_ai_options_item_selects_and_confirms_canonical_statement(monkeypatch):
+    """Regression test for feedback items 1a/1c/1d, phase 2: an ev_to_ai item
+    with catalog-declared ``options`` lets the model pick one id instead of
+    writing free prose - the option's own pre-written statement is what gets
+    suggested, confirmed, and rendered (no label-duplication risk at all,
+    since there is no free-form template splice in this path)."""
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "selected_option": "not-ui",
+            "rationale": "packaging-source shows a library, no GUI toolkit dependency.",
+            "evidence_refs": ["packaging-source:binary_sections"],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(
+        _options_item(), _options_ctx(), wizard, _options_fallback_question()
+    )
+
+    assert result.provenance == Provenance.AI_CONFIRMED
+    assert result.statement == "- Not an end-user application, no need for a Desktop file."
+    assert result.selected_option == "not-ui"
+    assert result.readiness == ReadinessEffect.CLEAR
+
+
+def test_ai_options_item_honors_per_option_readiness_override(monkeypatch):
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "selected_option": "ui-missing-desktop",
+            "rationale": "GTK dependency plus a desktop-facing binary, but no .desktop file.",
+            "evidence_refs": [],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(
+        _options_item(), _options_ctx(), wizard, _options_fallback_question()
+    )
+
+    assert result.statement == "- Part of the UI but no valid .desktop file is shipped."
+    assert result.selected_option == "ui-missing-desktop"
+    assert result.readiness == ReadinessEffect.WARNING
+
+
+def test_ai_options_item_rejects_unmatched_selected_option(monkeypatch):
+    """An LLM response naming an option id that isn't declared must be treated
+    as an invalid response and fall back to asking the reporter directly -
+    never silently accepted or crash."""
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "selected_option": "does-not-exist",
+            "rationale": "x",
+            "evidence_refs": [],
+        },
+    )
+
+    class ChoiceWizard(ConfirmingWizard):
+        def ask(self, question):
+            self.questions.append(("human", question.id))
+            return Answer(question_id=question.id, value="not-ui", raw_input="not-ui")
+
+    wizard = ChoiceWizard()
+
+    result = ai.evaluate_ai_item(
+        _options_item(), _options_ctx(), wizard, _options_fallback_question()
+    )
+
+    assert result.provenance == Provenance.HUMAN
+    assert result.statement == "- Not an end-user application, no need for a Desktop file."
+
+
+def test_options_human_fallback_uses_canonical_statement_and_readiness():
+    """No LLM credential -> the single_choice fallback question (built from
+    the same catalog options) resolves via the chosen option's own statement
+    and readiness override, never via free-text template splicing."""
+
+    class ChoiceWizard:
+        def ask(self, question):
+            return Answer(question_id=question.id, value="ui-missing-desktop", raw_input="2")
+
+        def show_note(self, text, detail=""):
+            pass
+
+    result = ai.evaluate_ai_item(
+        _options_item(), _options_ctx(token=""), ChoiceWizard(), _options_fallback_question()
+    )
+
+    assert result.provenance == Provenance.HUMAN
+    assert result.statement == "- Part of the UI but no valid .desktop file is shipped."
+    assert result.selected_option == "ui-missing-desktop"
+    assert result.readiness == ReadinessEffect.WARNING
+
+
+def test_multiline_fallback_uses_item_declared_readiness_not_always_clear(monkeypatch):
+    """Regression test: _ask_human previously hardcoded readiness=CLEAR for
+    every fallback answer regardless of the item's own catalog-declared
+    readiness (warning/blocker), silently dropping it from the readiness
+    summary whenever an ev_to_ai item fell back to a human answer (which is
+    the common case whenever no LLM credential is configured)."""
+
+    def fail(*_args, **_kwargs):
+        raise AssertionError("LLM must not be called without a credential")
+
+    monkeypatch.setattr(ai.llm, "call_llm", fail)
+    wizard = ConfirmingWizard()
+
+    result = ai.evaluate_ai_item(_item(), _ctx(token=""), wizard, _fallback_question_multiline())
+
+    assert result.provenance == Provenance.HUMAN
+    assert result.readiness == ReadinessEffect.WARNING

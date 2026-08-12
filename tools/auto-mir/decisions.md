@@ -3815,6 +3815,73 @@ LXD guest + real Launchpad network calls).
   feedback round — this phase only fixes the labeling mechanism shared by
   all affected items.
 
+## 2026-08-12 — Reporter feedback round (jitterentropy-library artifact, item 1), Phase 2
+
+- Promotion: no
+- Context: continuation of Phase 1 above. The reviewer catalog
+  (`catalog-mir-review.yaml` URF-8/URF-9) already lets an `ev_to_ai` check
+  declare `options:` (id/predicate/render/outcome, `checks/llm_eval.py`) so
+  the model picks exactly one pre-written canonical statement instead of
+  writing free prose — no labeling risk, and a clean "not applicable" bucket
+  falls out naturally. The reporter role's `ev_to_ai` mode had no equivalent;
+  this phase ports it, reusing the reporter's *existing* `QuestionOption`/
+  `single_choice` machinery (already used by `human_only` items like
+  `REP-QA-MAINT-004`) rather than inventing a parallel schema.
+- `reporter/models.py`: `QuestionOption` gained `todo_ref: str = ""` (mirrors
+  the reviewer option's `todo_ref`) — threaded through every reconstruction
+  site in `reporter/evaluator.py` (`_question_from_item`, `_spell_out_option`
+  both branches, `_apply_option_lock`, `_mark_followup_options`) so it can't
+  be silently dropped the way `locked_reason`/`list_note` once were (see the
+  "Beta feedback round 3" entry's `_mark_followup_options` bug above) — not
+  yet consumed anywhere; reserved for Phase 3's "Left to clarify" rendering.
+- `reporter/text_utils.py`: extracted `resolve_option_statements(options,
+  answer_value, source_package)` out of `evaluator._human_statement` (now a
+  thin wrapper around it) so `reporter/ai.py` can reuse the exact same
+  option-resolution logic for the `ev_to_ai` fallback without a circular
+  import (`evaluator` already imports `ai`).
+- `reporter/ai.py::evaluate_ai_item`: when `item["question"]["options"]` is
+  set, the LLM prompt gains an `Options:` section (`_render_reporter_options_
+  section`, mirrors `checks/llm_eval._render_options_for_prompt`) and the
+  JSON contract requires `selected_option`; `_validate_response` resolves it
+  against the declared options (raising `LLMError` — falls back to human —
+  on an unmatched id) and returns the *option's own* `statement` text as the
+  suggestion, never the model's free-form prose. The per-option `readiness`
+  override (if declared) now applies to the final `StatementResult`, for
+  both the AI-confirmed and human-fallback paths. `StatementResult.
+  selected_option` is populated in both paths too, so a later item's
+  `applicability` can gate on which option was chosen (needed for Phase 4's
+  shared "is this end-user facing" gate) regardless of whether the answer
+  came from the model or a human.
+- `reporter/ai.py::_ask_human`: gained a third branch for
+  `QuestionKind.SINGLE_CHOICE` (previously only MULTILINE vs. everything-
+  else-splices-into-template), using the new shared `resolve_option_
+  statements` helper — the single_choice fallback UI is built from the exact
+  same catalog `options:` the AI prompt used, so the reporter sees the
+  identical canonical statements either way.
+- **Found and fixed while implementing (not in the original feedback):**
+  `_ask_human()` hardcoded `readiness=ReadinessEffect.CLEAR` for every
+  fallback answer, ignoring the item's own catalog-declared `readiness`
+  (`warning`/`blocker`) entirely — confirmed against the real
+  jitterentropy-library artifact's `report.json`: `REP-QA-PKG-004` is
+  declared `readiness: warning` and went through the human fallback (no LLM
+  credential), yet is absent from `readiness.warnings` in that run's
+  `report.json`. `evaluate_ai_item` now threads its already-computed
+  `readiness` into every `_ask_human()` call; the single_choice branch
+  additionally honors a per-option override the same way `human_only`
+  already does (`option_readiness or readiness`).
+- Regression tests added to `tests/test_reporter_ai.py` (verified all 5 fail
+  on the pre-Phase-2 code, then pass): AI selects and confirms a canonical
+  option statement; per-option readiness override on the AI-confirmed path;
+  an unmatched `selected_option` id falls back to human instead of crashing
+  or silently accepting; the single_choice human fallback uses the same
+  canonical statement and readiness; the pre-existing readiness-always-CLEAR
+  bug on the plain multiline fallback path. `make test`: 845 passed/2
+  skipped (was 840/2 after Phase 1).
+- No concrete catalog item uses `options:` on an `ev_to_ai` item yet — this
+  phase is purely the reusable mechanism; Phase 4 wires it up for the actual
+  UI-standards redesign (REP-UI-001/002/003).
+
+
 
 
 

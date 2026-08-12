@@ -89,3 +89,30 @@ def maybe_write_evidence(item: dict, ctx: RunContext, answer_value: Any) -> None
     if not isinstance(adapter_data, dict) or adapter_data.get(field):
         return
     adapter_data[field] = candidate
+
+
+def resolve_option_statements(
+    options: list[dict], answer_value: Any, source_package: str
+) -> str | None:
+    """Return the canonical ``statement`` text for a chosen single_choice option.
+
+    ``answer_value`` is the selected option id (or a list of ids for a
+    multi-select answer). Returns ``None`` when ``answer_value`` does not
+    resolve to any option with a non-empty ``statement`` (e.g. a plain
+    ``kind: text``/``multiline`` answer with no ``options`` at all), so the
+    caller can fall back to its own template-based construction.
+
+    Shared by ``reporter.evaluator``'s ``human_only`` dispatch and
+    ``reporter.ai``'s ``ev_to_ai`` fallback (single_choice items), since a
+    catalog option's pre-written ``statement`` is the canonical rendered
+    text either way - never spliced into the item's outer ``template``.
+    """
+    selected = answer_value if isinstance(answer_value, list) else [answer_value]
+    option_statements = [
+        substitute_source(str(option.get("statement", "")), source_package)
+        for option in options
+        if option.get("id") in selected and option.get("statement")
+    ]
+    if not option_statements:
+        return None
+    return "\n".join(option_statements)

@@ -22,6 +22,7 @@ from reporter.models import (
 from reporter.text_utils import (
     ensure_bulleted,
     maybe_write_evidence,
+    resolve_option_statements,
     strip_todo_prefix,
     substitute_source,
 )
@@ -172,6 +173,7 @@ def _question_from_item(item: dict, ctx: RunContext) -> QuestionSpec:
             substitute_source(str(option.get("statement", "")), source_package),
             bool(option.get("exclusive", False)),
             readiness=ReadinessEffect(option["readiness"]) if "readiness" in option else None,
+            todo_ref=str(option.get("todo_ref", "")),
         )
         for option in raw_options
     ]
@@ -290,6 +292,7 @@ def _spell_out_option(
             option.exclusive,
             readiness=option.readiness,
             list_note=f"The packages built by this source are: {', '.join(known_packages)}",
+            todo_ref=option.todo_ref,
         )
     if spell_out_filter == "all":
         selected = known_packages
@@ -306,6 +309,7 @@ def _spell_out_option(
         option.statement + suffix,
         option.exclusive,
         readiness=option.readiness,
+        todo_ref=option.todo_ref,
     )
 
 
@@ -330,6 +334,7 @@ def _apply_option_lock(option: QuestionOption, raw_option: dict, ctx: RunContext
         readiness=option.readiness,
         locked_reason=str(raw_option.get("unavailable_reason", "")),
         list_note=option.list_note,
+        todo_ref=option.todo_ref,
     )
 
 
@@ -357,6 +362,7 @@ def _mark_followup_options(
             readiness=option.readiness,
             locked_reason=option.locked_reason,
             list_note=option.list_note,
+            todo_ref=option.todo_ref,
         )
         for option in options
     ]
@@ -439,14 +445,9 @@ def _preface_text(item: dict, ctx: RunContext) -> tuple[str, str]:
 def _human_statement(item: dict, answer: Any, source_package: str) -> str:
     template = substitute_source(str(item["template"]), source_package)
     options = item.get("question", {}).get("options", [])
-    selected = answer if isinstance(answer, list) else [answer]
-    option_statements = [
-        substitute_source(str(option.get("statement", "")), source_package)
-        for option in options
-        if option.get("id") in selected and option.get("statement")
-    ]
-    if option_statements:
-        return "\n".join(option_statements)
+    option_statement = resolve_option_statements(options, answer, source_package)
+    if option_statement is not None:
+        return option_statement
     answer_text = (
         ", ".join(str(value) for value in answer) if isinstance(answer, list) else str(answer)
     )
