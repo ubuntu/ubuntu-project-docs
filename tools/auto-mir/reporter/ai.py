@@ -6,7 +6,13 @@ import json
 from typing import Any
 
 import llm
-from reporter.models import Provenance, ReadinessEffect, StatementResult, StatementState
+from reporter.models import (
+    Provenance,
+    QuestionKind,
+    ReadinessEffect,
+    StatementResult,
+    StatementState,
+)
 from reporter.text_utils import (
     ensure_bulleted,
     maybe_write_evidence,
@@ -367,12 +373,26 @@ def _ask_human(item: dict, ctx, wizard, question, rationale: str = "") -> Statem
             readiness=ReadinessEffect.CLEAR,
         )
     maybe_write_evidence(item, ctx, answer.value)
-    template = substitute_source(str(item["template"]), ctx.source_package)
-    statement = (
-        strip_todo_prefix(template.replace("TBD", str(answer.value), 1))
-        if "TBD" in template
-        else f"{strip_todo_prefix(template)} {answer.value}".strip()
-    )
+    if question.kind == QuestionKind.MULTILINE:
+        # A multiline ev_to_ai question asks the reporter for the same kind of
+        # complete, self-contained claim the AI contract requires (see the
+        # "one concise, affirmative, hedge-free claim" instruction above) - so
+        # bullet it directly, exactly like the AI-confirmed path does for
+        # `suggestion`. Splicing it after the catalog template's descriptive
+        # label (e.g. "Packaging complexity and maintainability assessment:")
+        # would just duplicate the topic the reporter already wrote out in
+        # full. That label is intentionally kept distinct in the catalog
+        # `template` field for the generated doc
+        # (docs/MIR/mir-reporters-template-body.include) and `rule_context`
+        # auto-derivation - it is simply not reused for this rendered output.
+        statement = ensure_bulleted(str(answer.value))
+    else:
+        template = substitute_source(str(item["template"]), ctx.source_package)
+        statement = (
+            strip_todo_prefix(template.replace("TBD", str(answer.value), 1))
+            if "TBD" in template
+            else f"{strip_todo_prefix(template)} {answer.value}".strip()
+        )
     return StatementResult(
         id=item["id"],
         section=item["section"],

@@ -198,7 +198,7 @@ items:
   question:
     kind: multiline
     prompt: What alternatives already in main were considered, and why are they insufficient?
-  template: 'TODO: - There is no other/better way already in main; alternatives considered: TBD'
+  template: 'TODO: - Alternatives already in main and why they are insufficient, or why none exist: TBD'
 - id: REP-RATIONALE-004
   section: Rationale
   title: Promotion binary scope

@@ -3748,5 +3748,73 @@ LXD guest + real Launchpad network calls).
   a timeout reads as an obvious "command timed out after Ns" rather than an
   opaque traceback.
 
+## 2026-08-12 — Reporter feedback round (jitterentropy-library artifact, item 1), Phase 1
+
+- Promotion: no
+- Context: user feedback on the same jitterentropy-library reporter artifact
+  (`/tmp/mir-jitterentropy-library-20260807-175557/reporter-draft.txt`)
+  reported statements like "Security exposure and proportional mitigation
+  assessment: Assess security-sensitive behavior, ..." and "Packaging
+  complexity and maintainability assessment: Packaging complexity and
+  maintainability assessment: Simple" — against the tool's design philosophy
+  of confident statements or clearly-marked TODOs, never restated-label
+  boilerplate.
+- Root cause: `reporter/ai.py::_ask_human()` (the fallback used by every
+  `ev_to_ai` item whenever the LLM is unavailable, low-confidence, or an
+  adapter is missing) builds the rendered statement via
+  `template.replace("TBD", answer, 1)`. Several `ev_to_ai` catalog templates
+  are `"<Descriptive label>: TBD"` (a restated title kept for the generated
+  doc, see below), so the reporter's own complete sentence gets glued right
+  after that label. The AI-confirmed success path
+  (`ensure_bulleted(suggestion)`) never had this problem — `_ask_human` was
+  the only inconsistent path.
+- First attempt (reverted): stripping the label directly from the catalog
+  `template` field (making it bare `'TODO: - TBD'`) broke an existing,
+  deliberate invariant — `docs/MIR/mir-reporters-template-body.include` is
+  **generated** from these exact template strings
+  (`render_reporter_template.py`, wired into `docs/Makefile`'s
+  `generate-includes` with `--strict`), and
+  `test_every_reporter_item_template_is_generated_once` requires every
+  item's template line to be **unique** in that human-facing reference doc —
+  8 identical bare "TODO: - TBD" lines would be indistinguishable to a human
+  reading the static template. The label is legitimate content for the doc
+  and for `rule_context` auto-derivation; it just should never be reused to
+  build the tool's own rendered statement.
+- Actual fix: `_ask_human()` now branches on `question.kind`. For
+  `QuestionKind.MULTILINE` (every affected item: `REP-SECURITY-005`,
+  `REP-SECURITY-006`, `REP-QA-FUNC-001`, `REP-QA-MAINT-003`,
+  `REP-QA-PKG-004`, `REP-QA-TEST-004`, `REP-RATIONALE-003`, `REP-UI-002`),
+  the reporter's answer is already expected to be one complete,
+  self-contained claim (the same contract the AI prompt already imposes on
+  the model) — so it's bulleted directly via `ensure_bulleted(answer.value)`,
+  with the catalog template's label never touched. For `QuestionKind.TEXT`
+  (only `REP-BG-002`, "Upstream Name is TBD"), the old template-splice
+  behavior is kept unchanged — a short fill-in name reads naturally after
+  that lead-in and is not a restated label.
+- Separately fixed a real, adjacent bug: `REP-RATIONALE-003`'s template
+  hardcoded "There is no other/better way already in main; alternatives
+  considered: TBD" as a fixed lead-in, which is simply false whenever the
+  real conclusion is (b) or (c) from its own `ai_policy` (a named main
+  candidate does overlap). Reworded to
+  "Alternatives already in main and why they are insufficient, or why none
+  exist: TBD" — neutral regardless of which of the three ai_policy outcomes
+  applies. This template text only affects the generated doc and
+  `rule_context` now (per the fix above), but it was still worth correcting
+  since a human could in principle fill this template out by hand without
+  the tool.
+- Regression tests: `tests/test_reporter_ai.py` gained
+  `test_multiline_human_fallback_bullets_answer_without_label_duplication`
+  (verified it fails without the fix — reproduces the exact
+  "- Assessment: human correction" duplication) and
+  `test_text_kind_human_fallback_still_splices_natural_template` (documents
+  the intentionally-preserved TEXT-kind behavior). `make test`: 840
+  passed/2 skipped (baseline was 838/2, +2 new tests).
+- Scope note: `REP-UI-002`'s underlying redesign (splitting UI applicability,
+  desktop-file, and translation into separate items, restoring the silently
+  dropped translation check) is deferred to a later phase of this same
+  feedback round — this phase only fixes the labeling mechanism shared by
+  all affected items.
+
+
 
 

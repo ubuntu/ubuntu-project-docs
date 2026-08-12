@@ -66,6 +66,14 @@ def _fallback_question():
     return QuestionSpec(id="REP-AI-001", prompt="Correct assessment", kind=QuestionKind.TEXT)
 
 
+def _fallback_question_multiline():
+    """A multiline fallback question, matching how every real catalog item hit
+    by the "<Label>: <answer>" duplication bug (feedback item 1a) is actually
+    declared (`question.kind: multiline`) - `_fallback_question()` above uses
+    `TEXT`, which never exercised the buggy code path."""
+    return QuestionSpec(id="REP-AI-001", prompt="Assess something", kind=QuestionKind.MULTILINE)
+
+
 def test_ai_suggestion_requires_and_records_confirmation(monkeypatch):
     monkeypatch.setattr(
         ai.llm,
@@ -316,6 +324,46 @@ def test_low_confidence_skips_confirmation_and_asks_human_with_rationale(monkeyp
     assert result.provenance == Provenance.HUMAN
     assert result.statement == "- Assessment: human correction"
     assert result.rationale == "The evidence does not clearly show one way or the other."
+
+
+def test_multiline_human_fallback_bullets_answer_without_label_duplication(monkeypatch):
+    """Regression test for feedback item 1a: a multiline ev_to_ai item whose
+    catalog `template` still carries a descriptive label (e.g.
+    "Packaging complexity and maintainability assessment: TBD", kept for the
+    generated doc/rule_context, see docs/MIR/mir-reporters-template-body.include)
+    must not glue that label onto the reporter's own complete answer when
+    falling back to a human question - the answer alone becomes the bullet,
+    exactly like the AI-confirmed path's `ensure_bulleted(suggestion)`."""
+
+    def fail(*_args, **_kwargs):
+        raise AssertionError("LLM must not be called without a credential")
+
+    monkeypatch.setattr(ai.llm, "call_llm", fail)
+    wizard = ConfirmingWizard()
+
+    result = ai.evaluate_ai_item(_item(), _ctx(token=""), wizard, _fallback_question_multiline())
+
+    assert result.provenance == Provenance.HUMAN
+    assert result.statement == "- human correction"
+    assert "Assessment" not in result.statement
+
+
+def test_text_kind_human_fallback_still_splices_natural_template(monkeypatch):
+    """A short `kind: text` fill-in (e.g. REP-BG-002's "Upstream Name is TBD")
+    is a natural sentence lead-in, not a redundant restated label - it must
+    keep splicing the answer into the template, unlike the multiline case
+    above."""
+
+    def fail(*_args, **_kwargs):
+        raise AssertionError("LLM must not be called without a credential")
+
+    monkeypatch.setattr(ai.llm, "call_llm", fail)
+    wizard = ConfirmingWizard()
+
+    result = ai.evaluate_ai_item(_item(), _ctx(token=""), wizard, _fallback_question())
+
+    assert result.provenance == Provenance.HUMAN
+    assert result.statement == "- Assessment: human correction"
 
 
 def test_high_confidence_missing_statement_falls_back_to_human(monkeypatch):
