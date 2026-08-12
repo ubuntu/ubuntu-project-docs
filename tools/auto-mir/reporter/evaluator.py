@@ -977,3 +977,31 @@ def _upstream_link(_item: dict, ctx: RunContext) -> tuple[str | None, list[str],
     if not url:
         return None, [], "No reliable upstream project URL was found"
     return f"Upstream project: {url}", ["upstream-tracker:upstream_url"], ""
+
+
+@reporter_evaluator("ui-desktop-not-applicable")
+def _ui_desktop_not_applicable(_item: dict, _ctx: RunContext) -> tuple[str | None, list[str], str]:
+    """Desktop-file counterpart of REP-UI-002, gated on REP-UI-001 == not-end-user-facing.
+
+    Always resolves to the same fixed statement with no evidence dependency
+    -- the applicability gate is the only thing that decides whether this
+    item is even asked, so once it is, there is nothing left to judge.
+    """
+    return (
+        "Not an end-user application (server, CLI-only tool, or library) - no Desktop "
+        "file is needed.",
+        [],
+        "",
+    )
+
+
+@reporter_evaluator("ui-translation-not-applicable")
+def _ui_translation_not_applicable(
+    _item: dict, _ctx: RunContext
+) -> tuple[str | None, list[str], str]:
+    """Translation counterpart of ``_ui_desktop_not_applicable`` (REP-UI-003)."""
+    return (
+        "Application is not end-user facing (does not need translation).",
+        [],
+        "",
+    )

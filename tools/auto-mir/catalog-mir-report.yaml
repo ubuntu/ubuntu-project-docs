@@ -84,7 +84,11 @@ metadata:
   - ''
   - '[UI standards]'
   - 'RULE: User-facing applications need appropriate internationalization and standard desktop integration; when either is not applicable, explain why.'
+  - item: REP-UI-001
   - item: REP-UI-002
+  - item: REP-UI-002-NOT-APPLICABLE
+  - item: REP-UI-003
+  - item: REP-UI-003-NOT-APPLICABLE
   - ''
   - '[Dependencies]'
   - 'RULE: Runtime dependencies and first alternatives must be in main or covered by MIR. Build-only dependencies may remain in universe unless their active code is embedded in final binaries.'
@@ -582,17 +586,96 @@ items:
   readiness: blocker
   adapters_required: [dep-analysis]
   template: 'TODO: - Obsolete or about-to-be-demoted dependency assessment: TBD'
-- id: REP-UI-002
+- id: REP-UI-001
   section: UI standards
-  title: UI applicability evidence assessment
+  title: End-user UI applicability
   mode: ev_to_ai
   readiness: warning
   adapters_required: [packaging-source, binary-package-inspection, dep-analysis]
-  ai_policy: Determine whether evidence suggests an end-user-facing graphical or user-visible program, then compare desktop and translation facts. Do not use absence of a desktop file to decide that a program is not graphical.
+  ai_policy: Judge whether this package is a user-facing graphical desktop program or otherwise a user-visible program whose strings a user reads (the kind an end user launches or directly reads output from), using binary_sections (libs/libdevel/doc/debug strongly indicate NOT user-facing), runtime dependencies (GUI toolkits such as gtk, qt, libadwaita, gnome, kde, wxwidgets indicate user-facing; their absence together with a library/CLI/daemon nature indicates not user-facing), the package description, and general knowledge of the package. Do not use the presence or absence of a desktop file or translations to decide user-facing-ness - a user-facing program missing either is exactly what the follow-up checks must catch.
   question:
-    kind: multiline
-    prompt: Confirm UI applicability and explain desktop-file or translation exceptions.
-  template: 'TODO: - Evidence-based UI applicability assessment: TBD'
+    kind: single_choice
+    prompt: Is this package end-user facing (a desktop program, or otherwise user-visible)?
+    options:
+    - id: end-user-facing
+      label: End-user facing (desktop program, or otherwise user-visible)
+      statement: '- This package is end-user facing; desktop-file and translation applicability are assessed below.'
+    - id: not-end-user-facing
+      label: Not end-user facing (server, CLI-only tool, daemon, or library)
+      statement: '- This package is not end-user facing (server, CLI-only tool, daemon, or library), so desktop-file and translation requirements do not apply.'
+  template: 'TODO: - User-interface, desktop-file, and translation applicability: TBD'
+- id: REP-UI-002
+  section: UI standards
+  title: Desktop file applicability
+  mode: ev_to_ai
+  readiness: warning
+  applicability:
+    item: REP-UI-001
+    equals: end-user-facing
+  adapters_required: [binary-package-inspection]
+  ai_policy: This package was already judged end-user facing. Using binary-package-inspection.desktop_files, determine whether it ships a standard-conformant desktop file.
+  question:
+    kind: single_choice
+    prompt: Does this package ship a standard-conformant desktop file?
+    options:
+    - id: has-desktop-file
+      label: Yes, it ships a standard-conformant desktop file
+      statement: '- This package ships a standard-conformant desktop file.'
+      readiness: clear
+      todo_ref: 'TODO-A: - End-user applications that ships a standard conformant desktop file, see TBD'
+    - id: missing-desktop-file
+      label: No, it does not ship a desktop file
+      statement: '- This package is end-user facing but does not ship a desktop file.'
+      readiness: warning
+      todo_ref: 'TODO-B: - End-user applications without desktop file, not needed because TBD'
+  template: 'TODO: - Desktop file applicability: TBD'
+- id: REP-UI-002-NOT-APPLICABLE
+  section: UI standards
+  title: Desktop file not applicable
+  mode: deterministic
+  evaluator: ui-desktop-not-applicable
+  readiness: clear
+  applicability:
+    item: REP-UI-001
+    equals: not-end-user-facing
+  adapters_required: []
+  template: 'TODO: - Not an end-user application, no Desktop file needed: TBD'
+- id: REP-UI-003
+  section: UI standards
+  title: Translation applicability
+  mode: ev_to_ai
+  readiness: warning
+  applicability:
+    item: REP-UI-001
+    equals: end-user-facing
+  adapters_required: [binary-package-inspection]
+  ai_policy: This package was already judged end-user facing. Using binary-package-inspection.translation_files, determine whether it ships translations via a standard build and runtime internationalization system (e.g. intltool/gettext).
+  question:
+    kind: single_choice
+    prompt: Does this package ship translations via a standard internationalization system?
+    options:
+    - id: has-translation
+      label: Yes, translations are present
+      statement: '- Translation is present, via a standard intltool/gettext or similar build and runtime internationalization system.'
+      readiness: clear
+      todo_ref: 'TODO-B: - Application is end-user facing, Translation is present, via standard intltool/gettext or similar build and runtime internationalization system see TBD'
+    - id: missing-translation
+      label: No, translations are not present
+      statement: '- This package is user-visible but does not ship translations.'
+      readiness: warning
+      todo_ref: 'TODO-C: - Application is end-user facing but does not ship translations, needed because TBD'
+  template: 'TODO: - Translation applicability: TBD'
+- id: REP-UI-003-NOT-APPLICABLE
+  section: UI standards
+  title: Translation not applicable
+  mode: deterministic
+  evaluator: ui-translation-not-applicable
+  readiness: clear
+  applicability:
+    item: REP-UI-001
+    equals: not-end-user-facing
+  adapters_required: []
+  template: 'TODO: - Application not end-user facing, no translation needed: TBD'
 - id: REP-DEP-001
   section: Dependencies
   title: Dependencies outside main

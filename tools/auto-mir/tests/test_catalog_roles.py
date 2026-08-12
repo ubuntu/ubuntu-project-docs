@@ -54,7 +54,7 @@ def test_report_catalog_has_complete_logical_item_and_hardware_choice_inventory(
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
 
-    assert len(by_id) == 54
+    assert len(by_id) == 58
     hardware_options = by_id["REP-QA-TEST-005"]["question"]["options"]
     assert {option["id"] for option in hardware_options} == {
         "A-team-hardware",
@@ -259,12 +259,12 @@ def test_report_catalog_auto_derives_rule_context_from_blueprint():
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
 
-    # REP-UI-002 has no hand-authored rule_context in the catalog source.
-    ui_rule_context = by_id["REP-UI-002"]["rule_context"]
+    # REP-UI-001 has no hand-authored rule_context in the catalog source.
+    ui_rule_context = by_id["REP-UI-001"]["rule_context"]
     assert ui_rule_context == (
         "RULE: User-facing applications need appropriate internationalization and "
         "standard desktop integration; when either is not applicable, explain why.\n"
-        "TODO: - Evidence-based UI applicability assessment: TBD"
+        "TODO: - User-interface, desktop-file, and translation applicability: TBD"
     )
 
     # A section with multiple RULE lines joins all of them ahead of the item's own TODO.

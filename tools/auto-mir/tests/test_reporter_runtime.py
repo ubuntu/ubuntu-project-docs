@@ -1008,3 +1008,78 @@ def test_testing_gaps_question_is_optional_and_omitted_when_skipped(tmp_path):
     write_outputs(ctx, results)
     draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
     assert "Testing gaps and the owning team test plan" not in draft
+
+
+def test_ui_not_end_user_facing_gate_auto_resolves_desktop_and_translation(tmp_path):
+    """Regression test for feedback items 1c/1d: a package judged not
+    end-user-facing must get BOTH its desktop-file and translation
+    statements automatically (no re-asking, no risk of contradicting
+    itself), and the actual TODO-C wording the user asked for must appear."""
+    ctx = _ctx(tmp_path)
+
+    class NotUiWizard(ChoiceWizard):
+        values = {**ChoiceWizard.values, "REP-UI-001": "not-end-user-facing"}
+
+    wizard = NotUiWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert "REP-UI-002" not in wizard.asked
+    assert "REP-UI-003" not in wizard.asked
+    assert by_id["REP-UI-002"].state == StatementState.NOT_APPLICABLE
+    assert by_id["REP-UI-003"].state == StatementState.NOT_APPLICABLE
+    assert by_id["REP-UI-002-NOT-APPLICABLE"].state == StatementState.RESOLVED
+    assert "no Desktop file is needed" in by_id["REP-UI-002-NOT-APPLICABLE"].statement
+    assert by_id["REP-UI-003-NOT-APPLICABLE"].state == StatementState.RESOLVED
+    assert (
+        by_id["REP-UI-003-NOT-APPLICABLE"].statement
+        == "- Application is not end-user facing (does not need translation)."
+    )
+
+    write_outputs(ctx, results)
+    draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
+    assert "[UI standards]" in draft
+    assert "no Desktop file is needed" in draft
+    assert "Application is not end-user facing (does not need translation)." in draft
+    assert "assessment:" not in draft.casefold()
+
+
+def test_ui_end_user_facing_asks_desktop_and_translation_separately(tmp_path):
+    """When end-user facing, desktop-file and translation are independently
+    resolved (the missing-desktop-file / has-translation combination proves
+    they are not coupled to a single yes/no)."""
+    ctx = _ctx(tmp_path)
+
+    class UiWizard(ChoiceWizard):
+        values = {
+            **ChoiceWizard.values,
+            "REP-UI-001": "end-user-facing",
+            "REP-UI-002": "missing-desktop-file",
+            "REP-UI-003": "has-translation",
+        }
+
+    wizard = UiWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-UI-002-NOT-APPLICABLE"].state == StatementState.NOT_APPLICABLE
+    assert by_id["REP-UI-003-NOT-APPLICABLE"].state == StatementState.NOT_APPLICABLE
+    assert (
+        by_id["REP-UI-002"].statement
+        == "- This package is end-user facing but does not ship a desktop file."
+    )
+    assert by_id["REP-UI-002"].readiness == ReadinessEffect.WARNING
+    assert (
+        by_id["REP-UI-003"].statement
+        == "- Translation is present, via a standard intltool/gettext or similar "
+        "build and runtime internationalization system."
+    )
+    assert by_id["REP-UI-003"].readiness == ReadinessEffect.CLEAR
+
+    write_outputs(ctx, results)
+    draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
+    assert "does not ship a desktop file" in draft
+    assert "Translation is present" in draft
+    assert "assessment:" not in draft.casefold()

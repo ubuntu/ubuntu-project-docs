@@ -3949,6 +3949,85 @@ LXD guest + real Launchpad network calls).
   outside the block and acceptance inside it). `make test`: 856 passed/2
   skipped (was 845/2 after Phase 2).
 
+## 2026-08-12 — Reporter feedback round (jitterentropy-library artifact, item 1), Phase 4
+
+- Promotion: no
+- Context: feedback items 1c/1d. `REP-UI-002` was a single free-text
+  `ev_to_ai` item trying to cover both "is this end-user facing" and
+  "desktop file/translation exceptions" in one answer; the real artifact
+  showed it only ever answered the desktop-file half, and a prior fix
+  (2026-08-07) had already deleted its sibling `REP-UI-001` believing the
+  two were redundant. The canonical generated template
+  (`docs/MIR/mir-reporters-template-body.include`) still has two distinct
+  `[UI standards]` TODO lines (general applicability, and an evidence-based
+  assessment) — only the second was covered. The reviewer catalog
+  (`catalog-mir-review.yaml` URF-8/URF-9) solves the same underlying policy
+  cleanly via two independent `ev_to_ai` + `options` items, each re-judging
+  "is this end-user facing" on its own.
+- Design choice (discussed explicitly per the user's request): rather than
+  copying the reviewer's fully-independent URF-8/URF-9 pattern (which asks
+  the same "is this end-user facing" judgement twice, risking a
+  self-contradicting draft - e.g. "not end-user facing, no desktop file
+  needed" alongside "user-visible, ships translations" - if the two
+  judgements ever disagreed), the applicability determination is made
+  **once** by a new shared gate item and reused by both children via the
+  existing `applicability` mechanism:
+  - `REP-UI-001` ("End-user UI applicability", `ev_to_ai` + 2 options:
+    `end-user-facing` / `not-end-user-facing`) - the single shared judgement,
+    reusing Phase 2's options mechanism plus Phase 3's `:defer` fallback for
+    free.
+  - `REP-UI-002` ("Desktop file applicability", `ev_to_ai` + 2 options:
+    `has-desktop-file` / `missing-desktop-file`) - `applicability: {item:
+    REP-UI-001, equals: end-user-facing}`, so it is only asked/judged at all
+    when relevant.
+  - `REP-UI-002-NOT-APPLICABLE` (`deterministic`, new evaluator
+    `ui-desktop-not-applicable`) - `applicability: {item: REP-UI-001,
+    equals: not-end-user-facing}`, always resolves to a fixed statement
+    with zero evidence dependency (the gate already decided everything) -
+    this is 1c's requested "not an end-user application... no need for a
+    Desktop file" outcome, now a normal visible confident statement rather
+    than a hidden/omitted item (an `applicability`-gated item that simply
+    isn't applicable is silently dropped from the draft entirely, which
+    would have thrown away exactly the statement the user asked to add).
+  - `REP-UI-003`/`REP-UI-003-NOT-APPLICABLE` mirror the above for
+    translation (`has-translation`/`missing-translation`), restoring the
+    silently-dropped translation check from feedback item 1d.
+  - Trade-off recorded explicitly: this diverges from the reviewer's
+    proven independent-per-item pattern in exchange for consistency
+    guarantees and reuse of already-built (Phases 2-3) infrastructure with
+    zero new catalog schema. The reviewer catalog's URF-8/URF-9 are left
+    untouched (out of scope; the user only asked about the reporter role) -
+    a future consistency pass could consider unifying them the same way,
+    noted as a possible follow-up, not done here.
+- Each `ev_to_ai` option gained a `todo_ref` (Phase 2/3 field, first real
+  consumer): `REP-UI-002`'s options carry the user's own pasted TODO-A/B
+  wording verbatim; `REP-UI-003`'s carry equivalent TODO-B/C wording — so a
+  deferred UI item's "Left to clarify:" block shows the exact original
+  alternative phrasing, not a generic placeholder.
+- `docs/MIR/mir-reporters-template-body.include` regenerated via
+  `render_reporter_template.py --strict` (this file is gitignored/build-only,
+  never committed - confirmed via `git check-ignore`) - the `[UI standards]`
+  section now shows 5 distinct compact `TODO: - <title>: TBD` placeholder
+  lines (one per new item), consistent with every other section's existing
+  style, instead of the old single line.
+- `tests/test_catalog_roles.py`: item count 54 -> 58 (net +4: -1 old
+  `REP-UI-002`, +5 new items); the `rule_context` auto-derivation assertion
+  now targets `REP-UI-001` (the new item without a hand-authored
+  `rule_context`) instead of the old `REP-UI-002`.
+- New end-to-end regression tests in `tests/test_reporter_runtime.py`
+  (verified both fail on the pre-Phase-4 catalog, then pass, using the real
+  catalog via `catalog.load_catalog_for_role`): the not-end-user-facing gate
+  auto-resolves both children without asking either, with the exact 1c
+  wording present in the rendered draft; the end-user-facing path resolves
+  desktop-file and translation independently (missing-desktop-file +
+  has-translation combination proves they are not coupled). Manually
+  verified end-to-end (deferred `REP-SECURITY-005` + not-end-user-facing
+  gate) that the rendered draft matches the design exactly: confident
+  bullets in `[UI standards]`, a `Left to clarify:` block with preserved
+  RULE/TODO context and reason in `[Security]`, no `assessment:` labels
+  anywhere, no stray `TBD` outside the clarify block. `make test`: 858
+  passed/2 skipped (was 856/2 after Phase 3).
+
 
 
 
