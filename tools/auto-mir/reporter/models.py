@@ -81,7 +81,15 @@ class QuestionOption:
 
 @dataclass(frozen=True)
 class QuestionSpec:
-    """Validated description of one question asked by the reporter wizard."""
+    """Validated description of one question asked by the reporter wizard.
+
+    ``deferrable``, when true, offers an explicit ``:defer`` escape hatch
+    (see ``TerminalWizard``) so the reporter can say "I cannot resolve this
+    now" instead of being forced to either answer or abort the whole run.
+    Only ever set for an ``ev_to_ai`` item's human-fallback question - a
+    ``human_only`` question always requires a genuine resolved answer (or
+    an explicit catalog ``required: false`` skip), by design.
+    """
 
     id: str
     prompt: str
@@ -92,6 +100,7 @@ class QuestionSpec:
     default: Any = None
     rule_context: str = ""
     answer_guidance: str = ""
+    deferrable: bool = False
 
     def __post_init__(self) -> None:
         if not self.id.strip():

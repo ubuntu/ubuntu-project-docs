@@ -125,7 +125,8 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
 
         if mode == "ev_to_ai":
             _show_preface(item, ctx, wizard)
-            result = evaluate_ai_item(item, ctx, wizard, _question_from_item(item, ctx))
+            fallback_question = _question_from_item(item, ctx, deferrable=True)
+            result = evaluate_ai_item(item, ctx, wizard, fallback_question)
             results.append(result)
             item_values[item["id"]] = result.selected_option or result.statement
             continue
@@ -161,7 +162,7 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
     return results
 
 
-def _question_from_item(item: dict, ctx: RunContext) -> QuestionSpec:
+def _question_from_item(item: dict, ctx: RunContext, *, deferrable: bool = False) -> QuestionSpec:
     definition = item["question"]
     kind = QuestionKind(definition["kind"])
     source_package = ctx.source_package
@@ -201,6 +202,7 @@ def _question_from_item(item: dict, ctx: RunContext) -> QuestionSpec:
         or _dynamic_default(definition.get("default_source"), ctx),
         rule_context=str(item.get("rule_context", "")),
         answer_guidance=str(item.get("answer_guidance", "")),
+        deferrable=deferrable,
     )
 
 

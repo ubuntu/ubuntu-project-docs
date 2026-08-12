@@ -338,6 +338,91 @@ def test_multiline_optional_skipped_when_editor_returns_empty():
     assert wizard.ask(question) is None
 
 
+def test_deferrable_multiline_editor_defer_sentinel_returns_none_without_reopening():
+    """Regression test for feedback item 1b: a deferrable, *required*
+    multiline question must let the reporter say ":defer" instead of being
+    forced to answer or looping the editor forever."""
+    calls = []
+
+    def _edit_text(_initial_text, _comment_lines):
+        calls.append(1)
+        if len(calls) > 1:
+            raise AssertionError("editor must not reopen after an explicit :defer")
+        return ":defer"
+
+    wizard = TerminalWizard(
+        read_line=lambda _p: (_ for _ in ()).throw(AssertionError("no raw fallback expected")),
+        write_line=lambda _line: None,
+        edit_text=_edit_text,
+    )
+    question = QuestionSpec(
+        id="REP-DEFER",
+        prompt="Assess something",
+        kind=QuestionKind.MULTILINE,
+        required=True,
+        deferrable=True,
+    )
+
+    assert wizard.ask(question) is None
+    assert calls == [1]
+
+
+def test_non_deferrable_required_multiline_ignores_defer_as_literal_text():
+    """ ":defer" must only be special when the question opts in via
+    ``deferrable=True`` - a human_only question (never deferrable) treats it
+    as ordinary answer text."""
+    wizard = TerminalWizard(
+        read_line=lambda _p: (_ for _ in ()).throw(AssertionError("no raw fallback expected")),
+        write_line=lambda _line: None,
+        edit_text=lambda _initial, _comments: ":defer",
+    )
+    question = QuestionSpec(
+        id="REP-RATIONALE-NOT-DEFERRABLE",
+        prompt="Explain",
+        kind=QuestionKind.MULTILINE,
+        required=True,
+    )
+
+    answer = wizard.ask(question)
+
+    assert answer is not None
+    assert answer.value == ":defer"
+
+
+def test_deferrable_raw_multiline_defer_sentinel_on_first_line():
+    """No usable editor (falls back to raw terminal entry): ":defer" on the
+    first line of a deferrable question returns None, matching the
+    ":cancel" convention already used for aborting."""
+    wizard = TerminalWizard(
+        read_line=_reader([":defer"]),
+        write_line=lambda _line: None,
+        edit_text=lambda *_a, **_k: None,
+    )
+    question = QuestionSpec(
+        id="REP-DEFER-RAW",
+        prompt="Assess something",
+        kind=QuestionKind.MULTILINE,
+        required=True,
+        deferrable=True,
+    )
+
+    assert wizard.ask(question) is None
+
+
+def test_deferrable_single_choice_defer_sentinel_returns_none():
+    wizard = TerminalWizard(read_line=_reader([":defer"]), write_line=lambda _line: None)
+    question = QuestionSpec(
+        id="REP-CHOICE-DEFER",
+        prompt="Pick one",
+        kind=QuestionKind.SINGLE_CHOICE,
+        required=True,
+        deferrable=True,
+        options=(QuestionOption("a", "Option A"), QuestionOption("b", "Option B")),
+    )
+
+    assert wizard.ask(question) is None
+
+
 def test_multiline_falls_back_to_raw_terminal_when_editor_unavailable():
     wizard = TerminalWizard(
         read_line=_reader(["raw terminal answer", "."]),

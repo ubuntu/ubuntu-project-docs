@@ -3881,6 +3881,75 @@ LXD guest + real Launchpad network calls).
   phase is purely the reusable mechanism; Phase 4 wires it up for the actual
   UI-standards redesign (REP-UI-001/002/003).
 
+## 2026-08-12 — Reporter feedback round (jitterentropy-library artifact, item 1), Phase 3
+
+- Promotion: no
+- Context: continuation of Phases 1-2 above (feedback item 1b): "when the
+  reporter mode has aspects it can't sort out, it should be putting those in
+  a clear 'Left to clarify:' subsection... whenever possible original
+  context in the form of the original RULES and TODO statements should be
+  part of the entries", mirroring how the reviewer role already renders its
+  "Left to decide:" block (`render/__init__.py::_render_section`).
+- Design constraint from the earlier clarification round: "Left to clarify"
+  only ever applies to the `ev_to_ai` fallback path; a `human_only` question
+  keeps forcing a genuine resolved answer (or an explicit catalog
+  `required: false` skip, unchanged). Two triggers land an item there:
+  1. **Deterministic evidence unavailable** — already existed as
+     `StatementState.UNAVAILABLE` (`evaluator._unavailable`), but
+     `_build_draft` previously rendered its `statement` (the item's literal
+     `template`, e.g. `"TODO: - It currently builds and works for
+     architectures: TBD"`) inline as if it were a real, confident bullet —
+     the literal unresolved word "TBD" leaked straight into the draft.
+  2. **Reporter-deferred `ev_to_ai` fallback** (new) — previously
+     impossible: `ai._ask_human` always forced a real answer for a required
+     question (only an EOF/`:cancel` aborting the *entire run* existed as an
+     escape). Added an explicit, clearly-labelled `:defer` sentinel:
+     `QuestionSpec.deferrable` (only ever set `True` by
+     `evaluator._question_from_item(..., deferrable=True)` for the
+     `ev_to_ai` dispatch branch, never for `human_only`); `TerminalWizard`
+     recognises `:defer` in the single-line/single_choice loop, the
+     editor-based multiline flow, and the raw-terminal multiline fallback,
+     returning `None` without reopening/looping/aborting. `ai._ask_human`
+     now distinguishes *why* it got `None` back: for a `required` question,
+     `None` can now only mean an explicit `:defer` (never a legitimate
+     optional skip), so it becomes `StatementState.NEEDS_INPUT` with a
+     rationale; for a non-required question (e.g. `REP-BG-002`, `required:
+     false`), `None` still means a genuine "nothing to add" skip and stays
+     `StatementState.NOT_APPLICABLE` exactly as before.
+- `reporter/render.py::_build_draft` restructured from flat blueprint-order
+  line dumping to per-`[Section]` grouping: confident bullets first (in
+  blueprint order, unchanged), then — only if non-empty, mirroring the
+  reviewer renderer's "no empty Left to decide" rule — a `Left to clarify:`
+  block listing every `NEEDS_INPUT`/`UNAVAILABLE` item in that section.
+  Grouping is driven by buffering unresolved results per section and
+  flushing right before the next blank-line separator or `[Section]` header
+  (defensive on both, though the catalog always uses the blank-line
+  convention today) plus once, unconditionally, after the loop for the
+  final section. Each entry (`_clarify_entry_lines`) shows: its
+  question/title as an intro line, then either every option's own
+  `todo_ref` line (for an options-based item, e.g. the UI split coming in
+  Phase 4) or the item's own catalog `template` TODO line (for a plain
+  free-text item — the closest available original context), then its
+  `rationale` as `(Reason: ...)`. A literal "TBD" inside this block is
+  expected and fine (it is explicit unresolved-template context, not a fake
+  statement); `_lint_draft` gained a check that a raw "TBD" **outside** a
+  "Left to clarify:" block is now a hard error, closing exactly the leak
+  described in item 2 above.
+- No catalog changes in this phase — `REP-UI-002`'s actual redesign (and the
+  first real use of the options-based "Left to clarify" rendering with
+  multiple `todo_ref` lines) lands in Phase 4.
+- New regression tests (verified they fail on the pre-Phase-3 code, then
+  pass): `tests/test_reporter_wizard.py` (`:defer` across all three input
+  paths, and that it's ordinary literal text when `deferrable=False`),
+  `tests/test_reporter_ai.py` (deferred required question ->
+  `NEEDS_INPUT`+rationale; optional skip still -> `NOT_APPLICABLE`),
+  `tests/test_reporter_render.py` (synthetic-catalog `_build_draft`/
+  `_lint_draft` tests: grouping order, per-option `todo_ref` listing, no
+  "Left to clarify" when everything is resolved, raw-TBD lint rejection
+  outside the block and acceptance inside it). `make test`: 856 passed/2
+  skipped (was 845/2 after Phase 2).
+
+
 
 
 

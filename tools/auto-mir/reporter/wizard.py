@@ -11,6 +11,7 @@ from utils import editor
 log = logging.getLogger("auto_mir.reporter")
 
 _CANCEL_TOKEN = ":cancel"
+_DEFER_TOKEN = ":defer"
 _MULTILINE_SENTINEL = "."
 _MULTILINE_LITERAL_DOT = r"\."
 
@@ -59,6 +60,8 @@ class TerminalWizard:
 
             if raw == _CANCEL_TOKEN:
                 return self._handle_missing(question, "question cancelled")
+            if question.deferrable and raw.casefold() == _DEFER_TOKEN:
+                return None
             if not raw and question.default is not None:
                 raw = str(question.default)
             if not raw:
@@ -205,6 +208,8 @@ class TerminalWizard:
         edited = self._edit_text("", self._multiline_comment_lines(question))
         while edited is not None:
             text = edited.strip()
+            if question.deferrable and text.casefold() == _DEFER_TOKEN:
+                return None
             if text:
                 self._record_answer(text)
                 return Answer(question_id=question.id, value=text, raw_input=edited)
@@ -229,6 +234,11 @@ class TerminalWizard:
                 "This is optional. Leave the answer empty to skip; nothing will be "
                 "added to the report."
             )
+        if question.deferrable:
+            lines.append(
+                "If you cannot resolve this now, type :defer as the only line of your "
+                "answer - it will be left open under 'Left to clarify' for the reviewer."
+            )
         lines.append("")
         lines.append("Lines starting with '#' are ignored and will not be included.")
         return lines
@@ -247,6 +257,8 @@ class TerminalWizard:
 
             if not lines and raw.strip() == _CANCEL_TOKEN:
                 return self._handle_missing(question, "question cancelled")
+            if not lines and question.deferrable and raw.strip().casefold() == _DEFER_TOKEN:
+                return None
             if raw == _MULTILINE_SENTINEL:
                 text = "\n".join(lines).strip()
                 if text:
@@ -279,6 +291,11 @@ class TerminalWizard:
             self._write_line(
                 "This is optional. Leave the answer empty to skip; nothing will be "
                 "added to the report."
+            )
+        if question.deferrable:
+            self._write_line(
+                "If you cannot resolve this now, enter :defer - it will be left open "
+                "under 'Left to clarify' for the reviewer instead of blocking you here."
             )
 
     def _parse_answer(self, question: QuestionSpec, raw: str):

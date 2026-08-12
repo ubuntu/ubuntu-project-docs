@@ -459,6 +459,20 @@ def _ask_human(
 ) -> StatementResult:
     answer = wizard.ask(question)
     if answer is None:
+        if question.required:
+            # A required ev_to_ai fallback question only ever returns None via
+            # its explicit ":defer" escape hatch (an unanswered required
+            # question otherwise loops forever, or raises WizardAborted on
+            # :cancel/EOF) - so this item IS applicable, the reporter simply
+            # could not resolve it now. Leave it for "Left to clarify"
+            # instead of NOT_APPLICABLE, which would silently drop it.
+            return StatementResult(
+                id=item["id"],
+                section=item["section"],
+                state=StatementState.NEEDS_INPUT,
+                readiness=readiness,
+                rationale=rationale or "The reporter deferred this question.",
+            )
         return StatementResult(
             id=item["id"],
             section=item["section"],

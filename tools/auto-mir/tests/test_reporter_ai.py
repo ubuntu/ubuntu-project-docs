@@ -15,6 +15,7 @@ from reporter.models import (  # noqa: E402
     QuestionOption,
     QuestionSpec,
     ReadinessEffect,
+    StatementState,
 )
 
 
@@ -77,8 +78,15 @@ def _fallback_question_multiline():
     """A multiline fallback question, matching how every real catalog item hit
     by the "<Label>: <answer>" duplication bug (feedback item 1a) is actually
     declared (`question.kind: multiline`) - `_fallback_question()` above uses
-    `TEXT`, which never exercised the buggy code path."""
-    return QuestionSpec(id="REP-AI-001", prompt="Assess something", kind=QuestionKind.MULTILINE)
+    `TEXT`, which never exercised the buggy code path. `deferrable=True`
+    matches how `evaluator._question_from_item` always builds an ev_to_ai
+    fallback question in production."""
+    return QuestionSpec(
+        id="REP-AI-001",
+        prompt="Assess something",
+        kind=QuestionKind.MULTILINE,
+        deferrable=True,
+    )
 
 
 def test_ai_suggestion_requires_and_records_confirmation(monkeypatch):
@@ -880,3 +888,60 @@ def test_multiline_fallback_uses_item_declared_readiness_not_always_clear(monkey
 
     assert result.provenance == Provenance.HUMAN
     assert result.readiness == ReadinessEffect.WARNING
+
+
+def test_deferred_multiline_fallback_becomes_needs_input_not_dropped(monkeypatch):
+    """Regression test for feedback item 1b: a reporter who cannot resolve an
+    ev_to_ai fallback question now (":defer") must land in
+    StatementState.NEEDS_INPUT - never NOT_APPLICABLE, which would silently
+    drop the item from the draft with no trace at all."""
+
+    def fail(*_args, **_kwargs):
+        raise AssertionError("LLM must not be called without a credential")
+
+    monkeypatch.setattr(ai.llm, "call_llm", fail)
+
+    class DeferringWizard:
+        def ask(self, question):
+            assert question.deferrable is True
+            assert question.required is True
+            return None
+
+        def show_note(self, text, detail=""):
+            pass
+
+    result = ai.evaluate_ai_item(
+        _item(), _ctx(token=""), DeferringWizard(), _fallback_question_multiline()
+    )
+
+    assert result.state == StatementState.NEEDS_INPUT
+    assert result.readiness == ReadinessEffect.WARNING
+    assert result.rationale
+
+
+def test_optional_ev_to_ai_item_skip_stays_not_applicable(monkeypatch):
+    """An *optional* ev_to_ai question (e.g. REP-BG-002) left blank is a
+    genuine "nothing to add" skip, not a deferral - it must stay
+    NOT_APPLICABLE (silently omitted), unlike the required-and-deferred case
+    above."""
+
+    def fail(*_args, **_kwargs):
+        raise AssertionError("LLM must not be called without a credential")
+
+    monkeypatch.setattr(ai.llm, "call_llm", fail)
+
+    class SkippingWizard:
+        def ask(self, question):
+            assert question.required is False
+            return None
+
+        def show_note(self, text, detail=""):
+            pass
+
+    optional_question = QuestionSpec(
+        id="REP-AI-001", prompt="Correct assessment", kind=QuestionKind.TEXT, required=False
+    )
+
+    result = ai.evaluate_ai_item(_item(), _ctx(token=""), SkippingWizard(), optional_question)
+
+    assert result.state == StatementState.NOT_APPLICABLE

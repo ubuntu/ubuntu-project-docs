@@ -7,6 +7,7 @@ import logging
 from dataclasses import asdict
 
 from reporter.models import ReadinessEffect, StatementResult, StatementState
+from reporter.text_utils import substitute_source
 
 log = logging.getLogger("auto_mir.reporter")
 
@@ -61,24 +62,49 @@ def _with_hanging_indent(text: str) -> str:
 
 
 def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
+    """Render the blueprint into confident bullets plus, per section, one
+    grouped "Left to clarify:" block for anything the tool could not resolve
+    with confidence (an ``ev_to_ai`` item that fell back to a deferred human
+    answer, or a ``deterministic`` item whose required evidence was
+    unavailable) - never mixed inline with the assertive resolved statements,
+    and never a bare, still-unresolved "TBD" template masquerading as a real
+    statement (see ``_clarify_entry_lines``).
+    """
+    items_by_id = {item["id"]: item for item in ctx.catalog["items"]}
     body_lines: list[str] = []
+    pending_clarify: list[StatementResult] = []
+
+    def flush_clarify() -> None:
+        if not pending_clarify:
+            return
+        body_lines.append("")
+        body_lines.append("Left to clarify:")
+        for result in pending_clarify:
+            body_lines.extend(_clarify_entry_lines(items_by_id[result.id], result, ctx))
+        pending_clarify.clear()
+
     for entry in ctx.catalog["metadata"]["reporter_template_blueprint"]:
         if isinstance(entry, str):
             if entry.startswith("RULE:"):
                 continue
+            if entry == "" or (entry.startswith("[") and entry.endswith("]")):
+                # Flush any section's pending clarify block before the blank
+                # separator that (by convention) precedes the next section,
+                # and defensively also before a section header directly, so
+                # this never depends on that blank-line convention holding.
+                flush_clarify()
             body_lines.append(entry)
             continue
         result = by_id[entry["item"]]
         if result.state == StatementState.NOT_APPLICABLE:
             continue
-        if result.state == StatementState.RESOLVED:
-            body_lines.append(_with_hanging_indent(result.statement))
-            if result.rationale:
-                body_lines.append(f"  ({_with_hanging_indent(result.rationale)})")
-        else:
-            body_lines.append(_with_hanging_indent(result.statement))
-            if result.rationale:
-                body_lines.append(f"  (Unavailable: {_with_hanging_indent(result.rationale)})")
+        if result.state in {StatementState.NEEDS_INPUT, StatementState.UNAVAILABLE}:
+            pending_clarify.append(result)
+            continue
+        body_lines.append(_with_hanging_indent(result.statement))
+        if result.rationale:
+            body_lines.append(f"  ({_with_hanging_indent(result.rationale)})")
+    flush_clarify()
 
     lines = [
         f"MIR report for source package: {ctx.source_package}",
@@ -87,6 +113,40 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
         *body_lines,
     ]
     return "\n".join(lines) + "\n"
+
+
+def _clarify_entry_lines(item: dict, result: StatementResult, ctx) -> list[str]:
+    """Render one unresolved item under "Left to clarify:", preserving as much
+    of its original catalog RULE/TODO context as possible instead of a bare
+    "TBD" placeholder or a silently-dropped topic.
+
+    For an options-based item (see ``reporter.ai``'s ``ev_to_ai`` + options
+    support), every option's own ``todo_ref`` line is listed as a
+    TODO-lettered alternative, exactly mirroring the original human template
+    structure (e.g. "TODO-A: ..." / "TODO-C: ..."). For a plain free-text
+    item, the catalog's own ``template`` TODO line is shown instead - it is
+    the closest available original context, even though it still literally
+    contains "TBD" (that is expected and fine inside a "Left to clarify:"
+    block, unlike inside a resolved statement, which ``_lint_draft`` still
+    forbids).
+    """
+    intro = str(item.get("question", {}).get("prompt") or item.get("title") or item["id"])
+    lines = [f"- {intro}"]
+    options = item.get("question", {}).get("options", [])
+    todo_refs = [
+        substitute_source(str(option.get("todo_ref", "")).strip(), ctx.source_package)
+        for option in options
+        if str(option.get("todo_ref", "")).strip()
+    ]
+    if todo_refs:
+        lines.extend(f"  {todo_ref}" for todo_ref in todo_refs)
+    else:
+        template_line = substitute_source(str(item.get("template", "")), ctx.source_package).strip()
+        if template_line:
+            lines.append(f"  {template_line}")
+    if result.rationale:
+        lines.append(f"  (Reason: {_with_hanging_indent(result.rationale)})")
+    return lines
 
 
 def _labelled_items(ctx, item_ids: list[str]) -> list[str]:
@@ -177,3 +237,21 @@ def _lint_draft(draft: str, catalog: dict, by_id: dict[str, StatementResult]) ->
     for result in by_id.values():
         if result.state == StatementState.RESOLVED and result.statement.startswith("TODO"):
             raise ValueError(f"resolved reporter statement still starts with TODO: {result.id}")
+
+    # An unresolved "TBD" placeholder is only legitimate inside a
+    # "Left to clarify:" block (see ``_clarify_entry_lines``) - anywhere
+    # else in the draft it means an unfilled template leaked into what looks
+    # like a confident, final statement.
+    in_clarify_block = False
+    for line in draft.splitlines():
+        if line == "Left to clarify:":
+            in_clarify_block = True
+            continue
+        if not line.strip() or (line.startswith("[") and line.endswith("]")):
+            in_clarify_block = False
+        if in_clarify_block:
+            continue
+        if "TBD" in line:
+            raise ValueError(
+                f"reporter draft has an unresolved TBD outside a 'Left to clarify:' block: {line!r}"
+            )
