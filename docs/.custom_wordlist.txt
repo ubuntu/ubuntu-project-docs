@@ -153,6 +153,7 @@ Paulina
 PDFs
 plaintext
 PlayStation
+Podman
 Postconf
 powerpc
 PPAs
