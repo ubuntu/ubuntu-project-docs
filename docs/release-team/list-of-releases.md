@@ -356,6 +356,11 @@ Ubuntu Pro with the Legacy support add-on provides security updates on Ubuntu LT
   - Start of Legacy
   - \# of years
   - End of Life
+* - Ubuntu 16.04 ESM
+  - [SecurityTeam/ESM/16.04](https://wiki.ubuntu.com/SecurityTeam/ESM/16.04)
+  - [Apr 2026](https://ubuntu.com/blog/ubuntu-16-04-lts-has-reached-the-end-of-standard-expanded-security-maintenance-with-ubuntu-pro-here-are-your-options)
+  - 5 years
+  - Apr 2031
 * - Ubuntu 14.04 ESM
   - [SecurityTeam/ESM/14.04](https://wiki.ubuntu.com/SecurityTeam/ESM/14.04)
   - [Apr 2024](https://canonical.com/blog/canonical-expands-long-term-support-to-12-years-starting-with-ubuntu-14-04-lts)
