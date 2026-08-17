@@ -132,6 +132,7 @@ $ git ubuntu clone at at-gu
 
 It's a good idea to append some `git-ubuntu` specific label (like `-gu`) to distinguish it from clones of Debian or upstream Git repositories (which tend to want to clone as the same name).
 
+If this is your first time working on a given package, you may get an error like `fatal: remote error: Repository '~your-lp-user/ubuntu/+source/at' not found`. This happens because you don't yet have a repository under your LP account for this package. It is safe to ignore the error.
 
 (merge-update-the-package-repository)=
 ### Update the package repository
