@@ -17,6 +17,12 @@ permitted SRU, some of which overlap:
 * **Hardware enablement:** for Long Term Support releases we regularly
   want to enable new hardware [:ref:`criteria <reference-criteria-hardware>`].
 
+* **Closely Coupled Userspace and Kernel HWE:** For Long Term Support releases
+  the Kernel follows the above Hardware Enablement (HWE) process. This extends
+  the hardware enablement case to userspace packages that are closely couple to
+  the kernel, ensuring compatibility between the kernel and userspace components.
+  [:ref:`criteria <reference-criteria-closely-coupled-kernel-userspace>`]. 
+
 * **Environmental change:** updates that need to be applied to Ubuntu
   packages to adjust to changes in the environment, server protocols,
   web services, and similar [:ref:`criteria <reference-criteria-environment>`].
