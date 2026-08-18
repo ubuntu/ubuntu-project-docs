@@ -1,4 +1,8 @@
 :::{mermaid}
+   %%{init: {'themeVariables': {
+                'fontSize': '2em',
+                'fontFamily': 'Ubuntu'}}}%%
+
 flowchart LR
     BugReport["<a href='#lc-bug-report-and-triage'>Bug Report<br/>&amp; Triage</a>"]
     PrepareTest["<a href='#lc-prepare-fix'>Prepare<br/>&amp; Test</a>"]
@@ -14,7 +18,5 @@ flowchart LR
     Upload -.-> |"active release"| SRU
     SRU --> Migration
 
-    classDef ubuntuStyle fill:#FFDAB9,stroke:#E95420,stroke-width:2px
-    class BugReport,PrepareTest,Review,Migration,Upload,SRU ubuntuStyle
 :::
 

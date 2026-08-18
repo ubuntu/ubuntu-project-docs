@@ -35,11 +35,11 @@ Overview of the SRU pipeline
 The following diagram illustrates this pipeline:
 
 .. mermaid::
-   :align: center
 
    %%{init: {'themeVariables': {
-                'fontSize': '20px',
+                'fontSize': '0.8em',
                 'fontFamily': 'Ubuntu'}}}%%
+
    flowchart TD
        prepare_package["Prepare the bug fix, and the SRU template"]
        unapproved["Upload the package to the unapproved queue"]

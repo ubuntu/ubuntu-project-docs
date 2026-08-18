@@ -1,4 +1,8 @@
 :::{mermaid}
+   %%{init: {'themeVariables': {
+                'fontSize': '0.8em',
+                'fontFamily': 'Ubuntu'}}}%%
+
 block-beta
   columns 3
 
@@ -21,7 +25,7 @@ block-beta
   block:motu
     columns 2
     id2((" "))
-    MOTU["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-motu/'>MOTU</a>"]
+    MOTU["<a href='/who-makes-ubuntu/developers/dmb-joining-motu/'>MOTU</a>"]
     space:4
     id3((" "))
     space
@@ -33,7 +37,7 @@ block-beta
     columns 1
     ExpertinMainStudies("Expert in <code>main</code> studies")
     space
-    StudyMIR{{"<a href=https://documentation.ubuntu.com/project/MIR/main-inclusion-review/>Study MIR</a>"}}
+    StudyMIR{{"<a href=/MIR/main-inclusion-review/>Study MIR</a>"}}
     space:1
   end
 
@@ -48,7 +52,7 @@ block-beta
   block:coredev
     columns 2
     space
-    CoreDev["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-core-dev/'>Core Dev</a>"]
+    CoreDev["<a href='/who-makes-ubuntu/developers/dmb-joining-core-dev/'>Core Dev</a>"]
     space:6
   end
  
@@ -63,12 +67,7 @@ block-beta
   StudyMIR-->DoMIR
   StudyMIR-->SeedChange
 
-  classDef Studies fill: #FFDAB9, stroke:#F4A460;
-    class ExpertStudies,ExpertTasks,ExpertinMainStudies,ExpertinMainTasks Studies
-
   classDef invisible fill: transparent, stroke: transparent
     class topleft,topright,lowerleft,lowerright,motu,coredev invisible
+ :::
 
-  classDef solid fill: #000, stroke: transparent
-    class id1,id2,id3 solid
-:::

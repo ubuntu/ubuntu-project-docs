@@ -146,6 +146,10 @@ Sometimes a package builds successfully locally (and even in a PPA), but fails i
 [pkgbinarymangler](https://launchpad.net/ubuntu/+source/pkgbinarymangler) is one of those upload-only steps. It is disabled for all PPA builds (except for `OEM PPA`) and also absent from most local build environments unless `pkgbinarymangler` is explicitly installed.
 
 ```{mermaid}
+   %%{init: {'themeVariables': {
+                'fontSize': '1em',
+                'fontFamily': 'Ubuntu'}}}%%
+
 flowchart TD
   A["dh_builddeb<br>(manages lockfile)"] --> B["Lockfile<br>(queue)"]
   B -->|"wait(head==package1)"| C["dpkg-deb.pkgbinarymangler<br>Binary Package 1"]
