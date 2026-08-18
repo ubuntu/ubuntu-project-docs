@@ -11,4 +11,5 @@ Details on maintaining some of these packages are given here.
 desktop/index
 llvm/index
 rustc/index
+openjdk/index
 ```
