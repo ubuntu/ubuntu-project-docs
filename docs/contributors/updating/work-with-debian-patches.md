@@ -119,7 +119,7 @@ changelog entry.
 
 ### Automatic header generation
 
-You can use `quilt`` to automatically add a DEP-3 header:
+You can use `quilt` to automatically add a DEP-3 header:
 
 ```none
 $ quilt header -e --dep3 my-changes.patch
@@ -170,7 +170,7 @@ associated bugs.
 
 ## Verify the patchfile
 
-Use `quilt`` to apply the patches in order:
+Use `quilt` to apply the patches in order:
 
 ```none
 $ quilt push -a
