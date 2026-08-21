@@ -3,7 +3,7 @@
 
 How to update, package, and maintain versions of {pkg}`rustc` in Ubuntu.
 
-## Rust Community
+## Rust community
 
 The Rust programming language has a vibrant and thriving community,
 which is a valuable resource in addition to the guides on this website.
@@ -24,12 +24,12 @@ There are also a great deal of unofficial resources and communities.
 
 In general, Rust communities, whether official or unofficial, follow the [Rust code of conduct](https://rust-lang.org/policies/code-of-conduct/).
 
-## Debian Rust Community
+## Debian Rust community
 
 Rust packaging has many quirks that it has inherited from Debian, and so the Debian documentation and community for packaging Rust will also be helpful.
 
 - Debian's [wiki page on Rust packaging](https://wiki.debian.org/Teams/RustPackaging) documents the process of packaging things *written* in Rust. It also has many links to communication, like their mailing list and IRC.
-- The [Debian Rust team book](https://rust-team.pages.debian.net/book/) documents how they package rustc itself. Notably, this is where the documentation for `debcargo` and `dh-cargo` lives.
+- The [Debian Rust team book](https://rust-team.pages.debian.net/book/) documents how they package {pkg}`rustc` itself. Notably, this is where the documentation for {pkg}`debcargo` and {pkg}`dh-cargo` lives.
 
 ---
 
