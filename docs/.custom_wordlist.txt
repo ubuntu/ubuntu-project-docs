@@ -195,6 +195,7 @@ subiquity
 subkey
 subkeys
 subprojects
+subreddit
 supercomputing
 syncable
 sysroot
@@ -259,6 +260,7 @@ Yubikey
 Yubikeys
 Zapus
 Zentyal
+Zulip
 Zope
 ACLs
 APIs
