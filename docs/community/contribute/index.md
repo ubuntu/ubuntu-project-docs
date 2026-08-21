@@ -19,7 +19,7 @@ Ubuntu is most of all a community. All of the software, artwork and documentatio
 Here are just a few ways to you can contribute to our community.
 
 {ref}`Application Development <contribute-to-app-development>`
-: As the developers' choice of operating systems, Ubuntu provides numerous avenues for creating new software. Developers can build universal and sandboxed Snap applications, pursue traditional Debian package development, or even create Juju Charms for container orchestration.
+: As the developers' choice of operating systems, Ubuntu provides numerous avenues for creating new software. Developers can craft sandboxed Snap and Rock applications, pursue traditional Debian package development, or even create Juju Charms for container orchestration.
 : Do you want to create software that will be used around the world?
 
 {ref}`Ubuntu Development <guides-for-contributors>`

@@ -244,6 +244,26 @@ $clean_source = 0;
 $run_lintian = 0;
 ```
 
+The following optional additions improve the build experience:
+
+```perl
+# Include debhelper (required by most packages), auto-apt-proxy (speeds up
+# dependency installation by auto-detecting apt proxies), and ca-certificates
+# (needed for HTTPS apt sources) in the base tarball:
+push @{$unshare_mmdebstrap_extra_args}, "*", ["--include=auto-apt-proxy,ca-certificates,debhelper"];
+
+# Open a shell when a build fails, for debugging:
+$external_commands = {"build-failed-commands" => ["%SBUILD_SHELL"]};
+
+# Store build logs in a dedicated directory:
+$log_dir = "$HOME/logs";
+
+# Run autopkgtest and lintian after each build:
+$run_autopkgtest = 1;
+$run_lintian = 1;
+$lintian_opts = ["-L", ">=pedantic", "--show-overrides"];
+```
+
 :::
 
 :::{tab-item} `schroot` (legacy / cross-building)

@@ -118,6 +118,7 @@ Maintainer's
 Makefile
 Makefiles
 manpage
+maysync
 Masters
 Meetingology
 metapackage
@@ -152,9 +153,12 @@ Paulina
 PDFs
 plaintext
 PlayStation
+Podman
 Postconf
 powerpc
 PPAs
+pre
+prepended
 prepends
 quantal
 Quokka
@@ -192,6 +196,7 @@ subkey
 subkeys
 subprojects
 supercomputing
+syncable
 sysroot
 systemd
 tarball
@@ -303,6 +308,7 @@ openstack
 openssh
 walkthrough
 whoopsie
+willsync
 wnpp
 debbugs
 Usertagging
