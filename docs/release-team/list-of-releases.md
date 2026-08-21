@@ -293,7 +293,7 @@ feature-based one), approximately every 6 months.
   - TBD
   - Sep 2026
   - Jun 2029
-* - Ubuntu 26.10
+* - Ubuntu xx.yy
   - Stonking Stingray
   - TBD
   - TBD
