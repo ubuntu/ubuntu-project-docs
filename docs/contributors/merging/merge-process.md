@@ -457,7 +457,12 @@ If all the commits are empty, or you realized there are no logical changes, you'
 $ quilt push -a --fuzz=0
 ```
 
-**If {command}`quilt` fails**
+**If {command}`quilt` fails to find the patches**
+
+You may get an error `No series file found`. In this case, you need to tell `quilt` where to look for the patches. You can configure it by setting an environment variable: `export QUILT_PATCHES=debian/patches`. (You can also edit your `.quiltrc`
+file to make the changes permanent.)
+
+**If {command}`quilt` fails to apply the patches**
 
 Quilt can fail at this point if the file being patched has changed significantly upstream. The most common reason is that the issue the patch addresses has since been fixed upstream.
 
