@@ -459,7 +459,7 @@ $ quilt push -a --fuzz=0
 
 **If {command}`quilt` fails to find the patches**
 
-You may get an error `No series file found`. In this case, you need to tell `quilt` where to look for the patches. You can configure it by setting an environment variable: `export QUILT_PATCHES=debian/patches`. (You can also edit your `.quiltrc`
+You may get an error `No series file found`. In this case, you need to tell `quilt` where to look for the patches. Configure it by setting an environment variable: `export QUILT_PATCHES=debian/patches`. (Or edit your `.quiltrc`
 file to make the changes permanent.)
 
 **If {command}`quilt` fails to apply the patches**
