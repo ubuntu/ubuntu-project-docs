@@ -30,7 +30,7 @@ sphinx-sitemap
 
 # Vale dependencies
 rst2html
-vale
+vale==3.13.0.0
 
 # Custom dependencies (needed by Ubuntu Project docs)
 distro_info
