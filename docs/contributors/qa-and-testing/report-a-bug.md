@@ -74,7 +74,7 @@ When an application crashes, {ref}`Apport <debugging-apport>` displays a window 
 ![Screenshot of Apport](apport-1.png)
 
 ```{note}
-Install the [whoopsie](https://launchpad.net/ubuntu/+source/whoopsie) package to ensure crash reports are uploaded. It's installed by default on Ubuntu Desktop, but server users must install it manually: `sudo apt install whoopsie`.
+Install the [whoopsie](https://launchpad.net/ubuntu/+source/whoopsie) package to ensure crash reports are uploaded. It's installed by default on Ubuntu Desktop, but Ubuntu Server users must install it manually: `sudo apt install whoopsie`.
 ```
 
 (reporting-crash-in-the-development-release)=
