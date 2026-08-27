@@ -133,12 +133,17 @@ class Item:
     ``approvers`` holds the logins of reviewers who left an APPROVED review;
     it is only populated for PRs and used to filter out PRs that a team
     member has already approved.
+
+    ``closes_issues`` holds the numbers of open issues the PR closes (via
+    "Fixes #N"-style keywords); it is only populated for PRs and used to
+    also filter out issues whose closing PR a team member has approved.
     """
 
     number: int
     title: str
     url: str
     approvers: frozenset[str] = field(default_factory=frozenset)
+    closes_issues: frozenset[int] = field(default_factory=frozenset)
 
 
 @dataclass
@@ -420,8 +425,10 @@ def fetch_labeled_items(cfg: Config, label: str) -> tuple[list[Item], list[Item]
     """Fetch all open issues and PRs carrying ``label``.
 
     For PRs, each Item's ``approvers`` field is populated with the logins
-    of reviewers who left an APPROVED review, so that PRs already approved
-    by a team member can be filtered out of that team's report.
+    of reviewers who left an APPROVED review, and ``closes_issues`` with the
+    numbers of issues the PR closes, so that a PR already approved by a team
+    member — and the issues that PR closes — can be filtered out of that
+    team's report.
 
     Args:
         cfg: Runtime configuration.
@@ -451,6 +458,9 @@ def fetch_labeled_items(cfg: Config, label: str) -> tuple[list[Item], list[Item]
             number title url
             reviews(first: 100) {
               nodes { author { login } state }
+            }
+            closingIssuesReferences(first: 100) {
+              nodes { number }
             }
           }
         }
@@ -500,7 +510,14 @@ def fetch_labeled_items(cfg: Config, label: str) -> tuple[list[Item], list[Item]
                     for r in n.get("reviews", {}).get("nodes", [])
                     if r.get("state") == "APPROVED" and r.get("author")
                 )
-                items.append(Item(n["number"], n["title"], n["url"], approvers))
+                closes_issues = frozenset(
+                    ref["number"]
+                    for ref in n.get("closingIssuesReferences", {}).get("nodes", [])
+                    if ref.get("number")
+                )
+                items.append(
+                    Item(n["number"], n["title"], n["url"], approvers, closes_issues)
+                )
             if not page["pageInfo"]["hasNextPage"]:
                 break
             cursor = page["pageInfo"]["endCursor"]
@@ -992,19 +1009,37 @@ def main() -> None:
         items_by_label: dict[str, tuple[list[Item], list[Item]]] = {}
         for label in labels:
             issues_l, prs_l = fetch_labeled_items(cfg, label)
-            # Filter out PRs already approved by a team member for this label.
+            # Filter out PRs already approved by a team member for this label,
+            # and the issues those PRs close.
             members = team_members.get(label, frozenset())
             if members:
-                before = len(prs_l)
+                before_p = len(prs_l)
+                approved_prs = [pr for pr in prs_l if members & pr.approvers]
                 prs_l = [pr for pr in prs_l if not (members & pr.approvers)]
-                skipped = before - len(prs_l)
+                skipped_p = before_p - len(prs_l)
+                handled_issues = frozenset().union(
+                    *(pr.closes_issues for pr in approved_prs)
+                )
+                before_i = len(issues_l)
+                issues_l = [iss for iss in issues_l if iss.number not in handled_issues]
+                skipped_i = before_i - len(issues_l)
                 print(
-                    f"  {label}: {len(issues_l)} issues, "
-                    f"{len(prs_l)} PRs ({skipped} approved by team, omitted)"
+                    f"  {label}: {len(issues_l)} issues "
+                    f"({skipped_i} via approved PR, omitted), "
+                    f"{len(prs_l)} PRs ({skipped_p} approved by team, omitted)"
                 )
             else:
                 print(f"  {label}: {len(issues_l)} issues, {len(prs_l)} PRs")
             items_by_label[label] = (issues_l, prs_l)
+
+        # Skip rooms whose queue is empty after filtering — no message at all.
+        total_items = sum(
+            len(issues_l) + len(prs_l) for issues_l, prs_l in items_by_label.values()
+        )
+        if not total_items:
+            print(f"  All items filtered out or none found, skipping '{alias}'.")
+            continue
+
         label_report = build_label_report(alias, labels, items_by_label, cfg.repo_url)
         lr_md = render_markdown(label_report)
         lr_plain = render_plain_text(label_report)

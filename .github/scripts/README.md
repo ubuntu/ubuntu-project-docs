@@ -12,6 +12,8 @@ The report comes in two kinds:
 
 2. **Per-label item reports** — for each label listed in `LABEL_ROUTES`, a report listing the actual issues and PRs carrying that label, posted to the label's Matrix room. Items with several routed labels appear in every matching room's report. Multiple labels may share one room (e.g. `Release team` and `AA` both post to `#release:ubuntu.com`); such a room receives a single combined report.
 
+   Each team's report silently omits PRs that a team member has already approved (resolved via the team's `CODEOWNERS` section), and also omits any issue closed by such an approved PR. A room whose queue is empty after filtering receives no message at all.
+
 ### Dashboard categories
 
 | Category | GitHub filter query |
