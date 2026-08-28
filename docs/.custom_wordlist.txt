@@ -290,6 +290,7 @@ pbuilder
 reportbug
 rmadison
 rustc
+selfbuild
 smartcard
 Snapcraft
 snapcraft
