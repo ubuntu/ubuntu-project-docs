@@ -238,7 +238,6 @@ In general you should collect as much information as possible in package hooks, 
 For an asynchronous script, see `/usr/share/apport/kernel_hook` and the accompanying package hook `/usr/share/apport/package-hooks/source_linux.py`. For a synchronous script, see `/usr/share/apport/gcc_ice_hook` (this also shows how to read bulk data directly from stdin).
 
 
-(third-party)=
 (applications-not-included-in-ubuntus-repositories-but-hosted-on-launchpad)=
 ### Applications not included in Ubuntu's repositories but hosted on Launchpad
 

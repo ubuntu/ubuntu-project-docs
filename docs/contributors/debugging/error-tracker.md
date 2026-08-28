@@ -30,7 +30,6 @@ The client interface for the error tracker also serves a purpose which is less i
 ## Client design
 
 
-(settings)=
 (privacy-settings)=
 ### Privacy settings
 
@@ -69,7 +68,6 @@ The “When on Wi-Fi” and “On any data connection” radio items and caption
 The “Previous error reports”, “Previous info reports”, and “Previous Wi-Fi reports” screens should all consist of a chronological list of reports, latest first, each labelled by its timestamp. The screen for each report should have that timestamp as its header, and consist entirely of a frame of wrapped selectable and copyable text.
 
 
-(error)=
 (when-there-is-an-error)=
 ### When there is an error
 
@@ -126,14 +124,12 @@ If you are using a pre-release version of Ubuntu, and the error report matches a
 **Future work:**  Automate the communication with the user to facilitate things like leak detection in subsequent runs, without requiring additional interaction with the user.  Our current process requires us to ask people who are subscribed to the bug to try a specially-instrumented build, with a traditionally very long feedback loop between the developer and the bug subscribers.  We should make it entirely automatic.  Just wait for the next user who sees the bug to click one "yes, I'd like to help make this product better" button.
 
 
-(memory)=
 (when-there-is-not-enough-memory-for-a-core-dump)=
 ### When there is not enough memory for a core dump
 
 When the kernel does not have enough memory, an error report should still be sent (or queued for sending) as normal for accounting purposes, just without the core dump.
 
 
-(updates)=
 (when-an-update-is-available-to-fix-a-crash)=
 ### When an update is available to fix a crash
 
@@ -156,7 +152,6 @@ Choosing “Install Updates…” should [launch Software Updater](https://wiki.
 _We also considered changing the Software Updater UI to appear unprompted sooner, or to have custom text, when updates are known to fix problems users on your system have submitted. We decided against it because it would be less obvious.
 
 
-(debconf)=
 (when-there-is-a-debconf-prompt)=
 ### When there is a debconf prompt
 
@@ -230,7 +225,6 @@ Controls should be included in the alert depending on the type of prompt.
 
 ![debconf-password.png](error-tracker-images/debconf-password.png)
 
-(debconf-progress)=
 (presenting-debconf-progress)=
 #### Presenting debconf progress
 
@@ -243,7 +237,6 @@ When a maintainer script requests progress presentation (`db_progress`), the pro
 The window title should be of the form ‘Installing “package-name”’, ‘Reinstalling “package-name”’, ‘Updating “package-name”’, or “Removing ‘package-name’” as appropriate, or “Ubuntu” if the type of operation is unknown. The “Skip” button should be present if the operation is skippable.
 
 
-(metrics)=
 (invitation-for-metrics-collection)=
 ### Invitation for metrics collection
 
@@ -254,7 +247,6 @@ For any administrator, after the *first* time only that they respond to an error
 The “Privacy…” button should open System Settings to the Privacy panel. Choosing “Send” should be equivalent to checking “Send occasional system information to Canonical” in the Privacy settings.
 
 
-(previous)=
 (accessing-previous-reports)=
 ## Accessing previous reports
 
@@ -313,7 +305,6 @@ We will add an Origin and possibly a Site field to the apport reports, using the
 
 
 (click-packages)=
-(click)=
 ### Click
 
 We will build a symbol server, possibly adapting Fedora's [Darkserver](http://fedoraproject.org/wiki/Darkserver). Access to all the data from proprietary applications on the symbol server will be granted to our retracers, but will be restricted for developers looking to retrace crashes locally. This will likely leverage the Ubuntu One SSO API as it is used in MyApps. For non-proprietary applications, no access control will be necessary. All symbols will be associated with an application for ACL tracking and garbage collection.
@@ -327,7 +318,6 @@ We will add a set of APIs for collecting per click-version problem data for MyAp
 The problems for proprietary applications and their rank will be made visible on the leaderboard as a means of keeping everyone honest.
 
 
-(error-rates)=
 (calculating-daily-error-rates)=
 ## Calculating daily error rates
 
@@ -350,7 +340,6 @@ This finally gives us the **average daily error rate** — the number of error r
 One problem that isn’t solved by these adjustments: Counting calendar days is misleading. For example, the current error rate for Ubuntu 12.04 is higher on weekdays than in weekends, almost certainly because it’s used on more machines for longer periods during weekdays (bug Bug:1046269).
 
 
-(comparisons)=
 (cross-release-comparisons)=
 ### Cross-release comparisons
 
@@ -363,7 +352,6 @@ For example:
 * Errors in binaries mentioned in `/etc/apport/blacklist.d` are not counted in 12.04 or 12.10 (bug Bug:1064395).
 
 
-(server)=
 (errors-ubuntu-com)=
 ## errors\.ubuntu\.com
 
@@ -457,7 +445,6 @@ The bucket page, showing a collection of errors with the same cause, should cont
 1. An “Examples” table, with an infinitely scrolling table of examples of this error, most recent first (bug Bug:1084626). This table should have columns for “Time”, “Example”, “Package version”, and “Ubuntu version”.
 
 
-(unusual)=
 (what-s-unusual-about-this-error)=
 ##### “What’s unusual about this error”
 
@@ -473,7 +460,6 @@ Variables should include things like versions of other packages, that another pa
 [June 25th, 2013 discussion](http://pastebin.ubuntu.com/5798639/)
 
 
-(extra-info)=
 (collecting-extra-information-for-particular-errors)=
 ## Collecting extra information for particular errors
 
@@ -514,7 +500,6 @@ If you choose “Propose a Change”, or anyone has submitted a change proposal 
 [/ServerArchitecture](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-ServerArchitecture.wiki) has additional details.
 
 
-(contributing)=
 (how-you-can-help)=
 ## How you can help
 
