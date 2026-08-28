@@ -34,7 +34,7 @@ The client interface for the error tracker also serves a purpose which is less i
 (privacy-settings)=
 ### Privacy settings
 
-_Compare [the equivalent screen in the installer](https://docs.google.com/document/d/1bZ4yQIVgGaUGSYu3qiUHnQt3ieBZoqunP_DcleHCr3I/edit#heading=h.3qe17agyh876).
+Compare [the equivalent screen in the installer](https://docs.google.com/document/d/1bZ4yQIVgGaUGSYu3qiUHnQt3ieBZoqunP_DcleHCr3I/edit#heading=h.3qe17agyh876).
 
 The System Settings “Security & Privacy” panel should contain a “Diagnostics” section for error and metrics collection. (While `gnome-control-center` has a “Privacy” section using a list-and-dialogs model, instead of being a tab, “Diagnostics” should replace the “Problem Reporting” dialog.)
 
@@ -162,7 +162,7 @@ _We also considered changing the Software Updater UI to appear unprompted sooner
 
 debconf prompts for user-installed software in Ubuntu are, overwhelmingly, programming mistakes. Therefore, they should be presented as error alerts.
 
-**Implementation:** See [/Contributing/Debconf](https://help.ubuntu.com/community//Contributing/Debconf) for instructions on how to work on these alerts.
+**Implementation:** See [/Contributing/Debconf](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-Contributing-Debconf.wiki) for instructions on how to work on these alerts.
 
 **A Debconf prompt**
 
@@ -365,7 +365,7 @@ For example:
 
 (server)=
 (errors-ubuntu-com)=
-## errors.ubuntu.com
+## errors\.ubuntu\.com
 
 
 (graphs)=
@@ -511,7 +511,7 @@ If you choose “Propose a Change”, or anyone has submitted a change proposal 
 (server-architecture)=
 ## Server architecture
 
-[/ServerArchitecture](https://help.ubuntu.com/community//ServerArchitecture) has additional details.
+[/ServerArchitecture](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-ServerArchitecture.wiki) has additional details.
 
 
 (contributing)=
@@ -625,33 +625,33 @@ bzr branch lp:~daisy-pluckers/oops-repository/trunk oops-repository.daisy-plucke
 
 * [UDS Raring talk](https://www.youtube.com/watch?v=PPQ7k0jRUE4#t=30m10s)
 
-* [/Contributing/Errors](https://help.ubuntu.com/community//Contributing/Errors)
+* [/Contributing/Errors](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-Contributing-Errors.wiki)
 
-* [/MapReduce](https://help.ubuntu.com/community//MapReduce)
+* [/MapReduce](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-MapReduce.wiki)
 
-* [/ServerSideHooks](https://help.ubuntu.com/community//ServerSideHooks)
+* [/ServerSideHooks](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-ServerSideHooks.wiki)
 
-* [/PhasedUpdates](https://help.ubuntu.com/community//PhasedUpdates)
+* [/PhasedUpdates](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuCommunityHelpWiki/P/PhasedUpdates.wiki) and [/ErrorTracker/PhasedUpdates](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-PhasedUpdates.wiki)
 
-* [/Deployment](https://help.ubuntu.com/community//Deployment) - How to set up a private error tracker in Juju
+* [/Deployment](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-Deployment.wiki) - How to set up a private error tracker in Juju
 
-* [/Monitoring](https://help.ubuntu.com/community//Monitoring) - Monitoring the production Error Tracker
+* [/Monitoring](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-Monitoring.wiki) - Monitoring the production Error Tracker
 
 * [Outstanding code reviews](https://code.launchpad.net/~daisy-pluckers/+activereviews)
 
 * [/UbuntuReleasePreparation](https://help.ubuntu.com/community//UbuntuReleasePreparation)
 
-* [/BreakpadApplicationSupport](https://help.ubuntu.com/community//BreakpadApplicationSupport)
+* [/BreakpadApplicationSupport](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-BreakpadApplicationSupport.wiki)
 
-* [/AutomatedTesting](https://help.ubuntu.com/community//AutomatedTesting)
+* [/AutomatedTesting](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/A/AutomatedTesting.wiki)
 
-* [/CassandraQueries](https://help.ubuntu.com/community//CassandraQueries) - Writing fast queries against Cassandra
+* [/CassandraQueries](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-CassandraQueries.wiki) - Writing fast queries against Cassandra
 
-* [/DailyTasks](https://help.ubuntu.com/community//DailyTasks) - Things to do every day
+* [/DailyTasks](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-DailyTasks.wiki) - Things to do every day
 
-* [/PackageInstallationFailures](https://help.ubuntu.com/community//PackageInstallationFailures)
+* [/PackageInstallationFailures](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-PackageInstallationFailures.wiki)
 
-* [/Statistics](https://help.ubuntu.com/community//Statistics) - Fun with txstatsd and Graphite.
+* [/Statistics](https://github.com/ubuntu/wiki-archives/blob/main/UbuntuWiki/E/ErrorTracker-Statistics.wiki) - Fun with txstatsd and Graphite.
 
 
 (cassandra)=
