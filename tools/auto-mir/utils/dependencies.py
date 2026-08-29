@@ -22,6 +22,17 @@ class RuntimeDependency:
     purpose: str
 
 
+# This tool is designed to run against Ubuntu system/apt-installed packages,
+# not a project-local virtualenv/pip install (auto-mir orchestrates lxc/apt-get
+# and expects to run directly on a host's system Python). Each ``distribution``
+# below is also declared in ../pyproject.toml's ``[project] dependencies`` -
+# that copy exists only for packaging/dev tooling (pip metadata, IDE dependency
+# resolution) and is never what actually gets installed at runtime; this is
+# the list that matters, and ``ensure_runtime_environment()`` below is what
+# tells the user which ``apt install`` command to run.
+# ``tests/test_dependencies.py::test_runtime_registry_matches_pyproject_dependencies``
+# asserts the two lists name exactly the same distributions, so they can never
+# silently drift apart.
 RUNTIME_DEPENDENCIES = (
     RuntimeDependency(
         distribution="launchpadlib",

@@ -38,6 +38,11 @@ Bootstrap and host preflight (before Stage 0):
 - Report all missing dependencies together as Ubuntu binary packages. The
   mapping between project distributions, import modules, and Ubuntu packages
   lives in `utils/dependencies.py` and is checked against `pyproject.toml`.
+  This tool intentionally runs against Ubuntu system/apt-installed packages
+  rather than a project-local virtualenv (it orchestrates `lxc`/`apt-get` and
+  expects a host's system Python); `pyproject.toml`'s `dependencies` list
+  exists only for packaging/dev tooling and is never what gets installed at
+  runtime - a test asserts the two lists never drift apart.
 
 1. Stage 0: auth (`stage_auth`)
 - Resolve provider/token/API base for LLM usage.

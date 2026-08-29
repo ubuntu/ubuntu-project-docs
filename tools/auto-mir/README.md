@@ -57,6 +57,14 @@ Reporter mode targets the development release (`devel`) when `--series` is not
 specified. Pass an explicit codename only when preparing a request for another
 series. Reviewer mode continues to infer the series from Launchpad bug tasks.
 
+During the window right after a new Ubuntu release opens, `--series devel` (or
+an unspecified `--series`) can be unreliable for a short period: `distro-info`
+itself may not yet know about the new series, and daily `devel` LXD guest
+images may not exist yet either, so a real build/verify pass is not possible
+regardless of series-resolution correctness. In that window, pass the
+previous (stable) release's codename explicitly with `--series` instead, and
+switch back to `devel` once daily devel images become available.
+
 Reporter mode collects evidence before asking long-form questions. Finish a
 multiline answer with a line containing only `.`; enter `\.` for a literal dot.
 Answers are not saved for resume if the process is interrupted. Use `--no-llm`

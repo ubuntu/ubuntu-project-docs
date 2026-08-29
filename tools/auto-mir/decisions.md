@@ -3747,6 +3747,12 @@ LXD guest + real Launchpad network calls).
   `subprocess.TimeoutExpired` to log a clear message before re-raising it, so
   a timeout reads as an obvious "command timed out after Ns" rather than an
   opaque traceback.
+- **Closing note (2026-08-29)**: confirmed by the user that `make
+  integration` has since been run successfully against a real package,
+  verifying the host-side `ubuntu-upload-permission` adapter (anonymous
+  `getUploadersForComponent`/`getUploadersForPackage`) works live as
+  designed. The "not yet verified live" caveat above is resolved; this item
+  is closed with no further action planned.
 
 ## 2026-08-12 — Reporter feedback round (jitterentropy-library artifact, item 1), Phase 1
 
@@ -4250,6 +4256,11 @@ Promotion: no
 - Validation: `make test` 873 passed/2 skipped (was 871/2 after the
   Maintainer-field round in this same session; +2 new LLM tests, 4 pre-
   existing test doubles updated to accept the new `trace_label` kwarg).
+- **Closing note (2026-08-29)**: confirmed by the user that LLM interaction
+  has been fine in real-world use since the fixes above - no longer an open
+  concern. The ~15.5 minute first-attempt raw-envelope gap noted above was
+  and remains explicitly out of scope (no preemptive wall-clock deadline
+  added). This item is closed; no further action planned.
 
 ## 2026-08-29 - Catalog-native RULE-clause coverage mechanism (Phase A)
 

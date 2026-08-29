@@ -38,6 +38,10 @@ _GUEST_RETRY_MAX_DELAY_SECONDS = 60.0
 _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS = 1800.0
 
 # Fallback Ubuntu devel image aliases, tried when the target series is unknown.
+# Right after a new Ubuntu release opens, none of these may resolve yet - the
+# daily devel image build can lag the actual series opening by some days.
+# There is no code-level workaround for this: the user should pass
+# --series <previous-stable-codename> during that window instead (see README).
 _UBUNTU_DEVEL_FALLBACK_IMAGES = [
     "ubuntu-daily:devel",
     "images:ubuntu/devel",

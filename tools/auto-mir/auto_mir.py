@@ -135,7 +135,11 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Target Ubuntu series (e.g. 'noble' or 'jammy'). "
             "Reviewer mode detects it from Launchpad bug tasks when omitted; "
-            "reporter mode defaults to the development release ('devel')."
+            "reporter mode defaults to the development release ('devel'). "
+            "Right after a new release opens, 'devel' can be unreliable for a "
+            "short period (distro-info may not know the new series yet, and "
+            "daily devel LXD images may not exist yet either) - pass the "
+            "previous stable release's codename explicitly during that window."
         ),
     )
     common.add_argument(
