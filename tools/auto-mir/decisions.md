@@ -4577,4 +4577,48 @@ Promotion: no
   remaining references to `ev_to_ai_fallback`/`_load_fallback_prompt`/
   `_FALLBACK_PROMPT_PATH` anywhere under `tools/auto-mir/` via grep.
 
+## 2026-08-29 - LLM retry-policy audit (verification, no code changes)
+
+Promotion: yes — the 3-category retry contract below is a stable rule for
+anyone touching `llm.py`/LLM call sites; worth promoting to
+`.github/instructions/tools-development.instructions.md` as "do not add a
+4th ad-hoc LLM retry path without updating this contract".
+
+- Stated policy: the only valid LLM-call retries are (a) exceeding
+  token/length limits -> retry with a higher budget, (b) transient/broken-
+  connection errors -> retry, (c) malformed/unparseable JSON answer -> retry
+  the SAME prompt plus an explicit ask to return compliant, parseable JSON.
+- Re-verified against current code, confirmed still accurate:
+  - (a) + (c): `llm.py::call_llm()`'s single
+    `except (LLMTruncationError, LLMContentError, LLMEnvelopeError):` branch
+    handles both in one retry: it raises the token budget
+    (`min(base_budget*2, _MAX_TOKENS_HARD_CAP)`) AND appends
+    `_JSON_RETRY_INSTRUCTION` ("reply with ONLY a single valid JSON
+    object... no prose... no markdown fences") to the *same* prompt, then
+    retries exactly once via `_invoke_with_budget()`. A combined
+    belt-and-suspenders retry, not two separate code paths, but functionally
+    matches both (a) and (c) with a single bounded attempt.
+  - (b): handled at the HTTP layer by
+    `llm.py::_call_openai_compatible()` applying
+    `utils/retry.py::retry_rate_limited(max_attempts=4, base_delay=...,
+    max_delay=...)` around `_call_openai_compatible_impl()`. Retries on
+    `ConnectionError`/`TimeoutError`/genuine `URLError` (explicitly NOT
+    `HTTPError`, a `URLError` subclass - see the `_is_network_url_error`
+    gotcha) plus HTTP 429/5xx, with exponential backoff bounded at 4
+    attempts.
+- Swept `evidence/host_adapters.py::_llm_predecessor_terms` (the
+  best-effort LLM proposal step inside `cve-search-terms`) and all other
+  `llm.call_llm()` call sites for a redundant/ad-hoc retry loop: **none
+  found**. `_llm_predecessor_terms` calls `call_llm()` exactly once and
+  catches `llm.LLMError` broadly to degrade to an empty list (best-effort,
+  not a retry). The only other `max_attempts`-style retry constructs in the
+  tool (`lxd_runner.py`'s `_GUEST_RETRY_MAX_ATTEMPTS` for guest command
+  execution, `utils/http.py`'s generic HTTP fetch retries) are unrelated,
+  correctly-scoped mechanisms for their own concerns, not LLM-call retries.
+- Conclusion: the 3-category retry contract is real, intentional, and
+  fully implemented with no redundant/uncapped retry paths anywhere in the
+  LLM call chain. No code changes were needed - this entry closes the
+  audit and records the confirmed contract so a future 4th ad-hoc retry
+  path is a deliberate decision, not an accidental addition.
+
 
