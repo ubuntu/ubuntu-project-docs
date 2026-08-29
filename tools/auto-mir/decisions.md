@@ -4250,3 +4250,52 @@ Promotion: no
 - Validation: `make test` 873 passed/2 skipped (was 871/2 after the
   Maintainer-field round in this same session; +2 new LLM tests, 4 pre-
   existing test doubles updated to accept the new `trace_label` kwarg).
+
+## 2026-08-29 - Catalog-native RULE-clause coverage mechanism (Phase A)
+
+Promotion: no
+
+- Context: the Maintainer-field gap (see the 2026-08-12 entry above) existed
+  because the only "does the catalog map to the rendered template" check was
+  `test_reporter_template_covers_every_historic_policy_family_logically`
+  (`tests/test_render_reporter_template.py`) - a substring-presence check
+  against ~30 hand-picked keywords. That test could not have caught the
+  Maintainer-field gap even in hindsight (no keyword named it), and gives no
+  guarantee that a *removed* clause is noticed - it is an "easy bypass",
+  not real mapping.
+- Explicit user direction: do NOT snapshot the historic pre-migration human
+  templates into a committed fixture to diff against - that content is
+  frozen-in-time and would drift out of sync with intentional future catalog
+  edits, producing noise. The coverage guarantee must be catalog-native and
+  self-consistent, evolving with the catalog rather than pinned to history.
+- Decision: added an opt-in tagging convention to both role blueprints
+  (`metadata.reporter_template_blueprint` / `review_template_blueprint`).  A
+  blueprint `RULE:` line may start a new, individually tracked policy clause
+  via `RULE[<slug>]: <text>` (`catalog._RULE_CLAUSE_PATTERN`); a following
+  plain `RULE:` line (no bracket) continues attaching to that clause exactly
+  like the existing untagged multi-line RULE blocks already render, so
+  tagging never changes rendered include-file output. Items/checks declare
+  which slug(s) they resolve via a new optional `covers_rule_clauses: [...]`
+  list field. `catalog._validate_rule_clause_coverage()` fails catalog
+  loading if a slug is declared twice, an item references an undeclared
+  slug, or a declared slug has zero covering items - wired into both
+  `validate_report_catalog()` (reporter) and `validate_catalog()` (reviewer).
+  Tagging is deliberately opt-in (untagged RULE prose stays ordinary,
+  unchecked context text) so this grows incrementally as clauses are
+  identified worth guaranteeing coverage for, rather than requiring a
+  one-shot tagging pass across the entire catalog.
+- Replaced the old keyword-presence test with real structural tests in
+  `tests/test_catalog_roles.py`: synthetic-catalog cases proving the
+  validator rejects an uncovered clause, a duplicate slug, and an unknown
+  `covers_rule_clauses` reference (for both reporter and reviewer catalogs),
+  plus a case proving a genuinely covered clause produces no error. Because
+  the validator runs inside `load_catalog_for_role()`, any future regression
+  (an edit that drops an item covering a tagged clause) fails immediately for
+  every test/tool invocation that loads the real catalog - not just a
+  dedicated test.
+- Scope of this entry: foundation only (schema + validator + tests). The
+  first real clauses get tagged in the following "Quality assurance -
+  packaging" gap-fix entry.
+- Validation: `make test` 878 passed/2 skipped (was 873/2; net +5: 6 new
+  tests, 1 old keyword-presence test removed).
+

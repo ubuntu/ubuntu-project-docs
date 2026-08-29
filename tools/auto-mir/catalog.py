@@ -69,6 +69,89 @@ def _apply_reporter_rule_context_defaults(catalog: dict) -> None:
         item["rule_context"] = "\n".join(lines)
 
 
+# Opt-in tag on a blueprint ``RULE:`` line that starts a new, individually
+# tracked policy clause: ``RULE[<slug>]: <text>``. A plain ``RULE:`` line
+# (no bracket) continues attaching to the most recently opened clause, exactly
+# like the existing untagged multi-line RULE blocks already render - so
+# tagging a clause never changes the rendered include-file output, only adds
+# a coverage contract checked at catalog-load time. Clauses are opt-in on
+# purpose: only policy statements the maintainers actively want to guarantee
+# have a covering item need a slug; untagged RULE prose remains ordinary,
+# unchecked context text.
+_RULE_CLAUSE_PATTERN = re.compile(r"^RULE\[(?P<slug>[a-z][a-z0-9_-]*)\]:.*$")
+
+
+def _blueprint_rule_clause_slugs(blueprint: Any) -> list[str]:
+    """Return every ``RULE[<slug>]:`` identifier declared in a template blueprint.
+
+    Order is preserved and duplicates are NOT deduplicated here - the caller
+    decides how to report a duplicate slug as a validation error.
+    """
+    slugs: list[str] = []
+    if not isinstance(blueprint, list):
+        return slugs
+    for entry in blueprint:
+        if not isinstance(entry, str):
+            continue
+        match = _RULE_CLAUSE_PATTERN.match(entry.strip())
+        if match:
+            slugs.append(match.group("slug"))
+    return slugs
+
+
+def _validate_rule_clause_coverage(
+    catalog: dict,
+    blueprint_key: str,
+    items: list,
+    item_field: str = "covers_rule_clauses",
+) -> list[str]:
+    """Validate that every tagged ``RULE[<slug>]:`` clause has a covering item.
+
+    Fails if: a slug is declared more than once in the blueprint, an item's
+    ``covers_rule_clauses`` references a slug that was never declared, or a
+    declared slug has zero covering items. This is the real, structural
+    "does the catalog map to the rendered content" contract - unlike a
+    frozen historic-template fixture, it is entirely self-contained in the
+    catalog files and evolves naturally as RULE lines and items change.
+    """
+    errors: list[str] = []
+    blueprint = catalog.get("metadata", {}).get(blueprint_key)
+    slugs = _blueprint_rule_clause_slugs(blueprint)
+
+    seen: set[str] = set()
+    duplicates: set[str] = set()
+    for slug in slugs:
+        if slug in seen:
+            duplicates.add(slug)
+        seen.add(slug)
+    for slug in sorted(duplicates):
+        errors.append(f"{blueprint_key} declares RULE[{slug}] more than once")
+
+    declared_slugs = set(slugs)
+    covering: dict[str, list[str]] = {}
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        item_id = str(item.get("id", "?"))
+        refs = item.get(item_field)
+        if refs is None:
+            continue
+        if not isinstance(refs, list):
+            errors.append(f"{item_id}: {item_field} must be a list")
+            continue
+        for slug in refs:
+            if slug not in declared_slugs:
+                errors.append(f"{item_id}: {item_field} references unknown RULE clause: {slug}")
+                continue
+            covering.setdefault(slug, []).append(item_id)
+
+    uncovered = sorted(declared_slugs - covering.keys())
+    for slug in uncovered:
+        errors.append(f"RULE[{slug}] in {blueprint_key} has no covering item ({item_field})")
+
+    return errors
+
+
 def _load_yaml_strict(handle: Any, yaml_module: Any) -> dict:
     """Load one YAML mapping while rejecting duplicate keys.
 
@@ -453,6 +536,7 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                 f"reporter option {label} unavailable_if must only reference evidence, "
                 "not other items (options are locked before any item answers exist)"
             )
+    errors.extend(_validate_rule_clause_coverage(catalog, "reporter_template_blueprint", items))
     return errors
 
 
@@ -975,6 +1059,11 @@ def validate_catalog(catalog: dict) -> list[str]:
     errors.extend(_validate_checks(catalog))
     errors.extend(_validate_adapters(catalog))
     errors.extend(_validate_adapter_references(catalog))
+    errors.extend(
+        _validate_rule_clause_coverage(
+            catalog, "review_template_blueprint", catalog.get("checks", [])
+        )
+    )
 
     return errors
 

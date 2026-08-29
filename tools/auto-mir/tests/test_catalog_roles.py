@@ -297,3 +297,98 @@ def test_report_catalog_validation_rejects_item_reference_in_unavailable_if():
     assert any(
         "unavailable_if must only reference evidence, not other items" in error for error in errors
     )
+
+
+# ---------------------------------------------------------------------------
+# RULE[<slug>] clause-coverage mechanism (catalog-native, no frozen fixture).
+# A blueprint RULE line tagged ``RULE[<slug>]:`` starts an individually
+# tracked policy clause; items declare which slug(s) they resolve via
+# ``covers_rule_clauses``. This is the real, structural "catalog maps to
+# rendered content" guard - replaces the old keyword-presence smoke test,
+# which could pass even when a whole policy clause silently lost its
+# covering item (exactly what happened with the Maintainer-field gap).
+# ---------------------------------------------------------------------------
+
+
+def test_rule_clause_coverage_rejects_uncovered_clause():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    report["metadata"]["reporter_template_blueprint"].append(
+        "RULE[test-uncovered-clause]: a clause nobody covers"
+    )
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "RULE[test-uncovered-clause] in reporter_template_blueprint has no covering item" in error
+        for error in errors
+    )
+
+
+def test_rule_clause_coverage_rejects_duplicate_slug():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    report["metadata"]["reporter_template_blueprint"].extend(
+        [
+            "RULE[test-dup-clause]: first declaration",
+            "RULE[test-dup-clause]: second declaration",
+        ]
+    )
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "reporter_template_blueprint declares RULE[test-dup-clause] more than once" in error
+        for error in errors
+    )
+
+
+def test_rule_clause_coverage_rejects_reference_to_unknown_slug():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    by_id["REP-BG-002"]["covers_rule_clauses"] = ["no-such-clause"]
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any(
+        "REP-BG-002: covers_rule_clauses references unknown RULE clause: no-such-clause" in error
+        for error in errors
+    )
+
+
+def test_rule_clause_coverage_accepts_a_covered_clause():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    report["metadata"]["reporter_template_blueprint"].append(
+        "RULE[test-covered-clause]: a clause with a covering item"
+    )
+    by_id = {item["id"]: item for item in report["items"]}
+    by_id["REP-BG-002"]["covers_rule_clauses"] = ["test-covered-clause"]
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert not any("test-covered-clause" in error for error in errors)
+
+
+def test_review_catalog_rule_clause_coverage_rejects_uncovered_clause():
+    review = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "review")
+    review["metadata"]["review_template_blueprint"].append(
+        "RULE[test-review-uncovered]: a review clause nobody covers"
+    )
+
+    errors = catalog.validate_catalog(review)
+
+    assert any(
+        "RULE[test-review-uncovered] in review_template_blueprint has no covering item" in error
+        for error in errors
+    )
+
+
+def test_review_catalog_rule_clause_coverage_accepts_a_covered_clause():
+    review = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "review")
+    review["metadata"]["review_template_blueprint"].append(
+        "RULE[test-review-covered]: a review clause with a covering check"
+    )
+    by_id = {check["id"]: check for check in review["checks"]}
+    by_id["SEC-2"]["covers_rule_clauses"] = ["test-review-covered"]
+
+    errors = catalog.validate_catalog(review)
+
+    assert not any("test-review-covered" in error for error in errors)

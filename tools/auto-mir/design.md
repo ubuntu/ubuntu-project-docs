@@ -158,6 +158,21 @@ confirmation. Human declarations are never inferred from package evidence.
 Both compositions reject shared-section overrides and validate every check /
 item, adapter reference, and blueprint reference on the assembled result.
 
+### RULE-clause coverage (catalog-to-template mapping contract)
+
+A blueprint `RULE:` line may opt in to individual coverage tracking via
+`RULE[<slug>]: <text>` (a following plain `RULE:` line continues attaching to
+that clause, same as any other multi-line RULE block - tagging never changes
+rendered output). Items/checks declare which slug(s) they resolve via an
+optional `covers_rule_clauses: [...]` list. `catalog._validate_rule_clause_
+coverage()` (called from both `validate_report_catalog()` and
+`validate_catalog()`) fails catalog loading on a duplicate slug, a reference
+to an undeclared slug, or a declared slug with zero covering items. This is
+the structural guarantee that the catalog's authored policy actually reaches
+the rendered reporter/reviewer templates, without pinning to a frozen
+snapshot of the pre-migration human templates - tagging is opt-in and grows
+incrementally as specific clauses are identified worth guaranteeing.
+
 The report catalog currently defines 53 stable logical items. Its runtime
 supports catalog options, multi-select choices, safe applicability conditions,
 deterministic evaluators, bounded evidence-to-AI suggestions with explicit
