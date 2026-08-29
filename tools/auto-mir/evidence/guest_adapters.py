@@ -298,6 +298,40 @@ def _parse_debconf_templates(content: str) -> list[dict[str, str]]:
     return templates
 
 
+# Matches a lintian-overrides entry line: "package[ type]: tag [context...]".
+# See https://lintian.debian.org/manual/section-2.4.html for the file format.
+_LINTIAN_OVERRIDE_ENTRY_PATTERN = re.compile(r"^\S+(?:\s+\S+)?:\s*(?P<tag>\S+)")
+
+
+def _parse_lintian_override_entries(content: str) -> list[dict[str, str | bool]]:
+    """Parse concatenated debian/*.lintian-overrides content into per-entry facts.
+
+    An entry counts as commented when the immediately preceding non-blank line
+    in the same file is a ``#`` comment - the standard convention for
+    explaining why a non-obvious override is needed (lintian itself does not
+    require or check for this; MIR policy is what asks for it).
+    """
+    entries: list[dict[str, str | bool]] = []
+    pending_comment = False
+    for raw_line in content.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.startswith("# FILE:"):
+            # Marker inserted between concatenated files - never itself a
+            # justification comment for the entry that follows it.
+            pending_comment = False
+            continue
+        if line.startswith("#"):
+            pending_comment = True
+            continue
+        match = _LINTIAN_OVERRIDE_ENTRY_PATTERN.match(line)
+        tag = match.group("tag") if match else line
+        entries.append({"tag": tag, "has_comment": pending_comment})
+        pending_comment = False
+    return entries
+
+
 def _unpack_source(ctx: RunContext) -> tuple[str, str, str, str, str]:
     """Fetch the version-resolution adapter's chosen version and unpack it.
 
@@ -421,6 +455,18 @@ def _read_debian_control_files(ctx: RunContext, full_source: str) -> dict:
         allow_fail=True,
         as_ubuntu=True,
     )
+    debian_lintian_overrides = _capture(
+        ctx,
+        [
+            "bash",
+            "-lc",
+            f"cd {full_source} && for f in debian/*.lintian-overrides "
+            "debian/source/lintian-overrides; do "
+            '[ -f "$f" ] && (echo "# FILE: $f"; cat "$f"); done',
+        ],
+        allow_fail=True,
+        as_ubuntu=True,
+    )
     return {
         "debian_control": debian_control,
         "debian_watch": debian_watch,
@@ -430,6 +476,7 @@ def _read_debian_control_files(ctx: RunContext, full_source: str) -> dict:
         "debian_copyright": debian_copyright,
         "debian_source_format": debian_source_format,
         "debconf_content": debconf_content,
+        "debian_lintian_overrides": debian_lintian_overrides,
     }
 
 
@@ -518,6 +565,7 @@ def _derive_packaging_facts(
     debian_rules: str,
     debconf_content: str,
     file_listing: list[dict],
+    debian_lintian_overrides: str = "",
 ) -> dict:
     """Derive packaging metadata purely from already-fetched text and listing."""
     # UI/user-visibility signals used by URF-8/URF-9. These are FACTS for the
@@ -553,6 +601,10 @@ def _derive_packaging_facts(
         for entry in file_listing
         if "/apparmor" in str(entry.get("path", "")).casefold()
     )
+    lintian_override_entries = _parse_lintian_override_entries(debian_lintian_overrides)
+    lintian_uncommented_override_tags = sorted(
+        {str(entry["tag"]) for entry in lintian_override_entries if not entry["has_comment"]}
+    )
 
     return {
         "has_desktop_file": has_desktop_file,
@@ -566,6 +618,8 @@ def _derive_packaging_facts(
         "debian_rules_overrides": debian_rules_overrides,
         "service_files": service_files,
         "apparmor_profiles": apparmor_profiles,
+        "lintian_override_entries": lintian_override_entries,
+        "lintian_uncommented_override_tags": lintian_uncommented_override_tags,
     }
 
 
@@ -624,6 +678,7 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
         control_files["debian_rules"],
         control_files["debconf_content"],
         language_markers["file_listing"],
+        control_files["debian_lintian_overrides"],
     )
 
     log.debug(
@@ -665,6 +720,8 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
         "debian_rules_overrides": packaging_facts["debian_rules_overrides"],
         "service_files": packaging_facts["service_files"],
         "apparmor_profiles": packaging_facts["apparmor_profiles"],
+        "lintian_override_entries": packaging_facts["lintian_override_entries"],
+        "lintian_uncommented_override_tags": packaging_facts["lintian_uncommented_override_tags"],
         "cargo_lock_present": language_markers["cargo_lock_present"],
         "go_sum_present": language_markers["go_sum_present"],
         "vendored_dirs": language_markers["vendored_dirs"],

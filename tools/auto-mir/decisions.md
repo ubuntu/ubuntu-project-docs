@@ -4299,3 +4299,62 @@ Promotion: no
 - Validation: `make test` 878 passed/2 skipped (was 873/2; net +5: 6 new
   tests, 1 old keyword-presence test removed).
 
+## 2026-08-29 - Quality assurance - packaging gap fixes (Phase B)
+
+Promotion: no
+
+- Context: the 2026-08-12 "Maintainer-field answer fix" entry documented two
+  sibling gaps left unfixed in the same "Quality assurance - packaging"
+  section: (1) debconf questions never judged for intrusiveness, only raw
+  counted, (2) lintian overrides never judged for having an explanatory
+  comment, only raw counted.
+- **Re-verified both against current code before implementing anything**
+  (per explicit user direction to double-check for drift since the audit
+  note was written): (1) is **already resolved** -
+  `reporter/evaluator.py::_source_packaging_metadata` (REP-QA-PKG-003's
+  evaluator) already computes a `concerning` list of high/critical-priority
+  debconf templates and surfaces it as a non-empty `rationale`, which the
+  render pipeline shows as a parenthetical "(Reason: ...)" note and elevates
+  the item's readiness from CLEAR to its declared `warning` level - a real
+  judgement, not a raw dump. No code change needed; only tagged the RULE
+  clause. (2) is genuinely still open -
+  `reporter/evaluator.py::_lintian` (REP-QA-PKG-002's evaluator) only reports
+  error/warning counts and a generic "review errors, warnings, and any
+  overrides" rationale, never reading override file content at all - fixed
+  below.
+- Split the "Quality assurance - packaging" blueprint's second combined RULE
+  sentence into 4 individually tagged clauses
+  (`pkg-lintian-overrides`/`pkg-obsolete-deps`/`pkg-debconf-priority`/
+  `pkg-maintainability`), tagged the first RULE line
+  (`pkg-upstream-mechanism`) and the existing 4-line Maintainer RULE block
+  (`pkg-maintainer-field`) too, for a fully-tagged, fully-covered section as
+  a demonstration of the Phase A mechanism. Updated REP-QA-PKG-007's
+  hand-authored `rule_context` to match the now-tagged first Maintainer RULE
+  line verbatim (required by the existing drift guard).
+- Lintian-overrides fix: new evidence - `evidence/guest_adapters.py` now
+  captures concatenated `debian/*.lintian-overrides` +
+  `debian/source/lintian-overrides` content
+  (`_read_debian_control_files`'s new `debian_lintian_overrides`) and parses
+  it (`_parse_lintian_override_entries`) into `lintian_override_entries`
+  (`[{tag, has_comment}]` - "commented" means the immediately preceding
+  non-blank line in the same file is a `#` comment, the standard convention
+  for explaining a non-obvious override; lintian itself does not check for
+  this) and `lintian_uncommented_override_tags` (the filtered tag list, used
+  for applicability gating since the condition DSL has no per-list-element
+  predicate). Both added to `PackagingSourceResult`
+  (`evidence/types.py`, new `LintianOverrideEntry` TypedDict) - no new
+  adapter, reuses the existing `packaging-source` adapter's unpack.
+- New reporter items mirror the Maintainer-field 006/007 three-way pattern:
+  `REP-QA-PKG-008` (deterministic `lintian-overrides` evaluator) - common
+  case (no overrides, or all commented) resolves to a plain OK statement;
+  rare case (any uncommented) names the tag(s) and elevates readiness.
+  `REP-QA-PKG-009` (`ev_to_ai`, applicability-gated on
+  `lintian_uncommented_override_tags` being non-empty) asks the reporter to
+  explain the uncommented override(s), `ai_policy` forbids inventing a
+  justification on the reporter's behalf (mirrors REP-QA-PKG-007's wording).
+- Validation: `make test` 886 passed/2 skipped (was 878/2; +8 new tests: 2
+  evidence-parser cases, 4 evaluator-function cases, 2 full evaluate_items
+  follow-up-gating cases). `render_reporter_template.py --strict` and
+  `render_review_template.py --strict` both regenerate cleanly.
+
+

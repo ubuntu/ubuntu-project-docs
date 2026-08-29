@@ -2586,6 +2586,31 @@ Description: Name
     ]
 
 
+def test_parse_lintian_override_entries_detects_preceding_comment():
+    from evidence.guest_adapters import _parse_lintian_override_entries
+
+    content = """# FILE: debian/libfoo1.lintian-overrides
+# This override is safe because upstream already patched it.
+libfoo1: some-lintian-tag
+libfoo1: another-tag-with-no-comment
+# FILE: debian/source/lintian-overrides
+# Explains why this source-level tag is fine.
+libfoo source: source-level-tag
+"""
+
+    assert _parse_lintian_override_entries(content) == [
+        {"tag": "some-lintian-tag", "has_comment": True},
+        {"tag": "another-tag-with-no-comment", "has_comment": False},
+        {"tag": "source-level-tag", "has_comment": True},
+    ]
+
+
+def test_parse_lintian_override_entries_empty_when_no_files():
+    from evidence.guest_adapters import _parse_lintian_override_entries
+
+    assert _parse_lintian_override_entries("") == []
+
+
 # ---------------------------------------------------------------------------
 # autopkgtest release candidate resolution
 # ---------------------------------------------------------------------------

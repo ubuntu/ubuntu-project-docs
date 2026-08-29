@@ -760,6 +760,41 @@ def _lintian(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     )
 
 
+@reporter_evaluator("lintian-overrides")
+def _lintian_overrides(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+    """Judge whether every lintian override carries an explanatory comment.
+
+    Common case (no overrides, or every override already has a preceding `#`
+    comment) resolves to a plain OK statement. The rare case - one or more
+    overrides with no comment - is a real problem needing the reporter's own
+    explanation, surfaced by the follow-up REP-QA-PKG-009 item (gated on this
+    exact evidence), mirroring the Maintainer-field 006/007 pattern.
+    """
+    data = _adapter(ctx, "packaging-source")
+    if data.get("status") != "ok":
+        return None, [], "Packaging source data was unavailable"
+    entries = data.get("lintian_override_entries", [])
+    uncommented = sorted(
+        {str(entry.get("tag", "")) for entry in entries if not entry.get("has_comment")}
+    )
+    if not uncommented:
+        return (
+            "Lintian overrides are absent or already explained by a comment.",
+            ["packaging-source:lintian_override_entries"],
+            "",
+        )
+    statement = (
+        "The following lintian override(s) lack an explanatory comment: "
+        + ", ".join(uncommented)
+        + "."
+    )
+    return (
+        statement,
+        ["packaging-source:lintian_override_entries"],
+        "See the following item for the reporter's explanation.",
+    )
+
+
 @reporter_evaluator("source-packaging-metadata")
 def _source_packaging_metadata(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "packaging-source")

@@ -1111,6 +1111,105 @@ def _maintainer_field_evidence(*, delta_kind, source_maintainer, version="1.0-1u
     }
 
 
+def test_lintian_overrides_ok_when_no_entries():
+    from reporter.evaluator import _lintian_overrides
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {"packaging-source": {"status": "ok", "lintian_override_entries": []}}
+        }
+    )
+    statement, refs, rationale = _lintian_overrides({}, ctx)
+    assert statement == "Lintian overrides are absent or already explained by a comment."
+    assert rationale == ""
+    assert refs
+
+
+def test_lintian_overrides_ok_when_all_commented():
+    from reporter.evaluator import _lintian_overrides
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "packaging-source": {
+                    "status": "ok",
+                    "lintian_override_entries": [{"tag": "some-tag", "has_comment": True}],
+                }
+            }
+        }
+    )
+    statement, _refs, rationale = _lintian_overrides({}, ctx)
+    assert statement == "Lintian overrides are absent or already explained by a comment."
+    assert rationale == ""
+
+
+def test_lintian_overrides_flags_uncommented_entry():
+    from reporter.evaluator import _lintian_overrides
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "packaging-source": {
+                    "status": "ok",
+                    "lintian_override_entries": [
+                        {"tag": "some-tag", "has_comment": True},
+                        {"tag": "another-tag", "has_comment": False},
+                    ],
+                }
+            }
+        }
+    )
+    statement, _refs, rationale = _lintian_overrides({}, ctx)
+    assert "another-tag" in statement
+    assert "some-tag" not in statement
+    assert rationale
+
+
+def test_lintian_overrides_unavailable_when_adapter_errored():
+    from reporter.evaluator import _lintian_overrides
+
+    ctx = SimpleNamespace(evidence={"adapters": {"packaging-source": {"status": "error"}}})
+    statement, _refs, rationale = _lintian_overrides({}, ctx)
+    assert statement is None
+    assert rationale
+
+
+def test_reporter_lintian_override_followup_not_applicable_when_all_commented(tmp_path):
+    """Default fixture has no lintian overrides - REP-QA-PKG-008 must resolve to
+    the plain OK statement and REP-QA-PKG-009's explanation question must never
+    fire."""
+    ctx = _ctx(tmp_path)
+    wizard = FakeWizard()
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert (
+        by_id["REP-QA-PKG-008"].statement
+        == "- Lintian overrides are absent or already explained by a comment."
+    )
+    assert by_id["REP-QA-PKG-008"].readiness == ReadinessEffect.CLEAR
+    assert by_id["REP-QA-PKG-009"].state == StatementState.NOT_APPLICABLE
+    assert "REP-QA-PKG-009" not in wizard.asked
+
+
+def test_reporter_lintian_override_followup_fires_when_uncommented(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["packaging-source"]["lintian_override_entries"] = [
+        {"tag": "some-tag", "has_comment": False}
+    ]
+    ctx.evidence["adapters"]["packaging-source"]["lintian_uncommented_override_tags"] = ["some-tag"]
+    wizard = FakeWizard(value="some-tag is needed because upstream ships a false positive.")
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-QA-PKG-008"].readiness == ReadinessEffect.WARNING
+    assert "some-tag" in by_id["REP-QA-PKG-008"].statement
+    assert "REP-QA-PKG-009" in wizard.asked
+    followup = by_id["REP-QA-PKG-009"]
+    assert followup.state == StatementState.RESOLVED
+    assert "some-tag is needed" in followup.statement
+
+
 def test_maintainer_field_ok_when_no_delta():
     from reporter.evaluator import _maintainer_field
 

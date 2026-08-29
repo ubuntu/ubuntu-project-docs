@@ -74,14 +74,19 @@ metadata:
   - item: REP-QA-TEST-004
   - ''
   - '[Quality assurance - packaging]'
-  - 'RULE: Provide a working upstream release mechanism (debian/watch, upstream metadata, or documented native/repack instructions), recent build evidence, and complete lintian output.'
-  - 'RULE: Explain lintian overrides, avoid obsolete dependencies such as Python 2 and GTK 2, avoid intrusive debconf questions for default installs, and keep debian/ packaging understandable and maintainable.'
-  - 'RULE: - The package should define the correct "Maintainer:" field in'
+  - 'RULE[pkg-upstream-mechanism]: Provide a working upstream release mechanism (debian/watch, upstream metadata, or documented native/repack instructions), recent build evidence, and complete lintian output.'
+  - 'RULE[pkg-lintian-overrides]: Explain lintian overrides.'
+  - 'RULE[pkg-obsolete-deps]: Avoid obsolete dependencies such as Python 2 and GTK 2.'
+  - 'RULE[pkg-debconf-priority]: Avoid intrusive debconf questions for default installs.'
+  - 'RULE[pkg-maintainability]: Keep debian/ packaging understandable and maintainable.'
+  - 'RULE[pkg-maintainer-field]: - The package should define the correct "Maintainer:" field in'
   - 'RULE:   debian/control. This needs to be updated, using `update-maintainer`'
   - 'RULE:   whenever any Ubuntu delta is applied to the package, as suggested by'
   - 'RULE:   dpkg (LP: #1951988)'
   - item: REP-QA-PKG-001
   - item: REP-QA-PKG-002
+  - item: REP-QA-PKG-008
+  - item: REP-QA-PKG-009
   - item: REP-QA-PKG-003
   - item: REP-QA-PKG-006
   - item: REP-QA-PKG-007
@@ -555,6 +560,7 @@ items:
   evaluator: watch-file
   readiness: warning
   adapters_required: [packaging-source]
+  covers_rule_clauses: [pkg-upstream-mechanism]
   template: 'TODO: - A mechanism to detect and fetch upstream versions is present or explained: TBD'
 - id: REP-QA-PKG-002
   section: Quality assurance - packaging
@@ -564,6 +570,30 @@ items:
   readiness: warning
   adapters_required: [lintian]
   template: 'TODO: - Lintian results and overrides: TBD'
+- id: REP-QA-PKG-008
+  section: Quality assurance - packaging
+  title: Lintian override justification
+  mode: deterministic
+  evaluator: lintian-overrides
+  readiness: warning
+  adapters_required: [packaging-source]
+  covers_rule_clauses: [pkg-lintian-overrides]
+  template: 'TODO: - Lintian override justification: TBD'
+- id: REP-QA-PKG-009
+  section: Quality assurance - packaging
+  title: Lintian override explanation
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [packaging-source]
+  applicability:
+    evidence: packaging-source.lintian_uncommented_override_tags
+    truthy: true
+  preface_evaluator: lintian-overrides
+  ai_policy: 'Never invent or assume the reporter''s own justification for an uncommented lintian override - only the reporter can explain why a non-obvious override is needed. You may summarize which override tag(s) lack a comment (from packaging-source.lintian_override_entries) to help the reporter answer, but always report confidence "low" unless the evidence itself already shows every override is commented - never fabricate a justification on the reporter''s behalf.'
+  question:
+    kind: multiline
+    prompt: One or more lintian overrides lack an explanatory comment. Explain why each uncommented override is needed (or add a comment to debian/*.lintian-overrides and re-run).
+  template: 'TODO: - Lintian override explanation: TBD'
 - id: REP-QA-PKG-003
   section: Quality assurance - packaging
   title: Source format and debconf metadata
@@ -571,6 +601,7 @@ items:
   evaluator: source-packaging-metadata
   readiness: warning
   adapters_required: [packaging-source]
+  covers_rule_clauses: [pkg-debconf-priority]
   template: 'TODO: - Source format, debconf, and packaging override facts: TBD'
 - id: REP-QA-PKG-006
   section: Quality assurance - packaging
@@ -579,6 +610,7 @@ items:
   evaluator: maintainer-field
   readiness: blocker
   adapters_required: [packaging-source]
+  covers_rule_clauses: [pkg-maintainer-field]
   template: 'TODO: - debian/control defines a correct Maintainer field'
 - id: REP-QA-PKG-007
   section: Quality assurance - packaging
@@ -595,7 +627,7 @@ items:
         equals: 'Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>'
   preface_evaluator: maintainer-field
   rule_context: |-
-    RULE: - The package should define the correct "Maintainer:" field in
+    RULE[pkg-maintainer-field]: - The package should define the correct "Maintainer:" field in
     RULE:   debian/control. This needs to be updated, using `update-maintainer`
     RULE:   whenever any Ubuntu delta is applied to the package, as suggested by
     RULE:   dpkg (LP: #1951988)
@@ -611,6 +643,7 @@ items:
   mode: ev_to_ai
   readiness: warning
   adapters_required: [packaging-source]
+  covers_rule_clauses: [pkg-maintainability]
   ai_policy: Assess only maintainability of debian/rules and packaging metadata. Simple debhelper overrides are acceptable; identify disabling tests/hardening or large hand-written logic without inventing policy violations.
   question:
     kind: multiline
@@ -623,6 +656,7 @@ items:
   evaluator: obsolete-dependencies
   readiness: blocker
   adapters_required: [dep-analysis]
+  covers_rule_clauses: [pkg-obsolete-deps]
   template: 'TODO: - Obsolete or about-to-be-demoted dependency assessment: TBD'
 - id: REP-UI-001
   section: UI standards

@@ -381,6 +381,13 @@ class FileListingEntry(TypedDict):
     size: int
 
 
+class LintianOverrideEntry(TypedDict):
+    """One parsed debian/*.lintian-overrides entry."""
+
+    tag: str
+    has_comment: bool
+
+
 class PackagingSourceResult(TypedDict):
     """Return structure for packaging-source adapter."""
 
@@ -404,6 +411,8 @@ class PackagingSourceResult(TypedDict):
     debian_rules_overrides: list[str]
     service_files: list[str]
     apparmor_profiles: list[str]
+    lintian_override_entries: list[LintianOverrideEntry]
+    lintian_uncommented_override_tags: list[str]
     cargo_lock_present: bool
     go_sum_present: bool
     vendored_dirs: list[str]
