@@ -4423,4 +4423,73 @@ Promotion: no
   `strip_rule_clause_tag` unit tests, 6 rust-vendoring evaluator/item-gating
   tests, 2 no-tag-leak rendering regression tests).
 
+## 2026-08-29 - Reviewer catalog first-time RULE-clause audit (Phase C item 12)
+
+Promotion: no
+
+- Context: the RULE-clause coverage mechanism (Phase A) had only ever been
+  applied to the reporter catalog (`catalog-mir-report.yaml`). The reviewer
+  catalog (`catalog-mir-review.yaml`)'s `review_template_blueprint` had never
+  been audited this way, so it was unknown whether it held any orphan RULE
+  clauses analogous to the pre-fix Maintainer-field gap on the reporter side.
+- Approach: mechanical, time-boxed tagging pass across the entire
+  `review_template_blueprint` (all sections from the untitled
+  `[Summary]`-adjacent intro through `[Upstream red flags]`, the full extent
+  of the blueprint). Tagged 28 `RULE[<slug>]:` clauses at roughly
+  one-clause-per-distinct-RULE-paragraph granularity (coarser than the
+  reporter's per-sentence tagging in its "Quality assurance - packaging"
+  section, since most of the reviewer blueprint is narrative multi-line
+  prose rather than short discrete bullets). Each clause was wired via
+  `covers_rule_clauses` to the `check:` id(s) already referenced in the
+  blueprint's immediately-following `OK:`/`check:` block for that section,
+  cross-checked against each check's actual `title`/`ai_policy` text (read
+  from the `checks:` section, not guessed) before assigning coverage.
+- Slugs added (28): `review-multi-package-clarity` (SUM-1),
+  `review-team-bug-subscriber` (SUM-4), `review-duplication-check` (RDO-1),
+  `review-owning-team-ack` (RDO-2), `review-rationale-judgement` (RDO-3),
+  `review-dependency-scope` (DEP-1, DEP-3),
+  `review-embedded-static-linking-burden` (ESL-1, ESL-2, ESL-3),
+  `review-rust-built-using` (ESL-8, ESL-9, ESL-10),
+  `review-golang-static-builds` (ESL-4, ESL-5, ESL-6, ESL-7),
+  `review-security-history` (SEC-1), `review-security-review-assignment`
+  (SUM-6), `review-security-mitigations` (SEC-13),
+  `review-testing-requirements-crossref` (CB-1, CB-2, CB-3),
+  `review-quality-bar-balance` (CB-4, CB-5, CB-6), `review-ubuntu-delta`
+  (PRF-1), `review-maintainer-field` (PRF-11), `review-symbols-tracking`
+  (PRF-2), `review-internal-shared-objects` (PRF-2),
+  `review-watch-file` (PRF-3), `review-update-history` (PRF-4, PRF-5),
+  `review-current-release-packaged` (PRF-6), `review-motu-impact` (PRF-7),
+  `review-lintian-warnings` (PRF-8), `review-debian-rules-cleanliness`
+  (PRF-9), `review-lto-disabled-list` (PRF-10), `review-nobody-user-check`
+  (URF-4), `review-setuid-check` (URF-5), `review-old-web-engine-deps`
+  (URF-7).
+- Finding: **no orphan RULE clauses were found**. Every distinct policy
+  statement in the reviewer blueprint that was tagged already had at least
+  one existing, correctly-scoped covering check - `PRF-11` (the
+  Maintainer-field check added in the 2026-08-12 round) already closed the
+  one gap known from prior archaeology; no further reviewer-side gaps of
+  that kind exist. This is a genuinely useful negative result: it confirms
+  the reviewer catalog's checks were already a faithful, complete mapping of
+  its own template's stated policy before this audit, so no follow-up
+  fix work is needed from this pass.
+- Scope notes (deliberately left untagged, consistent with the opt-in
+  design): pure procedural/framing text with no standalone testable
+  requirement (e.g. "flag common issues... speak up if odd" in
+  `[Upstream red flags]`, "skip the rest of the check until these basic
+  questions are resolved" in `[Rationale, Duplication and Ownership]`);
+  checks with no clearly proximate distinct RULE bullet in the blueprint
+  (`ESL-9`'s dh_cargo gate text overlaps `review-rust-built-using` and was
+  included; `ESL-11`'s vendored-code-refresh-documentation concept has no
+  dedicated RULE bullet of its own in the blueprint, so it was left
+  untagged - it is exercised via the item's own `todo_refs`/`ai_policy`,
+  just not through this coverage mechanism).
+- Validation: `make test` still 896 passed/2 skipped (tagging did not add or
+  remove any tests, since the reviewer catalog already had zero coverage
+  tests keyed to specific slugs - the existing
+  `test_review_catalog_rule_clause_coverage_*` tests from Phase A already
+  exercise the general mechanism against this catalog). Both
+  `render_reporter_template.py --strict` and `render_review_template.py
+  --strict` regenerate cleanly; confirmed via `grep -n "RULE\["` against
+  both outputs that no tag leaked into rendered docs.
+
 

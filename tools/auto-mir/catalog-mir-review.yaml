@@ -42,7 +42,7 @@ metadata:
   - '```{code-block} text'
   - ':linenos:'
   - ''
-  - 'RULE: Since we sometimes have many such posts on one bug, in case multiple'
+  - 'RULE[review-multi-package-clarity]: Since we sometimes have many such posts on one bug, in case multiple'
   - 'RULE: packages are associated, clearly state which one this is for.'
   - check: SUM-1
     todo_ref: 0
@@ -70,7 +70,7 @@ metadata:
   - 'Required TODOs:'
   - 'TODO: - TBD (Please add them numbered for later reference)'
   - 'Recommended TODOs:'
-  - 'RULE: - Does it have a team bug subscriber? (This is not a blocker for a MIR'
+  - 'RULE[review-team-bug-subscriber]: - Does it have a team bug subscriber? (This is not a blocker for a MIR'
   - 'RULE:   team ACK, but needs to be provided before the package can be promoted'
   - 'RULE:   by an AA)'
   - check: SUM-4
@@ -78,7 +78,7 @@ metadata:
   - 'TODO: - TBD (Please add them numbered for later reference)'
   - ''
   - '[Rationale, Duplication and Ownership]'
-  - 'RULE: One easy way to avoid the burden of maintaining the package is to not'
+  - 'RULE[review-duplication-check]: One easy way to avoid the burden of maintaining the package is to not'
   - 'RULE: use it in the first place! If a package is pulling in some random jpeg'
   - 'RULE: parsing library that needs a MIR, maybe it makes more sense to patch the'
   - 'RULE: package to just use libjpeg instead. Keep an eye out for duplicated'
@@ -100,7 +100,7 @@ metadata:
   - 'RULE: indeed the same use case as the package this MIR is about.'
   - check: RDO-1
     todo_ref: 0
-  - 'RULE: No matter how useful a rationale is and how unique a package might be'
+  - 'RULE[review-owning-team-ack]: No matter how useful a rationale is and how unique a package might be'
   - 'RULE: it will need an owning team that is willing and able to spend the time'
   - 'RULE: to maintain it well for the benefit of all Ubuntu users and use cases.'
   - 'RULE: If someone submitted an MIR on behalf of another team and suggested them'
@@ -110,7 +110,7 @@ metadata:
   - 'RULE: immediately be cancelled by a lack of ownership).'
   - check: RDO-2
     todo_ref: 0
-  - 'RULE: In the template to submit cases we ask the reporter to state a rationale'
+  - 'RULE[review-rationale-judgement]: In the template to submit cases we ask the reporter to state a rationale'
   - 'RULE: why this should be considered. But a MIR team member needs to'
   - 'RULE: try to judge if this rationale is good for Ubuntu and its users.'
   - 'RULE: We''ve also seen requests that thought they need to be in main, but that'
@@ -122,7 +122,7 @@ metadata:
   - 'RULE: skip the rest of the check until these basic questions are resolved.'
   - ''
   - '[Dependencies]'
-  - 'RULE: Long ago also build dependencies needed to be in main, but since 14.04'
+  - 'RULE[review-dependency-scope]: Long ago also build dependencies needed to be in main, but since 14.04'
   - 'RULE: that no more is the case. Therefore if checking in the build logs do not'
   - 'RULE: rely on sections like "Install main build dependencies (apt-based'
   - 'RULE: resolver)". Similarly some of the tools shown below are capable of'
@@ -158,7 +158,7 @@ metadata:
   - 'TODO-B: Problems: None'
   - ''
   - '[Embedded sources and static linking]'
-  - 'RULE: - Embedding a library source increases the maintenance burden of a package'
+  - 'RULE[review-embedded-static-linking-burden]: - Embedding a library source increases the maintenance burden of a package'
   - 'RULE:   since that source needs to be maintained separately from the source in'
   - 'RULE:   the Ubuntu archive. If a source embeds another package, in general the'
   - 'RULE:   embedded package should not be used and the packaging should be modified'
@@ -174,7 +174,7 @@ metadata:
   - 'RULE: - If debian/control uses `Built-Using` or `Static-Built-Using:` it may'
   - 'RULE:   indicate static linking'
   - 'RULE:   which should be discouraged (except golang/rust, see below)'
-  - 'RULE:   - Rust - toolchain and dh tools are still changing a lot. Currently it'
+  - 'RULE[review-rust-built-using]:   - Rust - toolchain and dh tools are still changing a lot. Currently it'
   - 'RULE:     is expected to only list the rust toolchain in `Built-Using`.'
   - 'RULE:     the remaining (currently vendored) dependencies shall be tracked'
   - 'RULE:     in a Cargo.lock file'
@@ -199,7 +199,7 @@ metadata:
   - check: ESL-3
     todo_ref: 0
   - ''
-  - 'RULE: Golang'
+  - 'RULE[review-golang-static-builds]: Golang'
   - 'RULE: - golang 1.4 packages and earlier could only statically compile their'
   - 'RULE:   binaries. golang 1.5 in Ubuntu 16.10 introduced `-buildmode=shared`'
   - 'RULE:   to build shared libraries and `-linkshared` to dynamically link against'
@@ -280,12 +280,12 @@ metadata:
   - 'TODO-B: Problems: None'
   - ''
   - '[Security]'
-  - 'RULE: - Determine if the package may have security implications or history.'
+  - 'RULE[review-security-history]: - Determine if the package may have security implications or history.'
   - 'RULE:   Err on the side of caution.'
-  - 'RULE: - If the package is security sensitive, you should review as much as you'
+  - 'RULE[review-security-review-assignment]: - If the package is security sensitive, you should review as much as you'
   - 'RULE:   can and then assign to the ubuntu-security team. The bug will then be'
   - 'RULE:   added to the prioritized list of MIR security reviews.'
-  - 'RULE: - We do not block on, but want to recommend using enhanced isolation'
+  - 'RULE[review-security-mitigations]: - We do not block on, but want to recommend using enhanced isolation'
   - 'RULE:   features, things like systemd isolation, apparmor and such shall at'
   - 'RULE:   least have gotten a thought if they would help to mitigate risks in'
   - 'RULE:   this case. If we spot a case where we think it should be either easy or'
@@ -328,10 +328,10 @@ metadata:
   - 'TODO-B: Problems: None'
   - ''
   - '[Common blockers]'
-  - 'RULE: - There are plenty of testing requirements, hopefully already resolved'
+  - 'RULE[review-testing-requirements-crossref]: - There are plenty of testing requirements, hopefully already resolved'
   - 'RULE:   by the reporter upfront, see "Quality assurance - testing" section of'
   - 'RULE:   the Main Inclusion requirements'
-  - 'RULE: - The MIR process shall ensure quality and maintainability, due to that'
+  - 'RULE[review-quality-bar-balance]: - The MIR process shall ensure quality and maintainability, due to that'
   - 'RULE:   the expectations to that are quite high, but especially in cases where'
   - 'RULE:   special HW is needed that can be a hard to achieve which bloats the'
   - 'RULE:   options below, it is a balance or compromise we need to strike between'
@@ -382,32 +382,32 @@ metadata:
   - 'TODO-B: Problems: None'
   - ''
   - '[Packaging red flags]'
-  - 'RULE: - Does Ubuntu carry a non necessary delta?'
-  - 'RULE: - The package should define the correct "Maintainer:" field in'
+  - 'RULE[review-ubuntu-delta]: - Does Ubuntu carry a non necessary delta?'
+  - 'RULE[review-maintainer-field]: - The package should define the correct "Maintainer:" field in'
   - 'RULE:   debian/control. This needs to be updated, using `update-maintainer`'
   - 'RULE:   whenever any Ubuntu delta is applied to the package, as suggested by'
   - 'RULE:   dpkg (LP: #1951988)'
-  - 'RULE: - If it''s a library, does it have a symbols file? In the absence'
+  - 'RULE[review-symbols-tracking]: - If it''s a library, does it have a symbols file? In the absence'
   - 'RULE:   of a symbols file, dh_makeshlibs imposes a tighter constraint'
   - 'RULE:   by default, using ''Upstream-Version''; dh_makeshlibs -V with an'
   - 'RULE:   empty argument has the same effect.'
   - 'RULE:   Note that for C++, see https://wiki.ubuntu.com/DailyRelease/FAQ'
   - 'RULE:   for a method to demangle C++ symbols files.'
-  - 'RULE: - There are shared object only meant for internal use, examples'
+  - 'RULE[review-internal-shared-objects]: - There are shared object only meant for internal use, examples'
   - 'RULE:   that come to mind are .so for perl or python implementation.'
   - 'RULE:   in such cases symbols tracking is not needed as it isn''t meant'
   - 'RULE:   to expose an external API/ABI. But then in return we should ensure'
   - 'RULE:   the package does not ship external headers to build against e.g.'
   - 'RULE:   in a -dev package or similar.'
-  - 'RULE: - Does it have a watch file? (If relevant, e.g. non-native)'
-  - 'RULE: - Is its update history slow or sporadic?'
-  - 'RULE: - Is the current release packaged?'
-  - 'RULE: - Will entering main make it harder for the people currently keeping it'
+  - 'RULE[review-watch-file]: - Does it have a watch file? (If relevant, e.g. non-native)'
+  - 'RULE[review-update-history]: - Is its update history slow or sporadic?'
+  - 'RULE[review-current-release-packaged]: - Is the current release packaged?'
+  - 'RULE[review-motu-impact]: - Will entering main make it harder for the people currently keeping it'
   - 'RULE:   up to date? (i.e. are they only MOTUs?)'
-  - 'RULE: - Lintian warnings'
-  - 'RULE: - Is debian/rules a mess? Ideally it uses dh and overrides to make it as'
+  - 'RULE[review-lintian-warnings]: - Lintian warnings'
+  - 'RULE[review-debian-rules-cleanliness]: - Is debian/rules a mess? Ideally it uses dh and overrides to make it as'
   - 'RULE:   tiny as possible.'
-  - 'RULE: - If a package shall be promoted it should NOT be on the lto-disabled'
+  - 'RULE[review-lto-disabled-list]: - If a package shall be promoted it should NOT be on the lto-disabled'
   - 'RULE:   list, but the fix, or the workaround should be directly in the package'
   - 'RULE:   to enforce maintainer awareness and make it more visible to anyone'
   - 'RULE:   looking at the package - see https://wiki.ubuntu.com/ToolChain/LTO.'
@@ -474,18 +474,18 @@ metadata:
   - 'TODO:   tests)'
   - check: URF-4
     todo_ref: 0
-  - 'RULE:   (consider at least `grep -Hrn nobody` for it'
+  - 'RULE[review-nobody-user-check]:   (consider at least `grep -Hrn nobody` for it'
   - 'RULE:    and run `find . -user nobody` in source and built binaries)'
   - check: URF-5
     todo_ref: 0
-  - 'RULE:   (consider at least `grep -Hrn -e setuid -e setgid` for it'
+  - 'RULE[review-setuid-check]:   (consider at least `grep -Hrn -e setuid -e setgid` for it'
   - 'RULE:    and run `find . \( -perm -4000 -o -perm -2000 \)` in source and'
   - 'RULE:    built binaries)'
   - 'TODO: - use of setuid, but ok because TBD (prefer systemd to set those'
   - 'TODO:   for services)'
   - check: URF-6
     todo_ref: 0
-  - 'RULE: Old dependencies, partially even still in main we want to get rid of over'
+  - 'RULE[review-old-web-engine-deps]: Old dependencies, partially even still in main we want to get rid of over'
   - 'RULE: time. While they may be still there, we''d not want to add new'
   - 'RULE: dependencies. webkit = Web content engine library for GTK,'
   - 'RULE: qtwebkit = Web content engine library for Qt, libseed = GObject JavaScript'
@@ -510,6 +510,8 @@ checks:
 # Summary
 # ==========================================================================
 - id: SUM-1
+  covers_rule_clauses:
+  - review-multi-package-clarity
   section: Summary
   title: Source package identified
   mode: deterministic
@@ -554,6 +556,8 @@ checks:
   - 'TODO: Specific binary packages built, but NOT to be promoted to main: TBD'
   ai_policy: 'The promotion_status evidence field is already computed deterministically (current_component, binaries, already_in_main, needs_promotion) from Launchpad publishing data — never re-derive it from raw control-file text. If needs_promotion is empty, resolve ok and state that all built binaries listed in promotion_status.binaries are already published in main (promotion_status.current_component). Otherwise, resolve ok and state which specific binaries from promotion_status.needs_promotion need to be promoted to main, naming them explicitly; this is informational for the reviewer, not a blocker.'
 - id: SUM-4
+  covers_rule_clauses:
+  - review-team-bug-subscriber
   section: Summary
   title: Team bug subscriber present
   mode: deterministic
@@ -600,6 +604,8 @@ checks:
   mode: ev_to_ai
   blocker_class: none
   synthesis: true
+  covers_rule_clauses:
+  - review-security-review-assignment
   adapters_required:
   - ubuntu-cve-tracker
   - nvd-enrich
@@ -621,6 +627,8 @@ checks:
 # Rationale, Duplication and Ownership
 # ==========================================================================
 - id: RDO-1
+  covers_rule_clauses:
+  - review-duplication-check
   section: Rationale, Duplication and Ownership
   title: No duplicate functionality in main
   mode: ev_to_ai
@@ -637,6 +645,8 @@ checks:
   - 'TODO: There is no other package in main providing the same functionality.'
   ai_policy: 'Decide whether another package already provides the same functionality, focusing on packages in main (a duplicate in main makes bug-fixing and security review harder). Use the dup-search evidence: it lists candidate packages found by probing the archive with search terms and named-package guesses derived from this package''s description, each tagged with its component (main/universe/...). dup-search is a noisy, best-effort suggestion pool, NOT a pre-filtered relevance list — first assess genuine FUNCTIONAL overlap for every candidate yourself, and silently discard candidates that are clearly unrelated (e.g. matched only on a generic shared word, not the actual functionality) rather than mentioning them. Only after that relevance filtering should you consider which of the remaining, genuinely-relevant candidates are in main (the most important thing to flag once relevance is established) versus universe/elsewhere. Never cite a candidate solely because it happens to be in main; irrelevance is irrelevance regardless of component. When credible functional overlaps remain, name them and their components in the message (e.g. "the archive also ships libaom3 (main) and libdav1d (universe), which also decode AV1") and leave the verdict to the reviewer. When no credible duplicate is found, resolve ok with the template statement — do not pad the message with irrelevant candidates just to appear thorough. This is a suggestion; the reviewer confirms. Cite only the candidates you judged genuinely relevant.'
 - id: RDO-2
+  covers_rule_clauses:
+  - review-owning-team-ack
   section: Rationale, Duplication and Ownership
   title: Owning team committed
   mode: ev_to_ai
@@ -651,6 +661,8 @@ checks:
   - 'TODO: A team is committed to own long term maintenance of this package.'
   ai_policy: 'Determine whether a team is committed to long-term maintenance. An existing team bug subscription is strong evidence of ownership: if the team-mapping evidence lists one or more subscribed_teams for this package, treat ownership as satisfied (status ok) and name the team(s) in the message; do NOT emit any TODO and never mark this required. If there is no team subscriber, check whether the owning team is explicitly named and acknowledged in the bug comments (a MIR submitted on behalf of another team needs that team to acknowledge ownership). When neither a subscriber nor an explicit acknowledgement is present, emit a recommended (never required) note that a team should confirm ownership; lack of it blocks final promotion by an AA but not the MIR ACK. Reviewer confirms.'
 - id: RDO-3
+  covers_rule_clauses:
+  - review-rationale-judgement
   section: Rationale, Duplication and Ownership
   title: Rationale valid and useful for Ubuntu
   mode: ev_to_ai
@@ -668,6 +680,8 @@ checks:
 # Dependencies
 # ==========================================================================
 - id: DEP-1
+  covers_rule_clauses:
+  - review-dependency-scope
   section: Dependencies
   title: No unresolved runtime dependencies needing MIR
   mode: deterministic
@@ -700,6 +714,8 @@ checks:
   - 'TODO: - no other build-time Dependencies with active code in the final binaries to MIR due to this'
   ai_policy: 'Identify language/toolchain patterns that embed build deps into final binaries (e.g. Go static builds, C header-only libraries with active code, Rust vendoring). Check Built-Using and Static-Built-Using. AI assesses risk; reviewer confirms.'
 - id: DEP-3
+  covers_rule_clauses:
+  - review-dependency-scope
   section: Dependencies
   title: No -dev/-debug/-doc packages needing exclusion
   mode: deterministic
@@ -744,6 +760,8 @@ checks:
   mode: ev_to_ai
   language_gate: go|rust
   blocker_class: hard
+  covers_rule_clauses:
+  - review-embedded-static-linking-burden
   adapters_required:
   - packaging-source
   - fetch-build
@@ -782,6 +800,8 @@ checks:
   title: No unexpected static linking
   mode: deterministic
   blocker_class: soft
+  covers_rule_clauses:
+  - review-embedded-static-linking-burden
   adapters_required:
   - fetch-build
   - packaging-source
@@ -804,6 +824,8 @@ checks:
   title: No unexpected Built-Using entries
   mode: deterministic
   blocker_class: soft
+  covers_rule_clauses:
+  - review-embedded-static-linking-burden
   adapters_required:
   - deb-metadata
   messages:
@@ -822,6 +844,8 @@ checks:
   mode: deterministic
   language_gate: go
   blocker_class: none
+  covers_rule_clauses:
+  - review-golang-static-builds
   adapters_required:
   - packaging-source
   messages:
@@ -848,6 +872,8 @@ checks:
   mode: ev_to_ai
   language_gate: go
   blocker_class: soft
+  covers_rule_clauses:
+  - review-golang-static-builds
   adapters_required:
   - packaging-source
   - fetch-build
@@ -863,6 +889,8 @@ checks:
   mode: ev_to_ai
   language_gate: go
   blocker_class: none
+  covers_rule_clauses:
+  - review-golang-static-builds
   adapters_required:
   - packaging-source
   messages:
@@ -889,6 +917,8 @@ checks:
   mode: deterministic
   language_gate: go
   blocker_class: none
+  covers_rule_clauses:
+  - review-golang-static-builds
   adapters_required:
   - fetch-build
   - packaging-source
@@ -920,6 +950,8 @@ checks:
   mode: deterministic
   language_gate: rust
   blocker_class: none
+  covers_rule_clauses:
+  - review-rust-built-using
   adapters_required:
   - packaging-source
   messages:
@@ -946,6 +978,8 @@ checks:
   mode: deterministic
   language_gate: rust
   blocker_class: hard
+  covers_rule_clauses:
+  - review-rust-built-using
   adapters_required:
   - packaging-source
   messages:
@@ -964,6 +998,8 @@ checks:
   mode: deterministic
   language_gate: rust
   blocker_class: hard
+  covers_rule_clauses:
+  - review-rust-built-using
   adapters_required:
   - packaging-source
   - deb-metadata
@@ -1010,6 +1046,8 @@ checks:
   title: CVE history assessment
   mode: ev_to_ai
   blocker_class: none
+  covers_rule_clauses:
+  - review-security-history
   security_trigger: SEC-1-CVE-SYNTH
   adapters_required:
   - ubuntu-cve-tracker
@@ -1200,6 +1238,8 @@ checks:
   title: Appropriate use of risk mitigation features
   mode: ev_to_ai
   blocker_class: none
+  covers_rule_clauses:
+  - review-security-mitigations
   security_trigger: SEC-13-MITIGATION-GAPS
   adapters_required:
   - packaging-source
@@ -1218,6 +1258,8 @@ checks:
   title: Does not FTBFS currently
   mode: deterministic
   blocker_class: hard
+  covers_rule_clauses:
+  - review-testing-requirements-crossref
   adapters_required:
   - lp-build-api
   messages:
@@ -1238,6 +1280,8 @@ checks:
   title: Build-time test suite exists and fails build on error
   mode: ev_to_ai
   blocker_class: hard
+  covers_rule_clauses:
+  - review-testing-requirements-crossref
   adapters_required:
   - fetch-build
   - packaging-source
@@ -1253,6 +1297,8 @@ checks:
   title: Non-trivial autopkgtest exists
   mode: ev_to_ai
   blocker_class: hard
+  covers_rule_clauses:
+  - review-testing-requirements-crossref
   adapters_required:
   - packaging-source
   - autopkgtest-db
@@ -1267,6 +1313,8 @@ checks:
   title: 'Special hardware: requirement and coverage plan'
   mode: ev_to_ai
   blocker_class: none
+  covers_rule_clauses:
+  - review-quality-bar-balance
   adapters_required:
   - packaging-source
   messages:
@@ -1298,6 +1346,8 @@ checks:
   title: Special hardware compromise accepted
   mode: deterministic
   blocker_class: soft
+  covers_rule_clauses:
+  - review-quality-bar-balance
   adapters_required:
   - lp-bug-api
   messages:
@@ -1313,6 +1363,8 @@ checks:
   title: E2E coverage for simple libs via consumers
   mode: ev_to_ai
   blocker_class: none
+  covers_rule_clauses:
+  - review-quality-bar-balance
   adapters_required:
   - dep-analysis
   - autopkgtest-db
@@ -1383,6 +1435,8 @@ checks:
   title: Ubuntu delta reasonableness
   mode: ev_to_ai
   blocker_class: none
+  covers_rule_clauses:
+  - review-ubuntu-delta
   adapters_required:
   - packaging-source
   - lp-package-api
@@ -1417,6 +1471,9 @@ checks:
   title: Symbols tracking for C/C++ libraries
   mode: deterministic
   blocker_class: none
+  covers_rule_clauses:
+  - review-symbols-tracking
+  - review-internal-shared-objects
   adapters_required:
   - packaging-source
   - fetch-build
@@ -1456,6 +1513,8 @@ checks:
   title: debian/watch present
   mode: deterministic
   blocker_class: none
+  covers_rule_clauses:
+  - review-watch-file
   adapters_required:
   - packaging-source
   messages:
@@ -1483,6 +1542,8 @@ checks:
   title: Upstream update history
   mode: ev_to_ai
   blocker_class: none
+  covers_rule_clauses:
+  - review-update-history
   adapters_required:
   - upstream-tracker
   - lp-package-api
@@ -1497,6 +1558,8 @@ checks:
   title: Debian/Ubuntu update history
   mode: ev_to_ai
   blocker_class: none
+  covers_rule_clauses:
+  - review-update-history
   adapters_required:
   - lp-package-api
   adapters_optional:
@@ -1512,6 +1575,8 @@ checks:
   title: Current release packaged
   mode: deterministic
   blocker_class: none
+  covers_rule_clauses:
+  - review-current-release-packaged
   adapters_required:
   - lp-package-api
   - upstream-tracker
@@ -1533,6 +1598,8 @@ checks:
   title: Promoting does not harm MOTU maintainers
   mode: ev_to_ai
   blocker_class: none
+  covers_rule_clauses:
+  - review-motu-impact
   adapters_required:
   - lp-package-api
   - lp-team-membership-api
@@ -1549,6 +1616,8 @@ checks:
   title: No excessive lintian warnings
   mode: deterministic
   blocker_class: soft
+  covers_rule_clauses:
+  - review-lintian-warnings
   adapters_required:
   - lintian
   messages:
@@ -1568,6 +1637,8 @@ checks:
   title: debian/rules cleanliness
   mode: ev_to_ai
   blocker_class: none
+  covers_rule_clauses:
+  - review-debian-rules-cleanliness
   adapters_required:
   - packaging-source
   messages:
@@ -1581,6 +1652,8 @@ checks:
   title: Not on lto-disabled list
   mode: deterministic
   blocker_class: hard
+  covers_rule_clauses:
+  - review-lto-disabled-list
   adapters_required:
   - lto-disabled-list
   messages:
@@ -1598,6 +1671,8 @@ checks:
   title: debian/control Maintainer field correctness
   mode: deterministic
   blocker_class: soft
+  covers_rule_clauses:
+  - review-maintainer-field
   adapters_required:
   - packaging-source
   messages:
@@ -1681,6 +1756,8 @@ checks:
   title: No use of user 'nobody' outside tests
   mode: deterministic
   blocker_class: soft
+  covers_rule_clauses:
+  - review-nobody-user-check
   adapters_required:
   - packaging-source
   - fetch-build
@@ -1699,6 +1776,8 @@ checks:
   title: No setuid/setgid binaries
   mode: deterministic
   blocker_class: soft
+  covers_rule_clauses:
+  - review-setuid-check
   adapters_required:
   - packaging-source
   - fetch-build
@@ -1739,6 +1818,8 @@ checks:
   title: No webkit/qtwebkit/libseed dependency
   mode: deterministic
   blocker_class: soft
+  covers_rule_clauses:
+  - review-old-web-engine-deps
   adapters_required:
   - dep-analysis
   messages:
