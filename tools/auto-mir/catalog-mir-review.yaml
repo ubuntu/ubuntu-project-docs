@@ -1052,11 +1052,13 @@ checks:
   adapters_required:
   - ubuntu-cve-tracker
   - nvd-enrich
+  - cve-search-terms
+  - cvelist-scan
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
   - 'TODO: - history of CVEs does not look concerning'
-  ai_policy: 'AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes, whether fixes are timely, patterns suggesting systemic issues. The nvd-enrich evidence tags each CVE as current or predecessor (historical_cves): predecessor/historical CVEs come from upstream or older versioned package names and inform severity. Clearly label historical findings as such; they may raise the recommendation to a security review but must never hard-block the current version. Output 3-band confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding. Even historically patched but risk-significant patterns should surface as security-review-triggering.'
+  ai_policy: 'AI risk synthesis across both trackers. Assess: volume of CVEs, severity classes, whether fixes are timely, patterns suggesting systemic issues. The nvd-enrich evidence tags each CVE as current or predecessor (historical_cves): predecessor/historical CVEs come from upstream or older versioned package names and inform severity. Clearly label historical findings as such; they may raise the recommendation to a security review but must never hard-block the current version. Output 3-band confidence (low/medium/high). Mandatory human confirmation for any non-trivial finding. Even historically patched but risk-significant patterns should surface as security-review-triggering. Note on sourcing: nvd-enrich (backed by cvelist-scan''s cross-vendor cvelistV5 baseline plus a live NVD query) already covers non-Ubuntu-specific CVE/NVD and Debian-relevant identifiers alongside ubuntu-cve-tracker; do not ask the reviewer to separately check Debian or NVD by hand. The OSS-security mailing list (pre-CVE-assignment discussion) is NOT covered by any of these adapters - flag pre-disclosure chatter only if the reporter or reviewer surfaces it manually.'
 
 - id: SEC-2
   section: Security

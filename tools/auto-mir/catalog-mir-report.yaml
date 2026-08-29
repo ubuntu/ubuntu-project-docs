@@ -38,7 +38,7 @@ metadata:
   - item: REP-RATIONALE-009
   - ''
   - '[Security]'
-  - 'RULE: Security history and current issues must allow support for the full release lifetime, including LTS and ESM where applicable; consult Ubuntu, Debian, NVD/CVE, and OSS-security sources.'
+  - 'RULE[sec-general-cve-sources]: Security history and current issues must allow support for the full release lifetime, including LTS and ESM where applicable; consult Ubuntu, Debian, NVD/CVE, and OSS-security sources.'
   - 'RULE: Identify privileged binaries, services, recurring jobs, ports, endpoints, untrusted inputs, security-sensitive extensions, and cryptography. Explain exposure and proportional isolation such as restricted users, capability drops, seccomp, systemd hardening, and AppArmor.'
   - 'RULE: Deprecated algorithms such as 3DES and TLS/SSL 1.1 are unacceptable; report any suspicion for Security review rather than claiming certainty without evidence.'
   - item: REP-SECURITY-001
@@ -303,7 +303,8 @@ items:
   mode: deterministic
   evaluator: cve-history
   readiness: warning
-  adapters_required: [ubuntu-cve-tracker, nvd-enrich]
+  covers_rule_clauses: [sec-general-cve-sources]
+  adapters_required: [ubuntu-cve-tracker, nvd-enrich, cve-search-terms, cvelist-scan]
   template: 'TODO: - Security history and relevant CVEs: TBD'
 - id: REP-SECURITY-003
   section: Security

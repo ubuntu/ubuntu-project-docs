@@ -4492,4 +4492,42 @@ Promotion: no
   --strict` regenerate cleanly; confirmed via `grep -n "RULE\["` against
   both outputs that no tag leaked into rendered docs.
 
+## 2026-08-29 - Security CVE-source wiring clarity (Phase C item 13)
+
+Promotion: no
+
+- Context: the reporter's `[Security]` blueprint RULE line reads "...consult
+  Ubuntu, Debian, NVD/CVE, and OSS-security sources", but `REP-SECURITY-001`
+  (reporter) and `SEC-1` (reviewer) only declared `adapters_required:
+  [ubuntu-cve-tracker, nvd-enrich]` - `cve-search-terms` and `cvelist-scan`
+  were missing from the declared list even though `catalog.yaml`'s
+  `evidence_adapters` `depends_on` chain (`nvd-enrich` depends_on
+  `cvelist-scan` depends_on `cve-search-terms`) already causes
+  `evidence/__init__.py::_expand_adapter_dependencies()` to run them
+  transitively at collection time - **this was a documentation/wiring-clarity
+  gap only, never a runtime behavior gap**: the adapters always ran, they
+  just weren't self-documenting in the item definitions.
+- Fix (no behavior change): added `cve-search-terms` and `cvelist-scan`
+  explicitly to both items' `adapters_required`. Tagged the reporter's
+  `[Security]` RULE line as `sec-general-cve-sources`, wired via
+  `covers_rule_clauses` on `REP-SECURITY-001`. Rewrote `SEC-1`'s `ai_policy`
+  (reviewer-side; `REP-SECURITY-001` is `deterministic` and has no
+  `ai_policy` field to rewrite) to explicitly tell the AI that
+  `nvd-enrich`/`cvelist-scan` already cover cross-vendor CVE/NVD and
+  Debian-relevant identifiers, so it should not ask the reviewer to
+  separately check Debian or NVD by hand.
+- **Honest residual, deliberately NOT claimed as covered**: none of
+  `ubuntu-cve-tracker`, `cve-search-terms`/`cvelist-scan`, or `nvd-enrich`
+  consult the OSS-security mailing list (pre-CVE-assignment security
+  discussion). Building an oss-security archive scraper would be a
+  brand-new, fragile external integration (mailing-list archive, no clean
+  API) - explicitly out of scope for this round. This is documented here as
+  an accepted, deliberate scope boundary, not tagged as an enforced coverage
+  clause, and the reviewer's `SEC-1.ai_policy` now says so explicitly so an
+  AI reviewer never silently claims that source was checked.
+- Validation: `make test` 896 passed/2 skipped (no new tests needed - no
+  test asserted on the previous, narrower `adapters_required` lists for
+  these two items). Both `render_*_template.py --strict` regenerate
+  cleanly with no RULE[ tag leaks.
+
 
