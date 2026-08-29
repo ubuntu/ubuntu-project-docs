@@ -414,12 +414,12 @@ class _Ctx:
                     "messages": {
                         "unknown_message": "Could not inspect packaging (packaging-source failed)",
                         "unknown_todo": "TODO: - Check for translation coverage",
+                        "urf8_unknown_message": "Could not determine end-user-facing status (URF-8 was not resolved)",
+                        "urf8_unknown_todo": "TODO: - Verify translation coverage manually (end-user-facing status unknown)",
                         "ok_not_visible_message": "not user-visible, translations not needed",
-                        "ok_not_visible_todo": "TODO-A: - no translation present, but none needed for this case (not user visible)",
                         "ok_translated_message": "user-visible with translation present",
-                        "ok_translated_todo": "TODO-B: - translation present",
-                        "not_ok_message": "User-visible package without translations",
-                        "not_ok_todo": "TODO: - translation present",
+                        "not_ok_message": "user-visible but no translations are present",
+                        "not_ok_todo": "TODO: - user-visible but no translations are present",
                     },
                 },
                 {
@@ -2868,6 +2868,93 @@ def test_cb_5_needs_judgment_when_cb4_not_ok():
     assert result.status == "unknown"
     assert result.todo.startswith("TODO:")
     assert "reviewer judgment needed" in result.todo
+
+
+def _urf9_ctx_with_urf8(*, selected_option, status="ok", has_translation_files=False):
+    """Build a ctx whose findings already contain a URF-8 result."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "has_translation_files": has_translation_files,
+    }
+    ctx.findings = [
+        Finding(
+            id="URF-8",
+            section="Upstream red flags",
+            title="UI/desktop file check",
+            mode="ev_to_ai",
+            status=status,
+            severity="ok" if status == "ok" else "required",
+            confidence="medium",
+            message="",
+            selected_option=selected_option,
+        )
+    ]
+    return ctx
+
+
+def test_urf_9_not_needed_when_urf_8_says_not_ui():
+    """URF-9 resolves ok without a TODO when URF-8 judged the package not UI."""
+    ctx = _urf9_ctx_with_urf8(selected_option="URF-8-A")
+    finding = _make_finding("URF-9", mode="deterministic")
+    result = checks.deterministic._check_urf_9(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert result.todo == ""
+    assert "not user-visible" in result.message.lower()
+
+
+def test_urf_9_ok_when_ui_and_translations_present():
+    """URF-9 resolves ok when URF-8 judged the package UI and translations ship."""
+    ctx = _urf9_ctx_with_urf8(selected_option="URF-8-B", has_translation_files=True)
+    finding = _make_finding("URF-9", mode="deterministic")
+    result = checks.deterministic._check_urf_9(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert result.todo == ""
+
+
+def test_urf_9_recommended_when_ui_and_no_translations():
+    """URF-9 flags a recommended TODO when URF-8 judged the package UI but no translations ship."""
+    ctx = _urf9_ctx_with_urf8(selected_option="URF-8-C", has_translation_files=False)
+    finding = _make_finding("URF-9", mode="deterministic")
+    result = checks.deterministic._check_urf_9(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "recommended"
+    assert result.todo.startswith("TODO:")
+
+
+def test_urf_9_unknown_when_urf_8_unresolved():
+    """URF-9 reports unknown rather than guessing when URF-8 itself is unresolved."""
+    ctx = _urf9_ctx_with_urf8(selected_option="", status="unknown")
+    finding = _make_finding("URF-9", mode="deterministic")
+    result = checks.deterministic._check_urf_9(ctx, finding)
+
+    assert result.status == "unknown"
+    assert "URF-8" in result.message
+
+
+def test_urf_9_unknown_when_urf_8_finding_missing():
+    """URF-9 reports unknown when URF-8's finding is absent from ctx.findings entirely."""
+    ctx = _Ctx()
+    ctx.findings = []
+    finding = _make_finding("URF-9", mode="deterministic")
+    result = checks.deterministic._check_urf_9(ctx, finding)
+
+    assert result.status == "unknown"
+
+
+def test_urf_9_unknown_when_packaging_source_failed():
+    """URF-9 falls back to unknown when packaging-source itself failed, even though URF-8 resolved."""
+    ctx = _urf9_ctx_with_urf8(selected_option="URF-8-B")
+    ctx.evidence["adapters"]["packaging-source"] = {"status": "error"}
+    finding = _make_finding("URF-9", mode="deterministic")
+    result = checks.deterministic._check_urf_9(ctx, finding)
+
+    assert result.status == "unknown"
 
 
 def test_cb_7_no_py2():

@@ -4621,4 +4621,66 @@ anyone touching `llm.py`/LLM call sites; worth promoting to
   audit and records the confirmed contract so a future 4th ad-hoc retry
   path is a deliberate decision, not an accidental addition.
 
+## 2026-08-29 - URF-8/URF-9 UI-standards convergence (Task 2 item #2)
+
+Promotion: no
+
+- Context: `URF-8` (UI/desktop file check) and `URF-9` (translation
+  coverage) both independently asked an LLM "is this package end-user
+  facing?" via their own `ai_policy`, in two separate `ev_to_ai` calls that
+  could disagree with each other for the same package - a self-contradiction
+  risk within a single reviewer run. The reporter side already avoids this
+  via `REP-UI-001` (a single gate item) plus `REP-UI-002`/`REP-UI-003`
+  (dependent children gated on `REP-UI-001`'s answer via the reporter's
+  `applicability` mechanism) - but that `applicability` engine
+  (`reporter/conditions.py`) is reporter-only; the reviewer runtime has no
+  equivalent "gate on another item's *answer*" mechanism.
+- Found the reviewer engine already has an analogous, simpler pattern for
+  exactly this need: `checks/__init__.py::evaluate_checks()` populates
+  `ctx.findings` incrementally within pass 1, explicitly so "a later check
+  can consult an earlier one's result" (`CB-5` already gates on `CB-4`'s
+  resolved `status` this way). That pattern only carries `status`/`severity`
+  though, which isn't enough here: `URF-8`'s three options (`URF-8-A` "not
+  UI", `URF-8-B` "UI, has desktop file", `URF-8-C` "UI, missing desktop
+  file") have `URF-8-A` and `URF-8-B` both resolving `status=ok`, so status
+  alone can't tell URF-9 which of "not UI" vs "UI with desktop file" URF-8
+  actually chose.
+- Fix: added a new generic `Finding.selected_option: str` field (default
+  `""`), set by `checks/llm_eval.py::_apply_option_response()` whenever an
+  `ev_to_ai`/`ai` check with `options` resolves one. This is a reusable
+  mechanism (not a one-off hack) for any future check needing to consult a
+  sibling's *specific* option choice, not just its ok/not-ok status.
+  Converted `URF-9` from `ev_to_ai` to `deterministic`
+  (`checks/deterministic.py::_check_urf_9`): it reads `URF-8`'s finding from
+  `ctx.findings`; if `URF-8` is unresolved it reports unknown; if `URF-8`
+  selected `URF-8-A` (not UI) it resolves ok immediately (translations never
+  needed); otherwise (URF-8-B/C, package is UI) it checks the already-
+  collected `packaging-source.has_translation_files` FACT deterministically
+  - no second LLM judgement of "is this UI" is made. `URF-8` itself is
+  unchanged and stays `ev_to_ai` (it is the sole remaining classifier); the
+  code comment above the URF checks in `deterministic.py` was updated to
+  explain the new relationship.
+- Catalog: rewrote `URF-9`'s `catalog-mir-review.yaml` entry to the
+  deterministic `messages:`-map shape (mirroring `CB-5`'s), dropped its
+  `ai_policy`/`options` (no longer meaningful once gated), dropped the now-
+  unneeded `dep-analysis` from `adapters_required` (URF-9 no longer judges
+  UI-ness itself, so it only needs `packaging-source` for the translation
+  fact). `todo_refs` were left byte-for-byte unchanged (still indexed by the
+  blueprint's `check: URF-9 / todo_ref: 0/1` entries) - confirmed via
+  `render_review_template.py --strict` diffed against the pre-change output
+  that the rendered docs are byte-identical; this is a pure backend
+  consistency fix with zero doc-visible change.
+- Tests: added `tests/test_checks.py::test_urf_9_*` (6 new tests covering
+  the not-UI/UI-with-translations/UI-without-translations/URF-8-unresolved/
+  URF-8-missing/packaging-source-failed cases), mirroring the existing
+  `test_cb_5_*` gated-check test style. The pre-existing
+  `test_urf_9_option_not_user_visible_needs_no_translation` test (which
+  exercises the generic `_apply_llm_response` option-mapping logic using an
+  inline URF-9-shaped check dict, decoupled from the real catalog) was left
+  unchanged - it still passes since that generic mapping code path is
+  unmodified.
+- Validation: `make test` 902 passed/2 skipped (+6 net new tests). Both
+  `render_*_template.py --strict` regenerate cleanly; reviewer output
+  confirmed byte-identical to the pre-change baseline via `diff`.
+
 

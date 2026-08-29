@@ -1866,33 +1866,23 @@ checks:
 - id: URF-9
   section: Upstream red flags
   title: Translation coverage
-  mode: ev_to_ai
+  mode: deterministic
   blocker_class: none
   adapters_required:
   - packaging-source
-  - dep-analysis
   messages:
-    llm_unavailable_message: 'LLM unavailable: {error}'
+    unknown_message: Could not inspect packaging (packaging-source failed)
+    unknown_todo: 'TODO: - Check for translation coverage'
+    urf8_unknown_message: Could not determine end-user-facing status (URF-8 was not resolved)
+    urf8_unknown_todo: 'TODO: - Verify translation coverage manually (end-user-facing status unknown)'
+    ok_not_visible_message: not user-visible, translations not needed
+    ok_translated_message: user-visible with translation present
+    not_ok_message: user-visible but no translations are present
+    not_ok_todo: 'TODO: - user-visible but no translations are present'
   todo_refs:
   - 'TODO-A: - no translation present, but none needed for this case (user visible)?'
   - 'TODO-B: - translation present'
-  options:
-  - id: URF-9-A
-    todo_ref: TODO-A
-    predicate: not a user-visible program, so translations are not required
-    render: '- no translation present, but none needed for this case (not user visible)'
-    outcome: ok
-  - id: URF-9-B
-    todo_ref: TODO-B
-    predicate: user-visible program that ships translations
-    render: '- translation present'
-    outcome: ok
-  - id: URF-9-C
-    todo_ref: TODO-B
-    predicate: user-visible program that does NOT ship translations
-    render: '- user-visible but no translations are present'
-    outcome: recommended
-  ai_policy: 'Judge whether this package is user-visible (a desktop program or an end-user-facing tool whose strings a user reads), using binary_sections, runtime dependencies (GUI toolkits indicate user-visible), the package description, and general knowledge. Do NOT use the presence or absence of translation files to decide whether it IS user-visible. Decision: if it is NOT user-visible (library, dev/doc package, backend/daemon), select URF-9-A (translations not needed). If it IS user-visible, verify with the has_translation_files fact: ships translations -> URF-9-B; does not -> URF-9-C.'
+  notes: 'Gated on URF-8''s end-user-facing judgement (read via ctx.findings) instead of asking the model to independently re-classify the same package a second time, which risked disagreeing with URF-8''s answer. Only the has_translation_files fact (packaging-source) remains to check once URF-8 has already judged the package end-user facing.'
 security_triggers:
 - id: SEC-1-CVE-SYNTH
   title: CVE history risk synthesis

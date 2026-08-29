@@ -1818,12 +1818,66 @@ def _check_sec_10(ctx: RunContext, finding: Finding) -> Finding:
     return finding
 
 
-# URF-8 (UI/desktop) and URF-9 (translations) are evaluated as ev_to_ai checks
-# (see catalog.yaml): whether a package is a user-facing desktop program is a
+# URF-8 (UI/desktop) is evaluated as an ev_to_ai check (see catalog-mir-
+# review.yaml): whether a package is a user-facing desktop program is a
 # judgement best made from Section, GUI-toolkit dependencies, the description
 # and general knowledge — not from crude substring matching on debian/control.
-# The .desktop / translation file facts are surfaced by packaging-source for
-# verification only, not for classification.
+# The .desktop file fact is surfaced by packaging-source for verification
+# only, not for classification.
+# URF-9 (translations) is deterministic: it reuses URF-8's already-made
+# end-user-facing judgement (see _check_urf_9 below) instead of asking the
+# model to independently re-classify the same package a second time, which
+# risked the two checks disagreeing with each other.
+
+
+@deterministic_check("URF-9")
+def _check_urf_9(ctx: RunContext, finding: Finding) -> Finding:
+    """URF-9: Translation coverage.
+
+    Gated on URF-8's end-user-facing judgement (read via ``ctx.findings``,
+    the same cross-check pattern CB-5 uses for CB-4) rather than asking the
+    model to re-judge "is this package user-facing?" a second time. Once
+    URF-8 has classified the package, only the has_translation_files FACT
+    (deterministic, from packaging-source) remains to check.
+    """
+    check = _get_check_definition(ctx, "URF-9")
+    urf8 = next((f for f in ctx.findings if f.id == "URF-8"), None)
+
+    if urf8 is None or urf8.status == "unknown":
+        _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="urf8_unknown_message",
+            todo_key="urf8_unknown_todo",
+        )
+        finding.evidence_refs = ["URF-8:status"]
+        return finding
+
+    if urf8.selected_option == "URF-8-A":
+        # URF-8 judged the package not end-user facing; translations are not
+        # needed regardless of whether any happen to be present.
+        finding.succeed(render_check_message(check, "ok_not_visible_message"), confidence="high")
+        finding.evidence_refs = ["URF-8:selected_option"]
+        return finding
+
+    # URF-8 judged the package end-user facing (URF-8-B or URF-8-C); only the
+    # translation-file fact remains to check.
+    resolved = _get_packaging_source_or_unknown(ctx, finding, "URF-9")
+    if resolved is None:
+        return finding
+    _, packaging = resolved
+
+    if packaging.get("has_translation_files"):
+        finding.succeed(render_check_message(check, "ok_translated_message"), confidence="high")
+    else:
+        finding.fail(
+            render_check_message(check, "not_ok_message"),
+            render_check_message(check, "not_ok_todo"),
+            severity="recommended",
+            confidence="high",
+        )
+    finding.evidence_refs = ["URF-8:selected_option", "packaging-source:has_translation_files"]
+    return finding
 
 
 @deterministic_check("CB-7")

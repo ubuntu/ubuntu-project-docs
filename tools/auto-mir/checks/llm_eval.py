@@ -944,6 +944,7 @@ def _apply_option_response(option: dict, response: dict, check: dict, finding: F
             rationale=rationale,
         )
 
+    finding.selected_option = str(option.get("id", "")).strip()
     finding.apply_ai_metadata(
         risk_flags=response.get("risk_flags", []),
         evidence_refs=response.get("evidence_refs", []),

@@ -128,6 +128,13 @@ class Finding:
     # --- Set by LLM evaluators only ---
     risk_flags: list[str] = field(default_factory=list)
     human_confirmation_required: bool = False
+    # The catalog option id the model selected, when this check has an
+    # ``options`` list (e.g. "URF-8-A"); empty when the check has no options
+    # or none was resolved. Lets a later deterministic check consult an
+    # earlier ev_to_ai check's exact judgement via ctx.findings (e.g. URF-9
+    # reusing URF-8's end-user-facing classification) instead of asking the
+    # model to re-judge the same question a second time.
+    selected_option: str = ""
 
     # --- Rendering routing (from check definition) ---
     # When True, this finding's TODO is surfaced in the consolidated
