@@ -4724,4 +4724,39 @@ Promotion: no
   refactor is confined to `checks/language_gates.py`'s internal dispatch,
   never touched by template rendering).
 
+## 2026-08-29 - lxd_runner.py subprocess-wrapping consolidation (Task 2 item #6)
+
+Promotion: no
+
+- Context: `lxd_runner.py` had three layered subprocess helpers -
+  `run_command()` (the one generic subprocess wrapper: logging, timeout,
+  check-and-raise), `_lxc()` (a thin wrapper that always prefixed `args`
+  with `"lxc"` and hardcoded `log_prefix="host"`), and `exec_in()` (guest
+  command execution). `exec_in()` built its own `["lxc", "exec", name, ...]`
+  argument list and called `run_command()` directly, completely bypassing
+  `_lxc()` even though every `exec_in()` invocation IS an `lxc` command -
+  the only reason it couldn't reuse `_lxc()` was that `_lxc()` hardcoded
+  `log_prefix="host"` with no way to override it for a guest-scoped label
+  (`guest({name})`).
+- Fix (readability, no behavior change): gave `_lxc()` a `log_prefix: str =
+  "host"` parameter (defaulting to the existing hardcoded value, so every
+  other pre-existing `_lxc()` call site is unaffected) and had `exec_in()`
+  build its `lxc exec` argument list and call `_lxc(*lxc_args, ...,
+  log_prefix=f"guest({name})")` instead of duplicating the
+  `run_command(["lxc", ...])` construction. Every `lxc` invocation in the
+  module - host-level and guest-exec alike - now goes through the single
+  `_lxc()` entry point, which itself is the sole caller of `run_command()`
+  (previously there were two independent call sites). `_exec_in_or_skip()`
+  was left unchanged - it is a genuinely distinct behavior layer (best-
+  effort: returns `None` + logs a warning instead of raising), not
+  redundant plumbing to consolidate.
+- Validation: confirmed byte-for-byte identical resulting `subprocess.run`
+  invocations by construction (same argument list, same `log_prefix`
+  values, same `check`/`capture`/`timeout` semantics - just routed through
+  one fewer duplicated code path). `make test` 904 passed/2 skipped, no
+  count change (existing `tests/test_lxd_runner.py` tests already exercise
+  both `_lxc()`- and `exec_in()`-driven paths and continue to pass
+  unmodified, including two tests that monkeypatch `lxd_runner.run_command`
+  directly).
+
 

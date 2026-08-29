@@ -107,11 +107,18 @@ def run_command(
     return result
 
 
-def _lxc(*args, check: bool = True, capture: bool = False, **kwargs):
-    """Wrapper around lxc CLI."""
+def _lxc(*args, check: bool = True, capture: bool = False, log_prefix: str = "host", **kwargs):
+    """Wrapper around lxc CLI.
+
+    Every ``lxc`` invocation in this module - host-level commands and guest
+    ``exec`` alike - goes through this single entry point, which itself
+    forwards to the one generic subprocess wrapper (``run_command``). Guest
+    commands (``exec_in``) pass a ``log_prefix`` naming the guest so log
+    output stays distinguishable from host-level ``lxc`` calls.
+    """
     return run_command(
         ["lxc"] + list(args),
-        log_prefix="host",
+        log_prefix=log_prefix,
         check=check,
         capture=capture,
         **kwargs,
@@ -478,25 +485,29 @@ def exec_in(
     Returns:
         CompletedProcess with returncode, stdout, stderr
     """
-    lxc_cmd = ["lxc", "exec", name]
+    lxc_args = ["exec", name]
 
     if workdir:
-        lxc_cmd += ["--cwd", workdir]
+        lxc_args += ["--cwd", workdir]
 
     if user is not None:
-        lxc_cmd += ["--user", str(user)]
+        lxc_args += ["--user", str(user)]
 
     if group is not None:
-        lxc_cmd += ["--group", str(group)]
+        lxc_args += ["--group", str(group)]
 
     if env:
         for key, value in env.items():
-            lxc_cmd += ["--env", f"{key}={value}"]
+            lxc_args += ["--env", f"{key}={value}"]
 
-    lxc_cmd += ["--"] + cmd
+    lxc_args += ["--"] + cmd
 
-    return run_command(
-        lxc_cmd, log_prefix=f"guest({name})", check=check, capture=capture, timeout=timeout
+    return _lxc(
+        *lxc_args,
+        check=check,
+        capture=capture,
+        timeout=timeout,
+        log_prefix=f"guest({name})",
     )
 
 
