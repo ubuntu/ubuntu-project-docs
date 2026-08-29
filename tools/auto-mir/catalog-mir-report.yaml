@@ -116,15 +116,16 @@ metadata:
   - item: REP-STD-002B
   - ''
   - '[Maintenance/Owner]'
-  - 'RULE: Every package needs an eligible owning team that explicitly accepts long-term maintenance and subscribes before promotion; suggested ownership without acknowledgement is not sufficient.'
-  - 'RULE: Static and vendored builds impose rebuild, testing, tracking, refresh, copyright, update, and backport commitments for the full release lifetime, including ESM. New vendored components require renewed agreement.'
-  - 'RULE: Rust packages currently vendor non-runtime dependencies and use the supported cargo packaging path; all vendored ecosystems need reproducible dependency tracking and refresh documentation.'
-  - 'RULE: Provide a build from the last three months and coordinate in advance with every team affected by the promotion.'
+  - 'RULE[maint-owning-team]: Every package needs an eligible owning team that explicitly accepts long-term maintenance and subscribes before promotion; suggested ownership without acknowledgement is not sufficient.'
+  - 'RULE[maint-vendored-obligations]: Static and vendored builds impose rebuild, testing, tracking, refresh, copyright, update, and backport commitments for the full release lifetime, including ESM. New vendored components require renewed agreement.'
+  - 'RULE[maint-rust-vendoring]: Rust packages currently vendor non-runtime dependencies and use the supported cargo packaging path; all vendored ecosystems need reproducible dependency tracking and refresh documentation.'
+  - 'RULE[maint-build-recency-and-coordination]: Provide a build from the last three months and coordinate in advance with every team affected by the promotion.'
   - item: REP-MAINT-001
   - item: REP-MAINT-001B
   - item: REP-MAINT-002
   - item: REP-MAINT-003
   - item: REP-MAINT-004
+  - item: REP-MAINT-007
   - item: REP-MAINT-005
   - item: REP-MAINT-006
   - ''
@@ -627,7 +628,7 @@ items:
         equals: 'Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>'
   preface_evaluator: maintainer-field
   rule_context: |-
-    RULE[pkg-maintainer-field]: - The package should define the correct "Maintainer:" field in
+    RULE: - The package should define the correct "Maintainer:" field in
     RULE:   debian/control. This needs to be updated, using `update-maintainer`
     RULE:   whenever any Ubuntu delta is applied to the package, as suggested by
     RULE:   dpkg (LP: #1951988)
@@ -858,6 +859,7 @@ items:
   readiness: blocker
   preface_evaluator: team-subscription
   rule_context: 'RULE: Every package needs an eligible owning team that explicitly accepts long-term maintenance and subscribes before promotion; suggested ownership without acknowledgement is not sufficient.'
+  covers_rule_clauses: [maint-owning-team]
   question:
     kind: single_choice
     prompt: Is the team already subscribed to this package (shown above, if any) the owning team, or will a different team take ownership?
@@ -903,9 +905,10 @@ items:
     evidence: packaging-source.shipped_vendored_dirs
     truthy: true
   adapters_required: [packaging-source]
+  covers_rule_clauses: [maint-vendored-obligations]
   question:
     kind: multiline
-    prompt: Describe static/vendored code and the owning team's rebuild, update, refresh, and security commitments.
+    prompt: Describe static/vendored code and the owning team's rebuild, testing, tracking, refresh, copyright, update, and backport commitments for the full release lifetime including ESM; confirm that any new vendored components will require renewed agreement.
   template: 'TODO: - Static/vendored-code maintenance obligations and commitments: TBD'
 - id: REP-MAINT-004
   section: Maintenance/Owner
@@ -915,6 +918,18 @@ items:
   readiness: blocker
   adapters_required: [packaging-source]
   template: 'TODO: - Vendored-source refresh and copyright documentation: TBD'
+- id: REP-MAINT-007
+  section: Maintenance/Owner
+  title: Rust vendored dependency tracking
+  mode: deterministic
+  evaluator: rust-vendoring
+  readiness: blocker
+  applicability:
+    evidence: packaging-source.is_rust_package
+    truthy: true
+  adapters_required: [packaging-source]
+  covers_rule_clauses: [maint-rust-vendoring]
+  template: 'TODO: - Rust vendored dependency tracking: TBD'
 - id: REP-MAINT-005
   section: Maintenance/Owner
   title: Recent build evidence
@@ -922,12 +937,14 @@ items:
   evaluator: recent-build
   readiness: warning
   adapters_required: [lp-build-api]
+  covers_rule_clauses: [maint-build-recency-and-coordination]
   template: 'TODO-A/B/C/D: - Build within the last three months and link: TBD'
 - id: REP-MAINT-006
   section: Maintenance/Owner
   title: Impact on other teams
   mode: human_only
   readiness: blocker
+  covers_rule_clauses: [maint-build-recency-and-coordination]
   question:
     kind: single_choice
     prompt: Will this promotion affect other Ubuntu teams?

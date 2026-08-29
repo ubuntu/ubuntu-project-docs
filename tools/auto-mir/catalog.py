@@ -12,6 +12,25 @@ from utils.dependencies import ubuntu_package_for
 
 _REPORTER_TEMPLATE_DASH_PATTERN = re.compile(r"^TODO(-[A-Z0-9/-]+)?:\s*-\s")
 
+# Opt-in tag on a blueprint ``RULE:`` line that starts a new, individually
+# tracked policy clause: ``RULE[<slug>]: <text>``. The tag is a machine-
+# readable coverage annotation ONLY - it must never appear in rendered docs
+# or reporter-facing rule_context text, so every consumer normalizes it back
+# to plain ``RULE:`` via ``strip_rule_clause_tag`` before using the line for
+# anything other than clause-slug discovery.
+_RULE_CLAUSE_TAG_PATTERN = re.compile(r"^RULE\[[a-z][a-z0-9_-]*\]:")
+
+
+def strip_rule_clause_tag(line: str) -> str:
+    """Normalize a possibly-tagged ``RULE[<slug>]:`` line back to plain ``RULE:``.
+
+    A following plain ``RULE:`` continuation line is returned unchanged. Every
+    consumer of blueprint RULE text (rendering, rule_context auto-derivation,
+    the drift guard) must call this first so the tag never leaks into
+    anything a reporter/reviewer actually reads.
+    """
+    return _RULE_CLAUSE_TAG_PATTERN.sub("RULE:", line, count=1)
+
 
 def _blueprint_section_rules(blueprint: Any) -> dict[str, list[str]]:
     """Return each reporter template section's ``RULE:`` lines, keyed by section.
@@ -35,8 +54,12 @@ def _blueprint_section_rules(blueprint: Any) -> dict[str, list[str]]:
                 current_section = stripped[1:-1]
                 section_rules.setdefault(current_section, [])
                 seen_item_in_section = False
-            elif stripped.startswith("RULE:") and current_section and not seen_item_in_section:
-                section_rules[current_section].append(stripped)
+            elif (
+                stripped.startswith(("RULE:", "RULE["))
+                and current_section
+                and not seen_item_in_section
+            ):
+                section_rules[current_section].append(strip_rule_clause_tag(stripped))
         elif isinstance(entry, dict) and "item" in entry:
             seen_item_in_section = True
     return section_rules

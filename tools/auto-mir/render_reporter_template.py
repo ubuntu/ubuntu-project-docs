@@ -23,7 +23,7 @@ def render_reporter_template(catalog_data: dict) -> str:
     lines: list[str] = []
     for entry in blueprint:
         if isinstance(entry, str):
-            lines.append(entry)
+            lines.append(catalog.strip_rule_clause_tag(entry))
             continue
         if not isinstance(entry, dict) or set(entry) != {"item"}:
             raise RuntimeError(f"Invalid reporter blueprint entry: {entry!r}")

@@ -4357,4 +4357,70 @@ Promotion: no
   follow-up-gating cases). `render_reporter_template.py --strict` and
   `render_review_template.py --strict` both regenerate cleanly.
 
+## 2026-08-29 - RULE[slug] tag was leaking into rendered docs (bugfix, found while implementing Phase C)
+
+Promotion: no
+
+- Found while tagging the "Maintenance/Owner" section: `render_reporter_
+  template.py`/`render_review_template.py` emit blueprint string entries
+  verbatim, and `catalog._blueprint_section_rules()` only recognized lines
+  starting with the literal `"RULE:"` prefix - a tagged `"RULE[slug]: ..."`
+  line matched neither, so (a) it rendered into the generated Sphinx docs
+  with the raw `[slug]` annotation still visible to readers, and (b) it was
+  silently invisible to `_apply_reporter_rule_context_defaults()`'s
+  auto-derivation and the hand-authored `rule_context` drift guard (the
+  guard's `startswith("RULE:")` check simply skipped tagged lines instead of
+  validating them - a false-negative "pass", not real validation).
+- Fix: added `catalog.strip_rule_clause_tag()` (public - both render
+  scripts import `catalog` already) normalizing `"RULE[<slug>]: text"` back
+  to `"RULE: text"`; `_blueprint_section_rules()` now recognizes both
+  `"RULE:"` and `"RULE["` prefixes and stores the normalized text; both
+  render scripts call `strip_rule_clause_tag()` on every string blueprint
+  entry before emitting it. Hand-authored `rule_context` fields
+  (REP-QA-PKG-007, REP-MAINT-001) were reverted to plain `"RULE:"` text -
+  tags are a backend-only coverage annotation and must never appear in any
+  reporter-facing text, including rule_context.
+- Added regression tests: `strip_rule_clause_tag` unit tests, plus a
+  `"RULE[" not in rendered` assertion against the real composed catalog for
+  both `render_reporter_template.render_reporter_template()` and
+  `render_review_template._render_from_blueprint()`, so this class of leak
+  cannot silently reappear.
+
+## 2026-08-29 - Maintenance/Owner RULE-2 wording + Rust vendoring check (Phase C items 10/11)
+
+Promotion: no
+
+- Item 10 (Maintenance/Owner RULE-2 full enumeration): `REP-MAINT-003`'s
+  question only asked about "rebuild, update, refresh, and security"
+  commitments; the RULE names "rebuild, testing, tracking, refresh,
+  copyright, update, and backport commitments for the full release
+  lifetime, including ESM" plus "new vendored components require renewed
+  agreement". Expanded the `question.prompt` wording to name all of these
+  explicitly - wording-only change, no evaluator/evidence change (item is
+  `human_only`).
+- Item 11 (Rust vendoring reporter-side check): reporter had zero coverage
+  of the Rust-specific RULE naming `Built-Using`/cargo path/reproducible
+  dependency tracking, while the reviewer's ESL section already judges this
+  for Rust via `checks/language_gates.py::_is_rust_package()`. Reused that
+  exact function (imported directly - `checks/language_gates.py` has zero
+  internal dependencies, confirmed no import cycle) instead of
+  re-implementing Rust detection heuristics a second time.
+  `evidence/guest_adapters.py::collect_packaging_source` now also exposes
+  `packaging-source.is_rust_package`. New `REP-MAINT-007` (deterministic
+  `rust-vendoring` evaluator, applicability-gated on `is_rust_package`):
+  common case (Rust package with a committed Cargo.lock) resolves OK; the
+  rare case (Rust package with no Cargo.lock) flags a blocker, since a
+  missing lockfile means vendored dependency versions are not reproducibly
+  trackable at all.
+- Tagged all 4 RULE lines in "Maintenance/Owner" (`maint-owning-team`,
+  `maint-vendored-obligations`, `maint-rust-vendoring`,
+  `maint-build-recency-and-coordination` - the last one is a single tagged
+  clause covered by both REP-MAINT-005 and REP-MAINT-006, since splitting
+  that one sentence mid-clause read awkwardly once rendered as two separate
+  bullet lines; the coverage validator allows multiple covering items per
+  clause).
+- Validation: `make test` 896 passed/2 skipped (was 886/2; +10 new tests: 2
+  `strip_rule_clause_tag` unit tests, 6 rust-vendoring evaluator/item-gating
+  tests, 2 no-tag-leak rendering regression tests).
+
 

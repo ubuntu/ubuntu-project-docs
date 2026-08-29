@@ -26,6 +26,16 @@ def test_real_report_catalog_renders_strictly_and_idempotently():
     assert "RULE: Every package needs an eligible owning team" in first
 
 
+def test_reporter_template_never_leaks_rule_clause_tags():
+    """RULE[<slug>] is a machine-readable coverage annotation only - it must
+    never appear in the rendered, reporter-facing template text."""
+    data = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    rendered = renderer.render_reporter_template(data)
+
+    assert "RULE[" not in rendered
+    assert "RULE: Explain lintian overrides." in rendered
+
+
 def test_every_reporter_item_template_is_generated_once():
     data = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     rendered = renderer.render_reporter_template(data).splitlines()

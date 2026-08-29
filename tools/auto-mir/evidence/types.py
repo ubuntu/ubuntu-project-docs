@@ -415,6 +415,7 @@ class PackagingSourceResult(TypedDict):
     lintian_uncommented_override_tags: list[str]
     cargo_lock_present: bool
     go_sum_present: bool
+    is_rust_package: bool
     vendored_dirs: list[str]
     shipped_vendored_dirs: list[str]
     file_listing: list[FileListingEntry]

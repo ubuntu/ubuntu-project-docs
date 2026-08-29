@@ -907,6 +907,34 @@ def _vendored_maintenance_docs(_item: dict, ctx: RunContext) -> tuple[str | None
     )
 
 
+@reporter_evaluator("rust-vendoring")
+def _rust_vendoring(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+    """Judge whether a Rust package's vendored dependencies are reproducibly tracked.
+
+    Rust packages vendor their non-runtime (build-time) dependencies via the
+    supported cargo packaging path; a committed Cargo.lock is what makes those
+    versions reproducibly trackable and refreshable. Gated on
+    ``packaging-source.is_rust_package`` so this never fires for non-Rust
+    packages.
+    """
+    data = _adapter(ctx, "packaging-source")
+    if data.get("status") != "ok":
+        return None, [], "Packaging source data was unavailable"
+    if not data.get("cargo_lock_present"):
+        return (
+            "This Rust package has no committed Cargo.lock, so vendored "
+            "dependency versions are not reproducibly tracked.",
+            ["packaging-source:cargo_lock_present"],
+            "A Cargo.lock file is expected for reproducible dependency tracking "
+            "and refresh documentation.",
+        )
+    return (
+        "This Rust package tracks its vendored dependencies via a committed Cargo.lock file.",
+        ["packaging-source:cargo_lock_present"],
+        "",
+    )
+
+
 @reporter_evaluator("dependencies")
 def _dependencies(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
     data = _adapter(ctx, "dep-analysis")

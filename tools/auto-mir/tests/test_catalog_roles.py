@@ -54,7 +54,7 @@ def test_report_catalog_has_complete_logical_item_and_hardware_choice_inventory(
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
 
-    assert len(by_id) == 62
+    assert len(by_id) == 63
     hardware_options = by_id["REP-QA-TEST-005"]["question"]["options"]
     assert {option["id"] for option in hardware_options} == {
         "A-team-hardware",
@@ -308,6 +308,19 @@ def test_report_catalog_validation_rejects_item_reference_in_unavailable_if():
 # which could pass even when a whole policy clause silently lost its
 # covering item (exactly what happened with the Maintainer-field gap).
 # ---------------------------------------------------------------------------
+
+
+def test_strip_rule_clause_tag_normalizes_tagged_line():
+    assert (
+        catalog.strip_rule_clause_tag("RULE[pkg-lintian-overrides]: Explain lintian overrides.")
+        == "RULE: Explain lintian overrides."
+    )
+
+
+def test_strip_rule_clause_tag_leaves_plain_rule_line_unchanged():
+    assert (
+        catalog.strip_rule_clause_tag("RULE: Plain untagged line.") == "RULE: Plain untagged line."
+    )
 
 
 def test_rule_clause_coverage_rejects_uncovered_clause():

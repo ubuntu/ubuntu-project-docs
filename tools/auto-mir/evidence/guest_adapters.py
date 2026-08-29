@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 
 import lxd_runner
 from catalog_enums import AdapterID
+from checks.language_gates import _is_rust_package
 from evidence import launchpad_client
 from evidence.registry import adapter
 from evidence.types import (
@@ -680,6 +681,13 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
         language_markers["file_listing"],
         control_files["debian_lintian_overrides"],
     )
+    is_rust_package = _is_rust_package(
+        {
+            "cargo_lock_present": language_markers["cargo_lock_present"],
+            "debian_rules": control_files["debian_rules"],
+            "file_listing": language_markers["file_listing"],
+        }
+    )
 
     log.debug(
         "packaging-source: source dir %s, %d file(s), vendored dirs: %d, "
@@ -724,6 +732,7 @@ def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
         "lintian_uncommented_override_tags": packaging_facts["lintian_uncommented_override_tags"],
         "cargo_lock_present": language_markers["cargo_lock_present"],
         "go_sum_present": language_markers["go_sum_present"],
+        "is_rust_package": is_rust_package,
         "vendored_dirs": language_markers["vendored_dirs"],
         "shipped_vendored_dirs": language_markers["shipped_vendored_dirs"],
         "file_listing": language_markers["file_listing"],

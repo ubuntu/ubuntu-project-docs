@@ -49,7 +49,7 @@ def _check_map(catalog_data: dict) -> dict[str, dict[str, Any]]:
 def _resolve_item(item: Any, checks: dict[str, dict[str, Any]]) -> str:
     """Resolve a single blueprint item to its text representation."""
     if isinstance(item, str):
-        return item
+        return catalog.strip_rule_clause_tag(item)
 
     if not isinstance(item, dict):
         raise RuntimeError(f"Invalid blueprint item type: {type(item)!r}")

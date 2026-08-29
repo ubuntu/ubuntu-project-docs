@@ -804,6 +804,70 @@ def test_vendored_maintenance_question_asked_with_vendored_code(tmp_path):
     assert by_id["REP-MAINT-003"].state == StatementState.RESOLVED
 
 
+def test_rust_vendoring_ok_when_cargo_lock_present():
+    from reporter.evaluator import _rust_vendoring
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "packaging-source": {"status": "ok", "cargo_lock_present": True},
+            }
+        }
+    )
+    statement, refs, rationale = _rust_vendoring({}, ctx)
+    assert "tracks its vendored dependencies via a committed Cargo.lock" in statement
+    assert rationale == ""
+    assert refs
+
+
+def test_rust_vendoring_flags_missing_cargo_lock():
+    from reporter.evaluator import _rust_vendoring
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "packaging-source": {"status": "ok", "cargo_lock_present": False},
+            }
+        }
+    )
+    statement, _refs, rationale = _rust_vendoring({}, ctx)
+    assert "no committed Cargo.lock" in statement
+    assert rationale
+
+
+def test_rust_vendoring_unavailable_when_adapter_errored():
+    from reporter.evaluator import _rust_vendoring
+
+    ctx = SimpleNamespace(evidence={"adapters": {"packaging-source": {"status": "error"}}})
+    statement, _refs, rationale = _rust_vendoring({}, ctx)
+    assert statement is None
+    assert rationale
+
+
+def test_rust_vendoring_item_not_applicable_for_non_rust_packages(tmp_path):
+    ctx = _ctx(tmp_path)
+    wizard = ChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-MAINT-007"].state == StatementState.NOT_APPLICABLE
+
+
+def test_rust_vendoring_item_flags_missing_cargo_lock_for_rust_packages(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.evidence["adapters"]["packaging-source"]["is_rust_package"] = True
+    ctx.evidence["adapters"]["packaging-source"]["cargo_lock_present"] = False
+    wizard = ChoiceWizard()
+
+    results = evaluate_items(ctx, wizard)
+    by_id = {result.id: result for result in results}
+
+    assert by_id["REP-MAINT-007"].state == StatementState.RESOLVED
+    assert by_id["REP-MAINT-007"].readiness == ReadinessEffect.BLOCKER
+    assert "no committed Cargo.lock" in by_id["REP-MAINT-007"].statement
+
+
 def test_micro_library_item_skipped_for_non_library_packages(tmp_path):
     ctx = _ctx(tmp_path)
     wizard = ChoiceWizard()

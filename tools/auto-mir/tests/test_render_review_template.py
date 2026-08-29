@@ -141,3 +141,21 @@ def test_real_catalog_renders_strictly_and_idempotently(tmp_path):
     assert renderer._validate_catalog_vs_template(data, first) == []
     assert first.endswith("\n")
     assert "```" not in first
+
+
+def test_review_template_never_leaks_rule_clause_tags():
+    """RULE[<slug>] is a machine-readable coverage annotation only - it must
+    never appear in the rendered, reviewer-facing template text."""
+    data = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "review")
+    rendered = renderer._render_from_blueprint(data)
+
+    assert "RULE[" not in rendered
+
+
+def test_resolve_item_strips_rule_clause_tag_from_literal_string_entries():
+    resolved = renderer._resolve_item(
+        "RULE[some-slug]: Tagged policy text.",
+        checks={},
+    )
+
+    assert resolved == "RULE: Tagged policy text."
