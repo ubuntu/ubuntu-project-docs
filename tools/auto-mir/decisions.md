@@ -4759,4 +4759,44 @@ Promotion: no
   unmodified, including two tests that monkeypatch `lxd_runner.run_command`
   directly).
 
+## 2026-08-29 - Structured bug_id/role JSON logging fields (Task 2 item #11)
+
+Promotion: no
+
+- Context: `auto_mir.py`'s JSON file-log formatter
+  (`jsonlogger.JsonFormatter("%(asctime)s %(levelname)s %(name)s
+  %(message)s")`) only ever carried `bug_id` interpolated inside the free-
+  text `%(message)s` string (e.g. `"auto-mir starting: role=%s bug=%s
+  ..."`), never as its own JSON key - a log consumer could not filter or
+  correlate log lines by bug id without regex-parsing the message text.
+- Fix: added a `_RunContextFilter(logging.Filter)` (nested in `main()`,
+  matching the existing `ColorFormatter`'s style/scope) that sets
+  `record.bug_id` and `record.role` from `ctx` on every record. Attached to
+  both the console and file handlers (not the logger) so it applies
+  uniformly to records from every module's own named logger - e.g.
+  `checks.llm_eval`, `evidence.guest_adapters` - not just ones logged
+  directly through `auto_mir`'s logger. Extended the JSON formatter's fmt
+  string to `"%(asctime)s %(levelname)s %(name)s %(bug_id)s %(role)s
+  %(message)s"` so both now appear as their own structured JSON keys.
+  Verified with a standalone script that `pythonjsonlogger.JsonFormatter`
+  correctly emits filter-injected record attributes as top-level JSON
+  fields (confirmed output: `{"...", "bug_id": "123456", "role": "review",
+  "message": "hello world"}`).
+- Scope note: `check_id` (also mentioned in the originating Task 2 item as
+  a "likely" candidate) was deliberately NOT added as a third constant
+  filter-injected field, because unlike `bug_id`/`role` (constant for the
+  whole run) it varies per log statement inside `checks/deterministic.py`/
+  `checks/llm_eval.py`/etc. Wiring that would mean adding `extra={"check_id":
+  ...}` at each individual relevant log call site across several modules -
+  a materially larger, more invasive change than what was asked for this
+  round. Any call site that wants it can already add
+  `extra={"check_id": ...}` today with no further infrastructure needed;
+  left as a natural, low-risk future follow-up rather than done
+  speculatively now.
+- Validation: `make test` 904 passed/2 skipped (no count change - this
+  inline `main()` logging setup has no existing dedicated unit tests in
+  this codebase, matching the pre-existing `ColorFormatter`'s precedent, so
+  no new test was added; correctness was confirmed via the standalone
+  verification script above instead).
+
 

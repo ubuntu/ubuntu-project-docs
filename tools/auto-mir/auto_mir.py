@@ -798,6 +798,26 @@ def main() -> int:
         RESET = "\033[0m"
         BOLD = "\033[1m"
 
+    class _RunContextFilter(logging.Filter):
+        """Inject constant per-run fields onto every log record.
+
+        Attached to the handlers (not the logger) so it applies uniformly to
+        records from every module's own named logger, not just ``auto_mir``'s.
+        Lets the JSON file log carry ``bug_id``/``role`` as real structured
+        fields a log consumer can filter/correlate on directly, rather than
+        only ever finding them interpolated inside ``%(message)s`` text.
+        """
+
+        def __init__(self, bug_id: str, role: str) -> None:
+            super().__init__()
+            self._bug_id = bug_id
+            self._role = role
+
+        def filter(self, record: logging.LogRecord) -> bool:
+            record.bug_id = self._bug_id
+            record.role = self._role
+            return True
+
         def format(self, record):
             color = self.COLORS.get(record.levelname, self.RESET)
             levelname = f"{color}{self.BOLD}{record.levelname:8}{self.RESET}"
@@ -821,17 +841,23 @@ def main() -> int:
     # Console handler with colors
     redactor = ensure_secret_redactor(ctx, log)
 
+    run_context_filter = _RunContextFilter(bug_id=ctx.bug_id, role=ctx.role)
+
     console_handler = logging.StreamHandler()
     console_formatter = ColorFormatter()
     console_handler.setFormatter(RedactingFormatter(console_formatter, redactor))
+    console_handler.addFilter(run_context_filter)
     logger.addHandler(console_handler)
 
     # File handler with JSON (if output directory exists)
     if ctx.output_dir.exists():
         log_file = ctx.output_dir / "auto-mir.log"
         file_handler = logging.FileHandler(log_file)
-        json_formatter = jsonlogger.JsonFormatter("%(asctime)s %(levelname)s %(name)s %(message)s")
+        json_formatter = jsonlogger.JsonFormatter(
+            "%(asctime)s %(levelname)s %(name)s %(bug_id)s %(role)s %(message)s"
+        )
         file_handler.setFormatter(RedactingFormatter(json_formatter, redactor))
+        file_handler.addFilter(run_context_filter)
         logger.addHandler(file_handler)
         log.info("JSON log file: %s", log_file)
 
