@@ -7,6 +7,7 @@ and determine whether language-specific checks should be activated.
 from __future__ import annotations
 
 import logging
+from typing import Callable
 
 log = logging.getLogger("auto_mir.checks.language_gates")
 
@@ -136,6 +137,18 @@ def _is_python_package(packaging: dict) -> bool:
     return False
 
 
+# Maps a single-language gate name to the one detector function used both
+# here and directly by any check that needs the fact outside the gating path
+# (e.g. CB-8 calls ``_is_python_package`` itself). Keeping exactly one
+# detector per language avoids two independently-evolving implementations of
+# "is this package written in X" ever silently drifting apart.
+_GATE_DETECTORS: dict[str, Callable[[dict], bool]] = {
+    "go": _is_go_package,
+    "rust": _is_rust_package,
+    "python": _is_python_package,
+}
+
+
 def _language_gate_active(gate: str, ctx) -> bool:
     """Return True when the named language gate is active for this package.
 
@@ -146,14 +159,19 @@ def _language_gate_active(gate: str, ctx) -> bool:
 
     Gates:
             go     — active when go.sum, dh-golang/golang hints, or Go
-                   source/tree hints are present
+                   source/tree hints are present (``_is_go_package``)
             rust   — active when Cargo.lock, dh_cargo/buildsystem hints, or
-                   Rust source/tree hints are present
-      python  — active when python3 or python in runtime deps
+                   Rust source/tree hints are present (``_is_rust_package``)
+      python  — active per the same packaging-metadata heuristics CB-8 uses
+                   directly (``_is_python_package``)
       go|rust — active when either go or rust is present (combined gate)
 
     Supports pipe-separated combined gates; returns True if any of the listed
-    gates would be active.
+    gates would be active. Every single-language gate dispatches to the one
+    detector function also used directly by checks that need the fact outside
+    the gating path (e.g. CB-8 calls ``_is_python_package`` itself), so there
+    is exactly one detection heuristic per language, never a second, looser
+    one duplicated here.
     """
     gate = gate.lower()
 
@@ -168,16 +186,11 @@ def _language_gate_active(gate: str, ctx) -> bool:
         # Cannot confirm absence; assume gate may be active.
         return True
 
-    if gate == "go":
-        return _is_go_package(packaging)
-
-    if gate == "rust":
-        return _is_rust_package(packaging)
-
-    if gate == "python":
-        dep_analysis = ctx.evidence.get("adapters", {}).get("dep-analysis", {})
-        all_deps = " ".join(dep_analysis.get("runtime_dep_packages", []))
-        return "python3" in all_deps.lower() or "python" in all_deps.lower()
+    detector = _GATE_DETECTORS.get(gate)
+    if detector is None:
+        log.warning("Unknown language gate '%s'; treating as active", gate)
+        return True
+    return detector(packaging)
 
     # Unknown gate — assume active (fail-safe).
     log.warning("Unknown language_gate '%s'; treating as active", gate)

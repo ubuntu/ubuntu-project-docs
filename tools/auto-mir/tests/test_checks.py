@@ -797,6 +797,29 @@ def test_language_gate_unknown_defaults_active():
     assert checks.language_gates._language_gate_active("cobol", ctx) is True
 
 
+def test_language_gate_python_uses_is_python_package_detector():
+    """The 'python' gate dispatches to _is_python_package, not a looser duplicate."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@ --with python3\noverride_dh_auto_build:\n\tdh_python3",
+        "debian_control": "Package: myapp\n",
+        "file_listing": [],
+    }
+    assert checks.language_gates._language_gate_active("python", ctx) is True
+
+
+def test_language_gate_python_inactive_without_python_signals():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "debian_control": "Package: myapp\n",
+        "file_listing": [],
+    }
+    assert checks.language_gates._language_gate_active("python", ctx) is False
+
+
 def test_language_gate_adapter_missing_defaults_active():
     ctx = _Ctx()
     # No packaging-source adapter — conservative fallback

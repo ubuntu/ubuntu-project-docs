@@ -4683,4 +4683,45 @@ Promotion: no
   `render_*_template.py --strict` regenerate cleanly; reviewer output
   confirmed byte-identical to the pre-change baseline via `diff`.
 
+## 2026-08-29 - Language-gate middleware refactor (Task 2 item #5)
+
+Promotion: no
+
+- Context: `checks/language_gates.py::_language_gate_active()` dispatched
+  `go`/`rust` gates to their real detector functions (`_is_go_package`/
+  `_is_rust_package`) but had a THIRD, independent, much cruder
+  implementation inlined for the `python` gate: a bare substring check on
+  `dep-analysis.runtime_dep_packages` (`"python3" in all_deps` or
+  `"python" in all_deps`), completely bypassing the already-existing, richer
+  `_is_python_package()` heuristic (build-system markers in debian/rules,
+  debian/control fields, `setup.py`/`setup.cfg`/`pyproject.toml` presence)
+  that `CB-8` already calls directly for its own evaluation. This was a real
+  duplicated/diverging implementation, not just a style inconsistency: the
+  gate could decide "not python" (skipping `CB-8` entirely) for a package
+  `_is_python_package()` would correctly classify as Python, or vice versa.
+- Fix (readability + de-duplication, per Task 2 item #5): added a
+  `_GATE_DETECTORS: dict[str, Callable[[dict], bool]]` mapping each single-
+  language gate name to its one detector function
+  (`go`/`rust`/`python` -> `_is_go_package`/`_is_rust_package`/
+  `_is_python_package`), and simplified `_language_gate_active()`'s
+  if/elif ladder to a single dict lookup + call. The combined-gate
+  (`"go|rust"`) recursion and the "adapter unavailable -> conservatively
+  active" / "unknown gate -> conservatively active" fallbacks are unchanged.
+- **Honest note on "no behavior change"**: this is not purely cosmetic -
+  the `python` gate now uses the same, more accurate detector `CB-8` already
+  relies on, instead of the old crude substring check. Any edge-case
+  package where the two heuristics previously disagreed will now gate
+  consistently with `CB-8`'s own judgement (which is strictly more correct,
+  not a regression) rather than silently diverging. No existing test
+  asserted the old crude behavior for the `python` gate specifically (only
+  `go`/`rust`/unknown/adapter-missing cases were covered), so this had zero
+  test-visible impact; two new tests were added to lock in the corrected,
+  unified behavior.
+- Validation: `make test` 904 passed/2 skipped (+2 new tests:
+  `test_language_gate_python_uses_is_python_package_detector`,
+  `test_language_gate_python_inactive_without_python_signals`). Both
+  `render_*_template.py --strict` regenerate byte-identical output (this
+  refactor is confined to `checks/language_gates.py`'s internal dispatch,
+  never touched by template rendering).
+
 
