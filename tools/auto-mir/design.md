@@ -293,7 +293,6 @@ Baseline local gate from `tools/auto-mir`:
 
 - `make lint`
 - `make test`
-- `make parity-contract` (advisory until baseline fixtures are populated)
 
 Integration gate (when execution/evidence boundaries change):
 

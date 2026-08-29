@@ -11,9 +11,6 @@ All commands run from `tools/auto-mir`.
 make lint
 make test
 
-# Baseline corpus contract checks
-make parity-contract
-
 # Full integration flow (lint + setup + unit + teardown)
 make integration
 ```
@@ -34,16 +31,7 @@ Fast tests exercising the core logic functions without LXD, LP API, or LLM calls
 
 These must pass on every PR. Zero tolerance for failures.
 
-### Tier 2 — Baseline parity contract gate (steady-state advisory)
-
-```bash
-make parity-contract
-```
-
-The parity contract now runs in advisory mode and reports baseline drift without
-failing the default validation pipeline.
-
-### Tier 3 — Manual Verification Against Real Cases (developer responsibility)
+### Tier 2 — Manual Verification Against Real Cases (developer responsibility)
 
 **Required before landing any major feature, check, or output format change.**
 Also the standard iteration workflow during development:
@@ -74,7 +62,7 @@ For each case, verify:
 
 Use `--keep-guest` to iterate without re-provisioning the LXD guest.
 
-### Tier 3.5 — Deterministic Regression Tests (offline, automated)
+### Tier 2.5 — Deterministic Regression Tests (offline, automated)
 
 ```bash
 make test
@@ -125,7 +113,7 @@ Each fixture contains:
 git diff tools/auto-mir/tests/fixtures/
 ```
 
-### Tier 4 — Integration Smoke Test (optional, requires LXD)
+### Tier 3 — Integration Smoke Test (optional, requires LXD)
 
 ```bash
 /usr/bin/python tools/auto-mir/integration_smoke.py
@@ -140,11 +128,10 @@ Not required for every PR — run when changing LXD runner or evidence adapters.
 Before requesting human review, an agent should:
 
 1. Run `make lint` and `make test`
-2. Run `make parity-contract`
-3. If changes touch evidence adapters or checks: run integration smoke
-4. If changes affect output rendering: compare output against a known bug run
-5. Record phase-gate outcomes in `decisions.md` using the phase ledger template
-6. Report any failures with full error output
+2. If changes touch evidence adapters or checks: run integration smoke
+3. If changes affect output rendering: compare output against a known bug run
+4. Record phase-gate outcomes in `decisions.md` using the phase ledger template
+5. Report any failures with full error output
 
 ## Test Artifact Management
 

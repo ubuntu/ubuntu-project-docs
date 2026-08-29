@@ -4810,4 +4810,36 @@ Promotion: no
   no new test was added; correctness was confirmed via the standalone
   verification script above instead).
 
+## 2026-08-29 - Removed `make parity-contract` bug-corpus baseline mechanism (Task 2 item #12)
+
+Promotion: no
+
+- Context: `make parity-contract` (`tests/check_parity_baseline.py` +
+  `tests/parity_baseline.json`) advisory-checked a small, hand-picked
+  baseline bug corpus manifest for drift. Per explicit user direction: real
+  MIR-bug input/output fixtures churn naturally and correctly over time as
+  the tool's behavior legitimately evolves, making this mechanism pure noise
+  rather than signal - a distraction until real-world behavior stabilizes
+  far more than it does today.
+- Removed: `tests/check_parity_baseline.py`, `tests/parity_baseline.json`,
+  the `parity-contract` `Makefile` target (and its removal from `.PHONY`),
+  and all steady-state usage references in `CATALOG.md`, `testing.md`
+  (renumbered its verification tiers to close the gap left by removing
+  "Tier 2"), and `design.md`'s "Verification model" section.
+- **Explicitly NOT touched/removed** - this is a different, unrelated
+  "parity" concept (naming collision only): `tests/test_artifacts.py` and
+  the `tests/fixtures/<bug_id>/` regression corpus it replays through the
+  deterministic check evaluators (documented in `testing.md`'s "Tier 2.5 -
+  Deterministic Regression Tests" section) remain fully in place - those
+  are legitimate, ongoing regression fixtures, not the advisory baseline-
+  manifest mechanism being removed here. Historical `decisions.md` entries
+  that recorded past `make parity-contract` PASS/WARN/SKIP results as part
+  of a dated round's validation log were left untouched - they are a
+  historical record of what ran at the time, not living documentation of a
+  currently-active mechanism.
+- Validation: `make test` 904 passed/2 skipped (no count change - no test
+  imported or exercised `check_parity_baseline.py`, since it does not match
+  pytest's `test_*.py` discovery pattern and was invoked only as a
+  standalone script from the now-removed `Makefile` target).
+
 

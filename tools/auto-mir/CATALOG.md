@@ -287,8 +287,4 @@ Catalog changes should keep these stability rules:
 ```bash
 make lint
 make test
-make parity-contract
 ```
-
-`make parity-contract` is advisory in steady state: use it to detect baseline
-drift without blocking day-to-day development when fixture packs are incomplete.
