@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 from unittest import mock
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import checks.deterministic
@@ -40,6 +42,7 @@ class _Ctx:
         self.review_type = review_type
         self.bug = {"subscribers": []}
         self.findings = []
+        self.tool_root = Path(__file__).resolve().parent.parent
         self.catalog = {
             "checks": [
                 {
@@ -994,10 +997,11 @@ def test_select_ev_to_ai_model_tier_large_for_long_prompt():
     assert tier == "large"
 
 
-def test_render_ev_to_ai_prompt_uses_disk_fallback_when_tool_root_missing():
-    """When prompts/ev_to_ai.md cannot be resolved, the on-disk fallback is used."""
+def test_render_ev_to_ai_prompt_raises_when_tool_root_missing():
+    """A missing/invalid tool_root means the checkout itself is damaged; this
+    must raise loudly rather than silently substitute alternate wording."""
     ctx = _Ctx()
-    ctx.tool_root = None  # force the fallback path
+    ctx.tool_root = None
     check = {
         "id": "URF-2",
         "title": "Memory safety",
@@ -1005,12 +1009,8 @@ def test_render_ev_to_ai_prompt_uses_disk_fallback_when_tool_root_missing():
         "todo_refs": ["TODO: - check"],
     }
 
-    prompt = checks.llm_eval._render_ev_to_ai_prompt(check, {"adapter": "x"}, "policy text", ctx)
-
-    # Placeholders are substituted and the fallback body is present.
-    assert "URF-2" in prompt
-    assert "{{check_id}}" not in prompt
-    assert "human MIR reviewer" in prompt
+    with pytest.raises(TypeError):
+        checks.llm_eval._render_ev_to_ai_prompt(check, {"adapter": "x"}, "policy text", ctx)
 
 
 def test_render_ev_to_ai_prompt_carries_reviewer_wording_guardrail():
@@ -1025,8 +1025,7 @@ def test_render_ev_to_ai_prompt_carries_reviewer_wording_guardrail():
 
     prompt = checks.llm_eval._render_ev_to_ai_prompt(check, {"adapter": "x"}, "policy text", ctx)
 
-    # Guardrail wording present regardless of whether the on-disk template or the
-    # fallback was used (both carry it).
+    # Guardrail wording present from the on-disk prompts/ev_to_ai.md template.
     assert "reviewer-facing language" in prompt
     assert "vendored_dirs" in prompt  # named as an example of what NOT to quote
 

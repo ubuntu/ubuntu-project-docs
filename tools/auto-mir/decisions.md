@@ -4530,4 +4530,51 @@ Promotion: no
   these two items). Both `render_*_template.py --strict` regenerate
   cleanly with no RULE[ tag leaks.
 
+## 2026-08-29 - Prompt versioning stays model-agnostic; ev_to_ai fallback removed
+
+Promotion: no
+
+- Prompt versioning per-model (repo-memory `refactoring-suggestions.md` item
+  12's "per-model versioned prompt files" half): **staying model-agnostic,
+  not implemented.** A single `prompts/ev_to_ai.md` continues to serve every
+  model tier; no per-model prompt selection/config surface was added. This
+  is a deliberate simplicity choice, not an oversight - revisit only if a
+  specific model is later found to need materially different prompt
+  wording to produce compliant JSON.
+- `prompts/ev_to_ai_fallback.md` removed (the other half of that refactoring
+  item: "delete the hardcoded fallback inside python code, treating a
+  missing prompt as a critical failure"). It was a stale, strictly-inferior
+  duplicate of `prompts/ev_to_ai.md` (missing the reviewer-facing-wording/
+  untrusted-input/injection-flag guidance the primary file already had). A
+  missing `prompts/ev_to_ai.md` at runtime means the source checkout itself
+  is damaged - not a condition to gracefully degrade from - so silently
+  falling back to inferior wording was masking a real integrity problem
+  rather than handling an expected one.
+- Merged the only 2 real wording deltas found by diffing the two files into
+  `prompts/ev_to_ai.md`: the `"message"` field gained the `"(1-2
+  sentences)"` qualifier, and the `"todo"` field's description now says
+  "otherwise a TODO: prefixed line" (spells out the literal required
+  prefix). The 3rd previously-considered delta ("only include
+  additional_evidence_requests when missing context prevents a good/
+  reliable answer") was already present near-verbatim in `ev_to_ai.md`, no
+  change needed there.
+- `checks/llm_eval.py::_render_ev_to_ai_prompt()` simplified: always
+  resolves `Path(tool_root) / "prompts" / "ev_to_ai.md"` and reads it
+  directly - a missing/invalid `tool_root` or missing file now raises
+  naturally (`TypeError`/`FileNotFoundError`) instead of silently
+  substituting fallback wording. Deleted the now-dead
+  `_load_fallback_prompt()` function and `_FALLBACK_PROMPT_PATH` constant.
+- Test updates: `tests/test_checks.py`'s `_Ctx` stub now sets a real
+  `tool_root` (pointing at the actual `tools/auto-mir` checkout) by default,
+  since the fallback path that let tests get away with an unset `tool_root`
+  no longer exists. Renamed
+  `test_render_ev_to_ai_prompt_uses_disk_fallback_when_tool_root_missing` to
+  `test_render_ev_to_ai_prompt_raises_when_tool_root_missing`, asserting
+  `TypeError` is raised (matching the new "damaged checkout must raise
+  loudly" behavior) instead of asserting fallback content appeared.
+- Validation: `make test` 896 passed/2 skipped (net-zero test count: one
+  test renamed/repurposed, no tests added or removed). Confirmed no
+  remaining references to `ev_to_ai_fallback`/`_load_fallback_prompt`/
+  `_FALLBACK_PROMPT_PATH` anywhere under `tools/auto-mir/` via grep.
+
 

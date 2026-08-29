@@ -716,12 +716,8 @@ def _render_ev_to_ai_prompt(
 ) -> str:
     """Render the ev_to_ai.md prompt template with check-specific substitutions."""
     tool_root = getattr(ctx, "tool_root", None)
-    template_path = tool_root and (Path(tool_root) / "prompts" / "ev_to_ai.md")
-
-    if template_path and Path(template_path).exists():
-        template = Path(template_path).read_text(encoding="utf-8")
-    else:
-        template = _load_fallback_prompt()
+    template_path = Path(tool_root) / "prompts" / "ev_to_ai.md"
+    template = template_path.read_text(encoding="utf-8")
 
     confidence_model = (
         ctx.catalog.get("global_policies", {})
@@ -1013,14 +1009,3 @@ def _summarise_findings_so_far(
             }
         )
     return results
-
-
-# Fallback prompt — used when prompts/ev_to_ai.md cannot be resolved from the
-# run context. Loaded from prompts/ev_to_ai_fallback.md next to this package so
-# it stays versioned alongside the primary template.
-_FALLBACK_PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "ev_to_ai_fallback.md"
-
-
-def _load_fallback_prompt() -> str:
-    """Read the on-disk fallback prompt template."""
-    return _FALLBACK_PROMPT_PATH.read_text(encoding="utf-8")
