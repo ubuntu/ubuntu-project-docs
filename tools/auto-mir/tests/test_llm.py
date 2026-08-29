@@ -534,3 +534,31 @@ def test_call_openai_compatible_impl_logs_attempt_start_and_elapsed(caplog, monk
         "LLM request starting for SEC-1" in message and "1234" in message for message in messages
     )
     assert any("LLM request for SEC-1 finished in" in message for message in messages)
+
+
+def test_call_llm_surfaces_auth_rejection_as_llm_error_not_a_crash(monkeypatch):
+    """A local/self-hosted endpoint that rejects the optional-auth fallback
+    token's format (HTTP 401) must surface through the normal LLMError path,
+    not propagate as a raw, uncaught urllib.error.HTTPError."""
+    import io
+    import urllib.error
+
+    def _fake_urlopen(req, timeout=None):
+        raise urllib.error.HTTPError(
+            url="https://example.test/v1/chat/completions",
+            code=401,
+            msg="Unauthorized",
+            hdrs={},
+            fp=io.BytesIO(b'{"error": "invalid api key format"}'),
+        )
+
+    monkeypatch.setattr(llm.urllib.request, "urlopen", _fake_urlopen)
+    ctx = SimpleNamespace(
+        llm_token=llm.FALLBACK_TOKEN,
+        llm_provider="openai-compatible",
+        llm_api_url="https://example.test/v1/chat/completions",
+        llm_retry_base_delay=0.001,
+    )
+
+    with pytest.raises(llm.LLMError, match="HTTP 401"):
+        llm.call_llm("prompt", ctx, model_tier="small", trace_label="SEC-1")

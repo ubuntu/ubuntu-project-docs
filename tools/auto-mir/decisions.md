@@ -4842,4 +4842,36 @@ Promotion: no
   pytest's `test_*.py` discovery pattern and was invoked only as a
   standalone script from the now-removed `Makefile` target).
 
+## 2026-08-29 - Optional-auth fallback-token format-rejection test (Task 2 item #3)
+
+Promotion: no
+
+- Context: when `OPENAI_API_KEY` is unset, `llm.resolve_auth()` returns
+  `FALLBACK_TOKEN` so a local/self-hosted endpoint that does not check
+  auth still works. No test previously exercised what happens when the
+  configured endpoint DOES check auth and rejects that fallback token's
+  format (e.g. HTTP 401) - it was unverified whether that surfaces via the
+  tool's normal `LLMError` handling or crashes as an uncaught
+  `urllib.error.HTTPError`.
+- Investigated the actual call chain before writing the test (rather than
+  assuming): `_call_openai_compatible_impl()` re-raises `HTTPError`
+  unchanged (so `retry_rate_limited` can retry 429/5xx); a 401 does not
+  match that retry predicate so it propagates immediately without retries;
+  `_invoke_with_budget()` (one layer up, inside `call_llm()`) already
+  catches `urllib.error.HTTPError` and converts it to a proper `LLMError`
+  with the status code and truncated response body in the message. So the
+  graceful-surfacing behavior the test needed to confirm was already
+  correctly implemented - this was a genuine test-coverage gap, not an
+  implementation gap.
+- Implemented with stdlib-only mocking (no new dependency needed, so the
+  "implement only if no new dependency needed" condition was met):
+  `test_call_llm_surfaces_auth_rejection_as_llm_error_not_a_crash` in
+  `tests/test_llm.py` monkeypatches `urllib.request.urlopen` to raise a 401
+  `HTTPError` (mirroring the existing
+  `test_call_openai_compatible_impl_logs_attempt_start_and_elapsed` mocking
+  style), sets `ctx.llm_token = llm.FALLBACK_TOKEN`, calls
+  `llm.call_llm(...)`, and asserts it raises `llm.LLMError` matching "HTTP
+  401" rather than letting the raw `HTTPError` escape.
+- Validation: `make test` 905 passed/2 skipped (+1 new test).
+
 
