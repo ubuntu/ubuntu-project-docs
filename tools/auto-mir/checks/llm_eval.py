@@ -410,7 +410,7 @@ def _resolve_build_log_requests(build_log: str, requests: list[dict | str]) -> l
     return snippets
 
 
-def _parse_build_log_request(request: dict | str) -> dict | None:
+def _parse_build_log_request(request: dict) -> dict | None:
     if isinstance(request, dict):
         req_type = str(request.get("type", "")).strip().lower()
         if req_type == "line_range":
@@ -438,27 +438,7 @@ def _parse_build_log_request(request: dict | str) -> dict | None:
             }
         return None
 
-    if not isinstance(request, str):
-        return None
-
-    text = request.strip()
-    if not text:
-        return None
-
-    range_match = re.search(r"line(?:s)?\s+(\d+)\s*-\s*(\d+)", text, flags=re.IGNORECASE)
-    if range_match:
-        start = int(range_match.group(1))
-        end = int(range_match.group(2))
-        if start > 0 and end >= start:
-            return {"type": "line_range", "start": start, "end": end}
-
-    pattern_match = re.search(r"pattern\s+(.+)$", text, flags=re.IGNORECASE)
-    if pattern_match:
-        pattern = pattern_match.group(1).strip()
-        if pattern:
-            return {"type": "pattern", "pattern": pattern, "max_matches": 20}
-
-    return {"type": "pattern", "pattern": text, "max_matches": 20}
+    return None
 
 
 def _build_log_pattern_matches(lines: list[str], pattern: str, max_matches: int) -> list[dict]:

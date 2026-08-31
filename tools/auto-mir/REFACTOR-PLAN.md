@@ -307,7 +307,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] B1  stabilize generated content (goldens from 598e27c31)
 - [x] #17 dead one-offs
 - [x] #7  Finding factory classmethods
-- [ ] #26 free-text evidence-request parsing
+- [x] #26 free-text evidence-request parsing
 - [ ] #27 Answer.raw_input
 - [ ] #12 legacy invocation + dead flags
 - [ ] #9  catalog_enums.py
