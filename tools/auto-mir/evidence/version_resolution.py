@@ -20,7 +20,6 @@ from typing import TYPE_CHECKING
 
 from evidence import launchpad_client
 from evidence.host_adapters import AdapterError
-from evidence.types import VersionResolutionResult
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
@@ -258,7 +257,7 @@ def _resolve_source_pocket_version(ctx: RunContext) -> tuple[str, str, str]:
     return version, pocket_label, note
 
 
-def collect_version_resolution(ctx: RunContext) -> VersionResolutionResult:
+def collect_version_resolution(ctx: RunContext) -> dict:
     """Resolve, once, which source version/pocket every other adapter uses.
 
     Reads lp-package-api's publish history (already scoped to the target

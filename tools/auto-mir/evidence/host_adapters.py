@@ -25,24 +25,6 @@ from typing import TYPE_CHECKING, Any
 
 import llm
 from evidence import launchpad_client
-from evidence.types import (
-    AutopkgtestResult,
-    ConsumerAutopkgtestsResult,
-    CvelistScanResult,
-    CVESearchTermsResult,
-    DebianBTSResult,
-    DependencyAutopkgtestsResult,
-    LPBugAPIResult,
-    LPBugSearchAPIResult,
-    LPBuildAPIResult,
-    LPMirHistoryResult,
-    LPPackageAPIResult,
-    LPTeamMembershipAPIResult,
-    NvdEnrichResult,
-    UbuntuCVETrackerResult,
-    UbuntuUploadPermissionResult,
-    UpstreamTrackerResult,
-)
 from utils import http as http_utils
 from utils import llm_evidence, llm_sanitize, predecessor_refs
 
@@ -86,7 +68,7 @@ class AdapterError(RuntimeError):
 # ---------------------------------------------------------------------------
 
 
-def collect_lp_bug_api(ctx: RunContext) -> LPBugAPIResult:
+def collect_lp_bug_api(ctx: RunContext) -> dict:
     """Return Launchpad bug data already collected by lp_intake.
 
     This is a passthrough: lp_intake.run() already populated ctx.bug.
@@ -115,7 +97,7 @@ def collect_lp_bug_api(ctx: RunContext) -> LPBugAPIResult:
     }
 
 
-def collect_lp_team_membership_api(ctx: RunContext) -> LPTeamMembershipAPIResult:
+def collect_lp_team_membership_api(ctx: RunContext) -> dict:
     """Return bug subscriber / team-membership data from lp_intake.
 
     ubuntu-mir subscription is the primary check gate (SUM-4); team member
@@ -138,7 +120,7 @@ def _lp_task_is_open(status: str) -> bool:
     return status not in closed_statuses
 
 
-def collect_lp_bug_search_api(ctx: RunContext) -> LPBugSearchAPIResult:
+def collect_lp_bug_search_api(ctx: RunContext) -> dict:
     """Search Launchpad bug tasks for the current Ubuntu source package.
 
     Uses the anonymous Launchpad REST API on the source-package object itself,
@@ -338,7 +320,7 @@ def _mir_history_candidate_names(ctx: RunContext) -> list[str]:
     return names[:_MIR_HISTORY_MAX_CANDIDATES]
 
 
-def collect_lp_mir_history(ctx: RunContext) -> LPMirHistoryResult:
+def collect_lp_mir_history(ctx: RunContext) -> dict:
     """Search Launchpad for prior MIR bugs on this source or a predecessor name.
 
     Best-effort: probes each candidate source name's bug tasks with a server-side
@@ -545,7 +527,7 @@ def summarise_release_cadence(history: list[dict]) -> dict:
     }
 
 
-def collect_lp_package_api(ctx: RunContext) -> LPPackageAPIResult:
+def collect_lp_package_api(ctx: RunContext) -> dict:
     """Query Launchpad package publishing history and build state via launchpadlib.
 
     Collects:
@@ -752,7 +734,7 @@ def _upload_permission_raw_output(
     return "\n".join(lines)
 
 
-def collect_ubuntu_upload_permission(ctx: RunContext) -> UbuntuUploadPermissionResult:
+def collect_ubuntu_upload_permission(ctx: RunContext) -> dict:
     """List who may upload the source package via the Launchpad archive API.
 
     Reveals whether the package is uploadable only by the MOTU team (the
@@ -1023,7 +1005,7 @@ def _parse_debian_bts_bug_sections(page_html: str) -> list[dict[str, Any]]:
     return bugs
 
 
-def collect_debian_bts(ctx: RunContext) -> DebianBTSResult:
+def collect_debian_bts(ctx: RunContext) -> dict:
     """Fetch open Debian BTS bugs for the current source package."""
     pkg = ctx.source_package
     if not pkg:
@@ -1261,7 +1243,7 @@ def _verified_upstream_url(candidates: list[str]) -> str:
     return ""
 
 
-def collect_upstream_tracker(ctx: RunContext) -> UpstreamTrackerResult:
+def collect_upstream_tracker(ctx: RunContext) -> dict:
     """Query release-monitoring.org for upstream release history.
 
     This is intentionally heuristic: it starts from the source package name and
@@ -1420,7 +1402,7 @@ def _builds_from_newest_publication(archive, lp_series, pkg: str) -> list[Any]:
     return []
 
 
-def collect_lp_build_api(ctx: RunContext) -> LPBuildAPIResult:
+def collect_lp_build_api(ctx: RunContext) -> dict:
     """Fetch Launchpad build-state information for the exact analysed version.
 
     Pinned to version-resolution's ``resolved_version``/``resolved_pocket`` so
@@ -1739,7 +1721,7 @@ def _candidate_cve_search_terms(pkg: str) -> list[str]:
     return cleaned
 
 
-def collect_cve_search_terms(ctx: RunContext) -> CVESearchTermsResult:
+def collect_cve_search_terms(ctx: RunContext) -> dict:
     """Produce the candidate search terms used to identify relevant CVEs.
 
     Always yields deterministic source-package name variants tagged ``current``.
@@ -1917,7 +1899,7 @@ def _cvelist_discover_baseline(url: str = _CVELIST_RELEASES_API) -> tuple[str, s
     raise AdapterError("no '*_all_CVEs_at_midnight.zip' asset found in recent releases")
 
 
-def collect_cvelist_scan(ctx: RunContext) -> CvelistScanResult:
+def collect_cvelist_scan(ctx: RunContext) -> dict:
     """Identify candidate CVEs by scanning cvelistV5 baseline corpus on the host."""
     pkg = ctx.source_package
     if not pkg:
@@ -2058,7 +2040,7 @@ def _nvd_description(cve: dict[str, Any]) -> str:
     return ""
 
 
-def collect_nvd_enrich(ctx: RunContext) -> NvdEnrichResult:
+def collect_nvd_enrich(ctx: RunContext) -> dict:
     """Enrich cvelist-scan candidates with normalized NVD metadata.
 
     For each candidate CVE identified in the baseline scan, query the NVD API for
@@ -2142,7 +2124,7 @@ def collect_nvd_enrich(ctx: RunContext) -> NvdEnrichResult:
     }
 
 
-def collect_ubuntu_cve_tracker(ctx: RunContext) -> UbuntuCVETrackerResult:
+def collect_ubuntu_cve_tracker(ctx: RunContext) -> dict:
     """Query OVAL data from https://security-metadata.canonical.com/oval/ for CVEs.
 
     Downloads and parses the XZ-compressed OVAL JSON file for the target series,
@@ -2230,7 +2212,7 @@ def collect_ubuntu_cve_tracker(ctx: RunContext) -> UbuntuCVETrackerResult:
 # ---------------------------------------------------------------------------
 
 
-def collect_autopkgtest(ctx: RunContext) -> AutopkgtestResult:
+def collect_autopkgtest(ctx: RunContext) -> dict:
     """Query autopkgtest SQLite database for package test results.
 
     Downloads https://autopkgtest.ubuntu.com/static/autopkgtest.db (once per
@@ -2340,7 +2322,7 @@ def fetch_autopkgtest_log_excerpt(package: str, series: str, arch: str, run_id: 
     return llm_evidence.summarise_build_log(text)
 
 
-def collect_consumer_autopkgtests(ctx: RunContext) -> ConsumerAutopkgtestsResult:
+def collect_consumer_autopkgtests(ctx: RunContext) -> dict:
     """Look up autopkgtest status for the source's reverse-dependency consumers.
 
     Reads the consumer source packages discovered by the reverse-deps adapter
@@ -2424,7 +2406,7 @@ def collect_consumer_autopkgtests(ctx: RunContext) -> ConsumerAutopkgtestsResult
     }
 
 
-def collect_dependency_autopkgtests(ctx: RunContext) -> DependencyAutopkgtestsResult:
+def collect_dependency_autopkgtests(ctx: RunContext) -> dict:
     """Look up autopkgtest status for each in-main runtime dependency's source.
 
     Reads the in-main runtime dependencies discovered by the dep-analysis

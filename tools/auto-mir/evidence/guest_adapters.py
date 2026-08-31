@@ -16,18 +16,6 @@ from typing import TYPE_CHECKING
 import lxd_runner
 from checks.language_gates import _is_rust_package
 from evidence import launchpad_client
-from evidence.types import (
-    BinaryPackageInspectionResult,
-    ComponentMismatchesResult,
-    DebMetadataResult,
-    DepAnalysisResult,
-    DupSearchResult,
-    FetchBuildResult,
-    GitUbuntuDeltaResult,
-    LintianResult,
-    PackagingSourceResult,
-    ReverseDepsResult,
-)
 from utils import http as http_utils
 
 if TYPE_CHECKING:
@@ -654,7 +642,7 @@ def _scan_source_security_markers(ctx: RunContext, full_source: str) -> dict:
     }
 
 
-def collect_packaging_source(ctx: RunContext) -> PackagingSourceResult:
+def collect_packaging_source(ctx: RunContext) -> dict:
     """Fetch and analyze Debian packaging source files.
 
     Runs apt-get source in the LXD guest to fetch the source package, then
@@ -784,7 +772,7 @@ _GENERIC_SEARCH_STOPWORDS = {
 }
 
 
-def collect_dup_search(ctx: RunContext) -> DupSearchResult:
+def collect_dup_search(ctx: RunContext) -> dict:
     """Suggest possible duplicate/overlapping packages in the archive.
 
     Deliberately best-effort and suggestion-only (RDO-1 and the human reviewer
@@ -1074,7 +1062,7 @@ def _apt_cache_show_synopsis(ctx: RunContext, name: str) -> str | None:
 # ---------------------------------------------------------------------------
 
 
-def collect_dep_analysis(ctx: RunContext) -> DepAnalysisResult:
+def collect_dep_analysis(ctx: RunContext) -> dict:
     """Analyze runtime dependencies from built packages.
 
     Extracts dependencies from built .deb files (post-build), maps them to source
@@ -1332,7 +1320,7 @@ def _classify_delta_category(diffstat: str) -> str:
     return "general"
 
 
-def collect_git_ubuntu_delta(ctx: RunContext) -> GitUbuntuDeltaResult:
+def collect_git_ubuntu_delta(ctx: RunContext) -> dict:
     """Determine the Ubuntu delta vs Debian, using git-ubuntu only when needed.
 
     The current source version (from debian/changelog) is classified first.
@@ -1485,7 +1473,7 @@ def _map_binaries_to_sources(ctx: RunContext, binaries: list[str]) -> dict[str, 
     return mapping
 
 
-def collect_reverse_deps(ctx: RunContext) -> ReverseDepsResult:
+def collect_reverse_deps(ctx: RunContext) -> dict:
     """Collect reverse-dependency consumers of the source package.
 
     Runs ``reverse-depends`` (from ubuntu-dev-tools) for both binary and
@@ -1560,7 +1548,7 @@ def collect_reverse_deps(ctx: RunContext) -> ReverseDepsResult:
 # ---------------------------------------------------------------------------
 
 
-def collect_component_mismatches(ctx: RunContext) -> ComponentMismatchesResult:
+def collect_component_mismatches(ctx: RunContext) -> dict:
     """Run component-mismatches tool to identify packages needing promotion.
 
     Executes the ubuntu-archive-tools component-mismatches script to determine
@@ -1812,7 +1800,7 @@ def _download_binaries_for_arch(
     return downloaded
 
 
-def collect_fetch_build(ctx: RunContext) -> FetchBuildResult:
+def collect_fetch_build(ctx: RunContext) -> dict:
     """Fetch the official Launchpad build for the guest's own architecture.
 
     A promotion candidate is expected to already be published in universe
@@ -2026,7 +2014,7 @@ def collect_fetch_build(ctx: RunContext) -> FetchBuildResult:
     }
 
 
-def collect_binary_package_inspection(ctx: RunContext) -> BinaryPackageInspectionResult:
+def collect_binary_package_inspection(ctx: RunContext) -> dict:
     """Expose the single fetch-build-time binary extraction as a stable adapter contract."""
     fetch_build = ctx.evidence.get("adapters", {}).get("fetch-build", {})
     if fetch_build.get("status") != "ok":
@@ -2052,7 +2040,7 @@ def collect_binary_package_inspection(ctx: RunContext) -> BinaryPackageInspectio
 # ---------------------------------------------------------------------------
 
 
-def collect_lintian(ctx: RunContext) -> LintianResult:
+def collect_lintian(ctx: RunContext) -> dict:
     """Expose the lintian output parsed from the fetch-build run as a standalone adapter."""
     fetch_build_result = ctx.evidence.get("adapters", {}).get("fetch-build", {})
     if fetch_build_result.get("status") != "ok":
@@ -2094,7 +2082,7 @@ def _parse_built_using_entries(field_text: str) -> list[str]:
     return [e for e in entries if e]  # Filter empty strings
 
 
-def collect_deb_metadata(ctx: RunContext) -> DebMetadataResult:
+def collect_deb_metadata(ctx: RunContext) -> dict:
     """Extract metadata from built .deb files.
 
     Runs after fetch-build completes to extract Package, Version, Built-Using,

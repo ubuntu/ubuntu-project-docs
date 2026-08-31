@@ -15,7 +15,8 @@ sources with in-VM analysis.
 
 - `evidence/__init__.py`: collection orchestration, dependency ordering, and the
   `ADAPTER_REGISTRY` id->collector mapping.
-- `evidence/types.py`: TypedDict contracts for adapter payloads.
+- Adapter payloads are plain dicts; their shapes are documented in
+  CATALOG.md ("Evidence adapter data contracts").
 - `evidence/host_adapters.py`: host-executed adapters (APIs, web/data feeds).
 - `evidence/guest_adapters.py`: in-guest adapters (packaging, build, lint, scans).
 - `evidence/team_mapping_adapter.py`: SUM-4 team-mapping integration.
