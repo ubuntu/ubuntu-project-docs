@@ -547,6 +547,18 @@ def _check_dep_3(ctx: RunContext, finding: Finding) -> Finding:
     return finding
 
 
+def _built_using_entries(deb_metadata: dict) -> list[str]:
+    """Every Built-Using and Static-Built-Using entry across built packages.
+
+    Shared by ESL-3 (toolchain-only acceptance) and ESL-10 (Rust vendoring).
+    """
+    entries: set[str] = set()
+    for pkg in deb_metadata.get("deb_packages", []):
+        entries.update(pkg.get("built_using", []))
+        entries.update(pkg.get("static_built_using", []))
+    return sorted(entries)
+
+
 def _check_esl_3(ctx: RunContext, finding: Finding) -> Finding:
     """ESL-3: No unexpected Built-Using entries.
 
@@ -561,18 +573,7 @@ def _check_esl_3(ctx: RunContext, finding: Finding) -> Finding:
     if deb_metadata.get("status") != "ok":
         return _set_unknown_from_adapter(finding, check, todo_key="unknown_todo")
 
-    deb_packages = deb_metadata.get("deb_packages", [])
-
-    # Collect all Built-Using and Static-Built-Using entries from all packages
-    all_built_using = []
-    all_static_built_using = []
-
-    for pkg in deb_packages:
-        all_built_using.extend(pkg.get("built_using", []))
-        all_static_built_using.extend(pkg.get("static_built_using", []))
-
-    # Combine and deduplicate for analysis
-    all_entries = sorted(set(all_built_using + all_static_built_using))
+    all_entries = _built_using_entries(deb_metadata)
 
     if not all_entries:
         finding.succeed(render_check_message(check, "ok_message"))
@@ -728,17 +729,10 @@ def _check_esl_10(ctx: RunContext, finding: Finding) -> Finding:
     # Check for unexpected Built-Using from binary packages (not source debian/control)
     deb_metadata = adapters.get("deb-metadata", {})
     if deb_metadata.get("status") == "ok":
-        deb_packages = deb_metadata.get("deb_packages", [])
-        all_built_using = []
-        for pkg in deb_packages:
-            all_built_using.extend(pkg.get("built_using", []))
-            # Note: Static-Built-Using for Rust should also be toolchain-only
-            all_built_using.extend(pkg.get("static_built_using", []))
-
         # Filter out expected entries (rust, cargo, cgo, standard toolchain)
         unexpected_bu = [
             e
-            for e in all_built_using
+            for e in _built_using_entries(deb_metadata)
             if not any(
                 keyword in e.lower()
                 for keyword in ["rust", "cargo", "cgo", "golang", "${misc:built-using}"]

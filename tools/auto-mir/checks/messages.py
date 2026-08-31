@@ -32,15 +32,3 @@ def render_check_message(check: dict, key: str, **kwargs) -> str:
         ) from exc
     except ValueError as exc:
         raise ValueError(f"Check {check_id} template '{key}' format error: {exc}") from exc
-
-
-def render_check_message_or_default(check: dict, key: str, default: str, **kwargs) -> str:
-    """Render message template when a messages map exists, else return default.
-
-    This enables phased migration without changing behavior for checks that are
-    not migrated yet. If a messages map exists, rendering is strict.
-    """
-    messages = check.get("messages")
-    if messages is None:
-        return default
-    return render_check_message(check, key, **kwargs)

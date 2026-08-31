@@ -318,7 +318,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #14 registries → dicts
 - [x] #16 unknown-block unification
 - [x] #4  dep-scan spec table (SEC-10 bespoke)
-- [ ] #20 checks dedup
+- [x] #20 checks dedup
 - [ ] #15 version compare
 - [ ] #2  evidence/types.py
 - [ ] #18 inline single-function adapters

@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from checks.messages import render_check_message, render_check_message_or_default
+from checks.messages import render_check_message
 
 
 def test_render_check_message_strict_success():
@@ -43,15 +43,3 @@ def test_render_check_message_missing_placeholder_raises():
         assert False, "Expected ValueError"
     except ValueError as exc:
         assert "missing placeholder value" in str(exc)
-
-
-def test_render_check_message_or_default_uses_default_when_unmigrated():
-    check = {"id": "SEC-1"}
-
-    rendered = render_check_message_or_default(
-        check,
-        "llm_unavailable_message",
-        "LLM unavailable: boom",
-        error="boom",
-    )
-    assert rendered == "LLM unavailable: boom"

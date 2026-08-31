@@ -12,7 +12,7 @@ import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from checks.messages import render_check_message_or_default
+from checks.messages import render_check_message
 from models import Finding
 from utils import llm_evidence, llm_sanitize
 
@@ -43,16 +43,29 @@ _FULL_CONTENT_FIELDS_BY_CHECK: dict[str, set[str]] = {
 }
 
 
-def _eval_ev_to_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
+def _eval_ev_to_ai(
+    check: dict,
+    ctx: RunContext,
+    finding: Finding,
+    *,
+    evidence_payload: dict | None = None,
+    model_tier: str | None = None,
+    fallback_suffix: str = "manual review needed (LLM unavailable)",
+    fallback_rationale: bool = True,
+    refine: bool = True,
+) -> Finding:
     """Evaluate a check by combining collected evidence with an LLM call.
 
     Assembles the evidence payload relevant to this check, renders the
     ev_to_ai.md prompt template, calls the LLM, and maps the response back
     to a finding dict.  Falls back to a manual-review TODO on any failure.
+    ``ai`` checks reuse this path with their own full-findings payload, a
+    fixed large tier and no refinement step.
     """
     import llm
 
-    evidence_payload = _build_evidence_payload(check, ctx)
+    if evidence_payload is None:
+        evidence_payload = _build_evidence_payload(check, ctx)
     policy_excerpt = _build_policy_excerpt(check, ctx)
     prompt = _render_ev_to_ai_prompt(check, evidence_payload, policy_excerpt, ctx)
 
@@ -60,10 +73,11 @@ def _eval_ev_to_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     # large and they reason over the whole run. Other ev_to_ai checks select the
     # tier from prompt/evidence complexity, with the one-shot larger-budget retry
     # in call_llm() as the backstop when a reasoning model overflows.
-    if check.get("synthesis"):
-        model_tier = "large"
-    else:
-        model_tier = _select_ev_to_ai_model_tier(prompt, evidence_payload)
+    if model_tier is None:
+        if check.get("synthesis"):
+            model_tier = "large"
+        else:
+            model_tier = _select_ev_to_ai_model_tier(prompt, evidence_payload)
 
     try:
         response = llm.call_llm(prompt, ctx, model_tier=model_tier, trace_label=check["id"])
@@ -73,22 +87,24 @@ def _eval_ev_to_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
             check,
             finding,
             exc,
-            fallback_suffix="manual review needed (LLM unavailable)",
+            fallback_suffix=fallback_suffix,
         )
-        # Even when the model is unavailable, surface any deterministic evidence
-        # already gathered (e.g. dup-search candidates for RDO-1) so the reviewer
-        # is not left with a bare TODO.
-        finding.rationale = _fallback_rationale_for_check(check, ctx)
+        if fallback_rationale:
+            # Even when the model is unavailable, surface any deterministic evidence
+            # already gathered (e.g. dup-search candidates for RDO-1) so the reviewer
+            # is not left with a bare TODO.
+            finding.rationale = _fallback_rationale_for_check(check, ctx)
         return finding
 
-    response = _maybe_refine_with_additional_evidence(
-        check,
-        ctx,
-        response,
-        evidence_payload,
-        policy_excerpt,
-        model_tier,
-    )
+    if refine:
+        response = _maybe_refine_with_additional_evidence(
+            check,
+            ctx,
+            response,
+            evidence_payload,
+            policy_excerpt,
+            model_tier,
+        )
 
     return _apply_llm_response(response, check, finding)
 
@@ -99,12 +115,9 @@ def _eval_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     Uses the same LLM path as ev_to_ai but passes the full evidence store rather
     than check-specific adapters.  Used for checks like SUM-5 (overall verdict).
     """
-    import llm
-
-    # For pure-AI checks, pass all available context (findings so far + bug metadata).
-    # Synthesis checks (e.g. SUM-5 overall verdict) must see essentially all the
-    # information, so include the full reporter MIR content and larger per-finding
-    # messages rather than the compact per-check budgets.
+    # Pure-AI synthesis checks (e.g. SUM-5 overall verdict) must see essentially
+    # all the information, so include the full reporter MIR content and larger
+    # per-finding messages rather than the compact per-check budgets.
     full_evidence = {
         "source_package": ctx.source_package,
         "bug_id": ctx.bug_id,
@@ -120,40 +133,23 @@ def _eval_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
             ctx, max_message_len=_SYNTHESIS_FINDING_MESSAGE_CHARS
         ),
     }
-    policy_excerpt = _build_policy_excerpt(check, ctx)
-    prompt = _render_ev_to_ai_prompt(check, full_evidence, policy_excerpt, ctx)
-
-    try:
-        # Pure AI synthesis works over cross-check aggregate context and should
-        # always use the large model tier.
-        response = llm.call_llm(prompt, ctx, model_tier="large", trace_label=check["id"])
-    except llm.LLMError as exc:
-        log.warning("LLM call failed for check %s: %s", check["id"], exc)
-        _apply_llm_unavailable_fallback(
-            check,
-            finding,
-            exc,
-            fallback_suffix="requires AI synthesis",
-        )
-        return finding
-
-    return _apply_llm_response(response, check, finding)
+    return _eval_ev_to_ai(
+        check,
+        ctx,
+        finding,
+        evidence_payload=full_evidence,
+        model_tier="large",
+        fallback_suffix="requires AI synthesis",
+        fallback_rationale=False,
+        refine=False,
+    )
 
 
 def _eval_human_only(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     """Evaluate checks that require human judgment only."""
     finding.mark_unknown(
-        message=render_check_message_or_default(
-            check,
-            "human_only_message",
-            "Human review required",
-        ),
-        todo=render_check_message_or_default(
-            check,
-            "human_only_todo",
-            f"TODO: - {check.get('title', 'Check')} — reviewer judgment needed",
-            title=check.get("title", "Check"),
-        ),
+        message=render_check_message(check, "human_only_message"),
+        todo=render_check_message(check, "human_only_todo", title=check.get("title", "Check")),
     )
     return finding
 
@@ -167,12 +163,7 @@ def _apply_llm_unavailable_fallback(
 ) -> None:
     """Apply the standard unknown/low-confidence fallback for LLM outages."""
     finding.mark_unknown(
-        message=render_check_message_or_default(
-            check,
-            "llm_unavailable_message",
-            f"LLM unavailable: {error}",
-            error=str(error),
-        ),
+        message=render_check_message(check, "llm_unavailable_message", error=str(error)),
         todo=_default_todo_for_check(check, fallback_suffix=fallback_suffix),
     )
 

@@ -652,6 +652,7 @@ def test_eval_ai_graceful_on_large_tier_llm_error():
         "title": "Summary verdict",
         "section": "Summary",
         "todo_refs": [],
+        "messages": {"llm_unavailable_message": "LLM unavailable: {error}"},
     }
     finding = _make_finding("SUM-5", mode="ai")
 
@@ -671,6 +672,7 @@ def test_eval_ev_to_ai_graceful_on_small_tier_llm_error():
         "todo_refs": ["TODO: - Manual security review"],
         "adapters_required": [],
         "adapters_optional": [],
+        "messages": {"llm_unavailable_message": "LLM unavailable: {error}"},
     }
     finding = _make_finding("SEC-1", mode="ev_to_ai")
 
@@ -691,6 +693,7 @@ def test_eval_ev_to_ai_graceful_on_large_tier_llm_error():
         "todo_refs": ["TODO: - Manual security review"],
         "adapters_required": [],
         "adapters_optional": [],
+        "messages": {"llm_unavailable_message": "LLM unavailable: {error}"},
     }
     finding = _make_finding("SEC-1", mode="ev_to_ai")
 
