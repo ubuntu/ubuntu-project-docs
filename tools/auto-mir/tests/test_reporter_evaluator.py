@@ -395,18 +395,11 @@ def test_question_from_item_list_only_no_note_when_evidence_unavailable():
     assert question.options[0].list_note == ""
 
 
-def test_question_from_item_marks_option_with_equals_followup():
+def test_question_from_item_reads_leads_to_followup_flag():
+    """The follow-up hint is catalog-declared per option (leads_to_followup),
+    replacing the old symbolic analysis of sibling items' applicability trees."""
     ctx = SimpleNamespace(
-        source_package="rust-ntpd",
-        evidence={"adapters": {}},
-        catalog={
-            "items": [
-                {
-                    "id": "REP-RATIONALE-006",
-                    "applicability": {"item": "REP-RATIONALE-005", "equals": "niche"},
-                }
-            ]
-        },
+        source_package="rust-ntpd", evidence={"adapters": {}}, catalog={"items": []}
     )
     item = {
         "id": "REP-RATIONALE-005",
@@ -415,7 +408,12 @@ def test_question_from_item_marks_option_with_equals_followup():
             "prompt": "Broad or niche?",
             "options": [
                 {"id": "broad", "label": "Broad", "statement": "Broadly useful."},
-                {"id": "niche", "label": "Niche", "statement": "Serves a niche."},
+                {
+                    "id": "niche",
+                    "label": "Niche",
+                    "statement": "Serves a niche.",
+                    "leads_to_followup": True,
+                },
             ],
         },
     }
@@ -425,36 +423,6 @@ def test_question_from_item_marks_option_with_equals_followup():
     by_id = {option.id: option for option in question.options}
     assert by_id["niche"].leads_to_followup is True
     assert by_id["broad"].leads_to_followup is False
-
-
-def test_question_from_item_marks_all_options_followup_for_truthy_condition():
-    ctx = SimpleNamespace(
-        source_package="rust-ntpd",
-        evidence={"adapters": {}},
-        catalog={
-            "items": [
-                {
-                    "id": "REP-QA-TEST-006",
-                    "applicability": {"item": "REP-QA-TEST-005", "truthy": True},
-                }
-            ]
-        },
-    )
-    item = {
-        "id": "REP-QA-TEST-005",
-        "question": {
-            "kind": "single_choice",
-            "prompt": "How can this be tested?",
-            "options": [
-                {"id": "A-team-hardware", "label": "Team hardware", "statement": "x"},
-                {"id": "X-exhausted", "label": "Exhausted", "statement": "y"},
-            ],
-        },
-    }
-
-    question = _question_from_item(item, ctx)
-
-    assert all(option.leads_to_followup for option in question.options)
 
 
 def test_question_from_item_no_hint_when_no_downstream_item_references_it():

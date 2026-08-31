@@ -521,6 +521,7 @@ items:
     - id: niche
       label: Narrower use case that still matters
       statement: '- The package TBDSRC serves a narrower but important Ubuntu use case.'
+      leads_to_followup: true
   template: "TODO-A: - The package TBDSRC will generally be useful for a large part of\nTODO-A:   our user base\nTODO-B: - The package TBDSRC will not generally be useful for a large part of\nTODO-B:   our user base, but is important/helpful still because TBD"
 - id: REP-RATIONALE-006
   section: Rationale
@@ -599,6 +600,7 @@ items:
     - id: specific-packages
       label: A specific subset of binary packages (list them below)
       statement: '- Specific binary packages built by TBDSRC, listed below, need to be in main.'
+      leads_to_followup: true
       spell_out_filter: list_only
     options_source:
       adapter: packaging-source
@@ -630,6 +632,7 @@ items:
     - id: required-by
       label: Yes, a well-founded deadline exists
       statement: '- The package TBDSRC is required in Ubuntu main by a defined deadline.'
+      leads_to_followup: true
     - id: no-deadline
       label: No definitive deadline
       statement: '- The package would be useful in main, but there is no definitive deadline.'
@@ -759,10 +762,12 @@ items:
     - id: team-access
       label: Exotic hardware is required and accessible to the team
       statement: '- Required exotic hardware is available to the owning team for debugging, testing, verification, and development.'
+      leads_to_followup: true
       readiness: blocker
     - id: other-special
       label: Something else / a special situation applies
       statement: '- Exotic hardware access follows a different, situation-specific arrangement; see the details below.'
+      leads_to_followup: true
       readiness: blocker
   template: "TODO-A: - The package does not deal with exotic hardware we cannot support\nTODO-B: - The package does deal with exotic hardware, such hardware is available\nTODO-B:   to the team for debugging, test, verification and development via:"
 - id: REP-QA-MAINT-002
@@ -1043,9 +1048,11 @@ items:
     - id: end-user-facing
       label: End-user facing (desktop program, or otherwise user-visible)
       statement: '- This package is end-user facing; desktop-file and translation applicability are assessed below.'
+      leads_to_followup: true
     - id: not-end-user-facing
       label: Not end-user facing (server, CLI-only tool, daemon, or library)
       statement: '- This package is not end-user facing (server, CLI-only tool, daemon, or library), so desktop-file and translation requirements do not apply.'
+      leads_to_followup: true
   template: "TODO-A: - Application is not end-user facing (does not need translation)\nTODO-B: - Application is end-user facing, Translation is present, via standard\nTODO-B:   intltool/gettext or similar build and runtime internationalization\nTODO-B:   system see TBD"
 - id: REP-UI-002
   section: UI standards
@@ -1143,6 +1150,7 @@ items:
     - id: separate
       label: Separate MIR bugs
       statement: '- Further dependencies outside main are handled by separate MIR bugs, referenced below.'
+      leads_to_followup: true
     - id: same-request
       label: This MIR request
       statement: '- Further dependencies outside main are promoted together with this MIR request; their sources must also complete MIR review as part of this bug.'
@@ -1183,6 +1191,7 @@ items:
     - id: B-violations
       label: This package violates FHS or Debian Policy, reasons for that are TBD
       statement: '- This package violates FHS or Debian Policy; the reasons are detailed below.'
+      leads_to_followup: true
   template: "TODO-A: - This package correctly follows FHS and Debian Policy\nTODO-B: - This package violates FHS or Debian Policy, reasons for that are TBD"
 - id: REP-STD-001B
   section: Standards compliance
@@ -1221,6 +1230,7 @@ items:
     - id: B-concerns
       label: A concern was identified and needs explanation
       statement: '- A license concern relevant to the full support lifetime was identified.'
+      leads_to_followup: true
   template: "TODO-A: - Based on a reasonable review of information available at the time of\nTODO-A:   this report, no expiry, time-limited grants, or obvious legal\nTODO-A:   encumbrances have been identified that would be expected to affect\nTODO-A:   promotion\nTODO-B: - The license carries potential encumbrances or time-bound terms,\nTODO-B:   details: TBD"
 - id: REP-STD-002B
   section: Standards compliance
@@ -1256,6 +1266,7 @@ items:
     - id: new-team
       label: A different team will take ownership
       statement: '- A different owning team will subscribe to this package, named below.'
+      leads_to_followup: true
   template: "TODO-A: - The owning team will be TBD and I have their acknowledgment for\nTODO-A:   that commitment\nTODO-B: - I Suggest the owning team to be TBD"
 - id: REP-MAINT-001B
   section: Maintenance/Owner
