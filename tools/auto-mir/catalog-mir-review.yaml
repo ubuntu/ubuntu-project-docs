@@ -518,6 +518,10 @@ checks:
     ok_message: 'Review for Source Package: {source_package}'
     not_ok_message: Source package could not be determined
     not_ok_todo: 'TODO: Clarify which source package this review is for'
+  required_messages:
+    ok_message: [source_package]
+    not_ok_message: []
+    not_ok_todo: []
   todo_refs:
   - 'TODO: Review for Source Package: TBDSRC'
   ai_policy: none
@@ -533,6 +537,10 @@ checks:
     rereview_ok_message: Reporter template not required for re-review/reorg; proceeding without it.
     nack_message: Reporter MIR template content not found (hard stop)
     nack_todo: 'TODO: - Reporter must post their completed MIR template'
+  required_messages:
+    ok_message: []
+    nack_message: []
+    nack_todo: []
   todo_refs:
   - prerequisite gate before all other checks
   ai_policy: none
@@ -567,6 +575,12 @@ checks:
     ok_message: 'Package has team subscriber(s): {subscribed_teams}'
     not_ok_message: Package does not have a team subscriber
     not_ok_todo: 'TODO: - The package should get a team bug subscriber on this bug before being promoted'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_message: [subscribed_teams]
+    not_ok_message: []
+    not_ok_todo: []
   todo_refs:
   - 'TODO: - The package should get a team bug subscriber before being promoted'
   ai_policy: none
@@ -691,6 +705,12 @@ checks:
     not_ok_message: 'Runtime dependencies from other source packages outside main: {deps}'
     not_ok_todo: 'TODO: - File MIR for runtime dependencies from other source packages: {deps}'
     ok_message: no runtime dependencies outside main needing MIR
+  required_messages:
+    unknown_adapter_message: []
+    unknown_adapter_todo: []
+    not_ok_message: [deps]
+    not_ok_todo: [deps]
+    ok_message: []
   todo_refs:
   - 'TODO: - no other runtime Dependencies to MIR due to this'
   ai_policy: none
@@ -730,6 +750,16 @@ checks:
     not_ok_offending_todo: 'TODO: - Consider adding extra-excludes for auto-included binaries with offending dependencies ({details}); otherwise MIR may also be needed for: {offending_deps}'
     ok_safe_message: Auto-included binaries ({auto_included}) will be auto-included, and have no dependencies outside main
     ok_same_request_message: 'no -dev/-debug/-doc packages that need exclusion (Auto-included binaries ({auto_included}) pull dependencies outside main or with unknown component: {same_request_deps}, but that is part of this very request and therefore ok)'
+  required_messages:
+    unknown_packaging_message: []
+    unknown_packaging_todo: []
+    unknown_dep_analysis_message: []
+    unknown_dep_analysis_todo: []
+    ok_no_auto_included_message: []
+    not_ok_offending_message: [auto_included, offending_deps]
+    not_ok_offending_todo: [details, offending_deps]
+    ok_safe_message: [auto_included]
+    ok_same_request_message: [auto_included, same_request_deps]
   todo_refs:
   - 'TODO: - no -dev/-debug/-doc packages that need exclusion'
   ai_policy: none
@@ -769,6 +799,14 @@ checks:
     ok_built_using_message: 'Built-Using entries present but no embedded source was detected in the package source'
     ok_message: no embedded source present or not used in build
     llm_unavailable_message: 'LLM unavailable: {error}'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    not_ok_message: [embedded_dirs]
+    not_ok_todo: [embedded_dirs]
+    ok_built_using_message: []
+    ok_message: []
+    llm_unavailable_message: [error]
   todo_refs:
   - 'TODO: - no embedded source present'
   ai_policy: |
@@ -810,6 +848,15 @@ checks:
     not_ok_detail_hints: 'debian/rules hints: {hints}'
     not_ok_message: 'Static linking detected without clear justification; review needed{detail}'
     not_ok_todo: 'TODO: - no static linking'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_message: []
+    ok_justified_message: []
+    not_ok_detail_binaries: [binaries]
+    not_ok_detail_hints: [hints]
+    not_ok_message: [detail]
+    not_ok_todo: []
   negated_statement: static linking present without clear justification
   todo_refs:
   - 'TODO: - no static linking'
@@ -831,6 +878,13 @@ checks:
     ok_toolchain_message: 'Built-Using entries present but appear to be standard toolchain entries: {entries}'
     not_ok_message: 'Unexpected Built-Using entries that may indicate untracked embedded source: {entries}'
     not_ok_todo: 'TODO: - Review Built-Using entries — possible untracked embedded source: {entries}'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_message: []
+    ok_toolchain_message: [entries]
+    not_ok_message: [entries]
+    not_ok_todo: [entries]
   todo_refs:
   - 'TODO: - does not have unexpected Built-Using entries'
   ai_policy: none
@@ -849,6 +903,11 @@ checks:
     unknown_todo: 'TODO: - Determine if this is a Go package'
     ok_go_message: 'Go Package — Debian Go packaging guidelines apply (see ESL-5/6/7)'
     ok_not_go_message: not a go package, no extra constraints to consider in that regard
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_go_message: []
+    ok_not_go_message: []
   todo_refs:
   - 'TODO-A: - not a go package, no extra constraints to consider in that regard'
   - 'TODO-B: - Go Package that follows the Debian Go packaging guidelines'
@@ -927,6 +986,15 @@ checks:
     recommended_todo: 'TODO: - Confirm Go build mode — if static, team must confirm commitment to additional maintenance responsibilities implied by static builds'
     unknown_build_mode_message: Go package but build mode could not be determined from debian/rules
     unknown_build_mode_todo: 'TODO: - Determine Go build type (shared vs static)'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_not_go_message: []
+    ok_shared_message: []
+    recommended_message: []
+    recommended_todo: []
+    unknown_build_mode_message: []
+    unknown_build_mode_todo: []
   todo_refs:
   - 'TODO-A: - golang: shared builds'
   - 'TODO-B: - golang: static builds are used, the team confirmed their commitment'
@@ -955,6 +1023,11 @@ checks:
     unknown_todo: 'TODO: - Determine if this is a Rust package'
     ok_rust_message: 'Rust Package — Rust-specific constraints apply (see ESL-9/10)'
     ok_not_rust_message: not a rust package, no extra constraints to consider in that regard
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_rust_message: []
+    ok_not_rust_message: []
   todo_refs:
   - 'TODO-A: - not a rust package, no extra constraints to consider in that regard'
   - 'TODO-B: - Rust package that has all dependencies vendored...'
@@ -985,6 +1058,13 @@ checks:
     ok_message: 'rust package using dh_cargo (dh ... --buildsystem cargo)'
     not_ok_message: Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules
     not_ok_todo: 'TODO: - Rust packages must use dh_cargo (dh ... --buildsystem cargo)'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_not_rust_message: []
+    ok_message: []
+    not_ok_message: []
+    not_ok_todo: []
   todo_refs:
   - 'TODO: - rust package using dh_cargo (dh ... --buildsystem cargo)'
   ai_policy: none
@@ -1006,6 +1086,13 @@ checks:
     not_ok_message: 'Rust package has issues: {problems}'
     not_ok_todo: 'TODO: - Fix Rust package issues: {problems}'
     ok_message: 'Rust package that has all dependencies vendored. It does neither have *Built-Using (after build). Nor does the build log indicate built-in sources missed as Built-Using.'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_not_rust_message: []
+    not_ok_message: [problems]
+    not_ok_todo: [problems]
+    ok_message: []
   todo_refs:
   - 'TODO-B: - Rust package that has all dependencies vendored. It does neither have *Built-Using...'
   ai_policy: none
@@ -1070,6 +1157,14 @@ checks:
     not_ok_message: Package runs daemon as root without security mitigations
     not_ok_todo: 'TODO: - does not run a daemon as root'
     ok_message: does not run a daemon as root
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    mitigated_message: []
+    mitigated_todo: []
+    not_ok_message: []
+    not_ok_todo: []
+    ok_message: []
   negated_statement: runs a daemon as root without security mitigations
   todo_refs:
   - 'TODO: - does not run a daemon as root'
@@ -1087,6 +1182,11 @@ checks:
     unknown_message: Could not analyse webkit dependencies
     blocker_message: 'webkit1/2 dependency found ({dep}) — hard blocker'
     blocker_todo: 'TODO: - webkit1/2 dependency must be removed before main inclusion'
+  required_messages:
+    ok_message: []
+    unknown_message: []
+    blocker_message: [dep]
+    blocker_todo: []
   todo_refs:
   - 'TODO: - does not use webkit1,2'
   ai_policy: none
@@ -1102,6 +1202,11 @@ checks:
     unknown_message: Could not analyse v8 dependencies
     blocker_message: 'lib*v8 dependency found ({dep}) — hard blocker'
     blocker_todo: 'TODO: - direct lib*v8 dependency must be removed before main inclusion'
+  required_messages:
+    ok_message: []
+    unknown_message: []
+    blocker_message: [dep]
+    blocker_todo: []
   todo_refs:
   - 'TODO: - does not use lib*v8 directly'
   ai_policy: none
@@ -1162,6 +1267,13 @@ checks:
     not_ok_source_message: 'Online accounts pattern found: {pattern}'
     not_ok_todo: 'TODO: - does not use centralized online accounts'
     ok_message: does not use centralized online accounts
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    not_ok_dep_message: [dep]
+    not_ok_source_message: [pattern]
+    not_ok_todo: []
+    ok_message: []
   todo_refs:
   - 'TODO: - does not use centralized online accounts'
   ai_policy: none
@@ -1194,6 +1306,13 @@ checks:
     not_ok_runtime_message: 'PAM runtime library dependency found: {dep} — verify it does not handle auth'
     not_ok_todo: 'TODO: - does not deal with system authentication (eg, pam), etc)'
     ok_message: does not deal with system authentication (eg, pam), etc)
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    not_ok_dev_message: [dep]
+    not_ok_runtime_message: [dep]
+    not_ok_todo: []
+    ok_message: []
   todo_refs:
   - 'TODO: - does not deal with system authentication (eg, pam), etc)'
   ai_policy: none
@@ -1263,6 +1382,14 @@ checks:
     not_ok_message: 'Launchpad build state shows failures: {failed_builds}'
     not_ok_todo: 'TODO: - does not FTBFS currently'
     ok_message: 'does not FTBFS currently; Launchpad build records pass for arches: {passing_arches}'
+  required_messages:
+    unknown_no_lp_message: []
+    unknown_no_lp_todo: []
+    unknown_no_builds_message: []
+    unknown_no_builds_todo: []
+    not_ok_message: [failed_builds]
+    not_ok_todo: []
+    ok_message: [passing_arches]
   negated_statement: does FTBFS currently
   todo_refs:
   - 'TODO: - does not FTBFS currently'
@@ -1384,6 +1511,11 @@ checks:
     unknown_message: Could not analyse Python2 dependencies
     blocker_message: 'Python2 dependency found ({dep}) — hard blocker'
     blocker_todo: 'TODO: - python2 dependency must be removed or ported before main inclusion'
+  required_messages:
+    ok_message: []
+    unknown_message: []
+    blocker_message: [dep]
+    blocker_todo: []
   todo_refs:
   - 'TODO: - no new python2 dependency'
   ai_policy: none
@@ -1402,6 +1534,13 @@ checks:
     ok_message: Python package, but using dh_python
     not_ok_message: Python package detected but dh_python/dh_python3 not found in debian/rules
     not_ok_todo: 'TODO: - Python packages must use dh_python'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_not_python_message: []
+    ok_message: []
+    not_ok_message: []
+    not_ok_todo: []
   todo_refs:
   - 'TODO: - Python package, but using dh_python'
   ai_policy: none
@@ -1476,6 +1615,13 @@ checks:
     ok_no_shared_message: symbols tracking not applicable for this kind of code
     not_ok_message: Shared library is shipped but no debian/*.symbols file was found
     not_ok_todo: 'TODO: - symbols tracking isn''t in place; add a debian/*.symbols file (or, for C++ libraries, document why tracking is impractical)'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_message: []
+    ok_no_shared_message: []
+    not_ok_message: []
+    not_ok_todo: []
   todo_refs:
   - 'TODO-A: - symbols tracking is in place.'
   - 'TODO-B: - For c++ libraries - symbols tracking isn''t in place but the owning team tried...'
@@ -1516,6 +1662,13 @@ checks:
     ok_native_message: debian/watch is not present but also not needed (native package)
     not_ok_message: Non-native package but debian/watch not found
     not_ok_todo: 'TODO: - Add debian/watch to track upstream releases'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_message: []
+    ok_native_message: []
+    not_ok_message: []
+    not_ok_todo: []
   todo_refs:
   - 'TODO-A: - debian/watch is present and looks ok (if needed, e.g. non-native)'
   - 'TODO-B: - debian/watch is not present but also not needed (e.g. native)'
@@ -1582,6 +1735,16 @@ checks:
     version_lag_message: 'Package version lag detected: {archive} vs {upstream}'
     unknown_lag_message: Could not determine version lag
     version_lag_todo: 'TODO: - Verify upstream version availability'
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    ok_message: []
+    very_behind_message: [archive, upstream]
+    somewhat_behind_message: [archive, upstream]
+    behind_todo: []
+    version_lag_message: [archive, upstream]
+    unknown_lag_message: []
+    version_lag_todo: []
   todo_refs:
   - 'TODO: - the current release is packaged'
   ai_policy: none
@@ -1621,6 +1784,15 @@ checks:
     minor_message: 'Lintian found {count} minor warnings - acceptable'
     minor_todo: 'TODO: - {count} minor lintian warnings documented'
     ok_message: no excessive lintian warnings
+  required_messages:
+    unknown_message: []
+    not_ok_errors_message: [errors]
+    not_ok_errors_todo: []
+    not_ok_many_message: [count]
+    not_ok_many_todo: []
+    minor_message: [count]
+    minor_todo: [count]
+    ok_message: []
   todo_refs:
   - 'TODO: - no massive Lintian warnings'
   ai_policy: none
@@ -1696,6 +1868,15 @@ checks:
     warnings_todo: 'TODO: - no Errors/warnings during the build'
     warnings_rationale: 'review {count} build warning(s) and decide if acceptable: {sample}'
     ok_message: no Errors/warnings during the build
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    not_ok_errors_message: [errors]
+    not_ok_errors_todo: []
+    warnings_message: [count, sample]
+    warnings_todo: []
+    warnings_rationale: [count, sample]
+    ok_message: []
   negated_statement: Concerning Errors/warnings during the build
   todo_refs:
   - 'TODO: - no Errors/warnings during the build'
@@ -1739,6 +1920,12 @@ checks:
     not_ok_message: Potential sudo/gksu/pkexec/LD_LIBRARY_PATH usage found outside tests
     not_ok_todo: 'TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)'
     ok_message: no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    not_ok_message: []
+    not_ok_todo: []
+    ok_message: []
   todo_refs:
   - 'TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)'
   ai_policy: none
@@ -1759,6 +1946,12 @@ checks:
     not_ok_message: 'User ''nobody'' found outside test context: {hits}'
     not_ok_todo: 'TODO: - no use of user ''nobody'' outside of tests'
     ok_message: no use of user 'nobody' outside of tests
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    not_ok_message: [hits]
+    not_ok_todo: []
+    ok_message: []
   todo_refs:
   - 'TODO: - no use of user ''nobody'' outside of tests'
   ai_policy: none
@@ -1785,6 +1978,18 @@ checks:
     not_ok_message: 'setuid/setgid detected in {source}'
     not_ok_todo: 'TODO: - no use of setuid / setgid'
     ok_message: no use of setuid / setgid
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    source_binaries: [files]
+    source_lintian: []
+    source_tree: [hits]
+    source_rules: []
+    systemd_message: [source]
+    systemd_todo: []
+    not_ok_message: [source]
+    not_ok_todo: []
+    ok_message: []
   todo_refs:
   - 'TODO: - no use of setuid / setgid'
   - 'TODO: - use of setuid, but ok because TBD (prefer systemd to set those for services)'
@@ -1820,6 +2025,12 @@ checks:
     not_ok_message: 'Old web engine dependency found: {dep}'
     not_ok_todo: 'TODO: - no dependency on webkit, qtwebkit or libseed'
     ok_message: no dependency on webkit, qtwebkit or libseed
+  required_messages:
+    unknown_message: []
+    unknown_todo: []
+    not_ok_message: [dep]
+    not_ok_todo: []
+    ok_message: []
   todo_refs:
   - 'TODO: - no dependency on webkit, qtwebkit or libseed'
   ai_policy: none

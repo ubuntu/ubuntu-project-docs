@@ -174,6 +174,7 @@ def test_validate_catalog_requires_dep3_messages():
                 "title": "No -dev/-debug/-doc packages needing exclusion",
                 "mode": "deterministic",
                 "adapters_required": ["dep-analysis"],
+                "required_messages": {"ok_safe_message": ["auto_included"]},
             }
         ],
     }
@@ -212,6 +213,16 @@ def test_validate_catalog_dep3_placeholder_validation():
                     "not_ok_offending_message": "bad {auto_included}",
                     "not_ok_offending_todo": "TODO {offending_deps}",
                     "ok_safe_message": "safe {auto_included}",
+                },
+                "required_messages": {
+                    "unknown_packaging_message": [],
+                    "unknown_packaging_todo": [],
+                    "unknown_dep_analysis_message": [],
+                    "unknown_dep_analysis_todo": [],
+                    "ok_no_auto_included_message": [],
+                    "not_ok_offending_message": ["auto_included", "offending_deps"],
+                    "not_ok_offending_todo": ["details", "offending_deps"],
+                    "ok_safe_message": ["auto_included"],
                 },
             }
         ],
