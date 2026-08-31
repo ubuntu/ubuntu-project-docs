@@ -21,18 +21,17 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(TOOL_ROOT))
 
 import catalog  # noqa: E402
-import render_reporter_template  # noqa: E402
-import render_review_template  # noqa: E402
+import render_template  # noqa: E402
 
 
 def _render_reporter() -> str:
     data = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
-    return render_reporter_template.render_reporter_template(data)
+    return render_template.render_template(data, "report")
 
 
 def _render_reviewer() -> str:
     data = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "review")
-    return render_review_template._render_from_blueprint(data)
+    return render_template.render_template(data, "review")
 
 
 def test_reporter_include_matches_golden():

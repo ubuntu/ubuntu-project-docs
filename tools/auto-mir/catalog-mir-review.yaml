@@ -19,24 +19,6 @@
 role: review
 metadata:
   review_template_blueprint:
-  - (mir-reviewers-template)=
-  - '# MIR reviewer''s template'
-  - ''
-  - This section is a guideline for the **reviewer** as they
-  - '{ref}`review an MIR bug <mir-step-2>`. The intent is to answer the primary'
-  - 'question:'
-  - ''
-  - '*Will this package be well maintained in main?*'
-  - ''
-  - Usage follows {ref}`mir-how-to-use-templates`.
-  - ''
-  - '* By default, statements are in the **OK** section.'
-  - ''
-  - '* Issues to be addressed should go to the **Problem:** sections (and briefly'
-  - '  the **[Summary]** at the top of the template).'
-  - ''
-  - '```{code-block} text'
-  - ':linenos:'
   - ''
   - 'RULE[review-multi-package-clarity]: Since we sometimes have many such posts on one bug, in case multiple'
   - 'RULE: packages are associated, clearly state which one this is for.'
@@ -500,7 +482,6 @@ metadata:
   - 'TODO-A: Problems:'
   - 'TODO-A: - TBD'
   - 'TODO-B: Problems: None'
-  - '```'
 checks:
 # ==========================================================================
 # Summary

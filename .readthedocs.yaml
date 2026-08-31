@@ -26,8 +26,8 @@ build:
         exit 183;
       fi
     post_install:
-    - python tools/auto-mir/render_review_template.py --strict
-    - python tools/auto-mir/render_reporter_template.py --strict
+    - python tools/auto-mir/render_template.py review --strict
+    - python tools/auto-mir/render_template.py report --strict
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
