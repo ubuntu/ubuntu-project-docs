@@ -319,7 +319,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #16 unknown-block unification
 - [x] #4  dep-scan spec table (SEC-10 bespoke)
 - [x] #20 checks dedup
-- [ ] #15 version compare
+- [x] #15 version compare
 - [ ] #2  evidence/types.py
 - [ ] #18 inline single-function adapters
 - [ ] #25 launchpad_client slim

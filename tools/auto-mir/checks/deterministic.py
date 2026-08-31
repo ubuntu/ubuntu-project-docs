@@ -1965,57 +1965,33 @@ def _check_prf_8(ctx: RunContext, finding: Finding) -> Finding:
     return finding
 
 
-def _split_debian_version(version_str: str) -> tuple[int, str, str]:
-    """Split a Debian/Ubuntu package version into epoch, upstream, revision."""
-    if not version_str:
-        return (0, "", "")
-
-    epoch = 0
-    remainder = version_str
-    if ":" in version_str:
-        epoch_str, _, tail = version_str.partition(":")
-        if epoch_str.isdigit():
-            epoch = int(epoch_str)
-            remainder = tail
-
-    if "-" in remainder:
-        upstream_version, _, debian_revision = remainder.rpartition("-")
-    else:
-        upstream_version = remainder
-        debian_revision = ""
-
-    return (epoch, upstream_version, debian_revision)
-
-
 def _normalize_upstream_version(version_str: str) -> str:
-    """Normalize a version string to the upstream version part used for PRF-6."""
-    _, upstream_version, _ = _split_debian_version(version_str)
-    normalized = upstream_version or version_str
+    """Normalize a version to its upstream part (epoch and Debian revision stripped)."""
+    normalized = version_str
+    if ":" in normalized:
+        epoch, _, tail = normalized.partition(":")
+        if epoch.isdigit():
+            normalized = tail
+    if "-" in normalized:
+        normalized = normalized.rpartition("-")[0] or normalized
     if normalized.startswith("v") and len(normalized) > 1 and normalized[1].isdigit():
         normalized = normalized[1:]
     return normalized
 
 
-def _parse_version_tuple(version_str: str) -> tuple:
-    """Parse the normalized upstream version into a coarse semantic tuple."""
-    normalized = _normalize_upstream_version(version_str)
-    if not normalized:
-        return ()
-
-    tokens = re.findall(r"\d+|[A-Za-z]+|~", normalized)
-    parsed: list[int | str] = []
-    for token in tokens:
-        if token.isdigit():
-            parsed.append(int(token))
-        else:
-            parsed.append(token.lower())
-    return tuple(parsed)
+def _version_major(version_str: str) -> int:
+    """Return the leading integer of the normalized upstream version, else 0."""
+    match = re.match(r"\d+", _normalize_upstream_version(version_str))
+    return int(match.group()) if match else 0
 
 
 def _compare_versions(left: str, right: str) -> int:
-    """Compare two Debian-style versions using dpkg semantics."""
-    comparisons = (("lt", -1), ("gt", 1), ("eq", 0))
-    for operator, result in comparisons:
+    """Compare two Debian-style versions using dpkg semantics.
+
+    Two calls decide the trichotomy: lt, then gt; if neither matches, the
+    versions are equal.
+    """
+    for operator, result in (("lt", -1), ("gt", 1)):
         completed = subprocess.run(
             ["dpkg", "--compare-versions", left, operator, right],
             check=False,
@@ -2024,7 +2000,7 @@ def _compare_versions(left: str, right: str) -> int:
         )
         if completed.returncode == 0:
             return result
-    raise RuntimeError(f"Could not compare versions: {left!r} vs {right!r}")
+    return 0
 
 
 def _versions_compatible(archive_version: str, upstream_version: str) -> tuple[bool, str]:
@@ -2074,62 +2050,35 @@ def _check_prf_6(ctx: RunContext, finding: Finding) -> Finding:
         finding.succeed(render_check_message(check, "ok_message"))
     else:
         # Archive is behind - determine if "somewhat behind" or "very old"
-        archive_parts = _parse_version_tuple(archive_version)
-        upstream_parts = _parse_version_tuple(upstream_version)
         archive_norm = _normalize_upstream_version(archive_version)
         upstream_norm = _normalize_upstream_version(upstream_version)
+        major_gap = _version_major(upstream_version) - _version_major(archive_version)
 
-        if archive_parts and upstream_parts:
-            # Compare major versions
-            archive_major = archive_parts[0] if isinstance(archive_parts[0], int) else 0
-            upstream_major = upstream_parts[0] if isinstance(upstream_parts[0], int) else 0
-
-            # If major version is 2+ behind, it's very old
-            if isinstance(archive_major, int) and isinstance(upstream_major, int):
-                major_gap = upstream_major - archive_major
-
-                if major_gap >= 2:
-                    # Very old
-                    finding.fail(
-                        render_check_message(
-                            check,
-                            "very_behind_message",
-                            archive=archive_norm,
-                            upstream=upstream_norm,
-                        ),
-                        render_check_message(check, "behind_todo"),
-                        severity="required",
-                        confidence="high",
-                    )
-                else:
-                    # Somewhat behind (1 major version or minor version differences)
-                    finding.fail(
-                        render_check_message(
-                            check,
-                            "somewhat_behind_message",
-                            archive=archive_norm,
-                            upstream=upstream_norm,
-                        ),
-                        render_check_message(check, "behind_todo"),
-                        severity="recommended",
-                        confidence="high",
-                    )
-            else:
-                # Can't determine major - mark as recommended
-                finding.fail(
-                    render_check_message(
-                        check, "version_lag_message", archive=archive_norm, upstream=upstream_norm
-                    ),
-                    render_check_message(check, "version_lag_todo"),
-                    severity="recommended",
-                    confidence="medium",
-                )
-        else:
+        # If major version is 2+ behind, it's very old
+        if major_gap >= 2:
             finding.fail(
-                render_check_message(check, "unknown_lag_message"),
-                render_check_message(check, "version_lag_todo"),
+                render_check_message(
+                    check,
+                    "very_behind_message",
+                    archive=archive_norm,
+                    upstream=upstream_norm,
+                ),
+                render_check_message(check, "behind_todo"),
+                severity="required",
+                confidence="high",
+            )
+        else:
+            # Somewhat behind (1 major version or minor version differences)
+            finding.fail(
+                render_check_message(
+                    check,
+                    "somewhat_behind_message",
+                    archive=archive_norm,
+                    upstream=upstream_norm,
+                ),
+                render_check_message(check, "behind_todo"),
                 severity="recommended",
-                confidence="medium",
+                confidence="high",
             )
 
     finding.evidence_refs = ["lp-package-api:current_version", "upstream-tracker:latest_version"]

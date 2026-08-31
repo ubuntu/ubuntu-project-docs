@@ -1732,9 +1732,6 @@ checks:
     very_behind_message: 'Package is very behind upstream: {archive} vs {upstream}'
     somewhat_behind_message: 'Package is somewhat behind upstream: {archive} vs {upstream}'
     behind_todo: 'TODO: - Consider updating to a more recent upstream release'
-    version_lag_message: 'Package version lag detected: {archive} vs {upstream}'
-    unknown_lag_message: Could not determine version lag
-    version_lag_todo: 'TODO: - Verify upstream version availability'
   required_messages:
     unknown_message: []
     unknown_todo: []
@@ -1742,9 +1739,6 @@ checks:
     very_behind_message: [archive, upstream]
     somewhat_behind_message: [archive, upstream]
     behind_todo: []
-    version_lag_message: [archive, upstream]
-    unknown_lag_message: []
-    version_lag_todo: []
   todo_refs:
   - 'TODO: - the current release is packaged'
   ai_policy: none
