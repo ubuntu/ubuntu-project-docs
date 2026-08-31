@@ -24,7 +24,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import llm
-from catalog_enums import AdapterID
 from evidence import launchpad_client
 from evidence.registry import adapter
 from evidence.types import (
@@ -88,7 +87,7 @@ class AdapterError(RuntimeError):
 # ---------------------------------------------------------------------------
 
 
-@adapter(AdapterID.LP_BUG_API)
+@adapter("lp-bug-api")
 def collect_lp_bug_api(ctx: RunContext) -> LPBugAPIResult:
     """Return Launchpad bug data already collected by lp_intake.
 
@@ -118,7 +117,7 @@ def collect_lp_bug_api(ctx: RunContext) -> LPBugAPIResult:
     }
 
 
-@adapter(AdapterID.LP_TEAM_MEMBERSHIP_API)
+@adapter("lp-team-membership-api")
 def collect_lp_team_membership_api(ctx: RunContext) -> LPTeamMembershipAPIResult:
     """Return bug subscriber / team-membership data from lp_intake.
 
@@ -142,7 +141,7 @@ def _lp_task_is_open(status: str) -> bool:
     return status not in closed_statuses
 
 
-@adapter(AdapterID.LP_BUG_SEARCH_API)
+@adapter("lp-bug-search-api")
 def collect_lp_bug_search_api(ctx: RunContext) -> LPBugSearchAPIResult:
     """Search Launchpad bug tasks for the current Ubuntu source package.
 
@@ -343,7 +342,7 @@ def _mir_history_candidate_names(ctx: RunContext) -> list[str]:
     return names[:_MIR_HISTORY_MAX_CANDIDATES]
 
 
-@adapter(AdapterID.LP_MIR_HISTORY)
+@adapter("lp-mir-history")
 def collect_lp_mir_history(ctx: RunContext) -> LPMirHistoryResult:
     """Search Launchpad for prior MIR bugs on this source or a predecessor name.
 
@@ -551,7 +550,7 @@ def summarise_release_cadence(history: list[dict]) -> dict:
     }
 
 
-@adapter(AdapterID.LP_PACKAGE_API)
+@adapter("lp-package-api")
 def collect_lp_package_api(ctx: RunContext) -> LPPackageAPIResult:
     """Query Launchpad package publishing history and build state via launchpadlib.
 
@@ -759,7 +758,7 @@ def _upload_permission_raw_output(
     return "\n".join(lines)
 
 
-@adapter(AdapterID.UBUNTU_UPLOAD_PERMISSION)
+@adapter("ubuntu-upload-permission")
 def collect_ubuntu_upload_permission(ctx: RunContext) -> UbuntuUploadPermissionResult:
     """List who may upload the source package via the Launchpad archive API.
 
@@ -1031,7 +1030,7 @@ def _parse_debian_bts_bug_sections(page_html: str) -> list[dict[str, Any]]:
     return bugs
 
 
-@adapter(AdapterID.DEBIAN_BTS)
+@adapter("debian-bts")
 def collect_debian_bts(ctx: RunContext) -> DebianBTSResult:
     """Fetch open Debian BTS bugs for the current source package."""
     pkg = ctx.source_package
@@ -1270,7 +1269,7 @@ def _verified_upstream_url(candidates: list[str]) -> str:
     return ""
 
 
-@adapter(AdapterID.UPSTREAM_TRACKER)
+@adapter("upstream-tracker")
 def collect_upstream_tracker(ctx: RunContext) -> UpstreamTrackerResult:
     """Query release-monitoring.org for upstream release history.
 
@@ -1430,7 +1429,7 @@ def _builds_from_newest_publication(archive, lp_series, pkg: str) -> list[Any]:
     return []
 
 
-@adapter(AdapterID.LP_BUILD_API)
+@adapter("lp-build-api")
 def collect_lp_build_api(ctx: RunContext) -> LPBuildAPIResult:
     """Fetch Launchpad build-state information for the exact analysed version.
 
@@ -1750,7 +1749,7 @@ def _candidate_cve_search_terms(pkg: str) -> list[str]:
     return cleaned
 
 
-@adapter(AdapterID.CVE_SEARCH_TERMS)
+@adapter("cve-search-terms")
 def collect_cve_search_terms(ctx: RunContext) -> CVESearchTermsResult:
     """Produce the candidate search terms used to identify relevant CVEs.
 
@@ -1929,7 +1928,7 @@ def _cvelist_discover_baseline(url: str = _CVELIST_RELEASES_API) -> tuple[str, s
     raise AdapterError("no '*_all_CVEs_at_midnight.zip' asset found in recent releases")
 
 
-@adapter(AdapterID.CVELIST_SCAN)
+@adapter("cvelist-scan")
 def collect_cvelist_scan(ctx: RunContext) -> CvelistScanResult:
     """Identify candidate CVEs by scanning cvelistV5 baseline corpus on the host."""
     pkg = ctx.source_package
@@ -2071,7 +2070,7 @@ def _nvd_description(cve: dict[str, Any]) -> str:
     return ""
 
 
-@adapter(AdapterID.NVD_ENRICH)
+@adapter("nvd-enrich")
 def collect_nvd_enrich(ctx: RunContext) -> NvdEnrichResult:
     """Enrich cvelist-scan candidates with normalized NVD metadata.
 
@@ -2156,7 +2155,7 @@ def collect_nvd_enrich(ctx: RunContext) -> NvdEnrichResult:
     }
 
 
-@adapter(AdapterID.UBUNTU_CVE_TRACKER)
+@adapter("ubuntu-cve-tracker")
 def collect_ubuntu_cve_tracker(ctx: RunContext) -> UbuntuCVETrackerResult:
     """Query OVAL data from https://security-metadata.canonical.com/oval/ for CVEs.
 
@@ -2245,7 +2244,7 @@ def collect_ubuntu_cve_tracker(ctx: RunContext) -> UbuntuCVETrackerResult:
 # ---------------------------------------------------------------------------
 
 
-@adapter(AdapterID.AUTOPKGTEST_DB)
+@adapter("autopkgtest-db")
 def collect_autopkgtest(ctx: RunContext) -> AutopkgtestResult:
     """Query autopkgtest SQLite database for package test results.
 
@@ -2356,7 +2355,7 @@ def fetch_autopkgtest_log_excerpt(package: str, series: str, arch: str, run_id: 
     return llm_evidence.summarise_build_log(text)
 
 
-@adapter(AdapterID.CONSUMER_AUTOPKGTESTS)
+@adapter("consumer-autopkgtests")
 def collect_consumer_autopkgtests(ctx: RunContext) -> ConsumerAutopkgtestsResult:
     """Look up autopkgtest status for the source's reverse-dependency consumers.
 
@@ -2441,7 +2440,7 @@ def collect_consumer_autopkgtests(ctx: RunContext) -> ConsumerAutopkgtestsResult
     }
 
 
-@adapter(AdapterID.DEPENDENCY_AUTOPKGTESTS)
+@adapter("dependency-autopkgtests")
 def collect_dependency_autopkgtests(ctx: RunContext) -> DependencyAutopkgtestsResult:
     """Look up autopkgtest status for each in-main runtime dependency's source.
 

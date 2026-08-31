@@ -9,7 +9,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from catalog_enums import AdapterID
 from evidence.registry import adapter
 from utils import http as http_utils
 
@@ -27,7 +26,7 @@ NON_SUBSCRIBER_TEAMS = {
 TEAM_MAPPING_URL = "https://static-reports.ubuntu.com/package-team-mapping.json"
 
 
-@adapter(AdapterID.TEAM_MAPPING)
+@adapter("team-mapping")
 def collect_team_mapping(ctx) -> dict[str, Any]:
     """Fetch team mapping from static report and check package subscriptions.
 

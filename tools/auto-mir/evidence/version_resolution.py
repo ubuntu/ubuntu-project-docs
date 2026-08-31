@@ -18,7 +18,6 @@ import logging
 import sys
 from typing import TYPE_CHECKING
 
-from catalog_enums import AdapterID
 from evidence import launchpad_client
 from evidence.host_adapters import AdapterError
 from evidence.registry import adapter
@@ -260,7 +259,7 @@ def _resolve_source_pocket_version(ctx: RunContext) -> tuple[str, str, str]:
     return version, pocket_label, note
 
 
-@adapter(AdapterID.VERSION_RESOLUTION)
+@adapter("version-resolution")
 def collect_version_resolution(ctx: RunContext) -> VersionResolutionResult:
     """Resolve, once, which source version/pocket every other adapter uses.
 

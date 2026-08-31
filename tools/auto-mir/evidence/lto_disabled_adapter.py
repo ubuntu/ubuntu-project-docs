@@ -14,7 +14,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from catalog_enums import AdapterID
 from evidence.registry import adapter
 from utils import http as http_utils
 
@@ -43,7 +42,7 @@ def _parse_lto_disabled_list(text: str) -> dict[str, list[str]]:
     return mapping
 
 
-@adapter(AdapterID.LTO_DISABLED_LIST)
+@adapter("lto-disabled-list")
 def collect_lto_disabled_list(ctx) -> dict[str, Any]:
     """Check whether the source package is on the lto-disabled-list.
 
