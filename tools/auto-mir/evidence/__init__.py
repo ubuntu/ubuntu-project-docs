@@ -13,8 +13,11 @@ from __future__ import annotations
 import graphlib
 import importlib
 import logging
+from typing import TYPE_CHECKING
 
-from contracts import EvidenceContext
+if TYPE_CHECKING:
+    from auto_mir import RunContext
+
 from evidence.host_adapters import AdapterError as AdapterError
 from evidence.host_adapters import cleanup_cached_autopkgtest_db
 from evidence.registry import ADAPTER_REGISTRY
@@ -47,7 +50,7 @@ def _summarize_result(result: dict) -> str:
     return ", ".join(parts)
 
 
-def collect_from_catalog(ctx: EvidenceContext) -> int:
+def collect_from_catalog(ctx: "RunContext") -> int:
     """Collect evidence for all adapters referenced by the catalog.
 
     Returns:

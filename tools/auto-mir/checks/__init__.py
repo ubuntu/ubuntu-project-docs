@@ -9,13 +9,17 @@ Package structure:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from auto_mir import RunContext
+
 import importlib
 import logging
 
 import review_type
 from checks.language_gates import _language_gate_active
 from checks.registry import EVALUATORS
-from contracts import ChecksContext
 from models import Finding
 
 log = logging.getLogger("auto_mir.checks")
@@ -62,7 +66,7 @@ def _apply_review_type_softening(findings: list[Finding], decision) -> None:
     )
 
 
-def evaluate_checks(ctx: ChecksContext) -> list[Finding]:
+def evaluate_checks(ctx: "RunContext") -> list[Finding]:
     """Evaluate all checks from catalog against collected evidence.
 
     Returns list of Finding objects with:
@@ -161,7 +165,7 @@ def evaluate_checks(ctx: ChecksContext) -> list[Finding]:
     return findings
 
 
-def _evaluate_single_check(check: dict, ctx: ChecksContext) -> Finding:
+def _evaluate_single_check(check: dict, ctx: "RunContext") -> Finding:
     """Evaluate one catalog check and return its Finding.
 
     Handles the language gate, evaluator routing, and TODO normalisation shared

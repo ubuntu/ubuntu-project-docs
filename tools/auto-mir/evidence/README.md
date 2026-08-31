@@ -49,7 +49,7 @@ temporary duplication.
 
 ## Contracts
 
-- Input context contract is documented by `contracts.EvidenceContext`.
+- Input context contract is the RunContext (auto_mir.py); see `collect_from_catalog`.
 - Output payload schemas are described in `evidence/types.py` and consumed by checks.
 
 ## Validation

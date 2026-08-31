@@ -324,7 +324,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [ ] #18 inline single-function adapters
 - [ ] #25 launchpad_client slim
 - [ ] #21 TODO normalization
-- [ ] #29 contracts.py
+- [x] #29 contracts.py
 - [ ] #31 micro-batch
 - [ ] #23 LLM usage aggregator
 - [ ] #22 ai/llm_eval shared helpers
