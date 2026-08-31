@@ -29,10 +29,11 @@ Reference baseline for generated docs: inner code-block content of
 
 ### B1 — stabilize generated include content against pre-tool templates
 
-Status: B1a (reporter catalog restoration, render byte-identical to the
-598e27c31 reporter template) DONE. B1b (golden fixtures + regression test)
-still open. Reviewer side: current output accepted as golden (only delta vs
-pre-tool text = the user-approved Maintainer-field rule/TODO addition).
+Status: DONE. B1a restored the reporter catalog (render byte-identical to
+the 598e27c31 reporter template; reviewer side accepted as-is with only the
+user-approved Maintainer-field addition). B1b committed the golden fixtures
+(tests/fixtures/include_*.golden) plus byte-for-byte regression tests
+(tests/test_template_goldens.py). Every later commit must keep them green.
 
 1. Extract reference content: inner block after `{code-block} text` /
    `:linenos:` in the two `598e27c31` template files. Store as
@@ -303,7 +304,7 @@ rule_context drift validator goes (catalog.py:411-422).
 ## Checklist
 
 - [x] P0  plan on disk + git
-- [ ] B1  stabilize generated content (goldens from 598e27c31)
+- [x] B1  stabilize generated content (goldens from 598e27c31)
 - [ ] #17 dead one-offs
 - [ ] #7  Finding factory classmethods
 - [ ] #26 free-text evidence-request parsing
