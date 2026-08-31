@@ -306,7 +306,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] P0  plan on disk + git
 - [x] B1  stabilize generated content (goldens from 598e27c31)
 - [x] #17 dead one-offs
-- [ ] #7  Finding factory classmethods
+- [x] #7  Finding factory classmethods
 - [ ] #26 free-text evidence-request parsing
 - [ ] #27 Answer.raw_input
 - [ ] #12 legacy invocation + dead flags

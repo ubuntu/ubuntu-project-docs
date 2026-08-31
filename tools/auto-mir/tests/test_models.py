@@ -10,6 +10,27 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from models import Finding
 
 
+def _finding(
+    status="ok", severity="ok", confidence="high", message="Package identified", todo="", **extra
+):
+    """Direct-construction replacement for the removed Finding.ok/not_ok/unknown
+    factory classmethods: tests exercise the dataclass, not convenience wrappers."""
+    fields = dict(
+        id="SUM-1",
+        section="Summary",
+        title="Source package identified",
+        mode="deterministic",
+        blocker_class="none",
+        status=status,
+        severity=severity,
+        confidence=confidence,
+        message=message,
+        todo=todo,
+    )
+    fields.update(extra)
+    return Finding(**fields)
+
+
 def _base_check() -> dict:
     return {
         "id": "SUM-1",
@@ -44,7 +65,7 @@ def test_finding_rejects_invalid_status_enum():
 
 
 def test_fail_helper_prefixes_todo_and_updates_state():
-    finding = Finding.ok(_base_check(), "Package identified")
+    finding = _finding()
 
     finding.fail(
         message="Missing requirement",
@@ -59,8 +80,9 @@ def test_fail_helper_prefixes_todo_and_updates_state():
 
 
 def test_unknown_factory_sets_low_confidence_and_adapter_error_cause():
-    finding = Finding.unknown(
-        _base_check(),
+    finding = _finding(
+        status="unknown",
+        confidence="low",
         message="Could not evaluate due to adapter error",
         todo="TODO: Verify manually",
         adapter_error_cause=["lp-bug-api"],
@@ -73,7 +95,7 @@ def test_unknown_factory_sets_low_confidence_and_adapter_error_cause():
 
 
 def test_mark_unknown_without_todo_clears_todo_and_keeps_unknown_state():
-    finding = Finding.ok(_base_check(), "Package identified")
+    finding = _finding()
 
     finding.mark_unknown("Evidence could not be collected")
 
@@ -84,7 +106,7 @@ def test_mark_unknown_without_todo_clears_todo_and_keeps_unknown_state():
 
 
 def test_mark_unknown_prefixes_todo_and_allows_severity_override():
-    finding = Finding.ok(_base_check(), "Package identified")
+    finding = _finding()
 
     finding.mark_unknown(
         message="Adapter failed",
@@ -98,7 +120,7 @@ def test_mark_unknown_prefixes_todo_and_allows_severity_override():
 
 
 def test_ensure_todo_sets_fallback_for_unresolved_without_todo_prefix():
-    finding = Finding.ok(_base_check(), "Package identified")
+    finding = _finding()
     finding.fail(
         message="Needs review",
         todo="not prefixed",
@@ -113,7 +135,7 @@ def test_ensure_todo_sets_fallback_for_unresolved_without_todo_prefix():
 
 
 def test_ensure_todo_is_noop_for_ok_findings():
-    finding = Finding.ok(_base_check(), "Package identified")
+    finding = _finding()
 
     finding.ensure_todo("Source package identified")
 
@@ -121,7 +143,7 @@ def test_ensure_todo_is_noop_for_ok_findings():
 
 
 def test_fail_preserves_todo_ref_variant_without_double_prefix():
-    finding = Finding.ok(_base_check(), "Package identified")
+    finding = _finding()
 
     finding.fail(
         message="Needs follow-up",
@@ -133,7 +155,7 @@ def test_fail_preserves_todo_ref_variant_without_double_prefix():
 
 
 def test_apply_ai_metadata_sets_non_empty_payload_fields_and_confirmation():
-    finding = Finding.ok(_base_check(), "Package identified")
+    finding = _finding()
 
     finding.apply_ai_metadata(
         risk_flags=["security-review-needed"],
@@ -147,7 +169,7 @@ def test_apply_ai_metadata_sets_non_empty_payload_fields_and_confirmation():
 
 
 def test_apply_ai_metadata_keeps_existing_values_for_empty_payload_fields():
-    finding = Finding.ok(_base_check(), "Package identified")
+    finding = _finding()
     finding.risk_flags = ["preexisting-flag"]
     finding.evidence_refs = ["preexisting:ref"]
 
