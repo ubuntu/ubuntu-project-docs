@@ -349,27 +349,25 @@ def _check_cb_1(ctx: RunContext, finding: Finding) -> Finding:
 
     # Launchpad build records are required to confirm all architectures build.
     if lp_build_result.get("status") != "ok":
-        finding.fail(
-            render_check_message(check, "unknown_no_lp_message"),
-            render_check_message(check, "unknown_no_lp_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_no_lp_message",
+            todo_key="unknown_no_lp_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["lp-build-api:error"],
         )
-        finding.evidence_refs = ["lp-build-api:error"]
-        return finding
 
     builds = lp_build_result.get("builds", [])
     if not builds:
-        finding.fail(
-            render_check_message(check, "unknown_no_builds_message"),
-            render_check_message(check, "unknown_no_builds_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_no_builds_message",
+            todo_key="unknown_no_builds_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["lp-build-api:builds"],
         )
-        finding.evidence_refs = ["lp-build-api:builds"]
-        return finding
 
     failed_builds = []
     passing_arches = []
@@ -867,15 +865,14 @@ def _check_urf_1(ctx: RunContext, finding: Finding) -> Finding:
     fetch_build_result = adapters.get("fetch-build", {})
 
     if fetch_build_result.get("status") != "ok":
-        finding.fail(
-            render_check_message(check, "unknown_message"),
-            render_check_message(check, "unknown_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_message",
+            todo_key="unknown_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["fetch-build:error"],
         )
-        finding.evidence_refs = ["fetch-build:error"]
-        return finding
 
     build_log = fetch_build_result.get("build_log", "")
     errors, warnings = _parse_build_log_issues(build_log)
@@ -1018,15 +1015,14 @@ def _check_cb_8(ctx: RunContext, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.fail(
-            render_check_message(check, "unknown_message"),
-            render_check_message(check, "unknown_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_message",
+            todo_key="unknown_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["packaging-source:error"],
         )
-        finding.evidence_refs = ["packaging-source:error"]
-        return finding
 
     is_python = _is_python_package(packaging)
     rules = packaging.get("debian_rules", "")
@@ -1075,15 +1071,14 @@ def _check_esl_2(ctx: RunContext, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if fetch_build_result.get("status") != "ok" or packaging.get("status") != "ok":
-        finding.fail(
-            render_check_message(check, "unknown_message"),
-            render_check_message(check, "unknown_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_message",
+            todo_key="unknown_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["fetch-build:build_log"],
         )
-        finding.evidence_refs = ["fetch-build:build_log"]
-        return finding
 
     build_log = fetch_build_result.get("build_log", "")
     static_link_hints = fetch_build_result.get("static_link_hints", [])
@@ -1163,15 +1158,14 @@ def _check_prf_2(ctx: RunContext, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.fail(
-            render_check_message(check, "unknown_message"),
-            render_check_message(check, "unknown_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_message",
+            todo_key="unknown_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["packaging-source:error"],
         )
-        finding.evidence_refs = ["packaging-source:error"]
-        return finding
 
     debian_control = packaging.get("debian_control", "")
     file_listing = packaging.get("file_listing", [])
@@ -1237,15 +1231,14 @@ def _check_prf_3(ctx: RunContext, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.fail(
-            render_check_message(check, "unknown_message"),
-            render_check_message(check, "unknown_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_message",
+            todo_key="unknown_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["packaging-source:error"],
         )
-        finding.evidence_refs = ["packaging-source:error"]
-        return finding
 
     debian_control = packaging.get("debian_control", "")
     file_listing = packaging.get("file_listing", [])
@@ -1290,15 +1283,14 @@ def _check_sec_2(ctx: RunContext, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.fail(
-            render_check_message(check, "unknown_message"),
-            render_check_message(check, "unknown_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_message",
+            todo_key="unknown_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["packaging-source:error"],
         )
-        finding.evidence_refs = ["packaging-source:error"]
-        return finding
 
     debian_rules = packaging.get("debian_rules", "")
     debian_control = packaging.get("debian_control", "")
@@ -1366,15 +1358,14 @@ def _check_urf_3(ctx: RunContext, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.fail(
-            render_check_message(check, "unknown_message"),
-            render_check_message(check, "unknown_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_message",
+            todo_key="unknown_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["packaging-source:error"],
         )
-        finding.evidence_refs = ["packaging-source:error"]
-        return finding
 
     debian_rules = packaging.get("debian_rules", "")
     debian_control = packaging.get("debian_control", "")
@@ -1415,15 +1406,14 @@ def _check_urf_4(ctx: RunContext, finding: Finding) -> Finding:
     packaging = adapters.get("packaging-source", {})
 
     if packaging.get("status") != "ok":
-        finding.fail(
-            render_check_message(check, "unknown_message"),
-            render_check_message(check, "unknown_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_message",
+            todo_key="unknown_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["packaging-source:error"],
         )
-        finding.evidence_refs = ["packaging-source:error"]
-        return finding
 
     debian_rules = packaging.get("debian_rules", "")
     debian_control = packaging.get("debian_control", "")
@@ -1487,15 +1477,14 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
     lintian = adapters.get("lintian", {})
 
     if packaging.get("status") != "ok":
-        finding.fail(
-            render_check_message(check, "unknown_message"),
-            render_check_message(check, "unknown_todo"),
+        return _set_unknown_from_adapter(
+            finding,
+            check,
+            message_key="unknown_message",
+            todo_key="unknown_todo",
             severity="recommended",
-            confidence="low",
-            status="unknown",
+            evidence_refs=["packaging-source:error"],
         )
-        finding.evidence_refs = ["packaging-source:error"]
-        return finding
 
     # Check lintian output for setuid/setgid tags (covers built binary artefacts).
     _LINTIAN_SETUID_TAGS = ("setuid-binary", "setgid-binary", "set-uid", "set-gid")
