@@ -1005,12 +1005,12 @@ def _log_artifact_locations(ctx: RunContext) -> None:
 
 def _print_complete_banner(ctx: RunContext) -> None:
     """Print a prominent end-of-run summary as the very last output."""
-    from render import _render_llm_usage_report
+    from render import render_llm_usage_report
 
     # Print the LLM usage report immediately before the banner so it appears
     # together with the completion summary and artifact list.
     redactor = ensure_secret_redactor(ctx, log)
-    llm_report = _render_llm_usage_report(ctx)
+    llm_report = render_llm_usage_report(ctx)
     if llm_report:
         print(redactor.redact_text("\n" + "\n".join(llm_report)))
 

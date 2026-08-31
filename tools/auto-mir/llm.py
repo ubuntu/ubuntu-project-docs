@@ -768,6 +768,26 @@ def _parse_rate_limit_hint(body: str) -> tuple[int, int] | None:
 # ---------------------------------------------------------------------------
 
 
+def usage_summary(ctx) -> dict:
+    """Aggregate LLM calls and estimated token usage for this run, by model."""
+    calls_by_model = getattr(ctx, "llm_calls_by_model", {})
+    tokens_by_model = getattr(ctx, "llm_estimated_tokens", {})
+    if not calls_by_model:
+        return {"total_calls": 0, "total_estimated_tokens": 0, "by_model": {}}
+    by_model = {
+        model: {
+            "calls": calls_by_model.get(model, 0),
+            "estimated_tokens": tokens_by_model.get(model, 0),
+        }
+        for model in sorted(calls_by_model)
+    }
+    return {
+        "total_calls": sum(calls_by_model.values()),
+        "total_estimated_tokens": sum(tokens_by_model.values()),
+        "by_model": by_model,
+    }
+
+
 def resolve_auth() -> tuple[str, str, str, str]:
     """Resolve LLM provider, token, source label, and API URL.
 

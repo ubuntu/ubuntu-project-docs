@@ -326,7 +326,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #21 TODO normalization
 - [x] #29 contracts.py
 - [x] #31 micro-batch
-- [ ] #23 LLM usage aggregator
+- [x] #23 LLM usage aggregator
 - [ ] #22 ai/llm_eval shared helpers
 - [ ] #6  rate limiter onto tenacity
 - [ ] #19 review_type detector

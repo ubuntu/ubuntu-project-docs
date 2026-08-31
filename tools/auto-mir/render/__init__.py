@@ -27,34 +27,10 @@ import json
 from collections import defaultdict
 from dataclasses import asdict
 
+import llm
 from models import Finding
 from reporter.text_utils import strip_todo_and_dash_prefix
 from utils.secrets import ensure_secret_redactor
-
-
-def _estimate_llm_tokens(ctx) -> dict:
-    """Estimate token usage for LLM calls made during this run."""
-    calls_by_model = getattr(ctx, "llm_calls_by_model", {})
-    tokens_by_model = getattr(ctx, "llm_estimated_tokens", {})
-
-    if not calls_by_model:
-        return {"total_calls": 0, "by_model": {}}
-
-    total_calls = sum(calls_by_model.values())
-    total_tokens = sum(tokens_by_model.values())
-    by_model = {}
-
-    for model in sorted(calls_by_model.keys()):
-        calls = calls_by_model.get(model, 0)
-        tokens = tokens_by_model.get(model, 0)
-        by_model[model] = {"calls": calls, "estimated_tokens": tokens}
-
-    return {
-        "total_calls": total_calls,
-        "total_estimated_tokens": total_tokens,
-        "by_model": by_model,
-    }
-
 
 # Canonical section order mirrors the reviewer template exactly.
 # Any check whose section name is not listed here is appended at the end
@@ -75,7 +51,7 @@ def write_outputs(ctx) -> None:
     """Write structured report (JSON) and reviewer draft (text) for a run."""
     # Prepare LLM token usage estimates
     redactor = ensure_secret_redactor(ctx)
-    llm_usage = _estimate_llm_tokens(ctx)
+    llm_usage = llm.usage_summary(ctx)
 
     report = {
         "bug_id": ctx.bug_id,
@@ -741,31 +717,19 @@ def _render_adapter_failure_warning(ctx) -> list[str]:
     return lines
 
 
-def _render_llm_usage_report(ctx) -> list[str]:
+def render_llm_usage_report(ctx) -> list[str]:
     """Render a usage report showing LLM model calls and token consumption."""
+    usage = llm.usage_summary(ctx)
     lines: list[str] = [
         "",
         "[LLM Usage Report]",
     ]
-
-    # Get usage data (may be empty if no LLM calls were made)
-    calls_by_model = getattr(ctx, "llm_calls_by_model", {})
-    tokens_by_model = getattr(ctx, "llm_estimated_tokens", {})
-
-    if not calls_by_model:
+    if not usage["total_calls"]:
         lines.append("No LLM calls made (deterministic-only evaluation).")
         return lines
-
-    total_calls = sum(calls_by_model.values())
-    total_tokens = sum(tokens_by_model.values())
-    lines.append(f"Total LLM calls: {total_calls}")
-    lines.append(f"Total estimated tokens: {total_tokens}")
+    lines.append(f"Total LLM calls: {usage['total_calls']}")
+    lines.append(f"Total estimated tokens: {usage['total_estimated_tokens']}")
     lines.append("")
-
-    # Model-by-model breakdown
-    for model in sorted(calls_by_model.keys()):
-        calls = calls_by_model.get(model, 0)
-        tokens = tokens_by_model.get(model, 0)
-        lines.append(f"  {model}: {calls} calls, {tokens} tokens")
-
+    for model, stats in usage["by_model"].items():
+        lines.append(f"  {model}: {stats['calls']} calls, {stats['estimated_tokens']} tokens")
     return lines
