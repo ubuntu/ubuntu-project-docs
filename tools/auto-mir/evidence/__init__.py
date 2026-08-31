@@ -44,13 +44,13 @@ from evidence.host_adapters import (
     collect_lp_mir_history,
     collect_lp_package_api,
     collect_lp_team_membership_api,
+    collect_lto_disabled_list,
     collect_nvd_enrich,
+    collect_team_mapping,
     collect_ubuntu_cve_tracker,
     collect_ubuntu_upload_permission,
     collect_upstream_tracker,
 )
-from evidence.lto_disabled_adapter import collect_lto_disabled_list
-from evidence.team_mapping_adapter import collect_team_mapping
 from evidence.version_resolution import collect_version_resolution
 
 # Adapter id -> collector function. A plain mapping replaces the old

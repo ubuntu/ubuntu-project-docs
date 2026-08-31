@@ -2208,6 +2208,146 @@ def collect_ubuntu_cve_tracker(ctx: RunContext) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# lto-disabled-list (PRF-10) and team mapping (SUM-4) host adapters
+# ---------------------------------------------------------------------------
+
+LTO_DISABLED_LIST_URL = (
+    "https://git.launchpad.net/ubuntu/+source/lto-disabled-list/plain/lto-disabled-list"
+)
+
+
+def _parse_lto_disabled_list(text: str) -> dict[str, list[str]]:
+    """Parse the list body into a ``{source_package: [arches]}`` mapping.
+
+    Data lines have the form ``<source> <arch> [<arch> ...]`` where an arch may
+    be the literal ``any``. Comment lines (``#``) and blank lines are skipped.
+    """
+    mapping: dict[str, list[str]] = {}
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        source = parts[0]
+        arches = parts[1:]
+        mapping[source] = arches
+    return mapping
+
+
+def collect_lto_disabled_list(ctx) -> dict[str, Any]:
+    """Check whether the source package is on the lto-disabled-list.
+
+    Returns a dict reporting whether the package is listed and, if so, for which
+    architectures. On fetch/parse failure returns ``status: error`` so the
+    consuming check degrades to "unknown" rather than a false pass.
+    """
+    source_package = ctx.source_package
+    if not source_package:
+        return {
+            "status": "error",
+            "error": "source_package not set in context",
+        }
+
+    try:
+        log.info("Fetching lto-disabled-list from %s", LTO_DISABLED_LIST_URL)
+        text = http_utils.get_text(LTO_DISABLED_LIST_URL, errors="strict")
+    except Exception as e:
+        log.error("Failed to fetch lto-disabled-list: %s", e)
+        return {
+            "status": "error",
+            "error": str(e),
+        }
+
+    mapping = _parse_lto_disabled_list(text)
+    disabled_arches = mapping.get(source_package, [])
+
+    log.info(
+        "lto-disabled-list check complete: %s is%s on the list (%d entries total)",
+        source_package,
+        "" if disabled_arches else " not",
+        len(mapping),
+    )
+
+    return {
+        "status": "ok",
+        "source_package": source_package,
+        "on_list": bool(disabled_arches),
+        "disabled_arches": disabled_arches,
+    }
+
+
+# Teams that appear in package-team-mapping.json but are NOT valid bug subscribers.
+# These are from ubuntu-archive-tools/lputils.py team_names (display-only teams).
+# See decisions.md for rationale.
+NON_SUBSCRIBER_TEAMS = {
+    "kubuntu-bugs",  # Display only, not for bug subscription
+    "pkg-ime",  # Display only, not for bug subscription
+    "translators-packages",  # Display only, not for bug subscription
+}
+
+TEAM_MAPPING_URL = "https://static-reports.ubuntu.com/package-team-mapping.json"
+
+
+def collect_team_mapping(ctx) -> dict[str, Any]:
+    """Fetch team mapping from static report and check package subscriptions.
+
+    Downloads package-team-mapping.json, filters out non-subscriber teams,
+    and checks which valid teams have structural subscriptions to the package.
+
+    Returns a dict with team_mapping and subscribed_teams.
+    """
+    source_package = ctx.source_package
+    if not source_package:
+        return {
+            "status": "error",
+            "error": "source_package not set in context",
+        }
+
+    try:
+        log.info("Fetching team mapping from %s", TEAM_MAPPING_URL)
+        raw_mapping = http_utils.get_json(TEAM_MAPPING_URL)
+
+        # Filter out non-subscriber teams and 'unsubscribed'
+        team_mapping = {
+            team: packages
+            for team, packages in raw_mapping.items()
+            if team not in NON_SUBSCRIBER_TEAMS and team != "unsubscribed"
+        }
+
+        log.info(
+            "Loaded team mapping: %d valid teams (filtered %d non-subscriber teams)",
+            len(team_mapping),
+            len(NON_SUBSCRIBER_TEAMS),
+        )
+
+        # Check which teams have subscribed to our package
+        subscribed_teams = []
+        for team_name, packages in team_mapping.items():
+            if source_package in packages:
+                subscribed_teams.append(team_name)
+                log.info("Found team subscription: %s -> %s", team_name, source_package)
+
+        log.info(
+            "Team mapping complete: %d teams subscribed to %s",
+            len(subscribed_teams),
+            source_package,
+        )
+
+        return {
+            "status": "ok",
+            "team_mapping": team_mapping,
+            "subscribed_teams": subscribed_teams,
+            "source_package": source_package,
+        }
+    except Exception as e:
+        log.error("Failed to collect team mapping: %s", e)
+        return {
+            "status": "error",
+            "error": str(e),
+        }
+
+
+# ---------------------------------------------------------------------------
 # Autopkgtest adapter
 # ---------------------------------------------------------------------------
 

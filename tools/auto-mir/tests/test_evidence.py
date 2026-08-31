@@ -2028,7 +2028,7 @@ zfs-fuse amd64 ppc64el
 
 def test_parse_lto_disabled_list_skips_comments_and_blanks():
     """Parser keeps source->arches mappings and ignores comments/blank lines."""
-    from evidence.lto_disabled_adapter import _parse_lto_disabled_list
+    from evidence.host_adapters import _parse_lto_disabled_list
 
     mapping = _parse_lto_disabled_list(_LTO_LIST_SAMPLE)
 
@@ -2042,7 +2042,7 @@ def test_parse_lto_disabled_list_skips_comments_and_blanks():
 
 def test_collect_lto_disabled_list_on_list():
     """Adapter reports on_list with the architectures for a listed package."""
-    from evidence import lto_disabled_adapter
+    from evidence import host_adapters as lto_disabled_adapter
 
     ctx = Mock()
     ctx.source_package = "llvm"
@@ -2057,7 +2057,7 @@ def test_collect_lto_disabled_list_on_list():
 
 def test_collect_lto_disabled_list_not_on_list():
     """Adapter reports on_list False for an unlisted package."""
-    from evidence import lto_disabled_adapter
+    from evidence import host_adapters as lto_disabled_adapter
 
     ctx = Mock()
     ctx.source_package = "testpkg"
@@ -2072,7 +2072,7 @@ def test_collect_lto_disabled_list_not_on_list():
 
 def test_collect_lto_disabled_list_fetch_error():
     """Adapter returns error status when the list cannot be fetched."""
-    from evidence import lto_disabled_adapter
+    from evidence import host_adapters as lto_disabled_adapter
 
     ctx = Mock()
     ctx.source_package = "testpkg"
@@ -2093,7 +2093,7 @@ def test_collect_lto_disabled_list_fetch_error():
 
 def test_collect_team_mapping_filters_non_subscriber_teams():
     """Team mapping adapter should filter non-subscriber/display-only teams."""
-    from evidence import team_mapping_adapter
+    from evidence import host_adapters as team_mapping_adapter
 
     ctx = Mock()
     ctx.source_package = "mypkg"
@@ -2115,7 +2115,7 @@ def test_collect_team_mapping_filters_non_subscriber_teams():
 
 def test_collect_team_mapping_fetch_error():
     """Team mapping adapter should return error status when fetch fails."""
-    from evidence import team_mapping_adapter
+    from evidence import host_adapters as team_mapping_adapter
 
     ctx = Mock()
     ctx.source_package = "mypkg"
