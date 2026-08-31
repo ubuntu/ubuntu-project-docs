@@ -16,7 +16,6 @@ This subsystem evaluates catalog-defined MIR checks and emits `Finding` objects.
 - `checks/llm_eval.py`: LLM-based evaluators and prompt/evidence shaping.
 - `checks/language_gates.py`: Go/Rust/Python applicability heuristics.
 - `checks/messages.py`: template rendering for catalog message keys.
-- `checks/registry.py`: evaluator/check registration decorators.
 
 ## Execution model
 

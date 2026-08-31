@@ -13,8 +13,8 @@ sources with in-VM analysis.
 
 ## Key files
 
-- `evidence/__init__.py`: collection orchestration, dependency ordering.
-- `evidence/registry.py`: adapter registration decorator.
+- `evidence/__init__.py`: collection orchestration, dependency ordering, and the
+  `ADAPTER_REGISTRY` id->collector mapping.
 - `evidence/types.py`: TypedDict contracts for adapter payloads.
 - `evidence/host_adapters.py`: host-executed adapters (APIs, web/data feeds).
 - `evidence/guest_adapters.py`: in-guest adapters (packaging, build, lint, scans).
@@ -23,12 +23,12 @@ sources with in-VM analysis.
 
 ## Adapter model
 
-Adapters register through the registry with optional dependencies:
+Adapters are plain collector functions mapped by id in `ADAPTER_REGISTRY`:
 
 - required adapters can fail the evidence stage,
 - optional adapters are collected best-effort and do not fail the run.
 
-The `@adapter(..., depends_on=...)` registration is currently authoritative for
+The registry mapping is currently authoritative for
 runtime ordering. `catalog.yaml` documents adapter interfaces, and
 `catalog-mir-review.yaml`/`catalog-mir-report.yaml` reference them from checks
 and items, but this adapter metadata is not used to order execution. Keep both
