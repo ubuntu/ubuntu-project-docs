@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 from checks.messages import render_check_message
 from models import Finding
+from reporter.text_utils import strip_todo_and_dash_prefix
 from utils import llm_evidence, llm_sanitize
 
 if TYPE_CHECKING:
@@ -829,12 +830,6 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
 
 # Matches a leading "TODO:" / "TODO-X:" (possibly repeated) plus an optional
 # "- " list marker, so a catalog todo_ref can be reduced to its statement text.
-_TODO_PREFIX_RE = re.compile(r"^\s*(?:TODO(?:-[A-Z0-9]+)?:\s*)+(?:-\s*)?")
-
-
-def _strip_todo_prefix_text(line: str) -> str:
-    """Strip leading TODO markers and list dashes, leaving the statement text."""
-    return _TODO_PREFIX_RE.sub("", line).strip()
 
 
 def _canonical_ok_statement(check: dict) -> str:
@@ -854,7 +849,7 @@ def _canonical_ok_statement(check: dict) -> str:
     todo_refs = [str(x).strip() for x in check.get("todo_refs", []) if str(x).strip()]
     if len(todo_refs) != 1:
         return ""
-    statement = _strip_todo_prefix_text(todo_refs[0])
+    statement = strip_todo_and_dash_prefix(todo_refs[0])
     if not statement or "TBD" in statement or "<" in statement:
         return ""
     return statement

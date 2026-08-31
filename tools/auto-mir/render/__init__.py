@@ -24,11 +24,11 @@ Linting rules enforced before writing the draft:
 from __future__ import annotations
 
 import json
-import re
 from collections import defaultdict
 from dataclasses import asdict
 
 from models import Finding
+from reporter.text_utils import strip_todo_and_dash_prefix
 from utils.secrets import ensure_secret_redactor
 
 
@@ -545,14 +545,6 @@ def _render_summary_section(
     return lines
 
 
-_TODO_PREFIX_RE = re.compile(r"^\s*(?:TODO(?:-[A-Z])?:\s*)+(?:-\s*)?")
-
-
-def _strip_todo_prefix(line: str) -> str:
-    """Strip leading ``TODO:``/``TODO-X:`` and ``- `` markers, leaving the text."""
-    return _TODO_PREFIX_RE.sub("", line).strip()
-
-
 def _render_numbered_todos(items: list[str], start_index: int) -> tuple[list[str], int]:
     """Render consolidated TODO items as ``- #N <text>`` with a running index.
 
@@ -563,7 +555,7 @@ def _render_numbered_todos(items: list[str], start_index: int) -> tuple[list[str
     out: list[str] = []
     index = start_index
     for item in items:
-        text = _strip_todo_prefix(item)
+        text = strip_todo_and_dash_prefix(item)
         if not text:
             continue
         out.append(f"- #{index} {text}")

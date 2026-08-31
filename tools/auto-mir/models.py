@@ -5,6 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 
+def _has_todo_prefix(todo: str) -> bool:
+    """True when the line already carries a TODO:/TODO-X: reviewer marker."""
+    return todo.startswith("TODO:") or todo.startswith("TODO-")
+
+
 @dataclass
 class Finding:
     """A structured result for a single catalog check evaluation.
@@ -169,7 +174,7 @@ class Finding:
         self.severity = severity
         self.confidence = confidence
         self.message = message
-        if not (todo.startswith("TODO:") or todo.startswith("TODO-")):
+        if not _has_todo_prefix(todo):
             todo = f"TODO: {todo}"
         self.todo = todo
         self.rationale = rationale
@@ -187,18 +192,14 @@ class Finding:
         self.severity = severity
         self.confidence = confidence
         self.message = message
-        self.todo = (
-            todo
-            if (not todo or todo.startswith("TODO:") or todo.startswith("TODO-"))
-            else f"TODO: {todo}"
-        )
+        self.todo = todo if (not todo or _has_todo_prefix(todo)) else f"TODO: {todo}"
         self.rationale = rationale
 
     def ensure_todo(self, fallback: str) -> None:
         """Ensure unresolved findings carry a normalized TODO line."""
         if self.status == "ok":
             return
-        if self.todo.startswith("TODO:") or self.todo.startswith("TODO-"):
+        if _has_todo_prefix(self.todo):
             return
         self.todo = f"TODO: - {fallback}"
 
@@ -258,7 +259,7 @@ class Finding:
 
         # Invariant: status="not-ok" should have a TODO
         if self.status == "not-ok" and self.todo:
-            if not (self.todo.startswith("TODO:") or self.todo.startswith("TODO-")):
+            if not _has_todo_prefix(self.todo):
                 # This is a warning, not an error, to allow for transitional states
                 import logging
 

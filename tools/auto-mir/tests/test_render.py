@@ -750,12 +750,16 @@ def test_consolidated_todos_are_numbered_continuously():
 
 
 def test_strip_todo_prefix_variants():
-    from render import _strip_todo_prefix
+    """The single shared TODO/dash stripper covers every historical variant."""
+    from reporter.text_utils import strip_todo_and_dash_prefix
 
-    assert _strip_todo_prefix("TODO: - foo") == "foo"
-    assert _strip_todo_prefix("TODO: foo") == "foo"
-    assert _strip_todo_prefix("TODO-A: foo") == "foo"
-    assert _strip_todo_prefix("plain text") == "plain text"
+    assert strip_todo_and_dash_prefix("TODO: - foo") == "foo"
+    assert strip_todo_and_dash_prefix("TODO: foo") == "foo"
+    assert strip_todo_and_dash_prefix("TODO-A: foo") == "foo"
+    assert strip_todo_and_dash_prefix("TODO-A1: - foo") == "foo"
+    assert strip_todo_and_dash_prefix("  TODO-B:   -   foo  ") == "foo"
+    assert strip_todo_and_dash_prefix("TODO-C: TODO-D: foo") == "foo"
+    assert strip_todo_and_dash_prefix("plain text") == "plain text"
 
 
 def test_sum4_ok_message_visible_in_summary():

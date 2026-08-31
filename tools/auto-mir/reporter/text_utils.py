@@ -19,8 +19,24 @@ _URL_ANSWER_PATTERN = re.compile(r"^https?://\S+$")
 
 
 def strip_todo_prefix(text: str) -> str:
-    """Remove the catalog ``TODO:``/``TODO-X/Y:`` marker prefix from a template."""
+    """Remove the catalog ``TODO:``/``TODO-X/Y:`` marker prefix from a template.
+
+    The ``- `` bullet after the marker is content (reporter statements keep
+    their bullet), so it is not stripped here.
+    """
     return _TODO_PREFIX_PATTERN.sub("", text).strip()
+
+
+_TODO_AND_DASH_PATTERN = re.compile(r"^\s*(?:TODO(?:-[A-Z0-9]+)?:\s*)+(?:-\s*)?")
+
+
+def strip_todo_and_dash_prefix(line: str) -> str:
+    """Strip leading TODO markers and list dashes, leaving statement text.
+
+    Shared by the reviewer draft renderer and the LLM response parser; both
+    normalize catalog TODO lines to bare statement text.
+    """
+    return _TODO_AND_DASH_PATTERN.sub("", line).strip()
 
 
 def ensure_bulleted(text: str) -> str:
