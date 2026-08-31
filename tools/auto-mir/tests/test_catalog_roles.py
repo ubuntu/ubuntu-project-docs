@@ -202,23 +202,6 @@ def test_report_catalog_validation_rejects_unknown_adapter_in_unavailable_if():
     assert any("references unknown adapter: no-such-adapter" in error for error in errors)
 
 
-def test_report_catalog_validation_rejects_mismatched_rule_context_line():
-    """A hand-authored rule_context must stay a verbatim copy of a blueprint RULE
-    line for its own section - this is the drift guard for feedback round 8's
-    RULE/TODO auto-context work: it caught a real, pre-existing paraphrase drift
-    on REP-DEP-002 during implementation."""
-    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
-    by_id = {item["id"]: item for item in report["items"]}
-    by_id["REP-MAINT-001"]["rule_context"] = "RULE: This text does not appear in the blueprint."
-
-    errors = catalog.validate_report_catalog(report)
-
-    assert any(
-        "REP-MAINT-001 rule_context line does not match any blueprint RULE" in error
-        for error in errors
-    )
-
-
 def test_report_catalog_auto_derives_rule_context_from_blueprint():
     """Items without a hand-authored rule_context get their section's blueprint
     RULE line(s) plus their own template (TODO) line auto-populated, so the

@@ -1,18 +1,5 @@
 role: report
 metadata:
-  section_markers:
-  - '[Availability]'
-  - '[Rationale]'
-  - '[Security]'
-  - '[Quality assurance - function/usage]'
-  - '[Quality assurance - maintenance]'
-  - '[Quality assurance - testing]'
-  - '[Quality assurance - packaging]'
-  - '[UI standards]'
-  - '[Dependencies]'
-  - '[Standards compliance]'
-  - '[Maintenance/Owner]'
-  - '[Background information]'
   reporter_template_blueprint:
   - ""
   - "[Availability]"
@@ -30,7 +17,7 @@ metadata:
   - "TODO:   because TBD, thereby we want to replace it."
   - "TODO: - The package TBDSRC is a new runtime dependency of package TBD that"
   - "TODO:   we already support"
-  - "RULE: Sometimes there are other/better ways, often are achieved by using a"
+  - "RULE[rationale-alternatives]: Sometimes there are other/better ways, often are achieved by using a"
   - "RULE: library with similar functionality that is more commonly used and"
   - "RULE: thereby already in main or a better candidate to promote."
   - "RULE: Reducing the set of supported software in Ubuntu helps to focus on the"
@@ -72,7 +59,7 @@ metadata:
   - "TODO-A: - All other binary packages built by TBDSRC should remain in universe"
   - "TODO-B: - All binary packages built by TBDSRC need to be in main to achieve TBD"
   - ""
-  - "RULE: Reviews will take some time. Also the potential extra work out of review"
+  - "RULE[rationale-milestones]: Reviews will take some time. Also the potential extra work out of review"
   - "RULE: feedback from either MIR-team and/or security-team will take time."
   - "RULE: For better prioritization it is quite helpful to clearly state the"
   - "RULE: target release and set a milestone to the bug task."
@@ -96,7 +83,7 @@ metadata:
   - "RULE:     https://security-tracker.debian.org/tracker/source-package/<source-package-name>"
   - item: REP-SECURITY-001
   - ""
-  - "RULE: - Check for security relevant binaries, services and behavior."
+  - "RULE[sec-binaries-services]: - Check for security relevant binaries, services and behavior."
   - "RULE:   If any are present, this requires a more in-depth security review."
   - "RULE:   Demonstrating that common isolation/risk-mitigation patterns are used"
   - "RULE:   will help to raise confidence. For example a service running as root"
@@ -126,7 +113,7 @@ metadata:
   - "TODO-B:   TBD endpoint + TBD purpose"
   - item: REP-SECURITY-004
   - ""
-  - "RULE: The package should not use deprecated security algorithms like 3DES or"
+  - "RULE[sec-deprecated-algorithms]: The package should not use deprecated security algorithms like 3DES or"
   - "RULE: TLS/SSL 1.1. The security team is the one responsible to check this,"
   - "RULE: but if you happen to spot something it helps to provide a hint."
   - "RULE: Provide whatever made you suspicious as details along that statement."
@@ -135,7 +122,7 @@ metadata:
   - "TODO:   should have a more careful look please, details are:"
   - ""
   - "[Quality assurance - function/usage]"
-  - "RULE: - After installing the package it must be possible to make it working with"
+  - "RULE[qa-func-config-effort]: - After installing the package it must be possible to make it working with"
   - "RULE:   a reasonable effort of configuration and documentation reading."
   - "TODO-A: - The package works well right after install"
   - "TODO-B: - The package needs post install configuration or reading of"
@@ -293,12 +280,12 @@ metadata:
   - item: REP-DEP-002
   - ""
   - "[Standards compliance]"
-  - "RULE: - Major violations should be documented and justified."
+  - "RULE[std-policy-violations]: - Major violations should be documented and justified."
   - "RULE:   - FHS: https://refspecs.linuxfoundation.org/fhs.shtml"
   - "RULE:   - Debian Policy: https://www.debian.org/doc/debian-policy/"
   - item: REP-STD-001
   - ""
-  - "RULE: - The package's license must remain compatible with Ubuntu main for the"
+  - "RULE[std-license-lifetime]: - The package's license must remain compatible with Ubuntu main for the"
   - "RULE:   full support lifetime of the release (including ESM where relevant)."
   - "RULE:   Consider whether the license could expire, time out, or otherwise change"
   - "RULE:   after promotion. Examples of concerns include time-limited patent grants,"
@@ -545,22 +532,12 @@ items:
     prompt: Describe the Ubuntu users and use cases that benefit from this promotion.
   template: "TODO: - Additional reasons TBD"
 - id: REP-RATIONALE-003
+  covers_rule_clauses: [rationale-alternatives]
   section: Rationale
   title: Alternatives considered
   mode: ev_to_ai
   readiness: warning
   adapters_optional: [dup-search]
-  rule_context: |-
-    RULE: Sometimes there are other/better ways, often are achieved by using a
-    RULE: library with similar functionality that is more commonly used and
-    RULE: thereby already in main or a better candidate to promote.
-    RULE: Reducing the set of supported software in Ubuntu helps to focus on the
-    RULE: right things, otherwise Ubuntu developers will be consumed by updating
-    RULE: many variations of the same - wasting valuable time that could be better
-    RULE: spent elsewhere.
-    RULE: If there are other packages in the archive that are close, but unable to
-    RULE: address the problem you might spend some time explaining what exists and
-    RULE: why it isn't a sufficient alternative.
   answer_guidance: Only alternatives already in Ubuntu main count against inclusion; a similar package in universe is not itself a reason to reject this promotion.
   ai_policy: Assess only whether the supplied archive candidates plausibly overlap this package's stated functionality. For each credible candidate, state its name and archive component (main/universe/...); a candidate already in main is the relevant kind of alternative, a candidate in universe is not a blocker but may still be worth naming. Name candidates and uncertainty; do not decide Ubuntu demand or invent alternatives. Your statement must not merely restate which candidates were found - it must commit to one of (a) no genuine overlap with anything in main exists, (b) this package overlaps a named main candidate and is meant to replace it, or (c) this package overlaps a named main candidate but is still needed in addition, for a stated reason. If the evidence does not let you decide which of (a)/(b)/(c) applies, set requires_reporter_decision to true and phrase the statement as a clear, direct question for the reporter to resolve.
   question:
@@ -568,20 +545,13 @@ items:
     prompt: What alternatives already in main were considered, and why are they insufficient?
   template: 'TODO: - Alternatives already in main and why they are insufficient, or why none exist: TBD'
 - id: REP-RATIONALE-004
+  covers_rule_clauses: [rationale-milestones]
   section: Rationale
   title: Promotion binary scope
   mode: human_only
   readiness: blocker
   adapters_optional: [packaging-source]
   preface_evaluator: binary-packages
-  rule_context: |-
-    RULE: Reviews will take some time. Also the potential extra work out of review
-    RULE: feedback from either MIR-team and/or security-team will take time.
-    RULE: For better prioritization it is quite helpful to clearly state the
-    RULE: target release and set a milestone to the bug task.
-    RULE: When doing so do not describe what you "wish" or "would like to have".
-    RULE: Only milestones that are sufficiently well-founded and related to
-    RULE: major releases will be considered
   answer_guidance: Choose a shortcut if the whole source (or everything except -dev/-doc/-dbg) applies, or pick "specific binary packages" to list them yourself below.
   question:
     kind: single_choice
@@ -684,39 +654,24 @@ items:
   adapters_required: [binary-package-inspection]
   template: "TODO: - Packages does not contain extensions to security-sensitive software\nTODO:   (filters, scanners, plugins, UI skins, ...)"
 - id: REP-SECURITY-005
+  covers_rule_clauses: [sec-binaries-services]
   section: Security
   title: Exposure and mitigation assessment
   mode: ev_to_ai
   readiness: warning
   adapters_required: [packaging-source, binary-package-inspection]
-  rule_context: |-
-    RULE: - Check for security relevant binaries, services and behavior.
-    RULE:   If any are present, this requires a more in-depth security review.
-    RULE:   Demonstrating that common isolation/risk-mitigation patterns are used
-    RULE:   will help to raise confidence. For example a service running as root
-    RULE:   open to the network will need to be considered very carefully. The same
-    RULE:   service dropping the root permissions after initial initialization,
-    RULE:   using various systemd isolation features and having a default active
-    RULE:   apparmor profile is much less concerning and can speed up acceptance.
-    RULE:   This helps Ubuntu, but you are encouraged to consider working with
-    RULE:   Debian and upstream to get those security features used at wide scale.
   ai_policy: Assess bounded evidence for privileged operation, exposed listeners/endpoints/ports, parsers of untrusted input, security-sensitive extensions, deprecated cryptographic patterns, and whether mitigations (restricted users, capability drops, seccomp, systemd hardening, AppArmor) are proportional to that exposure. Never claim exhaustive absence when source evidence is incomplete. Your statement must commit to one of (a) mitigations are proportional to the exposure, or (b) mitigations are not proportional, naming the specific gap(s). If the evidence does not let you decide between (a) and (b), set requires_reporter_decision to true.
   question:
     kind: multiline
     prompt: Assess security-sensitive behavior, exposed endpoints, privileged operation, cryptography, and whether mitigations are proportional.
   template: 'TODO: - Security exposure and proportional mitigation assessment: TBD'
 - id: REP-SECURITY-006
+  covers_rule_clauses: [sec-deprecated-algorithms]
   section: Security
   title: Deprecated cryptography scan
   mode: ev_to_ai
   readiness: warning
   adapters_optional: [packaging-source]
-  rule_context: |-
-    RULE: The package should not use deprecated security algorithms like 3DES or
-    RULE: TLS/SSL 1.1. The security team is the one responsible to check this,
-    RULE: but if you happen to spot something it helps to provide a hint.
-    RULE: Provide whatever made you suspicious as details along that statement.
-    RULE: Or remove the following lines entirely if you did not spot anything.
   answer_guidance: The evidence is a best-effort textual scan for deprecated algorithm names (MD5, SHA1, 3DES, RC4, SSLv2/3, TLSv1.0); a hit is not proof of use and no hits is not proof of absence.
   ai_policy: Evidence is a best-effort grep of the source tree for deprecated cryptographic algorithm name patterns (packaging-source.crypto_pattern_hits), each as a path:line:content match. If hits exist, list the distinct files/lines and state that the reporter should confirm whether the algorithm is actually used before flagging Security review. If the list is empty, state plainly that the pattern search found no deprecated-algorithm indicators, while noting this is not an exhaustive proof of absence.
   question:
@@ -724,14 +679,12 @@ items:
     prompt: Confirm or correct - does anything suggest deprecated cryptographic algorithms that Security review should see?
   template: 'TODO: - Deprecated cryptographic algorithm concerns: TBD'
 - id: REP-QA-FUNC-001
+  covers_rule_clauses: [qa-func-config-effort]
   section: Quality assurance - function/usage
   title: Installed usability
   mode: ev_to_ai
   readiness: warning
   adapters_required: [packaging-source, binary-package-inspection]
-  rule_context: |-
-    RULE: - After installing the package it must be possible to make it working with
-    RULE:   a reasonable effort of configuration and documentation reading.
   ai_policy: Assess whether the package works immediately after installation or needs configuration, using packaging-source.debconf_templates (debconf prompts shown during install), packaging-source.service_files and binary-package-inspection.systemd_units (services that may need enabling or configuration before use), and packaging-source.source_description for context. If nothing suggests required configuration, state plainly that it works with sane defaults. If configuration appears required, name what (e.g. debconf templates, a service that is not enabled by default) and explain, from the evidence, why a safe default is not possible; do not invent reasons the evidence does not support.
   question:
     kind: multiline
@@ -1168,15 +1121,12 @@ items:
     prompt: List the separate dependency MIR bug references.
   template: 'TODO: - Separate dependency MIR bugs: TBD'
 - id: REP-STD-001
+  covers_rule_clauses: [std-policy-violations]
   section: Standards compliance
   title: FHS and Debian Policy
   mode: human_only
   readiness: blocker
   preface_evaluator: lintian-fhs-summary
-  rule_context: |-
-    RULE: - Major violations should be documented and justified.
-    RULE:   - FHS: https://refspecs.linuxfoundation.org/fhs.shtml
-    RULE:   - Debian Policy: https://www.debian.org/doc/debian-policy/
   question:
     kind: single_choice
     prompt: Does this package correctly follow FHS and Debian Policy?
@@ -1206,20 +1156,11 @@ items:
     prompt: Explain and justify the FHS or Debian Policy violation(s).
   template: 'TODO: - FHS and Debian Policy violation details: TBD'
 - id: REP-STD-002
+  covers_rule_clauses: [std-license-lifetime]
   section: Standards compliance
   title: License lifetime
   mode: human_only
   readiness: blocker
-  rule_context: |-
-    RULE: - The package's license must remain compatible with Ubuntu main for the
-    RULE:   full support lifetime of the release (including ESM where relevant).
-    RULE:   Consider whether the license could expire, time out, or otherwise change
-    RULE:   after promotion. Examples of concerns include time-limited patent grants,
-    RULE:   licenses tied to a specific upstream entity or contract, dual-licensed
-    RULE:   code where the permissive branch could be withdrawn, or terms that only
-    RULE:   apply to the current upstream version.
-    RULE:   If you suspect any of the above may apply, flag it explicitly so the MIR
-    RULE:   team can weigh the long-term cost before promotion.
   question:
     kind: single_choice
     prompt: Does the license raise any expiry, time-bound, contract-coupling, or other encumbrance concerns for the full support lifetime?

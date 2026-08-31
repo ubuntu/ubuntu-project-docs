@@ -345,5 +345,5 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #13 auto_mir.py slim
 - [x] #8  declarative follow-up hints
 - [x] #11 one render script --role
-- [ ] #28 catalog machinery dedup
+- [x] #28 catalog machinery dedup
 - [ ] F   wrap-up (dual-outcome goldens, decisions.md, delete plan)
