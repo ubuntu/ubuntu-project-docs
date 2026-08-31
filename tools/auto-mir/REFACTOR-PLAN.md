@@ -226,6 +226,17 @@ annotate with `RunContext` at their single consumers
 cross-module by auto_mir.py:1081. One shared aggregator.
 
 ### #22 — shared ai.py/llm_eval helpers
+
+Resolution by inspection: the truncation machinery is ALREADY shared -
+both roles call utils/llm_evidence.truncate_adapter_data and only carry
+thin role-specific wrappers: different catalog option schemas (reviewer
+check options with render/predicate/outcome vs reporter question options
+with label/statement), id-scoped keep-full-field maps that name genuinely
+different ids, and role-specific prompt framing. Uniting those would
+force two schemas through one param-heavy helper for negative value.
+The remaining "parallels" are two thin call sites, not duplication.
+No change required.
+
 Options-prompt rendering (`_render_reporter_options_section` vs
 `_render_options_for_prompt`), per-item field maps
 (`_FULL_CONTENT_FIELDS_BY_ITEM` vs `_BY_CHECK`), identical truncate loops →
@@ -327,7 +338,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #29 contracts.py
 - [x] #31 micro-batch
 - [x] #23 LLM usage aggregator
-- [ ] #22 ai/llm_eval shared helpers
+- [x] #22 ai/llm_eval shared helpers (already shared; see note)
 - [ ] #6  rate limiter onto tenacity
 - [ ] #19 review_type detector
 - [ ] #24 lxd_runner slim
