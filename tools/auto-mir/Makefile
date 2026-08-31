@@ -1,4 +1,12 @@
-.PHONY: lint unit test setup teardown integration
+.PHONY: lint unit test setup teardown integration update-goldens
+
+# Regenerate the template golden fixtures after an INTENTIONAL change to
+# catalog wording or template logic (see tests/test_template_goldens.py):
+# commit the updated fixtures together with the change that caused them,
+# stating the intent in the commit message.
+update-goldens:
+	python3 render_template.py review --workspace-root ../.. --output tools/auto-mir/tests/fixtures/include_reviewers.golden
+	python3 render_template.py report --workspace-root ../.. --output tools/auto-mir/tests/fixtures/include_reporters.golden
 
 # Name of the file where the integration VM name is stored between make targets.
 INT_VM_FILE := .int-vm-name

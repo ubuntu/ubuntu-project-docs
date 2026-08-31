@@ -4875,3 +4875,55 @@ Promotion: no
 - Validation: `make test` 905 passed/2 skipped (+1 new test).
 
 
+
+---
+
+## Over-engineering refactor (audit → commit traceability)
+
+A full over-engineering audit (2026) produced 31 findings; each landed as its
+own commit on `auto-mir-review` so the what and why of every cut stays
+traceable. Two groundwork commits preceded the findings: the reporter catalog
+was restored to the pre-tool `598e27c31` template (byte-identical generation,
+the tool was never released with the silently condensed 118-line form), and
+golden fixtures + regression tests lock the human template text
+(`make update-goldens` after *intentional* wording changes).
+
+| Item | Change | Commit |
+|------|--------|--------|
+| B1   | Restore reporter template to pre-tool text; goldens + byte-identical guards | `restore reporter catalog…`, `golden fixtures…` |
+| #1   | test_checks.py loads the real catalog (430-line hand-copy deleted) | `test_checks.py loads the real review catalog` |
+| #2   | evidence/types.py deleted (52 unchecked TypedDicts; contracts live in CATALOG.md) | `delete evidence/types.py` |
+| #3   | Message-template validation driven by `required_messages` in the YAML | `make message-template validation data-driven` |
+| #4   | Pattern-scan dependency checks table-driven (`_DEP_SCAN_SPECS`); SEC-8/10/DEP-1 deliberately bespoke | `table-drive the pattern-scan dependency checks` |
+| #5   | Adapter `inputs:`/`output_contract:` prose moved to CATALOG.md; never-read `fallback:` deleted | `document adapter data contracts in CATALOG.md` |
+| #6   | Hand-rolled rate limiter deleted; tenacity is the single scheme (Retry-After-aware wait) | `delete the hand-rolled rate limiter` |
+| #7   | Unused `Finding.ok/not_ok/unknown` factory classmethods dropped | `drop unused Finding…` |
+| #8   | Follow-up hint is a per-option `leads_to_followup` catalog flag | `declare the follow-up hint per option` |
+| #9   | `catalog_enums.py` deleted; registry-vs-catalog drift test added | `delete catalog_enums.py` |
+| #10  | Runtime-dead catalog sections removed; conventions prose to CATALOG.md | `remove catalog sections and fields no code reads` |
+| #11  | One `render_template.py --role` for both include files; body-only blueprints | `one template render script for both roles` |
+| #12  | Legacy invocation shim + dead CLI flags removed | `remove legacy invocation shim and dead CLI flags` |
+| #13  | auto_mir slim (auth merge, one finish tail, dead artifacts) | `slim auto_mir.py` |
+| #14  | Decorator registries → plain dict literals (registry.py ×2 deleted) | `replace decorator registries with plain dict literals` |
+| #15  | PRF-6 version compare: two dpkg calls, regex major-gap | `shrink PRF-6 version comparison` |
+| #16  | Adapter-failure unknown blocks via the shared helper | `route adapter-failure unknown blocks…` |
+| #17  | Ten dead one-off functions/paths deleted | `remove dead one-off code` |
+| #18  | Single-function adapter modules folded into host_adapters | `fold single-function adapter modules…` |
+| #19  | One `detect_review_type(use_evidence=…)` for both stages | `one review-type detector` |
+| #20  | LLM evaluators deduped; Built-Using scan shared; strict message rendering | `dedup the LLM evaluators, Built-Using scan…` |
+| #21  | One TODO-marker normalization + one dash stripper | `one TODO-marker normalization…` |
+| #22  | Resolved by inspection: the helpers were already shared | `resolve - the LLM evidence helpers…` |
+| #23  | One `llm.usage_summary` aggregator; public renderer name | `one LLM usage aggregator in llm.py` |
+| #24  | lxd_runner slim (shutil.which, dead version logs, pinned-kwargs layer) | `slim lxd_runner` |
+| #25  | One-line HTTP wrappers inlined; BuildCandidate/dual-path kept with reasoning | `inline one-line HTTP wrappers…` |
+| #26  | Free-text evidence-request parsing dropped (prompt is JSON-only) | `drop free-text evidence-request parsing` |
+| #27  | `Answer.raw_input` dropped (never read outside tests) | `drop the Answer.raw_input field` |
+| #28  | Loader/rule-context/section-marker machinery deduped; slug clauses | `dedup the catalog loading and rule-context machinery` |
+| #29  | contracts.py deleted (one-impl Protocols) | `delete contracts.py` |
+| #31  | Micro-batch cleanups (ask_yes_no, dict dependency table, dead fields/params); two sub-items rejected with reasoning | `micro-batch cleanups` |
+
+Items deliberately **not** done after re-inspection (documented in the
+respective commit messages): `BuildCandidate` and `build_attr`'s dict path
+(load-bearing, real consumers), `_strip_common_prefix`→`relpath` (behavior
+difference on mismatch), `_with_hanging_indent` merge (cross-package coupling),
+and the auto_mir stage-function inlining (they are main()'s test seams).

@@ -7,9 +7,9 @@ Generation must keep reproducing them exactly; any diff here means the
 catalog or render logic unintentionally changed human-visible template
 text.
 
-If a change to these files is intentional, regenerate the goldens in the
-same commit (the failure output names both fixtures) and state the intent
-in the commit message.
+If a change to these files is intentional, run `make update-goldens` and
+commit the regenerated fixtures together with the change that caused
+them, stating the intent in the commit message.
 """
 
 import sys
