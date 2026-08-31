@@ -129,7 +129,6 @@ def test_mir_for_name_with_lp_hash_pairs_name_and_bug_id():
     assert len(paired) == 1
     assert paired[0].name == "mysql-8.4"
     assert paired[0].bug_id == "2089720"
-    assert paired[0].kind == "name+bug-ref"
 
 
 def test_mir_title_with_lp_hash_pairs_name_and_bug_id():
@@ -222,19 +221,19 @@ def test_duplicate_refs_deduplicated():
 
 def test_candidate_names_returns_distinct_in_order():
     refs = [
-        PredecessorRef(name="mysql-8.4", bug_id=None, raw="r1", kind="name"),
-        PredecessorRef(name="mysql-8.0", bug_id=None, raw="r2", kind="name"),
-        PredecessorRef(name="mysql-8.4", bug_id="1", raw="r3", kind="name+bug-ref"),
-        PredecessorRef(name=None, bug_id="2", raw="r4", kind="bug-ref"),
+        PredecessorRef(name="mysql-8.4", bug_id=None),
+        PredecessorRef(name="mysql-8.0", bug_id=None),
+        PredecessorRef(name="mysql-8.4", bug_id="1"),
+        PredecessorRef(name=None, bug_id="2"),
     ]
     assert predecessor_refs.candidate_names(refs) == ["mysql-8.4", "mysql-8.0"]
 
 
 def test_explicit_bug_ids_returns_distinct_in_order():
     refs = [
-        PredecessorRef(name="mysql-8.4", bug_id="2089720", raw="r1", kind="name+bug-ref"),
-        PredecessorRef(name=None, bug_id="111", raw="r2", kind="bug-ref"),
-        PredecessorRef(name=None, bug_id="2089720", raw="r3", kind="bug-ref"),
+        PredecessorRef(name="mysql-8.4", bug_id="2089720"),
+        PredecessorRef(name=None, bug_id="111"),
+        PredecessorRef(name=None, bug_id="2089720"),
     ]
     assert predecessor_refs.explicit_bug_ids(refs) == ["2089720", "111"]
 

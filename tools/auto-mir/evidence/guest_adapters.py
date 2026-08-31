@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 import lxd_runner
 from checks.language_gates import _is_rust_package
 from evidence import launchpad_client
+from evidence.host_adapters import AdapterError
 from utils import http as http_utils
 
 if TYPE_CHECKING:
@@ -26,10 +27,6 @@ log = logging.getLogger("auto_mir.evidence.guest")
 _UBUNTU_UID = 1000
 _UBUNTU_GID = 1000
 _UBUNTU_ENV = {"HOME": "/home/ubuntu", "USER": "ubuntu", "LOGNAME": "ubuntu"}
-
-
-class AdapterError(RuntimeError):
-    """Raised when an evidence adapter cannot produce required output."""
 
 
 # ---------------------------------------------------------------------------

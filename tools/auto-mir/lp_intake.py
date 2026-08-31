@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils import llm_sanitize
+from utils.cli import ask_yes_no
 from utils.dependencies import ubuntu_package_for
 
 if TYPE_CHECKING:
@@ -110,7 +111,7 @@ def _find_reporter_mir_content(bug_description: str, comments: list[str]) -> str
     return None
 
 
-def _extract_source_package_from_bug(bug, lp) -> str | None:
+def _extract_source_package_from_bug(bug) -> str | None:
     """Determine the targeted source package from bug task targets."""
     try:
         tasks = list(bug.bug_tasks)
@@ -180,19 +181,6 @@ def _detect_series_from_bug(bug) -> str | None:
     return None
 
 
-def _ask_yes_no(prompt: str, default_no: bool = True) -> bool:
-    """Ask user for yes/no confirmation in terminal."""
-    suffix = "[y/N]" if default_no else "[Y/n]"
-    try:
-        raw = input(f"{prompt} {suffix} ").strip().lower()
-    except EOFError:
-        return not default_no
-
-    if not raw:
-        return not default_no
-    return raw in ("y", "yes")
-
-
 def _evaluate_mir_heuristics(ctx) -> None:
     """Warn and ask for confirmation when bug does not look like a MIR bug.
 
@@ -228,10 +216,7 @@ def _evaluate_mir_heuristics(ctx) -> None:
         "Bug %s does not have ubuntu-mir subscribed, which is mandatory for MIR bug workflow.",
         ctx.bug_id,
     )
-    proceed = _ask_yes_no(
-        "This bug does not look like a MIR bug. Continue anyway?",
-        default_no=True,
-    )
+    proceed = ask_yes_no("This bug does not look like a MIR bug. Continue anyway?", default=False)
     if not proceed:
         log.error("Aborted by user because bug is not MIR-qualified.")
         sys.exit(1)
@@ -302,9 +287,9 @@ def _evaluate_injection_risk(ctx) -> None:
         ctx.bug_id,
         details,
     )
-    proceed = _ask_yes_no(
+    proceed = ask_yes_no(
         "Suspicious instruction-like content detected in the bug. Continue anyway?",
-        default_no=True,
+        default=False,
     )
     if not proceed:
         log.error("Aborted by user due to potential prompt-injection content.")
@@ -398,7 +383,7 @@ def run(ctx: "RunContext") -> None:
     log.debug("Fetched %d comments", len(comments))
 
     # Determine source package
-    source_package = _extract_source_package_from_bug(bug, lp)
+    source_package = _extract_source_package_from_bug(bug)
     if not source_package:
         log.error(
             "Could not determine source package from bug %s. "

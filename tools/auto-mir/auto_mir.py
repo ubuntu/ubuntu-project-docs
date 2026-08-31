@@ -20,7 +20,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from utils.cli import parse_bool_arg
+from utils.cli import ask_yes_no, parse_bool_arg
 from utils.dependencies import ensure_runtime_environment
 from utils.llm_sanitize import make_nonce
 from utils.secrets import RedactingFormatter, SecretRedactor, ensure_secret_redactor
@@ -661,13 +661,7 @@ def teardown_guest(ctx: RunContext, evidence_collection_result: int = 0) -> None
         print(
             "Warning: Keeping failed guests can consume significant memory, clean them up via LXD."
         )
-        while True:
-            response = input("Keep LXD guest for debugging? [y/n]: ").strip().lower()
-            if response in {"y", "yes"}:
-                return True
-            if response in {"n", "no"}:
-                return False
-            print("Please answer y or n.")
+        return ask_yes_no("Keep LXD guest for debugging?")
 
     if ctx.keep_guest is True:
         should_keep = True

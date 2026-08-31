@@ -488,21 +488,12 @@ def _extract_template_section(template_path: Path, section: str) -> str:
         text = template_path.read_text(encoding="utf-8")
     except OSError:
         return ""
-
-    header = f"[{section}]"
-    lines = text.splitlines()
-    in_section = False
-    collected: list[str] = []
-    for line in lines:
-        stripped = line.strip()
-        if stripped == header:
-            in_section = True
-            continue
-        if in_section:
-            if stripped.startswith("[") and stripped.endswith("]") and stripped != header:
-                break
-            collected.append(line)
-    return "\n".join(collected)
+    match = re.search(
+        rf"^\[{re.escape(section)}\]\s*\n(.*?)(?=^\[|\Z)",
+        text,
+        flags=re.DOTALL | re.MULTILINE,
+    )
+    return match.group(1) if match else ""
 
 
 def _extract_build_test_hints(debian_rules: str, build_log: str) -> dict:

@@ -325,7 +325,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #25 launchpad_client slim
 - [x] #21 TODO normalization
 - [x] #29 contracts.py
-- [ ] #31 micro-batch
+- [x] #31 micro-batch
 - [ ] #23 LLM usage aggregator
 - [ ] #22 ai/llm_eval shared helpers
 - [ ] #6  rate limiter onto tenacity

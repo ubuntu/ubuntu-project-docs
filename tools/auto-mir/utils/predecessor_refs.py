@@ -86,16 +86,10 @@ class PredecessorRef:
       with no accompanying name.
     - ``bug_id``: an explicit Launchpad bug number, as a string of digits.
       ``None`` when the reference carried no ``LP: #NNNN`` / bug URL.
-    - ``raw``: the matched text span (for debugging/provenance; not used for
-      decisions).
-    - ``kind``: ``"name"`` (name only), ``"bug-ref"`` (bug id only), or
-      ``"name+bug-ref"`` (both).
     """
 
     name: str | None
     bug_id: str | None
-    raw: str
-    kind: str
 
 
 # --- bug-id patterns ---------------------------------------------------------
@@ -174,18 +168,12 @@ def extract_predecessor_refs(text: str, current_source: str) -> list[Predecessor
     refs: list[PredecessorRef] = []
     seen: set[tuple[str | None, str | None]] = set()
 
-    def _add(name: str | None, bug_id: str | None, raw: str) -> None:
+    def _add(name: str | None, bug_id: str | None) -> None:
         key = (name.lower() if name else None, bug_id)
         if key in seen:
             return
         seen.add(key)
-        if name and bug_id:
-            kind = "name+bug-ref"
-        elif name:
-            kind = "name"
-        else:
-            kind = "bug-ref"
-        refs.append(PredecessorRef(name=name, bug_id=bug_id, raw=raw, kind=kind))
+        refs.append(PredecessorRef(name=name, bug_id=bug_id))
 
     # Bug-id references. We capture the surrounding window so a co-located name
     # (e.g. "MIR for mysql-8.4 - LP: #2089720") can be paired with the bug id.
@@ -208,7 +196,7 @@ def extract_predecessor_refs(text: str, current_source: str) -> list[Predecessor
                     if candidate:
                         paired_name = candidate
                         break
-            _add(paired_name, bug_id, m.group(0))
+            _add(paired_name, bug_id)
 
     # Name-bearing phrases (without a bug id). Scan the whole text; refs that
     # already appeared paired with a bug id are deduplicated by the seen-set.
@@ -216,14 +204,14 @@ def extract_predecessor_refs(text: str, current_source: str) -> list[Predecessor
         for m in rx.finditer(text):
             candidate = _valid_name(m.group(1), current_source)
             if candidate:
-                _add(candidate, None, m.group(0))
+                _add(candidate, None)
 
     # Title-form names not adjacent to a bug id.
     for rx in (_MIR_FOR_NAME_RE, _MIR_TITLE_NAME_RE):
         for m in rx.finditer(text):
             candidate = _valid_name(m.group(1), current_source)
             if candidate:
-                _add(candidate, None, m.group(0))
+                _add(candidate, None)
 
     return refs
 

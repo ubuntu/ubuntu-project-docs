@@ -23,7 +23,7 @@ def test_runtime_registry_matches_pyproject_dependencies():
         configured = tomllib.load(handle)["project"]["dependencies"]
 
     declared = {requirement.split(">=", 1)[0].lower() for requirement in configured}
-    registered = {dependency.distribution for dependency in RUNTIME_DEPENDENCIES}
+    registered = set(RUNTIME_DEPENDENCIES)
 
     assert registered == declared
 
@@ -39,7 +39,7 @@ def test_missing_runtime_dependencies_preserve_registry_order():
         lambda module: object() if module in present else None
     )
 
-    assert [dependency.ubuntu_package for dependency in missing] == [
+    assert [RUNTIME_DEPENDENCIES[d][1] for d in missing] == [
         "python3-launchpadlib",
         "python3-pythonjsonlogger",
     ]

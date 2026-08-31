@@ -52,11 +52,7 @@ def _set_unknown_from_adapter(
 
 
 def _get_packaging_source_or_unknown(
-    ctx: RunContext,
-    finding: Finding,
-    check_id: str,
-    *,
-    with_unknown_todo: bool = True,
+    ctx: RunContext, finding: Finding, check_id: str
 ) -> tuple[dict, dict] | None:
     """Return (check, packaging-source) or set finding unknown and return None."""
     check = _get_check_definition(ctx, check_id)
@@ -66,7 +62,7 @@ def _get_packaging_source_or_unknown(
         _set_unknown_from_adapter(
             finding,
             check,
-            todo_key="unknown_todo" if with_unknown_todo else None,
+            todo_key="unknown_todo",
         )
         return None
     return check, packaging
