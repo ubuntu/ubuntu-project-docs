@@ -35,356 +35,134 @@ evidence_adapters:
 - id: lp-bug-api
   type: api
   description: Fetch Launchpad bug metadata, description, comments, and target package
-  inputs:
-  - bug_id
-  output_contract:
-    bug_title: str
-    bug_description: str
-    bug_comments: list
-    target_source_package: str
-    target_series: str
-    bug_tags: list
-    bug_subscribers: list
-  fallback: hard_fail
   notes: No web scraping; Launchpad API only
 - id: lp-package-api
   type: api
   description: Fetch source package publishing history for Ubuntu and Debian via LP API
-  inputs:
-  - source_package
-  - series
-  output_contract:
-    ubuntu_publish_history: list
-    debian_publish_history: list
-    current_version: str
-    upload_history: list
-    uploaders: list
-  fallback: emit_todo_continue
 - id: version-resolution
   type: api
   description: Resolve, once, the exact source version/pocket every version-pinned adapter should analyse, with a fallback among older or partially-built versions when the newest is not (yet) fully built
-  inputs:
-  - source_package
-  - series
   depends_on:
   - lp-package-api
-  output_contract:
-    resolved_version: str
-    resolved_pocket: str
-    resolution_note: str
-  fallback: emit_todo_continue
   notes: Single source of truth for version/pocket selection - packaging-source and lp-build-api consume this instead of independently re-deriving it, so their statements about the package always agree
 - id: lp-build-api
   type: api
   description: Fetch per-architecture build state from Launchpad, pinned to the exact version version-resolution selected
-  inputs:
-  - source_package
-  - series
   depends_on:
   - version-resolution
-  output_contract:
-    builds: list
-  fallback: emit_todo_continue
 - id: lp-bug-search-api
   type: api
   description: Search Ubuntu package bug space on Launchpad for open/critical bugs
-  inputs:
-  - source_package
-  output_contract:
-    open_bugs: list
-    critical_bugs: list
-    security_bugs: list
-  fallback: emit_todo_continue
 - id: lp-mir-history
   type: api
   description: Search Launchpad for prior MIR bugs on this source or predecessor names
-  inputs:
-  - source_package
-  output_contract:
-    candidate_names: list
-    prior_mir_bugs: list
-  fallback: emit_todo_continue
   notes: Best-effort; informs review-type detection (renamed/reorganised sources)
 - id: lp-team-membership-api
   type: api
   description: Return bug subscriber list from lp_intake-fetched Launchpad bug data
-  inputs:
-  - team_name
-  output_contract:
-    subscribers: list
-  fallback: emit_todo_continue
 - id: team-mapping
   type: web
   description: Fetch package-team-mapping.json to check which teams have structural bug subscriptions to the source package
-  inputs:
-  - source_package
-  output_contract:
-    team_mapping: dict
-    subscribed_teams: list
-    source_package: str
-  fallback: emit_todo_continue
   notes: Downloads from https://static-reports.ubuntu.com/package-team-mapping.json and filters out display-only teams
 - id: lto-disabled-list
   type: web
   description: Fetch the lto-disabled-list to check whether the source package must not be built with LTO
-  inputs:
-  - source_package
-  output_contract:
-    on_list: bool
-    disabled_arches: list
-    source_package: str
-  fallback: emit_todo_continue
   notes: Downloads from https://git.launchpad.net/ubuntu/+source/lto-disabled-list/plain/lto-disabled-list; a package listed for any architecture qualifies
 - id: debian-bts
   type: web
   description: Fetch open bugs from Debian Bug Tracking System for the package
-  inputs:
-  - source_package
-  output_contract:
-    open_bugs: list
-    rc_bugs: list
-    security_bugs: list
-  fallback: emit_todo_continue
 - id: upstream-tracker
   type: heuristic
   description: Detect and query upstream project bug tracker and release history
-  inputs:
-  - source_package
-  - upstream_url_hint
-  output_contract:
-    upstream_url: str
-    open_issues_count: int
-    recent_releases: list
-    last_release_date: str
-  fallback: emit_todo_continue
   notes: URL detection prefers debian/watch, then Homepage in debian/control, then package-name-based search; ignore Vcs-Git packaging repos
 - id: fetch-build
   type: local_exec
   description: Download the official Launchpad build (log, .changes, .deb binaries) for the local architecture instead of building locally; runs lintian against the source and the downloaded binaries since the official build does not
-  inputs:
-  - source_package
-  - series
   depends_on:
   - packaging-source
   - lp-build-api
-  output_contract:
-    build_log: str
-    build_success: bool
-    built_debs: list
-    lintian_output: str
-    lintian_warnings: list
-    lintian_errors: list
-    lintian_pedantic: list
-    static_link_hints: list
-  fallback: emit_todo_continue
   notes: The package is expected to already be published in universe with a successful official build, so only the local architecture's binaries/log/.changes are downloaded; other architectures' build status comes from lp-build-api
 - id: deb-metadata
   type: local_exec
   description: Extract Built-Using and Static-Built-Using metadata from built .deb files after fetch-build
-  inputs:
-  - built_debs
   depends_on:
   - fetch-build
-  output_contract:
-    status: str
-    message: str
-    deb_packages: list
-  fallback: emit_todo_continue
 - id: binary-package-inspection
   type: local_exec
   description: Expose security, service, UI, and maintenance facts from the single extraction of built binary packages
-  inputs:
-  - fetch-build
   depends_on:
   - fetch-build
-  fallback: emit_todo_continue
 - id: lintian
   type: local_exec
   description: Parse lintian output from the fetch-build run
-  inputs:
-  - fetch_build_output
   depends_on:
   - fetch-build
-  output_contract:
-    errors: list
-    warnings: list
-    pedantic: list
-  fallback: emit_todo_continue
 - id: packaging-source
   type: local_exec
   description: Fetch package source via git-ubuntu and analyse packaging files
-  inputs:
-  - source_package
   depends_on:
   - version-resolution
-  output_contract:
-    debian_control: dict
-    debian_rules: str
-    debian_watch: str
-    debian_copyright: str
-    debian_tests_control: str
-    service_files: list
-    apparmor_profiles: list
-    built_using_entries: list
-    cargo_lock_present: bool
-    go_sum_present: bool
-    vendored_dirs: list
-  fallback: emit_todo_continue
 - id: dep-analysis
   type: local_exec
   description: Extract runtime dependencies from built .deb files, map to source packages, and filter by MIR scope
-  inputs:
-  - binary_packages
-  - series
-  - requested_binaries
   depends_on:
   - packaging-source
   - fetch-build
-  output_contract:
-    runtime_deps: list
-    deps_not_in_main: list
-    dev_debug_doc_packages: list
-    dep_source_map: list
-    in_scope_deps_not_in_main: list
-    out_of_scope_deps_not_in_main: list
-    same_source_deps: list
-    runtime_deps_in_main: list
-  fallback: emit_todo_continue
   notes: Uses post-build dependencies from fetch-build output; maps deps to source packages to identify same-source deps; runtime_deps_in_main lists in-scope runtime deps already in main (used by DEP-4)
 - id: component-mismatches
   type: local_exec
   description: Run upstream ubuntu-archive-tools/component-mismatches to identify promotion candidates
-  inputs:
-  - source_package
-  - series
-  output_contract:
-    promotion_candidates: list
-    mismatch_report: str
-  fallback: emit_todo_continue
   notes: Fetch and run original ubuntu-archive-tools script; no local reimplementation
 - id: reverse-deps
   type: local_exec
   description: List reverse-dependency consumer source packages via reverse-depends (runtime and build-depends) against the target release
-  inputs:
-  - source_package
-  - series
-  output_contract:
-    consumers: list
-    consumer_sources: list
-    release: str
-  fallback: emit_todo_continue
   notes: Uses reverse-depends from ubuntu-dev-tools (already provisioned in the guest) against <codename>-proposed with fallback to the bare codename; maps reverse-dep binaries to their source packages so CB-6 can reason about end-to-end coverage via consumers
 - id: ubuntu-upload-permission
   type: api
   description: Query the Launchpad archive API for who may upload the source package (component and package-specific uploaders)
-  inputs:
-  - source_package
   depends_on:
   - lp-package-api
-  output_contract:
-    raw_output: str
-    components: list
-    team_uploaders: list
-    individual_uploaders: list
-  fallback: emit_todo_continue
   notes: Uses the same anonymous Launchpad session as lp-package-api/lp-build-api (archive.getUploadersForComponent/getUploadersForPackage); reveals whether only the MOTU team (universe) can upload (typical sync-from-Debian case) versus specific individuals/teams. Deliberately not the ubuntu-upload-permission guest CLI tool, which always attempts an interactive Launchpad OAuth login that hangs for ~15 minutes on a fresh, credential-less guest.
 - id: git-ubuntu-delta
   type: local_exec
   description: Classify the Ubuntu delta vs Debian and, when an Ubuntu revision exists, produce a git-ubuntu diffstat
-  inputs:
-  - source_package
   depends_on:
   - packaging-source
-  output_contract:
-    version: str
-    delta_kind: str
-    delta_present: bool
-    diffstat: str
-    delta_summary: str
-  fallback: emit_todo_continue
   notes: A pure Debian sync (X-Y) carries no Ubuntu delta and git-ubuntu is not run; only ...ubuntuN versions trigger a best-effort git-ubuntu clone and diffstat
 - id: autopkgtest-db
   type: web
   description: Query autopkgtest.ubuntu.com/static/autopkgtest.db for test results
-  inputs:
-  - source_package
-  - series
-  output_contract:
-    test_results: list
-    has_autopkgtest: bool
-    passing_arches: list
-    failing_arches: list
-  fallback: emit_todo_continue
 - id: consumer-autopkgtests
   type: web
   description: Look up autopkgtest status for each reverse-dependency consumer source in the (shared, cached) autopkgtest DB
-  inputs:
-  - series
   depends_on:
   - reverse-deps
-  output_contract:
-    consumers: list
-  fallback: emit_todo_continue
   notes: Reuses the single per-run autopkgtest.db download shared with the autopkgtest-db adapter; reports per-consumer passing/failing arches so CB-6 can weigh end-to-end coverage via consumers
 - id: dependency-autopkgtests
   type: web
   description: Look up autopkgtest status for each in-main runtime dependency's source in the (shared, cached) autopkgtest DB
-  inputs:
-  - series
   depends_on:
   - dep-analysis
-  output_contract:
-    dependency_coverage: list
-  fallback: emit_todo_continue
   notes: Reuses the single per-run autopkgtest.db download shared with the autopkgtest-db adapter; reports per-dependency passing/failing arches so DEP-4 has grounded, structured evidence instead of needing to cross-reference dep-analysis and autopkgtest-db by hand
 - id: dup-search
   type: local_exec
   description: Suggest possible duplicate/overlapping packages by deriving search terms from the package description (LLM) and probing the archive with apt-cache search, tagging each candidate's component
-  inputs:
-  - source_package
   depends_on:
   - packaging-source
-  output_contract:
-    search_terms: list
-    candidates: list
-  fallback: emit_todo_continue
   notes: Best-effort suggestions only; the reviewer (via RDO-1) decides whether any candidate is a genuine functional duplicate. Own binary packages are excluded from candidates.
 - id: ubuntu-cve-tracker
   type: web
   description: Search Ubuntu CVE tracker for package-relevant CVEs
-  inputs:
-  - source_package
-  output_contract:
-    cves: list
-  fallback: emit_todo_continue
 - id: cve-search-terms
   type: heuristic
   description: Produce candidate CVE search terms (current package plus historical predecessors)
-  inputs:
-  - source_package
-  output_contract:
-    terms: list
-  fallback: emit_todo_continue
 - id: cvelist-scan
   type: local_exec
   description: Scan the cvelistV5 baseline corpus on the host to identify candidate CVEs
-  inputs:
-  - cve-search-terms
   depends_on:
   - cve-search-terms
-  output_contract:
-    candidates: list
-    baseline: str
-  fallback: emit_todo_continue
 - id: nvd-enrich
   type: web
   description: Enrich scan candidates with normalized NVD severity, CWE and version ranges
-  inputs:
-  - cvelist-scan
   depends_on:
   - cvelist-scan
-  output_contract:
-    cves: list
-    high_severity_cves: list
-    historical_cves: list
-  fallback: emit_todo_continue

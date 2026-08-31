@@ -313,7 +313,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #9  catalog_enums.py
 - [x] #10 dead YAML sections
 - [x] #3  _REQUIRED_MESSAGE_TEMPLATES
-- [ ] #5  catalog.yaml adapter declarations
+- [x] #5  catalog.yaml adapter declarations
 - [ ] #1  test_checks.py real catalog
 - [ ] #14 registries → dicts
 - [ ] #16 unknown-block unification

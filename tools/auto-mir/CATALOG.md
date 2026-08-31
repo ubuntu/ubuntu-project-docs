@@ -315,3 +315,365 @@ Evidence-failure behavior:
   unknown/low-confidence with an explicit reviewer TODO. The run continues
   unless the missing data is the reporter MIR content for a fresh review
   (a hard stop); re-review/reorg fast-paths proceed without a template.
+
+## Evidence adapter data contracts
+
+Per-adapter input parameters and returned record shapes. The runtime
+authority for failure behavior is the code itself (see "Reviewer draft
+rendering conventions and evidence-failure behavior" above); these
+declarations document the data contracts consumers rely on.
+
+### `lp-bug-api`
+
+Fetch Launchpad bug metadata, description, comments, and target package
+
+Inputs: `bug_id`
+
+Output fields:
+
+- `bug_title` (str)
+- `bug_description` (str)
+- `bug_comments` (list)
+- `target_source_package` (str)
+- `target_series` (str)
+- `bug_tags` (list)
+- `bug_subscribers` (list)
+
+### `lp-package-api`
+
+Fetch source package publishing history for Ubuntu and Debian via LP API
+
+Inputs: `source_package`, `series`
+
+Output fields:
+
+- `ubuntu_publish_history` (list)
+- `debian_publish_history` (list)
+- `current_version` (str)
+- `upload_history` (list)
+- `uploaders` (list)
+
+### `version-resolution`
+
+Resolve, once, the exact source version/pocket every version-pinned adapter should analyse, with a fallback among older or partially-built versions when the newest is not (yet) fully built
+
+Inputs: `source_package`, `series`
+
+Output fields:
+
+- `resolved_version` (str)
+- `resolved_pocket` (str)
+- `resolution_note` (str)
+
+### `lp-build-api`
+
+Fetch per-architecture build state from Launchpad, pinned to the exact version version-resolution selected
+
+Inputs: `source_package`, `series`
+
+Output fields:
+
+- `builds` (list)
+
+### `lp-bug-search-api`
+
+Search Ubuntu package bug space on Launchpad for open/critical bugs
+
+Inputs: `source_package`
+
+Output fields:
+
+- `open_bugs` (list)
+- `critical_bugs` (list)
+- `security_bugs` (list)
+
+### `lp-mir-history`
+
+Search Launchpad for prior MIR bugs on this source or predecessor names
+
+Inputs: `source_package`
+
+Output fields:
+
+- `candidate_names` (list)
+- `prior_mir_bugs` (list)
+
+### `lp-team-membership-api`
+
+Return bug subscriber list from lp_intake-fetched Launchpad bug data
+
+Inputs: `team_name`
+
+Output fields:
+
+- `subscribers` (list)
+
+### `team-mapping`
+
+Fetch package-team-mapping.json to check which teams have structural bug subscriptions to the source package
+
+Inputs: `source_package`
+
+Output fields:
+
+- `team_mapping` (dict)
+- `subscribed_teams` (list)
+- `source_package` (str)
+
+### `lto-disabled-list`
+
+Fetch the lto-disabled-list to check whether the source package must not be built with LTO
+
+Inputs: `source_package`
+
+Output fields:
+
+- `on_list` (bool)
+- `disabled_arches` (list)
+- `source_package` (str)
+
+### `debian-bts`
+
+Fetch open bugs from Debian Bug Tracking System for the package
+
+Inputs: `source_package`
+
+Output fields:
+
+- `open_bugs` (list)
+- `rc_bugs` (list)
+- `security_bugs` (list)
+
+### `upstream-tracker`
+
+Detect and query upstream project bug tracker and release history
+
+Inputs: `source_package`, `upstream_url_hint`
+
+Output fields:
+
+- `upstream_url` (str)
+- `open_issues_count` (int)
+- `recent_releases` (list)
+- `last_release_date` (str)
+
+### `fetch-build`
+
+Download the official Launchpad build (log, .changes, .deb binaries) for the local architecture instead of building locally; runs lintian against the source and the downloaded binaries since the official build does not
+
+Inputs: `source_package`, `series`
+
+Output fields:
+
+- `build_log` (str)
+- `build_success` (bool)
+- `built_debs` (list)
+- `lintian_output` (str)
+- `lintian_warnings` (list)
+- `lintian_errors` (list)
+- `lintian_pedantic` (list)
+- `static_link_hints` (list)
+
+### `deb-metadata`
+
+Extract Built-Using and Static-Built-Using metadata from built .deb files after fetch-build
+
+Inputs: `built_debs`
+
+Output fields:
+
+- `status` (str)
+- `message` (str)
+- `deb_packages` (list)
+
+### `binary-package-inspection`
+
+Expose security, service, UI, and maintenance facts from the single extraction of built binary packages
+
+Inputs: `fetch-build`
+
+### `lintian`
+
+Parse lintian output from the fetch-build run
+
+Inputs: `fetch_build_output`
+
+Output fields:
+
+- `errors` (list)
+- `warnings` (list)
+- `pedantic` (list)
+
+### `packaging-source`
+
+Fetch package source via git-ubuntu and analyse packaging files
+
+Inputs: `source_package`
+
+Output fields:
+
+- `debian_control` (dict)
+- `debian_rules` (str)
+- `debian_watch` (str)
+- `debian_copyright` (str)
+- `debian_tests_control` (str)
+- `service_files` (list)
+- `apparmor_profiles` (list)
+- `built_using_entries` (list)
+- `cargo_lock_present` (bool)
+- `go_sum_present` (bool)
+- `vendored_dirs` (list)
+
+### `dep-analysis`
+
+Extract runtime dependencies from built .deb files, map to source packages, and filter by MIR scope
+
+Inputs: `binary_packages`, `series`, `requested_binaries`
+
+Output fields:
+
+- `runtime_deps` (list)
+- `deps_not_in_main` (list)
+- `dev_debug_doc_packages` (list)
+- `dep_source_map` (list)
+- `in_scope_deps_not_in_main` (list)
+- `out_of_scope_deps_not_in_main` (list)
+- `same_source_deps` (list)
+- `runtime_deps_in_main` (list)
+
+### `component-mismatches`
+
+Run upstream ubuntu-archive-tools/component-mismatches to identify promotion candidates
+
+Inputs: `source_package`, `series`
+
+Output fields:
+
+- `promotion_candidates` (list)
+- `mismatch_report` (str)
+
+### `reverse-deps`
+
+List reverse-dependency consumer source packages via reverse-depends (runtime and build-depends) against the target release
+
+Inputs: `source_package`, `series`
+
+Output fields:
+
+- `consumers` (list)
+- `consumer_sources` (list)
+- `release` (str)
+
+### `ubuntu-upload-permission`
+
+Query the Launchpad archive API for who may upload the source package (component and package-specific uploaders)
+
+Inputs: `source_package`
+
+Output fields:
+
+- `raw_output` (str)
+- `components` (list)
+- `team_uploaders` (list)
+- `individual_uploaders` (list)
+
+### `git-ubuntu-delta`
+
+Classify the Ubuntu delta vs Debian and, when an Ubuntu revision exists, produce a git-ubuntu diffstat
+
+Inputs: `source_package`
+
+Output fields:
+
+- `version` (str)
+- `delta_kind` (str)
+- `delta_present` (bool)
+- `diffstat` (str)
+- `delta_summary` (str)
+
+### `autopkgtest-db`
+
+Query autopkgtest.ubuntu.com/static/autopkgtest.db for test results
+
+Inputs: `source_package`, `series`
+
+Output fields:
+
+- `test_results` (list)
+- `has_autopkgtest` (bool)
+- `passing_arches` (list)
+- `failing_arches` (list)
+
+### `consumer-autopkgtests`
+
+Look up autopkgtest status for each reverse-dependency consumer source in the (shared, cached) autopkgtest DB
+
+Inputs: `series`
+
+Output fields:
+
+- `consumers` (list)
+
+### `dependency-autopkgtests`
+
+Look up autopkgtest status for each in-main runtime dependency's source in the (shared, cached) autopkgtest DB
+
+Inputs: `series`
+
+Output fields:
+
+- `dependency_coverage` (list)
+
+### `dup-search`
+
+Suggest possible duplicate/overlapping packages by deriving search terms from the package description (LLM) and probing the archive with apt-cache search, tagging each candidate's component
+
+Inputs: `source_package`
+
+Output fields:
+
+- `search_terms` (list)
+- `candidates` (list)
+
+### `ubuntu-cve-tracker`
+
+Search Ubuntu CVE tracker for package-relevant CVEs
+
+Inputs: `source_package`
+
+Output fields:
+
+- `cves` (list)
+
+### `cve-search-terms`
+
+Produce candidate CVE search terms (current package plus historical predecessors)
+
+Inputs: `source_package`
+
+Output fields:
+
+- `terms` (list)
+
+### `cvelist-scan`
+
+Scan the cvelistV5 baseline corpus on the host to identify candidate CVEs
+
+Inputs: `cve-search-terms`
+
+Output fields:
+
+- `candidates` (list)
+- `baseline` (str)
+
+### `nvd-enrich`
+
+Enrich scan candidates with normalized NVD severity, CWE and version ranges
+
+Inputs: `cvelist-scan`
+
+Output fields:
+
+- `cves` (list)
+- `high_severity_cves` (list)
+- `historical_cves` (list)
