@@ -20,12 +20,10 @@ def test_pin_uat_tooling_option_is_removed():
         parser.parse_args(["12345", "--pin-uat-tooling", "deadbeef"])
 
 
-def test_cli_normalizes_legacy_numeric_bug_to_review():
-    args = auto_mir.build_parser().parse_args(["12345"])
-
-    assert args.role == "review"
-    assert args.bug_id == "12345"
-    assert args.legacy_invocation is True
+def test_cli_rejects_bare_numeric_bug_id():
+    """The role subcommand is mandatory; bare bug IDs are not normalized."""
+    with pytest.raises(SystemExit, match="2"):
+        auto_mir.build_parser().parse_args(["12345"])
 
 
 def test_cli_accepts_explicit_review_command():
@@ -33,7 +31,6 @@ def test_cli_accepts_explicit_review_command():
 
     assert args.role == "review"
     assert args.bug_id == "12345"
-    assert args.legacy_invocation is False
 
 
 def test_cli_accepts_report_source_and_no_llm():
@@ -82,7 +79,7 @@ def test_main_report_runs_connected_reporter_pipeline(monkeypatch, tmp_path):
     from reporter import pipeline as reporter_pipeline
 
     calls: list[str] = []
-    args = SimpleNamespace(role="report", verbose=False, legacy_invocation=False)
+    args = SimpleNamespace(role="report", verbose=False)
     parser = SimpleNamespace(parse_args=lambda: args)
     ctx = SimpleNamespace(
         role="report",
@@ -145,17 +142,14 @@ def _patch_main_context(monkeypatch, *, collect_only: bool):
 
     args = SimpleNamespace(
         role="review",
-        legacy_invocation=False,
         bug_id="12345",
         series=None,
         output_dir=None,
         collect_only=collect_only,
         lxd_image=None,
-        lxd_options="",
         keep_guest=None,
         llm_model_small=None,
         llm_model_large=None,
-        request_binaries=None,
         source_pocket="auto",
         verbose=False,
     )

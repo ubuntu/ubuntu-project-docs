@@ -30,13 +30,12 @@ def test_build_parser_rejects_removed_single_model_flag():
         parser.parse_args(["123", "--llm-model", "gpt-4.1-mini"])
 
 
-def test_build_parser_default_lxd_options_request_larger_disk():
-    parser = build_parser()
-    args = parser.parse_args(["123"])
+def test_lxd_default_options_request_larger_disk():
+    import lxd_runner
 
     # LXD VMs default to a 10GB root disk, which is too small for large builds.
-    assert "-d root,size=20GiB" in args.lxd_options
-    assert "--vm" in args.lxd_options
+    assert "root,size=20GiB" in " ".join(lxd_runner._DEFAULT_LXD_OPTIONS)
+    assert "--vm" in lxd_runner._DEFAULT_LXD_OPTIONS
 
 
 def test_selected_model_defaults_for_openai_compatible():

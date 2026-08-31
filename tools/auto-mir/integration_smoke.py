@@ -24,7 +24,6 @@ class SmokeContext:
         self.bug_id = "smoke"
         self.lxd_image = lxd_image
         self.keep_guest = keep_guest
-        self.lxd_options = "--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB"
         self.guest_name = ""
 
 

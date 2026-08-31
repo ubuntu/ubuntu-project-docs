@@ -161,6 +161,19 @@ def _check_lxd_available() -> None:
     log.debug("LXD server version: %s", server_version)
 
 
+# Fixed launch configuration for MIR guests: a VM with enough CPU, memory and
+# disk for package builds (fetch-build, lintian, autopkgtest tooling).
+_DEFAULT_LXD_OPTIONS = (
+    "--vm",
+    "-c",
+    "limits.cpu=4",
+    "-c",
+    "limits.memory=8GiB",
+    "-d",
+    "root,size=20GiB",
+)
+
+
 def spawn(ctx: "RunContext") -> None:
     """Create a new LXD guest from the target Ubuntu release image and provision it.
 
@@ -173,9 +186,7 @@ def spawn(ctx: "RunContext") -> None:
     image = _resolve_image(ctx)
     ctx.lxd_image = image
 
-    # Parse LXD options from ctx.lxd_options
-    # (default: "--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB")
-    lxd_opts = ctx.lxd_options.split() if ctx.lxd_options else []
+    lxd_opts = list(_DEFAULT_LXD_OPTIONS)
 
     log.info(
         "Creating LXD guest %s from %s with options: %s",

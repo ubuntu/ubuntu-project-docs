@@ -44,9 +44,6 @@ From this directory, review an existing Launchpad MIR bug:
 ./auto_mir.py review <bug number>
 ```
 
-The historical `./auto_mir.py <bug number>` form remains available but is
-deprecated.
-
 To prepare a reporter draft from a source package, use an interactive terminal:
 
 ```text

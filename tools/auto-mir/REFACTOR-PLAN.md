@@ -309,7 +309,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #7  Finding factory classmethods
 - [x] #26 free-text evidence-request parsing
 - [x] #27 Answer.raw_input
-- [ ] #12 legacy invocation + dead flags
+- [x] #12 legacy invocation + dead flags
 - [ ] #9  catalog_enums.py
 - [ ] #10 dead YAML sections
 - [ ] #3  _REQUIRED_MESSAGE_TEMPLATES

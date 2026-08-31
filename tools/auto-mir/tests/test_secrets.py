@@ -155,7 +155,7 @@ def test_json_log_redacts_subprocess_command_and_output(monkeypatch, tmp_path):
 
 
 def _run_context(tmp_path: Path) -> auto_mir.RunContext:
-    args = auto_mir.build_parser().parse_args(["12345", "--output-dir", str(tmp_path)])
+    args = auto_mir.build_parser().parse_args(["review", "12345", "--output-dir", str(tmp_path)])
     ctx = auto_mir.RunContext(args)
     ctx.secret_redactor.register(_SENTINEL)
     ctx.source_package = f"package-{_SENTINEL}"

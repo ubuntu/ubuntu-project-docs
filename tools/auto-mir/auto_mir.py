@@ -31,29 +31,6 @@ ROLE_REVIEW = "review"
 ROLE_REPORT = "report"
 
 
-def _normalize_cli_args(args: list[str]) -> list[str]:
-    """Normalize the legacy ``auto_mir.py BUG`` form to ``review BUG``.
-
-    This runs before dependency preflight and uses only the standard library so
-    both legacy invocation and ``--help`` continue to work on an unprepared
-    host. Only an all-decimal first argument is treated as a legacy bug ID;
-    source package names must use the explicit ``report`` command.
-    """
-    if not args or args[0] in {ROLE_REVIEW, ROLE_REPORT, "-h", "--help"}:
-        return args
-    if args[0].isdecimal():
-        return [ROLE_REVIEW, "--legacy-invocation", *args]
-    return args
-
-
-class _RoleArgumentParser(argparse.ArgumentParser):
-    """Argument parser that preserves the pre-subcommand reviewer syntax."""
-
-    def parse_args(self, args=None, namespace=None):
-        raw_args = list(sys.argv[1:] if args is None else args)
-        return super().parse_args(_normalize_cli_args(raw_args), namespace)
-
-
 # ---------------------------------------------------------------------------
 # Run-name helpers (shared base name for LXD guest + output dir)
 # ---------------------------------------------------------------------------
@@ -84,23 +61,8 @@ def _name_in_use(name: str) -> bool:
     return False
 
 
-def _resolve_run_name(bug_id: str, user_name: str | None) -> str:
-    """Return the resolved run name, applying collision logic.
-
-    Auto-generated name: bumped with -1, -2, ... suffix when taken.
-    User-supplied name:   refused with SystemExit(1) when already in use.
-    """
-    if user_name:
-        if _name_in_use(user_name):
-            log.error(
-                "Run name '%s' already exists (LXD guest or /tmp/%s directory). "
-                "Choose a different name with --run-name.",
-                user_name,
-                user_name,
-            )
-            raise SystemExit(1)
-        return user_name
-
+def _resolve_run_name(bug_id: str) -> str:
+    """Return the auto-generated run name, bumping -1, -2, ... suffix when taken."""
     base = _make_run_name(bug_id)
     if not _name_in_use(base):
         return base
@@ -125,7 +87,7 @@ def _resolve_run_name(bug_id: str, user_name: str | None) -> str:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = _RoleArgumentParser(
+    p = argparse.ArgumentParser(
         description="AI-assisted Ubuntu Main Inclusion Review assistant",
     )
     common = argparse.ArgumentParser(add_help=False)
@@ -168,18 +130,6 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "LXD image alias to run checks in"
             " (default: target release image, falling back to Ubuntu devel)"
-        ),
-    )
-    common.add_argument(
-        "--lxd-options",
-        dest="lxd_options",
-        type=str,
-        default="--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB",
-        help=(
-            "LXD launch options (default: "
-            "'--vm -c limits.cpu=4 -c limits.memory=8GiB -d root,size=20GiB'). "
-            "Pass any lxc launch flags. Use empty string or override "
-            "to switch guest type or change resources."
         ),
     )
     common.add_argument(
@@ -237,14 +187,6 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     common.add_argument(
-        "--request-binaries",
-        dest="request_binaries",
-        type=str,
-        nargs="+",
-        default=None,
-        help="Binary packages requested for promotion in this MIR (space-separated)",
-    )
-    common.add_argument(
         "--source-pocket",
         dest="source_pocket",
         choices=["auto", "release", "proposed"],
@@ -282,7 +224,6 @@ def build_parser() -> argparse.ArgumentParser:
             "all findings softened to recommendations."
         ),
     )
-    review.add_argument("--legacy-invocation", action="store_true", help=argparse.SUPPRESS)
 
     report = subparsers.add_parser(
         ROLE_REPORT,
@@ -352,8 +293,7 @@ class RunContext:
         self.llm_retry_base_delay: float = getattr(args, "llm_retry_base_delay", 8.0)
         self.llm_timeout: float = getattr(args, "llm_timeout", 60.0)
         self.collect_only: bool = args.collect_only
-        self.lxd_options: str = args.lxd_options
-        self.requested_binaries: list[str] = args.request_binaries or []
+        self.requested_binaries: list[str] = []
         self.no_llm: bool = bool(getattr(args, "no_llm", False))
         # Which archive pocket's source to fetch/build/analyse (auto|release|proposed).
         self.source_pocket: str = getattr(args, "source_pocket", "auto")
@@ -368,7 +308,7 @@ class RunContext:
 
         # LXD guest name is always auto-generated
         run_subject = self.bug_id if self.role == ROLE_REVIEW else self.source_package
-        self.run_name: str = _resolve_run_name(bug_id=run_subject, user_name=None)
+        self.run_name: str = _resolve_run_name(bug_id=run_subject)
 
         # Output directory can be user-specified or auto-generated
         if args.output_dir:
@@ -617,8 +557,8 @@ def stage_optional_auth(ctx: RunContext) -> None:
 def _resolve_requested_binaries(all_binaries: list[str]) -> list[str]:
     """Determine the promotion scope when nothing was requested explicitly.
 
-    Neither the reporter's MIR template nor the ``--request-binaries`` CLI flag
-    named any binaries. Resolve the scope without needless interaction:
+    Neither the reporter's MIR template nor an explicit request named any
+    binaries. Resolve the scope without needless interaction:
 
     - No binaries built: nothing to resolve (return empty).
     - Exactly one binary built: it is unambiguously the promotion target, so
@@ -872,12 +812,6 @@ def main() -> int:
         ctx.keep_guest,
         ctx.collect_only,
     )
-    if getattr(args, "legacy_invocation", False):
-        log.warning(
-            "The bare bug-ID invocation is deprecated; use '%s review %s' instead.",
-            Path(sys.argv[0]).name,
-            ctx.bug_id,
-        )
     log.debug(
         "LLM configuration for this run: provider=auto "
         "requested_small_model=%s requested_large_model=%s",
