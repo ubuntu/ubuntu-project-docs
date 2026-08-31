@@ -19,9 +19,6 @@ def test_review_role_composes_shared_and_review_sections():
     assert review["checks"]
     assert review["evidence_adapters"]
     assert review["global_policies"]
-    assert review["security_triggers"]
-    assert review["render_policy"]
-    assert review["fallback_policy"]
     assert review["metadata"]["review_template_blueprint"]
     assert "items" not in review
     assert (TOOL_ROOT / "catalog-mir-review.yaml").exists()

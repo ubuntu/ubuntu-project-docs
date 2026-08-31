@@ -161,21 +161,6 @@ def test_summarize_catalog_handles_empty_catalog():
     assert summary["sections"] == {}
 
 
-def test_summarize_catalog_counts_security_triggers():
-    """summarize_catalog should count security triggers."""
-    catalog = {
-        "checks": [],
-        "security_triggers": [
-            {"id": "SEC-1"},
-            {"id": "SEC-2"},
-        ],
-    }
-
-    summary = summarize_catalog(catalog)
-
-    assert summary["security_trigger_count"] == 2
-
-
 def test_validate_catalog_requires_dep3_messages():
     """DEP-3 must define migrated strict message templates."""
     catalog = {

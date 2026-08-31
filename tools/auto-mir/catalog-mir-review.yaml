@@ -13,13 +13,9 @@
 # Structure:
 #   metadata:            Reviewer-template blueprint (offline doc renderer)
 #   checks:               Individual check definitions with evaluation rules
-#   security_triggers:    Cross-cutting security actions linked from SEC-* checks
-#   render_policy:        Reviewer draft rendering conventions
-#   fallback_policy:      Behavior when evidence collection fails
 #
 # ============================================================================
 
-schema_version: 1
 role: review
 metadata:
   review_template_blueprint:
@@ -1048,7 +1044,6 @@ checks:
   blocker_class: none
   covers_rule_clauses:
   - review-security-history
-  security_trigger: SEC-1-CVE-SYNTH
   adapters_required:
   - ubuntu-cve-tracker
   - nvd-enrich
@@ -1085,7 +1080,6 @@ checks:
   title: Does not use webkit1/2
   mode: deterministic
   blocker_class: hard
-  security_trigger: SEC-3-WEBKIT
   adapters_required:
   - dep-analysis
   messages:
@@ -1101,7 +1095,6 @@ checks:
   title: Does not use lib*v8 directly
   mode: deterministic
   blocker_class: hard
-  security_trigger: SEC-4-V8
   adapters_required:
   - dep-analysis
   messages:
@@ -1210,7 +1203,6 @@ checks:
   title: Does not handle security attestation (TPM, secure boot)
   mode: ev_to_ai
   blocker_class: hard
-  security_trigger: SEC-11-ATTESTATION
   adapters_required:
   - dep-analysis
   - packaging-source
@@ -1242,7 +1234,6 @@ checks:
   blocker_class: none
   covers_rule_clauses:
   - review-security-mitigations
-  security_trigger: SEC-13-MITIGATION-GAPS
   adapters_required:
   - packaging-source
   - fetch-build
@@ -1385,7 +1376,6 @@ checks:
   title: No new Python 2 dependency
   mode: deterministic
   blocker_class: hard
-  security_trigger: null
   adapters_required:
   - dep-analysis
   - packaging-source
@@ -1883,85 +1873,3 @@ checks:
   - 'TODO-A: - no translation present, but none needed for this case (user visible)?'
   - 'TODO-B: - translation present'
   notes: 'Gated on URF-8''s end-user-facing judgement (read via ctx.findings) instead of asking the model to independently re-classify the same package a second time, which risked disagreeing with URF-8''s answer. Only the has_translation_files fact (packaging-source) remains to check once URF-8 has already judged the package end-user facing.'
-security_triggers:
-- id: SEC-1-CVE-SYNTH
-  title: CVE history risk synthesis
-  linked_checks:
-  - SEC-1
-  trigger_condition: CVE data present from ubuntu-cve-tracker or nvd-enrich for this package
-  synthesis: required
-  synthesis_policy: 'AI synthesises risk across both trackers. Assess: total volume, severity classes, fix timeliness, systemic patterns. Weigh current and historical/predecessor CVEs (nvd-enrich historical_cves) separately: historical findings from upstream or older versioned names can raise the risk band and trigger a security review but must be clearly labelled historical and never block the current version. Output 3-band confidence (low/medium/high).'
-  human_confirmation_required: true
-  action: 'Emit structured security_trigger field in report with risk band and summary. May trigger security review assignment (SUM-6).'
-  output_flags:
-    structured_field: security_trigger
-    summary_line: true
-    blocks_ack: false
-- id: SEC-3-WEBKIT
-  title: webkit1/2 direct dependency
-  linked_checks:
-  - SEC-3
-  trigger_condition: webkit1 or webkit2 found in runtime dependency list
-  synthesis: none
-  human_confirmation_required: false
-  action: Emit required TODO; block ACK suggestion
-  output_flags:
-    structured_field: hard_blocker
-    summary_line: true
-    blocks_ack: true
-- id: SEC-4-V8
-  title: Direct lib*v8 dependency
-  linked_checks:
-  - SEC-4
-  trigger_condition: lib*v8 found in runtime dependency list
-  synthesis: none
-  human_confirmation_required: false
-  action: Emit required TODO; block ACK suggestion
-  output_flags:
-    structured_field: hard_blocker
-    summary_line: true
-    blocks_ack: true
-- id: SEC-11-ATTESTATION
-  title: Secure boot / TPM / signature involvement
-  linked_checks:
-  - SEC-11
-  trigger_condition: secure boot, TPM, or signature handling detected in source or deps
-  synthesis: ev_to_ai
-  human_confirmation_required: false
-  action: Mandatory security review path; no recommended-only outcome
-  output_flags:
-    structured_field: security_review_required
-    summary_line: true
-    blocks_ack: false
-- id: SEC-13-MITIGATION-GAPS
-  title: Risk mitigation gap assessment
-  linked_checks:
-  - SEC-13
-  trigger_condition: exposure-level assessment from SEC-1 through SEC-12 is non-trivial
-  synthesis: ev_to_ai
-  human_confirmation_required: true
-  action: 'Surface mitigations present and absent. Human reviewer determines severity (ok / recommended / required) based on proportionality judgment.'
-  output_flags:
-    structured_field: mitigation_assessment
-    summary_line: true
-    blocks_ack: false
-render_policy:
-  template_mode: template_close
-  allow_rationale_append: true
-  rationale_max_sentences: 2
-  forbidden_line_prefixes:
-  - 'RULE:'
-  - 'RULE '
-  todo_prefix_rule: 'Unresolved reviewer actions must begin with ''TODO:''. Resolved statements must not begin with ''TODO''.'
-  option_pruning: 'For mutually exclusive TODO-A/B/C/D variants, emit only the single most applicable option based on evidence. Remove all others.'
-  conformance_check: 'Before emitting final output, run line-linter to verify: no RULE lines remain, all unresolved items start with TODO, all resolved items have the TODO prefix removed.'
-fallback_policy:
-  on_adapter_error:
-    action: emit_todo_continue
-    behavior: 'When a deterministic evidence adapter fails (API unavailable, tool error, etc.): emit an explicit reviewer TODO noting the evidence gap, mark the finding unknown with confidence=low, include the retrieval failure reason, and continue the run. Never silently infer from missing data.'
-  on_missing_optional_data:
-    action: continue_without
-    behavior: 'Optional adapters that fail are noted in report metadata but do not block the run or affect severity of other checks.'
-  on_missing_required_data:
-    action: emit_todo_fail_gracefully
-    behavior: 'Required data that cannot be collected causes that check''s finding to be unknown/low-confidence with an explicit reviewer TODO. The run continues unless the missing data is the reporter MIR content for a fresh review (which causes a hard stop); re-review/reorg fast-paths proceed without a reporter template.'

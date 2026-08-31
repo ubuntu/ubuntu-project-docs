@@ -1,7 +1,5 @@
-schema_version: 1
 role: report
 metadata:
-  title: MIR reporter's template
   section_markers:
   - '[Availability]'
   - '[Rationale]'

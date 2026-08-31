@@ -288,3 +288,30 @@ Catalog changes should keep these stability rules:
 make lint
 make test
 ```
+
+## Reviewer draft rendering conventions and evidence-failure behavior
+
+These conventions were previously declared (but never read) as the
+`render_policy` and `fallback_policy` sections of `catalog-mir-review.yaml`;
+they are prose conventions, implemented directly in `render/` and the
+evidence/checks code:
+
+- Template-close wording; the AI may append up to two sentences of rationale.
+- Unresolved reviewer actions begin with `TODO:`; resolved statements do not.
+- No `RULE:` lines survive into a rendered draft; an output linter validates
+  conformance before anything is written.
+- For mutually exclusive TODO-A/B/C/D variants, emit only the single most
+  applicable option and remove the others.
+
+Evidence-failure behavior:
+
+- When a deterministic evidence adapter fails, the check emits an explicit
+  reviewer TODO naming the evidence gap, marks the finding unknown with low
+  confidence, includes the retrieval failure reason, and continues the run.
+  Nothing is silently inferred from missing data.
+- Optional adapters that fail are noted in report metadata but do not block
+  the run or affect other checks' severity.
+- Required data that cannot be collected leaves that check's finding
+  unknown/low-confidence with an explicit reviewer TODO. The run continues
+  unless the missing data is the reporter MIR content for a fresh review
+  (a hard stop); re-review/reorg fast-paths proceed without a template.

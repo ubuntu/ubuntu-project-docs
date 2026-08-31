@@ -1090,6 +1090,5 @@ def summarize_catalog(loaded: dict) -> dict:
     return {
         "check_count": len(checks),
         "item_count": len(loaded.get("items", [])),
-        "security_trigger_count": len(loaded.get("security_triggers", [])),
         "sections": section_counts,
     }

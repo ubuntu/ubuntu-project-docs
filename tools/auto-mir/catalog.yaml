@@ -30,11 +30,7 @@ global_policies:
   # - high:   Strong evidence from deterministic checks
   # AI findings may use all three bands but always require human confirmation.
   confidence_model:
-    bands:
-    - low
-    - medium
-    - high
-    description: 'Confidence reflects how strongly the evidence supports the finding. AI-derived findings may reach high confidence for clear evidence, but always require human confirmation.'
+    description: 'Confidence reflects how strongly the evidence supports the finding, on three bands: low (insufficient evidence, needs manual review), medium (reasonable evidence, human should verify), high (strong evidence from deterministic checks). AI-derived findings may reach high confidence for clear evidence, but always require human confirmation.'
 evidence_adapters:
 - id: lp-bug-api
   type: api

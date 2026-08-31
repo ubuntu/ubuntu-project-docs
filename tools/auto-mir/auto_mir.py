@@ -489,7 +489,7 @@ def stage_render(ctx: RunContext) -> None:
     - report.json: structured findings with severity, confidence, evidence refs
     - review-draft.txt: reviewer-template-aligned draft ready to post on LP bug
 
-    Rendering rules (from catalog render_policy):
+    Rendering rules (see CATALOG.md, "Reviewer draft rendering conventions"):
     - Template-close wording; AI may append up to 2-sentence rationale
     - Unresolved items begin with TODO:
     - No RULE: lines survive
