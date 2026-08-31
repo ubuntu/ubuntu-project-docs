@@ -142,7 +142,7 @@ def collect_lp_bug_search_api(ctx: RunContext) -> dict:
 
     while next_url and len(open_bugs) < max_tasks:
         try:
-            page = _fetch_json(next_url)
+            page = http_utils.get_json(next_url)
         except urllib.error.HTTPError as exc:
             raise AdapterError(f"Launchpad bug search HTTP error: {exc.code}") from exc
         except urllib.error.URLError as exc:
@@ -175,7 +175,7 @@ def collect_lp_bug_search_api(ctx: RunContext) -> dict:
             tags: list[str] = []
             if bug_link:
                 try:
-                    bug_data = _fetch_json(bug_link)
+                    bug_data = http_utils.get_json(bug_link)
                     title = str(bug_data.get("title") or "").strip()
                     raw_tags = bug_data.get("tags") or []
                     if isinstance(raw_tags, list):
@@ -349,7 +349,7 @@ def collect_lp_mir_history(ctx: RunContext) -> dict:
             "?ws.op=searchTasks&search_text=MIR"
         )
         try:
-            page = _fetch_json(search_url)
+            page = http_utils.get_json(search_url)
         except urllib.error.HTTPError as exc:
             # 404 = no such source under this name; anything else = transient.
             log.debug("lp-mir-history: search for %s failed (HTTP %s)", name, exc.code)
@@ -376,7 +376,7 @@ def collect_lp_mir_history(ctx: RunContext) -> dict:
             status = str(task.get("status") or "").strip()
             if bug_link:
                 try:
-                    bug_data = _fetch_json(bug_link)
+                    bug_data = http_utils.get_json(bug_link)
                     title = str(bug_data.get("title") or "").strip()
                 except Exception as exc:
                     log.debug("lp-mir-history: could not enrich bug %s: %s", bug_id, exc)
@@ -415,7 +415,7 @@ def collect_lp_mir_history(ctx: RunContext) -> dict:
             continue
         bug_url = f"https://api.launchpad.net/devel/bugs/{bug_id}"
         try:
-            bug_data = _fetch_json(bug_url)
+            bug_data = http_utils.get_json(bug_url)
         except urllib.error.HTTPError as exc:
             log.debug("lp-mir-history: direct fetch of bug %s failed (HTTP %s)", bug_id, exc.code)
             continue
@@ -807,26 +807,6 @@ def collect_ubuntu_upload_permission(ctx: RunContext) -> dict:
     }
 
 
-def _fetch_json(url: str) -> Any:
-    """Fetch and decode JSON from a remote endpoint."""
-    return http_utils.get_json(url)
-
-
-def _fetch_text(url: str) -> str:
-    """Fetch and decode text from a remote endpoint."""
-    return http_utils.get_text(url)
-
-
-def _download_oval_xz(url: str) -> bytes:
-    """Download an OVAL XZ payload with resilient retry/backoff."""
-    return http_utils.get_bytes(url)
-
-
-def _download_autopkgtest_db(url: str, tmp_path: str) -> None:
-    """Download autopkgtest DB to a local file path with resilient retry/backoff."""
-    http_utils.download_to_file(url, tmp_path)
-
-
 # The autopkgtest SQLite database is large (hundreds of MB). Several adapters
 # need to query it (the package itself and each reverse-dep consumer), so it is
 # downloaded once per run and cached on the context. The cached temp file is
@@ -849,7 +829,7 @@ def _get_cached_autopkgtest_db(ctx: RunContext) -> str:
     try:
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             tmp_path = tmp.name
-        _download_autopkgtest_db(_AUTOPKGTEST_DB_URL, tmp_path)
+        http_utils.download_to_file(_AUTOPKGTEST_DB_URL, tmp_path)
     except urllib.error.HTTPError as exc:
         Path(tmp_path).unlink(missing_ok=True)
         raise AdapterError(f"autopkgtest DB download HTTP error {exc.code}") from exc
@@ -1017,7 +997,7 @@ def collect_debian_bts(ctx: RunContext) -> dict:
     )
 
     try:
-        page_html = _fetch_text(url)
+        page_html = http_utils.get_text(url)
     except urllib.error.HTTPError as exc:
         raise AdapterError(f"Debian BTS HTTP error: {exc.code}") from exc
     except urllib.error.URLError as exc:
@@ -1272,7 +1252,7 @@ def collect_upstream_tracker(ctx: RunContext) -> dict:
         url = f"https://release-monitoring.org/api/v2/projects/?name={query}"
 
         try:
-            data = _fetch_json(url)
+            data = http_utils.get_json(url)
         except urllib.error.HTTPError as exc:
             raise AdapterError(f"upstream tracker HTTP error: {exc.code}") from exc
         except urllib.error.URLError as exc:
@@ -1882,7 +1862,7 @@ _CVELIST_BASELINE_MARKER = "_all_CVEs_at_midnight"
 
 def _cvelist_discover_baseline(url: str = _CVELIST_RELEASES_API) -> tuple[str, str]:
     """Return (asset_name, download_url) of the newest midnight baseline zip."""
-    releases = _fetch_json(url)
+    releases = http_utils.get_json(url)
     if not isinstance(releases, list):
         raise AdapterError("unexpected releases payload from GitHub API")
     for release in releases:
@@ -1960,7 +1940,7 @@ def _nvd_lookup(cve_id: str) -> dict[str, Any] | None:
     """Fetch a single CVE from the NVD API, returning the ``cve`` object or None."""
     url = f"{_NVD_API_URL}?cveId={urllib.parse.quote(cve_id)}"
     try:
-        data = _fetch_json(url)
+        data = http_utils.get_json(url)
     except Exception as exc:  # noqa: BLE001 - any failure falls back to cvelist data
         log.debug("NVD lookup failed for %s: %s", cve_id, exc)
         return None
@@ -2152,7 +2132,7 @@ def collect_ubuntu_cve_tracker(ctx: RunContext) -> dict:
     log.debug("Querying OVAL CVE data from: %s", url)
 
     try:
-        xz_data = _download_oval_xz(url)
+        xz_data = http_utils.get_bytes(url)
     except urllib.error.HTTPError as exc:
         raise AdapterError(f"OVAL HTTP error {exc.code}: {exc.reason}") from exc
     except Exception as exc:

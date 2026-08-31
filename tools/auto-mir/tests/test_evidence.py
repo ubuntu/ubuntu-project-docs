@@ -802,7 +802,7 @@ def test_lp_bug_search_api_output_structure():
             return bug_222
         raise AssertionError(f"unexpected url: {url}")
 
-    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
         from evidence.host_adapters import collect_lp_bug_search_api
 
         result = collect_lp_bug_search_api(ctx)
@@ -862,7 +862,7 @@ def test_lp_mir_history_matches_prior_mir_bug_under_predecessor_name():
             return bug_901
         raise AssertionError(f"unexpected url: {url}")
 
-    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
         from evidence.host_adapters import collect_lp_mir_history
 
         result = collect_lp_mir_history(ctx)
@@ -888,7 +888,7 @@ def test_lp_mir_history_skips_missing_source_names_gracefully():
     def fake_fetch(url: str):
         raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
 
-    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
         from evidence.host_adapters import collect_lp_mir_history
 
         result = collect_lp_mir_history(ctx)
@@ -922,7 +922,7 @@ def test_lp_mir_history_direct_fetches_explicit_lp_ref_from_bug_text():
             return {"title": "[MIR] mysql-8.4"}
         raise AssertionError(f"unexpected url: {url}")
 
-    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
         from evidence.host_adapters import collect_lp_mir_history
 
         result = collect_lp_mir_history(ctx)
@@ -956,7 +956,7 @@ def test_lp_mir_history_direct_fetch_404_is_skipped():
             return {"entries": []}
         raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
 
-    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
         from evidence.host_adapters import collect_lp_mir_history
 
         result = collect_lp_mir_history(ctx)
@@ -997,7 +997,7 @@ def test_lp_mir_history_bare_name_ref_probed_via_searchtasks():
             return bug_800
         raise AssertionError(f"unexpected url: {url}")
 
-    with patch("evidence.host_adapters._fetch_json", side_effect=fake_fetch):
+    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
         from evidence.host_adapters import collect_lp_mir_history
 
         result = collect_lp_mir_history(ctx)
@@ -1047,7 +1047,7 @@ def test_lp_mir_history_bare_name_ref_probed_via_searchtasks():
     </div>
     """
 
-    with patch("evidence.host_adapters._fetch_text", return_value=page_html):
+    with patch("evidence.host_adapters.http_utils.get_text", return_value=page_html):
         from evidence.host_adapters import collect_debian_bts
 
         result = collect_debian_bts(ctx)
@@ -1258,7 +1258,7 @@ def test_cvelist_discover_baseline_matches_doubled_zip_extension():
         ),
     ]
 
-    with patch.object(host_adapters, "_fetch_json", return_value=releases):
+    with patch.object(host_adapters.http_utils, "get_json", return_value=releases):
         name, download_url = host_adapters._cvelist_discover_baseline()
 
     assert name == "2026-08-05_all_CVEs_at_midnight.zip.zip"
@@ -1276,7 +1276,7 @@ def test_cvelist_discover_baseline_matches_single_zip_extension():
         ),
     ]
 
-    with patch.object(host_adapters, "_fetch_json", return_value=releases):
+    with patch.object(host_adapters.http_utils, "get_json", return_value=releases):
         name, download_url = host_adapters._cvelist_discover_baseline()
 
     assert name == "2026-01-01_all_CVEs_at_midnight.zip"
@@ -1295,7 +1295,7 @@ def test_cvelist_discover_baseline_raises_when_no_asset_matches():
         ),
     ]
 
-    with patch.object(host_adapters, "_fetch_json", return_value=releases):
+    with patch.object(host_adapters.http_utils, "get_json", return_value=releases):
         try:
             host_adapters._cvelist_discover_baseline()
             assert False, "expected AdapterError when no baseline asset matches"
@@ -1442,7 +1442,7 @@ def test_upstream_tracker_output_structure():
     }
 
     with (
-        patch("evidence.host_adapters._fetch_json", return_value=payload),
+        patch("evidence.host_adapters.http_utils.get_json", return_value=payload),
         patch("evidence.host_adapters.http_utils.check_url_exists", return_value=True),
     ):
         from evidence.host_adapters import collect_upstream_tracker
@@ -1474,7 +1474,7 @@ def test_upstream_tracker_no_match_falls_back_to_control_homepage():
     }
 
     with (
-        patch("evidence.host_adapters._fetch_json", return_value={"items": []}),
+        patch("evidence.host_adapters.http_utils.get_json", return_value={"items": []}),
         patch("evidence.host_adapters.http_utils.check_url_exists", return_value=True),
     ):
         from evidence.host_adapters import collect_upstream_tracker
@@ -1493,7 +1493,7 @@ def test_upstream_tracker_no_match_and_no_hints_is_still_ok():
     ctx.source_package = "obscure-pkg"
     ctx.evidence = {"adapters": {}}
 
-    with patch("evidence.host_adapters._fetch_json", return_value={"items": []}):
+    with patch("evidence.host_adapters.http_utils.get_json", return_value={"items": []}):
         from evidence.host_adapters import collect_upstream_tracker
 
         result = collect_upstream_tracker(ctx)
@@ -1536,7 +1536,7 @@ def test_upstream_tracker_uses_watch_and_homepage_hints_for_search():
         raise AssertionError(f"unexpected URL: {url}")
 
     with (
-        patch("evidence.host_adapters._fetch_json", side_effect=_fake_fetch) as mock_fetch,
+        patch("evidence.host_adapters.http_utils.get_json", side_effect=_fake_fetch) as mock_fetch,
         patch("evidence.host_adapters.http_utils.check_url_exists", return_value=True),
     ):
         from evidence.host_adapters import collect_upstream_tracker
@@ -1590,7 +1590,7 @@ def test_upstream_tracker_prefers_verified_homepage_over_unverified_watch_hint_m
         return "chronox.de" not in url
 
     with (
-        patch("evidence.host_adapters._fetch_json", return_value=payload),
+        patch("evidence.host_adapters.http_utils.get_json", return_value=payload),
         patch(
             "evidence.host_adapters.http_utils.check_url_exists",
             side_effect=_fake_check_url_exists,
@@ -1620,7 +1620,7 @@ def test_upstream_tracker_drops_url_when_nothing_verifies():
     }
 
     with (
-        patch("evidence.host_adapters._fetch_json", return_value={"items": []}),
+        patch("evidence.host_adapters.http_utils.get_json", return_value={"items": []}),
         patch("evidence.host_adapters.http_utils.check_url_exists", return_value=False),
     ):
         from evidence.host_adapters import collect_upstream_tracker
@@ -1972,7 +1972,7 @@ def test_autopkgtest_db_downloaded_once_and_cleaned_up():
         downloads.append(tmp_path)
         Path(tmp_path).write_bytes(b"db")
 
-    with patch.object(ha, "_download_autopkgtest_db", side_effect=fake_download):
+    with patch.object(ha.http_utils, "download_to_file", side_effect=fake_download):
         first = ha._get_cached_autopkgtest_db(ctx)
         second = ha._get_cached_autopkgtest_db(ctx)
 
@@ -2150,7 +2150,7 @@ def test_collect_autopkgtest_reports_http_error_code():
         None,
     )
 
-    with patch.object(ha, "_download_autopkgtest_db", side_effect=http_error):
+    with patch.object(ha.http_utils, "download_to_file", side_effect=http_error):
         try:
             ha.collect_autopkgtest(ctx)
             assert False, "collect_autopkgtest should raise AdapterError on HTTP errors"
@@ -2237,7 +2237,7 @@ def test_collect_ubuntu_cve_tracker_reports_http_error_code():
     )
 
     with patch.object(ha, "_resolve_oval_series", return_value=("noble", None)):
-        with patch.object(ha, "_download_oval_xz", side_effect=http_error):
+        with patch.object(ha.http_utils, "get_bytes", side_effect=http_error):
             try:
                 ha.collect_ubuntu_cve_tracker(ctx)
                 assert False, "collect_ubuntu_cve_tracker should raise AdapterError on HTTP errors"

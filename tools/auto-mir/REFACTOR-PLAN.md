@@ -322,7 +322,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #15 version compare
 - [x] #2  evidence/types.py
 - [x] #18 inline single-function adapters
-- [ ] #25 launchpad_client slim
+- [x] #25 launchpad_client slim
 - [ ] #21 TODO normalization
 - [x] #29 contracts.py
 - [ ] #31 micro-batch
