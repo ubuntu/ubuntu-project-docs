@@ -9,26 +9,28 @@ Package structure:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import logging
+from typing import TYPE_CHECKING, Callable
+
+import review_type
+from checks.deterministic import _eval_deterministic
+from checks.language_gates import _language_gate_active
+from checks.llm_eval import _eval_ai, _eval_ev_to_ai, _eval_human_only
+from models import Finding
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
 
-import importlib
-import logging
-
-import review_type
-from checks.language_gates import _language_gate_active
-from checks.registry import EVALUATORS
-from models import Finding
-
 log = logging.getLogger("auto_mir.checks")
 
-
-def _ensure_evaluators_registered() -> None:
-    """Import evaluator modules for their registration side effects."""
-    importlib.import_module("checks.deterministic")
-    importlib.import_module("checks.llm_eval")
+# Mode -> evaluator. A plain mapping replaces the old decorator registry
+# (checks.registry) and its import-ordering side effects.
+EVALUATORS: dict[str, Callable[[dict, "RunContext", Finding], Finding]] = {
+    "deterministic": _eval_deterministic,
+    "ev_to_ai": _eval_ev_to_ai,
+    "ai": _eval_ai,
+    "human_only": _eval_human_only,
+}
 
 
 # Severities considered "blocking" that a re-review / reorg fast-path softens
@@ -86,8 +88,6 @@ def evaluate_checks(ctx: "RunContext") -> list[Finding]:
     """
     if not ctx.catalog:
         return []
-
-    _ensure_evaluators_registered()
 
     # Detect (or honour a forced) review type up front so the softening pass and
     # the SUM-5/SUM-6 synthesis both see a consistent decision. Store it on the

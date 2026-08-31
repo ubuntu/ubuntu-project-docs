@@ -11,27 +11,84 @@ to run before or after guest operations.
 from __future__ import annotations
 
 import graphlib
-import importlib
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
 
+from evidence.guest_adapters import (
+    collect_binary_package_inspection,
+    collect_component_mismatches,
+    collect_deb_metadata,
+    collect_dep_analysis,
+    collect_dup_search,
+    collect_fetch_build,
+    collect_git_ubuntu_delta,
+    collect_lintian,
+    collect_packaging_source,
+    collect_reverse_deps,
+)
 from evidence.host_adapters import AdapterError as AdapterError
-from evidence.host_adapters import cleanup_cached_autopkgtest_db
-from evidence.registry import ADAPTER_REGISTRY
+from evidence.host_adapters import (
+    cleanup_cached_autopkgtest_db,
+    collect_autopkgtest,
+    collect_consumer_autopkgtests,
+    collect_cve_search_terms,
+    collect_cvelist_scan,
+    collect_debian_bts,
+    collect_dependency_autopkgtests,
+    collect_lp_bug_api,
+    collect_lp_bug_search_api,
+    collect_lp_build_api,
+    collect_lp_mir_history,
+    collect_lp_package_api,
+    collect_lp_team_membership_api,
+    collect_nvd_enrich,
+    collect_ubuntu_cve_tracker,
+    collect_ubuntu_upload_permission,
+    collect_upstream_tracker,
+)
+from evidence.lto_disabled_adapter import collect_lto_disabled_list
+from evidence.team_mapping_adapter import collect_team_mapping
+from evidence.version_resolution import collect_version_resolution
+
+# Adapter id -> collector function. A plain mapping replaces the old
+# decorator registry (evidence.registry) and its import-ordering side
+# effects; the catalog-vs-registry drift test guards the id set.
+ADAPTER_REGISTRY: dict[str, Callable[[Any], dict[str, Any]]] = {
+    "lp-bug-api": collect_lp_bug_api,
+    "lp-team-membership-api": collect_lp_team_membership_api,
+    "lp-bug-search-api": collect_lp_bug_search_api,
+    "lp-mir-history": collect_lp_mir_history,
+    "lp-package-api": collect_lp_package_api,
+    "ubuntu-upload-permission": collect_ubuntu_upload_permission,
+    "debian-bts": collect_debian_bts,
+    "upstream-tracker": collect_upstream_tracker,
+    "lp-build-api": collect_lp_build_api,
+    "cve-search-terms": collect_cve_search_terms,
+    "cvelist-scan": collect_cvelist_scan,
+    "nvd-enrich": collect_nvd_enrich,
+    "ubuntu-cve-tracker": collect_ubuntu_cve_tracker,
+    "autopkgtest-db": collect_autopkgtest,
+    "consumer-autopkgtests": collect_consumer_autopkgtests,
+    "dependency-autopkgtests": collect_dependency_autopkgtests,
+    "lto-disabled-list": collect_lto_disabled_list,
+    "team-mapping": collect_team_mapping,
+    "version-resolution": collect_version_resolution,
+    "packaging-source": collect_packaging_source,
+    "dup-search": collect_dup_search,
+    "dep-analysis": collect_dep_analysis,
+    "git-ubuntu-delta": collect_git_ubuntu_delta,
+    "reverse-deps": collect_reverse_deps,
+    "component-mismatches": collect_component_mismatches,
+    "fetch-build": collect_fetch_build,
+    "binary-package-inspection": collect_binary_package_inspection,
+    "lintian": collect_lintian,
+    "deb-metadata": collect_deb_metadata,
+}
 
 log = logging.getLogger("auto_mir.evidence")
-
-
-def _ensure_adapters_registered() -> None:
-    """Import adapter modules for their registry side effects."""
-    importlib.import_module("evidence.host_adapters")
-    importlib.import_module("evidence.version_resolution")
-    importlib.import_module("evidence.guest_adapters")
-    importlib.import_module("evidence.team_mapping_adapter")
-    importlib.import_module("evidence.lto_disabled_adapter")
 
 
 def _summarize_result(result: dict) -> str:
@@ -56,7 +113,6 @@ def collect_from_catalog(ctx: "RunContext") -> int:
     Returns:
         0 if all adapters succeeded, 1 if any adapter failed.
     """
-    _ensure_adapters_registered()
 
     checks = ctx.catalog.get("checks", ctx.catalog.get("items", []))
     required: set[str] = set()

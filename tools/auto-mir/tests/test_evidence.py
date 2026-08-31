@@ -11,18 +11,11 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evidence import (
+    ADAPTER_REGISTRY,
     AdapterError,
-    _ensure_adapters_registered,
     _order_adapters,
     collect_from_catalog,
 )
-
-# Register all adapters into the real registry up front. Several tests below use
-# patch.dict("evidence.ADAPTER_REGISTRY", ..., clear=True); if the lazy first
-# import of the guest/team adapter modules happened inside such a cleared
-# context, their decorator registrations would be discarded on patch exit and
-# lost for the rest of the session (modules are cached, so they never re-run).
-_ensure_adapters_registered()
 
 # ---------------------------------------------------------------------------
 # Adapter dependency ordering
@@ -242,7 +235,6 @@ def test_all_catalog_adapters_are_registered():
     dependent check into an "Unknown adapter" TODO at runtime.
     """
     import catalog
-    from evidence.registry import ADAPTER_REGISTRY
 
     tool_root = Path(__file__).resolve().parent.parent
     workspace_root = tool_root.parent.parent
@@ -253,7 +245,6 @@ def test_all_catalog_adapters_are_registered():
         referenced.update(check.get("adapters_required", []))
         referenced.update(check.get("adapters_optional", []))
 
-    _ensure_adapters_registered()
     missing = sorted(referenced - set(ADAPTER_REGISTRY))
     assert not missing, f"Catalog references unregistered adapters: {missing}"
 

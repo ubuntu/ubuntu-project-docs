@@ -380,11 +380,10 @@ def test_adapter_registry_matches_catalog_adapter_ids():
     (a collector without a catalog entry, or a declared adapter with no
     collector) fails here instead of at run time.
     """
-    import evidence.registry as registry
-    from evidence import guest_adapters, host_adapters  # noqa: F401 - imports register
+    from evidence import ADAPTER_REGISTRY as registry
 
     shared = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
 
     declared = {a["id"] for a in shared.get("evidence_adapters", [])}
     assert declared, "catalog.yaml declares no evidence adapters"
-    assert declared == set(registry.ADAPTER_REGISTRY)
+    assert declared == set(registry)

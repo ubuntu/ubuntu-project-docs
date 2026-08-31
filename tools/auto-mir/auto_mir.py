@@ -428,8 +428,7 @@ def stage_collect_evidence(ctx: RunContext) -> int:
         0 if all evidence collection succeeded, 1 if any adapter failed.
     """
     import catalog
-    from evidence import collect_from_catalog
-    from evidence.registry import ADAPTER_REGISTRY
+    from evidence import ADAPTER_REGISTRY, collect_from_catalog
 
     log.info("Stage 3: Collecting evidence for %s", ctx.source_package)
     if not ctx.catalog:

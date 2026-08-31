@@ -311,12 +311,9 @@ def test_stage_collect_evidence_marks_guest_adapter_failed(monkeypatch):
         return 1
 
     import evidence
-    import evidence.registry
 
     monkeypatch.setattr(evidence, "collect_from_catalog", _fake_collect_from_catalog)
-    monkeypatch.setattr(
-        evidence.registry, "ADAPTER_REGISTRY", {"packaging-source": _fake_collector}
-    )
+    monkeypatch.setattr(evidence, "ADAPTER_REGISTRY", {"packaging-source": _fake_collector})
 
     ctx = SimpleNamespace(source_package="foo", catalog={"items": []}, evidence={})
 
@@ -341,12 +338,9 @@ def test_stage_collect_evidence_host_only_failure_not_marked_guest(monkeypatch):
         return 1
 
     import evidence
-    import evidence.registry
 
     monkeypatch.setattr(evidence, "collect_from_catalog", _fake_collect_from_catalog)
-    monkeypatch.setattr(
-        evidence.registry, "ADAPTER_REGISTRY", {"upstream-tracker": _fake_collector}
-    )
+    monkeypatch.setattr(evidence, "ADAPTER_REGISTRY", {"upstream-tracker": _fake_collector})
 
     ctx = SimpleNamespace(source_package="foo", catalog={"items": []}, evidence={})
 

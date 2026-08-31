@@ -14,7 +14,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from evidence.registry import adapter
 from utils import http as http_utils
 
 log = logging.getLogger("auto_mir.evidence.lto_disabled")
@@ -42,7 +41,6 @@ def _parse_lto_disabled_list(text: str) -> dict[str, list[str]]:
     return mapping
 
 
-@adapter("lto-disabled-list")
 def collect_lto_disabled_list(ctx) -> dict[str, Any]:
     """Check whether the source package is on the lto-disabled-list.
 

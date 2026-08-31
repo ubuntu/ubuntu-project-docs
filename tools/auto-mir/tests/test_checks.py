@@ -3046,7 +3046,6 @@ def test_synthesis_checks_evaluated_last(monkeypatch):
         finding.message = "synthesis"
         return finding
 
-    monkeypatch.setattr(checks, "_ensure_evaluators_registered", lambda: None)
     monkeypatch.setitem(checks.EVALUATORS, "tnorm", normal_eval)
     monkeypatch.setitem(checks.EVALUATORS, "tsyn", synth_eval)
 
@@ -3159,7 +3158,6 @@ def test_evaluate_checks_maps_failed_adapters_to_low_confidence_findings(monkeyp
         finding.todo = "TODO: - verify manually"
         return finding
 
-    monkeypatch.setattr(checks, "_ensure_evaluators_registered", lambda: None)
     monkeypatch.setitem(checks.EVALUATORS, "tlow", low_conf_eval)
 
     ctx = SimpleNamespace(

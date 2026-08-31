@@ -13,7 +13,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from checks.messages import render_check_message_or_default
-from checks.registry import evaluator
 from models import Finding
 from utils import llm_evidence, llm_sanitize
 
@@ -44,7 +43,6 @@ _FULL_CONTENT_FIELDS_BY_CHECK: dict[str, set[str]] = {
 }
 
 
-@evaluator("ev_to_ai")
 def _eval_ev_to_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     """Evaluate a check by combining collected evidence with an LLM call.
 
@@ -95,7 +93,6 @@ def _eval_ev_to_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     return _apply_llm_response(response, check, finding)
 
 
-@evaluator("ai")
 def _eval_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     """Evaluate checks that require pure AI synthesis over the full findings set.
 
@@ -143,7 +140,6 @@ def _eval_ai(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     return _apply_llm_response(response, check, finding)
 
 
-@evaluator("human_only")
 def _eval_human_only(check: dict, ctx: RunContext, finding: Finding) -> Finding:
     """Evaluate checks that require human judgment only."""
     finding.mark_unknown(
