@@ -346,24 +346,6 @@ def _checks_by_id(ctx) -> dict[str, dict]:
     return {c["id"]: c for c in catalog.get("checks", []) if isinstance(c, dict) and c.get("id")}
 
 
-def _affirmative_statement(check: dict | None) -> str | None:
-    """Return the single canonical affirmative statement for a check, or None.
-
-    Applies only to single-statement checks (exactly one non-placeholder
-    todo_ref, no options, not a Summary decision check). Option and Summary
-    checks keep their own message/todo wording.
-    """
-    if not check or check.get("options") or check.get("section") == "Summary":
-        return None
-    todo_refs = [str(x).strip() for x in check.get("todo_refs", []) if str(x).strip()]
-    if len(todo_refs) != 1:
-        return None
-    statement = _strip_todo_prefix(todo_refs[0])
-    if not statement or "TBD" in statement or "<" in statement:
-        return None
-    return statement
-
-
 def _negated_statement(check: dict | None) -> str | None:
     """Return the catalog-provided negated statement for a check, or None.
 

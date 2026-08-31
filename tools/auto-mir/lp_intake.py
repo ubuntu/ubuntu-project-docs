@@ -44,9 +44,6 @@ def _reporter_template_markers() -> tuple[str, ...]:
 # This is the only reliable marker - it appears at the start of all reviewer outputs.
 _REVIEWER_MARKER = "Review for Source Package:"
 
-# The MIR bug tag used to find MIR-related bugs on Launchpad.
-_MIR_BUG_TAG = "MIR"
-
 
 def _get_launchpad():
     """Return an authenticated (or anonymous) Launchpad API client."""

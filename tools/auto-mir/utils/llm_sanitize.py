@@ -102,18 +102,6 @@ def make_nonce() -> str:
     return secrets.token_hex(8)
 
 
-def scan_for_injection(text: str) -> list[str]:
-    """Return a sorted list of injection-indicator labels found in ``text``.
-
-    Read-only: never mutates input. An empty list means no known patterns were
-    detected (which does not prove the text is safe).
-    """
-    if not text:
-        return []
-    found = {label for label, pattern in _INJECTION_PATTERNS if pattern.search(text)}
-    return sorted(found)
-
-
 def _snippet(text: str, start: int, end: int, context: int = 30) -> str:
     """Return a one-line excerpt of ``text[start:end]`` with surrounding context.
 

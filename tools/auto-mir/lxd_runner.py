@@ -630,12 +630,6 @@ def push_file(name: str, local_path: str, guest_path: str) -> None:
     _lxc("file", "push", local_path, f"{name}{guest_path}")
 
 
-def pull_file(name: str, guest_path: str, local_path: str) -> None:
-    """Copy a file from the LXD guest to the host."""
-    log.debug("pull %s:%s -> %s", name, guest_path, local_path)
-    _lxc("file", "pull", f"{name}{guest_path}", local_path)
-
-
 def destroy(ctx: "RunContext") -> None:
     """Destroy the LXD guest unconditionally."""
     if not ctx.guest_name:

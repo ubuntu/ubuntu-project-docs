@@ -113,8 +113,6 @@ class LLMEnvelopeError(LLMError):
 # common case succeeds on the first call, and reserve the doubling retry below
 # for the rare model that still overruns. Ceilings remain as a cost guardrail.
 _MAX_TOKENS_BY_TIER = {"small": 32768, "large": 49152}
-# Default used when a tier is unknown.
-_MAX_TOKENS = _MAX_TOKENS_BY_TIER["small"]
 # Absolute ceiling for the one-shot retry-with-larger-budget path. Sized to keep
 # the "twice the base budget" doubling intact for the largest tier
 # (49152 * 2 == 98304) so a retry is never silently clipped below 2x.

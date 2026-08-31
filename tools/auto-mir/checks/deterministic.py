@@ -284,16 +284,6 @@ def _is_shared_lib_pkg_name(name: str) -> bool:
     return bool(_SHARED_LIB_PKG_RE.match(base))
 
 
-def _ships_shared_library(debian_control: str, built_debs: list[str]) -> bool:
-    """Return True when the package ships a soname-versioned shared library.
-
-    Detection uses the binary package names from debian/control and, when
-    available, the names of the built .deb files (more reliable than parsing
-    control alone, since control packages may be generated).
-    """
-    return bool(_shared_library_package_names(debian_control, built_debs))
-
-
 def _shared_library_package_names(debian_control: str, built_debs: list[str]) -> list[str]:
     """Return the soname-versioned shared-library package names for a source.
 
@@ -562,39 +552,6 @@ def _check_dep_3(ctx: RunContext, finding: Finding) -> Finding:
         "dep-analysis:auto_included_offending_deps_by_binary",
         "dep-analysis:auto_included_deps_same_source",
     ]
-    return finding
-
-
-@deterministic_check("ESL-1")
-def _check_esl_1(ctx: RunContext, finding: Finding) -> Finding:
-    """ESL-1: No embedded source present."""
-    check = _get_check_definition(ctx, "ESL-1")
-    adapters = ctx.evidence.get("adapters", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if packaging.get("status") != "ok":
-        return _set_unknown_from_adapter(finding, check, todo_key="unknown_todo")
-
-    vendored_dirs = packaging.get("vendored_dirs", [])
-    # Also check debian/control for Built-Using (indicates possible embedded source)
-    debian_control = packaging.get("debian_control", "")
-    has_built_using = "Built-Using" in debian_control or "Static-Built-Using" in debian_control
-
-    if vendored_dirs:
-        finding.fail(
-            render_check_message(check, "not_ok_message", embedded_dirs=", ".join(vendored_dirs)),
-            render_check_message(check, "not_ok_todo", embedded_dirs=", ".join(vendored_dirs)),
-            severity="required",
-        )
-        finding.evidence_refs = ["packaging-source:vendored_dirs"]
-    elif has_built_using:
-        # Built-Using alone is not a blocker; ESL-3 handles unexpected entries.
-        # Here we note it's clean w.r.t. embedded source.
-        finding.succeed(render_check_message(check, "ok_built_using_message"), confidence="medium")
-        finding.evidence_refs = ["packaging-source:debian_control"]
-    else:
-        finding.succeed(render_check_message(check, "ok_message"))
-        finding.evidence_refs = ["packaging-source:vendored_dirs"]
     return finding
 
 

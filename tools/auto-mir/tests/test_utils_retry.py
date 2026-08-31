@@ -12,7 +12,6 @@ from utils.retry import (
     _is_network_url_error,
     is_transient_command_failure,
     retry_rate_limited,
-    retry_transient_network,
 )
 
 
@@ -50,7 +49,7 @@ def test_is_network_url_error_false_for_unrelated_exception():
 
 
 # ---------------------------------------------------------------------------
-# retry_transient_network / retry_rate_limited: HTTPError(404) must fail fast
+# retry_rate_limited: HTTPError(404) must fail fast
 # (single call, no retries), while 5xx/429 and genuine URLErrors are retried.
 # A bogus/expected-404 candidate lookup (e.g. lp-mir-history probing a name
 # that was never a real Ubuntu source package) previously cost ~12.5 minutes
@@ -66,7 +65,7 @@ def _counting_failure(calls: list[int], exc: BaseException):
     return _fn
 
 
-@pytest.mark.parametrize("decorator", [retry_transient_network, retry_rate_limited])
+@pytest.mark.parametrize("decorator", [retry_rate_limited])
 def test_retry_decorators_do_not_retry_on_404(decorator):
     calls: list[int] = []
     http_404 = urllib.error.HTTPError("http://x", 404, "Not Found", None, None)
@@ -84,8 +83,8 @@ def test_retry_decorators_do_not_retry_on_404(decorator):
 @pytest.mark.parametrize(
     "decorator,code",
     [
-        (retry_transient_network, 503),
         (retry_rate_limited, 503),
+        (retry_rate_limited, 429),
         (retry_rate_limited, 429),
     ],
 )
@@ -103,7 +102,7 @@ def test_retry_decorators_retry_on_retryable_status_codes(decorator, code):
     assert len(calls) == 3
 
 
-@pytest.mark.parametrize("decorator", [retry_transient_network, retry_rate_limited])
+@pytest.mark.parametrize("decorator", [retry_rate_limited])
 def test_retry_decorators_retry_on_genuine_url_error(decorator):
     calls: list[int] = []
     url_error = urllib.error.URLError("Temporary failure in name resolution")

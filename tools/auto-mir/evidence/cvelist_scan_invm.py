@@ -3,67 +3,20 @@
 
 This script is intentionally dependency-free (Python standard library only) and
 does NOT import any auto-mir modules. The host adapter ``collect_cvelist_scan``
-imports its ``scan_zip`` function. The command-line entry point remains useful
-for isolated scanner tests and preserves the historical module interface; the
-2026-07-13 data-lifecycle decision moved normal execution from the guest to the
-host.
+downloads the baseline and imports this module's ``scan_zip`` function to
+stream-scan every CVE record in the zip WITHOUT extracting it to disk: a fast
+raw-bytes prefilter narrows the corpus, then matching records are JSON-parsed
+and confirmed with word-boundary matching against the search terms.
 
-Workflow:
-1. Discover the most recent cvelistV5 "all CVEs at midnight" baseline zip from the
-   GitHub releases API.
-2. Download that compressed baseline (the documented bulk-download method).
-3. Stream-scan every CVE record in the zip WITHOUT extracting it to disk: a fast
-   raw-bytes prefilter narrows the corpus, then matching records are JSON-parsed
-   and confirmed with word-boundary matching against the search terms.
-
-The goal is "parse a lot, identify few": the whole corpus is scanned but only a
-handful of candidate CVE IDs are returned for downstream NVD enrichment.
+The goal is "parse a lot, identify few": the whole corpus is scanned but only
+a handful of candidate CVE IDs are returned for downstream NVD enrichment.
 """
 
 from __future__ import annotations
 
 import json
 import re
-import sys
-import tempfile
-import urllib.request
 import zipfile
-
-RELEASES_API = "https://api.github.com/repos/CVEProject/cvelistV5/releases?per_page=40"
-BASELINE_SUFFIX = "_all_CVEs_at_midnight.zip"
-_USER_AGENT = "auto-mir-cvelist-scan/1.0"
-_HTTP_TIMEOUT = 180
-
-
-def _http_json(url: str) -> object:
-    req = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})
-    with urllib.request.urlopen(req, timeout=_HTTP_TIMEOUT) as resp:
-        return json.loads(resp.read().decode("utf-8"))
-
-
-def discover_baseline(url: str = RELEASES_API) -> tuple[str, str]:
-    """Return (asset_name, download_url) of the newest midnight baseline zip."""
-    releases = _http_json(url)
-    if not isinstance(releases, list):
-        raise RuntimeError("unexpected releases payload from GitHub API")
-    for release in releases:
-        for asset in release.get("assets", []) or []:
-            name = str(asset.get("name") or "")
-            if name.endswith(BASELINE_SUFFIX):
-                download_url = str(asset.get("browser_download_url") or "")
-                if download_url:
-                    return name, download_url
-    raise RuntimeError("no '*_all_CVEs_at_midnight.zip' asset found in recent releases")
-
-
-def download(url: str, dest: str) -> None:
-    req = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})
-    with urllib.request.urlopen(req, timeout=_HTTP_TIMEOUT) as resp, open(dest, "wb") as fh:
-        while True:
-            chunk = resp.read(1024 * 1024)
-            if not chunk:
-                break
-            fh.write(chunk)
 
 
 def _term_patterns(terms: list[dict]) -> list[tuple[str, str, re.Pattern, bytes]]:
@@ -221,47 +174,3 @@ def scan_zip(zip_path: str, terms: list[dict]) -> list[dict]:
                 "severity": severity,
             }
     return sorted(candidates.values(), key=lambda c: c["id"], reverse=True)
-
-
-def main(argv: list[str]) -> int:
-    if len(argv) < 2:
-        print(json.dumps({"status": "error", "message": "missing terms file argument"}))
-        return 2
-    with open(argv[1], encoding="utf-8") as fh:
-        terms = json.load(fh)
-    if not isinstance(terms, list):
-        print(json.dumps({"status": "error", "message": "terms file must be a JSON list"}))
-        return 2
-
-    try:
-        asset_name, download_url = discover_baseline()
-    except Exception as exc:  # noqa: BLE001 - report any failure as JSON
-        print(json.dumps({"status": "error", "message": f"baseline discovery failed: {exc}"}))
-        return 1
-
-    with tempfile.NamedTemporaryFile(suffix=".zip", delete=True) as tmp:
-        try:
-            download(download_url, tmp.name)
-        except Exception as exc:  # noqa: BLE001
-            print(json.dumps({"status": "error", "message": f"baseline download failed: {exc}"}))
-            return 1
-        try:
-            candidates = scan_zip(tmp.name, terms)
-        except Exception as exc:  # noqa: BLE001
-            print(json.dumps({"status": "error", "message": f"baseline scan failed: {exc}"}))
-            return 1
-
-    print(
-        json.dumps(
-            {
-                "status": "ok",
-                "baseline": asset_name,
-                "candidates": candidates,
-            }
-        )
-    )
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))

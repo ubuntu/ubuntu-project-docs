@@ -57,47 +57,6 @@ def _is_network_url_error(exc: BaseException) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def retry_transient_network(
-    max_attempts: int = 4,
-    base_delay: float = 2.0,
-    max_delay: float = 30.0,
-) -> Callable:
-    """Decorator for retrying on transient network failures.
-
-    Retries on:
-    - ConnectionError
-    - TimeoutError
-    - urllib.error.URLError
-    - urllib.error.HTTPError with 5xx status codes
-
-    Args:
-        max_attempts: Maximum number of retry attempts
-        base_delay: Base delay in seconds for exponential backoff
-        max_delay: Maximum delay in seconds between retries
-
-    Returns:
-        Decorated function with retry behavior
-    """
-
-    def is_transient_http(exc: BaseException) -> bool:
-        """Check if exception is a transient HTTP error (5xx)."""
-        if isinstance(exc, urllib.error.HTTPError):
-            return exc.code >= 500
-        return False
-
-    return retry(
-        stop=stop_after_attempt(max_attempts),
-        wait=wait_exponential(multiplier=base_delay, max=max_delay),
-        retry=(
-            retry_if_exception_type((ConnectionError, TimeoutError))
-            | retry_if_exception(_is_network_url_error)
-            | retry_if_exception(is_transient_http)
-        ),
-        before_sleep=before_sleep_log(log, logging.WARNING),
-        reraise=True,
-    )
-
-
 def retry_rate_limited(
     max_attempts: int = 4,
     base_delay: float = 8.0,

@@ -191,7 +191,3 @@ def _language_gate_active(gate: str, ctx) -> bool:
         log.warning("Unknown language gate '%s'; treating as active", gate)
         return True
     return detector(packaging)
-
-    # Unknown gate — assume active (fail-safe).
-    log.warning("Unknown language_gate '%s'; treating as active", gate)
-    return True
