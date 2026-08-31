@@ -2049,7 +2049,7 @@ def test_urf_7_no_old_webkit():
     }
 
     finding = _make_finding("URF-7", mode="deterministic")
-    result = checks.deterministic._check_urf_7(ctx, finding)
+    result = checks.deterministic._eval_dep_scan(ctx, finding)
 
     assert result.status == "ok"
     assert result.severity == "ok"
@@ -2064,7 +2064,7 @@ def test_urf_7_webkit_found():
     }
 
     finding = _make_finding("URF-7", mode="deterministic")
-    result = checks.deterministic._check_urf_7(ctx, finding)
+    result = checks.deterministic._eval_dep_scan(ctx, finding)
 
     assert result.status == "not-ok"
     assert result.severity == "required"
@@ -2587,7 +2587,7 @@ def test_cb_7_no_py2():
     }
 
     finding = _make_finding("CB-7", mode="deterministic")
-    result = checks.deterministic._check_cb_7(ctx, finding)
+    result = checks.deterministic._eval_dep_scan(ctx, finding)
 
     assert result.status == "ok"
     assert result.severity == "ok"
@@ -2608,7 +2608,7 @@ def test_cb_7_py2_found():
     }
 
     finding = _make_finding("CB-7", mode="deterministic")
-    result = checks.deterministic._check_cb_7(ctx, finding)
+    result = checks.deterministic._eval_dep_scan(ctx, finding)
 
     assert result.status == "not-ok"
     assert result.severity == "required"
@@ -2624,7 +2624,7 @@ def test_sec_3_no_webkit():
     }
 
     finding = _make_finding("SEC-3", mode="deterministic")
-    result = checks.deterministic._check_sec_3(ctx, finding)
+    result = checks.deterministic._eval_dep_scan(ctx, finding)
 
     assert result.status == "ok"
     assert result.severity == "ok"
@@ -2639,7 +2639,7 @@ def test_sec_3_webkit_found():
     }
 
     finding = _make_finding("SEC-3", mode="deterministic")
-    result = checks.deterministic._check_sec_3(ctx, finding)
+    result = checks.deterministic._eval_dep_scan(ctx, finding)
 
     assert result.status == "not-ok"
     assert result.severity == "required"
@@ -2655,7 +2655,7 @@ def test_sec_4_no_v8():
     }
 
     finding = _make_finding("SEC-4", mode="deterministic")
-    result = checks.deterministic._check_sec_4(ctx, finding)
+    result = checks.deterministic._eval_dep_scan(ctx, finding)
 
     # libnode matches v8_patterns, so should fail
     assert result.status == "not-ok"
@@ -2671,7 +2671,7 @@ def test_sec_4_v8_not_found():
     }
 
     finding = _make_finding("SEC-4", mode="deterministic")
-    result = checks.deterministic._check_sec_4(ctx, finding)
+    result = checks.deterministic._eval_dep_scan(ctx, finding)
 
     assert result.status == "ok"
     assert result.severity == "ok"

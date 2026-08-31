@@ -1577,35 +1577,77 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
     return finding
 
 
-def _check_urf_7(ctx: RunContext, finding: Finding) -> Finding:
-    """URF-7: No webkit/qtwebkit/libseed dependency."""
-    check = _get_check_definition(ctx, "URF-7")
+# ---------------------------------------------------------------------------
+# Pattern-scan dependency checks
+# ---------------------------------------------------------------------------
+
+# Checks whose entire logic is: gate on dep-analysis (plus optionally
+# packaging-source), substring-match runtime dependency names against a
+# pattern list, fail with the catalog's dep-scoped message, else succeed.
+# Checks with extra branches deliberately stay as bespoke functions instead
+# of growing optional spec columns for a single user: SEC-10 (tiered PAM
+# pattern classes with different severities), SEC-8 (second debian_control
+# source-pattern scan), DEP-1 (drives off a computed dependency list, not
+# substring patterns).
+_DEP_SCAN_SPECS: dict[str, dict[str, object]] = {
+    "URF-7": {
+        "patterns": ["webkit", "qtwebkit", "libseed"],
+        "fail_message_key": "not_ok_message",
+        "fail_todo_key": "not_ok_todo",
+        "unknown_todo_key": "unknown_todo",
+        "unknown_evidence_refs": ["dep-analysis:error"],
+    },
+    "SEC-3": {
+        "patterns": ["webkit", "webkit1", "webkit2", "libwebkit"],
+        "fail_message_key": "blocker_message",
+        "fail_todo_key": "blocker_todo",
+    },
+    "SEC-4": {
+        "patterns": ["libv8", "v8", "libnode"],
+        "fail_message_key": "blocker_message",
+        "fail_todo_key": "blocker_todo",
+    },
+    "CB-7": {
+        "patterns": ["python2", "python-", "py2-", "libpython2"],
+        "fail_message_key": "blocker_message",
+        "fail_todo_key": "blocker_todo",
+        "packaging_gate": True,
+    },
+}
+
+
+def _eval_dep_scan(ctx: RunContext, finding: Finding) -> Finding:
+    """Shared evaluator for every entry in _DEP_SCAN_SPECS."""
+    check = _get_check_definition(ctx, finding.id)
+    spec = _DEP_SCAN_SPECS[finding.id]
     adapters = ctx.evidence.get("adapters", {})
     dep_analysis = adapters.get("dep-analysis", {})
 
+    unknown_kwargs: dict = {}
+    if spec.get("unknown_todo_key"):
+        unknown_kwargs["todo_key"] = spec["unknown_todo_key"]
+    if spec.get("unknown_evidence_refs"):
+        unknown_kwargs["evidence_refs"] = spec["unknown_evidence_refs"]
+
     if dep_analysis.get("status") != "ok":
-        return _set_unknown_from_adapter(
-            finding, check, todo_key="unknown_todo", evidence_refs=["dep-analysis:error"]
-        )
+        return _set_unknown_from_adapter(finding, check, **unknown_kwargs)
+    if spec.get("packaging_gate") and adapters.get("packaging-source", {}).get("status") != "ok":
+        return _set_unknown_from_adapter(finding, check, **unknown_kwargs)
 
     dependencies = dep_analysis.get("runtime_dep_packages", [])
-    old_webkit = ["webkit", "qtwebkit", "libseed"]
-
+    patterns = [str(p) for p in spec["patterns"]]
     for dep in dependencies:
-        if any(web in dep.lower() for web in old_webkit):
+        if any(p in dep.lower() for p in patterns):
             finding.fail(
-                render_check_message(check, "not_ok_message", dep=dep),
-                render_check_message(check, "not_ok_todo"),
+                render_check_message(check, str(spec["fail_message_key"]), dep=dep),
+                render_check_message(check, str(spec["fail_todo_key"])),
                 severity="required",
                 confidence="high",
             )
             finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
             return finding
 
-    finding.succeed(
-        render_check_message(check, "ok_message"),
-        confidence="high",
-    )
+    finding.succeed(render_check_message(check, "ok_message"), confidence="high")
     finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
     return finding
 
@@ -1799,43 +1841,6 @@ def _check_urf_9(ctx: RunContext, finding: Finding) -> Finding:
     return finding
 
 
-def _check_cb_7(ctx: RunContext, finding: Finding) -> Finding:
-    """CB-7: No new Python 2 dependency."""
-    check = _get_check_definition(ctx, "CB-7")
-    adapters = ctx.evidence.get("adapters", {})
-    dep_analysis = adapters.get("dep-analysis", {})
-    packaging = adapters.get("packaging-source", {})
-
-    if dep_analysis.get("status") != "ok":
-        return _set_unknown_from_adapter(finding, check)
-
-    if packaging.get("status") != "ok":
-        return _set_unknown_from_adapter(finding, check)
-
-    dependencies = dep_analysis.get("runtime_dep_packages", [])
-
-    # Python 2 patterns
-    py2_patterns = ["python2", "python-", "py2-", "libpython2"]
-
-    for dep in dependencies:
-        if any(p in dep.lower() for p in py2_patterns):
-            finding.fail(
-                render_check_message(check, "blocker_message", dep=dep),
-                render_check_message(check, "blocker_todo"),
-                severity="required",
-                confidence="high",
-            )
-            finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
-            return finding
-
-    finding.succeed(
-        render_check_message(check, "ok_message"),
-        confidence="high",
-    )
-    finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
-    return finding
-
-
 def _check_cb_5(ctx: RunContext, finding: Finding) -> Finding:
     """CB-5: Special hardware compromise accepted.
 
@@ -1861,72 +1866,6 @@ def _check_cb_5(ctx: RunContext, finding: Finding) -> Finding:
         status="unknown",
     )
     finding.evidence_refs = ["CB-4:status"]
-    return finding
-
-
-def _check_sec_3(ctx: RunContext, finding: Finding) -> Finding:
-    """SEC-3: Does not use webkit1/2."""
-    check = _get_check_definition(ctx, "SEC-3")
-    adapters = ctx.evidence.get("adapters", {})
-    dep_analysis = adapters.get("dep-analysis", {})
-
-    if dep_analysis.get("status") != "ok":
-        return _set_unknown_from_adapter(finding, check)
-
-    dependencies = dep_analysis.get("runtime_dep_packages", [])
-
-    # Webkit patterns
-    webkit_patterns = ["webkit", "webkit1", "webkit2", "libwebkit"]
-
-    for dep in dependencies:
-        if any(p in dep.lower() for p in webkit_patterns):
-            finding.fail(
-                render_check_message(check, "blocker_message", dep=dep),
-                render_check_message(check, "blocker_todo"),
-                severity="required",
-                confidence="high",
-            )
-            finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
-            return finding
-
-    finding.succeed(
-        render_check_message(check, "ok_message"),
-        confidence="high",
-    )
-    finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
-    return finding
-
-
-def _check_sec_4(ctx: RunContext, finding: Finding) -> Finding:
-    """SEC-4: Does not use lib*v8 directly."""
-    check = _get_check_definition(ctx, "SEC-4")
-    adapters = ctx.evidence.get("adapters", {})
-    dep_analysis = adapters.get("dep-analysis", {})
-
-    if dep_analysis.get("status") != "ok":
-        return _set_unknown_from_adapter(finding, check)
-
-    dependencies = dep_analysis.get("runtime_dep_packages", [])
-
-    # V8 patterns
-    v8_patterns = ["libv8", "v8", "libnode"]
-
-    for dep in dependencies:
-        if any(p in dep.lower() for p in v8_patterns):
-            finding.fail(
-                render_check_message(check, "blocker_message", dep=dep),
-                render_check_message(check, "blocker_todo"),
-                severity="required",
-                confidence="high",
-            )
-            finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
-            return finding
-
-    finding.succeed(
-        render_check_message(check, "ok_message"),
-        confidence="high",
-    )
-    finding.evidence_refs = ["dep-analysis:runtime_dep_packages"]
     return finding
 
 
@@ -2248,14 +2187,14 @@ DETERMINISTIC_CHECKS: dict[str, Callable[[RunContext, Finding], Finding]] = {
     "URF-3": _check_urf_3,
     "URF-4": _check_urf_4,
     "URF-5": _check_urf_5,
-    "URF-7": _check_urf_7,
+    "URF-7": _eval_dep_scan,
     "SEC-8": _check_sec_8,
     "SEC-10": _check_sec_10,
     "URF-9": _check_urf_9,
-    "CB-7": _check_cb_7,
+    "CB-7": _eval_dep_scan,
     "CB-5": _check_cb_5,
-    "SEC-3": _check_sec_3,
-    "SEC-4": _check_sec_4,
+    "SEC-3": _eval_dep_scan,
+    "SEC-4": _eval_dep_scan,
     "DEP-1": _check_dep_1,
     "PRF-8": _check_prf_8,
     "PRF-6": _check_prf_6,
