@@ -342,7 +342,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #6  rate limiter onto tenacity
 - [x] #19 review_type detector
 - [x] #24 lxd_runner slim
-- [ ] #13 auto_mir.py slim
+- [x] #13 auto_mir.py slim
 - [ ] #8  declarative follow-up hints
 - [ ] #11 one render script --role
 - [ ] #28 catalog machinery dedup

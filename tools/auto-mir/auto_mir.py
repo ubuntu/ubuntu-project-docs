@@ -500,8 +500,8 @@ def stage_render(ctx: RunContext) -> None:
     write_outputs(ctx)
 
 
-def stage_auth(ctx: RunContext) -> None:
-    """Stage 0: Resolve OpenAI-compatible endpoint URL and authentication token."""
+def _resolve_llm_auth(ctx: RunContext) -> None:
+    """Resolve OpenAI-compatible endpoint URL and authentication token."""
     import llm
 
     provider, token, source, api_url = llm.resolve_auth()
@@ -529,28 +529,17 @@ def stage_auth(ctx: RunContext) -> None:
     log.info("LLM provider '%s' resolved from %s (url: %s)", provider, source, api_url)
 
 
+def stage_auth(ctx: RunContext) -> None:
+    """Stage 0: Resolve OpenAI-compatible endpoint URL and authentication token."""
+    _resolve_llm_auth(ctx)
+
+
 def stage_optional_auth(ctx: RunContext) -> None:
     """Resolve reporter LLM auth. --no-llm is the only way to fully disable AI."""
     if ctx.no_llm:
         log.info("Reporter AI suggestions disabled by --no-llm")
         return
-    import llm
-
-    provider, token, source, api_url = llm.resolve_auth()
-    if source.startswith(llm.FALLBACK_AUTH_SOURCE_PREFIX):
-        log.warning(
-            "No OPENAI_API_KEY found; proceeding with a placeholder credential.\n"
-            "Set OPENAI_API_KEY to an OpenRouter API key for hosted use. For a "
-            "local/unauthenticated OpenAI-compatible endpoint, set OPENAI_API_BASE "
-            "and this warning can be ignored."
-        )
-    else:
-        ctx.secret_redactor.register(token)
-    ctx.llm_provider = provider
-    ctx.llm_api_url = api_url
-    ctx.llm_token = token
-    ctx.auth_source = source
-    ctx.evidence["auth"] = {"provider": provider, "source": source, "api_url": api_url}
+    _resolve_llm_auth(ctx)
 
 
 def _resolve_requested_binaries(all_binaries: list[str]) -> list[str]:
@@ -755,17 +744,6 @@ def main() -> int:
             record.role = self._role
             return True
 
-        def format(self, record):
-            color = self.COLORS.get(record.levelname, self.RESET)
-            levelname = f"{color}{self.BOLD}{record.levelname:8}{self.RESET}"
-            name = f"\033[34m{record.name:32}{self.RESET}"
-            elapsed = time.monotonic() - _log_start_time
-            h, remainder = divmod(int(elapsed), 3600)
-            m, s = divmod(remainder, 60)
-            timing_str = f"\033[90m[{h:02d}:{m:02d}:{s:02d}]{self.RESET}"
-            message = record.getMessage()
-            return f"{levelname} {name} {timing_str} {message}"
-
     from pythonjsonlogger import jsonlogger
 
     logger = logging.getLogger()
@@ -904,15 +882,11 @@ def main() -> int:
         exit_code = 1
 
     # Cleanup and final output (always runs)
-    _log_artifact_locations(ctx)
-    teardown_guest(ctx, evidence_result)
-    _print_complete_banner(ctx)
-    return exit_code
+    return _finish_run(ctx, evidence_result, exit_code)
 
 
 def _finish_run(ctx: RunContext, evidence_result: int, exit_code: int) -> int:
-    """Run the common artifact, teardown, and completion tail."""
-    _log_artifact_locations(ctx)
+    """Run the common teardown and completion tail."""
     teardown_guest(ctx, evidence_result)
     _print_complete_banner(ctx)
     return exit_code
@@ -972,7 +946,6 @@ def _save_test_artifacts(ctx: RunContext) -> None:
     meta = {
         "collected_at": datetime.now().isoformat(),
         "git_head": git_head,
-        "tool_version": "0.1.0",
         "bug_id": ctx.bug_id,
         "source_package": ctx.source_package,
     }
@@ -984,23 +957,6 @@ def _save_test_artifacts(ctx: RunContext) -> None:
     log.info("  - evidence.json")
     log.info("  - deterministic_findings.json")
     log.info("  - meta.json")
-
-
-def _log_artifact_locations(ctx: RunContext) -> None:
-    """Print concise artifact paths so users can continue after noisy output."""
-    log.info("Artifacts directory: %s", ctx.output_dir)
-
-    evidence_path = ctx.output_dir / "evidence.json"
-    if evidence_path.exists():
-        log.info("Evidence file: %s", evidence_path)
-
-    if ctx.report_path:
-        log.info("Structured report: %s", ctx.report_path)
-
-    if ctx.review_draft_path:
-        log.info("Review draft: %s", ctx.review_draft_path)
-    if ctx.reporter_draft_path:
-        log.info("Reporter draft: %s", ctx.reporter_draft_path)
 
 
 def _print_complete_banner(ctx: RunContext) -> None:

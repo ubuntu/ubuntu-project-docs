@@ -372,7 +372,6 @@ def test_main_runs_stages_in_expected_order(monkeypatch):
 
     monkeypatch.setattr(auto_mir, "stage_render", _render)
     monkeypatch.setattr(auto_mir, "_save_test_artifacts", lambda _ctx: calls.append("save"))
-    monkeypatch.setattr(auto_mir, "_log_artifact_locations", lambda _ctx: calls.append("artifacts"))
     monkeypatch.setattr(
         auto_mir,
         "teardown_guest",
@@ -388,7 +387,6 @@ def test_main_runs_stages_in_expected_order(monkeypatch):
         "collect",
         "analyse",
         "render",
-        "artifacts",
         "teardown",
         "banner",
     ]
@@ -408,7 +406,6 @@ def test_main_collect_only_skips_auth_analysis_and_render(monkeypatch):
     monkeypatch.setattr(auto_mir, "stage_analyse", lambda _ctx: calls.append("analyse"))
     monkeypatch.setattr(auto_mir, "stage_render", lambda _ctx: calls.append("render"))
     monkeypatch.setattr(auto_mir, "_save_test_artifacts", lambda _ctx: calls.append("save"))
-    monkeypatch.setattr(auto_mir, "_log_artifact_locations", lambda _ctx: calls.append("artifacts"))
     monkeypatch.setattr(
         auto_mir,
         "teardown_guest",
@@ -417,7 +414,7 @@ def test_main_collect_only_skips_auth_analysis_and_render(monkeypatch):
     monkeypatch.setattr(auto_mir, "_print_complete_banner", lambda _ctx: calls.append("banner"))
 
     assert auto_mir.main() == 0
-    assert calls == ["intake", "spawn", "collect", "save", "artifacts", "teardown", "banner"]
+    assert calls == ["intake", "spawn", "collect", "save", "teardown", "banner"]
 
 
 def test_main_propagates_evidence_failure_summary_to_teardown(monkeypatch):
@@ -433,7 +430,6 @@ def test_main_propagates_evidence_failure_summary_to_teardown(monkeypatch):
     )
     monkeypatch.setattr(auto_mir, "stage_analyse", lambda _ctx: calls.append("analyse"))
     monkeypatch.setattr(auto_mir, "stage_render", lambda _ctx: calls.append("render"))
-    monkeypatch.setattr(auto_mir, "_log_artifact_locations", lambda _ctx: calls.append("artifacts"))
     monkeypatch.setattr(
         auto_mir,
         "teardown_guest",
