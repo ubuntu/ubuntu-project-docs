@@ -11,6 +11,7 @@ This is explicitly NOT meant to be run from inside an existing LXD guest.
 import logging
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -131,8 +132,7 @@ def _lxc(*args, check: bool = True, capture: bool = False, log_prefix: str = "ho
 
 def _check_lxd_available() -> None:
     """Verify lxc is available on the host; exit with guidance if not."""
-    result = subprocess.run(["which", "lxc"], capture_output=True, text=True)
-    if result.returncode != 0:
+    if shutil.which("lxc") is None:
         log.error("lxc command not found. Install LXD with: sudo snap install lxd && lxd init")
         sys.exit(1)
 
@@ -141,24 +141,6 @@ def _check_lxd_available() -> None:
     if result.returncode != 0:
         log.error("LXD is installed but not responding. Try: lxd init --auto")
         sys.exit(1)
-    client_version = next(
-        (
-            line.split(": ", 1)[1]
-            for line in result.stdout.splitlines()
-            if line.startswith("Client version")
-        ),
-        "unknown",
-    )
-    server_version = next(
-        (
-            line.split(": ", 1)[1]
-            for line in result.stdout.splitlines()
-            if line.startswith("Server version")
-        ),
-        "unknown",
-    )
-    log.debug("LXD client version: %s", client_version)
-    log.debug("LXD server version: %s", server_version)
 
 
 # Fixed launch configuration for MIR guests: a VM with enough CPU, memory and
@@ -531,34 +513,6 @@ def exec_in(
     base_delay=_GUEST_RETRY_BASE_DELAY_SECONDS,
     max_delay=_GUEST_RETRY_MAX_DELAY_SECONDS,
 )
-def _exec_in_retry_internal(
-    name: str,
-    cmd: list[str],
-    *,
-    env: dict[str, str] | None = None,
-    workdir: str | None = None,
-    user: int | None = None,
-    group: int | None = None,
-    timeout: float | None = _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS,
-) -> subprocess.CompletedProcess:
-    """Internal function that executes with retry logic.
-
-    This function is decorated with tenacity retry and will automatically
-    retry on transient failures (503 errors, DNS failures, connection timeouts).
-    """
-    return exec_in(
-        name,
-        cmd,
-        check=False,
-        capture=True,
-        env=env,
-        workdir=workdir,
-        user=user,
-        group=group,
-        timeout=timeout,
-    )
-
-
 def exec_in_retry(
     name: str,
     cmd: list[str],
@@ -597,9 +551,11 @@ def exec_in_retry(
     Raises:
         RuntimeError: If command fails after all retries (when check=True)
     """
-    result = _exec_in_retry_internal(
+    result = exec_in(
         name,
         cmd,
+        check=False,
+        capture=True,
         env=env,
         workdir=workdir,
         user=user,

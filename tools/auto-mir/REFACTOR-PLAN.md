@@ -341,7 +341,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #22 ai/llm_eval shared helpers (already shared; see note)
 - [x] #6  rate limiter onto tenacity
 - [x] #19 review_type detector
-- [ ] #24 lxd_runner slim
+- [x] #24 lxd_runner slim
 - [ ] #13 auto_mir.py slim
 - [ ] #8  declarative follow-up hints
 - [ ] #11 one render script --role
