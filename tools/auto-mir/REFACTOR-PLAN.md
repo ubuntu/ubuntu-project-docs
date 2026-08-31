@@ -339,7 +339,7 @@ rule_context drift validator goes (catalog.py:411-422).
 - [x] #31 micro-batch
 - [x] #23 LLM usage aggregator
 - [x] #22 ai/llm_eval shared helpers (already shared; see note)
-- [ ] #6  rate limiter onto tenacity
+- [x] #6  rate limiter onto tenacity
 - [ ] #19 review_type detector
 - [ ] #24 lxd_runner slim
 - [ ] #13 auto_mir.py slim

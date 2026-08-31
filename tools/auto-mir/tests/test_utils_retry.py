@@ -114,3 +114,40 @@ def test_retry_decorators_retry_on_genuine_url_error(decorator):
         fn()
 
     assert len(calls) == 3
+
+
+def test_retry_rate_limited_wait_honors_retry_after():
+    """When a 429 carries Retry-After, the wait strategy uses it (capped)."""
+    from utils.retry import _retry_after_or_exponential
+
+    wait = _retry_after_or_exponential(base_delay=8.0, max_delay=60.0)
+    http_error = urllib.error.HTTPError("http://x", 429, "Too Many Requests", None, None)
+    http_error.headers = {"Retry-After": "7"}
+
+    class _Outcome:
+        def exception(self):
+            return http_error
+
+    class _State:
+        outcome = _Outcome()
+
+    assert wait(_State()) == 9.0  # 7 + extract_retry_after's 2s buffer
+
+    http_error.headers = {"Retry-After": "120"}
+    assert wait(_State()) == 60.0  # capped at max_delay
+
+
+def test_retry_rate_limited_wait_falls_back_to_exponential_without_retry_after():
+    from utils.retry import _retry_after_or_exponential
+
+    wait = _retry_after_or_exponential(base_delay=8.0, max_delay=60.0)
+
+    class _Outcome:
+        def exception(self):
+            return None
+
+    class _State:
+        outcome = _Outcome()
+        attempt_number = 1
+
+    assert wait(_State()) == 8.0  # exponential first wait: multiplier * 2^0

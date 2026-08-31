@@ -450,47 +450,6 @@ def test_call_llm_records_reasoning_trace(monkeypatch):
     assert traces[0]["finish_reason"] == "stop"
 
 
-def test_fresh_rate_limiter_does_not_pace_proactively():
-    """A new limiter must not sleep before the first call (no learned limit yet)."""
-    limiter = llm._RateLimitState()
-    assert limiter.min_interval_s == 0.0
-
-    slept = []
-    original_sleep = llm.time.sleep
-    llm.time.sleep = lambda s: slept.append(s)
-    try:
-        llm._wait_for_slot(limiter)
-    finally:
-        llm.time.sleep = original_sleep
-
-    assert slept == []
-
-
-def test_learn_from_headers_without_usable_headers_keeps_no_pacing():
-    """Token-quota / missing headers must not trigger proactive pacing."""
-    limiter = llm._RateLimitState()
-
-    # Large value is treated as a token quota, not a request rate -> ignored.
-    llm._learn_from_headers(limiter, {"x-ratelimit-limit": "60000"})
-    assert limiter.min_interval_s == 0.0
-
-    # No rate-limit headers at all.
-    llm._learn_from_headers(limiter, {"content-type": "application/json"})
-    assert limiter.min_interval_s == 0.0
-
-
-def test_learn_from_headers_with_real_limit_starts_pacing():
-    """A modest request-rate limit header starts proactive pacing."""
-    limiter = llm._RateLimitState()
-
-    llm._learn_from_headers(limiter, {"x-ratelimit-limit": "60", "x-ratelimit-reset": "60"})
-
-    assert limiter.limit == 60
-    assert limiter.window_s == 60
-    expected = (60 / 60) * llm._RATE_SAFETY_FACTOR
-    assert limiter.min_interval_s == pytest.approx(expected)
-
-
 def test_call_openai_compatible_impl_logs_attempt_start_and_elapsed(caplog, monkeypatch):
     """Each individual HTTP attempt logs its own start (model/budget/timeout)
     and completion (elapsed seconds), so a long wait is directly visible in

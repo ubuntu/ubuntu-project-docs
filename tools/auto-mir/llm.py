@@ -35,10 +35,9 @@ import re
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from utils.retry import extract_retry_after, retry_rate_limited
+from utils.retry import retry_rate_limited
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
@@ -117,10 +116,6 @@ _MAX_TOKENS_BY_TIER = {"small": 32768, "large": 49152}
 # the "twice the base budget" doubling intact for the largest tier
 # (49152 * 2 == 98304) so a retry is never silently clipped below 2x.
 _MAX_TOKENS_HARD_CAP = 98304
-# Conservative defaults until we learn real values from API responses.
-_DEFAULT_LIMIT_PER_WINDOW = 10
-_DEFAULT_WINDOW_SECONDS = 60
-_RATE_SAFETY_FACTOR = 1.10
 
 
 def _max_tokens_for_tier(model_tier: str, override: int | None = None) -> int:
@@ -128,23 +123,6 @@ def _max_tokens_for_tier(model_tier: str, override: int | None = None) -> int:
     if override:
         return override
     return _MAX_TOKENS_BY_TIER.get(model_tier, _MAX_TOKENS_BY_TIER["small"])
-
-
-@dataclass
-class _RateLimitState:
-    limit: int = _DEFAULT_LIMIT_PER_WINDOW
-    window_s: int = _DEFAULT_WINDOW_SECONDS
-    # No proactive pacing by default: a fresh limiter does not sleep between
-    # calls. We only start pacing once the provider tells us a real limit, via
-    # a 429 response body/Retry-After or rate-limit response headers. The
-    # conservative limit/window defaults above are only used to derive a real
-    # interval *after* such a signal, never to throttle pre-emptively.
-    min_interval_s: float = 0.0
-    next_allowed_at: float = 0.0
-
-
-# Per-model adaptive limiter state.
-_rate_limit_by_model: dict[str, _RateLimitState] = {}
 
 
 def call_llm(
@@ -305,7 +283,6 @@ def _call_openai_compatible_impl(
         )
 
     model = _selected_model(ctx, model_tier)
-    limiter = _get_rate_limiter(model)
 
     payload = {
         "model": model,
@@ -344,7 +321,6 @@ def _call_openai_compatible_impl(
         "Accept": "application/json",
     }
 
-    _wait_for_slot(limiter)
     req = urllib.request.Request(
         api_url,
         data=body,
@@ -365,11 +341,6 @@ def _call_openai_compatible_impl(
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             raw = resp.read().decode()
-            _learn_from_headers(limiter, resp.headers)
-            limiter.next_allowed_at = max(
-                limiter.next_allowed_at,
-                time.time() + limiter.min_interval_s,
-            )
         elapsed = time.monotonic() - start
         log.info("LLM request for %s finished in %.1fs", label, elapsed)
         return _parse_chat_response(raw, max_tokens, trace_label=trace_label)
@@ -379,28 +350,9 @@ def _call_openai_compatible_impl(
         err_body = exc.read().decode(errors="replace")
         log.info("LLM request for %s failed after %.1fs with HTTP %d", label, elapsed, status)
         log.debug("LLM HTTP %d: %s", status, err_body[:200])
-        _learn_from_headers(limiter, exc.headers)
 
-        # Update rate limiter based on 429 response
-        if status == 429:
-            learned = _parse_rate_limit_hint(err_body)
-            if learned:
-                limiter.limit, limiter.window_s = learned
-                limiter.min_interval_s = (limiter.window_s / limiter.limit) * _RATE_SAFETY_FACTOR
-                log.info(
-                    "Learned rate limit for model %s: %d per %ds (min interval %.2fs)",
-                    model,
-                    limiter.limit,
-                    limiter.window_s,
-                    limiter.min_interval_s,
-                )
-
-            # Extract Retry-After if present
-            retry_after = extract_retry_after(exc)
-            if retry_after:
-                limiter.next_allowed_at = max(limiter.next_allowed_at, time.time() + retry_after)
-
-        # Re-raise for tenacity to handle (will retry on 429/5xx)
+        # Re-raise for tenacity to handle (will retry on 429/5xx, honoring
+        # Retry-After via the retry_rate_limited wait strategy)
         raise
     except (urllib.error.URLError, ConnectionError, TimeoutError) as exc:
         elapsed = time.monotonic() - start
@@ -451,68 +403,6 @@ def _selected_model(ctx: "RunContext", model_tier: str = "small") -> str:
     if explicit:
         return explicit
     return DEFAULT_OPENAI_COMPAT_LARGE_MODEL
-
-
-def _get_rate_limiter(model: str) -> _RateLimitState:
-    state = _rate_limit_by_model.get(model)
-    if state is None:
-        state = _RateLimitState()
-        _rate_limit_by_model[model] = state
-    return state
-
-
-def _wait_for_slot(limiter: _RateLimitState) -> None:
-    """Sleep until we are allowed to send the next request for this model."""
-    now = time.time()
-    if limiter.next_allowed_at > now:
-        sleep_s = limiter.next_allowed_at - now
-        log.debug("Rate-limit pacing sleep engaged: sleeping %.2fs", sleep_s)
-        time.sleep(sleep_s)
-
-
-def _learn_from_headers(limiter: _RateLimitState, headers) -> None:
-    """Best-effort learning from rate-limit response headers.
-
-    Some providers expose x-ratelimit-limit / x-ratelimit-reset headers. If
-    present, we use them. Missing headers are fine.
-    """
-    if not headers:
-        return
-
-    try:
-        limit_val = headers.get("x-ratelimit-limit") or headers.get("X-RateLimit-Limit")
-        reset_val = headers.get("x-ratelimit-reset") or headers.get("X-RateLimit-Reset")
-    except Exception:
-        return
-
-    learned = False
-    if limit_val:
-        try:
-            parsed_limit = int(limit_val)
-            # Guardrail: request-per-window limits are expected to be modest.
-            # Large values (e.g. 60000) are typically token quotas, not request rates.
-            if 0 < parsed_limit <= 500:
-                limiter.limit = parsed_limit
-                learned = True
-        except ValueError:
-            pass
-
-    if reset_val:
-        # Reset can be epoch seconds or duration. We only use it as a hint for
-        # future pacing when it clearly looks like a duration.
-        try:
-            parsed_reset = int(reset_val)
-            if 0 < parsed_reset <= 3600:
-                limiter.window_s = parsed_reset
-                learned = True
-        except ValueError:
-            pass
-
-    # Only start (or adjust) proactive pacing once a real limit was learned from
-    # the provider. Otherwise leave min_interval_s untouched so a fresh limiter
-    # keeps its no-pacing default and does not sleep before every call.
-    if learned:
-        limiter.min_interval_s = (limiter.window_s / limiter.limit) * _RATE_SAFETY_FACTOR
 
 
 def _parse_chat_response(
@@ -741,26 +631,6 @@ def _extract_text_from_parts(items: list[Any], fields: tuple[str, ...]) -> str:
                     parts.append(value)
                     break
     return "".join(parts).strip()
-
-
-def _parse_rate_limit_hint(body: str) -> tuple[int, int] | None:
-    """Parse limit/window from a 429 message.
-
-    Example:
-      "Rate limit of 10 per 60s exceeded for UserByModelByMinute..."
-    Returns:
-      (10, 60)
-    """
-    match = re.search(r"rate limit of\s+(\d+)\s+per\s+(\d+)s", body, re.IGNORECASE)
-    if not match:
-        return None
-    limit = int(match.group(1))
-    window_s = int(match.group(2))
-    # Guardrails: request-rate hints are expected to be modest. Very large
-    # values are usually token quotas and should not drive request pacing.
-    if limit <= 0 or window_s <= 0 or limit > 500 or window_s > 3600:
-        return None
-    return limit, window_s
 
 
 # ---------------------------------------------------------------------------

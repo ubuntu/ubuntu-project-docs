@@ -57,6 +57,28 @@ def _is_network_url_error(exc: BaseException) -> bool:
 # ---------------------------------------------------------------------------
 
 
+def _retry_after_or_exponential(base_delay: float, max_delay: float) -> Callable:
+    """Tenacity wait strategy: honor Retry-After when present, else back off.
+
+    This is the single retry scheme for rate-limited HTTP calls: the
+    provider's Retry-After header (or a "please wait N seconds" body hint,
+    via extract_retry_after) wins over the exponential schedule, capped at
+    max_delay.
+    """
+    exponential = wait_exponential(multiplier=base_delay, max=max_delay)
+
+    def wait(retry_state):
+        outcome = retry_state.outcome
+        exc = outcome.exception() if outcome is not None else None
+        if exc is not None:
+            retry_after = extract_retry_after(exc)
+            if retry_after:
+                return min(retry_after, max_delay)
+        return exponential(retry_state)
+
+    return wait
+
+
 def retry_rate_limited(
     max_attempts: int = 4,
     base_delay: float = 8.0,
@@ -65,7 +87,8 @@ def retry_rate_limited(
     """Decorator for retrying with rate limit awareness.
 
     Specifically designed for API calls that may return 429 (rate limit)
-    or 5xx errors. Uses longer delays to respect rate limits.
+    or 5xx errors. Honors the provider's Retry-After when present and
+    otherwise uses longer exponential delays to respect rate limits.
 
     Args:
         max_attempts: Maximum number of retry attempts
@@ -84,7 +107,7 @@ def retry_rate_limited(
 
     return retry(
         stop=stop_after_attempt(max_attempts),
-        wait=wait_exponential(multiplier=base_delay, max=max_delay),
+        wait=_retry_after_or_exponential(base_delay, max_delay),
         retry=(
             retry_if_exception_type((ConnectionError, TimeoutError))
             | retry_if_exception(_is_network_url_error)
