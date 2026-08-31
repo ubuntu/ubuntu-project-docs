@@ -29,6 +29,11 @@ Reference baseline for generated docs: inner code-block content of
 
 ### B1 — stabilize generated include content against pre-tool templates
 
+Status: B1a (reporter catalog restoration, render byte-identical to the
+598e27c31 reporter template) DONE. B1b (golden fixtures + regression test)
+still open. Reviewer side: current output accepted as golden (only delta vs
+pre-tool text = the user-approved Maintainer-field rule/TODO addition).
+
 1. Extract reference content: inner block after `{code-block} text` /
    `:linenos:` in the two `598e27c31` template files. Store as
    `tools/auto-mir/tests/fixtures/include_reviewers.golden` and

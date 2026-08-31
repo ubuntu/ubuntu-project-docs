@@ -22,8 +22,8 @@ def test_real_report_catalog_renders_strictly_and_idempotently():
     assert first.endswith("\n")
     assert "[Availability]" in first
     assert "[Maintenance/Owner]" in first
-    assert "RULE: Security history" in first
-    assert "RULE: Every package needs an eligible owning team" in first
+    assert "RULE: The security history and the current state of security issues" in first
+    assert "RULE: The package must have an acceptable level of maintenance corresponding" in first
 
 
 def test_reporter_template_never_leaks_rule_clause_tags():
@@ -33,15 +33,25 @@ def test_reporter_template_never_leaks_rule_clause_tags():
     rendered = renderer.render_reporter_template(data)
 
     assert "RULE[" not in rendered
-    assert "RULE: Explain lintian overrides." in rendered
+    assert "RULE: - Non-obvious or non-properly commented lintian overrides" in rendered
 
 
 def test_every_reporter_item_template_is_generated_once():
+    """Every item the blueprint references must have its template (including
+    restored multi-line historical trees) rendered exactly once. The
+    blueprint is authoritative; runtime-only items may be absent."""
     data = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
-    rendered = renderer.render_reporter_template(data).splitlines()
+    rendered = renderer.render_reporter_template(data)
 
-    for item in data["items"]:
-        assert rendered.count(item["template"]) == 1
+    refs = [
+        entry["item"]
+        for entry in data["metadata"]["reporter_template_blueprint"]
+        if isinstance(entry, dict)
+    ]
+    by_id = {item["id"]: item for item in data["items"]}
+    assert refs
+    for item_id in refs:
+        assert rendered.count(by_id[item_id]["template"]) == 1, item_id
 
 
 def test_reporter_document_uses_generated_literalinclude():

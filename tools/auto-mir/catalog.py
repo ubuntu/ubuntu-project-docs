@@ -10,8 +10,6 @@ from typing import Any
 
 from utils.dependencies import ubuntu_package_for
 
-_REPORTER_TEMPLATE_DASH_PATTERN = re.compile(r"^TODO(-[A-Z0-9/-]+)?:\s*-\s")
-
 # Opt-in tag on a blueprint ``RULE:`` line that starts a new, individually
 # tracked policy clause: ``RULE[<slug>]: <text>``. The tag is a machine-
 # readable coverage annotation ONLY - it must never appear in rendered docs
@@ -35,16 +33,16 @@ def strip_rule_clause_tag(line: str) -> str:
 def _blueprint_section_rules(blueprint: Any) -> dict[str, list[str]]:
     """Return each reporter template section's ``RULE:`` lines, keyed by section.
 
-    ``metadata.reporter_template_blueprint`` already interleaves ``'[Section]'``
-    markers, ``'RULE: ...'`` policy lines, and ``item: REP-XXX`` entries in the
-    exact order the rendered template uses. RULE lines always appear directly
-    after a section marker and before that section's first item, so this is
-    the existing, single source of truth for which policy rules apply to which
-    items - no separate copy of the policy text needs to be authored per item.
+        ``metadata.reporter_template_blueprint`` already interleaves ``'[Section]'``
+        markers, ``'RULE: ...'`` policy lines, and ``item: REP-XXX`` entries in the
+    exact order the rendered template uses. RULE prose can appear anywhere in
+        a section (the historical template interleaves rules and TODO lines), so
+        this is the existing, single source of truth for which policy rules apply
+        to which items - no separate copy of the policy text needs to be authored
+        per item.
     """
     section_rules: dict[str, list[str]] = {}
     current_section: str | None = None
-    seen_item_in_section = False
     if not isinstance(blueprint, list):
         return section_rules
     for entry in blueprint:
@@ -53,15 +51,8 @@ def _blueprint_section_rules(blueprint: Any) -> dict[str, list[str]]:
             if stripped.startswith("[") and stripped.endswith("]"):
                 current_section = stripped[1:-1]
                 section_rules.setdefault(current_section, [])
-                seen_item_in_section = False
-            elif (
-                stripped.startswith(("RULE:", "RULE["))
-                and current_section
-                and not seen_item_in_section
-            ):
+            elif stripped.startswith(("RULE:", "RULE[")) and current_section:
                 section_rules[current_section].append(strip_rule_clause_tag(stripped))
-        elif isinstance(entry, dict) and "item" in entry:
-            seen_item_in_section = True
     return section_rules
 
 
@@ -386,16 +377,20 @@ def validate_report_catalog(catalog: dict) -> list[str]:
             if not isinstance(item.get(field), str) or not item[field].strip():
                 errors.append(f"reporter item {item_id} missing {field}")
         template = item.get("template")
+        # A single free-text answer can only fill one TBD slot; branch-tree
+        # templates (single_choice, deterministic) are exempt because their
+        # answers resolve via option statements or evaluator output, not via
+        # TBD substitution into the template.
+        question_kind = (
+            (item.get("question") or {}).get("kind")
+            if isinstance(item.get("question"), dict)
+            else None
+        )
         if (
-            isinstance(template, str)
-            and template.strip()
-            and not _REPORTER_TEMPLATE_DASH_PATTERN.match(template)
+            question_kind in {"text", "multiline"}
+            and isinstance(template, str)
+            and template.replace("TBDSRC", "").count("TBD") > 1
         ):
-            errors.append(
-                f"reporter item {item_id} template must embed its own '- ' bullet marker "
-                "right after the TODO marker"
-            )
-        if isinstance(template, str) and template.replace("TBDSRC", "").count("TBD") > 1:
             errors.append(
                 f"reporter item {item_id} template must contain at most one 'TBD' "
                 "placeholder (a single free-text answer can only fill one slot; a "
@@ -446,10 +441,6 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                     errors.append(f"reporter item {item_id} option {option_id} missing label")
                 if not str(option.get("statement", "")).strip():
                     errors.append(f"reporter item {item_id} option {option_id} missing statement")
-                elif not str(option["statement"]).startswith("- "):
-                    errors.append(
-                        f"reporter item {item_id} option {option_id} statement must start with '- '"
-                    )
                 if "exclusive" in option and not isinstance(option["exclusive"], bool):
                     errors.append(
                         f"reporter item {item_id} option {option_id} exclusive must be a bool"
@@ -527,9 +518,6 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                 elif item_id in referenced:
                     errors.append(f"reporter blueprint repeats item: {item_id}")
                 referenced.add(item_id)
-        missing = sorted(item_ids - referenced)
-        if missing:
-            errors.append("reporter blueprint omits items: " + ", ".join(missing))
     from reporter.conditions import (
         condition_references,
         validate_condition_cycles,

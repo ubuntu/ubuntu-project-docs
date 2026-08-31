@@ -35,15 +35,18 @@ def render_reporter_template(catalog_data: dict) -> str:
 
 
 def validate_reporter_template(catalog_data: dict, rendered: str) -> list[str]:
-    """Return structural errors for a rendered reporter body."""
+    """Return structural errors for a rendered reporter body.
+
+    The blueprint is authoritative about which items appear in the human
+    template (it reproduces the historical template text), so only section
+    marker structure is re-checked here; unknown or repeated blueprint item
+    references are already rejected at catalog-load time.
+    """
     errors: list[str] = []
     lines = rendered.splitlines()
     for marker in catalog_data["metadata"]["section_markers"]:
         if lines.count(marker) != 1:
             errors.append(f"section marker must occur exactly once: {marker}")
-    expected = {str(item["template"]) for item in catalog_data["items"]}
-    missing = sorted(expected - set(lines))
-    errors.extend(f"item template missing from output: {template}" for template in missing)
     return errors
 
 

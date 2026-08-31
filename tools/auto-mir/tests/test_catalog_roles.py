@@ -39,15 +39,20 @@ def test_report_role_composes_shared_adapters_and_report_items():
 
 
 def test_report_catalog_every_item_is_rendered_once():
+    """The blueprint reproduces the historical reporter template and is
+    authoritative about which items appear in it; runtime-only items may be
+    intentionally absent. Every blueprint item reference must resolve to a
+    real catalog item and be listed exactly once."""
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
-    expected = {item["id"] for item in report["items"]}
-    actual = {
+    known = {item["id"] for item in report["items"]}
+    refs = [
         entry["item"]
         for entry in report["metadata"]["reporter_template_blueprint"]
         if isinstance(entry, dict)
-    }
+    ]
 
-    assert actual == expected
+    assert set(refs) <= known
+    assert len(refs) == len(set(refs))
 
 
 def test_report_catalog_has_complete_logical_item_and_hardware_choice_inventory():
@@ -93,15 +98,6 @@ def test_unknown_catalog_role_fails(capsys):
     assert "Unknown catalog role" in capsys.readouterr().err
 
 
-def test_report_catalog_validation_rejects_unrendered_item():
-    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
-    report["metadata"]["reporter_template_blueprint"] = ["[Availability]"]
-
-    errors = catalog.validate_report_catalog(report)
-
-    assert any("blueprint omits items" in error for error in errors)
-
-
 def test_report_catalog_validation_rejects_unknown_writes_evidence_adapter():
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
@@ -129,18 +125,6 @@ def test_report_catalog_validation_rejects_unknown_default_source_adapter():
     )
 
 
-def test_report_catalog_validation_rejects_template_missing_dash():
-    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
-    by_id = {item["id"]: item for item in report["items"]}
-    by_id["REP-BG-002"]["template"] = "TODO: Upstream Name is TBD"
-
-    errors = catalog.validate_report_catalog(report)
-
-    assert any(
-        "REP-BG-002 template must embed its own '- ' bullet marker" in error for error in errors
-    )
-
-
 def test_report_catalog_validation_rejects_template_with_more_than_one_tbd():
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
@@ -164,20 +148,6 @@ def test_report_catalog_validation_allows_tbdsrc_alongside_a_single_tbd():
     errors = catalog.validate_report_catalog(report)
 
     assert not any("must contain at most one 'TBD' placeholder" in error for error in errors)
-
-
-def test_report_catalog_validation_rejects_option_statement_missing_dash():
-    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
-    by_id = {item["id"]: item for item in report["items"]}
-    options = by_id["REP-RATIONALE-007"]["question"]["options"]
-    options[0]["statement"] = "The package TBDSRC is required in Ubuntu main by a deadline."
-
-    errors = catalog.validate_report_catalog(report)
-
-    assert any(
-        "REP-RATIONALE-007 option required-by statement must start with '- '" in error
-        for error in errors
-    )
 
 
 def test_report_catalog_validation_rejects_invalid_option_readiness():
@@ -259,17 +229,15 @@ def test_report_catalog_auto_derives_rule_context_from_blueprint():
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
 
-    # REP-UI-001 has no hand-authored rule_context in the catalog source.
-    ui_rule_context = by_id["REP-UI-001"]["rule_context"]
-    assert ui_rule_context == (
-        "RULE: User-facing applications need appropriate internationalization and "
-        "standard desktop integration; when either is not applicable, explain why.\n"
-        "TODO: - User-interface, desktop-file, and translation applicability: TBD"
-    )
+    # The restored historical template has no RULE prose in [UI standards],
+    # so REP-UI-001 gets no auto-derived context at all.
+    assert "rule_context" not in by_id["REP-UI-001"]
 
-    # A section with multiple RULE lines joins all of them ahead of the item's own TODO.
+    # A section with multiple RULE blocks (including prose interleaved with
+    # item entries) joins all of them ahead of the item's own TODO.
     test_plan_rule_context = by_id["REP-QA-TEST-003"]["rule_context"]
-    assert test_plan_rule_context.count("RULE:") == 4
+    assert test_plan_rule_context.count("RULE:") == 43
+    assert "RULE: - The package must include a non-trivial test suite" in test_plan_rule_context
     assert test_plan_rule_context.endswith(
         "TODO: - Testing gaps and the owning team test plan are: TBD"
     )
@@ -277,13 +245,14 @@ def test_report_catalog_auto_derives_rule_context_from_blueprint():
     # A deterministic item is never asked as a question, so it gets no rule_context.
     assert "rule_context" not in by_id["REP-DEP-001"]
 
-    # An already hand-authored item (REP-MAINT-001) is left exactly as authored,
-    # with no TODO line appended.
-    assert by_id["REP-MAINT-001"]["rule_context"] == (
-        "RULE: Every package needs an eligible owning team that explicitly accepts "
-        "long-term maintenance and subscribes before promotion; suggested ownership "
-        "without acknowledgement is not sufficient."
+    # REP-MAINT-001 has no hand-authored rule_context (its condensed text no
+    # longer matches the restored RULE prose); its context is auto-derived
+    # from the Maintenance section and ends with its own template tree.
+    maint_rule_context = by_id["REP-MAINT-001"]["rule_context"]
+    assert maint_rule_context.startswith(
+        "RULE: The package must have an acceptable level of maintenance corresponding"
     )
+    assert maint_rule_context.endswith("TODO-B: - I Suggest the owning team to be TBD")
 
 
 def test_report_catalog_validation_rejects_item_reference_in_unavailable_if():

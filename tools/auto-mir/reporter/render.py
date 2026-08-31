@@ -69,10 +69,26 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
     unavailable) - never mixed inline with the assertive resolved statements,
     and never a bare, still-unresolved "TBD" template masquerading as a real
     statement (see ``_clarify_entry_lines``).
+
+    The blueprint reproduces the historical human template and is therefore
+    authoritative about its own text; runtime items it does not reference are
+    still results of this run, so their resolved statements are appended at
+    the end of their section (before that section's clarify block).
     """
     items_by_id = {item["id"]: item for item in ctx.catalog["items"]}
+    blueprint = ctx.catalog["metadata"]["reporter_template_blueprint"]
+    referenced = {entry["item"] for entry in blueprint if isinstance(entry, dict)}
+    extras: dict[str, list[StatementResult]] = {}
+    for item in ctx.catalog["items"]:
+        if item["id"] in referenced:
+            continue
+        result = by_id[item["id"]]
+        if result.state == StatementState.NOT_APPLICABLE:
+            continue
+        extras.setdefault(result.section, []).append(result)
     body_lines: list[str] = []
     pending_clarify: list[StatementResult] = []
+    current_section: str | None = None
 
     def flush_clarify() -> None:
         if not pending_clarify:
@@ -83,27 +99,54 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
             body_lines.extend(_clarify_entry_lines(items_by_id[result.id], result, ctx))
         pending_clarify.clear()
 
-    for entry in ctx.catalog["metadata"]["reporter_template_blueprint"]:
+    def append_result(result: StatementResult) -> None:
+        if result.state in {StatementState.NEEDS_INPUT, StatementState.UNAVAILABLE}:
+            pending_clarify.append(result)
+            return
+        body_lines.append(_with_hanging_indent(result.statement))
+        if result.rationale:
+            body_lines.append(f"  ({_with_hanging_indent(result.rationale)})")
+
+    def flush_section_extras() -> None:
+        if current_section is None:
+            return
+        for result in extras.pop(current_section, []):
+            append_result(result)
+
+    for index, entry in enumerate(blueprint):
         if isinstance(entry, str):
-            if entry.startswith("RULE:"):
+            stripped = entry.strip()
+            if stripped.startswith("RULE:"):
                 continue
-            if entry == "" or (entry.startswith("[") and entry.endswith("]")):
-                # Flush any section's pending clarify block before the blank
-                # separator that (by convention) precedes the next section,
-                # and defensively also before a section header directly, so
-                # this never depends on that blank-line convention holding.
+            if stripped.startswith("TODO"):
+                # Historical checklist text with no runtime owner: it stays
+                # in the human template (docs include), while the draft only
+                # carries confident statements plus the clarify block.
+                continue
+            if stripped.startswith("[") and stripped.endswith("]"):
+                flush_section_extras()
+                # Defensive: also flush before a section header directly, so
+                # this never depends on the blank-line convention holding.
+                flush_clarify()
+                current_section = stripped[1:-1]
+                body_lines.append(entry)
+                continue
+            if entry == "":
                 flush_clarify()
             body_lines.append(entry)
             continue
         result = by_id[entry["item"]]
         if result.state == StatementState.NOT_APPLICABLE:
             continue
-        if result.state in {StatementState.NEEDS_INPUT, StatementState.UNAVAILABLE}:
-            pending_clarify.append(result)
-            continue
-        body_lines.append(_with_hanging_indent(result.statement))
-        if result.rationale:
-            body_lines.append(f"  ({_with_hanging_indent(result.rationale)})")
+        append_result(result)
+        # A section's unreferenced results belong before its closing blank
+        # line and next marker, so emit them when the next marker is due.
+        following = blueprint[index + 1] if index + 1 < len(blueprint) else None
+        if isinstance(following, str):
+            following_stripped = following.strip()
+            if following_stripped.startswith("[") and following_stripped.endswith("]"):
+                flush_section_extras()
+    flush_section_extras()
     flush_clarify()
 
     lines = [

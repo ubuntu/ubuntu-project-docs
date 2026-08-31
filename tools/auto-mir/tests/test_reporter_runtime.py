@@ -13,7 +13,13 @@ import catalog  # noqa: E402
 from reporter import pipeline  # noqa: E402
 from reporter.consistency import ConsistencyIssue, ConsistencyReport, validate_results  # noqa: E402
 from reporter.evaluator import _question_from_item, _show_preface, evaluate_items  # noqa: E402
-from reporter.models import Answer, Provenance, ReadinessEffect, StatementState  # noqa: E402
+from reporter.models import (  # noqa: E402
+    Answer,
+    Provenance,
+    QuestionKind,
+    ReadinessEffect,
+    StatementState,
+)
 from reporter.render import write_outputs  # noqa: E402
 from utils.secrets import SecretRedactor  # noqa: E402
 
@@ -23,9 +29,18 @@ class FakeWizard:
         self.value = value
         self.asked: list[str] = []
 
+    def _answer_value(self, question):
+        # The real wizard only returns option ids for single_choice
+        # questions; free text would be template-substituted and is not a
+        # production path. Answer the first option id by default.
+        if question.kind == QuestionKind.SINGLE_CHOICE:
+            return question.options[0].id
+        return self.value
+
     def ask(self, question):
         self.asked.append(question.id)
-        return Answer(question_id=question.id, value=self.value, raw_input=self.value)
+        value = self._answer_value(question)
+        return Answer(question_id=question.id, value=value, raw_input=str(value))
 
     def show_note(self, text, detail=""):
         pass
@@ -40,10 +55,8 @@ class ChoiceWizard(FakeWizard):
         "REP-DEP-002": "separate",
     }
 
-    def ask(self, question):
-        self.asked.append(question.id)
-        value = self.values.get(question.id, self.value)
-        return Answer(question_id=question.id, value=value, raw_input=str(value))
+    def _answer_value(self, question):
+        return self.values.get(question.id, super()._answer_value(question))
 
 
 def _ctx(tmp_path):
@@ -1047,7 +1060,7 @@ def test_background_catchall_is_omitted_when_left_empty(tmp_path):
             self.asked.append(question.id)
             if question.id == "REP-BG-001":
                 return None
-            value = self.values.get(question.id, self.value)
+            value = self.values.get(question.id, self._answer_value(question))
             return Answer(question_id=question.id, value=value, raw_input=str(value))
 
     wizard = EmptyBackgroundWizard()
@@ -1075,7 +1088,7 @@ def test_testing_gaps_question_is_optional_and_omitted_when_skipped(tmp_path):
             self.asked.append(question.id)
             if question.id == "REP-QA-TEST-003":
                 return None
-            value = self.values.get(question.id, self.value)
+            value = self.values.get(question.id, self._answer_value(question))
             return Answer(question_id=question.id, value=value, raw_input=str(value))
 
     wizard = NoTestingGapsWizard()
