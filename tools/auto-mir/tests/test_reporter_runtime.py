@@ -40,7 +40,7 @@ class FakeWizard:
     def ask(self, question):
         self.asked.append(question.id)
         value = self._answer_value(question)
-        return Answer(question_id=question.id, value=value, raw_input=str(value))
+        return Answer(question_id=question.id, value=value)
 
     def show_note(self, text, detail=""):
         pass
@@ -1061,7 +1061,7 @@ def test_background_catchall_is_omitted_when_left_empty(tmp_path):
             if question.id == "REP-BG-001":
                 return None
             value = self.values.get(question.id, self._answer_value(question))
-            return Answer(question_id=question.id, value=value, raw_input=str(value))
+            return Answer(question_id=question.id, value=value)
 
     wizard = EmptyBackgroundWizard()
 
@@ -1089,7 +1089,7 @@ def test_testing_gaps_question_is_optional_and_omitted_when_skipped(tmp_path):
             if question.id == "REP-QA-TEST-003":
                 return None
             value = self.values.get(question.id, self._answer_value(question))
-            return Answer(question_id=question.id, value=value, raw_input=str(value))
+            return Answer(question_id=question.id, value=value)
 
     wizard = NoTestingGapsWizard()
 

@@ -125,7 +125,6 @@ class Answer:
 
     question_id: str
     value: Any
-    raw_input: str
 
 
 @dataclass

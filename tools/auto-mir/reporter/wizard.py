@@ -75,7 +75,7 @@ class TerminalWizard:
             except ValueError as exc:
                 self._write_line(f"Invalid response: {exc}")
                 continue
-            return Answer(question_id=question.id, value=value, raw_input=raw)
+            return Answer(question_id=question.id, value=value)
 
     def confirm_suggestion(
         self,
@@ -134,13 +134,13 @@ class TerminalWizard:
                         f"'yes' is unavailable: {lock_yes_reason} Enter edit or no instead."
                     )
                     continue
-                return Answer(question_id=question_id, value=True, raw_input=raw)
+                return Answer(question_id=question_id, value=True)
             if normalized in {"n", "no"}:
-                return Answer(question_id=question_id, value=False, raw_input=raw)
+                return Answer(question_id=question_id, value=False)
             if normalized in {"e", "edit"}:
                 edited = self._edit_multiline(suggestion, rationale)
                 self._record_answer(edited)
-                return Answer(question_id=question_id, value=edited, raw_input=raw)
+                return Answer(question_id=question_id, value=edited)
             self._write_line("Invalid response: enter yes, edit, or no")
 
     def show_note(self, text: str, detail: str = "") -> None:
@@ -212,7 +212,7 @@ class TerminalWizard:
                 return None
             if text:
                 self._record_answer(text)
-                return Answer(question_id=question.id, value=text, raw_input=edited)
+                return Answer(question_id=question.id, value=text)
             if not question.required:
                 return None
             self._write_line("A response is required. Reopening the editor.")
@@ -262,7 +262,7 @@ class TerminalWizard:
             if raw == _MULTILINE_SENTINEL:
                 text = "\n".join(lines).strip()
                 if text:
-                    return Answer(question_id=question.id, value=text, raw_input="\n".join(lines))
+                    return Answer(question_id=question.id, value=text)
                 if question.required:
                     self._write_line("A response is required. Continue entering text.")
                     continue

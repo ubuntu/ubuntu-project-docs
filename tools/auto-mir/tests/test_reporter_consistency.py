@@ -43,7 +43,7 @@ class Wizard:
 
     def ask(self, question):
         self.questions.append(question)
-        return Answer(question_id=question.id, value="Reporter correction.", raw_input="correction")
+        return Answer(question_id=question.id, value="Reporter correction.")
 
 
 def test_deterministic_consistency_blocks_unresolved_blocker():

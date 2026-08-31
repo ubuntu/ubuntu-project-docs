@@ -29,13 +29,11 @@ class ConfirmingWizard:
     def confirm_suggestion(self, *, question_id, suggestion, rationale, lock_yes_reason=None):
         self.questions.append(("confirm", suggestion, rationale))
         self.lock_yes_reasons.append(lock_yes_reason)
-        return Answer(question_id=question_id, value=self.accept, raw_input=str(self.accept))
+        return Answer(question_id=question_id, value=self.accept)
 
     def ask(self, question):
         self.questions.append(("human", question.id))
-        return Answer(
-            question_id=question.id, value="human correction", raw_input="human correction"
-        )
+        return Answer(question_id=question.id, value="human correction")
 
     def show_note(self, text, detail=""):
         self.notes.append((text, detail))
@@ -216,7 +214,6 @@ def test_rep_bg_002_human_fallback_still_backfills_upstream_url():
             return Answer(
                 question_id=question.id,
                 value="https://github.com/pendulum-project/ntpd-rs",
-                raw_input="https://github.com/pendulum-project/ntpd-rs",
             )
 
         def show_note(self, text, detail=""):
@@ -247,7 +244,7 @@ class EditingWizard:
 
     def confirm_suggestion(self, *, question_id, suggestion, rationale, lock_yes_reason=None):
         self.questions.append(("confirm", suggestion, rationale))
-        return Answer(question_id=question_id, value=self.edited_text, raw_input="edit")
+        return Answer(question_id=question_id, value=self.edited_text)
 
     def ask(self, question):  # pragma: no cover - not expected to be called
         raise AssertionError("edited suggestions must not fall back to a manual question")
@@ -837,7 +834,7 @@ def test_ai_options_item_rejects_unmatched_selected_option(monkeypatch):
     class ChoiceWizard(ConfirmingWizard):
         def ask(self, question):
             self.questions.append(("human", question.id))
-            return Answer(question_id=question.id, value="not-ui", raw_input="not-ui")
+            return Answer(question_id=question.id, value="not-ui")
 
     wizard = ChoiceWizard()
 
@@ -856,7 +853,7 @@ def test_options_human_fallback_uses_canonical_statement_and_readiness():
 
     class ChoiceWizard:
         def ask(self, question):
-            return Answer(question_id=question.id, value="ui-missing-desktop", raw_input="2")
+            return Answer(question_id=question.id, value="ui-missing-desktop")
 
         def show_note(self, text, detail=""):
             pass
