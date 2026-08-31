@@ -155,87 +155,20 @@ def _text_signals(ctx: RunContext) -> tuple[list[str], list[str]]:
     return reorg, rereview
 
 
-def pre_detect_review_type(ctx: RunContext) -> ReviewTypeDecision:
-    """Stage-1 pre-detection using only bug text and the forced override.
-
-    Called by ``lp_intake.run()`` *before* the reporter-template hard-stop gate
-    to determine whether this is a re-review/reorg that does not require a
-    reporter template (per MIR policy). Only signals available before evidence
-    collection are consulted: the ``--review-type`` CLI value and bug text
-    patterns (title, description, comments, reporter content).
-
-    The authoritative resolution is ``detect_review_type()`` in Stage 4, which
-    additionally considers evidence adapters (``lp-mir-history``,
-    ``lp-package-api``). A pre-detection of ``fresh`` is therefore not final:
-    the full detection may still upgrade it to ``rereview`` or ``reorg`` once
-    evidence is available. The reverse (pre-detect reorg, full detect fresh)
-    is possible but unlikely
-    since text signals are a strong indicator.
-
-    reorg is checked before rereview because a renamed/reorganised source is the
-    more specific case; both soften findings identically, so the label mainly
-    tells the human reviewer which fast-path applies.
-    """
-    forced = str(getattr(ctx, "review_type_arg", "auto") or "auto").strip().lower()
-    if forced in _VALID_FORCED:
-        return ReviewTypeDecision(
-            review_type=forced,
-            forced=True,
-            rationale=f"Forced via --review-type={forced}.",
-            signals=[f"forced:{forced}"],
-        )
-
-    reorg_signals, rereview_signals = _text_signals(ctx)
-    signals: list[str] = []
-
-    if reorg_signals:
-        signals.extend(f"reorg: {s}" for s in reorg_signals)
-        return ReviewTypeDecision(
-            review_type=REORG,
-            forced=False,
-            rationale=(
-                "Detected a renamed/reorganised source from bug text: "
-                + "; ".join(reorg_signals)
-                + ". Treated like a re-review — all findings are non-blocking "
-                "recommendations; the reviewer can promote any line back to "
-                "Required."
-            ),
-            signals=signals,
-        )
-
-    if rereview_signals:
-        signals.extend(f"rereview: {s}" for s in rereview_signals)
-        return ReviewTypeDecision(
-            review_type=REREVIEW,
-            forced=False,
-            rationale=(
-                "Detected a voluntary re-review from bug text: "
-                + "; ".join(rereview_signals)
-                + ". All findings are non-blocking recommendations; the "
-                "reviewer can promote any line back to Required."
-            ),
-            signals=signals,
-        )
-
-    return ReviewTypeDecision(
-        review_type=FRESH,
-        forced=False,
-        rationale="No re-review or reorganisation signals detected in bug text; "
-        "treated as a normal (blocking) fresh review.",
-        signals=[],
-    )
-
-
-def detect_review_type(ctx: RunContext) -> ReviewTypeDecision:
+def detect_review_type(ctx: RunContext, use_evidence: bool = True) -> ReviewTypeDecision:
     """Detect (or honour a forced) review type for this run.
 
     The ``--review-type`` CLI value on ``ctx.review_type_arg`` takes precedence:
     ``fresh``/``rereview``/``reorg`` short-circuit auto-detection (but still
     record a rationale), while ``auto`` (the default) runs the heuristics below.
 
-    This is the authoritative Stage-4 resolution. It combines bug text signals
-    (shared with ``pre_detect_review_type``) with evidence-adapter signals only
-    available after Stage 3 collection (``lp-mir-history``, ``lp-package-api``).
+    ``use_evidence=False`` is the Stage-1 pre-detection (called by
+    ``lp_intake.run()`` before the reporter-template hard-stop gate): only
+    bug-text signals and the forced override are consulted, because evidence
+    collection has not run yet. A pre-detection of ``fresh`` is therefore not
+    final - the authoritative Stage-4 resolution (``use_evidence=True``, the
+    default) can still upgrade it to ``rereview``/``reorg`` once the
+    ``lp-mir-history`` and ``lp-package-api`` adapters are available.
 
     reorg is checked before rereview because a renamed/reorganised source is the
     more specific case; both soften findings identically, so the label mainly
@@ -270,7 +203,7 @@ def detect_review_type(ctx: RunContext) -> ReviewTypeDecision:
     # category-neighbours (e.g. libdbi-perl, libecpg-compat3 for mysql-9.7).
     # Reorg signals are bug-text patterns plus lp-mir-history only.
     reorg_signals: list[str] = list(text_reorg)
-    prior_other = _prior_mir_under_other_name(ctx)
+    prior_other = _prior_mir_under_other_name(ctx) if use_evidence else []
     if prior_other:
         reorg_signals.append(
             f"a prior MIR bug exists under a different source name ({', '.join(prior_other[:3])})"
@@ -289,7 +222,7 @@ def detect_review_type(ctx: RunContext) -> ReviewTypeDecision:
 
     # --- rereview (voluntary opt-in re-review of a package in main) -------
     rereview_signals: list[str] = list(text_rereview)
-    if _all_binaries_already_in_main(ctx):
+    if use_evidence and _all_binaries_already_in_main(ctx):
         rereview_signals.append("all binary packages are already in main")
     if rereview_signals:
         signals.extend(f"rereview: {s}" for s in rereview_signals)

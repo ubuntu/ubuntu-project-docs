@@ -231,34 +231,34 @@ def test_reorg_takes_precedence_over_rereview():
 
 def test_pre_detect_forced_rereview():
     ctx = _ctx(review_type_arg="rereview", reporter_mir_content="fresh review")
-    decision = review_type.pre_detect_review_type(ctx)
+    decision = review_type.detect_review_type(ctx, use_evidence=False)
     assert decision.review_type == review_type.REREVIEW
     assert decision.forced is True
 
 
 def test_pre_detect_forced_reorg():
     ctx = _ctx(review_type_arg="reorg")
-    decision = review_type.pre_detect_review_type(ctx)
+    decision = review_type.detect_review_type(ctx, use_evidence=False)
     assert decision.review_type == review_type.REORG
     assert decision.forced is True
 
 
 def test_pre_detect_reorg_from_description():
     ctx = _ctx(bug={"title": "MIR for mysql-9.7", "description": "mysql-9.7 to replace mysql-8.4"})
-    decision = review_type.pre_detect_review_type(ctx)
+    decision = review_type.detect_review_type(ctx, use_evidence=False)
     assert decision.review_type == review_type.REORG
     assert decision.forced is False
 
 
 def test_pre_detect_reorg_from_replace():
     ctx = _ctx(bug={"title": "MIR for foo", "description": "foo replaces bar as the provider"})
-    decision = review_type.pre_detect_review_type(ctx)
+    decision = review_type.detect_review_type(ctx, use_evidence=False)
     assert decision.review_type == review_type.REORG
 
 
 def test_pre_detect_rereview_from_description():
     ctx = _ctx(bug={"title": "MIR for foo", "description": "This is a voluntary re-review."})
-    decision = review_type.pre_detect_review_type(ctx)
+    decision = review_type.detect_review_type(ctx, use_evidence=False)
     assert decision.review_type == review_type.REREVIEW
     assert decision.forced is False
 
@@ -271,20 +271,20 @@ def test_pre_detect_reorg_from_comment():
             "comments": ["The source was reorganized."],
         }
     )
-    decision = review_type.pre_detect_review_type(ctx)
+    decision = review_type.detect_review_type(ctx, use_evidence=False)
     assert decision.review_type == review_type.REORG
 
 
 def test_pre_detect_fresh_no_signals():
     ctx = _ctx(bug={"title": "MIR for foo", "description": "A brand new library."})
-    decision = review_type.pre_detect_review_type(ctx)
+    decision = review_type.detect_review_type(ctx, use_evidence=False)
     assert decision.review_type == review_type.FRESH
     assert decision.signals == []
 
 
 def test_pre_detect_mirror_no_false_positive():
     ctx = _ctx(reporter_mir_content="The package sets up a mirror of upstream data.")
-    decision = review_type.pre_detect_review_type(ctx)
+    decision = review_type.detect_review_type(ctx, use_evidence=False)
     assert decision.review_type == review_type.FRESH
 
 
