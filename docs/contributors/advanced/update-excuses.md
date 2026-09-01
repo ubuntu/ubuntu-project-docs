@@ -24,3 +24,39 @@ Checking for migration failures is done by a tool called [Britney2](https://rele
 ## What am I looking at?
 
 `update-excuses` presents a list of package updates that have failed to migrate, and the packages preventing it from doing so.
+
+Part of the difficulty in reading update-excuses is that all the information about each package is in a flat list, instead of hierarchical.
+Each package's information can be broken down into some sections.
+
+1. Overall status
+2. Its own failing autopkgtests (if there are any)
+3. Failing autopkgtests of its reverse dependencies
+4. Migration failures of its dependencies
+5. Additional information.
+
+### Overall status
+
+This is a short blurb explaining why the package is in the `update-excuses` page.
+In order from most to least common:
+
+- `BLOCKED: Rejected/violates migration policy/introduces a regression`. This usually means that one of its reverse dependencies has a failing autopkgtest that may be due to this package.
+- `BLOCKED: Cannot migrate due to another item, which is blocked`. This means that one of the package's dependencies has problems.
+- `BLOCKED: Maybe temporary, maybe blocked but Britney is missing information`. Usually Britney is missing information on a build because it simply has not happened yet.
+- `Waiting for test results, another package or too young (no action required now - check later)`. In this case do as the message says and be patient.
+- `Will attempt migration (Any information below is purely informational)`. The package is ready to migrate; it is simply waiting for Britney to confirm the migration.
+
+### Autopkgtests
+
+A package cannot migrate if any of its reverse dependencies have failing autopkgtests.
+
+Each of the package's reverse dependencies are printed, along with a status line about the tests.
+For each architecture, there is a link provided to its test logs.
+For packages marked as REGRESSION, there is also a recycling emoji (♲).
+Clicking that button will re-run the tests.
+
+Often times, tests appear to fail for "trivial" reasons.
+For example, a package cannot run if its dependencies are not built, or if it was built in the wrong `term`{pocket}.
+In an ideal world Britney would re-run such tests automatically, but for now, clicking the little recycling button can fix a surprising number of issues.
+
+If the package itself also has failing autopkgtests, `update-excuses` will say so here.
+However, this is rare, as packages aren't usually approved if their autopkgtests fail.
