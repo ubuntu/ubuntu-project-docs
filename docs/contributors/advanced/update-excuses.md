@@ -25,25 +25,39 @@ Checking for migration failures is done by a tool called [Britney2](https://rele
 
 `update-excuses` presents a list of package updates that have failed to migrate, and the packages preventing it from doing so.
 
-Part of the difficulty in reading update-excuses is that all the information about each package is in a flat list, instead of hierarchical.
-Each package's information can be broken down into some sections.
+Part of the difficulty in reading update-excuses is that all the information about each package is in a flat list, instead of hierarchical, so it is difficult to tell how to group the information.
+Generally, each package's information can be broken down into these groups.
 
-1. Overall status
+1. Blocked reason
 2. Its own failing autopkgtests (if there are any)
 3. Failing autopkgtests of its reverse dependencies
 4. Migration failures of its dependencies
 5. Additional information.
 
-### Overall status
+### Blocked reason
 
-This is a short blurb explaining why the package is in the `update-excuses` page.
+This is a short blurb explaining why the package is BLOCKED in the `update-excuses` page.
 In order from most to least common:
 
-- `BLOCKED: Rejected/violates migration policy/introduces a regression`. This usually means that one of its reverse dependencies has a failing autopkgtest that may be due to this package.
-- `BLOCKED: Cannot migrate due to another item, which is blocked`. This means that one of the package's dependencies has problems.
-- `BLOCKED: Maybe temporary, maybe blocked but Britney is missing information`. Usually Britney is missing information on a build because it simply has not happened yet.
-- `Waiting for test results, another package or too young (no action required now - check later)`. In this case do as the message says and be patient.
-- `Will attempt migration (Any information below is purely informational)`. The package is ready to migrate; it is simply waiting for Britney to confirm the migration.
+#### Rejected/violates migration policy/introduces a regression
+
+This usually means that one of its reverse dependencies has a failing autopkgtest that may be due to this package.
+
+#### Cannot migrate due to another item, which is blocked (please check which dependencies are stuck) 
+
+This means that one of the package's dependencies is blocked for some reason.
+
+#### Maybe temporary, maybe blocked but Britney is missing information
+
+Usually Britney is missing information on a build because it simply has not happened yet.
+
+#### Waiting for test results, another package or too young (no action required now - check later)
+
+In this case do as the message says and be patient.
+
+#### Will attempt migration (Any information below is purely informational)
+
+The package is ready to migrate; it is simply waiting for Britney to confirm the migration.
 
 ### Autopkgtests
 
@@ -55,8 +69,31 @@ For packages marked as REGRESSION, there is also a recycling emoji (♲).
 Clicking that button will re-run the tests.
 
 Often times, tests appear to fail for "trivial" reasons.
-For example, a package cannot run if its dependencies are not built, or if it was built in the wrong `term`{pocket}.
+For example, a package cannot run if its dependencies are not built, or if it was built in the wrong {term}`pocket`.
 In an ideal world Britney would re-run such tests automatically, but for now, clicking the little recycling button can fix a surprising number of issues.
 
 If the package itself also has failing autopkgtests, `update-excuses` will say so here.
-However, this is rare, as packages aren't usually approved if their autopkgtests fail.
+However, this is rare; packages aren't usually approved if their autopkgtests fail, so they rarely appear on `update-excuses`.
+
+### Dependency migration failures
+
+A package also cannot migrate if any of its dependencies cannot migrate.
+(If it did, then the package might make it into the archive without its dependencies!)
+
+A dependency package may be listed here for two reasons.
+More commonly, that package may itself be failing to migrate.
+
+However, sometimes it is failing to migrate because the Autopkgtests of *its* reverse dependencies fail.
+In this case, the package will say "(not considered)" on the same line, and "Invalidated by dependency" on the second line.
+"Invalidated dependency" refers to the line *above*, not below.
+
+In either case, you can click on the name of the package to jump to its entry in `update-excuses` to figure out what is wrong with it.
+
+### Additional information
+
+Finally, there is some miscellanous information at the end.
+
+The age of the migration failure is always printed.
+`autopkgtests` prints migration failures from oldest to newest.
+Part of maintaining the archive is deleting the ancient packages at the very end of the file, under the presumption that they are wasting people's time.
+(For example, at time of writing, `tiledarray` has failed to migrate for 1,701 days, or about 4 and a half years.)
