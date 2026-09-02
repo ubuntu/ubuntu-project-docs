@@ -213,11 +213,13 @@ def test_report_catalog_auto_derives_rule_context_from_blueprint():
     # so REP-UI-001 gets no auto-derived context at all.
     assert "rule_context" not in by_id["REP-UI-001"]
 
-    # A section with multiple RULE blocks (including prose interleaved with
-    # item entries) joins all of them ahead of the item's own TODO.
+    # An item that declares covers_rule_clauses gets exactly those tagged RULE
+    # clauses (plus its own TODO), not the whole section's prose.
     test_plan_rule_context = by_id["REP-QA-TEST-003"]["rule_context"]
-    assert test_plan_rule_context.count("RULE:") == 43
-    assert "RULE: - The package must include a non-trivial test suite" in test_plan_rule_context
+    assert test_plan_rule_context.count("RULE:") == 23
+    assert test_plan_rule_context.startswith(
+        "RULE: - If no build tests nor autopkgtests are included"
+    )
     assert test_plan_rule_context.endswith(
         "TODO: - Testing gaps and the owning team test plan are: TBD"
     )

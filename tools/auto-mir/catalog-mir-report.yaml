@@ -8,7 +8,7 @@ metadata:
   - item: REP-AVAIL-003
   - ""
   - "[Rationale]"
-  - "RULE: There must be a certain level of demand for the package"
+  - "RULE[rationale-demand]: There must be a certain level of demand for the package"
   - item: REP-RATIONALE-001
   - item: REP-RATIONALE-005
   - item: REP-RATIONALE-002
@@ -129,7 +129,7 @@ metadata:
   - "TODO-B:   documentation, there isn't a safe default because TBD"
   - ""
   - "[Quality assurance - maintenance]"
-  - "RULE: - To support a package, we must be reasonably convinced that upstream"
+  - "RULE[qa-maint-upstream-confidence]: - To support a package, we must be reasonably convinced that upstream"
   - "RULE:   supports and cares for the package."
   - "RULE: - The status of important bugs in Debian, Ubuntu and upstream's bug"
   - "RULE:   tracking systems must be evaluated. Important bugs must be pointed out"
@@ -149,22 +149,22 @@ metadata:
   - "TODO-B5:   - hopefully somewhen getting it due to TBD"
   - ""
   - "[Quality assurance - testing]"
-  - "RULE: - The package must include a non-trivial test suite"
+  - "RULE[qa-testing-build-suite]: - The package must include a non-trivial test suite"
   - "RULE:   - it should run at package build and fail the build if broken"
   - item: REP-QA-TEST-001
   - ""
-  - "RULE:   - The package should, but is not required to, also contain"
+  - "RULE[qa-testing-autopkgtests]:   - The package should, but is not required to, also contain"
   - "RULE:     non-trivial autopkgtest(s)."
   - item: REP-QA-TEST-002
   - ""
-  - "RULE: - existing but failing tests that shall be handled as \"ok to fail\""
+  - "RULE[qa-testing-ignored-failures]: - existing but failing tests that shall be handled as \"ok to fail\""
   - "RULE:   need to be explained along the test logs below"
   - "TODO-A: - The package does have not failing autopkgtests right now"
   - "TODO-B: - The package does have failing autopkgtests tests right now, but since"
   - "TODO-B:   they always failed they are handled as \"ignored failure\", this is"
   - "TODO-B:   ok because TBD"
   - ""
-  - "RULE: - If no build tests nor autopkgtests are included, and/or if the package"
+  - "RULE[qa-testing-written-plan]: - If no build tests nor autopkgtests are included, and/or if the package"
   - "RULE:   requires specific hardware to perform testing, the subscribed team"
   - "RULE:   must provide a written test plan in a comment to the MIR bug, and"
   - "RULE:   commit to running that test either at each upload of the package or"
@@ -208,7 +208,7 @@ metadata:
   - "TODO-X:     - TBD"
   - "TODO-X:     - TBD"
   - ""
-  - "RULE: - In some cases a solution that is about to be promoted consists of"
+  - "RULE[qa-testing-solution-level]: - In some cases a solution that is about to be promoted consists of"
   - "RULE:   several very small libraries and one actual application uniting them"
   - "RULE:   to achieve something useful. This is rather common in the go/rust space."
   - "RULE:   In that case often these micro-libs on their own can and should only"
@@ -244,7 +244,7 @@ metadata:
   - "RULE:   dpkg (LP: #1951988)"
   - item: REP-QA-PKG-006
   - ""
-  - "RULE: - It is often useful to run `lintian --pedantic` on the package to spot"
+  - "RULE[pkg-lintian-pedantic]: - It is often useful to run `lintian --pedantic` on the package to spot"
   - "RULE:   the most common packaging issues in advance"
   - "RULE[pkg-lintian-overrides]: - Non-obvious or non-properly commented lintian overrides should be"
   - "RULE:   explained"
@@ -271,7 +271,7 @@ metadata:
   - item: REP-UI-002
   - ""
   - "[Dependencies]"
-  - "RULE: - In case of alternatives, the first alternative must be in main."
+  - "RULE[dep-first-alternative]: - In case of alternatives, the first alternative must be in main."
   - "RULE:   Depends: concrete-package-in-main | metapackage"
   - "RULE: - Build(-only) dependencies can be in universe"
   - "RULE: - If there are further dependencies they need a separate MIR discussion"
@@ -403,7 +403,7 @@ metadata:
   - "RULE:     * gnome-snapshot:"
   - "RULE:       https://salsa.debian.org/ubuntu-dev-team/snapshot/-/blob/ubuntu/latest/debian/README.source"
   - ""
-  - "RULE: - All vendored dependencies (no matter what language) shall have a"
+  - "RULE[maint-vendored-refresh]: - All vendored dependencies (no matter what language) shall have a"
   - "RULE:   way to be refreshed"
   - "TODO-A: - This does not use static builds"
   - "TODO-B: - The team TBD is aware of the implications by a static build and"
@@ -436,12 +436,12 @@ metadata:
   - "RULE:   or a build set up by the reporter in a PPA with all architectures"
   - "RULE:   enabled."
   - item: REP-MAINT-005
-  - "RULE: - To make it easier for everyone, please provide a link to that build so"
+  - "RULE[maint-build-link]: - To make it easier for everyone, please provide a link to that build so"
   - "RULE:   everyone can follow up easily e.g. checking the various architectures."
   - "RULE:   Example https://launchpad.net/ubuntu/+source/qemu/1:8.2.2+ds-0ubuntu1"
   - "TODO: - Build link on launchpad: TBD"
   - ""
-  - "RULE: A few times we had packages that seemed fine for the package itself, but"
+  - "RULE[maint-cross-team-coordination]: A few times we had packages that seemed fine for the package itself, but"
   - "RULE: caused quite some fallout and effort in related teams. We'd ask you to"
   - "RULE: think who else might be affected by promoting this package(s) and to"
   - "RULE: please coordinate with them upfront so they have time, understanding and"
@@ -453,7 +453,7 @@ metadata:
   - item: REP-MAINT-006
   - ""
   - "[Background information]"
-  - "RULE: - The package descriptions should explain the general purpose and context"
+  - "RULE[bg-package-description]: - The package descriptions should explain the general purpose and context"
   - "RULE:   of the package. Additional explanations/justifications should be done in"
   - "RULE:   the MIR report."
   - "RULE: - If the package was renamed recently, or has a different upstream name,"
@@ -485,6 +485,7 @@ items:
   adapters_required: []
   template: "TODO: Link to package https://launchpad.net/ubuntu/+source/TBDSRC"
 - id: REP-RATIONALE-001
+  covers_rule_clauses: [rationale-demand]
   section: Rationale
   title: Main-inclusion reason
   mode: human_only
@@ -691,6 +692,7 @@ items:
     prompt: Does the package work after installation, or what configuration/documentation is required? If configuration is required, why is a safe default not possible?
   template: 'TODO: - Package function after installation and required configuration: TBD'
 - id: REP-QA-MAINT-001
+  covers_rule_clauses: [qa-maint-upstream-confidence]
   section: Quality assurance - maintenance
   title: Important open bugs
   mode: deterministic
@@ -751,6 +753,7 @@ items:
     prompt: Assess Ubuntu, Debian, and upstream maintenance health and explain important concerns.
   template: 'TODO: - The package maintenance health is: TBD'
 - id: REP-QA-TEST-001
+  covers_rule_clauses: [qa-testing-build-suite]
   section: Quality assurance - testing
   title: Build-time tests
   mode: deterministic
@@ -759,6 +762,7 @@ items:
   adapters_required: [fetch-build, packaging-source]
   template: "TODO-A: - The package runs a test suite on build time, if it fails\nTODO-A:   it makes the build fail, link to build log TBD\nTODO-B: - The package does not run a test at build time because TBD"
 - id: REP-QA-TEST-002
+  covers_rule_clauses: [qa-testing-autopkgtests]
   section: Quality assurance - testing
   title: Autopkgtests
   mode: deterministic
@@ -767,6 +771,7 @@ items:
   adapters_required: [autopkgtest-db]
   template: "TODO-A: - The package runs an autopkgtest, and is currently passing on\nTODO-A:   this TBD list of architectures, link to test logs TBD\nTODO-B: - The package does not run an autopkgtest because TBD"
 - id: REP-QA-TEST-003
+  covers_rule_clauses: [qa-testing-written-plan]
   section: Quality assurance - testing
   title: Testing gaps and plan
   mode: human_only
@@ -850,6 +855,7 @@ items:
     prompt: Provide the test plan or automation, example logs, execution frequency, and likely regression consequences.
   template: 'TODO: - Test plan, logs, frequency, and regression consequences: TBD'
 - id: REP-QA-TEST-007
+  covers_rule_clauses: [qa-testing-ignored-failures]
   section: Quality assurance - testing
   title: Failing autopkgtest explanation
   mode: human_only
@@ -863,6 +869,7 @@ items:
     prompt: Explain every failing or ignored autopkgtest result and why it is acceptable.
   template: 'TODO: - Failing or ignored autopkgtests are acceptable because TBD'
 - id: REP-QA-TEST-008
+  covers_rule_clauses: [qa-testing-solution-level]
   section: Quality assurance - testing
   title: Micro-library solution-level testing
   mode: human_only
@@ -898,6 +905,7 @@ items:
   covers_rule_clauses: [pkg-upstream-mechanism]
   template: "TODO-A: - A mechanism to detect and fetch new upstream versions is present and works\nTODO-B: - A mechanism to detect and fetch new upstream versions is not present,\nTODO-B:   instead it has TBD\nTODO-C: - A mechanism to detect and fetch new upstream versions is not present\nTODO-C:   because it is a native package"
 - id: REP-QA-PKG-002
+  covers_rule_clauses: [pkg-lintian-pedantic]
   section: Quality assurance - packaging
   title: Lintian status
   mode: deterministic
@@ -1080,6 +1088,7 @@ items:
   adapters_required: []
   template: 'TODO: - Application not end-user facing, no translation needed: TBD'
 - id: REP-DEP-001
+  covers_rule_clauses: [dep-first-alternative]
   section: Dependencies
   title: Dependencies outside main
   mode: deterministic
@@ -1244,6 +1253,7 @@ items:
     prompt: Describe static/vendored code and the owning team's rebuild, testing, tracking, refresh, copyright, update, and backport commitments for the full release lifetime including ESM; confirm that any new vendored components will require renewed agreement.
   template: 'TODO: - Static/vendored-code maintenance obligations and commitments: TBD'
 - id: REP-MAINT-004
+  covers_rule_clauses: [maint-vendored-refresh]
   section: Maintenance/Owner
   title: Vendored source maintenance documentation
   mode: deterministic
@@ -1279,14 +1289,14 @@ items:
   evaluator: recent-build
   readiness: warning
   adapters_required: [lp-build-api]
-  covers_rule_clauses: [maint-build-recency-and-coordination]
+  covers_rule_clauses: [maint-build-recency-and-coordination, maint-build-link]
   template: "TODO-A: - The package has been built within the last 3 months in the archive\nTODO-B: - The package has been built within the last 3 months as part\nTODO-B:   of a test rebuild\nTODO-C: - The package has been built within the last 3 months in PPA\nTODO-D: - The package has been built within the last 3 months in sbuild as it\nTODO-D:   can not be uploaded yet"
 - id: REP-MAINT-006
   section: Maintenance/Owner
   title: Impact on other teams
   mode: human_only
   readiness: blocker
-  covers_rule_clauses: [maint-build-recency-and-coordination]
+  covers_rule_clauses: [maint-build-recency-and-coordination, maint-cross-team-coordination]
   question:
     kind: single_choice
     prompt: Will this promotion affect other Ubuntu teams?
@@ -1305,6 +1315,7 @@ items:
       readiness: blocker
   template: "TODO-A: This change will not impact other teams\nTODO-B: This change will impact other teams TBD[, TBD] and they are\nTODO-B: aware due to TBD"
 - id: REP-BG-001
+  covers_rule_clauses: [bg-package-description]
   section: Background information
   title: Package purpose
   mode: human_only

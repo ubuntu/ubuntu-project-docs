@@ -139,5 +139,5 @@ hand off to the user integration test.
 - [x] 8  WP7 Phase A inventory (no new gaps; G4/G5/G6 proceed as decided)
 - [x] 9  G5 + G6 alignments
 - [x] 10 G4 Built-Using reporter items
-- [ ] 11 coverage completion (+ approved new fixes)
+- [x] 11 coverage completion (+ approved new fixes)
 - [ ] 12 F wrap-up
