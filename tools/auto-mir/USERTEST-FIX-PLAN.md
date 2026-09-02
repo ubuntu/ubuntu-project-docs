@@ -134,7 +134,7 @@ hand off to the user integration test.
 - [x] 3  WP3 warnings clean
 - [x] 4  WP4 replay suite deleted
 - [x] 5  WP2 version walk-back hygiene
-- [ ] 6  WP5 comment-aware scanning
+- [x] 6  WP5 comment-aware scanning
 - [ ] 7  WP6 verified reorg detection
 - [ ] 8  WP7 Phase A inventory (pause)
 - [ ] 9  G5 + G6 alignments

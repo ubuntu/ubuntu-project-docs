@@ -3454,3 +3454,143 @@ def test_sum3_payload_unknown_component_does_not_claim_already_in_main():
     assert status["current_component"] == "unknown"
     assert status["already_in_main"] is False
     assert status["needs_promotion"] == ["libfoo1"]
+
+
+# ---------------------------------------------------------------------------
+# Comment-aware source scanning: matches confined to commented-out code are
+# "found, reported but ok" (user-test regression for the rust-sequoia-sq run,
+# where rust doc comments like '/// let err = self.name.ok_or("nobody")...'
+# were listed under Problems).
+# ---------------------------------------------------------------------------
+
+
+def test_comment_classifier_line_leading_markers():
+    """Whole-line comments classify as inactive; mixed lines never do."""
+    from checks.deterministic import _hit_is_comment, _line_comment_markers
+
+    rust_hit = './debian/rust-vendor/writeable/src/try_writeable.rs:62:///         let err = self.name.ok_or("nobody").try_write_to_parts(sink)?.err();'
+    rust_block = "./src/a.rs:7:/* setuid note */"
+    py_hit = "./tools/harness.py:12:# setuid helper used in tests"
+    c_hit = "./src/io.c:3:// nobody drops privileges here"
+    sh_hit = "./scripts/setup.sh:4:# sudo is not needed"
+
+    for hit in (rust_hit, rust_block, py_hit, c_hit, sh_hit):
+        assert _hit_is_comment(hit), hit
+
+    # Mixed lines stay active: real privilege setup can never hide behind a
+    # trailing comment (exact shape from the existing chmod test).
+    mixed = "./scripts/install.sh:5:chmod u+s /usr/bin/myhelper  # setuid"
+    assert not _hit_is_comment(mixed)
+
+    # Unknown extension -> conservative: active.
+    assert not _hit_is_comment("./data/blob.bin:1:setuid inside")
+    assert _line_comment_markers("./debian/rules") == ("#",)
+
+
+def test_urf_4_rust_doc_comment_hits_are_found_but_ok():
+    """Exact regression shape from the rust-sequoia-sq run: all URF-4 hits in
+    /// doc comments -> the check succeeds while naming the matches, instead
+    of listing them under Problems."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh",
+        "debian_control": "Package: rust-sequoia-sq",
+        "nobody_source_hits": [
+            './debian/rust-vendor/writeable/src/try_writeable.rs:62:///         let err = self.name.ok_or("nobody").try_write_to_parts(sink)?.err();',
+            './debian/rust-vendor/writeable/src/try_writeable.rs:245:    /// #        let _ = self.name.ok_or("nobody").try_write_to_parts(sink)?;',
+        ],
+        "nobody_source_files": [],
+    }
+    ctx.evidence["adapters"]["fetch-build"] = {"status": "ok", "nobody_owned_binaries": []}
+
+    result = checks.deterministic._check_urf_4(ctx, _make_finding("URF-4"))
+
+    assert result.status == "ok"
+    assert "commented-out code only" in result.message
+    assert "try_writeable.rs" in result.message
+    assert result.todo == ""
+
+
+def test_urf_5_rust_doc_comment_hits_are_found_but_ok():
+    """Same regression shape for setuid/setgid: tokio/rustix doc comments."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh",
+        "debian_control": "Package: rust-sequoia-sq",
+        "setuid_setgid_source_hits": [
+            "./debian/rust-vendor/tokio/src/process/mod.rs:682:    /// `setuid` call in the child process. Failure in the `setuid`",
+            "./debian/rust-vendor/rustix/src/thread/id.rs:21:/// `setuid(uid)`",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+    }
+    ctx.evidence["adapters"]["fetch-build"] = {"status": "ok", "setuid_setgid_binaries": []}
+
+    result = checks.deterministic._check_urf_5(ctx, _make_finding("URF-5"))
+
+    assert result.status == "ok"
+    assert "commented-out code only" in result.message
+    assert result.todo == ""
+
+
+def test_urf_5_mixed_comment_hits_still_flag():
+    """One doc-comment hit plus one active-code hit -> Problem lists the
+    active occurrence (comment hits are kept out of the failure sample)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh",
+        "debian_control": "Package: myapp",
+        "setuid_setgid_source_hits": [
+            "./debian/rust-vendor/tokio/src/x.rs:682:    /// `setuid` call here",
+            "./src/priv.c:9:int drop = setuid(0);",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+    }
+    ctx.evidence["adapters"]["fetch-build"] = {"status": "ok", "setuid_setgid_binaries": []}
+
+    result = checks.deterministic._check_urf_5(ctx, _make_finding("URF-5"))
+
+    assert result.status == "not-ok"
+    assert "priv.c" in result.message
+    assert "x.rs" not in result.message
+
+
+def test_urf_3_commented_rules_line_is_found_but_ok():
+    """debian/rules hash-commented sudo mention -> ok with note."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "# sudo apt-get foo was considered, not used",
+        "debian_control": "Package: myapp",
+    }
+
+    result = checks.deterministic._check_urf_3(ctx, _make_finding("URF-3"))
+
+    assert result.status == "ok"
+    assert "commented-out code only" in result.message
+    assert result.todo == ""
+
+
+def test_urf_3_active_rules_line_still_flags():
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "\tsudo make install",
+        "debian_control": "Package: myapp",
+    }
+
+    result = checks.deterministic._check_urf_3(ctx, _make_finding("URF-3"))
+
+    assert result.status == "not-ok"

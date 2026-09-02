@@ -1892,15 +1892,17 @@ checks:
   messages:
     unknown_message: Could not inspect packaging source
     unknown_todo: 'TODO: - Check for privilege escalation outside tests'
-    not_ok_message: Potential sudo/gksu/pkexec/LD_LIBRARY_PATH usage found outside tests
+    not_ok_message: Potential sudo/gksu, pkexec, or LD_LIBRARY_PATH usage found outside tests
     not_ok_todo: 'TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)'
     ok_message: no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)
+    ok_comment_only_message: 'sudo/gksu/pkexec/LD_LIBRARY_PATH matches are in commented-out code only (inactive, reported for completeness): {hits}'
   required_messages:
     unknown_message: []
     unknown_todo: []
     not_ok_message: []
     not_ok_todo: []
     ok_message: []
+    ok_comment_only_message: [hits]
   todo_refs:
   - 'TODO: - no use of sudo, gksu, pkexec, or LD_LIBRARY_PATH (usage is OK inside tests)'
   ai_policy: none
@@ -1921,12 +1923,14 @@ checks:
     not_ok_message: 'User ''nobody'' found outside test context: {hits}'
     not_ok_todo: 'TODO: - no use of user ''nobody'' outside of tests'
     ok_message: no use of user 'nobody' outside of tests
+    ok_comment_only_message: 'user ''nobody'' matches are in commented-out code only (inactive, reported for completeness): {hits}'
   required_messages:
     unknown_message: []
     unknown_todo: []
     not_ok_message: [hits]
     not_ok_todo: []
     ok_message: []
+    ok_comment_only_message: [hits]
   todo_refs:
   - 'TODO: - no use of user ''nobody'' outside of tests'
   ai_policy: none
@@ -1953,6 +1957,7 @@ checks:
     not_ok_message: 'setuid/setgid detected in {source}'
     not_ok_todo: 'TODO: - no use of setuid / setgid'
     ok_message: no use of setuid / setgid
+    ok_comment_only_message: 'setuid/setgid matches are in commented-out code only (inactive, reported for completeness): {hits}'
   required_messages:
     unknown_message: []
     unknown_todo: []
@@ -1965,6 +1970,7 @@ checks:
     not_ok_message: [source]
     not_ok_todo: []
     ok_message: []
+    ok_comment_only_message: [hits]
   todo_refs:
   - 'TODO: - no use of setuid / setgid'
   - 'TODO: - use of setuid, but ok because TBD (prefer systemd to set those for services)'

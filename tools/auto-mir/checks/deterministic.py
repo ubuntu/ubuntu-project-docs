@@ -185,6 +185,112 @@ _CODE_EXTENSIONS = frozenset(
 )
 
 
+def _grep_hit_content(hit: str) -> str:
+    """Return the content portion of a ``path:lineno:content`` grep hit."""
+    match = re.match(r"^(?P<path>.+?):\d+:(?P<content>.*)$", hit)
+    if match:
+        return match.group("content")
+    return ""
+
+
+# Line-comment markers per source-file extension family. Languages with
+# block comments use the same per-line rule: an opening marker that appears
+# at or before the searched term makes that occurrence commented. Known
+# limitation: classification is per grep-matched line (the evidence adapter
+# stores only matched lines), so a term inside a multi-line block-comment
+# interior whose hit line carries no marker can still flag.
+_C_STYLE_EXTENSIONS = {
+    ".rs",
+    ".go",
+    ".c",
+    ".h",
+    ".cc",
+    ".cpp",
+    ".cxx",
+    ".hpp",
+    ".hh",
+    ".js",
+    ".ts",
+    ".jsx",
+    ".tsx",
+    ".java",
+    ".kt",
+    ".swift",
+    ".scala",
+    ".php",
+}
+_HASH_STYLE_EXTENSIONS = {
+    ".py",
+    ".sh",
+    ".bash",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".rb",
+    ".pl",
+    ".pm",
+    ".r",
+    ".ini",
+    ".cfg",
+    ".conf",
+    ".mk",
+}
+
+
+def _line_comment_markers(path: str) -> tuple[str, ...]:
+    """Return the line-comment marker(s) for a source path ('' if unknown)."""
+    lowered = path.lower()
+    for ext in _C_STYLE_EXTENSIONS:
+        if lowered.endswith(ext):
+            return ("//", "/*")
+    for ext in _HASH_STYLE_EXTENSIONS:
+        if lowered.endswith(ext):
+            return ("#",)
+    # Extensionless packaging files and makefiles are hash-commented.
+    base = lowered.rsplit("/", 1)[-1]
+    if base in ("rules", "control", "Makefile", "makefile"):
+        return ("#",)
+    return ()
+
+
+def _line_is_commented(content: str, markers: tuple[str, ...]) -> bool:
+    """True when the whole line is commented-out text.
+
+    Conservative by design: only a line-leading marker classifies a hit as
+    inactive. A mixed line (e.g. ``chmod u+s ... # setuid``) stays active so
+    real privilege setup can never hide behind a trailing comment, and a
+    term inside a multi-line block-comment interior whose hit line carries
+    no marker also stays active - the classifier sees single grep-matched
+    lines, never whole files, so it must err toward reporting.
+    """
+    if not markers:
+        return False
+    stripped = content.lstrip()
+    return any(stripped.startswith(marker) for marker in markers)
+
+
+def _hit_is_comment(hit: str) -> bool:
+    """True when a ``path:lineno:content`` grep hit is commented-out text."""
+    markers = _line_comment_markers(_grep_hit_path(hit))
+    return _line_is_commented(_grep_hit_content(hit), markers)
+
+
+def _split_hits_active_vs_commented(hits: list[str]) -> tuple[list[str], list[str]]:
+    """Split grep hits into (active-code, commented-out) occurrences.
+
+    Test-context and non-executable-doc filtering stays the caller's job;
+    this only separates comment-classified hits from active ones.
+    """
+    active: list[str] = []
+    commented: list[str] = []
+    for hit in hits:
+        if _hit_is_comment(hit):
+            commented.append(hit)
+        else:
+            active.append(hit)
+    return active, commented
+
+
 def _grep_hit_path(hit: str) -> str:
     """Return the file-path portion of a ``path:lineno:content`` grep hit."""
     match = re.match(r"^(?P<path>.+?):\d+:", hit)
@@ -1367,19 +1473,36 @@ def _check_urf_3(ctx: RunContext, finding: Finding) -> Finding:
         *(line for line in debian_control.splitlines()),
     ]
 
+    commented_lines: list[str] = []
     for line in combined_lines:
         lowered = line.lower()
-        if any(keyword in lowered for keyword in escalation_keywords) and not _line_is_test_context(
-            line
-        ):
-            finding.fail(
-                render_check_message(check, "not_ok_message"),
-                render_check_message(check, "not_ok_todo"),
-                severity="required",
-                confidence="medium",
-            )
-            finding.evidence_refs = ["packaging-source:debian_rules"]
-            return finding
+        if not any(keyword in lowered for keyword in escalation_keywords):
+            continue
+        if _line_is_test_context(line):
+            continue
+        # debian/{rules,control} are hash-commented: a keyword confined to a
+        # commented line is inactive code (found, reported, but ok).
+        if _line_is_commented(line, ("#",)):
+            commented_lines.append(line.strip())
+            continue
+        finding.fail(
+            render_check_message(check, "not_ok_message"),
+            render_check_message(check, "not_ok_todo"),
+            severity="required",
+            confidence="medium",
+        )
+        finding.evidence_refs = ["packaging-source:debian_rules"]
+        return finding
+
+    if commented_lines:
+        finding.succeed(
+            render_check_message(
+                check, "ok_comment_only_message", hits="; ".join(commented_lines[:3])
+            ),
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:debian_rules"]
+        return finding
 
     finding.succeed(
         render_check_message(check, "ok_message"),
@@ -1415,6 +1538,7 @@ def _check_urf_4(ctx: RunContext, finding: Finding) -> Finding:
     for line in (*debian_rules.splitlines(), *debian_control.splitlines()):
         if "nobody" in line.lower() and not _line_is_test_context(line):
             hits.append(line.strip())
+    commented_hits: list[str] = []
     for line in packaging.get("nobody_source_hits", []):
         # A text mention in a non-executable doc/text file (e.g. sample console
         # output) is not active code; skip it. Ownership facts below are kept.
@@ -1427,6 +1551,10 @@ def _check_urf_4(ctx: RunContext, finding: Finding) -> Finding:
         if not _line_references_nobody_user(line):
             continue
         hits.append(line)
+
+    # Matches confined to commented-out/inactive code are found-but-ok: report
+    # them without making the check a Problem.
+    hits, commented_hits = _split_hits_active_vs_commented(hits)
     for path in packaging.get("nobody_source_files", []):
         if not _path_is_test_context(path):
             hits.append(f"file owned by nobody (source): {path}")
@@ -1446,6 +1574,16 @@ def _check_urf_4(ctx: RunContext, finding: Finding) -> Finding:
             "packaging-source:nobody_source_hits",
             "fetch-build:nobody_owned_binaries",
         ]
+        return finding
+
+    if commented_hits:
+        finding.succeed(
+            render_check_message(
+                check, "ok_comment_only_message", hits="; ".join(commented_hits[:3])
+            ),
+            confidence="high",
+        )
+        finding.evidence_refs = ["packaging-source:nobody_source_hits"]
         return finding
 
     finding.succeed(
@@ -1501,6 +1639,7 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
         for line in packaging.get("setuid_setgid_source_hits", [])
         if not _line_is_test_context(line) and not _path_is_nonexecutable_doc(_grep_hit_path(line))
     ]
+    source_hits, commented_hits = _split_hits_active_vs_commented(source_hits)
     source_perm_files = [
         path
         for path in packaging.get("setuid_setgid_source_files", [])
@@ -1552,6 +1691,16 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
             "fetch-build:setuid_setgid_binaries",
             "lintian:lintian_warnings",
         ]
+        return finding
+
+    if commented_hits:
+        finding.succeed(
+            render_check_message(
+                check, "ok_comment_only_message", hits="; ".join(commented_hits[:3])
+            ),
+            confidence="high" if lintian.get("status") == "ok" else "medium",
+        )
+        finding.evidence_refs = ["packaging-source:setuid_setgid_source_hits"]
         return finding
 
     finding.succeed(
