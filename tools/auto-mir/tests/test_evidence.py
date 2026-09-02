@@ -862,7 +862,10 @@ def test_lp_mir_history_matches_prior_mir_bug_under_predecessor_name():
             return bug_901
         raise AssertionError(f"unexpected url: {url}")
 
-    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
+    with (
+        patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch),
+        patch("evidence.launchpad_client.login_anonymously", side_effect=OSError("offline")),
+    ):
         from evidence.host_adapters import collect_lp_mir_history
 
         result = collect_lp_mir_history(ctx)
@@ -888,7 +891,10 @@ def test_lp_mir_history_skips_missing_source_names_gracefully():
     def fake_fetch(url: str):
         raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
 
-    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
+    with (
+        patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch),
+        patch("evidence.launchpad_client.login_anonymously", side_effect=OSError("offline")),
+    ):
         from evidence.host_adapters import collect_lp_mir_history
 
         result = collect_lp_mir_history(ctx)
@@ -922,7 +928,10 @@ def test_lp_mir_history_direct_fetches_explicit_lp_ref_from_bug_text():
             return {"title": "[MIR] mysql-8.4"}
         raise AssertionError(f"unexpected url: {url}")
 
-    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
+    with (
+        patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch),
+        patch("evidence.launchpad_client.login_anonymously", side_effect=OSError("offline")),
+    ):
         from evidence.host_adapters import collect_lp_mir_history
 
         result = collect_lp_mir_history(ctx)
@@ -956,7 +965,10 @@ def test_lp_mir_history_direct_fetch_404_is_skipped():
             return {"entries": []}
         raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
 
-    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
+    with (
+        patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch),
+        patch("evidence.launchpad_client.login_anonymously", side_effect=OSError("offline")),
+    ):
         from evidence.host_adapters import collect_lp_mir_history
 
         result = collect_lp_mir_history(ctx)
@@ -997,7 +1009,10 @@ def test_lp_mir_history_bare_name_ref_probed_via_searchtasks():
             return bug_800
         raise AssertionError(f"unexpected url: {url}")
 
-    with patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch):
+    with (
+        patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch),
+        patch("evidence.launchpad_client.login_anonymously", side_effect=OSError("offline")),
+    ):
         from evidence.host_adapters import collect_lp_mir_history
 
         result = collect_lp_mir_history(ctx)
@@ -3002,3 +3017,197 @@ def test_fallback_rationale_empty_for_other_checks():
 
     ctx = SimpleNamespace(evidence={"adapters": {}})
     assert llm_eval._fallback_rationale_for_check({"id": "SEC-5"}, ctx) == ""
+
+
+def test_lp_mir_history_matched_name_comes_from_the_bug_title():
+    """Exact regression shape from the rust-sequoia-sq user test: probing the
+    unrelated name gnupg2 found the sibling tool's MIR '[MIR] rust-sequoia-sqv'
+    (filed under +source/gnupg2). The matched name must be the title's target,
+    not the probed project - and, being still published, it is annotated as a
+    sibling so review_type can never turn it into a fake rename."""
+    ctx = Mock()
+    ctx.source_package = "rust-sequoia-sq"
+    ctx.evidence = {
+        "adapters": {
+            "dup-search": {
+                "candidates": [
+                    {"name": "gnupg2", "component": "main"},
+                    {"name": "sequoia", "component": "universe"},
+                ]
+            }
+        }
+    }
+
+    task_page = {
+        "entries": [
+            {
+                "bug_link": "https://api.launchpad.net/devel/bugs/2089690",
+                "web_link": "https://bugs.launchpad.net/ubuntu/+source/gnupg2/+bug/2089690",
+                "status": "Incomplete",
+            }
+        ]
+    }
+
+    def fake_fetch(url: str):
+        if "searchTasks" in url:
+            # Only the gnupg2 probe finds the sibling MIR; every other
+            # candidate-name probe (including the current name) is clean.
+            return task_page if "+source/gnupg2" in url else {"entries": []}
+        if url.endswith("/2089690"):
+            return {"title": "[MIR] rust-sequoia-sqv"}
+        raise AssertionError(f"unexpected url: {url}")
+
+    lp = Mock()
+    published = Mock()
+    # gnupg2 and rust-sequoia-sqv both still exist -> sibling verdicts.
+    published.getPublishedSources = lambda **_kw: iter([Mock()])
+    lp.distributions = {"ubuntu": Mock(main_archive=published)}
+
+    with (
+        patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch),
+        patch("evidence.launchpad_client.login_anonymously", return_value=lp),
+    ):
+        from evidence.host_adapters import collect_lp_mir_history
+
+        result = collect_lp_mir_history(ctx)
+
+    prior = result["prior_mir_bugs"]
+    assert len(prior) == 1
+    assert prior[0]["matched_name"] == "rust-sequoia-sqv"
+    assert prior[0]["still_published"] is True
+
+
+def test_lp_mir_history_annotates_retired_predecessor_as_not_published():
+    """A matched name with no Published records is a retired predecessor -
+    the only shape that constitutes rename evidence for review_type."""
+    ctx = Mock()
+    ctx.source_package = "libfoo2"
+    ctx.evidence = {
+        "adapters": {
+            "cve-search-terms": {
+                "terms": [{"term": "libfoo", "kind": "predecessor", "rationale": "old name"}]
+            }
+        }
+    }
+    task_page = {
+        "entries": [
+            {
+                "bug_link": "https://api.launchpad.net/devel/bugs/111",
+                "web_link": "https://bugs.launchpad.net/bugs/111",
+                "status": "Fix Released",
+            }
+        ]
+    }
+
+    def fake_fetch(url: str):
+        if "+source/libfoo" in url:
+            return task_page
+        if url.endswith("/111"):
+            return {"title": "[MIR] libfoo"}
+        raise AssertionError(f"unexpected url: {url}")
+
+    lp = Mock()
+    published = Mock()
+    published.getPublishedSources = lambda **_kw: iter([])
+    lp.distributions = {"ubuntu": Mock(main_archive=published)}
+
+    with (
+        patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch),
+        patch("evidence.launchpad_client.login_anonymously", return_value=lp),
+    ):
+        from evidence.host_adapters import collect_lp_mir_history
+
+        result = collect_lp_mir_history(ctx)
+
+    prior = result["prior_mir_bugs"]
+    assert prior[0]["matched_name"] == "libfoo"
+    assert prior[0]["still_published"] is False
+
+
+def test_lp_mir_history_excludes_the_current_bug():
+    """This run's own MIR bug (found under its own name, or referenced in its
+    own text) is not history."""
+    ctx = Mock()
+    ctx.bug_id = "2121154"
+    ctx.source_package = "rust-sequoia-sq"
+    ctx.evidence = {"adapters": {}}
+
+    task_page = {
+        "entries": [
+            {
+                "bug_link": "https://api.launchpad.net/devel/bugs/2121154",
+                "web_link": "https://bugs.launchpad.net/bugs/2121154",
+                "status": "New",
+            }
+        ]
+    }
+
+    def fake_fetch(url: str):
+        if "+source/rust-sequoia-sq" in url and "searchTasks" in url:
+            return task_page
+        if url.endswith("/2121154"):
+            return {"title": "[MIR] rust-sequoia-sq"}
+        raise AssertionError(f"unexpected url: {url}")
+
+    with (
+        patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch),
+        patch("evidence.launchpad_client.login_anonymously", side_effect=OSError("offline")),
+    ):
+        from evidence.host_adapters import collect_lp_mir_history
+
+        result = collect_lp_mir_history(ctx)
+
+    assert result["status"] == "ok"
+    assert result["prior_mir_bugs"] == []
+
+
+def test_lp_mir_history_still_published_check_failure_leaves_no_flag():
+    """Verification is best-effort: on archive-query errors the name is
+    treated as still published (no still_published=False is ever asserted),
+    so review_type cannot claim a rename without positive evidence."""
+    ctx = Mock()
+    ctx.source_package = "libfoo2"
+    ctx.evidence = {
+        "adapters": {
+            "cve-search-terms": {
+                "terms": [{"term": "libfoo", "kind": "predecessor", "rationale": "old name"}]
+            }
+        }
+    }
+    task_page = {
+        "entries": [
+            {
+                "bug_link": "https://api.launchpad.net/devel/bugs/111",
+                "web_link": "https://bugs.launchpad.net/bugs/111",
+                "status": "Fix Released",
+            }
+        ]
+    }
+
+    def fake_fetch(url: str):
+        if "+source/libfoo" in url:
+            return task_page
+        if url.endswith("/111"):
+            return {"title": "[MIR] libfoo"}
+        raise AssertionError(f"unexpected url: {url}")
+
+    lp = Mock()
+
+    def explode(**_kw):
+        raise RuntimeError("archive query failed")
+
+    published = Mock()
+    published.getPublishedSources = explode
+    lp.distributions = {"ubuntu": Mock(main_archive=published)}
+
+    with (
+        patch("evidence.host_adapters.http_utils.get_json", side_effect=fake_fetch),
+        patch("evidence.launchpad_client.login_anonymously", return_value=lp),
+    ):
+        from evidence.host_adapters import collect_lp_mir_history
+
+        result = collect_lp_mir_history(ctx)
+
+    prior = result["prior_mir_bugs"]
+    assert prior[0]["matched_name"] == "libfoo"
+    assert "still_published" not in prior[0]

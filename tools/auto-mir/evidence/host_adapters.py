@@ -385,6 +385,21 @@ def collect_lp_mir_history(ctx: RunContext) -> dict:
             if not _MIR_TITLE_RE.search(title):
                 continue
 
+            # The MIR's real target comes from its "[MIR] <name>" title, not the
+            # name that was probed: a MIR bug may be filed under an unrelated
+            # Launchpad project (e.g. a sibling tool's MIR filed against
+            # +source/gnupg2), and adopting the probed name would misreport the
+            # target (and downstream, fake a rename signal).
+            matched_name = (
+                str(_MIR_TITLE_NAME_CAPTURE_RE.match(title).group(1).strip())
+                if _MIR_TITLE_NAME_CAPTURE_RE.match(title)
+                else name
+            )
+
+            if bug_id == str(getattr(ctx, "bug_id", "") or ""):
+                # This run's own MIR bug: not history.
+                continue
+
             seen_bug_ids.add(bug_id)
             prior_mir_bugs.append(
                 {
@@ -392,7 +407,7 @@ def collect_lp_mir_history(ctx: RunContext) -> dict:
                     "title": title,
                     "status": status,
                     "web_link": web_link,
-                    "matched_name": name,
+                    "matched_name": matched_name,
                 }
             )
 
@@ -410,8 +425,9 @@ def collect_lp_mir_history(ctx: RunContext) -> dict:
         if ref.bug_id and ref.name and ref.bug_id not in ref_name_by_bug_id:
             ref_name_by_bug_id[ref.bug_id] = ref.name
 
+    current_bug_id = str(getattr(ctx, "bug_id", "") or "")
     for bug_id in explicit_refs[:_MIR_HISTORY_MAX_EXPLICIT_REFS]:
-        if bug_id in seen_bug_ids:
+        if bug_id in seen_bug_ids or bug_id == current_bug_id:
             continue
         bug_url = f"https://api.launchpad.net/devel/bugs/{bug_id}"
         try:
@@ -450,6 +466,15 @@ def collect_lp_mir_history(ctx: RunContext) -> dict:
             }
         )
 
+    # A prior MIR under a different name is only rename evidence if that name
+    # is GONE from the archive. A matched name that is still published is a
+    # sibling package, not a predecessor (user-test regression: a MIR for
+    # rust-sequoia-sqv filed under +source/gnupg2 made review_type misfire
+    # 'reorg' for the unrelated rust-sequoia-sq). Fails safe: on any query
+    # error the name is treated as still published, so a rename is only ever
+    # claimed with positive evidence of retirement.
+    _annotate_prior_mir_still_published(ctx, pkg, prior_mir_bugs)
+
     log.debug(
         "lp-mir-history: %d prior MIR bug(s) across %d candidate name(s) for %s",
         len(prior_mir_bugs),
@@ -462,6 +487,47 @@ def collect_lp_mir_history(ctx: RunContext) -> dict:
         "candidate_names": candidate_names,
         "prior_mir_bugs": prior_mir_bugs,
     }
+
+
+_MIR_HISTORY_MAX_STILL_PUBLISHED_NAMES = 5
+
+
+def _annotate_prior_mir_still_published(
+    ctx: RunContext, pkg: str, prior_mir_bugs: list[dict]
+) -> None:
+    """Set ``still_published`` on each prior MIR matched under another name."""
+    names = {
+        str(bug.get("matched_name", "")).strip().lower()
+        for bug in prior_mir_bugs
+        if str(bug.get("matched_name", "")).strip().lower() != pkg.lower()
+    }
+    names.discard("")
+    if not names:
+        return
+    try:
+        lp = launchpad_client.login_anonymously("auto-mir-history")
+        ubuntu = lp.distributions["ubuntu"]
+        archive = ubuntu.main_archive
+    except Exception as exc:
+        # Best-effort verification: without it, review_type fails safe (no
+        # rename evidence), so any failure here just skips the annotation.
+        log.debug("lp-mir-history: could not verify still-published names: %s", exc)
+        return
+    published: dict[str, bool] = {}
+    for name in sorted(names)[:_MIR_HISTORY_MAX_STILL_PUBLISHED_NAMES]:
+        try:
+            record = next(
+                iter(archive.getPublishedSources(source_name=name, status="Published")), None
+            )
+            published[name] = record is not None
+        except Exception as exc:
+            # Unqueryable -> no annotation at all (review_type requires a
+            # positive still_published=False before claiming rename).
+            log.debug("lp-mir-history: still-published check for %s failed: %s", name, exc)
+    for bug in prior_mir_bugs:
+        matched = str(bug.get("matched_name", "")).strip().lower()
+        if matched and matched != pkg.lower() and matched in published:
+            bug["still_published"] = published[matched]
 
 
 def _parse_lp_date(value: object) -> datetime | None:

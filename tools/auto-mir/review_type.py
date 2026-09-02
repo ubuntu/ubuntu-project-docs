@@ -121,7 +121,15 @@ def _all_binaries_already_in_main(ctx: RunContext) -> bool:
 
 
 def _prior_mir_under_other_name(ctx: RunContext) -> list[str]:
-    """Return web links of prior MIR bugs matched under a *different* name."""
+    """Return links of prior MIR bugs for a *retired* predecessor name.
+
+    Only names that are no longer published in the archive count (the
+    lp-mir-history adapter verifies each distinct matched name): a matched
+    name that is still published is a sibling package, not a rename - e.g.
+    a MIR for a related tool filed under an unrelated Launchpad project must
+    never turn a fresh review into a reorg. Fails safe: unverified names
+    (missing still_published flag) are not rename evidence.
+    """
     adapters = _adapters(ctx)
     hist = adapters.get("lp-mir-history", {})
     if not isinstance(hist, dict):
@@ -132,8 +140,11 @@ def _prior_mir_under_other_name(ctx: RunContext) -> list[str]:
         if not isinstance(bug, dict):
             continue
         matched = str(bug.get("matched_name", "") or "").strip().lower()
-        if matched and matched != current:
-            hits.append(str(bug.get("web_link") or bug.get("id") or matched))
+        if not matched or matched == current:
+            continue
+        if bug.get("still_published") is not False:
+            continue
+        hits.append(str(bug.get("web_link") or bug.get("id") or matched))
     return hits
 
 
@@ -206,7 +217,8 @@ def detect_review_type(ctx: RunContext, use_evidence: bool = True) -> ReviewType
     prior_other = _prior_mir_under_other_name(ctx) if use_evidence else []
     if prior_other:
         reorg_signals.append(
-            f"a prior MIR bug exists under a different source name ({', '.join(prior_other[:3])})"
+            f"a prior MIR bug exists under a source name that is no longer published "
+            f"in the archive - a renamed/absorbed predecessor ({', '.join(prior_other[:3])})"
         )
     if reorg_signals:
         signals.extend(f"reorg: {s}" for s in reorg_signals)

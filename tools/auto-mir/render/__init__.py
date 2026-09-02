@@ -58,6 +58,10 @@ def write_outputs(ctx) -> None:
         "source_package": ctx.source_package,
         "series": ctx.series,
         "guest_name": ctx.guest_name,
+        # The review-type decision drives finding softening and the draft's
+        # reorg note; surfacing it (with its signals and rationale) makes a
+        # misfire diagnosable from report.json alone, without log spelunking.
+        "review_type": ctx.evidence.get("review_type", {}),
         "catalog_summary": ctx.evidence.get("catalog_summary", {}),
         "analysis_summary": ctx.evidence.get("analysis_summary", {}),
         "findings": [asdict(f) for f in ctx.findings],

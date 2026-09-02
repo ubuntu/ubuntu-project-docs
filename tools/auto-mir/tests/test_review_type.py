@@ -147,7 +147,63 @@ def test_reorg_signal_in_comment_detected():
     assert decision.review_type == review_type.REORG
 
 
-def test_prior_mir_under_other_name_signals_reorg():
+def test_prior_mir_under_retired_name_signals_reorg():
+    """A prior MIR for a name that is GONE from the archive is rename
+    evidence: the lp-mir-history adapter verified it as not still published."""
+    ctx = _ctx(
+        source_package="libfoo2",
+        evidence={
+            "adapters": {
+                "lp-mir-history": {
+                    "prior_mir_bugs": [
+                        {
+                            "id": "111",
+                            "title": "[MIR] libfoo",
+                            "matched_name": "libfoo",
+                            "still_published": False,
+                            "web_link": "https://bugs.launchpad.net/bugs/111",
+                        }
+                    ]
+                }
+            }
+        },
+    )
+    decision = review_type.detect_review_type(ctx)
+    assert decision.review_type == review_type.REORG
+    assert "no longer published" in decision.rationale
+
+
+def test_prior_mir_under_still_published_name_is_a_sibling_not_a_reorg():
+    """Exact regression shape from the rust-sequoia-sq user test: a MIR for
+    the sibling tool rust-sequoia-sqv was found while probing gnupg2 (the LP
+    project it was filed under), and the old matched-name logic turned that
+    into 'reorg', wrongly softening every finding of a fresh MIR. A matched
+    name that is still published is a sibling, not a rename."""
+    ctx = _ctx(
+        source_package="rust-sequoia-sq",
+        evidence={
+            "adapters": {
+                "lp-mir-history": {
+                    "prior_mir_bugs": [
+                        {
+                            "id": "2089690",
+                            "title": "[MIR] rust-sequoia-sqv",
+                            "matched_name": "gnupg2",
+                            "still_published": True,
+                            "web_link": "https://bugs.launchpad.net/ubuntu/+source/gnupg2/+bug/2089690",
+                        }
+                    ]
+                }
+            }
+        },
+    )
+    decision = review_type.detect_review_type(ctx)
+    assert decision.review_type == review_type.FRESH
+
+
+def test_prior_mir_without_verification_never_signals_reorg():
+    """Fails safe: an unverified matched name (adapter could not check it) is
+    not rename evidence either."""
     ctx = _ctx(
         source_package="libfoo2",
         evidence={
@@ -166,8 +222,7 @@ def test_prior_mir_under_other_name_signals_reorg():
         },
     )
     decision = review_type.detect_review_type(ctx)
-    assert decision.review_type == review_type.REORG
-    assert "different source name" in decision.rationale
+    assert decision.review_type == review_type.FRESH
 
 
 def test_dup_search_main_candidates_do_not_signal_reorg():
