@@ -38,7 +38,7 @@ For example, when working on a fix for LLVM 19 on Resolute, where LLVM 22 is the
 The LLVM package uses many templated configuration files, generally named with a `.in` suffix. This includes `debian/control.in`, which requires frequent tweaking. However, because we track `debian/control` in Git, unlike some other generated files, we always need to re-generate the control file whenever we make a change.
 
 :::{note}
-The Debian maintainers also maintain infrastructure for LLVM upstream, so the package that Ubuntu inherits is set up for some CI/CD systems we do not use and generating this file is a bit unintuitive. This can result in the file refusing to generate. Always set the `DISTRO` flag, which can sometimes affect package dependencies, but if the file still doesn't generate, set `GENERATED_TRACKED_FILES=`. Setting this to nothing will ensure that the file is allowed to regenerate without generating a false positive error about the file changing at build time.
+The Debian maintainers also maintain infrastructure for LLVM upstream, so the package that Ubuntu inherits is set up for some CI/CD systems we do not use and generating this file is a bit unintuitive. This can result in the file refusing to generate. Always set the `DISTRO` flag, which can sometimes affect package dependencies, but if the file still doesn't generate, set `GENERATED_TRACKED_FILES=`. Setting this to nothing ensures that the file is allowed to regenerate without generating a false positive error about the file changing at build time.
 :::
 
 When building a package for Resolute and need to generate the control file, do that as follows:
