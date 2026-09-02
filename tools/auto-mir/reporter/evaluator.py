@@ -501,14 +501,23 @@ def _cve_history(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], s
         return (
             "No package-associated CVEs were found in the queried trackers.",
             ["ubuntu-cve-tracker:cves", "nvd-enrich:cves"],
-            "",
+            "Sourcing: the Ubuntu CVE tracker plus the cross-vendor cvelistV5/NVD "
+            "corpus, which also covers Debian-relevant CVE identifiers - no "
+            "separate Debian or NVD check is needed. The OSS-security mailing "
+            "list (pre-CVE-assignment chatter) is not covered by these adapters; "
+            "flag it yourself if you are aware of such a discussion.",
         )
     preview = ", ".join(ids[:20])
     suffix = f" (and {len(ids) - 20} more)" if len(ids) > 20 else ""
     return (
         f"The queried trackers found {len(ids)} associated CVE(s): {preview}{suffix}.",
         ["ubuntu-cve-tracker:cves", "nvd-enrich:cves"],
-        "The reporter should verify relevance and describe handling history.",
+        "The reporter should verify relevance and describe handling history. "
+        "Sourcing: the Ubuntu CVE tracker plus the cross-vendor cvelistV5/NVD "
+        "corpus, which also covers Debian-relevant CVE identifiers - no "
+        "separate Debian or NVD check is needed. The OSS-security mailing list "
+        "(pre-CVE-assignment chatter) is not covered by these adapters; flag it "
+        "yourself if you are aware of such a discussion.",
     )
 
 

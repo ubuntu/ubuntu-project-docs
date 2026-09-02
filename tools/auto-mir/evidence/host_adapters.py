@@ -98,10 +98,13 @@ def collect_lp_bug_api(ctx: RunContext) -> dict:
 
 
 def collect_lp_team_membership_api(ctx: RunContext) -> dict:
-    """Return bug subscriber / team-membership data from lp_intake.
+    """Return the Launchpad bug's subscriber list, captured at intake time.
 
-    ubuntu-mir subscription is the primary check gate (SUM-4); team member
-    lookups for other checks (e.g. uploader team) are also resolved here.
+    Despite the adapter's historic name, this performs no Launchpad
+    team-membership lookups: the bug's subscriber list IS the evidence the
+    consuming checks need (an owning-team subscription is the acknowledgement
+    signal for RDO-2; SUM-4's subscription gate reads ctx.bug directly at
+    intake). Upload-permission questions use ubuntu-upload-permission instead.
     """
     subscribers = ctx.bug.get("subscribers", [])
     log.debug(

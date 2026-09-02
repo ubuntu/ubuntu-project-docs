@@ -1404,3 +1404,26 @@ def test_reporter_maintainer_followup_fires_when_delta_and_wrong_maintainer(tmp_
     assert followup.state == StatementState.RESOLVED
     assert followup.readiness == ReadinessEffect.BLOCKER
     assert "update-maintainer" in followup.statement
+
+
+def test_cve_history_statement_carries_sourcing_note():
+    """G5 alignment: the reporter-facing security-history statement names the
+    sources actually consulted (Ubuntu tracker + cvelistV5/NVD covering
+    Debian-relevant identifiers; oss-security only on manual flag), mirroring
+    the reviewer SEC-1's already-reasoned position - so no reporter is asked to
+    hand-check Debian or NVD separately."""
+    ctx = _ctx(tmp_path=None)
+    ctx.evidence["adapters"]["ubuntu-cve-tracker"] = {"status": "ok", "cves": []}
+    ctx.evidence["adapters"]["nvd-enrich"] = {"status": "ok", "cves": []}
+
+    from reporter.evaluator import _EVALUATORS
+
+    statement, refs, rationale = _EVALUATORS["cve-history"](
+        {"id": "REP-SECURITY-001"}, ctx
+    )
+
+    assert "No package-associated CVEs" in statement
+    assert "cvelistV5/NVD" in rationale
+    assert "Debian-relevant" in rationale
+    assert "OSS-security" in rationale
+    assert refs == ["ubuntu-cve-tracker:cves", "nvd-enrich:cves"]
