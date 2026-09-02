@@ -4971,3 +4971,34 @@ Promotion: no
 - Decision: since the inventory surfaced no NEW gap requiring an
   adapt/ignore/implement call, the a/b/c pause resolves with the G4/G5/G6
   decisions above and the slug-completion list; implementation proceeds.
+
+---
+
+## 2026-09-02 — User-test fix round: wrap-up traceability
+
+Promotion: no
+
+User-test round over the over-engineering refactor's output; each report maps
+to its own commit so the what and why stays traceable:
+
+| Report | Root cause | Commit |
+|--------|-----------|--------|
+| 1. Console output degraded (no colors/timing) | refactor commit 85d5370b deleted ColorFormatter.format believing it dead; it was the console formatter - no test covered console formatting | `WP1 restore colored, timed console output` + regression test; logging setup extracted to testable _setup_logging |
+| 2. Wrong version offered from release pocket | pocket filtering was correct (1.4.0-1ubuntu2 was Published in Release at run time, removed afterwards); real defects: candidates included Deleted/Removed uploads, a 1-option prompt, context-free headline | `WP2 version walk-back hygiene` (Published/Superseded only, skip single-fallback prompts, pocket-named headline) |
+| 3. 11 test warnings | unregistered pytest mark; deprecated pythonjsonlogger path; third-party httplib2/pyparsing noise | `WP3 make the test run warning-clean` (zero warnings now) |
+| 4. Always-skipped regression test | fixture-replay suite whose artifacts were never committed; unrelated to the new goldens | `WP4 delete the never-runnable fixture replay suite` (per user decision; --collect-only keeps evidence.json via save_evidence) |
+| 5. Commented-out code listed as Problems | URF-3/4/5 source scans had no comment awareness; all hits were rust doc comments | `WP5 comment-aware source scanning` (line-leading-marker classifier, conservative by design; comment-only hits render ok-with-note, never under Problems) |
+| 6. Fresh MIR misdetected as reorg | lp-mir-history recorded the probed project name (gnupg2) as a sibling MIR's target; any prior-MIR-other-name counted as rename evidence | `WP6 evidence-verified reorg detection` (title-derived matched_name, still_published verification, only retired names are rename evidence; decision surfaced in report.json) |
+
+Task 1 (RULE/TODO parity): Phase A inventory found NO new content gaps
+(see the Phase A entry above); G1-G3 were stale, G4 implemented as
+REP-MAINT-008 (Built-Using surface), G5/G6 aligned (sourcing note carried to
+the reporter side; team-membership docstring made honest), and the remaining
+checkable-but-untagged reporter clauses were slugged so the load-time
+validator now enforces the complete clause->item map.
+
+Deferred items swept in this round: fixture-replay suite (deleted, report 4);
+review-type surfacing in report.json (WP6); the remaining md-file deferred
+items are all either superseded (2026-07-15 parity -> B1 restoration + this
+round's coverage map), resolved by decision (no Debian-security/
+oss-security adapter - G5), or closed by the inventory (no reviewer-side gap).
