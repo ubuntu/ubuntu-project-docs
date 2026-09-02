@@ -878,7 +878,7 @@ def main() -> int:
         # Handle early exit mode
         if ctx.collect_only:
             log.info("--collect-only: stopping after evidence collection")
-            _save_test_artifacts(ctx)
+            ctx.save_evidence()
         else:
             # Save evidence checkpoint for audit/debugging
             ctx.save_evidence()
@@ -914,73 +914,6 @@ def _finish_run(ctx: RunContext, evidence_result: int, exit_code: int) -> int:
     teardown_guest(ctx, evidence_result)
     _print_complete_banner(ctx)
     return exit_code
-
-
-def _save_test_artifacts(ctx: RunContext) -> None:
-    """Save test artifacts for debugging or regression testing.
-
-    Artifacts are saved to ctx.output_dir. Includes context, evidence,
-    deterministic findings, and metadata.
-    """
-    from dataclasses import asdict
-
-    import catalog
-    import checks
-
-    artifact_dir = ctx.output_dir
-    redactor = ensure_secret_redactor(ctx, log)
-
-    context = {
-        "bug_id": ctx.bug_id,
-        "source_package": ctx.source_package,
-        "series": ctx.series,
-        "reporter_mir_content": ctx.reporter_mir_content,
-        "bug": ctx.bug,
-    }
-    with (artifact_dir / "context.json").open("w") as f:
-        json.dump(redactor.sanitize(context), f, indent=2, default=str)
-
-    with (artifact_dir / "evidence.json").open("w") as f:
-        json.dump(redactor.sanitize(ctx.evidence), f, indent=2, default=str)
-
-    if not ctx.catalog:
-        ctx.catalog = catalog.load_catalog_for_role(ctx.tool_root, ctx.workspace_root, ctx.role)
-
-    deterministic_catalog = {
-        "checks": [c for c in ctx.catalog.get("checks", []) if c.get("mode") == "deterministic"]
-    }
-    ctx.catalog = deterministic_catalog
-
-    findings = checks.evaluate_checks(ctx)
-
-    findings_data = [asdict(f) for f in findings]
-    with (artifact_dir / "deterministic_findings.json").open("w") as f:
-        json.dump(redactor.sanitize(findings_data), f, indent=2, default=str)
-
-    try:
-        git_head = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            capture_output=True,
-            text=True,
-            check=False,
-        ).stdout.strip()
-    except Exception:
-        git_head = "unknown"
-
-    meta = {
-        "collected_at": datetime.now().isoformat(),
-        "git_head": git_head,
-        "bug_id": ctx.bug_id,
-        "source_package": ctx.source_package,
-    }
-    with (artifact_dir / "meta.json").open("w") as f:
-        json.dump(redactor.sanitize(meta), f, indent=2)
-
-    log.info("Test artifacts saved to: %s", artifact_dir)
-    log.info("  - context.json")
-    log.info("  - evidence.json")
-    log.info("  - deterministic_findings.json")
-    log.info("  - meta.json")
 
 
 def _print_complete_banner(ctx: RunContext) -> None:

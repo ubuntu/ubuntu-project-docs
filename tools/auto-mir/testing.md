@@ -68,9 +68,6 @@ Use `--keep-guest` to iterate without re-provisioning the LXD guest.
 make test
 ```
 
-Includes `tests/test_artifacts.py` which replays saved test artifacts from real MIR bugs
-through the deterministic check evaluators and verifies findings match known-good baselines.
-
 Reporter production contracts are covered separately by:
 
 - `tests/test_catalog_roles.py` — 53-item inventory, adapter/blueprint references,
@@ -83,35 +80,16 @@ Reporter production contracts are covered separately by:
 - `tests/test_render_reporter_template.py` — strict catalog-driven documentation
 	generation and section/item coverage.
 
-**Artifacts are stored in:** `tools/auto-mir/tests/fixtures/<bug_id>/`
-
-Each fixture contains:
-- `context.json` — Bug metadata and source package info
-- `evidence.json` — Full adapter outputs from evidence collection
-- `deterministic_findings.json` — Expected deterministic check results
-- `meta.json` — Collection timestamp and git HEAD
-
-**To create or update artifacts (requires LP API + LXD, no LLM tokens needed):**
+The historical fixture-replay suite (`tests/test_artifacts.py`) was removed: its
+`tests/fixtures/<bug_id>/` artifacts were never committed, so the replay had
+skipped since introduction while the deterministic evaluators are covered by
+the real-catalog tests above. For manual debugging of a specific bug, use:
 
 ```bash
-./tools/auto-mir/auto_mir.py review <bug_id> --collect-only --output-dir tools/auto-mir/tests/fixtures/<bug_id>
+./tools/auto-mir/auto_mir.py review <bug_id> --collect-only --output-dir <dir>
 ```
 
-**Current baseline bugs:**
-- `2133757` (dav1d) — Typical library
-- `2108942` (ptyxis) — Terminal emulator
-- `2138736` ([package]) — [description]
-
-**When to re-baseline:**
-- Adding new deterministic adapters
-- Changing deterministic check logic
-- Updating adapter output format
-- When upstream data changes significantly (review diff before committing)
-
-**Review changes before committing:**
-```bash
-git diff tools/auto-mir/tests/fixtures/
-```
+which collects evidence and writes `evidence.json` for offline inspection.
 
 ### Tier 3 — Integration Smoke Test (optional, requires LXD)
 
@@ -133,49 +111,12 @@ Before requesting human review, an agent should:
 4. Record phase-gate outcomes in `decisions.md` using the phase ledger template
 5. Report any failures with full error output
 
-## Test Artifact Management
-
-### Creating Initial Artifacts
-
-When setting up the test infrastructure for the first time, or when adding new baseline bugs:
-
-```bash
-# Requires: Launchpad API access, LXD, no LLM tokens needed
-./tools/auto-mir/auto_mir.py review 2133757 --collect-only --output-dir tools/auto-mir/tests/fixtures/2133757
-./tools/auto-mir/auto_mir.py review 2108942 --collect-only --output-dir tools/auto-mir/tests/fixtures/2108942
-./tools/auto-mir/auto_mir.py review 2138736 --collect-only --output-dir tools/auto-mir/tests/fixtures/2138736
-```
-
-### Re-baselining Artifacts
-
-When deterministic adapters change or upstream data shifts significantly:
-
-```bash
-# Re-run for affected bug(s)
-./tools/auto-mir/auto_mir.py review <bug_id> --collect-only --output-dir tools/auto-mir/tests/fixtures/<bug_id>
-
-# Review the diff carefully before committing
-git diff tools/auto-mir/tests/fixtures/<bug_id>/
-git add tools/auto-mir/tests/fixtures/<bug_id>/
-```
-
-### Verifying Artifacts
-
-The regression tests run automatically as part of `make test`:
-
-```bash
-make test
-```
-
-Tests will be skipped if no fixtures are present in `tools/auto-mir/tests/fixtures/`.
 
 ## Common Failure Modes
 
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
 | `make lint` fails | New code with lint issues | Fix root cause and re-run `make lint` |
-| `make parity-contract` warns | Baseline artifacts missing/incomplete | Refresh fixtures or document accepted advisory drift |
 | Unit test failures | Logic regression in checks/render/intake | Fix the root cause; do not weaken tests |
-| Artifact regression test failures | Deterministic check logic changed | Re-baseline artifacts if intentional, otherwise fix the regression |
 | Smoke test guest fail | LXD not available or image missing | Ensure `lxc` works and the target release (or devel fallback) image is available |
 | Token limit errors in LLM checks | Evidence payload too large | Check truncation logic in evidence summarization |

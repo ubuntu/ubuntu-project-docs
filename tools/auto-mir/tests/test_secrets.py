@@ -13,7 +13,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from pythonjsonlogger import jsonlogger
 
 import auto_mir
-import checks
 import llm
 import lxd_runner
 import render
@@ -193,18 +192,12 @@ def test_all_shareable_artifact_writers_redact_registered_secrets(monkeypatch, t
     ctx.save_evidence()
     render.write_outputs(ctx)
 
-    ctx.catalog = {"checks": []}
-    monkeypatch.setattr(checks, "evaluate_checks", lambda _ctx: ctx.findings)
-    auto_mir._save_test_artifacts(ctx)
     auto_mir._print_complete_banner(ctx)
 
     files = [path for path in tmp_path.iterdir() if path.is_file()]
     assert {path.name for path in files} >= {
         "build_log.txt",
-        "context.json",
-        "deterministic_findings.json",
         "evidence.json",
-        "meta.json",
         "report.json",
         "review-draft.txt",
     }

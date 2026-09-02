@@ -139,7 +139,7 @@ def test_main_report_runs_connected_reporter_pipeline(monkeypatch, tmp_path):
     ]
 
 
-def _patch_main_context(monkeypatch, *, collect_only: bool):
+def _patch_main_context(monkeypatch, *, collect_only: bool, save_hook=None):
     """Patch parser/context setup so main() can be exercised deterministically."""
 
     args = SimpleNamespace(
@@ -177,7 +177,7 @@ def _patch_main_context(monkeypatch, *, collect_only: bool):
         report_path=Path("/tmp/report.json"),
         failure_summary=None,
         secret_redactor=SecretRedactor(),
-        save_evidence=lambda: None,
+        save_evidence=save_hook or (lambda: None),
     )
     monkeypatch.setattr(auto_mir, "RunContext", lambda _args: ctx)
     return ctx
@@ -373,7 +373,6 @@ def test_main_runs_stages_in_expected_order(monkeypatch):
         _ctx.report_path = Path("/tmp/report.json")
 
     monkeypatch.setattr(auto_mir, "stage_render", _render)
-    monkeypatch.setattr(auto_mir, "_save_test_artifacts", lambda _ctx: calls.append("save"))
     monkeypatch.setattr(
         auto_mir,
         "teardown_guest",
@@ -396,8 +395,8 @@ def test_main_runs_stages_in_expected_order(monkeypatch):
 
 
 def test_main_collect_only_skips_auth_analysis_and_render(monkeypatch):
-    _patch_main_context(monkeypatch, collect_only=True)
     calls: list[str] = []
+    _patch_main_context(monkeypatch, collect_only=True, save_hook=lambda: calls.append("save"))
 
     monkeypatch.setattr(auto_mir, "stage_auth", lambda _ctx: calls.append("auth"))
     monkeypatch.setattr(auto_mir, "stage_intake", lambda _ctx: calls.append("intake"))
@@ -407,7 +406,6 @@ def test_main_collect_only_skips_auth_analysis_and_render(monkeypatch):
     )
     monkeypatch.setattr(auto_mir, "stage_analyse", lambda _ctx: calls.append("analyse"))
     monkeypatch.setattr(auto_mir, "stage_render", lambda _ctx: calls.append("render"))
-    monkeypatch.setattr(auto_mir, "_save_test_artifacts", lambda _ctx: calls.append("save"))
     monkeypatch.setattr(
         auto_mir,
         "teardown_guest",
