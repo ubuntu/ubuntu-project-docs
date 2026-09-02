@@ -691,24 +691,13 @@ def _destroy_guest(ctx: RunContext) -> None:
 # ---------------------------------------------------------------------------
 
 
-def main() -> int:
-    parser = build_parser()
-    args = parser.parse_args()
+def _setup_logging(ctx: RunContext, args) -> None:
+    """Configure dual logging: colored/timed console + JSON file log.
 
-    # Reporter mode is intentionally terminal-only. Enforce this boundary
-    # before dependency checks, output creation, network access, or LXD work.
-    if getattr(args, "role", ROLE_REVIEW) == ROLE_REPORT:
-        if not (sys.stdin.isatty() and sys.stdout.isatty()):
-            parser.error("the report command requires an interactive terminal")
-
-    # Keep argument parsing dependency-free so ``--help`` remains available on
-    # an unprepared host. Validate before RunContext creates output state or any
-    # network/LXD work starts.
-    ensure_runtime_environment()
-
-    ctx = RunContext(args)
-
-    # Setup dual logging: colored console + JSON file
+    Kept as a function (not inline in main) so the console formatting
+    is directly testable: the colored level column and [H:MM:SS]
+    elapsed index are the console's readability contract.
+    """
     _log_start_time = time.monotonic()
 
     class ColorFormatter(logging.Formatter):
@@ -723,6 +712,17 @@ def main() -> int:
         }
         RESET = "\033[0m"
         BOLD = "\033[1m"
+
+        def format(self, record):
+            color = self.COLORS.get(record.levelname, self.RESET)
+            levelname = f"{color}{self.BOLD}{record.levelname:8}{self.RESET}"
+            name = f"\033[34m{record.name:32}{self.RESET}"
+            elapsed = time.monotonic() - _log_start_time
+            h, remainder = divmod(int(elapsed), 3600)
+            m, s = divmod(remainder, 60)
+            timing_str = f"\033[90m[{h:02d}:{m:02d}:{s:02d}]{self.RESET}"
+            message = record.getMessage()
+            return f"{levelname} {name} {timing_str} {message}"
 
     class _RunContextFilter(logging.Filter):
         """Inject constant per-run fields onto every log record.
@@ -775,6 +775,27 @@ def main() -> int:
         file_handler.addFilter(run_context_filter)
         logger.addHandler(file_handler)
         log.info("JSON log file: %s", log_file)
+
+
+def main() -> int:
+    parser = build_parser()
+    args = parser.parse_args()
+
+    # Reporter mode is intentionally terminal-only. Enforce this boundary
+    # before dependency checks, output creation, network access, or LXD work.
+    if getattr(args, "role", ROLE_REVIEW) == ROLE_REPORT:
+        if not (sys.stdin.isatty() and sys.stdout.isatty()):
+            parser.error("the report command requires an interactive terminal")
+
+    # Keep argument parsing dependency-free so ``--help`` remains available on
+    # an unprepared host. Validate before RunContext creates output state or any
+    # network/LXD work starts.
+    ensure_runtime_environment()
+
+    ctx = RunContext(args)
+
+    # Setup dual logging: colored console + JSON file
+    _setup_logging(ctx, args)
 
     log.info(
         "auto-mir starting: role=%s bug=%s keep_guest=%s collect_only=%s",

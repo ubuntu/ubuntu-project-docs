@@ -1,5 +1,7 @@
 """Tests for auto_mir runtime orchestration helpers."""
 
+import json
+import logging
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -474,3 +476,48 @@ def test_resolve_requested_binaries_multiple_interactive_prompts(monkeypatch):
     monkeypatch.setattr(auto_mir, "_ask_requested_binaries", lambda binaries: ["foo-tools"])
 
     assert auto_mir._resolve_requested_binaries(["libfoo1", "foo-tools"]) == ["foo-tools"]
+
+
+def test_console_logging_keeps_colors_and_timing(monkeypatch, tmp_path, capsys):
+    """The console output's readability contract: colored level column and
+    [H:MM:SS] elapsed index. Regression test for the refactor commit that
+    deleted ColorFormatter.format believing it dead - 894 tests stayed green
+    while the console went raw, so this must exercise the real setup."""
+    from types import SimpleNamespace
+
+    import auto_mir as auto_mir_mod
+    from utils.secrets import SecretRedactor
+
+    ctx = SimpleNamespace(
+        role="review",
+        bug_id="1234567",
+        output_dir=tmp_path,
+        secret_redactor=SecretRedactor(),
+    )
+    args = SimpleNamespace(verbose=False)
+
+    auto_mir_mod._setup_logging(ctx, args)
+
+    logging.getLogger("auto_mir.test").info("hello console")
+
+    out = capsys.readouterr().err
+    # Colored level column: the green INFO sequence from ColorFormatter.COLORS
+    assert "\033[32m" in out
+    # Elapsed timing index bracket
+    assert "[00:00:00]" in out
+    # The message itself made it through the redaction wrapper
+    assert "hello console" in out
+    # The JSON file log got the structured fields via the run-context filter
+    log_file = tmp_path / "auto-mir.log"
+    assert log_file.exists()
+    record = next(
+        json.loads(line)
+        for line in log_file.read_text().splitlines()
+        if json.loads(line)["message"] == "hello console"
+    )
+    assert record["bug_id"] == "1234567"
+    assert record["role"] == "review"
+
+    # restore root logging so later tests are unaffected
+    for handler in list(logging.getLogger().handlers):
+        logging.getLogger().removeHandler(handler)

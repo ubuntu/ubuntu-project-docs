@@ -130,7 +130,7 @@ hand off to the user integration test.
 ## Checklist
 
 - [x] 1  P0 plan on disk
-- [ ] 2  WP1 console formatting restored + test
+- [x] 2  WP1 console formatting restored + test
 - [ ] 3  WP3 warnings clean
 - [ ] 4  WP4 replay suite deleted
 - [ ] 5  WP2 version walk-back hygiene
