@@ -131,7 +131,7 @@ hand off to the user integration test.
 
 - [x] 1  P0 plan on disk
 - [x] 2  WP1 console formatting restored + test
-- [ ] 3  WP3 warnings clean
+- [x] 3  WP3 warnings clean
 - [ ] 4  WP4 replay suite deleted
 - [ ] 5  WP2 version walk-back hygiene
 - [ ] 6  WP5 comment-aware scanning

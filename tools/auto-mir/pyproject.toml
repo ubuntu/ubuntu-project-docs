@@ -39,3 +39,18 @@ ignore = []
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: tests that exercise a real LXD guest via AUTO_MIR_TEST_VM",
+]
+filterwarnings = [
+    # Third-party noise from Ubuntu's dist-packaged httplib2 (a launchpadlib
+    # dependency), not fixable in this repo. Drop once the distro ships a
+    # pyparsing-3-clean httplib2.
+    "ignore::Warning:httplib2",
+    # python-json-logger moved pythonjsonlogger.jsonlogger to
+    # pythonjsonlogger.json; our import handles both, the deprecation
+    # warning fires from the fallback path resolution in some versions.
+    "ignore:pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json",
+]

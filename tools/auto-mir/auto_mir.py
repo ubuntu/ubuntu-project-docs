@@ -744,7 +744,10 @@ def _setup_logging(ctx: RunContext, args) -> None:
             record.role = self._role
             return True
 
-    from pythonjsonlogger import jsonlogger
+    try:
+        from pythonjsonlogger.json import JsonFormatter
+    except ImportError:  # pragma: no cover - older distro packages
+        from pythonjsonlogger.jsonlogger import JsonFormatter as JsonFormatter
 
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG if args.verbose else logging.INFO)
@@ -768,7 +771,7 @@ def _setup_logging(ctx: RunContext, args) -> None:
     if ctx.output_dir.exists():
         log_file = ctx.output_dir / "auto-mir.log"
         file_handler = logging.FileHandler(log_file)
-        json_formatter = jsonlogger.JsonFormatter(
+        json_formatter = JsonFormatter(
             "%(asctime)s %(levelname)s %(name)s %(bug_id)s %(role)s %(message)s"
         )
         file_handler.setFormatter(RedactingFormatter(json_formatter, redactor))
