@@ -136,7 +136,7 @@ hand off to the user integration test.
 - [x] 5  WP2 version walk-back hygiene
 - [x] 6  WP5 comment-aware scanning
 - [x] 7  WP6 verified reorg detection
-- [ ] 8  WP7 Phase A inventory (pause)
+- [x] 8  WP7 Phase A inventory (no new gaps; G4/G5/G6 proceed as decided)
 - [ ] 9  G5 + G6 alignments
 - [ ] 10 G4 Built-Using reporter items
 - [ ] 11 coverage completion (+ approved new fixes)

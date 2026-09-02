@@ -4927,3 +4927,47 @@ respective commit messages): `BuildCandidate` and `build_attr`'s dict path
 (load-bearing, real consumers), `_strip_common_prefix`→`relpath` (behavior
 difference on mismatch), `_with_hanging_indent` merge (cross-package coupling),
 and the auto_mir stage-function inlining (they are main()'s test seams).
+
+---
+
+## 2026-09-02 — User-test fix round: RULE/TODO coverage inventory (Phase A)
+
+Promotion: no
+
+- Context: user-test feedback questioned whether remaining RULE-vs-coverage gaps
+  need new adapters, or whether the RULE texts were suggestion-grade prose. The
+  previously documented gaps were re-verified against current code first:
+  - G1 (debconf priority judgement), G2 (lintian-overrides explanation) and
+    G3 (REP-MAINT-003 commitment wording) were **stale** - later rounds had
+    already fixed them (REP-QA-PKG-003's evaluator flags critical/high debconf
+    templates; REP-QA-PKG-008/009 are evidence-gated lintian-override
+    explanation items; the MAINT-003 prompt enumerates the full commitment list
+    incl. ESM and renewed agreement). The earlier decisions.md entries stay for
+    history; this entry supersedes their "follow-up" status.
+  - G4 (Built-Using facts for the reporter role): user chose implement (Commit 10).
+  - G5 (Debian security tracker / oss-security sources): the reviewer's SEC-1
+    ai_policy already records the reasoned sourcing position (cvelistV5/NVD
+    covers Debian-relevant identifiers; oss-security pre-CVE chatter is manual
+    only). User chose adapt: carry that note to the reporter side (Commit 9),
+    no new adapter.
+  - G6 (lp-team-membership-api naming): user chose adapt wording (Commit 9).
+- Full inventory (this entry): every RULE clause in both blueprints was walked
+  with the slug/coverage machinery (31 reviewer clauses, 35 reporter clauses).
+  - **Reviewer role: no gaps.** All 28 checkable clauses are slugged and covered
+    (SUM/CB/SEC/PRF/URF/ESL/RDO/DEP families). The three unslugged fragments are
+    prose for humans (MIR-team process instruction, the URF section lead-in) or
+    a clause continuation split by an interleaved check reference (the
+    lto-disabled workaround line, covered by PRF-10's clause).
+  - **Reporter role: no new content gaps.** Of 23 unslugged clauses: ~11 are
+    genuinely checkable and have covering items already (demand, upstream
+    support confidence, the five QA-testing requirements, lintian --pedantic,
+    first-alternative-in-main, vendored refresh, build link, cross-team
+    coordination, package description) - these get slugged + covers in the
+    coverage-completion commit so the map is structural, not just textual.
+    The rest are prose for humans (main-vs-universe understanding, per-release
+    task process, rmadison self-checks, "confidence" elaborations, simple
+    -packages nuance) or clause continuations - deliberately left untagged per
+    the opt-in slug design.
+- Decision: since the inventory surfaced no NEW gap requiring an
+  adapt/ignore/implement call, the a/b/c pause resolves with the G4/G5/G6
+  decisions above and the slug-completion list; implementation proceeds.
