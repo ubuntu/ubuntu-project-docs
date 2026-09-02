@@ -53,14 +53,16 @@ def _latest_published_in_pocket(history: list, pocket: str) -> str:
 
 
 def _candidate_versions_in_pocket(history: list, pocket: str, max_candidates: int) -> list[str]:
-    """Return up to ``max_candidates`` distinct version strings for a pocket.
+    """Return up to ``max_candidates`` distinct analyzable versions for a pocket.
 
     ``history`` is already ordered newest-first (lp-package-api's
-    ``ubuntu_publish_history``). Includes every publish status (Published,
-    Superseded, Deleted, Obsolete): walking backwards from the newest upload,
-    older entries are expected to show as Superseded, and we deliberately
-    still want to offer them as fallback candidates when the newest one is
-    not (yet) fully built on Launchpad.
+    ``ubuntu_publish_history``). Only ``Published`` and ``Superseded``
+    entries qualify - the rmadison view of the archive: older fallback
+    candidates are expected to show as Superseded and remain analyzable,
+    while ``Deleted``/``Removed``/``Pending`` uploads are archive content a
+    review must not offer or even headline (a removed upload would otherwise
+    be probed and reported as "the most recent version" even though rmadison
+    does not show it at all).
     """
     pocket_lc = pocket.lower()
     versions: list[str] = []
@@ -69,6 +71,8 @@ def _candidate_versions_in_pocket(history: list, pocket: str, max_candidates: in
         if not isinstance(entry, dict):
             continue
         if str(entry.get("pocket", "")).lower() != pocket_lc:
+            continue
+        if str(entry.get("status", "")).lower() not in ("published", "superseded"):
             continue
         version = str(entry.get("version", "")).strip()
         if not version or version in seen:
@@ -80,16 +84,33 @@ def _candidate_versions_in_pocket(history: list, pocket: str, max_candidates: in
     return versions
 
 
-def _headline_for_candidate(candidate: "launchpad_client.BuildCandidate") -> str:
-    """Differentiated "not built yet" vs "failed to build" headline for a candidate."""
+def _headline_for_candidate(candidate: "launchpad_client.BuildCandidate", pocket_label: str) -> str:
+    """Differentiated "not built yet" vs "failed to build" headline for a candidate.
+
+    Names the pocket so a reviewer cross-checking the archive understands
+    where the version came from (e.g. an upload published to the Release
+    pocket may legitimately be absent from a later rmadison view).
+    """
     state = candidate.overall_state
     if state == "failed":
-        return f"The most recent build version {candidate.version} has failed to build."
+        return (
+            f"The most recent upload in the {pocket_label} pocket, "
+            f"{candidate.version}, has failed to build."
+        )
     if state in ("no_builds", "queued"):
-        return f"The most recent build version {candidate.version} has not yet built."
+        return (
+            f"The most recent upload in the {pocket_label} pocket, "
+            f"{candidate.version}, has no successful builds yet."
+        )
     if state == "in_progress":
-        return f"The most recent build version {candidate.version} is currently building."
-    return f"The most recent build version {candidate.version} is only partially built."
+        return (
+            f"The most recent upload in the {pocket_label} pocket, "
+            f"{candidate.version}, is currently building."
+        )
+    return (
+        f"The most recent upload in the {pocket_label} pocket, "
+        f"{candidate.version}, is only partially built."
+    )
 
 
 def _ask_buildable_candidate(
@@ -170,7 +191,7 @@ def _resolve_buildable_candidate(
         return newest.version, pocket_label, ""
 
     available_candidates = [c for c in results if c.has_available_arch]
-    headline = _headline_for_candidate(newest)
+    headline = _headline_for_candidate(newest, pocket_label)
 
     if not available_candidates:
         raise AdapterError(
@@ -180,7 +201,11 @@ def _resolve_buildable_candidate(
             "successful build."
         )
 
-    if sys.stdin.isatty() and sys.stdout.isatty():
+    if len(available_candidates) == 1:
+        # Exactly one buildable fallback: the choice is not a choice. Skip the
+        # prompt and proceed, with the note recording what was substituted.
+        chosen = available_candidates[0]
+    elif sys.stdin.isatty() and sys.stdout.isatty():
         chosen = _ask_buildable_candidate(headline, available_candidates)
     else:
         # Headless: always prefer the newest candidate that has any built

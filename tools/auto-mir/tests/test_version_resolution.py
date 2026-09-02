@@ -14,7 +14,9 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evidence import launchpad_client  # noqa: E402
-from evidence.version_resolution import (  # noqa: E402
+from evidence.version_resolution import (  # noqa: E402  # noqa: E402
+    _candidate_versions_in_pocket,
+    _headline_for_candidate,
     _latest_published_in_pocket,
     _resolve_source_pocket_version,
     collect_version_resolution,
@@ -152,7 +154,7 @@ def test_resolve_buildable_candidate_falls_back_headless_when_newest_not_built()
     ):
         version, pocket, note = _resolve_source_pocket_version(ctx)
     assert (version, pocket) == ("1.0-1", "proposed")
-    assert "not yet built" in note
+    assert "no successful builds yet" in note
     assert "1.0-1" in note
 
 
@@ -297,3 +299,91 @@ def test_collect_version_resolution_adapter_shape():
         "resolved_pocket": "release",
         "resolution_note": "",
     }
+
+
+def test_candidate_versions_excludes_removed_and_pending_uploads():
+    """Deleted/Removed/Pending uploads are archive content a review must not
+    offer: rmadison does not show them, and a removed upload would otherwise
+    keep being probed and headlined forever. Superseded versions stay - the
+    rmadison view keeps them analyzable as walk-back fallbacks.
+    Regression shape from the user test (rust-sequoia-sq 2121154): the
+    1.4.0-1ubuntu2 upload appeared in Release as Published while also being
+    Deleted in Proposed; a later archive removal left only the stale entries.
+    """
+    history = [
+        {"version": "1.4.0-1ubuntu2", "pocket": "Release", "status": "Deleted"},
+        {"version": "1.4.0-1ubuntu1", "pocket": "Release", "status": "Superseded"},
+        {"version": "1.4.0-1ubuntu1", "pocket": "Proposed", "status": "Pending"},
+        {"version": "1.4.0-1ubuntu0", "pocket": "Release", "status": "Obsolete"},
+        {"version": "1.3.1-10ubuntu1", "pocket": "Release", "status": "Published"},
+        {"version": "1.3.1-10ubuntu1", "pocket": "Proposed", "status": "Published"},
+        {"version": "1.3.1-6", "pocket": "Release", "status": "Superseded"},
+    ]
+
+    candidates = _candidate_versions_in_pocket(history, "Release", 5)
+
+    assert candidates == ["1.4.0-1ubuntu1", "1.3.1-10ubuntu1", "1.3.1-6"]
+
+
+def test_single_buildable_fallback_skips_the_interactive_prompt():
+    """A one-option prompt is not a choice: when exactly one buildable
+    fallback exists, proceed with the substitution note instead of asking."""
+    history = [
+        {"version": "1.4.0-1ubuntu2", "pocket": "Release", "status": "Published"},
+        {"version": "1.3.1-10ubuntu1", "pocket": "Release", "status": "Published"},
+    ]
+    ctx = _PocketCtx("release", history)
+    lp = _fake_lp_session(
+        {
+            "1.4.0-1ubuntu2": [],
+            "1.3.1-10ubuntu1": [{"arch_tag": "amd64", "buildstate": "Successfully built"}],
+        }
+    )
+    with (
+        patch("evidence.launchpad_client.login_anonymously", return_value=lp),
+        patch("sys.stdin.isatty", return_value=True),
+        patch("builtins.input", side_effect=AssertionError("must not prompt")),
+    ):
+        version, pocket, note = _resolve_source_pocket_version(ctx)
+
+    assert (version, pocket) == ("1.3.1-10ubuntu1", "release")
+    assert "no successful builds yet" in note
+    assert "Substituted with 1.3.1-10ubuntu1" in note
+
+
+def test_two_buildable_fallbacks_still_prompt_interactively():
+    history = [
+        {"version": "2.0-1", "pocket": "Proposed", "status": "Published"},
+        {"version": "1.0-1", "pocket": "Proposed", "status": "Superseded"},
+        {"version": "0.9-1", "pocket": "Proposed", "status": "Superseded"},
+    ]
+    ctx = _PocketCtx("auto", history)
+    lp = _fake_lp_session(
+        {
+            "2.0-1": [],
+            "1.0-1": [{"arch_tag": "amd64", "buildstate": "Successfully built"}],
+            "0.9-1": [{"arch_tag": "arm64", "buildstate": "Successfully built"}],
+        }
+    )
+    with (
+        patch("evidence.launchpad_client.login_anonymously", return_value=lp),
+        patch("sys.stdin.isatty", return_value=True),
+        patch("sys.stdout.isatty", return_value=True),
+        patch("builtins.input", return_value="2"),
+    ):
+        version, _pocket, _note = _resolve_source_pocket_version(ctx)
+
+    assert version == "0.9-1"
+
+
+def test_headline_names_the_pocket():
+    """The headline must say where the unbuilt version came from so a
+    reviewer cross-checking rmadison is not left guessing."""
+    candidate = launchpad_client.BuildCandidate(
+        "1.4.0-1ubuntu2", "Release", launchpad_client.summarize_build_completeness([])
+    )
+
+    headline = _headline_for_candidate(candidate, "release")
+
+    assert "release pocket" in headline
+    assert "1.4.0-1ubuntu2" in headline

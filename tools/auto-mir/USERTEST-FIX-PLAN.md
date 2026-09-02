@@ -133,7 +133,7 @@ hand off to the user integration test.
 - [x] 2  WP1 console formatting restored + test
 - [x] 3  WP3 warnings clean
 - [x] 4  WP4 replay suite deleted
-- [ ] 5  WP2 version walk-back hygiene
+- [x] 5  WP2 version walk-back hygiene
 - [ ] 6  WP5 comment-aware scanning
 - [ ] 7  WP6 verified reorg detection
 - [ ] 8  WP7 Phase A inventory (pause)
