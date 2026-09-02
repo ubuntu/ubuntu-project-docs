@@ -1418,9 +1418,7 @@ def test_cve_history_statement_carries_sourcing_note():
 
     from reporter.evaluator import _EVALUATORS
 
-    statement, refs, rationale = _EVALUATORS["cve-history"](
-        {"id": "REP-SECURITY-001"}, ctx
-    )
+    statement, refs, rationale = _EVALUATORS["cve-history"]({"id": "REP-SECURITY-001"}, ctx)
 
     assert "No package-associated CVEs" in statement
     assert "cvelistV5/NVD" in rationale
