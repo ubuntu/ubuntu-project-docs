@@ -1251,6 +1251,15 @@ items:
   readiness: blocker
   adapters_required: [packaging-source]
   template: "TODO-A: - This does not use vendored code\nTODO-B: - This package uses vendored go code tracked in go.sum as shipped in the\nTODO-B:   package, refreshing that code is outlined in debian/README.source\nTODO-C: - This package uses vendored rust code tracked in Cargo.lock as shipped,\nTODO-C:   in the package (at /usr/share/doc/<pkgname>/Cargo.lock - might be\nTODO-C:   compressed), refreshing that code is outlined in debian/README.source\nTODO-D: - This package uses vendored code, refreshing that code is outlined\nTODO-D:   in debian/README.source"
+- id: REP-MAINT-008
+  section: Maintenance/Owner
+  title: Built-Using surface
+  mode: deterministic
+  evaluator: built-using-surface
+  readiness: warning
+  adapters_required: [deb-metadata]
+  covers_rule_clauses: [maint-vendored-obligations]
+  template: 'TODO: - Built-Using/Static-Built-Using declared by the built binaries: TBD'
 - id: REP-MAINT-007
   section: Maintenance/Owner
   title: Rust vendored dependency tracking

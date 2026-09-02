@@ -27,6 +27,7 @@ from reporter.text_utils import (
     substitute_source,
 )
 from reporter.wizard import TerminalWizard
+from utils.deb_facts import built_using_entries
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
@@ -992,6 +993,30 @@ def _recent_build(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], 
     if links:
         statement += " Builds: " + ", ".join(links[:10]) + "."
     return statement, ["lp-build-api:builds"], ""
+
+
+@reporter_evaluator("built-using-surface")
+def _built_using_surface(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+    """State which packages the built binaries declare as Built-Using.
+
+    Facts only - the reporter (and, on the review side, the ESL checks) judge
+    what the entries mean. Reuses the shared built_using_entries collector so
+    reporter and reviewer always read the same shape.
+    """
+    deb = _adapter(ctx, "deb-metadata")
+    if deb.get("status") != "ok":
+        return None, [], "Built-package metadata was unavailable"
+    entries = built_using_entries(deb)
+    refs = ["deb-metadata:deb_packages"]
+    if not entries:
+        return "Built binaries declare no Built-Using or Static-Built-Using entries.", refs, ""
+    listed = ", ".join(entries)
+    return (
+        f"Built binaries declare Built-Using/Static-Built-Using: {listed}.",
+        refs,
+        "Vendored/static build linkages carry the maintenance obligations "
+        "asked about in the commitment item above.",
+    )
 
 
 @reporter_evaluator("team-subscription")

@@ -106,6 +106,16 @@ def _ctx(tmp_path):
             "dep-analysis": {"status": "ok", "in_scope_deps_not_in_main": []},
             "team-mapping": {"status": "ok", "subscribed_teams": ["foundations-bugs"]},
             "upstream-tracker": {"status": "ok", "upstream_url": "https://example.test"},
+            "deb-metadata": {
+                "status": "ok",
+                "deb_packages": [
+                    {
+                        "package": "libfoo",
+                        "built_using": ["golang-github-test (= 1.0)"],
+                        "static_built_using": [],
+                    }
+                ],
+            },
             "binary-package-inspection": {
                 "status": "ok",
                 "setuid_setgid_binaries": [],
@@ -1425,3 +1435,66 @@ def test_cve_history_statement_carries_sourcing_note():
     assert "Debian-relevant" in rationale
     assert "OSS-security" in rationale
     assert refs == ["ubuntu-cve-tracker:cves", "nvd-enrich:cves"]
+
+
+def test_built_using_surface_item_states_the_declared_entries():
+    """G4: the reporter now surfaces binary-level Built-Using/Static-Built-Using
+    facts (collected by deb-metadata, which report runs already support via
+    fetch-build). Facts only - the statement lists what the binaries declare;
+    the commitment judgement stays with the human items."""
+    from reporter.evaluator import _EVALUATORS
+
+    ctx = _ctx(tmp_path=None)
+    ctx.evidence["adapters"]["deb-metadata"] = {
+        "status": "ok",
+        "deb_packages": [
+            {"built_using": ["golang-github-x (= 1.2)"], "static_built_using": ["rust-y (= 0.9)"]},
+        ],
+    }
+    statement, refs, rationale = _EVALUATORS["built-using-surface"]({"id": "REP-MAINT-008"}, ctx)
+
+    assert "golang-github-x (= 1.2)" in statement
+    assert "rust-y (= 0.9)" in statement
+    assert refs == ["deb-metadata:deb_packages"]
+    assert "obligations" in rationale
+
+
+def test_built_using_surface_item_clean_when_no_entries():
+    from reporter.evaluator import _EVALUATORS
+
+    ctx = _ctx(tmp_path=None)
+    ctx.evidence["adapters"]["deb-metadata"] = {"status": "ok", "deb_packages": []}
+
+    statement, refs, rationale = _EVALUATORS["built-using-surface"]({"id": "REP-MAINT-008"}, ctx)
+
+    assert "declare no Built-Using" in statement
+    assert rationale == ""
+
+
+def test_built_using_surface_item_unavailable_when_metadata_fails():
+    from reporter.evaluator import _EVALUATORS
+
+    ctx = _ctx(tmp_path=None)
+    ctx.evidence["adapters"]["deb-metadata"] = {"status": "error", "message": "boom"}
+
+    statement, refs, rationale = _EVALUATORS["built-using-surface"]({"id": "REP-MAINT-008"}, ctx)
+
+    assert statement is None
+    assert "unavailable" in rationale
+
+
+def test_built_using_surface_lands_in_the_draft_under_maintenance():
+    """The item is blueprint-absent (runtime-only): the refactor's draft builder
+    appends such resolved statements at their section's end."""
+    import tempfile
+
+    ctx = _ctx(Path(tempfile.mkdtemp()))
+    results = evaluate_items(ctx, FakeWizard())
+    write_outputs(ctx, results)
+
+    draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
+    maint = draft.index("[Maintenance/Owner]")
+    background = draft.index("[Background information]")
+    section = draft[maint:background]
+    assert "Built binaries declare Built-Using/Static-Built-Using:" in section
+    assert "golang-github-test (= 1.0)" in section

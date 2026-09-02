@@ -56,7 +56,7 @@ def test_report_catalog_has_complete_logical_item_and_hardware_choice_inventory(
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
 
-    assert len(by_id) == 63
+    assert len(by_id) == 64
     hardware_options = by_id["REP-QA-TEST-005"]["question"]["options"]
     assert {option["id"] for option in hardware_options} == {
         "A-team-hardware",
