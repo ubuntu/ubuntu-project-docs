@@ -520,7 +520,12 @@ def _annotate_prior_mir_still_published(
     for name in sorted(names)[:_MIR_HISTORY_MAX_STILL_PUBLISHED_NAMES]:
         try:
             record = next(
-                iter(archive.getPublishedSources(source_name=name, status="Published")), None
+                iter(
+                    archive.getPublishedSources(
+                        source_name=name, status="Published", exact_match=True
+                    )
+                ),
+                None,
             )
             published[name] = record is not None
         except Exception as exc:

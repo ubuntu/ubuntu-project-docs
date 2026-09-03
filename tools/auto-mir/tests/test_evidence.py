@@ -3060,7 +3060,7 @@ def test_lp_mir_history_matched_name_comes_from_the_bug_title():
     lp = Mock()
     published = Mock()
     # gnupg2 and rust-sequoia-sqv both still exist -> sibling verdicts.
-    published.getPublishedSources = lambda **_kw: iter([Mock()])
+    published.getPublishedSources.return_value = iter([Mock()])
     lp.distributions = {"ubuntu": Mock(main_archive=published)}
 
     with (
@@ -3075,6 +3075,10 @@ def test_lp_mir_history_matched_name_comes_from_the_bug_title():
     assert len(prior) == 1
     assert prior[0]["matched_name"] == "rust-sequoia-sqv"
     assert prior[0]["still_published"] is True
+    # Regression guard: the still-published probe must use exact_match=True
+    # so a substring hit on an unrelated source name can't fake a sibling.
+    for call in published.getPublishedSources.call_args_list:
+        assert call.kwargs.get("exact_match") is True
 
 
 def test_lp_mir_history_annotates_retired_predecessor_as_not_published():
@@ -3108,7 +3112,7 @@ def test_lp_mir_history_annotates_retired_predecessor_as_not_published():
 
     lp = Mock()
     published = Mock()
-    published.getPublishedSources = lambda **_kw: iter([])
+    published.getPublishedSources.return_value = iter([])
     lp.distributions = {"ubuntu": Mock(main_archive=published)}
 
     with (
@@ -3122,6 +3126,9 @@ def test_lp_mir_history_annotates_retired_predecessor_as_not_published():
     prior = result["prior_mir_bugs"]
     assert prior[0]["matched_name"] == "libfoo"
     assert prior[0]["still_published"] is False
+    published.getPublishedSources.assert_called_once_with(
+        source_name="libfoo", status="Published", exact_match=True
+    )
 
 
 def test_lp_mir_history_excludes_the_current_bug():
