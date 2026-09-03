@@ -41,16 +41,22 @@ REORG = "reorg"
 
 _VALID_FORCED = {FRESH, REREVIEW, REORG}
 
-# Reporter-text signals. Kept as word-boundary regexes so we do not match inside
-# unrelated words (e.g. "mirror" must not trigger on "mir").
+# Reporter-text signals - FALLBACK ONLY, used when the LLM is unavailable.
+# Kept as word-boundary regexes so we do not match inside unrelated words
+# (e.g. "mirror" must not trigger on "mir").
+# High-precision rename wording only: "replace/supersede <other package>" is
+# ordinary role-replacement rationale (RDO-1 territory) and "split out of
+# <bug number>" is process language - both caused false reorgs in user tests,
+# so "supersed"/"replac*" are gone and "split out/from/of" requires a
+# non-numeric object.
 _REREVIEW_TEXT_RE = re.compile(
     r"re-?review|opt-?in\s+re-?review|voluntary\s+re-?review",
     re.IGNORECASE,
 )
 _REORG_TEXT_RE = re.compile(
-    r"renam(?:e|ed|ing)|reorganiz|reorganis|split\s+(?:out|from|of)|"
-    r"was\s+previously|formerly\s+(?:known|named|called)|supersed|"
-    r"\breplac(?:e|es|ed|ing)\b",
+    r"renam(?:e|ed|ing)|reorganiz|reorganis|"
+    r"split\s+(?:out\s+of|from|of)\s+(?!\d)(?!bug)|"
+    r"was\s+previously|formerly\s+(?:known|named|called)",
     re.IGNORECASE,
 )
 
@@ -149,21 +155,227 @@ def _prior_mir_under_other_name(ctx: RunContext) -> list[str]:
 
 
 def _text_signals(ctx: RunContext) -> tuple[list[str], list[str]]:
-    """Return (reorg_signals, rereview_signals) from bug text patterns.
+    """Return (reorg_signals, rereview_signals) from fallback bug-text patterns.
 
-    Scans the combined reporter/bug text (including comments) for word-boundary
-    patterns. Used by both ``pre_detect_review_type`` (Stage 1, text-only) and
-    ``detect_review_type`` (Stage 4, text + evidence) so the text-based signal
-    logic stays consistent and is never duplicated.
+    High-precision rename/re-review wording only (see the regex comments);
+    never the primary signal - the LLM classification is. Returns empty lists
+    on clean text.
     """
     text = _reporter_text(ctx)
     reorg: list[str] = []
     rereview: list[str] = []
     if _REORG_TEXT_RE.search(text):
-        reorg.append("bug text mentions a rename/split/reorganisation/replacement")
+        reorg.append("bug text contains explicit rename/reorganisation wording")
     if _REREVIEW_TEXT_RE.search(text):
         rereview.append("bug text requests a (voluntary) re-review")
     return reorg, rereview
+
+
+_LLM_REVIEW_TYPE_PROMPT = """You are assisting with an Ubuntu Main Inclusion Review (MIR).
+Classify the MIR bug text below into exactly one category:
+
+- "new": this is a genuinely new MIR for a package entering main for the first time.
+- "rereview": this is a voluntary opt-in re-review of a package that is already in main
+  and has been for a long time.
+- "reorg": this source package was previously in main under a DIFFERENT name
+  (renamed, split from, or absorbed into another source package).
+- "unsure": the text is ambiguous about which of the above applies.
+
+Important context:
+- A rationale that says this package "replaces" or "supersedes" a different package
+  (e.g. "we want to eventually replace gnupg2 with Sequoia") is role-replacement
+  rationale, NOT a rename: it does NOT make this a reorg.
+- References to other MIR bug numbers ("split out of 2089690") are process
+  language, not a source-package split.
+- Only classify as "reorg" if the SAME software/source was previously in main
+  under a different source-package name.
+- Only classify as "rereview" if the same source package has already been in
+  main and this bug asks for a fresh review of it.
+
+Return exactly this JSON (no markdown fences, no extra keys):
+{"classification": "<new|rereview|reorg|unsure>",
+ "reasoning": "1-3 sentences explaining your classification"}
+
+MIR bug text (title, description, comments, reporter template):
+"""
+
+
+_LLM_REVIEW_TYPE_MAX_TEXT_CHARS = 24_000
+
+
+def llm_classify_review_text(ctx: RunContext) -> tuple[str, str] | None:
+    """Classify the MIR bug text as new/rereview/reorg/unsure with one LLM call.
+
+    Returns ``(classification, reasoning)`` or ``None`` when the LLM is
+    unavailable, misconfigured or the response is unusable - the caller then
+    falls back to the high-precision regex signals.
+    """
+    token = str(getattr(ctx, "llm_token", "") or "")
+    if not token or getattr(ctx, "no_llm", False):
+        return None
+    text = _reporter_text(ctx)[:_LLM_REVIEW_TYPE_MAX_TEXT_CHARS]
+    if not text.strip():
+        return None
+
+    import llm
+
+    prompt = _LLM_REVIEW_TYPE_PROMPT + text
+    try:
+        response = llm.call_llm(prompt, ctx, model_tier="small", trace_label="REVIEW-TYPE")
+    except llm.LLMError as exc:
+        log.debug("review-type LLM classification unavailable: %s", exc)
+        return None
+
+    classification = str(response.get("classification", "")).strip().lower()
+    reasoning = str(response.get("reasoning", "")).strip()
+    if classification not in {"new", "rereview", "reorg", "unsure"}:
+        log.debug("review-type LLM classification unusable: %r", classification)
+        return None
+    return classification, reasoning
+
+
+def _interactive_confirm(
+    ctx: RunContext, suggested: str, reasoning: str
+) -> ReviewTypeDecision | None:
+    """Present a suspicious classification with its reasoning; the human decides.
+
+    Returns the human's decision, or ``None`` when no interactive terminal is
+    available (headless runs stay on the safe fresh path with a warning).
+    """
+    import sys
+
+    if not (sys.stdin.isatty() and sys.stdout.isatty()):
+        return None
+
+    from utils.cli import ask_yes_no
+
+    print("\n" + "=" * 64)
+    print("The MIR bug text suggests this might be a %s." % suggested)
+    if reasoning:
+        print("Reasoning: %s" % reasoning)
+    print("=" * 64)
+    if ask_yes_no(f"Classify this run as {suggested}?", default=False):
+        return ReviewTypeDecision(
+            review_type=suggested,
+            forced=False,
+            rationale=(
+                f"LLM classified the MIR bug text as '{suggested}' "
+                f"({reasoning or 'no reasoning provided'}) and the user confirmed."
+            ),
+            signals=[f"llm:{suggested}", "user-confirmed"],
+        )
+    print("Continuing as a fresh (blocking) review per user decision.")
+    return ReviewTypeDecision(
+        review_type=FRESH,
+        forced=False,
+        rationale=(
+            f"LLM suggested '{suggested}' ({reasoning or 'no reasoning provided'}) "
+            "but the user overrode it to a fresh review."
+        ),
+        signals=[f"llm:{suggested}", "user-override"],
+    )
+
+
+def pre_classify_review_type(ctx: RunContext) -> ReviewTypeDecision:
+    """Stage-1 first decision over the MIR bug text (user-test round 3 design).
+
+    One bounded LLM call classifies the reporter's content
+    {new|rereview|reorg|unsure}. 'new' proceeds silently; anything suspicious
+    is presented interactively with the LLM's reasoning and the human decides.
+    Falls back to the narrowed rename-wording regex when the LLM is
+    unavailable. Headless (no TTY) defaults to fresh with a warning - fresh is
+    the strict classification, so misclassifying fresh-on-suspicion only costs
+    the softer fast-path, never the blocking findings.
+
+    The decision is recorded on ``ctx.review_type_pre_decision`` so the
+    authoritative Stage-4 resolution (``detect_review_type``) honors the
+    human's choice.
+    """
+    forced = str(getattr(ctx, "review_type_arg", "auto") or "auto").strip().lower()
+    if forced in _VALID_FORCED:
+        decision = ReviewTypeDecision(
+            review_type=forced,
+            forced=True,
+            rationale=f"Forced via --review-type={forced}.",
+            signals=[f"forced:{forced}"],
+        )
+        ctx.review_type_pre_decision = decision
+        return decision
+
+    classification = llm_classify_review_text(ctx)
+    if classification is not None:
+        kind, reasoning = classification
+        if kind == "new":
+            decision = ReviewTypeDecision(
+                review_type=FRESH,
+                forced=False,
+                rationale=(
+                    "LLM classified the MIR bug text as a new MIR"
+                    + (f" ({reasoning})" if reasoning else "")
+                    + "."
+                ),
+                signals=["llm:new"],
+            )
+        else:
+            decision = _interactive_confirm(ctx, kind, reasoning)
+            if decision is None:
+                log.warning(
+                    "Review-type LLM classification suggested '%s' but no "
+                    "interactive terminal is available; defaulting to a fresh "
+                    "(blocking) review. LLM reasoning: %s",
+                    kind,
+                    reasoning or "(none)",
+                )
+                decision = ReviewTypeDecision(
+                    review_type=FRESH,
+                    forced=False,
+                    rationale=(
+                        f"Headless run: LLM suggested '{kind}' "
+                        f"({reasoning or 'no reasoning provided'}) but fresh was "
+                        "chosen as the safe default."
+                    ),
+                    signals=[f"llm:{kind}", "headless-default"],
+                )
+        ctx.review_type_pre_decision = decision
+        return decision
+
+    # Fallback: narrowed regex signals + same interactive treatment.
+    reorg_signals, rereview_signals = _text_signals(ctx)
+    if reorg_signals or rereview_signals:
+        suggested = REORG if reorg_signals else REREVIEW
+        detail = "; ".join(reorg_signals or rereview_signals)
+        decision = _interactive_confirm(ctx, suggested, f"fallback text-pattern match: {detail}")
+        if decision is None:
+            log.warning(
+                "Fallback text signals suggest %s but no interactive terminal "
+                "is available; defaulting to a fresh (blocking) review. "
+                "Signals: %s",
+                suggested,
+                detail,
+            )
+            decision = ReviewTypeDecision(
+                review_type=FRESH,
+                forced=False,
+                rationale=(
+                    f"Headless run: fallback text signals suggested '{suggested}' "
+                    f"({detail}) but fresh was chosen as the safe default."
+                ),
+                signals=[f"fallback:{suggested}", "headless-default"],
+            )
+        ctx.review_type_pre_decision = decision
+        return decision
+
+    decision = ReviewTypeDecision(
+        review_type=FRESH,
+        forced=False,
+        rationale=(
+            "No re-review or reorganisation signals detected in the MIR bug "
+            "text; treated as a normal (blocking) fresh review."
+        ),
+        signals=[],
+    )
+    ctx.review_type_pre_decision = decision
+    return decision
 
 
 def detect_review_type(ctx: RunContext, use_evidence: bool = True) -> ReviewTypeDecision:
@@ -173,13 +385,13 @@ def detect_review_type(ctx: RunContext, use_evidence: bool = True) -> ReviewType
     ``fresh``/``rereview``/``reorg`` short-circuit auto-detection (but still
     record a rationale), while ``auto`` (the default) runs the heuristics below.
 
-    ``use_evidence=False`` is the Stage-1 pre-detection (called by
-    ``lp_intake.run()`` before the reporter-template hard-stop gate): only
-    bug-text signals and the forced override are consulted, because evidence
-    collection has not run yet. A pre-detection of ``fresh`` is therefore not
-    final - the authoritative Stage-4 resolution (``use_evidence=True``, the
-    default) can still upgrade it to ``rereview``/``reorg`` once the
-    ``lp-mir-history`` and ``lp-package-api`` adapters are available.
+    ``use_evidence=False`` is the Stage-1 pre-detection entry point
+    (``pre_classify_review_type``, called by ``lp_intake.run()``): the LLM
+    classification of the reporter's MIR content plus, on suspicion, an
+    interactive human confirmation. The resulting human decision is honoured
+    here before any evidence heuristics; ``lp-mir-history`` (verified retired
+    names) and ``lp-package-api`` (all-in-main) can still upgrade a fresh
+    pre-decision to ``reorg``/``rereview``.
 
     reorg is checked before rereview because a renamed/reorganised source is the
     more specific case; both soften findings identically, so the label mainly
@@ -200,20 +412,19 @@ def detect_review_type(ctx: RunContext, use_evidence: bool = True) -> ReviewType
             signals=[f"forced:{forced}"],
         )
 
-    text_reorg, text_rereview = _text_signals(ctx)
     signals: list[str] = []
 
+    # --- the Stage-1 human decision wins (the LLM classification +
+    # interactive confirm already happened at intake; the reviewer chose). ---
+    pre = getattr(ctx, "review_type_pre_decision", None)
+    if isinstance(pre, ReviewTypeDecision):
+        return pre
+
     # --- reorg (renamed / reorganised source already in main) -------------
-    # NOTE: dup-search is intentionally NOT a reorg signal. It is a low-precision
-    # suggestion pool (LLM-derived functional search terms probed against the
-    # archive) whose proper consumer is the RDO-1 check, which reasons about
-    # genuine functional overlap. Taking raw dup-search candidates as a reorg
-    # signal produced contradictory output: RDO-1 resolved ok ("no functional
-    # duplicate in main") while the review-type rationale asserted a
-    # "functionally-similar package is already in main" using unrelated
-    # category-neighbours (e.g. libdbi-perl, libecpg-compat3 for mysql-9.7).
-    # Reorg signals are bug-text patterns plus lp-mir-history only.
-    reorg_signals: list[str] = list(text_reorg)
+    # NOTE: dup-search is intentionally NOT a reorg signal (see the RDO-1
+    # notes). The only non-interactive reorg evidence is the verified
+    # retired-name prior MIR (user-test round 2's still_published check).
+    reorg_signals: list[str] = []
     prior_other = _prior_mir_under_other_name(ctx) if use_evidence else []
     if prior_other:
         reorg_signals.append(
@@ -233,7 +444,7 @@ def detect_review_type(ctx: RunContext, use_evidence: bool = True) -> ReviewType
         )
 
     # --- rereview (voluntary opt-in re-review of a package in main) -------
-    rereview_signals: list[str] = list(text_rereview)
+    rereview_signals: list[str] = []
     if use_evidence and _all_binaries_already_in_main(ctx):
         rereview_signals.append("all binary packages are already in main")
     if rereview_signals:

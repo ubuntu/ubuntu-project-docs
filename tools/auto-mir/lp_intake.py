@@ -7,7 +7,7 @@ available from the Ubuntu archive — no web scraping.
 Hard-fails with a clear message if the reporter MIR template content cannot be
 detected in the bug and the run is not a re-review/reorg fast-path. Re-review
 and reorg runs (detected via ``--review-type`` or bug text signals in
-``review_type.detect_review_type(use_evidence=False)``) proceed without a reporter template,
+``review_type.pre_classify_review_type``) proceed without a reporter template,
 per MIR policy.
 """
 
@@ -452,7 +452,7 @@ def run(ctx: "RunContext") -> None:
     else:
         import review_type as _review_type
 
-        pre = _review_type.detect_review_type(ctx, use_evidence=False)
+        pre = _review_type.pre_classify_review_type(ctx)
         if pre.review_type in (_review_type.REREVIEW, _review_type.REORG):
             log.warning(
                 "Reporter MIR template content not found in bug %s, but review "
