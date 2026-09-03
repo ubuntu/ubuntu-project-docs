@@ -917,12 +917,22 @@ def _finish_run(ctx: RunContext, evidence_result: int, exit_code: int) -> int:
 
 
 def _print_complete_banner(ctx: RunContext) -> None:
-    """Print a prominent end-of-run summary as the very last output."""
-    from render import render_llm_usage_report
+    """Print the end-of-run tail as three clear sections.
 
-    # Print the LLM usage report immediately before the banner so it appears
-    # together with the completion summary and artifact list.
+    Warnings (adapter failures and similar run-health notes the reviewer
+    must act on), then the LLM usage report, then the Results box pointing
+    at the output artifacts - so nothing important is lost mid-log.
+    """
+    from render import _render_adapter_failure_warning, render_llm_usage_report
+
     redactor = ensure_secret_redactor(ctx, log)
+
+    # --- Warnings: printed first, only when there is something to warn about.
+    failure_warning = _render_adapter_failure_warning(ctx)
+    if failure_warning:
+        print(redactor.redact_text("\nWarnings:\n  " + "\n  ".join(failure_warning)))
+
+    # --- LLM usage report.
     llm_report = render_llm_usage_report(ctx)
     if llm_report:
         print(redactor.redact_text("\n" + "\n".join(llm_report)))

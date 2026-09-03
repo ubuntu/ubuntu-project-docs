@@ -79,13 +79,6 @@ def write_outputs(ctx) -> None:
     ctx.review_draft_path = ctx.output_dir / "review-draft.txt"
     ctx.review_draft_path.write_text(redactor.redact_text(draft), encoding="utf-8")
 
-    # Print adapter failure warning to console so degraded checks are obvious.
-    # The LLM usage report is printed later, just before the completion banner,
-    # so it appears together with the final artifact list (see auto_mir.py).
-    failure_warning = _render_adapter_failure_warning(ctx)
-    if failure_warning:
-        print(redactor.redact_text("\n" + "\n".join(failure_warning)))
-
 
 # ---------------------------------------------------------------------------
 # Draft builder

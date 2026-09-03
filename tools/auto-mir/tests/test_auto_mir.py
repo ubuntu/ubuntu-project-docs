@@ -11,6 +11,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import auto_mir
+from models import Finding
 from utils.secrets import SecretRedactor
 
 
@@ -519,3 +520,137 @@ def test_console_logging_keeps_colors_and_timing(monkeypatch, tmp_path, capsys):
     # restore root logging so later tests are unaffected
     for handler in list(logging.getLogger().handlers):
         logging.getLogger().removeHandler(handler)
+
+
+def test_completion_tail_prints_warnings_then_usage_then_results(capsys):
+    """The end-of-run tail is three sections in order: Warnings (only when
+    non-empty), the LLM usage report, and the Results box - user-test feedback:
+    the adapter-failure warning used to be printed mid-log by write_outputs."""
+    from types import SimpleNamespace
+
+    import auto_mir as auto_mir_mod
+    from render import _build_review_draft  # noqa: F401 - import side effect guard
+
+    ctx = SimpleNamespace(
+        role="review",
+        bug_id="1234567",
+        output_dir=Path("/tmp/tail-test"),
+        review_draft_path=Path("/tmp/tail-test/review-draft.txt"),
+        reporter_draft_path=None,
+        report_path=Path("/tmp/tail-test/report.json"),
+        secret_redactor=SecretRedactor(),
+        evidence={
+            "adapters": {
+                "autopkgtest-db": {
+                    "status": "error",
+                    "message": "connection timeout",
+                },
+                "fetch-build": {"status": "ok"},
+            },
+            "collection_summary": {},
+        },
+        findings=[],
+        llm_calls_by_model={"z-ai/glm-4.7": 3},
+        llm_estimated_tokens={"z-ai/glm-4.7": 12345},
+    )
+    finding = Finding(
+        id="CB-3",
+        section="Common blockers",
+        title="Non-trivial autopkgtest exists",
+        mode="deterministic",
+        status="unknown",
+        severity="recommended",
+        confidence="low",
+        message="Could not query autopkgtest results",
+        todo="TODO: - does have a non-trivial test suite that runs as autopkgtest",
+        adapter_error_cause=["autopkgtest-db"],
+    )
+    ctx.findings = [finding]
+
+    auto_mir_mod._print_complete_banner(ctx)
+
+    out = capsys.readouterr().out
+    # Section 1: warnings first, naming the failed adapter and the check.
+    warnings_idx = out.index("Warnings:")
+    usage_idx = out.index("[LLM Usage Report]")
+    results_idx = out.index("auto-mir complete")
+    assert warnings_idx < usage_idx < results_idx
+    assert "autopkgtest-db" in out
+    assert "CB-3" in out
+    # Section 2: usage numbers present.
+    assert "z-ai/glm-4.7" in out
+    # Section 3: artifact pointers present.
+    assert "Review draft" in out
+
+
+def test_completion_tail_omits_warnings_section_when_clean(capsys):
+    from types import SimpleNamespace
+
+    import auto_mir as auto_mir_mod
+
+    ctx = SimpleNamespace(
+        role="review",
+        bug_id="1234567",
+        output_dir=Path("/tmp/tail-test"),
+        review_draft_path=None,
+        reporter_draft_path=None,
+        report_path=None,
+        secret_redactor=SecretRedactor(),
+        evidence={"adapters": {"fetch-build": {"status": "ok"}}, "collection_summary": {}},
+        findings=[],
+        llm_calls_by_model={},
+        llm_estimated_tokens={},
+    )
+
+    auto_mir_mod._print_complete_banner(ctx)
+
+    out = capsys.readouterr().out
+    assert "Warnings:" not in out
+    assert "[LLM Usage Report]" in out
+    assert "auto-mir complete" in out
+
+
+def test_write_outputs_no_longer_prints_the_failure_warning(capsys, tmp_path):
+    """The mid-log print is gone: stage 5 stays quiet; the tail owns warnings."""
+    import render
+
+    ctx = SimpleNamespace(
+        role="review",
+        bug_id="1234567",
+        source_package="libfoo",
+        series="devel",
+        guest_name="guest",
+        output_dir=tmp_path,
+        secret_redactor=SecretRedactor(),
+        evidence={
+            "adapters": {
+                "autopkgtest-db": {"status": "error", "message": "boom"},
+                "fetch-build": {"status": "ok"},
+            },
+            "catalog_summary": {},
+            "collection_summary": {},
+        },
+        findings=[
+            Finding(
+                id="CB-3",
+                section="Common blockers",
+                title="Non-trivial autopkgtest exists",
+                mode="deterministic",
+                status="unknown",
+                severity="recommended",
+                confidence="low",
+                message="Could not query autopkgtest results",
+                todo="TODO: - verify manually",
+            )
+        ],
+        llm_calls_by_model={},
+        llm_estimated_tokens={},
+        llm_reasoning_traces=[],
+        catalog={"checks": []},
+    )
+    for finding in ctx.findings:
+        finding.evidence_refs = []
+
+    render.write_outputs(ctx)
+
+    assert capsys.readouterr().out == ""
