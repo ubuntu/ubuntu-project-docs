@@ -745,7 +745,8 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
     # severity, keeping the draft template-faithful rather than free-form prose.
     option = _resolve_selected_option(response, check)
     if option is not None:
-        return _apply_option_response(option, response, check, finding)
+        applied = _apply_option_response(option, response, check, finding)
+        return _enforce_human_verdict(applied, check, response)
 
     valid_statuses = {"ok", "not-ok", "unknown"}
     valid_severities = {"ok", "recommended", "required", "nack"}
@@ -816,7 +817,7 @@ def _apply_llm_response(response: dict, check: dict, finding: Finding) -> Findin
         human_confirmation_required=True,
     )
 
-    return finding
+    return _enforce_human_verdict(finding, check, response)
 
 
 # Matches a leading "TODO:" / "TODO-X:" (possibly repeated) plus an optional
@@ -898,6 +899,45 @@ def _apply_option_response(option: dict, response: dict, check: dict, finding: F
         )
 
     finding.selected_option = str(option.get("id", "")).strip()
+    finding.apply_ai_metadata(
+        risk_flags=response.get("risk_flags", []),
+        evidence_refs=response.get("evidence_refs", []),
+        human_confirmation_required=True,
+    )
+    return finding
+
+
+def _enforce_human_verdict(finding: Finding, check: dict, response: dict) -> Finding:
+    """A ``human_verdict`` check is ALWAYS a human decision point.
+
+    The AI synthesis stays as an advisory NOTE; the finding is forced to
+    unknown with the full option TODO block (e.g. SUM-5's ACK / NACK /
+    ACK-under-conditions) kept verbatim so the reviewer prunes, not writes.
+    This is deliberately not overridable by any model output: the overall
+    verdict and the security-review call are the reviewer's to make.
+    """
+    if not check.get("human_verdict"):
+        return finding
+
+    todo_refs = [str(x).strip() for x in check.get("todo_refs", []) if str(x).strip()]
+    todo = "\n".join(todo_refs) if todo_refs else finding.todo
+    suggested = str(response.get("selected_option", "") or "").strip()
+    summary = (response.get("message") or "").strip()
+    rationale = (response.get("rationale") or "").strip()
+
+    note_parts = ["AI suggestion"]
+    if suggested:
+        note_parts.append(suggested)
+    if summary:
+        note_parts.append(summary)
+
+    finding.mark_unknown(
+        message=" - ".join(note_parts),
+        todo=todo,
+        severity="ok",
+        confidence="low",
+        rationale=rationale,
+    )
     finding.apply_ai_metadata(
         risk_flags=response.get("risk_flags", []),
         evidence_refs=response.get("evidence_refs", []),

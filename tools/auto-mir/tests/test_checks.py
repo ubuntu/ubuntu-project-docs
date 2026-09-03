@@ -3594,3 +3594,123 @@ def test_urf_3_active_rules_line_still_flags():
     result = checks.deterministic._check_urf_3(ctx, _make_finding("URF-3"))
 
     assert result.status == "not-ok"
+
+
+# ---------------------------------------------------------------------------
+# human_verdict checks (SUM-5 overall verdict, SUM-6 security review): the
+# final call is ALWAYS the human's - the AI synthesis stays an advisory NOTE
+# and the full option TODO block is kept for the reviewer to prune.
+# ---------------------------------------------------------------------------
+
+
+def _sum5_check(human_verdict=True):
+    return {
+        "id": "SUM-5",
+        "section": "Summary",
+        "title": "Overall ACK/NACK/ACK-with-conditions",
+        "mode": "ai",
+        "human_verdict": human_verdict,
+        "todo_refs": [
+            "TODO-A: MIR team ACK",
+            "TODO-B: MIR team NACK",
+            "TODO-C: MIR team ACK under the constraint to resolve the below listed TODOs",
+        ],
+        "options": [
+            {
+                "id": "SUM-5-A",
+                "todo_ref": "TODO-A: MIR team ACK",
+                "outcome": "ok",
+                "render": "- Suggesting ACK: everything looks fine",
+            },
+            {
+                "id": "SUM-5-B",
+                "todo_ref": "TODO-B: MIR team NACK",
+                "outcome": "nack",
+                "render": "- Suggesting NACK",
+            },
+            {
+                "id": "SUM-5-C",
+                "todo_ref": "TODO-C: MIR team ACK under the constraint",
+                "outcome": "required",
+                "render": "- Suggesting ACK with conditions",
+            },
+        ],
+    }
+
+
+def test_human_verdict_free_form_model_answer_is_never_pre_decided():
+    """User-test regression: the model returned a free-form 'status: ok'
+    answer with no option id, and the draft rendered a confident
+    'Suggesting ACK' line. With human_verdict it stays Left to decide with
+    all three template TODOs and the suggestion only as a note."""
+    check = _sum5_check()
+    finding = _make_finding("SUM-5", mode="ai")
+    response = {
+        "status": "ok",
+        "confidence": "medium",
+        "message": "Suggesting ACK: no required-severity findings or hard blockers.",
+        "rationale": "No findings reached required severity; all open items are recommended.",
+    }
+
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
+
+    assert result.status == "unknown"
+    assert "TODO-A: MIR team ACK" in result.todo
+    assert "TODO-B: MIR team NACK" in result.todo
+    assert "TODO-C: MIR team ACK under the constraint" in result.todo
+    assert result.message.startswith("AI suggestion")
+    assert "Suggesting ACK" in result.message
+    assert "No findings reached required severity" in result.rationale
+
+
+def test_human_verdict_option_pick_still_keeps_all_todos():
+    """Even a confident option pick only becomes the advisory note."""
+    check = _sum5_check()
+    finding = _make_finding("SUM-5", mode="ai")
+    response = {
+        "selected_option": "SUM-5-A",
+        "confidence": "high",
+        "message": "Suggesting ACK: no required findings.",
+        "rationale": "Clean run.",
+    }
+
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
+
+    assert result.status == "unknown"
+    assert "TODO-A: MIR team ACK" in result.todo
+    assert "TODO-B: MIR team NACK" in result.todo
+    assert "TODO-C: MIR team ACK under the constraint" in result.todo
+    assert "SUM-5-A" in result.message
+    assert result.rationale == "Clean run."
+
+
+def test_human_verdict_absent_keeps_the_old_option_flow():
+    """The field is opt-in: without it, a free-form ok answer keeps the old
+    semantics (this is exactly what the user report flagged for SUM-5)."""
+    check = _sum5_check(human_verdict=False)
+    finding = _make_finding("SUM-5", mode="ai")
+    response = {
+        "status": "ok",
+        "confidence": "high",
+        "message": "Suggesting ACK: no required findings.",
+        "rationale": "Clean run.",
+    }
+
+    result = checks.llm_eval._apply_llm_response(response, check, finding)
+
+    assert result.status == "ok"
+    assert result.todo == ""
+
+
+def test_sum6_security_review_is_a_human_verdict_check():
+    """SUM-6 keeps the same always-decide shape as the SUM-5 contract."""
+    from pathlib import Path
+
+    import catalog as catalog_module
+
+    tool_root = Path(__file__).resolve().parent.parent
+    review = catalog_module.load_catalog_for_role(tool_root, tool_root.parent.parent, "review")
+    by_id = {c["id"]: c for c in review["checks"]}
+
+    assert by_id["SUM-5"].get("human_verdict") is True
+    assert by_id["SUM-6"].get("human_verdict") is True

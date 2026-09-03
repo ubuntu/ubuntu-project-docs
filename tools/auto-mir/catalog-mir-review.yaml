@@ -571,6 +571,7 @@ checks:
   mode: ai
   blocker_class: none
   synthesis: true
+  human_verdict: true
   adapters_required: []
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -595,6 +596,7 @@ checks:
   mode: ev_to_ai
   blocker_class: none
   synthesis: true
+  human_verdict: true
   covers_rule_clauses:
   - review-security-review-assignment
   adapters_required:
