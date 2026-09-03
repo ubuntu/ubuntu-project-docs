@@ -656,32 +656,6 @@ def test_write_outputs_no_longer_prints_the_failure_warning(capsys, tmp_path):
     assert capsys.readouterr().out == ""
 
 
-def test_stage_messages_render_with_markers(caplog):
-    """User feedback: stage transitions are hard to see in the log stream. The
-    stage log lines are visually delimited with === markers while staying a
-    single INFO line; the current_stage failure labels stay unmarked."""
-    import logging as _logging
-
-    ctx = SimpleNamespace(bug_id="1234567", source_package="libfoo")
-    monkeypatched = None  # use monkeypatch fixture instead
-
-    with caplog.at_level(_logging.INFO, logger="auto_mir"):
-        auto_mir.stage_intake_ctx_free = None  # guard: never defined, no-op
-        # exercise the real stage log lines without importing heavy modules
-        for func, expected in ((auto_mir._stage_log_samples, None),):
-            pass
-
-    # direct approach: each stage function logs before doing its real work via
-    # the imported module; instead assert on the log format contract here by
-    # calling the log lines' source strings.
-    import auto_mir as am
-
-    src = Path(am.__file__).read_text()
-    for n in range(1, 6):
-        assert f'log.info("=== Stage {n}:' in src, f"stage {n} marker missing"
-    assert 'log.info("Stage' not in src  # no unmarked stage lines remain
-
-
 def test_stage_messages_render_with_markers(monkeypatch, caplog):
     """User feedback: stage transitions are hard to pick out of the log stream.
     Each stage log line is wrapped in === markers, still a single INFO line;
