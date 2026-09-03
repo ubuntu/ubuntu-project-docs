@@ -882,17 +882,28 @@ def collect_ubuntu_upload_permission(ctx: RunContext) -> dict:
 # removed by ``cleanup_cached_autopkgtest_db`` at the end of evidence collection.
 _AUTOPKGTEST_DB_URL = "https://autopkgtest.ubuntu.com/static/autopkgtest.db"
 _AUTOPKGTEST_DB_CACHE_ATTR = "_autopkgtest_db_path"
+# A failed download is cached too: the DB is large and the server slow when it
+# is misbehaving, so once one adapter has paid the full retry ladder, later
+# adapters must not re-run it (and must not risk divergent verdicts from a
+# later partial success - user-test round 3 feedback).
+_AUTOPKGTEST_DB_FAILURE_ATTR = "_autopkgtest_db_error"
 
 
 def _get_cached_autopkgtest_db(ctx: RunContext) -> str:
     """Return a local path to the autopkgtest DB, downloading it once per run.
 
     The path is cached on ``ctx`` so repeated lookups (package + consumers)
-    reuse a single download. Raises AdapterError on download failure.
+    reuse a single download. A failed download is likewise cached: later
+    adapters fail fast with the identical error instead of re-running the
+    full retry ladder. Raises AdapterError on download failure.
     """
     cached = getattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, None)
     if isinstance(cached, str) and cached and Path(cached).exists():
         return cached
+
+    failed_before = getattr(ctx, _AUTOPKGTEST_DB_FAILURE_ATTR, None)
+    if isinstance(failed_before, str) and failed_before:
+        raise AdapterError(failed_before)
 
     log.debug("Downloading autopkgtest SQLite database: %s", _AUTOPKGTEST_DB_URL)
     try:
@@ -901,10 +912,14 @@ def _get_cached_autopkgtest_db(ctx: RunContext) -> str:
         http_utils.download_to_file(_AUTOPKGTEST_DB_URL, tmp_path)
     except urllib.error.HTTPError as exc:
         Path(tmp_path).unlink(missing_ok=True)
-        raise AdapterError(f"autopkgtest DB download HTTP error {exc.code}") from exc
+        error = f"autopkgtest DB download HTTP error {exc.code}"
+        _cache_autopkgtest_db_failure(ctx, error)
+        raise AdapterError(error) from exc
     except Exception as exc:
         Path(tmp_path).unlink(missing_ok=True)
-        raise AdapterError(f"autopkgtest DB download failed: {exc}") from exc
+        error = f"autopkgtest DB download failed: {exc}"
+        _cache_autopkgtest_db_failure(ctx, error)
+        raise AdapterError(error) from exc
 
     try:
         setattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, tmp_path)
@@ -915,21 +930,37 @@ def _get_cached_autopkgtest_db(ctx: RunContext) -> str:
     return tmp_path
 
 
-def cleanup_cached_autopkgtest_db(ctx: RunContext) -> None:
-    """Remove the cached autopkgtest DB temp file, if any, at end of a run."""
-    cached = getattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, None)
-    if not isinstance(cached, str) or not cached:
-        return
+def _cache_autopkgtest_db_failure(ctx: RunContext, error: str) -> None:
+    """Remember a failed download so sibling adapters fail fast."""
     try:
-        Path(cached).unlink(missing_ok=True)
-        log.debug("Removed cached autopkgtest DB: %s", cached)
-    except OSError as exc:
-        log.warning("Could not remove cached autopkgtest DB %s: %s", cached, exc)
-    finally:
+        setattr(ctx, _AUTOPKGTEST_DB_FAILURE_ATTR, error)
+    except (AttributeError, TypeError):
+        pass
+
+
+def cleanup_cached_autopkgtest_db(ctx: RunContext) -> None:
+    """Clear the per-run autopkgtest DB cache at end of a run.
+
+    Removes the downloaded temp file when present and always resets both
+    cache attributes (path and remembered failure) so a fresh run starts
+    from a clean slate.
+    """
+    cached = getattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, None)
+    if isinstance(cached, str) and cached:
         try:
-            setattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, None)
-        except (AttributeError, TypeError):
-            pass
+            Path(cached).unlink(missing_ok=True)
+            log.debug("Removed cached autopkgtest DB: %s", cached)
+        except OSError as exc:
+            log.warning("Could not remove cached autopkgtest DB %s: %s", cached, exc)
+        finally:
+            try:
+                setattr(ctx, _AUTOPKGTEST_DB_CACHE_ATTR, None)
+            except (AttributeError, TypeError):
+                pass
+    try:
+        setattr(ctx, _AUTOPKGTEST_DB_FAILURE_ATTR, None)
+    except (AttributeError, TypeError):
+        pass
 
 
 def _query_autopkgtest_for_package(

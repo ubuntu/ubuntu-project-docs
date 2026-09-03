@@ -3211,3 +3211,40 @@ def test_lp_mir_history_still_published_check_failure_leaves_no_flag():
     prior = result["prior_mir_bugs"]
     assert prior[0]["matched_name"] == "libfoo"
     assert "still_published" not in prior[0]
+
+
+def test_autopkgtest_db_download_failure_is_cached_for_sibling_adapters():
+    """User-test round 3: the autopkgtest DB is huge and the server was
+    misbehaving; three adapters each paid the full 30->300s retry ladder
+    (~12.5 min each). After a failure the error is cached on ctx: later
+    adapters fail fast with the identical message - no second ladder, and no
+    risk of divergent verdicts from a later partial success."""
+    from evidence.host_adapters import AdapterError, cleanup_cached_autopkgtest_db
+    from evidence.host_adapters import _get_cached_autopkgtest_db as get_db
+
+    ctx = Mock()
+    ctx.evidence = {}
+
+    attempts = []
+
+    def fake_download(_url, _path):
+        attempts.append(1)
+        raise TimeoutError("connection timed out")
+
+    with patch.object(
+        __import__("evidence.host_adapters", fromlist=["http_utils"]).http_utils,
+        "download_to_file",
+        side_effect=fake_download,
+    ):
+        with pytest.raises(AdapterError, match="autopkgtest DB download failed"):
+            get_db(ctx)
+        # the two sibling adapters fail fast, with the identical error
+        for _ in range(2):
+            with pytest.raises(AdapterError, match="autopkgtest DB download failed"):
+                get_db(ctx)
+
+    # the ladder ran exactly once
+    assert len(attempts) == 1
+    # cleanup clears the failure too, so a fresh run tries again
+    cleanup_cached_autopkgtest_db(ctx)
+    assert ctx._autopkgtest_db_error is None
