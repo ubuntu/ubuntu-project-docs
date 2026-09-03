@@ -2261,6 +2261,52 @@ def test_collect_ubuntu_cve_tracker_reports_http_error_code():
 
 
 # ---------------------------------------------------------------------------
+# lp-package-api adapter query shape
+# ---------------------------------------------------------------------------
+
+
+def test_lp_package_api_queries_use_exact_match():
+    """Both getPublishedSources calls must use exact_match=True so a substring
+    hit on an unrelated source name (e.g. 'rust-sequoia-sq' matching
+    'rust-sequoia-sqv') can never leak into this package's publish history or
+    current_component - the exact regression seen with rust-sequoia-sq."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.series = "noble"
+
+    fake_pub = Mock()
+    fake_pub.source_package_version = "1.0-1"
+    fake_pub.date_published = "2024-01-01 00:00:00+00:00"
+    fake_pub.pocket = "Release"
+    fake_pub.component_name = "universe"
+    fake_pub.status = "Published"
+
+    fake_archive = Mock()
+    fake_archive.getPublishedSources.return_value = [fake_pub]
+
+    fake_series = Mock()
+    fake_series.getPackageUploads.return_value = []
+
+    fake_ubuntu = Mock()
+    fake_ubuntu.getSeries.return_value = fake_series
+    fake_ubuntu.main_archive = fake_archive
+
+    fake_lp = Mock()
+    fake_lp.distributions = {"ubuntu": fake_ubuntu}
+
+    with patch("evidence.launchpad_client.login_anonymously", return_value=fake_lp):
+        from evidence.host_adapters import collect_lp_package_api
+
+        result = collect_lp_package_api(ctx)
+
+    assert result["status"] == "ok"
+    assert result["current_component"] == "universe"
+    assert fake_archive.getPublishedSources.call_count == 2
+    for call in fake_archive.getPublishedSources.call_args_list:
+        assert call.kwargs.get("exact_match") is True
+
+
+# ---------------------------------------------------------------------------
 # Release cadence summarisation (lp-package-api)
 # ---------------------------------------------------------------------------
 

@@ -635,6 +635,7 @@ def collect_lp_package_api(ctx: RunContext) -> dict:
             source_name=pkg,
             distro_series=lp_series,
             order_by_date=True,
+            exact_match=True,
         )
         for pub in list(published)[:20]:
             try:
