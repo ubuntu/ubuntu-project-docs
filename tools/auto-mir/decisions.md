@@ -5002,3 +5002,30 @@ review-type surfacing in report.json (WP6); the remaining md-file deferred
 items are all either superseded (2026-07-15 parity -> B1 restoration + this
 round's coverage map), resolved by decision (no Debian-security/
 oss-security adapter - G5), or closed by the inventory (no reviewer-side gap).
+
+---
+
+## 2026-09-02 — User-test fix round 3 (over the glm5.3 tag): wrap-up traceability
+
+Promotion: no
+
+Seven user-test reports, one logical commit each; the plan lived on disk
+(USERTEST-FIX-PLAN.md) and is deleted in this wrap-up commit:
+
+| Report | Root cause | Commit |
+|--------|-----------|--------|
+| 1. Adapter-failure warning buried mid-log | write_outputs printed it inside stage 5 | `WP-A three-section end-of-run tail` (Warnings -> LLM Usage -> Results) |
+| 2. LLM progress lines at INFO | llm.py start/finish lines were INFO | `WP-B LLM progress lines to DEBUG` (failures stay INFO) |
+| 3. Stage transitions hard to see | plain INFO lines | `WP-C visually delimited stage markers` (=== Stage N: ... ===) |
+| 4. Same huge download retried per adapter | good-path cache existed, failures were never cached | `WP-D cache autopkgtest download failures per run` (fail fast, identical error, one ladder per run) |
+| 5. Fresh MIR still misdetected as reorg | text regex matched "replace gnupg2" (rationale) and "split out of 2089690" (bug number); WP6 had already fixed the evidence path | `WP-E LLM-assisted review-type first decision` (LLM classifies, human confirms suspicious cases, narrowed fallback regex, stage 4 no longer reads raw text) |
+| 6. SUM-5 verdict pre-decided | model bypassed the option machinery (free-form status ok) | `WP-F human_verdict catalog field` (SUM-5 and SUM-6 always render as Left-to-decide with the full option TODO block; AI suggestion becomes a NOTE) |
+| 7. git-ubuntu-delta never produced a diffstat | refs remotes/origin/... do not exist in git-ubuntu clones (remote is pkg/); changelog was excluded though it carries the explanation | `WP-G rewrite git-ubuntu-delta base detection` (pkg/ refs, newest Debian-only import tag as base, changelog included + changelog_excerpt field) |
+
+Notes on the round:
+- WP-F review: SUM-6's security-review item was already rendering the good
+  shape; the field makes both verdict points structural, reusable later.
+- One process lesson on my side: the WP-G commit briefly went in with a
+  failing suite (a YAML apostrophe broke catalog parsing) because I committed
+  before re-running make test; fixed immediately in the follow-up commit and
+  called out here so the pattern is visible in history.
