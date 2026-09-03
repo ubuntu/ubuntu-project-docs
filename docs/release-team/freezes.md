@@ -269,7 +269,10 @@ must reference at least one bug, which is used to track the stable update.
 ## Release Candidate
 
 The images produced on the Monday of the release week before
-{ref}`final-release` are considered "release candidates".
+{ref}`final-release` are usually considered "release candidates". This is a
+target, and not an absolute truth. To know which images are considered release
+candidates, look for the "call for testing" announcement, or ask the Release
+Team directly.
 
 In an ideal world, the first release candidate would end up being the Final
 Release; however, we don't live in a perfect world, and this week is used to
