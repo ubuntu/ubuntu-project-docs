@@ -5,6 +5,7 @@ import logging
 import sys
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock as _mock
 
 import pytest
 
@@ -481,17 +482,17 @@ def test_call_openai_compatible_impl_logs_attempt_start_and_elapsed(caplog, monk
     monkeypatch.setattr(llm.urllib.request, "urlopen", _fake_urlopen)
     ctx = SimpleNamespace(llm_token="tok", llm_api_url="https://example.test/v1/chat/completions")
 
-    with caplog.at_level("INFO", logger="auto_mir.llm"):
+    with caplog.at_level("DEBUG", logger="auto_mir.llm"):
         parsed, _meta = llm._call_openai_compatible_impl(
             "prompt", ctx, model_tier="small", max_tokens=1234, trace_label="SEC-1"
         )
 
     assert parsed == {"status": "ok"}
-    messages = [record.getMessage() for record in caplog.records]
-    assert any(
-        "LLM request starting for SEC-1" in message and "1234" in message for message in messages
-    )
-    assert any("LLM request for SEC-1 finished in" in message for message in messages)
+    # Progress lines are DEBUG since the user-test round 3 feedback.
+    starting = [r for r in caplog.records if "starting for SEC-1" in r.getMessage()]
+    finished = [r for r in caplog.records if "finished in" in r.getMessage()]
+    assert starting and starting[0].levelno == logging.DEBUG
+    assert finished and finished[0].levelno == logging.DEBUG
 
 
 def test_call_llm_surfaces_auth_rejection_as_llm_error_not_a_crash(monkeypatch):
@@ -520,3 +521,91 @@ def test_call_llm_surfaces_auth_rejection_as_llm_error_not_a_crash(monkeypatch):
 
     with pytest.raises(llm.LLMError, match="HTTP 401"):
         llm.call_llm("prompt", ctx, model_tier="small", trace_label="SEC-1")
+
+
+def test_llm_progress_lines_are_debug_not_info(caplog):
+    """User feedback: 'LLM request starting/finished' is progress detail under
+    the check-evaluation INFO lines; the two progress lines are DEBUG while
+    failure lines stay INFO (diagnostic value)."""
+    import logging as _logging
+    from types import SimpleNamespace
+
+    ctx = SimpleNamespace(
+        llm_provider="openai-compatible",
+        llm_api_url="https://example.test/v1/chat/completions",
+        llm_token="token",
+        llm_calls_by_model={},
+        llm_estimated_tokens={},
+        llm_reasoning_traces=[],
+        source_package="libfoo",
+        bug_id="1234567",
+        series="devel",
+        bug={},
+        llm_model_small="z-ai/glm-4.7",
+    )
+
+    class _FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return (
+                b'{"id": "x", "choices": [{"message": {"role": "assistant", '
+                b'"content": "{\\"status\\": \\"ok\\"}"}, "finish_reason": "stop"}], '
+                b'"usage": {"total_tokens": 10}}'
+            )
+
+    with (
+        _mock.patch("urllib.request.urlopen", return_value=_FakeResponse()),
+        _mock.patch("llm._selected_model", return_value="z-ai/glm-4.7"),
+        caplog.at_level(_logging.DEBUG, logger="auto_mir.llm"),
+    ):
+        llm.call_llm("prompt", ctx, model_tier="small", trace_label="TEST-1")
+
+    levels = {
+        record.getMessage(): record.levelno
+        for record in caplog.records
+        if "LLM request" in record.getMessage()
+    }
+    starting = [lvl for msg, lvl in levels.items() if "starting for TEST-1" in msg]
+    finished = [lvl for msg, lvl in levels.items() if "finished in" in msg]
+    assert starting and starting[0] == _logging.DEBUG
+    assert finished and finished[0] == _logging.DEBUG
+
+
+def test_llm_failure_lines_stay_info(caplog):
+    import logging as _logging
+    import urllib.error
+    from types import SimpleNamespace
+
+    ctx = SimpleNamespace(
+        llm_provider="openai-compatible",
+        llm_api_url="https://example.test/v1/chat/completions",
+        llm_token="token",
+        llm_calls_by_model={},
+        llm_estimated_tokens={},
+        llm_reasoning_traces=[],
+        source_package="libfoo",
+        bug_id="1234567",
+        series="devel",
+        bug={},
+        llm_model_small="z-ai/glm-4.7",
+    )
+
+    def _fail(*_args, **_kwargs):
+        raise urllib.error.HTTPError("https://example.test", 500, "boom", {}, None)
+
+    with (
+        _mock.patch("urllib.request.urlopen", side_effect=_fail),
+        _mock.patch("llm._selected_model", return_value="z-ai/glm-4.7"),
+        _mock.patch("llm.retry_rate_limited", lambda **_kw: lambda fn: fn),
+        caplog.at_level(_logging.DEBUG, logger="auto_mir.llm"),
+    ):
+        with pytest.raises(llm.LLMError):
+            llm.call_llm("prompt", ctx, model_tier="small", trace_label="TEST-1")
+
+    failure = [record for record in caplog.records if "failed after" in record.getMessage()]
+    assert failure and failure[0].levelno == _logging.INFO

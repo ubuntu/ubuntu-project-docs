@@ -330,7 +330,7 @@ def _call_openai_compatible_impl(
 
     label = trace_label or model_tier
     timeout = getattr(ctx, "llm_timeout", DEFAULT_TIMEOUT_SECONDS)
-    log.info(
+    log.debug(
         "LLM request starting for %s: model=%s max_tokens=%d timeout=%ss",
         label,
         model,
@@ -342,7 +342,7 @@ def _call_openai_compatible_impl(
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             raw = resp.read().decode()
         elapsed = time.monotonic() - start
-        log.info("LLM request for %s finished in %.1fs", label, elapsed)
+        log.debug("LLM request for %s finished in %.1fs", label, elapsed)
         return _parse_chat_response(raw, max_tokens, trace_label=trace_label)
     except urllib.error.HTTPError as exc:
         elapsed = time.monotonic() - start
