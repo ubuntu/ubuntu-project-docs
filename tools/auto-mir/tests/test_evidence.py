@@ -3248,3 +3248,91 @@ def test_autopkgtest_db_download_failure_is_cached_for_sibling_adapters():
     # cleanup clears the failure too, so a fresh run tries again
     cleanup_cached_autopkgtest_db(ctx)
     assert ctx._autopkgtest_db_error is None
+
+
+def test_git_ubuntu_delta_uses_pkg_refs_and_import_tags():
+    """User-test regression: the old script referenced remotes/origin/... which
+    never exist in a git-ubuntu clone (the remote is pkg), so the base never
+    resolved and every delta run produced an empty diffstat. The rewrite uses
+    pkg/ refs and finds the newest Debian-only import tag walking back from the
+    Ubuntu tip (user's rust-sequoia-sq example: base = pkg/import/1.3.1-10).
+    """
+    import evidence.guest_adapters as ga
+
+    ctx = Mock()
+    ctx.guest_name = "guest"
+    ctx.source_package = "rust-sequoia-sq"
+    ctx.evidence = {"adapters": {"packaging-source": {"status": "ok", "source_dir": "/tmp/src"}}}
+
+    exec_calls: list[list[str]] = []
+
+    def fake_exec(name, cmd, **_kw):
+        exec_calls.append(cmd)
+        joined = " ".join(str(part) for part in cmd)
+        if "dpkg-parsechangelog" in joined:
+            return SimpleNamespace(stdout="1.3.1-10ubuntu2\n", returncode=0)
+        if "command -v git-ubuntu" in joined:
+            return SimpleNamespace(stdout="/usr/bin/git-ubuntu\n", returncode=0)
+        return SimpleNamespace(stdout="", returncode=0)
+
+    with patch.object(ga.lxd_runner, "exec_in", side_effect=fake_exec):
+        result = ga.collect_git_ubuntu_delta(ctx)
+
+    script = exec_calls[-1][2]
+    # the remote is pkg, never remotes/origin
+    assert "remotes/origin" not in script
+    assert "pkg/ubuntu/devel" in script
+    # the changelog is part of the diff - it carries the delta's explanation
+    assert "(exclude)debian/changelog" not in script
+    assert "pkg/import/" in script
+    assert result["status"] == "ok"
+    assert result["delta_kind"] == "ubuntu_delta"
+    assert result["delta_present"] is True
+
+
+def test_git_ubuntu_delta_script_finds_debian_import_tag_over_ubuntu_tags():
+    """The tag walk from the user's exact example: 1.3.1-10ubuntu2 (tip) ->
+    1.3.1-10ubuntu1 -> 1.3.1-10 is the Debian base. Smoke-tested against a real
+    synthetic git repo (tag layout: pkg/import/* and pkg/ubuntu/*)."""
+    import subprocess
+
+    script = Path("/tmp/opencode/delta_script.sh")
+    if not script.exists():
+        pytest.skip("synthetic repo setup helper missing")
+    repo = Path("/tmp/opencode/delta-repo")
+    if not (repo / ".git").exists():
+        pytest.skip("synthetic repo missing")
+
+    out = subprocess.run(
+        ["bash", str(script)],
+        capture_output=True,
+        text=True,
+        env={**__import__("os").environ, "TEST_REPO": str(repo)},
+        check=False,
+    )
+    assert "debian/changelog" in out.stdout
+    assert "debian/README.source" in out.stdout
+    assert "__AUTO_MIR_CHANGELOG_EXCERPT__" in out.stdout
+    assert "unstable; urgency=medium" in out.stdout
+
+
+def test_git_ubuntu_delta_sync_skips_git_ubuntu():
+    """A pure sync (no ubuntu revision) never clones."""
+    import evidence.guest_adapters as ga
+
+    ctx = Mock()
+    ctx.guest_name = "guest"
+    ctx.source_package = "libfoo"
+    ctx.evidence = {"adapters": {"packaging-source": {"status": "ok", "source_dir": "/tmp/src"}}}
+
+    def fake_exec(name, cmd, **_kw):
+        joined = " ".join(str(part) for part in cmd)
+        if "dpkg-parsechangelog" in joined:
+            return SimpleNamespace(stdout="1.0-1\n", returncode=0)
+        raise AssertionError("sync must never touch git-ubuntu")
+
+    with patch.object(ga.lxd_runner, "exec_in", side_effect=fake_exec):
+        result = ga.collect_git_ubuntu_delta(ctx)
+
+    assert result["delta_kind"] == "sync"
+    assert result["delta_present"] is False

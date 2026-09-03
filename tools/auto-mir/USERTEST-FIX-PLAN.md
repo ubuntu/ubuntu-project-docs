@@ -91,5 +91,5 @@ _decisions.md traceability, delete this plan, final make test + goldens._
 - [x] 5  WP-D autopkgtest failure caching
 - [x] 6  WP-E LLM-assisted review-type decision
 - [x] 7  WP-F human_verdict field
-- [ ] 8  WP-G git-ubuntu-delta rewrite
+- [x] 8  WP-G git-ubuntu-delta rewrite
 - [ ] 9  F wrap-up

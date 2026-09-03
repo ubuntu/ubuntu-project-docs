@@ -1370,28 +1370,52 @@ def collect_git_ubuntu_delta(ctx: RunContext) -> dict:
             "delta_summary": summary,
         }
 
-    # delta_kind == "ubuntu_delta": compute a best-effort diffstat via git-ubuntu.
+    # delta_kind == "ubuntu_delta": compute a best-effort diffstat via
+    # git-ubuntu. A git-ubuntu clone names its remote ``pkg`` (NOT origin) and
+    # lays out refs as pkg/ubuntu/<release>-devel, pkg/ubuntu/devel,
+    # pkg/debian/sid, pkg/import/<version>; referencing remotes/origin/...
+    # never resolves, which is why this produced an empty diffstat in every
+    # user-test run. The base is the newest Debian-only import tag (no
+    # ubuntu.../buildN/willsync/maysync suffix) walking back from the Ubuntu
+    # tip - per the Ubuntu version-string conventions - with the merge-base
+    # of the two branch heads as the fallback. The diff includes
+    # debian/changelog on purpose: it carries the delta's explanation.
     pkg = ctx.source_package
     has_tool = _exists(ctx, ["bash", "-lc", "command -v git-ubuntu >/dev/null 2>&1"])
     diffstat = ""
+    changelog_excerpt = ""
     if has_tool:
         clone_dir = f"/tmp/git-ubuntu-{pkg}"
         script = (
             f"rm -rf {clone_dir}; "
             f"git ubuntu clone {pkg} {clone_dir} >/dev/null 2>&1 || exit 0; "
             f"cd {clone_dir} || exit 0; "
-            "base=$(git merge-base remotes/origin/ubuntu/devel "
-            "remotes/origin/debian/latest 2>/dev/null); "
-            '[ -z "$base" ] && base=$(git merge-base remotes/origin/ubuntu/devel '
-            "remotes/origin/debian/sid 2>/dev/null); "
-            '[ -z "$base" ] && exit 0; '
-            'git diff --stat "$base" remotes/origin/ubuntu/devel '
-            "-- . ':(exclude)debian/changelog' 2>/dev/null | tail -n 60"
+            "base=''\n"
+            "for commit in $(git rev-list pkg/ubuntu/devel -n 500 2>/dev/null); do\n"
+            '  for tag in $(git tag --points-at "$commit"); do\n'
+            "    v=${tag#pkg/import/}\n"
+            '    case "$v" in *ubuntu*|*build[0-9]*|*willsync*|*maysync*) continue;; esac\n'
+            '    [ "$tag" = "$v" ] && continue\n'
+            "    base=$tag; break 2\n"
+            "  done\n"
+            "done\n"
+            '[ -z "$base" ] && base=$(git merge-base pkg/ubuntu/devel pkg/debian/sid 2>/dev/null)\n'
+            '[ -z "$base" ] && base=$(git merge-base pkg/ubuntu/devel pkg/debian/latest 2>/dev/null)\n'
+            '[ -z "$base" ] && exit 0\n'
+            'git diff --stat "$base" pkg/ubuntu/devel 2>/dev/null | tail -n 60\n'
+            'echo "__AUTO_MIR_CHANGELOG_EXCERPT__"\n'
+            'git diff "$base" pkg/ubuntu/devel -- debian/changelog 2>/dev/null | head -n 40\n'
         )
-        diffstat = _capture(ctx, ["bash", "-lc", script], allow_fail=True, as_ubuntu=True).strip()
+        out = _capture(ctx, ["bash", "-lc", script], allow_fail=True, as_ubuntu=True)
+        diffstat, _, changelog_excerpt = out.partition("__AUTO_MIR_CHANGELOG_EXCERPT__")
+        diffstat = diffstat.strip()
+        changelog_excerpt = changelog_excerpt.strip()
 
     if diffstat:
-        summary = f"Ubuntu carries a delta (version {version}); see diffstat vs Debian base."
+        summary = (
+            f"Ubuntu carries a delta (version {version}); see diffstat vs its "
+            "most recent Debian import."
+        )
     else:
         summary = (
             f"Ubuntu carries a delta (version {version}), but an automated "
@@ -1405,6 +1429,7 @@ def collect_git_ubuntu_delta(ctx: RunContext) -> dict:
         "delta_kind": delta_kind,
         "delta_present": True,
         "diffstat": diffstat,
+        "changelog_excerpt": changelog_excerpt,
         "delta_category": _classify_delta_category(diffstat),
         "delta_summary": summary,
     }
