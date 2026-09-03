@@ -1400,7 +1400,8 @@ def collect_git_ubuntu_delta(ctx: RunContext) -> dict:
             "  done\n"
             "done\n"
             '[ -z "$base" ] && base=$(git merge-base pkg/ubuntu/devel pkg/debian/sid 2>/dev/null)\n'
-            '[ -z "$base" ] && base=$(git merge-base pkg/ubuntu/devel pkg/debian/latest 2>/dev/null)\n'
+            '[ -z "$base" ] && base=$(git merge-base pkg/ubuntu/devel '
+            "pkg/debian/latest 2>/dev/null)\n"
             '[ -z "$base" ] && exit 0\n'
             'git diff --stat "$base" pkg/ubuntu/devel 2>/dev/null | tail -n 60\n'
             'echo "__AUTO_MIR_CHANGELOG_EXCERPT__"\n'
