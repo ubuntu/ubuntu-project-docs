@@ -1,7 +1,5 @@
 # Weekly queue report
 
-**Files:** `.github/workflows/queue-report.yml` · `.github/scripts/queue-report.py`
-
 Runs every **Monday at 12:00 UTC** (and on demand via `workflow_dispatch`) to post a summary of the open issue and PR queues to Mattermost and Matrix.
 
 ## What it reports
@@ -16,15 +14,15 @@ The report comes in two kinds:
 
 ### Dashboard categories
 
-| Category | GitHub filter query |
-|---|---|
-| ✅ Issues — triaged | `is:open is:issue -label:untriaged` |
-| ⚠️ Issues — untriaged | `is:open is:issue label:untriaged` |
-| 📝 Draft PRs | `is:open is:pr draft:true` |
-| 🕐 PRs older than 2 weeks | `is:open is:pr sort:created-asc` (oldest-first proxy) |
-| 👀 PRs awaiting review | `is:open is:pr review:required draft:false` |
-| ✅ PRs ready to merge | `is:open is:pr review:approved draft:false` |
-| 🔄 PRs with changes requested | `is:open is:pr review:changes_requested draft:false` |
+| Category                      | GitHub filter query                                   |
+| ----------------------------- | ----------------------------------------------------- |
+| ✅ Issues — triaged           | `is:open is:issue -label:untriaged`                   |
+| ⚠️ Issues — untriaged         | `is:open is:issue label:untriaged`                    |
+| 📝 Draft PRs                  | `is:open is:pr draft:true`                            |
+| 🕐 PRs older than 2 weeks     | `is:open is:pr sort:created-asc` (oldest-first proxy) |
+| 👀 PRs awaiting review        | `is:open is:pr review:required draft:false`           |
+| ✅ PRs ready to merge         | `is:open is:pr review:approved draft:false`           |
+| 🔄 PRs with changes requested | `is:open is:pr review:changes_requested draft:false`  |
 
 ### Label routing
 
@@ -51,18 +49,18 @@ their token is absent.
 
 ### Secrets
 
-| Secret | Purpose |
-|---|---|
-| `MATTERMOST_TOKEN` | Mattermost bot-user token |
-| `MATTERMOST_CHANNEL_ID` | Mattermost channel ID |
-| `MATRIX_TOKEN` | Matrix access token (used for all Matrix rooms) |
+| Secret                  | Purpose                                         |
+| ----------------------- | ----------------------------------------------- |
+| `MATTERMOST_TOKEN`      | Mattermost bot-user token                       |
+| `MATTERMOST_CHANNEL_ID` | Mattermost channel ID                           |
+| `MATRIX_TOKEN`          | Matrix access token (used for all Matrix rooms) |
 
 Matrix room IDs are resolved at runtime from aliases defined in the script
 (`MAIN_MATRIX_ALIAS` / `LABEL_ROUTES`), so no per-room secrets are needed.
 
 ### Variables (repo Settings → Variables)
 
-| Variable | Default |
-|---|---|
-| `MATTERMOST_URL` | `https://chat.canonical.com` |
-| `MATRIX_HOMESERVER` | `https://ubuntu.com` |
+| Variable            | Default                      |
+| ------------------- | ---------------------------- |
+| `MATTERMOST_URL`    | `https://chat.canonical.com` |
+| `MATRIX_HOMESERVER` | `https://ubuntu.com`         |

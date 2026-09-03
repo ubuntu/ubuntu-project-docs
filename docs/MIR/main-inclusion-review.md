@@ -38,7 +38,10 @@ In general *pulling into main* is done directly via {ref}`seed-management` or
 indirectly via a dependency from something that already is in `main`.
 
 For something to be allowed into `main`, all its code and runtime dependencies
-must be in `main`.
+must be in `main`. The MIR team checks for missing dependencies via
+[component-mismatches](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg)
+reports, discussed as part of the {ref}`MIR team meeting <mir-team-meeting>`.
+
 In the past, build-dependencies also had to be in generally `main`, but since
 14.04 Trusty that is no longer a hard requirement. This is meant to ease
 the burden on tools only e.g. rendering documentation, yet it does not mean "no

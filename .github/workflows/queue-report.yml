@@ -39,4 +39,4 @@ jobs:
           # overridden as a repo variable if needed.
           MATRIX_TOKEN: ${{ secrets.MATRIX_TOKEN }}
           MATRIX_HOMESERVER: ${{ vars.MATRIX_HOMESERVER }}
-        run: python .github/scripts/queue-report.py
+        run: python ./.github/actions/queue-report/script.py
