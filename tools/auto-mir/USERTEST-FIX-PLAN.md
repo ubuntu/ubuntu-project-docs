@@ -87,7 +87,7 @@ _decisions.md traceability, delete this plan, final make test + goldens._
 - [x] 1  P0 plan on disk
 - [x] 2  WP-A three-section tail
 - [x] 3  WP-B LLM progress to DEBUG
-- [ ] 4  WP-C stage markers
+- [x] 4  WP-C stage markers
 - [ ] 5  WP-D autopkgtest failure caching
 - [ ] 6  WP-E LLM-assisted review-type decision
 - [ ] 7  WP-F human_verdict field

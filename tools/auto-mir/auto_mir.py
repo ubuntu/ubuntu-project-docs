@@ -389,7 +389,7 @@ def stage_intake(ctx: RunContext) -> None:
     """
     import lp_intake
 
-    log.info("Stage 1: Launchpad intake for bug %s", ctx.bug_id)
+    log.info("=== Stage 1: Launchpad intake for bug %s ===", ctx.bug_id)
     lp_intake.run(ctx)
     # lp_intake.run() populates ctx.bug, ctx.source_package, ctx.reporter_mir_content
     # and raises SystemExit(1) with a clear message if reporter content is missing.
@@ -404,7 +404,7 @@ def stage_spawn_guest(ctx: RunContext) -> None:
     """
     import lxd_runner
 
-    log.info("Stage 2: Spawning LXD guest for %s", ctx.source_package)
+    log.info("=== Stage 2: Spawning LXD guest for %s ===", ctx.source_package)
     lxd_runner.spawn(ctx)
     ctx.evidence["runtime_isolation"] = lxd_runner.collect_runtime_facts(ctx)
     # lxd_runner.spawn() populates ctx.guest_name
@@ -430,7 +430,7 @@ def stage_collect_evidence(ctx: RunContext) -> int:
     import catalog
     from evidence import ADAPTER_REGISTRY, collect_from_catalog
 
-    log.info("Stage 3: Collecting evidence for %s", ctx.source_package)
+    log.info("=== Stage 3: Collecting evidence for %s ===", ctx.source_package)
     if not ctx.catalog:
         ctx.catalog = catalog.load_catalog_for_role(ctx.tool_root, ctx.workspace_root, ctx.role)
         ctx.evidence["catalog_summary"] = catalog.summarize_catalog(ctx.catalog)
@@ -468,7 +468,7 @@ def stage_analyse(ctx: RunContext) -> None:
     import catalog
     import checks
 
-    log.info("Stage 4: Analysing evidence for %s", ctx.source_package)
+    log.info("=== Stage 4: Analysing evidence for %s ===", ctx.source_package)
     if not ctx.catalog:
         ctx.catalog = catalog.load_catalog_for_role(ctx.tool_root, ctx.workspace_root, ctx.role)
 
@@ -496,7 +496,7 @@ def stage_render(ctx: RunContext) -> None:
     """
     from render import write_outputs
 
-    log.info("Stage 5: Rendering output for %s", ctx.source_package)
+    log.info("=== Stage 5: Rendering output for %s ===", ctx.source_package)
     write_outputs(ctx)
 
 
