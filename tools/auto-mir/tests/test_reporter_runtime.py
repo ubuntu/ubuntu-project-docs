@@ -79,6 +79,21 @@ class DeferWizard(FakeWizard):
         return super().ask(question)
 
 
+class CrashingWizard(FakeWizard):
+    """Fake wizard that blows up once ``fail_after`` questions were asked."""
+
+    def __init__(self, fail_after):
+        super().__init__()
+        self.fail_after = fail_after
+        self.questions_asked = 0
+
+    def ask(self, question):
+        self.questions_asked += 1
+        if self.questions_asked > self.fail_after:
+            raise RuntimeError("simulated crash mid-session")
+        return super().ask(question)
+
+
 def _ctx(tmp_path):
     report_catalog = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     evidence = {
@@ -255,6 +270,51 @@ def test_reporter_render_writes_draft_and_structured_report(tmp_path):
     assert report["readiness"]["ready"] is False
     assert "REP-RATIONALE-001" in report["readiness"]["blockers"]
     assert len(report["statements"]) == len(ctx.catalog["items"])
+
+
+def test_statement_results_are_persisted_incrementally(tmp_path):
+    """Feedback item 2/4 foundation: every answered item is written to
+    run-state.json as soon as it completes, so even a hard crash mid-session
+    leaves every answer so far recoverable - losing at most the one
+    in-flight question."""
+    from utils import run_state
+
+    ctx = _ctx(tmp_path)
+    ctx.run_state = run_state.init_state(ctx)
+    results = evaluate_items(ctx, FakeWizard())
+
+    saved = run_state.load_state(tmp_path)
+    assert saved is not None
+    assert saved["report"]["results"]
+    assert len(saved["report"]["results"]) == len(ctx.catalog["items"])
+    assert set(saved["report"]["item_values"]) == {item["id"] for item in ctx.catalog["items"]}
+    by_id = {result.id: result for result in results}
+    assert (
+        saved["report"]["results"]["REP-AVAIL-001"]["statement"] == by_id["REP-AVAIL-001"].statement
+    )
+
+
+def test_a_crash_mid_session_keeps_every_answered_item_in_the_run_state(tmp_path):
+    from utils import run_state
+
+    ctx = _ctx(tmp_path)
+    ctx.run_state = run_state.init_state(ctx)
+    wizard = CrashingWizard(fail_after=2)
+
+    with pytest.raises(RuntimeError):
+        evaluate_items(ctx, wizard)
+
+    saved = run_state.load_state(tmp_path)
+    assert saved is not None
+    # Every item completed before the crash (deterministic ones plus the
+    # two answered questions) is persisted; the in-flight third question
+    # is the only thing lost.
+    answered_ids = set(saved["report"]["results"])
+    assert len(answered_ids) >= 3
+    assert len(answered_ids) < len(ctx.catalog["items"])
+    for item in ctx.catalog["items"]:
+        if item["id"] in answered_ids:
+            assert item["id"] in saved["report"]["item_values"]
 
 
 def test_required_human_only_question_can_be_deferred_to_left_to_clarify(tmp_path):

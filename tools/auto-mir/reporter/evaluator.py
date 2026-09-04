@@ -30,6 +30,7 @@ from reporter.text_utils import (
     template_to_statement,
 )
 from reporter.wizard import TerminalWizard
+from utils import run_state
 from utils.deb_facts import built_using_entries
 
 if TYPE_CHECKING:
@@ -91,7 +92,12 @@ def reporter_evaluator(name: str):
 
 
 def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementResult]:
-    """Evaluate reporter items in catalog order, asking only human-owned input."""
+    """Evaluate reporter items in catalog order, asking only human-owned input.
+
+    Each item's result is persisted to the run state as soon as it completes
+    (``utils.run_state.record_item_result``), so an interrupt or crash
+    costs at most the in-flight question - never the whole session.
+    """
     results: list[StatementResult] = []
     item_values: dict[str, Any] = {}
     catalog_items = ctx.catalog.get("items", [])
@@ -115,120 +121,124 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
             items=item_values,
             evidence=ctx.evidence.get("adapters", {}),
         )
-        if not evaluate_condition(item.get("applicability"), condition_context):
-            results.append(
+        result, value = _evaluate_item(
+            item, ctx, wizard, condition_context, results, completed_by_follow_up
+        )
+        results.append(result)
+        item_values[item["id"]] = value
+        run_state.record_item_result(ctx, item, result, results, value)
+    return results
+
+
+def _evaluate_item(
+    item: dict,
+    ctx: RunContext,
+    wizard: TerminalWizard,
+    condition_context: ConditionContext,
+    results: list[StatementResult],
+    completed_by_follow_up: set[str],
+) -> tuple[StatementResult, Any]:
+    """Evaluate one catalog item into its (result, condition value) pair."""
+    if not evaluate_condition(item.get("applicability"), condition_context):
+        return (
+            StatementResult(
+                id=item["id"],
+                section=item["section"],
+                state=StatementState.NOT_APPLICABLE,
+                readiness=ReadinessEffect.CLEAR,
+            ),
+            None,
+        )
+    mode = item["mode"]
+    readiness = ReadinessEffect(item.get("readiness", "clear"))
+    if mode == "human_only":
+        _show_preface(item, ctx, wizard)
+        question = _completion_prefill(
+            _question_from_item(item, ctx, deferrable=True), item, results
+        )
+        answer = wizard.ask(question)
+        if answer is None:
+            if question.required:
+                # A required question only ever returns None via its
+                # explicit ":defer" escape hatch, so this item IS
+                # applicable - the reporter simply could not resolve it
+                # now. Leave it for "Left to clarify" with its
+                # catalog-declared readiness instead of silently
+                # dropping it (mirrors the ev_to_ai fallback in ai.py).
+                return (
+                    StatementResult(
+                        id=item["id"],
+                        section=item["section"],
+                        state=StatementState.NEEDS_INPUT,
+                        readiness=readiness,
+                        rationale="The reporter deferred this question.",
+                    ),
+                    None,
+                )
+            # An optional question's None is a genuine "nothing to add"
+            # skip (whether by empty answer or :defer); the item does not
+            # apply to this report.
+            return (
                 StatementResult(
                     id=item["id"],
                     section=item["section"],
                     state=StatementState.NOT_APPLICABLE,
                     readiness=ReadinessEffect.CLEAR,
-                )
+                ),
+                None,
             )
-            item_values[item["id"]] = None
-            continue
-        mode = item["mode"]
-        readiness = ReadinessEffect(item.get("readiness", "clear"))
-        if mode == "human_only":
-            _show_preface(item, ctx, wizard)
-            question = _completion_prefill(
-                _question_from_item(item, ctx, deferrable=True), item, results
+        statement = _human_statement(item, answer.value, ctx.source_package)
+        if item["id"] not in completed_by_follow_up:
+            statement = _complete_statement(statement, question, wizard)
+        maybe_write_evidence(item, ctx, answer.value)
+        selected_option = answer.value if question.kind == QuestionKind.SINGLE_CHOICE else None
+        option_readiness = None
+        if selected_option is not None:
+            option_readiness = next(
+                (option.readiness for option in question.options if option.id == selected_option),
+                None,
             )
-            answer = wizard.ask(question)
-            if answer is None:
-                if question.required:
-                    # A required question only ever returns None via its
-                    # explicit ":defer" escape hatch, so this item IS
-                    # applicable - the reporter simply could not resolve it
-                    # now. Leave it for "Left to clarify" with its
-                    # catalog-declared readiness instead of silently
-                    # dropping it (mirrors the ev_to_ai fallback in ai.py).
-                    results.append(
-                        StatementResult(
-                            id=item["id"],
-                            section=item["section"],
-                            state=StatementState.NEEDS_INPUT,
-                            readiness=readiness,
-                            rationale="The reporter deferred this question.",
-                        )
-                    )
-                else:
-                    # An optional question's None is a genuine "nothing to
-                    # add" skip (whether by empty answer or :defer); the
-                    # item does not apply to this report.
-                    results.append(
-                        StatementResult(
-                            id=item["id"],
-                            section=item["section"],
-                            state=StatementState.NOT_APPLICABLE,
-                            readiness=ReadinessEffect.CLEAR,
-                        )
-                    )
-                item_values[item["id"]] = None
-                continue
-            statement = _human_statement(item, answer.value, ctx.source_package)
-            if item["id"] not in completed_by_follow_up:
-                statement = _complete_statement(statement, question, wizard)
-            maybe_write_evidence(item, ctx, answer.value)
-            selected_option = answer.value if question.kind == QuestionKind.SINGLE_CHOICE else None
-            option_readiness = None
-            if selected_option is not None:
-                option_readiness = next(
-                    (
-                        option.readiness
-                        for option in question.options
-                        if option.id == selected_option
-                    ),
-                    None,
-                )
-            result = _resolved_or_open(
-                StatementResult(
-                    id=item["id"],
-                    section=item["section"],
-                    state=StatementState.RESOLVED,
-                    readiness=option_readiness or readiness,
-                    statement=statement,
-                    selected_option=selected_option,
-                    provenance=Provenance.HUMAN,
-                    answer_refs=[question.id],
-                    human_confirmed=True,
-                )
+        result = _resolved_or_open(
+            StatementResult(
+                id=item["id"],
+                section=item["section"],
+                state=StatementState.RESOLVED,
+                readiness=option_readiness or readiness,
+                statement=statement,
+                selected_option=selected_option,
+                provenance=Provenance.HUMAN,
+                answer_refs=[question.id],
+                human_confirmed=True,
             )
-            _merge_into_completed_item(item, result, results)
-            results.append(result)
-            item_values[item["id"]] = answer.value
-            continue
+        )
+        _merge_into_completed_item(item, result, results)
+        return result, answer.value
 
-        if mode == "ev_to_ai":
-            _show_preface(item, ctx, wizard)
-            fallback_question = _completion_prefill(
-                _question_from_item(item, ctx, deferrable=True), item, results
-            )
-            result = evaluate_ai_item(item, ctx, wizard, fallback_question)
-            _merge_into_completed_item(item, result, results)
-            results.append(result)
-            item_values[item["id"]] = result.selected_option or result.statement
-            continue
+    if mode == "ev_to_ai":
+        _show_preface(item, ctx, wizard)
+        fallback_question = _completion_prefill(
+            _question_from_item(item, ctx, deferrable=True), item, results
+        )
+        result = evaluate_ai_item(item, ctx, wizard, fallback_question)
+        _merge_into_completed_item(item, result, results)
+        return result, result.selected_option or result.statement
 
-        evaluator = _EVALUATORS.get(str(item.get("evaluator", "")))
-        if evaluator is None:
-            results.append(
-                _unavailable(
-                    item, readiness, "deterministic evaluator unavailable", ctx.source_package
-                )
-            )
-            item_values[item["id"]] = None
-            continue
-        assessment = evaluator(item, ctx)
-        if assessment.statement is None:
-            results.append(
-                _unavailable(item, readiness, assessment.unavailable_reason, ctx.source_package)
-            )
-            item_values[item["id"]] = None
-            continue
-        result = _deterministic_result(item, readiness, assessment)
-        results.append(result)
-        item_values[item["id"]] = result.statement
-    return results
+    evaluator = _EVALUATORS.get(str(item.get("evaluator", "")))
+    if evaluator is None:
+        return (
+            _unavailable(
+                item, readiness, "deterministic evaluator unavailable", ctx.source_package
+            ),
+            None,
+        )
+    assessment = evaluator(item, ctx)
+    if assessment.statement is None:
+        return (
+            _unavailable(item, readiness, assessment.unavailable_reason, ctx.source_package),
+            None,
+        )
+    result = _deterministic_result(item, readiness, assessment)
+    return result, result.statement
 
 
 def _completion_prefill(

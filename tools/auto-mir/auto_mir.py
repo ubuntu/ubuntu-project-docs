@@ -20,6 +20,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from utils import run_state
 from utils.cli import ask_yes_no, parse_bool_arg
 from utils.dependencies import ensure_runtime_environment
 from utils.llm_sanitize import make_nonce
@@ -274,6 +275,11 @@ class RunContext:
     Populated by stage_render / render.write_outputs() (Stage 5):
         report_path, review_draft_path
 
+    Initialized in main() right after logging setup:
+        run_state (the incrementally persisted recovery state, see
+        utils/run_state.py; None in unit-test contexts, where every
+        run_state helper is a no-op)
+
     Updated incrementally by llm.call_llm() (during Stage 4):
         llm_calls_by_model, llm_estimated_tokens, llm_reasoning_traces
     """
@@ -349,6 +355,10 @@ class RunContext:
         self.statement_results: list = []
         self.consistency_report = None
 
+        # --- Initialized in main() right after logging setup ---
+        # Incrementally persisted recovery state (see utils/run_state.py).
+        self.run_state: dict | None = None
+
         # --- Populated on failures for teardown/user messaging ---
         self.failure_summary: str | None = None
 
@@ -391,6 +401,7 @@ def stage_intake(ctx: RunContext) -> None:
 
     log.info("=== Stage 1: Launchpad intake for bug %s ===", ctx.bug_id)
     lp_intake.run(ctx)
+    run_state.mark_stage_done(ctx, "intake")
     # lp_intake.run() populates ctx.bug, ctx.source_package, ctx.reporter_mir_content
     # and raises SystemExit(1) with a clear message if reporter content is missing.
 
@@ -407,6 +418,7 @@ def stage_spawn_guest(ctx: RunContext) -> None:
     log.info("=== Stage 2: Spawning LXD guest for %s ===", ctx.source_package)
     lxd_runner.spawn(ctx)
     ctx.evidence["runtime_isolation"] = lxd_runner.collect_runtime_facts(ctx)
+    run_state.mark_stage_done(ctx, "guest")
     # lxd_runner.spawn() populates ctx.guest_name
 
 
@@ -454,6 +466,7 @@ def stage_collect_evidence(ctx: RunContext) -> int:
         "error": len([x for x in adapter_results.values() if x.get("status") == "error"]),
         "guest_adapter_failed": guest_adapter_failed,
     }
+    run_state.mark_stage_done(ctx, "evidence")
     return result
 
 
@@ -478,6 +491,8 @@ def stage_analyse(ctx: RunContext) -> None:
         "evaluated_checks": len([f for f in ctx.findings if f.status != "not-evaluated"]),
         "pending_checks": len([f for f in ctx.findings if f.status == "not-evaluated"]),
     }
+    run_state.record_review_scope(ctx)
+    run_state.mark_stage_done(ctx, "analysis")
 
 
 def stage_render(ctx: RunContext) -> None:
@@ -498,6 +513,7 @@ def stage_render(ctx: RunContext) -> None:
 
     log.info("=== Stage 5: Rendering output for %s ===", ctx.source_package)
     write_outputs(ctx)
+    run_state.mark_stage_done(ctx, "render")
 
 
 def _resolve_llm_auth(ctx: RunContext) -> None:
@@ -800,6 +816,11 @@ def main() -> int:
     # Setup dual logging: colored console + JSON file
     _setup_logging(ctx, args)
 
+    # Persist the run's incremental recovery state (stage markers plus,
+    # in report mode, one statement result at a time).
+    ctx.run_state = run_state.init_state(ctx)
+    run_state.save_state(ctx)
+
     log.info(
         "auto-mir starting: role=%s bug=%s keep_guest=%s collect_only=%s",
         ctx.role,
@@ -821,7 +842,7 @@ def main() -> int:
         if ctx.role == ROLE_REPORT:
             from reporter import pipeline as reporter_pipeline
             from reporter.render import DraftLintFailed
-            from reporter.wizard import TerminalWizard
+            from reporter.wizard import TerminalWizard, WizardAborted
 
             wizard = TerminalWizard()
             current_stage = "Reporter Stage 0 (optional auth)"
@@ -839,7 +860,23 @@ def main() -> int:
             else:
                 ctx.save_evidence()
                 current_stage = "Reporter Stage 4 (statements and questions)"
-                reporter_pipeline.analyse(ctx, wizard)
+                # A :cancel/EOF on a required question is a deliberate
+                # reporter abort, not a tool error: every answered item is
+                # already in the run state, so the run ends cleanly with a
+                # pointer at how to continue instead of an "Unexpected
+                # error" traceback.
+                try:
+                    reporter_pipeline.analyse(ctx, wizard)
+                except WizardAborted as exc:
+                    _emergency_save(ctx)
+                    ctx.failure_summary = f"Run interrupted by the reporter: {exc}"
+                    log.error("%s", ctx.failure_summary)
+                    log.info(
+                        "Answered items are saved; rerun with the same --output-dir "
+                        "(or --recovery) to continue with the remaining steps."
+                    )
+                    exit_code = 1
+                    return _finish_run(ctx, evidence_result, exit_code)
                 current_stage = "Reporter Stage 5 (rendering)"
                 # A lint failure is not a crash: write_outputs has already
                 # written the draft and report (the session's answers are
@@ -884,6 +921,7 @@ def main() -> int:
             ctx.requested_binaries = _resolve_requested_binaries(all_binaries)
             if ctx.requested_binaries:
                 log.info("Requested binaries: %s", ", ".join(ctx.requested_binaries))
+        run_state.record_review_scope(ctx)
 
         # Handle early exit mode
         if ctx.collect_only:
@@ -905,6 +943,18 @@ def main() -> int:
 
     except SystemExit:
         raise
+    except KeyboardInterrupt:
+        # Ctrl-C is a deliberate reporter/reviewer action: checkpoint what
+        # exists (per-item state is already saved in report mode), destroy
+        # the guest through the normal tail, and point at recovery.
+        _emergency_save(ctx)
+        ctx.failure_summary = f"{current_stage} was interrupted (Ctrl-C)."
+        log.error("%s", ctx.failure_summary)
+        log.info(
+            "Progress is saved; rerun with the same --output-dir (or --recovery) "
+            "to continue with the remaining steps."
+        )
+        exit_code = 1
     except Exception as exc:
         if evidence_result != 0:
             ctx.failure_summary = (
@@ -913,10 +963,28 @@ def main() -> int:
         else:
             ctx.failure_summary = f"{current_stage} failed."
         log.error("Unexpected error: %s", exc, exc_info=args.verbose)
+        _emergency_save(ctx)
         exit_code = 1
 
     # Cleanup and final output (always runs)
     return _finish_run(ctx, evidence_result, exit_code)
+
+
+def _emergency_save(ctx: RunContext) -> None:
+    """Best-effort evidence + run-state checkpoint for the failure paths.
+
+    Never raises: a failure while handling a failure must not mask the
+    original error, and both artifacts have incremental copies (per-item
+    run state, per-stage evidence) anyway.
+    """
+    try:
+        ctx.save_evidence()
+    except Exception:
+        log.debug("Emergency evidence save failed", exc_info=True)
+    try:
+        run_state.save_state(ctx)
+    except Exception:
+        log.debug("Emergency run-state save failed", exc_info=True)
 
 
 def _finish_run(ctx: RunContext, evidence_result: int, exit_code: int) -> int:

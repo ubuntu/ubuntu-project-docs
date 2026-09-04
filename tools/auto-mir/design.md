@@ -158,6 +158,20 @@ A reporter evaluator returns an `Assessment`: the evidence-derived
 The two must stay distinct: a single opaque rationale field made
 "here is what was queried" indistinguishable from real outstanding work.
 
+### Run state (recovery checkpoint)
+
+Every run writes `run-state.json` to the output directory incrementally
+(`utils/run_state.py`): run metadata (role, subject, series, guest name), a
+`done` marker per pipeline stage as it completes, and - for the report
+role - one statement result plus its condition value at a time while the
+reporter answers. Writes are atomic (`tmp` + `os.replace`) and sanitized
+like every artifact, so a crash or interrupt costs at most the in-flight
+item. Interrupts are handled as deliberate actions, not tool errors:
+`KeyboardInterrupt` checkpoints evidence and state, tears the guest down
+through the normal tail, and exits non-zero with a pointer at recovery;
+a reporter `:cancel`/EOF abort (`WizardAborted`) does the same without a
+traceback.
+
 ### Placeholder resolution in statements
 
 Two kinds of placeholder live in reporter catalog statements. `TBD` slots

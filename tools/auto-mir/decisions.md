@@ -5272,3 +5272,51 @@ required human_only item deferred through `evaluate_items` lands in
 `Left to clarify:` with its BLOCKER readiness intact (still listed in
 `report["readiness"]["blockers"]`); an optional human_only skip stays
 `NOT_APPLICABLE`.
+
+## 2026-09-04 — Reporter feedback round (upki artifact), item 2 foundation: incremental run-state persistence
+
+Promotion: no
+
+**Context:** feedback item 2 ("ability to recover from a failed run")
+needs the output directory to describe a run precisely enough to resume
+it, and feedback item 4 showed the cost of not having that: the upki
+crash destroyed ~90 minutes of answers because they only ever reached
+`report.json` at the very end of the run. Even the existing failure
+paths lost data or leaked resources: `KeyboardInterrupt` (Ctrl-C) was
+uncaught - traceback, no guest teardown, no checkpoint - and a reporter
+`:cancel`/EOF abort surfaced as "Unexpected error".
+
+**Decision:**
+- New `utils/run_state.py` writes `run-state.json` (schema_version 1) to
+  the output directory: `meta` (role, bug id/source package, series,
+  pocket, run name, guest name, timestamps), `stages` (`intake`, `guest`,
+  `evidence`, `analysis`, `render` - each marked `done` on completion),
+  `review` (requested binaries, resolved review type), and `report`
+  (`item_values`, per-item `results`, and a `prepared` map reserved for
+  the upcoming two-pass evaluation). Every write is atomic (tmp +
+  `os.replace`) and runs through the run's exact-value secret redactor,
+  so a crash mid-write can only ever lose the in-flight item - "discard
+  half-done states" then requires no special logic.
+- `reporter.evaluator.evaluate_items` was restructured into a per-item
+  worker (`_evaluate_item`) so each completed item - including the
+  parent of a merged `completes` follow-up - is recorded the moment it
+  finishes. The consistency pass's statement corrections are folded in
+  via `record_all_results` when analysis completes. All run-state
+  helpers are no-ops for contexts without state, so unit-test contexts
+  stay unchanged.
+- `main()` now handles interrupts as deliberate actions rather than
+  tool errors: `KeyboardInterrupt` checkpoints evidence + state
+  (`_emergency_save`, best-effort, never raises), sets the failure
+  summary, runs the normal teardown tail, and logs how to continue;
+  `WizardAborted` in the report branch does the same and explicitly
+  points at re-running with the same `--output-dir` (or `--recovery`).
+  The generic exception handler also checkpoints via `_emergency_save`.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (999 passed, 2
+skipped); `make integration` PASS (1000 passed, 1 skipped, VM provisioned
+and torn down cleanly) since stage orchestration changed. New tests:
+`tests/test_utils_run_state.py` (roundtrip, atomicity, redaction,
+corrupt/schema-mismatch rejection, per-item + merged-parent recording,
+review-scope recording, no-op behavior) and crash-resilience tests in
+`tests/test_reporter_runtime.py` (a crash mid-session leaves every
+answered item in the run state, losing only the in-flight question).
