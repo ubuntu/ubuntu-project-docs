@@ -143,6 +143,52 @@ semantics. They record resolution state, readiness effect, statement
 provenance, evidence references, answer references, and explicit human
 confirmation. Human declarations are never inferred from package evidence.
 
+### Assessment (deterministic reporter evaluator contract)
+
+A reporter evaluator returns an `Assessment`: the evidence-derived
+`statement` plus, separately, a `note` and an `action` (or an
+`unavailable_reason` when nothing could be judged).
+
+- `note` is context nobody has to act on. The statement stays a confident
+  bullet, the note becomes its parenthetical, and readiness stays `clear`.
+- `action` means the reporter still owes something. The item becomes
+  `NEEDS_INPUT` with its catalog-declared readiness, and the draft lists the
+  finding together with the required action under `Left to clarify:`.
+
+The two must stay distinct: a single opaque rationale field made
+"here is what was queried" indistinguishable from real outstanding work.
+
+### Statement authorship (no template splicing)
+
+Free-text questions open the editor on the item's own `template` sentence
+(`QuestionSpec.prefill`: TODO markers stripped, `TBDSRC` resolved, `TBD`
+slots kept, a confidently detected default filling the first slot). Whatever
+the reporter saves is the statement - the tool never merges an interview
+answer into a template. A `single_choice` answer resolves to its option's
+pre-written statement, and if that statement still contains `TBD` the wizard
+opens one completion round on exactly that sentence.
+
+A statement the reporter leaves a `TBD` in is not an error: it becomes
+`NEEDS_INPUT` and travels to `Left to clarify:`.
+
+An item may declare `completes: <parent-item-id>`. Its finished text becomes
+the parent's statement at the parent's blueprint position and the follow-up
+is recorded as `MERGED`, so a choice and the detail that completes it render
+as the one sentence the human template words, not two bullets. Validation
+requires the parent to exist, be asked earlier, gate the follow-up's
+applicability, and have exactly one completer.
+
+### Draft layout
+
+The blueprint decides section membership and statement order; the renderer
+decides spacing. Blueprint `''` separators are not reproduced (they separate
+template prose the draft does not emit at all): the renderer emits exactly
+one blank line before each `[Section]` header and before a clarify block,
+never two, none trailing. `catalog.classify_blueprint_entry()` is the single
+vocabulary deciding what is a section, RULE, TODO, label, blank, or item, so
+no consumer can drift into leaking template scaffolding into the draft;
+`_lint_draft` enforces the same contract on the rendered result.
+
 ## Catalog composition
 
 - `catalog.yaml` holds only the sections shared by both roles:

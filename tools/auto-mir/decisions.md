@@ -5029,3 +5029,102 @@ Notes on the round:
   failing suite (a YAML apostrophe broke catalog parsing) because I committed
   before re-running make test; fixed immediately in the follow-up commit and
   called out here so the pattern is visible in history.
+
+## 2026-09-04 - Reporter draft noise and unreadable statements (feedback round)
+
+Promotion: no
+
+Two user-reported problems from the jitterentropy-library test run, analysed
+together because both trace back to the reporter's rendering and answer
+handling rather than to the interactive flow (which the tester rated as
+working well - a hard constraint on every fix below: no interactive context
+was allowed to be removed).
+
+### Item 1 - template scaffolding and stray blank lines in the draft
+
+- Root cause A (RULE leak): `reporter/render.py::_build_draft` skipped
+  blueprint entries via `startswith("RULE:")`. Tagged clause openers
+  (`RULE[maint-owning-team]: ...`) matched neither that nor the TODO branch,
+  so they were emitted verbatim - the exact leak class fixed for the docs
+  renderers and `catalog._blueprint_section_rules()` on 2026-08-29, missed in
+  the runtime draft renderer. `_lint_draft`'s `"RULE:" in draft` guard had
+  the same blind spot, so the leak passed lint. Two catalog lines were also
+  mistyped (`"RULE      a preview ..."`, `"RULE    that referred ..."`),
+  which made them invisible to every RULE consumer: their prose silently
+  vanished from the reporter's own `rule_context` while the raw line leaked
+  into the draft.
+- Fix A: `catalog.classify_blueprint_entry()` is now the single entry
+  vocabulary (section/rule/todo/label/blank/item/text), used by the blueprint
+  parsers, the draft renderer, the draft linter, and a new validation that
+  rejects any unrecognized ("text") entry at catalog-load time. That
+  validation is what found the two typos; fixing them restored their prose to
+  the interactive Context block. The `label` kind exists for the reviewer
+  blueprint's structural `OK:` / `Required TODOs:` headings and is
+  deliberately narrow (`^[A-Za-z][A-Za-z ]*:$`) so it cannot absorb a
+  mistyped RULE line.
+- Root cause B (blank lines): the renderer echoed blueprint `''` separators
+  verbatim while skipping everything between them, producing runs of two and
+  three blanks; and a section's unreferenced results were flushed at the next
+  `[Section]` marker, i.e. after that separator, swallowing the blank line
+  before the next header.
+- Fix B: results are grouped per section first and the renderer derives
+  spacing itself (one blank before each header and before a clarify block,
+  never two, none trailing). `_lint_draft` now enforces that shape.
+- Root cause C (settled-looking open work): the dispatcher used
+  `readiness if rationale else CLEAR`, so any non-empty rationale raised
+  readiness and every finding rendered as a confident bullet regardless of
+  whether it asked the reporter for anything.
+- Fix C: the evaluator contract became an `Assessment` dataclass with
+  separate `note` / `action` / `unavailable_reason`. Per the tester's ruling
+  ("any warning/blocker readiness moves, except the outdated OSS-security
+  hint"), an `action` now yields `NEEDS_INPUT` + the catalog readiness and
+  lands under `Left to clarify:` with the finding and the action together,
+  while a `note` keeps the confident bullet and cannot affect readiness. Every
+  evaluator's existing rationale string was classified individually; the CVE
+  sourcing text (the OSS-security case the tester named) is a note, and the
+  two "see the following item" cross-references (lintian overrides,
+  Maintainer field) are notes because a dedicated follow-up item already
+  carries that work.
+- Rejected: keying the move on readiness alone with a hardcoded exception for
+  the CVE item. It would have re-encoded the same conflation the split
+  removes, and needed a per-item exception list to stay correct.
+
+### Item 2 - statements that do not read as sentences
+
+- Root cause: `template.replace("TBD", answer, 1)` in both
+  `evaluator._human_statement` and `ai._ask_human`. Questions are worded as
+  interview prompts, templates as sentence fragments, so the merge could not
+  be grammatical ("required in Ubuntu main for This is an entropy source
+  alternative"; an answer about who benefits landed in "Additional reasons
+  TBD"). Multi-TBD templates kept every slot but the first literal. The two
+  paths also disagreed: `ai.py`'s multiline branch already refused to splice,
+  with a comment arguing against it.
+- Decision (tester's choice of the two offered options): prefill, no
+  splicing. `utils/editor.py` already supported an initial text, so a
+  free-text question opens on the item's own template sentence and whatever
+  is saved IS the statement. This also makes multi-slot templates work, which
+  is why the "at most one TBD per template" validation was dropped - it only
+  ever existed to protect the splicing model.
+- Follow-on decision: a `single_choice` whose chosen option statement still
+  contains `TBD` gets one completion round on that exact sentence, so picking
+  an alternative and wording it stay separate steps without the tool writing
+  prose.
+- Follow-on decision (tester-confirmed): `completes: <parent>` makes a
+  follow-up finish its parent's sentence instead of adding a second bullet -
+  the human template words each alternative as one line. Seven pairs use it.
+  REP-UI-002/003 deliberately do not: both are gated on REP-UI-001, and the
+  one-completer-per-parent rule (two answers would overwrite each other in
+  one bullet) is worth more than uniformity here. Four other follow-ups were
+  initially proposed for it and then excluded during the mapping review
+  because their applicability is evidence-based, so there is no parent
+  statement to complete.
+- Safety net: a statement left with a `TBD` becomes `NEEDS_INPUT` rather than
+  reaching `_lint_draft`, whose raw-TBD guard would otherwise abort the whole
+  run at write time - a real regression risk now that leaving a slot open is
+  a documented, legitimate choice.
+- Catalog: ~20 label-style templates invented for splicing were replaced by
+  the blueprint's own TODO wording; REP-QA-PKG-004 and REP-QA-FUNC-001
+  regained their original TODO-A/TODO-B alternatives as choices; REP-BG-002
+  became multiline so one mechanism covers every free-text item;
+  REP-RATIONALE-002 and REP-SECURITY-006 became optional (the latter's RULE
+  explicitly says to drop the lines when nothing was spotted).
