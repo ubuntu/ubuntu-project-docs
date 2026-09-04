@@ -21,6 +21,7 @@ from datetime import datetime
 from pathlib import Path
 
 from utils import run_state
+from utils.attention import make_alerter
 from utils.cli import ask_yes_no, parse_bool_arg
 from utils.dependencies import ensure_runtime_environment
 from utils.llm_sanitize import make_nonce
@@ -212,6 +213,17 @@ def build_parser() -> argparse.ArgumentParser:
             "(MIR maintainers often stage test/lintian fixes there), else the "
             "release pocket. 'proposed': require the proposed version. "
             "'release': always use the release-pocket version."
+        ),
+    )
+    common.add_argument(
+        "--no-alerts",
+        dest="no_alerts",
+        action="store_true",
+        default=False,
+        help=(
+            "Disable the idle terminal bell and desktop notifications raised "
+            "when the tool waits for input (a question left unanswered for a "
+            "minute, or the interactive phase starting)."
         ),
     )
     common.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
@@ -825,7 +837,7 @@ def _resume_subject(args: argparse.Namespace) -> str:
     return str(getattr(args, "bug_id", "") or getattr(args, "source_package", "") or "")
 
 
-def _resolve_resume_directory(args: argparse.Namespace) -> Path | None:
+def _resolve_resume_directory(args: argparse.Namespace, *, alerter=None) -> Path | None:
     """Preflight existing output state; return the directory to resume.
 
     Handles an explicit ``--output-dir`` (continue/overwrite prompts per
@@ -842,9 +854,11 @@ def _resolve_resume_directory(args: argparse.Namespace) -> Path | None:
     role = str(getattr(args, "role", ROLE_REVIEW))
     subject = _resume_subject(args)
     if getattr(args, "output_dir", None):
-        return recovery.preflight_output_dir(Path(args.output_dir), role=role, subject=subject)
+        return recovery.preflight_output_dir(
+            Path(args.output_dir), role=role, subject=subject, alerter=alerter
+        )
     if getattr(args, "recovery", False):
-        return recovery.offer_recovery_scan(role=role, subject=subject)
+        return recovery.offer_recovery_scan(role=role, subject=subject, alerter=alerter)
     return None
 
 
@@ -867,7 +881,10 @@ def main() -> int:
     # before RunContext creates or reuses output state. Delining exits early;
     # --collect-only bypasses it: that is a developer mode regenerating
     # fixtures into pre-existing directories.
-    resume_dir: Path | None = _resolve_resume_directory(args)
+    # Idle-attention alerts (bell + desktop notification) for every wait
+    # for input; None when disabled by --no-alerts or without a terminal.
+    alerter = make_alerter(alerts_enabled=not getattr(args, "no_alerts", False))
+    resume_dir: Path | None = _resolve_resume_directory(args, alerter=alerter)
     if resume_dir is not None:
         args.output_dir = str(resume_dir)
 
@@ -922,7 +939,7 @@ def main() -> int:
             from reporter.render import DraftLintFailed
             from reporter.wizard import TerminalWizard, WizardAborted
 
-            wizard = TerminalWizard()
+            wizard = TerminalWizard(alerter=alerter)
             current_stage = "Reporter Stage 0 (optional auth)"
             stage_optional_auth(ctx)
             current_stage = "Reporter Stage 1 (source intake)"

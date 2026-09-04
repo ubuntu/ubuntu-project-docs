@@ -103,6 +103,22 @@ Always-run tail logic:
 - teardown/preserve VM based on tri-state keep policy,
 - print completion banner.
 
+## Idle-attention alerts
+
+Reporter runs sit next to other work, so every wait for terminal input
+(the wizard's question loops and confirmations, the recovery prompts, and
+the interactive-phase start) arms an idle alert through
+`utils/attention.py`: after 60 seconds without input, the terminal bell
+rings and a best-effort `notify-send` desktop notification ("auto-mir
+needs input: <question>") is raised; the bell repeats every 5 minutes
+while input is still pending, and everything is cancelled the moment
+input arrives. Nothing fires when the reporter is watching (they answer
+first), nothing fires headless (a piped session disables the alerter
+entirely), and `--no-alerts` turns the whole mechanism off. The batch
+banner at the prep-to-questions transition rings immediately - that is
+the one alert that fires without idleness, calling the reporter back for
+the single interactive phase.
+
 ## Credential boundary
 
 LLM requests run on the host. Authentication values are therefore neither

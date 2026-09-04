@@ -33,10 +33,15 @@ class TerminalWizard:
         read_line: Callable[[str], str] = input,
         write_line: Callable[[str], None] = print,
         edit_text: Callable[[str, list[str]], str | None] = editor.edit_text,
+        alerter=None,
     ) -> None:
         self._read_line = read_line
         self._write_line = write_line
         self._edit_text = edit_text
+        # Optional utils.attention.AttentionAlerter: arms an idle bell +
+        # desktop notification while this wizard blocks on a terminal
+        # read. ``None`` (tests, headless callers) skips the timers.
+        self._alerter = alerter
 
     def begin_batch(self, question_count: int) -> None:
         """Announce the single interactive phase ahead of its first question.
@@ -45,13 +50,32 @@ class TerminalWizard:
         AI suggestion preparation) is done by the time this is called, so
         the reporter knows the upcoming questions are the only attention
         this run still needs - one uninterrupted phase, not a question
-        between long working gaps.
+        between long working gaps. This is also the moment a reporter away
+        from the terminal is called back: the bell and the desktop
+        notification fire right here.
         """
         self._write_line("")
         self._write_line(
             f"Preparation complete. Interactive phase: about {question_count} "
             "questions ahead; you can defer any of them with :defer."
         )
+        if self._alerter is not None:
+            self._alerter.ring(f"Preparation finished - {question_count} questions ready")
+
+    def _read_with_alert(self, prompt: str, message: str) -> str:
+        """Read one line, arming the idle alert around the blocking wait.
+
+        The alert only ever fires when nobody answers for a while - the
+        reporter watching the screen should never be annoyed - and is
+        cancelled the moment input arrives.
+        """
+        if self._alerter is None:
+            return self._read_line(prompt)
+        handle = self._alerter.start(message)
+        try:
+            return self._read_line(prompt)
+        finally:
+            self._alerter.cancel(handle)
 
     def ask(self, question: QuestionSpec) -> Answer | None:
         """Ask until a valid answer is provided, or return None if optional."""
@@ -69,7 +93,7 @@ class TerminalWizard:
         self._render_options(question)
         while True:
             try:
-                raw = self._read_line("> ").strip()
+                raw = self._read_with_alert("> ", str(question.prompt)).strip()
             except EOFError as exc:
                 return self._handle_missing(question, "input ended", exc)
 
@@ -135,7 +159,9 @@ class TerminalWizard:
         )
         while True:
             try:
-                raw = self._read_line("> ").strip()
+                raw = self._read_with_alert(
+                    "> ", f"confirm the suggested statement ({question_id})"
+                ).strip()
             except EOFError as exc:
                 self._handle_missing(placeholder_question, "input ended", exc)
                 continue
@@ -334,7 +360,7 @@ class TerminalWizard:
         lines: list[str] = []
         while True:
             try:
-                raw = self._read_line("| ")
+                raw = self._read_with_alert("| ", str(question.prompt))
             except EOFError as exc:
                 return self._handle_missing(question, "multiline input ended", exc)
 

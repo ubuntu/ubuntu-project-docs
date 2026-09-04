@@ -938,3 +938,69 @@ def test_begin_batch_announces_the_interactive_phase_with_question_count():
         for line in output
     )
     assert any(":defer" in line for line in output)
+
+
+# ---------------------------------------------------------------------------
+# Idle-attention alerts (feedback item 1): a question left unanswered for a
+# minute arms the bell/notification; answered promptly, nothing fires.
+# ---------------------------------------------------------------------------
+
+
+class RecordingAlerter:
+    def __init__(self):
+        self.started: list[tuple[object, str]] = []
+        self.cancelled: list[object] = []
+        self.rings: list[str] = []
+
+    def start(self, message):
+        handle = object()
+        self.started.append((handle, message))
+        return handle
+
+    def cancel(self, handle):
+        self.cancelled.append(handle)
+
+    def ring(self, message):
+        self.rings.append(message)
+
+
+def test_wizard_arms_and_cancels_the_idle_alert_around_a_question():
+    alerter = RecordingAlerter()
+    wizard = TerminalWizard(read_line=_reader(["yes"]), write_line=lambda _l: None, alerter=alerter)
+    question = QuestionSpec(id="REP-CONFIRM", prompt="Confirm?", kind=QuestionKind.CONFIRM)
+
+    wizard.ask(question)
+
+    assert len(alerter.started) == 1
+    handle, message = alerter.started[0]
+    assert message == "Confirm?"
+    assert alerter.cancelled == [handle]
+
+
+def test_wizard_arms_the_alert_for_every_retry_of_an_invalid_answer():
+    alerter = RecordingAlerter()
+    wizard = TerminalWizard(
+        read_line=_reader(["maybe", "y"]), write_line=lambda _l: None, alerter=alerter
+    )
+    question = QuestionSpec(id="REP-CONFIRM", prompt="Confirm?", kind=QuestionKind.CONFIRM)
+
+    wizard.ask(question)
+
+    assert len(alerter.started) == 2
+    assert alerter.cancelled == [alerter.started[0][0], alerter.started[1][0]]
+
+
+def test_wizard_begin_batch_rings_the_attention_alert():
+    alerter = RecordingAlerter()
+    wizard = TerminalWizard(read_line=_reader([]), write_line=lambda _l: None, alerter=alerter)
+
+    wizard.begin_batch(7)
+
+    assert alerter.rings == ["Preparation finished - 7 questions ready"]
+
+
+def test_wizard_without_an_alerter_never_touches_alert_machinery():
+    wizard = TerminalWizard(read_line=_reader(["yes"]), write_line=lambda _l: None)
+    question = QuestionSpec(id="REP-CONFIRM", prompt="Confirm?", kind=QuestionKind.CONFIRM)
+
+    assert wizard.ask(question).value is True

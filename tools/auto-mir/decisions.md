@@ -5433,3 +5433,47 @@ exact LLM/confirm interleaving (event-log test), a resumed run reuses
 persisted suggestions without new LLM calls except for never-prepared
 gated items, and the prepare/confirm split's note replay, lock-reason and
 option-readiness passthrough are covered in `tests/test_reporter_ai.py`.
+
+## 2026-09-04 — Reporter feedback round (upki artifact), item 1: idle bell + desktop notifications
+
+Promotion: no
+
+**Context:** feedback item 1: reporter runs sit next to other work, and a
+question that pops up while the reporter looks elsewhere goes unnoticed.
+A bell only after a minute of idleness (not immediately - someone
+watching the screen should not be annoyed), plus a desktop notification
+so the generic "something needs attention" sound becomes "auto-mir needs
+new input" with the question text. Tester's alignment-round choices: bell
+at 60s, repeat every 5 minutes while still idle, notification once per
+wait, and a `--no-alerts` flag to disable everything.
+
+**Decision:**
+- New `utils/attention.py::AttentionAlerter`: `start(message)` arms a
+  daemon timer around one blocking read (60s to the first bell, then a
+  bell every 300s while input is still missing; one
+  `notify-send --expire-time=10000` per wait, body truncated to 120
+  chars), `cancel` stops it the moment input arrives, and `ring` raises
+  an immediate bell+notification. Bell and notification callables are
+  injectable, so the unit tests stay synchronous; a missing notification
+  daemon or a failed bell write is swallowed with a debug log and never
+  disturbs the question flow.
+- `make_alerter(alerts_enabled=...)` returns ``None`` when `--no-alerts`
+  is set or the session is not an interactive tty - deliberately ``None``
+  rather than an inert object, so the wizard and prompts skip the timer
+  machinery entirely and unit tests stay silent by default.
+- Wired at every wait for input: the wizard's question, confirmation, and
+  raw-multiline loops (`TerminalWizard._read_with_alert`, message = the
+  question prompt), the recovery preflight and `--recovery` scan prompts
+  (`utils.cli.ask_yes_no` gained the optional alerter), and the
+  interactive-phase banner (`TerminalWizard.begin_batch` rings
+  immediately - the prep-to-questions transition is the one alert that
+  fires without idleness, per feedback item 3's reordering). The teardown
+  keep-guest prompt is deliberately not wired: it appears right after
+  the user was interacting with the finished run.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (1035 passed, 2
+skipped). New `tests/test_utils_attention.py` (fires after the idle
+delay, silent when answered in time, bell repeats while the notification
+does not, `ring` immediacy, notification-daemon failure swallowed, body
+truncation, flag/tty gating) plus wizard and `ask_yes_no` arming/cancel
+tests.

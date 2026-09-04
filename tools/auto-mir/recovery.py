@@ -95,7 +95,7 @@ def classify_directory(directory: Path) -> dict[str, Any]:
     return {"status": "foreign", "state": None}
 
 
-def preflight_output_dir(directory: Path, *, role: str, subject: str) -> Path | None:
+def preflight_output_dir(directory: Path, *, role: str, subject: str, alerter=None) -> Path | None:
     """Handle an explicitly requested ``--output-dir`` that already exists.
 
     Returns the directory to resume, or ``None`` for a full new run.
@@ -131,7 +131,8 @@ def preflight_output_dir(directory: Path, *, role: str, subject: str) -> Path | 
 
     if status in {"aborted", "legacy-aborted"}:
         if not ask_yes_no(
-            f"{directory} already contains a run, should I continue with the remaining steps?"
+            f"{directory} already contains a run, should I continue with the remaining steps?",
+            alerter=alerter,
         ):
             _decline(directory)
         return directory
@@ -139,7 +140,8 @@ def preflight_output_dir(directory: Path, *, role: str, subject: str) -> Path | 
     # foreign: non-empty, but nothing resumable lives in it.
     if not ask_yes_no(
         f"{directory} is not empty and holds no recognizable auto-mir run, "
-        "should I overwrite with a full new run?"
+        "should I overwrite with a full new run?",
+        alerter=alerter,
     ):
         _decline(directory)
     return None
@@ -168,7 +170,7 @@ def _scan_runs(base: Path, *, role: str, subject: str) -> list[tuple[Path, str, 
 
 
 def offer_recovery_scan(
-    *, role: str, subject: str, base: Path = DEFAULT_OUTPUT_BASE
+    *, role: str, subject: str, base: Path = DEFAULT_OUTPUT_BASE, alerter=None
 ) -> Path | None:
     """Scan the default output paths for the most recent run of this subject.
 
@@ -195,7 +197,8 @@ def offer_recovery_scan(
             raise SystemExit(1)
         if ask_yes_no(
             f"{newest_dir} is the most recent run for {subject} "
-            "(it aborted), should I recover and continue with the remaining steps?"
+            "(it aborted), should I recover and continue with the remaining steps?",
+            alerter=alerter,
         ):
             return newest_dir
         print("No recovery performed. Exiting.")

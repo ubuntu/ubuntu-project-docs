@@ -56,7 +56,7 @@ class _Answers:
         self.answers = iter(answers)
         self.prompts = []
 
-    def __call__(self, prompt, *, default=None):
+    def __call__(self, prompt, *, default=None, **_kwargs):
         self.prompts.append(prompt)
         return next(self.answers)
 
