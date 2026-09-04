@@ -5128,3 +5128,53 @@ was allowed to be removed).
   became multiline so one mechanism covers every free-text item;
   REP-RATIONALE-002 and REP-SECURITY-006 became optional (the latter's RULE
   explicitly says to drop the lines when nothing was spotted).
+
+## 2026-09-04 — REP-QA-PKG-004: construct the debian/rules link instead of asking for it
+
+Promotion: no
+
+**Context:** the reporter flow's packaging-complexity item (REP-QA-PKG-004)
+offered "Packaging and build is easy, link to debian/rules TBD" and then
+made the reporter find that link themselves - either in the single-choice
+completion editor (no-LLM fallback) or by editing the AI suggestion. Both
+the source package and the target series are known to the flow, so the link
+is fully constructible: the Launchpad git importer keeps `ubuntu/devel` for
+the development release and `ubuntu/<series>-devel` per named series
+(verified against the isa-support repo's branch list), e.g.
+`https://git.launchpad.net/ubuntu/+source/isa-support/tree/debian/rules?h=ubuntu/resolute-devel`.
+
+**Decision:**
+- Commit 1 (behavior-neutral plumbing): a `TBDRULESURL` catalog placeholder
+  plus its resolution in `reporter/text_utils.py` (`debian_rules_url` +
+  `substitute_rules_url`), applied at the three statement finalization
+  points: the AI options/suggestion path (`reporter/ai.py`, substituted
+  once up front so the prompt's options section, the validated canonical
+  statement, and the confirmed result all carry the final URL), the human
+  fallback (`_ask_human`, after `resolve_option_statements`), and the
+  question display (`evaluator._question_from_item`). The token
+  deliberately contains `TBD`, so an unsubstituted leak still trips the
+  existing placeholder guards (`consistency.validate_results`,
+  `render._lint_draft`) instead of reaching the draft.
+- Same commit: an AI suggestion still carrying a raw `TBD` (the complex
+  option's "but that is ok because TBD") now has its yes-confirmation
+  locked - the reporter must edit in the justification. Without this, a
+  verbatim yes would store a RESOLVED statement with a raw TBD, which
+  `render._lint_draft` rejects at write time, aborting the run. The
+  complexity justification stays reporter-owned by design.
+- Commit 2 (activation): REP-QA-PKG-004's easy option statement now uses
+  `TBDRULESURL`, and its `ai_policy` was rewritten to judge from the full
+  verbatim `debian_rules` (already guaranteed in the prompt via
+  `_FULL_CONTENT_FIELDS_BY_ITEM`) with the reviewer's PRF-9 criteria:
+  standard debhelper with parametrising-only overrides → easy; disabling
+  tests/hardening, large hand-rolled logic, or roughly >100 non-comment
+  lines → complex, with the rationale summarising what makes it complex so
+  the reporter can justify it. The human template's own blueprint TODO line,
+  the item `template`, and the option `todo_ref` keep their literal `TBD` -
+  that wording is the manual template the human reporter follows, where an
+  open slot is legitimate.
+
+**Validation from `tools/auto-mir`:** `make test` PASS after each commit
+(974 passed, 2 skipped after commit 1; unchanged counts after commit 2).
+New tests cover the URL mapping (devel vs named series), the substituted
+AI suggestion/confirmed statement, the TBD lock on the complex option, and
+the no-completion-round human fallback.

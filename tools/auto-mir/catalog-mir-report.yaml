@@ -997,14 +997,14 @@ items:
   readiness: warning
   adapters_required: [packaging-source]
   covers_rule_clauses: [pkg-maintainability]
-  ai_policy: Assess only maintainability of debian/rules and packaging metadata. Simple debhelper overrides are acceptable; identify disabling tests/hardening or large hand-written logic without inventing policy violations.
+  ai_policy: 'Assess maintainability of the packaging from the full debian/rules content (provided verbatim in packaging-source.debian_rules). Select easy when it is an essentially standard debhelper setup - "#!/usr/bin/make -f" plus "%: dh $@" with only defaults, or with overrides that merely configure/parametrise the build, tests, or autoconfigure (e.g. passing flags, enabling/selecting tests) WITHOUT disabling them; the debian/rules link in that statement is completed automatically from the source package and target series. Select complex only when the rules file is a genuine maintenance hazard - it disables hardening or tests, contains large hand-rolled build logic, manipulates files in fragile ways, or is long/complex (roughly >100 non-comment lines) - and summarise concisely in the rationale what makes it complex, since the reporter must justify why that is acceptable. Do not invent policy violations.'
   question:
     kind: single_choice
     prompt: Is the packaging and build easy, or complex but justified?
     options:
     - id: easy
       label: Packaging and build is easy
-      statement: '- Packaging and build is easy, link to debian/rules TBD'
+      statement: '- Packaging and build is easy, link to debian/rules TBDRULESURL'
       readiness: clear
       todo_ref: 'TODO-A: - Packaging and build is easy, link to debian/rules TBD'
     - id: complex

@@ -158,6 +158,21 @@ A reporter evaluator returns an `Assessment`: the evidence-derived
 The two must stay distinct: a single opaque rationale field made
 "here is what was queried" indistinguishable from real outstanding work.
 
+### Placeholder resolution in statements
+
+Two kinds of placeholder live in reporter catalog statements. `TBD` slots
+are the reporter's to fill: the wizard opens one completion round on the
+chosen sentence, a saved-with-`TBD` statement becomes `NEEDS_INPUT`, and an
+AI suggestion still carrying one has its yes-confirmation locked so it can
+never be accepted verbatim (the draft lint rejects a raw `TBD` at write
+time). `TBDRULESURL` is resolved by the tool instead of the reporter: the
+Launchpad git URL of `debian/rules` is constructed from the source package
+and target series (`ubuntu/devel` for the development release,
+`ubuntu/<series>-devel` otherwise), at the AI suggestion, human fallback,
+and question-display paths alike. The token deliberately contains `TBD`, so
+an unsubstituted leak still trips the existing placeholder guards rather
+than reaching the draft.
+
 ### Statement authorship (no template splicing)
 
 Free-text questions open the editor on the item's own `template` sentence
