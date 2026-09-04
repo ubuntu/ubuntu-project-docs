@@ -508,7 +508,7 @@ items:
       statement: '- The package TBDSRC will generally be useful for a large part of our user base.'
     - id: niche
       label: Narrower use case that still matters
-      statement: '- The package TBDSRC serves a narrower but important Ubuntu use case.'
+      statement: "- The package TBDSRC will not generally be useful for a large part of\n  our user base, but is important/helpful still because TBD"
       leads_to_followup: true
   template: "TODO-A: - The package TBDSRC will generally be useful for a large part of\nTODO-A:   our user base\nTODO-B: - The package TBDSRC will not generally be useful for a large part of\nTODO-B:   our user base, but is important/helpful still because TBD"
 - id: REP-RATIONALE-006
@@ -516,18 +516,20 @@ items:
   title: Narrow use-case explanation
   mode: human_only
   readiness: blocker
+  completes: REP-RATIONALE-005
   applicability:
     item: REP-RATIONALE-005
     equals: niche
   question:
     kind: multiline
     prompt: Why is the narrower use case important enough to justify main inclusion?
-  template: 'TODO: - The narrower use case is important because TBD'
+  template: "TODO-B: - The package TBDSRC will not generally be useful for a large part of\nTODO-B:   our user base, but is important/helpful still because TBD"
 - id: REP-RATIONALE-002
   section: Rationale
   title: User benefit
   mode: human_only
-  readiness: blocker
+  readiness: clear
+  required: false
   question:
     kind: multiline
     prompt: Describe the Ubuntu users and use cases that benefit from this promotion.
@@ -544,7 +546,7 @@ items:
   question:
     kind: multiline
     prompt: What alternatives already in main were considered, and why are they insufficient?
-  template: 'TODO: - Alternatives already in main and why they are insufficient, or why none exist: TBD'
+  template: "TODO: - There is no other/better way to solve this that is already in main or\nTODO:   should go universe->main instead of this."
 - id: REP-RATIONALE-004
   covers_rule_clauses: [rationale-milestones]
   section: Rationale
@@ -570,7 +572,7 @@ items:
       spell_out_filter: exclude_dev_doc_dbg
     - id: specific-packages
       label: A specific subset of binary packages (list them below)
-      statement: '- Specific binary packages built by TBDSRC, listed below, need to be in main.'
+      statement: '- The binary packages TBD need to be in main to achieve TBD'
       leads_to_followup: true
       spell_out_filter: list_only
     options_source:
@@ -582,6 +584,7 @@ items:
   title: Specific binary packages
   mode: human_only
   readiness: blocker
+  completes: REP-RATIONALE-004
   applicability:
     item: REP-RATIONALE-004
     equals: specific-packages
@@ -590,7 +593,7 @@ items:
   question:
     kind: multiline
     prompt: Which specific binary packages need promotion to main?
-  template: 'TODO: - The specific binary packages needing promotion are TBD'
+  template: 'TODO: - The binary packages TBD need to be in main to achieve TBD'
 - id: REP-RATIONALE-007
   section: Rationale
   title: Target deadline
@@ -602,7 +605,7 @@ items:
     options:
     - id: required-by
       label: Yes, a well-founded deadline exists
-      statement: '- The package TBDSRC is required in Ubuntu main by a defined deadline.'
+      statement: "- The package TBDSRC is required in Ubuntu main no later than TBD\n  due to TBD"
       leads_to_followup: true
     - id: no-deadline
       label: No definitive deadline
@@ -613,6 +616,7 @@ items:
   title: Deadline details
   mode: human_only
   readiness: warning
+  completes: REP-RATIONALE-007
   applicability:
     item: REP-RATIONALE-007
     equals: required-by
@@ -620,7 +624,7 @@ items:
   question:
     kind: multiline
     prompt: What is the deadline, and why is it well founded?
-  template: 'TODO: - Required in main no later than TBD'
+  template: "TODO-A: - The package TBDSRC is required in Ubuntu main no later than TBD\nTODO-A:   due to TBD"
 - id: REP-RATIONALE-009
   section: Rationale
   title: Previous MIR and main history
@@ -665,20 +669,21 @@ items:
   question:
     kind: multiline
     prompt: Assess security-sensitive behavior, exposed endpoints, privileged operation, cryptography, and whether mitigations are proportional.
-  template: 'TODO: - Security exposure and proportional mitigation assessment: TBD'
+  template: "TODO: - Security has been kept in mind and common isolation/risk-mitigation\nTODO:   patterns are in place utilizing the following features:\nTODO:   TBD (add details and links/examples about things like dropping\nTODO:   permissions, using temporary environments, restricted users/groups,\nTODO:   seccomp, systemd isolation features, apparmor, ...)"
 - id: REP-SECURITY-006
   covers_rule_clauses: [sec-deprecated-algorithms]
   section: Security
   title: Deprecated cryptography scan
   mode: ev_to_ai
   readiness: warning
+  required: false
   adapters_optional: [packaging-source]
   answer_guidance: The evidence is a best-effort textual scan for deprecated algorithm names (MD5, SHA1, 3DES, RC4, SSLv2/3, TLSv1.0); a hit is not proof of use and no hits is not proof of absence.
   ai_policy: Evidence is a best-effort grep of the source tree for deprecated cryptographic algorithm name patterns (packaging-source.crypto_pattern_hits), each as a path:line:content match. If hits exist, list the distinct files/lines and state that the reporter should confirm whether the algorithm is actually used before flagging Security review. If the list is empty, state plainly that the pattern search found no deprecated-algorithm indicators, while noting this is not an exhaustive proof of absence.
   question:
     kind: multiline
     prompt: Confirm or correct - does anything suggest deprecated cryptographic algorithms that Security review should see?
-  template: 'TODO: - Deprecated cryptographic algorithm concerns: TBD'
+  template: "TODO: - I've spotted what I consider deprecated algorithms, the security team\nTODO:   should have a more careful look please, details are: TBD"
 - id: REP-QA-FUNC-001
   covers_rule_clauses: [qa-func-config-effort]
   section: Quality assurance - function/usage
@@ -688,9 +693,20 @@ items:
   adapters_required: [packaging-source, binary-package-inspection]
   ai_policy: Assess whether the package works immediately after installation or needs configuration, using packaging-source.debconf_templates (debconf prompts shown during install), packaging-source.service_files and binary-package-inspection.systemd_units (services that may need enabling or configuration before use), and packaging-source.source_description for context. If nothing suggests required configuration, state plainly that it works with sane defaults. If configuration appears required, name what (e.g. debconf templates, a service that is not enabled by default) and explain, from the evidence, why a safe default is not possible; do not invent reasons the evidence does not support.
   question:
-    kind: multiline
-    prompt: Does the package work after installation, or what configuration/documentation is required? If configuration is required, why is a safe default not possible?
-  template: 'TODO: - Package function after installation and required configuration: TBD'
+    kind: single_choice
+    prompt: Does the package work right after install, or does it need post-install configuration?
+    options:
+    - id: works-after-install
+      label: The package works well right after install
+      statement: '- The package works well right after install'
+      readiness: clear
+      todo_ref: 'TODO-A: - The package works well right after install'
+    - id: needs-configuration
+      label: It needs post-install configuration or documentation
+      statement: "- The package needs post install configuration or reading of\n  documentation, there isn't a safe default because TBD"
+      readiness: warning
+      todo_ref: "TODO-B: - The package needs post install configuration or reading of\nTODO-B:   documentation, there isn't a safe default because TBD"
+  template: "TODO-A: - The package works well right after install\nTODO-B: - The package needs post install configuration or reading of\nTODO-B:   documentation, there isn't a safe default because TBD"
 - id: REP-QA-MAINT-001
   covers_rule_clauses: [qa-maint-upstream-confidence]
   section: Quality assurance - maintenance
@@ -739,7 +755,7 @@ items:
   question:
     kind: multiline
     prompt: Describe how the owning team can/will access the required exotic hardware for debugging, testing, verification, and development.
-  template: 'TODO: - Exotic hardware requirements and team access: TBD'
+  template: 'TODO: - The exotic hardware needed is TBD and the team can access it via TBD'
 - id: REP-QA-MAINT-003
   section: Quality assurance - maintenance
   title: Maintenance health assessment
@@ -751,7 +767,7 @@ items:
   question:
     kind: multiline
     prompt: Assess Ubuntu, Debian, and upstream maintenance health and explain important concerns.
-  template: 'TODO: - The package maintenance health is: TBD'
+  template: 'TODO: - The package is maintained well in Ubuntu, Debian and upstream: TBD'
 - id: REP-QA-TEST-001
   covers_rule_clauses: [qa-testing-build-suite]
   section: Quality assurance - testing
@@ -780,7 +796,7 @@ items:
   question:
     kind: multiline
     prompt: If there are any known testing gaps, hardware/manual test plan, execution frequency, or regression consequences worth noting, explain them.
-  template: 'TODO: - Testing gaps and the owning team test plan are: TBD'
+  template: 'TODO: - Known testing gaps and the owning team test plan for them are TBD'
 - id: REP-QA-TEST-005
   section: Quality assurance - testing
   title: Non-automated testing access
@@ -853,7 +869,7 @@ items:
   question:
     kind: multiline
     prompt: Provide the test plan or automation, example logs, execution frequency, and likely regression consequences.
-  template: 'TODO: - Test plan, logs, frequency, and regression consequences: TBD'
+  template: "TODO: - The test plan/automation is TBD (e.g. script or repo), example output\nTODO:   of a test run is TBD (logs), it will be executed TBD (e.g. on-uploads\nTODO:   or monthly) and a regression slipping through would TBD"
 - id: REP-QA-TEST-007
   covers_rule_clauses: [qa-testing-ignored-failures]
   section: Quality assurance - testing
@@ -867,7 +883,7 @@ items:
   question:
     kind: multiline
     prompt: Explain every failing or ignored autopkgtest result and why it is acceptable.
-  template: 'TODO: - Failing or ignored autopkgtests are acceptable because TBD'
+  template: "TODO: - The package does have failing autopkgtests tests right now, but since\nTODO:   they always failed they are handled as \"ignored failure\", this is\nTODO:   ok because TBD"
 - id: REP-QA-TEST-008
   covers_rule_clauses: [qa-testing-solution-level]
   section: Quality assurance - testing
@@ -881,7 +897,7 @@ items:
   question:
     kind: multiline
     prompt: If this is a minimal library tested in a wider solution, identify that solution and its end-to-end tests.
-  template: 'TODO: - Minimal-library solution-level testing context: TBD'
+  template: "TODO: - This package is minimal and will be tested in a more wide reaching\nTODO:   solution context TBD, details about this testing are here TBD"
 - id: REP-QA-TEST-004
   section: Quality assurance - testing
   title: Test adequacy assessment
@@ -894,7 +910,7 @@ items:
   question:
     kind: multiline
     prompt: Assess whether test coverage is adequate and explain how remaining gaps will be covered.
-  template: 'TODO: - Overall automated and end-to-end test adequacy: TBD'
+  template: 'TODO: - The automated and end-to-end test coverage is sufficient because TBD'
 - id: REP-QA-PKG-001
   section: Quality assurance - packaging
   title: Upstream update mechanism
@@ -936,7 +952,7 @@ items:
   question:
     kind: multiline
     prompt: One or more lintian overrides lack an explanatory comment. Explain why each uncommented override is needed (or add a comment to debian/*.lintian-overrides and re-run).
-  template: 'TODO: - Lintian override explanation: TBD'
+  template: 'TODO: - Lintian overrides are present, but ok because TBD'
 - id: REP-QA-PKG-003
   section: Quality assurance - packaging
   title: Source format and debconf metadata
@@ -973,7 +989,7 @@ items:
   question:
     kind: multiline
     prompt: This package has an Ubuntu delta but the Maintainer field is not set to Ubuntu Developers. How do you intend to resolve that before promotion?
-  template: 'TODO: - Maintainer field resolution plan: TBD'
+  template: 'TODO: - The Maintainer field will be corrected before promotion by TBD'
 - id: REP-QA-PKG-004
   section: Quality assurance - packaging
   title: Packaging complexity assessment
@@ -983,9 +999,20 @@ items:
   covers_rule_clauses: [pkg-maintainability]
   ai_policy: Assess only maintainability of debian/rules and packaging metadata. Simple debhelper overrides are acceptable; identify disabling tests/hardening or large hand-written logic without inventing policy violations.
   question:
-    kind: multiline
-    prompt: Assess packaging complexity and explain why any complex build logic is maintainable.
-  template: 'TODO: - Packaging complexity and maintainability assessment: TBD'
+    kind: single_choice
+    prompt: Is the packaging and build easy, or complex but justified?
+    options:
+    - id: easy
+      label: Packaging and build is easy
+      statement: '- Packaging and build is easy, link to debian/rules TBD'
+      readiness: clear
+      todo_ref: 'TODO-A: - Packaging and build is easy, link to debian/rules TBD'
+    - id: complex
+      label: Packaging is complex, but justified
+      statement: '- Packaging is complex, but that is ok because TBD'
+      readiness: warning
+      todo_ref: 'TODO-B: - Packaging is complex, but that is ok because TBD'
+  template: "TODO-A: - Packaging and build is easy, link to debian/rules TBD\nTODO-B: - Packaging is complex, but that is ok because TBD"
 - id: REP-QA-PKG-005
   section: Quality assurance - packaging
   title: Obsolete dependencies
@@ -1111,7 +1138,7 @@ items:
     options:
     - id: separate
       label: Separate MIR bugs
-      statement: '- Further dependencies outside main are handled by separate MIR bugs, referenced below.'
+      statement: "- There are further dependencies that are not yet in main, MIR for them\n  is at TBD"
       leads_to_followup: true
     - id: same-request
       label: This MIR request
@@ -1122,13 +1149,14 @@ items:
   title: Separate dependency MIR references
   mode: human_only
   readiness: blocker
+  completes: REP-DEP-002
   applicability:
     item: REP-DEP-002
     equals: separate
   question:
     kind: multiline
     prompt: List the separate dependency MIR bug references.
-  template: 'TODO: - Separate dependency MIR bugs: TBD'
+  template: "TODO-B: - There are further dependencies that are not yet in main, MIR for them\nTODO-B:   is at TBD"
 - id: REP-STD-001
   covers_rule_clauses: [std-policy-violations]
   section: Standards compliance
@@ -1149,7 +1177,7 @@ items:
       unavailable_reason: Lintian reported errors for this package; select the violation option and justify them below.
     - id: B-violations
       label: This package violates FHS or Debian Policy, reasons for that are TBD
-      statement: '- This package violates FHS or Debian Policy; the reasons are detailed below.'
+      statement: '- This package violates FHS or Debian Policy, reasons for that are TBD'
       leads_to_followup: true
   template: "TODO-A: - This package correctly follows FHS and Debian Policy\nTODO-B: - This package violates FHS or Debian Policy, reasons for that are TBD"
 - id: REP-STD-001B
@@ -1157,13 +1185,14 @@ items:
   title: FHS and Debian Policy violation details
   mode: human_only
   readiness: blocker
+  completes: REP-STD-001
   applicability:
     item: REP-STD-001
     equals: B-violations
   question:
     kind: multiline
     prompt: Explain and justify the FHS or Debian Policy violation(s).
-  template: 'TODO: - FHS and Debian Policy violation details: TBD'
+  template: 'TODO-B: - This package violates FHS or Debian Policy, reasons for that are TBD'
 - id: REP-STD-002
   covers_rule_clauses: [std-license-lifetime]
   section: Standards compliance
@@ -1179,7 +1208,7 @@ items:
       statement: '- No license expiry, time-bound terms, entity/contract coupling, withdrawable branches, patents, or other encumbrances were identified; the license is expected to remain compatible with Ubuntu main throughout the full support lifetime.'
     - id: B-concerns
       label: A concern was identified and needs explanation
-      statement: '- A license concern relevant to the full support lifetime was identified.'
+      statement: "- The license carries potential encumbrances or time-bound terms,\n  details: TBD"
       leads_to_followup: true
   template: "TODO-A: - Based on a reasonable review of information available at the time of\nTODO-A:   this report, no expiry, time-limited grants, or obvious legal\nTODO-A:   encumbrances have been identified that would be expected to affect\nTODO-A:   promotion\nTODO-B: - The license carries potential encumbrances or time-bound terms,\nTODO-B:   details: TBD"
 - id: REP-STD-002B
@@ -1187,13 +1216,14 @@ items:
   title: License lifetime concern details
   mode: human_only
   readiness: blocker
+  completes: REP-STD-002
   applicability:
     item: REP-STD-002
     equals: B-concerns
   question:
     kind: multiline
     prompt: Explain the license expiry, time-bound term, contract coupling, or other encumbrance, and why it is still acceptable.
-  template: 'TODO: - License lifetime concern details: TBD'
+  template: "TODO-B: - The license carries potential encumbrances or time-bound terms,\nTODO-B:   details: TBD"
 - id: REP-MAINT-001
   section: Maintenance/Owner
   title: Owning team commitment
@@ -1215,7 +1245,7 @@ items:
       unavailable_reason: No team is currently subscribed to this package, so there is nothing to confirm.
     - id: new-team
       label: A different team will take ownership
-      statement: '- A different owning team will subscribe to this package, named below.'
+      statement: '- The owning team will be TBD and I have their acknowledgment for that commitment'
       leads_to_followup: true
   template: "TODO-A: - The owning team will be TBD and I have their acknowledgment for\nTODO-A:   that commitment\nTODO-B: - I Suggest the owning team to be TBD"
 - id: REP-MAINT-001B
@@ -1223,13 +1253,14 @@ items:
   title: New owning team details
   mode: human_only
   readiness: blocker
+  completes: REP-MAINT-001
   applicability:
     item: REP-MAINT-001
     equals: new-team
   question:
     kind: multiline
     prompt: Name the new owning team and describe its explicit acknowledgement of the long-term commitment.
-  template: 'TODO: - The new owning team will be TBD and has acknowledged the commitment.'
+  template: "TODO-A: - The owning team will be TBD and I have their acknowledgment for\nTODO-A:   that commitment"
 - id: REP-MAINT-002
   section: Maintenance/Owner
   title: Team subscription
@@ -1251,7 +1282,7 @@ items:
   question:
     kind: multiline
     prompt: Describe static/vendored code and the owning team's rebuild, testing, tracking, refresh, copyright, update, and backport commitments for the full release lifetime including ESM; confirm that any new vendored components will require renewed agreement.
-  template: 'TODO: - Static/vendored-code maintenance obligations and commitments: TBD'
+  template: "TODO: - The team TBD is aware of the implications of a static build and of\nTODO:   vendored code, and commits to test no-change-rebuilds, to refresh and\nTODO:   track the vendored code, to keep debian/copyright covering it, and to\nTODO:   provide updates and backports to the security team for any affected\nTODO:   vendored code for the lifetime of the release (including ESM). New\nTODO:   vendored components will be agreed with the security team. TBD"
 - id: REP-MAINT-004
   covers_rule_clauses: [maint-vendored-refresh]
   section: Maintenance/Owner
@@ -1324,7 +1355,7 @@ items:
   question:
     kind: multiline
     prompt: Add anything else about the package's purpose or background useful to a reviewer, beyond what other fields in this report already capture.
-  template: 'TODO: - The package description and additional background explain the package: TBD'
+  template: 'TODO: - The package description explains the package well, additionally TBD'
 - id: REP-BG-002
   section: Background information
   title: Upstream name

@@ -122,17 +122,17 @@ def test_report_catalog_validation_rejects_unknown_default_source_adapter():
     )
 
 
-def test_report_catalog_validation_rejects_template_with_more_than_one_tbd():
+def test_report_catalog_allows_a_template_with_several_tbd_slots():
+    """The reporter edits the whole sentence in the editor, so every slot is
+    visible and fillable. The former "at most one TBD" rule only existed
+    because one answer used to be spliced into the first slot."""
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
     by_id["REP-BG-002"]["template"] = "TODO: - Deadline is TBD due to TBD"
 
     errors = catalog.validate_report_catalog(report)
 
-    assert any(
-        "REP-BG-002 template must contain at most one 'TBD' placeholder" in error
-        for error in errors
-    )
+    assert not [error for error in errors if "TBD" in error]
 
 
 def test_report_catalog_validation_allows_tbdsrc_alongside_a_single_tbd():
@@ -221,7 +221,7 @@ def test_report_catalog_auto_derives_rule_context_from_blueprint():
         "RULE: - If no build tests nor autopkgtests are included"
     )
     assert test_plan_rule_context.endswith(
-        "TODO: - Testing gaps and the owning team test plan are: TBD"
+        "TODO: - Known testing gaps and the owning team test plan for them are TBD"
     )
 
     # A deterministic item is never asked as a question, so it gets no rule_context.

@@ -38,6 +38,10 @@ class ConfirmingWizard:
     def show_note(self, text, detail=""):
         self.notes.append((text, detail))
 
+    def complete_statement(self, question, statement):
+        self.questions.append(("complete", question.id))
+        return statement.replace("TBD", "human correction")
+
 
 def _item():
     return {
@@ -857,6 +861,9 @@ def test_options_human_fallback_uses_canonical_statement_and_readiness():
 
         def show_note(self, text, detail=""):
             pass
+
+        def complete_statement(self, question, statement):
+            return statement.replace("TBD", "human correction")
 
     result = ai.evaluate_ai_item(
         _options_item(), _options_ctx(token=""), ChoiceWizard(), _options_fallback_question()

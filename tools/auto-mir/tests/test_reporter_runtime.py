@@ -45,6 +45,11 @@ class FakeWizard:
     def show_note(self, text, detail=""):
         pass
 
+    def complete_statement(self, question, statement):
+        """Fill every remaining slot, standing in for the reporter's editor."""
+        self.asked.append(f"{question.id}:complete")
+        return statement.replace("TBD", self.value)
+
 
 class ChoiceWizard(FakeWizard):
     values = {
@@ -163,6 +168,7 @@ def test_reporter_items_mix_deterministic_evidence_and_human_answers(tmp_path):
             StatementState.RESOLVED,
             StatementState.NOT_APPLICABLE,
             StatementState.NEEDS_INPUT,
+            StatementState.MERGED,
         }
         for result in results
     )
@@ -546,9 +552,10 @@ def test_dependency_routing_shows_out_of_main_deps_before_asking(tmp_path):
     preface_texts = " ".join(text for text, _detail in wizard.notes)
     assert "libbar" in preface_texts
     assert "libbaz" in preface_texts
-    assert by_id["REP-DEP-002"].statement.startswith(
-        "- Further dependencies outside main are handled by separate MIR bugs"
-    )
+    # REP-DEP-003 completes this statement, so the chosen alternative and the
+    # bug references the reporter supplied form one bullet, not two.
+    assert by_id["REP-DEP-002"].statement == "- human-provided explanation"
+    assert by_id["REP-DEP-003"].state == StatementState.MERGED
 
 
 def test_question_from_item_does_not_append_options_source_values_as_options(tmp_path):

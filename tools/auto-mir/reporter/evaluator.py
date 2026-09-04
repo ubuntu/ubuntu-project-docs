@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import re
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
@@ -94,6 +94,12 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
     item_values: dict[str, Any] = {}
     catalog_items = ctx.catalog.get("items", [])
     total = len(catalog_items)
+    # Items whose statement is finished by a later follow-up (catalog
+    # ``completes``): their own TBD slots must NOT be completed inline here,
+    # or the reporter would be asked for the same sentence twice.
+    completed_by_follow_up = {
+        str(entry["completes"]) for entry in catalog_items if entry.get("completes")
+    }
     for index, item in enumerate(catalog_items, start=1):
         log.info(
             "[%d/%d] Evaluating %s: %s (%s)",
@@ -122,7 +128,7 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
         readiness = ReadinessEffect(item.get("readiness", "clear"))
         if mode == "human_only":
             _show_preface(item, ctx, wizard)
-            question = _question_from_item(item, ctx)
+            question = _completion_prefill(_question_from_item(item, ctx), item, results)
             answer = wizard.ask(question)
             if answer is None:
                 results.append(
@@ -135,7 +141,8 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
                 )
                 continue
             statement = _human_statement(item, answer.value, ctx.source_package)
-            statement = _complete_statement(statement, question, wizard)
+            if item["id"] not in completed_by_follow_up:
+                statement = _complete_statement(statement, question, wizard)
             maybe_write_evidence(item, ctx, answer.value)
             selected_option = answer.value if question.kind == QuestionKind.SINGLE_CHOICE else None
             option_readiness = None
@@ -168,7 +175,9 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
 
         if mode == "ev_to_ai":
             _show_preface(item, ctx, wizard)
-            fallback_question = _question_from_item(item, ctx, deferrable=True)
+            fallback_question = _completion_prefill(
+                _question_from_item(item, ctx, deferrable=True), item, results
+            )
             result = evaluate_ai_item(item, ctx, wizard, fallback_question)
             _merge_into_completed_item(item, result, results)
             results.append(result)
@@ -195,6 +204,25 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
         results.append(result)
         item_values[item["id"]] = result.statement
     return results
+
+
+def _completion_prefill(
+    question: QuestionSpec, item: dict, results: list[StatementResult]
+) -> QuestionSpec:
+    """Open a ``completes`` follow-up on the alternative its parent selected.
+
+    The reporter already chose "Packaging is complex, but that is ok because
+    TBD"; the follow-up must therefore edit exactly that sentence, not a
+    separate one worded by this item. Without a resolvable parent statement
+    the question keeps its own template prefill.
+    """
+    parent_id = str(item.get("completes", ""))
+    if not parent_id:
+        return question
+    parent = next((entry for entry in results if entry.id == parent_id), None)
+    if parent is None or not parent.statement:
+        return question
+    return replace(question, prefill=parent.statement)
 
 
 def _merge_into_completed_item(

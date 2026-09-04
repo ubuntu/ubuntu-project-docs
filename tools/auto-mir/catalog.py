@@ -474,26 +474,10 @@ def validate_report_catalog(catalog: dict) -> list[str]:
         for field in ("section", "title", "mode", "template"):
             if not isinstance(item.get(field), str) or not item[field].strip():
                 errors.append(f"reporter item {item_id} missing {field}")
-        template = item.get("template")
-        # A single free-text answer can only fill one TBD slot; branch-tree
-        # templates (single_choice, deterministic) are exempt because their
-        # answers resolve via option statements or evaluator output, not via
-        # TBD substitution into the template.
-        question_kind = (
-            (item.get("question") or {}).get("kind")
-            if isinstance(item.get("question"), dict)
-            else None
-        )
-        if (
-            question_kind in {"text", "multiline"}
-            and isinstance(template, str)
-            and template.replace("TBDSRC", "").count("TBD") > 1
-        ):
-            errors.append(
-                f"reporter item {item_id} template must contain at most one 'TBD' "
-                "placeholder (a single free-text answer can only fill one slot; a "
-                "second 'TBD' silently stays unfilled in the rendered statement)"
-            )
+        # A template may carry several TBD slots: the reporter edits the whole
+        # sentence in the editor (see QuestionSpec.prefill), so every slot is
+        # visible and fillable. The former "at most one TBD" rule existed only
+        # because a single answer used to be spliced into the first slot.
         if item.get("mode") not in valid_modes:
             errors.append(f"reporter item {item_id} has invalid mode: {item.get('mode')}")
         if item.get("readiness", "clear") not in valid_readiness:
