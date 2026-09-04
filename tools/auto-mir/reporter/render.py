@@ -7,7 +7,7 @@ import logging
 from dataclasses import asdict
 
 from catalog import classify_blueprint_entry
-from reporter.models import ReadinessEffect, StatementResult, StatementState
+from reporter.models import Provenance, ReadinessEffect, StatementResult, StatementState
 from reporter.text_utils import substitute_source
 
 log = logging.getLogger("auto_mir.reporter")
@@ -169,16 +169,28 @@ def _clarify_entry_lines(item: dict, result: StatementResult, ctx) -> list[str]:
     of its original catalog RULE/TODO context as possible instead of a bare
     "TBD" placeholder or a silently-dropped topic.
 
-    For an options-based item (see ``reporter.ai``'s ``ev_to_ai`` + options
-    support), every option's own ``todo_ref`` line is listed as a
-    TODO-lettered alternative, exactly mirroring the original human template
-    structure (e.g. "TODO-A: ..." / "TODO-C: ..."). For a plain free-text
-    item, the catalog's own ``template`` TODO line is shown instead - it is
-    the closest available original context, even though it still literally
+    A deterministic finding that the reporter still has to act on (see
+    ``reporter.evaluator.Assessment``) already has its own evidence-derived
+    statement, so that statement is shown with the required action as its
+    parenthetical - the reader gets both what was found and what is owed.
+
+    Otherwise the item was never resolved at all, and the closest available
+    original context is used. For an options-based item (see
+    ``reporter.ai``'s ``ev_to_ai`` + options support), every option's own
+    ``todo_ref`` line is listed as a TODO-lettered alternative, exactly
+    mirroring the original human template structure (e.g. "TODO-A: ..." /
+    "TODO-C: ..."). For a plain free-text item, the catalog's own
+    ``template`` TODO line is shown instead, even though it still literally
     contains "TBD" (that is expected and fine inside a "Left to clarify:"
     block, unlike inside a resolved statement, which ``_lint_draft`` still
     forbids).
     """
+    if result.provenance == Provenance.DETERMINISTIC and result.statement:
+        lines = [_with_hanging_indent(result.statement)]
+        if result.rationale:
+            lines.append(f"  ({_with_hanging_indent(result.rationale)})")
+        return lines
+
     intro = str(item.get("question", {}).get("prompt") or item.get("title") or item["id"])
     lines = [f"- {intro}"]
     options = item.get("question", {}).get("options", [])

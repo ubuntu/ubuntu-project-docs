@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import re
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
@@ -34,7 +35,44 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("auto_mir.reporter")
 
-Evaluator = Callable[[dict, "RunContext"], tuple[str | None, list[str], str]]
+
+@dataclass(frozen=True)
+class Assessment:
+    """One deterministic evaluator's verdict about a single catalog item.
+
+    ``statement`` is the evidence-derived fact. ``note`` and ``action`` are
+    deliberately separate, because they lead to different places in the
+    report:
+
+    * ``note`` is context the reader may want but nobody has to act on (for
+      example which CVE corpora were queried). The statement stays a
+      confident bullet and the note is rendered as its parenthetical.
+    * ``action`` means the reporter still owes something before this MIR can
+      be submitted (subscribe a team, provide a recent build reference,
+      explain a failing test). The statement then moves into the section's
+      "Left to clarify:" block together with the action, and the item keeps
+      its catalog-declared readiness effect.
+
+    Before this split, any non-empty rationale raised the item's readiness,
+    so a purely informational note was indistinguishable from real
+    outstanding work.
+
+    ``statement is None`` means the evidence needed to judge this item was
+    missing; ``unavailable_reason`` says why.
+    """
+
+    statement: str | None = None
+    evidence_refs: list[str] = field(default_factory=list)
+    action: str = ""
+    note: str = ""
+    unavailable_reason: str = ""
+
+    def rationale(self) -> str:
+        """Return action and note joined into one reader-facing sentence."""
+        return " ".join(part for part in (self.action, self.note) if part)
+
+
+Evaluator = Callable[[dict, "RunContext"], Assessment]
 _EVALUATORS: dict[str, Evaluator] = {}
 
 
@@ -141,26 +179,52 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
             )
             item_values[item["id"]] = None
             continue
-        statement, evidence_refs, rationale = evaluator(item, ctx)
-        if statement is None:
-            results.append(_unavailable(item, readiness, rationale, ctx.source_package))
+        assessment = evaluator(item, ctx)
+        if assessment.statement is None:
+            results.append(
+                _unavailable(item, readiness, assessment.unavailable_reason, ctx.source_package)
+            )
             item_values[item["id"]] = None
             continue
-        statement = ensure_bulleted(statement)
-        results.append(
-            StatementResult(
-                id=item["id"],
-                section=item["section"],
-                state=StatementState.RESOLVED,
-                readiness=readiness if rationale else ReadinessEffect.CLEAR,
-                statement=statement,
-                provenance=Provenance.DETERMINISTIC,
-                evidence_refs=evidence_refs,
-                rationale=rationale,
-            )
-        )
-        item_values[item["id"]] = statement
+        result = _deterministic_result(item, readiness, assessment)
+        results.append(result)
+        item_values[item["id"]] = result.statement
     return results
+
+
+def _deterministic_result(
+    item: dict, readiness: ReadinessEffect, assessment: Assessment
+) -> StatementResult:
+    """Turn one evaluator ``Assessment`` into its reporter statement result.
+
+    An assessment carrying an ``action`` is a finding the reporter still has
+    to resolve, so it becomes ``NEEDS_INPUT`` and the draft renderer lists it
+    under "Left to clarify:" instead of presenting it as a settled bullet.
+    Everything else is a confident statement, optionally carrying a note as
+    its parenthetical, and cannot affect submission readiness.
+    """
+    statement = ensure_bulleted(str(assessment.statement))
+    if assessment.action:
+        return StatementResult(
+            id=item["id"],
+            section=item["section"],
+            state=StatementState.NEEDS_INPUT,
+            readiness=readiness,
+            statement=statement,
+            provenance=Provenance.DETERMINISTIC,
+            evidence_refs=assessment.evidence_refs,
+            rationale=assessment.rationale(),
+        )
+    return StatementResult(
+        id=item["id"],
+        section=item["section"],
+        state=StatementState.RESOLVED,
+        readiness=ReadinessEffect.CLEAR,
+        statement=statement,
+        provenance=Provenance.DETERMINISTIC,
+        evidence_refs=assessment.evidence_refs,
+        rationale=assessment.note,
+    )
 
 
 def _question_from_item(item: dict, ctx: RunContext, *, deferrable: bool = False) -> QuestionSpec:
@@ -366,8 +430,12 @@ def _preface_text(item: dict, ctx: RunContext) -> tuple[str, str]:
     evaluator = _EVALUATORS.get(str(name))
     if evaluator is None:
         return "", ""
-    statement, _evidence_refs, rationale = evaluator(item, ctx)
-    return statement or "", rationale or ""
+    assessment = evaluator(item, ctx)
+    # Preface context deliberately keeps BOTH parts: what the evidence says
+    # and what it asks the reporter to settle. The action/note split governs
+    # where a statement lands in the draft, never how much context the
+    # interactive session gets.
+    return assessment.statement or "", assessment.rationale()
 
 
 def _human_statement(item: dict, answer: Any, source_package: str) -> str:
@@ -405,33 +473,41 @@ def _adapter(ctx: RunContext, adapter_id: str) -> dict:
 
 
 @reporter_evaluator("source-availability")
-def _source_availability(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _source_availability(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "lp-package-api")
     if data.get("status") != "ok":
-        return None, [], "Launchpad package data was unavailable"
+        return Assessment(unavailable_reason="Launchpad package data was unavailable")
     history = data.get("ubuntu_publish_history", [])
     components = sorted(
         {str(entry.get("component")) for entry in history if entry.get("component")}
     )
     if not history:
-        return (
-            f"The source package {ctx.source_package} has no published record in {ctx.series}.",
-            ["lp-package-api:ubuntu_publish_history"],
-            "The source must be published in Ubuntu before an MIR can proceed.",
+        return Assessment(
+            statement=(
+                f"The source package {ctx.source_package} has no published record in {ctx.series}."
+            ),
+            evidence_refs=["lp-package-api:ubuntu_publish_history"],
+            action="The source must be published in Ubuntu before an MIR can proceed.",
         )
     component_text = ", ".join(components) if components else "unknown component"
-    return (
-        f"The source package {ctx.source_package} is published in Ubuntu ({component_text}).",
-        ["lp-package-api:ubuntu_publish_history"],
-        "" if "universe" in components else "The package is not confirmed in universe.",
+    return Assessment(
+        statement=(
+            f"The source package {ctx.source_package} is published in Ubuntu ({component_text})."
+        ),
+        evidence_refs=["lp-package-api:ubuntu_publish_history"],
+        action=(
+            ""
+            if "universe" in components
+            else "Confirm where the package is published; it is not confirmed in universe."
+        ),
     )
 
 
 @reporter_evaluator("build-architectures")
-def _build_architectures(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _build_architectures(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "lp-build-api")
     if data.get("status") != "ok":
-        return None, [], "Launchpad build data was unavailable"
+        return Assessment(unavailable_reason="Launchpad build data was unavailable")
     builds = data.get("builds", [])
     passing = sorted(
         {
@@ -450,47 +526,63 @@ def _build_architectures(_item: dict, ctx: RunContext) -> tuple[str | None, list
         }
     )
     if not builds:
-        return None, [], "No Launchpad build records were found"
-    statement = "Current Launchpad builds pass on: " + (", ".join(passing) or "none") + "."
-    rationale = "Non-passing build records: " + ", ".join(failing) if failing else ""
-    return statement, ["lp-build-api:builds"], rationale
+        return Assessment(unavailable_reason="No Launchpad build records were found")
+    return Assessment(
+        statement="Current Launchpad builds pass on: " + (", ".join(passing) or "none") + ".",
+        evidence_refs=["lp-build-api:builds"],
+        action=(
+            "Explain these non-passing build records: " + ", ".join(failing) if failing else ""
+        ),
+    )
 
 
 @reporter_evaluator("source-link")
-def _source_link(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
-    return (
-        f"Source package: https://launchpad.net/ubuntu/+source/{ctx.source_package}",
-        [],
-        "",
+def _source_link(_item: dict, ctx: RunContext) -> Assessment:
+    return Assessment(
+        statement=f"Source package: https://launchpad.net/ubuntu/+source/{ctx.source_package}"
     )
 
 
 @reporter_evaluator("prior-mir-history")
-def _prior_mir_history(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _prior_mir_history(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "lp-mir-history")
     if data.get("status") != "ok":
-        return None, [], "Prior MIR history was unavailable"
+        return Assessment(unavailable_reason="Prior MIR history was unavailable")
     bugs = data.get("prior_mir_bugs", [])
     if not bugs:
-        return (
-            "No prior MIR bug was found for this source or identified predecessor names.",
-            ["lp-mir-history:prior_mir_bugs"],
-            "",
+        return Assessment(
+            statement=(
+                "No prior MIR bug was found for this source or identified predecessor names."
+            ),
+            evidence_refs=["lp-mir-history:prior_mir_bugs"],
         )
     links = [str(bug.get("web_link") or bug.get("id")) for bug in bugs[:20]]
-    return (
-        "Prior MIR history was found: " + ", ".join(links) + ".",
-        ["lp-mir-history:prior_mir_bugs"],
-        "Confirm whether the existing discussion should receive a new series task.",
+    return Assessment(
+        statement="Prior MIR history was found: " + ", ".join(links) + ".",
+        evidence_refs=["lp-mir-history:prior_mir_bugs"],
+        action="Confirm whether the existing discussion should receive a new series task.",
     )
 
 
+# Which corpora the CVE evaluator queried. Informational only: it tells the
+# reader what "no CVEs found" is based on (and what it is not - OSS-security
+# mailing list chatter), but a clean result leaves the reporter nothing to do,
+# so it must never raise the item's readiness on its own.
+_CVE_SOURCING_NOTE = (
+    "Sourcing: the Ubuntu CVE tracker plus the cross-vendor cvelistV5/NVD corpus, "
+    "which also covers Debian-relevant CVE identifiers - no separate Debian or NVD "
+    "check is needed. The OSS-security mailing list (pre-CVE-assignment chatter) is "
+    "not covered by these adapters; flag it yourself if you are aware of such a "
+    "discussion."
+)
+
+
 @reporter_evaluator("cve-history")
-def _cve_history(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _cve_history(_item: dict, ctx: RunContext) -> Assessment:
     ubuntu = _adapter(ctx, "ubuntu-cve-tracker")
     nvd = _adapter(ctx, "nvd-enrich")
     if ubuntu.get("status") != "ok" and nvd.get("status") != "ok":
-        return None, [], "CVE evidence was unavailable"
+        return Assessment(unavailable_reason="CVE evidence was unavailable")
     ids = sorted(
         {
             str(entry.get("id"))
@@ -499,55 +591,46 @@ def _cve_history(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], s
         }
     )
     if not ids:
-        return (
-            "No package-associated CVEs were found in the queried trackers.",
-            ["ubuntu-cve-tracker:cves", "nvd-enrich:cves"],
-            "Sourcing: the Ubuntu CVE tracker plus the cross-vendor cvelistV5/NVD "
-            "corpus, which also covers Debian-relevant CVE identifiers - no "
-            "separate Debian or NVD check is needed. The OSS-security mailing "
-            "list (pre-CVE-assignment chatter) is not covered by these adapters; "
-            "flag it yourself if you are aware of such a discussion.",
+        return Assessment(
+            statement="No package-associated CVEs were found in the queried trackers.",
+            evidence_refs=["ubuntu-cve-tracker:cves", "nvd-enrich:cves"],
+            note=_CVE_SOURCING_NOTE,
         )
     preview = ", ".join(ids[:20])
     suffix = f" (and {len(ids) - 20} more)" if len(ids) > 20 else ""
-    return (
-        f"The queried trackers found {len(ids)} associated CVE(s): {preview}{suffix}.",
-        ["ubuntu-cve-tracker:cves", "nvd-enrich:cves"],
-        "The reporter should verify relevance and describe handling history. "
-        "Sourcing: the Ubuntu CVE tracker plus the cross-vendor cvelistV5/NVD "
-        "corpus, which also covers Debian-relevant CVE identifiers - no "
-        "separate Debian or NVD check is needed. The OSS-security mailing list "
-        "(pre-CVE-assignment chatter) is not covered by these adapters; flag it "
-        "yourself if you are aware of such a discussion.",
+    return Assessment(
+        statement=f"The queried trackers found {len(ids)} associated CVE(s): {preview}{suffix}.",
+        evidence_refs=["ubuntu-cve-tracker:cves", "nvd-enrich:cves"],
+        action="Verify their relevance and describe the handling history.",
+        note=_CVE_SOURCING_NOTE,
     )
 
 
 @reporter_evaluator("important-bugs")
-def _important_bugs(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _important_bugs(_item: dict, ctx: RunContext) -> Assessment:
     ubuntu = _adapter(ctx, "lp-bug-search-api")
     debian = _adapter(ctx, "debian-bts")
     if ubuntu.get("status") != "ok" and debian.get("status") != "ok":
-        return None, [], "Ubuntu and Debian bug data were unavailable"
+        return Assessment(unavailable_reason="Ubuntu and Debian bug data were unavailable")
     bugs = [*ubuntu.get("critical_bugs", []), *debian.get("rc_bugs", [])]
     if not bugs:
-        return (
-            "No critical Ubuntu or release-critical Debian bugs were found.",
-            ["lp-bug-search-api:critical_bugs", "debian-bts:rc_bugs"],
-            "",
+        return Assessment(
+            statement="No critical Ubuntu or release-critical Debian bugs were found.",
+            evidence_refs=["lp-bug-search-api:critical_bugs", "debian-bts:rc_bugs"],
         )
     labels = [str(bug.get("web_link") or bug.get("id") or bug.get("title")) for bug in bugs[:20]]
-    return (
-        f"Important open bugs found: {', '.join(labels)}.",
-        ["lp-bug-search-api:critical_bugs", "debian-bts:rc_bugs"],
-        "The reporter should explain their maintenance impact.",
+    return Assessment(
+        statement=f"Important open bugs found: {', '.join(labels)}.",
+        evidence_refs=["lp-bug-search-api:critical_bugs", "debian-bts:rc_bugs"],
+        action="Explain their maintenance impact.",
     )
 
 
 @reporter_evaluator("binary-security-surface")
-def _binary_security_surface(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _binary_security_surface(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "binary-package-inspection")
     if data.get("status") != "ok":
-        return None, [], "Built binary package inspection was unavailable"
+        return Assessment(unavailable_reason="Built binary package inspection was unavailable")
     fields = {
         "setuid/setgid": data.get("setuid_setgid_binaries", []),
         "sbin executables": data.get("sbin_executables", []),
@@ -560,18 +643,18 @@ def _binary_security_surface(_item: dict, ctx: RunContext) -> tuple[str | None, 
         if not present
         else "Installed privileged/service surface: " + "; ".join(present) + "."
     )
-    return (
-        statement,
-        [f"binary-package-inspection:{field}" for field in fields],
-        "Explain the purpose and mitigations of each installed surface." if present else "",
+    return Assessment(
+        statement=statement,
+        evidence_refs=[f"binary-package-inspection:{field}" for field in fields],
+        action="Explain the purpose and mitigations of each installed surface." if present else "",
     )
 
 
 @reporter_evaluator("binary-integration-surface")
-def _binary_integration_surface(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _binary_integration_surface(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "binary-package-inspection")
     if data.get("status") != "ok":
-        return None, [], "Built binary package inspection was unavailable"
+        return Assessment(unavailable_reason="Built binary package inspection was unavailable")
     fields = {
         "AppArmor profiles": data.get("apparmor_profiles", []),
         "desktop files": data.get("desktop_files", []),
@@ -584,11 +667,14 @@ def _binary_integration_surface(_item: dict, ctx: RunContext) -> tuple[str | Non
         if not present
         else "Installed integration surface: " + "; ".join(present) + "."
     )
-    return statement, [f"binary-package-inspection:{field}" for field in fields], ""
+    return Assessment(
+        statement=statement,
+        evidence_refs=[f"binary-package-inspection:{field}" for field in fields],
+    )
 
 
 @reporter_evaluator("build-tests")
-def _build_tests(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _build_tests(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "fetch-build")
     if not data.get("build_log"):
         return _build_tests_without_log(ctx)
@@ -599,19 +685,19 @@ def _build_tests(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], s
         if marker in log_text
     ]
     if markers:
-        return (
-            f"Build-time test execution was observed ({', '.join(markers)}).",
-            ["fetch-build:build_log"],
-            "Verify that failures are not ignored.",
+        return Assessment(
+            statement=f"Build-time test execution was observed ({', '.join(markers)}).",
+            evidence_refs=["fetch-build:build_log"],
+            action="Verify that failures are not ignored.",
         )
-    return (
-        "No build-time test execution was identified in the collected build log.",
-        ["fetch-build:build_log"],
-        "A reason or alternative test plan is required.",
+    return Assessment(
+        statement="No build-time test execution was identified in the collected build log.",
+        evidence_refs=["fetch-build:build_log"],
+        action="A reason or alternative test plan is required.",
     )
 
 
-def _build_tests_without_log(ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _build_tests_without_log(ctx: RunContext) -> Assessment:
     """Fall back to debian/rules when the official build log is unavailable.
 
     A missing build log (e.g. a carried-over architecture whose original
@@ -624,79 +710,84 @@ def _build_tests_without_log(ctx: RunContext) -> tuple[str | None, list[str], st
     packaging = _adapter(ctx, "packaging-source")
     overrides = packaging.get("debian_rules_overrides")
     if not isinstance(overrides, list):
-        return None, [], "No build log was available"
+        return Assessment(unavailable_reason="No build log was available")
     if "dh_auto_test" in overrides:
-        return (
-            "The build log was unavailable, but debian/rules overrides the default "
-            "dh_auto_test target, so the packaging - not the unmodified debhelper "
-            "default - controls what (if anything) runs as a build-time test.",
-            ["packaging-source:debian_rules_overrides"],
-            "Confirm what the override actually runs and that failures are not ignored.",
+        return Assessment(
+            statement=(
+                "The build log was unavailable, but debian/rules overrides the default "
+                "dh_auto_test target, so the packaging - not the unmodified debhelper "
+                "default - controls what (if anything) runs as a build-time test."
+            ),
+            evidence_refs=["packaging-source:debian_rules_overrides"],
+            action="Confirm what the override actually runs and that failures are not ignored.",
         )
-    return (
-        "The build log was unavailable, but debian/rules does not override the "
-        "default dh_auto_test target, so any build-time test suite upstream "
-        "provides runs unmodified during the build.",
-        ["packaging-source:debian_rules_overrides"],
-        "Confirm the upstream build system actually defines a test target.",
+    return Assessment(
+        statement=(
+            "The build log was unavailable, but debian/rules does not override the "
+            "default dh_auto_test target, so any build-time test suite upstream "
+            "provides runs unmodified during the build."
+        ),
+        evidence_refs=["packaging-source:debian_rules_overrides"],
+        action="Confirm the upstream build system actually defines a test target.",
     )
 
 
 @reporter_evaluator("autopkgtests")
-def _autopkgtests(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _autopkgtests(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "autopkgtest-db")
     if data.get("status") != "ok":
-        return None, [], "Autopkgtest data was unavailable"
+        return Assessment(unavailable_reason="Autopkgtest data was unavailable")
     if not data.get("has_autopkgtest"):
-        return (
-            "No autopkgtest results were found for this source package.",
-            ["autopkgtest-db:has_autopkgtest"],
-            "A reason or alternative test plan is required.",
+        return Assessment(
+            statement="No autopkgtest results were found for this source package.",
+            evidence_refs=["autopkgtest-db:has_autopkgtest"],
+            action="A reason or alternative test plan is required.",
         )
     passing = ", ".join(sorted(data.get("passing_arches", []))) or "none"
     failing = ", ".join(sorted(data.get("failing_arches", [])))
-    rationale = f"Failing architectures: {failing}" if failing else ""
-    return (
-        f"Autopkgtests are present and pass on: {passing}.",
-        ["autopkgtest-db:passing_arches", "autopkgtest-db:failing_arches"],
-        rationale,
+    return Assessment(
+        statement=f"Autopkgtests are present and pass on: {passing}.",
+        evidence_refs=["autopkgtest-db:passing_arches", "autopkgtest-db:failing_arches"],
+        action=f"Explain the failing architectures: {failing}." if failing else "",
     )
 
 
 @reporter_evaluator("watch-file")
-def _watch_file(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _watch_file(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
-        return None, [], "Packaging source data was unavailable"
+        return Assessment(unavailable_reason="Packaging source data was unavailable")
     if str(data.get("debian_watch", "")).strip():
-        return (
-            "A debian/watch upstream-release mechanism is present.",
-            ["packaging-source:debian_watch"],
-            "",
+        return Assessment(
+            statement="A debian/watch upstream-release mechanism is present.",
+            evidence_refs=["packaging-source:debian_watch"],
         )
-    return (
-        "No debian/watch file was found.",
-        ["packaging-source:debian_watch"],
-        "Native packages or another documented update mechanism may be acceptable.",
+    return Assessment(
+        statement="No debian/watch file was found.",
+        evidence_refs=["packaging-source:debian_watch"],
+        action=(
+            "Name the update mechanism used instead; a native package or another "
+            "documented mechanism may be acceptable."
+        ),
     )
 
 
 @reporter_evaluator("lintian")
-def _lintian(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _lintian(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "lintian")
     if data.get("status") != "ok":
-        return None, [], "Lintian evidence was unavailable"
+        return Assessment(unavailable_reason="Lintian evidence was unavailable")
     errors = data.get("lintian_errors", [])
     warnings = data.get("lintian_warnings", [])
-    return (
-        f"Lintian reported {len(errors)} error(s) and {len(warnings)} warning(s).",
-        ["lintian:lintian_errors", "lintian:lintian_warnings"],
-        "Review errors, warnings, and any overrides." if errors or warnings else "",
+    return Assessment(
+        statement=f"Lintian reported {len(errors)} error(s) and {len(warnings)} warning(s).",
+        evidence_refs=["lintian:lintian_errors", "lintian:lintian_warnings"],
+        action="Review errors, warnings, and any overrides." if errors or warnings else "",
     )
 
 
 @reporter_evaluator("lintian-overrides")
-def _lintian_overrides(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _lintian_overrides(_item: dict, ctx: RunContext) -> Assessment:
     """Judge whether every lintian override carries an explanatory comment.
 
     Common case (no overrides, or every override already has a preceding `#`
@@ -707,34 +798,32 @@ def _lintian_overrides(_item: dict, ctx: RunContext) -> tuple[str | None, list[s
     """
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
-        return None, [], "Packaging source data was unavailable"
+        return Assessment(unavailable_reason="Packaging source data was unavailable")
     entries = data.get("lintian_override_entries", [])
     uncommented = sorted(
         {str(entry.get("tag", "")) for entry in entries if not entry.get("has_comment")}
     )
     if not uncommented:
-        return (
-            "Lintian overrides are absent or already explained by a comment.",
-            ["packaging-source:lintian_override_entries"],
-            "",
+        return Assessment(
+            statement="Lintian overrides are absent or already explained by a comment.",
+            evidence_refs=["packaging-source:lintian_override_entries"],
         )
-    statement = (
-        "The following lintian override(s) lack an explanatory comment: "
-        + ", ".join(uncommented)
-        + "."
-    )
-    return (
-        statement,
-        ["packaging-source:lintian_override_entries"],
-        "See the following item for the reporter's explanation.",
+    return Assessment(
+        statement=(
+            "The following lintian override(s) lack an explanatory comment: "
+            + ", ".join(uncommented)
+            + "."
+        ),
+        evidence_refs=["packaging-source:lintian_override_entries"],
+        note="See the following item for the reporter's explanation.",
     )
 
 
 @reporter_evaluator("source-packaging-metadata")
-def _source_packaging_metadata(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _source_packaging_metadata(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
-        return None, [], "Packaging source data was unavailable"
+        return Assessment(unavailable_reason="Packaging source data was unavailable")
     source_format = str(data.get("debian_source_format", "")).strip() or "unspecified"
     debconf = data.get("debconf_templates", [])
     overrides = data.get("debian_rules_overrides", [])
@@ -747,15 +836,17 @@ def _source_packaging_metadata(_item: dict, ctx: RunContext) -> tuple[str | None
         for entry in debconf
         if str(entry.get("priority", "")).casefold() in {"critical", "high"}
     ]
-    rationale = (
-        "High/critical debconf templates need review: " + ", ".join(concerning)
-        if concerning
-        else ""
-    )
-    return (
-        statement,
-        ["packaging-source:debian_source_format", "packaging-source:debconf_templates"],
-        rationale,
+    return Assessment(
+        statement=statement,
+        evidence_refs=[
+            "packaging-source:debian_source_format",
+            "packaging-source:debconf_templates",
+        ],
+        action=(
+            "Review these high/critical debconf templates: " + ", ".join(concerning)
+            if concerning
+            else ""
+        ),
     )
 
 
@@ -767,7 +858,7 @@ _UBUNTU_DEVELOPERS_MAINTAINER = "Ubuntu Developers <ubuntu-devel-discuss@lists.u
 
 
 @reporter_evaluator("maintainer-field")
-def _maintainer_field(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _maintainer_field(_item: dict, ctx: RunContext) -> Assessment:
     """Judge debian/control's Maintainer field against the Ubuntu delta status.
 
     Common cases (no delta, or delta present with Maintainer already updated to
@@ -779,20 +870,19 @@ def _maintainer_field(_item: dict, ctx: RunContext) -> tuple[str | None, list[st
     """
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
-        return None, [], "Packaging source data was unavailable"
+        return Assessment(unavailable_reason="Packaging source data was unavailable")
     delta_kind = str(data.get("delta_kind", "")).strip()
     maintainer = str(data.get("source_maintainer", "")).strip()
     if not delta_kind or delta_kind == "unknown":
-        return (
-            None,
-            [],
-            "Could not determine whether Ubuntu carries a delta from the source version",
+        return Assessment(
+            unavailable_reason=(
+                "Could not determine whether Ubuntu carries a delta from the source version"
+            )
         )
     if delta_kind != "ubuntu_delta" or maintainer == _UBUNTU_DEVELOPERS_MAINTAINER:
-        return (
-            "debian/control defines a correct Maintainer field",
-            ["packaging-source:delta_kind", "packaging-source:source_maintainer"],
-            "",
+        return Assessment(
+            statement="debian/control defines a correct Maintainer field",
+            evidence_refs=["packaging-source:delta_kind", "packaging-source:source_maintainer"],
         )
     version = str(data.get("analyzed_version", "")).strip() or "unknown"
     statement = (
@@ -800,24 +890,23 @@ def _maintainer_field(_item: dict, ctx: RunContext) -> tuple[str | None, list[st
         f"(version {version}) but Maintainer is not set to Ubuntu Developers "
         f"(currently: {maintainer or 'missing'})."
     )
-    return (
-        statement,
-        ["packaging-source:delta_kind", "packaging-source:source_maintainer"],
-        "See the following item for the reporter's resolution plan.",
+    return Assessment(
+        statement=statement,
+        evidence_refs=["packaging-source:delta_kind", "packaging-source:source_maintainer"],
+        note="See the following item for the reporter's resolution plan.",
     )
 
 
 @reporter_evaluator("vendored-maintenance-docs")
-def _vendored_maintenance_docs(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _vendored_maintenance_docs(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
-        return None, [], "Packaging source data was unavailable"
+        return Assessment(unavailable_reason="Packaging source data was unavailable")
     vendored = data.get("shipped_vendored_dirs", [])
     if not vendored:
-        return (
-            "No shipped vendored directories were detected.",
-            ["packaging-source:shipped_vendored_dirs"],
-            "",
+        return Assessment(
+            statement="No shipped vendored directories were detected.",
+            evidence_refs=["packaging-source:shipped_vendored_dirs"],
         )
     readme = str(data.get("debian_readme_source", "")).strip()
     copyright_text = str(data.get("debian_copyright", "")).casefold()
@@ -831,19 +920,19 @@ def _vendored_maintenance_docs(_item: dict, ctx: RunContext) -> tuple[str | None
         gaps.append("debian/README.source does not clearly document refresh")
     if not covered:
         gaps.append("debian/copyright does not clearly cover every vendored directory")
-    return (
-        statement,
-        [
+    return Assessment(
+        statement=statement,
+        evidence_refs=[
             "packaging-source:shipped_vendored_dirs",
             "packaging-source:debian_readme_source",
             "packaging-source:debian_copyright",
         ],
-        "; ".join(gaps),
+        action="Resolve these gaps: " + "; ".join(gaps) + "." if gaps else "",
     )
 
 
 @reporter_evaluator("rust-vendoring")
-def _rust_vendoring(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _rust_vendoring(_item: dict, ctx: RunContext) -> Assessment:
     """Judge whether a Rust package's vendored dependencies are reproducibly tracked.
 
     Rust packages vendor their non-runtime (build-time) dependencies via the
@@ -854,58 +943,61 @@ def _rust_vendoring(_item: dict, ctx: RunContext) -> tuple[str | None, list[str]
     """
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
-        return None, [], "Packaging source data was unavailable"
+        return Assessment(unavailable_reason="Packaging source data was unavailable")
     if not data.get("cargo_lock_present"):
-        return (
-            "This Rust package has no committed Cargo.lock, so vendored "
-            "dependency versions are not reproducibly tracked.",
-            ["packaging-source:cargo_lock_present"],
-            "A Cargo.lock file is expected for reproducible dependency tracking "
-            "and refresh documentation.",
+        return Assessment(
+            statement=(
+                "This Rust package has no committed Cargo.lock, so vendored "
+                "dependency versions are not reproducibly tracked."
+            ),
+            evidence_refs=["packaging-source:cargo_lock_present"],
+            action=(
+                "A Cargo.lock file is expected for reproducible dependency tracking "
+                "and refresh documentation."
+            ),
         )
-    return (
-        "This Rust package tracks its vendored dependencies via a committed Cargo.lock file.",
-        ["packaging-source:cargo_lock_present"],
-        "",
+    return Assessment(
+        statement=(
+            "This Rust package tracks its vendored dependencies via a committed Cargo.lock file."
+        ),
+        evidence_refs=["packaging-source:cargo_lock_present"],
     )
 
 
 @reporter_evaluator("dependencies")
-def _dependencies(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _dependencies(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "dep-analysis")
     if data.get("status") != "ok":
-        return None, [], "Dependency analysis was unavailable"
+        return Assessment(unavailable_reason="Dependency analysis was unavailable")
     deps = sorted(data.get("in_scope_deps_not_in_main", data.get("deps_not_in_main", [])))
     if not deps:
-        return (
-            "No in-scope runtime dependencies outside main require a separate MIR.",
-            ["dep-analysis:in_scope_deps_not_in_main"],
-            "",
+        return Assessment(
+            statement="No in-scope runtime dependencies outside main require a separate MIR.",
+            evidence_refs=["dep-analysis:in_scope_deps_not_in_main"],
         )
-    return (
-        f"Runtime dependencies outside main require MIR handling: {', '.join(deps)}.",
-        ["dep-analysis:in_scope_deps_not_in_main"],
-        "Reference separate MIR bugs or include those sources in this request.",
+    return Assessment(
+        statement=f"Runtime dependencies outside main require MIR handling: {', '.join(deps)}.",
+        evidence_refs=["dep-analysis:in_scope_deps_not_in_main"],
+        action="Reference separate MIR bugs or include those sources in this request.",
     )
 
 
 @reporter_evaluator("binary-packages")
-def _binary_packages(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _binary_packages(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "packaging-source")
     if data.get("status") != "ok":
-        return None, [], "Packaging source inspection was unavailable"
+        return Assessment(unavailable_reason="Packaging source inspection was unavailable")
     packages = sorted(str(name) for name in data.get("binary_package_names", []))
     if not packages:
-        return None, [], "No binary packages were found for this source"
-    return (
-        f"This source builds the following binary packages: {', '.join(packages)}.",
-        ["packaging-source:binary_package_names"],
-        "",
+        return Assessment(unavailable_reason="No binary packages were found for this source")
+    return Assessment(
+        statement=f"This source builds the following binary packages: {', '.join(packages)}.",
+        evidence_refs=["packaging-source:binary_package_names"],
     )
 
 
 @reporter_evaluator("lintian-fhs-summary")
-def _lintian_fhs_summary(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _lintian_fhs_summary(_item: dict, ctx: RunContext) -> Assessment:
     """Surface lintian's error/warning counts ahead of the FHS/Policy question.
 
     Without this, a reporter answering "does this follow FHS and Debian
@@ -915,33 +1007,31 @@ def _lintian_fhs_summary(_item: dict, ctx: RunContext) -> tuple[str | None, list
     data = _adapter(ctx, "lintian")
     if data.get("status") != "ok":
         reason = data.get("message", "lintian did not run") if data else "lintian did not run"
-        return (
-            f"Lintian evidence is unavailable ({reason}); FHS/Policy compliance cannot be "
-            "confirmed from lintian output.",
-            [],
-            "",
+        return Assessment(
+            statement=(
+                f"Lintian evidence is unavailable ({reason}); FHS/Policy compliance cannot be "
+                "confirmed from lintian output."
+            )
         )
     errors = data.get("lintian_errors", [])
     warnings = data.get("lintian_warnings", [])
     if not errors and not warnings:
-        return (
-            "Lintian reported 0 errors and 0 warnings.",
-            ["lintian:lintian_errors", "lintian:lintian_warnings"],
-            "",
+        return Assessment(
+            statement="Lintian reported 0 errors and 0 warnings.",
+            evidence_refs=["lintian:lintian_errors", "lintian:lintian_warnings"],
         )
-    rationale = "; ".join(str(entry) for entry in [*errors, *warnings][:5])
-    return (
-        f"Lintian reported {len(errors)} error(s) and {len(warnings)} warning(s).",
-        ["lintian:lintian_errors", "lintian:lintian_warnings"],
-        rationale,
+    return Assessment(
+        statement=f"Lintian reported {len(errors)} error(s) and {len(warnings)} warning(s).",
+        evidence_refs=["lintian:lintian_errors", "lintian:lintian_warnings"],
+        note="; ".join(str(entry) for entry in [*errors, *warnings][:5]),
     )
 
 
 @reporter_evaluator("obsolete-dependencies")
-def _obsolete_dependencies(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _obsolete_dependencies(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "dep-analysis")
     if data.get("status") != "ok":
-        return None, [], "Dependency analysis was unavailable"
+        return Assessment(unavailable_reason="Dependency analysis was unavailable")
     dependency_names = {
         str(entry.get("depends", ""))
         for entry in data.get("runtime_deps", [])
@@ -953,23 +1043,24 @@ def _obsolete_dependencies(_item: dict, ctx: RunContext) -> tuple[str | None, li
         if re.search(r"(?:python2|python2\.|gtk2|libgtk2|webkit1|qtwebkit|libseed)", name)
     )
     if not obsolete:
-        return (
-            "No Python 2, GTK 2, or other catalogued obsolete runtime dependency was found.",
-            ["dep-analysis:runtime_deps"],
-            "",
+        return Assessment(
+            statement=(
+                "No Python 2, GTK 2, or other catalogued obsolete runtime dependency was found."
+            ),
+            evidence_refs=["dep-analysis:runtime_deps"],
         )
-    return (
-        "Potential obsolete runtime dependencies: " + ", ".join(obsolete) + ".",
-        ["dep-analysis:runtime_deps"],
-        "Remove or replace obsolete dependencies before promotion.",
+    return Assessment(
+        statement="Potential obsolete runtime dependencies: " + ", ".join(obsolete) + ".",
+        evidence_refs=["dep-analysis:runtime_deps"],
+        action="Remove or replace obsolete dependencies before promotion.",
     )
 
 
 @reporter_evaluator("recent-build")
-def _recent_build(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _recent_build(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "lp-build-api")
     if data.get("status") != "ok":
-        return None, [], "Launchpad build evidence was unavailable"
+        return Assessment(unavailable_reason="Launchpad build evidence was unavailable")
     threshold = datetime.now(UTC) - timedelta(days=93)
     recent: list[dict] = []
     for build in data.get("builds", []):
@@ -983,20 +1074,20 @@ def _recent_build(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], 
         if date >= threshold:
             recent.append(build)
     if not recent:
-        return (
-            "No Launchpad build within the last three months was confirmed.",
-            ["lp-build-api:builds"],
-            "Provide a recent archive, test-rebuild, PPA, or local sbuild reference.",
+        return Assessment(
+            statement="No Launchpad build within the last three months was confirmed.",
+            evidence_refs=["lp-build-api:builds"],
+            action="Provide a recent archive, test-rebuild, PPA, or local sbuild reference.",
         )
     links = [str(build.get("web_link", "")) for build in recent if build.get("web_link")]
     statement = f"Launchpad records contain {len(recent)} build(s) from the last three months."
     if links:
         statement += " Builds: " + ", ".join(links[:10]) + "."
-    return statement, ["lp-build-api:builds"], ""
+    return Assessment(statement=statement, evidence_refs=["lp-build-api:builds"])
 
 
 @reporter_evaluator("built-using-surface")
-def _built_using_surface(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _built_using_surface(_item: dict, ctx: RunContext) -> Assessment:
     """State which packages the built binaries declare as Built-Using.
 
     Facts only - the reporter (and, on the review side, the ESL checks) judge
@@ -1005,71 +1096,70 @@ def _built_using_surface(_item: dict, ctx: RunContext) -> tuple[str | None, list
     """
     deb = _adapter(ctx, "deb-metadata")
     if deb.get("status") != "ok":
-        return None, [], "Built-package metadata was unavailable"
+        return Assessment(unavailable_reason="Built-package metadata was unavailable")
     entries = built_using_entries(deb)
     refs = ["deb-metadata:deb_packages"]
     if not entries:
-        return "Built binaries declare no Built-Using or Static-Built-Using entries.", refs, ""
-    listed = ", ".join(entries)
-    return (
-        f"Built binaries declare Built-Using/Static-Built-Using: {listed}.",
-        refs,
-        "Vendored/static build linkages carry the maintenance obligations "
-        "asked about in the commitment item above.",
+        return Assessment(
+            statement="Built binaries declare no Built-Using or Static-Built-Using entries.",
+            evidence_refs=refs,
+        )
+    return Assessment(
+        statement=f"Built binaries declare Built-Using/Static-Built-Using: {', '.join(entries)}.",
+        evidence_refs=refs,
+        note=(
+            "Vendored/static build linkages carry the maintenance obligations "
+            "asked about in the commitment item above."
+        ),
     )
 
 
 @reporter_evaluator("team-subscription")
-def _team_subscription(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _team_subscription(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "team-mapping")
     if data.get("status") != "ok":
-        return None, [], "Team subscription data was unavailable"
+        return Assessment(unavailable_reason="Team subscription data was unavailable")
     teams = sorted(data.get("subscribed_teams", []))
     if teams:
-        return (
-            f"Package bug subscriber team(s): {', '.join(teams)}.",
-            ["team-mapping:subscribed_teams"],
-            "",
+        return Assessment(
+            statement=f"Package bug subscriber team(s): {', '.join(teams)}.",
+            evidence_refs=["team-mapping:subscribed_teams"],
         )
-    return (
-        "No owning-team package bug subscription was found.",
-        ["team-mapping:subscribed_teams"],
-        "A team must subscribe before promotion.",
+    return Assessment(
+        statement="No owning-team package bug subscription was found.",
+        evidence_refs=["team-mapping:subscribed_teams"],
+        action="A team must subscribe before promotion.",
     )
 
 
 @reporter_evaluator("upstream-link")
-def _upstream_link(_item: dict, ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _upstream_link(_item: dict, ctx: RunContext) -> Assessment:
     data = _adapter(ctx, "upstream-tracker")
     url = str(data.get("upstream_url", "")).strip()
     if not url:
-        return None, [], "No reliable upstream project URL was found"
-    return f"Upstream project: {url}", ["upstream-tracker:upstream_url"], ""
+        return Assessment(unavailable_reason="No reliable upstream project URL was found")
+    return Assessment(
+        statement=f"Upstream project: {url}", evidence_refs=["upstream-tracker:upstream_url"]
+    )
 
 
 @reporter_evaluator("ui-desktop-not-applicable")
-def _ui_desktop_not_applicable(_item: dict, _ctx: RunContext) -> tuple[str | None, list[str], str]:
+def _ui_desktop_not_applicable(_item: dict, _ctx: RunContext) -> Assessment:
     """Desktop-file counterpart of REP-UI-002, gated on REP-UI-001 == not-end-user-facing.
 
     Always resolves to the same fixed statement with no evidence dependency
     -- the applicability gate is the only thing that decides whether this
     item is even asked, so once it is, there is nothing left to judge.
     """
-    return (
-        "Not an end-user application (server, CLI-only tool, or library) - no Desktop "
-        "file is needed.",
-        [],
-        "",
+    return Assessment(
+        statement=(
+            "Not an end-user application (server, CLI-only tool, or library) - no Desktop "
+            "file is needed."
+        )
     )
 
 
 @reporter_evaluator("ui-translation-not-applicable")
-def _ui_translation_not_applicable(
-    _item: dict, _ctx: RunContext
-) -> tuple[str | None, list[str], str]:
+def _ui_translation_not_applicable(_item: dict, _ctx: RunContext) -> Assessment:
     """Translation counterpart of ``_ui_desktop_not_applicable`` (REP-UI-003)."""
-    return (
-        "Application is not end-user facing (does not need translation).",
-        [],
-        "",
-    )
+    return Assessment(statement="Application is not end-user facing (does not need translation).")

@@ -154,8 +154,16 @@ def test_reporter_items_mix_deterministic_evidence_and_human_answers(tmp_path):
     results = evaluate_items(ctx, wizard)
 
     assert len(results) == len(ctx.catalog["items"])
+    # NEEDS_INPUT is also expected here: a deterministic evaluator that found
+    # a fact the reporter still has to act on (no recent build, no subscribed
+    # team) resolves the fact but leaves the work open.
     assert all(
-        result.state in {StatementState.RESOLVED, StatementState.NOT_APPLICABLE}
+        result.state
+        in {
+            StatementState.RESOLVED,
+            StatementState.NOT_APPLICABLE,
+            StatementState.NEEDS_INPUT,
+        }
         for result in results
     )
     assert any(result.provenance == Provenance.DETERMINISTIC for result in results)
@@ -837,7 +845,9 @@ def test_rust_vendoring_ok_when_cargo_lock_present():
             }
         }
     )
-    statement, refs, rationale = _rust_vendoring({}, ctx)
+    assessment = _rust_vendoring({}, ctx)
+    statement, refs = assessment.statement, assessment.evidence_refs
+    rationale = assessment.rationale()
     assert "tracks its vendored dependencies via a committed Cargo.lock" in statement
     assert rationale == ""
     assert refs
@@ -853,7 +863,9 @@ def test_rust_vendoring_flags_missing_cargo_lock():
             }
         }
     )
-    statement, _refs, rationale = _rust_vendoring({}, ctx)
+    assessment = _rust_vendoring({}, ctx)
+    statement = assessment.statement
+    rationale = assessment.rationale()
     assert "no committed Cargo.lock" in statement
     assert rationale
 
@@ -862,9 +874,10 @@ def test_rust_vendoring_unavailable_when_adapter_errored():
     from reporter.evaluator import _rust_vendoring
 
     ctx = SimpleNamespace(evidence={"adapters": {"packaging-source": {"status": "error"}}})
-    statement, _refs, rationale = _rust_vendoring({}, ctx)
+    assessment = _rust_vendoring({}, ctx)
+    statement = assessment.statement
     assert statement is None
-    assert rationale
+    assert assessment.unavailable_reason
 
 
 def test_rust_vendoring_item_not_applicable_for_non_rust_packages(tmp_path):
@@ -886,9 +899,13 @@ def test_rust_vendoring_item_flags_missing_cargo_lock_for_rust_packages(tmp_path
     results = evaluate_items(ctx, wizard)
     by_id = {result.id: result for result in results}
 
-    assert by_id["REP-MAINT-007"].state == StatementState.RESOLVED
+    # A missing Cargo.lock is something the reporter still has to fix, so the
+    # finding is carried into the draft's "Left to clarify:" block (NEEDS_INPUT)
+    # rather than presented as a settled statement.
+    assert by_id["REP-MAINT-007"].state == StatementState.NEEDS_INPUT
     assert by_id["REP-MAINT-007"].readiness == ReadinessEffect.BLOCKER
     assert "no committed Cargo.lock" in by_id["REP-MAINT-007"].statement
+    assert "Cargo.lock file is expected" in by_id["REP-MAINT-007"].rationale
 
 
 def test_micro_library_item_skipped_for_non_library_packages(tmp_path):
@@ -1206,7 +1223,9 @@ def test_lintian_overrides_ok_when_no_entries():
             "adapters": {"packaging-source": {"status": "ok", "lintian_override_entries": []}}
         }
     )
-    statement, refs, rationale = _lintian_overrides({}, ctx)
+    assessment = _lintian_overrides({}, ctx)
+    statement, refs = assessment.statement, assessment.evidence_refs
+    rationale = assessment.rationale()
     assert statement == "Lintian overrides are absent or already explained by a comment."
     assert rationale == ""
     assert refs
@@ -1225,7 +1244,9 @@ def test_lintian_overrides_ok_when_all_commented():
             }
         }
     )
-    statement, _refs, rationale = _lintian_overrides({}, ctx)
+    assessment = _lintian_overrides({}, ctx)
+    statement = assessment.statement
+    rationale = assessment.rationale()
     assert statement == "Lintian overrides are absent or already explained by a comment."
     assert rationale == ""
 
@@ -1246,7 +1267,9 @@ def test_lintian_overrides_flags_uncommented_entry():
             }
         }
     )
-    statement, _refs, rationale = _lintian_overrides({}, ctx)
+    assessment = _lintian_overrides({}, ctx)
+    statement = assessment.statement
+    rationale = assessment.rationale()
     assert "another-tag" in statement
     assert "some-tag" not in statement
     assert rationale
@@ -1256,9 +1279,10 @@ def test_lintian_overrides_unavailable_when_adapter_errored():
     from reporter.evaluator import _lintian_overrides
 
     ctx = SimpleNamespace(evidence={"adapters": {"packaging-source": {"status": "error"}}})
-    statement, _refs, rationale = _lintian_overrides({}, ctx)
+    assessment = _lintian_overrides({}, ctx)
+    statement = assessment.statement
     assert statement is None
-    assert rationale
+    assert assessment.unavailable_reason
 
 
 def test_reporter_lintian_override_followup_not_applicable_when_all_commented(tmp_path):
@@ -1289,8 +1313,12 @@ def test_reporter_lintian_override_followup_fires_when_uncommented(tmp_path):
     results = evaluate_items(ctx, wizard)
     by_id = {result.id: result for result in results}
 
-    assert by_id["REP-QA-PKG-008"].readiness == ReadinessEffect.WARNING
+    # The gap itself is handed to the follow-up item below, so the detecting
+    # statement carries only a cross-reference note and stays readiness-clear.
+    assert by_id["REP-QA-PKG-008"].state == StatementState.RESOLVED
+    assert by_id["REP-QA-PKG-008"].readiness == ReadinessEffect.CLEAR
     assert "some-tag" in by_id["REP-QA-PKG-008"].statement
+    assert "following item" in by_id["REP-QA-PKG-008"].rationale
     assert "REP-QA-PKG-009" in wizard.asked
     followup = by_id["REP-QA-PKG-009"]
     assert followup.state == StatementState.RESOLVED
@@ -1309,7 +1337,9 @@ def test_maintainer_field_ok_when_no_delta():
             }
         }
     )
-    statement, refs, rationale = _maintainer_field({}, ctx)
+    assessment = _maintainer_field({}, ctx)
+    statement, refs = assessment.statement, assessment.evidence_refs
+    rationale = assessment.rationale()
     assert statement == "debian/control defines a correct Maintainer field"
     assert rationale == ""
     assert refs
@@ -1328,7 +1358,9 @@ def test_maintainer_field_ok_when_delta_and_ubuntu_developers():
             }
         }
     )
-    statement, _refs, rationale = _maintainer_field({}, ctx)
+    assessment = _maintainer_field({}, ctx)
+    statement = assessment.statement
+    rationale = assessment.rationale()
     assert statement == "debian/control defines a correct Maintainer field"
     assert rationale == ""
 
@@ -1347,7 +1379,9 @@ def test_maintainer_field_flags_delta_with_wrong_maintainer():
             }
         }
     )
-    statement, _refs, rationale = _maintainer_field({}, ctx)
+    assessment = _maintainer_field({}, ctx)
+    statement = assessment.statement
+    rationale = assessment.rationale()
     assert "needs attention" in statement
     assert "1.0-1ubuntu2" in statement
     assert "Eric Berry" in statement
@@ -1366,18 +1400,20 @@ def test_maintainer_field_unavailable_when_delta_kind_unknown():
             }
         }
     )
-    statement, _refs, rationale = _maintainer_field({}, ctx)
+    assessment = _maintainer_field({}, ctx)
+    statement = assessment.statement
     assert statement is None
-    assert rationale
+    assert assessment.unavailable_reason
 
 
 def test_maintainer_field_unavailable_when_adapter_errored():
     from reporter.evaluator import _maintainer_field
 
     ctx = SimpleNamespace(evidence={"adapters": {"packaging-source": {"status": "error"}}})
-    statement, _refs, rationale = _maintainer_field({}, ctx)
+    assessment = _maintainer_field({}, ctx)
+    statement = assessment.statement
     assert statement is None
-    assert rationale
+    assert assessment.unavailable_reason
 
 
 def test_reporter_maintainer_followup_not_applicable_when_no_delta(tmp_path):
@@ -1407,8 +1443,12 @@ def test_reporter_maintainer_followup_fires_when_delta_and_wrong_maintainer(tmp_
     results = evaluate_items(ctx, wizard)
     by_id = {result.id: result for result in results}
 
-    assert by_id["REP-QA-PKG-006"].readiness == ReadinessEffect.BLOCKER
+    # As with the lintian-override pair, the resolution plan is the follow-up
+    # item's job; the detecting statement only points at it.
+    assert by_id["REP-QA-PKG-006"].state == StatementState.RESOLVED
+    assert by_id["REP-QA-PKG-006"].readiness == ReadinessEffect.CLEAR
     assert "needs attention" in by_id["REP-QA-PKG-006"].statement
+    assert "following item" in by_id["REP-QA-PKG-006"].rationale
     assert "REP-QA-PKG-007" in wizard.asked
     followup = by_id["REP-QA-PKG-007"]
     assert followup.state == StatementState.RESOLVED
@@ -1428,7 +1468,9 @@ def test_cve_history_statement_carries_sourcing_note():
 
     from reporter.evaluator import _EVALUATORS
 
-    statement, refs, rationale = _EVALUATORS["cve-history"]({"id": "REP-SECURITY-001"}, ctx)
+    assessment = _EVALUATORS["cve-history"]({"id": "REP-SECURITY-001"}, ctx)
+    statement, refs = assessment.statement, assessment.evidence_refs
+    rationale = assessment.rationale()
 
     assert "No package-associated CVEs" in statement
     assert "cvelistV5/NVD" in rationale
@@ -1451,7 +1493,9 @@ def test_built_using_surface_item_states_the_declared_entries():
             {"built_using": ["golang-github-x (= 1.2)"], "static_built_using": ["rust-y (= 0.9)"]},
         ],
     }
-    statement, refs, rationale = _EVALUATORS["built-using-surface"]({"id": "REP-MAINT-008"}, ctx)
+    assessment = _EVALUATORS["built-using-surface"]({"id": "REP-MAINT-008"}, ctx)
+    statement, refs = assessment.statement, assessment.evidence_refs
+    rationale = assessment.rationale()
 
     assert "golang-github-x (= 1.2)" in statement
     assert "rust-y (= 0.9)" in statement
@@ -1465,7 +1509,9 @@ def test_built_using_surface_item_clean_when_no_entries():
     ctx = _ctx(tmp_path=None)
     ctx.evidence["adapters"]["deb-metadata"] = {"status": "ok", "deb_packages": []}
 
-    statement, refs, rationale = _EVALUATORS["built-using-surface"]({"id": "REP-MAINT-008"}, ctx)
+    assessment = _EVALUATORS["built-using-surface"]({"id": "REP-MAINT-008"}, ctx)
+    statement = assessment.statement
+    rationale = assessment.rationale()
 
     assert "declare no Built-Using" in statement
     assert rationale == ""
@@ -1477,10 +1523,11 @@ def test_built_using_surface_item_unavailable_when_metadata_fails():
     ctx = _ctx(tmp_path=None)
     ctx.evidence["adapters"]["deb-metadata"] = {"status": "error", "message": "boom"}
 
-    statement, refs, rationale = _EVALUATORS["built-using-surface"]({"id": "REP-MAINT-008"}, ctx)
+    assessment = _EVALUATORS["built-using-surface"]({"id": "REP-MAINT-008"}, ctx)
+    statement = assessment.statement
 
     assert statement is None
-    assert "unavailable" in rationale
+    assert "unavailable" in assessment.unavailable_reason
 
 
 def test_built_using_surface_lands_in_the_draft_under_maintenance():

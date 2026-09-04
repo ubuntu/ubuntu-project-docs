@@ -15,7 +15,7 @@ from reporter.evaluator import (  # noqa: E402
     _question_from_item,
     _unavailable,
 )
-from reporter.models import ReadinessEffect  # noqa: E402
+from reporter.models import ReadinessEffect, StatementState  # noqa: E402
 from reporter.text_utils import (  # noqa: E402
     ensure_bulleted,
     maybe_write_evidence,
@@ -78,7 +78,9 @@ def test_build_tests_reports_observed_markers_from_the_log():
         evidence={"adapters": {"fetch-build": {"build_log": "running dh_auto_test\nPASS"}}}
     )
 
-    statement, refs, rationale = _build_tests({}, ctx)
+    assessment = _build_tests({}, ctx)
+    statement, refs = assessment.statement, assessment.evidence_refs
+    rationale = assessment.rationale()
 
     assert statement == "Build-time test execution was observed (dh_auto_test)."
     assert refs == ["fetch-build:build_log"]
@@ -88,7 +90,8 @@ def test_build_tests_reports_observed_markers_from_the_log():
 def test_build_tests_reports_no_markers_found_in_the_log():
     ctx = SimpleNamespace(evidence={"adapters": {"fetch-build": {"build_log": "just a build"}}})
 
-    statement, refs, rationale = _build_tests({}, ctx)
+    assessment = _build_tests({}, ctx)
+    statement, refs = assessment.statement, assessment.evidence_refs
 
     assert statement == "No build-time test execution was identified in the collected build log."
     assert refs == ["fetch-build:build_log"]
@@ -108,7 +111,9 @@ def test_build_tests_falls_back_to_debian_rules_when_log_is_unavailable():
         }
     )
 
-    statement, refs, rationale = _build_tests({}, ctx)
+    assessment = _build_tests({}, ctx)
+    statement, refs = assessment.statement, assessment.evidence_refs
+    rationale = assessment.rationale()
 
     assert statement is not None
     assert "does not override the default dh_auto_test target" in statement
@@ -126,7 +131,8 @@ def test_build_tests_falls_back_to_debian_rules_reporting_an_override():
         }
     )
 
-    statement, refs, rationale = _build_tests({}, ctx)
+    assessment = _build_tests({}, ctx)
+    statement, refs = assessment.statement, assessment.evidence_refs
 
     assert statement is not None
     assert "overrides the default dh_auto_test target" in statement
@@ -136,11 +142,12 @@ def test_build_tests_falls_back_to_debian_rules_reporting_an_override():
 def test_build_tests_without_log_stays_unavailable_when_packaging_source_missing():
     ctx = SimpleNamespace(evidence={"adapters": {"fetch-build": {"build_log": ""}}})
 
-    statement, refs, rationale = _build_tests_without_log(ctx)
+    assessment = _build_tests_without_log(ctx)
+    statement, refs = assessment.statement, assessment.evidence_refs
 
     assert statement is None
     assert refs == []
-    assert rationale == "No build log was available"
+    assert assessment.unavailable_reason == "No build log was available"
 
 
 def test_maybe_write_evidence_backfills_empty_adapter_field_from_url_answer():
@@ -492,3 +499,66 @@ def test_option_not_locked_when_evidence_condition_is_false():
 
     by_id = {option.id: option for option in question.options}
     assert by_id["confirm-subscribed"].locked_reason == ""
+
+
+# ---------------------------------------------------------------------------
+# Assessment note/action split (feedback item 1c). "note" is context nobody
+# has to act on; "action" is outstanding reporter work. Only the latter may
+# affect readiness or move a statement out of the confident bullets.
+# ---------------------------------------------------------------------------
+
+
+def test_assessment_with_note_stays_a_confident_clear_statement():
+    from reporter.evaluator import Assessment, _deterministic_result
+
+    result = _deterministic_result(
+        {"id": "REP-X", "section": "Security"},
+        ReadinessEffect.WARNING,
+        Assessment(statement="No CVEs were found.", note="Sourcing: tracker A and corpus B."),
+    )
+
+    assert result.state == StatementState.RESOLVED
+    assert result.readiness == ReadinessEffect.CLEAR
+    assert result.rationale == "Sourcing: tracker A and corpus B."
+
+
+def test_assessment_with_action_keeps_readiness_and_needs_input():
+    from reporter.evaluator import Assessment, _deterministic_result
+
+    result = _deterministic_result(
+        {"id": "REP-X", "section": "Maintenance/Owner"},
+        ReadinessEffect.WARNING,
+        Assessment(statement="No subscription was found.", action="A team must subscribe."),
+    )
+
+    assert result.state == StatementState.NEEDS_INPUT
+    assert result.readiness == ReadinessEffect.WARNING
+    assert result.rationale == "A team must subscribe."
+
+
+def test_assessment_action_and_note_are_both_shown():
+    from reporter.evaluator import Assessment
+
+    assessment = Assessment(statement="x", action="Verify relevance.", note="Sourcing: tracker A.")
+
+    assert assessment.rationale() == "Verify relevance. Sourcing: tracker A."
+
+
+def test_clean_cve_history_leaves_the_reporter_nothing_to_do():
+    """The OSS-security sourcing text is a note about what was queried; on a
+    clean result it must not raise the item to warning readiness."""
+    from reporter.evaluator import _EVALUATORS
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "ubuntu-cve-tracker": {"status": "ok", "cves": []},
+                "nvd-enrich": {"status": "ok", "cves": []},
+            }
+        }
+    )
+
+    assessment = _EVALUATORS["cve-history"]({"id": "REP-SECURITY-001"}, ctx)
+
+    assert not assessment.action
+    assert "OSS-security" in assessment.note

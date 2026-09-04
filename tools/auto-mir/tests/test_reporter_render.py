@@ -398,3 +398,36 @@ def test_lint_draft_rejects_layout_defects():
             assert expected in str(exc)
         else:
             raise AssertionError(f"expected _lint_draft to reject: {bad!r}")
+
+
+def test_build_draft_lists_a_deterministic_action_finding_under_left_to_clarify():
+    """Feedback item 1c: a deterministic finding that still asks the reporter
+    for something ("no recent build was confirmed - provide a reference") is
+    outstanding work, not a settled statement, so it belongs in the clarify
+    block with its own evidence-derived wording, not a generic question."""
+    items = [{"id": "REP-BUILD", "section": "Maintenance/Owner", "title": "Recent build"}]
+    blueprint = ["[Maintenance/Owner]", {"item": "REP-BUILD"}]
+    ctx = _synthetic_ctx(items, blueprint)
+    by_id = {
+        "REP-BUILD": StatementResult(
+            id="REP-BUILD",
+            section="Maintenance/Owner",
+            state=StatementState.NEEDS_INPUT,
+            readiness=ReadinessEffect.WARNING,
+            statement="- No Launchpad build within the last three months was confirmed.",
+            provenance=Provenance.DETERMINISTIC,
+            rationale="Provide a recent archive, test-rebuild, PPA, or local sbuild reference.",
+        )
+    }
+
+    draft = _build_draft(ctx, by_id)
+    lines = draft.splitlines()
+
+    heading = lines.index("Left to clarify:")
+    assert lines[heading + 1] == "- No Launchpad build within the last three months was confirmed."
+    assert lines[heading + 2] == (
+        "  (Provide a recent archive, test-rebuild, PPA, or local sbuild reference.)"
+    )
+    # No generic question/TODO scaffolding for an item that already has a
+    # concrete evidence-derived finding.
+    assert "Reason:" not in draft
