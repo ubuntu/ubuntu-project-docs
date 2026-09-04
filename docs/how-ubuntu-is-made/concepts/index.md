@@ -31,6 +31,7 @@ package-archive
 package-format
 version-strings
 metapackages
+seeds
 patches
 phased-updates
 deb-3-patch-file-headers

@@ -201,6 +201,7 @@ syncable
 sysroot
 systemd
 tarball
+tasksel
 Tegra
 templated
 testsuite

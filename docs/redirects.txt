@@ -275,7 +275,11 @@ how-ubuntu-is-made/processes/freezes/ release-team/freezes/
 
 staging/seed-management/ staging/release-team/seed-management/
 
-staging/germinate/ staging/release-team/germinate/
+staging/seeds/ how-ubuntu-is-made/concepts/seeds/
+staging/release-team/seeds/ how-ubuntu-is-made/concepts/seeds/
+
+staging/germinate/ how-ubuntu-is-made/concepts/seeds/
+staging/release-team/germinate/ how-ubuntu-is-made/concepts/seeds/
 
 staging/release-team/freeze-exceptions/ release-team/freeze-exceptions/
 staging/freeze-exceptions/ release-team/freeze-exceptions/
