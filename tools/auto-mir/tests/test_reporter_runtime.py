@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 TOOL_ROOT = Path(__file__).resolve().parent.parent
 WORKSPACE_ROOT = TOOL_ROOT.parent.parent
 sys.path.insert(0, str(TOOL_ROOT))
@@ -20,7 +22,7 @@ from reporter.models import (  # noqa: E402
     ReadinessEffect,
     StatementState,
 )
-from reporter.render import write_outputs  # noqa: E402
+from reporter.render import DraftLintFailed, write_outputs  # noqa: E402
 from utils.secrets import SecretRedactor  # noqa: E402
 
 
@@ -240,6 +242,33 @@ def test_reporter_render_writes_draft_and_structured_report(tmp_path):
     assert report["readiness"]["ready"] is False
     assert "REP-RATIONALE-001" in report["readiness"]["blockers"]
     assert len(report["statements"]) == len(ctx.catalog["items"])
+
+
+def test_reporter_render_survives_lint_violations(tmp_path):
+    """Feedback item 4: a draft that fails lint must never destroy the
+    session. The draft and structured report are still written, readiness
+    is forced to not-ready with the violations recorded in the report, and
+    the run fails loudly via DraftLintFailed instead of crashing before
+    writing anything."""
+    ctx = _ctx(tmp_path)
+    doctored = dict(ctx.catalog)
+    doctored["metadata"] = {
+        **ctx.catalog["metadata"],
+        "section_markers": [*ctx.catalog["metadata"]["section_markers"], "[Nonexistent]"],
+    }
+    ctx.catalog = doctored
+    results = evaluate_items(ctx, FakeWizard())
+
+    with pytest.raises(DraftLintFailed) as excinfo:
+        write_outputs(ctx, results)
+
+    # The session's work is preserved: both artifacts exist.
+    draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
+    assert "[Availability]" in draft
+    report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
+    assert report["readiness"]["ready"] is False
+    assert any("exactly once" in v for v in report["readiness"]["lint_violations"])
+    assert any("exactly once" in v for v in excinfo.value.violations)
 
 
 def test_reporter_draft_indents_continuation_lines_of_a_multi_line_answer(tmp_path):

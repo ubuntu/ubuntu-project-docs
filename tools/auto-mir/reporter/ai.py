@@ -17,6 +17,7 @@ from reporter.text_utils import (
     ensure_bulleted,
     maybe_write_evidence,
     resolve_option_statements,
+    statement_left_open,
     substitute_rules_url,
 )
 from utils import llm_evidence
@@ -195,7 +196,7 @@ Return exactly one JSON object:
         statement = ensure_bulleted(
             suggestion if confirmation.value is True else confirmation.value
         )
-        return StatementResult(
+        result = StatementResult(
             id=item["id"],
             section=item["section"],
             state=StatementState.RESOLVED,
@@ -208,6 +209,15 @@ Return exactly one JSON object:
             rationale=rationale,
             human_confirmed=True,
         )
+        if statement_left_open(statement, rationale):
+            # The reporter edited the suggestion but left a TBD in place (or
+            # the rationale carries one). The same rule as the human answer
+            # path applies: the item travels to "Left to clarify:" instead of
+            # being presented as a settled statement.
+            result.state = StatementState.NEEDS_INPUT
+            result.human_confirmed = False
+            result.provenance = None
+        return result
     return _ask_human(item, ctx, wizard, fallback_question, readiness=readiness)
 
 
@@ -527,8 +537,9 @@ def _ask_human(
         statement = ensure_bulleted(str(answer.value))
     if "TBD" in statement:
         statement = wizard.complete_statement(question, statement)
-    if "TBD" in statement:
-        # The reporter deliberately left a slot open; carry it to
+    if statement_left_open(statement, rationale):
+        # The reporter deliberately left a slot open (in the statement or
+        # in the rationale this fallback carries); move the item to
         # "Left to clarify:" rather than claim it as a settled statement.
         return StatementResult(
             id=item["id"],

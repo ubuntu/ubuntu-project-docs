@@ -164,14 +164,18 @@ Two kinds of placeholder live in reporter catalog statements. `TBD` slots
 are the reporter's to fill: the wizard opens one completion round on the
 chosen sentence, a saved-with-`TBD` statement becomes `NEEDS_INPUT`, and an
 AI suggestion still carrying one has its yes-confirmation locked so it can
-never be accepted verbatim (the draft lint rejects a raw `TBD` at write
-time). `TBDRULESURL` is resolved by the tool instead of the reporter: the
+never be accepted verbatim. Every result-creation site (human answer, AI
+confirmation, AI human fallback) applies the same
+`statement_left_open` check to the statement *and* its rationale, so an
+open slot routes the item to `Left to clarify:` no matter which path
+produced it; `consistency.validate_results` is the warning-level backstop.
+`TBDRULESURL` is resolved by the tool instead of the reporter: the
 Launchpad git URL of `debian/rules` is constructed from the source package
 and target series (`ubuntu/devel` for the development release,
 `ubuntu/<series>-devel` otherwise), at the AI suggestion, human fallback,
 and question-display paths alike. The token deliberately contains `TBD`, so
-an unsubstituted leak still trips the existing placeholder guards rather
-than reaching the draft.
+an unsubstituted leak still trips the placeholder guards rather than
+reaching the draft.
 
 ### Statement authorship (no template splicing)
 
@@ -200,9 +204,22 @@ decides spacing. Blueprint `''` separators are not reproduced (they separate
 template prose the draft does not emit at all): the renderer emits exactly
 one blank line before each `[Section]` header and before a clarify block,
 never two, none trailing. `catalog.classify_blueprint_entry()` is the single
-vocabulary deciding what is a section, RULE, TODO, label, blank, or item, so
-no consumer can drift into leaking template scaffolding into the draft;
-`_lint_draft` enforces the same contract on the rendered result.
+vocabulary deciding what is a section, RULE, TODO, label, blank, or item,
+so no consumer can drift into leaking template scaffolding into the draft.
+
+`_lint_draft` enforces only the renderer-controlled structure of the
+rendered result: each known section header appears exactly once (by
+whole-line equality, so free text merely *mentioning* a marker cannot trip
+it), the blank-line layout holds, every catalog item has a result, and no
+resolved statement still starts with an unfilled template marker. Content
+lines (human answers, AI suggestions, rationales) are deliberately never
+judged by line shape - they cannot be told from scaffolding by text, and
+shape-checking them is what aborted fully answered runs at write time
+(feedback item 4). A lint failure is never a crash either:
+`write_outputs` still writes the draft and report, forces readiness to
+not-ready, records the violations in the report, and raises
+`DraftLintFailed` so the run exits non-zero without destroying the
+session.
 
 ## Catalog composition
 

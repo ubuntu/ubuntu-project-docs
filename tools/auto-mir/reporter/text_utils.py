@@ -77,6 +77,22 @@ def ensure_bulleted(text: str) -> str:
     return f"- {text}"
 
 
+def statement_left_open(statement: str, rationale: str = "") -> bool:
+    """True when a statement or its rationale still carries an unfilled slot.
+
+    ``TBD`` marks text as not settled; the ``TBDSRC`` and ``TBDRULESURL``
+    placeholders deliberately contain it, so they are covered too. Shared
+    by every result-creation site - the human answer path
+    (``evaluator._resolved_or_open``), the AI confirmation path, and the
+    AI human fallback - so an open slot routes the item to "Left to
+    clarify:" no matter which path produced it, instead of only the paths
+    that remembered to check (the write-time draft lint no longer rejects
+    such lines: it cannot tell human free text from template scaffolding
+    by shape, and shape-checking content is what aborted finished runs).
+    """
+    return "TBD" in statement or "TBD" in (rationale or "")
+
+
 def substitute_source(text: str, source_package: str) -> str:
     """Replace the ``TBDSRC`` catalog placeholder with the actual source package.
 

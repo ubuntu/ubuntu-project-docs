@@ -13,9 +13,30 @@ from reporter.text_utils import substitute_source
 log = logging.getLogger("auto_mir.reporter")
 
 # Heading of the per-section block collecting everything the run could not
-# resolve confidently. Referenced by the renderer and by ``_lint_draft``'s
-# "a raw TBD is only legitimate here" rule, so it exists exactly once.
+# resolve confidently. Rendered by ``_build_draft``; an unresolved "TBD" is
+# legitimate only inside this block, which is enforced at result creation
+# (see ``reporter.text_utils.statement_left_open``), so it exists exactly
+# once.
 _CLARIFY_HEADING = "Left to clarify:"
+
+
+class DraftLintFailed(RuntimeError):
+    """Raised after a draft that failed lint was written, so the run fails loudly.
+
+    The artifacts are always written first (see ``write_outputs``): the
+    reporter's session must never be destroyed by a write-time lint
+    rejection - the run exits non-zero and the structured report records
+    the violations for recovery.
+    """
+
+    def __init__(self, violations: list[str]) -> None:
+        self.violations = list(violations)
+        summary = "; ".join(violations)
+        super().__init__(
+            "reporter draft failed lint validation; the draft and report were written "
+            f"but need correction before submission: {summary}"
+        )
+
 
 # States that contribute no line of their own to the draft: an item ruled out
 # by its applicability condition, and one whose text was folded into another
@@ -24,15 +45,26 @@ _SILENT_STATES = {StatementState.NOT_APPLICABLE, StatementState.MERGED}
 
 
 def write_outputs(ctx, results: list[StatementResult]) -> None:
-    """Write the reporter draft and role-versioned structured report."""
+    """Write the reporter draft and role-versioned structured report.
+
+    A lint failure is deliberately not a crash: both artifacts are written
+    (the session's answers are never destroyed by a write-time
+    rejection), readiness is forced to not-ready, the violations are
+    recorded in the structured report, and ``DraftLintFailed`` is raised
+    afterwards so the run still exits non-zero with a clear message.
+    """
     by_id = {result.id: result for result in results}
     draft = _build_draft(ctx, by_id)
-    _lint_draft(draft, ctx.catalog, by_id)
+    violations = _lint_draft(draft, ctx.catalog, by_id)
 
     ctx.reporter_draft_path = ctx.output_dir / "reporter-draft.txt"
     ctx.reporter_draft_path.write_text(ctx.secret_redactor.redact_text(draft), encoding="utf-8")
 
     readiness = _readiness_summary(results, getattr(ctx, "consistency_report", None))
+    if violations:
+        readiness = {**readiness, "ready": False, "lint_violations": violations}
+        for violation in violations:
+            log.error("Draft lint violation: %s", violation)
     for line in readiness_console_lines(ctx, readiness):
         log.info(line)
     report = {
@@ -56,6 +88,8 @@ def write_outputs(ctx, results: list[StatementResult]) -> None:
     ctx.report_path = ctx.output_dir / "report.json"
     with ctx.report_path.open("w", encoding="utf-8") as handle:
         json.dump(ctx.secret_redactor.sanitize(report), handle, indent=2, default=str)
+    if violations:
+        raise DraftLintFailed(violations)
 
 
 def _with_hanging_indent(text: str) -> str:
@@ -65,11 +99,22 @@ def _with_hanging_indent(text: str) -> str:
     catalog statements can span multiple lines. Without this, the second and
     later lines start flush-left, breaking the visual "- one bullet per
     statement" shape the draft otherwise keeps.
+
+    Runs of consecutive blank continuation lines are collapsed to one
+    first: the draft's layout contract says blank lines never double, the
+    renderer guarantees that structurally for the separators it inserts
+    itself, and a pasted answer carrying a doubled blank line must not be
+    able to break the same invariant.
     """
     lines = text.split("\n")
     if len(lines) == 1:
         return text
-    return "\n".join([lines[0], *(f"  {line}" if line else line for line in lines[1:])])
+    continuation: list[str] = []
+    for line in lines[1:]:
+        if not line.strip() and continuation and not continuation[-1].strip():
+            continue
+        continuation.append(line)
+    return "\n".join([lines[0], *(f"  {line}" if line else line for line in continuation)])
 
 
 def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
@@ -291,54 +336,65 @@ def _readiness_summary(results: list[StatementResult], consistency=None) -> dict
     }
 
 
-def _lint_draft(draft: str, catalog: dict, by_id: dict[str, StatementResult]) -> None:
-    """Reject structurally incomplete, noisy, or falsely-ready reporter output."""
+def _lint_draft(draft: str, catalog: dict, by_id: dict[str, StatementResult]) -> list[str]:
+    """Return every violation of the draft's structural contract.
+
+    The lint only judges what the renderer itself controls: each known
+    ``[Section]`` header appears exactly once (by whole-line equality, so
+    content merely *mentioning* a marker cannot trip it), every catalog
+    item has a result, no resolved statement still starts with an
+    unfilled template marker, and the blank-line layout holds.
+
+    Everything else in the draft is *content* - human answers, AI
+    suggestions, and their rationales - and is deliberately not judged by
+    line shape. Content cannot be told from template scaffolding by its
+    text (a reporter may legitimately write a line that looks like
+    ``[Section]``, ``RULE:``, or a raw ``TBD``), and shape-checking it is
+    what aborted a fully answered session at write time (feedback item
+    4). Content is guarded where it is created instead:
+    ``reporter.text_utils.statement_left_open`` routes any statement or
+    rationale still carrying ``TBD`` to ``Left to clarify:``, and
+    ``consistency.validate_results`` flags whatever slips through.
+    """
+    violations: list[str] = []
+    lines = draft.splitlines()
     for marker in catalog["metadata"]["section_markers"]:
-        if draft.count(marker) != 1:
-            raise ValueError(f"reporter draft must contain section exactly once: {marker}")
+        count = sum(1 for line in lines if line.strip() == marker)
+        if count != 1:
+            violations.append(
+                f"reporter draft must contain section exactly once: {marker} (found {count})"
+            )
     for item in catalog["items"]:
         if item["id"] not in by_id:
-            raise ValueError(f"reporter draft missing result: {item['id']}")
+            violations.append(f"reporter draft missing result: {item['id']}")
     for result in by_id.values():
         if result.state == StatementState.RESOLVED and result.statement.startswith("TODO"):
-            raise ValueError(f"resolved reporter statement still starts with TODO: {result.id}")
+            violations.append(f"resolved reporter statement still starts with TODO: {result.id}")
+    violations.extend(_lint_draft_layout(draft, catalog["metadata"]["section_markers"]))
+    return violations
 
-    _lint_draft_layout(draft)
 
+def _lint_draft_layout(draft: str, section_markers: list[str]) -> list[str]:
+    """Enforce the renderer-controlled visual contract line by line.
 
-def _lint_draft_layout(draft: str) -> None:
-    """Enforce the draft's visual contract line by line.
-
-    Template scaffolding (``RULE``/``TODO`` prose) is context for the
-    interactive session and the generated human template, never content of a
-    generated report; blank lines are structural separators, so a doubled or
-    missing one is a rendering bug rather than cosmetics. An unresolved
-    "TBD" placeholder is only legitimate inside a ``Left to clarify:`` block
-    (see ``_clarify_entry_lines``) - anywhere else it means an unfilled
-    template leaked into what looks like a confident, final statement.
+    A line counts as a section header only when its whole (stripped) text
+    equals a known section marker - not when it merely has the ``[...]``
+    shape, which free-text answers can legitimately produce. The
+    blank-line rules apply to every line because the renderer guarantees
+    them by construction: ``_build_draft`` inserts exactly the structural
+    separators, and ``_with_hanging_indent`` collapses blank runs inside
+    statement content.
     """
+    violations: list[str] = []
     lines = draft.splitlines()
-    in_clarify_block = False
+    markers = set(section_markers)
     for index, line in enumerate(lines):
-        kind = classify_blueprint_entry(line)
-        if kind in {"rule", "todo"} and not in_clarify_block:
-            raise ValueError(f"reporter runtime draft must not contain template text: {line!r}")
-        if kind == "section":
+        if line.strip() in markers:
             if index and lines[index - 1].strip():
-                raise ValueError(f"reporter draft needs a blank line before section: {line!r}")
-            in_clarify_block = False
-            continue
-        if line == _CLARIFY_HEADING:
-            in_clarify_block = True
-            continue
-        if kind == "blank":
+                violations.append(f"reporter draft needs a blank line before section: {line!r}")
+        elif not line.strip():
             if index and not lines[index - 1].strip():
-                raise ValueError(f"reporter draft has consecutive blank lines at line {index + 1}")
-            in_clarify_block = False
-            continue
-        if not in_clarify_block and "TBD" in line:
-            raise ValueError(
-                f"reporter draft has an unresolved TBD outside a 'Left to clarify:' block: {line!r}"
-            )
+                violations.append(f"reporter draft has consecutive blank lines at line {index + 1}")
     if lines and not lines[-1].strip():
-        raise ValueError("reporter draft must not end with a blank line")
+        violations.append("reporter draft must not end with a blank line")
+    return violations

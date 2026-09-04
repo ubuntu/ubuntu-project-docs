@@ -5178,3 +5178,65 @@ the development release and `ubuntu/<series>-devel` per named series
 New tests cover the URL mapping (devel vs named series), the substituted
 AI suggestion/confirmed statement, the TBD lock on the complex option, and
 the no-completion-round human fallback.
+
+## 2026-09-04 — Reporter feedback round (upki artifact), item 4: never destroy a session at draft-lint time
+
+Promotion: no
+
+**Context:** the reporter test run on the upki artifact (mir-upki-20260904-154346)
+crashed at write time with "reporter draft needs a blank line before section:
+'    [everything else just does CRL, not CRLite]'" - after all 64 items had
+been answered and before either `reporter-draft.txt` or `report.json` was
+written, destroying ~90 minutes of the reporter's input. Root cause: the
+reporter had added bracketed "come back later" annotations
+(`[everything else just does CRL, not CRLite]`) to a free-text answer;
+`_lint_draft_layout` ran the generic blueprint classifier over *every*
+draft line, classified that human content line as a `[Section]` header by
+its shape, and hard-aborted. Audit of the same latent crash class, all in
+the write-time lint: answers containing a literal section marker (the
+substring `draft.count(marker)` check), lines starting with `RULE:`/`TODO`,
+consecutive blank lines pasted inside an answer, and a `TBD` inside an AI
+rationale. Common flaw: the lint cannot distinguish renderer output (must
+conform) from human-supplied content (must never crash the run) by line
+shape.
+
+**Decision:**
+- The draft lint now judges only what the renderer itself controls:
+  section headers count by *whole-line equality* with the known markers
+  (inline marker mentions in content stay legal, an exact duplicate header
+  line stays a violation), the blank-line layout rules (exactly one blank
+  before each header, never two blanks, none trailing), every catalog item
+  has a result, and no resolved statement still starts with `TODO`.
+  Content lines are never classified by shape. The renderer guarantees the
+  blank-line rules by construction: `_with_hanging_indent` collapses blank
+  runs pasted inside a statement, so a doubled blank can only ever be a
+  renderer bug.
+- Content is guarded where it is created instead. A new shared
+  `reporter.text_utils.statement_left_open(statement, rationale)` check is
+  applied at every result-creation site - the human answer path
+  (`_resolved_or_open`), the AI confirmation accept path (previously the
+  *edit* branch could store a RESOLVED statement still carrying a TBD with
+  no guard at all), and the AI human fallback (previously statement-only) -
+  so any unfilled `TBD` (which also covers `TBDSRC`/`TBDRULESURL`) in either
+  the statement or the rationale routes the item to `Left to clarify:`.
+  `consistency.validate_results` additionally covers the rationale in its
+  placeholder detection as a warning-level backstop.
+- A lint failure is never a crash: `write_outputs` collects *all*
+  violations, still writes the draft and report, forces readiness to
+  not-ready, records `lint_violations` in the structured report, and raises
+  `DraftLintFailed`; `auto_mir.main`'s report branch catches it, sets the
+  failure summary, and exits 1 without destroying the artifacts.
+- The wizard records a non-blocking advisory when a recorded answer
+  contains a line resembling report scaffolding (a bracket-only line, or
+  a `RULE:`/`TODO`-prefixed line): the text is kept verbatim, but the
+  reporter is told it may be mistaken for report structure.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (984 passed, 2
+skipped). New regression tests: the exact upki answer (bracketed annotation
+continuation line) renders verbatim and lints clean; content lines shaped
+like `RULE:`/`TODO`/raw `TBD`/inline marker mentions no longer fail lint;
+duplicated exact header lines still do; `_with_hanging_indent` collapses
+doubled blanks; a TBD left in a rationale downgrades to `NEEDS_INPUT` on
+the evaluator and AI paths and warns via consistency; the edited-AI-with-
+TBD path becomes `NEEDS_INPUT`; `write_outputs` writes both artifacts,
+records `lint_violations`, and raises `DraftLintFailed` on a lint failure.

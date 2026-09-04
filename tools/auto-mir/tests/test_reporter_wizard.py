@@ -856,3 +856,72 @@ def test_optional_prefilled_question_can_be_emptied_to_skip():
     )
 
     assert wizard.ask(question) is None
+
+
+# ---------------------------------------------------------------------------
+# Scaffolding-resemblance advisory (feedback item 4): answers are kept
+# verbatim, but lines that could be mistaken for report structure earn a
+# non-blocking note instead of a write-time crash.
+# ---------------------------------------------------------------------------
+
+
+def test_editor_answer_with_bracketed_line_gets_a_scaffolding_advisory():
+    output: list[str] = []
+
+    def _edit(_initial_text, _comment_lines):
+        return (
+            "- There is no other/better way in main already.\n"
+            "  [everything else just does CRL, not CRLite]"
+        )
+
+    wizard = TerminalWizard(read_line=_reader([]), write_line=output.append, edit_text=_edit)
+    question = QuestionSpec(id="REP-RAT-3", prompt="Alternatives?", kind=QuestionKind.MULTILINE)
+
+    wizard.ask(question)
+
+    advisories = [line for line in output if "resembling report scaffolding" in line]
+    assert len(advisories) == 1
+    assert "everything else just does CRL" in advisories[0]
+
+
+def test_editor_answer_with_rule_or_todo_prefixed_line_gets_a_scaffolding_advisory():
+    output: list[str] = []
+
+    def _edit(_initial_text, _comment_lines):
+        return "- The main reason.\n  RULE: not actual scaffolding, just wording"
+
+    wizard = TerminalWizard(read_line=_reader([]), write_line=output.append, edit_text=_edit)
+    question = QuestionSpec(id="REP-RAT-3", prompt="Alternatives?", kind=QuestionKind.MULTILINE)
+
+    wizard.ask(question)
+
+    assert any("resembling report scaffolding" in line for line in output)
+
+
+def test_clean_editor_answer_gets_no_scaffolding_advisory():
+    output: list[str] = []
+
+    def _edit(_initial_text, _comment_lines):
+        return "- A perfectly ordinary multi-line answer.\n  Second line, no brackets."
+
+    wizard = TerminalWizard(read_line=_reader([]), write_line=output.append, edit_text=_edit)
+    question = QuestionSpec(id="REP-RAT-3", prompt="Alternatives?", kind=QuestionKind.MULTILINE)
+
+    wizard.ask(question)
+
+    assert not any("resembling report scaffolding" in line for line in output)
+
+
+def test_raw_multiline_answer_with_bracketed_line_gets_a_scaffolding_advisory():
+    output: list[str] = []
+    wizard = TerminalWizard(
+        read_line=_reader(["- first line", "  [fix this later]", "."]),
+        write_line=output.append,
+        edit_text=lambda _initial, _comments: None,
+    )
+    question = QuestionSpec(id="REP-RAT-3", prompt="Alternatives?", kind=QuestionKind.MULTILINE)
+
+    answer = wizard.ask(question)
+
+    assert answer is not None
+    assert any("resembling report scaffolding" in line for line in output)

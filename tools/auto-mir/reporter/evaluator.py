@@ -24,6 +24,7 @@ from reporter.text_utils import (
     ensure_bulleted,
     maybe_write_evidence,
     resolve_option_statements,
+    statement_left_open,
     substitute_rules_url,
     substitute_source,
     template_to_statement,
@@ -281,12 +282,12 @@ def _resolved_or_open(result: StatementResult) -> StatementResult:
     """Downgrade a statement that still carries an unfilled template slot.
 
     A reporter may deliberately leave a ``TBD`` in place (the editor says so
-    explicitly). That is a legitimate "not settled yet", so the item must
-    travel to the draft's "Left to clarify:" block rather than be presented
-    as a confident statement - and rather than tripping the draft linter's
-    raw-TBD guard, which would abort the whole run at write time.
+    explicitly) - in the statement or in the parenthetical rationale an AI
+    suggestion carries. Either way that is a legitimate "not settled yet",
+    so the item must travel to the draft's "Left to clarify:" block rather
+    than be presented as a confident statement.
     """
-    if "TBD" not in result.statement:
+    if not statement_left_open(result.statement, result.rationale):
         return result
     result.state = StatementState.NEEDS_INPUT
     result.human_confirmed = False

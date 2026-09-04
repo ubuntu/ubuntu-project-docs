@@ -71,6 +71,21 @@ def test_deterministic_consistency_warns_on_nonblocking_evidence_concern():
     assert report.warnings[0].category == "evidence-concern"
 
 
+def test_deterministic_consistency_flags_a_tbd_left_in_a_resolved_rationale():
+    """Feedback item 4 backstop: a settled statement whose parenthetical
+    rationale still carries an unfilled slot is not settled. The
+    result-creation downgrades normally catch this first; anything that
+    slips through is at least flagged here instead of reaching the draft
+    silently (the write-time lint no longer shape-checks content)."""
+    report = consistency.validate_results(
+        [_result(item_id="REP-RAT", statement="- All good.", rationale="Still TBD.")]
+    )
+
+    assert report.ready is True  # non-blocking readiness stays a warning
+    assert report.warnings[0].category == "placeholder"
+    assert report.warnings[0].item_id == "REP-RAT"
+
+
 def test_ai_consistency_accepts_known_ids_and_prompts_correction(monkeypatch):
     result = _result(item_id="REP-1")
     ctx = SimpleNamespace(

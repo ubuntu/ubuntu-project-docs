@@ -684,8 +684,9 @@ def test_question_prefill_is_empty_for_a_choice_question():
 
 def test_statement_left_with_a_tbd_is_carried_to_left_to_clarify():
     """A reporter may deliberately leave a slot open. That must become an
-    open item, not a confident statement - and must not trip the draft
-    linter's raw-TBD guard, which would abort the run at write time."""
+    open item, not a confident statement - the write-time draft lint no
+    longer shape-checks content lines (it cannot tell human free text from
+    template scaffolding), so this downgrade is the guard."""
     from reporter.evaluator import _resolved_or_open
     from reporter.models import Provenance, StatementResult
 
@@ -703,6 +704,32 @@ def test_statement_left_with_a_tbd_is_carried_to_left_to_clarify():
 
     assert result.state == StatementState.NEEDS_INPUT
     assert result.statement == "- The package is needed because TBD"
+    assert result.provenance is None
+
+
+def test_rationale_left_with_a_tbd_also_carries_the_item_to_left_to_clarify():
+    """Feedback item 4: a TBD in an AI suggestion's parenthetical rationale
+    is as unresolved as one in the statement itself - previously it sailed
+    past every result-level check straight into the write-time lint's
+    raw-TBD guard, aborting the run."""
+    from reporter.evaluator import _resolved_or_open
+    from reporter.models import Provenance, StatementResult
+
+    result = _resolved_or_open(
+        StatementResult(
+            id="REP-Y",
+            section="Rationale",
+            state=StatementState.RESOLVED,
+            readiness=ReadinessEffect.CLEAR,
+            statement="- The packaging is standard.",
+            rationale="The reporter should still confirm the TBD override target.",
+            provenance=Provenance.AI_CONFIRMED,
+            human_confirmed=True,
+        )
+    )
+
+    assert result.state == StatementState.NEEDS_INPUT
+    assert result.human_confirmed is False
     assert result.provenance is None
 
 

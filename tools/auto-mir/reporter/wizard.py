@@ -162,6 +162,29 @@ class TerminalWizard:
         """
         self._write_titled_block("Answer recorded as", text)
         log.info("Answer recorded as: %s", text)
+        self._advise_scaffolding_resemblance(text)
+
+    def _advise_scaffolding_resemblance(self, text: str) -> None:
+        """Warn (once, non-blocking) about answer lines resembling report scaffolding.
+
+        A line like ``[fix this later]`` is kept verbatim, but in the final
+        draft a reader may mistake it for a section marker, and the
+        write-time lint no longer rejects such lines (it cannot tell them
+        from real headers). The reporter gets this advisory instead of a
+        crash or silence.
+        """
+        offending = [
+            stripped
+            for stripped in (line.strip() for line in text.splitlines())
+            if (stripped.startswith("[") and stripped.endswith("]"))
+            or stripped.startswith(("RULE:", "RULE[", "TODO"))
+        ]
+        if offending:
+            self._write_line(
+                "Note: this answer contains a line resembling report scaffolding "
+                f"(first: {offending[0][:80]}). It is kept verbatim, but consider "
+                "rewording it so it cannot be mistaken for report structure."
+            )
 
     def _write_titled_block(self, title: str, text: str) -> None:
         """Print a title line followed by its body, indented underneath.
@@ -307,6 +330,7 @@ class TerminalWizard:
             if raw == _MULTILINE_SENTINEL:
                 text = "\n".join(lines).strip()
                 if text:
+                    self._advise_scaffolding_resemblance(text)
                     return Answer(question_id=question.id, value=text)
                 if question.required:
                     self._write_line("A response is required. Continue entering text.")

@@ -820,6 +820,7 @@ def main() -> int:
     try:
         if ctx.role == ROLE_REPORT:
             from reporter import pipeline as reporter_pipeline
+            from reporter.render import DraftLintFailed
             from reporter.wizard import TerminalWizard
 
             wizard = TerminalWizard()
@@ -840,10 +841,19 @@ def main() -> int:
                 current_stage = "Reporter Stage 4 (statements and questions)"
                 reporter_pipeline.analyse(ctx, wizard)
                 current_stage = "Reporter Stage 5 (rendering)"
-                reporter_pipeline.render(ctx)
-                log.info("Reporter draft written to: %s", ctx.reporter_draft_path)
-                log.info("Structured report written to: %s", ctx.report_path)
-            return _finish_run(ctx, evidence_result, 0)
+                # A lint failure is not a crash: write_outputs has already
+                # written the draft and report (the session's answers are
+                # never destroyed), so the run fails loudly but keeps them.
+                try:
+                    reporter_pipeline.render(ctx)
+                except DraftLintFailed as exc:
+                    ctx.failure_summary = str(exc)
+                    log.error("%s", exc)
+                    exit_code = 1
+                else:
+                    log.info("Reporter draft written to: %s", ctx.reporter_draft_path)
+                    log.info("Structured report written to: %s", ctx.report_path)
+            return _finish_run(ctx, evidence_result, exit_code)
 
         # Stage 0: Resolve provider auth and guest token export values
         # Skip auth if collect-only mode (no LLM needed)

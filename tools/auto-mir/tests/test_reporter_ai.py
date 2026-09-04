@@ -275,6 +275,32 @@ def test_edited_ai_suggestion_keeps_ai_confirmed_provenance(monkeypatch):
     assert result.rationale == "Because of the evidence."
 
 
+def test_edited_ai_suggestion_left_with_a_tbd_becomes_needs_input(monkeypatch):
+    """Feedback item 4: the editor lets the reporter save any text, so an
+    edit that keeps a TBD slot must not enter the draft as a settled,
+    RESOLVED statement - the write-time lint no longer rejects such lines
+    (it cannot tell human free text from scaffolding by shape), so the
+    downgrade happens here, at result creation."""
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "statement": "Original suggestion.",
+            "rationale": "Because of the evidence.",
+            "evidence_refs": ["binary-package-inspection:systemd_units"],
+        },
+    )
+    wizard = EditingWizard(edited_text="Partly settled, but the details are still TBD.")
+
+    result = ai.evaluate_ai_item(_item(), _ctx(), wizard, _fallback_question())
+
+    assert result.state == StatementState.NEEDS_INPUT
+    assert result.statement == "- Partly settled, but the details are still TBD."
+    assert result.provenance is None
+    assert result.human_confirmed is False
+
+
 def test_evidence_payload_keeps_full_content_field_from_being_crowded_out(monkeypatch):
     """A large, low-priority field must never crowd out a field the item
     needs in full (regression test for the flat 30000-char cutoff bug)."""

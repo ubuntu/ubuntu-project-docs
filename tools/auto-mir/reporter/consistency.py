@@ -76,8 +76,15 @@ def validate_results(results) -> ConsistencyReport:
     warnings: list[ConsistencyIssue] = []
     for result in results:
         unresolved = result.state in {StatementState.NEEDS_INPUT, StatementState.UNAVAILABLE}
+        # Rationale is covered too: a resolved item whose parenthetical
+        # still carries an unfilled slot is not settled either. This is the
+        # warning-level backstop behind the result-creation downgrades
+        # (``reporter.text_utils.statement_left_open``) - the write-time
+        # draft lint no longer rejects such lines, since it cannot tell
+        # human free text from template scaffolding by shape.
         placeholder = result.state == StatementState.RESOLVED and any(
-            marker in result.statement for marker in ("TODO:", "TBDSRC", "TBD")
+            marker in result.statement or marker in (result.rationale or "")
+            for marker in ("TODO:", "TBDSRC", "TBD")
         )
         unconfirmed_ai = result.provenance == Provenance.AI_CONFIRMED and not result.human_confirmed
         issue = ConsistencyIssue(

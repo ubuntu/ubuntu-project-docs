@@ -40,6 +40,19 @@ def test_with_hanging_indent_skips_blank_continuation_lines():
     assert lines[2] == "  - Third line after a blank one."
 
 
+def test_with_hanging_indent_collapses_doubled_blank_continuation_lines():
+    """The draft's layout invariant says blank lines never double, and the
+    renderer guarantees that structurally for its own separators. A pasted
+    answer carrying a doubled blank line must not be able to break the
+    same invariant at lint time."""
+    text = "- First line.\n\n\n- After two blank lines."
+
+    result = _with_hanging_indent(text)
+
+    lines = result.split("\n")
+    assert lines == ["- First line.", "", "  - After two blank lines."]
+
+
 def _synthetic_ctx(items, blueprint):
     return SimpleNamespace(
         source_package="libfoo",
@@ -194,7 +207,53 @@ def test_build_draft_omits_left_to_clarify_when_nothing_unresolved():
     assert "Left to clarify" not in draft
 
 
-def test_lint_draft_rejects_raw_tbd_outside_left_to_clarify_block():
+def test_build_draft_renders_bracketed_answer_annotation_verbatim():
+    """Feedback item 4 regression: the production crash. A multi-line human
+    answer whose continuation line is a bracketed "come back later"
+    annotation ('[everything else just does CRL, not CRLite]') was
+    classified as a section header by the write-time lint and aborted the
+    fully answered run at write time. It is content: it must render
+    verbatim and lint clean."""
+    items = [
+        {
+            "id": "REP-RAT",
+            "section": "Security",
+            "title": "Alternatives considered",
+            "mode": "ev_to_ai",
+            "template": "TODO: - TBD",
+        },
+    ]
+    blueprint = ["[Security]", {"item": "REP-RAT"}]
+    ctx = _synthetic_ctx(items, blueprint)
+    by_id = {
+        "REP-RAT": StatementResult(
+            id="REP-RAT",
+            section="Security",
+            state=StatementState.RESOLVED,
+            readiness=ReadinessEffect.CLEAR,
+            statement=(
+                "- There is no other/better way to solve this that is already in main or\n"
+                "  should go universe->main instead of this.\n"
+                "  [everything else just does CRL, not CRLite]"
+            ),
+            provenance=Provenance.HUMAN,
+            human_confirmed=True,
+        )
+    }
+
+    draft = _build_draft(ctx, by_id)
+
+    assert "[everything else just does CRL, not CRLite]" in draft
+    assert _lint_draft(draft, ctx.catalog, by_id) == []
+
+
+def test_lint_draft_does_not_judge_content_lines_by_shape():
+    """Content lines (human answers, AI suggestions, rationales) are never
+    classified by shape at lint time: RULE:/TODO-prefixed lines, a raw
+    TBD, and an inline section-marker mention are all legitimate free
+    text. The old shape checks are what turned such answers into
+    write-time crashes; content is guarded at result creation instead
+    (see the evaluator/ai/consistency tests)."""
     catalog = {
         "metadata": {"section_markers": ["[Security]"]},
         "items": [{"id": "REP-A"}],
@@ -209,16 +268,43 @@ def test_lint_draft_rejects_raw_tbd_outside_left_to_clarify_block():
             provenance=Provenance.DETERMINISTIC,
         )
     }
-    good_draft = "[Security]\n- All good.\n"
-    _lint_draft(good_draft, catalog, by_id)  # must not raise
+    draft = (
+        "[Security]\n"
+        "- All good.\n"
+        "  RULE: not scaffolding, just my wording\n"
+        "  TODO check this later\n"
+        "  [everything else just does CRL, not CRLite]\n"
+        "  The tooling uses [Security] features inline\n"
+        "  Something is TBD.\n"
+    )
 
-    bad_draft = "[Security]\n- Something is TBD.\n"
-    try:
-        _lint_draft(bad_draft, catalog, by_id)
-    except ValueError as exc:
-        assert "TBD" in str(exc)
-    else:
-        raise AssertionError("expected _lint_draft to reject a raw TBD outside Left to clarify")
+    assert _lint_draft(draft, catalog, by_id) == []
+
+
+def test_lint_draft_counts_section_markers_by_whole_line_equality():
+    catalog = {
+        "metadata": {"section_markers": ["[Security]"]},
+        "items": [{"id": "REP-A"}],
+    }
+    by_id = {
+        "REP-A": StatementResult(
+            id="REP-A",
+            section="Security",
+            state=StatementState.RESOLVED,
+            readiness=ReadinessEffect.CLEAR,
+            statement="- All good.",
+            provenance=Provenance.DETERMINISTIC,
+        )
+    }
+    # An exact duplicate header line is a structural defect (and could
+    # genuinely mislead a reader); a bullet merely mentioning the marker is
+    # content and stays legal.
+    duplicated = "[Security]\n- All good.\n\n[Security]\n- Fine.\n"
+    violations = _lint_draft(duplicated, catalog, by_id)
+    assert any("exactly once" in violation for violation in violations)
+
+    mention = "[Security]\n- All good.\n  Uses [Security] tooling.\n"
+    assert _lint_draft(mention, catalog, by_id) == []
 
 
 def test_lint_draft_allows_raw_tbd_inside_left_to_clarify_block():
@@ -236,7 +322,7 @@ def test_lint_draft_allows_raw_tbd_inside_left_to_clarify_block():
     }
     draft = "[Security]\n\nLeft to clarify:\n- Some question\n  TODO: - Something: TBD\n"
 
-    _lint_draft(draft, catalog, by_id)  # must not raise
+    assert _lint_draft(draft, catalog, by_id) == []
 
 
 # ---------------------------------------------------------------------------
@@ -347,28 +433,6 @@ def test_build_draft_keeps_unreferenced_results_inside_their_section():
     assert extra_index == len(lines) - 1
 
 
-def test_lint_draft_rejects_leaked_rule_or_todo_line():
-    catalog = {"metadata": {"section_markers": ["[Security]"]}, "items": [{"id": "REP-A"}]}
-    by_id = {
-        "REP-A": StatementResult(
-            id="REP-A",
-            section="Security",
-            state=StatementState.RESOLVED,
-            readiness=ReadinessEffect.CLEAR,
-            statement="- All good.",
-            provenance=Provenance.DETERMINISTIC,
-        )
-    }
-    for leaked in ("RULE[sec-tagged]: policy prose", "RULE: policy prose", "TODO: - checklist"):
-        draft = f"[Security]\n- All good.\n{leaked}\n"
-        try:
-            _lint_draft(draft, catalog, by_id)
-        except ValueError as exc:
-            assert "template text" in str(exc)
-        else:
-            raise AssertionError(f"expected _lint_draft to reject {leaked!r}")
-
-
 def test_lint_draft_rejects_layout_defects():
     catalog = {
         "metadata": {"section_markers": ["[Security]", "[Dependencies]"]},
@@ -385,19 +449,17 @@ def test_lint_draft_rejects_layout_defects():
         )
     }
     good = "[Security]\n- All good.\n\n[Dependencies]\n- Fine.\n"
-    _lint_draft(good, catalog, by_id)  # must not raise
+    assert _lint_draft(good, catalog, by_id) == []
 
     for bad, expected in (
         ("[Security]\n- All good.\n[Dependencies]\n- Fine.\n", "blank line before section"),
         ("[Security]\n- All good.\n\n\n[Dependencies]\n- Fine.\n", "consecutive blank lines"),
         ("[Security]\n- All good.\n\n[Dependencies]\n- Fine.\n\n", "end with a blank line"),
     ):
-        try:
-            _lint_draft(bad, catalog, by_id)
-        except ValueError as exc:
-            assert expected in str(exc)
-        else:
-            raise AssertionError(f"expected _lint_draft to reject: {bad!r}")
+        violations = _lint_draft(bad, catalog, by_id)
+        assert any(expected in violation for violation in violations), (
+            f"expected rejection: {bad!r}"
+        )
 
 
 def test_build_draft_lists_a_deterministic_action_finding_under_left_to_clarify():
