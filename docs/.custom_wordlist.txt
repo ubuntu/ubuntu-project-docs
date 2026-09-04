@@ -264,6 +264,7 @@ Zulip
 Zope
 ACLs
 APIs
+Astro
 Autopkgtest
 autopkgtest
 Backports

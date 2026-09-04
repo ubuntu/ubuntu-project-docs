@@ -30,6 +30,7 @@ Detailed description of the workings of the Ubuntu package archive, as well as p
 package-archive
 package-format
 version-strings
+metapackages
 patches
 phased-updates
 deb-3-patch-file-headers

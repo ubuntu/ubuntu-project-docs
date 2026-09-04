@@ -106,8 +106,8 @@ Ubuntu Archive. Resolving these issues can involve
 ## Update default version
 
 Language runtimes like PHP or Ruby have `php-defaults` or `ruby-defaults`
-meta-packages that, among other things, define the version to use in the Ubuntu
-release.
+{term}`metapackages <Metapackage>` that, among other things, define the
+version to use in the Ubuntu release.
 
 If Debian has already done the transition, it may be possible to sync or merge
 their changes from `-unstable`, `-experimental`, or their git repository, if

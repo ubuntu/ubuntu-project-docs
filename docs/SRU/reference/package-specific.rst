@@ -533,7 +533,8 @@ postgresql
 ~~~~~~~~~~
 
 The currently supported postgresql source package (as determined by the
-dependency of the postgresql metapackage) for each stable release may be
+dependency of the postgresql :term:`metapackage <Metapackage>`) for each
+stable release may be
 uploaded according to the procedure documented in
 :ref:`PostgreSQLUpdates <reference-exception-PostgreSQLUpdates>`. This stable release exception
 `has been
