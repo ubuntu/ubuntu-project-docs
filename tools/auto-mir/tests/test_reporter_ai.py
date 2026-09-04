@@ -317,6 +317,166 @@ def test_evidence_payload_keeps_full_content_field_from_being_crowded_out(monkey
     assert "small but important debian/rules content" in captured_prompts[0]
 
 
+def _rules_options_item():
+    """The REP-QA-PKG-004 shape: two options, one with the TBDRULESURL
+    placeholder (auto-completed from source package + series), one with an
+    open ``TBD`` the reporter must fill in themselves."""
+    return {
+        "id": "REP-QA-PKG-004",
+        "section": "Quality assurance - packaging",
+        "mode": "ev_to_ai",
+        "readiness": "warning",
+        "template": (
+            "TODO-A: - Packaging and build is easy, link to debian/rules TBDRULESURL\n"
+            "TODO-B: - Packaging is complex, but that is ok because TBD"
+        ),
+        "ai_policy": "Assess packaging complexity.",
+        "adapters_required": ["packaging-source"],
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Is the packaging and build easy, or complex but justified?",
+            "options": [
+                {
+                    "id": "easy",
+                    "label": "Packaging and build is easy",
+                    "statement": "- Packaging and build is easy, link to debian/rules TBDRULESURL",
+                },
+                {
+                    "id": "complex",
+                    "label": "Packaging is complex, but justified",
+                    "statement": "- Packaging is complex, but that is ok because TBD",
+                },
+            ],
+        },
+    }
+
+
+def _ctx_with_series(series="resolute", token="token"):
+    return SimpleNamespace(
+        llm_token=token,
+        no_llm=False,
+        untrusted_nonce="nonce",
+        source_package="libfoo",
+        series=series,
+        evidence={
+            "adapters": {"packaging-source": {"status": "ok", "debian_rules": "%:\n\tdh $@"}}
+        },
+    )
+
+
+def _single_choice_fallback_question():
+    return QuestionSpec(
+        id="REP-QA-PKG-004",
+        prompt="Is the packaging and build easy, or complex but justified?",
+        kind=QuestionKind.SINGLE_CHOICE,
+        deferrable=True,
+        options=(
+            QuestionOption("easy", "Packaging and build is easy"),
+            QuestionOption("complex", "Packaging is complex, but justified"),
+        ),
+    )
+
+
+def test_easy_option_statement_gets_constructed_rules_url(monkeypatch):
+    """The easy option's link is constructed from the source package and the
+    target series, so the reporter never has to find it - the prompt's
+    options section, the suggested statement, and the confirmed result all
+    carry the final URL."""
+    captured_prompts = []
+
+    def _capture_call_llm(prompt, *_args, **_kwargs):
+        captured_prompts.append(prompt)
+        return {
+            "confidence": "high",
+            "selected_option": "easy",
+            "statement": "",
+            "rationale": "Standard debhelper rules with only parametrising overrides.",
+            "evidence_refs": ["packaging-source:debian_rules"],
+        }
+
+    monkeypatch.setattr(ai.llm, "call_llm", _capture_call_llm)
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(
+        _rules_options_item(), _ctx_with_series("resolute"), wizard, _fallback_question()
+    )
+
+    expected_url = (
+        "https://git.launchpad.net/ubuntu/+source/libfoo/tree/debian/rules?h=ubuntu/resolute-devel"
+    )
+    assert expected_url in captured_prompts[0]
+    assert (
+        wizard.questions[0][1]
+        == f"Packaging and build is easy, link to debian/rules {expected_url}"
+    )
+    assert result.statement == f"- Packaging and build is easy, link to debian/rules {expected_url}"
+    assert "TBDRULESURL" not in result.statement
+
+
+def test_complex_option_suggestion_keeps_tbd_and_locks_yes(monkeypatch):
+    """The complex option's ``because TBD`` slot is the reporter's to fill:
+    the suggestion keeps it open, and "yes" is locked so it can never be
+    confirmed verbatim (a raw TBD would abort the run at the draft lint)."""
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {
+            "confidence": "high",
+            "selected_option": "complex",
+            "statement": "",
+            "rationale": "Large hand-rolled build logic in debian/rules.",
+            "evidence_refs": [],
+        },
+    )
+    wizard = ConfirmingWizard(accept=True)
+
+    result = ai.evaluate_ai_item(
+        _rules_options_item(), _ctx_with_series(), wizard, _fallback_question()
+    )
+
+    suggestion = wizard.questions[0][1]
+    assert "because TBD" in suggestion
+    assert wizard.lock_yes_reasons[0] is not None
+    assert result.selected_option == "complex"
+
+
+class _OptionPickingWizard:
+    def __init__(self, value):
+        self.value = value
+        self.completed = []
+
+    def ask(self, question):
+        return Answer(question_id=question.id, value=self.value)
+
+    def show_note(self, text, detail=""):
+        pass
+
+    def complete_statement(self, question, statement):
+        self.completed.append(statement)
+        return statement
+
+
+def test_human_fallback_easy_option_gets_rules_url_without_completion_round():
+    """Without an LLM token the same option statement resolves with the
+    constructed URL, and because nothing is left to fill, no editor round
+    is imposed on the reporter."""
+    wizard = _OptionPickingWizard("easy")
+
+    result = ai.evaluate_ai_item(
+        _rules_options_item(),
+        _ctx_with_series("devel", token=""),
+        wizard,
+        _single_choice_fallback_question(),
+    )
+
+    assert result.statement == (
+        "- Packaging and build is easy, link to debian/rules "
+        "https://git.launchpad.net/ubuntu/+source/libfoo/tree/debian/rules?h=ubuntu/devel"
+    )
+    assert wizard.completed == []
+    assert result.provenance == Provenance.HUMAN
+
+
 def test_low_confidence_skips_confirmation_and_asks_human_with_rationale(monkeypatch):
     """A low-confidence response must never be offered via yes/edit/no as if
     it were a final statement; it should show the rationale as a note and go

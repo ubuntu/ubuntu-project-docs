@@ -100,6 +100,35 @@ def substitute_source(text: str, source_package: str) -> str:
     return result
 
 
+def debian_rules_url(source_package: str, series: str | None) -> str:
+    """Build the Launchpad git URL of this source package's ``debian/rules``.
+
+    The reporter flow already knows both the source package and the target
+    series, so the link the reporter template asks for can be constructed
+    instead of asked for. The development release uses the importer's
+    ``ubuntu/devel`` branch; a named series uses its ``ubuntu/<series>-devel``
+    branch (e.g. ``h=ubuntu/resolute-devel``).
+    """
+    branch = "devel" if not series or series == "devel" else f"{series}-devel"
+    return (
+        f"https://git.launchpad.net/ubuntu/+source/{source_package}"
+        f"/tree/debian/rules?h=ubuntu/{branch}"
+    )
+
+
+def substitute_rules_url(text: str, source_package: str, series: str | None) -> str:
+    """Replace the ``TBDRULESURL`` catalog placeholder with the real URL.
+
+    The placeholder deliberately still contains ``TBD``: if it ever leaks
+    unsubstituted into a statement, the existing placeholder guards
+    (``consistency.validate_results`` and ``render._lint_draft``) reject it
+    instead of letting a raw token reach the draft.
+    """
+    if "TBDRULESURL" not in text:
+        return text
+    return text.replace("TBDRULESURL", debian_rules_url(source_package, series))
+
+
 def maybe_write_evidence(item: dict, ctx: RunContext, answer_value: Any) -> None:
     """Backfill an evidence adapter field from a human answer, if declared.
 

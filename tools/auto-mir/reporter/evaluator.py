@@ -24,6 +24,7 @@ from reporter.text_utils import (
     ensure_bulleted,
     maybe_write_evidence,
     resolve_option_statements,
+    substitute_rules_url,
     substitute_source,
     template_to_statement,
 )
@@ -337,7 +338,11 @@ def _question_from_item(item: dict, ctx: RunContext, *, deferrable: bool = False
         QuestionOption(
             str(option["id"]),
             substitute_source(str(option["label"]), source_package),
-            substitute_source(str(option.get("statement", "")), source_package),
+            substitute_rules_url(
+                substitute_source(str(option.get("statement", "")), source_package),
+                source_package,
+                getattr(ctx, "series", None),
+            ),
             bool(option.get("exclusive", False)),
             readiness=ReadinessEffect(option["readiness"]) if "readiness" in option else None,
             todo_ref=str(option.get("todo_ref", "")),

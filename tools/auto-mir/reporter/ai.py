@@ -17,6 +17,7 @@ from reporter.text_utils import (
     ensure_bulleted,
     maybe_write_evidence,
     resolve_option_statements,
+    substitute_rules_url,
 )
 from utils import llm_evidence
 from utils.llm_sanitize import wrap_untrusted
@@ -66,7 +67,22 @@ def evaluate_ai_item(item: dict, ctx, wizard, fallback_question) -> StatementRes
     ``ev_to_ai`` + ``options`` checks work (``checks/llm_eval.py``).
     """
     readiness = ReadinessEffect(item.get("readiness", "warning"))
-    options = item.get("question", {}).get("options", [])
+    # Catalog option statements may carry the ``TBDRULESURL`` placeholder
+    # (the reporter flow knows the source package and series, so the
+    # debian/rules link is constructed rather than asked for). Resolve it
+    # once up front so the prompt's options section, the validated canonical
+    # statement, and the confirmed suggestion all carry the final URL.
+    options = [
+        {
+            **option,
+            "statement": substitute_rules_url(
+                str(option.get("statement", "")),
+                ctx.source_package,
+                getattr(ctx, "series", None),
+            ),
+        }
+        for option in item.get("question", {}).get("options", [])
+    ]
     if not getattr(ctx, "llm_token", "") or getattr(ctx, "no_llm", False):
         return _ask_human(item, ctx, wizard, fallback_question, readiness=readiness)
 
@@ -226,6 +242,16 @@ def _lock_yes_reason(statement: str, requires_decision: bool) -> str | None:
     still defers a decision to the reporter can never be accepted verbatim
     just because the model forgot to flag it.
     """
+    if "TBD" in statement:
+        # An option statement can legitimately keep an open slot for the
+        # reporter (e.g. "- Packaging is complex, but that is ok because
+        # TBD") - but confirming it verbatim would send a raw TBD into the
+        # draft, which the draft linter rejects at write time. The reporter
+        # must edit the wording in instead.
+        return (
+            "this suggestion still contains an unfilled TBD slot; edit it into a "
+            "final statement with your own wording in its place"
+        )
     if requires_decision:
         return (
             "this suggestion does not fully answer the question on its own; edit it into "
@@ -486,6 +512,10 @@ def _ask_human(
         # is used verbatim, never spliced into the outer item template.
         options = item.get("question", {}).get("options", [])
         resolved = resolve_option_statements(options, answer.value, ctx.source_package)
+        if resolved is not None:
+            resolved = substitute_rules_url(
+                resolved, ctx.source_package, getattr(ctx, "series", None)
+            )
         statement = resolved if resolved is not None else ensure_bulleted(str(answer.value))
         selected_option = str(answer.value)
         readiness = _option_readiness(options, selected_option) or readiness

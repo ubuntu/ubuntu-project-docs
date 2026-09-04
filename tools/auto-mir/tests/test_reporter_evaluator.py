@@ -17,8 +17,10 @@ from reporter.evaluator import (  # noqa: E402
 )
 from reporter.models import ReadinessEffect, StatementState  # noqa: E402
 from reporter.text_utils import (  # noqa: E402
+    debian_rules_url,
     ensure_bulleted,
     maybe_write_evidence,
+    substitute_rules_url,
     substitute_source,
 )
 
@@ -245,6 +247,50 @@ def test_substitute_source_keeps_bare_name_inside_launchpad_source_url():
     assert (
         substitute_source(text, "rust-ntpd")
         == "TODO: Link to package https://launchpad.net/ubuntu/+source/rust-ntpd"
+    )
+
+
+def test_debian_rules_url_uses_devel_branch_for_devel_and_named_branch_otherwise():
+    base = "https://git.launchpad.net/ubuntu/+source/isa-support/tree/debian/rules"
+    assert debian_rules_url("isa-support", None) == f"{base}?h=ubuntu/devel"
+    assert debian_rules_url("isa-support", "devel") == f"{base}?h=ubuntu/devel"
+    assert debian_rules_url("isa-support", "resolute") == f"{base}?h=ubuntu/resolute-devel"
+
+
+def test_substitute_rules_url_replaces_placeholder_only_when_present():
+    url = "https://git.launchpad.net/ubuntu/+source/isa-support/tree/debian/rules?h=ubuntu/devel"
+    assert substitute_rules_url("rules at TBDRULESURL", "isa-support", "devel") == f"rules at {url}"
+    assert substitute_rules_url("no placeholder", "isa-support", "devel") == "no placeholder"
+
+
+def test_question_from_item_substitutes_rules_url_in_option_statement():
+    ctx = SimpleNamespace(
+        source_package="isa-support",
+        series="resolute",
+        evidence={"adapters": {}},
+        catalog={"items": []},
+    )
+    item = {
+        "id": "REP-QA-PKG-004",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Is the packaging and build easy?",
+            "options": [
+                {
+                    "id": "easy",
+                    "label": "Packaging and build is easy",
+                    "statement": "- Packaging and build is easy, link to debian/rules TBDRULESURL",
+                }
+            ],
+        },
+    }
+
+    question = _question_from_item(item, ctx)
+
+    assert question.options[0].statement == (
+        "- Packaging and build is easy, link to debian/rules "
+        "https://git.launchpad.net/ubuntu/+source/isa-support/tree/debian/rules"
+        "?h=ubuntu/resolute-devel"
     )
 
 
