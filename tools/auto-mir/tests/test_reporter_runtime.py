@@ -317,6 +317,96 @@ def test_a_crash_mid_session_keeps_every_answered_item_in_the_run_state(tmp_path
             assert item["id"] in saved["report"]["item_values"]
 
 
+class NeverAskWizard(FakeWizard):
+    """Fake wizard that fails the test if a resumed run asks it anything."""
+
+    def ask(self, question):
+        raise AssertionError(f"a fully resumed run must not ask questions, but got {question.id}")
+
+    def show_note(self, text, detail=""):
+        raise AssertionError("a fully resumed run must not show notes")
+
+
+def _restore_all_results(tmp_path, ctx):
+    """Restore the persisted results in catalog order, as apply_resume does."""
+    import recovery
+    from utils import run_state as run_state_module
+
+    saved = run_state_module.load_state(tmp_path)
+    assert saved is not None
+    recorded = saved["report"]["results"]
+    return [
+        recovery.restore_statement_result(recorded[item["id"]])
+        for item in ctx.catalog["items"]
+        if item["id"] in recorded
+    ]
+
+
+def test_a_fully_resumed_run_asks_nothing_and_keeps_every_answer(tmp_path):
+    """Feedback item 2: a resumed run replays the persisted answers and
+    only works on what is left - a run whose items all have results must
+    not ask a single question, and must produce identical statements."""
+    from utils import run_state as run_state_module
+
+    ctx = _ctx(tmp_path)
+    ctx.run_state = run_state_module.init_state(ctx)
+    first = evaluate_items(ctx, FakeWizard())
+
+    restored = _restore_all_results(tmp_path, ctx)
+    saved = run_state_module.load_state(tmp_path)
+    ctx2 = _ctx(tmp_path)
+    ctx2.run_state = run_state_module.init_state(ctx2)
+    resumed = evaluate_items(
+        ctx2,
+        NeverAskWizard(),
+        resumed_results=restored,
+        resumed_values=saved["report"]["item_values"],
+    )
+
+    assert [(r.id, r.statement, r.state) for r in resumed] == [
+        (r.id, r.statement, r.state) for r in first
+    ]
+
+
+def test_a_partially_resumed_run_only_asks_the_remaining_items(tmp_path):
+    """A crash mid-session resumes exactly where it stopped: previously
+    answered items are replayed from the run state, later items are asked
+    again, and the restored condition values keep gated follow-ups
+    working."""
+    import recovery
+    from utils import run_state as run_state_module
+
+    ctx = _ctx(tmp_path)
+    ctx.run_state = run_state_module.init_state(ctx)
+    crashing = CrashingWizard(fail_after=2)
+    with pytest.raises(RuntimeError):
+        evaluate_items(ctx, crashing)
+
+    saved = run_state_module.load_state(tmp_path)
+    recorded = saved["report"]["results"]
+    restored = [
+        recovery.restore_statement_result(recorded[item["id"]])
+        for item in ctx.catalog["items"]
+        if item["id"] in recorded
+    ]
+    ctx2 = _ctx(tmp_path)
+    ctx2.run_state = run_state_module.init_state(ctx2)
+    resumed = evaluate_items(
+        ctx2,
+        FakeWizard(),
+        resumed_results=restored,
+        resumed_values=saved["report"]["item_values"],
+    )
+
+    # Everything is answered again, the previously-answered items replay
+    # their recorded statements, and no item is missing or duplicated.
+    ids = [result.id for result in resumed]
+    assert len(ids) == len(set(ids)) == len(ctx2.catalog["items"])
+    for result in restored:
+        replayed = next(entry for entry in resumed if entry.id == result.id)
+        assert replayed.statement == result.statement
+
+
 def test_required_human_only_question_can_be_deferred_to_left_to_clarify(tmp_path):
     """:defer is available on human_only items too (this supersedes the
     2026-08-12 constraint that they force a genuine answer - the tester's

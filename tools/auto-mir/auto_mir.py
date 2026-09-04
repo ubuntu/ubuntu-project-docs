@@ -111,7 +111,21 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="DIR",
         help=(
             "Directory to save artifacts (default: /tmp/mir-<bugid>-<YYYYMMDD-HHMMSS>). "
-            "The LXD guest name is auto-generated independently."
+            "The LXD guest name is auto-generated independently. "
+            "When the directory already contains a run, the tool asks whether "
+            "to continue the remaining steps (aborted run) or overwrite with "
+            "a full new run (completed run)."
+        ),
+    )
+    common.add_argument(
+        "--recovery",
+        action="store_true",
+        default=False,
+        help=(
+            "Look in the default output paths for the most recent run of this "
+            "bug/package and offer to continue its remaining steps when that "
+            "run aborted. With an explicit --output-dir, the continue/overwrite "
+            "prompt for that directory applies instead."
         ),
     )
     common.add_argument(
@@ -301,6 +315,10 @@ class RunContext:
         self.collect_only: bool = args.collect_only
         self.requested_binaries: list[str] = []
         self.no_llm: bool = bool(getattr(args, "no_llm", False))
+        # Recovery: when true, the run reuses this context's restored
+        # evidence (collected by a previous, interrupted run) and skips
+        # guest setup + evidence collection entirely.
+        self.resumed_evidence: bool = False
         # Which archive pocket's source to fetch/build/analyse (auto|release|proposed).
         self.source_pocket: str = getattr(args, "source_pocket", "auto")
         # How to treat this review (auto|fresh|rereview|reorg). 'auto' lets the
@@ -354,6 +372,10 @@ class RunContext:
         self.reporter_draft_path: Path | None = None
         self.statement_results: list = []
         self.consistency_report = None
+        # Resumed reporter progress (restored by recovery.apply_resume):
+        # answered statement results and the condition values they produced.
+        self.resumed_results: list = []
+        self.resumed_values: dict = {}
 
         # --- Initialized in main() right after logging setup ---
         # Incrementally persisted recovery state (see utils/run_state.py).
@@ -796,6 +818,34 @@ def _setup_logging(ctx: RunContext, args) -> None:
         log.info("JSON log file: %s", log_file)
 
 
+def _resume_subject(args: argparse.Namespace) -> str:
+    """The subject (bug id or source package) a resumed run must match."""
+    return str(getattr(args, "bug_id", "") or getattr(args, "source_package", "") or "")
+
+
+def _resolve_resume_directory(args: argparse.Namespace) -> Path | None:
+    """Preflight existing output state; return the directory to resume.
+
+    Handles an explicit ``--output-dir`` (continue/overwrite prompts per
+    the recovery contract) and the ``--recovery`` default-path scan. A
+    declined prompt exits early stating that the output directory is not
+    empty; ``--collect-only`` bypasses the preflight entirely because it
+    is the documented fixture-regeneration flow writing into existing
+    directories.
+    """
+    if getattr(args, "collect_only", False):
+        return None
+    import recovery
+
+    role = str(getattr(args, "role", ROLE_REVIEW))
+    subject = _resume_subject(args)
+    if getattr(args, "output_dir", None):
+        return recovery.preflight_output_dir(Path(args.output_dir), role=role, subject=subject)
+    if getattr(args, "recovery", False):
+        return recovery.offer_recovery_scan(role=role, subject=subject)
+    return None
+
+
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
@@ -811,15 +861,41 @@ def main() -> int:
     # network/LXD work starts.
     ensure_runtime_environment()
 
+    # Preflight any existing output directory (and --recovery scanning)
+    # before RunContext creates or reuses output state. Delining exits early;
+    # --collect-only bypasses it: that is a developer mode regenerating
+    # fixtures into pre-existing directories.
+    resume_dir: Path | None = _resolve_resume_directory(args)
+    if resume_dir is not None:
+        args.output_dir = str(resume_dir)
+
     ctx = RunContext(args)
 
     # Setup dual logging: colored console + JSON file
     _setup_logging(ctx, args)
 
     # Persist the run's incremental recovery state (stage markers plus,
-    # in report mode, one statement result at a time).
-    ctx.run_state = run_state.init_state(ctx)
-    run_state.save_state(ctx)
+    # in report mode, one statement result at a time), or restore the
+    # previous run's state when resuming.
+    if resume_dir is not None:
+        import recovery
+
+        state = run_state.load_state(resume_dir)
+        if state is None:
+            log.error("The run state in %s is unreadable; start a fresh run.", resume_dir)
+            return 1
+        try:
+            recovery.apply_resume(ctx, state)
+        except recovery.RecoveryError as exc:
+            log.error("%s", exc)
+            return 1
+        log.info(
+            "Resuming run from %s: reusing completed stages, continuing the remaining steps.",
+            resume_dir,
+        )
+    else:
+        ctx.run_state = run_state.init_state(ctx)
+        run_state.save_state(ctx)
 
     log.info(
         "auto-mir starting: role=%s bug=%s keep_guest=%s collect_only=%s",
@@ -849,12 +925,21 @@ def main() -> int:
             stage_optional_auth(ctx)
             current_stage = "Reporter Stage 1 (source intake)"
             reporter_pipeline.intake(ctx, wizard)
-            current_stage = "Reporter Stage 2 (guest setup)"
-            stage_spawn_guest(ctx)
-            current_stage = "Reporter Stage 3 (evidence collection)"
-            evidence_result = stage_collect_evidence(ctx)
-            if evidence_result != 0:
-                ctx.failure_summary = "Evidence collection encountered adapter failures."
+            if getattr(ctx, "resumed_evidence", False):
+                # Recovery: the previous run finished evidence collection,
+                # so no guest is needed at all - statements, questions, and
+                # rendering are host-side work.
+                log.info(
+                    "Resuming: reusing the evidence the previous run collected in %s.",
+                    ctx.output_dir,
+                )
+            else:
+                current_stage = "Reporter Stage 2 (guest setup)"
+                stage_spawn_guest(ctx)
+                current_stage = "Reporter Stage 3 (evidence collection)"
+                evidence_result = stage_collect_evidence(ctx)
+                if evidence_result != 0:
+                    ctx.failure_summary = "Evidence collection encountered adapter failures."
             if ctx.collect_only:
                 ctx.save_evidence()
             else:
@@ -902,15 +987,23 @@ def main() -> int:
         current_stage = "Stage 1 (Launchpad intake)"
         stage_intake(ctx)
 
-        # Stage 2: Spawn LXD guest
-        current_stage = "Stage 2 (guest setup)"
-        stage_spawn_guest(ctx)
+        if getattr(ctx, "resumed_evidence", False):
+            # Recovery: the previous run finished evidence collection, so no
+            # guest is needed - analysis and rendering are host-side work.
+            log.info(
+                "Resuming: reusing the evidence the previous run collected in %s.",
+                ctx.output_dir,
+            )
+        else:
+            # Stage 2: Spawn LXD guest
+            current_stage = "Stage 2 (guest setup)"
+            stage_spawn_guest(ctx)
 
-        # Stage 3: Collect evidence in-guest
-        current_stage = "Stage 3 (evidence collection)"
-        evidence_result = stage_collect_evidence(ctx)
-        if evidence_result != 0:
-            ctx.failure_summary = "Evidence collection encountered adapter failures."
+            # Stage 3: Collect evidence in-guest
+            current_stage = "Stage 3 (evidence collection)"
+            evidence_result = stage_collect_evidence(ctx)
+            if evidence_result != 0:
+                ctx.failure_summary = "Evidence collection encountered adapter failures."
 
         # Resolve promotion scope when neither the reporter nor the CLI named
         # binaries (after evidence collection).

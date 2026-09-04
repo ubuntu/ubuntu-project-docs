@@ -30,8 +30,17 @@ def intake(ctx, wizard: TerminalWizard) -> None:
 
 
 def analyse(ctx, wizard: TerminalWizard) -> None:
-    """Evaluate all report-catalog items and retain their typed results."""
-    ctx.statement_results = evaluate_items(ctx, wizard)
+    """Evaluate all report-catalog items and retain their typed results.
+
+    A resumed run (recovery) seeds the previous run's answered items and
+    only asks what is left.
+    """
+    ctx.statement_results = evaluate_items(
+        ctx,
+        wizard,
+        resumed_results=getattr(ctx, "resumed_results", None) or None,
+        resumed_values=getattr(ctx, "resumed_values", None) or None,
+    )
     ctx.consistency_report = run_consistency_pass(ctx, wizard)
     # Re-record everything: the consistency pass may have replaced statements
     # after the per-item recording did its incremental snapshots.

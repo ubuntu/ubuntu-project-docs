@@ -5320,3 +5320,66 @@ corrupt/schema-mismatch rejection, per-item + merged-parent recording,
 review-scope recording, no-op behavior) and crash-resilience tests in
 `tests/test_reporter_runtime.py` (a crash mid-session leaves every
 answered item in the run state, losing only the in-flight question).
+
+## 2026-09-04 — Reporter feedback round (upki artifact), item 2: recover a run from its output directory
+
+Promotion: yes (applies to both roles, per the tester's alignment-round
+choice)
+
+**Context:** feedback item 2 asked for resume from the output directory:
+the upki artifact (evidence.json + auto-mir.log from a crash) shows exactly
+what a user is left with today - all the machine-readable material, but no
+way to use it without re-inputting everything and re-running the expensive
+steps. The Task-3 `run-state.json` foundation provides the incrementally
+persisted answers and stage markers this builds on.
+
+**Decision:**
+- New `recovery.py` with three surfaces: directory classification
+  (completed / aborted / legacy-aborted - evidence + log from a
+  pre-recovery-state tool version, resumable from the evidence boundary -
+  / mismatched / foreign / empty), the `--output-dir` preflight, and the
+  `--recovery` default-path scan.
+- Preflight (run before RunContext creates or reuses output state):
+  completed run -> "<dir> already contains a run, should I overwrite with
+  a full new run?"; aborted run -> "<dir> already contains a run, should I
+  continue with the remaining steps?"; unrecognized non-empty content ->
+  the same overwrite question with its own wording. Answering no always
+  exits early stating the output directory is not empty. Every prompt
+  refuses cleanly (exit 1 with an explanation) on a non-interactive
+  terminal instead of blocking or silently overwriting. `--collect-only`
+  bypasses the preflight entirely - it is the documented
+  fixture-regeneration flow writing into existing directories.
+- `--recovery` scans `/tmp/mir-<bugid|source>-*` directories whose state
+  matches the requested subject (role-aware: a review run's identity is
+  its bug id, a report run's its source package). The most recent run is
+  the candidate: aborted -> "should I recover and continue with the
+  remaining steps?"; otherwise every found run is listed with its status
+  and the user is told no aborted runs to recover have been found (when
+  older aborted runs are superseded by a completed newest one, they are
+  listed with a pointer at explicit --output-dir resume instead).
+- Resume mechanics: `apply_resume` restores collected evidence from
+  evidence.json (so no LXD guest is needed at all - questions, analysis
+  and rendering are host-side work), the resolved series, the reviewer's
+  requested binaries + review type, and the reporter's answered
+  statement results in catalog order. `evaluate_items` gained
+  `resumed_results`/`resumed_values` seeds: answered items are skipped,
+  and the restored condition values keep gated follow-ups' applicability
+  conditions resolving exactly as in the original run. Reviewer analysis
+  re-runs on resume (findings are not persisted); reviewer intake also
+  re-runs (a Launchpad re-fetch is cheap and side-effect-free).
+- Resume validation is by identity, not version pinning: a state whose
+  recorded item ids no longer exist in the current catalog raises
+  RecoveryError ("start a fresh run") rather than silently dropping
+  topics, and a state claiming completed evidence without evidence.json
+  is likewise refused.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (1015 passed, 2
+skipped); `make integration` PASS (1016 passed, 1 skipped) since stage
+orchestration changed. New `tests/test_recovery.py` covers the
+classification matrix, both prompts' wording, decline exits, the
+non-interactive refusal, subject-mismatch handling, the scan's
+most-recent selection, the "no aborted runs" listings, snapshot
+restoration, and the evidence/scope/report restore paths; resume tests
+in `tests/test_reporter_runtime.py` prove a fully resumed run asks
+nothing and reproduces identical statements, and a partially resumed run
+asks only the remaining items.

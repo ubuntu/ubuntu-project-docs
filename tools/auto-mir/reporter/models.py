@@ -94,9 +94,10 @@ class QuestionSpec:
     ``deferrable``, when true, offers an explicit ``:defer`` escape hatch
     (see ``TerminalWizard``) so the reporter can say "I cannot resolve this
     now" instead of being forced to either answer or abort the whole run.
-    Only ever set for an ``ev_to_ai`` item's human-fallback question - a
-    ``human_only`` question always requires a genuine resolved answer (or
-    an explicit catalog ``required: false`` skip), by design.
+    Set for every question a catalog item generates (``human_only`` and
+    the ``ev_to_ai`` human fallback alike): a required question deferred
+    becomes ``NEEDS_INPUT`` under "Left to clarify:", an optional
+    question's skip stays ``NOT_APPLICABLE``.
 
     ``prefill`` is the statement text the free-text editor opens on, taken
     from the item's catalog ``template`` with its ``TBD`` slot(s) still in

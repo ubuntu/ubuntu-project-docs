@@ -172,6 +172,24 @@ through the normal tail, and exits non-zero with a pointer at recovery;
 a reporter `:cancel`/EOF abort (`WizardAborted`) does the same without a
 traceback.
 
+`recovery.py` turns that state into resume flows for both roles. An
+explicit `--output-dir` holding a completed run is offered as "overwrite
+with a full new run"; one holding an aborted run as "continue with the
+remaining steps" (a directory with `evidence.json` + log but no state
+from an older tool version is offered the same, resumable from the
+evidence boundary); declining exits early stating the output directory
+is not empty. `--recovery` scans the default output paths for the most
+recent run of this bug/package and offers to continue it when it aborted,
+listing what it found otherwise. A resumed run restores the collected
+evidence (so no LXD guest is needed at all), the reporter's answered
+statement results - asking only the remaining items - and the reviewer's
+promotion scope; reviewer analysis re-runs (findings are not persisted).
+Resume validation is by identity, not version pinning: a state whose
+recorded items no longer exist in the current catalog is refused rather
+than silently dropped. `--collect-only` bypasses the preflight (it is the
+fixture-regeneration flow writing into existing directories), and every
+prompt refuses cleanly on a non-interactive terminal.
+
 ### Placeholder resolution in statements
 
 Two kinds of placeholder live in reporter catalog statements. `TBD` slots

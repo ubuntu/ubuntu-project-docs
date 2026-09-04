@@ -91,15 +91,26 @@ def reporter_evaluator(name: str):
     return decorator
 
 
-def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementResult]:
+def evaluate_items(
+    ctx: RunContext,
+    wizard: TerminalWizard,
+    *,
+    resumed_results: list[StatementResult] | None = None,
+    resumed_values: dict[str, Any] | None = None,
+) -> list[StatementResult]:
     """Evaluate reporter items in catalog order, asking only human-owned input.
 
     Each item's result is persisted to the run state as soon as it completes
     (``utils.run_state.record_item_result``), so an interrupt or crash
-    costs at most the in-flight question - never the whole session.
+    costs at most the in-flight question - never the whole session. A
+    resumed run (recovery) seeds the already-answered items via
+    ``resumed_results``/``resumed_values`` and only evaluates what is left;
+    the restored condition values keep later items' applicability
+    conditions working exactly as in the original run.
     """
-    results: list[StatementResult] = []
-    item_values: dict[str, Any] = {}
+    results: list[StatementResult] = list(resumed_results or [])
+    item_values: dict[str, Any] = dict(resumed_values or {})
+    answered = {result.id for result in results}
     catalog_items = ctx.catalog.get("items", [])
     total = len(catalog_items)
     # Items whose statement is finished by a later follow-up (catalog
@@ -109,6 +120,8 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
         str(entry["completes"]) for entry in catalog_items if entry.get("completes")
     }
     for index, item in enumerate(catalog_items, start=1):
+        if item["id"] in answered:
+            continue
         log.info(
             "[%d/%d] Evaluating %s: %s (%s)",
             index,
