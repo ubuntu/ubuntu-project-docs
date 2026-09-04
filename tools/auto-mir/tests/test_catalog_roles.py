@@ -372,3 +372,66 @@ def test_adapter_registry_matches_catalog_adapter_ids():
     declared = {a["id"] for a in shared.get("evidence_adapters", [])}
     assert declared, "catalog.yaml declares no evidence adapters"
     assert declared == set(registry)
+
+
+# ---------------------------------------------------------------------------
+# Blueprint entry vocabulary. Every consumer (docs renderers, rule_context
+# auto-derivation, the runtime reporter draft renderer) branches on the entry
+# prefix, so an unrecognized prefix is a silent double failure: its prose
+# vanishes from the reporter's context AND the raw line leaks into rendered
+# output. Validation rejects it at catalog-load time instead.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("entry", "expected"),
+    [
+        ("[Rationale]", "section"),
+        ("RULE: plain policy prose", "rule"),
+        ("RULE[rationale-demand]: tagged clause opener", "rule"),
+        ("TODO: - a checklist line", "todo"),
+        ("TODO-A: - an alternative", "todo"),
+        ("OK:", "label"),
+        ("Required TODOs:", "label"),
+        ("", "blank"),
+        ("   ", "blank"),
+        ({"item": "REP-BG-002"}, "item"),
+        ("RULE   a mistyped continuation line", "text"),
+        ("RULE some prose without a colon", "text"),
+    ],
+)
+def test_classify_blueprint_entry(entry, expected):
+    assert catalog.classify_blueprint_entry(entry) == expected
+
+
+def test_blueprint_entry_validation_rejects_unknown_prefix():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    report["metadata"]["reporter_template_blueprint"].append("RULE   mistyped continuation")
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any("is not a recognized blueprint entry" in error for error in errors)
+
+
+def test_review_blueprint_entry_validation_rejects_unknown_prefix():
+    review = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "review")
+    review["metadata"]["review_template_blueprint"].append("RULE   mistyped continuation")
+
+    errors = catalog.validate_catalog(review)
+
+    assert any("is not a recognized blueprint entry" in error for error in errors)
+
+
+def test_real_blueprints_use_only_known_entry_kinds():
+    for role, key, validate in (
+        ("report", "reporter_template_blueprint", catalog.validate_report_catalog),
+        ("review", "review_template_blueprint", catalog.validate_catalog),
+    ):
+        loaded = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, role)
+        unknown = [
+            entry
+            for entry in loaded["metadata"][key]
+            if catalog.classify_blueprint_entry(entry) == "text"
+        ]
+        assert not unknown, f"{key} has unclassifiable entries: {unknown}"
+        assert not [error for error in validate(loaded) if "recognized blueprint entry" in error]

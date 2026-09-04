@@ -321,7 +321,7 @@ metadata:
   - "RULE:     Strictly speaking that subscription can therefore wait until the"
   - "RULE:     moment of the actual promotion by an archive admin. But it is"
   - "RULE:     strongly recommended to subscribe early, as the owning team will get"
-  - "RULE      a preview of the to-be-expected incoming bugs later on."
+  - "RULE:     a preview of the to-be-expected incoming bugs later on."
   - "RULE: - Simple packages (e.g. language bindings, simple Perl modules, small"
   - "RULE:   command-line programs, etc.) might not need very much maintenance"
   - "RULE:   effort, and if they are maintained well in Debian we can just keep them"
@@ -449,7 +449,7 @@ metadata:
   - "RULE: Examples of the past which we admit could have been better (grows by"
   - "RULE: painful lessons learned):"
   - "RULE: - changing to rust coreutils forced us to update any apparmor profiles"
-  - "RULE    that referred to these paths"
+  - "RULE:   that referred to these paths"
   - item: REP-MAINT-006
   - ""
   - "[Background information]"

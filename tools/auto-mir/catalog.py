@@ -6,7 +6,7 @@ import re
 import string
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from utils.dependencies import ubuntu_package_for
 
@@ -30,6 +30,51 @@ def strip_rule_clause_tag(line: str) -> str:
     return _RULE_CLAUSE_TAG_PATTERN.sub("RULE:", line, count=1)
 
 
+BlueprintEntryKind = Literal["section", "rule", "todo", "label", "blank", "item", "text"]
+
+# A structural label line in a template blueprint: a bare heading such as
+# ``"OK:"``, ``"Notes:"`` or ``"Required TODOs:"`` that introduces the block
+# below it (the reviewer template uses these; the reporter template does
+# not). Deliberately narrow - it must not accidentally accept a mistyped
+# ``"RULE   text"`` prose line, which is exactly what this vocabulary is
+# meant to catch.
+_BLUEPRINT_LABEL_PATTERN = re.compile(r"^[A-Za-z][A-Za-z ]*:$")
+
+
+def classify_blueprint_entry(entry: Any) -> BlueprintEntryKind:
+    """Return the vocabulary kind of one template-blueprint entry.
+
+    A blueprint is a list interleaving ``'[Section]'`` markers, ``'RULE: ...'``
+    policy prose (optionally tagged ``'RULE[<slug>]: ...'``), ``'TODO...'``
+    checklist lines, bare ``'Label:'`` headings, ``''`` separators, and
+    ``{'item': 'REP-XXX'}`` mappings. Every consumer that has to tell those
+    apart (the docs renderers, the rule_context auto-derivation, the runtime
+    reporter draft renderer, and catalog validation) uses this single
+    classifier, so the recognized prefixes cannot drift apart per consumer -
+    which is exactly how tagged ``RULE[<slug>]:`` lines and mistyped
+    ``'RULE   '`` lines previously leaked into reporter-facing output.
+
+    ``"text"`` means the entry matches no known prefix; catalog validation
+    rejects that, so it never reaches a renderer.
+    """
+    if isinstance(entry, dict):
+        return "item"
+    if not isinstance(entry, str):
+        return "text"
+    stripped = entry.strip()
+    if not stripped:
+        return "blank"
+    if stripped.startswith("[") and stripped.endswith("]"):
+        return "section"
+    if stripped.startswith(("RULE:", "RULE[")):
+        return "rule"
+    if stripped.startswith("TODO"):
+        return "todo"
+    if _BLUEPRINT_LABEL_PATTERN.match(stripped):
+        return "label"
+    return "text"
+
+
 def _blueprint_section_rules(blueprint: Any) -> dict[str, list[str]]:
     """Return each reporter template section's ``RULE:`` lines, keyed by section.
 
@@ -48,10 +93,11 @@ def _blueprint_section_rules(blueprint: Any) -> dict[str, list[str]]:
     for entry in blueprint:
         if isinstance(entry, str):
             stripped = entry.strip()
-            if stripped.startswith("[") and stripped.endswith("]"):
+            kind = classify_blueprint_entry(entry)
+            if kind == "section":
                 current_section = stripped[1:-1]
                 section_rules.setdefault(current_section, [])
-            elif stripped.startswith(("RULE:", "RULE[")) and current_section:
+            elif kind == "rule" and current_section:
                 section_rules[current_section].append(strip_rule_clause_tag(stripped))
     return section_rules
 
@@ -77,7 +123,7 @@ def _blueprint_rule_clauses(blueprint: Any) -> dict[str, list[str]]:
             current_slug = match.group("slug")
             clauses.setdefault(current_slug, [])
             clauses[current_slug].append(strip_rule_clause_tag(stripped))
-        elif stripped.startswith("RULE:") and current_slug:
+        elif classify_blueprint_entry(entry) == "rule" and current_slug:
             clauses[current_slug].append(stripped)
     return clauses
 
@@ -195,6 +241,29 @@ def _validate_rule_clause_coverage(
     for slug in uncovered:
         errors.append(f"RULE[{slug}] in {blueprint_key} has no covering item ({item_field})")
 
+    return errors
+
+
+def _validate_blueprint_entries(catalog: dict, blueprint_key: str) -> list[str]:
+    """Reject blueprint string entries that match no known entry prefix.
+
+    Renderers act on the entry vocabulary (see ``classify_blueprint_entry``):
+    a mistyped prefix such as ``"RULE   text"`` is invisible to every RULE
+    consumer, so its policy prose silently vanishes from the reporter's
+    rule_context while the raw line leaks into rendered output. Failing at
+    catalog-load time keeps that class of typo impossible.
+    """
+    errors: list[str] = []
+    blueprint = catalog.get("metadata", {}).get(blueprint_key)
+    if not isinstance(blueprint, list):
+        return errors
+    for index, entry in enumerate(blueprint):
+        if classify_blueprint_entry(entry) != "text":
+            continue
+        errors.append(
+            f"{blueprint_key}[{index}] is not a recognized blueprint entry "
+            f"(expected '[Section]', 'RULE:', 'RULE[slug]:', 'TODO', '', or an item): {entry!r}"
+        )
     return errors
 
 
@@ -365,9 +434,7 @@ def load_catalog_for_role(tool_root: Path, workspace_root: Path, role: str) -> d
         # entries it renders), not authored as a second copy.
         blueprint = composed.get("metadata", {}).get("reporter_template_blueprint", [])
         composed["metadata"]["section_markers"] = [
-            entry
-            for entry in blueprint
-            if isinstance(entry, str) and entry.startswith("[") and entry.endswith("]")
+            entry for entry in blueprint if classify_blueprint_entry(entry) == "section"
         ]
         _apply_reporter_rule_context_defaults(composed)
     return composed
@@ -567,6 +634,7 @@ def validate_report_catalog(catalog: dict) -> list[str]:
                 "not other items (options are locked before any item answers exist)"
             )
     errors.extend(_validate_rule_clause_coverage(catalog, "reporter_template_blueprint", items))
+    errors.extend(_validate_blueprint_entries(catalog, "reporter_template_blueprint"))
     return errors
 
 
@@ -855,6 +923,7 @@ def validate_catalog(catalog: dict) -> list[str]:
             catalog, "review_template_blueprint", catalog.get("checks", [])
         )
     )
+    errors.extend(_validate_blueprint_entries(catalog, "review_template_blueprint"))
 
     return errors
 
