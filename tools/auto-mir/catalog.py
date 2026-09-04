@@ -635,6 +635,55 @@ def validate_report_catalog(catalog: dict) -> list[str]:
             )
     errors.extend(_validate_rule_clause_coverage(catalog, "reporter_template_blueprint", items))
     errors.extend(_validate_blueprint_entries(catalog, "reporter_template_blueprint"))
+    errors.extend(_validate_completes_references(items, item_ids))
+    return errors
+
+
+def _validate_completes_references(items: list, item_ids: set) -> list[str]:
+    """Validate the ``completes`` follow-up contract.
+
+    An item declaring ``completes: <parent>`` provides that parent's final
+    statement text (see ``reporter.evaluator._merge_into_completed_item``).
+    That only holds if the parent exists, is asked before this item, gates
+    this item's applicability (so the completion belongs to the alternative
+    actually chosen), and has exactly one completer - otherwise two answers
+    would silently overwrite each other in one bullet.
+    """
+    errors: list[str] = []
+    seen_ids: set[str] = set()
+    completers: dict[str, list[str]] = {}
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        item_id = str(item.get("id", "?"))
+        seen_ids.add(item_id)
+        parent_id = item.get("completes")
+        if parent_id is None:
+            continue
+        parent_id = str(parent_id)
+        completers.setdefault(parent_id, []).append(item_id)
+        if parent_id not in item_ids:
+            errors.append(
+                f"reporter item {item_id}: completes references unknown item: {parent_id}"
+            )
+            continue
+        if parent_id not in seen_ids:
+            errors.append(
+                f"reporter item {item_id}: completes must reference an earlier item: {parent_id}"
+            )
+        applicability = item.get("applicability")
+        gate = applicability.get("item") if isinstance(applicability, dict) else None
+        if gate != parent_id:
+            errors.append(
+                f"reporter item {item_id}: completes {parent_id} but its applicability "
+                f"is not gated on that item"
+            )
+    for parent_id, completer_ids in sorted(completers.items()):
+        if len(completer_ids) > 1:
+            errors.append(
+                f"reporter item {parent_id} is completed by more than one item: "
+                + ", ".join(sorted(completer_ids))
+            )
     return errors
 
 

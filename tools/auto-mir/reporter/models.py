@@ -17,12 +17,20 @@ class QuestionKind(StrEnum):
 
 
 class StatementState(StrEnum):
-    """Resolution state for one reporter-template statement."""
+    """Resolution state for one reporter-template statement.
+
+    ``MERGED`` means this item was answered, but its text belongs to another
+    item's statement (see the catalog ``completes`` field): a follow-up that
+    fills the ``TBD`` of the alternative its parent question selected
+    produces one finished sentence, exactly as the human template words it,
+    rather than a second bullet restating the same decision.
+    """
 
     RESOLVED = "resolved"
     NEEDS_INPUT = "needs-input"
     NOT_APPLICABLE = "not-applicable"
     UNAVAILABLE = "unavailable"
+    MERGED = "merged"
 
 
 class ReadinessEffect(StrEnum):

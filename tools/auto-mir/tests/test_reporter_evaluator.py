@@ -658,3 +658,67 @@ def test_statement_left_with_a_tbd_is_carried_to_left_to_clarify():
     assert result.state == StatementState.NEEDS_INPUT
     assert result.statement == "- The package is needed because TBD"
     assert result.provenance is None
+
+
+# ---------------------------------------------------------------------------
+# Follow-up completion (catalog ``completes``): one alternative, one bullet.
+# ---------------------------------------------------------------------------
+
+
+def _completion_pair(child_state, child_statement):
+    from reporter.models import Provenance, StatementResult
+
+    parent = StatementResult(
+        id="REP-PARENT",
+        section="Maintenance/Owner",
+        state=StatementState.RESOLVED,
+        readiness=ReadinessEffect.CLEAR,
+        statement="- A different owning team will subscribe to this package, named below.",
+        selected_option="new-team",
+        provenance=Provenance.HUMAN,
+        human_confirmed=True,
+    )
+    child = StatementResult(
+        id="REP-CHILD",
+        section="Maintenance/Owner",
+        state=child_state,
+        readiness=ReadinessEffect.BLOCKER,
+        statement=child_statement,
+        provenance=Provenance.HUMAN if child_state == StatementState.RESOLVED else None,
+        answer_refs=["REP-CHILD"],
+        human_confirmed=child_state == StatementState.RESOLVED,
+    )
+    return parent, child
+
+
+def test_completed_follow_up_replaces_the_parent_statement():
+    from reporter.evaluator import _merge_into_completed_item
+
+    parent, child = _completion_pair(
+        StatementState.RESOLVED,
+        "- The new owning team will be foundations-bugs and has acknowledged the commitment.",
+    )
+
+    _merge_into_completed_item({"id": "REP-CHILD", "completes": "REP-PARENT"}, child, [parent])
+
+    assert parent.statement == (
+        "- The new owning team will be foundations-bugs and has acknowledged the commitment."
+    )
+    assert parent.state == StatementState.RESOLVED
+    assert parent.selected_option == "new-team"
+    # The follow-up itself contributes no second bullet.
+    assert child.state == StatementState.MERGED
+
+
+def test_unfinished_follow_up_leaves_the_parent_open_too():
+    from reporter.evaluator import _merge_into_completed_item
+
+    parent, child = _completion_pair(
+        StatementState.NEEDS_INPUT, "- The new owning team will be TBD and has acknowledged it."
+    )
+
+    _merge_into_completed_item({"id": "REP-CHILD", "completes": "REP-PARENT"}, child, [parent])
+
+    assert parent.state == StatementState.NEEDS_INPUT
+    assert parent.readiness == ReadinessEffect.BLOCKER
+    assert "TBD" in parent.statement

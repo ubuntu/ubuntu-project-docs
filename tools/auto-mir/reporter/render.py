@@ -17,6 +17,11 @@ log = logging.getLogger("auto_mir.reporter")
 # "a raw TBD is only legitimate here" rule, so it exists exactly once.
 _CLARIFY_HEADING = "Left to clarify:"
 
+# States that contribute no line of their own to the draft: an item ruled out
+# by its applicability condition, and one whose text was folded into another
+# item's statement (catalog ``completes``).
+_SILENT_STATES = {StatementState.NOT_APPLICABLE, StatementState.MERGED}
+
 
 def write_outputs(ctx, results: list[StatementResult]) -> None:
     """Write the reporter draft and role-versioned structured report."""
@@ -94,7 +99,7 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
         if item["id"] in referenced:
             continue
         result = by_id[item["id"]]
-        if result.state == StatementState.NOT_APPLICABLE:
+        if result.state in _SILENT_STATES:
             continue
         extras.setdefault(result.section, []).append(result)
 
@@ -150,7 +155,7 @@ def _sections_from_blueprint(
         if kind != "item" or not sections:
             continue
         result = by_id[entry["item"]]
-        if result.state == StatementState.NOT_APPLICABLE:
+        if result.state in _SILENT_STATES:
             continue
         sections[-1][1].append(result)
     return sections

@@ -161,6 +161,7 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
                     human_confirmed=True,
                 )
             )
+            _merge_into_completed_item(item, result, results)
             results.append(result)
             item_values[item["id"]] = answer.value
             continue
@@ -169,6 +170,7 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
             _show_preface(item, ctx, wizard)
             fallback_question = _question_from_item(item, ctx, deferrable=True)
             result = evaluate_ai_item(item, ctx, wizard, fallback_question)
+            _merge_into_completed_item(item, result, results)
             results.append(result)
             item_values[item["id"]] = result.selected_option or result.statement
             continue
@@ -193,6 +195,42 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
         results.append(result)
         item_values[item["id"]] = result.statement
     return results
+
+
+def _merge_into_completed_item(
+    item: dict, result: StatementResult, results: list[StatementResult]
+) -> None:
+    """Fold a follow-up's finished sentence into the item it completes.
+
+    The human template words each alternative as ONE line ("TODO-B: -
+    Packaging is complex, but that is ok because TBD"): the choice and the
+    reason belong to the same sentence. Asking them as two questions is a
+    UX decision, not a reason to print two bullets - which is how the draft
+    ended up saying "A different owning team will subscribe to this package,
+    named below." immediately followed by "The new owning team will be
+    foundations-bugs will take ownership ...".
+
+    The completed text therefore replaces the parent's statement at the
+    parent's own blueprint position, and this follow-up is marked ``MERGED``
+    so it contributes no line of its own. The parent inherits the follow-up's
+    state, so an alternative the reporter left a ``TBD`` in stays open there
+    too instead of the parent claiming a settled statement.
+    """
+    parent_id = str(item.get("completes", ""))
+    if not parent_id:
+        return
+    parent = next((entry for entry in results if entry.id == parent_id), None)
+    if parent is None:
+        return
+    parent.statement = result.statement
+    parent.state = result.state
+    parent.readiness = result.readiness
+    parent.provenance = result.provenance
+    parent.rationale = result.rationale
+    parent.answer_refs = [*parent.answer_refs, *result.answer_refs]
+    parent.human_confirmed = result.human_confirmed
+    result.state = StatementState.MERGED
+    result.readiness = ReadinessEffect.CLEAR
 
 
 def _complete_statement(statement: str, question: QuestionSpec, wizard: TerminalWizard) -> str:

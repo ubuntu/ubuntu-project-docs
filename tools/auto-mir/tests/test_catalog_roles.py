@@ -435,3 +435,25 @@ def test_real_blueprints_use_only_known_entry_kinds():
         ]
         assert not unknown, f"{key} has unclassifiable entries: {unknown}"
         assert not [error for error in validate(loaded) if "recognized blueprint entry" in error]
+
+
+def test_completes_must_be_gated_on_the_item_it_completes():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    by_id["REP-BG-002"]["completes"] = "REP-BG-001"
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any("is not gated on that item" in error for error in errors)
+
+
+def test_completes_rejects_two_completers_for_one_item():
+    report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
+    by_id = {item["id"]: item for item in report["items"]}
+    for item_id in ("REP-BG-001", "REP-BG-002"):
+        by_id[item_id]["completes"] = "REP-BG-003"
+        by_id[item_id]["applicability"] = {"item": "REP-BG-003", "equals": "x"}
+
+    errors = catalog.validate_report_catalog(report)
+
+    assert any("completed by more than one item" in error for error in errors)
