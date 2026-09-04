@@ -196,6 +196,8 @@ maintainers/index-SRU/ maintainers/SRU/
 
 maintainers/index-uploader/ maintainers/uploader/
 
+maintainers/uploader/update-seeds/ contributors/advanced/seed-management/
+
 # =============================================================================
 # Who makes Ubuntu
 # =============================================================================
