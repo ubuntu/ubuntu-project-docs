@@ -5240,3 +5240,35 @@ doubled blanks; a TBD left in a rationale downgrades to `NEEDS_INPUT` on
 the evaluator and AI paths and warns via consistency; the edited-AI-with-
 TBD path becomes `NEEDS_INPUT`; `write_outputs` writes both artifacts,
 records `lint_violations`, and raises `DraftLintFailed` on a lint failure.
+
+## 2026-09-04 — Reporter feedback round (upki artifact), item 4 follow-up: :defer on human_only items
+
+Promotion: yes (supersedes the 2026-08-12 constraint recorded in the
+jitterentropy Phase 3 entry)
+
+**Context:** the upki tester improvised bracketed "[TEXT]" annotations in
+free-text answers "to come back to it later" because `human_only`
+questions had no deferral escape - the 2026-08-12 jitterentropy round
+deliberately made "Left to clarify" apply only to the `ev_to_ai` fallback
+path and let `human_only` questions force a genuine answer. One of those
+improvised annotations is what tripped the item-4 write-time crash. The
+tester confirmed (alignment round for this feedback batch) that deferral
+should exist everywhere: forcing prose the reporter does not have yet is
+worse than explicitly visible open work.
+
+**Decision:** every `human_only` question is now built `deferrable=True`
+(the same wizard machinery the `ev_to_ai` fallback already used: the
+`:defer` token in the single-line/single-choice loop, the editor-based
+multiline flow, the raw-terminal fallback, and the guidance text). A
+required question answered `:defer` becomes `NEEDS_INPUT` with the item's
+catalog-declared readiness and rationale "The reporter deferred this
+question." (mirroring `ai._ask_human`'s deferred branch), so it renders
+under "Left to clarify:" with its original catalog template context and
+still counts toward blockers. An optional question's `None` (empty skip or
+`:defer`) remains a genuine "nothing to add" `NOT_APPLICABLE`, unchanged.
+
+**Validation from `tools/auto-mir`:** `make test` PASS. New tests: a
+required human_only item deferred through `evaluate_items` lands in
+`Left to clarify:` with its BLOCKER readiness intact (still listed in
+`report["readiness"]["blockers"]`); an optional human_only skip stays
+`NOT_APPLICABLE`.

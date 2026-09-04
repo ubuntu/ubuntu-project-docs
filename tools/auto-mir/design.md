@@ -190,6 +190,11 @@ opens one completion round on exactly that sentence.
 A statement the reporter leaves a `TBD` in is not an error: it becomes
 `NEEDS_INPUT` and travels to `Left to clarify:`.
 
+Every question is deferrable via `:defer`. A required question deferred by
+the reporter becomes `NEEDS_INPUT` with its catalog-declared readiness and
+surfaces as open work under `Left to clarify:`; an optional question's
+skip (empty answer or `:defer`) stays `NOT_APPLICABLE`.
+
 An item may declare `completes: <parent-item-id>`. Its finished text becomes
 the parent's statement at the parent's blueprint position and the follow-up
 is recorded as `MERGED`, so a choice and the detail that completes it render

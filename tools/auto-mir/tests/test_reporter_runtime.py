@@ -66,6 +66,19 @@ class ChoiceWizard(FakeWizard):
         return self.values.get(question.id, super()._answer_value(question))
 
 
+class DeferWizard(FakeWizard):
+    """Fake wizard whose ask() defers (":defer") for the listed item ids."""
+
+    def __init__(self, defer_ids):
+        super().__init__()
+        self.defer_ids = set(defer_ids)
+
+    def ask(self, question):
+        if question.id in self.defer_ids:
+            return None
+        return super().ask(question)
+
+
 def _ctx(tmp_path):
     report_catalog = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     evidence = {
@@ -242,6 +255,40 @@ def test_reporter_render_writes_draft_and_structured_report(tmp_path):
     assert report["readiness"]["ready"] is False
     assert "REP-RATIONALE-001" in report["readiness"]["blockers"]
     assert len(report["statements"]) == len(ctx.catalog["items"])
+
+
+def test_required_human_only_question_can_be_deferred_to_left_to_clarify(tmp_path):
+    """:defer is available on human_only items too (this supersedes the
+    2026-08-12 constraint that they force a genuine answer - the tester's
+    improvised '[TEXT]' annotations in the upki run were a workaround for
+    exactly that gap, and one of them caused the item-4 write-time crash).
+    Deferring a required item must keep its catalog-declared readiness and
+    surface it as open work instead of silently dropping it."""
+    ctx = _ctx(tmp_path)
+    results = evaluate_items(ctx, DeferWizard({"REP-RATIONALE-001"}))
+
+    deferred = next(result for result in results if result.id == "REP-RATIONALE-001")
+    assert deferred.state == StatementState.NEEDS_INPUT
+    assert deferred.readiness == ReadinessEffect.BLOCKER
+    assert deferred.rationale == "The reporter deferred this question."
+
+    write_outputs(ctx, results)
+    draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
+    assert "Left to clarify:" in draft
+    assert "(Reason: The reporter deferred this question.)" in draft
+    report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
+    assert "REP-RATIONALE-001" in report["readiness"]["blockers"]
+
+
+def test_optional_human_only_question_skip_stays_not_applicable(tmp_path):
+    """An optional question's None (empty skip or :defer) still means
+    "nothing to add" - the item does not apply, unchanged from before."""
+    ctx = _ctx(tmp_path)
+    results = evaluate_items(ctx, DeferWizard({"REP-RATIONALE-002"}))
+
+    skipped = next(result for result in results if result.id == "REP-RATIONALE-002")
+    assert skipped.state == StatementState.NOT_APPLICABLE
+    assert skipped.readiness == ReadinessEffect.CLEAR
 
 
 def test_reporter_render_survives_lint_violations(tmp_path):

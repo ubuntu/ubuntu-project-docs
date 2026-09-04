@@ -130,17 +130,40 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
         readiness = ReadinessEffect(item.get("readiness", "clear"))
         if mode == "human_only":
             _show_preface(item, ctx, wizard)
-            question = _completion_prefill(_question_from_item(item, ctx), item, results)
+            question = _completion_prefill(
+                _question_from_item(item, ctx, deferrable=True), item, results
+            )
             answer = wizard.ask(question)
             if answer is None:
-                results.append(
-                    StatementResult(
-                        id=item["id"],
-                        section=item["section"],
-                        state=StatementState.NOT_APPLICABLE,
-                        readiness=ReadinessEffect.CLEAR,
+                if question.required:
+                    # A required question only ever returns None via its
+                    # explicit ":defer" escape hatch, so this item IS
+                    # applicable - the reporter simply could not resolve it
+                    # now. Leave it for "Left to clarify" with its
+                    # catalog-declared readiness instead of silently
+                    # dropping it (mirrors the ev_to_ai fallback in ai.py).
+                    results.append(
+                        StatementResult(
+                            id=item["id"],
+                            section=item["section"],
+                            state=StatementState.NEEDS_INPUT,
+                            readiness=readiness,
+                            rationale="The reporter deferred this question.",
+                        )
                     )
-                )
+                else:
+                    # An optional question's None is a genuine "nothing to
+                    # add" skip (whether by empty answer or :defer); the
+                    # item does not apply to this report.
+                    results.append(
+                        StatementResult(
+                            id=item["id"],
+                            section=item["section"],
+                            state=StatementState.NOT_APPLICABLE,
+                            readiness=ReadinessEffect.CLEAR,
+                        )
+                    )
+                item_values[item["id"]] = None
                 continue
             statement = _human_statement(item, answer.value, ctx.source_package)
             if item["id"] not in completed_by_follow_up:
