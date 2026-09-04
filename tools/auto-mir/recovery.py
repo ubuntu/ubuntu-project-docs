@@ -235,6 +235,24 @@ def restore_statement_result(data: dict[str, Any]):
     )
 
 
+def restore_prepared_suggestion(data: dict[str, Any]):
+    """Rebuild one persisted ``PreparedSuggestion`` snapshot."""
+    from reporter.models import PreparedSuggestion, ReadinessEffect
+
+    option_readiness = data.get("option_readiness")
+    return PreparedSuggestion(
+        suggestion=str(data.get("suggestion", "")),
+        rationale=str(data.get("rationale", "")),
+        lock_yes_reason=data.get("lock_yes_reason"),
+        option_readiness=ReadinessEffect(str(option_readiness)) if option_readiness else None,
+        selected_option=str(data.get("selected_option", "")),
+        evidence_refs=[str(ref) for ref in data.get("evidence_refs", [])],
+        ask_human=bool(data.get("ask_human", False)),
+        note_text=str(data.get("note_text", "")),
+        note_detail=str(data.get("note_detail", "")),
+    )
+
+
 def apply_resume(ctx: RunContext, state: dict[str, Any]) -> None:
     """Restore one run's persisted progress onto a fresh run context.
 
@@ -293,3 +311,7 @@ def _apply_report_resume(ctx: RunContext, state: dict[str, Any]) -> None:
         if item["id"] in recorded
     ]
     ctx.resumed_values = dict(state.get("report", {}).get("item_values", {}))
+    ctx.resumed_prepared = {
+        item_id: restore_prepared_suggestion(data)
+        for item_id, data in state.get("report", {}).get("prepared", {}).items()
+    }

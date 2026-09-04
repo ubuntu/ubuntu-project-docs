@@ -30,6 +30,10 @@ class FakeWizard:
     def __init__(self, value="human-provided explanation"):
         self.value = value
         self.asked: list[str] = []
+        self.batch_counts: list[int] = []
+
+    def begin_batch(self, question_count):
+        self.batch_counts.append(question_count)
 
     def _answer_value(self, question):
         # The real wizard only returns option ids for single_choice
@@ -220,11 +224,19 @@ def test_evaluate_items_logs_progress_for_every_catalog_item(tmp_path, caplog):
     progress_messages = [
         record.getMessage() for record in caplog.records if record.getMessage().startswith("[")
     ]
-    assert len(progress_messages) == total
+    # Two passes: every item gets at least one progress line (pass-1
+    # "Preparing suggestion" for evidence-gated ev_to_ai items, "Evaluating"
+    # for everything else in the pass that owns it).
+    covered_ids = {
+        item["id"]
+        for item in ctx.catalog["items"]
+        for message in progress_messages
+        if item["id"] in message
+    }
+    assert covered_ids == {item["id"] for item in ctx.catalog["items"]}
     assert progress_messages[0] == (
         f"[1/{total}] Evaluating REP-AVAIL-001: Source package availability (deterministic)"
     )
-    assert progress_messages[-1].startswith(f"[{total}/{total}] Evaluating ")
 
 
 def test_deterministic_reporter_statements_all_get_a_leading_bullet(tmp_path):
@@ -405,6 +417,181 @@ def test_a_partially_resumed_run_only_asks_the_remaining_items(tmp_path):
     for result in restored:
         replayed = next(entry for entry in resumed if entry.id == result.id)
         assert replayed.statement == result.statement
+
+
+def test_pass_one_prepares_everything_before_the_interactive_phase(tmp_path):
+    """Feedback item 3: every item that needs no human input - deterministic
+    evaluation and AI suggestion preparation - completes before the first
+    question is asked, and the interactive phase is announced as one batch
+    with a question count. Results keep catalog order regardless of which
+    pass produced them."""
+    from reporter import evaluator
+    from utils import run_state as run_state_module
+
+    ctx = _ctx(tmp_path)
+    ctx.run_state = run_state_module.init_state(ctx)
+    snapshots: dict[str, set] = {}
+
+    class OrderProbingWizard(FakeWizard):
+        def ask(self, question):
+            snapshots[question.id] = set(ctx.run_state["report"]["results"])
+            return super().ask(question)
+
+    wizard = OrderProbingWizard()
+    results = evaluate_items(ctx, wizard)
+
+    first_snapshot = next(iter(snapshots.values()))
+    ungated_deterministic = {
+        item["id"]
+        for item in ctx.catalog["items"]
+        if item["mode"] == "deterministic" and not evaluator._gated_on_prior_items(item)
+    }
+    ungated_ev_to_ai = {
+        item["id"]
+        for item in ctx.catalog["items"]
+        if item["mode"] == "ev_to_ai" and not evaluator._gated_on_prior_items(item)
+    }
+    assert ungated_deterministic <= first_snapshot
+    assert ungated_ev_to_ai <= set(ctx.run_state["report"]["prepared"])
+    # The interactive phase was announced exactly once, ahead of questions.
+    # The banner's count is an honest "about N" estimate: applicability
+    # conditions can still rule some announced questions out.
+    expected_estimate = sum(1 for item in ctx.catalog["items"] if item["mode"] != "deterministic")
+    assert wizard.batch_counts == [expected_estimate]
+    assert len(snapshots) <= expected_estimate
+    assert [result.id for result in results] == [item["id"] for item in ctx.catalog["items"]]
+
+
+_AI_TWO_PASS_ITEMS = [
+    {
+        "id": "REP-AI-A",
+        "section": "Security",
+        "title": "Independent assessment",
+        "mode": "ev_to_ai",
+        "readiness": "warning",
+        "adapters_required": ["binary-package-inspection"],
+        "ai_policy": "Assess only supplied evidence.",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Does A apply?",
+            "options": [{"id": "yes", "label": "Yes", "statement": "- A applies."}],
+        },
+    },
+    {
+        "id": "REP-AI-B",
+        "section": "Security",
+        "title": "Gated assessment",
+        "mode": "ev_to_ai",
+        "readiness": "warning",
+        "applicability": {"item": "REP-AI-A", "equals": "yes"},
+        "adapters_required": ["binary-package-inspection"],
+        "ai_policy": "Assess only supplied evidence.",
+        "question": {
+            "kind": "single_choice",
+            "prompt": "Does B apply?",
+            "options": [{"id": "yes", "label": "Yes", "statement": "- B applies."}],
+        },
+    },
+]
+
+
+class EventWizard(FakeWizard):
+    """Fake wizard recording confirmations into a shared event log."""
+
+    def __init__(self, events):
+        super().__init__()
+        self.events = events
+
+    def confirm_suggestion(self, *, question_id, suggestion, rationale, lock_yes_reason=None):
+        self.events.append(("confirm", question_id))
+        return Answer(question_id=question_id, value=True)
+
+
+def _two_pass_llm_ctx(tmp_path, events):
+    def _fake_call_llm(prompt, ctx, model_tier="small", trace_label=""):
+        events.append(("llm", trace_label))
+        return {
+            "confidence": "high",
+            "selected_option": "yes",
+            "rationale": "The binary inspection listed that unit.",
+            "evidence_refs": ["binary-package-inspection:systemd_units"],
+        }
+
+    ctx = _ctx(tmp_path)
+    ctx.llm_token = "token"
+    ctx.untrusted_nonce = "nonce"
+    ctx.catalog = {
+        "metadata": {
+            "reporter_template_blueprint": [
+                "[Security]",
+                {"item": "REP-AI-A"},
+                {"item": "REP-AI-B"},
+            ],
+            "section_markers": ["[Security]"],
+        },
+        "items": _AI_TWO_PASS_ITEMS,
+    }
+    return ctx, _fake_call_llm
+
+
+def test_item_gated_ai_suggestions_are_prepared_lazily_mid_batch(tmp_path, monkeypatch):
+    """The agreed lazy-prep split: an ev_to_ai item gated on another item's
+    answer cannot be prepared in pass 1, so its suggestion is prepared the
+    moment the gate opens - one short LLM wait inside the batch, never
+    speculative calls for items that may never apply."""
+    events: list = []
+    ctx, fake_llm = _two_pass_llm_ctx(tmp_path, events)
+    monkeypatch.setattr("llm.call_llm", fake_llm)
+
+    evaluate_items(ctx, EventWizard(events))
+
+    assert events == [
+        ("llm", "REP-AI-A"),
+        ("confirm", "REP-AI-A-confirm"),
+        ("llm", "REP-AI-B"),
+        ("confirm", "REP-AI-B-confirm"),
+    ]
+
+
+def test_a_resumed_run_reuses_prepared_suggestions_without_new_llm_calls(tmp_path, monkeypatch):
+    """A crash after preparation but before the interactive phase must not
+    cost the LLM calls: the resumed run replays the persisted suggestions
+    and only asks for confirmations."""
+    import recovery
+    from utils import run_state as run_state_module
+
+    events: list = []
+    ctx, fake_llm = _two_pass_llm_ctx(tmp_path, events)
+    ctx.run_state = run_state_module.init_state(ctx)
+    monkeypatch.setattr("llm.call_llm", fake_llm)
+
+    class CrashOnConfirmWizard(EventWizard):
+        def confirm_suggestion(self, **kwargs):
+            raise RuntimeError("simulated crash before confirmation")
+
+    with pytest.raises(RuntimeError):
+        evaluate_items(ctx, CrashOnConfirmWizard([]))
+
+    saved = run_state_module.load_state(tmp_path)
+    assert saved["report"]["prepared"]["REP-AI-A"]["suggestion"]
+    prepared = {
+        item_id: recovery.restore_prepared_suggestion(data)
+        for item_id, data in saved["report"]["prepared"].items()
+    }
+
+    events.clear()
+    ctx2, fake_llm2 = _two_pass_llm_ctx(tmp_path, events)
+    ctx2.run_state = run_state_module.init_state(ctx2)
+    monkeypatch.setattr("llm.call_llm", fake_llm2)
+
+    results = evaluate_items(ctx2, EventWizard(events), resumed_prepared=prepared)
+
+    # REP-AI-A's suggestion is reused (no LLM call); REP-AI-B was never
+    # prepared - the run crashed before its gate opened - so exactly the
+    # one lazy preparation happens, once.
+    llm_events = [event for event in events if event[0] == "llm"]
+    assert llm_events == [("llm", "REP-AI-B")]
+    assert all(result.state == StatementState.RESOLVED for result in results)
 
 
 def test_required_human_only_question_can_be_deferred_to_left_to_clarify(tmp_path):

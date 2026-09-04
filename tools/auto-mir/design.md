@@ -82,14 +82,21 @@ Reviewer Stage 1: intake (`stage_intake`)
 Reporter stages:
 
 1. Optional auth: use configured LLM credentials when present; never require
-  them for deterministic collection or terminal questions.
+   them for deterministic collection or terminal questions.
 2. Source intake: validate the source name and collect the target series.
 3. Isolation setup and catalog-selected evidence: reuse the LXD and adapter
-  subsystems without Launchpad bug intake.
-4. Statement evaluation: resolve deterministic report items and ask only the
-  human-owned questions through the terminal wizard.
+   subsystems without Launchpad bug intake.
+4. Statement evaluation in two passes: prepare everything that needs no
+   human input (all deterministic items whose applicability does not
+   reference another item's answer, and the AI suggestions for every
+   non-item-gated `ev_to_ai` item - persisted to the run state as they are
+   prepared), then one uninterrupted interactive phase in catalog order
+   (announced with a question count) asking only for human-owned input.
+   Item-gated `ev_to_ai` suggestions are prepared lazily the moment their
+   gate opens inside the batch. The returned results keep catalog order;
+   the draft's own order stays blueprint-driven.
 5. Rendering: write `reporter-draft.txt`, `report.json`, and `evidence.json`.
-  Pipeline success and MIR readiness are represented separately.
+   Pipeline success and MIR readiness are represented separately.
 
 Always-run tail logic:
 - log artifact locations,

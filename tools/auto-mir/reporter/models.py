@@ -50,6 +50,34 @@ class Provenance(StrEnum):
 
 
 @dataclass(frozen=True)
+class PreparedSuggestion:
+    """One ``ev_to_ai`` item's AI product, prepared before the interactive phase.
+
+    The reporter flow prepares every evidence-grounded suggestion up front
+    (pass 1) so the interactive phase (pass 2) is one uninterrupted batch of
+    confirmations instead of a question, a wait for an LLM call, another
+    question. The interactive phase only consumes what this record holds.
+
+    ``ask_human`` marks the cases where no suggestion could be prepared
+    (no LLM credential, required evidence unavailable, an LLM failure, or
+    low confidence): the interactive phase replays ``note_text``/
+    ``note_detail`` as a "Note" block and asks the reporter directly.
+    ``option_readiness`` and ``selected_option`` carry the catalog option
+    resolution, so confirming needs no further AI work.
+    """
+
+    suggestion: str = ""
+    rationale: str = ""
+    lock_yes_reason: str | None = None
+    option_readiness: ReadinessEffect | None = None
+    selected_option: str = ""
+    evidence_refs: list[str] = field(default_factory=list)
+    ask_human: bool = False
+    note_text: str = ""
+    note_detail: str = ""
+
+
+@dataclass(frozen=True)
 class QuestionOption:
     """One catalog-defined choice for a terminal question.
 

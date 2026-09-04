@@ -38,6 +38,21 @@ class TerminalWizard:
         self._write_line = write_line
         self._edit_text = edit_text
 
+    def begin_batch(self, question_count: int) -> None:
+        """Announce the single interactive phase ahead of its first question.
+
+        Everything that needed no human input (deterministic evaluation and
+        AI suggestion preparation) is done by the time this is called, so
+        the reporter knows the upcoming questions are the only attention
+        this run still needs - one uninterrupted phase, not a question
+        between long working gaps.
+        """
+        self._write_line("")
+        self._write_line(
+            f"Preparation complete. Interactive phase: about {question_count} "
+            "questions ahead; you can defer any of them with :defer."
+        )
+
     def ask(self, question: QuestionSpec) -> Answer | None:
         """Ask until a valid answer is provided, or return None if optional."""
         self._write_line("")

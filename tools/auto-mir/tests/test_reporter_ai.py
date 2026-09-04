@@ -10,6 +10,7 @@ sys.path.insert(0, str(TOOL_ROOT))
 from reporter import ai  # noqa: E402
 from reporter.models import (  # noqa: E402
     Answer,
+    PreparedSuggestion,
     Provenance,
     QuestionKind,
     QuestionOption,
@@ -273,6 +274,78 @@ def test_edited_ai_suggestion_keeps_ai_confirmed_provenance(monkeypatch):
     assert result.human_confirmed is True
     assert result.statement == "- Original suggestion, plus a reporter addendum."
     assert result.rationale == "Because of the evidence."
+
+
+def test_prepare_ai_suggestion_low_confidence_records_note_for_replay(monkeypatch):
+    """Pass 1 records why no suggestion exists instead of asking right
+    away; the interactive phase replays the note before the human
+    question (feedback item 3: no LLM wait inside the question batch)."""
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: {"confidence": "low", "rationale": "Insufficient."},
+    )
+
+    prepared = ai.prepare_ai_suggestion(_item(), _ctx())
+
+    assert prepared.ask_human is True
+    assert "could not confidently assess" in prepared.note_text
+    assert prepared.note_detail == "Insufficient."
+
+
+def test_prepare_ai_suggestion_llm_failure_defers_to_human_without_note(monkeypatch):
+    def _fail(*_args, **_kwargs):
+        raise ai.llm.LLMError("endpoint down")
+
+    monkeypatch.setattr(ai.llm, "call_llm", _fail)
+
+    prepared = ai.prepare_ai_suggestion(_item(), _ctx())
+
+    assert prepared.ask_human is True
+    assert prepared.note_text == ""
+
+
+def test_confirm_ai_suggestion_replays_the_prepared_note_and_asks_human():
+    wizard = ConfirmingWizard()
+    prepared = PreparedSuggestion(
+        ask_human=True, note_text="Evidence was missing.", note_detail="why"
+    )
+
+    result = ai.confirm_ai_suggestion(_item(), _ctx(), wizard, _fallback_question(), prepared)
+
+    assert wizard.notes == [("Evidence was missing.", "why")]
+    assert result.provenance == Provenance.HUMAN
+    assert result.human_confirmed is True
+    assert wizard.questions[0][0] == "human"
+
+
+def test_confirm_ai_suggestion_uses_the_prepared_suggestion_without_llm_work(monkeypatch):
+    """Confirming a prepared suggestion is pure replay: no LLM call, the
+    recorded lock reason and option readiness are passed through."""
+    monkeypatch.setattr(
+        ai.llm,
+        "call_llm",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("no LLM work here")),
+    )
+    wizard = ConfirmingWizard(accept=True)
+    prepared = PreparedSuggestion(
+        suggestion="The package installs foo.service.",
+        rationale="The binary inspection listed that unit.",
+        lock_yes_reason=None,
+        option_readiness=ReadinessEffect.WARNING,
+        selected_option="foo",
+        evidence_refs=["binary-package-inspection:systemd_units"],
+    )
+
+    result = ai.confirm_ai_suggestion(_item(), _ctx(), wizard, _fallback_question(), prepared)
+
+    assert result.provenance == Provenance.AI_CONFIRMED
+    assert result.statement == "- The package installs foo.service."
+    assert result.readiness == ReadinessEffect.WARNING
+    assert result.selected_option == "foo"
+    assert result.evidence_refs == ["binary-package-inspection:systemd_units"]
+    assert wizard.questions[0][0] == "confirm"
+    assert wizard.lock_yes_reasons == [None]
 
 
 def test_edited_ai_suggestion_left_with_a_tbd_becomes_needs_input(monkeypatch):

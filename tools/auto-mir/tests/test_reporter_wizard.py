@@ -925,3 +925,16 @@ def test_raw_multiline_answer_with_bracketed_line_gets_a_scaffolding_advisory():
 
     assert answer is not None
     assert any("resembling report scaffolding" in line for line in output)
+
+
+def test_begin_batch_announces_the_interactive_phase_with_question_count():
+    output: list[str] = []
+    wizard = TerminalWizard(read_line=_reader([]), write_line=output.append)
+
+    wizard.begin_batch(12)
+
+    assert any(
+        "Preparation complete. Interactive phase: about 12 questions ahead" in line
+        for line in output
+    )
+    assert any(":defer" in line for line in output)

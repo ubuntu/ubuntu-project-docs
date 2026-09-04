@@ -7,6 +7,7 @@ from typing import Any
 
 import llm
 from reporter.models import (
+    PreparedSuggestion,
     Provenance,
     QuestionKind,
     ReadinessEffect,
@@ -58,7 +59,12 @@ def _required_adapters_unavailable_reason(item: dict, ctx) -> str:
 
 
 def evaluate_ai_item(item: dict, ctx, wizard, fallback_question) -> StatementResult:
-    """Suggest one evidence-grounded statement and require confirm or correction.
+    """Prepare one evidence-grounded suggestion, then confirm or correct it.
+
+    Composition kept for single-item callers (and tests): the reporter flow
+    itself prepares suggestions for all items up front and then confirms
+    them in one uninterrupted interactive phase - see
+    ``prepare_ai_suggestion``/``confirm_ai_suggestion``.
 
     When the catalog item declares ``question.options`` (the same shape used
     by ``human_only`` single_choice items, plus an optional ``ai_predicate``/
@@ -67,7 +73,19 @@ def evaluate_ai_item(item: dict, ctx, wizard, fallback_question) -> StatementRes
     is what gets suggested/rendered, mirroring how the reviewer catalog's
     ``ev_to_ai`` + ``options`` checks work (``checks/llm_eval.py``).
     """
-    readiness = ReadinessEffect(item.get("readiness", "warning"))
+    prepared = prepare_ai_suggestion(item, ctx)
+    return confirm_ai_suggestion(item, ctx, wizard, fallback_question, prepared)
+
+
+def prepare_ai_suggestion(item: dict, ctx) -> PreparedSuggestion:
+    """Generate one validated, evidence-grounded suggestion without any interaction.
+
+    Everything that needs no human input happens here, up front: the LLM
+    call (plus the bounded autopkgtest-log refinement round), response
+    validation, catalog option resolution, and the yes-lock decision. The
+    interactive phase then only replays and confirms the result, so the
+    reporter is never left waiting for an LLM call between two questions.
+    """
     # Catalog option statements may carry the ``TBDRULESURL`` placeholder
     # (the reporter flow knows the source package and series, so the
     # debian/rules link is constructed rather than asked for). Resolve it
@@ -85,17 +103,17 @@ def evaluate_ai_item(item: dict, ctx, wizard, fallback_question) -> StatementRes
         for option in item.get("question", {}).get("options", [])
     ]
     if not getattr(ctx, "llm_token", "") or getattr(ctx, "no_llm", False):
-        return _ask_human(item, ctx, wizard, fallback_question, readiness=readiness)
+        return PreparedSuggestion(ask_human=True)
 
     unavailable_reason = _required_adapters_unavailable_reason(item, ctx)
     if unavailable_reason:
-        wizard.show_note(
-            f'The tool could not confidently assess "{item.get("title", item["id"])}" '
-            "because required evidence was unavailable.",
-            unavailable_reason,
-        )
-        return _ask_human(
-            item, ctx, wizard, fallback_question, rationale=unavailable_reason, readiness=readiness
+        return PreparedSuggestion(
+            ask_human=True,
+            note_text=(
+                f'The tool could not confidently assess "{item.get("title", item["id"])}" '
+                "because required evidence was unavailable."
+            ),
+            note_detail=unavailable_reason,
         )
 
     keep_full_fields = _FULL_CONTENT_FIELDS_BY_ITEM.get(item["id"], set())
@@ -165,7 +183,7 @@ Return exactly one JSON object:
             _validate_response(response, item, options)
         )
     except llm.LLMError:
-        return _ask_human(item, ctx, wizard, fallback_question, readiness=readiness)
+        return PreparedSuggestion(ask_human=True)
 
     if confidence == "low" and item.get("autopkgtest_log_followup"):
         refined = _maybe_refine_with_autopkgtest_logs(item, ctx, evidence, options)
@@ -173,43 +191,76 @@ Return exactly one JSON object:
             confidence, suggestion, rationale, refs, requires_decision, selected_option_id = refined
 
     if confidence == "low":
-        wizard.show_note(
-            f'The tool could not confidently assess "{item.get("title", item["id"])}" '
-            "from the available evidence.",
-            rationale,
-        )
-        return _ask_human(
-            item, ctx, wizard, fallback_question, rationale=rationale, readiness=readiness
+        return PreparedSuggestion(
+            ask_human=True,
+            note_text=(
+                f'The tool could not confidently assess "{item.get("title", item["id"])}" '
+                "from the available evidence."
+            ),
+            note_detail=rationale,
         )
 
-    option_readiness = _option_readiness(options, selected_option_id)
-    lock_yes_reason = _lock_yes_reason(suggestion, requires_decision)
-    confirmation = wizard.confirm_suggestion(
-        question_id=f"{item['id']}-confirm",
+    return PreparedSuggestion(
         suggestion=suggestion,
         rationale=rationale,
-        lock_yes_reason=lock_yes_reason,
+        lock_yes_reason=_lock_yes_reason(suggestion, requires_decision),
+        option_readiness=_option_readiness(options, selected_option_id),
+        selected_option=selected_option_id,
+        evidence_refs=refs,
+    )
+
+
+def confirm_ai_suggestion(
+    item: dict,
+    ctx,
+    wizard,
+    fallback_question,
+    prepared: PreparedSuggestion,
+) -> StatementResult:
+    """Replay one prepared suggestion (or its note) and require confirmation.
+
+    The interactive phase's half of the AI flow: no LLM work happens here,
+    so a batch of items moves from one question straight to the next.
+    """
+    readiness = ReadinessEffect(item.get("readiness", "warning"))
+    if prepared.ask_human:
+        if prepared.note_text:
+            wizard.show_note(prepared.note_text, prepared.note_detail)
+        return _ask_human(
+            item,
+            ctx,
+            wizard,
+            fallback_question,
+            rationale=prepared.note_detail,
+            readiness=readiness,
+        )
+
+    confirmation = wizard.confirm_suggestion(
+        question_id=f"{item['id']}-confirm",
+        suggestion=prepared.suggestion,
+        rationale=prepared.rationale,
+        lock_yes_reason=prepared.lock_yes_reason,
     )
     # confirmation.value is True (use as-is), False (discard, ask manually), or
     # a str holding the reporter's edited version of the suggested statement.
     if confirmation.value is True or isinstance(confirmation.value, str):
         statement = ensure_bulleted(
-            suggestion if confirmation.value is True else confirmation.value
+            prepared.suggestion if confirmation.value is True else confirmation.value
         )
         result = StatementResult(
             id=item["id"],
             section=item["section"],
             state=StatementState.RESOLVED,
-            readiness=option_readiness or readiness,
+            readiness=prepared.option_readiness or readiness,
             statement=statement,
-            selected_option=selected_option_id or None,
+            selected_option=prepared.selected_option or None,
             provenance=Provenance.AI_CONFIRMED,
-            evidence_refs=refs,
+            evidence_refs=prepared.evidence_refs,
             answer_refs=[confirmation.question_id],
-            rationale=rationale,
+            rationale=prepared.rationale,
             human_confirmed=True,
         )
-        if statement_left_open(statement, rationale):
+        if statement_left_open(statement, prepared.rationale):
             # The reporter edited the suggestion but left a TBD in place (or
             # the rationale carries one). The same rule as the human answer
             # path applies: the item travels to "Left to clarify:" instead of

@@ -129,6 +129,15 @@ def record_item_result(
     save_state(ctx)
 
 
+def record_prepared(ctx: RunContext, item_id: str, suggestion: Any) -> None:
+    """Persist one prepared AI suggestion, so a resumed run skips its LLM call."""
+    state = getattr(ctx, "run_state", None)
+    if state is None:
+        return
+    state["report"]["prepared"][item_id] = _snapshot(suggestion)
+    save_state(ctx)
+
+
 def record_all_results(ctx: RunContext, results: list) -> None:
     """Re-record every statement result (used after the consistency pass,
     whose corrections replace statements after the per-item recording)."""

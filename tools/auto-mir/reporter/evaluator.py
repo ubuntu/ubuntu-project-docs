@@ -9,9 +9,15 @@ from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-from reporter.ai import evaluate_ai_item
-from reporter.conditions import ConditionContext, evaluate_condition
+from reporter.ai import confirm_ai_suggestion, prepare_ai_suggestion
+from reporter.conditions import (
+    ConditionContext,
+    ConditionError,
+    condition_references,
+    evaluate_condition,
+)
 from reporter.models import (
+    PreparedSuggestion,
     Provenance,
     QuestionKind,
     QuestionOption,
@@ -97,20 +103,29 @@ def evaluate_items(
     *,
     resumed_results: list[StatementResult] | None = None,
     resumed_values: dict[str, Any] | None = None,
+    resumed_prepared: dict[str, PreparedSuggestion] | None = None,
 ) -> list[StatementResult]:
-    """Evaluate reporter items in catalog order, asking only human-owned input.
+    """Evaluate reporter items in two passes: prepare, then one interactive phase.
 
-    Each item's result is persisted to the run state as soon as it completes
-    (``utils.run_state.record_item_result``), so an interrupt or crash
-    costs at most the in-flight question - never the whole session. A
-    resumed run (recovery) seeds the already-answered items via
-    ``resumed_results``/``resumed_values`` and only evaluates what is left;
-    the restored condition values keep later items' applicability
-    conditions working exactly as in the original run.
+    Pass 1 computes everything that needs no human input - all deterministic
+    items whose applicability does not depend on another item's answer, and
+    the AI suggestions for every non-item-gated ``ev_to_ai`` item. Pass 2 is
+    then a single uninterrupted phase in catalog order asking only for
+    human-owned input, so the reporter pays attention once instead of being
+    dragged back to the terminal between long deterministic and LLM gaps
+    (feedback item 3). The draft's section order stays blueprint-driven and
+    untouched; the returned results keep catalog order.
+
+    Each item's result (and each prepared suggestion) is persisted to the
+    run state as soon as it completes (``utils.run_state``), so an interrupt
+    or crash costs at most the in-flight question - never the whole
+    session. A resumed run (recovery) seeds answered items, condition
+    values, and prepared suggestions, and only works on what is left.
     """
     results: list[StatementResult] = list(resumed_results or [])
     item_values: dict[str, Any] = dict(resumed_values or {})
-    answered = {result.id for result in results}
+    prepared: dict[str, PreparedSuggestion] = dict(resumed_prepared or {})
+    done = {result.id for result in results}
     catalog_items = ctx.catalog.get("items", [])
     total = len(catalog_items)
     # Items whose statement is finished by a later follow-up (catalog
@@ -119,8 +134,52 @@ def evaluate_items(
     completed_by_follow_up = {
         str(entry["completes"]) for entry in catalog_items if entry.get("completes")
     }
+
+    # --- Pass 1: prepare everything that needs no human input. ---
     for index, item in enumerate(catalog_items, start=1):
-        if item["id"] in answered:
+        if item["id"] in done or item["id"] in prepared:
+            continue
+        if _gated_on_prior_items(item):
+            # The applicability condition needs an earlier item's answer,
+            # so this item (and its AI suggestion) can only be prepared
+            # lazily, inside the interactive phase, once that answer exists.
+            continue
+        mode = item["mode"]
+        if mode == "ev_to_ai":
+            log.info(
+                "[%d/%d] Preparing suggestion for %s: %s (ev_to_ai)",
+                index,
+                total,
+                item["id"],
+                item.get("title", ""),
+            )
+            prepared[item["id"]] = prepare_ai_suggestion(item, ctx)
+            run_state.record_prepared(ctx, item["id"], prepared[item["id"]])
+        elif mode == "deterministic":
+            log.info(
+                "[%d/%d] Evaluating %s: %s (%s)",
+                index,
+                total,
+                item["id"],
+                item.get("title", ""),
+                item.get("mode", ""),
+            )
+            condition_context = ConditionContext(
+                items=item_values,
+                evidence=ctx.evidence.get("adapters", {}),
+            )
+            result, value = _evaluate_item(
+                item, ctx, wizard, condition_context, results, completed_by_follow_up, prepared
+            )
+            results.append(result)
+            item_values[item["id"]] = value
+            done.add(item["id"])
+            run_state.record_item_result(ctx, item, result, results, value)
+
+    # --- Pass 2: one uninterrupted interactive phase in catalog order. ---
+    wizard.begin_batch(_interactive_question_count(catalog_items, done))
+    for index, item in enumerate(catalog_items, start=1):
+        if item["id"] in done:
             continue
         log.info(
             "[%d/%d] Evaluating %s: %s (%s)",
@@ -135,12 +194,46 @@ def evaluate_items(
             evidence=ctx.evidence.get("adapters", {}),
         )
         result, value = _evaluate_item(
-            item, ctx, wizard, condition_context, results, completed_by_follow_up
+            item, ctx, wizard, condition_context, results, completed_by_follow_up, prepared
         )
         results.append(result)
         item_values[item["id"]] = value
+        done.add(item["id"])
         run_state.record_item_result(ctx, item, result, results, value)
-    return results
+
+    # Catalog order for the report regardless of the pass that produced a
+    # result; the draft's own order stays blueprint-driven.
+    by_id = {result.id: result for result in results}
+    return [by_id[item["id"]] for item in catalog_items if item["id"] in by_id]
+
+
+def _gated_on_prior_items(item: dict) -> bool:
+    """Whether the item's applicability depends on another item's answer.
+
+    Decided from the declared condition's references, not from any hardcoded
+    item list, so future catalog items route themselves into the right
+    pass automatically. A malformed condition also defers to the
+    interactive phase, where the normal validation surfaces the error.
+    """
+    condition = item.get("applicability")
+    if not condition:
+        return False
+    try:
+        references = condition_references(condition)
+    except ConditionError:
+        return True
+    return any(reference_type == "item" for reference_type, _ in references)
+
+
+def _interactive_question_count(catalog_items: list[dict], done: set[str]) -> int:
+    """How many of the remaining items will need human interaction.
+
+    An approximation by design (applicability may still rule some out):
+    the batch banner says "about N questions", it does not promise them.
+    """
+    return sum(
+        1 for item in catalog_items if item["id"] not in done and item["mode"] != "deterministic"
+    )
 
 
 def _evaluate_item(
@@ -150,6 +243,7 @@ def _evaluate_item(
     condition_context: ConditionContext,
     results: list[StatementResult],
     completed_by_follow_up: set[str],
+    prepared: dict[str, PreparedSuggestion],
 ) -> tuple[StatementResult, Any]:
     """Evaluate one catalog item into its (result, condition value) pair."""
     if not evaluate_condition(item.get("applicability"), condition_context):
@@ -232,7 +326,16 @@ def _evaluate_item(
         fallback_question = _completion_prefill(
             _question_from_item(item, ctx, deferrable=True), item, results
         )
-        result = evaluate_ai_item(item, ctx, wizard, fallback_question)
+        suggestion = prepared.get(item["id"])
+        if suggestion is None:
+            # An item-gated suggestion could not be prepared in pass 1: its
+            # applicability only became decidable now, inside the
+            # interactive phase, so its AI preparation happens lazily.
+            log.info("Preparing suggestion for %s after earlier answers", item["id"])
+            suggestion = prepare_ai_suggestion(item, ctx)
+            prepared[item["id"]] = suggestion
+            run_state.record_prepared(ctx, item["id"], suggestion)
+        result = confirm_ai_suggestion(item, ctx, wizard, fallback_question, suggestion)
         _merge_into_completed_item(item, result, results)
         return result, result.selected_option or result.statement
 

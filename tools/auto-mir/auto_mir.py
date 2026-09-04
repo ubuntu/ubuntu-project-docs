@@ -373,9 +373,11 @@ class RunContext:
         self.statement_results: list = []
         self.consistency_report = None
         # Resumed reporter progress (restored by recovery.apply_resume):
-        # answered statement results and the condition values they produced.
+        # answered statement results, the condition values they produced,
+        # and the pass-1 AI suggestions already prepared for them.
         self.resumed_results: list = []
         self.resumed_values: dict = {}
+        self.resumed_prepared: dict = {}
 
         # --- Initialized in main() right after logging setup ---
         # Incrementally persisted recovery state (see utils/run_state.py).

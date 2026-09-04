@@ -5383,3 +5383,53 @@ restoration, and the evidence/scope/report restore paths; resume tests
 in `tests/test_reporter_runtime.py` prove a fully resumed run asks
 nothing and reproduces identical statements, and a partially resumed run
 asks only the remaining items.
+
+## 2026-09-04 — Reporter feedback round (upki artifact), item 3: prepare everything, then one interactive phase
+
+Promotion: no
+
+**Context:** feedback item 3: the old single-pass evaluation interleaved
+long deterministic and LLM gaps between individual questions, dragging the
+reporter back to the terminal many times. The output order (draft =
+blueprint-driven) stays as-is; only *processing* is reordered to
+concentrate the attention the reporter owes into one phase.
+
+**Decision:**
+- `evaluate_items` now runs two passes. Pass 1 computes everything that
+  needs no human input: all deterministic items whose applicability does
+  not reference another item's answer, and - via the new
+  `reporter/ai.py::prepare_ai_suggestion` - the validated, evidence-grounded
+  AI suggestion for every non-item-gated `ev_to_ai` item (including the
+  autopkgtest-log refinement round, option resolution, and the yes-lock
+  decision). Pass 2 is a single uninterrupted interactive phase in catalog
+  order: `confirm_ai_suggestion` replays a prepared suggestion or its
+  recorded "could not confidently assess" note and asks for confirmation or
+  a human answer, with no LLM work between questions.
+- Item gating is decided from the declared condition's references
+  (`conditions.condition_references`), not a hardcoded item list: an item
+  whose applicability needs an earlier item's answer (today the two
+  REP-UI-002/003-style `ev_to_ai` follow-ups) defers to pass 2 and is
+  prepared lazily the moment its gate opens (the tester's alignment-round
+  choice over speculative preparation) - one short LLM wait inside the
+  batch instead of wasted calls for items that may never apply.
+- The interactive phase opens with a wizard banner ("Preparation complete.
+  Interactive phase: about N questions ahead; you can defer any of them
+  with :defer") - the count is an honest estimate since applicability can
+  still rule items out. Results are reassembled in catalog order at the
+  end regardless of which pass produced them; report.json statement order
+  and the draft stay unchanged.
+- Prepared suggestions persist to `run-state.json`
+  (`run_state.record_prepared`), so a resumed run (recovery) replays them
+  without any new LLM calls; `recovery.restore_prepared_suggestion`
+  rebuilds them, and `evaluate_items` accepts a `resumed_prepared` seed.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (1023 passed, 2
+skipped); `make integration` PASS (1024 passed, 1 skipped) since
+evaluation orchestration changed. New tests: deterministic results and
+prepared suggestions are all recorded before the first question is asked
+(probed from inside the wizard), the banner announces the batch once with
+an estimate, item-gated suggestions are prepared lazily mid-batch in the
+exact LLM/confirm interleaving (event-log test), a resumed run reuses
+persisted suggestions without new LLM calls except for never-prepared
+gated items, and the prepare/confirm split's note replay, lock-reason and
+option-readiness passthrough are covered in `tests/test_reporter_ai.py`.
