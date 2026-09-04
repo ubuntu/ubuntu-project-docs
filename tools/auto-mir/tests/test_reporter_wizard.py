@@ -687,7 +687,7 @@ def test_optional_question_shows_skip_note_even_with_custom_answer_guidance():
     wizard.ask(question)
 
     assert any("Focus on aspects not already covered elsewhere." in line for line in output)
-    assert any("leave the answer empty to skip" in line.casefold() for line in output)
+    assert any("save an empty answer to skip" in line.casefold() for line in output)
 
 
 def test_optional_multiline_editor_hint_shows_skip_note_even_with_custom_guidance():
@@ -712,7 +712,7 @@ def test_optional_multiline_editor_hint_shows_skip_note_even_with_custom_guidanc
 
     comment_lines = calls[0]
     assert any("Focus on aspects not already covered elsewhere." in line for line in comment_lines)
-    assert any("leave the answer empty to skip" in line.casefold() for line in comment_lines)
+    assert any("save an empty answer to skip" in line.casefold() for line in comment_lines)
 
 
 def test_option_statements_are_echoed_next_to_labels():
@@ -768,3 +768,91 @@ def test_show_note_ignores_empty_text():
     wizard.show_note("")
 
     assert output == []
+
+
+# ---------------------------------------------------------------------------
+# Editor prefill and choice completion (feedback item 2). The reporter edits
+# the sentence that will appear in the report; the tool never merges an
+# interview answer into a template itself.
+# ---------------------------------------------------------------------------
+
+
+def test_multiline_question_opens_the_editor_on_its_prefill():
+    seen: list[str] = []
+
+    def _edit(initial_text, _comment_lines):
+        seen.append(initial_text)
+        return "- The package src:libfoo is required in Ubuntu main because it seeds entropy."
+
+    wizard = TerminalWizard(read_line=_reader([]), write_line=lambda _line: None, edit_text=_edit)
+    question = QuestionSpec(
+        id="REP-RATIONALE-001",
+        prompt="Why is this source package required in Ubuntu main?",
+        kind=QuestionKind.MULTILINE,
+        prefill="- The package src:libfoo is required in Ubuntu main for TBD",
+    )
+
+    answer = wizard.ask(question)
+
+    assert seen == ["- The package src:libfoo is required in Ubuntu main for TBD"]
+    assert answer is not None
+    assert answer.value == (
+        "- The package src:libfoo is required in Ubuntu main because it seeds entropy."
+    )
+
+
+def test_prefilled_question_explains_the_tbd_slots_in_the_editor():
+    comments: list[list[str]] = []
+
+    def _edit(_initial_text, comment_lines):
+        comments.append(comment_lines)
+        return "- done"
+
+    wizard = TerminalWizard(read_line=_reader([]), write_line=lambda _l: None, edit_text=_edit)
+    question = QuestionSpec(
+        id="REP-X",
+        prompt="Why?",
+        kind=QuestionKind.MULTILINE,
+        prefill="- Something because TBD",
+    )
+
+    wizard.ask(question)
+
+    joined = "\n".join(comments[0]).casefold()
+    assert "replace every tbd" in joined
+    assert "left to clarify" in joined
+
+
+def test_complete_statement_prefills_the_chosen_alternative():
+    seen: list[str] = []
+
+    def _edit(initial_text, _comment_lines):
+        seen.append(initial_text)
+        return "- Packaging is complex, but that is ok because it vendors two crates."
+
+    wizard = TerminalWizard(read_line=_reader([]), write_line=lambda _l: None, edit_text=_edit)
+    question = QuestionSpec(id="REP-QA-PKG-004", prompt="How complex?", kind=QuestionKind.TEXT)
+
+    completed = wizard.complete_statement(
+        question, "- Packaging is complex, but that is ok because TBD"
+    )
+
+    assert seen == ["- Packaging is complex, but that is ok because TBD"]
+    assert completed == "- Packaging is complex, but that is ok because it vendors two crates."
+
+
+def test_optional_prefilled_question_can_be_emptied_to_skip():
+    wizard = TerminalWizard(
+        read_line=_reader([]),
+        write_line=lambda _l: None,
+        edit_text=lambda _initial, _comments: "",
+    )
+    question = QuestionSpec(
+        id="REP-RATIONALE-002",
+        prompt="Additional reasons?",
+        kind=QuestionKind.MULTILINE,
+        required=False,
+        prefill="- Additional reasons TBD",
+    )
+
+    assert wizard.ask(question) is None

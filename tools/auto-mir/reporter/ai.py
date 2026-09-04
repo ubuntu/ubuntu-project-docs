@@ -17,8 +17,6 @@ from reporter.text_utils import (
     ensure_bulleted,
     maybe_write_evidence,
     resolve_option_statements,
-    strip_todo_prefix,
-    substitute_source,
 )
 from utils import llm_evidence
 from utils.llm_sanitize import wrap_untrusted
@@ -491,25 +489,25 @@ def _ask_human(
         statement = resolved if resolved is not None else ensure_bulleted(str(answer.value))
         selected_option = str(answer.value)
         readiness = _option_readiness(options, selected_option) or readiness
-    elif question.kind == QuestionKind.MULTILINE:
-        # A multiline ev_to_ai question asks the reporter for the same kind of
-        # complete, self-contained claim the AI contract requires (see the
-        # "one concise, affirmative, hedge-free claim" instruction above) - so
-        # bullet it directly, exactly like the AI-confirmed path does for
-        # `suggestion`. Splicing it after the catalog template's descriptive
-        # label (e.g. "Packaging complexity and maintainability assessment:")
-        # would just duplicate the topic the reporter already wrote out in
-        # full. That label is intentionally kept distinct in the catalog
-        # `template` field for the generated doc
-        # (docs/MIR/mir-reporters-template-body.include) and `rule_context`
-        # auto-derivation - it is simply not reused for this rendered output.
-        statement = ensure_bulleted(str(answer.value))
     else:
-        template = substitute_source(str(item["template"]), ctx.source_package)
-        statement = (
-            strip_todo_prefix(template.replace("TBD", str(answer.value), 1))
-            if "TBD" in template
-            else f"{strip_todo_prefix(template)} {answer.value}".strip()
+        # A free-text fallback answer IS the statement: the reporter wrote it
+        # in an editor pre-filled with this item's own template sentence (see
+        # QuestionSpec.prefill), so there is nothing left for the tool to
+        # merge - and nothing it could merge without breaking the grammar.
+        statement = ensure_bulleted(str(answer.value))
+    if "TBD" in statement:
+        statement = wizard.complete_statement(question, statement)
+    if "TBD" in statement:
+        # The reporter deliberately left a slot open; carry it to
+        # "Left to clarify:" rather than claim it as a settled statement.
+        return StatementResult(
+            id=item["id"],
+            section=item["section"],
+            state=StatementState.NEEDS_INPUT,
+            readiness=readiness,
+            statement=statement,
+            answer_refs=[answer.question_id],
+            rationale=rationale,
         )
     return StatementResult(
         id=item["id"],

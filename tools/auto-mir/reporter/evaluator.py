@@ -24,8 +24,8 @@ from reporter.text_utils import (
     ensure_bulleted,
     maybe_write_evidence,
     resolve_option_statements,
-    strip_todo_prefix,
     substitute_source,
+    template_to_statement,
 )
 from reporter.wizard import TerminalWizard
 from utils.deb_facts import built_using_entries
@@ -135,6 +135,7 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
                 )
                 continue
             statement = _human_statement(item, answer.value, ctx.source_package)
+            statement = _complete_statement(statement, question, wizard)
             maybe_write_evidence(item, ctx, answer.value)
             selected_option = answer.value if question.kind == QuestionKind.SINGLE_CHOICE else None
             option_readiness = None
@@ -147,16 +148,18 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
                     ),
                     None,
                 )
-            result = StatementResult(
-                id=item["id"],
-                section=item["section"],
-                state=StatementState.RESOLVED,
-                readiness=option_readiness or readiness,
-                statement=statement,
-                selected_option=selected_option,
-                provenance=Provenance.HUMAN,
-                answer_refs=[question.id],
-                human_confirmed=True,
+            result = _resolved_or_open(
+                StatementResult(
+                    id=item["id"],
+                    section=item["section"],
+                    state=StatementState.RESOLVED,
+                    readiness=option_readiness or readiness,
+                    statement=statement,
+                    selected_option=selected_option,
+                    provenance=Provenance.HUMAN,
+                    answer_refs=[question.id],
+                    human_confirmed=True,
+                )
             )
             results.append(result)
             item_values[item["id"]] = answer.value
@@ -190,6 +193,38 @@ def evaluate_items(ctx: RunContext, wizard: TerminalWizard) -> list[StatementRes
         results.append(result)
         item_values[item["id"]] = result.statement
     return results
+
+
+def _complete_statement(statement: str, question: QuestionSpec, wizard: TerminalWizard) -> str:
+    """Let the reporter fill any ``TBD`` slot a chosen statement still has.
+
+    The catalog's option statements reproduce the human template's own
+    alternatives, several of which end in "... because TBD". Picking the
+    alternative and completing its sentence are two distinct steps: the
+    choice is a decision, the completion is prose only the reporter can
+    write. Statements with nothing left to fill are returned untouched, so
+    no extra editor round is imposed on the common case.
+    """
+    if "TBD" not in statement:
+        return statement
+    return wizard.complete_statement(question, statement)
+
+
+def _resolved_or_open(result: StatementResult) -> StatementResult:
+    """Downgrade a statement that still carries an unfilled template slot.
+
+    A reporter may deliberately leave a ``TBD`` in place (the editor says so
+    explicitly). That is a legitimate "not settled yet", so the item must
+    travel to the draft's "Left to clarify:" block rather than be presented
+    as a confident statement - and rather than tripping the draft linter's
+    raw-TBD guard, which would abort the whole run at write time.
+    """
+    if "TBD" not in result.statement:
+        return result
+    result.state = StatementState.NEEDS_INPUT
+    result.human_confirmed = False
+    result.provenance = None
+    return result
 
 
 def _deterministic_result(
@@ -267,7 +302,26 @@ def _question_from_item(item: dict, ctx: RunContext, *, deferrable: bool = False
         rule_context=str(item.get("rule_context", "")),
         answer_guidance=str(item.get("answer_guidance", "")),
         deferrable=deferrable,
+        prefill=_question_prefill(item, ctx),
     )
+
+
+def _question_prefill(item: dict, ctx: RunContext) -> str:
+    """Return the statement text a free-text question opens its editor on.
+
+    Only free-text questions have one: a single_choice question offers the
+    catalog's pre-written option statements instead, and completes the chosen
+    one afterwards (see ``TerminalWizard.complete_statement``). A confidently
+    detected value (``default_source``) fills the first TBD slot up front, so
+    the reporter confirms rather than retypes what the tool already knows.
+    """
+    if QuestionKind(item["question"]["kind"]) not in {QuestionKind.MULTILINE, QuestionKind.TEXT}:
+        return ""
+    prefill = template_to_statement(str(item.get("template", "")), ctx.source_package)
+    default = _dynamic_default(item["question"].get("default_source"), ctx)
+    if default and "TBD" in prefill:
+        prefill = prefill.replace("TBD", default, 1)
+    return prefill
 
 
 def _evidence_hint(item: dict, ctx: RunContext) -> str:
@@ -439,30 +493,42 @@ def _preface_text(item: dict, ctx: RunContext) -> tuple[str, str]:
 
 
 def _human_statement(item: dict, answer: Any, source_package: str) -> str:
-    template = substitute_source(str(item["template"]), source_package)
+    """Return the reporter-authored statement for one answered human question.
+
+    There is deliberately no splicing left here. A single_choice answer
+    resolves to its option's own pre-written statement; any other answer IS
+    the statement, because the reporter edited it in the editor pre-filled
+    with the item's template (see ``_question_prefill``). Merging an
+    interview answer into a template sentence is what produced text like
+    "required in Ubuntu main for This is an entropy source alternative".
+    """
     options = item.get("question", {}).get("options", [])
     option_statement = resolve_option_statements(options, answer, source_package)
     if option_statement is not None:
         return option_statement
     answer_text = (
-        ", ".join(str(value) for value in answer) if isinstance(answer, list) else str(answer)
+        "\n".join(str(value) for value in answer) if isinstance(answer, list) else str(answer)
     )
-    if answer_text.strip().casefold() == "same as source":
-        answer_text = source_package
-    if "TBD" in template:
-        return strip_todo_prefix(template.replace("TBD", answer_text, 1))
-    return f"{strip_todo_prefix(template)} {answer_text}".strip()
+    return ensure_bulleted(answer_text.strip())
 
 
 def _unavailable(
-    item: dict, readiness: ReadinessEffect, rationale: str, source_package: str
+    item: dict, readiness: ReadinessEffect, rationale: str, _source_package: str
 ) -> StatementResult:
+    """Record that the evidence needed to judge this item was not available.
+
+    No ``statement`` is set: nothing was actually established. The draft's
+    "Left to clarify:" renderer reconstructs the item's original catalog
+    TODO/option context from the catalog itself, so a copy of the unfilled
+    template here would only be a second, divergent source of that text -
+    and would look like a real statement to anything reading the structured
+    report.
+    """
     return StatementResult(
         id=item["id"],
         section=item["section"],
         state=StatementState.UNAVAILABLE,
         readiness=readiness,
-        statement=substitute_source(str(item["template"]), source_package),
         rationale=rationale,
     )
 

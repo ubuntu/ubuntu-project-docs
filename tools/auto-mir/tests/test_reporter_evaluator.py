@@ -23,39 +23,44 @@ from reporter.text_utils import (  # noqa: E402
 )
 
 
-def test_human_statement_substitutes_same_as_source_case_insensitively():
-    item = {"template": "TODO: Upstream Name is TBD"}
+def test_human_statement_records_the_free_text_answer_verbatim():
+    """Feedback item 2: a free-text answer IS the statement, because the
+    reporter edited it in an editor pre-filled with the item's template. The
+    tool must not merge answer and template itself - that is what produced
+    "required in Ubuntu main for This is an entropy source alternative"."""
+    item = {"template": "TODO: - The package TBDSRC is required in Ubuntu main for TBD"}
 
-    assert _human_statement(item, "same as source", "rust-ntpd") == "Upstream Name is rust-ntpd"
-    assert _human_statement(item, "  Same As Source  ", "rust-ntpd") == "Upstream Name is rust-ntpd"
+    result = _human_statement(
+        item,
+        "- The package src:rust-ntpd is required in Ubuntu main because it serves NTP.",
+        "rust-ntpd",
+    )
+
+    assert result == "- The package src:rust-ntpd is required in Ubuntu main because it serves NTP."
 
 
-def test_human_statement_keeps_other_free_text_unchanged():
-    item = {"template": "TODO: Upstream Name is TBD"}
-
-    result = _human_statement(item, "ntpd-rs", "rust-ntpd")
-
-    assert result == "Upstream Name is ntpd-rs"
-
-
-def test_human_statement_preserves_the_catalog_templates_own_leading_dash():
+def test_human_statement_bullets_an_answer_that_has_no_dash():
     item = {"template": "TODO: - Upstream Name is TBD"}
 
-    result = _human_statement(item, "ntpd-rs", "rust-ntpd")
+    assert _human_statement(item, "Upstream Name is ntpd-rs", "rust-ntpd") == (
+        "- Upstream Name is ntpd-rs"
+    )
 
-    assert result == "- Upstream Name is ntpd-rs"
 
+def test_human_statement_prefers_the_chosen_options_own_statement():
+    item = {
+        "template": "TODO: - unused for a choice",
+        "question": {
+            "options": [
+                {"id": "broad", "statement": "- TBDSRC is broadly useful."},
+                {"id": "niche", "statement": "- TBDSRC serves a narrower use case."},
+            ]
+        },
+    }
 
-def test_human_statement_deadline_template_fills_the_single_tbd_completely():
-    """Regression test: REP-RATIONALE-008's template used to have two 'TBD'
-    slots ('no later than TBD due to TBD') fed by one free-text answer, so
-    the second always stayed literal. The template now has exactly one."""
-    item = {"template": "TODO: - Required in main no later than TBD"}
-
-    result = _human_statement(item, "the feature freeze of 27.04", "rust-ntpd")
-
-    assert result == "- Required in main no later than the feature freeze of 27.04"
-    assert "TBD" not in result
+    assert _human_statement(item, "niche", "rust-ntpd") == (
+        "- src:rust-ntpd serves a narrower use case."
+    )
 
 
 def test_ensure_bulleted_adds_dash_to_plain_text():
@@ -268,7 +273,10 @@ def test_question_from_item_substitutes_tbdsrc_in_option_label_and_statement():
     assert question.options[0].statement == "The package src:rust-ntpd will generally be useful."
 
 
-def test_unavailable_substitutes_tbdsrc_in_template():
+def test_unavailable_records_no_statement_only_the_reason():
+    """Nothing was established, so no statement is claimed. The draft's
+    "Left to clarify:" renderer rebuilds the original TODO context from the
+    catalog, which stays the single source of that text."""
     item = {
         "id": "REP-BG-003",
         "section": "Background information",
@@ -277,9 +285,8 @@ def test_unavailable_substitutes_tbdsrc_in_template():
 
     result = _unavailable(item, ReadinessEffect.WARNING, "no data", "rust-ntpd")
 
-    assert result.statement == (
-        "TODO: Link to package https://launchpad.net/ubuntu/+source/rust-ntpd"
-    )
+    assert result.statement == ""
+    assert result.rationale == "no data"
 
 
 def test_question_from_item_spells_out_all_binaries_shortcut():
@@ -562,3 +569,92 @@ def test_clean_cve_history_leaves_the_reporter_nothing_to_do():
 
     assert not assessment.action
     assert "OSS-security" in assessment.note
+
+
+# ---------------------------------------------------------------------------
+# Prefill derivation and the unfilled-slot safety net (feedback item 2).
+# ---------------------------------------------------------------------------
+
+
+def test_template_to_statement_keeps_tbd_and_drops_todo_markers():
+    from reporter.text_utils import template_to_statement
+
+    result = template_to_statement(
+        "TODO: - The package TBDSRC is required in Ubuntu main for TBD", "libfoo"
+    )
+
+    assert result == "- The package src:libfoo is required in Ubuntu main for TBD"
+
+
+def test_template_to_statement_indents_continuation_lines():
+    from reporter.text_utils import template_to_statement
+
+    result = template_to_statement(
+        "TODO-B: - The package TBDSRC will not generally be useful for a large part of\n"
+        "TODO-B:   our user base, but is important/helpful still because TBD",
+        "libfoo",
+    )
+
+    assert result.splitlines() == [
+        "- The package src:libfoo will not generally be useful for a large part of",
+        "  our user base, but is important/helpful still because TBD",
+    ]
+
+
+def test_question_prefill_fills_the_first_slot_from_a_detected_default():
+    from types import SimpleNamespace
+
+    from reporter.evaluator import _question_prefill
+
+    item = {
+        "template": "TODO: Upstream Name is TBD",
+        "question": {
+            "kind": "multiline",
+            "prompt": "What is the upstream project name?",
+            "default_source": {"adapter": "upstream-tracker", "field": "upstream_name"},
+        },
+    }
+    ctx = SimpleNamespace(
+        source_package="rust-ntpd",
+        evidence={"adapters": {"upstream-tracker": {"upstream_name": "ntpd-rs"}}},
+    )
+
+    assert _question_prefill(item, ctx) == "Upstream Name is ntpd-rs"
+
+
+def test_question_prefill_is_empty_for_a_choice_question():
+    from types import SimpleNamespace
+
+    from reporter.evaluator import _question_prefill
+
+    item = {
+        "template": "TODO: - unused",
+        "question": {"kind": "single_choice", "prompt": "Which?", "options": [{"id": "a"}]},
+    }
+    ctx = SimpleNamespace(source_package="libfoo", evidence={"adapters": {}})
+
+    assert _question_prefill(item, ctx) == ""
+
+
+def test_statement_left_with_a_tbd_is_carried_to_left_to_clarify():
+    """A reporter may deliberately leave a slot open. That must become an
+    open item, not a confident statement - and must not trip the draft
+    linter's raw-TBD guard, which would abort the run at write time."""
+    from reporter.evaluator import _resolved_or_open
+    from reporter.models import Provenance, StatementResult
+
+    result = _resolved_or_open(
+        StatementResult(
+            id="REP-X",
+            section="Rationale",
+            state=StatementState.RESOLVED,
+            readiness=ReadinessEffect.BLOCKER,
+            statement="- The package is needed because TBD",
+            provenance=Provenance.HUMAN,
+            human_confirmed=True,
+        )
+    )
+
+    assert result.state == StatementState.NEEDS_INPUT
+    assert result.statement == "- The package is needed because TBD"
+    assert result.provenance is None

@@ -263,7 +263,11 @@ def test_missing_deterministic_evidence_remains_honest_and_not_ready(tmp_path):
 
     source = next(result for result in results if result.id == "REP-AVAIL-001")
     assert source.state == StatementState.UNAVAILABLE
-    assert source.statement.startswith("TODO:")
+    assert source.statement == ""
+    draft = ctx.reporter_draft_path.read_text(encoding="utf-8")
+    # The item is not silently dropped: its original catalog TODO context is
+    # rebuilt under the clarify block.
+    assert "Left to clarify:" in draft
     report = json.loads(ctx.report_path.read_text(encoding="utf-8"))
     assert report["readiness"]["ready"] is False
     assert "REP-AVAIL-001" in report["readiness"]["unresolved"]

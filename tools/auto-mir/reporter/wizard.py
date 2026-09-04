@@ -205,7 +205,7 @@ class TerminalWizard:
         self._write_line(
             "(opening your editor for a multi-line answer; save and close it when done)"
         )
-        edited = self._edit_text("", self._multiline_comment_lines(question))
+        edited = self._edit_text(question.prefill, self._multiline_comment_lines(question))
         while edited is not None:
             text = edited.strip()
             if question.deferrable and text.casefold() == _DEFER_TOKEN:
@@ -216,8 +216,38 @@ class TerminalWizard:
             if not question.required:
                 return None
             self._write_line("A response is required. Reopening the editor.")
-            edited = self._edit_text("", self._multiline_comment_lines(question))
+            edited = self._edit_text(question.prefill, self._multiline_comment_lines(question))
         return self._ask_multiline_raw(question)
+
+    def complete_statement(self, question: QuestionSpec, statement: str) -> str:
+        """Let the reporter fill the ``TBD`` slot(s) of a chosen statement.
+
+        Used after a single_choice answer whose catalog statement is itself
+        incomplete (the original template's "TODO-B: - Packaging is complex,
+        but that is ok because TBD" shape). The reporter first picks which
+        alternative applies, then completes exactly that sentence - so the
+        recorded text is the reader-facing statement, never an interview
+        answer glued onto a template by the tool.
+
+        Returns the completed text; a still-incomplete result is left as-is
+        so the caller can route the item to "Left to clarify:" instead of
+        forcing an answer the reporter cannot give yet.
+        """
+        self._write_line("")
+        self._write_line("Complete the statement below in your editor.")
+        completion_question = QuestionSpec(
+            id=question.id,
+            prompt=question.prompt,
+            kind=QuestionKind.MULTILINE,
+            required=question.required,
+            hint=question.hint,
+            rule_context=question.rule_context,
+            answer_guidance=question.answer_guidance,
+            deferrable=question.deferrable,
+            prefill=statement,
+        )
+        answer = self._ask_multiline(completion_question)
+        return statement if answer is None else str(answer.value)
 
     def _multiline_comment_lines(self, question: QuestionSpec) -> list[str]:
         lines = [question.prompt]
@@ -229,10 +259,20 @@ class TerminalWizard:
             lines.append(f"Hint: {question.hint}")
         if question.answer_guidance:
             lines.append(question.answer_guidance)
+        if question.prefill:
+            lines.append("")
+            lines.append(
+                "The text above is the statement that will appear in the report. "
+                "Replace every TBD with your own wording and edit the rest as needed."
+            )
+            lines.append(
+                "Leaving a TBD in place is allowed: the statement is then listed under "
+                "'Left to clarify' for you or the reviewer to settle later."
+            )
         if not question.required:
             lines.append(
-                "This is optional. Leave the answer empty to skip; nothing will be "
-                "added to the report."
+                "This is optional. Delete everything and save an empty answer to skip; "
+                "nothing will be added to the report."
             )
         if question.deferrable:
             lines.append(
@@ -244,6 +284,11 @@ class TerminalWizard:
         return lines
 
     def _ask_multiline_raw(self, question: QuestionSpec) -> Answer | None:
+        if question.prefill:
+            self._write_line("")
+            self._write_line("Statement to complete (retype it below with every TBD replaced):")
+            for line in question.prefill.splitlines():
+                self._write_line(f"  {line}")
         self._write_line(
             "Enter multiple lines. A line containing only '.' finishes; "
             "enter '\\.' for a literal dot. Enter :cancel on the first line to abort."
@@ -289,7 +334,7 @@ class TerminalWizard:
             self._write_line(question.answer_guidance)
         if not question.required:
             self._write_line(
-                "This is optional. Leave the answer empty to skip; nothing will be "
+                "This is optional. Save an empty answer to skip; nothing will be "
                 "added to the report."
             )
         if question.deferrable:

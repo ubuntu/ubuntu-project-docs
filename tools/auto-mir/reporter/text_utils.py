@@ -30,6 +30,28 @@ def strip_todo_prefix(text: str) -> str:
 _TODO_AND_DASH_PATTERN = re.compile(r"^\s*(?:TODO(?:-[A-Z0-9]+)?:\s*)+(?:-\s*)?")
 
 
+def template_to_statement(template: str, source_package: str) -> str:
+    """Turn a catalog ``template`` into the statement text the reporter edits.
+
+    Strips the ``TODO``/``TODO-X:`` marker from every line (the marker is
+    checklist bookkeeping in the human template, not part of the sentence)
+    and resolves ``TBDSRC``, while deliberately KEEPING every ``TBD``: those
+    are the slots the reporter fills in the editor, and an unfilled one is
+    what routes the item to "Left to clarify:".
+
+    Multi-line templates keep their continuation lines, so an alternative
+    that spans several lines is offered for completion exactly as the human
+    template words it; continuation lines are indented under the leading
+    bullet, matching how the draft renders a multi-line statement.
+    """
+    lines = [strip_todo_prefix(line) for line in str(template).splitlines()]
+    kept = [line for line in lines if line]
+    if not kept:
+        return ""
+    joined = "\n".join([kept[0], *(f"  {line}" for line in kept[1:])])
+    return substitute_source(joined, source_package)
+
+
 def strip_todo_and_dash_prefix(line: str) -> str:
     """Strip leading TODO markers and list dashes, leaving statement text.
 

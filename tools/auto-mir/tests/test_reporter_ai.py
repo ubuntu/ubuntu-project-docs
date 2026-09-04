@@ -334,7 +334,7 @@ def test_low_confidence_skips_confirmation_and_asks_human_with_rationale(monkeyp
     assert wizard.notes
     assert "does not clearly show" in wizard.notes[0][1]
     assert result.provenance == Provenance.HUMAN
-    assert result.statement == "- Assessment: human correction"
+    assert result.statement == "- human correction"
     assert result.rationale == "The evidence does not clearly show one way or the other."
 
 
@@ -360,11 +360,10 @@ def test_multiline_human_fallback_bullets_answer_without_label_duplication(monke
     assert "Assessment" not in result.statement
 
 
-def test_text_kind_human_fallback_still_splices_natural_template(monkeypatch):
-    """A short `kind: text` fill-in (e.g. REP-BG-002's "Upstream Name is TBD")
-    is a natural sentence lead-in, not a redundant restated label - it must
-    keep splicing the answer into the template, unlike the multiline case
-    above."""
+def test_free_text_human_fallback_records_the_answer_verbatim(monkeypatch):
+    """Feedback item 2: no template splicing on any free-text fallback. The
+    reporter edits the item's template sentence in the editor (see
+    QuestionSpec.prefill), so whatever they save is already the statement."""
 
     def fail(*_args, **_kwargs):
         raise AssertionError("LLM must not be called without a credential")
@@ -375,7 +374,8 @@ def test_text_kind_human_fallback_still_splices_natural_template(monkeypatch):
     result = ai.evaluate_ai_item(_item(), _ctx(token=""), wizard, _fallback_question())
 
     assert result.provenance == Provenance.HUMAN
-    assert result.statement == "- Assessment: human correction"
+    assert result.statement == "- human correction"
+    assert "Assessment" not in result.statement
 
 
 def test_high_confidence_missing_statement_falls_back_to_human(monkeypatch):
