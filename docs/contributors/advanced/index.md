@@ -47,7 +47,15 @@ See the {ref}`proposed-migration` series of articles for an explanation of the p
 
 ## Seed management
 
-*Content in staging*
+The {term}`seeds <Seeds>` decide which packages end up in `main` and on the
+installation images. See {ref}`seeds` for what they are and how they are used,
+and the article below for how to change them.
+
+```{toctree}
+:maxdepth: 1
+
+seed-management
+```
 
 
 
