@@ -237,3 +237,164 @@ def test_lint_draft_allows_raw_tbd_inside_left_to_clarify_block():
     draft = "[Security]\n\nLeft to clarify:\n- Some question\n  TODO: - Something: TBD\n"
 
     _lint_draft(draft, catalog, by_id)  # must not raise
+
+
+# ---------------------------------------------------------------------------
+# Draft layout (feedback item 1a/1b): the draft carries only computed
+# statements, and its blank lines are structural. Blueprint RULE/TODO prose
+# and blueprint '' separators exist for the human template and the
+# interactive Context block, never for the generated report.
+# ---------------------------------------------------------------------------
+
+
+def _layout_fixture():
+    """Two sections where every source of stray/missing blank lines is present.
+
+    Section one: a suppressed (not-applicable) item and RULE/TODO prose
+    between blueprint '' separators; section two: a blueprint-referenced item
+    plus an unreferenced ("extra") item, which used to be appended after the
+    section's trailing separator and thereby ate the blank line before the
+    next header.
+    """
+    items = [
+        {"id": "REP-A", "section": "Security", "title": "A", "mode": "deterministic"},
+        {"id": "REP-SKIP", "section": "Security", "title": "Skipped", "mode": "deterministic"},
+        {"id": "REP-B", "section": "Dependencies", "title": "B", "mode": "deterministic"},
+        {"id": "REP-EXTRA", "section": "Dependencies", "title": "Extra", "mode": "deterministic"},
+    ]
+    blueprint = [
+        "",
+        "[Security]",
+        "RULE[sec-tagged]: a tagged clause opener",
+        "RULE: continuation prose",
+        {"item": "REP-A"},
+        "",
+        "TODO: - a checklist alternative",
+        {"item": "REP-SKIP"},
+        "",
+        "",
+        "[Dependencies]",
+        "RULE: more prose",
+        {"item": "REP-B"},
+        "",
+    ]
+    resolved = {
+        "REP-A": "- Security statement.",
+        "REP-B": "- Dependency statement.",
+        "REP-EXTRA": "- Extra dependency statement.",
+    }
+    by_id = {
+        item_id: StatementResult(
+            id=item_id,
+            section="Security" if item_id == "REP-A" else "Dependencies",
+            state=StatementState.RESOLVED,
+            readiness=ReadinessEffect.CLEAR,
+            statement=statement,
+            provenance=Provenance.DETERMINISTIC,
+        )
+        for item_id, statement in resolved.items()
+    }
+    by_id["REP-SKIP"] = StatementResult(
+        id="REP-SKIP",
+        section="Security",
+        state=StatementState.NOT_APPLICABLE,
+        readiness=ReadinessEffect.CLEAR,
+    )
+    return _synthetic_ctx(items, blueprint), by_id
+
+
+def test_build_draft_emits_no_template_scaffolding():
+    ctx, by_id = _layout_fixture()
+
+    draft = _build_draft(ctx, by_id)
+
+    assert "RULE" not in draft
+    assert "TODO" not in draft
+
+
+def test_build_draft_has_no_consecutive_blank_lines():
+    ctx, by_id = _layout_fixture()
+
+    lines = _build_draft(ctx, by_id).splitlines()
+
+    doubled = [
+        index
+        for index in range(1, len(lines))
+        if not lines[index].strip() and not lines[index - 1].strip()
+    ]
+    assert not doubled, f"blank lines doubled at {doubled}: {lines}"
+
+
+def test_build_draft_separates_every_section_with_one_blank_line():
+    ctx, by_id = _layout_fixture()
+
+    lines = _build_draft(ctx, by_id).splitlines()
+
+    headers = [index for index, line in enumerate(lines) if line.startswith("[")]
+    assert headers
+    for index in headers:
+        assert lines[index - 1] == "", f"missing blank line before {lines[index]!r}"
+
+
+def test_build_draft_keeps_unreferenced_results_inside_their_section():
+    ctx, by_id = _layout_fixture()
+
+    draft = _build_draft(ctx, by_id)
+    lines = draft.splitlines()
+
+    extra_index = lines.index("- Extra dependency statement.")
+    assert lines[extra_index - 1] == "- Dependency statement."
+    assert extra_index == len(lines) - 1
+
+
+def test_lint_draft_rejects_leaked_rule_or_todo_line():
+    catalog = {"metadata": {"section_markers": ["[Security]"]}, "items": [{"id": "REP-A"}]}
+    by_id = {
+        "REP-A": StatementResult(
+            id="REP-A",
+            section="Security",
+            state=StatementState.RESOLVED,
+            readiness=ReadinessEffect.CLEAR,
+            statement="- All good.",
+            provenance=Provenance.DETERMINISTIC,
+        )
+    }
+    for leaked in ("RULE[sec-tagged]: policy prose", "RULE: policy prose", "TODO: - checklist"):
+        draft = f"[Security]\n- All good.\n{leaked}\n"
+        try:
+            _lint_draft(draft, catalog, by_id)
+        except ValueError as exc:
+            assert "template text" in str(exc)
+        else:
+            raise AssertionError(f"expected _lint_draft to reject {leaked!r}")
+
+
+def test_lint_draft_rejects_layout_defects():
+    catalog = {
+        "metadata": {"section_markers": ["[Security]", "[Dependencies]"]},
+        "items": [{"id": "REP-A"}],
+    }
+    by_id = {
+        "REP-A": StatementResult(
+            id="REP-A",
+            section="Security",
+            state=StatementState.RESOLVED,
+            readiness=ReadinessEffect.CLEAR,
+            statement="- All good.",
+            provenance=Provenance.DETERMINISTIC,
+        )
+    }
+    good = "[Security]\n- All good.\n\n[Dependencies]\n- Fine.\n"
+    _lint_draft(good, catalog, by_id)  # must not raise
+
+    for bad, expected in (
+        ("[Security]\n- All good.\n[Dependencies]\n- Fine.\n", "blank line before section"),
+        ("[Security]\n- All good.\n\n\n[Dependencies]\n- Fine.\n", "consecutive blank lines"),
+        ("[Security]\n- All good.\n\n[Dependencies]\n- Fine.\n\n", "end with a blank line"),
+    ):
+        try:
+            _lint_draft(bad, catalog, by_id)
+        except ValueError as exc:
+            assert expected in str(exc)
+        else:
+            raise AssertionError(f"expected _lint_draft to reject: {bad!r}")

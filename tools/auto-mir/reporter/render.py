@@ -6,10 +6,16 @@ import json
 import logging
 from dataclasses import asdict
 
+from catalog import classify_blueprint_entry
 from reporter.models import ReadinessEffect, StatementResult, StatementState
 from reporter.text_utils import substitute_source
 
 log = logging.getLogger("auto_mir.reporter")
+
+# Heading of the per-section block collecting everything the run could not
+# resolve confidently. Referenced by the renderer and by ``_lint_draft``'s
+# "a raw TBD is only legitimate here" rule, so it exists exactly once.
+_CLARIFY_HEADING = "Left to clarify:"
 
 
 def write_outputs(ctx, results: list[StatementResult]) -> None:
@@ -70,10 +76,15 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
     and never a bare, still-unresolved "TBD" template masquerading as a real
     statement (see ``_clarify_entry_lines``).
 
-    The blueprint reproduces the historical human template and is therefore
-    authoritative about its own text; runtime items it does not reference are
-    still results of this run, so their resolved statements are appended at
-    the end of their section (before that section's clarify block).
+    Layout is derived structurally, not copied from the blueprint: the
+    blueprint decides section membership and statement ORDER, this function
+    decides spacing. Blueprint ``''`` separators are deliberately ignored,
+    because they mark gaps between template prose the runtime draft does not
+    emit at all (``RULE``/``TODO`` lines, not-applicable items, items moved
+    into the clarify block) - reproducing them verbatim is what produced runs
+    of stray blank lines, and appending a section's unreferenced results
+    after such a separator is what swallowed the blank line before the next
+    ``[Section]`` header.
     """
     items_by_id = {item["id"]: item for item in ctx.catalog["items"]}
     blueprint = ctx.catalog["metadata"]["reporter_template_blueprint"]
@@ -86,68 +97,31 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
         if result.state == StatementState.NOT_APPLICABLE:
             continue
         extras.setdefault(result.section, []).append(result)
+
+    sections = _sections_from_blueprint(blueprint, by_id)
     body_lines: list[str] = []
-    pending_clarify: list[StatementResult] = []
-    current_section: str | None = None
-
-    def flush_clarify() -> None:
-        if not pending_clarify:
-            return
-        body_lines.append("")
-        body_lines.append("Left to clarify:")
-        for result in pending_clarify:
-            body_lines.extend(_clarify_entry_lines(items_by_id[result.id], result, ctx))
-        pending_clarify.clear()
-
-    def append_result(result: StatementResult) -> None:
-        if result.state in {StatementState.NEEDS_INPUT, StatementState.UNAVAILABLE}:
-            pending_clarify.append(result)
-            return
-        body_lines.append(_with_hanging_indent(result.statement))
-        if result.rationale:
-            body_lines.append(f"  ({_with_hanging_indent(result.rationale)})")
-
-    def flush_section_extras() -> None:
-        if current_section is None:
-            return
-        for result in extras.pop(current_section, []):
-            append_result(result)
-
-    for index, entry in enumerate(blueprint):
-        if isinstance(entry, str):
-            stripped = entry.strip()
-            if stripped.startswith("RULE:"):
-                continue
-            if stripped.startswith("TODO"):
-                # Historical checklist text with no runtime owner: it stays
-                # in the human template (docs include), while the draft only
-                # carries confident statements plus the clarify block.
-                continue
-            if stripped.startswith("[") and stripped.endswith("]"):
-                flush_section_extras()
-                # Defensive: also flush before a section header directly, so
-                # this never depends on the blank-line convention holding.
-                flush_clarify()
-                current_section = stripped[1:-1]
-                body_lines.append(entry)
-                continue
-            if entry == "":
-                flush_clarify()
-            body_lines.append(entry)
-            continue
-        result = by_id[entry["item"]]
-        if result.state == StatementState.NOT_APPLICABLE:
-            continue
-        append_result(result)
-        # A section's unreferenced results belong before its closing blank
-        # line and next marker, so emit them when the next marker is due.
-        following = blueprint[index + 1] if index + 1 < len(blueprint) else None
-        if isinstance(following, str):
-            following_stripped = following.strip()
-            if following_stripped.startswith("[") and following_stripped.endswith("]"):
-                flush_section_extras()
-    flush_section_extras()
-    flush_clarify()
+    for header, results in sections:
+        results = [*results, *extras.pop(header[1:-1], [])]
+        resolved = [
+            result
+            for result in results
+            if result.state not in {StatementState.NEEDS_INPUT, StatementState.UNAVAILABLE}
+        ]
+        unresolved = [
+            result
+            for result in results
+            if result.state in {StatementState.NEEDS_INPUT, StatementState.UNAVAILABLE}
+        ]
+        if body_lines:
+            body_lines.append("")
+        body_lines.append(header)
+        for result in resolved:
+            body_lines.extend(_statement_lines(result))
+        if unresolved:
+            body_lines.append("")
+            body_lines.append(_CLARIFY_HEADING)
+            for result in unresolved:
+                body_lines.extend(_clarify_entry_lines(items_by_id[result.id], result, ctx))
 
     lines = [
         f"MIR report for source package: {ctx.source_package}",
@@ -156,6 +130,38 @@ def _build_draft(ctx, by_id: dict[str, StatementResult]) -> str:
         *body_lines,
     ]
     return "\n".join(lines) + "\n"
+
+
+def _sections_from_blueprint(
+    blueprint: list, by_id: dict[str, StatementResult]
+) -> list[tuple[str, list[StatementResult]]]:
+    """Group blueprint-referenced results under their ``[Section]`` header.
+
+    Only ``section`` and ``item`` entries carry runtime meaning; ``rule`` and
+    ``todo`` prose stays in the human template (the generated docs include),
+    and ``blank`` separators are spacing this renderer derives itself.
+    """
+    sections: list[tuple[str, list[StatementResult]]] = []
+    for entry in blueprint:
+        kind = classify_blueprint_entry(entry)
+        if kind == "section":
+            sections.append((str(entry).strip(), []))
+            continue
+        if kind != "item" or not sections:
+            continue
+        result = by_id[entry["item"]]
+        if result.state == StatementState.NOT_APPLICABLE:
+            continue
+        sections[-1][1].append(result)
+    return sections
+
+
+def _statement_lines(result: StatementResult) -> list[str]:
+    """Render one resolved statement plus its optional parenthetical note."""
+    lines = [_with_hanging_indent(result.statement)]
+    if result.rationale:
+        lines.append(f"  ({_with_hanging_indent(result.rationale)})")
+    return lines
 
 
 def _clarify_entry_lines(item: dict, result: StatementResult, ctx) -> list[str]:
@@ -268,12 +274,10 @@ def _readiness_summary(results: list[StatementResult], consistency=None) -> dict
 
 
 def _lint_draft(draft: str, catalog: dict, by_id: dict[str, StatementResult]) -> None:
-    """Reject structurally incomplete or falsely-ready reporter output."""
+    """Reject structurally incomplete, noisy, or falsely-ready reporter output."""
     for marker in catalog["metadata"]["section_markers"]:
         if draft.count(marker) != 1:
             raise ValueError(f"reporter draft must contain section exactly once: {marker}")
-    if "RULE:" in draft:
-        raise ValueError("reporter runtime draft must not contain RULE lines")
     for item in catalog["items"]:
         if item["id"] not in by_id:
             raise ValueError(f"reporter draft missing result: {item['id']}")
@@ -281,20 +285,42 @@ def _lint_draft(draft: str, catalog: dict, by_id: dict[str, StatementResult]) ->
         if result.state == StatementState.RESOLVED and result.statement.startswith("TODO"):
             raise ValueError(f"resolved reporter statement still starts with TODO: {result.id}")
 
-    # An unresolved "TBD" placeholder is only legitimate inside a
-    # "Left to clarify:" block (see ``_clarify_entry_lines``) - anywhere
-    # else in the draft it means an unfilled template leaked into what looks
-    # like a confident, final statement.
+    _lint_draft_layout(draft)
+
+
+def _lint_draft_layout(draft: str) -> None:
+    """Enforce the draft's visual contract line by line.
+
+    Template scaffolding (``RULE``/``TODO`` prose) is context for the
+    interactive session and the generated human template, never content of a
+    generated report; blank lines are structural separators, so a doubled or
+    missing one is a rendering bug rather than cosmetics. An unresolved
+    "TBD" placeholder is only legitimate inside a ``Left to clarify:`` block
+    (see ``_clarify_entry_lines``) - anywhere else it means an unfilled
+    template leaked into what looks like a confident, final statement.
+    """
+    lines = draft.splitlines()
     in_clarify_block = False
-    for line in draft.splitlines():
-        if line == "Left to clarify:":
+    for index, line in enumerate(lines):
+        kind = classify_blueprint_entry(line)
+        if kind in {"rule", "todo"} and not in_clarify_block:
+            raise ValueError(f"reporter runtime draft must not contain template text: {line!r}")
+        if kind == "section":
+            if index and lines[index - 1].strip():
+                raise ValueError(f"reporter draft needs a blank line before section: {line!r}")
+            in_clarify_block = False
+            continue
+        if line == _CLARIFY_HEADING:
             in_clarify_block = True
             continue
-        if not line.strip() or (line.startswith("[") and line.endswith("]")):
+        if kind == "blank":
+            if index and not lines[index - 1].strip():
+                raise ValueError(f"reporter draft has consecutive blank lines at line {index + 1}")
             in_clarify_block = False
-        if in_clarify_block:
             continue
-        if "TBD" in line:
+        if not in_clarify_block and "TBD" in line:
             raise ValueError(
                 f"reporter draft has an unresolved TBD outside a 'Left to clarify:' block: {line!r}"
             )
+    if lines and not lines[-1].strip():
+        raise ValueError("reporter draft must not end with a blank line")
