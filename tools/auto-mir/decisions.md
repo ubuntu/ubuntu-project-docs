@@ -5570,3 +5570,27 @@ attempt budget (exactly 2 `urlopen` calls for attempts=2); the CLI parses
 the three options with the documented defaults and overrides. A smoke
 replay of the rust-ntpd scenario (6× 503) produces exactly:
 `[retry 1/5] … [retry 5/5] … Giving up on get_bytes (…) after 6 attempts`.
+
+## 2026-09-07 — Reporter/reviewer feedback round (rust-ntpd artifact), item: README retry documentation
+
+Promotion: no
+
+**Context:** follow-up to the retry-visibility change: the behavior is
+only useful if users can find it. The README said nothing about retry
+behavior, worst-case timing, the `[retry k/5]` log lines, or that an
+exhausted retry never aborts the run - the rust-ntpd reporter aborted
+precisely because none of that was discoverable.
+
+**Decision:** README-only change. The Quick start gained a prose paragraph
+(after the attention-alerts paragraph, before the completion banner):
+transient 429/5xx outages are retried with growing backoff honoring
+Retry-After (defaults: 6 attempts, ~13 minutes worst case per fetch), each
+wait is a `[retry k/5]` log line naming the URL and delay plus a final
+"giving up after N attempts" line, exhausted retries degrade the affected
+evidence to explicit TODOs with the banner naming the failed source rather
+than aborting, the `--http-retry-*` options tune the patience, and an
+interrupt still loses nothing (cross-reference to the recovery section).
+No code changed.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (1042 passed, 2
+skipped; unchanged counts - documentation only).

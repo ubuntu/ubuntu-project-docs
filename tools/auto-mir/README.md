@@ -82,6 +82,24 @@ immediately, so a reporter working on something else is called back for
 the single batch of questions ahead. Alerts never fire when the session is
 not an interactive terminal, and `--no-alerts` disables them entirely.
 
+External services sometimes rate-limit or are briefly down - a Debian BTS
+outage can answer every request with 503 for a while. Every HTTP evidence
+fetch therefore retries on such transient errors with growing backoff
+(honoring the server's Retry-After): by default up to 6 attempts per fetch,
+which in the worst case means about 13 minutes of waiting before giving up.
+Each wait is visible in the log as a `[retry k/5]` line naming the URL and
+the delay, and a final "giving up after N attempts" line marks the moment
+the budget is spent - so you can tell a stalled retry loop from progress,
+and you always know when the last attempt is. Exhausted retries never abort
+the run: the affected evidence is recorded as unavailable, the findings
+that needed it degrade to explicit TODOs instead of guesses, and the
+completion banner names the failed source. If a flaky service makes the
+default patience too long or too short for you, set
+`--http-retry-attempts`, `--http-retry-base-delay`, or
+`--http-retry-max-delay` (see `./auto_mir.py --help`). And even if you
+interrupt a run while it waits, nothing is lost - the next section
+explains how to pick it back up.
+
 The completion banner prints the artifact directory and the path to
 `review-draft.txt`. Open that file, resolve its remaining TODOs, verify its
 conclusions, and thereby complete it before posting as review to the Launchpad
