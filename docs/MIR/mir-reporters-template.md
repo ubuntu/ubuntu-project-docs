@@ -18,6 +18,13 @@ This section is a guideline for the **reporter** as they are
 
 Usage follows {ref}`mir-how-to-use-templates`.
 
+```{admonition} Automated assistance available
+:class: tip
+The **auto-mir** tool can collect evidence and pre-fill a reporter draft for
+most of this template. See {ref}`Using the auto-mir tool <mir-auto-mir>` on
+the template usage page.
+```
+
 ```{literalinclude} mir-reporters-template-body.include
 :language: text
 :linenos:

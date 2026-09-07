@@ -16,6 +16,13 @@ question:
 
 Usage follows {ref}`mir-how-to-use-templates`.
 
+```{admonition} Automated assistance available
+:class: tip
+The **auto-mir** tool can prepare a reviewer draft for an existing MIR bug
+from collected evidence. See {ref}`Using the auto-mir tool <mir-auto-mir>` on
+the template usage page.
+```
+
 * By default, statements are in the **OK** section.
 
 * Issues to be addressed should go to the **Problem:** sections (and briefly
