@@ -18,6 +18,7 @@ This section is a guideline for the **reporter** as they are
 
 Usage follows {ref}`mir-how-to-use-templates`.
 
+<!-- The following is auto-generated from tools/auto-mir/catalog*.yaml -->
 ```{admonition} Automated assistance available
 :class: tip
 The **auto-mir** tool can collect evidence and pre-fill a reporter draft for

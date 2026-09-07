@@ -16,6 +16,7 @@ question:
 
 Usage follows {ref}`mir-how-to-use-templates`.
 
+<!-- The following is auto-generated from tools/auto-mir/catalog*.yaml -->
 ```{admonition} Automated assistance available
 :class: tip
 The **auto-mir** tool can prepare a reviewer draft for an existing MIR bug
