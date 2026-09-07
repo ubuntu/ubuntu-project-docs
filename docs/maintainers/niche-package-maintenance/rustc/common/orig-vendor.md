@@ -15,9 +15,9 @@ It is expected that you have a copy of the toolchain installed locally (e.g. usi
 
 ```none
 ~/rustc/rustc$ rustup install 1.92.0
-~/rustc/rustc$ rustup +1.92.0 which rustc
-/home/<user>/.rustup/toolchains/1.92.0-x86_64-unknown-linux-gnu/bin/rustc
-~/rustc/rustc$ export RUST_BOOTSTRAP_DIR=/home/<user>/.rustup/toolchains/1.92.0-x86_64-unknown-linux-gnu
+~/rustc/rustc$ rustup run 1.92.0 rustc --print sysroot
+/home/<user>/.rustup/toolchains/1.92.0-x86_64-unknown-linux-gnu
+~/rustc/rustc$ export RUST_BOOTSTRAP_DIR=$(rustup run 1.92.0 rustc --print sysroot)
 ```
 
 The process of filtering the vendored crates relies on a custom cargo subcommand [`cargo-vendor-filterer`](https://github.com/coreos/cargo-vendor-filterer), which we run indirectly via the `vendor-tarball` target of `debian/rules`. You first need to install the `cargo-vendor-filterer` binary:
