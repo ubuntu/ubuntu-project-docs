@@ -23,6 +23,31 @@ never makes the final ACK or NACK decision — a human always verifies, edits,
 and completes every generated draft.
 
 
+## Open/update the MIR bug
+
+Both paths eventually end up with a statement to open/update a bug with.
+
+### The reporter
+
+As a **reporter**, you can now file the MIR bug, with your processed template
+as the bug description.
+
+You can, and are encouraged to, always add more details/background that make
+the case clearer and more comprehensible.
+
+In case of a single context/reasoning, but multiple packages to promote, please
+make a Launchpad bug for each package. One central package may be chosen to
+maintain the shared context of related packages. Other packages must be tracked
+by and link to the central package.
+
+See the [central Pacemaker MIR](https://bugs.launchpad.net/ubuntu/+source/pcs/+bug/1953341)
+as an example.
+
+
+### The reviewer
+
+As a **reviewer**, you shall add your review as a comment on the MIR bug.
+
 ## Using the manual templates
 
 As part of {ref}`the MIR process <main-inclusion-review>`, the templates are
@@ -88,30 +113,6 @@ and flagged with what is missing/expected.
 
 If there are no `Problems:`, just leave the alternative `Problems: None`
 for posting the review.
-
-
-### Open/update the MIR bug
-
-#### The reporter
-
-As a **reporter**, you can now file the MIR bug, with your processed template
-as the bug description.
-
-You can, and are encouraged to, always add more details/background that make
-the case clearer and more comprehensible.
-
-In case of a single context/reasoning, but multiple packages to promote, please
-make a Launchpad bug for each package. One central package may be chosen to
-maintain the shared context of related packages. Other packages must be tracked
-by and link to the central package.
-
-See the [central Pacemaker MIR](https://bugs.launchpad.net/ubuntu/+source/pcs/+bug/1953341)
-as an example.
-
-
-#### The reviewer
-
-As a **reviewer**, you shall add your review as a comment on the MIR bug.
 
 
 (mir-auto-mir)=
