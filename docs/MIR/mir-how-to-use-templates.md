@@ -17,8 +17,9 @@ There are two supported ways to prepare MIR content:
   complete.
 
 The manual templates are not being discontinued; both ways remain fully
-supported, and you can mix them (for example, let auto-mir prepare a draft and
-then polish it manually). Note that auto-mir never posts to Launchpad and
+supported, letting auto-mir prepare a draft only gets it 95% there before
+reporter/reviewer spend their own time.
+Note that auto-mir never posts to Launchpad and
 never makes the final ACK or NACK decision — a human always verifies, edits,
 and completes every generated draft.
 
