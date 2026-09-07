@@ -5477,3 +5477,28 @@ delay, silent when answered in time, bell repeats while the notification
 does not, `ring` immediacy, notification-daemon failure swallowed, body
 truncation, flag/tty gating) plus wizard and `ask_yes_no` arming/cancel
 tests.
+
+## 2026-09-07 — README: document recovery, :defer, and idle attention alerts
+
+Promotion: no
+
+**Context:** the upki feedback-round features (run recovery via
+`--output-dir`/`--recovery`, `:defer`, idle bell/desktop notifications)
+shipped with design.md/decisions.md coverage but no end-user README
+documentation - and the README still stated "Answers are not saved for
+resume if the process is interrupted", which the run-state work made
+false.
+
+**Decision:** README-only change. The Quick start paragraph now describes
+the single interactive phase, `:defer` and where a deferred item lands,
+per-answer persistence, and the idle alert behavior (60s bell +
+notification, 5-minute repeats, immediate ring at the question-phase
+start, `--no-alerts`, non-TTY gating). A new "Interrupted runs and
+recovery" section documents the `--output-dir` continue/overwrite prompts
+and their exact meanings, declining's early exit, legacy directories,
+`--recovery` scanning and its "no aborted runs" listing, `--collect-only`
+bypass, reviewer-mode recovery, and the catalog-mismatch refusal;
+`run-state.json` joined the Output table. No code changed.
+
+**Validation from `tools/auto-mir`:** `make test` PASS (1035 passed, 2
+skipped; unchanged counts - documentation only).

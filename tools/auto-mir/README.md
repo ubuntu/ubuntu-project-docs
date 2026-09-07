@@ -62,11 +62,25 @@ regardless of series-resolution correctness. In that window, pass the
 previous (stable) release's codename explicitly with `--series` instead, and
 switch back to `devel` once daily devel images become available.
 
-Reporter mode collects evidence before asking long-form questions. Finish a
-multiline answer with a line containing only `.`; enter `\.` for a literal dot.
-Answers are not saved for resume if the process is interrupted. Use `--no-llm`
-to disable optional model-backed enrichment; the current user-test catalog is
-deterministic plus human input and does not require an API key.
+Reporter mode collects evidence and prepares everything that needs no human
+input first, then asks its questions in one uninterrupted phase. Finish a
+multiline answer with a line containing only `.`; enter `\.` for a literal
+dot. Any question can be deferred by answering `:defer` (in the editor or
+on the prompt): the item is then listed under "Left to clarify" in the
+draft, to be settled by you or the reviewer later, instead of blocking the
+session. Every answer is saved as it is given, so an interrupted run loses
+at most the question in flight (see "Interrupted runs and recovery" below).
+Use `--no-llm` to disable optional model-backed enrichment; the current
+user-test catalog is deterministic plus human input and does not require an
+API key.
+
+While the tool waits for input it raises attention alerts: after a minute
+without input the terminal bell rings and a desktop notification
+("auto-mir needs input: …") appears, and the bell repeats every five
+minutes until input arrives. The start of the question phase rings
+immediately, so a reporter working on something else is called back for
+the single batch of questions ahead. Alerts never fire when the session is
+not an interactive terminal, and `--no-alerts` disables them entirely.
 
 The completion banner prints the artifact directory and the path to
 `review-draft.txt`. Open that file, resolve its remaining TODOs, verify its
@@ -129,8 +143,58 @@ Component overview:
 │ render/                                     │
 │ converts all insight to full report.json    │
 │ and review-draft.txt for human finalization.│
-└─────────────────────────────────────────────┘
+└────────────────────────────────────────────┘
 ```
+
+
+## Interrupted runs and recovery
+
+Reporter runs can span an hour or more, so progress is persisted
+continuously: every answered question and every completed pipeline stage is
+recorded in `run-state.json` in the output directory as soon as it happens.
+A crash, a Ctrl-C, or a cancelled question therefore loses at most the
+question in flight — never the whole session. Ctrl-C checkpoints progress,
+destroys the LXD guest, and exits with a pointer at how to continue.
+
+To continue an interrupted run, point `--output-dir` at its directory:
+
+```text
+./auto_mir.py report upki --output-dir /tmp/mir-upki-20260904-154346
+```
+
+The tool detects what the directory contains and asks how to proceed:
+
+- an aborted run: "<dir> already contains a run, should I continue with the
+  remaining steps?" — answered items are replayed, only the remaining
+  questions are asked, and the collected evidence is reused, so no new LXD
+  guest is spawned;
+- a completed run: "<dir> already contains a run, should I overwrite with a
+  full new run?";
+- a run for a different bug or package, or a non-empty directory with no
+  recognizable auto-mir content: the same overwrite question, stating what
+  the directory holds.
+
+Answering no to any of these exits early, stating that the output directory
+is not empty — nothing is ever silently reused or overwritten. Directories
+written by tool versions before run-state tracking existed are recognized
+by their `evidence.json` and log and offered as aborted runs, resumable
+from the evidence boundary. These prompts require an interactive terminal;
+a headless run exits with an error naming the directory instead of blocking
+or overwriting.
+
+`--recovery` (used without `--output-dir`) scans the default output paths
+for the most recent run of this bug or source package: if it aborted, the
+tool offers to recover and continue it; otherwise it lists every run it
+found with its status and reports that no aborted runs to recover have been
+found. An older aborted run can still be resumed explicitly by passing its
+directory to `--output-dir`. `--collect-only` skips all of these checks:
+it is the fixture-regeneration flow and intentionally writes into existing
+directories.
+
+Reviewer mode supports the same recovery. A resumed review reuses its
+collected evidence and promotion scope and re-runs the analysis. A run
+state that references catalog items unknown to the current tool version is
+refused with an explanation rather than silently resumed.
 
 
 ## Output
@@ -143,6 +207,7 @@ A normal run writes these files beneath the reported output directory:
 | `reporter-draft.txt` | Reporter-template-aligned draft, ready to review and post. |
 | `report.json` | Structured findings, confidence, evidence references, and LLM usage. |
 | `evidence.json` | Collected adapter evidence for auditing and diagnosis. |
+| `run-state.json` | Incremental run state (answered questions, completed stages) used to recover an interrupted run. |
 | `auto-mir.log` | JSON-formatted execution log. |
 | `build_log.txt` | Build output, written when the package build fails and a log is available. |
 
