@@ -88,7 +88,8 @@ run: install generate-includes
 		--pre-build "make -C $(DOCS_SOURCEDIR) generate-includes" \
 		--watch $(TOOLS_DIR)/auto-mir/catalog.yaml \
 		--watch $(TOOLS_DIR)/auto-mir/catalog-mir-review.yaml \
-		--watch $(TOOLS_DIR)/auto-mir/catalog-mir-report.yaml
+		--watch $(TOOLS_DIR)/auto-mir/catalog-mir-report.yaml \
+		--watch $(TOOLS_DIR)/auto-mir/README.md
 
 # Does not depend on $(DOCS_BUILDDIR) to rebuild properly at every run.
 html: install generate-includes
