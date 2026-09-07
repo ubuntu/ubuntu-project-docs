@@ -89,7 +89,8 @@ run: install generate-includes
 		--watch $(TOOLS_DIR)/auto-mir/catalog.yaml \
 		--watch $(TOOLS_DIR)/auto-mir/catalog-mir-review.yaml \
 		--watch $(TOOLS_DIR)/auto-mir/catalog-mir-report.yaml \
-		--watch $(TOOLS_DIR)/auto-mir/README.md
+		--watch $(TOOLS_DIR)/auto-mir/README.md \
+		--re-ignore 'mir-(reviewers|reporters)-template-body\.include$$'
 
 # Does not depend on $(DOCS_BUILDDIR) to rebuild properly at every run.
 html: install generate-includes

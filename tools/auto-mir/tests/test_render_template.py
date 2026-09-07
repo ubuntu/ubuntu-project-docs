@@ -1,5 +1,6 @@
 """Tests for catalog-driven human template generation (both roles)."""
 
+import os
 import sys
 from pathlib import Path
 
@@ -81,3 +82,27 @@ def test_reporter_document_uses_generated_literalinclude():
 
     assert "{literalinclude} mir-reporters-template-body.include" in document
     assert "[Availability]" not in document
+
+
+def test_main_skips_rewrite_when_content_unchanged(tmp_path, monkeypatch):
+    output = tmp_path / "body.include"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "render_template.py",
+            "review",
+            "--workspace-root",
+            str(WORKSPACE_ROOT),
+            "--output",
+            str(output),
+        ],
+    )
+
+    assert renderer.main() == 0
+    assert output.exists()
+
+    # Pin the mtime: a rewrite (even of identical content) would bump it.
+    os.utime(output, ns=(1_000_000_000, 1_000_000_000))
+    assert renderer.main() == 0
+    assert output.stat().st_mtime_ns == 1_000_000_000

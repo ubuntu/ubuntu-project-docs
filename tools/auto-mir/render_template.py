@@ -159,7 +159,10 @@ def main() -> int:
             return 3
         return 0
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(rendered, encoding="utf-8")
+    # Write only on change: the docs live preview watches the source dir, so an
+    # unconditional rewrite re-triggers the watcher (infinite "make run" loop).
+    if not output.exists() or output.read_text(encoding="utf-8") != rendered:
+        output.write_text(rendered, encoding="utf-8")
     print(f"Rendered {args.role} template: {output}")
     return 0
 
