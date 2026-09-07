@@ -63,6 +63,77 @@ that the benefit of new functionality, or the total benefit of a new upstream
 release that includes it, outweighs the risk of regressions and other potential
 disruption of the release process.
 
+Please follow the template below when filing Feature Freeze exception bug:
+
+```
+## FFE ##
+
+[Rationale]
+
+* Describe why making this change is necessary.
+
+[ Scope ]
+
+* Describe scope of the changes and the impact on distribution.
+
+* Add output of seeded-in-ubuntu <package-name>
+
+* For new upstream microreleases include diff of upstream changelog
+  since the version included in the archive. This could be a git
+  commit log, CHANGES or NEWS file, or any other list of the relevant
+  upstream canges.
+
+[ Documentation ]
+
+* Include this section for UI Freeze Exceptions.
+
+* Link to ubuntu-doc post:
+  https://lists.ubuntu.com/archives/ubuntu-doc/
+  or link to ubuntu-translators post:
+  https://lists.ubuntu.com/archives/ubuntu-translators/.
+
+[ Regression Potential ]
+
+* Include this section for new upstream microreleases.
+
+* Think about what the upload changes in the software. Imagine the
+  change is wrong or breaks something else: how would this show up?
+
+* It is assumed that any FFe candidate is well-tested before the
+  upload and has a low overall risk of regression, but it's important
+  to make the effort to think about what ''could'' happen in the event
+  of a regression.
+
+* This must never be "None" or "Low", or entirely an argument as to why
+  your upload is low risk.
+
+* This both shows the release team that the risks have been considered,
+  and provides guidance to testers in regression-testing the SRU.
+
+[ Testing ]
+
+* Smoke test:
+  - PPA: <link to ppa>
+  - Build: <link to the build logs>
+  - Installation: <link to the installation test>
+  - Upgrade: <link to the upgrade test>
+  - Autopkgtest: <autopkgtest results>
+  - Does it break other packages: <link related bugs>
+* If other testing is appropriate to perform before landing this
+  update, this should also be described here.
+
+[ Other Info ]
+
+* Anything else you think is useful to include
+* Anticipate questions from users, Release Team, SRU,
+  +1 maintenance, security teams and the Technical Board
+  and address these questions in advance
+
+[ Original Description ]
+
+ * Include original bug description if present
+```
+
 Specific **additional** requirements for different scenarios are outlined below.
 
 
