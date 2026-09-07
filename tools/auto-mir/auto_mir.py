@@ -226,6 +226,49 @@ def build_parser() -> argparse.ArgumentParser:
             "minute, or the interactive phase starting)."
         ),
     )
+    common.add_argument(
+        "--http-retry-attempts",
+        dest="http_retry_attempts",
+        type=int,
+        default=6,
+        metavar="N",
+        help=(
+            "Number of attempts (default: 6) for each HTTP evidence fetch "
+            "(Launchpad APIs, Debian BTS, trackers, the autopkgtest DB) before "
+            "giving up. Retries wait with exponential backoff, honoring the "
+            "server's Retry-After, and each wait is logged as [retry k/N] with "
+            "the URL so progress and the last attempt are always visible. "
+            "Exhausted retries do NOT abort the run: the adapter is recorded "
+            "as unavailable and the affected findings degrade to explicit "
+            "TODOs."
+        ),
+    )
+    common.add_argument(
+        "--http-retry-base-delay",
+        dest="http_retry_base_delay",
+        type=float,
+        default=30.0,
+        metavar="SECONDS",
+        help=(
+            "Base delay (seconds) for the HTTP evidence-fetch retry backoff on "
+            "429/5xx and network errors; the wait doubles on each retry, capped "
+            "at --http-retry-max-delay. With the defaults (6 attempts, 30s base, "
+            "300s cap) a persistently failing fetch retries over about 13 "
+            "minutes before giving up."
+        ),
+    )
+    common.add_argument(
+        "--http-retry-max-delay",
+        dest="http_retry_max_delay",
+        type=float,
+        default=300.0,
+        metavar="SECONDS",
+        help=(
+            "Maximum delay (seconds) between HTTP evidence-fetch retries "
+            "(default: 300); also the cap applied to a server's Retry-After "
+            "value."
+        ),
+    )
     common.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
 
     subparsers = p.add_subparsers(dest="role", required=True)
@@ -876,6 +919,18 @@ def main() -> int:
     # an unprepared host. Validate before RunContext creates output state or any
     # network/LXD work starts.
     ensure_runtime_environment()
+
+    # Apply the CLI's HTTP retry policy (attempts / backoff ramp) before any
+    # evidence collection runs; getattr-tolerant for partial test namespaces.
+    # Imported lazily (post dependency check) because utils.http pulls
+    # tenacity: ``--help`` must stay importable on an unprepared host.
+    from utils import http
+
+    http.configure_http_retries(
+        attempts=getattr(args, "http_retry_attempts", None),
+        base_delay=getattr(args, "http_retry_base_delay", None),
+        max_delay=getattr(args, "http_retry_max_delay", None),
+    )
 
     # Preflight any existing output directory (and --recovery scanning)
     # before RunContext creates or reuses output state. Delining exits early;

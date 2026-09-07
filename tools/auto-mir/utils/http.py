@@ -15,28 +15,69 @@ from utils.retry import retry_rate_limited
 # limits than an anonymous agent.
 _DEFAULT_USER_AGENT = "ubuntu/auto-mir/0.1"
 _DEFAULT_TIMEOUT_SECONDS = 300
-_RETRY_ATTEMPTS = 6
-_RETRY_BASE_DELAY = 30.0
-_RETRY_MAX_DELAY = 300.0
 
-# Existence checks are a best-effort sanity check on a URL the tool is about
-# to *suggest* to a human, not a critical data fetch -- deliberately NOT
-# wrapped in @retry_rate_limited (which can take up to ~self._RETRY_ATTEMPTS
-# attempts over several minutes). A single slow/unreachable link should fail
-# fast so the caller can fall back to asking the reporter, not stall the run.
-_URL_EXISTS_TIMEOUT_SECONDS = 10.0
+# Every HTTP evidence fetch retries with exponential backoff (honoring the
+# server's Retry-After) on 429/5xx and network errors; these are the
+# defaults. A run overrides them via configure_http_retries() from the
+# --http-retry-* CLI options, which is why the retry policy is built per
+# call rather than at import time (same pattern as the LLM path's
+# --llm-retry-base-delay). With the defaults, a persistently failing fetch
+# waits 30+60+120+240+300 = 750 seconds (~13 minutes) across 6 attempts
+# before giving up - visible in the log as [retry k/5] lines.
+_HTTP_RETRY_CONFIG: dict[str, float] = {
+    "attempts": 6,
+    "base_delay": 30.0,
+    "max_delay": 300.0,
+}
 
 
-@retry_rate_limited(
-    max_attempts=_RETRY_ATTEMPTS,
-    base_delay=_RETRY_BASE_DELAY,
-    max_delay=_RETRY_MAX_DELAY,
-)
-def get_bytes(url: str, *, timeout: int = _DEFAULT_TIMEOUT_SECONDS) -> bytes:
-    """Fetch raw bytes from a URL with uniform retry/backoff policy."""
+def configure_http_retries(
+    *, attempts: int | None = None, base_delay: float | None = None, max_delay: float | None = None
+) -> None:
+    """Override the HTTP retry defaults for the rest of the process.
+
+    Called once from ``auto_mir.main`` with the parsed ``--http-retry-*``
+    options, before any evidence collection runs. ``None`` leaves a value
+    unchanged; an attempt count below 1 is rejected (a fetch must always be
+    tried at least once).
+    """
+    if attempts is not None:
+        if attempts < 1:
+            raise ValueError("http retry attempts must be at least 1")
+        _HTTP_RETRY_CONFIG["attempts"] = int(attempts)
+    if base_delay is not None:
+        _HTTP_RETRY_CONFIG["base_delay"] = float(base_delay)
+    if max_delay is not None:
+        _HTTP_RETRY_CONFIG["max_delay"] = float(max_delay)
+
+
+def _retry_with_current_config(fetch):
+    """Apply the current retry policy to one undecorated fetch function."""
+    return retry_rate_limited(
+        max_attempts=_HTTP_RETRY_CONFIG["attempts"],
+        base_delay=_HTTP_RETRY_CONFIG["base_delay"],
+        max_delay=_HTTP_RETRY_CONFIG["max_delay"],
+    )(fetch)
+
+
+def _get_bytes_impl(url: str, *, timeout: int = _DEFAULT_TIMEOUT_SECONDS) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": _DEFAULT_USER_AGENT})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
+
+
+def get_bytes(url: str, *, timeout: int = _DEFAULT_TIMEOUT_SECONDS) -> bytes:
+    """Fetch raw bytes from a URL with uniform retry/backoff policy."""
+    retried = _retry_with_current_config(_get_bytes_impl)
+    return retried(url, timeout=timeout)
+
+
+# Existence checks are a best-effort sanity check on a URL the tool is about
+# to *suggest* to a human, not a critical data fetch -- deliberately NOT
+# wrapped in the retry policy (which can take up to ~6 attempts over several
+# minutes). A single slow/unreachable link should fail fast so the caller can
+# fall back to asking the reporter, not stall the run.
+_URL_EXISTS_TIMEOUT_SECONDS = 10.0
 
 
 def get_text(
@@ -55,18 +96,20 @@ def get_json(url: str, *, timeout: int = _DEFAULT_TIMEOUT_SECONDS) -> Any:
     return json.loads(get_text(url, timeout=timeout))
 
 
-@retry_rate_limited(
-    max_attempts=_RETRY_ATTEMPTS,
-    base_delay=_RETRY_BASE_DELAY,
-    max_delay=_RETRY_MAX_DELAY,
-)
+def _download_to_file_impl(
+    url: str, dest_path: str | Path, *, timeout: int = _DEFAULT_TIMEOUT_SECONDS
+) -> None:
+    req = urllib.request.Request(url, headers={"User-Agent": _DEFAULT_USER_AGENT})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        Path(dest_path).write_bytes(resp.read())
+
+
 def download_to_file(
     url: str, dest_path: str | Path, *, timeout: int = _DEFAULT_TIMEOUT_SECONDS
 ) -> None:
     """Download URL content and write it directly to a file path."""
-    req = urllib.request.Request(url, headers={"User-Agent": _DEFAULT_USER_AGENT})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        Path(dest_path).write_bytes(resp.read())
+    retried = _retry_with_current_config(_download_to_file_impl)
+    retried(url, dest_path, timeout=timeout)
 
 
 def check_url_exists(url: str, *, timeout: float = _URL_EXISTS_TIMEOUT_SECONDS) -> bool:

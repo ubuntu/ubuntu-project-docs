@@ -679,3 +679,26 @@ def test_stage_messages_render_with_markers(monkeypatch, caplog):
     src = Path(auto_mir.__file__).read_text()
     for n in range(2, 6):
         assert f'log.info("=== Stage {n}:' in src, f"stage {n} marker missing"
+
+
+def test_cli_http_retry_defaults_and_overrides():
+    args = auto_mir.build_parser().parse_args(["report", "libfoo"])
+    assert args.http_retry_attempts == 6
+    assert args.http_retry_base_delay == 30.0
+    assert args.http_retry_max_delay == 300.0
+
+    args = auto_mir.build_parser().parse_args(
+        [
+            "report",
+            "libfoo",
+            "--http-retry-attempts",
+            "2",
+            "--http-retry-base-delay",
+            "1.5",
+            "--http-retry-max-delay",
+            "10",
+        ]
+    )
+    assert args.http_retry_attempts == 2
+    assert args.http_retry_base_delay == 1.5
+    assert args.http_retry_max_delay == 10.0

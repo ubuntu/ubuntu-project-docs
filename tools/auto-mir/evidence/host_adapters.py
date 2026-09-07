@@ -1108,6 +1108,11 @@ def collect_debian_bts(ctx: RunContext) -> dict:
         raise AdapterError(f"Debian BTS HTTP error: {exc.code}") from exc
     except urllib.error.URLError as exc:
         raise AdapterError(f"Debian BTS request failed: {exc.reason}") from exc
+    except (ConnectionError, TimeoutError) as exc:
+        # The retry policy's final reraise may surface a bare connection
+        # error rather than an HTTPError/URLError; map it just as cleanly so
+        # the adapter's error status names the transport failure.
+        raise AdapterError(f"Debian BTS request failed: {exc}") from exc
 
     open_bugs = _parse_debian_bts_bug_sections(page_html)
     rc_bugs = [bug for bug in open_bugs if bug["severity"] in {"critical", "grave", "serious"}]

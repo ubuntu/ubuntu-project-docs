@@ -6,6 +6,8 @@ import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from utils import http
@@ -96,3 +98,45 @@ def test_check_url_exists_false_on_url_error():
 
     with patch("utils.http.urllib.request.urlopen", _fake_urlopen):
         assert http.check_url_exists("https://example.test/unreachable") is False
+
+
+# ---------------------------------------------------------------------------
+# Runtime-configurable retry policy (--http-retry-* options).
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(autouse=True)
+def _restore_http_retry_config():
+    original = dict(http._HTTP_RETRY_CONFIG)
+    yield
+    http._HTTP_RETRY_CONFIG.clear()
+    http._HTTP_RETRY_CONFIG.update(original)
+
+
+def test_http_retry_defaults_match_the_documented_behavior():
+    # 6 attempts over 30+60+120+240+300 = 750 seconds (~13 minutes) worst
+    # case, as documented in --help and the README.
+    assert http._HTTP_RETRY_CONFIG == {"attempts": 6, "base_delay": 30.0, "max_delay": 300.0}
+
+
+def test_configure_http_retries_rejects_attempts_below_one():
+    with pytest.raises(ValueError):
+        http.configure_http_retries(attempts=0)
+
+
+def test_configure_http_retries_controls_the_attempt_budget():
+    import urllib.error
+
+    calls: list[str] = []
+
+    def _fake_urlopen(req, timeout=None):
+        calls.append(req.full_url)
+        raise urllib.error.HTTPError(req.full_url, 503, "Service Unavailable", None, None)
+
+    http.configure_http_retries(attempts=2, base_delay=0.001, max_delay=0.001)
+
+    with pytest.raises(urllib.error.HTTPError):
+        with patch("utils.http.urllib.request.urlopen", _fake_urlopen):
+            http.get_bytes("https://example.test/data")
+
+    assert len(calls) == 2

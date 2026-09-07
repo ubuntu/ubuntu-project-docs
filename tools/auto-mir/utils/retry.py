@@ -11,7 +11,6 @@ import urllib.error
 from typing import Callable
 
 from tenacity import (
-    before_sleep_log,
     retry,
     retry_if_exception,
     retry_if_exception_type,
@@ -21,6 +20,12 @@ from tenacity import (
 )
 
 log = logging.getLogger("auto_mir.utils.retry")
+
+# Cap how much of a retried URL / error text appears in one log line: these
+# messages exist to tell the user *which* fetch is stuck and *where* in the
+# retry budget it is, not to duplicate whole URLs or error bodies.
+_TARGET_URL_LIMIT = 100
+_ERROR_TEXT_LIMIT = 200
 
 
 TRANSIENT_COMMAND_FAILURE_MARKERS = (
@@ -79,6 +84,103 @@ def _retry_after_or_exponential(base_delay: float, max_delay: float) -> Callable
     return wait
 
 
+def _retry_target_name(retry_state) -> str:
+    """Describe what is being retried: function name plus URL when visible.
+
+    Only a ``str`` first argument that starts with ``http`` is included -
+    HTTP evidence-fetch URLs are public service endpoints, while the LLM
+    path's first argument is the prompt, which must never be echoed into
+    the log. Internal ``*_impl`` helpers (the per-call retry pattern, see
+    ``llm._call_openai_compatible`` and ``utils.http``) are displayed by
+    their public wrapper's name.
+    """
+    fn = retry_state.fn
+    name = getattr(fn, "__name__", str(fn))
+    if name.endswith("_impl"):
+        name = name[: -len("_impl")]
+    name = name.lstrip("_")
+    args = retry_state.args or ()
+    if args and isinstance(args[0], str) and args[0].startswith("http"):
+        url = args[0]
+        if len(url) > _TARGET_URL_LIMIT:
+            url = url[: _TARGET_URL_LIMIT - 3] + "..."
+        return f"{name} ({url})"
+    return name
+
+
+def _short_error(exc: BaseException | None) -> str:
+    text = f"{type(exc).__name__}: {exc}" if exc is not None else "unknown error"
+    if len(text) > _ERROR_TEXT_LIMIT:
+        text = text[: _ERROR_TEXT_LIMIT - 3] + "..."
+    return text
+
+
+def _retry_reason(retry_state) -> str:
+    """Why the attempt is being retried: exception or result description.
+
+    Exception-driven strategies (HTTP/LLM) carry the error; result-driven
+    strategies (guest commands retrying on transient output) carry the
+    failing command result instead.
+    """
+    outcome = retry_state.outcome
+    if outcome is None:
+        return "unknown error"
+    exc = outcome.exception()
+    if exc is not None:
+        return _short_error(exc)
+    text = f"transient command failure: {outcome.result()!r}"
+    if len(text) > _ERROR_TEXT_LIMIT:
+        text = text[: _ERROR_TEXT_LIMIT - 3] + "..."
+    return text
+
+
+def _progress_before_sleep(logger, max_attempts: int) -> Callable:
+    """Tenacity ``before_sleep`` logging each wait with its retry budget.
+
+    A bare "Retrying fn in N seconds" line (tenacity's default) tells the
+    user neither which fetch is stuck nor how close the budget is to
+    exhaustion - which is exactly what a reporter watching a service outage
+    needs to decide whether to keep waiting.
+    """
+
+    def before_sleep(retry_state) -> None:
+        delay = getattr(retry_state.next_action, "sleep", 0.0)
+        # ponytail: attempt counts assume exception-driven retries; result-
+        # based strategies (retry_guest_command) keep the same shape but their
+        # give-up is logged by the caller, not here.
+        total_retries = max(1, max_attempts - 1)
+        logger.warning(
+            "Retrying %s [retry %d/%d] in %.1f seconds: %s",
+            _retry_target_name(retry_state),
+            retry_state.attempt_number,
+            total_retries,
+            delay,
+            _retry_reason(retry_state),
+        )
+
+    return before_sleep
+
+
+def _give_up_after(logger, max_attempts: int) -> Callable:
+    """Tenacity ``after`` logging one explicit line when the budget is spent.
+
+    Without it, the transition from "still retrying" to "gave up" only
+    exists implicitly: the next log entry is the caller's adapter error.
+    """
+
+    def after(retry_state) -> None:
+        outcome = retry_state.outcome
+        if outcome is not None and outcome.failed and retry_state.attempt_number >= max_attempts:
+            logger.warning(
+                "Giving up on %s after %d attempts: %s",
+                _retry_target_name(retry_state),
+                max_attempts,
+                _short_error(outcome.exception()),
+            )
+
+    return after
+
+
 def retry_rate_limited(
     max_attempts: int = 4,
     base_delay: float = 8.0,
@@ -88,7 +190,10 @@ def retry_rate_limited(
 
     Specifically designed for API calls that may return 429 (rate limit)
     or 5xx errors. Honors the provider's Retry-After when present and
-    otherwise uses longer exponential delays to respect rate limits.
+    otherwise uses longer exponential delays to respect rate limits. Each
+    wait is logged with its retry budget (``[retry k/N]``), and exhausting
+    the attempts is logged as an explicit "giving up" line before the
+    exception is reraised.
 
     Args:
         max_attempts: Maximum number of retry attempts
@@ -113,7 +218,8 @@ def retry_rate_limited(
             | retry_if_exception(_is_network_url_error)
             | retry_if_exception(is_retryable_http)
         ),
-        before_sleep=before_sleep_log(log, logging.WARNING),
+        before_sleep=_progress_before_sleep(log, max_attempts),
+        after=_give_up_after(log, max_attempts),
         reraise=True,
     )
 
@@ -148,7 +254,7 @@ def retry_guest_command(
         stop=stop_after_attempt(max_attempts),
         wait=wait_exponential(multiplier=base_delay, max=max_delay),
         retry=retry_if_result(is_transient_failure),
-        before_sleep=before_sleep_log(log, logging.WARNING),
+        before_sleep=_progress_before_sleep(log, max_attempts),
     )
 
 

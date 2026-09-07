@@ -151,3 +151,86 @@ def test_retry_rate_limited_wait_falls_back_to_exponential_without_retry_after()
         attempt_number = 1
 
     assert wait(_State()) == 8.0  # exponential first wait: multiplier * 2^0
+
+
+# ---------------------------------------------------------------------------
+# Retry logging: every wait names what is retried, where it is in the
+# retry budget, and exhaustion is an explicit line instead of silence.
+# ---------------------------------------------------------------------------
+
+
+def _url_failure(url: str, exc: BaseException):
+    def _fetch(url_arg):
+        raise exc
+
+    _fetch.url = url
+    return _fetch
+
+
+def test_retry_logging_counts_attempts_names_url_and_gives_up(caplog):
+    """A reporter watching a service outage needs to see which fetch is
+    stuck, how far into the retry budget it is, and that the budget is
+    spent - a bare "Retrying fn in N seconds" told them none of that."""
+    import logging
+
+    http_error = urllib.error.HTTPError("http://x", 503, "Service Unavailable", None, None)
+    fn = retry_rate_limited(max_attempts=3, base_delay=0.001, max_delay=0.001)(
+        _url_failure("https://bugs.debian.org/cgi-bin/pkgreport.cgi", http_error)
+    )
+
+    with caplog.at_level(logging.WARNING, logger="auto_mir.utils.retry"):
+        with pytest.raises(urllib.error.HTTPError):
+            fn("https://bugs.debian.org/cgi-bin/pkgreport.cgi")
+
+    messages = [record.getMessage() for record in caplog.records]
+    assert any("[retry 1/2]" in message for message in messages)
+    assert any("[retry 2/2]" in message for message in messages)
+    assert any("https://bugs.debian.org/cgi-bin/pkgreport.cgi" in message for message in messages)
+    assert any("503" in message for message in messages)
+    assert any(
+        message.startswith("Giving up on fetch (")
+        and "after 3 attempts" in message
+        and "503" in message
+        for message in messages
+    )
+
+
+def test_retry_logging_never_echoes_non_url_arguments(caplog):
+    """The LLM path's first argument is the prompt; it must not end up in
+    the log - only URL-shaped (public endpoint) first arguments appear."""
+    import logging
+
+    http_error = urllib.error.HTTPError("http://x", 429, "Too Many Requests", None, None)
+
+    def _ask(prompt):
+        raise http_error
+
+    fn = retry_rate_limited(max_attempts=2, base_delay=0.001, max_delay=0.001)(_ask)
+
+    with caplog.at_level(logging.WARNING, logger="auto_mir.utils.retry"):
+        with pytest.raises(urllib.error.HTTPError):
+            fn("CONFIDENTIAL PROMPT BODY")
+
+    messages = [record.getMessage() for record in caplog.records]
+    assert messages
+    assert not any("CONFIDENTIAL PROMPT BODY" in message for message in messages)
+
+
+def test_retry_logging_truncates_very_long_urls(caplog):
+    import logging
+
+    long_url = "https://example.test/fetch?" + "a" * 200
+    http_error = urllib.error.HTTPError(long_url, 503, "Service Unavailable", None, None)
+
+    def _fetch(url_arg):
+        raise http_error
+
+    fn = retry_rate_limited(max_attempts=2, base_delay=0.001, max_delay=0.001)(_fetch)
+
+    with caplog.at_level(logging.WARNING, logger="auto_mir.utils.retry"):
+        with pytest.raises(urllib.error.HTTPError):
+            fn(long_url)
+
+    messages = [record.getMessage() for record in caplog.records]
+    assert any(message.count("a" * 101) == 0 for message in messages), "URL must be truncated"
+    assert any("..." in message for message in messages)

@@ -5502,3 +5502,71 @@ bypass, reviewer-mode recovery, and the catalog-mismatch refusal;
 
 **Validation from `tools/auto-mir`:** `make test` PASS (1035 passed, 2
 skipped; unchanged counts - documentation only).
+
+## 2026-09-07 — Reporter/reviewer feedback round (rust-ntpd artifact), item: HTTP retry visibility and control
+
+Promotion: no
+
+**Context:** the rust-ntpd review run (bug 2166406, log
+review-could-not-get-debian-bugs) stalled ~8 minutes in the debian-bts
+adapter while bugs.debian.org answered 503, and the reporter aborted
+during the last (5-minute) retry wait believing retries were endless. The
+log showed only tenacity's bare "Retrying utils.http.get_bytes in 30.0
+seconds" lines - no attempt counts, no URL, no indication which attempt is
+final, and no line when the budget is spent.
+
+**Analysis (no functional bug found):** the retry policy (6 attempts,
+exponential 30→300s backoff honoring Retry-After, 429/5xx/network-only
+retryable classification with 4xx excluded, `reraise=True` into the
+adapter's clean `AdapterError` mapping) and the debian-bts adapter are
+sound; the 503s were genuine service overload. Had the reporter waited
+out the final attempt, the run would NOT have died: `collect_from_catalog`
+records the adapter as `status: error`, the run continues to analysis and
+rendering, URF-6 (review) / REP-QA-MAINT-003 (report) degrade to explicit
+"evidence unavailable" findings, the host-only failure skips the
+keep-guest prompt, and the exit status stays 0 (pipeline completed, banner
+warns about the adapter). With debian-bts kept *required* (tester's
+alignment-round choice) the outage stays visible in the failure summary;
+making it optional would only quiet the banner. Two real defects, both
+UX: invisibility of the retry budget, and no user control - the HTTP retry
+constants were bound by an import-time decorator, so no CLI option could
+influence them (the LLM path's `--llm-retry-base-delay` works only because
+`llm.py` builds its retry per call).
+
+**Decision:**
+- `utils/retry.py`: `retry_rate_limited` (and `retry_guest_command`) now log
+  each wait as `Retrying get_bytes (<url>) [retry 1/5] in 30.0 seconds:
+  <error>` via a factory-closure `before_sleep` - the count is
+  `attempt_number` of `max_attempts-1` retries. The URL appears only for
+  first arguments that are `http…` strings (public endpoints); the LLM
+  path's prompt first argument is never echoed. A new `after` callback
+  logs `Giving up on get_bytes (<url>) after 6 attempts: <error>` when
+  the budget is spent, so exhaustion is an explicit line instead of the
+  next entry being the adapter error. Result-driven retries (guest
+  commands) get the same counts but their give-up is logged by the caller
+  (tenacity's `failed` only covers exceptions).
+- `utils/http.py`: the retry policy is built per call from
+  `_HTTP_RETRY_CONFIG` (defaults unchanged: 6 attempts, 30s base, 300s
+  cap - ~13 minutes worst case) instead of an import-time decorator, with
+  `configure_http_retries(attempts=, base_delay=, max_delay=)` as the
+  override hook. `--http-retry-attempts`, `--http-retry-base-delay`, and
+  `--http-retry-max-delay` (common parser, defaults = current behavior)
+  document the whole story in their help text, including that exhausted
+  retries never abort the run. `main()` applies them right after
+  `ensure_runtime_environment()`; `utils.http` is imported lazily there
+  because it pulls tenacity and `--help` must stay importable on an
+  unprepared host (caught by `test_help_works_without_site_packages`).
+- `evidence/host_adapters.py::collect_debian_bts` now also maps bare
+  `ConnectionError`/`TimeoutError` from the final reraise to its clean
+  `AdapterError` message (behavior was already correct via the
+  orchestrator's generic handler; only the message text differed).
+
+**Validation from `tools/auto-mir`:** `make test` PASS (1042 passed, 2
+skipped). New tests: retry log lines carry `[retry 1/2]`-style counts, the
+URL, and the delay; non-URL first arguments never reach the log; long URLs
+are truncated; exhaustion logs the give-up line;
+`configure_http_retries` rejects attempts < 1 and changes the observed
+attempt budget (exactly 2 `urlopen` calls for attempts=2); the CLI parses
+the three options with the documented defaults and overrides. A smoke
+replay of the rust-ntpd scenario (6× 503) produces exactly:
+`[retry 1/5] … [retry 5/5] … Giving up on get_bytes (…) after 6 attempts`.
