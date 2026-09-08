@@ -8,13 +8,13 @@ Unfortunately, it is somewhat infamous for being difficult to read; this page ai
 ## What is it for?
 
 `update-excuses` essentially serves as the integration test for the entire in-development version of Ubuntu.
-It presents a list of package updates that are not able to {term}`migrate` from the current version of Ubuntu to the development version.
-
-The name is tongue-in-cheek; think of it as a list of excuses as to why the next version of Ubuntu isn't out yet.
+It presents a list of package updates that are not able to {term}`migrate` from the current version of Ubuntu to the development version. The name is tongue-in-cheek; think of it as a list of excuses as to why the next version of Ubuntu isn't out yet.
 
 When a new version of a package is created, it must build and pass its {term}`autopkgtests <autopkgtest>`; it is not approved otherwise.
 However, it is possible that even if the package "works" in isolation, its internals have changed in a way that causes it to not work with its dependencies or reverse-dependencies.[^why-dependency-breakage]
 This is called a *migration failure*, and if it were to make it into the final Ubuntu version, then packages that claim to work together would instead break at runtime in strange ways.
+
+See the docs on {ref}`proposed-migration` for more info.
 
 Checking for migration failures is done by a tool called [Britney2](https://release.debian.org/doc/britney/index.html), which Ubuntu inherited from Debian.
 `update-excuses` is a dashboard view over what our Britney instance has found.
