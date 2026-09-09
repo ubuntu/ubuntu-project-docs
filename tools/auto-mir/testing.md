@@ -77,7 +77,7 @@ Reporter production contracts are covered separately by:
 - `tests/test_reporter_ai.py` — confirm/correct behavior and no-LLM fallback;
 - `tests/test_reporter_consistency.py` — deterministic invariants and the bounded
 	final consistency pass;
-- `tests/test_render_reporter_template.py` — strict catalog-driven documentation
+- `tests/test_render_template.py` — strict catalog-driven documentation
 	generation and section/item coverage.
 
 The historical fixture-replay suite (`tests/test_artifacts.py`) was removed: its
