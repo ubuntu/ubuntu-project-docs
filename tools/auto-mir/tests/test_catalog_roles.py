@@ -391,6 +391,8 @@ def test_adapter_registry_matches_catalog_adapter_ids():
         ("RULE[rationale-demand]: tagged clause opener", "rule"),
         ("TODO: - a checklist line", "todo"),
         ("TODO-A: - an alternative", "todo"),
+        ("# -------- Demand", "heading"),
+        ("# ---- Shorter dashes still group", "heading"),
         ("OK:", "label"),
         ("Required TODOs:", "label"),
         ("", "blank"),
@@ -398,6 +400,10 @@ def test_adapter_registry_matches_catalog_adapter_ids():
         ({"item": "REP-BG-002"}, "item"),
         ("RULE   a mistyped continuation line", "text"),
         ("RULE some prose without a colon", "text"),
+        ("# a plain comment line", "text"),
+        ("#!not a heading", "text"),
+        ("# -- too few dashes", "text"),
+        ("# --------", "text"),
     ],
 )
 def test_classify_blueprint_entry(entry, expected):

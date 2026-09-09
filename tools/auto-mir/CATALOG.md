@@ -232,9 +232,16 @@ the generated include; edit the blueprint or referenced `todo_refs` and run
 ## Reporter item `rule_context` (auto-derived from the blueprint)
 
 `catalog-mir-report.yaml`'s `metadata.reporter_template_blueprint` interleaves
-`'[Section]'` markers, `'RULE: ...'` policy lines, and `item: REP-XXX` entries
-in the exact order the rendered template uses — RULE lines always appear
-directly after a section marker and before that section's first item. This is
+`'[Section]'` markers, `'RULE: ...'` policy lines, `'# -------- Label'` group
+delimiters, `''` blank separators, and `item: REP-XXX` entries in the exact
+order the rendered template uses — RULE prose can appear anywhere within a
+section, the historical template interleaves rules and TODO lines. The
+`'# -------- Label'` entries are purely visual group headers for human
+readers: they render verbatim into the template, carry no policy meaning, and
+never enter a `rule_context`. `catalog.classify_blueprint_entry()` is the
+single recognized-prefix vocabulary for these (plus the reviewer-only
+`'Label:'` headings); a string entry matching none of the known prefixes
+fails catalog loading instead of silently leaking or vanishing. This is
 already the single source of truth for which policy rule(s) apply to which
 items, so `catalog.load_catalog_for_role(..., "report")` auto-populates each
 `human_only`/`ev_to_ai` item's `rule_context` (shown to the reporter as a

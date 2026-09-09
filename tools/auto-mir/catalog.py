@@ -30,7 +30,17 @@ def strip_rule_clause_tag(line: str) -> str:
     return _RULE_CLAUSE_TAG_PATTERN.sub("RULE:", line, count=1)
 
 
-BlueprintEntryKind = Literal["section", "rule", "todo", "label", "blank", "item", "text"]
+BlueprintEntryKind = Literal[
+    "section", "rule", "todo", "heading", "label", "blank", "item", "text"
+]
+
+# A visual group delimiter in a template blueprint: a ``'# -------- Label'``
+# line that separates question groups within a section (the reporter template
+# uses these; they carry no policy meaning and are never collected as RULE
+# text). Deliberately narrow - ``#`` plus a space plus three or more dashes
+# plus a non-empty label - so a plain ``# comment`` line still classifies as
+# ``"text"`` and fails validation like any other unrecognized prose line.
+_BLUEPRINT_HEADING_PATTERN = re.compile(r"^# -{3,} \S")
 
 # A structural label line in a template blueprint: a bare heading such as
 # ``"OK:"``, ``"Notes:"`` or ``"Required TODOs:"`` that introduces the block
@@ -46,8 +56,9 @@ def classify_blueprint_entry(entry: Any) -> BlueprintEntryKind:
 
     A blueprint is a list interleaving ``'[Section]'`` markers, ``'RULE: ...'``
     policy prose (optionally tagged ``'RULE[<slug>]: ...'``), ``'TODO...'``
-    checklist lines, bare ``'Label:'`` headings, ``''`` separators, and
-    ``{'item': 'REP-XXX'}`` mappings. Every consumer that has to tell those
+    checklist lines, ``'# -------- Label'`` group delimiters, bare
+    ``'Label:'`` headings, ``''`` separators, and ``{'item': 'REP-XXX'}``
+    mappings. Every consumer that has to tell those
     apart (the docs renderers, the rule_context auto-derivation, the runtime
     reporter draft renderer, and catalog validation) uses this single
     classifier, so the recognized prefixes cannot drift apart per consumer -
@@ -70,6 +81,8 @@ def classify_blueprint_entry(entry: Any) -> BlueprintEntryKind:
         return "rule"
     if stripped.startswith("TODO"):
         return "todo"
+    if _BLUEPRINT_HEADING_PATTERN.match(stripped):
+        return "heading"
     if _BLUEPRINT_LABEL_PATTERN.match(stripped):
         return "label"
     return "text"
@@ -262,7 +275,8 @@ def _validate_blueprint_entries(catalog: dict, blueprint_key: str) -> list[str]:
             continue
         errors.append(
             f"{blueprint_key}[{index}] is not a recognized blueprint entry "
-            f"(expected '[Section]', 'RULE:', 'RULE[slug]:', 'TODO', '', or an item): {entry!r}"
+            f"(expected '[Section]', 'RULE:', 'RULE[slug]:', 'TODO', "
+            f"'# -------- Label', '', or an item): {entry!r}"
         )
     return errors
 
