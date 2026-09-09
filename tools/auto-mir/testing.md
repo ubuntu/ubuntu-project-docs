@@ -1,0 +1,122 @@
+# Auto-MIR Testing Guide
+
+How agents (and developers) verify changes before requesting human review.
+
+## Quick Reference
+
+All commands run from `tools/auto-mir`.
+
+```bash
+# Fast local validation
+make lint
+make test
+
+# Full integration flow (lint + setup + unit + teardown)
+make integration
+```
+
+## Verification Layers
+
+### Tier 1 — Unit Tests (seconds, offline, automated)
+
+```bash
+make test
+```
+
+Fast tests exercising the core logic functions without LXD, LP API, or LLM calls:
+
+- `tests/test_lp_intake.py` — reporter and prior-reviewer detection helpers
+- `tests/test_checks.py` — per-check evaluator functions with synthetic evidence dicts
+- `tests/test_render.py` — draft builder, linter, and binary package header
+
+These must pass on every PR. Zero tolerance for failures.
+
+### Tier 2 — Manual Verification Against Real Cases (developer responsibility)
+
+**Required before landing any major feature, check, or output format change.**
+Also the standard iteration workflow during development:
+
+```bash
+./tools/auto-mir/auto_mir.py review <real-LP-bug-id> [--collect-only]
+```
+
+Suggested cases from `old-MIRs-as-input/` (covering varied scenarios):
+
+| Case | LP bug | What to check |
+|---|---|---|
+| `dav1d` | 2133757 | Typical library; clean output structure |
+| `ptyxis` | 2108942 | Terminal emulator; [description] |
+| [package] | 2138736 | [description] |
+| `usbguard` | 1816548 | Security-sensitive; triggers SEC checks |
+| `runc` | 1817327 | Go package; language gate active |
+| `dh-cargo` | 1993819 | Rust toolchain; Rust language gate |
+| `python-boto3` | 2061217 | Python package; multi-binary; dep chain |
+
+For each case, verify:
+- Draft renders with no RULE lines and no bare linter errors
+- Unresolved items appear as `TODO:` in *Left to decide:* blocks
+- High-confidence failures appear in *Problems:* blocks (not as TODOs)
+- Summary section lists Required/Recommended TODOs correctly
+- Binary package list appears in the preamble header (where data is available)
+- Console warns on adapter failures and prior reviews (where applicable)
+
+Use `--keep-guest` to iterate without re-provisioning the LXD guest.
+
+### Tier 2.5 — Deterministic Regression Tests (offline, automated)
+
+```bash
+make test
+```
+
+Reporter production contracts are covered separately by:
+
+- `tests/test_catalog_roles.py` — 53-item inventory, adapter/blueprint references,
+	option cardinality, and A-H/X coverage;
+- `tests/test_reporter_runtime.py` — deterministic/human evaluation, conditional
+	questions, selected-option provenance, readiness, and artifacts;
+- `tests/test_reporter_ai.py` — confirm/correct behavior and no-LLM fallback;
+- `tests/test_reporter_consistency.py` — deterministic invariants and the bounded
+	final consistency pass;
+- `tests/test_render_reporter_template.py` — strict catalog-driven documentation
+	generation and section/item coverage.
+
+The historical fixture-replay suite (`tests/test_artifacts.py`) was removed: its
+`tests/fixtures/<bug_id>/` artifacts were never committed, so the replay had
+skipped since introduction while the deterministic evaluators are covered by
+the real-catalog tests above. For manual debugging of a specific bug, use:
+
+```bash
+./tools/auto-mir/auto_mir.py review <bug_id> --collect-only --output-dir <dir>
+```
+
+which collects evidence and writes `evidence.json` for offline inspection.
+
+### Tier 3 — Integration Smoke Test (optional, requires LXD)
+
+```bash
+/usr/bin/python tools/auto-mir/integration_smoke.py
+```
+
+Spins up a devel LXD guest, provisions tooling, runs a minimal pipeline
+exercise. Validates guest lifecycle and basic adapter connectivity.
+Not required for every PR — run when changing LXD runner or evidence adapters.
+
+## Agent Workflow
+
+Before requesting human review, an agent should:
+
+1. Run `make lint` and `make test`
+2. If changes touch evidence adapters or checks: run integration smoke
+3. If changes affect output rendering: compare output against a known bug run
+4. Record phase-gate outcomes in `decisions.md` using the phase ledger template
+5. Report any failures with full error output
+
+
+## Common Failure Modes
+
+| Symptom | Likely cause | Fix |
+|---------|-------------|-----|
+| `make lint` fails | New code with lint issues | Fix root cause and re-run `make lint` |
+| Unit test failures | Logic regression in checks/render/intake | Fix the root cause; do not weaken tests |
+| Smoke test guest fail | LXD not available or image missing | Ensure `lxc` works and the target release (or devel fallback) image is available |
+| Token limit errors in LLM checks | Evidence payload too large | Check truncation logic in evidence summarization |

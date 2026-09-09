@@ -1,0 +1,1386 @@
+role: report
+metadata:
+  reporter_template_blueprint:
+  - ""
+  - "[Availability]"
+  - item: REP-AVAIL-001
+  - item: REP-AVAIL-002
+  - item: REP-AVAIL-003
+  - ""
+  - "[Rationale]"
+  - "RULE[rationale-demand]: There must be a certain level of demand for the package"
+  - item: REP-RATIONALE-001
+  - item: REP-RATIONALE-005
+  - item: REP-RATIONALE-002
+  - "TODO: - Additionally new use-cases enabled by this are TBD"
+  - "TODO: - Package TBDSRC covers the same use case as TBD, but is better"
+  - "TODO:   because TBD, thereby we want to replace it."
+  - "TODO: - The package TBDSRC is a new runtime dependency of package TBD that"
+  - "TODO:   we already support"
+  - "RULE[rationale-alternatives]: Sometimes there are other/better ways, often are achieved by using a"
+  - "RULE: library with similar functionality that is more commonly used and"
+  - "RULE: thereby already in main or a better candidate to promote."
+  - "RULE: Reducing the set of supported software in Ubuntu helps to focus on the"
+  - "RULE: right things, otherwise Ubuntu developers will be consumed by updating"
+  - "RULE: many variations of the same - wasting valuable time that could be better"
+  - "RULE: spent elsewhere."
+  - "RULE: If there are other packages in the archive that are close, but unable to"
+  - "RULE: address the problem you might spend some time explaining what exists and"
+  - "RULE: why it isn't a sufficient alternative."
+  - "TODO: - There is no other/better way to solve this that is already in main or"
+  - "TODO:   should go universe->main instead of this."
+  - "RULE: If the package is in main in other releases (use rmadison to check),"
+  - "RULE: and the existing MIR and package content is still applicable and not"
+  - "RULE: outdated relative to what you want to add, then please help us to"
+  - "RULE: keep the discussion, argument and audit trail together."
+  - "RULE: To do so just add a new per-release tasks instead of creating a new MIR."
+  - "RULE: Otherwise - if the existing former case was way too different, continue"
+  - "RULE: preparing this new MIR and please reference to the previous MIR."
+  - "RULE: This suggestion of per release tasks is valid in both directions."
+  - "RULE: For example forward when something was MIRed in 24.10 and 25.04 but got"
+  - "RULE: demoted in 25.10 - and shall come back to 26.04 please add a task to"
+  - "RULE: the existing MIR instead of creating a new one. Of course the reasons for"
+  - "RULE: demotion in 25.10 will be important for this case."
+  - "RULE: And for example backwards, when something was MIRed for 24.04 onward,"
+  - "RULE: but later is also needed in older releases like 22.04. In that"
+  - "RULE: case you likely want to ensure via SRUs that things are up to date anyway"
+  - "RULE: and yet again -  if the content, reasoning and outside factors are not"
+  - "RULE: vastly different - you'd be expected to add per-release-tasks to the"
+  - "RULE: existing MIR case which makes it easier for reporter and reviewer alike."
+  - item: REP-RATIONALE-009
+  - "RULE: You truly need to understand the difference between main and universe"
+  - "RULE: in general and in the context of changed rules (build-depends) and"
+  - "RULE: constraints (Ubuntu Pro made it less of a difference in many cases)."
+  - "RULE: We have seen requests that were mostly based on old \"I said supported (a"
+  - "RULE: weakly defined term to begin with) in a contract, so it has to be in main\""
+  - "RULE: feelings, but with sometimes no true reason - neither technically nor"
+  - "RULE: helping the user base of Ubuntu. Hence we need to ask for that clearly."
+  - "TODO: - The binary packages TBD needs to be in main to achieve TBD"
+  - "TODO-A: - All other binary packages built by TBDSRC should remain in universe"
+  - "TODO-B: - All binary packages built by TBDSRC need to be in main to achieve TBD"
+  - ""
+  - "RULE[rationale-milestones]: Reviews will take some time. Also the potential extra work out of review"
+  - "RULE: feedback from either MIR-team and/or security-team will take time."
+  - "RULE: For better prioritization it is quite helpful to clearly state the"
+  - "RULE: target release and set a milestone to the bug task."
+  - "RULE: When doing so do not describe what you \"wish\" or \"would like to have\"."
+  - "RULE: Only milestones that are sufficiently well-founded and related to"
+  - "RULE: major releases will be considered"
+  - item: REP-RATIONALE-007
+  - ""
+  - "[Security]"
+  - "RULE[sec-general-cve-sources]: The security history and the current state of security issues in the"
+  - "RULE: package must allow us to support the package for at least 9 months (120"
+  - "RULE: for LTS+ESM support) without exposing its users to an inappropriate level"
+  - "RULE: of security risks. This requires checking of several things:"
+  - "RULE:   - Search in the National Vulnerability Database using the PKG as keyword"
+  - "RULE:     https://cve.mitre.org/cve/search_cve_list.html"
+  - "RULE:   - check OSS security mailing list (feed into search engine"
+  - "RULE:     'site:www.openwall.com/lists/oss-security <pkgname>')"
+  - "RULE:   - Ubuntu CVE Tracker"
+  - "RULE:     https://ubuntu.com/security/cve?package=<source-package-name>"
+  - "RULE:   - Debian Security Tracker"
+  - "RULE:     https://security-tracker.debian.org/tracker/source-package/<source-package-name>"
+  - item: REP-SECURITY-001
+  - ""
+  - "RULE[sec-binaries-services]: - Check for security relevant binaries, services and behavior."
+  - "RULE:   If any are present, this requires a more in-depth security review."
+  - "RULE:   Demonstrating that common isolation/risk-mitigation patterns are used"
+  - "RULE:   will help to raise confidence. For example a service running as root"
+  - "RULE:   open to the network will need to be considered very carefully. The same"
+  - "RULE:   service dropping the root permissions after initial initialization,"
+  - "RULE:   using various systemd isolation features and having a default active"
+  - "RULE:   apparmor profile is much less concerning and can speed up acceptance."
+  - "RULE:   This helps Ubuntu, but you are encouraged to consider working with"
+  - "RULE:   Debian and upstream to get those security features used at wide scale."
+  - "RULE: - It might be impossible for the submitting team to check this perfectly"
+  - "RULE:   (the security team will), but you should be aware that deprecated"
+  - "RULE:   security algorithms like 3DES or TLS/SSL 1.1 are not acceptable."
+  - "RULE:   If you think a package might do that it would be great to provide a"
+  - "RULE:   hint for the security team like \"Package may use deprecated crypto\""
+  - "RULE:   and provide the details you have about that."
+  - item: REP-SECURITY-003
+  - "TODO: - Security has been kept in mind and common isolation/risk-mitigation"
+  - "TODO:   patterns are in place utilizing the following features:"
+  - "TODO:   TBD (add details and links/examples about things like dropping"
+  - "TODO:   permissions, using temporary environments, restricted users/groups,"
+  - "TODO:   seccomp, systemd isolation features, apparmor, ...)"
+  - "TODO-A: - Packages does not open privileged ports (ports < 1024)."
+  - "TODO-B: - Packages open privileged ports (ports < 1024), but they have"
+  - "TODO-B:   a reason to do so (TBD)"
+  - "TODO-A: - Package does not expose any external endpoints"
+  - "TODO-B: - Package does expose an external endpoint, it is"
+  - "TODO-B:   TBD endpoint + TBD purpose"
+  - item: REP-SECURITY-004
+  - ""
+  - "RULE[sec-deprecated-algorithms]: The package should not use deprecated security algorithms like 3DES or"
+  - "RULE: TLS/SSL 1.1. The security team is the one responsible to check this,"
+  - "RULE: but if you happen to spot something it helps to provide a hint."
+  - "RULE: Provide whatever made you suspicious as details along that statement."
+  - "RULE: Or remove the following lines entirely if you did not spot anything."
+  - "TODO: - I've spotted what I consider deprecated algorithms, the security team"
+  - "TODO:   should have a more careful look please, details are:"
+  - ""
+  - "[Quality assurance - function/usage]"
+  - "RULE[qa-func-config-effort]: - After installing the package it must be possible to make it working with"
+  - "RULE:   a reasonable effort of configuration and documentation reading."
+  - "TODO-A: - The package works well right after install"
+  - "TODO-B: - The package needs post install configuration or reading of"
+  - "TODO-B:   documentation, there isn't a safe default because TBD"
+  - ""
+  - "[Quality assurance - maintenance]"
+  - "RULE[qa-maint-upstream-confidence]: - To support a package, we must be reasonably convinced that upstream"
+  - "RULE:   supports and cares for the package."
+  - "RULE: - The status of important bugs in Debian, Ubuntu and upstream's bug"
+  - "RULE:   tracking systems must be evaluated. Important bugs must be pointed out"
+  - "RULE:   and discussed in the MIR report."
+  - item: REP-QA-MAINT-001
+  - "TODO: - The package has important open bugs, listing them: TBD"
+  - item: REP-QA-MAINT-004
+  - "RULE: This is about confidence to be able to maintain the package, therefore"
+  - "RULE: any option (the examples or anything else you add) is \"valid\", but it"
+  - "RULE: depends on the case if that is then considered sufficient."
+  - "RULE: The following examples are in descending order in regard to how \"ok\" they"
+  - "RULE: likely will be."
+  - "TODO-B1:   - testflinger under the following queue(s): TBD"
+  - "TODO-B2:   - (multiple) Canonical systems in the TBD computing center/lab"
+  - "TODO-B3:   - an engineering sample in engineers home on TBD team, manager TBD"
+  - "TODO-B4:   - (multiple) cloud providers as type: TBD"
+  - "TODO-B5:   - hopefully somewhen getting it due to TBD"
+  - ""
+  - "[Quality assurance - testing]"
+  - "RULE[qa-testing-build-suite]: - The package must include a non-trivial test suite"
+  - "RULE:   - it should run at package build and fail the build if broken"
+  - item: REP-QA-TEST-001
+  - ""
+  - "RULE[qa-testing-autopkgtests]:   - The package should, but is not required to, also contain"
+  - "RULE:     non-trivial autopkgtest(s)."
+  - item: REP-QA-TEST-002
+  - ""
+  - "RULE[qa-testing-ignored-failures]: - existing but failing tests that shall be handled as \"ok to fail\""
+  - "RULE:   need to be explained along the test logs below"
+  - "TODO-A: - The package does have not failing autopkgtests right now"
+  - "TODO-B: - The package does have failing autopkgtests tests right now, but since"
+  - "TODO-B:   they always failed they are handled as \"ignored failure\", this is"
+  - "TODO-B:   ok because TBD"
+  - ""
+  - "RULE[qa-testing-written-plan]: - If no build tests nor autopkgtests are included, and/or if the package"
+  - "RULE:   requires specific hardware to perform testing, the subscribed team"
+  - "RULE:   must provide a written test plan in a comment to the MIR bug, and"
+  - "RULE:   commit to running that test either at each upload of the package or"
+  - "RULE:   at least once each release cycle. In the comment to the MIR bug,"
+  - "RULE:   please link to the codebase of these tests (scripts or doc of manual"
+  - "RULE:   steps) and attach a full log of these test runs. This is meant to"
+  - "RULE:   assess their validity (e.g. not just superficial)."
+  - "RULE:   If possible such things should stay in universe. Sometimes that is"
+  - "RULE:   impossible due to the way how features/plugins/dependencies work"
+  - "RULE:   but if you are going to ask for promotion of something untestable"
+  - "RULE:   please outline why it couldn't provide its value (e.g. by splitting"
+  - "RULE:   binaries) to users from universe."
+  - "RULE:   This is a balance that is hard to strike well, the request is that all"
+  - "RULE:   options have been exploited before giving up. Look for more details"
+  - "RULE:   and backgrounds https://github.com/canonical/ubuntu-mir/issues/30"
+  - "RULE:   Just like in the SRU process it is worth to understand what the"
+  - "RULE:   consequences a regression (due to a test miss) would be. Therefore"
+  - "RULE:   if being untestable we ask to outline what consequences this would"
+  - "RULE:   have for the given package. And let us be honest, even if you can"
+  - "RULE:   test you are never sure you will be able to catch all potential"
+  - "RULE:   regressions. So this is mostly to force self-awareness of the owning"
+  - "RULE:   team than to make a decision on."
+  - item: REP-QA-TEST-005
+  - "TODO-A-H: - Based on that access outlined above, here are the details of the"
+  - "TODO-A-H:   test plan/automation TBD (e.g. script or repo) and (if already"
+  - "TODO-A-H:   possible) example output of a test run: TBD (logs)."
+  - "TODO-A-H:   We will execute that test plan"
+  - "TODO-A-H1:  on-uploads"
+  - "TODO-A-H2:  regularly (TBD details like frequency: monthly, infra: jira-url)"
+  - "TODO-X:   - We have exhausted all options, there really is no feasible way"
+  - "TODO-X:     to test or recreate this. We are aware of the extra implications"
+  - "TODO-X:     and duties this has for our team (= help SEG and security on"
+  - "TODO-X:     servicing this package, but also more effort on any of your own"
+  - "TODO-X:     bug triage and fixes)."
+  - "TODO-X:     Due to TBD there also is no way to provide this to users from"
+  - "TODO-X:     universe."
+  - "TODO-X:     Due to the nature, integration and use cases of the package the"
+  - "TODO-X:     consequences of a regression that might slip through most likely"
+  - "TODO-X:     would include"
+  - "TODO-X:     - TBD"
+  - "TODO-X:     - TBD"
+  - "TODO-X:     - TBD"
+  - ""
+  - "RULE[qa-testing-solution-level]: - In some cases a solution that is about to be promoted consists of"
+  - "RULE:   several very small libraries and one actual application uniting them"
+  - "RULE:   to achieve something useful. This is rather common in the go/rust space."
+  - "RULE:   In that case often these micro-libs on their own can and should only"
+  - "RULE:   provide low level unit-tests. But more complex autopkgtests make no"
+  - "RULE:   sense on that level. Therefore in those cases one might want to test on"
+  - "RULE:   the solution level."
+  - "RULE:   - Process wise MIR-requesting teams can ask (on the bug) for this"
+  - "RULE:     special case to apply for a given case, which reduces the test"
+  - "RULE:     constraints on the micro libraries but in return increases the"
+  - "RULE:     requirements for the test of the actual app/solution."
+  - "RULE:   - Since this might promote micro-lib packages to main with less than"
+  - "RULE:     the common level of QA any further MIRed program using them will have"
+  - "RULE:     to provide the same amount of increased testing."
+  - "TODO: - This package is minimal and will be tested in a more wide reaching"
+  - "TODO:   solution context TBD, details about this testing are here TBD"
+  - ""
+  - "[Quality assurance - packaging]"
+  - "RULE[pkg-upstream-mechanism]: - The package uses a debian/watch or debian/upstream/metadata file"
+  - "RULE:   whenever possible. The second option is the alternative for packages"
+  - "RULE:   maintained with git-buildpackage. Consider whether that's"
+  - "RULE:   still true at the time of reporting your MIR. In cases where this is"
+  - "RULE:   not possible (e.g. native packages), the package should either provide"
+  - "RULE:   a debian/README.source file or a debian/watch file (with comments only)"
+  - "RULE:   providing clear instructions on how to generate the source tar file."
+  - "RULE:   For clarity the TODOs below refer as \"upstream watch file\" to any"
+  - "RULE:   solution similar to the alternatives above which must be present in the"
+  - "RULE:   package so tools can detect and fetch new upstream releases."
+  - item: REP-QA-PKG-001
+  - ""
+  - "RULE[pkg-maintainer-field]: - The package should define the correct \"Maintainer:\" field in"
+  - "RULE:   debian/control. This needs to be updated, using `update-maintainer`"
+  - "RULE:   whenever any Ubuntu delta is applied to the package, as suggested by"
+  - "RULE:   dpkg (LP: #1951988)"
+  - item: REP-QA-PKG-006
+  - ""
+  - "RULE[pkg-lintian-pedantic]: - It is often useful to run `lintian --pedantic` on the package to spot"
+  - "RULE:   the most common packaging issues in advance"
+  - "RULE[pkg-lintian-overrides]: - Non-obvious or non-properly commented lintian overrides should be"
+  - "RULE:   explained"
+  - item: REP-QA-PKG-002
+  - "TODO-A: - Lintian overrides are not present"
+  - "TODO-B: - Lintian overrides are present, but ok because TBD"
+  - ""
+  - "RULE[pkg-obsolete-deps]: - The package should not rely on obsolete or about to be demoted packages."
+  - "RULE:   That currently includes package dependencies on Python2 (without"
+  - "RULE:   providing Python3 packages), and packages depending on GTK2."
+  - item: REP-QA-PKG-005
+  - ""
+  - "RULE[pkg-debconf-priority]: - Debconf questions should not bother the default user too much"
+  - item: REP-QA-PKG-003
+  - ""
+  - "RULE[pkg-maintainability]:  - The source packaging (in debian/) should be reasonably easy to"
+  - "RULE:   understand and maintain."
+  - "TODO-A: - Packaging and build is easy, link to debian/rules TBD"
+  - "TODO-B: - Packaging is complex, but that is ok because TBD"
+  - ""
+  - "[UI standards]"
+  - item: REP-UI-001
+  - ""
+  - item: REP-UI-002
+  - ""
+  - "[Dependencies]"
+  - "RULE[dep-first-alternative]: - In case of alternatives, the first alternative must be in main."
+  - "RULE:   Depends: concrete-package-in-main | metapackage"
+  - "RULE: - Build(-only) dependencies can be in universe"
+  - "RULE: - If there are further dependencies they need a separate MIR discussion"
+  - "RULE:   (this can be a separate bug or another task on the main MIR bug)"
+  - item: REP-DEP-001
+  - item: REP-DEP-002
+  - ""
+  - "[Standards compliance]"
+  - "RULE[std-policy-violations]: - Major violations should be documented and justified."
+  - "RULE:   - FHS: https://refspecs.linuxfoundation.org/fhs.shtml"
+  - "RULE:   - Debian Policy: https://www.debian.org/doc/debian-policy/"
+  - item: REP-STD-001
+  - ""
+  - "RULE[std-license-lifetime]: - The package's license must remain compatible with Ubuntu main for the"
+  - "RULE:   full support lifetime of the release (including ESM where relevant)."
+  - "RULE:   Consider whether the license could expire, time out, or otherwise change"
+  - "RULE:   after promotion. Examples of concerns include time-limited patent grants,"
+  - "RULE:   licenses tied to a specific upstream entity or contract, dual-licensed"
+  - "RULE:   code where the permissive branch could be withdrawn, or terms that only"
+  - "RULE:   apply to the current upstream version."
+  - "RULE:   If you suspect any of the above may apply, flag it explicitly so the MIR"
+  - "RULE:   team can weigh the long-term cost before promotion."
+  - item: REP-STD-002
+  - ""
+  - "[Maintenance/Owner]"
+  - "RULE[maint-owning-team]: The package must have an acceptable level of maintenance corresponding"
+  - "RULE: to its complexity:"
+  - "RULE: - All packages must have a designated \"owning\" team, regardless of"
+  - "RULE:   complexity. Only a selected set of Launchpad teams can own a package"
+  - "RULE:   in main, you can find this list here:"
+  - "RULE:   https://git.launchpad.net/ubuntu-archive-tools/tree/lputils.py#n46"
+  - "RULE:   This requirement of an owning-team comes in two aspects:"
+  - "RULE:   - A case needs to have a team essentially saying \"yes we will own that\""
+  - "RULE:     to enter the MIR process. Usually that is implied by team members"
+  - "RULE:     filing MIR requests having the backup by their management for the"
+  - "RULE:     long term commitment this implies."
+  - "RULE:     - A community driven MIR request might be filed to show the use case,"
+  - "RULE:       but then, as a first step, needs to get a team agreeing to own"
+  - "RULE:       it before the case can be processed further."
+  - "RULE:       If unsure which teams to consider have a look at the current mapping"
+  - "RULE:       http://reqorts.qa.ubuntu.com/reports/m-r-package-team-mapping.html"
+  - "RULE:       In that case (you are not a representative of the team who will"
+  - "RULE:       gain the long term committment to this) please ask a representative"
+  - "RULE:       of that team to comment on the bug acknowledging that they are ok to"
+  - "RULE:       own it."
+  - "RULE:   - The package needs a bug subscriber before it can be promoted to main."
+  - "RULE:     Strictly speaking that subscription can therefore wait until the"
+  - "RULE:     moment of the actual promotion by an archive admin. But it is"
+  - "RULE:     strongly recommended to subscribe early, as the owning team will get"
+  - "RULE:     a preview of the to-be-expected incoming bugs later on."
+  - "RULE: - Simple packages (e.g. language bindings, simple Perl modules, small"
+  - "RULE:   command-line programs, etc.) might not need very much maintenance"
+  - "RULE:   effort, and if they are maintained well in Debian we can just keep them"
+  - "RULE:   synced. They still need a subscribing team to handle bugs, FTBFS and"
+  - "RULE:   tests"
+  - "RULE: - More complex packages will usually need a developer or team of"
+  - "RULE:   developers paying attention to their bugs, whether that be in Ubuntu"
+  - "RULE:   or elsewhere (often Debian). Packages that deliver major new headline"
+  - "RULE:   features in Ubuntu need to have commitment from Ubuntu developers"
+  - "RULE:   willing to spend substantial time on them."
+  - item: REP-MAINT-001
+  - item: REP-MAINT-002
+  - ""
+  - "RULE[maint-vendored-obligations]: - Responsibilities implied by static builds promoted to main, which is"
+  - "RULE:   not a recommended but a common case with golang and rust packages."
+  - "RULE:   - the security team will track CVEs for all vendored/embedded sources in main"
+  - "RULE:   - the security team will provide updates to main for all `golang-*-dev`"
+  - "RULE:     packages"
+  - "RULE:   - the security team will provide updates to main for non-vendored"
+  - "RULE:     dependencies as per normal procedures (including e.g.,"
+  - "RULE:     sponsoring/coordinating uploads from teams/upstream projects, etc)"
+  - "RULE:   - the security team will perform no-change-rebuilds for all packages"
+  - "RULE:     listing an CVE-fixed package as Built-Using and coordinate testing"
+  - "RULE:     with the owning teams responsible for the rebuilt packages"
+  - "RULE:   - for packages that build using any `golang-*-dev` packages:"
+  - "RULE:     - the owning team must state their commitment to test"
+  - "RULE:       no-change-rebuilds triggered by a dependent library/compiler and to"
+  - "RULE:       fix any issues found for the lifetime of the release (including ESM"
+  - "RULE:       when included)"
+  - "RULE:     - the owning team must provide timely testing of no-change-rebuilds"
+  - "RULE:       from the security team, fixing the rebuilt package as necessary"
+  - "RULE:   - for packages that build with approved vendored code:"
+  - "RULE:     - the owning team must state their commitment to provide updates to"
+  - "RULE:       the security team for any affected vendored code for the lifetime of"
+  - "RULE:       the release (including ESM when included)"
+  - "RULE:     - the security team will alert the owning team of issues that may"
+  - "RULE:       affect their vendored code"
+  - "RULE:     - the owning team will provide timely, high quality updates for the"
+  - "RULE:       security team to sponsor to fix issues in the affected vendored code"
+  - "RULE:     - the owning team will use a minimal set of vendored code (e.g., Rust"
+  - "RULE:       packages are unlikely to need `*_win` crates to build)"
+  - "RULE:     - if subsequent uploads add new vendored components or dependencies"
+  - "RULE:       these have to be reviewed and agreed by the security team."
+  - "RULE:     - Such updates in the project might be trivial, but imply that a"
+  - "RULE:       dependency for e.g. a CVE fix will be moved to a new major version."
+  - "RULE:       Being vendored that does gladly at least not imply incompatibility"
+  - "RULE:       issues with other packages or the SRU policy. But it might happen"
+  - "RULE:       that this triggers either:"
+  - "RULE:       a) The need to adapt the current version of the main package and/or"
+  - "RULE:          other vendored dependencies to work with the new dependency"
+  - "RULE:       b) The need to backport the fix in the dependency as the main"
+  - "RULE:          package will functionally only work well with the older version"
+  - "RULE:       c) The need to backport the fix in the dependency, as it would imply"
+  - "RULE:          requiring a newer toolchain to be buildable that isn't available"
+  - "RULE:          in the target release."
+  - "RULE[maint-rust-vendoring]: - The rust ecosystem currently isn't yet considered stable enough for"
+  - "RULE:   classic lib dependencies and transitions in main; therefore the"
+  - "RULE:   expectation for those packages is to vendor (and own/test) all"
+  - "RULE:   dependencies (except those provided by the rust runtime itself)."
+  - "RULE:   This implies that all the rules for vendored builds always"
+  - "RULE:   apply to them. In addition:"
+  - "RULE:   - The rules and checks for rust based packages are preliminary and might"
+  - "RULE:     change over time as the ecosystem matures and while"
+  - "RULE:     processing the first few rust based packages."
+  - "RULE:   - It is expected rust builds will use dh-cargo so that a later switch"
+  - "RULE:     to non vendored dependencies isn't too complex (e.g. it is likely"
+  - "RULE:     that over time more common libs shall become stable and then archive"
+  - "RULE:     packages will be used to build)."
+  - "RULE:   - The tooling to get a Cargo.lock that will include internal vendored"
+  - "RULE:     dependencies is described at:"
+  - "RULE:     https://github.com/ubuntu/ubuntu-project-docs/blob/main/docs/MIR/mir-rust.md"
+  - "RULE:   - An example of how Rust dependency vendoring can be automated is"
+  - "RULE:     \"s390-tools\", isolating crates in a .orig-vendor.tar.xz tarball:"
+  - "RULE:     * https://git.launchpad.net/ubuntu/+source/s390-tools/tree/debian/rules"
+  - "RULE:     Other examples include \"authd\" (for a native package, combined with"
+  - "RULE:     Golang vendoring) and \"gnome-snapshot\" (using debian/missing-sources):"
+  - "RULE:     * authd:"
+  - "RULE:       https://github.com/ubuntu/authd/blob/main/debian/rules"
+  - "RULE:     * gnome-snapshot:"
+  - "RULE:       https://salsa.debian.org/ubuntu-dev-team/snapshot/-/blob/ubuntu/latest/debian/README.source"
+  - ""
+  - "RULE[maint-vendored-refresh]: - All vendored dependencies (no matter what language) shall have a"
+  - "RULE:   way to be refreshed"
+  - "TODO-A: - This does not use static builds"
+  - "TODO-B: - The team TBD is aware of the implications by a static build and"
+  - "TODO-B:   commits to test no-change-rebuilds and to fix any issues found for the"
+  - "TODO-B:   lifetime of the release (including ESM)"
+  - ""
+  - "TODO-A: - This does not use vendored code"
+  - "TODO-B: - The team TBD is aware of the implications of vendored code and (as"
+  - "TODO-B:   alerted by the security team) commits to provide updates and backports"
+  - "TODO-B:   to the security team for any affected vendored code for the lifetime"
+  - "TODO-B:   of the release (including ESM)."
+  - ""
+  - item: REP-MAINT-004
+  - ""
+  - "TODO-A: - This does not use vendored code"
+  - "TODO-B: - This package uses vendored code, the debian/copyright has been"
+  - "TODO-B:   updated to cover the vendored content"
+  - ""
+  - item: REP-MAINT-007
+  - ""
+  - "RULE[maint-build-recency-and-coordination]: - Some packages build and update often, in this case everyone can just"
+  - "RULE:   check the recent build logs to ensure if it builds fine."
+  - "RULE:   But some other packages are rather stable and have not been rebuilt"
+  - "RULE:   in a long time. There no one can be confident it would build on e.g."
+  - "RULE:   an urgent security fix. Hence we ask if there has been a recent build."
+  - "RULE:   That might be a recent build that has been done anyway as seen on"
+  - "RULE:   https://launchpad.net/ubuntu/+source/<source>, a reference to a recent"
+  - "RULE:   archive test rebuild (those are announced on the ubuntu-devel mailing"
+  - "RULE:   list like https://lists.ubuntu.com/archives/ubuntu-devel-announce/2024-January/001342.html),"
+  - "RULE:   or a build set up by the reporter in a PPA with all architectures"
+  - "RULE:   enabled."
+  - item: REP-MAINT-005
+  - "RULE[maint-build-link]: - To make it easier for everyone, please provide a link to that build so"
+  - "RULE:   everyone can follow up easily e.g. checking the various architectures."
+  - "RULE:   Example https://launchpad.net/ubuntu/+source/qemu/1:8.2.2+ds-0ubuntu1"
+  - "TODO: - Build link on launchpad: TBD"
+  - ""
+  - "RULE[maint-cross-team-coordination]: A few times we had packages that seemed fine for the package itself, but"
+  - "RULE: caused quite some fallout and effort in related teams. We'd ask you to"
+  - "RULE: think who else might be affected by promoting this package(s) and to"
+  - "RULE: please coordinate with them upfront so they have time, understanding and"
+  - "RULE: sympathy available."
+  - "RULE: Examples of the past which we admit could have been better (grows by"
+  - "RULE: painful lessons learned):"
+  - "RULE: - changing to rust coreutils forced us to update any apparmor profiles"
+  - "RULE:   that referred to these paths"
+  - item: REP-MAINT-006
+  - ""
+  - "[Background information]"
+  - "RULE[bg-package-description]: - The package descriptions should explain the general purpose and context"
+  - "RULE:   of the package. Additional explanations/justifications should be done in"
+  - "RULE:   the MIR report."
+  - "RULE: - If the package was renamed recently, or has a different upstream name,"
+  - "RULE:   this needs to be explained in the MIR report."
+  - "TODO: The Package description explains the package well"
+  - item: REP-BG-002
+  - item: REP-BG-003
+  - "TODO: TBD (any further background that might be helpful"
+items:
+- id: REP-AVAIL-001
+  section: Availability
+  title: Source package availability
+  mode: deterministic
+  evaluator: source-availability
+  adapters_required: [lp-package-api]
+  template: "TODO: The package TBDSRC is already in Ubuntu universe."
+- id: REP-AVAIL-002
+  section: Availability
+  title: Architecture build state
+  mode: deterministic
+  evaluator: build-architectures
+  adapters_required: [lp-build-api]
+  template: "TODO: The package TBDSRC build for the architectures it is designed to work on.\nTODO: It currently builds and works for architectures: TBD"
+- id: REP-AVAIL-003
+  section: Availability
+  title: Source package link
+  mode: deterministic
+  evaluator: source-link
+  adapters_required: []
+  template: "TODO: Link to package https://launchpad.net/ubuntu/+source/TBDSRC"
+- id: REP-RATIONALE-001
+  covers_rule_clauses: [rationale-demand]
+  section: Rationale
+  title: Main-inclusion reason
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: multiline
+    prompt: Why is this source package required in Ubuntu main?
+  template: "TODO: - The package TBDSRC is required in Ubuntu main for TBD"
+- id: REP-RATIONALE-005
+  section: Rationale
+  title: User benefit scope
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: single_choice
+    prompt: Is this broadly useful, or important for a narrower use case?
+    options:
+    - id: broad
+      label: Broadly useful to a large part of the user base
+      statement: '- The package TBDSRC will generally be useful for a large part of our user base.'
+    - id: niche
+      label: Narrower use case that still matters
+      statement: "- The package TBDSRC will not generally be useful for a large part of\n  our user base, but is important/helpful still because TBD"
+      leads_to_followup: true
+  template: "TODO-A: - The package TBDSRC will generally be useful for a large part of\nTODO-A:   our user base\nTODO-B: - The package TBDSRC will not generally be useful for a large part of\nTODO-B:   our user base, but is important/helpful still because TBD"
+- id: REP-RATIONALE-006
+  section: Rationale
+  title: Narrow use-case explanation
+  mode: human_only
+  readiness: blocker
+  completes: REP-RATIONALE-005
+  applicability:
+    item: REP-RATIONALE-005
+    equals: niche
+  question:
+    kind: multiline
+    prompt: Why is the narrower use case important enough to justify main inclusion?
+  template: "TODO-B: - The package TBDSRC will not generally be useful for a large part of\nTODO-B:   our user base, but is important/helpful still because TBD"
+- id: REP-RATIONALE-002
+  section: Rationale
+  title: User benefit
+  mode: human_only
+  readiness: clear
+  required: false
+  question:
+    kind: multiline
+    prompt: Describe the Ubuntu users and use cases that benefit from this promotion.
+  template: "TODO: - Additional reasons TBD"
+- id: REP-RATIONALE-003
+  covers_rule_clauses: [rationale-alternatives]
+  section: Rationale
+  title: Alternatives considered
+  mode: ev_to_ai
+  readiness: warning
+  adapters_optional: [dup-search]
+  answer_guidance: Only alternatives already in Ubuntu main count against inclusion; a similar package in universe is not itself a reason to reject this promotion.
+  ai_policy: Assess only whether the supplied archive candidates plausibly overlap this package's stated functionality. For each credible candidate, state its name and archive component (main/universe/...); a candidate already in main is the relevant kind of alternative, a candidate in universe is not a blocker but may still be worth naming. Name candidates and uncertainty; do not decide Ubuntu demand or invent alternatives. Your statement must not merely restate which candidates were found - it must commit to one of (a) no genuine overlap with anything in main exists, (b) this package overlaps a named main candidate and is meant to replace it, or (c) this package overlaps a named main candidate but is still needed in addition, for a stated reason. If the evidence does not let you decide which of (a)/(b)/(c) applies, set requires_reporter_decision to true and phrase the statement as a clear, direct question for the reporter to resolve.
+  question:
+    kind: multiline
+    prompt: What alternatives already in main were considered, and why are they insufficient?
+  template: "TODO: - There is no other/better way to solve this that is already in main or\nTODO:   should go universe->main instead of this."
+- id: REP-RATIONALE-004
+  covers_rule_clauses: [rationale-milestones]
+  section: Rationale
+  title: Promotion binary scope
+  mode: human_only
+  readiness: blocker
+  adapters_optional: [packaging-source]
+  preface_evaluator: binary-packages
+  answer_guidance: Choose a shortcut if the whole source (or everything except -dev/-doc/-dbg) applies, or pick "specific binary packages" to list them yourself below.
+  question:
+    kind: single_choice
+    prompt: Which binary packages need promotion to main?
+    options:
+    - id: __all_binaries__
+      label: All binary packages built by this source
+      statement: '- All binary packages built by TBDSRC need to be in main.'
+      exclusive: true
+      spell_out_filter: all
+    - id: __all_except_dev_doc_dbg__
+      label: All binary packages except -dev, -doc, and -dbg(sym) packages
+      statement: '- All binary packages built by TBDSRC, except -dev, -doc, and debug-symbol packages, need to be in main.'
+      exclusive: true
+      spell_out_filter: exclude_dev_doc_dbg
+    - id: specific-packages
+      label: A specific subset of binary packages (list them below)
+      statement: '- The binary packages TBD need to be in main to achieve TBD'
+      leads_to_followup: true
+      spell_out_filter: list_only
+    options_source:
+      adapter: packaging-source
+      field: binary_package_names
+  template: 'TODO: - The binary packages TBD need to be in main.'
+- id: REP-RATIONALE-004-SPECIFIC
+  section: Rationale
+  title: Specific binary packages
+  mode: human_only
+  readiness: blocker
+  completes: REP-RATIONALE-004
+  applicability:
+    item: REP-RATIONALE-004
+    equals: specific-packages
+  preface_evaluator: binary-packages
+  answer_guidance: List the specific binary package names that need to move to main, separated by commas or one per line.
+  question:
+    kind: multiline
+    prompt: Which specific binary packages need promotion to main?
+  template: 'TODO: - The binary packages TBD need to be in main to achieve TBD'
+- id: REP-RATIONALE-007
+  section: Rationale
+  title: Target deadline
+  mode: human_only
+  readiness: warning
+  question:
+    kind: single_choice
+    prompt: Is there a well-founded release deadline?
+    options:
+    - id: required-by
+      label: Yes, a well-founded deadline exists
+      statement: "- The package TBDSRC is required in Ubuntu main no later than TBD\n  due to TBD"
+      leads_to_followup: true
+    - id: no-deadline
+      label: No definitive deadline
+      statement: '- The package would be useful in main, but there is no definitive deadline.'
+  template: "TODO-A: - The package TBDSRC is required in Ubuntu main no later than TBD\nTODO-A:   due to TBD\nTODO-B: - It would be great and useful to community/processes to have the\nTODO-B:   package TBD in Ubuntu main, but there is no definitive deadline."
+- id: REP-RATIONALE-008
+  section: Rationale
+  title: Deadline details
+  mode: human_only
+  readiness: warning
+  completes: REP-RATIONALE-007
+  applicability:
+    item: REP-RATIONALE-007
+    equals: required-by
+  answer_guidance: State the deadline as a date or release you need this in main. Most often one would specify a freeze type and its date.
+  question:
+    kind: multiline
+    prompt: What is the deadline, and why is it well founded?
+  template: "TODO-A: - The package TBDSRC is required in Ubuntu main no later than TBD\nTODO-A:   due to TBD"
+- id: REP-RATIONALE-009
+  section: Rationale
+  title: Previous MIR and main history
+  mode: deterministic
+  evaluator: prior-mir-history
+  readiness: warning
+  adapters_required: [lp-mir-history]
+  template: "TODO-A: - This is the first time package will be in main\nTODO-B: - Package was in main before (Ubuntu aa.bb->xx.yy) (MIR-Bug LP: #...)"
+- id: REP-SECURITY-001
+  section: Security
+  title: Security history
+  mode: deterministic
+  evaluator: cve-history
+  readiness: warning
+  covers_rule_clauses: [sec-general-cve-sources]
+  adapters_required: [ubuntu-cve-tracker, nvd-enrich, cve-search-terms, cvelist-scan]
+  template: "TODO-A: - Had #TBD security issues in the past\nTODO-A:   - TBD links to such security issues in trackers\nTODO-A:   - TBD to any context that shows how these issues got handled in\nTODO-A:     the past\nTODO-B: - No CVEs/security issues in this software in the past"
+- id: REP-SECURITY-003
+  section: Security
+  title: Installed privilege and service surface
+  mode: deterministic
+  evaluator: binary-security-surface
+  readiness: warning
+  adapters_required: [binary-package-inspection]
+  template: "TODO: - no `suid` or `sgid` binaries\nTODO-A: - no executables in `/sbin` and `/usr/sbin`\nTODO-B: - Binary TBD in sbin is no problem because TBD\nTODO-A: - Package does not install services, timers or recurring jobs\nTODO-B: - Package does install services, timers or recurring jobs\nTODO-B:   TBD (list services, timers, jobs)"
+- id: REP-SECURITY-004
+  section: Security
+  title: Installed isolation and extension surface
+  mode: deterministic
+  evaluator: binary-integration-surface
+  readiness: warning
+  adapters_required: [binary-package-inspection]
+  template: "TODO: - Packages does not contain extensions to security-sensitive software\nTODO:   (filters, scanners, plugins, UI skins, ...)"
+- id: REP-SECURITY-005
+  covers_rule_clauses: [sec-binaries-services]
+  section: Security
+  title: Exposure and mitigation assessment
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [packaging-source, binary-package-inspection]
+  ai_policy: Assess bounded evidence for privileged operation, exposed listeners/endpoints/ports, parsers of untrusted input, security-sensitive extensions, deprecated cryptographic patterns, and whether mitigations (restricted users, capability drops, seccomp, systemd hardening, AppArmor) are proportional to that exposure. Never claim exhaustive absence when source evidence is incomplete. Your statement must commit to one of (a) mitigations are proportional to the exposure, or (b) mitigations are not proportional, naming the specific gap(s). If the evidence does not let you decide between (a) and (b), set requires_reporter_decision to true.
+  question:
+    kind: multiline
+    prompt: Assess security-sensitive behavior, exposed endpoints, privileged operation, cryptography, and whether mitigations are proportional.
+  template: "TODO: - Security has been kept in mind and common isolation/risk-mitigation\nTODO:   patterns are in place utilizing the following features:\nTODO:   TBD (add details and links/examples about things like dropping\nTODO:   permissions, using temporary environments, restricted users/groups,\nTODO:   seccomp, systemd isolation features, apparmor, ...)"
+- id: REP-SECURITY-006
+  covers_rule_clauses: [sec-deprecated-algorithms]
+  section: Security
+  title: Deprecated cryptography scan
+  mode: ev_to_ai
+  readiness: warning
+  required: false
+  adapters_optional: [packaging-source]
+  answer_guidance: The evidence is a best-effort textual scan for deprecated algorithm names (MD5, SHA1, 3DES, RC4, SSLv2/3, TLSv1.0); a hit is not proof of use and no hits is not proof of absence.
+  ai_policy: Evidence is a best-effort grep of the source tree for deprecated cryptographic algorithm name patterns (packaging-source.crypto_pattern_hits), each as a path:line:content match. If hits exist, list the distinct files/lines and state that the reporter should confirm whether the algorithm is actually used before flagging Security review. If the list is empty, state plainly that the pattern search found no deprecated-algorithm indicators, while noting this is not an exhaustive proof of absence.
+  question:
+    kind: multiline
+    prompt: Confirm or correct - does anything suggest deprecated cryptographic algorithms that Security review should see?
+  template: "TODO: - I've spotted what I consider deprecated algorithms, the security team\nTODO:   should have a more careful look please, details are: TBD"
+- id: REP-QA-FUNC-001
+  covers_rule_clauses: [qa-func-config-effort]
+  section: Quality assurance - function/usage
+  title: Installed usability
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [packaging-source, binary-package-inspection]
+  ai_policy: Assess whether the package works immediately after installation or needs configuration, using packaging-source.debconf_templates (debconf prompts shown during install), packaging-source.service_files and binary-package-inspection.systemd_units (services that may need enabling or configuration before use), and packaging-source.source_description for context. If nothing suggests required configuration, state plainly that it works with sane defaults. If configuration appears required, name what (e.g. debconf templates, a service that is not enabled by default) and explain, from the evidence, why a safe default is not possible; do not invent reasons the evidence does not support.
+  question:
+    kind: single_choice
+    prompt: Does the package work right after install, or does it need post-install configuration?
+    options:
+    - id: works-after-install
+      label: The package works well right after install
+      statement: '- The package works well right after install'
+      readiness: clear
+      todo_ref: 'TODO-A: - The package works well right after install'
+    - id: needs-configuration
+      label: It needs post-install configuration or documentation
+      statement: "- The package needs post install configuration or reading of\n  documentation, there isn't a safe default because TBD"
+      readiness: warning
+      todo_ref: "TODO-B: - The package needs post install configuration or reading of\nTODO-B:   documentation, there isn't a safe default because TBD"
+  template: "TODO-A: - The package works well right after install\nTODO-B: - The package needs post install configuration or reading of\nTODO-B:   documentation, there isn't a safe default because TBD"
+- id: REP-QA-MAINT-001
+  covers_rule_clauses: [qa-maint-upstream-confidence]
+  section: Quality assurance - maintenance
+  title: Important open bugs
+  mode: deterministic
+  evaluator: important-bugs
+  readiness: warning
+  adapters_required: [lp-bug-search-api, debian-bts]
+  adapters_optional: [upstream-tracker]
+  template: "TODO: - The package is maintained well in Debian/Ubuntu/Upstream and does\nTODO:   not have too many, long-term & critical, open bugs\nTODO:   - Ubuntu https://bugs.launchpad.net/ubuntu/+source/TBDSRC/+bug\nTODO:   - Debian https://bugs.debian.org/cgi-bin/pkgreport.cgi?src=TBDSRC\nTODO:   - Upstream's bug tracker, e.g., GitHub Issues"
+- id: REP-QA-MAINT-004
+  section: Quality assurance - maintenance
+  title: Exotic hardware availability
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: single_choice
+    prompt: Does maintenance depend on exotic hardware unavailable to ordinary infrastructure?
+    options:
+    - id: no-exotic-hardware
+      label: No exotic hardware is required
+      statement: '- The package does not depend on exotic hardware we cannot support.'
+      readiness: clear
+    - id: team-access
+      label: Exotic hardware is required and accessible to the team
+      statement: '- Required exotic hardware is available to the owning team for debugging, testing, verification, and development.'
+      leads_to_followup: true
+      readiness: blocker
+    - id: other-special
+      label: Something else / a special situation applies
+      statement: '- Exotic hardware access follows a different, situation-specific arrangement; see the details below.'
+      leads_to_followup: true
+      readiness: blocker
+  template: "TODO-A: - The package does not deal with exotic hardware we cannot support\nTODO-B: - The package does deal with exotic hardware, such hardware is available\nTODO-B:   to the team for debugging, test, verification and development via:"
+- id: REP-QA-MAINT-002
+  section: Quality assurance - maintenance
+  title: Hardware access
+  mode: human_only
+  readiness: warning
+  applicability:
+    any:
+    - item: REP-QA-MAINT-004
+      equals: team-access
+    - item: REP-QA-MAINT-004
+      equals: other-special
+  question:
+    kind: multiline
+    prompt: Describe how the owning team can/will access the required exotic hardware for debugging, testing, verification, and development.
+  template: 'TODO: - The exotic hardware needed is TBD and the team can access it via TBD'
+- id: REP-QA-MAINT-003
+  section: Quality assurance - maintenance
+  title: Maintenance health assessment
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [lp-bug-search-api, debian-bts]
+  adapters_optional: [upstream-tracker, lp-package-api]
+  ai_policy: Summarize tracker counts, important bug age/severity, and release cadence. Distinguish observable history from the reporter's final maintenance judgment.
+  question:
+    kind: multiline
+    prompt: Assess Ubuntu, Debian, and upstream maintenance health and explain important concerns.
+  template: 'TODO: - The package is maintained well in Ubuntu, Debian and upstream: TBD'
+- id: REP-QA-TEST-001
+  covers_rule_clauses: [qa-testing-build-suite]
+  section: Quality assurance - testing
+  title: Build-time tests
+  mode: deterministic
+  evaluator: build-tests
+  readiness: warning
+  adapters_required: [fetch-build, packaging-source]
+  template: "TODO-A: - The package runs a test suite on build time, if it fails\nTODO-A:   it makes the build fail, link to build log TBD\nTODO-B: - The package does not run a test at build time because TBD"
+- id: REP-QA-TEST-002
+  covers_rule_clauses: [qa-testing-autopkgtests]
+  section: Quality assurance - testing
+  title: Autopkgtests
+  mode: deterministic
+  evaluator: autopkgtests
+  readiness: warning
+  adapters_required: [autopkgtest-db]
+  template: "TODO-A: - The package runs an autopkgtest, and is currently passing on\nTODO-A:   this TBD list of architectures, link to test logs TBD\nTODO-B: - The package does not run an autopkgtest because TBD"
+- id: REP-QA-TEST-003
+  covers_rule_clauses: [qa-testing-written-plan]
+  section: Quality assurance - testing
+  title: Testing gaps and plan
+  mode: human_only
+  readiness: blocker
+  required: false
+  question:
+    kind: multiline
+    prompt: If there are any known testing gaps, hardware/manual test plan, execution frequency, or regression consequences worth noting, explain them.
+  template: 'TODO: - Known testing gaps and the owning team test plan for them are TBD'
+- id: REP-QA-TEST-005
+  section: Quality assurance - testing
+  title: Non-automated testing access
+  mode: human_only
+  readiness: blocker
+  applicability:
+    any:
+    - item: REP-QA-MAINT-004
+      equals: team-access
+    - evidence: autopkgtest-db.has_autopkgtest
+      equals: false
+    - evidence: autopkgtest-db.failing_arches
+      truthy: true
+  question:
+    kind: single_choice
+    prompt: Select the concrete way the owning team can test cases not covered by build tests or autopkgtests.
+    options:
+    - id: A-team-hardware
+      label: Hardware is available in the team
+      statement: '- The owning team has access to the required hardware.'
+    - id: B-budget
+      label: Budget is allocated to acquire hardware
+      statement: '- Budget is allocated to acquire the required hardware, but it is not available yet.'
+    - id: C-testflinger
+      label: Solutions QA hardware through Testflinger
+      statement: '- Solutions QA hardware will be used through Testflinger.'
+    - id: D-other-team
+      label: Hardware from another team
+      statement: '- Another team will provide access to the required hardware.'
+    - id: E-simulator
+      label: A sufficiently representative simulator
+      statement: '- A simulator will provide sufficiently representative test coverage.'
+    - id: F-upstream
+      label: Upstream community tests new builds
+      statement: '- The upstream community can test new Ubuntu package builds.'
+    - id: G-users
+      label: User community tests new builds
+      statement: '- The user community can test new Ubuntu package builds.'
+    - id: H-manufacturer
+      label: Hardware manufacturer tests new builds
+      statement: '- The hardware manufacturer has agreed to test new builds.'
+    - id: X-exhausted
+      label: All feasible testing options are exhausted
+      statement: '- All feasible ways to test or recreate this case have been exhausted; the owning team accepts the additional servicing and regression risk.'
+    - id: Z-other
+      label: Something else / a special situation (describe below)
+      statement: '- A different, situation-specific arrangement provides non-automated testing access; see the test plan details below.'
+    - id: Y-build-autopkgtest
+      label: Build and Autopkgtest can cover all regular tests this package needs
+      statement: '- Build and Autopkgtest can cover all regular tests this package needs.'
+  template: "TODO: - The package can not be well tested at build or autopkgtest time\nTODO:   because TBD. To make up for that:\nTODO-A:   - We have access to such hardware in the team\nTODO-B:   - We have allocated budget to get this hardware, but it is not here\nTODO-B:     yet\nTODO-C:   - We have checked with solutions-qa and will use their hardware\nTODO-C:     through testflinger\nTODO-D:   - We have checked with other team TBD and will use their hardware\nTODO-D:     through TBD (eg. MAAS)\nTODO-E:   - We have checked and found a simulator which covers this case\nTODO-E:     sufficiently for testing, our plan to use it is TBD\nTODO-F:   - We have engaged with the upstream community and due to that\nTODO-F:     can tests new package builds via TBD\nTODO-G:   - We have engaged with our user community and due to that\nTODO-G:     can tests new package builds via TBD\nTODO-H:   - We have engaged with the hardware manufacturer and made an\nTODO-H:     agreement to test new builds via TBD"
+- id: REP-QA-TEST-006
+  section: Quality assurance - testing
+  title: Non-automated test plan details
+  mode: human_only
+  readiness: blocker
+  applicability:
+    item: REP-QA-TEST-005
+    in:
+    - A-team-hardware
+    - B-budget
+    - C-testflinger
+    - D-other-team
+    - E-simulator
+    - F-upstream
+    - G-users
+    - H-manufacturer
+    - X-exhausted
+    - Z-other
+  question:
+    kind: multiline
+    prompt: Provide the test plan or automation, example logs, execution frequency, and likely regression consequences.
+  template: "TODO: - The test plan/automation is TBD (e.g. script or repo), example output\nTODO:   of a test run is TBD (logs), it will be executed TBD (e.g. on-uploads\nTODO:   or monthly) and a regression slipping through would TBD"
+- id: REP-QA-TEST-007
+  covers_rule_clauses: [qa-testing-ignored-failures]
+  section: Quality assurance - testing
+  title: Failing autopkgtest explanation
+  mode: human_only
+  readiness: blocker
+  applicability:
+    evidence: autopkgtest-db.failing_arches
+    truthy: true
+  preface_evaluator: autopkgtests
+  question:
+    kind: multiline
+    prompt: Explain every failing or ignored autopkgtest result and why it is acceptable.
+  template: "TODO: - The package does have failing autopkgtests tests right now, but since\nTODO:   they always failed they are handled as \"ignored failure\", this is\nTODO:   ok because TBD"
+- id: REP-QA-TEST-008
+  covers_rule_clauses: [qa-testing-solution-level]
+  section: Quality assurance - testing
+  title: Micro-library solution-level testing
+  mode: human_only
+  readiness: warning
+  applicability:
+    evidence: packaging-source.is_library_package
+    equals: true
+  adapters_required: [packaging-source]
+  question:
+    kind: multiline
+    prompt: If this is a minimal library tested in a wider solution, identify that solution and its end-to-end tests.
+  template: "TODO: - This package is minimal and will be tested in a more wide reaching\nTODO:   solution context TBD, details about this testing are here TBD"
+- id: REP-QA-TEST-004
+  section: Quality assurance - testing
+  title: Test adequacy assessment
+  mode: ev_to_ai
+  readiness: blocker
+  adapters_required: [fetch-build, packaging-source, autopkgtest-db]
+  adapters_optional: [consumer-autopkgtests]
+  autopkgtest_log_followup: true
+  ai_policy: Assess whether observed build tests and autopkgtests are non-trivial and plausibly cover regressions. The actual autopkgtest test definitions are provided in full in packaging-source.debian_tests_control (debian/tests/control) - read them to judge non-triviality (e.g. a real functional test vs. only invoking --help/--version) before concluding the evidence is inconclusive; autopkgtest-db only reports pass/fail per architecture, not what the tests do. If fetch-build.build_log is empty or unavailable, do not treat that alone as inconclusive - packaging-source.debian_rules_overrides and the full debian/rules text are provided specifically to let you state confidently whether the default dh_auto_test target is disabled/overridden or left to run unmodified, even without the log itself. Surface gaps; never invent test execution or a team commitment.
+  question:
+    kind: multiline
+    prompt: Assess whether test coverage is adequate and explain how remaining gaps will be covered.
+  template: 'TODO: - The automated and end-to-end test coverage is sufficient because TBD'
+- id: REP-QA-PKG-001
+  section: Quality assurance - packaging
+  title: Upstream update mechanism
+  mode: deterministic
+  evaluator: watch-file
+  readiness: warning
+  adapters_required: [packaging-source]
+  covers_rule_clauses: [pkg-upstream-mechanism]
+  template: "TODO-A: - A mechanism to detect and fetch new upstream versions is present and works\nTODO-B: - A mechanism to detect and fetch new upstream versions is not present,\nTODO-B:   instead it has TBD\nTODO-C: - A mechanism to detect and fetch new upstream versions is not present\nTODO-C:   because it is a native package"
+- id: REP-QA-PKG-002
+  covers_rule_clauses: [pkg-lintian-pedantic]
+  section: Quality assurance - packaging
+  title: Lintian status
+  mode: deterministic
+  evaluator: lintian
+  readiness: warning
+  adapters_required: [lintian]
+  template: "TODO: - This package does not yield massive lintian Warnings, Errors\nTODO: - Please link to a recent build log of the package <TBD>\nTODO: - Please attach the full output you have got from\nTODO:   `lintian --pedantic` as an extra post to this bug."
+- id: REP-QA-PKG-008
+  section: Quality assurance - packaging
+  title: Lintian override justification
+  mode: deterministic
+  evaluator: lintian-overrides
+  readiness: warning
+  adapters_required: [packaging-source]
+  covers_rule_clauses: [pkg-lintian-overrides]
+  template: 'TODO: - Lintian override justification: TBD'
+- id: REP-QA-PKG-009
+  section: Quality assurance - packaging
+  title: Lintian override explanation
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [packaging-source]
+  applicability:
+    evidence: packaging-source.lintian_uncommented_override_tags
+    truthy: true
+  preface_evaluator: lintian-overrides
+  ai_policy: 'Never invent or assume the reporter''s own justification for an uncommented lintian override - only the reporter can explain why a non-obvious override is needed. You may summarize which override tag(s) lack a comment (from packaging-source.lintian_override_entries) to help the reporter answer, but always report confidence "low" unless the evidence itself already shows every override is commented - never fabricate a justification on the reporter''s behalf.'
+  question:
+    kind: multiline
+    prompt: One or more lintian overrides lack an explanatory comment. Explain why each uncommented override is needed (or add a comment to debian/*.lintian-overrides and re-run).
+  template: 'TODO: - Lintian overrides are present, but ok because TBD'
+- id: REP-QA-PKG-003
+  section: Quality assurance - packaging
+  title: Source format and debconf metadata
+  mode: deterministic
+  evaluator: source-packaging-metadata
+  readiness: warning
+  adapters_required: [packaging-source]
+  covers_rule_clauses: [pkg-debconf-priority]
+  template: "TODO-A: - The package will be installed by default, but does not ask debconf\nTODO-A:   questions higher than medium\nTODO-B: - The package will not be installed by default"
+- id: REP-QA-PKG-006
+  section: Quality assurance - packaging
+  title: Maintainer field correctness
+  mode: deterministic
+  evaluator: maintainer-field
+  readiness: blocker
+  adapters_required: [packaging-source]
+  covers_rule_clauses: [pkg-maintainer-field]
+  template: "TODO: - debian/control defines a correct Maintainer field"
+- id: REP-QA-PKG-007
+  section: Quality assurance - packaging
+  title: Maintainer field resolution plan
+  mode: ev_to_ai
+  readiness: blocker
+  adapters_required: [packaging-source]
+  applicability:
+    all:
+    - evidence: packaging-source.delta_kind
+      equals: ubuntu_delta
+    - not:
+        evidence: packaging-source.source_maintainer
+        equals: 'Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>'
+  preface_evaluator: maintainer-field
+  ai_policy: 'Never invent or assume the reporter''s own remediation commitment - only the reporter can state how and when they will run update-maintainer (or otherwise correct debian/control''s Maintainer field) before promotion. You may propose a concrete, evidence-grounded draft plan for the reporter to confirm or edit (for example, citing packaging-source.delta_kind and how trivial or extensive the Ubuntu delta appears to be, and suggesting update-maintainer as the standard fix), but always report confidence "low" unless the evidence itself already shows the field was fixed - never fabricate a commitment on the reporter''s behalf.'
+  question:
+    kind: multiline
+    prompt: This package has an Ubuntu delta but the Maintainer field is not set to Ubuntu Developers. How do you intend to resolve that before promotion?
+  template: 'TODO: - The Maintainer field will be corrected before promotion by TBD'
+- id: REP-QA-PKG-004
+  section: Quality assurance - packaging
+  title: Packaging complexity assessment
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [packaging-source]
+  covers_rule_clauses: [pkg-maintainability]
+  ai_policy: 'Assess maintainability of the packaging from the full debian/rules content (provided verbatim in packaging-source.debian_rules). Select easy when it is an essentially standard debhelper setup - "#!/usr/bin/make -f" plus "%: dh $@" with only defaults, or with overrides that merely configure/parametrise the build, tests, or autoconfigure (e.g. passing flags, enabling/selecting tests) WITHOUT disabling them; the debian/rules link in that statement is completed automatically from the source package and target series. Select complex only when the rules file is a genuine maintenance hazard - it disables hardening or tests, contains large hand-rolled build logic, manipulates files in fragile ways, or is long/complex (roughly >100 non-comment lines) - and summarise concisely in the rationale what makes it complex, since the reporter must justify why that is acceptable. Do not invent policy violations.'
+  question:
+    kind: single_choice
+    prompt: Is the packaging and build easy, or complex but justified?
+    options:
+    - id: easy
+      label: Packaging and build is easy
+      statement: '- Packaging and build is easy, link to debian/rules TBDRULESURL'
+      readiness: clear
+      todo_ref: 'TODO-A: - Packaging and build is easy, link to debian/rules TBD'
+    - id: complex
+      label: Packaging is complex, but justified
+      statement: '- Packaging is complex, but that is ok because TBD'
+      readiness: warning
+      todo_ref: 'TODO-B: - Packaging is complex, but that is ok because TBD'
+  template: "TODO-A: - Packaging and build is easy, link to debian/rules TBD\nTODO-B: - Packaging is complex, but that is ok because TBD"
+- id: REP-QA-PKG-005
+  section: Quality assurance - packaging
+  title: Obsolete dependencies
+  mode: deterministic
+  evaluator: obsolete-dependencies
+  readiness: blocker
+  adapters_required: [dep-analysis]
+  covers_rule_clauses: [pkg-obsolete-deps]
+  template: "TODO: - This package does not rely on obsolete or about to be demoted packages.\nTODO: - This package has no python2 or GTK2 dependencies"
+- id: REP-UI-001
+  section: UI standards
+  title: End-user UI applicability
+  mode: ev_to_ai
+  readiness: warning
+  adapters_required: [packaging-source, binary-package-inspection, dep-analysis]
+  ai_policy: Judge whether this package is a user-facing graphical desktop program or otherwise a user-visible program whose strings a user reads (the kind an end user launches or directly reads output from), using binary_sections (libs/libdevel/doc/debug strongly indicate NOT user-facing), runtime dependencies (GUI toolkits such as gtk, qt, libadwaita, gnome, kde, wxwidgets indicate user-facing; their absence together with a library/CLI/daemon nature indicates not user-facing), the package description, and general knowledge of the package. Do not use the presence or absence of a desktop file or translations to decide user-facing-ness - a user-facing program missing either is exactly what the follow-up checks must catch.
+  question:
+    kind: single_choice
+    prompt: Is this package end-user facing (a desktop program, or otherwise user-visible)?
+    options:
+    - id: end-user-facing
+      label: End-user facing (desktop program, or otherwise user-visible)
+      statement: '- This package is end-user facing; desktop-file and translation applicability are assessed below.'
+      leads_to_followup: true
+    - id: not-end-user-facing
+      label: Not end-user facing (server, CLI-only tool, daemon, or library)
+      statement: '- This package is not end-user facing (server, CLI-only tool, daemon, or library), so desktop-file and translation requirements do not apply.'
+      leads_to_followup: true
+  template: "TODO-A: - Application is not end-user facing (does not need translation)\nTODO-B: - Application is end-user facing, Translation is present, via standard\nTODO-B:   intltool/gettext or similar build and runtime internationalization\nTODO-B:   system see TBD"
+- id: REP-UI-002
+  section: UI standards
+  title: Desktop file applicability
+  mode: ev_to_ai
+  readiness: warning
+  applicability:
+    item: REP-UI-001
+    equals: end-user-facing
+  adapters_required: [binary-package-inspection]
+  ai_policy: This package was already judged end-user facing. Using binary-package-inspection.desktop_files, determine whether it ships a standard-conformant desktop file.
+  question:
+    kind: single_choice
+    prompt: Does this package ship a standard-conformant desktop file?
+    options:
+    - id: has-desktop-file
+      label: Yes, it ships a standard-conformant desktop file
+      statement: '- This package ships a standard-conformant desktop file.'
+      readiness: clear
+      todo_ref: 'TODO-A: - End-user applications that ships a standard conformant desktop file, see TBD'
+    - id: missing-desktop-file
+      label: No, it does not ship a desktop file
+      statement: '- This package is end-user facing but does not ship a desktop file.'
+      readiness: warning
+      todo_ref: 'TODO-B: - End-user applications without desktop file, not needed because TBD'
+  template: "TODO-A: - End-user applications that ships a standard conformant desktop file,\nTODO-A:   see TBD\nTODO-B: - End-user applications without desktop file, not needed because TBD"
+- id: REP-UI-002-NOT-APPLICABLE
+  section: UI standards
+  title: Desktop file not applicable
+  mode: deterministic
+  evaluator: ui-desktop-not-applicable
+  readiness: clear
+  applicability:
+    item: REP-UI-001
+    equals: not-end-user-facing
+  adapters_required: []
+  template: 'TODO: - Not an end-user application, no Desktop file needed: TBD'
+- id: REP-UI-003
+  section: UI standards
+  title: Translation applicability
+  mode: ev_to_ai
+  readiness: warning
+  applicability:
+    item: REP-UI-001
+    equals: end-user-facing
+  adapters_required: [binary-package-inspection]
+  ai_policy: This package was already judged end-user facing. Using binary-package-inspection.translation_files, determine whether it ships translations via a standard build and runtime internationalization system (e.g. intltool/gettext).
+  question:
+    kind: single_choice
+    prompt: Does this package ship translations via a standard internationalization system?
+    options:
+    - id: has-translation
+      label: Yes, translations are present
+      statement: '- Translation is present, via a standard intltool/gettext or similar build and runtime internationalization system.'
+      readiness: clear
+      todo_ref: 'TODO-B: - Application is end-user facing, Translation is present, via standard intltool/gettext or similar build and runtime internationalization system see TBD'
+    - id: missing-translation
+      label: No, translations are not present
+      statement: '- This package is user-visible but does not ship translations.'
+      readiness: warning
+      todo_ref: 'TODO-C: - Application is end-user facing but does not ship translations, needed because TBD'
+  template: 'TODO: - Translation applicability: TBD'
+- id: REP-UI-003-NOT-APPLICABLE
+  section: UI standards
+  title: Translation not applicable
+  mode: deterministic
+  evaluator: ui-translation-not-applicable
+  readiness: clear
+  applicability:
+    item: REP-UI-001
+    equals: not-end-user-facing
+  adapters_required: []
+  template: 'TODO: - Application not end-user facing, no translation needed: TBD'
+- id: REP-DEP-001
+  covers_rule_clauses: [dep-first-alternative]
+  section: Dependencies
+  title: Dependencies outside main
+  mode: deterministic
+  evaluator: dependencies
+  readiness: blocker
+  adapters_required: [dep-analysis]
+  template: "TODO-A: - Used check-mir from ubuntu-dev-tools to validate\nTODO-A:   all dependencies or recommends are in main."
+- id: REP-DEP-002
+  section: Dependencies
+  title: Additional MIR routing
+  mode: human_only
+  readiness: blocker
+  applicability:
+    evidence: dep-analysis.in_scope_deps_not_in_main
+    truthy: true
+  preface_evaluator: dependencies
+  question:
+    kind: single_choice
+    prompt: How are dependencies outside main being handled?
+    options:
+    - id: separate
+      label: Separate MIR bugs
+      statement: "- There are further dependencies that are not yet in main, MIR for them\n  is at TBD"
+      leads_to_followup: true
+    - id: same-request
+      label: This MIR request
+      statement: '- Further dependencies outside main are promoted together with this MIR request; their sources must also complete MIR review as part of this bug.'
+  template: "TODO-B: - There are further dependencies that are not yet in main, MIR for them\nTODO-B:   is at TBD\nTODO-C: - There are further dependencies that are not yet in main, the MIR\nTODO-C:   process for them is handled as part of this bug here."
+- id: REP-DEP-003
+  section: Dependencies
+  title: Separate dependency MIR references
+  mode: human_only
+  readiness: blocker
+  completes: REP-DEP-002
+  applicability:
+    item: REP-DEP-002
+    equals: separate
+  question:
+    kind: multiline
+    prompt: List the separate dependency MIR bug references.
+  template: "TODO-B: - There are further dependencies that are not yet in main, MIR for them\nTODO-B:   is at TBD"
+- id: REP-STD-001
+  covers_rule_clauses: [std-policy-violations]
+  section: Standards compliance
+  title: FHS and Debian Policy
+  mode: human_only
+  readiness: blocker
+  preface_evaluator: lintian-fhs-summary
+  question:
+    kind: single_choice
+    prompt: Does this package correctly follow FHS and Debian Policy?
+    options:
+    - id: A-no-violations
+      label: This package correctly follows FHS and Debian Policy
+      statement: '- This package correctly follows FHS and Debian Policy.'
+      unavailable_if:
+        evidence: lintian.lintian_errors
+        truthy: true
+      unavailable_reason: Lintian reported errors for this package; select the violation option and justify them below.
+    - id: B-violations
+      label: This package violates FHS or Debian Policy, reasons for that are TBD
+      statement: '- This package violates FHS or Debian Policy, reasons for that are TBD'
+      leads_to_followup: true
+  template: "TODO-A: - This package correctly follows FHS and Debian Policy\nTODO-B: - This package violates FHS or Debian Policy, reasons for that are TBD"
+- id: REP-STD-001B
+  section: Standards compliance
+  title: FHS and Debian Policy violation details
+  mode: human_only
+  readiness: blocker
+  completes: REP-STD-001
+  applicability:
+    item: REP-STD-001
+    equals: B-violations
+  question:
+    kind: multiline
+    prompt: Explain and justify the FHS or Debian Policy violation(s).
+  template: 'TODO-B: - This package violates FHS or Debian Policy, reasons for that are TBD'
+- id: REP-STD-002
+  covers_rule_clauses: [std-license-lifetime]
+  section: Standards compliance
+  title: License lifetime
+  mode: human_only
+  readiness: blocker
+  question:
+    kind: single_choice
+    prompt: Does the license raise any expiry, time-bound, contract-coupling, or other encumbrance concerns for the full support lifetime?
+    options:
+    - id: A-no-concerns
+      label: No expiry, time-bound terms, or encumbrances were identified
+      statement: '- No license expiry, time-bound terms, entity/contract coupling, withdrawable branches, patents, or other encumbrances were identified; the license is expected to remain compatible with Ubuntu main throughout the full support lifetime.'
+    - id: B-concerns
+      label: A concern was identified and needs explanation
+      statement: "- The license carries potential encumbrances or time-bound terms,\n  details: TBD"
+      leads_to_followup: true
+  template: "TODO-A: - Based on a reasonable review of information available at the time of\nTODO-A:   this report, no expiry, time-limited grants, or obvious legal\nTODO-A:   encumbrances have been identified that would be expected to affect\nTODO-A:   promotion\nTODO-B: - The license carries potential encumbrances or time-bound terms,\nTODO-B:   details: TBD"
+- id: REP-STD-002B
+  section: Standards compliance
+  title: License lifetime concern details
+  mode: human_only
+  readiness: blocker
+  completes: REP-STD-002
+  applicability:
+    item: REP-STD-002
+    equals: B-concerns
+  question:
+    kind: multiline
+    prompt: Explain the license expiry, time-bound term, contract coupling, or other encumbrance, and why it is still acceptable.
+  template: "TODO-B: - The license carries potential encumbrances or time-bound terms,\nTODO-B:   details: TBD"
+- id: REP-MAINT-001
+  section: Maintenance/Owner
+  title: Owning team commitment
+  mode: human_only
+  readiness: blocker
+  preface_evaluator: team-subscription
+  covers_rule_clauses: [maint-owning-team]
+  question:
+    kind: single_choice
+    prompt: Is the team already subscribed to this package (shown above, if any) the owning team, or will a different team take ownership?
+    options:
+    - id: confirm-subscribed
+      label: Keep the already-subscribed team shown above as the owning team
+      statement: '- The owning team already subscribed to this package is confirmed and has explicitly acknowledged the long-term maintenance commitment.'
+      unavailable_if:
+        not:
+          evidence: team-mapping.subscribed_teams
+          truthy: true
+      unavailable_reason: No team is currently subscribed to this package, so there is nothing to confirm.
+    - id: new-team
+      label: A different team will take ownership
+      statement: '- The owning team will be TBD and I have their acknowledgment for that commitment'
+      leads_to_followup: true
+  template: "TODO-A: - The owning team will be TBD and I have their acknowledgment for\nTODO-A:   that commitment\nTODO-B: - I Suggest the owning team to be TBD"
+- id: REP-MAINT-001B
+  section: Maintenance/Owner
+  title: New owning team details
+  mode: human_only
+  readiness: blocker
+  completes: REP-MAINT-001
+  applicability:
+    item: REP-MAINT-001
+    equals: new-team
+  question:
+    kind: multiline
+    prompt: Name the new owning team and describe its explicit acknowledgement of the long-term commitment.
+  template: "TODO-A: - The owning team will be TBD and I have their acknowledgment for\nTODO-A:   that commitment"
+- id: REP-MAINT-002
+  section: Maintenance/Owner
+  title: Team subscription
+  mode: deterministic
+  evaluator: team-subscription
+  readiness: warning
+  adapters_required: [team-mapping]
+  template: "TODO-A: - The future owning team is already subscribed to the package\nTODO-B: - The future owning team is not yet subscribed, but will subscribe to\nTODO-B:   the package before promotion"
+- id: REP-MAINT-003
+  section: Maintenance/Owner
+  title: Static and vendored obligations
+  mode: human_only
+  readiness: blocker
+  applicability:
+    evidence: packaging-source.shipped_vendored_dirs
+    truthy: true
+  adapters_required: [packaging-source]
+  covers_rule_clauses: [maint-vendored-obligations]
+  question:
+    kind: multiline
+    prompt: Describe static/vendored code and the owning team's rebuild, testing, tracking, refresh, copyright, update, and backport commitments for the full release lifetime including ESM; confirm that any new vendored components will require renewed agreement.
+  template: "TODO: - The team TBD is aware of the implications of a static build and of\nTODO:   vendored code, and commits to test no-change-rebuilds, to refresh and\nTODO:   track the vendored code, to keep debian/copyright covering it, and to\nTODO:   provide updates and backports to the security team for any affected\nTODO:   vendored code for the lifetime of the release (including ESM). New\nTODO:   vendored components will be agreed with the security team. TBD"
+- id: REP-MAINT-004
+  covers_rule_clauses: [maint-vendored-refresh]
+  section: Maintenance/Owner
+  title: Vendored source maintenance documentation
+  mode: deterministic
+  evaluator: vendored-maintenance-docs
+  readiness: blocker
+  adapters_required: [packaging-source]
+  template: "TODO-A: - This does not use vendored code\nTODO-B: - This package uses vendored go code tracked in go.sum as shipped in the\nTODO-B:   package, refreshing that code is outlined in debian/README.source\nTODO-C: - This package uses vendored rust code tracked in Cargo.lock as shipped,\nTODO-C:   in the package (at /usr/share/doc/<pkgname>/Cargo.lock - might be\nTODO-C:   compressed), refreshing that code is outlined in debian/README.source\nTODO-D: - This package uses vendored code, refreshing that code is outlined\nTODO-D:   in debian/README.source"
+- id: REP-MAINT-008
+  section: Maintenance/Owner
+  title: Built-Using surface
+  mode: deterministic
+  evaluator: built-using-surface
+  readiness: warning
+  adapters_required: [deb-metadata]
+  covers_rule_clauses: [maint-vendored-obligations]
+  template: 'TODO: - Built-Using/Static-Built-Using declared by the built binaries: TBD'
+- id: REP-MAINT-007
+  section: Maintenance/Owner
+  title: Rust vendored dependency tracking
+  mode: deterministic
+  evaluator: rust-vendoring
+  readiness: blocker
+  applicability:
+    evidence: packaging-source.is_rust_package
+    truthy: true
+  adapters_required: [packaging-source]
+  covers_rule_clauses: [maint-rust-vendoring]
+  template: "TODO-A: - This package is not rust based\nTODO-B: - This package is rust based and vendors all non language-runtime\nTODO-B:   dependencies"
+- id: REP-MAINT-005
+  section: Maintenance/Owner
+  title: Recent build evidence
+  mode: deterministic
+  evaluator: recent-build
+  readiness: warning
+  adapters_required: [lp-build-api]
+  covers_rule_clauses: [maint-build-recency-and-coordination, maint-build-link]
+  template: "TODO-A: - The package has been built within the last 3 months in the archive\nTODO-B: - The package has been built within the last 3 months as part\nTODO-B:   of a test rebuild\nTODO-C: - The package has been built within the last 3 months in PPA\nTODO-D: - The package has been built within the last 3 months in sbuild as it\nTODO-D:   can not be uploaded yet"
+- id: REP-MAINT-006
+  section: Maintenance/Owner
+  title: Impact on other teams
+  mode: human_only
+  readiness: blocker
+  covers_rule_clauses: [maint-build-recency-and-coordination, maint-cross-team-coordination]
+  question:
+    kind: single_choice
+    prompt: Will this promotion affect other Ubuntu teams?
+    options:
+    - id: no-impact
+      label: No expected impact on other teams
+      statement: '- This change is not expected to impact other Ubuntu teams.'
+      readiness: clear
+    - id: coordinated-impact
+      label: Other teams are affected and coordination is complete
+      statement: '- This change affects other Ubuntu teams and the required coordination has been completed.'
+      readiness: clear
+    - id: coordination-pending
+      label: Other teams are affected and coordination is still in progress
+      statement: '- This change affects other Ubuntu teams and the required coordination is still in progress.'
+      readiness: blocker
+  template: "TODO-A: This change will not impact other teams\nTODO-B: This change will impact other teams TBD[, TBD] and they are\nTODO-B: aware due to TBD"
+- id: REP-BG-001
+  covers_rule_clauses: [bg-package-description]
+  section: Background information
+  title: Package purpose
+  mode: human_only
+  readiness: warning
+  required: false
+  question:
+    kind: multiline
+    prompt: Add anything else about the package's purpose or background useful to a reviewer, beyond what other fields in this report already capture.
+  template: 'TODO: - The package description explains the package well, additionally TBD'
+- id: REP-BG-002
+  section: Background information
+  title: Upstream name
+  mode: ev_to_ai
+  readiness: clear
+  required: false
+  preface_evaluator: upstream-link
+  adapters_required: [upstream-tracker, packaging-source]
+  writes_evidence:
+    adapter: upstream-tracker
+    field: upstream_url
+  ai_policy: Using upstream-tracker.upstream_url (already verified to resolve, or empty if no reliable URL was found), upstream-tracker.upstream_name (a release-monitoring.org match, may be empty), and packaging-source.debian_control (Source and Homepage fields), state the upstream project's name. If the source package name already matches the project (the Source field name, once common packaging prefixes/suffixes are stripped, names the same project), say plainly that it is the same as the source package. If upstream_url is empty and debian_control gives no clear project-name signal beyond the source package name itself, you cannot confidently name a distinct upstream project - set requires_reporter_decision to true instead of guessing.
+  question:
+    kind: multiline
+    prompt: What is the upstream project name?
+
+    default_source:
+      adapter: upstream-tracker
+      field: upstream_name
+  template: "TODO: Upstream Name is TBD"
+- id: REP-BG-003
+  section: Background information
+  title: Upstream link
+  mode: deterministic
+  evaluator: upstream-link
+  readiness: warning
+  adapters_required: [upstream-tracker]
+  template: "TODO: Link to upstream project TBD"
