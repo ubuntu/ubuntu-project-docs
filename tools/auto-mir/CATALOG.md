@@ -26,7 +26,7 @@ sections plus the role's own file, and rejects either side overriding the
 other. Both role files declare their own `role:` marker and are validated as a
 composed whole. Direct `load_catalog(path, workspace_root)` remains available
 for loading an ad-hoc, standalone, fully self-contained catalog file (used by
-some tests and `render_review_template.py --catalog <path>` overrides).
+some tests).
 
 ---
 
@@ -50,7 +50,7 @@ documentation) live in the file. Nothing is declared "for future use".
 
 | Section | File | Read by | Purpose |
 | --- | --- | --- | --- |
-| `metadata.review_template_blueprint` | catalog-mir-review.yaml | `render_review_template.py` | Regenerates the human reviewer template (`docs/MIR/`). Offline only. |
+| `metadata.review_template_blueprint` | catalog-mir-review.yaml | `render_template.py` | Regenerates the human reviewer template (`docs/MIR/`). Offline only. |
 | `global_policies.confidence_model.description` | catalog.yaml | `checks/llm_eval.py` | Injected into AI prompts. |
 | `evidence_adapters[]` | catalog.yaml | `catalog.py`, contributors | Adapter id/type/description documentation and reference validation. Runtime dependency wiring currently lives with `@adapter` registrations. |
 | `checks[]` | catalog-mir-review.yaml | `checks/` | Check definitions (see below). |
@@ -140,9 +140,9 @@ Three rules keep this honest:
 2. **Every outcome is in the catalog.** The `messages` map lists *all* outcomes
    the evaluator can emit (each unknown/ok/not-ok variant), so a reviewer can
    read every possible draft without reading Python.
-3. **Strict placeholder validation.** Checks listed in
-   `_REQUIRED_MESSAGE_TEMPLATES` (`catalog.py`) must define the named template
-   keys, and each template must contain its required placeholders. Mode-based
+3. **Strict placeholder validation.** Each check's `required_messages` map
+   must define the named template keys, and each template must contain its
+   required placeholders. Mode-based
    templates are also enforced: `ev_to_ai`/`ai` need `llm_unavailable_message`
    with `{error}`; `human_only` needs `human_only_message` and `human_only_todo`
    with `{title}`. Validation runs on every catalog load (`validate_catalog`).
@@ -178,8 +178,8 @@ single-sourcing rule above applies to deterministic checks.
      not_ok_todo: 'TODO: - remove {dep}'
      ok_message: dependency policy satisfied
    ```
-3. **Add strict validation** (recommended) in `_REQUIRED_MESSAGE_TEMPLATES`
-   (`catalog.py`): list the template keys and the placeholders each must contain.
+3. **Add strict validation** (recommended) in the check's `required_messages`
+   map: list the template keys and the placeholders each must contain.
 4. **Write the evaluator** in `checks/deterministic.py`, registering it with
    `@deterministic_check("ID")`. Render every outcome:
    ```python
@@ -220,7 +220,7 @@ change is needed — that is the whole point of the design.
 ## The reviewer-template blueprint
 
 `metadata.review_template_blueprint` plus each check's `todo_refs` drive
-`render_review_template.py`, which regenerates the human reviewer template under
+`render_template.py review`, which regenerates the human reviewer template under
 `docs/MIR/`. This is an **offline documentation tool**, not part of a review run.
 Supported documentation builds regenerate the ignored
 `mir-reviewers-template-body.include` file automatically. Do not edit or commit

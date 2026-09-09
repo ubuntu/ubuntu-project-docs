@@ -68,7 +68,8 @@ honest not-ready draft containing TODOs, blockers, or warnings. Resolve and
 verify those items before posting the request. Auto-MIR never creates or edits a
 Launchpad bug.
 
-Reporter mode covers all 12 sections through 53 stable logical items, including
+Reporter mode covers all 12 sections through 64 catalog items (asserted by
+`tests/test_catalog_roles.py`), including
 conditional choice groups and all A-H/X non-automated-testing alternatives.
 Deterministic evidence, human declarations, accepted AI suggestions, selected
 options, readiness issues, and final consistency results remain distinguishable

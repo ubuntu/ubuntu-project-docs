@@ -316,7 +316,8 @@ the rendered reporter/reviewer templates, without pinning to a frozen
 snapshot of the pre-migration human templates - tagging is opt-in and grows
 incrementally as specific clauses are identified worth guaranteeing.
 
-The report catalog currently defines 53 stable logical items. Its runtime
+The report catalog currently defines 64 items (asserted by
+`tests/test_catalog_roles.py`). Its runtime
 supports catalog options, multi-select choices, safe applicability conditions,
 deterministic evaluators, bounded evidence-to-AI suggestions with explicit
 confirmation, direct human fallback, and one final issue-finding consistency

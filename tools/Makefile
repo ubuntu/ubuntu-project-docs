@@ -40,11 +40,11 @@ test:
 
 .PHONY: render-review-template
 render-review-template:
-	python3 $(TOOLS_DIR)auto-mir/render_review_template.py --strict
+	python3 $(TOOLS_DIR)auto-mir/render_template.py review --strict
 
 .PHONY: check-review-template
 check-review-template:
-	python3 $(TOOLS_DIR)auto-mir/render_review_template.py --strict --check
+	python3 $(TOOLS_DIR)auto-mir/render_template.py review --strict --check
 
 .PHONY: clean
 clean:
