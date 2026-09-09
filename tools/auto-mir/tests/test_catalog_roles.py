@@ -209,9 +209,18 @@ def test_report_catalog_auto_derives_rule_context_from_blueprint():
     report = catalog.load_catalog_for_role(TOOL_ROOT, WORKSPACE_ROOT, "report")
     by_id = {item["id"]: item for item in report["items"]}
 
-    # The restored historical template has no RULE prose in [UI standards],
-    # so REP-UI-001 gets no auto-derived context at all.
-    assert "rule_context" not in by_id["REP-UI-001"]
+    # [UI standards] gained RULE prose (translation/intl and desktop-file
+    # requirements), tagged as ui-translation / ui-desktop-file clauses.
+    # REP-UI-001 covers the translation clause, so its auto-derived context
+    # is exactly those RULE lines plus its own template - not the desktop
+    # file rule and not the preceding Packaging-complexity clause.
+    ui_rule_context = by_id["REP-UI-001"]["rule_context"]
+    assert ui_rule_context.startswith(
+        "RULE: - End-user facing applications must support translation/intl."
+    )
+    assert ui_rule_context.endswith("TODO-B:   system see TBD")
+    assert "desktop file" not in ui_rule_context
+    assert "source packaging" not in ui_rule_context
 
     # An item that declares covers_rule_clauses gets exactly those tagged RULE
     # clauses (plus its own TODO), not the whole section's prose.

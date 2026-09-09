@@ -6,7 +6,10 @@ TODO: It currently builds and works for architectures: TBD
 TODO: Link to package https://launchpad.net/ubuntu/+source/TBDSRC
 
 [Rationale]
+
+# -------- Demand
 RULE: There must be a certain level of demand for the package
+
 TODO: - The package TBDSRC is required in Ubuntu main for TBD
 TODO-A: - The package TBDSRC will generally be useful for a large part of
 TODO-A:   our user base
@@ -18,6 +21,9 @@ TODO: - Package TBDSRC covers the same use case as TBD, but is better
 TODO:   because TBD, thereby we want to replace it.
 TODO: - The package TBDSRC is a new runtime dependency of package TBD that
 TODO:   we already support
+
+
+# -------- Alternatives
 RULE: Sometimes there are other/better ways, often are achieved by using a
 RULE: library with similar functionality that is more commonly used and
 RULE: thereby already in main or a better candidate to promote.
@@ -28,8 +34,12 @@ RULE: spent elsewhere.
 RULE: If there are other packages in the archive that are close, but unable to
 RULE: address the problem you might spend some time explaining what exists and
 RULE: why it isn't a sufficient alternative.
+
 TODO: - There is no other/better way to solve this that is already in main or
 TODO:   should go universe->main instead of this.
+
+
+# -------- Prior-art
 RULE: If the package is in main in other releases (use rmadison to check),
 RULE: and the existing MIR and package content is still applicable and not
 RULE: outdated relative to what you want to add, then please help us to
@@ -48,8 +58,12 @@ RULE: case you likely want to ensure via SRUs that things are up to date anyway
 RULE: and yet again -  if the content, reasoning and outside factors are not
 RULE: vastly different - you'd be expected to add per-release-tasks to the
 RULE: existing MIR case which makes it easier for reporter and reviewer alike.
+
 TODO-A: - This is the first time package will be in main
 TODO-B: - Package was in main before (Ubuntu aa.bb->xx.yy) (MIR-Bug LP: #...)
+
+
+# -------- Main-vs-universe
 RULE: You truly need to understand the difference between main and universe
 RULE: in general and in the context of changed rules (build-depends) and
 RULE: constraints (Ubuntu Pro made it less of a difference in many cases).
@@ -57,10 +71,13 @@ RULE: We have seen requests that were mostly based on old "I said supported (a
 RULE: weakly defined term to begin with) in a contract, so it has to be in main"
 RULE: feelings, but with sometimes no true reason - neither technically nor
 RULE: helping the user base of Ubuntu. Hence we need to ask for that clearly.
+
 TODO: - The binary packages TBD needs to be in main to achieve TBD
 TODO-A: - All other binary packages built by TBDSRC should remain in universe
 TODO-B: - All binary packages built by TBDSRC need to be in main to achieve TBD
 
+
+# -------- Deadline
 RULE: Reviews will take some time. Also the potential extra work out of review
 RULE: feedback from either MIR-team and/or security-team will take time.
 RULE: For better prioritization it is quite helpful to clearly state the
@@ -68,12 +85,15 @@ RULE: target release and set a milestone to the bug task.
 RULE: When doing so do not describe what you "wish" or "would like to have".
 RULE: Only milestones that are sufficiently well-founded and related to
 RULE: major releases will be considered
+
 TODO-A: - The package TBDSRC is required in Ubuntu main no later than TBD
 TODO-A:   due to TBD
 TODO-B: - It would be great and useful to community/processes to have the
 TODO-B:   package TBD in Ubuntu main, but there is no definitive deadline.
 
 [Security]
+
+# -------- CVE-history
 RULE: The security history and the current state of security issues in the
 RULE: package must allow us to support the package for at least 9 months (120
 RULE: for LTS+ESM support) without exposing its users to an inappropriate level
@@ -86,12 +106,15 @@ RULE:   - Ubuntu CVE Tracker
 RULE:     https://ubuntu.com/security/cve?package=<source-package-name>
 RULE:   - Debian Security Tracker
 RULE:     https://security-tracker.debian.org/tracker/source-package/<source-package-name>
+
 TODO-A: - Had #TBD security issues in the past
 TODO-A:   - TBD links to such security issues in trackers
 TODO-A:   - TBD to any context that shows how these issues got handled in
 TODO-A:     the past
 TODO-B: - No CVEs/security issues in this software in the past
 
+
+# -------- Security-sensitive-behavior
 RULE: - Check for security relevant binaries, services and behavior.
 RULE:   If any are present, this requires a more in-depth security review.
 RULE:   Demonstrating that common isolation/risk-mitigation patterns are used
@@ -108,6 +131,7 @@ RULE:   security algorithms like 3DES or TLS/SSL 1.1 are not acceptable.
 RULE:   If you think a package might do that it would be great to provide a
 RULE:   hint for the security team like "Package may use deprecated crypto"
 RULE:   and provide the details you have about that.
+
 TODO: - no `suid` or `sgid` binaries
 TODO-A: - no executables in `/sbin` and `/usr/sbin`
 TODO-B: - Binary TBD in sbin is no problem because TBD
@@ -128,17 +152,21 @@ TODO-B:   TBD endpoint + TBD purpose
 TODO: - Packages does not contain extensions to security-sensitive software
 TODO:   (filters, scanners, plugins, UI skins, ...)
 
+
+# -------- Deprecated-crypto
 RULE: The package should not use deprecated security algorithms like 3DES or
 RULE: TLS/SSL 1.1. The security team is the one responsible to check this,
 RULE: but if you happen to spot something it helps to provide a hint.
 RULE: Provide whatever made you suspicious as details along that statement.
 RULE: Or remove the following lines entirely if you did not spot anything.
+
 TODO: - I've spotted what I consider deprecated algorithms, the security team
 TODO:   should have a more careful look please, details are:
 
 [Quality assurance - function/usage]
 RULE: - After installing the package it must be possible to make it working with
 RULE:   a reasonable effort of configuration and documentation reading.
+
 TODO-A: - The package works well right after install
 TODO-B: - The package needs post install configuration or reading of
 TODO-B:   documentation, there isn't a safe default because TBD
@@ -149,20 +177,25 @@ RULE:   supports and cares for the package.
 RULE: - The status of important bugs in Debian, Ubuntu and upstream's bug
 RULE:   tracking systems must be evaluated. Important bugs must be pointed out
 RULE:   and discussed in the MIR report.
+
 TODO: - The package is maintained well in Debian/Ubuntu/Upstream and does
 TODO:   not have too many, long-term & critical, open bugs
 TODO:   - Ubuntu https://bugs.launchpad.net/ubuntu/+source/TBDSRC/+bug
 TODO:   - Debian https://bugs.debian.org/cgi-bin/pkgreport.cgi?src=TBDSRC
 TODO:   - Upstream's bug tracker, e.g., GitHub Issues
 TODO: - The package has important open bugs, listing them: TBD
-TODO-A: - The package does not deal with exotic hardware we cannot support
-TODO-B: - The package does deal with exotic hardware, such hardware is available
-TODO-B:   to the team for debugging, test, verification and development via:
+
+
+# -------- Exotic-hardware
 RULE: This is about confidence to be able to maintain the package, therefore
 RULE: any option (the examples or anything else you add) is "valid", but it
 RULE: depends on the case if that is then considered sufficient.
 RULE: The following examples are in descending order in regard to how "ok" they
 RULE: likely will be.
+
+TODO-A: - The package does not deal with exotic hardware we cannot support
+TODO-B: - The package does deal with exotic hardware, such hardware is available
+TODO-B:   to the team for debugging, test, verification and development via:
 TODO-B1:   - testflinger under the following queue(s): TBD
 TODO-B2:   - (multiple) Canonical systems in the TBD computing center/lab
 TODO-B3:   - an engineering sample in engineers home on TBD team, manager TBD
@@ -170,25 +203,36 @@ TODO-B4:   - (multiple) cloud providers as type: TBD
 TODO-B5:   - hopefully somewhen getting it due to TBD
 
 [Quality assurance - testing]
+
+# -------- Build-time-tests
 RULE: - The package must include a non-trivial test suite
 RULE:   - it should run at package build and fail the build if broken
+
 TODO-A: - The package runs a test suite on build time, if it fails
 TODO-A:   it makes the build fail, link to build log TBD
 TODO-B: - The package does not run a test at build time because TBD
 
+
+# -------- Autopkgtests
 RULE:   - The package should, but is not required to, also contain
 RULE:     non-trivial autopkgtest(s).
+
 TODO-A: - The package runs an autopkgtest, and is currently passing on
 TODO-A:   this TBD list of architectures, link to test logs TBD
 TODO-B: - The package does not run an autopkgtest because TBD
 
+
+# -------- Failing-tests
 RULE: - existing but failing tests that shall be handled as "ok to fail"
 RULE:   need to be explained along the test logs below
+
 TODO-A: - The package does have not failing autopkgtests right now
 TODO-B: - The package does have failing autopkgtests tests right now, but since
 TODO-B:   they always failed they are handled as "ignored failure", this is
 TODO-B:   ok because TBD
 
+
+# -------- Untestable-packages
 RULE: - If no build tests nor autopkgtests are included, and/or if the package
 RULE:   requires specific hardware to perform testing, the subscribed team
 RULE:   must provide a written test plan in a comment to the MIR bug, and
@@ -212,6 +256,7 @@ RULE:   have for the given package. And let us be honest, even if you can
 RULE:   test you are never sure you will be able to catch all potential
 RULE:   regressions. So this is mostly to force self-awareness of the owning
 RULE:   team than to make a decision on.
+
 TODO: - The package can not be well tested at build or autopkgtest time
 TODO:   because TBD. To make up for that:
 TODO-A:   - We have access to such hardware in the team
@@ -249,6 +294,8 @@ TODO-X:     - TBD
 TODO-X:     - TBD
 TODO-X:     - TBD
 
+
+# -------- Micro-libraries
 RULE: - In some cases a solution that is about to be promoted consists of
 RULE:   several very small libraries and one actual application uniting them
 RULE:   to achieve something useful. This is rather common in the go/rust space.
@@ -263,10 +310,13 @@ RULE:     requirements for the test of the actual app/solution.
 RULE:   - Since this might promote micro-lib packages to main with less than
 RULE:     the common level of QA any further MIRed program using them will have
 RULE:     to provide the same amount of increased testing.
+
 TODO: - This package is minimal and will be tested in a more wide reaching
 TODO:   solution context TBD, details about this testing are here TBD
 
 [Quality assurance - packaging]
+
+# -------- Upstream-watch
 RULE: - The package uses a debian/watch or debian/upstream/metadata file
 RULE:   whenever possible. The second option is the alternative for packages
 RULE:   maintained with git-buildpackage. Consider whether that's
@@ -277,22 +327,29 @@ RULE:   providing clear instructions on how to generate the source tar file.
 RULE:   For clarity the TODOs below refer as "upstream watch file" to any
 RULE:   solution similar to the alternatives above which must be present in the
 RULE:   package so tools can detect and fetch new upstream releases.
+
 TODO-A: - A mechanism to detect and fetch new upstream versions is present and works
 TODO-B: - A mechanism to detect and fetch new upstream versions is not present,
 TODO-B:   instead it has TBD
 TODO-C: - A mechanism to detect and fetch new upstream versions is not present
 TODO-C:   because it is a native package
 
+
+# -------- Maintainer
 RULE: - The package should define the correct "Maintainer:" field in
 RULE:   debian/control. This needs to be updated, using `update-maintainer`
 RULE:   whenever any Ubuntu delta is applied to the package, as suggested by
 RULE:   dpkg (LP: #1951988)
+
 TODO: - debian/control defines a correct Maintainer field
 
+
+# -------- Lintian
 RULE: - It is often useful to run `lintian --pedantic` on the package to spot
 RULE:   the most common packaging issues in advance
 RULE: - Non-obvious or non-properly commented lintian overrides should be
 RULE:   explained
+
 TODO: - This package does not yield massive lintian Warnings, Errors
 TODO: - Please link to a recent build log of the package <TBD>
 TODO: - Please attach the full output you have got from
@@ -300,27 +357,45 @@ TODO:   `lintian --pedantic` as an extra post to this bug.
 TODO-A: - Lintian overrides are not present
 TODO-B: - Lintian overrides are present, but ok because TBD
 
+
+# -------- Obsolete-deps
 RULE: - The package should not rely on obsolete or about to be demoted packages.
 RULE:   That currently includes package dependencies on Python2 (without
 RULE:   providing Python3 packages), and packages depending on GTK2.
+
 TODO: - This package does not rely on obsolete or about to be demoted packages.
 TODO: - This package has no python2 or GTK2 dependencies
 
+
+# -------- Debconf
 RULE: - Debconf questions should not bother the default user too much
+
 TODO-A: - The package will be installed by default, but does not ask debconf
 TODO-A:   questions higher than medium
 TODO-B: - The package will not be installed by default
 
+
+# -------- Packaging-complexity
 RULE:  - The source packaging (in debian/) should be reasonably easy to
 RULE:   understand and maintain.
+
 TODO-A: - Packaging and build is easy, link to debian/rules TBD
 TODO-B: - Packaging is complex, but that is ok because TBD
 
 [UI standards]
+
+# -------- Translation
+RULE: - End-user facing applications must support translation/intl.
+RULE:   Non-end-user applications (libraries, daemons, CLI tools) are exempt.
+
 TODO-A: - Application is not end-user facing (does not need translation)
 TODO-B: - Application is end-user facing, Translation is present, via standard
 TODO-B:   intltool/gettext or similar build and runtime internationalization
 TODO-B:   system see TBD
+
+
+# -------- Desktop-file
+RULE: - End-user GUI applications should ship a standard conformant desktop file.
 
 TODO-A: - End-user applications that ships a standard conformant desktop file,
 TODO-A:   see TBD
@@ -332,6 +407,7 @@ RULE:   Depends: concrete-package-in-main | metapackage
 RULE: - Build(-only) dependencies can be in universe
 RULE: - If there are further dependencies they need a separate MIR discussion
 RULE:   (this can be a separate bug or another task on the main MIR bug)
+
 TODO-A: - Used check-mir from ubuntu-dev-tools to validate
 TODO-A:   all dependencies or recommends are in main.
 TODO-B: - There are further dependencies that are not yet in main, MIR for them
@@ -340,12 +416,17 @@ TODO-C: - There are further dependencies that are not yet in main, the MIR
 TODO-C:   process for them is handled as part of this bug here.
 
 [Standards compliance]
+
+# -------- FHS-and-policy
 RULE: - Major violations should be documented and justified.
 RULE:   - FHS: https://refspecs.linuxfoundation.org/fhs.shtml
 RULE:   - Debian Policy: https://www.debian.org/doc/debian-policy/
+
 TODO-A: - This package correctly follows FHS and Debian Policy
 TODO-B: - This package violates FHS or Debian Policy, reasons for that are TBD
 
+
+# -------- License-longevity
 RULE: - The package's license must remain compatible with Ubuntu main for the
 RULE:   full support lifetime of the release (including ESM where relevant).
 RULE:   Consider whether the license could expire, time out, or otherwise change
@@ -355,6 +436,7 @@ RULE:   code where the permissive branch could be withdrawn, or terms that only
 RULE:   apply to the current upstream version.
 RULE:   If you suspect any of the above may apply, flag it explicitly so the MIR
 RULE:   team can weigh the long-term cost before promotion.
+
 TODO-A: - Based on a reasonable review of information available at the time of
 TODO-A:   this report, no expiry, time-limited grants, or obvious legal
 TODO-A:   encumbrances have been identified that would be expected to affect
@@ -363,6 +445,8 @@ TODO-B: - The license carries potential encumbrances or time-bound terms,
 TODO-B:   details: TBD
 
 [Maintenance/Owner]
+
+# -------- Owning-team
 RULE: The package must have an acceptable level of maintenance corresponding
 RULE: to its complexity:
 RULE: - All packages must have a designated "owning" team, regardless of
@@ -398,13 +482,17 @@ RULE:   developers paying attention to their bugs, whether that be in Ubuntu
 RULE:   or elsewhere (often Debian). Packages that deliver major new headline
 RULE:   features in Ubuntu need to have commitment from Ubuntu developers
 RULE:   willing to spend substantial time on them.
+
 TODO-A: - The owning team will be TBD and I have their acknowledgment for
 TODO-A:   that commitment
 TODO-B: - I Suggest the owning team to be TBD
+
 TODO-A: - The future owning team is already subscribed to the package
 TODO-B: - The future owning team is not yet subscribed, but will subscribe to
 TODO-B:   the package before promotion
 
+
+# -------- Static-builds
 RULE: - Responsibilities implied by static builds promoted to main, which is
 RULE:   not a recommended but a common case with golang and rust packages.
 RULE:   - the security team will track CVEs for all vendored/embedded sources in main
@@ -475,6 +563,7 @@ RULE:       https://salsa.debian.org/ubuntu-dev-team/snapshot/-/blob/ubuntu/late
 
 RULE: - All vendored dependencies (no matter what language) shall have a
 RULE:   way to be refreshed
+
 TODO-A: - This does not use static builds
 TODO-B: - The team TBD is aware of the implications by a static build and
 TODO-B:   commits to test no-change-rebuilds and to fix any issues found for the
@@ -503,6 +592,8 @@ TODO-A: - This package is not rust based
 TODO-B: - This package is rust based and vendors all non language-runtime
 TODO-B:   dependencies
 
+
+# -------- Recent-build
 RULE: - Some packages build and update often, in this case everyone can just
 RULE:   check the recent build logs to ensure if it builds fine.
 RULE:   But some other packages are rather stable and have not been rebuilt
@@ -514,6 +605,7 @@ RULE:   archive test rebuild (those are announced on the ubuntu-devel mailing
 RULE:   list like https://lists.ubuntu.com/archives/ubuntu-devel-announce/2024-January/001342.html),
 RULE:   or a build set up by the reporter in a PPA with all architectures
 RULE:   enabled.
+
 TODO-A: - The package has been built within the last 3 months in the archive
 TODO-B: - The package has been built within the last 3 months as part
 TODO-B:   of a test rebuild
@@ -523,8 +615,11 @@ TODO-D:   can not be uploaded yet
 RULE: - To make it easier for everyone, please provide a link to that build so
 RULE:   everyone can follow up easily e.g. checking the various architectures.
 RULE:   Example https://launchpad.net/ubuntu/+source/qemu/1:8.2.2+ds-0ubuntu1
+
 TODO: - Build link on launchpad: TBD
 
+
+# -------- Cross-team-impact
 RULE: A few times we had packages that seemed fine for the package itself, but
 RULE: caused quite some fallout and effort in related teams. We'd ask you to
 RULE: think who else might be affected by promoting this package(s) and to
@@ -534,6 +629,7 @@ RULE: Examples of the past which we admit could have been better (grows by
 RULE: painful lessons learned):
 RULE: - changing to rust coreutils forced us to update any apparmor profiles
 RULE:   that referred to these paths
+
 TODO-A: This change will not impact other teams
 TODO-B: This change will impact other teams TBD[, TBD] and they are
 TODO-B: aware due to TBD
@@ -544,6 +640,7 @@ RULE:   of the package. Additional explanations/justifications should be done in
 RULE:   the MIR report.
 RULE: - If the package was renamed recently, or has a different upstream name,
 RULE:   this needs to be explained in the MIR report.
+
 TODO: The Package description explains the package well
 TODO: Upstream Name is TBD
 TODO: Link to upstream project TBD

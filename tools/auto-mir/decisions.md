@@ -5594,3 +5594,52 @@ No code changed.
 
 **Validation from `tools/auto-mir`:** `make test` PASS (1042 passed, 2
 skipped; unchanged counts - documentation only).
+
+## 2026-09-09 — Reporter template group headings (port of PR #778)
+
+Promotion: no
+
+**Context:** PR #778 (amrelsh, "docs/MIR: add group delimiters to reporter
+template") improved the human-readable reporter template with
+`# -------- <Label>` group headers, blank lines between RULE and TODO blocks,
+and an exotic-hardware block reorder, but it predated the catalog merge and
+edited the old inline `docs/MIR/mir-reporters-template.md` text that no longer
+exists. The blueprint entry vocabulary
+(`catalog.classify_blueprint_entry`) had no kind for such heading lines, so
+catalog loading would have rejected them as unrecognized prose.
+
+**Decision:** port the intent into `catalog-mir-report.yaml` in two steps.
+First, extend the blueprint vocabulary with a deliberately narrow `heading`
+kind (`#` + space + 3+ dashes + non-empty label; plain `#` comment lines
+still fail validation as `text`). Second, apply the PR's wording to the
+reporter blueprint: 28 group headers, blank separators between RULE and TODO
+blocks, the exotic-hardware item moved after its RULE block, and new RULE
+prose in [UI standards] (translation/intl and desktop-file requirements).
+The new UI RULE lines are tagged `RULE[ui-translation]:` /
+`RULE[ui-desktop-file]:` with `covers_rule_clauses` on REP-UI-001/REP-UI-002:
+untagged lines leaked into the still-open `pkg-maintainability` clause,
+because `_blueprint_rule_clauses` attaches plain RULE lines across section
+boundaries (REP-QA-PKG-004's context gained three irrelevant UI lines).
+Tagging keeps that clause closed at the section boundary and gives each UI
+item exactly its own policy context; runtime-only REP-UI-003 still gets the
+whole section's rules. Golden fixtures were regenerated via
+`make update-goldens`; the reporter golden is byte-identical to the PR's
+intended template text (verified by applying the PR diff to the previous
+golden) and the reviewer golden is unchanged.
+
+**Consequences:**
+
+- The rendered reporter template now matches PR #778's intended layout;
+  CI-visible docs change only through the generated include.
+- REP-UI-001/002/003 gained auto-derived `rule_context` from the new UI RULE
+  prose (they had none before); no other item's context changed
+  (byte-verified against the pre-change catalog for all 64 items).
+- The heading kind is inert at runtime: `_sections_from_blueprint` keeps
+  skipping everything but sections and items, so reporter drafts are
+  unaffected.
+- Vale (woke + error filters) reports zero new findings on the regenerated
+  include; the include file remains outside the CI style-check globs.
+
+**Validation from `tools/auto-mir`:** `make test` equivalent PASS (1049
+passed, 2 skipped); reporter golden byte-equal to the PR-intent target,
+reviewer golden unchanged.
