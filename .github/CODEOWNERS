@@ -5,10 +5,12 @@
 * @s-makin @rkratky @msuchane
 
 # MIR team PR approvals
-# - TAs not required for MIR content approvals
+# - TAs not required for MIR content and tool approvals
 MIR/
-# - MIR team owns all MIR docs anywhere in the repo
+tools/auto-mir/
+# - MIR team owns all MIR docs and tools anywhere in the repo
 MIR/ @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
+tools/auto-mir/ @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
 
 # SRU team PR approvals
 # - TAs not required for SRU content approvals
