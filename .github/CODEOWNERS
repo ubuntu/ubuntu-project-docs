@@ -9,8 +9,8 @@
 MIR/
 tools/auto-mir/
 # - MIR team owns all MIR docs and tools anywhere in the repo
-MIR/ @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
-tools/auto-mir/ @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
+MIR/ @setharnold @joalif @didrocks @cpaelzer @freyes @pushkarnk
+tools/auto-mir/ @setharnold @joalif @didrocks @cpaelzer @freyes @pushkarnk
 
 # SRU team PR approvals
 # - TAs not required for SRU content approvals
