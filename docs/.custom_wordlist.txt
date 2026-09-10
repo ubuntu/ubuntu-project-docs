@@ -201,6 +201,7 @@ syncable
 sysroot
 systemd
 tarball
+tasksel
 Tegra
 templated
 testsuite
@@ -264,6 +265,7 @@ Zulip
 Zope
 ACLs
 APIs
+Astro
 Autopkgtest
 autopkgtest
 Backports

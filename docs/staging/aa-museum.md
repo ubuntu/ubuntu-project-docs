@@ -55,7 +55,7 @@ Archive.
 * [`component-mismatches.txt`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.txt)
 
   As described above, this lists the differences between the Archive and the
-  output of the {ref}`germinate` script. It shows up packages that are in the
+  output of the {ref}`germinate <germinate>` script. It shows up packages that are in the
   wrong place, or need seeding.
 
 * [`germinate-output`](https://ubuntu-archive-team.ubuntu.com/germinate-output/)

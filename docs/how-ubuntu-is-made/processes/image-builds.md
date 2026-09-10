@@ -30,7 +30,7 @@ Ubuntu produces several image types:
 
 1. **Mirror sync** — A local mirror is synchronised in parallel to ensure no packages are stale.
 
-1. **Intermediate steps** — `ubuntu-cdimage` runs `germinate` and other preparation steps.
+1. **Intermediate steps** — `ubuntu-cdimage` runs `germinate` and other preparation steps. Germinating the flavor's {ref}`seeds` is what determines which packages and snaps go into which part of the image; see {ref}`how-seeds-are-used`.
 
 1. **Wait for `livefs`** — `ubuntu-cdimage` waits for all `livefs` builds to complete and downloads them. Failed builds are reported by email to `ubuntu-cdimage` members.
 
