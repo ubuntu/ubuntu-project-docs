@@ -315,3 +315,8 @@ willsync
 wnpp
 debbugs
 Usertagging
+TODOs
+subprocess
+multiline
+backoff
+OpenRouter

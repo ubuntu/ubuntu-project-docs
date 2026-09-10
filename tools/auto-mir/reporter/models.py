@@ -1,0 +1,211 @@
+"""Typed domain models for the MIR reporter workflow."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from enum import StrEnum
+from typing import Any
+
+
+class QuestionKind(StrEnum):
+    """Supported terminal input shapes."""
+
+    TEXT = "text"
+    MULTILINE = "multiline"
+    CONFIRM = "confirm"
+    SINGLE_CHOICE = "single_choice"
+
+
+class StatementState(StrEnum):
+    """Resolution state for one reporter-template statement.
+
+    ``MERGED`` means this item was answered, but its text belongs to another
+    item's statement (see the catalog ``completes`` field): a follow-up that
+    fills the ``TBD`` of the alternative its parent question selected
+    produces one finished sentence, exactly as the human template words it,
+    rather than a second bullet restating the same decision.
+    """
+
+    RESOLVED = "resolved"
+    NEEDS_INPUT = "needs-input"
+    NOT_APPLICABLE = "not-applicable"
+    UNAVAILABLE = "unavailable"
+    MERGED = "merged"
+
+
+class ReadinessEffect(StrEnum):
+    """How an item affects readiness to submit the MIR request."""
+
+    CLEAR = "clear"
+    WARNING = "warning"
+    BLOCKER = "blocker"
+
+
+class Provenance(StrEnum):
+    """Authority that supplied the final reporter statement."""
+
+    DETERMINISTIC = "deterministic"
+    HUMAN = "human"
+    AI_CONFIRMED = "ai-confirmed"
+
+
+@dataclass(frozen=True)
+class PreparedSuggestion:
+    """One ``ev_to_ai`` item's AI product, prepared before the interactive phase.
+
+    The reporter flow prepares every evidence-grounded suggestion up front
+    (pass 1) so the interactive phase (pass 2) is one uninterrupted batch of
+    confirmations instead of a question, a wait for an LLM call, another
+    question. The interactive phase only consumes what this record holds.
+
+    ``ask_human`` marks the cases where no suggestion could be prepared
+    (no LLM credential, required evidence unavailable, an LLM failure, or
+    low confidence): the interactive phase replays ``note_text``/
+    ``note_detail`` as a "Note" block and asks the reporter directly.
+    ``option_readiness`` and ``selected_option`` carry the catalog option
+    resolution, so confirming needs no further AI work.
+    """
+
+    suggestion: str = ""
+    rationale: str = ""
+    lock_yes_reason: str | None = None
+    option_readiness: ReadinessEffect | None = None
+    selected_option: str = ""
+    evidence_refs: list[str] = field(default_factory=list)
+    ask_human: bool = False
+    note_text: str = ""
+    note_detail: str = ""
+
+
+@dataclass(frozen=True)
+class QuestionOption:
+    """One catalog-defined choice for a terminal question.
+
+    ``locked_reason``, when non-empty, means the option is currently shown
+    but not selectable (e.g. its catalog-declared ``unavailable_if``
+    condition resolved true against evidence). It is a *resolved* runtime
+    value computed by the evaluator, not something the catalog authors
+    directly on this model.
+
+    ``list_note``, when non-empty, is an informational line shown under the
+    option (e.g. spelling out concrete evidence-derived names) without being
+    part of the recorded ``statement`` itself.
+
+    ``todo_ref``, when non-empty, is this option's own catalog-authored
+    ``TODO-<letter>:`` reference line (mirrors the reviewer catalog's option
+    ``todo_ref``). It is never shown as part of a resolved statement; it
+    exists so an unresolved/deferred item can still preserve each option's
+    original TODO-lettered alternative text for a "Left to clarify" block.
+    """
+
+    id: str
+    label: str
+    statement: str = ""
+    exclusive: bool = False
+    leads_to_followup: bool = False
+    readiness: ReadinessEffect | None = None
+    locked_reason: str = ""
+    list_note: str = ""
+    todo_ref: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.id.strip():
+            raise ValueError("question option id must not be empty")
+        if not self.label.strip():
+            raise ValueError(f"question option {self.id!r} label must not be empty")
+
+
+@dataclass(frozen=True)
+class QuestionSpec:
+    """Validated description of one question asked by the reporter wizard.
+
+    ``deferrable``, when true, offers an explicit ``:defer`` escape hatch
+    (see ``TerminalWizard``) so the reporter can say "I cannot resolve this
+    now" instead of being forced to either answer or abort the whole run.
+    Set for every question a catalog item generates (``human_only`` and
+    the ``ev_to_ai`` human fallback alike): a required question deferred
+    becomes ``NEEDS_INPUT`` under "Left to clarify:", an optional
+    question's skip stays ``NOT_APPLICABLE``.
+
+    ``prefill`` is the statement text the free-text editor opens on, taken
+    from the item's catalog ``template`` with its ``TBD`` slot(s) still in
+    place. The reporter edits the sentence that will actually appear in the
+    report instead of answering an interview question whose answer the tool
+    then has to splice into a template - which is what produced ungrammatical
+    statements like "required in Ubuntu main for This is an entropy source
+    alternative". Empty for questions with no template to complete.
+    """
+
+    id: str
+    prompt: str
+    kind: QuestionKind
+    required: bool = True
+    options: tuple[QuestionOption, ...] = ()
+    hint: str = ""
+    default: Any = None
+    rule_context: str = ""
+    answer_guidance: str = ""
+    deferrable: bool = False
+    prefill: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.id.strip():
+            raise ValueError("question id must not be empty")
+        if not self.prompt.strip():
+            raise ValueError(f"question {self.id!r} prompt must not be empty")
+
+        choice_kind = self.kind == QuestionKind.SINGLE_CHOICE
+        if choice_kind and not self.options:
+            raise ValueError(f"question {self.id!r} requires at least one option")
+        if not choice_kind and self.options:
+            raise ValueError(f"question {self.id!r} cannot define options for {self.kind}")
+
+        option_ids = [option.id.casefold() for option in self.options]
+        if len(option_ids) != len(set(option_ids)):
+            raise ValueError(f"question {self.id!r} has duplicate option ids")
+
+
+@dataclass(frozen=True)
+class Answer:
+    """One normalized human answer retained for the current process only."""
+
+    question_id: str
+    value: Any
+
+
+@dataclass
+class StatementResult:
+    """Reporter-facing result for one catalog statement.
+
+    This deliberately does not reuse reviewer ``Finding`` severity or ACK/NACK
+    semantics. An AI suggestion becomes authoritative only after the reporter
+    explicitly confirms it, represented by ``Provenance.AI_CONFIRMED`` and
+    ``human_confirmed=True``.
+    """
+
+    id: str
+    section: str
+    state: StatementState
+    readiness: ReadinessEffect
+    statement: str = ""
+    selected_option: str | list[str] | None = None
+    provenance: Provenance | None = None
+    evidence_refs: list[str] = field(default_factory=list)
+    answer_refs: list[str] = field(default_factory=list)
+    rationale: str = ""
+    human_confirmed: bool = False
+
+    def __post_init__(self) -> None:
+        if not self.id.strip():
+            raise ValueError("statement result id must not be empty")
+        if not self.section.strip():
+            raise ValueError(f"statement result {self.id!r} section must not be empty")
+        if self.state == StatementState.RESOLVED:
+            if not self.statement.strip():
+                raise ValueError(f"resolved statement {self.id!r} must include text")
+            if self.provenance is None:
+                raise ValueError(f"resolved statement {self.id!r} must include provenance")
+        if self.provenance == Provenance.AI_CONFIRMED and not self.human_confirmed:
+            raise ValueError(f"AI statement {self.id!r} must be explicitly human-confirmed")
+        if self.state != StatementState.RESOLVED and self.provenance == Provenance.AI_CONFIRMED:
+            raise ValueError(f"unresolved statement {self.id!r} cannot use AI-confirmed provenance")
