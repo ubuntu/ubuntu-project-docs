@@ -1,0 +1,31 @@
+digraph key {
+    graph [rankdir=TB label="Key" bgcolor=none color=lightgray];
+    node [fontname="Ubuntu Sans" fontsize=10 shape=point label="" color=black fillcolor=black];
+    edge [fontname="Ubuntu Sans" fontsize=10 style=solid];
+
+    color1;
+    color2;
+    color1->color2 [color=limegreen label="Install\nroute"];
+    color1->color2 [color=darkgreen label="\nRe-install\nroute"];
+    color1->color2 [color=blue label="\n\nUpgrade\nroute"];
+    color1->color2 [color=red label="\nRemove\nroute"];
+    color1->color2 [color=firebrick label="Purge\nroute"];
+
+    style1;
+    style2;
+    style1->style2 [color=black style=solid label="On success"];
+    style1->style2 [color=black style=dotted label="\n\nOn failure"];
+
+    package_state [shape=rect style="filled,rounded" fontcolor=white fillcolor="#ED764D" label="Package\nstate"];
+    user_action [shape=rect style=filled fontcolor=white fillcolor="#925375" label="User\naction"];
+    dpkg_action [shape=rect style=filled fillcolor=white label="dh/dpkg\nactivity"];
+    maintscript [shape=rect style=filled fillcolor="#BEB8B2" label="Run\nmaintscript"];
+
+    /* "Hidden" edges to order things in the key */
+    edge [color=none]
+    color2->style1;
+    package_state->color1;
+    maintscript->dpkg_action;
+    dpkg_action->user_action;
+    user_action->package_state;
+}
