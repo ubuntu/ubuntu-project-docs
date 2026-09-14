@@ -4,6 +4,10 @@ applyTo: "docs/**"
 
 # Content conventions
 
+Scope contract: This file governs writing and markup conventions for `docs/**`
+content only. It does not define Python code style, Ruff policy, or tool test
+workflows under `tools/**`.
+
 > **Keep this file in sync with `docs/contributors/contribute-docs.md`** — whenever the contribution guide changes, update this file accordingly.
 
 

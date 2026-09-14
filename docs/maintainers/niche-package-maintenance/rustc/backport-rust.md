@@ -219,6 +219,12 @@ The `rustc` autopkgtest suite includes a test that runs the package build proces
 -Restrictions: rw-build-tree, allow-stderr
 ```
 
+If you have read the {ref}`Rust patching guide <how-to-patch-rust>` you may
+remember {ref}`instructions<disable-rust-selfbuild-autopkgtest>` to reference a
+bug when disabling the test. While you may do this if you wish, it is
+unnecessary when backporting because you are uploading a brand-new package to
+your target series—there is no regression.
+
 Even in the absence of this test, the build process already includes a self-build step as part of the [Rust compiler bootstrapping process](https://rustc-dev-guide.rust-lang.org/building/bootstrapping/what-bootstrapping-does.html): the previous Rust compiler is used to build a "stage1" new Rust compiler, which is then used to build the "stage2" compiler that is being packaged. For backports this is generally sufficient. The ability of the new packaged toolchain to build the next Rust version can be verified directly when the next Rust version is backported. If this verification is needed immediately, and the next Rust version is not yet available, it can be done with a {ref}`Launchpad self-build <launchpad-self-build-optional>`.
 
 (rust-ppa-build)=
