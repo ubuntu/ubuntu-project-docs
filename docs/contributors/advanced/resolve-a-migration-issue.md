@@ -177,10 +177,10 @@ release=<RELEASE>&arch=<ARCH>&package=<SRCPKG>&trigger=<SRCPKG>/<VERSION>&ppa=<L
 You must have upload rights for the package (`<SRCPKG>` above) for the test request to be successful.
 :::
 
-The test is then displayed at [`autopkgtest.ubuntu.com/running`](https://autopkgtest.ubuntu.com/running). Upon completion, the test result is available at an index page at `https://autopkgtest.ubuntu.com/results/autopkgtest-<RELEASE>-<LPUSER>-<PPA>/?format=plain`. The index contains the results for each autopkgtest run against this particular `<PPA>` for this `<RELEASE>`. To see a particular test, append the appropriate path from the index to
+The test is then displayed at [`autopkgtest.ubuntu.com/running`](https://autopkgtest.ubuntu.com/running). Upon completion, the test result is available at `https://autopkgtest.ubuntu.com/user/<LPUSER>/ppa`. The index contains the results for each autopkgtest run against this particular `<PPA>`. To see a particular test, navigate to
 
 ```none
-https://autopkgtest.ubuntu.com/results/autopkgtest-<RELEASE>-<LPUSER>-<PPA>/
+https://autopkgtest.ubuntu.com/user/<LPUSER>/ppa
 ```
 
 

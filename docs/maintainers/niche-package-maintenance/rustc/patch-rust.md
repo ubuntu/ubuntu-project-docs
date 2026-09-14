@@ -143,6 +143,40 @@ You must also verify that none of your changes have interfered with {term}`autop
 
 ```
 
+(disable-rust-selfbuild-autopkgtest)=
+#### Failing selfbuild autopkgtest
+
+The selfbuild autopkgtest is often flaky because it recompiles the entire
+compiler—a task too large for typical autopkgtest infrastructure. This is a
+well-known problem; it is unlikely you have done anything wrong (especially if
+your patch is small). The bug representing this issue is {lpbug}`2144934`.
+
+For a {ref}`new toolchain upload <how-to-update-rust>`, this should be
+addressed, but you are not expected to fix this when simply patching the
+toolchain; the autopkgtest already passed once before.
+
+In this case, go to {lpbug}`2144934`, mark the bug as affecting the toolchain
+version you're working on, and then comment out the autopkgtest in
+`debian/tests/control`, referencing the bug number:
+
+```diff
+--- a/debian/tests/control
++++ b/debian/tests/control
+@@ -1,6 +1,7 @@
+-Test-Command: ./debian/rules build RUST_TEST_SELFBUILD=1
+-Depends: @, @builddeps@
+-Restrictions: rw-build-tree, allow-stderr
++# Disabled due to excessive resource usage (LP: #2144934)
++# Test-Command: ./debian/rules build RUST_TEST_SELFBUILD=1
++# Depends: @, @builddeps@
++# Restrictions: rw-build-tree, allow-stderr
+ 
+ Tests: create-and-build-crate
+ Restrictions: rw-build-tree, allow-stderr
+```
+
+Ensure you reference the bug in your commit message and changelog entry as well.
+
 ### Uploading the patched package
 
 Once you are satisfied with your changes, upload the package.

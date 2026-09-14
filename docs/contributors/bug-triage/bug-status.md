@@ -125,7 +125,7 @@ have any questions, contact the {ref}`bug-squad` via their mailing list.
 
   * *Fix Committed* is not to be used when a patch is attached to a report. 
 
-: **Upstream task**: the fix is in `bzr/CVS/git/SVN`, or committed to some place. 
+: **Upstream task**: the fix is in `git/SVN`, or committed to some place. 
 
 
 *Fix Released*

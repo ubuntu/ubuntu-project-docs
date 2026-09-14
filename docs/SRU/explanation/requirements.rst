@@ -120,3 +120,8 @@ SRU meets our policy. This should include:
    as is reasonable.
 
 For details, see :ref:`Explanation → Reason for requirements → Documentation <explanation-documentation>`.
+
+.. seealso::
+
+   :ref:`Reference → Requirements <reference-general-requirements>`
+      Detailed SRU requirements (general, documentation, and upload requirements).

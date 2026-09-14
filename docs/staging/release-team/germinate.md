@@ -117,8 +117,8 @@ Grab the seeds that you need:
 ```bash
 mkdir -p /home/user/projects/seeds
 cd /home/user/projects/seeds
-bzr branch lp:~ubuntu-core-dev/ubuntu-seeds/platform.hardy
-bzr branch lp:~ubuntu-core-dev/ubuntu-seeds/ubuntu.hardy
+git clone git+ssh://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/platform.hardy
+git clone git+ssh://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/ubuntu.hardy
 ```
 
 Now that you have your seeds in the directory

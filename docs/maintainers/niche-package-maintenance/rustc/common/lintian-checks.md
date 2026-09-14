@@ -20,18 +20,7 @@ $ lintian -i --tag-display-limit 0 2>&1 | tee <path_to_log_file>
 
 #### Addressing warnings and errors
 
-You must address all of these in one way or another. They must either be fixed or added to `debian/source/lintian-overrides{,.in}`, with a few notable exceptions:
-
-- `E: rustc-1.86 source: field-too-long Vendored-Sources-Rust`
-  - This is simply the length of the field. While we _would_ like to change this in the future in `dh-cargo`, there's nothing that can (or should) be done about this for now.
-- `E: rustc-1.86 source: unknown-file-in-debian-source [debian/source/lintian-overrides.in]`
-  - This is just the file used to generate the Lintian overrides for a given Rust version. It's completely harmless to have in the source tree.
-- `E: rustc-1.86 source: version-substvar-for-external-package Depends ${binary:Version} cargo-<X.Y> -> rustc [debian/control:*]`
-  - This is just a fallback for a non-versioned `rustc` package. While it's unlikely to ever be used, it's not a typo, so you don't need to worry about it.
-- `W: rustc-1.86 source: unknown-field Vendored-Sources-Rust`
-  - This is a custom field, not a typo.
-
-As for any other warnings or errors, you must figure out whether the lint should be ignored or remedied. Don't be afraid to ask for help from more experienced package maintainers, or consult the existing Lintian overrides for precedence.
+Some warnings and errors should be fixed, some should be silenced, and some should be left alone. Consult the {ref}`common-rustc-lintian-issues` article for information on specific Lintian problems.
 
 #### Extra lints
 

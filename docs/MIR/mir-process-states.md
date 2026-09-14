@@ -16,7 +16,13 @@ an MIR bug's current state.
 
 ```{mermaid}
 %% mermaid flowcharts documentation: https://mermaid.js.org/syntax/flowchart.html
-%%{ init: { "flowchart": { "curve": "monotoneY", "htmlLabels": true } } }%%
+%%{ init: { 'flowchart': {
+                'curve': 'monotoneY',
+                'htmlLabels': true },
+            'themeVariables': {
+                'fontSize': '1em',
+                'fontFamily': 'Ubuntu'} } }%%
+
 flowchart TD
     %% Styles
     classDef Invisible stroke-width:0,fill:#00000000
@@ -37,27 +43,27 @@ flowchart TD
     BugCreated>"Bug created"]
 
     %% Transitions
-    Start-->|"<div style='background:#8BC34A'><i>a)</i> create MIR bug</div>"| BugCreated
-    BugCreated-->|"<div style='background:#8BC34A'><i>b)</i> subscribe <code>~ubuntu-mir</code></div>"|ToReview
+    Start-->|"<div><i>a)</i> create MIR bug</div>"| BugCreated
+    BugCreated-->|"<div><i>b)</i> subscribe <code>~ubuntu-mir</code></div>"|ToReview
 
-    ToReview -->|"<div style='background:#4ECDC4'><i>c)</i> triaged by MIR team</div>"| AssignedToMirTeamMember
+    ToReview -->|"<div><i>c)</i> triaged by MIR team</div>"| AssignedToMirTeamMember
 
-    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'><i>d</i>) MIR team ACK</div>"| InProgress
-    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'><i>e</i>) MIR team ACK,<br>Security needed</div>"| AssignedToSecurityTeamMember
-    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'><i>f</i>) MIR team NACK</div>"| WontFix
-    AssignedToMirTeamMember -->|"<div style='background:#4ECDC4'><i>g</i>) needs questions/actions</div>"| Incomplete
+    AssignedToMirTeamMember -->|"<div><i>d</i>) MIR team ACK</div>"| InProgress
+    AssignedToMirTeamMember -->|"<div><i>e</i>) MIR team ACK,<br>Security needed</div>"| AssignedToSecurityTeamMember
+    AssignedToMirTeamMember -->|"<div><i>f</i>) MIR team NACK</div>"| WontFix
+    AssignedToMirTeamMember -->|"<div><i>g</i>) needs questions/actions</div>"| Incomplete
 
-    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'><i>h</i>) Security ACK</div>"| InProgress
-    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'><i>i</i>) Security NACK</div>"| WontFix
-    AssignedToSecurityTeamMember -->|"<div style='background:#DBB3B1'><i>j</i>) needs questions/actions</div>"| Incomplete
+    AssignedToSecurityTeamMember -->|"<div><i>h</i>) Security ACK</div>"| InProgress
+    AssignedToSecurityTeamMember -->|"<div><i>i</i>) Security NACK</div>"| WontFix
+    AssignedToSecurityTeamMember -->|"<div><i>j</i>) needs questions/actions</div>"| Incomplete
 
-    Incomplete -->|"<div style='background:#8BC34A'><i>k</i>) questions/actions resolved</div>"| ToReview
-    WontFix -->|"<div style='background:#8BC34A'><i>l</i>) situation changes</div>"| ToReview
-    InProgress -->|"<div style='background:#8BC34A'><i>m)</i> package(s) pulled into main</div>"| FixCommitted
+    Incomplete -->|"<div><i>k</i>) questions/actions resolved</div>"| ToReview
+    WontFix -->|"<div><i>l</i>) situation changes</div>"| ToReview
+    InProgress -->|"<div><i>m)</i> package(s) pulled into main</div>"| FixCommitted
 
     FixCommitted -->|"<i>n)</i> Archive Admin</br>promotes package(s)"| FixReleased
 
-    Incomplete -->|"<div style='background:#4ECDC4'><i>o)</i> no response</div>"| Invalid
+    Incomplete -->|"<div><i>o)</i> no response</div>"| Invalid
 ```
 
 | Index | State               | Assignee / Subscriber                   | State-Explanation |

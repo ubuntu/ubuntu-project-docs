@@ -104,7 +104,7 @@ more closely to issues only showing up on riscv64.
 
 #### Transition tracker, NBS
 
-The [NBS tracker](https://ubuntu-archive-team.ubuntu.com/nbs.html), for "Not
+The [NBS tracker](https://static-reports.ubuntu.com/nbs/nbs.html), for "Not
 Buildable from Sources", tracks binary packages in the archive that cannot be rebuilt from source.
 While that can happen for several reasons, by far the most common is that the binary
 in question is the old version of a library that is having an ABI transition.

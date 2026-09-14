@@ -118,6 +118,7 @@ Maintainer's
 Makefile
 Makefiles
 manpage
+maysync
 Masters
 Meetingology
 metapackage
@@ -152,9 +153,12 @@ Paulina
 PDFs
 plaintext
 PlayStation
+Podman
 Postconf
 powerpc
 PPAs
+pre
+prepended
 prepends
 quantal
 Quokka
@@ -191,7 +195,9 @@ subiquity
 subkey
 subkeys
 subprojects
+subreddit
 supercomputing
+syncable
 sysroot
 systemd
 tarball
@@ -254,6 +260,7 @@ Yubikey
 Yubikeys
 Zapus
 Zentyal
+Zulip
 Zope
 ACLs
 APIs
@@ -283,6 +290,7 @@ pbuilder
 reportbug
 rmadison
 rustc
+selfbuild
 smartcard
 Snapcraft
 snapcraft
@@ -301,8 +309,10 @@ motu
 MOTUs
 openstack
 openssh
+pastebin
 walkthrough
 whoopsie
+willsync
 wnpp
 alsa
 apports
@@ -329,3 +339,10 @@ txstatsd
 UIs
 uuid
 zlib
+debbugs
+Usertagging
+TODOs
+subprocess
+multiline
+backoff
+OpenRouter
