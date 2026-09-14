@@ -45,7 +45,7 @@ These are described in more detail below.
 These are not the only seeds that exist - you can
 [view the current seeds](https://static-reports.ubuntu.com/seeds/)
 and the corresponding
-[germinate output](https://ubuntu-archive-team.ubuntu.com/germinate-output/)
+[germinate output](https://static-reports.ubuntu.com/germinate/germinate-output/release/)
 for them.
 
 
