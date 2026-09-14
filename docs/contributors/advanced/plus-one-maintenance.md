@@ -128,14 +128,9 @@ the [build status report](http://qa.ubuntuwire.com/ftbfs/).
 
 #### update-excuses
 
-A lot of the issues that can be found by the tools above is also visible in the
-[update-excuses
-page](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html),
-along with a lot of other problems, except that it's fairly impenetrable.
-
-One possible approach is to start at the bottom and work your way up. For very
-old issues, asking for a package removal on the grounds that it
-wastes everyone's time is valid!
+The [update-excuses page](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html)
+is the primary tool used by archive admins to track the progress of updating packages to the next Ubuntu release.
+For more information, see {ref}`its documentation page <update-excuses>`.
 
 Another approach is to use
 [visual-excuses](https://github.com/mclemenceau/visual-excuses) or [ubuntu-excuses](https://github.com/mclemenceau/ubuntu-excuses) to try (which are also available as snaps) and find
