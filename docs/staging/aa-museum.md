@@ -90,7 +90,7 @@ Archive.
   No longer Built from the Source. 
 
 * [`~ubuntu-archive/NBS/`](https://ubuntu-archive-team.ubuntu.com/NBS/) and
-  [`~ubuntu-archive/nbs.html`](https://ubuntu-archive-team.ubuntu.com/nbs.html)
+  [`~ubuntu-archive/nbs.html`](https://static-reports.ubuntu.com/nbs/nbs.html)
 
   This contains a list of binary packages which are Not Built from Source (NBS)
   any more. The files contain the list of reverse dependencies of those packages
