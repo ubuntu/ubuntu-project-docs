@@ -58,7 +58,7 @@ Archive.
   output of the {ref}`germinate` script. It shows up packages that are in the
   wrong place, or need seeding.
 
-* [`germinate-output`](https://ubuntu-archive-team.ubuntu.com/germinate-output/)
+* [`germinate-output`](https://static-reports.ubuntu.com/germinate/germinate-output/release/)
 
   This is the output of the `germinate` script, split up into each release of
   each flavour of Ubuntu. 
