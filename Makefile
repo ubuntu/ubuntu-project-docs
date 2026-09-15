@@ -17,5 +17,3 @@ clean:
 # Catch-all target: route all unknown targets to docs/Makefile
 %:
 	@$(MAKE) -C $(ROOT_DIR)docs $@
-
-.PHONY: help
