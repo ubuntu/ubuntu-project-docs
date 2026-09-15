@@ -23,8 +23,8 @@ the process.
 
 ### Related Seed(s)
 
-* https://ubuntu-archive-team.ubuntu.com/germinate-output/ubuntu.resolute/server
-* Anything supported-*-server in platform seeds like https://ubuntu-archive-team.ubuntu.com/germinate-output/ubuntu.resolute/supported-hardware-server
+* https://static-reports.ubuntu.com/germinate/germinate-output/release/ubuntu.resolute/server
+* Anything supported-*-server in platform seeds like https://static-reports.ubuntu.com/germinate/germinate-output/release/ubuntu.resolute/supported-hardware-server
 
 ### Additions
 

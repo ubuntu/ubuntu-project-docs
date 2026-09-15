@@ -1,0 +1,649 @@
+"""lxd_runner.py — LXD guest lifecycle for auto-mir.
+
+The tool is host-orchestrated: this module creates a fresh LXD guest
+from the target Ubuntu release image (falling back to Ubuntu devel when the
+series is unknown), provisions tooling in-guest, dispatches commands
+there, and handles cleanup.
+
+This is explicitly NOT meant to be run from inside an existing LXD guest.
+"""
+
+import logging
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import time
+from typing import TYPE_CHECKING
+
+from utils.retry import is_transient_command_failure, retry_guest_command
+
+if TYPE_CHECKING:
+    from auto_mir import RunContext
+
+log = logging.getLogger("auto_mir.lxd_runner")
+
+# Retry policy for transient guest command failures (503s, DNS hiccups,
+# connection timeouts). See utils.retry.retry_guest_command.
+_GUEST_RETRY_MAX_ATTEMPTS = 4
+_GUEST_RETRY_BASE_DELAY_SECONDS = 6.0
+_GUEST_RETRY_MAX_DELAY_SECONDS = 60.0
+
+# Default execution timeout (seconds) for any command run via run_command()/
+# exec_in()/exec_in_retry(). Nothing bounded how long a guest command could
+# run before this was added, so an unexpected hang (e.g. a tool attempting
+# interactive auth on a headless guest) could block a run indefinitely. This
+# is deliberately generous so it never interferes with legitimate slow steps
+# (apt-get install, fetch-build downloads); it's a safety net, not a budget.
+_DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS = 1800.0
+
+# Fallback Ubuntu devel image aliases, tried when the target series is unknown.
+# Right after a new Ubuntu release opens, none of these may resolve yet - the
+# daily devel image build can lag the actual series opening by some days.
+# There is no code-level workaround for this: the user should pass
+# --series <previous-stable-codename> during that window instead (see README).
+_UBUNTU_DEVEL_FALLBACK_IMAGES = [
+    "ubuntu-daily:devel",
+    "images:ubuntu/devel",
+    "ubuntu:devel",
+]
+
+# Packages required inside the guest for the full pipeline. fetch-build
+# downloads the official Launchpad build instead of building locally, so no
+# sbuild/mmdebstrap/uidmap unshare-backend toolchain is needed here anymore.
+_REQUIRED_PACKAGES = [
+    "lintian",
+    "git-ubuntu",
+    "ubuntu-dev-tools",  # provides seeded-in-ubuntu
+    "dpkg-dev",
+    "apt-utils",
+    "python3-launchpadlib",
+    "python3-yaml",
+    "curl",
+    "wget",
+    "git",
+    "germinate",  # prerequisite for component-mismatches
+    "python3-apt",
+    "python3-requests",
+]
+
+# Remote for ubuntu-archive-tools
+_ARCHIVE_TOOLS_REPO = "https://git.launchpad.net/ubuntu-archive-tools"
+_ARCHIVE_TOOLS_DIR = "/opt/ubuntu-archive-tools"
+
+
+def run_command(
+    cmd: list[str],
+    log_prefix: str,
+    check: bool = True,
+    capture: bool = False,
+    timeout: float | None = _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS,
+    **kwargs,
+) -> subprocess.CompletedProcess:
+    """Run a subprocess and handle uniform error logging and checking."""
+    log.debug("%s$ %s", log_prefix, shlex.join(cmd))
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=capture,
+            text=True,
+            timeout=timeout,
+            **kwargs,
+        )
+    except subprocess.TimeoutExpired:
+        log.error(
+            "Command timed out after %ss: %s",
+            timeout,
+            shlex.join(cmd),
+        )
+        raise
+    if check and result.returncode != 0:
+        log.error(
+            "Command failed (exit %d): %s",
+            result.returncode,
+            shlex.join(cmd),
+        )
+        if capture:
+            log.error("stdout: %s\nstderr: %s", result.stdout.strip(), result.stderr.strip())
+        raise subprocess.CalledProcessError(
+            result.returncode, cmd, output=result.stdout, stderr=result.stderr
+        )
+    return result
+
+
+def _lxc(*args, check: bool = True, capture: bool = False, log_prefix: str = "host", **kwargs):
+    """Wrapper around lxc CLI.
+
+    Every ``lxc`` invocation in this module - host-level commands and guest
+    ``exec`` alike - goes through this single entry point, which itself
+    forwards to the one generic subprocess wrapper (``run_command``). Guest
+    commands (``exec_in``) pass a ``log_prefix`` naming the guest so log
+    output stays distinguishable from host-level ``lxc`` calls.
+    """
+    return run_command(
+        ["lxc"] + list(args),
+        log_prefix=log_prefix,
+        check=check,
+        capture=capture,
+        **kwargs,
+    )
+
+
+def _check_lxd_available() -> None:
+    """Verify lxc is available on the host; exit with guidance if not."""
+    if shutil.which("lxc") is None:
+        log.error("lxc command not found. Install LXD with: sudo snap install lxd && lxd init")
+        sys.exit(1)
+
+    # Quick connectivity check
+    result = _lxc("version", capture=True, check=False)
+    if result.returncode != 0:
+        log.error("LXD is installed but not responding. Try: lxd init --auto")
+        sys.exit(1)
+
+
+# Fixed launch configuration for MIR guests: a VM with enough CPU, memory and
+# disk for package builds (fetch-build, lintian, autopkgtest tooling).
+_DEFAULT_LXD_OPTIONS = (
+    "--vm",
+    "-c",
+    "limits.cpu=4",
+    "-c",
+    "limits.memory=8GiB",
+    "-d",
+    "root,size=20GiB",
+)
+
+
+def spawn(ctx: "RunContext") -> None:
+    """Create a new LXD guest from the target Ubuntu release image and provision it.
+
+    Populates ctx.guest_name.
+    """
+    _check_lxd_available()
+
+    name = ctx.run_name
+    ctx.guest_name = name
+    image = _resolve_image(ctx)
+    ctx.lxd_image = image
+
+    lxd_opts = list(_DEFAULT_LXD_OPTIONS)
+
+    log.info(
+        "Creating LXD guest %s from %s with options: %s",
+        name,
+        image,
+        " ".join(lxd_opts),
+    )
+
+    # Build launch command: lxc launch <image> <name> [options...]
+    launch_cmd = ["launch", image, name] + lxd_opts
+    result = _lxc(*launch_cmd, capture=True, check=False)
+    if result.returncode != 0:
+        log.error("lxc launch failed (exit %d): %s", result.returncode, result.stderr.strip())
+        raise subprocess.CalledProcessError(result.returncode, ["lxc"] + launch_cmd)
+
+    # Wait for network to be available inside the guest
+    _wait_for_network(name)
+
+    log.info("Provisioning guest %s", name)
+    _provision(name, ctx)
+
+    log.info("Guest %s is ready", name)
+
+
+def _resolve_image(ctx: "RunContext") -> str:
+    """Resolve the image alias to use for this run.
+
+    If the user provided --lxd-image, use that as-is.
+    If the target series is known, probe series-specific aliases first
+    (``ubuntu-daily:SERIES``, ``ubuntu:SERIES``) for reproducibility.
+    Falls back to the Ubuntu devel aliases when the series is unknown or when
+    no series-specific image is found.
+    """
+    explicit = getattr(ctx, "lxd_image", None)
+    if explicit:
+        return explicit
+
+    series = getattr(ctx, "series", None)
+    candidates: list[str] = []
+    if series and series != "devel":
+        candidates = [
+            f"ubuntu-daily:{series}",
+            f"ubuntu:{series}",
+        ]
+
+    for alias in candidates + _UBUNTU_DEVEL_FALLBACK_IMAGES:
+        result = _lxc("image", "info", alias, check=False, capture=True)
+        if result.returncode == 0:
+            return alias
+
+    tried = candidates + _UBUNTU_DEVEL_FALLBACK_IMAGES
+    log.error(
+        "Could not find a suitable LXD image for series %r. Tried: %s",
+        series or "devel",
+        ", ".join(tried),
+    )
+    sys.exit(1)
+
+
+def _wait_for_network(name: str, timeout: int = 60) -> None:
+    """Wait until the LXD guest has network connectivity."""
+    log.debug("Waiting for network in %s", name)
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        result = exec_in(
+            name,
+            ["systemctl", "is-system-running", "--wait"],
+            check=False,
+            capture=True,
+        )
+        # systemd states: running, degraded are both acceptable
+        if result.returncode in (0, 1):
+            # Double-check network by pinging apt mirror
+            check = exec_in(
+                name,
+                ["ping", "-c1", "-W3", "archive.ubuntu.com"],
+                check=False,
+                capture=True,
+            )
+            if check.returncode == 0:
+                log.debug("Network available in guest %s", name)
+                return
+        time.sleep(2)
+    log.warning(
+        "Network did not become available in %s within %ds; continuing anyway",
+        name,
+        timeout,
+    )
+
+
+def _provision(name: str, ctx: "RunContext") -> None:
+    """Install required tools and bootstrap upstream tooling inside the guest."""
+
+    # Ensure source repositories are enabled before any `apt-get source` usage.
+    _enable_source_repositories(name)
+
+    # Enable the -proposed pocket so `apt-get source` can resolve the
+    # proposed-pocket version, which is what a MIR review should analyse when
+    # the maintainer has staged fixes there. Skipped when the operator
+    # explicitly pinned the release pocket.
+    if getattr(ctx, "source_pocket", "auto") != "release":
+        _enable_proposed_pocket(name)
+
+    # Update package lists
+    exec_in_retry(
+        name,
+        ["apt-get", "update", "-qq"],
+        operation="apt-get update",
+    )
+
+    # Install required packages
+    log.info("Installing required packages in guest")
+    exec_in_retry(
+        name,
+        ["apt-get", "install", "-qq", "-y", "--no-install-recommends"] + _REQUIRED_PACKAGES,
+        env={"DEBIAN_FRONTEND": "noninteractive"},
+        operation="apt-get install required packages",
+    )
+
+    # Bootstrap ubuntu-archive-tools (component-mismatches and prerequisites)
+    _bootstrap_archive_tools(name)
+
+
+def _exec_in_or_skip(
+    name: str, cmd: list[str], *, warning: str
+) -> subprocess.CompletedProcess | None:
+    """Run a best-effort guest command; return None (logging ``warning``) on failure.
+
+    Shared by optional provisioning steps that should skip cleanly rather than
+    abort guest setup when a single non-essential command fails.
+    """
+    result = exec_in(name, cmd, capture=True, check=False)
+    if result.returncode != 0:
+        log.warning(warning)
+        return None
+    return result
+
+
+def _enable_source_repositories(name: str) -> None:
+    """Enable deb-src in both legacy .list and deb822 .sources formats.
+
+    Reads each apt sources file from the guest, applies Python regex
+    substitutions to uncomment deb-src entries (legacy format) or expand
+    Types: deb to Types: deb deb-src (deb822 format), then writes it back.
+    """
+
+    def _patch_legacy(text: str) -> str:
+        """Uncomment '#deb-src' lines in a legacy .list file."""
+        return re.sub(r"^#\s*deb-src\s+", "deb-src ", text, flags=re.MULTILINE)
+
+    def _patch_deb822(text: str) -> str:
+        """Expand 'Types: deb' to 'Types: deb deb-src' in a deb822 .sources file."""
+        return re.sub(r"^(Types:\s*deb)\s*$", r"\1 deb-src", text, flags=re.MULTILINE)
+
+    def _patch_file(guest_path: str, patcher) -> None:
+        """Pull a file from the guest, patch it in Python, push it back."""
+        result = exec_in(name, ["cat", guest_path], check=False, capture=True)
+        if result.returncode != 0:
+            return
+        patched = patcher(result.stdout)
+        if patched == result.stdout:
+            return
+        # Write patched content back via stdin
+        _lxc("exec", name, "--", "tee", guest_path, capture=True, input=patched)
+
+    # Discover relevant files inside the guest with a single listing.
+    result = _exec_in_or_skip(
+        name,
+        [
+            "find",
+            "/etc/apt",
+            "-maxdepth",
+            "2",
+            "-name",
+            "*.list",
+            "-o",
+            "-name",
+            "*.sources",
+        ],
+        warning="Could not list /etc/apt sources files; skipping deb-src enable",
+    )
+    if result is None:
+        return
+
+    for path in result.stdout.splitlines():
+        path = path.strip()
+        if not path:
+            continue
+        if path.endswith(".sources"):
+            _patch_file(path, _patch_deb822)
+        elif path.endswith(".list"):
+            _patch_file(path, _patch_legacy)
+
+
+def _enable_proposed_pocket(name: str) -> None:
+    """Add the ``<codename>-proposed`` pocket (deb + deb-src) to the guest.
+
+    MIR maintainers frequently stage test/lintian/packaging fixes in -proposed
+    before they migrate to the release pocket, so a faithful review should be
+    able to fetch, build and analyse that version. We derive a proposed deb822
+    stanza from the existing ubuntu.sources (reusing its URIs, components and
+    signing key) with the suite replaced by ``<codename>-proposed``, and write
+    it to a dedicated file so the base configuration is left untouched.
+    """
+    codename = exec_in(
+        name,
+        ["bash", "-lc", ". /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}"],
+        capture=True,
+        check=False,
+    ).stdout.strip()
+    if not codename:
+        log.warning("Could not resolve guest codename; skipping -proposed enable")
+        return
+
+    base = _exec_in_or_skip(
+        name,
+        ["cat", "/etc/apt/sources.list.d/ubuntu.sources"],
+        warning="Could not read ubuntu.sources; skipping -proposed enable",
+    )
+    if base is None:
+        return
+    if not base.stdout.strip():
+        log.warning("Could not read ubuntu.sources; skipping -proposed enable")
+        return
+
+    stanza = _build_proposed_stanza(base.stdout, codename)
+    if not stanza:
+        log.warning("Could not derive a -proposed stanza; skipping -proposed enable")
+        return
+
+    proposed_path = "/etc/apt/sources.list.d/auto-mir-proposed.sources"
+    _lxc("exec", name, "--", "tee", proposed_path, capture=True, input=stanza)
+    log.info("Enabled %s-proposed pocket for source fetch and build", codename)
+
+
+def _build_proposed_stanza(ubuntu_sources: str, codename: str) -> str | None:
+    """Return a deb822 stanza enabling ``<codename>-proposed`` (deb + deb-src).
+
+    Reuses the primary archive stanza from ``ubuntu.sources`` (the one whose
+    Suites reference the release codename, not the security archive) and rewrites
+    its Suites to ``<codename>-proposed`` and Types to include deb-src.
+    """
+    # Split the deb822 file into blank-line-separated stanzas.
+    stanzas = [s for s in re.split(r"\n\s*\n", ubuntu_sources) if s.strip()]
+    primary = None
+    for stanza in stanzas:
+        suites = ""
+        for line in stanza.splitlines():
+            if line.lower().startswith("suites:"):
+                suites = line.split(":", 1)[1]
+                break
+        # The primary stanza carries the plain release suite (codename) and is
+        # not the security-only archive.
+        if codename in suites and "security" not in suites.lower():
+            primary = stanza
+            break
+    if primary is None:
+        return None
+
+    out_lines: list[str] = []
+    for line in primary.splitlines():
+        low = line.lower()
+        if low.startswith("types:"):
+            out_lines.append("Types: deb deb-src")
+        elif low.startswith("suites:"):
+            out_lines.append(f"Suites: {codename}-proposed")
+        else:
+            out_lines.append(line)
+    return "\n".join(out_lines) + "\n"
+
+
+def _bootstrap_archive_tools(name: str) -> None:
+    """Clone the latest ubuntu-archive-tools HEAD."""
+    log.info("Bootstrapping ubuntu-archive-tools (latest HEAD)")
+    exec_in_retry(
+        name,
+        ["git", "clone", "--depth=1", _ARCHIVE_TOOLS_REPO, _ARCHIVE_TOOLS_DIR],
+        operation="clone ubuntu-archive-tools",
+    )
+    log.info("Using latest ubuntu-archive-tools HEAD")
+
+
+def exec_in(
+    name: str,
+    cmd: list[str],
+    *,
+    check: bool = True,
+    capture: bool = False,
+    env: dict[str, str] | None = None,
+    workdir: str | None = None,
+    user: int | None = None,
+    group: int | None = None,
+    timeout: float | None = _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS,
+) -> subprocess.CompletedProcess:
+    """Run a command inside the named LXD guest.
+
+    Args:
+        name: LXD guest name
+        cmd: Command and arguments to run in the guest
+        check: Raise CalledProcessError on non-zero exit
+        capture: Capture stdout/stderr and return them
+        env: Additional environment variables to pass (merged with guest env)
+        workdir: Working directory inside the guest
+        user: Optional numeric uid to run the command as
+        group: Optional numeric gid to run the command as
+        timeout: Maximum seconds to wait before raising subprocess.TimeoutExpired.
+            Defaults to a generous safety net (see _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS)
+            so an unexpectedly hanging command (e.g. a tool attempting interactive
+            auth on a headless guest) fails clearly instead of blocking forever.
+
+    Returns:
+        CompletedProcess with returncode, stdout, stderr
+    """
+    lxc_args = ["exec", name]
+
+    if workdir:
+        lxc_args += ["--cwd", workdir]
+
+    if user is not None:
+        lxc_args += ["--user", str(user)]
+
+    if group is not None:
+        lxc_args += ["--group", str(group)]
+
+    if env:
+        for key, value in env.items():
+            lxc_args += ["--env", f"{key}={value}"]
+
+    lxc_args += ["--"] + cmd
+
+    return _lxc(
+        *lxc_args,
+        check=check,
+        capture=capture,
+        timeout=timeout,
+        log_prefix=f"guest({name})",
+    )
+
+
+@retry_guest_command(
+    max_attempts=_GUEST_RETRY_MAX_ATTEMPTS,
+    base_delay=_GUEST_RETRY_BASE_DELAY_SECONDS,
+    max_delay=_GUEST_RETRY_MAX_DELAY_SECONDS,
+)
+def exec_in_retry(
+    name: str,
+    cmd: list[str],
+    *,
+    check: bool = True,
+    capture: bool = False,
+    env: dict[str, str] | None = None,
+    workdir: str | None = None,
+    user: int | None = None,
+    group: int | None = None,
+    timeout: float | None = _DEFAULT_GUEST_COMMAND_TIMEOUT_SECONDS,
+    operation: str = "command",
+) -> subprocess.CompletedProcess:
+    """Run an in-guest command with retries on transient failures.
+
+    Intended for network/server-sensitive steps (apt, git clone/fetch, source
+    downloads). Retries are attempted only when stderr/stdout indicate transient
+    infrastructure issues (503, temporary DNS/connection errors, timeouts).
+
+    Args:
+        name: LXD guest name
+        cmd: Command to execute
+        check: Raise exception on non-zero exit (after retries exhausted)
+        capture: Capture stdout/stderr
+        env: Environment variables
+        workdir: Working directory
+        user: Optional numeric uid to run the command as
+        group: Optional numeric gid to run the command as
+        timeout: Maximum seconds to wait per attempt before raising
+            subprocess.TimeoutExpired (see exec_in).
+        operation: Operation name for logging
+
+    Returns:
+        CompletedProcess result
+
+    Raises:
+        RuntimeError: If command fails after all retries (when check=True)
+    """
+    result = exec_in(
+        name,
+        cmd,
+        check=False,
+        capture=True,
+        env=env,
+        workdir=workdir,
+        user=user,
+        group=group,
+        timeout=timeout,
+    )
+
+    if result.returncode != 0 and not check:
+        # Caller doesn't want exceptions, just return the result
+        return result
+
+    if result.returncode != 0:
+        # Retries exhausted and check=True, raise error
+        transient = is_transient_command_failure(result.stdout, result.stderr)
+        hint = (
+            "\nHard stop: command failed after retries due to non-transient error."
+            if not transient
+            else ("\nHard stop: transient upstream/server issue did not recover after retries.")
+        )
+        raise RuntimeError(
+            f"{operation} failed (exit {result.returncode})."
+            f"\nCommand: {shlex.join(cmd)}"
+            f"\nstdout:\n{(result.stdout or '').strip()}"
+            f"\nstderr:\n{(result.stderr or '').strip()}"
+            f"{hint}"
+        )
+
+    # Success - if capture was False, clear the output
+    if not capture:
+        result.stdout = None
+        result.stderr = None
+
+    return result
+
+
+def push_file(name: str, local_path: str, guest_path: str) -> None:
+    """Copy a file from the host into the LXD guest."""
+    log.debug("push %s -> %s:%s", local_path, name, guest_path)
+    _lxc("file", "push", local_path, f"{name}{guest_path}")
+
+
+def destroy(ctx: "RunContext") -> None:
+    """Destroy the LXD guest unconditionally."""
+    if not ctx.guest_name:
+        return
+    log.info("Destroying LXD guest %s", ctx.guest_name)
+    result = _lxc("delete", "--force", ctx.guest_name, check=False, capture=True)
+    if result.returncode != 0:
+        log.warning(
+            "Could not destroy LXD guest %s: %s",
+            ctx.guest_name,
+            result.stderr.strip(),
+        )
+    else:
+        log.info("LXD guest %s destroyed", ctx.guest_name)
+        ctx.guest_name = ""
+
+
+def collect_runtime_facts(ctx: "RunContext") -> dict:
+    """Collect core in-guest facts proving isolated execution context."""
+    if not ctx.guest_name:
+        return {}
+
+    os_release = exec_in(
+        ctx.guest_name,
+        ["bash", "-lc", "cat /etc/os-release"],
+        capture=True,
+        check=False,
+    ).stdout.strip()
+
+    kernel = exec_in(
+        ctx.guest_name,
+        ["uname", "-a"],
+        capture=True,
+        check=False,
+    ).stdout.strip()
+
+    apt_policy = exec_in(
+        ctx.guest_name,
+        ["bash", "-lc", "apt-cache policy | sed -n '1,40p'"],
+        capture=True,
+        check=False,
+    ).stdout.strip()
+
+    return {
+        "guest_name": ctx.guest_name,
+        "image": getattr(ctx, "lxd_image", None),
+        "os_release": os_release,
+        "kernel": kernel,
+        "apt_policy_excerpt": apt_policy,
+    }

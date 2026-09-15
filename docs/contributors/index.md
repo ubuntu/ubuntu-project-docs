@@ -65,7 +65,7 @@ debugging/index
 
 ## Bug fixing
 
-Pages on finding fixes upstream, building locally or in a PPA, and running package tests.
+Pages on finding fixes upstream and applying patches.
 
 ```{toctree}
 :maxdepth: 1
@@ -74,14 +74,25 @@ bug-fix/index
 ```
 
 
-## Patching
+## Building
+
+How to build packages locally or in a PPA, install built packages, and run package tests.
+
+```{toctree}
+:maxdepth: 1
+
+building/index
+```
+
+
+## Updating
 
 Specific pages on working with Debian patches.
 
 ```{toctree}
 :maxdepth: 1
 
-patching/index
+updating/index
 ```
 
 

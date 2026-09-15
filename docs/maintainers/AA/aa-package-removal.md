@@ -34,7 +34,7 @@ of sufficient justifications:
 
 * The package {term}`FTBFS` and is blocking some transitions (either in
   [`proposed-migration`](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html)
-  or in [NBS removal](https://ubuntu-archive-team.ubuntu.com/nbs.html)).
+  or in [NBS removal](https://static-reports.ubuntu.com/nbs/nbs.html)).
 
 * The package FTBFS or fails autopkgtests and has been removed from Debian
   `testing`.
@@ -59,7 +59,7 @@ several places.
 
 * If `proposed-migration` can work out how to move the new source package to
   the `-release` pocket without making any binary packages uninstallable, then
-  they show up on the [NBS removal](https://ubuntu-archive-team.ubuntu.com/nbs.html)
+  they show up on the [NBS removal](https://static-reports.ubuntu.com/nbs/nbs.html)
   list. This is the easiest case, as the top of the page gives a command that
   can be used to remove all binaries that are safe to remove (no remaining
   {ref}`reverse-dependencies <check-reverse-dependencies>`).
@@ -99,7 +99,7 @@ should use `checkrdepends -b` for checking if it is safe to actually remove NBS
 packages from the archive.
 
 Look at the
-[half-hourly generated NBS report](https://ubuntu-archive-team.ubuntu.com/nbs.html)
+[half-hourly generated NBS report](https://static-reports.ubuntu.com/nbs/nbs.html)
 which shows all NBS packages, their reverse dependencies, and a
 copy-and-paste-able command to clean up the "safe" ones.
 

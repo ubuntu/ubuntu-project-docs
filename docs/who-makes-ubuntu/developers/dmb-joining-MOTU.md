@@ -71,7 +71,7 @@ More advanced packaging topics you should be comfortable with as a MOTU applican
 
 * [Component mismatches](https://ubuntu-archive-team.ubuntu.com/component-mismatches-proposed.html)
 
-* Binary packages [not built from source (NBS)](https://ubuntu-archive-team.ubuntu.com/nbs.html)
+* Binary packages [not built from source (NBS)](https://static-reports.ubuntu.com/nbs/nbs.html)
 
 * [Multi-arch issues](https://wiki.ubuntu.com/MultiarchCross)
 

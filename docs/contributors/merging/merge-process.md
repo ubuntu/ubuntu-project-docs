@@ -221,6 +221,8 @@ Start a rebase at `old/debian`, and then reset to `HEAD^` to bring back the chan
 
 Next, add the commits:
 
+Each commit message follows the changelog entry format: the `*` prefix denotes a bullet point, and continuation lines are indented to align with it. The entire block constitutes the commit message (there is no separate subject/body split). See {ref}`how-to-commit-changes` for more information about commit message standards.
+
 ------------------------------------------------------------------------------
 
 Logical unit:
@@ -457,7 +459,12 @@ If all the commits are empty, or you realized there are no logical changes, you'
 $ quilt push -a --fuzz=0
 ```
 
-**If {command}`quilt` fails**
+**If {command}`quilt` fails to find the patches**
+
+You may get an error `No series file found`. In this case, you need to tell `quilt` where to look for the patches. Configure it by setting an environment variable: `export QUILT_PATCHES=debian/patches`. (Or edit your `.quiltrc`
+file to make the changes permanent.)
+
+**If {command}`quilt` fails to apply the patches**
 
 Quilt can fail at this point if the file being patched has changed significantly upstream. The most common reason is that the issue the patch addresses has since been fixed upstream.
 

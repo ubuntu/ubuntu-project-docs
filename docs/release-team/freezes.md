@@ -252,15 +252,13 @@ must confirm.
 
 Packages in {ref}`archive-components-universe` that aren't seeded in any of the
 Ubuntu flavors remain in {ref}`feature-freeze` because they do not affect
-the release; however, when the Ubuntu Package Archive is frozen, fixes must be
-manually reviewed and accepted by the Release Team members.
+the release. When the Ubuntu Package Archive is frozen, and fixes to
+{ref}`archive-components-main` must be manually reviewed and accepted by the
+Release Team members, a bot takes care of auto-accepting unseeded packages
+automatically.
 
-When the Final Release is close (~2 days out), developers should consider
-uploading to the {ref}`-proposed pocket <archive-pockets-proposed>`, from which
-the Release Team cherry-picks into the
-{ref}`-release pocket <archive-pockets-release>` if circumstances allow. All
-packages uploaded to the `-proposed` pocket that do not make it into the
-`-release` pocket until the Final Release become candidates for
+All packages uploaded to the `-proposed` pocket that do not make it
+into the `-release` pocket until the Final Release become candidates for
 {ref}`stable-release-updates`. Therefore, uploads to the `-proposed` pocket
 during Final Freeze should meet the requirements of Stable Release Updates if
 the upload is not accepted into the `-release` pocket. In particular, the upload
@@ -271,7 +269,10 @@ must reference at least one bug, which is used to track the stable update.
 ## Release Candidate
 
 The images produced on the Monday of the release week before
-{ref}`final-release` are considered "release candidates".
+{ref}`final-release` are usually considered "release candidates". This is a
+target, and not an absolute truth. To know which images are considered release
+candidates, look for the "call for testing" announcement, or ask the Release
+Team directly.
 
 In an ideal world, the first release candidate would end up being the Final
 Release; however, we don't live in a perfect world, and this week is used to

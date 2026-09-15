@@ -147,18 +147,26 @@ At this point, **Archive Admins** will promote approved packages to `main`.
 
 ## Additional notes
 
-* MIR bugs should always be named for SOURCE packages, not binary packages.
-
-* New binary packages from existing source packages, where the source package
-  is already in main, do not require **new** MIR bugs.
+### I only have a new version / source rename, what now?
 
 * If a new source package contains *only* code which is already in main (e.g.
   a source package split or rename, or source packages with a version in the
   name), it may not need a full review.
-  
+
   In such cases, submitting an MIR bug with an explanation (without the full
   template) **or** updating/extending an existing MIR bug for the package and
   re-opening it by setting it to "NEW" is sufficient.
+* If there never was a bug, please see {ref}`mir-rereview`
+
+### I only have a new binary, do I need a MIR?
+
+* New binary packages from existing source packages, where the source package
+  is already in main, do not require **new** MIR bugs.
+* If there never was a bug, please see {ref}`mir-rereview`
+
+### Against which package do I file the MIR bug?
+
+* MIR bugs should always be named for SOURCE packages, not binary packages.
 
 
 (mir-slo)=

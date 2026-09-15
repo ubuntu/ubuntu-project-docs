@@ -46,6 +46,12 @@ It is easy to mix up {ref}`dmb-joining-ppu` and {ref}`dmb-joining-packageset`, h
 * Existing individual upload rights can be [seen here](https://static-reports.ubuntu.com/archive-permissions/individuals).
 * relation: `developer` *-is-uploader-of->* `packages`.
 
+Most packages granted at the PPU level are leaf packages, where the consequences of a change are limited to the users of
+that package. Some packages are more deeply integrated than that and carry additional expectations about which
+changes may be uploaded without a wider review:
+
+* {ref}`Google guest agents <ppu-google-guest-agents-policy>`
+
 ## Voting
 
 PPU members are granted a vote when the {ref}`dmb` or Technical Board are polling Ubuntu Developers.

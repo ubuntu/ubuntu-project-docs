@@ -99,7 +99,7 @@ The main complication you may run into during this phase are build failures. For
 example, upstream may have introduced some new dependencies not yet in the
 Ubuntu Archive. Resolving these issues can involve
 {ref}`MIRs <main-inclusion-review>`, pulling patches from upstream, and other
-{ref}`how-to-fix-a-bug-in-a-package` activities.
+{ref}`fixing-bugs` activities.
 
 
 (transitions-update-default-version)=
@@ -202,5 +202,3 @@ transition project can truly be considered finished:
 
 1. Bug reports filed against packages within the ecosystem relating to upgrade
    failures or other problems caused with the newly-introduced package
-
->>>>>>> 9d833bf (Add process pages)

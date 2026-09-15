@@ -39,6 +39,7 @@ the Technical Board.
     exception-Bind9-Updates
     exception-Certbot-Updates
     exception-Cloudinit-Updates
+    exception-CrashMakedumpfile-Updates
     exception-Curtin-Updates
     exception-DPDK-Updates
     exception-Docker-Updates
@@ -747,3 +748,10 @@ Toolchains:
 * Java: `Java updates PPA <https://launchpad.net/~openjdk-r/+archive/ubuntu/ppa>`__
 * Go: `Go updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/golang>`__
 * Python: `Python updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/python>`__
+
+Crash And Makedumpfile
+~~~~~~~~~~~~~~~~~~~~~~
+
+The crash and makedumpfile source packages may be uploaded according to the
+procedure documented in :ref:`CrashMakedumpfile-Updates <reference_crash_and_makedumpfile_updates>`.
+

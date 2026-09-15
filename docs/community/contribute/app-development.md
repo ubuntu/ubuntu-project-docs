@@ -2,7 +2,7 @@
 # Contribute to app development
 
 As the developers' choice of operating systems, Ubuntu provides numerous avenues for creating new software.
-Developers can pursue traditional Debian package development, build universal and sandboxed Snap applications or even create Juju Charms for container orchestration.
+Developers can pursue traditional Debian package development, build universal and sandboxed Snap/Container applications or even create Juju Charms for container orchestration.
 
 Contact other app developers on the Ubuntu [app development mailing list](https://lists.ubuntu.com/mailman/listinfo/Ubuntu-app-devel).
 
@@ -21,6 +21,14 @@ Snaps are easy-to-install application packages for desktop, cloud and IoT that a
 Snaps are discoverable and installable from the [Snap Store](https://snapcraft.io/), the app store for Linux with an audience of millions.
 
 * Learn Snapcraft by [making your first snap](https://snapcraft.io/blog/how-to-make-your-first-snap)
+
+
+## Container applications
+
+Rocks are Ubuntu-based container images that meet the security, stability, and reliability requirements of cloud-native software.
+They are built with [Rockcraft](https://ubuntu.com/containers/rockcraft) and comply with the Open Container Initiative’s (OCI) image format specification, so they can be stored in any OCI-compliant container registry (e.g. DockerHub, ECR, ACR,..) and used by any OCI-compliant tool (e.g. Docker, Podman, Kubernetes,…).
+
+* Learn Rockcraft by [making your first rock](https://documentation.ubuntu.com/rockcraft/1.19/tutorial/hello-world/)
 
 
 ## Juju charms

@@ -54,7 +54,7 @@ Updates to curtin trunk go through the following process:
 
 -  Reviewed and approved by a member of the development team
 -  Daily integration tests on trunk
--  Successful run of unit tests and style tests based on the bzr
+-  Successful run of unit tests and style tests based on the git
    branch
 -  Branch set to the committed state
 

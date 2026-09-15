@@ -24,13 +24,14 @@ sphinx-youtube-links>=0.1.0
 
 # Other dependencies
 packaging
+PyYAML
 sphinxcontrib-svg2pdfconverter[CairoSVG]
 sphinx-last-updated-by-git
 sphinx-sitemap
 
 # Vale dependencies
 rst2html
-vale
+vale==3.13.0.0
 
 # Custom dependencies (needed by Ubuntu Project docs)
 distro_info

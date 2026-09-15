@@ -73,15 +73,19 @@ Prepare a special type of SRU <howto-prepare-special-sru>` instead.
     wish, you can follow progress through the :ref:`SRU pipeline
     <explanation-sru-pipeline>` using the various :ref:`status pages
     <reference-status-pages>`.
-8.  After the package is accepted into -proposed, you will be asked to
+8.  If you find a problem while it's still unapproved, ask the SRU team to
+    reject the upload. You can contact the SRU team in {matrix}`sru`
+    on Matrix. If rejected at this stage, the same version number can be
+    reused.
+9.  After the package is accepted into -proposed, you will be asked to
     execute your Test Plan against the built packages. Please do so,
     using bug comments to report your results. Once done, change the bug
     tags according to the instructions given.
-9.  Subscribe yourself to bug mail for the package in Launchpad, if you
+10. Subscribe yourself to bug mail for the package in Launchpad, if you
     haven't done so already, and monitor Launchpad for bug reports
     relating to the update for at least one week following release of
     the package.
-10. If you find a regression, follow :ref:`Howto → Report a regression
+11. If you find a regression, follow :ref:`Howto → Report a regression
     <howto-report-regression>`. If someone else reports a regression,
     please also follow :ref:`Howto → Report a regression
     <howto-report-regression>` and ensure that all steps documented

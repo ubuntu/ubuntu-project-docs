@@ -47,7 +47,7 @@ Both packages were previously in `main`:
 :::{note}
 **Extra-includes and unintended dependencies**
 
-One very special case of a component mismatch is unintended dependencies due to extra-includes. While most dependencies seem obvious (seeds --> packages --> packages) there is an aspect of {term}`germinate` (see [germinate-output](https://ubuntu-archive-team.ubuntu.com/germinate-output/) for a list of outputs for all flavors) that automatically includes all `-dbg`, `-dev`, and `-doc*` packages in a source archive that is in `main` (look for line with `Extra-Include:` in the [`supported`](https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/ubuntu/tree/supported) seed). In {command}`germinate`, these appear as `Rescued from <src>`.
+One very special case of a component mismatch is unintended dependencies due to extra-includes. While most dependencies seem obvious (seeds --> packages --> packages) there is an aspect of {term}`germinate` (see [germinate-output](https://static-reports.ubuntu.com/germinate/germinate-output/release/) for a list of outputs for all flavors) that automatically includes all `-dbg`, `-dev`, and `-doc*` packages in a source archive that is in `main` (look for line with `Extra-Include:` in the [`supported`](https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/ubuntu/tree/supported) seed). In {command}`germinate`, these appear as `Rescued from <src>`.
 
 If a merge is affected, the solution -- without adding delta -- usually is to add an `Extra-exclude` to the {file}`supported` file. See an [example with `net-snmp`](https://code.launchpad.net/~sergiodj/ubuntu-seeds/+git/ubuntu/+merge/414063).
 :::
@@ -190,7 +190,7 @@ Using the {pkg}`exim4` package as an example.
     ```none
     trying: exim4
     skipped: exim4 (4, 0, 137)
-        got: 11+0: a-0:a-0:a-0:i-2:p-1:r-7:s-1
+        got: 11+0: a-0:a-0:a-0:a-0:i-2:p-1:r-7:s-1
         * riscv64: sa-exim
     ```
 
@@ -211,10 +211,11 @@ Using the {pkg}`exim4` package as an example.
 
         * 137 packages remain to be examined after this package before this check of all packages is completed.
 
-    `got: 11+0: a-0:a-0:a-0:i-2:p-1:r-7:s-1`
+    `got: 11+0: a-0:a-0:a-0:a-0:i-2:p-1:r-7:s-1`
     : The `got` line shows the number of problems in the release pocket on the different architectures (until the first architecture where a problem is found). In this case, it's 11 uninstallable packages on all architectures together. The letters stand for (in this order):
 
         * `a`: amd64
+        * `a`: amd64v3
         * `a`: arm64
         * `a`: armhf
         * `i`: i386

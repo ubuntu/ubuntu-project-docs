@@ -80,7 +80,9 @@ The following details [are agreed on](https://irclogs.ubuntu.com/2009/10/13/#ubu
 4. Consider more {ref}`teams to add uploaders to <dmb-teams-to-also-add-uploaders-to>`
    if granting PPU or packageset permissions.
 
-5. Announce successful applicants (this can be done in a single email or multiple
+5. If a new {ref}`Core Developer <dmb-joining-core-dev>` was approved add them to {ref}`github on Ubuntu <dmb-access-to-ubuntu-on-github>`
+
+6. Announce successful applicants (this can be done in a single email or multiple
    emails as appropriate), as the Community Council
    [would like to see these announced](https://irclogs.ubuntu.com/2016/07/21/%23ubuntu-meeting.html#t17:17)
    and [we agreed in a subsequent meeting](https://irclogs.ubuntu.com/2016/08/01/%23ubuntu-meeting.html#t16:02).

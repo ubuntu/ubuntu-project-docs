@@ -13,7 +13,7 @@ Quoting the `Technical Board meeting minutes
 microreleases, QAs them with regression tests, and has a good history of
 not breaking anything. Known breakage so far was in the packaging. Our
 QA regression testing repository has an `existing integration test
-script <http://bazaar.launchpad.net/~ubuntu-bugcontrol/qa-regression-testing/master/view/head:/scripts/test-postfix.py>`__
+script <https://salsa.debian.org/postfix-team/postfix-dev/-/blob/debian/master/debian/tests/test-postfix.py>`__
 which should be run on the proposed packages for checking for general
 mis-builds, packaging errors, etc."
 

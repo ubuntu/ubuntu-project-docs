@@ -1,0 +1,168 @@
+# ============================================================================
+# MIR Shared Catalog - Confidence model and evidence adapters shared by both
+# the reviewer and reporter roles
+# ============================================================================
+# This file holds only the small set of definitions inherited by both role
+# catalogs. Keep it small: only add a section here if it is genuinely shared
+# by both reviewer and reporter mode.
+#
+# Reviewer-only content (checks, reviewer-template blueprint, render/fallback
+# policy) lives in catalog-mir-review.yaml. Reporter-only content (items,
+# reporter-template blueprint) lives in catalog-mir-report.yaml. Load either
+# role's composed view with catalog.load_catalog_for_role().
+#
+# Structure:
+#   global_policies:    Confidence model shared across checks
+#   evidence_adapters:   Data collection interfaces (APIs, tools, scripts)
+#
+# ============================================================================
+
+# ============================================================================
+# Global Policies - Severity, confidence, and blocking rules
+# ============================================================================
+# These policies apply across all checks and define the decision framework.
+# ============================================================================
+
+global_policies:
+  # Confidence bands indicate evidence strength
+  # - low:    Insufficient evidence, needs manual review
+  # - medium: Reasonable evidence, human should verify
+  # - high:   Strong evidence from deterministic checks
+  # AI findings may use all three bands but always require human confirmation.
+  confidence_model:
+    description: 'Confidence reflects how strongly the evidence supports the finding, on three bands: low (insufficient evidence, needs manual review), medium (reasonable evidence, human should verify), high (strong evidence from deterministic checks). AI-derived findings may reach high confidence for clear evidence, but always require human confirmation.'
+evidence_adapters:
+- id: lp-bug-api
+  type: api
+  description: Fetch Launchpad bug metadata, description, comments, and target package
+  notes: No web scraping; Launchpad API only
+- id: lp-package-api
+  type: api
+  description: Fetch source package publishing history for Ubuntu and Debian via LP API
+- id: version-resolution
+  type: api
+  description: Resolve, once, the exact source version/pocket every version-pinned adapter should analyse, with a fallback among older or partially-built versions when the newest is not (yet) fully built
+  depends_on:
+  - lp-package-api
+  notes: Single source of truth for version/pocket selection - packaging-source and lp-build-api consume this instead of independently re-deriving it, so their statements about the package always agree
+- id: lp-build-api
+  type: api
+  description: Fetch per-architecture build state from Launchpad, pinned to the exact version version-resolution selected
+  depends_on:
+  - version-resolution
+- id: lp-bug-search-api
+  type: api
+  description: Search Ubuntu package bug space on Launchpad for open/critical bugs
+- id: lp-mir-history
+  type: api
+  description: Search Launchpad for prior MIR bugs on this source or predecessor names
+  notes: Best-effort; informs review-type detection (renamed/reorganised sources)
+- id: lp-team-membership-api
+  type: api
+  description: Return bug subscriber list from lp_intake-fetched Launchpad bug data
+- id: team-mapping
+  type: web
+  description: Fetch package-team-mapping.json to check which teams have structural bug subscriptions to the source package
+  notes: Downloads from https://static-reports.ubuntu.com/package-team-mapping.json and filters out display-only teams
+- id: lto-disabled-list
+  type: web
+  description: Fetch the lto-disabled-list to check whether the source package must not be built with LTO
+  notes: Downloads from https://git.launchpad.net/ubuntu/+source/lto-disabled-list/plain/lto-disabled-list; a package listed for any architecture qualifies
+- id: debian-bts
+  type: web
+  description: Fetch open bugs from Debian Bug Tracking System for the package
+- id: upstream-tracker
+  type: heuristic
+  description: Detect and query upstream project bug tracker and release history
+  notes: URL detection prefers debian/watch, then Homepage in debian/control, then package-name-based search; ignore Vcs-Git packaging repos
+- id: fetch-build
+  type: local_exec
+  description: Download the official Launchpad build (log, .changes, .deb binaries) for the local architecture instead of building locally; runs lintian against the source and the downloaded binaries since the official build does not
+  depends_on:
+  - packaging-source
+  - lp-build-api
+  notes: The package is expected to already be published in universe with a successful official build, so only the local architecture's binaries/log/.changes are downloaded; other architectures' build status comes from lp-build-api
+- id: deb-metadata
+  type: local_exec
+  description: Extract Built-Using and Static-Built-Using metadata from built .deb files after fetch-build
+  depends_on:
+  - fetch-build
+- id: binary-package-inspection
+  type: local_exec
+  description: Expose security, service, UI, and maintenance facts from the single extraction of built binary packages
+  depends_on:
+  - fetch-build
+- id: lintian
+  type: local_exec
+  description: Parse lintian output from the fetch-build run
+  depends_on:
+  - fetch-build
+- id: packaging-source
+  type: local_exec
+  description: Fetch package source via git-ubuntu and analyse packaging files
+  depends_on:
+  - version-resolution
+- id: dep-analysis
+  type: local_exec
+  description: Extract runtime dependencies from built .deb files, map to source packages, and filter by MIR scope
+  depends_on:
+  - packaging-source
+  - fetch-build
+  notes: Uses post-build dependencies from fetch-build output; maps deps to source packages to identify same-source deps; runtime_deps_in_main lists in-scope runtime deps already in main (used by DEP-4)
+- id: component-mismatches
+  type: local_exec
+  description: Run upstream ubuntu-archive-tools/component-mismatches to identify promotion candidates
+  notes: Fetch and run original ubuntu-archive-tools script; no local reimplementation
+- id: reverse-deps
+  type: local_exec
+  description: List reverse-dependency consumer source packages via reverse-depends (runtime and build-depends) against the target release
+  notes: Uses reverse-depends from ubuntu-dev-tools (already provisioned in the guest) against <codename>-proposed with fallback to the bare codename; maps reverse-dep binaries to their source packages so CB-6 can reason about end-to-end coverage via consumers
+- id: ubuntu-upload-permission
+  type: api
+  description: Query the Launchpad archive API for who may upload the source package (component and package-specific uploaders)
+  depends_on:
+  - lp-package-api
+  notes: Uses the same anonymous Launchpad session as lp-package-api/lp-build-api (archive.getUploadersForComponent/getUploadersForPackage); reveals whether only the MOTU team (universe) can upload (typical sync-from-Debian case) versus specific individuals/teams. Deliberately not the ubuntu-upload-permission guest CLI tool, which always attempts an interactive Launchpad OAuth login that hangs for ~15 minutes on a fresh, credential-less guest.
+- id: git-ubuntu-delta
+  type: local_exec
+  description: Classify the Ubuntu delta vs Debian and, when an Ubuntu revision exists, produce a git-ubuntu diffstat
+  depends_on:
+  - packaging-source
+  notes: A pure Debian sync (X-Y) carries no Ubuntu delta and git-ubuntu is not run; only ...ubuntuN versions trigger a best-effort git-ubuntu clone and diffstat
+- id: autopkgtest-db
+  type: web
+  description: Query autopkgtest.ubuntu.com/static/autopkgtest.db for test results
+- id: consumer-autopkgtests
+  type: web
+  description: Look up autopkgtest status for each reverse-dependency consumer source in the (shared, cached) autopkgtest DB
+  depends_on:
+  - reverse-deps
+  notes: Reuses the single per-run autopkgtest.db download shared with the autopkgtest-db adapter; reports per-consumer passing/failing arches so CB-6 can weigh end-to-end coverage via consumers
+- id: dependency-autopkgtests
+  type: web
+  description: Look up autopkgtest status for each in-main runtime dependency's source in the (shared, cached) autopkgtest DB
+  depends_on:
+  - dep-analysis
+  notes: Reuses the single per-run autopkgtest.db download shared with the autopkgtest-db adapter; reports per-dependency passing/failing arches so DEP-4 has grounded, structured evidence instead of needing to cross-reference dep-analysis and autopkgtest-db by hand
+- id: dup-search
+  type: local_exec
+  description: Suggest possible duplicate/overlapping packages by deriving search terms from the package description (LLM) and probing the archive with apt-cache search, tagging each candidate's component
+  depends_on:
+  - packaging-source
+  notes: Best-effort suggestions only; the reviewer (via RDO-1) decides whether any candidate is a genuine functional duplicate. Own binary packages are excluded from candidates.
+- id: ubuntu-cve-tracker
+  type: web
+  description: Search Ubuntu CVE tracker for package-relevant CVEs
+- id: cve-search-terms
+  type: heuristic
+  description: Produce candidate CVE search terms (current package plus historical predecessors)
+- id: cvelist-scan
+  type: local_exec
+  description: Scan the cvelistV5 baseline corpus on the host to identify candidate CVEs
+  depends_on:
+  - cve-search-terms
+- id: nvd-enrich
+  type: web
+  description: Enrich scan candidates with normalized NVD severity, CWE and version ranges
+  depends_on:
+  - cvelist-scan
