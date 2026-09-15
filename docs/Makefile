@@ -115,6 +115,7 @@ clean: clean-doc clean-generated
 clean-doc:
 	git clean -fx "$(DOCS_BUILDDIR)"
 	rm -rf $(SPHINX_DIR)/.doctrees
+	rm -f $(SPHINX_DIR)/warnings.txt
 
 clean-generated:
 	rm -f MIR/mir-reviewers-template-body.include MIR/mir-reporters-template-body.include
