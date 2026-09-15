@@ -23,14 +23,14 @@ Ubuntu produces several image types:
 
 1. **livecd-`rootfs`** — An Ubuntu config overlay for `live-build` that customizes the `rootfs` build. Key customization hooks:
 
-   - `auto/config` — initial configuration (project, arch, sub-architecture)
+   - `auto/config` — initial configuration (project, arch, sub-architecture). This is also where `livecd-rootfs` runs `germinate` on the flavor's {ref}`seeds`, which is what determines which packages and snaps go into which part of the image; see {ref}`how-seeds-are-used`.
    - `.chroot` hooks — modify the `rootfs` contents
    - `auto/build` — finalise the `rootfs` build
    - `.binary` hooks — final customization
 
 1. **Mirror sync** — A local mirror is synchronised in parallel to ensure no packages are stale.
 
-1. **Intermediate steps** — `ubuntu-cdimage` runs `germinate` and other preparation steps. Germinating the flavor's {ref}`seeds` is what determines which packages and snaps go into which part of the image; see {ref}`how-seeds-are-used`.
+1. **Intermediate steps** — `ubuntu-cdimage` performs other preparation steps.
 
 1. **Wait for `livefs`** — `ubuntu-cdimage` waits for all `livefs` builds to complete and downloads them. Failed builds are reported by email to `ubuntu-cdimage` members.
 

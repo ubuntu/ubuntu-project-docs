@@ -155,9 +155,11 @@ germinate output; it is just buried under a layer of dependency expansion.
 ### Where the output lives
 
 The germinate output for all flavors is published at
-[ubuntu-archive-team.ubuntu.com/germinate-output](https://ubuntu-archive-team.ubuntu.com/germinate-output/),
-in directories named `<collection>.<series>` -- for example
-`ubuntu.resolute/`.
+[static-reports.ubuntu.com/germinate](https://static-reports.ubuntu.com/germinate/),
+under `germinate-output/release/`, in directories named `<collection>.<series>`
+-- for example `germinate-output/release/ubuntu.resolute/`. There is also a
+`germinate-output/proposed/` tree, resolved against the `-proposed` pocket, for
+the development release's collections.
 
 Each run covers a single architecture: `amd64` for every collection except the
 `i386.*` ones, which cover `i386`. Each run resolves dependencies against the
