@@ -33,7 +33,45 @@ In the early days of the project, there was only the Community Council and Techn
 
 The current governance map of Ubuntu looks like this:
 
-![ubuntu-governance-map|690x308](ubuntu-governance-map.png)
+```{mermaid}
+:align: center
+%%{init: {'themeVariables': {
+            'fontSize': '1.5em',
+            'fontFamily': 'Ubuntu'}}}%%
+flowchart TD
+    SABDFL["SABDFL<br/>(Mark Shuttleworth)"]
+    CC["Community Council"]
+    TB["Technical Board"]
+    DMB["Developer Membership Board"]
+    FC["Forums Council"]
+    IRCC["IRC Council"]
+    MC["Matrix Council"]
+    KC["Kubuntu Council"]
+    LCC["LoCo Council"]
+    LC["Lubuntu Council"]
+
+    SABDFL --> CC
+    SABDFL --> TB
+    CC --> DMB
+    CC --> FC
+    CC --> IRCC
+    CC --> MC
+    CC --> KC
+    CC --> LCC
+    CC --> LC
+    TB --> DMB
+
+    style SABDFL fill:#772953,stroke:#772953,color:#fff
+    style CC fill:#E95420,stroke:#E95420,color:#fff
+    style TB fill:#E95420,stroke:#E95420,color:#fff
+    style DMB fill:#77216F,stroke:#77216F,color:#fff
+    style FC fill:#5E2750,stroke:#5E2750,color:#fff
+    style IRCC fill:#5E2750,stroke:#5E2750,color:#fff
+    style MC fill:#5E2750,stroke:#5E2750,color:#fff
+    style KC fill:#5E2750,stroke:#5E2750,color:#fff
+    style LCC fill:#5E2750,stroke:#5E2750,color:#fff
+    style LC fill:#5E2750,stroke:#5E2750,color:#fff
+```
 
 
 ## Ubuntu Community Council
