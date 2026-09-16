@@ -43,7 +43,7 @@ community/ @merlijn-sebrechts
 **/dmb-*.md @cpaelzer @lvoytek @rbasak @utkarsh2102 @athos-ribeiro @bdrung @uraltun
 
 # TAs' & special teams' ack required for changes to the CODEOWNERS file
-/.github/CODEOWNERS @s-makin @rkratky @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof @aaronprisk @basak @teward @enr0n @julian-klode @awhitcroft @Hyask
+/.github/CODEOWNERS @s-makin @rkratky @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof @aaronprisk @basak @teward @enr0n @julian-klode @awhitcroft @Hyask @merlijn-sebrechts
 
 # +1 maintenance PR approvals
 plus-one-*.md @schopin-pro @s-makin @rkratky
