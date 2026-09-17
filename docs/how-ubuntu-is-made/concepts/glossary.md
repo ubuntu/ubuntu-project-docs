@@ -726,6 +726,7 @@ germinate
    [Germinate](https://launchpad.net/germinate) is a tool available in Debian and Ubuntu, which starts with lists of packages (called seeds) and grows them into a full list of packages including dependencies and (in additional lists) suggests, recommends, and sources for each of these lists.
 
    See also:
+   * {ref}`germinate <germinate>`
    * {manpage}`germinate(1)`
 
 git
@@ -922,6 +923,16 @@ Merge
 
 Merge Conflict
     *Work in Progress*
+
+Metapackage
+    A **metapackage** is a {term}`Package` that does not install any files
+    itself; it only declares dependencies on other packages, so installing it
+    pulls in a predefined set of packages.
+
+    See also:
+    * {ref}`Metapackages (explanation) <metapackages>` for the different
+      categories of metapackages in Ubuntu
+    * [Metapackage (Debian Wiki)](https://wiki.debian.org/metapackage)
 
 MP
 Merge Proposal
@@ -1211,10 +1222,31 @@ Rules File
 s390x
     *Work in Progress*
 
+Section
+    The **section** is a field in the {term}`control file <Control File>`
+    (and in the package metadata derived from it) that declares the
+    application area a package belongs to, for example ``devel`` for
+    development tools, ``kernel`` for kernel packages, or ``metapackages``
+    for {term}`metapackages <Metapackage>`.
+
+    The section is mostly but not entirely informational: the default {term}`APT`
+    configuration treats packages in the ``metapackages`` and ``oldlibs`` sections
+    specially for the purposes of automatic removal (see
+    {ref}`how APT treats metapackages <how-apt-treats-some-metapackages>`).
+
+    See also:
+    * {ref}`Sections in the package archive <archive-sections>`
+    * {ref}`Basic overview of the debian/ directory <debian-directory>`
+    * [Section field (Debian Policy Manual)](https://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-section)
+
 Seeds
     Seeds are lists of packages that define which packages go into the
     {term}`Main` component of the {term}`Ubuntu Archive` and which packages
     go into the distribution {term}`images <Image>`.
+
+    See also:
+    * {ref}`Seeds (explanation) <seeds>`
+    * {ref}`seed-management`
 
 Series
     A **series** refers to the {term}`packages <Package>` in the {term}`Ubuntu Archive`

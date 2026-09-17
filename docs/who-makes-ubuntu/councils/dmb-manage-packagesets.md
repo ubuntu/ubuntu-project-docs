@@ -76,7 +76,7 @@ Historically there a few different kinds of packagesets.
 There are two common variants, one mostly reflect seeds and the other
 is logically defined by the description.
 Further variants that have been established to cover special cases
-like Personal packagesets and OEM metapackage packagesets.
+like Personal packagesets and OEM {term}`metapackage <Metapackage>` packagesets.
 
 * **Logical packagesets** needs a *detailed description*. This is so that
   developers can mail `devel-permissions` after the set is created in order to
