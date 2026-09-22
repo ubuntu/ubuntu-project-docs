@@ -509,6 +509,9 @@ SRU Template
 Sponsoring Request
 ^^^^^^^^^^^^^^^^^^
 
+This refers to the "single process bug" that links to to one or more Launchpad
+bugs associated with the release.
+
 .. code-block::
 
  This is a new SnapD release.
@@ -558,8 +561,8 @@ Sponsoring Request
   - SnapD deb testing on `-proposed`
   - SnapD snap testing
 
-Final Test Feedback
-^^^^^^^^^^^^^^^^^^^
+Sponsoring Request Final Test Feedback
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following updates from the SnapD team is required before considering
 releasing to *-updates*:
@@ -569,6 +572,44 @@ releasing to *-updates*:
  - Autopkgtests on `-proposed` for all targeted releases: <RESULT>
  - SnapD deb testing on `-proposed`: <RESULT>
  - SnapD snap testing: <RESULT>
+
+Associated Launchpad Bugs
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This refers to the linked LP bugs in "Launchpad bugs addressed" in the
+above Sponsoring Request template. This should be added in the bug description
+above the original comment.
+
+In the case where the issue is covered by automated testing, this should be
+explicitly mentioned with links to:
+ - link to the relevant test
+ - link to the Release PR where it was exercised
+ - still include manual verification steps as well
+
+Ubuntu Core only Launchpad bugs does not require Launchpad bug verification.
+Clearly indicate if a Launchpadbug is Ubuntu Core only.
+
+.. code-block::
+
+ [SRU <version>](https://bugs.launchpad.net/ubuntu/+source/snapd/+bug/<URL>)
+
+ [ Impact ]
+
+ [ Test Plan ]
+
+  1. Reproduce on reported snapd version <reported snapd version>
+
+   [steps]
+
+  2. Confirm fix on <candidate snapd version>
+
+   [steps]
+
+ [ Where problems could occur ]
+
+ [ Other Info ]
+
+ --- original ---
 
 Related SRU Interest Team
 -------------------------
