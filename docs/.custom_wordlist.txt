@@ -346,3 +346,5 @@ subprocess
 multiline
 backoff
 OpenRouter
+Hyrum
+Hyrum's
