@@ -1,36 +1,43 @@
 .. admonition:: **SRU** series
    :class: admonition-highlight-this-page
 
-   The article series provides guidance on all aspects of
-   Stable Release Updates (SRUs).
+   The article series covers all aspects of Stable Release Updates (SRUs).
 
    Understand:
 
-   * :ref:`stable-release-updates-sru` - What SRUs are and when they are needed
-   * :ref:`explanation-sru-pipeline` - How an update travels from bug fix to -updates
-   * :ref:`explanation-principles` - Why stable releases are strictly regulated
+   * :ref:`stable-release-updates-sru` - What SRUs are and when they are
+     needed, how an update travels through the :ref:`pipeline
+     <explanation-sru-pipeline>`, and the :ref:`principles
+     <explanation-principles>` behind the strict rules
 
    Perform:
 
-   * :ref:`howto-perform-standard-sru` - A standard SRU, step by step
-   * :ref:`howto-prepare-special-sru` - Special types: staged uploads, NEW queue, removals
-   * :ref:`reference-sru-verification` - Verify an update in -proposed
-   * :ref:`sru-common-issues` - Common problems to avoid
+   * :ref:`howto-perform-standard-sru` - Fix a straightforward bug, step
+     by step, and :ref:`check it against common review findings
+     <sru-common-issues>`
+   * :ref:`howto-prepare-special-sru` - Special types such as staged
+     uploads, NEW queue entries or package removals
+   * :ref:`reference-sru-verification` - Test the update in -proposed and
+     report the results
 
    Troubleshoot:
 
-   * :ref:`howto-handle-autopkgtest-failure` - Autopkgtest failures
-   * :ref:`investigate-halted-phased-update` - Halted phased updates
-   * :ref:`howto-report-regression` - Report or handle a regression
+   * :ref:`howto-handle-autopkgtest-failure` - Diagnose test failures
+     after your upload, :ref:`halted phased updates
+     <investigate-halted-phased-update>` and :ref:`regressions
+     <howto-report-regression>`
 
    Reference:
 
-   * :ref:`reference-what-is-acceptable-to-sru` - What is acceptable to SRU
-   * :ref:`reference-sru-bug-template` - The SRU bug template
-   * :ref:`reference-package-specific-notes` - Package-specific exceptions (in this section)
-   * :ref:`reference-status-pages` - Track the progress of your SRU
+   * :ref:`reference-what-is-acceptable-to-sru` - The criteria an update
+     must meet, documented with the :ref:`bug template
+     <reference-sru-bug-template>`
+   * :ref:`Package-specific notes (in this section)
+     <reference-package-specific-notes>` - Standing exceptions for
+     individual packages, and the :ref:`status pages
+     <reference-status-pages>` to track your SRU's progress
 
    The SRU team:
 
-   * :ref:`explanation-role-expectations` - Roles and expectations
-   * :ref:`sru-internal` - Reviewing, releasing, onboarding (internal)
+   * :ref:`explanation-role-expectations` - Who does what in the process,
+     and the :ref:`internal team docs <sru-internal>`
