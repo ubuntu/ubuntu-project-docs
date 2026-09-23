@@ -42,32 +42,28 @@ flowchart TD
     SABDFL["SABDFL<br/>(Mark Shuttleworth)"]
     CC["Community Council"]
     TB["Technical Board"]
-    DMB["Developer Membership Board"]
-    FC["Forums Council"]
-    IRCC["IRC Council"]
-    MC["Matrix Council"]
-    KC["Kubuntu Council"]
-    LCC["LoCo Council"]
-    LC["Lubuntu Council"]
+    DMB["Developer<br/>Membership Board"]
+
+    subgraph CO["Councils"]
+        direction TB
+        COMC["Communications<br/>Council"]
+        KC["Kubuntu Council"]
+        LCC["LoCo Council"]
+        LC["Lubuntu Council"]
+        COMC ~~~ KC ~~~ LCC ~~~ LC
+    end
 
     SABDFL --> CC
     SABDFL --> TB
     CC --> DMB
-    CC --> FC
-    CC --> IRCC
-    CC --> MC
-    CC --> KC
-    CC --> LCC
-    CC --> LC
     TB --> DMB
+    CC --> CO
 
     style SABDFL fill:#772953,stroke:#772953,color:#fff
     style CC fill:#E95420,stroke:#E95420,color:#fff
     style TB fill:#E95420,stroke:#E95420,color:#fff
     style DMB fill:#77216F,stroke:#77216F,color:#fff
-    style FC fill:#5E2750,stroke:#5E2750,color:#fff
-    style IRCC fill:#5E2750,stroke:#5E2750,color:#fff
-    style MC fill:#5E2750,stroke:#5E2750,color:#fff
+    style COMC fill:#5E2750,stroke:#5E2750,color:#fff
     style KC fill:#5E2750,stroke:#5E2750,color:#fff
     style LCC fill:#5E2750,stroke:#5E2750,color:#fff
     style LC fill:#5E2750,stroke:#5E2750,color:#fff
