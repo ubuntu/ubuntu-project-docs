@@ -19,6 +19,11 @@ These requirements therefore follow.
    understandable to technical users not familiar with Ubuntu
    development, how we ensured the above.
 
+Each requirement is explained below, followed by the
+:ref:`preconditions <explanation-preconditions>` that apply before you
+propose a fix, and our expectations for :ref:`documentation and test
+plan detail <explanation-documentation>`.
+
 It may be the case that even though an SRU meets all documented
 requirements, the SRU team concludes that the risk of an update breaking
 users' expectations outweigh the benefit of making the change, and in this
@@ -27,6 +32,8 @@ the issue for interested users in the development release and for users of
 stable releases via the backports archive component, or a PPA or similar
 out-of-band method.
 
+
+.. _explanation-real-world-impact:
 
 Real world impact
 ~~~~~~~~~~~~~~~~~
@@ -126,6 +133,8 @@ SRU meets our policy. This should include:
 
 For details, see :ref:`Documentation <explanation-documentation>` below.
 
+
+.. _explanation-preconditions:
 
 Preconditions
 ~~~~~~~~~~~~~
