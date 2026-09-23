@@ -44,6 +44,18 @@ Which updates we release
 
 We follow strict rules to ensure that SRUs fix real-world problems and introduce no disruptions.
 
+You can propose an SRU in the following cases:
+
+- To fix high-impact bugs, including those that may directly cause security vulnerabilities, severe regressions from the previous release, or bugs that may directly cause loss of user data.
+- To adjust to changes in the environment, server protocols, or web services. This ensures that Ubuntu remains compatible with evolving technologies.
+- For safe cases with low regression potential but high user experience improvement.
+- To introduce new features in :term:`LTS releases <LTS>`, usually under strict conditions.
+- To update commercial software in the :ref:`partner-archive`.
+- To fix :term:`Failed to build from Source` issues.
+- To fix :term:`autopkgtest` failures, usually in conjunction with other high-priority fixes.
+
+For the authoritative criteria, see :ref:`Reference → Requirements → What is acceptable to SRU <reference-what-is-acceptable-to-sru>`.
+
 .. toctree::
     :maxdepth: 1
 
