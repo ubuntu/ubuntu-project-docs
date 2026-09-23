@@ -1,5 +1,5 @@
 .. admonition:: **SRU** series
-   :class: admonition-highlight-this-page
+   :class: admonition-highlight-this-page sru-series-exception
 
    The article series covers all aspects of Stable Release Updates (SRUs).
 
@@ -32,8 +32,7 @@
    * :ref:`reference-what-is-acceptable-to-sru` - The criteria an update
      must meet, documented with the :ref:`bug template
      <reference-sru-bug-template>`
-   * :ref:`Package-specific notes (in this section)
-     <reference-package-specific-notes>` - Standing exceptions for
+   * :ref:`reference-package-specific-notes` - Standing exceptions for
      individual packages, and the :ref:`status pages
      <reference-status-pages>` to track your SRU's progress
 
