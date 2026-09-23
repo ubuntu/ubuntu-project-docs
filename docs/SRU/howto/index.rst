@@ -15,7 +15,6 @@ You can submit a standard SRU that fixes a bug or a non-standard update such as 
     :maxdepth: 1
 
     standard
-    release
     prepare-special
     special
 
