@@ -192,7 +192,9 @@ staging/AA/maintainers/aa-priority-mismatches/ maintainers/AA/aa-priority-mismat
 
 staging/AA/maintainers/aa-signing-bootloaders/ maintainers/AA/aa-signing-bootloaders/
 
-maintainers/index-SRU/ maintainers/SRU/
+maintainers/index-SRU/ SRU/stable-release-updates/
+maintainers/SRU/ SRU/stable-release-updates/
+maintainers/SRU/review-an-sru/ SRU/internal/
 
 maintainers/index-uploader/ maintainers/uploader/
 
