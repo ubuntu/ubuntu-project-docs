@@ -3,6 +3,8 @@
 Stable Release Updates
 ======================
 
+.. include:: /SRU/_sru-series.rst
+
 As a contributor, follow these guides to upload an SRU and to ensure that it works correctly.
 
 

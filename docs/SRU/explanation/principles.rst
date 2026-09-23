@@ -3,6 +3,8 @@
 Principles
 ----------
 
+.. include:: /SRU/_sru-series.rst
+
 We carefully manage what we change in a stable Ubuntu release for the
 following principles:
 

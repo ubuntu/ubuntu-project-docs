@@ -1,6 +1,8 @@
 Non-standard processes
 ----------------------
 
+.. include:: /SRU/_sru-series.rst
+
 .. _explanation-package-specific-non-standard-processes:
 
 Package-specific non-standard processes

@@ -3,6 +3,8 @@
 autopkgtest Updates
 ===================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating autopkgtest in a stable,
 supported release.
 

@@ -3,6 +3,8 @@
 Stable Release Updates (SRU)
 ============================
 
+.. include:: /SRU/_sru-series.rst
+
 .. A single sentence that says what the product is, succinctly and
    memorably.
 
