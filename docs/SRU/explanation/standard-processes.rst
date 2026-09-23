@@ -107,7 +107,7 @@ failure <howto-handle-autopkgtest-failure>`.
 .. _explanation-phasing:
 
 Phasing
-~~~~~~
+~~~~~~~
 
 Once a package is released to -updates, the update is then phased so
 that the update is gradually made available to expanding subsets of
