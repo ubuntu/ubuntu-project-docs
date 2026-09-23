@@ -3,6 +3,8 @@
 SRU verification
 ----------------
 
+.. include:: /SRU/_sru-series.rst
+
 SRU verification is part of the QA process for an SRU, and is required for each bug associated with the SRU.
 
 

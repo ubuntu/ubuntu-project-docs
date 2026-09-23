@@ -3,6 +3,8 @@
 Firmware Updates
 ================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating the fwupd, fwupdate,
 fwupd-signed and fwupdate-signed packages to new upstream versions in a
 stable, supported distro (including LTS releases).

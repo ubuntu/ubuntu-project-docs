@@ -1,6 +1,8 @@
 Standard processes
 ------------------
 
+.. include:: /SRU/_sru-series.rst
+
 [this section needs cleaning up]
 
 -  We'd like the minimum process necessary. It should be clear why any

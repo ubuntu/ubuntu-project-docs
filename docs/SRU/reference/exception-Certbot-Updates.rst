@@ -3,6 +3,8 @@
 Certbot Updates
 ===============
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating the Certbot-related
 packages (currently the source packages python-acme, python-certbot,
 python-certbot-apache and python-certbot-nginx) to new upstream versions

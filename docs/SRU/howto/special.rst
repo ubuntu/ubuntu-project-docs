@@ -4,6 +4,8 @@
 Prepare a special type of SRU
 -----------------------------
 
+.. include:: /SRU/_sru-series.rst
+
 1. If your special type of SRU already has :ref:`package-specific notes
    <reference-package-specific-notes>` then follow :ref:`How-to →
    Perform a standard SRU <howto-perform-standard-sru>` as modified by

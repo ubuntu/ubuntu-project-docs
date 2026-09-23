@@ -3,6 +3,8 @@
 Requirements and rationale
 --------------------------
 
+.. include:: /SRU/_sru-series.rst
+
 Given our principles, when updates are proposed, they must be
 accompanied by a strong rationale and present a low risk of regressions.
 These requirements therefore follow.

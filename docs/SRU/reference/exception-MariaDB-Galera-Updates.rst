@@ -3,6 +3,8 @@
 MariaDB and Galera Updates
 ==========================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for doing microrelease updates of the MariaDB
 and Galera packages in Ubuntu releases.
 

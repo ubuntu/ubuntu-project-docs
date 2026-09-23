@@ -3,6 +3,8 @@
 Status pages
 ------------
 
+.. include:: /SRU/_sru-series.rst
+
 -  **Pending sponsorship**: `general sponsorship
    queue <http://sponsoring-reports.ubuntu.com/general.html>`__.
 -  **Pending accept:** package updates awaiting review for:

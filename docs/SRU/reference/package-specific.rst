@@ -3,6 +3,8 @@
 Package-specific notes
 ----------------------
 
+.. include:: /SRU/_sru-series.rst
+
 See also: :ref:`Explanation → Non-standard Processes → Package-specific
 non-standard processes <explanation-package-specific-non-standard-processes>`
 

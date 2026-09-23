@@ -3,6 +3,8 @@
 Crash and Makedumpfile Updates
 ==============================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for introducing new upstream- and
 micro- releases of the crash and makedumpfile packages into Ubuntu
 releases. Crash typically has two releases per calendar year, around

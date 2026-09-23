@@ -1,5 +1,9 @@
+.. _sru-internal:
+
 Internal SRU team docs
 ======================
+
+.. include:: /SRU/_sru-series.rst
 
 Decision making
 ---------------

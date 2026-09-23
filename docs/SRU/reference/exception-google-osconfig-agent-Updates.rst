@@ -3,6 +3,8 @@
 Google OSconfig Agent Updates
 =============================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating the
 google-osconfig-agent package to new upstream versions in a stable,
 supported distro (including LTS releases). This is an exception to the
