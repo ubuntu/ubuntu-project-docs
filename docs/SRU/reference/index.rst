@@ -34,7 +34,6 @@ Testing and SRU verification
 .. toctree::
    :maxdepth: 1
 
-   enable-proposed
    sru-verification
 
 Contact

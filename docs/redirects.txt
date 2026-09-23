@@ -249,6 +249,7 @@ SRU/explanation/roles/ who-makes-ubuntu/roles/SRU/
 SRU/howto/introduction-to-sru/ SRU/stable-release-updates/
 SRU/howto/prepare-special/ SRU/howto/special/
 SRU/howto/release/ SRU/howto/standard/
+SRU/reference/enable-proposed/ SRU/reference/sru-verification/
 SRU/index SRU/stable-release-updates/
 how-ubuntu-is-made/processes/stable-release-updates/ SRU/stable-release-updates/
 who-makes-ubuntu/roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/
