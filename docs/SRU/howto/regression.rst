@@ -1,6 +1,8 @@
 Handle a regression
 -------------------
 
+.. include:: /SRU/_sru-series.rst
+
 .. _howto-report-regression:
 
 Report a regression

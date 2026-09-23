@@ -3,6 +3,8 @@
 Perform a standard SRU
 ----------------------
 
+.. include:: /SRU/_sru-series.rst
+
 This how-to is for standard SRUs, where straightforward bugs are fixed
 using minimal cherry-picks. For other types of SRUs, see :ref:`How-to →
 Prepare a special type of SRU <howto-prepare-special-sru>` instead.

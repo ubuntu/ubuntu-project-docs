@@ -1,6 +1,8 @@
 Requirements
 ------------
 
+.. include:: /SRU/_sru-series.rst
+
 .. _reference-what-is-acceptable-to-sru:
 
 What is acceptable to SRU

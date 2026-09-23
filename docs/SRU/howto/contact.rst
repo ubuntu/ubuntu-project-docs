@@ -3,6 +3,8 @@
 Contact the SRU team
 --------------------
 
+.. include:: /SRU/_sru-series.rst
+
 .. start-canonical-contact-admonition
 
 .. note:: **Canonical employees**: private messages and private channels are

@@ -5,6 +5,8 @@
 HAProxy Updates
 ===============
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for doing micro-release updates of
 the HAProxy package in Ubuntu LTS releases.
 

@@ -6,6 +6,8 @@
 azure-vm-utils Updates
 =========================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This page describes the policy for updating the azure-vm-utils source package with
 regard to upstream LTS stable releases. This is a special case of the standard SRU
 process; we treat them as an SRU special case for "Upstream releases" that may include

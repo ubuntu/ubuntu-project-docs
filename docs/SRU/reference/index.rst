@@ -1,6 +1,8 @@
 Reference
 =========
 
+.. include:: /SRU/_sru-series.rst
+
 This reference section contains technical information about the SRU workflow.
 
 Tools and resources
