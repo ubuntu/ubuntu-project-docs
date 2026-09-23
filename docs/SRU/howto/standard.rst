@@ -86,10 +86,10 @@ Prepare a special type of SRU <howto-prepare-special-sru>` instead.
     relating to the update for at least one week following release of
     the package.
 11. If you find a regression, follow :ref:`Howto → Report a regression
-     <howto-report-regression>`. If someone else reports a regression,
-     please also follow :ref:`Howto → Report a regression
-     <howto-report-regression>` and ensure that all steps documented
-     there have been performed correctly.
+    <howto-report-regression>`. If someone else reports a regression,
+    please also follow :ref:`Howto → Report a regression
+    <howto-report-regression>` and ensure that all steps documented
+    there have been performed correctly.
 
 Get the SRU released
 ~~~~~~~~~~~~~~~~~~~~

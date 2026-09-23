@@ -14,7 +14,7 @@ Enable the -proposed pocket
 Enable the ``-proposed`` pocket in order to test new packages before they are released to ``-updates``.
 
 On Ubuntu 24.04 LTS and newer
-""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""
 
 Enable ``-proposed`` with a new apt sources configuration:
 
@@ -54,7 +54,7 @@ To install a package from ``-proposed``:
 
 
 On Ubuntu 22.04 LTS and older
-"""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""
 
 Enable ``-proposed`` with a new apt sources configuration:
 
