@@ -9,6 +9,8 @@
      needed, how an update travels through the :ref:`pipeline
      <explanation-sru-pipeline>`, and the :ref:`principles
      <explanation-principles>` behind the strict rules
+   * :ref:`explanation-role-expectations` - Who does what in the process,
+     and the :ref:`internal team docs <sru-internal>`
 
    Perform:
 
@@ -19,24 +21,17 @@
      uploads, NEW queue entries or package removals
    * :ref:`reference-sru-verification` - Test the update in -proposed and
      report the results
+   * :ref:`reference-status-pages` - Track your SRU's progress from
+     sponsorship to release
 
-   Troubleshoot:
+   Reference:
 
    * :ref:`howto-handle-autopkgtest-failure` - Diagnose test failures
      after your upload, :ref:`halted phased updates
      <investigate-halted-phased-update>` and :ref:`regressions
      <howto-report-regression>`
-
-   Reference:
-
    * :ref:`reference-what-is-acceptable-to-sru` - The criteria an update
      must meet, documented with the :ref:`bug template
      <reference-sru-bug-template>`
    * :ref:`reference-package-specific-notes` - Standing exceptions for
-     individual packages, and the :ref:`status pages
-     <reference-status-pages>` to track your SRU's progress
-
-   The SRU team:
-
-   * :ref:`explanation-role-expectations` - Who does what in the process,
-     and the :ref:`internal team docs <sru-internal>`
+     individual packages
