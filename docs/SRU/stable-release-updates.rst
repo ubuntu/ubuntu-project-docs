@@ -84,7 +84,6 @@ You must follow these rules when you upload a package update. Processes such as 
 
     explanation/standard-processes
     explanation/non-standard-processes
-    explanation/further-requirements
 
 
 Getting started
