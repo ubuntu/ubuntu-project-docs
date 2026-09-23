@@ -1,11 +1,11 @@
-.. _stable-release-updates:
+.. _sru-howto-guides:
 
-Stable Release Updates
-======================
+SRU how-to guides
+=================
 
 .. include:: /SRU/_sru-series.rst
 
-As a contributor, follow these guides to upload an SRU and to ensure that it works correctly.
+Follow these guides to upload an SRU and to ensure that it works correctly.
 
 
 Submit a package update

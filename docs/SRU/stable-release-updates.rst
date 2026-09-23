@@ -1,3 +1,4 @@
+.. _stable-release-updates:
 .. _stable-release-updates-sru:
 
 Stable Release Updates (SRU)
@@ -86,6 +87,17 @@ You must follow these rules when you upload a package update. Processes such as 
 
     explanation/standard-processes
     explanation/non-standard-processes
+
+
+How-to guides
+-------------
+
+As a contributor, follow these guides to upload an SRU and to ensure that it works correctly.
+
+.. toctree::
+    :maxdepth: 1
+
+    howto/index
 
 
 Getting started
