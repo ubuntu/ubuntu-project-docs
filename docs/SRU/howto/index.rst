@@ -6,15 +6,6 @@ Stable Release Updates
 As a contributor, follow these guides to upload an SRU and to ensure that it works correctly.
 
 
-Introduction to SRU for contributors
-------------------------------------
-
-.. toctree::
-    :maxdepth: 1
-
-    introduction-to-sru
-
-
 Submit a package update
 -----------------------
 
