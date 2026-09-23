@@ -21,10 +21,10 @@ To obtain a new ongoing exception such as those documented below:
    To discuss further see :ref:`Howto → Contact <howto-contact>`
 
 Note that the SRU team's delegation from the Technical Board is limited
-to accepting SRU uploads that meet the `policy criteria <#When>`__
-above. The SRU team maintains documentation for standing exceptions here
+to accepting SRU uploads that meet the :ref:`policy criteria <reference-what-is-acceptable-to-sru>`.
+The SRU team maintains documentation for standing exceptions here
 to keep individual interpretations of the policy criteria consistent.
-Departing from the policy criteria above still requires approval from
+Departing from the policy criteria still requires approval from
 the Technical Board.
 
 
