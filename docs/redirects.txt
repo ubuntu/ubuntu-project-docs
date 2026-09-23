@@ -132,7 +132,9 @@ contributors/index-new-package/ contributors/new-package/
 contributors/new-package/create-new-package/ contributors/new-package/create-a-new-package/
 tutorial/create-new-package/ contributors/new-package/create-a-new-package/
 
-maintainers/index-SRU/ SRU/howto/
+maintainers/index-SRU/ SRU/stable-release-updates/
+maintainers/SRU/ SRU/stable-release-updates/
+maintainers/SRU/review-an-sru/ SRU/internal/
 
 contributors/new-package/request-sru/ SRU/howto/standard/
 contributors/new-package/request-an-sru/ SRU/howto/standard/
