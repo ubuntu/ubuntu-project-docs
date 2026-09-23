@@ -8,6 +8,9 @@ Perform a standard SRU
 This how-to is for standard SRUs, where straightforward bugs are fixed
 using minimal cherry-picks. For other types of SRUs, see :ref:`How-to →
 Prepare a special type of SRU <howto-prepare-special-sru>` instead.
+The numbered steps below take you from checking the requirements to a
+verified update; once verification is done, see :ref:`Get the SRU
+released <howto-get-sru-released>`.
 
 1.  Check that the upload complies with :ref:`Reference → Requirements →
     What is acceptable to SRU <reference-what-is-acceptable-to-sru>`.
@@ -92,6 +95,8 @@ Prepare a special type of SRU <howto-prepare-special-sru>` instead.
     please also follow :ref:`Howto → Report a regression
     <howto-report-regression>` and ensure that all steps documented
     there have been performed correctly.
+
+.. _howto-get-sru-released:
 
 Get the SRU released
 ~~~~~~~~~~~~~~~~~~~~
