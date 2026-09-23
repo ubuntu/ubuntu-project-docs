@@ -299,7 +299,12 @@ extensions = [
 ]
 
 # Excludes files or directories from processing
-exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common", ".venv", "**/*.include"]
+exclude_patterns = [
+    "maintainers/niche-package-maintenance/rustc/common",
+    ".venv",
+    "**/*.include",
+    "**/_*series*",
+]
 
 # Adds custom CSS files, located under 'html_static_path'
 html_css_files = [
