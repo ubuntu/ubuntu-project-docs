@@ -246,6 +246,7 @@ contributors/bug-fix/bug-control/ who-makes-ubuntu/specialist-teams/bug-control-
 
 SRU/explanation/ SRU/stable-release-updates/
 SRU/explanation/roles/ who-makes-ubuntu/roles/SRU/
+SRU/howto/introduction-to-sru/ SRU/stable-release-updates/
 SRU/index SRU/stable-release-updates/
 how-ubuntu-is-made/processes/stable-release-updates/ SRU/stable-release-updates/
 who-makes-ubuntu/roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/
