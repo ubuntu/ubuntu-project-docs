@@ -5,7 +5,12 @@ SRU verification
 
 .. include:: /SRU/_sru-series.rst
 
-SRU verification is part of the QA process for an SRU, and is required for each bug associated with the SRU.
+SRU verification is part of the QA process for an SRU, and is required
+for each bug associated with the SRU. It comprises three steps:
+
+#. :ref:`Enable the -proposed pocket <reference-enable-proposed>`
+#. :ref:`Perform the test plan <reference-perform-test-plan>`
+#. :ref:`Share the test results <reference-share-test-results>`
 
 
 .. _reference-enable-proposed:
@@ -93,8 +98,10 @@ To install a package from ``-proposed``:
     sudo apt install -t <series>-proposed <package>
 
 
+.. _reference-perform-test-plan:
+
 Perform the test plan
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
 
 1. Access your testing environment (virtual machine, container, etc.).
 2. Enable the ``-proposed`` pocket as described :ref:`above <reference-enable-proposed>`.
@@ -113,8 +120,10 @@ Perform the test plan
 5. Perform the test plan described in the ``[Test Plan]`` section of the bug description.
 
 
+.. _reference-share-test-results:
+
 Share test results
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^
 
 1. Leave a comment on the bug with the result of your test, noting the package version you tested. Preferably, share the output of ``apt policy`` from the test environment.
 2. Update the bug tags. If the test was successful, change the ``verification-needed-<series>`` tag to ``verification-done-<series>``. If the test was not successful, change the tag to ``verification-failed-<series>``.
