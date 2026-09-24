@@ -250,7 +250,7 @@ be included in future reviews of the acknowledged backlog.
 
 | Tag | Use case |
 | :---- | :---- |
-| `$team-todo`      | Among the vast backlog, bugs with this tag are considered both important and actionable by $team. They require a person to be assigned, and must be regularly tracked so they do not fall through the cracks. If, while working on a case, the bug becomes un-actionable this tag should be dropped to keep the overview clear. |
+| `$team-todo`      | Among the vast backlog, bugs with this tag are considered both important and actionable by $team. They should get a person to be assigned, and must be regularly tracked so they do not fall through the cracks. If, while working on a case, the bug becomes un-actionable this tag should be dropped to keep the overview clear. |
 | `$team-freezer`   | This is like `$team-todo`, but for bugs that should be remembered even if they cannot be immediately acted upon. This tag puts the bug into the "freezer", effectively establishing a second tier of cases that are actionable but waiting to be handled. If there is a condition (lack of capacity is not such a condition, that would be $team-todo + unassigned) or date/event (like after beta-freeze) by which the case should be re-considered, teams are encouraged to state that when adding this tag. |
 | `rls-$$-incoming` | This tag is used as a trigger for getting the attention of the team that is structurally subscribed to the package. `$$` is a abbreviation for the corresponding Ubuntu release name - for example `rr` for `26.04 resolute raccoon` - and allows to target a particular release this shall be considered for. If you have any additional context, please add a comment alongside the tag. |
 
