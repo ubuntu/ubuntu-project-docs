@@ -88,7 +88,7 @@ It is then {ref}`checked by the Archive Admin team <aa-new-review>`.
 (example-new-package-request)=
 ## Example new package request
 
-This is an example of an ideal "Package Request" bug. Dont forget to tag the bug with '`needs-packaging`'.
+This is an example of an ideal "Package Request" bug. Don't forget to tag the bug with '`needs-packaging`'.
 
 ```
 [needs-packaging] <requested package name>
