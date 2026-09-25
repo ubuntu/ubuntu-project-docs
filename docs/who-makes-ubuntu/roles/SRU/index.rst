@@ -4,6 +4,8 @@
 About the SRU role
 ------------------
 
+.. include:: /SRU/_sru-series.rst
+
 The SRU team is a narrowly scoped team that has privileged access:
 primarily to "accept" packages from the stable series' unapproved queues
 into the -proposed pocket, and "release" packages from the -proposed

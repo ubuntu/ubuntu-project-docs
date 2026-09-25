@@ -3,6 +3,8 @@
 Special types of SRU
 --------------------
 
+.. include:: /SRU/_sru-series.rst
+
 `What is acceptable to SRU <#what-is-acceptable-to-sru>`__, together
 with other considerations, give rise to the following special types of
 permitted SRU, some of which overlap:

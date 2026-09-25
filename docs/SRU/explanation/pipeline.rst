@@ -3,6 +3,8 @@
 Overview of the SRU pipeline
 ----------------------------
 
+.. include:: /SRU/_sru-series.rst
+
 1. An SRU driver prepares the relevant bugs with the necessary
    documentation, using the :ref:`reference-sru-bug-template`,
    and makes an SRU upload available.

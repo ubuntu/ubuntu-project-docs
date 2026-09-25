@@ -3,6 +3,8 @@
 Kernel security and update policy for post-release trees
 ========================================================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the process and criteria for post-release kernel
 updates. The kernel is a very complex source package, and it is
 fundamentally different than other packages in the archive. The

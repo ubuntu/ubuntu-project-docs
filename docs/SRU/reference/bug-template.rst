@@ -3,6 +3,8 @@
 SRU bug template
 ----------------
 
+.. include:: /SRU/_sru-series.rst
+
 The SRU bug template is used to document the justification, regression potential, and
 test plan for the SRU. The SRU driver is responsible for clearly documenting this
 information, which is then reviewed by the SRU team when considering whether to accept
@@ -27,9 +29,18 @@ and mitigates risk.
 
      * detailed instructions how to reproduce the bug
 
-     * these should allow someone who is not familiar with the affected
-       package to reproduce the bug and verify that the updated package
-       fixes the problem.
+       * Ideally this is a well written and commented autopkgtest added as part
+         of the upload that way it is verified mostly by automation and will
+         ensure it is not breaking later
+
+       * When an autopkgtest isn't feasible the next best option is to
+         attach a script to the SRU bug that can be used in certain special
+         conditions/environments to recreate the issue
+
+       * When neither autopkgtest nor a test script is applicable please
+         outline the steps needed. These should allow someone who is not
+         familiar with the affected package to reproduce the bug and verify
+         that the updated package fixes the problem.
 
      * if other testing is appropriate to perform before landing this
        update, this should also be described here.

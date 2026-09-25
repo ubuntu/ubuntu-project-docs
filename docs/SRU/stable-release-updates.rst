@@ -1,7 +1,10 @@
+.. _stable-release-updates:
 .. _stable-release-updates-sru:
 
 Stable Release Updates (SRU)
 ============================
+
+.. include:: /SRU/_sru-series.rst
 
 .. A single sentence that says what the product is, succinctly and
    memorably.
@@ -44,6 +47,18 @@ Which updates we release
 
 We follow strict rules to ensure that SRUs fix real-world problems and introduce no disruptions.
 
+You can propose an SRU in the following cases:
+
+- To fix high-impact bugs, including those that may directly cause security vulnerabilities, severe regressions from the previous release, or bugs that may directly cause loss of user data.
+- To adjust to changes in the environment, server protocols, or web services. This ensures that Ubuntu remains compatible with evolving technologies.
+- For safe cases with low regression potential but high user experience improvement.
+- To introduce new features in :term:`LTS releases <LTS>`, usually under strict conditions.
+- To update commercial software in the :ref:`partner-archive`.
+- To fix :term:`Failed to build from Source` issues.
+- To fix :term:`autopkgtest` failures, usually in conjunction with other high-priority fixes.
+
+For the authoritative criteria, see :ref:`Reference → Requirements → What is acceptable to SRU <reference-what-is-acceptable-to-sru>`.
+
 .. toctree::
     :maxdepth: 1
 
@@ -72,7 +87,17 @@ You must follow these rules when you upload a package update. Processes such as 
 
     explanation/standard-processes
     explanation/non-standard-processes
-    explanation/further-requirements
+
+
+How-to guides
+-------------
+
+As a contributor, follow these guides to upload an SRU and to ensure that it works correctly.
+
+.. toctree::
+    :maxdepth: 1
+
+    howto/index
 
 
 Getting started

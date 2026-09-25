@@ -3,6 +3,8 @@
 UbuntuDevTools Updates
 ======================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating the ubuntu-dev-tools
 package in a stable release.
 

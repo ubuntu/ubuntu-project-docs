@@ -3,6 +3,8 @@
 Check for common issues with your SRU
 -------------------------------------
 
+.. include:: /SRU/_sru-series.rst
+
 General
 ~~~~~~~
 

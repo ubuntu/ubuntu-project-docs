@@ -3,6 +3,8 @@
 Container Stack Updates
 =======================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating the docker.io group of
 packages (docker.io-app, containerd-app, runc-app, docker-buildx,
 docker-compose-v2) in a stable supported distro, in particular LTS

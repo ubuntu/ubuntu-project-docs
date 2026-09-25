@@ -3,6 +3,8 @@
 Stable Release Updates for OpenStack and the Ubuntu Cloud Archive
 =================================================================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 The SRU process for !OpenStack and the Ubuntu Cloud Archive (UCA)
 follows the same process as `Ubuntu Stable Release
 Updates </howto/standard>`__. This page
