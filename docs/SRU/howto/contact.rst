@@ -21,7 +21,6 @@ Contact the SRU team
 - If you **don't have a sponsor**, you can use the `Ubuntu Patch Pilots <https://discourse.ubuntu.com/t/ubuntu-patch-pilots/37705>`__ Program. Ask a patch pilot in the following channels:
 
   - `#devel:ubuntu.com <https://matrix.to/#/#devel:ubuntu.com>`__ on Matrix
-  - `#ubuntu-devel <https://wiki.ubuntu.com/IRC>`__ on Libera.Chat
   - The `ubuntu-devel-discuss <https://lists.ubuntu.com/mailman/listinfo/ubuntu-devel-discuss>`__ mailing list
 
 - If you **do have upload access**, you can contact the SRU team here:
