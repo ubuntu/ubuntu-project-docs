@@ -1,0 +1,135 @@
+# Runs with a base-repo write token after every review event, so approvals and
+# dismissals update the coverage comment even for fork PRs.
+#
+# Fork-chain hardening:
+# - The artifact is extracted outside the checkout, never into it.
+# - The PR number from the artifact is validated and cross-checked against
+#   workflow_run.head_sha / head_repository before any privileged work runs.
+# - Checkout is pinned to the default branch: PR code is never executed here.
+name: Review coverage on review
+
+on:
+  workflow_run:
+    workflows: ['Review coverage review trigger']
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  resolve-pr:
+    name: Resolve and bind PR number
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pull-requests: read
+      contents: read
+    outputs:
+      pr_number: ${{ steps.resolve.outputs.pr_number }}
+    steps:
+      - name: Download PR-number artifact (cross-run)
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: review-coverage-pr-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/rc-artifact
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - name: Validate PR number against the triggering run
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_FILE: ${{ runner.temp }}/rc-artifact/pr_number.txt
+          EVENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          EVENT_HEAD_REPO: ${{ github.event.workflow_run.head_repository.full_name || '' }}
+        run: |
+          set -euo pipefail
+          skip() {
+            echo "$1" >&2
+            echo "pr_number=" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
+          if [ ! -f "$PR_FILE" ]; then
+            skip "No pr_number.txt artifact from the trigger run; skipping (no-op)."
+          fi
+
+          PR_NUMBER="$(tr -d '[:space:]' < "$PR_FILE")"
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            skip "Artifact PR number failed validation: '$PR_NUMBER'; skipping."
+          fi
+
+          # A missing PR is a no-op; any other API failure must fail the job
+          # rather than silently skipping the coverage update.
+          if ! PR_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" 2>"$RUNNER_TEMP/gh-api.err")"; then
+            if grep -q "HTTP 404" "$RUNNER_TEMP/gh-api.err"; then
+              skip "PR #${PR_NUMBER} not found; skipping."
+            fi
+            cat "$RUNNER_TEMP/gh-api.err" >&2
+            echo "Failed to fetch PR #${PR_NUMBER}." >&2
+            exit 1
+          fi
+          STATE="$(jq -r '.state' <<<"$PR_JSON")"
+          HEAD_SHA="$(jq -r '.head.sha' <<<"$PR_JSON")"
+          HEAD_REPO="$(jq -r '.head.repo.full_name // empty' <<<"$PR_JSON")"
+
+          if [ "$STATE" != "open" ]; then
+            skip "PR #${PR_NUMBER} is not open (state: ${STATE}); skipping."
+          fi
+          if [ "$HEAD_SHA" != "$EVENT_HEAD_SHA" ]; then
+            skip "PR #${PR_NUMBER} head ${HEAD_SHA} != triggering run head ${EVENT_HEAD_SHA}; skipping."
+          fi
+          if [ -z "$EVENT_HEAD_REPO" ]; then
+            skip "Triggering run has no head repository; cannot bind PR #${PR_NUMBER}; skipping."
+          fi
+          if [ "$HEAD_REPO" != "$EVENT_HEAD_REPO" ]; then
+            skip "PR #${PR_NUMBER} head repo ${HEAD_REPO} != triggering run repo ${EVENT_HEAD_REPO}; skipping."
+          fi
+
+          echo "PR #${PR_NUMBER} bound to triggering run head ${HEAD_SHA}."
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+
+  worker:
+    name: Update coverage after review
+    needs: resolve-pr
+    if: needs.resolve-pr.outputs.pr_number != ''
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+      statuses: write # review-coverage commit status
+      actions: read # cross-run artifact download via download-artifact@v4
+    concurrency:
+      group: review-coverage-pr-${{ needs.resolve-pr.outputs.pr_number }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - name: Re-download PR-number artifact (cross-run)
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: review-coverage-pr-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/rc-artifact
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - name: Re-validate PR number (defense in depth)
+        env:
+          PR_FILE: ${{ runner.temp }}/rc-artifact/pr_number.txt
+          EXPECTED: ${{ needs.resolve-pr.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          test -f "$PR_FILE" || { echo "pr_number.txt missing from artifact" >&2; exit 1; }
+          PR_NUMBER="$(tr -d '[:space:]' < "$PR_FILE")"
+          if [ "$PR_NUMBER" != "$EXPECTED" ]; then
+            echo "Artifact PR number '${PR_NUMBER}' does not match resolved '${EXPECTED}'" >&2
+            exit 1
+          fi
+          echo "PR_NUMBER=${PR_NUMBER}" >> "$GITHUB_ENV"
+      - name: Run review coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/actions/review-coverage/script.py coverage --pr "$PR_NUMBER"
