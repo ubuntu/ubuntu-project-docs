@@ -27,6 +27,7 @@ Learn more about the criteria to accept a package update, about your responsibil
     special
     package-specific
     historical-removals
+    requirements-closely-coupled-kernel-userspace
 
 Testing and SRU verification
 ----------------------------
