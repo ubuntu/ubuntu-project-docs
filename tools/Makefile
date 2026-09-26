@@ -21,7 +21,7 @@ help:
 	@echo "  make render-review-template - strictly generate the reviewer template include"
 	@echo "  make check-review-template  - verify the generated include is current"
 	@echo "  make test     — run unit tests (tools/auto-mir/tests/)"
-	@echo "  make clean    — remove __pycache__ directories"
+	@echo "  make clean    — remove __pycache__, .pytest_cache and .ruff_cache directories"
 	@echo ""
 	@echo "Targets can be scoped to a subdirectory, e.g.:"
 	@echo "  make -C tools/auto-mir check"
@@ -48,5 +48,5 @@ check-review-template:
 
 .PHONY: clean
 clean:
-	find $(TOOLS_DIR) -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find $(TOOLS_DIR) -type d \( -name __pycache__ -o -name .pytest_cache -o -name .ruff_cache \) -exec rm -rf {} + 2>/dev/null || true
 	find $(TOOLS_DIR) -name "*.pyc" -delete 2>/dev/null || true

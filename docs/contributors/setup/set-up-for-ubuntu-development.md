@@ -24,6 +24,7 @@ $ sudo apt update && \
     pastebinit \
     ubuntu-dev-tools && \
   sudo snap install lxd && \
+  sudo snap install ppa-dev-tools && \
   sudo snap install --classic snapcraft && \
   sudo snap install --classic git-ubuntu
 ```

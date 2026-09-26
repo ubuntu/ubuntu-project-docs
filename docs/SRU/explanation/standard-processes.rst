@@ -66,8 +66,8 @@ target package will not be released into -updates until the failure is
    an MP in the bug along with the rationale. Useful input here can be
    re-running the failing test against only the release/updates pocket,
    as documented in the
-   `Proposed Migration <https://wiki.ubuntu.com/ProposedMigration#How_to_run_autopkgtests_of_a_package_against_the_version_in_the_release_pocket>`__
-   wiki page.
+   `Proposed Migration <https://ubuntu.com/project/docs/contributors/advanced/resolve-a-migration-issue/#learn-to-run-autopkgtest>`__
+   page.
 -  If the reported autopkgtest regression is the result of a **flaky
    test**, the uploader can try re-running the test to see if it is
    indeed just a transient issue. If the issue still persists but the
