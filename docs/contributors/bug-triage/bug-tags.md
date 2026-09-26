@@ -169,7 +169,7 @@ For more tags see [Kernel/Tagging](https://wiki.ubuntu.com/Kernel/Tagging).
 | [`nscd`](https://launchpad.net/ubuntu/+bugs?field.tag=nscd) | This bug deals with `nscd` which is part of the `glibc` package |
 | [`usability`](https://launchpad.net/ubuntu/+bugs?field.tag=usability) | This bug is a usability problem |
 | [`rtl`](https://launchpad.net/ubuntu/+bugs?field.tag=rtl) | This bug is a right-to-left problem |
-| [`uec-images`](https://launchpad.net/ubuntu/+bugs?field.tag=uec-images) | This bug is related to the Ubuntu Enterprise Cloud (UEC) [images](http://uec-images.ubuntu.com/releases) |
+| [`uec-images`](https://launchpad.net/ubuntu/+bugs?field.tag=uec-images) | This bug is related to the Ubuntu Enterprise Cloud (UEC) [images](https://cloud-images.ubuntu.com/releases/) |
 | [`xinerama`](https://launchpad.net/ubuntu/+bugs?field.tag=xinerama) | This bug is a `xinerama` problem (multiple-monitor configuration) |
 
 

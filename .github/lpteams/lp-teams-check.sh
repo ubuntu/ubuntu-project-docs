@@ -10,8 +10,31 @@ fi
 
 for LP_TEAM in "${TEAMS[@]}"; do
     EXISTING_TEAM=$(cat "$LP_TEAM.team")
-    READ_TEAM=$(curl --silent https://api.launchpad.net/devel/~"${LP_TEAM}"/members |
-        jq -r '.entries[] | .name' | sort)
+
+    # Fetch team members from Launchpad API
+    # Use --fail to detect HTTP errors, and capture the response
+    LP_RESPONSE=$(curl --silent --fail --show-error \
+        https://api.launchpad.net/devel/~"${LP_TEAM}"/members 2>&1)
+
+    CURL_EXIT_CODE=$?
+
+    if [ $CURL_EXIT_CODE -ne 0 ]; then
+        echo "ERROR: Failed to fetch team data for '$LP_TEAM' from Launchpad (curl exit code: $CURL_EXIT_CODE)."
+        echo "This may indicate a Launchpad outage or network issue."
+        echo "Skipping '$LP_TEAM' to avoid creating an incorrect PR."
+        echo "Error details: $LP_RESPONSE"
+        continue
+    fi
+
+    READ_TEAM=$(echo "$LP_RESPONSE" | jq -r '.entries[] | .name' 2>/dev/null | sort)
+
+    # Verify that we got a non-empty result
+    if [ -z "$READ_TEAM" ]; then
+        echo "WARNING: Launchpad returned empty or invalid data for team '$LP_TEAM'."
+        echo "This may indicate a Launchpad outage or API issue."
+        echo "Skipping '$LP_TEAM' to avoid creating an incorrect PR."
+        continue
+    fi
 
     if [ "$READ_TEAM" != "$EXISTING_TEAM" ]; then
         git config --local user.email "github-actions[bot]@users.noreply.github.com"

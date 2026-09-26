@@ -24,6 +24,7 @@ $ sudo apt update && \
     pastebinit \
     ubuntu-dev-tools && \
   sudo snap install lxd && \
+  sudo snap install ppa-dev-tools && \
   sudo snap install --classic snapcraft && \
   sudo snap install --classic git-ubuntu
 ```
@@ -144,11 +145,18 @@ conform to standard Debian practices.
 
 
 (dput)=
-### DPut
+### dput-ng
 
-[DPut](https://packages.debian.org/sid/dput) is the Debian Package Upload Tool.
-It's used to upload a software package to the Ubuntu repository, or to a
-personal package archive (PPA).
+[dput-ng](https://packages.ubuntu.com/resolute/dput) (the Debian Package Upload Tool,
+next generation) is the modern replacement for `dput`. It's used to upload a
+software package to the Ubuntu repository, or to a personal package archive (PPA).
+
+On recent Ubuntu releases, `dput-ng` is provided by the `dput` package, so
+installing `dput` gives you `dput-ng` automatically:
+
+```none
+$ sudo apt install dput
+```
 
 A working `.dput.cf`:
 
@@ -235,6 +243,26 @@ $unshare_tmpdir_template = '/var/tmp/tmp.sbuild.XXXXXXXXXX';
 
 $clean_source = 0;
 $run_lintian = 0;
+```
+
+The following optional additions improve the build experience:
+
+```perl
+# Include debhelper (required by most packages), auto-apt-proxy (speeds up
+# dependency installation by auto-detecting apt proxies), and ca-certificates
+# (needed for HTTPS apt sources) in the base tarball:
+push @{$unshare_mmdebstrap_extra_args}, "*", ["--include=auto-apt-proxy,ca-certificates,debhelper"];
+
+# Open a shell when a build fails, for debugging:
+$external_commands = {"build-failed-commands" => ["%SBUILD_SHELL"]};
+
+# Store build logs in a dedicated directory:
+$log_dir = "$HOME/logs";
+
+# Run autopkgtest and lintian after each build:
+$run_autopkgtest = 1;
+$run_lintian = 1;
+$lintian_opts = ["-L", ">=pedantic", "--show-overrides"];
 ```
 
 :::
@@ -360,7 +388,7 @@ $ mk-sbuild resolute --arch=amd64
 List the available schroots:
 
 ```none
-$ sbuild -l
+$ schroot -l
 ```
 
 Update a schroot:

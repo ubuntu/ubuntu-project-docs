@@ -226,18 +226,16 @@ create and modify Debian-format packages.
   {ref}`merging`.
 
 
-### Revision control (Bazaar)
+### Revision control
 
-Bazaar, an open source revision control system and Canonical sponsored project,
-is the preferred revision control system in Ubuntu. Many Ubuntu packages are
-[maintained in Bazaar](https://wiki.ubuntu.com/BzrMaintainerHowto), which makes
-it easy for other developers to [contribute changes to them](https://wiki.ubuntu.com/BzrContributorHowto),
+Git is the preferred revision control system in Ubuntu. Many Ubuntu packages are
+maintained in Git repositories hosted on Launchpad, which makes
+it easy for other developers to contribute changes to them,
 which can be easily merged by the maintainer.
 
-Note that, as a practical matter, many packages are not yet maintained in Bazaar,
-but in other revision control systems or none on a case-by-case basis.
-[Work is underway](https://wiki.ubuntu.com/DistributedDevelopment) to rectify
-this. Where no revision control system is used, the history of uploads recorded
+Note that, as a practical matter, some packages are maintained
+in other revision control systems or none on a case-by-case basis.
+Where no revision control system is used, the history of uploads recorded
 in [Launchpad](https://launchpad.net/ubuntu/+search) may be useful.
 
 

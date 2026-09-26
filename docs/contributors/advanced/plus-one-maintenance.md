@@ -23,8 +23,8 @@ coordinating the effort.
 
 ## Who can participate?
 
-We expect participants to be proficient in "distro work". Core Developers and
-MOTUs would of course qualify, but people working on their application for such
+We expect participants to be proficient in "distro work". {ref}`Core Developers <dmb-joining-core-dev>` and
+{ref}`MOTUs <dmb-joining-MOTU>` would of course qualify, but people working on their application for such
 a status are welcome. For the latter category, +1 shifts are a good way to get
 more exposure to some specific situations such as transitions, proposed
 migration, or merges, although participants are expected to already understand
@@ -104,7 +104,7 @@ more closely to issues only showing up on riscv64.
 
 #### Transition tracker, NBS
 
-The [NBS tracker](https://ubuntu-archive-team.ubuntu.com/nbs.html), for "Not
+The [NBS tracker](https://static-reports.ubuntu.com/nbs/nbs.html), for "Not
 Buildable from Sources", tracks binary packages in the archive that cannot be rebuilt from source.
 While that can happen for several reasons, by far the most common is that the binary
 in question is the old version of a library that is having an ABI transition.
@@ -128,14 +128,9 @@ the [build status report](http://qa.ubuntuwire.com/ftbfs/).
 
 #### update-excuses
 
-A lot of the issues that can be found by the tools above is also visible in the
-[update-excuses
-page](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html),
-along with a lot of other problems, except that it's fairly impenetrable.
-
-One possible approach is to start at the bottom and work your way up. For very
-old issues, asking for a package removal on the grounds that it
-wastes everyone's time is valid!
+The [update-excuses page](https://ubuntu-archive-team.ubuntu.com/proposed-migration/update_excuses.html)
+is the primary tool used by archive admins to track the progress of updating packages to the next Ubuntu release.
+For more information, see {ref}`its documentation page <update-excuses>`.
 
 Another approach is to use
 [visual-excuses](https://github.com/mclemenceau/visual-excuses) or [ubuntu-excuses](https://github.com/mclemenceau/ubuntu-excuses) to try (which are also available as snaps) and find

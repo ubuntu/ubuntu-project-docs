@@ -299,7 +299,7 @@ extensions = [
 ]
 
 # Excludes files or directories from processing
-exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common", ".venv"]
+exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common", ".venv", "**/*.include"]
 
 # Adds custom CSS files, located under 'html_static_path'
 html_css_files = [
@@ -402,6 +402,13 @@ extlinks = {
 # sphinx-llm config
 llms_txt_full_build = False
 llms_txt_suffix_mode = "url-suffix"
+# The llms-markdown sub-build cannot serialize all node types used in this
+# docs set (admonitions, tips, Mermaid diagrams, manpage roles, and
+# captions). As of sphinx-llm 1.1.0 those emit warnings that are relayed to
+# the main build and, because it runs with --fail-on-warning, they fail the
+# build. Skip such nodes silently; the llms.txt output is a lossy
+# representation and missing blocks there are acceptable.
+llms_txt_suppress_unknown_node_warnings = True
 llms_txt_description = (
     "This documentation provides guidance for contributors to and "
     "maintainers of the Ubuntu Linux distribution. It covers processes "

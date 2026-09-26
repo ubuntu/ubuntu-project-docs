@@ -24,18 +24,23 @@ sphinx-youtube-links>=0.1.0
 
 # Other dependencies
 packaging
+PyYAML
 sphinxcontrib-svg2pdfconverter[CairoSVG]
 sphinx-last-updated-by-git
 sphinx-sitemap
 
 # Vale dependencies
 rst2html
-vale
+vale==3.13.0.0
 
 # Custom dependencies (needed by Ubuntu Project docs)
 distro_info
 sphinx-hoverxref
-sphinx-llm
+# Pin: sphinx-llm 1.1.0 (2026-09-21) started relaying llms-markdown
+# sub-build warnings into the main build; the build requires matching
+# conf.py settings (llms_txt_suppress_unknown_node_warnings). Bump only
+# after verifying `make html` passes.
+sphinx-llm==1.1.0
 sphinx-prompt
 sphinx-togglebutton
 sphinxcontrib-mermaid

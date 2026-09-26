@@ -112,6 +112,7 @@ See the articles in the series for details on how to interpret the status report
 * {ref}`issues-preventing-migration`
 * {ref}`special-migration-cases`
 
+See also the full docs for {ref}`update-excuses`.
 
 (finding-issues-to-resolve)=
 ### Finding issues to resolve

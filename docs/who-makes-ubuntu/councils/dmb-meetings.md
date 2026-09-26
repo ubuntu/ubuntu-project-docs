@@ -11,12 +11,14 @@ The {ref}`dmb` conducts meetings every two weeks.
 
 ## Scheduling
 
-DMB meetings are held on Mondays alternating between 13:00 UTC and 15:30 UTC.
-In case of common vacations (such as over New Year), a meeting may be skipped.
+DMB meetings are held on Mondays alternating between 13:00 UTC and 16:00 UTC.
 [Refer to the Agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to check on the times, dates and topics of upcoming meetings.
 
-The meeting schedule can be changed by the DMB by majority vote, and it is expected for the schedule to be confirmed or changed as necessary at the first meeting after new DMB members are elected.
-Please also consider the needs of pending and future applicants if changing the schedule, as doing so may affect their plans.
+In case of common vacations (such as over New Year), a meeting may be skipped.
+In case of high demand stretching the agenda entries far into the future, the DMB tam may decide to add extra meetings and contact the applicants to coordinate.
+
+In general the meeting schedule can be changed by the DMB by majority vote, and it is expected for the schedule to be confirmed or changed as necessary at the first meeting after new DMB members are elected.
+The DMB will try to also consider the needs of pending and future applicants if changing the schedule, as doing so may affect their plans and ability to attend.
 
 
 ## Meeting location

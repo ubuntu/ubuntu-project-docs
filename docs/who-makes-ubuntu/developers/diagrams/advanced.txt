@@ -1,4 +1,8 @@
 :::{mermaid}
+   %%{init: {'themeVariables': {
+                'fontSize': '1em',
+                'fontFamily': 'Ubuntu'}}}%%
+
 block-beta
   columns 3
 
@@ -6,8 +10,8 @@ block-beta
     AdvancedStudies("Advanced studies")
     columns 1
     space:3
-    StudyFFe{{"<a href=https://documentation.ubuntu.com/project/release-team/freeze-exceptions/>Study FFe</a>"}}
-    PlusOne{{"<a href=https://documentation.ubuntu.com/project/contributors/advanced/plus-one-maintenance/>Study +1</a>"}}
+    StudyFFe{{"<a href=/release-team/freeze-exceptions/>Study FFe</a>"}}
+    PlusOne{{"<a href=/contributors/advanced/plus-one-maintenance/>Study +1</a>"}}
   end
 
   block:middle
@@ -23,9 +27,9 @@ block-beta
   block:right
     columns 2
     space
-    PPU["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-ppu/'>PPU*</a>"]
+    PPU["<a href='/who-makes-ubuntu/developers/dmb-joining-ppu/'>PPU*</a>"]
     space
-    PackageSet["<a href='https://documentation.ubuntu.com/project/who-makes-ubuntu/developers/dmb-joining-packageset/'>Packageset</a>"]
+    PackageSet["<a href='/who-makes-ubuntu/developers/dmb-joining-packageset/'>Packageset</a>"]
     space:8
   end
 
@@ -34,8 +38,6 @@ block-beta
   StudyFFe --> DoAnFFe
   PlusOne --> PlusOneShadowing
 
-  classDef Studies fill: #FFDAB9, stroke:#F4A460;
-    class AdvancedStudies,AdvancedTasks Studies
   classDef invisible fill:transparent,stroke:transparent;
     class left,middle,right invisible
 :::

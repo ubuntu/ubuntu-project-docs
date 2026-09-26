@@ -63,6 +63,7 @@ Ubuntu.
 
 plus-one-maintenance
 plus-one-report-template
+update-excuses
 ```
 
 * {ref}`plus-one-report-template`

@@ -7,9 +7,9 @@ In addition to code/projects on Launchpad and the Ubuntu archive, Ubuntu also ma
 
 Repositories under github.com/ubuntu are individually managed by their owners as admin.
 
-Ubuntu members that get {ref}`Ubuntu Core Developer <dmb-joining-core-dev>` permission are also added as [members of the organization](https://docs.github.com/en/organizations/managing-peoples-access-to-your-organization-with-roles/roles-in-an-organization) with access to the whole scope of [github.com/ubuntu](https://github.com/ubuntu). Repository owners cannot revoke this access.
+While it isn't a requirement nor a guarantee, it might still help to be an approved [Core Developer](https://launchpad.net/) with a GitHub user is registered with the Launchpad ID (configured under 'Social accounts' on your Launchpad profile page). This will prove you are someones with wide reaching contributions and permissions to Ubuntu already when reaching out asking for membership to a particular repository.
 
-This is inclusive (Ubuntu Core Developers get access to the whole scope) and not exclusive (one does not need to be an Ubuntu Core Developer to be allowed access to an individual project).
+This access is not exclusive to Ubuntu Core Developer or other permissions (one does not need to be an Ubuntu Core Developer to be allowed access to an individual project).
 
 ## Contributions
 

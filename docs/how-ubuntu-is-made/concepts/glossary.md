@@ -1095,9 +1095,6 @@ POSIX
     interfaces, for software compatibility with variants of Unix and other
     {term}`Operating Systems <Operating System>`.
 
-PowerPC
-    *Work in Progress*
-
 ppc64el
     *Work in Progress* (PowerPC64 Little-Endian)
 
@@ -1142,7 +1139,7 @@ Reduced Instruction Set Computer
     {term}`RISC` processors typically prioritize speed over complexity.
 
     Examples of {term}`RISC` {term}`Architectures <Architecture>` are {term}`arm64`,
-    {term}`armhf`, {term}`RISC-V`, {term}`ppc64el`, and {term}`PowerPC`.
+    {term}`armhf`, {term}`RISC-V`, and {term}`ppc64el`.
 
     See also:
     * [Reduced instruction set computer (Wikipedia)](https://en.wikipedia.org/wiki/Reduced_instruction_set_computer)

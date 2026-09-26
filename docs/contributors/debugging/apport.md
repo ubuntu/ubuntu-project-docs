@@ -23,8 +23,7 @@ Apport is a system which:
 
 We are sure that this will lead to a much better level of quality assurance in the future.
 
-<!-- TODO: may need to migrate this page also if it is still relevant -->
-If you want to make crash reports of your software even more useful when being reported through Apport, please see the [Apport developer how-to guide](https://wiki.ubuntu.com/Apport/DeveloperHowTo).
+If you want to make crash reports of your software even more useful when being reported through Apport, please see {ref}`Apport developer how-to <apport-developer-how-to>`.
 
 (what-does-it-look-like-for-users)=
 ## What does it look like for users?
@@ -46,9 +45,8 @@ If the user leaves the {guilabel}`Send an error report` checkbox enabled, Apport
 
 Apport is not enabled by default in stable releases, even if it is installed. The automatic crash interception component of Apport is disabled by default in stable releases for a number of reasons:
 
-<!-- TODO: Error Tracker wiki page may need to be migrated -->
 1. Apport collects potentially sensitive data, such as core dumps, stack traces, and log files. They can contain passwords, credit card numbers, serial numbers, and other private material.
-This is mitigated by the fact that it presents you what will be sent to the bug tracker, and that all crash report bugs are private by default, limited to [the Ubuntu bug triaging team](https://launchpad.net/~ubuntu-crashes-universe). We can reasonably expect developers and technically savvy users, who run the development release, to be aware of this and judge whether it is appropriate to file a crash report. But we shouldn't assume that every Ubuntu user of stable releases is able to do so. In 12.04 and up this is transparently handled by whoopsie, see page on the [Error Tracker](https://wiki.ubuntu.com/ErrorTracker).
+This is mitigated by the fact that it presents you what will be sent to the bug tracker, and that all crash report bugs are private by default, limited to [the Ubuntu bug triaging team](https://launchpad.net/~ubuntu-crashes-universe). We can reasonably expect developers and technically savvy users, who run the development release, to be aware of this and judge whether it is appropriate to file a crash report. But we shouldn't assume that every Ubuntu user of stable releases is able to do so. In 12.04 and up this is transparently handled by whoopsie, see the {ref}`Error tracker <error-tracker>`.
 
 1. During the development release we already collect thousands of crash reports, much more than we can ever fix. Continuing to collect those for stable releases is not really useful, since
 
@@ -59,7 +57,7 @@ This is mitigated by the fact that it presents you what will be sent to the bug 
 1. Data collection from Apport takes a nontrivial amount of CPU and I/O resources, which slow down the computer and don't allow you to restart the crashed program for several seconds.
 
 ```{note}
-Apport does not trap SIGABRT signals. If you are getting such a signal, then please see the page on [debugging program crash](https://wiki.ubuntu.com/DebuggingProgramCrash).
+Apport does not trap SIGABRT signals. If you are getting such a signal, then please see {ref}`How to debug an Apport crash <how-to-debug-an-apport-crash>`.
 ```
 
 (how-to-enable-apport)=
@@ -109,9 +107,8 @@ However, when uploading the data to a bug tracking system, a different format ca
 
 Some fields warrant further details:
 
-<!-- TODO: Segv and ProcMaps links may need to be migrated -->
-* [SegvAnalysis](https://wiki.ubuntu.com/SegvAnalysis): when examining a Segmentation Fault (signal 11), Apport attempts to review the exact machine instruction that caused the fault, and checks the program counter, source, and destination addresses, looking for any virtual memory address (VMA) that is outside an allocated range (as reported in the [ProcMaps](https://wiki.ubuntu.com/ProcMaps) attachment).
-* [SegvReason](https://wiki.ubuntu.com/SegvReason): a VMA can be read from, written to, or executed.  On a SegFault, one of these 3 CPU actions has taken place at a given VMA that either not allocated, or lacks permissions to perform the action.  For example:
+* **SegvAnalysis**: when examining a Segmentation Fault (signal 11), Apport attempts to review the exact machine instruction that caused the fault, and checks the program counter, source, and destination addresses, looking for any virtual memory address (VMA) that is outside an allocated range (as reported in the **ProcMaps** attachment).
+* **SegvReason**: a VMA can be read from, written to, or executed.  On a SegFault, one of these 3 CPU actions has taken place at a given VMA that either not allocated, or lacks permissions to perform the action.  For example:
 * `SegvRebazaarL VMA` would mean that a NULL pointer was most likely dereferenced while reading a value.
 * `SegvReason: writing unknown VMA` would mean that something was attempting to write to the destination of a pointer aimed outside of allocated memory. (This is sometimes a security issue.)
 * `SegvReason: executing writable VMA [stack]` would mean that something was causing code on the stack to be executed, but the stack (correctly) lacked execute permissions.  (This is almost always a security issue.)
@@ -121,8 +118,7 @@ Some fields warrant further details:
 
 There are several tools available for working with a crash report:
 
-<!-- TODO: bazaar links may need to be migrated -->
-* **Ubuntu Bug Patterns**: [These](http://bazaar.launchpad.net/~ubuntu-bugcontrol/apport/ubuntu-bugpatterns/files) are patterns for packages (writable by Ubuntu Bug Control) that prevent bugs from being filed by apport.  Complete details are found in the [README](http://bazaar.launchpad.net/~ubuntu-bugcontrol/apport/ubuntu-bugpatterns/annotate/head%3A/README).
+* **Ubuntu Bug Patterns**: [These](https://git.launchpad.net/~ubuntu-bugcontrol/apport/+git/ubuntu-bugpatterns) are patterns for packages (writable by Ubuntu Bug Control) that prevent bugs from being filed by apport.  Complete details are found in the [README](https://git.launchpad.net/~ubuntu-bugcontrol/apport/+git/ubuntu-bugpatterns/tree/README).
 
 * **apport-unpack**: Unpack a report into single files (one per attribute). This is most useful for extracting the core dump. Please see the manpage for further details. This tool is not necessary when working with Launchpad, since it already splits the parts into separate attachments.
 
@@ -196,11 +192,11 @@ It is possible for packages to specify information gathered from the system and 
 * `usplash` - ignores crashes in specific code paths
 * `source_totem.py` - asks the reporter questions and gathers different information based on responses in `/usr/share/apport/package-hooks`.
 
-There is also a [list](http://wiki.ubuntu.com/Apport/PackageHooks) of packages providing apport hooks.
+There is also a {ref}`list of packages providing apport hooks <apport-package-hooks>`.
 
-Please see the [Apport developer how-to guide](https://wiki.ubuntu.com/Apport/DeveloperHowTo) for further information.
+Please see the {ref}`Apport developer how-to <apport-developer-how-to>` for further information.
 
-If a crash or bug report is submitted through Apport, the relevant hooks will be run automatically. If you have an already reported bug that was filed without Apport, and you are interested in the information from those hooks, you can ask the bug reporter to use `apport-collect` _bugnumber_ (see [#Tools](https://help.ubuntu.com/community/#Tools)).
+If a crash or bug report is submitted through Apport, the relevant hooks will be run automatically. If you have an already reported bug that was filed without Apport, and you are interested in the information from those hooks, you can ask the bug reporter to use `apport-collect` _bugnumber_ (see {ref}`Tools <tools>`).
 
 (use-the-source-luke)=
 ## Use the source, Luke!
@@ -208,21 +204,10 @@ If a crash or bug report is submitted through Apport, the relevant hooks will be
 Apport is developed on Launchpad ([Apport](https://code.launchpad.net/apport)). To contribute to it or develop your own system based on it, see [code.launchpad.net/apport](https://code.launchpad.net/apport) for cloning instructions. To contribute to the Ubuntu package, use {lpsrc}`apport`.
 
 
-(future-plans)=
-## Future plans
-
-* Various improvements to performance, better tools to work with reports, and integration of more languages (Mono/Python stack traces, assertion messages, etc.) See the relevant [specification](https://features.launchpad.net/distros/ubuntu/+spec/apport-improvements).
-
 (further-links)=
 ## Further links
 
-<!-- TODO: links to wiki pages in this section may need to be migrated -->
-<!-- TODO: bazaar links may need to be migrated -->
-<!-- * The [report file data format specification](attachment:data-format.pdf). -->
-* Original specifications: [Apport design](https://wiki.ubuntu.com/AutomatedProblemReports), [User interface](https://wiki.ubuntu.com/CrashReporting)
-* [Ubuntu apport bug patterns](http://bazaar.launchpad.net/~ubuntu-bugcontrol/apport/ubuntu-bugpatterns/files)
-* [Whoopsie](https://wiki.ubuntu.com/ErrorTracker) is a newer Ubuntu crash submission system that doesn't require any input from the user and integrates with Apport
+* [Ubuntu apport bug patterns](https://git.launchpad.net/~ubuntu-bugcontrol/apport/+git/ubuntu-bugpatterns)
+* The {ref}`Error tracker <error-tracker>` (Whoopsie) is a newer Ubuntu crash submission system that doesn't require any input from the user and integrates with Apport
 * Please do not hesitate to report bugs and feature requests to the [bug tracker](https://launchpad.net/apport/+bugs).
-* See [Bugs/ApportRetraces](https://help.ubuntu.com/community/Bugs/ApportRetraces) for additional documentation for those triaging Apport-generated bug reports in LaunchPad, based on a [MOTU/School](https://help.ubuntu.com/community/MOTU/School) session by EmmetHikory .
-* [Brian Murray](https://wiki.ubuntu.com/BrianMurray) gave a [class](https://wiki.ubuntu.com/MeetingLogs/devweek0909/ApportPkgHooks) at Ubuntu Developer week regarding writing package hooks.
-* Integration using LaunchpadIntegration: [https://wiki.ubuntu.com/UbuntuDevelopment/Internationalisation/Coding#LPI](https://wiki.ubuntu.com/UbuntuDevelopment/Internationalisation/Coding#LPI)
+* For retracing Apport-generated bug reports in Launchpad, see {ref}`How to debug an Apport crash <how-to-debug-an-apport-crash>`.

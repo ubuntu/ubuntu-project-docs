@@ -7,10 +7,10 @@ For a piece of software to be included in Ubuntu, it must meet the [Ubuntu Licen
 ## Requesting a new package for Ubuntu
 
 Packages that have recently been added to Debian unstable will be automatically synced into Ubuntu prior to the {ref}`debian-import-freeze` (DIF). Once synced, they will follow the {ref}`proposed-migration flow <proposed-migration>`.
-If instead the release process already reached the Debian Import Freeze, you must [file a bug](https://launchpad.net/ubuntu/+filebug/?no-redirect) with the summary field "Please sync `<packagename>` from debian `<distro>`" where
+If instead the release process already reached the Debian Import Freeze, you must [file a bug](https://launchpad.net/ubuntu/+filebug) with the summary field "Please sync `<packagename>` from debian `<distro>`" where
 `<packagename>` is the package you would like to see.
 
-To get a package into Ubuntu, [file a bug in Launchpad](https://bugs.launchpad.net/ubuntu/+filebug?no-redirect&field.tag=needs-packaging) and make sure it has the tag [`needs-packaging`](https://lists.ubuntu.com/archives/ubuntu-motu/2007-March/001471.html).
+To get a package into Ubuntu, [file a bug in Launchpad](https://bugs.launchpad.net/ubuntu/+filebug) and make sure it has the tag [`needs-packaging`](https://lists.ubuntu.com/archives/ubuntu-motu/2007-March/001471.html).
 
 In the bug, mention where to get the source for it and which license it is under.
 An example request [is shown here](https://wiki.ubuntu.com/UbuntuDevelopment/NewPackages/ExamplePackageRequest).
@@ -85,6 +85,30 @@ Start with {ref}`how-to-find-a-sponsor` for the current sponsorship process.
 After the new package is uploaded, it will show up and be held in the NEW queue.
 It is then {ref}`checked by the Archive Admin team <aa-new-review>`.
 
+(example-new-package-request)=
+## Example new package request
+
+This is an example of an ideal "Package Request" bug. Don't forget to tag the bug with '`needs-packaging`'.
+
+```
+[needs-packaging] <requested package name>
+
+<description (paragraph or two)>
+
+URL: <homepage_url>
+License: <license>
+Notes: <anything that developers should know about the application>
+```
+
+```
+[needs-packaging] Firefox
+
+Firefox is a well known, lightweight but powerful web-browser from the Mozilla Foundation. It is quickly growing in popularity and has almost 25% user share.
+
+URL: http://www.mozilla.com/firefox
+License: Mozilla Public License
+Notes: Comes in stable (Firefox 2) and unstable/beta (Firefox 3) versions
+```
 
 ## Further reading
 

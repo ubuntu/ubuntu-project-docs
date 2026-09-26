@@ -2,13 +2,15 @@
 
 # Technical authors will be requested for review when someone opens a
 # pull request, unless a later match takes precedence.
-* @s-makin @rkratky
+* @s-makin @rkratky @msuchane
 
 # MIR team PR approvals
-# - TAs not required for MIR content approvals
+# - TAs not required for MIR content and tool approvals
 MIR/
-# - MIR team owns all MIR docs anywhere in the repo
-MIR/ @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk
+tools/auto-mir/
+# - MIR team owns all MIR docs and tools anywhere in the repo
+MIR/ @setharnold @joalif @didrocks @cpaelzer @freyes @pushkarnk
+tools/auto-mir/ @setharnold @joalif @didrocks @cpaelzer @freyes @pushkarnk
 
 # SRU team PR approvals
 # - TAs not required for SRU content approvals
@@ -32,17 +34,17 @@ community/ @aaronprisk @ilvipero
 
 # AA team PR approvals
 # These files are prefixed with "aa-", but not kept in a specific directory
-**/aa-*.md @panlinux @cpaelzer @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof
+**/aa-*.md @panlinux @cpaelzer @paride @ginggs @mwhudson @utkarsh2102 @tjaalton @seb128 @raof
 
 # DMB team PR approvals
 # Like the AA team, these files are prefixed with "dmb-" but not kept in a specific directory
-**/dmb-*.md @cpaelzer @lvoytek @rbasak @utkarsh2102 @athos-ribeiro @bdrung @julian-klode
+**/dmb-*.md @cpaelzer @lvoytek @rbasak @utkarsh2102 @athos-ribeiro @bdrung @uraltun
 
 # TAs' & special teams' ack required for changes to the CODEOWNERS file
-/.github/CODEOWNERS @s-makin @rkratky @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @schopin-pro @mwhudson @utkarsh2102 @tjaalton @seb128 @raof @aaronprisk @ilvipero @basak @teward @enr0n @julian-klode @awhitcroft @Hyask
+/.github/CODEOWNERS @s-makin @rkratky @setharnold @joalif @didrocks @cpaelzer @MylesJP @pushkarnk @panlinux @paride @ginggs @mwhudson @utkarsh2102 @tjaalton @seb128 @raof @aaronprisk @ilvipero @basak @teward @enr0n @julian-klode @awhitcroft @Hyask
 
 # +1 maintenance PR approvals
-plus-one-*.md @schopin-pro @s-makin @rkratky
+plus-one-*.md @s-makin @rkratky
 
 # Rocks team page PR approvals
 rocks-team.md @asanvaq @cjdcordeiro

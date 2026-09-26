@@ -5,17 +5,16 @@ A Personal Package Archive, or PPA, is a personal repository on Launchpad where 
 
 To create and upload packages to PPAs, you need to add your OpenPGP keys to Launchpad. You can find information on how to generate and import an OpenPGP key into Launchpad at [Launchpad's help page](https://launchpad.net/+help-registry/openpgp-keys.html).
 
+For comprehensive instructions on creating a PPA and uploading packages, see the {external:ref}`Launchpad documentation on uploading to a PPA <upload-a-package-to-a-ppa>`.
+
+## Managing PPAs with `ppa-dev-tools`
+
 To manage PPAs, we use the `ppa-dev-tools` snap. To install it, run
 ```
 $ sudo snap install ppa-dev-tools
 ```
 
-Use `dput` to upload files to PPAs. Install it (alongside many other useful Ubuntu development tools) with:
-```
-$ sudo apt install ubuntu-dev-tools
-```
-
-# Creating a PPA
+### Creating a PPA
 
 To create your PPA:
 ```
@@ -24,7 +23,7 @@ $ ppa create my-cool-new-ppa
 
 If this is your first time using `ppa-dev-tools`, you may need to authenticate with Launchpad. To do this, `ppa-dev-tools` will output a link you can use to grant it authorization to work with your Launchpad account (in some cases, the link will automatically open in your browser. If not, you can manually copy-paste it or CTRL+Click in supported terminals). 
 
-## Build and upload your package
+### Build and upload your package
 
 You only need to build *source* packages locally to upload them to a PPA. To do this, navigate to your package's directory (containing the `debian` folder) and use the `debuild` command (the `-k` flag ensures your build is signed with your OpenPGP key, a requirement to upload):
 
@@ -32,13 +31,13 @@ You only need to build *source* packages locally to upload them to a PPA. To do 
 $ debuild -S -sa -k'email_associated_with_key@your_email.com'
 ```
 
-This produces a `.changes` file in the parent directory. Use `dput` to upload it:
+This produces a `.changes` file in the parent directory. Use `dput` (which provides `dput-ng` on recent Ubuntu releases) to upload it:
 
 ```
 $ dput ppa:your-launchpad-name/my-cool-new-ppa ../my-cool-package.changes
 ```
 
-## Launchpad builds
+### Launchpad builds
 
 After the source package has been uploaded, Launchpad's automated build systems create binary packages from your source for various architectures. This can take a long time, so `ppa-dev-tools` includes a tool to allow you to check how many builds are still in progress within a PPA. Use:
 
@@ -60,9 +59,8 @@ $ sudo apt install my-cool-package
 
 ## Extra pre-upload checks with `dput-ng`
 
-If you are often uploading packages, you may want to use `dput-ng`. This is a wrapper around `dput` that warns you or blocks uploading of the package if it does not conform to certain standards. 
+The `dput` package on recent Ubuntu releases provides `dput-ng`, which can warn you or block uploading of the package if it does not conform to certain standards. To install it separately:
 
-If you installed `ubuntu-dev-tools`, the version of `dput` you are using is already `dput-ng`. If not, you can get it directly with
 ```
 $ sudo apt install dput-ng
 ```
