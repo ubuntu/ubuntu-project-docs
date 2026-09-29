@@ -1,0 +1,48 @@
+(Librsvg-test-plan)=
+# Librsvg test plan
+
+For Librsvg we test that its reverse dependencies SVG capabilities are still fine.
+
+This is our test SVG:
+
+```xml
+<svg width="250" xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <svg x="10">
+    <rect x="10" y="10" height="100" width="100"
+        style="stroke:#ff0000; fill: #0000ff"/>
+  </svg>
+  <svg x="120">
+    <rect x="10" y="10" height="100" width="100"
+        style="stroke:#009900; fill: #00cc00"/>
+  </svg>
+</svg>
+```
+
+It displays two non-overlapping squares side by side.
+
+
+## Xboard
+
+The figures in the chess board are SVGs, so resize the window some times and verify that the figures are resized and displayed fine (see `xboard.png` for reference).
+
+:::{note}
+Exercised code base: [draw.c](https://sources.debian.org/src/xboard/4.9.1-2/draw.c/#L324)
+:::
+
+
+## Eye of Gnome
+
+Load the test SVG in it, verify that the picture displays correctly too when changing zoom level and rotating it.
+
+
+## Gthumb
+
+Load the test SVG in it, click the brush button to edit it and verify that the picture still displays correctly changing zoom level and rotating it.
+
+Crop the image and verify that it is still displayed correctly.
+
+
+## Inkscape
+
+Load the test SVG in it and click the ellipsis button. Add a yellow ellipsis (shortcut: E) somewhere in the picture. Save as `square-ellipsis.svg`. Inspecting the file in a text editor should reveal an 'ellipse' element. Firefox should display the same picture you see in inkscape.

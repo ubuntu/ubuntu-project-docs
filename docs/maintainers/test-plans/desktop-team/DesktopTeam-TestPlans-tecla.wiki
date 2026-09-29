@@ -1,0 +1,37 @@
+(tecla-test-plan)=
+# Tecla test plan
+
+Below are the test cases that should be run when tecla is updated to new major releases in the development version of Ubuntu. These should also be run for all tecla Stable Release Updates.
+
+
+## Test Case 1
+
+1. `sudo apt install tecla`
+2. Run `tecla`
+3. It should show a visualization of your current keyboard layout.
+4. Press keys on your physical keyboard. Those pressed keys should be highlighted on the Tecla keyboard.
+
+
+## Test Case 2
+
+1. `sudo apt install language-pack-gnome-fr tecla`
+2. Open the Settings app (gnome-control-center)
+3. In the left sidebar, choose Keyboard.
+4. In Input Sources, click the `+`. Add both `English (US)` and `French (AZERTY)` (if they are not already in your list).
+5. Run `tecla`
+6. In the top left area of GNOME Shell, click the keyboard layout selector to switch between `en` and `fr`. Tecla's keyboard layout should be updated to match.
+
+
+## What Could Go Wrong
+
+Tecla is a relatively unimportant feature. It is still possible to use Ubuntu and switch keyboard layouts without being able to see a visualization in Ubuntu of what the layout is.
+
+
+## Other Info
+
+These tests cases were written for the very first alpha release of Tecla. It is expected that Tecla will be improved and better integrated into GNOME so it will likely be possible to launch Tecla from GNOME Shell or the Settings app directly instead of needing to run it separately.
+
+
+## Review Status
+
+Unreviewed

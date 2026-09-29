@@ -1,0 +1,60 @@
+(Libadwaita-test-plan)=
+# Libadwaita test plan
+
+Install `libadwaita-1-examples` from the proposed pocket and start `adwaita-1-demo`.
+
+* This is a two panel window with an welcome message at the right and a list of clickable entries on the left.
+
+* If on a Gnome environment (i.e. typical Ubuntu):
+  * Toggle the dark theme in the settings application or do it via the drop down menu at the top right of the screen. It should toggle the window's theme between light and dark.
+* Else (e.g. on a stand alone window manager started without GDM):
+  * Click the sun icon at the top left. It should toggle the window's theme between light and dark.
+
+    :::{tip}
+    This conditional exposure of the sun button is done by `notify_system_supports_color_schemes_cb` in adw-demo-window.c.
+    :::
+
+* Click the three horizontal lines button near it. A context menu opens and you click 'about Adwaita demo' which shows a transient window with the usual options (details, credits, troubleshooting etc., exact list is not important) and show the correct Libadwaita version.
+
+* Navigation view
+
+  * Click run the demo, a transient window opens with buttons, click one open page 3, with a sliding transition the page in that transient window is replaced by simply a "page 3" text in large font.
+
+* Clamp
+
+  * In-/decreasing the maximum width value correspondingly changes the width of the box containing that option.
+
+* Lists
+
+  * First entry (a.k.a. row) shows a row with title and, in fainter and smaller font, subtitle.
+
+  * Second row shows a button inside that row.
+
+  * Entry rows section shows rows in which text can be inserted. The password entry has a toggle to un-/shadow the text in it.
+
+* View switcher
+
+  * Click run the demo and verify that a pop up opens with a tabbed interface. Clicking a different tab changes the contents of the window.
+
+* Tab viewer
+  * Just like the view switcher but here you can close and add tabs and you can also have a grid of them by clicking "view open tabs" button (represented by four squares).
+
+* Carousel
+
+  * Pages in the carousel can be swiped with the mouse (like a touch screen gesture) or with button4/5 (a.k.a. scroll wheel)
+
+* Buttons
+
+  * Clicking a button triggers a color transition for a split second. Hovering a button causes it to change color. The color remains while the mouse pointer is over it and goes back to normal when the mouse pointer goes away.
+
+* Toasts (no, it's not bread)
+
+  * Simple toast: Click show and a small transient pop up shows at the bottom of the window. Clicking X dismisses it.
+  * Toast with an action: This toast has a button to undo the action. It also has the trash bin that dismisses the toast.
+  * Toast with a long title: As expected.
+
+* Alert dialog
+  * Presents a transient window with save (primary button) discard (secondary button) and cancel button. All different colors.
+
+* Spinner
+  * This shows a point/worm (the size of the thing changes) orbiting in a circumference.

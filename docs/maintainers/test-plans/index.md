@@ -7,6 +7,7 @@ Test plans for various SRUs were previously held on the Ubuntu wiki. If you need
 
 ```{toctree}
 :titlesonly:
+:glob:
 
-
+desktop-team/*
 ```

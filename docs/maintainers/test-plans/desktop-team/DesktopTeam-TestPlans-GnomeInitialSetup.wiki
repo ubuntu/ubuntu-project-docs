@@ -1,0 +1,230 @@
+(GnomeInitialSetup-test-plan)=
+# GNOME Initial Setup test plan
+
+
+## 24.04
+
+The followings are the test plans for testing gnome-initial-setup.
+
+
+### First Boot Initialization
+
+This test case is intended for OEM or pre-bootstrapped image such as Raspberry Pi image, where the account setup is after the installation.
+
+
+#### Prepare and launch
+
+:::{important}
+**Do not use a production system to run this test!** To test this behavior, we need a system that has no user account created, that means all users needs to be deleted for the test.
+:::
+
+To delete current user, first we have to set up password for root:
+
+```none
+sudo passwd
+```
+
+Then log out current user, switch to text terminal by Ctrl-Alt-F3, login as root, then:
+
+```none
+deluser --remove-home [username]
+systemctl reboot
+```
+
+If `deluser` failed, ensure the user is not logged in, wait and try again.
+
+
+#### Page 1: Welcome (locale selection)
+
+* A page with Ubuntu logo on top, a rotating _Welcome_ and its translations below the logo, a search bar for the locales, and list of common languages on the bottom should be shown, and an option of vertical ellipsis (⋮) on the bottom, which can be expanded to more available languages.
+
+* Click on the locale to switch between languages, and the language for the _Next_ button should change. Try it for a couple more times to see whether it would crash.
+
+* Remember what you selected and click _Next_.
+
+
+#### Page 2: Typing
+
+* Offers a list of available keyboard layouts and a search bar for the keyboard layouts. An option of vertical ellipsis (⋮) is on the bottom, which can be expanded to more available keyboard layouts.
+
+* Select a different keyboard layout, remember what you selected.
+
+* Click _Preview_ next to it will show a window of the selected keyboard layout.
+
+* Click _Next_.
+
+
+#### Page 3: EULA
+
+:::{important}
+EULA page (as a requirement for OEM systems) needs extra files installed in the system. This page will be skipped if PDF files under the paths denoted below are not available.
+:::
+
+* If there is a locale-bound EULA file available at `/usr/share/desktop-provision/eula/EULA_[locale].pdf`, a localized EULA page should be displayed.
+
+* If the above is not available, but there is a file `/usr/share/desktop-provision/eula/EULA.pdf`, there will be a EULA page displayed.
+
+* If no, this page would be skipped entirely.
+
+* The top-right button should be _Accept_. If the EULA is shown, click the button to continue.
+
+
+#### Page 4: Network (Wi-Fi)
+
+:::{important}
+If the system does not have any Wi-Fi interface, this page will be skipped.
+:::
+
+* A list of Wi-Fi access points are listed. If the one you can connect is available, select one and enter passphrase, and see whether it can be connected.
+
+* Click _Next_, or _Skip_ if not connecting to an access point.
+
+
+#### Page 5: Time Zone
+
+* A map and a search bar for the cities are available.
+
+* Note that, if no city is selected, _Next_ button should be greyed out.
+
+* Type a city name into the search bar, select one and hit Enter, the correlated city (might not be the same you selected, but has the same timezone) should be pinned, with city name and timezone information annotated.
+
+* Click _Next_.
+
+
+#### Page 6: About You (account creation)
+
+* Text fields to input _Full name_, _Username_, and _Computer_ are available, and a button to change user icon.
+
+* Click the edit button besides user avatar, a grid of stock photos should be shown. Click the image to change the photo.
+
+* Type a name into _Full Name_, the username and computer name should be changed to a lowercase of the Full Name, unless it does not begin with a letter.
+
+* Change Username so it begins with a number, there should be an error _The username must start with a lower case letter from a-z._
+
+* Change Username so it includes special characters (like +), there should be an error _The username should only consist of lower case letters from a-z, digits, and the following characters: - \__
+
+* Change Computer (name) so it begins with a number, it should be allowed.
+
+* Change Computer (name) so it includes special characters (like +), there should be an error _The hostname should only consist of lower case letters from a-z, digits and a hyphen: -_
+
+  :::{important}
+  There is a known issue that the computer name cannot be the existing name this system was set to, which will give out an error denoting the name is used on the network. This issue can be ignored. Please change the name to continue.
+  :::
+
+* If any of the settings do not pass, the _Next_ button should be greyed out.
+
+* Set the above settings to a passing combination, and click _Next_.
+
+
+#### Page 7: Password
+
+* Two password input with a security indicator should be shown.
+
+* Type the password on the first field.
+
+* Click the eye on the right side of the input, it should show the password you typed.
+
+* The security indicator should show the strength of the password you typed.
+
+* Type a different password on the second field. A message should appear _The passwords do not match_, and the _Next_ button should be greyed out.
+
+* Type the same password on the second field, and click _Next_ to continue.
+
+
+#### Page 8: Setup Complete
+
+* Click _Start Using Ubuntu_, which should lead user to the desktop, and immediately lead to Desktop Welcome window.
+
+
+#### Check the settings
+
+* Open _Settings_ (gnome-control-center), and check the followings:
+
+  * Go to _System_ -> _Region & Language_, under _Your Account_, the selected language and formats are correct.
+
+  * Go to _System_ -> _Date & Time_, check the timezone is correct.
+
+  * Go to _System_ -> _Users_, the selected user icon and the name and the selected language are correct.
+
+  * Go to _Keyboard_, check _Input Sources_, the selected keyboard layout is used.
+
+  * Go to _Wi-Fi_, the access point is connected (if available and selected).
+
+* Logout and login with the password you set, you should be able to login with the password.
+
+
+### Desktop Welcome
+
+This is displayed on the first user entering desktop environment, in order to setup Ubuntu Pro, asking user about telemetry, and introduce user to the Store.
+
+
+#### Prepare and launch
+
+```none
+sudo ua detach --assume-yes
+XDG_CURRENT_DESKTOP=ubuntu /usr/libexec/gnome-initial-setup --existing-user
+```
+
+
+#### Page 1, welcome
+
+* A welcome page stating the Ubuntu version and showing its mascot.
+
+* Clicking show changelog opens a browser with the release notes of corresponding distribution.
+
+* Click _next_.
+
+
+#### Page 2, offers Pro
+
+* Offers Ubuntu Pro, by default _skip for now_ is selected.
+
+* Disconnect from the Internet, the first radio button must become gray and insensitive; A warning message tells you that an Internet connection is required for that option. Connect to the Internet.
+
+* Click _next_ and, on the next page, that is not an Ubuntu Pro page, click _previous_. You are now back to the Ubuntu Pro page.
+
+* Click the _enable Ubuntu Pro_ radio button and _next_.
+
+
+#### Page 3, attach to Pro
+
+:::{important}
+Make sure /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 is running.
+:::
+
+* Choose _add token manually_ and type a character in the box, observe that _next_ lights up. Click it. An authentication box shows up asking for password, you give it and the program says invalid token.
+
+* Choose _attach machine via Ubuntu One account_, _next_ becomes insensitive. Do as instructed and observe that eventually "valid token" appears and _next_ lights up. Click _next_ and maybe the authentication box shows up (depends on whether the timeout from the previous authentication has elapsed), in which case you give your password and it starts attaching. While the operation is not complete a spinner spins. Once complete, the program jumps to the next page
+
+
+#### Page 4, Pro service list
+
+* Your contract information is shown, with your subscription, your enabled services and available services, which match the information from `ua status`.
+
+* _Previous_ takes you back to page 3, whose elements are insensitive with the exception of the header bar buttons, which also work as expected (i.e. takes you to pages 2 and 4). Go back to page 4 and click _next_.
+
+
+#### Page 5, telemetry
+
+* Explains that submitting your data helps improve Ubuntu.
+
+* Click _show the first report_. A transient window appears with the contents of the to-be-sent report. Close it.
+
+* Click _legal notice_. <https://ubuntu.com/legal/systems-information-notice> (or equivalent) opens in your browser.
+
+  :::{important}
+  Use `rm -rf $HOME/ubuntu-report` lest nothing is done in the next step because you already performed it in the past.
+  :::
+
+* Whatever the option you choose, the page should advance immediately upon _next_.
+
+
+#### Page 6, software
+
+* Tells you about App Center, where more applications can be installed. A picture with App Center's and other programs' logos is in the center of the page.
+
+  :::{important}
+  If snap-store is not installed, do it: `snap install snap-store`.
+  :::
+
+* Click _open App Center_, App Center opens.

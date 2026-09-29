@@ -1,0 +1,45 @@
+(Papers-test-plan)=
+# Papers test plan
+
+Below are the test cases that should be run when any of papers or poppler are updated to new major releases in the development version of Ubuntu. These should also be run for any Stable Release Update for papers or poppler.
+
+
+## Test Case 1
+
+1. Use the Papers app to open [this PDF](https://foundation.gnome.org/assets/reports/annual/2022-2023-AnnualReport-Digital-1.pdf).
+2. Verify that the zoom controls work correctly either with the buttons or with the keyboard shortcuts (Ctrl+- to Zoom In, Ctrl++ to Zoom Out, etc.)
+3. In the left sidebar, click ☰ and select **Night Mode**. White should become Black but the color Blue should remain. Turn off Night Mode.
+4. On page 2, click items in the table of contents. They are links and Papers should navigate to that page of this document
+5. On the right side of the app, click ⋮ and choose **Full Screen**. The app should go into full screen mode. Exit fullscreen mode by either choosing that menu item again or by pressing the Esc or F11 keys.
+6. On the right side of the app, click ⋮ and choose **Present as Slideshow**. The document should go into full screen, single page mode. You can press the right arrow or click on the screen to advance to the next page. You can click the left arrow to return to the previous page. Press Esc or F5 to exit the slideshow mode.
+
+
+## Test Case 2
+
+1. Use the Papers app to open [this PDF](https://bicha.net/f/Project_Timelord_Announcement_password.pdf)
+2. The app should show a password prompt. Use the password _UNIT_ . The document should display once the correct password is entered.
+
+
+## Test Case 3
+
+Download the "Digitally signed and certified" sample PDF from [this website](https://uwaterloo.ca/onbase/help/sample-pdf-documents)
+
+Open the document with Papers. The document should be displayed with a banner that says it has been digitally signed. Click View Signature. The dialog should show that the signature is valid but the certificate has expired.
+
+The UI for signature verification may change in later versions of Papers.
+
+This feature is new for the Papers app. If you use these test cases with older related apps (Evince or Atril), this test will not work.
+
+
+## What Could Go Wrong (Papers)
+
+Papers is a standalone app and therefore a bug in Papers won't affect other apps on the system.
+
+Firefox is able to display PDFs as well as Papers can. Papers is still provided as a simple utility both because it is generally useful and because there is long-standing precedence for this kind of app to be provided by desktop operating systems (especially in macOS and Linux but also now in Windows).
+
+Papers is part of GNOME Core since GNOME 49, and thus fall under the GNOME Stable Release Update microrelease exception for Ubuntu 25.10 and later.
+
+
+## What Could Go Wrong (poppler)
+
+Currently the only routine updates for poppler in stable Ubuntu releases we do are minimal security updates.
