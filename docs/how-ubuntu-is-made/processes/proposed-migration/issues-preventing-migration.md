@@ -25,7 +25,7 @@ Issue types:
 (main-universe-binary-mismatch)=
 ## `main`/`universe` binary mismatch
 
-A given source package may have some binaries in `main` and others in `universe`, but this can get mixed up for various reasons. This type of issues, known as "component mismatches" (see the list of current [Component mismatches](https://ubuntu-archive-team.ubuntu.com/component-mismatches.html)), looks like this in the list of migration excuses:
+A given source package may have some binaries in `main` and others in `universe`, but this can get mixed up for various reasons. This type of issues, known as "component mismatches" (see the list of current [Component mismatches](https://static-reports.ubuntu.com/mismatches/component-mismatches.html)), looks like this in the list of migration excuses:
 
 ```none
 php8.1-dba/amd64 in main cannot depend on libqdbm14 in universe
