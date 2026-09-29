@@ -40,7 +40,7 @@ Ensure that only one virtual console is running a display server. It is common o
 ### About
 
 * Browse to about:version and verify that the version number, user-agent string and profile directory are as expected
-  * If the user agent is purposedly changed (besides version number), verify that Google services still work (start a meeting on <https://meet.google.com> or check Google Drive).
+  * If the user agent is deliberately changed (besides version number), verify that Google services still work (start a meeting on <https://meet.google.com> or check Google Drive).
 
 * Browse to about:gpu and check the status of GPU support (in particular, if running on real hardware, as opposed to inside a virtual machine, Canvas, WebGL and WebGL2 should be hardware-accelerated)
 
@@ -72,7 +72,7 @@ Ensure that only one virtual console is running a display server. It is common o
 
 ### Referral
 
-* Type any word in the omnibox and press {kbd}`enter` to search it with the default search engine. Verify that the referral code has been added to the search URI:
+* Type any word in the omni-box and press {kbd}`enter` to search it with the default search engine. Verify that the referral code has been added to the search URI:
   * with Google: `&client=ubuntu-chr`
   * with DuckDuckGo: `&t=canonical`
 
@@ -100,7 +100,7 @@ For this to work, 'Safety tips' must be installed in about://components. This is
 
 ### Video playback
 
-* Watch any 360° video on Youtube (for instance <https://www.youtube.com/watch?v=wczdECcwRw0>) and verify that you can pan with the mouse to move around in the scene while it's playing back. Verify that you can pause/unpause, enter/exit fullscreen, and that while the video is playing the screensaver or screen blanking is inhibited.
+* Watch any 360° video on YouTube (for instance <https://www.youtube.com/watch?v=wczdECcwRw0>) and verify that you can pan with the mouse to move around in the scene while it's playing back. Verify that you can pause/unpause, enter/exit fullscreen, and that while the video is playing the screensaver or screen blanking is inhibited.
 
 
 ### WebRTC
@@ -147,12 +147,12 @@ Only perform test for new major releases.
 
 ### Widevine CDM
 
-* Go to about:components, request to update Widevine and wait for it to complete, restart Chromium and verify that you can load and play back Widevine encrypted content at <https://shaka-player-demo.appspot.com/demo/> (for instance "Sintel")
+* Go to about:components, request to update Widevine and wait for it to complete, restart Chromium and verify that you can load and play back Widevine encrypted content at <https://shaka-player-demo.appspot.com/demo/> (for instance "{spellexception}`Sintel`")
 
 
 ### Chromecast
 
-* On real hardware, connect to a google account and watch any video on youtube. Use the burger menu to start casting it to an existing chromecast device that's connected to e.g. a TV and verify that the video plays there (reference: {lpbug}`1621753`)
+* On real hardware, connect to a Google account and watch any video on YouTube. Use the burger menu to start casting it to an existing Chromecast device that's connected to e.g. a TV and verify that the video plays there (reference: {lpbug}`1621753`)
 
 ---
 

@@ -5,7 +5,7 @@
 ## Start Files
 
 * Start Nautilus (Files) from the launcher or desktop overview
-  * the filemanager view is opened and displays the content of the userdir
+  * the file manager view is opened and displays the content of the user directory
 
 
 ## Create and rename a folder

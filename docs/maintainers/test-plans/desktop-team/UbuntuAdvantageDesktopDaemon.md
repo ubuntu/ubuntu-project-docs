@@ -1,7 +1,7 @@
 (UbuntuAdvantageDesktopDaemon-test-plan)=
 # Ubuntu Advantage Desktop Daemon test plan
 
-Since the package isn't really easy to integrate to autopkgtest we have a manual testplan
+Since the package isn't really easy to integrate to autopkgtest we have a manual test plan
 
 
 ## Use dbus calls to control the service

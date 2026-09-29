@@ -21,14 +21,14 @@ Below are the test cases that should be run when **`resources`** is updated to n
 1. Navigate to Preferences > Devices
 2. Enable "Show Virtual Drives"
 3. Verify that any loop devices are listed in the sidebar
-4. Enable "Show Virtual Netowrk Interfaces"
+4. Enable "Show Virtual Network Interfaces"
 5. Verify that any virtual network interfaces are listed in the sidebar
 
 
 ## Test case "Apps"
 
 1. Navigate to "Apps"
-2. Verify that the main view lists open graphical applications (including those running in the backgroud, without any visible window)
+2. Verify that the main view lists open graphical applications (including those running in the background, without any visible window)
 3. Click on "Processor"
 4. Verify that the list is sorted by CPU usage
 5. Select an application

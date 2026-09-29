@@ -1,7 +1,7 @@
 (GnomeClocks-test-plan)=
 # GNOME Clocks test plan
 
-Since `gnome-clocks` doesn't include autopkgtests we will follow a manual testplan to verify updates.
+Since `gnome-clocks` doesn't include autopkgtests we will follow a manual test plan to verify updates.
 MIR reference {lpbug}`2032670`
 
 
@@ -18,7 +18,7 @@ check that the local time displayed for those is correct
 
 ## GNOME calendar integration
 
-display the `gnome-shell` calendar popdown and verify that the new timezones and their localtime are included now
+display the `gnome-shell` calendar drop-down and verify that the new timezones and their local time are included now
 
 
 ## Alarms

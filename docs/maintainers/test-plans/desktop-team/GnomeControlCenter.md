@@ -7,10 +7,10 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 ## Settings application
 
 * Open the settings from the top right indicator, verify that it starts correctly
-* Check that the list of panels listed as section bellow is displayed in the left sidepane
+* Check that the list of panels listed as section bellow is displayed in the left side pane
 * Start typing, verify that the search entry display on the top left and that results are filtered according to keywords
 * Hit {kbd}`enter`, the panel corresponding to the item which was selected by the search should be displayed, the search UI should close
-* Click on the 3-lines icons on the right of the sidepane, verify that the 3 items (Keyboard shortcut, help, about) open the corresponding diaogs
+* Click on the 3-lines icons on the right of the side pane, verify that the 3 items (Keyboard shortcut, help, about) open the corresponding dialogs
 
 
 ## Wi-Fi
@@ -19,7 +19,7 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 * Try connecting and disconnecting to an AP
 * Click on the options icon on the right on one of the network and verify that the details dialog opens and is showing the expected configuration
 * Enable the hotspot and try connecting from another device
-* Try turning wifi off and verify that the connectivity indicator of the shell reflect the new status
+* Try turning WiFi off and verify that the connectivity indicator of the shell reflect the new status
 
 
 ## Network
@@ -47,7 +47,7 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 * Do the output test, verify that the sound is working
 * Change the volume and verify it has an impact
 * Check that indicator bar on the right of the input section react to sounds
-* Enable/disable overamplification and verify that the output slide adapt as expected
+* Enable/disable over-amplification and verify that the output slide adapt as expected
 
 
 ## Power
@@ -65,7 +65,7 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 * Toggle the Active Screen edges setting and verify the shell behaves according to the configuration
 
   :::{warning}
-  This setting is currently overriden by enhanced tiling in **Ubuntu Desktop** section
+  This setting is currently over-riden by enhanced tiling in **Ubuntu Desktop** section
   :::
 
 * Switch between dynamic and fixed workspaces and verify that the layout adapts
@@ -83,13 +83,13 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 ## Ubuntu Desktop
 
 * Enable/Disable the desktop icons, change the size and position. Verify that the desktop view refreshes according to the settings
-* Enable/Disable the Dock autohide and panel mode, change the position and icons size. Verify that the dock adapts to the settings
+* Enable/Disable the Dock auto-hide and panel mode, change the position and icons size. Verify that the dock adapts to the settings
 * Enable/Disable tiling, popup and groups and verify that the shell behavior is adapted to the configuration.
 
 
 ## Apps
 
-* Go to the 'Default Apps' section, try to change the default for web/mail/photos and verify that the corresponding actions call the right application (`gio open` on an http: or mailto: url, opening a photo from `nautilus`)
+* Go to the 'Default Apps' section, try to change the default for web/mail/photos and verify that the corresponding actions call the right application (`gio open` on an `http:` or `mailto:` URL, opening a photo from `nautilus`)
 
   :::{note}
   If you don't have at least two apps for each category, `apt install claws-mail qutebrowser neomutt` will suffice.
@@ -124,7 +124,7 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 ## Sharing
 
 * Change the device name. Verify that `/etc/hostname` reflect the name change. Then go back to the initial name.
-* Enable file sharing. Verify from another machine that you can connect to the url indicated.
+* Enable file sharing. Verify from another machine that you can connect to the URL indicated.
 
   :::{important}
   If `org.gnome.desktop.file-sharing` does not exist in `dconf`, the entry will be missing.
@@ -158,13 +158,13 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
   Suggestion: 'test profile blue'.
   :::
 
-* Remove the profile and verify the color are resetted.
+* Remove the profile and verify the color are reset.
 
 
 ## Printers
 
 * Verify that the configured printers are listed
-* If you have access to a printer try adding it and print a testpage.
+* If you have access to a printer try adding it and print a test page.
 
 
 ## Accessiblity
@@ -183,6 +183,6 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 
 * Change the language. Restart the session and verify that the new language is being used.
 * Disable Automatic Date&Time and change the timezone and time manually. Verify that the system configuration is reflecting the change (clock on the panel, `timedatectl`)
-* Enable back automatic time, verify that the clock is synhronized.
+* Enable back automatic time, verify that the clock is synchronized.
 * Go the users section, add an user. Try to log using the new user and verify the account is working
 * Go the About section and verify that the information displayed match the system.

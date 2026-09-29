@@ -118,4 +118,4 @@ Note: in `firefox` these can be done via `about:preferences#general` and in `chr
   * Verify that you can enter and exit full-screen.
   * Verify that while the video is playing, the screensaver or screen blanking is inhibited.
 
-* Watch any 360° video on youtube (for instance <https://www.youtube.com/watch?v=wczdECcwRw0>) and verify that you can pan with the mouse to move around in the scene while it's playing back.
+* Watch any 360° video on YouTube (for instance <https://www.youtube.com/watch?v=wczdECcwRw0>) and verify that you can pan with the mouse to move around in the scene while it's playing back.

@@ -111,7 +111,7 @@ firefox about:debugging#/runtime/this-firefox
 * Confirm that the Portal dialogue appears and grant permission to the application.
 * In the Firefox tool bar, click the puzzle piece button and click your extension.
 * In the Firefox window, click the inspect button next to your extension.
-* In the browser console that opens, click "Multiprocess view".
+* In the browser console that opens, click "{spellexception}`Multiprocess` view".
 * Confirm that the log contains the pong response from the native application.
 
 

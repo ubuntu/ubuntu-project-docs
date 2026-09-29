@@ -1,7 +1,7 @@
 (Pipewire-test-plan)=
 # PipeWire test plan
 
-Since the autopkgtest infrastructe isn't really suitable for audio testing we will require manual testing for updates to `pipewire` or one of its required components (`wireplumber`, `libfreeaptx`, `libldac`)
+Since the autopkgtest infrastructure isn't really suitable for audio testing we will require manual testing for updates to `pipewire` or one of its required components (`wireplumber`, `libfreeaptx`, `libldac`)
 
 We are using `pipewire` as a sound server since kinetic, in addition to screen recording and sharing
 
@@ -16,10 +16,10 @@ We are using `pipewire` as a sound server since kinetic, in addition to screen r
 ## Sound
 
 * Check that the panel includes a sound indicator
-* Start playing some music (webbrowser, `rhythmbox`, `totem`), ensure the sound is working
+* Start playing some music (web browser, `rhythmbox`, `totem`), ensure the sound is working
 * Use the indicator slider to change the volume, confirm the output level is changing
 * Go to settings -> sound
-* Verify that the input and output device are correcty selected
+* Verify that the input and output device are correctly selected
 * Set in the input level > 0 and ensure the activity bar react to noise
 
 
@@ -59,16 +59,16 @@ Media Codec: Vendor Specific A2DP Codec
             Vendor ID 0x0000012d
 ```
 
-(012d is ldac, 004F is aptx, 00D7 is aptxhd)
+(`012d` is `ldac`, `004F` is `aptx`, `00D7` is `aptxhd`)
 
 * The settings configuration should include the corresponding entry
 * Select the entry
 * Ensure the sound is play with high quality
 
 
-## LE bluetooth audio (`liblc3`)
+## LE Bluetooth audio (`liblc3`)
 
-Starting in Lunar we will build with `liblc3` to feature bluetooth LE audio. For that to work you need a bluetooth controller supporting LE Audio (AX210 WiFi/BT card for example, it can be confirmed by checking the bit 28 and 29 value in `bluez/tools/lefeatures`) and a compatible device to pair.
+Starting in Lunar we will build with `liblc3` to feature Bluetooth LE audio. For that to work you need a Bluetooth controller supporting LE Audio (AX210 WiFi/BT card for example, it can be confirmed by checking the bit 28 and 29 value in `bluez/tools/lefeatures`) and a compatible device to pair.
 
 Connect the device through the settings and check that the LE profile is used. Listen to some music with the headset, participate to a video call and record sound. The quality should be to an acceptable level.
 
@@ -81,13 +81,13 @@ Connect the device through the settings and check that the LE profile is used. L
 * Hit {kbd}`Ctrl` + {kbd}`Shift` + {kbd}`Alt` + {kbd}`R` again
   * the circle should be removed
 
-The recording should be available in the standard xdg Video directory (`~/Video` in english)
+The recording should be available in the standard XDG Video directory (`~/Video` in english)
 
 
 ## Testing screen sharing
 
 * Go to settings -> Sharing
-* Enable sharing in the headbar if needed
+* Enable sharing in the header bar if needed
 * Click on Screen Sharing to enable it, check that remote login is enabled
 
 On another machine

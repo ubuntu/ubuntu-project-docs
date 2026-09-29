@@ -21,7 +21,7 @@ All tests are meant to be executed from a GNOME Wayland desktop session (the def
 3. Verify that the file selector dialog showed up
 4. Choose any image file
 5. Verify that the image is displayed
-6. Verify that the filename is displayed on the titlebar
+6. Verify that the filename is displayed on the title bar
 
 
 ## Open from Files
@@ -42,7 +42,7 @@ All tests are meant to be executed from a GNOME Wayland desktop session (the def
 
 ## Image manipulation
 
-1. Click the "Edit Image" button on the titlebar
+1. Click the "Edit Image" button on the title bar
 2. Crop the image by resizing with the handles
 3. Align the cropping by clicking the various aspect-ratio buttons
 4. Click the tick-mark to apply the cropping
@@ -61,17 +61,17 @@ All tests are meant to be executed from a GNOME Wayland desktop session (the def
 ## Navigation
 
 1. Open an image in "Image Viewer"
-2. Click the "Toggle Fullscreen" button on the titlebar
+2. Click the "Toggle Fullscreen" button on the title bar
 3. Verify that the window became fullscreen, and the image is still visible
-4. Untoggle fullscreen
+4. Un-toggle fullscreen
 5. Verify that the window returned to its previous dimensions
-6. Click the "Image Properties" button on the titlebar
+6. Click the "Image Properties" button on the title bar
 7. Verify that a sidebar opened
 8. Verify that, to your best knowledge, the information in the sidebar is correct
-9. Click the "Main Menu" hamburger button on the titlebar
+9. Click the "Main Menu" hamburger button on the title bar
 10. Click "New Window"
 11. Verify that a new window appeared in its empty view
-12. Click the "Main Menu" hamburger button on the titlebar
+12. Click the "Main Menu" hamburger button on the title bar
 13. Click "Keyboard Shortcuts"
 14. Verify that a window opened describing the available shortcuts
 
@@ -79,7 +79,7 @@ All tests are meant to be executed from a GNOME Wayland desktop session (the def
 ## Print
 
 1. Open an image in "Image Viewer"
-2. Click the "Main Menu" hamburger button on the titlebar
+2. Click the "Main Menu" hamburger button on the title bar
 3. Click "Print..."
 4. Verify that the print dialog showed up
 5. Verify that printing to PDF works as expected
@@ -88,7 +88,7 @@ All tests are meant to be executed from a GNOME Wayland desktop session (the def
 ## Set as background
 
 1. Open an image in "Image Viewer"
-2. Click the "Main Menu" hamburger button on the titlebar
+2. Click the "Main Menu" hamburger button on the title bar
 3. Click "Set as Background"
 4. Verify that a dialog showed up with a preview of a generic desktop
 5. Click "Set"

@@ -26,7 +26,7 @@
 
    File Roller opens and you after entering `file-roller-44.3` you see its source tree.
 
-   {kbd}`Alt` + {kbd}`Return` or 'main menu -> Properites' identifies the archive as an application/x-xz-compressed-tar.
+   {kbd}`Alt` + {kbd}`Return` or 'main menu -> Properties' identifies the archive as an application/x-xz-compressed-tar.
 
 
 ## Extract an archive

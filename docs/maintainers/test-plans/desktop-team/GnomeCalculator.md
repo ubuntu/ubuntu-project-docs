@@ -38,7 +38,7 @@ This test will check that Gnome Calculator's Application menu options work as ex
   * Trigonometry calculations can be performed using the sin, cos, and tan functions. For example sin 45
 * Navigate to Mode -> Financial
   * Calculator's GUI changes to provide buttons suitable for financial equations
-  * Financial functions cannot be performed using the keyboard and the following buttons are available: Ctrm, Ddb, Fv, Gpm, Pmt, Pv, Rate, Sln, Syd and Term
+  * Financial functions cannot be performed using the keyboard and the following buttons are available: `Ctrm`, `Ddb`, `Fv`, `Gpm`, `Pmt`, `Pv`, `Rate`, `Sln`, `Syd` and `Term`
 * Navigate to Mode -> Programming
   * Calculator's GUI changes to provide buttons suitable for computer programmers
   * When in programming mode there is a drop down menu for binary ({kbd}`Ctrl` + {kbd}`B` keys), octal ({kbd}`Ctrl` + {kbd}`O` keys) and hexadecimal ({kbd}`Ctrl` + {kbd}`H` keys) and the 'á' button opens a dialogue to convert characters to character codes

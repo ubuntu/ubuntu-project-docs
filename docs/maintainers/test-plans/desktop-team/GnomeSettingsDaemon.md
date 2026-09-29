@@ -111,7 +111,7 @@ This test requires a laptop with supported screen backlight controls.
 
 1. Open the Quick Settings menu at the top-right of GNOME
 2. Enable Airplane Mode
-3. Verify that Wifi and Bluetooth got turned off
+3. Verify that WiFi and Bluetooth got turned off
 
 
 ## Test screensaver proxy

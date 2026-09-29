@@ -34,4 +34,4 @@ These tests cases were written for the very first alpha release of Tecla. It is 
 
 ## Review status
 
-Unreviewed
+Not reviewed

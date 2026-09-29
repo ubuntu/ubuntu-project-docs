@@ -11,14 +11,14 @@ Below are the test cases that should be run when any of `gnome-builder`, `libdex
    * If Calendar shows in Recent projects, close Builder. Open your file browser and delete the Calendar project. The default location is `~/Projects/gnome-calendar`. Close your file browser and repeat step 2.
 3. If prompted to clone repository, do it, changing location if desired. Cloning should be successful.
 4. If prompted to _Install or Update SDK_, click _Install_.
-5. Once the install is done, the ▶ icon in the app's headerbar (to the right of center) should be active. Click ▶ to build and run Calendar. This will take several minutes the first time.
+5. Once the install is done, the ▶ icon in the app's header bar (to the right of center) should be active. Click ▶ to build and run Calendar. This will take several minutes the first time.
 6. After the Calendar app starts successfully, close it.
 7. In GNOME Builder, press {kbd}`Ctrl` + {kbd}`Enter` to open the search dialog.
 8. Search for `show_about`
 9. Double-click the result to open the `gcal-application.c` file.
 10. Verify that code syntax highlighting and spellchecking is visible in the file.
 11. In the `developers` section, add your name and email address, matching the formatting of other entries.
-12. Click ▶ in the headerbar
+12. Click ▶ in the header bar
 13. In the Calendar window that opens up, click ☰ > About Calendar. Click _Credits_. Verify that your name is showing in the _Code by_ section.
 14. Close the Calendar window. Close the Builder window.
 

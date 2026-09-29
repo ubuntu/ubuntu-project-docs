@@ -10,7 +10,7 @@ Below are the test cases that should be run when `gnome-remote-desktop` is updat
 2. Open the Settings app to the Sharing page. Turn on Desktop Sharing and turn on Remote Control.
 3. From a second computer, open Remmina.
 
-   The Remote Desktop page on the first computer provides the username and password to use. It also shows the computer name. If you want to use your IP address instead, you can find it with `ip a` or in the Settings app > Wifi > gear button. If you are connected via Ethernet, use the Network page instead of the Wifi page.
+   The Remote Desktop page on the first computer provides the username and password to use. It also shows the computer name. If you want to use your IP address instead, you can find it with `ip a` or in the Settings app > WiFi > gear button. If you are connected via Ethernet, use the Network page instead of the WiFi page.
 
 4. Change the protocol to RDP in the address bar. Fill in the first computer's name or IP address and press {kbd}`Enter`. On many network's you need to add a `.local` suffix to the computer's name for it to work.
 5. On the next screen, fill in your username and password. On the first computer you can click the Show Text button to see the password. (A password is automatically assigned but it can be changed.)

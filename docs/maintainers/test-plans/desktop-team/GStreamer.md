@@ -8,7 +8,7 @@
 ### Video codecs
 
 Find/utilize some test content for each codec. [Fluster](https://github.com/fluendo/fluster) is one reliable
-source of test content, so are the [GStreamer integration suites](https://gitlab.freedesktop.org/gstreamer/gst-integration-testsuites). The more the better. Running thumbnailing software in personal video libraries is also a good check.
+source of test content, so are the [GStreamer integration suites](https://gitlab.freedesktop.org/gstreamer/gst-integration-testsuites). The more the better. Running thumbnail software in personal video libraries is also a good check.
 
 For each file, play it with the default media player and ensure it
 looks "ok". Also play it with `GST_DEBUG=*:1 gst-play-1.0` and ensure
@@ -144,7 +144,7 @@ dpkg-buildpackage -us -uc
 
 Check the camera is working. Check you can record etc.
 
-Run the following Python script to check a very basic GObject introspection client works correctly,
+Run the following Python script to check a very basic `GObject` introspection client works correctly,
 
 `test-gi.py`
 

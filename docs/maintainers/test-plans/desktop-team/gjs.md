@@ -51,6 +51,6 @@ Each ESR series is maintained with security updates for about one year.
 
 ## Review status
 
-Unreviewed
+Not reviewed
 
 --(Approved 2022-11-22 by &#95;&#95;&#95;&#95; )--

@@ -1,7 +1,7 @@
 (PipewireMediaSession-test-plan)=
 # PipeWire Media Session test plan
 
-Since `pipewire-media-session` doesn't include a testsuite nor autopkgtests we will follow a manual testplan to verify updates.
+Since `pipewire-media-session` doesn't include a testsuite nor autopkgtests we will follow a manual test plan to verify updates.
 
 Currently we are not using `pipewire` as a sound server so its use is limited to screen recording and sharing.
 
@@ -20,13 +20,13 @@ Currently we are not using `pipewire` as a sound server so its use is limited to
 * Hit {kbd}`Ctrl` + {kbd}`Shift` + {kbd}`Alt` + {kbd}`R` again
   * the circle should be removed
 
-The recording should be available in the standard xdg Video directory (`~/Video` in english)
+The recording should be available in the standard XDG Video directory (`~/Video` in english)
 
 
 ## Testing screen sharing
 
 * Go to settings -> Sharing
-* Enable sharing in the headbar if needed
+* Enable sharing in the header bar if needed
 * Click on Screen Sharing to enable it, check that remote login is enabled
 
 On another machine

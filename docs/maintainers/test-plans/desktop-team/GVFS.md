@@ -35,7 +35,7 @@ Should prompt you for your password and be able to open `sudoers`
 $ /usr/libexec/gvfsd-archive file=file:///path/to/archive.zip
 ```
 
-And check that the archive is listed in the `nautilus` sidebar and browsable
+And check that the archive is listed in the `nautilus` sidebar and browseable
 
 
 ## FTP

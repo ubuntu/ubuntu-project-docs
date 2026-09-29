@@ -109,7 +109,7 @@ This test will simulate a first boot.
 7. Press {kbd}`Ctrl` + {kbd}`X`
 8. Verify that you booted into the first-boot wizard.
 
-Beware that navigating through the first-boot wizard will overwrite system configuration, so avoid doing that and immediatly reboot instead.
+Beware that navigating through the first-boot wizard will overwrite system configuration, so avoid doing that and immediately reboot instead.
 
 
 ## What could go wrong

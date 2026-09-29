@@ -43,7 +43,7 @@ Open the ☰ menu and use the **-** and **+** buttons to adjust the zoom of the 
 1. Use the global keyboard shortcut {kbd}`Alt` + {kbd}`Windows key` + {kbd}`S` to toggle on the screen reader
 2. Open the Terminal
 3. Enter `ls /`
-4. The screenreader should read your command as you type it, then the contents of the `/` folder, and finally your terminal prompt
+4. The screen reader should read your command as you type it, then the contents of the `/` folder, and finally your terminal prompt
 5. Use the global keyboard shortcut {kbd}`Alt` + {kbd}`Windows key` + {kbd}`S` to toggle off the screen reader
 
 
@@ -68,7 +68,7 @@ Currently colors are not configured to change for the terminal window decoration
 
 In a terminal window, run the command `sudo su`
 
-The terminal titlebar should change color to red. After entering your password, you can run the command `exit` to exit root mode. The terminal titlebar should change back to the normal theme (light or dark).
+The terminal title bar should change color to red. After entering your password, you can run the command `exit` to exit root mode. The terminal title bar should change back to the normal theme (light or dark).
 
 The color change actually works even if you aren't authenticated as root yet. That's an implementation detail/bug and may change.
 
@@ -77,7 +77,7 @@ The color change actually works even if you aren't authenticated as root yet. Th
 
 In a terminal window, run a command like `ssh exampleuser@example.com`
 
-The terminal titlebar should change color to a different shade of purple. After entering your password, you can run the command `exit` to exit the ssh session. The terminal titlebar should change back to the normal Ubuntu purple.
+The terminal title bar should change color to a different shade of purple. After entering your password, you can run the command `exit` to exit the ssh session. The terminal title bar should change back to the normal Ubuntu purple.
 
 The color change actually works even if you aren't connecting to the remote server yet. That's an implementation detail/bug and may change.
 

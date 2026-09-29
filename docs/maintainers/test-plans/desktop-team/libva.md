@@ -15,7 +15,7 @@ Below are the test cases that should be run when **`libva`** is updated to new m
 
 6. Find an MP4 file with a common codec like H.264 such as this one.
 
-7. Play the video file with `mpv` in a terminal and ensure that “vaapi” is mentioned in the console output.
+7. Play the video file with `mpv` in a terminal and ensure that "{spellexception}`vaapi`" is mentioned in the console output.
 
 8. Do not use GStreamer or any GNOME apps for testing because GStreamer has a layer of complexity and potentially its own bugs on top of `libva`.
 
