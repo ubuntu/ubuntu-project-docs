@@ -1,10 +1,10 @@
 (Resources-test-plan)=
 # Resources test plan
 
-Below are the test cases that should be run when **resources** is updated to new minor releases in the development version of Ubuntu. These should also be run for any Stable Release Update for **resources**.
+Below are the test cases that should be run when **`resources`** is updated to new minor releases in the development version of Ubuntu. These should also be run for any Stable Release Update for **`resources`**.
 
 
-## Test Case "Main"
+## Test case "Main"
 
 1. Open Resources
 2. Verify that the sidebar lists devices:
@@ -16,7 +16,7 @@ Below are the test cases that should be run when **resources** is updated to new
    * Battery (if any)
 
 
-## Test Case "Virtual"
+## Test case "Virtual"
 
 1. Navigate to Preferences > Devices
 2. Enable "Show Virtual Drives"
@@ -25,7 +25,7 @@ Below are the test cases that should be run when **resources** is updated to new
 5. Verify that any virtual network interfaces are listed in the sidebar
 
 
-## Test Case "Apps"
+## Test case "Apps"
 
 1. Navigate to "Apps"
 2. Verify that the main view lists open graphical applications (including those running in the backgroud, without any visible window)
@@ -36,7 +36,7 @@ Below are the test cases that should be run when **resources** is updated to new
 7. Verify that the app was closed
 
 
-## Test Case "Processes"
+## Test case "Processes"
 
 1. Navigate to "Processes"
 2. Verify that the main view lists processes running for any user
@@ -50,7 +50,7 @@ Below are the test cases that should be run when **resources** is updated to new
 10. Verify that a dialog appears with detailed usage and properties information
 
 
-## Test Case "Memory"
+## Test case "Memory"
 
 1. Navigate to "Memory"
 2. Verify that usage graphs are visible for:
@@ -60,7 +60,7 @@ Below are the test cases that should be run when **resources** is updated to new
 4. Verify that information on the memory speed is shown
 
 
-## Test Case "Processor"
+## Test case "Processor"
 
 1. Navigate to "Processor"
 2. Verify that graphs are visible for:
@@ -73,7 +73,7 @@ Below are the test cases that should be run when **resources** is updated to new
 7. Verify that usage graphs are visible for each individual logical CPU core
 
 
-## Test Case "GPU"
+## Test case "GPU"
 
 1. Navigate to "GPU"
 2. Verify that graphs are visible for:
@@ -86,7 +86,7 @@ Below are the test cases that should be run when **resources** is updated to new
 4. Verify that information on the GPU power draw is shown (if supported)
 
 
-## Test Case "Storage"
+## Test case "Storage"
 
 1. Click on one of the physical storage drives in the sidebar
 2. Verify that graphs are visible for:
@@ -96,7 +96,7 @@ Below are the test cases that should be run when **resources** is updated to new
 3. Verify that information on the drive's capacity is shown
 
 
-## Test Case "Network"
+## Test case "Network"
 
 1. Click on one of the physical network cards in the sidebar (e.g. Wi-Fi Connection)
 2. Verify that graphs are visible for:
@@ -107,7 +107,7 @@ Below are the test cases that should be run when **resources** is updated to new
 5. If Wi-Fi, verify that information on the Wi-Fi technology is shown (e.g. Wi-Fi 6)
 
 
-## Test Case "Battery"
+## Test case "Battery"
 
 1. Skip this test if the machine does not have a battery
 2. Click on the battery in the sidebar

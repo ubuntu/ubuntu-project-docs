@@ -41,7 +41,7 @@ All tests are meant to be executed from a GNOME Wayland desktop session (the def
 3. Save the screenshot, and ensure it is correct.
 
 
-## Help Menu
+## Help menu
 
 1. Open "Video Player"
 2. Enter the burger menu at the top of the interface and select "About Video Player"

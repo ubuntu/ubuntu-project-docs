@@ -4,12 +4,12 @@
 If a step fails, only mark the SRU as verification-failed if it is a regression, i.e., the current version (in normal updates pocket) is not affected.
 
 
-## Settings Application
+## Settings application
 
 * Open the settings from the top right indicator, verify that it starts correctly
 * Check that the list of panels listed as section bellow is displayed in the left sidepane
 * Start typing, verify that the search entry display on the top left and that results are filtered according to keywords
-* Hit enter, the panel corresponding to the item which was selected by the search should be displayed, the search UI should close
+* Hit {kbd}`enter`, the panel corresponding to the item which was selected by the search should be displayed, the search UI should close
 * Click on the 3-lines icons on the right of the sidepane, verify that the 3 items (Keyboard shortcut, help, about) open the corresponding diaogs
 
 
@@ -89,7 +89,7 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 
 ## Apps
 
-* Go to the 'Default Apps' section, try to change the default for web/mail/photos and verify that the corresponding actions call the right application (gio open on an http: or mailto: url, opening a photo from nautilus)
+* Go to the 'Default Apps' section, try to change the default for web/mail/photos and verify that the corresponding actions call the right application (`gio open` on an http: or mailto: url, opening a photo from `nautilus`)
 
   :::{note}
   If you don't have at least two apps for each category, `apt install claws-mail qutebrowser neomutt` will suffice.
@@ -109,25 +109,25 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 
 ## Search
 
-* Disable App Search and verify that the shell stops proposing integration with the applications listed below (typing 1+2 for example, if the gnome-calculator provider is installed it should return 3 but not if App Search is disabled)
-* Disable some search locations and try to find files from those in nautilus' **Search Everywhere** (magnifying lens on the top left corner of the window, **not** 'Search current folder'), it should not list them. Enable it back and verify that nautilus is able to find the content again
+* Disable App Search and verify that the shell stops proposing integration with the applications listed below (typing 1+2 for example, if the `gnome-calculator` provider is installed it should return 3 but not if App Search is disabled)
+* Disable some search locations and try to find files from those in `nautilus`' **Search Everywhere** (magnifying lens on the top left corner of the window, **not** 'Search current folder'), it should not list them. Enable it back and verify that `nautilus` is able to find the content again
 * Disable one of the providers of the list and verify in the shell that the corresponding integration is disable (using the previous calculator steps for example)
 
 
-## Online Accounts
+## Online accounts
 
 * Enable an online account, you should be able to go through the steps and see the account listed under the 'Your accounts' section
-* Verify that the integration to the desktop is working (by example a google account should make gnome-calendar see your calendar events)
+* Verify that the integration to the desktop is working (by example a google account should make `gnome-calendar` see your calendar events)
 * Remove the account, it shouldn't be listed in the 'Your accounts' section anymore
 
 
 ## Sharing
 
-* Change the device name. Verify that /etc/hostname reflect the name change. Then go back to the initial name.
+* Change the device name. Verify that `/etc/hostname` reflect the name change. Then go back to the initial name.
 * Enable file sharing. Verify from another machine that you can connect to the url indicated.
 
   :::{important}
-  If `org.gnome.desktop.file-sharing` does not exist in dconf, the entry will be missing.
+  If `org.gnome.desktop.file-sharing` does not exist in `dconf`, the entry will be missing.
   :::
 
 * Enable media sharing. Verify from another machine that you can see the corresponding multimedia content.
@@ -137,7 +137,7 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
   :::
 
 
-## Mouse & Touchpad
+## Mouse & touchpad
 
 * Change the primary button and pointer speed, verify that the change are reflected on the behaviour
 
@@ -171,10 +171,10 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 
 * Enable large text, verify that the labels are getting bigger in the shell and the applications.
 * Enable high contrast, verify that the theme is changing accordingly (some of the icons are become black&white for example)
-* Enable the onscreen keyboard, verify that it's displayed when focusing a text field in a GTK application (e.g. gnome-terminal) and can be used
+* Enable the onscreen keyboard, verify that it's displayed when focusing a text field in a GTK application (e.g. `gnome-terminal`) and can be used
 
 
-## Privacy & Security
+## Privacy & security
 
 * Change the screen lock delay. Don't touch to the computer for the corresponding time and confirm that the screen get locked.
 

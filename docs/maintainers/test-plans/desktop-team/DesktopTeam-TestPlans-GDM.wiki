@@ -6,7 +6,7 @@ Below are the test cases that should be run when GDM is updated to new major rel
 These should also be run for all GDM Stable Release Updates.
 
 
-## Test Case 1
+## Test case 1
 
 **Login**
 
@@ -24,7 +24,7 @@ These should also be run for all GDM Stable Release Updates.
      (only for ubuntu 25.04 or older)
 
 
-## Test Case 2
+## Test case 2
 
 **User switch and user lock**
 
@@ -33,18 +33,18 @@ These should also be run for all GDM Stable Release Updates.
 3. You need to be able to unlock and go back to the the previous session
 
 
-## Test Case 3
+## Test case 3
 
 **Smart card authentication**
 
 In absence of a physical smart card, this test can be performed by simulating one in software. Follow {ref}`this guide <GDM-Smartcard-test-plan>`.
 
 1. Configure setup with smart card authentication following [this tutorial](https://ubuntu.com/tutorials/how-to-use-smart-card-authentication-in-ubuntu-desktop)
-2. Ensure smart cart authentication works, plugging in the card both before and after gdm has been started
+2. Ensure smart cart authentication works, plugging in the card both before and after `gdm` has been started
 3. Once logged in, unlocking the screen should work with smart card
 
 
-## Test Case 4
+## Test case 4
 
 **Fingerprint authentication** - _If hardware supports it_
 
@@ -53,7 +53,7 @@ In absence of a physical smart card, this test can be performed by simulating on
 3. Once logged in, unlocking the screen should work with fingerprint
 
 
-## Test Case 5.a
+## Test case 5.a
 
 **NVIDIA (Ubuntu 24.10 and 25.04)** - _For desktops or laptops with NVIDIA graphics_
 
@@ -69,7 +69,7 @@ This test verifies the default session type for NVIDIA systems running Ubuntu 24
    * Ubuntu on Wayland
 
 
-## Test Case 5.b
+## Test case 5.b
 
 **NVIDIA (Ubuntu 24.04 or older)** - _For desktops or laptops with NVIDIA graphics_
 
@@ -85,34 +85,34 @@ This test verifies the default session type for NVIDIA systems running Ubuntu 24
    * Ubuntu on Xorg
 
 
-## Test Case 5.c
+## Test case 5.c
 
 **NVIDIA (Ubuntu 25.10 and newer)**
 
 Skip. NVIDIA is no longer handled as a special case.
 
 
-## Test Case 6
+## Test case 6
 
 **First boot**
 
-On the first boot of a pre-installed images with no configured users, GDM will hand-off the desktop to a temporary session that runs gnome-initial-setup as a first-boot configuration wizard.
+On the first boot of a pre-installed images with no configured users, GDM will hand-off the desktop to a temporary session that runs `gnome-initial-setup` as a first-boot configuration wizard.
 
 This test will simulate a first boot.
 
-1. Reboot to the GRUB menu (hold Esc at the BIOS splash screen)
+1. Reboot to the GRUB menu (hold {kbd}`Esc` at the BIOS splash screen)
 2. With the up/down arrow keys, highlight "Ubuntu"
-3. Press 'e'
+3. Press '{kbd}`e`'
 4. With the up/down arrow keys, highlight the line beginning with "linux "
-5. Press End
-6. Type " gnome.initial-setup=1"
-7. Press Ctrl+X
+5. Press {kbd}`End`
+6. Type "` gnome.initial-setup=1`"
+7. Press {kbd}`Ctrl` + {kbd}`X`
 8. Verify that you booted into the first-boot wizard.
 
 Beware that navigating through the first-boot wizard will overwrite system configuration, so avoid doing that and immediatly reboot instead.
 
 
-## What Could Go Wrong
+## What could go wrong
 
 GDM is the main login manager for Ubuntu desktop.
 

@@ -2,7 +2,7 @@
 # GNOME Shell Tiling Assistant extension test plan
 
 
-## GNOME Shell Tiling Assitant Extension
+## GNOME Shell Tiling Assitant extension
 
 It's an extension that the desktop team provides by default to improve tiling abilities of GNOME Shell
 
@@ -21,4 +21,4 @@ Given that the extension does not provide any automated testing, we should ensur
 
 5. It should be possible to resize multiple windows of a tiling group with a single resize dragging operation
 
-6. Using the keybindings (super + arrows and super + keypad numbers) is possible to tile windows
+6. Using the keybindings ({kbd}`super` + arrows and {kbd}`super` + keypad numbers) is possible to tile windows

@@ -2,23 +2,23 @@
 # GNOME Calculator test plan
 
 
-## Test Cases for Gnome Calculator
+## Test cases for Gnome Calculator
 
 
 ### Activities integration
 
 This test will check that mathematical operations can be previewed in the Gnome Activities overview
 
-* Open Activities with the "Meta" key, or by clicking the button in the top-left corner of the desktop
+* Open Activities with the "{kbd}`Meta`" key, or by clicking the button in the top-left corner of the desktop
 * Type a mathematical expression, such as `7+2`
   * A result entry is shown with `7+2 = 9`
 
 
-### Opening and Closing
+### Opening and closing
 
 This test will check that Gnome Calculator can be opened either from a terminal window or from the applications menu, and shutdown
 
-* Open a terminal window, type `gnome-calculator` at the prompt and hit the "Enter" key
+* Open a terminal window, type `gnome-calculator` at the prompt and hit the "{kbd}`Enter`" key
   * Calculator opens
 * Click the top right "X" of the window's title bar to close the application
   * Calculator closes
@@ -41,7 +41,7 @@ This test will check that Gnome Calculator's Application menu options work as ex
   * Financial functions cannot be performed using the keyboard and the following buttons are available: Ctrm, Ddb, Fv, Gpm, Pmt, Pv, Rate, Sln, Syd and Term
 * Navigate to Mode -> Programming
   * Calculator's GUI changes to provide buttons suitable for computer programmers
-  * When in programming mode there is a drop down menu for binary (Ctrl+B keys), octal (Ctrl+O keys) and hexadecimal (Ctrl+H keys) and the 'á' button opens a dialogue to convert characters to character codes
+  * When in programming mode there is a drop down menu for binary ({kbd}`Ctrl` + {kbd}`B` keys), octal ({kbd}`Ctrl` + {kbd}`O` keys) and hexadecimal ({kbd}`Ctrl` + {kbd}`H` keys) and the 'á' button opens a dialogue to convert characters to character codes
 * From the Hamburger menu select one of the given options for 'Number format'
   * The format used to display results change accordingly to the selection made
 * From the Hamburger menu navigate to Preferences
@@ -62,7 +62,7 @@ This test will check that Gnome Calculator's Application menu options work as ex
   * Calculator Help dialogue window opens
 
 
-## What Could Go Wrong
+## What could go wrong
 
 Gnome Calculator provides a shell plugin to preview mathematical expressions in the Activities overview search bar.
 

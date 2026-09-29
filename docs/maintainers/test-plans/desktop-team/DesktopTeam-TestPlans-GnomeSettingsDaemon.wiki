@@ -1,7 +1,7 @@
 (GnomeSettingsDaemon-test-plan)=
 # GNOME Settings Daemon test plan
 
-Below are the test cases that should be run when gnome-settings-daemon is updated to new major releases in the development version of Ubuntu. These should also be run for all gnome-settings-daemon Stable Release Updates.
+Below are the test cases that should be run when `gnome-settings-daemon` is updated to new major releases in the development version of Ubuntu. These should also be run for all `gnome-settings-daemon` Stable Release Updates.
 
 The GNOME Settings Daemon is responsible for setting various parameters of a
 GNOME Session and the applications that run under it.
@@ -18,9 +18,9 @@ All tests are meant to be executed from a GNOME Wayland desktop session (the def
    ```
 
 
-## Test Color
+## Test color
 
-1. Open gnome-control-center (Settings app)
+1. Open `gnome-control-center` (Settings app)
 2. Enable Night Light
 3. Configure start and end times so that it should enable now
 4. Verify that Night Light is active:
@@ -31,7 +31,7 @@ All tests are meant to be executed from a GNOME Wayland desktop session (the def
 Whether the screen actually changed color depends on other components; in case it did not, that should not count as a failure of this test case.
 
 
-## Test Housekeeping - Thumbnails
+## Test housekeeping - thumbnails
 
 1. Set the thumbnails cache age to zero:
    ```none
@@ -49,7 +49,7 @@ Whether the screen actually changed color depends on other components; in case i
    ```
 
 
-## Test Housekeeping - Trash
+## Test housekeeping - trash
 
 1. Move some files to the trash bin
 2. Run:
@@ -59,7 +59,7 @@ Whether the screen actually changed color depends on other components; in case i
 3. Verify that the trash bin is empty
 
 
-## Test Media Keys
+## Test media keys
 
 This test requires a keyboard with media control keys
 
@@ -68,7 +68,7 @@ This test requires a keyboard with media control keys
 3. Verify that the Play/Pause/Next/etc... keys work as expected.
 
 
-## Test Power - Idle Suspend
+## Test power - idle suspend
 
 This test requires a machine with suspend support.
 
@@ -86,7 +86,7 @@ This test requires a machine with suspend support.
    ```
 
 
-## Test Power - Lid
+## Test power - lid
 
 This test requires a laptop with a sensor detecting when the lid is closed.
 
@@ -98,7 +98,7 @@ This test requires a laptop with a sensor detecting when the lid is closed.
 3. Verify that the session was locked.
 
 
-## Test Power - Backlight
+## Test power - backlight
 
 This test requires a laptop with supported screen backlight controls.
 
@@ -107,14 +107,14 @@ This test requires a laptop with supported screen backlight controls.
 3. Verify that moving the slider adjusts the screen brightness
 
 
-## Teset Rfkill
+## Teset rfkill
 
 1. Open the Quick Settings menu at the top-right of GNOME
 2. Enable Airplane Mode
 3. Verify that Wifi and Bluetooth got turned off
 
 
-## Test ScreensaverProxy
+## Test screensaver proxy
 
 1. Run:
    ```none
@@ -122,10 +122,10 @@ This test requires a laptop with supported screen backlight controls.
    ```
 2. Verify that the command returned a number
 
-   The session will be automatically uninhibited as soon as the gdbus command exits.
+   The session will be automatically uninhibited as soon as the `gdbus` command exits.
 
 
-## Test Sharing
+## Test sharing
 
 This test requires that the `rygel` package is installed
 

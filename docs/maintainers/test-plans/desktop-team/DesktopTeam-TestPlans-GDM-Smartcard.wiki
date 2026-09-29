@@ -2,7 +2,7 @@
 # GDM smartcard test plan
 
 
-## GDM SRU Smartcard Testing
+## GDM SRU smartcard testing
 
 Smartcard login with the various GDM profiles can be simluated using software smartcards, a "simplified" way is to use [these scripts](https://salsa.debian.org/gnome-team/gdm/-/blob/debian/latest/debian/tests/sssd-gdm-smartcard-pam-auth-tester.sh?ref_type=heads) that create certificates and virtual smartcards.
 
@@ -20,10 +20,10 @@ Now in a SSH terminal (or a tty) run:
 sudo env PIN=554433 WAIT=1 bash ./gdm/debian/tests/sssd-gdm-smartcard-pam-auth-tester.sh
 ```
 
-Once gdm will be started, it will try the smartcard authentication at first, so type the user name you want to log in with (but only the user that launched the previous command with `sudo` will be the one allowed).
+Once `gdm` will be started, it will try the smartcard authentication at first, so type the user name you want to log in with (but only the user that launched the previous command with `sudo` will be the one allowed).
 
 So ensure that the `$SUDO_USER` is the only one allowed to login (and only with the specified PIN number) and that no one else is.
 
-Hitting Enter, the tool iterates through various GDM smart card configurations (`gdm-smartcard-sssd-exclusive` and `gdm-smartcard-sssd-or-password`), using different kinds of certificates, but in all the cases the `$SUDO_USER` should be allowed to login with Smartcard only or also with password as fallback (in the `gdm-smartcard-sssd-or-password` case).
+Hitting {kbd}`Enter`, the tool iterates through various GDM smart card configurations (`gdm-smartcard-sssd-exclusive` and `gdm-smartcard-sssd-or-password`), using different kinds of certificates, but in all the cases the `$SUDO_USER` should be allowed to login with Smartcard only or also with password as fallback (in the `gdm-smartcard-sssd-or-password` case).
 
 For what concerns the GDM UI testing, once the first 2 steps have been tested, the test is considered to pass.

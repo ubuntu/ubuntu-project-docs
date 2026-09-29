@@ -6,10 +6,10 @@
 
 Executing these commands will create (and overwrite):
 
-* ~/pingpong.py
-* ~/manifest.json
-* ~/background.js
-* ~/.mozilla/native-messaging-hosts/pingpong.json
+* `~/pingpong.py`
+* `~/manifest.json`
+* `~/background.js`
+* `~/.mozilla/native-messaging-hosts/pingpong.json`
 
 You may remove them after the test is completed.
 
@@ -107,7 +107,7 @@ firefox about:debugging#/runtime/this-firefox
 ```
 
 * "Load temporary add-on".
-* Pick ~/manifest.json.
+* Pick `~/manifest.json`.
 * Confirm that the Portal dialogue appears and grant permission to the application.
 * In the Firefox tool bar, click the puzzle piece button and click your extension.
 * In the Firefox window, click the inspect button next to your extension.

@@ -11,7 +11,7 @@
 
 ## Create an archive
 
-1. Use Ctrl+n or navigate the main menu to "New Archive". Type a name with an archive extension, e.g. u.tar.
+1. Use {kbd}`Ctrl` + {kbd}`n` or navigate the main menu to "New Archive". Type a name with an archive extension, e.g. `u.tar`.
 
 2. Use the + button to add some stuff to it.
 
@@ -24,22 +24,22 @@
 
 2. `file-roller file-roller_44.3.orig.tar.xz`.
 
-   File Roller opens and you after entering file-roller-44.3 you see its source tree.
+   File Roller opens and you after entering `file-roller-44.3` you see its source tree.
 
-   Alt+Return or 'main menu -> Properites' identifies the archive as an application/x-xz-compressed-tar.
+   {kbd}`Alt` + {kbd}`Return` or 'main menu -> Properites' identifies the archive as an application/x-xz-compressed-tar.
 
 
 ## Extract an archive
 
 1. Click the 'extract' button on the upper left corner.
 
-2. Choose '/tmp' as the target location.
+2. Choose '`/tmp`' as the target location.
 
    Dialog says that extraction completed successfully.
 
 3. Click show the files.
 
-   Your file manager opens and displays the /tmp directory. The file-roller-44.3 directory is inside.
+   Your file manager opens and displays the `/tmp` directory. The `file-roller-44.3` directory is inside.
 
 
 ## Alter an archive's contents

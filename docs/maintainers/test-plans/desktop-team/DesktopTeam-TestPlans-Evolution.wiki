@@ -1,7 +1,7 @@
 (Evolution-test-plan)=
 # Evolution test plan
 
-Below are the test cases that should be run when evolution is updated to new major releases in the development version of Ubuntu. These should also be run for all evolution Stable Release Updates.
+Below are the test cases that should be run when `evolution` is updated to new major releases in the development version of Ubuntu. These should also be run for all `evolution` Stable Release Updates.
 
 
 ## Pre-requisites
@@ -12,7 +12,7 @@ Below are the test cases that should be run when evolution is updated to new maj
    1. Ensure to enable both "Mail", "Calendar" and "Contacts" syncing.
 
 
-## Contacts Test Case
+## Contacts test case
 
 1. Open Evolution.
 2. From the bottom-left menu select "Contacts".
@@ -25,7 +25,7 @@ Below are the test cases that should be run when evolution is updated to new maj
 9. Verify that the new contact is visible.
 
 
-## Email Test Case
+## Email test case
 
 1. Open Evolution.
 2. From the bottom-left menu select "Mail".
@@ -39,7 +39,7 @@ Below are the test cases that should be run when evolution is updated to new maj
 10. Verify that you have sent and received the email.
 
 
-## Calendar Test Case
+## Calendar test case
 
 1. Open Evolution.
 2. From the bottom-left menu select "Calendar".
@@ -55,7 +55,7 @@ Below are the test cases that should be run when evolution is updated to new maj
 12. Verify that the event is no longer visible in Google Calendar (web app or mobile application)
 
 
-## RSS Feed Test Case
+## RSS feed test case
 
 1. Open Evolution
 2. Click on the hamburger menu and navigate to Edit > Preferences.
@@ -71,14 +71,12 @@ Below are the test cases that should be run when evolution is updated to new maj
 11. Verify that in the sidebar you see a "News and Blogs" section, with your newly added RSS feed.
 
 
-## What Could Go Wrong
+## What could go wrong
 
 Evolution is included by default in Ubuntu MATE
 
 If there are bugs in Evolution, Thunderbird could be used instead.
 
-Evolution is part of the GNOME micro release exceptions:
-
-<https://wiki.ubuntu.com/StableReleaseUpdates/GNOME>
+Evolution is part of the {ref}`GNOME micro release exception <reference-exception-GNOMEUpdates>`.
 
 Test plan approved by RAOF for the SRU team (2024/07/24)

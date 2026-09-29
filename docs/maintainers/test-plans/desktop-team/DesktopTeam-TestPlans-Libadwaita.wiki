@@ -11,7 +11,7 @@ Install `libadwaita-1-examples` from the proposed pocket and start `adwaita-1-de
   * Click the sun icon at the top left. It should toggle the window's theme between light and dark.
 
     :::{tip}
-    This conditional exposure of the sun button is done by `notify_system_supports_color_schemes_cb` in adw-demo-window.c.
+    This conditional exposure of the sun button is done by `notify_system_supports_color_schemes_cb` in `adw-demo-window.c`.
     :::
 
 * Click the three horizontal lines button near it. A context menu opens and you click 'about Adwaita demo' which shows a transient window with the usual options (details, credits, troubleshooting etc., exact list is not important) and show the correct Libadwaita version.

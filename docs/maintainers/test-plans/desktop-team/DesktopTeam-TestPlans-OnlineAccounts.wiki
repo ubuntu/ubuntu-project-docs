@@ -1,37 +1,35 @@
 (OnlineAccounts-test-plan)=
 # Online Accounts test plan
 
-Below are the test cases that should be run when gnome-online-accounts or gnome-control-center are updated to new major releases in the development version of Ubuntu. These should also be run for any Stable Release Update for gnome-control-center or gnome-online-accounts.
+Below are the test cases that should be run when `gnome-online-accounts` or `gnome-control-center` are updated to new major releases in the development version of Ubuntu. These should also be run for any Stable Release Update for `gnome-control-center` or `gnome-online-accounts`.
 
 These instructions were originally written for Ubuntu 24.04 LTS. There are significant differences in earlier versions of Ubuntu.
 
 
-## Test Case 1
+## Test case 1
 
-The autopkgtests for gnome-online-accounts should complete successfully
+The autopkgtests for `gnome-online-accounts` should complete successfully
 
 
-## Test Case 2 (Google)
+## Test case 2 (Google)
 
-1. Open the Settings app (gnome-control-center). In the sidebar, choose Online Accounts
+1. Open the Settings app (`gnome-control-center`). In the sidebar, choose Online Accounts
 2. Click Google then click Sign In…
 3. Your default browser (likely Firefox) should open. Log in to your Google account. When prompted, click the button to allow GNOME access to your Google account.
 4. When prompted, allow the System Handler to open the link
 5. In the Settings app should be a popup named Google with on/off switches for Mail, Calendar, Contacts, and Files. All are turned on by default.
 6. Close this popup and close the Settings app
 7. Calendar events from your Google Calendar should show in the clock drop-down in the top bar of the default Ubuntu Desktop
-8. From a terminal, run `sudo apt install gnome-calendar` and make sure that gnome-calendar is installed. Then complete the Calendar test case from {ref}`Calendar-test-plan`
-9. From a terminal, run `sudo apt install evolution` and make sure that evolution is installed. Then complete the Evolution test case from {ref}`Evolution-test-plan`
+8. From a terminal, run `sudo apt install gnome-calendar` and make sure that `gnome-calendar` is installed. Then complete the Calendar test case from {ref}`Calendar-test-plan`
+9. From a terminal, run `sudo apt install evolution` and make sure that `evolution` is installed. Then complete the Evolution test case from {ref}`Evolution-test-plan`
 
 
-## What Could Go Wrong
+## What could go wrong
 
-gnome-online-accounts is included by default in Ubuntu Desktop, Edubuntu, Ubuntu Budgie & Ubuntu Cinnamon.
+`gnome-online-accounts` is included by default in Ubuntu Desktop, Edubuntu, Ubuntu Budgie & Ubuntu Cinnamon.
 
-If gnome-online-accounts is broken, people using Ubuntu may not receive notifications for emails and calendar appointments. This can be mitigated somewhat by using online services via a web browser and enabling notifications in their web browser.
+If `gnome-online-accounts` is broken, people using Ubuntu may not receive notifications for emails and calendar appointments. This can be mitigated somewhat by using online services via a web browser and enabling notifications in their web browser.
 
-Before Ubuntu 24.04 LTS, gnome-online-accounts used webkit2gtk to handle authentication. By using the browser, gnome-online-accounts can handle many additional types of authentication and is more resilient to API changes and restrictions from the online service providers.
+Before Ubuntu 24.04 LTS, `gnome-online-accounts` used `webkit2gtk` to handle authentication. By using the browser, `gnome-online-accounts` can handle many additional types of authentication and is more resilient to API changes and restrictions from the online service providers.
 
-GNOME Online Accounts is part of GNOME Core and is included in the GNOME micro release exception
-
-<https://wiki.ubuntu.com/StableReleaseUpdates/GNOME>
+GNOME Online Accounts is part of GNOME Core and is included in the {ref}`GNOME micro release exception <reference-exception-GNOMEUpdates>`.

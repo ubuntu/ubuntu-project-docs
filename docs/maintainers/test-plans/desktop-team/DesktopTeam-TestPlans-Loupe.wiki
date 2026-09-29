@@ -1,7 +1,7 @@
 (Loupe-test-plan)=
 # Loupe test plan
 
-Below are the test cases that should be run when loupe is updated to new major releases in the development version of Ubuntu. These should also be run for all loupe Stable Release Updates.
+Below are the test cases that should be run when `loupe` is updated to new major releases in the development version of Ubuntu. These should also be run for all `loupe` Stable Release Updates.
 
 Loupe is the default image viewer of Ubuntu Desktop, starting with Ubuntu 25.10
 
@@ -36,7 +36,7 @@ All tests are meant to be executed from a GNOME Wayland desktop session (the def
 1. Open an image in "Image Viewer"
 2. Zoom with a mouse wheel or touchpad gesture
 3. Verify that the image view is zoomed accordingly
-4. Press the '+' and '-' keys
+4. Press the '{kbd}`+`' and '{kbd}`-`' keys
 5. Verify that the image view is zoomed accordingly
 
 
@@ -85,7 +85,7 @@ All tests are meant to be executed from a GNOME Wayland desktop session (the def
 5. Verify that printing to PDF works as expected
 
 
-## Set as Background
+## Set as background
 
 1. Open an image in "Image Viewer"
 2. Click the "Main Menu" hamburger button on the titlebar

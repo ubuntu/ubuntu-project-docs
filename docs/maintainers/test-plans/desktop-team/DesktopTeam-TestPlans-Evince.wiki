@@ -20,17 +20,17 @@ This test will check that Evince functions normally
 
 * Open a pdf by selecting file --> open then choosing a pdf file
 * Make sure that Evince is not in fullscreen mode
-* Press F11
+* Press {kbd}`F11`
   * Evince enters fullscreen mode
-* Press F11 again
+* Press {kbd}`F11` again
   * Evince exits fullscreen mode and restores the window size and position correctly
 * Make sure sidebar is displayed
-* Press F9
+* Press {kbd}`F9`
   * Evince hides the sidebar
-* Press F9
+* Press {kbd}`F9`
   * Evince displays a sidebar with page thumbnails or the document index
-* Press ctrl+left
+* Press {kbd}`ctrl` + {kbd}`left`
   * The pdf is rotated left
-* Press ctrl+right
+* Press {kbd}`ctrl` + {kbd}`right`
   * The pdf is rotated right
   * Evince displays the rotated document correctly

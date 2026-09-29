@@ -1,10 +1,10 @@
 (Calendar-test-plan)=
 # GNOME Calendar test plan
 
-Below are the test cases that should be run when gnome-calendar is updated to new major releases in the development version of Ubuntu. These should also be run for all gnome-calendar Stable Release Updates.
+Below are the test cases that should be run when `gnome-calendar` is updated to new major releases in the development version of Ubuntu. These should also be run for all `gnome-calendar` Stable Release Updates.
 
 
-## Test Case
+## Test case
 
 1. Install the update
 2. Open the Calendar app.
@@ -14,7 +14,7 @@ Below are the test cases that should be run when gnome-calendar is updated to ne
 6. Back in the Calendar app, check that editing calendar events works correctly.
 
 
-## What Could Go Wrong
+## What could go wrong
 
 GNOME Calendar is included by default in Ubuntu Desktop, Edubuntu, and Ubuntu Cinnamon.
 

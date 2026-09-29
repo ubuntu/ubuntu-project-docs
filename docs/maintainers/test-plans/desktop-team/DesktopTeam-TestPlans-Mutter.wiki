@@ -1,10 +1,10 @@
 (Mutter-test-plan)=
 # Mutter test plan
 
-Below are the test cases that should be run when mutter is updated to new major releases in the development version of Ubuntu. These should also be run for all mutter Stable Release Updates.
+Below are the test cases that should be run when `mutter` is updated to new major releases in the development version of Ubuntu. These should also be run for all `mutter` Stable Release Updates.
 
 
-## Test Case
+## Test case
 
 1. `sudo apt install budgie-desktop gnome-session gnome-shell-extensions`
 2. Install the update.
@@ -22,7 +22,7 @@ Below are the test cases that should be run when mutter is updated to new major 
 TBC: plan to repeat recurrence of mouse input latency regression that has occurred in the past
 
 
-## What Could Go Wrong
+## What could go wrong
 
 Mutter is an essential component of the default Ubuntu desktop which is also used by Edubuntu.
 
@@ -34,7 +34,7 @@ Mutter micro releases have generally been accepted as SRUs in the past. The .1 r
 <https://discourse.ubuntu.com/t/mutter-gnome-shell-are-no-longer-covered-by-the-gnome-mre/45218>
 
 
-## Record of Regressions
+## Record of regressions
 
 * 2023-06-08: [Mouse input latency is one frame higher than it was earlier](https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/2023363)
-* 2023-12-14: [Heavy stuttering in Firefox with mutter 45.1/45.2](https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/2046360)
+* 2023-12-14: [Heavy stuttering in Firefox with `mutter` 45.1/45.2](https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/2046360)

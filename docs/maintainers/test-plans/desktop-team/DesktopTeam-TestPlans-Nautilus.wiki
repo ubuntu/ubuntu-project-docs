@@ -8,11 +8,11 @@
   * the filemanager view is opened and displays the content of the userdir
 
 
-## Create and rename a Folder
+## Create and rename a folder
 
 * In the current directory right click on a blank section and select 'New Folder'.
   * A dialog prompting for the folder name is displayed
-* Enter a name for the folder and press enter or click the confirmation button
+* Enter a name for the folder and press {kbd}`enter` or click the confirmation button
   * A folder with the entered name appears in the directory
 * Rename the folder to 'test'
   * The folders name is changed to 'test'
@@ -63,7 +63,7 @@ $ echo "A text template" > ~/Templates/Txt
 
 (replace 'Templates' by the directory set for `XDG_TEMPLATES_DIR` in `XDG_TEMPLATES_DIR` if needed)
 
-* In nautilus right click on a blank section and select New Document, then 'Txt' in the dialog and confirm
+* In `nautilus` right click on a blank section and select New Document, then 'Txt' in the dialog and confirm
   * A document named 'Txt' with the content 'A text template' should be created in the current directory
 
 
@@ -71,7 +71,7 @@ $ echo "A text template" > ~/Templates/Txt
 
 If you have access to samba shares on your local network click on 'Other locations' in the sidebar and browse to them
 
-Try to connect to a ssh server you have access to by doing ctrl-L and typing `ssh://<name_or_ip>`
+Try to connect to a ssh server you have access to by doing {kbd}`ctrl` + {kbd}`L` and typing `ssh://<name_or_ip>`
 
 
 ## External devices
@@ -86,14 +86,14 @@ Try to connect to a ssh server you have access to by doing ctrl-L and typing `ss
 
 Try to left click on a file and pick the 'email...' option. A composer dialog from the email client configured as default for the user should be triggered with the file attached.
 
-Note that the feature only works with thunderbird if the 'nautilus-sendto' package is installed.
+Note that the feature only works with `thunderbird` if the '`nautilus-sendto`' package is installed.
 
-Without nautilus-sendto thunderbird would get no file attached to the composer but the feature should still work with evolution or geary.
+Without `nautilus-sendto` `thunderbird` would get no file attached to the composer but the feature should still work with `evolution` or `geary`.
 
 
-## File Chooser Dialog (Ubuntu 26.04 and newer)
+## File chooser dialog (Ubuntu 26.04 and newer)
 
-If testing on Ubuntu Desktop 26.04, Nautilus is used to implement the xdg-desktop-portal file chooser.
+If testing on Ubuntu Desktop 26.04, Nautilus is used to implement the `xdg-desktop-portal` file chooser.
 
 Launch Firefox, and navigate to <https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/file#try_it>
 

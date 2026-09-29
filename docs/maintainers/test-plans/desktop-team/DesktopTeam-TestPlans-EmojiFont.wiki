@@ -1,10 +1,10 @@
 (EmojiFont-test-plan)=
 # Emoji font test plan
 
-Below are the test cases that should be run when fonts-noto-color-emoji or nototools are updated to new major releases in the development version of Ubuntu. These should also be run for all fonts-noto-color-emoji or nototools Stable Release Updates.
+Below are the test cases that should be run when `fonts-noto-color-emoji` or `nototools` are updated to new major releases in the development version of Ubuntu. These should also be run for all `fonts-noto-color-emoji` or `nototools` Stable Release Updates.
 
 
-## Impact for fonts-noto-color-emoji update
+## Impact for `fonts-noto-color-emoji` update
 
 Ubuntu has included Google's color emoji font by default for years. Annually, the Unicode Consortium releases a new Unicode standard with new emoji. Internet communication platforms quickly adopt the new emoji and it's important that those emoji also work on the latest Ubuntu release.
 
@@ -15,7 +15,7 @@ Click the changed link to see other changes that were made in this release.
 <https://emojipedia.org/google/17.0/>
 
 
-## Impact for nototools update
+## Impact for `nototools` update
 
 Ubuntu has included Google's color emoji font by default for years. Annually, the Unicode Consortium releases a new Unicode standard with new emoji. Internet communication platforms quickly adopt the new emoji and it's important that those emoji also work on the latest Ubuntu release.
 
@@ -25,10 +25,10 @@ Click the Show new link to see the new emoji.
 Click the changed link to see other changes that were made in this release.
 <https://emojipedia.org/google/15.1/>
 
-To build the new version of the font, we need to build nototools first.
+To build the new version of the font, we need to build `nototools` first.
 
 
-## Test Case for Color Emoji Font
+## Test case for color emoji font
 
 1. Install the new color emoji font.
 2. Restart your computer then log back in.
@@ -40,18 +40,18 @@ To build the new version of the font, we need to build nototools first.
 8. Visit <https://www.unicode.org/emoji/charts-17.0/full-emoji-list.html> . The page may take a moment to load as it contains a lot of images. The Browser column should be complete and display well. The other columns are a snapshot of what the emoji look like in various fonts but the Browser column shows what is actually installed on your system.
 
 
-## Test Case for nototools
+## Test case for `nototools`
 
-It may be required to update nototools to be able to build newer versions of Google's Noto Color Emoji font. The nototools package only provides a single binary in /usr/bin/ because the only thing nototools is used for in Debian or Ubuntu is building that font.
+It may be required to update `nototools` to be able to build newer versions of Google's Noto Color Emoji font. The `nototools` package only provides a single binary in `/usr/bin/` because the only thing `nototools` is used for in Debian or Ubuntu is building that font.
 
-1. Build fonts-noto-color-emoji with the updated nototools. This should be the version of fonts-noto-color-emoji already in the distro series. Install and verify that the emoji look correct.
+1. Build `fonts-noto-color-emoji` with the updated `nototools`. This should be the version of `fonts-noto-color-emoji` already in the distro series. Install and verify that the emoji look correct.
 
-2. Because you are probably updating nototools to build a new version of the font, also build the new version of fonts-noto-color-emoji. Install and verify that the emoji look correct. Use the above "Test Case for Color Emoji Font" to complete this test.
+2. Because you are probably updating `nototools` to build a new version of the font, also build the new version of `fonts-noto-color-emoji`. Install and verify that the emoji look correct. Use the above "Test Case for Color Emoji Font" to complete this test.
 
-nototools (and python3-nototools) is only a build dependency. It does not need to be installed on your system.
+`nototools` (and `python3-nototools`) is only a build dependency. It does not need to be installed on your system.
 
 
-## What Could Go Wrong (fonts-noto-color-emoji)
+## What could go wrong (`fonts-noto-color-emoji`)
 
 Sometimes there is an issue with the display of a particular font after the font has been updated. See {lpbug}`2034986` for instance. Perhaps this is a bug with font caching. In this case, it is not believed that the color emoji font is used by GNOME Shell itself so a simple restart of any apps that use emoji should be enough to fix that issue.
 

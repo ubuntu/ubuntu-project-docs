@@ -1,12 +1,12 @@
 (GnomeSnapshot-test-plan)=
 # GNOME Snapshot test plan
 
-Since the autopkgtest infrastructe isn't really suitable for camera testing we will require manual testing for updates to gnome-snapshot
+Since the autopkgtest infrastructe isn't really suitable for camera testing we will require manual testing for updates to `gnome-snapshot`
 
 
 ## Camera is detected
 
-* Start snapshot and verify that the camera is correctly detected and the image correctly displayed in the application
+* Start `snapshot` and verify that the camera is correctly detected and the image correctly displayed in the application
 
 
 ## Take a picture

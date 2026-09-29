@@ -2,10 +2,10 @@
 # GStreamer test plan
 
 
-## Test Plan for GStreamer
+## Test plan for GStreamer
 
 
-### Video Codecs
+### Video codecs
 
 Find/utilize some test content for each codec. [Fluster](https://github.com/fluendo/fluster) is one reliable
 source of test content, so are the [GStreamer integration suites](https://gitlab.freedesktop.org/gstreamer/gst-integration-testsuites). The more the better. Running thumbnailing software in personal video libraries is also a good check.
@@ -194,7 +194,7 @@ Ensure the various formats work as expected. For instance, to check MJPEG @ 1080
 qcam  -s pixelformat=MJPEG,width=1920,height=1080
 ```
 
-Check the GStreamer element works in an analogous way to libcamera above,
+Check the GStreamer element works in an analogous way to `libcamera` above,
 
 ```none
 gst-launch-1.0 libcamerasrc ! image/jpeg,width=1920,height=1080 ! jpegdec ! videoconvert ! glimagesink

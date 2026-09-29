@@ -6,7 +6,7 @@ Since the **Terminal** doesn't have a test suite or autopkgtests, we rely on a m
 
 ## Open the terminal with the global keyboard shortcut
 
-Press _Ctrl+Alt+T_. The Terminal app should start. No other terminal app should be launched with that default keyboard shortcut.
+Press {kbd}`Ctrl` + {kbd}`Alt` + {kbd}`T`. The Terminal app should start. No other terminal app should be launched with that default keyboard shortcut.
 
 
 ## Open a new tab
@@ -15,7 +15,7 @@ Press _Ctrl+Alt+T_. The Terminal app should start. No other terminal app should 
 2. Use `cd /` to change the directory to the `/` directory
 3. Click the **+** button to open a new tab
 4. A new tab should open with the same current working directory
-5. Use _Ctrl+Shift+T_ to open a new tab
+5. Use {kbd}`Ctrl` + {kbd}`Shift` + {kbd}`T` to open a new tab
 6. A new tab should open with the same current working directory
 
 :::{note}
@@ -40,11 +40,11 @@ Open the ☰ menu and use the **-** and **+** buttons to adjust the zoom of the 
 
 ## Screen reader
 
-1. Use the global keyboard shortcut _Alt+Windows key+S_ to toggle on the screen reader
+1. Use the global keyboard shortcut {kbd}`Alt` + {kbd}`Windows key` + {kbd}`S` to toggle on the screen reader
 2. Open the Terminal
 3. Enter `ls /`
 4. The screenreader should read your command as you type it, then the contents of the `/` folder, and finally your terminal prompt
-5. Use the global keyboard shortcut _Alt+Windows key+S_ to toggle off the screen reader
+5. Use the global keyboard shortcut {kbd}`Alt` + {kbd}`Windows key` + {kbd}`S` to toggle off the screen reader
 
 
 ## Notifications for long running background commands
@@ -52,7 +52,7 @@ Open the ☰ menu and use the **-** and **+** buttons to adjust the zoom of the 
 1. Open the Terminal
 2. Run this command: `sleep 5`
 3. Immediately switch to a different tab or window
-4. A few seconds later, you should receive a notification to let you know that the sleep 5 command has completed
+4. A few seconds later, you should receive a notification to let you know that the `sleep 5` command has completed
 5. Run `sleep 5` again but this time keep your focus on the console
 6. A few seconds later, the command should complete but there shouldn't be a notification.
 
@@ -87,7 +87,7 @@ The color change actually works even if you aren't connecting to the remote serv
 
 ### Open the terminal from the file browser
 
-* Enter a folder in the default file browser (nautilus).
+* Enter a folder in the default file browser (`nautilus`).
 
 * Right click on either the empty space in the main view or on a different directory.
 

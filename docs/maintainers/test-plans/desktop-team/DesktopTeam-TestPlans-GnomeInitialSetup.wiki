@@ -4,10 +4,10 @@
 
 ## 24.04
 
-The followings are the test plans for testing gnome-initial-setup.
+The followings are the test plans for testing `gnome-initial-setup`.
 
 
-### First Boot Initialization
+### First boot initialization
 
 This test case is intended for OEM or pre-bootstrapped image such as Raspberry Pi image, where the account setup is after the installation.
 
@@ -24,7 +24,7 @@ To delete current user, first we have to set up password for root:
 sudo passwd
 ```
 
-Then log out current user, switch to text terminal by Ctrl-Alt-F3, login as root, then:
+Then log out current user, switch to text terminal by {kbd}`Ctrl` + {kbd}`Alt` + {kbd}`F3`, login as root, then:
 
 ```none
 deluser --remove-home [username]
@@ -80,18 +80,18 @@ If the system does not have any Wi-Fi interface, this page will be skipped.
 * Click _Next_, or _Skip_ if not connecting to an access point.
 
 
-#### Page 5: Time Zone
+#### Page 5: Time zone
 
 * A map and a search bar for the cities are available.
 
 * Note that, if no city is selected, _Next_ button should be greyed out.
 
-* Type a city name into the search bar, select one and hit Enter, the correlated city (might not be the same you selected, but has the same timezone) should be pinned, with city name and timezone information annotated.
+* Type a city name into the search bar, select one and hit {kbd}`Enter`, the correlated city (might not be the same you selected, but has the same timezone) should be pinned, with city name and timezone information annotated.
 
 * Click _Next_.
 
 
-#### Page 6: About You (account creation)
+#### Page 6: About you (account creation)
 
 * Text fields to input _Full name_, _Username_, and _Computer_ are available, and a button to change user icon.
 
@@ -131,14 +131,14 @@ If the system does not have any Wi-Fi interface, this page will be skipped.
 * Type the same password on the second field, and click _Next_ to continue.
 
 
-#### Page 8: Setup Complete
+#### Page 8: Setup complete
 
 * Click _Start Using Ubuntu_, which should lead user to the desktop, and immediately lead to Desktop Welcome window.
 
 
 #### Check the settings
 
-* Open _Settings_ (gnome-control-center), and check the followings:
+* Open _Settings_ (`gnome-control-center`), and check the followings:
 
   * Go to _System_ -> _Region & Language_, under _Your Account_, the selected language and formats are correct.
 
@@ -153,7 +153,7 @@ If the system does not have any Wi-Fi interface, this page will be skipped.
 * Logout and login with the password you set, you should be able to login with the password.
 
 
-### Desktop Welcome
+### Desktop welcome
 
 This is displayed on the first user entering desktop environment, in order to setup Ubuntu Pro, asking user about telemetry, and introduce user to the Store.
 
@@ -189,7 +189,7 @@ XDG_CURRENT_DESKTOP=ubuntu /usr/libexec/gnome-initial-setup --existing-user
 #### Page 3, attach to Pro
 
 :::{important}
-Make sure /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 is running.
+Make sure `/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1` is running.
 :::
 
 * Choose _add token manually_ and type a character in the box, observe that _next_ lights up. Click it. An authentication box shows up asking for password, you give it and the program says invalid token.
@@ -224,7 +224,7 @@ Make sure /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 is runn
 * Tells you about App Center, where more applications can be installed. A picture with App Center's and other programs' logos is in the center of the page.
 
   :::{important}
-  If snap-store is not installed, do it: `snap install snap-store`.
+  If `snap-store` is not installed, do it: `snap install snap-store`.
   :::
 
 * Click _open App Center_, App Center opens.
