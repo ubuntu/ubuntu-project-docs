@@ -348,7 +348,8 @@ demoted.
 
 #### Kernel metapackages
 
-There is also the special case of OEM kernel metapackages, which are completely
+There is also the special case of OEM kernel
+{term}`metapackages <Metapackage>`, which are completely
 different and in special ways. Any AA+SRU team member can process one of these;
 they are processed using the `oem-metapackage-mir-check` tool in
 `lp:ubuntu-archive-tools`.
