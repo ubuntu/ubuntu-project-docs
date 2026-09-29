@@ -33,10 +33,9 @@ jobs:
           MATTERMOST_TOKEN: ${{ secrets.MATTERMOST_TOKEN }}
           MATTERMOST_CHANNEL_ID: ${{ secrets.MATTERMOST_CHANNEL_ID }}
           MATTERMOST_URL: ${{ vars.MATTERMOST_URL }}
-          # Matrix — set the token as a repo secret.
-          # Room IDs are resolved at runtime from aliases defined in the script
-          # (MAIN_MATRIX_ALIAS / LABEL_ROUTES). MATRIX_HOMESERVER can be
-          # overridden as a repo variable if needed.
-          MATRIX_TOKEN: ${{ secrets.MATRIX_TOKEN }}
-          MATRIX_HOMESERVER: ${{ vars.MATRIX_HOMESERVER }}
+          # Matrix sends disabled — the script skips all Matrix notifications
+          # (main room and label routes) while MATRIX_TOKEN is not passed here.
+          # To re-enable, restore these two lines:
+          #   MATRIX_TOKEN: ${{ secrets.MATRIX_TOKEN }}
+          #   MATRIX_HOMESERVER: ${{ vars.MATRIX_HOMESERVER }}
         run: python ./.github/actions/queue-report/script.py
