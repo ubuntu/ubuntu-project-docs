@@ -137,6 +137,9 @@ The Ubuntu Project documentation is built with Sphinx using a combination of the
 
 To make the documentation sources easy to navigate and read, keep the formatting organization of the content consistent.
 
+- **The left-hand navigation pane** is for exploration and page discovery. It is structured using `{toctree}` directives on each `index.md` page, where the `index.md` page is the parent page, and all pages listed inside the `{toctree}` are shown underneath it as child sub-pages.
+- **The right-hand navigation pane** is for in-page navigation. Its structure comes from the sequence of {ref}`headers <docs-headings>` in the markdown/reStructuredText source file.
+- **The central navigation pane** is for discovery between related pages on the same topic. Some topics are split across multiple categories, for example, sponsorship has "How to find a sponsor" in the Contributors category, and the "Sponsorship Process" page in How Ubuntu Is Made. To make it easier to find related pages on the same topic, we use {ref}`docs-series-boxes`.
 
 #### File names
 
@@ -148,8 +151,12 @@ Unless required (for example, to avoid duplication), use the following file-nami
 For example, an article called *How to contribute docs* would have a file name `contribute-docs.md`.
 
 
+(docs-headings)=
 #### Headings
 
+Each page must have only one top level (`h1`) header.
+Heading levels must not be skipped (e.g. `h1` -> `h2`, not `h1` -> `h3`)
+ 
 To simplify cross-referencing articles and sections, make anchors predictable. Use anchors with this format:
 
 - Lowercase with hyphens between words
@@ -163,6 +170,42 @@ For example:
 ```
 
 Include two empty lines before headings to break the flow of the text and make orientation in files easier.
+
+
+(docs-series-boxes)=
+#### "Series" boxes
+
+We group all related pages within the same topic together, organizing them by what the user should expect to find on the page. An example of how this work is the {ref}`freezes` page, which has this admonition box:
+
+````
+```{admonition} **Freezes** series
+
+**Process overview:**
+: {ref}`freezes` (this page)
+
+**Reference:**
+: {ref}`freeze-exceptions`
+
+**Practical guidance:**
+: {ref}`request-a-freeze-exception`
+```
+````
+
+Which renders like this:
+
+```{admonition} **Freezes** series
+
+**Process overview:**
+: {ref}`freezes` (this page)
+
+**Reference:**
+: {ref}`freeze-exceptions`
+
+**Practical guidance:**
+: {ref}`request-a-freeze-exception`
+```
+
+Using this structure means that even if a reader discovers the topic via the "wrong" page, they can easily get to the page they want. For a more lengthy example, see the {ref}`sponsorship` page
 
 
 ### Semantic mark-up
