@@ -137,9 +137,9 @@ The Ubuntu Project documentation is built with Sphinx using a combination of the
 
 To make the documentation sources easy to navigate and read, keep the formatting organization of the content consistent.
 
-- **The left-hand navigation pane** is for exploration and discoverability. It is structured using `{toctree}` directives on each `index.md` page, where the `index.md` page is the parent page, and all pages listed inside the `{toctree}` are shown underneath it as child sub-pages.
+- **The left-hand navigation pane** is for exploration and page discovery. It is structured using `{toctree}` directives on each `index.md` page, where the `index.md` page is the parent page, and all pages listed inside the `{toctree}` are shown underneath it as child sub-pages.
 - **The right-hand navigation pane** is for in-page navigation. Its structure comes from the sequence of {ref}`headers <docs-headings>` in the markdown/reStructuredText source file.
-- **The central navigation pane** is for discoverability between related pages on the same topic. Some topics are split across multiple categories, for example, sponsorship has "How to find a sponsor" in the Contributors category, and the "Sponsorship Process" page in How Ubuntu Is Made. To make it easier to find related pages on the same topic, we use {ref}`docs-series-boxes`.
+- **The central navigation pane** is for discovery between related pages on the same topic. Some topics are split across multiple categories, for example, sponsorship has "How to find a sponsor" in the Contributors category, and the "Sponsorship Process" page in How Ubuntu Is Made. To make it easier to find related pages on the same topic, we use {ref}`docs-series-boxes`.
 
 #### File names
 
