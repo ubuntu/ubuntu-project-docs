@@ -3,6 +3,8 @@
 Snapd Glib Updates
 ==================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating the `snapd-glib
 package <https://launchpad.net/ubuntu/+source/snapd-glib>`__ in stable
 Ubuntu releases.

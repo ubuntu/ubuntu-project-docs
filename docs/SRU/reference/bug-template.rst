@@ -3,6 +3,8 @@
 SRU bug template
 ----------------
 
+.. include:: /SRU/_sru-series.rst
+
 The SRU bug template is used to document the justification, regression potential, and
 test plan for the SRU. The SRU driver is responsible for clearly documenting this
 information, which is then reviewed by the SRU team when considering whether to accept

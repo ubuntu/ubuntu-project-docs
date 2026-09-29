@@ -3,6 +3,8 @@
 Postfix Updates
 ===============
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating the Postfix package in a
 stable supported distro, in particular LTS releases.
 

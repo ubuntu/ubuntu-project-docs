@@ -16,6 +16,18 @@ pre.mermaid svg {
   margin-left: 4px;
 }
 
+/* Append "(in this section)" dynamically to the parent-section link in the
+   SRU series admonition variant used on package exception pages. On the
+   package-specific notes page itself the link is a same-page anchor, and
+   the "(in this article)" rule above already covers it. */
+.sru-series-exception a.reference.internal[href*="package-specific/"]:not([href^="#"]):after {
+  content: " (in this section)";
+  font-style: italic;
+  font-weight: normal;
+  color: #777; /* Greyed out, independent of link visited state */
+  margin-left: 4px;
+}
+
 .release-table {
     font-size: smaller;
 }

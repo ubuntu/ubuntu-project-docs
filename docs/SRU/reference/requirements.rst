@@ -1,6 +1,8 @@
 Requirements
 ------------
 
+.. include:: /SRU/_sru-series.rst
+
 .. _reference-what-is-acceptable-to-sru:
 
 What is acceptable to SRU
@@ -33,8 +35,7 @@ Stable release updates will, in general, only be issued in order to fix
 
    -  ``app-install-data-commercial`` is a package index which regularly
       needs to be adjusted to changes in the commercial package archive.
-   -  ``clamav`` needs `regular updates <https://documentation.ubuntu.com/sru/en/latest/reference/exception-ec2-hibinit-agent-Updates>`__
-      to latest virus signatures
+   -  ``clamav`` needs regular updates to latest virus signatures
    -  ``tor`` needs a newer version to still work with the current Tor
       network.
    -  A library for a web service needs to be updated for changes to the

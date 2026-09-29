@@ -1,6 +1,8 @@
 Reference
 =========
 
+.. include:: /SRU/_sru-series.rst
+
 This reference section contains technical information about the SRU workflow.
 
 Tools and resources
@@ -34,7 +36,6 @@ Testing and SRU verification
 .. toctree::
    :maxdepth: 1
 
-   enable-proposed
    sru-verification
 
 Contact

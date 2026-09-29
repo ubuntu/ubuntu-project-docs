@@ -3,6 +3,8 @@
 Ubuntu-Advantage-Tools / Ubuntu-Pro-Client Updates
 ==================================================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 U-A-T Background
 ----------------
 

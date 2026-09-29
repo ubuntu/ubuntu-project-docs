@@ -1,18 +1,11 @@
-.. _stable-release-updates:
+.. _sru-howto-guides:
 
-Stable Release Updates
-======================
+SRU how-to guides
+=================
 
-As a contributor, follow these guides to upload an SRU and to ensure that it works correctly.
+.. include:: /SRU/_sru-series.rst
 
-
-Introduction to SRU for contributors
-------------------------------------
-
-.. toctree::
-    :maxdepth: 1
-
-    introduction-to-sru
+Follow these guides to upload an SRU and to ensure that it works correctly.
 
 
 Submit a package update
@@ -24,8 +17,6 @@ You can submit a standard SRU that fixes a bug or a non-standard update such as 
     :maxdepth: 1
 
     standard
-    release
-    prepare-special
     special
 
 
