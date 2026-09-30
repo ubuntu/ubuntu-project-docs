@@ -142,6 +142,7 @@ multiarch
 Mythbuntu
 NGOs
 neurotype
+OCaml
 onboarding
 oniguruma
 OSI's
@@ -185,6 +186,8 @@ schroots
 Shuttleworth
 sid
 SLOs
+SONAME
+SONAMEs
 sosreport
 spammy
 sponsoree
