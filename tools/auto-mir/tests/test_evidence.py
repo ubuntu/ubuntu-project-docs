@@ -3432,3 +3432,125 @@ def test_detect_language_markers_derives_vendor_dirs_from_rules():
     assert "./rust-vendor" in markers["shipped_vendored_dirs"]
     assert markers["cargo_lock_present"] is True
     assert markers["go_sum_present"] is False
+
+
+# --- Curated deterministic facts in degraded findings (rust-ntpd regression:
+# the LLM-less run discarded facts it had already collected, e.g. the Ubuntu
+# delta and the dh_auto_test wiring) ---
+
+
+def _facts_ctx(adapters: dict) -> SimpleNamespace:
+    return SimpleNamespace(evidence={"adapters": adapters})
+
+
+def test_cb2_fallback_fact_states_rules_test_wiring():
+    """CB-2's degraded rationale must state the dh_auto_test wiring the
+    evidence already contains (override_dh_auto_test + cargo test, the exact
+    rust-ntpd case where the fact existed but never reached the draft)."""
+    import checks.llm_eval as llm_eval
+
+    ctx = _facts_ctx(
+        {
+            "packaging-source": {
+                "status": "ok",
+                "debian_rules": "override_dh_auto_test:\n\t$(CARGO) test\n",
+            },
+            "fetch-build": {"status": "ok", "build_log": "test result: ok. 120 passed"},
+        }
+    )
+    rationale = llm_eval._fallback_rationale_for_check({"id": "CB-2"}, ctx)
+    assert "override_dh_auto_test" in rationale
+    assert "cargo test" in rationale
+    assert "the build log shows tests running with pass/fail output" in rationale
+
+
+def test_prf1_fallback_fact_states_delta_presence():
+    """PRF-1's degraded rationale must state that Ubuntu carries a delta and
+    its classification instead of the generic 'does Ubuntu carry a delta?'
+    option pair (the exact rust-ntpd case: 1.9.0-0ubuntu2, general)."""
+    import checks.llm_eval as llm_eval
+
+    ctx = _facts_ctx(
+        {
+            "packaging-source": {"status": "ok", "delta_kind": "ubuntu_delta",
+                                 "analyzed_version": "1.9.0-0ubuntu2"},
+            "git-ubuntu-delta": {
+                "status": "ok",
+                "version": "1.9.0-0ubuntu2",
+                "delta_kind": "ubuntu_delta",
+                "delta_present": True,
+                "delta_category": "general",
+                "delta_summary": "Ubuntu carries a delta (version 1.9.0-0ubuntu2).",
+            },
+        }
+    )
+    rationale = llm_eval._fallback_rationale_for_check({"id": "PRF-1"}, ctx)
+    assert "Ubuntu carries a delta" in rationale
+    assert "1.9.0-0ubuntu2" in rationale
+    assert "'general'" in rationale
+
+
+def test_esl11_fallback_fact_states_vendored_dirs():
+    """ESL-1/ESL-11 degraded rationale must list the vendored trees (which
+    WP3 now finds for rules-declared names like rust-vendor)."""
+    import checks.llm_eval as llm_eval
+
+    ctx = _facts_ctx(
+        {
+            "packaging-source": {
+                "status": "ok",
+                "vendored_dirs": ["./rust-vendor"],
+                "shipped_vendored_dirs": ["./rust-vendor"],
+                "vendor_dir_names": ["rust-vendor", "vendor"],
+            }
+        }
+    )
+    rationale = llm_eval._fallback_rationale_for_check({"id": "ESL-11"}, ctx)
+    assert "./rust-vendor" in rationale
+    assert "potentially shipped in binaries" in rationale
+
+
+def test_rdo1_fallback_fact_explains_empty_candidates():
+    """Empty dup-search candidates from an LLM-less run state why they are
+    empty (llm_unavailable_reason from WP1) instead of looking like a clean
+    'no duplicates' answer."""
+    import checks.llm_eval as llm_eval
+
+    ctx = _facts_ctx(
+        {
+            "dup-search": {
+                "status": "ok",
+                "candidates": [],
+                "llm_unavailable": True,
+                "llm_unavailable_reason": "LLM not configured (--no-llm or no auth resolved)",
+            }
+        }
+    )
+    rationale = llm_eval._fallback_rationale_for_check({"id": "RDO-1"}, ctx)
+    assert "no candidate packages" in rationale
+    assert "LLM not configured" in rationale
+
+
+def test_sec12_fallback_fact_states_crypto_scan():
+    import checks.llm_eval as llm_eval
+
+    ctx = _facts_ctx(
+        {
+            "packaging-source": {
+                "status": "ok",
+                "crypto_pattern_hits": ["src/crypto.rs:10: MD5 usage"],
+            }
+        }
+    )
+    rationale = llm_eval._fallback_rationale_for_check({"id": "SEC-12"}, ctx)
+    assert "1 hit" in rationale
+    assert "MD5 usage" in rationale
+
+
+def test_degraded_facts_absent_when_evidence_missing():
+    """No fabricated facts: adapters that did not collect produce no rationale."""
+    import checks.llm_eval as llm_eval
+
+    ctx = _facts_ctx({"packaging-source": {"status": "error"}})
+    assert llm_eval._fallback_rationale_for_check({"id": "CB-2"}, ctx) == ""
+    assert llm_eval._fallback_rationale_for_check({"id": "ESL-11"}, ctx) == ""
