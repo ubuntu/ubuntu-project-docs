@@ -22,6 +22,7 @@ from utils.language_detection import (
     _is_rust_package,
     _other_language_declared,
     detect_language_signals,
+    vendor_dir_markers,
 )
 
 if TYPE_CHECKING:
@@ -1670,8 +1671,70 @@ def _check_urf_4(ctx: RunContext, finding: Finding) -> Finding:
     return finding
 
 
+# Declaration-shaped setuid/setgid lines: FFI/libc function *signatures*
+# (the rust-ntpd regression: 105 `pub fn setuid(uid: uid_t) -> c_int;`
+# declarations inside rust-vendor/libc, flagged as a required Problem
+# although nothing in the package calls them). Matching is deliberately
+# narrow (Rust fn signatures; C prototypes ending in ");"), so an
+# uncertain line stays classified as active usage.
+_SETUID_DECLARATION_PATTERNS = (
+    # Rust signature: `pub fn setuid(...)`, `pub unsafe extern "C" fn setgid(...)``
+    re.compile(r"\bfn\s+set(?:uid|gid)\w*\s*\("),
+    # C prototype: declaration-only line (no assignment) ending in ");"
+    re.compile(r"^[^=]*\bset(?:uid|gid)\w*\s*\([^;]*\)\s*;"),
+)
+
+
+def _hit_is_setuid_declaration(content: str) -> bool:
+    """True when a grep hit line is a setuid/setgid *declaration*, not usage."""
+    return any(pattern.search(content) for pattern in _SETUID_DECLARATION_PATTERNS)
+
+
+def _path_in_vendor_tree(path: str, packaging: dict) -> bool:
+    """True when a source-tree path sits inside a recognized vendor directory
+    (the standard conventions plus the rules-derived names the adapter
+    collected, e.g. the Debian cargo `rust-vendor`)."""
+    normalized = path.lower().replace("\\", "/")
+    if normalized.startswith("./"):
+        normalized = normalized[1:]
+    marked = normalized if normalized.startswith("/") else f"/{normalized}"
+    return any(marker in marked for marker in vendor_dir_markers(packaging))
+
+
+def _summarize_setuid_soft_hits(
+    vendored_hits: list[str], declaration_hits: list[str], lintian_ok: bool
+) -> str:
+    """Group and cap the vendored/declaration hit detail for a rationale."""
+    parts: list[str] = []
+    if vendored_hits:
+        files = sorted({_grep_hit_path(hit) for hit in vendored_hits})
+        parts.append(
+            f"{len(vendored_hits)} reference(s) in vendored code across {len(files)} file(s), "
+            f"e.g. {vendored_hits[0]}"
+        )
+    if declaration_hits:
+        files = sorted({_grep_hit_path(hit) for hit in declaration_hits})
+        parts.append(
+            f"{len(declaration_hits)} declaration(s) (signatures, not calls) across "
+            f"{len(files)} file(s), e.g. {declaration_hits[0]}"
+        )
+    parts.append("no setuid/setgid permission bits in the source tree or built packages")
+    if lintian_ok:
+        parts.append("lintian reported no setuid/setgid tags on the built packages")
+    return "; ".join(parts)
+
+
 def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
-    """URF-5: No setuid/setgid binaries."""
+    """URF-5: No setuid/setgid binaries.
+
+    Hard evidence (permission bits in the source tree or built packages,
+    lintian setuid tags on built artefacts, debian/rules setup, or active
+    non-vendored usage in the package's own code) fails as before. Mere
+    references inside vendored trees and FFI *declarations* are not owned
+    usage of this package: they never render as Problems, but they always
+    land in Left to decide for the human to confirm they are unused
+    (user-test decision from the rust-ntpd run).
+    """
     check = _get_check_definition(ctx, "URF-5")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
@@ -1713,6 +1776,19 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
         if not _line_is_test_context(line) and not _path_is_nonexecutable_doc(_grep_hit_path(line))
     ]
     source_hits, commented_hits = _split_hits_active_vs_commented(source_hits)
+    # Split the remaining active-code hits into the package's own usage and
+    # soft references (vendored code / FFI declarations).
+    vendored_hits: list[str] = []
+    declaration_hits: list[str] = []
+    active_usage_hits: list[str] = []
+    for hit in source_hits:
+        if _path_in_vendor_tree(_grep_hit_path(hit), packaging):
+            vendored_hits.append(hit)
+        elif _hit_is_setuid_declaration(_grep_hit_content(hit)):
+            declaration_hits.append(hit)
+        else:
+            active_usage_hits.append(hit)
+    soft_hits = vendored_hits + declaration_hits
     source_perm_files = [
         path
         for path in packaging.get("setuid_setgid_source_files", [])
@@ -1724,7 +1800,7 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
         for path in fetch_build.get("setuid_setgid_binaries", [])
         if not _path_is_test_context(path)
     ]
-    source_triggered = bool(source_hits or source_perm_files)
+    source_triggered = bool(active_usage_hits or source_perm_files)
     binary_triggered = bool(binary_perm_files)
 
     if lintian_triggered or rules_triggered or source_triggered or binary_triggered:
@@ -1735,7 +1811,7 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
         elif lintian_triggered:
             source = render_check_message(check, "source_lintian")
         elif source_triggered:
-            sample = (source_hits + source_perm_files)[:3]
+            sample = (active_usage_hits + source_perm_files)[:3]
             source = render_check_message(check, "source_tree", hits="; ".join(sample))
         else:
             source = render_check_message(check, "source_rules")
@@ -1764,6 +1840,27 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
             "fetch-build:setuid_setgid_binaries",
             "lintian:lintian_warnings",
         ]
+        return finding
+
+    if soft_hits:
+        # Vendored references and FFI declarations are not owned usage of this
+        # package: never a Problem, but never silently OK either - the reviewer
+        # confirms they are unused (user decision from the rust-ntpd run).
+        detail = _summarize_setuid_soft_hits(
+            vendored_hits, declaration_hits, lintian.get("status") == "ok"
+        )
+        finding.mark_unknown(
+            message=render_check_message(check, "not_owned_message", details=detail),
+            todo=render_check_message(check, "not_owned_todo"),
+            severity="recommended",
+        )
+        finding.evidence_refs = [
+            "packaging-source:setuid_setgid_source_hits",
+            "packaging-source:vendor_dir_names",
+            "fetch-build:setuid_setgid_binaries",
+        ]
+        if lintian.get("status") == "ok":
+            finding.evidence_refs.append("lintian:lintian_warnings")
         return finding
 
     if commented_hits:
