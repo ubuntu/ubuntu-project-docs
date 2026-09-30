@@ -516,7 +516,7 @@ def stage_collect_evidence(ctx: RunContext) -> int:
 
     Collectors run in-guest via lxd_runner.exec():
     - fetch-build: download the official Launchpad build -> build logs + lintian output
-    - packaging source fetch via git-ubuntu
+    - packaging source fetch via apt-get source
     - runtime dependency extraction
     - component-mismatches tooling
     - Launchpad API queries (build state, upload history, bug search)

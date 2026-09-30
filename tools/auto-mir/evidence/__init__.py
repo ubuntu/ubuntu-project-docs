@@ -24,7 +24,7 @@ from evidence.guest_adapters import (
     collect_dep_analysis,
     collect_dup_search,
     collect_fetch_build,
-    collect_git_ubuntu_delta,
+    collect_debian_delta,
     collect_lintian,
     collect_packaging_source,
     collect_reverse_deps,
@@ -79,7 +79,7 @@ ADAPTER_REGISTRY: dict[str, Callable[[Any], dict[str, Any]]] = {
     "packaging-source": collect_packaging_source,
     "dup-search": collect_dup_search,
     "dep-analysis": collect_dep_analysis,
-    "git-ubuntu-delta": collect_git_ubuntu_delta,
+    "debian-delta": collect_debian_delta,
     "reverse-deps": collect_reverse_deps,
     "component-mismatches": collect_component_mismatches,
     "fetch-build": collect_fetch_build,
@@ -123,10 +123,9 @@ def collect_from_catalog(ctx: "RunContext") -> int:
         for adapter_id in check.get("adapters_optional", []):
             optional.add(adapter_id)
 
-    # Optional adapters are collected best-effort: they enrich checks (e.g.
-    # git-ubuntu-delta for PRF-1) but their failure must not fail the run or be
-    # reported as a hard adapter failure. Anything that is also required stays
-    # required.
+    # Optional adapters are collected best-effort: they enrich checks but
+    # their failure must not fail the run or be reported as a hard adapter
+    # failure. Anything that is also required stays required.
     optional -= required
     adapter_deps = _catalog_adapter_dependencies(ctx.catalog)
     required = _expand_adapter_dependencies(required, adapter_deps)

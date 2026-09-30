@@ -3547,7 +3547,7 @@ def test_evaluate_checks_maps_failed_adapters_to_low_confidence_findings(monkeyp
                     "mode": "tlow",
                     "section": "Rationale",
                     "adapters_required": ["dep-analysis", "packaging-source"],
-                    "adapters_optional": ["git-ubuntu-delta"],
+                    "adapters_optional": ["debian-delta"],
                 }
             ]
         },
@@ -3555,7 +3555,7 @@ def test_evaluate_checks_maps_failed_adapters_to_low_confidence_findings(monkeyp
             "adapters": {
                 "dep-analysis": {"status": "error"},
                 "packaging-source": {"status": "ok"},
-                "git-ubuntu-delta": {"status": "pending"},
+                "debian-delta": {"status": "pending"},
             }
         },
         findings=[],
@@ -3563,7 +3563,7 @@ def test_evaluate_checks_maps_failed_adapters_to_low_confidence_findings(monkeyp
 
     findings = checks.evaluate_checks(ctx)
     assert len(findings) == 1
-    assert findings[0].adapter_error_cause == ["dep-analysis", "git-ubuntu-delta"]
+    assert findings[0].adapter_error_cause == ["debian-delta", "dep-analysis"]
 
 
 def test_evaluate_single_check_unknown_mode_has_normalized_todo_prefix():
