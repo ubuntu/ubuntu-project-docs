@@ -1134,7 +1134,7 @@ def _check_prf_11(ctx: RunContext, finding: Finding) -> Finding:
     """PRF-11: debian/control Maintainer field correctness.
 
     Uses packaging-source.delta_kind (cheap version-string classification,
-    no git-ubuntu diffstat needed) plus source_maintainer. Ok whenever there
+    no delta diff needed) plus source_maintainer. Ok whenever there
     is no Ubuntu delta, or a delta is present and Maintainer was already
     updated via update-maintainer. Flags the remaining case - a delta
     present without that update - for the reviewer to judge directly.

@@ -2494,7 +2494,7 @@ def test_collect_ubuntu_upload_permission_requires_source_package():
 
 
 # ---------------------------------------------------------------------------
-# git-ubuntu delta classification
+# Ubuntu delta classification
 # ---------------------------------------------------------------------------
 
 
@@ -2509,36 +2509,54 @@ def test_classify_ubuntu_delta_kinds():
 
 
 # ---------------------------------------------------------------------------
-# git-ubuntu delta categorisation (tests-only detection)
+# Ubuntu delta categorisation (tests-only detection)
 # ---------------------------------------------------------------------------
 
 
 def test_classify_delta_category_tests_only():
     from evidence.guest_adapters import _classify_delta_category
 
-    diffstat = (
-        " debian/tests/control | 5 +++++\n"
-        " debian/tests/smoke   | 20 ++++++++++++++++++++\n"
-        " 2 files changed, 25 insertions(+)"
-    )
-    assert _classify_delta_category(diffstat) == "tests-only"
+    # debian/changelog is carried by every Ubuntu delta and never counts
+    # against the tests-only classification.
+    assert _classify_delta_category(
+        ["debian/changelog", "debian/tests/control", "debian/tests/smoke"]
+    ) == "tests-only"
 
 
 def test_classify_delta_category_general():
     from evidence.guest_adapters import _classify_delta_category
 
-    diffstat = (
-        " src/foo.c        | 30 ++++++++++++++++++------\n"
-        " debian/tests/x   | 4 ++++\n"
-        " 2 files changed, 34 insertions(+)"
-    )
-    assert _classify_delta_category(diffstat) == "general"
+    assert _classify_delta_category(
+        ["debian/changelog", "src/foo.c", "debian/tests/x"]
+    ) == "general"
 
 
 def test_classify_delta_category_empty_is_general():
     from evidence.guest_adapters import _classify_delta_category
 
-    assert _classify_delta_category("") == "general"
+    assert _classify_delta_category([]) == "general"
+
+
+def test_derive_debian_base_version():
+    from evidence.guest_adapters import derive_debian_base_version
+
+    assert derive_debian_base_version("1.9.0-0ubuntu2") == "1.9.0-0"
+    # security update counters attach to the Ubuntu revision
+    assert derive_debian_base_version("1.9.0-0ubuntu2.1") == "1.9.0-0"
+    # epochs survive
+    assert derive_debian_base_version("1:1.2-3ubuntu2") == "1:1.2-3"
+    # a bumped Debian revision before the Ubuntu one
+    assert derive_debian_base_version("1.2-3.1ubuntu4") == "1.2-3.1"
+    # the LAST ubuntuN occurrence is the revision marker
+    assert derive_debian_base_version("1.0ubuntu1ubuntu2") == "1.0ubuntu1"
+    # a Debian-native base version (no dash) also derives correctly
+    assert derive_debian_base_version("0.1ubuntu1") == "0.1"
+    # a base that never existed in Debian still derives arithmetically; the
+    # fetch-failure degradation path (not this function) reports it
+    assert derive_debian_base_version("1.0ubuntu1") == "1.0"
+    # non-Ubuntu versions never get here, but stay safe
+    assert derive_debian_base_version("1.0-1") == ""
+    assert derive_debian_base_version("") == ""
 
 
 # ---------------------------------------------------------------------------
@@ -2712,12 +2730,12 @@ def test_collect_from_catalog_collects_optional_adapters():
             {
                 "id": "PRF-1",
                 "adapters_required": ["packaging-source"],
-                "adapters_optional": ["git-ubuntu-delta"],
+                "adapters_optional": ["debian-delta"],
             },
         ],
         "evidence_adapters": [
             {"id": "packaging-source", "depends_on": []},
-            {"id": "git-ubuntu-delta", "depends_on": ["packaging-source"]},
+            {"id": "debian-delta", "depends_on": ["packaging-source"]},
         ],
     }
     ctx.evidence = {}
@@ -2730,14 +2748,14 @@ def test_collect_from_catalog_collects_optional_adapters():
         "evidence.ADAPTER_REGISTRY",
         {
             "packaging-source": m_pack,
-            "git-ubuntu-delta": m_delta,
+            "debian-delta": m_delta,
         },
         clear=True,
     ):
         collect_from_catalog(ctx)
 
     assert m_delta.called
-    assert ctx.evidence["adapters"]["git-ubuntu-delta"]["status"] == "ok"
+    assert ctx.evidence["adapters"]["debian-delta"]["status"] == "ok"
 
 
 def test_collect_from_catalog_optional_failure_does_not_fail_run():
@@ -2751,25 +2769,25 @@ def test_collect_from_catalog_optional_failure_does_not_fail_run():
             {
                 "id": "PRF-1",
                 "adapters_required": ["packaging-source"],
-                "adapters_optional": ["git-ubuntu-delta"],
+                "adapters_optional": ["debian-delta"],
             },
         ],
         "evidence_adapters": [
             {"id": "packaging-source", "depends_on": []},
-            {"id": "git-ubuntu-delta", "depends_on": ["packaging-source"]},
+            {"id": "debian-delta", "depends_on": ["packaging-source"]},
         ],
     }
     ctx.evidence = {}
     ctx.collect_only = False
 
     m_pack = Mock(return_value={"status": "ok", "source_dir": "/tmp/x"})
-    m_delta = Mock(side_effect=AdapterError("git-ubuntu unavailable"))
+    m_delta = Mock(side_effect=AdapterError("debian-delta unavailable"))
 
     with patch.dict(
         "evidence.ADAPTER_REGISTRY",
         {
             "packaging-source": m_pack,
-            "git-ubuntu-delta": m_delta,
+            "debian-delta": m_delta,
         },
         clear=True,
     ):
@@ -2777,7 +2795,7 @@ def test_collect_from_catalog_optional_failure_does_not_fail_run():
 
     # Optional adapter failure must not flip the overall return status.
     assert rc == 0
-    assert ctx.evidence["adapters"]["git-ubuntu-delta"]["status"] == "error"
+    assert ctx.evidence["adapters"]["debian-delta"]["status"] == "error"
 
 
 # ---------------------------------------------------------------------------
@@ -3303,89 +3321,212 @@ def test_autopkgtest_db_download_failure_is_cached_for_sibling_adapters():
     assert ctx._autopkgtest_db_error is None
 
 
-def test_git_ubuntu_delta_uses_pkg_refs_and_import_tags():
-    """User-test regression: the old script referenced remotes/origin/... which
-    never exist in a git-ubuntu clone (the remote is pkg), so the base never
-    resolved and every delta run produced an empty diffstat. The rewrite uses
-    pkg/ refs and finds the newest Debian-only import tag walking back from the
-    Ubuntu tip (user's rust-sequoia-sq example: base = pkg/import/1.3.1-10).
-    """
+def test_debian_delta_debdiffs_published_sources():
+    """The debdiff path: base derived from the version string, Debian base
+    fetched with pull-debian-source, debdiffed against the Ubuntu .dsc
+    already in the packaging-source workdir (rust-ntpd regression: the old
+    git-ubuntu import-tag walk silently produced an empty diffstat)."""
     import evidence.guest_adapters as ga
 
     ctx = Mock()
     ctx.guest_name = "guest"
-    ctx.source_package = "rust-sequoia-sq"
-    ctx.evidence = {"adapters": {"packaging-source": {"status": "ok", "source_dir": "/tmp/src"}}}
+    ctx.source_package = "rust-ntpd"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "source_dir": "/tmp/src",
+                "source_workdir": "/tmp/work",
+            }
+        }
+    }
 
-    exec_calls: list[list[str]] = []
+    exec_calls: list[str] = []
 
     def fake_exec(name, cmd, **_kw):
-        exec_calls.append(cmd)
         joined = " ".join(str(part) for part in cmd)
+        exec_calls.append(joined)
         if "dpkg-parsechangelog" in joined:
-            return SimpleNamespace(stdout="1.3.1-10ubuntu2\n", returncode=0)
-        if "command -v git-ubuntu" in joined:
-            return SimpleNamespace(stdout="/usr/bin/git-ubuntu\n", returncode=0)
+            return SimpleNamespace(stdout="1.9.0-0ubuntu2\n", returncode=0)
+        if "command -v pull-debian-source" in joined:
+            return SimpleNamespace(stdout="", returncode=0)
+        if "pull-debian-source" in joined:
+            return SimpleNamespace(
+                stdout=(
+                    "__AUTO_MIR_PATHS__\n"
+                    "+++ rust-ntpd-1.9.0/debian/control\t2026-09-01\n"
+                    "+++ rust-ntpd-1.9.0/debian/tests/control\t2026-09-01\n"
+                    "+++ rust-ntpd-1.9.0/debian/changelog\t2026-09-01\n"
+                    "__AUTO_MIR_CHANGELOG_EXCERPT__\n"
+                    "rust-ntpd (1.9.0-0ubuntu2) stonking; urgency=medium\n"
+                ),
+                returncode=0,
+            )
         return SimpleNamespace(stdout="", returncode=0)
 
     with patch.object(ga.lxd_runner, "exec_in", side_effect=fake_exec):
-        result = ga.collect_git_ubuntu_delta(ctx)
+        result = ga.collect_debian_delta(ctx)
 
-    script = exec_calls[-1][2]
-    # the remote is pkg, never remotes/origin
-    assert "remotes/origin" not in script
-    assert "pkg/ubuntu/devel" in script
-    # the changelog is part of the diff - it carries the delta's explanation
-    assert "(exclude)debian/changelog" not in script
-    assert "pkg/import/" in script
+    script = exec_calls[-1]
+    # the Debian base is derived from the version string, not a repo walk
+    assert "pull-debian-source --download-only" in script
+    assert "1.9.0-0" in script
+    assert "debdiff" in script
     assert result["status"] == "ok"
     assert result["delta_kind"] == "ubuntu_delta"
     assert result["delta_present"] is True
+    assert result["debian_base_version"] == "1.9.0-0"
+    # paths parsed relative to their package root, changelog kept as excerpt
+    assert sorted(result["diffstat"].splitlines()[1:]) == [
+        "debian/changelog",
+        "debian/control",
+        "debian/tests/control",
+    ]
+    assert "urgency=medium" in result["changelog_excerpt"]
+    # changelog never counts against the tests-only classification
+    assert result["delta_category"] == "general"
+    assert result["delta_summary"].startswith("Ubuntu carries a delta")
 
 
-def test_git_ubuntu_delta_script_finds_debian_import_tag_over_ubuntu_tags():
-    """The tag walk from the user's exact example: 1.3.1-10ubuntu2 (tip) ->
-    1.3.1-10ubuntu1 -> 1.3.1-10 is the Debian base. Smoke-tested against a real
-    synthetic git repo (tag layout: pkg/import/* and pkg/ubuntu/*)."""
-    import subprocess
+def test_debian_delta_tests_only_category():
+    """A delta that only touches debian/tests (plus the changelog every delta
+    carries) classifies as tests-only."""
+    import evidence.guest_adapters as ga
 
-    script = Path("/tmp/opencode/delta_script.sh")
-    if not script.exists():
-        pytest.skip("synthetic repo setup helper missing")
-    repo = Path("/tmp/opencode/delta-repo")
-    if not (repo / ".git").exists():
-        pytest.skip("synthetic repo missing")
+    ctx = Mock()
+    ctx.guest_name = "guest"
+    ctx.source_package = "pkg"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "source_dir": "/tmp/src",
+                "source_workdir": "/tmp/work",
+            }
+        }
+    }
 
-    out = subprocess.run(
-        ["bash", str(script)],
-        capture_output=True,
-        text=True,
-        env={**__import__("os").environ, "TEST_REPO": str(repo)},
-        check=False,
-    )
-    assert "debian/changelog" in out.stdout
-    assert "debian/README.source" in out.stdout
-    assert "__AUTO_MIR_CHANGELOG_EXCERPT__" in out.stdout
-    assert "unstable; urgency=medium" in out.stdout
+    def fake_exec(name, cmd, **_kw):
+        joined = " ".join(str(part) for part in cmd)
+        if "dpkg-parsechangelog" in joined:
+            return SimpleNamespace(stdout="2.0-1ubuntu3\n", returncode=0)
+        if "command -v pull-debian-source" in joined:
+            return SimpleNamespace(stdout="", returncode=0)
+        if "pull-debian-source" in joined:
+            return SimpleNamespace(
+                stdout=(
+                    "__AUTO_MIR_PATHS__\n"
+                    "+++ pkg-2.0/debian/changelog\t2026-09-01\n"
+                    "+++ pkg-2.0/debian/tests/control\t2026-09-01\n"
+                    "__AUTO_MIR_CHANGELOG_EXCERPT__\n"
+                ),
+                returncode=0,
+            )
+        return SimpleNamespace(stdout="", returncode=0)
+
+    with patch.object(ga.lxd_runner, "exec_in", side_effect=fake_exec):
+        result = ga.collect_debian_delta(ctx)
+
+    assert result["delta_category"] == "tests-only"
 
 
-def test_git_ubuntu_delta_sync_skips_git_ubuntu():
-    """A pure sync (no ubuntu revision) never clones."""
+def test_debian_delta_unfetchable_base_degrades_explicitly():
+    """A base version that cannot be fetched from the Debian mirror is an
+    explicit, distinguished reviewer note - never a silent empty diffstat
+    (the old failure mode) and never a tool error."""
+    import evidence.guest_adapters as ga
+
+    ctx = Mock()
+    ctx.guest_name = "guest"
+    ctx.source_package = "pkg"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "source_dir": "/tmp/src",
+                "source_workdir": "/tmp/work",
+            }
+        }
+    }
+
+    def fake_exec(name, cmd, **_kw):
+        joined = " ".join(str(part) for part in cmd)
+        if "dpkg-parsechangelog" in joined:
+            return SimpleNamespace(stdout="2.0-1ubuntu3\n", returncode=0)
+        if "command -v pull-debian-source" in joined:
+            return SimpleNamespace(stdout="", returncode=0)
+        # the fetch (and thus the whole && chain) fails
+        if "pull-debian-source --download-only" in joined:
+            return SimpleNamespace(stdout="", returncode=1)
+        return SimpleNamespace(stdout="", returncode=0)
+
+    with patch.object(ga.lxd_runner, "exec_in", side_effect=fake_exec):
+        result = ga.collect_debian_delta(ctx)
+
+    assert result["status"] == "ok"
+    assert result["delta_present"] is True
+    assert result["diffstat"] == ""
+    assert "could not be fetched" in result["delta_summary"]
+    assert "reviewer should inspect the delta manually" in result["delta_summary"]
+    assert result["delta_category"] == "unknown"
+
+
+def test_debian_delta_missing_tools_is_a_hard_error():
+    """Missing guest tools (provisioning defect) raise AdapterError instead of
+    degrading - the adapter is required for PRF-1."""
+    import evidence.guest_adapters as ga
+
+    ctx = Mock()
+    ctx.guest_name = "guest"
+    ctx.source_package = "pkg"
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "source_dir": "/tmp/src",
+                "source_workdir": "/tmp/work",
+            }
+        }
+    }
+
+    def fake_exec(name, cmd, **_kw):
+        joined = " ".join(str(part) for part in cmd)
+        if "dpkg-parsechangelog" in joined:
+            return SimpleNamespace(stdout="2.0-1ubuntu3\n", returncode=0)
+        return SimpleNamespace(stdout="", returncode=1)
+
+    with (
+        patch.object(ga.lxd_runner, "exec_in", side_effect=fake_exec),
+        pytest.raises(AdapterError),
+    ):
+        ga.collect_debian_delta(ctx)
+
+
+def test_debian_delta_sync_never_fetches():
+    """A pure sync (no ubuntu revision) never fetches from Debian."""
     import evidence.guest_adapters as ga
 
     ctx = Mock()
     ctx.guest_name = "guest"
     ctx.source_package = "libfoo"
-    ctx.evidence = {"adapters": {"packaging-source": {"status": "ok", "source_dir": "/tmp/src"}}}
+    ctx.evidence = {
+        "adapters": {
+            "packaging-source": {
+                "status": "ok",
+                "source_dir": "/tmp/src",
+                "source_workdir": "/tmp/work",
+            }
+        }
+    }
 
     def fake_exec(name, cmd, **_kw):
         joined = " ".join(str(part) for part in cmd)
         if "dpkg-parsechangelog" in joined:
             return SimpleNamespace(stdout="1.0-1\n", returncode=0)
-        raise AssertionError("sync must never touch git-ubuntu")
+        raise AssertionError("sync must never fetch from Debian")
 
     with patch.object(ga.lxd_runner, "exec_in", side_effect=fake_exec):
-        result = ga.collect_git_ubuntu_delta(ctx)
+        result = ga.collect_debian_delta(ctx)
 
     assert result["delta_kind"] == "sync"
     assert result["delta_present"] is False
@@ -3474,7 +3615,7 @@ def test_prf1_fallback_fact_states_delta_presence():
         {
             "packaging-source": {"status": "ok", "delta_kind": "ubuntu_delta",
                                  "analyzed_version": "1.9.0-0ubuntu2"},
-            "git-ubuntu-delta": {
+            "debian-delta": {
                 "status": "ok",
                 "version": "1.9.0-0ubuntu2",
                 "delta_kind": "ubuntu_delta",

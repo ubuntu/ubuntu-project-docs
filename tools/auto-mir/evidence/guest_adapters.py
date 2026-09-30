@@ -698,8 +698,8 @@ def collect_packaging_source(ctx: RunContext) -> dict:
         "version_resolution_note": version_resolution_note,
         # Cheap classification of the source version string alone (sync/native/
         # ubuntu_delta/unknown) via classify_ubuntu_delta() below - this does NOT
-        # run git-ubuntu or compute a diffstat (that heavier work stays specific
-        # to the git-ubuntu-delta adapter used by the reviewer's PRF-1). Checks
+        # fetch the Debian base or compute a diff (that heavier work stays
+        # specific to the debian-delta adapter used by the reviewer's PRF-1). Checks
         # that only need to know WHETHER Ubuntu carries a delta (not a diffstat
         # of what it contains) can depend on packaging-source alone.
         "delta_kind": classify_ubuntu_delta(analyzed_version),
@@ -1287,6 +1287,25 @@ def _dep_belongs_to_in_scope(dep: str, runtime_deps: list[dict], in_scope: set[s
 # ---------------------------------------------------------------------------
 
 
+def derive_debian_base_version(version: str) -> str:
+    """Derive the Debian base version from an Ubuntu source version string.
+
+    An Ubuntu revision is the Debian version with ``ubuntuN`` (optionally with
+    a trailing security-update counter) appended to the Debian revision, e.g.
+    ``1.2-3ubuntu2`` builds on Debian ``1.2-3``, ``1.2-3ubuntu2.1`` on the same
+    base, ``1:1.2-3ubuntu2`` keeps its epoch ``1:1.2-3``. The *last*
+    ``ubuntuN`` occurrence is the revision marker (an upstream name can also
+    contain the substring, followed by a digit, before the real revision).
+
+    Returns the Debian base version string, or "" when the version carries no
+    Debian revision to diff against (Ubuntu-only packages like ``0.1ubuntu1``).
+    """
+    matches = list(re.finditer(r"ubuntu[0-9]", version or "", re.IGNORECASE))
+    if not matches:
+        return ""
+    return version[: matches[-1].start()]
+
+
 def classify_ubuntu_delta(version: str) -> str:
     """Classify the Ubuntu delta kind from a source version string.
 
@@ -1306,46 +1325,51 @@ def classify_ubuntu_delta(version: str) -> str:
     return "sync"
 
 
-def _classify_delta_category(diffstat: str) -> str:
-    """Categorise an Ubuntu delta from its ``git diff --stat`` output.
+def _classify_delta_category(changed_paths: list[str]) -> str:
+    """Categorise an Ubuntu delta from its changed-file paths.
 
     Returns:
-      "tests-only" — every changed file lives under debian/tests (adding or
-                     changing tests is always considered acceptable delta);
-      "general"    — any other (or unparseable) delta, left for the reviewer.
-
-    Note: debian/changelog is excluded from the diff upstream, so a tests-only
-    delta shows only debian/tests paths here.
+      "tests-only" — every changed file (except debian/changelog, which every
+                     Ubuntu delta carries) lives under debian/tests; adding
+                     or changing tests is always considered acceptable delta;
+      "general"    — any other (or empty) delta, left for the reviewer.
     """
-    paths: list[str] = []
-    for line in diffstat.splitlines():
-        # git diff --stat body lines look like: " debian/tests/control | 5 +++"
-        if "|" not in line:
-            continue
-        path = line.split("|", 1)[0].strip()
-        if not path or path.endswith("changed") or "files changed" in path:
-            continue
-        paths.append(path)
-    if not paths:
+    significant = [p for p in changed_paths if not p.startswith("debian/changelog")]
+    if not significant:
         return "general"
-    if all(p.startswith("debian/tests") for p in paths):
+    if all(p.startswith("debian/tests") for p in significant):
         return "tests-only"
     return "general"
 
 
-def collect_git_ubuntu_delta(ctx: RunContext) -> dict:
-    """Determine the Ubuntu delta vs Debian, using git-ubuntu only when needed.
+def collect_debian_delta(ctx: RunContext) -> dict:
+    """Determine the Ubuntu delta vs Debian, debdiffing published sources.
 
-    The current source version (from debian/changelog) is classified first.
-    A pure Debian sync (``X-Y``) carries no Ubuntu delta, so git-ubuntu is not
-    run at all (it is expensive). When the version carries an Ubuntu revision
-    (``...ubuntuN``), git-ubuntu is used best-effort to produce a diffstat of
-    the Ubuntu delta against the Debian base it was branched from.
+    The current source version (from debian/changelog) is classified first;
+    detection is pure version-string logic and needs no tools. A pure Debian
+    sync (X-Y) or an Ubuntu-only package carries nothing to fetch. For
+    ...ubuntuN versions the Debian base version is derived from the
+    version string (e.g. 1.2-3ubuntu2 -> 1.2-3, epoch preserved),
+    pulled from the Debian archive with pull-debian-source, and debdiffed
+    against the Ubuntu .dsc that packaging-source already fetched into its
+    workdir. This replaces the previous git-ubuntu approach, whose import-tag
+    walking silently produced an empty diffstat in user-test runs; the
+    version arithmetic here is deterministic and unit-tested.
+
+    Failure classes (deliberately distinct):
+    - guest tools missing (pull-debian-source/debdiff, provisioned with
+      ubuntu-dev-tools/devscripts) is a hard AdapterError - a provisioning
+      defect, not a package property;
+    - a base version that cannot be fetched from the Debian mirror (e.g.
+      superseded there; MIR targets are usually too recent for this) is an
+      acceptable degradation: status ok with an explicit, distinguished
+      summary and no diffstat, pointing the reviewer at a manual look.
     """
     packaging = ctx.evidence.get("adapters", {}).get("packaging-source", {})
     source_dir = packaging.get("source_dir")
-    if not source_dir:
-        raise AdapterError("git-ubuntu-delta adapter requires packaging-source.source_dir")
+    workdir = packaging.get("source_workdir")
+    if not source_dir or not workdir:
+        raise AdapterError("debian-delta adapter requires packaging-source source metadata")
 
     version = _capture(
         ctx,
@@ -1366,6 +1390,7 @@ def collect_git_ubuntu_delta(ctx: RunContext) -> dict:
             "version": version,
             "delta_kind": delta_kind,
             "delta_present": False,
+            "debian_base_version": "",
             "diffstat": "",
             "delta_category": "none",
             "delta_summary": summary,
@@ -1381,76 +1406,136 @@ def collect_git_ubuntu_delta(ctx: RunContext) -> dict:
             "version": version,
             "delta_kind": delta_kind,
             "delta_present": delta_kind == "native",
+            "debian_base_version": "",
             "diffstat": "",
             "delta_category": "ubuntu-only",
             "delta_summary": summary,
         }
 
-    # delta_kind == "ubuntu_delta": compute a best-effort diffstat via
-    # git-ubuntu. A git-ubuntu clone names its remote ``pkg`` (NOT origin) and
-    # lays out refs as pkg/ubuntu/<release>-devel, pkg/ubuntu/devel,
-    # pkg/debian/sid, pkg/import/<version>; referencing remotes/origin/...
-    # never resolves, which is why this produced an empty diffstat in every
-    # user-test run. The base is the newest Debian-only import tag (no
-    # ubuntu.../buildN/willsync/maysync suffix) walking back from the Ubuntu
-    # tip - per the Ubuntu version-string conventions - with the merge-base
-    # of the two branch heads as the fallback. The diff includes
-    # debian/changelog on purpose: it carries the delta's explanation.
-    pkg = ctx.source_package
-    has_tool = _exists(ctx, ["bash", "-lc", "command -v git-ubuntu >/dev/null 2>&1"])
-    diffstat = ""
-    changelog_excerpt = ""
-    if has_tool:
-        clone_dir = f"/tmp/git-ubuntu-{pkg}"
-        script = (
-            f"rm -rf {clone_dir}; "
-            f"git ubuntu clone {pkg} {clone_dir} >/dev/null 2>&1 || exit 0; "
-            f"cd {clone_dir} || exit 0; "
-            "base=''\n"
-            "for commit in $(git rev-list pkg/ubuntu/devel -n 500 2>/dev/null); do\n"
-            '  for tag in $(git tag --points-at "$commit"); do\n'
-            "    v=${tag#pkg/import/}\n"
-            '    case "$v" in *ubuntu*|*build[0-9]*|*willsync*|*maysync*) continue;; esac\n'
-            '    [ "$tag" = "$v" ] && continue\n'
-            "    base=$tag; break 2\n"
-            "  done\n"
-            "done\n"
-            '[ -z "$base" ] && base=$(git merge-base pkg/ubuntu/devel pkg/debian/sid 2>/dev/null)\n'
-            '[ -z "$base" ] && base=$(git merge-base pkg/ubuntu/devel '
-            "pkg/debian/latest 2>/dev/null)\n"
-            '[ -z "$base" ] && exit 0\n'
-            'git diff --stat "$base" pkg/ubuntu/devel 2>/dev/null | tail -n 60\n'
-            'echo "__AUTO_MIR_CHANGELOG_EXCERPT__"\n'
-            'git diff "$base" pkg/ubuntu/devel -- debian/changelog 2>/dev/null | head -n 40\n'
-        )
-        out = _capture(ctx, ["bash", "-lc", script], allow_fail=True, as_ubuntu=True)
-        diffstat, _, changelog_excerpt = out.partition("__AUTO_MIR_CHANGELOG_EXCERPT__")
-        diffstat = diffstat.strip()
-        changelog_excerpt = changelog_excerpt.strip()
-
-    if diffstat:
+    # delta_kind == "ubuntu_delta": derive the Debian base and debdiff the
+    # two published sources. The Ubuntu .dsc already sits in the
+    # packaging-source workdir from its apt-get source fetch.
+    base = derive_debian_base_version(version)
+    if not base:
         summary = (
-            f"Ubuntu carries a delta (version {version}); see diffstat vs its "
-            "most recent Debian import."
+            f"Ubuntu-only version {version!r} (no Debian revision before the "
+            "Ubuntu one). No Debian base to diff against."
+        )
+        return {
+            "status": "ok",
+            "version": version,
+            "delta_kind": delta_kind,
+            "delta_present": True,
+            "debian_base_version": "",
+            "diffstat": "",
+            "delta_category": "ubuntu-only",
+            "delta_summary": summary,
+        }
+
+    tools_probe = (
+        "command -v pull-debian-source >/dev/null 2>&1 && "
+        "command -v debdiff >/dev/null 2>&1"
+    )
+    has_tools = _exists(ctx, ["bash", "-lc", tools_probe])
+    if not has_tools:
+        # Provisioning defect: _REQUIRED_PACKAGES installs ubuntu-dev-tools
+        # (pull-debian-source) and devscripts (debdiff) for every guest.
+        raise AdapterError(
+            "debian-delta adapter requires pull-debian-source (ubuntu-dev-tools) "
+            "and debdiff (devscripts) in the guest"
+        )
+
+    pkg = ctx.source_package
+    destdir = f"/tmp/debian-delta-{pkg}"
+    # The command substitutions are deliberately split across Python string
+    # literals so no shell ever evaluates them before the guest does.
+    script = (
+        f"cd {workdir} && "
+        'ubuntu_dsc=$(ls ' + pkg + '_*.dsc 2>/dev/null | head -n1) '
+        '&& [ -n "$ubuntu_dsc" ] && '
+        f"rm -rf {destdir} && mkdir -p {destdir} && "
+        f"pull-debian-source --download-only --destdir {destdir} {pkg} {base} "
+        ">/dev/null 2>&1 && "
+        f'debian_dsc=$(ls {destdir}/*.dsc 2>/dev/null | head -n1) '
+        '&& [ -n "$debian_dsc" ] && '
+        'debdiff "$debian_dsc" "$ubuntu_dsc" > /tmp/debdiff.out 2>/dev/null && '
+        "echo __AUTO_MIR_PATHS__ && "
+        r"grep -E '^\+\+\+ ' /tmp/debdiff.out"
+        r" | sed -e 's/^+++ //' -e 's/\t.*//' | sort -u && "
+        "echo __AUTO_MIR_CHANGELOG_EXCERPT__ && "
+        r"awk '/^diff .*debian\/changelog/{flag=1} flag{print; n++} n>40{exit}' "
+        "/tmp/debdiff.out"
+    )
+    out = _capture(ctx, ["bash", "-lc", script], allow_fail=True, as_ubuntu=True)
+
+    _before, marker, paths_and_changelog = out.partition("__AUTO_MIR_PATHS__")
+    if not marker:
+        paths_and_changelog = ""
+    changed_paths: list[str] = []
+    changelog_excerpt = ""
+    if "__AUTO_MIR_CHANGELOG_EXCERPT__" in paths_and_changelog:
+        paths_raw, _, changelog_raw = paths_and_changelog.partition(
+            "__AUTO_MIR_CHANGELOG_EXCERPT__"
         )
     else:
-        summary = (
-            f"Ubuntu carries a delta (version {version}), but an automated "
-            "git-ubuntu diffstat could not be produced; reviewer should inspect "
-            "the delta with git-ubuntu."
-        )
+        paths_raw, changelog_raw = paths_and_changelog, ""
+    for line in paths_raw.splitlines():
+        # debdiff prints '+++ <pkg>-<version>/path<tab>timestamp'; paths are
+        # relative to the unpacked source dir, so drop that first component.
+        stripped = line.strip()
+        if not stripped.startswith("+++"):
+            continue
+        path = stripped[3:].strip().split("\t", 1)[0].strip()
+        if not path or path == "/dev/null":
+            continue
+        if "/" in path:
+            path = path.split("/", 1)[1]
+        changed_paths.append(path)
+    changed_paths = sorted(set(changed_paths))
+    changelog_excerpt = changelog_raw.strip()
 
+    if not changed_paths and not changelog_excerpt:
+        # The fetch/debdiff failed: per the accepted scope, a base version no
+        # longer on the Debian mirror is an explicit, distinguished outcome -
+        # not a silent empty diffstat and not a tool failure.
+        summary = (
+            f"Ubuntu carries a delta (version {version}, Debian base {base}), but "
+            "the Debian base could not be fetched from the Debian mirror (it "
+            "may have been superseded there), so no automated debdiff could be "
+            "produced; the reviewer should inspect the delta manually (e.g. via "
+            "debdiff against snapshot.debian.org)."
+        )
+        return {
+            "status": "ok",
+            "version": version,
+            "delta_kind": delta_kind,
+            "delta_present": True,
+            "debian_base_version": base,
+            "diffstat": "",
+            "changelog_excerpt": "",
+            "delta_category": "unknown",
+            "delta_summary": summary,
+        }
+
+    diffstat = f"{len(changed_paths)} file(s) changed:\n" + "\n".join(
+        changed_paths[:60]
+    )
+    summary = (
+        f"Ubuntu carries a delta (version {version} vs Debian base {base}): "
+        f"{len(changed_paths)} changed file(s); see the debdiff path summary "
+        "and changelog excerpt."
+    )
     return {
         "status": "ok",
         "version": version,
         "delta_kind": delta_kind,
         "delta_present": True,
+        "debian_base_version": base,
         "diffstat": diffstat,
         "changelog_excerpt": changelog_excerpt,
-        "delta_category": _classify_delta_category(diffstat),
+        "delta_category": _classify_delta_category(changed_paths),
         "delta_summary": summary,
     }
-
 
 # ---------------------------------------------------------------------------
 # Reverse dependencies adapter

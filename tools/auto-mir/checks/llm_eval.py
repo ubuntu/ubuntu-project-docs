@@ -1037,7 +1037,7 @@ def _fact_deterministic_build_tests(check_id: str, ctx: RunContext) -> str:
 
 def _fact_ubuntu_delta(check_id: str, ctx: RunContext) -> str:
     """PRF-1: whether Ubuntu carries a delta, and its classification."""
-    delta = _adapter(ctx, "git-ubuntu-delta")
+    delta = _adapter(ctx, "debian-delta")
     packaging = _adapter(ctx, "packaging-source")
     kind = delta.get("delta_kind") or packaging.get("delta_kind")
     if not kind:
