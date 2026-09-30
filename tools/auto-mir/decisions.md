@@ -5643,3 +5643,119 @@ golden) and the reviewer golden is unchanged.
 **Validation from `tools/auto-mir`:** `make test` equivalent PASS (1049
 passed, 2 skipped); reporter golden byte-equal to the PR-intent target,
 reviewer golden unchanged.
+
+## 2026-09-30 — rust-ntpd user-test round: LLM availability, vendor-tree recognition, delta via debdiff
+
+Promotion: no
+
+**Context:** the rust-ntpd review run (bug 2166406, archive in
+`rust-ntpd-auto-mir/`) was executed without `OPENAI_API_KEY`. Every LLM call
+returned HTTP 401 and all 33 AI-dependent checks silently degraded to
+`LLM unavailable` TODOs, indistinguishable in the draft from genuine
+can't-decide outcomes. Independently: the Debian cargo `rust-vendor/`
+convention was invisible to language detection, so a vendored crate's Go test
+mock (go.sum/go.mod/ca.go under `rust-vendor/.../tests/verification_mock/`)
+tripped the Go gate — the draft asserted "Go Package" next to "Rust
+Package" and CB-9 burned its LLM call instead of auto-OKing; URF-5 flagged
+105 libc FFI *declarations* inside the vendored tree as a required Problem;
+PRF-1's git-ubuntu delta content never reached the draft (the import-tag
+walk silently failed while still returning `status: ok` with an empty
+diffstat), discarding the already-collected facts that Ubuntu carries a
+1.9.0-0ubuntu2 delta and that debian/rules wire `override_dh_auto_test`
+with `cargo test`.
+
+**Decision (five work packages, each its own commit):**
+
+1. **WP3 — vendor-tree recognition and declared-buildsystem precedence.**
+   Language detection moves to `utils/language_detection.py` (single source
+   shared by evidence and checks; evidence no longer imports from checks).
+   Vendor dir names derive from `debian/rules` (`CARGO_VENDOR_DIR`, plus
+   `rust-vendor` as a standard convention name) and travel in the payload as
+   `vendor_dir_names`. Tree hints exclude vendor trees and
+   test/fixture/doc segments; a declared Go/Rust/Python packaging signal
+   (buildsystem, lockfile, `dh-sequence-*` build-dep) outranks another
+   language's tree hints; the loose "golang mentioned anywhere in rules"
+   signal is dropped (comment-prone). ESL-4/ESL-8 render three outcomes:
+   declared (positive assertion + trigger evidence), tree-hint-only (a
+   note, not an assertion), hint outranked ("not a go/rust package" with the
+   conflict stated). ESL-9 accepts `dh-sequence-cargo` (the same gap CB-8
+   had for `dh-sequence-python3`).
+
+2. **WP1 — LLM availability is a binary mode contract.** Review runs either
+   have a working LLM (default; stage 0 resolves auth and handshakes via
+   `llm.preflight_check()`; any unusable configuration aborts there with
+   guidance pointing at `OPENAI_API_KEY`, `OPENAI_API_BASE`, `--no-llm`,
+   before any work is spent) or are deliberately deterministic via
+   `--no-llm` (now also on the review role: skips auth, every AI check
+   degrades to the standard fallback stating the mode, draft preamble
+   declares the mode). Nothing in between — the user explicitly rejected a
+   mid-way `--allow-degraded-llm`. Mid-run failures after a successful
+   preflight keep the per-check fallback but gain provenance
+   (`Finding.llm_error_cause` → draft NOTE line, `report.json.llm_degraded`,
+   banner warning). LLM-calling adapters (`cve-search-terms`, `dup-search`)
+   record `llm_unavailable` + reason in their payloads. Report role keeps
+   its softer contract but fails fast on a configured-but-broken key.
+
+3. **WP2 — curated deterministic facts in degraded findings.** The
+   LLM-unavailable fallback rationale comes from a per-check fact registry
+   (`_DEGRADED_FACT_BUILDERS`): CB-2 states the rules test wiring and
+   build-log evidence, PRF-1 the delta presence/classification, ESL-1/11
+   the vendored dirs, RDO-1 the dup-search candidates (or why none), SEC-*
+   the dep/service/crypto surfaces, etc. Facts come only from collected
+   evidence; nothing is fabricated. (User chose curated per-check facts
+   over a generic hints dump.) Two hint-extractor accuracy fixes surfaced
+   along the way: make variables are inlined before runner matching
+   (`$(CARGO) test` → `cargo test`) and runners match on word boundaries
+   (substring matching found "go test" inside "cargo test").
+
+4. **WP4 — URF-5 distinguishes owned usage from soft references.** Per the
+   user's decision: hits inside vendored trees and FFI declaration-shaped
+   lines (Rust fn signatures, C prototypes) are "note only, never
+   Problems", but the finding *always* lands in Left to decide for the
+   human, with a grouped, capped rationale (reference/file counts, one
+   example, absent hard signals). Hard signals stay deterministic
+   Problems: permission bits (source + built packages), lintian tags,
+   debian/rules setup, active non-vendored usage. The declaration matcher
+   is deliberately narrow; uncertain lines stay active (conservative).
+
+5. **WP5 — the delta content fetch is debdiff, not git-ubuntu.** After
+   evaluating the alternatives, git-ubuntu's unique strength (import
+   history) is consumed by no later stage — PRF-1 needs only the changed
+   paths, the category, and the changelog excerpt. The adapter
+   (renamed `git-ubuntu-delta` → `debian-delta`, now required for PRF-1)
+   derives the Debian base version from the Ubuntu version string
+   (deterministic, epoch-aware, unit-tested), fetches it with
+   `pull-debian-source --download-only`, and debdiffs against the Ubuntu
+   `.dsc` already in the packaging-source workdir — deleting the fragile
+   pkg/refs import-tag walking that silently failed. Guest tooling:
+   `devscripts` added, `git-ubuntu` dropped (its deb only exists in the
+   newest suite, so older-series guests would have failed provisioning; it
+   is also snap-only upstream). Failure classes distinct per the user's
+   decisions: missing tools are a hard adapter error (provisioning defect —
+   "fail early and clearly" comes from the apt-based `_REQUIRED_PACKAGES`
+   install); a base version no longer fetchable from the Debian mirror
+   degrades to an explicit reviewer-note summary (accepted for now — MIR
+   targets are recent; snapshot.debian.org fallback deliberately deferred).
+
+**Consequences:**
+
+- A review run without a working LLM can no longer produce a normal-looking
+  draft: it aborts at stage 0 with actionable guidance, or declares its
+  deterministic-only mode everywhere.
+- Debian cargo packages (rust-vendor) get correct language classification,
+  populated `vendored_dirs` for ESL-1/11, and CB-9/ESL-5/6/7 auto-OK the
+  Go checks without LLM calls.
+- The draft distinguishes three URF-5 situations (hard problem, soft
+  reference left to decide, clean) instead of flagging vendored FFI
+  declarations as required Problems.
+- PRF-1 states the delta and its classification even when the LLM is down,
+  and the debdiff mechanism is deterministic and unit-testable.
+- Honest residual: `pull-debian-source`/`debdiff` flag knowledge and the
+  debdiff `+++`-line parsing were validated against the tools' documented
+  interfaces, not a live guest run — the final live re-review gate for bug
+  2166406 is the acceptance check for this.
+
+**Validation from `tools/auto-mir`:** `make test` equivalent PASS per
+commit (1049 baseline → 1093 passed, 2 skipped; `make lint`'s ruff was
+unavailable in the analysis container — flagged for the reviewer to run).
+Catalog validation clean for both roles.
