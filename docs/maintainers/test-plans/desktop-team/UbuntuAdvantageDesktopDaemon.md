@@ -20,7 +20,7 @@ check that it matches what '`ua status`' reports
 $ gdbus call --system --dest com.canonical.UbuntuAdvantage --object-path /com/canonical/UbuntuAdvantage/Manager --method com.canonical.UbuntuAdvantage.Manager.Attach "TOKEN"
 ```
 
-where TOKEN is your subscription key which you can find on <https://ubuntu.com/advantage>
+where TOKEN is your subscription key which you can find on <https://ubuntu.com/pro>
 
 **If it's attached you can detach it**
 
