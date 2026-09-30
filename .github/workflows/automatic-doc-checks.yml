@@ -6,14 +6,7 @@ on:
   pull_request:
     paths:
       - 'docs/**'   # Only run on changes to the docs directory
-  workflow_call:
-    outputs:
-      spellcheck-result:
-        description: "Result of the spelling check"
-        value: ${{ jobs.docchecks.outputs.result_spelling }}
-      woke-result:
-        description: "Result of the inclusive language check"
-        value: ${{ jobs.docchecks.outputs.result_woke }}
+  workflow_dispatch:  # Manual trigger
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,9 +16,6 @@ jobs:
   docchecks:
     name: Run documentation checks
     runs-on: 'ubuntu-latest'
-    outputs:
-      result_spelling: ${{ steps.spellcheck-step.outcome }}
-      result_woke: ${{ steps.woke-step.outcome }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
