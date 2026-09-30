@@ -52,7 +52,18 @@ Bootstrap and host preflight (before Stage 0):
 
 Reviewer Stage 1: intake (`stage_intake`)
 - Pull Launchpad bug metadata and reporter MIR content.
-- Resolve source package and series context.
+- Scan the bug text for prompt-injection indicators before any LLM call
+  embeds it, and resolve the reporter MIR content before package selection.
+- Resolve the source package from the bug's Ubuntu package tasks. Bugs can
+  carry several related package tasks, so selection resolves in order:
+  `--source-package` (validated against the tasks), a single distinct open
+  task, one high-confidence small-tier LLM pick over the wrapped bug text,
+  and finally an interactive single-choice prompt of the open tasks. An
+  ambiguous headless run fails closed instead of guessing. Only targets that
+  are Ubuntu source packages count (distribution/project tasks never do),
+  and closed tasks are listed as context, not candidates.
+- Resolve the series from the *selected* package's open tasks, falling back
+  to the development release; `--series` always wins.
 - Run early review-type pre-detection
   (`review_type.pre_detect_review_type`): if bug text or `--review-type`
   indicates a re-review/reorg, the reporter template requirement is skipped
