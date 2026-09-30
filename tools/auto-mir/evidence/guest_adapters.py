@@ -795,7 +795,9 @@ def collect_dup_search(ctx: RunContext) -> dict:
     own_binaries = set(_binary_package_names(debian_control))
     descriptions = _extract_binary_descriptions(debian_control)
 
-    suggestions = _llm_dup_search_suggestions(ctx, ctx.source_package, descriptions)
+    suggestions, llm_unavailable_reason = _llm_dup_search_suggestions(
+        ctx, ctx.source_package, descriptions
+    )
     terms = suggestions["terms"]
     named_candidates = suggestions["named_candidates"]
 
@@ -843,6 +845,11 @@ def collect_dup_search(ctx: RunContext) -> dict:
         "status": "ok",
         "search_terms": terms,
         "candidates": result_candidates,
+        # Why no LLM-derived search terms exist, when the LLM step did not
+        # run: distinguishes "no descriptions to probe" from "LLM
+        # unavailable" for RDO-1's fallback rationale.
+        "llm_unavailable": bool(llm_unavailable_reason),
+        "llm_unavailable_reason": llm_unavailable_reason,
     }
 
 
@@ -953,11 +960,13 @@ def _llm_dup_search_suggestions(
     from utils import llm_sanitize
 
     empty = {"terms": [], "named_candidates": []}
+    # --no-llm never resolves a token, so an empty token covers both the
+    # deliberate mode and an unresolved configuration.
     if not getattr(ctx, "llm_token", ""):
         log.debug("dup-search: LLM not configured; skipping suggestion derivation")
-        return empty
+        return empty, "LLM not configured (--no-llm or no auth resolved)"
     if not descriptions:
-        return empty
+        return empty, ""
 
     nonce = getattr(ctx, "untrusted_nonce", None) or llm_sanitize.make_nonce()
     wrapped = llm_sanitize.wrap_untrusted("package_descriptions", "\n".join(descriptions), nonce)
@@ -983,16 +992,16 @@ def _llm_dup_search_suggestions(
         response = llm.call_llm(prompt, ctx, model_tier="small", trace_label="dup-search")
     except llm.LLMError as exc:
         log.warning("dup-search: suggestion-derivation LLM call failed: %s", exc)
-        return empty
+        return empty, str(exc)
 
     if not isinstance(response, dict):
-        return empty
+        return empty, ""
 
     terms = _dedupe_suggestions(response.get("terms"), pkg, _DUP_SEARCH_MAX_TERMS)
     named_candidates = _dedupe_suggestions(
         response.get("named_candidates"), pkg, _DUP_SEARCH_MAX_NAMED_CANDIDATES
     )
-    return {"terms": terms, "named_candidates": named_candidates}
+    return {"terms": terms, "named_candidates": named_candidates}, ""
 
 
 def _dedupe_suggestions(raw_items: object, pkg: str, max_items: int) -> list[str]:

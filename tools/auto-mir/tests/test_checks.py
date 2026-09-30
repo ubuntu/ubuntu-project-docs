@@ -902,6 +902,58 @@ def test_eval_ev_to_ai_graceful_on_large_tier_llm_error():
     assert result.confidence == "low"
 
 
+def test_eval_ev_to_ai_no_llm_skips_the_call_entirely():
+    """--no-llm must not attempt any LLM call; every AI check degrades to the
+    standard fallback stating the deliberate deterministic-only mode."""
+    ctx = _Ctx()
+    ctx.no_llm = True
+    check = {
+        "id": "SEC-1",
+        "title": "Security synthesis",
+        "section": "Security",
+        "todo_refs": ["TODO: - Manual security review"],
+        "adapters_required": [],
+        "adapters_optional": [],
+        "messages": {"llm_unavailable_message": "LLM unavailable: {error}"},
+    }
+    finding = _make_finding("SEC-1", mode="ev_to_ai")
+
+    def _must_not_call(*_args, **_kwargs):
+        raise AssertionError("no LLM call may be attempted under --no-llm")
+
+    with mock.patch("llm.call_llm", side_effect=_must_not_call):
+        result = checks.llm_eval._eval_ev_to_ai(check, ctx, finding)
+
+    assert result.status == "unknown"
+    assert "--no-llm" in result.message
+    # Deliberate mode degradation is stated in the message; it is not a
+    # mid-run failure, so it carries no llm_error_cause provenance.
+    assert result.llm_error_cause == ""
+
+
+def test_eval_ev_to_ai_llm_error_sets_provenance():
+    """A mid-run LLM failure records its cause on the finding so the renderer
+    can mark the TODO as LLM-degraded (not a plain 'can't decide')."""
+    ctx = _Ctx()
+    check = {
+        "id": "SEC-1",
+        "title": "Security synthesis",
+        "section": "Security",
+        "todo_refs": ["TODO: - Manual security review"],
+        "adapters_required": [],
+        "adapters_optional": [],
+        "messages": {"llm_unavailable_message": "LLM unavailable: {error}"},
+    }
+    finding = _make_finding("SEC-1", mode="ev_to_ai")
+
+    with mock.patch("checks.llm_eval._select_ev_to_ai_model_tier", return_value="small"):
+        with mock.patch("llm.call_llm", side_effect=llm.LLMError("HTTP 429")):
+            result = checks.llm_eval._eval_ev_to_ai(check, ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.llm_error_cause == "HTTP 429"
+
+
 def test_eval_ev_to_ai_performs_followup_when_model_requests_more_evidence():
     ctx = _Ctx()
     ctx.evidence["adapters"]["fetch-build"] = {

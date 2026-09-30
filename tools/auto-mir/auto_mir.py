@@ -280,6 +280,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     review.add_argument("bug_id", help="Launchpad MIR bug ID")
     review.add_argument(
+        "--no-llm",
+        action="store_true",
+        help=(
+            "Disable the LLM and run a deterministic-only evaluation (AI checks "
+            "degrade to manual-review TODOs with their deterministic facts). "
+            "Without this flag the LLM must initialize successfully: a broken "
+            "configuration aborts the run."
+        ),
+    )
+    review.add_argument(
         "--review-type",
         dest="review_type",
         choices=["auto", "fresh", "rereview", "reorg"],
@@ -606,7 +616,9 @@ def _resolve_llm_auth(ctx: RunContext) -> None:
             "No OPENAI_API_KEY found; proceeding with a placeholder credential.\n"
             "Set OPENAI_API_KEY to an OpenRouter API key for hosted use. For a "
             "local/unauthenticated OpenAI-compatible endpoint, set OPENAI_API_BASE "
-            "and this warning can be ignored."
+            "and this warning can be ignored. Review runs abort at the preflight "
+            "unless the endpoint actually accepts it; --no-llm disables AI "
+            "evaluation entirely."
         )
     else:
         ensure_secret_redactor(ctx, log).register(token)
@@ -625,16 +637,62 @@ def _resolve_llm_auth(ctx: RunContext) -> None:
 
 
 def stage_auth(ctx: RunContext) -> None:
-    """Stage 0: Resolve OpenAI-compatible endpoint URL and authentication token."""
+    """Stage 0: Resolve LLM auth and fail fast when the LLM is unusable.
+
+    Review runs are LLM-driven by default: --no-llm is the only way to run
+    without, and any other unusable configuration (missing key against the
+    default endpoint, rejected key, unreachable endpoint) aborts here with
+    actionable guidance - before any guest or evidence work is spent - so a
+    run can never again complete with a draft silently degraded to
+    'LLM unavailable' TODOs (the rust-ntpd user-test regression).
+    """
+    import llm
+
+    if ctx.no_llm:
+        log.info("AI evaluation disabled by --no-llm (deterministic-only run)")
+        ctx.evidence["auth"] = {
+            "provider": "none",
+            "source": "disabled:--no-llm",
+            "api_url": "",
+        }
+        return
+
     _resolve_llm_auth(ctx)
+    try:
+        llm.preflight_check(ctx)
+    except llm.LLMError as exc:
+        ctx.evidence["auth"]["preflight"] = "failed"
+        log.error("%s", exc)
+        raise
+    ctx.evidence["auth"]["preflight"] = "ok"
 
 
 def stage_optional_auth(ctx: RunContext) -> None:
-    """Resolve reporter LLM auth. --no-llm is the only way to fully disable AI."""
+    """Resolve reporter LLM auth. --no-llm is the only way to fully disable AI.
+
+    The report role never requires a credential for its deterministic flow:
+    without a key it proceeds with AI suggestions degraded (each surfacing
+    its deterministic facts to the reporter). But when a key IS configured,
+    it must work: a configured-but-broken key fails fast here rather than
+    degrading every suggestion one 401 at a time.
+    """
+    import llm
+
     if ctx.no_llm:
         log.info("Reporter AI suggestions disabled by --no-llm")
         return
     _resolve_llm_auth(ctx)
+    source = ctx.auth_source or ""
+    if not source.startswith(llm.FALLBACK_AUTH_SOURCE_PREFIX):
+        try:
+            llm.preflight_check(ctx)
+        except llm.LLMError as exc:
+            ctx.evidence["auth"]["preflight"] = "failed"
+            log.error("%s", exc)
+            raise
+        ctx.evidence["auth"]["preflight"] = "ok"
+    else:
+        ctx.evidence["auth"]["preflight"] = "skipped-no-key"
 
 
 def _resolve_requested_binaries(all_binaries: list[str]) -> list[str]:
@@ -1123,6 +1181,16 @@ def main() -> int:
         )
         exit_code = 1
     except Exception as exc:
+        import llm as _llm
+
+        if isinstance(exc, _llm.LLMError):
+            # LLM preflight failure: the error message already carries the
+            # full guidance (OPENAI_API_KEY / OPENAI_API_BASE / --no-llm);
+            # this is a configuration abort, not an unexpected tool error.
+            ctx.failure_summary = f"{current_stage} failed: LLM configuration is not usable."
+            log.error("Run aborted at %s: %s", current_stage, exc)
+            _emergency_save(ctx)
+            return _finish_run(ctx, evidence_result, 1)
         if evidence_result != 0:
             ctx.failure_summary = (
                 f"{current_stage} failed after evidence collection encountered adapter failures."
@@ -1168,7 +1236,11 @@ def _print_complete_banner(ctx: RunContext) -> None:
     must act on), then the LLM usage report, then the Results box pointing
     at the output artifacts - so nothing important is lost mid-log.
     """
-    from render import _render_adapter_failure_warning, render_llm_usage_report
+    from render import (
+        _render_adapter_failure_warning,
+        _render_llm_degraded_warning,
+        render_llm_usage_report,
+    )
 
     redactor = ensure_secret_redactor(ctx, log)
 
@@ -1176,6 +1248,9 @@ def _print_complete_banner(ctx: RunContext) -> None:
     failure_warning = _render_adapter_failure_warning(ctx)
     if failure_warning:
         print(redactor.redact_text("\nWarnings:\n  " + "\n  ".join(failure_warning)))
+    degraded_warning = _render_llm_degraded_warning(ctx)
+    if degraded_warning:
+        print(redactor.redact_text("\nWarnings:\n  " + "\n  ".join(degraded_warning)))
 
     # --- LLM usage report.
     llm_report = render_llm_usage_report(ctx)
