@@ -229,3 +229,23 @@ additional details:
 After that, subscribe (do not assign) the `ubuntu-release` team to the bug as
 usual.
 
+
+(request-an-openstack-feature-freeze-exception)=
+### Request an OpenStack Feature Freeze exception
+
+For {ref}`openstack-feature-freeze-exceptions`, use a single tracking bug for
+the coordinated OpenStack updates in an Ubuntu development release. Identify
+the Ubuntu and OpenStack releases, the packages covered, and the remaining
+upstream milestones, release candidates, and final release dates. Include
+the rationale and testing information described above, and highlight any
+impact on packages outside OpenStack.
+
+Subscribe `ubuntu-release` and record the Release Team's agreement on the
+bug. Reference that bug in the changelogs of uploads covered by the exception.
+Bring changes outside the agreed scope to the Release Team for consideration.
+
+Account for Ubuntu's {ref}`beta-freeze`, {ref}`final-freeze`, and final release
+dates when planning uploads. Packages must have time to be accepted, built,
+tested, and migrated before the final release. Coordinate with the Release
+Team if the upstream schedule puts this at risk.
+
