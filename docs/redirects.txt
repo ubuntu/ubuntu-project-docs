@@ -132,6 +132,8 @@ contributors/index-new-package/ contributors/new-package/
 contributors/new-package/create-new-package/ contributors/new-package/create-a-new-package/
 tutorial/create-new-package/ contributors/new-package/create-a-new-package/
 
+maintainers/index-SRU/ SRU/howto/
+
 contributors/new-package/request-sru/ SRU/howto/standard/
 contributors/new-package/request-an-sru/ SRU/howto/standard/
 
@@ -191,8 +193,6 @@ staging/AA/maintainers/aa-package-overrides/ maintainers/AA/aa-package-overrides
 staging/AA/maintainers/aa-priority-mismatches/ maintainers/AA/aa-priority-mismatches/
 
 staging/AA/maintainers/aa-signing-bootloaders/ maintainers/AA/aa-signing-bootloaders/
-
-maintainers/index-SRU/ maintainers/SRU/
 
 maintainers/index-uploader/ maintainers/uploader/
 

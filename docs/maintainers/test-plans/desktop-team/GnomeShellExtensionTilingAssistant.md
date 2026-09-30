@@ -1,0 +1,24 @@
+(GnomeShellExtensionTilingAssistant-test-plan)=
+# GNOME Shell Tiling Assistant extension test plan
+
+
+## GNOME Shell Tiling Assitant extension
+
+It's an extension that the desktop team provides by default to improve tiling abilities of GNOME Shell
+
+
+### Manual test plan
+
+Given that the extension does not provide any automated testing, we should ensure it works by performing these operations
+
+1. Dragging windows using the pointer to the edges of the screen should show tiling highlights, releasing the pointer should semi-maximize the window.
+
+2. Dragging a window to the top will allow to top-tile a window after a delay
+
+3. When a tile is created and there are enough windows opened, a popup is shown to select which window to use to fill the empty space
+
+4. Tiles groups are created automatically so, focusing a window of a tiling group should automatically raise all the windows of such tiling group, no matter the application they belong to
+
+5. It should be possible to resize multiple windows of a tiling group with a single resize dragging operation
+
+6. Using the keybindings ({kbd}`super` + arrows and {kbd}`super` + keypad numbers) is possible to tile windows
