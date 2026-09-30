@@ -5759,3 +5759,58 @@ with `cargo test`.
 commit (1049 baseline → 1093 passed, 2 skipped; `make lint`'s ruff was
 unavailable in the analysis container — flagged for the reviewer to run).
 Catalog validation clean for both roles.
+
+## Multi-task bug package selection (2026-09-30)
+
+- Promotion: no
+- Context: user feedback on bug 2159639 (`fonts-font-awesome-legacy`, run
+  `mir-2159639-20260930-140827`). The bug carried two Ubuntu source-package
+  tasks (`fonts-font-awesome` and `fonts-font-awesome-legacy`), and
+  `lp_intake._extract_source_package_from_bug` returned the *first* task
+  target it found. The tool silently reviewed `fonts-font-awesome` — a
+  package already in main — producing a meaningless "already in main / ACK"
+  reorg review after ~75 minutes of guest and LLM work. Two adjacent latent
+  bugs shared the same root: a plain distribution/project task's `name`
+  (e.g. "ubuntu") could be mistaken for a package, and series detection
+  scanned *all* tasks rather than the selected one.
+- Decision:
+  - Collect the bug's Ubuntu package tasks explicitly
+    (`lp_intake._collect_package_tasks`): only `DistributionSourcePackage`
+    and `DistroSeriesSourcePackage` targets belonging to Ubuntu count;
+    distribution/project targets are never candidates. Tasks whose status
+    is closed (`Fix Released`, `Invalid`, `Won't Fix`, `Opinion`, `Expired`)
+    are kept as context but are not candidates.
+  - Selection resolves in order (`lp_intake._select_source_package`):
+    (1) `--source-package` override, validated against the tasks (a closed
+    task may be forced with a warning); (2) a single distinct open package
+    (several series tasks of the same package are not ambiguity); (3) one
+    bounded small-tier LLM call (`llm_select_package`, trace `PKG-SELECT`)
+    that receives the candidate list as trusted data and the bug
+    title/description/reporter content wrapped in per-run untrusted-data
+    envelopes — auto-picked only on `confidence: high` naming a candidate
+    exactly; (4) an interactive single-choice prompt of the open tasks with
+    closed tasks shown as context.
+  - Ambiguity on a headless run (no TTY, or `--no-llm` without a confident
+    pick) fails closed with a candidate list and remediation hints
+    (`--source-package`, re-run interactively). The tool never silently
+    picks the first task again.
+  - The series is derived from the *selected* package's open tasks; other
+    tasks' series no longer influence the run.
+  - Resume: intake re-runs on every resume, so the resolved source package
+    is persisted to `run-state.json` (`meta.source_package`, updated by
+    `run_state.save_state`) and restored by `recovery.apply_resume`; a
+    resumed multi-task review reuses the previous selection instead of
+    re-prompting (or hard-stopping headless).
+  - Stage-1 ordering tightened: the prompt-injection gate and the
+    reporter-content gate now run *before* the package-selection LLM call,
+    so any LLM call that embeds bug text is gated first.
+  - Audit trail is console-log only (user decision 2026-09-30): the chosen
+    package, its alternatives, and the rationale are logged, but report.json
+    and the draft header are unchanged.
+- Consequences:
+  - `review BUG` accepts `--source-package` as a deterministic escape hatch.
+  - Wrong-package runs like 2159639 require an explicit choice instead of
+    an implicit guess.
+  - Validation from `tools/auto-mir`: unit suite PASS (1127 passed,
+    1 skipped). `make lint`'s ruff binary was unavailable in the dev
+    container — the reviewer must run `make lint` before merging.

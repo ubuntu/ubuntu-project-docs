@@ -24,6 +24,13 @@ Review an existing Launchpad MIR bug:
 $ ./auto_mir.py review <bug number>
 ```
 
+A bug can carry several Ubuntu package tasks (e.g. related cases). With a
+single task the review targets it; with several, one small LLM call tries to
+resolve which package the bug text is about, and anything short of a
+high-confidence pick is asked of you interactively (a headless run stops
+instead of guessing). Pass `--source-package <name>` to select the task
+explicitly and skip both.
+
 To prepare a reporter draft from a source package, use an interactive terminal:
 
 ```none
