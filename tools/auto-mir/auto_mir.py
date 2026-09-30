@@ -280,6 +280,21 @@ def build_parser() -> argparse.ArgumentParser:
     )
     review.add_argument("bug_id", help="Launchpad MIR bug ID")
     review.add_argument(
+        "--source-package",
+        dest="source_package_override",
+        default=None,
+        metavar="SOURCE",
+        help=(
+            "Explicitly select which source package this review is for, for "
+            "bugs with multiple Ubuntu package tasks (e.g. related-case "
+            "tasks). The value is validated against the bug's package "
+            "tasks. Without it, a single task is used as-is; multiple "
+            "ambiguous tasks are resolved by one LLM call and, failing "
+            "that, an interactive prompt (a headless run stops instead of "
+            "guessing)."
+        ),
+    )
+    review.add_argument(
         "--no-llm",
         action="store_true",
         help=(
@@ -342,6 +357,10 @@ class RunContext:
     Populated by stage_intake / lp_intake.run() (Stage 1):
         bug, source_package, reporter_mir_content, series (may be refined)
 
+    Restored from CLI args / resume for reviewer multi-task bugs:
+        source_package_override (--source-package), source_package
+        (reused selection of a resumed run)
+
     Populated by stage_spawn_guest / lxd_runner.spawn() (Stage 2):
         guest_name
 
@@ -389,6 +408,11 @@ class RunContext:
         # How to treat this review (auto|fresh|rereview|reorg). 'auto' lets the
         # code detect a fast-path; the resolved value lands in review_type below.
         self.review_type_arg: str = getattr(args, "review_type", "auto")
+        # Explicit source package for bugs with multiple package tasks
+        # (review role only; validated by lp_intake against the bug's tasks).
+        self.source_package_override: str = str(
+            getattr(args, "source_package_override", "") or ""
+        )
         # Resolved review type (fresh|rereview|reorg), filled in during analysis
         # by review_type.detect_review_type(). Defaults to 'fresh' until then.
         self.review_type: str = "fresh"
