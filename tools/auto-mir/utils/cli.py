@@ -51,3 +51,23 @@ def ask_yes_no(prompt: str, *, default: bool | None = None, alerter=None) -> boo
             return False
         if default is None:
             print("Please answer y or n.")
+
+
+def ask_single_choice(prompt: str, options: list[tuple[str, str]]) -> str:
+    """Ask the user to pick one option from a numbered list.
+
+    ``options`` is a list of ``(label, value)`` pairs; the labels are printed
+    numbered 1..N and the chosen option's ``value`` is returned. Invalid or
+    out-of-range input re-prompts. EOF propagates as ``EOFError`` — callers
+    gate on an interactive terminal before asking.
+    """
+    for index, (label, _value) in enumerate(options, start=1):
+        print(f"  {index}. {label}")
+    while True:
+        try:
+            raw = input(f"{prompt} [1-{len(options)}] ").strip()
+        except EOFError:
+            raise
+        if raw.isdigit() and 1 <= int(raw) <= len(options):
+            return options[int(raw) - 1][1]
+        print(f"Please enter a number between 1 and {len(options)}.")

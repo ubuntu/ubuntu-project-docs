@@ -54,3 +54,30 @@ def test_ask_yes_no_arms_and_cancels_the_idle_alert(monkeypatch):
     assert len(alerter.started) == 1
     assert alerter.started[0][1] == "Keep the guest?"
     assert alerter.cancelled == [alerter.started[0][0]]
+
+
+def test_ask_single_choice_returns_selected_value(monkeypatch):
+    from utils.cli import ask_single_choice
+
+    answers = iter(["0", "3", "2"])
+    monkeypatch.setattr("builtins.input", lambda _prompt: next(answers))
+
+    value = ask_single_choice(
+        "Which package?",
+        [
+            ("fonts-font-awesome (series=any)", "fonts-font-awesome"),
+            ("legacy (series=any)", "legacy"),
+        ],
+    )
+    assert value == "legacy"
+
+
+def test_ask_single_choice_eof_propagates(monkeypatch):
+    from utils.cli import ask_single_choice
+
+    def _eof(_prompt):
+        raise EOFError
+
+    monkeypatch.setattr("builtins.input", _eof)
+    with pytest.raises(EOFError):
+        ask_single_choice("Which package?", [("a", "a")])
