@@ -337,7 +337,17 @@ Dispatch is mode-driven through the registry:
 - `ai`
 - `human_only`
 
-Language applicability is gated before evaluator routing.
+Language applicability is gated before evaluator routing (see
+"Language detection and vendor trees" above for the tiered,
+declared-buildsystem-wins model).
+
+Source-scan checks separate hard signals from soft references by ownership:
+URF-5 fails only on signals the package itself owns (setuid/setgid
+permission bits in the source tree or built packages, lintian tags on built
+artefacts, debian/rules setup, active non-vendored usage) while references
+inside vendored trees and FFI *declarations* render in Left to decide with a
+grouped rationale for the reviewer to confirm — never as Problems, never
+silently OK.
 
 ## Evidence subsystem model
 
@@ -372,6 +382,18 @@ The large `autopkgtest.db` is downloaded once per run and cached on the context
 `dependency-autopkgtests`), then removed at the end of evidence collection
 (`cleanup_cached_autopkgtest_db`).
 
+The `debian-delta` adapter (required by PRF-1) classifies the Ubuntu delta
+from the version string alone (sync / native / ubuntu-delta — no tools, no
+fetch), and for `...ubuntuN` versions derives the Debian base version
+deterministically from the version string, fetches it with
+`pull-debian-source`, and debdiffs it against the Ubuntu `.dsc` already in
+the packaging-source workdir. Failure classes are distinct: missing guest
+tools (pull-debian-source/debdiff, provisioned with ubuntu-dev-tools and
+devscripts in every guest) are a hard adapter error — a provisioning defect;
+a base version that can no longer be fetched from the Debian mirror
+degrades to an explicit reviewer-note summary, never a silent empty
+diffstat.
+
 ## LLM usage model
 
 `checks/llm_eval.py` controls AI paths with guardrails:
@@ -380,6 +402,37 @@ The large `autopkgtest.db` is downloaded once per run and cached on the context
 - bounded payload truncation/summarization,
 - explicit human-confirmation metadata for every AI outcome,
 - deterministic fallback behavior when LLM calls fail.
+
+### Availability: preflight and the binary mode contract
+
+The review role's LLM modes are deliberately binary (2026-09-30 decision):
+either the LLM works (the default), or the run is deterministic-only via
+`--no-llm`. Stage 0 resolves the provider and runs `llm.preflight_check()` —
+one minimal handshake call. A never-workable combination (placeholder token
+against the default auth-requiring endpoint) or any failing handshake aborts
+the run there with guidance (`OPENAI_API_KEY`, `OPENAI_API_BASE`,
+`--no-llm`), before any guest or evidence work is spent. A local
+unauthenticated endpoint is probed, not assumed. `--no-llm` skips auth
+entirely; every `ev_to_ai`/`ai` check then degrades to the standard
+fallback whose message states the deliberate mode, and the draft carries a
+`Mode: deterministic-only evaluation` preamble line. Mid-run failures after
+a successful preflight keep the per-check fallback but gain provenance: the
+finding records `llm_error_cause`, the renderer marks its TODO with
+`NOTE: - LLM unavailable for this check (<reason>)`, `report.json` gains an
+`llm_degraded` list, and the completion banner warns. The report role never
+requires a credential, but a configured-but-broken key fails fast at its
+optional-auth stage.
+
+### Degraded findings keep their deterministic facts
+
+When the LLM is unavailable (outage or `--no-llm`), each check's fallback
+rationale is built from a curated per-check fact registry
+(`_DEGRADED_FACT_BUILDERS`): what the already-collected evidence answers for
+that check — e.g. CB-2's rules test wiring and build-log evidence, PRF-1's
+delta presence and classification, ESL-1/11's vendored directories,
+RDO-1's dup-search candidates — so a degraded run still starts the reviewer
+from facts rather than bare TODOs. Checks whose evidence did not collect
+render without a rationale; facts are never fabricated.
 
 AI evaluators accept `low`, `medium`, or `high` confidence. A high-confidence
 AI failure may therefore render as a confirmed problem, but it remains marked
@@ -391,6 +444,23 @@ Model tiering:
 
 - `ai` synthesis uses large tier,
 - `ev_to_ai` selects tier heuristically.
+
+### Language detection and vendor trees
+
+`utils/language_detection.py` is the single source of truth for "which
+language is this package" and "which directories hold vendored code",
+consumed by both the evidence adapters and the checks subsystem. Vendor dir
+names derive from `debian/rules` (`CARGO_VENDOR_DIR`, the Debian cargo
+`rust-vendor` convention) plus the standard upstream conventions, and travel
+in the packaging-source payload as `vendor_dir_names`. Detection is tiered:
+declared signals (rules/control buildsystem declarations, `dh-sequence-*`
+build-deps, lockfiles) are authoritative; tree hints (the package's own,
+non-vendored, non-test-tree source files) only classify a language when no
+other language is declared — a declared buildsystem outranks foreign-language
+files in the tree, which in practice are vendored or auxiliary. ESL-4/ESL-8
+render three outcomes accordingly: a positive assertion stating its trigger
+evidence, a tree-hint note without a positive assertion, or "not a go/rust
+package" with the conflict stated.
 
 ## Rendering model
 
