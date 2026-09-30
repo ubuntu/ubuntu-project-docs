@@ -410,9 +410,7 @@ class RunContext:
         self.review_type_arg: str = getattr(args, "review_type", "auto")
         # Explicit source package for bugs with multiple package tasks
         # (review role only; validated by lp_intake against the bug's tasks).
-        self.source_package_override: str = str(
-            getattr(args, "source_package_override", "") or ""
-        )
+        self.source_package_override: str = str(getattr(args, "source_package_override", "") or "")
         # Resolved review type (fresh|rereview|reorg), filled in during analysis
         # by review_type.detect_review_type(). Defaults to 'fresh' until then.
         self.review_type: str = "fresh"
