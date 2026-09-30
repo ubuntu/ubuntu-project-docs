@@ -433,7 +433,7 @@ if os.path.exists("./reuse/substitutions.yaml"):
 intersphinx_mapping = {
     #    "ubuntu-server": ("https://ubuntu.com/server/docs/", None),
     "starter-pack": (
-        "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
+        "https://documentation.ubuntu.com/sphinx-stack/latest/",
         None,
     ),
     "launchpad": ("https://documentation.ubuntu.com/launchpad/", None),
