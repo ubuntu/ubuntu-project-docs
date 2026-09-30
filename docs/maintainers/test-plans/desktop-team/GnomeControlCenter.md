@@ -65,7 +65,7 @@ If a step fails, only mark the SRU as verification-failed if it is a regression,
 * Toggle the Active Screen edges setting and verify the shell behaves according to the configuration
 
   :::{warning}
-  This setting is currently over-riden by enhanced tiling in **Ubuntu Desktop** section
+  This setting is currently overridden by enhanced tiling in **Ubuntu Desktop** section
   :::
 
 * Switch between dynamic and fixed workspaces and verify that the layout adapts
