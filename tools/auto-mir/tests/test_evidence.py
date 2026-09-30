@@ -3389,3 +3389,46 @@ def test_git_ubuntu_delta_sync_skips_git_ubuntu():
 
     assert result["delta_kind"] == "sync"
     assert result["delta_present"] is False
+
+
+def test_detect_language_markers_derives_vendor_dirs_from_rules():
+    """rust-ntpd regression: a `CARGO_VENDOR_DIR = rust-vendor` rules file
+    must make the vendored-dir scan find ./rust-vendor and expose the
+    effective vendor dir names in the payload."""
+    import evidence.guest_adapters as ga
+
+    ctx = Mock()
+    ctx.guest_name = "guest"
+
+    find_commands: list[str] = []
+
+    def fake_exec(name, cmd, **_kw):
+        joined = " ".join(str(part) for part in cmd)
+        if "test -f" in joined:
+            # Cargo.lock exists, go.sum does not (test -f exit status decides)
+            return SimpleNamespace(
+                stdout="", returncode=0 if "Cargo.lock" in joined else 1
+            )
+        if "find . -maxdepth 3" in joined:
+            find_commands.append(joined)
+            return SimpleNamespace(stdout="./rust-vendor\n./vendor\n", returncode=0)
+        if "find . -type f" in joined:
+            # file listing: one own Rust file, one vendored Go test mock
+            return SimpleNamespace(
+                stdout="10 ./src/main.rs\n"
+                "10 ./rust-vendor/rustls-platform-verifier/src/tests/verification_mock/ca.go\n",
+                returncode=0,
+            )
+        return SimpleNamespace(stdout="", returncode=0)
+
+    rules = "#!/usr/bin/make -f\nexport CARGO_VENDOR_DIR = rust-vendor\n"
+    with patch.object(ga.lxd_runner, "exec_in", side_effect=fake_exec):
+        markers = ga._detect_language_markers(ctx, "/tmp/src", rules)
+
+    # the rules-derived name is part of the find and of the payload
+    assert "rust-vendor" in markers["vendor_dir_names"]
+    assert any("-name rust-vendor" in c for c in find_commands)
+    assert "./rust-vendor" in markers["vendored_dirs"]
+    assert "./rust-vendor" in markers["shipped_vendored_dirs"]
+    assert markers["cargo_lock_present"] is True
+    assert markers["go_sum_present"] is False

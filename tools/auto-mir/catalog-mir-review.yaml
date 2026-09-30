@@ -884,12 +884,16 @@ checks:
   messages:
     unknown_message: Could not determine language (packaging-source failed)
     unknown_todo: 'TODO: - Determine if this is a Go package'
-    ok_go_message: 'Go Package — Debian Go packaging guidelines apply (see ESL-5/6/7)'
+    ok_go_message: 'Go Package — Debian Go packaging guidelines apply (see ESL-5/6/7); detected via {triggers}'
+    ok_hinted_go_message: 'Go source files present in the tree ({paths}) but no Go buildsystem declared in debian/rules'
+    ok_not_go_hint_message: 'not a go package (Go source files present in the tree: {paths}; but {lang} packaging is declared, so they are likely auxiliary or vendored files)'
     ok_not_go_message: not a go package, no extra constraints to consider in that regard
   required_messages:
     unknown_message: []
     unknown_todo: []
-    ok_go_message: []
+    ok_go_message: [triggers]
+    ok_hinted_go_message: [paths]
+    ok_not_go_hint_message: [paths, lang]
     ok_not_go_message: []
   todo_refs:
   - 'TODO-A: - not a go package, no extra constraints to consider in that regard'
@@ -1004,12 +1008,16 @@ checks:
   messages:
     unknown_message: Could not determine language (packaging-source failed)
     unknown_todo: 'TODO: - Determine if this is a Rust package'
-    ok_rust_message: 'Rust Package — Rust-specific constraints apply (see ESL-9/10)'
+    ok_rust_message: 'Rust Package — Rust-specific constraints apply (see ESL-9/10); detected via {triggers}'
+    ok_hinted_rust_message: 'Rust source files present in the tree ({paths}) but no Rust buildsystem declared in debian/rules'
+    ok_not_rust_hint_message: 'not a rust package (Rust source files present in the tree: {paths}; but {lang} packaging is declared, so they are likely auxiliary or vendored files)'
     ok_not_rust_message: not a rust package, no extra constraints to consider in that regard
   required_messages:
     unknown_message: []
     unknown_todo: []
-    ok_rust_message: []
+    ok_rust_message: [triggers]
+    ok_hinted_rust_message: [paths]
+    ok_not_rust_hint_message: [paths, lang]
     ok_not_rust_message: []
   todo_refs:
   - 'TODO-A: - not a rust package, no extra constraints to consider in that regard'
@@ -1038,14 +1046,14 @@ checks:
     unknown_message: Could not check debian/rules (packaging-source failed)
     unknown_todo: 'TODO: - Verify Rust package uses dh_cargo'
     ok_not_rust_message: not a rust package, dh_cargo gate not applicable
-    ok_message: 'rust package using dh_cargo (dh ... --buildsystem cargo)'
-    not_ok_message: Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules
+    ok_message: 'rust package using dh_cargo; detected via {triggers}'
+    not_ok_message: Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules or debian/control Build-Depends
     not_ok_todo: 'TODO: - Rust packages must use dh_cargo (dh ... --buildsystem cargo)'
   required_messages:
     unknown_message: []
     unknown_todo: []
     ok_not_rust_message: []
-    ok_message: []
+    ok_message: [triggers]
     not_ok_message: []
     not_ok_todo: []
   todo_refs:

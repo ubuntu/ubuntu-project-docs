@@ -11,10 +11,18 @@ import re
 import subprocess
 from typing import TYPE_CHECKING, Callable
 
-from checks.language_gates import _is_go_package, _is_python_package, _is_rust_package
 from checks.messages import render_check_message
 from models import Finding
 from utils.deb_facts import built_using_entries
+from utils.language_detection import (
+    _declared_language_names,
+    _hint_paths_counted,
+    _is_go_package,
+    _is_python_package,
+    _is_rust_package,
+    _other_language_declared,
+    detect_language_signals,
+)
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
@@ -697,21 +705,55 @@ def _check_esl_3(ctx: RunContext, finding: Finding) -> Finding:
 
 
 def _check_esl_4(ctx: RunContext, finding: Finding) -> Finding:
-    """ESL-4: Go language detection gate."""
+    """ESL-4: Go language detection gate.
+
+    Declared Go packaging asserts "Go Package" with its trigger evidence.
+    Tree hints alone (own Go files, no declared buildsystem) render as a
+    note instead of a positive assertion, and Go tree hints outranked by
+    another language's declared packaging render as "not a go package"
+    with the conflict stated - so a vendored Go test mock in a Rust
+    package can neither assert Go nor pass silently.
+    """
     resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-4")
     if resolved is None:
         return finding
     check, packaging = resolved
 
-    if _is_go_package(packaging):
+    signals = detect_language_signals(packaging)
+    go = signals["go"]
+    if go["declared_evidence"]:
         # ESL-4 itself is just the gate; it's ok to confirm it's Go.
         # The actual compliance checks are ESL-5, ESL-6, ESL-7.
-        finding.succeed(render_check_message(check, "ok_go_message"))
+        finding.succeed(
+            render_check_message(
+                check, "ok_go_message", triggers="; ".join(go["declared_evidence"])
+            )
+        )
+    elif go["tree_hint_paths"] and _other_language_declared(signals, "go"):
+        finding.succeed(
+            render_check_message(
+                check,
+                "ok_not_go_hint_message",
+                lang=_declared_language_names(signals, "go"),
+                paths=_hint_paths_counted(go["tree_hint_paths"]),
+            ),
+            confidence="medium",
+        )
+    elif go["tree_hint_paths"]:
+        finding.succeed(
+            render_check_message(
+                check,
+                "ok_hinted_go_message",
+                paths=_hint_paths_counted(go["tree_hint_paths"]),
+            ),
+            confidence="medium",
+        )
     else:
         finding.succeed(render_check_message(check, "ok_not_go_message"))
     finding.evidence_refs = [
         "packaging-source:go_sum_present",
         "packaging-source:debian_rules",
+        "packaging-source:file_listing",
     ]
     return finding
 
@@ -753,19 +795,51 @@ def _check_esl_7(ctx: RunContext, finding: Finding) -> Finding:
 
 
 def _check_esl_8(ctx: RunContext, finding: Finding) -> Finding:
-    """ESL-8: Rust language detection gate."""
+    """ESL-8: Rust language detection gate.
+
+    Same declared-wins structure as ESL-4: declared Rust packaging asserts
+    "Rust Package" with its trigger evidence; tree hints alone render as a
+    note; hints outranked by another declared language render as "not a
+    rust package" with the conflict stated.
+    """
     resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-8")
     if resolved is None:
         return finding
     check, packaging = resolved
 
-    if _is_rust_package(packaging):
-        finding.succeed(render_check_message(check, "ok_rust_message"))
+    signals = detect_language_signals(packaging)
+    rust = signals["rust"]
+    if rust["declared_evidence"]:
+        finding.succeed(
+            render_check_message(
+                check, "ok_rust_message", triggers="; ".join(rust["declared_evidence"])
+            )
+        )
+    elif rust["tree_hint_paths"] and _other_language_declared(signals, "rust"):
+        finding.succeed(
+            render_check_message(
+                check,
+                "ok_not_rust_hint_message",
+                lang=_declared_language_names(signals, "rust"),
+                paths=_hint_paths_counted(rust["tree_hint_paths"]),
+            ),
+            confidence="medium",
+        )
+    elif rust["tree_hint_paths"]:
+        finding.succeed(
+            render_check_message(
+                check,
+                "ok_hinted_rust_message",
+                paths=_hint_paths_counted(rust["tree_hint_paths"]),
+            ),
+            confidence="medium",
+        )
     else:
         finding.succeed(render_check_message(check, "ok_not_rust_message"))
     finding.evidence_refs = [
         "packaging-source:cargo_lock_present",
         "packaging-source:debian_rules",
+        "packaging-source:file_listing",
     ]
     return finding
 
@@ -784,9 +858,18 @@ def _check_esl_9(ctx: RunContext, finding: Finding) -> Finding:
         return finding
 
     debian_rules = packaging.get("debian_rules", "")
-    uses_dh_cargo = "--buildsystem cargo" in debian_rules or "dh_cargo" in debian_rules
-    if uses_dh_cargo:
-        finding.succeed(render_check_message(check, "ok_message"))
+    debian_control = packaging.get("debian_control", "")
+    dh_cargo_triggers = []
+    if "--buildsystem cargo" in debian_rules:
+        dh_cargo_triggers.append("--buildsystem cargo in debian/rules")
+    if "dh_cargo" in debian_rules:
+        dh_cargo_triggers.append("dh_cargo in debian/rules")
+    if "dh-sequence-cargo" in debian_control:
+        dh_cargo_triggers.append("dh-sequence-cargo in debian/control Build-Depends")
+    if dh_cargo_triggers:
+        finding.succeed(
+            render_check_message(check, "ok_message", triggers="; ".join(dh_cargo_triggers))
+        )
     else:
         finding.fail(
             render_check_message(check, "not_ok_message"),
@@ -795,6 +878,7 @@ def _check_esl_9(ctx: RunContext, finding: Finding) -> Finding:
         )
     finding.evidence_refs = [
         "packaging-source:debian_rules",
+        "packaging-source:debian_control",
         "packaging-source:cargo_lock_present",
     ]
     return finding
