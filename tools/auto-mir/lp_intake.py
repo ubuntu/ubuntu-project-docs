@@ -414,8 +414,7 @@ def _select_source_package(ctx: "RunContext", package_tasks: list[_PackageTask])
         return open_tasks[0]
 
     log.info(
-        "Bug %s has multiple open Ubuntu package tasks (%s); resolving which "
-        "this review is for.",
+        "Bug %s has multiple open Ubuntu package tasks (%s); resolving which this review is for.",
         ctx.bug_id,
         ", ".join(distinct_open),
     )

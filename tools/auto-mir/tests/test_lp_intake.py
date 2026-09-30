@@ -414,9 +414,7 @@ def test_ask_package_choice_lists_open_and_closed_tasks(monkeypatch):
     tasks = _two_open_tasks() + [
         lp_intake._PackageTask("related", None, "invalid", False),
     ]
-    selected = lp_intake._ask_package_choice(
-        _selection_ctx(), _two_open_tasks(), tasks
-    )
+    selected = lp_intake._ask_package_choice(_selection_ctx(), _two_open_tasks(), tasks)
     assert selected.source_package == "fonts-font-awesome-legacy"
     assert [value for _label, value in captured["options"]] == [
         "fonts-font-awesome",
