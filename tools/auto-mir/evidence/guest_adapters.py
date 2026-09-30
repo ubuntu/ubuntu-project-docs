@@ -14,10 +14,14 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import lxd_runner
-from checks.language_gates import _is_rust_package
 from evidence import launchpad_client
 from evidence.host_adapters import AdapterError
 from utils import http as http_utils
+from utils.language_detection import (
+    TEST_ONLY_PATH_SEGMENTS,
+    _is_rust_package,
+    derive_vendor_dir_names,
+)
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
@@ -171,20 +175,10 @@ _DEPRECATED_CRYPTO_TERMS = [
 ]
 
 
-# Path segments that mark a directory as build/test-time only. Vendored code
-# confined to these locations is not shipped in the binary packages, so it does
-# not carry the maintenance/security burden that ESL-11 is concerned with.
-_TEST_ONLY_PATH_SEGMENTS = (
-    "test",
-    "tests",
-    "testing",
-    "example",
-    "examples",
-    "doc",
-    "docs",
-    "benchmark",
-    "benchmarks",
-)
+# Path segments that mark a directory as build/test-time only live in
+# utils.language_detection (shared with the checks-side language hints); the
+# classification below uses them to keep test-only vendored trees out of the
+# shipped set.
 
 
 def _classify_shipped_vendored_dirs(vendored_dirs: list[str]) -> list[str]:
@@ -201,7 +195,7 @@ def _classify_shipped_vendored_dirs(vendored_dirs: list[str]) -> list[str]:
         # Exclude the final segment (the vendor dir name itself, e.g.
         # "third_party") so a top-level "./third_party" is not misread as tests.
         parent_segments = segments[:-1] if len(segments) > 1 else []
-        if any(seg.lower() in _TEST_ONLY_PATH_SEGMENTS for seg in parent_segments):
+        if any(seg.lower() in TEST_ONLY_PATH_SEGMENTS for seg in parent_segments):
             continue
         shipped.append(entry)
     return shipped
@@ -464,8 +458,14 @@ def _read_debian_control_files(ctx: RunContext, full_source: str) -> dict:
     }
 
 
-def _detect_language_markers(ctx: RunContext, full_source: str) -> dict:
-    """Detect Cargo/Go markers, vendored dirs, and a bounded source file listing."""
+def _detect_language_markers(ctx: RunContext, full_source: str, debian_rules: str = "") -> dict:
+    """Detect Cargo/Go markers, vendored dirs, and a bounded source file listing.
+
+    ``debian_rules`` is used to derive this package's vendor directory names
+    (e.g. the Debian cargo ``CARGO_VENDOR_DIR`` convention) so the vendored-dir
+    scan and the payload's ``vendor_dir_names`` reflect the actual packaging
+    rather than only the generic upstream conventions.
+    """
     cargo_lock = _exists(
         ctx,
         ["bash", "-lc", f"test -f {full_source}/Cargo.lock"],
@@ -477,6 +477,8 @@ def _detect_language_markers(ctx: RunContext, full_source: str) -> dict:
         as_ubuntu=True,
     )
 
+    vendor_dir_names = derive_vendor_dir_names(debian_rules)
+    name_args = " -o ".join(f"-name {name}" for name in vendor_dir_names)
     vendored_dirs_raw = _capture(
         ctx,
         [
@@ -484,8 +486,7 @@ def _detect_language_markers(ctx: RunContext, full_source: str) -> dict:
             "-lc",
             (
                 f"cd {full_source} && "
-                "find . -maxdepth 3 -type d "
-                "\\( -name vendor -o -name third_party -o -name vendored \\)"
+                f"find . -maxdepth 3 -type d \\( {name_args} \\)"
             ),
         ],
         allow_fail=True,
@@ -538,6 +539,7 @@ def _detect_language_markers(ctx: RunContext, full_source: str) -> dict:
     return {
         "cargo_lock_present": cargo_lock,
         "go_sum_present": go_sum,
+        "vendor_dir_names": vendor_dir_names,
         "vendored_dirs": vendored_dirs,
         "shipped_vendored_dirs": shipped_vendored_dirs,
         "file_listing": file_listing,
@@ -655,7 +657,7 @@ def collect_packaging_source(ctx: RunContext) -> dict:
         _unpack_source(ctx)
     )
     control_files = _read_debian_control_files(ctx, full_source)
-    language_markers = _detect_language_markers(ctx, full_source)
+    language_markers = _detect_language_markers(ctx, full_source, control_files["debian_rules"])
     packaging_facts = _derive_packaging_facts(
         control_files["debian_control"],
         control_files["debian_rules"],
@@ -663,10 +665,14 @@ def collect_packaging_source(ctx: RunContext) -> dict:
         language_markers["file_listing"],
         control_files["debian_lintian_overrides"],
     )
+    # Full packaging dict so the shared detector sees rules, control, and the
+    # rules-derived vendor dir names (declared-buildsystem-wins detection).
     is_rust_package = _is_rust_package(
         {
             "cargo_lock_present": language_markers["cargo_lock_present"],
             "debian_rules": control_files["debian_rules"],
+            "debian_control": control_files["debian_control"],
+            "vendor_dir_names": language_markers["vendor_dir_names"],
             "file_listing": language_markers["file_listing"],
         }
     )
@@ -715,6 +721,7 @@ def collect_packaging_source(ctx: RunContext) -> dict:
         "cargo_lock_present": language_markers["cargo_lock_present"],
         "go_sum_present": language_markers["go_sum_present"],
         "is_rust_package": is_rust_package,
+        "vendor_dir_names": language_markers["vendor_dir_names"],
         "vendored_dirs": language_markers["vendored_dirs"],
         "shipped_vendored_dirs": language_markers["shipped_vendored_dirs"],
         "file_listing": language_markers["file_listing"],

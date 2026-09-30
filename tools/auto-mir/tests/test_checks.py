@@ -482,6 +482,203 @@ def test_is_python_package_detects_real_signals():
     assert checks.language_gates._is_python_package(metadata) is True
 
 
+# --- Vendor-tree recognition and declared-buildsystem precedence ----------
+# Regression source: the rust-ntpd review run (bug 2166406). A Debian cargo
+# package stores vendored crates in a top-level `rust-vendor/` dir (declared
+# via CARGO_VENDOR_DIR in debian/rules). One vendored crate shipped a Go test
+# mock (go.sum/go.mod/ca.go under rust-vendor/.../tests/verification_mock/),
+# which tripped the Go gate: the draft asserted "Go Package" next to
+# "Rust Package", ESL-7 could not determine a Go build mode, and CB-9 (gated
+# on go) burned its LLM call instead of auto-OKing as "not a Go package".
+
+
+def _rust_ntpd_packaging(**overrides):
+    packaging = dict(
+        {
+            "status": "ok",
+            "debian_rules": (
+                "#!/usr/bin/make -f\n"
+                "include /usr/share/dpkg/pkg-info.mk\n"
+                "export CARGO_VENDOR_DIR = rust-vendor\n"
+                "%:\n\tdh $@ --buildsystem cargo\n"
+            ),
+            "debian_control": "Source: rust-ntpd\nBuild-Depends: cargo, rustc\n",
+            "cargo_lock_present": True,
+            "go_sum_present": False,
+            "vendor_dir_names": ["rust-vendor", "vendor", "vendored", "third_party"],
+            "file_listing": [
+                {"path": "./Cargo.toml", "size": 100},
+                {"path": "./src/main.rs", "size": 100},
+                {
+                    "path": (
+                        "./rust-vendor/rustls-platform-verifier/src/tests/"
+                        "verification_mock/go.sum"
+                    ),
+                    "size": 10,
+                },
+                {
+                    "path": (
+                        "./rust-vendor/rustls-platform-verifier/src/tests/"
+                        "verification_mock/go.mod"
+                    ),
+                    "size": 10,
+                },
+                {
+                    "path": (
+                        "./rust-vendor/rustls-platform-verifier/src/tests/"
+                        "verification_mock/ca.go"
+                    ),
+                    "size": 10,
+                },
+            ],
+        }
+    )
+    packaging.update(overrides)
+    return packaging
+
+
+def test_go_gate_inactive_for_rust_vendor_go_test_mock():
+    """rust-ntpd regression: vendored Go test mock must not trip the Go gate."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = _rust_ntpd_packaging()
+    assert checks.language_gates._language_gate_active("go", ctx) is False
+    assert checks.language_gates._language_gate_active("rust", ctx) is True
+
+
+def test_go_gate_hint_outranked_by_declared_rust():
+    """Declared buildsystem wins: even Go files outside vendor trees do not
+    gate a package whose Rust packaging is declared."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = _rust_ntpd_packaging(
+        file_listing=[{"path": "./cmd/tool/main.go", "size": 100}]
+    )
+    assert checks.language_gates._language_gate_active("go", ctx) is False
+
+
+def test_go_hint_ignored_when_loose_golang_comment_only():
+    """A rules comment merely mentioning golang is not a declared buildsystem."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "# TODO: maybe switch to golang eventually\ndh $@",
+        "go_sum_present": False,
+        "cargo_lock_present": False,
+    }
+    assert checks.language_gates._language_gate_active("go", ctx) is False
+
+
+def test_tree_hints_exclude_test_only_segments():
+    """Test-fixture files (e.g. foreign-language mocks under tests/) are not
+    language hints even outside vendored trees."""
+    packaging = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "go_sum_present": False,
+        "cargo_lock_present": False,
+        "file_listing": [{"path": "./tests/verification_mock/ca.go", "size": 10}],
+    }
+    assert checks.language_gates._is_go_package(packaging) is False
+
+
+def test_rust_declared_via_dh_sequence_cargo():
+    """dh-sequence-cargo in Build-Depends declares the cargo buildsystem
+    (modern debhelper needs no rules override; same gap CB-8 had for Python)."""
+    packaging = {
+        "status": "ok",
+        "debian_rules": "%:\n\tdh $@\n",
+        "debian_control": "Source: rust-lib\nBuild-Depends: dh-sequence-cargo, rustc\n",
+        "cargo_lock_present": False,
+        "go_sum_present": False,
+    }
+    assert checks.language_gates._is_rust_package(packaging) is True
+
+
+def test_esl_4_go_hint_suppressed_by_declared_rust_states_conflict():
+    """ESL-4 must not assert 'Go Package' for a Rust package, and must state
+    why the Go files were outranked instead of passing silently."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = _rust_ntpd_packaging(
+        file_listing=[
+            {"path": "./cmd/tool/main.go", "size": 100},
+            {"path": "./Cargo.toml", "size": 100},
+        ]
+    )
+    finding = _make_finding("ESL-4", mode="deterministic")
+    result = checks.deterministic._check_esl_4(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "not a go package" in result.message
+    assert "rust packaging is declared" in result.message
+
+
+def test_esl_4_go_tree_hint_without_declaration_renders_note():
+    """Go files in the package's own tree but no Go buildsystem: a note, not
+    a positive 'Go Package' guidelines assertion."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "debian_control": "Package: myapp",
+        "go_sum_present": False,
+        "cargo_lock_present": False,
+        "file_listing": [{"path": "./cmd/tool/main.go", "size": 100}],
+    }
+    finding = _make_finding("ESL-4", mode="deterministic")
+    result = checks.deterministic._check_esl_4(ctx, finding)
+
+    assert result.status == "ok"
+    assert "no Go buildsystem declared" in result.message
+    assert result.confidence == "medium"
+
+
+def test_esl_8_rust_declared_message_states_triggers():
+    """ESL-8's positive assertion states its trigger evidence."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = _rust_ntpd_packaging()
+    finding = _make_finding("ESL-8", mode="deterministic")
+    result = checks.deterministic._check_esl_8(ctx, finding)
+
+    assert result.status == "ok"
+    assert "Rust Package" in result.message
+    assert "--buildsystem cargo" in result.message
+    assert "Cargo.lock present" in result.message
+
+
+def test_esl_9_ok_via_dh_sequence_cargo():
+    """ESL-9 accepts the modern dh-sequence-cargo build dependency."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "%:\n\tdh $@\n",
+        "debian_control": "Source: rust-lib\nBuild-Depends: dh-sequence-cargo, rustc\n",
+        "cargo_lock_present": True,
+        "go_sum_present": False,
+    }
+    finding = _make_finding("ESL-9", mode="deterministic")
+    result = checks.deterministic._check_esl_9(ctx, finding)
+
+    assert result.status == "ok"
+    assert "dh-sequence-cargo" in result.message
+
+
+def test_esl_9_missing_dh_cargo_fails():
+    """Rust package without any cargo buildsystem declaration fails hard."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@\noverride_dh_auto_build:\n\tcargo build --release\n",
+        "debian_control": "Source: rust-lib\nBuild-Depends: cargo, rustc\n",
+        "cargo_lock_present": True,
+        "go_sum_present": False,
+    }
+    finding = _make_finding("ESL-9", mode="deterministic")
+    result = checks.deterministic._check_esl_9(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
 def test_extract_build_hints_no_vendor_references():
     """Test _extract_build_hints returns empty results when no vendor paths present."""
     build_log = """
