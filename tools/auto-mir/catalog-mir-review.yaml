@@ -1966,6 +1966,8 @@ checks:
     systemd_todo: 'TODO: - use of setuid, but ok because systemd is used'
     not_ok_message: 'setuid/setgid detected in {source}'
     not_ok_todo: 'TODO: - no use of setuid / setgid'
+    not_owned_message: 'setuid/setgid references found that are not owned usage of this package ({details}); not flagged as a problem, but the reviewer should confirm they are unused'
+    not_owned_todo: 'TODO: - verify the setuid/setgid references in vendored code are not used by anything shipped'
     ok_message: no use of setuid / setgid
     ok_comment_only_message: 'setuid/setgid matches are in commented-out code only (inactive, reported for completeness): {hits}'
   required_messages:
@@ -1979,13 +1981,15 @@ checks:
     systemd_todo: []
     not_ok_message: [source]
     not_ok_todo: []
+    not_owned_message: [details]
+    not_owned_todo: []
     ok_message: []
     ok_comment_only_message: [hits]
   todo_refs:
   - 'TODO: - no use of setuid / setgid'
   - 'TODO: - use of setuid, but ok because TBD (prefer systemd to set those for services)'
   ai_policy: none
-  notes: 'grep -Hrn -e setuid -e setgid in source; find . \( -perm -4000 -o -perm -2000 \) in built binaries'
+  notes: 'grep -Hrn -e setuid -e setgid in source; find . \( -perm -4000 -o -perm -2000 \) in built binaries. Hard signals (permission bits, lintian tags on built artefacts, debian/rules setup, active non-vendored usage) fail as Problems; references inside vendored trees and FFI declarations are not owned usage and render in Left to decide for confirmation instead'
 - id: URF-6
   section: Upstream red flags
   title: No important open bugs

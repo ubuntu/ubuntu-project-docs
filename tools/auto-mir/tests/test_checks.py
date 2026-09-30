@@ -2262,6 +2262,133 @@ def test_urf_5_setuid_in_script_still_flags():
     assert result.status == "not-ok"
 
 
+def test_urf_5_vendored_libc_declarations_left_to_decide():
+    """rust-ntpd regression: FFI *declarations* inside the vendored libc crate
+    (pub fn setuid(...) -> c_int) are not owned usage of the package - they
+    must render as Left to decide with the grouped detail, never as a
+    required Problem."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "vendor_dir_names": ["rust-vendor", "vendor"],
+        "setuid_setgid_source_hits": [
+            "./rust-vendor/libc/src/unix/mod.rs:1104:    pub fn setgid(gid: gid_t) -> c_int;",
+            "./rust-vendor/libc/src/vxworks/mod.rs:2280:    pub fn setuid(uid: uid_t) -> c_int;",
+            "./rust-vendor/libc/src/unix/linux_like/b64/x86_64.rs:1:    pub fn setuid(uid: uid_t) -> c_int;",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.severity == "recommended"
+    assert "not owned usage" in result.message
+    # grouped detail, not the raw hit concatenation
+    assert "3 reference(s) in vendored code across 3 file(s)" in result.message
+    assert "no setuid/setgid permission bits" in result.message
+    assert "lintian reported no setuid/setgid tags" in result.message
+    assert result.todo.startswith("TODO:")
+
+
+def test_urf_5_declaration_outside_vendor_tree_also_left_to_decide():
+    """A non-vendored FFI declaration (own source, signature only) is also not
+    usage - same Left-to-decide treatment."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "setuid_setgid_source_hits": [
+            "./src/ffi.rs:12:    pub fn setuid(uid: u32) -> i32;",
+            "./src/ffi.c:40: int setuid(uid_t uid);",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "unknown"
+    assert "2 declaration(s)" in result.message
+    assert "signatures, not calls" in result.message
+
+
+def test_urf_5_active_usage_hit_still_problems():
+    """An active, non-vendored usage line keeps failing as a Problem - the
+    softening only covers vendored references and declarations."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "setuid_setgid_source_hits": [
+            "./src/main.rs:30:    unsafe { libc::setuid(0) };",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_urf_5_active_usage_outranks_vendored_noise():
+    """When real usage exists, the Problem stands (the vendored references
+    stay in the evidence for the reviewer)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "vendor_dir_names": ["rust-vendor"],
+        "setuid_setgid_source_hits": [
+            "./src/main.rs:30:    unsafe { libc::setuid(0) };",
+            "./rust-vendor/libc/src/unix/mod.rs:1104:    pub fn setgid(gid: gid_t) -> c_int;",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert "src/main.rs" in result.message
+
+
 def test_path_is_nonexecutable_doc_classification():
     doc = checks.deterministic._path_is_nonexecutable_doc
     # Plain-text / documentation files.
