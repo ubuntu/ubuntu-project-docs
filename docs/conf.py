@@ -15,8 +15,8 @@ from docutils import nodes
 # A complete list of built-in Sphinx configuration values:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 #
-# Our starter pack uses the custom Canonical Sphinx extension
-# to keep all documentation based on it consistent and on brand:
+# The Sphinx Stack uses the Canonical Sphinx theme to keep all documentation
+# consistent and on brand:
 # https://github.com/canonical/canonical-sphinx
 
 
@@ -42,29 +42,9 @@ html_title = project + " documentation"
 
 
 # Copyright string; shown at the bottom of the page
-#
-# Now, the starter pack uses CC-BY-SA as the license
-# and the current year as the copyright year.
-#
-# TODO: If your docs need another license, specify it instead of 'CC-BY-SA'.
-#
-# TODO: If your documentation is a part of the code repository of your project,
-#       it inherits the code license instead; specify it instead of 'CC-BY-SA'.
-#
-# NOTE: For static works, it is common to provide the first publication year.
-#       Another option is to provide both the first year of publication
-#       and the current year, especially for docs that frequently change,
-#       e.g. 2022–2023 (note the en-dash).
-#
-#       A way to check a repo's creation date is to get a classic GitHub token
-#       with 'repo' permissions; see https://github.com/settings/tokens
-#       Next, use 'curl' and 'jq' to extract the date from the API's output:
-#
-#       curl -H 'Authorization: token <TOKEN>' \
-#         -H 'Accept: application/vnd.github.v3.raw' \
-#         https://api.github.com/repos/canonical/<REPO> | jq '.created_at'
+# The year in the copyright statement
 
-copyright = "%s CC-BY-SA, %s" % (datetime.date.today().year, author)
+copyright = f"{datetime.date.today().year}"
 
 
 # Documentation website URL
@@ -95,7 +75,7 @@ ogp_image = "https://assets.ubuntu.com/v1/cc828679-docs_illustration.svg"
 
 # TODO: To customize the favicon, uncomment and update as needed.
 
-# html_favicon = '.sphinx/_static/favicon.png'
+# html_favicon = "_static/favicon.png"
 
 
 # Dictionary of values to pass into the Sphinx context for all pages:
@@ -138,6 +118,15 @@ html_context = {
     #
     # Required for feedback button
     "github_issues": "enabled",
+    # Passes the top-level 'author' value to the theme
+    "author": author,
+    # Documentation license information
+    "license": {
+        # SPDX identifier for this docs set's license
+        "name": "CC-BY-SA-3.0",
+        # Link to the license statement
+        "url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    },
 }
 
 html_extra_path = []
@@ -158,7 +147,7 @@ html_theme_options = {
 # If your documentation is hosted on https://docs.ubuntu.com/,
 #       uncomment and update as needed.
 
-slug = 'project/docs'
+slug = "project/docs"
 
 
 #######################
@@ -186,8 +175,8 @@ sitemap_filename = "doc-sitemap.xml"
 
 
 # Template and asset locations
-html_static_path = [".sphinx/_static"]
-templates_path = [".sphinx/_static/_templates"]
+html_static_path = ["_static"]
+templates_path = ["_templates"]
 
 
 #############
@@ -299,7 +288,12 @@ extensions = [
 ]
 
 # Excludes files or directories from processing
-exclude_patterns = ["maintainers/niche-package-maintenance/rustc/common", ".venv", "**/*.include"]
+exclude_patterns = [
+    "maintainers/niche-package-maintenance/rustc/common",
+    ".venv*",
+    ".pytest_cache*",
+    "**/*.include",
+]
 
 # Adds custom CSS files, located under 'html_static_path'
 html_css_files = [
@@ -437,7 +431,7 @@ if os.path.exists("./reuse/substitutions.yaml"):
 # Add configuration for intersphinx mapping
 
 intersphinx_mapping = {
-#    "ubuntu-server": ("https://ubuntu.com/server/docs/", None),
+    #    "ubuntu-server": ("https://ubuntu.com/server/docs/", None),
     "starter-pack": (
         "https://canonical-starter-pack.readthedocs-hosted.com/latest/",
         None,
