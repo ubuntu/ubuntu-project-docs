@@ -511,22 +511,19 @@ def _rust_ntpd_packaging(**overrides):
                 {"path": "./src/main.rs", "size": 100},
                 {
                     "path": (
-                        "./rust-vendor/rustls-platform-verifier/src/tests/"
-                        "verification_mock/go.sum"
+                        "./rust-vendor/rustls-platform-verifier/src/tests/verification_mock/go.sum"
                     ),
                     "size": 10,
                 },
                 {
                     "path": (
-                        "./rust-vendor/rustls-platform-verifier/src/tests/"
-                        "verification_mock/go.mod"
+                        "./rust-vendor/rustls-platform-verifier/src/tests/verification_mock/go.mod"
                     ),
                     "size": 10,
                 },
                 {
                     "path": (
-                        "./rust-vendor/rustls-platform-verifier/src/tests/"
-                        "verification_mock/ca.go"
+                        "./rust-vendor/rustls-platform-verifier/src/tests/verification_mock/ca.go"
                     ),
                     "size": 10,
                 },

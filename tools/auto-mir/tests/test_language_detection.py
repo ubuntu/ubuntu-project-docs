@@ -59,9 +59,7 @@ def test_tree_hints_skip_vendored_and_test_trees():
     language hints; the package's own sources are."""
     packaging = {
         "debian_rules": "export CARGO_VENDOR_DIR = rust-vendor\n",
-        "vendor_dir_names": derive_vendor_dir_names(
-            "export CARGO_VENDOR_DIR = rust-vendor\n"
-        ),
+        "vendor_dir_names": derive_vendor_dir_names("export CARGO_VENDOR_DIR = rust-vendor\n"),
         "go_sum_present": False,
         "cargo_lock_present": False,
         "file_listing": [

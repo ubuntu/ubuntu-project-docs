@@ -1055,9 +1055,7 @@ def test_report_lists_llm_degraded_checks():
         ),
     ]
     ctx.llm_reasoning_traces = []
-    noop_redactor = SimpleNamespace(
-        sanitize=lambda obj: obj, redact_text=lambda text: text
-    )
+    noop_redactor = SimpleNamespace(sanitize=lambda obj: obj, redact_text=lambda text: text)
     with (
         mock.patch.object(
             llm,

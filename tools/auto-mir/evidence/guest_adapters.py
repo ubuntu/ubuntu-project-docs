@@ -484,10 +484,7 @@ def _detect_language_markers(ctx: RunContext, full_source: str, debian_rules: st
         [
             "bash",
             "-lc",
-            (
-                f"cd {full_source} && "
-                f"find . -maxdepth 3 -type d \\( {name_args} \\)"
-            ),
+            (f"cd {full_source} && find . -maxdepth 3 -type d \\( {name_args} \\)"),
         ],
         allow_fail=True,
         as_ubuntu=True,
@@ -1433,8 +1430,7 @@ def collect_debian_delta(ctx: RunContext) -> dict:
         }
 
     tools_probe = (
-        "command -v pull-debian-source >/dev/null 2>&1 && "
-        "command -v debdiff >/dev/null 2>&1"
+        "command -v pull-debian-source >/dev/null 2>&1 && command -v debdiff >/dev/null 2>&1"
     )
     has_tools = _exists(ctx, ["bash", "-lc", tools_probe])
     if not has_tools:
@@ -1451,12 +1447,12 @@ def collect_debian_delta(ctx: RunContext) -> dict:
     # literals so no shell ever evaluates them before the guest does.
     script = (
         f"cd {workdir} && "
-        'ubuntu_dsc=$(ls ' + pkg + '_*.dsc 2>/dev/null | head -n1) '
+        "ubuntu_dsc=$(ls " + pkg + "_*.dsc 2>/dev/null | head -n1) "
         '&& [ -n "$ubuntu_dsc" ] && '
         f"rm -rf {destdir} && mkdir -p {destdir} && "
         f"pull-debian-source --download-only --destdir {destdir} {pkg} {base} "
         ">/dev/null 2>&1 && "
-        f'debian_dsc=$(ls {destdir}/*.dsc 2>/dev/null | head -n1) '
+        f"debian_dsc=$(ls {destdir}/*.dsc 2>/dev/null | head -n1) "
         '&& [ -n "$debian_dsc" ] && '
         'debdiff "$debian_dsc" "$ubuntu_dsc" > /tmp/debdiff.out 2>/dev/null && '
         "echo __AUTO_MIR_PATHS__ && "
@@ -1517,9 +1513,7 @@ def collect_debian_delta(ctx: RunContext) -> dict:
             "delta_summary": summary,
         }
 
-    diffstat = f"{len(changed_paths)} file(s) changed:\n" + "\n".join(
-        changed_paths[:60]
-    )
+    diffstat = f"{len(changed_paths)} file(s) changed:\n" + "\n".join(changed_paths[:60])
     summary = (
         f"Ubuntu carries a delta (version {version} vs Debian base {base}): "
         f"{len(changed_paths)} changed file(s); see the debdiff path summary "
@@ -1536,6 +1530,7 @@ def collect_debian_delta(ctx: RunContext) -> dict:
         "delta_category": _classify_delta_category(changed_paths),
         "delta_summary": summary,
     }
+
 
 # ---------------------------------------------------------------------------
 # Reverse dependencies adapter
