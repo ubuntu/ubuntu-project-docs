@@ -2896,7 +2896,7 @@ def test_collect_dup_search_probes_terms_and_tags_components():
         patch.object(
             guest_adapters,
             "_llm_dup_search_suggestions",
-            return_value={"terms": ["AV1 decoder"], "named_candidates": []},
+            return_value=({"terms": ["AV1 decoder"], "named_candidates": []}, ""),
         ),
     ):
         result = guest_adapters.collect_dup_search(ctx)
@@ -2950,7 +2950,7 @@ def test_collect_dup_search_merges_named_candidates():
         patch.object(
             guest_adapters,
             "_llm_dup_search_suggestions",
-            return_value={"terms": ["command line"], "named_candidates": ["urwid"]},
+            return_value=({"terms": ["command line"], "named_candidates": ["urwid"]}, ""),
         ),
     ):
         result = guest_adapters.collect_dup_search(ctx)

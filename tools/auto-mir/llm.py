@@ -686,3 +686,50 @@ def resolve_auth() -> tuple[str, str, str, str]:
 
     token, source, api_url = _openai_token_from_env()
     return "openai-compatible", token, source, api_url
+
+
+def preflight_check(ctx: "RunContext") -> None:
+    """Handshake the resolved LLM configuration with one minimal call.
+
+    A review run is LLM-driven by default, so a broken configuration must
+    fail fast and loud here — before any guest, evidence, or time is spent —
+    instead of degrading every AI check to a silent 'LLM unavailable' TODO
+    one HTTP 401 at a time (the rust-ntpd user-test regression).
+
+    Raises LLMError with actionable guidance on any failure.
+    """
+    source = getattr(ctx, "auth_source", "") or ""
+    base_url = (getattr(ctx, "llm_api_url", "") or "").rsplit("/chat/completions", 1)[0]
+    no_key = source.startswith(FALLBACK_AUTH_SOURCE_PREFIX)
+    if no_key and base_url.rstrip("/") == DEFAULT_OPENAI_BASE_URL:
+        # The one combination that can never work: a placeholder credential
+        # against the default (auth-requiring) hosted endpoint.
+        raise LLMError(
+            "LLM preflight failed: no OPENAI_API_KEY set and the default endpoint "
+            f"({DEFAULT_OPENAI_BASE_URL}) requires one.\n"
+            "Fix one of:\n"
+            "  - export OPENAI_API_KEY=<your OpenRouter API key>\n"
+            "  - export OPENAI_API_BASE=<your local/unauthenticated OpenAI-compatible "
+            "endpoint URL>\n"
+            "  - run with --no-llm for a deterministic-only evaluation"
+        )
+    try:
+        call_llm(
+            'Reply with only the JSON object {"ok": true}.',
+            ctx,
+            model_tier="small",
+            trace_label="preflight",
+        )
+    except LLMError as exc:
+        guidance = (
+            "Set OPENAI_API_KEY to a valid token for your OPENAI_API_BASE endpoint"
+            if not no_key
+            else "Set OPENAI_API_KEY (hosted endpoint) or OPENAI_API_BASE "
+            "(local/unauthenticated endpoint), or run with --no-llm"
+        )
+        raise LLMError(
+            f"LLM preflight failed: the configured endpoint is not usable ({exc}).\n"
+            f"Fix: {guidance}.\n"
+            "The run was aborted before any work was spent; without a working LLM, "
+            "use --no-llm for a deterministic-only evaluation."
+        ) from exc

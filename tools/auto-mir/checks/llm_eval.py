@@ -65,6 +65,22 @@ def _eval_ev_to_ai(
     """
     import llm
 
+    # (``is True`` so a test-double ctx with an auto-created attribute can
+    # never trip the deliberate-mode path.)
+    if getattr(ctx, "no_llm", False) is True:
+        # --no-llm: no call is attempted at all; degrade to the standard
+        # fallback (with the check's deterministic facts as the rationale) so
+        # the draft states this was a deliberate deterministic-only run.
+        _apply_llm_unavailable_fallback(
+            check,
+            finding,
+            "disabled by --no-llm",
+            fallback_suffix=fallback_suffix,
+        )
+        if fallback_rationale:
+            finding.rationale = _fallback_rationale_for_check(check, ctx)
+        return finding
+
     if evidence_payload is None:
         evidence_payload = _build_evidence_payload(check, ctx)
     policy_excerpt = _build_policy_excerpt(check, ctx)
@@ -84,6 +100,7 @@ def _eval_ev_to_ai(
         response = llm.call_llm(prompt, ctx, model_tier=model_tier, trace_label=check["id"])
     except llm.LLMError as exc:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
+        finding.llm_error_cause = str(exc)
         _apply_llm_unavailable_fallback(
             check,
             finding,
@@ -158,11 +175,16 @@ def _eval_human_only(check: dict, ctx: RunContext, finding: Finding) -> Finding:
 def _apply_llm_unavailable_fallback(
     check: dict,
     finding: Finding,
-    error: Exception,
+    error: Exception | str,
     *,
     fallback_suffix: str,
 ) -> None:
-    """Apply the standard unknown/low-confidence fallback for LLM outages."""
+    """Apply the standard unknown/low-confidence fallback for LLM outages.
+
+    ``error`` carries the reason into the rendered message (an exception
+    from a failed call, or a plain string for deliberate degradation such
+    as --no-llm).
+    """
     finding.mark_unknown(
         message=render_check_message(check, "llm_unavailable_message", error=str(error)),
         todo=_default_todo_for_check(check, fallback_suffix=fallback_suffix),
