@@ -2518,17 +2518,18 @@ def test_classify_delta_category_tests_only():
 
     # debian/changelog is carried by every Ubuntu delta and never counts
     # against the tests-only classification.
-    assert _classify_delta_category(
-        ["debian/changelog", "debian/tests/control", "debian/tests/smoke"]
-    ) == "tests-only"
+    assert (
+        _classify_delta_category(["debian/changelog", "debian/tests/control", "debian/tests/smoke"])
+        == "tests-only"
+    )
 
 
 def test_classify_delta_category_general():
     from evidence.guest_adapters import _classify_delta_category
 
-    assert _classify_delta_category(
-        ["debian/changelog", "src/foo.c", "debian/tests/x"]
-    ) == "general"
+    assert (
+        _classify_delta_category(["debian/changelog", "src/foo.c", "debian/tests/x"]) == "general"
+    )
 
 
 def test_classify_delta_category_empty_is_general():
@@ -3547,9 +3548,7 @@ def test_detect_language_markers_derives_vendor_dirs_from_rules():
         joined = " ".join(str(part) for part in cmd)
         if "test -f" in joined:
             # Cargo.lock exists, go.sum does not (test -f exit status decides)
-            return SimpleNamespace(
-                stdout="", returncode=0 if "Cargo.lock" in joined else 1
-            )
+            return SimpleNamespace(stdout="", returncode=0 if "Cargo.lock" in joined else 1)
         if "find . -maxdepth 3" in joined:
             find_commands.append(joined)
             return SimpleNamespace(stdout="./rust-vendor\n./vendor\n", returncode=0)
@@ -3613,8 +3612,11 @@ def test_prf1_fallback_fact_states_delta_presence():
 
     ctx = _facts_ctx(
         {
-            "packaging-source": {"status": "ok", "delta_kind": "ubuntu_delta",
-                                 "analyzed_version": "1.9.0-0ubuntu2"},
+            "packaging-source": {
+                "status": "ok",
+                "delta_kind": "ubuntu_delta",
+                "analyzed_version": "1.9.0-0ubuntu2",
+            },
             "debian-delta": {
                 "status": "ok",
                 "version": "1.9.0-0ubuntu2",

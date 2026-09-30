@@ -532,9 +532,7 @@ def _extract_build_test_hints(debian_rules: str, build_log: str) -> dict:
     """
     # Lowercase and inline make variables ($(CARGO) test -> cargo test) so a
     # runner invoked through a variable still matches its plain marker.
-    rules_lower = re.sub(
-        r"\$\(([A-Za-z0-9_]+)\)", r"\1", (debian_rules or "").lower()
-    )
+    rules_lower = re.sub(r"\$\(([A-Za-z0-9_]+)\)", r"\1", (debian_rules or "").lower())
     log_lower = (build_log or "").lower()
 
     runner_markers = [
@@ -1026,8 +1024,10 @@ def _fact_deterministic_build_tests(check_id: str, ctx: RunContext) -> str:
         parts.append("test failures are possibly ignored (e.g. '|| true' after a test target)")
     if fetch_build.get("status") == "ok":
         if hints["build_log_runs_tests"]:
-            parts.append("the build log shows tests running" + (
-                " with pass/fail output" if hints["build_log_has_pass_fail"] else ""))
+            parts.append(
+                "the build log shows tests running"
+                + (" with pass/fail output" if hints["build_log_has_pass_fail"] else "")
+            )
         else:
             parts.append("the build log shows no test run")
     else:
@@ -1121,8 +1121,11 @@ def _fact_tests_control(check_id: str, ctx: RunContext) -> str:
     if packaging.get("status") != "ok":
         return ""
     control = (packaging.get("debian_tests_control") or "").strip()
-    return ("debian/tests/control is present" if control
-            else "no debian/tests/control found in the packaging")
+    return (
+        "debian/tests/control is present"
+        if control
+        else "no debian/tests/control found in the packaging"
+    )
 
 
 def _fact_consumers(check_id: str, ctx: RunContext) -> str:
@@ -1133,8 +1136,10 @@ def _fact_consumers(check_id: str, ctx: RunContext) -> str:
     consumers = reverse.get("consumers", []) or []
     if not consumers:
         return "no reverse-dependency consumers found in the archive"
-    parts = [f"{len(consumers)} reverse-dependency consumer(s): " + ", ".join(
-        str(c) for c in consumers[:8])]
+    parts = [
+        f"{len(consumers)} reverse-dependency consumer(s): "
+        + ", ".join(str(c) for c in consumers[:8])
+    ]
     consumer_tests = _adapter(ctx, "consumer-autopkgtests")
     if consumer_tests.get("status") == "ok":
         entries = consumer_tests.get("consumers", []) or []
@@ -1152,13 +1157,9 @@ def _fact_service_files(check_id: str, ctx: RunContext) -> str:
         return ""
     parts = []
     services = packaging.get("service_files", []) or []
-    parts.append(
-        "systemd unit files: " + (", ".join(services[:8]) if services else "none found")
-    )
+    parts.append("systemd unit files: " + (", ".join(services[:8]) if services else "none found"))
     apparmor = packaging.get("apparmor_profiles", []) or []
-    parts.append(
-        "apparmor profiles: " + (", ".join(apparmor[:8]) if apparmor else "none found")
-    )
+    parts.append("apparmor profiles: " + (", ".join(apparmor[:8]) if apparmor else "none found"))
     return "; ".join(parts)
 
 
@@ -1170,10 +1171,7 @@ def _fact_crypto_scan(check_id: str, ctx: RunContext) -> str:
     hits = packaging.get("crypto_pattern_hits", []) or []
     if not hits:
         return "deprecated-crypto pattern scan found no indicators (not an exhaustive proof)"
-    return (
-        f"deprecated-crypto pattern scan found {len(hits)} hit(s), e.g. "
-        + "; ".join(hits[:3])
-    )
+    return f"deprecated-crypto pattern scan found {len(hits)} hit(s), e.g. " + "; ".join(hits[:3])
 
 
 def _fact_runtime_deps(check_id: str, ctx: RunContext) -> str:

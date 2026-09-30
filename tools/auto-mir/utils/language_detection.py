@@ -221,9 +221,11 @@ def detect_language_signals(packaging: dict) -> dict:
     if "dh-sequence-cargo" in control:
         rust_declared.append("dh-sequence-cargo in debian/control Build-Depends")
 
-    python_declared: list[str] = ["Python packaging signals in debian/rules/control"] if (
-        _is_python_package(packaging)
-    ) else []
+    python_declared: list[str] = (
+        ["Python packaging signals in debian/rules/control"]
+        if (_is_python_package(packaging))
+        else []
+    )
 
     return {
         "go": {
@@ -282,9 +284,7 @@ def _is_rust_package(packaging: dict) -> bool:
 def _other_language_declared(signals: dict, language: str) -> bool:
     """True when any language other than ``language`` has declared signals."""
     return any(
-        bool(entry["declared_evidence"])
-        for name, entry in signals.items()
-        if name != language
+        bool(entry["declared_evidence"]) for name, entry in signals.items() if name != language
     )
 
 
@@ -293,9 +293,7 @@ def _declared_language_names(signals: dict, language: str) -> str:
     packaging is declared - used to state which buildsystem outranked a
     tree hint."""
     declared = sorted(
-        name
-        for name, entry in signals.items()
-        if name != language and entry["declared_evidence"]
+        name for name, entry in signals.items() if name != language and entry["declared_evidence"]
     )
     return ", ".join(declared)
 
