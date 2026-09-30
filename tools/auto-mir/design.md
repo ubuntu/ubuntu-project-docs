@@ -64,11 +64,16 @@ Reviewer Stage 1: intake (`stage_intake`)
   and closed tasks are listed as context, not candidates.
 - Resolve the series from the *selected* package's open tasks, falling back
   to the development release; `--series` always wins.
-- Run early review-type pre-detection
-  (`review_type.pre_detect_review_type`): if bug text or `--review-type`
-  indicates a re-review/reorg, the reporter template requirement is skipped
-  (per MIR policy, it is not required for these fast-paths). The authoritative
-  detection runs in Stage 4.
+- Run the early review-type first decision
+  (`review_type.pre_classify_review_type`): a forced `--review-type`
+  short-circuits it; otherwise one bounded LLM call classifies the bug text
+  as new/rereview/reorg/unsure (with a high-precision regex fallback when
+  the LLM is unavailable), and any suspicious non-new result is presented
+  with its reasoning for the reviewer to confirm - a headless run defaults
+  to the safe fresh classification. A rereview/reorg outcome skips the
+  reporter template requirement (per MIR policy, it is not required for
+  these fast-paths). The decision is recorded and honoured by the
+  authoritative Stage-4 resolution (`review_type.detect_review_type`).
 
 3. Stage 2: isolation setup (`stage_spawn_guest`)
 - Create/provision LXD VM and tooling.
