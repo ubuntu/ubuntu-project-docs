@@ -25,7 +25,10 @@ and mitigates risk.
 
     [ Test Plan ]
 
-     * detailed instructions how to reproduce the bug
+     * detailed instructions how to reproduce the bug. Instructions should be
+       broken into steps which are clear and actionable.
+
+     * any step that has an expected return, provide the expected returns.
 
        * Ideally this is a well written and commented autopkgtest added as part
          of the upload that way it is verified mostly by automation and will
