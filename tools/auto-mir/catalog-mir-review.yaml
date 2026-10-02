@@ -884,12 +884,16 @@ checks:
   messages:
     unknown_message: Could not determine language (packaging-source failed)
     unknown_todo: 'TODO: - Determine if this is a Go package'
-    ok_go_message: 'Go Package — Debian Go packaging guidelines apply (see ESL-5/6/7)'
+    ok_go_message: 'Go Package — Debian Go packaging guidelines apply (see ESL-5/6/7); detected via {triggers}'
+    ok_hinted_go_message: 'Go source files present in the tree ({paths}) but no Go buildsystem declared in debian/rules'
+    ok_not_go_hint_message: 'not a go package (Go source files present in the tree: {paths}; but {lang} packaging is declared, so they are likely auxiliary or vendored files)'
     ok_not_go_message: not a go package, no extra constraints to consider in that regard
   required_messages:
     unknown_message: []
     unknown_todo: []
-    ok_go_message: []
+    ok_go_message: [triggers]
+    ok_hinted_go_message: [paths]
+    ok_not_go_hint_message: [paths, lang]
     ok_not_go_message: []
   todo_refs:
   - 'TODO-A: - not a go package, no extra constraints to consider in that regard'
@@ -1004,12 +1008,16 @@ checks:
   messages:
     unknown_message: Could not determine language (packaging-source failed)
     unknown_todo: 'TODO: - Determine if this is a Rust package'
-    ok_rust_message: 'Rust Package — Rust-specific constraints apply (see ESL-9/10)'
+    ok_rust_message: 'Rust Package — Rust-specific constraints apply (see ESL-9/10); detected via {triggers}'
+    ok_hinted_rust_message: 'Rust source files present in the tree ({paths}) but no Rust buildsystem declared in debian/rules'
+    ok_not_rust_hint_message: 'not a rust package (Rust source files present in the tree: {paths}; but {lang} packaging is declared, so they are likely auxiliary or vendored files)'
     ok_not_rust_message: not a rust package, no extra constraints to consider in that regard
   required_messages:
     unknown_message: []
     unknown_todo: []
-    ok_rust_message: []
+    ok_rust_message: [triggers]
+    ok_hinted_rust_message: [paths]
+    ok_not_rust_hint_message: [paths, lang]
     ok_not_rust_message: []
   todo_refs:
   - 'TODO-A: - not a rust package, no extra constraints to consider in that regard'
@@ -1038,14 +1046,14 @@ checks:
     unknown_message: Could not check debian/rules (packaging-source failed)
     unknown_todo: 'TODO: - Verify Rust package uses dh_cargo'
     ok_not_rust_message: not a rust package, dh_cargo gate not applicable
-    ok_message: 'rust package using dh_cargo (dh ... --buildsystem cargo)'
-    not_ok_message: Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules
+    ok_message: 'rust package using dh_cargo; detected via {triggers}'
+    not_ok_message: Rust package detected but dh_cargo / --buildsystem cargo not found in debian/rules or debian/control Build-Depends
     not_ok_todo: 'TODO: - Rust packages must use dh_cargo (dh ... --buildsystem cargo)'
   required_messages:
     unknown_message: []
     unknown_todo: []
     ok_not_rust_message: []
-    ok_message: []
+    ok_message: [triggers]
     not_ok_message: []
     not_ok_todo: []
   todo_refs:
@@ -1554,8 +1562,7 @@ checks:
   adapters_required:
   - packaging-source
   - lp-package-api
-  adapters_optional:
-  - git-ubuntu-delta
+  - debian-delta
   messages:
     llm_unavailable_message: 'LLM unavailable: {error}'
   todo_refs:
@@ -1578,7 +1585,7 @@ checks:
     predicate: package is Ubuntu-only
     render: '- This is an Ubuntu-only package'
     outcome: ok
-  ai_policy: 'Decide which option applies using the git-ubuntu-delta adapter evidence (delta_kind, delta_present, delta_category, diffstat, changelog_excerpt, delta_summary). If delta_kind is "sync" (delta_present false) choose option A: Ubuntu does not carry a delta. If delta_kind is "native" or the package exists only in Ubuntu choose option C: Ubuntu-only package. If delta_kind is "ubuntu_delta" choose option B: the following delta categories are considered reasonable and maintenance-under-control and MUST resolve to ok without escalation: (1) delta_category "tests-only" (the delta only adds or changes tests, e.g. only debian/tests paths in the diffstat); (2) delta fully upstreamed to Debian and/or upstream and expected to drop on the next merge. For option B always include in the message a one-line summary of what the delta actually changes (from delta_summary/diffstat and, when present, the changelog_excerpt which carries the delta''s own explanation) so the reviewer can judge quickly. Escalate to required/NACK only when the diffstat shows a large unjustified delta AND there is no explanation AND no active minimisation in progress. Do NOT ask anyone to "provide git-ubuntu log and diff" and do NOT invent TODO-A/TODO-B placeholders: the git-ubuntu-delta adapter already supplies the diff; decide from it.'
+  ai_policy: 'Decide which option applies using the debian-delta adapter evidence (delta_kind, delta_present, delta_category, diffstat, changelog_excerpt, delta_summary). If delta_kind is "sync" (delta_present false) choose option A: Ubuntu does not carry a delta. If delta_kind is "native" or the package exists only in Ubuntu choose option C: Ubuntu-only package. If delta_kind is "ubuntu_delta" choose option B: the following delta categories are considered reasonable and maintenance-under-control and MUST resolve to ok without escalation: (1) delta_category "tests-only" (the delta only adds or changes tests, e.g. only debian/tests paths in the diffstat); (2) delta fully upstreamed to Debian and/or upstream and expected to drop on the next merge. For option B always include in the message a one-line summary of what the delta actually changes (from delta_summary/diffstat and, when present, the changelog_excerpt which carries the delta''s own explanation) so the reviewer can judge quickly. Escalate to required/NACK only when the diffstat shows a large unjustified delta AND there is no explanation AND no active minimisation in progress. Do NOT ask anyone to "provide the diff" and do NOT invent TODO-A/TODO-B placeholders: the debian-delta adapter already supplies the diff; decide from it. If the adapter reports the Debian base could not be fetched, state that and leave the delta judgement to the reviewer.'
 
 - id: PRF-2
   section: Packaging red flags
@@ -1958,6 +1965,8 @@ checks:
     systemd_todo: 'TODO: - use of setuid, but ok because systemd is used'
     not_ok_message: 'setuid/setgid detected in {source}'
     not_ok_todo: 'TODO: - no use of setuid / setgid'
+    not_owned_message: 'setuid/setgid references found that are not owned usage of this package ({details}); not flagged as a problem, but the reviewer should confirm they are unused'
+    not_owned_todo: 'TODO: - verify the setuid/setgid references in vendored code are not used by anything shipped'
     ok_message: no use of setuid / setgid
     ok_comment_only_message: 'setuid/setgid matches are in commented-out code only (inactive, reported for completeness): {hits}'
   required_messages:
@@ -1971,13 +1980,15 @@ checks:
     systemd_todo: []
     not_ok_message: [source]
     not_ok_todo: []
+    not_owned_message: [details]
+    not_owned_todo: []
     ok_message: []
     ok_comment_only_message: [hits]
   todo_refs:
   - 'TODO: - no use of setuid / setgid'
   - 'TODO: - use of setuid, but ok because TBD (prefer systemd to set those for services)'
   ai_policy: none
-  notes: 'grep -Hrn -e setuid -e setgid in source; find . \( -perm -4000 -o -perm -2000 \) in built binaries'
+  notes: 'grep -Hrn -e setuid -e setgid in source; find . \( -perm -4000 -o -perm -2000 \) in built binaries. Hard signals (permission bits, lintian tags on built artefacts, debian/rules setup, active non-vendored usage) fail as Problems; references inside vendored trees and FFI declarations are not owned usage and render in Left to decide for confirmation instead'
 - id: URF-6
   section: Upstream red flags
   title: No important open bugs

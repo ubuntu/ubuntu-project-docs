@@ -24,6 +24,13 @@ Review an existing Launchpad MIR bug:
 $ ./auto_mir.py review <bug number>
 ```
 
+A bug can carry several Ubuntu package tasks (e.g. related cases). With a
+single task the review targets it; with several, one small LLM call tries to
+resolve which package the bug text is about, and anything short of a
+high-confidence pick is asked of you interactively (a headless run stops
+instead of guessing). Pass `--source-package <name>` to select the task
+explicitly and skip both.
+
 To prepare a reporter draft from a source package, use an interactive terminal:
 
 ```none
@@ -112,6 +119,11 @@ The tool checks all required Python modules before doing work. If one or more
 are missing, it reports the corresponding Ubuntu packages in one installation
 command. `./auto_mir.py --help` remains available on an unprepared host.
 
+Guest-side tools (lintian, ubuntu-dev-tools, devscripts for the
+`debdiff`-based Ubuntu-delta analysis, and friends) are provisioned
+automatically inside the LXD VM during each run; nothing needs to be
+installed manually for them. git-ubuntu is no longer needed.
+
 ## LLM usage by the tool
 
 Auto-MIR calls a small and a large language model through an
@@ -127,19 +139,33 @@ $ echo
 $ export OPENAI_API_KEY
 ```
 
-`OPENAI_API_KEY` is optional: if it is unset, auto-mir warns and proceeds with
-a placeholder credential, which is enough for a local/unauthenticated
-OpenAI-compatible endpoint (set via `OPENAI_API_BASE`). Set `OPENAI_API_KEY`
-for OpenRouter or any other endpoint that actually checks the token.
+The LLM is part of the review mode's contract, and the two modes are strict:
+either the LLM works (the default), or the run is deliberately without LLM
+via `--no-llm` (deterministic evaluation where every AI check degrades to a
+manual-review TODO carrying its deterministic facts; the draft states the
+mode up front). Anything in between is a configuration error: stage 0
+resolves the provider and handshakes the endpoint with one minimal call, and
+an unusable configuration — no key against the default OpenRouter endpoint, a
+rejected key, an unreachable endpoint — aborts the run right there with
+guidance pointing at `OPENAI_API_KEY`, `OPENAI_API_BASE`, and `--no-llm`,
+before any guest or evidence work is spent. A local/unauthenticated
+OpenAI-compatible endpoint keeps working: set `OPENAI_API_BASE` and the
+preflight probes it instead of assuming a key.
 
 The endpoint defaults to `https://openrouter.ai/api/v1`, with `z-ai/glm-4.7`
 and `z-ai/glm-5.2` as the small and large models. To use another compatible
 service, set `OPENAI_API_BASE` and select compatible models with the model
 options shown by `./auto_mir.py --help`.
 
-Use `--no-llm` to disable optional model-backed enrichment; the current
-user-test catalog is deterministic plus human input and does not require an
-API key.
+If the endpoint fails mid-run (after the preflight passed — a transient
+outage), the affected checks degrade to manual-review TODOs marked with
+`NOTE: - LLM unavailable for this check (<reason>)` in the draft, the
+structured report lists them under `llm_degraded`, and the completion banner
+warns about them, so a degraded run is always distinguishable from one where
+the model genuinely could not decide.
+
+Report mode keeps its softer contract (AI suggestions are optional; a run
+never requires a key), but a configured-but-broken key fails fast there too.
 
 Resolved API credentials stay on the host and are not persisted in the LXD
 guest; "Output" describes how they are redacted from the artifacts.

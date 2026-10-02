@@ -30,9 +30,7 @@ def strip_rule_clause_tag(line: str) -> str:
     return _RULE_CLAUSE_TAG_PATTERN.sub("RULE:", line, count=1)
 
 
-BlueprintEntryKind = Literal[
-    "section", "rule", "todo", "heading", "label", "blank", "item", "text"
-]
+BlueprintEntryKind = Literal["section", "rule", "todo", "heading", "label", "blank", "item", "text"]
 
 # A visual group delimiter in a template blueprint: a ``'# -------- Label'``
 # line that separates question groups within a section (the reporter template

@@ -36,6 +36,29 @@ def test_cli_accepts_explicit_review_command():
     assert args.bug_id == "12345"
 
 
+def test_cli_review_accepts_source_package_override():
+    args = auto_mir.build_parser().parse_args(
+        ["review", "12345", "--source-package", "fonts-font-awesome-legacy"]
+    )
+
+    assert args.role == "review"
+    assert args.source_package_override == "fonts-font-awesome-legacy"
+
+
+def test_cli_source_package_override_is_review_only():
+    args = auto_mir.build_parser().parse_args(["report", "libfoo"])
+    assert getattr(args, "source_package_override", "") == ""
+
+
+def test_cli_review_source_package_override_help_explains_multi_task_bugs():
+    parser = auto_mir.build_parser()
+    subcommands = parser._subparsers._group_actions[0].choices
+    help_text = subcommands["review"].format_help()
+
+    assert "--source-package" in help_text
+    assert "multiple" in help_text
+
+
 def test_cli_accepts_report_source_and_no_llm():
     args = auto_mir.build_parser().parse_args(["report", "libfoo", "--no-llm"])
 
