@@ -279,19 +279,18 @@ team that we then later add developers to.
 
  ## How to remove a packageset
 
-A packageset can be deleted, if there is no need for it anymore, to decide
-and act on that requires a DMB vote.
-
+A packageset can be deleted if there is no need for it anymore. A DMB vote
+is required to do so.
 ```{warning}
-It is important to remove the packageset from all released before deleting
+It is important to remove the packageset from all releases before deleting
 the associated Launchpad group that the DMB used to manage the uploaders.
 ```
 
-One needs to remember that a packagset is created per series, so the removal
-likely needs to iterate over a list of series and remove it in all of them.
+A packagset is created per series, so the removal
+likely needs to iterate over a list of series to remove it in all of them.
 
 A team with an uploader can not be removed, and only a tech-board member can
-modify the uploader which usually is a group like `ubuntu-gnome-dev` then
+modify the uploader. This is usually a group like `ubuntu-gnome-dev`,
 managed by the DMB.
 
 * First delete the uploader(s)
