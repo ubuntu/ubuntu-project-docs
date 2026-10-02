@@ -286,7 +286,7 @@ It is important to remove the packageset from all releases before deleting
 the associated Launchpad group that the DMB used to manage the uploaders.
 ```
 
-A packagset is created per series, so the removal
+A packageset is created per series, so the removal
 likely needs to iterate over a list of series to remove it in all of them.
 
 A team with an uploader can not be removed, and only a tech-board member can
