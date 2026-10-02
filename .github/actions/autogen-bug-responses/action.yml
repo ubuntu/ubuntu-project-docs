@@ -1,0 +1,11 @@
+name: Ubuntu QA Tool Responses Action
+description: Generates all Ubuntu QA Tool Responses
+
+inputs:
+  config:
+    description: Relative path to the generator JSON configuration file
+
+runs:
+  using: node24
+  main: library/main.js
+  post: library/post.js
