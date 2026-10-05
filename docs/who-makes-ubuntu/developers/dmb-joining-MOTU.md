@@ -69,7 +69,7 @@ More advanced packaging topics you should be comfortable with as a MOTU applican
 
 * The {ref}`Main Inclusion Review (MIR) <main-inclusion-review>`process
 
-* [Component mismatches](https://ubuntu-archive-team.ubuntu.com/component-mismatches-proposed.html)
+* [Component mismatches](https://static-reports.ubuntu.com/mismatches/component-mismatches-proposed.html)
 
 * Binary packages [not built from source (NBS)](https://static-reports.ubuntu.com/nbs/nbs.html)
 

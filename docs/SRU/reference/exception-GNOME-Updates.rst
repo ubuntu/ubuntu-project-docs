@@ -87,7 +87,7 @@ Gnome Testing
 An appropriate test plan varies according to the package.
 
 The desktop team will maintain specific test plans at
-`CategoryDesktopTestPlans <https://wiki.ubuntu.com/CategoryDesktopTestPlans>`__. If a test plan
+{ref}`desktop-team-test-plans`. If a test plan
 is for a particular package is provided there, then it should be
 followed during SRU verification for SRUs performed under this
 exception.

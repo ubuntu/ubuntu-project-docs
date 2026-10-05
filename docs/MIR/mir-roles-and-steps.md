@@ -138,9 +138,9 @@ as per {ref}`seed-management`, or adding a dependency to it from another
 package that already is in main.
 
 The package will not be moved to main automatically, but will show up in the
-[`component-mismatches`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg)
+[`component-mismatches`](https://static-reports.ubuntu.com/mismatches/component-mismatches.svg)
 list, or if the dependency is only in proposed, the
-[`component-mismatches-proposed`](https://ubuntu-archive-team.ubuntu.com/component-mismatches-proposed.svg)
+[`component-mismatches-proposed`](https://static-reports.ubuntu.com/mismatches/component-mismatches-proposed.svg)
 list.
 
 At this point, **Archive Admins** will promote approved packages to `main`.

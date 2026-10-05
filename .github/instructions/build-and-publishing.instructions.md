@@ -11,13 +11,12 @@ Scope contract: This file governs documentation build and publishing behavior fo
 
 ## Commands
 
-All commands run from the `docs/` directory. The first run auto-creates a Python venv at `docs/.sphinx/venv/`.
+All commands run from the `docs/` directory. The first run auto-creates a Python venv at `docs/.venv/`.
 
 ```bash
 make run          # Build, watch, and serve locally at http://127.0.0.1:8000
 make html         # Build only
 make linkcheck    # Check all external links
-make lint-md      # Check Markdown syntax (pymarkdownlnt)
 make vale         # Full style guide check (Canonical rules, errors only)
 make spelling     # Spelling check only
 make woke         # Inclusive language check only
@@ -39,7 +38,7 @@ make spelling TARGET=contributors/
 - **Sphinx + MyST Markdown**: all content is `.md` using MyST extensions; `.rst` is also supported
 - **`docs/conf.py`**: central Sphinx config — extensions, substitutions, intersphinx mappings, custom roles, linkcheck exceptions; update `stable_distro` here when a new Ubuntu release becomes stable
 - **`docs/redirects.txt`**: old→new path mappings enforced by `sphinxext.rediraffe`; add an entry here whenever a page is moved or renamed
-- **`docs/.sphinx/`**: tooling config (Vale, pa11y, pymarkdown, static assets) — not content
+- **`docs/_dev/`**: tooling config (Vale, pa11y, pymarkdown, update scripts) — not content; static assets live in `docs/_static/` and templates in `docs/_templates/`
 - **`docs/.custom_wordlist.txt`**: add project-specific terms here to suppress false Vale spelling errors
 - **`docs/reuse/links.txt`**: RST link definitions appended to every page via `rst_epilog`; define shared URLs here and use the named references in content
 

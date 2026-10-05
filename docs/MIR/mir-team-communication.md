@@ -63,8 +63,8 @@ Please speak up if you have a topic to add
 ## Topic 2/7: Current component mismatches
 ### Mission: Identify required actions and spread the load among the teams
 Check these generated reports:
-* [component-mismatches-proposed](https://ubuntu-archive-team.ubuntu.com/component-mismatches-proposed.svg)
-* [component-mismatches](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg)
+* [component-mismatches-proposed](https://static-reports.ubuntu.com/mismatches/component-mismatches-proposed.svg)
+* [component-mismatches](https://static-reports.ubuntu.com/mismatches/component-mismatches.svg)
 
 ## Topic 3/7: New MIRs
 ### Mission: ensure to assign all incoming reviews for fast processing

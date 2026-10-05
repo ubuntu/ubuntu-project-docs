@@ -25,7 +25,7 @@ Issue types:
 (main-universe-binary-mismatch)=
 ## `main`/`universe` binary mismatch
 
-A given source package may have some binaries in `main` and others in `universe`, but this can get mixed up for various reasons. This type of issues, known as "component mismatches" (see the list of current [Component mismatches](https://ubuntu-archive-team.ubuntu.com/component-mismatches.html)), looks like this in the list of migration excuses:
+A given source package may have some binaries in `main` and others in `universe`, but this can get mixed up for various reasons. This type of issues, known as "component mismatches" (see the list of current [Component mismatches](https://static-reports.ubuntu.com/mismatches/component-mismatches.html)), looks like this in the list of migration excuses:
 
 ```none
 php8.1-dba/amd64 in main cannot depend on libqdbm14 in universe
@@ -182,6 +182,15 @@ If the package, as shown in [update_excuses](https://ubuntu-archive-team.ubuntu.
 
 
 ### Parse the {file}`update_output.txt` file
+
+The {file}`update_output.txt` file is the report of the proposed-migration scripts as they recurse through candidate packages. It is terse, but understanding its line types helps:
+
+* **`trying:`** — the script is evaluating whether this package can migrate.
+* **`accepted:`** — the package (or group) appears to make things better and is accepted into the release pocket.
+* **`skipped:`** — the package makes things worse and is not accepted.
+* **`recur:`** — shows the recursion path. For example, `recur: [foo bar] baz` means "having already found that foo and bar make things better, now trying baz to see what happens, even though it breaks things."
+
+After all candidates have been tried, the script compares the total number of broken packages before and after. If the result is better, the changes are accepted; otherwise they are discarded.
 
 Using the {pkg}`exim4` package as an example.
 

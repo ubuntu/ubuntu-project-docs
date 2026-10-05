@@ -39,7 +39,7 @@ indirectly via a dependency from something that already is in `main`.
 
 For something to be allowed into `main`, all its code and runtime dependencies
 must be in `main`. The MIR team checks for missing dependencies via
-[component-mismatches](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg)
+[component-mismatches](https://static-reports.ubuntu.com/mismatches/component-mismatches.svg)
 reports, discussed as part of the {ref}`MIR team meeting <mir-team-meeting>`.
 
 In the past, build-dependencies also had to be in generally `main`, but since

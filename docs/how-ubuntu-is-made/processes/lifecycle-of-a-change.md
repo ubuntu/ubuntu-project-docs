@@ -14,8 +14,8 @@ The diagrams here show the path a change takes, each stage then
 refined in later sections, some with optional paths where applicable.
 
 This overview of the involved mechanisms allows a contributor to know
-what topic to study next and can be considered a different point of view
-to the content aligned to the lifecycle of a change and its way into Ubuntu.
+what topic to study next and can be considered a different perspective on the
+content aligned to the lifecycle of a change and its way into Ubuntu.
 
 ```{include} /how-ubuntu-is-made/processes/lifecycle-of-a-change.txt
 ```

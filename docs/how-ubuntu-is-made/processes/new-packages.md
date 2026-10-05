@@ -85,6 +85,30 @@ Start with {ref}`how-to-find-a-sponsor` for the current sponsorship process.
 After the new package is uploaded, it will show up and be held in the NEW queue.
 It is then {ref}`checked by the Archive Admin team <aa-new-review>`.
 
+(example-new-package-request)=
+## Example new package request
+
+This is an example of an ideal "Package Request" bug. Don't forget to tag the bug with '`needs-packaging`'.
+
+```
+[needs-packaging] <requested package name>
+
+<description (paragraph or two)>
+
+URL: <homepage_url>
+License: <license>
+Notes: <anything that developers should know about the application>
+```
+
+```
+[needs-packaging] Firefox
+
+Firefox is a well known, lightweight but powerful web-browser from the Mozilla Foundation. It is quickly growing in popularity and has almost 25% user share.
+
+URL: http://www.mozilla.com/firefox
+License: Mozilla Public License
+Notes: Comes in stable (Firefox 2) and unstable/beta (Firefox 3) versions
+```
 
 ## Further reading
 
