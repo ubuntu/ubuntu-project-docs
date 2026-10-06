@@ -10,7 +10,7 @@ This is a common test plan shared across all of Ubuntu's browser packages. For t
 
 * `firefox` (TBD)
 * {ref}`chromium <Chromium-test-plan>`
-* {ref}`epiphany <Epiphany-test-plan>` (TBD)
+* `epiphany` (TBD)
 * `netsurf` (TBD)
 * `dillo` (TBD)
 
