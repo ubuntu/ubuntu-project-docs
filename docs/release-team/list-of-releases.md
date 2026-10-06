@@ -20,12 +20,24 @@ feature-based one), approximately every 6 months.
   - Release
   - End of Standard Support
   - End of Life
+* - Ubuntu 26.04.1 LTS
+  - Resolute Raccoon
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/26.04/1/)
+  - [Aug 27, 2026](https://lists.ubuntu.com/archives/ubuntu-announce/2026-August/000326.html)
+  - May 2031
+  - Apr 2041
 * - Ubuntu 26.04 LTS
   - Resolute Raccoon
   - [Release Notes](https://documentation.ubuntu.com/release-notes/26.04/)
   - [Apr 23, 2026](https://lists.ubuntu.com/archives/ubuntu-announce/2026-April/000323.html)
   - May 2031
   - Apr 2041
+* - Ubuntu 24.04.5 LTS
+  - Noble Numbat
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/24.04/5/)
+  - [Sep 10, 2026](https://lists.ubuntu.com/archives/ubuntu-announce/2026-September/000327.html)
+  - Jun 2029
+  - Apr 2039
 * - Ubuntu 24.04.4 LTS
   - Noble Numbat
   - [Release Notes](https://discourse.ubuntu.com/t/noble-numbat-point-release-changes/47565/5)
@@ -281,18 +293,6 @@ feature-based one), approximately every 6 months.
   - Docs
   - Release
   - End of Standard Support
-* - Ubuntu 26.04.1 LTS
-  - Resolute Raccoon
-  - TBD
-  - TBD
-  - Aug 2026
-  - May 2031
-* - Ubuntu 24.04.5 LTS
-  - Noble Numbat
-  - TBD
-  - TBD
-  - Sep 2026
-  - Jun 2029
 * - Ubuntu xx.yy
   - Stonking Stingray
   - TBD
