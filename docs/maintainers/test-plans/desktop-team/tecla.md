@@ -1,6 +1,10 @@
 (tecla-test-plan)=
 # Tecla test plan
 
+:::{note}
+`tecla` has been part of `main` since Ubuntu 23.10 (mantic).
+:::
+
 Below are the test cases that should be run when `tecla` is updated to new major releases in the development version of Ubuntu. These should also be run for all `tecla` Stable Release Updates.
 
 

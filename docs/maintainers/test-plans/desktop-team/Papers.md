@@ -1,6 +1,10 @@
 (Papers-test-plan)=
 # Papers test plan
 
+:::{note}
+`papers` was introduced in Ubuntu 25.04 (plucky) as `main`, replacing {ref}`Evince <Evince-test-plan>`.
+:::
+
 Below are the test cases that should be run when any of `papers` or `poppler` are updated to new major releases in the development version of Ubuntu. These should also be run for any Stable Release Update for `papers` or `poppler`.
 
 

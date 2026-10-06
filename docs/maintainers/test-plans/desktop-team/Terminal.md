@@ -1,6 +1,10 @@
 (Terminal-test-plan)=
 # Terminal test plan
 
+:::{note}
+`ptyxis` has been part of `main` since Ubuntu 25.10 (questing), when it replaced `gnome-terminal` as Ubuntu's default terminal.
+:::
+
 Since the **Terminal** doesn't have a test suite or autopkgtests, we rely on a manual test plan to verify functionality after updates to new versions. These tests should be run before every SRU and when updating `ptyxis` to a new major version in Ubuntu's development series.
 
 

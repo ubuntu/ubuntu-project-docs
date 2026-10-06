@@ -1,6 +1,10 @@
 (Showtime-test-plan)=
 # Showtime test plan
 
+:::{note}
+`showtime` has been part of `main` since Ubuntu 26.04 LTS (resolute). It was in `universe` in earlier releases.
+:::
+
 Below are the test cases that should be run when Showtime is updated to new major releases in the development version of Ubuntu. These should also be run for all Showtime Stable Release Updates.
 
 Showtime is the default media player of the Ubuntu Desktop, starting with Ubuntu 26.04
