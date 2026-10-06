@@ -6,17 +6,10 @@
 
 ## Description
 
-This is a common test plan shared across all of Ubuntu's browser packages. For the browser-specific test plans, see
+This is a common test plan shared across all of Ubuntu's browser packages. For the browser-specific test plans, see:
 
 * `firefox` (TBD)
 * {ref}`chromium <Chromium-test-plan>`
-* `epiphany` (TBD)
-* `netsurf` (TBD)
-* `dillo` (TBD)
-
-:::{note}
-Please note that not all of the tests may be applicable to all browsers, depending on the feature set and scope of each browser. For instance, both `firefox` and `chromium` should be able to handle most of the following, but others like `netsurf` or `dillo` may not.
-:::
 
 
 ## Initial setup
