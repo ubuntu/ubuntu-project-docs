@@ -23,8 +23,9 @@ Minimise regression
 Behaviour a user reasonably relies upon that works today must not break
 tomorrow as a result of an update. In a stable release, this includes
 *any* user interface change! Exception: behaviour that we deem buggy
-must necessarily change in order to fix it. [Expand on this]. See `xkcd
+must necessarily change in order to fix it. See `xkcd
 spacebar heater <https://xkcd.com/1172/>`_.
+.. expand the exception with a real world example.
 
 In contrast to pre-release versions, official releases of Ubuntu are
 subject to much wider use, and by a different demographic of users.
@@ -67,4 +68,8 @@ Maintain usefulness
 ~~~~~~~~~~~~~~~~~~~
 
 We make exceptions to keep the distribution useful. E.g. Firefox,
-hardware enablement, Internet protocol [need to expand on this].
+hardware enablement, Internet protocol.
+
+..
+    expand the above section with real examples.
+    
