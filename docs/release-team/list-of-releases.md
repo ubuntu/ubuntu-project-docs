@@ -100,7 +100,7 @@ feature-based one), approximately every 6 months.
   - Apr 2037
 * - Ubuntu 22.04 LTS
   - Jammy Jellyfish
-  - [Release Notes](https://wiki.ubuntu.com/JammyJellyfish/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/22.04/)
   - [Apr 21, 2022](https://lists.ubuntu.com/archives/ubuntu-announce/2022-April/000279.html)
   - Jun 2027
   - Apr 2037
@@ -142,7 +142,7 @@ feature-based one), approximately every 6 months.
   - Apr 2035
 * - Ubuntu 20.04 LTS
   - Focal Fossa
-  - [Release Notes](https://wiki.ubuntu.com/FocalFossa/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/20.04/)
   - [Apr 23, 2020](https://lists.ubuntu.com/archives/ubuntu-announce/2020-April/000256.html)
   - [May 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2020-April/000256.html)
   - Apr 2035
@@ -184,7 +184,7 @@ feature-based one), approximately every 6 months.
   - Apr 2033
 * - Ubuntu 18.04 LTS
   - Bionic Beaver
-  - [Release Notes](https://wiki.ubuntu.com/BionicBeaver/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/18.04/)
   - [Apr 26, 2018](https://lists.ubuntu.com/archives/ubuntu-announce/2018-April/000231.html)
   - [Jun 2023](https://ubuntu.com//blog/18-04-end-of-standard-support)
   - Apr 2033
@@ -232,7 +232,7 @@ feature-based one), approximately every 6 months.
   - Apr 2031
 * - Ubuntu 16.04 LTS
   - Xenial Xerus
-  - [Release Notes](https://wiki.ubuntu.com/XenialXerus/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/16.04/)
   - [Apr 21, 2016](https://lists.ubuntu.com/archives/ubuntu-announce/2016-April/000207.html)
   - [Apr 2021](https://lists.ubuntu.com/archives/ubuntu-announce/2016-April/000207.html)
   - Apr 2031
@@ -274,7 +274,7 @@ feature-based one), approximately every 6 months.
   - Apr 2029
 * - Ubuntu 14.04 LTS
   - Trusty Tahr
-  - [Release Notes](https://wiki.ubuntu.com/TrustyTahr/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/14.04/)
   - [Apr 17, 2014](https://lists.ubuntu.com/archives/ubuntu-announce/2014-April/000182.html)
   - [Apr 2019](https://lists.ubuntu.com/archives/ubuntu-announce/2014-April/000182.html)
   - Apr 2029
