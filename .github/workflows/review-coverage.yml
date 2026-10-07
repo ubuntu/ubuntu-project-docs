@@ -1,0 +1,111 @@
+# Track which CODEOWNERS owner-groups still owe an approval on each PR.
+# See .github/actions/review-coverage/README.md.
+# Checkout is pinned to the default branch: PR code is never executed here
+# (this workflow runs on pull_request_target with a write-capable token).
+name: Review coverage
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+    paths:
+      - '.github/CODEOWNERS'
+      - '.github/CODEOWNERS-teams.yaml'
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 'PR number (optional; empty = rescan all open PRs)'
+        required: false
+        default: ''
+
+permissions: {}
+
+jobs:
+  coverage:
+    name: Update review coverage
+    # Runs after yaml-sync: a sync commit adds a file that can change the
+    # requirement set, and GITHUB_TOKEN commits do not trigger a new run.
+    # !cancelled() keeps coverage running when yaml-sync is skipped or fails.
+    needs: yaml-sync
+    if: >-
+      !cancelled() && (
+      github.event_name == 'pull_request_target' ||
+      (github.event_name == 'workflow_dispatch' && inputs.pr != ''))
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+      statuses: write # review-coverage commit status
+    concurrency:
+      group: review-coverage-pr-${{ github.event.pull_request.number || inputs.pr }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - name: Run review coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr }}
+        run: python3 .github/actions/review-coverage/script.py coverage --pr "$PR_NUMBER"
+
+  yaml-sync:
+    name: Sync teams yaml on CODEOWNERS PRs
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # same-repo sync commit path
+      pull-requests: write
+    # Own group: sharing the coverage/worker group would let a queued review
+    # worker replace (cancel) a pending yaml-sync, since a concurrency group
+    # holds only one pending job. yaml-sync writes a different comment and
+    # branch, so it needs no serialization with the coverage writers.
+    concurrency:
+      group: review-coverage-sync-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - name: Sync teams yaml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python3 .github/actions/review-coverage/script.py sync-yaml --pr "$PR_NUMBER"
+
+  rescan:
+    name: Rescan open PRs after CODEOWNERS change
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && inputs.pr == '')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # sync-yaml --base opens a PR
+      contents: write # sync-yaml --base commit path
+      actions: write # dispatch one coverage run per open PR
+    concurrency:
+      group: review-coverage-scan
+      cancel-in-progress: false
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - name: Sync teams yaml to default branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/actions/review-coverage/script.py sync-yaml --base
+      - name: Dispatch a coverage run for every open PR
+        # Per-PR runs join the PR's concurrency group, so a rescan can't
+        # race a review-triggered update. Runs even if the sync failed (the
+        # job still ends red, so a sync failure stays visible).
+        if: ${{ !cancelled() }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/actions/review-coverage/script.py coverage --all-open --dispatch
