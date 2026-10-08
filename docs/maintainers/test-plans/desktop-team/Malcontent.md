@@ -1,6 +1,10 @@
 (Malcontent-test-plan)=
 # Malcontent test plan
 
+:::{note}
+`malcontent` has been part of `main` since Ubuntu 25.04 (plucky). It was in `universe` in earlier releases, including Ubuntu 24.04 LTS (noble).
+:::
+
 If a step fails, only mark the SRU as verification-failed if it is a regression, i.e., the current version (in normal updates pocket) is not affected.
 
 
