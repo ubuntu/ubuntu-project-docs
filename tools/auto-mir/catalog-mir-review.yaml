@@ -1788,7 +1788,7 @@ checks:
   - 'TODO: - debian/rules is rather clean'
   ai_policy: 'Assess debian/rules complexity from its full content (provided verbatim). Treat as clean (status ok, use the template statement) when it is essentially a base debhelper setup: a "#!/usr/bin/make -f" + "%: dh $@" style rules file with only defaults, or with overrides that merely configure/parametrise the build or the autotests/autoconfigure (e.g. passing flags, enabling/selecting tests) WITHOUT disabling them. Escalate to a reviewer judgment (recommended) only when the rules file is a maintenance hazard: it disables hardening or tests, contains large hand-rolled build logic, manipulates files in fragile ways, or is long/complex (roughly >100 non-comment lines). When escalating, summarise concisely what makes it complex so the reviewer can judge quickly. Controlling but not disabling autotests/autoconfigure is fine and stays ok.'
 
-- id: PRF-10
+- id: PRF-11
   section: Packaging red flags
   title: Not on lto-disabled list
   mode: deterministic
@@ -1807,7 +1807,7 @@ checks:
   - 'TODO: - It is not on the lto-disabled list'
   ai_policy: none
   notes: 'Check against lp:ubuntu/+source/lto-disabled-list. If present, the fix or workaround must be in the package itself before promotion.'
-- id: PRF-11
+- id: PRF-10
   section: Packaging red flags
   title: debian/control Maintainer field correctness
   mode: deterministic
