@@ -218,6 +218,7 @@ Mutter
 Mythbuntu
 Nautilus
 neurotype
+OCaml
 NGOs
 Noto
 onboarding
@@ -295,6 +296,8 @@ SLOs
 smartcard
 Snapcraft
 snapcraft
+SONAME
+SONAMEs
 sosreport
 spammy
 sponsoree
