@@ -100,7 +100,7 @@ feature-based one), approximately every 6 months.
   - Apr 2037
 * - Ubuntu 22.04 LTS
   - Jammy Jellyfish
-  - [Release Notes](https://wiki.ubuntu.com/JammyJellyfish/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/22.04/)
   - [Apr 21, 2022](https://lists.ubuntu.com/archives/ubuntu-announce/2022-April/000279.html)
   - Jun 2027
   - Apr 2037
@@ -142,7 +142,7 @@ feature-based one), approximately every 6 months.
   - Apr 2035
 * - Ubuntu 20.04 LTS
   - Focal Fossa
-  - [Release Notes](https://wiki.ubuntu.com/FocalFossa/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/20.04/)
   - [Apr 23, 2020](https://lists.ubuntu.com/archives/ubuntu-announce/2020-April/000256.html)
   - [May 2025](https://lists.ubuntu.com/archives/ubuntu-announce/2020-April/000256.html)
   - Apr 2035
@@ -184,7 +184,7 @@ feature-based one), approximately every 6 months.
   - Apr 2033
 * - Ubuntu 18.04 LTS
   - Bionic Beaver
-  - [Release Notes](https://wiki.ubuntu.com/BionicBeaver/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/18.04/)
   - [Apr 26, 2018](https://lists.ubuntu.com/archives/ubuntu-announce/2018-April/000231.html)
   - [Jun 2023](https://ubuntu.com//blog/18-04-end-of-standard-support)
   - Apr 2033
@@ -232,7 +232,7 @@ feature-based one), approximately every 6 months.
   - Apr 2031
 * - Ubuntu 16.04 LTS
   - Xenial Xerus
-  - [Release Notes](https://wiki.ubuntu.com/XenialXerus/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/16.04/)
   - [Apr 21, 2016](https://lists.ubuntu.com/archives/ubuntu-announce/2016-April/000207.html)
   - [Apr 2021](https://lists.ubuntu.com/archives/ubuntu-announce/2016-April/000207.html)
   - Apr 2031
@@ -274,7 +274,7 @@ feature-based one), approximately every 6 months.
   - Apr 2029
 * - Ubuntu 14.04 LTS
   - Trusty Tahr
-  - [Release Notes](https://wiki.ubuntu.com/TrustyTahr/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/14.04/)
   - [Apr 17, 2014](https://lists.ubuntu.com/archives/ubuntu-announce/2014-April/000182.html)
   - [Apr 2019](https://lists.ubuntu.com/archives/ubuntu-announce/2014-April/000182.html)
   - Apr 2029
@@ -402,87 +402,87 @@ Ubuntu Pro with the Legacy support add-on provides security updates on Ubuntu LT
   - [Jul 11, 2024](https://lists.ubuntu.com/archives/ubuntu-announce/2024-July/000303.html)
 * - Ubuntu 23.04
   - Lunar Lobster
-  - [Release Notes](https://wiki.ubuntu.com/LunarLobster/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/23.04/)
   - [Apr 20, 2023](https://lists.ubuntu.com/archives/ubuntu-announce/2023-April/000289.html)
   - [Jan 25, 2024](https://lists.ubuntu.com/archives/ubuntu-announce/2024-January/000298.html)
 * - Ubuntu 22.10
   - Kinetic Kudu
-  - [Release Notes](https://wiki.ubuntu.com/KineticKudu/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/22.10/)
   - [Oct 20, 2022](https://lists.ubuntu.com/archives/ubuntu-announce/2022-October/000285.html)
   - [Jul 20, 2023](https://lists.ubuntu.com/archives/ubuntu-announce/2023-July/000293.html)
 * - Ubuntu 21.10
   - Impish Indri
-  - [Release Notes](https://wiki.ubuntu.com/ImpishIndri/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/21.10/)
   - [Oct 14, 2021](https://lists.ubuntu.com/archives/ubuntu-announce/2021-October/000274.html)
   - [Jul 14, 2022](https://lists.ubuntu.com/archives/ubuntu-announce/2022-July/000281.html)
 * - Ubuntu 21.04
   - Hirsute Hippo
-  - [Release Notes](https://wiki.ubuntu.com/HirsuteHippo/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/21.04/)
   - [Apr 22, 2021](https://lists.ubuntu.com/archives/ubuntu-announce/2021-April/000268.html)
   - [Jan 20, 2022](https://lists.ubuntu.com/archives/ubuntu-announce/2022-January/000276.html)
 * - Ubuntu 20.10
   - Groovy Gorilla
-  - [Release Notes](https://wiki.ubuntu.com/GroovyGorilla/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/20.10/)
   - [Oct 22, 2020](https://lists.ubuntu.com/archives/ubuntu-announce/2020-October/000263.html)
   - [Jul 22, 2021](https://lists.ubuntu.com/archives/ubuntu-announce/2021-July/000270.html)
 * - Ubuntu 19.10
   - Eoan Ermine
-  - [Release Notes](https://wiki.ubuntu.com/EoanErmine/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/19.10/)
   - [Oct 17, 2019](https://lists.ubuntu.com/archives/ubuntu-announce/2019-October/000250.html)
   - [Jul 17, 2020](https://lists.ubuntu.com/archives/ubuntu-announce/2020-July/000258.html)
 * - Ubuntu 19.04
   - Disco Dingo
-  - [Release Notes](https://wiki.ubuntu.com/DiscoDingo/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/19.04/)
   - [Apr 18, 2019](https://lists.ubuntu.com/archives/ubuntu-announce/2019-April/000243.html)
   - [Jan 23, 2020](https://lists.ubuntu.com/archives/ubuntu-announce/2020-January/000253.html)
 * - Ubuntu 18.10
   - Cosmic Cuttlefish
-  - [Release Notes](https://wiki.ubuntu.com/CosmicCuttlefish/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/18.10/)
   - [Oct 18, 2018](https://lists.ubuntu.com/archives/ubuntu-announce/2018-October/000237.html)
   - [Jul 18, 2019](https://lists.ubuntu.com/archives/ubuntu-announce/2019-July/000246.html)
 * - Ubuntu 17.10
   - Artful Aardvark
-  - [Release Notes](https://wiki.ubuntu.com/ArtfulAardvark/ReleaseNotes)
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/17.10/)
   - [Oct 19, 2017](https://lists.ubuntu.com/archives/ubuntu-announce/2017-October/000226.html)
   - [Jul 19 2018](https://lists.ubuntu.com/archives/ubuntu-announce/2018-July/000232.html)
 * - Ubuntu 17.04
   - Zesty Zapus
-  - [Release notes](https://wiki.ubuntu.com/ZestyZapus/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/17.04/)
   - [Apr 13, 2017](https://lists.ubuntu.com/archives/ubuntu-announce/2017-April/000220.html)
   - [Jan 13, 2018](https://lists.ubuntu.com/archives/ubuntu-announce/2018-January/000227.html)
 * - Ubuntu 16.10
   - Yakkety Yak
-  - [Release notes](https://wiki.ubuntu.com/YakketyYak/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/16.10/)
   - [Oct 13, 2016](https://lists.ubuntu.com/archives/ubuntu-announce/2016-October/000213.html)
   - [Jul 20, 2017](https://lists.ubuntu.com/archives/ubuntu-announce/2017-July/000223.html)
 * - Ubuntu 15.10
   - Wily Werewolf
-  - [Release notes](https://wiki.ubuntu.com/WilyWerewolf/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/15.10/)
   - [Oct 22, 2015](https://lists.ubuntu.com/archives/ubuntu-announce/2015-October/000202.html)
   - [Jul 28, 2016](https://lists.ubuntu.com/archives/ubuntu-announce/2016-July/000210.html)
 * - Ubuntu 15.04
   - Vivid Vervet
-  - [Release notes](https://wiki.ubuntu.com/VividVervet/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/15.04/)
   - [Apr 23, 2015](https://lists.ubuntu.com/archives/ubuntu-announce/2015-April/000195.html)
   - [Feb 4, 2016](https://lists.ubuntu.com/archives/ubuntu-announce/2016-January/000203.html)
 * - Ubuntu 14.10
   - Utopic Unicorn
-  - [Release notes](https://wiki.ubuntu.com/UtopicUnicorn/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/14.10/)
   - [Oct 23, 2014](https://lists.ubuntu.com/archives/ubuntu-announce/2014-October/000191.html)
   - [Jul 23, 2015](https://lists.ubuntu.com/archives/ubuntu-announce/2015-July/000197.html)
 * - Ubuntu 13.10
   - Saucy Salamander
-  - [Release notes](https://wiki.ubuntu.com/SaucySalamander/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/13.10/)
   - [Oct 17, 2013](https://lists.ubuntu.com/archives/ubuntu-announce/2013-October/000177.html)
   - [Jul 17, 2014](https://lists.ubuntu.com/archives/ubuntu-announce/2014-June/000185.html)
 * - Ubuntu 13.04
   - Raring Ringtail
-  - [Release notes](https://wiki.ubuntu.com/RaringRingtail/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/13.04/)
   - [Apr 25, 2013](https://lists.ubuntu.com/archives/ubuntu-announce/2013-April/000171.html)
   - [Jan 27, 2014](https://lists.ubuntu.com/archives/ubuntu-announce/2014-January/000178.html)
 * - Ubuntu 12.10
   - Quantal Quetzal
-  - [Release notes](https://wiki.ubuntu.com/QuantalQuetzal/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/12.10/)
   - [Oct 18, 2012](https://lists.ubuntu.com/archives/ubuntu-announce/2012-October/000164.html)
   - [May 16, 2014](https://lists.ubuntu.com/archives/ubuntu-security-announce/2014-April/002488.html)
 * - Ubuntu 12.04.5 LTS
@@ -512,22 +512,22 @@ Ubuntu Pro with the Legacy support add-on provides security updates on Ubuntu LT
   - [Apr 28, 2017](https://lists.ubuntu.com/archives/ubuntu-announce/2017-March/000218.html)
 * - Ubuntu 12.04 LTS
   - Precise Pangolin
-  - [Release notes](https://wiki.ubuntu.com/PrecisePangolin/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/12.04/)
   - [Apr 26, 2012](https://lists.ubuntu.com/archives/ubuntu-announce/2012-April/000159.html)
   - [Apr 28, 2017](https://lists.ubuntu.com/archives/ubuntu-announce/2017-March/000218.html)
 * - Ubuntu 11.10
   - Oneiric Ocelot
-  - [Release notes](https://wiki.ubuntu.com/OneiricOcelot/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/11.10/)
   - [Oct 13, 2011](https://lists.ubuntu.com/archives/ubuntu-announce/2011-October/000153.html)
   - [May 9, 2013](https://lists.ubuntu.com/archives/ubuntu-announce/2013-March/000167.html)
 * - Ubuntu 11.04
   - Natty Narwhal
-  - [Release notes](https://wiki.ubuntu.com/NattyNarwhal/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/11.04/)
   - [Apr 28, 2011](https://lists.ubuntu.com/archives/ubuntu-announce/2011-April/000147.html)
   - [Oct 28, 2012](https://lists.ubuntu.com/archives/ubuntu-announce/2012-October/000165.html)
 * - Ubuntu 10.10
   - Maverick Meerkat
-  - [Release notes](https://wiki.ubuntu.com/MaverickMeerkat/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/10.10/)
   - [Oct 10, 2010](https://lists.ubuntu.com/archives/ubuntu-announce/2010-October/000139.html)
   - [Apr 10, 2012](https://lists.ubuntu.com/archives/ubuntu-announce/2012-April/000158.html)
 * - Ubuntu 10.04.4 LTS
@@ -553,7 +553,7 @@ Ubuntu Pro with the Legacy support add-on provides security updates on Ubuntu LT
   -
 * - Ubuntu 10.04 LTS
   - Lucid Lynx
-  - [Release notes](https://wiki.ubuntu.com/LucidLynx/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/10.04/)
   - [Apr 29, 2010](https://lists.ubuntu.com/archives/ubuntu-announce/2010-April/000133.html)
   -
 * - Ubuntu 10.04
@@ -563,17 +563,17 @@ Ubuntu Pro with the Legacy support add-on provides security updates on Ubuntu LT
   - [May 9, 2013](https://lists.ubuntu.com/archives/ubuntu-announce/2013-March/000169.html)
 * - Ubuntu 9.10
   - Karmic Koala
-  - [Release notes](https://wiki.ubuntu.com/KarmicKoala/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/09.10/)
   - [Oct 29, 2009](https://lists.ubuntu.com/archives/ubuntu-announce/2009-October/000127.html)
   - [Apr 30, 2011](https://lists.ubuntu.com/archives/ubuntu-announce/2011-March/000142.html)
 * - Ubuntu 9.04
   - Jaunty Jackalope
-  - [Release notes](https://wiki.ubuntu.com/JauntyJackalope/ReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/9.04/)
   - [Apr 23, 2009](https://lists.ubuntu.com/archives/ubuntu-announce/2009-April/000122.html)
   - [Oct 23, 2010](https://lists.ubuntu.com/archives/ubuntu-announce/2010-September/000137.html)
 * - Ubuntu 8.10
   - Intrepid Ibex
-  - [Release notes](https://wiki.ubuntu.com/IntrepidReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/8.10/)
   - [Oct 30, 2008](https://lists.ubuntu.com/archives/ubuntu-announce/2008-October/000116.html)
   - [Apr 30, 2010](https://lists.ubuntu.com/archives/ubuntu-announce/2010-March/000130.html)
 * - Ubuntu 8.04.4 LTS
@@ -593,22 +593,22 @@ Ubuntu Pro with the Legacy support add-on provides security updates on Ubuntu LT
   -
 * - Ubuntu 8.04.1 LTS
   - Hardy Heron
-  - [Release notes](https://wiki.ubuntu.com/HardyReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/8.04/)
   - [Jul 3, 2008](https://lists.ubuntu.com/archives/ubuntu-announce/2008-July/000112.html)
   -
 * - Ubuntu 8.04 LTS
   - Hardy Heron
-  - [Release notes](https://wiki.ubuntu.com/HardyReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/8.04/)
   - [Apr 24, 2008](https://lists.ubuntu.com/archives/ubuntu-announce/2008-April/000111.html)
   -
 * - Ubuntu 8.04
   - Hardy Heron (Desktop)
-  - [Release notes](https://wiki.ubuntu.com/HardyReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/8.04/)
   - [Apr 24, 2008](https://lists.ubuntu.com/archives/ubuntu-announce/2008-April/000111.html)
   - [May 12, 2011](https://lists.ubuntu.com/archives/ubuntu-announce/2011-April/000144.html)
 * - Ubuntu 7.10
   - Gutsy Gibbon
-  - [Release notes](https://wiki.ubuntu.com/GutsyReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/7.10/)
   - [Oct 18, 2007](https://lists.ubuntu.com/archives/ubuntu-announce/2007-October/000105.html)
   - [Apr 18th, 2009](http://www.ubuntu.com/news/ubuntu-7.10-eol)
 * - Ubuntu 7.04
@@ -633,12 +633,12 @@ Ubuntu Pro with the Legacy support add-on provides security updates on Ubuntu LT
   -
 * - Ubuntu 6.06 LTS
   - Dapper Drake
-  - [Release notes](https://wiki.ubuntu.com/DapperReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/6.06/)
   - [Jun 1, 2006](https://lists.ubuntu.com/archives/ubuntu-announce/2006-June/000083.html)
   -
 * - Ubuntu 6.06
   - Dapper Drake (Desktop)
-  - [Release notes](https://wiki.ubuntu.com/DapperReleaseNotes)
+  - [Release notes](https://documentation.ubuntu.com/release-notes/6.06/)
   - [Jun 1, 2006](https://lists.ubuntu.com/archives/ubuntu-announce/2006-June/000083.html)
   - [Jul 14, 2009](https://lists.ubuntu.com/archives/ubuntu-announce/2009-July/000123.html)
 * - Ubuntu 5.10
