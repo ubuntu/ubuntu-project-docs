@@ -1,0 +1,56 @@
+(gjs-test-plan)=
+# GJS test plan
+
+Below are the test cases that should be run when `gjs` or `mozjs*` is updated to new major releases in the development version of Ubuntu. These should also be run for all `gjs` and `mozjs*` Stable Release Updates.
+
+
+## Test case 1
+
+1. Install all the `gjs` apps
+   * `sudo apt install gnome-books gnome-maps gnome-sound-recorder gnome-sushi gnome-weather polari # Ubuntu 22.04 LTS`
+   * `sudo apt install clapper foliate gnome-maps gnome-sound-recorder gnome-sushi gnome-weather polari # Ubuntu 22.10`
+2. Install the update.
+3. Verify that these apps work correctly
+   * `clapper` (Ubuntu 22.10 and later)
+   * `foliate` (Ubuntu 22.10 and later)
+   * GNOME Books (Ubuntu 22.04 LTS and earlier)
+   * GNOME Characters
+   * GNOME Maps
+   * GNOME Sound Recorder
+   * GNOME Weather
+   * Polari
+
+To test GNOME Books or Foliate, download the Alice in Wonderland epub3 from <https://www.gutenberg.org/ebooks/28885> and move it to your Documents folder.
+
+
+## Test case 2
+
+1. Install the update.
+2. Log out then log back in to make sure that GNOME Shell still works correctly.
+
+
+## What could go wrong
+
+GNOME Shell is the heart of the Ubuntu desktop experience. `gjs` is a key component of GNOME Shell.
+
+A severe enough bug could mean that people are unable to use their desktop version of Ubuntu.
+
+Smaller bugs could interrupt people's workflows.
+
+`gjs` is part of core GNOME and is included in the {ref}`GNOME micro release exception <reference-exception-GNOMEUpdates>`.
+
+
+## Other info
+
+GNOME Shell uses the SpiderMonkey JavaScript engine from Firefox ESR (`mozjs`).
+
+The release schedule is at <https://wiki.mozilla.org/Release_Management/Calendar>
+
+Each ESR series is maintained with security updates for about one year.
+
+
+## Review status
+
+Not reviewed
+
+--(Approved 2022-11-22 by &#95;&#95;&#95;&#95; )--

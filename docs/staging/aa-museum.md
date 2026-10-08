@@ -52,7 +52,7 @@ Equally useful to the tools are the various auto-generated web pages in
 `ubuntu-archive`'s `public_html` that can give you a feel for the state of the
 Archive.
 
-* [`component-mismatches.txt`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.txt)
+* [`component-mismatches.txt`](https://static-reports.ubuntu.com/mismatches/component-mismatches.txt)
 
   As described above, this lists the differences between the Archive and the
   output of the {ref}`germinate` script. It shows up packages that are in the

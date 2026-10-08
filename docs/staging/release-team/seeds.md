@@ -57,7 +57,7 @@ placed in `supported`.
 
 The actual movement of packages between `main` and `universe` is semi-automatic.
 A tool called
-[`component-mismatches`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.txt)
+[`component-mismatches`](https://static-reports.ubuntu.com/mismatches/component-mismatches.txt)
 reports on what should be promoted or demoted according to the seeds. The
 Archive Administrators review these mismatches by hand and process them.
 

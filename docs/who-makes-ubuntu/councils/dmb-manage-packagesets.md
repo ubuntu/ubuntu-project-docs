@@ -276,4 +276,29 @@ team that we then later add developers to.
 
           ```none
           for RELEASE in $(distro-info --supported); do edit-acl ...; done
-          ```
+
+ ## How to remove a packageset
+
+A packageset can be deleted if there is no need for it anymore. A DMB vote
+is required to do so.
+```{warning}
+It is important to remove the packageset from all releases before deleting
+the associated Launchpad group that the DMB used to manage the uploaders.
+```
+
+A packageset is created per series, so the removal
+likely needs to iterate over a list of series to remove it in all of them.
+
+A team with an uploader can not be removed, and only a tech-board member can
+modify the uploader. This is usually a group like `ubuntu-gnome-dev`,
+managed by the DMB.
+
+* First delete the uploader(s)
+```none
+/edit-acl delete --packageset $PACKAGESET --series $RELEASE --person $UPLOADER
+```
+* Then delete the packageset
+```none
+./edit-acl delete --packageset $PACKAGESET --series $RELEASE
+```
+

@@ -5,8 +5,8 @@
 # You can set these variables from the command line, and also
 # from the environment for the first two.
 
-SPHINX_DIR       ?= .sphinx
-SPHINX_OPTS      ?= -c . -d $(SPHINX_DIR)/.doctrees -j auto
+DEV_DIR          ?= _dev
+SPHINX_OPTS      ?= -c . -d $(DEV_DIR)/.doctrees -j auto
 SPHINX_BUILD     ?= $(DOCS_VENVDIR)/bin/sphinx-build
 SPHINX_HOST      ?= 127.0.0.1
 SPHINX_PORT      ?= 8000
@@ -15,10 +15,10 @@ DOCS_VENV        ?= $(DOCS_VENVDIR)/bin/activate
 DOCS_SOURCEDIR   ?= .
 DOCS_BUILDDIR    ?= _build
 DOCS_PDFPACKAGES ?= latexmk fonts-freefont-otf texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-font-utils texlive-lang-cjk texlive-xetex plantuml xindy tex-gyre dvipng
-DOCS_VOCAB       ?= $(SPHINX_DIR)/styles/config/vocabularies/Canonical
+DOCS_VOCAB       ?= $(DEV_DIR)/styles/config/vocabularies/Canonical
 VALE_DIR         ?= $(DOCS_VENVDIR)/lib/python*/site-packages/vale
-VALE_CONFIG      ?= $(SPHINX_DIR)/vale.ini
-PA11Y_CMD        ?= $(SPHINX_DIR)/node_modules/pa11y/bin/pa11y.js --config $(SPHINX_DIR)/pa11y.json
+VALE_CONFIG      ?= $(DEV_DIR)/vale.ini
+PA11Y_CMD        ?= $(DEV_DIR)/node_modules/pa11y/bin/pa11y.js --config $(DEV_DIR)/pa11y.json
 CONFIRM_SUDO     ?= N
 # Exclude venv, build output, and directories whose content is not owned by this docs set:
 CHECK_PATH       ?= $(filter-out $(DOCS_VENVDIR) _build SRU tech-board,$(wildcard *))
@@ -73,8 +73,8 @@ $(DOCS_VENVDIR): requirements.txt
 pa11y-install:
 	@command -v $(PA11Y_CMD) >/dev/null || { \
 			echo "Installing \"pa11y\" from npm..."; echo; \
-			mkdir -p $(SPHINX_DIR)/node_modules/ ; \
-			npm install --prefix $(SPHINX_DIR) pa11y; \
+			mkdir -p $(DEV_DIR)/node_modules/ ; \
+			npm install --prefix $(DEV_DIR) pa11y; \
 		}
 
 install: $(DOCS_VENVDIR)
@@ -94,13 +94,13 @@ run: install generate-includes
 
 # Does not depend on $(DOCS_BUILDDIR) to rebuild properly at every run.
 html: install generate-includes
-	. $(DOCS_VENV); $(SPHINX_BUILD) --fail-on-warning --keep-going -b dirhtml "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" -w $(SPHINX_DIR)/warnings.txt $(SPHINX_OPTS)
+	. $(DOCS_VENV); $(SPHINX_BUILD) --fail-on-warning --keep-going -b dirhtml "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" -w $(DEV_DIR)/warnings.txt $(SPHINX_OPTS)
 
 html-lite: install generate-includes
-	. $(DOCS_VENV); $(SPHINX_BUILD) --fail-on-warning --keep-going -b dirhtml "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" -w $(SPHINX_DIR)/warnings.txt $(SPHINX_OPTS_NOLLM)
+	. $(DOCS_VENV); $(SPHINX_BUILD) --fail-on-warning --keep-going -b dirhtml "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" -w $(DEV_DIR)/warnings.txt $(SPHINX_OPTS_NOLLM)
 
 epub: install generate-includes
-	. $(DOCS_VENV); $(SPHINX_BUILD) -b epub "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" -w $(SPHINX_DIR)/warnings.txt $(SPHINX_OPTS_NOLLM)
+	. $(DOCS_VENV); $(SPHINX_BUILD) -b epub "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" -w $(DEV_DIR)/warnings.txt $(SPHINX_OPTS_NOLLM)
 
 serve: html-lite
 	cd "$(DOCS_BUILDDIR)"; python3 -m http.server --bind $(SPHINX_HOST) $(SPHINX_PORT)
@@ -108,14 +108,14 @@ serve: html-lite
 clean: clean-doc clean-generated
 	@test ! -e "$(DOCS_VENVDIR)" -o -d "$(DOCS_VENVDIR)" -a "$(abspath $(DOCS_VENVDIR))" != "$(DOCS_VENVDIR)"
 	rm -rf $(DOCS_VENVDIR)
-	rm -rf $(SPHINX_DIR)/node_modules/
-	rm -rf $(SPHINX_DIR)/styles
+	rm -rf $(DEV_DIR)/node_modules/
+	rm -rf $(DEV_DIR)/styles
 	rm -rf $(VALE_CONFIG)
 
 clean-doc:
 	git clean -fx "$(DOCS_BUILDDIR)"
-	rm -rf $(SPHINX_DIR)/.doctrees
-	rm -f $(SPHINX_DIR)/warnings.txt
+	rm -rf $(DEV_DIR)/.doctrees
+	rm -f $(DEV_DIR)/warnings.txt
 
 clean-generated:
 	rm -f MIR/mir-reviewers-template-body.include MIR/mir-reporters-template-body.include
@@ -128,31 +128,31 @@ pa11y: pa11y-install html-lite
 	find $(DOCS_BUILDDIR) -name *.html -print0 | xargs -n 1 -0 $(PA11Y_CMD)
 
 vale-install: install
-	@. $(DOCS_VENV); test -f $(VALE_CONFIG) || python3 $(SPHINX_DIR)/get_vale_conf.py
-	@echo '.Name=="Canonical.400-Enforce-inclusive-terms"' > $(SPHINX_DIR)/styles/woke.filter
-	@echo '.Level=="error" and .Name!="Canonical.500-Repeated-words" and .Name!="Canonical.000-US-spellcheck"' > $(SPHINX_DIR)/styles/error.filter
-	@echo '.Name=="Canonical.000-US-spellcheck"' > $(SPHINX_DIR)/styles/spelling.filter
+	@. $(DOCS_VENV); test -f $(VALE_CONFIG) || python3 $(DEV_DIR)/get_vale_conf.py
+	@echo '.Name=="Canonical.400-Enforce-inclusive-terms"' > $(DEV_DIR)/styles/woke.filter
+	@echo '.Level=="error" and .Name!="Canonical.500-Repeated-words" and .Name!="Canonical.000-US-spellcheck"' > $(DEV_DIR)/styles/error.filter
+	@echo '.Name=="Canonical.000-US-spellcheck"' > $(DEV_DIR)/styles/spelling.filter
 	@. $(DOCS_VENV); find $(VALE_DIR)/vale_bin -size 195c -exec vale --version \;
 
 woke: vale-install
 	@cat $(DOCS_VOCAB)/accept.txt > $(DOCS_VOCAB)/accept_backup.txt
 	@cat $(DOCS_SOURCEDIR)/.custom_wordlist.txt >> $(DOCS_VOCAB)/accept.txt
 	@echo "Running Vale acceptable term check against $(CHECK_PATH). To change target set CHECK_PATH= with make command"
-	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(SPHINX_DIR)/styles/woke.filter' --glob='*.{md,rst}' $(CHECK_PATH)
+	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(DEV_DIR)/styles/woke.filter' --glob='*.{md,rst}' $(CHECK_PATH)
 	@cat $(DOCS_VOCAB)/accept_backup.txt > $(DOCS_VOCAB)/accept.txt && rm $(DOCS_VOCAB)/accept_backup.txt
 
 vale: vale-install
 	@cat $(DOCS_VOCAB)/accept.txt > $(DOCS_VOCAB)/accept_backup.txt
 	@cat $(DOCS_SOURCEDIR)/.custom_wordlist.txt >> $(DOCS_VOCAB)/accept.txt
 	@echo "Running Vale against $(CHECK_PATH). To change target set CHECK_PATH= with make command"
-	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(SPHINX_DIR)/styles/error.filter' --glob='*.{md,rst}' $(CHECK_PATH)
+	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(DEV_DIR)/styles/error.filter' --glob='*.{md,rst}' $(CHECK_PATH)
 	@cat $(DOCS_VOCAB)/accept_backup.txt > $(DOCS_VOCAB)/accept.txt && rm $(DOCS_VOCAB)/accept_backup.txt
 
 spelling: vale-install
 	@cat $(DOCS_VOCAB)/accept.txt > $(DOCS_VOCAB)/accept_backup.txt
 	@cat $(DOCS_SOURCEDIR)/.custom_wordlist.txt >> $(DOCS_VOCAB)/accept.txt
 	@echo "Running Vale against $(CHECK_PATH). To change target set CHECK_PATH= with make command"
-	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(SPHINX_DIR)/styles/spelling.filter' --glob='*.{md,rst}' $(CHECK_PATH)
+	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(DEV_DIR)/styles/spelling.filter' --glob='*.{md,rst}' $(CHECK_PATH)
 	@cat $(DOCS_VOCAB)/accept_backup.txt > $(DOCS_VOCAB)/accept.txt && rm $(DOCS_VOCAB)/accept_backup.txt
 
 spellcheck: spelling
@@ -181,7 +181,7 @@ pdf: pdf-prep
 	@echo
 
 update: install
-	@. $(DOCS_VENV); .sphinx/update_sp.py
+	@. $(DOCS_VENV); _dev/update_sp.py
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINX_OPTS).

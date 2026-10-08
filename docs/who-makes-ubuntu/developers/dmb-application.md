@@ -48,6 +48,7 @@ Once you have enough endorsements - announce your application
 Once you have announced your application - Reserve your agenda spot
 : Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see upcoming DMB meetings.
 : Only one application can be considered each meeting.
+: Edit the agenda (it is like a Wiki) to add yourself to a free slot
 : Note: Applications to {ref}`Ubuntu Contributing Developers <dmb-joining-contributing>` are handled only via the mailing list, therefore no agenda entry is needed for those (the DMB will vote as replies to your post to the `devel-permissions@` mailing list).
 
 Attend your meeting

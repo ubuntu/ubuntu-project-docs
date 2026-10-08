@@ -86,7 +86,7 @@ In either case, you can click on the name of the package to jump to its entry in
 
 ### Additional information
 
-Finally, there is some miscellanous information at the end.
+Finally, there is some miscellaneous information at the end.
 
 The age of the migration failure is always printed.
 `autopkgtests` prints migration failures from oldest to newest.

@@ -59,7 +59,9 @@ NEW queue in the SRU context
 
 The SRU policy does not forbid uploading a new source or binary to active
 releases. But if that happens it needs double approval. One of an archive-admin
-for the aspect of `NEW queue processing <https://wiki.ubuntu.com/ArchiveAdministration#NEW_Processing>`__ and that of a SRU member for the regression evaluation.
+for the aspect of
+`NEW queue processing <https://ubuntu.com/project/docs/maintainers/AA/aa-new-review/>`__
+and that of a SRU member for the regression evaluation.
 
 While that can be done as a single step by the few people wearing both roles at
 once, that is not always possible. Hence the process is defined as cooperation
@@ -109,7 +111,7 @@ Security updates
 
 Since some users choose to receive security updates but not SRUs, if a
 proposed SRU appears to fix security issues, it should be considered for
-the `security update process <https://wiki.ubuntu.com/SecurityTeam/UpdateProcedures>`__ first
+the `security update process <https://documentation.ubuntu.com/security/security-updates/>`__ first
 instead.
 
 Sometimes an issue being fixed may or may not be a security issue
