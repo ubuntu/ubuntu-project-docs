@@ -1832,7 +1832,7 @@ def collect_cve_search_terms(ctx: RunContext) -> dict:
     ]
 
     current_lower = {t["term"].lower() for t in terms}
-    predecessor_terms = _llm_predecessor_terms(ctx, pkg)
+    predecessor_terms, llm_unavailable_reason = _llm_predecessor_terms(ctx, pkg)
     for entry in predecessor_terms:
         if entry["term"].lower() in current_lower:
             continue
@@ -1850,6 +1850,10 @@ def collect_cve_search_terms(ctx: RunContext) -> dict:
         "status": "ok",
         "source_package": pkg,
         "terms": terms,
+        # Why no predecessor terms exist, when the LLM step did not run:
+        # distinguishes "none proposed" from "LLM unavailable" for SEC-1.
+        "llm_unavailable": bool(llm_unavailable_reason),
+        "llm_unavailable_reason": llm_unavailable_reason,
     }
 
 
@@ -1857,16 +1861,22 @@ _PREDECESSOR_PROMPT = "cve_predecessor_terms.md"
 _PREDECESSOR_MAX_TERMS = 8
 
 
-def _llm_predecessor_terms(ctx: RunContext, pkg: str) -> list[dict[str, str]]:
+def _llm_predecessor_terms(ctx: RunContext, pkg: str) -> tuple[list[dict[str, str]], str]:
     """Best-effort LLM proposal of predecessor/sibling CVE search terms.
 
-    Returns a bounded list of ``{term, kind, rationale}`` dicts, all tagged
-    ``predecessor``. Returns an empty list when the LLM is unavailable, errors, or
-    proposes nothing credible — the adapter never fails because of this step.
+    Returns ``(terms, unavailable_reason)``: a bounded list of
+    ``{term, kind, rationale}`` dicts all tagged ``predecessor``, plus the
+    reason string when the LLM step was skipped or failed (empty when it
+    ran). The adapter never fails because of this step; the reason is
+    surfaced in its payload so downstream checks (and WP1's degraded-run
+    reporting) can tell "no predecessors proposed" from "LLM unavailable".
     """
+    # --no-llm never resolves a token, so an empty token covers both the
+    # deliberate mode and an unresolved configuration.
     if not getattr(ctx, "llm_token", ""):
-        log.debug("cve-search-terms: LLM not configured; skipping predecessor terms")
-        return []
+        reason = "LLM not configured (--no-llm or no auth resolved)"
+        log.debug("cve-search-terms: %s; skipping predecessor terms", reason)
+        return [], reason
 
     upstream = ctx.evidence.get("adapters", {}).get("upstream-tracker", {})
     upstream = upstream if isinstance(upstream, dict) else {}
@@ -1890,11 +1900,11 @@ def _llm_predecessor_terms(ctx: RunContext, pkg: str) -> list[dict[str, str]]:
         response = llm.call_llm(prompt, ctx, model_tier="small", trace_label="cve-search-terms")
     except llm.LLMError as exc:
         log.warning("cve-search-terms: predecessor LLM call failed: %s", exc)
-        return []
+        return [], str(exc)
 
     raw_terms = response.get("terms") if isinstance(response, dict) else None
     if not isinstance(raw_terms, list):
-        return []
+        return [], ""
 
     cleaned: list[dict[str, str]] = []
     seen: set[str] = set()
@@ -1914,7 +1924,7 @@ def _llm_predecessor_terms(ctx: RunContext, pkg: str) -> list[dict[str, str]]:
         )
         if len(cleaned) >= _PREDECESSOR_MAX_TERMS:
             break
-    return cleaned
+    return cleaned, ""
 
 
 def _render_predecessor_prompt(
