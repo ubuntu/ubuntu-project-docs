@@ -5776,10 +5776,16 @@ Catalog validation clean for both roles.
 - Decision:
   - Collect the bug's Ubuntu package tasks explicitly
     (`lp_intake._collect_package_tasks`): only `DistributionSourcePackage`
-    and `DistroSeriesSourcePackage` targets belonging to Ubuntu count;
-    distribution/project targets are never candidates. Tasks whose status
-    is closed (`Fix Released`, `Invalid`, `Won't Fix`, `Opinion`, `Expired`)
-    are kept as context but are not candidates.
+    and `DistroSeriesSourcePackage` targets belonging to Ubuntu count,
+    recognized by the resource-type fragment of `resource_type_link`
+    (`distribution_source_package` / `source_package` — verified against
+    the live API, which keeps the package in `name` and exposes no
+    `source_package_name`). Every other target type (plain distribution,
+    distro series, project, unknown) is skipped fail-safe and never
+    mistaken for a package; when all of a bug's tasks are skipped, intake
+    warns naming the target types seen, ahead of the caller's hard stop.
+    Tasks whose status is closed (`Fix Released`, `Invalid`, `Won't Fix`,
+    `Opinion`, `Expired`) are kept as context but are not candidates.
   - Selection resolves in order (`lp_intake._select_source_package`):
     (1) `--source-package` override, validated against the tasks (a closed
     task may be forced with a warning); (2) a single distinct open package
@@ -5811,6 +5817,9 @@ Catalog validation clean for both roles.
   - `review BUG` accepts `--source-package` as a deterministic escape hatch.
   - Wrong-package runs like 2159639 require an explicit choice instead of
     an implicit guess.
-  - Validation from `tools/auto-mir`: unit suite PASS (1127 passed,
-    1 skipped). `make lint`'s ruff binary was unavailable in the dev
-    container — the reviewer must run `make lint` before merging.
+  - Validation from `tools/auto-mir`: unit suite PASS (1128 passed,
+    1 skipped); live-API acceptance on the 2026-10-12 user-report bugs
+    2166895 (`[busybox]`, auto-selected) and 2167624 (`[openssh`,
+    `openssh-gssapi]`, fails closed headless listing both candidates).
+    `make lint`'s ruff binary was unavailable in the dev container — the
+    reviewer must run `make lint` before merging.
