@@ -164,6 +164,16 @@ def _distro_name(obj) -> str:
     return str(getattr(obj, "name", "") or "").lower()
 
 
+def _target_resource_type(target) -> str:
+    """Return the resource-type fragment of a Launchpad entry's type link.
+
+    "https://api.launchpad.net/devel/#distribution_source_package" becomes
+    "distribution_source_package"; non-entries yield "".
+    """
+    link = str(getattr(target, "resource_type_link", "") or "")
+    return link.rsplit("#", 1)[-1].strip().lower() if "#" in link else ""
+
+
 def _collect_package_tasks(bug) -> list[_PackageTask]:
     """Return the Ubuntu source-package bug tasks of ``bug``.
 
@@ -183,29 +193,38 @@ def _collect_package_tasks(bug) -> list[_PackageTask]:
         return []
 
     package_tasks: list[_PackageTask] = []
+    seen_target_types: set[str] = set()
     for task in tasks:
         try:
             target = task.target
             status = getattr(task, "status", None)
+            resource_type = _target_resource_type(target)
+            seen_target_types.add(resource_type or "unknown")
             source_package: str | None = None
             series: str | None = None
             distribution = None
 
-            if hasattr(target, "source_package_name"):
+            # Live-API resource types (launchpadlib, "devel"): both package
+            # target types keep the package in ``name``; no real entry
+            # exposes a "source_package_name" attribute.
+            if resource_type == "distribution_source_package":
                 # DistributionSourcePackage (distribution-wide task)
-                source_package = str(target.source_package_name or "") or None
+                source_package = str(getattr(target, "name", "") or "") or None
                 distribution = getattr(target, "distribution", None)
-            else:
+            elif resource_type == "source_package":
+                # DistroSeriesSourcePackage (series-specific task)
                 distroseries = getattr(target, "distroseries", None)
                 if distroseries is not None:
-                    # DistroSeriesSourcePackage (series-specific task)
-                    source_package = str(getattr(target, "name", "") or "") or None
                     series = str(getattr(distroseries, "name", "") or "") or None
                     distribution = getattr(distroseries, "distribution", None)
+                source_package = str(getattr(target, "name", "") or "") or None
+            else:
+                # Not a package task (distribution, series, project, ...):
+                # never a candidate — its "name" is not a source package.
+                log.debug("Skipping non-package task target of type %r", resource_type or "unknown")
+                continue
 
             if not source_package:
-                # Not a package task (distribution, project, ...): never a
-                # candidate — its "name" is not a source package.
                 continue
             if distribution is not None and _distro_name(distribution) != "ubuntu":
                 continue
@@ -222,6 +241,12 @@ def _collect_package_tasks(bug) -> list[_PackageTask]:
             log.debug("Skipping task target due to error: %s", exc)
             continue
 
+    if tasks and not package_tasks:
+        log.warning(
+            "Bug has %d task(s) but none targets an Ubuntu source package (target types seen: %s).",
+            len(tasks),
+            ", ".join(sorted(seen_target_types)) or "unreadable",
+        )
     return package_tasks
 
 

@@ -1,6 +1,7 @@
 """Unit tests for lp_intake detection helpers."""
 
 import io
+import logging
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -153,16 +154,27 @@ def test_injection_risk_detected_and_user_aborts(monkeypatch):
 _FAKE_UBUNTU = SimpleNamespace(name="ubuntu")
 _FAKE_DEBIAN = SimpleNamespace(name="debian")
 
+# Target shapes mirrored from the live Launchpad API (launchpadlib 1.11,
+# "devel"): both package target types keep the package in ``name`` and expose
+# ``resource_type_link``; neither has a "source_package_name" attribute.
+_LP_TYPE_PREFIX = "https://api.launchpad.net/devel/#"
+
 
 def _distro_package(name, distro=_FAKE_UBUNTU):
     """Target of a distribution-wide task (DistributionSourcePackage)."""
-    return SimpleNamespace(source_package_name=name, distribution=distro)
+    return SimpleNamespace(
+        resource_type_link=_LP_TYPE_PREFIX + "distribution_source_package",
+        name=name,
+        distribution=distro,
+    )
 
 
 def _series_package(name, series, distro=_FAKE_UBUNTU):
-    """Target of a series-specific task (DistroSeriesSourcePackage)."""
+    """Target of a series-specific task (resource type "source_package")."""
     return SimpleNamespace(
-        name=name, distroseries=SimpleNamespace(name=series, distribution=distro)
+        resource_type_link=_LP_TYPE_PREFIX + "source_package",
+        name=name,
+        distroseries=SimpleNamespace(name=series, distribution=distro),
     )
 
 
@@ -192,12 +204,29 @@ def test_collect_package_tasks_series_target_captures_series():
     assert tasks[0].series == "noble"
 
 
-def test_collect_package_tasks_ignores_plain_distribution_and_project_targets():
-    # A bare distribution task target's name is "ubuntu" — never a package.
-    distro_target = SimpleNamespace(name="ubuntu")
-    project_target = SimpleNamespace(name="some-project")
+def test_collect_package_tasks_ignores_non_package_targets():
+    # Non-package task targets (a plain distribution, a whole series, a
+    # project, an untyped object) are never candidates, even though some
+    # of them carry a "name".
+    distro_target = SimpleNamespace(
+        resource_type_link=_LP_TYPE_PREFIX + "distribution", name="ubuntu"
+    )
+    series_target = SimpleNamespace(
+        resource_type_link=_LP_TYPE_PREFIX + "distro_series",
+        name="noble",
+        distribution=_FAKE_UBUNTU,
+    )
+    project_target = SimpleNamespace(
+        resource_type_link=_LP_TYPE_PREFIX + "project", name="some-project"
+    )
+    untyped_target = SimpleNamespace(name="untold")
     tasks = lp_intake._collect_package_tasks(
-        _bug_with_tasks(_task(distro_target), _task(project_target))
+        _bug_with_tasks(
+            _task(distro_target),
+            _task(series_target),
+            _task(project_target),
+            _task(untyped_target),
+        )
     )
     assert tasks == []
 
@@ -207,6 +236,19 @@ def test_collect_package_tasks_ignores_other_distributions():
         _bug_with_tasks(_task(_distro_package("libfoo", distro=_FAKE_DEBIAN)))
     )
     assert tasks == []
+
+
+def test_collect_package_tasks_warns_when_no_package_tasks(caplog):
+    # A bug whose tasks never target an Ubuntu package must name what it saw,
+    # not only the caller's generic "could not determine" error.
+    distro_target = SimpleNamespace(
+        resource_type_link=_LP_TYPE_PREFIX + "distribution", name="ubuntu"
+    )
+    with caplog.at_level(logging.WARNING, logger="auto_mir.lp_intake"):
+        tasks = lp_intake._collect_package_tasks(_bug_with_tasks(_task(distro_target)))
+    assert tasks == []
+    assert "none targets an Ubuntu source package" in caplog.text
+    assert "distribution" in caplog.text
 
 
 def test_collect_package_tasks_keeps_closed_tasks_marked_closed():
