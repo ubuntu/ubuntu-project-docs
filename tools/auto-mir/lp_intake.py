@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils import llm_sanitize
-from utils.cli import ask_yes_no, ask_single_choice
+from utils.cli import ask_single_choice, ask_yes_no
 from utils.dependencies import ubuntu_package_for
 
 if TYPE_CHECKING:
