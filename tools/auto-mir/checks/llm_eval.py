@@ -10,7 +10,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from checks.messages import render_check_message
 from models import Finding
@@ -65,6 +65,22 @@ def _eval_ev_to_ai(
     """
     import llm
 
+    # (``is True`` so a test-double ctx with an auto-created attribute can
+    # never trip the deliberate-mode path.)
+    if getattr(ctx, "no_llm", False) is True:
+        # --no-llm: no call is attempted at all; degrade to the standard
+        # fallback (with the check's deterministic facts as the rationale) so
+        # the draft states this was a deliberate deterministic-only run.
+        _apply_llm_unavailable_fallback(
+            check,
+            finding,
+            "disabled by --no-llm",
+            fallback_suffix=fallback_suffix,
+        )
+        if fallback_rationale:
+            finding.rationale = _fallback_rationale_for_check(check, ctx)
+        return finding
+
     if evidence_payload is None:
         evidence_payload = _build_evidence_payload(check, ctx)
     policy_excerpt = _build_policy_excerpt(check, ctx)
@@ -84,6 +100,7 @@ def _eval_ev_to_ai(
         response = llm.call_llm(prompt, ctx, model_tier=model_tier, trace_label=check["id"])
     except llm.LLMError as exc:
         log.warning("LLM call failed for check %s: %s", check["id"], exc)
+        finding.llm_error_cause = str(exc)
         _apply_llm_unavailable_fallback(
             check,
             finding,
@@ -158,11 +175,16 @@ def _eval_human_only(check: dict, ctx: RunContext, finding: Finding) -> Finding:
 def _apply_llm_unavailable_fallback(
     check: dict,
     finding: Finding,
-    error: Exception,
+    error: Exception | str,
     *,
     fallback_suffix: str,
 ) -> None:
-    """Apply the standard unknown/low-confidence fallback for LLM outages."""
+    """Apply the standard unknown/low-confidence fallback for LLM outages.
+
+    ``error`` carries the reason into the rendered message (an exception
+    from a failed call, or a plain string for deliberate degradation such
+    as --no-llm).
+    """
     finding.mark_unknown(
         message=render_check_message(check, "llm_unavailable_message", error=str(error)),
         todo=_default_todo_for_check(check, fallback_suffix=fallback_suffix),
@@ -508,7 +530,9 @@ def _extract_build_test_hints(debian_rules: str, build_log: str) -> dict:
 
     The result is advisory evidence for the CB-2 LLM check, not a verdict.
     """
-    rules_lower = (debian_rules or "").lower()
+    # Lowercase and inline make variables ($(CARGO) test -> cargo test) so a
+    # runner invoked through a variable still matches its plain marker.
+    rules_lower = re.sub(r"\$\(([A-Za-z0-9_]+)\)", r"\1", (debian_rules or "").lower())
     log_lower = (build_log or "").lower()
 
     runner_markers = [
@@ -522,7 +546,13 @@ def _extract_build_test_hints(debian_rules: str, build_log: str) -> dict:
         "go test",
         "cargo test",
     ]
-    rules_runners = [marker for marker in runner_markers if marker in rules_lower]
+    # Word-boundary matching so adjacent names cannot cross-match: plain
+    # substring tests would find "go test" inside "cargo test".
+    rules_runners = [
+        marker
+        for marker in runner_markers
+        if re.search(rf"(?<![\w-]){re.escape(marker)}(?![\w-])", rules_lower)
+    ]
 
     failures_possibly_ignored = bool(
         re.search(r"(dh_auto_test|make\s+(check|test)|pytest|ctest)[^\n]*\|\|\s*true", rules_lower)
@@ -530,7 +560,14 @@ def _extract_build_test_hints(debian_rules: str, build_log: str) -> dict:
 
     log_runs_tests = any(
         marker in log_lower
-        for marker in ("running tests", "make check", "make test", "test session starts", "ctest")
+        for marker in (
+            "running tests",
+            "make check",
+            "make test",
+            "test session starts",
+            "ctest",
+            "test result:",  # cargo's per-suite summary line
+        )
     )
     log_pass_fail = bool(re.search(r"\b(\d+\s+passed|tests? passed|pass|fail(ed)?)\b", log_lower))
 
@@ -958,33 +995,310 @@ def _default_todo_for_check(check: dict, fallback_suffix: str) -> str:
     return f"TODO: - {check.get('title', check.get('id', 'Check'))} — {fallback_suffix}"
 
 
-def _fallback_rationale_for_check(check: dict, ctx: RunContext) -> str:
-    """Return a deterministic-evidence rationale for a check when the LLM failed.
+def _adapter(ctx: RunContext, name: str) -> dict:
+    """Return an adapter payload dict (empty when missing or not a dict)."""
+    adapter = ctx.evidence.get("adapters", {}).get(name, {})
+    return adapter if isinstance(adapter, dict) else {}
 
-    Currently specialises RDO-1: even without the model, the dup-search adapter
-    has already found candidate overlapping packages, so surface them (with their
-    components) rather than leaving only a bare TODO. Returns "" for checks with
-    no such fallback.
-    """
-    if check.get("id") != "RDO-1":
+
+def _fact_deterministic_build_tests(check_id: str, ctx: RunContext) -> str:
+    """CB-2: what the rules wiring and build log already say about build-time tests."""
+    packaging = _adapter(ctx, "packaging-source")
+    fetch_build = _adapter(ctx, "fetch-build")
+    if packaging.get("status") != "ok":
         return ""
-    dup = ctx.evidence.get("adapters", {}).get("dup-search", {})
-    if not isinstance(dup, dict) or dup.get("status") != "ok":
+    hints = _extract_build_test_hints(
+        packaging.get("debian_rules", ""),
+        (fetch_build or {}).get("build_log", ""),
+    )
+    if not any(hints.values()):
+        return "debian/rules wire no known test runner and the build log shows no test run"
+    parts = []
+    if hints["rules_has_test_wiring"]:
+        parts.append("debian/rules wire test runner(s): " + ", ".join(hints["rules_test_runners"]))
+    else:
+        parts.append("debian/rules wire no known test runner")
+    if hints["nocheck_in_rules"]:
+        parts.append("'nocheck' appears in debian/rules")
+    if hints["failures_possibly_ignored"]:
+        parts.append("test failures are possibly ignored (e.g. '|| true' after a test target)")
+    if fetch_build.get("status") == "ok":
+        if hints["build_log_runs_tests"]:
+            parts.append(
+                "the build log shows tests running"
+                + (" with pass/fail output" if hints["build_log_has_pass_fail"] else "")
+            )
+        else:
+            parts.append("the build log shows no test run")
+    else:
+        parts.append("no build log available (fetch-build did not succeed)")
+    return "; ".join(parts)
+
+
+def _fact_ubuntu_delta(check_id: str, ctx: RunContext) -> str:
+    """PRF-1: whether Ubuntu carries a delta, and its classification."""
+    delta = _adapter(ctx, "debian-delta")
+    packaging = _adapter(ctx, "packaging-source")
+    kind = delta.get("delta_kind") or packaging.get("delta_kind")
+    if not kind:
+        return ""
+    if kind == "sync":
+        return "no Ubuntu delta: the version is a pure Debian sync"
+    if kind in ("native", "unknown"):
+        return "no Debian revision in the version: Ubuntu-only or native package"
+    category = delta.get("delta_category") or "unknown"
+    version = delta.get("version") or packaging.get("analyzed_version") or "?"
+    summary = (
+        f"Ubuntu carries a delta (version {version}, category '{category}');"
+        if delta.get("status") == "ok"
+        else "Ubuntu carries a delta;"
+    )
+    if delta.get("delta_summary"):
+        summary += " " + str(delta["delta_summary"])
+    return summary
+
+
+def _fact_vendored_dirs(check_id: str, ctx: RunContext) -> str:
+    """ESL-1/ESL-11: which vendored directories the source tree carries."""
+    packaging = _adapter(ctx, "packaging-source")
+    if packaging.get("status") != "ok":
+        return ""
+    vendored = packaging.get("vendored_dirs", []) or []
+    if not vendored:
+        return "no vendored directories found in the source tree"
+    shipped = packaging.get("shipped_vendored_dirs", []) or []
+    parts = ["vendored directories found: " + ", ".join(vendored[:8])]
+    if shipped:
+        parts.append("potentially shipped in binaries: " + ", ".join(shipped[:8]))
+    else:
+        parts.append("all confined to test/example/doc trees (not shipped)")
+    return "; ".join(parts)
+
+
+def _fact_rules_overrides(check_id: str, ctx: RunContext) -> str:
+    """PRF-9: which debhelper overrides debian/rules declares."""
+    packaging = _adapter(ctx, "packaging-source")
+    if packaging.get("status") != "ok":
+        return ""
+    overrides = packaging.get("debian_rules_overrides", []) or []
+    if not overrides:
+        return "debian/rules declare no debhelper overrides"
+    return "debian/rules override: " + ", ".join(overrides[:10])
+
+
+def _fact_owning_team(check_id: str, ctx: RunContext) -> str:
+    """RDO-2: who is already subscribed to the bug."""
+    membership = _adapter(ctx, "lp-team-membership-api")
+    subscribers = membership.get("subscribers", []) or []
+    if not subscribers:
+        return ""
+    return "bug subscribers so far: " + ", ".join(str(s) for s in subscribers[:10])
+
+
+def _fact_dup_candidates(check_id: str, ctx: RunContext) -> str:
+    """RDO-1: candidate overlapping packages the archive search already found."""
+    dup = _adapter(ctx, "dup-search")
+    if dup.get("status") != "ok":
         return ""
     candidates = dup.get("candidates", []) or []
     if not candidates:
-        return ""
+        reason = dup.get("llm_unavailable_reason") or "none proposed"
+        return f"archive search found no candidate packages ({reason})"
     named = [
         f"{c.get('name', '?')} ({c.get('component', 'unknown')})"
         for c in candidates
         if isinstance(c, dict) and c.get("name")
     ]
-    if not named:
-        return ""
     return (
-        "LLM unavailable; archive search found candidate package(s) to check for functional "
-        "overlap: " + ", ".join(named[:10])
+        "archive search found candidate package(s) to check for functional overlap: "
+        + ", ".join(named[:10])
     )
+
+
+def _fact_tests_control(check_id: str, ctx: RunContext) -> str:
+    """CB-3: whether an autopkgtest control exists at all."""
+    packaging = _adapter(ctx, "packaging-source")
+    if packaging.get("status") != "ok":
+        return ""
+    control = (packaging.get("debian_tests_control") or "").strip()
+    return (
+        "debian/tests/control is present"
+        if control
+        else "no debian/tests/control found in the packaging"
+    )
+
+
+def _fact_consumers(check_id: str, ctx: RunContext) -> str:
+    """CB-6: reverse-dependency consumers and their autopkgtest statuses."""
+    reverse = _adapter(ctx, "reverse-deps")
+    if reverse.get("status") != "ok":
+        return ""
+    consumers = reverse.get("consumers", []) or []
+    if not consumers:
+        return "no reverse-dependency consumers found in the archive"
+    parts = [
+        f"{len(consumers)} reverse-dependency consumer(s): "
+        + ", ".join(str(c) for c in consumers[:8])
+    ]
+    consumer_tests = _adapter(ctx, "consumer-autopkgtests")
+    if consumer_tests.get("status") == "ok":
+        entries = consumer_tests.get("consumers", []) or []
+        if entries:
+            parts.append("consumer autopkgtest results are collected")
+        else:
+            parts.append("no consumer autopkgtest results available")
+    return "; ".join(parts)
+
+
+def _fact_service_files(check_id: str, ctx: RunContext) -> str:
+    """SEC-6/SEC-13: shipped service/apparmor surfaces."""
+    packaging = _adapter(ctx, "packaging-source")
+    if packaging.get("status") != "ok":
+        return ""
+    parts = []
+    services = packaging.get("service_files", []) or []
+    parts.append("systemd unit files: " + (", ".join(services[:8]) if services else "none found"))
+    apparmor = packaging.get("apparmor_profiles", []) or []
+    parts.append("apparmor profiles: " + (", ".join(apparmor[:8]) if apparmor else "none found"))
+    return "; ".join(parts)
+
+
+def _fact_crypto_scan(check_id: str, ctx: RunContext) -> str:
+    """SEC-12: deprecated-crypto pattern scan results (best-effort, not proof)."""
+    packaging = _adapter(ctx, "packaging-source")
+    if packaging.get("status") != "ok":
+        return ""
+    hits = packaging.get("crypto_pattern_hits", []) or []
+    if not hits:
+        return "deprecated-crypto pattern scan found no indicators (not an exhaustive proof)"
+    return f"deprecated-crypto pattern scan found {len(hits)} hit(s), e.g. " + "; ".join(hits[:3])
+
+
+def _fact_runtime_deps(check_id: str, ctx: RunContext) -> str:
+    """SEC-5/7/9/11: the runtime dependency set the dep scans work from."""
+    dep = _adapter(ctx, "dep-analysis")
+    if dep.get("status") != "ok":
+        return ""
+    packages = dep.get("runtime_dep_packages", []) or []
+    if not packages:
+        return "no runtime dependencies outside the source package itself"
+    return "runtime dependencies: " + ", ".join(str(p) for p in packages[:12])
+
+
+def _fact_dependency_coverage(check_id: str, ctx: RunContext) -> str:
+    """DEP-2/DEP-4: which dependencies carry autopkgtest coverage."""
+    coverage = _adapter(ctx, "dependency-autopkgtests")
+    if coverage.get("status") != "ok":
+        return ""
+    entries = coverage.get("dependency_coverage", []) or []
+    if not entries:
+        return ""
+    with_tests = [
+        str(e.get("package", "?"))
+        for e in entries
+        if isinstance(e, dict) and e.get("has_autopkgtest")
+    ]
+    return (
+        f"{len(with_tests)} of {len(entries)} in-main runtime dependenc"
+        f"{'y has' if len(entries) == 1 else 'ies have'} autopkgtest coverage"
+        + (": " + ", ".join(with_tests[:8]) if with_tests else "")
+    )
+
+
+def _fact_open_bugs(check_id: str, ctx: RunContext) -> str:
+    """URF-6: already-known open bugs in Ubuntu and Debian."""
+    parts = []
+    lp = _adapter(ctx, "lp-bug-search-api")
+    if lp.get("status") == "ok":
+        open_bugs = lp.get("open_bugs", []) or []
+        parts.append(f"{len(open_bugs)} open Ubuntu bug(s)")
+    bts = _adapter(ctx, "debian-bts")
+    if bts.get("status") == "ok":
+        parts.append(
+            f"{len(bts.get('open_bugs', []) or [])} open Debian bug(s) "
+            f"({len(bts.get('rc_bugs', []) or [])} RC)"
+        )
+    return "; ".join(parts)
+
+
+def _fact_ui_surfaces(check_id: str, ctx: RunContext) -> str:
+    """URF-8: the deterministic UI signals the check starts from."""
+    packaging = _adapter(ctx, "packaging-source")
+    if packaging.get("status") != "ok":
+        return ""
+    parts = []
+    if packaging.get("has_desktop_file"):
+        parts.append("a .desktop file is shipped")
+    else:
+        parts.append("no .desktop file found")
+    sections = packaging.get("binary_sections", []) or []
+    if sections:
+        parts.append("binary Sections: " + ", ".join(sections[:6]))
+    return "; ".join(parts)
+
+
+def _fact_language_gate(check_id: str, ctx: RunContext) -> str:
+    """ESL-5/ESL-6/CB-9/URF-2: the declared language detection summary."""
+    from utils.language_detection import language_detection_summary
+
+    packaging = _adapter(ctx, "packaging-source")
+    if packaging.get("status") != "ok":
+        return ""
+    if check_id in ("CB-9", "ESL-5", "ESL-6"):
+        return "go detection: " + language_detection_summary(packaging, "go")
+    return "rust detection: " + language_detection_summary(packaging, "rust")
+
+
+# Curated deterministic facts per check: when the LLM is unavailable (outage
+# or --no-llm), each degraded finding still carries what the collected
+# evidence already answers for it, so the reviewer starts from facts rather
+# than a bare TODO. Checks not listed render without a rationale (their
+# question genuinely needs the model's judgement over the evidence).
+_DEGRADED_FACT_BUILDERS: dict[str, Callable[[str, RunContext], str]] = {
+    "RDO-1": _fact_dup_candidates,
+    "RDO-2": _fact_owning_team,
+    "CB-2": _fact_deterministic_build_tests,
+    "CB-3": _fact_tests_control,
+    "CB-6": _fact_consumers,
+    "CB-9": _fact_language_gate,
+    "DEP-2": _fact_dependency_coverage,
+    "DEP-4": _fact_dependency_coverage,
+    "ESL-1": _fact_vendored_dirs,
+    "ESL-5": _fact_language_gate,
+    "ESL-6": _fact_language_gate,
+    "ESL-11": _fact_vendored_dirs,
+    "PRF-1": _fact_ubuntu_delta,
+    "PRF-9": _fact_rules_overrides,
+    "SEC-5": _fact_runtime_deps,
+    "SEC-6": _fact_service_files,
+    "SEC-7": _fact_runtime_deps,
+    "SEC-9": _fact_runtime_deps,
+    "SEC-11": _fact_runtime_deps,
+    "SEC-12": _fact_crypto_scan,
+    "SEC-13": _fact_service_files,
+    "URF-2": _fact_language_gate,
+    "URF-6": _fact_open_bugs,
+    "URF-8": _fact_ui_surfaces,
+}
+
+
+def _fallback_rationale_for_check(check: dict, ctx: RunContext) -> str:
+    """Return a deterministic-evidence rationale for a check when the LLM failed.
+
+    The curated per-check builders in ``_DEGRADED_FACT_BUILDERS`` summarize
+    what the already-collected evidence answers for the check's question
+    (e.g. CB-2's rules wiring, PRF-1's delta classification, RDO-1's dup
+    candidates), so a degraded run still starts the reviewer from facts
+    rather than a bare TODO. Returns "" for checks with no curated facts.
+    """
+    check_id = check.get("id")
+    builder = _DEGRADED_FACT_BUILDERS.get(check_id)
+    if builder is None:
+        return ""
+    fact = builder(check_id, ctx)
+    if not fact:
+        return ""
+    return f"LLM unavailable; deterministic facts: {fact}"
 
 
 def _summarise_findings_so_far(
