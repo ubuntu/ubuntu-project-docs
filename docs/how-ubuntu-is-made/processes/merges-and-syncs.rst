@@ -20,7 +20,7 @@ This article explains how and why Ubuntu imports changes from :term:`Debian`.
     :ref:`How to do a merge <merging>`:
       #. :ref:`merge-preliminary-steps`
       #. :ref:`merge-process`
-      #. :ref:`merge-fix-the-changelog`
+      #. :ref:`merge-review-the-changelog`
       #. :ref:`merge-upload-a-ppa`
       #. :ref:`merge-test-the-new-build`
       #. :ref:`merge-git-ubuntu-merge-proposal`

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 256" width="700" height="256" font-family="Ubuntu, 'Noto Sans', sans-serif" font-size="16">
+  <title>Every step ends in a check; failed checks are fixed by hand and re-checked</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto">
+      <path class="arrowhead" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+  <style>
+    .step { fill: #fdf0ea; stroke: #e95420; stroke-width: 1.5; }
+    .ext { fill: #77216f; }
+    .plain { fill: #fff; stroke: #666; stroke-width: 1.5; }
+    .edge { fill: none; stroke: #666; stroke-width: 2; }
+    .c { text-anchor: middle; }
+    .light { fill: #fff; }
+    .note { fill: #555; font-size: 14px; }
+    .mono { font-family: 'Ubuntu Mono', monospace; }
+    .bg { fill: #fff; }
+    .arrowhead { fill: #666; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: none; }
+      text { fill: #cfd0d0; }
+      .step { fill: #3b2219; }
+      .plain { fill: #1a1c1e; stroke: #9ca0a5; }
+      .edge { stroke: #9ca0a5; }
+      .arrowhead { fill: #9ca0a5; }
+      .note { fill: #9ca0a5; }
+    }
+  </style>
+  <rect class="bg" width="700" height="256"/>
+
+  <rect class="step" x="20" y="40" width="210" height="64" rx="4"/>
+  <text class="c" x="125" y="67">Do the step</text>
+  <text class="c note" x="125" y="89">git, or AI with <tspan class="mono">--ai</tspan></text>
+  <line class="edge" x1="230" y1="72" x2="288" y2="72" marker-end="url(#arrow)"/>
+
+  <polygon class="plain" points="290,72 360,24 430,72 360,120"/>
+  <text class="c" x="360" y="68">Check</text>
+  <text class="c" x="360" y="88">passes?</text>
+
+  <line class="edge" x1="430" y1="72" x2="508" y2="72" marker-end="url(#arrow)"/>
+  <text class="c note" x="468" y="64">yes</text>
+  <rect class="ext" x="510" y="48" width="160" height="48" rx="24"/>
+  <text class="c light" x="590" y="78">Next step</text>
+
+  <line class="edge" x1="360" y1="120" x2="360" y2="174" marker-end="url(#arrow)"/>
+  <text class="note" x="368" y="152">no</text>
+  <rect class="plain" x="260" y="176" width="200" height="60" rx="4"/>
+  <text class="c" x="360" y="202">You fix it</text>
+  <text class="c note" x="360" y="222">with plain git</text>
+
+  <path class="edge" d="M260,206 H240 V92 H317" marker-end="url(#arrow)"/>
+  <text class="note mono" x="232" y="164" text-anchor="end">git ubuntu deltarebase continue</text>
+</svg>
