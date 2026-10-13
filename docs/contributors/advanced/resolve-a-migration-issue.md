@@ -69,23 +69,27 @@ All autopkgtests follow this general format, although the output from different 
 
 Beyond "regular" test case failures like this one, autopkgtest failures also occur due to missing or incorrect dependencies, test framework timeouts, and other issues. See {ref}`autopkgtest-regressions` for details.
 
-### Anomalous Autopkgtest Logs
+### Anomalous autopkgtest logs
 
-It is possible in rare cases that upon checking the logs, you may find that autopkgtest died before the tests even run, or otherwise show unexpected modes of error. Some of these cases point to real issues with the package, and others are due to problems unrelated to the package (and are therefore often ephemeral).
+It is possible, in rare cases, that upon checking the logs, you find that autopkgtest died before the tests even ran, or otherwise show unexpected modes of error. Some of these cases point to real issues with the package, and others are due to problems unrelated to the package (and are therefore often ephemeral).
 
 For example, you may see a very short log ending with:
 
 ```
 eof from the virtualization server
 ```
-or a result-less failure like
+
+or a result-less failure like:
+
 ```
 autopkgtest [16:46:34]: ERROR: timed out on command <...>
 ```
 
-The [autopkgtest viewer](https://autopkgtest.ubuntu.com) will report such a case as a "Temp Fail" (`tmpfail`). These are, as the name implies, temporary failures that are not necessarily related to the package being tested. If you see this, try re-running the test. If, however, you see this consistently (after several retries), this may indicate underlying issues with the infrastructure itself, and you should check with Ubuntu developers on Matrix if there is a known problem. For information on how to connect with the community on Matrix, see {ref}`using-matrix`.
+The [autopkgtest viewer](https://autopkgtest.ubuntu.com) reports such a case as a "Temp Fail" (`tmpfail`). These are, as the name implies, temporary failures that are not necessarily related to the package being tested. If you see this, try re-running the test.
 
-Alternatively, you may encounter an error in apt's dependency resolution, reported as `FAIL badpkg`, such as:
+If, however, you see this consistently (after several retries), this may indicate underlying issues with the infrastructure itself, and you should check with Ubuntu developers on Matrix if there is a known problem. For information on how to connect with the community on Matrix, see {ref}`using-matrix`.
+
+Alternatively, you may encounter an error in APT dependency resolution, reported as `FAIL badpkg`, such as:
 
 ```
 1577s The following packages have unmet dependencies:
@@ -103,7 +107,7 @@ Alternatively, you may encounter an error in apt's dependency resolution, report
 
 This means that autopkgtest couldn't find the required dependencies for the test, be that for the package under test or something external required for that specific test case.
 
-One common place where you see such an error is when you attempt to run an autopkgtest suite on the i386 architecture for a package not built for that architecture, as in the example above. In this case, it is not a failure within the package, and can be remedied by either not running that architecture or adding this package to the i386 allowlist by contacting an Archive Admin. However, there are cases where apt resolution will fail that *are* related to the package.
+One common place where you see such an error is when you attempt to run an autopkgtest suite on the i386 architecture for a package not built for that architecture, as in the example above. In this case, it is not a failure within the package, and it can be remedied by either not running that architecture, or adding this package to the i386 allowlist by contacting an Archive admin. However, there are cases where APT resolution fails that *are* related to the package.
 
 In some ecosystems, such as Haskell and OCaml, packages have very rigid dependency constraints, as binaries are built against and pinned to specific versions of libraries or compilers. More generally, if an ABI/API change occurs in a dependency, library SONAMEs might change, and your package's dependencies might have changed out from under it. This can cause your package to no longer be buildable or installable, causing your autopkgtests to fail. Cases like this are solved by no-change rebuilding the package (which might require you to recursively no-change rebuild dependencies), and the perennial suspects can be monitored on the [Transition Tracker](https://transitions.ubuntu.com) page. See {ref}`transitions` for more information on these transitions in general.
 
