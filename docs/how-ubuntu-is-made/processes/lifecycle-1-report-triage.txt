@@ -1,0 +1,13 @@
+:::{mermaid}
+   %%{init: {'themeVariables': {
+                'fontSize': '1.5em',
+                'fontFamily': 'Ubuntu'}}}%%
+
+flowchart LR
+    File["<a href='/contributors/qa-and-testing/report-a-bug/'>File bug on Launchpad</a><br/>with reproduction steps and system details"] --> Triage
+    Triage{"<a href='/contributors/bug-triage/'>Triage</a>:<br/>enough information?<br/>right package?<br/>assignee?"}
+    PrepareFix(["<a href='#preparing-and-testing-the-change'>Prepare change</a>"])
+    Triage -.-> |"needs<br/>more info"| File
+    Triage --> |"actionable"| PrepareFix
+
+:::

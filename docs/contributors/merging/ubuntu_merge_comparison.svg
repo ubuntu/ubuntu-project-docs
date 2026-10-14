@@ -1,0 +1,847 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 960 560"
+   font-family="Ubuntu, sans-serif"
+   font-size="11"
+   version="1.1"
+   id="svg59"
+   sodipodi:docname="in.svg"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview59"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.3052013"
+     inkscape:cx="535.54959"
+     inkscape:cy="328.30186"
+     inkscape:window-width="1880"
+     inkscape:window-height="971"
+     inkscape:window-x="26"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg59" />
+  <defs
+     id="defs2">
+    <marker
+       id="arr"
+       markerWidth="7"
+       markerHeight="5"
+       refX="7"
+       refY="2.5"
+       orient="auto">
+      <path
+         d="M0,0 L7,2.5 L0,5"
+         fill="none"
+         stroke="#475569"
+         stroke-width="1"
+         id="path1" />
+    </marker>
+    <marker
+       id="arr-light"
+       markerWidth="7"
+       markerHeight="5"
+       refX="7"
+       refY="2.5"
+       orient="auto">
+      <path
+         d="M0,0 L7,2.5 L0,5"
+         fill="none"
+         stroke="#94a3b8"
+         stroke-width="1"
+         id="path2" />
+    </marker>
+  </defs>
+  <!-- ===== LEFT: Git Merge ===== -->
+  <text
+     x="240"
+     y="24"
+     text-anchor="middle"
+     font-size="14"
+     font-weight="700"
+     fill="#0f172a"
+     id="text2">Git Merge</text>
+  <!-- Before label -->
+  <text
+     x="48"
+     y="70"
+     font-size="10"
+     font-weight="600"
+     fill="#64748b"
+     text-transform="uppercase"
+     id="text3">BEFORE</text>
+  <line
+     x1="48"
+     y1="76"
+     x2="440"
+     y2="76"
+     stroke="#e2e8f0"
+     stroke-width="1"
+     id="line3" />
+  <!-- Before nodes -->
+  <!-- A: common ancestor -->
+  <rect
+     x="48"
+     y="108"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#fff1f2"
+     stroke="#fca5a5"
+     id="rect3" />
+  <text
+     x="98"
+     y="124"
+     text-anchor="middle"
+     font-size="10"
+     font-weight="600"
+     fill="#991b1b"
+     id="text4">Debian v1</text>
+  <text
+     x="98"
+     y="136"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text5">common ancestor</text>
+  <!-- B: feature 1 -->
+  <rect
+     x="200"
+     y="88"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect5" />
+  <text
+     x="250"
+     y="104"
+     text-anchor="middle"
+     font-size="10"
+     fill="#4c1d95"
+     id="text6">Feature Branch</text>
+  <text
+     x="250"
+     y="116"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text7">Commit 1</text>
+  <!-- C: feature 2 -->
+  <rect
+     x="340"
+     y="88"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect7" />
+  <text
+     x="390"
+     y="104"
+     text-anchor="middle"
+     font-size="10"
+     fill="#4c1d95"
+     id="text8">Feature Branch</text>
+  <text
+     x="390"
+     y="116"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text9">Commit 2</text>
+  <!-- D: main 1 -->
+  <rect
+     x="200"
+     y="138"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect9" />
+  <text
+     x="250"
+     y="154"
+     text-anchor="middle"
+     font-size="10"
+     fill="#4c1d95"
+     id="text10">Main Branch</text>
+  <text
+     x="250"
+     y="166"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text11">Commit 1</text>
+  <!-- E: main 2 -->
+  <rect
+     x="340"
+     y="138"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect11" />
+  <text
+     x="390"
+     y="154"
+     text-anchor="middle"
+     font-size="10"
+     fill="#4c1d95"
+     id="text12">Main Branch</text>
+  <text
+     x="390"
+     y="166"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text13">Commit 2</text>
+  <!-- Before arrows -->
+  <path
+     d="M148,118 L198,106"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path13" />
+  <path
+     d="M148,132 L198,156"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path14" />
+  <path
+     d="M300,106 L338,106"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path15" />
+  <path
+     d="M300,156 L338,156"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path16" />
+  <!-- After label -->
+  <text
+     x="48"
+     y="220"
+     font-size="10"
+     font-weight="600"
+     fill="#64748b"
+     id="text16">AFTER</text>
+  <line
+     x1="48"
+     y1="226"
+     x2="440"
+     y2="226"
+     stroke="#e2e8f0"
+     stroke-width="1"
+     id="line16" />
+  <!-- After nodes -->
+  <!-- A2 -->
+  <rect
+     x="48"
+     y="262"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#fff1f2"
+     stroke="#fca5a5"
+     id="rect16" />
+  <text
+     x="98"
+     y="278"
+     text-anchor="middle"
+     font-size="10"
+     font-weight="600"
+     fill="#991b1b"
+     id="text17">Debian v1</text>
+  <text
+     x="98"
+     y="290"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text18">common ancestor</text>
+  <!-- B2 -->
+  <rect
+     x="190"
+     y="242"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect18" />
+  <text
+     x="240"
+     y="258"
+     text-anchor="middle"
+     font-size="10"
+     fill="#4c1d95"
+     id="text19">Feature Branch</text>
+  <text
+     x="240"
+     y="270"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text20">Commit 1</text>
+  <!-- C2 -->
+  <rect
+     x="320"
+     y="242"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect20" />
+  <text
+     x="370"
+     y="258"
+     text-anchor="middle"
+     font-size="10"
+     fill="#4c1d95"
+     id="text21">Feature Branch</text>
+  <text
+     x="370"
+     y="270"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text22">Commit 2</text>
+  <!-- D2 -->
+  <rect
+     x="190"
+     y="300"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect22" />
+  <text
+     x="240"
+     y="316"
+     text-anchor="middle"
+     font-size="10"
+     fill="#4c1d95"
+     id="text23">Main Branch</text>
+  <text
+     x="240"
+     y="328"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text24">Commit 1</text>
+  <!-- E2 -->
+  <rect
+     x="320"
+     y="300"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect24" />
+  <text
+     x="370"
+     y="316"
+     text-anchor="middle"
+     font-size="10"
+     fill="#4c1d95"
+     id="text25">Main Branch</text>
+  <text
+     x="370"
+     y="328"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text26">Commit 2</text>
+  <!-- M: merge commit -->
+  <rect
+     x="270"
+     y="360"
+     width="120"
+     height="36"
+     rx="4"
+     fill="#fefce8"
+     stroke="#eab308"
+     stroke-width="1.5"
+     id="rect26" />
+  <text
+     x="330"
+     y="376"
+     text-anchor="middle"
+     font-size="10"
+     font-weight="700"
+     fill="#854d0e"
+     id="text27">Merge Commit</text>
+  <text
+     x="330"
+     y="388"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text28">combines both</text>
+  <!-- After arrows -->
+  <path
+     d="M148,272 L188,260"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path28" />
+  <path
+     d="M148,288 L188,315"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path29" />
+  <path
+     d="M290,260 L318,260"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path30" />
+  <path
+     d="M290,318 L318,318"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path31" />
+  <!-- C2 → M (routed right then down then left) -->
+  <path
+     d="M420,260 L445,260 L445,378 L392,378"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path32" />
+  <!-- E2 → M (routed right then down then left) -->
+  <path
+     d="M420,318 L435,318 L435,378 L392,378"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path33" />
+  <!-- ===== Divider ===== -->
+  <line
+     x1="480"
+     y1="30"
+     x2="480"
+     y2="465.99731"
+     stroke="#e2e8f0"
+     stroke-width="0.933806"
+     stroke-dasharray="4, 4"
+     id="line33" />
+  <!-- ===== RIGHT: Ubuntu Merge (Delta Rebase) ===== -->
+  <text
+     x="720"
+     y="24"
+     text-anchor="middle"
+     font-size="14"
+     font-weight="700"
+     fill="#0f172a"
+     id="text33">Ubuntu Merge (Delta Rebase)</text>
+  <!-- Before label -->
+  <text
+     x="520"
+     y="70"
+     font-size="10"
+     font-weight="600"
+     fill="#64748b"
+     id="text34">BEFORE</text>
+  <line
+     x1="520"
+     y1="76"
+     x2="930"
+     y2="76"
+     stroke="#e2e8f0"
+     stroke-width="1"
+     id="line34" />
+  <!-- X: Debian v1 base -->
+  <rect
+     x="520"
+     y="100"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#fff1f2"
+     stroke="#fca5a5"
+     id="rect34" />
+  <text
+     x="570"
+     y="116"
+     text-anchor="middle"
+     font-size="10"
+     font-weight="600"
+     fill="#991b1b"
+     id="text35">Debian v1</text>
+  <text
+     x="570"
+     y="128"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text36">base</text>
+  <!-- Y: Ubuntu Change 1 -->
+  <rect
+     x="670"
+     y="100"
+     width="110"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect36" />
+  <text
+     x="725"
+     y="116"
+     text-anchor="middle"
+     font-size="10"
+     fill="#4c1d95"
+     id="text37">Ubuntu Change 1</text>
+  <text
+     x="725"
+     y="128"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text38">on Debian v1</text>
+  <!-- Z: Ubuntu Change 2 -->
+  <rect
+     x="820"
+     y="100"
+     width="110"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect38" />
+  <text
+     x="875"
+     y="116"
+     text-anchor="middle"
+     font-size="10"
+     fill="#4c1d95"
+     id="text39">Ubuntu Change 2</text>
+  <text
+     x="875"
+     y="128"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text40">on Debian v1</text>
+  <!-- W: Debian v2 -->
+  <rect
+     x="670"
+     y="160"
+     width="110"
+     height="36"
+     rx="4"
+     fill="#fff1f2"
+     stroke="#fca5a5"
+     id="rect40" />
+  <text
+     x="725"
+     y="176"
+     text-anchor="middle"
+     font-size="10"
+     font-weight="600"
+     fill="#991b1b"
+     id="text41">Debian v2</text>
+  <text
+     x="725"
+     y="188"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text42">new upstream</text>
+  <!-- Before arrows -->
+  <path
+     d="M620,118 L668,118"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path42" />
+  <path
+     d="M780,118 L818,118"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path43" />
+  <!-- X ··> W (dashed) -->
+  <path
+     d="M620,130 L668,170"
+     fill="none"
+     stroke="#94a3b8"
+     stroke-width="1.2"
+     stroke-dasharray="4,3"
+     marker-end="url(#arr-light)"
+     id="path44" />
+  <text
+     x="576.71167"
+     y="161.14925"
+     font-size="9px"
+     fill="#94a3b8"
+     font-style="italic"
+     id="text44">upstream evolves</text>
+  <!-- After label -->
+  <text
+     x="520"
+     y="220"
+     font-size="10"
+     font-weight="600"
+     fill="#64748b"
+     id="text45">AFTER</text>
+  <line
+     x1="520"
+     y1="226"
+     x2="930"
+     y2="226"
+     stroke="#e2e8f0"
+     stroke-width="1"
+     id="line45" />
+  <!-- X2: Debian v1 (faded) -->
+  <rect
+     x="520"
+     y="260"
+     width="100"
+     height="36"
+     rx="4"
+     fill="#fafafa"
+     stroke="#d4d4d8"
+     opacity="0.6"
+     id="rect45" />
+  <text
+     x="570"
+     y="281"
+     text-anchor="middle"
+     font-size="10"
+     fill="#a1a1aa"
+     id="text46">Debian v1</text>
+  <!-- W2: Debian v2 (new base) -->
+  <rect
+     x="670"
+     y="260"
+     width="110"
+     height="36"
+     rx="4"
+     fill="#fff1f2"
+     stroke="#fca5a5"
+     stroke-width="1.5"
+     id="rect46" />
+  <text
+     x="725"
+     y="276"
+     text-anchor="middle"
+     font-size="10"
+     font-weight="600"
+     fill="#991b1b"
+     id="text47">Debian v2</text>
+  <text
+     x="725"
+     y="288"
+     text-anchor="middle"
+     font-size="9"
+     fill="#6b7280"
+     id="text48">new base</text>
+  <!-- Y2: Ubuntu Change 1 (rebased) -->
+  <rect
+     x="820"
+     y="260.46051"
+     width="110"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect48" />
+  <text
+     x="875"
+     y="276.46051"
+     text-anchor="middle"
+     font-size="10px"
+     fill="#4c1d95"
+     id="text49">Ubuntu Change 1</text>
+  <text
+     x="875"
+     y="288.46051"
+     text-anchor="middle"
+     font-size="9px"
+     fill="#6b7280"
+     id="text50">rebased</text>
+  <!-- Z2: Ubuntu Change 2 (rebased) -->
+  <rect
+     x="820"
+     y="318.46051"
+     width="110"
+     height="36"
+     rx="4"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect50" />
+  <text
+     x="875"
+     y="334.46051"
+     text-anchor="middle"
+     font-size="10px"
+     fill="#4c1d95"
+     id="text51">Ubuntu Change 2</text>
+  <text
+     x="875"
+     y="346.46051"
+     text-anchor="middle"
+     font-size="9px"
+     fill="#6b7280"
+     id="text52">rebased</text>
+  <!-- After arrows -->
+  <!-- X2 ··> W2 -->
+  <path
+     d="M620,278 L668,278"
+     fill="none"
+     stroke="#94a3b8"
+     stroke-width="1.2"
+     stroke-dasharray="4,3"
+     marker-end="url(#arr-light)"
+     id="path52" />
+  <text
+     x="621.25378"
+     y="271.61691"
+     font-size="9px"
+     fill="#94a3b8"
+     font-style="italic"
+     id="text53">replaced by</text>
+  <!-- W2 → Y2 -->
+  <path
+     d="m 780,276.78853 38,-0.0622"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path53"
+     sodipodi:nodetypes="cc" />
+  <!-- Y2 → Z2 -->
+  <path
+     d="m 875,296.4605 v 20"
+     fill="none"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="path54" />
+  <!-- ===== Key ===== -->
+  <text
+     x="48"
+     y="460"
+     font-size="10"
+     font-weight="600"
+     fill="#64748b"
+     id="text54">KEY</text>
+  <line
+     x1="48"
+     y1="466"
+     x2="930"
+     y2="466"
+     stroke="#e2e8f0"
+     stroke-width="1"
+     id="line54" />
+  <rect
+     x="48"
+     y="480"
+     width="14"
+     height="14"
+     rx="2"
+     fill="#fff1f2"
+     stroke="#fca5a5"
+     id="rect54" />
+  <text
+     x="70"
+     y="491"
+     font-size="10"
+     fill="#374151"
+     id="text55">Base / Ancestor</text>
+  <rect
+     x="180"
+     y="480"
+     width="14"
+     height="14"
+     rx="2"
+     fill="#f5f3ff"
+     stroke="#c4b5fd"
+     id="rect55" />
+  <text
+     x="202"
+     y="491"
+     font-size="10"
+     fill="#374151"
+     id="text56">Commit</text>
+  <rect
+     x="280"
+     y="480"
+     width="14"
+     height="14"
+     rx="2"
+     fill="#fefce8"
+     stroke="#eab308"
+     id="rect56" />
+  <text
+     x="302"
+     y="491"
+     font-size="10"
+     fill="#374151"
+     id="text57">Merge Commit</text>
+  <line
+     x1="430"
+     y1="487"
+     x2="460"
+     y2="487"
+     stroke="#475569"
+     stroke-width="1.2"
+     marker-end="url(#arr)"
+     id="line57" />
+  <text
+     x="468"
+     y="491"
+     font-size="10"
+     fill="#374151"
+     id="text58">Direct lineage</text>
+  <line
+     x1="580"
+     y1="487"
+     x2="610"
+     y2="487"
+     stroke="#94a3b8"
+     stroke-width="1.2"
+     stroke-dasharray="4,3"
+     marker-end="url(#arr-light)"
+     id="line58" />
+  <text
+     x="618"
+     y="491"
+     font-size="10"
+     fill="#374151"
+     id="text59">Supersedes / evolves</text>
+</svg>

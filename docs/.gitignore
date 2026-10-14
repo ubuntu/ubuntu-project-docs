@@ -1,14 +1,30 @@
-/*env*/
-.sphinx/venv/
-.sphinx/warnings.txt
-.sphinx/.wordlist.dic
-.sphinx/.doctrees/
-.sphinx/node_modules/
-package*.json
+# Environment
+*env*/
+.venv/
+
+# Sphinx
+_dev/warnings.txt
+_dev/.wordlist.dic
+_dev/.doctrees/
+_dev/update/
+_dev/node_modules/
+
+# Vale
+_dev/styles/*
+_dev/vale.ini
+
+# Build outputs
 _build
+
+# Generated includes (built from Auto-MIR role catalogs, not committed)
+MIR/mir-reviewers-template-body.include
+MIR/mir-reporters-template-body.include
+
+# Node.js
+package*.json
+
+# Unrelated cache and config files
 .DS_Store
 __pycache__
 .idea/
 .vscode/
-.sphinx/styles/*
-.sphinx/vale.ini

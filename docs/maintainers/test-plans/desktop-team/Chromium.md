@@ -1,0 +1,161 @@
+(Chromium-test-plan)=
+# Chromium test plan
+
+* **Test plan for component**: `chromium`
+* **Upstream project**: <https://www.chromium.org/Home>
+* **Ubuntu package URL (LP)**: <https://launchpad.net/ubuntu/+source/chromium-browser>
+* **Ubuntu packaging team (LP)**: <https://launchpad.net/~chromium-team>
+* **Ubuntu packaging repository**: <https://code.launchpad.net/~chromium-team/chromium-browser>
+
+
+## Description
+
+This is a test plan for `chromium` as used by Ubuntu Desktop.
+
+
+### Initial set up
+
+* If testing the snap, install
+  * the latest Ubuntu Desktop development release
+  * the Chromium snap from the candidate channel
+
+    :::{warning}
+    Don't use [parallel install](https://ubuntu.com/blog/parallel-installs-test-and-run-multiple-instances-of-snaps) for the test, otherwise some steps will fail
+    :::
+
+  * `xdg-desktop-portal-gnome` (if you had to install it, make sure it's running with `ps ax|grep xdg-desktop-portal-gnom[e]`, simplest way to ensure that is logging out and in)
+* If testing the deb, install
+  * Ubuntu Desktop Bionic
+  * Verify that [autopkgtests](http://autopkgtest.ubuntu.com/packages/chromium-browser) all pass for amd64, i386, arm64 and armhf
+  * [`chromium-browser` from the PPA](https://launchpad.net/~canonical-chromium-builds/+archive/ubuntu/stage)
+
+:::{warning}
+Ensure that only one virtual console is running a display server. It is common otherwise that dialog windows or even programs will open in the other display server.
+:::
+
+
+## Manual tests
+
+
+### About
+
+* Browse to about:version and verify that the version number, user-agent string and profile directory are as expected
+  * If the user agent is deliberately changed (besides version number), verify that Google services still work (start a meeting on <https://meet.google.com> or check Google Drive).
+
+* Browse to about:gpu and check the status of GPU support (in particular, if running on real hardware, as opposed to inside a virtual machine, Canvas, WebGL and WebGL2 should be hardware-accelerated)
+
+
+### Custom URL schemes handling
+
+* Verify that clicking `mailto:foobar@nospam.org` opens your default e-mail client and starts composing a message
+* Browse to <https://snapcraft.io/0ad>, click the green 'Install' button, then click the 'View in Desktop store' button, and verify that it opens the software store on the details page for 0 A.D.
+
+
+### Downloads
+
+* Download a tarball, e.g. [grace_5.1.25.orig.tar.gz](https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/grace/1:5.1.25-13/grace_5.1.25.orig.tar.gz). Open the downloads view with {kbd}`Ctrl` + {kbd}`J` and verify that the file is fully downloaded, that you can display its parent folder (this should open `nautilus` or your default file manager) and that you can open the downloaded file (should open in `file-roller` if it is installed)
+* Download a [sample pdf](https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf), which should open and render a PDF file in the current tab. Verify that you can scroll through the pages, zoom/unzoom, and save (download) the file to disk
+
+
+### Default browser
+
+* Open the system settings on the apps panel and verify that `chromium` is not the default browser (by default it is `firefox`)
+* Browse to about:settings/defaultBrowser and click the button to make `chromium` the default browser. A dialog asking for confirmation will appear, allow it and then switch to the settings app, change panels and back to the default applications panel, and verify that now `chromium` is the default browser
+* In the settings app, change the default web browser back to `firefox`, then refresh the about:settings/defaultBrowser tab in `chromium` and verify that the button to make `chromium` the default browser is visible again
+* In the settings app, change the default web browser to `chromium`, then refresh the about:settings/defaultBrowser tab in `chromium` and verify that the button to make `chromium` the default browser is hidden
+
+
+### Theme
+
+* Use `GTK_THEME` to try to launch Chromium with a local theme in `$HOME/.local/share/themes`. It must fail to load that theme and instead fall back to the default.
+
+
+### Referral
+
+* Type any word in the omni-box and press {kbd}`enter` to search it with the default search engine. Verify that the referral code has been added to the search URI:
+  * with Google: `&client=ubuntu-chr`
+  * with DuckDuckGo: `&t=canonical`
+
+
+### Translation
+
+Visit a web page in a foreign language (e.g., [German](https://www.projekt-gutenberg.org/schopenh/weltwil1/weltwil1.html) or [Romanian](https://ro.wikipedia.org)). Verify that a page translation box pops up, suggesting translation from the correct language to your locale's one. Clicking your language should translate the page to it.
+
+
+### Rendering
+
+* Browse to <https://html5test.co> and verify that the browser was correctly detected and that the score is as expected (currently 574/594 for `chromium` 123)
+* Browse to <https://browserleaks.com/geo> and verify that you get prompted to allow/deny geolocation access. Allow it and verify that your approximate location is found
+* Browse to <http://webglsamples.org/aquarium/aquarium.html> and verify that, on real hardware, you get a good FPS (60) with the default number of sprites (500 fishes)
+
+
+### Safe browsing
+
+:::{important}
+For this to work, 'Safety tips' must be installed in about://components. This is done automatically but if your Internet connection is slow and it is your first launch of Chromium, it might not yet have been downloaded by the time you run this test item.
+:::
+
+* Browse to <https://testsafebrowsing.appspot.com> and click one of the links, verify that you get a dissuasive warning
+
+
+### Video playback
+
+* Watch any 360° video on YouTube (for instance <https://www.youtube.com/watch?v=wczdECcwRw0>) and verify that you can pan with the mouse to move around in the scene while it's playing back. Verify that you can pause/unpause, enter/exit fullscreen, and that while the video is playing the screensaver or screen blanking is inhibited.
+
+
+### WebRTC
+
+* Browse to <https://mozilla.github.io/webrtc-landing/gum_test.html> and verify that camera, microphone, and screen capture are working as expected.
+
+  :::{important}
+  Make sure to test full screen sharing under Wayland, it has been broken before.
+  :::
+
+
+### Password storage
+
+* Make sure "offer to save passwords" is enabled in settings.
+
+
+#### Snap
+
+Only perform test for new major releases.
+
+[Test 1] With the password-manager-service interface disconnected (default),
+
+`--> MAIN <--`
+
+* Browse to <https://a-nau.github.io/password-protected-website-template>, input any word in the password field, and verify there's a little key icon in the URL bar, next to the bookmark (star) icon. Click the key, input a user name, and press {kbd}`Enter`.
+* Browse to about:password-manager/passwords that there is an entry for yari-demos.prod.mdn.mozit.cloud with the corresponding username and password (obfuscated by default).
+
+`--> END MAIN <--`
+
+[Test 2] Kill Chromium and connect the password-manager-service interface.
+
+* Open Seahorse.
+* Lock the keyring.
+* Open Chromium.
+* Verify that you get prompted for the keyring password; Enter the password.
+* Perform MAIN above.
+
+
+#### Deb
+
+* Perform MAIN above.
+* Open `seahorse` (the default system keyring application), and under the Login keyring verify that there's an entry called "Chromium Safe Storage".
+
+
+### Widevine CDM
+
+* Go to about:components, request to update Widevine and wait for it to complete, restart Chromium and verify that you can load and play back Widevine encrypted content at <https://shaka-player-demo.appspot.com/demo/> (for instance "{spellexception}`Sintel`")
+
+
+### Chromecast
+
+* On real hardware, connect to a Google account and watch any video on YouTube. Use the burger menu to start casting it to an existing Chromecast device that's connected to e.g. a TV and verify that the video plays there (reference: {lpbug}`1621753`)
+
+---
+
+```
+This page was once <https://wiki.ubuntu.com/Process/Merges/TestPlans/chromium?action=show>, look there for the remaining revision history.
+```

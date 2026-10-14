@@ -1,0 +1,17 @@
+name: Check LP teams
+
+on:
+    schedule:
+        - cron: 0 0 * * *
+
+jobs:
+    check-lp-teams:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Check LP team membership
+              run: bash .github/lpteams/lp-teams-check.sh
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

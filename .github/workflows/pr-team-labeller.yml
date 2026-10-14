@@ -1,0 +1,16 @@
+name: Add team label to PR
+
+on:
+  pull_request_target:
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Apply labels based on changed files
+        uses: actions/labeler@v6
+        with:
+          sync-labels: true

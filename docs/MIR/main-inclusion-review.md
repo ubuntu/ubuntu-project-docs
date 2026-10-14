@@ -1,0 +1,174 @@
+(main-inclusion-review)=
+# Main Inclusion Review (MIR)
+
+```{include} _mir-series.md
+```
+
+
+
+
+
+Packages in Ubuntu `main` (and `restricted`) are officially
+maintained, supported and recommended by the Ubuntu project.
+{term}`Canonical` provides security updates, standard support services, and
+certain Service Level Agreement (SLA) guarantees for these packages.
+
+Therefore, special consideration is necessary before adding new packages
+to `main` or `restricted`. The [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir)
+reviews packages for promotion:
+
+* from {term}`universe` to {term}`main`.
+* from {term}`multiverse` to {term}`restricted`.
+
+Reviewing packages before they can be promoted is the **Main Inclusion Review
+(MIR)** process. The purpose of the MIR process is to avoid mistakes that have
+caused issues in the past and ensure the long-term maintainability of the
+packages in the Package Archive.
+
+Any package that shall be part of a default Ubuntu installation has to be in
+{term}`main` (or {term}`restricted`) to guarantee a higher level of quality
+control and maintenance for the default user experience.
+
+Further packages, not installed by default, can also be added via the
+[supported seeds](https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/platform/tree/),
+usually because they represent an important yet optional workload to
+the Ubuntu userbase.
+
+In general *pulling into main* is done directly via {ref}`seed-management` or
+indirectly via a dependency from something that already is in `main`.
+
+For something to be allowed into `main`, all its code and runtime dependencies
+must be in `main`. The MIR team checks for missing dependencies via
+[component-mismatches](https://static-reports.ubuntu.com/mismatches/component-mismatches.svg)
+reports, discussed as part of the {ref}`MIR team meeting <mir-team-meeting>`.
+
+In the past, build-dependencies also had to be in generally `main`, but since
+14.04 Trusty that is no longer a hard requirement. This is meant to ease
+the burden on tools only e.g. rendering documentation, yet it does not mean "no
+build-dependencies are needed" either. Code that is built into the resulting
+artifacts even without a dependency to another package in the final packages
+metadata shall be in main as well.
+This is the default for some ecosystems like rust and go, but also valid for
+e.g. C headers if they contain not just definitions but large amounts of
+active code that is built into the binaries.
+
+(mir-process-overview)=
+## MIR process overview
+
+```{toctree}
+:maxdepth: 1
+:hidden:
+
+mir-roles-and-steps
+mir-process-states
+mir-team-communication
+```
+
+If we reduce the process to its simplest components, it can be described in
+only three steps.
+
+First, the process makes the **reporter** think about the package or packages
+they want to own. Then, the **reviewer** checks what is submitted and either
+approves or raises issues. Finally, any such issues are resolved by the
+**reporter**, and then the process is complete and the package can be promoted. 
+
+This process, and the different participants involved, are outlined in more
+detail in {ref}`mir-roles-and-steps`.
+
+::::{card-carousel} 3
+
+:::{card}
+:img-background: images/mir-step-1-think.png
+:link: mir-step-1
+:link-type: ref
+:::
+
+:::{card}
+:img-background: images/mir-step-2-review.png
+:link: mir-step-2
+:link-type: ref
+:::
+
+:::{card}
+:img-background: images/mir-step-3-resolve.png
+:link: mir-step-3
+:link-type: ref
+:::
+::::
+
+In reality, things are often more complex than that! We use Launchpad (and the
+states of bugs in Launchpad) to track the progress of any main inclusion request
+as shown in our more detailed {ref}`mir-process-states` breakdown.
+
+
+(about-mir-role)=
+## About the MIR team
+
+The [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir) oversees the
+{ref}`Main Inclusion Review (MIR) process <main-inclusion-review>`.
+They are responsible for reviewing packages for promotion:
+
+* from {term}`universe` to {term}`main`
+* from {term}`multiverse` to {term}`restricted`
+
+In the full {ref}`MIR process <main-inclusion-review>` there are more roles
+involved than just the [Ubuntu MIR team](https://launchpad.net/~ubuntu-mir),
+see {ref}`mir-roles` about that.
+
+If you have an MIR in progress, want to submit one, or are uncertain about
+the process {ref}`contact the team <mir-team-communication>` in matrix of in
+their regular meeting.
+Information on what you can expect from the reviewers is detailed
+in the {ref}`Service Level Objectives <mir-slo>`.
+
+(mir-submit-bug)=
+## File an MIR bug
+
+The MIR process uses templates for both those submitting a request (reporters)
+and those reviewing requests (reviewers). To make the process as smooth as
+possible, which benefits everyone, we ask that you
+{ref}`familiarize yourself with the process <mir-roles-and-steps>` before
+filing a request.
+
+* **Reporters**: to file a request, use the {ref}`mir-reporters-template`.
+
+* **Reviewers**: to review a request, use the {ref}`mir-reviewers-template`.
+
+Whether you are a reporter or a reviewer, new to the MIR process or a seasoned
+veteran, we have also prepared additional guidance on
+{ref}`how to use the templates <mir-how-to-use-templates>` to make the task of
+filling out the template as straightforward as possible.
+
+
+(mir-special-cases)=
+## MIR special cases
+
+Some packages have reasons not to follow the standard MIR process. This section
+provides details on these and exceptions.
+
+### Exceptions
+
+```{toctree}
+:maxdepth: 1
+
+mir-exceptions-fonts
+mir-exceptions-oem
+```
+
+### Deviations from the norm
+
+Sometimes cases are special and do not follow the normal procedures, those are
+outlined here.
+
+```{toctree}
+:maxdepth: 1
+
+mir-rereview
+mir-other-release
+mir-rust
+```
+
+
+
+
+

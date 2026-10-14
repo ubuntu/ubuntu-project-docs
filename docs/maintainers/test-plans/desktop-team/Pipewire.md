@@ -1,0 +1,102 @@
+(Pipewire-test-plan)=
+# PipeWire test plan
+
+Since the autopkgtest infrastructure isn't really suitable for audio testing we will require manual testing for updates to `pipewire` or one of its required components (`wireplumber`, `libfreeaptx`, `libldac`)
+
+We are using `pipewire` as a sound server since kinetic, in addition to screen recording and sharing
+
+
+## Setup
+
+* Use a computer with a audio device
+* Ensure a GNOME session, `gnome-remote-desktop`, `pipewire-pulse`, `wireplumber` are installed and that `pulseaudio` is uninstalled
+* Log into the GNOME session
+
+
+## Sound
+
+* Check that the panel includes a sound indicator
+* Start playing some music (web browser, `rhythmbox`, `totem`), ensure the sound is working
+* Use the indicator slider to change the volume, confirm the output level is changing
+* Go to settings -> sound
+* Verify that the input and output device are correctly selected
+* Set in the input level > 0 and ensure the activity bar react to noise
+
+
+## Wired headset
+
+* Play some music in `rhythmbox`
+* Connect the headset to the jack input
+  * the active device should change to the headset
+* Go to settings, verify that the headset is correctly picked up as input/output
+
+
+## Bluetooth headset
+
+* Ensure that `libspa-0.2-bluetooth` is installed
+* The test assume an headset which was already paired with the system, if that's not the case pair the headset and turn it off before starting
+* Play some music in `rhythmbox`
+* Turn on the headset
+  * the active device should change to the headset
+* Go to settings, verify that the headset is correctly picked up as input/output
+* Click on configuration and verify that the different codecs handled by the device are listed
+* Change the configuration and verify that the audio quality of the playing is correctly reflecting the selected device
+
+
+## Libfreeaptx/libldac
+
+* Those are providing support for high quality profiles, which requires a compatible device
+* You can verify that you device is compatible by using
+
+```none
+$ avinfo <bluetooth device address>
+```
+
+the output should contain a section
+
+```none
+Media Codec: Vendor Specific A2DP Codec
+            Vendor ID 0x0000012d
+```
+
+(`012d` is `ldac`, `004F` is `aptx`, `00D7` is `aptxhd`)
+
+* The settings configuration should include the corresponding entry
+* Select the entry
+* Ensure the sound is play with high quality
+
+
+## LE Bluetooth audio (`liblc3`)
+
+Starting in Lunar we will build with `liblc3` to feature Bluetooth LE audio. For that to work you need a Bluetooth controller supporting LE Audio (AX210 WiFi/BT card for example, it can be confirmed by checking the bit 28 and 29 value in `bluez/tools/lefeatures`) and a compatible device to pair.
+
+Connect the device through the settings and check that the LE profile is used. Listen to some music with the headset, participate to a video call and record sound. The quality should be to an acceptable level.
+
+
+## Testing screen recording
+
+* Hit {kbd}`Ctrl` + {kbd}`Shift` + {kbd}`Alt` + {kbd}`R`
+  * a red circle icon should be displayed in the top panel indicating recording has started
+
+* Hit {kbd}`Ctrl` + {kbd}`Shift` + {kbd}`Alt` + {kbd}`R` again
+  * the circle should be removed
+
+The recording should be available in the standard XDG Video directory (`~/Video` in english)
+
+
+## Testing screen sharing
+
+* Go to settings -> Sharing
+* Enable sharing in the header bar if needed
+* Click on Screen Sharing to enable it, check that remote login is enabled
+
+On another machine
+
+* Install a VNC client on another machine
+* Try to connect to your linux desktop
+  * The desktop should prompt to allow access, one accepted the VNC client should be able to see the session
+
+
+## `roc-toolkit` and `speexdsp`
+
+We are building `pipewire` with `roc-toolkit`. Configure a roc sink as described on <https://docs.pipewire.org/page_module_roc_sink.html> , select it as output device in the settings or `pavucontrol` and verify you get sound as expected

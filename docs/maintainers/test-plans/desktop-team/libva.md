@@ -1,0 +1,22 @@
+(libva-test-plan)=
+# Libva test plan
+
+Below are the test cases that should be run when **`libva`** is updated to new major releases in the development version of Ubuntu. These should also be run for all `libva` Stable Release Updates.
+
+1. Ensure you have an Intel CPU at least 5th generation and launched no more recently than 12 months ago. This is important to avoid deprecated or missing drivers. We are not testing for driver issues here so we want a hardware generation most likely to be supported.
+
+2. Log into a graphical session.
+
+3. Open a terminal and run `sudo apt install va-driver-all vainfo`
+
+4. Run `vainfo` and ensure you see multiple “VAProfile”s listed.
+
+5. `sudo apt install mpv`
+
+6. Find an MP4 file with a common codec like H.264 such as this one.
+
+7. Play the video file with `mpv` in a terminal and ensure that "{spellexception}`vaapi`" is mentioned in the console output.
+
+8. Do not use GStreamer or any GNOME apps for testing because GStreamer has a layer of complexity and potentially its own bugs on top of `libva`.
+
+9. Once GNOME Remote Desktop enables the Hardware Acceleration feature by default, also complete that {ref}`test case <RemoteDesktop-test-plan>`
