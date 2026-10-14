@@ -12,6 +12,16 @@ All about the Ubuntu Community, its support structures, and communication channe
 /community/index
 ```
 
+## The Ubuntu Policy Manual
+
+Policy requirements for the Ubuntu distribution.
+
+```{toctree}
+:maxdepth: 3
+
+ubuntu-policy/index
+```
+
 ## Project governance
 
 How the project is governed. This sets out the expectations for contributors and maintainers alike.
