@@ -89,15 +89,13 @@ SRUs <reference-general-requirements>`
 Documentation
 ~~~~~~~~~~~~~
 
-[Insert specifics here: SRU template, what is expected in each section,
-etc]
-
 Documentation must be provided in order to meet our :ref:`public
 documentation requirement <explanation-public-documentation>` as well to
 assist the SRU team to review your upload. This is usually done
 individually in the description area of the bug, for each bug being
 fixed by the SRU, and should follow the :ref:`SRU bug template
-<reference-sru-bug-template>`.
+<reference-sru-bug-template>`. This page contains an annotated template
+explaining requirements and providing examples for each section.
 
 Explicit is better than implicit: if there's anything a reviewer might
 find unexpected, calling it out will help us tell the difference between
