@@ -20,6 +20,12 @@ feature-based one), approximately every 6 months.
   - Release
   - End of Standard Support
   - End of Life
+* - Ubuntu 26.10
+  - Stonking Stingray
+  - [Release Notes](https://documentation.ubuntu.com/release-notes/26.10/)
+  - [Oct 15, 2026](https://lists.ubuntu.com/archives/ubuntu-announce/2026-October/000330.html)
+  - Jul 2027
+  - Jul 2027
 * - Ubuntu 26.04.1 LTS
   - Resolute Raccoon
   - [Release Notes](https://documentation.ubuntu.com/release-notes/26.04/1/)
@@ -294,11 +300,11 @@ feature-based one), approximately every 6 months.
   - Release
   - End of Standard Support
 * - Ubuntu xx.yy
-  - Stonking Stingray
+  - Tenacious T-Rex
   - TBD
   - TBD
-  - Oct 2026
-  - Jul 2027
+  - Apr 2027
+  - Jan 2028
 :::
 
 ## Expanded Security Maintenance
