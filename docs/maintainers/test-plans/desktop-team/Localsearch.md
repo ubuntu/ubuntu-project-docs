@@ -1,6 +1,10 @@
 (Localsearch-test-plan)=
 # Localsearch test plan
 
+:::{note}
+`localsearch` has been part of `main` since Ubuntu 26.04 LTS (resolute).
+:::
+
 
 ## `localsearch`
 
