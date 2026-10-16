@@ -1,0 +1,31 @@
+# Unit tests plus the teams-yaml drift gate for PRs touching .github/.
+# The drift check runs with --local against the checked-out PR tree, so a PR
+# that changes CODEOWNERS without the matching yaml is failed at review time.
+name: Review coverage tests
+
+on:
+  pull_request:
+    paths:
+      - '.github/**'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Unit tests + yaml drift check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+      - name: Install pytest
+        run: pip install pytest==9.1.1
+      - name: Unit tests
+        run: python3 -m pytest .github/actions/review-coverage/test_review_coverage.py -v
+      - name: Teams-yaml drift check (PR tree)
+        run: python3 .github/actions/review-coverage/script.py drift-check --local

@@ -1,0 +1,14 @@
+# Display names for CODEOWNERS owner-groups.
+# Membership lives in CODEOWNERS; this file only maps patterns to names.
+"*": "Technical authors"
+"MIR/": "MIR"
+"tools/auto-mir/": "MIR"
+"SRU/": "SRU"
+"tech-board/": "TB"
+"release-team/": "Release team"
+"community/": "community"
+"**/aa-*.md": "AA"
+"**/dmb-*.md": "DMB"
+"/.github/CODEOWNERS": "CODEOWNERS file"
+"plus-one-*.md": "plus-one"
+"rocks-team.md": "rocks"
