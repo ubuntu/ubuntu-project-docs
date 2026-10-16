@@ -106,7 +106,7 @@ Getting started
 The basic SRU process consists of the following steps:
 
 .. include:: explanation/pipeline.rst
-   :start-line: 4
+   :start-after: .. include:: /SRU/_sru-series.rst
    :end-before: See also
 
 For next steps, see :ref:`How-to → Perform a standard SRU <howto-perform-standard-sru>`.
