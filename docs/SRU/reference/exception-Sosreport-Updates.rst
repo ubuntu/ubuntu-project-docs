@@ -3,6 +3,8 @@
 Sos / SosReport Updates
 =======================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating sosreport & sos package
 in a stable supported distro, including LTS. It is also the aim of this
 document to provide an example for any upstream project that wants to

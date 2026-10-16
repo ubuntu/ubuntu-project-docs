@@ -131,13 +131,9 @@ new-package/index
 
 ## Stable Release Updates
 
-Guidance for contributors on how to submit requests for SRU. See
-
-```{toctree}
-:maxdepth: 1
-
-/SRU/howto/index
-```
+Guidance for contributors on how to submit requests for SRU: see the
+{ref}`SRU how-to guides <sru-howto-guides>`, part of the
+{ref}`Stable Release Updates <stable-release-updates>` documentation.
 
 ## Language-specific features
 

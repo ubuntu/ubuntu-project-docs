@@ -3,6 +3,8 @@
 OEM Meta Package Updates
 ========================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 OEM Introduction
 ----------------
 

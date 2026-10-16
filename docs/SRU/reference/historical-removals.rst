@@ -3,6 +3,8 @@
 Historical removals
 -------------------
 
+.. include:: /SRU/_sru-series.rst
+
 See also:
 
 -  :ref:`Explanation → Removals <explanation-removals>`

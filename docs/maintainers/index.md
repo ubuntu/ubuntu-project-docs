@@ -40,6 +40,7 @@ uploader/index
 :maxdepth: 1
 
 test-plans/index
+/SRU/stable-release-updates
 ```
 
 ### Archive Administration

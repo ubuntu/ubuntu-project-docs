@@ -3,6 +3,8 @@
 Intel Graphics Stack Updates
 ============================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for doing updates of the Intel graphics
 stack packages in Ubuntu releases.
 
