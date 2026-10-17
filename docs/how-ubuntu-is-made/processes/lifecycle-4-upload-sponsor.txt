@@ -4,11 +4,11 @@
                 'fontFamily': 'Ubuntu'}}}%%
 
 flowchart LR
-    Rights{"<a href='/who-makes-ubuntu/developers/#path-to-upload-rights'>Upload rights</a><br/>for this package?"}
-    Rights --> |"no: <a href='/contributors/uploading/find-a-sponsor/'>Find sponsor</a>"| Sponsor
-    Sponsor["sponsor <a href='/contributors/advanced/review-a-merge-proposal/'>re-reviews</a>"]
+    Rights{"<a href='/project/who-makes-ubuntu/developers/#path-to-upload-rights'>Upload rights</a><br/>for this package?"}
+    Rights --> |"no: <a href='/project/contributors/uploading/find-a-sponsor/'>Find sponsor</a>"| Sponsor
+    Sponsor["sponsor <a href='/project/contributors/advanced/review-a-merge-proposal/'>re-reviews</a>"]
     Sponsor --> |"sponsor approves"| Upload
     Rights --> |"yes"| Upload
-    Upload(["<a href='/contributors/uploading/'>Upload to Ubuntu Archive</a>"])
+    Upload(["<a href='/project/contributors/uploading/'>Upload to Ubuntu Archive</a>"])
 
 :::
