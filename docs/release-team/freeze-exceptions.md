@@ -41,6 +41,37 @@ then this **always** needs approval from the Release Team, since all reverse
 dependencies need to be adjusted and rebuilt.
 
 
+(openstack-feature-freeze-exceptions)=
+### OpenStack release alignment
+
+OpenStack has a standing arrangement with the Release Team to continue
+updating to the OpenStack release targeted for an Ubuntu development release
+after Feature Freeze. This accommodates upstream milestones, release
+candidates, and final releases that fall after Ubuntu's Feature Freeze.
+
+The OpenStack team can track these updates in a single Feature Freeze
+exception bug for the Ubuntu release. The bug records the scope, release
+schedule, and Release Team approval, and provides a common reference for
+package changelogs. See {ref}`request-an-openstack-feature-freeze-exception`.
+
+The historical scope covers core OpenStack packages and direct dependencies
+maintained within the upstream OpenStack project. A dependency on an external
+project does not automatically bring that project within the exception;
+changes outside the agreed scope need separate Release Team consideration.
+
+The arrangement is recorded in the
+[Mitaka/Xenial release coordination email (2016)](https://lists.ubuntu.com/archives/ubuntu-release/2016-February/003572.html)
+and the
+[Dalmatian/Oracular release coordination email (2024)](https://lists.ubuntu.com/archives/ubuntu-release/2024-September/006246.html).
+The Release Team clarified the dependency boundary in the
+[6 April 2016 IRC discussion](https://irclogs.ubuntu.com/2016/04/06/%23ubuntu-release.html#t21:00).
+For Flamingo/Questing, the Release Team explicitly acknowledged the standing
+arrangement and the use of a single tracking bug in
+[bug 2121258, comment 1](https://bugs.launchpad.net/ubuntu/+source/openstack/+bug/2121258/comments/1),
+and recorded approval and release timing requirements in
+[comment 2](https://bugs.launchpad.net/ubuntu/+source/openstack/+bug/2121258/comments/2).
+
+
 (ui-freeze-exceptions)=
 ## User Interface Freeze exceptions
 
