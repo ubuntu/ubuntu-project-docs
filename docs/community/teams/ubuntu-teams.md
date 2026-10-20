@@ -5,6 +5,7 @@
 :maxdepth: 1
 :hidden:
 
+lubuntu-team
 rocks-team
 hpc-team
 ```
@@ -69,7 +70,7 @@ Below is a list of key teams that operate within the Ubuntu project and their re
 | Team name | Responsibility |
 | --- | --- |
 | [Kubuntu Team](https://wiki.ubuntu.com/Kubuntu) | Provide the KDE desktop and software to integrate KDE with Ubuntu |
-| [Lubuntu Team](https://wiki.ubuntu.com/Lubuntu) | Provide a lightweight and easy-to-use distribution, based on Ubuntu and {spellexception}`LXQt` |
+| {ref}`Lubuntu Team <lubuntu-team>` | Provide a lightweight and easy-to-use distribution, based on Ubuntu and {spellexception}`LXQt` |
 | [Ubuntu Budgie Team](https://ubuntubudgie.org/team/) | Provide an Ubuntu-powered desktop integrating the Budgie Desktop Environment |
 | [Ubuntu Kylin Team](https://wiki.ubuntu.com/Ubuntu%20Kylin) | Provide exquisite user experience and make an operating system catering to the specific needs of Chinese users |
 | [Ubuntu MATE Team](https://ubuntu-mate.community/) | Provide an Ubuntu-based operating system that beautifully integrates the MATE desktop |

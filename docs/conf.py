@@ -214,6 +214,8 @@ linkcheck_ignore = [
     "https://discourse.canonical.com/",
     "https://git.launchpad.net/ubuntu/+source/*",
     "https://wiki.ubuntu.com/*",
+    # The Lubuntu manual blocks automated checkers with 403 responses
+    "https://manual.lubuntu.me/*",
     "https://en.wikipedia.org/*",
     "https://github.com/*",
 ]
