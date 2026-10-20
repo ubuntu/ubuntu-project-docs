@@ -5,6 +5,7 @@
 :maxdepth: 1
 :hidden:
 
+server-team
 rocks-team
 hpc-team
 ```
@@ -25,7 +26,7 @@ Below is a list of key teams that operate within the Ubuntu project and their re
 | {ref}`release-team` | The Release Team helps bring together all the essential building blocks for every Ubuntu release |
 | {ref}`Rocks community <rocks-team>` | The Rocks Community is your hub for exploring Ubuntu Rocks and everything "containers" |
 | [Security team](https://wiki.ubuntu.com/SecurityTeam) | Keep Ubuntu and its users secure through fixing vulnerabilities and contributing to its security development |
-| [Server team](https://wiki.ubuntu.com/ServerTeam) | Deliver the best operating system for the cloud and scale-out computing |
+| {ref}`Server team <server-team>` | Deliver the best operating system for the cloud and scale-out computing |
 | [Ubuntu Flutter community](https://github.com/ubuntu-flutter-community) | Design and implementation of the Flutter visuals, a whole additional set of widgets specifically designed for the Ubuntu desktop, Flutter "Yaru" theme for the Ubuntu visuals in Flutter apps, a dedicated Flutter icon theme and the new snap-store front-end, plus many more apps in development |
 | [Yaru Gnome team](https://github.com/ubuntu/yaru) | Responsible for the visual design and implementation of modifications to the gnome shell theme and all {spellexception}`Gtk` app themes and icons |
 
