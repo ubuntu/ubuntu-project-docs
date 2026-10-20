@@ -5,6 +5,7 @@
 :maxdepth: 1
 :hidden:
 
+documentation-team
 rocks-team
 hpc-team
 ```
@@ -60,7 +61,7 @@ Below is a list of key teams that operate within the Ubuntu project and their re
 
 | Team name | Responsibility |
 | --- | --- |
-| [Documentation team](https://wiki.ubuntu.com/DocumentationTeam) | Writes and maintains the core documentation for Ubuntu, including the system documentation and the help wiki |
+| {ref}`Documentation team <documentation-team>` | Writes and maintains the core documentation for Ubuntu, including the system documentation and the help wiki |
 | [Wiki team](https://wiki.ubuntu.com/DocumentationTeam/Wiki) | Group of active wiki contributors working as a team to get things done quicker without redundancy |
 
 
