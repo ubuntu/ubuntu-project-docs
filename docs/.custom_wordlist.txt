@@ -57,6 +57,7 @@ Chromium
 chroot
 chroots
 Cleansweep
+Clearsign
 CMake
 codec
 codecs
