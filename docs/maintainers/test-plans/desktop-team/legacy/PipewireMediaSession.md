@@ -1,6 +1,10 @@
 (PipewireMediaSession-test-plan)=
 # PipeWire Media Session test plan
 
+:::{note}
+The `pipewire-media-session` package was part of `main` in Ubuntu 22.04 LTS (jammy) only. It was removed from the archive in later releases, replaced by `wireplumber`. This test plan is kept for reference when working with older Ubuntu LTS releases.
+:::
+
 Since `pipewire-media-session` doesn't include a testsuite nor autopkgtests we will follow a manual test plan to verify updates.
 
 Currently we are not using `pipewire` as a sound server so its use is limited to screen recording and sharing.
