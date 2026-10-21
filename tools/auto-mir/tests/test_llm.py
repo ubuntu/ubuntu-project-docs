@@ -106,6 +106,84 @@ def test_resolve_auth_without_key_honors_compatible_base_override(monkeypatch):
     assert api_url == "https://llm.example/v1/chat/completions"
 
 
+# --- Preflight handshake (rust-ntpd regression: a run without a usable LLM
+# silently degraded 33 of 66 checks to 'LLM unavailable: HTTP 401' TODOs) ---
+
+
+def _preflight_ctx(source: str, api_url: str) -> SimpleNamespace:
+    return SimpleNamespace(
+        auth_source=source,
+        llm_api_url=api_url,
+        llm_provider="openai-compatible",
+        llm_token="token",
+    )
+
+
+def test_preflight_aborts_placeholder_token_against_default_endpoint():
+    """No key + default (auth-requiring) endpoint can never work: abort with
+    guidance pointing at OPENAI_API_KEY / OPENAI_API_BASE / --no-llm."""
+    ctx = _preflight_ctx(
+        "fallback:no-openai-api-key",
+        "https://openrouter.ai/api/v1/chat/completions",
+    )
+    with pytest.raises(llm.LLMError) as excinfo:
+        llm.preflight_check(ctx)
+    message = str(excinfo.value)
+    assert "OPENAI_API_KEY" in message
+    assert "OPENAI_API_BASE" in message
+    assert "--no-llm" in message
+
+
+def test_preflight_aborts_when_endpoint_unreachable(monkeypatch):
+    """A resolved configuration whose endpoint errors fails fast instead of
+    degrading every check one 401 at a time."""
+    ctx = _preflight_ctx(
+        "host-env:OPENAI_API_KEY",
+        "https://llm.example/v1/chat/completions",
+    )
+
+    def _fail(prompt, ctx, model_tier, trace_label):
+        raise llm.LLMError("LLM provider=openai-compatible returned HTTP 401: ")
+
+    monkeypatch.setattr(llm, "call_llm", _fail)
+    with pytest.raises(llm.LLMError) as excinfo:
+        llm.preflight_check(ctx)
+    assert "preflight failed" in str(excinfo.value)
+    assert "--no-llm" in str(excinfo.value)
+
+
+def test_preflight_passes_on_working_endpoint(monkeypatch):
+    ctx = _preflight_ctx(
+        "host-env:OPENAI_API_KEY",
+        "https://llm.example/v1/chat/completions",
+    )
+    calls = []
+    monkeypatch.setattr(
+        llm, "call_llm", lambda prompt, ctx, model_tier, trace_label: calls.append(trace_label)
+    )
+    llm.preflight_check(ctx)  # must not raise
+    assert calls == ["preflight"]
+
+
+def test_preflight_probes_local_endpoint_without_key(monkeypatch):
+    """Fallback token against a custom (local) endpoint is probed, not
+    assumed: unauthenticated local servers keep working."""
+    ctx = _preflight_ctx(
+        "fallback:no-openai-api-key",
+        "http://localhost:8000/v1/chat/completions",
+    )
+    monkeypatch.setattr(llm, "call_llm", lambda prompt, ctx, model_tier, trace_label: {})
+    llm.preflight_check(ctx)  # must not raise
+
+
+def test_review_role_accepts_no_llm_flag():
+    parser = build_parser()
+    args = parser.parse_args(["review", "123", "--no-llm"])
+    assert args.no_llm is True
+    args = parser.parse_args(["review", "123"])
+    assert args.no_llm is False
+
+
 def test_parse_chat_response_rejects_null_message_content():
     raw = json.dumps({"choices": [{"message": {"content": None}}]})
 

@@ -3,6 +3,8 @@
 Handle an autopkgtest failure
 -----------------------------
 
+.. include:: /SRU/_sru-series.rst
+
 See also: :ref:`Explanation → Autopkgtest failures
 <explanation-autopkgtest-failures>`
 

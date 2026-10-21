@@ -293,6 +293,7 @@ exclude_patterns = [
     ".venv*",
     ".pytest_cache*",
     "**/*.include",
+    "**/_*series*",
 ]
 
 # Adds custom CSS files, located under 'html_static_path'

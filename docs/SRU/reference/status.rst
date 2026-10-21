@@ -3,6 +3,15 @@
 Status pages
 ------------
 
+.. include:: /SRU/_sru-series.rst
+
+These reports are part of :ref:`performing an SRU
+<howto-perform-standard-sru>`: use them to track the progress of
+ongoing SRU cases as they flow from sponsorship to release and
+phasing. They are the practical status check for the
+:ref:`SRU pipeline <explanation-sru-pipeline>`, and the entries below
+are listed in pipeline order.
+
 -  **Pending sponsorship**: `general sponsorship
    queue <http://sponsoring-reports.ubuntu.com/general.html>`__.
 -  **Pending accept:** package updates awaiting review for:

@@ -280,6 +280,14 @@ def apply_resume(ctx: RunContext, state: dict[str, Any]) -> None:
     if not ctx.series and meta.get("series"):
         ctx.series = meta["series"]
 
+    # Reviewer resume: the interrupted run already resolved which package
+    # task of a (possibly multi-task) bug it reviewed; reuse that selection
+    # so lp_intake never re-prompts (or hard-stops headless) on resume.
+    if ctx.role == "review" and not getattr(ctx, "source_package", ""):
+        stored_package = str(meta.get("source_package", "") or "")
+        if stored_package:
+            ctx.source_package = stored_package
+
     review = state.get("review", {})
     ctx.requested_binaries = list(review.get("requested_binaries", []))
     if review.get("review_type"):
