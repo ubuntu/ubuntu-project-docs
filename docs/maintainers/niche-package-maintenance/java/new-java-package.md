@@ -5,13 +5,33 @@ Java-based projects use a number of build systems: Maven, Gradle, Ant, Mill, etc
 The universal way to start a Java-based package is to use `dh_make`; see {ref}`how-to-create-a-new-package`.
 
 [Debian policy for Java](https://www.debian.org/doc/packaging-manuals/java-policy/) outlines the filesystem structure of
-the Java package: Java libraries are installed into `/usr/share/java`; Maven artifacts (POMs and symbolic links to jars) are installed into `/usr/share/maven-repo`. [Debian Java packaging](https://wiki.debian.org/Java/Packaging) provides instructions
-on contributing changes to Debian.
+the Java package: Java libraries are installed into `/usr/share/java`; Maven artifacts (POMs and symbolic links to jars) are installed into `/usr/share/maven-repo`.
 
 Debian provides additional helpers and build system support for the most common Java build systems:
 - Maven: {pkg}`maven-debian-helper`, see {ref}`new-maven-package`.
 - Gradle: {pkg}`gradle-debian-helper`, see {ref}`new-gradle-package`
 - Ant: debhelper's built-in Ant build system, usually combined with {pkg}`javahelper`, see {ref}`new-ant-package`
+
+## {pkg}`javahelper`
+
+{pkg}`javahelper` provides a simple interface to package Java classes into jar file. It is primarily used to build projects that do not provide a build system.
+
+The snippet below provides a minimal set of commands to build a jar file with `javahelper`:
+
+```none
+JAVA_HOME=/usr/lib/jvm/default-java
+CLASSPATH=/usr/share/java/esd.jar:/usr/share/java/jsch.jar
+
+%:
+        dh $@ --with javahelper
+
+override_auto_dh_build:
+    jh_build weirdx.jar src
+
+```
+
+{pkg}`javahelper` [tutorial](file:///usr/share/doc/javahelper/tutorial.html) provides
+a comprehensive overview of the options and configuration files.
 
 ## Other build systems
 
@@ -29,5 +49,9 @@ Pass `--buildsystem=maven` (or `--buildsystem=gradle`) to `dh` to select the cor
 
 ## Publish Maven artifacts from non-Maven build
 
-{pkg}`maven-repo-helper` provides utilities `mh_installpoms`, `mh_install_jar` to install Maven artifacts in `/usr/share/maven-repo`, see {reg}`new-java-package`.
+{pkg}`maven-repo-helper` provides utilities `mh_installpoms`, `mh_install_jar` to install Maven artifacts in `/usr/share/maven-repo`, see {ref}`new-maven-package`.
 
+## Further Reading
+
+[Debian Java packaging](https://wiki.debian.org/Java/Packaging) provides instructions
+on contributing changes to Debian.

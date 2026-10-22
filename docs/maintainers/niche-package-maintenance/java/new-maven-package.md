@@ -22,7 +22,7 @@ lists all the packages that install Maven artifacts.
 
 If it fails, you can always resort to using `dh_make` to generate skeleton files.
 
-# Install Maven Artifacts
+## Install Maven Artifacts
 
 {pkg}`maven-repo-helper` provides tools for installing and
 maintaining Maven POMs and jars installed in /usr/share/maven-repo. It has no
@@ -104,7 +104,7 @@ The trailing fields may be omitted, which is equivalent to a `*` wildcard, and e
   The last example renames the artifact `el-api` to Debian's `javax.el-api` and rewrites the requested version to the strict `3.0` version used by the providing package.
 
 
-# Build the Maven package
+## Build the Maven package
 
 {pkg}`maven-debian-helper` provides build workflows that integrate into `debian-helper` package build:
 
@@ -127,3 +127,6 @@ The trailing fields may be omitted, which is equivalent to a `*` wildcard, and e
    - Run  `mh_resolve_dependencies` to generate `debian/<package>.substvars` (`${maven:Depends}`, `$   {maven:CompileDepends}`, etc.).
 5. `mh_unpatchpoms` - restore original POM files from `.save` files and remove `debian/stamp-poms-patched`
 
+## Further Reading
+
+General reference: [Debian Java packaging with Maven](https://wiki.debian.org/Java/Packaging/Gradle).
