@@ -92,43 +92,22 @@ SnapD if a newer or equal snap revision is still installed.
 - **Automatic refresh.** An installed SnapD snap refreshes to the latest
   available version on the auto-refresh schedule.
 
-Exceptions
-----------
+Special SRU categories
+----------------------
 
-Categorization
-^^^^^^^^^^^^^^
+SnapD falls under these overlapping categories in
+:ref:`special types of SRU <reference-special-types-of-sru>`:
 
-SnapD falls into the following overlapping :ref:`special types of SRU
-<reference-special-types-of-sru>`:
-
-- **Package-specific non-standard process:**
-
-  This process deviates from the standard guidelines to accommodate its goal to
-  always keep systems up-to-date with the latest bug fixes and features.
-
-- **New bugfix-only upstream release:**
-
-  Updates to SnapD may involve minor upstream releases (dot releases) that focus
-  exclusively on fixing bugs.
-
+- **Package-specific non-standard process,** so that systems stay up to date
+  with current bug fixes and features.
+- **New bugfix-only upstream release,** for minor (dot) releases that only fix
+  bugs.
 - **New upstream release that adds features without breaking existing
-  behaviour:**
-
-  SnapD updates may also include upstream releases that introduce new features.
-  These major updates are :ref:`carefully designed <ref_design>` to ensure
-  backward compatibility. It is possible to gate new features using
-  :ref:`experimental flags <ref_experimental>` that require user opt-in to be
-  enabled. This is used when deemed necessary by the SnapD architect.
-
-- **Creator support:**
-
-  `Interfaces <https://snapcraft.io/docs/interfaces>`_ enable controlled access to
-  a specific set of system resources and other snaps. It regularly happens that
-  new interfaces or extensions are necessary to empower creators with the system
-  resources they need to develop and enhance their applications.
-
-All SnapD releases, regardless of the exact category, are required to comply
-with the same thorough QA process.
+  behaviour.** Major updates are expected to stay backward compatible. Where
+  the SnapD architect decides a feature is not ready to be on by default, it
+  is gated by an experimental flag that requires the user to opt in.
+- **Creator support.** New interfaces or extensions are sometimes required so
+  that creators can use system resources that were previously closed.
 
 Deviations requiring sign-off
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
