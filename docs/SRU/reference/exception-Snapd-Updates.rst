@@ -308,18 +308,19 @@ changelog, and each bug needs to be independently verified and commented on for
 the SRU to be considered complete. Refer to the :ref:`SRU template
 <ref_sru_template>` for details about the required documentation.
 
-Workflow and responsibilities
------------------------------
+Stable release workflow
+-----------------------
 
-**Interim and LTS releases:**
+SRU review starts when the upload is in the ``-unapproved`` queue. From there
+the steps are the usual ones in :ref:`Perform a standard SRU <howto-perform-standard-sru>`:
 
-- SRU Team reviews *-unapproved*.
-- SRU Team promotes to *-proposed* and applies blocks *block-proposed-<series>*.
-- SRU Team reviews *-proposed*.
-- SnapD Team provides test results for *-proposed*.
-- SnapD Team address autopkgtest failures if any (excuses) or re-trigger tests as
-  required.
-- SRU Team reviews test results and removes *block-proposed-<series>*.
+- The SRU team reviews the upload in ``-unapproved``.
+- The SRU team accepts it into ``-proposed`` and applies
+  ``block-proposed-<series>``.
+- The SnapD team posts the verification described in the process-bug test
+  plan, and addresses autopkgtest failures or retriggers tests.
+- The SRU team reviews that verification and removes
+  ``block-proposed-<series>``, which releases the package to ``-updates``.
 
 Review
 ------
