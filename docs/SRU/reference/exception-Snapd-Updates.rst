@@ -260,15 +260,18 @@ confirmed by a member of the SnapD team, the team is responsible for determining
 the most appropriate mitigation, which may include a SnapD deb-only update, a
 store-based snap revert, or a snap update.
 
-Release Targets
+Release targets
 ---------------
 
-- All supported interim releases in standard support.
-- All LTS releases in standard support.
+An SRU under this exception targets:
 
-Releases for the different targets must share the same source tree, with the
-only difference being the additional "backport" entry at the top of
-debian/changelog. See
+- supported interim releases in standard support
+- LTS releases in standard support
+
+The development release is not an SRU target.
+
+Uploads for these targets share the same source tree. The only difference is
+the additional backport entry at the top of ``debian/changelog``. See
 `SnapD versioning <https://github.com/cpaelzer/ubuntu-maintainers-handbook/blob/d380ce51da109f8e27db5c6606f43f253b3bcd92/VersionStrings.md#version-almost-native-packages>`_.
 
 Key Integrations and Interactions
