@@ -62,6 +62,36 @@ is part of TPM-backed full disk encryption.
 
 Ubuntu Core is snap-only. The SRU process does not apply to it.
 
+Package behavior
+----------------
+
+The SnapD deb installs the systemd units and service integration that
+bootstrap SnapD on Classic. The snap contains equivalent service integration,
+which is used on Ubuntu Core.
+
+When the first snap is installed through the SnapD deb, the SnapD snap is
+installed as well, and the deb then re-executes into it. The snap is kept up
+to date by auto-refresh. Reverting the deb alone does not revert the running
+SnapD if a newer or equal snap revision is still installed.
+
+- **Automatic installation of the SnapD snap.** SnapD deb version 2.40 or
+  newer installs the latest stable SnapD snap together with any non-essential
+  snap (not core, base, gadget, kernel, or snapd) that does not itself require
+  the core snap (`PR 6778 <https://github.com/canonical/snapd/pull/6778>`_).
+  SnapD deb version 2.66.1 or newer does this for any non-essential snap
+  (`PR 14173 <https://github.com/canonical/snapd/pull/14173>`_).
+
+- **Re-execution.** If the SnapD snap version is greater than or equal to the
+  SnapD deb version, the deb re-executes into the snap. A deb version such as
+  ``2.66.1+ubuntu24.04`` is higher than snap version ``2.66.1``, so
+  re-execution does not happen for that pair. If no SnapD snap is installed
+  and the core snap is installed, the deb re-executes into the SnapD embedded
+  in the core snap when that embedded version is greater than or equal to the
+  deb version.
+
+- **Automatic refresh.** An installed SnapD snap refreshes to the latest
+  available version on the auto-refresh schedule.
+
 Exceptions
 ----------
 
@@ -140,46 +170,6 @@ Process
   Classic systems, including changes to documented re-execution or update
   behaviour, or changes that impact backward compatibility, and must bring such
   changes to the Technical Board for review before they are introduced.
-
-Package behavior
-~~~~~~~~~~~~~~~~
-
-When the first snap is installed through the snapd deb, the snapd snap itself is
-also installed, and the deb then re-executes into it. The snapd snap is kept up
-to date through auto-refresh, ensuring that snapd always runs with the latest
-features and fixes, and maintains consistency across Ubuntu releases regardless
-of the host distribution’s update cadence.
-
-- **Automatic installation of SnapD snap once other snaps are installed:**
-
-  - SnapD deb version >= *2.40* will automatically install the latest stable SnapD
-    snap along with any non-essential (not: core, base, gadget, kernel or snapd)
-    snap that does not itself require the Core snap. This ensures an up-to-date
-    runtime and additionally enables the use of interfaces (`PR-6778
-    <https://github.com/canonical/snapd/pull/6778>`_).
-
-  - SnapD deb version >= *2.66.1* will automatically install the latest stable SnapD
-    snap along with any non-essential (not: core, base, gadget, kernel or snapd)
-    snap. This is required to systematically remove the core snap upgrade path
-    (`PR-14173 <https://github.com/canonical/snapd/pull/14173>`_).
-
-.. _ref_reexecution:
-
-- **Re-execution from SnapD deb to SnapD snap:**
-
-  If the SnapD snap version is greater than or equal to the SnapD deb version,
-  the SnapD deb will re-execute to run the SnapD snap. Note that in the case of
-  the same counterpart versions, where SnapD deb version is *2.66.1+ubuntu24.04*
-  and SnapD snap version is *2.66.1*, re-execution will not happen because the
-  postfix *+ubuntu24.04* makes the deb version the higher version. With no SnapD
-  snap installed and Core snap installed, if the version of SnapD embedded in
-  the Core snap is greater than or equal to the SnapD deb version, the SnapD deb
-  will re-execute to the SnapD embedded in the Core snap.
-
-- **Automatic refresh of SnapD snap:**
-
-  If SnapD snap is installed it will automatically refresh to the latest
-  available version according to the auto-refresh schedule.
 
 Quality Assurance
 -----------------
