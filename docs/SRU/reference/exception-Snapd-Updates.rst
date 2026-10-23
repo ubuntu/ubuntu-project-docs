@@ -386,43 +386,38 @@ bug before the package is released to ``-updates``.
    - Launchpad bugs addressed: <URL>
    - Content overview: features, bug fixes, creator-support changes, other
 
-Associated Launchpad Bugs
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Associated bugs
+---------------
 
-This refers to the linked LP bugs in "Launchpad bugs addressed" in the
-above Sponsoring Request template. This should be added in the bug description
-above the original comment.
+Add the following to the description of each bug named in the changelog, above
+the original comment. If automated testing covers the issue, link the test and
+the release pull request where it was exercised, and still include manual
+verification steps.
 
-In the case where the issue is covered by automated testing, this should be
-explicitly mentioned with links to:
- - link to the relevant test
- - link to the Release PR where it was exercised
- - still include manual verification steps as well
+Ubuntu Core-only Launchpad bugs do not require Launchpad bug verification.
+State clearly when a bug is Ubuntu Core only.
 
-Ubuntu Core only Launchpad bugs does not require Launchpad bug verification.
-Clearly indicate if a Launchpadbug is Ubuntu Core only.
+.. code-block:: none
 
-.. code-block::
+   [SRU <version>](https://bugs.launchpad.net/ubuntu/+source/snapd/+bug/<number>)
 
- [SRU <version>](https://bugs.launchpad.net/ubuntu/+source/snapd/+bug/<URL>)
+   [ Impact ]
 
- [ Impact ]
+   [ Test Plan ]
 
- [ Test Plan ]
+    1. Reproduce on reported snapd version <reported snapd version>
 
-  1. Reproduce on reported snapd version <reported snapd version>
+     [steps]
 
-   [steps]
+    2. Confirm fix on <candidate snapd version>
 
-  2. Confirm fix on <candidate snapd version>
+     [steps]
 
-   [steps]
+   [ Where problems could occur ]
 
- [ Where problems could occur ]
+   [ Other Info ]
 
- [ Other Info ]
-
- --- original ---
+   --- original ---
 
 Related SRU Interest Team
 -------------------------
