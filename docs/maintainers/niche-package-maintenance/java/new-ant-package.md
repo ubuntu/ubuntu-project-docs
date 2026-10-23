@@ -17,6 +17,7 @@ export CLASSPATH=/usr/share/java/bsh.jar:/usr/share/java/slf4j-api.jar
 	dh $@ --with javahelper
 ```
 
+While `debhelper`'s `ant` build system runs the default target in `build.xml` during `dh_auto_build` and `clean` during `dh_auto_clean`, Ant scripts rarely know how to install files into Debian's staging directory (`debian/<package>`). In practice, you will use {pkg}`javahelper` (or {pkg}`maven-repo-helper` if upstream also provides a `pom.xml`) to install the compiled JARs into `/usr/share/java` and wire up the package metadata.
 
 ## Caveats
 
