@@ -299,15 +299,6 @@ Refer to `SnapD Key Integrations/Interactions on Classic Systems
 <https://docs.google.com/document/d/1hNrDXVLJHD1igUSb3UNkhpVA3nx88cQzfIzs4LipwaY/edit?usp=sharing>`_
 for more details.
 
-Upload Process
---------------
-
-The SRU should be done with a single process bug, instead of individual bug
-reports for individual bug fixes. Individual bugs should be referenced in the
-changelog, and each bug needs to be independently verified and commented on for
-the SRU to be considered complete. Refer to the :ref:`SRU template
-<ref_sru_template>` for details about the required documentation.
-
 Stable release workflow
 -----------------------
 
@@ -347,77 +338,53 @@ A review should cover at least the following:
   - Vendored dependencies match.
   - Changelogs for all targeted releases match the release notes and each other.
 
-.. _ref_sru_template:
+Process bug template
+--------------------
 
-SRU Template
-------------
+Use one process bug for the SRU. Post verification results as comments on that
+bug before the package is released to ``-updates``.
 
-Sponsoring Request
-^^^^^^^^^^^^^^^^^^
+.. code-block:: none
 
-This refers to the "single process bug" that links to to one or more Launchpad
-bugs associated with the release.
+   [ Impact ]
 
-.. code-block::
+   This is a new SnapD release.
+   SnapD [bugfix only] release 2.XX[.X] should be released to:
+   - [Latest LTS]
+   - ...
+   - [Oldest LTS]
 
- This is a new SnapD release.
- SnapD [bugfix only] release 2.XX[.X] should be released to:
- - [Development Release]
- - [Latest LTS]
- - ... -
- - [Oldest LTS]
+   The SnapD package follows this special SRU process:
+   https://ubuntu.com/project/docs/SRU/reference/exception-Snapd-Updates/#reference-exception-snapdupdates
 
- The SnapD package deviates from the standard SRU process. The following special
- SRU process was followed:
- https://documentation.ubuntu.com/sru/en/latest/reference/exception-Snapd-Updates
+   [ Test Plan ]
 
- Release preparation: <Github release PR URL> Release preparation test results:
- <Github release PR test results URL>
+   The SRU team should expect the following, posted on this bug:
 
- Release notes: < Changelogs commit URL > Launchpad bugs addressed:
- <URL(filter)>
+   - Autopkgtests on -proposed for all targeted releases: <result and URL>
+   - SnapD deb testing on -proposed: <result and URL>
+   - SnapD snap testing: <result and URL>
+   - Each bug named in the changelog verified on -proposed, using the
+     standard SRU template: <links to those bugs and their verification>
 
- Packaging and systemd/service integration changes:
-  - [Packaging changes]
-  - [Systemd/service integration changes]
+   Packaging and systemd/service integration changes, which are the changes
+   the SRU team reviews:
+   - [Packaging changes]
+   - [Systemd/service integration changes]
 
- Content overview:
-  - [Features]
-  - [Bug fixes]
-  - [Creator support changes]
-  - [Other]
+   [ Where problems could occur ]
 
- Areas of potential regressions:
-  - <Potential regression | <URLs to relevant PR(s)>
+   - <Potential regression, with URLs to the relevant pull requests>
+   - Interactions called out for this upload. The standing list of Classic
+     integrations is in the appendix.
 
- Source packages on `ppa:snappy-dev/image` for upload to `-proposed`:
-  - <Development Release URL>
-  - <Interim release URL>
-  - <Latest LTS URL>
-  - ...
-  - <Oldest LTS URL>
+   [ Other Info ]
 
- Validation already completed:
-  - Release PR test results: <URL to relevant PR>
-  - QA beta validation: <JIRA URL>
-  - SnapD deb testing on `ppa:snappy-dev/image`: <JIRA URL>
-
- Validation required before release:
-  - Autopkgtests on `-proposed` for all targeted releases
-  - SnapD deb testing on `-proposed`
-  - SnapD snap testing
-
-Sponsoring Request Final Test Feedback
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following updates from the SnapD team is required before considering
-releasing to *-updates*:
-
-.. code-block::
-
- - Autopkgtests on `-proposed` for all targeted releases: <RESULT>
- - SnapD deb testing on `-proposed`: <RESULT>
- - SnapD snap testing: <RESULT>
+   - Release preparation: <GitHub release pull request URL>
+   - Release preparation test results: <URL>
+   - Release notes: <changelog commit URL>
+   - Launchpad bugs addressed: <URL>
+   - Content overview: features, bug fixes, creator-support changes, other
 
 Associated Launchpad Bugs
 ^^^^^^^^^^^^^^^^^^^^^^^^^
