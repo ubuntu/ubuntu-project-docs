@@ -659,6 +659,17 @@ $ curl -s https://api.github.com/repos/<owner>/<repo> | jq '.created_at'
 
 Keep things clean by adding the new `d/copyright` stanzas alphabetically. It makes things a lot easier in the long run.
 
+#### Remove unneeded copyright stanzas
+
+Naturally, it's common for the Rust compiler to remove a particular dependency between versions. In this case, it means that there will be obsolete copyright stanzas in `d/copyright`. You must remove them.
+
+Once more, clean up old build artifacts, rebuild the source package, and re-run Lintian like you did in the {ref}`updating-rust-lintian-command` step. Then, get a list of the copyright stanzas which may be removed by searching for the [`superfluous-file-pattern`](https://lintian.debian.org/tags/superfluous-file-pattern.html) Lintian warning:
+
+```none
+$ grep 'superfluous-file-pattern' <lintian_results_path>
+```
+
+
 ```{include} common/local-build.md
 
 ```
