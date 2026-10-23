@@ -20,56 +20,33 @@ exception. Pointers for that context are in the appendix.
 Summary
 -------
 
-SnapD, Ubuntu’s service for delivering and updating snaps, is maintained
-through a tailored SRU process that reflects its unique release and update
-requirements.
+SnapD is maintained through a tailored SRU process that reflects its release
+and update requirements. The deviations granted by this exception are:
 
-Key deviations from the standard SRU model include:
+- **Rolling release model.** Each SRU delivers a full upstream release,
+  typically 150-250 pull requests, about half of which are test-related.
 
-- **Rolling release model:**
+- **Re-execution model.** If a newer SnapD snap is present, the SnapD deb
+  re-executes into it. Rollback of the running SnapD is then the snap revert,
+  not a revert of the deb alone.
 
-  Each SRU delivers a full upstream release, typically 150-250 pull requests,
-  about half of which are test-related.
+- **Delegated responsibility for ongoing stability.** Because of re-execution
+  and snap refresh, the SRU team delegates to the SnapD team the responsibility
+  for ensuring that SnapD updates delivered as debs or snaps continue to meet
+  Ubuntu release stability expectations throughout the lifetime of each
+  supported Ubuntu release.
 
-- **Re-execution model:**
+- **Regression mitigation.** The SRU team retains authority to require that
+  regressions affecting supported Ubuntu releases be addressed. The SnapD team
+  chooses the mitigation, implements it, and communicates it.
 
-  If a newer SnapD snap is present, the SnapD deb will re-execute into it,
-  ensuring the SnapD runtime is kept up to date with snaps as they are refreshed,
-  but shifting rollback control to the snap store.
-
-- **Delegated responsibility for ongoing stability:**
-
-  With re-execution and snap refresh behavior, the SRU team delegates
-  responsibility to the snapd team for ensuring that snapd updates delivered as
-  debs or snaps continue to meet Ubuntu release stability expectations
-  throughout the lifetime of each supported Ubuntu release.
-
-- **Regression mitigation:**
-
-  The SRU team retains authority to require that regressions affecting supported
-  Ubuntu releases be addressed. Responsibility for determining the appropriate
-  mitigation is delegated to the SnapD team. The SnapD team is responsible for
-  the timely implementation of the selected mitigation and communication.
-
-- **Technical Board oversight for invasive changes:**
-
-  Changes that significantly alter snapd behavior on Classic systems or impact
-  backward compatibility must be reviewed by the Technical Board before they are
+- **Technical Board review before invasive Classic changes.** Changes that
+  significantly alter SnapD behavior on Classic systems, or that affect
+  backward compatibility, are reviewed by the Technical Board before they are
   introduced.
 
-These deviations are necessary to keep Ubuntu systems secure, up-to-date, and
-consistent across distributions, while enabling developers to use new system
-capabilities without delay.
-
-Risks are tightly managed through:
-
-- A multi-layered QA process.
-- The use of experimental feature flags for higher-risk or multi-stage feature
-  development.
-- Snap revert mechanism for urgent rollbacks.
-
-This process ensures SnapD delivers at the pace required by its role, while
-maintaining the stability and trust expected of Ubuntu releases.
+Risky features are gated and tested before an SRU is requested. The upstream
+checklist for that work is in the appendix.
 
 Background
 ----------
