@@ -92,6 +92,21 @@ SnapD if a newer or equal snap revision is still installed.
 - **Automatic refresh.** An installed SnapD snap refreshes to the latest
   available version on the auto-refresh schedule.
 
+.. _reference-exception-snapd-integrations:
+
+Integrations and interactions
+-----------------------------
+
+On Classic and Hybrid Classic, SnapD interacts with:
+
+- systemd, for services, cgroups, and mounts
+- the kernel, for AppArmor, seccomp, and FUSE
+- polkit, D-Bus, and udev
+
+Packaging and systemd/service integration changes are what the SRU team
+reviews. Name them in the process bug. The standing package list is
+`SnapD key integrations <https://docs.google.com/document/d/1hNrDXVLJHD1igUSb3UNkhpVA3nx88cQzfIzs4LipwaY/edit>`_.
+
 Special SRU categories
 ----------------------
 
@@ -274,31 +289,6 @@ Uploads for these targets share the same source tree. The only difference is
 the additional backport entry at the top of ``debian/changelog``. See
 `SnapD versioning <https://github.com/cpaelzer/ubuntu-maintainers-handbook/blob/d380ce51da109f8e27db5c6606f43f253b3bcd92/VersionStrings.md#version-almost-native-packages>`_.
 
-Key Integrations and Interactions
----------------------------------
-
-- **kernel:** support for apparmor, seccomp, module loader, u-events, fuse
-  module, etc.
-- **systemd:** snap services, cgroups, mounting.
-- **udev, libudev1 :** mediate device access.
-- **dbus-x11, dbus-user-session:** mediate bus access.
-- **policykit-1:** polkit policy.
-- **apparmor:** apparmor profiles.
-- **squashfs-tools:** packing of snaps.
-- **squashfuse, fuse3, libfuse3-3:** to mount squashfs in virtual environments.
-- **mount:** mounting and unmounting.
-- **passwd, libc-bin:** user creation and lookup.
-- **openssh-client:** device key generation.
-- **ca-certificates:** secure communications.
-- **xdg-desktop-portals:** portal support.
-- **prompting-client, desktop-security-center:** apparmor prompting support.
-- **snapd-desktop-integration:** SnapD notifications.
-- **snap-store:** app-center.
-
-Refer to `SnapD Key Integrations/Interactions on Classic Systems
-<https://docs.google.com/document/d/1hNrDXVLJHD1igUSb3UNkhpVA3nx88cQzfIzs4LipwaY/edit?usp=sharing>`_
-for more details.
-
 Stable release workflow
 -----------------------
 
@@ -375,8 +365,8 @@ bug before the package is released to ``-updates``.
    [ Where problems could occur ]
 
    - <Potential regression, with URLs to the relevant pull requests>
-   - Interactions called out for this upload. The standing list of Classic
-     integrations is in the appendix.
+   - Interactions called out for this upload. The subsystems are listed in
+     Integrations and interactions. The package list is in the appendix.
 
    [ Other Info ]
 
@@ -487,7 +477,5 @@ The detailed checklist is in the internal statement linked above.
 Key integrations
 ~~~~~~~~~~~~~~~~
 
-The process bug's "Where problems could occur" section names the risk for
-that upload. The standing list of Classic packages and subsystems SnapD
-interacts with is
+The standing list of Classic packages and subsystems SnapD interacts with is
 `SnapD key integrations <https://docs.google.com/document/d/1hNrDXVLJHD1igUSb3UNkhpVA3nx88cQzfIzs4LipwaY/edit>`_.
