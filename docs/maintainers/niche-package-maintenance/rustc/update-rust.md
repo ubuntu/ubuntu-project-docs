@@ -155,7 +155,7 @@ $ git restore debian/copyright
 Since this particular tarball contains all vendored dependencies and will therefore be different from the final tarball, it should be renamed with an `~old` suffix, like so:
 
 ```none
-$ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{1,~old}.orig.tar.xz
+$ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{,~old}.orig.tar.xz
 ```
 
 
@@ -426,13 +426,6 @@ Now update the orig tarball and unpacked source tree to match your pruned files.
    ```none
    $ uscan --download-version <X.Y.Z> -v 2>&1 | tee <path_to_log_output>
    ```
-
-3. This is the version you will be using for the final package upload. Therefore, rename it to the standard orig tarball format:
-
-   ```none
-   $ mv ../rustc-<X.Y>_<X.Y.Z>+dfsg{1,}.orig.tar.xz
-   ```
-
 
 #### Source tree update
 
