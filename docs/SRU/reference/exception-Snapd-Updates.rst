@@ -1,6 +1,6 @@
 .. _reference-exception-snapdupdates:
 
-SnapD Updates
+Snapd Updates
 =============
 
 .. include:: /SRU/_sru-series-exception.rst
@@ -8,9 +8,14 @@ SnapD Updates
 Introduction
 ------------
 
-This document explains how SnapD updates deviate from the standard SRU policy,
-outlining the background, deviations, and the responsibilities of the SnapD,
-sponsor, and SRU teams in managing quality and risk.
+This page is the SRU exception for the ``snapd`` source package in supported
+Ubuntu releases. It states the deviations from the standard SRU criteria that
+the SRU team applies, and what the SRU team reviews and verifies.
+
+The exception covers SnapD on Classic and Hybrid Classic systems. It does not
+grant exceptions for the development series, feature or beta freezes, or point
+releases. Those belong to the Release Team. Sponsoring is also outside this
+exception. Pointers for that context are in the appendix.
 
 Summary
 -------
