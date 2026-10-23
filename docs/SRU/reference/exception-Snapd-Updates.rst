@@ -426,3 +426,68 @@ SnapD has an :ref:`SRU interest team <reference-sru-interest-team>`. Subscribe
 the `interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`_
 to the SRU bug early.
 
+Appendix
+--------
+
+The topics below are not part of this exception. Public documentation is
+linked first. The SnapD team's full statement, including development-cycle
+practice, point-release timing, the sponsoring checklist, and the upstream
+quality checklist, is the internal page
+`SnapD updates in Ubuntu <https://documentation.ubuntu.com/canonical-snapd-lore/processes/snapd-updates-in-ubuntu/>`_.
+
+Development cycle and freezes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SnapD updates during the development series, including between feature freeze
+and beta freeze, are not granted here. The SRU team does not grant a standing
+freeze exception.
+
+The development series follows the :ref:`release cycle <release-cycle>`.
+Freeze points, including :ref:`feature freeze <feature-freeze>` and
+:ref:`beta freeze <beta-freeze>`, are described in :ref:`Freezes <freezes>`.
+Exceptions are requested from the Release Team. See
+:ref:`freeze exceptions <freeze-exceptions>` and
+:ref:`request a freeze exception <request-a-freeze-exception>`.
+
+Point releases
+~~~~~~~~~~~~~~
+
+Whether a SnapD update is included in an LTS point release, including any
+cutoff such as the release date minus 14 days, is a Release Team decision.
+This page does not grant it.
+
+Point releases are described in :ref:`Ubuntu releases <ubuntu-releases>`
+(:ref:`point releases <point-releases>`).
+
+Sponsoring
+~~~~~~~~~~
+
+The SRU team takes the upload from ``-unapproved``. Copying it there is
+sponsoring, not part of this exception.
+
+A core developer copies the prepared source package from
+``ppa:snappy-dev/image`` into ``-unapproved`` for each targeted stable
+release, after the SnapD team requests that copy. Preparation of that PPA
+upload, its test results, and the separate development-release upload to
+``-proposed`` are described in the internal statement linked above.
+
+General sponsoring practice is in :ref:`Sponsoring <sponsoring>`.
+
+Upstream quality practice
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Design approval, development rules, and experimental flags are how the SnapD
+team gates risky work before an SRU. They are not a second SRU test plan. The
+test plan in the process bug is what the SRU team verifies.
+
+The release-testing diagram, which also covers the SnapD snap, is
+`SnapD release testing <https://drive.google.com/file/d/1Rbs2l0YBaYQSxS4NgvzsoY8fL4gjBnu_/view?usp=sharing>`_.
+The detailed checklist is in the internal statement linked above.
+
+Key integrations
+~~~~~~~~~~~~~~~~
+
+The process bug's "Where problems could occur" section names the risk for
+that upload. The standing list of Classic packages and subsystems SnapD
+interacts with is
+`SnapD key integrations <https://docs.google.com/document/d/1hNrDXVLJHD1igUSb3UNkhpVA3nx88cQzfIzs4LipwaY/edit>`_.
