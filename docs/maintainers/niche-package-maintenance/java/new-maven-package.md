@@ -18,6 +18,7 @@ $ apt-file find /usr/share/maven-repo | awk -F: '{ print $1 }' | uniq
 
 If it fails, you can always resort to using `dh_make` to generate skeleton files.
 
+Whether you generate the initial `debian/` directory with `mh_make` or `dh_make`, maintaining a Maven package primarily revolves around three configuration files in `debian/`: `<package>.poms` (which selects the POMs and artifacts to install), `maven.rules` (which maps upstream dependency coordinates and versions to the ones available in `/usr/share/maven-repo`), and `maven.ignoreRules` (which strips optional plugins, test frameworks, or linters that are not packaged in the archive).
 
 ## Install Maven artifacts
 
