@@ -8,6 +8,13 @@ The `mh_make` tool from the {pkg}`maven-debian-helper` package generates an init
 
 `mh_make` uses `dpkg` to find locally installed Maven dependencies and, failing that, calls `apt-file` to discover the package providing the artifact.
 
+Install {pkg}`apt-file` and update its cache:
+
+```none
+$ sudo apt install apt-file
+$ sudo apt-file update
+```
+
 You need to prepare the system by installing the available Java libraries. The following command lists all the packages that install Maven artifacts:
 
 ```none
