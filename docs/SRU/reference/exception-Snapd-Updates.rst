@@ -51,78 +51,16 @@ checklist for that work is in the appendix.
 Background
 ----------
 
-`SnapD <https://github.com/canonical/snapd>`_ is a background service that
-manages and maintains installed snaps. It is used on classic Ubuntu (and other
-distributions) as well as on Ubuntu Core. From the perspective of the SnapD
-team, a release usually involves both a deb and snap package to serve the needs
-of desktop, server, cloud and IOT use cases.
+`SnapD <https://github.com/canonical/snapd>`_ is the background service that
+manages installed snaps. On Classic Ubuntu (desktop, server, cloud, and Ubuntu
+WSL) and on Hybrid Classic, updates are released as a deb and a snap. This
+exception covers those deb updates.
 
-An important goal of the SnapD project is to always keep systems up-to-date with
-the latest security fixes, bug fixes and the latest features, while also
-enabling developers to access system resources that are initially restricted by
-interfaces but may be opened in a controlled manner to support new solutions.
+Hybrid Classic uses a kernel snap and therefore requires SnapD. It is available
+from 26.04. For this exception it is treated as Classic, including where SnapD
+is part of TPM-backed full disk encryption.
 
-The SnapD value proposition is to allow installing robust software that can move
-at a different pace than distributions, in a rolling release model. In order to
-fulfill this, it needs to provide a security-maintained, consistent and
-up-to-date runtime environment for them across distributions and distribution
-versions. See :ref:`design <ref_design>`, :ref:`development
-<ref_development>` and :ref:`release <ref_release>` processes have been designed
-to minimize the risks associated with maintaining this level of
-"up-to-dateness".
-
-Overview of SnapD usage across Ubuntu variants
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-There are different Ubuntu OS variants that depend on SnapD to different degrees.
-
-These variants include:
-
-- **Classic:** Desktop, Server, Cloud & Ubuntu WSL.
-- **Hybrid Classic:** Similar to Classic systems, but use Kernel snap and therefore
-  requires SnapD. Available from 26.04.
-- **Ubuntu Core:** A strictly confined, immutable Ubuntu variant optimized for
-  edge and IoT devices. It uses only snaps and therefore requires SnapD.
-
-Variants and composition of installers and installed images may change in the future.
-
-Classic systems
-~~~~~~~~~~~~~~~
-
-- SnapD is used during both installation and normal system operation.
-- Installer LiveCD images are seeded with both SnapD deb and snap packages and
-  installs are seeded with the SnapD deb package.
-- Ubuntu supports and enables :ref:`re-execution <ref_reexecution>` during both
-  installation and normal system operation.
-- Due to re-execution, reverting the deb package alone does not necessarily
-  revert the running SnapD version if a newer or equal snap revision is still
-  installed. For this reason, SnapD reverts may be performed using the
-  store-based snap revert mechanism described :ref:`here <ref_revert>`, rather
-  than through the standard SRU process for deb packages.
-- Updates are released as deb and snap packages; the order of release may vary.
-- The SnapD deb package installs the systemd units and
-  service integration that bootstrap SnapD. The SnapD snap also contains
-  equivalent service integration, but this is only used on Ubuntu Core systems.
-- SRU release targets all `Ubuntu Releases
-  <https://ubuntu.com/about/release-cycle>`_ in Standard Support (not ESM or
-  Legacy Support).
-
-Hybrid Classic systems
-~~~~~~~~~~~~~~~~~~~~~~
-
-Hybrid Classic systems behave the same as Classic systems except for the following:
-
-- SnapD is more deeply integrated into Hybrid Classic systems that use
-  TPM-backed Full Disk Encryption (FDE).
-- Currently LiveCD images and installs are seeded with both SnapD deb and snap
-  packages.
-
-Ubuntu Core systems
-~~~~~~~~~~~~~~~~~~~
-
-- Ubuntu Core images are seeded with the snap package.
-- Updates are released as a snap package, therefore the SRU process is not
-  relevant to this product.
+Ubuntu Core is snap-only. The SRU process does not apply to it.
 
 Exceptions
 ----------
