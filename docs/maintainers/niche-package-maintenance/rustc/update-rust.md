@@ -106,6 +106,8 @@ rustc-<X.Y> (<X.Y.Z>+dfsg-0ubuntu1) <release>; urgency=medium
  -- Jane Doe <example@example.com>  Thu, 01 Jan 1970 00:00:00 -0000
 ```
 
+You may now commit this change to the Git history.
+
 :::{important}
 Make sure `<lp_bug_number>` matches the bug number you created earlier!
 :::
