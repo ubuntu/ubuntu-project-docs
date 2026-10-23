@@ -32,11 +32,6 @@ Key deviations from the standard SRU model include:
   ensuring the SnapD runtime is kept up to date with snaps as they are refreshed,
   but shifting rollback control to the snap store.
 
-- **Flexible timing:**
-
-  Updates may land outside normal freeze windows to maintain security and feature
-  currency.
-
 - **Delegated responsibility for ongoing stability:**
 
   With re-execution and snap refresh behavior, the SRU team delegates
@@ -203,18 +198,8 @@ Process
   alongside bug fixes and interface extensions.
 - Regular minor releases, as required to fix bugs and low risk interface
   extensions.
-- Flexibility during the development cycle (LTS or otherwise) to release major
-  or minor releases between feature freeze and BETA freeze. In general SnapD
-  releases may land in stable Ubuntu releases at any time which makes strictly
-  adhering to the feature freeze counterproductive.
-- Flexibility with `LTS point releases
-  <https://wiki.ubuntu.com/PointReleaseProcess>`_ to release up to the release
-  date minus 14 days.
 - The SRU will be done with a single process bug, instead of individual bug
   reports for individual bug fixes.
-- Sponsors must review the SnapD source package and resulting deb packages in the
-  SnapD Team owned *ppa:snappy-dev/image* and sponsors upload to *-unapproved*
-  queue from where the SRU team takes over, including further reviews.
 - Sponsors, the Ubuntu Release Team, and the SRU Team are not required to review
   all source changes, only those related to packaging and systemd/service
   integration. These changes must be clearly identified in the SRU bug.
@@ -396,7 +381,6 @@ store-based snap revert, or a snap update.
 Release Targets
 ---------------
 
-- Development release (for LTS and interim).
 - All supported interim releases in standard support.
 - All LTS releases in standard support.
 
@@ -439,37 +423,11 @@ changelog, and each bug needs to be independently verified and commented on for
 the SRU to be considered complete. Refer to the :ref:`SRU template
 <ref_sru_template>` for details about the required documentation.
 
-Review/Sponsoring
------------------
-
-The SnapD team requires the help of at least one dedicated Ubuntu Team member
-(core-dev) to copy the applicable source packages available in
-*ppa:snappy-dev/image* to -unapproved for all targeted Ubuntu releases. This
-activity must be explicitly requested by the SnapD team as shown in the SRU bug
-template. In the future when SnapD Team member(s) qualify as sponsors, this
-dependency may fall away.
-
 Workflow and responsibilities
 -----------------------------
 
-**Preparation:**
-
-- SnapD Team uploads source packages to *ppa:snappy-dev/image*.
-- SnapD Team provides test results for *ppa:snappy-dev/image*.
-- SnapD Team provides autopkgtest results for packages in
-  *ppa:snappy-dev/image*.
-- Sponsor reviews release candidates in *ppa:snappy-dev/image* and test results.
-
-**Development release:**
-
-- Sponsor uploads to Development release *-proposed*.
-- SnapD Team provides test results for *-proposed*.
-- SnapD Team address autopkgtest failures if any (excuses) or retrigger tests as
-  required.
-
 **Interim and LTS releases:**
 
-- Sponsor (core-dev) uploads to Interim/Stable release -unapproved.
 - SRU Team reviews *-unapproved*.
 - SRU Team promotes to *-proposed* and applies blocks *block-proposed-<series>*.
 - SRU Team reviews *-proposed*.
