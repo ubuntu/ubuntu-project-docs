@@ -6,30 +6,27 @@ The `mh_make` tool from the {pkg}`maven-debian-helper` package generates an init
 
 ## Running `mh_make`
 
-`mh_make` uses `dpkg` to find locally installed Maven dependencies and failing that, calls `apt-file` to discover the package providing the artifact.
+`mh_make` uses `dpkg` to find locally installed Maven dependencies and, failing that, calls `apt-file` to discover the package providing the artifact.
 
-You need to prepare the system by installing the available java libraries.
+You need to prepare the system by installing the available Java libraries. The following command lists all the packages that install Maven artifacts:
 
 ```none
+$ apt-file find /usr/share/maven-repo | awk -F: '{ print $1 }' | uniq
+```
 
- apt-file find /usr/share/maven-repo | awk -F: '{ print $1 }' | uniq
-
- ```
-
-lists all the packages that install Maven artifacts.
-
-`mh_make` will fail if it can not look up the dependency, even if you specify that the dependency is ignored.
+`mh_make` fails if it cannot look up a dependency, even if you specify that the dependency is ignored.
 
 If it fails, you can always resort to using `dh_make` to generate skeleton files.
 
-## Install Maven Artifacts
+
+## Install Maven artifacts
 
 {pkg}`maven-repo-helper` provides tools for installing and
-maintaining Maven POMs and jars installed in /usr/share/maven-repo. It has no
+maintaining Maven POMs and JARs installed in `/usr/share/maven-repo`. It has no
 dependency on Maven and can be used to publish Maven artifacts for non-Maven projects.
 
 | Tool | Description |
-| :--- | :---        |
+| :--- | :--- |
 | `/usr/bin/mh_checkrepo` | Checks the Maven repository for consistency and prints a report. |
 | `/usr/bin/mh_clean` | Cleans temporary files created by the other `mh_*` utilities (deprecated in favor of `debian/clean`). |
 | `/usr/bin/mh_cleanpom` | Cleans a POM file and prepares it for inclusion in the Debian Maven repository using `debian/maven.rules`. |
@@ -45,88 +42,88 @@ dependency on Maven and can be used to publish Maven artifacts for non-Maven pro
 | `/usr/bin/mh_patchpoms` | Patches all POM files listed in `debian/<package>.poms` using Maven dependency rules and creates backups. |
 | `/usr/bin/mh_unpatchpoms` | Restores patched POM files to their original content from backup. |
 
-The Debian Maven repository typically maintains two versions of each artifact: the specific upstream release (e.g., `4.13`) and a generic version that ensures smooth library upgrades. When a library is updated, dpkg removes the previous files and installs the new ones under `/usr/share/maven-repo`. The generic version guarantees that dependent POM files continue to resolve valid references without requiring manual updates.
+The Debian Maven repository typically maintains two versions of each artifact: the specific upstream release (e.g., `4.13`) and a generic version that ensures smooth library upgrades. When a library is updated, `dpkg` removes the previous files and installs the new ones under `/usr/share/maven-repo`. The generic version guarantees that dependent POM files continue to resolve valid references without requiring manual updates.
 
-`mh_installpoms` utility prepares project's POM files for inclusion in Debian Maven repository. It uses `<packagename>.poms`
+The `mh_installpoms` utility prepares the project's POM files for inclusion in the Debian Maven repository. It uses the `debian/<package>.poms`
 configuration file to specify POM files to install.
 
-The `<packagename>.poms` contains a list of POM files and options for `mh_installpom`, where where option can be:
+The `debian/<package>.poms` file contains a list of POM files and options for `mh_installpom`, where an option can be:
 
-  | Option | Description |
-  | :--- |   :--- |
-  | `--ignore`| ignore this POM and its artifact if any|
-  |`--ignore-pom`| don't install the POM. To use on POM files that are created temporarily for certain artifacts such as Javadoc jars. [mh_install, mh_installpoms] |
-  |  `--no-parent`| remove the <parent> tag from the POM |
-  | `--package=<package>`| an alternative package to use when installing this POM and its artifact |
-  | `--has-package-version`| to indicate that the original version of the POM is the same as the upstream part of the version for the package. This flag is written in `debian.hasPackageVersion` POM property and consumed by `mh_resolve_dependencies` to generate versioned Depends entry|
-  | `--keep-elements=<elem1,elem2>`| a list of XML elements to keep in the POM  during a clean operation with mh_cleanpom or mh_installpom |
-  | `--artifact=<path>` | path to the build artifact associated with this POM, it will be installed when using the command mh_install. [mh_install] |
-  | `--java-lib` | install the jar into /usr/share/java to comply with Debian packaging guidelines. This option is no-op on its own when `maven-debian-helper` is used, as it will install jar file into `/usr/share/java`|
-  | `--usj-name=<name>`|  name to use when installing the library in /usr/share/java |
-  | `--usj-version=<version>` |  version to use when installing the library in /usr/share/java |
-  | `--no-usj-versionless`| don't install the versionless link in /usr/share/java |
-  | `--dest-jar=<path>` | the destination for the real jar.  It will be installed with mh_install. [mh_install] |
-  | `--classifier=<classifier>`| Optional, the classifier for the jar. Empty by default. |
-  | `--site-xml=<location>` | Optional, the location for site.xml if it needs to be installed. Empty by default. [mh_install] |
-
+| Option | Description |
+| :--- | :--- |
+| `--ignore` | Ignore this POM and its artifact, if any. |
+| `--ignore-pom` | Don't install the POM. Used on POM files that are created temporarily for certain artifacts such as Javadoc JARs (`mh_install`, `mh_installpoms`). |
+| `--no-parent` | Remove the `<parent>` tag from the POM. |
+| `--package=<package>` | An alternative package to use when installing this POM and its artifact. |
+| `--has-package-version` | Indicate that the original version of the POM is the same as the upstream part of the version for the package. This flag is written in the `debian.hasPackageVersion` POM property and consumed by `mh_resolve_dependencies` to generate a versioned `Depends` entry. |
+| `--keep-elements=<elem1,elem2>` | A list of XML elements to keep in the POM during a clean operation with `mh_cleanpom` or `mh_installpom`. |
+| `--artifact=<path>` | Path to the build artifact associated with this POM; it will be installed when using the command `mh_install` (`mh_install`). |
+| `--java-lib` | Install the JAR into `/usr/share/java` to comply with Debian packaging guidelines. This option is a no-op on its own when {pkg}`maven-debian-helper` is used, as it installs the JAR file into `/usr/share/java`. |
+| `--usj-name=<name>` | Name to use when installing the library in `/usr/share/java`. |
+| `--usj-version=<version>` | Version to use when installing the library in `/usr/share/java`. |
+| `--no-usj-versionless` | Don't install the link without a version in `/usr/share/java`. |
+| `--dest-jar=<path>` | The destination for the real JAR. It will be installed with `mh_install` (`mh_install`). |
+| `--classifier=<classifier>` | Optional, the classifier for the JAR. Empty by default. |
+| `--site-xml=<location>` | Optional, the location for `site.xml` if it needs to be installed. Empty by default (`mh_install`). |
 
 In the example below:
 
+```none
+pom.xml --no-parent --has-package-version
+maven-debian-helper/pom.xml --has-package-version --artifact=maven-debian-helper/target/maven-debian-helper-*.jar --java-lib
+maven-debian-plugin/pom.xml --has-package-version --artifact=maven-debian-plugin/target/maven-debian-plugin-*.jar --java-lib
+maven-build-nodocs/pom.xml --has-package-version --artifact=maven-build-nodocs/target/maven-build-nodocs-*.jar --java-lib
+maven-packager-utils/pom.xml --has-package-version --artifact=maven-packager-utils/target/maven-packager-utils-*.jar --java-lib
 ```
-    pom.xml --no-parent --has-package-version
-    maven-debian-helper/pom.xml --has-package-version --artifact=maven-debian-helper/target/maven-debian-helper-*.jar --java-lib
-    maven-debian-plugin/pom.xml --has-package-version --artifact=maven-debian-plugin/target/maven-debian-plugin-*.jar --java-lib
-    maven-build-nodocs/pom.xml --has-package-version --artifact=maven-build-nodocs/target/maven-build-nodocs-*.jar --java-lib
-    maven-packager-utils/pom.xml --has-package-version --artifact=maven-packager-utils/target/maven-packager-utils-*.jar --java-lib
 
-```
+We strip the `<parent>` element from `pom.xml` (`--no-parent`), install the project and its subprojects in `/usr/share/java` (`--java-lib`), and pass specific JARs to install (`--artifact`).
 
-We strip `pom.xml` `<parent>` element (`--no-parent`), install the project and its subprojects in `/usr/share/java` (`--java-lib`), and pass specific jars to install (`--artifact`).
-
-Run `mh_lspoms` `to update the list of installed pom files, e.g. when updating the package to a new version.
+Run `mh_lspoms` to update the list of installed POM files, e.g., when updating the package to a new version.
 
 The files below control how the POM file is rewritten for the build or publication:
-| File | Description |
-| :--- | :---        |
-|
-| debian/maven.rules|  Rules used to rewrite POM dependencies |
-| debian/maven.publishedRules| Rules appended to <debian.mavenRules> element in the published POM |
-| debian/maven.ignoreRules | - Rules used to drop POM dependencies |
-| debian/maven.cleanIgnoreRules| Rules used to drop extra dependencies for the clean Maven goal |
 
-All rule files follow the same structure - a space separated file  with `groupId artifactId type version classifier scope` that correspond to Maven  [dependency](https://maven.apache.org/repositories/dependencies.html) element.
+| File | Description |
+| :--- | :--- |
+| `debian/maven.rules` | Rules used to rewrite POM dependencies. |
+| `debian/maven.publishedRules` | Rules appended to the `<debian.mavenRules>` element in the published POM. |
+| `debian/maven.ignoreRules` | Rules used to drop POM dependencies. |
+| `debian/maven.cleanIgnoreRules` | Rules used to drop extra dependencies for the `clean` Maven goal. |
+
+All rule files follow the same structure — a space-separated file with `groupId artifactId type version classifier scope` that correspond to the Maven [dependency](https://maven.apache.org/repositories/dependencies.html) element.
 The trailing fields may be omitted, which is equivalent to a `*` wildcard, and each field is a match or a `sed`-style substitution:
 
-  ```none
-  javax.el s/el-api/javax.el-api/ jar s/.*/3.0/
-  ```
+```none
+javax.el s/el-api/javax.el-api/ jar s/.*/3.0/
+```
 
-  The last example renames the artifact `el-api` to Debian's `javax.el-api` and rewrites the requested version to the strict `3.0` version used by the providing package.
+The example above renames the artifact `el-api` to Debian's `javax.el-api` and rewrites the requested version to the strict `3.0` version used by the providing package.
 
 
 ## Build the Maven package
 
-{pkg}`maven-debian-helper` provides build workflows that integrate into `debian-helper` package build:
+{pkg}`maven-debian-helper` provides build workflows that integrate into the `debhelper` package build:
 
-1. Configure the build (`dh_auto_configure`)
-   - Run `copy-repo.sh` to copy `/usr/share/maven-repo` to `debian/maven-repo` and generate additional POM files from `/etc/maven/fake-poms.conf` and `debian/fake-poms.conf`. These configuration files are space separated element-per-line in format `GROUPID ARTIFACTID JARFILE VERSION`.
-   - Backup `pom.xml` files and run `mh_patchpoms` to apply `debian/maven.rules` and `debian/maven.ignoreRules`. Create `debian/stamp-poms-patched` to mark this step as done.
-2. Build (`dh_auto_build`)
-   - Runs maven `package` goal. You can specify addtional Mavne properties in `debian/maven.properties`, e.g.
+1. Configure the build (`dh_auto_configure`):
+   - Run `copy-repo.sh` to copy `/usr/share/maven-repo` to `debian/maven-repo` and generate additional POM files from `/etc/maven/fake-poms.conf` and `debian/fake-poms.conf`. These configuration files are space-separated with one element per line in the format `GROUPID ARTIFACTID JARFILE VERSION`.
+   - Back up `pom.xml` files and run `mh_patchpoms` to apply `debian/maven.rules` and `debian/maven.ignoreRules`. Create `debian/stamp-poms-patched` to mark this step as done.
+2. Build (`dh_auto_build`):
+   - Run the Maven `package` goal. You can specify additional Maven properties in `debian/maven.properties`, e.g.:
      ```none
-      maven.test.skip=true
-      project.build.sourceEncoding=UTF-8
-      maven.compiler.source=1.8
-      maven.compiler.target=1.8
-      ```
-3. Test (`dh_auto_test`)
-   - Runs `mvn test`
-4. Install (`dh_auto_install`)
-   - Run `debian-maven-plugin` `mvn org.debian.maven:debian-maven-plugin:<version>:install` to
-     install JARs and transformed POMs into `debian/<package>/usr/share/maven-repo/` and `/usr/share/java/`.
-   - Run  `mh_resolve_dependencies` to generate `debian/<package>.substvars` (`${maven:Depends}`, `$   {maven:CompileDepends}`, etc.).
-5. `mh_unpatchpoms` - restore original POM files from `.save` files and remove `debian/stamp-poms-patched`
+     maven.test.skip=true
+     project.build.sourceEncoding=UTF-8
+     maven.compiler.source=1.8
+     maven.compiler.target=1.8
+     ```
+3. Test (`dh_auto_test`):
+   - Run `mvn test`.
+4. Install (`dh_auto_install`):
+   - Run `debian-maven-plugin` (`mvn org.debian.maven:debian-maven-plugin:<version>:install`) to
+     install JARs and transformed POMs into `debian/<package>/usr/share/maven-repo/` and `debian/<package>/usr/share/java/`.
+   - Run `mh_resolve_dependencies` to generate `debian/<package>.substvars` (`${maven:Depends}`, `${maven:CompileDepends}`, etc.).
+5. Clean (`mh_unpatchpoms`):
+   - Restore original POM files from `.save` files and remove `debian/stamp-poms-patched`.
 
-## Further Reading
 
-General reference: [Debian Java packaging with Maven](https://wiki.debian.org/Java/Packaging/Gradle).
+## Further reading
+
+General reference: [Debian Java packaging with Maven](https://wiki.debian.org/Java/Packaging/Maven).
