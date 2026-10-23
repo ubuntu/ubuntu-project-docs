@@ -419,10 +419,10 @@ State clearly when a bug is Ubuntu Core only.
 
    --- original ---
 
-Related SRU Interest Team
+Related SRU interest team
 -------------------------
 
-SnapD has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
-please subscribe the
-`Interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`_
-to the SRU bug early on.
+SnapD has an :ref:`SRU interest team <reference-sru-interest-team>`. Subscribe
+the `interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`_
+to the SRU bug early.
+
