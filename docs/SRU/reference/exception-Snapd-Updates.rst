@@ -109,46 +109,39 @@ SnapD falls under these overlapping categories in
 - **Creator support.** New interfaces or extensions are sometimes required so
   that creators can use system resources that were previously closed.
 
-Deviations requiring sign-off
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Granted deviations
+------------------
 
-SnapD requires the following deviations from :ref:`what is acceptable to SRU
-<reference-what-is-acceptable-to-sru>` to support its goal of always keeping
-systems up-to-date and enable creators to access not-yet-supported system
-resources.
+This page is the approved exception. SnapD requires the following deviations
+from :ref:`what is acceptable to SRU <reference-what-is-acceptable-to-sru>`.
 
-Process
-~~~~~~~
-
-- Regular major releases, typically every eight weeks, are delivered as a single
-  SRU bug. Each SRU aligns with a full upstream release - often encompassing 100+
-  pull requests, approximately half of which are dedicated to test
-  additions and maintenance - and introduces complete or partial features
-  alongside bug fixes and interface extensions.
-- Regular minor releases, as required to fix bugs and low risk interface
-  extensions.
-- The SRU will be done with a single process bug, instead of individual bug
-  reports for individual bug fixes.
-- Sponsors, the Ubuntu Release Team, and the SRU Team are not required to review
-  all source changes, only those related to packaging and systemd/service
-  integration. These changes must be clearly identified in the SRU bug.
-- The SRU team delegates to the SnapD team responsibility for ensuring that SnapD
-  updates delivered as debs or snaps, together with re-execution, automatic
-  installation, and refresh behavior, continue to meet Ubuntu release stability
-  expectations throughout the lifetime of each supported Ubuntu release. As part
-  of this responsibility, the SnapD team may determine the optimal release order
-  of SnapD deb and snap updates for each release, since this can affect which
-  SnapD version is executed on a system.
-- If a regression affecting Classic systems occurs, the SRU team may require a
-  high-priority fix from the SnapD team. The SnapD team will select the most
-  appropriate mitigation, such as a snapd deb-only update, a store-based snap
-  revert, or a snap update, and is responsible for timely implementation and
-  internal and public communication. Launchpad must be used as the primary
-  means of communication and coordination.
-- The SnapD team is responsible for identifying invasive changes affecting
-  Classic systems, including changes to documented re-execution or update
-  behaviour, or changes that impact backward compatibility, and must bring such
-  changes to the Technical Board for review before they are introduced.
+- Regular major releases, typically every eight weeks, are delivered as one
+  SRU. Each SRU matches a full upstream release, often 100 or more pull
+  requests, about half of them tests, and may include complete or partial
+  features, bug fixes, and interface extensions.
+- Minor releases that fix bugs, and low-risk interface extensions, are
+  delivered as SRUs when required.
+- An SRU may use a single process bug. Every bug named in the changelog still
+  has the :ref:`standard SRU template <reference-sru-bug-template>` and is
+  verified in the normal way.
+- The SRU team reviews packaging and systemd/service integration, as
+  identified in the process bug. The SRU team does not review every upstream
+  commit.
+- The SRU team delegates to the SnapD team responsibility for ensuring that
+  SnapD updates delivered as debs or snaps, together with re-execution,
+  automatic installation, and refresh, continue to meet Ubuntu release
+  stability expectations for the lifetime of each supported release. The SnapD
+  team may choose the release order of the deb and the snap for each release,
+  because that order can change which SnapD version runs.
+- If a regression affects Classic systems, the SRU team may require a
+  high-priority fix. The SnapD team selects the mitigation, such as a deb-only
+  update, a store-based snap revert, or a snap update, and is responsible for
+  implementing it and for internal and public communication. Launchpad is the
+  primary place for that coordination.
+- The SnapD team identifies invasive Classic changes, including changes to
+  documented re-execution or update behaviour, or changes that affect backward
+  compatibility, and brings them to the Technical Board before they are
+  introduced.
 
 Quality Assurance
 -----------------
