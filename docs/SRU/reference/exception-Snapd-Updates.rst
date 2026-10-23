@@ -195,6 +195,26 @@ release-testing diagram, which also covers the SnapD snap, is
 The detailed checklist is in
 `SnapD updates in Ubuntu <https://documentation.ubuntu.com/canonical-snapd-lore/processes/snapd-updates-in-ubuntu/>`_.
 
+Review
+------
+
+The SRU team reviews the upload in ``-unapproved``.
+
+The review covers packaging and systemd/service integration identified in
+the process bug, and the usual SRU checks: the upload fits this exception,
+the version is sensible, and the test plan matches the change.
+
+The SRU team does not review every upstream commit. :ref:`Upstream QA
+<reference-exception-snapd-upstream-qa>` is how risky changes are gated
+before an SRU is requested.
+
+During review, the SRU team may add checks to the test plan. Verification
+is posted on the process bug before the package is released to
+``-updates``.
+
+The full checklist is in the Review section of
+`SnapD updates in Ubuntu <https://documentation.ubuntu.com/canonical-snapd-lore/processes/snapd-updates-in-ubuntu/>`_.
+
 Stable release workflow
 -----------------------
 
@@ -208,31 +228,6 @@ the steps are the usual ones in :ref:`Perform a standard SRU <howto-perform-stan
   plan, and addresses autopkgtest failures or retriggers tests.
 - The SRU team reviews that verification and removes
   ``block-proposed-<series>``, which releases the package to ``-updates``.
-
-Review
-------
-
-A review should cover at least the following:
-
-- Review that required documentation has been provided as per the SRU template.
-- Compare uploaded code to that of the respective release tag to confirm the
-  only significant difference is the additional Go and C vendoring code in the
-  package.
-- Review the `release notes
-  <https://docs.google.com/document/d/1do2TFwRIAzuOjLmteVuD0CRoJNO5vVcdUIwTHo4bYO4/edit?usp=sharing>`_.
-- Review the related Launchpad bugs indicated in the release notes. Each LP bug,
-  relevant to Ubuntu (excludes e.g. other distros and snaps), should implement
-  the :ref:`SRU Bug template <reference-sru-bug-template>` , most importantly
-  the *Impact* and *Test Plan* and the rest as applicable. Each LP bug must be
-  independently verified in *-proposed*.
-- Review packaging and systemd/service integration changes.
-- Review results of all :ref:`required release testing <ref-release-testing>`.
-- For all source packages for the different target releases:
-
-  - Ensure builds for all architectures succeeded.
-  - Source tarballs match.
-  - Vendored dependencies match.
-  - Changelogs for all targeted releases match the release notes and each other.
 
 Process bug template
 --------------------
