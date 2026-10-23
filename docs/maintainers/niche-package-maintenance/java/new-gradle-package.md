@@ -24,7 +24,7 @@ The {pkg}`gradle-debian-helper` package provides:
    	dh $@ --buildsystem=gradle --with maven-repo-helper
    ```
 
-   Unlike `{pkg}`maven-debian-helper``, `{pkg}`gradle-debian-helper`` only compiles the project and does not automatically install the resulting JARs or POMs during `dh_auto_install`. To install the artifacts into `/usr/share/maven-repo` and `/usr/share/java`, list the generated POM and JAR paths in `debian/<package>.poms` (activated by `--with maven-repo-helper`), or use `{pkg}`javahelper`` (`debian/<package>.jlibs`) if the project does not ship or generate POM files.
+   Unlike {pkg}`maven-debian-helper`, {pkg}`gradle-debian-helper` only compiles the project and does not automatically install the resulting JARs or POMs during `dh_auto_install`. To install the artifacts into `/usr/share/maven-repo` and `/usr/share/java`, list the generated POM and JAR paths in `debian/<package>.poms` (activated by `--with maven-repo-helper`), or use {pkg}`javahelper` (`debian/<package>.jlibs`) if the project does not ship or generate POM files.
 
 3. Create `debian/maven.rules` and `debian/maven.ignoreRules` with the dependency rules, exactly as for a {ref}`Maven package <new-maven-package>`.
 

@@ -7,7 +7,7 @@ The universal way to start a Java-based package is to use `dh_make`; see {ref}`h
 [Debian policy for Java](https://www.debian.org/doc/packaging-manuals/java-policy/) outlines the filesystem structure of
 a Java package: Java libraries are installed into `/usr/share/java`; Maven artifacts (POMs and symbolic links to JARs) are installed into `/usr/share/maven-repo`.
 
-Follow the Debian Java naming conventions when defining `debian/control`: library source packages that only ship Java bytecode use `Architecture: all` and produce binary packages named `lib<name>-java` (with optional API documentation in `lib<name>-java-doc`). If a library includes JNI native code, split the native shared library into a separate `Architecture: any` package named `lib<name>-jni`. Build against `default-jdk` (or `default-jdk-headless` when GUI toolkits are not needed) rather than a specific OpenJDK version to simplify future Java transitions.
+Follow the Debian Java naming conventions when defining `debian/control`: library source packages that only ship Java bytecode use `Architecture: all` and produce binary packages named `lib<name>-java` (with optional API documentation in `lib<name>-java-doc`). If a library includes Java Native Interface (`JNI`) native code, split the native shared library into a separate `Architecture: any` package named `lib<name>-jni`. Build against {pkg}`default-jdk` (or {pkg}`default-jdk-headless` when GUI toolkits are not needed) rather than a specific OpenJDK version to simplify future Java transitions.
 
 Debian provides additional helpers and build system support for the most common Java build systems:
 - Maven: {pkg}`maven-debian-helper`, see {ref}`new-maven-package`.
@@ -54,7 +54,7 @@ Pass `--buildsystem=maven` (or `--buildsystem=gradle`) to `dh` to select the cor
 
 ## Publish Maven artifacts from a non-Maven build
 
-Publishing Maven metadata (`.pom` files and repository symlinks) is strongly recommended even if upstream builds with Ant or `javahelper`. Without entries in `/usr/share/maven-repo`, reverse dependencies that use Maven or Gradle will not be able to resolve your library during their offline builds.
+Publishing Maven metadata (`.pom` files and repository symlinks) is strongly recommended even if upstream builds with Ant or {pkg}`javahelper`. Without entries in `/usr/share/maven-repo`, reverse dependencies that use Maven or Gradle will not be able to resolve your library during their offline builds.
 
 {pkg}`maven-repo-helper` provides the `mh_installpoms` and `mh_installjar` utilities to install Maven artifacts in `/usr/share/maven-repo`; see {ref}`new-maven-package`.
 
