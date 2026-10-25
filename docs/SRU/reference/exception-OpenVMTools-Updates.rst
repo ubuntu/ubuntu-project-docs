@@ -3,6 +3,8 @@
 OpenVMTools Updates
 ===================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 Approved: RAOF (2024/01/25)
 
 OpenVMTools Background

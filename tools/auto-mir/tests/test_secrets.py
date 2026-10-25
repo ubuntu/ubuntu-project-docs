@@ -48,7 +48,7 @@ def test_ensure_secret_redactor_creates_and_binds_fallback_when_missing():
 
 
 def test_stage_auth_registers_host_secret_without_guest_export(monkeypatch):
-    ctx = SimpleNamespace(evidence={}, secret_redactor=SecretRedactor())
+    ctx = SimpleNamespace(evidence={}, secret_redactor=SecretRedactor(), no_llm=False)
     monkeypatch.setattr(
         llm,
         "resolve_auth",
@@ -59,15 +59,65 @@ def test_stage_auth_registers_host_secret_without_guest_export(monkeypatch):
             "https://example.test/v1/chat/completions",
         ),
     )
+    monkeypatch.setattr(llm, "preflight_check", lambda ctx: None)
 
     auto_mir.stage_auth(ctx)
 
     assert ctx.secret_redactor.redact_text(_SENTINEL) == "[REDACTED]"
     assert not hasattr(ctx, "guest_env")
+    assert ctx.evidence["auth"]["preflight"] == "ok"
+
+
+def test_stage_auth_no_llm_skips_auth_and_preflight(monkeypatch):
+    """--no-llm resolves no credential at all and records the disabled mode."""
+    ctx = SimpleNamespace(evidence={}, secret_redactor=SecretRedactor(), no_llm=True)
+    called = {"preflight": False, "resolve": False}
+    monkeypatch.setattr(
+        llm,
+        "resolve_auth",
+        lambda: called.__setitem__("resolve", True) or ("openai-compatible", "t", "s", "u"),
+    )
+    monkeypatch.setattr(llm, "preflight_check", lambda ctx: called.__setitem__("preflight", True))
+
+    auto_mir.stage_auth(ctx)
+
+    assert not called["resolve"] and not called["preflight"]
+    assert ctx.evidence["auth"]["source"] == "disabled:--no-llm"
+
+
+def test_stage_auth_aborts_when_preflight_fails(monkeypatch):
+    """A configured-but-unusable LLM aborts stage_auth with actionable guidance
+    (rust-ntpd regression: silent per-check 401 degradation)."""
+    from llm import LLMError
+
+    ctx = SimpleNamespace(evidence={}, secret_redactor=SecretRedactor(), no_llm=False)
+    monkeypatch.setattr(
+        llm,
+        "resolve_auth",
+        lambda: (
+            "openai-compatible",
+            "real-key",
+            "host-env:OPENAI_API_KEY",
+            "https://example.test/v1/chat/completions",
+        ),
+    )
+    monkeypatch.setattr(
+        llm, "preflight_check", lambda ctx: (_ for _ in ()).throw(LLMError("HTTP 401"))
+    )
+
+    try:
+        auto_mir.stage_auth(ctx)
+    except LLMError:
+        pass
+    else:
+        raise AssertionError("stage_auth must raise when the preflight fails")
+    assert ctx.evidence["auth"]["preflight"] == "failed"
 
 
 def test_stage_auth_warns_and_proceeds_without_openai_api_key(monkeypatch, caplog):
-    ctx = SimpleNamespace(evidence={}, secret_redactor=SecretRedactor())
+    """Without a key but against a non-default endpoint that accepts the
+    placeholder credential, the run still proceeds (local-endpoint setups)."""
+    ctx = SimpleNamespace(evidence={}, secret_redactor=SecretRedactor(), no_llm=False)
     monkeypatch.setattr(
         llm,
         "resolve_auth",
@@ -78,9 +128,10 @@ def test_stage_auth_warns_and_proceeds_without_openai_api_key(monkeypatch, caplo
             "https://example.test/v1/chat/completions",
         ),
     )
+    monkeypatch.setattr(llm, "preflight_check", lambda ctx: None)
 
     with caplog.at_level(logging.WARNING, logger="auto_mir"):
-        auto_mir.stage_auth(ctx)  # must not raise SystemExit
+        auto_mir.stage_auth(ctx)  # must not raise
 
     assert ctx.llm_token == llm.FALLBACK_TOKEN
     assert any("OPENAI_API_KEY" in record.message for record in caplog.records)

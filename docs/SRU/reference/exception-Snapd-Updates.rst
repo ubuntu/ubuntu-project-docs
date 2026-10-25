@@ -3,6 +3,8 @@
 Snapd Updates
 =============
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating the snapd package in a
 stable supported distro, including LTS.
 

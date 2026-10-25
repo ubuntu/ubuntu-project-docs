@@ -11,10 +11,19 @@ import re
 import subprocess
 from typing import TYPE_CHECKING, Callable
 
-from checks.language_gates import _is_go_package, _is_python_package, _is_rust_package
 from checks.messages import render_check_message
 from models import Finding
 from utils.deb_facts import built_using_entries
+from utils.language_detection import (
+    _declared_language_names,
+    _hint_paths_counted,
+    _is_go_package,
+    _is_python_package,
+    _is_rust_package,
+    _other_language_declared,
+    detect_language_signals,
+    vendor_dir_markers,
+)
 
 if TYPE_CHECKING:
     from auto_mir import RunContext
@@ -697,21 +706,55 @@ def _check_esl_3(ctx: RunContext, finding: Finding) -> Finding:
 
 
 def _check_esl_4(ctx: RunContext, finding: Finding) -> Finding:
-    """ESL-4: Go language detection gate."""
+    """ESL-4: Go language detection gate.
+
+    Declared Go packaging asserts "Go Package" with its trigger evidence.
+    Tree hints alone (own Go files, no declared buildsystem) render as a
+    note instead of a positive assertion, and Go tree hints outranked by
+    another language's declared packaging render as "not a go package"
+    with the conflict stated - so a vendored Go test mock in a Rust
+    package can neither assert Go nor pass silently.
+    """
     resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-4")
     if resolved is None:
         return finding
     check, packaging = resolved
 
-    if _is_go_package(packaging):
+    signals = detect_language_signals(packaging)
+    go = signals["go"]
+    if go["declared_evidence"]:
         # ESL-4 itself is just the gate; it's ok to confirm it's Go.
         # The actual compliance checks are ESL-5, ESL-6, ESL-7.
-        finding.succeed(render_check_message(check, "ok_go_message"))
+        finding.succeed(
+            render_check_message(
+                check, "ok_go_message", triggers="; ".join(go["declared_evidence"])
+            )
+        )
+    elif go["tree_hint_paths"] and _other_language_declared(signals, "go"):
+        finding.succeed(
+            render_check_message(
+                check,
+                "ok_not_go_hint_message",
+                lang=_declared_language_names(signals, "go"),
+                paths=_hint_paths_counted(go["tree_hint_paths"]),
+            ),
+            confidence="medium",
+        )
+    elif go["tree_hint_paths"]:
+        finding.succeed(
+            render_check_message(
+                check,
+                "ok_hinted_go_message",
+                paths=_hint_paths_counted(go["tree_hint_paths"]),
+            ),
+            confidence="medium",
+        )
     else:
         finding.succeed(render_check_message(check, "ok_not_go_message"))
     finding.evidence_refs = [
         "packaging-source:go_sum_present",
         "packaging-source:debian_rules",
+        "packaging-source:file_listing",
     ]
     return finding
 
@@ -753,19 +796,51 @@ def _check_esl_7(ctx: RunContext, finding: Finding) -> Finding:
 
 
 def _check_esl_8(ctx: RunContext, finding: Finding) -> Finding:
-    """ESL-8: Rust language detection gate."""
+    """ESL-8: Rust language detection gate.
+
+    Same declared-wins structure as ESL-4: declared Rust packaging asserts
+    "Rust Package" with its trigger evidence; tree hints alone render as a
+    note; hints outranked by another declared language render as "not a
+    rust package" with the conflict stated.
+    """
     resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-8")
     if resolved is None:
         return finding
     check, packaging = resolved
 
-    if _is_rust_package(packaging):
-        finding.succeed(render_check_message(check, "ok_rust_message"))
+    signals = detect_language_signals(packaging)
+    rust = signals["rust"]
+    if rust["declared_evidence"]:
+        finding.succeed(
+            render_check_message(
+                check, "ok_rust_message", triggers="; ".join(rust["declared_evidence"])
+            )
+        )
+    elif rust["tree_hint_paths"] and _other_language_declared(signals, "rust"):
+        finding.succeed(
+            render_check_message(
+                check,
+                "ok_not_rust_hint_message",
+                lang=_declared_language_names(signals, "rust"),
+                paths=_hint_paths_counted(rust["tree_hint_paths"]),
+            ),
+            confidence="medium",
+        )
+    elif rust["tree_hint_paths"]:
+        finding.succeed(
+            render_check_message(
+                check,
+                "ok_hinted_rust_message",
+                paths=_hint_paths_counted(rust["tree_hint_paths"]),
+            ),
+            confidence="medium",
+        )
     else:
         finding.succeed(render_check_message(check, "ok_not_rust_message"))
     finding.evidence_refs = [
         "packaging-source:cargo_lock_present",
         "packaging-source:debian_rules",
+        "packaging-source:file_listing",
     ]
     return finding
 
@@ -784,9 +859,18 @@ def _check_esl_9(ctx: RunContext, finding: Finding) -> Finding:
         return finding
 
     debian_rules = packaging.get("debian_rules", "")
-    uses_dh_cargo = "--buildsystem cargo" in debian_rules or "dh_cargo" in debian_rules
-    if uses_dh_cargo:
-        finding.succeed(render_check_message(check, "ok_message"))
+    debian_control = packaging.get("debian_control", "")
+    dh_cargo_triggers = []
+    if "--buildsystem cargo" in debian_rules:
+        dh_cargo_triggers.append("--buildsystem cargo in debian/rules")
+    if "dh_cargo" in debian_rules:
+        dh_cargo_triggers.append("dh_cargo in debian/rules")
+    if "dh-sequence-cargo" in debian_control:
+        dh_cargo_triggers.append("dh-sequence-cargo in debian/control Build-Depends")
+    if dh_cargo_triggers:
+        finding.succeed(
+            render_check_message(check, "ok_message", triggers="; ".join(dh_cargo_triggers))
+        )
     else:
         finding.fail(
             render_check_message(check, "not_ok_message"),
@@ -795,6 +879,7 @@ def _check_esl_9(ctx: RunContext, finding: Finding) -> Finding:
         )
     finding.evidence_refs = [
         "packaging-source:debian_rules",
+        "packaging-source:debian_control",
         "packaging-source:cargo_lock_present",
     ]
     return finding
@@ -1049,7 +1134,7 @@ def _check_prf_11(ctx: RunContext, finding: Finding) -> Finding:
     """PRF-11: debian/control Maintainer field correctness.
 
     Uses packaging-source.delta_kind (cheap version-string classification,
-    no git-ubuntu diffstat needed) plus source_maintainer. Ok whenever there
+    no delta diff needed) plus source_maintainer. Ok whenever there
     is no Ubuntu delta, or a delta is present and Maintainer was already
     updated via update-maintainer. Flags the remaining case - a delta
     present without that update - for the reviewer to judge directly.
@@ -1586,8 +1671,70 @@ def _check_urf_4(ctx: RunContext, finding: Finding) -> Finding:
     return finding
 
 
+# Declaration-shaped setuid/setgid lines: FFI/libc function *signatures*
+# (the rust-ntpd regression: 105 `pub fn setuid(uid: uid_t) -> c_int;`
+# declarations inside rust-vendor/libc, flagged as a required Problem
+# although nothing in the package calls them). Matching is deliberately
+# narrow (Rust fn signatures; C prototypes ending in ");"), so an
+# uncertain line stays classified as active usage.
+_SETUID_DECLARATION_PATTERNS = (
+    # Rust signature: `pub fn setuid(...)`, `pub unsafe extern "C" fn setgid(...)``
+    re.compile(r"\bfn\s+set(?:uid|gid)\w*\s*\("),
+    # C prototype: declaration-only line (no assignment) ending in ");"
+    re.compile(r"^[^=]*\bset(?:uid|gid)\w*\s*\([^;]*\)\s*;"),
+)
+
+
+def _hit_is_setuid_declaration(content: str) -> bool:
+    """True when a grep hit line is a setuid/setgid *declaration*, not usage."""
+    return any(pattern.search(content) for pattern in _SETUID_DECLARATION_PATTERNS)
+
+
+def _path_in_vendor_tree(path: str, packaging: dict) -> bool:
+    """True when a source-tree path sits inside a recognized vendor directory
+    (the standard conventions plus the rules-derived names the adapter
+    collected, e.g. the Debian cargo `rust-vendor`)."""
+    normalized = path.lower().replace("\\", "/")
+    if normalized.startswith("./"):
+        normalized = normalized[1:]
+    marked = normalized if normalized.startswith("/") else f"/{normalized}"
+    return any(marker in marked for marker in vendor_dir_markers(packaging))
+
+
+def _summarize_setuid_soft_hits(
+    vendored_hits: list[str], declaration_hits: list[str], lintian_ok: bool
+) -> str:
+    """Group and cap the vendored/declaration hit detail for a rationale."""
+    parts: list[str] = []
+    if vendored_hits:
+        files = sorted({_grep_hit_path(hit) for hit in vendored_hits})
+        parts.append(
+            f"{len(vendored_hits)} reference(s) in vendored code across {len(files)} file(s), "
+            f"e.g. {vendored_hits[0]}"
+        )
+    if declaration_hits:
+        files = sorted({_grep_hit_path(hit) for hit in declaration_hits})
+        parts.append(
+            f"{len(declaration_hits)} declaration(s) (signatures, not calls) across "
+            f"{len(files)} file(s), e.g. {declaration_hits[0]}"
+        )
+    parts.append("no setuid/setgid permission bits in the source tree or built packages")
+    if lintian_ok:
+        parts.append("lintian reported no setuid/setgid tags on the built packages")
+    return "; ".join(parts)
+
+
 def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
-    """URF-5: No setuid/setgid binaries."""
+    """URF-5: No setuid/setgid binaries.
+
+    Hard evidence (permission bits in the source tree or built packages,
+    lintian setuid tags on built artefacts, debian/rules setup, or active
+    non-vendored usage in the package's own code) fails as before. Mere
+    references inside vendored trees and FFI *declarations* are not owned
+    usage of this package: they never render as Problems, but they always
+    land in Left to decide for the human to confirm they are unused
+    (user-test decision from the rust-ntpd run).
+    """
     check = _get_check_definition(ctx, "URF-5")
     adapters = ctx.evidence.get("adapters", {})
     packaging = adapters.get("packaging-source", {})
@@ -1629,6 +1776,19 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
         if not _line_is_test_context(line) and not _path_is_nonexecutable_doc(_grep_hit_path(line))
     ]
     source_hits, commented_hits = _split_hits_active_vs_commented(source_hits)
+    # Split the remaining active-code hits into the package's own usage and
+    # soft references (vendored code / FFI declarations).
+    vendored_hits: list[str] = []
+    declaration_hits: list[str] = []
+    active_usage_hits: list[str] = []
+    for hit in source_hits:
+        if _path_in_vendor_tree(_grep_hit_path(hit), packaging):
+            vendored_hits.append(hit)
+        elif _hit_is_setuid_declaration(_grep_hit_content(hit)):
+            declaration_hits.append(hit)
+        else:
+            active_usage_hits.append(hit)
+    soft_hits = vendored_hits + declaration_hits
     source_perm_files = [
         path
         for path in packaging.get("setuid_setgid_source_files", [])
@@ -1640,7 +1800,7 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
         for path in fetch_build.get("setuid_setgid_binaries", [])
         if not _path_is_test_context(path)
     ]
-    source_triggered = bool(source_hits or source_perm_files)
+    source_triggered = bool(active_usage_hits or source_perm_files)
     binary_triggered = bool(binary_perm_files)
 
     if lintian_triggered or rules_triggered or source_triggered or binary_triggered:
@@ -1651,7 +1811,7 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
         elif lintian_triggered:
             source = render_check_message(check, "source_lintian")
         elif source_triggered:
-            sample = (source_hits + source_perm_files)[:3]
+            sample = (active_usage_hits + source_perm_files)[:3]
             source = render_check_message(check, "source_tree", hits="; ".join(sample))
         else:
             source = render_check_message(check, "source_rules")
@@ -1680,6 +1840,27 @@ def _check_urf_5(ctx: RunContext, finding: Finding) -> Finding:
             "fetch-build:setuid_setgid_binaries",
             "lintian:lintian_warnings",
         ]
+        return finding
+
+    if soft_hits:
+        # Vendored references and FFI declarations are not owned usage of this
+        # package: never a Problem, but never silently OK either - the reviewer
+        # confirms they are unused (user decision from the rust-ntpd run).
+        detail = _summarize_setuid_soft_hits(
+            vendored_hits, declaration_hits, lintian.get("status") == "ok"
+        )
+        finding.mark_unknown(
+            message=render_check_message(check, "not_owned_message", details=detail),
+            todo=render_check_message(check, "not_owned_todo"),
+            severity="recommended",
+        )
+        finding.evidence_refs = [
+            "packaging-source:setuid_setgid_source_hits",
+            "packaging-source:vendor_dir_names",
+            "fetch-build:setuid_setgid_binaries",
+        ]
+        if lintian.get("status") == "ok":
+            finding.evidence_refs.append("lintian:lintian_warnings")
         return finding
 
     if commented_hits:

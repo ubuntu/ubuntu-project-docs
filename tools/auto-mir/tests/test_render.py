@@ -1,12 +1,17 @@
 """Unit tests for the review draft renderer in render/__init__.py."""
 
+import json
 import sys
+import tempfile
 from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
 from unittest.mock import Mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import catalog as catalog_module
+import llm
 from models import Finding
 from render import (
     _SECTION_ORDER,
@@ -14,9 +19,11 @@ from render import (
     _build_review_draft,
     _build_review_type_line,
     _lint_review_draft,
+    _render_llm_degraded_warning,
     _render_section,
     _render_summary_section,
     _todo_lines_for_finding,
+    write_outputs,
 )
 
 # ---------------------------------------------------------------------------
@@ -988,3 +995,102 @@ def test_preamble_omits_version_line_when_unknown():
 
     draft = _build_review_draft(ctx)
     assert "Analysed source version" not in draft
+
+
+# --- LLM degradation provenance (rust-ntpd regression: a draft full of
+# 'LLM unavailable: HTTP 401' TODOs with no distinction from real
+# can't-decide outcomes) ---
+
+
+def _llm_degraded_finding(**kwargs):
+    return Finding(
+        id="SEC-1",
+        section="Security",
+        title="CVE analysis",
+        mode="ev_to_ai",
+        status="unknown",
+        severity="ok",
+        confidence="low",
+        message="LLM unavailable: provider returned HTTP 429",
+        todo="TODO: - Manually check CVE database",
+        **kwargs,
+    )
+
+
+def test_llm_error_cause_renders_note_in_left_to_decide():
+    """A mid-run LLM failure renders a NOTE line above its TODO so the
+    reviewer can tell it apart from a genuine can't-decide finding."""
+    finding = _llm_degraded_finding(llm_error_cause="provider returned HTTP 429")
+
+    draft = "\n".join(_render_section("Security", [finding]))
+    assert "NOTE: - LLM unavailable for this check (provider returned HTTP 429)" in draft
+
+
+def test_report_lists_llm_degraded_checks():
+    """report.json gains an llm_degraded list naming every check whose LLM
+    call failed mid-run (empty for --no-llm and clean runs)."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1"
+    ctx.series = "noble"
+    ctx.guest_name = "g"
+    ctx.evidence = {
+        "adapters": {},
+        "review_type": {},
+        "catalog_summary": {},
+        "analysis_summary": {},
+    }
+    ctx.findings = [
+        _llm_degraded_finding(llm_error_cause="HTTP 429"),
+        Finding(
+            id="SUM-1",
+            section="Summary",
+            title="ok",
+            mode="deterministic",
+            status="ok",
+            severity="ok",
+            confidence="high",
+            message="m",
+            todo="",
+        ),
+    ]
+    ctx.llm_reasoning_traces = []
+    noop_redactor = SimpleNamespace(sanitize=lambda obj: obj, redact_text=lambda text: text)
+    with (
+        mock.patch.object(
+            llm,
+            "usage_summary",
+            return_value={"total_calls": 0, "total_estimated_tokens": 0, "by_model": {}},
+        ),
+        mock.patch("render._lint_review_draft"),
+        mock.patch("render.ensure_secret_redactor", return_value=noop_redactor),
+        tempfile.TemporaryDirectory() as tmp,
+    ):
+        ctx.output_dir = Path(tmp)
+        write_outputs(ctx)
+        report = json.loads((Path(tmp) / "report.json").read_text(encoding="utf-8"))
+
+    assert report["llm_degraded"] == ["SEC-1"]
+
+
+def test_llm_degraded_console_warning_lists_checks():
+    finding = _llm_degraded_finding(llm_error_cause="HTTP 429")
+    ctx = SimpleNamespace(findings=[finding])
+
+    warning = _render_llm_degraded_warning(ctx)
+    assert "SEC-1" in "\n".join(warning)
+    assert "HTTP 429" in "\n".join(warning)
+
+
+def test_draft_declares_no_llm_mode():
+    """A --no-llm draft states its deterministic-only mode up front."""
+    ctx = Mock()
+    ctx.source_package = "testpkg"
+    ctx.bug_id = "1234567"
+    ctx.series = "noble"
+    ctx.no_llm = True
+    ctx.evidence = {"adapters": {}}
+    ctx.findings = []
+
+    draft = _build_review_draft(ctx)
+    assert "Mode: deterministic-only evaluation (--no-llm)" in draft

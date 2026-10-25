@@ -930,7 +930,7 @@ Merge Proposal
 MRE
 Micro Release Exception
     See also:
-    * [Micro Release Exception](https://wiki.ubuntu.com/StableReleaseUpdates/MicroReleaseExceptions)
+    * {ref}`Micro Release Exception <reference-criteria-microreleases>`
 
 MIR Team
     The {term}`Ubuntu` team that reviews requests to promote {term}`Packages <Package>`

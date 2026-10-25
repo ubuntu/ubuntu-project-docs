@@ -595,7 +595,8 @@ self-contained.
 | `2.0-2` (in 22.04)                 | Backport: new upstream          | Upstream `3.1`                  | `3.1-0ubuntu0.22.04.1`                  |
 | `2.0-2ubuntu2.1` (in 22.04)        | Backport: new upstream          | Upstream `3.1`                  | `3.1-0ubuntu0.22.04.1`                  |
 | `2.0-2` (in 22.04)                 | Backport: from devel            | Devel `3.1-1ubuntu2`            | `3.1-1ubuntu2~22.04.1`                  |
-| `2.0-2` (in 22.04)                 | Backport: from devel (native)   | Devel `3.1` (native)            | `3.1~22.04.1`                           |
+| `2.0-2` (in 22.04)                 | Backport: from devel            | Devel `3.1-2`                   | `3.1-2~ubuntu0.22.04.1`                 |
+| `2.0-2` (in 22.04)                 | Backport: from devel (native)   | Devel `3.1` (native)            | `3.1~ubuntu0.22.04.1`                   |
 | `2.0` (native Debian)              | Native devel upload             | —                               | `2.0ubuntu1`                            |
 | `2.0` (native Debian)              | Native SRU upload               | —                               | `2.0ubuntu0.1`                          |
 | `2ubuntu1` (native Debian, delta)  | Native devel upload             | —                               | `2ubuntu2`                              |

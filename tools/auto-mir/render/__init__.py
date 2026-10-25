@@ -66,6 +66,10 @@ def write_outputs(ctx) -> None:
         "analysis_summary": ctx.evidence.get("analysis_summary", {}),
         "findings": [asdict(f) for f in ctx.findings],
         "llm_usage": llm_usage,
+        # Checks that degraded because their LLM call failed mid-run (after a
+        # successful preflight). Empty for clean runs and for --no-llm runs
+        # (where degradation is the declared mode, stated in every message).
+        "llm_degraded": [f.id for f in ctx.findings if getattr(f, "llm_error_cause", "")],
         "llm_reasoning_traces": getattr(ctx, "llm_reasoning_traces", []),
     }
 
@@ -122,6 +126,13 @@ def _build_review_draft(ctx) -> str:
     review_type_line = _build_review_type_line(ctx)
     if review_type_line:
         lines.append(review_type_line)
+
+    # Deterministic-only runs must declare themselves: every AI check degraded
+    # to a manual-review TODO by design, and the reviewer must not mistake
+    # the draft for a fully evaluated one. (``is True`` so a test-double ctx
+    # with an auto-created attribute can never trip it.)
+    if getattr(ctx, "no_llm", False) is True:
+        lines.append("Mode: deterministic-only evaluation (--no-llm); AI checks are left as TODOs")
 
     lines.append("")
 
@@ -414,6 +425,8 @@ def _render_section(
                 lines.append(
                     f"NOTE: - left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
                 )
+            if finding.llm_error_cause:
+                lines.append(f"NOTE: - LLM unavailable for this check ({finding.llm_error_cause})")
             todo_block = "\n".join(_todo_lines_for_finding(finding))
             if finding.rationale:
                 todo_block = _with_rationale(todo_block, finding.rationale, cant_decide=True)
@@ -493,6 +506,8 @@ def _render_summary_section(
                 lines.append(
                     f"NOTE: - left for manual follow-up; adapter(s) failed: {', '.join(causes)}"
                 )
+            if finding.llm_error_cause:
+                lines.append(f"NOTE: - LLM unavailable for this check ({finding.llm_error_cause})")
             todo_block = "\n".join(_todo_lines_for_finding(finding))
             if finding.rationale:
                 todo_block = _with_rationale(todo_block, finding.rationale, cant_decide=True)
@@ -711,6 +726,29 @@ def _render_adapter_failure_warning(ctx) -> list[str]:
         title = finding.title
         lines.append(f"  - {finding.id} {title} (adapter(s) failed: {causes})")
     lines.append("  Review the TODO lines marked with NOTE: in the draft and follow up manually.")
+    return lines
+
+
+def _render_llm_degraded_warning(ctx) -> list[str]:
+    """Render a console warning for checks degraded by mid-run LLM failures.
+
+    Only fires for genuine mid-run failures (the preflight aborts broken
+    configurations before any work is spent, and --no-llm states its mode in
+    every message) so a reviewer can tell a transient outage apart from a
+    deliberate deterministic-only run.
+    """
+    degraded = [f for f in ctx.findings if getattr(f, "llm_error_cause", "")]
+    if not degraded:
+        return []
+
+    lines = [
+        "WARNING: LLM failure(s) degraded the following checks to manual-review TODOs:",
+    ]
+    for finding in degraded:
+        lines.append(f"  - {finding.id} {finding.title} ({finding.llm_error_cause})")
+    lines.append(
+        "  The draft marks each with a 'NOTE: - LLM unavailable' line; re-run to retry them."
+    )
     return lines
 
 

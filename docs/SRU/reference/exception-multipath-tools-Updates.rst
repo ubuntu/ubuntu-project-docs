@@ -3,6 +3,8 @@
 multipath-tools Updates
 =======================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for doing microrelease updates of the multipath-tools package in Ubuntu LTS releases, including interim releases where required by SRU policy.
 
 .. _about_multipath-tools:

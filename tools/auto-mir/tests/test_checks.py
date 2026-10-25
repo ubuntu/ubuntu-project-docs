@@ -482,6 +482,200 @@ def test_is_python_package_detects_real_signals():
     assert checks.language_gates._is_python_package(metadata) is True
 
 
+# --- Vendor-tree recognition and declared-buildsystem precedence ----------
+# Regression source: the rust-ntpd review run (bug 2166406). A Debian cargo
+# package stores vendored crates in a top-level `rust-vendor/` dir (declared
+# via CARGO_VENDOR_DIR in debian/rules). One vendored crate shipped a Go test
+# mock (go.sum/go.mod/ca.go under rust-vendor/.../tests/verification_mock/),
+# which tripped the Go gate: the draft asserted "Go Package" next to
+# "Rust Package", ESL-7 could not determine a Go build mode, and CB-9 (gated
+# on go) burned its LLM call instead of auto-OKing as "not a Go package".
+
+
+def _rust_ntpd_packaging(**overrides):
+    packaging = dict(
+        {
+            "status": "ok",
+            "debian_rules": (
+                "#!/usr/bin/make -f\n"
+                "include /usr/share/dpkg/pkg-info.mk\n"
+                "export CARGO_VENDOR_DIR = rust-vendor\n"
+                "%:\n\tdh $@ --buildsystem cargo\n"
+            ),
+            "debian_control": "Source: rust-ntpd\nBuild-Depends: cargo, rustc\n",
+            "cargo_lock_present": True,
+            "go_sum_present": False,
+            "vendor_dir_names": ["rust-vendor", "vendor", "vendored", "third_party"],
+            "file_listing": [
+                {"path": "./Cargo.toml", "size": 100},
+                {"path": "./src/main.rs", "size": 100},
+                {
+                    "path": (
+                        "./rust-vendor/rustls-platform-verifier/src/tests/verification_mock/go.sum"
+                    ),
+                    "size": 10,
+                },
+                {
+                    "path": (
+                        "./rust-vendor/rustls-platform-verifier/src/tests/verification_mock/go.mod"
+                    ),
+                    "size": 10,
+                },
+                {
+                    "path": (
+                        "./rust-vendor/rustls-platform-verifier/src/tests/verification_mock/ca.go"
+                    ),
+                    "size": 10,
+                },
+            ],
+        }
+    )
+    packaging.update(overrides)
+    return packaging
+
+
+def test_go_gate_inactive_for_rust_vendor_go_test_mock():
+    """rust-ntpd regression: vendored Go test mock must not trip the Go gate."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = _rust_ntpd_packaging()
+    assert checks.language_gates._language_gate_active("go", ctx) is False
+    assert checks.language_gates._language_gate_active("rust", ctx) is True
+
+
+def test_go_gate_hint_outranked_by_declared_rust():
+    """Declared buildsystem wins: even Go files outside vendor trees do not
+    gate a package whose Rust packaging is declared."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = _rust_ntpd_packaging(
+        file_listing=[{"path": "./cmd/tool/main.go", "size": 100}]
+    )
+    assert checks.language_gates._language_gate_active("go", ctx) is False
+
+
+def test_go_hint_ignored_when_loose_golang_comment_only():
+    """A rules comment merely mentioning golang is not a declared buildsystem."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "# TODO: maybe switch to golang eventually\ndh $@",
+        "go_sum_present": False,
+        "cargo_lock_present": False,
+    }
+    assert checks.language_gates._language_gate_active("go", ctx) is False
+
+
+def test_tree_hints_exclude_test_only_segments():
+    """Test-fixture files (e.g. foreign-language mocks under tests/) are not
+    language hints even outside vendored trees."""
+    packaging = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "go_sum_present": False,
+        "cargo_lock_present": False,
+        "file_listing": [{"path": "./tests/verification_mock/ca.go", "size": 10}],
+    }
+    assert checks.language_gates._is_go_package(packaging) is False
+
+
+def test_rust_declared_via_dh_sequence_cargo():
+    """dh-sequence-cargo in Build-Depends declares the cargo buildsystem
+    (modern debhelper needs no rules override; same gap CB-8 had for Python)."""
+    packaging = {
+        "status": "ok",
+        "debian_rules": "%:\n\tdh $@\n",
+        "debian_control": "Source: rust-lib\nBuild-Depends: dh-sequence-cargo, rustc\n",
+        "cargo_lock_present": False,
+        "go_sum_present": False,
+    }
+    assert checks.language_gates._is_rust_package(packaging) is True
+
+
+def test_esl_4_go_hint_suppressed_by_declared_rust_states_conflict():
+    """ESL-4 must not assert 'Go Package' for a Rust package, and must state
+    why the Go files were outranked instead of passing silently."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = _rust_ntpd_packaging(
+        file_listing=[
+            {"path": "./cmd/tool/main.go", "size": 100},
+            {"path": "./Cargo.toml", "size": 100},
+        ]
+    )
+    finding = _make_finding("ESL-4", mode="deterministic")
+    result = checks.deterministic._check_esl_4(ctx, finding)
+
+    assert result.status == "ok"
+    assert result.severity == "ok"
+    assert "not a go package" in result.message
+    assert "rust packaging is declared" in result.message
+
+
+def test_esl_4_go_tree_hint_without_declaration_renders_note():
+    """Go files in the package's own tree but no Go buildsystem: a note, not
+    a positive 'Go Package' guidelines assertion."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@",
+        "debian_control": "Package: myapp",
+        "go_sum_present": False,
+        "cargo_lock_present": False,
+        "file_listing": [{"path": "./cmd/tool/main.go", "size": 100}],
+    }
+    finding = _make_finding("ESL-4", mode="deterministic")
+    result = checks.deterministic._check_esl_4(ctx, finding)
+
+    assert result.status == "ok"
+    assert "no Go buildsystem declared" in result.message
+    assert result.confidence == "medium"
+
+
+def test_esl_8_rust_declared_message_states_triggers():
+    """ESL-8's positive assertion states its trigger evidence."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = _rust_ntpd_packaging()
+    finding = _make_finding("ESL-8", mode="deterministic")
+    result = checks.deterministic._check_esl_8(ctx, finding)
+
+    assert result.status == "ok"
+    assert "Rust Package" in result.message
+    assert "--buildsystem cargo" in result.message
+    assert "Cargo.lock present" in result.message
+
+
+def test_esl_9_ok_via_dh_sequence_cargo():
+    """ESL-9 accepts the modern dh-sequence-cargo build dependency."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "%:\n\tdh $@\n",
+        "debian_control": "Source: rust-lib\nBuild-Depends: dh-sequence-cargo, rustc\n",
+        "cargo_lock_present": True,
+        "go_sum_present": False,
+    }
+    finding = _make_finding("ESL-9", mode="deterministic")
+    result = checks.deterministic._check_esl_9(ctx, finding)
+
+    assert result.status == "ok"
+    assert "dh-sequence-cargo" in result.message
+
+
+def test_esl_9_missing_dh_cargo_fails():
+    """Rust package without any cargo buildsystem declaration fails hard."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh $@\noverride_dh_auto_build:\n\tcargo build --release\n",
+        "debian_control": "Source: rust-lib\nBuild-Depends: cargo, rustc\n",
+        "cargo_lock_present": True,
+        "go_sum_present": False,
+    }
+    finding = _make_finding("ESL-9", mode="deterministic")
+    result = checks.deterministic._check_esl_9(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
 def test_extract_build_hints_no_vendor_references():
     """Test _extract_build_hints returns empty results when no vendor paths present."""
     build_log = """
@@ -703,6 +897,58 @@ def test_eval_ev_to_ai_graceful_on_large_tier_llm_error():
 
     assert result.status == "unknown"
     assert result.confidence == "low"
+
+
+def test_eval_ev_to_ai_no_llm_skips_the_call_entirely():
+    """--no-llm must not attempt any LLM call; every AI check degrades to the
+    standard fallback stating the deliberate deterministic-only mode."""
+    ctx = _Ctx()
+    ctx.no_llm = True
+    check = {
+        "id": "SEC-1",
+        "title": "Security synthesis",
+        "section": "Security",
+        "todo_refs": ["TODO: - Manual security review"],
+        "adapters_required": [],
+        "adapters_optional": [],
+        "messages": {"llm_unavailable_message": "LLM unavailable: {error}"},
+    }
+    finding = _make_finding("SEC-1", mode="ev_to_ai")
+
+    def _must_not_call(*_args, **_kwargs):
+        raise AssertionError("no LLM call may be attempted under --no-llm")
+
+    with mock.patch("llm.call_llm", side_effect=_must_not_call):
+        result = checks.llm_eval._eval_ev_to_ai(check, ctx, finding)
+
+    assert result.status == "unknown"
+    assert "--no-llm" in result.message
+    # Deliberate mode degradation is stated in the message; it is not a
+    # mid-run failure, so it carries no llm_error_cause provenance.
+    assert result.llm_error_cause == ""
+
+
+def test_eval_ev_to_ai_llm_error_sets_provenance():
+    """A mid-run LLM failure records its cause on the finding so the renderer
+    can mark the TODO as LLM-degraded (not a plain 'can't decide')."""
+    ctx = _Ctx()
+    check = {
+        "id": "SEC-1",
+        "title": "Security synthesis",
+        "section": "Security",
+        "todo_refs": ["TODO: - Manual security review"],
+        "adapters_required": [],
+        "adapters_optional": [],
+        "messages": {"llm_unavailable_message": "LLM unavailable: {error}"},
+    }
+    finding = _make_finding("SEC-1", mode="ev_to_ai")
+
+    with mock.patch("checks.llm_eval._select_ev_to_ai_model_tier", return_value="small"):
+        with mock.patch("llm.call_llm", side_effect=llm.LLMError("HTTP 429")):
+            result = checks.llm_eval._eval_ev_to_ai(check, ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.llm_error_cause == "HTTP 429"
 
 
 def test_eval_ev_to_ai_performs_followup_when_model_requests_more_evidence():
@@ -2013,6 +2259,133 @@ def test_urf_5_setuid_in_script_still_flags():
     assert result.status == "not-ok"
 
 
+def test_urf_5_vendored_libc_declarations_left_to_decide():
+    """rust-ntpd regression: FFI *declarations* inside the vendored libc crate
+    (pub fn setuid(...) -> c_int) are not owned usage of the package - they
+    must render as Left to decide with the grouped detail, never as a
+    required Problem."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "vendor_dir_names": ["rust-vendor", "vendor"],
+        "setuid_setgid_source_hits": [
+            "./rust-vendor/libc/src/unix/mod.rs:1104:    pub fn setgid(gid: gid_t) -> c_int;",
+            "./rust-vendor/libc/src/vxworks/mod.rs:2280:    pub fn setuid(uid: uid_t) -> c_int;",
+            "./rust-vendor/libc/src/unix/linux_like/b64/x86_64.rs:1:    pub fn setuid(uid: uid_t) -> c_int;",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "unknown"
+    assert result.severity == "recommended"
+    assert "not owned usage" in result.message
+    # grouped detail, not the raw hit concatenation
+    assert "3 reference(s) in vendored code across 3 file(s)" in result.message
+    assert "no setuid/setgid permission bits" in result.message
+    assert "lintian reported no setuid/setgid tags" in result.message
+    assert result.todo.startswith("TODO:")
+
+
+def test_urf_5_declaration_outside_vendor_tree_also_left_to_decide():
+    """A non-vendored FFI declaration (own source, signature only) is also not
+    usage - same Left-to-decide treatment."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "setuid_setgid_source_hits": [
+            "./src/ffi.rs:12:    pub fn setuid(uid: u32) -> i32;",
+            "./src/ffi.c:40: int setuid(uid_t uid);",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "unknown"
+    assert "2 declaration(s)" in result.message
+    assert "signatures, not calls" in result.message
+
+
+def test_urf_5_active_usage_hit_still_problems():
+    """An active, non-vendored usage line keeps failing as a Problem - the
+    softening only covers vendored references and declarations."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "setuid_setgid_source_hits": [
+            "./src/main.rs:30:    unsafe { libc::setuid(0) };",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert result.severity == "required"
+
+
+def test_urf_5_active_usage_outranks_vendored_noise():
+    """When real usage exists, the Problem stands (the vendored references
+    stay in the evidence for the reviewer)."""
+    ctx = _Ctx()
+    ctx.evidence["adapters"]["packaging-source"] = {
+        "status": "ok",
+        "debian_rules": "dh_auto_build",
+        "debian_control": "Package: myapp",
+        "file_listing": [],
+        "vendor_dir_names": ["rust-vendor"],
+        "setuid_setgid_source_hits": [
+            "./src/main.rs:30:    unsafe { libc::setuid(0) };",
+            "./rust-vendor/libc/src/unix/mod.rs:1104:    pub fn setgid(gid: gid_t) -> c_int;",
+        ],
+        "setuid_setgid_source_files": [],
+    }
+    ctx.evidence["adapters"]["lintian"] = {
+        "status": "ok",
+        "lintian_errors": [],
+        "lintian_warnings": [],
+        "lintian_pedantic": [],
+    }
+
+    finding = _make_finding("URF-5", mode="deterministic")
+    result = checks.deterministic._check_urf_5(ctx, finding)
+
+    assert result.status == "not-ok"
+    assert "src/main.rs" in result.message
+
+
 def test_path_is_nonexecutable_doc_classification():
     doc = checks.deterministic._path_is_nonexecutable_doc
     # Plain-text / documentation files.
@@ -3171,7 +3544,7 @@ def test_evaluate_checks_maps_failed_adapters_to_low_confidence_findings(monkeyp
                     "mode": "tlow",
                     "section": "Rationale",
                     "adapters_required": ["dep-analysis", "packaging-source"],
-                    "adapters_optional": ["git-ubuntu-delta"],
+                    "adapters_optional": ["debian-delta"],
                 }
             ]
         },
@@ -3179,7 +3552,7 @@ def test_evaluate_checks_maps_failed_adapters_to_low_confidence_findings(monkeyp
             "adapters": {
                 "dep-analysis": {"status": "error"},
                 "packaging-source": {"status": "ok"},
-                "git-ubuntu-delta": {"status": "pending"},
+                "debian-delta": {"status": "pending"},
             }
         },
         findings=[],
@@ -3187,7 +3560,7 @@ def test_evaluate_checks_maps_failed_adapters_to_low_confidence_findings(monkeyp
 
     findings = checks.evaluate_checks(ctx)
     assert len(findings) == 1
-    assert findings[0].adapter_error_cause == ["dep-analysis", "git-ubuntu-delta"]
+    assert findings[0].adapter_error_cause == ["debian-delta", "dep-analysis"]
 
 
 def test_evaluate_single_check_unknown_mode_has_normalized_todo_prefix():

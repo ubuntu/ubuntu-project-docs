@@ -151,6 +151,13 @@ class Finding:
     # --- Set during post-processing ---
     adapter_error_cause: list[str] = field(default_factory=list)
 
+    # --- Set during LLM evaluation ---
+    # Short reason string when this finding degraded because an LLM call
+    # failed mid-run (after the preflight handshake). Empty when the LLM
+    # answered, when the check is deterministic, or when the degradation was
+    # the deliberate --no-llm mode (the finding's own message states that).
+    llm_error_cause: str = ""
+
     def succeed(self, message: str, confidence: str = "high", rationale: str = "") -> None:
         """Mark this finding as successfully met (ok)."""
         self.status = "ok"
