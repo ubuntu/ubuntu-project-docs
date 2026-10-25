@@ -1,6 +1,10 @@
 (GnomeTextEditor-test-plan)=
 # GNOME Text Editor test plan
 
+:::{note}
+`gnome-text-editor` has been part of `main` since Ubuntu 23.04 (lunar). It was in `universe` in Ubuntu 22.04 LTS (jammy) and earlier.
+:::
+
 Since `gnome-text-editor` doesn't include autopkgtests we will follow a manual test plan to verify updates.
 MIR reference {lpbug}`1971973`
 

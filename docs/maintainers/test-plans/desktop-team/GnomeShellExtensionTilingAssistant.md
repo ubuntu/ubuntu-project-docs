@@ -1,8 +1,12 @@
 (GnomeShellExtensionTilingAssistant-test-plan)=
 # GNOME Shell Tiling Assistant extension test plan
 
+:::{note}
+`gnome-shell-extension-ubuntu-tiling-assistant` has been part of `main` since Ubuntu 23.10 (mantic), including Ubuntu 24.04 LTS (noble). From Ubuntu 26.04 (resolute) onward, it's bundled into the `gnome-shell-ubuntu-extensions` source package rather than shipped standalone.
+:::
 
-## GNOME Shell Tiling Assitant extension
+
+## GNOME Shell Tiling Assistant extension
 
 It's an extension that the desktop team provides by default to improve tiling abilities of GNOME Shell
 

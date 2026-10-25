@@ -1,6 +1,10 @@
 (GnomeClocks-test-plan)=
 # GNOME Clocks test plan
 
+:::{note}
+`gnome-clocks` has been part of `main` since Ubuntu 23.10 (mantic). It was in `universe` in earlier releases.
+:::
+
 Since `gnome-clocks` doesn't include autopkgtests we will follow a manual test plan to verify updates.
 MIR reference {lpbug}`2032670`
 

@@ -21,7 +21,7 @@ The autopkgtests for `gnome-online-accounts` should complete successfully
 6. Close this popup and close the Settings app
 7. Calendar events from your Google Calendar should show in the clock drop-down in the top bar of the default Ubuntu Desktop
 8. From a terminal, run `sudo apt install gnome-calendar` and make sure that `gnome-calendar` is installed. Then complete the Calendar test case from {ref}`Calendar-test-plan`
-9. From a terminal, run `sudo apt install evolution` and make sure that `evolution` is installed. Then complete the Evolution test case from {ref}`Evolution-test-plan`
+9. From a terminal, run `sudo apt install evolution` and make sure that `evolution` is installed. Then complete the Evolution test case manually, following [Evolution's upstream documentation](https://help.gnome.org/users/evolution/stable/).
 
 
 ## What could go wrong
