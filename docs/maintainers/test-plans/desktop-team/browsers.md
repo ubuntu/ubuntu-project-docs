@@ -6,10 +6,9 @@
 
 ## Description
 
-This is a common test plan shared across all of Ubuntu's browser packages. For the browser-specific test plans, see:
+This is a common test plan shared across all of Ubuntu's browser packages.
 
-* `firefox` (TBD)
-* {ref}`chromium <Chromium-test-plan>`
+Currently, we only test Chromium downstream: see {ref}`chromium <Chromium-test-plan>`. Firefox is tested by Mozilla.
 
 
 ## Initial setup
