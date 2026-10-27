@@ -227,6 +227,25 @@ Certain rights *are* required for software to be part of multiverse:
 
 These packages are maintained and supported by the Ubuntu community, but because of the restrictions, patching bugs or updates may not be possible.
 
+.. _archive-sections:
+
+Sections
+--------
+
+In addition to the :ref:`components <archive-components>`, each package declares a **section** in its ``Section`` control field, which classifies the package by application area -- for example ``devel`` for development tools, ``kernel`` for kernel packages, or ``metapackages`` for :term:`metapackages <Metapackage>`. Unlike the component (which indicates *who* maintains a package and under what license terms), the section does not affect whether a package is available or who supports it. It is mostly, but not entirely, informational: two sections change how APT treats a package, as described below.
+
+The `list of sections <https://www.debian.org/doc/debian-policy/ch-archive.html#s-subsections>`_ used in Ubuntu is inherited from Debian.
+
+Sections are mostly informational, but two of them have special meaning to the APT package manager by default:
+
+* Packages in the ``metapackages`` and ``tasks`` sections are never marked as automatically installed, so they are protected from :command:`apt autoremove`. See :ref:`how APT treats metapackages <how-apt-treats-some-metapackages>` for details.
+
+* Packages that move into the ``oldlibs`` section -- typically libraries that have been superseded by a newer, incompatible version -- have their "manually installed" mark moved to their dependencies (the replacement packages), so the old library itself becomes eligible for automatic removal once nothing depends on it anymore.
+
+.. note::
+
+    These behaviors are configured through the ``APT::Never-MarkAuto-Sections`` and ``APT::Move-Autobit-Sections`` options (see :file:`/etc/apt/apt.conf.d/01autoremove` on an Ubuntu system). They are not documented in the APT manpages; the ``oldlibs`` behavior was introduced in APT 1.1. Since APT 2.6 (Ubuntu 23.04 and later), an entry such as ``oldlibs`` matches the section in every component (e.g. ``universe/oldlibs``).
+
 .. _archive-mirrors:
 
 Mirrors

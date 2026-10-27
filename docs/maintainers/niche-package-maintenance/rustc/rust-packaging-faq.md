@@ -191,7 +191,7 @@ However, that workflow should be fully supported via `rustup`, which is availabl
 :::
 
 {lpsrc}`rust-defaults` is a source package that produces the unversioned `rustc` and `cargo` metapackages.
-[Metapackages](https://wiki.debian.org/metapackage) carry no files themselves; they simply declare dependencies on other packages: in this case, the currently-default versioned `rustc-X.Y` and `cargo-X.Y` binary packages produced by the corresponding versioned `rustc-X.Y` source package.
+{term}`Metapackages <Metapackage>` carry no files themselves; they simply declare dependencies on other packages: in this case, the currently-default versioned `rustc-X.Y` and `cargo-X.Y` binary packages produced by the corresponding versioned `rustc-X.Y` source package.
 As noted in the {ref}`update guide <how-to-update-rust>`, these unversioned metapackages denote the default Rust toolchain version used to build Rust packages in the archive.
 
 The unversioned `rustc` and `cargo` packages serve as the stable names that users and build systems interact with: installing `rustc` or `cargo` gives you whichever versioned toolchain `rust-defaults` currently designates as the default, without needing to know or track the exact version number.
