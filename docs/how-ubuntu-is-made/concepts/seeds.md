@@ -122,19 +122,6 @@ directly: "If a package in the
 `desktop` seed depends on 'foo', but 'foo' is already part of the minimal seed
 or dependency list, then 'foo' will not be added to the desktop output."
 
-A `!<package>` entry is a tripwire rather than a filter. It declares that the
-package must not appear in that seed or in the seeds it inherits from. If
-`germinate` finds it there anyway, it logs an error naming the seed that pulled it
-in and then leaves the package out of that seed's output -- which can make the
-output inconsistent, because other packages may still depend on it and `apt`
-knows nothing about seed blocklists. The point is to make an unwanted inclusion
-visible so that the package relationships can be fixed, not to work around them.
-
-A collection may also carry a global `blacklist` file (`blocklist` since
-`germinate` 2.48). Despite the name it excludes nothing; `germinate` only uses it to
-annotate its `blocklisted` report with build-dependency source packages that
-matched.
-
 The {manpage}`germinate(1)` manual page documents the `STRUCTURE` file in full.
 
 The hierarchy can be easier to take in as a picture than as a file. Every `germinate`
