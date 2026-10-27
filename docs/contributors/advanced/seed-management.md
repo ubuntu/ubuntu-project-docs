@@ -52,7 +52,6 @@ A minimized version of a real seed, Ubuntu Studio's `graphics`:
 
 ```none
 Task-Per-Derivative: 1
-Task-Description: 2D/3D creation and editing suite
 
  * agave                          # A dependency
  * (blender)                      # Parentheses mean a recommend
@@ -68,8 +67,8 @@ Task-Description: 2D/3D creation and editing suite
  * ubuntustudio-graphics # Metapackage for everything here.
 ```
 
-Real seeds carry more `Task-*` headers than this, `Task-Key` and `Task-Section`
-among them. Only some of them do anything; {ref}`seeds` explains which.
+A seed file may begin with a block of `Task-*` headers like
+`Task-Per-Derivative` above; {ref}`seeds` covers what they're for.
 
 `[arch]` limits and `[!arch]` exclusions work the same way on `snap:` entries as
 on package entries, even though the {manpage}`germinate manual page

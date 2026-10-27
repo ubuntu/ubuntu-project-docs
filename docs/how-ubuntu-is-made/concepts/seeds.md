@@ -150,61 +150,35 @@ dot -Tpng structure.dot -o structure.png
 ## Task headers in seed files
 
 `STRUCTURE` is not the only thing that shapes the flavor metapackages. Seed
-files may also begin with a block of `Task-*` headers:
+files may also begin with a block of `Task-*` headers, read directly from the
+seed text rather than through the `STRUCTURE` inheritance:
 
 ```none
 Task-Per-Derivative: 1
-Task-Section: user
-Task-Description: Edubuntu desktop
-Task-Extended-Description: This task provides the full Edubuntu desktop environment.
-Task-Key: edubuntu-desktop
 Task-Metapackage: edubuntu-desktop
 Task-Seeds: desktop-gnome-minimal
 ```
 
-Only two of these affect metapackage generation. `germinate-update-metapackage`
-reads them straight out of the seed text, separately from the `STRUCTURE`
-inheritance machinery:
-
 * `Task-Metapackage` -- the name of the metapackage to generate. Without it,
   germinate names the metapackage `<flavor>-<seed>`.
-* `Task-Seeds` -- when germinate generates the metapackage for this seed,
-  it unions the listed seeds' package lists (instead of just this seed's).
-  This is a second, header-driven layer of inheritance in addition to the
-  `STRUCTURE` inheritance.
+* `Task-Seeds` -- unions the listed seeds' package lists into this seed's
+  metapackage, on top of just this seed's own. A second, header-driven layer
+  of inheritance alongside `STRUCTURE`.
+* `Task-Per-Derivative` and `Task-Name` -- used by the archive publisher and
+  by `livecd-rootfs` to name the `Task:` field they generate for a seed.
 
 The example above is Edubuntu's `desktop-gnome` seed. It produces an
 `edubuntu-desktop` metapackage (rather than the default
 `edubuntu-desktop-gnome`) whose dependencies cover both `desktop-gnome` and
 `desktop-gnome-minimal`.
 
-`Task-Seeds` is read for two further purposes. Germinate itself uses it to
-narrow which seeds count as "close" when promoting an alternative dependency
-(`foo | bar`): every candidate seed already has to inherit from this one per
-`STRUCTURE`, and for every alternative after the first, germinate additionally
-requires the candidate to also be named in this seed's `Task-Seeds` header.
-`Task-Seeds` filters `STRUCTURE`'s inheritance here rather than replacing it.
-Outside germinate, the archive publisher's `generate-extra-overrides`
-script -- part of the publisher's `finalize.d` hooks -- uses it, together with
-`Task-Per-Derivative` and an optional `Task-Name`, to decide which seeds'
-packages get the archive's `Task:` field. `livecd-rootfs`'s `expand-task`
-reads the same three headers to decide which seeds' germinate output to
-combine when building an image layer; see {ref}`how-seeds-are-used` below.
-Neither of those two tools reads `Task-Metapackage`, and germinate never reads
-`Task-Per-Derivative` or `Task-Name`.
-
 ```{note}
-`STRUCTURE` inheritance and `Task-Seeds` are edited independently, so they can
-drift apart -- a seed may inherit from another in `STRUCTURE` without listing
-it in `Task-Seeds`, or the other way round. When changing either, check that
-the two still agree on which seeds are related.
+Seed files used to also carry headers such as `Task-Key`, `Task-Section`,
+`Task-Description`, and `Task-Extended-Description`, modelled on the fields
+of a Debian tasksel task stanza. None of them were ever read by germinate,
+`livecd-rootfs`, or the archive publisher, and they have since been removed
+from the seeds.
 ```
-
-The remaining headers -- `Task-Key`, `Task-Section`, `Task-Description`,
-`Task-Extended-Description` -- match the fields of a Debian tasksel task
-stanza, but nothing in germinate, `livecd-rootfs`, or the archive publisher
-reads them, and Ubuntu's installers don't use tasksel. They are vestiges of
-the "task" concept, which Debian still uses but Ubuntu does not.
 
 
 (germinate)=
