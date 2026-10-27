@@ -8,7 +8,7 @@
 
 
 
-Starting in 20.04, Ubuntu Desktop ISOs will support installing hardware-specific
+Starting in 20.04, Ubuntu Desktop ISOs support installing hardware-specific
 {term}`metapackages <Metapackage>` if the machine being installed on has a
 corresponding enablement package available. See
 {ref}`OEM metapackages <metapackages>` for how these differ from the other
@@ -114,7 +114,7 @@ Description: hardware support for foo
 ```
 
 The list of dependencies may vary slightly. As usual, since they will be on the
-ISO these metapackages may depend on **packages in main only**. It is intended
+ISO these metapackages may depend on **packages in `main` only**. It is intended
 that the OEM archive offers upgrades to the metapackage itself if it needs to
 pull in other packages that can’t be on the ISO (this is the subject of the TB
 discussion).

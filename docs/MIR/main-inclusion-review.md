@@ -34,7 +34,7 @@ Further packages, not installed by default, can also be added via the
 usually because they represent an important yet optional workload to
 the Ubuntu userbase.
 
-In general *pulling into main* is done directly by adding a package to the
+In general, *pulling into `main`* is done directly by adding a package to the
 {ref}`seeds`, via {ref}`seed-management`, or indirectly via a dependency
 from something that already is in `main`.
 

@@ -21,7 +21,7 @@ A seed is a text file in -- for historical reasons -- an unusual format
 reminiscent of `wikitext`. {ref}`seed-management` covers that format and the
 process for changing a seed.
 
-Sets of seeds are managed in git repositories. The canonical ones used to
+Sets of seeds are managed in Git repositories. The canonical ones used to
 do all the above things live in the
 [ubuntu-seeds project in Launchpad](https://launchpad.net/ubuntu-seeds) and
 have a branch per Ubuntu release. To read the current seeds without cloning
@@ -51,23 +51,23 @@ collections are the source of truth):
     systems have them; those not expected to have human users -- minimal
     cloud or server images, OCI containers -- do not.
 * `boot` (platform) -- the default kernels and bootloaders for each
-  architecture. Kept separate from minimal so `debootstrap` and the
+  architecture. Kept separate from `minimal` so `debootstrap` and the
   `*-minimal` metapackages don't pull them in.
 * `standard` (platform) -- a small character-mode system on top of
-  minimal, aimed at being a sensible foundation for a server or desktop
+  `minimal`, aimed at being a sensible foundation for a server or desktop
   install.
 * `desktop-common` (platform) -- desktop infrastructure shared across
   flavors (audio, Bluetooth, input, printing, ...). Flavor collections
   then add their own desktop environment on top.
 * `desktop` (all flavors) -- the desktop layer for the given flavor;
   GNOME for `ubuntu`, XFCE for `xubuntu`, etc.
-* `server` (ubuntu) -- packages to install by default on Ubuntu Server.
+* `server` (`ubuntu`) -- packages to install by default on Ubuntu Server.
 * `ship-live` (all flavors) -- the packages to include in the pool on
   desktop install media to support offline installs.
-* `server-ship-live` (ubuntu) -- like `ship-live` but for the server
+* `server-ship-live` (`ubuntu`) -- like `ship-live` but for the server
   installer.
 * `supported` (the last seed listed in `STRUCTURE`) -- everything Ubuntu
-  commits to supporting. Germinate adds the full build-dependency closure
+  commits to supporting. `germinate` adds the full build-dependency closure
   here, and it also holds packages that are supported but not installed by
   default, including all the language packs.
 
@@ -82,14 +82,14 @@ per-product server stacks such as `supported-cloud`, `supported-openstack`,
 their own and exist only to aggregate the rest: `supported-server`,
 `supported-desktop`, and `supported-common` above both.
 
-Many of these seeds carry a `-common`, `-desktop` or `-server` suffix. That
-split was introduced so the archive could compute different LTS maintenance
+Many of these seeds carry a `-common`, `-desktop`, or `-server` suffix. That
+split was introduced, so the Archive could compute different LTS maintenance
 windows for desktop and server packages, and publish the result as a
 `Supported` field in the `Packages` file. **That machinery is retired.**
 
 Treat this family as historical structure rather than a live taxonomy. Some of
 these seeds hold only one or two packages, several list software that has long
-since left the archive, and the collection contains a few `supported-*` files
+since left the Archive, and the collection contains a few `supported-*` files
 that `STRUCTURE` does not reference at all. The collection's `STRUCTURE` file
 is the only authority on which of them are live in a given release.
 
@@ -108,8 +108,8 @@ include platform.resolute
 desktop: desktop-minimal desktop-common
 ```
 
-Each seed's own germinate output is *not* a superset of the seeds it
-inherits from. If anything it is the reverse: a package already provided by an
+Each seed's own `germinate` output is *not* a superset of the seeds it
+inherits from. If anything, it is the reverse: a package already provided by an
 inherited seed (or that seed's dependencies) is left out of this seed's own
 output, so only newly-introduced packages appear. `desktop`'s output does not
 include `desktop-minimal`'s packages, even though `desktop` inherits from it.
@@ -119,27 +119,27 @@ Getting the full set for `desktop` therefore means combining its output with
 in {ref}`how-seeds-are-used` do exactly that, combining several seeds' output
 rather than reading one seed's file. {manpage}`germinate(1)` states the rule
 directly: "If a package in the
-desktop seed depends on 'foo', but 'foo' is already part of the minimal seed
+`desktop` seed depends on 'foo', but 'foo' is already part of the minimal seed
 or dependency list, then 'foo' will not be added to the desktop output."
 
 A `!<package>` entry is a tripwire rather than a filter. It declares that the
 package must not appear in that seed or in the seeds it inherits from. If
-germinate finds it there anyway, it logs an error naming the seed that pulled it
+`germinate` finds it there anyway, it logs an error naming the seed that pulled it
 in and then leaves the package out of that seed's output -- which can make the
 output inconsistent, because other packages may still depend on it and `apt`
 knows nothing about seed blocklists. The point is to make an unwanted inclusion
 visible so that the package relationships can be fixed, not to work around them.
 
 A collection may also carry a global `blacklist` file (`blocklist` since
-germinate 2.48). Despite the name it excludes nothing; germinate only uses it to
+`germinate` 2.48). Despite the name it excludes nothing; `germinate` only uses it to
 annotate its `blocklisted` report with build-dependency source packages that
 matched.
 
 The {manpage}`germinate(1)` manual page documents the `STRUCTURE` file in full.
 
-The hierarchy can be easier to take in as a picture than as a file. Every germinate
-run writes a `structure.dot` alongside its other output, which `graphviz` will
-render:
+The hierarchy can be easier to take in as a picture than as a file. Every `germinate`
+run writes a `structure.dot` alongside its other output, which `graphviz`
+renders:
 
 ```bash
 wget https://static-reports.ubuntu.com/germinate/germinate-output/release/ubuntu.resolute/structure.dot
@@ -160,7 +160,7 @@ Task-Seeds: desktop-gnome-minimal
 ```
 
 * `Task-Metapackage` -- the name of the metapackage to generate. Without it,
-  germinate names the metapackage `<flavor>-<seed>`.
+  `germinate` names the metapackage `<flavor>-<seed>`.
 * `Task-Seeds` -- unions the listed seeds' package lists into this seed's
   metapackage, on top of just this seed's own. Also read by the archive
   publisher and by `livecd-rootfs` to decide which seeds' output to combine
@@ -183,12 +183,11 @@ both when changing either.
 
 Seed files used to also carry headers such as `Task-Key`, `Task-Section`,
 `Task-Description`, and `Task-Extended-Description`, modelled on the fields
-of a Debian tasksel task stanza. None of them were ever read by germinate,
-`livecd-rootfs`, or the archive publisher, and they have since been removed
+of a Debian `tasksel` task stanza. None of them were ever read by `germinate`,
+`livecd-rootfs`, or the Archive publisher, and they have since been removed
 from the seeds.
 
 
-(germinate)=
 (how-seeds-are-used)=
 ## How seeds are used
 
@@ -213,9 +212,9 @@ entries -- for example `ubuntu.resolute/desktop-minimal` lists
 dependencies come from the seed, so how can the seed depend on the
 metapackage? It is not circular in practice, because the two enforce
 different things at different times. The seed decides what gets *installed*
-when an image is built; the metapackage's dependencies exist so that `apt
+when an image is built; the metapackage's dependencies exist, so that `apt
 autoremove` cannot later remove that selection, because something would still
-depend on it. The metapackage-generation step in germinate recognizes the
+depend on it. The metapackage-generation step in `germinate` recognizes the
 self-reference and skips it, so the generated metapackage never actually
 depends on itself.
 
@@ -233,7 +232,7 @@ the result of this to know which packages and snaps to include in
 which part of the image.
 
 A preinstalled image -- WSL, or a cloud image -- has only one "part".
-Installer images have layers instead: `minimal`, `standard` and `live` for
+Installer images have layers instead: `minimal`, `standard`, and `live` for
 desktop, each drawing on different seeds.
 
 ### Building the package pool for offline installs
@@ -252,7 +251,7 @@ resulting `all` output list is supported: every seed's own packages, their
 dependencies, and the build-dependency closure. Everything else is not.
 
 The seeds decide *whether* a package is supported, not *which* of the two
-supported components it lands in. Germinate produces a single `all` list with
+supported components it lands in. `germinate` produces a single `all` list with
 no `main`/`restricted` distinction; that split is a licensing question, and the
 package's existing component has already answered it. A supported package that
 is free software belongs in `main`, one that is not belongs in `restricted`.
