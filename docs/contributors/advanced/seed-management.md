@@ -54,19 +54,34 @@ A minimized version of a real seed, Ubuntu Studio's `graphics`:
 Task-Per-Derivative: 1
 Task-Description: 2D/3D creation and editing suite
 
- * agave                 # A dependency
- * (blender)             # Parentheses mean a recommend
- * !gphoto2              # Must not appear in this seed (see below)
- * (darktable) [amd64]   # Only on amd64
- * foo | bar             # Alternatives
- * %libreoffice          # Every binary from the libreoffice source package
- * snap:firefox          # A snap rather than a deb
+ * agave                          # A dependency
+ * (blender)                      # Parentheses mean a recommend
+ * !gphoto2                       # Must not appear in this seed (see below)
+ * (darktable) [amd64]            # Only on amd64
+ * (krita) [!s390x]               # Everywhere except s390x
+ * foo | bar                      # Alternatives
+ * %libreoffice                   # Every binary from the libreoffice source package
+ * /^inkscape-.*-doc$/            # A regex, if wrapped in slashes -- undocumented, but supported
+ * snap:firefox                   # A snap rather than a deb
+ * snap:gimp/classic=latest/stable [amd64] # Classic confinement, a channel, and an arch limit
 
  * ubuntustudio-graphics # Metapackage for everything here.
 ```
 
 Real seeds carry more `Task-*` headers than this, `Task-Key` and `Task-Section`
 among them. Only some of them do anything; {ref}`seeds` explains which.
+
+`[arch]` limits and `[!arch]` exclusions work the same way on `snap:` entries as
+on package entries, even though the {manpage}`germinate manual page
+<germinate(1)>` only documents them under the plain package syntax. Unlike
+debs, germinate does not check remotely whether a snap exists for a given
+architecture, so a `snap:` entry with no `[arch]` qualifier is only correct if
+the snap really is published for every architecture the seed is germinated on.
+A `/classic` suffix marks a snap for classic confinement; `=<channel>` (for
+example `=latest/stable`) pins which channel to seed. Neither the confinement
+suffix nor the channel is interpreted by germinate -- they are passed straight
+through into the seed's `.snaps` output file for `livecd-rootfs` and the
+installer to act on.
 
 The `!package` form is a tripwire, not a way to keep a package out of an image.
 It declares that the package must not appear in this seed or in the seeds this
@@ -272,7 +287,8 @@ The options, in order:
 
 `-m`
 : The archive mirror to resolve against. Use `http://ports.ubuntu.com/ubuntu-ports/`
-  for architectures that are not `amd64` or `i386`.
+  for architectures that are not `amd64`, `i386`, or (from `resolute` onward)
+  `arm64`.
 
 `-d`
 : Which suites to resolve against, comma-separated. Include `-updates` to match
