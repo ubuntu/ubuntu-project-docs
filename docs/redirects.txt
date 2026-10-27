@@ -207,6 +207,8 @@ maintainers/test-plans/desktop-team/PipewireMediaSession/ maintainers/test-plans
 maintainers/test-plans/desktop-team/UbuntuAdvantageDesktopDaemon/ maintainers/test-plans/desktop-team/UbuntuProDesktop/
 
 
+maintainers/uploader/update-seeds/ contributors/advanced/seed-management/
+
 # =============================================================================
 # Who makes Ubuntu
 # =============================================================================
