@@ -162,10 +162,11 @@ Task-Seeds: desktop-gnome-minimal
 * `Task-Metapackage` -- the name of the metapackage to generate. Without it,
   germinate names the metapackage `<flavor>-<seed>`.
 * `Task-Seeds` -- unions the listed seeds' package lists into this seed's
-  metapackage, on top of just this seed's own. A second, header-driven layer
-  of inheritance alongside `STRUCTURE`.
-* `Task-Per-Derivative` and `Task-Name` -- used by the archive publisher and
-  by `livecd-rootfs` to name the `Task:` field they generate for a seed.
+  metapackage, on top of just this seed's own. Also read by the archive
+  publisher and by `livecd-rootfs` to decide which seeds' output to combine
+  for the archive's `Task:` field.
+* `Task-Per-Derivative` and `Task-Name` -- used by those same two tools to
+  name that `Task:` field.
 
 The example above is Edubuntu's `desktop-gnome` seed. It produces an
 `edubuntu-desktop` metapackage (rather than the default
@@ -173,12 +174,18 @@ The example above is Edubuntu's `desktop-gnome` seed. It produces an
 `desktop-gnome-minimal`.
 
 ```{note}
+`Task-Seeds` is edited independently of `STRUCTURE`, and the two don't
+always agree. Most `Task-Seeds` values are a deliberate subset of that
+seed's `STRUCTURE` ancestors, but a handful name a seed that isn't an
+ancestor at all -- a sibling relationship `STRUCTURE` can't express. Check
+both when changing either.
+```
+
 Seed files used to also carry headers such as `Task-Key`, `Task-Section`,
 `Task-Description`, and `Task-Extended-Description`, modelled on the fields
 of a Debian tasksel task stanza. None of them were ever read by germinate,
 `livecd-rootfs`, or the archive publisher, and they have since been removed
 from the seeds.
-```
 
 
 (germinate)=
