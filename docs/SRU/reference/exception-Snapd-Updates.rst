@@ -176,19 +176,19 @@ SRU Template
 Sponsoring Request
 ^^^^^^^^^^^^^^^^^^
 
-This refers to the "single process bug" that links to to one or more Launchpad
+This refers to the "single process bug" that links to one or more Launchpad
 bugs associated with the release.
 
 .. code-block::
 
- This is a new SnapD release.
- SnapD [bugfix only] release 2.XX[.X] should be released to:
+ This is a new snapd release.
+ snapd [bugfix only] release 2.XX[.X] should be released to:
  - [Development Release]
  - [Latest LTS]
  - ... -
  - [Oldest LTS]
 
- The SnapD package deviates from the standard SRU process. The following special
+ The snapd package deviates from the standard SRU process. The following special
  SRU process was followed:
  https://documentation.ubuntu.com/sru/en/latest/reference/exception-Snapd-Updates
 
@@ -205,7 +205,8 @@ bugs associated with the release.
  Content overview:
   - [Features]
   - [Bug fixes]
-  - [Creator support changes]
+  - [Hardware enablement]
+  - [Other interface extensions]
   - [Other]
 
  Areas of potential regressions:
@@ -221,24 +222,24 @@ bugs associated with the release.
  Validation already completed:
   - Release PR test results: <URL to relevant PR>
   - QA beta validation: <JIRA URL>
-  - SnapD deb testing on `ppa:snappy-dev/image`: <JIRA URL>
+  - snapd deb testing on `ppa:snappy-dev/image`: <JIRA URL>
 
  Validation required before release:
   - Autopkgtests on `-proposed` for all targeted releases
-  - SnapD deb testing on `-proposed`
-  - SnapD snap testing
+  - snapd deb testing on `-proposed`
+  - snapd snap testing
 
 Sponsoring Request Final Test Feedback
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following updates from the SnapD team is required before considering
+The following updates from the snapd team are required before considering
 releasing to *-updates*:
 
 .. code-block::
 
  - Autopkgtests on `-proposed` for all targeted releases: <RESULT>
- - SnapD deb testing on `-proposed`: <RESULT>
- - SnapD snap testing: <RESULT>
+ - snapd deb testing on `-proposed`: <RESULT>
+ - snapd snap testing: <RESULT>
 
 Associated Launchpad Bugs
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -253,8 +254,8 @@ explicitly mentioned with links to:
  - link to the Release PR where it was exercised
  - still include manual verification steps as well
 
-Ubuntu Core only Launchpad bugs does not require Launchpad bug verification.
-Clearly indicate if a Launchpadbug is Ubuntu Core only.
+Ubuntu Core only Launchpad bugs do not require Launchpad bug verification.
+Clearly indicate if a Launchpad bug is Ubuntu Core only.
 
 .. code-block::
 
@@ -281,7 +282,7 @@ Clearly indicate if a Launchpadbug is Ubuntu Core only.
 Related SRU Interest Team
 -------------------------
 
-SnapD has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
+snapd has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
 please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`_
 to the SRU bug early on.
