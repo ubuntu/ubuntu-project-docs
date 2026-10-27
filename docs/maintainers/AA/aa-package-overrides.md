@@ -6,10 +6,11 @@ team needs to keep tabs on so we can zero out the discrepancies before the end
 of the release cycle:
 {ref}`aa-component-mismatches`, and {ref}`aa-priority-mismatches`.
 
-Packages just don't stay where they're put. {ref}`seed-management` details how
-packages get chosen for the `main` component, the various meta packages and
-presence on the CD. What it doesn't point out is that packages
-that fall out of the seeding process are destined for the `universe` component.
+Packages just don't stay where they're put. {ref}`seeds` explains how
+packages get chosen for the `main` component, the various metapackages,
+and presence on the CD -- including that packages that fall out of the
+seeding process are destined for the `universe` component. See
+{ref}`seed-management` for how to change what's seeded.
 
 (aa-component-mismatches)=
 ## What are component mismatches
