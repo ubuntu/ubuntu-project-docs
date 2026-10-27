@@ -198,6 +198,8 @@ staging/AA/maintainers/aa-signing-bootloaders/ maintainers/AA/aa-signing-bootloa
 
 maintainers/index-uploader/ maintainers/uploader/
 
+maintainers/uploader/update-seeds/ contributors/advanced/seed-management/
+
 # =============================================================================
 # Who makes Ubuntu
 # =============================================================================
