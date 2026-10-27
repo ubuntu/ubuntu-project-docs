@@ -179,10 +179,12 @@ The example above is Edubuntu's `desktop-gnome` seed. It produces an
 `desktop-gnome-minimal`.
 
 `Task-Seeds` is read for two further purposes. Germinate itself uses it to
-decide which seeds count as generating the same task: when an entry lists
-alternatives (`foo | bar`), germinate may promote the first alternative from
-any lesser seed, but promotes the later ones only from these closely-allied
-seeds. Outside germinate, the archive publisher's `generate-extra-overrides`
+narrow which seeds count as "close" when promoting an alternative dependency
+(`foo | bar`): every candidate seed already has to inherit from this one per
+`STRUCTURE`, and for every alternative after the first, germinate additionally
+requires the candidate to also be named in this seed's `Task-Seeds` header.
+`Task-Seeds` filters `STRUCTURE`'s inheritance here rather than replacing it.
+Outside germinate, the archive publisher's `generate-extra-overrides`
 script -- part of the publisher's `finalize.d` hooks -- uses it, together with
 `Task-Per-Derivative` and an optional `Task-Name`, to decide which seeds'
 packages get the archive's `Task:` field. `livecd-rootfs`'s `expand-task`
@@ -190,6 +192,13 @@ reads the same three headers to decide which seeds' germinate output to
 combine when building an image layer; see {ref}`how-seeds-are-used` below.
 Neither of those two tools reads `Task-Metapackage`, and germinate never reads
 `Task-Per-Derivative` or `Task-Name`.
+
+```{note}
+`STRUCTURE` inheritance and `Task-Seeds` are edited independently, so they can
+drift apart -- a seed may inherit from another in `STRUCTURE` without listing
+it in `Task-Seeds`, or the other way round. When changing either, check that
+the two still agree on which seeds are related.
+```
 
 The remaining headers -- `Task-Key`, `Task-Section`, `Task-Description`,
 `Task-Extended-Description` -- match the fields of a Debian tasksel task
@@ -216,6 +225,18 @@ on) by that flavor's `<flavor>-meta` source package (for example `ubuntu-meta`
 or `kubuntu-meta`). The `Task-*` headers described above determine which seed
 feeds which metapackage, and its dependency list comes from germinating that
 seed.
+
+A seed conventionally lists its own resulting metapackage as one of its own
+entries -- for example `ubuntu.resolute/desktop-minimal` lists
+`ubuntu-desktop-minimal` -- which looks circular: the metapackage's
+dependencies come from the seed, so how can the seed depend on the
+metapackage? It is not circular in practice, because the two enforce
+different things at different times. The seed decides what gets *installed*
+when an image is built; the metapackage's dependencies exist so that `apt
+autoremove` cannot later remove that selection, because something would still
+depend on it. The metapackage-generation step in germinate recognizes the
+self-reference and skips it, so the generated metapackage never actually
+depends on itself.
 
 See {ref}`seed-management` for how a `<flavor>-meta` package is regenerated
 and uploaded after a seed change.
