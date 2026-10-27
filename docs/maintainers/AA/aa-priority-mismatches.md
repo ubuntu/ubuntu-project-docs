@@ -6,9 +6,9 @@ Priority mismatches are handled by the
 
 Package priorities are defined in the
 [debian policy](https://www.debian.org/doc/debian-policy/ch-archive.html#s-priorities),
-but Ubuntu does not follow these exactly. We had seeds and germinate from very
-early on in Ubuntu's history and priorities mattered to various installation
-tools to varying extents.
+but Ubuntu does not follow these exactly. We had {ref}`seeds` and germinate
+from very early on in Ubuntu's history and priorities mattered to various
+installation tools to varying extents.
 
 When answering the question "how should we set priorities in Ubuntu?",
 generating them from seeds seemed like a natural fit. We ended up with the

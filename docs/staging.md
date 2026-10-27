@@ -16,9 +16,7 @@ This page (and staging area) will be removed as it becomes unnecessary.
 :glob:
 
 staging/dmb/index-umb
-staging/release-team/seeds
 staging/release-team/seed-management
-staging/release-team/germinate
 staging/partner-archive
 staging/aa-museum
 staging/not-AA

@@ -726,6 +726,7 @@ germinate
    [Germinate](https://launchpad.net/germinate) is a tool available in Debian and Ubuntu, which starts with lists of packages (called seeds) and grows them into a full list of packages including dependencies and (in additional lists) suggests, recommends, and sources for each of these lists.
 
    See also:
+   * {ref}`germinate <germinate>`
    * {manpage}`germinate(1)`
 
 git
@@ -1242,6 +1243,10 @@ Seeds
     Seeds are lists of packages that define which packages go into the
     {term}`Main` component of the {term}`Ubuntu Archive` and which packages
     go into the distribution {term}`images <Image>`.
+
+    See also:
+    * {ref}`Seeds (explanation) <seeds>`
+    * {ref}`seed-management`
 
 Series
     A **series** refers to the {term}`packages <Package>` in the {term}`Ubuntu Archive`
