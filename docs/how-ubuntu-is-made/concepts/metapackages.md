@@ -11,7 +11,7 @@ and in who decides what they depend on.
 
 ## Product (seed) metapackages
 
-Metapackages such as `ubuntu-desktop`, `ubuntu-server` or `kubuntu-desktop`
+Metapackages such as `ubuntu-desktop`, `ubuntu-server`, or `kubuntu-desktop`
 define the set of packages that make up an Ubuntu product or flavor.
 Installing one of them gives you the complete corresponding system.
 
@@ -43,7 +43,7 @@ it without tracking exact version numbers.
 
 ## Kernel metapackages
 
-Metapackages such as `linux-image-generic`, `linux-headers-generic` and
+Metapackages such as `linux-image-generic`, `linux-headers-generic`, and
 `linux-generic` are built from the `linux-meta` source package and always
 depend on the packages of the current kernel {term}`ABI`. When a new kernel
 version with a new ABI is uploaded, `linux-meta` is uploaded alongside it,
@@ -86,7 +86,7 @@ reviewed or maintained by any Ubuntu team.
 
 A related but distinct concept is the **transitional package**: an
 empty package left behind after a package rename or split, which depends on
-the replacement package so that upgrades continue to work. Unlike the
+the replacement package, so that upgrades continue to work. Unlike the
 metapackages above, transitional packages are temporary by design and can
 be removed once the upgrade is done.
 
@@ -122,7 +122,7 @@ and keeps its dependencies installed -- until it is explicitly removed.
 
 The product metapackages (`ubuntu-desktop` and friends) are in the
 `metapackages` section, as are many of the ones inherited from Debian --
-`kde-standard`, `lxqt` and `cinnamon-core` among them. Not all of them are,
+`kde-standard`, `lxqt`, and `cinnamon-core` among them. Not all of them are,
 though: several Debian Pure Blends metapackages sit in `misc` instead, such as
 `med-bio` and `science-mathematics`.
 

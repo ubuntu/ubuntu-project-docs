@@ -8,7 +8,7 @@ of the release cycle:
 
 Packages just don't stay where they're put. {ref}`seeds` explains how
 packages get chosen for the `main` component, the various metapackages,
-and presence on the CD -- including that packages that fall out of the
+and presence in the image -- including that packages that fall out of the
 seeding process are destined for the `universe` component. See
 {ref}`seed-management` for how to change what's seeded.
 

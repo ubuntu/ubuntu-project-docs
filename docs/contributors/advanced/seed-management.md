@@ -1,7 +1,7 @@
 (seed-management)=
 # Seed management
 
-Seeds are the lists of packages that define what goes into the archive's
+Seeds are the lists of packages that define what goes into the Archive's
 `main` and `restricted` components and onto the installation images. They are
 plain text files, kept in the
 [ubuntu-seeds project](https://launchpad.net/ubuntu-seeds) on Launchpad. This
@@ -11,7 +11,7 @@ see {ref}`seeds`.
 
 ## Where the seeds live
 
-Each seed collection is a separate git repository, and each repository is owned
+Each seed collection is a separate Git repository, and each repository is owned
 by the team responsible for that collection rather than by one central team:
 
 | Collection | Owning team |
@@ -30,7 +30,7 @@ https://git.launchpad.net/~<team>/ubuntu-seeds/+git/<collection>
 ```
 
 Make sure you work on the branch for the release you want to modify. Most of
-the time this will be the development release.
+the time, this is the development release.
 
 The `platform` and `ubuntu` seeds define which packages Ubuntu supports, so
 adding a package to these seeds requires it to be in `main` (or `restricted`,
@@ -76,20 +76,21 @@ on package entries, even though the {manpage}`germinate manual page
 debs, germinate does not check remotely whether a snap exists for a given
 architecture, so a `snap:` entry with no `[arch]` qualifier is only correct if
 the snap really is published for every architecture the seed is germinated on.
+
 A `/classic` suffix marks a snap for classic confinement; `=<channel>` (for
 example `=latest/stable`) pins which channel to seed. Neither the confinement
-suffix nor the channel is interpreted by germinate -- they are passed straight
+suffix nor the channel is interpreted by `germinate` -- they are passed straight
 through into the seed's `.snaps` output file for `livecd-rootfs` and the
 installer to act on.
 
 The `!package` form is a tripwire, not a way to keep a package out of an image.
 It declares that the package must not appear in this seed or in the seeds this
-one inherits from; if germinate finds it there anyway it logs an error and drops
+one inherits from; if `germinate` finds it there anyway, it logs an error and drops
 the package, which can leave the output uninstallable, because whatever pulled
 the package in still depends on it. Use it to make an unwanted inclusion
-visible so the dependency can be fixed, and use it sparingly.
+visible, so the dependency can be fixed, and use it sparingly.
 
-The global `blacklist` file some collections carry (`blocklist` since germinate
+The global `blacklist` file some collections carry (`blocklist` since `germinate`
 2.48) excludes nothing at all. Germinate uses it only to annotate a report.
 
 
@@ -100,12 +101,12 @@ have commit rights on the repository, so that the change gets reviewed by the
 team that owns the collection. Push your branch to a personal fork and propose
 it for merging into the branch for the target series; see
 {ref}`how-to-submit-a-merge-proposal`. If you are not a member of the owning
-team you will also need someone who is to review and merge it, which works the
+team you also need someone who is to review and merge it, which works the
 same way as {ref}`finding a sponsor for an upload <how-to-find-a-sponsor>`.
 
 Refer to the Launchpad bug number in the commit message. If there is not a bug
-yet, create one with a verbose description of the reason for the change; it will
-help make the change clear further down the road.
+yet, create one with a verbose description of the reason for the change; it
+helps make the change clear further down the road.
 
 Changing the seeds does not automatically move packages to a new component in
 the Archive; see the
@@ -149,12 +150,12 @@ checked-in `metapackage-map` and the `<seed>-<arch>` /
 Sometimes a package is pulled into an image, or turns up on the
 {ref}`component-mismatches <aa-component-mismatches>` report, and it is not
 obvious why. Everything you need to answer that is in the seeds and the
-germinate output; it is just buried under a layer of dependency expansion.
+`germinate` output; it is just buried under a layer of dependency expansion.
 
 
 ### Where the output lives
 
-The germinate output for all flavors is published at
+The `germinate` output for all flavors is published at
 [static-reports.ubuntu.com/germinate](https://static-reports.ubuntu.com/germinate/),
 under `germinate-output/release/`, in directories named `<collection>.<series>`
 -- for example `germinate-output/release/ubuntu.resolute/`. There is also a
@@ -170,7 +171,7 @@ on another architecture will not show up there; to see that one you have to
 
 ### What the output files are
 
-Germinate writes a group of files per seed, plus a handful that describe the
+`germinate` writes a group of files per seed, plus a handful that describe the
 run as a whole. The ones worth knowing:
 
 | File | Contents |
@@ -181,13 +182,13 @@ run as a whole. The ones worth knowing:
 | `<seed>.build-depends` | Packages reached by following build-dependencies. |
 | `<seed>.sources` / `.build-sources` | The corresponding source packages. |
 | `<seed>.snaps` | Snaps seeded for this seed. |
-| `<seed>.seedtext` | The raw text of the seed, as germinate read it. |
+| `<seed>.seedtext` | The raw text of the seed, as `germinate` reads it. |
 | `all` | Every package in every seed -- what defines the supported set. |
 | `all+extra` | `all`, plus binaries built by a supported source but not themselves seeded. |
 | `<supported>+build-depends` | The supported seed plus every seed's build-dependencies. |
 | `provides` | Virtual packages and what provides them. |
 | `structure`, `structure.dot` | The inheritance hierarchy, as text and as a `graphviz` graph. |
-| `blocklisted` | Build-dependency sources matched by the global blocklist file (still named `blacklisted` wherever germinate is older than 2.48). |
+| `blocklisted` | Build-dependency sources matched by the global blocklist file (still named `blacklisted` wherever `germinate` is older than 2.48). |
 | `rdepends/ALL/<package>` | The reverse-dependency tree for one package. |
 | `_germinate_output` | The log of the run itself -- usually the fastest way to an answer. See below. |
 
@@ -200,7 +201,7 @@ Package             | Source          | Why
 accountsservice     | accountsservice | language-selector-common
 ```
 
-Watch out for `all`, `all+extra`, `provides`, `structure`, `blocklisted` and
+Watch out for `all`, `all+extra`, `provides`, `structure`, `blocklisted`, and
 `extra`: these are not seeds, so they match a search for a package name without
 telling you anything about how it got seeded.
 
@@ -227,7 +228,7 @@ telling you anything about how it got seeded.
    ! Promoted cloud-guest-utils from cloud-minimal to server-cloud-minimal to satisfy cloud-init-base
    ```
 
-   `* Chose` means germinate picked one of several alternatives. `! Promoted`
+   `* Chose` means `germinate` picked one of several alternatives. `! Promoted`
    means it pulled a package *up* out of a seed it already belonged to, in
    order to satisfy something in a seed that inherits from it -- which is the
    usual explanation for a package appearing somewhere unexpected. `?` marks an
@@ -255,12 +256,12 @@ telling you anything about how it got seeded.
 
 
 (running-germinate-yourself)=
-### Running germinate yourself
+### Running `germinate` yourself
 
-Run germinate yourself to look at an architecture other than the published one,
+Run `germinate` yourself to look at an architecture other than the published one,
 or to test a seed change before proposing it.
 
-Clone the seeds, then germinate against the local checkout:
+Clone the seeds, then `germinate` against the local checkout:
 
 ```bash
 mkdir -p ~/seeds && cd ~/seeds
@@ -282,7 +283,7 @@ The options, in order:
   drop it entirely to use the published seed mirror.
 
 `-s`
-: The collection to germinate, as `<collection>.<series>`. Pulls in any
+: The collection to `germinate`, as `<collection>.<series>`. Pulls in any
   collection named by an `include` line -- here, `platform.resolute`, which is
   why it had to be cloned too.
 
@@ -296,16 +297,16 @@ The options, in order:
   what the published runs do.
 
 `-a`
-: The architecture -- usually the reason for running germinate by hand.
+: The architecture -- usually the reason for running `germinate` by hand.
 
 `-c`
 : Which components to consider. Restrict this to `main,restricted` to see what
   would happen if a package were not available in `universe`.
 
-Germinate writes its output into the current directory, so run it somewhere
+`germinate` writes its output into the current directory, so run it somewhere
 empty. `-v` gives a more verbose log; `--no-rdepends` skips building the
 reverse-dependency tree, which is the slowest part of a run.
 
-For a working reference, the archive team's own invocation lives in
+For a working reference, the Archive team's own invocation lives in
 [`update-one-germinate`](https://git.launchpad.net/ubuntu-archive-scripts/tree/update-one-germinate)
 in `lp:ubuntu-archive-scripts`.

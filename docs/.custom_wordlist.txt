@@ -322,7 +322,6 @@ Sysprof
 sysroot
 systemd
 tarball
-tasksel
 Tecla
 Tegra
 templated
