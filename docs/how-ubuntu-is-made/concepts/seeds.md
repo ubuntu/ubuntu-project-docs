@@ -142,7 +142,7 @@ run writes a `structure.dot` alongside its other output, which `graphviz` will
 render:
 
 ```bash
-wget https://ubuntu-archive-team.ubuntu.com/germinate-output/ubuntu.resolute/structure.dot
+wget https://static-reports.ubuntu.com/germinate/germinate-output/release/ubuntu.resolute/structure.dot
 dot -Tpng structure.dot -o structure.png
 ```
 
