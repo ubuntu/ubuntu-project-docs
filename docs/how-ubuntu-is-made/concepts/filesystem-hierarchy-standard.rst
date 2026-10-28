@@ -162,8 +162,8 @@ The following are the required directories in the ``/var`` hierarchy:
 +-------------------+--------------------------------------------------------------------------------------------------+
 
 
-Non-relocatable bundles
------------------------
+Non-relocatable application bundles
+-----------------------------------
 
 Modern application development frameworks (Flutter, Electron, .NET, Node.js, and Java) produce non-relocatable bundles. Such frameworks often expect their runtime, shared objects (.so), and data assets to sit in the exact same directory as the executable.
 
