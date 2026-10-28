@@ -160,3 +160,42 @@ The following are the required directories in the ``/var`` hierarchy:
 +-------------------+--------------------------------------------------------------------------------------------------+
 | ``/var/tmp``      | holds temporary files that are preserved between reboots                                         |
 +-------------------+--------------------------------------------------------------------------------------------------+
+
+
+Non-relocatable application bundles
+-----------------------------------
+
+Modern application development frameworks (Flutter, Electron, .NET, Node.js, and Java) produce non-relocatable bundles. Such frameworks often expect their runtime, shared objects (.so), and data assets to sit in the exact same directory as the executable.
+
+To adapt such bundles to the FHS, Ubuntu places them under a dedicated subdirectory in ``/usr/lib`` that preserves their internal structure while also keeping them separate from other system libraries:
+
+::
+
+    /usr/lib/<ecosystem>/<app>/
+
+``<ecosystem>`` names the toolkit or runtime that produced the bundle, such as ``flutter``, ``electron``, or ``node``, and ``<app>`` is the unique name of the application.
+
+This builds on the FHS and Debian convention of giving an application a single ``/usr/lib/<package>`` subdirectory, adding an ``<ecosystem>`` tier that groups related bundles and avoids name clashes. Keep ecosystem names distinct from the multiarch library directories, such as ``/usr/lib/x86_64-linux-gnu``.
+
+The non-relocatable parts, the executable with its shared objects and data, effectively remain in their own location inside this directory. The entry points and metadata that can follow the FHS stay outside the bundle, in their standard locations:
+
++---------------------+---------------------------------------------------------+
+| Component           | Location                                                |
++=====================+=========================================================+
+| Command launcher    | a symlink or wrapper in ``/usr/bin`` pointing into the  |
+|                     | bundle                                                  |
++---------------------+---------------------------------------------------------+
+| Desktop entry       | ``/usr/share/applications``                             |
++---------------------+---------------------------------------------------------+
+| Icons               | ``/usr/share/icons``                                    |
++---------------------+---------------------------------------------------------+
+| AppStream metadata  | ``/usr/share/metainfo``                                 |
++---------------------+---------------------------------------------------------+
+| Manual pages        | ``/usr/share/man``                                      |
++---------------------+---------------------------------------------------------+
+
+Like the rest of ``/usr``, the bundle stays shareable and read-only. Host-specific, variable, and per-user data belongs elsewhere:
+
+- configuration in ``/etc``
+- variable state in ``/var/lib/<app>``
+- per-user data in the user's home directory
