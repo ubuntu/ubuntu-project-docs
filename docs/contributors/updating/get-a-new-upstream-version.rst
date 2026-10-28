@@ -12,7 +12,7 @@ Most of the source packages contain a ``watch`` file in the ``debian`` directory
 
 .. note::
     If the source package does not contain a :file:`debian/watch` file, there may be
-    an explanation and instructions in the :file:`debain/README.source` or
+    an explanation and instructions in the :file:`debian/README.source` or
     :file:`debian/README.debian` file (if available) that tell you how to proceed.
 
 Best practices

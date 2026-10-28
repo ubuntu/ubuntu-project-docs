@@ -546,7 +546,7 @@ MariaDB and Galera
 ~~~~~~~~~~~~~~~~~~
 
 The 'mariadb' and 'galera' source packages, including source package variants
-with version suffixes, may be uploaded according to the proceedure documented in
+with version suffixes, may be uploaded according to the procedure documented in
 :ref:`MariaDB-Galera-Updates <reference-exception-MariaDB-Galera-Updates>`.
 
 multipath-tools
