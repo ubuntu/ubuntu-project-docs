@@ -34,7 +34,7 @@ Then, when we need to port a new version of `rustc`, we pick the patches we want
 
 ```{note}
 Git patch-based workflow was originally designed to work over email; after creating a patch, it's generally assumed that you send it to a project's maintainers by email.
-Git has some additional ergonomic features to automatically send and recieve patches by email, and you may see references to email in man pages and web searches about the patch-based workflow.
+Git has some additional ergonomic features to automatically send and receive patches by email, and you may see references to email in man pages and web searches about the patch-based workflow.
 So, it's worth stating clearly that we don't use email in our workflow.
 The way we share patches is by putting them in the rust-debian repository.
 ```
