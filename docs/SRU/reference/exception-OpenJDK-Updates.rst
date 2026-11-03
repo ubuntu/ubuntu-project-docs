@@ -30,7 +30,7 @@ an Ubuntu LTS release.
 
 The Java team should upload an SRU of the latest OpenJDK short-term support
 release to the current Ubuntu LTS release, then file a removal bug for the
-previous short-term support version.
+previous short-term support version. See  :ref:`openjdk-requesting-sru`.
 
 These versions are not used by default, minimizing the risk to affect
 other packages in the archive. The test results run during the build
@@ -39,6 +39,7 @@ uploads, however they not meaningful at all, because they are run
 against the default Java version of the Ubuntu LTS release.
 
 
+.. _openjdk-requesting-sru:
 OpenJDK Requesting the SRU
 --------------------------
 
