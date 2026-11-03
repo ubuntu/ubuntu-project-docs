@@ -20,13 +20,17 @@ version in an Ubuntu LTS release, and only providing the package in the
 updates pocket.
 
 
-OpenJDK QA Process
+OpenJDK Short-term Support Process
 ------------------
 
 A new OpenJDK short term support version has to be uploaded to the
 current development series first, then to the most recent Ubuntu LTS
 release. At most two OpenJDK short term support versions can be found in
 an Ubuntu LTS release.
+
+The Java team should upload an SRU of the latest OpenJDK short-term support
+release to the current Ubuntu LTS release, then file a removal bug for the
+previous short-term support version.
 
 These versions are not used by default, minimizing the risk to affect
 other packages in the archive. The test results run during the build
