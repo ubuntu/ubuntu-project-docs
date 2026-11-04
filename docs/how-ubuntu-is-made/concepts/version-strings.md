@@ -420,7 +420,7 @@ To distinguish "a native Debian package that gained an Ubuntu delta" (which woul
 be `2.0ubuntu1`) from "a native Ubuntu package", the marker suffix for a native
 Ubuntu package is a bare `ubuntu` (no number). Please migrate the former native
 indication `ubuntu0` to this new format without the `0` (see the
-[discussion on ubuntu-devel](https://lists.ubuntu.com/archives/ubuntu-devel/2025-July/043402.html)).
+[discussion on ubuntu-devel](https://lists.ubuntu.com/archives/ubuntu-devel/2025-July/043451.html)).
 
 Native package versioning is package-dependent: whether it uses _major_,
 _major.minor_, or any other pattern is the maintainer's choice, just as upstream
