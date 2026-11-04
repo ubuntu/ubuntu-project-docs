@@ -20,7 +20,7 @@ parts:
   - The legal characters in the upstream version are letters, digits, `.`, `+`,
     `~`, and `-`. Upstream versioning may be adjusted to fit this format if
     necessary.
-  - The upstream version must begin with a digit.
+  - The upstream version should begin with a digit.
 - The **Debian revision**, which counts up each time the package has been
   modified by Debian.
   - The legal characters in the Debian revision are letters, digits, `.`, `+`,
