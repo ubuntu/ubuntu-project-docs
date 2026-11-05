@@ -165,7 +165,7 @@ The following are the required directories in the ``/var`` hierarchy:
 Non-relocatable application bundles
 -----------------------------------
 
-Modern application development frameworks (Flutter, Electron, .NET, Node.js, and Java) produce non-relocatable bundles. Such frameworks often expect their runtime, shared objects (.so), and data assets to sit in the exact same directory as the executable.
+Modern application development frameworks (Flutter, Electron, .NET, Node.js, and Java) produce non-relocatable bundles. Such frameworks often expect their runtime, shared objects (.so), and data assets to sit in a location relative to the executable.
 
 To adapt such bundles to the FHS, Ubuntu places them under a dedicated subdirectory in ``/usr/lib`` that preserves their internal structure while also keeping them separate from other system libraries:
 
