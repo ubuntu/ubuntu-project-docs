@@ -28,14 +28,15 @@ make clean-doc    # Clean built output only
 Run a style check against a specific file or directory:
 
 ```bash
-make vale TARGET=maintainers/some-file.md
-make spelling TARGET=contributors/
+make vale CHECK_PATH=maintainers/some-file.md
+make spelling CHECK_PATH=contributors/
 ```
 
 
 ## Architecture
 
-- **Sphinx + MyST Markdown**: all content is `.md` using MyST extensions; `.rst` is also supported
+- **Sphinx + MyST Markdown**: rendered content is `.md` using MyST extensions; `.rst` is also supported
+- **Raw agent instructions**: non-rendered `.instructions` assets live under `docs/_extra/` and are copied to their matching public paths by `html_extra_path`; `generate-includes` also refreshes the asset before local builds and automatic rebuilds
 - **`docs/conf.py`**: central Sphinx config — extensions, substitutions, intersphinx mappings, custom roles, linkcheck exceptions; update `stable_distro` here when a new Ubuntu release becomes stable
 - **`docs/redirects.txt`**: old→new path mappings enforced by `sphinxext.rediraffe`; add an entry here whenever a page is moved or renamed
 - **`docs/_dev/`**: tooling config (Vale, pa11y, pymarkdown, update scripts) — not content; static assets live in `docs/_static/` and templates in `docs/_templates/`
