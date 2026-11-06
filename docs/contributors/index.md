@@ -11,6 +11,8 @@ Contributing to Ubuntu can mean many things, from {ref}`developing new applicati
 
 ### Getting Started with Ubuntu Development
 
+For interactive, self-paced learning, the {ref}`Ubuntu contributor tutor <ubuntu-contributor-tutor>` offers AI-guided lessons, practice, and feedback across packaging, policy, processes, and contribution skills.
+
 A great place to start working on Ubuntu is through {ref}`reporting a bug <how-to-report-a-bug>`. Being active on the bug discussion after posting is important as developers and other community members may ask follow up questions or ask for additional log information.
 
 {ref}`Triaging <triaging-bugs>` and bug verification are good next steps. Bug verification is when another user reads the bug, follows steps outlined, and can "verify" the bug affects their system or a representative system, such as a virtual machine of the same Ubuntu version in the bug. Helping to triage bugs, ensuring all information required is present, and the correct package identified helps developers address the issue more quickly. Being able to help report these confirmed bugs upstream to Debian and original source (such as GitHub) are valuable contributions to Ubuntu.
