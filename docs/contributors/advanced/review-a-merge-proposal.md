@@ -155,6 +155,7 @@ The following is an overview of common things to check.
 
 * Check that changes are logically split into separate commits (to ease future merges and cherry picking to other releases).
 
+* Check that commit metadata (author, committer, etc.) is correct.
 
 ### Build and test
 
@@ -225,6 +226,7 @@ S = Skipped
 
 * Git/maintenance:
   - [ ] Commits are properly split (more important on -dev than on SRUs)
+  - [ ] Commit metadata (author, committer, etc.) is correct
 
 * Build/Test:
   - [ ] Build is OK
