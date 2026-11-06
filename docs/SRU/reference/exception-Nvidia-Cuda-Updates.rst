@@ -68,6 +68,125 @@ binary package. For example, 13.2.0 had `nsight-compute-2026.1.0` while
 SRU exception allows the patch version to be SRU'd only if there is a
 transitional package from the old name to the new name.
 
+Internal dependencies
+---------------------
+
+CUDA packages have internal dependencies illustrated in the following graph:
+
+.. mermaid::
+
+flowchart TD
+    n0["cccl-13-4"]
+    n1["cuda-crt-13-4"]
+    n2["cuda-ctadvisor-13-4"]
+    n3["cuda-cudart-13-4"]
+    n4["cuda-culibos-13-4"]
+    n5["cuda-cuobjdump-13-4"]
+    n6["cuda-cupti-13-4"]
+    n7["cuda-cuxxfilt-13-4"]
+    n8["cuda-documentation-13-4"]
+    n9["cuda-gdb-13-4"]
+    n10["cuda-nvcc-13-4"]
+    n11["cuda-nvdisasm-13-4"]
+    n12["cuda-nvml-dev-13-4"]
+    n13["cuda-nvprune-13-4"]
+    n14["cuda-nvrtc-13-4"]
+    n15["cuda-nvtx-13-4"]
+    n16["cuda-opencl-13-4"]
+    n17["cuda-profiler-api-13-4"]
+    n18["cuda-sandbox-dev-13-4"]
+    n19["cuda-sanitizer-api-13-4"]
+    n20["cuda-tileiras-13-4"]
+    n21["libcublas-13-4"]
+    n22["libcudla-13-4"]
+    n23["libcufft-13-4"]
+    n24["libcufile-13-4"]
+    n25["libcuobjclient-13-4"]
+    n26["libcurand-13-4"]
+    n27["libcusolver-13-4"]
+    n28["libcusparse-13-4"]
+    n29["libnpp-13-4"]
+    n30["libnvfatbin-13-4"]
+    n31["libnvjitlink-13-4"]
+    n32["libnvjpeg-13-4"]
+    n33["libnvptxcompiler-13-4"]
+    n34["libnvvm-13-4"]
+    n35["nsight-compute-13-4"]
+    n36["nsight-systems-13-4"]
+    n1 --> n3
+    n3 --> n0
+    n3 --> n4
+    n9 --> n5
+    n9 --> n11
+    n10 --> n1
+    n10 --> n3
+    n10 --> n33
+    n10 --> n34
+    n16 --> n3
+    n20 --> n10
+    n20 --> n31
+    n21 --> n3
+    n21 --> n4
+    n23 --> n3
+    n23 --> n4
+    n24 --> n3
+    n25 --> n3
+    n26 --> n3
+    n26 --> n4
+    n27 --> n3
+    n27 --> n4
+    n28 --> n3
+    n28 --> n4
+    n29 --> n3
+    n29 --> n4
+    n30 --> n3
+    n31 --> n3
+    n32 --> n3
+    n32 --> n4
+    n34 --> n3
+
+Sponsors should ideally respect this uploading order:
+1. cuda-cuobjdump, cuda-nvdisasm, libcudla, cuda-sandbox-dev, cuda-ctadvisor, 
+cuda-nvml-dev, cuda-documentation, cuda-nvprune, cuda-cuxxfilt,
+cuda-sanitizer-api, cuda-nvtx, cuda-nvrtc, cuda-profiler-api, sight-compute,
+nsight-systems, cccl, culibos
+2. cudart, cuda-gdb
+3. cuda-opencl, libnvfatbin, libcufile, libcuobjclient, libnjpeg, libcufft,
+libcurand, libcublas, libcusolver, libcusparse, libnpp, cuda-crt, libnvvm,
+libnvjitlink
+4. cuda-nvcc
+5. cuda-tileiras
+6. cuda-meta
+Since these packages are not build from source, dependencies are only resolved
+through the package manager. Most of the packages can build without their
+theoretical build-depends.
+
+The specificity of cuda-meta
+----------------------------
+
+`cuda-meta` is the source package that contains all the metapackages
+distributing CUDA. Just like every other source package, it is tight to it
+minor version, eg CUDA 13.2 contains a cuda-meta-13-2 source package.
+
+cuda-meta-X-Y contains
+- cuda
+- cuda-X-Y
+- cuda-toolkit
+- cuda-toolkit-X
+- cuda-toolkit-X-Y
+And a few others that are less problematic.
+The problem with cuda, cuda-toolkit and cuda-toolkit-X is that the same binary
+package is shipped again in other versions (cuda-meta-X-(Y+1) for example).
+
+The archive won't complain. For users, if they had install one of these meta
+from a cuda-meta-X-Y source package, they will automatically be rolled forward
+to the newer version provided by cuda-meta-X-(Y+1).
+
+It's trickier for SRUs. If we SRU, for example, cuda-meta-13-1 (13.1.2) in
+26.04 and cuda-meta-13-2 (13.2.0) is in 26.04 already, then we are trying to
+upload binary packages that are **already** superseded. In that case, we chose
+to comment these binary packages in the control file.
+
 .. _requesting_sru:
 
 NVIDIA CUDA Requesting the SRU
