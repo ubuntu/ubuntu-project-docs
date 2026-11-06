@@ -3,7 +3,7 @@ orphan: true
 ---
 
 (dmb-vote-function)=
-# DMB vote funtion
+# DMB vote function
 
 ```{include} ../_dmb-series.md
 ```

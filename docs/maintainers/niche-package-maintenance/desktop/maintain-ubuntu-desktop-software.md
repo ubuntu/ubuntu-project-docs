@@ -1277,4 +1277,4 @@ If this is a sponsored upload, the sponsor performs these steps.
     * `ubuntu/latest`
     * `ubuntu/old-series`
     * `pristine-tar`
-    * `upstream/lastest`
+    * `upstream/latest`

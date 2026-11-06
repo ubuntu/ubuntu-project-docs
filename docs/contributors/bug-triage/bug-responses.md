@@ -72,7 +72,7 @@ The following packages or type of bugs require specific debugging information.
 
 ### Debugging kernel (general)
 
-Pleas also see the Ubuntu Kernel Team's [specific responses](https://wiki.ubuntu.com/Kernel/BugTriage/Responses) for Linux (Ubuntu) kernel bugs.
+Please also see the Ubuntu Kernel Team's [specific responses](https://wiki.ubuntu.com/Kernel/BugTriage/Responses) for Linux (Ubuntu) kernel bugs.
 
 
 ### Debugging sound problems

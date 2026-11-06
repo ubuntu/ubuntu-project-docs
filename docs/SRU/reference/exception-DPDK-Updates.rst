@@ -179,7 +179,7 @@ both standalone and in-conjunction with Open vSwitch (following the
 methodology detail above) as part of the standard SRU verification
 process for packages with MRE's.
 
-An upload for an SRU shall be acompanied by a log of running the
+An upload for an SRU shall be accompanied by a log of running the
 `internal
 test <https://code.launchpad.net/~ubuntu-server/ubuntu/+source/dpdk-testing/+git/dpdk-testing>`__.
 All tests in this log shall be passed or explained in the Template why

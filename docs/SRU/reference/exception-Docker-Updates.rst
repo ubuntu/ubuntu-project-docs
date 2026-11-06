@@ -57,7 +57,7 @@ Ubuntu series is released, these packages in that series must only receive
 **patch-level** upgrades under this policy. For instance, if
 `containerd-stable` `2.2.1` was released in Ubuntu 26.04, this exception only
 covers upgrading it to versions greater than `2.2.1` and lower than `2.3.0~`.
-The remainder of this exception applies normaly to these packages.
+The remainder of this exception applies normally to these packages.
 
 QA
 --
