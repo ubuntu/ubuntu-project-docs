@@ -3,6 +3,8 @@
 Investigate a halted phased update
 ----------------------------------
 
+.. include:: /SRU/_sru-series.rst
+
 See also: :ref:`Explanation → Phasing <explanation-phasing>`
 
 Here are some tips on how to utilise the phased updates report to

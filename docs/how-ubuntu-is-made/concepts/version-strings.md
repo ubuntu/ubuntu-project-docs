@@ -20,7 +20,7 @@ parts:
   - The legal characters in the upstream version are letters, digits, `.`, `+`,
     `~`, and `-`. Upstream versioning may be adjusted to fit this format if
     necessary.
-  - The upstream version must begin with a digit.
+  - The upstream version should begin with a digit.
 - The **Debian revision**, which counts up each time the package has been
   modified by Debian.
   - The legal characters in the Debian revision are letters, digits, `.`, `+`,
@@ -420,7 +420,7 @@ To distinguish "a native Debian package that gained an Ubuntu delta" (which woul
 be `2.0ubuntu1`) from "a native Ubuntu package", the marker suffix for a native
 Ubuntu package is a bare `ubuntu` (no number). Please migrate the former native
 indication `ubuntu0` to this new format without the `0` (see the
-[discussion on ubuntu-devel](https://lists.ubuntu.com/archives/ubuntu-devel/2025-July/043402.html)).
+[discussion on ubuntu-devel](https://lists.ubuntu.com/archives/ubuntu-devel/2025-July/043451.html)).
 
 Native package versioning is package-dependent: whether it uses _major_,
 _major.minor_, or any other pattern is the maintainer's choice, just as upstream
@@ -595,7 +595,8 @@ self-contained.
 | `2.0-2` (in 22.04)                 | Backport: new upstream          | Upstream `3.1`                  | `3.1-0ubuntu0.22.04.1`                  |
 | `2.0-2ubuntu2.1` (in 22.04)        | Backport: new upstream          | Upstream `3.1`                  | `3.1-0ubuntu0.22.04.1`                  |
 | `2.0-2` (in 22.04)                 | Backport: from devel            | Devel `3.1-1ubuntu2`            | `3.1-1ubuntu2~22.04.1`                  |
-| `2.0-2` (in 22.04)                 | Backport: from devel (native)   | Devel `3.1` (native)            | `3.1~22.04.1`                           |
+| `2.0-2` (in 22.04)                 | Backport: from devel            | Devel `3.1-2`                   | `3.1-2~ubuntu0.22.04.1`                 |
+| `2.0-2` (in 22.04)                 | Backport: from devel (native)   | Devel `3.1` (native)            | `3.1~ubuntu0.22.04.1`                   |
 | `2.0` (native Debian)              | Native devel upload             | —                               | `2.0ubuntu1`                            |
 | `2.0` (native Debian)              | Native SRU upload               | —                               | `2.0ubuntu0.1`                          |
 | `2ubuntu1` (native Debian, delta)  | Native devel upload             | —                               | `2ubuntu2`                              |

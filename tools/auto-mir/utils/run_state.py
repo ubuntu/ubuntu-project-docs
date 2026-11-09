@@ -78,6 +78,11 @@ def save_state(ctx: RunContext) -> None:
     state["meta"]["updated_utc"] = datetime.now(UTC).isoformat()
     if getattr(ctx, "guest_name", ""):
         state["meta"]["guest_name"] = ctx.guest_name
+    # The intake stage resolves the reviewed bug's source package (non-empty
+    # only after Stage 1) — persist it so a resumed multi-task run can reuse
+    # the previous selection instead of re-prompting.
+    if getattr(ctx, "source_package", ""):
+        state["meta"]["source_package"] = ctx.source_package
     redactor = ensure_secret_redactor(ctx)
     sanitized = redactor.sanitize(state)
     path = state_path(ctx.output_dir)

@@ -3,6 +3,8 @@
 Snapcraft Updates
 =================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating the snapcraft package in
 a stable supported distro, including LTS.
 

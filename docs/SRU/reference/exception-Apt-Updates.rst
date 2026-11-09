@@ -3,6 +3,8 @@
 Apt Updates
 ===========
 
+.. include:: /SRU/_sru-series-exception.rst
+
 .. _apt_python_apt_upstream_versioning_scheme_lts_srus:
 
 apt, python-apt: Upstream versioning scheme LTS SRUs

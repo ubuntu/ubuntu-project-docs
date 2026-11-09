@@ -3,6 +3,8 @@
 NVIDIA GPU Driver Updates
 =========================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 Introduction
 ------------
 

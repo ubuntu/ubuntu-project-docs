@@ -35,10 +35,10 @@ this list is kept current.
 
 ## SRU Developers
 
-Based on [this thread](https://lists.ubuntu.com/archives/ubuntu-devel/2017-February/039652.html),
+Based on [this thread](https://lists.ubuntu.com/archives/ubuntu-devel/2017-February/039701.html),
 [the DMB agreed](https://irclogs.ubuntu.com/2017/02/27/%23ubuntu-meeting.html#t19:32)
 to create [a new team for SRU developers](https://launchpad.net/~ubuntu-sru-developers).
-This was [announced to ubuntu-devel on 28 February 2017](https://lists.ubuntu.com/archives/ubuntu-devel/2017-February/039702.html).
+This was [announced to ubuntu-devel on 28 February 2017](https://lists.ubuntu.com/archives/ubuntu-devel/2017-February/039751.html).
 See {ref}`dmb-joining-sru-dev` for details.
 
 This team is for contributors who work mostly on SRUs but don't necessarily yet

@@ -54,9 +54,9 @@ _UBUNTU_DEVEL_FALLBACK_IMAGES = [
 # sbuild/mmdebstrap/uidmap unshare-backend toolchain is needed here anymore.
 _REQUIRED_PACKAGES = [
     "lintian",
-    "git-ubuntu",
-    "ubuntu-dev-tools",  # provides seeded-in-ubuntu
+    "ubuntu-dev-tools",  # provides seeded-in-ubuntu and pull-debian-source
     "dpkg-dev",
+    "devscripts",  # provides debdiff (debian-delta adapter)
     "apt-utils",
     "python3-launchpadlib",
     "python3-yaml",

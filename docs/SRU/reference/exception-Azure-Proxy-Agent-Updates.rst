@@ -5,6 +5,8 @@
 azure-proxy-agent Updates
 =========================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the process to update and test new versions of the
 azure-proxy-agent package in SRUs.
 

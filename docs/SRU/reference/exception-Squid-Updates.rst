@@ -5,6 +5,8 @@
 Squid Updates
 =============
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for doing micro-release updates of
 the Squid package in Ubuntu stable releases.
 

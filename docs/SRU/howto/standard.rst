@@ -3,9 +3,14 @@
 Perform a standard SRU
 ----------------------
 
+.. include:: /SRU/_sru-series.rst
+
 This how-to is for standard SRUs, where straightforward bugs are fixed
 using minimal cherry-picks. For other types of SRUs, see :ref:`How-to →
 Prepare a special type of SRU <howto-prepare-special-sru>` instead.
+The numbered steps below take you from checking the requirements to a
+verified update; once verification is done, see :ref:`Get the SRU
+released <howto-get-sru-released>`.
 
 1.  Check that the upload complies with :ref:`Reference → Requirements →
     What is acceptable to SRU <reference-what-is-acceptable-to-sru>`.
@@ -90,3 +95,19 @@ Prepare a special type of SRU <howto-prepare-special-sru>` instead.
     please also follow :ref:`Howto → Report a regression
     <howto-report-regression>` and ensure that all steps documented
     there have been performed correctly.
+
+.. _howto-get-sru-released:
+
+Get the SRU released
+~~~~~~~~~~~~~~~~~~~~
+
+The Stable Release Updates team regularly checks for SRUs that have
+successfully completed verification (all bugs are marked
+verification-done-$RELEASE for the given release) and releases those to
+the -updates pocket. Having said that, if there is a priority SRU
+waiting in the unapproved queue for release to -proposed, or needing
+release to -updates from -proposed, feel free to :ref:`contact an SRU
+vanguard <howto-contact>`.
+
+Please note that SRUs will not be published to the -updates pocket on
+Friday (or Saturday or Sunday). Any exception will need justification.

@@ -513,7 +513,7 @@ Output fields:
 
 ### `packaging-source`
 
-Fetch package source via git-ubuntu and analyse packaging files
+Fetch package source via apt-get source and analyse packaging files
 
 Inputs: `source_package`
 
@@ -584,9 +584,9 @@ Output fields:
 - `team_uploaders` (list)
 - `individual_uploaders` (list)
 
-### `git-ubuntu-delta`
+### `debian-delta`
 
-Classify the Ubuntu delta vs Debian and, when an Ubuntu revision exists, produce a git-ubuntu diffstat
+Classify the Ubuntu delta vs Debian and, when an Ubuntu revision exists, debdiff it against the published Debian base
 
 Inputs: `source_package`
 

@@ -3,6 +3,8 @@
 Netplan Updates
 ===============
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating netplan.io in a stable,
 supported release.
 

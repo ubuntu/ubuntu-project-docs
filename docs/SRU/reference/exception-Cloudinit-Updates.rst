@@ -3,6 +3,8 @@
 cloud-init Updates
 ==================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 Background
 ----------
 
