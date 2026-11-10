@@ -5,6 +5,7 @@
 :maxdepth: 1
 :hidden:
 
+xubuntu-team
 rocks-team
 hpc-team
 ```
@@ -75,5 +76,5 @@ Below is a list of key teams that operate within the Ubuntu project and their re
 | [Ubuntu MATE Team](https://ubuntu-mate.community/) | Provide an Ubuntu-based operating system that beautifully integrates the MATE desktop |
 | [Ubuntu Studio Team](https://wiki.ubuntu.com/UbuntuStudio) | Provide an installable disk for multimedia production machines and better maintain those apps in Ubuntu |
 | [Ubuntu Unity Team](https://launchpad.net/~unity7maintainers) | Provide the Unity desktop environment for the modern Ubuntu desktop |
-| [Xubuntu Team](https://wiki.ubuntu.com/Xubuntu) | To develop and promote the {spellexception}`Xfce` desktop on Ubuntu, striving for an elegant and easy-to-use OS that is also light and accessible |
+| {ref}`Xubuntu Team <xubuntu-team>` | To develop and promote the {spellexception}`Xfce` desktop on Ubuntu, striving for an elegant and easy-to-use OS that is also light and accessible |
 
