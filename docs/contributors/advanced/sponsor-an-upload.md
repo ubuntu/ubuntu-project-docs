@@ -95,6 +95,66 @@ These instructions assume the request for sponsorship is in the form of a {term}
     $ debuild -S -d -uc -us -v1.1-1ubuntu1 ${upload_args}
     ```
 
+    When doing a merge, you'll need to ensure that the `orig` tarball is included. You can verify if the `orig` tarball upload is required by checking the Debian changelog. If there is a new upstream version that is a part of the upload, then Launchpad will not have the `orig` tarball available. Example changelog for a tehacious upload that requires an `orig` tarball upload:
+    
+    ```none
+    nfs-utils (1:3.1.1-1ubuntu1) tenacious; urgency=medium
+
+    * Merge with Debian unstable (LP: #2171238). Remaining changes:
+        - <CHANGES>
+
+    -- Simon Poirier <simon.poirier@canonical.com>  Fri, 06 Nov 2026 19:01:40 -0500
+
+    nfs-utils (1:3.1.1-1) unstable; urgency=medium
+
+    * New upstream version 3.1.1
+        - rpcctl: SyntaxWarning: 'return' in a 'finally' block (Closes: #1144982)
+    * <CHANGES>
+
+    -- Salvatore Bonaccorso <carnil@debian.org>  Wed, 23 Sep 2026 07:54:34 +0200
+
+    nfs-utils (1:2.9.2-1) unstable; urgency=medium
+
+    * New upstream version 2.9.2
+    * <CHANGES>
+
+    -- Salvatore Bonaccorso <carnil@debian.org>  Fri, 31 Jul 2026 20:49:30 +0200
+
+    nfs-utils (1:2.9.1-1ubuntu1) stonking; urgency=medium
+
+    * Merge with Debian unstable (LP: #2153341). Remaining changes:
+        - <CHANGES>
+
+    -- Zineb Zaadoud <zineb.zaadoud@canonical.com>  Sun, 07 Jun 2026 22:24:07 +0200
+    ```
+    
+    In this case, run your source package build with `-sa` option. This is "Source All" and forces the inclusion of the `orig` tarball in the upload. Example command:
+
+    ```none
+    $ debuild -S -d -uc -us -sa -v1.1-1ubuntu1 ${upload_args}
+    ```
+
+    The resulting `.changes` has the all the required information for upload. Note that nfs-utils_3.1.1.orig.tar.xz is included.
+
+    ```none
+    Checksums-Sha1:
+        578d6756e512630d648d6dbeb6ba19ae07862159 2695 nfs-utils_3.1.1-1ubuntu1.dsc
+        c1f970ef2cf265e3c0eba5975666992c47c820d5 774380 nfs-utils_3.1.1.orig.tar.xz
+        32b1b40f305c83e56ef702250204408e7e563629 61332 nfs-utils_3.1.1-1ubuntu1.debian.tar.xz
+        5c8249bbd07c1b084a19bb3af1547c7f095b46a6 5431 nfs-utils_3.1.1-1ubuntu1_source.buildinfo
+    Checksums-Sha256:
+        048e1d29bd8b26165616ba5b7f68a15892271e93a7d9907bdb08dce49ab69930 2695 nfs-utils_3.1.1-1ubuntu1.dsc
+        7dbc05eb8b32828b322872b759a62cb3979cb4118f344dd8616813d1390e84e0 774380 nfs-utils_3.1.1.orig.tar.xz
+        988dacf82c391f10b7482c90ede54b5fb48202b1275c9e79e3dbe9689d5c140b 61332 nfs-utils_3.1.1-1ubuntu1.debian.tar.xz
+        56c4116ec95d4a7870f1166d4c7124b6439949bd5300c3621a52be8b645f2738 5431 nfs-utils_3.1.1-1ubuntu1_source.buildinfo
+    Files:
+        308f63893ebe5a1c7422ed9f7161b460 2695 net optional nfs-utils_3.1.1-1ubuntu1.dsc
+        24b69355dd92c51acc9dda7b178e1390 774380 net optional nfs-utils_3.1.1.orig.tar.xz
+        248015a33bfeb2367b8e534c142932f5 61332 net optional nfs-utils_3.1.1-1ubuntu1.debian.tar.xz
+        a1c2b716ccdc51b8895238f14db86df3 5431 net optional nfs-utils_3.1.1-1ubuntu1_source.buildinfo
+    ```
+
+
 1. Do a final check of the {file}`.changes` file:
 
     ```none
@@ -143,6 +203,14 @@ Examples of issues you might catch may include, but are not limited to:
     ```none
     $ debdiff libvirt_12.0.0-1ubuntu5.3.dsc libvirt_12.0.0-1ubuntu5.4.dsc 2>/dev/null | diffstat
     ```
+
+    `debdiff` will display a very large output when doing a merge. The output will include the upstream changes as well. You can use `git range-diff` if the tags have been pushed. 
+    
+    ```none
+    # git range-diff  old/debian..old/ubuntu new/debian..HEAD
+    ```
+    
+    Note that the tags may be prepended with `lp${BUG_NUM}/`. `git range-diff` is a complex view of the history, so refer to the [documentation](https://git-scm.com/docs/git-range-diff) for more information. 
 
 1. Sign the {file}`.changes` file:
 
