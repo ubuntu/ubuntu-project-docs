@@ -198,6 +198,8 @@ staging/AA/maintainers/aa-signing-bootloaders/ maintainers/AA/aa-signing-bootloa
 
 maintainers/index-uploader/ maintainers/uploader/
 
+maintainers/uploader/update-seeds/ contributors/advanced/seed-management/
+
 # =============================================================================
 # Who makes Ubuntu
 # =============================================================================
@@ -280,9 +282,14 @@ MIR/mir-service-level-objectives/ MIR/mir-roles-and-steps/
 staging/feature-freeze/ release-team/freezes/
 how-ubuntu-is-made/processes/freezes/ release-team/freezes/
 
-staging/seed-management/ staging/release-team/seed-management/
+staging/seed-management/ contributors/advanced/seed-management/
+staging/release-team/seed-management/ contributors/advanced/seed-management/
 
-staging/germinate/ staging/release-team/germinate/
+staging/seeds/ how-ubuntu-is-made/concepts/seeds/
+staging/release-team/seeds/ how-ubuntu-is-made/concepts/seeds/
+
+staging/germinate/ how-ubuntu-is-made/concepts/seeds/
+staging/release-team/germinate/ how-ubuntu-is-made/concepts/seeds/
 
 staging/release-team/freeze-exceptions/ release-team/freeze-exceptions/
 staging/freeze-exceptions/ release-team/freeze-exceptions/
