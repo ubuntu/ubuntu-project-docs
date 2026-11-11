@@ -168,6 +168,7 @@ Kubuntu
 Kylin
 launchpadlib
 leaderboard
+Lenovo
 Libadwaita
 Libcamera
 Libera
@@ -204,6 +205,8 @@ misclicks
 misconfigured
 Mjolnir
 mmunities
+Modalias
+modalias
 modaliases
 monorepo
 monospace
@@ -293,6 +296,7 @@ sid
 skippable
 SLOs
 smartcard
+SMBus
 Snapcraft
 snapcraft
 sosreport
@@ -307,6 +311,7 @@ Starcraft
 stdin
 subcommand
 subcommands
+subdevice
 subiquity
 subkey
 subkeys
@@ -314,6 +319,7 @@ subprocess
 subprojects
 subreddit
 Subteam
+subvendor
 supercomputing
 SVGs
 syncable
