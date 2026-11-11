@@ -139,42 +139,82 @@ is designed to work with.
 
 ## Known modaliases matching patterns
 
-More information about modaliases in OEM meta packages.
+More information about modaliases in OEM meta packages. The matching patterns
+are organized by OEM vendor below.
 
-Matching types:
 
-```
-- Matching by PCI ID
-  - Modalias convention
-    - pci:*sv0000${OEM_ID}sd0000${BIOS_ID}bc0Csc05*
-    - OEM_ID
-      - PCI Vendor ID of OEM (4 hexadecimal ASCII characters).
-    - BIOS_ID
-      - The unique ID of OEM System ID (4 hexadecimal ASCII characters).
-    - bc0Csc05
-      - bc (base class) 0C and sc (sub class) 05, matching SMBus (System Management Bus).
-      - The purpose of comparing the SMBus is to avoid some add-on cards with incorrect subsystem IDs, which can cause the system to install unexpected platform meta-packages. E.g. A thunderbolt card which has subsystem ID “0739”, it makes the system installed an unexpected platform meta package for BIOS_ID “0739”.
-  - Example of modaliases
-    - E.g. “pci:*sv00001028sd0000084Abc0Csc05*”
-    - sv 00001028 (subvendor)
-    - sd 0000084A (subdevice)
-  - OEM platforms using this matching type
-    - Dell, HP
+(modaliases-dell)=
+### Dell
+
+Dell platforms are matched by PCI ID (SMBus) or by DMI string.
+
+- Matching by PCI ID (SMBus)
+  - Modalias convention: `pci:*sv0000${OEM_ID}sd0000${BIOS_ID}bc0Csc05*`
+    - `OEM_ID`: PCI Vendor ID of OEM (4 hexadecimal ASCII characters).
+      Dell's PCI Vendor ID is `1028`.
+    - `BIOS_ID`: the unique ID of the OEM System ID (4 hexadecimal ASCII
+      characters).
+    - `bc0Csc05`: `bc` (base class) `0C` and `sc` (sub class) `05`, matching
+      SMBus (System Management Bus). Comparing the SMBus avoids some add-on
+      cards with incorrect subsystem IDs that can cause the system to install
+      unexpected platform meta-packages. For example, a Thunderbolt card with
+      subsystem ID `0739` would otherwise make the system install an unexpected
+      platform meta-package for `BIOS_ID` `0739`.
+  - Example (`sv` `00001028` subvendor, `sd` `0000084A` subdevice):
+
+    ```none
+    pci:*sv00001028sd0000084Abc0Csc05*
+    ```
+
 - Matching by DMI string
-  - Modaliase convention
-    - dmi:*bvn${OEM_NAME}:bvr${BIOS_ID}:pvr${PRODUCT_NAME}*
-    - OEM_NAME:
-      - DMI_BIOS_VENDOR
-    - BIOS_ID:
-      - DMI_BIOS_VERSION
-      - The unique ID of the OEM platforms.
-    - PRODUCT_NAME:
-      - DMI_PRODUCT_VERSION
-  - Example of modaliases
-    - dmi:*bvnLENOVO:bvrR29*:pvrThinkPad*
-  - OEM platform using this matching type
-    - Lenovo
-```
+  - Modalias convention: `dmi:bvnDellInc.:*:svnDellInc.:*:sku${SKU_ID}:*`
+    - `SKU_ID`: the unique Dell SKU identifying the platform.
+  - Example:
+
+    ```none
+    dmi:bvnDellInc.:*:svnDellInc.:*:sku0DBC:*
+    dmi:bvnDellInc.:*:svnDellInc.:*:sku0DBD:*
+    ```
+
+
+(modaliases-hp)=
+### HP
+
+HP platforms are matched by PCI ID (SMBus) or by DMI string.
+
+- Matching by PCI ID (SMBus)
+  - Modalias convention: `pci:*sv0000${OEM_ID}sd0000${BIOS_ID}bc0Csc05*`
+    - `OEM_ID`: PCI Vendor ID of OEM (4 hexadecimal ASCII characters).
+      HP's PCI Vendor ID is `103C`.
+    - `BIOS_ID`: the unique ID of the OEM System ID (4 hexadecimal ASCII
+      characters).
+    - `bc0Csc05`: `bc` (base class) `0C` and `sc` (sub class) `05`, matching
+      SMBus (System Management Bus), as described for Dell above.
+- Matching by DMI string
+  - Modalias convention: `dmi:*:svnHP:*:rvnHP:rn${BOARD_ID}:*`
+    - `BOARD_ID`: the HP board/product identifier for the platform.
+  - Example:
+
+    ```none
+    dmi:*:svnHP:*:rvnHP:rn8D3E:*
+    ```
+
+
+(modaliases-lenovo)=
+### Lenovo
+
+Lenovo platforms are matched by DMI string.
+
+- Matching by DMI string
+  - Modalias convention: `dmi:*bvn${OEM_NAME}:bvr${BIOS_ID}:pvr${PRODUCT_NAME}*`
+    - `OEM_NAME`: `DMI_BIOS_VENDOR`.
+    - `BIOS_ID`: `DMI_BIOS_VERSION`, the unique ID of the OEM platform.
+    - `PRODUCT_NAME`: `DMI_PRODUCT_VERSION`.
+  - Example:
+
+    ```none
+    dmi:*bvnLENOVO:bvrR29*:pvrThinkPad*
+    ```
 
 
 ## Known issue
