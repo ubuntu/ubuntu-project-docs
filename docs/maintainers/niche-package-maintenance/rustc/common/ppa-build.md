@@ -34,7 +34,7 @@ If you are using another PPA to bootstrap, then you must explicitly add this PPA
 :::{note}
 When a new Rust toolchain is uploaded to the Archive for the devel series, it initially goes into the {ref}`proposed pocket <archive-pockets-proposed>`. By configuring your PPA to depend on "Proposed", the set of available packages in the PPA aligns with what will be available in the Archive. This avoids a situation where the PPA build could succeed but then the Archive build fails due to missing dependencies, or vice versa.
 
-On the other hand, when backporting a Rust toolchain to a stable release, it will be uploaded to the {ref}`security pocket <archive-pockets-security>`. In this case configuring your PPA to depend on "Security" aligns with the dependencies that will be available in the Archive. For this same reason, the Staging PPA is configured to depend on "Security" since it is used for backports.
+On the other hand, when backporting a Rust toolchain to a stable release, it will be uploaded to the {ref}`security pocket <archive-pockets-security>`. In this case, configuring your PPA to depend on "Security" aligns with the dependencies that will be available in the Archive. For this same reason, the Staging PPA is configured to depend on "Security" since it is used for backports.
 :::
 
 
@@ -47,7 +47,7 @@ Next, add a temporary changelog entry, appending `~ppa<N>` to your version numbe
 :::
 
 ```none
-$ dch -bv <X.Y.Z>+dfsg0ubuntu1-0ubuntu1\~ppa<N> \
+$ dch -bv <X.Y.Z>+dfsg-0ubuntu1\~ppa<N> \
     --distribution "<release>" \
     "PPA upload"
 ```

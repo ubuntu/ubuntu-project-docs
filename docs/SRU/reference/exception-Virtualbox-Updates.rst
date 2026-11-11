@@ -3,6 +3,8 @@
 Stable Release Updates for Virtualbox Updates
 =============================================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 Virtualbox has a number of features making it a special case for SRUs -
 as a virtual-machine provider it has some of the same requirements as
 hardware-enablement features. It provides a kernel module, interacting

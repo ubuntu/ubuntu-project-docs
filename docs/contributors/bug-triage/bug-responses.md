@@ -4,17 +4,14 @@
 It is common when triaging bugs that you need to respond to the original reporter -- perhaps to request more information, or to redirect their request, etc.
 Over time, a set of curated standard responses has been created, and you can use these when you correspond with the reporter.
 
-These standard responses (and other amazing scripts) are available as a FireFox extension [in a PPA](https://launchpad.net/~gm-dev-launchpad/+archive/ubuntu/ppa).
-
-When you update one of these responses, you should also update the response used by the Firefox extension.
-These responses can be found in the bazaar branch [lp:ubuntu-bugcontrol-tools](https://code.launchpad.net/ubuntu-bugcontrol-tools) in the `gm-xml-files/bugsquad-replies.xml` file.
-To check out a branch, use:
-
-```none
-bzr branch lp:ubuntu-bugcontrol-tools
+```{admonition} Keeping responses up to date
+The standard responses below are the canonical source of truth for bug triage
+responses. A Firefox extension and a PPA
+([~gm-dev-launchpad](https://launchpad.net/~gm-dev-launchpad/+archive/ubuntu/ppa))
+were used in the past to distribute these responses, but they are out
+of date. If you find a response that is outdated, please update it directly on
+this page.
 ```
-
-Only members of `bug-control` can commit to this branch, but even if you are not a member you can submit a merge proposal, and they can be used when replying to a bug report if merged.
 
 
 ## Missing information
@@ -565,7 +562,7 @@ Determining whether a bug report is actually a support request can be quite chal
 Thank you for taking the time to report this issue and helping to make Ubuntu better. Examining the information you have given us, this does not appear to be a bug report so we are closing it and converting it to a question in the support tracker. We understand the difficulties you are facing, but it is better to raise problems you are having in the support tracker at https://answers.launchpad.net/ubuntu if you are uncertain if they are bugs. If you would prefer live chat support, you can find an IRC support channel for your flavor of Ubuntu here: https://wiki.ubuntu.com/IRC/ChannelList. You can also find help with your problem in the support forum of your local Ubuntu community http://loco.ubuntu.com/ or asking at https://askubuntu.com or https://discourse.ubuntu.com/t/welcome-to-support-and-help/49951. For help on reporting bugs, see https://help.ubuntu.com/community/ReportingBugs.
 ```
 
-Chris Guiver provides an alternate wording (thanks, Chris!):
+Or an alternate wording:
 
 ```{code} none
 :class: codeblock-wrap
@@ -574,7 +571,7 @@ Thank you for taking the time to report this bug and helping to make Ubuntu bett
 
 Bug reporting is about finding & fixing problems thus preventing future users from hitting the same bug.
 
-I suspect a Support site would be more appropriate, e.g. https://answers.launchpad.net/ubuntu. You can also find help with your problem in the support forum of your local Ubuntu community http://loco.ubuntu.com/ or asking at https://askubuntu.com or https://discourse.ubuntu.com/t/welcome-to-support-and-help/49951), or for more support options please look at https://discourse.ubuntu.com/t/community-support/709.
+I suspect a Support site would be more appropriate, e.g. https://answers.launchpad.net/ubuntu. You can also find help with your problem in the support forum of your local Ubuntu community http://loco.ubuntu.com/ or asking at https://askubuntu.com or https://discourse.ubuntu.com/c/support-and-help/306
 ```
 
 It is also a good idea to change the source package beforehand if it's set incorrectly, so that the question will be associated with the correct package in the answer tracker, or edit the question afterwards and assign it to the correct package. If it doesn't pertain to a specific package, change it to "Ubuntu".

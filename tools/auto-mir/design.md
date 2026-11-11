@@ -1,0 +1,535 @@
+# Auto-MIR Design
+
+## Purpose
+
+Auto-MIR supports two role-specific workflows:
+
+- `review BUG` turns a Launchpad MIR bug into a structured reviewer draft.
+- `report SOURCE` turns source-package evidence and terminal answers into a
+  structured reporter draft.
+
+Both workflows operate by:
+
+1. collecting deterministic evidence,
+2. evaluating catalog-defined checks,
+3. using LLM analysis only where policy allows,
+4. rendering results into the applicable role template.
+
+The tool is host-orchestrated and executes build/evidence-sensitive work in an
+LXD VM for reproducibility and isolation.
+
+## Scope and boundaries
+
+- Architecture and operating model are defined here.
+- Development process rules are defined in:
+  `.github/instructions/tools-development.instructions.md`.
+- Rationale/history is defined in `decisions.md`.
+- Prompt content is defined in `prompts/` and is out of scope for this document.
+
+## End-to-end stage flow
+
+`auto_mir.main()` executes a shared bootstrap followed by a role pipeline.
+
+Bootstrap and host preflight (before Stage 0):
+- Parse command-line arguments using standard-library-only imports, so
+  `--help` works on an unprepared host.
+- Require Python 3.12 or newer and discover every direct Python runtime
+  dependency before creating output state or starting network/LXD work.
+- Report all missing dependencies together as Ubuntu binary packages. The
+  mapping between project distributions, import modules, and Ubuntu packages
+  lives in `utils/dependencies.py` and is checked against `pyproject.toml`.
+  This tool intentionally runs against Ubuntu system/apt-installed packages
+  rather than a project-local virtualenv (it orchestrates `lxc`/`apt-get` and
+  expects a host's system Python); `pyproject.toml`'s `dependencies` list
+  exists only for packaging/dev tooling and is never what gets installed at
+  runtime - a test asserts the two lists never drift apart.
+
+1. Stage 0: auth (`stage_auth`)
+- Resolve provider/token/API base for LLM usage.
+- Register the token with the run's exact-value redactor.
+- Keep credentials host-only; they are never stored in LXD guest configuration.
+- Skipped in `--collect-only` mode.
+
+Reviewer Stage 1: intake (`stage_intake`)
+- Pull Launchpad bug metadata and reporter MIR content.
+- Scan the bug text for prompt-injection indicators before any LLM call
+  embeds it, and resolve the reporter MIR content before package selection.
+- Resolve the source package from the bug's Ubuntu package tasks. Bugs can
+  carry several related package tasks, so selection resolves in order:
+  `--source-package` (validated against the tasks), a single distinct open
+  task, one high-confidence small-tier LLM pick over the wrapped bug text,
+  and finally an interactive single-choice prompt of the open tasks. An
+  ambiguous headless run fails closed instead of guessing. Only targets that
+  are Ubuntu source packages count (distribution/project tasks never do),
+  and closed tasks are listed as context, not candidates.
+- Resolve the series from the *selected* package's open tasks, falling back
+  to the development release; `--series` always wins.
+- Run the early review-type first decision
+  (`review_type.pre_classify_review_type`): a forced `--review-type`
+  short-circuits it; otherwise one bounded LLM call classifies the bug text
+  as new/rereview/reorg/unsure (with a high-precision regex fallback when
+  the LLM is unavailable), and any suspicious non-new result is presented
+  with its reasoning for the reviewer to confirm - a headless run defaults
+  to the safe fresh classification. A rereview/reorg outcome skips the
+  reporter template requirement (per MIR policy, it is not required for
+  these fast-paths). The decision is recorded and honoured by the
+  authoritative Stage-4 resolution (`review_type.detect_review_type`).
+
+3. Stage 2: isolation setup (`stage_spawn_guest`)
+- Create/provision LXD VM and tooling.
+
+4. Stage 3: evidence (`stage_collect_evidence`)
+- Load catalog and collect required + optional adapters.
+- Store adapter payloads under `ctx.evidence["adapters"]`.
+
+5. Stage 4: analysis (`stage_analyse`)
+- Resolve the review type (`review_type.detect_review_type`): fresh, or a
+  softened fast-path (rereview / reorg) forced via `--review-type` or detected
+  from the bug text and the `lp-mir-history` adapter (which probes Launchpad
+  for prior MIR bugs under the current or a predecessor name, including
+  predecessor names extracted directly from bug text). Fast-paths downgrade
+  blocking findings to recommendations.
+- Evaluate checks with deterministic and LLM evaluators.
+- Produce `Finding` objects with severity/confidence.
+
+6. Stage 5: rendering (`stage_render`)
+- Write review draft and structured report.
+
+Reporter stages:
+
+1. Optional auth: use configured LLM credentials when present; never require
+   them for deterministic collection or terminal questions.
+2. Source intake: validate the source name and collect the target series.
+3. Isolation setup and catalog-selected evidence: reuse the LXD and adapter
+   subsystems without Launchpad bug intake.
+4. Statement evaluation in two passes: prepare everything that needs no
+   human input (all deterministic items whose applicability does not
+   reference another item's answer, and the AI suggestions for every
+   non-item-gated `ev_to_ai` item - persisted to the run state as they are
+   prepared), then one uninterrupted interactive phase in catalog order
+   (announced with a question count) asking only for human-owned input.
+   Item-gated `ev_to_ai` suggestions are prepared lazily the moment their
+   gate opens inside the batch. The returned results keep catalog order;
+   the draft's own order stays blueprint-driven.
+5. Rendering: write `reporter-draft.txt`, `report.json`, and `evidence.json`.
+   Pipeline success and MIR readiness are represented separately.
+
+Always-run tail logic:
+- log artifact locations,
+- teardown/preserve VM based on tri-state keep policy,
+- print completion banner.
+
+## Idle-attention alerts
+
+Reporter runs sit next to other work, so every wait for terminal input
+(the wizard's question loops and confirmations, the recovery prompts, and
+the interactive-phase start) arms an idle alert through
+`utils/attention.py`: after 60 seconds without input, the terminal bell
+rings and a best-effort `notify-send` desktop notification ("auto-mir
+needs input: <question>") is raised; the bell repeats every 5 minutes
+while input is still pending, and everything is cancelled the moment
+input arrives. Nothing fires when the reporter is watching (they answer
+first), nothing fires headless (a piped session disables the alerter
+entirely), and `--no-alerts` turns the whole mechanism off. The batch
+banner at the prep-to-questions transition rings immediately - that is
+the one alert that fires without idleness, calling the reporter back for
+the single interactive phase.
+
+## Credential boundary
+
+LLM requests run on the host. Authentication values are therefore neither
+needed nor persisted in the LXD guest. A per-run redactor registers resolved
+secret values and sanitizes fully formatted console/JSON logs and every
+shareable artifact writer. Redaction matches exact registered values rather
+than provider-specific prefixes or heuristic token patterns, so another
+OpenAI-compatible provider does not require a new masking rule and public MIR
+evidence remains intact.
+
+The output directory is credential-safe to share after a completed run. It is
+not anonymized: public Launchpad content, package data, guest names, versions,
+and diagnostic paths remain present.
+
+## Core data contracts
+
+### RunContext (operational state)
+
+`RunContext` is the runtime envelope passed across stages and subsystems.
+Important partitions:
+
+- Inputs/config: bug id, models, LXD options, source pocket.
+- Runtime/auth: resolved provider/token/API URL.
+- Evidence: adapter outputs, collection summaries.
+- Findings: check outputs from `checks.evaluate_checks()`.
+- Output: rendered report and draft paths.
+
+### Finding (evaluation result contract)
+
+`models.Finding` is the canonical check-output model with enforced invariants:
+
+- `status == "ok"` implies `severity == "ok"`.
+- statuses and severities are enum-validated.
+- helper methods (`succeed`, `fail`, factories) are preferred to manual field mutation.
+
+Rendering semantics are driven by `status + confidence + mode`:
+
+- deterministic non-ok or high-confidence non-ok -> `Problems`.
+- low/medium-confidence non-ok -> `Left to decide`.
+
+### StatementResult (reporter result contract)
+
+Reporter results deliberately do not use reviewer severity or ACK/NACK
+semantics. They record resolution state, readiness effect, statement
+provenance, evidence references, answer references, and explicit human
+confirmation. Human declarations are never inferred from package evidence.
+
+### Assessment (deterministic reporter evaluator contract)
+
+A reporter evaluator returns an `Assessment`: the evidence-derived
+`statement` plus, separately, a `note` and an `action` (or an
+`unavailable_reason` when nothing could be judged).
+
+- `note` is context nobody has to act on. The statement stays a confident
+  bullet, the note becomes its parenthetical, and readiness stays `clear`.
+- `action` means the reporter still owes something. The item becomes
+  `NEEDS_INPUT` with its catalog-declared readiness, and the draft lists the
+  finding together with the required action under `Left to clarify:`.
+
+The two must stay distinct: a single opaque rationale field made
+"here is what was queried" indistinguishable from real outstanding work.
+
+### Run state (recovery checkpoint)
+
+Every run writes `run-state.json` to the output directory incrementally
+(`utils/run_state.py`): run metadata (role, subject, series, guest name), a
+`done` marker per pipeline stage as it completes, and - for the report
+role - one statement result plus its condition value at a time while the
+reporter answers. Writes are atomic (`tmp` + `os.replace`) and sanitized
+like every artifact, so a crash or interrupt costs at most the in-flight
+item. Interrupts are handled as deliberate actions, not tool errors:
+`KeyboardInterrupt` checkpoints evidence and state, tears the guest down
+through the normal tail, and exits non-zero with a pointer at recovery;
+a reporter `:cancel`/EOF abort (`WizardAborted`) does the same without a
+traceback.
+
+`recovery.py` turns that state into resume flows for both roles. An
+explicit `--output-dir` holding a completed run is offered as "overwrite
+with a full new run"; one holding an aborted run as "continue with the
+remaining steps" (a directory with `evidence.json` + log but no state
+from an older tool version is offered the same, resumable from the
+evidence boundary); declining exits early stating the output directory
+is not empty. `--recovery` scans the default output paths for the most
+recent run of this bug/package and offers to continue it when it aborted,
+listing what it found otherwise. A resumed run restores the collected
+evidence (so no LXD guest is needed at all), the reporter's answered
+statement results - asking only the remaining items - and the reviewer's
+promotion scope; reviewer analysis re-runs (findings are not persisted).
+Resume validation is by identity, not version pinning: a state whose
+recorded items no longer exist in the current catalog is refused rather
+than silently dropped. `--collect-only` bypasses the preflight (it is the
+fixture-regeneration flow writing into existing directories), and every
+prompt refuses cleanly on a non-interactive terminal.
+
+### Placeholder resolution in statements
+
+Two kinds of placeholder live in reporter catalog statements. `TBD` slots
+are the reporter's to fill: the wizard opens one completion round on the
+chosen sentence, a saved-with-`TBD` statement becomes `NEEDS_INPUT`, and an
+AI suggestion still carrying one has its yes-confirmation locked so it can
+never be accepted verbatim. Every result-creation site (human answer, AI
+confirmation, AI human fallback) applies the same
+`statement_left_open` check to the statement *and* its rationale, so an
+open slot routes the item to `Left to clarify:` no matter which path
+produced it; `consistency.validate_results` is the warning-level backstop.
+`TBDRULESURL` is resolved by the tool instead of the reporter: the
+Launchpad git URL of `debian/rules` is constructed from the source package
+and target series (`ubuntu/devel` for the development release,
+`ubuntu/<series>-devel` otherwise), at the AI suggestion, human fallback,
+and question-display paths alike. The token deliberately contains `TBD`, so
+an unsubstituted leak still trips the placeholder guards rather than
+reaching the draft.
+
+### Statement authorship (no template splicing)
+
+Free-text questions open the editor on the item's own `template` sentence
+(`QuestionSpec.prefill`: TODO markers stripped, `TBDSRC` resolved, `TBD`
+slots kept, a confidently detected default filling the first slot). Whatever
+the reporter saves is the statement - the tool never merges an interview
+answer into a template. A `single_choice` answer resolves to its option's
+pre-written statement, and if that statement still contains `TBD` the wizard
+opens one completion round on exactly that sentence.
+
+A statement the reporter leaves a `TBD` in is not an error: it becomes
+`NEEDS_INPUT` and travels to `Left to clarify:`.
+
+Every question is deferrable via `:defer`. A required question deferred by
+the reporter becomes `NEEDS_INPUT` with its catalog-declared readiness and
+surfaces as open work under `Left to clarify:`; an optional question's
+skip (empty answer or `:defer`) stays `NOT_APPLICABLE`.
+
+An item may declare `completes: <parent-item-id>`. Its finished text becomes
+the parent's statement at the parent's blueprint position and the follow-up
+is recorded as `MERGED`, so a choice and the detail that completes it render
+as the one sentence the human template words, not two bullets. Validation
+requires the parent to exist, be asked earlier, gate the follow-up's
+applicability, and have exactly one completer.
+
+### Draft layout
+
+The blueprint decides section membership and statement order; the renderer
+decides spacing. Blueprint `''` separators are not reproduced (they separate
+template prose the draft does not emit at all): the renderer emits exactly
+one blank line before each `[Section]` header and before a clarify block,
+never two, none trailing. `catalog.classify_blueprint_entry()` is the single
+vocabulary deciding what is a section, RULE, TODO, label, blank, or item,
+so no consumer can drift into leaking template scaffolding into the draft.
+
+`_lint_draft` enforces only the renderer-controlled structure of the
+rendered result: each known section header appears exactly once (by
+whole-line equality, so free text merely *mentioning* a marker cannot trip
+it), the blank-line layout holds, every catalog item has a result, and no
+resolved statement still starts with an unfilled template marker. Content
+lines (human answers, AI suggestions, rationales) are deliberately never
+judged by line shape - they cannot be told from scaffolding by text, and
+shape-checking them is what aborted fully answered runs at write time
+(feedback item 4). A lint failure is never a crash either:
+`write_outputs` still writes the draft and report, forces readiness to
+not-ready, records the violations in the report, and raises
+`DraftLintFailed` so the run exits non-zero without destroying the
+session.
+
+## Catalog composition
+
+- `catalog.yaml` holds only the sections shared by both roles:
+  `global_policies` (confidence model) and `evidence_adapters` (data
+  collection interfaces).
+- `catalog-mir-review.yaml` owns all reviewer-only content directly: `role:
+  review`, `metadata` (reviewer-template blueprint), `checks`,
+  `security_triggers`, `render_policy`, `fallback_policy`.
+- `catalog-mir-report.yaml` owns all reporter-only content directly: `role:
+  report`, `metadata` (reporter-template blueprint), `items` (questions,
+  readiness effects, terminal templates).
+- `catalog.load_catalog_for_role(tool_root, workspace_root, role)` composes
+  the runtime view for either role the same way: load `catalog.yaml`'s shared
+  sections, load the role's own file, reject either side overriding the
+  other's keys, then validate the composed dict as a whole
+  (`validate_catalog` for review, `validate_report_catalog` for report).
+
+Both compositions reject shared-section overrides and validate every check /
+item, adapter reference, and blueprint reference on the assembled result.
+
+### RULE-clause coverage (catalog-to-template mapping contract)
+
+A blueprint `RULE:` line may opt in to individual coverage tracking via
+`RULE[<slug>]: <text>` (a following plain `RULE:` line continues attaching to
+that clause, same as any other multi-line RULE block - tagging never changes
+rendered output). Items/checks declare which slug(s) they resolve via an
+optional `covers_rule_clauses: [...]` list. `catalog._validate_rule_clause_
+coverage()` (called from both `validate_report_catalog()` and
+`validate_catalog()`) fails catalog loading on a duplicate slug, a reference
+to an undeclared slug, or a declared slug with zero covering items. This is
+the structural guarantee that the catalog's authored policy actually reaches
+the rendered reporter/reviewer templates, without pinning to a frozen
+snapshot of the pre-migration human templates - tagging is opt-in and grows
+incrementally as specific clauses are identified worth guaranteeing.
+
+The report catalog currently defines 64 items (asserted by
+`tests/test_catalog_roles.py`). Its runtime
+supports catalog options, multi-select choices, safe applicability conditions,
+deterministic evaluators, bounded evidence-to-AI suggestions with explicit
+confirmation, direct human fallback, and one final issue-finding consistency
+pass followed by deterministic readiness validation.
+
+## Checks subsystem model
+
+`checks/__init__.py` orchestrates evaluation in two passes:
+
+- Pass 1: non-synthesis checks.
+- Pass 2: synthesis checks (`synthesis: true`) after pass-1 findings exist.
+
+Dispatch is mode-driven through the registry:
+
+- `deterministic`
+- `ev_to_ai`
+- `ai`
+- `human_only`
+
+Language applicability is gated before evaluator routing (see
+"Language detection and vendor trees" above for the tiered,
+declared-buildsystem-wins model).
+
+Source-scan checks separate hard signals from soft references by ownership:
+URF-5 fails only on signals the package itself owns (setuid/setgid
+permission bits in the source tree or built packages, lintian tags on built
+artefacts, debian/rules setup, active non-vendored usage) while references
+inside vendored trees and FFI *declarations* render in Left to decide with a
+grouped rationale for the reviewer to confirm — never as Problems, never
+silently OK.
+
+## Evidence subsystem model
+
+`evidence/__init__.py` computes required/optional adapters from the catalog,
+orders execution by dependencies, and executes collectors.
+
+Key rules:
+
+- required adapter failures contribute to non-zero collection status,
+- optional adapter failures are best-effort and do not fail the run,
+- dependency failures propagate to downstream adapters as explicit error status.
+
+The reverse-dependency chain feeds CB-6 (E2E coverage via consumers):
+
+- `reverse-deps` (guest) lists reverse-dependency consumer source packages via
+  `reverse-depends` (runtime and build) against the target release,
+- `consumer-autopkgtests` (host, depends on `reverse-deps`) reports each
+  consumer's autopkgtest status.
+
+The dependency chain feeds DEP-4 (in-main dependencies not only superficially
+tested):
+
+- `dep-analysis` (guest) computes `runtime_deps_in_main`: runtime dependencies
+  of in-scope binaries that are already in main (so need no MIR of their own),
+- `dependency-autopkgtests` (host, depends on `dep-analysis`) resolves each to
+  its source via `dep_source_map` and reports per-dependency
+  `dependency_coverage` (has_autopkgtest, passing/failing arches) from the
+  shared autopkgtest DB.
+
+The large `autopkgtest.db` is downloaded once per run and cached on the context
+(shared by `autopkgtest-db`, `consumer-autopkgtests`, and
+`dependency-autopkgtests`), then removed at the end of evidence collection
+(`cleanup_cached_autopkgtest_db`).
+
+The `debian-delta` adapter (required by PRF-1) classifies the Ubuntu delta
+from the version string alone (sync / native / ubuntu-delta — no tools, no
+fetch), and for `...ubuntuN` versions derives the Debian base version
+deterministically from the version string, fetches it with
+`pull-debian-source`, and debdiffs it against the Ubuntu `.dsc` already in
+the packaging-source workdir. Failure classes are distinct: missing guest
+tools (pull-debian-source/debdiff, provisioned with ubuntu-dev-tools and
+devscripts in every guest) are a hard adapter error — a provisioning defect;
+a base version that can no longer be fetched from the Debian mirror
+degrades to an explicit reviewer-note summary, never a silent empty
+diffstat.
+
+## LLM usage model
+
+`checks/llm_eval.py` controls AI paths with guardrails:
+
+- explicit prompt rendering,
+- bounded payload truncation/summarization,
+- explicit human-confirmation metadata for every AI outcome,
+- deterministic fallback behavior when LLM calls fail.
+
+### Availability: preflight and the binary mode contract
+
+The review role's LLM modes are deliberately binary (2026-09-30 decision):
+either the LLM works (the default), or the run is deterministic-only via
+`--no-llm`. Stage 0 resolves the provider and runs `llm.preflight_check()` —
+one minimal handshake call. A never-workable combination (placeholder token
+against the default auth-requiring endpoint) or any failing handshake aborts
+the run there with guidance (`OPENAI_API_KEY`, `OPENAI_API_BASE`,
+`--no-llm`), before any guest or evidence work is spent. A local
+unauthenticated endpoint is probed, not assumed. `--no-llm` skips auth
+entirely; every `ev_to_ai`/`ai` check then degrades to the standard
+fallback whose message states the deliberate mode, and the draft carries a
+`Mode: deterministic-only evaluation` preamble line. Mid-run failures after
+a successful preflight keep the per-check fallback but gain provenance: the
+finding records `llm_error_cause`, the renderer marks its TODO with
+`NOTE: - LLM unavailable for this check (<reason>)`, `report.json` gains an
+`llm_degraded` list, and the completion banner warns. The report role never
+requires a credential, but a configured-but-broken key fails fast at its
+optional-auth stage.
+
+### Degraded findings keep their deterministic facts
+
+When the LLM is unavailable (outage or `--no-llm`), each check's fallback
+rationale is built from a curated per-check fact registry
+(`_DEGRADED_FACT_BUILDERS`): what the already-collected evidence answers for
+that check — e.g. CB-2's rules test wiring and build-log evidence, PRF-1's
+delta presence and classification, ESL-1/11's vendored directories,
+RDO-1's dup-search candidates — so a degraded run still starts the reviewer
+from facts rather than bare TODOs. Checks whose evidence did not collect
+render without a rationale; facts are never fabricated.
+
+AI evaluators accept `low`, `medium`, or `high` confidence. A high-confidence
+AI failure may therefore render as a confirmed problem, but it remains marked
+as requiring human confirmation. This is the current behavior established by
+the 2026-07-09 outcome-model decision; older medium-cap descriptions are
+superseded.
+
+Model tiering:
+
+- `ai` synthesis uses large tier,
+- `ev_to_ai` selects tier heuristically.
+
+### Language detection and vendor trees
+
+`utils/language_detection.py` is the single source of truth for "which
+language is this package" and "which directories hold vendored code",
+consumed by both the evidence adapters and the checks subsystem. Vendor dir
+names derive from `debian/rules` (`CARGO_VENDOR_DIR`, the Debian cargo
+`rust-vendor` convention) plus the standard upstream conventions, and travel
+in the packaging-source payload as `vendor_dir_names`. Detection is tiered:
+declared signals (rules/control buildsystem declarations, `dh-sequence-*`
+build-deps, lockfiles) are authoritative; tree hints (the package's own,
+non-vendored, non-test-tree source files) only classify a language when no
+other language is declared — a declared buildsystem outranks foreign-language
+files in the tree, which in practice are vendored or auxiliary. ESL-4/ESL-8
+render three outcomes accordingly: a positive assertion stating its trigger
+evidence, a tree-hint note without a positive assertion, or "not a go/rust
+package" with the conflict stated.
+
+## Rendering model
+
+`render/__init__.py` converts findings into:
+
+- reviewer draft text,
+- structured machine-readable report.
+
+The renderer enforces section/order conventions and lint-style consistency checks.
+
+## Repository layout (current)
+
+```
+tools/auto-mir/
+  auto_mir.py
+  lxd_runner.py
+  lp_intake.py
+  llm.py
+  models.py
+  contracts.py
+  catalog.yaml
+  catalog-mir-review.yaml
+  catalog-mir-report.yaml
+  catalog.py
+  CATALOG.md
+  checks/
+  evidence/
+  render/
+  prompts/
+  tests/
+  testing.md
+  decisions.md
+  design.md
+```
+
+## Verification model
+
+Baseline local gate from `tools/auto-mir`:
+
+- `make lint`
+- `make test`
+
+Integration gate (when execution/evidence boundaries change):
+
+- `make integration`
+
+## Current refactor posture
+
+The 2026 phased structural refactor is complete. The codebase now operates with:
+
+- characterization and contract tests in place,
+- simplified helper-driven state transitions and wrapper boundaries,
+- documentation aligned to the current runtime architecture,
+- steady-state advisory parity checks to monitor baseline drift.
+
+See `decisions.md` phase ledger entries for per-batch status and validation.

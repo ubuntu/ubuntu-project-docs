@@ -52,13 +52,13 @@ Equally useful to the tools are the various auto-generated web pages in
 `ubuntu-archive`'s `public_html` that can give you a feel for the state of the
 Archive.
 
-* [`component-mismatches.txt`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.txt)
+* [`component-mismatches.txt`](https://static-reports.ubuntu.com/mismatches/component-mismatches.txt)
 
   As described above, this lists the differences between the Archive and the
   output of the {ref}`germinate` script. It shows up packages that are in the
   wrong place, or need seeding.
 
-* [`germinate-output`](https://ubuntu-archive-team.ubuntu.com/germinate-output/)
+* [`germinate-output`](https://static-reports.ubuntu.com/germinate/germinate-output/release/)
 
   This is the output of the `germinate` script, split up into each release of
   each flavour of Ubuntu. 
@@ -90,7 +90,7 @@ Archive.
   No longer Built from the Source. 
 
 * [`~ubuntu-archive/NBS/`](https://ubuntu-archive-team.ubuntu.com/NBS/) and
-  [`~ubuntu-archive/nbs.html`](https://ubuntu-archive-team.ubuntu.com/nbs.html)
+  [`~ubuntu-archive/nbs.html`](https://static-reports.ubuntu.com/nbs/nbs.html)
 
   This contains a list of binary packages which are Not Built from Source (NBS)
   any more. The files contain the list of reverse dependencies of those packages

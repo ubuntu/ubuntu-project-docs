@@ -39,18 +39,17 @@ Create your Application on Discourse
 Collect endorsements
 : {ref}`dmb-collect-endorsements` from those who have worked with you.
 
-Once you have enough endorsements - Reserve your agenda spot
-: Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see upcoming DMB meetings.
-: Only one application can be considered each meeting.
-: Note: Applications to {ref}`Ubuntu Contributing Developers <dmb-joining-contributing>` are handled only via the mailing list, therefore no agenda entry is needed for those (the DMB will vote as replies to your post to the `devel-permissions@` mailing list).
-
-Once you have an agenda spot - announce your application
-: Announce your application and selected meeting date by writing an email to the `devel-permissions@` mailing list. Your email should include:
+Once you have enough endorsements - announce your application
+: Announce your application by writing an email to the `devel-permissions@lists.ubuntu.com` mailing list. Your email should include:
+  * Your name
+  * What packages, packageset or membership you apply to
   * The link to your Discourse application page
 
-  * The date you reserved for your meeting
-
-  * A link to the meeting agenda
+Once you have announced your application - Reserve your agenda spot
+: Check the Developer Membership Board (DMB) [agenda](https://discourse.ubuntu.com/t/ubuntu-developer-membership-board-agenda/66634) to see upcoming DMB meetings.
+: Only one application can be considered each meeting.
+: Edit the agenda (it is like a Wiki) to add yourself to a free slot
+: Note: Applications to {ref}`Ubuntu Contributing Developers <dmb-joining-contributing>` are handled only via the mailing list, therefore no agenda entry is needed for those (the DMB will vote as replies to your post to the `devel-permissions@` mailing list).
 
 Attend your meeting
 : Then {ref}`attend your meeting <dmb-application-meeting>`, answer questions, and receive your votes.

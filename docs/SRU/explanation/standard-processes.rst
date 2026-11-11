@@ -1,6 +1,8 @@
 Standard processes
 ------------------
 
+.. include:: /SRU/_sru-series.rst
+
 [this section needs cleaning up]
 
 -  We'd like the minimum process necessary. It should be clear why any
@@ -66,8 +68,8 @@ target package will not be released into -updates until the failure is
    an MP in the bug along with the rationale. Useful input here can be
    re-running the failing test against only the release/updates pocket,
    as documented in the
-   `Proposed Migration <https://wiki.ubuntu.com/ProposedMigration#How_to_run_autopkgtests_of_a_package_against_the_version_in_the_release_pocket>`__
-   wiki page.
+   `Proposed Migration <https://ubuntu.com/project/docs/contributors/advanced/resolve-a-migration-issue/#learn-to-run-autopkgtest>`__
+   page.
 -  If the reported autopkgtest regression is the result of a **flaky
    test**, the uploader can try re-running the test to see if it is
    indeed just a transient issue. If the issue still persists but the
@@ -113,20 +115,9 @@ Once a package is released to -updates, the update is then phased so
 that the update is gradually made available to expanding subsets of
 Ubuntu users. This process allows us to automatically monitor for
 regressions and halt the update process if any are found. Complete
-details about the process can be found in a `blog post by Brian
-Murray <https://web.archive.org/web/20210507035933/http://www.murraytwins.com/blog/?p=127>`__.
-
-The Phased-Update-Percentage is initially set to 10%, then a job is run
-(every 6 hours) that checks for regressions and if none are found the
-phased update percentage will be incremented by 10%. So an update will
-become fully phased after 54 hours or about 2 days. In the event that a
-regression is detected the Phased-Update-Percentage will be set to 0%
-thereby causing supported package managers (update-manager) not to
-install the update.
-
-The progress of phased updates is visible in a
-`report <https://ubuntu-archive-team.ubuntu.com/phased-updates.html>`__
-which is updated by the same job that does the phasing.
+details about the mechanism, including how ``apt`` decides whether a
+particular machine receives a phased update, are in the
+:ref:`phased-updates` concept section.
 
 See also:
 

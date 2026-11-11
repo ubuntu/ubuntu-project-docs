@@ -3,6 +3,8 @@
 Package-specific notes
 ----------------------
 
+.. include:: /SRU/_sru-series.rst
+
 See also: :ref:`Explanation → Non-standard Processes → Package-specific
 non-standard processes <explanation-package-specific-non-standard-processes>`
 
@@ -21,10 +23,10 @@ To obtain a new ongoing exception such as those documented below:
    To discuss further see :ref:`Howto → Contact <howto-contact>`
 
 Note that the SRU team's delegation from the Technical Board is limited
-to accepting SRU uploads that meet the `policy criteria <#When>`__
-above. The SRU team maintains documentation for standing exceptions here
+to accepting SRU uploads that meet the :ref:`policy criteria <reference-what-is-acceptable-to-sru>`.
+The SRU team maintains documentation for standing exceptions here
 to keep individual interpretations of the policy criteria consistent.
-Departing from the policy criteria above still requires approval from
+Departing from the policy criteria still requires approval from
 the Technical Board.
 
 
@@ -39,6 +41,7 @@ the Technical Board.
     exception-Bind9-Updates
     exception-Certbot-Updates
     exception-Cloudinit-Updates
+    exception-CrashMakedumpfile-Updates
     exception-Curtin-Updates
     exception-DPDK-Updates
     exception-Docker-Updates
@@ -747,3 +750,10 @@ Toolchains:
 * Java: `Java updates PPA <https://launchpad.net/~openjdk-r/+archive/ubuntu/ppa>`__
 * Go: `Go updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/golang>`__
 * Python: `Python updates PPA <https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/python>`__
+
+Crash And Makedumpfile
+~~~~~~~~~~~~~~~~~~~~~~
+
+The crash and makedumpfile source packages may be uploaded according to the
+procedure documented in :ref:`CrashMakedumpfile-Updates <reference_crash_and_makedumpfile_updates>`.
+

@@ -39,7 +39,8 @@ uploader/index
 ```{toctree}
 :maxdepth: 1
 
-SRU/index
+test-plans/index
+/SRU/stable-release-updates
 ```
 
 ### Archive Administration

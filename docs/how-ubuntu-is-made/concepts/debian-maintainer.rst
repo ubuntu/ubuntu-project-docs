@@ -52,6 +52,9 @@ For example, after defining a new version targeting "lunar" in :file:`debian/cha
 
 Typically, the address ``ubuntu-devel-discuss@lists.ubuntu.com`` is used as any package in Ubuntu may be uploaded by anyone with the appropriate rights, which are governed by Launchpad rather than the ``Maintainer`` and ``Uploader`` fields in the source package. However, any ``ubuntu.com`` address may be used, if a specific maintainer is more appropriate.
 
+.. note::
+   You may occasionally encounter a package whose ``Maintainer`` field points to neither a Debian nor an ``ubuntu.com`` address. For example, OEM meta-packages such as ``oem-qemu-meta`` use ``Commercial Engineering <commercial-engineering@canonical.com>``. These packages follow a streamlined process rather than the usual maintainer conventions. See :ref:`mir-exceptions-oem` for details.
+
 The Ubuntu version of the package building tools ensures that, if the version number of the package indicates Ubuntu modifications, they refuse to build unless the ``Maintainer`` field includes an ``ubuntu.com`` address.
 
 

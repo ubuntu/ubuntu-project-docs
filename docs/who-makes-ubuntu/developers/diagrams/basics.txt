@@ -1,4 +1,8 @@
 :::{mermaid}
+   %%{init: {'themeVariables': {
+                'fontSize': '1em',
+                'fontFamily': 'Ubuntu'}}}%%
+
 block-beta
 columns 2
   block:left
@@ -12,15 +16,13 @@ columns 2
   block:right
     InitialTasks("Initial tasks")
     columns 1
-    BugTriage["<a href='https://documentation.ubuntu.com/project/contributors/bug-triage/'>Bug triage</a>"]
+    BugTriage["<a href='/contributors/bug-triage/'>Bug triage</a>"]
     BiteSizedBugs["Bite-sized bugs"]
     TrivialPackgeMerges["Trivial package merges"]
   end
 
   InitialStudies --> InitialTasks
 
-  classDef Studies fill: #FFDAB9, stroke:#F4A460;
-    class InitialStudies,InitialTasks Studies
   classDef invisible fill:transparent,stroke:transparent;
     class left,right invisible
 :::

@@ -3,6 +3,8 @@
 GNOME Updates
 =============
 
+.. include:: /SRU/_sru-series-exception.rst
+
 GNOME had a micro release exception granted by the Technical Board in
 June 2012. Since the granting of micro release exceptions was made more
 generic and then decisions delegated to the SRU team directly, the
@@ -87,7 +89,7 @@ Gnome Testing
 An appropriate test plan varies according to the package.
 
 The desktop team will maintain specific test plans at
-`CategoryDesktopTestPlans <https://wiki.ubuntu.com/CategoryDesktopTestPlans>`__. If a test plan
+{ref}`desktop-team-test-plans`. If a test plan
 is for a particular package is provided there, then it should be
 followed during SRU verification for SRUs performed under this
 exception.

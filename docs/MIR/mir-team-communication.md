@@ -54,7 +54,7 @@ If you're chairing the meeting, you can use the following template:
 # Start of the Main inclusion request team meeting
 Welcome to the MIR Team's weekly meeting
 General rules and the process description can be found at https://documentation.ubuntu.com/project/MIR/main-inclusion-review and this meeting template can be found at https://documentation.ubuntu.com/project/MIR/mir-team-meeting/#mir-team-meeting
-Ping for MIR meeting members - @didrocks:matrix.org @joalif:matrix.org @seth-arnold:ubuntu.com @paelzer:ubuntu.com @mylesjp:matrix.org @pushkarnk:matrix.org ( @dviererbe:ubuntu.com )
+Ping for MIR meeting members - @didrocks:matrix.org @joalif:matrix.org @seth-arnold:ubuntu.com @paelzer:ubuntu.com @pushkarnk:matrix.org ( @dviererbe:ubuntu.com ) @freyes:ubuntu.com
 
 ## Topic 1/7: Awareness of external agenda items
 ### Mission: To be aware and potentially allocate the required time, poll if anyone attending has discussions that should be added to the agenda today.
@@ -63,8 +63,8 @@ Please speak up if you have a topic to add
 ## Topic 2/7: Current component mismatches
 ### Mission: Identify required actions and spread the load among the teams
 Check these generated reports:
-* [component-mismatches-proposed](https://ubuntu-archive-team.ubuntu.com/component-mismatches-proposed.svg)
-* [component-mismatches](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg)
+* [component-mismatches-proposed](https://static-reports.ubuntu.com/mismatches/component-mismatches-proposed.svg)
+* [component-mismatches](https://static-reports.ubuntu.com/mismatches/component-mismatches.svg)
 
 ## Topic 3/7: New MIRs
 ### Mission: ensure to assign all incoming reviews for fast processing

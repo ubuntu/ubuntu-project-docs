@@ -18,10 +18,10 @@ Every 30 minutes or so, the difference between what the seeds expect to be true
 and what the Archive actually states is evaluated by the `component-mismatches`
 tool, and the output placed at:
 
-* [`component-mismatches.txt`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.txt)
+* [`component-mismatches.txt`](https://static-reports.ubuntu.com/mismatches/component-mismatches.txt)
 
-* [`component-mismatches.svg`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.svg)
-  ([dot source](https://ubuntu-archive-team.ubuntu.com/component-mismatches.dot))
+* [`component-mismatches.svg`](https://static-reports.ubuntu.com/mismatches/component-mismatches.svg)
+  ([dot source](https://static-reports.ubuntu.com/mismatches/component-mismatches.dot))
 
 
 ### Promotions to `main`
@@ -63,8 +63,8 @@ Binary-only
 ## Resolving component mismatches
 
 For both directions, (universe -> main or main -> universe), start with
-[`component-mismatches`](https://ubuntu-archive-team.ubuntu.com/component-mismatches.html).
-Or for more churn at: [`component-mismatches-proposed`](https://ubuntu-archive-team.ubuntu.com/component-mismatches-proposed.html).
+[`component-mismatches`](https://static-reports.ubuntu.com/mismatches/component-mismatches.html).
+Or for more churn at: [`component-mismatches-proposed`](https://static-reports.ubuntu.com/mismatches/component-mismatches-proposed.html).
 
 * We will need to understand each individual case, so it is hard/not feasible
   to automate.

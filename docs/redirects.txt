@@ -87,13 +87,19 @@ contributors/index-bug-fix/ contributors/bug-fix/
 
 contributors/bug-fix/build-packages/ contributors/building/build-packages-in-a-ppa/
 contributors/bug-fix/package-building/ contributors/building/build-packages-in-a-ppa/
+contributors/bug-fix/build-packages-in-a-ppa/ contributors/building/build-packages-in-a-ppa/
 
 how-to/build-packages/ contributors/building/build-packages-locally/
+contributors/bug-fix/build-packages-locally/ contributors/building/build-packages-locally/
+
+contributors/bug-fix/propose-changes/ contributors/bug-fix/bugfixing-workflow/
 
 how-to/extract-packages/ contributors/updating/extract-packages/
+contributors/bug-fix/extract-packages/ contributors/updating/extract-packages/
 
-contributors/bug-fix/download-new-upstream-version/ contributors/updating/get-a-new-upstream-version/
 how-to/download-new-upstream-version/ contributors/updating/get-a-new-upstream-version/
+contributors/bug-fix/download-new-upstream-version/ contributors/updating/get-a-new-upstream-version/
+contributors/bug-fix/get-a-new-upstream-version/ contributors/updating/get-a-new-upstream-version/
 
 how-to/install-built-packages/ contributors/building/install-built-packages/
 contributors/bug-fix/install-built-packages/ contributors/building/install-built-packages/
@@ -107,6 +113,8 @@ contributors/index-bug-triage/ contributors/bug-triage/
 contributors/bug-triage/assign-bug-to-package/ contributors/bug-triage/assign-a-bug-to-a-package/
 
 how-to/contribute-docs/ contributors/contribute-docs/
+
+contributors/bug-fix/fix-a-bug-in-a-package/ contributors/bug-fix/index/
 
 contributors/index-debugging/ contributors/debugging/
 
@@ -123,6 +131,10 @@ contributors/index-new-package/ contributors/new-package/
 
 contributors/new-package/create-new-package/ contributors/new-package/create-a-new-package/
 tutorial/create-new-package/ contributors/new-package/create-a-new-package/
+
+maintainers/index-SRU/ SRU/stable-release-updates/
+maintainers/SRU/ SRU/stable-release-updates/
+maintainers/SRU/review-an-sru/ SRU/internal/
 
 contributors/new-package/request-sru/ SRU/howto/standard/
 contributors/new-package/request-an-sru/ SRU/howto/standard/
@@ -142,10 +154,14 @@ contributors/patching/make-changes-to-a-package/ contributors/updating/make-chan
 tutorial/make-changes-to-package/ contributors/updating/make-changes-to-a-package/
 tutorial/make-changes-to-a-package/ contributors/updating/make-changes-to-a-package/
 
-contributors/patching/patch-management/ contributors/updating/manage-patches/
+contributors/patching/work-with-debian-patches/ contributors/updating/work-with-debian-patches/
+
 how-to/patch-management/ contributors/updating/manage-patches/
+contributors/patching/patch-management/ contributors/updating/manage-patches/
+contributors/patching/manage-patches/ contributors/updating/manage-patches/
 
 contributors/patching/merge-proposal/ contributors/updating/submit-a-merge-proposal/
+contributors/patching/submit-a-merge-proposal/ contributors/updating/submit-a-merge-proposal/
 
 contributors/index-qa-and-testing/ contributors/qa-and-testing/
 
@@ -179,8 +195,6 @@ staging/AA/maintainers/aa-package-overrides/ maintainers/AA/aa-package-overrides
 staging/AA/maintainers/aa-priority-mismatches/ maintainers/AA/aa-priority-mismatches/
 
 staging/AA/maintainers/aa-signing-bootloaders/ maintainers/AA/aa-signing-bootloaders/
-
-maintainers/index-SRU/ maintainers/SRU/
 
 maintainers/index-uploader/ maintainers/uploader/
 
@@ -234,6 +248,11 @@ contributors/bug-fix/bug-control/ who-makes-ubuntu/specialist-teams/bug-control-
 
 SRU/explanation/ SRU/stable-release-updates/
 SRU/explanation/roles/ who-makes-ubuntu/roles/SRU/
+SRU/explanation/further-requirements/ SRU/explanation/requirements/
+SRU/howto/introduction-to-sru/ SRU/stable-release-updates/
+SRU/howto/prepare-special/ SRU/howto/special/
+SRU/howto/release/ SRU/howto/standard/
+SRU/reference/enable-proposed/ SRU/reference/sru-verification/
 SRU/index SRU/stable-release-updates/
 how-ubuntu-is-made/processes/stable-release-updates/ SRU/stable-release-updates/
 who-makes-ubuntu/roles/SRU/sru-sla/ who-makes-ubuntu/roles/SRU/

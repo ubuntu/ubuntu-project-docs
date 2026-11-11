@@ -1,0 +1,34 @@
+.codeblock-wrap pre {
+  white-space: pre-wrap;
+}
+
+pre.mermaid svg {
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* Append "(in this article)" dynamically for links within any series admonition that point to the current page */
+.admonition-highlight-this-page a.reference.internal[href^="#"]:after {
+  content: " (in this article)";
+  font-style: italic;
+  font-weight: normal;
+  color: #777; /* Greyed out, independent of link visited state */
+  margin-left: 4px;
+}
+
+/* Append "(in this section)" dynamically to the parent-section link in the
+   SRU series admonition variant used on package exception pages. On the
+   package-specific notes page itself the link is a same-page anchor, and
+   the "(in this article)" rule above already covers it. */
+.sru-series-exception a.reference.internal[href*="package-specific/"]:not([href^="#"]):after {
+  content: " (in this section)";
+  font-style: italic;
+  font-weight: normal;
+  color: #777; /* Greyed out, independent of link visited state */
+  margin-left: 4px;
+}
+
+.release-table {
+    font-size: smaller;
+}
+

@@ -3,6 +3,8 @@
 MariaDB and Galera Updates
 ==========================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for doing microrelease updates of the MariaDB
 and Galera packages in Ubuntu releases.
 
@@ -140,7 +142,7 @@ A MRE exception was granted in 2014:
 
 However, it was not recorded later when
 https://wiki.ubuntu.com/StableReleaseUpdates#Documentation_for_Special_Cases was
-created.
+created back then.
 
 .. _mariadb_security_uploads:
 
@@ -203,7 +205,7 @@ SRU template
     * [...]
 
     These updates include bug fixes following the SRU special case documentation at
-    https://wiki.ubuntu.com/MariaDB-and-Galera-updates.
+    https://ubuntu.com/project/docs/SRU/reference/exception-MariaDB-Galera-Updates/
 
     [Upstream changes]
 

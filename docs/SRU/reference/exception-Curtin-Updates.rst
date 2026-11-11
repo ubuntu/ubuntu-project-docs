@@ -3,6 +3,8 @@
 Curtin Updates
 ==============
 
+.. include:: /SRU/_sru-series-exception.rst
+
 This document describes the policy for updating Curtin in a stable,
 supported release. Curtin (the curt installer) is a "fast path"
 installer designed to install Ubuntu quickly. It is blunt, brief,
@@ -54,7 +56,7 @@ Updates to curtin trunk go through the following process:
 
 -  Reviewed and approved by a member of the development team
 -  Daily integration tests on trunk
--  Successful run of unit tests and style tests based on the bzr
+-  Successful run of unit tests and style tests based on the git
    branch
 -  Branch set to the committed state
 

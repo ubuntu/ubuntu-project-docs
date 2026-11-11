@@ -33,6 +33,10 @@ Think of it as a relation between Launchpad personas and a list of packages.
 
 ```{mermaid}
 %% mermaid flowcharts documentation: https://mermaid.js.org/syntax/flowchart.html
+   %%{init: {'themeVariables': {
+                'fontSize': '0.6em',
+                'fontFamily': 'Ubuntu'}}}%%
+
 flowchart TD
     %% Entities
     Developers["Developer"]
@@ -232,7 +236,7 @@ team that we then later add developers to.
    4. Remove (deactivate) `developer-membership-board` (membership, keep ownership).
 
 9. Go to [`~ubuntu-uploaders` member page](https://launchpad.net/~ubuntu-uploaders/+members)
-   and add the new team as a member.
+   and add the new team as a member. Set this membership to never expire.
    (In rare cases the DMB may require membership of packageset uploaders, in that
     case add it to [`~ubuntu-dev` member page](https://launchpad.net/~ubuntu-dev/+members) instead)
 
@@ -272,4 +276,29 @@ team that we then later add developers to.
 
           ```none
           for RELEASE in $(distro-info --supported); do edit-acl ...; done
-          ```
+
+ ## How to remove a packageset
+
+A packageset can be deleted if there is no need for it anymore. A DMB vote
+is required to do so.
+```{warning}
+It is important to remove the packageset from all releases before deleting
+the associated Launchpad group that the DMB used to manage the uploaders.
+```
+
+A packageset is created per series, so the removal
+likely needs to iterate over a list of series to remove it in all of them.
+
+A team with an uploader can not be removed, and only a tech-board member can
+modify the uploader. This is usually a group like `ubuntu-gnome-dev`,
+managed by the DMB.
+
+* First delete the uploader(s)
+```none
+/edit-acl delete --packageset $PACKAGESET --series $RELEASE --person $UPLOADER
+```
+* Then delete the packageset
+```none
+./edit-acl delete --packageset $PACKAGESET --series $RELEASE
+```
+

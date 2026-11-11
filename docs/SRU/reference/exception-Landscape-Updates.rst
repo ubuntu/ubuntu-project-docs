@@ -3,6 +3,8 @@
 Landscape updates
 =================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 Background
 ----------
 

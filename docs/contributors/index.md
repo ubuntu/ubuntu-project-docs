@@ -65,12 +65,23 @@ debugging/index
 
 ## Bug fixing
 
-Pages on finding fixes upstream, building locally or in a PPA, and running package tests.
+Pages on finding fixes upstream and applying patches.
 
 ```{toctree}
 :maxdepth: 1
 
 bug-fix/index
+```
+
+
+## Building
+
+How to build packages locally or in a PPA, install built packages, and run package tests.
+
+```{toctree}
+:maxdepth: 1
+
+building/index
 ```
 
 
@@ -83,17 +94,6 @@ Specific pages on working with Debian patches.
 
 updating/index
 ```
-
-
-## Building
-
-```{toctree}
-:maxdepth: 1
-
-/contributors/building/index
-```
-
-
 
 
 ## Merging
@@ -131,13 +131,9 @@ new-package/index
 
 ## Stable Release Updates
 
-Guidance for contributors on how to submit requests for SRU. See
-
-```{toctree}
-:maxdepth: 1
-
-/SRU/howto/index
-```
+Guidance for contributors on how to submit requests for SRU: see the
+{ref}`SRU how-to guides <sru-howto-guides>`, part of the
+{ref}`Stable Release Updates <stable-release-updates>` documentation.
 
 ## Language-specific features
 

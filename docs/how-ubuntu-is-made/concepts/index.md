@@ -36,6 +36,7 @@ deb-3-patch-file-headers
 debian-policy
 debian-directory
 debian-maintainer
+units-policy
 ```
 
 ## System design
@@ -46,4 +47,14 @@ Reference about the directory structure of the distribution.
 :maxdepth: 1
 
 filesystem-hierarchy-standard
+```
+
+## Debian
+
+How Ubuntu relates to and collaborates with Debian.
+
+```{toctree}
+:maxdepth: 1
+
+debian/index
 ```

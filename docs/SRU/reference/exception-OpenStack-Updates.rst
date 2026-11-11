@@ -3,6 +3,8 @@
 Stable Release Updates for OpenStack and the Ubuntu Cloud Archive
 =================================================================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 The SRU process for !OpenStack and the Ubuntu Cloud Archive (UCA)
 follows the same process as `Ubuntu Stable Release
 Updates </howto/standard>`__. This page
@@ -235,3 +237,15 @@ OpenStack has a :ref:`SRU Interest Team <reference-sru-interest-team>`.
 Please subscribe the
 `Interest group <https://launchpad.net/~sru-verification-interest-group-openstack>`__
 to the SRU bug early on.
+
+Log of regressions
+------------------
+
+Here is a log of important regressions that have happened in the past with updates using this special case.
+
+* `LP: #2172324 <https://bugs.launchpad.net/bugs/2172324>`__: ceph removed the long-deprecated ``auth_supported`` RADOS option. libvirt's RBD storage backend still sets it every time it connects, so on a host with the updated ceph client libraries every RBD pool start fails:
+
+  ::
+
+    error: failed to start pool '<pool>'
+    error: failed to set RADOS option: auth_supported

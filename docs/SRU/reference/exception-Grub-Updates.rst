@@ -5,6 +5,8 @@
 Process for SRUing GRUB
 =======================
 
+.. include:: /SRU/_sru-series-exception.rst
+
 There is no SRU "exception" for GRUB. Criteria for acceptance remains
 the same as normal under our usual policies. However, GRUB requires
 special handling to actually build and release it, due to our EFI

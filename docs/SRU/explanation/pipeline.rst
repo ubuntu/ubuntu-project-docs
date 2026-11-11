@@ -3,6 +3,8 @@
 Overview of the SRU pipeline
 ----------------------------
 
+.. include:: /SRU/_sru-series.rst
+
 1. An SRU driver prepares the relevant bugs with the necessary
    documentation, using the :ref:`reference-sru-bug-template`,
    and makes an SRU upload available.
@@ -35,11 +37,11 @@ Overview of the SRU pipeline
 The following diagram illustrates this pipeline:
 
 .. mermaid::
-   :align: center
 
    %%{init: {'themeVariables': {
-                'fontSize': '20px',
+                'fontSize': '0.8em',
                 'fontFamily': 'Ubuntu'}}}%%
+
    flowchart TD
        prepare_package["Prepare the bug fix, and the SRU template"]
        unapproved["Upload the package to the unapproved queue"]
