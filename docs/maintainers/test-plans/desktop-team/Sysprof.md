@@ -1,6 +1,10 @@
 (Sysprof-test-plan)=
 # Sysprof test plan
 
+:::{note}
+`sysprof` has been part of `main` since Ubuntu 25.04 (plucky). It was in `universe` in all earlier releases.
+:::
+
 Below are the test cases that should be run when any of `sysprof`, `libdex`, or `libpanel` are updated to new major releases in the development version of Ubuntu. These should also be run for any Stable Release Update for `sysprof`, `libdex`, or `libpanel`.
 
 Below are the test cases that should be run when any of `gnome-builder`, `libdex`, or `libpanel` are updated to new major releases in the development version of Ubuntu. These should also be run for any Stable Release Update for `gnome-builder`, `libdex`, or `libpanel`.

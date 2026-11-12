@@ -1,6 +1,10 @@
 (Loupe-test-plan)=
 # Loupe test plan
 
+:::{note}
+`loupe` has been part of `main` since Ubuntu 25.10 (questing). It was in `universe` in earlier releases.
+:::
+
 Below are the test cases that should be run when `loupe` is updated to new major releases in the development version of Ubuntu. These should also be run for all `loupe` Stable Release Updates.
 
 Loupe is the default image viewer of Ubuntu Desktop, starting with Ubuntu 25.10

@@ -121,16 +121,17 @@ For this to work, 'Safety tips' must be installed in about://components. This is
 
 Only perform test for new major releases.
 
-[Test 1] With the password-manager-service interface disconnected (default),
+(chromium-snap-test-1)=
+##### Test 1
 
-`--> MAIN <--`
+With the `password-manager-service` interface disconnected (default):
 
 * Browse to <https://a-nau.github.io/password-protected-website-template>, input any word in the password field, and verify there's a little key icon in the URL bar, next to the bookmark (star) icon. Click the key, input a user name, and press {kbd}`Enter`.
 * Browse to about:password-manager/passwords that there is an entry for yari-demos.prod.mdn.mozit.cloud with the corresponding username and password (obfuscated by default).
 
-`--> END MAIN <--`
+##### Test 2
 
-[Test 2] Kill Chromium and connect the password-manager-service interface.
+Kill Chromium and connect the password-manager-service interface.
 
 * Open Seahorse.
 * Lock the keyring.
@@ -141,7 +142,7 @@ Only perform test for new major releases.
 
 #### Deb
 
-* Perform MAIN above.
+* Perform {ref}`chromium-snap-test-1` above.
 * Open `seahorse` (the default system keyring application), and under the Login keyring verify that there's an entry called "Chromium Safe Storage".
 
 

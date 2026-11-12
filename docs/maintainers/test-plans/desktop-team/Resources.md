@@ -1,6 +1,10 @@
 (Resources-test-plan)=
 # Resources test plan
 
+:::{note}
+`resources` has been part of `main` since Ubuntu 26.04 LTS (resolute).
+:::
+
 Below are the test cases that should be run when **`resources`** is updated to new minor releases in the development version of Ubuntu. These should also be run for any Stable Release Update for **`resources`**.
 
 

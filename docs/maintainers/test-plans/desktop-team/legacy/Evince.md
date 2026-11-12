@@ -1,6 +1,10 @@
 (Evince-test-plan)=
 # Evince test plan
 
+:::{note}
+The `evince` package was part of `main` through Ubuntu 24.04 LTS (noble). From Ubuntu 25.10 (questing) onward, it was replaced by {ref}`Papers <Papers-test-plan>` and moved to `universe`. This test plan is kept for reference when working with older Ubuntu LTS releases.
+:::
+
 
 ## PDF file
 
