@@ -4,8 +4,8 @@
                 'fontFamily': 'Ubuntu'}}}%%
 
 flowchart LR
-    MP["<a href='/contributors/patching/submit-a-merge-proposal/'>Submit Merge Proposal</a><br/>on Launchpad"] --> Review
-    Review{"<a href='/contributors/advanced/review-a-merge-proposal/'>Code review</a>"}
+    MP["<a href='/project/contributors/patching/submit-a-merge-proposal/'>Submit Merge Proposal</a><br/>on Launchpad"] --> Review
+    Review{"<a href='/project/contributors/advanced/review-a-merge-proposal/'>Code review</a>"}
     Review -.-> |"changes requested"| Revise["Revise change</a>"]
     Revise --> Review
     Upload(["<a href='#sponsorship-and-uploads'>Upload</a>"])
