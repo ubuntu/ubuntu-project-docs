@@ -7,7 +7,7 @@
 
 preliminary-steps
 merge-process
-fix-the-changelog
+review-the-changelog
 upload-a-ppa
 test-the-new-build
 git-ubuntu-merge-proposal
@@ -29,7 +29,7 @@ Process overview:
 {ref}`How to do a merge <merging>` (this article):
 :   1. {ref}`merge-preliminary-steps`
     1. {ref}`merge-process`
-    1. {ref}`merge-fix-the-changelog`
+    1. {ref}`merge-review-the-changelog`
     1. {ref}`merge-upload-a-ppa`
     1. {ref}`merge-test-the-new-build`
     1. {ref}`merge-git-ubuntu-merge-proposal`
@@ -53,6 +53,8 @@ The following diagram compares a standard git merge with an Ubuntu merge:
 ```
 
 Merging is done using the {command}`git-ubuntu` tool and is quite similar to a standard {command}`git rebase` where commits from one point are replayed on top of another point.
+{ref}`git ubuntu deltarebase <merge-process>` runs the whole merge for you, checks the result of each step, and stops when a step needs your attention.
+{ref}`merge-manually` explains what happens in each step, and how to do it by hand.
 
 At a more detailed level, there are other sub-tasks to be done, including:
 

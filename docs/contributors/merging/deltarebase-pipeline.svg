@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 780" width="700" height="780" font-family="Ubuntu, 'Noto Sans', sans-serif" font-size="16">
+  <title>The git ubuntu deltarebase steps and the check between each of them</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto">
+      <path class="arrowhead" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+  <style>
+    .step { fill: #fdf0ea; stroke: #e95420; stroke-width: 1.5; }
+    .optional { stroke-dasharray: 6 4; }
+    .ext { fill: #77216f; }
+    .sync { fill: #e6f2e8; stroke: #0e8420; stroke-width: 1.5; }
+    .frame { fill: #fafafa; stroke: #999; stroke-width: 1.5; }
+    .edge { fill: none; stroke: #666; stroke-width: 2; }
+    .c { text-anchor: middle; }
+    .light { fill: #fff; }
+    .mono { font-family: 'Ubuntu Mono', monospace; }
+    .check { fill: #555; font-size: 14px; font-style: italic; }
+    .ai { fill: #fff; font-size: 12px; font-weight: bold; }
+    .bg { fill: #fff; }
+    .arrowhead { fill: #666; }
+    .title { fill: #333; }
+    .sync-text { fill: #0b5e17; }
+    .note { fill: #555; font-size: 14px; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: none; }
+      text { fill: #cfd0d0; }
+      .step { fill: #3b2219; }
+      .sync { fill: #12301a; }
+      .frame { fill: #1a1c1e; stroke: #666; }
+      .edge { stroke: #9ca0a5; }
+      .arrowhead { fill: #9ca0a5; }
+      .title { fill: #cfd0d0; }
+      .sync-text { fill: #6fcf7f; }
+      .check, .note { fill: #9ca0a5; }
+    }
+  </style>
+  <rect class="bg" width="700" height="780"/>
+
+  <rect class="ext" x="110" y="16" width="300" height="48" rx="24"/>
+  <text class="c light" x="260" y="45" font-size="15">New Debian update</text>
+  <line class="edge" x1="260" y1="64" x2="260" y2="88" marker-end="url(#arrow)"/>
+
+  <rect class="frame" x="60" y="90" width="410" height="594" rx="6"/>
+  <text class="c mono title" x="260" y="116">git ubuntu deltarebase</text>
+
+  <rect class="step" x="170" y="132" width="180" height="36" rx="4"/>
+  <text class="c" x="260" y="156">prepare</text>
+  <line class="edge" x1="260" y1="168" x2="260" y2="192" marker-end="url(#arrow)"/>
+  <text class="check" x="272" y="186">versions match the archive</text>
+
+  <rect class="step" x="170" y="194" width="180" height="36" rx="4"/>
+  <text class="c" x="260" y="218">reconstruct</text>
+  <line class="edge" x1="260" y1="230" x2="260" y2="254" marker-end="url(#arrow)"/>
+
+  <rect class="step" x="170" y="256" width="180" height="36" rx="4"/>
+  <text class="c" x="260" y="280">split</text>
+  <line class="edge" x1="260" y1="292" x2="260" y2="316" marker-end="url(#arrow)"/>
+  <text class="check" x="272" y="310">tree unchanged</text>
+
+  <rect class="step" x="170" y="318" width="180" height="36" rx="4"/>
+  <text class="c" x="260" y="342">logical</text>
+  <line class="edge" x1="260" y1="354" x2="260" y2="378" marker-end="url(#arrow)"/>
+  <text class="check" x="272" y="372">tree unchanged</text>
+
+  <rect class="step" x="170" y="380" width="180" height="36" rx="4"/>
+  <text class="c" x="260" y="404">rebase</text>
+  <line class="edge" x1="260" y1="416" x2="260" y2="440" marker-end="url(#arrow)"/>
+  <text class="check" x="272" y="434">based on new Debian</text>
+
+  <rect class="step" x="170" y="442" width="180" height="36" rx="4"/>
+  <text class="c" x="260" y="466">patches</text>
+  <line class="edge" x1="260" y1="478" x2="260" y2="502" marker-end="url(#arrow)"/>
+  <text class="check" x="272" y="496">patches apply</text>
+
+  <rect class="step optional" x="170" y="504" width="180" height="36" rx="4"/>
+  <text class="c" x="260" y="528">build (optional)</text>
+  <line class="edge" x1="260" y1="540" x2="260" y2="564" marker-end="url(#arrow)"/>
+  <text class="check" x="272" y="558">trusted build passed</text>
+
+  <rect class="step" x="170" y="566" width="180" height="36" rx="4"/>
+  <text class="c" x="260" y="590">finalize</text>
+  <line class="edge" x1="260" y1="602" x2="260" y2="626" marker-end="url(#arrow)"/>
+  <text class="check" x="272" y="620">only changelog changed</text>
+
+  <rect class="step" x="170" y="628" width="180" height="36" rx="4"/>
+  <text class="c" x="260" y="652">submit</text>
+
+  <g>
+    <rect class="ext" x="126" y="264" width="36" height="20" rx="10"/>
+    <text class="c ai" x="144" y="278">AI</text>
+    <rect class="ext" x="126" y="326" width="36" height="20" rx="10"/>
+    <text class="c ai" x="144" y="340">AI</text>
+    <rect class="ext" x="126" y="388" width="36" height="20" rx="10"/>
+    <text class="c ai" x="144" y="402">AI</text>
+    <rect class="ext" x="126" y="450" width="36" height="20" rx="10"/>
+    <text class="c ai" x="144" y="464">AI</text>
+    <rect class="ext" x="126" y="512" width="36" height="20" rx="10"/>
+    <text class="c ai" x="144" y="526">AI</text>
+    <rect class="ext" x="126" y="574" width="36" height="20" rx="10"/>
+    <text class="c ai" x="144" y="588">AI</text>
+  </g>
+
+  <line class="edge" x1="350" y1="398" x2="523" y2="398" marker-end="url(#arrow)"/>
+  <text class="check c" x="408" y="390">no delta left</text>
+  <rect class="sync" x="525" y="376" width="160" height="44" rx="22"/>
+  <text class="c sync-text" x="605" y="404">Request a sync</text>
+
+  <line class="edge" x1="260" y1="664" x2="260" y2="718" marker-end="url(#arrow)"/>
+  <rect class="ext" x="130" y="720" width="260" height="44" rx="22"/>
+  <text class="c light" x="260" y="748">Review &amp; merge proposal</text>
+
+  <rect class="ext" x="470" y="732" width="36" height="20" rx="10"/>
+  <text class="c ai" x="488" y="746">AI</text>
+  <text class="note" x="514" y="747">can be delegated to <tspan class="mono">--ai</tspan></text>
+</svg>
