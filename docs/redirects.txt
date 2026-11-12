@@ -198,6 +198,15 @@ staging/AA/maintainers/aa-signing-bootloaders/ maintainers/AA/aa-signing-bootloa
 
 maintainers/index-uploader/ maintainers/uploader/
 
+maintainers/test-plans/desktop-team/Epiphany/ maintainers/test-plans/desktop-team/browsers/
+maintainers/test-plans/desktop-team/Evince/ maintainers/test-plans/desktop-team/legacy/Evince/
+maintainers/test-plans/desktop-team/Evolution/ maintainers/test-plans/desktop-team/
+maintainers/test-plans/desktop-team/EvolutionEWS/ maintainers/test-plans/desktop-team/
+maintainers/test-plans/desktop-team/GnomeBuilder/ maintainers/test-plans/desktop-team/
+maintainers/test-plans/desktop-team/PipewireMediaSession/ maintainers/test-plans/desktop-team/legacy/PipewireMediaSession/
+maintainers/test-plans/desktop-team/UbuntuAdvantageDesktopDaemon/ maintainers/test-plans/desktop-team/UbuntuProDesktop/
+
+
 # =============================================================================
 # Who makes Ubuntu
 # =============================================================================
