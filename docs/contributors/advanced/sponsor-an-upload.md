@@ -95,7 +95,7 @@ These instructions assume the request for sponsorship is in the form of a {term}
     $ debuild -S -d -uc -us -v1.1-1ubuntu1 ${upload_args}
     ```
 
-    When doing a merge, you'll need to ensure that the `orig` tarball is included. You can verify if the `orig` tarball upload is required by checking the Debian changelog. If there is a new upstream version that is a part of the upload, then Launchpad will not have the `orig` tarball available. Example changelog for a tehacious upload that requires an `orig` tarball upload:
+    When doing a merge, you'll need to ensure that the `orig` tarball is included. You can verify if the `orig` tarball upload is required by checking the Debian changelog. If there is a new upstream version that is a part of the upload, then Launchpad will not have the `orig` tarball available. Example changelog for a tenacious upload that requires an `orig` tarball upload:
     
     ```none
     nfs-utils (1:3.1.1-1ubuntu1) tenacious; urgency=medium
