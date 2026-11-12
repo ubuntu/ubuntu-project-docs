@@ -42,6 +42,7 @@ Backport Rust <backport-rust>
 rust-version-strings
 Packaging FAQ <rust-packaging-faq>
 rustc-debian-repository
+rust-toolchain-upload-policy
 Common Lintian issues <common-rustc-lintian-issues>
 
 ```
