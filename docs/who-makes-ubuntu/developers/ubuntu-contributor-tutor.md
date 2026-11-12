@@ -6,8 +6,8 @@
 
 
 The {ref}`<patch-pilots>` are your continuous helper to get contributions reviewed, but they can't replace a mentor.
-A mentor is often the best guide for learning Ubuntu development, but to admit they can be hard to find.
-So what do you do if you do not have a mentor, the (AI-based) Ubuntu contributor tutor provided on this page can help to close some of that gap - it can provide independent, self-paced lessons, practice, and feedback.
+A mentor is often the best guide for learning Ubuntu development, but admittedly they can be hard to find.
+So if you do not have a mentor, the (AI-based) Ubuntu contributor tutor provided on this page can help to close some of that gap - it can provide independent, self-paced lessons, practice, and feedback.
 It complements, rather than replaces, mentors, sponsors, reviewers, and community discussion.
 
 The tutor supports your packaging, policy, processes, and contribution skills acquisition, with Developer Membership Board (DMB) application preparation as one possible mission.
