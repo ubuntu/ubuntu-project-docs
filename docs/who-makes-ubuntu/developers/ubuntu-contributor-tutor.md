@@ -6,10 +6,10 @@
 
 
 A mentor is often the best guide for learning Ubuntu development.
-If you do not have one, the Ubuntu contributor tutor can provide independent, self-paced lessons, practice, and feedback.
+If you do not have one, the (AI-based) Ubuntu contributor tutor can provide independent, self-paced lessons, practice, and feedback.
 It complements, rather than replaces, mentors, sponsors, reviewers, and community discussion.
 
-The tutor supports packaging, policy, processes, and contribution skills, with Developer Membership Board (DMB) application preparation as one possible mission.
+The tutor supports your packaging, policy, processes, and contribution skills acquisition, with Developer Membership Board (DMB) application preparation as one possible mission.
 It adapts to your experience, uses current documentation, and combines short lessons with practice and feedback.
 Its instructions are a single, provider-neutral file; no tutor-specific installation or `npx` dependencies or any such are needed.
 
@@ -27,7 +27,7 @@ Read https://ubuntu.com/project/docs/who-makes-ubuntu/developers/ubuntu-contribu
 ```
 
 Web access is required for this invocation and for checking current sources.
-For persistent learning records, use an agent with file access and it is recommended to start it in a directory where it may create an `ubuntu-learning` directory with your permission.
+For persistent learning records, use an agent with file access. It is recommended to start it in a directory where it may create an `ubuntu-learning` directory with your permission.
 Hands-on package work also requires an appropriate local development environment, see {ref}`how-to-set-up-for-ubuntu-development` for basic prerequisites.
 
 If your agent cannot fetch URLs, clone this documentation repository and give it the local path `docs/_extra/who-makes-ubuntu/developers/ubuntu-contributor-tutor.instructions` instead.

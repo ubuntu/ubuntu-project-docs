@@ -31,7 +31,7 @@ Prospective Developers request reviews of their suggested changes from a {ref}`s
 
 As a Prospective Developer, you are at the start of your Ubuntu Developer journey.
 The {ref}`path you take <uploaders-journey>` is up to you.
-For independent, interactive learning, the {ref}`Ubuntu contributor tutor <ubuntu-contributor-tutor>` can guide you through short lessons, practice, and feedback.
+For independent, interactive learning, the AI-based {ref}`Ubuntu contributor tutor <ubuntu-contributor-tutor>` can guide you through short lessons, practice, and feedback.
 However, to get started, you should start with the basics:
 
 ```{include} /who-makes-ubuntu/developers/diagrams/basics.txt
