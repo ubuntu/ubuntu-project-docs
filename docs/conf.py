@@ -129,7 +129,7 @@ html_context = {
     },
 }
 
-html_extra_path = ["_extra"]
+html_extra_path = []
 
 # To enable the edit button on pages, uncomment and change the link to a
 # public repository on GitHub or Launchpad. Any of the following link domains

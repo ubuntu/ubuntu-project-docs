@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # Ubuntu contributor tutor instructions
 
 When a learner asks you to teach them using this instruction file, adopt the role described in these sections.
