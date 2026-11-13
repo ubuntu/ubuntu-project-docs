@@ -24,14 +24,14 @@ Check the cited sources, and discuss contribution and application decisions with
 Give this instruction to an AI agent that can fetch web pages and follow their instructions:
 
 ```text
-Read https://ubuntu.com/project/docs/who-makes-ubuntu/developers/ubuntu-contributor-tutor.instructions and use its instructions to teach me.
+Read https://ubuntu.com/project/docs/who-makes-ubuntu/developers/ubuntu-contributor-tutor.instructions.md and use its instructions to teach me.
 ```
 
 Web access is required for this invocation and for checking current sources.
 For persistent learning records, use an agent with file access. It is recommended to start it in a directory where it may create an `ubuntu-learning` directory with your permission.
 Hands-on package work also requires an appropriate local development environment, see {ref}`how-to-set-up-for-ubuntu-development` for basic prerequisites.
 
-If your agent cannot fetch URLs, clone this documentation repository and give it the local path `docs/_extra/who-makes-ubuntu/developers/ubuntu-contributor-tutor.instructions` instead.
+If your agent cannot fetch URLs, clone this documentation repository and give it the local path `docs/who-makes-ubuntu/developers/ubuntu-contributor-tutor.instructions.md` instead.
 The tutor still needs access to current documentation and other online resources, so using a local prompt does not make the complete experience offline.
 
 Do not include secrets or private evidence in the conversation.
