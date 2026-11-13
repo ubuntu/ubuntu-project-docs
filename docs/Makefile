@@ -22,7 +22,6 @@ PA11Y_CMD        ?= $(DEV_DIR)/node_modules/pa11y/bin/pa11y.js --config $(DEV_DI
 CONFIRM_SUDO     ?= N
 # Exclude venv, build output, and directories whose content is not owned by this docs set:
 CHECK_PATH       ?= $(filter-out $(DOCS_VENVDIR) _build SRU tech-board,$(wildcard *))
-TUTOR_INSTRUCTIONS = _extra/who-makes-ubuntu/developers/ubuntu-contributor-tutor.instructions
 # Sphinx options with sphinx-llm artifact generation disabled (for builds where llms.txt is not needed):
 SPHINX_OPTS_NOLLM = $(SPHINX_OPTS) -D llms_txt_enabled=0
 
@@ -83,8 +82,6 @@ install: $(DOCS_VENVDIR)
 generate-includes: install
 	$(DOCS_VENVDIR)/bin/python $(TOOLS_DIR)/auto-mir/render_template.py review --strict
 	$(DOCS_VENVDIR)/bin/python $(TOOLS_DIR)/auto-mir/render_template.py report --strict
-	mkdir -p "$(DOCS_BUILDDIR)/who-makes-ubuntu/developers"
-	cp "$(TUTOR_INSTRUCTIONS)" "$(DOCS_BUILDDIR)/who-makes-ubuntu/developers/"
 
 run: install generate-includes
 	. $(DOCS_VENV); $(DOCS_VENVDIR)/bin/sphinx-autobuild -b dirhtml --host $(SPHINX_HOST) --port $(SPHINX_PORT) "$(DOCS_SOURCEDIR)" "$(DOCS_BUILDDIR)" $(SPHINX_OPTS_NOLLM) \
@@ -142,7 +139,6 @@ woke: vale-install
 	@cat $(DOCS_SOURCEDIR)/.custom_wordlist.txt >> $(DOCS_VOCAB)/accept.txt
 	@echo "Running Vale acceptable term check against $(CHECK_PATH). To change target set CHECK_PATH= with make command"
 	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(DEV_DIR)/styles/woke.filter' --glob='*.{md,rst}' $(CHECK_PATH)
-	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(DEV_DIR)/styles/woke.filter' --ext=.md < $(TUTOR_INSTRUCTIONS)
 	@cat $(DOCS_VOCAB)/accept_backup.txt > $(DOCS_VOCAB)/accept.txt && rm $(DOCS_VOCAB)/accept_backup.txt
 
 vale: vale-install
@@ -150,7 +146,6 @@ vale: vale-install
 	@cat $(DOCS_SOURCEDIR)/.custom_wordlist.txt >> $(DOCS_VOCAB)/accept.txt
 	@echo "Running Vale against $(CHECK_PATH). To change target set CHECK_PATH= with make command"
 	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(DEV_DIR)/styles/error.filter' --glob='*.{md,rst}' $(CHECK_PATH)
-	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(DEV_DIR)/styles/error.filter' --ext=.md < $(TUTOR_INSTRUCTIONS)
 	@cat $(DOCS_VOCAB)/accept_backup.txt > $(DOCS_VOCAB)/accept.txt && rm $(DOCS_VOCAB)/accept_backup.txt
 
 spelling: vale-install
@@ -158,7 +153,6 @@ spelling: vale-install
 	@cat $(DOCS_SOURCEDIR)/.custom_wordlist.txt >> $(DOCS_VOCAB)/accept.txt
 	@echo "Running Vale against $(CHECK_PATH). To change target set CHECK_PATH= with make command"
 	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(DEV_DIR)/styles/spelling.filter' --glob='*.{md,rst}' $(CHECK_PATH)
-	@. $(DOCS_VENV); vale --config="$(VALE_CONFIG)" --filter='$(DEV_DIR)/styles/spelling.filter' --ext=.md < $(TUTOR_INSTRUCTIONS)
 	@cat $(DOCS_VOCAB)/accept_backup.txt > $(DOCS_VOCAB)/accept.txt && rm $(DOCS_VOCAB)/accept_backup.txt
 
 spellcheck: spelling

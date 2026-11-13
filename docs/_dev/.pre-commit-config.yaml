@@ -6,7 +6,7 @@ repos:
         entry: make -C docs spelling
         language: system
         pass_filenames: false
-        files: ^docs/.*\.(rst|md|txt|instructions)$
+        files: ^docs/.*\.(rst|md|txt)$
 
       - id: make-linkcheck
         name: Run make linkcheck
@@ -20,4 +20,4 @@ repos:
         entry: make -C docs woke
         language: system
         pass_filenames: false
-        files: ^docs/.*\.(rst|md|txt|instructions)$
+        files: ^docs/.*\.(rst|md|txt)$
