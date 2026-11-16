@@ -233,6 +233,49 @@ been updated, including for minor version updates.
 This particular issue is discussed in `Debian Bug
 889669 <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=889669>`__
 
+.. _driver_end_of_life:
+
+Driver End of Life
+~~~~~~~~~~~~~~~~~~
+
+NVIDIA may deprecate a driver version before the end of its Ubuntu LTS
+support period, at which point the driver stops receiving security
+updates even though the underlying Ubuntu release is still supported.
+When a DKMS-based NVIDIA driver reaches this end of life (EOL), the apt
+tooling must decide how to proceed. First, if a newer driver branch is
+compatible with the NVIDIA hardware detected on the system, then the
+tooling automatically updates the system to that newer driver without
+prompting the user.
+
+If no compatible driver update is found, then the apt tooling presents
+the user with a choice.
+
+-  **Continue with the EOL DKMS driver**: If the user chooses to continue
+   using the available DKMS-based driver, the apt tooling warns the user
+   that the driver is no longer supplied with security updates and that
+   using it presents a significant risk. If the user agrees to accept
+   the risk, then the system is transitioned from the LRM driver to the
+   EOL DKMS driver. Users should consider this option carefully. When
+   an update renders the EOL DKMS driver unable to build, there is no
+   alternative but to end support for the driver.
+
+-  **Move to an open-source driver**: If the user does not want to
+   continue with the EOL DKMS driver, the alternative is to install an
+   appropriate open-source driver, such as `nouveau`. The apt tooling
+   prompts the user with a choice of compatible open-source drivers
+   that are available to install.
+
+If the current GPU hardware cannot be detected, the tooling presents a
+message stating that the hardware could not be detected, along with a
+prompt for choosing the desired driver.
+
+As with any NVIDIA driver change, a reboot is required immediately
+after switching drivers; see :ref:`driver_upgrades` for details.
+
+When an NVIDIA driver reaches end of life, it would be inappropriate for
+security reasons to keep building and signing it for each kernel update,
+and thus it will in effect no longer be available.
+
 References
 ----------
 
