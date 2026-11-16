@@ -5,6 +5,7 @@
 :maxdepth: 1
 :hidden:
 
+ubuntu-universe-packaging-team
 rocks-team
 hpc-team
 ```
@@ -36,7 +37,7 @@ Below is a list of key teams that operate within the Ubuntu project and their re
 | --- | --- |
 | {ref}`bug-squad` | Heroically handles the stream of bugs reported by Ubuntu users |
 | [Papercuts Ninjas](https://launchpad.net/~papercuts-ninja) | Papercuts-fixing and new-contributors-supporting |
-| [Ubuntu universe packaging team](https://wiki.ubuntu.com/MOTU) | Make Ubuntu's `universe` better and more attractive; be the optimal starting point for new Ubuntu Developers |
+| {ref}`Ubuntu universe packaging team <ubuntu-universe-packaging-team>` | Make Ubuntu's `universe` better and more attractive; be the optimal starting point for new Ubuntu Developers |
 
 
 ## Localisation and accessibility teams 
