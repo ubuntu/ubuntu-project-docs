@@ -14,30 +14,36 @@ A list of NBS is available at <https://people.ubuntu.com/~ubuntu-archive/nbs.htm
 
 Note that all NBS packages have to be removed by the final release. Packages which have not been transitioned will become uninstallable in the final release! 
 
-(example-1-libminc0)=
-## Example 1: libminc0
+(example-1-libopenimageio)=
+## Example 1: libopenimageio2.5
 
-libminc0 is a NBS superseded by libminc2-1 in Hardy. The NBS report page reports that one package still depends on libminc0:
+libopenimageio2.5 is a NBS package superseded by libopenimageio3.1 in Tenacious. The NBS report page reports that one package still depends on libopenimageio2.5:
 
 ```
-libminc0:
-   minc-tools    universe    sparc
+libopenimageio2.5
+	blender	universe	amd64 amd64v3 arm64 ppc64el riscv64
 ```
 
-In this case, we need to rebuild minc-tools against libminc2-1 to remove libminc0 from the archive.
+In this case, we need to rebuild blender against libopenimageio3.1 to remove libopenimageio2.5 from the archive.
 
-First of all, we need to find the source package that builds minc-tools. We can use <https://packages.ubuntu.com/> or {command}`apt-cache` :
+First of all, we need to find the source package that builds blender. We can use <https://packages.ubuntu.com/> or {command}`apt-cache` :
 
 ```{terminal}
-apt-cache showsrc minc-tools | grep Package
+apt-cache showsrc blender | grep Package
 
-Package: minc
+Package: blender
 ```
 
-What we have to do now is download the minc source package and check how to rebuild the binary package minc-tools with the new library. The {file}`debian/control` file shows:
+What we have to do now is download the blender source package and check how to rebuild the blender binary package with the new library. The {file}`debian/control` file shows:
 
 ```
-Depends: ${shlibs:Depends}, csh | c-shell, netcdf-bin, libgetopt-tabular-perl, libtext-format-perl, imagemagick
+Package: blender
+Architecture: any
+Depends: blender-data (= ${source:Version}),
+         fonts-dejavu,
+         ${misc:Depends},
+         ${python3:Depends},
+         ${shlibs:Depends}
 ```
 
 This means that the dependency is not hardcoded in it, and is automatically chosen at build-time.
@@ -45,29 +51,29 @@ This means that the dependency is not hardcoded in it, and is automatically chos
 Let's modify the {file}`debian/changelog` file. Last changelog entry is:
 
 ```
-minc (2.0.14-2) unstable; urgency=low
+blender (5.2.3+dfsg-1) unstable; urgency=medium
 ```
 
 Since Ubuntu didn't make any changes to the package, we just add build1 to the current version and a good description for the transition we are doing:
 
 ```
-minc (2.0.14-2build1) hardy; urgency=low
+blender (5.2.3+dfsg-1build1) tenacious; urgency=low
 
-  * Rebuild for libminc0 -> libminc2-1 transition.
+  * Rebuild for libopenimageio2.5 -> libopenimageio3.1 transition.
 
- -- Name Surname <email@ubuntu.com>  Sun, 2 Mar 2008 10:55:10 +0100
+ -- Name Surname <email@ubuntu.com>  Mon, 2 March 2045 06:07:08 +0910
 ```
 
 If a bug exists on Launchpad, add a (LP: #XXXXXX) tag to automagically close it.
 
 Since this is a no-change rebuild, we do not modify the Maintainer field in {file}`debian/control`. The "build1" is not treated as a delta, and will be dropped at next package sync. {command}`dch -R` should do the right thing here.
 
-Now, a test build is needed to check that the package doesn't FTFBS with the new library. Once the build-install-run test is successfull, we can upload the package (or create a debdiff for sponsoring). 
+Now, a test build is needed to check that the package doesn't FTFBS with the new library. Once the build-install-run test is successful, we can upload the package (or create a debdiff for sponsoring). 
 
 (example-2-libmpich1.0c2)=
 ## Example 2: libmpich1.0c2
 
-libmpich1.0c2 is a NBS superseded by libmpich1.0ldbl. These packages still depends on libmpich1.0c2:
+libmpich1.0c2 is a NBS package superseded by libmpich1.0ldbl. These packages still depend on libmpich1.0c2:
 
 ```
 -- hardy/universe amd64 deps on libmpich1.0c2:
